@@ -1,6 +1,8 @@
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
+  ILogUtils,
+  ILogUtilsType,
   IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
 import {
@@ -9,41 +11,84 @@ import {
   AuthenticatedStorageSettings,
   URLString,
   PersistenceError,
-  ECloudStorageType,
+  DataWalletAddress,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
-import { ICloudStorageService } from "@core/interfaces/business";
+import { ICloudStorageService } from "@core/interfaces/business/index.js";
 import {
   IAuthenticatedStorageRepository,
   IAuthenticatedStorageRepositoryType,
-} from "@core/interfaces/data/IAuthenticatedStorageRepository.js";
-import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-} from "@core/interfaces/data/utilities/IDataWalletPersistence.js";
+  IEntropyRepository,
+  IEntropyRepositoryType,
+} from "@core/interfaces/data/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
-} from "@core/interfaces/utilities/IConfigProvider.js";
-
-enum ECloudStorageOption {
-  GoogleDrive = "GoogleDrive",
-  NullCloudStorage = "NullCloudStorage",
-}
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class CloudStorageService implements ICloudStorageService {
   public constructor(
     @inject(IAuthenticatedStorageRepositoryType)
     protected authenticatedStorageRepo: IAuthenticatedStorageRepository,
+    @inject(IEntropyRepositoryType) protected entropyRepo: IEntropyRepository,
+    @inject(IDataWalletPersistenceType)
+    protected persistence: IDataWalletPersistence,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
+    @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IAxiosAjaxUtilsType)
     protected ajaxUtils: IAxiosAjaxUtils,
     @inject(IDataWalletPersistenceType)
     protected dataWalletPersistence: IDataWalletPersistence,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
+
+  initialize(): ResultAsync<void, PersistenceError> {
+    return this.contextProvider.getContext().map((context) => {
+      context.publicEvents.onCloudStorageActivated.subscribe((event) => {
+        // When cloud storage is activated, we need to read the entropy from the
+        // cloud storage itself. If this is differen than the current entropy, we
+        // need to clear out the current volatile storage
+        ResultUtils.combine([
+          this.contextProvider.getContext(),
+          this.entropyRepo.getDataWalletPrivateKeyFromAuthenticatedStorage(),
+        ]).andThen(([currentContext, storedDataWalletKey]) => {
+          // If there is no stored key, it should be stored in the next backup cycle.
+          if (storedDataWalletKey == null) {
+            return okAsync(undefined);
+          }
+
+          // If the keys are the same, we're fine.
+          if (
+            currentContext.dataWalletKey != null &&
+            currentContext.dataWalletKey == storedDataWalletKey.privateKey
+          ) {
+            return okAsync(undefined);
+          }
+
+          // The keys are different
+          // We need to clear out the volatile storage
+          this.logUtils.warning(
+            "Clearing volatile storage- key in authenticated storage differs from local data wallet key",
+          );
+          currentContext.dataWalletAddress = DataWalletAddress(
+            storedDataWalletKey.accountAddress,
+          );
+          currentContext.dataWalletKey = storedDataWalletKey.privateKey;
+          return this.contextProvider.setContext(currentContext).andThen(() => {
+            return this.persistence.clearVolatileStorage();
+          });
+        });
+      });
+    });
+  }
 
   /**
    * This method is called from the core, and represents setting (or resetting)

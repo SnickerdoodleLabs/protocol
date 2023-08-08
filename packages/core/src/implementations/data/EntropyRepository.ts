@@ -47,6 +47,27 @@ export class EntropyRepository implements IEntropyRepository {
         return new ExternallyOwnedAccount(accountAddress, dataWalletPrivateKey);
       });
   }
+
+  public getDataWalletPrivateKeyFromAuthenticatedStorage(): ResultAsync<
+    ExternallyOwnedAccount | null,
+    PersistenceError
+  > {
+    return this.persistence
+      .getFieldFromAuthenticatedStorage<EVMPrivateKey>(
+        EFieldKey.DATA_WALLET_PRIVATE_KEY,
+      )
+      .map((dataWalletPrivateKey) => {
+        if (dataWalletPrivateKey == null || dataWalletPrivateKey == "") {
+          return null;
+        }
+        const accountAddress =
+          this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
+            dataWalletPrivateKey,
+          );
+        return new ExternallyOwnedAccount(accountAddress, dataWalletPrivateKey);
+      });
+  }
+
   public createDataWalletPrivateKey(): ResultAsync<
     ExternallyOwnedAccount,
     PersistenceError

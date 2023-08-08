@@ -1,30 +1,14 @@
 import {
-  IAxiosAjaxUtils,
-  IAxiosAjaxUtilsType,
-  IRequestConfig,
-} from "@snickerdoodlelabs/common-utils";
-import {
   AccessToken,
   AjaxError,
-  ECloudStorageType,
   URLString,
   AuthenticatedStorageSettings,
   PersistenceError,
 } from "@snickerdoodlelabs/objects";
-import { inject } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
-
-import {
-  IConfigProvider,
-  IConfigProviderType,
-} from "@core/interfaces/utilities";
-
-enum ECloudStorageOption {
-  GoogleDrive = "GoogleDrive",
-  NullCloudStorage = "NullCloudStorage",
-}
+import { ResultAsync } from "neverthrow";
 
 export interface ICloudStorageService {
+  initialize(): ResultAsync<void, PersistenceError>;
   setAuthenticatedStorage(
     settings: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError>;

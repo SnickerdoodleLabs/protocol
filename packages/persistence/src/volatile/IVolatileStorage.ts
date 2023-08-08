@@ -11,6 +11,7 @@ import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
 
 export interface IVolatileStorage {
   persist(): ResultAsync<boolean, PersistenceError>;
+  clear(): ResultAsync<void, PersistenceError>;
   clearObjectStore(name: string): ResultAsync<void, PersistenceError>;
 
   putObject<T extends VersionedObject>(

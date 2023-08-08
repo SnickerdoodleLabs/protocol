@@ -624,6 +624,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
+    const cloudStorageService = this.iocContainer.get<ICloudStorageService>(
+      ICloudStorageServiceType,
+    );
 
     const metricsService =
       this.iocContainer.get<IMetricsService>(IMetricsServiceType);
@@ -642,6 +645,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
     const indexers = this.iocContainer.get<IMasterIndexer>(IMasterIndexerType);
 
+    // All of these initialize() methods do the same things, mostly just setup
+    // subscriptions to events or setting up timers.
+    // Only AccountService.initialize() should actually do anything
+    // These are broken up into layers mainly for visual organization.
     return ResultUtils.combine([
       blockchainProvider.initialize(),
       indexers.initialize(),
@@ -651,6 +658,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return ResultUtils.combine([
           queryService.initialize(),
           metricsService.initialize(),
+          cloudStorageService.initialize(),
         ]);
       })
       .andThen(() => {
@@ -663,6 +671,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         ]);
       })
       .andThen(() => {
+        // Now the actual initialization!
         return accountService.initialize();
       })
       .map(() => {});

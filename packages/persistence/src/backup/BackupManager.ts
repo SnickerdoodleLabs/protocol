@@ -376,7 +376,7 @@ export class BackupManager implements IBackupManager {
 
   public unpackBackupChunk(
     backup: DataWalletBackup,
-  ): ResultAsync<string, PersistenceError> {
+  ): ResultAsync<JSONString, PersistenceError> {
     return this._unpackBlob(backup.blob).map((backupBlob) => {
       return ObjectUtils.serialize(backupBlob);
     });
