@@ -157,8 +157,8 @@ export const AppContextProvider: FC = ({ children }) => {
   }, []);
 
   const checkDataWalletAddressAndInitializeApp = () => {
-    sdlDataWallet.getDataWalletAddress().map((dataWalletAddress) => {
-      if (dataWalletAddress) {
+    sdlDataWallet.metrics.getUnlocked().map((isUnlocked) => {
+      if (isUnlocked) {
         setAppMode(EAppModes.AUTH_USER);
       } else {
         setAppMode(EAppModes.UNAUTH_USER);

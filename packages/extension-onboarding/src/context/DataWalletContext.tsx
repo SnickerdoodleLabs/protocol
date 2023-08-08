@@ -39,7 +39,7 @@ const DataWalletContext = createContext<IDataWalletContext>(
 
 export const DataWalletContextProvider: FC = ({ children }) => {
   const [sdlDataWallet, setSdlDataWallet] = React.useState<ISdlDataWallet>(
-    {} as ISdlDataWallet,
+    undefined as unknown as ISdlDataWallet,
   );
   const [setupStatus, setSetupStatus] = useState<ESetupStatus>(
     ESetupStatus.WAITING,
@@ -52,7 +52,7 @@ export const DataWalletContextProvider: FC = ({ children }) => {
   const initialize = () => {
     const webIntegration = new SnickerdoodleWebIntegration(
       {
-        primaryInfuraKey: "",
+        primaryInfuraKey: "a6271a49218848a7ad939ee62d225914",
         iframeURL: URLString("http://localhost:9010"),
         debug: true,
       },
@@ -78,10 +78,10 @@ export const DataWalletContextProvider: FC = ({ children }) => {
   useEffect(() => {
     // not a fan of this kind of check but to deceive the context provider it is useful
     // check if there is an actual provider
-    if (JSON.stringify(sdlDataWallet) !== "{}") {
+    if (sdlDataWallet) {
       setSetupStatus(ESetupStatus.SUCCESS);
     }
-  }, [JSON.stringify(sdlDataWallet)]);
+  }, [sdlDataWallet]);
 
   const render = useMemo(() => {
     switch (setupStatus) {
