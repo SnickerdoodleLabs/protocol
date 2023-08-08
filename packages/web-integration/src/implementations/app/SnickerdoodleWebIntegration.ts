@@ -45,7 +45,7 @@ export class SnickerdoodleWebIntegration
 
   constructor(
     protected config: IConfigOverrides,
-    protected signer: ethers.Signer,
+    protected signer: ethers.Signer | null,
   ) {
     this.iframeURL = config.iframeURL || this.iframeURL;
     this.debug = config.debug || this.debug;
@@ -124,7 +124,6 @@ export class SnickerdoodleWebIntegration
       console.log("Creating Snickerdoodle Protocol Iframe Proxy");
       return proxyFactory
         .createProxy(this.iframeURL, this.config)
-
         .andThen((proxy) => {
           // Listen for the iframe; sometimes it needs to be shown
           proxy.onIframeDisplayRequested.subscribe(() => {
