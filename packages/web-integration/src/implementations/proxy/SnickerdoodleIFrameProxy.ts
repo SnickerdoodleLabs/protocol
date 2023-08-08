@@ -77,7 +77,8 @@ import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/ind
 
 export class SnickerdoodleIFrameProxy
   extends ParentProxy
-  implements ISnickerdoodleIFrameProxy {
+  implements ISnickerdoodleIFrameProxy
+{
   constructor(
     protected element: HTMLElement | null,
     protected iframeUrl: string,
@@ -217,6 +218,18 @@ export class SnickerdoodleIFrameProxy
             this.events.onSocialProfileUnlinked.next(data);
           },
         );
+
+        this.child.on("onBirthdayUpdated", (data: UnixTimestamp) => {
+          this.events.onBirthdayUpdated.next(data);
+        });
+
+        this.child.on("onGenderUpdated", (data: Gender) => {
+          this.events.onGenderUpdated.next(data);
+        });
+
+        this.child.on("onLocationUpdated", (data: CountryCode) => {
+          this.events.onLocationUpdated.next(data);
+        });
 
         this.child.on("onIframeDisplayRequested", () => {
           this.onIframeDisplayRequested.next();

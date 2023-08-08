@@ -9,6 +9,7 @@ import {
   BigNumberString,
   ChainId,
   CountryCode,
+  DataPermissions,
   DiscordID,
   DomainName,
   EChain,
@@ -432,17 +433,21 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      // getAgreementPermissions: (
-      //   data: IIFrameCallData<{
-      //     ipfsCID: IpfsCID;
-      //   }>,
-      // ) => {
-      //   this.returnForModel(() => {
-      //     return core.invitation.getInvitationMetadataByCID(
-      //       data.data.ipfsCID,
-      //     );
-      //   }, data.callId);
-      // },
+      getAgreementPermissions: (
+        data: IIFrameCallData<{
+          consentContractAddress: EVMContractAddress;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.invitation
+              .getAgreementFlags(data.data.consentContractAddress)
+              .map((flags) => {
+                return DataPermissions.getDataTypesFromFlags(flags);
+              });
+          });
+        }, data.callId);
+      },
 
       // getApplyDefaultPermissionsOption: (
       //   data: IIFrameCallData<Record<string, never>>,
