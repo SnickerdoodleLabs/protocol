@@ -856,10 +856,6 @@ export class AccountService implements IAccountService {
       .mapErr((e) => new PersistenceError("error posting backups", e));
   }
 
-  // public getCloudStorage(): ResultAsync<ECloudStorageType, never> {
-  //   return this.dataWalletPersistence.getCloudStorage();
-  // }
-
   public clearCloudStore(): ResultAsync<void, PersistenceError> {
     return this.dataWalletPersistence.clearCloudStore();
   }
