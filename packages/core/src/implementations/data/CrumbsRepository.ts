@@ -61,7 +61,6 @@ export class CrumbsRepository implements ICrumbsRepository {
     | CrumbsContractError
     | BlockchainCommonErrors
   > {
-    console.log("getCrumb: " + accountAddress);
     return this.getCrumbsContract().andThen((contract) => {
       // Retrieve the crumb id or token id mapped to the address
       // returns 0 if non existent

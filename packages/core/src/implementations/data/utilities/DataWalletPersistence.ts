@@ -280,8 +280,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public restoreBackup(
     backup: DataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
-    console.log("Hitting restoreBackup!");
-
     return this.backupManagerProvider
       .getBackupManager()
       .andThen((backupManager) => {
@@ -310,7 +308,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public pollBackups(): ResultAsync<void, PersistenceError> {
     // We should only be polling for backups once at a time; if we try to poll
     // multiple times in parallel notify the user and return the current poll
-    console.log("Hitting poll backups!");
 
     this.logUtils.log(`Hitting poll backups`);
     if (this.currentPoll != null) {
@@ -338,8 +335,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             );
             // Convert to a list of DataBackupID
             const restoredIds = new Set(restored.map((x) => x.id));
-
-            console.log("this.cloudStorage: " + cloudStorage.name);
             return cloudStorage
               .pollBackups(restoredIds)
               .andThen((newBackups) => {
@@ -398,8 +393,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public unpackBackupChunk(
     backup: DataWalletBackup,
   ): ResultAsync<string, PersistenceError> {
-    console.log("Hitting unpackBackupChunk!");
-
     return this.backupManagerProvider
       .getBackupManager()
       .andThen((backupManager) => {
@@ -410,7 +403,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public fetchBackup(
     backupHeader: string,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
-    console.log("Inside fetch backup!");
     return this.cloudStorageManager
       .getCloudStorage()
       .andThen((cloudStorage) => {
@@ -429,20 +421,14 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public postBackups(
     force?: boolean,
   ): ResultAsync<DataWalletBackupID[], PersistenceError> {
-    console.log("posting backups:");
-
     return ResultUtils.combine([
       this.backupManagerProvider.getBackupManager(),
       this.cloudStorageManager.getCloudStorage(),
     ]).andThen(([backupManager, cloudStorage]) => {
-      console.log("cloudStorage: " + cloudStorage.name());
-
       return backupManager.getRendered(force).andThen((backups) => {
         const postedBackupIds = new Array<DataWalletBackupID>();
         let backupsToCreateCount = backups.length;
         let totalBackupsCreated = 0;
-
-        console.log("backups: " + JSON.stringify(backups));
         return ResultUtils.combine(
           backups.map((backup) => {
             return cloudStorage

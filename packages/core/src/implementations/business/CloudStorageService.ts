@@ -65,10 +65,6 @@ export class CloudStorageService implements ICloudStorageService {
                 settings,
               );
             });
-          // .andThen(() => {
-          //   console.log("Start poll backups");
-          //   return this.dataWalletPersistence.pollBackups();
-          // });
         }
 
         // If we do have settings, then we need to error or reset the cloud storage

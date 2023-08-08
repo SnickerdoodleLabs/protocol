@@ -37,8 +37,6 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),
     ]).map(([config, context]) => {
-      console.log("context: " + context);
-
       // Set up polling for transactions
       setInterval(() => {
         this.monitoringService.pollTransactions().mapErr((e) => {
@@ -60,13 +58,11 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
         });
 
         // Poll immediately for backups
-        console.log("pollBackups 1: ");
         this.monitoringService.pollBackups().mapErr((e) => {
           this.logUtils.error(e);
         });
 
         // Set up polling for backups
-        console.log("pollBackups 2: ");
         setInterval(() => {
           this.monitoringService.pollBackups().mapErr((e) => {
             this.logUtils.error(e);
