@@ -145,13 +145,13 @@ export class AlchemyIndexer implements IEVMIndexer {
     EVMTransaction[],
     AccountIndexingError | AjaxError | MethodSupportError
   > {
-    return okAsync([]);
-    // return errAsync(
-    //   new MethodSupportError(
-    //     "getEVMTransactions not supported for AlchemyIndexer",
-    //     400,
-    //   ),
-    // );
+    // return okAsync([]);
+    return errAsync(
+      new MethodSupportError(
+        "getEVMTransactions not supported for AlchemyIndexer",
+        400,
+      ),
+    );
   }
 
   public healthStatus(): Map<EChain, EComponentStatus> {

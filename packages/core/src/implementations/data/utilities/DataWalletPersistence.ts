@@ -65,8 +65,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     ResultAsync<void, PersistenceError>
   > = new Map();
 
-  // public storage: ECloudStorageType = ECloudStorageType.Dropbox;
-
   public constructor(
     @inject(ICloudStorageManagerType)
     protected cloudStorageManager: ICloudStorageManager,
@@ -268,9 +266,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public activateAuthenticatedStorage(
     settings: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError> {
-    // TODO: Unblock anything waiting for cloud storage
-    // There may not be anything here to do, since cloudStorageManager.getCloudStorage()
-    // blocks waiting for this call.
     return this.cloudStorageManager.activateAuthenticatedStorage(settings);
   }
 
@@ -470,9 +465,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {
-    // if (!this.cloudStorageManager.cloudStorageActivated()) {
-    //   return okAsync(undefined);
-    // }
     return this.cloudStorageManager
       .getCloudStorage()
       .andThen((cloudStorage) => {

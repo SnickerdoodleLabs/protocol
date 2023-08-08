@@ -64,47 +64,8 @@ const STORAGE_OPTIONS: IStorageOption[] = [
     description:
       "You can now import your data through your very own Dropbox storage. If you storage your data files in Dropbox. SDL will still keep a copy of your data in SDL storage.",
   },
-  // {
-  //   key: EStorage.LOCAL_DISC,
-  //   icon: discIcon,
-  //   name: "Local Disk",
-  //   description:
-  //     "You can now import your data through your very own local storage.  SDL will still keep a copy of your data in SDL storage.",
-  // },
 ];
 const StorageSettings = () => {
-  // #region dropbox api mock
-
-  // Okan uses this to get the access token
-  // Perfect implementation - passes in auth code to get access code
-  // const initializeUserWithAuthorizationCode = (code) => {
-  //   console.log("Code is: " + code);
-
-  //   return apiGateway.axiosAjaxUtil
-  //     .post<{ access_token: string }>(
-  //       new URL("https://api.dropbox.com/oauth2/token"),
-  //       new URLSearchParams({
-  //         client_id: "xkny72eyaspw0oy",
-  //         client_secret: "hzfn6ddtz2paw82",
-  //         redirect_uri: "https://localhost:9005/settings/storage",
-  //         grant_type: "authorization_code",
-  //         code: code,
-  //       }),
-  //       {
-  //         headers: {
-  //           "Content-Type": "application/x-www-form-urlencoded",
-  //           accept: "*/*",
-  //         },
-  //       } as IRequestConfig,
-  //     )
-  //     .map((tokens) => {
-  //       console.log("Tokens are : " + JSON.stringify(tokens));
-
-  //       //do some extra stuff here and return the access token
-  //       return tokens.access_token;
-  //     });
-  // };
-
   const setFolderPath = (folderPath: string) => {
     console.log("Folder path: " + folderPath);
     return okAsync("");
@@ -123,7 +84,6 @@ const StorageSettings = () => {
     AccessToken(sessionStorage.getItem("dropboxAccessToken") || ""),
   );
 
-  // dropbox folders
   const [folders, setFolders] = useState<NestedFolder[]>();
   const [storageOption, setStorageOption] = useState<EStorage>();
 
@@ -139,7 +99,6 @@ const StorageSettings = () => {
     });
   };
 
-  // Okan used this to get the folders
   const dropbox = useMemo(() => {
     console.log("Access Token: " + accessToken);
     if (accessToken && Dropbox) {
@@ -205,8 +164,6 @@ const StorageSettings = () => {
     return nestedArray;
   }
 
-  // If search params contain the code, use the code
-  // If not, do nothing
   useEffect(() => {
     const code = searchParams.get("code");
     if (code) {
@@ -246,28 +203,17 @@ const StorageSettings = () => {
     });
   };
 
-  // Okan passes in onFolderSelect
-  // we need to pass in the path into DropboxCloudStorage as well
-  // .setAuthenticatedStorage(ECloudStorageType.Dropbox, path, accessToken)
-
   const onFolderSelect = (path: string) => {
     window.sdlDataWallet
       // @ts-ignore
       .setAuthenticatedStorage(ECloudStorageType.Dropbox, path, accessToken)
 
       .map(() => {
-        // brought back
         setAlert({
           severity: EAlertSeverity.SUCCESS,
           message: "Your Dropbox account has successfully been connected.",
         });
-        // sessionStorage.removeItem("dropboxAccessToken");
         setStorageOption(EStorage.DROPBOX);
-
-        // Okan we finished picking a folder, now initiate the storage type
-        // Trigger event - CloudStorageManager.setCloudStorageOption
-        // Which triggers event onCloudStorageActivated to begin cloud storage
-        // setStorageOption(EStorage.DROPBOX);
       });
 
     setFolders(undefined);
@@ -276,13 +222,11 @@ const StorageSettings = () => {
   const onStorageOptionClicked = (option: EStorage) => {
     switch (option) {
       case EStorage.SDL_STORAGE: {
-        // set to default
         return;
       }
       case EStorage.DROPBOX: {
         // @ts-ignore
 
-        // calling the
         return window.sdlDataWallet.getDropboxAuthUrl().map((url) => {
           window.open(url, "_self");
           console.log("Opened dropbox url now");

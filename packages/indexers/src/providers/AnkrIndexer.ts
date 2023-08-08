@@ -243,13 +243,13 @@ export class AnkrIndexer implements IEVMIndexer {
     EVMTransaction[],
     AccountIndexingError | AjaxError | MethodSupportError
   > {
-    return okAsync([]);
-    // return errAsync(
-    //   new MethodSupportError(
-    //     "getEVMTransactions not supported for AnkrIndexer",
-    //     400,
-    //   ),
-    // );
+    // return okAsync([]);
+    return errAsync(
+      new MethodSupportError(
+        "getEVMTransactions not supported for AnkrIndexer",
+        400,
+      ),
+    );
 
     // return this.configProvider.getConfig().andThen((config) => {
     //   const url =
