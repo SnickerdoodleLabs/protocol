@@ -21,6 +21,7 @@ import {
   DataWalletBackupHeader,
   ECloudStorageType,
   AccessToken,
+  AuthenticatedStorageSettings,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -57,9 +58,6 @@ export class GoogleCloudStorage implements ICloudStorage {
     this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this._resolveUnlock = resolve;
     });
-  }
-  passAuthTokens(path: string, accessToken: AccessToken): void {
-    throw new Error("Method not implemented.");
   }
 
   public name(): ECloudStorageType {
@@ -139,6 +137,13 @@ export class GoogleCloudStorage implements ICloudStorage {
     // Store the result
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this._resolveUnlock!(derivedKey);
+    return okAsync(undefined);
+  }
+
+  public saveCredentials(
+    credentials: AuthenticatedStorageSettings,
+  ): ResultAsync<void, PersistenceError> {
+    // username/password or an auth token from the FF
     return okAsync(undefined);
   }
 

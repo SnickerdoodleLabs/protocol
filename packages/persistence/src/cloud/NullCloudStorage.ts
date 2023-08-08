@@ -7,6 +7,7 @@ import {
   StorageKey,
   ECloudStorageType,
   AccessToken,
+  AuthenticatedStorageSettings,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -15,9 +16,6 @@ import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
 
 @injectable()
 export class NullCloudStorage implements ICloudStorage {
-  passAuthTokens(path: string, accessToken: AccessToken): void {
-    throw new Error("Method not implemented.");
-  }
   protected _backups = new Map<string, DataWalletBackup>();
   protected _lastRestore = 0;
 
@@ -56,6 +54,13 @@ export class NullCloudStorage implements ICloudStorage {
   public unlock(
     derivedKey: EVMPrivateKey,
   ): ResultAsync<void, PersistenceError> {
+    return okAsync(undefined);
+  }
+
+  public saveCredentials(
+    credentials: AuthenticatedStorageSettings,
+  ): ResultAsync<void, PersistenceError> {
+    // username/password or an auth token from the FF
     return okAsync(undefined);
   }
 

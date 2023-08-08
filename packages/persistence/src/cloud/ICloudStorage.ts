@@ -7,6 +7,7 @@ import {
   StorageKey,
   ECloudStorageType,
   AccessToken,
+  AuthenticatedStorageSettings,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -20,8 +21,6 @@ export interface ICloudStorage {
     backup: DataWalletBackup,
   ): ResultAsync<DataWalletBackupID, PersistenceError>;
 
-  passAuthTokens(path: string, accessToken: AccessToken): void;
-
   /**
    * This returns a list of backups that exist in the cloud, excluding those
    * listed in the "restored" parameter
@@ -32,6 +31,9 @@ export interface ICloudStorage {
   ): ResultAsync<DataWalletBackup[], PersistenceError>;
 
   unlock(derivedKey: EVMPrivateKey): ResultAsync<void, PersistenceError>;
+  saveCredentials(
+    credentials: AuthenticatedStorageSettings,
+  ): ResultAsync<void, PersistenceError>;
 
   /**
    * Returns all the backups for a specific storage type, excluding those

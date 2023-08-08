@@ -12,7 +12,6 @@ import {
   EVMPrivateKey,
   PersistenceError,
 } from "@snickerdoodlelabs/objects";
-import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -33,10 +32,6 @@ import {
   IPersistenceContextProvider,
   IPersistenceContextProviderType,
 } from "@persistence/IPersistenceContextProvider.js";
-import {
-  IVolatileStorage,
-  IVolatileStorageType,
-} from "@persistence/volatile/IVolatileStorage.js";
 
 /*
     Cloud Storage Manager Object looks for 1 instance ICloudStorage to be present at all times. 
@@ -62,11 +57,6 @@ export class CloudStorageManager implements ICloudStorageManager {
     protected configProvider: IPersistenceConfigProvider,
     @inject(IAxiosAjaxUtilsType)
     protected ajaxUtils: IAxiosAjaxUtils,
-
-    @inject(IStorageUtilsType)
-    protected storageUtils: IStorageUtils,
-    @inject(IVolatileStorageType)
-    protected volatileStorage: IVolatileStorage,
   ) {
     this.storageList = new Set();
 
@@ -111,26 +101,30 @@ export class CloudStorageManager implements ICloudStorageManager {
   */
   public activateAuthenticatedStorage(
     credentials: AuthenticatedStorageSettings,
+  ): ResultAsync<void, PersistenceError> {
+    if (credentials.type == ECloudStorageType.Dropbox) {
+      this.provider = this.dropbox;
+    } else if (credentials.type == ECloudStorageType.Snickerdoodle) {
+      this.provider = this.gDrive;
+    } else {
+      return okAsync(undefined);
+    }
+
+    return this.provider.saveCredentials(credentials).andThen(() => {
+      return this.saveParameters(credentials);
+    });
+  }
+
+  private saveParameters(
+    credentials: AuthenticatedStorageSettings,
   ): ResultAsync<void, never> {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return this.contextProvider.getContext().map((context) => {
-      if (credentials.type == ECloudStorageType.Dropbox) {
-        this.provider = this.dropbox;
-        // pass in credentials to dropbox cloud storage file
-        // put the abstract function on ICloudStorage, like unlock is, then you can store it
-      } else if (credentials.type == ECloudStorageType.Snickerdoodle) {
-        this.provider = this.gDrive;
-      } else {
-        // return errAsync, this means you have invalid params, OR just use NullStorage
-      }
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.resolveProvider!(this.provider);
       this.activated = true;
-      console.log("Before onCloudStorageActivated event;");
       context.publicEvents.onCloudStorageActivated.next(
-        // TODO: Change name of this object to AuthenticatedStorageActivatedEvent
         new CloudProviderSelectedEvent(credentials.type),
       );
-      console.log("After onCloudStorageActivated event;");
 
       if (!this.storageList.has(credentials.type)) {
         this.storageList.add(credentials.type);

@@ -26,22 +26,12 @@ export interface ICloudStorageManager {
   getDropboxAuth(): ResultAsync<URLString, never>;
   activateAuthenticatedStorage(
     settings: AuthenticatedStorageSettings,
-  ): ResultAsync<void, never>;
+  ): ResultAsync<void, PersistenceError>;
   cloudStorageActivated(): boolean;
 
   getCloudStorage(): ResultAsync<ICloudStorage, never>;
   getCurrentCloudStorage(): ResultAsync<ECloudStorageType, never>;
   getAvailableCloudStorage(): ResultAsync<Set<ECloudStorageType>, never>;
-
-  // get setCloudStorageOption(
-  //     authTokens,
-  //     path,
-  //     storageOption: ECloudStorageOption,
-  // ): ResultAsync<void>;
-
-  // cloudStorageByStorageOption(
-  //     option: ECloudStorageOption,
-  // ): ResultAsync<ICloudStorage>;
 }
 
 export const ICloudStorageManagerType = Symbol.for("ICloudStorageManager");

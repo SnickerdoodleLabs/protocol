@@ -53,10 +53,13 @@ export class DropboxCloudStorage implements ICloudStorage {
   protected _backups = new Map<string, DataWalletBackup>();
   protected _lastRestore = 0;
   private _unlockPromise: Promise<EVMPrivateKey>;
+  private _credentialsPromise: Promise<AuthenticatedStorageSettings>;
   private _resolveUnlock: ((dataWalletKey: EVMPrivateKey) => void) | null =
     null;
+  private _resolveCredentials:
+    | ((credentials: AuthenticatedStorageSettings) => void)
+    | null = null;
   private refreshToken: RefreshToken = RefreshToken("");
-
   protected accessToken: AccessToken = AccessToken("");
   protected dropboxFilePath = "";
 
@@ -74,55 +77,15 @@ export class DropboxCloudStorage implements ICloudStorage {
     this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this._resolveUnlock = resolve;
     });
-
-    this.initialize();
-  }
-
-  public passAuthTokens(
-    path: string,
-    accessToken: AccessToken,
-  ): ResultAsync<void, never> {
-    this.dropboxFilePath = path;
-    this.accessToken = accessToken;
-    return okAsync(undefined);
+    this._credentialsPromise = new Promise<AuthenticatedStorageSettings>(
+      (resolve) => {
+        this._resolveCredentials = resolve;
+      },
+    );
   }
 
   public name(): ECloudStorageType {
     return ECloudStorageType.Dropbox;
-  }
-
-  private initialize(): void {
-    return undefined;
-  }
-
-  private deserialize<T>(
-    serializedObj: SerializedObject,
-  ): Result<T, PersistenceError> {
-    try {
-      switch (serializedObj.type) {
-        case "object":
-          return ok(ObjectUtils.deserialize<T>(JSONString(serializedObj.data)));
-        case "boolean":
-          return ok((serializedObj.data === "true") as unknown as T);
-        case "number":
-          return ok(Number.parseFloat(serializedObj.data) as unknown as T);
-        case "string":
-          return ok(serializedObj.data as unknown as T);
-        case "bigint":
-          return ok(
-            BigNumber.from(serializedObj.data).toBigInt() as unknown as T,
-          );
-        default:
-          return err(
-            new PersistenceError(
-              "invalid data type for deserialization",
-              serializedObj.type,
-            ),
-          );
-      }
-    } catch (e) {
-      return err(new PersistenceError("error deserializing object", e));
-    }
   }
 
   // use /files/list_folder API
@@ -132,7 +95,7 @@ export class DropboxCloudStorage implements ICloudStorage {
   > {
     return ResultUtils.combine([
       this.waitForUnlock(),
-      this.getCredentials<ISettingsData>(),
+      this.waitForCredentials(),
     ])
       .andThen(([privateKey, params]) => {
         const addr =
@@ -161,7 +124,6 @@ export class DropboxCloudStorage implements ICloudStorage {
         });
       })
       .map((backupDirectory) => {
-        // console.log("backupDirectory: " + JSON.stringify(backupDirectory));
         if (backupDirectory.entries == undefined) {
           return [];
         }
@@ -173,30 +135,20 @@ export class DropboxCloudStorage implements ICloudStorage {
       });
   }
 
-  private getCredentials<T>(): ResultAsync<T | null, PersistenceError> {
-    return this.storageUtils
-      .read<SerializedObject>(EFieldKey.AUTHENTICATED_STORAGE_SETTINGS)
-      .andThen((raw) => {
-        if (raw == null) {
-          return okAsync(null);
-        }
-        return this.deserialize(raw).map((result) => {
-          return result as T;
-        });
-      });
-  }
-
   // use /file_requests/create API
   /* Same set up as GCP: we need a temporary link, then we use access token to upload */
   public putBackup(
     backup: DataWalletBackup,
   ): ResultAsync<DataWalletBackupID, PersistenceError> {
+    console.log("Put backup");
     return ResultUtils.combine([
       this.waitForUnlock(),
       this._configProvider.getConfig(),
-      this.getCredentials<ISettingsData>(),
+      this.waitForCredentials(),
     ])
       .andThen(([privateKey, config, params]) => {
+        console.log("Put backup params: " + params);
+
         // Returns a temporary link, just like GCP
         const addr =
           this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
@@ -269,23 +221,39 @@ export class DropboxCloudStorage implements ICloudStorage {
     return okAsync(undefined);
   }
 
+  public saveCredentials(
+    credentials: AuthenticatedStorageSettings,
+  ): ResultAsync<void, PersistenceError> {
+    // Store the result
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    this._resolveCredentials!(credentials);
+
+    // username/password or an auth token from the FF
+    return okAsync(undefined);
+  }
+
   protected waitForUnlock(): ResultAsync<EVMPrivateKey, never> {
     return ResultAsync.fromSafePromise(this._unlockPromise);
+  }
+
+  protected waitForCredentials(): ResultAsync<
+    AuthenticatedStorageSettings,
+    never
+  > {
+    return ResultAsync.fromSafePromise(this._credentialsPromise);
   }
 
   /* 
     DELETES THE CONTENTS OF THE FOLDER, NOT THE FOLDER ITSELF!
   */
   public clear(): ResultAsync<void, PersistenceError> {
-    // we wont need account address, if we pass in the folder location in FF.
-
     return ResultUtils.combine([
       this.waitForUnlock(),
-      this.getCredentials<ISettingsData>(),
-    ]).andThen(([privateKey, params]) => {
+      this.waitForCredentials(),
+    ]).andThen(([privateKey, settingsData]) => {
       const addr =
         this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
-      const settingsData = params!;
+      // const settingsData = params!;
       const data = {
         path: settingsData.path + "/" + addr,
       };
@@ -311,49 +279,43 @@ export class DropboxCloudStorage implements ICloudStorage {
     restored: Set<DataWalletBackupID>,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
     // console.log("Inside Dropbox Cloud Storage POLLING BACKUPS!");
-    return (
-      ResultUtils.combine([
-        this.waitForUnlock(),
-        this._configProvider.getConfig(),
-        this.getCredentials<ISettingsData>(),
-        this.getWalletListing(),
-      ])
-        // return this.getWalletListing()
-        .andThen(([privateKey, config, params, files]) => {
-          const addr =
-            this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(
-              privateKey,
-            );
-          const settingsData = params!;
-          if (files.length == 0) {
-            return okAsync([]);
-          }
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this._configProvider.getConfig(),
+      this.waitForCredentials(),
+      this.getWalletListing(),
+    ])
+      .andThen(([privateKey, config, params, files]) => {
+        const addr =
+          this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
+        const settingsData = params!;
+        if (files.length == 0) {
+          return okAsync([]);
+        }
 
-          // Now iterate only through the found hashes
-          return ResultUtils.combine(
-            files
-              .filter((file) => {
-                const parsed = ParsedBackupFileName.parse(file.name);
+        // Now iterate only through the found hashes
+        return ResultUtils.combine(
+          files
+            .filter((file) => {
+              const parsed = ParsedBackupFileName.parse(file.name);
 
-                if (parsed == null) {
-                  return false;
-                }
-                return !restored.has(DataWalletBackupID(parsed.hash));
-              })
-              .map((file) => {
-                return this.getBackupFile(file);
-              }),
-          );
-        })
-        .mapErr((e) => new PersistenceError("error polling backups", e))
-    );
+              if (parsed == null) {
+                return false;
+              }
+              return !restored.has(DataWalletBackupID(parsed.hash));
+            })
+            .map((file) => {
+              return this.getBackupFile(file);
+            }),
+        );
+      })
+      .mapErr((e) => new PersistenceError("error polling backups", e));
   }
 
   // uses getWalletListing response
   public fetchBackup(
     backupFileName: string,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
-    // return okAsync([]);
     return this.getWalletListing().andThen((files) => {
       if (files == undefined) {
         return okAsync([]);
@@ -383,8 +345,6 @@ export class DropboxCloudStorage implements ICloudStorage {
     return this.ajaxUtils
       .get<DataWalletBackup>(new URL(dropboxFile.path_lower))
       .map((untyped) => {
-        // The data retrieved from Google is untyped, so we need to convert it to the real thing
-        // so that the getters work
         return new DataWalletBackup(
           new DataWalletBackupHeader(
             untyped.header.hash,
@@ -449,8 +409,6 @@ export class DropboxCloudStorage implements ICloudStorage {
     restored: Set<DataWalletBackupID>,
     storageKey: StorageKey,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
-    // console.log("pollByStorageType is called!");
-    // return okAsync([]);
     return this.getWalletListing().andThen((files) => {
       if (files.length == 0) {
         return okAsync([]);
