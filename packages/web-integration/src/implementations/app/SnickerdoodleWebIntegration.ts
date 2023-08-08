@@ -8,11 +8,7 @@ import {
   URLString,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
-import { ethers } from "ethers";
-import { Container } from "inversify";
-import { ResultAsync, okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
-
+import { UIClient } from "@web-integration/implementations/app/ui/index.js";
 import { ISnickerdoodleWebIntegration } from "@web-integration/interfaces/app/index.js";
 import {
   IBlockchainProviderRepository,
@@ -28,7 +24,10 @@ import {
   IConfigProviderType,
 } from "@web-integration/interfaces/utilities/index.js";
 import { webIntegrationModule } from "@web-integration/WebIntegrationModule.js";
-
+import { ethers } from "ethers";
+import { Container } from "inversify";
+import { ResultAsync, okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 export class SnickerdoodleWebIntegration
   implements ISnickerdoodleWebIntegration
 {
@@ -130,8 +129,6 @@ export class SnickerdoodleWebIntegration
             logUtils.warning("IFrame display requested");
           });
 
-          // @TODO we can register the ui client at this step
-
           const unlockPromise = new Promise((resolve) => {
             const config = configProvider.getConfig();
             // if signer is not provided resolve the unlock promise immediately
@@ -186,6 +183,8 @@ export class SnickerdoodleWebIntegration
             // Assign the iframe proxy to the internal reference and the window object
             this._core = proxy;
             window.sdlDataWallet = this.core;
+            const uiClient = new UIClient(proxy);
+            uiClient.register();
             logUtils.log("Snickerdoodle Core web integration activated");
             return proxy;
           });
@@ -261,6 +260,7 @@ export class SnickerdoodleWebIntegration
       logUtils.log(
         `Detected unlinked account ${accountAddress} being used on the DApp, adding to Snickerdoodle Data Wallet`,
       );
+
       return proxy
         .getUnlockMessage()
         .andThen((unlockMessage) => {
