@@ -2,7 +2,11 @@ import {
   ISdlDataWalletProxy,
   IWindowWithSdlDataWallet,
 } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { ISdlDataWallet } from "@snickerdoodlelabs/objects";
+import {
+  ECoreProxyType,
+  ISdlDataWallet,
+  URLString,
+} from "@snickerdoodlelabs/objects";
 import React, {
   FC,
   createContext,
@@ -13,6 +17,8 @@ import React, {
   useRef,
   useMemo,
 } from "react";
+import "reflect-metadata";
+import { SnickerdoodleWebIntegration } from "@snickerdoodlelabs/web-integration";
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -38,96 +44,36 @@ export const DataWalletContextProvider: FC = ({ children }) => {
   const [setupStatus, setSetupStatus] = useState<ESetupStatus>(
     ESetupStatus.WAITING,
   );
-  const [isInitialTimeoutExpired, setIsInitialTimeoutExpired] = useState(false);
-  const [connectedEventCount, setConnectedEventCount] = useState(0);
-  const [waiting, setWaiting] = useState(false);
 
-  const onExtensionWalletConnected = useCallback(() => {
-    if (initialTimeoutRef.current.value !== null) {
-      clearTimeout(initialTimeoutRef.current.value);
-    }
-    setConnectedEventCount((prev) => prev + 1);
-    // wait for multiple connected events to be fired
-    setWaiting(true);
+  useEffect(() => {
+    initialize();
   }, []);
 
-  const initialTimeoutRef = useRef<{ value: NodeJS.Timeout | null }>({
-    value: null,
-  });
-  const waitTimerRunning = useRef(false);
-  const connectedEventCountRef = useRef(connectedEventCount);
-
-  useEffect(() => {
-    connectedEventCountRef.current = connectedEventCount;
-  }, [connectedEventCount]);
-
-  useEffect(() => {
-    // initial timeout to wait for extension to connect
-    initialTimeoutRef.current.value = setTimeout(() => {
-      setIsInitialTimeoutExpired(true);
-    }, 4000);
-
-    // add extension connected event listener
-    document.addEventListener(
-      "SD_WALLET_EXTENSION_CONNECTED",
-      onExtensionWalletConnected,
+  const initialize = () => {
+    const webIntegration = new SnickerdoodleWebIntegration(
+      {
+        primaryInfuraKey: "",
+        iframeURL: URLString("http://localhost:9010"),
+        debug: true,
+      },
+      null,
     );
-
-    return () => {
-      if (initialTimeoutRef.current.value !== null) {
-        clearTimeout(initialTimeoutRef.current.value);
-      }
-      document.removeEventListener(
-        "SD_WALLET_EXTENSION_CONNECTED",
-        onExtensionWalletConnected,
-      );
-    };
-  }, []);
-
-  useEffect(() => {
-    if (isInitialTimeoutExpired) {
-      // remove extension connected event listener
-      document.removeEventListener(
-        "SD_WALLET_EXTENSION_CONNECTED",
-        onExtensionWalletConnected,
-      );
-      // not failed used as a placeholder for now
-      // try to initialize the data wallet via web integration
-      setSetupStatus(ESetupStatus.FAILED);
-    }
-  }, [isInitialTimeoutExpired]);
-
-  useEffect(() => {
-    if (waiting && !waitTimerRunning.current) {
-      // Set the wait timer running state to true to avoid multiple timers
-      waitTimerRunning.current = true;
-      // After 2 seconds, check the connectedEventCount
-      setTimeout(() => {
-        if (connectedEventCountRef.current === 1) {
-          // Only one connected event was fired in given time
-          // This means that there is only one data wallet proxy connected
-          // We can now set the data wallet
-          const dataWallet = window.sdlDataWallet;
-          setSdlDataWallet(dataWallet);
-        } else {
-          // Multiple connected events were fired
-          // This means that there are multiple data wallet proxy instances connected
-          // now should be prompted to select a data wallet provider
-          setSetupStatus(ESetupStatus.WAITING_PROVIDER_SELECTION);
+    return webIntegration
+      .initialize()
+      .map((sdlDataWallet) => {
+        if (sdlDataWallet.proxyType === ECoreProxyType.EXTENSION_INJECTED) {
+          if (
+            ((sdlDataWallet as ISdlDataWalletProxy).providers?.length || 0) > 1
+          ) {
+            return setSetupStatus(ESetupStatus.WAITING_PROVIDER_SELECTION);
+          }
         }
-
-        // Remove the event listener after the 2 seconds wait
-        document.removeEventListener(
-          "SD_WALLET_EXTENSION_CONNECTED",
-          onExtensionWalletConnected,
-        );
-        // Reset the waiting state to false
-        waitTimerRunning.current = false;
-        setWaiting(false);
-      }, 2000);
-    }
-    return () => {};
-  }, [waiting]);
+        return setSdlDataWallet(sdlDataWallet);
+      })
+      .mapErr((err) => {
+        return setSetupStatus(ESetupStatus.FAILED);
+      });
+  };
 
   useEffect(() => {
     // not a fan of this kind of check but to deceive the context provider it is useful
