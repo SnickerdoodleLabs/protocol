@@ -3,4 +3,4 @@ import {
   SolanaTokenAddress,
 } from "@objects/primitives/index.js";
 
-export type TokenAddress = EVMContractAddress | SolanaTokenAddress | string;
+export type TokenAddress = EVMContractAddress | SolanaTokenAddress;

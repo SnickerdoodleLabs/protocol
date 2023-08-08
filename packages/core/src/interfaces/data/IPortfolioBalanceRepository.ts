@@ -11,7 +11,6 @@ export interface IPortfolioBalanceRepository {
   getAccountBalances(
     chains?: ChainId[],
     accounts?: LinkedAccount[],
-    filterEmpty?: boolean,
   ): ResultAsync<TokenBalance[], PersistenceError>;
   getAccountNFTs(
     chains?: ChainId[],

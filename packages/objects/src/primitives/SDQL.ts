@@ -6,6 +6,7 @@ import {
   NftHolding,
 } from "@objects/businessObjects/index.js";
 import { ChainId } from "@objects/primitives/ChainId.js";
+import { TokenBalanceInsight } from "@objects/primitives/TokenBalanceInsight.js";
 import { URLString } from "@objects/primitives/URLString.js";
 
 //#region types
@@ -20,7 +21,7 @@ export type SDQL_Return = Brand<
   | Array<any>
   | Map<URLString, number>
   | Map<ChainId, number>
-  | Omit<TokenBalance, "accountAddress">[]
+  | TokenBalanceInsight[]
   | ChainTransaction[]
   | NftHolding[]
   | Object

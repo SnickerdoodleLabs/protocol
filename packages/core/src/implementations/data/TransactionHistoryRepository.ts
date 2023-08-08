@@ -205,7 +205,7 @@ export class TransactionHistoryRepository
       }
     });
 
-    return chainTransaction;
+    return [...flowMap.values()];
   }
 
   private _getNextMatchingTx(

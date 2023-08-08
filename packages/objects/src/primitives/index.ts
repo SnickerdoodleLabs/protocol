@@ -74,6 +74,7 @@ export * from "@objects/primitives/SolanaTokenAddress.js";
 export * from "@objects/primitives/SolanaTransactionSignature.js";
 export * from "@objects/primitives/SubQueryKey.js";
 export * from "@objects/primitives/TIckerSymbol.js";
+export * from "@objects/primitives/TokenBalanceInsight.js";
 export * from "@objects/primitives/TokenId.js";
 export * from "@objects/primitives/TokenSecret.js";
 export * from "@objects/primitives/TokenUri.js";

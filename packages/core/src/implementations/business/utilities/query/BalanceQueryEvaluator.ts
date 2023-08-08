@@ -6,6 +6,7 @@ import {
   SDQL_Return,
   TokenAddress,
   TokenBalance,
+  TokenBalanceInsight,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -155,7 +156,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
 
   protected getAccountBalancesWithoutOwnerAddress(
     tokenBalances: TokenBalance[],
-  ): Omit<TokenBalance, "accountAddress">[] {
+  ): TokenBalanceInsight[] {
     return tokenBalances.map(
       ({ accountAddress, ...restOfBalance }) => restOfBalance,
     );

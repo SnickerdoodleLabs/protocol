@@ -14,6 +14,7 @@ import {
   ECurrencyCode,
   EExternalApi,
   ERecordKey,
+  EVMContractAddress,
   getChainInfoByChainId,
   ITokenPriceRepository,
   PersistenceError,
@@ -341,7 +342,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
                       TickerSymbol(coin.symbol),
                       coin.name,
                       ChainId(chainId),
-                      addr,
+                      addr ? EVMContractAddress(addr) : null,
                     );
 
                     results.push(

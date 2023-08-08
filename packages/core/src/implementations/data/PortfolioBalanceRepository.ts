@@ -91,7 +91,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
   public getAccountBalances(
     chains?: ChainId[],
     accounts?: LinkedAccount[],
-    filterEmpty?: boolean,
+    filterEmpty = true,
   ): ResultAsync<TokenBalance[], PersistenceError> {
     return ResultUtils.combine([
       this.accountRepo.getAccounts(),

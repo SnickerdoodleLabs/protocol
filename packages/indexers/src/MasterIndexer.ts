@@ -10,6 +10,7 @@ import {
   EChain,
   EComponentStatus,
   EVMAccountAddress,
+  EVMContractAddress,
   getChainInfoByChainId,
   IAlchemyIndexerType,
   IAnkrIndexerType,
@@ -339,6 +340,6 @@ export class MasterIndexer implements IMasterIndexer {
   }
 
   static get nativeAddress(): TokenAddress {
-    return "0x0";
+    return EVMContractAddress("0x0");
   }
 }
