@@ -19,6 +19,10 @@ import {
   IAuthenticatedStorageRepositoryType,
 } from "@core/interfaces/data/IAuthenticatedStorageRepository.js";
 import {
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+} from "@core/interfaces/data/utilities/IDataWalletPersistence.js";
+import {
   IConfigProvider,
   IConfigProviderType,
 } from "@core/interfaces/utilities/IConfigProvider.js";
@@ -36,6 +40,8 @@ export class CloudStorageService implements ICloudStorageService {
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(IAxiosAjaxUtilsType)
     protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(IDataWalletPersistenceType)
+    protected dataWalletPersistence: IDataWalletPersistence,
   ) {}
 
   /**
@@ -59,6 +65,10 @@ export class CloudStorageService implements ICloudStorageService {
                 settings,
               );
             });
+          // .andThen(() => {
+          //   console.log("Start poll backups");
+          //   return this.dataWalletPersistence.pollBackups();
+          // });
         }
 
         // If we do have settings, then we need to error or reset the cloud storage

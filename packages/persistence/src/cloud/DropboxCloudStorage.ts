@@ -71,7 +71,6 @@ export class DropboxCloudStorage implements ICloudStorage {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(IStorageUtilsType) protected storageUtils: IStorageUtils,
   ) {
-    console.log("Dropbox is Called in init!");
     this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this._resolveUnlock = resolve;
     });
@@ -131,8 +130,6 @@ export class DropboxCloudStorage implements ICloudStorage {
     IDropboxFileBackup[],
     PersistenceError
   > {
-    console.log("Inside Dropbox GetWalletListing");
-
     return ResultUtils.combine([
       this.waitForUnlock(),
       this.getCredentials<ISettingsData>(),
@@ -164,11 +161,11 @@ export class DropboxCloudStorage implements ICloudStorage {
         });
       })
       .map((backupDirectory) => {
-        console.log("backupDirectory: " + JSON.stringify(backupDirectory));
-        if (backupDirectory.items == undefined) {
+        // console.log("backupDirectory: " + JSON.stringify(backupDirectory));
+        if (backupDirectory.entries == undefined) {
           return [];
         }
-        return backupDirectory.items;
+        return backupDirectory.entries;
       })
       .orElse((e) => {
         this.logUtils.error("Error getting wallet listing from Dropbox", e);
@@ -248,7 +245,6 @@ export class DropboxCloudStorage implements ICloudStorage {
             },
           )
           .map(() => {
-            console.log("Successful upload via temp url");
             return DataWalletBackupID(backup.header.hash);
           })
           .mapErr((e) => {
@@ -265,8 +261,6 @@ export class DropboxCloudStorage implements ICloudStorage {
   public unlock(
     derivedKey: EVMPrivateKey,
   ): ResultAsync<void, PersistenceError> {
-    console.log("Dropbox is Called in unlock!");
-
     // Store the result
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this._resolveUnlock!(derivedKey);
@@ -316,36 +310,49 @@ export class DropboxCloudStorage implements ICloudStorage {
   public pollBackups(
     restored: Set<DataWalletBackupID>,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
-    console.log("Inside Dropbox Cloud Storage POLLING BACKUPS!");
-    return this.getWalletListing()
-      .andThen((files) => {
-        if (files.length == 0) {
-          return okAsync([]);
-        }
+    // console.log("Inside Dropbox Cloud Storage POLLING BACKUPS!");
+    return (
+      ResultUtils.combine([
+        this.waitForUnlock(),
+        this._configProvider.getConfig(),
+        this.getCredentials<ISettingsData>(),
+        this.getWalletListing(),
+      ])
+        // return this.getWalletListing()
+        .andThen(([privateKey, config, params, files]) => {
+          const addr =
+            this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(
+              privateKey,
+            );
+          const settingsData = params!;
+          if (files.length == 0) {
+            return okAsync([]);
+          }
 
-        // Now iterate only through the found hashes
-        return ResultUtils.combine(
-          files
-            .filter((file) => {
-              const parsed = ParsedBackupFileName.parse(file.name);
-              if (parsed == null) {
-                return false;
-              }
-              return !restored.has(DataWalletBackupID(parsed.hash));
-            })
-            .map((file) => {
-              return this.getBackupFile(file);
-            }),
-        );
-      })
-      .mapErr((e) => new PersistenceError("error polling backups", e));
+          // Now iterate only through the found hashes
+          return ResultUtils.combine(
+            files
+              .filter((file) => {
+                const parsed = ParsedBackupFileName.parse(file.name);
+
+                if (parsed == null) {
+                  return false;
+                }
+                return !restored.has(DataWalletBackupID(parsed.hash));
+              })
+              .map((file) => {
+                return this.getBackupFile(file);
+              }),
+          );
+        })
+        .mapErr((e) => new PersistenceError("error polling backups", e))
+    );
   }
 
   // uses getWalletListing response
   public fetchBackup(
     backupFileName: string,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
-    console.log("fetchBackup is called!");
     // return okAsync([]);
     return this.getWalletListing().andThen((files) => {
       if (files == undefined) {
@@ -370,10 +377,11 @@ export class DropboxCloudStorage implements ICloudStorage {
   }
 
   protected getBackupFile(
-    googleFile: IDropboxFileBackup,
+    dropboxFile: IDropboxFileBackup,
   ): ResultAsync<DataWalletBackup, PersistenceError> {
+    // console.log("getBackupFile " + JSON.stringify(dropboxFile));
     return this.ajaxUtils
-      .get<DataWalletBackup>(new URL(googleFile.mediaLink))
+      .get<DataWalletBackup>(new URL(dropboxFile.path_lower))
       .map((untyped) => {
         // The data retrieved from Google is untyped, so we need to convert it to the real thing
         // so that the getters work
@@ -391,7 +399,7 @@ export class DropboxCloudStorage implements ICloudStorage {
       })
       .mapErr((e) => {
         return new PersistenceError(
-          `Error fetching backup ${googleFile.name}`,
+          `Error fetching backup ${dropboxFile.name}`,
           e,
         );
       });
@@ -401,7 +409,7 @@ export class DropboxCloudStorage implements ICloudStorage {
   public getLatestBackup(
     storageKey: StorageKey,
   ): ResultAsync<DataWalletBackup | null, PersistenceError> {
-    console.log("getLatestBackup is called!");
+    // console.log("getLatestBackup is called!");
     return this.getWalletListing().andThen((files) => {
       if (files.length == 0) {
         return okAsync(null);
@@ -441,7 +449,7 @@ export class DropboxCloudStorage implements ICloudStorage {
     restored: Set<DataWalletBackupID>,
     storageKey: StorageKey,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
-    console.log("pollByStorageType is called!");
+    // console.log("pollByStorageType is called!");
     // return okAsync([]);
     return this.getWalletListing().andThen((files) => {
       if (files.length == 0) {
@@ -471,8 +479,6 @@ export class DropboxCloudStorage implements ICloudStorage {
 
   // file name is passed in, add it to path to get the directory
   public listFileNames(): ResultAsync<BackupFileName[], PersistenceError> {
-    console.log("listFileNames is called!");
-
     return this.getWalletListing().map((files) => {
       if (files.length == 0) {
         return [];

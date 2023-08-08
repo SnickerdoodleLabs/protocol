@@ -443,10 +443,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(FieldSchemaProvider)
       .inSingletonScope();
 
-    bind<IPersistenceContextProvider>(IPersistenceContextProviderType)
-      .to(ContextProvider)
-      .inSingletonScope();
-
     bind<IMasterIndexer>(IMasterIndexerType)
       .to(MasterIndexer)
       .inSingletonScope();
@@ -466,13 +462,19 @@ export const snickerdoodleCoreModule = new ContainerModule(
       IPersistenceConfigProviderType,
     ).toConstantValue(configProvider);
 
-    bind<IContextProvider>(IContextProviderType)
-      .to(ContextProvider)
-      .inSingletonScope();
+    const contextProvider = new ContextProvider(new TimeUtils());
+    bind<IContextProvider>(IContextProviderType).toConstantValue(
+      contextProvider,
+    );
 
-    bind<IIndexerContextProvider>(IIndexerContextProviderType)
-      .to(ContextProvider)
-      .inSingletonScope();
+    bind<IIndexerContextProvider>(IIndexerContextProviderType).toConstantValue(
+      contextProvider,
+    );
+
+    bind<IPersistenceContextProvider>(
+      IPersistenceContextProviderType,
+    ).toConstantValue(contextProvider);
+
     bind<IBlockchainProvider>(IBlockchainProviderType)
       .to(BlockchainProvider)
       .inSingletonScope();

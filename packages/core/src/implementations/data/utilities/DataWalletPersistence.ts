@@ -429,12 +429,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public postBackups(
     force?: boolean,
   ): ResultAsync<DataWalletBackupID[], PersistenceError> {
-    // If cloud storage is not already active, don't wait and just
-    // don't post any backups
     console.log("posting backups:");
-    // if (!this.cloudStorageManager.cloudStorageActivated()) {
-    //   return okAsync([]);
-    // }
 
     return ResultUtils.combine([
       this.backupManagerProvider.getBackupManager(),

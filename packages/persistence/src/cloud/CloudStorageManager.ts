@@ -115,6 +115,8 @@ export class CloudStorageManager implements ICloudStorageManager {
     return this.contextProvider.getContext().map((context) => {
       if (credentials.type == ECloudStorageType.Dropbox) {
         this.provider = this.dropbox;
+        // pass in credentials to dropbox cloud storage file
+        // put the abstract function on ICloudStorage, like unlock is, then you can store it
       } else if (credentials.type == ECloudStorageType.Snickerdoodle) {
         this.provider = this.gDrive;
       } else {
@@ -123,10 +125,12 @@ export class CloudStorageManager implements ICloudStorageManager {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.resolveProvider!(this.provider);
       this.activated = true;
+      console.log("Before onCloudStorageActivated event;");
       context.publicEvents.onCloudStorageActivated.next(
         // TODO: Change name of this object to AuthenticatedStorageActivatedEvent
         new CloudProviderSelectedEvent(credentials.type),
       );
+      console.log("After onCloudStorageActivated event;");
 
       if (!this.storageList.has(credentials.type)) {
         this.storageList.add(credentials.type);

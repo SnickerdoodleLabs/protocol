@@ -75,6 +75,7 @@ export class BackupManagerProvider implements IBackupManagerProvider {
   }
 
   public getBackupManager(): ResultAsync<IBackupManager, never> {
+    console.log("Backup manager 1: " + this.backupManager);
     if (this.backupManager != undefined) {
       return this.backupManager;
     }
@@ -100,6 +101,7 @@ export class BackupManagerProvider implements IBackupManagerProvider {
         this.logUtils,
       );
     });
+    console.log("Backup manager 2: " + this.backupManager);
 
     return this.backupManager;
   }

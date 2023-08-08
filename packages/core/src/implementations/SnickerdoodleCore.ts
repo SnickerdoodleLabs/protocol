@@ -284,24 +284,24 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         const indexers =
           this.iocContainer.get<IMasterIndexer>(IMasterIndexerType);
 
-        // BlockchainProvider needs to be ready to go in order to do the unlock
+        const cloudStorageService = this.iocContainer.get<ICloudStorageService>(
+          ICloudStorageServiceType,
+        );
+
+        const contextProvider =
+          this.iocContainer.get<IContextProvider>(IContextProviderType);
+
         return ResultUtils.combine([
           blockchainProvider.initialize(),
           indexers.initialize(),
         ])
-          .andThen(() => {
-            return accountService.unlock(
-              accountAddress,
-              signature,
-              languageCode,
-              chain,
-            );
-          })
-          .andThen(() => {
+          .andThen(([blochainInit, indexerInit]) => {
             // Service Layer
+
             return ResultUtils.combine([
               queryService.initialize(),
               metricsService.initialize(),
+              // cloudStorageService.initialize(),
             ]);
           })
           .andThen(() => {
@@ -313,7 +313,47 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
               heartbeatGenerator.initialize(),
             ]);
           })
+          .andThen(() => {
+            // Now the actual initialization!
+            return accountService.unlock(
+              accountAddress,
+              signature,
+              languageCode,
+              chain,
+            );
+          })
           .map(() => {});
+
+        // // BlockchainProvider needs to be ready to go in order to do the unlock
+        // return ResultUtils.combine([
+        //   blockchainProvider.initialize(),
+        //   indexers.initialize(),
+        // ])
+        //   .andThen(() => {
+        //     return accountService.unlock(
+        //       accountAddress,
+        //       signature,
+        //       languageCode,
+        //       chain,
+        //     );
+        //   })
+        //   .andThen(() => {
+        //     // Service Layer
+        //     return ResultUtils.combine([
+        //       queryService.initialize(),
+        //       metricsService.initialize(),
+        //     ]);
+        //   })
+        //   .andThen(() => {
+        //     // API Layer
+        //     return ResultUtils.combine([
+        //       accountIndexerPoller.initialize(),
+        //       blockchainListener.initialize(),
+        //       socialPoller.initialize(),
+        //       heartbeatGenerator.initialize(),
+        //     ]);
+        //   })
+        //   .map(() => {});
       },
 
       addAccount: (
