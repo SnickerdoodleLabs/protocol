@@ -815,14 +815,9 @@ export class RpcCallHandler implements IRpcCallHandler {
       },
     ),
 
-    /* TODO functions: 
-      Okan - returning current storage function AND returning available storage ones
-    */
     new CoreActionHandler<GetAvailableCloudStorageOptionsParams>(
       GetAvailableCloudStorageOptionsParams.getCoreAction(),
       (_params) => {
-        // @TODO call core function
-        // return okAsync([ECloudStorageType.Dropbox]);
         return this.core.getAvailableCloudStorage();
       },
     ),
@@ -830,7 +825,6 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<GetCurrentStorageOptionParams>(
       GetCurrentStorageOptionParams.getCoreAction(),
       (_params) => {
-        // @TODO call core function
         return this.core.getCurrentCloudStorage();
       },
     ),

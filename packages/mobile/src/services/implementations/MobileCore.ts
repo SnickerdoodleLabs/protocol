@@ -52,7 +52,6 @@ import {
   ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
 import {
-  CloudStorageParams,
   IVolatileStorageSchemaProvider,
   IVolatileStorageSchemaProviderType,
   MemoryVolatileStorage,
@@ -323,22 +322,6 @@ export class MobileCore {
         ),
       ],
     ]);
-
-    const cloudStorageParams = new CloudStorageParams(
-      ECloudStorageType.Snickerdoodle,
-      undefined,
-      undefined,
-    );
-    const storageUtils =
-      this.iocContainer.get<IStorageUtils>(IStorageUtilsType);
-
-    const cloudStorageManager = new CloudStorageManager(
-      cloudStorageParams,
-      GoogleCloudStorage,
-      DropboxCloudStorage,
-      storageUtils,
-      cloudStorageParams,
-    );
 
     this.core = new SnickerdoodleCore(
       coreConfig,

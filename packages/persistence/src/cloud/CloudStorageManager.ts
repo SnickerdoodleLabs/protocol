@@ -46,8 +46,6 @@ export class CloudStorageManager implements ICloudStorageManager {
   protected activated = false;
   protected storageList: Set<ECloudStorageType>;
 
-  // check currentStorageOption from local storage if there is no value then it can return NullCloudStorage
-  // then initiate the cloud storage
   public constructor(
     @inject(IGDriveCloudStorage) protected gDrive: ICloudStorage,
     @inject(IDropboxCloudStorageType) protected dropbox: ICloudStorage,
@@ -59,8 +57,6 @@ export class CloudStorageManager implements ICloudStorageManager {
     protected ajaxUtils: IAxiosAjaxUtils,
   ) {
     this.storageList = new Set();
-
-    // this is for init, how about for loading
     this.initializeResult = ResultAsync.fromSafePromise(
       new Promise((resolve) => {
         this.resolveProvider = resolve;

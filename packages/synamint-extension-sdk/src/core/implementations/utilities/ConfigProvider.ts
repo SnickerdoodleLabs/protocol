@@ -30,7 +30,7 @@ const defaultConfigs: IExtensionConfig = {
   domainFilter: "(localhost|chrome://)",
   portfolioPollingIntervalMS: ONE_MINUTE_MS,
   transactionPollingIntervalMS: ONE_MINUTE_MS,
-  backupPollingIntervalMS: FIVE_SECONDS_MS,
+  backupPollingIntervalMS: ONE_MINUTE_MS,
   requestForDataCheckingFrequency: 4000,
 };
 @injectable()

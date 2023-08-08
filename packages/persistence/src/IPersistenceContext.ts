@@ -1,11 +1,4 @@
-// import { PrivateEvents } from "@core/objects/interfaces/PrivateEvents.js";
-
-import {
-  ComponentStatus,
-  EExternalApi,
-  PublicEvents,
-} from "@snickerdoodlelabs/objects";
-import { Subject } from "rxjs";
+import { PublicEvents } from "@snickerdoodlelabs/objects";
 
 export interface IPersistenceContext {
   publicEvents: PublicEvents;

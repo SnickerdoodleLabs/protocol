@@ -965,7 +965,6 @@ export interface ISnickerdoodleCore {
   clearCloudStore(
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, PersistenceError | UnauthorizedError>;
-  // getCloudStorage(): ResultAsync<ICloudStorage, never>;
   listFileNames(
     sourceDomain?: DomainName,
   ): ResultAsync<BackupFileName[], PersistenceError>;

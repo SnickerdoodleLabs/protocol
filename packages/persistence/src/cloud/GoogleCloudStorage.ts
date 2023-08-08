@@ -143,7 +143,6 @@ export class GoogleCloudStorage implements ICloudStorage {
   public saveCredentials(
     credentials: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError> {
-    // username/password or an auth token from the FF
     return okAsync(undefined);
   }
 
@@ -171,7 +170,6 @@ export class GoogleCloudStorage implements ICloudStorage {
   public putBackup(
     backup: DataWalletBackup,
   ): ResultAsync<DataWalletBackupID, PersistenceError> {
-    console.log("Inside Google Cloud Storage");
     return ResultUtils.combine([
       this.waitForUnlock(),
       this._configProvider.getConfig(),
@@ -216,8 +214,6 @@ export class GoogleCloudStorage implements ICloudStorage {
   public pollBackups(
     restored: Set<DataWalletBackupID>,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
-    console.log("Inside Google Cloud Storage");
-
     return this.getWalletListing()
       .andThen((files) => {
         if (files.length == 0) {

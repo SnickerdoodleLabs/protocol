@@ -262,7 +262,6 @@ const App = () => {
   }, [JSON.stringify(invitationDomain), walletState]);
 
   const initiateCohort = useCallback(async () => {
-    console.log("Is Data Wallet Initialized?");
     (walletState === EWalletState.UNKNOWN
       ? coreGateway.isDataWalletAddressInitialized()
       : okAsync(walletState === EWalletState.UNLOCKED)
@@ -275,8 +274,6 @@ const App = () => {
       const domain = urlInfo.domain;
       const url = `${urlInfo.hostname}${path.replace(/\/$/, "")}`;
       const domainName = DomainName(`snickerdoodle-protocol.${domain}`);
-      console.log("domainName: " + domainName);
-      console.log("url: " + url);
 
       coreGateway
         .getInvitationsByDomain(

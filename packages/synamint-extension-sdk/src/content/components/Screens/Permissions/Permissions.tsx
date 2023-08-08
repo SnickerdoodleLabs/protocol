@@ -106,8 +106,6 @@ const Permissions: FC<IPermissionsProps> = ({
   }, [isUnlocked]);
 
   const handleNotification = (notificaton: BaseNotification) => {
-    console.log("Changed Cloud Storage!");
-
     switch (notificaton.type) {
       case ENotificationTypes.SOCIAL_PROFILE_LINKED: {
         return getSocialProfileValues();
@@ -115,9 +113,6 @@ const Permissions: FC<IPermissionsProps> = ({
       case ENotificationTypes.PROFILE_FIELD_CHANGED: {
         return getProfileValues();
       }
-      // case ENotificationTypes.CLOUD_STORAGE_ALTERED: {
-      //   console.log("Changed Cloud Storage!");
-      // }
       default:
         return;
     }

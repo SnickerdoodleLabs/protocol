@@ -60,8 +60,6 @@ export class CoreListener implements ICoreListener {
         this.onSocialProfileUnlinked.bind(this),
       );
 
-      // Add a listener for cloud storage being switched out
-
       // rename, event emitted from api listeners. keyed and activated by unlock function
       events.onCloudStorageActivated.subscribe(
         this.onCloudStorageActivated.bind(this),
@@ -190,7 +188,5 @@ export class CoreListener implements ICoreListener {
 
   private onCloudStorageActivated(event: CloudProviderSelectedEvent): void {
     this.contextProvider.cloudStorageAltered(event);
-
-    // this.core.getCloudStorageParams();
   }
 }

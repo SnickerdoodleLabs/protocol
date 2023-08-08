@@ -33,7 +33,6 @@ export interface IContextProvider {
   onEarnedRewardsAdded(rewards: EarnedReward[]): void;
   onSocialProfileLinked(event: SocialProfileLinkedEvent): void;
 
-  // new function for switching cloud storage options (cloud manager)
   cloudStorageAltered(event: CloudProviderSelectedEvent): void;
 
   onProfileFieldChanged(profileFieldType: EProfileFieldType, value: any): void;

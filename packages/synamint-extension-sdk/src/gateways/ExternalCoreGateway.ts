@@ -240,7 +240,6 @@ export class ExternalCoreGateway {
   public getInvitationsByDomain(
     params: GetInvitationWithDomainParams,
   ): ResultAsync<IInvitationDomainWithUUID | null, ProxyError> {
-    console.log("getInvitationsByDomain params: " + params);
     return this._handler.call(params);
   }
 

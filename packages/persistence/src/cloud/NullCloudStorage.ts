@@ -60,7 +60,6 @@ export class NullCloudStorage implements ICloudStorage {
   public saveCredentials(
     credentials: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError> {
-    // username/password or an auth token from the FF
     return okAsync(undefined);
   }
 
