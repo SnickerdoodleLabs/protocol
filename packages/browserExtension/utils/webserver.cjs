@@ -12,6 +12,7 @@ process.env.__DEFAULT_INSIGHT_PLATFORM_BASE_URL__ = "http://localhost:3006";
 
 process.env.__DROPBOX_APP_KEY__ = "";
 process.env.__DROPBOX_APP_SECRET__ = "";
+process.env.__DROPBOX_REDIRECT_URI__ = "";
 
 process.env.__COVALENT_API_KEY__ = "";
 process.env.__MORALIS_API_KEY__ = "";
