@@ -1,3 +1,5 @@
+import "reflect-metadata";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
   AccountAddress,
   Age,
@@ -46,9 +48,6 @@ import {
   JsonWebToken,
   QueryStatus,
 } from "@snickerdoodlelabs/objects";
-import { JsonRpcEngine } from "json-rpc-engine";
-import { ResultAsync } from "neverthrow";
-import "reflect-metadata";
 import CoreHandler from "@synamint-extension-sdk/gateways/handler/CoreHandler";
 import {
   AcceptInvitationParams,
@@ -130,7 +129,8 @@ import {
   GetQueryStatusByCidParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
-import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
+import { JsonRpcEngine } from "json-rpc-engine";
+import { ResultAsync } from "neverthrow";
 
 export class ExternalCoreGateway {
   public discord: IProxyDiscordMethods;
