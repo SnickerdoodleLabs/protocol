@@ -1,15 +1,12 @@
 import "reflect-metadata";
 import useIsMobile from "@extension-onboarding/hooks/useIsMobile";
+import { WebIntegrationConfigProvider } from "@extension-onboarding/services/implementations/utilities";
 import { ISdlDataWalletProxy } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import InstallationRequired from "@extension-onboarding/setupScreens/InstallationRequired";
 import Loading from "@extension-onboarding/setupScreens/Loading";
 import MobileScreen from "@extension-onboarding/setupScreens/MobileScreen/MobileScreen";
 import ProviderSelector from "@extension-onboarding/setupScreens/ProviderSelector";
-import {
-  ECoreProxyType,
-  ISdlDataWallet,
-  URLString,
-} from "@snickerdoodlelabs/objects";
+import { ECoreProxyType, ISdlDataWallet } from "@snickerdoodlelabs/objects";
 import { SnickerdoodleWebIntegration } from "@snickerdoodlelabs/web-integration";
 import React, {
   FC,
@@ -49,12 +46,9 @@ export const DataWalletContextProvider: FC = ({ children }) => {
   }, []);
 
   const initialize = () => {
+    const webIntegrationConfig = new WebIntegrationConfigProvider().getConfig();
     const webIntegration = new SnickerdoodleWebIntegration(
-      {
-        primaryInfuraKey: "a6271a49218848a7ad939ee62d225914",
-        iframeURL: URLString("http://localhost:9010"),
-        debug: true,
-      },
+      webIntegrationConfig,
       null,
     );
     return webIntegration

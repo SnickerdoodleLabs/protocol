@@ -22,6 +22,12 @@ ENV __HOTJAR_SNIPPET_VERSION__ $HOTJAR_SNIPPET_VERSION
 ARG IPFS_FETCH_BASE_URL="https://ipfs-gateway.snickerdoodle.dev/ipfs/"
 ENV __IPFS_FETCH_BASE_URL__ $IPFS_FETCH_BASE_URL
 
+ARG PRIMARY_INFURA_KEY = "a6271a49218848a7ad939ee62d225914"
+ENV __PRIMARY_INFURA_KEY__ $PRIMARY_INFURA_KEY
+
+ARG IFRAME_URL = "http://localhost:9010"
+ENV __IFRAME_URL__ $IFRAME_URL
+
 RUN cd packages/extension-onboarding && yarn postCompile
 
 FROM nginx:latest AS server
