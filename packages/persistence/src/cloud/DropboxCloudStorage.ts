@@ -94,29 +94,24 @@ export class DropboxCloudStorage implements ICloudStorage {
     IDropboxFileBackup[],
     PersistenceError
   > {
-    return ResultUtils.combine([
-      this.waitForUnlock(),
-      this.waitForCredentials(),
-    ])
-      .andThen(([privateKey, params]) => {
-        const addr =
-          this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
+    return this.waitForCredentials()
+      .andThen((params) => {
         const settingsData = params!;
         const dataWalletFolder =
           "https://api.dropboxapi.com/2/files/list_folder";
-
         const url = new URL(dataWalletFolder);
+        console.log("settingsData: " + JSON.stringify(settingsData));
         const data = {
           include_deleted: false,
           include_has_explicit_shared_members: false,
           include_media_info: false,
           include_mounted_folders: true,
           include_non_downloadable_files: true,
-          path: settingsData.path + "/" + addr,
+          path: settingsData.path,
           recursive: false,
         };
+        console.log("settingsData: " + JSON.stringify(settingsData));
 
-        // return undefined;
         return this.ajaxUtils.post<IDropboxWalletBackupDirectory>(url, data, {
           headers: {
             Authorization: `Bearer ${settingsData.accessToken}`,
@@ -141,15 +136,8 @@ export class DropboxCloudStorage implements ICloudStorage {
   public putBackup(
     backup: DataWalletBackup,
   ): ResultAsync<DataWalletBackupID, PersistenceError> {
-    return ResultUtils.combine([
-      this.waitForUnlock(),
-      this._configProvider.getConfig(),
-      this.waitForCredentials(),
-    ])
-      .andThen(([privateKey, config, params]) => {
-        // Returns a temporary link, just like GCP
-        const addr =
-          this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
+    return this.waitForCredentials()
+      .andThen((params) => {
         const settingsData = params!;
         const url =
           "https://api.dropboxapi.com/2/files/get_temporary_upload_link";
@@ -157,8 +145,7 @@ export class DropboxCloudStorage implements ICloudStorage {
           autorename: true,
           mode: "add",
           mute: false,
-          path:
-            settingsData.path + "/" + addr + "/" + backup.header.name + ".txt",
+          path: settingsData.path + "/" + backup.header.name + ".txt",
           strict_conflict: false,
         };
         const data = {
@@ -208,17 +195,6 @@ export class DropboxCloudStorage implements ICloudStorage {
       });
   }
 
-  public unlock(
-    derivedKey: EVMPrivateKey,
-  ): ResultAsync<void, PersistenceError> {
-    // Store the result
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    this._resolveUnlock!(derivedKey);
-
-    // username/password or an auth token from the FF
-    return okAsync(undefined);
-  }
-
   public saveCredentials(
     credentials: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError> {
@@ -228,10 +204,6 @@ export class DropboxCloudStorage implements ICloudStorage {
 
     // username/password or an auth token from the FF
     return okAsync(undefined);
-  }
-
-  protected waitForUnlock(): ResultAsync<EVMPrivateKey, never> {
-    return ResultAsync.fromSafePromise(this._unlockPromise);
   }
 
   protected waitForCredentials(): ResultAsync<
@@ -245,15 +217,9 @@ export class DropboxCloudStorage implements ICloudStorage {
     DELETES THE CONTENTS OF THE FOLDER, NOT THE FOLDER ITSELF!
   */
   public clear(): ResultAsync<void, PersistenceError> {
-    return ResultUtils.combine([
-      this.waitForUnlock(),
-      this.waitForCredentials(),
-    ]).andThen(([privateKey, settingsData]) => {
-      const addr =
-        this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
-      // const settingsData = params!;
+    return this.waitForCredentials().andThen((settingsData) => {
       const data = {
-        path: settingsData.path + "/" + addr,
+        path: settingsData.path,
       };
       const url = new URL("https://api.dropboxapi.com/2/files/delete_v2");
 
@@ -276,16 +242,8 @@ export class DropboxCloudStorage implements ICloudStorage {
   public pollBackups(
     restored: Set<DataWalletBackupID>,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
-    return ResultUtils.combine([
-      this.waitForUnlock(),
-      this._configProvider.getConfig(),
-      this.waitForCredentials(),
-      this.getWalletListing(),
-    ])
-      .andThen(([privateKey, config, params, files]) => {
-        const addr =
-          this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
-        const settingsData = params!;
+    return this.getWalletListing()
+      .andThen((files) => {
         if (files.length == 0) {
           return okAsync([]);
         }
@@ -338,10 +296,7 @@ export class DropboxCloudStorage implements ICloudStorage {
   protected getBackupFile(
     dropboxFile: IDropboxFileBackup,
   ): ResultAsync<DataWalletBackup, PersistenceError> {
-    return ResultUtils.combine([
-      this.waitForUnlock(),
-      this.waitForCredentials(),
-    ]).andThen(([privateKey, settingsData]) => {
+    return this.waitForCredentials().andThen((settingsData) => {
       const url = new URL("https://content.dropboxapi.com/2/files/download");
       const data = {
         path: dropboxFile.id,
@@ -468,29 +423,6 @@ export class DropboxCloudStorage implements ICloudStorage {
   }
 }
 
-interface ITokenResponse {
-  access_token: AccessToken;
-  refresh_token: RefreshToken;
-
-  expires_in: string;
-  token_type: string;
-  scope: string;
-  account_id: string;
-  uid: string;
-}
-
-interface RefreshTokenResponse {
-  access_token: AccessToken;
-  token_type: string;
-  expires_in: number;
-}
-
 interface ITempUrl {
   link: string;
-}
-
-interface ISettingsData {
-  type: string;
-  path: string;
-  accessToken: AccessToken;
 }

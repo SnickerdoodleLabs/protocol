@@ -248,10 +248,6 @@ class DataWalletPersistenceMocks {
       okAsync(null),
     );
 
-    td.when(this.cloudStorage.unlock(dataWalletKey)).thenReturn(
-      okAsync(undefined),
-    );
-
     // No backups to restore by default
     td.when(
       this.cloudStorage.pollByStorageType(

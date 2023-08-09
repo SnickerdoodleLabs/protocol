@@ -1,6 +1,8 @@
 import {
+  CryptoUtils,
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
+  ICryptoUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AuthenticatedStorageSettings,
@@ -46,6 +48,9 @@ export class CloudStorageManager implements ICloudStorageManager {
   protected resolveProvider: null | ((provider: ICloudStorage) => void) = null;
   protected activated = false;
   protected storageList: Set<ECloudStorageType>;
+  private _unlockPromise: Promise<EVMPrivateKey>;
+  private _resolveUnlock: ((dataWalletKey: EVMPrivateKey) => void) | null =
+    null;
 
   public constructor(
     @inject(IGDriveCloudStorage) protected gDrive: ICloudStorage,
@@ -54,6 +59,7 @@ export class CloudStorageManager implements ICloudStorageManager {
     protected contextProvider: IPersistenceContextProvider,
     @inject(IPersistenceConfigProviderType)
     protected configProvider: IPersistenceConfigProvider,
+    @inject(ICryptoUtilsType) protected _cryptoUtils: CryptoUtils,
     @inject(IAxiosAjaxUtilsType)
     protected ajaxUtils: IAxiosAjaxUtils,
   ) {
@@ -63,15 +69,30 @@ export class CloudStorageManager implements ICloudStorageManager {
         this.resolveProvider = resolve;
       }),
     );
+    this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
+      this._resolveUnlock = resolve;
+    });
   }
 
   public unlock(
-    dataWalletKey: EVMPrivateKey,
+    derivedKey: EVMPrivateKey,
   ): ResultAsync<void, PersistenceError> {
-    return ResultUtils.combine([
-      this.gDrive.unlock(dataWalletKey),
-      this.dropbox.unlock(dataWalletKey),
-    ]).map(() => {});
+    // Store the result
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    this._resolveUnlock!(derivedKey);
+
+    return okAsync(undefined);
+
+    // username/password or an auth token from the FF
+    // return okAsync(undefined);
+    // return ResultUtils.combine([
+    //   this.gDrive.unlock(dataWalletKey),
+    //   this.dropbox.unlock(dataWalletKey),
+    // ]).map(() => {});
+  }
+
+  protected waitForUnlock(): ResultAsync<EVMPrivateKey, never> {
+    return ResultAsync.fromSafePromise(this._unlockPromise);
   }
 
   public cloudStorageActivated(): boolean {
@@ -98,14 +119,23 @@ export class CloudStorageManager implements ICloudStorageManager {
   public activateAuthenticatedStorage(
     credentials: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError> {
-    if (credentials.type == ECloudStorageType.Dropbox) {
-      this.provider = this.dropbox;
-    } else {
-      return errAsync(new PersistenceError("Unknown Cloud Provider Selected"));
-    }
+    return this.waitForUnlock().andThen((privateKey) => {
+      const addr =
+        this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
+      console.log("credentials: " + JSON.stringify(credentials));
+      credentials.path = credentials.path + "/" + addr;
+      console.log("credentials: " + JSON.stringify(credentials));
 
-    return this.provider.saveCredentials(credentials).andThen(() => {
-      return this.saveParameters(credentials);
+      if (credentials.type == ECloudStorageType.Dropbox) {
+        this.provider = this.dropbox;
+      } else {
+        return errAsync(
+          new PersistenceError("Unknown Cloud Provider Selected"),
+        );
+      }
+      return this.provider.saveCredentials(credentials).andThen(() => {
+        return this.saveParameters(credentials);
+      });
     });
   }
 

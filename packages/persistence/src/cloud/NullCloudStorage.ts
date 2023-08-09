@@ -51,12 +51,6 @@ export class NullCloudStorage implements ICloudStorage {
     return okAsync([]);
   }
 
-  public unlock(
-    derivedKey: EVMPrivateKey,
-  ): ResultAsync<void, PersistenceError> {
-    return okAsync(undefined);
-  }
-
   public saveCredentials(
     credentials: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError> {

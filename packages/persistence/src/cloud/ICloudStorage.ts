@@ -30,7 +30,6 @@ export interface ICloudStorage {
     restored: Set<DataWalletBackupID>,
   ): ResultAsync<DataWalletBackup[], PersistenceError>;
 
-  unlock(derivedKey: EVMPrivateKey): ResultAsync<void, PersistenceError>;
   saveCredentials(
     credentials: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError>;

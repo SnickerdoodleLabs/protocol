@@ -132,15 +132,6 @@ export class GoogleCloudStorage implements ICloudStorage {
     });
   }
 
-  public unlock(
-    derivedKey: EVMPrivateKey,
-  ): ResultAsync<void, PersistenceError> {
-    // Store the result
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    this._resolveUnlock!(derivedKey);
-    return okAsync(undefined);
-  }
-
   public saveCredentials(
     credentials: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError> {
