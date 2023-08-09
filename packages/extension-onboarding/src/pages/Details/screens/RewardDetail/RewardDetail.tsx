@@ -1,7 +1,3 @@
-import Breadcrumb from "@extension-onboarding/components/Breadcrumb";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/RewardDetail/RewardDetail.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, Grid, Typography } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import {
@@ -15,6 +11,11 @@ import {
 } from "@snickerdoodlelabs/objects";
 import React, { FC, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
+
+import Breadcrumb from "@extension-onboarding/components/Breadcrumb";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/RewardDetail/RewardDetail.style";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 declare const window: IWindowWithSdlDataWallet;
 
 const RewardDetail: FC = () => {
@@ -44,7 +45,7 @@ const RewardDetail: FC = () => {
   );
   const _permissions = permissions
     ? permissions
-    : (reward as PossibleReward).queryDependencies.map(
+    : (reward as PossibleReward).estimatedQueryDependencies.map(
         (queryType) => QueryTypePermissionMap.get(queryType)!,
       );
   return (

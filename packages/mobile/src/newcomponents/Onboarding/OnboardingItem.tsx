@@ -60,7 +60,7 @@ export default function OnboardingItem({
                   }
             }
           >
-            {item.asset?.height>0 &&
+            {item.asset?.height > 0 &&
               (item.asset.type === "image" ? (
                 <Image
                   style={{

@@ -30,8 +30,12 @@ import {
   IAccountServiceType,
   IDiscordService,
   IDiscordServiceType,
+  IIntegrationService,
+  IIntegrationServiceType,
   IInvitationService,
   IInvitationServiceType,
+  IMetricsService,
+  IMetricsServiceType,
   IPIIService,
   IPIIServiceType,
   IScamFilterService,
@@ -130,6 +134,13 @@ import {
   TwitterGetLinkedProfilesParams,
   GetConfigParams,
   SwitchToTabParams,
+  GetMetricsParams,
+  GetUnlockedParams,
+  RequestPermissionsParams,
+  GetPermissionsParams,
+  GetTokenVerificationPublicKeyParams,
+  GetBearerTokenParams,
+  GetQueryStatusByCidParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -563,27 +574,10 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this.accountService.isDataWalletAddressInitialized();
       },
     ),
-    new CoreActionHandler<InitializeDiscordUserParams>(
-      InitializeDiscordUserParams.getCoreAction(),
+    new CoreActionHandler<GetQueryStatusByCidParams>(
+      GetQueryStatusByCidParams.getCoreAction(),
       (params) => {
-        return this.discordService.initializeUserWithAuthorizationCode(
-          params.code,
-        );
-      },
-    ),
-    new CoreActionHandler<GetDiscordInstallationUrlParams>(
-      GetDiscordInstallationUrlParams.getCoreAction(),
-      (params, sender) => {
-        return this.discordService.installationUrl().map((url) => {
-          if (params.attachRedirectTabId && sender?.tab?.id) {
-            return URLString(
-              `${url}&state=${encodeURI(
-                JSON.stringify({ redirect_tab_id: sender.tab.id }),
-              )}`,
-            );
-          }
-          return url;
-        });
+        return this.accountService.getQueryStatusByQueryCID(params.queryCID);
       },
     ),
     new CoreActionHandler<SwitchToTabParams>(
@@ -598,24 +592,65 @@ export class RpcCallHandler implements IRpcCallHandler {
         });
       },
     ),
+    // #region Discord
+    new CoreActionHandler<InitializeDiscordUserParams>(
+      InitializeDiscordUserParams.getCoreAction(),
+      (params, sender) => {
+        return this.discordService.initializeUserWithAuthorizationCode(
+          params.code,
+          this.getDomainFromSender(sender),
+        );
+      },
+    ),
+    new CoreActionHandler<GetDiscordInstallationUrlParams>(
+      GetDiscordInstallationUrlParams.getCoreAction(),
+      (params, sender) => {
+        // This is a bit of a hack, but literally the ONLY place we can
+        // get a tab ID is from this message sender in the extension.
+        // But the URL must be formulated in the core itself, so we pass
+        // the tab ID directly to the core. So what we do is we'll pass
+        // any redirectTabId in the params, and overrride it with the
+        // sender.tab.id which will be accurate.
+        if (params.redirectTabId != null && sender?.tab?.id != null) {
+          return this.discordService.installationUrl(
+            sender.tab.id,
+            this.getDomainFromSender(sender),
+          );
+        }
+
+        return this.discordService.installationUrl(
+          undefined,
+          this.getDomainFromSender(sender),
+        );
+      },
+    ),
     new CoreActionHandler<GetDiscordGuildProfilesParams>(
       GetDiscordGuildProfilesParams.getCoreAction(),
-      (_params) => {
-        return this.discordService.getGuildProfiles();
+      (_params, sender) => {
+        return this.discordService.getGuildProfiles(
+          this.getDomainFromSender(sender),
+        );
       },
     ),
     new CoreActionHandler<GetDiscordUserProfilesParams>(
       GetDiscordUserProfilesParams.getCoreAction(),
-      (_params) => {
-        return this.discordService.getUserProfiles();
+      (_params, sender) => {
+        return this.discordService.getUserProfiles(
+          this.getDomainFromSender(sender),
+        );
       },
     ),
     new CoreActionHandler<UnlinkDiscordAccountParams>(
       UnlinkDiscordAccountParams.getCoreAction(),
-      (params) => {
-        return this.discordService.unlink(params.discordProfileId);
+      (params, sender) => {
+        return this.discordService.unlink(
+          params.discordProfileId,
+          this.getDomainFromSender(sender),
+        );
       },
     ),
+    // #endregion
+
     new CoreActionHandler<GetMarketplaceListingsByTagParams>(
       GetMarketplaceListingsByTagParams.getCoreAction(),
       (params) => {
@@ -648,39 +683,105 @@ export class RpcCallHandler implements IRpcCallHandler {
           .map((res) => mapToObj(res));
       },
     ),
+
+    // #region Twitter
     new CoreActionHandler<TwitterGetRequestTokenParams>(
       TwitterGetRequestTokenParams.getCoreAction(),
-      (_params) => {
-        return this.twitterService.getOAuth1aRequestToken();
+      (_params, sender) => {
+        return this.twitterService.getOAuth1aRequestToken(
+          this.getDomainFromSender(sender),
+        );
       },
     ),
     new CoreActionHandler<TwitterLinkProfileParams>(
       TwitterLinkProfileParams.getCoreAction(),
-      (params) => {
+      (params, sender) => {
         return this.twitterService.initTwitterProfile(
           params.requestToken,
           params.oAuthVerifier,
+          this.getDomainFromSender(sender),
         );
       },
     ),
     new CoreActionHandler<TwitterUnlinkProfileParams>(
       TwitterUnlinkProfileParams.getCoreAction(),
-      (params) => {
-        return this.twitterService.unlinkProfile(params.id);
+      (params, sender) => {
+        return this.twitterService.unlinkProfile(
+          params.id,
+          this.getDomainFromSender(sender),
+        );
       },
     ),
     new CoreActionHandler<TwitterGetLinkedProfilesParams>(
       TwitterGetLinkedProfilesParams.getCoreAction(),
-      (_params) => {
-        return this.twitterService.getUserProfiles();
+      (_params, sender) => {
+        return this.twitterService.getUserProfiles(
+          this.getDomainFromSender(sender),
+        );
       },
     ),
+    // #endregion
+
     new CoreActionHandler<GetConfigParams>(
       GetConfigParams.getCoreAction(),
       (_params) => {
         return okAsync(this.configProvider.getConfig());
       },
     ),
+
+    // #region Metrics
+    new CoreActionHandler<GetMetricsParams>(
+      GetMetricsParams.getCoreAction(),
+      (_params, sender) => {
+        return this.metricsService.getMetrics(this.getDomainFromSender(sender));
+      },
+    ),
+    new CoreActionHandler<GetUnlockedParams>(
+      GetUnlockedParams.getCoreAction(),
+      (_params, sender) => {
+        return this.metricsService.getUnlocked(
+          this.getDomainFromSender(sender),
+        );
+      },
+    ),
+    // #endregion
+    // #region Integration
+    new CoreActionHandler<RequestPermissionsParams>(
+      RequestPermissionsParams.getCoreAction(),
+      (params, sender) => {
+        return this.integrationService.requestPermissions(
+          params.permissions,
+          this.getDomainFromSender(sender),
+        );
+      },
+    ),
+    new CoreActionHandler<GetPermissionsParams>(
+      GetPermissionsParams.getCoreAction(),
+      (params, sender) => {
+        return this.integrationService.getPermissions(
+          params.domain,
+          this.getDomainFromSender(sender),
+        );
+      },
+    ),
+    new CoreActionHandler<GetTokenVerificationPublicKeyParams>(
+      GetTokenVerificationPublicKeyParams.getCoreAction(),
+      (params) => {
+        return this.integrationService.getTokenVerificationPublicKey(
+          params.domain,
+        );
+      },
+    ),
+    new CoreActionHandler<GetBearerTokenParams>(
+      GetBearerTokenParams.getCoreAction(),
+      (params) => {
+        return this.integrationService.getBearerToken(
+          params.nonce,
+          params.domain,
+        );
+      },
+    ),
+    // #endregion
   ];
 
   constructor(
@@ -706,6 +807,9 @@ export class RpcCallHandler implements IRpcCallHandler {
     protected twitterService: ITwitterService,
     @inject(IConfigProviderType)
     protected configProvider: IConfigProvider,
+    @inject(IMetricsServiceType) protected metricsService: IMetricsService,
+    @inject(IIntegrationServiceType)
+    protected integrationService: IIntegrationService,
   ) {}
 
   public async handleRpcCall(
@@ -737,6 +841,14 @@ export class RpcCallHandler implements IRpcCallHandler {
       return okAsync(TokenId(BigInt(tokenId)));
     }
     return this.cryptoUtils.getTokenId();
+  }
+
+  private getDomainFromSender(
+    sender: Runtime.MessageSender | undefined,
+  ): DomainName {
+    // TODO: If the sender is undefined we need to do something smart here.
+    const url = new URL(sender?.tab?.url ?? "");
+    return DomainName(url.hostname);
   }
 }
 

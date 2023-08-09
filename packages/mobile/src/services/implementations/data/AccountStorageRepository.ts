@@ -9,8 +9,8 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
-import { IAccountStorageRepository } from "../../interfaces/data/IAccountStorageRepository";
 
+import { IAccountStorageRepository } from "../../interfaces/data/IAccountStorageRepository";
 import { MobileCookieError } from "../../interfaces/objects/errors/MobileCookieError";
 import { IUnlockParams } from "../../interfaces/objects/params/IParams";
 export enum ECookieName {

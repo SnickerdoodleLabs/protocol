@@ -4,6 +4,6 @@ import { DataWalletAddress } from "@objects/primitives/DataWalletAddress";
 
 export class AccountInitializedNotification extends BaseNotification<DataWalletAddress> {
   constructor(protected dataWalletAddress: DataWalletAddress) {
-    super(ENotificationTypes.ACCOUNT_INITIALIZED, dataWalletAddress);
+    super(ENotificationTypes.WALLET_INITIALIZED, dataWalletAddress);
   }
 }

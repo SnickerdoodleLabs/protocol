@@ -1,10 +1,10 @@
 import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
-import React, { useEffect, useMemo, useState } from "react";
+import React from "react";
 
 import emptyNfts from "@extension-onboarding/assets/images/empty-nfts.svg";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/PoapNFTs/PoapNFTs.style";
-import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
 import { PoapNFTItem } from "@extension-onboarding/components/NFTItem";
+import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/PoapNFTs/PoapNFTs.style";
 import { useAppContext, EAppModes } from "@extension-onboarding/context/App";
 import UnauthScreen from "@extension-onboarding/components/UnauthScreen";
 

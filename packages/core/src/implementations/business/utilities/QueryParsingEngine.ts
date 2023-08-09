@@ -1,35 +1,42 @@
 import {
   AdKey,
-  CompensationId,
   DataPermissions,
-  DuplicateIdInSchema,
-  EligibleAd,
-  ERewardType,
-  EvaluationError,
   EVMContractAddress,
-  ExpectedReward,
-  IInsights,
-  IInsightsQueries,
-  IInsightsReturns,
+  EligibleAd,
+  EvaluationError,
+  ISDQLAd,
   InsightString,
   IpfsCID,
-  ISDQLAd,
-  ISDQLCompensations,
-  MissingTokenConstructorError,
   ParserError,
   PersistenceError,
-  PossibleReward,
   QueryExpiredError,
-  QueryFilteredByPermissions,
   QueryFormatError,
-  QueryIdentifier,
   SDQLQuery,
-  SDQLString,
   SDQL_Return,
+  IQueryDeliveryItems,
+  IQueryDeliveryAds,
+  IQueryDeliveryInsights,
+  ProofString,
+  SDQL_Name,
+  DuplicateIdInSchema,
+  MissingTokenConstructorError,
+  EvalNotImplementedError,
+  MissingASTError,
+  PossibleReward,
+  SDQLString,
+  CompensationKey,
+  InsightKey,
+  QueryDeliveryItems,
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
-  AST_Query,
+  AST_Evaluator,
+  IQueryFactories,
+  IQueryFactoriesType,
+  IQueryRepository,
+  IQueryRepositoryType,
+  ISDQLParserFactory,
+  ISDQLParserFactoryType,
   ISDQLQueryUtils,
   ISDQLQueryUtilsType,
   SDQLParser,
@@ -41,19 +48,11 @@ import { BaseOf } from "ts-brand";
 
 import { IQueryParsingEngine } from "@core/interfaces/business/utilities/index.js";
 import {
-  IAST_Evaluator,
-  IQueryFactories,
-  IQueryFactoriesType,
-  IQueryRepository,
-  IQueryRepositoryType,
-} from "@core/interfaces/business/utilities/query/index.js";
-import {
   IAdContentRepository,
   IAdDataRepository,
   IAdDataRepositoryType,
   IAdRepositoryType,
 } from "@core/interfaces/data/index.js";
-
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {
   public constructor(
@@ -69,145 +68,223 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected adDataRepository: IAdDataRepository,
   ) {}
 
-  public getPermittedQueryIdsAndExpectedRewards(
-    query: SDQLQuery,
-    dataPermissions: DataPermissions,
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<[QueryIdentifier[], ExpectedReward[]], EvaluationError> {
-    const queryString = query.query;
-    const cid: IpfsCID = query.cid;
-
-    return this.queryUtils
-      .filterQueryByPermissions(queryString, dataPermissions)
-      .andThen((queryFilteredByPermissions) => {
-        return this.constructAndSaveEligibleAds(
-          queryFilteredByPermissions.eligibleAdsMap,
-          cid,
-          consentContractAddress,
-        ).andThen(() => {
-          const expectedRewardList = this.constructExpectedRewards(
-            queryFilteredByPermissions.expectedCompensationsMap,
-          );
-
-          return okAsync<[QueryIdentifier[], ExpectedReward[]]>([
-            queryFilteredByPermissions.permittedQueryIds,
-            expectedRewardList,
-          ]);
-        });
-      });
-  }
-
-  public getPossibleRewards(
-    query: SDQLQuery,
-  ): ResultAsync<PossibleReward[], ParserError> {
-    return this.filterQueryWithAllPermissions(query.query).andThen(
-      (queryFilteredByPermissions) => {
-        return this.constructPossibleRewards(
-          query,
-          queryFilteredByPermissions.expectedCompensationsMap,
-          queryFilteredByPermissions.eligibleAdsMap,
-          query.cid,
-        );
-      },
-    );
-  }
-
   public handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
   ): ResultAsync<
-    IInsights,
-    EvaluationError | QueryFormatError | QueryExpiredError
+    IQueryDeliveryItems,
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
+  > {
+    return this.parseQuery(query).andThen((ast) => {
+      return this.gatherDeliveryItems(ast, query.cid, dataPermissions);
+    });
+  }
+
+  public parseQuery(
+    query: SDQLQuery,
+  ): ResultAsync<
+    AST,
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | MissingASTError
   > {
     return this.queryFactories
       .makeParserAsync(query.cid, query.query)
-      .andThen((sdqlParser) => {
-        return this.gatherInsights(sdqlParser, query.cid, dataPermissions);
-      });
+      .andThen((sdqlParser) => sdqlParser.buildAST());
   }
 
-  /**
-   * Returns an object containing all "eligible compensations" and "eligible ads"
-   * the query has to offer, because the query is evaluated as if the user granted
-   * all permissions.
-   *
-   * @param queryString Content of query as string
+  /** Used for reward generation on the SPA. Purpose is to show all the rewards to the user
+   *  should not be used for anything else !
    */
-  protected filterQueryWithAllPermissions(
-    queryString: SDQLString,
+  public constructAllTheRewardsFromQuery(
+    query: SDQLQuery,
   ): ResultAsync<
-    QueryFilteredByPermissions,
+    PossibleReward[],
+    | EvaluationError
     | QueryFormatError
-    | ParserError
-    | DuplicateIdInSchema
-    | MissingTokenConstructorError
     | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | MissingASTError
+    | PersistenceError
+    | EvalNotImplementedError
   > {
-    return this.queryUtils.filterQueryByPermissions(
-      queryString,
-      DataPermissions.createWithAllPermissions(),
+    return this.parseQuery(query).andThen((ast) => {
+      const [compensationKeys, insightAndAdKeys] = this.getTotalQueryKeys(ast);
+      return this.queryUtils.filterCompensationsForPreviews(
+        query.cid,
+        query.query,
+        compensationKeys,
+        insightAndAdKeys,
+      );
+    });
+  }
+
+  public getPossibleQueryDeliveryItems(
+    query: SDQLQuery,
+  ): ResultAsync<
+    IQueryDeliveryItems,
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
+  > {
+    return this.handleQuery(query, DataPermissions.createWithAllPermissions());
+  }
+
+  /** Used for reward generation on the SPA. Purpose is to show all the rewards to the user
+   *  should not be used for anything else !
+   */
+  protected getTotalQueryKeys(
+    ast: AST,
+  ): [CompensationKey[], (InsightKey | AdKey)[]] {
+    const compensationKeys: CompensationKey[] = [
+      ...ast.compensations.keys(),
+    ].map((compKey) => CompensationKey(compKey));
+
+    const insightKeys: InsightKey[] = [...ast.insights.keys()].map(
+      (insightKey) => InsightKey(insightKey),
+    );
+
+    const adKeys: AdKey[] = [...ast.ads.keys()].map((adKey) => AdKey(adKey));
+    return [compensationKeys, [...insightKeys, ...adKeys]];
+  }
+
+  protected getInsightAndAdKeys({
+    ads,
+    insights,
+  }: IQueryDeliveryItems): (InsightKey | AdKey)[] {
+    const answeredInsightAndAdKeys: (InsightKey | AdKey)[] = [];
+
+    if (ads) {
+      Object.entries(ads).forEach(([adKey, adValue]) => {
+        if (adValue !== null) {
+          answeredInsightAndAdKeys.push(AdKey(adKey));
+        }
+      }, []);
+    }
+
+    if (insights) {
+      Object.entries(insights).forEach(([insightKey, insightValue]) => {
+        if (insightValue !== null) {
+          answeredInsightAndAdKeys.push(InsightKey(insightKey));
+        }
+      });
+    }
+
+    return answeredInsightAndAdKeys;
+  }
+
+  protected gatherDeliveryItems(
+    ast: AST,
+    cid: IpfsCID,
+    dataPermissions: DataPermissions,
+  ): ResultAsync<
+    IQueryDeliveryItems,
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | PersistenceError
+    | EvalNotImplementedError
+  > {
+    const astEvaluator = this.queryFactories.makeAstEvaluator(
+      cid,
+      dataPermissions,
+    );
+
+    const insightProm = this.gatherDeliveryInsights(ast, astEvaluator);
+    //Will become async in the future
+    const adSigProm = this.gatherDeliveryAds(ast, cid, dataPermissions);
+
+    return ResultUtils.combine([insightProm]).map(([insightWithProofs]) => {
+      return {
+        insights: insightWithProofs,
+        ads: adSigProm,
+      };
+    });
+  }
+
+  protected gatherDeliveryInsights(
+    ast: AST,
+    astEvaluator: AST_Evaluator,
+  ): ResultAsync<
+    IQueryDeliveryInsights,
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | PersistenceError
+    | EvalNotImplementedError
+  > {
+    const astInsightArray = Array.from(ast.insights);
+    const insightMapResult = astInsightArray.map(([_qName, astInsight]) => {
+      return astEvaluator.evalInsight(astInsight).map((insight) => {
+        return [_qName, insight] as [SDQL_Name, SDQL_Return];
+      });
+    });
+    return ResultUtils.combine(insightMapResult).map((insightMap) => {
+      return this.createDeliveryInsightObject(insightMap);
+    });
+  }
+
+  protected createDeliveryInsightObject(
+    insightMap: [SDQL_Name, SDQL_Return][],
+  ): IQueryDeliveryInsights {
+    return insightMap.reduce<IQueryDeliveryInsights>(
+      (deliveryInsights, [insightName, insight]) => {
+        if (insight !== null) {
+          deliveryInsights[insightName] = {
+            insight: this.SDQLReturnToInsight(insight),
+            proof: this.calculateInsightProof(insight),
+          };
+        } else {
+          deliveryInsights[insightName] = null;
+        }
+        return deliveryInsights;
+      },
+      {},
     );
   }
 
-  protected constructPossibleRewards(
-    query: SDQLQuery,
-    compensationsMap: Map<CompensationId, ISDQLCompensations>,
-    adsMap: Map<AdKey, ISDQLAd>,
+  protected gatherDeliveryAds(
+    ast: AST,
     cid: IpfsCID,
-  ): ResultAsync<
-    PossibleReward[],
-    | QueryFormatError
-    | ParserError
-    | DuplicateIdInSchema
-    | MissingTokenConstructorError
-    | QueryExpiredError
-  > {
-    return this.queryFactories
-      .makeParserAsync(cid, query.query)
-      .andThen((parser) => {
-        return parser.buildAST().map(() => parser);
-      })
-      .andThen((parser) => {
-        const rewardList: PossibleReward[] = [];
-        for (const currentKeyAsString in compensationsMap) {
-          const currentCompId = CompensationId(currentKeyAsString);
-          rewardList.push(
-            new PossibleReward(
-              cid,
-              currentCompId,
-              this.queryUtils.getQueryTypeDependencies(parser, currentCompId),
-              compensationsMap[currentCompId].name,
-              compensationsMap[currentCompId].image,
-              compensationsMap[currentCompId].description,
-              compensationsMap[currentCompId].chainId,
-              ERewardType.Direct,
-            ),
-          );
-        }
-        return okAsync(rewardList);
-      });
-  }
-
-  protected constructExpectedRewards(
-    iSDQLCompensationsMap: Map<CompensationId, ISDQLCompensations>,
-  ): ExpectedReward[] {
-    const expectedRewardList: ExpectedReward[] = [];
-    for (const currentKeyAsString in iSDQLCompensationsMap) {
-      const currentSDQLCompensationsKey = CompensationId(currentKeyAsString);
-      const currentSDQLCompensationsObject: ISDQLCompensations =
-        iSDQLCompensationsMap[currentSDQLCompensationsKey];
-
-      expectedRewardList.push(
-        new ExpectedReward(
-          currentSDQLCompensationsKey,
-          currentSDQLCompensationsObject.description,
-          currentSDQLCompensationsObject.chainId,
-          JSON.stringify(currentSDQLCompensationsObject.callback),
-          ERewardType.Direct,
-        ),
-      );
-    }
-    return expectedRewardList;
+    dataPermissions: DataPermissions,
+  ): IQueryDeliveryAds {
+    const adSigProm: IQueryDeliveryAds = {};
+    ast.ads.forEach((value) => {
+      adSigProm[value.key] = null;
+    });
+    return adSigProm;
   }
 
   protected constructAndSaveEligibleAds(
@@ -252,142 +329,31 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     return eligibleAdList;
   }
 
-  protected gatherInsights(
-    sdqlParser: SDQLParser,
+  protected getAstAndAstEvaluator(
     cid: IpfsCID,
+    sdqlParser: SDQLParser,
     dataPermissions: DataPermissions,
   ): ResultAsync<
-    IInsights,
-    EvaluationError | QueryFormatError | QueryExpiredError
-  > {
-    return this.getAstAndAstEvaluator(sdqlParser, cid).andThen(
-      ([ast, astEvaluator]) => {
-        return ResultUtils.combine([
-          this.getAndEvalPermittedReturns(ast, astEvaluator, dataPermissions),
-          this.getAndEvalPermittedQueries(sdqlParser, ast, dataPermissions),
-        ]).map(([returnAnswers, queryAnswers]) => {
-          return {
-            queries: queryAnswers,
-            returns: returnAnswers,
-          };
-        });
-      },
-    );
-  }
-
-  protected getAstAndAstEvaluator(
-    sdqlParser: SDQLParser,
-    cid: IpfsCID,
-  ): ResultAsync<
-    [AST, IAST_Evaluator],
-    QueryFormatError | QueryExpiredError | ParserError
+    [AST, AST_Evaluator],
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | MissingASTError
   > {
     return sdqlParser.buildAST().map((ast: AST) => {
-      return [
-        ast,
-        this.queryFactories.makeAstEvaluator(cid, ast, this.queryRepository),
-      ];
+      return [ast, this.queryFactories.makeAstEvaluator(cid, dataPermissions)];
     });
   }
 
-  protected getAndEvalPermittedQueries(
-    sdqlParser: SDQLParser,
-    ast: AST,
-    dataPermissions: DataPermissions,
-  ): ResultAsync<
-    IInsightsQueries,
-    EvaluationError | QueryFormatError | QueryExpiredError
-  > {
-    return this.getPermittedQueries(sdqlParser, ast, dataPermissions).andThen(
-      (permittedQueries) => {
-        const allQueries = this.getAllQueriesFromAst(ast);
-
-        return ResultUtils.combine(this.evalQueries(permittedQueries)).map(
-          (results) => {
-            return Object.fromEntries(
-              allQueries.map((query) => {
-                const queryIdentifier = QueryIdentifier(query.name);
-                const sdqlReturn = (results.find(
-                  (result) => result[0] === queryIdentifier,
-                ) || [queryIdentifier, null])[1];
-                return [query.name, this.SDQLReturnToInsight(sdqlReturn)];
-              }),
-            ) as IInsightsQueries;
-          },
-        );
-      },
-    );
-  }
-
-  protected getPermittedQueries(
-    sdqlParser: SDQLParser,
-    ast: AST,
-    dataPermissions: DataPermissions,
-  ): ResultAsync<
-    AST_Query[],
-    EvaluationError | QueryFormatError | QueryExpiredError
-  > {
-    return this.queryUtils
-      .getPermittedQueryIds(sdqlParser, dataPermissions)
-      .map((permittedQueryIds) => {
-        return this.filterQueriesByPermittedQueryIds(
-          this.getAllQueriesFromAst(ast),
-          permittedQueryIds,
-        );
-      });
-  }
-
-  protected getAllQueriesFromAst(ast: AST): AST_Query[] {
-    return Array.from(ast.queries.values());
-  }
-
-  protected filterQueriesByPermittedQueryIds(
-    allQueries: AST_Query[],
-    permittedQueryIds: QueryIdentifier[],
-  ): AST_Query[] {
-    const permittedQueryIdsSet = new Set(permittedQueryIds);
-    return allQueries.filter((query) => {
-      return permittedQueryIdsSet.has(QueryIdentifier(query.name));
-    });
-  }
-
-  protected getAndEvalPermittedReturns(
-    ast: AST,
-    astEvaluator: IAST_Evaluator,
-    dataPermissions: DataPermissions,
-  ): ResultAsync<
-    IInsightsReturns,
-    EvaluationError | QueryFormatError | QueryExpiredError
-  > {
-    const allReturns = [...ast.logic.returns.keys()];
-
-    return ResultUtils.combine(
-      this.evalReturns(
-        ast,
-        astEvaluator,
-        this.getPermittedReturnExpressions(ast, dataPermissions),
-      ),
-    ).map((results) => {
-      return Object.fromEntries(
-        allReturns.map((returnExpr) => {
-          const sdqlReturn = (results.find(
-            (result) => result[0] === returnExpr,
-          ) || [returnExpr, null])[1];
-
-          return [returnExpr, this.SDQLReturnToInsight(sdqlReturn)];
-        }),
-      ) as IInsightsReturns;
-    });
-  }
-
-  protected getPermittedReturnExpressions(
-    ast: AST,
-    dataPermissions: DataPermissions,
-  ): string[] {
-    return [...ast.logic.returns.keys()].filter((returnExpr) => {
-      const requiredPermissions = ast.logic.getReturnPermissions(returnExpr);
-      return dataPermissions.contains(requiredPermissions);
-    });
+  protected calculateInsightProof(
+    insightSource: SDQL_Return,
+  ): ProofString | null {
+    if (insightSource === null) {
+      return null;
+    }
+    return ProofString("");
   }
 
   protected SDQLReturnToInsight(
@@ -402,27 +368,5 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     } else {
       return InsightString(JSON.stringify(actualTypeData));
     }
-  }
-
-  private evalQueries(
-    queries: AST_Query[],
-  ): ResultAsync<[QueryIdentifier, SDQL_Return], EvaluationError>[] {
-    return queries.map((query) =>
-      this.queryRepository
-        .get(IpfsCID(""), query)
-        .map((res) => [QueryIdentifier(query.name), res]),
-    );
-  }
-
-  private evalReturns(
-    ast: AST,
-    astEvaluator: IAST_Evaluator,
-    returnExpressions: string[],
-  ): ResultAsync<[string, SDQL_Return], EvaluationError>[] {
-    return returnExpressions.map((returnExpr) =>
-      astEvaluator
-        .evalAny(ast.logic.returns.get(returnExpr))
-        .map((insight) => [returnExpr, insight]),
-    );
   }
 }

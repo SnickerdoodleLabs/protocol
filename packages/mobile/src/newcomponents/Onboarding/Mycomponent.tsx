@@ -9,10 +9,11 @@ import {
   Platform,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+
 import { useAppContext } from "../../context/AppContextProvider";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import { countries } from "../../services/interfaces/objects/Countries";
 import { useTheme } from "../../context/ThemeContext";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 interface Country {
   label: string;

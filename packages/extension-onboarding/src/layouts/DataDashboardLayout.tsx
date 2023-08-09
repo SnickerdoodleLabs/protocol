@@ -1,11 +1,12 @@
-import Typography from "@extension-onboarding/components/Typography";
-import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import { DashboardContextProvider } from "@extension-onboarding/context/DashboardContext";
 import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import clsx from "clsx";
 import React from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+
+import Typography from "@extension-onboarding/components/Typography";
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { DashboardContextProvider } from "@extension-onboarding/context/DashboardContext";
 const useStyles = makeStyles((theme) => ({
   link: {
     fontFamily: "'Roboto'",

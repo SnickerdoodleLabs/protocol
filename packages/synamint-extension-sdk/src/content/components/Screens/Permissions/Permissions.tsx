@@ -9,6 +9,7 @@ import {
   EWalletDataType,
   Gender,
   PossibleReward,
+  QueryStatus,
   TwitterProfile,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
@@ -16,6 +17,10 @@ import {
   PermissionSelection,
   UI_SUPPORTED_PERMISSIONS,
 } from "@snickerdoodlelabs/shared-components";
+import { ResultAsync, okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+import React, { FC, useCallback, useEffect, useState } from "react";
+
 import { useStyles } from "@synamint-extension-sdk/content/components/Screens/Permissions/Permissions.style";
 import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 import {
@@ -25,15 +30,12 @@ import {
 } from "@synamint-extension-sdk/shared";
 import {
   GetPossibleRewardsParams,
+  GetQueryStatusByCidParams,
   SetBirthdayParams,
   SetGenderParams,
   SetLocationParams,
 } from "@synamint-extension-sdk/shared/interfaces/actions.js";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
-import { JsonRpcError } from "json-rpc-engine";
-import { ResultAsync, okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
-import React, { FC, useCallback, useEffect, useState } from "react";
 
 interface IPermissionsProps {
   coreGateway: ExternalCoreGateway;
@@ -43,8 +45,8 @@ interface IPermissionsProps {
   eventEmitter: UpdatableEventEmitterWrapper;
   isUnlocked: boolean;
   onNextClick: (
-    eligibleRewards: PossibleReward[],
-    missingRewards: PossibleReward[],
+    rewardsThatCanBeAcquired: PossibleReward[],
+    rewardsThatRequireMorePermission: PossibleReward[],
     dataTypes: EWalletDataType[],
   ) => void;
 }
@@ -72,6 +74,19 @@ const Permissions: FC<IPermissionsProps> = ({
     earnedRewards: EarnedReward[];
     possibleRewards: PossibleReward[];
   }>();
+  const [queryStatus, setQueryStatus] = useState<QueryStatus | null>(null);
+
+  useEffect(() => {
+    if (rewards && rewards?.possibleRewards.length > 0) {
+      coreGateway
+        .getQueryStatusByQueryCID(
+          new GetQueryStatusByCidParams(rewards.possibleRewards[0].queryCID),
+        )
+        .map((queryStatus) => {
+          setQueryStatus(queryStatus);
+        });
+    }
+  }, [JSON.stringify(rewards)]);
 
   useEffect(() => {
     getRewards();
@@ -128,9 +143,7 @@ const Permissions: FC<IPermissionsProps> = ({
 
   const getRewards = useCallback(() => {
     return ResultUtils.combine([
-      isUnlocked
-        ? coreGateway.getEarnedRewards()
-        : (okAsync([]) as ResultAsync<EarnedReward[], JsonRpcError>),
+      isUnlocked ? coreGateway.getEarnedRewards() : okAsync([]),
       coreGateway.getPossibleRewards(
         new GetPossibleRewardsParams([domainDetails.consentAddress]),
       ),
@@ -203,7 +216,9 @@ const Permissions: FC<IPermissionsProps> = ({
   const onSocialClick = (socialType: ESocialType) => {
     switch (socialType) {
       case ESocialType.DISCORD: {
-        return coreGateway.discord.installationUrl(true).map((url) => {
+        // We send a dummy tab ID here, because we don't know the tab ID.
+        // In the RpcCallHandler, it will be replaced with the correct tab ID.
+        return coreGateway.discord.installationUrl(-1).map((url) => {
           window.open(url, "_blank");
         });
       }
@@ -234,6 +249,7 @@ const Permissions: FC<IPermissionsProps> = ({
     >
       {rewards ? (
         <PermissionSelection
+          queryStatus={queryStatus}
           setBirthday={(birthday) =>
             coreGateway.setBirtday(new SetBirthdayParams(birthday))
           }

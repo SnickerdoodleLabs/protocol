@@ -1,3 +1,4 @@
+import { keccak256 } from "ethers/lib/utils";
 import React, { useEffect, useRef } from "react";
 import {
   View,
@@ -15,6 +16,7 @@ import {
   Keyboard,
   Alert,
 } from "react-native";
+
 import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import MyComponent from "./Mycomponent";

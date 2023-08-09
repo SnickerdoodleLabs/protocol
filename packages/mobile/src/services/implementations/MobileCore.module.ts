@@ -22,8 +22,6 @@ import {
   IVolatileStorageSchemaProvider,
   IVolatileStorageSchemaProviderType,
   VolatileStorageSchemaProvider,
-  IVolatileStorage,
-  IVolatileStorageType,
   IPersistenceConfigProviderType,
   IPersistenceConfigProvider,
 } from "@snickerdoodlelabs/persistence";
@@ -33,10 +31,7 @@ import {
   IAccountService,
   IAccountServiceType,
 } from "../interfaces/business/IAccountService";
-import {
-  IInvitationService,
-  IInvitationServiceType,
-} from "../interfaces/business/IInvitationService";
+
 import {
   IPIIService,
   IPIIServiceType,

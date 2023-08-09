@@ -5,8 +5,9 @@ import {
   WalletNFT,
   TokenBalance,
   LinkedAccount,
+  ProxyError,
 } from "@snickerdoodlelabs/objects";
-import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
+import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
 
 import CoreHandler from "@synamint-extension-sdk/gateways/handler/CoreHandler";
@@ -34,31 +35,31 @@ export class InternalCoreGateway {
     this._handler.updateRpcEngine(rpcEngine);
   }
 
-  public getState(): ResultAsync<IInternalState, JsonRpcError> {
+  public getState(): ResultAsync<IInternalState, ProxyError> {
     return this._handler.call(new GetInternalStateParams());
   }
-  public getAccounts(): ResultAsync<LinkedAccount[], JsonRpcError> {
+  public getAccounts(): ResultAsync<LinkedAccount[], ProxyError> {
     return this._handler.call(new GetAccountsParams());
   }
-  public getAccountBalances(): ResultAsync<TokenBalance[], JsonRpcError> {
+  public getAccountBalances(): ResultAsync<TokenBalance[], ProxyError> {
     return this._handler.call(new GetAccountBalancesParams());
   }
-  public getAccountNFTs(): ResultAsync<WalletNFT[], JsonRpcError> {
+  public getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError> {
     return this._handler.call(new GetAccountNFTsParams());
   }
-  public isDataWalletAddressInitialized(): ResultAsync<boolean, JsonRpcError> {
+  public isDataWalletAddressInitialized(): ResultAsync<boolean, ProxyError> {
     return this._handler.call(new IsDataWalletAddressInitializedParams());
   }
-  public getFamilyName(): ResultAsync<FamilyName | null, JsonRpcError> {
+  public getFamilyName(): ResultAsync<FamilyName | null, ProxyError> {
     return this._handler.call(new GetFamilyNameParams());
   }
-  public getGivenName(): ResultAsync<GivenName | null, JsonRpcError> {
+  public getGivenName(): ResultAsync<GivenName | null, ProxyError> {
     return this._handler.call(new GetGivenNameParams());
   }
-  public getEmail(): ResultAsync<EmailAddressString | null, JsonRpcError> {
+  public getEmail(): ResultAsync<EmailAddressString | null, ProxyError> {
     return this._handler.call(new GetEmailParams());
   }
-  public getConfig(): ResultAsync<IExtensionConfig, JsonRpcError> {
+  public getConfig(): ResultAsync<IExtensionConfig, ProxyError> {
     return this._handler.call(new GetConfigParams());
   }
 }

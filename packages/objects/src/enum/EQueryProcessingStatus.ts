@@ -1,5 +1,5 @@
 export enum EQueryProcessingStatus {
-  Recieved = 0,
+  Received = 0,
   WaitingForAds = 1,
   AdsCompleted = 2,
   InsightsPosted = 3,

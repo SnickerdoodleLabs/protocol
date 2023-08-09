@@ -1,14 +1,3 @@
-import {
-  DirectReward as DirectRewardComponent,
-  LazyReward as LazyRewardComponent,
-  Web2Reward as Web2RewardComponent,
-} from "@extension-onboarding/components/RewardItems";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { EBadgeType } from "@extension-onboarding/objects";
-import Section, {
-  useSectionStyles,
-} from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";
-import { isSameReward } from "@extension-onboarding/utils";
 import { Box, Grid, Typography } from "@material-ui/core";
 import {
   DirectReward,
@@ -24,18 +13,30 @@ import {
 import { PossibleRewardComponent } from "@snickerdoodlelabs/shared-components";
 import React, { FC, useState } from "react";
 
+import {
+  DirectReward as DirectRewardComponent,
+  LazyReward as LazyRewardComponent,
+  Web2Reward as Web2RewardComponent,
+} from "@extension-onboarding/components/RewardItems";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { EBadgeType } from "@extension-onboarding/objects";
+import Section, {
+  useSectionStyles,
+} from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";
+import { isSameReward } from "@extension-onboarding/utils";
+
 interface ICollectedRewardsProps {
   rewards: EarnedReward[];
   // temporary to read permissions
   possibleRewards: PossibleReward[];
   consentContractAddress: EVMContractAddress;
-  waitingRewards: PossibleReward[];
+  rewardsThatAreBeingProcessed: PossibleReward[];
 }
 const CollectedRewards: FC<ICollectedRewardsProps> = ({
   rewards,
   possibleRewards,
   consentContractAddress,
-  waitingRewards,
+  rewardsThatAreBeingProcessed,
 }) => {
   const sectionClasses = useSectionStyles();
   const { apiGateway } = useAppContext();
@@ -97,14 +98,14 @@ const CollectedRewards: FC<ICollectedRewardsProps> = ({
                 // temporary to read required permissions
                 (possibleRewards
                   .find((item) => isSameReward(item, reward))
-                  ?.queryDependencies.map(
+                  ?.estimatedQueryDependencies.map(
                     (dependency) => QueryTypePermissionMap.get(dependency)!,
                   ) ?? []) as EWalletDataType[],
               )}
             </Box>
           );
         })}
-        {waitingRewards.map((reward, index) => {
+        {rewardsThatAreBeingProcessed.map((reward, index) => {
           return (
             <Box
               flexBasis="calc(20% - 8px)"

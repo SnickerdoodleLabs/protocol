@@ -13,7 +13,10 @@ import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 import { IPIIRepository } from "@synamint-extension-sdk/core/interfaces/data";
-import { IErrorUtils, IErrorUtilsType } from "@synamint-extension-sdk/core/interfaces/utilities";
+import {
+  IErrorUtils,
+  IErrorUtilsType,
+} from "@synamint-extension-sdk/core/interfaces/utilities";
 import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
 
 @injectable()

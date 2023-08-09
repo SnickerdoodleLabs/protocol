@@ -18,14 +18,10 @@ import { ResultUtils } from "neverthrow-result-utils";
 import {
   ETag,
   IOpenSeaMetadata,
-  IPFSError,
   MarketplaceListing,
   MarketplaceTag,
   PagedResponse,
   PagingRequest,
-  QueryTypePermissionMap,
-  QueryTypes,
-  UnauthorizedError,
 } from "@snickerdoodlelabs/objects";
 import { ITagItem, tags } from "./tags";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
@@ -503,7 +499,7 @@ export default function Marketplace() {
               </View>
             )}
           </View>
-          <View style={{height:normalizeHeight(80)}} />
+          <View style={{ height: normalizeHeight(80) }} />
         </SafeAreaView>
       </ScrollView>
     </SafeAreaView>

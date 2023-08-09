@@ -19,15 +19,14 @@ import {
 import Icon from "react-native-vector-icons/Ionicons";
 
 import { useAppContext } from "./AppContextProvider";
-import { IInvitationParams } from "./InvitationContext";
 import Dropdown from "../newcomponents/Dashboard/Dropdown";
 import { normalizeHeight, normalizeWidth } from "../themes/Metrics";
-import { useNavigation } from "@react-navigation/native";
 import CustomSwitch from "../newcomponents/Custom/CustomSwitch";
 import FastImage from "react-native-fast-image";
 import { useTheme } from "./ThemeContext";
+import { IInvitationParams } from "./InvitationContext";
 
-var styles = StyleSheet.create({
+const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)",

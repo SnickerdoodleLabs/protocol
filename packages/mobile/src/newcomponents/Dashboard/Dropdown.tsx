@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+
 import { normalizeWidth } from "../../themes/Metrics";
 import { useTheme } from "../../context/ThemeContext";
 

@@ -1,5 +1,6 @@
-import { Image, StyleSheet, Text, View } from "react-native";
 import React, { useEffect } from "react";
+import { Image, StyleSheet, Text, View } from "react-native";
+
 import { normalizeHeight, normalizeWidth } from "../../../themes/Metrics";
 import { LineBreaker } from "../../Marketplace/CardDetails";
 import { useTheme } from "../../../context/ThemeContext";

@@ -1,10 +1,8 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useEffect } from "react";
-import CardItem from "../../Marketplace/CardItem";
 import { ROUTES } from "../../../constants";
 import { normalizeHeight, normalizeWidth } from "../../../themes/Metrics";
 import { useNavigation } from "@react-navigation/native";
-import { ipfsParse } from "./NFTDetails";
 import { useAppContext } from "../../../context/AppContextProvider";
 import { IDashboardChildrenProps } from "../Dashboard";
 import { useTheme } from "../../../context/ThemeContext";
@@ -14,8 +12,6 @@ export default function NFTs({ data }: IDashboardChildrenProps) {
   const { mobileCore } = useAppContext();
   const theme = useTheme();
   const NFTs = ({ navigation }: any) => {
-    useEffect(() => {
-    }, [data]);
     return (
       <View
         style={{

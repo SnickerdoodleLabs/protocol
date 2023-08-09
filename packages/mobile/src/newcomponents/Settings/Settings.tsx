@@ -1,8 +1,8 @@
+import { useNavigation } from "@react-navigation/native";
 import {
   Button,
   Clipboard,
   Image,
-  Pressable,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -15,16 +15,12 @@ import React, { useEffect } from "react";
 import "@walletconnect/react-native-compat";
 
 import Icon from "react-native-vector-icons/Ionicons";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
+
 import { ROUTES } from "../../constants";
-import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../../context/ThemeContext";
-import Svg, { Path } from "react-native-svg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useWalletConnectModal } from "@walletconnect/modal-react-native";
-import { BlockchainActions } from "./BlockchainActions";
-import { useAppContext } from "../../context/AppContextProvider";
-import { LanguageCode } from "@snickerdoodlelabs/objects";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 export default function Settings() {
   const [clientId, setClientId] = React.useState<string>();

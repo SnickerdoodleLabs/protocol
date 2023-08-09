@@ -1,10 +1,6 @@
 import { ETag, URLString } from "@snickerdoodlelabs/objects";
 
-export interface ITagItem {
-  tag: ETag;
-  iconUrl: string;
-  defaultDisplayName: string;
-}
+import { ITagItem } from "@extension-onboarding/objects/interfaces/ITagItem";
 
 export const tags: ITagItem[] = [
   {

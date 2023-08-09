@@ -1,4 +1,10 @@
 import {
+  EVMContractAddress,
+  IOpenSeaMetadata,
+  IpfsCID,
+} from "@snickerdoodlelabs/objects";
+import React, { useEffect } from "react";
+import {
   ActivityIndicator,
   Button,
   Image,
@@ -9,19 +15,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect } from "react";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
-import Icon from "react-native-vector-icons/Ionicons";
+
 import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
 import { useAppContext } from "../../context/AppContextProvider";
-import RadioButton from "../Custom/RadioButton";
-import MyComponent from "../Onboarding/Mycomponent";
-import {
-  EVMContractAddress,
-  IOpenSeaMetadata,
-  IpfsCID,
-} from "@snickerdoodlelabs/objects";
-import { ipfsParse } from "../Dashboard/NFTs/NFTDetails";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
+
 import { useTheme } from "../../context/ThemeContext";
 
 interface ILoadingProps {

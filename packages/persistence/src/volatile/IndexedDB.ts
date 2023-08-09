@@ -206,7 +206,6 @@ export class IndexedDB {
               );
             };
           } catch (e) {
-            console.log("error", e, "table", name, "obj", obj);
             tx.abort();
             reject(new PersistenceError("Error updating object store", e));
           }
@@ -272,7 +271,9 @@ export class IndexedDB {
       return this.getTransaction(name, "readonly").andThen((tx) => {
         const promise = new Promise((resolve, reject) => {
           const store = tx.objectStore(name);
+
           const request = store.get(key);
+
           request.onsuccess = (event) => {
             resolve(request.result);
           };
@@ -281,10 +282,9 @@ export class IndexedDB {
           };
         });
 
-        return ResultAsync.fromPromise(
-          promise,
-          (e) => new PersistenceError("error getting object", e),
-        ).map((result) => {
+        return ResultAsync.fromPromise(promise, (e) => {
+          return new PersistenceError("error getting object", e);
+        }).map((result) => {
           const obj = result as VolatileStorageMetadata<T>;
           if (
             obj != null &&
@@ -445,6 +445,7 @@ export class IndexedDB {
   ): ResultAsync<VolatileStorageKey, PersistenceError> {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const keyPath = this._keyPaths.get(tableName);
+
     if (keyPath == undefined) {
       return errAsync(new PersistenceError("invalid table name"));
     }
@@ -460,6 +461,7 @@ export class IndexedDB {
         keyPath.forEach((item) => {
           ret.push(this._getRecursiveKey(obj, item));
         });
+
         return okAsync(ret);
       } else {
         return okAsync(this._getRecursiveKey(obj, keyPath));

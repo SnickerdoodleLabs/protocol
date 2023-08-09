@@ -1,10 +1,12 @@
 import React, { useEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
-import Tokens from "./Tokens/Tokens";
+
 import { IDashboardChildrenProps } from "./Dashboard";
 import NFTs from "./NFTs/NFTs";
 import { useTheme } from "../../context/ThemeContext";
+import Tokens from "./Tokens/Tokens";
 
 const Tab = ({ item, isActive }: any) => {
   const theme = useTheme();

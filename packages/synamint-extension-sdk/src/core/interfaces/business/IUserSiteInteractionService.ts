@@ -1,6 +1,7 @@
-import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
 import { SiteVisit, URLString } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
+import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
 
 export interface IUserSiteInteractionService {
   addSiteVisits(

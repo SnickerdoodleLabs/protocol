@@ -1,9 +1,6 @@
 import {
   Animated,
-  Button,
   Dimensions,
-  FlatList,
-  Image,
   Platform,
   RefreshControl,
   SafeAreaView,
@@ -16,25 +13,26 @@ import {
 import React, { useEffect, useMemo, useState } from "react";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import Dropdown from "./Dropdown";
-import DropDownPicker from "react-native-dropdown-picker";
 import Icon from "react-native-vector-icons/Ionicons";
-import DashboardTab from "./DashboardTab";
+
 import { useAppContext } from "../../context/AppContextProvider";
 import { MoralisAPI } from "../../services/implementations/api/MoralisAPI";
-import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
-import Sidebar from "../Custom/Sidebar";
-import RadioButton from "../Custom/RadioButton";
-import MultiSelect from "../Custom/MultiSelect";
-import CustomSwitch from "../Custom/CustomSwitch";
-import { TokenBalance, WalletNFT } from "@snickerdoodlelabs/objects";
+import {
+  AccountAddress,
+  TokenBalance,
+  WalletNFT,
+} from "@snickerdoodlelabs/objects";
 import { useTheme } from "../../context/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
+import DashboardTab from "./DashboardTab";
+import RadioButton from "../Custom/RadioButton";
+import MultiSelect from "../Custom/MultiSelect";
 
 export interface IDashboardChildrenProps {
   data: {
     nfts: any[];
     tokens: any[];
-    totalBalance: Number;
+    totalBalance: number;
     selectedAccount: any;
     setSelectedAccount: any;
     isMainnet: boolean;
@@ -49,9 +47,9 @@ const Dashboard = () => {
   const { mobileCore } = useAppContext();
   const [myNFTs, setMyNFTs] = React.useState<any>();
   const [myTokens, setMyTokens] = React.useState<any[]>([]);
-  const [totalVal, setTotalVal] = React.useState<Number>(0);
+  const [totalVal, setTotalVal] = React.useState<number>(0);
   const { linkedAccounts } = useAppContext();
-  const [selectedAccount, setSelectedAccount] = React.useState(
+  const [selectedAccount, setSelectedAccount] = React.useState<AccountAddress>(
     linkedAccounts[0],
   );
   const [isMainnet, setIsMainnet] = React.useState<boolean>(true);
@@ -138,7 +136,7 @@ const Dashboard = () => {
   }, [selectedAccount, isMainnet, selectedChains]);
 
   useEffect(() => {
-    let accs = [];
+    const accs = [];
     linkedAccounts?.map((acc) => {
       accs.push({ label: acc as string, value: acc as string });
     });
@@ -151,7 +149,7 @@ const Dashboard = () => {
     const chains = isMainnet
       ? selectedChains
       : ["0x13881", "0x89", "0x61", "0xa869"];
-    let allTokens: any[] = [];
+    const allTokens: any[] = [];
     let total = 0;
     if (selectedAccount) {
       await chains.map((res) => {

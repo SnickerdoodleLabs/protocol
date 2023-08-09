@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { View, Text } from "react-native";
-import { PieChart } from "react-native-svg-charts";
 import { Text as SvgText } from "react-native-svg";
 import { useTheme } from "../../context/ThemeContext";
+import { PieChart } from "react-native-svg-charts";
 
 export interface SliceData {
   key: number;
@@ -140,7 +140,12 @@ class PieChartComponent extends React.PureComponent<Props> {
               </View>
               <Text
                 key={item.key}
-                style={{ fontSize: 16, fontWeight: "500", marginTop: 8,color:theme.colors.description }}
+                style={{
+                  fontSize: 16,
+                  fontWeight: "500",
+                  marginTop: 8,
+                  color: theme.colors.description,
+                }}
               >
                 {`${item.value.toFixed(2)}%`}
               </Text>

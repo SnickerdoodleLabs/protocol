@@ -8,6 +8,7 @@ import {
   ScrollView,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import { useTheme } from "../../context/ThemeContext";
 

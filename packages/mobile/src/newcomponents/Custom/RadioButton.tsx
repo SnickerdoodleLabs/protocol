@@ -33,7 +33,7 @@ const RadioButton = ({ label, checked, onPress }: RadioButtonProps) => {
       backgroundColor: "#6E62A6",
     },
     label: {
-      color:theme?.colors.title,
+      color: theme?.colors.title,
       marginLeft: 8,
       fontSize: 16,
     },

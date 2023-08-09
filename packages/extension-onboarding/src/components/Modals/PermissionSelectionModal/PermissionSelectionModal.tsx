@@ -1,7 +1,18 @@
+import { Dialog } from "@material-ui/core";
+import {
+  ESocialType,
+  EVMContractAddress,
+  EWalletDataType,
+  IOpenSeaMetadata,
+  PossibleReward,
+  QueryStatus,
+} from "@snickerdoodlelabs/objects";
+import { PermissionSelection } from "@snickerdoodlelabs/shared-components";
+import React, { FC, useEffect, useState } from "react";
+
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import { useStyles } from "@extension-onboarding/components/Modals/PermissionSelectionModal/PermissionSelectionModal.style";
 import { PERMISSIONS_WITH_ICONS } from "@extension-onboarding/constants/permissions";
-import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
 import { useAppContext, EAppModes } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
@@ -10,17 +21,10 @@ import {
   usePermissionContext,
 } from "@extension-onboarding/context/PermissionContext";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { DiscordProvider, TwitterProvider } from "@extension-onboarding/services/socialMediaProviders/implementations";
-import { Dialog } from "@material-ui/core";
 import {
-  ESocialType,
-  EVMContractAddress,
-  EWalletDataType,
-  IOpenSeaMetadata,
-  PossibleReward,
-} from "@snickerdoodlelabs/objects";
-import { PermissionSelection } from "@snickerdoodlelabs/shared-components";
-import React, { FC, useEffect, useMemo, useState } from "react";
+  DiscordProvider,
+  TwitterProvider,
+} from "@extension-onboarding/services/socialMediaProviders/implementations";
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -50,6 +54,7 @@ const PermissionSelectionModalV2: FC = () => {
   };
 
   const [possibleRewards, setPossibleRewards] = useState<PossibleReward[]>([]);
+  const [queryStatus, setQueryStatus] = useState<QueryStatus | null>(null);
 
   const handleSocialLink = async (socialType: ESocialType) => {
     const twitterProvider = socialMediaProviderList.find(
@@ -86,8 +91,21 @@ const PermissionSelectionModalV2: FC = () => {
       .getPossibleRewards([consentContractAddress])
       .map((res) => {
         setPossibleRewards(res[consentContractAddress] ?? []);
+      })
+      .mapErr((e) => {
+        console.error(e);
       });
   }, []);
+
+  useEffect(() => {
+    if (possibleRewards.length > 0) {
+      window.sdlDataWallet
+        .getQueryStatusByQueryCID(possibleRewards[0].queryCID)
+        .map((queryStatus) => {
+          setQueryStatus(queryStatus);
+        });
+    }
+  }, [possibleRewards]);
 
   const classes = useStyles();
   return (
@@ -102,6 +120,7 @@ const PermissionSelectionModalV2: FC = () => {
       className={classes.container}
     >
       <PermissionSelection
+        queryStatus={queryStatus}
         ipfsBaseUrl={apiGateway.config.ipfsFetchBaseUrl}
         setBirthday={(birthday) =>
           window.sdlDataWallet.setBirthday(birthday).map(() => {
@@ -135,11 +154,15 @@ const PermissionSelectionModalV2: FC = () => {
         consentContractAddress={consentContractAddress}
         onCancelClick={closeModal}
         onAcceptClick={(
-          eligibleRewards: PossibleReward[],
-          missingRewards: PossibleReward[],
+          rewardsThatCanBeAcquired: PossibleReward[],
+          rewardsThatRequireMorePermission: PossibleReward[],
           dataTypes: EWalletDataType[],
         ) => {
-          onPrimaryButtonClick({ eligibleRewards, missingRewards, dataTypes });
+          onPrimaryButtonClick({
+            rewardsThatCanBeAcquired,
+            rewardsThatRequireMorePermission,
+            dataTypes,
+          });
         }}
         isUnlocked={appMode === EAppModes.AUTH_USER}
         onPermissionClickWhenLocked={function (): void {

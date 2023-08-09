@@ -14,14 +14,13 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
-import { IAccountService } from "../../interfaces/business/IAccountService";
 
+import { IAccountService } from "../../interfaces/business/IAccountService";
 import {
   IAccountStorageRepository,
   IAccountStorageRepositoryType,
 } from "../../interfaces/data/IAccountStorageRepository";
 import { SnickerDoodleCoreError } from "../../interfaces/objects/errors/SnickerDoodleCoreError";
-
 import {
   IErrorUtils,
   IErrorUtilsType,

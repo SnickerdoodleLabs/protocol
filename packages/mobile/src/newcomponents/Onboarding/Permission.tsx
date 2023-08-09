@@ -1,6 +1,7 @@
 import { Age, EWalletDataType } from "@snickerdoodlelabs/objects";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Text, Switch } from "react-native";
+
 import { useAppContext } from "../../context/AppContextProvider";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import CustomSwitch from "../Custom/CustomSwitch";

@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import {
   Button,
   FlatList,
@@ -8,11 +9,11 @@ import {
   Text,
   View,
 } from "react-native";
-import React, { useEffect } from "react";
-import CardItem from "./CardItem";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
+
 import { useAppContext } from "../../context/AppContextProvider";
 import { EarnedReward, IpfsCID } from "@snickerdoodlelabs/objects";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
+import CardItem from "./CardItem";
 
 const MarketplaceOld = () => {
   const { mobileCore } = useAppContext();

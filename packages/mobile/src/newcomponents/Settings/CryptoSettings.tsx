@@ -1,3 +1,5 @@
+import { useNavigation } from "@react-navigation/native";
+import React, { useEffect } from "react";
 import {
   Alert,
   Image,
@@ -8,13 +10,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect } from "react";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
-import Icon from "react-native-vector-icons/Ionicons";
+
 import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
 import { useAppContext } from "../../context/AppContextProvider";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import RadioButton from "../Custom/RadioButton";
-import { useNavigation } from "@react-navigation/native";
 import { EVMAccountAddress } from "@snickerdoodlelabs/objects";
 import { useTheme } from "../../context/ThemeContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -252,11 +252,11 @@ export default function CryptoSettings() {
                         fontWeight: "600",
                       }}
                     >
-                      {generatedInfo?.publicKey?.slice(0, 28)}...
+                      {generatedInfo?.publickey?.slice(0, 28)}...
                     </Text>
                     <TouchableOpacity
                       onPress={() => {
-                        handleCopy(generatedInfo?.publicKey ?? "");
+                        handleCopy(generatedInfo?.publickey ?? "");
                       }}
                     >
                       <Image

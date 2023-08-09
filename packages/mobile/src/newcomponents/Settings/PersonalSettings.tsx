@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Image,
   SafeAreaView,
@@ -7,11 +8,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React from "react";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import Icon from "react-native-vector-icons/Ionicons";
+
 import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
 import { useAppContext } from "../../context/AppContextProvider";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import RadioButton from "../Custom/RadioButton";
 import MyComponent from "../Onboarding/Mycomponent";
 import { useTheme } from "../../context/ThemeContext";

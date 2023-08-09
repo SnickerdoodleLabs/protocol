@@ -4,6 +4,10 @@ import {
 } from "@snickerdoodlelabs/common-utils";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
+  IConfigProvider,
+  IConfigProviderType,
+} from "@snickerdoodlelabs/core/dist/interfaces/utilities";
+import {
   AccountAddress,
   ChainId,
   CountryCode,

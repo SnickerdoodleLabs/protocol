@@ -1,14 +1,15 @@
 import { Image, Platform, StyleSheet, Text, View } from "react-native";
 import React, { useEffect } from "react";
-import { normalizeHeight, normalizeWidth } from "../../../themes/Metrics";
-import { IDashboardChildrenProps } from "../Dashboard";
-import TokenItem from "./TokenItem";
-import PieChart, { SliceData } from "../../Custom/PieChart";
 import Pie from "react-native-pie";
 import tinycolor from "tinycolor2";
+
+import { normalizeHeight, normalizeWidth } from "../../../themes/Metrics";
+import PieChart, { SliceData } from "../../Custom/PieChart";
 import PieChartComponent from "../../Custom/PieChart";
 import { useTheme } from "../../../context/ThemeContext";
 import { useAppContext } from "../../../context/AppContextProvider";
+import { IDashboardChildrenProps } from "../Dashboard";
+import TokenItem from "./TokenItem";
 
 export function generateShades(baseColor: string, numShades: number): string[] {
   const shades: string[] = [];

@@ -9,12 +9,12 @@ import {
   Signature,
   TokenBalance,
   UnauthorizedError,
+  IpfsCID,
+  QueryStatus,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import {
-  SnickerDoodleCoreError,
-} from "@synamint-extension-sdk/shared/objects/errors";
+import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
 
 export interface IAccountRepository {
   addAccount(
@@ -50,6 +50,9 @@ export interface IAccountRepository {
     chain: EChain,
   ): ResultAsync<DataWalletAddress | null, SnickerDoodleCoreError>;
   getEarnedRewards(): ResultAsync<EarnedReward[], SnickerDoodleCoreError>;
+  getQueryStatusByQueryCID(
+    queryCID: IpfsCID,
+  ): ResultAsync<QueryStatus | null, SnickerDoodleCoreError>;
 }
 
 export const IAccountRepositoryType = Symbol.for("IAccountRepository");

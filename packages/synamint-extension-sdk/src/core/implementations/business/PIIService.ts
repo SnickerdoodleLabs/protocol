@@ -6,8 +6,10 @@ import {
   Gender,
   EmailAddressString,
   CountryCode,
-  EProfileFieldType
 } from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
+import { ResultAsync } from "neverthrow";
+
 import { IPIIService } from "@synamint-extension-sdk/core/interfaces/business";
 import {
   IPIIRepository,
@@ -18,8 +20,6 @@ import {
   IContextProvider,
 } from "@synamint-extension-sdk/core/interfaces/utilities";
 import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared";
-import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
 
 @injectable()
 export class PIIService implements IPIIService {
@@ -53,9 +53,7 @@ export class PIIService implements IPIIService {
   public setBirthday(
     birthday: UnixTimestamp,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.piiRespository.setBirthday(birthday).map(() => {
-      this.contextProvider.onProfileFieldChanged(EProfileFieldType.DOB);
-    });
+    return this.piiRespository.setBirthday(birthday);
   }
   public getBirthday(): ResultAsync<
     UnixTimestamp | null,
@@ -64,9 +62,7 @@ export class PIIService implements IPIIService {
     return this.piiRespository.getBirthday();
   }
   public setGender(gender: Gender): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.piiRespository.setGender(gender).map(() => {
-      this.contextProvider.onProfileFieldChanged(EProfileFieldType.GENDER);
-    });
+    return this.piiRespository.setGender(gender);
   }
   public getGender(): ResultAsync<Gender | null, SnickerDoodleCoreError> {
     return this.piiRespository.getGender();
@@ -85,9 +81,7 @@ export class PIIService implements IPIIService {
   public setLocation(
     location: CountryCode,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.piiRespository.setLocation(location).map(() => {
-      this.contextProvider.onProfileFieldChanged(EProfileFieldType.LOCATION);
-    });
+    return this.piiRespository.setLocation(location);
   }
   public getLocation(): ResultAsync<
     CountryCode | null,

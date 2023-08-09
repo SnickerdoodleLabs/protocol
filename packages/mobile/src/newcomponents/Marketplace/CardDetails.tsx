@@ -1,4 +1,14 @@
 import {
+  BigNumberString,
+  DomainName,
+  EInvitationStatus,
+  EVMContractAddress,
+  Invitation,
+  Signature,
+  TokenId,
+} from "@snickerdoodlelabs/objects";
+import { okAsync } from "neverthrow";
+import {
   FlatList,
   Image,
   Linking,
@@ -12,23 +22,13 @@ import {
 } from "react-native";
 import React, { useEffect, useMemo, useState } from "react";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
-import { useNavigation } from "@react-navigation/native";
 import { useLayoutContext } from "../../context/LayoutContext";
-import { okAsync } from "neverthrow";
 import {
-  BigNumberString,
-  DomainName,
-  EInvitationStatus,
-  EVMContractAddress,
   EWalletDataType,
   IOpenSeaMetadata,
-  Invitation,
   MarketplaceListing,
   PossibleReward,
   QueryTypePermissionMap,
-  PermissionQueryTypeMap,
-  Signature,
-  TokenId,
   QueryTypes,
   IConsentCapacity,
 } from "@snickerdoodlelabs/objects";

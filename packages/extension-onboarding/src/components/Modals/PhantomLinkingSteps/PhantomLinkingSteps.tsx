@@ -1,7 +1,8 @@
 import { Button, Box, makeStyles, Dialog, Typography } from "@material-ui/core";
 import React, { useContext, useEffect, useMemo, useState, FC } from "react";
-import phantomStepsImage from "@extension-onboarding/assets/images/phantom-steps.png";
+
 import phantomPlaceholderImage from "@extension-onboarding/assets/images/phantom-placeholder.png";
+import phantomStepsImage from "@extension-onboarding/assets/images/phantom-steps.png";
 import { useStyles } from "@extension-onboarding/components/Modals/PhantomLinkingSteps/PhantomLinkingSteps.style";
 import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";

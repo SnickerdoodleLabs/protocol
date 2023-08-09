@@ -1,5 +1,5 @@
-import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import React from "react";
 import { COLORS, ROUTES } from "../constants";
 import Icon from "react-native-vector-icons/Ionicons";
 import {
@@ -35,7 +35,7 @@ const BottomTabNavigator = () => {
               name={iconName}
               size={22}
               color={theme?.colors.bottomTabColor}
-            /*   style={{ marginTop: normalizeHeight(15) }} */
+              /*   style={{ marginTop: normalizeHeight(15) }} */
             />
           );
         },
@@ -46,7 +46,6 @@ const BottomTabNavigator = () => {
           backgroundColor: theme?.colors.bottomTabBackground,
           overflow: "hidden",
           position: "absolute",
-        
         },
       })}
     >

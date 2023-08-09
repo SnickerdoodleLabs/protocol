@@ -13,13 +13,6 @@ import {
   KeyboardDatePicker,
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
-import { useStyles } from "@shared-components/components/PermissionBar/PermissionBar.style";
-import {
-  COUNTRIES,
-  PERMISSIONS_WITH_ICONS,
-  UI_SUPPORTED_PERMISSIONS,
-} from "@shared-components/constants";
-import { useDatePickerPopoverStyles } from "@shared-components/styles/datePickerPopover";
 import {
   CountryCode,
   ESocialType,
@@ -33,6 +26,14 @@ import { Select } from "formik-material-ui";
 import { ResultAsync } from "neverthrow";
 import React, { FC, useMemo, useState } from "react";
 import * as yup from "yup";
+
+import { useStyles } from "@shared-components/components/PermissionBar/PermissionBar.style";
+import {
+  COUNTRIES,
+  PERMISSIONS_WITH_ICONS,
+  UI_SUPPORTED_PERMISSIONS,
+} from "@shared-components/constants";
+import { useDatePickerPopoverStyles } from "@shared-components/styles/datePickerPopover";
 
 interface IPermissionBarProps {
   setBirthday(birthday: UnixTimestamp): ResultAsync<void, unknown>;
@@ -151,11 +152,13 @@ export const PermissionBar: FC<IPermissionBarProps> = ({
       //   onCloseOrFail();
       return;
     } else {
-      setBirthday(
-        (+new Date(values.date_of_birth) / 1000) as UnixTimestamp,
-      ).map(() => {
-        onClick(EWalletDataType.Age);
-      });
+      setBirthday((+new Date(values.date_of_birth) / 1000) as UnixTimestamp)
+        .map(() => {
+          onClick(EWalletDataType.Age);
+        })
+        .mapErr((e) => {
+          console.error(e);
+        });
     }
   };
   const onCountryFormSubmit = async (values: {
@@ -165,18 +168,26 @@ export const PermissionBar: FC<IPermissionBarProps> = ({
       //   onCloseOrFail();
       return;
     } else {
-      setLocation(values.country_code).map(() => {
-        onClick(EWalletDataType.Location);
-      });
+      setLocation(values.country_code)
+        .map(() => {
+          onClick(EWalletDataType.Location);
+        })
+        .mapErr((e) => {
+          console.error(e);
+        });
     }
   };
   const onGenderFormSubmit = async (values: { gender: Gender | null }) => {
     if (values.gender === null) {
       return;
     } else {
-      setGender(values.gender).map(() => {
-        onClick(EWalletDataType.Gender);
-      });
+      setGender(values.gender)
+        .map(() => {
+          onClick(EWalletDataType.Gender);
+        })
+        .mapErr((e) => {
+          console.error(e);
+        });
     }
   };
 

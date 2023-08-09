@@ -400,6 +400,7 @@ export class BackupManager implements IBackupManager {
         if (found == null) {
           return okAsync(true);
         }
+
         return okAsync(found.lastUpdate < timestamp);
       });
   }

@@ -1,3 +1,6 @@
+import { Box, Grid, Typography } from "@material-ui/core";
+import React, { useState } from "react";
+
 import facebookIcon from "@extension-onboarding/assets/icons/facebook-icon.svg";
 import instagramIcon from "@extension-onboarding/assets/icons/instagram-icon.svg";
 import linkedinIcon from "@extension-onboarding/assets/icons/linkedin-icon.svg";
@@ -24,8 +27,6 @@ import {
 import useUserAgent, {
   EUserAgent,
 } from "@extension-onboarding/hooks/useUserAgent";
-import { Box, Grid, Typography } from "@material-ui/core";
-import React, { useState } from "react";
 
 const MobileScreen = () => {
   const userAgent = useUserAgent();

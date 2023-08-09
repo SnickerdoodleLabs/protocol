@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/utils",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "Utilities for general consumption within the Snickerdoodle Protocol",
   "license": "ISC",
   "repository": {
@@ -40,7 +40,8 @@
   "dependencies": {
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
-    "inversify": "^5.1.1",
-    "neverthrow": "^5.1.0"
+    "inversify": "^6.0.1",
+    "neverthrow": "^5.1.0",
+    "postmate": "^1.5.2"
   }
 }

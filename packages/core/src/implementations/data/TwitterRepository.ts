@@ -18,6 +18,8 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+import { urlJoin } from "url-join-ts";
 
 import {
   IOauthUtils,
@@ -26,13 +28,11 @@ import {
   ISocialRepositoryType,
   ITwitterRepository,
 } from "@core/interfaces/data/index.js";
+import { EHttpMethods } from "@core/interfaces/enums/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
 } from "@core/interfaces/utilities/index.js";
-import { ResultUtils } from "neverthrow-result-utils";
-import { urlJoin } from "url-join-ts";
-import { EHttpMethods } from "@core/interfaces/enums/index.js";
 
 @injectable()
 export class TwitterRepository implements ITwitterRepository {
@@ -49,7 +49,7 @@ export class TwitterRepository implements ITwitterRepository {
         .getOauth1RequestToken(
           URLString(urlJoin(config.oAuthBaseUrl, "/request_token")),
           config,
-          EHttpMethods.POST
+          EHttpMethods.POST,
         )
         .mapErr((e) => {
           return new TwitterError(e.message, e);
@@ -193,7 +193,7 @@ export class TwitterRepository implements ITwitterRepository {
     userId: TwitterID,
     oAuth1Access: TokenAndSecret,
     nextPageToken?: string,
-    recursionCount: number = 1,
+    recursionCount = 1,
   ): ResultAsync<TwitterUserObject[], TwitterError> {
     const url = URLString(
       urlJoin(config.dataAPIUrl, `/users/${userId}/followers`),
@@ -207,7 +207,7 @@ export class TwitterRepository implements ITwitterRepository {
       .makeAPICallWithOAuth1<{
         data: TwitterUserObject[];
         meta: { result_count: number; next_token: string };
-      }>(url,  EHttpMethods.GET, config, oAuth1Access, pathParams)
+      }>(url, EHttpMethods.GET, config, oAuth1Access, pathParams)
       .mapErr((error) => {
         return new TwitterError(error.message, error);
       })
@@ -233,7 +233,7 @@ export class TwitterRepository implements ITwitterRepository {
     userId: TwitterID,
     oAuth1Access: TokenAndSecret,
     nextPageToken?: string,
-    recursionCount: number = 1,
+    recursionCount = 1,
   ): ResultAsync<TwitterUserObject[], TwitterError> {
     const url = URLString(
       urlJoin(config.dataAPIUrl, `/users/${userId}/following`),
@@ -246,7 +246,7 @@ export class TwitterRepository implements ITwitterRepository {
       .makeAPICallWithOAuth1<{
         data: TwitterUserObject[];
         meta: { result_count: number; next_token: string };
-      }>(url,  EHttpMethods.GET, config, oAuth1Access, pathParams)
+      }>(url, EHttpMethods.GET, config, oAuth1Access, pathParams)
       .mapErr((error) => {
         return new TwitterError(error.message, error);
       })

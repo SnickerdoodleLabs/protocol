@@ -18,32 +18,27 @@ import {
   StyleSheet,
   useColorScheme,
   LogBox,
-  Linking,
   Clipboard,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { Colors } from "react-native/Libraries/NewAppScreen";
-import AccountLinkingContextProvider, {
-  useAccountLinkingContext,
-} from "./context/AccountLinkingContextProvider";
-import LayoutContextProvider from "./context/LayoutContext";
+
+import AccountLinkingContextProvider from "./context/AccountLinkingContextProvider";
 import AppContextProvider, {
   useAppContext,
 } from "./context/AppContextProvider";
 import EventContextProvider from "./context/EventContextProvider";
 import InvitationContextProvider from "./context/InvitationContext";
-import DeepLinkHandler from "./navigators/DeepLinkHandler";
-import BottomTabNavigator from "./navigators/BottomTabNavigator";
+import LayoutContextProvider from "./context/LayoutContext";
 import { AuthNavigator } from "./navigators/AuthNavigator";
 import Orientation from "react-native-orientation-locker";
 import { ThemeContextProvider } from "./context/ThemeContext";
-import {
-  useWalletConnectModal,
-  WalletConnectModal,
-} from "@walletconnect/modal-react-native";
-import { providerMetadata, sessionParams } from "./constants/WCConfig";
+import { WalletConnectModal } from "@walletconnect/modal-react-native";
+import { providerMetadata } from "./constants/WCConfig";
 import setGlobalVars from "indexeddbshim/dist/indexeddbshim-noninvasive";
 import SQLite from "react-native-sqlite-2";
+import { Colors } from "react-native/Libraries/NewAppScreen";
+import DeepLinkHandler from "./navigators/DeepLinkHandler";
+import BottomTabNavigator from "./navigators/BottomTabNavigator";
 
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
