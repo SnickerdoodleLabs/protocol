@@ -22,6 +22,7 @@ COPY packages/persistence/package.json /build/packages/persistence/package.json
 COPY packages/query-parser/package.json /build/packages/query-parser/package.json
 COPY packages/shared-components/package.json /build/packages/shared-components/package.json
 COPY packages/signatureVerification/package.json /build/packages/signatureVerification/package.json
+COPY packages/static-web-integration/package.json /build/packages/static-web-integration/package.json
 COPY packages/synamint-extension-sdk/package.json /build/packages/synamint-extension-sdk/package.json
 COPY packages/test-harness/package.json /build/packages/test-harness/package.json
 COPY packages/utils/package.json /build/packages/utils/package.json
