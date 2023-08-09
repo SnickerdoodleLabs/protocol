@@ -1,7 +1,7 @@
 export * from "@objects/businessObjects/events/BackupCreatedEvent.js";
 export * from "@objects/businessObjects/events/BackupRestoreEvent.js";
 
-export * from "@objects/businessObjects/events/CloudProviderSelectedEvent.js";
+export * from "@objects/businessObjects/events/CloudProviderActivatedEvent.js";
 
 export * from "@objects/businessObjects/events/DataPermissionsUpdatedEvent.js";
 export * from "@objects/businessObjects/events/PermissionsGrantedEvent.js";

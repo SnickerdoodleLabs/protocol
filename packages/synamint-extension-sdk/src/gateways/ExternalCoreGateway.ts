@@ -507,7 +507,7 @@ export class ExternalCoreGateway {
     return this._handler.call(params);
   }
 
-  public getDropboxAuthUrl(): ResultAsync<URLString, ProxyError> {
+  public getDropboxAuth(): ResultAsync<URLString, ProxyError> {
     return this._handler.call(new GetDropBoxAuthUrlParams());
   }
 

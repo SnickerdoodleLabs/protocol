@@ -46,8 +46,6 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
     pathToFind: string,
   ): NestedFolder | undefined {
     for (const folder of nestedArray) {
-      console.log("folder: " + folder);
-
       if (folder.path === pathToFind) {
         return folder;
       }
@@ -67,7 +65,6 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
     setLoadingStatus(true);
     onCreateRequested(values.name.trim(), targetPath ? targetPath : "")
       .map(() => {
-        console.log("Handle Submit");
         setIsNewFolderModalOpen(false);
         setLoadingStatus(false);
         setAlert({
@@ -91,8 +88,6 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
     currentPath = "/",
   } = useMemo(() => {
     if (!targetPath) {
-      console.log("targetPath: " + targetPath);
-
       return {
         foldersToRender: folders,
         backRoute: undefined,
@@ -101,8 +96,6 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
     }
     const folder = findItemByPath(folders, targetPath);
     const folderPath = folder?.path || "";
-    console.log("folderPath: " + folderPath);
-
     return {
       foldersToRender: folder?.children ?? ([] as NestedFolder[]),
       currentPath: folder?.name,
@@ -115,8 +108,6 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
   const handleClick = React.useCallback(
     debounce((event: React.MouseEvent<HTMLElement>, path: string) => {
       const clickCount = event.detail;
-      console.log("clickCount: " + clickCount);
-
       if (clickCount === 1) {
         setSelected(path);
       } else if (clickCount === 2) {

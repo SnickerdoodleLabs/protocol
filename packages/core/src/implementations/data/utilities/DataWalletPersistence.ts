@@ -303,8 +303,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public pollBackups(): ResultAsync<void, PersistenceError> {
     // We should only be polling for backups once at a time; if we try to poll
     // multiple times in parallel notify the user and return the current poll
-
-    this.logUtils.log(`Hitting poll backups`);
     if (this.currentPoll != null) {
       this.logUtils.warning(`Already polling for backups and restoring`);
       return this.currentPoll;

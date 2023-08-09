@@ -708,6 +708,14 @@ export class SnickerdoodleIFrameProxy
       accessToken,
     });
   }
+  authenticateDropbox(code: string): ResultAsync<AccessToken, ProxyError> {
+    return this._createCall("credentials.authenticateDropbox", {
+      code,
+    });
+  }
+  getDropboxAuth(): ResultAsync<URLString, ProxyError> {
+    return this._createCall("credentials.getDropboxAuthUrl", {});
+  }
 
   public events: PublicEvents;
 

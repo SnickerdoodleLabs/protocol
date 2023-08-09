@@ -74,13 +74,6 @@ export class CloudStorageService implements ICloudStorageService {
       });
   }
 
-  public getCredentials(): ResultAsync<
-    AuthenticatedStorageSettings | null,
-    PersistenceError
-  > {
-    return this.authenticatedStorageRepo.getCredentials();
-  }
-
   public getDropboxAuth(): ResultAsync<URLString, never> {
     return this.configProvider.getConfig().map((config) => {
       return URLString(
@@ -96,10 +89,11 @@ export class CloudStorageService implements ICloudStorageService {
   public authenticateDropbox(
     code: string,
   ): ResultAsync<AccessToken, AjaxError> {
-    return this.configProvider.getConfig().andThen((config) => {
-      // pass in code
-      return this.ajaxUtils
-        .post<{ access_token: AccessToken }>(
+    return this.configProvider
+      .getConfig()
+      .andThen((config) => {
+        // pass in code
+        return this.ajaxUtils.post<{ access_token: AccessToken }>(
           new URL("https://api.dropbox.com/oauth2/token"),
           new URLSearchParams({
             client_id: config.dropboxAppKey,
@@ -114,13 +108,8 @@ export class CloudStorageService implements ICloudStorageService {
               accept: "*/*",
             },
           } as IRequestConfig,
-        )
-        .map((tokens) => {
-          console.log("Tokens are : " + JSON.stringify(tokens));
-
-          //do some extra stuff here and return the access token
-          return tokens.access_token;
-        });
-    });
+        );
+      })
+      .map((tokens) => tokens.access_token);
   }
 }

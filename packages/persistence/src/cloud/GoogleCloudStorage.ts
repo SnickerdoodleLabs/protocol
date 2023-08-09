@@ -22,6 +22,7 @@ import {
   ECloudStorageType,
   AccessToken,
   AuthenticatedStorageSettings,
+  ParsedBackupFileName,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -61,7 +62,7 @@ export class GoogleCloudStorage implements ICloudStorage {
   }
 
   public name(): ECloudStorageType {
-    return ECloudStorageType.Snickerdoodle;
+    return ECloudStorageType.Local_Only;
   }
 
   public pollByStorageType(
@@ -334,39 +335,5 @@ export class GoogleCloudStorage implements ICloudStorage {
         this.logUtils.error("Error getting wallet listing from Google", e);
         return okAsync([]);
       });
-  }
-}
-
-class ParsedBackupFileName {
-  public constructor(
-    public priority: EBackupPriority,
-    public dataType: StorageKey,
-    public timestamp: number,
-    public hash: DataWalletBackupID,
-    public isField: boolean,
-  ) {}
-
-  public static parse(path: string): ParsedBackupFileName | null {
-    const name = path.split(/[/ ]+/).pop();
-    if (name == undefined) {
-      return null;
-    }
-
-    const split = name.split("_");
-    if (split.length != 5) {
-      return null;
-    }
-
-    return new ParsedBackupFileName(
-      Number.parseInt(split[0]) as EBackupPriority,
-      ParsedBackupFileName._getDataType(split[1]),
-      Number.parseInt(split[2]),
-      split[3] as DataWalletBackupID,
-      split[4] == "true",
-    );
-  }
-
-  private static _getDataType(raw: string): StorageKey {
-    return raw.replace("$", "_") as StorageKey;
   }
 }

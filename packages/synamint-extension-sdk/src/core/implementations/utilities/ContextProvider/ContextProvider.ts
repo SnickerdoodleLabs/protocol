@@ -13,8 +13,8 @@ import {
   EProfileFieldType,
   ProfileFieldChangedNotification,
   SocialProfileLinkedNotification,
-  CloudProviderSelectedEvent,
-  CloudProviderSelectedNotification,
+  CloudProviderActivatedEvent,
+  CloudProviderActivatedNotification,
   ECloudStorageType,
   ProfileFieldUpdate,
 } from "@snickerdoodlelabs/objects";
@@ -113,9 +113,9 @@ export class ContextProvider implements IContextProvider {
     );
   }
 
-  public cloudStorageAltered(event: CloudProviderSelectedEvent): void {
+  public onCloudStorageActivated(event: CloudProviderActivatedEvent): void {
     this.appContext.notifyAllConnections(
-      new CloudProviderSelectedNotification(event),
+      new CloudProviderActivatedNotification(event),
     );
   }
 

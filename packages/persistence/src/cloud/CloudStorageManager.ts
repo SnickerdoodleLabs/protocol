@@ -5,7 +5,7 @@ import {
 import {
   AuthenticatedStorageSettings,
   ECloudStorageType,
-  CloudProviderSelectedEvent,
+  CloudProviderActivatedEvent,
   CloudStorageError,
   URLString,
   AccessToken,
@@ -41,6 +41,7 @@ import {
 @injectable()
 export class CloudStorageManager implements ICloudStorageManager {
   protected provider: ICloudStorage = new NullCloudStorage();
+
   protected initializeResult: ResultAsync<ICloudStorage, never>;
   protected resolveProvider: null | ((provider: ICloudStorage) => void) = null;
   protected activated = false;
@@ -84,8 +85,7 @@ export class CloudStorageManager implements ICloudStorageManager {
           "https://www.dropbox.com/oauth2/authorize?client_id=" +
             config.dropboxAppKey +
             "&response_type=code&redirect_uri=" +
-            // config.dropboxRedirectUri,
-            "https://localhost:9005/settings/storage",
+            config.dropboxRedirectUri,
         ),
       );
     });
@@ -100,10 +100,8 @@ export class CloudStorageManager implements ICloudStorageManager {
   ): ResultAsync<void, PersistenceError> {
     if (credentials.type == ECloudStorageType.Dropbox) {
       this.provider = this.dropbox;
-    } else if (credentials.type == ECloudStorageType.Snickerdoodle) {
-      this.provider = this.gDrive;
     } else {
-      return okAsync(undefined);
+      return errAsync(new PersistenceError("Unknown Cloud Provider Selected"));
     }
 
     return this.provider.saveCredentials(credentials).andThen(() => {
@@ -119,7 +117,7 @@ export class CloudStorageManager implements ICloudStorageManager {
       this.resolveProvider!(this.provider);
       this.activated = true;
       context.publicEvents.onCloudStorageActivated.next(
-        new CloudProviderSelectedEvent(credentials.type),
+        new CloudProviderActivatedEvent(credentials.type),
       );
 
       if (!this.storageList.has(credentials.type)) {

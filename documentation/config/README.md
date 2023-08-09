@@ -23,32 +23,30 @@ Current Supported Chains can be found at [README.md](/documentation/sdql/README.
 
 
 ## Storage Locations
-13. Google Cloud Bucket: The GCP bucket identifier used for Google Cloud Bucket that we use to store backups from the data wallet. If left "demo-01-fcszy-sdl-dw"
-14. Dropbox: Dropbox authorization requires passing in: 
+13. Dropbox: Dropbox authorization requires passing in: 
     a. Dropbox App Key: Key needed to login
     b. Dropbox App Secret: Secret needed to login
 
 ## Backups and Polling Intervals
-15. Portfolio Polling Interval: Polling time for the Portfolio Page inside the Data Wallet. 
+14. Portfolio Polling Interval: Polling time for the Portfolio Page inside the Data Wallet. 
 - Sets a polling time interval to review current information and check if there are any changes since the last backup.  If there are changes, the portfolio reflects these changes and displays them accordingly.  This includes sending new backup data to the cloud.  If there aren't any changes, it continues displaying the cached information. 
-16. Transaction Polling Interval: Polling time for refreshing the transactional data within the Data Wallet. Sets a polling time interval to make a call to look for new transactions since last polling time.  If there are new transactions, then update the backup information.  
-17. Backup Polling Interval: Polling time for searching for updated data that will be sent as backup data to the storage location of choice. 
-18. Enable Backup Encryption: A boolean value that determines if the backup data is encrypted and therefore the data can be publicly read but not deciphered.  
+15. Transaction Polling Interval: Polling time for refreshing the transactional data within the Data Wallet. Sets a polling time interval to make a call to look for new transactions since last polling time.  If there are new transactions, then update the backup information.  
+16. Backup Polling Interval: Polling time for searching for updated data that will be sent as backup data to the storage location of choice. 
+17. Enable Backup Encryption: A boolean value that determines if the backup data is encrypted and therefore the data can be publicly read but not deciphered.  
 
 ## DISCORD CONFIGS
-19. Discord Client ID: The entity's Discord ID - used to make oauth requests via discord. 
-20. Discord Client Key: Discord's secret variable used while making oauth requests. 
-21. Discord Poll Interval: Polling Interval used to update discord profiles and guilds on the Data Wallet. 
+18. Discord Client ID: The entity's Discord ID - used to make oauth requests via discord. 
+19. Discord Client Key: Discord's secret variable used while making oauth requests. 
+20. Discord Poll Interval: Polling Interval used to update discord profiles and guilds on the Data Wallet. 
 
 ## OPTIONAL CONFIGS
-22. Default Insight Platform Base URL: The IP http used for run  Insight Platform.  The url would adjust depending on the entity that uses the product. 
+21. Default Insight Platform Base URL: The IP http used for run  Insight Platform.  The url would adjust depending on the entity that uses the product. 
 Ex: __DEFAULT_INSIGHT_PLATFORM_BASE_URL__: "https://insight-api.dev.snickerdoodle.dev/v0/"
-23. Dev Chain Provider URL: The Url used to host the development protocol chain. 
+22. Dev Chain Provider URL: The Url used to host the development protocol chain. 
 Ex: __DEV_CHAIN_PROVIDER_URL__: "https://doodlechain.demo-01.snickerdoodle.dev";
-24. IPFS Fetch Base URL: 
+23. IPFS Fetch Base URL: 
 The IPFS fetching url needed to get info based off of the hosted node. 
 Ex: __IPFS_FETCH_BASE_URL__: "https://ipfs-gateway.snickerdoodle.dev/ipfs/",
-25. Ceramic Node URL: OBSOLETE - NOT NECESSARY
-26. DNS SERVER ADDRESS: read txt records - proof of ownership on any domain (Cloudflare)
-27. DOMAIN Filter: sample values include regex (localhost), do not need to store in browsing history
+24. DNS SERVER ADDRESS: read txt records - proof of ownership on any domain (Cloudflare)
+25. DOMAIN Filter: sample values include regex (localhost), do not need to store in browsing history
 

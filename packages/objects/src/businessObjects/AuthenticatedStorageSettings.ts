@@ -1,4 +1,4 @@
-import { ECloudStorageType } from "@objects/enum";
+import { ECloudStorageType } from "@objects/enum/index.js";
 import { AccessToken } from "@objects/primitives";
 
 export class AuthenticatedStorageSettings {

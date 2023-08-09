@@ -67,7 +67,6 @@ const STORAGE_OPTIONS: IStorageOption[] = [
 ];
 const StorageSettings = () => {
   const setFolderPath = (folderPath: string) => {
-    console.log("Folder path: " + folderPath);
     return okAsync("");
   };
 
@@ -100,26 +99,25 @@ const StorageSettings = () => {
   };
 
   const dropbox = useMemo(() => {
-    console.log("Access Token: " + accessToken);
     if (accessToken && Dropbox) {
-      console.log("New Dropbox instance. ");
       return new Dropbox({ accessToken });
     } else {
-      console.log("null");
       return null;
     }
   }, [accessToken, Dropbox]);
 
   const handleCode = (code) => {
-    console.log("Handle Code: " + code);
     // @ts-ignore
-    window.sdlDataWallet.authenticateDropbox(code).map((accessToken) => {
-      setAccessToken(accessToken);
-      console.log("Set Access Token: " + accessToken);
-
-      sessionStorage.setItem("dropboxAccessToken", accessToken);
-      return window.history.replaceState(null, "", window.location.pathname);
-    });
+    window.sdlDataWallet
+      .authenticateDropbox(code)
+      .map((accessToken) => {
+        setAccessToken(accessToken);
+        sessionStorage.setItem("dropboxAccessToken", accessToken);
+        return window.history.replaceState(null, "", window.location.pathname);
+      })
+      .mapErr((e) => {
+        console.log(e);
+      });
   };
 
   const [searchParams, _] = useSearchParams();
@@ -214,6 +212,9 @@ const StorageSettings = () => {
           message: "Your Dropbox account has successfully been connected.",
         });
         setStorageOption(EStorage.DROPBOX);
+      })
+      .mapErr((e) => {
+        console.log(e);
       });
 
     setFolders(undefined);
@@ -227,10 +228,14 @@ const StorageSettings = () => {
       case EStorage.DROPBOX: {
         // @ts-ignore
 
-        return window.sdlDataWallet.getDropboxAuthUrl().map((url) => {
-          window.open(url, "_self");
-          console.log("Opened dropbox url now");
-        });
+        return window.sdlDataWallet
+          .getDropboxAuth()
+          .map((url) => {
+            window.open(url, "_self");
+          })
+          .mapErr((e) => {
+            console.log(e);
+          });
       }
       default:
         return null;

@@ -755,7 +755,7 @@ export interface IMetricsMethods {
   ): ResultAsync<boolean, never>;
 }
 
-export interface ISnickerdoodleCore {
+export interface IStorageMethods {
   setAuthenticatedStorage(
     type: ECloudStorageType,
     path: string,
@@ -764,11 +764,11 @@ export interface ISnickerdoodleCore {
 
   getCurrentCloudStorage(): ResultAsync<ECloudStorageType, never>;
   getAvailableCloudStorage(): ResultAsync<Set<ECloudStorageType>, never>;
-
   getDropboxAuth(): ResultAsync<URLString, never>;
-
   authenticateDropbox(code: string): ResultAsync<AccessToken, AjaxError>;
+}
 
+export interface ISnickerdoodleCore {
   getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
@@ -1003,6 +1003,7 @@ export interface ISnickerdoodleCore {
   discord: ICoreDiscordMethods;
   twitter: ICoreTwitterMethods;
   metrics: IMetricsMethods;
+  storage: IStorageMethods;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

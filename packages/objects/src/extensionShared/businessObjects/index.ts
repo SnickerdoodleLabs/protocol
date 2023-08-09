@@ -3,7 +3,7 @@ export * from "@objects/extensionShared/businessObjects/AccountInitializedNotifi
 export * from "@objects/extensionShared/businessObjects/AccountRemovedNotification";
 export * from "@objects/extensionShared/businessObjects/BaseNotification";
 
-export * from "@objects/extensionShared/businessObjects/CloudProviderSelectedNotification";
+export * from "@objects/extensionShared/businessObjects/CloudProviderActivatedNotification";
 
 export * from "@objects/extensionShared/businessObjects/EarnedRewardsAddedNotification";
 export * from "@objects/extensionShared/businessObjects/CohortJoinedNotification";

@@ -29,6 +29,7 @@ export * from "@objects/businessObjects/OptInInfo.js";
 export * from "@objects/businessObjects/PagedResponse.js";
 export * from "@objects/businessObjects/PageInvitation.js";
 export * from "@objects/businessObjects/PagingRequest.js";
+export * from "@objects/businessObjects/ParsedBackupFileName.js";
 export * from "@objects/businessObjects/PortfolioUpdate.js";
 export * from "@objects/businessObjects/RequestForData.js";
 export * from "@objects/businessObjects/QueryDeliveryItems.js";

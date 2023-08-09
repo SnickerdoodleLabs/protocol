@@ -793,21 +793,21 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<GetDropBoxAuthUrlParams>(
       GetDropBoxAuthUrlParams.getCoreAction(),
       (_params) => {
-        return this.core.getDropboxAuth();
+        return this.core.storage.getDropboxAuth();
       },
     ),
 
     new CoreActionHandler<AuthenticateDropboxParams>(
       AuthenticateDropboxParams.getCoreAction(),
       (params) => {
-        return this.core.authenticateDropbox(params.code);
+        return this.core.storage.authenticateDropbox(params.code);
       },
     ),
 
     new CoreActionHandler<SetAuthenticatedStorageParams>(
       SetAuthenticatedStorageParams.getCoreAction(),
       (params) => {
-        return this.core.setAuthenticatedStorage(
+        return this.core.storage.setAuthenticatedStorage(
           params.storageType,
           params.path,
           params.accessToken,
@@ -818,14 +818,14 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<GetAvailableCloudStorageOptionsParams>(
       GetAvailableCloudStorageOptionsParams.getCoreAction(),
       (_params) => {
-        return this.core.getAvailableCloudStorage();
+        return this.core.storage.getAvailableCloudStorage();
       },
     ),
 
     new CoreActionHandler<GetCurrentStorageOptionParams>(
       GetCurrentStorageOptionParams.getCoreAction(),
       (_params) => {
-        return this.core.getCurrentCloudStorage();
+        return this.core.storage.getCurrentCloudStorage();
       },
     ),
     // #endregion

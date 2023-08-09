@@ -12,7 +12,6 @@ import {
   TwitterError,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
-import { ICloudStorage } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";

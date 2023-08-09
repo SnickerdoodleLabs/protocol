@@ -936,12 +936,32 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.setAuthenticatedStorage(
+            return core.storage.setAuthenticatedStorage(
               data.data.storageType,
               data.data.path,
               data.data.accessToken,
               // sourceDomain,
             );
+          });
+        }, data.callId);
+      },
+
+      "credentials.authenticateDropbox": (
+        data: IIFrameCallData<{
+          code: string;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.storage.authenticateDropbox(data.data.code);
+          });
+        }, data.callId);
+      },
+
+      "credentials.getDropboxAuth": (data: IIFrameCallData<{}>) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.storage.getDropboxAuth();
           });
         }, data.callId);
       },

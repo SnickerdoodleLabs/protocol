@@ -23,7 +23,11 @@ import {
   EInvitationStatus,
   EWalletDataType,
 } from "@objects/enum/index.js";
-import { PersistenceError, ProxyError } from "@objects/errors/index.js";
+import {
+  AjaxError,
+  PersistenceError,
+  ProxyError,
+} from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces//IConsentCapacity.js";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata.js";
 import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences.js";
@@ -353,11 +357,14 @@ export interface ISdlDataWallet {
     path: string,
     accessToken: AccessToken,
   ): ResultAsync<void, ProxyError>;
+  authenticateDropbox(code: string): ResultAsync<AccessToken, ProxyError>;
+  getDropboxAuth(): ResultAsync<URLString, ProxyError>;
 
   discord: IProxyDiscordMethods;
   integration: IProxyIntegrationMethods;
   twitter: IProxyTwitterMethods;
   metrics: IProxyMetricsMethods;
+  // storage: IStorage;
 
   events: ISnickerdoodleCoreEvents;
 }

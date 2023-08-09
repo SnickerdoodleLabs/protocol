@@ -584,8 +584,8 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     );
   }
   // @TODO below functions are not added to ISDLDataWallet interface and iframe
-  public getDropboxAuthUrl(): ResultAsync<URLString, ProxyError> {
-    return coreGateway.getDropboxAuthUrl();
+  public getDropboxAuth(): ResultAsync<URLString, ProxyError> {
+    return coreGateway.getDropboxAuth();
   }
 
   public authenticateDropbox(

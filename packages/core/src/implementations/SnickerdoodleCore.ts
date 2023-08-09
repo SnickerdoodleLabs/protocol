@@ -88,6 +88,7 @@ import {
   ECloudStorageType,
   AccessToken,
   AuthenticatedStorageSettings,
+  IStorageMethods,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -169,6 +170,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public twitter: ICoreTwitterMethods;
   public ads: IAdMethods;
   public metrics: IMetricsMethods;
+  public storage: IStorageMethods;
 
   public constructor(
     configOverrides?: IConfigOverrides,
@@ -768,57 +770,51 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         throw new Error("Unimplemented");
       },
     };
-  }
 
-  public getCurrentCloudStorage(): ResultAsync<ECloudStorageType, never> {
-    const cloudStorageManager = this.iocContainer.get<ICloudStorageManager>(
-      ICloudStorageManagerType,
-    );
+    // Storage Methods ---------------------------------------------------------------------------
+    this.storage = {
+      getCurrentCloudStorage: () => {
+        const cloudStorageManager = this.iocContainer.get<ICloudStorageManager>(
+          ICloudStorageManagerType,
+        );
 
-    return cloudStorageManager.getCurrentCloudStorage();
-  }
+        return cloudStorageManager.getCurrentCloudStorage();
+      },
+      getAvailableCloudStorage: () => {
+        const cloudStorageManager = this.iocContainer.get<ICloudStorageManager>(
+          ICloudStorageManagerType,
+        );
 
-  public getAvailableCloudStorage(): ResultAsync<
-    Set<ECloudStorageType>,
-    never
-  > {
-    const cloudStorageManager = this.iocContainer.get<ICloudStorageManager>(
-      ICloudStorageManagerType,
-    );
+        return cloudStorageManager.getAvailableCloudStorage();
+      },
+      getDropboxAuth: () => {
+        const cloudStorageManager = this.iocContainer.get<ICloudStorageManager>(
+          ICloudStorageManagerType,
+        );
 
-    return cloudStorageManager.getAvailableCloudStorage();
-  }
+        return cloudStorageManager.getDropboxAuth();
+      },
+      authenticateDropbox: (code: string) => {
+        const cloudStorageService = this.iocContainer.get<ICloudStorageService>(
+          ICloudStorageServiceType,
+        );
 
-  public getDropboxAuth(): ResultAsync<URLString, never> {
-    const cloudStorageManager = this.iocContainer.get<ICloudStorageManager>(
-      ICloudStorageManagerType,
-    );
+        return cloudStorageService.authenticateDropbox(code);
+      },
+      setAuthenticatedStorage: (
+        type: ECloudStorageType,
+        path: string,
+        accessToken: AccessToken,
+      ) => {
+        const cloudStorageService = this.iocContainer.get<ICloudStorageService>(
+          ICloudStorageServiceType,
+        );
 
-    return cloudStorageManager.getDropboxAuth();
-  }
-
-  public authenticateDropbox(
-    code: string,
-  ): ResultAsync<AccessToken, AjaxError> {
-    const cloudStorageService = this.iocContainer.get<ICloudStorageService>(
-      ICloudStorageServiceType,
-    );
-
-    return cloudStorageService.authenticateDropbox(code);
-  }
-
-  public setAuthenticatedStorage(
-    type: ECloudStorageType,
-    path: string,
-    accessToken: AccessToken,
-  ): ResultAsync<void, PersistenceError> {
-    const cloudStorageService = this.iocContainer.get<ICloudStorageService>(
-      ICloudStorageServiceType,
-    );
-
-    return cloudStorageService.setAuthenticatedStorage(
-      new AuthenticatedStorageSettings(type, path, accessToken),
-    );
+        return cloudStorageService.setAuthenticatedStorage(
+          new AuthenticatedStorageSettings(type, path, accessToken),
+        );
+      },
+    };
   }
 
   public getConsentCapacity(
