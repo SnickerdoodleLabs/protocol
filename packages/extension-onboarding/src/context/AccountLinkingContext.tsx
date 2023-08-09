@@ -120,12 +120,10 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
                     linkedAccount.sourceAccountAddress === account,
                 )
               ) {
-                // use it for metadata
-                localStorage.setItem(`${account}`, providerObj.key);
-                return sdlDataWallet
-                  .getDataWalletAddress()
-                  .andThen((address) => {
-                    if (!linkedAccounts.length && !address) {
+                return sdlDataWallet.metrics
+                  .getUnlocked()
+                  .andThen((isUnlocked) => {
+                    if (!linkedAccounts.length && !isUnlocked) {
                       setLoadingStatus(true, {
                         type: ELoadingIndicatorType.COMPONENT,
                         component: <AccountLinkingIndicator />,
