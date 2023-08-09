@@ -47,7 +47,7 @@ export interface IConfigOverrides {
 
   dropboxAppKey?: string;
   dropboxAppSecret?: string;
-  dropboxRedirectUrl?: string;
+  dropboxRedirectUri?: string;
 
   enableBackupEncryption?: boolean;
   discordOverrides?: Partial<DiscordConfig>;

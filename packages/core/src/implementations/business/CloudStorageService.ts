@@ -80,7 +80,7 @@ export class CloudStorageService implements ICloudStorageService {
         "https://www.dropbox.com/oauth2/authorize?client_id=" +
           config.dropboxAppKey +
           " &response_type=code&redirect_uri=" +
-          config.dropboxRedirectUrl,
+          config.dropboxRedirectUri,
       );
     });
   }
