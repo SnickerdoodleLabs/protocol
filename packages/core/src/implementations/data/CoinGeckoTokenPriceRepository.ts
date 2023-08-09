@@ -14,6 +14,7 @@ import {
   ECurrencyCode,
   EExternalApi,
   ERecordKey,
+  EVMContractAddress,
   getChainInfoByChainId,
   ITokenPriceRepository,
   PersistenceError,
@@ -42,6 +43,7 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
+import { MasterIndexer } from "@snickerdoodlelabs/indexers";
 
 @injectable()
 export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
@@ -83,7 +85,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
   }
 
   public getMarketDataForTokens(
-    tokens: { chain: ChainId; address: TokenAddress | null }[],
+    tokens: { chain: ChainId; address: TokenAddress }[],
   ): ResultAsync<
     Map<`${ChainId}-${TokenAddress}`, TokenMarketData>,
     AjaxError | AccountIndexingError
@@ -149,11 +151,11 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
 
   public getTokenInfo(
     chainId: ChainId,
-    contractAddress: TokenAddress | null,
+    contractAddress: TokenAddress,
   ): ResultAsync<TokenInfo | null, AccountIndexingError> {
     const id = this._nativeIds.get(chainId)!;
     const chainInfo = getChainInfoByChainId(chainId);
-    if (contractAddress == null) {
+    if (contractAddress === MasterIndexer.nativeAddress) {
       return okAsync(
         new TokenInfo(
           id,
@@ -340,7 +342,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
                       TickerSymbol(coin.symbol),
                       coin.name,
                       ChainId(chainId),
-                      addr,
+                      addr ? EVMContractAddress(addr) : null,
                     );
 
                     results.push(

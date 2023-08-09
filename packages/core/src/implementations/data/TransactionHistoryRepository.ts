@@ -8,8 +8,6 @@ import {
   EVMTransaction,
   getChainInfoByChainId,
   TransactionFilter,
-  ITokenPriceRepository,
-  ITokenPriceRepositoryType,
   ERecordKey,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -46,11 +44,9 @@ export class TransactionHistoryRepository
     protected persistence: IDataWalletPersistence,
     @inject(ILinkedAccountRepositoryType)
     protected accountRepo: ILinkedAccountRepository,
-    @inject(ITokenPriceRepositoryType)
-    protected tokenPriceRepo: ITokenPriceRepository,
   ) {}
 
-  public getTransactionValueByChain(): ResultAsync<
+  public getTransactionByChain(): ResultAsync<
     TransactionPaymentCounter[],
     PersistenceError
   > {
@@ -76,7 +72,7 @@ export class TransactionHistoryRepository
             return this.pushTransaction(toTransactions, fromTransactions, []);
           });
         }),
-      ).andThen((transactionsArray) => {
+      ).map((transactionsArray) => {
         return this.compoundTransaction(transactionsArray.flat(1));
       });
     });
@@ -189,7 +185,7 @@ export class TransactionHistoryRepository
 
   protected compoundTransaction(
     chainTransaction: TransactionPaymentCounter[],
-  ): ResultAsync<TransactionPaymentCounter[], PersistenceError> {
+  ): TransactionPaymentCounter[] {
     const flowMap = new Map<ChainId, TransactionPaymentCounter>();
     chainTransaction.forEach((obj) => {
       const getObject = flowMap.get(obj.chainId);
@@ -209,29 +205,7 @@ export class TransactionHistoryRepository
       }
     });
 
-    return this.tokenPriceRepo
-      .getMarketDataForTokens(
-        [...flowMap.keys()].map((chain) => {
-          return { chain: chain, address: null };
-        }),
-      )
-      .map((marketDataMap) => {
-        const retVal: TransactionPaymentCounter[] = [];
-        flowMap.forEach((counter, chainId) => {
-          const marketData = marketDataMap.get(`${chainId}-${null}`);
-          if (marketData != null) {
-            counter.incomingValue *= marketData.currentPrice;
-            counter.outgoingValue *= marketData.currentPrice;
-            retVal.push(counter);
-          } else {
-            counter.incomingValue = 0;
-            counter.outgoingValue = 0;
-            retVal.push(counter);
-          }
-        });
-        return retVal;
-      })
-      .mapErr((e) => new PersistenceError("error compounding transactions", e));
+    return [...flowMap.values()];
   }
 
   private _getNextMatchingTx(
