@@ -32,6 +32,7 @@
     "alias": "npx tsc-alias",
     "postCompile": "npx webpack",
     "prepare": "yarn build",
+    "start": "node scripts/webserver.js",
     "test": "echo \"No tests specified yet\" && exit 0"
   },
   "types": "dist/index.d.ts",
