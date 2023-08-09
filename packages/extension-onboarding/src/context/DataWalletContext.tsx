@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import {
   ISdlDataWalletProxy,
   IWindowWithSdlDataWallet,
@@ -7,6 +8,7 @@ import {
   ISdlDataWallet,
   URLString,
 } from "@snickerdoodlelabs/objects";
+import { SnickerdoodleWebIntegration } from "@snickerdoodlelabs/web-integration";
 import React, {
   FC,
   createContext,
@@ -17,9 +19,6 @@ import React, {
   useRef,
   useMemo,
 } from "react";
-import "reflect-metadata";
-import { SnickerdoodleWebIntegration } from "@snickerdoodlelabs/web-integration";
-import { proxy } from "webextension-polyfill";
 
 declare const window: IWindowWithSdlDataWallet;
 

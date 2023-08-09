@@ -16,7 +16,6 @@ export const App: FC<IAppProps> = ({ proxy }) => {
   const isUnlcokedRef = useRef<boolean>(false);
 
   useEffect(() => {
-    console.log("path changed", _pathName);
     const path = window.location.pathname;
     const urlInfo = parse(window.location.href);
     const domain = urlInfo.domain;

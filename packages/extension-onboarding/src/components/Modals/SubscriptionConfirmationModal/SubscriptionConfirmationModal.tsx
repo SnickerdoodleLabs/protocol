@@ -6,6 +6,7 @@ import { useStyles } from "@extension-onboarding/components/Modals/SubscriptionC
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { EVMContractAddress } from "@snickerdoodlelabs/objects";
 
 const SubscriptionConfirmationModal: FC = () => {
   const { sdlDataWallet } = useDataWalletContext();
@@ -51,7 +52,10 @@ const SubscriptionConfirmationModal: FC = () => {
           closeModal();
         }}
         ipfsBaseUrl={apiGateway.config.ipfsFetchBaseUrl}
-        getReceivingAddress={sdlDataWallet.getReceivingAddress}
+        getReceivingAddress={(consentAddress: EVMContractAddress) => {
+          console.log("consentAddress", consentAddress);
+          return sdlDataWallet.getReceivingAddress(consentAddress);
+        }}
       />
     </Dialog>
   );
