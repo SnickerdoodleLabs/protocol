@@ -102,6 +102,8 @@ export class ConfigProvider implements IConfigProvider {
       configOverrides.dropboxAppKey ?? this.config.dropboxAppKey;
     this.config.dropboxAppSecret =
       configOverrides.dropboxAppSecret ?? this.config.dropboxAppSecret;
+    this.config.dropboxRedirectUri =
+      configOverrides.dropboxRedirectUri ?? this.config.dropboxRedirectUri;
 
     this.config.enableBackupEncryption =
       configOverrides.enableBackupEncryption ??

@@ -359,6 +359,7 @@ export interface ISdlDataWallet {
   ): ResultAsync<void, ProxyError>;
   authenticateDropbox(code: string): ResultAsync<AccessToken, ProxyError>;
   getDropboxAuth(): ResultAsync<URLString, ProxyError>;
+  getCurrentCloudStorage(): ResultAsync<ECloudStorageType, ProxyError>;
 
   discord: IProxyDiscordMethods;
   integration: IProxyIntegrationMethods;

@@ -331,7 +331,7 @@ export const configs: IExtensionConfigOverrides = {
       ? __DROPBOX_APP_SECRET__
       : undefined,
 
-  redirectUri:
+  dropboxRedirectUri:
     typeof __DROPBOX_REDIRECT_URI__ !== "undefined" &&
     !!__DROPBOX_REDIRECT_URI__
       ? __DROPBOX_REDIRECT_URI__

@@ -125,7 +125,7 @@ export const testCoreConfig = new CoreConfig(
   defaultGoogleCloudBucket, // defaultGoogleCloudBucket
   defaultDropboxAppKey, // dropbox app key sample
   defaultDropboxAppSecret, // dropbox app secret sample
-  "https://localhost:9005/settings/storage",
+  "https://datawallet.snickerdoodle.com/data-dashboard/auth", // dropboxRedirectUri
   5000, // polling interval indexing,
   5000, // polling interval balance
   5000, // polling interval NFT

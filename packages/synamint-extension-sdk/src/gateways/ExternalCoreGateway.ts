@@ -134,7 +134,7 @@ import {
   AuthenticateDropboxParams,
   SetAuthenticatedStorageParams,
   GetAvailableCloudStorageOptionsParams,
-  GetCurrentStorageOptionParams,
+  getCurrentCloudStorageParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -523,8 +523,8 @@ export class ExternalCoreGateway {
     return this._handler.call(params);
   }
 
-  public getCurrentStorageOption(): ResultAsync<ECloudStorageType, ProxyError> {
-    return this._handler.call(new GetCurrentStorageOptionParams());
+  public getCurrentCloudStorage(): ResultAsync<ECloudStorageType, ProxyError> {
+    return this._handler.call(new getCurrentCloudStorageParams());
   }
 
   public getAvailableCloudStorageOptions(): ResultAsync<

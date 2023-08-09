@@ -76,6 +76,8 @@ export class CloudStorageService implements ICloudStorageService {
 
   public getDropboxAuth(): ResultAsync<URLString, never> {
     return this.configProvider.getConfig().map((config) => {
+      console.log("get config: " + config);
+
       return URLString(
         "https://www.dropbox.com/oauth2/authorize?client_id=" +
           config.dropboxAppKey +
@@ -97,7 +99,7 @@ export class CloudStorageService implements ICloudStorageService {
           new URLSearchParams({
             client_id: config.dropboxAppKey,
             client_secret: config.dropboxAppSecret,
-            redirect_uri: "https://localhost:9005/settings/storage",
+            redirect_uri: config.dropboxRedirectUri,
             grant_type: "authorization_code",
             code: code,
           }),

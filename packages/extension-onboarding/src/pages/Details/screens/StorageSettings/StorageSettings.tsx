@@ -36,14 +36,14 @@ interface NestedFolder {
   children?: NestedFolder[];
 }
 
-enum EStorage {
-  SDL_STORAGE,
-  DROPBOX,
-  LOCAL_DISC,
-}
+// enum EStorage {
+//   SDL_STORAGE,
+//   DROPBOX,
+//   LOCAL_DISC,
+// }
 
 interface IStorageOption {
-  key: EStorage;
+  key: ECloudStorageType;
   icon: string;
   name: string;
   description: string;
@@ -51,14 +51,14 @@ interface IStorageOption {
 
 const STORAGE_OPTIONS: IStorageOption[] = [
   {
-    key: EStorage.SDL_STORAGE,
+    key: ECloudStorageType.Local_Only,
     icon: sdlIcon,
     name: "SDL Storage",
     description:
       "Your data will be stored locally on your own device. Snickerdoodle will not access nor own this data.",
   },
   {
-    key: EStorage.DROPBOX,
+    key: ECloudStorageType.Dropbox,
     icon: dropboxIcon,
     name: "Dropbox",
     description:
@@ -71,7 +71,14 @@ const StorageSettings = () => {
   };
 
   const getStorageOption = () => {
-    return okAsync(EStorage.SDL_STORAGE);
+    return window.sdlDataWallet
+      .getCurrentCloudStorage()
+      .map((type) => {
+        console.log("type: " + type);
+        return type;
+      })
+      .mapErr((e) => console.log(e));
+    // return okAsync(EStorage.SDL_STORAGE);
   };
 
   // #endregion
@@ -84,7 +91,7 @@ const StorageSettings = () => {
   );
 
   const [folders, setFolders] = useState<NestedFolder[]>();
-  const [storageOption, setStorageOption] = useState<EStorage>();
+  const [storageOption, setStorageOption] = useState<ECloudStorageType>();
 
   useEffect(() => {
     if (appMode === EAppModes.AUTH_USER) {
@@ -211,7 +218,7 @@ const StorageSettings = () => {
           severity: EAlertSeverity.SUCCESS,
           message: "Your Dropbox account has successfully been connected.",
         });
-        setStorageOption(EStorage.DROPBOX);
+        setStorageOption(ECloudStorageType.Dropbox);
       })
       .mapErr((e) => {
         console.log(e);
@@ -220,12 +227,12 @@ const StorageSettings = () => {
     setFolders(undefined);
   };
 
-  const onStorageOptionClicked = (option: EStorage) => {
+  const onStorageOptionClicked = (option: ECloudStorageType) => {
     switch (option) {
-      case EStorage.SDL_STORAGE: {
+      case ECloudStorageType.Local_Only: {
         return;
       }
-      case EStorage.DROPBOX: {
+      case ECloudStorageType.Dropbox: {
         // @ts-ignore
 
         return window.sdlDataWallet

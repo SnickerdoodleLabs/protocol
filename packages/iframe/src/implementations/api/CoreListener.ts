@@ -965,6 +965,14 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           });
         }, data.callId);
       },
+
+      "credentials.getCurrentCloudStorage": (data: IIFrameCallData<{}>) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.storage.getCurrentCloudStorage();
+          });
+        }, data.callId);
+      },
     });
   }
 

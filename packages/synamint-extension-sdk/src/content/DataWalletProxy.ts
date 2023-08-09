@@ -604,8 +604,8 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     );
   }
 
-  public getCurrentStorageOption(): ResultAsync<ECloudStorageType, ProxyError> {
-    return coreGateway.getCurrentStorageOption();
+  public getCurrentCloudStorage(): ResultAsync<ECloudStorageType, ProxyError> {
+    return coreGateway.getCurrentCloudStorage();
   }
 
   public getAvailableCloudStorageOptions(): ResultAsync<

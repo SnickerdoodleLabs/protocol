@@ -97,6 +97,7 @@ export class ExtensionCore {
 
       dropboxAppKey: config.dropboxAppKey,
       dropboxAppSecret: config.dropboxAppSecret,
+      dropboxRedirectUri: config.dropboxRedirectUri,
     } as IConfigOverrides;
 
     this.core = new SnickerdoodleCore(
