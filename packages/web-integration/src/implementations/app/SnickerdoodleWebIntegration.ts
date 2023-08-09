@@ -134,7 +134,7 @@ export class SnickerdoodleWebIntegration
             // if signer is not provided resolve the unlock promise immediately
             // this usage will prevent account changes from being detected and forcing account unlocking
             if (!config.signer) {
-              resolve(undefined);
+              return resolve(undefined);
             }
             // It can take a little while for the proxy to actually
             // unlock. We'll wait for it for a bit, and cancel it
