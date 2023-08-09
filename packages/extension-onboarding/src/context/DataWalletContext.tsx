@@ -1,8 +1,10 @@
 import "reflect-metadata";
-import {
-  ISdlDataWalletProxy,
-  IWindowWithSdlDataWallet,
-} from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import useIsMobile from "@extension-onboarding/hooks/useIsMobile";
+import { ISdlDataWalletProxy } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import InstallationRequired from "@extension-onboarding/setupScreens/InstallationRequired";
+import Loading from "@extension-onboarding/setupScreens/Loading";
+import MobileScreen from "@extension-onboarding/setupScreens/MobileScreen/MobileScreen";
+import ProviderSelector from "@extension-onboarding/setupScreens/ProviderSelector";
 import {
   ECoreProxyType,
   ISdlDataWallet,
@@ -14,13 +16,9 @@ import React, {
   createContext,
   useContext,
   useEffect,
-  useCallback,
   useState,
-  useRef,
   useMemo,
 } from "react";
-
-declare const window: IWindowWithSdlDataWallet;
 
 interface IDataWalletContext {
   sdlDataWallet: ISdlDataWallet;
@@ -38,6 +36,7 @@ const DataWalletContext = createContext<IDataWalletContext>(
 );
 
 export const DataWalletContextProvider: FC = ({ children }) => {
+  const isMobile = useIsMobile();
   const [sdlDataWallet, setSdlDataWallet] = React.useState<ISdlDataWallet>(
     undefined as unknown as ISdlDataWallet,
   );
@@ -101,27 +100,26 @@ export const DataWalletContextProvider: FC = ({ children }) => {
   }, [sdlDataWallet]);
 
   const render = useMemo(() => {
+    if (isMobile) return <MobileScreen />;
     switch (setupStatus) {
       case ESetupStatus.WAITING:
-        return <div>Waiting</div>;
+        return <Loading />;
       case ESetupStatus.WAITING_PROVIDER_SELECTION:
         return (
-          <div>
-            <ProviderSelector
-              onProviderSelect={(provider) => {
-                setSdlDataWallet(provider);
-              }}
-            />
-          </div>
+          <ProviderSelector
+            onProviderSelect={(provider) => {
+              setSdlDataWallet(provider);
+            }}
+          />
         );
       case ESetupStatus.FAILED:
-        return <div>Failed</div>;
+        return <InstallationRequired />;
       case ESetupStatus.SUCCESS:
         return children;
       default:
         return <>DEFAULT</>;
     }
-  }, [setupStatus]);
+  }, [setupStatus, isMobile]);
 
   return (
     <DataWalletContext.Provider value={{ sdlDataWallet }}>
@@ -131,30 +129,3 @@ export const DataWalletContextProvider: FC = ({ children }) => {
 };
 
 export const useDataWalletContext = () => useContext(DataWalletContext);
-
-interface IProviderSelectorProps {
-  onProviderSelect: (provider: ISdlDataWalletProxy) => void;
-}
-const ProviderSelector: FC<IProviderSelectorProps> = ({ onProviderSelect }) => {
-  const providerList = useMemo(() => {
-    // actually there is no master provider
-    // let's just assume the first injected provider is the master provider
-    const masterProvider = window.sdlDataWallet;
-    const subProviders = masterProvider.providers;
-    return [masterProvider, ...(subProviders || [])];
-  }, []);
-  return (
-    <>
-      {providerList.map((provider) => (
-        <div
-          key={provider.extensionId}
-          onClick={() => {
-            onProviderSelect(provider);
-          }}
-        >
-          {provider.name}
-        </div>
-      ))}
-    </>
-  );
-};
