@@ -12,6 +12,8 @@ Process
 
 In this process, we assume the user visits **Amazon Order History** page.
 
+**Step 1. Check the permission for the domain and the task**
+
 ```mermaid
 sequenceDiagram
 
@@ -66,6 +68,8 @@ deactivate FF
 
 ```
 
+**Step 2. Executing the domain and the task**
+
 ```mermaid
 sequenceDiagram
 
@@ -87,7 +91,7 @@ loop Periodically
         note over SP: if the domain and task is supported by LLM
         SP->>LLM: scrape(jobs)
         activate LLM
-            LLM-->PU: Initialize Prompt (domain, task)
+            LLM->>PU: Initialize Prompt (domain, task)
             PU-->LLM: Prompt
 
             loop for each job
