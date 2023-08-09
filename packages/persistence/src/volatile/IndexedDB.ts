@@ -38,7 +38,7 @@ export class IndexedDB {
     const promise = new Promise<IDBDatabase>((resolve, reject) => {
       const timeout = setTimeout(() => {
         reject(new PersistenceError("timeout"));
-      }, 3000);
+      }, 1000);
 
       try {
         const request = this.dbFactory.open(this.name);
@@ -457,7 +457,7 @@ export class IndexedDB {
 
     try {
       if (Array.isArray(keyPath)) {
-        const ret: VolatileStorageKey = [];
+        const ret: VolatileStorageKey[] = [];
         keyPath.forEach((item) => {
           ret.push(this._getRecursiveKey(obj, item));
         });
