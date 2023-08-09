@@ -18,7 +18,7 @@ module.exports = {
   mode: process.env.__BUILD_ENV__ === "dev" ? "development" : "production",
   entry: path.join(__dirname, "src/index.tsx"),
   output: {
-    filename: "snickerdoodle-static.js",
+    filename: "snickerdoodle.js",
     path: path.join(__dirname, "/dist/bundle"),
     publicPath: "/",
   },
@@ -105,7 +105,7 @@ module.exports = {
       process: "process/browser",
     }),
     new webpack.DefinePlugin({
-      __BUILD_ENV__: JSON.stringify(process.env.__BUILD_ENV__),
+      __LOGO_PATH__: JSON.stringify(process.env.__LOGO_PATH__),
     }),
   ],
 };
