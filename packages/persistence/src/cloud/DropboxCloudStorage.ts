@@ -100,7 +100,6 @@ export class DropboxCloudStorage implements ICloudStorage {
         const dataWalletFolder =
           "https://api.dropboxapi.com/2/files/list_folder";
         const url = new URL(dataWalletFolder);
-        console.log("settingsData: " + JSON.stringify(settingsData));
         const data = {
           include_deleted: false,
           include_has_explicit_shared_members: false,
@@ -110,7 +109,6 @@ export class DropboxCloudStorage implements ICloudStorage {
           path: settingsData.path,
           recursive: false,
         };
-        console.log("settingsData: " + JSON.stringify(settingsData));
 
         return this.ajaxUtils.post<IDropboxWalletBackupDirectory>(url, data, {
           headers: {

@@ -122,9 +122,7 @@ export class CloudStorageManager implements ICloudStorageManager {
     return this.waitForUnlock().andThen((privateKey) => {
       const addr =
         this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
-      console.log("credentials: " + JSON.stringify(credentials));
       credentials.path = credentials.path + "/" + addr;
-      console.log("credentials: " + JSON.stringify(credentials));
 
       if (credentials.type == ECloudStorageType.Dropbox) {
         this.provider = this.dropbox;
