@@ -6,11 +6,13 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Platform,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 
 import { useAppContext } from "../../context/AppContextProvider";
 import { countries } from "../../services/interfaces/objects/Countries";
+import { useTheme } from "../../context/ThemeContext";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 interface Country {
@@ -44,9 +46,71 @@ const DropdownInput = ({
   };
   const iconNameObject = {
     Country: "location-outline",
-    Gender: "person-outline",
+    Gender: "transgender-outline",
     "Year of birth": "calendar-outline",
   };
+  const theme = useTheme();
+
+  const styles = StyleSheet.create({
+    container: {
+      backgroundColor: "transparent",
+      marginTop: normalizeHeight(15),
+    },
+
+    inputContainer: {
+      marginBottom: normalizeHeight(15),
+      zIndex: -1,
+    },
+    label: {
+      display: "none",
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: "#ccc",
+      borderRadius: 8,
+      paddingHorizontal: normalizeWidth(16),
+      paddingVertical: normalizeHeight(12),
+      fontSize: normalizeWidth(16),
+      color: "#333",
+      backgroundColor: "#FAFAFA",
+    },
+    dropdownInput: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: theme?.colors.backgroundSecondary,
+      borderRadius: normalizeWidth(8),
+      paddingHorizontal: normalizeWidth(16),
+      paddingVertical: normalizeHeight(12),
+    },
+    selectedValue: {
+      flex: 1,
+      fontSize: normalizeWidth(16),
+      paddingLeft: normalizeWidth(10),
+      color: theme?.colors.title,
+    },
+    dropdownIcon: {
+      marginLeft: "auto",
+    },
+    dropdown: {
+      maxHeight: normalizeHeight(180),
+      borderWidth: 0.5,
+      borderColor: theme?.colors.border,
+      borderRadius: normalizeWidth(8),
+      marginTop: normalizeHeight(8),
+      backgroundColor: theme?.colors.backgroundSecondary,
+      zIndex: 9999,
+    },
+    dropdownOption: {
+      paddingHorizontal: normalizeWidth(16),
+      paddingVertical: normalizeHeight(12),
+      borderBottomWidth: 1,
+      borderBottomColor: theme?.colors.border,
+    },
+    dropdownOptionText: {
+      fontSize: normalizeWidth(16),
+      color: theme?.colors.title,
+    },
+  });
 
   return (
     <View style={styles.inputContainer}>
@@ -58,13 +122,13 @@ const DropdownInput = ({
         <Icon
           name={iconNameObject[label]}
           size={normalizeWidth(20)}
-          color="#9E9E9E"
+          color={theme?.colors.iconColor}
         />
         <Text style={styles.selectedValue}>{selectedValue || `${label}`}</Text>
         <Icon
           name={dropdownVisible ? "chevron-up" : "chevron-down"}
           size={24}
-          color="#999"
+          color={theme?.colors.iconColor}
         />
       </TouchableOpacity>
       {dropdownVisible && (
@@ -93,10 +157,70 @@ const MyComponent = () => {
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
   const [selectedGender, setSelectedGender] = useState<any | null>(null);
   const [selectedYear, setSelectedYear] = useState<any | null>(null);
+  const theme = useTheme();
+
+  const styles = StyleSheet.create({
+    container: {
+      backgroundColor: "transparent",
+      marginTop: normalizeHeight(15),
+    },
+
+    inputContainer: {
+      marginBottom: normalizeHeight(15),
+      zIndex: -1,
+    },
+    label: {
+      display: "none",
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: "#ccc",
+      borderRadius: 8,
+      paddingHorizontal: normalizeWidth(16),
+      paddingVertical: normalizeHeight(12),
+      fontSize: normalizeWidth(16),
+      color: "#333",
+      backgroundColor: "#FAFAFA",
+    },
+    dropdownInput: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: theme?.colors.backgroundSecondary,
+      borderRadius: normalizeWidth(8),
+      paddingHorizontal: normalizeWidth(16),
+      paddingVertical: normalizeHeight(12),
+    },
+    selectedValue: {
+      flex: 1,
+      fontSize: normalizeWidth(16),
+      paddingLeft: normalizeWidth(10),
+      color: "#333",
+    },
+    dropdownIcon: {
+      marginLeft: "auto",
+    },
+    buttonContainer: {
+      alignSelf: "center",
+      backgroundColor: "#2e6cff",
+      paddingHorizontal: normalizeWidth(16),
+      paddingVertical: normalizeHeight(12),
+      borderRadius: normalizeWidth(8),
+      marginTop: normalizeHeight(24),
+    },
+    buttonText: {
+      color: "#fff",
+      fontSize: normalizeWidth(16),
+      fontWeight: "bold",
+    },
+    error: {
+      color: "red",
+      marginTop: normalizeHeight(8),
+      fontSize: normalizeWidth(14),
+    },
+  });
 
   useEffect(() => {
     mobileCore.piiService.getLocation().map((res) => {
-      console.log("res", res);
       if (res) {
         const country = countries.filter((country) => country.value === res);
         setSelectedCountry({
@@ -140,103 +264,72 @@ const MyComponent = () => {
 
   return (
     <View style={styles.container}>
-      <DropdownInput
-        label="Country"
-        selectedValue={selectedCountry ? `${selectedCountry.label}` : null}
-        options={countries}
-        setSelectedValue={handleCountryPress}
-      />
-      <DropdownInput
-        label="Gender"
-        selectedValue={selectedGender}
-        options={genders}
-        setSelectedValue={handleGenderPress}
-      />
-      <DropdownInput
-        label="Year of birth"
-        selectedValue={selectedYear}
-        options={years}
-        setSelectedValue={handleYearPress}
-      />
+      {Platform.OS === "android" ? (
+        <View>
+          <DropdownInput
+            label="Country"
+            selectedValue={selectedCountry ? `${selectedCountry.label}` : null}
+            options={countries}
+            setSelectedValue={handleCountryPress}
+          />
+
+          <DropdownInput
+            label="Gender"
+            selectedValue={selectedGender}
+            options={genders}
+            setSelectedValue={handleGenderPress}
+          />
+
+          <DropdownInput
+            label="Year of birth"
+            selectedValue={selectedYear}
+            options={years}
+            setSelectedValue={handleYearPress}
+          />
+        </View>
+      ) : (
+        <View>
+          <View style={{ width: "100%", height: 60, zIndex: 999 }}>
+            <View style={{ position: "absolute", width: "100%", zIndex: 999 }}>
+              <DropdownInput
+                label="Country"
+                selectedValue={
+                  selectedCountry ? `${selectedCountry.label}` : null
+                }
+                options={countries}
+                setSelectedValue={handleCountryPress}
+              />
+            </View>
+          </View>
+
+          <View style={{ width: "100%", height: 60, zIndex: 998 }}>
+            <View style={{ position: "absolute", width: "100%", zIndex: 998 }}>
+              <DropdownInput
+                label="Gender"
+                selectedValue={selectedGender}
+                options={genders}
+                setSelectedValue={handleGenderPress}
+              />
+            </View>
+          </View>
+          <View>
+            <View style={{ width: "100%", height: 60, zIndex: 997 }}>
+              <View
+                style={{ position: "absolute", width: "100%", zIndex: 997 }}
+              >
+                <DropdownInput
+                  label="Year of birth"
+                  selectedValue={selectedYear}
+                  options={years}
+                  setSelectedValue={handleYearPress}
+                />
+              </View>
+            </View>
+          </View>
+        </View>
+      )}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#fff",
-    marginTop: normalizeHeight(15),
-  },
-
-  inputContainer: {
-    marginBottom: normalizeHeight(15),
-  },
-  label: {
-    display: "none",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    paddingHorizontal: normalizeWidth(16),
-    paddingVertical: normalizeHeight(12),
-    fontSize: normalizeWidth(16),
-    color: "#333",
-    backgroundColor: "#FAFAFA",
-  },
-  dropdownInput: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FAFAFA",
-    borderRadius: normalizeWidth(8),
-    paddingHorizontal: normalizeWidth(16),
-    paddingVertical: normalizeHeight(12),
-  },
-  selectedValue: {
-    flex: 1,
-    fontSize: normalizeWidth(16),
-    paddingLeft: normalizeWidth(10),
-    color: "#333",
-  },
-  dropdownIcon: {
-    marginLeft: "auto",
-  },
-  dropdown: {
-    maxHeight: normalizeHeight(150),
-    borderWidth: 0.5,
-    borderColor: "#ccc",
-    borderRadius: normalizeWidth(8),
-    marginTop: normalizeHeight(8),
-    backgroundColor: "#FAFAFA",
-  },
-  dropdownOption: {
-    paddingHorizontal: normalizeWidth(16),
-    paddingVertical: normalizeHeight(12),
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-  },
-  dropdownOptionText: {
-    fontSize: normalizeWidth(16),
-    color: "#333",
-  },
-  buttonContainer: {
-    alignSelf: "center",
-    backgroundColor: "#2e6cff",
-    paddingHorizontal: normalizeWidth(16),
-    paddingVertical: normalizeHeight(12),
-    borderRadius: normalizeWidth(8),
-    marginTop: normalizeHeight(24),
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: normalizeWidth(16),
-    fontWeight: "bold",
-  },
-  error: {
-    color: "red",
-    marginTop: normalizeHeight(8),
-    fontSize: normalizeWidth(14),
-  },
-});
 
 export default MyComponent;

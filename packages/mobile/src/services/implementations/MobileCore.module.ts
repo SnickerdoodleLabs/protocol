@@ -18,16 +18,20 @@ import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@snickerdoodlelabs/indexers";
+import {
+  IVolatileStorageSchemaProvider,
+  IVolatileStorageSchemaProviderType,
+  VolatileStorageSchemaProvider,
+  IPersistenceConfigProviderType,
+  IPersistenceConfigProvider,
+} from "@snickerdoodlelabs/persistence";
 import { ContainerModule, interfaces } from "inversify";
 
 import {
   IAccountService,
   IAccountServiceType,
 } from "../interfaces/business/IAccountService";
-import {
-  IInvitationService,
-  IInvitationServiceType,
-} from "../interfaces/business/IInvitationService";
+
 import {
   IPIIService,
   IPIIServiceType,
@@ -46,12 +50,7 @@ import {
 } from "../interfaces/data/IDataPermissionsRepository";
 import { IErrorUtils, IErrorUtilsType } from "../interfaces/utils/IErrorUtils";
 
-import {
-  AccountService,
-  PIIService,
-  InvitationService,
-  TokenPriceService,
-} from "./business";
+import { AccountService, PIIService, TokenPriceService } from "./business";
 import { AccountStorageRepository } from "./data/AccountStorageRepository";
 import { DataPermissionsRepository } from "./data/DataPermissionsRepository";
 import { ErrorUtils } from "./utils/ErrorUtils";
@@ -71,9 +70,6 @@ export const mobileCoreModule = new ContainerModule(
     bind<ITokenPriceService>(ITokenPriceServiceType)
       .to(TokenPriceService)
       .inSingletonScope();
-    bind<IInvitationService>(IInvitationServiceType)
-      .to(InvitationService)
-      .inSingletonScope();
 
     bind<IAccountStorageRepository>(IAccountStorageRepositoryType).to(
       AccountStorageRepository,
@@ -88,11 +84,19 @@ export const mobileCoreModule = new ContainerModule(
     bind<IIndexerConfigProvider>(IIndexerConfigProviderType).toConstantValue(
       configProvider,
     );
+    bind<IPersistenceConfigProvider>(
+      IPersistenceConfigProviderType,
+    ).toConstantValue(configProvider);
+
     bind<IErrorUtils>(IErrorUtilsType).to(ErrorUtils).inSingletonScope();
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)
       .to(AxiosAjaxUtils)
       .inSingletonScope();
     bind<ICryptoUtils>(ICryptoUtilsType).to(CryptoUtils).inSingletonScope();
     bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
+
+    bind<IVolatileStorageSchemaProvider>(IVolatileStorageSchemaProviderType)
+      .to(VolatileStorageSchemaProvider)
+      .inSingletonScope();
   },
 );

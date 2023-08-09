@@ -38,7 +38,7 @@ export class IndexedDB {
     const promise = new Promise<IDBDatabase>((resolve, reject) => {
       const timeout = setTimeout(() => {
         reject(new PersistenceError("timeout"));
-      }, 1000);
+      }, 3000);
 
       try {
         const request = this.dbFactory.open(this.name);
@@ -155,12 +155,10 @@ export class IndexedDB {
           const req = store.clear();
           req.onsuccess = function (evt) {
             clearTimeout(timeout);
-            tx.commit();
             resolve(store);
           };
           req.onerror = function (evt) {
             clearTimeout(timeout);
-            tx.abort();
             reject(new PersistenceError("error clearing object store"));
           };
         } catch (e) {
@@ -242,12 +240,10 @@ export class IndexedDB {
               const request = store.delete(key);
               request.onsuccess = (event) => {
                 clearTimeout(timeout);
-                tx.commit();
                 resolve(undefined);
               };
               request.onerror = (event) => {
                 clearTimeout(timeout);
-                tx.abort();
                 reject(new PersistenceError("error updating object store"));
               };
             } catch (e) {
@@ -279,11 +275,9 @@ export class IndexedDB {
           const request = store.get(key);
 
           request.onsuccess = (event) => {
-            tx.commit();
             resolve(request.result);
           };
           request.onerror = (event) => {
-            tx.abort();
             reject(new PersistenceError("error reading from object store"));
           };
         });
@@ -463,7 +457,7 @@ export class IndexedDB {
 
     try {
       if (Array.isArray(keyPath)) {
-        const ret: VolatileStorageKey[] = [];
+        const ret: VolatileStorageKey = [];
         keyPath.forEach((item) => {
           ret.push(this._getRecursiveKey(obj, item));
         });

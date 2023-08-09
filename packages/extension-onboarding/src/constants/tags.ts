@@ -1,4 +1,4 @@
-import { ETag } from "@snickerdoodlelabs/objects";
+import { ETag, URLString } from "@snickerdoodlelabs/objects";
 
 import { ITagItem } from "@extension-onboarding/objects/interfaces/ITagItem";
 
