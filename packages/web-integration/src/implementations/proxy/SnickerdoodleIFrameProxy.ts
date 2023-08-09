@@ -251,7 +251,7 @@ export class SnickerdoodleIFrameProxy
     accountAddress: AccountAddress,
     signature: Signature,
     chain: EChain,
-    languageCode?: LanguageCode,
+    languageCode: LanguageCode = LanguageCode("en"),
   ): ResultAsync<void, ProxyError> {
     return this._createCall("unlock", {
       accountAddress,
@@ -265,7 +265,7 @@ export class SnickerdoodleIFrameProxy
     accountAddress: AccountAddress,
     signature: Signature,
     chain: EChain,
-    languageCode?: LanguageCode,
+    languageCode: LanguageCode = LanguageCode("en"),
   ): ResultAsync<void, ProxyError> {
     return this._createCall("addAccount", {
       accountAddress,
