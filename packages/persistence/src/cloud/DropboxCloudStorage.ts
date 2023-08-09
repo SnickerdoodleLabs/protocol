@@ -140,15 +140,12 @@ export class DropboxCloudStorage implements ICloudStorage {
   public putBackup(
     backup: DataWalletBackup,
   ): ResultAsync<DataWalletBackupID, PersistenceError> {
-    console.log("Put backup");
     return ResultUtils.combine([
       this.waitForUnlock(),
       this._configProvider.getConfig(),
       this.waitForCredentials(),
     ])
       .andThen(([privateKey, config, params]) => {
-        console.log("Put backup params: " + params);
-
         // Returns a temporary link, just like GCP
         const addr =
           this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
@@ -278,7 +275,6 @@ export class DropboxCloudStorage implements ICloudStorage {
   public pollBackups(
     restored: Set<DataWalletBackupID>,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
-    // console.log("Inside Dropbox Cloud Storage POLLING BACKUPS!");
     return ResultUtils.combine([
       this.waitForUnlock(),
       this._configProvider.getConfig(),
@@ -341,35 +337,50 @@ export class DropboxCloudStorage implements ICloudStorage {
   protected getBackupFile(
     dropboxFile: IDropboxFileBackup,
   ): ResultAsync<DataWalletBackup, PersistenceError> {
-    // console.log("getBackupFile " + JSON.stringify(dropboxFile));
-    return this.ajaxUtils
-      .get<DataWalletBackup>(new URL(dropboxFile.path_lower))
-      .map((untyped) => {
-        return new DataWalletBackup(
-          new DataWalletBackupHeader(
-            untyped.header.hash,
-            untyped.header.timestamp,
-            untyped.header.signature,
-            untyped.header.priority,
-            untyped.header.dataType,
-            untyped.header.isField,
-          ),
-          untyped.blob, // The blob doesn't need to be typed
-        );
-      })
-      .mapErr((e) => {
-        return new PersistenceError(
-          `Error fetching backup ${dropboxFile.name}`,
-          e,
-        );
-      });
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForCredentials(),
+    ]).andThen(([privateKey, settingsData]) => {
+      const url = new URL("https://content.dropboxapi.com/2/files/download");
+      const data = {
+        path: dropboxFile.id,
+      };
+      const headerParams = {
+        Authorization: `Bearer ${settingsData.accessToken}`,
+        "Dropbox-API-Arg": `${JSON.stringify(data)}`,
+        "Content-Type": "text/plain",
+      };
+      return this.ajaxUtils
+        .post<DataWalletBackup>(url, undefined, {
+          headers: headerParams,
+        })
+        .map((untyped) => {
+          return new DataWalletBackup(
+            new DataWalletBackupHeader(
+              untyped.header.hash,
+              untyped.header.timestamp,
+              untyped.header.signature,
+              untyped.header.priority,
+              untyped.header.dataType,
+              untyped.header.isField,
+            ),
+            untyped.blob, // The blob doesn't need to be typed
+          );
+        })
+        .mapErr((e) => {
+          this.logUtils.error("Error: Get Backup File not working");
+          return new PersistenceError(
+            `Error fetching backup ${dropboxFile.name}`,
+            e,
+          );
+        });
+    });
   }
 
   // use /backup API
   public getLatestBackup(
     storageKey: StorageKey,
   ): ResultAsync<DataWalletBackup | null, PersistenceError> {
-    // console.log("getLatestBackup is called!");
     return this.getWalletListing().andThen((files) => {
       if (files.length == 0) {
         return okAsync(null);
