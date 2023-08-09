@@ -138,6 +138,9 @@ export class AccountService implements IAccountService {
                 });
             });
         }
+        this.logUtils.log(
+          `Existing Data Wallet ${dataWalletAccount.accountAddress} found in volatile storage`,
+        );
         return this.unlockAndActivate(dataWalletAccount);
       })
       .andThen((dataWalletAccount) => {
