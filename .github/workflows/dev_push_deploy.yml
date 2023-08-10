@@ -98,4 +98,4 @@ jobs:
         ./get_helm.sh
         cd infra/
       
-        helm upgrade --install --reuse-values -n dev --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA  insight-platform-protocol ./insight-platform-protocol 
+        helm upgrade --install --reuse-values -n dev ProtocolIframe.Image.Tag=$GITHUB_SHA --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA  insight-platform-protocol ./insight-platform-protocol 
