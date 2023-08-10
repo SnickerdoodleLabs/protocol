@@ -56,7 +56,6 @@ import {
   GetUnlockMessageParams,
   IInvitationDomainWithUUID,
   LeaveCohortParams,
-  RejectInvitationParams,
   SetBirthdayParams,
   SetEmailParams,
   SetFamilyNameParams,
@@ -127,6 +126,8 @@ import {
   GetTokenVerificationPublicKeyParams,
   GetBearerTokenParams,
   GetQueryStatusByCidParams,
+  RejectInvitationParams,
+  RejectInvitationByUUIDParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 import { JsonRpcEngine } from "json-rpc-engine";
@@ -289,6 +290,12 @@ export class ExternalCoreGateway {
 
   public setScamFilterSettings(
     params: ScamFilterSettingsParams,
+  ): ResultAsync<void, ProxyError> {
+    return this._handler.call(params);
+  }
+
+  public rejectInvitationByUUID(
+    params: RejectInvitationByUUIDParams,
   ): ResultAsync<void, ProxyError> {
     return this._handler.call(params);
   }

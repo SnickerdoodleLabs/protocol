@@ -285,6 +285,12 @@ export interface ISdlDataWallet {
     tokenId?: BigNumberString,
     businessSignature?: Signature,
   ): ResultAsync<void, ProxyError>;
+  rejectInvitation(
+    consentContractAddress: EVMContractAddress,
+    tokenId?: BigNumberString,
+    businessSignature?: Signature,
+    rejectUntil?: UnixTimestamp,
+  );
   leaveCohort(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, ProxyError>;

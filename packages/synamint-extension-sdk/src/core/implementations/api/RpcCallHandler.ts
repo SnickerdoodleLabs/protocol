@@ -74,7 +74,7 @@ import {
   SetEmailParams,
   GetInvitationWithDomainParams,
   AcceptInvitationByUUIDParams,
-  RejectInvitationParams,
+  RejectInvitationByUUIDParams,
   LeaveCohortParams,
   GetInvitationMetadataByCIDParams,
   CheckURLParams,
@@ -141,6 +141,7 @@ import {
   GetTokenVerificationPublicKeyParams,
   GetBearerTokenParams,
   GetQueryStatusByCidParams,
+  RejectInvitationParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -532,13 +533,29 @@ export class RpcCallHandler implements IRpcCallHandler {
         });
       },
     ),
-    new CoreActionHandler<RejectInvitationParams>(
-      RejectInvitationParams.getCoreAction(),
+    new CoreActionHandler<RejectInvitationByUUIDParams>(
+      RejectInvitationByUUIDParams.getCoreAction(),
       (params) => {
         const invitation = this.contextProvider.getInvitation(
           params.id,
         ) as Invitation;
         return this.invitationService.rejectInvitation(invitation);
+      },
+    ),
+    new CoreActionHandler<RejectInvitationParams>(
+      RejectInvitationParams.getCoreAction(),
+      (params) => {
+        return this._getTokenId(params.tokenId).andThen((tokenId) => {
+          return this.invitationService.rejectInvitation(
+            new Invitation(
+              "" as DomainName,
+              params.consentContractAddress,
+              tokenId,
+              params.businessSignature ?? null,
+            ),
+            params.rejectUntil,
+          );
+        });
       },
     ),
     new CoreActionHandler<CheckURLParams>(

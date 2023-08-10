@@ -496,6 +496,20 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
+  public rejectInvitation(
+    consentContractAddress: EVMContractAddress,
+    tokenId?: BigNumberString,
+    businessSignature?: Signature,
+    rejectUntil?: UnixTimestamp,
+  ) {
+    return this._createCall("rejectInvitation", {
+      consentContractAddress,
+      tokenId,
+      businessSignature,
+      rejectUntil,
+    });
+  }
+
   public leaveCohort(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, ProxyError> {

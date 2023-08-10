@@ -169,9 +169,24 @@ export const App: FC<IAppProps> = ({ proxy, signerProvided }) => {
     }
   };
 
-  // @TODO add rejection logic
   const onCancelClick = () => {
-    clearInvitation();
+    if (pageInvitation) {
+      proxy
+        .rejectInvitation(
+          pageInvitation.invitation.consentContractAddress,
+          pageInvitation?.invitation.tokenId
+            ? BigNumberString(pageInvitation.invitation.tokenId.toString())
+            : undefined,
+          pageInvitation?.invitation.businessSignature ?? undefined,
+        )
+        .map(() => {
+          clearInvitation();
+        })
+        .mapErr((err) => {
+          console.log(err);
+          clearInvitation();
+        });
+    }
   };
 
   useEffect(() => {

@@ -585,6 +585,32 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
+      rejectInvitation: (
+        data: IIFrameCallData<{
+          consentContractAddress: EVMContractAddress;
+          tokenId?: BigNumberString;
+          businessSignature?: Signature;
+          rejectUntil?: UnixTimestamp,
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this._getTokenId(data.data.tokenId).andThen((tokenId) => {
+            return this.coreProvider.getCore().andThen((core) => {
+              return core.invitation.rejectInvitation(
+                new Invitation(
+                  "" as DomainName,
+                  data.data.consentContractAddress,
+                  tokenId,
+                  data.data.businessSignature ?? null,
+                ),
+                data.data.rejectUntil,
+                sourceDomain,
+              );
+            });
+          });
+        }, data.callId);
+      },
+
       leaveCohort: (
         data: IIFrameCallData<{
           consentContractAddress: EVMContractAddress;

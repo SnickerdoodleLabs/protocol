@@ -98,6 +98,7 @@ import {
   GetPossibleRewardsParams,
   SwitchToTabParams,
   GetQueryStatusByCidParams,
+  RejectInvitationParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
@@ -564,6 +565,22 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   }
   public getSiteVisitsMap(): ResultAsync<Map<URLString, number>, ProxyError> {
     return coreGateway.getSiteVisitsMap();
+  }
+
+  public rejectInvitation(
+    consentContractAddress: EVMContractAddress,
+    tokenId?: BigNumberString,
+    businessSignature?: Signature,
+    rejectUntil?: UnixTimestamp,
+  ) {
+    return coreGateway.rejectInvitation(
+      new RejectInvitationParams(
+        consentContractAddress,
+        tokenId,
+        businessSignature,
+        rejectUntil,
+      ),
+    );
   }
 
   public getConsentCapacity(

@@ -52,7 +52,7 @@ import {
   ONBOARDING_PROVIDER_SUBSTREAM,
   GetInvitationWithDomainParams,
   AcceptInvitationByUUIDParams,
-  RejectInvitationParams,
+  RejectInvitationByUUIDParams,
   CheckURLParams,
   SetReceivingAddressParams,
   IExtensionConfig,
@@ -342,8 +342,8 @@ const App = () => {
 
   const rejectInvitation = () => {
     coreGateway
-      .rejectInvitation(
-        new RejectInvitationParams(invitationDomain?.id as UUID),
+      .rejectInvitationByUUID(
+        new RejectInvitationByUUIDParams(invitationDomain?.id as UUID),
       )
       .map(() => emptyReward());
   };

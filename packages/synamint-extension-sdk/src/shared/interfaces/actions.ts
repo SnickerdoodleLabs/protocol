@@ -216,6 +216,20 @@ export class AcceptInvitationParams extends CoreActionParams<void> {
   }
 }
 
+export class RejectInvitationParams extends CoreActionParams<void> {
+  public constructor(
+    public consentContractAddress: EVMContractAddress,
+    public tokenId?: BigNumberString,
+    public businessSignature?: Signature,
+    public rejectUntil?: UnixTimestamp,
+  ) {
+    super(RejectInvitationParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.REJECT_INVITATION;
+  }
+}
+
 export class GetAgreementPermissionsParams extends CoreActionParams<
   EWalletDataType[]
 > {
@@ -236,12 +250,12 @@ export class SetDefaultPermissionsWithDataTypesParams extends CoreActionParams<v
   }
 }
 
-export class RejectInvitationParams extends CoreActionParams<void> {
+export class RejectInvitationByUUIDParams extends CoreActionParams<void> {
   public constructor(public id: UUID) {
-    super(RejectInvitationParams.getCoreAction());
+    super(RejectInvitationByUUIDParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
-    return ECoreActions.REJECT_INVITATION;
+    return ECoreActions.REJECT_INVITATION_BY_UUID;
   }
 }
 
