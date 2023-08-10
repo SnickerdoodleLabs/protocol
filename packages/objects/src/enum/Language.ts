@@ -1,4 +1,4 @@
-import { LanguageCode } from "@snickerdoodlelabs/objects";
+import { LanguageCode } from "@objects/primitives/LanguageCode.js";
 
 export enum Language {
   Arabic = LanguageCode("ar"),
