@@ -11,9 +11,7 @@ import React, { FC, useEffect, useState } from "react";
 import Switch from "@extension-onboarding/components/Switch";
 import Typography from "@extension-onboarding/components/Typography";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/ScamFilterSettings/ScamFilterSettings.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-declare const window: IWindowWithSdlDataWallet;
-
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 interface IScamFilterPreferences {
   isScamFilterActive: boolean;
   showMessageEveryTime: boolean;
@@ -24,6 +22,7 @@ const ScamFilterSettings: FC = () => {
   const [scamFilterPreferences, setScamFilterPreferences] =
     useState<IScamFilterPreferences>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { sdlDataWallet } = useDataWalletContext();
 
   useEffect(() => {
     getScamFfilterSettings();
@@ -38,9 +37,9 @@ const ScamFilterSettings: FC = () => {
   }, [JSON.stringify(scamFilterPreferences), isLoading]);
 
   const getScamFfilterSettings = () => {
-    return window.sdlDataWallet.getScamFilterSettings().map((preferences) => {
+    return sdlDataWallet.getScamFilterSettings().map((preferences) => {
       if (!preferences) {
-        window.sdlDataWallet.setScamFilterSettings(true, true);
+        sdlDataWallet.setScamFilterSettings(true, true);
         return getScamFfilterSettings();
       } else {
         setScamFilterPreferences(preferences);
@@ -50,7 +49,7 @@ const ScamFilterSettings: FC = () => {
 
   const handleApplyDefaultOptionChange = (optionStr: "true" | "false") => {
     const option = optionStr === "true";
-    window.sdlDataWallet
+    sdlDataWallet
       .setScamFilterSettings(
         scamFilterPreferences?.isScamFilterActive ?? false,
         option,
@@ -87,7 +86,7 @@ const ScamFilterSettings: FC = () => {
                       showMessageEveryTime:
                         scamFilterPreferences?.showMessageEveryTime ?? false,
                     });
-                    window.sdlDataWallet.setScamFilterSettings(
+                    sdlDataWallet.setScamFilterSettings(
                       true,
                       scamFilterPreferences?.showMessageEveryTime ?? false,
                     );
@@ -97,7 +96,7 @@ const ScamFilterSettings: FC = () => {
                       showMessageEveryTime:
                         scamFilterPreferences?.showMessageEveryTime ?? false,
                     });
-                    window.sdlDataWallet.setScamFilterSettings(
+                    sdlDataWallet.setScamFilterSettings(
                       false,
                       scamFilterPreferences?.showMessageEveryTime ?? false,
                     );

@@ -134,4 +134,19 @@ export class DataPermissions {
 
     return new DataPermissions(HexString32(utils.hexlify(flagsArray)));
   }
+
+  static getDataTypesFromFlags(agreementFlags: HexString32): EWalletDataType[] {
+    const Permissions = new DataPermissions(agreementFlags);
+    // The following loop assumes that the getters of the flags written for the flag keys
+    // in the DataPermissions Class are defined with the same name.
+    const dataTypes = Object.keys(EWalletDataType).reduce((acc, key) => {
+      const has: EWalletDataType | undefined = Permissions[key];
+      if (has) {
+        acc = [...acc, EWalletDataType[key]];
+      }
+      return acc;
+    }, [] as EWalletDataType[]);
+
+    return dataTypes;
+  }
 }

@@ -15,10 +15,7 @@ import { ISocialMediaPlatformProps } from "@extension-onboarding/pages/Details/s
 import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/Discord.style";
 import { DiscordAccountItem } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/Items/DiscordAccountItem";
 import { ILinkedDiscordAccount } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/types";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-
-declare const window: IWindowWithSdlDataWallet;
-
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 export const DiscordInfo: FC<ISocialMediaPlatformProps> = memo(
   ({ name, icon }: ISocialMediaPlatformProps) => {
     const [discordProfiles, setDiscordProfiles] = useState<DiscordProfile[]>(
@@ -27,6 +24,7 @@ export const DiscordInfo: FC<ISocialMediaPlatformProps> = memo(
     const [linkedDiscordAccount, setLinkedDiscordAccount] = useState<
       ILinkedDiscordAccount[]
     >([]);
+    const { sdlDataWallet } = useDataWalletContext();
     const { setAlert } = useNotificationContext();
     const { discordProvider: provider } = useAccountLinkingContext();
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -84,8 +82,8 @@ export const DiscordInfo: FC<ISocialMediaPlatformProps> = memo(
       initializeUser(code).map(() => {
         if (redirectTabId) {
           return (
-            window.sdlDataWallet?.switchToTab?.(redirectTabId) ??
-            window.sdlDataWallet.closeTab()
+            sdlDataWallet?.switchToTab?.(redirectTabId) ??
+            sdlDataWallet.closeTab()
           );
         }
         return window.history.replaceState(null, "", window.location.pathname);

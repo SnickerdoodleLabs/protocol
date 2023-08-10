@@ -6,19 +6,22 @@ import { AnalyticsContextProvider } from "@extension-onboarding/context/Analytic
 import { AppContextProvider } from "@extension-onboarding/context/App";
 import { LayoutProvider } from "@extension-onboarding/context/LayoutContext";
 import { NotificationContextProvider } from "@extension-onboarding/context/NotificationContext";
+import { DataWalletContextProvider } from "@extension-onboarding/context/DataWalletContext";
 
 const MainContainer: React.FC = () => {
   return (
     <AnalyticsContextProvider>
-      <NotificationContextProvider>
-        <AppContextProvider>
-          <LayoutProvider>
-            <AccountLinkingContextProvider>
-              <Router />
-            </AccountLinkingContextProvider>
-          </LayoutProvider>
-        </AppContextProvider>
-      </NotificationContextProvider>
+      <DataWalletContextProvider>
+        <NotificationContextProvider>
+          <AppContextProvider>
+            <LayoutProvider>
+              <AccountLinkingContextProvider>
+                <Router />
+              </AccountLinkingContextProvider>
+            </LayoutProvider>
+          </AppContextProvider>
+        </NotificationContextProvider>
+      </DataWalletContextProvider>
     </AnalyticsContextProvider>
   );
 };

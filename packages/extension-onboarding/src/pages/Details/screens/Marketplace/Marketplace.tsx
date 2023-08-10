@@ -29,9 +29,7 @@ import {
   RecommendedRewardPrograms,
 } from "@extension-onboarding/pages/Details/screens/Marketplace/components/Sections";
 import { useMarketplaceStyles } from "@extension-onboarding/pages/Details/screens/Marketplace/Marketplace.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-
-declare const window: IWindowWithSdlDataWallet;
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 
 const Marketplace = () => {
   const classes = useMarketplaceStyles();
@@ -44,11 +42,12 @@ const Marketplace = () => {
   );
   const [listings, setListings] =
     useState<Record<ETag, PagedResponse<MarketplaceListing>>>();
+  const { sdlDataWallet } = useDataWalletContext();
 
   useEffect(() => {
     ResultUtils.combine(
       Object.values(ETag).map((tag) =>
-        window.sdlDataWallet
+        sdlDataWallet
           ?.getMarketplaceListingsByTag(
             new PagingRequest(1, 50),
             tag as MarketplaceTag,
