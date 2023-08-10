@@ -79,7 +79,7 @@ jobs:
           --build-arg DEFAULT_INSIGHT_PLATFORM_BASE_URL="https://insight-api.dev.snickerdoodle.dev/v0/" \
           --build-arg CONTROL_CHAIN_ID=31337 \
           --build-arg DEV_CHAIN_PROVIDER_URL="https://doodlechain.$JIRA_TICKET.snickerdoodle.dev" \
-          --build-arg IPFS_FETCH_BASE_URL=https://ipfs-gateway.snickerdoodle.dev/ipfs \
+          --build-arg IPFS_FETCH_BASE_URL=https://ipfs-gateway.snickerdoodle.dev/ipfs/ \
           --build-arg BASE_TAG="$GITHUB_SHA" \
           -f ./packages/iframe/Dockerfile \
           .
