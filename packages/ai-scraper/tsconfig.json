@@ -5,8 +5,8 @@
     "rootDir": "./src",
     "module": "ES2022",
     "paths": {
-      "@ai-scraper/*": ["./packages/ai-scrape/src/*"],
-      "@ai-scraper-test/*": ["./packages/ai-scrape/test/*"],
+      "@query-parser/*": ["./packages/query-parser/src/*"],
+      "@query-parser-test/*": ["./packages/query-parser/test/*"],
     },
   },
   "include": [

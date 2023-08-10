@@ -3,6 +3,9 @@
   "files": [],
   "references": [
     {
+      "path": "packages/ai-scraper"
+    },
+    {
       "path": "packages/browserExtension"
     },
     {
