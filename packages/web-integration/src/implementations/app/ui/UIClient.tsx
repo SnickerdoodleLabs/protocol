@@ -8,7 +8,10 @@ import React from "react";
 import { render } from "react-dom";
 
 export class UIClient implements IUIClient {
-  constructor(protected proxy: ISnickerdoodleIFrameProxy) {}
+  constructor(
+    protected proxy: ISnickerdoodleIFrameProxy,
+    protected signerProvided: boolean,
+  ) {}
 
   public register(): void {
     const customElementName = `sdl-protocol-iframe-ui-client`;
@@ -41,7 +44,7 @@ export class UIClient implements IUIClient {
         });
         render(
           <StylesProvider jss={jss}>
-            <App proxy={_this.proxy} />
+            <App proxy={_this.proxy} signerProvided={_this.signerProvided} />
           </StylesProvider>,
           mountPoint,
         );
@@ -54,7 +57,7 @@ export class UIClient implements IUIClient {
     styleContainer.rel = "stylesheet";
     styleContainer.type = "text/css";
     styleContainer.href =
-      "//fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap&family=Source+Sans+Pro:wght@400;700&display=swap&family=Shrikhand&display=swap&family=Inter:wght@300;400;500;600&display=swap&family=Public+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700&display=swap";
+      "//fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;700&display=swap&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700&display=swap&family=Poppins:wght@400;700&display=swap";
     return styleContainer;
   }
 }
