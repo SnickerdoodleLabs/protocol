@@ -62,5 +62,8 @@ async function startIntegration(
       }
 
       return okAsync(undefined);
+    })
+    .mapErr((e) => {
+      console.error(e);
     });
 }
