@@ -52,7 +52,7 @@ import {
   ONBOARDING_PROVIDER_SUBSTREAM,
   GetInvitationWithDomainParams,
   AcceptInvitationByUUIDParams,
-  RejectInvitationParams,
+  RejectInvitationByUUIDParams,
   CheckURLParams,
   SetReceivingAddressParams,
   IExtensionConfig,
@@ -74,6 +74,7 @@ interface ISafeURLHistory {
 let coreGateway: ExternalCoreGateway;
 let extensionConfig: IExtensionConfig;
 let eventEmitter: UpdatableEventEmitterWrapper;
+const appID = Browser.runtime.id;
 
 const connect = () => {
   const port = Browser.runtime.connect({ name: EPortNames.SD_CONTENT_SCRIPT });
@@ -101,9 +102,10 @@ const connect = () => {
         if (!extensionConfig) {
           extensionConfig = config;
         }
-        if (new URL(config.onboardingUrl).origin === window.location.origin) {
-          DataWalletProxyInjectionUtils.inject();
-        }
+        // inject the proxy to any domain
+        // there is no blacklist for now
+        // we should have soon
+        DataWalletProxyInjectionUtils.inject(config.providerKey || "");
       },
     );
   } else {
@@ -111,36 +113,25 @@ const connect = () => {
     eventEmitter.update(streamMiddleware.events);
   }
 
-  (extensionConfig ? okAsync(extensionConfig) : coreGateway.getConfig()).map(
-    (config) => {
-      if (!extensionConfig) {
-        extensionConfig = config;
-      }
-      if (new URL(config.onboardingUrl).origin === window.location.origin) {
-        {
-          const postMessageStream = new LocalMessageStream({
-            name: CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
-            target: ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
-          });
-          const pageMux = new ObjectMultiplex();
-          pump(pageMux, postMessageStream, pageMux);
-          const pageStreamChannel = pageMux.createStream(
-            ONBOARDING_PROVIDER_SUBSTREAM,
-          );
-          const extensionStreamChannel = extensionMux.createStream(
-            ONBOARDING_PROVIDER_SUBSTREAM,
-          );
-          pump(pageStreamChannel, extensionStreamChannel, pageStreamChannel);
-          extensionMux.on("finish", () => {
-            document.dispatchEvent(
-              new CustomEvent("extension-stream-channel-closed"),
-            );
-            pageMux.destroy();
-          });
-        }
-      }
-    },
+  // before creating message stream we also need to check the blacklist once we have it
+  const postMessageStream = new LocalMessageStream({
+    name: `${CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER}${appID}`,
+    target: `${ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER}${appID}`,
+  });
+  const pageMux = new ObjectMultiplex();
+  pump(pageMux, postMessageStream, pageMux);
+  const pageStreamChannel = pageMux.createStream(ONBOARDING_PROVIDER_SUBSTREAM);
+  const extensionStreamChannel = extensionMux.createStream(
+    ONBOARDING_PROVIDER_SUBSTREAM,
   );
+  pump(pageStreamChannel, extensionStreamChannel, pageStreamChannel);
+  extensionMux.on("finish", () => {
+    document.dispatchEvent(
+      new CustomEvent(`extension-stream-channel-closed${appID}`),
+    );
+    pageMux.destroy();
+  });
+
   // keep service worker alive
   if (VersionUtils.isManifest3) {
     port.onDisconnect.addListener(connect);
@@ -169,8 +160,33 @@ const App = () => {
     dataTypes: EWalletDataType[];
   }>();
   const _path = usePath();
-
   const isStatusCheckRequiredRef = useRef<boolean>(false);
+  const [isHidden, setIsHidden] = useState<boolean>(false);
+
+  useEffect(() => {
+    window.postMessage(
+      {
+        type: "popupContentUpdated",
+        id: appID,
+        name: extensionConfig?.providerKey || "",
+        hasContent: appState !== EAPP_STATE.INIT,
+      },
+      "*",
+    );
+  }, [appState]);
+
+  const handleTabManagerMessage = (event: MessageEvent) => {
+    if (event.data.type === "selectedTabUpdated") {
+      setIsHidden(!(!event.data.id || event.data.id === appID));
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("message", handleTabManagerMessage);
+    return () => {
+      window.removeEventListener("message", handleTabManagerMessage);
+    };
+  }, []);
 
   useEffect(() => {
     initiateScamFilterStatus();
@@ -290,6 +306,7 @@ const App = () => {
             ).map((status) => {
               if (status === EInvitationStatus.New) {
                 setInvitationDomain(result);
+                setAppState(EAPP_STATE.INVITATION_PREVIEW);
                 initiateRewardPopup(result);
                 if (!isInitialized) {
                   isStatusCheckRequiredRef.current = true;
@@ -326,8 +343,8 @@ const App = () => {
 
   const rejectInvitation = () => {
     coreGateway
-      .rejectInvitation(
-        new RejectInvitationParams(invitationDomain?.id as UUID),
+      .rejectInvitationByUUID(
+        new RejectInvitationByUUIDParams(invitationDomain?.id as UUID),
       )
       .map(() => emptyReward());
   };
@@ -362,7 +379,7 @@ const App = () => {
     switch (true) {
       case !rewardToDisplay || walletState === EWalletState.UNKNOWN:
         return null;
-      case appState === EAPP_STATE.INIT:
+      case appState === EAPP_STATE.INVITATION_PREVIEW:
         return (
           <RewardCard
             onJoinClick={() => {
@@ -444,8 +461,12 @@ const App = () => {
     JSON.stringify(subscriptionPreviewData),
   ]);
 
+  if (isHidden) {
+    return null;
+  }
+
   return (
-    <>
+    <div>
       {scamFilterStatus && (
         <ScamFilterComponent
           scamFilterStatus={scamFilterStatus}
@@ -453,7 +474,7 @@ const App = () => {
         />
       )}
       {renderComponent}
-    </>
+    </div>
   );
 };
 

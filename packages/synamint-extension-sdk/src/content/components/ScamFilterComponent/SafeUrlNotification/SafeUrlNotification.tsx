@@ -11,7 +11,7 @@ import Browser from "webextension-polyfill";
 
 import { useStyles } from "@synamint-extension-sdk/content/components/ScamFilterComponent/SafeUrlNotification";
 import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
-import { ScamFilterSettingsParams } from "@synamint-extension-sdk/shared/interfaces/actions.js";
+import { ScamFilterSettingsParams } from "@synamint-extension-sdk/shared/interfaces/actions";
 
 export interface State extends SnackbarOrigin {
   open: boolean;

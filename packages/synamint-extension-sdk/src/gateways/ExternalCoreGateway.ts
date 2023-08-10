@@ -1,3 +1,5 @@
+import "reflect-metadata";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
   AccountAddress,
   Age,
@@ -59,7 +61,6 @@ import {
   GetUnlockMessageParams,
   IInvitationDomainWithUUID,
   LeaveCohortParams,
-  RejectInvitationParams,
   SetBirthdayParams,
   SetEmailParams,
   SetFamilyNameParams,
@@ -135,6 +136,8 @@ import {
   SetAuthenticatedStorageParams,
   GetAvailableCloudStorageOptionsParams,
   getCurrentCloudStorageParams,
+  RejectInvitationParams,
+  RejectInvitationByUUIDParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -250,10 +253,14 @@ export class ExternalCoreGateway {
   }
 
   public getAvailableInvitationsCID(): ResultAsync<
-    Record<EVMContractAddress, IpfsCID>,
+    Map<EVMContractAddress, IpfsCID>,
     ProxyError
   > {
-    return this._handler.call(new GetAvailableInvitationsCIDParams());
+    return this._handler
+      .call(new GetAvailableInvitationsCIDParams())
+      .map((jsonString) => {
+        return ObjectUtils.deserialize(jsonString);
+      });
   }
 
   public acceptInvitation(
@@ -295,6 +302,12 @@ export class ExternalCoreGateway {
     return this._handler.call(params);
   }
 
+  public rejectInvitationByUUID(
+    params: RejectInvitationByUUIDParams,
+  ): ResultAsync<void, ProxyError> {
+    return this._handler.call(params);
+  }
+
   public rejectInvitation(
     params: RejectInvitationParams,
   ): ResultAsync<void, ProxyError> {
@@ -302,10 +315,14 @@ export class ExternalCoreGateway {
   }
 
   public getAcceptedInvitationsCID(): ResultAsync<
-    Record<EVMContractAddress, IpfsCID>,
+    Map<EVMContractAddress, IpfsCID>,
     ProxyError
   > {
-    return this._handler.call(new GetAcceptedInvitationsCIDParams());
+    return this._handler
+      .call(new GetAcceptedInvitationsCIDParams())
+      .map((jsonString) => {
+        return ObjectUtils.deserialize(jsonString);
+      });
   }
 
   public getInvitationMetadataByCID(
@@ -456,7 +473,11 @@ export class ExternalCoreGateway {
   }
 
   public getSiteVisitsMap(): ResultAsync<Map<URLString, number>, ProxyError> {
-    return this._handler.call(new GetSiteVisitsMapParams());
+    return this._handler
+      .call(new GetSiteVisitsMapParams())
+      .map((jsonString) => {
+        return ObjectUtils.deserialize(jsonString);
+      });
   }
 
   public getMarketplaceListingsByTag(
@@ -497,8 +518,10 @@ export class ExternalCoreGateway {
 
   public getPossibleRewards(
     params: GetPossibleRewardsParams,
-  ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, ProxyError> {
-    return this._handler.call(params);
+  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, ProxyError> {
+    return this._handler.call(params).map((jsonString) => {
+      return ObjectUtils.deserialize(jsonString);
+    });
   }
   public getConfig(): ResultAsync<IExtensionConfig, ProxyError> {
     return this._handler.call(new GetConfigParams());
@@ -533,4 +556,9 @@ export class ExternalCoreGateway {
   > {
     return this._handler.call(new GetAvailableCloudStorageOptionsParams());
   }
+  public getProviderKey = (): ResultAsync<string | undefined, ProxyError> => {
+    return this.getConfig().map((config) => {
+      return config.providerKey;
+    });
+  };
 }

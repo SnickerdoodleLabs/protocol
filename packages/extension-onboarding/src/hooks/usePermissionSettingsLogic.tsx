@@ -2,9 +2,7 @@ import { EWalletDataType } from "@snickerdoodlelabs/objects";
 import React, { useEffect, useMemo, useState } from "react";
 
 import { PERMISSION_NAMES } from "@extension-onboarding/constants/permissions";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-declare const window: IWindowWithSdlDataWallet;
-
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 const usePermissionSettingsLogic = (): {
   applyDefaults: boolean;
   handleApplyDefaultOptionChange: (optionStr: "true" | "false") => void;
@@ -14,6 +12,7 @@ const usePermissionSettingsLogic = (): {
 } => {
   const [applyDefaults, setApplyDefaults] = useState<boolean>(false);
   const [permissionForm, setPermissionForm] = useState<EWalletDataType[]>([]);
+  const { sdlDataWallet } = useDataWalletContext();
 
   useEffect(() => {
     getApplyDefaultOption();
@@ -21,19 +20,19 @@ const usePermissionSettingsLogic = (): {
   }, []);
 
   const getApplyDefaultOption = () => {
-    return window.sdlDataWallet
+    return sdlDataWallet
       .getApplyDefaultPermissionsOption()
       .map((option) => setApplyDefaults(option));
   };
 
   const getPermissions = () => {
-    return window.sdlDataWallet.getDefaultPermissions().map((permissions) => {
+    return sdlDataWallet.getDefaultPermissions().map((permissions) => {
       setPermissionForm(permissions.filter((item) => !!PERMISSION_NAMES[item]));
     });
   };
 
   const setPermissions = (dataTypes: EWalletDataType[]) => {
-    return window.sdlDataWallet.setDefaultPermissions(dataTypes).andThen(() => {
+    return sdlDataWallet.setDefaultPermissions(dataTypes).andThen(() => {
       return getPermissions();
     });
   };
@@ -51,11 +50,9 @@ const usePermissionSettingsLogic = (): {
   const handleApplyDefaultOptionChange = (optionStr: "true" | "false") => {
     const option = optionStr === "true";
 
-    window.sdlDataWallet
-      .setApplyDefaultPermissionsOption(option)
-      .andThen(() => {
-        return getApplyDefaultOption();
-      });
+    sdlDataWallet.setApplyDefaultPermissionsOption(option).andThen(() => {
+      return getApplyDefaultOption();
+    });
   };
 
   return {

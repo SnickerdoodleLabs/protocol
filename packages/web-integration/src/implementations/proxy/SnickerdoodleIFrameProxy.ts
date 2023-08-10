@@ -70,6 +70,8 @@ import {
   AccessToken,
   ECloudStorageType,
   IProxyStorageMethods,
+  ECoreProxyType,
+  PageInvitation,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ResultAsync } from "neverthrow";
@@ -93,6 +95,7 @@ export class SnickerdoodleIFrameProxy
     this.events = new PublicEvents();
     this.onIframeDisplayRequested = new Subject<void>();
   }
+  public proxyType: ECoreProxyType = ECoreProxyType.IFRAME_INJECTED;
 
   public onIframeDisplayRequested: Subject<void>;
 
@@ -220,6 +223,18 @@ export class SnickerdoodleIFrameProxy
           },
         );
 
+        this.child.on("onBirthdayUpdated", (data: UnixTimestamp) => {
+          this.events.onBirthdayUpdated.next(data);
+        });
+
+        this.child.on("onGenderUpdated", (data: Gender) => {
+          this.events.onGenderUpdated.next(data);
+        });
+
+        this.child.on("onLocationUpdated", (data: CountryCode) => {
+          this.events.onLocationUpdated.next(data);
+        });
+
         this.child.on("onIframeDisplayRequested", () => {
           this.onIframeDisplayRequested.next();
         });
@@ -239,7 +254,7 @@ export class SnickerdoodleIFrameProxy
     accountAddress: AccountAddress,
     signature: Signature,
     chain: EChain,
-    languageCode?: LanguageCode,
+    languageCode: LanguageCode = LanguageCode("en"),
   ): ResultAsync<void, ProxyError> {
     return this._createCall("unlock", {
       accountAddress,
@@ -253,7 +268,7 @@ export class SnickerdoodleIFrameProxy
     accountAddress: AccountAddress,
     signature: Signature,
     chain: EChain,
-    languageCode?: LanguageCode,
+    languageCode: LanguageCode = LanguageCode("en"),
   ): ResultAsync<void, ProxyError> {
     return this._createCall("addAccount", {
       accountAddress,
@@ -389,14 +404,14 @@ export class SnickerdoodleIFrameProxy
   }
 
   public getAcceptedInvitationsCID(): ResultAsync<
-    Record<EVMContractAddress, IpfsCID>,
+    Map<EVMContractAddress, IpfsCID>,
     ProxyError
   > {
     return this._createCall("getAcceptedInvitationsCID", null);
   }
 
   public getAvailableInvitationsCID(): ResultAsync<
-    Record<EVMContractAddress, IpfsCID>,
+    Map<EVMContractAddress, IpfsCID>,
     ProxyError
   > {
     return this._createCall("getAvailableInvitationsCID", null);
@@ -411,10 +426,10 @@ export class SnickerdoodleIFrameProxy
   }
 
   public getAgreementPermissions(
-    consentContractAddres: EVMContractAddress,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<EWalletDataType[], ProxyError> {
     return this._createCall("getAgreementPermissions", {
-      consentContractAddres,
+      consentContractAddress,
     });
   }
 
@@ -463,6 +478,13 @@ export class SnickerdoodleIFrameProxy
     return this._createCall("setDefaultPermissionsToAll", null);
   }
 
+  public getInvitationByDomain(
+    domain: DomainName,
+    path: string,
+  ): ResultAsync<PageInvitation | null, ProxyError> {
+    return this._createCall("getInvitationByDomain", { domain, path });
+  }
+
   public acceptInvitation(
     dataTypes: EWalletDataType[] | null,
     consentContractAddress: EVMContractAddress,
@@ -474,6 +496,20 @@ export class SnickerdoodleIFrameProxy
       consentContractAddress,
       tokenId,
       businessSignature,
+    });
+  }
+
+  public rejectInvitation(
+    consentContractAddress: EVMContractAddress,
+    tokenId?: BigNumberString,
+    businessSignature?: Signature,
+    rejectUntil?: UnixTimestamp,
+  ) {
+    return this._createCall("rejectInvitation", {
+      consentContractAddress,
+      tokenId,
+      businessSignature,
+      rejectUntil,
     });
   }
 
@@ -588,7 +624,7 @@ export class SnickerdoodleIFrameProxy
   public getPossibleRewards(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
-  ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, ProxyError> {
+  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, ProxyError> {
     return this._createCall("getPossibleRewards", {
       contractAddresses,
       timeoutMs,

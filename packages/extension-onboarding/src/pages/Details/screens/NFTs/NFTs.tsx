@@ -19,11 +19,9 @@ import {
 } from "@extension-onboarding/components/NFTItem";
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/NFTs/NFTs.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
 import UnauthScreen from "@extension-onboarding/components/UnauthScreen";
 
-declare const window: IWindowWithSdlDataWallet;
 
 export enum EDisplayMode {
   MAINNET,

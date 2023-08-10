@@ -15,9 +15,7 @@ import { useLocation } from "react-router-dom";
 import Breadcrumb from "@extension-onboarding/components/Breadcrumb";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/RewardDetail/RewardDetail.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-declare const window: IWindowWithSdlDataWallet;
-
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 const RewardDetail: FC = () => {
   const { reward, consentContractAddress, permissions } = (useLocation()
     .state || {}) as {
@@ -25,6 +23,7 @@ const RewardDetail: FC = () => {
     consentContractAddress: EVMContractAddress;
     permissions: EWalletDataType[] | undefined;
   };
+  const { sdlDataWallet } = useDataWalletContext();
   const { apiGateway, optedInContracts } = useAppContext();
   const [capacityInfo, setCapacityInfo] = useState<IConsentCapacity>();
   const classes = useStyles();
@@ -33,7 +32,7 @@ const RewardDetail: FC = () => {
   }, []);
 
   const getCapacityInfo = () => {
-    window.sdlDataWallet
+    sdlDataWallet
       ?.getConsentCapacity(consentContractAddress)
       .map((capacity) => {
         setCapacityInfo(capacity);

@@ -14,12 +14,11 @@ import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 
 interface IUseCampaignItemLogicProps {
   consentContractAddress: EVMContractAddress;
 }
-declare const window: IWindowWithSdlDataWallet;
 
 const useCampaignItemLogic = ({
   consentContractAddress,
@@ -38,6 +37,7 @@ const useCampaignItemLogic = ({
   const { optedInContracts, earnedRewards, updateOptedInContracts } =
     useAppContext();
   const [consentCapacity, setConsentCapacity] = useState<IConsentCapacity>();
+  const { sdlDataWallet } = useDataWalletContext();
   const { setModal, setLoadingStatus } = useLayoutContext();
   const { setAlert } = useNotificationContext();
   const rewardsRef = useRef<PossibleReward[]>([]);
@@ -54,10 +54,10 @@ const useCampaignItemLogic = ({
   }, [JSON.stringify(campaignInfo)]);
 
   const getRewardItem = () => {
-    window.sdlDataWallet
+    sdlDataWallet
       .getConsentContractCID(consentContractAddress)
       .map((campaignCID) =>
-        window.sdlDataWallet
+        sdlDataWallet
           .getInvitationMetadataByCID(campaignCID)
           .map((metadata) => {
             setCampaignInfo(metadata);
@@ -69,7 +69,7 @@ const useCampaignItemLogic = ({
   };
 
   const getConsentCapacity = () => {
-    window.sdlDataWallet
+    sdlDataWallet
       ?.getConsentCapacity(consentContractAddress)
       .map((capacityInfo) => {
         setConsentCapacity(capacityInfo);
@@ -77,10 +77,10 @@ const useCampaignItemLogic = ({
   };
 
   const getPossibleRewards = () => {
-    window.sdlDataWallet
+    sdlDataWallet
       ?.getPossibleRewards?.([consentContractAddress])
       .map((possibleRewards) =>
-        setPossibleRewards(possibleRewards[consentContractAddress] ?? []),
+        setPossibleRewards(possibleRewards.get(consentContractAddress) ?? []),
       );
   };
 
@@ -115,9 +115,9 @@ const useCampaignItemLogic = ({
   }, [isSubscribed]);
 
   const handleSubscribeButton = () => {
-    window.sdlDataWallet.getApplyDefaultPermissionsOption().map((option) => {
+    sdlDataWallet.getApplyDefaultPermissionsOption().map((option) => {
       if (option) {
-        window.sdlDataWallet
+        sdlDataWallet
           .getDefaultPermissions()
           .map((permissions) => acceptInvitation(permissions));
       } else {
@@ -169,7 +169,7 @@ const useCampaignItemLogic = ({
           }
           return acc;
         }, [] as PossibleReward[]);
-    window.sdlDataWallet
+    sdlDataWallet
       .acceptInvitation(dataTypes, consentContractAddress)
       .map(() => {
         updateOptedInContracts();

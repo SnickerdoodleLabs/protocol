@@ -6,9 +6,9 @@
 		"module": "ES2022",
 		"paths": {
 			"@web-integration/*": [
-			  "./packages/web-integration/src/*"
+				"./packages/web-integration/src/*"
 			],
-		  },
+		},
 	},
 	"references": [
 		{
@@ -17,10 +17,15 @@
 		{
 			"path": "../objects"
 		},
-    {
+		{
 			"path": "../utils"
 		}
 	],
-	"include": ["./src/**/*.ts" ],
-	"exclude": ["node_modules"]
+	"include": [
+		"./src/**/*.ts",
+		"./src/**/*.tsx"
+	],
+	"exclude": [
+		"node_modules"
+	]
 }

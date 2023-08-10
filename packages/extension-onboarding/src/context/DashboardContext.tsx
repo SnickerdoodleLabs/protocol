@@ -16,9 +16,9 @@ import React, {
 } from "react";
 
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { NftMetadataParseUtils } from "@extension-onboarding/utils";
-declare const window: IWindowWithSdlDataWallet;
+
 
 interface IDashboardContext {
   accountNFTs?: WalletNFT[];
@@ -59,6 +59,7 @@ export const DashboardContextProvider: FC = ({ children }) => {
   const [poapNFTs, setPoapNFTs] = useState<EVMNFT[]>();
   const [accountTestnetNFTs, setAccountTestnetNFTs] = useState<WalletNFT[]>();
   const [isNFTsLoading, setIsNFTsLoading] = useState(true);
+  const { sdlDataWallet } = useDataWalletContext();
   const { linkedAccounts, appMode } = useAppContext();
 
   useEffect(() => {
@@ -69,7 +70,7 @@ export const DashboardContextProvider: FC = ({ children }) => {
   }, [linkedAccounts.length, appMode]);
 
   const initializeNfts = () => {
-    window.sdlDataWallet
+    sdlDataWallet
       .getAccountNFTs()
       .mapErr((e) => {
         setIsNFTsLoading(false);

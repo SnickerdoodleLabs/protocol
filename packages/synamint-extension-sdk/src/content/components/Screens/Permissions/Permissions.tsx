@@ -35,7 +35,7 @@ import {
   SetBirthdayParams,
   SetGenderParams,
   SetLocationParams,
-} from "@synamint-extension-sdk/shared/interfaces/actions.js";
+} from "@synamint-extension-sdk/shared/interfaces/actions";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
 interface IPermissionsProps {
@@ -148,10 +148,11 @@ const Permissions: FC<IPermissionsProps> = ({
       coreGateway.getPossibleRewards(
         new GetPossibleRewardsParams([domainDetails.consentAddress]),
       ),
-    ]).map(([earnedRewards, possibleRewardsRec]) => {
+    ]).map(([earnedRewards, possibleRewards]) => {
       setRewards({
         earnedRewards,
-        possibleRewards: possibleRewardsRec[domainDetails.consentAddress] ?? [],
+        possibleRewards:
+          possibleRewards.get(domainDetails.consentAddress) ?? [],
       });
     });
   }, [isUnlocked]);

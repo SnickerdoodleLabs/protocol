@@ -49,7 +49,6 @@ export class PortConnectionRepository implements IPortConnectionRepository {
       this._setupExternalConnection(remotePort);
     } else {
       console.log("unknown port connected");
-      errAsync(undefined);
     }
     return okAsync(undefined);
   }
@@ -66,9 +65,6 @@ export class PortConnectionRepository implements IPortConnectionRepository {
   private _setupExternalConnection(remotePort: Runtime.Port) {
     const url = new URL(remotePort!.sender!.url!);
     const { origin } = url;
-    const onboardingUrl = this.configProvider.getConfig().onboardingUrl;
-    const { origin: onboardingUrlOrigin } = new URL(onboardingUrl);
-
     const portStream = new PortStream(remotePort);
     // create multiplex to enable substreams
     const portStreamMux = new ObjectMultiplex();
@@ -80,14 +76,13 @@ export class PortConnectionRepository implements IPortConnectionRepository {
       origin as URLString,
       portStreamMux.createStream(CONTENT_SCRIPT_SUBSTREAM),
     );
-    // create injected onboarding handler if orgins match
-    if (origin === onboardingUrlOrigin) {
-      this.rpcEngineFactory.createRpcEngine(
-        remotePort,
-        origin as URLString,
-        portStreamMux.createStream(ONBOARDING_PROVIDER_SUBSTREAM),
-      );
-    }
+    // create injected proxy handler
+    this.rpcEngineFactory.createRpcEngine(
+      remotePort,
+      origin as URLString,
+      portStreamMux.createStream(ONBOARDING_PROVIDER_SUBSTREAM),
+    );
+
     endOfStream(portStream, () => {
       portStreamMux.destroy();
     });

@@ -59,6 +59,7 @@ export interface IExtensionConfig extends IExtensionConfigDefaults {
   primaryInfuraKey?: string;
   secondaryInfuraKey?: string;
   devChainProviderURL?: ProviderUrl;
+  providerKey?: string;
 }
 
 export interface IExtensionConfigOverrides {
@@ -114,4 +115,5 @@ export interface IExtensionConfigOverrides {
   discordOverrides?: Partial<DiscordConfig>;
   twitterOverrides?: Partial<TwitterConfig>;
   devChainProviderURL?: ProviderUrl;
+  providerKey?: string;
 }

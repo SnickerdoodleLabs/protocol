@@ -15,9 +15,6 @@ import { useNotificationContext } from "@extension-onboarding/context/Notificati
 import { ISocialMediaPlatformProps } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms";
 import { TwitterAccountItem } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Twitter/Items/TwitterAccountItem";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Twitter/Twitter.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-
-declare const window: IWindowWithSdlDataWallet;
 
 export const TwitterInfo: FC<ISocialMediaPlatformProps> = memo(
   ({ name, icon }: ISocialMediaPlatformProps) => {

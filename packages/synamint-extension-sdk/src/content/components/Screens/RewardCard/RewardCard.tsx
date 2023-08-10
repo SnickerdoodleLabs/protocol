@@ -29,6 +29,9 @@ const RewardCard: React.FC<IRewardCardProps> = ({
         square: true,
       }}
       open={true}
+      disableAutoFocus
+      disableEnforceFocus
+      disableRestoreFocus
       disablePortal
     >
       <Box width={480} bgcolor="#FDF3E1">

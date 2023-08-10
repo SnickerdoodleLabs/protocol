@@ -24,7 +24,6 @@ import SocialMediaInfo from "@extension-onboarding/pages/Details/screens/SocialM
 import Tokens from "@extension-onboarding/pages/Details/screens/Tokens";
 import AccountLinking from "@extension-onboarding/pages/Onboarding/AccountLinking";
 import CategorySelection from "@extension-onboarding/pages/Onboarding/CategorySelection";
-import OptIn from "@extension-onboarding/pages/Onboarding/OptIn";
 import PermissionSelection from "@extension-onboarding/pages/Onboarding/PermissionSelection";
 import StorageSettings from "@extension-onboarding/pages/Details/screens/StorageSettings/StorageSettings";
 import ProfileCreation from "@extension-onboarding/pages/Onboarding/ProfileCreation";

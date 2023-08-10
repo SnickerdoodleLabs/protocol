@@ -82,7 +82,7 @@ import {
   SetEmailParams,
   GetInvitationWithDomainParams,
   AcceptInvitationByUUIDParams,
-  RejectInvitationParams,
+  RejectInvitationByUUIDParams,
   LeaveCohortParams,
   GetInvitationMetadataByCIDParams,
   CheckURLParams,
@@ -154,6 +154,7 @@ import {
   SetAuthenticatedStorageParams,
   GetAvailableCloudStorageOptionsParams,
   getCurrentCloudStorageParams,
+  RejectInvitationParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -325,15 +326,17 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<GetSiteVisitsMapParams>(
       GetSiteVisitsMapParams.getCoreAction(),
       (_params) => {
-        return this.userSiteInteractionService.getSiteVisitsMap();
+        return this.userSiteInteractionService.getSiteVisitsMap().map((map) => {
+          return ObjectUtils.serialize(map);
+        });
       },
     ),
     new CoreActionHandler<GetAcceptedInvitationsCIDParams>(
       GetAcceptedInvitationsCIDParams.getCoreAction(),
       (_params) => {
-        return this.invitationService
-          .getAcceptedInvitationsCID()
-          .map((res) => mapToObj(res)); // TODO: mapToObj is probably just for dealing with serialization; the improved serializer in ObjectUtils probably makes this unnecessary.
+        return this.invitationService.getAcceptedInvitationsCID().map((res) => {
+          return ObjectUtils.serialize(res);
+        });
       },
     ),
     new CoreActionHandler<SetDefaultReceivingAddressParams>(
@@ -451,7 +454,9 @@ export class RpcCallHandler implements IRpcCallHandler {
       (_params) => {
         return this.invitationService
           .getAvailableInvitationsCID()
-          .map((res) => mapToObj(res));
+          .map((res) => {
+            return ObjectUtils.serialize(res);
+          });
       },
     ),
     new CoreActionHandler<GetAgreementPermissionsParams>(
@@ -541,13 +546,29 @@ export class RpcCallHandler implements IRpcCallHandler {
         });
       },
     ),
-    new CoreActionHandler<RejectInvitationParams>(
-      RejectInvitationParams.getCoreAction(),
+    new CoreActionHandler<RejectInvitationByUUIDParams>(
+      RejectInvitationByUUIDParams.getCoreAction(),
       (params) => {
         const invitation = this.contextProvider.getInvitation(
           params.id,
         ) as Invitation;
         return this.invitationService.rejectInvitation(invitation);
+      },
+    ),
+    new CoreActionHandler<RejectInvitationParams>(
+      RejectInvitationParams.getCoreAction(),
+      (params) => {
+        return this._getTokenId(params.tokenId).andThen((tokenId) => {
+          return this.invitationService.rejectInvitation(
+            new Invitation(
+              "" as DomainName,
+              params.consentContractAddress,
+              tokenId,
+              params.businessSignature ?? null,
+            ),
+            params.rejectUntil,
+          );
+        });
       },
     ),
     new CoreActionHandler<CheckURLParams>(
@@ -693,7 +714,9 @@ export class RpcCallHandler implements IRpcCallHandler {
       (params) => {
         return this.invitationService
           .getPossibleRewards(params.contractAddresses, params.timeoutMs)
-          .map((res) => mapToObj(res));
+          .map((res) => {
+            return ObjectUtils.serialize(res);
+          });
       },
     ),
 
@@ -929,6 +952,8 @@ class CoreActionHandler<
       .map((result) => {
         if (typeof result === typeof undefined) {
           res.result = DEFAULT_RPC_SUCCESS_RESULT;
+        } else if (typeof result === "string") {
+          res.result = result;
         } else {
           res.result = ObjectUtils.toGenericObject(result);
         }

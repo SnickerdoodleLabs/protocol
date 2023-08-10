@@ -1,4 +1,17 @@
+import { ICoreListener } from "@core-iframe/interfaces/api/index";
 import {
+  IAccountService,
+  IAccountServiceType,
+} from "@core-iframe/interfaces/business/index";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+  ICoreProvider,
+  ICoreProviderType,
+} from "@core-iframe/interfaces/utilities/index";
+import {
+  ICryptoUtils,
+  ICryptoUtilsType,
   ILogUtils,
   ILogUtilsType,
   ITimeUtils,
@@ -9,11 +22,13 @@ import {
   BigNumberString,
   ChainId,
   CountryCode,
+  DataPermissions,
   DiscordID,
   DomainName,
   EChain,
   EDataWalletPermission,
   EVMContractAddress,
+  EWalletDataType,
   EmailAddressString,
   FamilyName,
   Gender,
@@ -47,19 +62,7 @@ import { injectable, inject } from "inversify";
 import { okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import Postmate from "postmate";
-
-import { ICoreListener } from "@core-iframe/interfaces/api/index";
-import {
-  IAccountService,
-  IAccountServiceType,
-} from "@core-iframe/interfaces/business/index";
-import {
-  IConfigProvider,
-  IConfigProviderType,
-  ICoreProvider,
-  ICoreProviderType,
-} from "@core-iframe/interfaces/utilities/index";
-
+import { parse } from "tldts";
 @injectable()
 export class CoreListener extends ChildProxy implements ICoreListener {
   // Get the source domain
@@ -72,6 +75,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
+    @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
   ) {
     super();
   }
@@ -434,17 +438,21 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      // getAgreementPermissions: (
-      //   data: IIFrameCallData<{
-      //     ipfsCID: IpfsCID;
-      //   }>,
-      // ) => {
-      //   this.returnForModel(() => {
-      //     return core.invitation.getInvitationMetadataByCID(
-      //       data.data.ipfsCID,
-      //     );
-      //   }, data.callId);
-      // },
+      getAgreementPermissions: (
+        data: IIFrameCallData<{
+          consentContractAddress: EVMContractAddress;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.invitation
+              .getAgreementFlags(data.data.consentContractAddress, sourceDomain)
+              .map((flags) => {
+                return DataPermissions.getDataTypesFromFlags(flags);
+              });
+          });
+        }, data.callId);
+      },
 
       // getApplyDefaultPermissionsOption: (
       //   data: IIFrameCallData<Record<string, never>>,
@@ -516,18 +524,94 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       //   }, data.callId);
       // },
 
-      // acceptInvitation: (
-      //   data: IIFrameCallData<{
-      //     dataTypes: EWalletDataType[] | null;
-      //     consentContractAddress: EVMContractAddress;
-      //     tokenId?: BigNumberString;
-      //     businessSignature?: Signature;
-      //   }>,
-      // ) => {
-      //   this.returnForModel(() => {
-      //     return core.invitation.acceptInvitation(data.data.dataTypes,);
-      //   }, data.callId);
-      // },
+      getInvitationByDomain: (
+        data: IIFrameCallData<{
+          domain: DomainName;
+          path: string;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.invitation
+              .getInvitationsByDomain(data.data.domain)
+              .andThen((pageInvitations) => {
+                const pageInvitation = pageInvitations.find((value) => {
+                  const incomingUrl = value.url.replace(/^https?:\/\//, "");
+                  const incomingUrlInfo = parse(incomingUrl);
+                  if (
+                    !incomingUrlInfo.subdomain &&
+                    parse(data.data.path).subdomain
+                  ) {
+                    return (
+                      `${"www"}.${incomingUrl.replace(/\/$/, "")}` ===
+                      data.data.path
+                    );
+                  }
+                  return incomingUrl.replace(/\/$/, "") === data.data.path;
+                });
+                if (pageInvitation) {
+                  return okAsync(pageInvitation);
+                } else {
+                  return okAsync(null);
+                }
+              });
+          });
+        }, data.callId);
+      },
+
+      acceptInvitation: (
+        data: IIFrameCallData<{
+          dataTypes: EWalletDataType[] | null;
+          consentContractAddress: EVMContractAddress;
+          tokenId?: BigNumberString;
+          businessSignature?: Signature;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this._getTokenId(data.data.tokenId).andThen((tokenId) => {
+            return this.coreProvider.getCore().andThen((core) => {
+              return core.invitation.acceptInvitation(
+                new Invitation(
+                  "" as DomainName,
+                  data.data.consentContractAddress,
+                  tokenId,
+                  data.data.businessSignature ?? null,
+                ),
+                data.data.dataTypes
+                  ? DataPermissions.createWithPermissions(data.data.dataTypes)
+                  : null,
+                sourceDomain,
+              );
+            });
+          });
+        }, data.callId);
+      },
+
+      rejectInvitation: (
+        data: IIFrameCallData<{
+          consentContractAddress: EVMContractAddress;
+          tokenId?: BigNumberString;
+          businessSignature?: Signature;
+          rejectUntil?: UnixTimestamp,
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this._getTokenId(data.data.tokenId).andThen((tokenId) => {
+            return this.coreProvider.getCore().andThen((core) => {
+              return core.invitation.rejectInvitation(
+                new Invitation(
+                  "" as DomainName,
+                  data.data.consentContractAddress,
+                  tokenId,
+                  data.data.businessSignature ?? null,
+                ),
+                data.data.rejectUntil,
+                sourceDomain,
+              );
+            });
+          });
+        }, data.callId);
+      },
 
       leaveCohort: (
         data: IIFrameCallData<{
@@ -1086,5 +1170,12 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         });
       });
     });
+  }
+
+  private _getTokenId(tokenId: BigNumberString | undefined) {
+    if (tokenId) {
+      return okAsync(TokenId(BigInt(tokenId)));
+    }
+    return this.cryptoUtils.getTokenId();
   }
 }
