@@ -252,6 +252,7 @@ const StorageSettings = () => {
           .getDropboxAuth()
           .map((url) => {
             window.open(url, "_self");
+            // setStorageOption(ECloudStorageType.Local);
           })
           .mapErr((e) => {
             console.log(e);
