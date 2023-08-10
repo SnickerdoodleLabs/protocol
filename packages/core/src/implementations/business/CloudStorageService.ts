@@ -76,8 +76,6 @@ export class CloudStorageService implements ICloudStorageService {
 
   public getDropboxAuth(): ResultAsync<URLString, never> {
     return this.configProvider.getConfig().map((config) => {
-      console.log("get config: " + config);
-
       return URLString(
         "https://www.dropbox.com/oauth2/authorize?client_id=" +
           config.dropboxAppKey +

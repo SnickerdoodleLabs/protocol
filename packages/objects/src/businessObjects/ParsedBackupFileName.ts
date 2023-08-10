@@ -1,5 +1,5 @@
-import { EBackupPriority, StorageKey } from "@objects/enum";
-import { DataWalletBackupID } from "@objects/primitives";
+import { EBackupPriority, StorageKey } from "@objects/enum/index.js";
+import { DataWalletBackupID } from "@objects/primitives/index.js";
 
 export class ParsedBackupFileName {
   public constructor(

@@ -13,7 +13,7 @@ import {
   EProfileFieldType,
   ProfileFieldChangedNotification,
   SocialProfileLinkedNotification,
-  CloudProviderActivatedEvent,
+  CloudStorageActivatedEvent,
   CloudProviderActivatedNotification,
   ECloudStorageType,
   ProfileFieldUpdate,
@@ -113,7 +113,7 @@ export class ContextProvider implements IContextProvider {
     );
   }
 
-  public onCloudStorageActivated(event: CloudProviderActivatedEvent): void {
+  public onCloudStorageActivated(event: CloudStorageActivatedEvent): void {
     this.appContext.notifyAllConnections(
       new CloudProviderActivatedNotification(event),
     );

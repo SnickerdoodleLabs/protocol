@@ -62,7 +62,7 @@ export class GoogleCloudStorage implements ICloudStorage {
   }
 
   public name(): ECloudStorageType {
-    return ECloudStorageType.Local_Only;
+    return ECloudStorageType.Local;
   }
 
   public pollByStorageType(

@@ -773,28 +773,33 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
     // Storage Methods ---------------------------------------------------------------------------
     this.storage = {
-      getCurrentCloudStorage: () => {
+      getCurrentCloudStorage: (sourceDomain: DomainName | undefined) => {
         const cloudStorageManager = this.iocContainer.get<ICloudStorageManager>(
           ICloudStorageManagerType,
         );
 
         return cloudStorageManager.getCurrentCloudStorage();
       },
-      getAvailableCloudStorage: () => {
+      getAvailableCloudStorageOptions: (
+        sourceDomain: DomainName | undefined,
+      ) => {
         const cloudStorageManager = this.iocContainer.get<ICloudStorageManager>(
           ICloudStorageManagerType,
         );
 
-        return cloudStorageManager.getAvailableCloudStorage();
+        return cloudStorageManager.getAvailableCloudStorageOptions();
       },
-      getDropboxAuth: () => {
+      getDropboxAuth: (sourceDomain: DomainName | undefined) => {
         const cloudStorageManager = this.iocContainer.get<ICloudStorageManager>(
           ICloudStorageManagerType,
         );
 
         return cloudStorageManager.getDropboxAuth();
       },
-      authenticateDropbox: (code: string) => {
+      authenticateDropbox: (
+        code: string,
+        sourceDomain: DomainName | undefined,
+      ) => {
         const cloudStorageService = this.iocContainer.get<ICloudStorageService>(
           ICloudStorageServiceType,
         );
@@ -805,6 +810,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         type: ECloudStorageType,
         path: string,
         accessToken: AccessToken,
+        sourceDomain: DomainName | undefined,
       ) => {
         const cloudStorageService = this.iocContainer.get<ICloudStorageService>(
           ICloudStorageServiceType,

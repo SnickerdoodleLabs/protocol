@@ -6,7 +6,7 @@ import {
   SocialProfileLinkedEvent,
   UUID,
   EProfileFieldType,
-  CloudProviderActivatedEvent,
+  CloudStorageActivatedEvent,
   ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
 import { Subject } from "rxjs";
@@ -33,7 +33,7 @@ export interface IContextProvider {
   onEarnedRewardsAdded(rewards: EarnedReward[]): void;
   onSocialProfileLinked(event: SocialProfileLinkedEvent): void;
 
-  onCloudStorageActivated(event: CloudProviderActivatedEvent): void;
+  onCloudStorageActivated(event: CloudStorageActivatedEvent): void;
 
   onProfileFieldChanged(profileFieldType: EProfileFieldType, value: any): void;
 }

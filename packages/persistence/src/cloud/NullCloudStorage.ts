@@ -20,7 +20,7 @@ export class NullCloudStorage implements ICloudStorage {
   protected _lastRestore = 0;
 
   public name(): ECloudStorageType {
-    return ECloudStorageType.Local_Only;
+    return ECloudStorageType.Local;
   }
 
   public pollByStorageType(

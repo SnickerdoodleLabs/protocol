@@ -69,6 +69,7 @@ import {
   QueryStatus,
   AccessToken,
   ECloudStorageType,
+  IProxyStorageMethods,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ResultAsync } from "neverthrow";
@@ -697,28 +698,38 @@ export class SnickerdoodleIFrameProxy
     },
   };
 
-  setAuthenticatedStorage(
-    storageType: ECloudStorageType,
-    path: string,
-    accessToken: AccessToken,
-  ): ResultAsync<void, ProxyError> {
-    return this._createCall("credentials.setAuthenticatedStorage", {
-      storageType,
-      path,
-      accessToken,
-    });
-  }
-  authenticateDropbox(code: string): ResultAsync<AccessToken, ProxyError> {
-    return this._createCall("credentials.authenticateDropbox", {
-      code,
-    });
-  }
-  getDropboxAuth(): ResultAsync<URLString, ProxyError> {
-    return this._createCall("credentials.getDropboxAuthUrl", {});
-  }
-  getCurrentCloudStorage(): ResultAsync<ECloudStorageType, ProxyError> {
-    return this._createCall("credentials.getCurrentCloudStorage", {});
-  }
+  public storage: IProxyStorageMethods = {
+    setAuthenticatedStorage: (
+      storageType: ECloudStorageType,
+      path: string,
+      accessToken: AccessToken,
+    ): ResultAsync<void, ProxyError> => {
+      return this._createCall("storage.setAuthenticatedStorage", {
+        storageType,
+        path,
+        accessToken,
+      });
+    },
+    authenticateDropbox: (
+      code: string,
+    ): ResultAsync<AccessToken, ProxyError> => {
+      return this._createCall("storage.authenticateDropbox", {
+        code,
+      });
+    },
+    getDropboxAuth: (): ResultAsync<URLString, ProxyError> => {
+      return this._createCall("storage.getDropboxAuthUrl", {});
+    },
+    getCurrentCloudStorage: (): ResultAsync<ECloudStorageType, ProxyError> => {
+      return this._createCall("storage.getCurrentCloudStorage", {});
+    },
+    getAvailableCloudStorageOptions: (): ResultAsync<
+      Set<ECloudStorageType>,
+      ProxyError
+    > => {
+      return this._createCall("storage.getAvailableCloudStorageOptions", {});
+    },
+  };
 
   public events: PublicEvents;
 

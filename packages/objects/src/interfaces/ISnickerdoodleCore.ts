@@ -760,12 +760,21 @@ export interface IStorageMethods {
     type: ECloudStorageType,
     path: string,
     accessToken: AccessToken,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<void, PersistenceError>;
-
-  getCurrentCloudStorage(): ResultAsync<ECloudStorageType, never>;
-  getAvailableCloudStorage(): ResultAsync<Set<ECloudStorageType>, never>;
-  getDropboxAuth(): ResultAsync<URLString, never>;
-  authenticateDropbox(code: string): ResultAsync<AccessToken, AjaxError>;
+  authenticateDropbox(
+    code: string,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<AccessToken, AjaxError>;
+  getCurrentCloudStorage(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<ECloudStorageType, never>;
+  getAvailableCloudStorageOptions(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<Set<ECloudStorageType>, never>;
+  getDropboxAuth(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<URLString, never>;
 }
 
 export interface ISnickerdoodleCore {

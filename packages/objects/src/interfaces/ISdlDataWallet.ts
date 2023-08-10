@@ -36,6 +36,7 @@ import {
   ICoreIntegrationMethods,
   ICoreTwitterMethods,
   IMetricsMethods,
+  IStorageMethods,
 } from "@objects/interfaces/ISnickerdoodleCore.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import {
@@ -161,6 +162,15 @@ export type IProxyTwitterMethods = {
     ...args: [...PopTuple<Parameters<ICoreTwitterMethods[key]>>]
   ) => ResultAsync<
     GetResultAsyncValueType<ReturnType<ICoreTwitterMethods[key]>>,
+    ProxyError
+  >;
+};
+
+export type IProxyStorageMethods = {
+  [key in FunctionKeys<IStorageMethods>]: (
+    ...args: [...PopTuple<Parameters<IStorageMethods[key]>>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<IStorageMethods[key]>>,
     ProxyError
   >;
 };
@@ -352,20 +362,20 @@ export interface ISdlDataWallet {
 
   switchToTab(tabId: number): ResultAsync<void, ProxyError>;
 
-  setAuthenticatedStorage(
-    storageType: ECloudStorageType,
-    path: string,
-    accessToken: AccessToken,
-  ): ResultAsync<void, ProxyError>;
-  authenticateDropbox(code: string): ResultAsync<AccessToken, ProxyError>;
-  getDropboxAuth(): ResultAsync<URLString, ProxyError>;
-  getCurrentCloudStorage(): ResultAsync<ECloudStorageType, ProxyError>;
+  // setAuthenticatedStorage(
+  //   storageType: ECloudStorageType,
+  //   path: string,
+  //   accessToken: AccessToken,
+  // ): ResultAsync<void, ProxyError>;
+  // authenticateDropbox(code: string): ResultAsync<AccessToken, ProxyError>;
+  // getDropboxAuth(): ResultAsync<URLString, ProxyError>;
+  // getCurrentCloudStorage(): ResultAsync<ECloudStorageType, ProxyError>;
 
   discord: IProxyDiscordMethods;
   integration: IProxyIntegrationMethods;
   twitter: IProxyTwitterMethods;
   metrics: IProxyMetricsMethods;
-  // storage: IStorage;
+  storage: IProxyStorageMethods;
 
   events: ISnickerdoodleCoreEvents;
 }

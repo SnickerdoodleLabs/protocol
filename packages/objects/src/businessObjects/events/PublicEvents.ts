@@ -2,6 +2,7 @@ import { Subject } from "rxjs";
 
 import { BackupCreatedEvent } from "@objects/businessObjects/events/BackupCreatedEvent.js";
 import { BackupRestoreEvent } from "@objects/businessObjects/events/BackupRestoreEvent.js";
+import { CloudStorageActivatedEvent } from "@objects/businessObjects/events/CloudStorageActivatedEvent.js";
 import { DataPermissionsUpdatedEvent } from "@objects/businessObjects/events/DataPermissionsUpdatedEvent.js";
 import { PermissionsGrantedEvent } from "@objects/businessObjects/events/PermissionsGrantedEvent.js";
 import { PermissionsRequestedEvent } from "@objects/businessObjects/events/PermissionsRequestedEvent.js";
@@ -19,7 +20,6 @@ import {
   LinkedAccount,
 } from "@objects/businessObjects/versioned/index.js";
 import { WalletNFT } from "@objects/businessObjects/WalletNFT.js";
-import { CloudProviderActivatedEvent } from "@objects/index.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/index.js";
 import {
   CountryCode,
@@ -57,7 +57,7 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onBirthdayUpdated: Subject<UnixTimestamp>;
   public onGenderUpdated: Subject<Gender>;
   public onLocationUpdated: Subject<CountryCode>;
-  public onCloudStorageActivated: Subject<CloudProviderActivatedEvent>;
+  public onCloudStorageActivated: Subject<CloudStorageActivatedEvent>;
 
   public constructor() {
     this.onInitialized = new Subject();

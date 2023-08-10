@@ -1,5 +1,5 @@
 import {
-  CloudProviderActivatedEvent,
+  CloudStorageActivatedEvent,
   DataWalletAddress,
   EarnedReward,
   ECloudStorageType,
@@ -186,7 +186,7 @@ export class CoreListener implements ICoreListener {
 
   private onSocialProfileUnlinked(event: SocialProfileUnlinkedEvent): void {}
 
-  private onCloudStorageActivated(event: CloudProviderActivatedEvent): void {
+  private onCloudStorageActivated(event: CloudStorageActivatedEvent): void {
     this.contextProvider.onCloudStorageActivated(event);
   }
 }

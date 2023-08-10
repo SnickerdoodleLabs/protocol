@@ -7,7 +7,7 @@ import {
 import {
   AuthenticatedStorageSettings,
   ECloudStorageType,
-  CloudProviderActivatedEvent,
+  CloudStorageActivatedEvent,
   CloudStorageError,
   URLString,
   AccessToken,
@@ -145,7 +145,7 @@ export class CloudStorageManager implements ICloudStorageManager {
       this.resolveProvider!(this.provider);
       this.activated = true;
       context.publicEvents.onCloudStorageActivated.next(
-        new CloudProviderActivatedEvent(credentials.type),
+        new CloudStorageActivatedEvent(credentials.type),
       );
 
       if (!this.storageList.has(credentials.type)) {
@@ -162,7 +162,7 @@ export class CloudStorageManager implements ICloudStorageManager {
     return okAsync(this.provider.name());
   }
 
-  public getAvailableCloudStorage(): ResultAsync<
+  public getAvailableCloudStorageOptions(): ResultAsync<
     Set<ECloudStorageType>,
     never
   > {

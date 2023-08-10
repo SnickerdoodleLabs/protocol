@@ -927,7 +927,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           });
         }, data.callId);
       },
-      "credentials.setAuthenticatedStorage": (
+      "storage.setAuthenticatedStorage": (
         data: IIFrameCallData<{
           storageType: ECloudStorageType;
           path: string;
@@ -940,36 +940,39 @@ export class CoreListener extends ChildProxy implements ICoreListener {
               data.data.storageType,
               data.data.path,
               data.data.accessToken,
-              // sourceDomain,
+              sourceDomain,
             );
           });
         }, data.callId);
       },
 
-      "credentials.authenticateDropbox": (
+      "storage.authenticateDropbox": (
         data: IIFrameCallData<{
           code: string;
         }>,
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.storage.authenticateDropbox(data.data.code);
+            return core.storage.authenticateDropbox(
+              data.data.code,
+              sourceDomain,
+            );
           });
         }, data.callId);
       },
 
-      "credentials.getDropboxAuth": (data: IIFrameCallData<{}>) => {
+      "storage.getDropboxAuth": (data: IIFrameCallData<{}>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.storage.getDropboxAuth();
+            return core.storage.getDropboxAuth(sourceDomain);
           });
         }, data.callId);
       },
 
-      "credentials.getCurrentCloudStorage": (data: IIFrameCallData<{}>) => {
+      "storage.getCurrentCloudStorage": (data: IIFrameCallData<{}>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.storage.getCurrentCloudStorage();
+            return core.storage.getCurrentCloudStorage(sourceDomain);
           });
         }, data.callId);
       },

@@ -54,6 +54,7 @@ import {
   AccessToken,
   ECloudStorageType,
   SocialProfileLinkedEvent,
+  IProxyStorageMethods,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -155,7 +156,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public integration: IProxyIntegrationMethods;
   public metrics: IProxyMetricsMethods;
   public twitter: IProxyTwitterMethods;
-
+  public storage: IProxyStorageMethods;
   public events: PublicEvents;
 
   constructor() {
@@ -293,6 +294,33 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       },
       getUserProfiles: () => {
         return coreGateway.twitter.getUserProfiles();
+      },
+    };
+
+    this.storage = {
+      // @TODO below functions are not added to ISDLDataWallet interface and iframe
+      getDropboxAuth: () => {
+        return coreGateway.getDropboxAuth();
+      },
+      authenticateDropbox: (code: string) => {
+        return coreGateway.authenticateDropbox(
+          new AuthenticateDropboxParams(code),
+        );
+      },
+      setAuthenticatedStorage: (
+        storageType: ECloudStorageType,
+        path: string,
+        accessToken: AccessToken,
+      ) => {
+        return coreGateway.setAuthenticatedStorage(
+          new SetAuthenticatedStorageParams(storageType, path, accessToken),
+        );
+      },
+      getCurrentCloudStorage: () => {
+        return coreGateway.getCurrentCloudStorage();
+      },
+      getAvailableCloudStorageOptions: () => {
+        return coreGateway.getAvailableCloudStorageOptions();
       },
     };
 
@@ -582,37 +610,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     return coreGateway.getPossibleRewards(
       new GetPossibleRewardsParams(contractAddresses, timeoutMs),
     );
-  }
-  // @TODO below functions are not added to ISDLDataWallet interface and iframe
-  public getDropboxAuth(): ResultAsync<URLString, ProxyError> {
-    return coreGateway.getDropboxAuth();
-  }
-
-  public authenticateDropbox(
-    code: string,
-  ): ResultAsync<AccessToken, ProxyError> {
-    return coreGateway.authenticateDropbox(new AuthenticateDropboxParams(code));
-  }
-
-  public setAuthenticatedStorage(
-    storageType: ECloudStorageType,
-    path: string,
-    accessToken: AccessToken,
-  ): ResultAsync<void, ProxyError> {
-    return coreGateway.setAuthenticatedStorage(
-      new SetAuthenticatedStorageParams(storageType, path, accessToken),
-    );
-  }
-
-  public getCurrentCloudStorage(): ResultAsync<ECloudStorageType, ProxyError> {
-    return coreGateway.getCurrentCloudStorage();
-  }
-
-  public getAvailableCloudStorageOptions(): ResultAsync<
-    Set<ECloudStorageType>,
-    ProxyError
-  > {
-    return coreGateway.getAvailableCloudStorageOptions();
   }
 }
 

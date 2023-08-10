@@ -21,7 +21,7 @@ export interface ICloudStorageManager {
 
   getCloudStorage(): ResultAsync<ICloudStorage, never>;
   getCurrentCloudStorage(): ResultAsync<ECloudStorageType, never>;
-  getAvailableCloudStorage(): ResultAsync<Set<ECloudStorageType>, never>;
+  getAvailableCloudStorageOptions(): ResultAsync<Set<ECloudStorageType>, never>;
 }
 
 export const ICloudStorageManagerType = Symbol.for("ICloudStorageManager");

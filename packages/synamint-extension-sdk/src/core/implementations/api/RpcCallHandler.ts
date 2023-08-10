@@ -16,7 +16,12 @@ import {
   ISnickerdoodleCoreType,
   ISnickerdoodleCore,
   ECloudStorageType,
+  AuthenticatedStorageSettings,
 } from "@snickerdoodlelabs/objects";
+import {
+  ICloudStorageManager,
+  ICloudStorageManagerType,
+} from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import {
   AsyncJsonRpcEngineNextCallback,
@@ -793,14 +798,14 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<GetDropBoxAuthUrlParams>(
       GetDropBoxAuthUrlParams.getCoreAction(),
       (_params) => {
-        return this.core.storage.getDropboxAuth();
+        return this.core.storage.getDropboxAuth(undefined);
       },
     ),
 
     new CoreActionHandler<AuthenticateDropboxParams>(
       AuthenticateDropboxParams.getCoreAction(),
       (params) => {
-        return this.core.storage.authenticateDropbox(params.code);
+        return this.core.storage.authenticateDropbox(params.code, undefined);
       },
     ),
 
@@ -811,6 +816,7 @@ export class RpcCallHandler implements IRpcCallHandler {
           params.storageType,
           params.path,
           params.accessToken,
+          undefined,
         );
       },
     ),
@@ -818,14 +824,14 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<GetAvailableCloudStorageOptionsParams>(
       GetAvailableCloudStorageOptionsParams.getCoreAction(),
       (_params) => {
-        return this.core.storage.getAvailableCloudStorage();
+        return this.core.storage.getAvailableCloudStorageOptions(undefined);
       },
     ),
 
     new CoreActionHandler<getCurrentCloudStorageParams>(
       getCurrentCloudStorageParams.getCoreAction(),
       (_params) => {
-        return this.core.storage.getCurrentCloudStorage();
+        return this.core.storage.getCurrentCloudStorage(undefined);
       },
     ),
     // #endregion

@@ -1,5 +1,5 @@
 import { ECloudStorageType } from "@objects/enum/index.js";
 
-export class CloudProviderActivatedEvent {
+export class CloudStorageActivatedEvent {
   public constructor(public platform: ECloudStorageType) {}
 }

@@ -51,7 +51,7 @@ interface IStorageOption {
 
 const STORAGE_OPTIONS: IStorageOption[] = [
   {
-    key: ECloudStorageType.Local_Only,
+    key: ECloudStorageType.Local,
     icon: sdlIcon,
     name: "SDL Storage",
     description:
@@ -71,7 +71,7 @@ const StorageSettings = () => {
   };
 
   const getStorageOption = () => {
-    return window.sdlDataWallet
+    return window.sdlDataWallet.storage
       .getCurrentCloudStorage()
       .map((type) => {
         console.log("type: " + type);
@@ -101,7 +101,7 @@ const StorageSettings = () => {
 
   const getInitialStorageOption = () => {
     getStorageOption().map((option) => {
-      setStorageOption(option || ECloudStorageType.Local_Only);
+      setStorageOption(option || ECloudStorageType.Local);
     });
   };
 
@@ -114,8 +114,7 @@ const StorageSettings = () => {
   }, [accessToken, Dropbox]);
 
   const handleCode = (code) => {
-    // @ts-ignore
-    window.sdlDataWallet
+    window.sdlDataWallet.storage
       .authenticateDropbox(code)
       .map((accessToken) => {
         setAccessToken(accessToken);
@@ -209,8 +208,7 @@ const StorageSettings = () => {
   };
 
   const onFolderSelect = (path: string) => {
-    window.sdlDataWallet
-      // @ts-ignore
+    window.sdlDataWallet.storage
       .setAuthenticatedStorage(ECloudStorageType.Dropbox, path, accessToken)
 
       .map(() => {
@@ -229,7 +227,7 @@ const StorageSettings = () => {
 
   const onStorageOptionClicked = (option: ECloudStorageType) => {
     switch (option) {
-      case ECloudStorageType.Local_Only: {
+      case ECloudStorageType.Local: {
         return (
           // TODO: setting the storage back to local only not working in the core, needs to be fixed
           /* window.sdlDataWallet
@@ -237,7 +235,7 @@ const StorageSettings = () => {
             .setAuthenticatedStorage(ECloudStorageType.Local_Only, "", "") */
           okAsync(undefined)
             .map((val) => {
-              setStorageOption(ECloudStorageType.Local_Only);
+              setStorageOption(ECloudStorageType.Local);
             })
             .mapErr((e) => {
               console.log("onStorageOptionClicked error", e);
@@ -248,7 +246,7 @@ const StorageSettings = () => {
       case ECloudStorageType.Dropbox: {
         // @ts-ignore
 
-        return window.sdlDataWallet
+        return window.sdlDataWallet.storage
           .getDropboxAuth()
           .map((url) => {
             window.open(url, "_self");
@@ -277,7 +275,7 @@ const StorageSettings = () => {
       </Box>
       {appMode === EAppModes.AUTH_USER ? (
         <>
-          {storageOption === ECloudStorageType.Local_Only && folders && (
+          {storageOption === ECloudStorageType.Local && folders && (
             <FileExplorer
               onCreateRequested={createFolder}
               onFolderSelect={onFolderSelect}
