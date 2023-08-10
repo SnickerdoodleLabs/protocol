@@ -113,3 +113,8 @@ end
 
 
 ```
+
+## Implementation Tech
+
+1. Web-workers
+2. IPFS to collect URLs?

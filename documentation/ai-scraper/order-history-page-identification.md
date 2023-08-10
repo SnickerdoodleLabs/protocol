@@ -36,7 +36,9 @@ Hepsiburada
 1. Any change in the URL will result in mis-identification
 2. URLs may also changed based on geographical location.
 
-**Technocal Issues**
+"These URLs could be posted to the blockchain (or an IPFS file posted with a reference in the BC) so that such problems could be rapidly rectified."
+
+**Technical Issues**
 
 1. We need to build a database of such URLs (feasible only for major platforms, may not find niche markets)
 
