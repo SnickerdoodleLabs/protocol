@@ -230,10 +230,12 @@ const StorageSettings = () => {
       case ECloudStorageType.Local: {
         return (
           // TODO: setting the storage back to local only not working in the core, needs to be fixed
-          /* window.sdlDataWallet
-            // @ts-ignore
-            .setAuthenticatedStorage(ECloudStorageType.Local_Only, "", "") */
-          okAsync(undefined)
+          window.sdlDataWallet.storage
+            .setAuthenticatedStorage(
+              ECloudStorageType.Local,
+              "",
+              AccessToken(""),
+            )
             .map((val) => {
               setStorageOption(ECloudStorageType.Local);
             })

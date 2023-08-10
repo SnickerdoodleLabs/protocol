@@ -74,5 +74,6 @@ export interface ICloudStorage {
 }
 
 export const ICloudStorageType = Symbol.for("ICloudStorage");
-export const IGDriveCloudStorage = Symbol.for("IGDriveCloudStorage");
+export const IGDriveCloudStorageType = Symbol.for("IGDriveCloudStorage");
 export const IDropboxCloudStorageType = Symbol.for("IDropboxCloudStorage");
+export const INullCloudStorageType = Symbol.for("INullCloudStorage");

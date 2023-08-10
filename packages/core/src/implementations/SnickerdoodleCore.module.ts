@@ -79,9 +79,11 @@ import {
   GoogleCloudStorage,
   DropboxCloudStorage,
   IDropboxCloudStorageType,
-  IGDriveCloudStorage,
+  IGDriveCloudStorageType,
   IPersistenceContextProvider,
   IPersistenceContextProviderType,
+  NullCloudStorage,
+  INullCloudStorageType,
 } from "@snickerdoodlelabs/persistence";
 import {
   IQueryObjectFactory,
@@ -542,8 +544,8 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
 
     /* Cloud Storage Options - may need to comment out */
-    bind<ICloudStorage>(IGDriveCloudStorage)
-      .to(GoogleCloudStorage)
+    bind<ICloudStorage>(INullCloudStorageType)
+      .to(NullCloudStorage)
       .inSingletonScope();
     bind<ICloudStorage>(IDropboxCloudStorageType)
       .to(DropboxCloudStorage)

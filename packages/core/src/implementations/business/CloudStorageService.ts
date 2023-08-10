@@ -9,6 +9,7 @@ import {
   AuthenticatedStorageSettings,
   URLString,
   PersistenceError,
+  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -57,6 +58,14 @@ export class CloudStorageService implements ICloudStorageService {
       .getCredentials()
       .andThen((credentials) => {
         // If we don't have settings, store them, and then activate the CloudStorageManager
+
+        // console.log("credentials: " + JSON.stringify(credentials));
+        // if (settings.type == ECloudStorageType.Local) {
+        //   console.log("settings local: ");
+        //   return this.authenticatedStorageRepo.activateAuthenticatedStorage(
+        //     settings,
+        //   );
+        // }
         if (credentials == null) {
           return this.authenticatedStorageRepo
             .saveCredentials(settings)
@@ -66,6 +75,10 @@ export class CloudStorageService implements ICloudStorageService {
               );
             });
         }
+
+        return this.authenticatedStorageRepo.activateAuthenticatedStorage(
+          settings,
+        );
 
         // If we do have settings, then we need to error or reset the cloud storage
         return errAsync(

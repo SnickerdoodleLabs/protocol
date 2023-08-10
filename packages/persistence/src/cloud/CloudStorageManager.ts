@@ -22,7 +22,8 @@ import {
   ICloudStorage,
   ICloudStorageType,
   IDropboxCloudStorageType,
-  IGDriveCloudStorage,
+  IGDriveCloudStorageType,
+  INullCloudStorageType,
 } from "@persistence/cloud/ICloudStorage.js";
 import { ICloudStorageManager } from "@persistence/cloud/ICloudStorageManager.js";
 import { NullCloudStorage } from "@persistence/cloud/NullCloudStorage.js";
@@ -53,7 +54,7 @@ export class CloudStorageManager implements ICloudStorageManager {
     null;
 
   public constructor(
-    @inject(IGDriveCloudStorage) protected gDrive: ICloudStorage,
+    @inject(INullCloudStorageType) protected localStorage: ICloudStorage,
     @inject(IDropboxCloudStorageType) protected dropbox: ICloudStorage,
     @inject(IPersistenceContextProviderType)
     protected contextProvider: IPersistenceContextProvider,
@@ -126,6 +127,9 @@ export class CloudStorageManager implements ICloudStorageManager {
 
       if (credentials.type == ECloudStorageType.Dropbox) {
         this.provider = this.dropbox;
+      } else if (credentials.type == ECloudStorageType.Local) {
+        this.provider = this.localStorage;
+        return okAsync(undefined);
       } else {
         return errAsync(
           new PersistenceError("Unknown Cloud Provider Selected"),
