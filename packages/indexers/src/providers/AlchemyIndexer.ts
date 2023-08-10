@@ -44,6 +44,7 @@ import {
   IIndexerContextProvider,
   IIndexerContextProviderType,
 } from "@indexers/interfaces/index.js";
+import { MasterIndexer } from "@indexers/MasterIndexer.js";
 
 @injectable()
 export class AlchemyIndexer implements IEVMIndexer {
@@ -285,7 +286,7 @@ export class AlchemyIndexer implements IEVMIndexer {
             EChainTechnology.EVM,
             nativeTickerSymbol,
             nativeChain,
-            null,
+            MasterIndexer.nativeAddress,
             accountAddress,
             BigNumberString(weiValue),
             getChainInfoByChain(chain).nativeCurrency.decimals,

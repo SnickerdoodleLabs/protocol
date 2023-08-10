@@ -15,15 +15,14 @@ import { ChainId, UnixTimestamp } from "@objects/primitives/index.js";
 export interface ITokenPriceRepository {
   getTokenInfo(
     chainId: ChainId,
-    contractAddress: TokenAddress | null,
+    contractAddress: TokenAddress,
   ): ResultAsync<TokenInfo | null, AccountIndexingError>;
 
   addTokenInfo(info: TokenInfo): ResultAsync<void, PersistenceError>;
 
-  // null implies native token
   getTokenPrice(
     chainId: ChainId,
-    contractAddress: TokenAddress | null,
+    contractAddress: TokenAddress,
     timestamp: UnixTimestamp,
   ): ResultAsync<number, AccountIndexingError>;
 

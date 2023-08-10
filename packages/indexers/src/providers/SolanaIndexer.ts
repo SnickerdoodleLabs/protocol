@@ -43,6 +43,8 @@ import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { MasterIndexer } from "@indexers/MasterIndexer.js";
+
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
@@ -207,7 +209,7 @@ export class SolanaIndexer implements ISolanaIndexer {
                   EChainTechnology.Solana,
                   tokenInfo.symbol,
                   chainId,
-                  tokenInfo.address,
+                  tokenInfo.address ?? MasterIndexer.nativeAddress,
                   accountAddress,
                   BigNumberString(
                     BigNumber.from(
@@ -248,7 +250,7 @@ export class SolanaIndexer implements ISolanaIndexer {
           EChainTechnology.Solana,
           TickerSymbol("SOL"),
           chainId,
-          null,
+          MasterIndexer.nativeAddress,
           accountAddress,
           BigNumberString(BigNumber.from(balance).toString()),
           getChainInfoByChainId(chainId).nativeCurrency.decimals,

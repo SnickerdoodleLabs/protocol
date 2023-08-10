@@ -1221,7 +1221,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public getTokenPrice(
     chainId: ChainId,
-    address: TokenAddress | null,
+    address: TokenAddress,
     timestamp: UnixTimestamp,
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<number, AccountIndexingError> {
@@ -1232,7 +1232,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public getTokenInfo(
     chainId: ChainId,
-    contractAddress: TokenAddress | null,
+    contractAddress: TokenAddress,
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<TokenInfo | null, AccountIndexingError> {
     const tokenPriceRepo = this.iocContainer.get<ITokenPriceRepository>(

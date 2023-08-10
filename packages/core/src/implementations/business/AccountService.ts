@@ -125,7 +125,7 @@ export class AccountService implements IAccountService {
 
   public getTokenPrice(
     chainId: ChainId,
-    address: TokenAddress | null,
+    address: TokenAddress,
     timestamp: UnixTimestamp,
   ): ResultAsync<number, AccountIndexingError> {
     return this.tokenPriceRepo.getTokenPrice(chainId, address, timestamp);
@@ -823,7 +823,7 @@ export class AccountService implements IAccountService {
     TransactionPaymentCounter[],
     PersistenceError
   > {
-    return this.transactionRepo.getTransactionValueByChain();
+    return this.transactionRepo.getTransactionByChain();
   }
 
   public getSiteVisitsMap(): ResultAsync<

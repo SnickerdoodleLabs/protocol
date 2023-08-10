@@ -185,7 +185,7 @@ export interface IAccountService {
 
   getTokenPrice(
     chainId: ChainId,
-    address: TokenAddress | null,
+    address: TokenAddress,
     timestamp: UnixTimestamp,
   ): ResultAsync<number, AccountIndexingError>;
 }

@@ -308,6 +308,7 @@ const subquery3 = new AST_PropertyQuery(
 const subquery4 = new AST_BalanceQuery(
   SDQL_Name("q4"),
   ESDQLQueryReturn.Array,
+  "balance",
   ChainId(1),
   [
     /* conditions array */

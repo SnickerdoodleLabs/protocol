@@ -9,7 +9,7 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface ITransactionHistoryRepository {
-  getTransactionValueByChain(): ResultAsync<
+  getTransactionByChain(): ResultAsync<
     TransactionPaymentCounter[],
     PersistenceError
   >;

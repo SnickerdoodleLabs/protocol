@@ -148,20 +148,20 @@ export default () => {
       .map((balances) =>
         balances.map((b) => ({ ...b, balance: formatValue(b) })),
       )
-      .andThen((balanceResults) =>
-        ResultUtils.combine(
+      .andThen((balanceResults) => {
+        return ResultUtils.combine(
           balanceResults.map((balanceItem) =>
             window.sdlDataWallet
               .getTokenInfo(balanceItem.chainId, balanceItem.tokenAddress)
               .orElse((e) => okAsync(null)),
           ),
-        ).map((tokenInfo) =>
-          balanceResults.map((balanceItem, index) => ({
+        ).map((tokenInfo) => {
+          return balanceResults.map((balanceItem, index) => ({
             ...balanceItem,
             tokenInfo: tokenInfo[index],
-          })),
-        ),
-      )
+          }));
+        });
+      })
       .andThen((balancesWithTokenInfo) => {
         return window.sdlDataWallet
           .getTokenMarketData(
