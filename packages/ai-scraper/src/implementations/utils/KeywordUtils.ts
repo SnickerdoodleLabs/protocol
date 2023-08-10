@@ -18,9 +18,9 @@ export class KeywordUtils implements IKeywordUtils {
     this.keywords = JSON.parse(jsonString) as Keywords;
   }
   public getKeywords(languageCode: LanguageCode): TaskKeywords {
-    return this.keywords[languageCode as string];
+    return this.keywords[languageCode];
   }
   public getKeywordsByTask(languageCode: LanguageCode, task: Task): Keyword[] {
-    throw new Error("Method not implemented.");
+    return this.keywords[languageCode][task];
   }
 }
