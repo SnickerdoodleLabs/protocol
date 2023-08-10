@@ -11,6 +11,8 @@ FROM nginx:latest AS server
 # Copy over the dist files
 COPY --from=builder /build/packages/static-web-integration/dist/bundle /usr/share/nginx/html
 COPY --from=builder /build/packages/static-web-integration/src/snickerdoodle.png /usr/share/nginx/html
+COPY --from=builder /build/packages/static-web-integration/static-demo.html /usr/share/nginx/html
+COPY --from=builder /build/packages/static-web-integration/src/favicon /usr/share/nginx/html
 COPY --from=builder /build/packages/static-web-integration/nginx.conf /etc/nginx/nginx.conf
 COPY --from=builder /build/packages/static-web-integration/default.conf /etc/nginx/conf.d/default.conf
 

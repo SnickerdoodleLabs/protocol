@@ -36,26 +36,31 @@ async function startIntegration(
   consentContractAddress?: EVMContractAddress,
 ): Promise<void> {
   const walletProvider = new WalletProvider();
-  const webIntegration = new SnickerdoodleWebIntegration(
-    coreConfig,
-    walletProvider.signer,
-  );
 
-  await webIntegration.initialize().andThen((dataWallet) => {
-    console.log("Snickerdoodle Data Wallet Initialized");
+  await walletProvider
+    .connect()
+    .andThen((accountAddress) => {
+      const webIntegration = new SnickerdoodleWebIntegration(
+        coreConfig,
+        walletProvider.signer,
+      );
+      return webIntegration.initialize();
+    })
+    .andThen((dataWallet) => {
+      console.log("Snickerdoodle Data Wallet Initialized");
 
-    // If a consent contract was provided, we should pop up the invitation
-    if (consentContractAddress != null) {
-      return dataWallet
-        .checkInvitationStatus(consentContractAddress)
-        .andThen((invitationStatus) => {
-          if (invitationStatus === EInvitationStatus.New) {
-            return dataWallet.acceptInvitation([], consentContractAddress);
-          }
-          return okAsync(undefined);
-        });
-    }
+      // If a consent contract was provided, we should pop up the invitation
+      if (consentContractAddress != null) {
+        return dataWallet
+          .checkInvitationStatus(consentContractAddress)
+          .andThen((invitationStatus) => {
+            if (invitationStatus === EInvitationStatus.New) {
+              return dataWallet.acceptInvitation([], consentContractAddress);
+            }
+            return okAsync(undefined);
+          });
+      }
 
-    return okAsync(undefined);
-  });
+      return okAsync(undefined);
+    });
 }

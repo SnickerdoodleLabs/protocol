@@ -9090,6 +9090,55 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snickerdoodlelabs/static-integration-test@workspace:packages/static-web-integration":
+  version: 0.0.0-use.local
+  resolution: "@snickerdoodlelabs/static-integration-test@workspace:packages/static-web-integration"
+  dependencies:
+    "@date-io/date-fns": 1.3.9
+    "@download/blockies": ^1.0.3
+    "@material-ui/core": 4.12.3
+    "@material-ui/icons": 4.11.2
+    "@material-ui/lab": 4.0.0-alpha.60
+    "@material-ui/pickers": 3.2.4
+    "@snickerdoodlelabs/objects": "workspace:^"
+    "@snickerdoodlelabs/shared-components": "workspace:^"
+    "@snickerdoodlelabs/web-integration": "workspace:^"
+    "@walletconnect/web3-provider": ^1.6.6
+    chart.js: ^3.9.1
+    chroma-js: ^2.4.2
+    clsx: ^1.2.1
+    date-fns: ^2.29.1
+    ethers: ^5.6.6
+    formik: 2.2.9
+    formik-material-ui: 3.0.1
+    gapi-script: ^1.2.0
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
+    notistack: ^2.0.5
+    path-browserify: ^1.0.1
+    path-to-regexp: ^6.2.0
+    react: ^17.0.2
+    react-chartjs-2: ^4.3.1
+    react-dom: ^17.0.2
+    react-ga: ^3.3.1
+    react-google-login: ^5.2.2
+    react-hotjar: ^5.2.0
+    react-intersection-observer: ^9.4.3
+    react-joyride: ^2.5.3
+    react-lottie: ^1.2.3
+    react-multi-carousel: ^2.8.2
+    react-router-dom: ^6.3.0
+    react-swipeable-views: ^0.14.0
+    react-swipeable-views-utils: ^0.14.0
+    reflect-metadata: ^0.1.13
+    url-join-ts: ^1.0.5
+    url-loader: ^4.1.1
+    web3: ^1.6.0
+    web3modal: ^1.9.4
+    yup: 0.32.9
+  languageName: unknown
+  linkType: soft
+
 "@snickerdoodlelabs/synamint-extension-sdk@workspace:^, @snickerdoodlelabs/synamint-extension-sdk@workspace:packages/synamint-extension-sdk":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/synamint-extension-sdk@workspace:packages/synamint-extension-sdk"
@@ -9203,7 +9252,7 @@ __metadata:
     rxjs: ^7.5.5
   peerDependencies:
     react: 17.0.1
-    react-dom: 17.0.1
+    react-dom: 17.0.2
   languageName: unknown
   linkType: soft
 
@@ -39905,8 +39954,6 @@ __metadata:
     "@glazed/devtools": ^0.2.0
     "@google-cloud/storage": ^6.7.0
     "@jest/types": ^29.0.3
-    "@material-ui/core": 4.12.3
-    "@material-ui/icons": 4.11.2
     "@octokit/core": ^3.2.4
     "@react-native-community/eslint-config": ^1.1.0
     "@types/chrome": ^0.0.193
@@ -40013,7 +40060,6 @@ __metadata:
     url-loader: 3.0.0
     utility-types: ^3.10.0
     wait-on: ^5.2.0
-    web3: ^1.9.0
     webpack: ^5.68.0
     webpack-cli: ^4.9.2
     webpack-dev-server: ^4.7.4
@@ -41541,7 +41587,7 @@ __metadata:
 "sync-promise@git+https://github.com/brettz9/sync-promise.git#full-sync-missing-promise-features":
   version: 1.0.1
   resolution: "sync-promise@https://github.com/brettz9/sync-promise.git#commit=25845a49a00aa2d2c985a5149b97c86a1fcdc75a"
-  checksum: f536c50c270ef2ec28511af3b90ba10b8e2b3b51b3e4079136d428150ccc9592f47d02e2cf41ba02135e4a81f59fb472d642794d807bacf8c55a20f85ff57c8a
+  checksum: 80f8808f2bbb8c4f809fae0b0283dbe663a23c88cd2bf6de6ce1facada5e29cc3800027dd5123f126d119bc3090c9a82da9dd2288ebb9526070280d4aab66e3c
   languageName: node
   linkType: hard
 
@@ -45321,7 +45367,7 @@ __metadata:
   dependenciesMeta:
     sqlite3:
       optional: true
-  checksum: 60d7fea6d974cf5df4361a0cdf9e7b6bca17cd59028fa2a7a72754f34e54242ef6e85aa09b97a8898566baa452c3700cf30f8d8cfbc230a2b9b7f514ce99a469
+  checksum: 9a7b155e65d6bfaeed004917daceab31e7081128535682e32b305661547253284b50088d4121d9e67352018735aa5784f0c8a819cdde1ee1a92fdd9fff0de579
   languageName: node
   linkType: hard
 
