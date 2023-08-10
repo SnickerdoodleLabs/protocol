@@ -35,14 +35,13 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
-import { MasterIndexer } from "@indexers/MasterIndexer.js";
-
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
   IIndexerContextProvider,
   IIndexerContextProviderType,
 } from "@indexers/interfaces/index.js";
+import { MasterIndexer } from "@indexers/MasterIndexer.js";
 
 @injectable()
 export class EtherscanIndexer implements IEVMIndexer {
@@ -68,7 +67,10 @@ export class EtherscanIndexer implements IEVMIndexer {
       EChain.Moonbeam,
       new IndexerSupportSummary(EChain.Moonbeam, true, true, true),
     ],
-    [EChain.Gnosis, new IndexerSupportSummary(EChain.Gnosis, true, true, true)],
+    [
+      EChain.Gnosis,
+      new IndexerSupportSummary(EChain.Gnosis, true, true, false),
+    ],
     [EChain.Fuji, new IndexerSupportSummary(EChain.Fuji, true, true, true)],
   ]);
 
