@@ -66,8 +66,9 @@ jobs:
           --build-arg INFURA_ID=72827ccd538446f2a20e35a632664c52 \
           --build-arg GAPI_CLIENT_ID=332580693256-mifj8rkovvlc332n8gtllpdl93e6nvio.apps.googleusercontent.com \
           --build-arg IPFS_FETCH_BASE_URL="https://ipfs-gateway.snickerdoodle.com/ipfs/" \
-          --build-arg __GOOGLE_CLOUD_BUCKET__=${{ steps.identifier.outputs.identifier }}-sdl-dw \
+          --build-arg GOOGLE_CLOUD_BUCKET=${{ steps.identifier.outputs.identifier }}-sdl-dw \
           --build-arg GA_TRACKING_ID="UA-219658390-3" \
+          --build-arg IFRAME_URL="https://iframe.snickerdoodle.com" \
           --build-arg BASE_TAG="$GITHUB_SHA" \
           -f ./packages/extension-onboarding/Dockerfile \
           .
