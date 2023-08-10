@@ -78,6 +78,21 @@ jobs:
 
 
 
+
+    - name: Build Static Web Integration
+      run: |-
+        JIRA_TICKET=$(echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})" | grep -Eo '[A-Za-z0-9]*-[0-9]*' | awk '{print tolower($0)}')
+      
+        docker build \
+          --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-static-web-integration:$GITHUB_SHA" \
+          --build-arg BASE_TAG="$GITHUB_SHA" \
+          -f ./packages/static-web-integration/Dockerfile \
+          .
+    - name: Publish Static Web Integration
+      run: |-
+        docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-static-web-integration:$GITHUB_SHA"
+
+
     - name: Build protocol Iframe
       run: |-
         JIRA_TICKET=$(echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})" | grep -Eo '[A-Za-z0-9]*-[0-9]*' | awk '{print tolower($0)}')
