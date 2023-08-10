@@ -3,11 +3,14 @@ import {
   DomainName,
   HostName,
   HexString,
+  LanguageCode,
 } from "@snickerdoodlelabs/objects";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
 import {
+  IKeywordUtils,
+  IKeywordUtilsType,
   IURLUtils,
   Keyword,
   KnownDomains,
@@ -16,6 +19,11 @@ import {
 
 @injectable()
 export class URLUtils implements IURLUtils {
+  public constructor(
+    @inject(IKeywordUtilsType)
+    private keywordUtils: IKeywordUtils,
+  ) {}
+
   public getHostname(url: URLString): ResultAsync<HostName, TypeError> {
     try {
       return okAsync(HostName(new URL(url).hostname));
@@ -23,6 +31,7 @@ export class URLUtils implements IURLUtils {
       return errAsync(error as TypeError);
     }
   }
+
   public getDomain(url: URLString): ResultAsync<DomainName, TypeError> {
     return this.getHostname(url).map((hostname) => {
       if (hostname.includes(KnownDomains.Amazon)) {
@@ -33,11 +42,16 @@ export class URLUtils implements IURLUtils {
     });
   }
 
-  public getKeywords(url: URLString): ResultAsync<Keyword[], TypeError> {
+  public getKeywords(
+    url: URLString,
+    languageCode: LanguageCode,
+  ): ResultAsync<Keyword[], TypeError> {
     // keywords are in the path or in search params
     const urlObj = new URL(url);
     const pathName = urlObj.pathname;
     const query = urlObj.search; // the whole get query
+
+    const keywords = this.keywordUtils.getKeywords(languageCode);
   }
   public getHash(url: URLString): ResultAsync<HexString, TypeError> {
     throw new Error("Method not implemented.");
