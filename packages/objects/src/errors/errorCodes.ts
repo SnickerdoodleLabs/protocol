@@ -18,6 +18,7 @@ const errorCodes = {
   JWKSError: "ERR_JWKS",
   PersistenceError: "ERR_PERSISTENCE",
   ProviderRpcError: "PROVIDER_RPC_ERROR",
+  ProxyError: "ERR_PROXY",
   MissingWalletDataTypeError: "ERR_MISSING_WALLET_DATA_TYPE",
   PermissionError: "ERR_PERMISSION",
   QueryExpiredError: "ERR_QUERY_EXPIRED",

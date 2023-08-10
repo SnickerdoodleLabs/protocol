@@ -374,7 +374,7 @@ export class CorePrompt extends DataWalletPrompt {
           const getBearerToken = new GetBearerToken(this.env);
           return getBearerToken.start();
         case "metrics":
-          return this.core.metrics.getMetrics().map((metrics) => {
+          return this.core.metrics.getMetrics(undefined).map((metrics) => {
             console.log(metrics);
           });
       }

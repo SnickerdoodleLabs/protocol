@@ -275,10 +275,6 @@ export class SDQLParser {
               schema,
             ),
           );
-        } else if (schemaName === "balance") {
-          queries.push(
-            this.queryObjectFactory.toBalanceQuery(queryName, schema),
-          );
         } else {
           queries.push(AST_PropertyQuery.fromSchema(queryName, schema));
         }
@@ -422,6 +418,7 @@ export class SDQLParser {
       .map((ast) => {
         return new AST_Compensation(
           name,
+          schema.name,
           schema.description,
           ast as AST_RequireExpr,
           schema.requires!,

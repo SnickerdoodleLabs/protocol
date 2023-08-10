@@ -30,13 +30,13 @@ interface ICollectedRewardsProps {
   // temporary to read permissions
   possibleRewards: PossibleReward[];
   consentContractAddress: EVMContractAddress;
-  waitingRewards: PossibleReward[];
+  rewardsThatAreBeingProcessed: PossibleReward[];
 }
 const CollectedRewards: FC<ICollectedRewardsProps> = ({
   rewards,
   possibleRewards,
   consentContractAddress,
-  waitingRewards,
+  rewardsThatAreBeingProcessed,
 }) => {
   const sectionClasses = useSectionStyles();
   const { apiGateway } = useAppContext();
@@ -105,7 +105,7 @@ const CollectedRewards: FC<ICollectedRewardsProps> = ({
             </Box>
           );
         })}
-        {waitingRewards.map((reward, index) => {
+        {rewardsThatAreBeingProcessed.map((reward, index) => {
           return (
             <Box
               flexBasis="calc(20% - 8px)"

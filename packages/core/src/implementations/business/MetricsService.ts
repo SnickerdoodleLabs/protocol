@@ -23,7 +23,7 @@ export class MetricsService implements IMetricsService {
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
-  ) {}
+  ) { }
 
   public initialize(): ResultAsync<void, never> {
     return ResultUtils.combine([
@@ -105,5 +105,11 @@ export class MetricsService implements IMetricsService {
         );
       },
     );
+  }
+
+  public getUnlocked(): ResultAsync<boolean, never> {
+    return this.contextProvider.getContext().map((context) => {
+      return context.dataWalletKey != null;
+    });
   }
 }

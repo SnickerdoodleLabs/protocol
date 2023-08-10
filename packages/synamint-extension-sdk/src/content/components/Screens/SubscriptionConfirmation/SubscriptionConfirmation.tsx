@@ -21,8 +21,8 @@ import {
 interface ISubscriptionConfirmationProps {
   coreGateway: ExternalCoreGateway;
   domainDetails: IInvitationDomainWithUUID;
-  eligibleRewards: PossibleReward[];
-  missingRewards: PossibleReward[];
+  rewardsThatCanBeAcquired: PossibleReward[];
+  rewardsThatRequireMorePermission: PossibleReward[];
   dataTypes: EWalletDataType[];
   onConfirmClick: (receivingAccount: AccountAddress | undefined) => void;
   onCancelClick: () => void;
@@ -32,8 +32,8 @@ interface ISubscriptionConfirmationProps {
 const SubscriptionConfirmationModal: FC<ISubscriptionConfirmationProps> = ({
   coreGateway,
   domainDetails,
-  eligibleRewards,
-  missingRewards,
+  rewardsThatCanBeAcquired,
+  rewardsThatRequireMorePermission,
   dataTypes,
   onCancelClick,
   onConfirmClick,
@@ -62,8 +62,8 @@ const SubscriptionConfirmationModal: FC<ISubscriptionConfirmationProps> = ({
       {accounts ? (
         <SubscriptionConfirmation
           campaignImage={domainDetails.image}
-          eligibleRewards={eligibleRewards}
-          missingRewards={missingRewards}
+          rewardsThatCanBeAcquired={rewardsThatCanBeAcquired}
+          rewardsThatRequireMorePermission={rewardsThatRequireMorePermission}
           dataTypes={dataTypes}
           campaignName={domainDetails.title}
           consentAddress={domainDetails.consentAddress}

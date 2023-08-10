@@ -13,8 +13,6 @@ import {
   ChainId,
   TokenBalance,
   BigNumberString,
-  ITokenPriceRepositoryType,
-  ITokenPriceRepository,
   EVMAccountAddress,
   EVMContractAddress,
   EChain,
@@ -40,6 +38,8 @@ import {
   IIndexerContextProvider,
   IIndexerContextProviderType,
 } from "@indexers/interfaces/index.js";
+
+import { MasterIndexer } from "@indexers/MasterIndexer.js";
 
 @injectable()
 export class AnkrIndexer implements IEVMIndexer {
@@ -98,8 +98,6 @@ export class AnkrIndexer implements IEVMIndexer {
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
-    @inject(ITokenPriceRepositoryType)
-    protected tokenPriceRepo: ITokenPriceRepository,
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
@@ -145,7 +143,7 @@ export class AnkrIndexer implements IEVMIndexer {
                   EChainTechnology.EVM,
                   item.tokenSymbol,
                   chainId,
-                  null,
+                  MasterIndexer.nativeAddress,
                   accountAddress,
                   BigNumberString("1"),
                   item.tokenDecimals,

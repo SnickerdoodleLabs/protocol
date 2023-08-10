@@ -5,13 +5,30 @@ import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 import { IDashboardChildrenProps } from "./Dashboard";
 import NFTs from "./NFTs/NFTs";
+import { useTheme } from "../../context/ThemeContext";
 import Tokens from "./Tokens/Tokens";
 
 const Tab = ({ item, isActive }: any) => {
+  const theme = useTheme();
+  const styles = StyleSheet.create({
+    tabUnderline: {
+      width: "100%",
+      height: normalizeHeight(4),
+      backgroundColor: theme?.colors.title,
+      marginTop: normalizeHeight(5),
+    },
+    tabText: {
+      fontSize: normalizeWidth(18),
+      fontWeight: "600",
+    },
+  });
   return (
     <View>
       <Text
-        style={[styles.tabText, { color: isActive ? "#645997" : "#9E9E9E" }]}
+        style={[
+          styles.tabText,
+          { color: isActive ? theme?.colors.title : "#9E9E9E" },
+        ]}
         key={item}
       >
         {item.title}
@@ -22,9 +39,20 @@ const Tab = ({ item, isActive }: any) => {
 };
 
 const Tabs = ({ data, activeTab, setActiveTab }: any) => {
+  const styles = StyleSheet.create({
+    tabsContainer: {
+      justifyContent: "space-between",
+      flex: 1,
+      flexDirection: "row",
+    },
+  });
   return (
     <View
-      style={{ width: "35%", paddingTop: normalizeHeight(30), marginLeft: 20 }}
+      style={{
+        width: "35%",
+        paddingTop: normalizeHeight(30),
+        marginLeft: normalizeWidth(10),
+      }}
     >
       <View style={styles.tabsContainer}>
         {data.map((item: any) => {
@@ -49,40 +77,28 @@ const Tabs = ({ data, activeTab, setActiveTab }: any) => {
 
 const DashboardTab = ({ data }: IDashboardChildrenProps) => {
   const [activeTab, setActiveTab] = React.useState("Tokens");
+  const theme = useTheme();
+
+  useEffect(() => {
+    console.log("data", data.tokens);
+  }, [data]);
+
   return (
-    <View style={{ backgroundColor: "white", height: "100%" }}>
+    <View style={{ backgroundColor: theme?.colors.background, height: "100%" }}>
       <Tabs
         data={[
           { key: "1", component: "1", title: "Tokens" },
-          { key: "2", component: "1", title: "NFT's" },
+          { key: "2", component: "1", title: "NFTs" },
         ]}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
       />
       <View>
         {activeTab === "Tokens" && <Tokens data={data} />}
-        {activeTab === "NFT's" && <NFTs data={data} />}
+        {activeTab === "NFTs" && <NFTs data={data} />}
       </View>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  tabsContainer: {
-    justifyContent: "space-between",
-    flex: 1,
-    flexDirection: "row",
-  },
-  tabUnderline: {
-    width: "100%",
-    height: 3,
-    backgroundColor: "#645997",
-    marginTop: 5,
-  },
-  tabText: {
-    fontSize: normalizeWidth(18),
-    fontWeight: "600",
-  },
-});
 
 export default DashboardTab;

@@ -15,8 +15,6 @@ import {
   isAccountValidForChain,
   AccountAddress,
   EVMAccountAddress,
-  ITokenPriceRepository,
-  ITokenPriceRepositoryType,
   PortfolioUpdate,
   IMasterIndexerType,
   IMasterIndexer,
@@ -71,8 +69,6 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IPersistenceConfigProviderType)
     protected configProvider: IPersistenceConfigProvider,
-    @inject(ITokenPriceRepositoryType)
-    protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILinkedAccountRepositoryType)
     protected accountRepo: ILinkedAccountRepository,
     @inject(IDataWalletPersistenceType)

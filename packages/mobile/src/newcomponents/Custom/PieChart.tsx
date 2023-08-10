@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text } from "react-native";
 import { Text as SvgText } from "react-native-svg";
+import { useTheme } from "../../context/ThemeContext";
 import { PieChart } from "react-native-svg-charts";
 
 export interface SliceData {
@@ -12,11 +13,12 @@ export interface SliceData {
 
 interface Props {
   data: SliceData[];
+  theme: any;
 }
 
 class PieChartComponent extends React.PureComponent<Props> {
   render() {
-    const { data } = this.props;
+    const { data, theme } = this.props;
 
     const Labels = ({ slices }: { slices: any[] }) => {
       return slices.map((slice, index) => {
@@ -61,7 +63,7 @@ class PieChartComponent extends React.PureComponent<Props> {
                       key: 1,
                       value: 100,
                       svg: { fill: "#AFAADB" },
-                      label: "100%",
+                      label: "No Data",
                     },
                   ]
                 : data
@@ -100,7 +102,12 @@ class PieChartComponent extends React.PureComponent<Props> {
               </View>
               <Text
                 key={1}
-                style={{ fontSize: 16, fontWeight: "500", marginTop: 8 }}
+                style={{
+                  fontSize: 16,
+                  fontWeight: "500",
+                  marginTop: 8,
+                  color: theme?.colors.title,
+                }}
               >
                 {`${100}%`}
               </Text>
@@ -123,7 +130,7 @@ class PieChartComponent extends React.PureComponent<Props> {
                   style={{
                     fontSize: 12,
                     paddingLeft: 5,
-                    color: "#757575",
+                    color: theme.colors.title,
                     fontWeight: "500",
                     marginTop: 8,
                   }}
@@ -133,7 +140,12 @@ class PieChartComponent extends React.PureComponent<Props> {
               </View>
               <Text
                 key={item.key}
-                style={{ fontSize: 16, fontWeight: "500", marginTop: 8 }}
+                style={{
+                  fontSize: 16,
+                  fontWeight: "500",
+                  marginTop: 8,
+                  color: theme.colors.description,
+                }}
               >
                 {`${item.value.toFixed(2)}%`}
               </Text>

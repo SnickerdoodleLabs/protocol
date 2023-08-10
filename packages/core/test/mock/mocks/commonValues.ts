@@ -302,6 +302,7 @@ const subquery3 = new AST_PropertyQuery(
 const subquery4 = new AST_BalanceQuery(
   SDQL_Name("q4"),
   ESDQLQueryReturn.Array,
+  "balance",
   ChainId(1),
   [
     /* conditions array */
@@ -364,6 +365,7 @@ const requires3: AST_BoolExpr = new AST_BoolExpr(SDQL_Name("boolean"), true);
 // Create AST_Compensation instances
 const compensation1: AST_Compensation = new AST_Compensation(
   SDQL_Name("c1"),
+  "Sugar to your coffee",
   "10% discount code for Starbucks",
   requires1 as AST_RequireExpr,
   ISDQLConditionString("true"),
@@ -374,6 +376,7 @@ const compensation1: AST_Compensation = new AST_Compensation(
 );
 const compensation2: AST_Compensation = new AST_Compensation(
   SDQL_Name("c2"),
+  "The CryptoPunk Draw",
   "participate in the draw to win a CryptoPunk NFT",
   requires2 as AST_RequireExpr,
   ISDQLConditionString("true"),
@@ -384,6 +387,7 @@ const compensation2: AST_Compensation = new AST_Compensation(
 );
 const compensation3: AST_Compensation = new AST_Compensation(
   SDQL_Name("c3"),
+  "CrazyApesClub NFT distro",
   "a free CrazyApesClub NFT",
   requires3 as AST_RequireExpr,
   ISDQLConditionString("true"),

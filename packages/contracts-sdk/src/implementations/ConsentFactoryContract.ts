@@ -24,8 +24,8 @@ import {
   ConsentRoles,
   ContractOverrides,
   WrappedTransactionResponse,
+  ContractsAbis,
 } from "@contracts-sdk/interfaces/objects/index.js";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
 
 @injectable()
 export class ConsentFactoryContract
@@ -70,14 +70,14 @@ export class ConsentFactoryContract
     ownerAddress: EVMAccountAddress,
     baseUri: BaseURI,
     name: ConsentName,
-  ): ResultAsync<ethers.BigNumber, ConsentFactoryContractError | BlockchainCommonErrors> {
+  ): ResultAsync<
+    ethers.BigNumber,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       this.contract.estimateGas["createConsent"](ownerAddress, baseUri, name),
       (e) => {
-        return this.generateError(
-          e,
-          `Failed to estimate gas with error: ${e}`,
-        );
+        return this.generateError(e, `Failed to estimate gas with error: ${e}`);
       },
     ).map((estimatedGas) => {
       // TODO: confirm buffer value

@@ -1,14 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import Clipboard from "@react-native-clipboard/clipboard";
-import { useNavigation } from "@react-navigation/native";
-import {
-  EChain,
-  EVMAccountAddress,
-  LanguageCode,
-  Signature,
-} from "@snickerdoodlelabs/objects";
-import Wallet from "ethereumjs-wallet";
-import { ethers } from "ethers";
 import { keccak256 } from "ethers/lib/utils";
 import React, { useEffect, useRef } from "react";
 import {
@@ -26,33 +15,40 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   Alert,
-  NativeModules,
 } from "react-native";
-import Crypto from "react-native-quick-crypto";
 
-import { ROUTES } from "../../constants";
 import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
-import { useAppContext } from "../../context/AppContextProvider";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
-import PieChart from "../Custom/PieChart";
 import MyComponent from "./Mycomponent";
 import OnboardingItem from "./OnboardingItem";
 import Permission from "./Permission";
-import BottomSheetComponenet from "../Custom/BottomSheetComponenet";
+import { useAppContext } from "../../context/AppContextProvider";
+import { useNavigation } from "@react-navigation/native";
+import { ROUTES } from "../../constants";
+import { ethers } from "ethers";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import {
+  EChain,
+  EVMAccountAddress,
+  EWalletDataType,
+  LanguageCode,
+  Signature,
+} from "@snickerdoodlelabs/objects";
 import {
   ELoadingStatusType,
-  ILoadingStatus,
   useLayoutContext,
 } from "../../context/LayoutContext";
+import Clipboard from "@react-native-clipboard/clipboard";
+import Crypto from "react-native-quick-crypto";
+import Wallet from "ethereumjs-wallet";
+import { useTheme } from "../../context/ThemeContext";
 
 const { width, height } = Dimensions.get("window");
 const ITEM_WIDTH = width;
 
 const OnboardingMain = () => {
-  const initialLoadingStatus: ILoadingStatus = {
-    loading: false,
-    type: ELoadingStatusType.IDLE,
-  };
+  const navigation = useNavigation();
   const [publicKey, setPublicKey] = React.useState("");
   const [privateKey, setPrivateKey] = React.useState("");
   const [walletObject, setWalletObject] = React.useState<ethers.Wallet | null>(
@@ -67,57 +63,13 @@ const OnboardingMain = () => {
   const scrollViewRef = useRef();
   const { onWCButtonClicked } = useAccountLinkingContext();
   const { isUnlocked } = useAppContext();
-  const navigation = useNavigation();
 
   const [keyboardHeight, setKeyboardHeight] = React.useState(0);
 
   const { mobileCore } = useAppContext();
   const { setLoadingStatus } = useLayoutContext();
-
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      "keyboardDidShow",
-      ({ endCoordinates }) => {
-        setKeyboardHeight(endCoordinates.height);
-      },
-    );
-
-    const keyboardDidHideListener = Keyboard.addListener(
-      "keyboardDidHide",
-      () => {
-        setKeyboardHeight(0);
-      },
-    );
-
-    return () => {
-      keyboardDidShowListener.remove();
-      keyboardDidHideListener.remove();
-    };
-  }, []);
-
-  React.useEffect(() => {
-    setTimeout(() => {
-      navigation.getParent()?.setOptions({
-        tabBarStyle: {
-          display: "none",
-        },
-      });
-      return () =>
-        navigation.getParent()?.setOptions({
-          tabBarStyle: undefined,
-        });
-    }, 10);
-
-    navigation.getParent()?.setOptions({
-      tabBarStyle: {
-        display: "none",
-      },
-    });
-    return () =>
-      navigation.getParent()?.setOptions({
-        tabBarStyle: undefined,
-      });
-  }, [navigation]);
+  const theme = useTheme();
+  theme?.setIsDarkMode(true);
 
   useEffect(() => {
     if (isUnlocked) {
@@ -125,23 +77,13 @@ const OnboardingMain = () => {
     }
   }, [isUnlocked]);
 
-  const isValidPublicKey = (publicKey) => {
-    try {
-      const address = ethers.utils.getAddress(publicKey);
-      return true;
-    } catch (error) {
-      console.error(error);
-      return false;
-    }
-  };
-
-  const handlePrevButtonPress = () => {
-    // Scroll to the previous image
-    scrollViewRef.current?.scrollTo({
-      x: scrollX._value - ITEM_WIDTH,
-      animated: true,
+  useEffect(() => {
+    navigation.getParent()?.setOptions({
+      tabBarStyle: {
+        display: "none",
+      },
     });
-  };
+  }, [navigation]);
 
   const handleNextButtonPress = () => {
     // Scroll to the next image
@@ -159,8 +101,8 @@ const OnboardingMain = () => {
         source: require("../../assets/images/welcome_snickerdoodle.png"),
         height: 341,
       },
-      title: `Welcome to Snickerdoodle \n Data Wallet!`,
-      description: ` The matchmaker between you, your data, and the \n brands you love!`,
+      title: `Welcome to the Snickerdoodle\nData Wallet!`,
+      description: `You’re in control. Share what you want.\nClaim rewards.`,
       button: (
         <View>
           <TouchableOpacity
@@ -198,10 +140,10 @@ const OnboardingMain = () => {
           "https://drive.google.com/uc?export=download&id=1ohloSDHad0O8J2r-sqRIgS5xOtK8dedM",
         height: 341,
       },
-      title: `Earn rewards from your favorite \n brands, NFT and crypto projects.`,
-      description: `Keep your data in one place and anonymize it with \n Snickerdoodle tools.
+      title: `Earn rewards from your favorite\nbrands, NFT and crypto projects.`,
+      description: `Keep your data in one place and anonymize it with\nSnickerdoodle tools.
 
-      Earn NFTs and rewards for renting the anonymized \n data you choose.`,
+      Earn NFTs and rewards for renting the anonymized\ndata you choose.`,
       button: (
         <TouchableOpacity
           style={{
@@ -236,19 +178,19 @@ const OnboardingMain = () => {
         source: require("../../assets/images/sd_wallet.png"),
         height: 200,
       },
-      title: `Create Your Account with Your \n Crypto Wallet and Earn Rewards!`,
+      title: `Get started and create your\nSnickerdoodle account!`,
       description: (
         <View>
           <Text
             style={{
               textAlign: "center",
               fontWeight: "400",
-              color: "#616161",
+              color: theme?.colors.description,
               fontSize: normalizeWidth(16),
               lineHeight: normalizeWidth(23),
             }}
           >
-            {`Link your account to view your web3 activity in your \n secure personal Data Wallet and claim your reward.\n You'll share public key, authenticate account, link\n data, no transfer/gas fees.`}
+            {`Link your account to view your web3 activity in your\nsecure personal Data Wallet and claim your reward.\n\nYou'll share public key, authenticate account, link\ndata, no transfer/gas fees.`}
           </Text>
         </View>
       ),
@@ -286,10 +228,10 @@ const OnboardingMain = () => {
       asset: {
         type: "image",
         source: require("../../assets/images/more-info.png"),
-        height: 200,
+        height: normalizeHeight(200),
       },
       title: `More Information, More Rewards`,
-      description: `No one can access this personal information, not \n even Snickerdoodle. You use Snickerdoodle to \n anonymize your data and rent it out to brands of\n your choice, directly.`,
+      description: `No one can access this personal information, not\neven Snickerdoodle. You use Snickerdoodle to\nanonymize your data and rent it out to brands of\nyour choice, directly.`,
       button: (
         <TouchableOpacity
           style={{
@@ -327,7 +269,7 @@ const OnboardingMain = () => {
         height: 0,
       },
       title: `Set Your Data Permissions`,
-      description: `Choose your data  permissions to control what\n information you rent.`,
+      description: `Choose your data  permissions to control what\ninformation you rent.`,
       button: (
         <View>
           <TouchableOpacity
@@ -389,6 +331,10 @@ const OnboardingMain = () => {
     const walletObject = new ethers.Wallet(privateKey);
 
     // Sign the message with your private key
+    AsyncStorage.setItem(
+      "generated-wallet",
+      JSON.stringify({ publicKey, privateKey }),
+    );
 
     setWalletObject(walletObject);
     setPublicKey(address);
@@ -408,36 +354,63 @@ const OnboardingMain = () => {
 
   const accountGeneratedNext = () => {
     const enLangueCode: LanguageCode = LanguageCode("en");
-    mobileCore.accountService.getUnlockMessage(enLangueCode).map((message) => {
-      setLoadingStatus({
-        loading: true,
-        type: ELoadingStatusType.ADDING_ACCOUNT,
+    mobileCore
+      .getCore()
+      .account.getUnlockMessage(enLangueCode)
+      .map((message) => {
+        setLoadingStatus({
+          loading: true,
+          type: ELoadingStatusType.ADDING_ACCOUNT,
+        });
+        setConnectModal(false);
+        setGenerated(false);
+
+        const accountService = mobileCore.accountService;
+
+        walletObject?.signMessage(message).then((signature) => {
+          if (!isUnlocked) {
+            accountService.unlock(
+              walletObject?.address as EVMAccountAddress,
+              signature as Signature,
+              enLangueCode,
+              EChain.EthereumMainnet,
+              true,
+            );
+          } else {
+            accountService.addAccount(
+              walletObject?.address as EVMAccountAddress,
+              signature as Signature,
+              enLangueCode,
+              EChain.EthereumMainnet,
+            );
+          }
+        });
       });
-      setConnectModal(false);
-      setGenerated(false);
-      const accountService = mobileCore.accountService;
-      walletObject?.signMessage(message).then((signature) => {
-        if (!isUnlocked) {
-          accountService.unlock(
-            walletObject?.address as EVMAccountAddress,
-            signature as Signature,
-            EChain.EthereumMainnet,
-            enLangueCode,
-          );
-        } else {
-          accountService.addAccount(
-            walletObject?.address as EVMAccountAddress,
-            signature as Signature,
-            EChain.EthereumMainnet,
-            enLangueCode,
-          );
-        }
-      });
-    });
   };
 
+  useEffect(() => {
+    if (isUnlocked) {
+      mobileCore.dataPermissionUtils.setPermissions([
+        EWalletDataType.Age,
+        EWalletDataType.Gender,
+        EWalletDataType.Location,
+        EWalletDataType.SiteVisits,
+        EWalletDataType.AccountNFTs,
+        EWalletDataType.AccountBalances,
+        EWalletDataType.EVMTransactions,
+        EWalletDataType.Discord,
+        EWalletDataType.Twitter,
+      ]);
+    }
+  }, [isUnlocked]);
+
   return (
-    <View style={styles.container}>
+    <View
+      style={StyleSheet.create([
+        styles.container,
+        { backgroundColor: theme?.colors.background },
+      ])}
+    >
       <ScrollView
         style={{ zIndex: 999 }}
         ref={scrollViewRef}
@@ -458,7 +431,13 @@ const OnboardingMain = () => {
               scrollViewRef={scrollViewRef}
               scrollX={scrollX}
             />
-            <View style={{ position: "absolute", bottom: normalizeHeight(45) }}>
+            <View
+              style={{
+                position: "absolute",
+                zIndex: -1,
+                bottom: normalizeHeight(45),
+              }}
+            >
               {item.button}
             </View>
             <View>
@@ -472,13 +451,13 @@ const OnboardingMain = () => {
                     flex: 1,
                     justifyContent: "center",
                     alignItems: "center",
-                    backgroundColor: "rgba(0, 0, 0, 0.5)",
+                    backgroundColor: "transparent",
                   }}
                 >
                   <KeyboardAvoidingView
                     style={[
                       {
-                        backgroundColor: "white",
+                        backgroundColor: theme?.colors.backgroundSecondary,
                         position: "absolute",
                         bottom: 0,
                         width: "100%",
@@ -493,31 +472,34 @@ const OnboardingMain = () => {
                       style={{
                         fontSize: normalizeWidth(24),
                         textAlign: "center",
-                        color: "#424242",
+                        color: theme?.colors.title,
                         fontWeight: "700",
                         paddingTop: normalizeHeight(40),
                         paddingHorizontal: normalizeHeight(10),
                       }}
                     >
-                      Unlock Your Account
+                      Connect Wallet
                     </Text>
                     <Text
                       style={{
                         textAlign: "center",
                         fontWeight: "400",
-                        color: "#616161",
+                        color: theme?.colors.description,
                         fontSize: normalizeWidth(16),
                         lineHeight: normalizeWidth(23),
                         paddingHorizontal: normalizeWidth(20),
                         paddingTop: normalizeHeight(10),
                       }}
                     >
-                      You can connect your account with Wallet Connect or you
-                      can use your public key. For earning rewards you should
-                      use Wallet Connect
+                      {`Connect your existing digital wallet via\n WalletConnect. If you don't yet have a digital wallet,\n we can help you get one.`}
                     </Text>
                     {!usePublicKey && (
-                      <View style={{ alignItems: "center" }}>
+                      <View
+                        style={{
+                          alignItems: "center",
+                          backgroundColor: theme?.colors.backgroundSecondary,
+                        }}
+                      >
                         <TouchableOpacity
                           style={{
                             backgroundColor: "#6E62A6",
@@ -539,9 +521,6 @@ const OnboardingMain = () => {
                               justifyContent: "center",
                             }}
                           >
-                            <Image
-                              source={require("../../assets/images/walletConnect.png")}
-                            />
                             <Text
                               style={{
                                 textAlign: "center",
@@ -551,7 +530,7 @@ const OnboardingMain = () => {
                                 paddingLeft: normalizeWidth(5),
                               }}
                             >
-                              Wallet Connect
+                              Connect Wallet
                             </Text>
                           </View>
                         </TouchableOpacity>
@@ -584,7 +563,7 @@ const OnboardingMain = () => {
                                 paddingLeft: normalizeWidth(5),
                               }}
                             >
-                              Generate Wallet
+                              Get a New Digital Wallet
                             </Text>
                           </View>
                         </TouchableOpacity>
@@ -703,7 +682,7 @@ const OnboardingMain = () => {
                   <KeyboardAvoidingView
                     style={[
                       {
-                        backgroundColor: "white",
+                        backgroundColor: theme?.colors.background,
                         position: "absolute",
                         bottom: 0,
                         width: "100%",
@@ -728,7 +707,7 @@ const OnboardingMain = () => {
                       style={{
                         fontSize: normalizeWidth(24),
                         textAlign: "center",
-                        color: "#424242",
+                        color: theme?.colors.title,
                         fontWeight: "700",
                         paddingTop: normalizeHeight(40),
                         paddingHorizontal: normalizeHeight(10),
@@ -740,7 +719,7 @@ const OnboardingMain = () => {
                       style={{
                         textAlign: "center",
                         fontWeight: "400",
-                        color: "#616161",
+                        color: theme?.colors.description,
                         fontSize: normalizeWidth(16),
                         lineHeight: normalizeWidth(23),
                         paddingHorizontal: normalizeWidth(20),
@@ -756,17 +735,18 @@ const OnboardingMain = () => {
                       <View
                         style={{
                           borderWidth: 1,
-                          borderColor: "#EEEEEE",
+                          borderColor: theme?.colors.border,
                           width: "90%",
                           height: normalizeHeight(260),
                           borderRadius: normalizeWidth(16),
                           padding: normalizeWidth(20),
+                          marginTop: normalizeHeight(10),
                         }}
                       >
                         <Text
                           style={{
                             fontSize: normalizeWidth(20),
-                            color: "#424242",
+                            color: theme?.colors.title,
                             fontWeight: "700",
                             lineHeight: normalizeWidth(24),
                           }}
@@ -777,7 +757,7 @@ const OnboardingMain = () => {
                           style={{
                             width: "100%",
                             height: normalizeHeight(68),
-                            backgroundColor: "#FAFAFA",
+                            backgroundColor: theme?.colors.backgroundSecondary,
                             justifyContent: "center",
                             paddingHorizontal: normalizeWidth(10),
                             marginVertical: normalizeHeight(12),
@@ -800,7 +780,7 @@ const OnboardingMain = () => {
                             <Text
                               style={{
                                 paddingLeft: normalizeWidth(12),
-                                color: "#616161",
+                                color: theme?.colors.description,
                                 fontSize: normalizeWidth(16),
                                 fontWeight: "600",
                               }}
@@ -813,7 +793,7 @@ const OnboardingMain = () => {
                         <Text
                           style={{
                             fontSize: normalizeWidth(20),
-                            color: "#424242",
+                            color: theme?.colors.title,
                             fontWeight: "700",
                             lineHeight: normalizeWidth(24),
                           }}
@@ -824,7 +804,7 @@ const OnboardingMain = () => {
                           style={{
                             width: "100%",
                             height: normalizeHeight(68),
-                            backgroundColor: "#FAFAFA",
+                            backgroundColor: theme?.colors.backgroundSecondary,
                             justifyContent: "center",
                             paddingHorizontal: normalizeWidth(10),
                             marginTop: normalizeHeight(12),
@@ -838,7 +818,7 @@ const OnboardingMain = () => {
                           >
                             <Text
                               style={{
-                                color: "#616161",
+                                color: theme?.colors.description,
                                 fontSize: normalizeWidth(16),
                                 fontWeight: "600",
                               }}
@@ -862,7 +842,7 @@ const OnboardingMain = () => {
                           </View>
                         </View>
                       </View>
-                      <View>
+                      <View style={{ marginTop: normalizeHeight(50) }}>
                         <TouchableOpacity
                           style={{
                             backgroundColor: "#6E62A6",
@@ -933,8 +913,6 @@ const OnboardingMain = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
-    backgroundColor: "white",
   },
   item: {
     width: ITEM_WIDTH,

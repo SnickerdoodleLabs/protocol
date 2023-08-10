@@ -150,45 +150,6 @@ class QueryEvaluatorMocks {
     },
   ];
 
-  public accountBalances = new Array<TokenBalance>(
-    new TokenBalance(
-      EChainTechnology.EVM,
-      TickerSymbol("ETH"),
-      ChainId(1),
-      EVMContractAddress("9dkj13nd"),
-      EVMAccountAddress("GOOD1"),
-      BigNumberString("18"),
-      18,
-    ),
-    new TokenBalance(
-      EChainTechnology.EVM,
-      TickerSymbol("ETH"),
-      ChainId(1),
-      EVMContractAddress("0pemc726"),
-      EVMAccountAddress("GOOD2"),
-      BigNumberString("25"),
-      18,
-    ),
-    new TokenBalance(
-      EChainTechnology.EVM,
-      TickerSymbol("BLAH"),
-      ChainId(901398),
-      EVMContractAddress("lp20xk3c"),
-      EVMAccountAddress("BAD"),
-      BigNumberString("26"),
-      18,
-    ),
-    new TokenBalance(
-      EChainTechnology.EVM,
-      TickerSymbol("ETH"),
-      ChainId(1),
-      EVMContractAddress("m12s93io"),
-      EVMAccountAddress("GOOD3"),
-      BigNumberString("36"),
-      18,
-    ),
-  );
-
   public transactionsFlow = new Array<TransactionPaymentCounter>();
   // {
   //   chainId: ChainId(1),
@@ -221,7 +182,7 @@ class QueryEvaluatorMocks {
       this.browsingDataRepo.getSiteVisitsMap(td.matchers.anything()),
     ).thenReturn(okAsync(this.URLmap));
 
-    td.when(this.transactionRepo.getTransactionValueByChain()).thenReturn(
+    td.when(this.transactionRepo.getTransactionByChain()).thenReturn(
       okAsync(this.transactionsFlow),
     );
 

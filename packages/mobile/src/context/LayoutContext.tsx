@@ -1,14 +1,12 @@
-import { useNavigation } from "@react-navigation/native";
 import {
   AccountAddress,
+  EVMContractAddress,
   EWalletDataType,
   Invitation,
   IOpenSeaMetadata,
 } from "@snickerdoodlelabs/objects";
-import LottieView from "lottie-react-native";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
-  Button,
   Dimensions,
   Image,
   Modal,
@@ -16,19 +14,16 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 
-import UnlockLottie from "../assets/lotties/unlock.json";
-import { ROUTES } from "../constants";
-import BottomSheetComponenet from "../newcomponents/Custom/BottomSheetComponenet";
-import CustomSwitch from "../newcomponents/Custom/CustomSwitch";
+import { useAppContext } from "./AppContextProvider";
 import Dropdown from "../newcomponents/Dashboard/Dropdown";
 import { normalizeHeight, normalizeWidth } from "../themes/Metrics";
-
-import { useAppContext } from "./AppContextProvider";
+import CustomSwitch from "../newcomponents/Custom/CustomSwitch";
+import FastImage from "react-native-fast-image";
+import { useTheme } from "./ThemeContext";
 import { IInvitationParams } from "./InvitationContext";
 
 const styles = StyleSheet.create({
@@ -233,7 +228,6 @@ const ToggleRow = ({ title, perms }: { title: string; perms: Array<any> }) => {
 };
 
 const LayoutContextProvider = ({ children }) => {
-  const navigation = useNavigation();
   const { mobileCore } = useAppContext();
   const { linkedAccounts } = useAppContext();
   const [loadingStatus, _setLoadingStatus] =
@@ -252,6 +246,7 @@ const LayoutContextProvider = ({ children }) => {
   const [invitationStatus, _setInvitationStatus] = useState<IInvitationStatus>({
     status: false,
   });
+  const theme = useTheme();
 
   const [nestedPopup, setNestedPopup] = React.useState(false);
   const [nestedSettings, setNestedSettings] = React.useState(false);
@@ -334,11 +329,10 @@ const LayoutContextProvider = ({ children }) => {
   }, [permissions]);
 
   const onSelect = (item) => {
-    console.log("SSSS", invitation, item.label as AccountAddress);
     mobileCore
       .getCore()
       .setReceivingAddress(
-        invitation?.consentContractAddress,
+        invitation?.consentAddress as EVMContractAddress,
         item.label as AccountAddress,
       );
 
@@ -349,14 +343,14 @@ const LayoutContextProvider = ({ children }) => {
     setSelectedAccount(item.label);
   };
   useEffect(() => {
-    const accs = [];
+    let accs: { label: string; value: string }[] = [];
     linkedAccounts?.map((acc) => {
       accs.push({ label: acc as string, value: acc as string });
     });
     setPickerLinkedAccount(accs);
     mobileCore
       .getCore()
-      .getReceivingAddress(invitation?.consentContractAddress)
+      .getReceivingAddress(invitation?.consentAddress)
       .map((receivingAccount) => {
         setSelectedAccount(receivingAccount);
       });
@@ -380,23 +374,25 @@ const LayoutContextProvider = ({ children }) => {
     mobileCore.dataPermissionUtils.getPermissions().map((perms) => {
       if (perms.length == 0) {
         mobileCore.dataPermissionUtils
-          .generateDataPermissionsClassWithDataTypes([
-            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
-          ])
+          .createWithAllPermissions()
           .map((dataPermissions) => {
-            mobileCore.invitationService.acceptInvitation(
-              invitationStatus.invitationParams!,
-              dataPermissions,
-            );
+            mobileCore
+              .getCore()
+              .invitation.acceptInvitation(
+                invitationStatus.invitationParams!,
+                dataPermissions,
+              );
           });
       } else {
         mobileCore.dataPermissionUtils
           .generateDataPermissionsClassWithDataTypes(perms)
           .map((dataPermissions) => {
-            mobileCore.invitationService.acceptInvitation(
-              invitationStatus.invitationParams!,
-              dataPermissions,
-            );
+            mobileCore
+              .getCore()
+              .invitation.acceptInvitation(
+                invitationStatus.invitationParams!,
+                dataPermissions,
+              );
           });
       }
 
@@ -406,9 +402,9 @@ const LayoutContextProvider = ({ children }) => {
     });
   };
   const rejectInvitationHandle = () => {
-    mobileCore.invitationService.rejectInvitation(
+    /*   mobileCore.invitationService.rejectInvitation(
       invitationStatus.invitationParams!,
-    );
+    ); */
     setInvitationStatus(
       false,
       invitationStatus.data,
@@ -430,6 +426,7 @@ const LayoutContextProvider = ({ children }) => {
                 backgroundColor: "transparent",
                 position: "absolute",
                 zIndex: 99999,
+                elevation: 99999,
                 width: Dimensions.get("window").width,
                 height: Dimensions.get("window").height,
                 display: "flex",
@@ -437,11 +434,13 @@ const LayoutContextProvider = ({ children }) => {
                 justifyContent: "center",
               }}
             >
-              <Image
-                style={{ width: 250, height: 250 }}
+              <FastImage
+                style={{
+                  width: normalizeWidth(250),
+                  height: normalizeHeight(250),
+                }}
                 source={require("../assets/images/S-loading6.gif")}
               />
-              {/*  <LottieView source={UnlockLottie} autoPlay loop /> */}
             </View>
           );
       }
@@ -450,6 +449,135 @@ const LayoutContextProvider = ({ children }) => {
   }, [loadingStatus]);
 
   const InvitationPopUp = useMemo(() => {
+    const theme = useTheme();
+    var styles = StyleSheet.create({
+      overlay: {
+        flex: 1,
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        alignItems: "center",
+        justifyContent: "center",
+      },
+      centeredView: {
+        width: "100%",
+      },
+      modalView: {
+        height: "100%",
+        backgroundColor: theme?.colors.background,
+        borderRadius: 20,
+        paddingHorizontal: 15,
+        paddingVertical: 30,
+        shadowColor: "#000",
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+      },
+      title: {
+        // fontFamily: "Roboto",
+        fontStyle: "normal",
+        fontWeight: "700",
+        fontSize: normalizeWidth(24),
+        lineHeight: normalizeHeight(29),
+        marginLeft: normalizeWidth(25),
+        marginTop: normalizeHeight(20),
+        color: theme?.colors.title,
+      },
+      banner: {
+        marginTop: normalizeHeight(30),
+        alignItems: "center",
+      },
+      bannerImage: {
+        width: normalizeWidth(380),
+        height: normalizeHeight(127),
+      },
+      subtitle: {
+        // fontFamily: "Roboto",
+        fontWeight: "700",
+        fontStyle: "italic",
+        fontSize: normalizeWidth(22),
+        lineHeight: normalizeHeight(32),
+        textAlign: "center",
+        marginVertical: normalizeHeight(12),
+      },
+      description: {
+        // fontFamily: "Roboto",
+        color: theme?.colors.tokenText,
+        fontWeight: "400",
+        fontSize: normalizeWidth(16),
+        lineHeight: normalizeHeight(22),
+        textAlign: "center",
+      },
+      sectionTitle: {
+        color: "#424242",
+        fontWeight: "700",
+        fontSize: normalizeWidth(20),
+        lineHeight: normalizeHeight(24),
+        marginVertical: normalizeHeight(24),
+      },
+      sectionDescription: {
+        color: theme?.colors.tokenText,
+        fontWeight: "500",
+        fontSize: normalizeWidth(16),
+        lineHeight: normalizeHeight(22),
+      },
+      button: {
+        color: "#5D4F97",
+        fontWeight: "700",
+        fontSize: normalizeWidth(16),
+      },
+      containerBox: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+      },
+      dropdownContainer: {
+        width: normalizeWidth(60),
+        height: normalizeHeight(56),
+        backgroundColor: "#F5F5F5",
+        borderRadius: normalizeWidth(16),
+        justifyContent: "center",
+        alignItems: "center",
+      },
+      sidebar: {
+        position: "absolute",
+        top: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "#fff",
+        borderLeftWidth: 1,
+        borderLeftColor: "#ccc",
+        paddingHorizontal: 16,
+        zIndex: 999,
+      },
+      borderBox: {
+        width: "100%",
+        borderWidth: 1,
+        borderColor: "#EAECF0",
+        borderRadius: normalizeWidth(24),
+        marginTop: normalizeHeight(24),
+        paddingVertical: normalizeHeight(20),
+        paddingHorizontal: normalizeWidth(0),
+      },
+      row: {
+        borderWidth: 0,
+        borderColor: "#ccc",
+        borderRadius: 16,
+        paddingHorizontal: normalizeWidth(20),
+        paddingVertical: normalizeHeight(0),
+        marginBottom: 16,
+      },
+      rowTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        marginBottom: 15,
+      },
+      toggleContainer: {
+        marginBottom: 20,
+      },
+    });
     if (invitationStatus) {
       return (
         <View>
@@ -493,7 +621,7 @@ const LayoutContextProvider = ({ children }) => {
                 >
                   <Text
                     style={{
-                      color: "#212121",
+                      color: theme?.colors.title,
                       fontWeight: "400",
                       fontSize: normalizeWidth(18),
                       paddingBottom: normalizeHeight(20),
@@ -523,7 +651,7 @@ const LayoutContextProvider = ({ children }) => {
                       style={{
                         fontSize: normalizeWidth(24),
                         textAlign: "center",
-                        color: "#424242",
+                        color: theme?.colors.title,
                         fontWeight: "700",
                         paddingTop: normalizeHeight(20),
                       }}
@@ -535,7 +663,7 @@ const LayoutContextProvider = ({ children }) => {
                         fontSize: normalizeWidth(16),
                         textAlign: "center",
                         fontWeight: "400",
-                        color: "#616161",
+                        color: theme?.colors.description,
                         lineHeight: normalizeHeight(22),
                         paddingHorizontal: normalizeWidth(24),
                         paddingTop: normalizeHeight(16),
@@ -614,7 +742,12 @@ const LayoutContextProvider = ({ children }) => {
                     backgroundColor: "rgba(0, 0, 0, 0.5)",
                   }}
                 >
-                  <View style={{ backgroundColor: "white", borderRadius: 32 }}>
+                  <View
+                    style={{
+                      backgroundColor: theme?.colors.background,
+                      borderRadius: 32,
+                    }}
+                  >
                     <View style={{ alignItems: "center" }}>
                       <Image
                         source={{
@@ -629,7 +762,7 @@ const LayoutContextProvider = ({ children }) => {
                       />
                       <Text
                         style={{
-                          color: "#424242",
+                          color: theme?.colors.title,
                           fontSize: normalizeWidth(24),
                           fontWeight: "700",
                           lineHeight: normalizeHeight(29),
@@ -642,7 +775,7 @@ const LayoutContextProvider = ({ children }) => {
                       </Text>
                       <Text
                         style={{
-                          color: "#616161",
+                          color: theme?.colors.description,
                           fontSize: normalizeWidth(16),
                           fontWeight: "400",
                           lineHeight: normalizeHeight(22),
@@ -715,7 +848,7 @@ const LayoutContextProvider = ({ children }) => {
                   >
                     <View
                       style={{
-                        backgroundColor: "white",
+                        backgroundColor: theme?.colors.background,
                         position: "absolute",
                         bottom: 0,
                         width: "100%",
@@ -727,7 +860,7 @@ const LayoutContextProvider = ({ children }) => {
                         style={{
                           fontSize: normalizeWidth(24),
                           textAlign: "center",
-                          color: "#424242",
+                          color: theme?.colors.title,
                           fontWeight: "700",
                           paddingTop: normalizeHeight(40),
                         }}
@@ -739,7 +872,7 @@ const LayoutContextProvider = ({ children }) => {
                           fontSize: normalizeWidth(16),
                           textAlign: "center",
                           fontWeight: "400",
-                          color: "#616161",
+                          color: theme?.colors.description,
                           lineHeight: normalizeHeight(22),
                           paddingHorizontal: normalizeWidth(24),
                           paddingTop: normalizeHeight(5),
@@ -769,7 +902,7 @@ const LayoutContextProvider = ({ children }) => {
                               fontSize: normalizeWidth(16),
                             }}
                           >
-                            Claim Reward
+                            Accept All
                           </Text>
                         </TouchableOpacity>
                         <TouchableOpacity
@@ -832,7 +965,7 @@ const LayoutContextProvider = ({ children }) => {
                         textAlign: "center",
                         color: "#424242",
                         fontWeight: "700",
-                        paddingTop: normalizeHeight(40),
+                        paddingTop: normalizeHeight(10),
                       }}
                     >
                       Manage Your Data Permissions

@@ -172,4 +172,21 @@ export class DataPermissionsRepository implements IDataPermissionsRepository {
       (e) => new MobileStorageError("could not set value of defaultFlags"),
     );
   }
+
+  public createWithAllPermissions(): ResultAsync<DataPermissions, never> {
+    const allPermissions: EWalletDataType[] = Object.keys(EWalletDataType).map(
+      (key) => Number(key) as EWalletDataType,
+    );
+    const _dataTypes = allPermissions.reduce((acc, dataType) => {
+      acc = Array.from(
+        new Set([
+          ...acc,
+          dataType,
+          ...(dependedFlags[dataType] != null ? dependedFlags[dataType] : []),
+        ]),
+      );
+      return acc;
+    }, [] as EWalletDataType[]);
+    return okAsync(DataPermissions.createWithPermissions(_dataTypes));
+  }
 }

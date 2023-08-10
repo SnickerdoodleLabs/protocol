@@ -20,7 +20,6 @@ import {
   DataPermissions,
   QueryExpiredError,
   EWalletDataType,
-  SDQL_Name,
 } from "@snickerdoodlelabs/objects";
 import {
   IQueryObjectFactory,
@@ -34,10 +33,8 @@ import {
   avalanche4SchemaStr,
   IQueryFactories,
   QueryFactories,
-  AST,
-  AST_SubQuery,
 } from "@snickerdoodlelabs/query-parser";
-import { errAsync, okAsync } from "neverthrow";
+import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 import { BaseOf } from "ts-brand";
 
@@ -52,19 +49,19 @@ import {
 import {
   AdContentRepository,
   AdDataRepository,
-} from "@core/implementations/data";
-import { SnickerdoodleCore } from "@core/index";
-import { IProfileService } from "@core/interfaces/business";
+} from "@core/implementations/data/index.js";
 import {
   IBrowsingDataRepository,
-  IDataWalletPersistence,
   IDemographicDataRepository,
   IPortfolioBalanceRepository,
   ISocialRepository,
   ITransactionHistoryRepository,
 } from "@core/interfaces/data/index.js";
-import { avalanche1AstInstance } from "@core-tests/mock/mocks/commonValues";
-import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
+import { avalanche1AstInstance } from "@core-tests/mock/mocks/commonValues.js";
+import {
+  AjaxUtilsMock,
+  ConfigProviderMock,
+} from "@core-tests/mock/utilities/index.js";
 
 const queryCID = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(
@@ -141,7 +138,7 @@ class QueryParsingMocks {
     td.when(
       this.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
-    td.when(this.transactionRepo.getTransactionValueByChain()).thenReturn(
+    td.when(this.transactionRepo.getTransactionByChain()).thenReturn(
       okAsync(new Array<TransactionPaymentCounter>()),
     );
     td.when(this.balanceRepo.getAccountBalances()).thenReturn(okAsync([]));
