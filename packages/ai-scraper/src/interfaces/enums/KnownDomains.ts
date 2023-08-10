@@ -1,8 +1,8 @@
 import { DomainName } from "@snickerdoodlelabs/objects";
 
 export enum KnownDomains {
-  Amazon = DomainName("amazon"),
-  Ebay = DomainName("ebay"),
+  Amazon = "amazon",
+  Ebay = "ebay",
   // Etsy = "etsy",
   // Target = "target",
   // Walmart = "walmart",

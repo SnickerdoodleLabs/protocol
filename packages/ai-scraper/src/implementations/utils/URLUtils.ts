@@ -2,7 +2,6 @@ import {
   URLString,
   DomainName,
   HostName,
-  URLString,
   HexString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
@@ -17,7 +16,7 @@ import {
 export class URLUtils implements IURLUtils {
   public getHostname(url: URLString): ResultAsync<HostName, TypeError> {
     try {
-      return okAsync(new URL(url).hostname);
+      return okAsync(HostName(new URL(url).hostname));
     } catch (error) {
       return errAsync(error as TypeError);
     }
@@ -25,10 +24,10 @@ export class URLUtils implements IURLUtils {
   public getDomain(url: URLString): ResultAsync<DomainName, TypeError> {
     return this.getHostname(url).map((hostname) => {
       if (hostname.includes(KnownDomains.Amazon)) {
-        return okAsync(KnownDomains.Amazon);
+        return DomainName(KnownDomains.Amazon);
       }
 
-      return okAsync(DomainName(hostname));
+      return DomainName(hostname);
     });
   }
 
