@@ -53,7 +53,6 @@ const SubscriptionConfirmationModal: FC = () => {
         }}
         ipfsBaseUrl={apiGateway.config.ipfsFetchBaseUrl}
         getReceivingAddress={(consentAddress: EVMContractAddress) => {
-          console.log("consentAddress", consentAddress);
           return sdlDataWallet.getReceivingAddress(consentAddress);
         }}
       />
