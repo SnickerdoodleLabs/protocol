@@ -3,19 +3,15 @@ import { Button } from "@snickerdoodlelabs/shared-components";
 import React, { useEffect, useState } from "react";
 
 import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
-import sdlCircle from "@extension-onboarding/assets/images/sdl-circle.svg";
-import sdlLogo from "@extension-onboarding/assets/images/sdl-logo.png";
 import videoBg from "@extension-onboarding/assets/images/video-bg.svg";
 import {
   DOWNLOAD_URL,
   PRODUCT_VIDEO_URL,
 } from "@extension-onboarding/constants";
-import { useStyles } from "@extension-onboarding/containers/Router/InitialScreen/components/WebScreen/WebScreen.style";
-import { useAppContext } from "@extension-onboarding/context/App";
+import { useStyles } from "@extension-onboarding/setupScreens/InstallationRequired/InstallationRequired.style";
 
-const WebScreen = () => {
+const InstallationRequired = () => {
   const [pageFocused, setPageFocused] = useState<boolean>(false);
-  const { invitationInfo } = useAppContext();
   const classes = useStyles();
   useEffect(() => {
     if (pageFocused) {
@@ -70,16 +66,6 @@ const WebScreen = () => {
 
           <Grid item xs={6}>
             <Box display="flex" width="100%" position="relative">
-              <Box style={{ position: "absolute", right: "10%", bottom: "8%" }}>
-                {invitationInfo.rewardImage && (
-                  <img
-                    height="340px"
-                    width="341px"
-                    style={{ objectFit: "cover" }}
-                    src={invitationInfo.rewardImage}
-                  />
-                )}
-              </Box>
               <img src={videoBg} />
             </Box>
           </Grid>
@@ -89,4 +75,4 @@ const WebScreen = () => {
   );
 };
 
-export default WebScreen;
+export default InstallationRequired;

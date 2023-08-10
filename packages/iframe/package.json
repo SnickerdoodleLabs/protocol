@@ -32,6 +32,7 @@
     "alias": "npx tsc-alias",
     "postCompile": "npx webpack",
     "prepare": "yarn build",
+    "start": "node scripts/webserver.js",
     "test": "echo \"No tests specified yet\" && exit 0"
   },
   "types": "dist/index.d.ts",
@@ -43,6 +44,7 @@
     "inversify": "^6.0.1",
     "neverthrow": "^5.1.0",
     "neverthrow-result-utils": "^2.0.2",
-    "postmate": "^1.5.2"
+    "postmate": "^1.5.2",
+    "tldts": "^5.7.89"
   }
 }

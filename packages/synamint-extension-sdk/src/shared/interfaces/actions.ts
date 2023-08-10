@@ -48,6 +48,7 @@ import {
   EDataWalletPermission,
   PEMEncodedRSAPublicKey,
   JsonWebToken,
+  JSONString,
   QueryStatus,
 } from "@snickerdoodlelabs/objects";
 
@@ -215,6 +216,20 @@ export class AcceptInvitationParams extends CoreActionParams<void> {
   }
 }
 
+export class RejectInvitationParams extends CoreActionParams<void> {
+  public constructor(
+    public consentContractAddress: EVMContractAddress,
+    public tokenId?: BigNumberString,
+    public businessSignature?: Signature,
+    public rejectUntil?: UnixTimestamp,
+  ) {
+    super(RejectInvitationParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.REJECT_INVITATION;
+  }
+}
+
 export class GetAgreementPermissionsParams extends CoreActionParams<
   EWalletDataType[]
 > {
@@ -235,12 +250,12 @@ export class SetDefaultPermissionsWithDataTypesParams extends CoreActionParams<v
   }
 }
 
-export class RejectInvitationParams extends CoreActionParams<void> {
+export class RejectInvitationByUUIDParams extends CoreActionParams<void> {
   public constructor(public id: UUID) {
-    super(RejectInvitationParams.getCoreAction());
+    super(RejectInvitationByUUIDParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
-    return ECoreActions.REJECT_INVITATION;
+    return ECoreActions.REJECT_INVITATION_BY_UUID;
   }
 }
 
@@ -353,9 +368,7 @@ export class GetConsentCapacityParams extends CoreActionParams<IConsentCapacity>
   }
 }
 
-export class GetPossibleRewardsParams extends CoreActionParams<
-  Record<EVMContractAddress, PossibleReward[]>
-> {
+export class GetPossibleRewardsParams extends CoreActionParams<JSONString> {
   public constructor(
     public contractAddresses: EVMContractAddress[],
     public timeoutMs?: number,
@@ -391,9 +404,7 @@ export class GetTokenInfoParams extends CoreActionParams<TokenInfo | null> {
   }
 }
 
-export class GetSiteVisitsMapParams extends CoreActionParams<
-  Map<URLString, number>
-> {
+export class GetSiteVisitsMapParams extends CoreActionParams<JSONString> {
   public constructor() {
     super(GetSiteVisitsMapParams.getCoreAction());
   }
@@ -546,9 +557,7 @@ export class GetApplyDefaultPermissionsOptionParams extends CoreActionParams<boo
   }
 }
 
-export class GetAcceptedInvitationsCIDParams extends CoreActionParams<
-  Record<EVMContractAddress, IpfsCID>
-> {
+export class GetAcceptedInvitationsCIDParams extends CoreActionParams<JSONString> {
   public constructor() {
     super(GetAcceptedInvitationsCIDParams.getCoreAction());
   }
@@ -586,9 +595,7 @@ export class GetDefaultPermissionsParams extends CoreActionParams<
   }
 }
 
-export class GetAvailableInvitationsCIDParams extends CoreActionParams<
-  Record<EVMContractAddress, IpfsCID>
-> {
+export class GetAvailableInvitationsCIDParams extends CoreActionParams<JSONString> {
   public constructor() {
     super(GetAvailableInvitationsCIDParams.getCoreAction());
   }

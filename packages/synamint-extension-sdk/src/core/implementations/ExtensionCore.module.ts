@@ -17,7 +17,7 @@ import {
   ErrorListener,
   PortConnectionListener,
   RpcCallHandler,
-} from "@synamint-extension-sdk/core/implementations/api/index.js";
+} from "@synamint-extension-sdk/core/implementations/api";
 import {
   AccountService,
   DiscordService,
@@ -30,7 +30,7 @@ import {
   TokenPriceService,
   TwitterService,
   UserSiteInteractionService,
-} from "@synamint-extension-sdk/core/implementations/business/index.js";
+} from "@synamint-extension-sdk/core/implementations/business";
 import {
   AccountRepository,
   InvitationRepository,
@@ -39,8 +39,8 @@ import {
   ScamFilterRepository,
   TokenPriceRepository,
   UserSiteInteractionRepository,
-} from "@synamint-extension-sdk/core/implementations/data/index.js";
-import { RpcEngineFactory } from "@synamint-extension-sdk/core/implementations/utilities/factory/index.js";
+} from "@synamint-extension-sdk/core/implementations/data";
+import { RpcEngineFactory } from "@synamint-extension-sdk/core/implementations/utilities/factory";
 import {
   AccountCookieUtils,
   ContextProvider,
@@ -48,7 +48,7 @@ import {
   ErrorUtils,
   ScamFilterSettingsUtils,
   ConfigProvider,
-} from "@synamint-extension-sdk/core/implementations/utilities/index.js";
+} from "@synamint-extension-sdk/core/implementations/utilities";
 import {
   IBrowserTabListener,
   IBrowserTabListenerType,
@@ -60,7 +60,7 @@ import {
   IPortConnectionListenerType,
   IRpcCallHandler,
   IRpcCallHandlerType,
-} from "@synamint-extension-sdk/core/interfaces/api/index.js";
+} from "@synamint-extension-sdk/core/interfaces/api";
 import {
   IAccountService,
   IAccountServiceType,
@@ -84,7 +84,7 @@ import {
   ITwitterServiceType,
   IUserSiteInteractionService,
   IUserSiteInteractionServiceType,
-} from "@synamint-extension-sdk/core/interfaces/business/index.js";
+} from "@synamint-extension-sdk/core/interfaces/business";
 import {
   IAccountRepository,
   IAccountRepositoryType,
@@ -100,11 +100,11 @@ import {
   ITokenPriceRepositoryType,
   IUserSiteInteractionRepository,
   IUserSiteInteractionRepositoryType,
-} from "@synamint-extension-sdk/core/interfaces/data/index.js";
+} from "@synamint-extension-sdk/core/interfaces/data";
 import {
   IRpcEngineFactory,
   IRpcEngineFactoryType,
-} from "@synamint-extension-sdk/core/interfaces/utilities/factory/index.js";
+} from "@synamint-extension-sdk/core/interfaces/utilities/factory";
 import {
   IAccountCookieUtils,
   IAccountCookieUtilsType,
@@ -118,7 +118,7 @@ import {
   IErrorUtilsType,
   IScamFilterSettingsUtils,
   IScamFilterSettingsUtilsType,
-} from "@synamint-extension-sdk/core/interfaces/utilities/index.js";
+} from "@synamint-extension-sdk/core/interfaces/utilities";
 
 export const extensionCoreModule = new ContainerModule(
   (

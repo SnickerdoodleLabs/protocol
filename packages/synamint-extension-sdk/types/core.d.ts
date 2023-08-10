@@ -58,41 +58,44 @@ declare interface IExtensionConfigOverrides {
   portfolioPollingIntervalMS?: number;
   transactionPollingIntervalMS?: number;
   backupPollingIntervalMS?: number;
-  alchemyApiKeys?: {
-    Arbitrum: string;
-    Astar: string;
-    Mumbai: string;
-    Optimism: string;
-    Polygon: string;
-    Solana: string;
-    SolanaTestnet: string;
+  apiKeys: {
+    alchemyApiKeys?: {
+      Arbitrum: string;
+      Astar: string;
+      Mumbai: string;
+      Optimism: string;
+      Polygon: string;
+      Solana: string;
+      SolanaTestnet: string;
+    };
+    etherscanApiKeys?: {
+      Ethereum: string;
+      Polygon: string;
+      Avalanche: string;
+      Binance: string;
+      Moonbeam: string;
+      Optimism: string;
+      Arbitrum: string;
+      Gnosis: string;
+      Fuji: string;
+    };
+    covalentApiKey?: string;
+    moralisApiKey?: string;
+    nftScanApiKey?: string;
+    poapApiKey?: string;
+    oklinkApiKey?: string;
+    ankrApiKey?: string;
+    primaryInfuraKey?: string;
+    secondaryInfuraKey?: string;
   };
-  etherscanApiKeys?: {
-    Ethereum: string;
-    Polygon: string;
-    Avalanche: string;
-    Binance: string;
-    Moonbeam: string;
-    Optimism: string;
-    Arbitrum: string;
-    Gnosis: string;
-    Fuji: string;
-  };
-  covalentApiKey?: string;
-  moralisApiKey?: string;
-  nftScanApiKey?: string;
-  poapApiKey?: string;
-  oklinkApiKey?: string;
-  ankrApiKey?: string;
   dnsServerAddress?: string;
   requestForDataCheckingFrequency?: number;
   defaultGoogleCloudBucket?: string;
   enableBackupEncryption?: boolean;
   discordOverrides?: Partial<DiscordConfig>;
   twitterOverrides?: Partial<TwitterConfig>;
-  primaryInfuraKey?: string;
-  secondaryInfuraKey?: string;
   devChainProviderURL?: string;
+  providerKey?: string;
 }
 
 export declare const initializeSDKCore: (

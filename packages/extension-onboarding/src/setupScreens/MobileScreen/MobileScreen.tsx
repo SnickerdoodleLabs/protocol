@@ -10,8 +10,6 @@ import youtubeIcon from "@extension-onboarding/assets/icons/youtube-icon.svg";
 import mobileBanner from "@extension-onboarding/assets/images/mobile-banner.svg";
 import mobileDescription from "@extension-onboarding/assets/images/mobile-description.svg";
 import mobileDownload from "@extension-onboarding/assets/images/mobile-download.svg";
-import mobile1 from "@extension-onboarding/assets/images/mobile-sc1.svg";
-import mobile2 from "@extension-onboarding/assets/images/mobile-sc2.svg";
 import mobile3 from "@extension-onboarding/assets/images/mobile-sc3.svg";
 import mobileUpperSection from "@extension-onboarding/assets/images/mobile-upper-section.svg";
 import {

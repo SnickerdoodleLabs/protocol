@@ -45,12 +45,14 @@ module.exports = {
         exclude: /(node_modules|bower_components)/,
         use: {
           loader: "babel-loader",
+          options: {
+            plugins: ["@babel/plugin-syntax-import-assertions"],
+          },
         },
       },
       {
         test: new RegExp(".(" + fileExtensions.join("|") + ")$"),
         type: "asset/resource",
-        exclude: /node_modules/,
       },
       {
         // look for .css or .scss files
@@ -66,6 +68,9 @@ module.exports = {
           {
             loader: "sass-loader",
             options: {
+              // sassOptions: {
+              //   includePaths: [path.resolve(__dirname, "node_modules")],
+              // },
               sourceMap: true,
             },
           },

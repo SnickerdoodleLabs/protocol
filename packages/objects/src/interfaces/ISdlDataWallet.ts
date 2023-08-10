@@ -18,6 +18,7 @@ import {
 } from "@objects/businessObjects/index.js";
 import {
   EChain,
+  ECoreProxyType,
   EDataWalletPermission,
   EInvitationStatus,
   EWalletDataType,
@@ -251,11 +252,11 @@ export interface ISdlDataWallet {
   closeTab(): ResultAsync<void, ProxyError>;
   getDataWalletAddress(): ResultAsync<DataWalletAddress | null, ProxyError>;
   getAcceptedInvitationsCID(): ResultAsync<
-    Record<EVMContractAddress, IpfsCID>,
+    Map<EVMContractAddress, IpfsCID>,
     ProxyError
   >;
   getAvailableInvitationsCID(): ResultAsync<
-    Record<EVMContractAddress, IpfsCID>,
+    Map<EVMContractAddress, IpfsCID>,
     ProxyError
   >;
   getInvitationMetadataByCID(
@@ -284,6 +285,12 @@ export interface ISdlDataWallet {
     tokenId?: BigNumberString,
     businessSignature?: Signature,
   ): ResultAsync<void, ProxyError>;
+  rejectInvitation(
+    consentContractAddress: EVMContractAddress,
+    tokenId?: BigNumberString,
+    businessSignature?: Signature,
+    rejectUntil?: UnixTimestamp,
+  );
   leaveCohort(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, ProxyError>;
@@ -342,9 +349,11 @@ export interface ISdlDataWallet {
   getPossibleRewards(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
-  ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, ProxyError>;
+  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, ProxyError>;
 
   switchToTab(tabId: number): ResultAsync<void, ProxyError>;
+
+  proxyType: ECoreProxyType;
 
   discord: IProxyDiscordMethods;
   integration: IProxyIntegrationMethods;

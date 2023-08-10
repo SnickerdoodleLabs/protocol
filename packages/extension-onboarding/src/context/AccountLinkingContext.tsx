@@ -18,7 +18,6 @@ import {
   useLayoutContext,
 } from "@extension-onboarding/context/LayoutContext";
 import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
   IDiscordProvider,
   ITwitterProvider,
@@ -28,8 +27,7 @@ import {
   TwitterProvider,
 } from "@extension-onboarding/services/socialMediaProviders/implementations";
 import LinkAccountModal from "@extension-onboarding/components/Modals/LinkAccountModal";
-
-declare const window: IWindowWithSdlDataWallet;
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 
 interface IAccountLinkingContext {
   detectedProviders: IProvider[];
@@ -47,6 +45,7 @@ const AccountLinkingContext = createContext<IAccountLinkingContext>(
 );
 
 export const AccountLinkingContextProvider: FC = ({ children }) => {
+  const { sdlDataWallet } = useDataWalletContext();
   const {
     providerList,
     linkedAccounts,
@@ -84,13 +83,13 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
   const discordProvider = useMemo(() => {
     return (socialMediaProviderList.find((provider) => {
       return provider.key === ESocialType.DISCORD;
-    })?.provider ?? new DiscordProvider()) as IDiscordProvider;
+    })?.provider ?? new DiscordProvider(sdlDataWallet)) as IDiscordProvider;
   }, [socialMediaProviderList.length]);
 
   const twitterProvider = useMemo(() => {
     return (socialMediaProviderList.find((provider) => {
       return provider.key === ESocialType.TWITTER;
-    })?.provider ?? new TwitterProvider()) as ITwitterProvider;
+    })?.provider ?? new TwitterProvider(sdlDataWallet)) as ITwitterProvider;
   }, [socialMediaProviderList.length]);
 
   useEffect(() => {
@@ -111,7 +110,7 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
     (providerObj: IProvider) => {
       // setSelectedProviderKey(providerObj.key);
       return providerObj.provider.connect().andThen((account) => {
-        return window.sdlDataWallet.getUnlockMessage().andThen((message) => {
+        return sdlDataWallet.getUnlockMessage().andThen((message) => {
           return providerObj.provider
             .getSignature(message)
             .andThen((signature) => {
@@ -121,17 +120,15 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
                     linkedAccount.sourceAccountAddress === account,
                 )
               ) {
-                // use it for metadata
-                localStorage.setItem(`${account}`, providerObj.key);
-                return window.sdlDataWallet
-                  .getDataWalletAddress()
-                  .andThen((address) => {
-                    if (!linkedAccounts.length && !address) {
+                return sdlDataWallet.metrics
+                  .getUnlocked()
+                  .andThen((isUnlocked) => {
+                    if (!linkedAccounts.length && !isUnlocked) {
                       setLoadingStatus(true, {
                         type: ELoadingIndicatorType.COMPONENT,
                         component: <AccountLinkingIndicator />,
                       });
-                      return window.sdlDataWallet
+                      return sdlDataWallet
                         .unlock(account, signature, getChain(providerObj.key))
                         .mapErr((e) => {
                           setLoadingStatus(false);
@@ -141,7 +138,7 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
                       type: ELoadingIndicatorType.COMPONENT,
                       component: <AccountLinkingIndicator />,
                     });
-                    return window.sdlDataWallet
+                    return sdlDataWallet
                       .addAccount(account, signature, getChain(providerObj.key))
                       .mapErr((e) => {
                         setLoadingStatus(false);

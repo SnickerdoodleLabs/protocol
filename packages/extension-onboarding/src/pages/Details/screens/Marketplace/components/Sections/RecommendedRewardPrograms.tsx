@@ -26,7 +26,7 @@ const RecommendedRewardPrograms: FC<IRecommendedRewardProgramsProps> = ({
           Recommended Rewards Programs
         </Typography>
       </Box>
-      <Box className={sectionClasses.carouselWrapper}>
+      <Box>
         <Grid container spacing={2}>
           {Array.from(
             new Set([...listings.map((item) => item.consentContract)]),

@@ -31,6 +31,7 @@ const defaultConfigs: IExtensionConfig = {
   transactionPollingIntervalMS: ONE_MINUTE_MS,
   backupPollingIntervalMS: ONE_MINUTE_MS,
   requestForDataCheckingFrequency: 4000,
+  providerKey: "snickerdoodle",
 };
 @injectable()
 export class ConfigProvider implements IConfigProvider {
@@ -110,6 +111,8 @@ export class ConfigProvider implements IConfigProvider {
       configOverrides.discordOverrides ?? this.config.discordOverrides;
     this.config.twitterOverrides =
       configOverrides.twitterOverrides ?? this.config.twitterOverrides;
+    this.config.providerKey =
+      configOverrides.providerKey ?? this.config.providerKey;
   }
   public getConfig(): IExtensionConfig {
     return this.config;
