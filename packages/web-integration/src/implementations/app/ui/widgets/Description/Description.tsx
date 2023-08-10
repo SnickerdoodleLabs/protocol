@@ -6,10 +6,12 @@ interface IDescriptionProps {
   pageInvitation: PageInvitation;
   onCancelClick: () => void;
   onContinueClick: () => void;
+  onRejectClick: () => void;
 }
 export const Description: FC<IDescriptionProps> = ({
   pageInvitation,
   onCancelClick,
+  onRejectClick,
   onContinueClick,
 }) => {
   return (
@@ -25,7 +27,7 @@ export const Description: FC<IDescriptionProps> = ({
       </Typography>
 
       <Grid container spacing={2}>
-        <Grid item xs={6}>
+        <Grid item xs={4}>
           <Button
             onClick={onCancelClick}
             fullWidth
@@ -35,7 +37,17 @@ export const Description: FC<IDescriptionProps> = ({
             Cancel
           </Button>
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={4}>
+          <Button
+            onClick={onRejectClick}
+            fullWidth
+            variant="outlined"
+            color="primary"
+          >
+            Reject
+          </Button>
+        </Grid>
+        <Grid item xs={4}>
           <Button
             onClick={onContinueClick}
             fullWidth

@@ -169,7 +169,7 @@ export const App: FC<IAppProps> = ({ proxy, signerProvided }) => {
     }
   };
 
-  const onCancelClick = () => {
+  const onRejectClick = () => {
     if (pageInvitation) {
       proxy
         .rejectInvitation(
@@ -187,6 +187,10 @@ export const App: FC<IAppProps> = ({ proxy, signerProvided }) => {
           clearInvitation();
         });
     }
+  };
+
+  const onCancelClick = () => {
+    clearInvitation();
   };
 
   useEffect(() => {
@@ -230,6 +234,7 @@ export const App: FC<IAppProps> = ({ proxy, signerProvided }) => {
             <Description
               pageInvitation={pageInvitation}
               onCancelClick={onCancelClick}
+              onRejectClick={onRejectClick}
               onContinueClick={() => {
                 handleContinueClick();
               }}
@@ -239,6 +244,7 @@ export const App: FC<IAppProps> = ({ proxy, signerProvided }) => {
           return (
             <PermissionSelection
               onCancelClick={onCancelClick}
+              onRejectClick={onRejectClick}
               onSaveClick={onPermissionSelected}
             />
           );

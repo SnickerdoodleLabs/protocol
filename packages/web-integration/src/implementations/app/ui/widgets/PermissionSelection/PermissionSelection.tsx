@@ -11,6 +11,7 @@ import React, { FC } from "react";
 
 interface IPermissionSelectionProps {
   onCancelClick: () => void;
+  onRejectClick: () => void;
   onSaveClick: (dataTypes: EWalletDataType[]) => void;
 }
 
@@ -35,6 +36,7 @@ const permissions = [
 
 export const PermissionSelection: FC<IPermissionSelectionProps> = ({
   onSaveClick,
+  onRejectClick,
   onCancelClick,
 }) => {
   const [dataTypes, setDataTypes] = React.useState<EWalletDataType[]>(
@@ -105,7 +107,7 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
         })}
       </Box>
       <Grid container spacing={2}>
-        <Grid item xs={6}>
+        <Grid item xs={4}>
           <Button
             onClick={onCancelClick}
             fullWidth
@@ -115,7 +117,17 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
             Cancel
           </Button>
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={4}>
+          <Button
+            onClick={onRejectClick}
+            fullWidth
+            variant="outlined"
+            color="primary"
+          >
+            Reject
+          </Button>
+        </Grid>
+        <Grid item xs={4}>
           <Button
             onClick={() => {
               onSaveClick(dataTypes);
