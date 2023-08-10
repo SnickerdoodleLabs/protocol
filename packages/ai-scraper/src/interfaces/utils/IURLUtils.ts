@@ -16,3 +16,5 @@ export interface IURLUtils {
   getHash(url: URLString): ResultAsync<HexString, TypeError>;
   getTask(url: URLString): ResultAsync<Task, TypeError>;
 }
+
+export const IURLUtilsType = Symbol.for("IURLUtils");

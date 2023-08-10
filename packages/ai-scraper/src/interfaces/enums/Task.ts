@@ -4,4 +4,5 @@ export enum Task {
   ProductCollection = "ProductCollection",
   Wishlist = "Wishlist",
   GamesCollection = "GamesCollection",
+  Unknown = "Unknown",
 }

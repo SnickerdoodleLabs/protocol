@@ -6,6 +6,9 @@
       "path": "packages/ai-scraper"
     },
     {
+      "path": "packages/ai-scraper/test"
+    },
+    {
       "path": "packages/browserExtension"
     },
     {

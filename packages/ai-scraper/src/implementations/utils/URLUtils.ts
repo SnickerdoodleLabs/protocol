@@ -42,6 +42,12 @@ export class URLUtils implements IURLUtils {
     // 1. get domain
     // 2. get keywords
     // 3. get task
-    return okAsync(Task.PurchaseHistory);
+    return this.getDomain(url).map((domain) => {
+      if (domain === KnownDomains.Amazon) {
+        return Task.PurchaseHistory;
+      }
+
+      return Task.Unknown;
+    });
   }
 }
