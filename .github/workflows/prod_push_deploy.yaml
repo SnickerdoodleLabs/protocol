@@ -85,7 +85,7 @@ jobs:
           --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-iframe:$GITHUB_SHA" \
           --build-arg DEFAULT_INSIGHT_PLATFORM_BASE_URL="https://insight-api.snickerdoodle.com/v0/" \
           --build-arg CONTROL_CHAIN_ID=43113 \
-          --build-arg IPFS_FETCH_BASE_URL=https://ipfs-gateway.snickerdoodle.com/ipfs \
+          --build-arg IPFS_FETCH_BASE_URL=https://ipfs-gateway.snickerdoodle.com/ipfs/ \
           --build-arg BASE_TAG="$GITHUB_SHA" \
           -f ./packages/iframe/Dockerfile \
           .
@@ -119,4 +119,4 @@ jobs:
         ./get_helm.sh
         cd infra/
       
-        helm upgrade --install --reuse-values -n prod --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA  insight-platform-protocol ./insight-platform-protocol
+        helm upgrade --install --reuse-values -n prod  --set ProtocolIframe.Image.Tag=$GITHUB_SHA --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA  insight-platform-protocol ./insight-platform-protocol
