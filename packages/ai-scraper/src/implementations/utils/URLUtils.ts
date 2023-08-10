@@ -4,6 +4,7 @@ import {
   HostName,
   HexString,
 } from "@snickerdoodlelabs/objects";
+import { injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
 import {
@@ -13,6 +14,7 @@ import {
   Task,
 } from "@ai-scraper/interfaces/index.js";
 
+@injectable()
 export class URLUtils implements IURLUtils {
   public getHostname(url: URLString): ResultAsync<HostName, TypeError> {
     try {
@@ -32,7 +34,10 @@ export class URLUtils implements IURLUtils {
   }
 
   public getKeywords(url: URLString): ResultAsync<Keyword[], TypeError> {
-    throw new Error("Method not implemented.");
+    // keywords are in the path or in search params
+    const urlObj = new URL(url);
+    const pathName = urlObj.pathname;
+    const query = urlObj.search; // the whole get query
   }
   public getHash(url: URLString): ResultAsync<HexString, TypeError> {
     throw new Error("Method not implemented.");

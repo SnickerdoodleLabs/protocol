@@ -6,3 +6,5 @@ import { DomainTask } from "@ai-scraper/interfaces/index.js";
 export interface IWebpageClassifier {
   classify(url: URLString): ResultAsync<DomainTask, TypeError>;
 }
+
+export const IWebpageClassifierType = Symbol.for("IWebpageClassifier");
