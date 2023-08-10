@@ -29,6 +29,7 @@ COPY packages/utils/package.json /build/packages/utils/package.json
 COPY packages/web-integration/package.json /build/packages/web-integration/package.json
 COPY packages/web-integration-test/package.json /build/packages/web-integration-test/package.json
 # RUN yarn set version berry
+ENV YARN_CHECKSUM_BEHAVIOR=update
 RUN yarn install --network-timeout 60000
 
 # Copy the rest of the stuff and build
