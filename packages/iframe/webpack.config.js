@@ -116,6 +116,9 @@ module.exports = {
       __DEFAULT_INSIGHT_PLATFORM_BASE_URL__: JSON.stringify(
         process.env.__DEFAULT_INSIGHT_PLATFORM_BASE_URL__,
       ),
+      __DEV_CHAIN_PROVIDER_URL__: JSON.stringify(
+        process.env.__DEV_CHAIN_PROVIDER_URL__,
+      ),
     }),
   ],
 };
