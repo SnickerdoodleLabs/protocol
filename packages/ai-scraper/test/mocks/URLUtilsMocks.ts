@@ -1,6 +1,7 @@
 import { URLString } from "@snickerdoodlelabs/objects";
 
-import { URLUtils } from "@ai-scraper/implementations/utils/URLUtils";
+import { URLUtils } from "@ai-scraper/implementations/index.js";
+
 export class URLUtilsMocks {
   public getAmazonURL(): URLString {
     return URLString("https://www.amazon.com");
