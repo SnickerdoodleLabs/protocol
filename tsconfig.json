@@ -72,6 +72,9 @@
       "path": "packages/signatureVerification/test"
     },
     {
+      "path": "packages/static-web-integration"
+    },
+    {
       "path": "packages/synamint-extension-sdk"
     },
     {

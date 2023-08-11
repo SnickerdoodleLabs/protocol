@@ -77,6 +77,20 @@ jobs:
       run: |-
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA"
 
+
+    - name: Build Static Web Integration
+      run: |-
+        JIRA_TICKET=$(echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})" | grep -Eo '[A-Za-z0-9]*-[0-9]*' | awk '{print tolower($0)}')
+      
+        docker build \
+          --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-static-web-integration:$GITHUB_SHA" \
+          --build-arg BASE_TAG="$GITHUB_SHA" \
+          -f ./packages/static-web-integration/Dockerfile \
+          .
+    - name: Publish Static Web Integration
+      run: |-
+        docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-static-web-integration:$GITHUB_SHA"
+
     - name: Build protocol Iframe
       run: |-
         JIRA_TICKET=$(echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})" | grep -Eo '[A-Za-z0-9]*-[0-9]*' | awk '{print tolower($0)}')
@@ -116,8 +130,10 @@ jobs:
         gcloud components install gke-gcloud-auth-plugin
         gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
         curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+        
         chmod 700 get_helm.sh
         ./get_helm.sh
         cd infra/
       
-        helm upgrade --install --reuse-values -n prod  --set ProtocolIframe.Image.Tag=$GITHUB_SHA --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA  insight-platform-protocol ./insight-platform-protocol
+        helm upgrade -f ./insight-platform-protocol/values.yaml --install --reuse-values -n prod  --set ProtocolIframe.Image.Tag=$GITHUB_SHA --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA --set ProtocolStaticWebIntegration.Image.Tag=$GITHUB_SHA  insight-platform-protocol ./insight-platform-protocol
+
