@@ -38,7 +38,6 @@ import {
   IIndexerContextProvider,
   IIndexerContextProviderType,
 } from "@indexers/interfaces/index.js";
-
 import { MasterIndexer } from "@indexers/MasterIndexer.js";
 
 @injectable()
@@ -101,7 +100,7 @@ export class AnkrIndexer implements IEVMIndexer {
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
-  ) {}
+  ) { }
 
   public name(): string {
     return EDataProvider.Ankr;
@@ -241,12 +240,13 @@ export class AnkrIndexer implements IEVMIndexer {
     EVMTransaction[],
     AccountIndexingError | AjaxError | MethodSupportError
   > {
-    return errAsync(
-      new MethodSupportError(
-        "getEVMTransactions not supported for AnkrIndexer",
-        400,
-      ),
-    );
+    return okAsync([]);
+    // return errAsync(
+    //   new MethodSupportError(
+    //     "getEVMTransactions not supported for AnkrIndexer",
+    //     400,
+    //   ),
+    // );
     // return this.configProvider.getConfig().andThen((config) => {
     //   const url =
     //     "https://rpc.ankr.com/multichain/" +
