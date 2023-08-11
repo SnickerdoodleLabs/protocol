@@ -26,6 +26,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: |-
+          YARN_CHECKSUM_BEHAVIOR=update 
           cd packages/browserExtension && yarn && yarn build-prod
           
       - uses: actions/upload-artifact@v3
