@@ -49,9 +49,15 @@ export class URLUtils implements IURLUtils {
     // keywords are in the path or in search params
     const urlObj = new URL(url);
     const pathName = urlObj.pathname;
-    const query = urlObj.search; // the whole get query
+    const searchParams = urlObj.searchParams;
 
-    const keywords = this.keywordUtils.getKeywords(languageCode);
+    const keywords = pathName.split("/").map((keyword) => Keyword(keyword));
+    searchParams.forEach((value, key) => {
+      keywords.push(Keyword(value));
+      keywords.push(Keyword(key));
+    });
+
+    return okAsync(keywords);
   }
   public getHash(url: URLString): ResultAsync<HexString, TypeError> {
     throw new Error("Method not implemented.");
@@ -61,6 +67,7 @@ export class URLUtils implements IURLUtils {
     // 1. get domain
     // 2. get keywords
     // 3. get task
+
     return this.getDomain(url).map((domain) => {
       if (domain === KnownDomains.Amazon) {
         return Task.PurchaseHistory;

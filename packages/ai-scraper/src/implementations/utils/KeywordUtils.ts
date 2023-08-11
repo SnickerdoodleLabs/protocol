@@ -1,4 +1,5 @@
 import { IpfsCID, JSONString, LanguageCode } from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow/dist";
 
 import { DefaultKeywords } from "@ai-scraper/data";
 import { IKeywordUtils, Keyword, Task } from "@ai-scraper/interfaces";
@@ -9,6 +10,12 @@ export class KeywordUtils implements IKeywordUtils {
   protected keywords: Keywords;
   constructor() {
     this.keywords = JSON.parse(DefaultKeywords) as Keywords;
+  }
+  matchTask(
+    languageCode: LanguageCode,
+    keywords: Keyword[],
+  ): ResultAsync<Task, never> {
+    throw new Error("Method not implemented.");
   }
   public updateFromIPFS(cid: IpfsCID) {
     throw new Error("Method not implemented.");
