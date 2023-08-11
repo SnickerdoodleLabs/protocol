@@ -1,5 +1,10 @@
-import { IpfsCID, JSONString, LanguageCode } from "@snickerdoodlelabs/objects";
-import { ResultAsync } from "neverthrow/dist";
+import {
+  IpfsCID,
+  JSONString,
+  Language,
+  LanguageCode,
+} from "@snickerdoodlelabs/objects";
+import { ResultAsync, okAsync } from "neverthrow";
 
 import { DefaultKeywords } from "@ai-scraper/data";
 import { IKeywordUtils, Keyword, Task } from "@ai-scraper/interfaces";
@@ -11,11 +16,21 @@ export class KeywordUtils implements IKeywordUtils {
   constructor() {
     this.keywords = JSON.parse(DefaultKeywords) as Keywords;
   }
-  matchTask(
-    languageCode: LanguageCode,
-    keywords: Keyword[],
-  ): ResultAsync<Task, never> {
-    throw new Error("Method not implemented.");
+  matchTask(language: Language, keywords: Keyword[]): ResultAsync<Task, never> {
+    // returns the first matched task only
+    for (const task in Task) {
+      if (this.hasTaskKeywords(language, Task[task])) {
+        const taskKeywords = this.getKeywordsByTask(language, Task[task]);
+
+        // TODO optimize this with a trie
+        for (const keyword of keywords) {
+          if (taskKeywords.includes(keyword)) {
+            return okAsync(Task[task]);
+          }
+        }
+      }
+    }
+    return okAsync(Task.Unknown);
   }
   public updateFromIPFS(cid: IpfsCID) {
     throw new Error("Method not implemented.");
@@ -24,10 +39,14 @@ export class KeywordUtils implements IKeywordUtils {
   public updateKeywords(jsonString: JSONString): void {
     this.keywords = JSON.parse(jsonString) as Keywords;
   }
-  public getKeywords(languageCode: LanguageCode): TaskKeywords {
-    return this.keywords[languageCode];
+  public getKeywords(language: Language): TaskKeywords {
+    return this.keywords[language];
   }
-  public getKeywordsByTask(languageCode: LanguageCode, task: Task): Keyword[] {
-    return this.keywords[languageCode][task];
+
+  public hasTaskKeywords(language: Language, task: Task): boolean {
+    return task.valueOf() in this.keywords[language];
+  }
+  public getKeywordsByTask(language: Language, task: Task): Keyword[] {
+    return this.keywords[language][task.valueOf()];
   }
 }

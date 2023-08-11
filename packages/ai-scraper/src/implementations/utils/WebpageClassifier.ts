@@ -1,6 +1,6 @@
-import { URLString } from "@snickerdoodlelabs/objects";
+import { Language, URLString } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow/dist";
+import { ResultAsync } from "neverthrow";
 
 import {
   DomainTask,
@@ -15,10 +15,13 @@ export class WebpageClassifier implements IWebpageClassifier {
     @inject(IURLUtilsType)
     private urlUtils: IURLUtils,
   ) {}
-  public classify(url: URLString): ResultAsync<DomainTask, TypeError> {
+  public classify(
+    url: URLString,
+    language: Language,
+  ): ResultAsync<DomainTask, TypeError> {
     // Simplest version
     return this.urlUtils.getDomain(url).andThen((domain) => {
-      return this.urlUtils.getTask(url).map((task) => {
+      return this.urlUtils.getTask(url, language).map((task) => {
         return new DomainTask(domain, task);
       });
     });

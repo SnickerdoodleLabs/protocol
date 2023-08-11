@@ -3,7 +3,7 @@ import {
   DomainName,
   HostName,
   HexString,
-  LanguageCode,
+  Language,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -15,10 +15,13 @@ export interface IURLUtils {
   getDomain(url: URLString): ResultAsync<DomainName, TypeError>;
   getKeywords(
     url: URLString,
-    languageCode: LanguageCode,
+    language: Language,
   ): ResultAsync<Keyword[], TypeError>;
-  getHash(url: URLString): ResultAsync<HexString, TypeError>;
-  getTask(url: URLString): ResultAsync<Task, TypeError>;
+  getHash(
+    url: URLString,
+    language: Language,
+  ): ResultAsync<HexString, TypeError>;
+  getTask(url: URLString, language: Language): ResultAsync<Task, TypeError>;
 }
 
 export const IURLUtilsType = Symbol.for("IURLUtils");

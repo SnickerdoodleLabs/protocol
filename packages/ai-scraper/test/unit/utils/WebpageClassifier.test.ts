@@ -1,4 +1,6 @@
 import "reflect-metadata";
+import { Language } from "@snickerdoodlelabs/objects";
+
 import { KnownDomains, Task } from "@ai-scraper/interfaces";
 import { WebpageClassifierMocks } from "@ai-scraper-test/mocks/WebpageClassifierMocks";
 
@@ -10,7 +12,7 @@ describe("WebpageClassifier", () => {
     const url = mocks.urlUtilsMocks.getAmazonURL();
 
     // Act
-    const result = await classifier.classify(url);
+    const result = await classifier.classify(url, Language.English);
     const expected = result._unsafeUnwrap();
 
     // Assert

@@ -1,4 +1,6 @@
 import "reflect-metadata";
+import { Language } from "@snickerdoodlelabs/objects";
+
 import { KnownDomains, Task } from "@ai-scraper/interfaces";
 import { URLUtilsMocks } from "@ai-scraper-test/mocks/URLUtilsMocks";
 
@@ -48,7 +50,7 @@ describe("URLUtils", () => {
     const url = new URLUtilsMocks().getAmazonURL();
 
     // Act
-    const result = await urlUtils.getTask(url);
+    const result = await urlUtils.getTask(url, Language.English);
     const expected = result._unsafeUnwrap();
 
     // Assert
@@ -61,7 +63,7 @@ describe("URLUtils", () => {
     const url = new URLUtilsMocks().getGoogleURL();
 
     // Act
-    const result = await urlUtils.getTask(url);
+    const result = await urlUtils.getTask(url, Language.English);
     const expected = result._unsafeUnwrap();
 
     // Assert

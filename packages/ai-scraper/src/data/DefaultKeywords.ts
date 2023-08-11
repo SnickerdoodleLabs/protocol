@@ -11,7 +11,7 @@ export const DefaultKeywords = `{
             "your orders",
             "your-orders",
             "my orders",
-            "my-orders",
+            "my-orders"
         ]
     }
 }`;

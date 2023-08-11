@@ -4,6 +4,7 @@ import {
   HostName,
   HexString,
   LanguageCode,
+  Language,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
@@ -44,7 +45,7 @@ export class URLUtils implements IURLUtils {
 
   public getKeywords(
     url: URLString,
-    languageCode: LanguageCode,
+    language: Language,
   ): ResultAsync<Keyword[], TypeError> {
     // keywords are in the path or in search params
     const urlObj = new URL(url);
@@ -59,21 +60,34 @@ export class URLUtils implements IURLUtils {
 
     return okAsync(keywords);
   }
-  public getHash(url: URLString): ResultAsync<HexString, TypeError> {
+  public getHash(
+    url: URLString,
+    language: Language,
+  ): ResultAsync<HexString, TypeError> {
     throw new Error("Method not implemented.");
   }
 
-  public getTask(url: URLString): ResultAsync<Task, TypeError> {
+  public getTask(
+    url: URLString,
+    language: Language,
+  ): ResultAsync<Task, TypeError> {
     // 1. get domain
     // 2. get keywords
     // 3. get task
 
-    return this.getDomain(url).map((domain) => {
-      if (domain === KnownDomains.Amazon) {
-        return Task.PurchaseHistory;
-      }
-
-      return Task.Unknown;
+    return this.getKeywords(url, language).andThen((keywords) => {
+      return this.keywordUtils.matchTask(language, keywords);
     });
+
+    // const keywords = this.getKeywords(url, Language.English);
+    // return this.keywordUtils.matchTask(Language.English, keywords);
+
+    // return this.getDomain(url).map((domain) => {
+    //   if (domain === KnownDomains.Amazon) {
+    //     return Task.PurchaseHistory;
+    //   }
+
+    //   return Task.Unknown;
+    // });
   }
 }
