@@ -103,25 +103,23 @@ export class IFrameFormFactor {
         return coreProvider.getCore();
       })
       .andThen((core) => {
-        // We want to record the sourceDomain as a site visit
-        const now = timeUtils.getUnixNow();
-        const config = configProvider.getConfig();
-        return core
-          .addSiteVisits([
+        return core.getEvents().andThen((events) => {
+          // Subscribe to onQueryPosted and approve all incoming queries
+          events.onQueryPosted.subscribe((request) => {
+            this.respondToQuery(request, core, logUtils);
+          });
+
+          // We want to record the sourceDomain as a site visit
+          const now = timeUtils.getUnixNow();
+          const config = configProvider.getConfig();
+          return core.addSiteVisits([
             new SiteVisit(
               URLString(config.sourceDomain), // We can't get the full URL, but the domain will suffice
               now, // Visit started now
               UnixTimestamp(now + 10), // We're not going to wait, so just record the visit as for 10 seconds
             ),
-          ])
-          .andThen(() => {
-            return core.getEvents();
-          })
-          .map((events) => {
-            events.onQueryPosted.subscribe((request) => {
-              this.respondToQuery(request, core, logUtils);
-            });
-          });
+          ]);
+        });
       })
       .map(() => {
         logUtils.log("Snickerdoodle Core CoreListener initialized");
