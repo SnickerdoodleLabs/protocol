@@ -51,7 +51,7 @@ const InvitationContextProvider = ({ children }) => {
 
   const checkInvitationStatus = () => {
     console.warn("CHECKING INVITATION");
-    const invitationService = mobileCore.invitationService;
+    const invitationService = mobileCore.getCore().invitation;
     const { consentAddress, signature, tokenId } = invitationParams!;
     let _invitation: Invitation;
 
@@ -66,13 +66,15 @@ const InvitationContextProvider = ({ children }) => {
         .checkInvitationStatus(_invitation)
         .map((status) => {
           if (status === EInvitationStatus.New) {
-            mobileCore.invitationService
+            mobileCore
+              .getCore()
               .getConsentContractCID(
                 invitationParams?.consentAddress as EVMContractAddress,
               )
               .map((ipfsCID) => {
-                mobileCore.invitationService
-                  .getInvitationMetadataByCID(ipfsCID)
+                mobileCore
+                  .getCore()
+                  .invitation.getInvitationMetadataByCID(ipfsCID)
                   .map((metaData) => {
                     setInvitationStatus(true, metaData, _invitation);
                   });

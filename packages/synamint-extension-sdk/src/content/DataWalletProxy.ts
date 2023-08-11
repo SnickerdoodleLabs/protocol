@@ -52,6 +52,7 @@ import {
   JsonWebToken,
   QueryStatus,
   SocialProfileLinkedEvent,
+  ECoreProxyType,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -97,16 +98,18 @@ import {
   GetPossibleRewardsParams,
   SwitchToTabParams,
   GetQueryStatusByCidParams,
+  RejectInvitationParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
 let coreGateway: ExternalCoreGateway;
 let eventEmitter: UpdatableEventEmitterWrapper;
+let appID: string;
 
 const initConnection = () => {
   const localStream = new LocalMessageStream({
-    name: ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
-    target: CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
+    name: `${ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER}${appID}`,
+    target: `${CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER}${appID}`,
   });
   const mux = new ObjectMultiplex();
   pump(localStream, mux, localStream);
@@ -133,18 +136,16 @@ const initConnection = () => {
   const clearMuxAndUpdate = () => {
     mux.destroy();
     document.removeEventListener(
-      "extension-stream-channel-closed",
+      `extension-stream-channel-closed${appID}`,
       clearMuxAndUpdate,
     );
     initConnection();
   };
   document.addEventListener(
-    "extension-stream-channel-closed",
+    `extension-stream-channel-closed${appID}`,
     clearMuxAndUpdate,
   );
 };
-
-initConnection();
 
 export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public discord: IProxyDiscordMethods;
@@ -154,9 +155,12 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
 
   public events: PublicEvents;
 
-  constructor() {
+  public proxyType: ECoreProxyType = ECoreProxyType.EXTENSION_INJECTED;
+
+  constructor(public extensionId: string, public name: string) {
     super();
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    appID = extensionId;
+    initConnection(); // eslint-disable-next-line @typescript-eslint/no-this-alias
     const _this = this;
 
     this.events = new PublicEvents();
@@ -563,6 +567,22 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     return coreGateway.getSiteVisitsMap();
   }
 
+  public rejectInvitation(
+    consentContractAddress: EVMContractAddress,
+    tokenId?: BigNumberString,
+    businessSignature?: Signature,
+    rejectUntil?: UnixTimestamp,
+  ) {
+    return coreGateway.rejectInvitation(
+      new RejectInvitationParams(
+        consentContractAddress,
+        tokenId,
+        businessSignature,
+        rejectUntil,
+      ),
+    );
+  }
+
   public getConsentCapacity(
     contractAddress: EVMContractAddress,
   ): ResultAsync<IConsentCapacity, ProxyError> {
@@ -574,11 +594,11 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public getPossibleRewards(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
-  ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, ProxyError> {
+  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, ProxyError> {
     return coreGateway.getPossibleRewards(
       new GetPossibleRewardsParams(contractAddresses, timeoutMs),
     );
   }
 }
 
-export const DataWalletProxy = new _DataWalletProxy();
+// export const DataWalletProxy = new _DataWalletProxy();

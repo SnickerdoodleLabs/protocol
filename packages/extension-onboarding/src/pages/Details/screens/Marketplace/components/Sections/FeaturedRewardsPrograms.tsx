@@ -20,24 +20,6 @@ const FeaturedRewardsPrograms: FC<IFeaturedRewardsProgramsProps> = ({
 }) => {
   const sectionClasses = useSectionStyles();
 
-  const responsive = {
-    superLargeDesktop: {
-      breakpoint: { max: 4000, min: 3000 },
-      items: 1,
-    },
-    desktop: {
-      breakpoint: { max: 3000, min: 1024 },
-      items: 1,
-    },
-    tablet: {
-      breakpoint: { max: 1024, min: 464 },
-      items: 1,
-    },
-    mobile: {
-      breakpoint: { max: 464, min: 0 },
-      items: 1,
-    },
-  };
   return (
     <>
       <Box mb={3}>
@@ -45,8 +27,8 @@ const FeaturedRewardsPrograms: FC<IFeaturedRewardsProgramsProps> = ({
           Featured Rewards Programs
         </Typography>
       </Box>
-      <Box className={sectionClasses.carouselWrapper}>
-        <Carousel responsive={responsive}>
+      <Box>
+        <Carousel visibleItemCount={1} gutter={0}>
           {Array.from(
             new Set([...listings.map((item) => item.consentContract)]),
           ).map((item) => (

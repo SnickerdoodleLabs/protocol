@@ -1,6 +1,6 @@
 import {
   DataWalletAddress,
-  EDynamicRewardParameterType,
+  ESolidityAbiParameterType,
   IDynamicRewardParameter,
   LinkedAccount,
   SDQLQueryRequest,
@@ -17,8 +17,6 @@ export const EventCtx = React.createContext<IEventCtx>({} as IEventCtx);
 
 const EventContextProvider = ({ children }) => {
   const { mobileCore, setUnlockState, updateLinkedAccounts } = useAppContext();
-  const [appLevelNotifications, setAppLevelNotifications] = useState();
-  const [infoLevelNotification, setInfoLevelNotification] = useState();
   const { cancelLoading } = useLayoutContext();
   useEffect(() => {
     mobileCore.getEvents().map((events) => {
@@ -61,18 +59,19 @@ const EventContextProvider = ({ children }) => {
     const parameters: IDynamicRewardParameter[] = [];
     // request.accounts.filter((acc.sourceAccountAddress == request.dataWalletAddress) ==> (acc))
 
-    mobileCore.invitationService
+    mobileCore
+      .getCore()
       .getReceivingAddress(request.consentContractAddress)
       .map((accountAddress) => {
         request.rewardsPreview.forEach((eligibleReward) => {
           if (request.dataWalletAddress !== null) {
             parameters.push({
               recipientAddress: {
-                type: EDynamicRewardParameterType.Address,
+                type: ESolidityAbiParameterType.address,
                 value: accountAddress,
               },
-              CompensationKey: {
-                type: EDynamicRewardParameterType.CompensationKey,
+              compensationId: {
+                type: ESolidityAbiParameterType.string,
                 value: eligibleReward.compensationKey,
               },
             } as IDynamicRewardParameter);

@@ -1,5 +1,4 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import CookieManager, { Cookie, Cookies } from "@react-native-cookies/cookies";
 import {
   UnixTimestamp,
   Signature,

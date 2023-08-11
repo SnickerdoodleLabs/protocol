@@ -1,12 +1,9 @@
 import React, { FC, useMemo } from "react";
 import { Route, BrowserRouter, Routes, Navigate } from "react-router-dom";
 
-import InitialScreen from "@extension-onboarding/containers/Router/InitialScreen";
+import Loading from "@extension-onboarding/setupScreens/Loading";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import {
-  AuthFlowRoutes,
-  OnboardingRoutes,
-} from "@extension-onboarding/containers/Router/Router.routes";
+import { AuthFlowRoutes } from "@extension-onboarding/containers/Router/Router.routes";
 import { useAppContext, EAppModes } from "@extension-onboarding/context/App";
 import RootRouteLayout from "@extension-onboarding/layouts/RootRouteLayout";
 
@@ -16,15 +13,12 @@ const Router: FC = () => {
     if (!appMode) {
       return null;
     }
-    // if (appMode === EAppModes.ONBOARDING_FLOW) {
-    //   return OnboardingRoutes;
-    // }
     return AuthFlowRoutes;
   }, [appMode]);
   return (
     <>
       {!appMode ? (
-        <InitialScreen />
+        <Loading />
       ) : (
         <BrowserRouter>
           <Routes>

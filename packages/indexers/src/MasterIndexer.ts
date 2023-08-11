@@ -10,6 +10,7 @@ import {
   EChain,
   EComponentStatus,
   EVMAccountAddress,
+  EVMContractAddress,
   getChainInfoByChainId,
   IAlchemyIndexerType,
   IAnkrIndexerType,
@@ -28,6 +29,7 @@ import {
   MethodSupportError,
   PersistenceError,
   SolanaAccountAddress,
+  TokenAddress,
   TokenBalance,
   UnixTimestamp,
   WalletNFT,
@@ -335,5 +337,9 @@ export class MasterIndexer implements IMasterIndexer {
         );
         return okAsync([]);
       });
+  }
+
+  static get nativeAddress(): TokenAddress {
+    return EVMContractAddress("0x0");
   }
 }

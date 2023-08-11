@@ -6,13 +6,11 @@ import React, { FC, useEffect, useState } from "react";
 import Typography from "@extension-onboarding/components/Typography";
 import WalletProviders from "@extension-onboarding/components/WalletProviders";
 import { useAppContext } from "@extension-onboarding/context/App";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/OnChainIfo/OnChainInfo.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-declare const window: IWindowWithSdlDataWallet;
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 const OnChainInfo: FC = () => {
   const classes = useStyles();
-  const { setModal } = useLayoutContext();
+  const { sdlDataWallet } = useDataWalletContext();
   const { linkedAccounts } = useAppContext();
   const [receivingAccount, setReceivingAccount] = useState<AccountAddress>();
 
@@ -21,11 +19,11 @@ const OnChainInfo: FC = () => {
   }, []);
 
   const getRecievingAccount = () => {
-    window.sdlDataWallet.getReceivingAddress().map(setReceivingAccount);
+    sdlDataWallet.getReceivingAddress().map(setReceivingAccount);
   };
 
   const setDefaultReceivingAccount = (accountAddress) => {
-    window.sdlDataWallet
+    sdlDataWallet
       .setDefaultReceivingAddress(accountAddress)
       .map(getRecievingAccount);
   };

@@ -138,7 +138,7 @@ class QueryParsingMocks {
     td.when(
       this.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
-    td.when(this.transactionRepo.getTransactionValueByChain()).thenReturn(
+    td.when(this.transactionRepo.getTransactionByChain()).thenReturn(
       okAsync(new Array<TransactionPaymentCounter>()),
     );
     td.when(this.balanceRepo.getAccountBalances()).thenReturn(okAsync([]));

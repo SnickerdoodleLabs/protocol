@@ -62,5 +62,6 @@ export class ExtensionConfig {
     public primaryInfuraKey?: string,
     public secondaryInfuraKey?: string,
     public devChainProviderURL?: ProviderUrl,
+    public injectedKey?: string,
   ) {}
 }

@@ -77,6 +77,7 @@ describe("BalanceQueryEvaluator", () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
       ESDQLQueryReturn.Array,
+      "balance",
       null, // * - for all, use null
       [],
     );
@@ -168,6 +169,7 @@ describe("BalanceQueryEvaluator", () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
       ESDQLQueryReturn.Array,
+      "balance",
       null, // * - for all, use null
       [],
     );
@@ -247,6 +249,7 @@ describe("BalanceQueryEvaluator", () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
       ESDQLQueryReturn.Array,
+      "balance",
       null, // * - for all, use null
       [],
     );
@@ -316,6 +319,7 @@ describe("BalanceQueryEvaluator", () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
       ESDQLQueryReturn.Array,
+      "balance",
       ChainId(1), // * - for all, use null
       [],
     );
@@ -395,6 +399,7 @@ describe("BalanceQueryEvaluator", () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
       ESDQLQueryReturn.Array,
+      "balance",
       null,
       conditionsGEandL,
     );

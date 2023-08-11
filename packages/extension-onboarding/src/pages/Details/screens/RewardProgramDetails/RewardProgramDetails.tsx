@@ -49,7 +49,7 @@ import {
   ProgramRewards,
 } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/RewardProgramDetails.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import {
   getRewardsAfterRewardsWereDeliveredFromIP,
   getRewardsBeforeRewardsWereDeliveredFromIP,
@@ -100,8 +100,6 @@ const SubscribeButton = withStyles({
   },
 })(MaterialButton);
 
-declare const window: IWindowWithSdlDataWallet;
-
 const RewardProgramDetails: FC = () => {
   const [queryStatus, setQueryStatus] = useState<QueryStatus | null>();
 
@@ -121,7 +119,7 @@ const RewardProgramDetails: FC = () => {
   const { ref: saveButtonRef, inView: isSaveButtonInView } = useInView({
     threshold: 0.5,
   });
-
+  const { sdlDataWallet } = useDataWalletContext();
   const { generateAllPermissions, isSafe, updateProfileValues } =
     usePermissionContext();
   const generateSuccessMessage = (dataType: EWalletDataType) => {
@@ -185,10 +183,10 @@ const RewardProgramDetails: FC = () => {
       modalSelector: EModalSelectors.SUBSCRIPTION_CONFIRMATION_MODAL,
       onPrimaryButtonClick: (receivingAccount: AccountAddress) => {
         setLoadingStatus(true);
-        window.sdlDataWallet
+        sdlDataWallet
           .setReceivingAddress(consentContractAddress, receivingAccount)
           .map(() => {
-            window.sdlDataWallet
+            sdlDataWallet
               .acceptInvitation(permissionsState, consentContractAddress)
               .map(() => {
                 updateOptedInContracts();
@@ -224,7 +222,7 @@ const RewardProgramDetails: FC = () => {
   };
 
   const getCapacityInfo = () => {
-    window.sdlDataWallet
+    sdlDataWallet
       ?.getConsentCapacity(consentContractAddress)
       .map((capacity) => {
         setCapacityInfo(capacity);
@@ -237,7 +235,7 @@ const RewardProgramDetails: FC = () => {
 
   useEffect(() => {
     if (possibleRewards.length > 0) {
-      window.sdlDataWallet
+      sdlDataWallet
         .getQueryStatusByQueryCID(possibleRewards[0].queryCID)
         .map((queryStatus) => {
           setQueryStatus(queryStatus);
@@ -247,7 +245,7 @@ const RewardProgramDetails: FC = () => {
 
   useEffect(() => {
     if (!isSubscribed && appMode === EAppModes.AUTH_USER) {
-      window.sdlDataWallet
+      sdlDataWallet
         .checkInvitationStatus(consentContractAddress)
         .map((invitationStatus) => {
           if (invitationStatus === EInvitationStatus.Accepted)
@@ -269,7 +267,7 @@ const RewardProgramDetails: FC = () => {
   }, [isSubscribed]);
 
   const getConsentPermissions = () => {
-    window.sdlDataWallet
+    sdlDataWallet
       .getAgreementPermissions(consentContractAddress)
       .map((dataTypes) => {
         setConsentPermissions(dataTypes);
@@ -489,7 +487,7 @@ const RewardProgramDetails: FC = () => {
             <Box mt={2.5}>
               <PermissionBar
                 setBirthday={(birthday) =>
-                  window.sdlDataWallet.setBirthday(birthday).map(() => {
+                  sdlDataWallet.setBirthday(birthday).map(() => {
                     setAlert({
                       message: generateSuccessMessage(EWalletDataType.Age),
                       severity: EAlertSeverity.SUCCESS,
@@ -497,7 +495,7 @@ const RewardProgramDetails: FC = () => {
                   })
                 }
                 setLocation={(location) =>
-                  window.sdlDataWallet.setLocation(location).map(() => {
+                  sdlDataWallet.setLocation(location).map(() => {
                     setAlert({
                       message: generateSuccessMessage(EWalletDataType.Location),
                       severity: EAlertSeverity.SUCCESS,
@@ -505,7 +503,7 @@ const RewardProgramDetails: FC = () => {
                   })
                 }
                 setGender={(gender) =>
-                  window.sdlDataWallet.setGender(gender).map(() => {
+                  sdlDataWallet.setGender(gender).map(() => {
                     setAlert({
                       message: generateSuccessMessage(EWalletDataType.Gender),
                       severity: EAlertSeverity.SUCCESS,

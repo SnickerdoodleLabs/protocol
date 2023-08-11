@@ -9,6 +9,7 @@ const lineReader = readline.createInterface({
 });
 
 const REQUIRED_PERMISSIONS = ["cookies", "tabs", "storage", "activeTab"];
+// this field is used to give the ability to set http-only cookies which the application uses to store sensitive unlock credentials
 const HOST_PERMISSIONS = ["https://snickerdoodlelabs.io/"];
 
 const INJECTABLE_BUNDLE_NAME = "dataWalletProxy.bundle.js";
@@ -74,13 +75,13 @@ const copyBundle = () => {
         );
       } else {
         console.log("bundle successfully copied");
-        ovverideManifest();
+        overrideManifest();
       }
     },
   );
 };
 
-const ovverideManifest = () => {
+const overrideManifest = () => {
   fs.readFile(manifestAbsolutePath, "utf8", (err, data) => {
     if (err) {
       console.error("could not read manifest file", err);
@@ -99,15 +100,6 @@ const ovverideManifest = () => {
         ...REQUIRED_PERMISSIONS,
         ...(Array.isArray(manifestObj[V3_MANIFEST_KEYS.permissions])
           ? manifestObj[V3_MANIFEST_KEYS.permissions]
-          : []),
-      ]),
-    );
-    // update host permissions
-    manifestObj[V3_MANIFEST_KEYS.host_permissions] = Array.from(
-      new Set([
-        ...HOST_PERMISSIONS,
-        ...(Array.isArray(manifestObj[V3_MANIFEST_KEYS.host_permissions])
-          ? manifestObj[V3_MANIFEST_KEYS.host_permissions]
           : []),
       ]),
     );
@@ -139,13 +131,37 @@ const ovverideManifest = () => {
         ACCESSIBLE_RESOURCE,
       ];
     }
-    fs.writeFile(manifestAbsolutePath, JSON.stringify(manifestObj), (err) => {
-      if (err) console.err(err);
-      else {
-        console.log("manifest configuration completed");
-        process.exit();
-      }
-    });
+    // update host permissions
+    lineReader.question(
+      `Please enter account cookie URL config value then press enter \nTo use default value press enter(${HOST_PERMISSIONS[0]}): `,
+      (url) => {
+        let _HOST_PERMISSIONS = HOST_PERMISSIONS;
+        if (url) {
+          console.info("URL updated to ", url);
+          _HOST_PERMISSIONS = [url.trim()];
+        }
+        manifestObj[V3_MANIFEST_KEYS.host_permissions] = Array.from(
+          new Set([
+            ..._HOST_PERMISSIONS,
+            ...(Array.isArray(manifestObj[V3_MANIFEST_KEYS.host_permissions])
+              ? manifestObj[V3_MANIFEST_KEYS.host_permissions]
+              : []),
+          ]),
+        );
+        fs.writeFile(
+          manifestAbsolutePath,
+          JSON.stringify(manifestObj),
+          (err) => {
+            if (err) console.err(err);
+            else {
+              console.log("manifest configuration completed");
+              process.exit();
+            }
+          },
+        );
+        lineReader.close();
+      },
+    );
   });
 };
 
