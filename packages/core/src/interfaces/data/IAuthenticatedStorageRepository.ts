@@ -12,6 +12,11 @@ export interface IAuthenticatedStorageRepository {
   saveCredentials(
     settings: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError>;
+
+  clearCredentials(
+    settings: AuthenticatedStorageSettings,
+  ): ResultAsync<void, PersistenceError>;
+
   getCredentials(): ResultAsync<
     AuthenticatedStorageSettings | null,
     PersistenceError

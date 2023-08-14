@@ -66,6 +66,9 @@ export class CoreListener implements ICoreListener {
       events.onCloudStorageActivated.subscribe(
         this.onCloudStorageActivated.bind(this),
       );
+      events.onCloudStorageDeactivated.subscribe(
+        this.onCloudStorageDeactivated.bind(this),
+      );
       events.onBirthdayUpdated.subscribe((birthday) => {
         this.contextProvider.onProfileFieldChanged(
           EProfileFieldType.DOB,
@@ -190,5 +193,8 @@ export class CoreListener implements ICoreListener {
 
   private onCloudStorageActivated(event: CloudStorageActivatedEvent): void {
     this.contextProvider.onCloudStorageActivated(event);
+  }
+  private onCloudStorageDeactivated(event: CloudStorageActivatedEvent): void {
+    this.contextProvider.onCloudStorageDeactivated(event);
   }
 }

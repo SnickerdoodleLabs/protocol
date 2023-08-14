@@ -52,6 +52,7 @@ export interface ISnickerdoodleCoreEvents {
   onSocialProfileLinked: Observable<SocialProfileLinkedEvent>;
   onSocialProfileUnlinked: Observable<SocialProfileUnlinkedEvent>;
   onCloudStorageActivated: Observable<CloudStorageActivatedEvent>;
+  onCloudStorageDeactivated: Observable<CloudStorageActivatedEvent>;
 
   onBirthdayUpdated: Observable<UnixTimestamp>;
   onGenderUpdated: Observable<Gender>;

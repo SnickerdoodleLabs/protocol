@@ -34,6 +34,7 @@ export interface IContextProvider {
   onSocialProfileLinked(event: SocialProfileLinkedEvent): void;
 
   onCloudStorageActivated(event: CloudStorageActivatedEvent): void;
+  onCloudStorageDeactivated(event: CloudStorageActivatedEvent): void;
 
   onProfileFieldChanged(profileFieldType: EProfileFieldType, value: any): void;
 }

@@ -16,10 +16,16 @@ import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
 
 @injectable()
 export class NullCloudStorage implements ICloudStorage {
+  clearCredentials(
+    credentials: AuthenticatedStorageSettings,
+  ): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
   protected _backups = new Map<string, DataWalletBackup>();
   protected _lastRestore = 0;
 
   public name(): ECloudStorageType {
+    console.log("null storage is local");
     return ECloudStorageType.Local;
   }
 

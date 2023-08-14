@@ -60,6 +60,11 @@ export class GoogleCloudStorage implements ICloudStorage {
       this._resolveUnlock = resolve;
     });
   }
+  clearCredentials(
+    credentials: AuthenticatedStorageSettings,
+  ): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
 
   public name(): ECloudStorageType {
     return ECloudStorageType.Local;

@@ -66,8 +66,9 @@ jobs:
           --build-arg INFURA_ID=72827ccd538446f2a20e35a632664c52 \
           --build-arg GAPI_CLIENT_ID=332580693256-mifj8rkovvlc332n8gtllpdl93e6nvio.apps.googleusercontent.com \
           --build-arg IPFS_FETCH_BASE_URL="https://ipfs-gateway.snickerdoodle.com/ipfs/" \
-          --build-arg __GOOGLE_CLOUD_BUCKET__=${{ steps.identifier.outputs.identifier }}-sdl-dw \
+          --build-arg GOOGLE_CLOUD_BUCKET=${{ steps.identifier.outputs.identifier }}-sdl-dw \
           --build-arg GA_TRACKING_ID="UA-219658390-3" \
+          --build-arg IFRAME_URL="https://iframe.snickerdoodle.com" \
           --build-arg BASE_TAG="$GITHUB_SHA" \
           -f ./packages/extension-onboarding/Dockerfile \
           .
@@ -76,15 +77,30 @@ jobs:
       run: |-
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA"
 
+
+    - name: Build Static Web Integration
+      run: |-
+        JIRA_TICKET=$(echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})" | grep -Eo '[A-Za-z0-9]*-[0-9]*' | awk '{print tolower($0)}')
+      
+        docker build \
+          --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-static-web-integration:$GITHUB_SHA" \
+          --build-arg BASE_TAG="$GITHUB_SHA" \
+          -f ./packages/static-web-integration/Dockerfile \
+          .
+    - name: Publish Static Web Integration
+      run: |-
+        docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-static-web-integration:$GITHUB_SHA"
+
     - name: Build protocol Iframe
       run: |-
         JIRA_TICKET=$(echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})" | grep -Eo '[A-Za-z0-9]*-[0-9]*' | awk '{print tolower($0)}')
       
         docker build \
           --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-iframe:$GITHUB_SHA" \
-          --build-arg DEFAULT_INSIGHT_PLATFORM_BASE_URL="app.snickerdoodle.com" \
-          --build-arg CONTROL_CHAIN_ID=31337 \
-          --build-arg IPFS_FETCH_BASE_URL=https://ipfs-gateway.snickerdoodle.com/ipfs \
+          --build-arg DEFAULT_INSIGHT_PLATFORM_BASE_URL="https://insight-api.snickerdoodle.com/v0/" \
+          --build-arg CONTROL_CHAIN_ID=43113 \
+          --build-arg IPFS_FETCH_BASE_URL=https://ipfs-gateway.snickerdoodle.com/ipfs/ \
+          --build-arg SUPPORTED_CHAINS="1,43113,43114,137,-1,100,56,1284,42161,592" \
           --build-arg BASE_TAG="$GITHUB_SHA" \
           -f ./packages/iframe/Dockerfile \
           .
@@ -114,8 +130,10 @@ jobs:
         gcloud components install gke-gcloud-auth-plugin
         gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
         curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+        
         chmod 700 get_helm.sh
         ./get_helm.sh
         cd infra/
       
-        helm upgrade --install --reuse-values -n prod --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA  insight-platform-protocol ./insight-platform-protocol
+        helm upgrade -f ./insight-platform-protocol/values.yaml --install --reuse-values -n prod  --set ProtocolIframe.Image.Tag=$GITHUB_SHA --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA --set ProtocolStaticWebIntegration.Image.Tag=$GITHUB_SHA  insight-platform-protocol ./insight-platform-protocol
+

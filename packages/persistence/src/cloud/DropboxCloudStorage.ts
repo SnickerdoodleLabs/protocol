@@ -84,6 +84,11 @@ export class DropboxCloudStorage implements ICloudStorage {
       },
     );
   }
+  clearCredentials(
+    credentials: AuthenticatedStorageSettings,
+  ): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
 
   public name(): ECloudStorageType {
     return ECloudStorageType.Dropbox;

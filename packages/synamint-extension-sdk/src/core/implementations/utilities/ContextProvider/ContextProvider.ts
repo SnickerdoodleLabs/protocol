@@ -119,6 +119,12 @@ export class ContextProvider implements IContextProvider {
     );
   }
 
+  public onCloudStorageDeactivated(event: CloudStorageActivatedEvent): void {
+    this.appContext.notifyAllConnections(
+      new CloudProviderActivatedNotification(event),
+    );
+  }
+
   public onProfileFieldChanged(
     profileFieldType: EProfileFieldType,
     value: any,

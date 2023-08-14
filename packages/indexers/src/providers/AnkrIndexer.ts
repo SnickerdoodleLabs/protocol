@@ -248,7 +248,6 @@ export class AnkrIndexer implements IEVMIndexer {
     //     400,
     //   ),
     // );
-
     // return this.configProvider.getConfig().andThen((config) => {
     //   const url =
     //     "https://rpc.ankr.com/multichain/" +
