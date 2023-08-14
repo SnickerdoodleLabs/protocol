@@ -72,7 +72,7 @@ export class MobileCore {
 
     // TODO: This is horrible, don't do this
     this.core.initialize().mapErr((e) => {
-      console.log(e);
+      console.error(e);
     });
 
     this.iocContainer.bind(ISnickerdoodleCoreType).toConstantValue(this.core);
