@@ -120,11 +120,13 @@ export class CloudStorageManager implements ICloudStorageManager {
   public activateAuthenticatedStorage(
     credentials: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForUnlock().andThen((privateKey) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.contextProvider.getContext(),
+    ]).andThen(([privateKey, context]) => {
       const addr =
         this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
       credentials.path = credentials.path + "/" + addr;
-
       if (credentials.type == ECloudStorageType.Dropbox) {
         this.provider = this.dropbox;
       } else if (credentials.type == ECloudStorageType.Local) {
@@ -141,6 +143,28 @@ export class CloudStorageManager implements ICloudStorageManager {
     });
   }
 
+  public deactivateCloudStorage(
+    credentials: AuthenticatedStorageSettings,
+  ): ResultAsync<void, PersistenceError> {
+    // reset initialize result
+    this.initializeResult = ResultAsync.fromSafePromise(
+      new Promise((resolve) => {
+        this.resolveProvider = resolve;
+      }),
+    );
+
+    return this.contextProvider
+      .getContext()
+      .map((context) => {
+        context.publicEvents.onCloudStorageDeactivated.next(
+          new CloudStorageActivatedEvent(ECloudStorageType.Dropbox),
+        );
+      })
+      .andThen(() => {
+        return this.provider.clearCredentials(credentials);
+      });
+  }
+
   private saveParameters(
     credentials: AuthenticatedStorageSettings,
   ): ResultAsync<void, never> {
@@ -148,10 +172,11 @@ export class CloudStorageManager implements ICloudStorageManager {
     return this.contextProvider.getContext().map((context) => {
       this.resolveProvider!(this.provider);
       this.activated = true;
-      context.publicEvents.onCloudStorageActivated.next(
-        new CloudStorageActivatedEvent(credentials.type),
-      );
-
+      if (credentials.type == ECloudStorageType.Dropbox) {
+        context.publicEvents.onCloudStorageActivated.next(
+          new CloudStorageActivatedEvent(credentials.type),
+        );
+      }
       if (!this.storageList.has(credentials.type)) {
         this.storageList.add(credentials.type);
       }
@@ -159,10 +184,16 @@ export class CloudStorageManager implements ICloudStorageManager {
   }
 
   public getCloudStorage(): ResultAsync<ICloudStorage, never> {
-    return this.initializeResult;
+    return this.initializeResult.map((storage) => {
+      console.log("cloudStorage: " + JSON.stringify(storage));
+      console.log("this.provider: " + JSON.stringify(this.provider));
+
+      return this.provider;
+    });
   }
 
   public getCurrentCloudStorage(): ResultAsync<ECloudStorageType, never> {
+    console.log("Inside getCurrentCloudStorage: ");
     return okAsync(this.provider.name());
   }
 

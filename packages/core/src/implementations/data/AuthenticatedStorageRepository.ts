@@ -44,6 +44,15 @@ export class AuthenticatedStorageRepository
     );
   }
 
+  public clearCredentials(
+    settings: AuthenticatedStorageSettings,
+  ): ResultAsync<void, PersistenceError> {
+    return this.persistence.updateField(
+      EFieldKey.AUTHENTICATED_STORAGE_SETTINGS,
+      settings,
+    );
+  }
+
   public getCredentials(): ResultAsync<
     AuthenticatedStorageSettings | null,
     PersistenceError

@@ -8,4 +8,5 @@ export enum ENotificationTypes {
   COHORT_JOINED = "onCohortJoined",
   PROFILE_FIELD_CHANGED = "onProfileFieldChanged",
   CLOUD_STORAGE_ACTIVATED = "onCloudStorageActivated",
+  CLOUD_STORAGE_DEACTIVATED = "onCloudStorageDeactivated",
 }

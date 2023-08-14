@@ -58,6 +58,7 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onGenderUpdated: Subject<Gender>;
   public onLocationUpdated: Subject<CountryCode>;
   public onCloudStorageActivated: Subject<CloudStorageActivatedEvent>;
+  public onCloudStorageDeactivated: Subject<CloudStorageActivatedEvent>;
 
   public constructor() {
     this.onInitialized = new Subject();
@@ -83,6 +84,7 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onSocialProfileLinked = new Subject();
     this.onSocialProfileUnlinked = new Subject();
     this.onCloudStorageActivated = new Subject();
+    this.onCloudStorageDeactivated = new Subject();
     this.onBirthdayUpdated = new Subject();
     this.onGenderUpdated = new Subject();
     this.onLocationUpdated = new Subject();

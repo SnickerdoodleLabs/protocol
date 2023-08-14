@@ -1,4 +1,5 @@
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import { PersistenceError } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -21,6 +22,8 @@ import {
 
 @injectable()
 export class AccountIndexerPoller implements IAccountIndexerPoller {
+  protected backupPollingInterval: NodeJS.Timer | null = null;
+
   public constructor(
     @inject(IMonitoringServiceType)
     protected monitoringService: IMonitoringService,
@@ -63,7 +66,7 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
         });
 
         // Set up polling for backups
-        setInterval(() => {
+        this.backupPollingInterval = setInterval(() => {
           this.monitoringService.pollBackups().mapErr((e) => {
             this.logUtils.error(e);
           });
@@ -75,6 +78,16 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
             this.logUtils.error(e);
           });
         }, config.backupHeartbeatIntervalMS);
+      });
+
+      context.publicEvents.onCloudStorageDeactivated.subscribe(() => {
+        console.log(
+          "onCloudStorageDeactivated this.backupPollingInterval: " +
+            this.backupPollingInterval,
+        );
+        if (this.backupPollingInterval != null) {
+          clearTimeout(this.backupPollingInterval);
+        }
       });
 
       // poll once
