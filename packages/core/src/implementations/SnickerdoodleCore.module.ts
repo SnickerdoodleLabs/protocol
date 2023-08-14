@@ -76,6 +76,8 @@ import {
 import {
   IQueryObjectFactory,
   IQueryObjectFactoryType,
+  IQueryRepository,
+  IQueryRepositoryType,
   ISDQLParserFactory,
   ISDQLParserFactoryType,
   ISDQLQueryUtils,
@@ -85,6 +87,9 @@ import {
   QueryObjectFactory,
   SDQLParserFactory,
   SDQLQueryUtils,
+  IQueryFactories,
+  IQueryFactoriesType,
+  QueryFactories,
   SDQLQueryWrapperFactory,
 } from "@snickerdoodlelabs/query-parser";
 import { ContainerModule, interfaces } from "inversify";
@@ -103,10 +108,10 @@ import {
   IntegrationService,
   InvitationService,
   MarketplaceService,
+  QueryParsingEngine,
   MetricsService,
   MonitoringService,
   ProfileService,
-  QueryParsingEngine,
   QueryService,
   SiftContractService,
   TwitterService,
@@ -117,7 +122,6 @@ import {
   BlockchainTransactionQueryEvaluator,
   NftQueryEvaluator,
   QueryEvaluator,
-  QueryFactories,
   QueryRepository,
 } from "@core/implementations/business/utilities/query/index.js";
 import {
@@ -202,12 +206,8 @@ import {
   IPermissionUtilsType,
   IQueryEvaluator,
   IQueryEvaluatorType,
-  IQueryFactories,
-  IQueryFactoriesType,
   IQueryParsingEngine,
   IQueryParsingEngineType,
-  IQueryRepository,
-  IQueryRepositoryType,
 } from "@core/interfaces/business/utilities/index.js";
 import {
   IAdContentRepository,

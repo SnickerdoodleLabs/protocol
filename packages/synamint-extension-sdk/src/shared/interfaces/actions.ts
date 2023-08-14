@@ -44,7 +44,15 @@ import {
   TwitterID,
   TwitterProfile,
   TokenAndSecret,
+  RuntimeMetrics,
+  EDataWalletPermission,
+  PEMEncodedRSAPublicKey,
+  JsonWebToken,
+  JSONString,
+  QueryStatus,
 } from "@snickerdoodlelabs/objects";
+
+import { IExtensionConfig } from "./IExtensionConfig";
 
 import {
   ECoreActions,
@@ -53,7 +61,6 @@ import {
   IInvitationDomainWithUUID,
   IScamFilterPreferences,
 } from "@synamint-extension-sdk/shared";
-import { IExtensionConfig } from "./IExtensionConfig";
 
 export abstract class CoreActionParams<TReturn> {
   public constructor(public method: ECoreActions) {}
@@ -209,6 +216,20 @@ export class AcceptInvitationParams extends CoreActionParams<void> {
   }
 }
 
+export class RejectInvitationParams extends CoreActionParams<void> {
+  public constructor(
+    public consentContractAddress: EVMContractAddress,
+    public tokenId?: BigNumberString,
+    public businessSignature?: Signature,
+    public rejectUntil?: UnixTimestamp,
+  ) {
+    super(RejectInvitationParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.REJECT_INVITATION;
+  }
+}
+
 export class GetAgreementPermissionsParams extends CoreActionParams<
   EWalletDataType[]
 > {
@@ -229,12 +250,12 @@ export class SetDefaultPermissionsWithDataTypesParams extends CoreActionParams<v
   }
 }
 
-export class RejectInvitationParams extends CoreActionParams<void> {
+export class RejectInvitationByUUIDParams extends CoreActionParams<void> {
   public constructor(public id: UUID) {
-    super(RejectInvitationParams.getCoreAction());
+    super(RejectInvitationByUUIDParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
-    return ECoreActions.REJECT_INVITATION;
+    return ECoreActions.REJECT_INVITATION_BY_UUID;
   }
 }
 
@@ -347,9 +368,7 @@ export class GetConsentCapacityParams extends CoreActionParams<IConsentCapacity>
   }
 }
 
-export class GetPossibleRewardsParams extends CoreActionParams<
-  Record<EVMContractAddress, PossibleReward[]>
-> {
+export class GetPossibleRewardsParams extends CoreActionParams<JSONString> {
   public constructor(
     public contractAddresses: EVMContractAddress[],
     public timeoutMs?: number,
@@ -385,9 +404,7 @@ export class GetTokenInfoParams extends CoreActionParams<TokenInfo | null> {
   }
 }
 
-export class GetSiteVisitsMapParams extends CoreActionParams<
-  Map<URLString, number>
-> {
+export class GetSiteVisitsMapParams extends CoreActionParams<JSONString> {
   public constructor() {
     super(GetSiteVisitsMapParams.getCoreAction());
   }
@@ -540,9 +557,7 @@ export class GetApplyDefaultPermissionsOptionParams extends CoreActionParams<boo
   }
 }
 
-export class GetAcceptedInvitationsCIDParams extends CoreActionParams<
-  Record<EVMContractAddress, IpfsCID>
-> {
+export class GetAcceptedInvitationsCIDParams extends CoreActionParams<JSONString> {
   public constructor() {
     super(GetAcceptedInvitationsCIDParams.getCoreAction());
   }
@@ -580,9 +595,7 @@ export class GetDefaultPermissionsParams extends CoreActionParams<
   }
 }
 
-export class GetAvailableInvitationsCIDParams extends CoreActionParams<
-  Record<EVMContractAddress, IpfsCID>
-> {
+export class GetAvailableInvitationsCIDParams extends CoreActionParams<JSONString> {
   public constructor() {
     super(GetAvailableInvitationsCIDParams.getCoreAction());
   }
@@ -648,8 +661,17 @@ export class InitializeDiscordUserParams extends CoreActionParams<void> {
   }
 }
 
+export class GetQueryStatusByCidParams extends CoreActionParams<QueryStatus | null> {
+  public constructor(public queryCID: IpfsCID) {
+    super(GetQueryStatusByCidParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_QUERY_STATUS_BY_CID;
+  }
+}
+
 export class GetDiscordInstallationUrlParams extends CoreActionParams<URLString> {
-  public constructor() {
+  public constructor(public redirectTabId?: number) {
     super(GetDiscordInstallationUrlParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
@@ -733,6 +755,26 @@ export class TwitterGetLinkedProfilesParams extends CoreActionParams<
   }
 }
 
+export class GetMetricsParams extends CoreActionParams<RuntimeMetrics> {
+  public constructor() {
+    super(GetMetricsParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.METRICS_GET_METRICS;
+  }
+}
+
+export class GetUnlockedParams extends CoreActionParams<boolean> {
+  public constructor() {
+    super(GetUnlockedParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.METRICS_GET_UNLOCKED;
+  }
+}
+
 export class GetConfigParams extends CoreActionParams<IExtensionConfig> {
   public constructor() {
     super(GetConfigParams.getCoreAction());
@@ -742,3 +784,59 @@ export class GetConfigParams extends CoreActionParams<IExtensionConfig> {
     return ECoreActions.GET_CONFIG;
   }
 }
+
+export class SwitchToTabParams extends CoreActionParams<void> {
+  public constructor(public tabId: number) {
+    super(SwitchToTabParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SWITCH_TO_TAB;
+  }
+}
+
+// #region Integration
+export class RequestPermissionsParams extends CoreActionParams<
+  EDataWalletPermission[]
+> {
+  public constructor(public permissions: EDataWalletPermission[]) {
+    super(RequestPermissionsParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.REQUEST_PERMISSIONS;
+  }
+}
+
+export class GetPermissionsParams extends CoreActionParams<
+  EDataWalletPermission[]
+> {
+  public constructor(public domain: DomainName) {
+    super(GetPermissionsParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_PERMISSIONS;
+  }
+}
+
+export class GetTokenVerificationPublicKeyParams extends CoreActionParams<PEMEncodedRSAPublicKey> {
+  public constructor(public domain: DomainName) {
+    super(GetTokenVerificationPublicKeyParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_TOKEN_VERIFICATION_PUBLIC_KEY;
+  }
+}
+
+export class GetBearerTokenParams extends CoreActionParams<JsonWebToken> {
+  public constructor(public nonce: string, public domain: DomainName) {
+    super(GetBearerTokenParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_BEARER_TOKEN;
+  }
+}
+// #endregion

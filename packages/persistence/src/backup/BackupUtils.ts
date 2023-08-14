@@ -8,10 +8,10 @@ import {
   EVMAccountAddress,
   Signature,
   EVMPrivateKey,
-  BackupBlob,
-  EncryptedBackupBlob,
   DataWalletBackupID,
   AESEncryptedString,
+  VolatileDataUpdate,
+  FieldDataUpdate,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -25,9 +25,12 @@ export class BackupUtils implements IBackupUtils {
   ) {}
 
   public encryptBlob(
-    blob: BackupBlob,
+    blob: VolatileDataUpdate[] | FieldDataUpdate,
     privateKey: EVMPrivateKey | null,
-  ): ResultAsync<BackupBlob | AESEncryptedString, never> {
+  ): ResultAsync<
+    VolatileDataUpdate[] | FieldDataUpdate | AESEncryptedString,
+    never
+  > {
     if (privateKey == null) {
       return okAsync(blob);
     }
@@ -35,11 +38,10 @@ export class BackupUtils implements IBackupUtils {
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(privateKey)
       .andThen((aesKey) => {
-        return this.cryptoUtils
-          .encryptString(ObjectUtils.serialize(blob), aesKey)
-          .map((encryptedBlob) => {
-            return encryptedBlob;
-          });
+        return this.cryptoUtils.encryptString(
+          ObjectUtils.serialize(blob),
+          aesKey,
+        );
       });
   }
 
@@ -60,7 +62,7 @@ export class BackupUtils implements IBackupUtils {
   }
 
   public generateBackupSignature(
-    hash: string,
+    hash: DataWalletBackupID,
     timestamp: number,
     privateKey: EVMPrivateKey,
   ): ResultAsync<Signature, never> {
@@ -71,7 +73,7 @@ export class BackupUtils implements IBackupUtils {
   }
 
   public getBackupHash(
-    blob: BackupBlob | EncryptedBackupBlob,
+    blob: VolatileDataUpdate[] | FieldDataUpdate | AESEncryptedString,
   ): ResultAsync<DataWalletBackupID, never> {
     return this.cryptoUtils
       .hashStringSHA256(ObjectUtils.serialize(blob))
@@ -83,7 +85,7 @@ export class BackupUtils implements IBackupUtils {
   }
 
   private _generateBackupSignatureMessage(
-    hash: string,
+    hash: DataWalletBackupID,
     timestamp: number,
   ): string {
     return ObjectUtils.serialize({

@@ -43,6 +43,13 @@ jobs:
       run: |-
         gcloud --quiet auth configure-docker $GAR_LOCATION-docker.pkg.dev
         
+    - name: Build protocol base
+      run: |-
+        JIRA_TICKET=$(echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})" | grep -Eo '[A-Za-z0-9]*-[0-9]*' | awk '{print tolower($0)}')
+        docker build \
+          --tag "snickerdoodlelabs/protocol-docker-base:$GITHUB_SHA" \
+          -f ./packages/docker/Dockerfile \
+          .
     - name: Build protocol
       run: |-
         docker build \
@@ -52,7 +59,9 @@ jobs:
           --build-arg BUILD_ENV=prod \
           --build-arg INFURA_ID=72827ccd538446f2a20e35a632664c52 \
           --build-arg GAPI_CLIENT_ID=332580693256-mifj8rkovvlc332n8gtllpdl93e6nvio.apps.googleusercontent.com \
-          --build-arg __GOOGLE_CLOUD_BUCKET__=${{ steps.identifier.outputs.identifier }}-sdl-dw \
+          --build-arg GOOGLE_CLOUD_BUCKET=${{ steps.identifier.outputs.identifier }}-sdl-dw \
+          --build-arg IFRAME_URL="https://iframe.dev.snickerdoodle.dev" \
+          --build-arg BASE_TAG="$GITHUB_SHA" \
           -f ./packages/extension-onboarding/Dockerfile \
           .
   
@@ -60,6 +69,39 @@ jobs:
     - name: Publish protocol
       run: |-
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA"
+
+
+    - name: Build Static Web Integration
+      run: |-
+        JIRA_TICKET=$(echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})" | grep -Eo '[A-Za-z0-9]*-[0-9]*' | awk '{print tolower($0)}')
+      
+        docker build \
+          --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-static-web-integration:$GITHUB_SHA" \
+          --build-arg BASE_TAG="$GITHUB_SHA" \
+          -f ./packages/static-web-integration/Dockerfile \
+          .
+    - name: Publish Static Web Integration
+      run: |-
+        docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-static-web-integration:$GITHUB_SHA"
+
+    - name: Build protocol Iframe
+      run: |-
+        JIRA_TICKET="dev"
+      
+        docker build \
+          --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-iframe:$GITHUB_SHA" \
+          --build-arg DEFAULT_INSIGHT_PLATFORM_BASE_URL="https://insight-api.dev.snickerdoodle.dev/v0/" \
+          --build-arg CONTROL_CHAIN_ID=31337 \
+          --build-arg DEV_CHAIN_PROVIDER_URL="https://doodlechain.$JIRA_TICKET.snickerdoodle.dev" \
+          --build-arg IPFS_FETCH_BASE_URL=https://ipfs-gateway.snickerdoodle.dev/ipfs/ \
+          --build-arg SUPPORTED_CHAINS="1,43113,43114,137,-1,100,56,1284,42161,592,31337" \
+          --build-arg BASE_TAG="$GITHUB_SHA" \
+          -f ./packages/iframe/Dockerfile \
+          .
+    - name: Publish protocol Iframe
+      run: |-
+        docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-iframe:$GITHUB_SHA"
+
     - name: 'Set up Cloud SDK'
       uses: 'google-github-actions/setup-gcloud@v1'
     - name: Deploy to GCR
@@ -71,4 +113,4 @@ jobs:
         ./get_helm.sh
         cd infra/
       
-        helm upgrade --install --reuse-values -n dev --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA  insight-platform-protocol ./insight-platform-protocol 
+        helm upgrade -f ./insight-platform-protocol/values.yaml --install --reuse-values -n dev --set ProtocolIframe.Image.Tag=$GITHUB_SHA --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA --set ProtocolStaticWebIntegration.Image.Tag=$GITHUB_SHA insight-platform-protocol ./insight-platform-protocol 

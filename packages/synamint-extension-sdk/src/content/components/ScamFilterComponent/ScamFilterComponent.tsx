@@ -1,8 +1,9 @@
 import { Box } from "@material-ui/core";
+import React, { FC } from "react";
+
 import SafeUrlNotification from "@synamint-extension-sdk/content/components/ScamFilterComponent/SafeUrlNotification";
 import ScamNotification from "@synamint-extension-sdk/content/components/ScamFilterComponent/ScamNotification";
 import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
-import React, { FC } from "react";
 
 export interface IScamFilterComponentProps {
   scamFilterStatus: EScamFilterStatus;

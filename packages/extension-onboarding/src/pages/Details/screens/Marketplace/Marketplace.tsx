@@ -1,15 +1,3 @@
-import emptyTag from "@extension-onboarding/assets/images/empty-tag.png";
-import marketplaceImage from "@extension-onboarding/assets/images/marketplace.svg";
-import { LOCAL_STORAGE_REWARDS_MARKETPLACE_INTRODUCTION } from "@extension-onboarding/constants";
-import { tags } from "@extension-onboarding/constants/tags";
-import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import {
-  FeaturedRewardsPrograms,
-  PopularRewardsPrograms,
-  RecommendedRewardPrograms,
-} from "@extension-onboarding/pages/Details/screens/Marketplace/components/Sections";
-import { useMarketplaceStyles } from "@extension-onboarding/pages/Details/screens/Marketplace/Marketplace.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
   Box,
   Collapse,
@@ -30,7 +18,18 @@ import { ResultUtils } from "neverthrow-result-utils";
 import React, { useEffect, useMemo, useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
 
-declare const window: IWindowWithSdlDataWallet;
+import emptyTag from "@extension-onboarding/assets/images/empty-tag.png";
+import marketplaceImage from "@extension-onboarding/assets/images/marketplace.svg";
+import { LOCAL_STORAGE_REWARDS_MARKETPLACE_INTRODUCTION } from "@extension-onboarding/constants";
+import { tags } from "@extension-onboarding/constants/tags";
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import {
+  FeaturedRewardsPrograms,
+  PopularRewardsPrograms,
+  RecommendedRewardPrograms,
+} from "@extension-onboarding/pages/Details/screens/Marketplace/components/Sections";
+import { useMarketplaceStyles } from "@extension-onboarding/pages/Details/screens/Marketplace/Marketplace.style";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 
 const Marketplace = () => {
   const classes = useMarketplaceStyles();
@@ -43,11 +42,12 @@ const Marketplace = () => {
   );
   const [listings, setListings] =
     useState<Record<ETag, PagedResponse<MarketplaceListing>>>();
+  const { sdlDataWallet } = useDataWalletContext();
 
   useEffect(() => {
     ResultUtils.combine(
       Object.values(ETag).map((tag) =>
-        window.sdlDataWallet
+        sdlDataWallet
           ?.getMarketplaceListingsByTag(
             new PagingRequest(1, 50),
             tag as MarketplaceTag,

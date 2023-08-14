@@ -1,5 +1,3 @@
-import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
-import { Condition } from "@query-parser/interfaces/objects/condition/index.js";
 import {
   ChainId,
   ESDQLQueryReturn,
@@ -7,20 +5,24 @@ import {
   MissingWalletDataTypeError,
   SDQL_Name,
 } from "@snickerdoodlelabs/objects";
-import { ok, Result } from "neverthrow";
+import { Result, ok } from "neverthrow";
 
-export class AST_BalanceQuery extends AST_Query {
+import { Condition } from "@query-parser/interfaces/objects/condition/index.js";
+import { AST_Web3Query } from "@query-parser/interfaces/objects/AST_Web3Query.js";
+
+export class AST_BalanceQuery extends AST_Web3Query {
   /**
    * @param name - the key of the query from schema, e.g., q1, q2, a3 ...
    * @param networkId - null for wildcard, value for a single chain
    */
   constructor(
-    name: SDQL_Name,
+    public name: SDQL_Name,
     readonly returnType: ESDQLQueryReturn.Array,
+    readonly type: "balance",
     readonly networkId: ChainId | null,
     readonly conditions: Array<Condition>,
   ) {
-    super(name, returnType);
+    super(name, returnType, type);
   }
 
   getPermission(): Result<EWalletDataType, MissingWalletDataTypeError> {

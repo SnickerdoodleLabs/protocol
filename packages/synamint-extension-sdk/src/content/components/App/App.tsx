@@ -1,6 +1,9 @@
 import {
   AccountAddress,
+  BaseNotification,
   DomainName,
+  EInvitationStatus,
+  ENotificationTypes,
   EWalletDataType,
   PossibleReward,
   UUID,
@@ -14,17 +17,23 @@ import { ResultUtils } from "neverthrow-result-utils";
 import ObjectMultiplex from "obj-multiplex";
 import LocalMessageStream from "post-message-stream";
 import pump from "pump";
-import React, { useEffect, useMemo, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+  useRef,
+} from "react";
 import { parse } from "tldts";
-import Browser, { urlbar } from "webextension-polyfill";
+import Browser from "webextension-polyfill";
 
 import ScamFilterComponent, {
   EScamFilterStatus,
 } from "@synamint-extension-sdk/content/components/ScamFilterComponent";
-import Permissions from "@synamint-extension-sdk/content/components/Screens/Permissions";
-import SubscriptionConfirmation from "@synamint-extension-sdk/content/components/Screens/SubscriptionConfirmation";
-import RewardCard from "@synamint-extension-sdk/content/components/Screens/RewardCard";
 import Loading from "@synamint-extension-sdk/content/components/Screens/Loading";
+import Permissions from "@synamint-extension-sdk/content/components/Screens/Permissions";
+import RewardCard from "@synamint-extension-sdk/content/components/Screens/RewardCard";
+import SubscriptionConfirmation from "@synamint-extension-sdk/content/components/Screens/SubscriptionConfirmation";
 import SubscriptionSuccess from "@synamint-extension-sdk/content/components/Screens/SubscriptionSuccess";
 import {
   EAPP_STATE,
@@ -43,11 +52,20 @@ import {
   ONBOARDING_PROVIDER_SUBSTREAM,
   GetInvitationWithDomainParams,
   AcceptInvitationByUUIDParams,
-  RejectInvitationParams,
+  RejectInvitationByUUIDParams,
   CheckURLParams,
   SetReceivingAddressParams,
   IExtensionConfig,
+  PORT_NOTIFICATION,
+  CheckInvitationStatusParams,
 } from "@synamint-extension-sdk/shared";
+import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
+
+enum EWalletState {
+  UNKNOWN,
+  UNLOCKED,
+  LOCKED,
+}
 
 interface ISafeURLHistory {
   url: string;
@@ -55,6 +73,8 @@ interface ISafeURLHistory {
 
 let coreGateway: ExternalCoreGateway;
 let extensionConfig: IExtensionConfig;
+let eventEmitter: UpdatableEventEmitterWrapper;
+const appID = Browser.runtime.id;
 
 const connect = () => {
   const port = Browser.runtime.connect({ name: EPortNames.SD_CONTENT_SCRIPT });
@@ -73,50 +93,45 @@ const connect = () => {
 
   if (!coreGateway) {
     coreGateway = new ExternalCoreGateway(rpcEngine);
+    eventEmitter = new UpdatableEventEmitterWrapper(
+      streamMiddleware.events,
+      PORT_NOTIFICATION,
+    );
     (extensionConfig ? okAsync(extensionConfig) : coreGateway.getConfig()).map(
       (config) => {
         if (!extensionConfig) {
           extensionConfig = config;
         }
-        if (new URL(config.onboardingUrl).origin === window.location.origin) {
-          DataWalletProxyInjectionUtils.inject();
-        }
+        // inject the proxy to any domain
+        // there is no blacklist for now
+        // we should have soon
+        DataWalletProxyInjectionUtils.inject(config.providerKey || "");
       },
     );
   } else {
     coreGateway.updateRpcEngine(rpcEngine);
+    eventEmitter.update(streamMiddleware.events);
   }
 
-  (extensionConfig ? okAsync(extensionConfig) : coreGateway.getConfig()).map(
-    (config) => {
-      if (!extensionConfig) {
-        extensionConfig = config;
-      }
-      if (new URL(config.onboardingUrl).origin === window.location.origin) {
-        {
-          const postMessageStream = new LocalMessageStream({
-            name: CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
-            target: ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
-          });
-          const pageMux = new ObjectMultiplex();
-          pump(pageMux, postMessageStream, pageMux);
-          const pageStreamChannel = pageMux.createStream(
-            ONBOARDING_PROVIDER_SUBSTREAM,
-          );
-          const extensionStreamChannel = extensionMux.createStream(
-            ONBOARDING_PROVIDER_SUBSTREAM,
-          );
-          pump(pageStreamChannel, extensionStreamChannel, pageStreamChannel);
-          extensionMux.on("finish", () => {
-            document.dispatchEvent(
-              new CustomEvent("extension-stream-channel-closed"),
-            );
-            pageMux.destroy();
-          });
-        }
-      }
-    },
+  // before creating message stream we also need to check the blacklist once we have it
+  const postMessageStream = new LocalMessageStream({
+    name: `${CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER}${appID}`,
+    target: `${ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER}${appID}`,
+  });
+  const pageMux = new ObjectMultiplex();
+  pump(pageMux, postMessageStream, pageMux);
+  const pageStreamChannel = pageMux.createStream(ONBOARDING_PROVIDER_SUBSTREAM);
+  const extensionStreamChannel = extensionMux.createStream(
+    ONBOARDING_PROVIDER_SUBSTREAM,
   );
+  pump(pageStreamChannel, extensionStreamChannel, pageStreamChannel);
+  extensionMux.on("finish", () => {
+    document.dispatchEvent(
+      new CustomEvent(`extension-stream-channel-closed${appID}`),
+    );
+    pageMux.destroy();
+  });
+
   // keep service worker alive
   if (VersionUtils.isManifest3) {
     port.onDisconnect.addListener(connect);
@@ -133,19 +148,64 @@ const App = () => {
   const [rewardToDisplay, setRewardToDisplay] = useState<
     IRewardItem | undefined
   >();
+  const [walletState, setWalletState] = useState<EWalletState>(
+    EWalletState.UNKNOWN,
+  );
   const [invitationDomain, setInvitationDomain] =
     useState<IInvitationDomainWithUUID>();
   const [scamFilterStatus, setScamFilterStatus] = useState<EScamFilterStatus>();
   const [subscriptionPreviewData, setSubscriptionPreviewData] = useState<{
-    eligibleRewards: PossibleReward[];
-    missingRewards: PossibleReward[];
+    rewardsThatCanBeAcquired: PossibleReward[];
+    rewardsThatRequireMorePermission: PossibleReward[];
     dataTypes: EWalletDataType[];
   }>();
   const _path = usePath();
+  const isStatusCheckRequiredRef = useRef<boolean>(false);
+  const [isHidden, setIsHidden] = useState<boolean>(false);
+
+  useEffect(() => {
+    window.postMessage(
+      {
+        type: "popupContentUpdated",
+        id: appID,
+        name: extensionConfig?.providerKey || "",
+        hasContent: appState !== EAPP_STATE.INIT,
+      },
+      "*",
+    );
+  }, [appState]);
+
+  const handleTabManagerMessage = (event: MessageEvent) => {
+    if (event.data.type === "selectedTabUpdated") {
+      setIsHidden(!(!event.data.id || event.data.id === appID));
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("message", handleTabManagerMessage);
+    return () => {
+      window.removeEventListener("message", handleTabManagerMessage);
+    };
+  }, []);
 
   useEffect(() => {
     initiateScamFilterStatus();
   }, []);
+
+  useEffect(() => {
+    if (walletState === EWalletState.LOCKED) {
+      eventEmitter.on(PORT_NOTIFICATION, handleNotification);
+    }
+    return () => {
+      eventEmitter.off(PORT_NOTIFICATION, handleNotification);
+    };
+  }, [walletState]);
+
+  const handleNotification = (notification: BaseNotification) => {
+    if (notification.type === ENotificationTypes.WALLET_INITIALIZED) {
+      setWalletState(EWalletState.UNLOCKED);
+    }
+  };
 
   const initiateScamFilterStatus = () => {
     const url = window.location.hostname.replace("www.", "");
@@ -198,29 +258,68 @@ const App = () => {
     initiateCohort();
   }, [_path]);
 
-  const initiateCohort = async () => {
-    coreGateway
-      .isDataWalletAddressInitialized()
-      .map((dataWalletAddressInitialized) => {
-        if (dataWalletAddressInitialized) {
-          const path = window.location.pathname;
-          const urlInfo = parse(window.location.href);
-          const domain = urlInfo.domain;
-          const url = `${urlInfo.hostname}${path.replace(/\/$/, "")}`;
-          const domainName = DomainName(`snickerdoodle-protocol.${domain}`);
-          coreGateway
-            .getInvitationsByDomain(
-              new GetInvitationWithDomainParams(domainName, url),
-            )
-            .map((result) => {
-              if (result) {
+  useEffect(() => {
+    if (
+      invitationDomain &&
+      walletState === EWalletState.UNLOCKED &&
+      isStatusCheckRequiredRef.current
+    ) {
+      coreGateway
+        .checkInvitationStatus(
+          new CheckInvitationStatusParams(invitationDomain.consentAddress),
+        )
+        .map((result) => {
+          if (result != EInvitationStatus.New) {
+            emptyReward();
+          }
+          isStatusCheckRequiredRef.current = false;
+        });
+    }
+  }, [JSON.stringify(invitationDomain), walletState]);
+
+  const initiateCohort = useCallback(async () => {
+    (walletState === EWalletState.UNKNOWN
+      ? coreGateway.isDataWalletAddressInitialized()
+      : okAsync(walletState === EWalletState.UNLOCKED)
+    ).map((isInitialized) => {
+      setWalletState(
+        isInitialized ? EWalletState.UNLOCKED : EWalletState.LOCKED,
+      );
+      const path = window.location.pathname;
+      const urlInfo = parse(window.location.href);
+      const domain = urlInfo.domain;
+      const url = `${urlInfo.hostname}${path.replace(/\/$/, "")}`;
+      const domainName = DomainName(`snickerdoodle-protocol.${domain}`);
+      coreGateway
+        .getInvitationsByDomain(
+          new GetInvitationWithDomainParams(domainName, url),
+        )
+        .andThen((result) => {
+          if (result) {
+            return (
+              isInitialized
+                ? coreGateway.checkInvitationStatus(
+                    new CheckInvitationStatusParams(result.consentAddress),
+                  )
+                : okAsync(EInvitationStatus.New)
+            ).map((status) => {
+              if (status === EInvitationStatus.New) {
                 setInvitationDomain(result);
+                setAppState(EAPP_STATE.INVITATION_PREVIEW);
                 initiateRewardPopup(result);
+                if (!isInitialized) {
+                  isStatusCheckRequiredRef.current = true;
+                }
               }
             });
-        }
-      });
-  };
+          }
+          return okAsync(undefined);
+        })
+        .mapErr((err) => {
+          console.error("Unable to get invitation by domain", err);
+        });
+    });
+  }, [walletState]);
 
   const initiateRewardPopup = (domainDetails: IInvitationDomainWithUUID) => {
     setRewardToDisplay({
@@ -243,8 +342,8 @@ const App = () => {
 
   const rejectInvitation = () => {
     coreGateway
-      .rejectInvitation(
-        new RejectInvitationParams(invitationDomain?.id as UUID),
+      .rejectInvitationByUUID(
+        new RejectInvitationByUUIDParams(invitationDomain?.id as UUID),
       )
       .map(() => emptyReward());
   };
@@ -277,17 +376,32 @@ const App = () => {
 
   const renderComponent = useMemo(() => {
     switch (true) {
-      case !rewardToDisplay:
+      case !rewardToDisplay || walletState === EWalletState.UNKNOWN:
         return null;
-      case appState === EAPP_STATE.INIT:
+      case appState === EAPP_STATE.INVITATION_PREVIEW:
         return (
           <RewardCard
             onJoinClick={() => {
+              if (walletState != EWalletState.UNLOCKED) {
+                const deeplinkURL = new URL(extensionConfig.onboardingUrl);
+                deeplinkURL.searchParams.append(
+                  "consentAddress",
+                  invitationDomain!.consentAddress,
+                );
+                window.open(deeplinkURL, "blank");
+                return emptyReward();
+              }
               setAppState(EAPP_STATE.PERMISSION_SELECTION);
             }}
-            onCancelClick={rejectInvitation}
+            onCancelClick={() => {
+              if (walletState != EWalletState.UNLOCKED) {
+                return emptyReward();
+              }
+              rejectInvitation();
+            }}
             onCloseClick={emptyReward}
             rewardItem={rewardToDisplay!}
+            isUnlocked={walletState === EWalletState.UNLOCKED}
           />
         );
       case appState === EAPP_STATE.PERMISSION_SELECTION:
@@ -297,14 +411,16 @@ const App = () => {
             domainDetails={invitationDomain!}
             onCancelClick={emptyReward}
             coreGateway={coreGateway}
+            eventEmitter={eventEmitter}
+            isUnlocked={walletState === EWalletState.UNLOCKED}
             onNextClick={(
-              eligibleRewards: PossibleReward[],
-              missingRewards: PossibleReward[],
+              rewardsThatCanBeAcquired: PossibleReward[],
+              rewardsThatRequireMorePermission: PossibleReward[],
               dataTypes: EWalletDataType[],
             ) => {
               setSubscriptionPreviewData({
-                eligibleRewards,
-                missingRewards,
+                rewardsThatCanBeAcquired,
+                rewardsThatRequireMorePermission,
                 dataTypes,
               });
               setAppState(EAPP_STATE.SUBSCRIPTION_CONFIRMATION);
@@ -338,13 +454,18 @@ const App = () => {
         return null;
     }
   }, [
+    walletState,
     JSON.stringify(rewardToDisplay),
     appState,
     JSON.stringify(subscriptionPreviewData),
   ]);
 
+  if (isHidden) {
+    return null;
+  }
+
   return (
-    <>
+    <div>
       {scamFilterStatus && (
         <ScamFilterComponent
           scamFilterStatus={scamFilterStatus}
@@ -352,7 +473,7 @@ const App = () => {
         />
       )}
       {renderComponent}
-    </>
+    </div>
   );
 };
 

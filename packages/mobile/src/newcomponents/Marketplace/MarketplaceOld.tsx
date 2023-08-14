@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import {
   Button,
   FlatList,
@@ -8,30 +9,24 @@ import {
   Text,
   View,
 } from "react-native";
-import React, { useEffect } from "react";
-import CardItem from "./CardItem";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
+
 import { useAppContext } from "../../context/AppContextProvider";
-import { IpfsCID } from "@snickerdoodlelabs/objects";
+import { EarnedReward, IpfsCID } from "@snickerdoodlelabs/objects";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
+import CardItem from "./CardItem";
 
 const MarketplaceOld = () => {
   const { mobileCore } = useAppContext();
   const [listings, setListings] = React.useState<IpfsCID[]>([]);
-  const [myRewards, setMyRewards] = React.useState([]);
+  const [myRewards, setMyRewards] = React.useState<EarnedReward[]>([]);
 
   useEffect(() => {
     mobileCore
       .getCore()
-      .marketplace.getMarketplaceListings()
-      .map((listing) => {
-        setListings(listing.cids);
+      .getEarnedRewards()
+      .map((earnedRewards) => {
+        return setMyRewards(earnedRewards);
       });
-  }, []);
-
-  useEffect(() => {
-    mobileCore.accountService.getEarnedRewards().map((earnedRewards) => {
-      return setMyRewards(earnedRewards);
-    });
   }, []);
 
   return (

@@ -1,8 +1,3 @@
-import { ISiftContractService } from "@core/interfaces/business/index.js";
-import {
-  ISiftContractRepository,
-  ISiftContractRepositoryType,
-} from "@core/interfaces/data/index.js";
 import { WrappedTransactionResponse } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BlockchainProviderError,
@@ -10,9 +5,16 @@ import {
   SiftContractError,
   DomainName,
   EScamFilterStatus,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
+
+import { ISiftContractService } from "@core/interfaces/business/index.js";
+import {
+  ISiftContractRepository,
+  ISiftContractRepositoryType,
+} from "@core/interfaces/data/index.js";
 
 @injectable()
 export class SiftContractService implements ISiftContractService {
@@ -25,7 +27,10 @@ export class SiftContractService implements ISiftContractService {
     domain: DomainName,
   ): ResultAsync<
     WrappedTransactionResponse,
-    BlockchainProviderError | UninitializedError | SiftContractError
+    | BlockchainCommonErrors
+    | BlockchainProviderError
+    | UninitializedError
+    | SiftContractError
   > {
     return this.siftContractRepository.verifyURL(domain);
   }
@@ -34,7 +39,10 @@ export class SiftContractService implements ISiftContractService {
     domain: DomainName,
   ): ResultAsync<
     WrappedTransactionResponse,
-    BlockchainProviderError | UninitializedError | SiftContractError
+    | BlockchainCommonErrors
+    | BlockchainProviderError
+    | UninitializedError
+    | SiftContractError
   > {
     return this.siftContractRepository.maliciousURL(domain);
   }
@@ -43,7 +51,10 @@ export class SiftContractService implements ISiftContractService {
     domain: DomainName,
   ): ResultAsync<
     EScamFilterStatus,
-    BlockchainProviderError | UninitializedError | SiftContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | SiftContractError
+    | BlockchainCommonErrors
   > {
     return this.siftContractRepository.checkURL(domain);
   }

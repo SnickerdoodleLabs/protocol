@@ -1,14 +1,15 @@
-import { useStyles } from "@extension-onboarding/components/Modals/SubscriptionConfirmationModal/SubscriptionConfirmationModal.style";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Dialog } from "@material-ui/core";
 import { SubscriptionConfirmation } from "@snickerdoodlelabs/shared-components";
 import React, { FC } from "react";
 
-declare const window: IWindowWithSdlDataWallet;
+import { useStyles } from "@extension-onboarding/components/Modals/SubscriptionConfirmationModal/SubscriptionConfirmationModal.style";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { EVMContractAddress } from "@snickerdoodlelabs/objects";
 
 const SubscriptionConfirmationModal: FC = () => {
+  const { sdlDataWallet } = useDataWalletContext();
   const { apiGateway, linkedAccounts } = useAppContext();
   const { modalState, closeModal } = useLayoutContext();
 
@@ -16,8 +17,8 @@ const SubscriptionConfirmationModal: FC = () => {
     onPrimaryButtonClick,
     customProps: {
       campaignImage,
-      eligibleRewards,
-      missingRewards = [],
+      rewardsThatCanBeAcquired,
+      rewardsThatRequireMorePermission = [],
       dataTypes,
       campaignName,
       consentAddress,
@@ -39,19 +40,21 @@ const SubscriptionConfirmationModal: FC = () => {
     >
       <SubscriptionConfirmation
         campaignImage={campaignImage}
-        eligibleRewards={eligibleRewards}
+        rewardsThatCanBeAcquired={rewardsThatCanBeAcquired}
         dataTypes={dataTypes}
         campaignName={campaignName}
         consentAddress={consentAddress}
-        missingRewards={missingRewards}
-        accounts={linkedAccounts.map((account) => account.accountAddress)}
+        rewardsThatRequireMorePermission={rewardsThatRequireMorePermission}
+        accounts={linkedAccounts.map((account) => account.sourceAccountAddress)}
         onCloseClick={closeModal}
         onConfirmClick={(receivingAccount) => {
           onPrimaryButtonClick(receivingAccount);
           closeModal();
         }}
         ipfsBaseUrl={apiGateway.config.ipfsFetchBaseUrl}
-        getReceivingAddress={window.sdlDataWallet.getReceivingAddress}
+        getReceivingAddress={(consentAddress: EVMContractAddress) => {
+          return sdlDataWallet.getReceivingAddress(consentAddress);
+        }}
       />
     </Dialog>
   );

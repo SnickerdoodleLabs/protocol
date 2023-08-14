@@ -1,7 +1,9 @@
-import { Image, StyleSheet, Text, View } from "react-native";
 import React, { useEffect } from "react";
+import { Image, StyleSheet, Text, View } from "react-native";
+
 import { normalizeHeight, normalizeWidth } from "../../../themes/Metrics";
 import { LineBreaker } from "../../Marketplace/CardDetails";
+import { useTheme } from "../../../context/ThemeContext";
 
 export default function TokenItem({ tickerSymbol, groupedTokens, index }) {
   const group = groupedTokens[tickerSymbol];
@@ -9,19 +11,19 @@ export default function TokenItem({ tickerSymbol, groupedTokens, index }) {
   const totalQuote = group.totalQuote;
   let percentageDifference;
   if (
-    ((group?.tokens[0].quote_rate - group.tokens[0].quote_rate_24h) /
-      group.tokens[0].quote_rate_24h) *
+    ((group?.tokens[0]?.quote_rate - group.tokens[0]?.quote_rate_24h) /
+      group?.tokens[0]?.quote_rate_24h) *
     100
   ) {
     percentageDifference =
-      ((group?.tokens[0].quote_rate - group.tokens[0].quote_rate_24h) /
-        group.tokens[0].quote_rate_24h) *
+      ((group?.tokens[0]?.quote_rate - group.tokens[0]?.quote_rate_24h) /
+        group?.tokens[0]?.quote_rate_24h) *
       100;
   } else {
     percentageDifference = 0;
   }
   const unknownImage = (token) => {
-    switch (token.contract_ticker_symbol) {
+    switch (token?.contract_ticker_symbol) {
       case "AVAX":
         return require("../../../assets/images/chain-avax.png");
       case "ETH":
@@ -34,7 +36,7 @@ export default function TokenItem({ tickerSymbol, groupedTokens, index }) {
         return require("../../../assets/images/chain-bsc.png");
 
       default:
-        return { uri: token.logo_url };
+        return { uri: token?.logo_url };
     }
   };
   function calculateProfit(investmentAfterIncrease, percentageIncrease) {
@@ -43,7 +45,7 @@ export default function TokenItem({ tickerSymbol, groupedTokens, index }) {
     const profit = investmentAfterIncrease - initialInvestment;
     return profit;
   }
-
+  const theme = useTheme();
   return (
     <View>
       <View
@@ -66,12 +68,12 @@ export default function TokenItem({ tickerSymbol, groupedTokens, index }) {
             style={{
               fontWeight: "500",
               fontSize: normalizeWidth(16),
-              color: "#616161",
+              color: theme?.colors.tokenText,
               marginLeft: normalizeWidth(10),
             }}
           >
-            {group.tokens[0].contract_name}(
-            {group.tokens[0].contract_ticker_symbol})
+            {group.tokens[0]?.contract_name}(
+            {group.tokens[0]?.contract_ticker_symbol})
           </Text>
         </View>
 
@@ -81,7 +83,7 @@ export default function TokenItem({ tickerSymbol, groupedTokens, index }) {
               style={{
                 fontWeight: "700",
                 fontSize: normalizeWidth(16),
-                color: "#424242",
+                color: theme?.colors.tokenText,
               }}
             >
               ${totalQuote.toFixed(4)}
@@ -92,7 +94,7 @@ export default function TokenItem({ tickerSymbol, groupedTokens, index }) {
             style={{
               fontWeight: "600",
               fontSize: normalizeWidth(14),
-              color: percentageDifference > 0 ? "#2E7D32" : "#e81414",
+              color: percentageDifference > 0 ? "#279B87" : "#e81414",
             }}
           >
             {percentageDifference > 0
@@ -117,7 +119,13 @@ export default function TokenItem({ tickerSymbol, groupedTokens, index }) {
             marginVertical: normalizeHeight(16),
           }}
         >
-          <LineBreaker />
+          <View
+            style={{
+              width: "100%",
+              borderBottomWidth: 1,
+              borderBottomColor: theme?.colors.border,
+            }}
+          />
         </View>
       )}
     </View>

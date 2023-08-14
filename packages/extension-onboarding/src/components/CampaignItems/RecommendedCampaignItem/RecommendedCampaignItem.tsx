@@ -1,7 +1,3 @@
-import { useStyles } from "@extension-onboarding/components/CampaignItems/RecommendedCampaignItem/RecommendedCampaignItem.style";
-import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import useCampaignLogic from "@extension-onboarding/hooks/useCampaignLogic";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
   Box,
   Typography,
@@ -13,7 +9,10 @@ import { ETag, EVMContractAddress } from "@snickerdoodlelabs/objects";
 import React, { FC } from "react";
 import { generatePath, useNavigate } from "react-router";
 
-declare const window: IWindowWithSdlDataWallet;
+import { useStyles } from "@extension-onboarding/components/CampaignItems/RecommendedCampaignItem/RecommendedCampaignItem.style";
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import useCampaignLogic from "@extension-onboarding/hooks/useCampaignLogic";
+
 interface IRecommendedCampaignItemProps {
   consentContractAddress: EVMContractAddress;
   navigationPath?: EPaths;

@@ -4,7 +4,16 @@ import {
   EVMContractAddress,
   Invitation,
   LinkedAccount,
+  SocialProfileLinkedEvent,
   UUID,
+  AccountAddedNotification,
+  AccountInitializedNotification,
+  AccountRemovedNotification,
+  EarnedRewardsAddedNotification,
+  EProfileFieldType,
+  ProfileFieldChangedNotification,
+  SocialProfileLinkedNotification,
+  ProfileFieldUpdate,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { Subject } from "rxjs";
@@ -21,12 +30,6 @@ import {
   IInternalState,
   IExternalState,
 } from "@synamint-extension-sdk/shared/interfaces/states";
-import {
-  AccountAddedNotification,
-  AccountInitializedNotification,
-  AccountRemovedNotification,
-  EarnedRewardsAddedNotification,
-} from "@synamint-extension-sdk/shared/objects/notifications";
 
 @injectable()
 export class ContextProvider implements IContextProvider {
@@ -85,19 +88,36 @@ export class ContextProvider implements IContextProvider {
 
   public onAccountAdded(linkedAccount: LinkedAccount): void {
     this.appContext.notifyAllConnections(
-      new AccountAddedNotification({ linkedAccount }, UUID(v4())),
+      new AccountAddedNotification(linkedAccount),
     );
   }
 
   public onAccountRemoved(linkedAccount: LinkedAccount): void {
     this.appContext.notifyAllConnections(
-      new AccountRemovedNotification({ linkedAccount }, UUID(v4())),
+      new AccountRemovedNotification(linkedAccount),
     );
   }
 
   public onEarnedRewardsAdded(rewards: EarnedReward[]): void {
     this.appContext.notifyAllConnections(
-      new EarnedRewardsAddedNotification({ rewards }, UUID(v4())),
+      new EarnedRewardsAddedNotification(rewards),
+    );
+  }
+
+  public onSocialProfileLinked(event: SocialProfileLinkedEvent): void {
+    this.appContext.notifyAllConnections(
+      new SocialProfileLinkedNotification(event),
+    );
+  }
+
+  public onProfileFieldChanged(
+    profileFieldType: EProfileFieldType,
+    value: any,
+  ): void {
+    this.appContext.notifyAllConnections(
+      new ProfileFieldChangedNotification(
+        new ProfileFieldUpdate(profileFieldType, value),
+      ),
     );
   }
 
@@ -105,7 +125,7 @@ export class ContextProvider implements IContextProvider {
     dataWalletAddress: DataWalletAddress,
   ): void {
     this.appContext.notifyAllConnections(
-      new AccountInitializedNotification({ dataWalletAddress }, UUID(v4())),
+      new AccountInitializedNotification(dataWalletAddress),
     );
   }
 }

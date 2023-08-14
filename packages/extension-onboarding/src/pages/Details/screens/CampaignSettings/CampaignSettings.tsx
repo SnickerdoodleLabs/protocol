@@ -1,35 +1,38 @@
-import emptySubscriptions from "@extension-onboarding/assets/images/empty-subscriptions.svg";
-import { DefaultCampaignItem } from "@extension-onboarding/components/CampaignItems";
-import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import { EModalSelectors } from "@extension-onboarding/components/Modals";
-import Typography from "@extension-onboarding/components/Typography";
-import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/CampaignSettings/CampaignSettings.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, CircularProgress, Grid } from "@material-ui/core";
 import { EVMContractAddress, IpfsCID } from "@snickerdoodlelabs/objects";
 import React, { FC, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-declare const window: IWindowWithSdlDataWallet;
+import emptySubscriptions from "@extension-onboarding/assets/images/empty-subscriptions.svg";
+import { DefaultCampaignItem } from "@extension-onboarding/components/CampaignItems";
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import { EModalSelectors } from "@extension-onboarding/components/Modals";
+import Typography from "@extension-onboarding/components/Typography";
+import UnauthScreen from "@extension-onboarding/components/UnauthScreen";
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/CampaignSettings/CampaignSettings.style";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 
 const RewardsInfo: FC = () => {
   const navigate = useNavigate();
   const { setAlert } = useNotificationContext();
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const { earnedRewards, updateOptedInContracts } = useAppContext();
+  const { sdlDataWallet } = useDataWalletContext();
+  const { earnedRewards, updateOptedInContracts, appMode } = useAppContext();
   const [
     campaignContractAddressesWithCID,
     setCampaignContractAddressesWithCID,
-  ] = useState<Record<EVMContractAddress, IpfsCID>>();
+  ] = useState<Map<EVMContractAddress, IpfsCID>>();
   const { setModal, setLoadingStatus } = useLayoutContext();
 
   useEffect(() => {
-    getInvitations();
-  }, []);
+    if (appMode === EAppModes.AUTH_USER) {
+      getInvitations();
+    }
+  }, [appMode]);
 
   useEffect(() => {
     if (campaignContractAddressesWithCID && earnedRewards) {
@@ -41,7 +44,7 @@ const RewardsInfo: FC = () => {
   ]);
 
   const getInvitations = () => {
-    return window.sdlDataWallet
+    return sdlDataWallet
       .getAcceptedInvitationsCID()
       .mapErr((e) => {
         setIsLoading(false);
@@ -53,14 +56,14 @@ const RewardsInfo: FC = () => {
 
   const leaveCohort = (consentContractAddress: EVMContractAddress) => {
     setLoadingStatus(true);
-    window.sdlDataWallet
+    sdlDataWallet
       .leaveCohort(consentContractAddress)
       .mapErr((e) => {
         setLoadingStatus(false);
       })
       .map(() => {
-        const metadata = { ...campaignContractAddressesWithCID };
-        delete metadata[consentContractAddress];
+        const metadata = new Map(campaignContractAddressesWithCID);
+        metadata.delete(consentContractAddress);
         setCampaignContractAddressesWithCID(metadata);
         setLoadingStatus(false);
         updateOptedInContracts();
@@ -81,6 +84,8 @@ const RewardsInfo: FC = () => {
   };
 
   const classes = useStyles();
+
+  if (appMode !== EAppModes.AUTH_USER) return <UnauthScreen />;
 
   return (
     <Box>
@@ -103,8 +108,8 @@ const RewardsInfo: FC = () => {
       ) : (
         <Grid container spacing={5}>
           {campaignContractAddressesWithCID &&
-          Object.keys(campaignContractAddressesWithCID).length ? (
-            Object.keys(campaignContractAddressesWithCID)?.map((key) => (
+          campaignContractAddressesWithCID.size > 0 ? (
+            Array.from(campaignContractAddressesWithCID!.keys()).map((key) => (
               <Grid item key={key} xs={6}>
                 <DefaultCampaignItem
                   navigationPath={EPaths.REWARDS_SUBSCRIPTION_DETAIL}

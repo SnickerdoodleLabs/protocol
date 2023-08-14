@@ -1,30 +1,89 @@
 import {
   DataPermissions,
+  DuplicateIdInSchema,
   EvaluationError,
-  EVMContractAddress,
-  ExpectedReward,
-  IInsights,
   ParserError,
-  PossibleReward,
   QueryFormatError,
-  QueryIdentifier,
   SDQLQuery,
+  IQueryDeliveryItems,
+  QueryExpiredError,
+  MissingTokenConstructorError,
+  EvalNotImplementedError,
+  PersistenceError,
+  MissingASTError,
+  PossibleReward,
 } from "@snickerdoodlelabs/objects";
+import { AST } from "@snickerdoodlelabs/query-parser";
 import { ResultAsync } from "neverthrow";
 
 export interface IQueryParsingEngine {
-  getPermittedQueryIdsAndExpectedRewards(
-    query: SDQLQuery,
-    dataPermissions: DataPermissions,
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<[QueryIdentifier[], ExpectedReward[]], EvaluationError>;
   handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
-  ): ResultAsync<IInsights, EvaluationError | QueryFormatError>;
-  getPossibleRewards(
+  ): ResultAsync<
+    IQueryDeliveryItems,
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
+  >;
+  parseQuery(
     query: SDQLQuery,
-  ): ResultAsync<PossibleReward[], ParserError>;
+  ): ResultAsync<
+    AST,
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | MissingASTError
+  >;
+
+  constructAllTheRewardsFromQuery(
+    query: SDQLQuery,
+  ): ResultAsync<
+    PossibleReward[],
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | MissingASTError
+    | PersistenceError
+    | EvalNotImplementedError
+  >;
+
+  getPossibleQueryDeliveryItems(
+    query: SDQLQuery,
+  ): ResultAsync<
+    IQueryDeliveryItems,
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
+  >;
 }
 
 export const IQueryParsingEngineType = Symbol.for("IQueryParsingEngine");

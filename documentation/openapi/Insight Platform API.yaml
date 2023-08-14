@@ -264,7 +264,7 @@ components:
       required:
         - type
 
-    SubqueryReturn:
+    SubQueryReturn:
       type: object
       properties:
         subquery:

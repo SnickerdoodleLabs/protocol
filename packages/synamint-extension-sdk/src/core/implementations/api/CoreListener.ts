@@ -1,12 +1,14 @@
 import {
   DataWalletAddress,
   EarnedReward,
+  EProfileFieldType,
   ESolidityAbiParameterType,
   IDynamicRewardParameter,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
   ISnickerdoodleCoreType,
   LinkedAccount,
+  ProfileFieldUpdate,
   SDQLQueryRequest,
   SDQLString,
   SocialProfileLinkedEvent,
@@ -55,6 +57,24 @@ export class CoreListener implements ICoreListener {
       events.onSocialProfileUnlinked.subscribe(
         this.onSocialProfileUnlinked.bind(this),
       );
+      events.onBirthdayUpdated.subscribe((birthday) => {
+        this.contextProvider.onProfileFieldChanged(
+          EProfileFieldType.DOB,
+          birthday,
+        );
+      });
+      events.onGenderUpdated.subscribe((gender) => {
+        this.contextProvider.onProfileFieldChanged(
+          EProfileFieldType.GENDER,
+          gender,
+        );
+      });
+      events.onLocationUpdated.subscribe((location) => {
+        this.contextProvider.onProfileFieldChanged(
+          EProfileFieldType.LOCATION,
+          location,
+        );
+      });
     });
   }
 
@@ -111,7 +131,7 @@ export class CoreListener implements ICoreListener {
                 type: ESolidityAbiParameterType.address,
                 value: accountAddress,
               },
-              compensationId: {
+              compensationKey: {
                 type: ESolidityAbiParameterType.string,
                 value: eligibleReward.compensationKey,
               },
@@ -143,7 +163,6 @@ export class CoreListener implements ICoreListener {
   }
 
   private onAccountRemoved(account: LinkedAccount): void {
-    console.log(`Extension: account ${account.sourceAccountAddress} removed`);
     this.accountCookieUtils.removeAccountInfoFromCookie(
       account.sourceAccountAddress,
     );
@@ -154,6 +173,8 @@ export class CoreListener implements ICoreListener {
     this.contextProvider.onEarnedRewardsAdded(rewards);
   }
 
-  private onSocialProfileLinked(event: SocialProfileLinkedEvent): void {}
+  private onSocialProfileLinked(event: SocialProfileLinkedEvent): void {
+    this.contextProvider.onSocialProfileLinked(event);
+  }
   private onSocialProfileUnlinked(event: SocialProfileUnlinkedEvent): void {}
 }

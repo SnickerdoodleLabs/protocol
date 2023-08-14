@@ -1,4 +1,6 @@
 //@ts-ignore
+import { ESocialType, ISdlDataWallet } from "@snickerdoodlelabs/objects";
+
 import DiscordIcon from "@extension-onboarding/assets/icons/discord.svg";
 import TwitterIcon from "@extension-onboarding/assets/icons/twitter.svg";
 import {
@@ -6,7 +8,6 @@ import {
   TwitterProvider,
 } from "@extension-onboarding/services/socialMediaProviders/implementations";
 import { ISocialMediaProvider } from "@extension-onboarding/services/socialMediaProviders/interfaces";
-import { ESocialType } from "@snickerdoodlelabs/objects";
 export interface ISocialMediaWrapper {
   provider: ISocialMediaProvider;
   icon: any;
@@ -14,15 +15,17 @@ export interface ISocialMediaWrapper {
   key: ESocialType;
 }
 
-export const getProviderList = (): ISocialMediaWrapper[] => [
+export const getProviderList = (
+  sdlDataWallet: ISdlDataWallet,
+): ISocialMediaWrapper[] => [
   {
-    provider: new DiscordProvider(),
+    provider: new DiscordProvider(sdlDataWallet),
     icon: DiscordIcon,
     name: "Discord Data",
     key: ESocialType.DISCORD,
   },
   {
-    provider: new TwitterProvider(),
+    provider: new TwitterProvider(sdlDataWallet),
     icon: TwitterIcon,
     name: "Twitter Data",
     key: ESocialType.TWITTER,

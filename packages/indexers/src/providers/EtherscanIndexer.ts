@@ -41,6 +41,7 @@ import {
   IIndexerContextProvider,
   IIndexerContextProviderType,
 } from "@indexers/interfaces/index.js";
+import { MasterIndexer } from "@indexers/MasterIndexer.js";
 
 @injectable()
 export class EtherscanIndexer implements IEVMIndexer {
@@ -66,7 +67,10 @@ export class EtherscanIndexer implements IEVMIndexer {
       EChain.Moonbeam,
       new IndexerSupportSummary(EChain.Moonbeam, true, true, true),
     ],
-    [EChain.Gnosis, new IndexerSupportSummary(EChain.Gnosis, true, true, true)],
+    [
+      EChain.Gnosis,
+      new IndexerSupportSummary(EChain.Gnosis, true, true, false),
+    ],
     [EChain.Fuji, new IndexerSupportSummary(EChain.Fuji, true, true, true)],
   ]);
 
@@ -88,7 +92,7 @@ export class EtherscanIndexer implements IEVMIndexer {
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
-  ) {}
+  ) { }
 
   public name(): string {
     return EDataProvider.Etherscan;
@@ -169,9 +173,9 @@ export class EtherscanIndexer implements IEVMIndexer {
         (value: IndexerSupportSummary, key: EChain) => {
           if (
             config.apiKeys.etherscanApiKeys[getChainInfoByChain(key).name] ==
-              "" ||
+            "" ||
             config.apiKeys.etherscanApiKeys[getChainInfoByChain(key).name] ==
-              undefined
+            undefined
           ) {
             this.health.set(key, EComponentStatus.NoKeyProvided);
           } else {
@@ -216,7 +220,7 @@ export class EtherscanIndexer implements IEVMIndexer {
           EChainTechnology.EVM,
           TickerSymbol(getChainInfoByChain(chain).nativeCurrency.symbol),
           getChainInfoByChain(chain).chainId,
-          null,
+          MasterIndexer.nativeAddress,
           accountAddress,
           BigNumberString(response.result),
           getChainInfoByChain(chain).nativeCurrency.decimals,

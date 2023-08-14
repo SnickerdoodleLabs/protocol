@@ -1,4 +1,9 @@
 {
-  "editor.formatOnSave": false,
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true,
+    "source.fixAll.tslint": true
+  },
   "typescript.tsdk": "node_modules/typescript/lib"
 }

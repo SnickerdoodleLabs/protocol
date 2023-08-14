@@ -10,6 +10,7 @@ import {
   EChain,
   EComponentStatus,
   EVMAccountAddress,
+  EVMContractAddress,
   getChainInfoByChainId,
   IAlchemyIndexerType,
   IAnkrIndexerType,
@@ -28,6 +29,7 @@ import {
   MethodSupportError,
   PersistenceError,
   SolanaAccountAddress,
+  TokenAddress,
   TokenBalance,
   UnixTimestamp,
   WalletNFT,
@@ -52,6 +54,7 @@ export class MasterIndexer implements IMasterIndexer {
     [EChain.Arbitrum, [this.ankr, this.alchemy, this.nftscan]],
     [EChain.Avalanche, [this.ankr, this.etherscan, this.nftscan]],
 
+    [EChain.DevDoodle, [this.sim]],
     /* Etherscan Balance Preferred */
     [EChain.Moonbeam, [this.etherscan, this.nftscan]],
     [EChain.Gnosis, [this.etherscan, this.poapRepo]],
@@ -61,6 +64,9 @@ export class MasterIndexer implements IMasterIndexer {
     [EChain.Mumbai, [this.alchemy]],
     [EChain.Astar, [this.alchemy]],
     [EChain.Shibuya, [this.alchemy]],
+
+    // Doodlechain
+    [EChain.DevDoodle, [this.sim]],
   ]);
 
   protected componentStatus: ComponentStatus = new ComponentStatus(
@@ -331,5 +337,9 @@ export class MasterIndexer implements IMasterIndexer {
         );
         return okAsync([]);
       });
+  }
+
+  static get nativeAddress(): TokenAddress {
+    return EVMContractAddress("0x0");
   }
 }

@@ -1,4 +1,5 @@
 import { EWalletDataType } from "@snickerdoodlelabs/objects";
+
 import browserHistoryIcon from "@extension-onboarding/assets/icons/browser-history.png";
 import countryIcon from "@extension-onboarding/assets/icons/country.png";
 import discordIcon from "@extension-onboarding/assets/icons/discord.png";

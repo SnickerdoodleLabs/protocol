@@ -1,7 +1,3 @@
-import Breadcrumb from "@extension-onboarding/components/Breadcrumb";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/RewardDetail/RewardDetail.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, Grid, Typography } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import {
@@ -15,8 +11,11 @@ import {
 } from "@snickerdoodlelabs/objects";
 import React, { FC, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
-declare const window: IWindowWithSdlDataWallet;
 
+import Breadcrumb from "@extension-onboarding/components/Breadcrumb";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/RewardDetail/RewardDetail.style";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 const RewardDetail: FC = () => {
   const { reward, consentContractAddress, permissions } = (useLocation()
     .state || {}) as {
@@ -24,6 +23,7 @@ const RewardDetail: FC = () => {
     consentContractAddress: EVMContractAddress;
     permissions: EWalletDataType[] | undefined;
   };
+  const { sdlDataWallet } = useDataWalletContext();
   const { apiGateway, optedInContracts } = useAppContext();
   const [capacityInfo, setCapacityInfo] = useState<IConsentCapacity>();
   const classes = useStyles();
@@ -32,7 +32,7 @@ const RewardDetail: FC = () => {
   }, []);
 
   const getCapacityInfo = () => {
-    window.sdlDataWallet
+    sdlDataWallet
       ?.getConsentCapacity(consentContractAddress)
       .map((capacity) => {
         setCapacityInfo(capacity);
@@ -44,7 +44,7 @@ const RewardDetail: FC = () => {
   );
   const _permissions = permissions
     ? permissions
-    : (reward as PossibleReward).queryDependencies.map(
+    : (reward as PossibleReward).estimatedQueryDependencies.map(
         (queryType) => QueryTypePermissionMap.get(queryType)!,
       );
   return (

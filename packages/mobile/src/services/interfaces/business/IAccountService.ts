@@ -11,20 +11,21 @@ import {
   UnauthorizedError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
 import { SnickerDoodleCoreError } from "../objects/errors/SnickerDoodleCoreError";
 
 export interface IAccountService {
   addAccount(
     account: AccountAddress,
     signature: Signature,
-    chain: EChain,
     languageCode: LanguageCode,
+    chain: EChain,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   unlock(
     account: AccountAddress,
     signature: Signature,
-    chain: EChain,
     languageCode: LanguageCode,
+    chain: EChain,
     calledWithCookie?: boolean,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   getUnlockMessage(

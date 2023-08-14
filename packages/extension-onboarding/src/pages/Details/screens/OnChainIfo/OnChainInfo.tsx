@@ -1,17 +1,16 @@
+import { Box, Grid } from "@material-ui/core";
+import { AccountAddress } from "@snickerdoodlelabs/objects";
 import { AccountsCard } from "@snickerdoodlelabs/shared-components";
+import React, { FC, useEffect, useState } from "react";
+
 import Typography from "@extension-onboarding/components/Typography";
 import WalletProviders from "@extension-onboarding/components/WalletProviders";
 import { useAppContext } from "@extension-onboarding/context/App";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/OnChainIfo/OnChainInfo.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { Box, Grid } from "@material-ui/core";
-import { AccountAddress } from "@snickerdoodlelabs/objects";
-import React, { FC, useEffect, useState } from "react";
-declare const window: IWindowWithSdlDataWallet;
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 const OnChainInfo: FC = () => {
   const classes = useStyles();
-  const { setModal } = useLayoutContext();
+  const { sdlDataWallet } = useDataWalletContext();
   const { linkedAccounts } = useAppContext();
   const [receivingAccount, setReceivingAccount] = useState<AccountAddress>();
 
@@ -20,11 +19,11 @@ const OnChainInfo: FC = () => {
   }, []);
 
   const getRecievingAccount = () => {
-    window.sdlDataWallet.getReceivingAddress().map(setReceivingAccount);
+    sdlDataWallet.getReceivingAddress().map(setReceivingAccount);
   };
 
   const setDefaultReceivingAccount = (accountAddress) => {
-    window.sdlDataWallet
+    sdlDataWallet
       .setDefaultReceivingAddress(accountAddress)
       .map(getRecievingAccount);
   };
@@ -39,12 +38,11 @@ const OnChainInfo: FC = () => {
           </Typography>
         </Box>
       </Box>
-      <Grid container spacing={2}>
-        <Grid item sm={12}>
-          <WalletProviders />
-        </Grid>
-        <Grid item sm={12}>
-          <Box mb={2}>
+      <Box>
+        <WalletProviders />
+
+        <Box mt={5}>
+          <Box pl={2.5} py={1.5} bgcolor="#fff">
             <Typography className={classes.itemTitle}>
               Your Linked Accounts
             </Typography>
@@ -65,12 +63,14 @@ const OnChainInfo: FC = () => {
                 </Typography>
               </Box>
             }
-            accounts={linkedAccounts.map((account) => account.accountAddress)}
+            accounts={linkedAccounts.map(
+              (account) => account.sourceAccountAddress,
+            )}
             receivingAddress={receivingAccount}
             onSelect={setDefaultReceivingAccount}
           />
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Box>
   );
 };

@@ -12,12 +12,6 @@
       "path": "packages/common-utils/test"
     },
     {
-      "path": "packages/extension-onboarding"
-    },
-    {
-      "path": "packages/extension-onboarding/test"
-    },
-    {
       "path": "packages/contracts-sdk"
     },
     {
@@ -28,6 +22,15 @@
     },
     {
       "path": "packages/core/test"
+    },
+    {
+      "path": "packages/extension-onboarding"
+    },
+    {
+      "path": "packages/extension-onboarding/test"
+    },
+    {
+      "path": "packages/iframe"
     },
     {
       "path": "packages/indexers"
@@ -69,6 +72,9 @@
       "path": "packages/signatureVerification/test"
     },
     {
+      "path": "packages/static-web-integration"
+    },
+    {
       "path": "packages/synamint-extension-sdk"
     },
     {
@@ -82,6 +88,12 @@
     },
     {
       "path": "packages/utils/test"
+    },
+    {
+      "path": "packages/web-integration"
+    },
+    {
+      "path": "packages/web-integration-test"
     }
   ]
 }

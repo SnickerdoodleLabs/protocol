@@ -7,6 +7,15 @@ import {
 } from "@material-ui/core";
 import { KeyboardArrowDown, KeyboardArrowUp } from "@material-ui/icons";
 import CloseIcon from "@material-ui/icons/Close";
+import {
+  AccountAddress,
+  EVMContractAddress,
+  EWalletDataType,
+  PossibleReward,
+} from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow";
+import React, { useEffect, FC, useState } from "react";
+
 import { AccountIdentIcon } from "@shared-components/components/AccountIdentIcon";
 import { AccountsCard } from "@shared-components/components/AccountsCard";
 import { Button } from "@shared-components/components/Button";
@@ -17,19 +26,11 @@ import {
   PERMISSION_TEXT_NAMES,
 } from "@shared-components/constants/permissions";
 import { getAccountAddressText } from "@shared-components/utils/AccountAddressUtils";
-import {
-  AccountAddress,
-  EVMContractAddress,
-  EWalletDataType,
-  PossibleReward,
-} from "@snickerdoodlelabs/objects";
-import { ResultAsync } from "neverthrow";
-import React, { useEffect, FC, useState } from "react";
 
 interface ISubscriptionConfirmationProps {
   campaignImage: string;
-  eligibleRewards: PossibleReward[];
-  missingRewards: PossibleReward[];
+  rewardsThatCanBeAcquired: PossibleReward[];
+  rewardsThatRequireMorePermission: PossibleReward[];
   dataTypes: EWalletDataType[];
   campaignName: string;
   consentAddress: EVMContractAddress;
@@ -44,8 +45,8 @@ interface ISubscriptionConfirmationProps {
 
 export const SubscriptionConfirmation: FC<ISubscriptionConfirmationProps> = ({
   campaignImage,
-  eligibleRewards,
-  missingRewards,
+  rewardsThatCanBeAcquired,
+  rewardsThatRequireMorePermission,
   dataTypes,
   campaignName,
   consentAddress,
@@ -88,24 +89,6 @@ export const SubscriptionConfirmation: FC<ISubscriptionConfirmationProps> = ({
 
   const getRecievingAccount = () => {
     getReceivingAddress(consentAddress).map(setReceivingAccount);
-  };
-  const responsive = {
-    superLargeDesktop: {
-      breakpoint: { max: 4000, min: 3000 },
-      items: 5,
-    },
-    desktop: {
-      breakpoint: { max: 3000, min: 1024 },
-      items: 5,
-    },
-    tablet: {
-      breakpoint: { max: 1024, min: 464 },
-      items: 5,
-    },
-    mobile: {
-      breakpoint: { max: 464, min: 0 },
-      items: 5,
-    },
   };
   const classes = useStyles();
   return (
@@ -165,8 +148,8 @@ export const SubscriptionConfirmation: FC<ISubscriptionConfirmationProps> = ({
             your Data Wallet.
           </Typography>
         </Box>
-        <Carousel responsive={responsive}>
-          {eligibleRewards.map((eligibleReward) => (
+        <Carousel visibleItemCount={5} gutter={12}>
+          {rewardsThatCanBeAcquired.map((eligibleReward) => (
             <Box
               display="flex"
               flexDirection="column"
@@ -175,7 +158,6 @@ export const SubscriptionConfirmation: FC<ISubscriptionConfirmationProps> = ({
               borderRadius={16}
               p={0.75}
               mb={0.5}
-              mr={1.5}
               key={JSON.stringify(eligibleReward)}
             >
               <img
@@ -195,19 +177,22 @@ export const SubscriptionConfirmation: FC<ISubscriptionConfirmationProps> = ({
             </Box>
           ))}
         </Carousel>
-        {missingRewards.length > 0 && (
+        {rewardsThatRequireMorePermission.length > 0 && (
           <>
             <Box mt={2} />
             <Divider />
             <Box mb={1.5} />
             <Typography className={classes.subtitle}>Missed Rewards</Typography>
-            <Typography className={classes.content} style={{ color: "#D32F2F" }}>
+            <Typography
+              className={classes.content}
+              style={{ color: "#D32F2F" }}
+            >
               Attention: You won't get a chance to earn these rewards again. You
               can change your data permission setting to get this reward.
             </Typography>
             <Box mt={2} />
-            <Carousel responsive={responsive}>
-              {missingRewards.map((missingRewards) => (
+            <Carousel visibleItemCount={2} gutter={12}>
+              {rewardsThatRequireMorePermission.map((missingRewards) => (
                 <Box
                   display="flex"
                   flexDirection="column"

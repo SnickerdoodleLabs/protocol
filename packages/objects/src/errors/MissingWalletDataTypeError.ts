@@ -1,8 +1,15 @@
 import errorCodes from "@objects/errors/errorCodes.js";
+import { BaseError } from "@objects/errors/BaseError.js";
 
-export class MissingWalletDataTypeError extends Error {
+export class MissingWalletDataTypeError extends BaseError {
   protected errorCode: string = errorCodes[MissingWalletDataTypeError.name];
-  constructor(name: string) {
-    super(`no wallet data type defined for ${name}`);
+  constructor(message: string, public src?: unknown) {
+    super(
+      `no wallet data type defined for ${message}`,
+      500,
+      errorCodes[MissingWalletDataTypeError.name],
+      src,
+      false,
+    );
   }
 }

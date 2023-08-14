@@ -1,12 +1,10 @@
 import {
-  CeramicStreamID,
   DataWalletBackupID,
   EVMPrivateKey,
   DataWalletBackup,
   PersistenceError,
-  AjaxError,
-  EBackupPriority,
   BackupFileName,
+  StorageKey,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -18,11 +16,17 @@ export class NullCloudStorage implements ICloudStorage {
   protected _backups = new Map<string, DataWalletBackup>();
   protected _lastRestore = 0;
 
-  public pollByPriority(
+  public pollByStorageType(
     restored: Set<DataWalletBackupID>,
-    priority: EBackupPriority,
+    recordKey: StorageKey,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
     return okAsync([]);
+  }
+
+  public getLatestBackup(
+    storageKey: StorageKey,
+  ): ResultAsync<DataWalletBackup | null, PersistenceError> {
+    return okAsync(null);
   }
 
   public putBackup(

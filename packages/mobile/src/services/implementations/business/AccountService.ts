@@ -14,14 +14,13 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
-import { IAccountService } from "../../interfaces/business/IAccountService";
 
+import { IAccountService } from "../../interfaces/business/IAccountService";
 import {
   IAccountStorageRepository,
   IAccountStorageRepositoryType,
 } from "../../interfaces/data/IAccountStorageRepository";
 import { SnickerDoodleCoreError } from "../../interfaces/objects/errors/SnickerDoodleCoreError";
-
 import {
   IErrorUtils,
   IErrorUtilsType,
@@ -38,10 +37,10 @@ export class AccountService implements IAccountService {
   public addAccount(
     account: AccountAddress,
     signature: Signature,
-    chain: EChain,
     languageCode: LanguageCode,
+    chain: EChain,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core
+    return this.core.account
       .addAccount(account, signature, languageCode, chain)
       .mapErr((error) => {
         this.errorUtils.emit(error);
@@ -51,13 +50,14 @@ export class AccountService implements IAccountService {
   public unlock(
     account: AccountAddress,
     signature: Signature,
-    chain: EChain,
     languageCode: LanguageCode,
+    chain: EChain,
     calledWithCookie: boolean,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core
+    return this.core.account
       .unlock(account, signature, languageCode, chain)
       .mapErr((error) => {
+        console.log("mapErr", error);
         return new SnickerDoodleCoreError((error as Error).message, error);
       })
       .andThen(() => {
@@ -79,7 +79,7 @@ export class AccountService implements IAccountService {
   public getUnlockMessage(
     languageCode: LanguageCode,
   ): ResultAsync<string, SnickerDoodleCoreError> {
-    return this.core.getUnlockMessage(languageCode).mapErr((error) => {
+    return this.core.account.getUnlockMessage(languageCode).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
@@ -119,7 +119,7 @@ export class AccountService implements IAccountService {
     chain: EChain,
     languageCode: LanguageCode,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core
+    return this.core.account
       .unlinkAccount(account, signature, languageCode, chain)
       .mapErr((error) => {
         this.errorUtils.emit(error);
@@ -132,7 +132,7 @@ export class AccountService implements IAccountService {
     languageCode: LanguageCode,
     chain: EChain,
   ): ResultAsync<DataWalletAddress | null, SnickerDoodleCoreError> {
-    return this.core
+    return this.core.account
       .getDataWalletForAccount(accountAddress, signature, languageCode, chain)
       .mapErr((error) => {
         this.errorUtils.emit(error);

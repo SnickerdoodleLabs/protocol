@@ -26,7 +26,6 @@ export class BlockchainTransactionQueryEvaluator
   public eval(
     query: AST_BlockchainTransactionQuery,
   ): ResultAsync<SDQL_Return, PersistenceError> {
-    const result = SDQL_Return(false);
     const chainId = query.contract.networkId;
     const address = query.contract.address as EVMAccountAddress;
     const startTime = query.contract.timestampRange.start;
@@ -44,7 +43,6 @@ export class BlockchainTransactionQueryEvaluator
       return this.transactionHistoryRepo
         .getTransactions(filter)
         .andThen((transactions) => {
-          // console.log("network query Result: ", transactions)
           if (transactions == null) {
             return okAsync(
               SDQL_Return({
@@ -76,7 +74,6 @@ export class BlockchainTransactionQueryEvaluator
       return this.transactionHistoryRepo
         .getTransactions(filter)
         .andThen((transactions) => {
-          // console.log("network Result: ", transactions);
           if (transactions == null) {
             return okAsync(SDQL_Return(false));
           }
@@ -90,9 +87,8 @@ export class BlockchainTransactionQueryEvaluator
 
     if (query.name == "chain_transactions") {
       return this.transactionHistoryRepo
-        .getTransactionValueByChain()
+        .getTransactionByChain()
         .andThen((transactionsArray) => {
-          // console.log("URL count: ", url_visited_count);
           return okAsync(SDQL_Return(transactionsArray));
         });
     }

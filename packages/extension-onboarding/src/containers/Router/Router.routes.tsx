@@ -1,3 +1,6 @@
+import React from "react";
+import { Route } from "react-router-dom";
+
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import AuthFlowLayout from "@extension-onboarding/layouts/AutFlowLayout";
 import DataDashBoardLayout from "@extension-onboarding/layouts/DataDashboardLayout";
@@ -21,11 +24,8 @@ import SocialMediaInfo from "@extension-onboarding/pages/Details/screens/SocialM
 import Tokens from "@extension-onboarding/pages/Details/screens/Tokens";
 import AccountLinking from "@extension-onboarding/pages/Onboarding/AccountLinking";
 import CategorySelection from "@extension-onboarding/pages/Onboarding/CategorySelection";
-import OptIn from "@extension-onboarding/pages/Onboarding/OptIn";
 import PermissionSelection from "@extension-onboarding/pages/Onboarding/PermissionSelection";
 import ProfileCreation from "@extension-onboarding/pages/Onboarding/ProfileCreation";
-import React from "react";
-import { Route } from "react-router-dom";
 
 export const OnboardingRoutes = (
   <Route>
@@ -61,10 +61,10 @@ export const AuthFlowRoutes = (
         <Route path={EPaths.POAP_NFTS} element={<PoapNFTs />} />
         <Route path={EPaths.BROWSER_ACTIVITY} element={<BrowserActivity />} />
         <Route path={EPaths.SOCIAL_MEDIA_DATA} element={<SocialMediaInfo />} />
-        <Route
+        {/* <Route
           path={EPaths.PERSONAL_INFO}
           element={<DataDashboarPersonalInfo />}
-        />
+        /> */}
       </Route>
       <Route path={EPaths.MARKETPLACE} element={<Marketplace />} />
       <Route path={EPaths.NFT_DETAIL} element={<NFTDetails />} />

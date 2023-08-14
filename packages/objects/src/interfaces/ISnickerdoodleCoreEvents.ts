@@ -1,32 +1,56 @@
-import { Observable, Subject } from "rxjs";
+import { Observable } from "rxjs";
 
 import {
+  BackupCreatedEvent,
+  BackupRestoreEvent,
+  DataPermissionsUpdatedEvent,
+  EVMTransaction,
   EarnedReward,
   LinkedAccount,
   MetatransactionSignatureRequest,
   PermissionsGrantedEvent,
   PermissionsRequestedEvent,
+  PortfolioUpdate,
   SDQLQueryRequest,
   SocialProfileLinkedEvent,
   SocialProfileUnlinkedEvent,
+  TokenBalance,
+  WalletNFT,
 } from "@objects/businessObjects/index.js";
 import {
+  CountryCode,
   DataWalletAddress,
   DomainName,
+  EVMContractAddress,
+  Gender,
   IpfsCID,
+  UnixTimestamp,
 } from "@objects/primitives/index.js";
 
 export interface ISnickerdoodleCoreEvents {
   onInitialized: Observable<DataWalletAddress>;
   onQueryPosted: Observable<SDQLQueryRequest>;
-  onQueryParametersRequired: Subject<IpfsCID>;
+  onQueryParametersRequired: Observable<IpfsCID>;
   onAccountAdded: Observable<LinkedAccount>;
+  onPasswordAdded: Observable<void>;
   onAccountRemoved: Observable<LinkedAccount>;
+  onPasswordRemoved: Observable<void>;
+  onCohortJoined: Observable<EVMContractAddress>;
+  onCohortLeft: Observable<EVMContractAddress>;
+  onDataPermissionsUpdated: Observable<DataPermissionsUpdatedEvent>;
+  onTransaction: Observable<EVMTransaction>;
   onEarnedRewardsAdded: Observable<EarnedReward[]>;
   onMetatransactionSignatureRequested: Observable<MetatransactionSignatureRequest>;
+  onTokenBalanceUpdate: Observable<PortfolioUpdate<TokenBalance[]>>;
+  onNftBalanceUpdate: Observable<PortfolioUpdate<WalletNFT[]>>;
+  onBackupRestored: Observable<BackupRestoreEvent>;
+  onBackupCreated: Observable<BackupCreatedEvent>;
   onPermissionsGranted: Observable<PermissionsGrantedEvent>;
   onPermissionsRequested: Observable<PermissionsRequestedEvent>;
   onPermissionsRevoked: Observable<DomainName>;
-  onSocialProfileLinked: Subject<SocialProfileLinkedEvent>;
-  onSocialProfileUnlinked: Subject<SocialProfileUnlinkedEvent>;
+  onSocialProfileLinked: Observable<SocialProfileLinkedEvent>;
+  onSocialProfileUnlinked: Observable<SocialProfileUnlinkedEvent>;
+  onBirthdayUpdated: Observable<UnixTimestamp>;
+  onGenderUpdated: Observable<Gender>;
+  onLocationUpdated: Observable<CountryCode>;
 }

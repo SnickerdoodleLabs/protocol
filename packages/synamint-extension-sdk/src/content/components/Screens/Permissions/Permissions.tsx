@@ -1,37 +1,52 @@
 import { Box, CircularProgress, Dialog } from "@material-ui/core";
 import {
+  BaseNotification,
   CountryCode,
+  DiscordProfile,
   EarnedReward,
+  ENotificationTypes,
+  ESocialType,
   EWalletDataType,
   Gender,
   PossibleReward,
+  QueryStatus,
+  TwitterProfile,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
   PermissionSelection,
   UI_SUPPORTED_PERMISSIONS,
 } from "@snickerdoodlelabs/shared-components";
-import { useStyles } from "@synamint-extension-sdk/content/components/Screens/Permissions/Permissions.style";
-import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
-import {
-  GetPossibleRewardsParams,
-  SetBirthdayParams,
-  SetGenderParams,
-  SetLocationParams,
-} from "@synamint-extension-sdk/shared/interfaces/actions.js";
-import { IInvitationDomainWithUUID, IExtensionConfig } from "@synamint-extension-sdk/shared";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import React, { FC, useCallback, useEffect, useState } from "react";
 
+import { useStyles } from "@synamint-extension-sdk/content/components/Screens/Permissions/Permissions.style";
+import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
+import {
+  IInvitationDomainWithUUID,
+  IExtensionConfig,
+  PORT_NOTIFICATION,
+} from "@synamint-extension-sdk/shared";
+import {
+  GetPossibleRewardsParams,
+  GetQueryStatusByCidParams,
+  SetBirthdayParams,
+  SetGenderParams,
+  SetLocationParams,
+} from "@synamint-extension-sdk/shared/interfaces/actions";
+import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
+
 interface IPermissionsProps {
   coreGateway: ExternalCoreGateway;
   domainDetails: IInvitationDomainWithUUID;
-  config: IExtensionConfig
+  config: IExtensionConfig;
   onCancelClick: () => void;
+  eventEmitter: UpdatableEventEmitterWrapper;
+  isUnlocked: boolean;
   onNextClick: (
-    eligibleRewards: PossibleReward[],
-    missingRewards: PossibleReward[],
+    rewardsThatCanBeAcquired: PossibleReward[],
+    rewardsThatRequireMorePermission: PossibleReward[],
     dataTypes: EWalletDataType[],
   ) => void;
 }
@@ -42,6 +57,8 @@ const Permissions: FC<IPermissionsProps> = ({
   onCancelClick,
   onNextClick,
   config,
+  eventEmitter,
+  isUnlocked,
 }) => {
   const classes = useStyles();
   const [profileValues, setProfileValues] = useState<{
@@ -49,15 +66,56 @@ const Permissions: FC<IPermissionsProps> = ({
     gender: Gender | null;
     country_code: CountryCode | null;
   }>();
+  const [socialProfileValues, setSocialProfileValues] = useState<{
+    discordProfiles: DiscordProfile[];
+    // twitterProfiles: TwitterProfile[];
+  }>({ discordProfiles: [] });
   const [rewards, setRewards] = useState<{
     earnedRewards: EarnedReward[];
     possibleRewards: PossibleReward[];
   }>();
+  const [queryStatus, setQueryStatus] = useState<QueryStatus | null>(null);
 
   useEffect(() => {
-    getProfileValues();
+    if (rewards && rewards?.possibleRewards.length > 0) {
+      coreGateway
+        .getQueryStatusByQueryCID(
+          new GetQueryStatusByCidParams(rewards.possibleRewards[0].queryCID),
+        )
+        .map((queryStatus) => {
+          setQueryStatus(queryStatus);
+        });
+    }
+  }, [JSON.stringify(rewards)]);
+
+  useEffect(() => {
     getRewards();
   }, []);
+
+  useEffect(() => {
+    if (isUnlocked) {
+      getRewards();
+      getProfileValues();
+      getSocialProfileValues();
+      eventEmitter.on(PORT_NOTIFICATION, handleNotification);
+    }
+    return () => {
+      eventEmitter.off(PORT_NOTIFICATION, handleNotification);
+    };
+  }, [isUnlocked]);
+
+  const handleNotification = (notificaton: BaseNotification) => {
+    switch (notificaton.type) {
+      case ENotificationTypes.SOCIAL_PROFILE_LINKED: {
+        return getSocialProfileValues();
+      }
+      case ENotificationTypes.PROFILE_FIELD_CHANGED: {
+        return getProfileValues();
+      }
+      default:
+        return;
+    }
+  };
 
   const getProfileValues = () => {
     return ResultUtils.combine([
@@ -65,50 +123,76 @@ const Permissions: FC<IPermissionsProps> = ({
       coreGateway.getGender(),
       coreGateway.getLocation(),
     ]).map(([date_of_birth, gender, country_code]) => {
-      setProfileValues({ date_of_birth, gender, country_code });
+      const values = { date_of_birth, gender, country_code };
+      setProfileValues(values);
+      return values;
     });
   };
 
-  const getRewards = () => {
+  const getSocialProfileValues = () => {
     return ResultUtils.combine([
-      coreGateway.getEarnedRewards(),
+      coreGateway.discord.getUserProfiles(),
+      // coreGateway.twitter.getUserProfiles(),
+    ]).map(([discordProfiles]) => {
+      const values = { discordProfiles };
+      // , twitterProfiles };
+      setSocialProfileValues(values);
+      return values;
+    });
+  };
+
+  const getRewards = useCallback(() => {
+    return ResultUtils.combine([
+      isUnlocked ? coreGateway.getEarnedRewards() : okAsync([]),
       coreGateway.getPossibleRewards(
         new GetPossibleRewardsParams([domainDetails.consentAddress]),
       ),
-    ]).map(([earnedRewards, possibleRewardsRec]) => {
+    ]).map(([earnedRewards, possibleRewards]) => {
       setRewards({
         earnedRewards,
-        possibleRewards: possibleRewardsRec[domainDetails.consentAddress] ?? [],
+        possibleRewards:
+          possibleRewards.get(domainDetails.consentAddress) ?? [],
       });
     });
-  };
+  }, [isUnlocked]);
 
-  const generateAllPermissions = (): ResultAsync<
+  const generateAllPermissions = useCallback((): ResultAsync<
     EWalletDataType[],
     unknown
   > => {
     let permissions = UI_SUPPORTED_PERMISSIONS;
-    return (profileValues ? okAsync(profileValues) : getProfileValues()).map(
-      (values) => {
-        if (!values.date_of_birth) {
-          permissions = permissions.filter(
-            (item) => item != EWalletDataType.Age,
-          );
-        }
-        if (!values.gender) {
-          permissions = permissions.filter(
-            (item) => item != EWalletDataType.Gender,
-          );
-        }
-        if (!values.country_code) {
-          permissions = permissions.filter(
-            (item) => item != EWalletDataType.Location,
-          );
-        }
-        return permissions;
-      },
-    );
-  };
+    return ResultUtils.combine([
+      profileValues ? okAsync(profileValues) : getProfileValues(),
+      socialProfileValues
+        ? okAsync(socialProfileValues)
+        : getSocialProfileValues(),
+    ]).map(([pValues, sValues]) => {
+      if (!pValues.date_of_birth) {
+        permissions = permissions.filter((item) => item != EWalletDataType.Age);
+      }
+      if (!pValues.gender) {
+        permissions = permissions.filter(
+          (item) => item != EWalletDataType.Gender,
+        );
+      }
+      if (!pValues.country_code) {
+        permissions = permissions.filter(
+          (item) => item != EWalletDataType.Location,
+        );
+      }
+      if (!sValues.discordProfiles.length) {
+        permissions = permissions.filter(
+          (item) => item != EWalletDataType.Discord,
+        );
+      }
+      // if (!sValues.twitterProfiles.length) {
+      //   permissions = permissions.filter(
+      //     (item) => item != EWalletDataType.Twitter,
+      //   );
+      // }
+      return permissions;
+    });
+  }, [JSON.stringify(profileValues), JSON.stringify(socialProfileValues)]);
 
   const isSafe = useCallback(
     (dataType: EWalletDataType) => {
@@ -119,12 +203,41 @@ const Permissions: FC<IPermissionsProps> = ({
           return !!profileValues?.country_code;
         case EWalletDataType.Gender:
           return !!profileValues?.gender;
+        case EWalletDataType.Discord:
+          return !!socialProfileValues?.discordProfiles.length;
+        // case EWalletDataType.Twitter:
+        //   return !!socialProfileValues?.twitterProfiles.length;
         default:
           return true;
       }
     },
-    [JSON.stringify(profileValues)],
+    [JSON.stringify(profileValues), JSON.stringify(socialProfileValues)],
   );
+
+  const onSocialClick = (socialType: ESocialType) => {
+    switch (socialType) {
+      case ESocialType.DISCORD: {
+        // We send a dummy tab ID here, because we don't know the tab ID.
+        // In the RpcCallHandler, it will be replaced with the correct tab ID.
+        return coreGateway.discord.installationUrl(-1).map((url) => {
+          window.open(url, "_blank");
+        });
+      }
+      // case ESocialType.TWITTER: {
+      //   // @TODO: implement installation url for twitter
+      //   return coreGateway.twitter
+      //     .getOAuth1aRequestToken()
+      //     .map((tokenAndSecret) => {
+      //       window.open(
+      //         `https://api.twitter.com/oauth/authorize?oauth_token=${tokenAndSecret.token}&oauth_token_secret=${tokenAndSecret.secret}&oauth_callback_confirmed=true`,
+      //         "_blank",
+      //       );
+      //     });
+      // }
+      default:
+        return;
+    }
+  };
 
   return (
     <Dialog
@@ -137,6 +250,7 @@ const Permissions: FC<IPermissionsProps> = ({
     >
       {rewards ? (
         <PermissionSelection
+          queryStatus={queryStatus}
           setBirthday={(birthday) =>
             coreGateway.setBirtday(new SetBirthdayParams(birthday))
           }
@@ -147,7 +261,6 @@ const Permissions: FC<IPermissionsProps> = ({
             coreGateway.setGender(new SetGenderParams(gender))
           }
           generateAllPermissions={generateAllPermissions}
-          updateProfileValues={getProfileValues}
           isSafe={isSafe}
           consentContractAddress={domainDetails.consentAddress}
           campaignInfo={domainDetails}
@@ -156,6 +269,11 @@ const Permissions: FC<IPermissionsProps> = ({
           onCancelClick={onCancelClick}
           onAcceptClick={onNextClick}
           ipfsBaseUrl={config.ipfsFetchBaseUrl}
+          isUnlocked={isUnlocked}
+          onPermissionClickWhenLocked={() => {
+            window.open(`${config.onboardingUrl}?action=linkAccount`, "_blank");
+          }}
+          onSocialConnect={onSocialClick}
         />
       ) : (
         <Box display="flex" py={12} alignItems="center" justifyContent="center">

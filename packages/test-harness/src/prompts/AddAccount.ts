@@ -5,6 +5,7 @@ import {
   InvalidSignatureError,
   MinimalForwarderContractError,
   PersistenceError,
+  BlockchainCommonErrors,
   UnauthorizedError,
   UninitializedError,
   UnsupportedLanguageError,
@@ -27,6 +28,7 @@ export class AddAccount extends Prompt {
     | InvalidSignatureError
     | MinimalForwarderContractError
     | UnauthorizedError
+    | BlockchainCommonErrors
   > {
     return this.core
       .getAccounts()

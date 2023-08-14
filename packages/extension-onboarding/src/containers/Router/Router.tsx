@@ -1,13 +1,11 @@
-import InitialScreen from "@extension-onboarding/containers/Router/InitialScreen";
-import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import {
-  AuthFlowRoutes,
-  OnboardingRoutes,
-} from "@extension-onboarding/containers/Router/Router.routes";
-import { useAppContext, EAppModes } from "@extension-onboarding/context/App";
-import RootRouteLayout from "@extension-onboarding/layouts/RootRouteLayout";
 import React, { FC, useMemo } from "react";
 import { Route, BrowserRouter, Routes, Navigate } from "react-router-dom";
+
+import Loading from "@extension-onboarding/setupScreens/Loading";
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { AuthFlowRoutes } from "@extension-onboarding/containers/Router/Router.routes";
+import { useAppContext, EAppModes } from "@extension-onboarding/context/App";
+import RootRouteLayout from "@extension-onboarding/layouts/RootRouteLayout";
 
 const Router: FC = () => {
   const { appMode } = useAppContext();
@@ -15,16 +13,12 @@ const Router: FC = () => {
     if (!appMode) {
       return null;
     }
-    if (appMode === EAppModes.ONBOARDING_FLOW) {
-      return OnboardingRoutes;
-    }
     return AuthFlowRoutes;
   }, [appMode]);
-
   return (
     <>
       {!appMode ? (
-        <InitialScreen />
+        <Loading />
       ) : (
         <BrowserRouter>
           <Routes>
@@ -32,16 +26,7 @@ const Router: FC = () => {
               {routes}
               <Route
                 path="*"
-                element={
-                  <Navigate
-                    replace
-                    to={
-                      appMode === EAppModes.ONBOARDING_FLOW
-                        ? EPaths.ONBOARDING_LINK_ACCOUNT
-                        : EPaths.MARKETPLACE
-                    }
-                  />
-                }
+                element={<Navigate replace to={EPaths.MARKETPLACE} />}
               />
             </Route>
           </Routes>

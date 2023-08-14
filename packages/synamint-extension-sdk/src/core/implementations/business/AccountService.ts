@@ -9,16 +9,17 @@ import {
   Signature,
   TokenBalance,
   UnauthorizedError,
+  IpfsCID,
+  QueryStatus,
 } from "@snickerdoodlelabs/objects";
-import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
-
 import { IAccountService } from "@synamint-extension-sdk/core/interfaces/business";
 import {
   IAccountRepository,
   IAccountRepositoryType,
 } from "@synamint-extension-sdk/core/interfaces/data";
 import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared";
+import { inject, injectable } from "inversify";
+import { ResultAsync } from "neverthrow";
 
 @injectable()
 export class AccountService implements IAccountService {
@@ -26,6 +27,11 @@ export class AccountService implements IAccountService {
     @inject(IAccountRepositoryType)
     protected accountRepository: IAccountRepository,
   ) {}
+  getQueryStatusByQueryCID(
+    queryCID: IpfsCID,
+  ): ResultAsync<QueryStatus | null, SnickerDoodleCoreError> {
+    return this.accountRepository.getQueryStatusByQueryCID(queryCID);
+  }
 
   public getEarnedRewards(): ResultAsync<
     EarnedReward[],

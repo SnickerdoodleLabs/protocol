@@ -34,11 +34,11 @@ import { Pie } from "react-chartjs-2";
 import emptyTokens from "@extension-onboarding/assets/images/empty-tokens.svg";
 import AccountChainBar from "@extension-onboarding/components/AccountChainBar";
 import TokenItem from "@extension-onboarding/components/TokenItem";
-import { useAppContext } from "@extension-onboarding/context/App";
+import { useAppContext, EAppModes } from "@extension-onboarding/context/App";
 import { IBalanceItem } from "@extension-onboarding/objects";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/Tokens/Tokens.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-declare const window: IWindowWithSdlDataWallet;
+import UnauthScreen from "@extension-onboarding/components/UnauthScreen/UnauthScreen";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 
 ChartJS.register(
   CategoryScale,
@@ -120,7 +120,8 @@ const CHART_ITEM_COUNT = 3;
 
 export default () => {
   const classes = useStyles();
-  const { linkedAccounts } = useAppContext();
+  const { sdlDataWallet } = useDataWalletContext();
+  const { linkedAccounts, appMode } = useAppContext();
 
   const [accountSelect, setAccountSelect] = useState<
     AccountAddress | undefined
@@ -139,30 +140,30 @@ export default () => {
       setIsBalancesLoading(true);
       initializeBalances();
     }
-  }, [linkedAccounts.length]);
+  }, [linkedAccounts.length, appMode]);
 
   const initializeBalances = () => {
-    window.sdlDataWallet
+    sdlDataWallet
       .getAccountBalances()
       .map((balances) =>
         balances.map((b) => ({ ...b, balance: formatValue(b) })),
       )
-      .andThen((balanceResults) =>
-        ResultUtils.combine(
+      .andThen((balanceResults) => {
+        return ResultUtils.combine(
           balanceResults.map((balanceItem) =>
-            window.sdlDataWallet
+            sdlDataWallet
               .getTokenInfo(balanceItem.chainId, balanceItem.tokenAddress)
               .orElse((e) => okAsync(null)),
           ),
-        ).map((tokenInfo) =>
-          balanceResults.map((balanceItem, index) => ({
+        ).map((tokenInfo) => {
+          return balanceResults.map((balanceItem, index) => ({
             ...balanceItem,
             tokenInfo: tokenInfo[index],
-          })),
-        ),
-      )
+          }));
+        });
+      })
       .andThen((balancesWithTokenInfo) => {
-        return window.sdlDataWallet
+        return sdlDataWallet
           .getTokenMarketData(
             balancesWithTokenInfo.map((item) => item.tokenInfo?.id ?? ""),
           )
@@ -328,6 +329,10 @@ export default () => {
       setTokensPagination(getPaginationObject(tokensToRender.length));
     }
   }, [tokensToRender]);
+
+  if (appMode != EAppModes.AUTH_USER) {
+    return <UnauthScreen />;
+  }
 
   return (
     <>

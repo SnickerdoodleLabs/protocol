@@ -2,10 +2,11 @@ import {
   BigNumberString,
   ChainId,
   EvalNotImplementedError,
-  TokenBalance,
   PersistenceError,
   SDQL_Return,
   TokenAddress,
+  TokenBalance,
+  TokenBalanceInsight,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -24,6 +25,7 @@ import {
   IPortfolioBalanceRepository,
   IPortfolioBalanceRepositoryType,
 } from "@core/interfaces/data/index.js";
+import { MasterIndexer } from "@snickerdoodlelabs/indexers";
 
 @injectable()
 export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
@@ -52,8 +54,10 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
       .andThen((balanceArray) => {
         return this.combineContractValues(query, balanceArray);
       })
-      .andThen((balanceArray) => {
-        return okAsync(SDQL_Return(balanceArray));
+      .map((balanceArray) => {
+        return SDQL_Return(
+          this.getAccountBalancesWithoutOwnerAddress(balanceArray),
+        );
       });
   }
 
@@ -102,7 +106,9 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
 
         default:
           console.error("EvalNotImplementedError");
-          throw new EvalNotImplementedError(condition.constructor.name);
+          throw new EvalNotImplementedError(
+            `${condition.constructor.name} not implemented`,
+          );
       }
     }
     return okAsync(balanceArray);
@@ -130,7 +136,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
             getObject.type,
             getObject.ticker,
             getObject.chainId,
-            getObject.tokenAddress || "NATIVE",
+            getObject.tokenAddress || MasterIndexer.nativeAddress,
             getObject.accountAddress,
             BigNumberString(
               BigNumber.from(getObject.balance)
@@ -146,5 +152,13 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
     });
 
     return okAsync(Array.from(balanceMap.values()));
+  }
+
+  protected getAccountBalancesWithoutOwnerAddress(
+    tokenBalances: TokenBalance[],
+  ): TokenBalanceInsight[] {
+    return tokenBalances.map(
+      ({ accountAddress, ...restOfBalance }) => restOfBalance,
+    );
   }
 }

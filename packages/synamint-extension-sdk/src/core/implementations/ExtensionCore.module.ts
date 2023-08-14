@@ -15,21 +15,22 @@ import {
   BrowserTabListener,
   CoreListener,
   ErrorListener,
-  ExtensionListener,
   PortConnectionListener,
   RpcCallHandler,
-} from "@synamint-extension-sdk/core/implementations/api/index.js";
+} from "@synamint-extension-sdk/core/implementations/api";
 import {
   AccountService,
   DiscordService,
+  IntegrationService,
   InvitationService,
+  MetricsService,
   PIIService,
   PortConnectionService,
   ScamFilterService,
   TokenPriceService,
   TwitterService,
   UserSiteInteractionService,
-} from "@synamint-extension-sdk/core/implementations/business/index.js";
+} from "@synamint-extension-sdk/core/implementations/business";
 import {
   AccountRepository,
   InvitationRepository,
@@ -38,8 +39,8 @@ import {
   ScamFilterRepository,
   TokenPriceRepository,
   UserSiteInteractionRepository,
-} from "@synamint-extension-sdk/core/implementations/data/index.js";
-import { RpcEngineFactory } from "@synamint-extension-sdk/core/implementations/utilities/factory/index.js";
+} from "@synamint-extension-sdk/core/implementations/data";
+import { RpcEngineFactory } from "@synamint-extension-sdk/core/implementations/utilities/factory";
 import {
   AccountCookieUtils,
   ContextProvider,
@@ -47,7 +48,7 @@ import {
   ErrorUtils,
   ScamFilterSettingsUtils,
   ConfigProvider,
-} from "@synamint-extension-sdk/core/implementations/utilities/index.js";
+} from "@synamint-extension-sdk/core/implementations/utilities";
 import {
   IBrowserTabListener,
   IBrowserTabListenerType,
@@ -55,20 +56,22 @@ import {
   ICoreListenerType,
   IErrorListener,
   IErrorListenerType,
-  IExtensionListener,
-  IExtensionListenerType,
   IPortConnectionListener,
   IPortConnectionListenerType,
   IRpcCallHandler,
   IRpcCallHandlerType,
-} from "@synamint-extension-sdk/core/interfaces/api/index.js";
+} from "@synamint-extension-sdk/core/interfaces/api";
 import {
   IAccountService,
   IAccountServiceType,
   IDiscordService,
   IDiscordServiceType,
+  IIntegrationService,
+  IIntegrationServiceType,
   IInvitationService,
   IInvitationServiceType,
+  IMetricsService,
+  IMetricsServiceType,
   IPIIService,
   IPIIServiceType,
   IPortConnectionService,
@@ -81,7 +84,7 @@ import {
   ITwitterServiceType,
   IUserSiteInteractionService,
   IUserSiteInteractionServiceType,
-} from "@synamint-extension-sdk/core/interfaces/business/index.js";
+} from "@synamint-extension-sdk/core/interfaces/business";
 import {
   IAccountRepository,
   IAccountRepositoryType,
@@ -97,11 +100,11 @@ import {
   ITokenPriceRepositoryType,
   IUserSiteInteractionRepository,
   IUserSiteInteractionRepositoryType,
-} from "@synamint-extension-sdk/core/interfaces/data/index.js";
+} from "@synamint-extension-sdk/core/interfaces/data";
 import {
   IRpcEngineFactory,
   IRpcEngineFactoryType,
-} from "@synamint-extension-sdk/core/interfaces/utilities/factory/index.js";
+} from "@synamint-extension-sdk/core/interfaces/utilities/factory";
 import {
   IAccountCookieUtils,
   IAccountCookieUtilsType,
@@ -115,7 +118,7 @@ import {
   IErrorUtilsType,
   IScamFilterSettingsUtils,
   IScamFilterSettingsUtilsType,
-} from "@synamint-extension-sdk/core/interfaces/utilities/index.js";
+} from "@synamint-extension-sdk/core/interfaces/utilities";
 
 export const extensionCoreModule = new ContainerModule(
   (
@@ -132,9 +135,6 @@ export const extensionCoreModule = new ContainerModule(
     bind<IErrorListener>(IErrorListenerType)
       .to(ErrorListener)
       .inSingletonScope();
-    bind<IExtensionListener>(IExtensionListenerType)
-      .to(ExtensionListener)
-      .inSingletonScope();
     bind<IPortConnectionListener>(IPortConnectionListenerType)
       .to(PortConnectionListener)
       .inSingletonScope();
@@ -146,11 +146,17 @@ export const extensionCoreModule = new ContainerModule(
     bind<IAccountService>(IAccountServiceType)
       .to(AccountService)
       .inSingletonScope();
+    bind<IIntegrationService>(IIntegrationServiceType)
+      .to(IntegrationService)
+      .inSingletonScope();
     bind<IInvitationService>(IInvitationServiceType)
       .to(InvitationService)
       .inSingletonScope();
     bind<IPortConnectionService>(IPortConnectionServiceType)
       .to(PortConnectionService)
+      .inSingletonScope();
+    bind<IMetricsService>(IMetricsServiceType)
+      .to(MetricsService)
       .inSingletonScope();
     bind<IPIIService>(IPIIServiceType).to(PIIService).inSingletonScope();
     bind<ITokenPriceService>(ITokenPriceServiceType)

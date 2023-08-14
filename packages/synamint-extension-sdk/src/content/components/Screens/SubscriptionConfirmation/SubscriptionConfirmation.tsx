@@ -7,6 +7,9 @@ import {
   PossibleReward,
 } from "@snickerdoodlelabs/objects";
 import { SubscriptionConfirmation } from "@snickerdoodlelabs/shared-components";
+import { ResultAsync } from "neverthrow";
+import React, { FC, useEffect, useState } from "react";
+
 import { useStyles } from "@synamint-extension-sdk/content/components/Screens/SubscriptionConfirmation/SubscriptionConfirmation.style";
 import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 import {
@@ -14,25 +17,23 @@ import {
   GetReceivingAddressParams,
   IExtensionConfig,
 } from "@synamint-extension-sdk/shared";
-import { ResultAsync } from "neverthrow";
-import React, { FC, useEffect, useState } from "react";
 
 interface ISubscriptionConfirmationProps {
   coreGateway: ExternalCoreGateway;
   domainDetails: IInvitationDomainWithUUID;
-  eligibleRewards: PossibleReward[];
-  missingRewards: PossibleReward[];
+  rewardsThatCanBeAcquired: PossibleReward[];
+  rewardsThatRequireMorePermission: PossibleReward[];
   dataTypes: EWalletDataType[];
   onConfirmClick: (receivingAccount: AccountAddress | undefined) => void;
   onCancelClick: () => void;
-  config: IExtensionConfig
+  config: IExtensionConfig;
 }
 
 const SubscriptionConfirmationModal: FC<ISubscriptionConfirmationProps> = ({
   coreGateway,
   domainDetails,
-  eligibleRewards,
-  missingRewards,
+  rewardsThatCanBeAcquired,
+  rewardsThatRequireMorePermission,
   dataTypes,
   onCancelClick,
   onConfirmClick,
@@ -61,8 +62,8 @@ const SubscriptionConfirmationModal: FC<ISubscriptionConfirmationProps> = ({
       {accounts ? (
         <SubscriptionConfirmation
           campaignImage={domainDetails.image}
-          eligibleRewards={eligibleRewards}
-          missingRewards={missingRewards}
+          rewardsThatCanBeAcquired={rewardsThatCanBeAcquired}
+          rewardsThatRequireMorePermission={rewardsThatRequireMorePermission}
           dataTypes={dataTypes}
           campaignName={domainDetails.title}
           consentAddress={domainDetails.consentAddress}

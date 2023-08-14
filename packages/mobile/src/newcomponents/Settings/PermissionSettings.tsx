@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Image,
   SafeAreaView,
@@ -7,16 +8,18 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React from "react";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import Icon from "react-native-vector-icons/Ionicons";
+
 import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
 import { useAppContext } from "../../context/AppContextProvider";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import RadioButton from "../Custom/RadioButton";
 import MyComponent from "../Onboarding/Mycomponent";
 import Permission from "../Onboarding/Permission";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function PermissionSettings() {
+  const theme = useTheme();
   const { onWCButtonClicked } = useAccountLinkingContext();
   const { linkedAccounts } = useAppContext();
   const [selected, setSelected] = React.useState<string>(linkedAccounts[0]);
@@ -26,39 +29,40 @@ export default function PermissionSettings() {
   };
 
   return (
-    <ScrollView
-      style={{
-        paddingHorizontal: normalizeWidth(20),
-        backgroundColor: "white",
-      }}
-    >
-      <SafeAreaView>
-        <Text
-          style={{
-            fontWeight: "700",
-            fontSize: normalizeWidth(24),
-            color: "#424242",
-            marginTop: normalizeHeight(10),
-          }}
-        >
-          Data Permissions
-        </Text>
+    <SafeAreaView>
+      <ScrollView
+        style={{
+          paddingHorizontal: normalizeWidth(20),
+          backgroundColor: theme?.colors.background,
+        }}
+      >
+        <SafeAreaView style={{height:normalizeHeight(750)}}>
+          <Text
+            style={{
+              fontWeight: "700",
+              fontSize: normalizeWidth(24),
+              color: theme?.colors.title,
+              marginTop: normalizeHeight(10),
+            }}
+          >
+            Data Permissions
+          </Text>
 
-        <Text
-          style={{
-            fontSize: normalizeWidth(16),
-            lineHeight: normalizeHeight(22),
-            fontWeight: "400",
-            color: "#424242",
-            marginTop: normalizeHeight(32),
-          }}
-        >
-          Consent to share aggregate, anonymized insights derived from your
-          data. You can set permissions individually, for each item.
-        </Text>
-        <Permission />
-      </SafeAreaView>
-    </ScrollView>
+          <Text
+            style={{
+              fontSize: normalizeWidth(16),
+              lineHeight: normalizeHeight(22),
+              fontWeight: "400",
+              color: theme?.colors.description,
+              marginTop: normalizeHeight(20),
+            }}
+          >
+            {`Consent to share aggregated, anonymized insights\nderived from your data. You can set permissions\nindividually, for each item.`}
+          </Text>
+          <Permission />
+        </SafeAreaView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 

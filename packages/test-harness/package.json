@@ -49,7 +49,7 @@
     "ethers": "^5.6.6",
     "express": "^4.18.1",
     "inquirer": "^8.0.0",
-    "inversify": "^5.1.1",
+    "inversify": "^6.0.1",
     "ipfs-http-client": "^55.0.0",
     "jsonwebtoken": "^9.0.0",
     "lzutf8": "^0.6.3",

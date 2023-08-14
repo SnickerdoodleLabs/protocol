@@ -1,11 +1,12 @@
-import Typography from "@extension-onboarding/components/Typography";
-import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import { DashboardContextProvider } from "@extension-onboarding/context/DashboardContext";
 import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import clsx from "clsx";
 import React from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+
+import Typography from "@extension-onboarding/components/Typography";
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { DashboardContextProvider } from "@extension-onboarding/context/DashboardContext";
 const useStyles = makeStyles((theme) => ({
   link: {
     fontFamily: "'Roboto'",
@@ -17,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
     color: "#000000",
   },
   selected: {
-    fontWeight: 400,
+    fontWeight: 700,
   },
   linkWrapper: {
     cursor: "pointer",
@@ -35,7 +36,7 @@ const LINKS: ILink[] = [
   { path: EPaths.POAP_NFTS, title: "POAPs" },
   { path: EPaths.BROWSER_ACTIVITY, title: "Browser Activity" },
   { path: EPaths.SOCIAL_MEDIA_DATA, title: "Social Media Data" },
-  { path: EPaths.PERSONAL_INFO, title: "Personal Info" },
+  // { path: EPaths.PERSONAL_INFO, title: "Personal Info" },
 ];
 
 const DataDashboardLayout = () => {

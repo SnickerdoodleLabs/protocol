@@ -1,5 +1,3 @@
-import { BaseContractWrapper } from "@core/implementations/utilities/factory/BaseContractWrapper.js";
-import { IContextProvider } from "@core/interfaces/utilities/index.js";
 import { ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ContractOverrides,
@@ -25,9 +23,13 @@ import {
   BaseURI,
   InvalidParametersError,
   BigNumberString,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event, BigNumber } from "ethers";
 import { ResultAsync } from "neverthrow";
+
+import { BaseContractWrapper } from "@core/implementations/utilities/factory/BaseContractWrapper.js";
+import { IContextProvider } from "@core/interfaces/utilities/index.js";
 
 /**
  * This wrapper implements some metrics utilities and well as reliability (by implementing fallbacks to a secondary provider)
@@ -53,7 +55,10 @@ export class ConsentContractWrapper
     tokenId: TokenId,
     agreementFlags: HexString32,
     contractOverrides?: ContractOverrides | undefined,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
     return this.fallback(
       () => this.primary.optIn(tokenId, agreementFlags, contractOverrides),
       () => this.secondary?.optIn(tokenId, agreementFlags, contractOverrides),
@@ -69,7 +74,10 @@ export class ConsentContractWrapper
     agreementFlags: HexString32,
     signature: Signature,
     contractOverrides?: ContractOverrides | undefined,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
     return this.fallback(
       () =>
         this.primary.restrictedOptIn(
@@ -103,7 +111,10 @@ export class ConsentContractWrapper
     agreementFlags: HexString32,
     signature: Signature,
     contractOverrides?: ContractOverrides | undefined,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
     return this.fallback(
       () =>
         this.primary.anonymousRestrictedOptIn(
@@ -136,7 +147,10 @@ export class ConsentContractWrapper
   public optOut(
     tokenId: TokenId,
     contractOverrides?: ContractOverrides | undefined,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
     return this.fallback(
       () => this.primary.optOut(tokenId, contractOverrides),
       () => this.secondary?.optOut(tokenId, contractOverrides),
@@ -149,14 +163,17 @@ export class ConsentContractWrapper
 
   public agreementFlags(
     tokenId: TokenId,
-  ): ResultAsync<HexString32, ConsentContractError> {
+  ): ResultAsync<HexString32, ConsentContractError | BlockchainCommonErrors> {
     return this.fallback(
       () => this.primary.agreementFlags(tokenId),
       () => this.secondary?.agreementFlags(tokenId),
     );
   }
 
-  public getMaxCapacity(): ResultAsync<number, ConsentContractError> {
+  public getMaxCapacity(): ResultAsync<
+    number,
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.getMaxCapacity(),
       () => this.secondary?.getMaxCapacity(),
@@ -165,7 +182,10 @@ export class ConsentContractWrapper
 
   public updateMaxCapacity(
     maxCapacity: number,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
     return this.fallback(
       () => this.primary.updateMaxCapacity(maxCapacity),
       () => this.secondary?.updateMaxCapacity(maxCapacity),
@@ -175,7 +195,10 @@ export class ConsentContractWrapper
   public updateAgreementFlags(
     tokenId: TokenId,
     newAgreementFlags: HexString32,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
     return this.fallback(
       () => this.primary.updateAgreementFlags(tokenId, newAgreementFlags),
       () => this.secondary?.updateAgreementFlags(tokenId, newAgreementFlags),
@@ -191,7 +214,10 @@ export class ConsentContractWrapper
 
   public requestForData(
     ipfsCID: IpfsCID,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
     return this.fallback(
       () => this.primary.requestForData(ipfsCID),
       () => this.secondary?.requestForData(ipfsCID),
@@ -200,7 +226,7 @@ export class ConsentContractWrapper
 
   public getConsentOwner(): ResultAsync<
     EVMAccountAddress,
-    ConsentContractError
+    ConsentContractError | BlockchainCommonErrors
   > {
     return this.fallback(
       () => this.primary.getConsentOwner(),
@@ -210,7 +236,7 @@ export class ConsentContractWrapper
 
   public getDefaultAdminRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ConsentContractError
+    ConsentContractError | BlockchainCommonErrors
   > {
     return this.fallback(
       () => this.primary.getDefaultAdminRoleMembers(),
@@ -220,7 +246,7 @@ export class ConsentContractWrapper
 
   public getSignerRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ConsentContractError
+    ConsentContractError | BlockchainCommonErrors
   > {
     return this.fallback(
       () => this.primary.getSignerRoleMembers(),
@@ -230,7 +256,7 @@ export class ConsentContractWrapper
 
   public getPauserRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ConsentContractError
+    ConsentContractError | BlockchainCommonErrors
   > {
     return this.fallback(
       () => this.primary.getPauserRoleMembers(),
@@ -240,7 +266,7 @@ export class ConsentContractWrapper
 
   public getRequesterRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ConsentContractError
+    ConsentContractError | BlockchainCommonErrors
   > {
     return this.fallback(
       () => this.primary.getRequesterRoleMembers(),
@@ -250,7 +276,7 @@ export class ConsentContractWrapper
 
   public balanceOf(
     address: EVMAccountAddress,
-  ): ResultAsync<number, ConsentContractError> {
+  ): ResultAsync<number, ConsentContractError | BlockchainCommonErrors> {
     return this.fallback(
       () => this.primary.balanceOf(address),
       () => this.secondary?.balanceOf(address),
@@ -259,7 +285,10 @@ export class ConsentContractWrapper
 
   public ownerOf(
     tokenId: TokenId,
-  ): ResultAsync<EVMAccountAddress, ConsentContractError> {
+  ): ResultAsync<
+    EVMAccountAddress,
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.ownerOf(tokenId),
       () => this.secondary?.ownerOf(tokenId),
@@ -268,7 +297,10 @@ export class ConsentContractWrapper
 
   public tokenURI(
     tokenId: TokenId,
-  ): ResultAsync<TokenUri | null, ConsentContractError> {
+  ): ResultAsync<
+    TokenUri | null,
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.tokenURI(tokenId),
       () => this.secondary?.tokenURI(tokenId),
@@ -279,7 +311,7 @@ export class ConsentContractWrapper
     eventFilter: EventFilter,
     fromBlock?: BlockNumber | undefined,
     toBlock?: BlockNumber | undefined,
-  ): ResultAsync<Event[], ConsentContractError> {
+  ): ResultAsync<Event[], ConsentContractError | BlockchainCommonErrors> {
     return this.fallback(
       () => this.primary.queryFilter(eventFilter, fromBlock, toBlock),
       () => this.secondary?.queryFilter(eventFilter, fromBlock, toBlock),
@@ -288,7 +320,7 @@ export class ConsentContractWrapper
 
   public getConsentToken(
     tokenId: TokenId,
-  ): ResultAsync<ConsentToken, ConsentContractError> {
+  ): ResultAsync<ConsentToken, ConsentContractError | BlockchainCommonErrors> {
     return this.fallback(
       () => this.primary.getConsentToken(tokenId),
       () => this.secondary?.getConsentToken(tokenId),
@@ -297,7 +329,10 @@ export class ConsentContractWrapper
 
   public addDomain(
     domain: DomainName,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
     return this.fallback(
       () => this.primary.addDomain(domain),
       () => this.secondary?.addDomain(domain),
@@ -306,14 +341,20 @@ export class ConsentContractWrapper
 
   public removeDomain(
     domain: DomainName,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
     return this.fallback(
       () => this.primary.removeDomain(domain),
       () => this.secondary?.removeDomain(domain),
     );
   }
 
-  public getDomains(): ResultAsync<DomainName[], ConsentContractError> {
+  public getDomains(): ResultAsync<
+    DomainName[],
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.getDomains(),
       () => this.secondary?.getDomains(),
@@ -324,7 +365,10 @@ export class ConsentContractWrapper
     requesterAddress: EVMAccountAddress,
     fromBlock?: BlockNumber | undefined,
     toBlock?: BlockNumber | undefined,
-  ): ResultAsync<RequestForData[], ConsentContractError> {
+  ): ResultAsync<
+    RequestForData[],
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return this.fallback(
       () =>
         this.primary.getRequestForDataListByRequesterAddress(
@@ -343,7 +387,10 @@ export class ConsentContractWrapper
 
   public getLatestTokenIdByOptInAddress(
     optInAddress: EVMAccountAddress,
-  ): ResultAsync<TokenId | null, ConsentContractError> {
+  ): ResultAsync<
+    TokenId | null,
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.getLatestTokenIdByOptInAddress(optInAddress),
       () => this.secondary?.getLatestTokenIdByOptInAddress(optInAddress),
@@ -352,7 +399,7 @@ export class ConsentContractWrapper
 
   public disableOpenOptIn(): ResultAsync<
     WrappedTransactionResponse,
-    ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   > {
     return this.fallback(
       () => this.primary.disableOpenOptIn(),
@@ -362,7 +409,7 @@ export class ConsentContractWrapper
 
   public enableOpenOptIn(): ResultAsync<
     WrappedTransactionResponse,
-    ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   > {
     return this.fallback(
       () => this.primary.enableOpenOptIn(),
@@ -370,7 +417,10 @@ export class ConsentContractWrapper
     );
   }
 
-  public baseURI(): ResultAsync<BaseURI, ConsentContractError> {
+  public baseURI(): ResultAsync<
+    BaseURI,
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.baseURI(),
       () => this.secondary?.baseURI(),
@@ -379,7 +429,10 @@ export class ConsentContractWrapper
 
   public setBaseURI(
     baseUri: BaseURI,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
     return this.fallback(
       () => this.primary.setBaseURI(baseUri),
       () => this.secondary?.setBaseURI(baseUri),
@@ -393,7 +446,7 @@ export class ConsentContractWrapper
       | "REQUESTER_ROLE"
       | "SIGNER_ROLE",
     address: EVMAccountAddress,
-  ): ResultAsync<boolean, ConsentContractError> {
+  ): ResultAsync<boolean, ConsentContractError | BlockchainCommonErrors> {
     return this.fallback(
       () => this.primary.hasRole(role, address),
       () => this.secondary?.hasRole(role, address),
@@ -407,7 +460,10 @@ export class ConsentContractWrapper
       | "REQUESTER_ROLE"
       | "SIGNER_ROLE",
     address: EVMAccountAddress,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
     return this.fallback(
       () => this.primary.grantRole(role, address),
       () => this.secondary?.grantRole(role, address),
@@ -421,7 +477,10 @@ export class ConsentContractWrapper
       | "REQUESTER_ROLE"
       | "SIGNER_ROLE",
     address: EVMAccountAddress,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
     return this.fallback(
       () => this.primary.revokeRole(role, address),
       () => this.secondary?.revokeRole(role, address),
@@ -435,14 +494,20 @@ export class ConsentContractWrapper
       | "REQUESTER_ROLE"
       | "SIGNER_ROLE",
     address: EVMAccountAddress,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
     return this.fallback(
       () => this.primary.renounceRole(role, address),
       () => this.secondary?.renounceRole(role, address),
     );
   }
 
-  public getQueryHorizon(): ResultAsync<BlockNumber, ConsentContractError> {
+  public getQueryHorizon(): ResultAsync<
+    BlockNumber,
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.getQueryHorizon(),
       () => this.secondary?.getQueryHorizon(),
@@ -451,21 +516,30 @@ export class ConsentContractWrapper
 
   public setQueryHorizon(
     blockNumber: BlockNumber,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
     return this.fallback(
       () => this.primary.setQueryHorizon(blockNumber),
       () => this.secondary?.setQueryHorizon(blockNumber),
     );
   }
 
-  public totalSupply(): ResultAsync<number, ConsentContractError> {
+  public totalSupply(): ResultAsync<
+    number,
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.totalSupply(),
       () => this.secondary?.totalSupply(),
     );
   }
 
-  public openOptInDisabled(): ResultAsync<boolean, ConsentContractError> {
+  public openOptInDisabled(): ResultAsync<
+    boolean,
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.openOptInDisabled(),
       () => this.secondary?.openOptInDisabled(),
@@ -489,21 +563,30 @@ export class ConsentContractWrapper
 
   public filters: IConsentContractFilters = this.primary.filters;
 
-  public getMaxTags(): ResultAsync<number, ConsentContractError> {
+  public getMaxTags(): ResultAsync<
+    number,
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.getMaxTags(),
       () => this.secondary?.getMaxTags(),
     );
   }
 
-  public getNumberOfStakedTags(): ResultAsync<number, ConsentContractError> {
+  public getNumberOfStakedTags(): ResultAsync<
+    number,
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.getNumberOfStakedTags(),
       () => this.secondary?.getNumberOfStakedTags(),
     );
   }
 
-  public getTagArray(): ResultAsync<Tag[], ConsentContractError> {
+  public getTagArray(): ResultAsync<
+    Tag[],
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.getTagArray(),
       () => this.secondary?.getTagArray(),
@@ -513,7 +596,10 @@ export class ConsentContractWrapper
   public newGlobalTag(
     tag: string,
     newSlot: BigNumberString,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
     return this.fallback(
       () => this.primary.newGlobalTag(tag, newSlot),
       () => this.secondary?.newGlobalTag(tag, newSlot),
@@ -524,7 +610,10 @@ export class ConsentContractWrapper
     tag: string,
     newSlot: BigNumberString,
     existingSlot: BigNumberString,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
     return this.fallback(
       () => this.primary.newLocalTagUpstream(tag, newSlot, existingSlot),
       () => this.secondary?.newLocalTagUpstream(tag, newSlot, existingSlot),
@@ -535,7 +624,10 @@ export class ConsentContractWrapper
     tag: string,
     existingSlot: BigNumberString,
     newSlot: BigNumberString,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
     return this.fallback(
       () => this.primary.newLocalTagDownstream(tag, newSlot, existingSlot),
       () => this.secondary?.newLocalTagDownstream(tag, newSlot, existingSlot),
@@ -545,7 +637,10 @@ export class ConsentContractWrapper
   public replaceExpiredListing(
     tag: string,
     slot: BigNumberString,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
     return this.fallback(
       () => this.primary.replaceExpiredListing(tag, slot),
       () => this.secondary?.replaceExpiredListing(tag, slot),
@@ -554,7 +649,10 @@ export class ConsentContractWrapper
 
   public removeListing(
     tag: string,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
     return this.fallback(
       () => this.primary.removeListing(tag),
       () => this.secondary?.removeListing(tag),

@@ -1,8 +1,4 @@
 import { Box, Grid, Typography } from "@material-ui/core";
-import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
-import Section, {
-  useSectionStyles,
-} from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";
 import {
   EVMContractAddress,
   EWalletDataType,
@@ -10,44 +6,49 @@ import {
   QueryTypePermissionMap,
   QueryTypes,
 } from "@snickerdoodlelabs/objects";
+import { PossibleRewardComponent } from "@snickerdoodlelabs/shared-components";
+import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
+
+import { useAppContext } from "@extension-onboarding/context/App";
 import { EBadgeType } from "@extension-onboarding/objects";
 import { EPossibleRewardDisplayType } from "@extension-onboarding/objects/enums/EPossibleRewardDisplayType";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { PossibleRewardComponent } from "@snickerdoodlelabs/shared-components";
-import { useAppContext } from "@extension-onboarding/context/App";
-
-declare const window: IWindowWithSdlDataWallet;
+import Section, {
+  useSectionStyles,
+} from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 interface IWaitingRewardsProps {
   rewards: PossibleReward[];
   type: EPossibleRewardDisplayType;
   consentContractAddress: EVMContractAddress;
 }
+//Use Case For this ?
 const WaitingRewards: FC<IWaitingRewardsProps> = ({
   rewards,
   type,
   consentContractAddress,
 }) => {
   const sectionClasses = useSectionStyles();
+  const { sdlDataWallet } = useDataWalletContext();
   const { apiGateway } = useAppContext();
   const [defaultPermissions, setDefaultPermissions] = useState<
     EWalletDataType[]
   >([]);
 
   useEffect(() => {
-    if (type === EPossibleRewardDisplayType.ProgramRewards) {
+    if (type === EPossibleRewardDisplayType.Available) {
       getDefaultPermissions();
     }
   }, [type]);
 
   const getDefaultPermissions = () => {
-    window.sdlDataWallet.getDefaultPermissions().map((dataTypes) => {
+    sdlDataWallet.getDefaultPermissions().map((dataTypes) => {
       setDefaultPermissions(dataTypes);
     });
   };
 
   const getBadge = useCallback(
-    (queryDependencies: QueryTypes[]) =>
-      queryDependencies
+    (estimatedQueryDependencies: QueryTypes[]) =>
+      estimatedQueryDependencies
         .map((dependency) => QueryTypePermissionMap.get(dependency)!)
         .every((dataType) => defaultPermissions.includes(dataType))
         ? EBadgeType.Available
@@ -57,7 +58,7 @@ const WaitingRewards: FC<IWaitingRewardsProps> = ({
 
   const { badge, title, subtitle } = useMemo(() => {
     switch (true) {
-      case type === EPossibleRewardDisplayType.MorePermissionRequiered:
+      case type === EPossibleRewardDisplayType.MorePermissionRequired:
         return {
           badge: EBadgeType.MorePermissionRequired,
           title: "Rent More Data, Get More Rewards",
@@ -100,8 +101,8 @@ const WaitingRewards: FC<IWaitingRewardsProps> = ({
                 ipfsBaseUrl={apiGateway.config.ipfsFetchBaseUrl}
                 consentContractAddress={consentContractAddress}
                 badgeType={
-                  type === EPossibleRewardDisplayType.ProgramRewards
-                    ? getBadge(reward.queryDependencies)
+                  type === EPossibleRewardDisplayType.Available
+                    ? getBadge(reward.estimatedQueryDependencies)
                     : badge
                 }
                 reward={reward}

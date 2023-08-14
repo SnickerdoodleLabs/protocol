@@ -1,4 +1,10 @@
 import {
+  EVMContractAddress,
+  IOpenSeaMetadata,
+  IpfsCID,
+} from "@snickerdoodlelabs/objects";
+import React, { useEffect } from "react";
+import {
   ActivityIndicator,
   Button,
   Image,
@@ -9,19 +15,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect } from "react";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
-import Icon from "react-native-vector-icons/Ionicons";
+
 import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
 import { useAppContext } from "../../context/AppContextProvider";
-import RadioButton from "../Custom/RadioButton";
-import MyComponent from "../Onboarding/Mycomponent";
-import {
-  EVMContractAddress,
-  IOpenSeaMetadata,
-  IpfsCID,
-} from "@snickerdoodlelabs/objects";
-import { ipfsParse } from "../Dashboard/NFTs/NFTDetails";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
+
+import { useTheme } from "../../context/ThemeContext";
 
 interface ILoadingProps {
   status: boolean;
@@ -29,6 +28,7 @@ interface ILoadingProps {
 }
 
 export default function RewardsSettings() {
+  const theme = useTheme();
   const { mobileCore } = useAppContext();
   const { onWCButtonClicked } = useAccountLinkingContext();
   const { linkedAccounts } = useAppContext();
@@ -42,26 +42,22 @@ export default function RewardsSettings() {
     [],
   );
 
-  const handleSelect = (value: string) => {
-    setSelected(value);
-  };
-
   useEffect(() => {
-    mobileCore.accountService.getEarnedRewards().map((earnedRewards) => {
-    });
     setIsLoading([]);
     getOptedInInvitationMetaData();
   }, [unsubsribed]);
 
   const getOptedInInvitationMetaData = () => {
-    return mobileCore.invitationService
-      .getAcceptedInvitationsCID()
+    return mobileCore
+      .getCore()
+      .invitation.getAcceptedInvitationsCID()
       .map((metaData) => {
         setAcceptedInvitations(metaData);
         setCids(Array.from(metaData.values()));
         return Array.from(metaData.values()).map((cid) => {
-          return mobileCore.invitationService
-            .getInvitationMetadataByCID(cid)
+          return mobileCore
+            .getCore()
+            .invitation.getInvitationMetadataByCID(cid)
             .map((meta) => {
               return meta;
             });
@@ -79,7 +75,7 @@ export default function RewardsSettings() {
     <ScrollView
       style={{
         paddingHorizontal: normalizeWidth(20),
-        backgroundColor: "white",
+        backgroundColor: theme?.colors.background,
       }}
     >
       <SafeAreaView>
@@ -87,8 +83,8 @@ export default function RewardsSettings() {
           style={{
             fontWeight: "700",
             fontSize: normalizeWidth(24),
-            color: "#424242",
-            marginTop: normalizeHeight(10),
+            color: theme?.colors.title,
+            marginTop: normalizeHeight(15),
           }}
         >
           Rewards Subscription Settings
@@ -99,13 +95,11 @@ export default function RewardsSettings() {
             fontSize: normalizeWidth(16),
             lineHeight: normalizeHeight(22),
             fontWeight: "400",
-            color: "#424242",
+            color: theme?.colors.description,
             marginTop: normalizeHeight(32),
           }}
         >
-          These are the rewards programs you follow. Through these subscription
-          contracts, you have agreed to share anonymized business insights with
-          only these rewards programs, in exchange for rewards.
+          {`You have agreed to share anonymized information\nwith these brands, only, through these rewards\nprograms.`}{" "}
         </Text>
 
         {campainJoined?.map((metaData, index) => {
@@ -116,7 +110,7 @@ export default function RewardsSettings() {
                 width: "100%",
                 padding: normalizeWidth(22),
                 borderWidth: 2,
-                borderColor: "#F0F0F0",
+                borderColor: theme?.colors.border,
                 shadowColor: "#04060f",
                 shadowOffset: { width: 0, height: 4 },
                 shadowOpacity: 0.05,
@@ -141,7 +135,7 @@ export default function RewardsSettings() {
                 <View style={{ width: "60%", paddingLeft: normalizeWidth(24) }}>
                   <Text
                     style={{
-                      color: "#424242",
+                      color: theme?.colors.title,
                       fontSize: normalizeWidth(20),
                       fontWeight: "700",
                       overflow: "hidden",
@@ -151,7 +145,7 @@ export default function RewardsSettings() {
                   </Text>
                   <Text
                     style={{
-                      color: "#616161",
+                      color: theme?.colors.description,
                       fontSize: normalizeWidth(14),
                       fontWeight: "400",
                       marginVertical: normalizeHeight(10),
@@ -179,8 +173,9 @@ export default function RewardsSettings() {
 
                         if (foundKey) {
                           setIsLoading([...isLoading, { status: true, index }]);
-                          mobileCore.invitationService
-                            .leaveCohort(foundKey)
+                          mobileCore
+                            .getCore()
+                            .invitation.leaveCohort(foundKey)
                             .andThen((res) => {
                               setUnsubscribed(!unsubsribed);
                             });

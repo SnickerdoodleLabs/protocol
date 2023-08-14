@@ -16,10 +16,10 @@ import {
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Bar } from "react-chartjs-2";
 
-import { useAppContext } from "@extension-onboarding/context/App";
+import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/BrowserActivity/BrowserActivity.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-
+import UnauthScreen from "@extension-onboarding/components/UnauthScreen/UnauthScreen";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -28,8 +28,6 @@ ChartJS.register(
   Tooltip,
   Legend,
 );
-
-declare const window: IWindowWithSdlDataWallet;
 
 const hourMs = 60 * 60 * 1000;
 
@@ -53,14 +51,15 @@ const DISPLAY_NAMES = {
 
 export default () => {
   const classes = useStyles();
-  const {} = useAppContext();
+  const { appMode } = useAppContext();
   const [siteVisits, setSiteVisits] = useState<SiteVisit[]>();
   const [selectedInterval, setSelectedInterVal] = useState<ETimeInterval>(
     ETimeInterval.ONE_WEEK,
   );
+  const { sdlDataWallet } = useDataWalletContext();
 
   const getSiteVisits = () => {
-    window.sdlDataWallet.getSiteVisits().map((res) => {
+    sdlDataWallet.getSiteVisits().map((res) => {
       setSiteVisits(res);
     });
   };
@@ -133,8 +132,10 @@ export default () => {
   };
 
   useEffect(() => {
-    getSiteVisits();
-  }, []);
+    if (appMode === EAppModes.AUTH_USER) getSiteVisits();
+  }, [appMode]);
+
+  if (appMode !== EAppModes.AUTH_USER) return <UnauthScreen />;
 
   return (
     <>

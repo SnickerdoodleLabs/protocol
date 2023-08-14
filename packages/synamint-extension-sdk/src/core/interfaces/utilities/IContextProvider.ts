@@ -1,10 +1,11 @@
 import {
   DataWalletAddress,
   EarnedReward,
-  EVMContractAddress,
   Invitation,
   LinkedAccount,
+  SocialProfileLinkedEvent,
   UUID,
+  EProfileFieldType,
 } from "@snickerdoodlelabs/objects";
 import { Subject } from "rxjs";
 
@@ -24,9 +25,12 @@ export interface IContextProvider {
   addInvitation(invitation: Invitation): UUID;
   getInvitation(id: UUID): Invitation | undefined;
   setAccountContext(dataWalletAddress: DataWalletAddress): void;
+  // port notification emitters
   onAccountAdded(accountAddress: LinkedAccount): void;
   onAccountRemoved(accountAddress: LinkedAccount): void;
   onEarnedRewardsAdded(rewards: EarnedReward[]): void;
+  onSocialProfileLinked(event: SocialProfileLinkedEvent): void;
+  onProfileFieldChanged(profileFieldType: EProfileFieldType, value: any): void;
 }
 
 export const IContextProviderType = Symbol.for("IContextProvider");

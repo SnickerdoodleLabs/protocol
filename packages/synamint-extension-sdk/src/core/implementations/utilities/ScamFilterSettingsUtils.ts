@@ -1,9 +1,10 @@
-import { IScamFilterSettingsUtils } from "@synamint-extension-sdk/core/interfaces/utilities/IScamFilterSettingsUtils";
-import { IScamFilterPreferences } from "@synamint-extension-sdk/shared/interfaces/scamFilterPreferences";
-import { ExtensionStorageError } from "@synamint-extension-sdk/shared/objects/errors";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import Browser from "webextension-polyfill";
+
+import { IScamFilterSettingsUtils } from "@synamint-extension-sdk/core/interfaces/utilities/IScamFilterSettingsUtils";
+import { IScamFilterPreferences } from "@synamint-extension-sdk/shared/interfaces/scamFilterPreferences";
+import { ExtensionStorageError } from "@synamint-extension-sdk/shared/objects/errors";
 
 @injectable()
 export class ScamFilterSettingsUtils implements IScamFilterSettingsUtils {

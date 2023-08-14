@@ -14,11 +14,10 @@ import DirectRewardItem from "@extension-onboarding/pages/Details/screens/Earned
 import LazyRewardItem from "@extension-onboarding/pages/Details/screens/EarnedRewards/components/LazyReward";
 import Web2RewardItem from "@extension-onboarding/pages/Details/screens/EarnedRewards/components/Web2Reward";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/EarnedRewards/EarnedRewards.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-
-declare const window: IWindowWithSdlDataWallet;
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 
 const EarnedRewards: FC = () => {
+  const { sdlDataWallet } = useDataWalletContext();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [rewards, setRewards] = useState<EarnedReward[]>();
 
@@ -33,7 +32,7 @@ const EarnedRewards: FC = () => {
   }, [JSON.stringify(rewards)]);
 
   const getRewards = () => {
-    window.sdlDataWallet.getEarnedRewards().map((rewards) => {
+    sdlDataWallet.getEarnedRewards().map((rewards) => {
       setRewards(rewards);
     });
   };
@@ -63,20 +62,19 @@ const EarnedRewards: FC = () => {
             {rewards?.length ? (
               Array.from(
                 rewards?.reduce((acc, reward) => {
-
-                  const selector = reward.name + reward.image + reward.description;
+                  const selector =
+                    reward.name + reward.image + reward.description;
                   if (acc.has(selector)) {
                     const prev = acc.get(selector);
                     prev!.count++;
                     acc.set(selector, prev!);
                   } else {
-                    acc.set(selector, {reward, count: 1});
+                    acc.set(selector, { reward, count: 1 });
                   }
 
                   return acc;
-                }, new Map<string, {reward: EarnedReward, count: number}>())
+                }, new Map<string, { reward: EarnedReward; count: number }>()),
               ).map(([selector, rewardToCount], index) => {
-
                 const reward = rewardToCount.reward;
                 const count = rewardToCount.count;
 

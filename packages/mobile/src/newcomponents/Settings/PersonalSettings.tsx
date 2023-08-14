@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Image,
   SafeAreaView,
@@ -7,19 +8,20 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React from "react";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import Icon from "react-native-vector-icons/Ionicons";
+
 import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
 import { useAppContext } from "../../context/AppContextProvider";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import RadioButton from "../Custom/RadioButton";
 import MyComponent from "../Onboarding/Mycomponent";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function PersonalSettings() {
   const { onWCButtonClicked } = useAccountLinkingContext();
   const { linkedAccounts } = useAppContext();
   const [selected, setSelected] = React.useState<string>(linkedAccounts[0]);
-
+  const theme = useTheme();
   const handleSelect = (value: string) => {
     setSelected(value);
   };
@@ -28,7 +30,7 @@ export default function PersonalSettings() {
     <ScrollView
       style={{
         paddingHorizontal: normalizeWidth(20),
-        backgroundColor: "white",
+        backgroundColor: theme?.colors.background,
       }}
     >
       <SafeAreaView>
@@ -36,8 +38,8 @@ export default function PersonalSettings() {
           style={{
             fontWeight: "700",
             fontSize: normalizeWidth(24),
-            color: "#424242",
-            marginTop: normalizeHeight(10),
+            color: theme?.colors.title,
+            marginTop: normalizeHeight(15),
           }}
         >
           Personal Info
@@ -48,12 +50,12 @@ export default function PersonalSettings() {
             fontSize: normalizeWidth(16),
             lineHeight: normalizeHeight(22),
             fontWeight: "400",
-            color: "#424242",
+            color: theme?.colors.description,
             marginTop: normalizeHeight(32),
+            marginBottom: normalizeHeight(20),
           }}
         >
-          Control your data in the wallet by adding or removing demographic
-          information. Shared insights are anonymous.
+          {`Add or change demographic information in your\nData Wallet.\n\nAny info you share is anonymized and cannot be linked back to your wallet addresses.`}
         </Text>
         <MyComponent />
       </SafeAreaView>

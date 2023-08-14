@@ -1,4 +1,12 @@
 import { URLString } from "@snickerdoodlelabs/objects";
+import endOfStream from "end-of-stream";
+import PortStream from "extension-port-stream";
+import { inject, injectable } from "inversify";
+import { errAsync, okAsync } from "neverthrow";
+import ObjectMultiplex from "obj-multiplex";
+import pump from "pump";
+import { Runtime } from "webextension-polyfill";
+
 import { IPortConnectionRepository } from "@synamint-extension-sdk/core/interfaces/data";
 import {
   IContextProvider,
@@ -17,13 +25,6 @@ import {
   ONBOARDING_PROVIDER_SUBSTREAM,
   EXTERNAL_PORTS,
 } from "@synamint-extension-sdk/shared";
-import endOfStream from "end-of-stream";
-import PortStream from "extension-port-stream";
-import { inject, injectable } from "inversify";
-import { errAsync, okAsync } from "neverthrow";
-import ObjectMultiplex from "obj-multiplex";
-import pump from "pump";
-import { Runtime } from "webextension-polyfill";
 
 @injectable()
 export class PortConnectionRepository implements IPortConnectionRepository {
@@ -48,7 +49,6 @@ export class PortConnectionRepository implements IPortConnectionRepository {
       this._setupExternalConnection(remotePort);
     } else {
       console.log("unknown port connected");
-      errAsync(undefined);
     }
     return okAsync(undefined);
   }
@@ -65,9 +65,6 @@ export class PortConnectionRepository implements IPortConnectionRepository {
   private _setupExternalConnection(remotePort: Runtime.Port) {
     const url = new URL(remotePort!.sender!.url!);
     const { origin } = url;
-    const onboardingUrl = this.configProvider.getConfig().onboardingUrl;
-    const { origin: onboardingUrlOrigin } = new URL(onboardingUrl);
-
     const portStream = new PortStream(remotePort);
     // create multiplex to enable substreams
     const portStreamMux = new ObjectMultiplex();
@@ -79,14 +76,13 @@ export class PortConnectionRepository implements IPortConnectionRepository {
       origin as URLString,
       portStreamMux.createStream(CONTENT_SCRIPT_SUBSTREAM),
     );
-    // create injected onboarding handler if orgins match
-    if (origin === onboardingUrlOrigin) {
-      this.rpcEngineFactory.createRpcEngine(
-        remotePort,
-        origin as URLString,
-        portStreamMux.createStream(ONBOARDING_PROVIDER_SUBSTREAM),
-      );
-    }
+    // create injected proxy handler
+    this.rpcEngineFactory.createRpcEngine(
+      remotePort,
+      origin as URLString,
+      portStreamMux.createStream(ONBOARDING_PROVIDER_SUBSTREAM),
+    );
+
     endOfStream(portStream, () => {
       portStreamMux.destroy();
     });

@@ -1,23 +1,23 @@
 import {
+  BackupCreatedEvent,
+  BackupRestoreEvent,
   ComponentStatus,
+  CountryCode,
   DataPermissionsUpdatedEvent,
   DataWalletAddress,
   EChain,
   EComponentStatus,
   EExternalApi,
+  Gender,
   IpfsCID,
   LinkedAccount,
+  PublicEvents,
   SDQLQueryRequest,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
-import { Subject } from "rxjs";
 
-import {
-  CoreContext,
-  PrivateEvents,
-  PublicEvents,
-} from "@core/interfaces/objects/index.js";
+import { CoreContext, PrivateEvents } from "@core/interfaces/objects/index.js";
 import { IContextProvider } from "@core/interfaces/utilities/index.js";
 import {
   dataWalletAddress,
@@ -41,6 +41,11 @@ export class ContextProviderMock implements IContextProvider {
     [];
   public heartbeatActivations: void[] = [];
   public onApiAccessedActivations: EExternalApi[] = [];
+  public onBackupCreatedActivations: BackupCreatedEvent[] = [];
+  public onBackupRestoredActivations: BackupRestoreEvent[] = [];
+  public onBirthdayUpdatedActivations: UnixTimestamp[] = [];
+  public onGenderUpdatedActivations: Gender[] = [];
+  public onLocationUpdatedActivations: CountryCode[] = [];
 
   constructor(context: CoreContext | null = null) {
     if (context != null) {
@@ -102,6 +107,26 @@ export class ContextProviderMock implements IContextProvider {
       this.onDataPermissionsUpdatedActivations.push(val);
     });
 
+    this.publicEvents.onBackupCreated.subscribe((val) => {
+      this.onBackupCreatedActivations.push(val);
+    });
+
+    this.publicEvents.onBackupRestored.subscribe((val) => {
+      this.onBackupRestoredActivations.push(val);
+    });
+
+    this.publicEvents.onBirthdayUpdated.subscribe((val) => {
+      this.onBirthdayUpdatedActivations.push(val);
+    });
+
+    this.publicEvents.onGenderUpdated.subscribe((val) => {
+      this.onGenderUpdatedActivations.push(val);
+    });
+
+    this.publicEvents.onLocationUpdated.subscribe((val) => {
+      this.onLocationUpdatedActivations.push(val);
+    });
+
     this.privateEvents.heartbeat.subscribe((val) => {
       this.heartbeatActivations.push(val);
     });
@@ -133,6 +158,11 @@ export class ContextProviderMock implements IContextProvider {
       onDataPermissionsUpdated: 0,
       heartbeat: 0,
       onApiAccessed: 0,
+      onBackupCreated: 0,
+      onBackupRestored: 0,
+      onBirthdayUpdated: 0,
+      onGenderUpdated: 0,
+      onLocationUpdated: 0,
     };
 
     // Merge the passed in counts with the basic counts
@@ -156,6 +186,17 @@ export class ContextProviderMock implements IContextProvider {
     );
     expect(this.heartbeatActivations.length).toBe(counts.heartbeat);
     expect(this.onApiAccessedActivations.length).toBe(counts.onApiAccessed);
+    expect(this.onBackupCreatedActivations.length).toBe(counts.onBackupCreated);
+    expect(this.onBackupRestoredActivations.length).toBe(
+      counts.onBackupRestored,
+    );
+    expect(this.onBirthdayUpdatedActivations.length).toBe(
+      counts.onBirthdayUpdated,
+    );
+    expect(this.onGenderUpdatedActivations.length).toBe(counts.onGenderUpdated);
+    expect(this.onLocationUpdatedActivations.length).toBe(
+      counts.onLocationUpdated,
+    );
   }
 }
 
@@ -170,4 +211,9 @@ export interface IExpectedEventCounts {
   onDataPermissionsUpdated?: number;
   heartbeat?: number;
   onApiAccessed?: number;
+  onBackupCreated?: number;
+  onBackupRestored?: number;
+  onBirthdayUpdated?: number;
+  onGenderUpdated?: number;
+  onLocationUpdated?: number;
 }

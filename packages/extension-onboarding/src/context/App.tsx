@@ -1,4 +1,22 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import {
+  ALERT_MESSAGES,
+  EWalletProviderKeys,
+  LOCAL_STORAGE_SDL_INVITATION_KEY,
+} from "@extension-onboarding/constants";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import {
+  getProviderList as getChainProviderList,
+  IProvider,
+} from "@extension-onboarding/services/blockChainWalletProviders";
+import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
+import { DataWalletGateway } from "@extension-onboarding/services/implementations/DataWalletGateway";
+import {
+  getProviderList as getSocialMediaProviderList,
+  ISocialMediaWrapper,
+} from "@extension-onboarding/services/socialMediaProviders";
 import {
   AccountAddress,
   BigNumberString,
@@ -9,6 +27,12 @@ import {
   LinkedAccount,
   Signature,
   URLString,
+  AccountAddedNotification,
+  AccountInitializedNotification,
+  AccountRemovedNotification,
+  CohortJoinedNotification,
+  EarnedRewardsAddedNotification,
+  ENotificationTypes,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 import React, {
@@ -19,31 +43,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
-
-import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import {
-  ALERT_MESSAGES,
-  EWalletProviderKeys,
-  LOCAL_STORAGE_SDL_INVITATION_KEY,
-} from "@extension-onboarding/constants";
-import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import {
-  getProviderList as getChainProviderList,
-  IProvider,
-} from "@extension-onboarding/services/blockChainWalletProviders";
-import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
-import { DataWalletGateway } from "@extension-onboarding/services/implementations/DataWalletGateway";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import {
-  getProviderList as getSocialMediaProviderList,
-  ISocialMediaWrapper,
-} from "@extension-onboarding/services/socialMediaProviders";
-
-export interface ILinkedAccount {
-  providerKey: EWalletProviderKeys;
-  accountAddress: AccountAddress;
-  chain: EChain;
-}
+import { Subscription } from "rxjs";
 
 export interface IInvitationInfo {
   consentAddress: EVMContractAddress | undefined;
@@ -54,27 +54,31 @@ export interface IInvitationInfo {
 }
 
 export enum EAppModes {
-  ONBOARDING_FLOW = "ONBOARDING_FLOW",
-  AUTHENTICATED_FLOW = "AUTHENTICATED_FLOW",
+  AUTH_USER = "AUTH",
+  UNAUTH_USER = "UNAUTH",
 }
 
 export interface IAppContext {
   apiGateway: ApiGateway;
   dataWalletGateway: DataWalletGateway;
-  linkedAccounts: ILinkedAccount[];
-  isSDLDataWalletDetected: boolean;
+  linkedAccounts: LinkedAccount[];
   providerList: IProvider[];
   earnedRewards: EarnedReward[];
   updateOptedInContracts: () => void;
   optedInContracts: EVMContractAddress[];
   socialMediaProviderList: ISocialMediaWrapper[];
   getUserAccounts(): ResultAsync<void, unknown>;
-  addAccount(account: ILinkedAccount): void;
+  addAccount(account: LinkedAccount): void;
   appMode: EAppModes | undefined;
   invitationInfo: IInvitationInfo;
   setInvitationInfo: (invitationInfo: IInvitationInfo) => void;
   isProductTourCompleted: boolean;
   completeProductTour: () => void;
+  setLinkerModalOpen: () => void;
+  setLinkerModalClose: () => void;
+  isLinkerModalOpen: boolean;
+  disablePopups: () => void;
+  popupsDisabled: boolean;
 }
 
 const INITIAL_INVITATION_INFO: IInvitationInfo = {
@@ -84,19 +88,12 @@ const INITIAL_INVITATION_INFO: IInvitationInfo = {
   rewardImage: undefined,
 };
 
-declare const window: IWindowWithSdlDataWallet;
-
 const AppContext = createContext<IAppContext>({} as IAppContext);
 
 export const AppContextProvider: FC = ({ children }) => {
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { sdlDataWallet } = useDataWalletContext();
   const [chainProviderList, setChainProviderList] = useState<IProvider[]>([]);
-  const [socialMediaProviderList, setSocialMediaProviderList] = useState<
-    ISocialMediaWrapper[]
-  >([]);
-  const [linkedAccounts, setLinkedAccounts] = useState<ILinkedAccount[]>([]);
-  const [isSDLDataWalletDetected, setSDLDataWalletDetected] =
-    useState<boolean>(false);
+  const [linkedAccounts, setLinkedAccounts] = useState<LinkedAccount[]>([]);
   const [appMode, setAppMode] = useState<EAppModes>();
   const { setAlert, setVisualAlert } = useNotificationContext();
   const [invitationInfo, setInvitationInfo] = useState<IInvitationInfo>(
@@ -109,6 +106,9 @@ export const AppContextProvider: FC = ({ children }) => {
   const [isProductTourCompleted, setIsProductTourCompleted] = useState<boolean>(
     localStorage.getItem("SDL_UserCompletedIntro") === "COMPLETED",
   );
+  const [isLinkerModalOpen, setIsLinkerModalOpen] =
+    React.useState<boolean>(false);
+  const [popupsDisabled, setPopupsDisabled] = useState<boolean>(false);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
@@ -150,100 +150,78 @@ export const AppContextProvider: FC = ({ children }) => {
   };
 
   useEffect(() => {
-    document.addEventListener(
-      "SD_WALLET_EXTENSION_CONNECTED",
-      onWalletConnected,
-    );
-    return () => {
-      document.removeEventListener(
-        "SD_WALLET_EXTENSION_CONNECTED",
-        onWalletConnected,
-      );
-    };
+    setTimeout(() => {
+      setChainProviderList(getChainProviderList());
+      checkDataWalletAddressAndInitializeApp();
+    }, 500);
   }, []);
 
   const checkDataWalletAddressAndInitializeApp = () => {
-    window?.sdlDataWallet?.getDataWalletAddress().map((dataWalletAddress) => {
-      if (dataWalletAddress) {
-        getUserAccounts();
-        getEarnedRewards();
-        getOptedInContracts();
-        subscribeToAccountAdding();
-        subscribeToEarnedRewardAdding();
-        subscribeToAccountRemoving();
-        if (
-          sessionStorage.getItem("appMode") ===
-          EAppModes.ONBOARDING_FLOW.toString()
-        ) {
-          setAppMode(EAppModes.ONBOARDING_FLOW);
-        } else {
-          setAppMode(EAppModes.AUTHENTICATED_FLOW);
-        }
+    sdlDataWallet.metrics.getUnlocked().map((isUnlocked) => {
+      if (isUnlocked) {
+        setAppMode(EAppModes.AUTH_USER);
       } else {
-        subscribeToAccountInitiating();
-        subscribeToAccountAdding();
-        sessionStorage.setItem("appMode", EAppModes.ONBOARDING_FLOW.toString());
-        setAppMode(EAppModes.ONBOARDING_FLOW);
+        setAppMode(EAppModes.UNAUTH_USER);
       }
     });
   };
 
-  const subscribeToAccountAdding = () => {
-    window?.sdlDataWallet?.on("onAccountAdded", onAccountAdded);
-  };
+  let initializedSubscription: Subscription | null = null;
+  let accountAddedSubscription: Subscription | null = null;
+  let accountRemovedSubscription: Subscription | null = null;
+  let earnedRewardsAddedSubscription: Subscription | null = null;
+  let cohortJoinedSubscription: Subscription | null = null;
 
-  const subscribeToAccountInitiating = () => {
-    window?.sdlDataWallet?.on("onAccountInitialized", onAccountInitialized);
-  };
+  // register events
+  useEffect(() => {
+    if (appMode === EAppModes.UNAUTH_USER) {
+      initializedSubscription =
+        sdlDataWallet.events.onInitialized.subscribe(onAccountInitialized);
+    }
+    if (appMode === EAppModes.AUTH_USER) {
+      getUserAccounts();
+      getOptedInContracts();
+      getEarnedRewards();
 
-  const subscribeToAccountRemoving = () => {
-    window?.sdlDataWallet?.on("onAccountRemoved", onAccountRemoved);
-  };
+      initializedSubscription?.unsubscribe();
+      accountAddedSubscription =
+        sdlDataWallet.events.onAccountAdded.subscribe(onAccountAdded);
+      accountRemovedSubscription =
+        sdlDataWallet.events.onAccountRemoved.subscribe(onAccountRemoved);
+      earnedRewardsAddedSubscription =
+        sdlDataWallet.events.onEarnedRewardsAdded.subscribe(
+          onEarnedRewardAdded,
+        );
+      cohortJoinedSubscription =
+        sdlDataWallet.events.onCohortJoined.subscribe(onCohortJoined);
+    }
+    return () => {
+      initializedSubscription?.unsubscribe();
+      accountAddedSubscription?.unsubscribe();
+      accountRemovedSubscription?.unsubscribe();
+      earnedRewardsAddedSubscription?.unsubscribe();
+      cohortJoinedSubscription?.unsubscribe();
+    };
+  }, [appMode]);
 
-  const subscribeToEarnedRewardAdding = () => {
-    window?.sdlDataWallet?.on("onEarnedRewardsAdded", onEarnedRewardAdded);
-  };
-
-  const onEarnedRewardAdded = (notification: {
-    data: { rewards: EarnedReward[] };
-  }) => {
-    console.warn("EARNED REWARD ADDED", notification);
+  // notification handlers
+  const onEarnedRewardAdded = (earnedRewards: EarnedReward[]) => {
     getEarnedRewards();
   };
 
-  const updateOptedInContracts = () => {
-    getOptedInContracts();
-  };
-
-  const getOptedInContracts = () => {
-    window.sdlDataWallet.getAcceptedInvitationsCID().map((records) => {
-      setUptedInContracts(Object.keys(records) as EVMContractAddress[]);
-    });
-  };
-
-  const onAccountInitialized = (notification: {
-    data: { dataWalletAddress: DataWalletAddress };
-  }) => {
+  const onAccountInitialized = (dataWalletAddress: DataWalletAddress) => {
     getUserAccounts().map(() => {
       setVisualAlert(true);
       setAlert({
         message: ALERT_MESSAGES.ACCOUNT_ADDED,
         severity: EAlertSeverity.SUCCESS,
       });
+      setAppMode(EAppModes.AUTH_USER);
     });
   };
 
-  const onAccountAdded = (notification: {
-    data: { linkedAccount: LinkedAccount };
-  }) => {
-    addAccount({
-      accountAddress: notification.data.linkedAccount.sourceAccountAddress,
-      providerKey:
-        localStorage.getItem(
-          `${notification.data.linkedAccount.sourceAccountAddress}`,
-        ) ?? null,
-      chain: notification.data.linkedAccount.sourceChain,
-    } as ILinkedAccount);
+  const onAccountAdded = (linkedAccount: LinkedAccount) => {
+    addAccount(linkedAccount);
     setVisualAlert(true);
     setAlert({
       message: ALERT_MESSAGES.ACCOUNT_ADDED,
@@ -251,35 +229,29 @@ export const AppContextProvider: FC = ({ children }) => {
     });
   };
 
-  const onAccountRemoved = (notification: {
-    data: { linkedAccount: LinkedAccount };
-  }) => {
+  const onAccountRemoved = (linkedAccount: LinkedAccount) => {
     getUserAccounts();
   };
 
-  const onWalletConnected = useCallback(() => {
-    setSDLDataWalletDetected(true);
-    setTimeout(() => {
-      checkDataWalletAddressAndInitializeApp();
-      setChainProviderList(getChainProviderList());
-      setSocialMediaProviderList(getSocialMediaProviderList());
-      setIsLoading(false);
-    }, 500);
-  }, []);
+  const onCohortJoined = (consentContractAddress: EVMContractAddress) => {
+    getOptedInContracts();
+  };
+
+  // can be called after recovery
+  const updateOptedInContracts = () => {
+    getOptedInContracts();
+  };
+
+  const getOptedInContracts = () => {
+    sdlDataWallet.getAcceptedInvitationsCID().map((res) => {
+      setUptedInContracts(Array.from(res.keys()) as EVMContractAddress[]);
+    });
+  };
 
   const getUserAccounts = () => {
-    return window.sdlDataWallet.getAccounts().map((accounts) => {
-      const _accounts = accounts.map(
-        (account) =>
-          ({
-            accountAddress: account.sourceAccountAddress,
-            providerKey:
-              localStorage.getItem(`${account.sourceAccountAddress}`) ?? null,
-            chain: account.sourceChain,
-          } as ILinkedAccount),
-      );
+    return sdlDataWallet.getAccounts().map((accounts) => {
       setLinkedAccounts((prev) =>
-        [...new Set(_accounts.map((o) => JSON.stringify(o)))].map((s) =>
+        [...new Set(accounts.map((o) => JSON.stringify(o)))].map((s) =>
           JSON.parse(s),
         ),
       );
@@ -287,29 +259,28 @@ export const AppContextProvider: FC = ({ children }) => {
   };
 
   const getEarnedRewards = () => {
-    return window.sdlDataWallet.getEarnedRewards().map((rewards) => {
+    return sdlDataWallet.getEarnedRewards().map((rewards) => {
       setEarnedRewards(rewards);
     });
   };
 
-  const addAccount = (account: ILinkedAccount) => {
+  const addAccount = (account: LinkedAccount) => {
     setLinkedAccounts((prev) => [...prev, account]);
   };
 
   const completeProductTour = () => {
     setIsProductTourCompleted(true);
   };
-  
+
   return (
     <AppContext.Provider
       value={{
         updateOptedInContracts,
         optedInContracts,
         apiGateway: new ApiGateway(),
-        dataWalletGateway: new DataWalletGateway(),
+        dataWalletGateway: new DataWalletGateway(sdlDataWallet),
         providerList: chainProviderList,
-        socialMediaProviderList,
-        isSDLDataWalletDetected,
+        socialMediaProviderList: getSocialMediaProviderList(sdlDataWallet),
         linkedAccounts,
         getUserAccounts,
         appMode,
@@ -319,6 +290,11 @@ export const AppContextProvider: FC = ({ children }) => {
         setInvitationInfo: updateInvitationInfo,
         isProductTourCompleted,
         completeProductTour,
+        setLinkerModalOpen: () => setIsLinkerModalOpen(true),
+        setLinkerModalClose: () => setIsLinkerModalOpen(false),
+        isLinkerModalOpen,
+        popupsDisabled,
+        disablePopups: () => setPopupsDisabled(true),
       }}
     >
       {children}

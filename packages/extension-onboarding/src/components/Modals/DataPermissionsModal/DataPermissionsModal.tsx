@@ -1,12 +1,3 @@
-import { Button } from "@snickerdoodlelabs/shared-components";
-import { useStyles } from "@extension-onboarding/components/Modals/DataPermissionsModal/DataPermissionsModal.style";
-import Switch from "@extension-onboarding/components/Switch";
-import {
-  PERMISSION_NAMES,
-  PERMISSIONS,
-} from "@extension-onboarding/constants/permissions";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
   Box,
   Dialog,
@@ -16,20 +7,36 @@ import {
 } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import { EWalletDataType } from "@snickerdoodlelabs/objects";
+import { Button } from "@snickerdoodlelabs/shared-components";
 import React, { useEffect, FC, useState } from "react";
 
-declare const window: IWindowWithSdlDataWallet;
+import { useStyles } from "@extension-onboarding/components/Modals/DataPermissionsModal/DataPermissionsModal.style";
+import Switch from "@extension-onboarding/components/Switch";
+import {
+  PERMISSION_NAMES,
+  PERMISSIONS,
+} from "@extension-onboarding/constants/permissions";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 
 const DataPermissionsModal: FC = () => {
+  const { sdlDataWallet } = useDataWalletContext();
   const { modalState, closeModal } = useLayoutContext();
   const { onPrimaryButtonClick, customProps } = modalState;
   const [permissionForm, setPermissionForm] = useState<EWalletDataType[]>([]);
   const onCloseClicked: () => void = customProps.onCloseClicked;
 
   useEffect(() => {
-    window.sdlDataWallet.getDefaultPermissions().map((permissions) => {
-      setPermissionForm(permissions.filter((item) => !!PERMISSION_NAMES[item]));
-    });
+    sdlDataWallet
+      .getDefaultPermissions()
+      .map((permissions) => {
+        setPermissionForm(
+          permissions.filter((item) => !!PERMISSION_NAMES[item]),
+        );
+      })
+      .mapErr((e) => {
+        console.error(e);
+      });
   }, []);
 
   const classes = useStyles();

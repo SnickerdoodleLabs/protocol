@@ -1,8 +1,9 @@
+import { BaseError } from "@objects/errors/BaseError.js";
 import errorCodes from "@objects/errors/errorCodes.js";
 
-export class ProviderRpcError extends Error {
+export class ProviderRpcError extends BaseError {
   protected errorCode: string = errorCodes[ProviderRpcError.name];
-  constructor(public message: string, public code?: number, public data?: any) {
-    super(message);
+  constructor(message: string, public src?: unknown) {
+    super(message, 500, errorCodes[ProviderRpcError.name], src, false);
   }
 }

@@ -1,7 +1,4 @@
 import { Box, Grow, Typography, Zoom } from "@material-ui/core";
-import { Permissions } from "@shared-components/components/Permissions";
-import { EBadgeType } from "@shared-components/objects";
-import { useRewardItemsStyles } from "@shared-components/styles/rewardItem";
 import {
   EVMContractAddress,
   EWalletDataType,
@@ -9,6 +6,10 @@ import {
   QueryTypePermissionMap,
 } from "@snickerdoodlelabs/objects";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+
+import { Permissions } from "@shared-components/components/Permissions";
+import { EBadgeType } from "@shared-components/objects";
+import { useRewardItemsStyles } from "@shared-components/styles/rewardItem";
 
 interface IPossibleRewardProps {
   reward: PossibleReward;
@@ -36,7 +37,7 @@ export const PossibleRewardComponent = ({
 
   const permissions: EWalletDataType[] = useMemo(
     () =>
-      reward.queryDependencies.map(
+      reward.estimatedQueryDependencies.map(
         (dependency) => QueryTypePermissionMap.get(dependency)!,
       ),
     [reward],
@@ -107,6 +108,20 @@ export const PossibleRewardComponent = ({
             </Typography>
           </Box>
         );
+      case badgeType === EBadgeType.UserWasInEligible:
+        return (
+          <Box
+            width="fit-content"
+            bgcolor="#FDEFEF"
+            px={1}
+            py={0.5}
+            borderRadius={4}
+          >
+            <Typography className={rewardItemsClasses.listPermissionRequired}>
+              Did not match the reward criteria
+            </Typography>
+          </Box>
+        );
       default:
         return null;
     }
@@ -150,15 +165,15 @@ export const PossibleRewardComponent = ({
                   }
                 />
               )}
-              <Zoom in={unlockAnimation} unmountOnExit>
+              {badgeType === EBadgeType.UserWasInEligible && (
                 <img
                   width={23}
                   height={23}
                   src={
-                    "https://storage.googleapis.com/dw-assets/shared/icons/unlocked.png"
+                    "https://storage.googleapis.com/dw-assets/shared/icons/cross.png"
                   }
                 />
-              </Zoom>
+              )}
             </Box>
             <Box
               position="absolute"
@@ -310,6 +325,38 @@ export const PossibleRewardComponent = ({
                     height={53}
                     src={
                       "https://storage.googleapis.com/dw-assets/shared/icons/lock-expanded.png"
+                    }
+                  />
+                </Grow>
+              </Box>
+            )}
+            {badgeType === EBadgeType.UserWasInEligible && (
+              <Box
+                display="flex"
+                onMouseEnter={() => {
+                  setLockHovered(true);
+                }}
+                onMouseLeave={() => {
+                  setLockHovered(false);
+                }}
+              >
+                <img
+                  height={53}
+                  style={{ zIndex: 1 }}
+                  src={
+                    "https://storage.googleapis.com/dw-assets/shared/icons/cross.png"
+                  }
+                />
+                <Grow
+                  unmountOnExit
+                  in={lockHovered}
+                  timeout={{ enter: 500, exit: 200 }}
+                >
+                  <img
+                    style={{ marginLeft: -53 }}
+                    height={53}
+                    src={
+                      "https://storage.googleapis.com/dw-assets/shared/icons/cross-expanded.png"
                     }
                   />
                 </Grow>

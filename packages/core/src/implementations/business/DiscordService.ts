@@ -45,16 +45,23 @@ export class DiscordService implements IDiscordService {
     throw new Error("Method not implemented.");
   }
 
-  public installationUrl(): ResultAsync<URLString, DiscordError> {
-    return this.getAPIConfig().map((apiConfig) =>
-      URLString(
-        `https://discord.com/oauth2/authorize?client_id=${
-          apiConfig.clientId
-        }&redirect_uri=${encodeURI(
-          apiConfig.oauthRedirectUrl,
-        )}&response_type=code&scope=identify%20guilds&prompt=consent`, // TODO we can parameterize scope, too.
-      ),
-    );
+  public installationUrl(
+    redirectTabId?: number,
+  ): ResultAsync<URLString, OAuthError> {
+    return this.getAPIConfig().map((apiConfig) => {
+      let url = `https://discord.com/oauth2/authorize?client_id=${
+        apiConfig.clientId
+      }&redirect_uri=${encodeURI(
+        apiConfig.oauthRedirectUrl,
+      )}&response_type=code&scope=identify%20guilds&prompt=consent`; // TODO we can parameterize scope, too.
+
+      if (redirectTabId != null) {
+        url = `${url}&state=${encodeURI(
+          JSON.stringify({ redirect_tab_id: redirectTabId }),
+        )}`;
+      }
+      return URLString(url);
+    });
   }
 
   public unlink(
@@ -116,10 +123,10 @@ export class DiscordService implements IDiscordService {
     });
   }
 
-  protected getAPIConfig(): ResultAsync<DiscordConfig, DiscordError> {
+  protected getAPIConfig(): ResultAsync<DiscordConfig, OAuthError> {
     return this.configProvider.getConfig().andThen((config) => {
       if (config.discord == null) {
-        return errAsync(new DiscordError("Discord configuration not found!"));
+        return errAsync(new OAuthError("Discord configuration not found!"));
       }
       return okAsync(config.discord);
     });

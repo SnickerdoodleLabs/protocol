@@ -1,18 +1,17 @@
+import { Box, Typography } from "@material-ui/core";
+import { Skeleton } from "@material-ui/lab";
+import { ETag, EVMContractAddress } from "@snickerdoodlelabs/objects";
 import { Button } from "@snickerdoodlelabs/shared-components";
+import React, { FC, useEffect, useState, useMemo, useRef } from "react";
+import { useNavigate } from "react-router";
+import { generatePath } from "react-router-dom";
+
 import { useStyles } from "@extension-onboarding/components/CampaignItems/FeaturedCampaignItem/FeaturedCampaignItem.style";
 import LinearProgress from "@extension-onboarding/components/LinearProgress";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { useAppContext } from "@extension-onboarding/context/App";
 import useCampaignLogic from "@extension-onboarding/hooks/useCampaignLogic";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { Box, Typography } from "@material-ui/core";
-import { Skeleton } from "@material-ui/lab";
-import { ETag, EVMContractAddress } from "@snickerdoodlelabs/objects";
-import React, { FC, useEffect, useState, useMemo, useRef } from "react";
-import { useNavigate } from "react-router";
-import { generatePath } from "react-router-dom";
 
-declare const window: IWindowWithSdlDataWallet;
 interface IFeaturedCampaignItemProps {
   consentContractAddress: EVMContractAddress;
   navigationPath?: EPaths;
