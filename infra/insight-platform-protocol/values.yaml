@@ -6,3 +6,8 @@ ProtocolIframe:
   Image:
     Repo: "us-central1-docker.pkg.dev/snickerdoodle-insight-stackdev/insight-platform/protocol-iframe"
     Tag: "latest"
+
+ProtocolStaticWebIntegration:
+  Image:
+    Repo: "us-central1-docker.pkg.dev/snickerdoodle-insight-stackdev/insight-platform/protocol-static-web-integration"
+    Tag: "latest"

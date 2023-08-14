@@ -92,7 +92,7 @@ export class EtherscanIndexer implements IEVMIndexer {
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
-  ) {}
+  ) { }
 
   public name(): string {
     return EDataProvider.Etherscan;
@@ -175,9 +175,9 @@ export class EtherscanIndexer implements IEVMIndexer {
         (value: IndexerSupportSummary, key: EChain) => {
           if (
             config.apiKeys.etherscanApiKeys[getChainInfoByChain(key).name] ==
-              "" ||
+            "" ||
             config.apiKeys.etherscanApiKeys[getChainInfoByChain(key).name] ==
-              undefined
+            undefined
           ) {
             this.health.set(key, EComponentStatus.NoKeyProvided);
           } else {

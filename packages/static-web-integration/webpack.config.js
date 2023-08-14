@@ -16,11 +16,13 @@ module.exports = {
   },
   context: __dirname,
   mode: process.env.__BUILD_ENV__ === "dev" ? "development" : "production",
-  entry: path.join(__dirname, "src/index.tsx"),
+  entry: path.join(__dirname, "src/index.ts"),
   output: {
-    filename: "index.js",
+    filename: "snickerdoodle.js",
     path: path.join(__dirname, "/dist/bundle"),
     publicPath: "/",
+    libraryTarget: "var",
+    library: "snickerdoodle",
   },
   devServer: {
     https: true,
@@ -100,26 +102,12 @@ module.exports = {
   devtool:
     process.env.__BUILD_ENV__ === "dev" ? "eval-source-map" : "source-map",
   plugins: [
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src/index.html"),
-      favicon: "src/favicon/favicon.ico",
-    }),
     new webpack.ProvidePlugin({
       Buffer: ["buffer", "Buffer"],
       process: "process/browser",
     }),
     new webpack.DefinePlugin({
-      __CONTROL_CHAIN_ID__: JSON.stringify(process.env.__CONTROL_CHAIN_ID__),
-      __IPFS_FETCH_BASE_URL__: JSON.stringify(
-        process.env.__IPFS_FETCH_BASE_URL__,
-      ),
-      __DEFAULT_INSIGHT_PLATFORM_BASE_URL__: JSON.stringify(
-        process.env.__DEFAULT_INSIGHT_PLATFORM_BASE_URL__,
-      ),
-      __DEV_CHAIN_PROVIDER_URL__: JSON.stringify(
-        process.env.__DEV_CHAIN_PROVIDER_URL__,
-      ),
-      __SUPPORTED_CHAINS__: JSON.stringify(process.env.__SUPPORTED_CHAINS__),
+      __LOGO_PATH__: JSON.stringify(process.env.__LOGO_PATH__),
     }),
   ],
 };

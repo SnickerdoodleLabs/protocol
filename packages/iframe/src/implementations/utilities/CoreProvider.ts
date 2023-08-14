@@ -43,6 +43,8 @@ export class CoreProvider implements ICoreProvider {
     config.ipfsFetchBaseUrl = immutableConfig.ipfsFetchBaseUrl;
     config.defaultInsightPlatformBaseUrl =
       immutableConfig.defaultInsightPlatformBaseUrl;
+    config.devChainProviderURL = immutableConfig.devChainProviderURL;
+    config.supportedChains = immutableConfig.supportedChains;
 
     this.core = new SnickerdoodleCore(config);
 
