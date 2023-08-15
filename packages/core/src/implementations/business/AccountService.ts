@@ -231,12 +231,9 @@ export class AccountService implements IAccountService {
               new LinkedAccount(chain, accountAddress),
             );
           })
-          .andThen(() => {
-            // We need to post a backup immediately upon adding an account, so that we don't lose access
-            return this.dataWalletPersistence.postBackups();
-          })
           .map(() => {
             // Notify the outside world of what we did
+            context.privateEvents.postBackupsRequested.next();
             context.publicEvents.onAccountAdded.next(
               new LinkedAccount(chain, accountAddress),
             );

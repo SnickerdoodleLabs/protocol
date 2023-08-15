@@ -87,6 +87,12 @@ export class CloudStorageService implements ICloudStorageService {
           });
         });
       });
+
+      context.privateEvents.postBackupsRequested.subscribe(() => {
+        this.dataWalletPersistence.postBackups().mapErr((e) => {
+          this.logUtils.error("Error posting backups", e);
+        });
+      });
     });
   }
 

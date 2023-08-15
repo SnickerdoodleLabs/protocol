@@ -1,5 +1,6 @@
 import { EChain, ESocialType } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import React, {
   createContext,
   FC,
@@ -96,10 +97,6 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
     setLoadingStatus(false);
   }, [(linkedAccounts ?? []).length]);
 
-  useEffect(() => {
-    setLoadingStatus(false);
-  }, [(linkedAccounts ?? []).length]);
-
   const getChain = (providerKey: EWalletProviderKeys) => {
     return providerKey === EWalletProviderKeys.PHANTOM
       ? EChain.Solana
@@ -109,39 +106,42 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
   const onProviderConnectClick = useCallback(
     (providerObj: IProvider) => {
       // setSelectedProviderKey(providerObj.key);
-      return providerObj.provider.connect().andThen((account) => {
-        return sdlDataWallet.getLinkAccountMessage().andThen((message) => {
-          return providerObj.provider
-            .getSignature(message)
-            .andThen((signature) => {
-              if (
-                !linkedAccounts?.find(
-                  (linkedAccount) =>
-                    linkedAccount.sourceAccountAddress === account,
-                )
-              ) {
-                // use it for metadata
-                localStorage.setItem(`${account}`, providerObj.key);
-                setLoadingStatus(true, {
-                  type: ELoadingIndicatorType.COMPONENT,
-                  component: <AccountLinkingIndicator />,
+      return ResultUtils.combine([
+        providerObj.provider.connect(),
+        sdlDataWallet.getLinkAccountMessage(),
+      ]).andThen(([account, message]) => {
+        return providerObj.provider
+          .getSignature(message)
+          .andThen((signature) => {
+            // If the new chosen account is not already linked
+            if (
+              !linkedAccounts?.find(
+                (linkedAccount) =>
+                  linkedAccount.sourceAccountAddress === account,
+              )
+            ) {
+              // use it for metadata
+              localStorage.setItem(`${account}`, providerObj.key);
+              setLoadingStatus(true, {
+                type: ELoadingIndicatorType.COMPONENT,
+                component: <AccountLinkingIndicator />,
+              });
+              return sdlDataWallet
+                .addAccount(account, signature, getChain(providerObj.key))
+                .mapErr((e) => {
+                  console.error(e);
+                  setLoadingStatus(false);
                 });
-                return sdlDataWallet
-                  .addAccount(account, signature, getChain(providerObj.key))
-                  .mapErr((e) => {
-                    console.error(e);
-                    setLoadingStatus(false);
-                  });
-              } else {
-                setModal({
-                  modalSelector: EModalSelectors.PHANTOM_LINKING_STEPS,
-                  onPrimaryButtonClick: () => {},
-                  customProps: { accountAddress: account },
-                });
-              }
-              return okAsync(undefined);
+            }
+
+            // The new account is already linked
+            setModal({
+              modalSelector: EModalSelectors.PHANTOM_LINKING_STEPS,
+              onPrimaryButtonClick: () => {},
+              customProps: { accountAddress: account },
             });
-        });
+            return okAsync(undefined);
+          });
       });
     },
     [linkedAccounts],
