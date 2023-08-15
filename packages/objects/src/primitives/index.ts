@@ -20,6 +20,7 @@ export * from "@objects/primitives/CryptoTokenSymbol.js";
 export * from "@objects/primitives/CurrencyAlphabeticCode.js";
 export * from "@objects/primitives/DataWalletAddress.js";
 export * from "@objects/primitives/DataWalletBackupID.js";
+export * from "@objects/primitives/DecimalString.js";
 export * from "@objects/primitives/DomainName.js";
 export * from "@objects/primitives/EmailAddressString.js";
 export * from "@objects/primitives/EncryptedString.js";
