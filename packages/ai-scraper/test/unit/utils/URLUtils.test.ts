@@ -1,27 +1,42 @@
 import "reflect-metadata";
-import { Language } from "@snickerdoodlelabs/objects";
+import { ELanguageCode } from "@snickerdoodlelabs/objects";
 
-import { KnownDomains, Task } from "@ai-scraper/interfaces";
-import { URLUtilsMocks } from "@ai-scraper-test/mocks/URLUtilsMocks";
+import { KeywordUtils, URLUtils } from "@ai-scraper/implementations";
+import { EKnownDomains, ETask } from "@ai-scraper/interfaces";
+import {
+  AMAZON_HOST_NAME,
+  AMAZON_URL,
+  GOOGLE_URL,
+  INVALID_URL,
+  MockKeywordRepository,
+} from "@ai-scraper-test/mocks";
+
+export class URLUtilsMocks {
+  public keywordRepository = new MockKeywordRepository().factory();
+
+  public factory(): URLUtils {
+    return new URLUtils(new KeywordUtils());
+  }
+}
 
 describe("URLUtils", () => {
   test("test valid hostname", async () => {
     // Arrange
     const urlUtils = new URLUtilsMocks().factory();
-    const url = new URLUtilsMocks().getAmazonURL();
+    const url = AMAZON_URL;
 
     // Act
     const result = await urlUtils.getHostname(url);
     const expected = result._unsafeUnwrap();
 
     // Assert
-    expect(expected).toBe("www.amazon.com");
+    expect(expected).toBe(AMAZON_HOST_NAME);
   });
 
   test("test invalid hostname", async () => {
     // Arrange
     const urlUtils = new URLUtilsMocks().factory();
-    const url = new URLUtilsMocks().getInvalidURL();
+    const url = INVALID_URL;
 
     // Act
     const result = await urlUtils.getHostname(url);
@@ -34,39 +49,51 @@ describe("URLUtils", () => {
   test("test amazon domain name", async () => {
     // Arrange
     const urlUtils = new URLUtilsMocks().factory();
-    const url = new URLUtilsMocks().getAmazonURL();
+    const url = AMAZON_URL;
 
     // Act
     const result = await urlUtils.getDomain(url);
     const expected = result._unsafeUnwrap();
 
     // Assert
-    expect(expected).toBe(KnownDomains.Amazon);
+    expect(expected).toBe(EKnownDomains.Amazon);
   });
 
   test("amazon purchase task", async () => {
     // Arrange
-    const urlUtils = new URLUtilsMocks().factory();
-    const url = new URLUtilsMocks().getAmazonURL();
+    const mocks = new URLUtilsMocks();
+    const urlUtils = mocks.factory();
+    const keywordRepository = mocks.keywordRepository;
+    const url = AMAZON_URL;
 
     // Act
-    const result = await urlUtils.getTask(url, Language.English);
+    const result = await urlUtils.getTask(
+      keywordRepository,
+      url,
+      ELanguageCode.English,
+    );
     const expected = result._unsafeUnwrap();
 
     // Assert
-    expect(expected).toBe(Task.PurchaseHistory);
+    expect(expected).toBe(ETask.PurchaseHistory);
   });
 
   test("unknown task", async () => {
     // Arrange
-    const urlUtils = new URLUtilsMocks().factory();
-    const url = new URLUtilsMocks().getGoogleURL();
+    const mocks = new URLUtilsMocks();
+    const urlUtils = mocks.factory();
+    const keywordRepository = mocks.keywordRepository;
+    const url = GOOGLE_URL;
 
     // Act
-    const result = await urlUtils.getTask(url, Language.English);
+    const result = await urlUtils.getTask(
+      keywordRepository,
+      url,
+      ELanguageCode.English,
+    );
     const expected = result._unsafeUnwrap();
 
     // Assert
-    expect(expected).toBe(Task.Unknown);
+    expect(expected).toBe(ETask.Unknown);
   });
 });

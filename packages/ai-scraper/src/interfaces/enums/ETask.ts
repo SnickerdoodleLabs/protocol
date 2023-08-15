@@ -1,4 +1,4 @@
-export enum Task {
+export enum ETask {
   PurchaseHistory = "PurchaseHistory",
   Follower = "Follower",
   ProductCollection = "ProductCollection",

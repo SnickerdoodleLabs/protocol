@@ -1,6 +1,4 @@
-import { DomainName } from "@snickerdoodlelabs/objects";
-
-export enum KnownDomains {
+export enum EKnownDomains {
   Amazon = "amazon",
   Ebay = "ebay",
   // Etsy = "etsy",

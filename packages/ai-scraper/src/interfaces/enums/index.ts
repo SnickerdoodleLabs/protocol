@@ -1,2 +1,2 @@
-export * from "@ai-scraper/interfaces/enums/KnownDomains.js";
-export * from "@ai-scraper/interfaces/enums/Task.js";
+export * from "@ai-scraper/interfaces/enums/EKnownDomains.js";
+export * from "@ai-scraper/interfaces/enums/ETask.js";

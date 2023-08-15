@@ -1,7 +1,7 @@
 import { DomainName } from "@snickerdoodlelabs/objects";
 
-import { Task } from "@ai-scraper/interfaces/enums/Task.js";
+import { ETask } from "@ai-scraper/interfaces/enums/ETask.js";
 
 export class DomainTask {
-  constructor(readonly domain: DomainName, readonly task: Task) {}
+  constructor(readonly domain: DomainName, readonly taskType: ETask) {}
 }

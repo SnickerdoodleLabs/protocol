@@ -3,19 +3,19 @@ import {
   DomainName,
   HostName,
   HexString,
-  LanguageCode,
-  Language,
+  ELanguageCode,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
 import {
+  IKeywordRepository,
   IKeywordUtils,
   IKeywordUtilsType,
   IURLUtils,
   Keyword,
-  KnownDomains,
-  Task,
+  EKnownDomains,
+  ETask,
 } from "@ai-scraper/interfaces/index.js";
 
 @injectable()
@@ -35,8 +35,8 @@ export class URLUtils implements IURLUtils {
 
   public getDomain(url: URLString): ResultAsync<DomainName, TypeError> {
     return this.getHostname(url).map((hostname) => {
-      if (hostname.includes(KnownDomains.Amazon)) {
-        return DomainName(KnownDomains.Amazon);
+      if (hostname.includes(EKnownDomains.Amazon)) {
+        return DomainName(EKnownDomains.Amazon);
       }
 
       return DomainName(hostname);
@@ -45,7 +45,7 @@ export class URLUtils implements IURLUtils {
 
   public getKeywords(
     url: URLString,
-    language: Language,
+    language: ELanguageCode,
   ): ResultAsync<Keyword[], TypeError> {
     // keywords are in the path or in search params
     const urlObj = new URL(url);
@@ -62,21 +62,26 @@ export class URLUtils implements IURLUtils {
   }
   public getHash(
     url: URLString,
-    language: Language,
+    language: ELanguageCode,
   ): ResultAsync<HexString, TypeError> {
     throw new Error("Method not implemented.");
   }
 
   public getTask(
+    keywordRepository: IKeywordRepository,
     url: URLString,
-    language: Language,
-  ): ResultAsync<Task, TypeError> {
+    language: ELanguageCode,
+  ): ResultAsync<ETask, TypeError> {
     // 1. get domain
-    // 2. get keywords
+    // 2. get urlKeywords
     // 3. get task
 
-    return this.getKeywords(url, language).andThen((keywords) => {
-      return this.keywordUtils.matchTask(language, keywords);
+    return this.getKeywords(url, language).andThen((urlKeywords) => {
+      return this.keywordUtils.getTaskByKeywords(
+        keywordRepository,
+        language,
+        urlKeywords,
+      );
     });
 
     // const keywords = this.getKeywords(url, Language.English);

@@ -1,4 +1,4 @@
-import { Language, URLString } from "@snickerdoodlelabs/objects";
+import { ELanguageCode, URLString } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 import { DomainTask } from "@ai-scraper/interfaces/index.js";
@@ -6,7 +6,7 @@ import { DomainTask } from "@ai-scraper/interfaces/index.js";
 export interface IWebpageClassifier {
   classify(
     url: URLString,
-    language: Language,
+    language: ELanguageCode,
   ): ResultAsync<DomainTask, TypeError>;
 }
 

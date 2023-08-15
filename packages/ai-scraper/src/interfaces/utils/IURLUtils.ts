@@ -3,11 +3,12 @@ import {
   DomainName,
   HostName,
   HexString,
-  Language,
+  ELanguageCode,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { Task } from "@ai-scraper/interfaces/enums";
+import { IKeywordRepository } from "@ai-scraper/interfaces/data/IKeywordRepository.js";
+import { ETask } from "@ai-scraper/interfaces/enums/ETask.js";
 import { Keyword } from "@ai-scraper/interfaces/primitives/Keyword.js";
 
 export interface IURLUtils {
@@ -15,13 +16,17 @@ export interface IURLUtils {
   getDomain(url: URLString): ResultAsync<DomainName, TypeError>;
   getKeywords(
     url: URLString,
-    language: Language,
+    language: ELanguageCode,
   ): ResultAsync<Keyword[], TypeError>;
   getHash(
     url: URLString,
-    language: Language,
+    language: ELanguageCode,
   ): ResultAsync<HexString, TypeError>;
-  getTask(url: URLString, language: Language): ResultAsync<Task, TypeError>;
+  getTask(
+    keywordRepository: IKeywordRepository,
+    url: URLString,
+    language: ELanguageCode,
+  ): ResultAsync<ETask, TypeError>;
 }
 
 export const IURLUtilsType = Symbol.for("IURLUtils");
