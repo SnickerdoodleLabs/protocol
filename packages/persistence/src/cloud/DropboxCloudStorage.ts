@@ -84,11 +84,6 @@ export class DropboxCloudStorage implements ICloudStorage {
       },
     );
   }
-  clearCredentials(
-    credentials: AuthenticatedStorageSettings,
-  ): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
 
   public name(): ECloudStorageType {
     return ECloudStorageType.Dropbox;
@@ -204,6 +199,17 @@ export class DropboxCloudStorage implements ICloudStorage {
     // Store the result
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this._resolveCredentials!(credentials);
+
+    // username/password or an auth token from the FF
+    return okAsync(undefined);
+  }
+
+  public clearCredentials(): ResultAsync<void, PersistenceError> {
+    this._credentialsPromise = new Promise<AuthenticatedStorageSettings>(
+      (resolve) => {
+        this._resolveCredentials = resolve;
+      },
+    );
 
     // username/password or an auth token from the FF
     return okAsync(undefined);

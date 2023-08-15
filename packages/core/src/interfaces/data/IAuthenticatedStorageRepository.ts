@@ -24,6 +24,9 @@ export interface IAuthenticatedStorageRepository {
   activateAuthenticatedStorage(
     settings: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError>;
+  deactivateAuthenticatedStorage(
+    settings: AuthenticatedStorageSettings,
+  ): ResultAsync<void, PersistenceError>;
 }
 
 export const IAuthenticatedStorageRepositoryType = Symbol.for(

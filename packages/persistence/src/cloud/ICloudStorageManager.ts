@@ -18,7 +18,7 @@ export interface ICloudStorageManager {
     settings: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError>;
 
-  deactivateCloudStorage(
+  deactivateAuthenticatedStorage(
     settings: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError>;
 

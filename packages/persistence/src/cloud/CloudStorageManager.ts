@@ -123,10 +123,12 @@ export class CloudStorageManager implements ICloudStorageManager {
     return ResultUtils.combine([
       this.waitForUnlock(),
       this.contextProvider.getContext(),
-    ]).andThen(([privateKey, context]) => {
+      this.deactivateAuthenticatedStorage(credentials),
+    ]).andThen(([privateKey, context, deactivated]) => {
+      console.log("within here activateAuthenticatedStorage: ");
       const addr =
         this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
-      credentials.path = credentials.path + "/" + addr;
+      credentials.path = credentials.path;
       if (credentials.type == ECloudStorageType.Dropbox) {
         this.provider = this.dropbox;
       } else if (credentials.type == ECloudStorageType.Local) {
@@ -143,7 +145,7 @@ export class CloudStorageManager implements ICloudStorageManager {
     });
   }
 
-  public deactivateCloudStorage(
+  public deactivateAuthenticatedStorage(
     credentials: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError> {
     // reset initialize result
@@ -153,16 +155,33 @@ export class CloudStorageManager implements ICloudStorageManager {
       }),
     );
 
-    return this.contextProvider
-      .getContext()
-      .map((context) => {
-        context.publicEvents.onCloudStorageDeactivated.next(
-          new CloudStorageActivatedEvent(ECloudStorageType.Dropbox),
-        );
-      })
-      .andThen(() => {
-        return this.provider.clearCredentials(credentials);
+    if (this.provider.name() == ECloudStorageType.Local) {
+      return okAsync(undefined);
+    }
+
+    return this.contextProvider.getContext().andThen((context) => {
+      context.publicEvents.onCloudStorageDeactivated.next(
+        new CloudStorageActivatedEvent(ECloudStorageType.Dropbox),
+      );
+
+      return this.provider.clearCredentials().andThen(() => {
+        return this.removeParameters(credentials);
       });
+
+      // return okAsync(undefined);
+      // return this.provider.clearCredentials(credentials);
+    });
+  }
+
+  private removeParameters(
+    credentials: AuthenticatedStorageSettings,
+  ): ResultAsync<void, never> {
+    return this.contextProvider.getContext().map((context) => {
+      this.activated = false;
+      if (this.storageList.has(credentials.type)) {
+        this.storageList.delete(credentials.type);
+      }
+    });
   }
 
   private saveParameters(

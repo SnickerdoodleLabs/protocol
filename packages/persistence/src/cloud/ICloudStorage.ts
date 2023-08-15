@@ -34,9 +34,7 @@ export interface ICloudStorage {
     credentials: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError>;
 
-  clearCredentials(
-    credentials: AuthenticatedStorageSettings,
-  ): ResultAsync<void, PersistenceError>;
+  clearCredentials(): ResultAsync<void, PersistenceError>;
 
   /**
    * Returns all the backups for a specific storage type, excluding those

@@ -873,9 +873,9 @@ export class GetAvailableCloudStorageOptionsParams extends CoreActionParams<
   }
 }
 
-export class getCurrentCloudStorageParams extends CoreActionParams<ECloudStorageType> {
+export class GetCurrentCloudStorageParams extends CoreActionParams<ECloudStorageType> {
   public constructor() {
-    super(getCurrentCloudStorageParams.getCoreAction());
+    super(GetCurrentCloudStorageParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_CURRENT_STORAGE_TYPE;

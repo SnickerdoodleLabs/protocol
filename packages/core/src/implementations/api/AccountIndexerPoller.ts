@@ -22,7 +22,7 @@ import {
 
 @injectable()
 export class AccountIndexerPoller implements IAccountIndexerPoller {
-  protected backupPollingInterval: NodeJS.Timer | null = null;
+  protected backupPollingInterval: NodeJS.Timeout | null = null;
 
   public constructor(
     @inject(IMonitoringServiceType)
@@ -67,12 +67,21 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
 
         // Set up polling for backups
         this.backupPollingInterval = setInterval(() => {
-          this.monitoringService.pollBackups().mapErr((e) => {
-            this.logUtils.error(e);
-          });
+          console.log("hitting indexer polling dropbox");
+          this.monitoringService
+            .pollBackups()
+            .map(() => {
+              console.log("hitting indexer polling dropbox 2");
+            })
+            .mapErr((e) => {
+              this.logUtils.error(e);
+            });
         }, config.dataWalletBackupIntervalMS);
 
         // Post backups periodically
+        console.log(
+          "this.backupPollingInterval: " + this.backupPollingInterval,
+        );
         setInterval(() => {
           this.monitoringService.postBackups().mapErr((e) => {
             this.logUtils.error(e);

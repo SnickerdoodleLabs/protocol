@@ -9,7 +9,6 @@ import {
   PersistenceError,
   VersionedObject,
   VolatileStorageKey,
-  VolatileStorageMetadata,
   AuthenticatedStorageSettings,
 } from "@snickerdoodlelabs/objects";
 import { IVolatileCursor } from "@snickerdoodlelabs/persistence";
@@ -36,6 +35,9 @@ export interface IDataWalletPersistence {
   unlock(dataWalletKey: EVMPrivateKey): ResultAsync<void, PersistenceError>;
   waitForUnlock(): ResultAsync<EVMPrivateKey, never>;
   activateAuthenticatedStorage(
+    settings: AuthenticatedStorageSettings,
+  ): ResultAsync<void, PersistenceError>;
+  deactivateAuthenticatedStorage(
     settings: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError>;
 

@@ -14,7 +14,7 @@ import {
   DataWalletAddress,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { ICloudStorageService } from "@core/interfaces/business/index.js";
@@ -101,6 +101,7 @@ export class CloudStorageService implements ICloudStorageService {
    * the chosen authenticated storage system for the user. This system will be
    * put on-file and automatically used in the future
    */
+
   public setAuthenticatedStorage(
     settings: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError> {
@@ -108,8 +109,21 @@ export class CloudStorageService implements ICloudStorageService {
     return this.authenticatedStorageRepo
       .getCredentials()
       .andThen((credentials) => {
-        // If we don't have settings, store them, and then activate the CloudStorageManager
-        if (credentials == null) {
+        if (JSON.stringify(settings) === JSON.stringify(credentials)) {
+          return okAsync(undefined);
+        }
+
+        return (
+          credentials
+            ? this.authenticatedStorageRepo
+                .deactivateAuthenticatedStorage(credentials)
+                .andThen(() => {
+                  return this.authenticatedStorageRepo.clearCredentials(
+                    credentials,
+                  );
+                })
+            : okAsync(undefined)
+        ).andThen(() => {
           return this.authenticatedStorageRepo
             .saveCredentials(settings)
             .andThen(() => {
@@ -117,16 +131,7 @@ export class CloudStorageService implements ICloudStorageService {
                 settings,
               );
             });
-        }
-
-        return this.authenticatedStorageRepo.activateAuthenticatedStorage(
-          settings,
-        );
-
-        // If we do have settings, then we need to error or reset the cloud storage
-        return errAsync(
-          new PersistenceError("Cannot reset authenticated storage"),
-        );
+        });
       });
   }
 
