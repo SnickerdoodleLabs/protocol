@@ -6,7 +6,7 @@ import {
   ELanguageCode,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync, errAsync, okAsync } from "neverthrow";
+import { Result, ResultAsync, err, errAsync, ok, okAsync } from "neverthrow";
 
 import {
   IKeywordRepository,
@@ -25,15 +25,15 @@ export class URLUtils implements IURLUtils {
     private keywordUtils: IKeywordUtils,
   ) {}
 
-  public getHostname(url: URLString): ResultAsync<HostName, TypeError> {
+  public getHostname(url: URLString): Result<HostName, TypeError> {
     try {
-      return okAsync(HostName(new URL(url).hostname));
+      return ok(HostName(new URL(url).hostname));
     } catch (error) {
-      return errAsync(error as TypeError);
+      return err(error as TypeError);
     }
   }
 
-  public getDomain(url: URLString): ResultAsync<DomainName, TypeError> {
+  public getDomain(url: URLString): Result<DomainName, TypeError> {
     return this.getHostname(url).map((hostname) => {
       if (hostname.includes(EKnownDomains.Amazon)) {
         return DomainName(EKnownDomains.Amazon);
@@ -46,19 +46,23 @@ export class URLUtils implements IURLUtils {
   public getKeywords(
     url: URLString,
     language: ELanguageCode,
-  ): ResultAsync<Keyword[], TypeError> {
+  ): Result<Set<Keyword>, TypeError> {
     // keywords are in the path or in search params
+    const uniqueKeywords = new Set<Keyword>();
+
     const urlObj = new URL(url);
     const pathName = urlObj.pathname;
     const searchParams = urlObj.searchParams;
 
-    const keywords = pathName.split("/").map((keyword) => Keyword(keyword));
+    const pathWords = pathName.split("/").map((keyword) => Keyword(keyword));
+    pathWords.forEach((keyword) => uniqueKeywords.add(Keyword(keyword)));
+
     searchParams.forEach((value, key) => {
-      keywords.push(Keyword(value));
-      keywords.push(Keyword(key));
+      uniqueKeywords.add(Keyword(value));
+      uniqueKeywords.add(Keyword(key));
     });
 
-    return okAsync(keywords);
+    return ok(uniqueKeywords);
   }
   public getHash(
     url: URLString,
@@ -76,23 +80,12 @@ export class URLUtils implements IURLUtils {
     // 2. get urlKeywords
     // 3. get task
 
-    return this.getKeywords(url, language).andThen((urlKeywords) => {
+    return this.getKeywords(url, language).asyncAndThen((urlKeywords) => {
       return this.keywordUtils.getTaskByKeywords(
         keywordRepository,
         language,
         urlKeywords,
       );
     });
-
-    // const keywords = this.getKeywords(url, Language.English);
-    // return this.keywordUtils.matchTask(Language.English, keywords);
-
-    // return this.getDomain(url).map((domain) => {
-    //   if (domain === KnownDomains.Amazon) {
-    //     return Task.PurchaseHistory;
-    //   }
-
-    //   return Task.Unknown;
-    // });
   }
 }

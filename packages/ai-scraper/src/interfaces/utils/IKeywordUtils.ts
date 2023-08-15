@@ -9,7 +9,7 @@ export interface IKeywordUtils {
   getTaskByKeywords(
     keywordRepository: IKeywordRepository,
     language: ELanguageCode,
-    keywords: Keyword[],
+    keywords: Set<Keyword>,
   ): ResultAsync<ETask, never>;
 }
 

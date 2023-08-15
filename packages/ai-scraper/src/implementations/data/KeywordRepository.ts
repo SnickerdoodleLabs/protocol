@@ -34,10 +34,10 @@ export class KeywordRepository implements IKeywordRepository {
   public getKeywordsByTask(
     language: ELanguageCode,
     taskType: ETask,
-  ): Keyword[] {
+  ): Set<Keyword> {
     if (!this.hasTaskKeywords(language, taskType)) {
-      return [];
+      return new Set<Keyword>();
     }
-    return this.getKeywords(language)[taskType.valueOf()];
+    return new Set(this.getKeywords(language)[taskType.valueOf()]);
   }
 }

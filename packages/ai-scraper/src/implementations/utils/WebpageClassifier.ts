@@ -1,6 +1,6 @@
 import { ELanguageCode, URLString } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
 
 import {
   DomainTask,
@@ -24,11 +24,11 @@ export class WebpageClassifier implements IWebpageClassifier {
     language: ELanguageCode,
   ): ResultAsync<DomainTask, TypeError> {
     // Simplest version
-    return this.urlUtils.getDomain(url).andThen((domain) => {
+    return this.urlUtils.getDomain(url).asyncAndThen((domain) => {
       return this.urlUtils
         .getTask(this.keywordRepository, url, language)
-        .map((task) => {
-          return new DomainTask(domain, task);
+        .andThen((task) => {
+          return okAsync(new DomainTask(domain, task));
         });
     });
   }

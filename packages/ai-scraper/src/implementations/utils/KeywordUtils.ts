@@ -20,7 +20,7 @@ export class KeywordUtils implements IKeywordUtils {
   public getTaskByKeywords(
     keywordRepository: IKeywordRepository,
     language: ELanguageCode,
-    keywords: Keyword[],
+    keywords: Set<Keyword>,
   ): ResultAsync<ETask, never> {
     // returns the first matched taskType only
     for (const taskType in ETask) {
@@ -34,7 +34,7 @@ export class KeywordUtils implements IKeywordUtils {
 
       // TODO optimize this with a trie
       for (const keyword of keywords) {
-        if (taskKeywords.includes(keyword)) {
+        if (taskKeywords.has(keyword)) {
           return okAsync(ETask[taskType]);
         }
       }

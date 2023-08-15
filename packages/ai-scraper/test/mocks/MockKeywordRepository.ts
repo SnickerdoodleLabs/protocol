@@ -6,6 +6,7 @@ import {
   ETask,
   IKeywordRepository,
   IKeywordUtils,
+  Keyword,
   Keywords,
 } from "@ai-scraper/interfaces";
 
@@ -25,41 +26,43 @@ export class MockKeywordRepository {
         ETask.PurchaseHistory,
       ),
     ).thenReturn(
-      this.keywords[ELanguageCode.English][ETask.PurchaseHistory.valueOf()],
+      new Set(
+        this.keywords[ELanguageCode.English][ETask.PurchaseHistory.valueOf()],
+      ),
     );
 
     td.when(
       repository.getKeywordsByTask(ELanguageCode.English, ETask.Follower),
-    ).thenReturn([]);
+    ).thenReturn(new Set<Keyword>());
 
     td.when(
       repository.getKeywordsByTask(
         ELanguageCode.English,
         ETask.ProductCollection,
       ),
-    ).thenReturn([]);
+    ).thenReturn(new Set<Keyword>());
 
     td.when(
       repository.getKeywordsByTask(ELanguageCode.English, ETask.Wishlist),
-    ).thenReturn([]);
+    ).thenReturn(new Set<Keyword>());
 
     td.when(
       repository.getKeywordsByTask(
         ELanguageCode.English,
         ETask.GamesCollection,
       ),
-    ).thenReturn([]);
+    ).thenReturn(new Set<Keyword>());
 
     td.when(
       repository.getKeywordsByTask(ELanguageCode.English, ETask.Unknown),
-    ).thenReturn([]);
+    ).thenReturn(new Set<Keyword>());
 
     td.when(
       repository.getKeywordsByTask(
         td.matchers.not(ELanguageCode.English),
         td.matchers.anything(),
       ),
-    ).thenReturn([]);
+    ).thenReturn(new Set<Keyword>());
 
     return repository;
   }
