@@ -128,7 +128,7 @@ export class CloudStorageManager implements ICloudStorageManager {
       console.log("within here activateAuthenticatedStorage: ");
       const addr =
         this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
-      credentials.path = credentials.path + "/" + addr;
+      credentials.path = credentials.path;
       if (credentials.type == ECloudStorageType.Dropbox) {
         this.provider = this.dropbox;
       } else if (credentials.type == ECloudStorageType.Local) {
