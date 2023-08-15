@@ -153,7 +153,7 @@ import {
   AuthenticateDropboxParams,
   SetAuthenticatedStorageParams,
   GetAvailableCloudStorageOptionsParams,
-  getCurrentCloudStorageParams,
+  GetCurrentCloudStorageParams,
   RejectInvitationParams,
 } from "@synamint-extension-sdk/shared";
 
@@ -851,8 +851,8 @@ export class RpcCallHandler implements IRpcCallHandler {
       },
     ),
 
-    new CoreActionHandler<getCurrentCloudStorageParams>(
-      getCurrentCloudStorageParams.getCoreAction(),
+    new CoreActionHandler<GetCurrentCloudStorageParams>(
+      GetCurrentCloudStorageParams.getCoreAction(),
       (_params) => {
         return this.core.storage.getCurrentCloudStorage(undefined);
       },

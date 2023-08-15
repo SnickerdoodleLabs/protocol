@@ -84,6 +84,10 @@ export interface IDataWalletPersistence {
     settings: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError>;
 
+  deactivateAuthenticatedStorage(
+    settings: AuthenticatedStorageSettings,
+  ): ResultAsync<void, PersistenceError>;
+
   // backup methods
   /**
    * Restores a backup directly to the data wallet. This should only be called for test purposes.

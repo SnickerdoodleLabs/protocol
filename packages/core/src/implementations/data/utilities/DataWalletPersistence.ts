@@ -269,6 +269,12 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return this.cloudStorageManager.activateAuthenticatedStorage(settings);
   }
 
+  public deactivateAuthenticatedStorage(
+    settings: AuthenticatedStorageSettings,
+  ): ResultAsync<void, PersistenceError> {
+    return this.cloudStorageManager.deactivateAuthenticatedStorage(settings);
+  }
+
   // #endregion
 
   // #region Backup Management Methods

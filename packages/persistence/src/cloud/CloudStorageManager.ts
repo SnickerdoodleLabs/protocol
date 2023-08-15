@@ -123,7 +123,8 @@ export class CloudStorageManager implements ICloudStorageManager {
     return ResultUtils.combine([
       this.waitForUnlock(),
       this.contextProvider.getContext(),
-    ]).andThen(([privateKey, context]) => {
+      this.deactivateAuthenticatedStorage(credentials),
+    ]).andThen(([privateKey, context, deactivated]) => {
       const addr =
         this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
       credentials.path = credentials.path + "/" + addr;
@@ -143,7 +144,7 @@ export class CloudStorageManager implements ICloudStorageManager {
     });
   }
 
-  public deactivateCloudStorage(
+  public deactivateAuthenticatedStorage(
     credentials: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError> {
     // reset initialize result
@@ -153,16 +154,18 @@ export class CloudStorageManager implements ICloudStorageManager {
       }),
     );
 
-    return this.contextProvider
-      .getContext()
-      .map((context) => {
-        context.publicEvents.onCloudStorageDeactivated.next(
-          new CloudStorageActivatedEvent(ECloudStorageType.Dropbox),
-        );
-      })
-      .andThen(() => {
-        return this.provider.clearCredentials(credentials);
-      });
+    if (this.provider.name() == ECloudStorageType.Local) {
+      return okAsync(undefined);
+    }
+
+    return this.contextProvider.getContext().andThen((context) => {
+      context.publicEvents.onCloudStorageDeactivated.next(
+        new CloudStorageActivatedEvent(ECloudStorageType.Dropbox),
+      );
+
+      return okAsync(undefined);
+      // return this.provider.clearCredentials(credentials);
+    });
   }
 
   private saveParameters(

@@ -135,7 +135,7 @@ import {
   AuthenticateDropboxParams,
   SetAuthenticatedStorageParams,
   GetAvailableCloudStorageOptionsParams,
-  getCurrentCloudStorageParams,
+  GetCurrentCloudStorageParams,
   RejectInvitationParams,
   RejectInvitationByUUIDParams,
 } from "@synamint-extension-sdk/shared";
@@ -547,7 +547,7 @@ export class ExternalCoreGateway {
   }
 
   public getCurrentCloudStorage(): ResultAsync<ECloudStorageType, ProxyError> {
-    return this._handler.call(new getCurrentCloudStorageParams());
+    return this._handler.call(new GetCurrentCloudStorageParams());
   }
 
   public getAvailableCloudStorageOptions(): ResultAsync<
