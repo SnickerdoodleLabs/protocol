@@ -11,6 +11,10 @@ import {
   TaskKeywords,
 } from "@ai-scraper/interfaces/index.js";
 
+/**
+ * @class KeywordRepository
+ * @description: This is a cached repository of keywords that can be updated from IPFS CID
+ */
 @injectable()
 export class KeywordRepository implements IKeywordRepository {
   protected keywords: Keywords;
