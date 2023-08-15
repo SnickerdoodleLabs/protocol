@@ -11,7 +11,6 @@ import {
   AuthenticatedStorageSettings,
   URLString,
   PersistenceError,
-  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -76,9 +75,21 @@ export class CloudStorageService implements ICloudStorageService {
     return this.authenticatedStorageRepo
       .getCredentials()
       .andThen((credentials) => {
-        // If we don't have settings, store them, and then activate the CloudStorageManager
-        console.log("credentials not stringified: " + credentials);
-        if (credentials == null) {
+        if (JSON.stringify(settings) === JSON.stringify(credentials)) {
+          return okAsync(undefined);
+        }
+
+        return (
+          credentials
+            ? this.authenticatedStorageRepo
+                .deactivateAuthenticatedStorage(credentials)
+                .andThen(() => {
+                  return this.authenticatedStorageRepo.clearCredentials(
+                    credentials,
+                  );
+                })
+            : okAsync(undefined)
+        ).andThen(() => {
           return this.authenticatedStorageRepo
             .saveCredentials(settings)
             .andThen(() => {
@@ -86,25 +97,7 @@ export class CloudStorageService implements ICloudStorageService {
                 settings,
               );
             });
-        }
-
-        console.log("settings: " + JSON.stringify(settings));
-        console.log("credentials: " + JSON.stringify(credentials));
-        return this.authenticatedStorageRepo
-          .deactivateAuthenticatedStorage(credentials)
-          .andThen(() => {
-            return this.authenticatedStorageRepo.activateAuthenticatedStorage(
-              settings,
-            );
-          })
-          .andThen(() => {
-            return this.authenticatedStorageRepo.clearCredentials(credentials);
-          });
-
-        // If we do have settings, then we need to error or reset the cloud storage
-        return errAsync(
-          new PersistenceError("Cannot reset authenticated storage"),
-        );
+        });
       });
   }
 

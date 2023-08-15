@@ -51,26 +51,14 @@ export class AuthenticatedStorageRepository
     settings: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError> {
     console.log("settings: " + JSON.stringify(settings));
-    return this.getCredentials()
-      .andThen((credentials) => {
-        console.log("credentials 1: " + JSON.stringify(credentials));
+    return this.getCredentials().andThen((credentials) => {
+      console.log("credentials 1: " + JSON.stringify(credentials));
 
-        return this.persistence.updateField(
-          EFieldKey.AUTHENTICATED_STORAGE_SETTINGS,
-          new FieldIndex(
-            EFieldKey.AUTHENTICATED_STORAGE_SETTINGS,
-            EBackupPriority.DISABLED,
-            0,
-          ),
-        );
-      })
-      .andThen(() => {
-        return this.getCredentials();
-      })
-      .andThen((credentials) => {
-        console.log("credentials 2: " + JSON.stringify(credentials));
-        return okAsync(undefined);
-      });
+      return this.persistence.updateField(
+        EFieldKey.AUTHENTICATED_STORAGE_SETTINGS,
+        {},
+      );
+    });
   }
 
   public getCredentials(): ResultAsync<
@@ -81,12 +69,12 @@ export class AuthenticatedStorageRepository
       .getField<AuthenticatedStorageSettings>(
         EFieldKey.AUTHENTICATED_STORAGE_SETTINGS,
       )
-      .andThen((credentials) => {
+      .map((credentials) => {
         console.log("credentials: " + credentials);
-
-        return this.persistence.getField<AuthenticatedStorageSettings>(
-          EFieldKey.AUTHENTICATED_STORAGE_SETTINGS,
-        );
+        if (credentials && credentials.hasOwnProperty("type") === false) {
+          return null;
+        }
+        return credentials;
       });
   }
 
