@@ -18,9 +18,8 @@ import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import FileExplorer from "@extension-onboarding/pages/Details/screens/StorageSettings/FileExplorer";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 
-declare const window: IWindowWithSdlDataWallet;
 interface DropboxFolder {
   ".tag": string;
   name: string;
@@ -52,8 +51,8 @@ interface IStorageOption {
 const STORAGE_OPTIONS: IStorageOption[] = [
   {
     key: ECloudStorageType.Local,
-    icon: sdlIcon,
-    name: "SDL Storage",
+    icon: discIcon,
+    name: "Local Disc",
     description:
       "Your data will be stored locally on your own device. Snickerdoodle will not access nor own this data.",
   },
@@ -66,29 +65,26 @@ const STORAGE_OPTIONS: IStorageOption[] = [
   },
 ];
 const StorageSettings = () => {
-  const setFolderPath = (folderPath: string) => {
-    return okAsync("");
-  };
+  const { sdlDataWallet } = useDataWalletContext();
 
   const getStorageOption = () => {
-    // @ts-ignore
-
-    return window.sdlDataWallet.storage
+    return sdlDataWallet.storage
       .getCurrentCloudStorage()
       .map((type) => {
         console.log("type: " + type);
         return type;
       })
       .mapErr((e) => console.log(e));
-    // return okAsync(EStorage.SDL_STORAGE);
   };
 
   // #endregion
 
-  const { apiGateway, appMode } = useAppContext();
+  const { appMode } = useAppContext();
   const { setLoadingStatus } = useLayoutContext();
   const { setAlert } = useNotificationContext();
-  const [accessToken, setAccessToken] = useState<AccessToken>(AccessToken(""));
+  const [accessToken, setAccessToken] = useState<AccessToken>(
+    AccessToken(sessionStorage.getItem("dropboxAccessToken") || ""),
+  );
 
   const [folders, setFolders] = useState<NestedFolder[]>();
   const [storageOption, setStorageOption] = useState<ECloudStorageType>();
@@ -114,9 +110,7 @@ const StorageSettings = () => {
   }, [accessToken, Dropbox]);
 
   const handleCode = (code) => {
-    // @ts-ignore
-
-    window.sdlDataWallet.storage
+    sdlDataWallet.storage
       .authenticateDropbox(code)
       .map((accessToken) => {
         setAccessToken(accessToken);
@@ -124,6 +118,7 @@ const StorageSettings = () => {
         return window.history.replaceState(null, "", window.location.pathname);
       })
       .mapErr((e) => {
+        sessionStorage.setItem("dropboxAccessToken", accessToken);
         console.log(e);
       });
   };
@@ -209,14 +204,11 @@ const StorageSettings = () => {
     });
   };
 
-  // only hits when we select dropbox
+  // only hits when we select dropbox for now
   const onFolderSelect = (path: string) => {
-    console.log("path: " + path);
-
-    // @ts-ignore
-    window.sdlDataWallet.storage
+    sessionStorage.removeItem("dropboxAccessToken");
+    sdlDataWallet.storage
       .setAuthenticatedStorage(ECloudStorageType.Dropbox, path, accessToken)
-
       .map(() => {
         setAlert({
           severity: EAlertSeverity.SUCCESS,
@@ -232,13 +224,11 @@ const StorageSettings = () => {
   };
 
   const onStorageOptionClicked = (option: ECloudStorageType) => {
-    console.log("option: " + option);
     switch (option) {
       case ECloudStorageType.Local: {
         return (
           // TODO: setting the storage back to local only not working in the core, needs to be fixed
-          // @ts-ignore
-          window.sdlDataWallet.storage
+          sdlDataWallet.storage
             .setAuthenticatedStorage(
               ECloudStorageType.Local,
               "",
@@ -254,13 +244,10 @@ const StorageSettings = () => {
         );
       }
       case ECloudStorageType.Dropbox: {
-        // @ts-ignore
-
-        return window.sdlDataWallet.storage
+        return sdlDataWallet.storage
           .getDropboxAuth()
           .map((url) => {
             window.open(url, "_self");
-            // setStorageOption(ECloudStorageType.Local);
           })
           .mapErr((e) => {
             console.log(e);
@@ -292,7 +279,6 @@ const StorageSettings = () => {
               onFolderSelect={onFolderSelect}
               folders={folders}
               onCancel={() => {
-                // @TODO this action may require rollback on the core side
                 sessionStorage.removeItem("dropboxAccessToken");
                 setFolders(undefined);
               }}
