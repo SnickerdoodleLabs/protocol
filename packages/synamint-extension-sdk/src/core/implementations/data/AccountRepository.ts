@@ -20,8 +20,6 @@ import { okAsync, ResultAsync } from "neverthrow";
 
 import { IAccountRepository } from "@synamint-extension-sdk/core/interfaces/data";
 import {
-  IAccountCookieUtils,
-  IAccountCookieUtilsType,
   IContextProvider,
   IContextProviderType,
   IErrorUtils,
@@ -33,8 +31,6 @@ import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/e
 export class AccountRepository implements IAccountRepository {
   constructor(
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
-    @inject(IAccountCookieUtilsType)
-    protected accountCookieUtils: IAccountCookieUtils,
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
   ) {}
@@ -91,14 +87,6 @@ export class AccountRepository implements IAccountRepository {
       .mapErr((error) => {
         this.errorUtils.emit(error);
         return new SnickerDoodleCoreError((error as Error).message, error);
-      })
-      .andThen(() => {
-        return this.accountCookieUtils.writeAccountInfoToCookie(
-          account,
-          signature,
-          languageCode,
-          chain,
-        );
       })
       .orElse((error) => {
         this.errorUtils.emit(error);

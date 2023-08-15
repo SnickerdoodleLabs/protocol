@@ -8,8 +8,6 @@ import {
 
 export interface IExtensionConfigDefaults {
   onboardingUrl: string;
-  accountCookieUrl: string;
-  cookieLifeTime: number;
   controlChainId: ChainId;
   supportedChains: ChainId[];
   ipfsFetchBaseUrl: URLString;
@@ -64,10 +62,8 @@ export interface IExtensionConfig extends IExtensionConfigDefaults {
 
 export interface IExtensionConfigOverrides {
   onboardingUrl?: URLString;
-  accountCookieUrl?: URLString;
   controlChainId?: ChainId;
   supportedChains?: ChainId[];
-  cookieLifeTime?: number;
   ipfsFetchBaseUrl?: URLString;
   defaultInsightPlatformBaseUrl?: URLString;
   domainFilter?: string;

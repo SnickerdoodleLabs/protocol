@@ -29,7 +29,14 @@ import {
   UI_SUPPORTED_PERMISSIONS,
 } from "@snickerdoodlelabs/shared-components";
 import { set } from "date-fns";
-import React, { FC, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  FC,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useInView } from "react-intersection-observer";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -123,8 +130,9 @@ const RewardProgramDetails: FC = () => {
   const { generateAllPermissions, isSafe, updateProfileValues } =
     usePermissionContext();
   const generateSuccessMessage = (dataType: EWalletDataType) => {
-    return `Your "${PERMISSIONS_WITH_ICONS[dataType]!.name
-      }" data has successfully saved`;
+    return `Your "${
+      PERMISSIONS_WITH_ICONS[dataType]!.name
+    }" data has successfully saved`;
   };
   const [capacityInfo, setCapacityInfo] = useState<IConsentCapacity>();
   const [consentPermissions, setConsentPermissions] = useState<
@@ -135,6 +143,7 @@ const RewardProgramDetails: FC = () => {
     earnedRewards,
     updateOptedInContracts,
     appMode,
+    linkedAccounts,
     setLinkerModalOpen,
   } = useAppContext();
   const { setAlert } = useNotificationContext();
@@ -173,11 +182,10 @@ const RewardProgramDetails: FC = () => {
     }
   };
 
-  const handleSubscribeButton = () => {
-    if (appMode != EAppModes.AUTH_USER) {
-      return setLinkerModalOpen();
+  const handleSubscribeButton = useCallback(() => {
+    if (linkedAccounts.length === 0) {
+      setLinkerModalOpen();
     }
-
     setModal({
       modalSelector: EModalSelectors.SUBSCRIPTION_CONFIRMATION_MODAL,
       onPrimaryButtonClick: (receivingAccount: AccountAddress) => {
@@ -192,7 +200,7 @@ const RewardProgramDetails: FC = () => {
                 setLoadingStatus(false);
                 setModal({
                   modalSelector: EModalSelectors.SUBSCRIPTION_SUCCESS_MODAL,
-                  onPrimaryButtonClick: () => { },
+                  onPrimaryButtonClick: () => {},
                   customProps: {
                     campaignImage: info?.image,
                     campaignName: info?.rewardName,
@@ -209,7 +217,7 @@ const RewardProgramDetails: FC = () => {
           });
       },
       customProps: {
-        onCloseClicked: () => { },
+        onCloseClicked: () => {},
         campaignImage: info?.image,
         rewardsThatCanBeAcquired,
         rewardsThatRequireMorePermission,
@@ -218,7 +226,7 @@ const RewardProgramDetails: FC = () => {
         campaignName: info?.rewardName,
       },
     });
-  };
+  }, [linkedAccounts.length]);
 
   const getCapacityInfo = () => {
     sdlDataWallet
@@ -358,8 +366,8 @@ const RewardProgramDetails: FC = () => {
   const handlePermissionSelect = (permission: EWalletDataType) => {
     permissionsState.includes(permission)
       ? setPermissionsState((permissions) =>
-        permissions.filter((_permission) => _permission != permission),
-      )
+          permissions.filter((_permission) => _permission != permission),
+        )
       : setPermissionsState((permissions) => [...permissions, permission]);
   };
 
