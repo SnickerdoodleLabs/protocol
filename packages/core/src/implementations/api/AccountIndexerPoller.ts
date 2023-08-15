@@ -68,9 +68,14 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
         // Set up polling for backups
         this.backupPollingInterval = setInterval(() => {
           console.log("hitting indexer polling dropbox");
-          this.monitoringService.pollBackups().mapErr((e) => {
-            this.logUtils.error(e);
-          });
+          this.monitoringService
+            .pollBackups()
+            .map(() => {
+              console.log("hitting indexer polling dropbox 2");
+            })
+            .mapErr((e) => {
+              this.logUtils.error(e);
+            });
         }, config.dataWalletBackupIntervalMS);
 
         // Post backups periodically

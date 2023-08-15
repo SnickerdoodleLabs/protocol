@@ -164,8 +164,23 @@ export class CloudStorageManager implements ICloudStorageManager {
         new CloudStorageActivatedEvent(ECloudStorageType.Dropbox),
       );
 
-      return okAsync(undefined);
+      return this.provider.clearCredentials().andThen(() => {
+        return this.removeParameters(credentials);
+      });
+
+      // return okAsync(undefined);
       // return this.provider.clearCredentials(credentials);
+    });
+  }
+
+  private removeParameters(
+    credentials: AuthenticatedStorageSettings,
+  ): ResultAsync<void, never> {
+    return this.contextProvider.getContext().map((context) => {
+      this.activated = false;
+      if (this.storageList.has(credentials.type)) {
+        this.storageList.delete(credentials.type);
+      }
     });
   }
 
