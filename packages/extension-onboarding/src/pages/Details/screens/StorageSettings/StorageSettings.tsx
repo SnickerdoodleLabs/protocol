@@ -71,6 +71,8 @@ const StorageSettings = () => {
   };
 
   const getStorageOption = () => {
+    // @ts-ignore
+
     return window.sdlDataWallet.storage
       .getCurrentCloudStorage()
       .map((type) => {
@@ -112,6 +114,8 @@ const StorageSettings = () => {
   }, [accessToken, Dropbox]);
 
   const handleCode = (code) => {
+    // @ts-ignore
+
     window.sdlDataWallet.storage
       .authenticateDropbox(code)
       .map((accessToken) => {
@@ -205,7 +209,11 @@ const StorageSettings = () => {
     });
   };
 
+  // only hits when we select dropbox
   const onFolderSelect = (path: string) => {
+    console.log("path: " + path);
+
+    // @ts-ignore
     window.sdlDataWallet.storage
       .setAuthenticatedStorage(ECloudStorageType.Dropbox, path, accessToken)
 
@@ -224,10 +232,12 @@ const StorageSettings = () => {
   };
 
   const onStorageOptionClicked = (option: ECloudStorageType) => {
+    console.log("option: " + option);
     switch (option) {
       case ECloudStorageType.Local: {
         return (
           // TODO: setting the storage back to local only not working in the core, needs to be fixed
+          // @ts-ignore
           window.sdlDataWallet.storage
             .setAuthenticatedStorage(
               ECloudStorageType.Local,

@@ -1,6 +1,8 @@
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
+  ILogUtils,
+  ILogUtilsType,
   IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
 import {
@@ -27,6 +29,10 @@ import {
   IConfigProvider,
   IConfigProviderType,
 } from "@core/interfaces/utilities/IConfigProvider.js";
+import {
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/IContextProvider.js";
 
 enum ECloudStorageOption {
   GoogleDrive = "GoogleDrive",
@@ -43,13 +49,26 @@ export class CloudStorageService implements ICloudStorageService {
     protected ajaxUtils: IAxiosAjaxUtils,
     @inject(IDataWalletPersistenceType)
     protected dataWalletPersistence: IDataWalletPersistence,
+    @inject(IContextProviderType) protected contextProvider: IContextProvider,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
+
+  private initialize(): ResultAsync<void, PersistenceError> {
+    return this.contextProvider.getContext().map((context) => {
+      context.privateEvents.postBackupsRequested.subscribe(() => {
+        this.dataWalletPersistence.postBackups().mapErr((e) => {
+          this.logUtils.error("Error posting backups", e);
+        });
+      });
+    });
+  }
 
   /**
    * This method is called from the core, and represents setting (or resetting)
    * the chosen authenticated storage system for the user. This system will be
    * put on-file and automatically used in the future
    */
+
   public setAuthenticatedStorage(
     settings: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError> {
@@ -69,10 +88,11 @@ export class CloudStorageService implements ICloudStorageService {
             });
         }
 
+        console.log("settings: " + JSON.stringify(settings));
+        console.log("credentials: " + JSON.stringify(credentials));
         return this.authenticatedStorageRepo
-          .deactivateAuthenticatedStorage(settings)
+          .deactivateAuthenticatedStorage(credentials)
           .andThen(() => {
-            console.log("credentials: " + JSON.stringify(credentials));
             return this.authenticatedStorageRepo.activateAuthenticatedStorage(
               settings,
             );

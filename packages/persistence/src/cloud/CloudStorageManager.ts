@@ -125,6 +125,7 @@ export class CloudStorageManager implements ICloudStorageManager {
       this.contextProvider.getContext(),
       this.deactivateAuthenticatedStorage(credentials),
     ]).andThen(([privateKey, context, deactivated]) => {
+      console.log("within here activateAuthenticatedStorage: ");
       const addr =
         this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
       credentials.path = credentials.path + "/" + addr;

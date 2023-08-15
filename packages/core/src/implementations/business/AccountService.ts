@@ -401,6 +401,9 @@ export class AccountService implements IAccountService {
           })
           .map(() => {
             // Notify the outside world of what we did
+
+            context.privateEvents.postBackupsRequested.next();
+
             context.publicEvents.onAccountAdded.next(
               new LinkedAccount(
                 chain,
