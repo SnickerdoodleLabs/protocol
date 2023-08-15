@@ -2,7 +2,7 @@ const envVars = {
   __ENABLE_BACKUP_ENCRYPTION__: "true",
   __REQUEST_FOR_DATA_EVENT_FREQ__: 300000,
   __CONTROL_CHAIN_ID__: 43113,
-  __ONBOARDING_URL__: "https://localhost:9005/",
+  __ONBOARDING_URL__: "https://datawallet.snickerdoodle.com/",
   __ACCOUNT_COOKIE_URL__: "https://snickerdoodlelabs.io/",
   __SUPPORTED_CHAINS__: "1,43113,43114,137,-1,100,56,1284,42161,592",
   __IPFS_FETCH_BASE_URL__: "https://ipfs-gateway.snickerdoodle.com/ipfs/",
@@ -11,7 +11,8 @@ const envVars = {
 
   __DROPBOX_APP_KEY__: "w69949reoalc9xg",
   __DROPBOX_APP_SECRET__: "78jch5z5o800dyw",
-  __DROPBOX_REDIRECT_URI__: "https://localhost:9005/settings/storage",
+  __DROPBOX_REDIRECT_URI__:
+    "https://datawallet.snickerdoodle.com/settings/storage",
 
   /* Alchemy Keys */
   __ALCHEMY_ARBITRUM_API_KEY__: "_G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF",
