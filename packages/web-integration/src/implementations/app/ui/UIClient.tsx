@@ -8,10 +8,7 @@ import React from "react";
 import { render } from "react-dom";
 
 export class UIClient implements IUIClient {
-  constructor(
-    protected proxy: ISnickerdoodleIFrameProxy,
-    protected signerProvided: boolean,
-  ) {}
+  constructor(protected proxy: ISnickerdoodleIFrameProxy) {}
 
   public register(): void {
     const customElementName = `sdl-protocol-iframe-ui-client`;
@@ -44,7 +41,7 @@ export class UIClient implements IUIClient {
         });
         render(
           <StylesProvider jss={jss}>
-            <App proxy={_this.proxy} signerProvided={_this.signerProvided} />
+            <App proxy={_this.proxy} />
           </StylesProvider>,
           mountPoint,
         );
