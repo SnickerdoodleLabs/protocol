@@ -86,9 +86,7 @@ const StorageSettings = () => {
   const { apiGateway, appMode } = useAppContext();
   const { setLoadingStatus } = useLayoutContext();
   const { setAlert } = useNotificationContext();
-  const [accessToken, setAccessToken] = useState<AccessToken>(
-    AccessToken(sessionStorage.getItem("dropboxAccessToken") || ""),
-  );
+  const [accessToken, setAccessToken] = useState<AccessToken>(AccessToken(""));
 
   const [folders, setFolders] = useState<NestedFolder[]>();
   const [storageOption, setStorageOption] = useState<ECloudStorageType>();
