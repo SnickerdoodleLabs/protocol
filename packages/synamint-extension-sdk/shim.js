@@ -129,6 +129,14 @@ const overrideManifest = () => {
         ACCESSIBLE_RESOURCE,
       ];
     }
+    // write changes to manifest file
+    fs.writeFile(manifestAbsolutePath, JSON.stringify(manifestObj), (err) => {
+      if (err) console.err(err);
+      else {
+        console.log("manifest configuration completed");
+        process.exit();
+      }
+    });
   });
 };
 
