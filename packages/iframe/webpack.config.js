@@ -113,6 +113,9 @@ module.exports = {
       __BACKUP_POLLING_INTERVAL__: JSON.stringify(
         process.env.__BACKUP_POLLING_INTERVAL__,
       ),
+      __REQUEST_FOR_DATA_POLLING_INTERVAL__: JSON.stringify(
+        process.env.__REQUEST_FOR_DATA_POLLING_INTERVAL__,
+      ),
     }),
   ],
 };

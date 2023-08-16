@@ -18,5 +18,6 @@ export class IFrameConfig {
     public portfolioPollingIntervalMS: number,
     public transactionPollingIntervalMS: number,
     public backupPollingIntervalMS: number,
+    public requestForDataPollingIntervalMS: number,
   ) {}
 }

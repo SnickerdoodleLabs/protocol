@@ -18,6 +18,7 @@ declare const __SUPPORTED_CHAINS__: string;
 declare const __PORTFOLIO_POLLING_INTERVAL__: string;
 declare const __TRANSACTION_POLLING_INTERVAL__: string;
 declare const __BACKUP_POLLING_INTERVAL__: string;
+declare const __REQUEST_FOR_DATA_POLLING_INTERVAL__: string;
 
 const ONE_MINUTE_MS = 60000;
 
@@ -49,6 +50,10 @@ export class ConfigProvider implements IConfigProvider {
       !!__BACKUP_POLLING_INTERVAL__
         ? Number.parseInt(__BACKUP_POLLING_INTERVAL__)
         : ONE_MINUTE_MS, // backupPollingIntervalMS
+      typeof __REQUEST_FOR_DATA_POLLING_INTERVAL__ !== "undefined" &&
+      !!__REQUEST_FOR_DATA_POLLING_INTERVAL__
+        ? Number.parseInt(__REQUEST_FOR_DATA_POLLING_INTERVAL__)
+        : 300000, // requestForDataPollingIntervalMS
     );
   }
   getConfig(): IFrameConfig {
