@@ -104,6 +104,18 @@ module.exports = {
         process.env.__DEV_CHAIN_PROVIDER_URL__,
       ),
       __SUPPORTED_CHAINS__: JSON.stringify(process.env.__SUPPORTED_CHAINS__),
+      __PORTFOLIO_POLLING_INTERVAL__: JSON.stringify(
+        process.env.__PORTFOLIO_POLLING_INTERVAL__,
+      ),
+      __TRANSACTION_POLLING_INTERVAL__: JSON.stringify(
+        process.env.__TRANSACTION_POLLING_INTERVAL__,
+      ),
+      __BACKUP_POLLING_INTERVAL__: JSON.stringify(
+        process.env.__BACKUP_POLLING_INTERVAL__,
+      ),
+      __REQUEST_FOR_DATA_POLLING_INTERVAL__: JSON.stringify(
+        process.env.__REQUEST_FOR_DATA_POLLING_INTERVAL__,
+      ),
     }),
   ],
 };

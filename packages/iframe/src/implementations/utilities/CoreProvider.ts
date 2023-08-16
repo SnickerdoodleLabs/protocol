@@ -45,6 +45,16 @@ export class CoreProvider implements ICoreProvider {
       immutableConfig.defaultInsightPlatformBaseUrl;
     config.devChainProviderURL = immutableConfig.devChainProviderURL;
     config.supportedChains = immutableConfig.supportedChains;
+    config.accountBalancePollingIntervalMS =
+      immutableConfig.portfolioPollingIntervalMS;
+    config.accountIndexingPollingIntervalMS =
+      immutableConfig.transactionPollingIntervalMS;
+    config.dataWalletBackupIntervalMS = immutableConfig.backupPollingIntervalMS;
+    config.requestForDataCheckingFrequency =
+      immutableConfig.requestForDataPollingIntervalMS;
+
+    // This probably needs to go away entirely
+    config.enableBackupEncryption = false;
 
     this.core = new SnickerdoodleCore(config);
 

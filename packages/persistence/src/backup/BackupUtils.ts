@@ -45,22 +45,6 @@ export class BackupUtils implements IBackupUtils {
       });
   }
 
-  public verifyBackupSignature(
-    backup: DataWalletBackup,
-    accountAddr: EVMAccountAddress,
-  ): ResultAsync<boolean, never> {
-    return this.getBackupHash(backup.blob).andThen((hash) => {
-      return this.cryptoUtils
-        .verifyEVMSignature(
-          this._generateBackupSignatureMessage(hash, backup.header.timestamp),
-          Signature(backup.header.signature),
-        )
-        .map((addr) => {
-          return addr == EVMAccountAddress(accountAddr);
-        });
-    });
-  }
-
   public generateBackupSignature(
     hash: DataWalletBackupID,
     timestamp: number,
