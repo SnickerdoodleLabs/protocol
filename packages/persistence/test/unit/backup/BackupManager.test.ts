@@ -281,13 +281,6 @@ class BackupManagerMocks {
     );
 
     // BackupUtils -----------------------------------------------------------
-    // Backup verifies by default
-    td.when(
-      this.backupUtils.verifyBackupSignature(
-        recordBackup,
-        EVMAccountAddress(dataWalletAddress),
-      ),
-    ).thenReturn(okAsync(true));
 
     // CryptoUtils -----------------------------------------------------------
     td.when(

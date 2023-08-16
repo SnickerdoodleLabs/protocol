@@ -245,19 +245,7 @@ export class BackupManager implements IBackupManager {
       this.logUtils.debug(
         `Restoring backup ${backup.header.name} for data type ${backup.header.dataType}.`,
       );
-      return this.backupUtils
-        .verifyBackupSignature(backup, EVMAccountAddress(this.accountAddr))
-        .andThen((valid) => {
-          if (!valid) {
-            return errAsync(
-              new PersistenceError(
-                "invalid signature for backup",
-                backup.header.hash,
-              ),
-            );
-          }
-          return this._unpackBlob(backup.blob);
-        })
+      return this._unpackBlob(backup.blob)
         .andThen((unpacked) => {
           // The backup is either a field or a set of records
           if (backup.header.isField) {
