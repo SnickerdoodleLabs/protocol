@@ -741,7 +741,7 @@ export class SnickerdoodleIFrameProxy
       });
     },
     getDropboxAuth: (): ResultAsync<URLString, ProxyError> => {
-      return this._createCall("storage.getDropboxAuthUrl", {});
+      return this._createCall("storage.getDropboxAuth", {});
     },
     getCurrentCloudStorage: (): ResultAsync<ECloudStorageType, ProxyError> => {
       return this._createCall("storage.getCurrentCloudStorage", {});
