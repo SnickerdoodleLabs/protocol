@@ -1,8 +1,5 @@
 import {
   EarnedReward,
-  AjaxError,
-  BlockchainProviderError,
-  CrumbsContractError,
   InvalidSignatureError,
   TokenBalance,
   WalletNFT,
@@ -19,9 +16,7 @@ import {
   ChainTransaction,
   LinkedAccount,
   EChain,
-  MinimalForwarderContractError,
   AccountAddress,
-  DataWalletAddress,
   TokenAddress,
   UnixTimestamp,
   DataWalletBackupID,
@@ -29,35 +24,15 @@ import {
   DomainName,
   UnauthorizedError,
   AccountIndexingError,
-  PasswordString,
-  BlockchainCommonErrors,
-  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
-import { ICloudStorage } from "@snickerdoodlelabs/persistence";
 import { ResultAsync } from "neverthrow";
 
 export interface IAccountService {
-  getUnlockMessage(
+  getLinkAccountMessage(
     languageCode: LanguageCode,
   ): ResultAsync<string, UnsupportedLanguageError>;
 
-  unlock(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | AjaxError
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-    | MinimalForwarderContractError
-    | BlockchainCommonErrors
-  >;
+  initialize(): ResultAsync<void, PersistenceError>;
 
   addAccount(
     accountAddress: AccountAddress,
@@ -66,90 +41,19 @@ export interface IAccountService {
     chain: EChain,
   ): ResultAsync<
     void,
-    | BlockchainProviderError
+    | PersistenceError
     | UninitializedError
-    | CrumbsContractError
     | InvalidSignatureError
     | UnsupportedLanguageError
-    | PersistenceError
-    | AjaxError
-    | MinimalForwarderContractError
-    | BlockchainCommonErrors
+    | InvalidParametersError
   >;
 
   unlinkAccount(
     accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
     chain: EChain,
   ): ResultAsync<
     void,
-    | PersistenceError
-    | InvalidParametersError
-    | BlockchainProviderError
-    | UninitializedError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-    | CrumbsContractError
-    | AjaxError
-    | MinimalForwarderContractError
-    | BlockchainCommonErrors
-  >;
-
-  getDataWalletForAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-  ): ResultAsync<
-    DataWalletAddress | null,
-    | PersistenceError
-    | UninitializedError
-    | BlockchainProviderError
-    | CrumbsContractError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-    | BlockchainCommonErrors
-  >;
-
-  unlockWithPassword(
-    password: PasswordString,
-  ): ResultAsync<
-    void,
-    | UnsupportedLanguageError
-    | PersistenceError
-    | AjaxError
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | InvalidSignatureError
-    | MinimalForwarderContractError
-    | BlockchainCommonErrors
-  >;
-
-  addPassword(
-    password: PasswordString,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | AjaxError
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | MinimalForwarderContractError
-    | BlockchainCommonErrors
-  >;
-
-  removePassword(
-    password: PasswordString,
-  ): ResultAsync<
-    void,
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | AjaxError
-    | MinimalForwarderContractError
-    | BlockchainCommonErrors
+    PersistenceError | UninitializedError | InvalidParametersError
   >;
 
   getAccounts(

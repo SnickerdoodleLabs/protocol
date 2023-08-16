@@ -12,6 +12,11 @@ import {
   EWalletDataType,
   PageInvitation,
 } from "@snickerdoodlelabs/objects";
+import { okAsync } from "neverthrow";
+import React, { useMemo, useState, useEffect, FC, useRef } from "react";
+import { Subscription } from "rxjs";
+import { parse } from "tldts";
+
 import {
   RootContainer,
   ModalContainer,
@@ -24,10 +29,6 @@ import { InvitationCard } from "@web-integration/implementations/app/ui/widgets/
 import { PermissionSelection } from "@web-integration/implementations/app/ui/widgets/PermissionSelection/index.js";
 import { SubscriptionSuccess } from "@web-integration/implementations/app/ui/widgets/SubscriptionSuccess/index.js";
 import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/index.js";
-import { okAsync } from "neverthrow";
-import React, { useMemo, useState, useEffect, FC, useRef } from "react";
-import { Subscription } from "rxjs";
-import { parse } from "tldts";
 
 interface IAppProps {
   proxy: ISnickerdoodleIFrameProxy;
@@ -95,17 +96,7 @@ export const App: FC<IAppProps> = ({ proxy, signerProvided }) => {
   }, []);
 
   const checkUnlockStatus = () => {
-    proxy.metrics
-      .getUnlocked()
-      .map((isUnlocked) => {
-        if (!isUnlocked) {
-          subsribeInitailizeEvent();
-        }
-        setIsUnlocked(isUnlocked);
-      })
-      .mapErr((err) => {
-        console.log(err);
-      });
+    setIsUnlocked(isUnlocked);
   };
 
   useEffect(() => {

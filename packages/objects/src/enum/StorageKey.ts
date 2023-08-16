@@ -23,6 +23,7 @@ export enum ERecordKey {
 
 export enum EFieldKey {
   AUTHENTICATED_STORAGE_SETTINGS = "SD_AuthenticatedStorageSettings",
+  DATA_WALLET_PRIVATE_KEY = "SD_DataWalletPrivateKey",
   FIRST_NAME = "SD_GivenName",
   LAST_NAME = "SD_FamilyName",
   BIRTHDAY = "SD_Birthday",

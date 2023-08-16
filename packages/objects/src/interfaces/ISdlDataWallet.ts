@@ -19,16 +19,11 @@ import {
 import {
   EChain,
   ECoreProxyType,
-  EDataWalletPermission,
   EInvitationStatus,
   EWalletDataType,
 } from "@objects/enum/index.js";
-import {
-  AjaxError,
-  PersistenceError,
-  ProxyError,
-} from "@objects/errors/index.js";
-import { IConsentCapacity } from "@objects/interfaces//IConsentCapacity.js";
+import { ProxyError } from "@objects/errors/index.js";
+import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata.js";
 import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences.js";
 import {
@@ -40,14 +35,11 @@ import {
 } from "@objects/interfaces/ISnickerdoodleCore.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import {
-  AccessToken,
   AccountAddress,
   Age,
   BigNumberString,
   ChainId,
   CountryCode,
-  DataWalletAddress,
-  DomainName,
   EmailAddressString,
   EVMContractAddress,
   FamilyName,
@@ -220,19 +212,13 @@ export interface ISdlDataWallet {
   // if you are adjacent to the core (IE, in the extension or in the
   // iframe).
   // #region Account Methods
-  unlock(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode?: LanguageCode,
-  ): ResultAsync<void, ProxyError>;
   addAccount(
     accountAddress: AccountAddress,
     signature: Signature,
     chain: EChain,
     languageCode?: LanguageCode,
   ): ResultAsync<void, ProxyError>;
-  getUnlockMessage(
+  getLinkAccountMessage(
     languageCode?: LanguageCode,
   ): ResultAsync<string, ProxyError>;
   // #endregion
@@ -265,7 +251,6 @@ export interface ISdlDataWallet {
   getAccountBalances(): ResultAsync<TokenBalance[], ProxyError>;
   getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError>;
   closeTab(): ResultAsync<void, ProxyError>;
-  getDataWalletAddress(): ResultAsync<DataWalletAddress | null, ProxyError>;
   getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     ProxyError

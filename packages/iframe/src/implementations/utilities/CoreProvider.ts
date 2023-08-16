@@ -5,7 +5,7 @@ import {
   ISnickerdoodleCore,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
-import { ResultAsync, okAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 
 import {
   IConfigProvider,
@@ -22,7 +22,7 @@ export class CoreProvider implements ICoreProvider {
   public constructor(
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
   ) {
-    this.corePromise = new Promise((resolve, reject) => {
+    this.corePromise = new Promise((resolve) => {
       this.corePromiseResolve = resolve;
     });
   }
@@ -48,8 +48,8 @@ export class CoreProvider implements ICoreProvider {
 
     this.core = new SnickerdoodleCore(config);
 
-    this.corePromiseResolve!(this.core);
-
-    return okAsync(undefined);
+    return this.core.initialize().map(() => {
+      this.corePromiseResolve!(this.core);
+    });
   }
 }

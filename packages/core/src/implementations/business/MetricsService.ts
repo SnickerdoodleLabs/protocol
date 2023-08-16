@@ -106,10 +106,4 @@ export class MetricsService implements IMetricsService {
       },
     );
   }
-
-  public getUnlocked(): ResultAsync<boolean, never> {
-    return this.contextProvider.getContext().map((context) => {
-      return context.dataWalletKey != null;
-    });
-  }
 }

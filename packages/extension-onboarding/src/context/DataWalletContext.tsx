@@ -1,11 +1,4 @@
 import "reflect-metadata";
-import useIsMobile from "@extension-onboarding/hooks/useIsMobile";
-import { WebIntegrationConfigProvider } from "@extension-onboarding/services/implementations/utilities";
-import { ISdlDataWalletProxy } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import InstallationRequired from "@extension-onboarding/setupScreens/InstallationRequired";
-import Loading from "@extension-onboarding/setupScreens/Loading";
-import MobileScreen from "@extension-onboarding/setupScreens/MobileScreen/MobileScreen";
-import ProviderSelector from "@extension-onboarding/setupScreens/ProviderSelector";
 import { ECoreProxyType, ISdlDataWallet } from "@snickerdoodlelabs/objects";
 import { SnickerdoodleWebIntegration } from "@snickerdoodlelabs/web-integration";
 import React, {
@@ -16,6 +9,14 @@ import React, {
   useState,
   useMemo,
 } from "react";
+
+import useIsMobile from "@extension-onboarding/hooks/useIsMobile";
+import { WebIntegrationConfigProvider } from "@extension-onboarding/services/implementations/utilities";
+import { ISdlDataWalletProxy } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import InstallationRequired from "@extension-onboarding/setupScreens/InstallationRequired";
+import Loading from "@extension-onboarding/setupScreens/Loading";
+import MobileScreen from "@extension-onboarding/setupScreens/MobileScreen/MobileScreen";
+import ProviderSelector from "@extension-onboarding/setupScreens/ProviderSelector";
 
 interface IDataWalletContext {
   sdlDataWallet: ISdlDataWallet;

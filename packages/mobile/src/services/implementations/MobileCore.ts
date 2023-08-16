@@ -4,18 +4,12 @@ import {
 } from "@snickerdoodlelabs/common-utils";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
-  IConfigProvider,
-  IConfigProviderType,
-} from "@snickerdoodlelabs/core/dist/interfaces/utilities";
-import {
   AccountAddress,
   ChainId,
   CountryCode,
   DataWalletAddress,
-  DataPermissions,
   EChain,
   EmailAddressString,
-  EVMContractAddress,
   EWalletDataType,
   FamilyName,
   Gender,
@@ -29,7 +23,6 @@ import {
   TokenAddress,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
-import { MemoryVolatileStorage } from "@snickerdoodlelabs/persistence";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 
@@ -76,6 +69,12 @@ export class MobileCore {
       new MobileStorageUtils(),
       undefined,
     );
+
+    // TODO: This is horrible, don't do this
+    this.core.initialize().mapErr((e) => {
+      console.error(e);
+    });
+
     this.iocContainer.bind(ISnickerdoodleCoreType).toConstantValue(this.core);
     this.dataPermissionUtils = {
       defaultFlags: this.iocContainer.get<IDataPermissionsRepository>(
@@ -160,27 +159,10 @@ export class MobileCore {
           chain,
         );
       },
-      unlock: (
-        account: AccountAddress,
-        signature: Signature,
-        languageCode: LanguageCode,
-        chain: EChain,
-        calledWithCookie?: boolean,
-      ) => {
+      getLinkAccountMessage: (languageCode: LanguageCode) => {
         const _accountService =
           this.iocContainer.get<IAccountService>(IAccountServiceType);
-        return _accountService.unlock(
-          account,
-          signature,
-          languageCode,
-          chain,
-          calledWithCookie,
-        );
-      },
-      getUnlockMessage: (languageCode: LanguageCode) => {
-        const _accountService =
-          this.iocContainer.get<IAccountService>(IAccountServiceType);
-        return _accountService.getUnlockMessage(languageCode);
+        return _accountService.getLinkAccountMessage(languageCode);
       },
       getAccounts: () => {
         const _accountService =

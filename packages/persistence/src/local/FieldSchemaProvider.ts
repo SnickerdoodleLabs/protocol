@@ -31,6 +31,14 @@ export class FieldSchemaProvider implements IFieldSchemaProvider {
           ),
         ],
         [
+          EFieldKey.DATA_WALLET_PRIVATE_KEY,
+          new FieldIndex(
+            EFieldKey.DATA_WALLET_PRIVATE_KEY,
+            EBackupPriority.HIGH,
+            0,
+          ),
+        ],
+        [
           EFieldKey.ACCEPTED_INVITATIONS,
           new FieldIndex(
             EFieldKey.ACCEPTED_INVITATIONS,

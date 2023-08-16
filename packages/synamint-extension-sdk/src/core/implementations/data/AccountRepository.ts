@@ -56,19 +56,6 @@ export class AccountRepository implements IAccountRepository {
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
-  public getDataWalletForAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-  ): ResultAsync<DataWalletAddress | null, SnickerDoodleCoreError> {
-    return this.core.account
-      .getDataWalletForAccount(accountAddress, signature, languageCode, chain)
-      .mapErr((error) => {
-        this.errorUtils.emit(error);
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      });
-  }
   public getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {
     return this.core.getAccounts().mapErr((error) => {
       this.errorUtils.emit(error);
@@ -119,41 +106,15 @@ export class AccountRepository implements IAccountRepository {
       });
   }
 
-  public unlock(
-    account: EVMAccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode: LanguageCode,
-    calledWithCookie: boolean,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core.account
-      .unlock(account, signature, languageCode, chain)
-      .mapErr((error) => {
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      })
-      .andThen(() => {
-        if (calledWithCookie) {
-          return okAsync(undefined);
-        }
-        return this.accountCookieUtils.writeAccountInfoToCookie(
-          account,
-          signature,
-          languageCode,
-          chain,
-        );
-      })
-      .orElse((error) => {
-        this.errorUtils.emit(error);
-        return okAsync(undefined);
-      });
-  }
-  public getUnlockMessage(
+  public getLinkAccountMessage(
     languageCode: LanguageCode,
   ): ResultAsync<string, SnickerDoodleCoreError> {
-    return this.core.account.getUnlockMessage(languageCode).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
+    return this.core.account
+      .getLinkAccountMessage(languageCode)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
 
   public isDataWalletAddressInitialized(): ResultAsync<
@@ -165,15 +126,11 @@ export class AccountRepository implements IAccountRepository {
 
   public unlinkAccount(
     account: AccountAddress,
-    signature: Signature,
     chain: EChain,
-    languageCode: LanguageCode,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core.account
-      .unlinkAccount(account, signature, languageCode, chain)
-      .mapErr((error) => {
-        this.errorUtils.emit(error);
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      });
+    return this.core.account.unlinkAccount(account, chain).mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
 }

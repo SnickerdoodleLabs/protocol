@@ -58,6 +58,10 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
     return this._getIDB().andThen((db) => db.persist());
   }
 
+  public clear(): ResultAsync<void, PersistenceError> {
+    return this._getIDB().andThen((db) => db.clear());
+  }
+
   public clearObjectStore(name: string): ResultAsync<void, PersistenceError> {
     return this._getIDB().andThen((db) => db.clearObjectStore(name));
   }

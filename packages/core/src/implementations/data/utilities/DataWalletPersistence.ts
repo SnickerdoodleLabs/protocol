@@ -3,6 +3,7 @@ import {
   ILogUtilsType,
   ITimeUtils,
   ITimeUtilsType,
+  ObjectUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   PersistenceError,
@@ -24,12 +25,11 @@ import {
   BackupCreatedEvent,
   ECloudStorageType,
   AuthenticatedStorageSettings,
+  FieldDataUpdate,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
   IBackupManagerProviderType,
-  ICloudStorage,
-  ICloudStorageType,
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
   IVolatileStorage,
@@ -45,7 +45,7 @@ import {
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IDataWalletPersistence } from "@core/interfaces/data/index.js";
@@ -98,6 +98,37 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       }
       return Serializer.deserialize(raw).map((result) => {
         return result as T;
+      });
+    });
+  }
+
+  public getFieldFromAuthenticatedStorage<T>(
+    fieldKey: EFieldKey,
+  ): ResultAsync<T | null, PersistenceError> {
+    return ResultUtils.combine([
+      this.cloudStorageManager.getCloudStorage(),
+      this.backupManagerProvider.getBackupManager(),
+    ]).andThen(([cloudStorage, backupManager]) => {
+      // Get the latest backup for the field, that's the only one that matters
+      return cloudStorage.getLatestBackup(fieldKey).andThen((backup) => {
+        if (backup == null) {
+          return okAsync(null);
+        }
+        return backupManager
+          .unpackBackupChunk(backup)
+          .andThen((serializedFieldDataUpdate) => {
+            const fieldDataUpdate = ObjectUtils.deserialize<FieldDataUpdate>(
+              serializedFieldDataUpdate,
+            );
+            // If somehow the latest update is NOT for this field, return null
+            if (fieldDataUpdate.key == fieldKey) {
+              return Serializer.deserialize<T>(fieldDataUpdate.value);
+            }
+            this.logUtils.error(
+              `Latest backup for field key ${fieldKey} actually has field key ${fieldDataUpdate.key}`,
+            );
+            return okAsync(null);
+          });
       });
     });
   }
@@ -476,6 +507,15 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           return new PersistenceError((error as Error).message, error);
         });
       });
+  }
+  // #endregion
+
+  // #region Volatile Storage Methods
+  public clearVolatileStorage(): ResultAsync<void, PersistenceError> {
+    return ResultUtils.combine([
+      this.volatileStorage.clear(),
+      this.storageUtils.clear(),
+    ]).map(() => {});
   }
   // #endregion
 

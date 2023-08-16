@@ -21,14 +21,7 @@ export interface IAccountService {
     languageCode: LanguageCode,
     chain: EChain,
   ): ResultAsync<void, SnickerDoodleCoreError>;
-  unlock(
-    account: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-    calledWithCookie?: boolean,
-  ): ResultAsync<void, SnickerDoodleCoreError>;
-  getUnlockMessage(
+  getLinkAccountMessage(
     languageCode: LanguageCode,
   ): ResultAsync<string, SnickerDoodleCoreError>;
   getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError>;
