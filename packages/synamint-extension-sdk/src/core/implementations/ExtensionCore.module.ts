@@ -42,7 +42,6 @@ import {
 } from "@synamint-extension-sdk/core/implementations/data";
 import { RpcEngineFactory } from "@synamint-extension-sdk/core/implementations/utilities/factory";
 import {
-  AccountCookieUtils,
   ContextProvider,
   DataPermissionsUtils,
   ErrorUtils,
@@ -106,8 +105,6 @@ import {
   IRpcEngineFactoryType,
 } from "@synamint-extension-sdk/core/interfaces/utilities/factory";
 import {
-  IAccountCookieUtils,
-  IAccountCookieUtilsType,
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
@@ -203,9 +200,6 @@ export const extensionCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IConfigProvider>(IConfigProviderType)
       .to(ConfigProvider)
-      .inSingletonScope();
-    bind<IAccountCookieUtils>(IAccountCookieUtilsType)
-      .to(AccountCookieUtils)
       .inSingletonScope();
     bind<IDataPermissionsUtils>(IDataPermissionsUtilsType)
       .to(DataPermissionsUtils)

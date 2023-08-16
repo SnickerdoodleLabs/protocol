@@ -1,8 +1,26 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import {
+  BigNumberString,
+  DataWalletAddress,
+  EarnedReward,
+  EVMContractAddress,
+  LinkedAccount,
+  Signature,
+  URLString,
+} from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow";
+import React, {
+  createContext,
+  FC,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { Subscription } from "rxjs";
+
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import {
   ALERT_MESSAGES,
-  EWalletProviderKeys,
   LOCAL_STORAGE_SDL_INVITATION_KEY,
 } from "@extension-onboarding/constants";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
@@ -17,33 +35,6 @@ import {
   getProviderList as getSocialMediaProviderList,
   ISocialMediaWrapper,
 } from "@extension-onboarding/services/socialMediaProviders";
-import {
-  AccountAddress,
-  BigNumberString,
-  DataWalletAddress,
-  EarnedReward,
-  EChain,
-  EVMContractAddress,
-  LinkedAccount,
-  Signature,
-  URLString,
-  AccountAddedNotification,
-  AccountInitializedNotification,
-  AccountRemovedNotification,
-  CohortJoinedNotification,
-  EarnedRewardsAddedNotification,
-  ENotificationTypes,
-} from "@snickerdoodlelabs/objects";
-import { ResultAsync } from "neverthrow";
-import React, {
-  createContext,
-  FC,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import { Subscription } from "rxjs";
 
 export interface IInvitationInfo {
   consentAddress: EVMContractAddress | undefined;
@@ -157,13 +148,7 @@ export const AppContextProvider: FC = ({ children }) => {
   }, []);
 
   const checkDataWalletAddressAndInitializeApp = () => {
-    sdlDataWallet.metrics.getUnlocked().map((isUnlocked) => {
-      if (isUnlocked) {
-        setAppMode(EAppModes.AUTH_USER);
-      } else {
-        setAppMode(EAppModes.UNAUTH_USER);
-      }
-    });
+    setAppMode(EAppModes.AUTH_USER);
   };
 
   let initializedSubscription: Subscription | null = null;

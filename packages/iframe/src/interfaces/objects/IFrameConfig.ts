@@ -15,5 +15,9 @@ export class IFrameConfig {
     public defaultInsightPlatformBaseUrl: URLString,
     public sourceDomain: DomainName,
     public languageCode: LanguageCode,
+    public portfolioPollingIntervalMS: number,
+    public transactionPollingIntervalMS: number,
+    public backupPollingIntervalMS: number,
+    public requestForDataPollingIntervalMS: number,
   ) {}
 }

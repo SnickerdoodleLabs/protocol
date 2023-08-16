@@ -67,6 +67,9 @@ import {
   JsonWebToken,
   IProxyIntegrationMethods,
   QueryStatus,
+  AccessToken,
+  ECloudStorageType,
+  IProxyStorageMethods,
   ECoreProxyType,
   PageInvitation,
 } from "@snickerdoodlelabs/objects";
@@ -247,18 +250,8 @@ export class SnickerdoodleIFrameProxy
       });
   }
 
-  public unlock(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode: LanguageCode = LanguageCode("en"),
-  ): ResultAsync<void, ProxyError> {
-    return this._createCall("unlock", {
-      accountAddress,
-      signature,
-      chain,
-      languageCode,
-    });
+  public initialize(): ResultAsync<void, ProxyError> {
+    return this._createCall("initialize", null);
   }
 
   public addAccount(
@@ -275,10 +268,10 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
-  public getUnlockMessage(
+  public getLinkAccountMessage(
     languageCode: LanguageCode = LanguageCode("en"),
   ): ResultAsync<string, ProxyError> {
-    return this._createCall("getUnlockMessage", {
+    return this._createCall("getLinkAccountMessage", {
       languageCode,
     });
   }
@@ -705,9 +698,6 @@ export class SnickerdoodleIFrameProxy
     getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
       return this._createCall("metrics.getMetrics", null);
     },
-    getUnlocked: (): ResultAsync<boolean, ProxyError> => {
-      return this._createCall("metrics.getUnlocked", null);
-    },
   };
 
   public twitter: IProxyTwitterMethods = {
@@ -728,6 +718,39 @@ export class SnickerdoodleIFrameProxy
     },
     getUserProfiles: (): ResultAsync<TwitterProfile[], ProxyError> => {
       return this._createCall("twitter.getUserProfiles", null);
+    },
+  };
+
+  public storage: IProxyStorageMethods = {
+    setAuthenticatedStorage: (
+      storageType: ECloudStorageType,
+      path: string,
+      accessToken: AccessToken,
+    ): ResultAsync<void, ProxyError> => {
+      return this._createCall("storage.setAuthenticatedStorage", {
+        storageType,
+        path,
+        accessToken,
+      });
+    },
+    authenticateDropbox: (
+      code: string,
+    ): ResultAsync<AccessToken, ProxyError> => {
+      return this._createCall("storage.authenticateDropbox", {
+        code,
+      });
+    },
+    getDropboxAuth: (): ResultAsync<URLString, ProxyError> => {
+      return this._createCall("storage.getDropboxAuth", {});
+    },
+    getCurrentCloudStorage: (): ResultAsync<ECloudStorageType, ProxyError> => {
+      return this._createCall("storage.getCurrentCloudStorage", {});
+    },
+    getAvailableCloudStorageOptions: (): ResultAsync<
+      Set<ECloudStorageType>,
+      ProxyError
+    > => {
+      return this._createCall("storage.getAvailableCloudStorageOptions", {});
     },
   };
 

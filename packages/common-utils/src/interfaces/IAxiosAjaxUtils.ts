@@ -20,6 +20,7 @@ export interface IAxiosAjaxUtils {
       | URLSearchParams,
     config?: IRequestConfig,
   ): ResultAsync<T, AjaxError>;
+
   put<T>(
     url: URL,
     data:

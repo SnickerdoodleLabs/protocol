@@ -1,4 +1,5 @@
 const envVars = {
+  __ENABLE_BACKUP_ENCRYPTION__: "false",
   __REQUEST_FOR_DATA_EVENT_FREQ__: 60000,
   __CONTROL_CHAIN_ID__: 31337,
   __ONBOARDING_URL__: "http://localhost:9001/",
@@ -6,6 +7,10 @@ const envVars = {
   __SUPPORTED_CHAINS__: "5,43113,31337,-1,100,56,1284,42161,592",
   __IPFS_FETCH_BASE_URL__: "http://localhost:8080/ipfs/",
   __DEFAULT_INSIGHT_PLATFORM_BASE_URL__: "http://localhost:3001/v0/",
+
+  __DROPBOX_APP_KEY__: "w69949reoalc9xg",
+  __DROPBOX_APP_SECRET__: "78jch5z5o800dyw",
+  __DROPBOX_REDIRECT_URI__: "https://localhost:9005/settings/storage",
 
   __ALCHEMY_ARBITRUM_API_KEY__: "",
   __ALCHEMY_ASTAR_API_KEY__: "",

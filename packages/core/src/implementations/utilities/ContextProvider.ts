@@ -22,7 +22,7 @@ export class ContextProvider
     this.context = new CoreContext(
       null, // dataWalletAddress
       null, // dataWalletKey
-      false, // unlockInProgress
+      false, // initializeInProgress
       new PublicEvents(), // publicEvents,
       new PrivateEvents(), // privateEvents
       false, // restoreInProgress

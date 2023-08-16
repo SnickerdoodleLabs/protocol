@@ -27,6 +27,7 @@ import {
   MethodSupportError,
   EDataProvider,
   EExternalApi,
+  EVMTransactionHash,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -38,7 +39,6 @@ import {
   IIndexerContextProvider,
   IIndexerContextProviderType,
 } from "@indexers/interfaces/index.js";
-
 import { MasterIndexer } from "@indexers/MasterIndexer.js";
 
 @injectable()
@@ -241,12 +241,13 @@ export class AnkrIndexer implements IEVMIndexer {
     EVMTransaction[],
     AccountIndexingError | AjaxError | MethodSupportError
   > {
-    return errAsync(
-      new MethodSupportError(
-        "getEVMTransactions not supported for AnkrIndexer",
-        400,
-      ),
-    );
+    return okAsync([]);
+    // return errAsync(
+    //   new MethodSupportError(
+    //     "getEVMTransactions not supported for AnkrIndexer",
+    //     400,
+    //   ),
+    // );
     // return this.configProvider.getConfig().andThen((config) => {
     //   const url =
     //     "https://rpc.ankr.com/multichain/" +

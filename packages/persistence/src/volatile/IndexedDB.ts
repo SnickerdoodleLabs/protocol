@@ -130,14 +130,19 @@ export class IndexedDB {
     });
   }
 
-  private getTransaction(
-    name: string,
-    mode: IDBTransactionMode,
-  ): ResultAsync<IDBTransaction, PersistenceError> {
-    return this.initialize().andThen((db) => {
-      return okAsync(db.transaction(name, mode));
-      // return okAsync(tx.objectStore(name));
-    });
+  public clear(): ResultAsync<void, PersistenceError> {
+    return this.initialize()
+      .andThen((db) => {
+        return this.getTransaction("Clear", "readwrite").andThen((tx) => {
+          const objectStoreNames = [...db.objectStoreNames];
+          return ResultUtils.combine(
+            objectStoreNames.map((objectStoreName) => {
+              return this._clearNamedObjectStore(tx, objectStoreName);
+            }),
+          );
+        });
+      })
+      .map(() => {});
   }
 
   public clearObjectStore(name: string): ResultAsync<void, PersistenceError> {
@@ -145,33 +150,7 @@ export class IndexedDB {
       this.initialize(),
       this.getTransaction(name, "readwrite"),
     ]).andThen(([_db, tx]) => {
-      const promise = new Promise((resolve, reject) => {
-        const timeout = setTimeout(() => {
-          reject(new PersistenceError("timeout"));
-        }, 1000);
-
-        try {
-          const store = tx.objectStore(name);
-          const req = store.clear();
-          req.onsuccess = function (evt) {
-            clearTimeout(timeout);
-            resolve(store);
-          };
-          req.onerror = function (evt) {
-            clearTimeout(timeout);
-            reject(new PersistenceError("error clearing object store"));
-          };
-        } catch (e) {
-          clearTimeout(timeout);
-          tx.abort();
-          reject(new PersistenceError("error clearing store", e));
-        }
-      });
-
-      return ResultAsync.fromPromise(
-        promise,
-        (e) => e as PersistenceError,
-      ).andThen((_store) => okAsync(undefined));
+      return this._clearNamedObjectStore(tx, name);
     });
   }
 
@@ -339,8 +318,6 @@ export class IndexedDB {
               const indexObj: IDBIndex = store.index("deleted");
               request = indexObj.getAll(EBoolean.FALSE);
             } else {
-              // const indexObj: IDBIndex = store.index(this._getIndexName(index));
-              // request = indexObj.getAll(query);
               // TODO: fix when we go to SQLite
               throw new PersistenceError(
                 "getting all by index query no longer supported",
@@ -473,7 +450,51 @@ export class IndexedDB {
     }
   }
 
-  private _getRecursiveKey(obj: object, path: string): string | number {
+  protected _clearNamedObjectStore(
+    tx: IDBTransaction,
+    name: string,
+  ): ResultAsync<void, PersistenceError> {
+    const promise = new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(
+          new PersistenceError(
+            `Timeout occured while clearing object store ${name}`,
+          ),
+        );
+      }, 1000);
+
+      try {
+        const store = tx.objectStore(name);
+        const req = store.clear();
+        req.onsuccess = function (evt) {
+          clearTimeout(timeout);
+          resolve(store);
+        };
+        req.onerror = function (evt) {
+          clearTimeout(timeout);
+          reject(new PersistenceError(`Error clearing object store ${name}`));
+        };
+      } catch (e) {
+        clearTimeout(timeout);
+        reject(new PersistenceError(`Error clearing object store ${name}`, e));
+      }
+    });
+
+    return ResultAsync.fromPromise(promise, (e) => {
+      return e as PersistenceError;
+    }).andThen((_store) => okAsync(undefined));
+  }
+
+  protected getTransaction(
+    name: string,
+    mode: IDBTransactionMode,
+  ): ResultAsync<IDBTransaction, PersistenceError> {
+    return this.initialize().map((db) => {
+      return db.transaction(name, mode);
+    });
+  }
+
+  protected _getRecursiveKey(obj: object, path: string): string | number {
     const items = path.split(".");
     let ret = obj;
     items.forEach((x) => {
@@ -483,15 +504,15 @@ export class IndexedDB {
     return ret as unknown as string | number;
   }
 
-  private _getCompoundIndexName(key: (string | number)[]): string {
+  protected _getCompoundIndexName(key: (string | number)[]): string {
     return key.join(",");
   }
 
-  private _getFieldPath(name: VolatileStorageKey): string {
+  protected _getFieldPath(name: VolatileStorageKey): string {
     return [VolatileStorageDataKey, name.toString()].join(".");
   }
 
-  private _getIndexName(index: VolatileStorageKey): string {
+  protected _getIndexName(index: VolatileStorageKey): string {
     if (Array.isArray(index)) {
       const paths = index.map((x) => this._getFieldPath(x));
       return this._getCompoundIndexName(paths);

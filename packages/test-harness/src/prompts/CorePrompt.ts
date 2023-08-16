@@ -20,28 +20,18 @@ import { okAsync, ResultAsync } from "neverthrow";
 
 import { Environment } from "@test-harness/mocks/Environment.js";
 import { AddAccount } from "@test-harness/prompts/AddAccount.js";
-import { AddPasswordPrompt } from "@test-harness/prompts/AddPasswordPrompt.js";
-import { CheckAccount } from "@test-harness/prompts/CheckAccount.js";
 import { DataWalletPrompt } from "@test-harness/prompts/DataWalletPrompt.js";
 import { GetBearerToken } from "@test-harness/prompts/GetBearerToken.js";
 import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
 import { OptInCampaign } from "@test-harness/prompts/OptInCampaign.js";
 import { OptOutCampaign } from "@test-harness/prompts/OptOutCampaign.js";
 import { RemoveAccount } from "@test-harness/prompts/RemoveAccount.js";
-import { RemovePasswordPrompt } from "@test-harness/prompts/RemovePasswordPrompt.js";
 import { SelectProfile } from "@test-harness/prompts/SelectProfile.js";
-import { UnlockCore } from "@test-harness/prompts/UnlockCore.js";
-import { UnlockWithPasswordPrompt } from "@test-harness/prompts/UnlockWithPasswordPrompt.js";
 import { UpdateDataPermissions } from "@test-harness/prompts/UpdateDataPermissions.js";
 
 export class CorePrompt extends DataWalletPrompt {
-  private unlockCore: UnlockCore;
-  private unlockWithPassword: UnlockWithPasswordPrompt;
   private addAccount: AddAccount;
-  private addPassword: AddPasswordPrompt;
-  private checkAccount: CheckAccount;
   private removeAccount: RemoveAccount;
-  private removePassword: RemovePasswordPrompt;
   private optInCampaign: OptInCampaign;
   private optOutCampaign: OptOutCampaign;
   private selectProfile: SelectProfile;
@@ -50,13 +40,8 @@ export class CorePrompt extends DataWalletPrompt {
   public constructor(public env: Environment, protected timeUtils: ITimeUtils) {
     super(env);
 
-    this.unlockCore = new UnlockCore(this.env);
-    this.unlockWithPassword = new UnlockWithPasswordPrompt(this.env);
     this.addAccount = new AddAccount(this.env);
-    this.addPassword = new AddPasswordPrompt(this.env);
-    this.checkAccount = new CheckAccount(this.env);
     this.removeAccount = new RemoveAccount(this.env);
-    this.removePassword = new RemovePasswordPrompt(this.env);
     this.optInCampaign = new OptInCampaign(this.env, this.timeUtils);
     this.optOutCampaign = new OptOutCampaign(this.env);
     this.selectProfile = new SelectProfile(this.env);
@@ -64,11 +49,6 @@ export class CorePrompt extends DataWalletPrompt {
   }
 
   public start(): ResultAsync<void, Error> {
-    console.log(
-      "Starting core prompt with unlock state:",
-      this.profile.unlocked,
-    );
-
     const choicesWhenUnlocked = [
       { name: "Add Account", value: "addAccount" },
       { name: "Add Password", value: "addPassword" },
@@ -136,7 +116,7 @@ export class CorePrompt extends DataWalletPrompt {
       { name: "Metrics", value: "metrics" },
     ];
 
-    let choices = [
+    const choices = [
       { name: "NOOP", value: "NOOP" },
       { name: "Switch Profile", value: "selectProfile" },
       new inquirer.Separator(),
@@ -145,19 +125,6 @@ export class CorePrompt extends DataWalletPrompt {
       { name: "Cancel", value: "cancel" },
       new inquirer.Separator(),
     ];
-
-    // Only show the unlock option we are not already unlocked.
-    if (!this.profile.unlocked) {
-      choices = [
-        { name: "NOOP", value: "NOOP" },
-        { name: "Select Profile", value: "selectProfile" },
-        { name: "Unlock", value: "unlock" },
-        { name: "Unlock With Password", value: "unlockWithPassword" },
-        new inquirer.Separator(),
-        { name: "Cancel", value: "cancel" },
-        new inquirer.Separator(),
-      ];
-    }
 
     return inquiryWrapper([
       {
@@ -180,22 +147,12 @@ export class CorePrompt extends DataWalletPrompt {
       switch (answers.core) {
         case "NOOP": // this is super important as we have the accept query appearing from another thread
           return okAsync<void, never>(undefined);
-        case "unlock":
-          return this.unlockCore.start();
-        case "unlockWithPassword":
-          return this.unlockWithPassword.start();
         case "selectProfile":
           return this.selectProfile.start();
         case "addAccount":
           return this.addAccount.start();
-        case "addPassword":
-          return this.addPassword.start();
-        case "checkAccount":
-          return this.checkAccount.start();
         case "removeAccount":
           return this.removeAccount.start();
-        case "removePassword":
-          return this.removePassword.start();
         case "optInCampaign":
           return this.optInCampaign.start();
         case "optOutCampaign":

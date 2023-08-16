@@ -5,6 +5,7 @@ export * from "@objects/enum/EBoolean.js";
 export * from "@objects/enum/EChain.js";
 export * from "@objects/enum/EChainTechnology.js";
 export * from "@objects/enum/EChainType.js";
+export * from "@objects/enum/ECloudStorageType.js";
 export * from "@objects/enum/EComponentStatus.js";
 export * from "@objects/enum/ECoreProxyType.js";
 export * from "@objects/enum/ECreatedRewardType.js";

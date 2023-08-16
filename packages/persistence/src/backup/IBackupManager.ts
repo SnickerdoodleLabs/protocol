@@ -9,6 +9,7 @@ import {
   EFieldKey,
   RestoredBackup,
   SerializedObject,
+  JSONString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -41,9 +42,13 @@ export interface IBackupManager {
     id: DataWalletBackupID,
   ): ResultAsync<void, PersistenceError>;
 
+  /**
+   * Returns the raw data of the backup, unencrypted if necessary
+   * @param backup
+   */
   unpackBackupChunk(
     backup: DataWalletBackup,
-  ): ResultAsync<string, PersistenceError>;
+  ): ResultAsync<JSONString, PersistenceError>;
 }
 
 export const IBackupManagerType = Symbol.for("IBackupManager");

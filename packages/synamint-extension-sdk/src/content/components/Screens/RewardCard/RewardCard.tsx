@@ -11,7 +11,7 @@ interface IRewardCardProps {
   onCloseClick: () => void;
   onCancelClick: () => void;
   rewardItem: IRewardItem;
-  isUnlocked: boolean;
+  linkedAccountExist: boolean;
 }
 
 const RewardCard: React.FC<IRewardCardProps> = ({
@@ -19,7 +19,7 @@ const RewardCard: React.FC<IRewardCardProps> = ({
   onCloseClick,
   onCancelClick,
   rewardItem,
-  isUnlocked,
+  linkedAccountExist,
 }: IRewardCardProps) => {
   const classes = useStyles();
 
@@ -103,7 +103,9 @@ const RewardCard: React.FC<IRewardCardProps> = ({
               onClick={onJoinClick}
               className={classes.primaryButton}
             >
-              {isUnlocked ? rewardItem.primaryButtonText : "Connect and Claim"}
+              {linkedAccountExist
+                ? rewardItem.primaryButtonText
+                : "Connect and Claim"}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 17 16"

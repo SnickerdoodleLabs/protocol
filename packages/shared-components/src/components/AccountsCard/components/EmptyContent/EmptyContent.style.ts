@@ -8,7 +8,7 @@ export const useStyles = makeStyles((theme) => ({
   description: {
     fontFamily: "Roboto",
     fontWeight: 400,
-    fontSize: 18,
+    fontSize: 12,
     color: "#232039",
   },
 }));

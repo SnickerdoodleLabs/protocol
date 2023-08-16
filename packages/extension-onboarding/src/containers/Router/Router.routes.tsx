@@ -25,6 +25,7 @@ import Tokens from "@extension-onboarding/pages/Details/screens/Tokens";
 import AccountLinking from "@extension-onboarding/pages/Onboarding/AccountLinking";
 import CategorySelection from "@extension-onboarding/pages/Onboarding/CategorySelection";
 import PermissionSelection from "@extension-onboarding/pages/Onboarding/PermissionSelection";
+import StorageSettings from "@extension-onboarding/pages/Details/screens/StorageSettings/StorageSettings";
 import ProfileCreation from "@extension-onboarding/pages/Onboarding/ProfileCreation";
 
 export const OnboardingRoutes = (
@@ -81,6 +82,7 @@ export const AuthFlowRoutes = (
       /> */}
       <Route path={EPaths.WEB3_SETTINGS} element={<OnChainIfo />} />
       <Route path={EPaths.WEB2_SETTINGS} element={<PersonalInfo />} />
+      <Route path={EPaths.STORAGE_SETTINGS} element={<StorageSettings />} />
       <Route
         path={EPaths.REWARDS_SUBSCRIPTIONS}
         element={<CampaignSettings />}

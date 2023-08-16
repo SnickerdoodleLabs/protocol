@@ -49,6 +49,8 @@ import {
   TwitterID,
   URLString,
   UnixTimestamp,
+  ECloudStorageType,
+  AccessToken,
 } from "@snickerdoodlelabs/objects";
 import {
   IIFrameCallData,
@@ -94,62 +96,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.coreProvider.setConfig(data.data);
         }, data.callId);
       },
-      unlock: (
-        data: IIFrameCallData<{
-          accountAddress: AccountAddress;
-          signature: Signature;
-          languageCode: LanguageCode;
-          chain: EChain;
-        }>,
-      ) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.account
-              .unlock(
-                data.data.accountAddress,
-                data.data.signature,
-                data.data.languageCode,
-                data.data.chain,
-                sourceDomain,
-              )
-              .andThen(() => {
-                // Store the unlock values in local storage
-                console.log("Storing unlock values in local storage");
-                return ResultUtils.combine([
-                  this.storageUtils.write(
-                    "storedAccountAddress",
-                    data.data.accountAddress,
-                  ),
-                  this.storageUtils.write(
-                    "storedSignature",
-                    data.data.signature,
-                  ),
-                  this.storageUtils.write("storedChain", data.data.chain),
-                  this.storageUtils.write(
-                    "storedLanguageCode",
-                    data.data.languageCode,
-                  ),
-                ])
-                  .map(() => {})
-                  .orElse((e) => {
-                    console.error("Error storing unlock values", e);
-                    return okAsync(undefined);
-                  });
-              })
-              .andThen(() => {
-                // We want to record the sourceDomain as a site visit
-                return core.addSiteVisits([
-                  new SiteVisit(
-                    URLString(this.sourceDomain), // We can't get the full URL, but the domain will suffice
-                    this.timeUtils.getUnixNow(), // Visit started now
-                    UnixTimestamp(this.timeUtils.getUnixNow() + 10), // We're not going to wait, so just record the visit as for 10 seconds
-                  ),
-                ]);
-              });
-          });
-        }, data.callId);
-      },
-
       addAccount: (
         data: IIFrameCallData<{
           accountAddress: AccountAddress;
@@ -172,14 +118,14 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      getUnlockMessage: (
+      getLinkAccountMessage: (
         data: IIFrameCallData<{
           languageCode: LanguageCode;
         }>,
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.account.getUnlockMessage(
+            return core.account.getLinkAccountMessage(
               data.data.languageCode,
               sourceDomain,
             );
@@ -629,8 +575,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       unlinkAccount: (
         data: IIFrameCallData<{
           accountAddress: AccountAddress;
-          signature: Signature;
-          languageCode: LanguageCode;
           chain: EChain;
         }>,
       ) => {
@@ -638,8 +582,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.coreProvider.getCore().andThen((core) => {
             return core.account.unlinkAccount(
               data.data.accountAddress,
-              data.data.signature,
-              data.data.languageCode,
               data.data.chain,
               sourceDomain,
             );
@@ -956,13 +898,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           });
         }, data.callId);
       },
-      "metrics.getUnlocked": (data: IIFrameCallData<Record<string, never>>) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.metrics.getUnlocked(sourceDomain);
-          });
-        }, data.callId);
-      },
 
       "twitter.getOAuth1aRequestToken": (
         data: IIFrameCallData<Record<string, never>>,
@@ -1006,6 +941,55 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
             return core.twitter.getUserProfiles(sourceDomain);
+          });
+        }, data.callId);
+      },
+      "storage.setAuthenticatedStorage": (
+        data: IIFrameCallData<{
+          storageType: ECloudStorageType;
+          path: string;
+          accessToken: AccessToken;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.storage.setAuthenticatedStorage(
+              data.data.storageType,
+              data.data.path,
+              data.data.accessToken,
+              sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
+      "storage.authenticateDropbox": (
+        data: IIFrameCallData<{
+          code: string;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.storage.authenticateDropbox(
+              data.data.code,
+              sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
+      "storage.getDropboxAuth": (data: IIFrameCallData<{}>) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.storage.getDropboxAuth(sourceDomain);
+          });
+        }, data.callId);
+      },
+
+      "storage.getCurrentCloudStorage": (data: IIFrameCallData<{}>) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.storage.getCurrentCloudStorage(sourceDomain);
           });
         }, data.callId);
       },

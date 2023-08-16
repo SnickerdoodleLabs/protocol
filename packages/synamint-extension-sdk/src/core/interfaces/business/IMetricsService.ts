@@ -7,9 +7,6 @@ export interface IMetricsService {
   getMetrics(
     sourceDomain?: DomainName,
   ): ResultAsync<RuntimeMetrics, SnickerDoodleCoreError>;
-  getUnlocked(
-    sourceDomain?: DomainName,
-  ): ResultAsync<boolean, SnickerDoodleCoreError>;
 }
 
 export const IMetricsServiceType = Symbol.for("IMetricsService");

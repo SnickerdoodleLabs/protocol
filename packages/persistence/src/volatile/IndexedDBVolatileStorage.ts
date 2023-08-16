@@ -63,6 +63,10 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
     return this._getIDB().andThen((db) => db.clearObjectStore(name));
   }
 
+  public clear(): ResultAsync<void, PersistenceError> {
+    return this._getIDB().andThen((db) => db.clear());
+  }
+
   public putObject<T extends VersionedObject>(
     schemaKey: ERecordKey,
     obj: VolatileStorageMetadata<T>,

@@ -10,7 +10,7 @@
     "default_popup": "popup.html"
   },
   "host_permissions": [],
-  "permissions": ["cookies", "tabs", "storage", "activeTab", "offscreen"],
+  "permissions": ["tabs", "storage", "activeTab", "offscreen"],
   "icons": {
     "128": "assets/appIcons/big.png"
   },

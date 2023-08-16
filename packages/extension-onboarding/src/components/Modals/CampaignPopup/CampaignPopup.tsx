@@ -36,6 +36,8 @@ const CampaignPopup: FC = () => {
     isProductTourCompleted,
     appMode,
     popupsDisabled,
+    linkedAccounts,
+    setLinkerModalOpen,
   } = useAppContext();
   const { setVisualAlert } = useNotificationContext();
   const isStatusCheckRequiredRef = useRef<boolean>(false);
@@ -220,6 +222,9 @@ const CampaignPopup: FC = () => {
         rewardsThatRequireMorePermission,
         dataTypes,
       }) => {
+        if (linkedAccounts.length === 0) {
+          setLinkerModalOpen();
+        }
         setModal({
           modalSelector: EModalSelectors.SUBSCRIPTION_CONFIRMATION_MODAL,
           onPrimaryButtonClick: (receivingAccount: AccountAddress) => {

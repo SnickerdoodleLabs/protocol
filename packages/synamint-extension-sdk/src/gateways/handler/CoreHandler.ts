@@ -27,6 +27,7 @@ export default class CoreHandler {
           if (error) {
             return reject(error);
           }
+
           return resolve(
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore - no type support provided

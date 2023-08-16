@@ -59,16 +59,8 @@ export class RemoveAccount extends Prompt {
 
         const wallet = answers.removeAccountSelector as TestWallet;
 
-        return this.dataWalletProfile
-          .getSignatureForAccount(wallet)
-          .andThen((signature) => {
-            return this.core.account.unlinkAccount(
-              wallet.accountAddress,
-              signature,
-              this.mocks.languageCode,
-              wallet.chain,
-            );
-          })
+        return this.core.account
+          .unlinkAccount(wallet.accountAddress, wallet.chain)
           .map(() => {
             console.log(`Unlinked account ${wallet.getName()}`);
           });

@@ -5,10 +5,14 @@ import {
   DataWalletBackupID,
   BackupFileName,
   StorageKey,
+  ECloudStorageType,
+  AccessToken,
+  AuthenticatedStorageSettings,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface ICloudStorage {
+  name(): ECloudStorageType;
   /**
    * Stores a new backup file in the cloud
    * @param backup The backup you want to store in the cloud
@@ -26,7 +30,11 @@ export interface ICloudStorage {
     restored: Set<DataWalletBackupID>,
   ): ResultAsync<DataWalletBackup[], PersistenceError>;
 
-  unlock(derivedKey: EVMPrivateKey): ResultAsync<void, PersistenceError>;
+  saveCredentials(
+    credentials: AuthenticatedStorageSettings,
+  ): ResultAsync<void, PersistenceError>;
+
+  clearCredentials(): ResultAsync<void, PersistenceError>;
 
   /**
    * Returns all the backups for a specific storage type, excluding those
@@ -68,3 +76,6 @@ export interface ICloudStorage {
 }
 
 export const ICloudStorageType = Symbol.for("ICloudStorage");
+export const IGDriveCloudStorageType = Symbol.for("IGDriveCloudStorage");
+export const IDropboxCloudStorageType = Symbol.for("IDropboxCloudStorage");
+export const INullCloudStorageType = Symbol.for("INullCloudStorage");

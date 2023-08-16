@@ -11,11 +11,6 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface IBackupUtils {
-  verifyBackupSignature(
-    backup: DataWalletBackup,
-    accountAddr: EVMAccountAddress,
-  ): ResultAsync<boolean, never>;
-
   generateBackupSignature(
     hash: DataWalletBackupID,
     timestamp: number,

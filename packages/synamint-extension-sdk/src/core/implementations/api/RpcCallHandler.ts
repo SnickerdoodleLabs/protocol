@@ -13,7 +13,15 @@ import {
   TokenId,
   BigNumberString,
   URLString,
+  ISnickerdoodleCoreType,
+  ISnickerdoodleCore,
+  ECloudStorageType,
+  AuthenticatedStorageSettings,
 } from "@snickerdoodlelabs/objects";
+import {
+  ICloudStorageManager,
+  ICloudStorageManagerType,
+} from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import {
   AsyncJsonRpcEngineNextCallback,
@@ -135,12 +143,16 @@ import {
   GetConfigParams,
   SwitchToTabParams,
   GetMetricsParams,
-  GetUnlockedParams,
   RequestPermissionsParams,
   GetPermissionsParams,
   GetTokenVerificationPublicKeyParams,
   GetBearerTokenParams,
   GetQueryStatusByCidParams,
+  GetDropBoxAuthUrlParams,
+  AuthenticateDropboxParams,
+  SetAuthenticatedStorageParams,
+  GetAvailableCloudStorageOptionsParams,
+  GetCurrentCloudStorageParams,
   RejectInvitationParams,
 } from "@synamint-extension-sdk/shared";
 
@@ -148,18 +160,6 @@ import {
 export class RpcCallHandler implements IRpcCallHandler {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected rpcCalls: CoreActionHandler<any>[] = [
-    new CoreActionHandler<UnlockParams>(
-      // Annoying that we need to do this; TS doesn't support abstract static methods
-      UnlockParams.getCoreAction(),
-      (params) => {
-        return this.accountService.unlock(
-          params.accountAddress,
-          params.signature,
-          params.chain,
-          params.languageCode,
-        );
-      },
-    ),
     new CoreActionHandler<AddAccountParams>(
       AddAccountParams.getCoreAction(),
       (params) => {
@@ -174,7 +174,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<GetUnlockMessageParams>(
       GetUnlockMessageParams.getCoreAction(),
       (params) => {
-        return this.accountService.getUnlockMessage(params.languageCode);
+        return this.accountService.getLinkAccountMessage(params.languageCode);
       },
     ),
     new CoreActionHandler<GetEarnedRewardsParams>(
@@ -387,9 +387,7 @@ export class RpcCallHandler implements IRpcCallHandler {
       (params) => {
         return this.accountService.unlinkAccount(
           params.accountAddress,
-          params.signature,
           params.chain,
-          params.languageCode,
         );
       },
     ),
@@ -759,14 +757,6 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this.metricsService.getMetrics(this.getDomainFromSender(sender));
       },
     ),
-    new CoreActionHandler<GetUnlockedParams>(
-      GetUnlockedParams.getCoreAction(),
-      (_params, sender) => {
-        return this.metricsService.getUnlocked(
-          this.getDomainFromSender(sender),
-        );
-      },
-    ),
     // #endregion
     // #region Integration
     new CoreActionHandler<RequestPermissionsParams>(
@@ -804,6 +794,46 @@ export class RpcCallHandler implements IRpcCallHandler {
         );
       },
     ),
+
+    new CoreActionHandler<GetDropBoxAuthUrlParams>(
+      GetDropBoxAuthUrlParams.getCoreAction(),
+      (_params) => {
+        return this.core.storage.getDropboxAuth(undefined);
+      },
+    ),
+
+    new CoreActionHandler<AuthenticateDropboxParams>(
+      AuthenticateDropboxParams.getCoreAction(),
+      (params) => {
+        return this.core.storage.authenticateDropbox(params.code, undefined);
+      },
+    ),
+
+    new CoreActionHandler<SetAuthenticatedStorageParams>(
+      SetAuthenticatedStorageParams.getCoreAction(),
+      (params) => {
+        return this.core.storage.setAuthenticatedStorage(
+          params.storageType,
+          params.path,
+          params.accessToken,
+          undefined,
+        );
+      },
+    ),
+
+    new CoreActionHandler<GetAvailableCloudStorageOptionsParams>(
+      GetAvailableCloudStorageOptionsParams.getCoreAction(),
+      (_params) => {
+        return this.core.storage.getAvailableCloudStorageOptions(undefined);
+      },
+    ),
+
+    new CoreActionHandler<GetCurrentCloudStorageParams>(
+      GetCurrentCloudStorageParams.getCoreAction(),
+      (_params) => {
+        return this.core.storage.getCurrentCloudStorage(undefined);
+      },
+    ),
     // #endregion
   ];
 
@@ -833,6 +863,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     @inject(IMetricsServiceType) protected metricsService: IMetricsService,
     @inject(IIntegrationServiceType)
     protected integrationService: IIntegrationService,
+    @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
   ) {}
 
   public async handleRpcCall(

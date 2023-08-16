@@ -289,7 +289,7 @@ export class InvitationService implements IInvitationService {
           context.dataWalletKey == null
         ) {
           return errAsync(
-            new UninitializedError("Data wallet has not been unlocked yet!"),
+            new UninitializedError("Data wallet has not been initialized yet!"),
           );
         }
 
@@ -482,7 +482,7 @@ export class InvitationService implements IInvitationService {
     return this.contextProvider.getContext().andThen((context) => {
       if (context.dataWalletAddress == null || context.dataWalletKey == null) {
         return errAsync(
-          new UninitializedError("Data wallet has not been unlocked yet!"),
+          new UninitializedError("Data wallet has not been initialized yet!"),
         );
       }
 
@@ -763,7 +763,7 @@ export class InvitationService implements IInvitationService {
     return this.contextProvider.getContext().andThen((context) => {
       if (context.dataWalletAddress == null || context.dataWalletKey == null) {
         return errAsync(
-          new UninitializedError("Data wallet has not been unlocked yet!"),
+          new UninitializedError("Data wallet has not been initialized yet!"),
         );
       }
 

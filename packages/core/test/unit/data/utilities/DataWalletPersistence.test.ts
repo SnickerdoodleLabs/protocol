@@ -30,6 +30,7 @@ import {
   IVolatileStorage,
   IVolatileStorageSchemaProvider,
   Serializer,
+  ICloudStorageManager,
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils } from "@snickerdoodlelabs/utils";
 import { errAsync, ok, okAsync } from "neverthrow";
@@ -127,8 +128,10 @@ class DataWalletPersistenceMocks {
   public contextProvider: ContextProviderMock;
   public timeUtils: ITimeUtils;
   public logUtils: ILogUtils;
+  public cloudStoreManager: ICloudStorageManager;
 
   public constructor() {
+    this.cloudStoreManager = td.object<ICloudStorageManager>();
     this.backupManagerProvider = td.object<IBackupManagerProvider>();
     this.backupManager = td.object<IBackupManager>();
     this.storageUtils = td.object<IStorageUtils>();
@@ -188,12 +191,12 @@ class DataWalletPersistenceMocks {
       okAsync([fieldBackup, recordBackup]),
     );
 
-    td.when(this.backupManager.markRenderedChunkAsRestored(fieldBackupId)).thenReturn(
-      okAsync(undefined),
-    );
-    td.when(this.backupManager.markRenderedChunkAsRestored(recordBackupId)).thenReturn(
-      okAsync(undefined),
-    );
+    td.when(
+      this.backupManager.markRenderedChunkAsRestored(fieldBackupId),
+    ).thenReturn(okAsync(undefined));
+    td.when(
+      this.backupManager.markRenderedChunkAsRestored(recordBackupId),
+    ).thenReturn(okAsync(undefined));
 
     // StorageUtils ----------------------------------------------------
     td.when(this.storageUtils.read<SerializedObject>(fieldKey)).thenReturn(
@@ -245,10 +248,6 @@ class DataWalletPersistenceMocks {
       okAsync(null),
     );
 
-    td.when(this.cloudStorage.unlock(dataWalletKey)).thenReturn(
-      okAsync(undefined),
-    );
-
     // No backups to restore by default
     td.when(
       this.cloudStorage.pollByStorageType(
@@ -289,10 +288,10 @@ class DataWalletPersistenceMocks {
 
   public factory(): IDataWalletPersistence {
     return new DataWalletPersistence(
+      this.cloudStoreManager,
       this.backupManagerProvider,
       this.storageUtils,
       this.volatileStorage,
-      this.cloudStorage,
       this.configProvider,
       this.logUtils,
       this.contextProvider,

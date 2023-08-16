@@ -611,7 +611,7 @@ export class QueryService implements IQueryService {
   ): ResultAsync<void, UninitializedError | ConsentError> {
     if (context.dataWalletAddress == null || context.dataWalletKey == null) {
       return errAsync(
-        new UninitializedError("Data wallet has not been unlocked yet!"),
+        new UninitializedError("Data wallet has not been initialized yet!"),
       );
     }
 
