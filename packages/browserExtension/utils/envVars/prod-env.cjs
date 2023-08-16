@@ -1,5 +1,5 @@
 const envVars = {
-  __ENABLE_BACKUP_ENCRYPTION__: "true",
+  __ENABLE_BACKUP_ENCRYPTION__: "false",
   __REQUEST_FOR_DATA_EVENT_FREQ__: 300000,
   __CONTROL_CHAIN_ID__: 43113,
   __ONBOARDING_URL__: "https://datawallet.snickerdoodle.com/",
