@@ -34,7 +34,7 @@ import { Pie } from "react-chartjs-2";
 import emptyTokens from "@extension-onboarding/assets/images/empty-tokens.svg";
 import AccountChainBar from "@extension-onboarding/components/AccountChainBar";
 import TokenItem from "@extension-onboarding/components/TokenItem";
-import { useAppContext, EAppModes } from "@extension-onboarding/context/App";
+import { useAppContext } from "@extension-onboarding/context/App";
 import { IBalanceItem } from "@extension-onboarding/objects";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/Tokens/Tokens.style";
 import UnauthScreen from "@extension-onboarding/components/UnauthScreen/UnauthScreen";
@@ -121,7 +121,7 @@ const CHART_ITEM_COUNT = 3;
 export default () => {
   const classes = useStyles();
   const { sdlDataWallet } = useDataWalletContext();
-  const { linkedAccounts, appMode } = useAppContext();
+  const { linkedAccounts } = useAppContext();
 
   const [accountSelect, setAccountSelect] = useState<
     AccountAddress | undefined
@@ -140,7 +140,7 @@ export default () => {
       setIsBalancesLoading(true);
       initializeBalances();
     }
-  }, [linkedAccounts.length, appMode]);
+  }, [linkedAccounts.length]);
 
   const initializeBalances = () => {
     sdlDataWallet
@@ -330,7 +330,7 @@ export default () => {
     }
   }, [tokensToRender]);
 
-  if (appMode != EAppModes.AUTH_USER) {
+  if (!(linkedAccounts.length > 0)) {
     return <UnauthScreen />;
   }
 

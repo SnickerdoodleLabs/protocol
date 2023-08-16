@@ -5,6 +5,7 @@ import {
   EInvitationStatus,
   ENotificationTypes,
   EWalletDataType,
+  LinkedAccount,
   PossibleReward,
   UUID,
 } from "@snickerdoodlelabs/objects";
@@ -148,9 +149,7 @@ const App = () => {
   const [rewardToDisplay, setRewardToDisplay] = useState<
     IRewardItem | undefined
   >();
-  const [walletState, setWalletState] = useState<EWalletState>(
-    EWalletState.UNKNOWN,
-  );
+  const [accounts, setAccounts] = useState<LinkedAccount[]>([]);
   const [invitationDomain, setInvitationDomain] =
     useState<IInvitationDomainWithUUID>();
   const [scamFilterStatus, setScamFilterStatus] = useState<EScamFilterStatus>();
@@ -193,17 +192,22 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    if (walletState === EWalletState.LOCKED) {
-      eventEmitter.on(PORT_NOTIFICATION, handleNotification);
-    }
+    eventEmitter.on(PORT_NOTIFICATION, handleNotification);
+    getAccounts();
     return () => {
       eventEmitter.off(PORT_NOTIFICATION, handleNotification);
     };
-  }, [walletState]);
+  }, []);
+
+  const getAccounts = () => {
+    coreGateway.getAccounts().map((linkedAccounts) => {
+      setAccounts(linkedAccounts);
+    });
+  };
 
   const handleNotification = (notification: BaseNotification) => {
-    if (notification.type === ENotificationTypes.WALLET_INITIALIZED) {
-      setWalletState(EWalletState.UNLOCKED);
+    if (notification.type === ENotificationTypes.ACCOUNT_ADDED) {
+      getAccounts();
     }
   };
 
@@ -258,69 +262,56 @@ const App = () => {
     initiateCohort();
   }, [_path]);
 
-  useEffect(() => {
-    if (
-      invitationDomain &&
-      walletState === EWalletState.UNLOCKED &&
-      isStatusCheckRequiredRef.current
-    ) {
-      coreGateway
-        .checkInvitationStatus(
-          new CheckInvitationStatusParams(invitationDomain.consentAddress),
-        )
-        .map((result) => {
-          if (result != EInvitationStatus.New) {
-            emptyReward();
-          }
-          isStatusCheckRequiredRef.current = false;
-        });
-    }
-  }, [JSON.stringify(invitationDomain), walletState]);
+  // useEffect(() => {
+  //   if (
+  //     invitationDomain &&
+  //     walletState === EWalletState.UNLOCKED &&
+  //     isStatusCheckRequiredRef.current
+  //   ) {
+  //     coreGateway
+  //       .checkInvitationStatus(
+  //         new CheckInvitationStatusParams(invitationDomain.consentAddress),
+  //       )
+  //       .map((result) => {
+  //         if (result != EInvitationStatus.New) {
+  //           emptyReward();
+  //         }
+  //         isStatusCheckRequiredRef.current = false;
+  //       });
+  //   }
+  // }, [JSON.stringify(invitationDomain)]);
 
   const initiateCohort = useCallback(async () => {
-    (walletState === EWalletState.UNKNOWN
-      ? coreGateway.isDataWalletAddressInitialized()
-      : okAsync(walletState === EWalletState.UNLOCKED)
-    ).map((isInitialized) => {
-      setWalletState(
-        isInitialized ? EWalletState.UNLOCKED : EWalletState.LOCKED,
-      );
-      const path = window.location.pathname;
-      const urlInfo = parse(window.location.href);
-      const domain = urlInfo.domain;
-      const url = `${urlInfo.hostname}${path.replace(/\/$/, "")}`;
-      const domainName = DomainName(`snickerdoodle-protocol.${domain}`);
+    const path = window.location.pathname;
+    const urlInfo = parse(window.location.href);
+    const domain = urlInfo.domain;
+    const url = `${urlInfo.hostname}${path.replace(/\/$/, "")}`;
+    const domainName = DomainName(`snickerdoodle-protocol.${domain}`);
 
-      coreGateway
-        .getInvitationsByDomain(
-          new GetInvitationWithDomainParams(domainName, url),
-        )
-        .andThen((result) => {
-          if (result) {
-            return (
-              isInitialized
-                ? coreGateway.checkInvitationStatus(
-                    new CheckInvitationStatusParams(result.consentAddress),
-                  )
-                : okAsync(EInvitationStatus.New)
-            ).map((status) => {
+    coreGateway
+      .getInvitationsByDomain(
+        new GetInvitationWithDomainParams(domainName, url),
+      )
+      .andThen((result) => {
+        if (result) {
+          return coreGateway
+            .checkInvitationStatus(
+              new CheckInvitationStatusParams(result.consentAddress),
+            )
+            .map((status) => {
               if (status === EInvitationStatus.New) {
                 setInvitationDomain(result);
                 setAppState(EAPP_STATE.INVITATION_PREVIEW);
                 initiateRewardPopup(result);
-                if (!isInitialized) {
-                  isStatusCheckRequiredRef.current = true;
-                }
               }
             });
-          }
-          return okAsync(undefined);
-        })
-        .mapErr((err) => {
-          console.error("Unable to get invitation by domain", err);
-        });
-    });
-  }, [walletState]);
+        }
+        return okAsync(undefined);
+      })
+      .mapErr((err) => {
+        console.error("Unable to get invitation by domain", err);
+      });
+  }, []);
 
   const initiateRewardPopup = (domainDetails: IInvitationDomainWithUUID) => {
     setRewardToDisplay({
@@ -377,13 +368,13 @@ const App = () => {
 
   const renderComponent = useMemo(() => {
     switch (true) {
-      case !rewardToDisplay || walletState === EWalletState.UNKNOWN:
+      case !rewardToDisplay:
         return null;
       case appState === EAPP_STATE.INVITATION_PREVIEW:
         return (
           <RewardCard
             onJoinClick={() => {
-              if (walletState != EWalletState.UNLOCKED) {
+              if (accounts.length === 0) {
                 const deeplinkURL = new URL(extensionConfig.onboardingUrl);
                 deeplinkURL.searchParams.append(
                   "consentAddress",
@@ -395,14 +386,11 @@ const App = () => {
               setAppState(EAPP_STATE.PERMISSION_SELECTION);
             }}
             onCancelClick={() => {
-              if (walletState != EWalletState.UNLOCKED) {
-                return emptyReward();
-              }
               rejectInvitation();
             }}
             onCloseClick={emptyReward}
             rewardItem={rewardToDisplay!}
-            isUnlocked={walletState === EWalletState.UNLOCKED}
+            linkedAccountExist={accounts.length > 0}
           />
         );
       case appState === EAPP_STATE.PERMISSION_SELECTION:
@@ -413,7 +401,7 @@ const App = () => {
             onCancelClick={emptyReward}
             coreGateway={coreGateway}
             eventEmitter={eventEmitter}
-            isUnlocked={walletState === EWalletState.UNLOCKED}
+            isUnlocked={true}
             onNextClick={(
               rewardsThatCanBeAcquired: PossibleReward[],
               rewardsThatRequireMorePermission: PossibleReward[],
@@ -437,6 +425,7 @@ const App = () => {
             coreGateway={coreGateway}
             domainDetails={invitationDomain!}
             onCancelClick={emptyReward}
+            accounts={accounts}
             onConfirmClick={(receivingAccount) => {
               acceptInvitation(receivingAccount);
             }}
@@ -455,7 +444,7 @@ const App = () => {
         return null;
     }
   }, [
-    walletState,
+    accounts.length,
     JSON.stringify(rewardToDisplay),
     appState,
     JSON.stringify(subscriptionPreviewData),

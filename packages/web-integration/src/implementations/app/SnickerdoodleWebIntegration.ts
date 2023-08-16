@@ -134,7 +134,7 @@ export class SnickerdoodleWebIntegration
             // Assign the iframe proxy to the internal reference and the window object
             this._core = proxy;
             window.sdlDataWallet = this.core;
-            const uiClient = new UIClient(proxy, !!this.signer);
+            const uiClient = new UIClient(proxy);
             uiClient.register();
             return proxy;
           });

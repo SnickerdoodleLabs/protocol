@@ -58,7 +58,7 @@ export const DataWalletContextProvider: FC = ({ children }) => {
         if (sdlDataWallet.proxyType === ECoreProxyType.EXTENSION_INJECTED) {
           return waitAndInitializeExtensionInjectedProxy(sdlDataWallet);
         }
-        return waitAndInitializeIframeInjectedProxy(sdlDataWallet);
+        return setSdlDataWallet(sdlDataWallet);
       })
       .mapErr((err) => {
         return setSetupStatus(ESetupStatus.FAILED);
@@ -76,14 +76,6 @@ export const DataWalletContextProvider: FC = ({ children }) => {
         setSdlDataWallet(proxy);
       }
     }, 500);
-  };
-
-  const waitAndInitializeIframeInjectedProxy = (proxy: ISdlDataWallet) => {
-    // give extra time for iframe unlock the wallet;
-    // once we remove crumbs it will be instant
-    setTimeout(() => {
-      setSdlDataWallet(proxy);
-    }, 2000);
   };
 
   useEffect(() => {

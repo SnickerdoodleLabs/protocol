@@ -12,8 +12,6 @@ const FIVE_SECONDS_MS = 5000;
 
 const defaultConfigs: IExtensionConfig = {
   onboardingUrl: "https://datawallet.snickerdoodle.com/",
-  accountCookieUrl: "https://snickerdoodlelabs.io/",
-  cookieLifeTime: 2,
   controlChainId: ChainId(43113),
   supportedChains: [
     ChainId(80001),
@@ -42,13 +40,8 @@ export class ConfigProvider implements IConfigProvider {
   public setConfigOverrides(configOverrides: IExtensionConfigOverrides): void {
     this.config.onboardingUrl =
       configOverrides.onboardingUrl ?? this.config.onboardingUrl;
-    this.config.accountCookieUrl =
-      configOverrides.accountCookieUrl ?? this.config.accountCookieUrl;
-    this.config.cookieLifeTime =
-      configOverrides.cookieLifeTime ?? this.config.cookieLifeTime;
     this.config.controlChainId =
       configOverrides.controlChainId ?? this.config.controlChainId;
-
     this.config.devChainProviderURL =
       configOverrides.devChainProviderURL ?? this.config.devChainProviderURL;
     this.config.supportedChains =

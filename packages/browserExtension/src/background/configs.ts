@@ -9,8 +9,6 @@ import { IExtensionConfigOverrides } from "@snickerdoodlelabs/synamint-extension
 import { urlJoin } from "url-join-ts";
 
 declare const __ONBOARDING_URL__: string;
-declare const __ACCOUNT_COOKIE_URL__: string;
-declare const __COOKIE_LIFETIME__: string; // year
 declare const __CONTROL_CHAIN_ID__: string;
 declare const __SUPPORTED_CHAINS__: string;
 declare const __IPFS_FETCH_BASE_URL__: URLString;
@@ -149,19 +147,11 @@ export const configs: IExtensionConfigOverrides = {
     typeof __ONBOARDING_URL__ !== "undefined" && !!__ONBOARDING_URL__
       ? URLString(__ONBOARDING_URL__)
       : URLString("https://datawallet.snickerdoodle.com/"),
-  accountCookieUrl:
-    typeof __ACCOUNT_COOKIE_URL__ !== "undefined" && !!__ACCOUNT_COOKIE_URL__
-      ? URLString(__ACCOUNT_COOKIE_URL__)
-      : URLString("https://snickerdoodlelabs.io/"),
   controlChainId:
     typeof __CONTROL_CHAIN_ID__ !== "undefined" && !!__CONTROL_CHAIN_ID__
       ? ChainId(Number.parseInt(__CONTROL_CHAIN_ID__))
       : ChainId(43113),
   supportedChains,
-  cookieLifeTime:
-    typeof __COOKIE_LIFETIME__ !== "undefined" && !!__COOKIE_LIFETIME__
-      ? Number.parseInt(__COOKIE_LIFETIME__)
-      : 1,
   domainFilter:
     typeof __DOMAIN_FILTER__ !== "undefined" && !!__DOMAIN_FILTER__
       ? __DOMAIN_FILTER__

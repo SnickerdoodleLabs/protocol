@@ -26,8 +26,6 @@ import {
   IInvitationServiceType,
 } from "@synamint-extension-sdk/core/interfaces/business";
 import {
-  IAccountCookieUtils,
-  IAccountCookieUtilsType,
   IContextProvider,
   IContextProviderType,
 } from "@synamint-extension-sdk/core/interfaces/utilities";
@@ -38,8 +36,6 @@ export class CoreListener implements ICoreListener {
   constructor(
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
-    @inject(IAccountCookieUtilsType)
-    protected accountCookieUtils: IAccountCookieUtils,
     @inject(IInvitationServiceType)
     protected invitationService: IInvitationService,
   ) {}
@@ -99,7 +95,6 @@ export class CoreListener implements ICoreListener {
         });
       }
     });
-    this.accountCookieUtils.writeDataWalletAddressToCookie(dataWalletAddress);
     this.contextProvider.setAccountContext(dataWalletAddress);
     console.log(
       `Extension: Initialized data wallet with address ${dataWalletAddress}`,
@@ -175,9 +170,6 @@ export class CoreListener implements ICoreListener {
   }
 
   private onAccountRemoved(account: LinkedAccount): void {
-    this.accountCookieUtils.removeAccountInfoFromCookie(
-      account.sourceAccountAddress,
-    );
     this.contextProvider.onAccountRemoved(account);
   }
 
