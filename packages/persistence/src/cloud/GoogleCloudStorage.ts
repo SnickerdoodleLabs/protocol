@@ -282,7 +282,6 @@ export class GoogleCloudStorage implements ICloudStorage {
           new DataWalletBackupHeader(
             untyped.header.hash,
             untyped.header.timestamp,
-            untyped.header.signature,
             untyped.header.priority,
             untyped.header.dataType,
             untyped.header.isField,

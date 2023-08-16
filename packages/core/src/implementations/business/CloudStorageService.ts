@@ -45,8 +45,6 @@ export class CloudStorageService implements ICloudStorageService {
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IAxiosAjaxUtilsType)
     protected ajaxUtils: IAxiosAjaxUtils,
-    @inject(IDataWalletPersistenceType)
-    protected dataWalletPersistence: IDataWalletPersistence,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
@@ -59,37 +57,44 @@ export class CloudStorageService implements ICloudStorageService {
         ResultUtils.combine([
           this.contextProvider.getContext(),
           this.entropyRepo.getDataWalletPrivateKeyFromAuthenticatedStorage(),
-        ]).andThen(([currentContext, storedDataWalletKey]) => {
-          // If there is no stored key, it should be stored in the next backup cycle.
-          if (storedDataWalletKey == null) {
-            return okAsync(undefined);
-          }
+        ])
+          .andThen(([currentContext, storedDataWalletKey]) => {
+            // If there is no stored key, then we assume anything that's there is not backups and should be ignored
+            if (storedDataWalletKey == null) {
+              // There's nothing in the backups at all. We need to backup everything in our local storage
+              return this.persistence.dumpVolatileStorage();
+            }
 
-          // If the keys are the same, we're fine.
-          if (
-            currentContext.dataWalletKey != null &&
-            currentContext.dataWalletKey == storedDataWalletKey.privateKey
-          ) {
-            return okAsync(undefined);
-          }
+            // If the keys are the same, we're fine.
+            if (
+              currentContext.dataWalletKey != null &&
+              currentContext.dataWalletKey == storedDataWalletKey.privateKey
+            ) {
+              return okAsync(undefined);
+            }
 
-          // The keys are different
-          // We need to clear out the volatile storage
-          this.logUtils.warning(
-            "Clearing volatile storage- key in authenticated storage differs from local data wallet key",
-          );
-          currentContext.dataWalletAddress = DataWalletAddress(
-            storedDataWalletKey.accountAddress,
-          );
-          currentContext.dataWalletKey = storedDataWalletKey.privateKey;
-          return this.contextProvider.setContext(currentContext).andThen(() => {
-            return this.persistence.clearVolatileStorage();
+            // The keys are different
+            // We need to clear out the volatile storage
+            this.logUtils.warning(
+              "Clearing volatile storage- key in authenticated storage differs from local data wallet key",
+            );
+            currentContext.dataWalletAddress = DataWalletAddress(
+              storedDataWalletKey.accountAddress,
+            );
+            currentContext.dataWalletKey = storedDataWalletKey.privateKey;
+            return this.contextProvider
+              .setContext(currentContext)
+              .andThen(() => {
+                return this.persistence.clearVolatileStorage();
+              });
+          })
+          .mapErr((e) => {
+            this.logUtils.error("Error posting backups", e);
           });
-        });
       });
 
       context.privateEvents.postBackupsRequested.subscribe(() => {
-        this.dataWalletPersistence.postBackups().mapErr((e) => {
+        this.persistence.postBackups().mapErr((e) => {
           this.logUtils.error("Error posting backups", e);
         });
       });
@@ -101,7 +106,6 @@ export class CloudStorageService implements ICloudStorageService {
    * the chosen authenticated storage system for the user. This system will be
    * put on-file and automatically used in the future
    */
-
   public setAuthenticatedStorage(
     settings: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError> {

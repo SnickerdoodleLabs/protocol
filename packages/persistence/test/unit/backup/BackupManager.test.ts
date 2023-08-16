@@ -5,12 +5,10 @@ import {
   ITimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  EVMPrivateKey,
   UnixTimestamp,
   VolatileStorageMetadata,
   ERecordKey,
   VersionedObject,
-  VersionedObjectMigrator,
   EBackupPriority,
   EFieldKey,
   EBoolean,
@@ -19,7 +17,6 @@ import {
   DataWalletBackup,
   DataWalletBackupHeader,
   DataWalletBackupID,
-  Signature,
   FieldDataUpdate,
   RestoredBackup,
   EVMAccountAddress,
@@ -47,7 +44,6 @@ import {
   TestVersionedObject,
 } from "@persistence-test/mocks/index.js";
 
-const privateKey = EVMPrivateKey("Private Key");
 const dataWalletAddress = EVMAccountAddress("Data Wallet Address");
 const backupInterval = 10;
 const maxChunkSize = 20;
@@ -86,7 +82,6 @@ const recordBackup = new DataWalletBackup(
   new DataWalletBackupHeader(
     recordBackupId,
     now,
-    Signature("signature"),
     EBackupPriority.NORMAL,
     recordKey,
     false,
@@ -116,10 +111,7 @@ class BackupManagerMocks {
   public schemaProvider: IVolatileStorageSchemaProvider;
   public logUtils: ILogUtils;
 
-  public constructor(
-    protected existingObject = true,
-    protected enableEncryption = false,
-  ) {
+  public constructor(protected existingObject = true) {
     this.cryptoUtils = td.object<ICryptoUtils>();
     this.volatileStorage = td.object<IVolatileStorage>();
     this.storageUtils = td.object<IStorageUtils>();
@@ -218,19 +210,11 @@ class BackupManagerMocks {
 
     // ChunkRendererFactory ---------------------------------------------------
     td.when(
-      this.chunkRendererFactory.createChunkRenderer(
-        testVolatileTableIndex,
-        enableEncryption,
-        privateKey,
-      ),
+      this.chunkRendererFactory.createChunkRenderer(testVolatileTableIndex),
     ).thenReturn(this.recordChunkRenderer);
 
     td.when(
-      this.chunkRendererFactory.createChunkRenderer(
-        testFieldIndex,
-        enableEncryption,
-        privateKey,
-      ),
+      this.chunkRendererFactory.createChunkRenderer(testFieldIndex),
     ).thenReturn(this.fieldChunkRenderer);
 
     // RecordChunkRenderer ---------------------------------------------------
@@ -283,9 +267,6 @@ class BackupManagerMocks {
     // BackupUtils -----------------------------------------------------------
 
     // CryptoUtils -----------------------------------------------------------
-    td.when(
-      this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey),
-    ).thenReturn(dataWalletAddress as never);
 
     // SchemaProvider
     td.when(
@@ -295,13 +276,11 @@ class BackupManagerMocks {
 
   public factory(): IBackupManager {
     return new BackupManager(
-      privateKey,
       volatileTableIndexes,
       fieldIndexes,
       this.cryptoUtils,
       this.volatileStorage,
       this.storageUtils,
-      this.enableEncryption,
       this.timeUtils,
       this.backupUtils,
       this.chunkRendererFactory,
