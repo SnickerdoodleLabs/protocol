@@ -49,6 +49,7 @@ import {
   PEMEncodedRSAPublicKey,
   JsonWebToken,
   QueryStatus,
+  SiteVisitInsight,
 } from "@snickerdoodlelabs/objects";
 
 import { IExtensionConfig } from "./IExtensionConfig";
@@ -391,11 +392,11 @@ export class GetTokenInfoParams extends CoreActionParams<TokenInfo | null> {
   }
 }
 
-export class GetSiteVisitsMapParams extends CoreActionParams<
-  Map<URLString, number>
+export class GetSiteVisitInsightsParams extends CoreActionParams<
+  SiteVisitInsight[]
 > {
   public constructor() {
-    super(GetSiteVisitsMapParams.getCoreAction());
+    super(GetSiteVisitInsightsParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_SITE_VISITS_MAP;

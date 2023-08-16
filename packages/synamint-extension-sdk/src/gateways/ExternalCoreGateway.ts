@@ -45,6 +45,7 @@ import {
   PEMEncodedRSAPublicKey,
   JsonWebToken,
   QueryStatus,
+  SiteVisitInsight,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -83,7 +84,7 @@ import {
   UnlockParams,
   AddAccountParams,
   UnlinkAccountParams,
-  GetSiteVisitsMapParams,
+  GetSiteVisitInsightsParams,
   GetSiteVisitsParams,
   GetEarnedRewardsParams,
   GetDataWalletAddressParams,
@@ -448,8 +449,8 @@ export class ExternalCoreGateway {
     return this._handler.call(new GetSiteVisitsParams());
   }
 
-  public getSiteVisitsMap(): ResultAsync<Map<URLString, number>, ProxyError> {
-    return this._handler.call(new GetSiteVisitsMapParams());
+  public getSiteVisitInsights(): ResultAsync<SiteVisitInsight[], ProxyError> {
+    return this._handler.call(new GetSiteVisitInsightsParams());
   }
 
   public getMarketplaceListingsByTag(

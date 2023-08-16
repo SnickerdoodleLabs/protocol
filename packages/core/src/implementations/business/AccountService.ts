@@ -51,6 +51,7 @@ import {
   AccountIndexingError,
   PasswordString,
   BlockchainCommonErrors,
+  SiteVisitInsight,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
@@ -814,11 +815,11 @@ export class AccountService implements IAccountService {
     return this.transactionRepo.getTransactionByChain();
   }
 
-  public getSiteVisitsMap(): ResultAsync<
-    Map<URLString, number>,
+  public getSiteVisitInsights(): ResultAsync<
+    SiteVisitInsight[],
     PersistenceError
   > {
-    return this.browsingDataRepo.getSiteVisitsMap();
+    return this.browsingDataRepo.getSiteVisitInsights();
   }
 
   public addSiteVisits(

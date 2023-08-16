@@ -133,8 +133,8 @@ class QueryParsingMocks {
     td.when(this.demoDataRepo.getAge()).thenReturn(okAsync(Age(25)));
     td.when(this.demoDataRepo.getLocation()).thenReturn(okAsync(country));
     td.when(
-      this.browsingDataRepo.getSiteVisitsMap(td.matchers.anything()),
-    ).thenReturn(okAsync(new Map()));
+      this.browsingDataRepo.getSiteVisitInsights(td.matchers.anything()),
+    ).thenReturn(okAsync([]));
     td.when(
       this.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));

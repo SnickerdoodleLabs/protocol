@@ -85,6 +85,7 @@ import {
   PasswordString,
   QueryStatus,
   BlockchainCommonErrors,
+  SiteVisitInsight,
 } from "@snickerdoodlelabs/objects";
 import {
   GoogleCloudStorage,
@@ -1001,12 +1002,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.getTransactionValueByChain();
   }
 
-  public getSiteVisitsMap(
+  public getSiteVisitInsights(
     sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<Map<URLString, number>, PersistenceError> {
+  ): ResultAsync<SiteVisitInsight[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.getSiteVisitsMap();
+    return accountService.getSiteVisitInsights();
   }
   public getSiteVisits(
     sourceDomain: DomainName | undefined = undefined,

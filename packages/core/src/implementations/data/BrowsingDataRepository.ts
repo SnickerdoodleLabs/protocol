@@ -7,6 +7,7 @@ import {
   ERecordKey,
   ISDQLTimestampRange,
   UnixTimestamp,
+  SiteVisitInsight,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
@@ -42,31 +43,65 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
     return this.persistence.getAll(ERecordKey.SITE_VISITS);
   }
 
-  // return a map of URLs
-  public getSiteVisitsMap(
+  public getSiteVisitInsights(
     timestampRange?: ISDQLTimestampRange,
-  ): ResultAsync<Map<URLString, number>, PersistenceError> {
-    return this.getSiteVisits().andThen((siteVisits) => {
-      const result = new Map<URLString, number>();
-      siteVisits.forEach((siteVisit, _i, _arr) => {
+  ): ResultAsync<SiteVisitInsight[], PersistenceError> {
+    return this.getSiteVisits().map((siteVisits) => {
+      const siteVisitMap = this.getSiteVisitInsightsMap(
+        siteVisits,
+        timestampRange,
+      );
+      return [...siteVisitMap.values()];
+    });
+  }
+
+  protected getSiteVisitInsightsMap(
+    siteVisits: SiteVisit[],
+    timestampRange?: ISDQLTimestampRange,
+  ): Map<URLString | DomainName, SiteVisitInsight> {
+    return siteVisits.reduce<Map<URLString | DomainName, SiteVisitInsight>>(
+      (insightMap, siteVisit) => {
         if (
           timestampRange &&
-          this.timestampBetweenDates(
+          this.checkInvalidTimestamp(
             siteVisit.startTime,
             siteVisit.endTime,
             timestampRange,
           )
         ) {
-          return;
+          return insightMap;
         }
-        const baseUrl = DomainName(
-          siteVisit.domain ? siteVisit.domain : siteVisit.url,
-        );
-        baseUrl in result || (result[baseUrl] = 0);
-        result[baseUrl] += 1;
-      });
-      return okAsync(result);
-    });
+        this.upsertSiteVisitInsight(insightMap, siteVisit);
+        return insightMap;
+      },
+      new Map(),
+    );
+  }
+
+  protected upsertSiteVisitInsight(
+    insightMap: Map<URLString | DomainName, SiteVisitInsight>,
+    siteVisit: SiteVisit,
+  ): void {
+    const baseUrl = siteVisit.domain ? siteVisit.domain : siteVisit.url;
+    const siteScreenTime = UnixTimestamp(
+      siteVisit.endTime - siteVisit.startTime,
+    );
+    const siteVisitInsight = insightMap.get(baseUrl);
+
+    if (siteVisitInsight) {
+      siteVisitInsight.numberOfVisits += 1;
+      siteVisitInsight.totalScreenTime = UnixTimestamp(
+        siteVisitInsight.totalScreenTime + siteScreenTime,
+      );
+      siteVisitInsight.averageScreenTime = UnixTimestamp(
+        siteVisitInsight.totalScreenTime / siteVisitInsight.numberOfVisits,
+      );
+    } else {
+      insightMap.set(
+        baseUrl,
+        new SiteVisitInsight(baseUrl, 1, siteScreenTime, siteScreenTime),
+      );
+    }
   }
 
   public addClick(click: ClickData): ResultAsync<void, PersistenceError> {
@@ -77,7 +112,7 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
     return this.persistence.getAll<ClickData>(ERecordKey.CLICKS);
   }
 
-  protected timestampBetweenDates(
+  protected checkInvalidTimestamp(
     startTime: UnixTimestamp,
     endTime: UnixTimestamp,
     timestampRange: ISDQLTimestampRange,

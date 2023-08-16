@@ -55,16 +55,9 @@ class BalanceQueryEvaluatorMocks {
   public browsingRepo = td.object<IBrowsingDataRepository>();
   public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
 
-  public URLmap = new Map<URLString, number>([
-    [URLString("www.snickerdoodlelabs.io"), 10],
-  ]);
-
   public constructor() {
     td.when(this.demoRepo.getAge()).thenReturn(okAsync(Age(25)));
     td.when(this.demoRepo.getGender()).thenReturn(okAsync(Gender("male")));
-    td.when(this.browsingRepo.getSiteVisitsMap()).thenReturn(
-      okAsync(this.URLmap),
-    );
   }
 
   public factory() {

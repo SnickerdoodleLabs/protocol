@@ -15,6 +15,7 @@ import {
   TokenMarketData,
   WalletNFT,
   QueryStatus,
+  SiteVisitInsight,
 } from "@objects/businessObjects/index.js";
 import {
   EChain,
@@ -312,7 +313,7 @@ export interface ISdlDataWallet {
 
   getSiteVisits(): ResultAsync<SiteVisit[], ProxyError>;
 
-  getSiteVisitsMap(): ResultAsync<Map<URLString, number>, ProxyError>;
+  getSiteVisitInsights(): ResultAsync<SiteVisitInsight[], ProxyError>;
 
   getMarketplaceListingsByTag(
     pagingReq: PagingRequest,

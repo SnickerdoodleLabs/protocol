@@ -30,6 +30,7 @@ import {
   WalletNFT,
   RuntimeMetrics,
   QueryStatus,
+  SiteVisitInsight,
 } from "@objects/businessObjects/index.js";
 import {
   EChain,
@@ -922,9 +923,9 @@ export interface ISnickerdoodleCore {
   getSiteVisits(
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<SiteVisit[], PersistenceError | UnauthorizedError>;
-  getSiteVisitsMap(
+  getSiteVisitInsights(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<Map<URLString, number>, PersistenceError | UnauthorizedError>;
+  ): ResultAsync<SiteVisitInsight[], PersistenceError | UnauthorizedError>;
 
   getAccounts(
     sourceDomain?: DomainName | undefined,

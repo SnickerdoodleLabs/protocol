@@ -618,7 +618,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       getSiteVisitsMap: (data: IIFrameCallData<Record<string, never>>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.getSiteVisitsMap(sourceDomain);
+            return core.getSiteVisitInsights(sourceDomain);
           });
         }, data.callId);
       },

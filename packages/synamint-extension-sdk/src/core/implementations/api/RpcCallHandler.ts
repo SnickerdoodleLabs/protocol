@@ -105,7 +105,7 @@ import {
   GetGenderParams,
   GetLocationParams,
   GetSiteVisitsParams,
-  GetSiteVisitsMapParams,
+  GetSiteVisitInsightsParams,
   GetAcceptedInvitationsCIDParams,
   GetAvailableInvitationsCIDParams,
   GetDefaultPermissionsParams,
@@ -309,10 +309,10 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this.userSiteInteractionService.getSiteVisits();
       },
     ),
-    new CoreActionHandler<GetSiteVisitsMapParams>(
-      GetSiteVisitsMapParams.getCoreAction(),
+    new CoreActionHandler<GetSiteVisitInsightsParams>(
+      GetSiteVisitInsightsParams.getCoreAction(),
       (_params) => {
-        return this.userSiteInteractionService.getSiteVisitsMap();
+        return this.userSiteInteractionService.getSiteVisitInsights();
       },
     ),
     new CoreActionHandler<GetAcceptedInvitationsCIDParams>(

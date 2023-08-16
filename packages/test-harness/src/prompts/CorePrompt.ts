@@ -223,7 +223,7 @@ export class CorePrompt extends DataWalletPrompt {
         case "getBalances":
           return this.core.getAccountBalances().map(console.log);
         case "getSiteVisitMap":
-          return this.core.getSiteVisitsMap().map(console.log);
+          return this.core.getSiteVisitInsights().map(console.log);
         case "getSiteVisits":
           return this.core.getSiteVisits().map(console.log);
         case "getEligibleAds":

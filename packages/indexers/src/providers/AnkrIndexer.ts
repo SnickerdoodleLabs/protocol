@@ -168,6 +168,7 @@ export class AnkrIndexer implements IEVMIndexer {
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError | AjaxError> {
+    console.log(`Ankr is used `);
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),

@@ -18,6 +18,7 @@ import {
   EChainTechnology,
   TransactionPaymentCounter,
   ESDQLQueryReturn,
+  SiteVisitInsight,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_PropertyQuery,
@@ -76,9 +77,14 @@ class QueryEvaluatorMocks {
   public transactionRepo = td.object<ITransactionHistoryRepository>();
   public socialRepo = td.object<ISocialRepository>();
 
-  public URLmap = new Map<URLString, number>([
-    [URLString("www.snickerdoodlelabs.io"), 10],
-  ]);
+  public URLmap = [
+    new SiteVisitInsight(
+      URLString("www.snickerdoodlelabs.io"),
+      10,
+      UnixTimestamp(1),
+      UnixTimestamp(10),
+    ),
+  ];
 
   public evmReturns: EVMTransaction[] = [
     new EVMTransaction(
@@ -179,7 +185,7 @@ class QueryEvaluatorMocks {
     td.when(this.demoDataRepo.getGender()).thenReturn(okAsync(Gender("male")));
 
     td.when(
-      this.browsingDataRepo.getSiteVisitsMap(td.matchers.anything()),
+      this.browsingDataRepo.getSiteVisitInsights(td.matchers.anything()),
     ).thenReturn(okAsync(this.URLmap));
 
     td.when(this.transactionRepo.getTransactionByChain()).thenReturn(

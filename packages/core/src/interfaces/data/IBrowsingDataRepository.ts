@@ -3,6 +3,7 @@ import {
   ISDQLTimestampRange,
   PersistenceError,
   SiteVisit,
+  SiteVisitInsight,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -21,9 +22,9 @@ export interface IBrowsingDataRepository {
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
 
   // return a map of URLs
-  getSiteVisitsMap(
+  getSiteVisitInsights(
     timestampRange?: ISDQLTimestampRange,
-  ): ResultAsync<Map<URLString, number>, PersistenceError>;
+  ): ResultAsync<SiteVisitInsight[], PersistenceError>;
 }
 
 export const IBrowsingDataRepositoryType = Symbol.for(

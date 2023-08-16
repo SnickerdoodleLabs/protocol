@@ -67,6 +67,8 @@ import {
   JsonWebToken,
   IProxyIntegrationMethods,
   QueryStatus,
+  SiteVisitMigrator,
+  SiteVisitInsight,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ResultAsync } from "neverthrow";
@@ -76,7 +78,8 @@ import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/ind
 
 export class SnickerdoodleIFrameProxy
   extends ParentProxy
-  implements ISnickerdoodleIFrameProxy {
+  implements ISnickerdoodleIFrameProxy
+{
   constructor(
     protected element: HTMLElement | null,
     protected iframeUrl: string,
@@ -523,8 +526,8 @@ export class SnickerdoodleIFrameProxy
     return this._createCall("getSiteVisits", null);
   }
 
-  public getSiteVisitsMap(): ResultAsync<Map<URLString, number>, ProxyError> {
-    return this._createCall("getSiteVisitsMap", null);
+  public getSiteVisitInsights(): ResultAsync<SiteVisitInsight[], ProxyError> {
+    return this._createCall("getSiteVisitInsights", null);
   }
 
   public getMarketplaceListingsByTag(

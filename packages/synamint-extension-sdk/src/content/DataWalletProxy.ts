@@ -52,6 +52,7 @@ import {
   JsonWebToken,
   QueryStatus,
   SocialProfileLinkedEvent,
+  SiteVisitInsight,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -559,8 +560,8 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public getSiteVisits(): ResultAsync<SiteVisit[], ProxyError> {
     return coreGateway.getSiteVisits();
   }
-  public getSiteVisitsMap(): ResultAsync<Map<URLString, number>, ProxyError> {
-    return coreGateway.getSiteVisitsMap();
+  public getSiteVisitInsights(): ResultAsync<SiteVisitInsight[], ProxyError> {
+    return coreGateway.getSiteVisitInsights();
   }
 
   public getConsentCapacity(

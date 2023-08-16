@@ -97,6 +97,7 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
+    console.log(`Nft Scan is used `);
     return ResultUtils.combine([
       this.generateQueryConfig(chainId, accountAddress),
       this.contextProvider.getContext(),

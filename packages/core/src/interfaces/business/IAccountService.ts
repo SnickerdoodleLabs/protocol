@@ -31,6 +31,7 @@ import {
   AccountIndexingError,
   PasswordString,
   BlockchainCommonErrors,
+  SiteVisitInsight,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -166,7 +167,7 @@ export interface IAccountService {
     PersistenceError
   >;
 
-  getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
+  getSiteVisitInsights(): ResultAsync<SiteVisitInsight[], PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
   addTransactions(

@@ -2,6 +2,7 @@ import {
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
   SiteVisit,
+  SiteVisitInsight,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -39,11 +40,11 @@ export class UserSiteInteractionRepository
     });
   }
 
-  public getSiteVisitsMap(): ResultAsync<
-    Map<URLString, number>,
+  public getSiteVisitInsights(): ResultAsync<
+    SiteVisitInsight[],
     SnickerDoodleCoreError
   > {
-    return this.core.getSiteVisitsMap().mapErr((error) => {
+    return this.core.getSiteVisitInsights().mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
