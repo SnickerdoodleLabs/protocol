@@ -7,8 +7,7 @@ const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const webpack = require("webpack");
 const configFilePath = require.resolve("./tsconfig.json");
 const argon2 = require("argon2");
-const fileSystem = require("fs-extra");
-
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 /** @type import('webpack').Configuration */
 module.exports = {
   externals: {
@@ -83,23 +82,11 @@ module.exports = {
   resolve: {
     extensions: [".tsx", ".ts", ".js", ".html"],
     plugins: [new TsconfigPathsPlugin({ configFile: configFilePath })],
-    fallback: {
-      crypto: require.resolve("crypto-browserify"),
-      path: require.resolve("path-browserify"),
-      stream: require.resolve("stream-browserify"),
-      http: require.resolve("stream-http"),
-      https: require.resolve("https-browserify"),
-      os: require.resolve("os-browserify/browser"),
-      zlib: require.resolve("browserify-zlib"),
-      assert: false,
-      net: false,
-      tls: false,
-      fs: false,
-    },
   },
   devtool:
     process.env.__BUILD_ENV__ === "dev" ? "eval-source-map" : "source-map",
   plugins: [
+    new NodePolyfillPlugin(),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "src/index.html"),
       favicon: "src/favicon/favicon.ico",
