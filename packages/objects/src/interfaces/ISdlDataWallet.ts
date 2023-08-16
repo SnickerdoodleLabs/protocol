@@ -23,7 +23,11 @@ import {
   EInvitationStatus,
   EWalletDataType,
 } from "@objects/enum/index.js";
-import { PersistenceError, ProxyError } from "@objects/errors/index.js";
+import {
+  AjaxError,
+  PersistenceError,
+  ProxyError,
+} from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces//IConsentCapacity.js";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata.js";
 import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences.js";
@@ -32,9 +36,11 @@ import {
   ICoreIntegrationMethods,
   ICoreTwitterMethods,
   IMetricsMethods,
+  IStorageMethods,
 } from "@objects/interfaces/ISnickerdoodleCore.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import {
+  AccessToken,
   AccountAddress,
   Age,
   BigNumberString,
@@ -156,6 +162,15 @@ export type IProxyTwitterMethods = {
     ...args: [...PopTuple<Parameters<ICoreTwitterMethods[key]>>]
   ) => ResultAsync<
     GetResultAsyncValueType<ReturnType<ICoreTwitterMethods[key]>>,
+    ProxyError
+  >;
+};
+
+export type IProxyStorageMethods = {
+  [key in FunctionKeys<IStorageMethods>]: (
+    ...args: [...PopTuple<Parameters<IStorageMethods[key]>>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<IStorageMethods[key]>>,
     ProxyError
   >;
 };
@@ -354,11 +369,10 @@ export interface ISdlDataWallet {
   switchToTab(tabId: number): ResultAsync<void, ProxyError>;
 
   proxyType: ECoreProxyType;
-
   discord: IProxyDiscordMethods;
   integration: IProxyIntegrationMethods;
   twitter: IProxyTwitterMethods;
   metrics: IProxyMetricsMethods;
-
+  storage: IProxyStorageMethods;
   events: ISnickerdoodleCoreEvents;
 }

@@ -290,6 +290,7 @@ const App = () => {
       const domain = urlInfo.domain;
       const url = `${urlInfo.hostname}${path.replace(/\/$/, "")}`;
       const domainName = DomainName(`snickerdoodle-protocol.${domain}`);
+
       coreGateway
         .getInvitationsByDomain(
           new GetInvitationWithDomainParams(domainName, url),

@@ -135,6 +135,15 @@ var options = {
       __GOOGLE_CLOUD_BUCKET__: JSON.stringify(
         process.env.__GOOGLE_CLOUD_BUCKET__ || "ceramic-replacement-bucket",
       ),
+      __DROPBOX_APP_KEY__: JSON.stringify(
+        process.env.__DROPBOX_APP_KEY__ || "",
+      ),
+      __DROPBOX_APP_SECRET__: JSON.stringify(
+        process.env.__DROPBOX_APP_SECRET__ || "",
+      ),
+      __DROPBOX_REDIRECT_URI__: JSON.stringify(
+        process.env.__DROPBOX_REDIRECT_URI__ || "",
+      ),
       __PLATFORM__: JSON.stringify(process.env.__PLATFORM__ || "chrome"),
       __CONTROL_CHAIN_ID__: JSON.stringify(process.env.__CONTROL_CHAIN_ID__),
       __SUPPORTED_CHAINS__: JSON.stringify(process.env.__SUPPORTED_CHAINS__),

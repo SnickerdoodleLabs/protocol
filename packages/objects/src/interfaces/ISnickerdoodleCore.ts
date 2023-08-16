@@ -30,9 +30,11 @@ import {
   WalletNFT,
   RuntimeMetrics,
   QueryStatus,
+  // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
   EChain,
+  ECloudStorageType,
   EDataWalletPermission,
   EInvitationStatus,
   EScamFilterStatus,
@@ -105,6 +107,7 @@ import {
   UnixTimestamp,
   URLString,
   PasswordString,
+  AccessToken,
 } from "@objects/primitives/index.js";
 
 /**
@@ -135,6 +138,7 @@ export interface IAccountMethods {
    * The Form Factor must have this string signed by the user's key (via Metamask,
    * wallet connect, etc), in order to call unlock() or addAccount();
    */
+
   getUnlockMessage(
     languageCode: LanguageCode,
     sourceDomain?: DomainName | undefined,
@@ -751,6 +755,28 @@ export interface IMetricsMethods {
   ): ResultAsync<boolean, never>;
 }
 
+export interface IStorageMethods {
+  setAuthenticatedStorage(
+    type: ECloudStorageType,
+    path: string,
+    accessToken: AccessToken,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<void, PersistenceError>;
+  authenticateDropbox(
+    code: string,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<AccessToken, AjaxError>;
+  getCurrentCloudStorage(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<ECloudStorageType, never>;
+  getAvailableCloudStorageOptions(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<Set<ECloudStorageType>, never>;
+  getDropboxAuth(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<URLString, never>;
+}
+
 export interface ISnickerdoodleCore {
   getConsentCapacity(
     consentContractAddress: EVMContractAddress,
@@ -986,6 +1012,7 @@ export interface ISnickerdoodleCore {
   discord: ICoreDiscordMethods;
   twitter: ICoreTwitterMethods;
   metrics: IMetricsMethods;
+  storage: IStorageMethods;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

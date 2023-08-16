@@ -8,6 +8,11 @@ const envVars = {
   __DEFAULT_INSIGHT_PLATFORM_BASE_URL__:
     "https://insight-api.demo-01.snickerdoodle.dev/v0/",
 
+  __DROPBOX_APP_KEY__: "w69949reoalc9xg",
+  __DROPBOX_APP_SECRET__: "78jch5z5o800dyw",
+  __DROPBOX_REDIRECT_URI__:
+    "https://datawallet.demo-01.snickerdoodle.dev/settings/storage",
+
   /* Alchemy Keys */
   __ALCHEMY_ARBITRUM_API_KEY__: "_G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF",
   __ALCHEMY_ASTAR_API_KEY__: "Tk2NcwnHwrmRvzZCkqgSr6fOYIgH7xh7",
@@ -40,7 +45,6 @@ const envVars = {
     "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
   __PRIMARY_INFURA_KEY__: "a8ae124ed6aa44bb97a7166cda30f1bc",
   __SECONDARY_INFURA_KEY__: "",
-
 
   __PORTFOLIO_POLLING_INTERVAL__: "",
   __TRANSACTION_POLLING_INTERVAL__: "",

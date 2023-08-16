@@ -20,6 +20,9 @@ export class WebIntegrationConfigProvider
           `${window.location.origin}${EPaths.SOCIAL_MEDIA_DATA}`,
         ),
       },
+      dropboxRedirectUri: URLString(
+        `${window.location.origin}${EPaths.STORAGE_SETTINGS}`,
+      ),
       // @TODO move those env vars
       alchemyApiKeys: {
         Arbitrum: "_G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF",

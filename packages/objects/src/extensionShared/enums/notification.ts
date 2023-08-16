@@ -7,4 +7,6 @@ export enum ENotificationTypes {
   SOCIAL_PROFILE_LINKED = "onSocialProfileLinked",
   COHORT_JOINED = "onCohortJoined",
   PROFILE_FIELD_CHANGED = "onProfileFieldChanged",
+  CLOUD_STORAGE_ACTIVATED = "onCloudStorageActivated",
+  CLOUD_STORAGE_DEACTIVATED = "onCloudStorageDeactivated",
 }

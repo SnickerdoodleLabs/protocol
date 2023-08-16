@@ -51,7 +51,9 @@ import {
   AccountIndexingError,
   PasswordString,
   BlockchainCommonErrors,
+  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
+import { ICloudStorage } from "@snickerdoodlelabs/persistence";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -77,6 +79,8 @@ import {
   IPortfolioBalanceRepositoryType,
   ITransactionHistoryRepository,
   ITransactionHistoryRepositoryType,
+  IAuthenticatedStorageRepository,
+  IAuthenticatedStorageRepositoryType,
 } from "@core/interfaces/data/index.js";
 import { MetatransactionRequest } from "@core/interfaces/objects/index.js";
 import {
@@ -91,6 +95,8 @@ import {
 @injectable()
 export class AccountService implements IAccountService {
   public constructor(
+    @inject(IAuthenticatedStorageRepositoryType)
+    protected authenticatedStorageRepo: IAuthenticatedStorageRepository,
     @inject(IPermissionUtilsType) protected permissionUtils: IPermissionUtils,
     @inject(IInsightPlatformRepositoryType)
     protected insightPlatformRepo: IInsightPlatformRepository,
@@ -224,11 +230,6 @@ export class AccountService implements IAccountService {
                 );
               })
               .andThen((dataWalletAccount) => {
-                // console.log(
-                //   "Data wallet address initialized: ",
-                //   dataWalletAccount.accountAddress,
-                // );
-
                 // The account address in account is just a generic EVMAccountAddress,
                 // we need to cast it to a DataWalletAddress, since in this case, that's
                 // what it is.
@@ -237,12 +238,23 @@ export class AccountService implements IAccountService {
                 );
                 context.dataWalletKey = dataWalletAccount.privateKey;
                 context.unlockInProgress = false;
-
                 // We can update the context and provide the key to the persistence in one step
                 return ResultUtils.combine([
-                  this.dataWalletPersistence.unlock(
-                    dataWalletAccount.privateKey,
-                  ),
+                  this.dataWalletPersistence
+                    .unlock(dataWalletAccount.privateKey)
+                    .andThen(() => {
+                      return this.authenticatedStorageRepo.getCredentials();
+                    })
+                    .andThen((credentials) => {
+                      this.logUtils.info(`Auth Credentials: ${credentials}`);
+
+                      if (credentials == null) {
+                        return okAsync(undefined);
+                      }
+                      return this.authenticatedStorageRepo.activateAuthenticatedStorage(
+                        credentials,
+                      );
+                    }),
                   this.contextProvider.setContext(context),
                 ]);
               })
@@ -389,6 +401,9 @@ export class AccountService implements IAccountService {
           })
           .map(() => {
             // Notify the outside world of what we did
+
+            context.privateEvents.postBackupsRequested.next();
+
             context.publicEvents.onAccountAdded.next(
               new LinkedAccount(
                 chain,

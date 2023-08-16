@@ -7,6 +7,10 @@ const envVars = {
   __IPFS_FETCH_BASE_URL__: "http://localhost:8080/ipfs/",
   __DEFAULT_INSIGHT_PLATFORM_BASE_URL__: "http://localhost:3001/v0/",
 
+  __DROPBOX_APP_KEY__: "w69949reoalc9xg",
+  __DROPBOX_APP_SECRET__: "78jch5z5o800dyw",
+  __DROPBOX_REDIRECT_URI__: "https://localhost:9005/settings/storage",
+
   __ALCHEMY_ARBITRUM_API_KEY__: "",
   __ALCHEMY_ASTAR_API_KEY__: "",
   __ALCHEMY_MUMBAI_API_KEY__: "",

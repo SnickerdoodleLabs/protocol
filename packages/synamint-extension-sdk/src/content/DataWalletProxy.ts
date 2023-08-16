@@ -51,7 +51,10 @@ import {
   PEMEncodedRSAPublicKey,
   JsonWebToken,
   QueryStatus,
+  AccessToken,
+  ECloudStorageType,
   SocialProfileLinkedEvent,
+  IProxyStorageMethods,
   ECoreProxyType,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
@@ -98,6 +101,8 @@ import {
   GetPossibleRewardsParams,
   SwitchToTabParams,
   GetQueryStatusByCidParams,
+  AuthenticateDropboxParams,
+  SetAuthenticatedStorageParams,
   RejectInvitationParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
@@ -152,7 +157,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public integration: IProxyIntegrationMethods;
   public metrics: IProxyMetricsMethods;
   public twitter: IProxyTwitterMethods;
-
+  public storage: IProxyStorageMethods;
   public events: PublicEvents;
 
   public proxyType: ECoreProxyType = ECoreProxyType.EXTENSION_INJECTED;
@@ -293,6 +298,33 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       },
       getUserProfiles: () => {
         return coreGateway.twitter.getUserProfiles();
+      },
+    };
+
+    this.storage = {
+      // @TODO below functions are not added to ISDLDataWallet interface and iframe
+      getDropboxAuth: () => {
+        return coreGateway.getDropboxAuth();
+      },
+      authenticateDropbox: (code: string) => {
+        return coreGateway.authenticateDropbox(
+          new AuthenticateDropboxParams(code),
+        );
+      },
+      setAuthenticatedStorage: (
+        storageType: ECloudStorageType,
+        path: string,
+        accessToken: AccessToken,
+      ) => {
+        return coreGateway.setAuthenticatedStorage(
+          new SetAuthenticatedStorageParams(storageType, path, accessToken),
+        );
+      },
+      getCurrentCloudStorage: () => {
+        return coreGateway.getCurrentCloudStorage();
+      },
+      getAvailableCloudStorageOptions: () => {
+        return coreGateway.getAvailableCloudStorageOptions();
       },
     };
 

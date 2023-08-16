@@ -53,6 +53,10 @@ export class ExtensionConfig {
     public requestForDataCheckingFrequency?: number,
     public domainFilter?: string,
     public defaultGoogleCloudBucket?: string,
+
+    public dropboxAppKey?: string,
+    public dropboxAppSecret?: string,
+
     public portfolioPollingIntervalMS?: number,
     public transactionPollingIntervalMS?: number,
     public backupPollingIntervalMS?: number,

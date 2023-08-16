@@ -1,5 +1,6 @@
 export * from "@core/implementations/data/AdContentRepository.js";
 export * from "@core/implementations/data/AdDataRepository.js";
+export * from "@core/implementations/data/AuthenticatedStorageRepository.js";
 export * from "@core/implementations/data/BrowsingDataRepository.js";
 export * from "@core/implementations/data/CoinGeckoTokenPriceRepository.js";
 export * from "@core/implementations/data/ConsentContractRepository.js";

@@ -1,4 +1,3 @@
-import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
 import {
   Box,
   Typography,
@@ -37,6 +36,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Breadcrumb from "@extension-onboarding/components/Breadcrumb";
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
+import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
@@ -123,9 +123,8 @@ const RewardProgramDetails: FC = () => {
   const { generateAllPermissions, isSafe, updateProfileValues } =
     usePermissionContext();
   const generateSuccessMessage = (dataType: EWalletDataType) => {
-    return `Your "${
-      PERMISSIONS_WITH_ICONS[dataType]!.name
-    }" data has successfully saved`;
+    return `Your "${PERMISSIONS_WITH_ICONS[dataType]!.name
+      }" data has successfully saved`;
   };
   const [capacityInfo, setCapacityInfo] = useState<IConsentCapacity>();
   const [consentPermissions, setConsentPermissions] = useState<
@@ -193,7 +192,7 @@ const RewardProgramDetails: FC = () => {
                 setLoadingStatus(false);
                 setModal({
                   modalSelector: EModalSelectors.SUBSCRIPTION_SUCCESS_MODAL,
-                  onPrimaryButtonClick: () => {},
+                  onPrimaryButtonClick: () => { },
                   customProps: {
                     campaignImage: info?.image,
                     campaignName: info?.rewardName,
@@ -210,7 +209,7 @@ const RewardProgramDetails: FC = () => {
           });
       },
       customProps: {
-        onCloseClicked: () => {},
+        onCloseClicked: () => { },
         campaignImage: info?.image,
         rewardsThatCanBeAcquired,
         rewardsThatRequireMorePermission,
@@ -359,8 +358,8 @@ const RewardProgramDetails: FC = () => {
   const handlePermissionSelect = (permission: EWalletDataType) => {
     permissionsState.includes(permission)
       ? setPermissionsState((permissions) =>
-          permissions.filter((_permission) => _permission != permission),
-        )
+        permissions.filter((_permission) => _permission != permission),
+      )
       : setPermissionsState((permissions) => [...permissions, permission]);
   };
 

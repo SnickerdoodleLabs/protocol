@@ -31,7 +31,9 @@ import {
   AccountIndexingError,
   PasswordString,
   BlockchainCommonErrors,
+  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
+import { ICloudStorage } from "@snickerdoodlelabs/persistence";
 import { ResultAsync } from "neverthrow";
 
 export interface IAccountService {

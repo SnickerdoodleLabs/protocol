@@ -27,6 +27,7 @@ import {
   MethodSupportError,
   EDataProvider,
   EExternalApi,
+  EVMTransactionHash,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -100,7 +101,7 @@ export class AnkrIndexer implements IEVMIndexer {
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
-  ) { }
+  ) {}
 
   public name(): string {
     return EDataProvider.Ankr;

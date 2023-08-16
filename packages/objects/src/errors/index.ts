@@ -1,6 +1,7 @@
 export * from "@objects/errors/sdqlErrors";
 export * from "@objects/errors/AccountIndexingError.js";
 export * from "@objects/errors/AjaxError.js";
+export * from "@objects/errors/AuthenticationError.js";
 export * from "@objects/errors/BaseError.js";
 export * from "@objects/errors/BlockchainErrorMapper.js";
 export * from "@objects/errors/BlockchainProviderError.js";

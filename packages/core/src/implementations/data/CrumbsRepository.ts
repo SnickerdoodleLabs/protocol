@@ -68,6 +68,7 @@ export class CrumbsRepository implements ICrumbsRepository {
         if (tokenId == null) {
           return okAsync(null);
         }
+
         // Retrieve the token id's token uri and return it
         // Query reverts with 'ERC721Metadata: URI query for nonexistent token' error if token does not exist
         return contract.tokenURI(tokenId).map((rawTokenUri) => {

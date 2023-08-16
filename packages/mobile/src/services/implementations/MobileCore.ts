@@ -29,10 +29,7 @@ import {
   TokenAddress,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
-import {
-  IVolatileStorage,
-  IVolatileStorageType,
-} from "@snickerdoodlelabs/persistence";
+import { MemoryVolatileStorage } from "@snickerdoodlelabs/persistence";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 
@@ -40,7 +37,6 @@ import {
   IAccountServiceType,
   IAccountService,
 } from "../interfaces/business/IAccountService";
-
 import {
   IPIIServiceType,
   IPIIService,
@@ -78,7 +74,6 @@ export class MobileCore {
     this.core = new SnickerdoodleCore(
       coreConfig,
       new MobileStorageUtils(),
-      undefined,
       undefined,
     );
     this.iocContainer.bind(ISnickerdoodleCoreType).toConstantValue(this.core);

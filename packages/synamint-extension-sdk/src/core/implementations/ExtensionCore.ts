@@ -1,11 +1,17 @@
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
+  AuthenticatedStorageSettings,
   EChain,
+  ECloudStorageType,
   IConfigOverrides,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
-import { ChromeStorageUtils } from "@snickerdoodlelabs/utils";
+import {
+  ChromeStorageUtils,
+  IStorageUtils,
+  IStorageUtilsType,
+} from "@snickerdoodlelabs/utils";
 import { Container } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -88,12 +94,15 @@ export class ExtensionCore {
       primaryInfuraKey: config.primaryInfuraKey,
       secondaryInfuraKey: config.secondaryInfuraKey,
       devChainProviderURL: config.devChainProviderURL,
+
+      dropboxAppKey: config.dropboxAppKey,
+      dropboxAppSecret: config.dropboxAppSecret,
+      dropboxRedirectUri: config.dropboxRedirectUri,
     } as IConfigOverrides;
 
     this.core = new SnickerdoodleCore(
       coreConfig,
       new ChromeStorageUtils(),
-      undefined,
       undefined,
     );
 

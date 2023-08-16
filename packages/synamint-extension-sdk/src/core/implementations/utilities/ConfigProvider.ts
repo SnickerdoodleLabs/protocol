@@ -8,6 +8,7 @@ import {
 } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
 const ONE_MINUTE_MS = 60000;
+const FIVE_SECONDS_MS = 5000;
 
 const defaultConfigs: IExtensionConfig = {
   onboardingUrl: "https://datawallet.snickerdoodle.com/",
@@ -97,6 +98,14 @@ export class ConfigProvider implements IConfigProvider {
     this.config.defaultGoogleCloudBucket =
       configOverrides.defaultGoogleCloudBucket ??
       this.config.defaultGoogleCloudBucket;
+
+    this.config.dropboxAppKey =
+      configOverrides.dropboxAppKey ?? this.config.dropboxAppKey;
+    this.config.dropboxAppSecret =
+      configOverrides.dropboxAppSecret ?? this.config.dropboxAppSecret;
+    this.config.dropboxRedirectUri =
+      configOverrides.dropboxRedirectUri ?? this.config.dropboxRedirectUri;
+
     this.config.enableBackupEncryption =
       configOverrides.enableBackupEncryption ??
       this.config.enableBackupEncryption;

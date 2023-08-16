@@ -49,6 +49,8 @@ import {
   TwitterID,
   URLString,
   UnixTimestamp,
+  ECloudStorageType,
+  AccessToken,
 } from "@snickerdoodlelabs/objects";
 import {
   IIFrameCallData,
@@ -1006,6 +1008,55 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
             return core.twitter.getUserProfiles(sourceDomain);
+          });
+        }, data.callId);
+      },
+      "storage.setAuthenticatedStorage": (
+        data: IIFrameCallData<{
+          storageType: ECloudStorageType;
+          path: string;
+          accessToken: AccessToken;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.storage.setAuthenticatedStorage(
+              data.data.storageType,
+              data.data.path,
+              data.data.accessToken,
+              sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
+      "storage.authenticateDropbox": (
+        data: IIFrameCallData<{
+          code: string;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.storage.authenticateDropbox(
+              data.data.code,
+              sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
+      "storage.getDropboxAuth": (data: IIFrameCallData<{}>) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.storage.getDropboxAuth(sourceDomain);
+          });
+        }, data.callId);
+      },
+
+      "storage.getCurrentCloudStorage": (data: IIFrameCallData<{}>) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.storage.getCurrentCloudStorage(sourceDomain);
           });
         }, data.callId);
       },

@@ -17,6 +17,7 @@ import {
   PermissionSelection,
   UI_SUPPORTED_PERMISSIONS,
 } from "@snickerdoodlelabs/shared-components";
+import { JsonRpcError } from "json-rpc-engine";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import React, { FC, useCallback, useEffect, useState } from "react";

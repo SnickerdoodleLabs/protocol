@@ -94,7 +94,10 @@ export class ConfigProvider
       controlChainInformation, // controlChainInformation
       URLString("http://127.0.0.1:8080/ipfs"), // ipfsFetchBaseUrl
       URLString("http://localhost:3006"), // defaultInsightPlatformBaseUrl
-      "ceramic-replacement-bucket",
+      "ceramic-replacement-bucket", // default Google Cloud Bucket
+      "w69949reoalc9xg", // default dropbox app key
+      "78jch5z5o800dyw", // default dropbox app secret
+      "", // dropboxRedirectUri
       5000, // polling interval indexing,
       5000, // polling interval balance
       5000, // polling interval nfts
@@ -225,6 +228,14 @@ export class ConfigProvider
     this.config.accountNFTPollingIntervalMS =
       overrides.accountNFTPollingIntervalMS ??
       this.config.accountNFTPollingIntervalMS;
+    this.config.dropboxAppKey =
+      overrides.dropboxAppKey ?? this.config.dropboxAppKey;
+    this.config.dropboxAppSecret =
+      overrides.dropboxAppSecret ?? this.config.dropboxAppSecret;
+
+    this.config.dropboxRedirectUri =
+      overrides.dropboxRedirectUri ?? this.config.dropboxRedirectUri;
+
     this.config.apiKeys.covalentApiKey =
       overrides.covalentApiKey ?? this.config.apiKeys.covalentApiKey;
     this.config.apiKeys.alchemyApiKeys =

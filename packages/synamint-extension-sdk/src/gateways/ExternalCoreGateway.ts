@@ -47,7 +47,12 @@ import {
   PEMEncodedRSAPublicKey,
   JsonWebToken,
   QueryStatus,
+  AccessToken,
+  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
+import { JsonRpcEngine } from "json-rpc-engine";
+import { ResultAsync } from "neverthrow";
+
 import CoreHandler from "@synamint-extension-sdk/gateways/handler/CoreHandler";
 import {
   AcceptInvitationParams,
@@ -126,12 +131,15 @@ import {
   GetTokenVerificationPublicKeyParams,
   GetBearerTokenParams,
   GetQueryStatusByCidParams,
+  GetDropBoxAuthUrlParams,
+  AuthenticateDropboxParams,
+  SetAuthenticatedStorageParams,
+  GetAvailableCloudStorageOptionsParams,
+  GetCurrentCloudStorageParams,
   RejectInvitationParams,
   RejectInvitationByUUIDParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
-import { JsonRpcEngine } from "json-rpc-engine";
-import { ResultAsync } from "neverthrow";
 
 export class ExternalCoreGateway {
   public discord: IProxyDiscordMethods;
@@ -522,6 +530,32 @@ export class ExternalCoreGateway {
     return this._handler.call(params);
   }
 
+  public getDropboxAuth(): ResultAsync<URLString, ProxyError> {
+    return this._handler.call(new GetDropBoxAuthUrlParams());
+  }
+
+  public authenticateDropbox(
+    params: AuthenticateDropboxParams,
+  ): ResultAsync<AccessToken, ProxyError> {
+    return this._handler.call(params);
+  }
+
+  public setAuthenticatedStorage(
+    params: SetAuthenticatedStorageParams,
+  ): ResultAsync<void, ProxyError> {
+    return this._handler.call(params);
+  }
+
+  public getCurrentCloudStorage(): ResultAsync<ECloudStorageType, ProxyError> {
+    return this._handler.call(new GetCurrentCloudStorageParams());
+  }
+
+  public getAvailableCloudStorageOptions(): ResultAsync<
+    Set<ECloudStorageType>,
+    ProxyError
+  > {
+    return this._handler.call(new GetAvailableCloudStorageOptionsParams());
+  }
   public getProviderKey = (): ResultAsync<string | undefined, ProxyError> => {
     return this.getConfig().map((config) => {
       return config.providerKey;

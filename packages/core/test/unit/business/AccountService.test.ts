@@ -46,6 +46,7 @@ import { AccountService } from "@core/implementations/business/index.js";
 import { IAccountService } from "@core/interfaces/business/index.js";
 import { IPermissionUtils } from "@core/interfaces/business/utilities/index.js";
 import {
+  IAuthenticatedStorageRepository,
   IBrowsingDataRepository,
   ICrumbsRepository,
   IDataWalletPersistence,
@@ -163,6 +164,7 @@ const dataWalletBackupID = DataWalletBackupID("dataWalletBackup");
 const testPassword = PasswordString("BatteryHorseStaple");
 
 class AccountServiceMocks {
+  public authenticatedStorageRepo: IAuthenticatedStorageRepository;
   public permissionsUtils: IPermissionUtils;
   public insightPlatformRepo: IInsightPlatformRepository;
   public crumbsRepo: ICrumbsRepository;
@@ -182,6 +184,8 @@ class AccountServiceMocks {
   public minimalForwarderContract: IMinimalForwarderContract;
 
   public constructor(unlockInProgress = false, unlocked = false) {
+    this.authenticatedStorageRepo =
+      td.object<IAuthenticatedStorageRepository>();
     this.permissionsUtils = new PermissionsUtilsMock();
     this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
     this.crumbsRepo = td.object<ICrumbsRepository>();
@@ -644,6 +648,7 @@ class AccountServiceMocks {
 
   public factory(): IAccountService {
     return new AccountService(
+      this.authenticatedStorageRepo,
       this.permissionsUtils,
       this.insightPlatformRepo,
       this.crumbsRepo,

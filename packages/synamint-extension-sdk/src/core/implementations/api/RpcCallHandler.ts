@@ -13,7 +13,15 @@ import {
   TokenId,
   BigNumberString,
   URLString,
+  ISnickerdoodleCoreType,
+  ISnickerdoodleCore,
+  ECloudStorageType,
+  AuthenticatedStorageSettings,
 } from "@snickerdoodlelabs/objects";
+import {
+  ICloudStorageManager,
+  ICloudStorageManagerType,
+} from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import {
   AsyncJsonRpcEngineNextCallback,
@@ -141,6 +149,11 @@ import {
   GetTokenVerificationPublicKeyParams,
   GetBearerTokenParams,
   GetQueryStatusByCidParams,
+  GetDropBoxAuthUrlParams,
+  AuthenticateDropboxParams,
+  SetAuthenticatedStorageParams,
+  GetAvailableCloudStorageOptionsParams,
+  GetCurrentCloudStorageParams,
   RejectInvitationParams,
 } from "@synamint-extension-sdk/shared";
 
@@ -804,6 +817,46 @@ export class RpcCallHandler implements IRpcCallHandler {
         );
       },
     ),
+
+    new CoreActionHandler<GetDropBoxAuthUrlParams>(
+      GetDropBoxAuthUrlParams.getCoreAction(),
+      (_params) => {
+        return this.core.storage.getDropboxAuth(undefined);
+      },
+    ),
+
+    new CoreActionHandler<AuthenticateDropboxParams>(
+      AuthenticateDropboxParams.getCoreAction(),
+      (params) => {
+        return this.core.storage.authenticateDropbox(params.code, undefined);
+      },
+    ),
+
+    new CoreActionHandler<SetAuthenticatedStorageParams>(
+      SetAuthenticatedStorageParams.getCoreAction(),
+      (params) => {
+        return this.core.storage.setAuthenticatedStorage(
+          params.storageType,
+          params.path,
+          params.accessToken,
+          undefined,
+        );
+      },
+    ),
+
+    new CoreActionHandler<GetAvailableCloudStorageOptionsParams>(
+      GetAvailableCloudStorageOptionsParams.getCoreAction(),
+      (_params) => {
+        return this.core.storage.getAvailableCloudStorageOptions(undefined);
+      },
+    ),
+
+    new CoreActionHandler<GetCurrentCloudStorageParams>(
+      GetCurrentCloudStorageParams.getCoreAction(),
+      (_params) => {
+        return this.core.storage.getCurrentCloudStorage(undefined);
+      },
+    ),
     // #endregion
   ];
 
@@ -833,6 +886,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     @inject(IMetricsServiceType) protected metricsService: IMetricsService,
     @inject(IIntegrationServiceType)
     protected integrationService: IIntegrationService,
+    @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
   ) {}
 
   public async handleRpcCall(

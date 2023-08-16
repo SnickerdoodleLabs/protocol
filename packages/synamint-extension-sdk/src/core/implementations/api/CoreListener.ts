@@ -1,6 +1,8 @@
 import {
+  CloudStorageActivatedEvent,
   DataWalletAddress,
   EarnedReward,
+  ECloudStorageType,
   EProfileFieldType,
   ESolidityAbiParameterType,
   IDynamicRewardParameter,
@@ -56,6 +58,14 @@ export class CoreListener implements ICoreListener {
       );
       events.onSocialProfileUnlinked.subscribe(
         this.onSocialProfileUnlinked.bind(this),
+      );
+
+      // rename, event emitted from api listeners. keyed and activated by unlock function
+      events.onCloudStorageActivated.subscribe(
+        this.onCloudStorageActivated.bind(this),
+      );
+      events.onCloudStorageDeactivated.subscribe(
+        this.onCloudStorageDeactivated.bind(this),
       );
       events.onBirthdayUpdated.subscribe((birthday) => {
         this.contextProvider.onProfileFieldChanged(
@@ -176,5 +186,13 @@ export class CoreListener implements ICoreListener {
   private onSocialProfileLinked(event: SocialProfileLinkedEvent): void {
     this.contextProvider.onSocialProfileLinked(event);
   }
+
   private onSocialProfileUnlinked(event: SocialProfileUnlinkedEvent): void {}
+
+  private onCloudStorageActivated(event: CloudStorageActivatedEvent): void {
+    this.contextProvider.onCloudStorageActivated(event);
+  }
+  private onCloudStorageDeactivated(event: CloudStorageActivatedEvent): void {
+    this.contextProvider.onCloudStorageDeactivated(event);
+  }
 }

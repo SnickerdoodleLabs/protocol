@@ -60,6 +60,10 @@ declare const __TWITTER_CONSUMER_SECRET__: string;
 declare const __TWITTER_POLL_INTERVAL__: string;
 declare const __DEV_CHAIN_PROVIDER_URL__: ProviderUrl;
 
+declare const __DROPBOX_APP_KEY__: string;
+declare const __DROPBOX_APP_SECRET__: string;
+declare const __DROPBOX_REDIRECT_URI__: string;
+
 const ONE_MINUTE_MS = 60000;
 
 const supportedChains = (
@@ -316,6 +320,23 @@ export const configs: IExtensionConfigOverrides = {
     typeof __GOOGLE_CLOUD_BUCKET__ !== "undefined" && !!__GOOGLE_CLOUD_BUCKET__
       ? __GOOGLE_CLOUD_BUCKET__
       : undefined,
+
+  dropboxAppKey:
+    typeof __DROPBOX_APP_KEY__ !== "undefined" && !!__DROPBOX_APP_KEY__
+      ? __DROPBOX_APP_KEY__
+      : undefined,
+
+  dropboxAppSecret:
+    typeof __DROPBOX_APP_SECRET__ !== "undefined" && !!__DROPBOX_APP_SECRET__
+      ? __DROPBOX_APP_SECRET__
+      : undefined,
+
+  dropboxRedirectUri:
+    typeof __DROPBOX_REDIRECT_URI__ !== "undefined" &&
+    !!__DROPBOX_REDIRECT_URI__
+      ? __DROPBOX_REDIRECT_URI__
+      : undefined,
+
   enableBackupEncryption:
     typeof __ENABLE_BACKUP_ENCRYPTION__ !== "undefined" &&
     !!__ENABLE_BACKUP_ENCRYPTION__
