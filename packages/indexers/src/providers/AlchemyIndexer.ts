@@ -9,7 +9,6 @@ import {
   TickerSymbol,
   AccountIndexingError,
   AjaxError,
-  ChainId,
   TokenBalance,
   BigNumberString,
   ITokenPriceRepositoryType,
@@ -33,7 +32,6 @@ import {
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import Web3 from "web3";
 
 import {
   IIndexerConfigProvider,
@@ -45,6 +43,7 @@ import {
   IIndexerContextProviderType,
 } from "@indexers/interfaces/index.js";
 import { MasterIndexer } from "@indexers/MasterIndexer.js";
+import { BigNumber } from "ethers";
 
 @injectable()
 export class AlchemyIndexer implements IEVMIndexer {
@@ -104,7 +103,17 @@ export class AlchemyIndexer implements IEVMIndexer {
   }
 
   public initialize(): ResultAsync<void, never> {
-    return okAsync(undefined);
+    return this.configProvider.getConfig().map((config) => {
+      this.indexerSupport.forEach((indexerSupportSummary, chain) => {
+        if (
+          config.apiKeys.alchemyApiKeys[getChainInfoByChain(chain).name] == ""
+        ) {
+          this.health.set(chain, EComponentStatus.NoKeyProvided);
+        } else {
+          this.health.set(chain, EComponentStatus.Available);
+        }
+      });
+    });
   }
 
   public name(): string {
@@ -127,7 +136,7 @@ export class AlchemyIndexer implements IEVMIndexer {
   }
 
   public getTokensForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
     EVMNFT[],
@@ -142,7 +151,7 @@ export class AlchemyIndexer implements IEVMIndexer {
   }
 
   public getEVMTransactions(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
     startTime: Date,
     endTime?: Date | undefined,
@@ -168,26 +177,13 @@ export class AlchemyIndexer implements IEVMIndexer {
   }
 
   public getHealthCheck(): ResultAsync<Map<EChain, EComponentStatus>, never> {
-    return this.configProvider.getConfig().andThen((config) => {
-      this.indexerSupport.forEach(
-        (value: IndexerSupportSummary, key: EChain) => {
-          if (
-            config.apiKeys.alchemyApiKeys[getChainInfoByChain(key).name] == ""
-          ) {
-            this.health.set(key, EComponentStatus.NoKeyProvided);
-          } else {
-            this.health.set(key, EComponentStatus.Available);
-          }
-        },
-      );
-      return okAsync(this.health);
-    });
+    return okAsync(this.health);
   }
 
   private nativeBalanceParams(
     chain: EChain,
     accountAddress: AccountAddress,
-  ): [string, TickerSymbol, ChainId] {
+  ): [string, TickerSymbol, EChain] {
     switch (chain) {
       case EChain.EthereumMainnet:
         return [
@@ -198,7 +194,7 @@ export class AlchemyIndexer implements IEVMIndexer {
             method: "eth_getBalance",
           }),
           TickerSymbol("ETH"),
-          ChainId(1),
+          EChain.EthereumMainnet,
         ];
       case EChain.Polygon:
         return [
@@ -209,7 +205,7 @@ export class AlchemyIndexer implements IEVMIndexer {
             method: "eth_getBalance",
           }),
           TickerSymbol("MATIC"),
-          ChainId(137),
+          EChain.Polygon,
         ];
       case EChain.Mumbai:
         return [
@@ -220,7 +216,7 @@ export class AlchemyIndexer implements IEVMIndexer {
             method: "eth_getBalance",
           }),
           TickerSymbol("MATIC"),
-          ChainId(80001),
+          EChain.Mumbai,
         ];
       case EChain.Astar:
         return [
@@ -231,7 +227,7 @@ export class AlchemyIndexer implements IEVMIndexer {
             method: "eth_getBalance",
           }),
           TickerSymbol("ASTR"),
-          ChainId(592),
+          EChain.Astar,
         ];
       default:
         return [
@@ -242,7 +238,7 @@ export class AlchemyIndexer implements IEVMIndexer {
             method: "eth_getBalance",
           }),
           TickerSymbol("ETH"),
-          ChainId(1),
+          EChain.EthereumMainnet,
         ];
     }
   }
@@ -282,14 +278,17 @@ export class AlchemyIndexer implements IEVMIndexer {
           },
         })
         .andThen((response) => {
-          const weiValue = Web3.utils.hexToNumberString(response.result);
+          // TODO: Really, really need to replace this with an ethers equivalent
+          const weiValue = BigNumberString(
+            BigNumber.from(response.result).toString(),
+          );
           const balance = new TokenBalance(
             EChainTechnology.EVM,
             nativeTickerSymbol,
             nativeChain,
             MasterIndexer.nativeAddress,
             accountAddress,
-            BigNumberString(weiValue),
+            weiValue,
             getChainInfoByChain(chain).nativeCurrency.decimals,
           );
           return okAsync(balance);
@@ -328,12 +327,12 @@ export class AlchemyIndexer implements IEVMIndexer {
         .andThen((response) => {
           return ResultUtils.combine(
             response.result.tokenBalances.map((entry) => {
-              const weiValue = Web3.utils.hexToNumberString(entry.tokenBalance);
+              // TODO: Really, really need to replace this with an ethers equivalent
+              const weiValue = BigNumberString(
+                BigNumber.from(entry.tokenBalance).toString(),
+              );
               return this.tokenPriceRepo
-                .getTokenInfo(
-                  getChainInfoByChain(chain).chainId,
-                  entry.contractAddress,
-                )
+                .getTokenInfo(chain, entry.contractAddress)
                 .andThen((tokenInfo) => {
                   if (tokenInfo == null) {
                     return okAsync(undefined);
@@ -372,7 +371,7 @@ export class AlchemyIndexer implements IEVMIndexer {
 interface IAlchemyNativeBalanceResponse {
   status: string;
   message: string;
-  result: HexString;
+  result: HexString; // example: "0x7f49b9052e509c", measured in wei
 }
 
 interface IAlchemyNonNativeReponse {

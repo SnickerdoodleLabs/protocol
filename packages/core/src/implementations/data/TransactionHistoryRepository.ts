@@ -9,6 +9,8 @@ import {
   getChainInfoByChainId,
   TransactionFilter,
   ERecordKey,
+  getChainInfoByChain,
+  EChain,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
@@ -153,53 +155,41 @@ export class TransactionHistoryRepository
   ): ResultAsync<TransactionPaymentCounter[], PersistenceError> {
     incomingTransactions.forEach((tx) => {
       counters.push(
-        new TransactionPaymentCounter(
-          tx.chainId,
-          this._getTxValue(tx),
-          1,
-          0,
-          0,
-        ),
+        new TransactionPaymentCounter(tx.chain, this._getTxValue(tx), 1, 0, 0),
       );
     });
     outgoingTransactions.forEach((tx) => {
       counters.push(
-        new TransactionPaymentCounter(
-          tx.chainId,
-          0,
-          0,
-          this._getTxValue(tx),
-          1,
-        ),
+        new TransactionPaymentCounter(tx.chain, 0, 0, this._getTxValue(tx), 1),
       );
     });
     return okAsync(counters);
   }
 
   protected _getTxValue(tx: EVMTransaction): number {
-    const decimals = getChainInfoByChainId(tx.chainId).nativeCurrency.decimals;
+    const decimals = getChainInfoByChain(tx.chain).nativeCurrency.decimals;
     return Number.parseFloat(
       ethers.utils.formatUnits(tx.value || "0", decimals).toString(),
     );
   }
 
   protected compoundTransaction(
-    chainTransaction: TransactionPaymentCounter[],
+    chainTransactions: TransactionPaymentCounter[],
   ): TransactionPaymentCounter[] {
-    const flowMap = new Map<ChainId, TransactionPaymentCounter>();
-    chainTransaction.forEach((obj) => {
-      const getObject = flowMap.get(obj.chainId);
+    const flowMap = new Map<EChain, TransactionPaymentCounter>();
+    chainTransactions.forEach((chainTransaction) => {
+      const getObject = flowMap.get(chainTransaction.chain);
       if (getObject == null) {
-        flowMap.set(obj.chainId, obj);
+        flowMap.set(chainTransaction.chain, chainTransaction);
       } else {
         flowMap.set(
-          obj.chainId,
+          chainTransaction.chain,
           new TransactionPaymentCounter(
-            obj.chainId,
-            obj.incomingValue + getObject.incomingValue,
-            obj.incomingCount + getObject.incomingCount,
-            obj.outgoingValue + getObject.outgoingValue,
-            obj.outgoingCount + getObject.outgoingCount,
+            chainTransaction.chain,
+            chainTransaction.incomingValue + getObject.incomingValue,
+            chainTransaction.incomingCount + getObject.incomingCount,
+            chainTransaction.outgoingValue + getObject.outgoingValue,
+            chainTransaction.outgoingCount + getObject.outgoingCount,
           ),
         );
       }

@@ -3,7 +3,6 @@ import {
   AjaxError,
   BigNumberString,
   BlockNumber,
-  ChainId,
   EChainTechnology,
   EComponentStatus,
   EVMAccountAddress,
@@ -55,7 +54,7 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
   }
 
   public getBalancesForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError> {
     const num = Math.floor(Math.random() * 10);
@@ -64,7 +63,7 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
       const item = new TokenBalance(
         EChainTechnology.EVM,
         TickerSymbol((Math.random() + 1).toString(36).substring(5)),
-        chainId,
+        chain,
         EVMContractAddress(
           Math.floor(Math.random() * 4) +
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".charAt(
@@ -81,7 +80,7 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
   }
 
   public getTokensForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
     const num = Math.floor(Math.random() * 10) + 1;
@@ -96,7 +95,7 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
         { raw: "metadata" },
         BigNumberString(Math.floor(Math.random() * 1000) + ""),
         "Fake Token #" + i,
-        chainId,
+        chain,
         BlockNumber(i),
         //86400 => day
         UnixTimestamp(Date.now() - i * (Date.now() % 86400)),
@@ -107,7 +106,7 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
   }
 
   public getEVMTransactions(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
     startTime: Date,
     endTime?: Date | undefined,
@@ -125,7 +124,7 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
                 ),
             );
       const item = new EVMTransaction(
-        chainId,
+        chain,
         EVMTransactionHash("hash"),
         UnixTimestamp(timestamp.getTime() / 1000),
         null,

@@ -67,7 +67,15 @@ export class PolygonIndexer implements IEVMIndexer {
   ) {}
 
   public initialize(): ResultAsync<void, never> {
-    return okAsync(undefined);
+    return this.configProvider.getConfig().map((config) => {
+      this.indexerSupport.forEach((indexerSupportSummary, chain) => {
+        if (config.apiKeys.etherscanApiKeys[chain] == undefined) {
+          this.health.set(chain, EComponentStatus.NoKeyProvided);
+        } else {
+          this.health.set(chain, EComponentStatus.Available);
+        }
+      });
+    });
   }
 
   public name(): string {
@@ -196,18 +204,7 @@ export class PolygonIndexer implements IEVMIndexer {
   }
 
   public getHealthCheck(): ResultAsync<Map<EChain, EComponentStatus>, never> {
-    return this.configProvider.getConfig().andThen((config) => {
-      this.indexerSupport.forEach(
-        (value: IndexerSupportSummary, key: EChain) => {
-          if (config.apiKeys.etherscanApiKeys[key] == undefined) {
-            this.health.set(key, EComponentStatus.NoKeyProvided);
-          } else {
-            this.health.set(key, EComponentStatus.Available);
-          }
-        },
-      );
-      return okAsync(this.health);
-    });
+    return okAsync(this.health);
   }
 
   public healthStatus(): Map<EChain, EComponentStatus> {

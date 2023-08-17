@@ -8,13 +8,11 @@ import {
   AjaxError,
   BigNumberString,
   BlockNumber,
-  ChainId,
   EChainTechnology,
   EVMAccountAddress,
   EVMContractAddress,
   EVMNFT,
   EVMTransaction,
-  getChainInfoByChainId,
   IEVMIndexer,
   TickerSymbol,
   TokenBalance,
@@ -26,6 +24,7 @@ import {
   IndexerSupportSummary,
   EDataProvider,
   EExternalApi,
+  getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -75,7 +74,17 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
   ) {}
 
   public initialize(): ResultAsync<void, never> {
-    return okAsync(undefined);
+    return this.configProvider.getConfig().map((config) => {
+      this.indexerSupport.forEach(
+        (value: IndexerSupportSummary, key: EChain) => {
+          if (config.apiKeys.moralisApiKey == "") {
+            this.health.set(key, EComponentStatus.NoKeyProvided);
+          } else {
+            this.health.set(key, EComponentStatus.Available);
+          }
+        },
+      );
+    });
   }
 
   public name(): string {
@@ -83,12 +92,12 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
   }
 
   public getBalancesForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AjaxError | AccountIndexingError> {
     return ResultUtils.combine([
-      this.generateQueryConfig(chainId, accountAddress, "erc20"),
-      this.generateQueryConfig(chainId, accountAddress, "balance"),
+      this.generateQueryConfig(chain, accountAddress, "erc20"),
+      this.generateQueryConfig(chain, accountAddress, "balance"),
       this.contextProvider.getContext(),
     ]).andThen(([tokenRequest, balanceRequest, context]) => {
       context.privateEvents.onApiAccessed.next(EExternalApi.Moralis);
@@ -109,19 +118,19 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
           return new TokenBalance(
             EChainTechnology.EVM,
             item.symbol,
-            chainId,
+            chain,
             item.token_address,
             accountAddress,
             item.balance,
             item.decimals,
           );
         });
-        const chainInfo = getChainInfoByChainId(chainId);
+        const chainInfo = getChainInfoByChain(chain);
         tokenBalances.push(
           new TokenBalance(
             EChainTechnology.EVM,
             TickerSymbol(chainInfo.nativeCurrency.symbol),
-            chainId,
+            chain,
             MasterIndexer.nativeAddress,
             accountAddress,
             balanceResponse.balance,
@@ -134,11 +143,11 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
   }
 
   public getTokensForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
     return ResultUtils.combine([
-      this.generateQueryConfig(chainId, accountAddress, "nft"),
+      this.generateQueryConfig(chain, accountAddress, "nft"),
       this.contextProvider.getContext(),
     ])
       .andThen(([requestConfig, context]) => {
@@ -150,7 +159,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
         );
       })
       .andThen((result) => {
-        return this.getPages(chainId, accountAddress, result);
+        return this.getPages(chain, accountAddress, result);
       })
       .mapErr(
         (e) => new AccountIndexingError("error fetching nfts from moralis", e),
@@ -158,7 +167,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
   }
 
   public getEVMTransactions(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
     startTime: Date,
     endTime?: Date | undefined,
@@ -175,18 +184,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
   }
 
   public getHealthCheck(): ResultAsync<Map<EChain, EComponentStatus>, never> {
-    return this.configProvider.getConfig().andThen((config) => {
-      this.indexerSupport.forEach(
-        (value: IndexerSupportSummary, key: EChain) => {
-          if (config.apiKeys.moralisApiKey == "") {
-            this.health.set(key, EComponentStatus.NoKeyProvided);
-          } else {
-            this.health.set(key, EComponentStatus.Available);
-          }
-        },
-      );
-      return okAsync(this.health);
-    });
+    return okAsync(this.health);
   }
 
   public healthStatus(): Map<EChain, EComponentStatus> {
@@ -198,7 +196,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
   }
 
   private getPages(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
     response: IMoralisNFTResponse,
   ): ResultAsync<EVMNFT[], AjaxError> {
@@ -212,7 +210,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
         { raw: token.metadata },
         BigNumberString(token.amount),
         token.name,
-        chainId,
+        chain,
         BlockNumber(Number(token.block_number)),
         undefined,
       );
@@ -223,7 +221,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     }
 
     return ResultUtils.combine([
-      this.generateQueryConfig(chainId, accountAddress, "nft", response.cursor),
+      this.generateQueryConfig(chain, accountAddress, "nft", response.cursor),
       this.contextProvider.getContext(),
     ]).andThen(([requestConfig, context]) => {
       context.privateEvents.onApiAccessed.next(EExternalApi.Moralis);
@@ -232,7 +230,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           .get<IMoralisNFTResponse>(new URL(requestConfig.url!), requestConfig)
           .andThen((next) => {
-            return this.getPages(chainId, accountAddress, next).andThen(
+            return this.getPages(chain, accountAddress, next).andThen(
               (nftArr) => {
                 return okAsync(nftArr.concat(items));
               },
@@ -243,7 +241,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
   }
 
   private generateQueryConfig(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
     endpoint: string,
     cursor?: string,
@@ -251,7 +249,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
   ): ResultAsync<IRequestConfig, never> {
     const params = {
       format: "decimal",
-      chain: `0x${chainId.toString(16)}`,
+      chain: `0x${chain.toString(16)}`,
     };
     if (contracts != undefined) {
       params["token_addresses"] = contracts.toString();
