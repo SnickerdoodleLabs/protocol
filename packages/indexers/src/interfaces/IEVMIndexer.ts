@@ -6,7 +6,6 @@ import {
   MethodSupportError,
   EVMNFT,
   EVMTransaction,
-  EComponentStatus,
   TokenBalance,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";

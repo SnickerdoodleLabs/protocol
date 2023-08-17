@@ -106,7 +106,16 @@ export class MasterIndexer implements IMasterIndexer {
       this.poapRepo.initialize(),
       this.sim.initialize(),
       this.sol.initialize(),
-    ]).map(() => {});
+    ])
+      .andThen(() => {
+        return this.getSupportedChains();
+      })
+      .map((supportedChains) => {
+        this.logUtils.log(
+          `Initialized indexers. Supported chains:`,
+          supportedChains,
+        );
+      });
   }
 
   public getSupportedChains(): ResultAsync<EChain[], never> {
