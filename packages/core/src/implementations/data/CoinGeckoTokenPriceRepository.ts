@@ -6,16 +6,13 @@ import {
   ILogUtils,
   ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
-import {
-  IMasterIndexer,
-  IMasterIndexerType,
-  MasterIndexer,
-} from "@snickerdoodlelabs/indexers";
+import { MasterIndexer } from "@snickerdoodlelabs/indexers";
 import {
   AccountIndexingError,
   AjaxError,
   chainConfig,
   ChainId,
+  EChain,
   ECurrencyCode,
   EExternalApi,
   ERecordKey,
@@ -68,7 +65,6 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
-    @inject(IMasterIndexerType) protected indexer: IMasterIndexer,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
@@ -376,45 +372,53 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
       return this._assetPlatforms;
     }
 
-    this._assetPlatforms = ResultUtils.combine([
-      this.contextProvider.getContext(),
-      this.indexer.getSupportedChains(),
-    ]).andThen(([context, supportedChains]) => {
-      context.privateEvents.onApiAccessed.next(EExternalApi.CoinGecko);
-      return this.ajaxUtils
-        .get<IAssetPlatformResponseItem[]>(
-          new URL("https://api.coingecko.com/api/v3/asset_platforms"),
-        )
-        .andThen((assetPlatforms) => {
-          const mapping: AssetPlatformMapping = {
-            forward: {},
-            backward: {},
-          };
-          assetPlatforms.forEach((assetPlatform) => {
-            if (
-              assetPlatform.chain_identifier &&
-              supportedChains.includes(ChainId(assetPlatform.chain_identifier))
-            ) {
-              const chainId = ChainId(assetPlatform.chain_identifier);
-              mapping.forward[assetPlatform.id] = chainId;
-              mapping.backward[chainId] = assetPlatform.id;
-            }
-          });
-
-          supportedChains.forEach((chain) => {
-            const info = getChainInfoByChain(chain);
-            if (info.coinGeckoSlug) {
-              mapping.forward[info.coinGeckoSlug] = info.chainId;
-              mapping.backward[info.chainId] = info.coinGeckoSlug;
-            }
-          });
-
-          return okAsync(mapping);
-        })
-        .mapErr(
-          (e) => new AccountIndexingError("error fetching asset platforms", e),
-        );
+    // The supported chains are anything in our chain.config
+    const supportedChains = new Array<EChain>();
+    chainConfig.forEach((chainInformation) => {
+      supportedChains.push(chainInformation.chain);
     });
+
+    this._assetPlatforms = this.contextProvider
+      .getContext()
+      .andThen((context) => {
+        context.privateEvents.onApiAccessed.next(EExternalApi.CoinGecko);
+        return this.ajaxUtils
+          .get<IAssetPlatformResponseItem[]>(
+            new URL("https://api.coingecko.com/api/v3/asset_platforms"),
+          )
+          .andThen((assetPlatforms) => {
+            const mapping: AssetPlatformMapping = {
+              forward: {},
+              backward: {},
+            };
+            assetPlatforms.forEach((assetPlatform) => {
+              if (
+                assetPlatform.chain_identifier &&
+                supportedChains.includes(
+                  ChainId(assetPlatform.chain_identifier),
+                )
+              ) {
+                const chainId = ChainId(assetPlatform.chain_identifier);
+                mapping.forward[assetPlatform.id] = chainId;
+                mapping.backward[chainId] = assetPlatform.id;
+              }
+            });
+
+            supportedChains.forEach((chain) => {
+              const info = getChainInfoByChain(chain);
+              if (info.coinGeckoSlug) {
+                mapping.forward[info.coinGeckoSlug] = info.chainId;
+                mapping.backward[info.chainId] = info.coinGeckoSlug;
+              }
+            });
+
+            return okAsync(mapping);
+          })
+          .mapErr(
+            (e) =>
+              new AccountIndexingError("error fetching asset platforms", e),
+          );
+      });
 
     return this._assetPlatforms;
   }

@@ -1,8 +1,11 @@
 import {
   AxiosAjaxUtils,
+  BigNumberUtils,
   CryptoUtils,
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
+  IBigNumberUtils,
+  IBigNumberUtilsType,
   ICryptoUtils,
   ICryptoUtilsType,
   ILogUtils,
@@ -457,6 +460,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<ICryptoUtils>(ICryptoUtilsType).to(CryptoUtils).inSingletonScope();
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)
       .to(AxiosAjaxUtils)
+      .inSingletonScope();
+    bind<IBigNumberUtils>(IBigNumberUtilsType)
+      .to(BigNumberUtils)
       .inSingletonScope();
 
     // Utilites/factory
