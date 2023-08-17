@@ -11,6 +11,7 @@ import {
   BigNumberString,
   ChainTransaction,
   EChain,
+  EChainTechnology,
   EComponentStatus,
   EVMAccountAddress,
   EVMContractAddress,
@@ -48,29 +49,27 @@ import {
   ISolanaIndexer,
 } from "@indexers/interfaces/index.js";
 
+enum EIndexerMethod {
+  Balances = "Balances",
+  Transactions = "Transactions",
+  NFTs = "NFTs",
+}
+
 @injectable()
 export class MasterIndexer implements IMasterIndexer {
-  public preferredIndexers = new Map<EChain, IEVMIndexer[]>([
-    [EChain.EthereumMainnet, [this.ankr, this.etherscan]],
-    [EChain.Polygon, [this.ankr, this.alchemy]],
-    [EChain.Optimism, [this.ankr, this.alchemy, this.nftscan]],
-    [EChain.Binance, [this.ankr, this.etherscan, this.nftscan]],
-    [EChain.Arbitrum, [this.ankr, this.alchemy, this.nftscan]],
-    [EChain.Avalanche, [this.ankr, this.etherscan, this.nftscan]],
-
-    /* Etherscan Balance Preferred */
-    [EChain.Moonbeam, [this.etherscan, this.nftscan]],
-    [EChain.Gnosis, [this.etherscan, this.poapRepo]],
-    [EChain.Fuji, [this.etherscan, this.nftscan]],
-
-    /* Alchemy Preferred */
-    [EChain.Mumbai, [this.alchemy]],
-    [EChain.Astar, [this.alchemy]],
-    [EChain.Shibuya, [this.alchemy]],
-
-    // Doodlechain
-    [EChain.DevDoodle, [this.sim]],
-  ]);
+  protected evmIndexerWeights = [
+    this.ankr,
+    this.alchemy,
+    this.etherscan,
+    this.nftscan,
+    this.poapRepo,
+    this.sim,
+    // TODO- enable these indexers as well
+    // this.moralis,
+    // this.oklink,
+    // this.poapRepo,
+    // this.matic,
+  ];
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -133,7 +132,7 @@ export class MasterIndexer implements IMasterIndexer {
     PersistenceError | AccountIndexingError | AjaxError
   > {
     const chainInfo = getChainInfoByChain(chain);
-    if (chain == EChain.Solana) {
+    if (chainInfo.chainTechnology == EChainTechnology.Solana) {
       return this.sol
         .getBalancesForAccount(chain, SolanaAccountAddress(accountAddress))
         .orElse((e) => {
@@ -156,27 +155,17 @@ export class MasterIndexer implements IMasterIndexer {
         });
     }
 
-    const providers = this.preferredIndexers.get(chain)!;
-    const provider = providers.find(
-      (element) =>
-        element.getSupportedChains().get(chain)?.balances &&
-        element.healthStatus().get(chain) == EComponentStatus.Available,
-    );
+    const indexer = this.getPreferredEVMIndexer(chain, EIndexerMethod.Balances);
 
-    if (provider == undefined) {
-      this.logUtils.warning(
-        "error fetching balances: no healthy provider found for " +
-          chainInfo.name +
-          " protocol",
-      );
+    if (indexer == undefined) {
       return okAsync([]);
     }
 
-    return provider
+    return indexer
       .getBalancesForAccount(chain, EVMAccountAddress(accountAddress))
       .orElse((e) => {
         this.logUtils.log(
-          "Error fetching balances from " + provider.name() + " indexer",
+          "Error fetching balances from " + indexer.name() + " indexer",
           chain,
           accountAddress,
           e,
@@ -204,37 +193,27 @@ export class MasterIndexer implements IMasterIndexer {
     PersistenceError | AccountIndexingError | AjaxError | MethodSupportError
   > {
     const chainInfo = getChainInfoByChain(chain);
-    if (chain == EChain.Solana) {
+    if (chainInfo.chainTechnology == EChainTechnology.Solana) {
       return this.sol.getTokensForAccount(
         chain,
         SolanaAccountAddress(accountAddress),
       );
     }
 
-    const providers = this.preferredIndexers.get(chain)!;
-    const provider = providers.find(
-      (element) =>
-        element.getSupportedChains().get(chain)?.nfts &&
-        element.healthStatus().get(chain) == EComponentStatus.Available,
-    );
+    const indexer = this.getPreferredEVMIndexer(chain, EIndexerMethod.NFTs);
 
-    if (provider == undefined) {
-      this.logUtils.log(
-        "error fetching nfts: no healthy provider found for " +
-          chainInfo.name +
-          " protocol",
-      );
+    if (indexer == null) {
       return okAsync([]);
     }
 
-    return provider
+    return indexer
       .getTokensForAccount(chain, EVMAccountAddress(accountAddress))
       .map((tokens) => {
         return tokens;
       })
       .orElse((e) => {
         this.logUtils.log(
-          "Error fetching nfts from " + provider.name() + " indexer",
+          "Error fetching nfts from " + indexer.name() + " indexer",
           chain,
           accountAddress,
           e,
@@ -263,34 +242,24 @@ export class MasterIndexer implements IMasterIndexer {
     AccountIndexingError | AjaxError | MethodSupportError
   > {
     const chainInfo = getChainInfoByChain(chain);
-    if (chain == EChain.Solana) {
+    if (chainInfo.chainTechnology == EChainTechnology.Solana) {
       return this.sol.getSolanaTransactions(
         chain,
         SolanaAccountAddress(accountAddress),
         new Date(timestamp * 1000),
       );
     }
-    let providers = this.preferredIndexers.get(chain);
-    if (providers == null) {
-      this.logUtils.warning(`No preferred indexers for chain ${chain}`);
-      providers = [];
-    }
-    const provider = providers.find(
-      (element) =>
-        element.getSupportedChains().get(chain)?.transactions &&
-        element.healthStatus().get(chain) == EComponentStatus.Available,
+
+    const indexer = this.getPreferredEVMIndexer(
+      chain,
+      EIndexerMethod.Transactions,
     );
 
-    if (provider == undefined) {
-      this.logUtils.log(
-        "error fetching transactions: no healthy provider found for " +
-          chainInfo.name +
-          " protocol",
-      );
+    if (indexer == null) {
       return okAsync([]);
     }
 
-    return provider
+    return indexer
       .getEVMTransactions(
         chain,
         EVMAccountAddress(accountAddress),
@@ -298,13 +267,81 @@ export class MasterIndexer implements IMasterIndexer {
       )
       .orElse((e) => {
         this.logUtils.log(
-          "Error fetching transactions from " + provider.name() + " indexer",
+          "Error fetching transactions from " + indexer.name() + " indexer",
           chain,
           accountAddress,
           e,
         );
         return okAsync([]);
       });
+  }
+
+  protected getPreferredEVMIndexer(
+    chain: EChain,
+    indexerMethod: EIndexerMethod,
+  ): IEVMIndexer | null {
+    let preferredIndexer: IEVMIndexer | ISolanaIndexer | null = null;
+
+    // Sanity check that this is an EVM chain
+    const chainInfo = getChainInfoByChain(chain);
+    if (chainInfo.chainTechnology != EChainTechnology.EVM) {
+      this.logUtils.error(
+        `Requested preferred EVM Indexer for non EVM chain ${chain}`,
+      );
+      return null;
+    }
+
+    // Go through the indexers by weight.
+    for (const indexer of this.evmIndexerWeights) {
+      // Check if the indexer is healthy and supports the operation
+      const indexerSupportSummary = indexer.getSupportedChains().get(chain);
+
+      // If the indexer doesn't support the chain, move on
+      if (indexerSupportSummary == null) {
+        continue;
+      }
+
+      // Check if the indexer supports the operation, skip it if it does not
+      if (
+        indexerMethod === EIndexerMethod.Balances &&
+        !indexerSupportSummary.balances
+      ) {
+        continue;
+      } else if (
+        indexerMethod === EIndexerMethod.Transactions &&
+        !indexerSupportSummary.transactions
+      ) {
+        continue;
+      } else if (
+        indexerMethod === EIndexerMethod.NFTs &&
+        !indexerSupportSummary.nfts
+      ) {
+        continue;
+      }
+
+      // Get the health status
+      const status = indexer.healthStatus().get(chain);
+      if (status == null) {
+        continue;
+      }
+      if (
+        status !== EComponentStatus.Available &&
+        status !== EComponentStatus.InUse
+      ) {
+        continue;
+      }
+
+      // Got this far, the indexer is the one we want!
+      preferredIndexer = indexer;
+      break;
+    }
+
+    if (preferredIndexer == null) {
+      this.logUtils.log(
+        `No healthy indexer found for chain ${chain}, for operation ${indexerMethod}`,
+      );
+    }
+    return preferredIndexer;
   }
 
   static get nativeAddress(): TokenAddress {
