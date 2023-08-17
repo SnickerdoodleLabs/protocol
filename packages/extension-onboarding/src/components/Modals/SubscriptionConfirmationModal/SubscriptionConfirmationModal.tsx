@@ -5,11 +5,11 @@ import React, { FC } from "react";
 import { useStyles } from "@extension-onboarding/components/Modals/SubscriptionConfirmationModal/SubscriptionConfirmationModal.style";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-
-declare const window: IWindowWithSdlDataWallet;
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { EVMContractAddress } from "@snickerdoodlelabs/objects";
 
 const SubscriptionConfirmationModal: FC = () => {
+  const { sdlDataWallet } = useDataWalletContext();
   const { apiGateway, linkedAccounts } = useAppContext();
   const { modalState, closeModal } = useLayoutContext();
 
@@ -52,7 +52,9 @@ const SubscriptionConfirmationModal: FC = () => {
           closeModal();
         }}
         ipfsBaseUrl={apiGateway.config.ipfsFetchBaseUrl}
-        getReceivingAddress={window.sdlDataWallet.getReceivingAddress}
+        getReceivingAddress={(consentAddress: EVMContractAddress) => {
+          return sdlDataWallet.getReceivingAddress(consentAddress);
+        }}
       />
     </Dialog>
   );

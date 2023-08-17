@@ -13,6 +13,9 @@ import {
   EProfileFieldType,
   ProfileFieldChangedNotification,
   SocialProfileLinkedNotification,
+  CloudStorageActivatedEvent,
+  CloudProviderActivatedNotification,
+  ECloudStorageType,
   ProfileFieldUpdate,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -107,6 +110,18 @@ export class ContextProvider implements IContextProvider {
   public onSocialProfileLinked(event: SocialProfileLinkedEvent): void {
     this.appContext.notifyAllConnections(
       new SocialProfileLinkedNotification(event),
+    );
+  }
+
+  public onCloudStorageActivated(event: CloudStorageActivatedEvent): void {
+    this.appContext.notifyAllConnections(
+      new CloudProviderActivatedNotification(event),
+    );
+  }
+
+  public onCloudStorageDeactivated(event: CloudStorageActivatedEvent): void {
+    this.appContext.notifyAllConnections(
+      new CloudProviderActivatedNotification(event),
     );
   }
 

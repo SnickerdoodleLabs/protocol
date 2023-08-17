@@ -8,11 +8,10 @@ import {
 } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
 const ONE_MINUTE_MS = 60000;
+const FIVE_SECONDS_MS = 5000;
 
 const defaultConfigs: IExtensionConfig = {
   onboardingUrl: "https://datawallet.snickerdoodle.com/",
-  accountCookieUrl: "https://snickerdoodlelabs.io/",
-  cookieLifeTime: 2,
   controlChainId: ChainId(43113),
   supportedChains: [
     ChainId(80001),
@@ -31,6 +30,7 @@ const defaultConfigs: IExtensionConfig = {
   transactionPollingIntervalMS: ONE_MINUTE_MS,
   backupPollingIntervalMS: ONE_MINUTE_MS,
   requestForDataCheckingFrequency: 4000,
+  providerKey: "snickerdoodle",
 };
 @injectable()
 export class ConfigProvider implements IConfigProvider {
@@ -40,13 +40,8 @@ export class ConfigProvider implements IConfigProvider {
   public setConfigOverrides(configOverrides: IExtensionConfigOverrides): void {
     this.config.onboardingUrl =
       configOverrides.onboardingUrl ?? this.config.onboardingUrl;
-    this.config.accountCookieUrl =
-      configOverrides.accountCookieUrl ?? this.config.accountCookieUrl;
-    this.config.cookieLifeTime =
-      configOverrides.cookieLifeTime ?? this.config.cookieLifeTime;
     this.config.controlChainId =
       configOverrides.controlChainId ?? this.config.controlChainId;
-
     this.config.devChainProviderURL =
       configOverrides.devChainProviderURL ?? this.config.devChainProviderURL;
     this.config.supportedChains =
@@ -96,6 +91,14 @@ export class ConfigProvider implements IConfigProvider {
     this.config.defaultGoogleCloudBucket =
       configOverrides.defaultGoogleCloudBucket ??
       this.config.defaultGoogleCloudBucket;
+
+    this.config.dropboxAppKey =
+      configOverrides.dropboxAppKey ?? this.config.dropboxAppKey;
+    this.config.dropboxAppSecret =
+      configOverrides.dropboxAppSecret ?? this.config.dropboxAppSecret;
+    this.config.dropboxRedirectUri =
+      configOverrides.dropboxRedirectUri ?? this.config.dropboxRedirectUri;
+
     this.config.enableBackupEncryption =
       configOverrides.enableBackupEncryption ??
       this.config.enableBackupEncryption;
@@ -110,6 +113,8 @@ export class ConfigProvider implements IConfigProvider {
       configOverrides.discordOverrides ?? this.config.discordOverrides;
     this.config.twitterOverrides =
       configOverrides.twitterOverrides ?? this.config.twitterOverrides;
+    this.config.providerKey =
+      configOverrides.providerKey ?? this.config.providerKey;
   }
   public getConfig(): IExtensionConfig {
     return this.config;

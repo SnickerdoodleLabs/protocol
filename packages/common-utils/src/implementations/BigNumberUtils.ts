@@ -1,4 +1,4 @@
-import { BigNumberString } from "@snickerdoodlelabs/objects";
+import { BigNumberString, DecimalString } from "@snickerdoodlelabs/objects";
 import { BigNumber, utils } from "ethers";
 import { injectable } from "inversify";
 
@@ -22,4 +22,44 @@ export class BigNumberUtils implements IBigNumberUtils {
 
     return bnForSure.mul(this.oneBN).div(numberBN);
   }
+
+  /* Conversion from decimal string to big number and big number string */
+  public DSToBN(decimalString: DecimalString, decimals?: number): BigNumber {
+    return utils.parseUnits(decimalString, decimals || 18);
+  }
+
+  public DSToBNS(
+    decimalString: DecimalString,
+    decimals?: number,
+  ): BigNumberString {
+    return BigNumberString(
+      utils.parseUnits(decimalString, decimals || 18).toString(),
+    );
+  }
+  /* End region of decimal string conversions */
+
+  /* Conversion from big number to big number string and decimal string */
+  public BNToBNS(bigNumber: BigNumber): BigNumberString {
+    return BigNumberString(BigNumber.from(bigNumber).toString());
+  }
+
+  public BNToDS(bigNumber: BigNumber, decimals?: number): DecimalString {
+    return DecimalString(utils.formatUnits(bigNumber, decimals || 18));
+  }
+  /* End region of big number conversions */
+
+  /* Conversion from big number string to big number and decimal string */
+  public BNSToBN(bigNumberString: BigNumberString): BigNumber {
+    return BigNumber.from(bigNumberString);
+  }
+
+  public BNSToDS(
+    bigNumberString: BigNumberString,
+    decimals?: number,
+  ): DecimalString {
+    const valueBigNumber = BigNumber.from(bigNumberString);
+
+    return DecimalString(utils.formatUnits(valueBigNumber, decimals || 18));
+  }
+  /* End region of big number string conversions */
 }

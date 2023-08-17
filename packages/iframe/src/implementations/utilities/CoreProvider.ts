@@ -5,7 +5,7 @@ import {
   ISnickerdoodleCore,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
-import { ResultAsync, okAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 
 import {
   IConfigProvider,
@@ -22,7 +22,7 @@ export class CoreProvider implements ICoreProvider {
   public constructor(
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
   ) {
-    this.corePromise = new Promise((resolve, reject) => {
+    this.corePromise = new Promise((resolve) => {
       this.corePromiseResolve = resolve;
     });
   }
@@ -43,11 +43,23 @@ export class CoreProvider implements ICoreProvider {
     config.ipfsFetchBaseUrl = immutableConfig.ipfsFetchBaseUrl;
     config.defaultInsightPlatformBaseUrl =
       immutableConfig.defaultInsightPlatformBaseUrl;
+    config.devChainProviderURL = immutableConfig.devChainProviderURL;
+    config.supportedChains = immutableConfig.supportedChains;
+    config.accountBalancePollingIntervalMS =
+      immutableConfig.portfolioPollingIntervalMS;
+    config.accountIndexingPollingIntervalMS =
+      immutableConfig.transactionPollingIntervalMS;
+    config.dataWalletBackupIntervalMS = immutableConfig.backupPollingIntervalMS;
+    config.requestForDataCheckingFrequency =
+      immutableConfig.requestForDataPollingIntervalMS;
+
+    // This probably needs to go away entirely
+    config.enableBackupEncryption = false;
 
     this.core = new SnickerdoodleCore(config);
 
-    this.corePromiseResolve!(this.core);
-
-    return okAsync(undefined);
+    return this.core.initialize().map(() => {
+      this.corePromiseResolve!(this.core);
+    });
   }
 }

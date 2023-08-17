@@ -185,42 +185,4 @@ describe("BackupUtils Tests", () => {
     const signature = result._unsafeUnwrap();
     expect(signature).toBe(dataWalletBackupSignature);
   });
-
-  test("verifyBackupSignature() verifies with matching account", async () => {
-    // Arrange
-    const mocks = new BackupUtilsMocks();
-
-    const backupUtils = mocks.factory();
-
-    // Act
-    const result = await backupUtils.verifyBackupSignature(
-      dataWalletBackup,
-      accountAddress,
-    );
-
-    // Assert
-    expect(result).toBeDefined();
-    expect(result.isErr()).toBeFalsy();
-    const verified = result._unsafeUnwrap();
-    expect(verified).toBeTruthy();
-  });
-
-  test("verifyBackupSignature() does not verify with mismatching account", async () => {
-    // Arrange
-    const mocks = new BackupUtilsMocks();
-
-    const backupUtils = mocks.factory();
-
-    // Act
-    const result = await backupUtils.verifyBackupSignature(
-      dataWalletBackup,
-      accountAddress2,
-    );
-
-    // Assert
-    expect(result).toBeDefined();
-    expect(result.isErr()).toBeFalsy();
-    const verified = result._unsafeUnwrap();
-    expect(verified).toBeFalsy();
-  });
 });

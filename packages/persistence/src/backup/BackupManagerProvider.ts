@@ -100,7 +100,6 @@ export class BackupManagerProvider implements IBackupManagerProvider {
         this.logUtils,
       );
     });
-
     return this.backupManager;
   }
 

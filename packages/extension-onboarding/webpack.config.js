@@ -120,6 +120,13 @@ module.exports = {
       __HOTJAR_SNIPPET_VERSION__: JSON.stringify(
         process.env.__HOTJAR_SNIPPET_VERSION__,
       ),
+      __PRIMARY_INFURA_KEY__: JSON.stringify(
+        process.env.__PRIMARY_INFURA_KEY__,
+      ),
+      __IFRAME_URL__: JSON.stringify(process.env.__IFRAME_URL__),
+      __GOOGLE_CLOUD_BUCKET__: JSON.stringify(
+        process.env.__GOOGLE_CLOUD_BUCKET__ || "",
+      ),
     }),
   ],
 };

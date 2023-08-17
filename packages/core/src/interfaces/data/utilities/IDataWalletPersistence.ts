@@ -9,7 +9,7 @@ import {
   PersistenceError,
   VersionedObject,
   VolatileStorageKey,
-  VolatileStorageMetadata,
+  AuthenticatedStorageSettings,
 } from "@snickerdoodlelabs/objects";
 import { IVolatileCursor } from "@snickerdoodlelabs/persistence";
 import { ResultAsync } from "neverthrow";
@@ -34,23 +34,14 @@ export interface IDataWalletPersistence {
    */
   unlock(dataWalletKey: EVMPrivateKey): ResultAsync<void, PersistenceError>;
   waitForUnlock(): ResultAsync<EVMPrivateKey, never>;
-
-  // write methods
-  updateRecord<T extends VersionedObject>(
-    recordKey: ERecordKey,
-    value: T,
+  activateAuthenticatedStorage(
+    settings: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError>;
-  deleteRecord(
-    recordKey: ERecordKey,
-    key: VolatileStorageKey,
-  ): ResultAsync<void, PersistenceError>;
-  updateField(
-    fieldKey: EFieldKey,
-    value: object,
+  deactivateAuthenticatedStorage(
+    settings: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError>;
 
-  // read methods
-  getField<T>(fieldKey: EFieldKey): ResultAsync<T | null, PersistenceError>;
+  // #region Records
   getObject<T extends VersionedObject>(
     recordKey: ERecordKey,
     key: VolatileStorageKey,
@@ -78,8 +69,34 @@ export interface IDataWalletPersistence {
     query?: IDBValidKey | IDBKeyRange,
     count?: number | undefined,
   ): ResultAsync<T[], PersistenceError>;
+  updateRecord<T extends VersionedObject>(
+    recordKey: ERecordKey,
+    value: T,
+  ): ResultAsync<void, PersistenceError>;
+  deleteRecord(
+    recordKey: ERecordKey,
+    key: VolatileStorageKey,
+  ): ResultAsync<void, PersistenceError>;
+  // #endregion
 
-  // backup methods
+  // #region Fields
+  getField<T>(fieldKey: EFieldKey): ResultAsync<T | null, PersistenceError>;
+  updateField(
+    fieldKey: EFieldKey,
+    value: object,
+  ): ResultAsync<void, PersistenceError>;
+  /**
+   * This returns the value of a field directly from the authenticated storage.
+   * Normally you should use getField(), this occasionally you need to check the
+   * backed up value against your current volatile storage value.
+   * @param fieldKey
+   */
+  getFieldFromAuthenticatedStorage<T>(
+    fieldKey: EFieldKey,
+  ): ResultAsync<T | null, PersistenceError>;
+  // #endregion
+
+  // #region Backup Methods
   /**
    * Restores a backup directly to the data wallet. This should only be called for test purposes.
    * Normally, you should use pollBackups().
@@ -100,6 +117,11 @@ export interface IDataWalletPersistence {
   fetchBackup(
     backupHeader: string,
   ): ResultAsync<DataWalletBackup[], PersistenceError>;
+  // #endregion
+
+  // #region Volatile Storage Methods
+  clearVolatileStorage(): ResultAsync<void, PersistenceError>;
+  // #endregion
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

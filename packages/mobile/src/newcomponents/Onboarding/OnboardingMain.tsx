@@ -356,7 +356,7 @@ const OnboardingMain = () => {
     const enLangueCode: LanguageCode = LanguageCode("en");
     mobileCore
       .getCore()
-      .account.getUnlockMessage(enLangueCode)
+      .account.getLinkAccountMessage(enLangueCode)
       .map((message) => {
         setLoadingStatus({
           loading: true,

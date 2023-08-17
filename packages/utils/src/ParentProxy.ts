@@ -84,7 +84,21 @@ export abstract class ParentProxy {
       return this.activateResult;
     }
     this.activateResult = ResultAsync.fromPromise(
-      this.handshake,
+      new Promise<Postmate.ParentAPI>((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+          reject(new Error("Handshake timed out"));
+        }, 5000);
+
+        this.handshake
+          .then((result) => {
+            clearTimeout(timeoutId);
+            resolve(result);
+          })
+          .catch((error) => {
+            clearTimeout(timeoutId);
+            reject(error);
+          });
+      }),
       (e) => new ProxyError("Proxy handshake failed in parent", e),
     ).map((child) => {
       // Stash the API for future calls

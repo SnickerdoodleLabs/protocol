@@ -29,7 +29,7 @@ export class CoreContext implements IIndexerContext {
   public constructor(
     public dataWalletAddress: DataWalletAddress | null,
     public dataWalletKey: EVMPrivateKey | null,
-    public unlockInProgress: boolean,
+    public initializeInProgress: boolean,
     public publicEvents: PublicEvents,
     public privateEvents: PrivateEvents,
     public restoreInProgress: boolean,

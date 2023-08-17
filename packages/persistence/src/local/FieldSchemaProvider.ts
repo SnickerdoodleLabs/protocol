@@ -23,6 +23,22 @@ export class FieldSchemaProvider implements IFieldSchemaProvider {
     return this.configProvider.getConfig().map((config) => {
       return new Map([
         [
+          EFieldKey.AUTHENTICATED_STORAGE_SETTINGS,
+          new FieldIndex(
+            EFieldKey.AUTHENTICATED_STORAGE_SETTINGS,
+            EBackupPriority.DISABLED,
+            0,
+          ),
+        ],
+        [
+          EFieldKey.DATA_WALLET_PRIVATE_KEY,
+          new FieldIndex(
+            EFieldKey.DATA_WALLET_PRIVATE_KEY,
+            EBackupPriority.HIGH,
+            0,
+          ),
+        ],
+        [
           EFieldKey.ACCEPTED_INVITATIONS,
           new FieldIndex(
             EFieldKey.ACCEPTED_INVITATIONS,

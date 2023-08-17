@@ -62,6 +62,7 @@ const errorCodes = {
   ReturnNotImplementedError: "ERR_SDQL_RETURN_NOT_IMPLEMENTED",
   ParsingError: "ERR_SDQL_PARSING",
   InvalidRegularExpression: "ERR_SDQL_INVALID_REGULAR_EXPRESSION",
+  AuthenticationError: "ERR_AUTHENTICATION",
 };
 
 export default errorCodes;

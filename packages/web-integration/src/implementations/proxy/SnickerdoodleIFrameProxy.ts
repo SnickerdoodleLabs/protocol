@@ -67,6 +67,11 @@ import {
   JsonWebToken,
   IProxyIntegrationMethods,
   QueryStatus,
+  AccessToken,
+  ECloudStorageType,
+  IProxyStorageMethods,
+  ECoreProxyType,
+  PageInvitation,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ResultAsync } from "neverthrow";
@@ -76,7 +81,8 @@ import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/ind
 
 export class SnickerdoodleIFrameProxy
   extends ParentProxy
-  implements ISnickerdoodleIFrameProxy {
+  implements ISnickerdoodleIFrameProxy
+{
   constructor(
     protected element: HTMLElement | null,
     protected iframeUrl: string,
@@ -89,6 +95,7 @@ export class SnickerdoodleIFrameProxy
     this.events = new PublicEvents();
     this.onIframeDisplayRequested = new Subject<void>();
   }
+  public proxyType: ECoreProxyType = ECoreProxyType.IFRAME_INJECTED;
 
   public onIframeDisplayRequested: Subject<void>;
 
@@ -216,6 +223,18 @@ export class SnickerdoodleIFrameProxy
           },
         );
 
+        this.child.on("onBirthdayUpdated", (data: UnixTimestamp) => {
+          this.events.onBirthdayUpdated.next(data);
+        });
+
+        this.child.on("onGenderUpdated", (data: Gender) => {
+          this.events.onGenderUpdated.next(data);
+        });
+
+        this.child.on("onLocationUpdated", (data: CountryCode) => {
+          this.events.onLocationUpdated.next(data);
+        });
+
         this.child.on("onIframeDisplayRequested", () => {
           this.onIframeDisplayRequested.next();
         });
@@ -231,25 +250,15 @@ export class SnickerdoodleIFrameProxy
       });
   }
 
-  public unlock(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode?: LanguageCode,
-  ): ResultAsync<void, ProxyError> {
-    return this._createCall("unlock", {
-      accountAddress,
-      signature,
-      chain,
-      languageCode,
-    });
+  public initialize(): ResultAsync<void, ProxyError> {
+    return this._createCall("initialize", null);
   }
 
   public addAccount(
     accountAddress: AccountAddress,
     signature: Signature,
     chain: EChain,
-    languageCode?: LanguageCode,
+    languageCode: LanguageCode = LanguageCode("en"),
   ): ResultAsync<void, ProxyError> {
     return this._createCall("addAccount", {
       accountAddress,
@@ -259,10 +268,10 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
-  public getUnlockMessage(
+  public getLinkAccountMessage(
     languageCode: LanguageCode = LanguageCode("en"),
   ): ResultAsync<string, ProxyError> {
-    return this._createCall("getUnlockMessage", {
+    return this._createCall("getLinkAccountMessage", {
       languageCode,
     });
   }
@@ -385,14 +394,14 @@ export class SnickerdoodleIFrameProxy
   }
 
   public getAcceptedInvitationsCID(): ResultAsync<
-    Record<EVMContractAddress, IpfsCID>,
+    Map<EVMContractAddress, IpfsCID>,
     ProxyError
   > {
     return this._createCall("getAcceptedInvitationsCID", null);
   }
 
   public getAvailableInvitationsCID(): ResultAsync<
-    Record<EVMContractAddress, IpfsCID>,
+    Map<EVMContractAddress, IpfsCID>,
     ProxyError
   > {
     return this._createCall("getAvailableInvitationsCID", null);
@@ -407,10 +416,10 @@ export class SnickerdoodleIFrameProxy
   }
 
   public getAgreementPermissions(
-    consentContractAddres: EVMContractAddress,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<EWalletDataType[], ProxyError> {
     return this._createCall("getAgreementPermissions", {
-      consentContractAddres,
+      consentContractAddress,
     });
   }
 
@@ -459,6 +468,13 @@ export class SnickerdoodleIFrameProxy
     return this._createCall("setDefaultPermissionsToAll", null);
   }
 
+  public getInvitationByDomain(
+    domain: DomainName,
+    path: string,
+  ): ResultAsync<PageInvitation | null, ProxyError> {
+    return this._createCall("getInvitationByDomain", { domain, path });
+  }
+
   public acceptInvitation(
     dataTypes: EWalletDataType[] | null,
     consentContractAddress: EVMContractAddress,
@@ -470,6 +486,20 @@ export class SnickerdoodleIFrameProxy
       consentContractAddress,
       tokenId,
       businessSignature,
+    });
+  }
+
+  public rejectInvitation(
+    consentContractAddress: EVMContractAddress,
+    tokenId?: BigNumberString,
+    businessSignature?: Signature,
+    rejectUntil?: UnixTimestamp,
+  ) {
+    return this._createCall("rejectInvitation", {
+      consentContractAddress,
+      tokenId,
+      businessSignature,
+      rejectUntil,
     });
   }
 
@@ -584,7 +614,7 @@ export class SnickerdoodleIFrameProxy
   public getPossibleRewards(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
-  ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, ProxyError> {
+  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, ProxyError> {
     return this._createCall("getPossibleRewards", {
       contractAddresses,
       timeoutMs,
@@ -668,9 +698,6 @@ export class SnickerdoodleIFrameProxy
     getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
       return this._createCall("metrics.getMetrics", null);
     },
-    getUnlocked: (): ResultAsync<boolean, ProxyError> => {
-      return this._createCall("metrics.getUnlocked", null);
-    },
   };
 
   public twitter: IProxyTwitterMethods = {
@@ -691,6 +718,39 @@ export class SnickerdoodleIFrameProxy
     },
     getUserProfiles: (): ResultAsync<TwitterProfile[], ProxyError> => {
       return this._createCall("twitter.getUserProfiles", null);
+    },
+  };
+
+  public storage: IProxyStorageMethods = {
+    setAuthenticatedStorage: (
+      storageType: ECloudStorageType,
+      path: string,
+      accessToken: AccessToken,
+    ): ResultAsync<void, ProxyError> => {
+      return this._createCall("storage.setAuthenticatedStorage", {
+        storageType,
+        path,
+        accessToken,
+      });
+    },
+    authenticateDropbox: (
+      code: string,
+    ): ResultAsync<AccessToken, ProxyError> => {
+      return this._createCall("storage.authenticateDropbox", {
+        code,
+      });
+    },
+    getDropboxAuth: (): ResultAsync<URLString, ProxyError> => {
+      return this._createCall("storage.getDropboxAuth", {});
+    },
+    getCurrentCloudStorage: (): ResultAsync<ECloudStorageType, ProxyError> => {
+      return this._createCall("storage.getCurrentCloudStorage", {});
+    },
+    getAvailableCloudStorageOptions: (): ResultAsync<
+      Set<ECloudStorageType>,
+      ProxyError
+    > => {
+      return this._createCall("storage.getAvailableCloudStorageOptions", {});
     },
   };
 

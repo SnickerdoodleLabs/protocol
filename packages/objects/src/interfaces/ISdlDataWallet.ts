@@ -18,12 +18,12 @@ import {
 } from "@objects/businessObjects/index.js";
 import {
   EChain,
-  EDataWalletPermission,
+  ECoreProxyType,
   EInvitationStatus,
   EWalletDataType,
 } from "@objects/enum/index.js";
-import { PersistenceError, ProxyError } from "@objects/errors/index.js";
-import { IConsentCapacity } from "@objects/interfaces//IConsentCapacity.js";
+import { ProxyError } from "@objects/errors/index.js";
+import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata.js";
 import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences.js";
 import {
@@ -31,6 +31,7 @@ import {
   ICoreIntegrationMethods,
   ICoreTwitterMethods,
   IMetricsMethods,
+  IStorageMethods,
 } from "@objects/interfaces/ISnickerdoodleCore.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import {
@@ -39,8 +40,6 @@ import {
   BigNumberString,
   ChainId,
   CountryCode,
-  DataWalletAddress,
-  DomainName,
   EmailAddressString,
   EVMContractAddress,
   FamilyName,
@@ -159,6 +158,15 @@ export type IProxyTwitterMethods = {
   >;
 };
 
+export type IProxyStorageMethods = {
+  [key in FunctionKeys<IStorageMethods>]: (
+    ...args: [...PopTuple<Parameters<IStorageMethods[key]>>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<IStorageMethods[key]>>,
+    ProxyError
+  >;
+};
+
 // This stuff is left in for reference- I'm still working on improving these
 // methods and
 // type test = Parameters<ICoreIntegrationMethods["requestPermissions"]>;
@@ -204,19 +212,13 @@ export interface ISdlDataWallet {
   // if you are adjacent to the core (IE, in the extension or in the
   // iframe).
   // #region Account Methods
-  unlock(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode?: LanguageCode,
-  ): ResultAsync<void, ProxyError>;
   addAccount(
     accountAddress: AccountAddress,
     signature: Signature,
     chain: EChain,
     languageCode?: LanguageCode,
   ): ResultAsync<void, ProxyError>;
-  getUnlockMessage(
+  getLinkAccountMessage(
     languageCode?: LanguageCode,
   ): ResultAsync<string, ProxyError>;
   // #endregion
@@ -249,13 +251,12 @@ export interface ISdlDataWallet {
   getAccountBalances(): ResultAsync<TokenBalance[], ProxyError>;
   getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError>;
   closeTab(): ResultAsync<void, ProxyError>;
-  getDataWalletAddress(): ResultAsync<DataWalletAddress | null, ProxyError>;
   getAcceptedInvitationsCID(): ResultAsync<
-    Record<EVMContractAddress, IpfsCID>,
+    Map<EVMContractAddress, IpfsCID>,
     ProxyError
   >;
   getAvailableInvitationsCID(): ResultAsync<
-    Record<EVMContractAddress, IpfsCID>,
+    Map<EVMContractAddress, IpfsCID>,
     ProxyError
   >;
   getInvitationMetadataByCID(
@@ -284,6 +285,12 @@ export interface ISdlDataWallet {
     tokenId?: BigNumberString,
     businessSignature?: Signature,
   ): ResultAsync<void, ProxyError>;
+  rejectInvitation(
+    consentContractAddress: EVMContractAddress,
+    tokenId?: BigNumberString,
+    businessSignature?: Signature,
+    rejectUntil?: UnixTimestamp,
+  );
   leaveCohort(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, ProxyError>;
@@ -342,14 +349,15 @@ export interface ISdlDataWallet {
   getPossibleRewards(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
-  ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, ProxyError>;
+  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, ProxyError>;
 
   switchToTab(tabId: number): ResultAsync<void, ProxyError>;
 
+  proxyType: ECoreProxyType;
   discord: IProxyDiscordMethods;
   integration: IProxyIntegrationMethods;
   twitter: IProxyTwitterMethods;
   metrics: IProxyMetricsMethods;
-
+  storage: IProxyStorageMethods;
   events: ISnickerdoodleCoreEvents;
 }

@@ -1,4 +1,5 @@
 const envVars = {
+  __ENABLE_BACKUP_ENCRYPTION__: "false",
   __REQUEST_FOR_DATA_EVENT_FREQ__: 60000,
   __CONTROL_CHAIN_ID__: 31337,
   __ONBOARDING_URL__: "https://localhost:9005/",
@@ -7,6 +8,10 @@ const envVars = {
   __IPFS_FETCH_BASE_URL__: "https://ipfs-gateway.snickerdoodle.dev/ipfs/",
   __DEFAULT_INSIGHT_PLATFORM_BASE_URL__:
     "https://insight-api.dev.snickerdoodle.dev/v0/",
+
+  __DROPBOX_APP_KEY__: "w69949reoalc9xg",
+  __DROPBOX_APP_SECRET__: "78jch5z5o800dyw",
+  __DROPBOX_REDIRECT_URI__: "https://localhost:9005/settings/storage",
 
   /* Alchemy Keys */
   __ALCHEMY_ARBITRUM_API_KEY__: "_G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF",

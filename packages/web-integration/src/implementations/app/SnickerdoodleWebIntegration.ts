@@ -13,6 +13,7 @@ import { Container } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { UIClient } from "@web-integration/implementations/app/ui/index.js";
 import { ISnickerdoodleWebIntegration } from "@web-integration/interfaces/app/index.js";
 import {
   IBlockchainProviderRepository,
@@ -28,7 +29,6 @@ import {
   IConfigProviderType,
 } from "@web-integration/interfaces/utilities/index.js";
 import { webIntegrationModule } from "@web-integration/WebIntegrationModule.js";
-
 export class SnickerdoodleWebIntegration
   implements ISnickerdoodleWebIntegration
 {
@@ -45,7 +45,7 @@ export class SnickerdoodleWebIntegration
 
   constructor(
     protected config: IConfigOverrides,
-    protected signer: ethers.Signer,
+    protected signer: ethers.Signer | null,
   ) {
     this.iframeURL = config.iframeURL || this.iframeURL;
     this.debug = config.debug || this.debug;
@@ -87,123 +87,80 @@ export class SnickerdoodleWebIntegration
 
     logUtils.log("Activating Snickerdoodle Core web integration");
 
-    // Check if the proxy is already injected
-    if (window.sdlDataWallet != null) {
-      // If there's already a proxy injected, we don't need to create a new one
-      logUtils.log("Existing Snickerdoodle injected proxy on the page");
-      this._core = window.sdlDataWallet;
-      logUtils.log("Snickerdoodle Core web integration activated");
-      this.initializeResult = okAsync(window.sdlDataWallet);
-      return this.initializeResult;
-    }
-
-    // No proxy injected, create a new one via the iframe
-    // Create a proxy connection to the iframe
-    logUtils.log("Creating Snickerdoodle Protocol Iframe Proxy");
     const proxyFactory = this.iocContainer.get<IIFrameProxyFactory>(
       IIFrameProxyFactoryType,
     );
 
-    this.initializeResult = proxyFactory
-      .createProxy(this.iframeURL, this.config)
-      .andThen((proxy) => {
-        // Listen for the iframe; sometimes it needs to be shown
-        proxy.onIframeDisplayRequested.subscribe(() => {
-          logUtils.warning("IFrame display requested");
-        });
+    this.initializeResult = ResultAsync.fromSafePromise(
+      new Promise<ISdlDataWallet | undefined>((resolve) => {
+        const maxResolveTime = 2000;
+        const checkInterval = 200;
+        const startTime = Date.now();
 
-        const unlockPromise = new Promise((resolve) => {
-          // It can take a little while for the proxy to actually
-          // unlock. We'll wait for it for a bit, and cancel it
-          // if we hear that it's been initialized
-          const timeout = setTimeout(() => {
-            // If this actually fires, we are not interested in waiting for
-            // the onInitialized event
-            subscription.unsubscribe();
+        function checkWindow() {
+          if (typeof window.sdlDataWallet !== "undefined") {
+            console.log("Existing Snickerdoodle injected proxy on the page");
+            resolve(window.sdlDataWallet);
+          } else {
+            const elapsedTime = Date.now() - startTime;
+            if (elapsedTime >= maxResolveTime) {
+              resolve(undefined);
+            } else {
+              // If the maximum time has not elapsed, continue checking
+              setTimeout(checkWindow, checkInterval);
+            }
+          }
+        }
+        // Start the initial check
+        checkWindow();
+      }),
+    )
+      .andThen((existingProxy) => {
+        if (existingProxy) {
+          this._core = existingProxy;
+          return okAsync(existingProxy);
+        }
+        // No proxy injected, create a new one via the iframe
+        // Create a proxy connection to the iframe
+        console.log("Creating Snickerdoodle Protocol Iframe Proxy");
+        return proxyFactory
+          .createProxy(this.iframeURL, this.config)
+          .map((proxy) => {
+            // Listen for the iframe; sometimes it needs to be shown
+            proxy.onIframeDisplayRequested.subscribe(() => {
+              logUtils.warning("IFrame display requested");
+            });
 
-            // Just double check that it's not already unlocked
-            this.unlockAndCheck(
-              proxy,
-              logUtils,
-              blockchainProvider,
-              configProvider,
-            )
-              .map(() => {
-                // All done unlocking
-                resolve(undefined);
-              })
-              .mapErr((e) => {
-                logUtils.error(e);
-              });
-          }, 5000); // Wait 5 seconds for the unlock to complete
-
-          const subscription = proxy.events.onInitialized.subscribe(() => {
-            // This event is fired when the proxy automatically unlocks
-            clearTimeout(timeout);
-            this.unlockAndCheck(
-              proxy,
-              logUtils,
-              blockchainProvider,
-              configProvider,
-            )
-              .map(() => {
-                // All done unlocking
-                resolve(undefined);
-              })
-              .mapErr((e) => {
-                logUtils.error(e);
-              });
+            // Assign the iframe proxy to the internal reference and the window object
+            this._core = proxy;
+            window.sdlDataWallet = this.core;
+            const uiClient = new UIClient(proxy);
+            uiClient.register();
+            return proxy;
           });
-        });
-
-        return ResultAsync.fromSafePromise(unlockPromise).map(() => {
-          // Assign the iframe proxy to the internal reference and the window object
-          this._core = proxy;
-          window.sdlDataWallet = this.core;
-          logUtils.log("Snickerdoodle Core web integration activated");
+      })
+      .andThen((proxy) => {
+        logUtils.log("Snickerdoodle Core web integration activated");
+        // Just double check that it's not already unlocked
+        return this.checkAdditionalAccount(
+          proxy,
+          logUtils,
+          blockchainProvider,
+          configProvider,
+        ).map(() => {
           return proxy;
         });
+      })
+      .mapErr((e) => {
+        logUtils.error(e);
+        return e;
       });
 
     return this.initializeResult;
   }
 
-  protected unlockWallet(
-    proxy: ISnickerdoodleIFrameProxy,
-    logUtils: ILogUtils,
-    blockchainProvider: IBlockchainProviderRepository,
-    configProvider: IConfigProvider,
-  ): ResultAsync<void, ProxyError | PersistenceError | ProviderRpcError> {
-    logUtils.log("Unlocking Snickerdoodle Data Wallet via signature");
-    return proxy
-      .getUnlockMessage()
-      .andThen((unlockMessage) => {
-        return ResultUtils.combine([
-          blockchainProvider.getSignature(unlockMessage),
-          blockchainProvider.getCurrentAccount(),
-          blockchainProvider.getCurrentChain(),
-        ]);
-      })
-      .andThen(([signature, accountAddress, chainInfo]) => {
-        const config = configProvider.getConfig();
-        if (accountAddress == null || chainInfo == null) {
-          logUtils.error(
-            "No signer provided and no stored credentials available. Cannot unlock data wallet",
-          );
-          return okAsync(undefined);
-        }
-        logUtils.log(`Unlocking data wallet for ${accountAddress}`);
-        return proxy.unlock(
-          accountAddress,
-          signature,
-          chainInfo.chain,
-          config.languageCode,
-        );
-      });
-  }
-
   protected checkAdditionalAccount(
-    proxy: ISnickerdoodleIFrameProxy,
+    proxy: ISdlDataWallet,
     logUtils: ILogUtils,
     blockchainProvider: IBlockchainProviderRepository,
     configProvider: IConfigProvider,
@@ -234,8 +191,9 @@ export class SnickerdoodleWebIntegration
       logUtils.log(
         `Detected unlinked account ${accountAddress} being used on the DApp, adding to Snickerdoodle Data Wallet`,
       );
+
       return proxy
-        .getUnlockMessage()
+        .getLinkAccountMessage()
         .andThen((unlockMessage) => {
           return blockchainProvider.getSignature(unlockMessage);
         })
@@ -249,41 +207,6 @@ export class SnickerdoodleWebIntegration
           );
         });
     });
-  }
-
-  protected unlockAndCheck(
-    proxy: ISnickerdoodleIFrameProxy,
-    logUtils: ILogUtils,
-    blockchainProvider: IBlockchainProviderRepository,
-    configProvider: IConfigProvider,
-  ) {
-    return proxy.metrics
-      .getUnlocked()
-      .andThen((unlocked) => {
-        // If it's already unlocked, we don't need to do anything
-        if (unlocked) {
-          logUtils.debug(
-            "Snickerdoodle Data Wallet is already unlocked via stored credentials",
-          );
-          return okAsync(undefined);
-        }
-
-        // It's not unlocked, which means we need to unlock it
-        return this.unlockWallet(
-          proxy,
-          logUtils,
-          blockchainProvider,
-          configProvider,
-        );
-      })
-      .andThen(() => {
-        return this.checkAdditionalAccount(
-          proxy,
-          logUtils,
-          blockchainProvider,
-          configProvider,
-        );
-      });
   }
 }
 

@@ -13,7 +13,15 @@ import {
   TokenId,
   BigNumberString,
   URLString,
+  ISnickerdoodleCoreType,
+  ISnickerdoodleCore,
+  ECloudStorageType,
+  AuthenticatedStorageSettings,
 } from "@snickerdoodlelabs/objects";
+import {
+  ICloudStorageManager,
+  ICloudStorageManagerType,
+} from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import {
   AsyncJsonRpcEngineNextCallback,
@@ -74,7 +82,7 @@ import {
   SetEmailParams,
   GetInvitationWithDomainParams,
   AcceptInvitationByUUIDParams,
-  RejectInvitationParams,
+  RejectInvitationByUUIDParams,
   LeaveCohortParams,
   GetInvitationMetadataByCIDParams,
   CheckURLParams,
@@ -135,30 +143,23 @@ import {
   GetConfigParams,
   SwitchToTabParams,
   GetMetricsParams,
-  GetUnlockedParams,
   RequestPermissionsParams,
   GetPermissionsParams,
   GetTokenVerificationPublicKeyParams,
   GetBearerTokenParams,
   GetQueryStatusByCidParams,
+  GetDropBoxAuthUrlParams,
+  AuthenticateDropboxParams,
+  SetAuthenticatedStorageParams,
+  GetAvailableCloudStorageOptionsParams,
+  GetCurrentCloudStorageParams,
+  RejectInvitationParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected rpcCalls: CoreActionHandler<any>[] = [
-    new CoreActionHandler<UnlockParams>(
-      // Annoying that we need to do this; TS doesn't support abstract static methods
-      UnlockParams.getCoreAction(),
-      (params) => {
-        return this.accountService.unlock(
-          params.accountAddress,
-          params.signature,
-          params.chain,
-          params.languageCode,
-        );
-      },
-    ),
     new CoreActionHandler<AddAccountParams>(
       AddAccountParams.getCoreAction(),
       (params) => {
@@ -173,7 +174,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<GetUnlockMessageParams>(
       GetUnlockMessageParams.getCoreAction(),
       (params) => {
-        return this.accountService.getUnlockMessage(params.languageCode);
+        return this.accountService.getLinkAccountMessage(params.languageCode);
       },
     ),
     new CoreActionHandler<GetEarnedRewardsParams>(
@@ -312,15 +313,17 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<GetSiteVisitsMapParams>(
       GetSiteVisitsMapParams.getCoreAction(),
       (_params) => {
-        return this.userSiteInteractionService.getSiteVisitsMap();
+        return this.userSiteInteractionService.getSiteVisitsMap().map((map) => {
+          return ObjectUtils.serialize(map);
+        });
       },
     ),
     new CoreActionHandler<GetAcceptedInvitationsCIDParams>(
       GetAcceptedInvitationsCIDParams.getCoreAction(),
       (_params) => {
-        return this.invitationService
-          .getAcceptedInvitationsCID()
-          .map((res) => mapToObj(res)); // TODO: mapToObj is probably just for dealing with serialization; the improved serializer in ObjectUtils probably makes this unnecessary.
+        return this.invitationService.getAcceptedInvitationsCID().map((res) => {
+          return ObjectUtils.serialize(res);
+        });
       },
     ),
     new CoreActionHandler<SetDefaultReceivingAddressParams>(
@@ -384,9 +387,7 @@ export class RpcCallHandler implements IRpcCallHandler {
       (params) => {
         return this.accountService.unlinkAccount(
           params.accountAddress,
-          params.signature,
           params.chain,
-          params.languageCode,
         );
       },
     ),
@@ -438,7 +439,9 @@ export class RpcCallHandler implements IRpcCallHandler {
       (_params) => {
         return this.invitationService
           .getAvailableInvitationsCID()
-          .map((res) => mapToObj(res));
+          .map((res) => {
+            return ObjectUtils.serialize(res);
+          });
       },
     ),
     new CoreActionHandler<GetAgreementPermissionsParams>(
@@ -528,13 +531,29 @@ export class RpcCallHandler implements IRpcCallHandler {
         });
       },
     ),
-    new CoreActionHandler<RejectInvitationParams>(
-      RejectInvitationParams.getCoreAction(),
+    new CoreActionHandler<RejectInvitationByUUIDParams>(
+      RejectInvitationByUUIDParams.getCoreAction(),
       (params) => {
         const invitation = this.contextProvider.getInvitation(
           params.id,
         ) as Invitation;
         return this.invitationService.rejectInvitation(invitation);
+      },
+    ),
+    new CoreActionHandler<RejectInvitationParams>(
+      RejectInvitationParams.getCoreAction(),
+      (params) => {
+        return this._getTokenId(params.tokenId).andThen((tokenId) => {
+          return this.invitationService.rejectInvitation(
+            new Invitation(
+              "" as DomainName,
+              params.consentContractAddress,
+              tokenId,
+              params.businessSignature ?? null,
+            ),
+            params.rejectUntil,
+          );
+        });
       },
     ),
     new CoreActionHandler<CheckURLParams>(
@@ -680,7 +699,9 @@ export class RpcCallHandler implements IRpcCallHandler {
       (params) => {
         return this.invitationService
           .getPossibleRewards(params.contractAddresses, params.timeoutMs)
-          .map((res) => mapToObj(res));
+          .map((res) => {
+            return ObjectUtils.serialize(res);
+          });
       },
     ),
 
@@ -736,14 +757,6 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this.metricsService.getMetrics(this.getDomainFromSender(sender));
       },
     ),
-    new CoreActionHandler<GetUnlockedParams>(
-      GetUnlockedParams.getCoreAction(),
-      (_params, sender) => {
-        return this.metricsService.getUnlocked(
-          this.getDomainFromSender(sender),
-        );
-      },
-    ),
     // #endregion
     // #region Integration
     new CoreActionHandler<RequestPermissionsParams>(
@@ -781,6 +794,46 @@ export class RpcCallHandler implements IRpcCallHandler {
         );
       },
     ),
+
+    new CoreActionHandler<GetDropBoxAuthUrlParams>(
+      GetDropBoxAuthUrlParams.getCoreAction(),
+      (_params) => {
+        return this.core.storage.getDropboxAuth(undefined);
+      },
+    ),
+
+    new CoreActionHandler<AuthenticateDropboxParams>(
+      AuthenticateDropboxParams.getCoreAction(),
+      (params) => {
+        return this.core.storage.authenticateDropbox(params.code, undefined);
+      },
+    ),
+
+    new CoreActionHandler<SetAuthenticatedStorageParams>(
+      SetAuthenticatedStorageParams.getCoreAction(),
+      (params) => {
+        return this.core.storage.setAuthenticatedStorage(
+          params.storageType,
+          params.path,
+          params.accessToken,
+          undefined,
+        );
+      },
+    ),
+
+    new CoreActionHandler<GetAvailableCloudStorageOptionsParams>(
+      GetAvailableCloudStorageOptionsParams.getCoreAction(),
+      (_params) => {
+        return this.core.storage.getAvailableCloudStorageOptions(undefined);
+      },
+    ),
+
+    new CoreActionHandler<GetCurrentCloudStorageParams>(
+      GetCurrentCloudStorageParams.getCoreAction(),
+      (_params) => {
+        return this.core.storage.getCurrentCloudStorage(undefined);
+      },
+    ),
     // #endregion
   ];
 
@@ -810,6 +863,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     @inject(IMetricsServiceType) protected metricsService: IMetricsService,
     @inject(IIntegrationServiceType)
     protected integrationService: IIntegrationService,
+    @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
   ) {}
 
   public async handleRpcCall(
@@ -875,6 +929,8 @@ class CoreActionHandler<
       .map((result) => {
         if (typeof result === typeof undefined) {
           res.result = DEFAULT_RPC_SUCCESS_RESULT;
+        } else if (typeof result === "string") {
+          res.result = result;
         } else {
           res.result = ObjectUtils.toGenericObject(result);
         }

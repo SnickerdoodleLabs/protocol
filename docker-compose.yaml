@@ -10,14 +10,13 @@ services:
     networks:
       - internal
 
-  # extension-onboarding:
-  #   image: snickerdoodlelabs/extension-onboarding:local
-  #   ports:
-  #     - 8080:80
-  #   volumes:
-  #     - ./packages/extension-onboarding:/app/packages/extension-onboarding
-  #   networks:
-  #     - internal
+  extension-onboarding:
+    env_file: docker-compose.env
+    image: snickerdoodlelabs/extension-onboarding:local
+    ports:
+      - 9001:80
+    networks:
+      - internal
 
   core-iframe:
     container_name: core-iframe
@@ -37,6 +36,15 @@ services:
     networks:
       - internal
 
+  static-web-integration:
+    container_name: static-web-integration
+    env_file: docker-compose.env
+    image: snickerdoodlelabs/static-web-integration:local
+    ports:
+      - 9012:80
+    networks:
+      - internal
+
   ipfs:
     image: ipfs/kubo:latest
     ports:
@@ -47,14 +55,21 @@ services:
       - ./.ipfs/ipfs0:/data/ipfs
       - ./.ipfs/export:/export
       - ./scripts/start_ipfs.sh:/start_ipfs
-    entrypoint: ["/sbin/tini", "--", "start_ipfs"]
-    command: ["daemon", "--migrate=true", "--agent-version-suffix=docker", "--enable-pubsub-experiment"]
+    entrypoint: [ "/sbin/tini", "--", "start_ipfs" ]
+    command:
+      [
+        "daemon",
+        "--migrate=true",
+        "--agent-version-suffix=docker",
+        "--enable-pubsub-experiment"
+      ]
     env_file: docker-compose.env
     networks:
       - internal
 
 networks:
   internal:
+
 
 volumes:
   data:

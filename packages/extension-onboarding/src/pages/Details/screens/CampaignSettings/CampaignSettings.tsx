@@ -14,19 +14,18 @@ import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/CampaignSettings/CampaignSettings.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-
-declare const window: IWindowWithSdlDataWallet;
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 
 const RewardsInfo: FC = () => {
   const navigate = useNavigate();
   const { setAlert } = useNotificationContext();
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { sdlDataWallet } = useDataWalletContext();
   const { earnedRewards, updateOptedInContracts, appMode } = useAppContext();
   const [
     campaignContractAddressesWithCID,
     setCampaignContractAddressesWithCID,
-  ] = useState<Record<EVMContractAddress, IpfsCID>>();
+  ] = useState<Map<EVMContractAddress, IpfsCID>>();
   const { setModal, setLoadingStatus } = useLayoutContext();
 
   useEffect(() => {
@@ -45,7 +44,7 @@ const RewardsInfo: FC = () => {
   ]);
 
   const getInvitations = () => {
-    return window.sdlDataWallet
+    return sdlDataWallet
       .getAcceptedInvitationsCID()
       .mapErr((e) => {
         setIsLoading(false);
@@ -57,14 +56,14 @@ const RewardsInfo: FC = () => {
 
   const leaveCohort = (consentContractAddress: EVMContractAddress) => {
     setLoadingStatus(true);
-    window.sdlDataWallet
+    sdlDataWallet
       .leaveCohort(consentContractAddress)
       .mapErr((e) => {
         setLoadingStatus(false);
       })
       .map(() => {
-        const metadata = { ...campaignContractAddressesWithCID };
-        delete metadata[consentContractAddress];
+        const metadata = new Map(campaignContractAddressesWithCID);
+        metadata.delete(consentContractAddress);
         setCampaignContractAddressesWithCID(metadata);
         setLoadingStatus(false);
         updateOptedInContracts();
@@ -109,8 +108,8 @@ const RewardsInfo: FC = () => {
       ) : (
         <Grid container spacing={5}>
           {campaignContractAddressesWithCID &&
-          Object.keys(campaignContractAddressesWithCID).length ? (
-            Object.keys(campaignContractAddressesWithCID)?.map((key) => (
+          campaignContractAddressesWithCID.size > 0 ? (
+            Array.from(campaignContractAddressesWithCID!.keys()).map((key) => (
               <Grid item key={key} xs={6}>
                 <DefaultCampaignItem
                   navigationPath={EPaths.REWARDS_SUBSCRIPTION_DETAIL}

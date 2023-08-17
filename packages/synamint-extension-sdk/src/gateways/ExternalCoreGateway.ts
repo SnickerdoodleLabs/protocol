@@ -1,3 +1,5 @@
+import "reflect-metadata";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
   AccountAddress,
   Age,
@@ -45,6 +47,8 @@ import {
   PEMEncodedRSAPublicKey,
   JsonWebToken,
   QueryStatus,
+  AccessToken,
+  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -57,7 +61,6 @@ import {
   GetUnlockMessageParams,
   IInvitationDomainWithUUID,
   LeaveCohortParams,
-  RejectInvitationParams,
   SetBirthdayParams,
   SetEmailParams,
   SetFamilyNameParams,
@@ -122,12 +125,18 @@ import {
   GetConfigParams,
   SwitchToTabParams,
   GetMetricsParams,
-  GetUnlockedParams,
   RequestPermissionsParams,
   GetPermissionsParams,
   GetTokenVerificationPublicKeyParams,
   GetBearerTokenParams,
   GetQueryStatusByCidParams,
+  GetDropBoxAuthUrlParams,
+  AuthenticateDropboxParams,
+  SetAuthenticatedStorageParams,
+  GetAvailableCloudStorageOptionsParams,
+  GetCurrentCloudStorageParams,
+  RejectInvitationParams,
+  RejectInvitationByUUIDParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -196,9 +205,6 @@ export class ExternalCoreGateway {
       getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
         return this._handler.call(new GetMetricsParams());
       },
-      getUnlocked: (): ResultAsync<boolean, ProxyError> => {
-        return this._handler.call(new GetUnlockedParams());
-      },
     };
 
     this.twitter = {
@@ -243,10 +249,14 @@ export class ExternalCoreGateway {
   }
 
   public getAvailableInvitationsCID(): ResultAsync<
-    Record<EVMContractAddress, IpfsCID>,
+    Map<EVMContractAddress, IpfsCID>,
     ProxyError
   > {
-    return this._handler.call(new GetAvailableInvitationsCIDParams());
+    return this._handler
+      .call(new GetAvailableInvitationsCIDParams())
+      .map((jsonString) => {
+        return ObjectUtils.deserialize(jsonString);
+      });
   }
 
   public acceptInvitation(
@@ -288,6 +298,12 @@ export class ExternalCoreGateway {
     return this._handler.call(params);
   }
 
+  public rejectInvitationByUUID(
+    params: RejectInvitationByUUIDParams,
+  ): ResultAsync<void, ProxyError> {
+    return this._handler.call(params);
+  }
+
   public rejectInvitation(
     params: RejectInvitationParams,
   ): ResultAsync<void, ProxyError> {
@@ -295,10 +311,14 @@ export class ExternalCoreGateway {
   }
 
   public getAcceptedInvitationsCID(): ResultAsync<
-    Record<EVMContractAddress, IpfsCID>,
+    Map<EVMContractAddress, IpfsCID>,
     ProxyError
   > {
-    return this._handler.call(new GetAcceptedInvitationsCIDParams());
+    return this._handler
+      .call(new GetAcceptedInvitationsCIDParams())
+      .map((jsonString) => {
+        return ObjectUtils.deserialize(jsonString);
+      });
   }
 
   public getInvitationMetadataByCID(
@@ -314,15 +334,13 @@ export class ExternalCoreGateway {
   public addAccount(params: AddAccountParams): ResultAsync<void, ProxyError> {
     return this._handler.call(params);
   }
-  public unlock(params: UnlockParams): ResultAsync<void, ProxyError> {
-    return this._handler.call<UnlockParams>(params);
-  }
+
   public unlinkAccount(
     params: UnlinkAccountParams,
   ): ResultAsync<void, ProxyError> {
     return this._handler.call(params);
   }
-  public getUnlockMessage(
+  public getLinkAccountMessage(
     params: GetUnlockMessageParams,
   ): ResultAsync<string, ProxyError> {
     return this._handler.call(params);
@@ -449,7 +467,11 @@ export class ExternalCoreGateway {
   }
 
   public getSiteVisitsMap(): ResultAsync<Map<URLString, number>, ProxyError> {
-    return this._handler.call(new GetSiteVisitsMapParams());
+    return this._handler
+      .call(new GetSiteVisitsMapParams())
+      .map((jsonString) => {
+        return ObjectUtils.deserialize(jsonString);
+      });
   }
 
   public getMarketplaceListingsByTag(
@@ -490,8 +512,10 @@ export class ExternalCoreGateway {
 
   public getPossibleRewards(
     params: GetPossibleRewardsParams,
-  ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, ProxyError> {
-    return this._handler.call(params);
+  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, ProxyError> {
+    return this._handler.call(params).map((jsonString) => {
+      return ObjectUtils.deserialize(jsonString);
+    });
   }
   public getConfig(): ResultAsync<IExtensionConfig, ProxyError> {
     return this._handler.call(new GetConfigParams());
@@ -499,4 +523,36 @@ export class ExternalCoreGateway {
   public switchToTab(params: SwitchToTabParams): ResultAsync<void, ProxyError> {
     return this._handler.call(params);
   }
+
+  public getDropboxAuth(): ResultAsync<URLString, ProxyError> {
+    return this._handler.call(new GetDropBoxAuthUrlParams());
+  }
+
+  public authenticateDropbox(
+    params: AuthenticateDropboxParams,
+  ): ResultAsync<AccessToken, ProxyError> {
+    return this._handler.call(params);
+  }
+
+  public setAuthenticatedStorage(
+    params: SetAuthenticatedStorageParams,
+  ): ResultAsync<void, ProxyError> {
+    return this._handler.call(params);
+  }
+
+  public getCurrentCloudStorage(): ResultAsync<ECloudStorageType, ProxyError> {
+    return this._handler.call(new GetCurrentCloudStorageParams());
+  }
+
+  public getAvailableCloudStorageOptions(): ResultAsync<
+    Set<ECloudStorageType>,
+    ProxyError
+  > {
+    return this._handler.call(new GetAvailableCloudStorageOptionsParams());
+  }
+  public getProviderKey = (): ResultAsync<string | undefined, ProxyError> => {
+    return this.getConfig().map((config) => {
+      return config.providerKey;
+    });
+  };
 }

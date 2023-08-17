@@ -84,29 +84,15 @@ export const SubscriptionConfirmation: FC<ISubscriptionConfirmationProps> = ({
   };
 
   useEffect(() => {
-    getRecievingAccount();
-  }, []);
+    if (accounts.length > 0) {
+      getRecievingAccount();
+    }
+  }, [accounts.length]);
 
   const getRecievingAccount = () => {
-    getReceivingAddress(consentAddress).map(setReceivingAccount);
-  };
-  const responsive = {
-    superLargeDesktop: {
-      breakpoint: { max: 4000, min: 3000 },
-      items: 5,
-    },
-    desktop: {
-      breakpoint: { max: 3000, min: 1024 },
-      items: 5,
-    },
-    tablet: {
-      breakpoint: { max: 1024, min: 464 },
-      items: 5,
-    },
-    mobile: {
-      breakpoint: { max: 464, min: 0 },
-      items: 5,
-    },
+    getReceivingAddress(consentAddress).map((receivingAddress) => {
+      setReceivingAccount(receivingAddress || accounts?.[0]);
+    });
   };
   const classes = useStyles();
   return (
@@ -166,7 +152,7 @@ export const SubscriptionConfirmation: FC<ISubscriptionConfirmationProps> = ({
             your Data Wallet.
           </Typography>
         </Box>
-        <Carousel responsive={responsive}>
+        <Carousel visibleItemCount={5} gutter={12}>
           {rewardsThatCanBeAcquired.map((eligibleReward) => (
             <Box
               display="flex"
@@ -176,7 +162,6 @@ export const SubscriptionConfirmation: FC<ISubscriptionConfirmationProps> = ({
               borderRadius={16}
               p={0.75}
               mb={0.5}
-              mr={1.5}
               key={JSON.stringify(eligibleReward)}
             >
               <img
@@ -210,7 +195,7 @@ export const SubscriptionConfirmation: FC<ISubscriptionConfirmationProps> = ({
               can change your data permission setting to get this reward.
             </Typography>
             <Box mt={2} />
-            <Carousel responsive={responsive}>
+            <Carousel visibleItemCount={2} gutter={12}>
               {rewardsThatRequireMorePermission.map((missingRewards) => (
                 <Box
                   display="flex"
@@ -327,6 +312,7 @@ export const SubscriptionConfirmation: FC<ISubscriptionConfirmationProps> = ({
 
           <Button
             buttonType="primary"
+            disabled={!receivingAccount}
             onClick={() => {
               onConfirmClick(receivingAccount);
             }}

@@ -72,6 +72,18 @@ import {
   IVolatileStorageSchemaProvider,
   IVolatileStorageSchemaProviderType,
   VolatileStorageSchemaProvider,
+  CloudStorageManager,
+  ICloudStorageManager,
+  ICloudStorageManagerType,
+  ICloudStorage,
+  GoogleCloudStorage,
+  DropboxCloudStorage,
+  IDropboxCloudStorageType,
+  IGDriveCloudStorageType,
+  IPersistenceContextProvider,
+  IPersistenceContextProviderType,
+  NullCloudStorage,
+  INullCloudStorageType,
 } from "@snickerdoodlelabs/persistence";
 import {
   IQueryObjectFactory,
@@ -115,6 +127,7 @@ import {
   QueryService,
   SiftContractService,
   TwitterService,
+  CloudStorageService,
 } from "@core/implementations/business/index.js";
 import { PermissionUtils } from "@core/implementations/business/utilities/index.js";
 import {
@@ -130,12 +143,12 @@ import {
   BrowsingDataRepository,
   CoinGeckoTokenPriceRepository,
   ConsentContractRepository,
-  CrumbsRepository,
   DNSRepository,
   DataWalletPersistence,
   DemographicDataRepository,
   DiscordRepository,
   DomainCredentialRepository,
+  EntropyRepository,
   InvitationRepository,
   LinkedAccountRepository,
   MarketplaceRepository,
@@ -149,6 +162,7 @@ import {
   SocialRepository,
   TransactionHistoryRepository,
   TwitterRepository,
+  AuthenticatedStorageRepository,
 } from "@core/implementations/data/index.js";
 import { ContractFactory } from "@core/implementations/utilities/factory/index.js";
 import {
@@ -172,6 +186,8 @@ import {
   IAccountServiceType,
   IAdService,
   IAdServiceType,
+  ICloudStorageService,
+  ICloudStorageServiceType,
   IDiscordService,
   IDiscordServiceType,
   IIntegrationService,
@@ -218,8 +234,6 @@ import {
   IBrowsingDataRepositoryType,
   IConsentContractRepository,
   IConsentContractRepositoryType,
-  ICrumbsRepository,
-  ICrumbsRepositoryType,
   IDNSRepository,
   IDNSRepositoryType,
   IDataWalletPersistence,
@@ -256,6 +270,10 @@ import {
   ITwitterRepositoryType,
   IMetricsRepository,
   IMetricsRepositoryType,
+  IAuthenticatedStorageRepository,
+  IAuthenticatedStorageRepositoryType,
+  IEntropyRepository,
+  IEntropyRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
@@ -295,7 +313,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IAccountService>(IAccountServiceType)
       .to(AccountService)
       .inSingletonScope();
-
+    bind<ICloudStorageService>(ICloudStorageServiceType)
+      .to(CloudStorageService)
+      .inSingletonScope();
     bind<IIntegrationService>(IIntegrationServiceType)
       .to(IntegrationService)
       .inSingletonScope();
@@ -337,11 +357,14 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(QueryParsingEngine)
       .inSingletonScope();
 
+    bind<IAuthenticatedStorageRepository>(IAuthenticatedStorageRepositoryType)
+      .to(AuthenticatedStorageRepository)
+      .inSingletonScope();
+    bind<IEntropyRepository>(IEntropyRepositoryType)
+      .to(EntropyRepository)
+      .inSingletonScope();
     bind<IInsightPlatformRepository>(IInsightPlatformRepositoryType)
       .to(InsightPlatformRepository)
-      .inSingletonScope();
-    bind<ICrumbsRepository>(ICrumbsRepositoryType)
-      .to(CrumbsRepository)
       .inSingletonScope();
     bind<IConsentContractRepository>(IConsentContractRepositoryType).to(
       ConsentContractRepository,
@@ -421,8 +444,12 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IFieldSchemaProvider>(IFieldSchemaProviderType)
       .to(FieldSchemaProvider)
       .inSingletonScope();
+
     bind<IMasterIndexer>(IMasterIndexerType)
       .to(MasterIndexer)
+      .inSingletonScope();
+    bind<ICloudStorageManager>(ICloudStorageManagerType)
+      .to(CloudStorageManager)
       .inSingletonScope();
 
     // Utilities
@@ -431,17 +458,25 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IIndexerConfigProvider>(IIndexerConfigProviderType).toConstantValue(
       configProvider,
     );
+
+    // Binding cloud storage manager
     bind<IPersistenceConfigProvider>(
       IPersistenceConfigProviderType,
     ).toConstantValue(configProvider);
 
-    bind<IContextProvider>(IContextProviderType)
-      .to(ContextProvider)
-      .inSingletonScope();
+    const contextProvider = new ContextProvider(new TimeUtils());
+    bind<IContextProvider>(IContextProviderType).toConstantValue(
+      contextProvider,
+    );
 
-    bind<IIndexerContextProvider>(IIndexerContextProviderType)
-      .to(ContextProvider)
-      .inSingletonScope();
+    bind<IIndexerContextProvider>(IIndexerContextProviderType).toConstantValue(
+      contextProvider,
+    );
+
+    bind<IPersistenceContextProvider>(
+      IPersistenceContextProviderType,
+    ).toConstantValue(contextProvider);
+
     bind<IBlockchainProvider>(IBlockchainProviderType)
       .to(BlockchainProvider)
       .inSingletonScope();
@@ -507,6 +542,14 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
 
     bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
+
+    /* Cloud Storage Options - may need to comment out */
+    bind<ICloudStorage>(INullCloudStorageType)
+      .to(NullCloudStorage)
+      .inSingletonScope();
+    bind<ICloudStorage>(IDropboxCloudStorageType)
+      .to(DropboxCloudStorage)
+      .inSingletonScope();
 
     /* EVM compatible Indexers */
     bind<IEVMIndexer>(IAnkrIndexerType).to(AnkrIndexer).inSingletonScope();

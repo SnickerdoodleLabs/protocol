@@ -6,7 +6,6 @@ import {
 import Switch from "@extension-onboarding/components/Switch";
 import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
 import { useAppContext } from "@extension-onboarding/context/App";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, MenuItem, Select, Typography } from "@material-ui/core";
 import {
   AccountAddress,
@@ -46,7 +45,6 @@ const { mainnetSupportedChainIds, testnetSupportedChainIds } = Array.from(
   },
 );
 
-declare const window: IWindowWithSdlDataWallet;
 interface IAccountChainBarProps {
   displayMode: EDisplayMode;
   accountSelect: AccountAddress | undefined;

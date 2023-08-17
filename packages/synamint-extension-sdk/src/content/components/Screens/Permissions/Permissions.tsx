@@ -17,6 +17,7 @@ import {
   PermissionSelection,
   UI_SUPPORTED_PERMISSIONS,
 } from "@snickerdoodlelabs/shared-components";
+import { JsonRpcError } from "json-rpc-engine";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import React, { FC, useCallback, useEffect, useState } from "react";
@@ -34,7 +35,7 @@ import {
   SetBirthdayParams,
   SetGenderParams,
   SetLocationParams,
-} from "@synamint-extension-sdk/shared/interfaces/actions.js";
+} from "@synamint-extension-sdk/shared/interfaces/actions";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
 interface IPermissionsProps {
@@ -147,10 +148,11 @@ const Permissions: FC<IPermissionsProps> = ({
       coreGateway.getPossibleRewards(
         new GetPossibleRewardsParams([domainDetails.consentAddress]),
       ),
-    ]).map(([earnedRewards, possibleRewardsRec]) => {
+    ]).map(([earnedRewards, possibleRewards]) => {
       setRewards({
         earnedRewards,
-        possibleRewards: possibleRewardsRec[domainDetails.consentAddress] ?? [],
+        possibleRewards:
+          possibleRewards.get(domainDetails.consentAddress) ?? [],
       });
     });
   }, [isUnlocked]);

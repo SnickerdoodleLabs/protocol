@@ -1,4 +1,5 @@
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import { PersistenceError } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -21,6 +22,8 @@ import {
 
 @injectable()
 export class AccountIndexerPoller implements IAccountIndexerPoller {
+  protected backupPollingInterval: NodeJS.Timeout | null = null;
+
   public constructor(
     @inject(IMonitoringServiceType)
     protected monitoringService: IMonitoringService,
@@ -37,13 +40,6 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),
     ]).map(([config, context]) => {
-      // Set up polling for backups
-      setInterval(() => {
-        this.monitoringService.pollBackups().mapErr((e) => {
-          this.logUtils.error(e);
-        });
-      }, config.dataWalletBackupIntervalMS);
-
       // Set up polling for transactions
       setInterval(() => {
         this.monitoringService.pollTransactions().mapErr((e) => {
@@ -51,18 +47,56 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
         });
       }, config.accountIndexingPollingIntervalMS);
 
-      // Post backups periodically
-      setInterval(() => {
-        this.monitoringService.postBackups().mapErr((e) => {
-          this.logUtils.error(e);
-        });
-      }, config.backupHeartbeatIntervalMS);
-
       // Poll transactions after an account is added.
       context.publicEvents.onAccountAdded.subscribe(() => {
         this.monitoringService.pollTransactions().mapErr((e) => {
           this.logUtils.error(e);
         });
+      });
+
+      // Cloud Activation here - event found in cloud storage manager
+      context.publicEvents.onCloudStorageActivated.subscribe(() => {
+        this.monitoringService.pollTransactions().mapErr((e) => {
+          this.logUtils.error(e);
+        });
+
+        // Poll immediately for backups
+        this.monitoringService.pollBackups().mapErr((e) => {
+          this.logUtils.error(e);
+        });
+
+        // Set up polling for backups
+        this.backupPollingInterval = setInterval(() => {
+          console.log("hitting indexer polling dropbox");
+          this.monitoringService
+            .pollBackups()
+            .map(() => {
+              console.log("hitting indexer polling dropbox 2");
+            })
+            .mapErr((e) => {
+              this.logUtils.error(e);
+            });
+        }, config.dataWalletBackupIntervalMS);
+
+        // Post backups periodically
+        console.log(
+          "this.backupPollingInterval: " + this.backupPollingInterval,
+        );
+        setInterval(() => {
+          this.monitoringService.postBackups().mapErr((e) => {
+            this.logUtils.error(e);
+          });
+        }, config.backupHeartbeatIntervalMS);
+      });
+
+      context.publicEvents.onCloudStorageDeactivated.subscribe(() => {
+        console.log(
+          "onCloudStorageDeactivated this.backupPollingInterval: " +
+            this.backupPollingInterval,
+        );
+        if (this.backupPollingInterval != null) {
+          clearTimeout(this.backupPollingInterval);
+        }
       });
 
       // poll once

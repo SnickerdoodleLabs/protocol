@@ -1,4 +1,7 @@
 import {
+  CryptoUtils,
+  ICryptoUtils,
+  ICryptoUtilsType,
   ILogUtils,
   ILogUtilsType,
   ITimeUtils,
@@ -62,6 +65,7 @@ export const iframeModule = new ContainerModule(
       .to(ConfigProvider)
       .inSingletonScope();
     bind<ICoreProvider>(ICoreProviderType).to(CoreProvider).inSingletonScope();
+    bind<ICryptoUtils>(ICryptoUtilsType).to(CryptoUtils).inSingletonScope();
     bind<ILogUtils>(ILogUtilsType).to(LogUtils).inSingletonScope();
     bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
     // #endregion
