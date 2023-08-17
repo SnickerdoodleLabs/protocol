@@ -241,6 +241,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   // #region Backup Management Methods
   public dumpVolatileStorage(): ResultAsync<void, BackupError> {
+    this.logUtils.warning(
+      `Dumping everything in volatile storage into backups`,
+    );
     return this.backupManagerProvider
       .getBackupManager()
       .andThen((backupManager) => {
@@ -460,6 +463,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   // #region Volatile Storage Methods
   public clearVolatileStorage(): ResultAsync<void, PersistenceError> {
+    this.logUtils.warning("Clearing volatile storage");
     return ResultUtils.combine([
       this.volatileStorage.clear(),
       this.storageUtils.clear(),

@@ -51,6 +51,9 @@ export class CloudStorageService implements ICloudStorageService {
   initialize(): ResultAsync<void, PersistenceError> {
     return this.contextProvider.getContext().map((context) => {
       context.publicEvents.onCloudStorageActivated.subscribe((event) => {
+        this.logUtils.log(
+          `Authenticated storage is activated. Using ${event.platform}`,
+        );
         // When cloud storage is activated, we need to read the entropy from the
         // cloud storage itself. If this is differen than the current entropy, we
         // need to clear out the current volatile storage
@@ -76,7 +79,7 @@ export class CloudStorageService implements ICloudStorageService {
             // The keys are different
             // We need to clear out the volatile storage
             this.logUtils.warning(
-              "Clearing volatile storage- key in authenticated storage differs from local data wallet key",
+              "Key in authenticated storage differs from local data wallet key",
             );
             currentContext.dataWalletAddress = DataWalletAddress(
               storedDataWalletKey.accountAddress,
@@ -89,7 +92,10 @@ export class CloudStorageService implements ICloudStorageService {
               });
           })
           .mapErr((e) => {
-            this.logUtils.error("Error posting backups", e);
+            this.logUtils.error(
+              "Error in CloudStorageService while responding to onCloudStorageActivated event",
+              e,
+            );
           });
       });
 
