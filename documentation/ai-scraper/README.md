@@ -118,3 +118,66 @@ end
 
 1. Web-workers
 2. IPFS to collect URLs?
+
+### Prompt Builder
+
+```mermaid
+classDiagram
+
+    class PromptDirector {
+        +makePurchaseHistoryPrompt() Prompt
+    }
+
+    PromptDirector --> PromptBuilder
+
+    class PromptBuilder {
+        <<interface>>
+        +setExemplars(exemplars)
+        +setRole(role)
+        +setQuestion(question)
+        +setAnswerStructure(structure)
+        +setData(data)
+        +getPrompt() Prompt
+    }
+    
+    class PurchaseHistoryPromptBuilder {
+
+    }
+    PromptBuilder <|-- PurchaseHistoryPromptBuilder
+
+    class ShoppingCartPromptBuilder {
+
+    }
+    PromptBuilder <|-- ShoppingCartPromptBuilder
+
+    %% Collection prompts
+
+    class CollectionPromptBuilder {
+
+        <<interface>>
+    }
+    PromptBuilder <|-- CollectionPromptBuilder
+
+    class ProductCollectionPromptBuilder {
+
+    }
+    CollectionPromptBuilder <|-- ProductCollectionPromptBuilder
+
+    class GameCollectionPromptBuilder {
+
+    }
+    CollectionPromptBuilder <|-- GameCollectionPromptBuilder
+
+    
+    %% Single Item Prompts
+    class ItemDetailsPromptBuilder {
+
+    }
+    PromptBuilder <|-- ItemDetailsPromptBuilder
+
+    class OrderDetailsPromptBuilder {
+
+    }
+    ItemDetailsPromptBuilder <|-- OrderDetailsPromptBuilder
+
+```
