@@ -1,11 +1,13 @@
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
+  IMasterIndexer,
+  IMasterIndexerType,
+} from "@snickerdoodlelabs/indexers";
+import {
   AccountIndexingError,
   AjaxError,
   DataWalletBackupID,
   DiscordError,
-  IMasterIndexer,
-  IMasterIndexerType,
   isAccountValidForChain,
   PersistenceError,
   SiteVisit,

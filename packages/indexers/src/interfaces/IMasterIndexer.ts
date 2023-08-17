@@ -1,18 +1,16 @@
-import { ResultAsync } from "neverthrow";
-
 import {
-  ChainTransaction,
-  TokenBalance,
-  WalletNFT,
-} from "@objects/businessObjects/index.js";
-import { EChain } from "@objects/enum/index.js";
-import {
+  AccountAddress,
   AccountIndexingError,
   AjaxError,
+  ChainTransaction,
+  EChain,
   MethodSupportError,
   PersistenceError,
-} from "@objects/errors/index.js";
-import { AccountAddress, UnixTimestamp } from "@objects/primitives/index.js";
+  TokenBalance,
+  UnixTimestamp,
+  WalletNFT,
+} from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow";
 
 export interface IMasterIndexer {
   initialize(): ResultAsync<void, AjaxError>;

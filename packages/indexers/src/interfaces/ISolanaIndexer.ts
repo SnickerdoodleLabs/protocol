@@ -1,14 +1,15 @@
-import { ResultAsync } from "neverthrow";
-
 import {
+  EChain,
+  SolanaAccountAddress,
+  AccountIndexingError,
+  AjaxError,
   SolanaNFT,
   SolanaTransaction,
   TokenBalance,
-} from "@objects/businessObjects/index.js";
-import { EChain } from "@objects/enum/index.js";
-import { AccountIndexingError, AjaxError } from "@objects/errors/index.js";
-import { IIndexer } from "@objects/interfaces/chains/IIndexer.js";
-import { SolanaAccountAddress } from "@objects/primitives/index.js";
+} from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow";
+
+import { IIndexer } from "./IIndexer";
 
 export interface ISolanaIndexer extends IIndexer {
   getBalancesForAccount(

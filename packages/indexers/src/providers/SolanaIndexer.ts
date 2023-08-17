@@ -21,7 +21,6 @@ import {
   ITokenPriceRepository,
   TickerSymbol,
   SolanaCollection,
-  ISolanaIndexer,
   EComponentStatus,
   IndexerSupportSummary,
   EDataProvider,
@@ -47,6 +46,7 @@ import {
   IIndexerConfigProviderType,
   IIndexerContextProvider,
   IIndexerContextProviderType,
+  ISolanaIndexer,
 } from "@indexers/interfaces/index.js";
 import { MasterIndexer } from "@indexers/MasterIndexer.js";
 

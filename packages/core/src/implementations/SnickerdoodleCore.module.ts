@@ -13,22 +13,10 @@ import {
   TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  AnkrIndexer,
-  AlchemyIndexer,
-  CovalentEVMTransactionRepository,
-  EtherscanIndexer,
-  MoralisEVMPortfolioRepository,
-  NftScanEVMPortfolioRepository,
-  OklinkIndexer,
-  PoapRepository,
-  PolygonIndexer,
-  SimulatorEVMTransactionRepository,
-  SolanaIndexer,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
   IIndexerContextProvider,
   IIndexerContextProviderType,
-  MasterIndexer,
 } from "@snickerdoodlelabs/indexers";
 import {
   IInsightPlatformRepository,
@@ -36,21 +24,6 @@ import {
   InsightPlatformRepository,
 } from "@snickerdoodlelabs/insight-platform-api";
 import {
-  IAlchemyIndexerType,
-  IAnkrIndexerType,
-  ICovalentEVMTransactionRepositoryType,
-  IEtherscanIndexerType,
-  IEVMIndexer,
-  IMasterIndexer,
-  IMasterIndexerType,
-  IMoralisEVMPortfolioRepositoryType,
-  INftScanEVMPortfolioRepositoryType,
-  IOklinkIndexerType,
-  IPoapRepositoryType,
-  IPolygonIndexerType,
-  ISimulatorEVMTransactionRepositoryType,
-  ISolanaIndexer,
-  ISolanaIndexerType,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
 } from "@snickerdoodlelabs/objects";
@@ -445,9 +418,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(FieldSchemaProvider)
       .inSingletonScope();
 
-    bind<IMasterIndexer>(IMasterIndexerType)
-      .to(MasterIndexer)
-      .inSingletonScope();
     bind<ICloudStorageManager>(ICloudStorageManagerType)
       .to(CloudStorageManager)
       .inSingletonScope();
@@ -549,47 +519,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<ICloudStorage>(IDropboxCloudStorageType)
       .to(DropboxCloudStorage)
-      .inSingletonScope();
-
-    /* EVM compatible Indexers */
-    bind<IEVMIndexer>(IAnkrIndexerType).to(AnkrIndexer).inSingletonScope();
-    bind<IEVMIndexer>(IAlchemyIndexerType)
-      .to(AlchemyIndexer)
-      .inSingletonScope();
-
-    bind<IEVMIndexer>(ICovalentEVMTransactionRepositoryType)
-      .to(CovalentEVMTransactionRepository)
-      .inSingletonScope();
-
-    bind<IEVMIndexer>(IEtherscanIndexerType)
-      .to(EtherscanIndexer)
-      .inSingletonScope();
-
-    bind<IEVMIndexer>(IMoralisEVMPortfolioRepositoryType)
-      .to(MoralisEVMPortfolioRepository)
-      .inSingletonScope();
-
-    bind<IEVMIndexer>(INftScanEVMPortfolioRepositoryType)
-      .to(NftScanEVMPortfolioRepository)
-      .inSingletonScope();
-
-    bind<IEVMIndexer>(IOklinkIndexerType).to(OklinkIndexer).inSingletonScope();
-
-    bind<IEVMIndexer>(IPoapRepositoryType)
-      .to(PoapRepository)
-      .inSingletonScope();
-
-    bind<IEVMIndexer>(IPolygonIndexerType)
-      .to(PolygonIndexer)
-      .inSingletonScope();
-
-    bind<IEVMIndexer>(ISimulatorEVMTransactionRepositoryType)
-      .to(SimulatorEVMTransactionRepository)
-      .inSingletonScope();
-
-    /* Solana Indexers */
-    bind<ISolanaIndexer>(ISolanaIndexerType)
-      .to(SolanaIndexer)
       .inSingletonScope();
   },
 );

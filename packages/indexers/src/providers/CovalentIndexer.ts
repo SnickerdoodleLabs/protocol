@@ -17,7 +17,6 @@ import {
   EVMTransactionHash,
   TokenBalance,
   EChainTechnology,
-  IEVMIndexer,
   EVMNFT,
   MethodSupportError,
   EComponentStatus,
@@ -32,6 +31,7 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP, urlJoin } from "url-join-ts";
 
 import {
+  IEVMIndexer,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
   IIndexerContextProvider,

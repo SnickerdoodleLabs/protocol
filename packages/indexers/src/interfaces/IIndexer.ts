@@ -1,7 +1,9 @@
+import {
+  EChain,
+  EComponentStatus,
+  IndexerSupportSummary,
+} from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { IndexerSupportSummary } from "@objects/businessObjects/index.js";
-import { EChain, EComponentStatus } from "@objects/enum/index.js";
 
 export interface IIndexer {
   initialize(): ResultAsync<void, never>;

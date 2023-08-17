@@ -7,6 +7,11 @@ import {
   ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
+  IMasterIndexer,
+  IMasterIndexerType,
+  MasterIndexer,
+} from "@snickerdoodlelabs/indexers";
+import {
   AccountIndexingError,
   AjaxError,
   chainConfig,
@@ -17,8 +22,6 @@ import {
   EVMContractAddress,
   getChainInfoByChain,
   getChainInfoByChainId,
-  IMasterIndexer,
-  IMasterIndexerType,
   ITokenPriceRepository,
   PersistenceError,
   TickerSymbol,
@@ -27,7 +30,6 @@ import {
   TokenMarketData,
   UnixTimestamp,
   URLString,
-  VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -46,7 +48,6 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
-import { MasterIndexer } from "@snickerdoodlelabs/indexers";
 
 @injectable()
 export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
@@ -376,32 +377,27 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     }
 
     this._assetPlatforms = ResultUtils.combine([
-      this.configProvider.getConfig(),
       this.contextProvider.getContext(),
       this.indexer.getSupportedChains(),
-    ]).andThen(([config, context, supportedChains]) => {
+    ]).andThen(([context, supportedChains]) => {
       context.privateEvents.onApiAccessed.next(EExternalApi.CoinGecko);
       return this.ajaxUtils
-        .get<
-          {
-            id: string;
-            chain_identifier: number | null;
-            name: string;
-            shortname: string;
-          }[]
-        >(new URL("https://api.coingecko.com/api/v3/asset_platforms"))
-        .andThen((items) => {
+        .get<IAssetPlatformResponseItem[]>(
+          new URL("https://api.coingecko.com/api/v3/asset_platforms"),
+        )
+        .andThen((assetPlatforms) => {
           const mapping: AssetPlatformMapping = {
             forward: {},
             backward: {},
           };
-          items.forEach((item) => {
+          assetPlatforms.forEach((assetPlatform) => {
             if (
-              item.chain_identifier &&
-              supportedChains.includes(ChainId(item.chain_identifier))
+              assetPlatform.chain_identifier &&
+              supportedChains.includes(ChainId(assetPlatform.chain_identifier))
             ) {
-              mapping.forward[item.id] = ChainId(item.chain_identifier);
-              mapping.backward[ChainId(item.chain_identifier)] = item.id;
+              const chainId = ChainId(assetPlatform.chain_identifier);
+              mapping.forward[assetPlatform.id] = chainId;
+              mapping.backward[chainId] = assetPlatform.id;
             }
           });
 
@@ -554,4 +550,11 @@ interface CoinGeckoRateLimit {
     error_code: number;
     error_message: string;
   };
+}
+
+interface IAssetPlatformResponseItem {
+  id: string;
+  chain_identifier: number | null;
+  name: string;
+  shortname: string;
 }

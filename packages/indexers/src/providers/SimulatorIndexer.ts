@@ -10,7 +10,6 @@ import {
   EVMNFT,
   EVMTransaction,
   EVMTransactionHash,
-  IEVMIndexer,
   TickerSymbol,
   TokenBalance,
   TokenUri,
@@ -23,6 +22,7 @@ import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import {
+  IEVMIndexer,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/interfaces/index.js";

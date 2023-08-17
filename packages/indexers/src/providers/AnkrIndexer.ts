@@ -20,7 +20,6 @@ import {
   EVMTransaction,
   UnixTimestamp,
   EComponentStatus,
-  IEVMIndexer,
   IndexerSupportSummary,
   getChainInfoByChain,
   MethodSupportError,
@@ -32,6 +31,7 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import {
+  IEVMIndexer,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
   IIndexerContextProvider,

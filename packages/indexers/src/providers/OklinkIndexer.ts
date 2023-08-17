@@ -16,7 +16,6 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   EChain,
-  IEVMIndexer,
   EVMNFT,
   EVMTransaction,
   MethodSupportError,
@@ -33,6 +32,7 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
 import {
+  IEVMIndexer,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
   IIndexerContextProvider,

@@ -14,9 +14,7 @@ import {
   EQueryProcessingStatus,
   BlockNumber,
   PersistenceError,
-  IEVMIndexer,
   ITokenPriceRepository,
-  ISolanaIndexer,
   ChainId,
   EVMAccountAddress,
 } from "@snickerdoodlelabs/objects";
@@ -25,10 +23,12 @@ import { ResultUtils } from "neverthrow-result-utils";
 import * as td from "testdouble";
 
 import {
+  IEVMIndexer,
   IIndexerConfigProvider,
   IIndexerContextProvider,
-} from "@indexers/interfaces";
-import { MasterIndexer } from "@indexers/MasterIndexer";
+  ISolanaIndexer,
+} from "@indexers/interfaces/index.js";
+import { MasterIndexer } from "@indexers/MasterIndexer.js";
 
 // @mock
 class MasterIndexerMocks {

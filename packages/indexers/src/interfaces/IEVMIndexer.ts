@@ -1,18 +1,17 @@
-import { ResultAsync } from "neverthrow";
-
 import {
-  EVMNFT,
-  EVMTransaction,
-  TokenBalance,
-} from "@objects/businessObjects/index.js";
-import { EChain, EComponentStatus } from "@objects/enum/index.js";
-import {
+  EChain,
+  EVMAccountAddress,
   AccountIndexingError,
   AjaxError,
   MethodSupportError,
-} from "@objects/errors/index.js";
-import { IIndexer } from "@objects/interfaces/chains/IIndexer.js";
-import { EVMAccountAddress } from "@objects/primitives/index.js";
+  EVMNFT,
+  EVMTransaction,
+  EComponentStatus,
+  TokenBalance,
+} from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow";
+
+import { IIndexer } from "@indexers/interfaces/IIndexer.js";
 
 export interface IEVMIndexer extends IIndexer {
   getBalancesForAccount(

@@ -12,7 +12,6 @@ import {
   EVMNFT,
   EVMTransaction,
   getChainInfoByChain,
-  IEVMIndexer,
   TokenBalance,
   TokenUri,
   UnixTimestamp,
@@ -29,6 +28,7 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
 import {
+  IEVMIndexer,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
   IIndexerContextProvider,

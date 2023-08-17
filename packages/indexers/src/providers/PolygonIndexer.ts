@@ -21,7 +21,6 @@ import {
   getEtherscanBaseURLForChain,
   PolygonTransaction,
   EPolygonTransactionType,
-  IEVMIndexer,
   EVMNFT,
   MethodSupportError,
   getChainInfoByChain,
@@ -40,6 +39,7 @@ import {
   IIndexerConfigProvider,
   IIndexerContextProvider,
   IIndexerContextProviderType,
+  IEVMIndexer,
 } from "@indexers/interfaces/index.js";
 
 @injectable()

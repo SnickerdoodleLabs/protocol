@@ -21,7 +21,6 @@ import {
   AccountAddress,
   URLString,
   EVMTransaction,
-  IEVMIndexer,
   MethodSupportError,
   getChainInfoByChain,
   EExternalApi,
@@ -39,6 +38,7 @@ import {
   IIndexerConfigProviderType,
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
 import {
+  IEVMIndexer,
   IIndexerContext,
   IIndexerContextProvider,
   IIndexerContextProviderType,
@@ -341,7 +341,7 @@ export class AlchemyIndexer implements IEVMIndexer {
                   return okAsync(
                     new TokenBalance(
                       EChainTechnology.EVM,
-                      TickerSymbol(tokenInfo.symbol),
+                      tokenInfo.symbol,
                       getChainInfoByChain(chain).chainId,
                       entry.contractAddress,
                       accountAddress,

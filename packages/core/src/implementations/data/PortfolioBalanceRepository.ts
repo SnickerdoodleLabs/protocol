@@ -4,6 +4,10 @@ import {
   ObjectUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
+  IMasterIndexer,
+  IMasterIndexerType,
+} from "@snickerdoodlelabs/indexers";
+import {
   LinkedAccount,
   TokenBalance,
   PersistenceError,
@@ -15,8 +19,6 @@ import {
   AccountAddress,
   EVMAccountAddress,
   PortfolioUpdate,
-  IMasterIndexerType,
-  IMasterIndexer,
   MethodSupportError,
   EChain,
   ERewardType,
