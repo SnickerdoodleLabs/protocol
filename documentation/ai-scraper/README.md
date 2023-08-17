@@ -78,7 +78,7 @@ participant SJR as Scraper Job Repository
 participant LLM as LLM Scraper
 participant PU as PromptUtils
 participant LLMProvider as LLM Provider
-participant T as Text Preprocessor
+participant Pre as HTML Preprocessor
 participant DTU as DomainTaskUtils
 
 loop Periodically
@@ -95,8 +95,8 @@ loop Periodically
             PU-->LLM: Prompt
 
             loop for each job
-                LLM->>T: convert HTML to text and minimize
-                T-->>LLM: minimzed Text
+                LLM->>Pre: convert HTML to text and minimize
+                Pre-->>LLM: minimzed Text
                 LLM->>PU: add to Prompt if have token budget
             end
 
