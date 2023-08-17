@@ -28,7 +28,9 @@ export class ConfigProvider implements IConfigProvider {
   public constructor() {
     this.config = new IFrameConfig(
       ChainId(Number(__CONTROL_CHAIN_ID__)),
-      __DEV_CHAIN_PROVIDER_URL__,
+      __DEV_CHAIN_PROVIDER_URL__ != null && __DEV_CHAIN_PROVIDER_URL__ != ""
+        ? __DEV_CHAIN_PROVIDER_URL__
+        : null,
       __IPFS_FETCH_BASE_URL__,
       __DEFAULT_INSIGHT_PLATFORM_BASE_URL__,
       // Get the source domain

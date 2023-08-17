@@ -55,6 +55,6 @@ export const coreConfig = {
     "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
   primaryInfuraKey: "7ac88985c1ed458dbd464b2c5245a6e1",
   secondaryInfuraKey: "",
-  devChainProviderURL: ProviderUrl("https://doodlechain.dev.snickerdoodle.dev"),
+  devChainProviderURL: undefined, //ProviderUrl("https://doodlechain.dev.snickerdoodle.dev"), Must be null for production
   enableBackupEncryption: true,
 } as IConfigOverrides;

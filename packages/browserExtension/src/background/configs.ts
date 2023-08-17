@@ -328,7 +328,7 @@ export const configs: IExtensionConfigOverrides = {
     typeof __DEV_CHAIN_PROVIDER_URL__ !== "undefined" &&
     !!__DEV_CHAIN_PROVIDER_URL__
       ? __DEV_CHAIN_PROVIDER_URL__
-      : ProviderUrl("https://doodlechain.dev.snickerdoodle.dev"),
+      : undefined, // Important, should not have a default so that prod can have this turned off
   ipfsFetchBaseUrl:
     typeof __IPFS_FETCH_BASE_URL__ !== "undefined" && !!__IPFS_FETCH_BASE_URL__
       ? __IPFS_FETCH_BASE_URL__

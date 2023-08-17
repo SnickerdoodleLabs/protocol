@@ -52,7 +52,7 @@ const envVars = {
   __DOMAIN_FILTER__: "(localhost|chrome://)",
   __DNS_SERVER_ADDRESS__: "",
   __GOOGLE_CLOUD_BUCKET__: "prod-qkppf-sdl-dw",
-  __DEV_CHAIN_PROVIDER_URL__: "https://doodlechain.dev.snickerdoodle.dev",
+  __DEV_CHAIN_PROVIDER_URL__: "",
 };
 
 for (const key in envVars) {

@@ -43,7 +43,8 @@ export class CoreProvider implements ICoreProvider {
     config.ipfsFetchBaseUrl = immutableConfig.ipfsFetchBaseUrl;
     config.defaultInsightPlatformBaseUrl =
       immutableConfig.defaultInsightPlatformBaseUrl;
-    config.devChainProviderURL = immutableConfig.devChainProviderURL;
+    config.devChainProviderURL =
+      immutableConfig.devChainProviderURL ?? undefined;
     config.accountBalancePollingIntervalMS =
       immutableConfig.portfolioPollingIntervalMS;
     config.accountIndexingPollingIntervalMS =

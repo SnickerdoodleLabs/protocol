@@ -188,7 +188,7 @@ export const testCoreConfig = new CoreConfig(
     10000000, // optOutGas
     10000000, // updateAgreementFlagsGas
   ), // metatransactionGasAmounts
-  ProviderUrl(""), // devChainProviderUrl
+  ProviderUrl("devChainProviderURL"), // devChainProviderURL
   60, // maxStatsRetentionSeconds
   LanguageCode("en-pw"), // passwordLanguageCode
 );

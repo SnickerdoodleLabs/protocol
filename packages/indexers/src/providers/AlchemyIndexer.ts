@@ -29,6 +29,7 @@ import {
   IndexerSupportSummary,
   EDataProvider,
 } from "@snickerdoodlelabs/objects";
+import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -43,7 +44,6 @@ import {
   IIndexerContextProviderType,
 } from "@indexers/interfaces/index.js";
 import { MasterIndexer } from "@indexers/MasterIndexer.js";
-import { BigNumber } from "ethers";
 
 @injectable()
 export class AlchemyIndexer implements IEVMIndexer {
