@@ -177,24 +177,6 @@ export class SolanaIndexer implements ISolanaIndexer {
     return okAsync([]); //TODO
   }
 
-  public getHealthCheck(): ResultAsync<Map<EChain, EComponentStatus>, never> {
-    return this.configProvider.getConfig().andThen((config) => {
-      this.indexerSupport.forEach(
-        (value: IndexerSupportSummary, key: EChain) => {
-          if (
-            config.apiKeys.alchemyApiKeys["Solana"] == "" ||
-            config.apiKeys.alchemyApiKeys["Solana"] == undefined
-          ) {
-            this.health.set(key, EComponentStatus.NoKeyProvided);
-          } else {
-            this.health.set(key, EComponentStatus.Available);
-          }
-        },
-      );
-      return okAsync(this.health);
-    });
-  }
-
   public healthStatus(): Map<EChain, EComponentStatus> {
     return this.health;
   }

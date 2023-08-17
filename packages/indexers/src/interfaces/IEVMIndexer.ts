@@ -37,8 +37,6 @@ export interface IEVMIndexer extends IIndexer {
     EVMTransaction[],
     AccountIndexingError | AjaxError | MethodSupportError
   >;
-
-  getHealthCheck(): ResultAsync<Map<EChain, EComponentStatus>, never>;
 }
 
 export const IAnkrIndexerType = Symbol.for("IAnkrIndexer");

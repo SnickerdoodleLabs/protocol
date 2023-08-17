@@ -176,10 +176,6 @@ export class AlchemyIndexer implements IEVMIndexer {
     return this.indexerSupport;
   }
 
-  public getHealthCheck(): ResultAsync<Map<EChain, EComponentStatus>, never> {
-    return okAsync(this.health);
-  }
-
   private nativeBalanceParams(
     chain: EChain,
     accountAddress: AccountAddress,

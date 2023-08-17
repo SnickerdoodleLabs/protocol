@@ -353,22 +353,34 @@ export class MasterIndexer implements IMasterIndexer {
     Map<EChain, EComponentStatus>,
     never
   > {
-    return ResultUtils.combine([
-      this.indexerContext.getContext(),
-      this.alchemy.getHealthCheck(),
-      this.ankr.getHealthCheck(),
-      this.covalent.getHealthCheck(),
-      this.etherscan.getHealthCheck(),
-      this.matic.getHealthCheck(),
-      this.moralis.getHealthCheck(),
-      this.nftscan.getHealthCheck(),
-      this.oklink.getHealthCheck(),
-      this.poapRepo.getHealthCheck(),
-      this.sim.getHealthCheck(),
-      this.sol.getHealthCheck(),
-    ]).map(
-      ([
-        context,
+    return this.indexerContext.getContext().map((context) => {
+      const alchemyHealth = this.alchemy.healthStatus();
+      const ankrHealth = this.ankr.healthStatus();
+      const covalentHealth = this.covalent.healthStatus();
+      const etherscanHealth = this.etherscan.healthStatus();
+      const maticHealth = this.matic.healthStatus();
+      const moralisHealth = this.moralis.healthStatus();
+      const nftscanHealth = this.nftscan.healthStatus();
+      const oklinkHealth = this.oklink.healthStatus();
+      const poapHealth = this.poapRepo.healthStatus();
+      const simHealth = this.sim.healthStatus();
+      const solHealth = this.sol.healthStatus();
+
+      const indexerStatuses = context.components;
+      indexerStatuses.alchemyIndexer = alchemyHealth;
+      indexerStatuses.etherscanIndexer = etherscanHealth;
+      indexerStatuses.moralisIndexer = moralisHealth;
+      indexerStatuses.nftScanIndexer = nftscanHealth;
+      indexerStatuses.oklinkIndexer = oklinkHealth;
+
+      // The status of each indexer is known, and the chains that those indexers support is known.
+      // We need to consolidate the component status for each chain via a group-by.
+      // For each chain, use the best status of any indexer as the overall status for the chain
+
+      // Need to consolidate the maps of chain->EComponentStatus
+      const chainStatuses = new Map<EChain, EComponentStatus>();
+
+      [
         alchemyHealth,
         ankrHealth,
         covalentHealth,
@@ -380,69 +392,40 @@ export class MasterIndexer implements IMasterIndexer {
         poapHealth,
         simHealth,
         solHealth,
-      ]) => {
-        const indexerStatuses = context.components;
-        indexerStatuses.alchemyIndexer = alchemyHealth;
-        indexerStatuses.etherscanIndexer = etherscanHealth;
-        indexerStatuses.moralisIndexer = moralisHealth;
-        indexerStatuses.nftScanIndexer = nftscanHealth;
-        indexerStatuses.oklinkIndexer = oklinkHealth;
+      ].reduce((baseHealthStatus, healthStatus) => {
+        healthStatus.forEach((status, chain) => {
+          const baseStatus = baseHealthStatus.get(chain);
+          if (baseStatus == null) {
+            baseHealthStatus.set(chain, status);
+            return;
+          }
 
-        // The status of each indexer is known, and the chains that those indexers support is known.
-        // We need to consolidate the component status for each chain via a group-by.
-        // For each chain, use the best status of any indexer as the overall status for the chain
+          // Check if the status is better than the existing status
+          // InUse > Available > TemporarilyDisabled > Disabled > Error > NoKeyProvided
+          else if (status == EComponentStatus.InUse) {
+            baseHealthStatus.set(chain, status);
+            return;
+          } else if (status == EComponentStatus.Available) {
+            baseHealthStatus.set(chain, status);
+            return;
+          } else if (status == EComponentStatus.TemporarilyDisabled) {
+            baseHealthStatus.set(chain, status);
+            return;
+          } else if (status == EComponentStatus.Disabled) {
+            baseHealthStatus.set(chain, status);
+            return;
+          } else if (status == EComponentStatus.Error) {
+            baseHealthStatus.set(chain, status);
+            return;
+          } else if (status == EComponentStatus.NoKeyProvided) {
+            baseHealthStatus.set(chain, status);
+            return;
+          }
+        });
+        return baseHealthStatus;
+      }, chainStatuses);
 
-        // Need to consolidate the maps of chain->EComponentStatus
-        const chainStatuses = new Map<EChain, EComponentStatus>();
-        this.consolidateHealthStatus(chainStatuses, alchemyHealth);
-        this.consolidateHealthStatus(chainStatuses, ankrHealth);
-        this.consolidateHealthStatus(chainStatuses, covalentHealth);
-        this.consolidateHealthStatus(chainStatuses, etherscanHealth);
-        this.consolidateHealthStatus(chainStatuses, maticHealth);
-        this.consolidateHealthStatus(chainStatuses, moralisHealth);
-        this.consolidateHealthStatus(chainStatuses, nftscanHealth);
-        this.consolidateHealthStatus(chainStatuses, oklinkHealth);
-        this.consolidateHealthStatus(chainStatuses, poapHealth);
-        this.consolidateHealthStatus(chainStatuses, simHealth);
-        this.consolidateHealthStatus(chainStatuses, solHealth);
-
-        return chainStatuses;
-      },
-    );
-  }
-
-  protected consolidateHealthStatus(
-    baseHealthStatus: Map<EChain, EComponentStatus>,
-    healthStatus: Map<EChain, EComponentStatus>,
-  ) {
-    healthStatus.forEach((status, chain) => {
-      const baseStatus = baseHealthStatus.get(chain);
-      if (baseStatus == null) {
-        baseHealthStatus.set(chain, status);
-        return;
-      }
-
-      // Check if the status is better than the existing status
-      // InUse > Available > TemporarilyDisabled > Disabled > Error > NoKeyProvided
-      else if (status == EComponentStatus.InUse) {
-        baseHealthStatus.set(chain, status);
-        return;
-      } else if (status == EComponentStatus.Available) {
-        baseHealthStatus.set(chain, status);
-        return;
-      } else if (status == EComponentStatus.TemporarilyDisabled) {
-        baseHealthStatus.set(chain, status);
-        return;
-      } else if (status == EComponentStatus.Disabled) {
-        baseHealthStatus.set(chain, status);
-        return;
-      } else if (status == EComponentStatus.Error) {
-        baseHealthStatus.set(chain, status);
-        return;
-      } else if (status == EComponentStatus.NoKeyProvided) {
-        baseHealthStatus.set(chain, status);
-        return;
-      }
+      return chainStatuses;
     });
   }
 }

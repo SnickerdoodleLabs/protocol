@@ -165,10 +165,6 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
     );
   }
 
-  public getHealthCheck(): ResultAsync<Map<EChain, EComponentStatus>, never> {
-    return okAsync(this.health);
-  }
-
   public healthStatus(): Map<EChain, EComponentStatus> {
     return this.health;
   }

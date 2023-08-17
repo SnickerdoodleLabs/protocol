@@ -123,12 +123,6 @@ export class PoapRepository implements IEVMIndexer {
     );
   }
 
-  public getHealthCheck(): ResultAsync<Map<EChain, EComponentStatus>, never> {
-    return this.setHealth().map(() => {
-      return this.health;
-    });
-  }
-
   public healthStatus(): Map<EChain, EComponentStatus> {
     return this.health;
   }

@@ -46,7 +46,17 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
   ) {}
 
   public initialize(): ResultAsync<void, never> {
-    return okAsync(undefined);
+    return this.configProvider.getConfig().map((config) => {
+      // The Simulator Indexer is available if you've provided a dev chain URL
+      // This is actually important now, because the supported chains is based on the health
+      // status of the indexers. The doodlechain is available if we have a provider URL for it;
+      // make sure prod does not have one.
+      if (config.devChainProviderURL == null) {
+        this.health.set(EChain.DevDoodle, EComponentStatus.NoKeyProvided);
+      } else {
+        this.health.set(EChain.DevDoodle, EComponentStatus.Available);
+      }
+    });
   }
 
   public name(): string {
@@ -140,22 +150,6 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
       );
     }
     return okAsync(result);
-  }
-
-  public getHealthCheck(): ResultAsync<Map<EChain, EComponentStatus>, never> {
-    return this.configProvider.getConfig().map((config) => {
-      // The Simulator Indexer is available if you've provided a dev chain URL
-      // This is actually important now, because the supported chains is based on the health
-      // status of the indexers. The doodlechain is available if we have a provider URL for it;
-      // make sure prod does not have one.
-      if (config.devChainProviderURL == null) {
-        this.health.set(EChain.DevDoodle, EComponentStatus.NoKeyProvided);
-      } else {
-        this.health.set(EChain.DevDoodle, EComponentStatus.Available);
-      }
-
-      return this.health;
-    });
   }
 
   public healthStatus(): Map<EChain, EComponentStatus> {
