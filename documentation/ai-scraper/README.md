@@ -125,7 +125,7 @@ end
 classDiagram
 
     class PromptDirector {
-        +makePurchaseHistoryPrompt() Prompt
+        +makePurchaseHistoryPrompt(builder: PurchaseHistoryPromptBuilder) Prompt
     }
 
     PromptDirector --> PromptBuilder
