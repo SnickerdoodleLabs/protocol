@@ -45,6 +45,7 @@ const errorCodes = {
   ExecutionRevertedError: "ERR_EXECUTION_REVERTED",
   ProofError: "ERR_PROOF",
   ScraperError: "ERR_SCRAPER",
+  LLMError: "ERR_LLM",
   //SDQL errors
   OperandTypeError: "ER_SDQL_OPERAND_TYPE",
   ConditionOperandTypeError: "ERR_SDQL_CONDITION_OPERAND_TYPE",
