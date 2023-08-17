@@ -85,7 +85,7 @@ export class AnkrIndexer implements IEVMIndexer {
     ["optimism", EChain.Optimism],
   ]);
 
-  protected supportedAnkrChain = new Map<ChainId, string>([
+  protected supportedAnkrChains = new Map<ChainId, string>([
     [ChainId(1), "eth"],
     [ChainId(137), "polygon"],
     [ChainId(80001), "polygon_mumbai"],
@@ -122,7 +122,7 @@ export class AnkrIndexer implements IEVMIndexer {
         config.apiKeys.ankrApiKey +
         "/?ankr_getAccountBalance";
 
-      const balanceSupportChain = this.supportedAnkrChain.get(chainId);
+      const balanceSupportChain = this.supportedAnkrChains.get(chainId);
       if (balanceSupportChain == undefined) {
         return okAsync([]);
       }
@@ -190,7 +190,7 @@ export class AnkrIndexer implements IEVMIndexer {
         config.apiKeys.ankrApiKey +
         "/?ankr_getNFTsByOwner";
 
-      const nftSupportChain = this.supportedAnkrChain.get(chainId);
+      const nftSupportChain = this.supportedAnkrChains.get(chainId);
       if (nftSupportChain == undefined) {
         return okAsync([]);
       }
