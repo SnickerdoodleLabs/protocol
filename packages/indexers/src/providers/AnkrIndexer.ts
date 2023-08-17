@@ -29,6 +29,7 @@ import {
   EExternalApi,
   EVMTransactionHash,
   URLString,
+  DecimalString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -48,7 +49,7 @@ export class AnkrIndexer implements IEVMIndexer {
     EChain,
     EComponentStatus
   >();
-  protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
+  protected supportedChains = new Map<EChain, IndexerSupportSummary>([
     [
       EChain.EthereumMainnet,
       new IndexerSupportSummary(EChain.EthereumMainnet, true, false, true),
@@ -84,7 +85,7 @@ export class AnkrIndexer implements IEVMIndexer {
     ["optimism", EChain.Optimism],
   ]);
 
-  protected chainName = new Map<ChainId, string>([
+  protected supportedAnkrChain = new Map<ChainId, string>([
     [ChainId(1), "eth"],
     [ChainId(137), "polygon"],
     [ChainId(80001), "polygon_mumbai"],
@@ -121,7 +122,7 @@ export class AnkrIndexer implements IEVMIndexer {
         config.apiKeys.ankrApiKey +
         "/?ankr_getAccountBalance";
 
-      const balanceSupportChain = this.chainName.get(chainId);
+      const balanceSupportChain = this.supportedAnkrChain.get(chainId);
       if (balanceSupportChain == undefined) {
         return okAsync([]);
       }
@@ -189,7 +190,7 @@ export class AnkrIndexer implements IEVMIndexer {
         config.apiKeys.ankrApiKey +
         "/?ankr_getNFTsByOwner";
 
-      const nftSupportChain = this.chainName.get(chainId);
+      const nftSupportChain = this.supportedAnkrChain.get(chainId);
       if (nftSupportChain == undefined) {
         return okAsync([]);
       }
@@ -321,7 +322,7 @@ export class AnkrIndexer implements IEVMIndexer {
     AjaxError
   > {
     return this.configProvider.getConfig().andThen((config) => {
-      this.indexerSupport.forEach(
+      this.supportedChains.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
           if (
             config.apiKeys.ankrApiKey == "" ||
@@ -342,7 +343,7 @@ export class AnkrIndexer implements IEVMIndexer {
   }
 
   public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
-    return this.indexerSupport;
+    return this.supportedChains;
   }
 }
 
@@ -366,8 +367,8 @@ interface IAnkrBalanceAsset {
   holderAddress: EVMAccountAddress;
   balance: BigNumberString;
   balanceRawInteger: BigNumberString;
-  balanceUsd: TokenBalance;
-  tokenPrice: string;
+  balanceUsd: DecimalString;
+  tokenPrice: DecimalString;
   thumbnail: URLString;
 }
 
