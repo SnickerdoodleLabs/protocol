@@ -1,12 +1,10 @@
 import {
   DataWalletBackupID,
-  EVMPrivateKey,
   DataWalletBackup,
   PersistenceError,
   BackupFileName,
   StorageKey,
   ECloudStorageType,
-  AccessToken,
   AuthenticatedStorageSettings,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
@@ -16,9 +14,6 @@ import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
 
 @injectable()
 export class NullCloudStorage implements ICloudStorage {
-  clearCredentials(): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
   protected _backups = new Map<string, DataWalletBackup>();
   protected _lastRestore = 0;
 
@@ -58,6 +53,10 @@ export class NullCloudStorage implements ICloudStorage {
   public saveCredentials(
     credentials: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError> {
+    return okAsync(undefined);
+  }
+
+  public clearCredentials(): ResultAsync<void, PersistenceError> {
     return okAsync(undefined);
   }
 
