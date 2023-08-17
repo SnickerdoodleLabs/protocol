@@ -4,7 +4,6 @@ import {
   ObjectUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  ChainId,
   LinkedAccount,
   TokenBalance,
   PersistenceError,
@@ -89,25 +88,25 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
   }
 
   public getAccountBalances(
-    chains?: ChainId[],
+    chains?: EChain[],
     accounts?: LinkedAccount[],
     filterEmpty = true,
   ): ResultAsync<TokenBalance[], PersistenceError> {
     return ResultUtils.combine([
       this.accountRepo.getAccounts(),
-      this.configProvider.getConfig(),
+      this.masterIndexer.getSupportedChains(),
     ])
-      .andThen(([linkedAccounts, config]) => {
+      .andThen(([linkedAccounts, supportedChains]) => {
         return ResultUtils.combine(
           (accounts ?? linkedAccounts).map((linkedAccount) => {
             return ResultUtils.combine(
-              (chains ?? config.supportedChains).map((chainId) => {
-                if (!isAccountValidForChain(chainId, linkedAccount)) {
+              (chains ?? supportedChains).map((chain) => {
+                if (!isAccountValidForChain(chain, linkedAccount)) {
                   return okAsync([]);
                 }
 
                 return this.getCachedBalances(
-                  chainId,
+                  chain,
                   linkedAccount.sourceAccountAddress as EVMAccountAddress,
                 );
               }),
@@ -124,24 +123,24 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
   }
 
   public getAccountNFTs(
-    chains?: ChainId[],
+    chains?: EChain[],
     accounts?: LinkedAccount[],
   ): ResultAsync<WalletNFT[], PersistenceError> {
     return ResultUtils.combine([
       this.accountRepo.getAccounts(),
-      this.configProvider.getConfig(),
+      this.masterIndexer.getSupportedChains(),
     ])
-      .andThen(([linkedAccounts, config]) => {
+      .andThen(([linkedAccounts, supportedChains]) => {
         return ResultUtils.combine(
           (accounts ?? linkedAccounts).map((linkedAccount) => {
             return ResultUtils.combine(
-              (chains ?? config.supportedChains).map((chainId) => {
-                if (!isAccountValidForChain(chainId, linkedAccount)) {
+              (chains ?? supportedChains).map((chain) => {
+                if (!isAccountValidForChain(chain, linkedAccount)) {
                   return okAsync([]);
                 }
 
                 return this.getCachedNFTs(
-                  chainId,
+                  chain,
                   linkedAccount.sourceAccountAddress,
                 );
               }),
@@ -156,7 +155,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
   }
 
   private getCachedBalances(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: AccountAddress,
   ): ResultAsync<
     TokenBalance[],
@@ -166,17 +165,17 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
       this._getBalanceCache(),
       this.contextProvider.getContext(),
     ]).andThen(([cache, context]) => {
-      return cache.get(chainId, accountAddress).andThen((cacheResult) => {
+      return cache.get(chain, accountAddress).andThen((cacheResult) => {
         if (cacheResult != null) {
           return okAsync(cacheResult);
         }
         const fetch = this.masterIndexer
-          .getLatestBalances(chainId, accountAddress)
+          .getLatestBalances(chain, accountAddress)
           .map((result) => {
             context.publicEvents.onTokenBalanceUpdate.next(
               new PortfolioUpdate(
                 accountAddress,
-                chainId,
+                chain,
                 new Date().getTime(),
                 result,
               ),
@@ -184,14 +183,14 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
             return result;
           });
         return cache
-          .set(chainId, accountAddress, new Date().getTime(), fetch)
+          .set(chain, accountAddress, new Date().getTime(), fetch)
           .andThen(() => fetch);
       });
     });
   }
 
   private getCachedNFTs(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: AccountAddress,
   ): ResultAsync<
     WalletNFT[],
@@ -202,18 +201,18 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
     ]).andThen(([cache, context, config]) => {
-      return cache.get(chainId, accountAddress).andThen((cacheResult) => {
+      return cache.get(chain, accountAddress).andThen((cacheResult) => {
         if (cacheResult != null) {
           return okAsync(cacheResult);
         }
 
-        if (chainId == EChain.Astar || chainId == EChain.Shibuya) {
+        if (chain == EChain.Astar || chain == EChain.Shibuya) {
           return this.accountRepo.getEarnedRewards().map((rewards) => {
             return (
               rewards.filter((reward) => {
                 return (
                   reward.type == ERewardType.Direct &&
-                  (reward as DirectReward).chainId == chainId
+                  (reward as DirectReward).chainId == chain
                 );
               }) as DirectReward[]
             ).map((reward) => {
@@ -234,7 +233,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                 }, // metadata
                 BigNumberString("1"),
                 reward.name,
-                chainId,
+                chain,
                 undefined,
                 undefined,
               );
@@ -243,12 +242,12 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
         }
 
         const fetch = this.masterIndexer
-          .getLatestNFTs(chainId, accountAddress)
+          .getLatestNFTs(chain, accountAddress)
           .map((result) => {
             context.publicEvents.onNftBalanceUpdate.next(
               new PortfolioUpdate(
                 accountAddress,
-                chainId,
+                chain,
                 new Date().getTime(),
                 result,
               ),
@@ -256,7 +255,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
             return result;
           });
         return cache
-          .set(chainId, accountAddress, new Date().getTime(), fetch)
+          .set(chain, accountAddress, new Date().getTime(), fetch)
           .andThen(() => fetch);
       });
     });

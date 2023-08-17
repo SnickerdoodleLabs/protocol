@@ -9,7 +9,6 @@ import {
 export interface IExtensionConfigDefaults {
   onboardingUrl: string;
   controlChainId: ChainId;
-  supportedChains: ChainId[];
   ipfsFetchBaseUrl: URLString;
   defaultInsightPlatformBaseUrl: URLString;
   domainFilter: string;
@@ -63,7 +62,6 @@ export interface IExtensionConfig extends IExtensionConfigDefaults {
 export interface IExtensionConfigOverrides {
   onboardingUrl?: URLString;
   controlChainId?: ChainId;
-  supportedChains?: ChainId[];
   ipfsFetchBaseUrl?: URLString;
   defaultInsightPlatformBaseUrl?: URLString;
   domainFilter?: string;

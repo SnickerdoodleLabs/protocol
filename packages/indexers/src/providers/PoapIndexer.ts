@@ -58,6 +58,10 @@ export class PoapRepository implements IEVMIndexer {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
 
+  public initialize(): ResultAsync<void, never> {
+    return okAsync(undefined);
+  }
+
   public name(): string {
     return EDataProvider.Poap;
   }
@@ -118,10 +122,7 @@ export class PoapRepository implements IEVMIndexer {
     );
   }
 
-  public getHealthCheck(): ResultAsync<
-    Map<EChain, EComponentStatus>,
-    AjaxError
-  > {
+  public getHealthCheck(): ResultAsync<Map<EChain, EComponentStatus>, never> {
     const url = urlJoinP("https://api.poap.tech", ["health-check"]);
     return ResultUtils.combine([
       this.configProvider.getConfig(),
@@ -154,6 +155,10 @@ export class PoapRepository implements IEVMIndexer {
           }
           this.health.set(EChain.Gnosis, EComponentStatus.Error);
           return this.health;
+        })
+        .orElse((e) => {
+          this.health.set(EChain.Gnosis, EComponentStatus.Error);
+          return okAsync(this.health);
         });
     });
   }

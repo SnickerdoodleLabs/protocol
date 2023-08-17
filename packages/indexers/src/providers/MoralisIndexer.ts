@@ -32,14 +32,13 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
-import { MasterIndexer } from "@indexers/MasterIndexer.js";
-
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
   IIndexerContextProvider,
   IIndexerContextProviderType,
 } from "@indexers/interfaces/index.js";
+import { MasterIndexer } from "@indexers/MasterIndexer.js";
 
 @injectable()
 export class MoralisEVMPortfolioRepository implements IEVMIndexer {
@@ -74,6 +73,10 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     protected contextProvider: IIndexerContextProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
+
+  public initialize(): ResultAsync<void, never> {
+    return okAsync(undefined);
+  }
 
   public name(): string {
     return EDataProvider.Moralis;
@@ -171,10 +174,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     );
   }
 
-  public getHealthCheck(): ResultAsync<
-    Map<EChain, EComponentStatus>,
-    AjaxError
-  > {
+  public getHealthCheck(): ResultAsync<Map<EChain, EComponentStatus>, never> {
     return this.configProvider.getConfig().andThen((config) => {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {

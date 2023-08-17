@@ -117,8 +117,6 @@ const testTwitterConfig = {
 
 export const testCoreConfig = new CoreConfig(
   controlChainId,
-  [], //TODO: supported chains
-  chainConfig,
   controlChainInformation,
   URLString("http://ipfstest.com/whatever"),
   defaultInsightPlatformBaseUrl, // defaultInsightPlatformBaseUrl

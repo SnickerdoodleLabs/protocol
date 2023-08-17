@@ -1,15 +1,9 @@
-import {
-  ChainId,
-  ChainInformation,
-  URLString,
-} from "@snickerdoodlelabs/objects";
+import { URLString } from "@snickerdoodlelabs/objects";
 
 export interface IPersistenceConfig {
-  supportedChains: ChainId[];
   accountBalancePollingIntervalMS: number;
   accountNFTPollingIntervalMS: number;
   backupChunkSizeTarget: number;
-  chainInformation: Map<ChainId, ChainInformation>;
   defaultInsightPlatformBaseUrl: URLString;
   defaultGoogleCloudBucket: string;
   restoreTimeoutMS: number;

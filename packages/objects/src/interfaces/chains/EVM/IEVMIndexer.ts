@@ -5,31 +5,32 @@ import {
   EVMTransaction,
   TokenBalance,
 } from "@objects/businessObjects/index.js";
+import { EChain, EComponentStatus } from "@objects/enum/index.js";
 import {
   AccountIndexingError,
   AjaxError,
   MethodSupportError,
 } from "@objects/errors/index.js";
 import { IIndexer } from "@objects/interfaces/chains/IIndexer.js";
-import { ChainId, EVMAccountAddress } from "@objects/primitives/index.js";
+import { EVMAccountAddress } from "@objects/primitives/index.js";
 
 export interface IEVMIndexer extends IIndexer {
   getBalancesForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
     TokenBalance[],
     AccountIndexingError | AjaxError | MethodSupportError
   >;
   getTokensForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
     EVMNFT[],
     AccountIndexingError | AjaxError | MethodSupportError
   >;
   getEVMTransactions(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
     startTime: Date,
     endTime?: Date,
@@ -37,6 +38,8 @@ export interface IEVMIndexer extends IIndexer {
     EVMTransaction[],
     AccountIndexingError | AjaxError | MethodSupportError
   >;
+
+  getHealthCheck(): ResultAsync<Map<EChain, EComponentStatus>, never>;
 }
 
 export const IAnkrIndexerType = Symbol.for("IAnkrIndexer");

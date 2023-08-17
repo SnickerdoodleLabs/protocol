@@ -338,7 +338,7 @@ export function getChainInfoByChainId(chainId: ChainId): ChainInformation {
   return chainInfo;
 }
 
-export function isAccountValidForChain(
+export function isAccountValidForChainId(
   chainId: ChainId,
   account: LinkedAccount,
 ): boolean {
@@ -346,6 +346,15 @@ export function isAccountValidForChain(
   // A query being processed.
   if (chainId === 5) return false;
   const targetChainInfo = getChainInfoByChainId(chainId);
+  const accountChainInfo = getChainInfoByChain(account.sourceChain);
+  return targetChainInfo.chainTechnology == accountChainInfo.chainTechnology;
+}
+
+export function isAccountValidForChain(
+  chain: EChain,
+  account: LinkedAccount,
+): boolean {
+  const targetChainInfo = getChainInfoByChain(chain);
   const accountChainInfo = getChainInfoByChain(account.sourceChain);
   return targetChainInfo.chainTechnology == accountChainInfo.chainTechnology;
 }

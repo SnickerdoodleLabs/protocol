@@ -5,29 +5,26 @@ import {
   TokenBalance,
   WalletNFT,
 } from "@objects/businessObjects/index.js";
+import { EChain } from "@objects/enum/index.js";
 import {
   AccountIndexingError,
   AjaxError,
   MethodSupportError,
   PersistenceError,
 } from "@objects/errors/index.js";
-import {
-  AccountAddress,
-  ChainId,
-  UnixTimestamp,
-} from "@objects/primitives/index.js";
+import { AccountAddress, UnixTimestamp } from "@objects/primitives/index.js";
 
 export interface IMasterIndexer {
   initialize(): ResultAsync<void, AjaxError>;
   getLatestBalances(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: AccountAddress,
   ): ResultAsync<
     TokenBalance[],
     PersistenceError | AccountIndexingError | AjaxError | MethodSupportError
   >;
   getLatestNFTs(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: AccountAddress,
   ): ResultAsync<
     WalletNFT[],
@@ -36,11 +33,12 @@ export interface IMasterIndexer {
   getLatestTransactions(
     accountAddress: AccountAddress,
     timestamp: UnixTimestamp,
-    chainId: ChainId,
+    chain: EChain,
   ): ResultAsync<
     ChainTransaction[],
     AccountIndexingError | AjaxError | MethodSupportError
   >;
+  getSupportedChains(): ResultAsync<EChain[], never>;
 }
 
 export const IMasterIndexerType = Symbol.for("IMasterIndexer");

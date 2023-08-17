@@ -69,22 +69,22 @@ export class MonitoringService implements IMonitoringService {
     // Grab the linked accounts and the config
     return ResultUtils.combine([
       this.accountRepo.getAccounts(),
-      this.configProvider.getConfig(),
+      this.masterIndexer.getSupportedChains(),
     ])
-      .andThen(([linkedAccounts, config]) => {
+      .andThen(([linkedAccounts, supportedChains]) => {
         // Loop over all the linked accounts in the data wallet, and get the last transaction for each supported chain
         // config.chainInformation is the list of supported chains,
         return ResultUtils.combine(
           linkedAccounts.map((linkedAccount) => {
             return ResultUtils.combine(
-              config.supportedChains.map((chainId) => {
-                if (!isAccountValidForChain(chainId, linkedAccount)) {
+              supportedChains.map((chain) => {
+                if (!isAccountValidForChain(chain, linkedAccount)) {
                   return okAsync([]);
                 }
 
                 return this.transactionRepo
                   .getLatestTransactionForAccount(
-                    chainId,
+                    chain,
                     linkedAccount.sourceAccountAddress,
                   )
                   .andThen((tx) => {
@@ -98,12 +98,12 @@ export class MonitoringService implements IMonitoringService {
                       .getLatestTransactions(
                         linkedAccount.sourceAccountAddress,
                         startTime,
-                        chainId,
+                        chain,
                       )
                       .orElse((e) => {
                         this.logUtils.error(
                           "error fetching transactions",
-                          chainId,
+                          chain,
                           linkedAccount.sourceAccountAddress,
                           e,
                         );

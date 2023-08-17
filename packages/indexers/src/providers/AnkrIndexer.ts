@@ -27,10 +27,9 @@ import {
   MethodSupportError,
   EDataProvider,
   EExternalApi,
-  EVMTransactionHash,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import {
@@ -102,6 +101,21 @@ export class AnkrIndexer implements IEVMIndexer {
     protected contextProvider: IIndexerContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
+
+  public initialize(): ResultAsync<void, never> {
+    return this.configProvider.getConfig().map((config) => {
+      this.indexerSupport.forEach((indexerSupportSummary, chain) => {
+        if (
+          config.apiKeys.ankrApiKey == "" ||
+          config.apiKeys.ankrApiKey == undefined
+        ) {
+          this.health.set(chain, EComponentStatus.NoKeyProvided);
+        } else {
+          this.health.set(chain, EComponentStatus.Available);
+        }
+      });
+    });
+  }
 
   public name(): string {
     return EDataProvider.Ankr;
@@ -304,10 +318,7 @@ export class AnkrIndexer implements IEVMIndexer {
     // });
   }
 
-  public getHealthCheck(): ResultAsync<
-    Map<EChain, EComponentStatus>,
-    AjaxError
-  > {
+  public getHealthCheck(): ResultAsync<Map<EChain, EComponentStatus>, never> {
     return this.configProvider.getConfig().andThen((config) => {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {

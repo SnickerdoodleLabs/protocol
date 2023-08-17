@@ -103,7 +103,6 @@ module.exports = {
       __DEV_CHAIN_PROVIDER_URL__: JSON.stringify(
         process.env.__DEV_CHAIN_PROVIDER_URL__,
       ),
-      __SUPPORTED_CHAINS__: JSON.stringify(process.env.__SUPPORTED_CHAINS__),
       __PORTFOLIO_POLLING_INTERVAL__: JSON.stringify(
         process.env.__PORTFOLIO_POLLING_INTERVAL__,
       ),

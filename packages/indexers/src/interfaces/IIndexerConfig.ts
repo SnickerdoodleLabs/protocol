@@ -2,6 +2,7 @@ import {
   ChainId,
   EChain,
   ECurrencyCode,
+  ProviderUrl,
   URLString,
 } from "@snickerdoodlelabs/objects";
 
@@ -38,6 +39,6 @@ export interface IIndexerConfig {
   };
   etherscanTransactionsBatchSize: number;
   quoteCurrency: ECurrencyCode;
-  supportedChains: ChainId[];
   alchemyEndpoints: Map<EChain, URLString>;
+  devChainProviderURL: ProviderUrl | null;
 }

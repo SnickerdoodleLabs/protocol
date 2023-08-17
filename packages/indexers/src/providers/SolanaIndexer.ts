@@ -43,14 +43,13 @@ import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { MasterIndexer } from "@indexers/MasterIndexer.js";
-
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
   IIndexerContextProvider,
   IIndexerContextProviderType,
 } from "@indexers/interfaces/index.js";
+import { MasterIndexer } from "@indexers/MasterIndexer.js";
 
 @injectable()
 export class SolanaIndexer implements ISolanaIndexer {
@@ -77,6 +76,10 @@ export class SolanaIndexer implements ISolanaIndexer {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
+
+  public initialize(): ResultAsync<void, never> {
+    return okAsync(undefined);
+  }
 
   public name(): string {
     return EDataProvider.Solana;
@@ -162,10 +165,7 @@ export class SolanaIndexer implements ISolanaIndexer {
     return okAsync([]); //TODO
   }
 
-  public getHealthCheck(): ResultAsync<
-    Map<EChain, EComponentStatus>,
-    AjaxError
-  > {
+  public getHealthCheck(): ResultAsync<Map<EChain, EComponentStatus>, never> {
     return this.configProvider.getConfig().andThen((config) => {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {

@@ -1,8 +1,4 @@
-import {
-  EChain,
-  EComponentStatus,
-  EDataProvider,
-} from "@objects/enum/index.js";
+import { EChain, EComponentStatus } from "@objects/enum/index.js";
 
 export class ComponentStatus {
   public constructor(
@@ -13,15 +9,6 @@ export class ComponentStatus {
     public moralisIndexer: Map<EChain, EComponentStatus>,
     public nftScanIndexer: Map<EChain, EComponentStatus>,
     public oklinkIndexer: Map<EChain, EComponentStatus>,
-    public chainStatus: ChainComponentStatus[],
-  ) {}
-}
-export class ChainComponentStatus {
-  public constructor(
-    public chain: EChain,
-    public transactionIndexer: EDataProvider | null,
-    public nftIndexer: EDataProvider | null,
-    public balanceIndexer: EDataProvider | null,
   ) {}
 }
 
@@ -41,13 +28,4 @@ export enum EIndexerFunction {
   Disabled = "Disabled",
   InUse = "In Use",
   TemporarilyDisabled = "Temporarily Disabled",
-}
-
-export class IndexerSupportSummary {
-  public constructor(
-    public chain: EChain,
-    public balances: boolean,
-    public transactions: boolean,
-    public nfts: boolean,
-  ) {}
 }

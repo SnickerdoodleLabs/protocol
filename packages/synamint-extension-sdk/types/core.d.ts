@@ -48,7 +48,6 @@ interface DiscordConfig extends OAuth2Config {
 declare interface IExtensionConfigOverrides {
   onboardingUrl?: string;
   controlChainId?: ChainId;
-  supportedChains?: ChainId[];
   ipfsFetchBaseUrl?: string;
   defaultInsightPlatformBaseUrl?: string;
   domainFilter?: string;

@@ -103,6 +103,10 @@ export class AlchemyIndexer implements IEVMIndexer {
     ]) as Map<EChain, boolean>;
   }
 
+  public initialize(): ResultAsync<void, never> {
+    return okAsync(undefined);
+  }
+
   public name(): string {
     return EDataProvider.Alchemy;
   }
@@ -163,10 +167,7 @@ export class AlchemyIndexer implements IEVMIndexer {
     return this.indexerSupport;
   }
 
-  public getHealthCheck(): ResultAsync<
-    Map<EChain, EComponentStatus>,
-    AjaxError
-  > {
+  public getHealthCheck(): ResultAsync<Map<EChain, EComponentStatus>, never> {
     return this.configProvider.getConfig().andThen((config) => {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {

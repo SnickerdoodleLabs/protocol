@@ -44,7 +44,6 @@ export class CoreProvider implements ICoreProvider {
     config.defaultInsightPlatformBaseUrl =
       immutableConfig.defaultInsightPlatformBaseUrl;
     config.devChainProviderURL = immutableConfig.devChainProviderURL;
-    config.supportedChains = immutableConfig.supportedChains;
     config.accountBalancePollingIntervalMS =
       immutableConfig.portfolioPollingIntervalMS;
     config.accountIndexingPollingIntervalMS =

@@ -10,7 +10,6 @@ export class IFrameConfig {
   public constructor(
     public controlChainId: ChainId,
     public devChainProviderURL: ProviderUrl | undefined = undefined,
-    public supportedChains: ChainId[],
     public ipfsFetchBaseUrl: URLString,
     public defaultInsightPlatformBaseUrl: URLString,
     public sourceDomain: DomainName,

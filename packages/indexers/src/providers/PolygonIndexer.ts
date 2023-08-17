@@ -66,6 +66,10 @@ export class PolygonIndexer implements IEVMIndexer {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
+  public initialize(): ResultAsync<void, never> {
+    return okAsync(undefined);
+  }
+
   public name(): string {
     return EDataProvider.Polygon;
   }
@@ -191,12 +195,8 @@ export class PolygonIndexer implements IEVMIndexer {
     });
   }
 
-  public getHealthCheck(): ResultAsync<
-    Map<EChain, EComponentStatus>,
-    AjaxError
-  > {
+  public getHealthCheck(): ResultAsync<Map<EChain, EComponentStatus>, never> {
     return this.configProvider.getConfig().andThen((config) => {
-      const keys = this.indexerSupport.keys();
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
           if (config.apiKeys.etherscanApiKeys[key] == undefined) {

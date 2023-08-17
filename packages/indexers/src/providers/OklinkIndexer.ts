@@ -76,6 +76,10 @@ export class OklinkIndexer implements IEVMIndexer {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
+  public initialize(): ResultAsync<void, never> {
+    return okAsync(undefined);
+  }
+
   public name(): string {
     return EDataProvider.Oklink;
   }
@@ -161,10 +165,7 @@ export class OklinkIndexer implements IEVMIndexer {
     );
   }
 
-  public getHealthCheck(): ResultAsync<
-    Map<EChain, EComponentStatus>,
-    AjaxError
-  > {
+  public getHealthCheck(): ResultAsync<Map<EChain, EComponentStatus>, never> {
     return this.configProvider.getConfig().andThen((config) => {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {

@@ -23,6 +23,11 @@ import {
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
+import {
+  IIndexerConfigProvider,
+  IIndexerConfigProviderType,
+} from "@indexers/interfaces/index.js";
+
 @injectable()
 export class SimulatorEVMTransactionRepository implements IEVMIndexer {
   protected health: Map<EChain, EComponentStatus> = new Map<
@@ -31,22 +36,19 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
   >();
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [
-      EChain.EthereumMainnet,
-      new IndexerSupportSummary(EChain.EthereumMainnet, true, false, false),
-    ],
-    [
-      EChain.Moonbeam,
-      new IndexerSupportSummary(EChain.Moonbeam, true, false, false),
-    ],
-    [
-      EChain.Binance,
-      new IndexerSupportSummary(EChain.Binance, true, false, false),
-    ],
-    [
-      EChain.Gnosis,
-      new IndexerSupportSummary(EChain.Gnosis, true, false, false),
+      EChain.DevDoodle,
+      new IndexerSupportSummary(EChain.DevDoodle, true, false, false),
     ],
   ]);
+
+  public constructor(
+    @inject(IIndexerConfigProviderType)
+    protected configProvider: IIndexerConfigProvider,
+  ) {}
+
+  public initialize(): ResultAsync<void, never> {
+    return okAsync(undefined);
+  }
 
   public name(): string {
     return EDataProvider.Sim;
@@ -141,28 +143,20 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
     return okAsync(result);
   }
 
-  public getHealthCheck(): ResultAsync<
-    Map<EChain, EComponentStatus>,
-    AjaxError
-  > {
-    this.health.set(EChain.EthereumMainnet, EComponentStatus.Available);
-    return okAsync(this.health);
-    // return this.configProvider.getConfig().andThen((config) => {
-    //   console.log(
-    //     "Alchemy Keys: " + JSON.stringify(config.apiKeys.alchemyApiKeys),
-    //   );
+  public getHealthCheck(): ResultAsync<Map<EChain, EComponentStatus>, never> {
+    return this.configProvider.getConfig().map((config) => {
+      // The Simulator Indexer is available if you've provided a dev chain URL
+      // This is actually important now, because the supported chains is based on the health
+      // status of the indexers. The doodlechain is available if we have a provider URL for it;
+      // make sure prod does not have one.
+      if (config.devChainProviderURL == null) {
+        this.health.set(EChain.DevDoodle, EComponentStatus.NoKeyProvided);
+      } else {
+        this.health.set(EChain.DevDoodle, EComponentStatus.Available);
+      }
 
-    //   const keys = this.indexerSupport.keys();
-    //   this.indexerSupport.forEach(
-    //     (value: IndexerSupportSummary, key: EChain) => {
-    //       if (config.apiKeys.alchemyApiKeys[key] == undefined) {
-    //         this.health.set(key, EComponentStatus.NoKeyProvided);
-    //       }
-    //       this.health.set(key, EComponentStatus.Available);
-    //     },
-    //   );
-    //   return okAsync(this.health);
-    // });
+      return this.health;
+    });
   }
 
   public healthStatus(): Map<EChain, EComponentStatus> {

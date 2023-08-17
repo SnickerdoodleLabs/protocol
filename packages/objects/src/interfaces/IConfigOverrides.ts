@@ -2,11 +2,11 @@ import {
   DiscordConfig,
   TwitterConfig,
 } from "@objects/businessObjects/index.js";
-import { ChainId, ProviderUrl, URLString } from "@objects/primitives/index.js";
+import { EChain } from "@objects/enum/index.js";
+import { ProviderUrl, URLString } from "@objects/primitives/index.js";
 
 export interface IConfigOverrides {
-  controlChainId?: ChainId;
-  supportedChains?: ChainId[];
+  controlChainId?: EChain;
   ipfsFetchBaseUrl?: URLString;
   defaultInsightPlatformBaseUrl?: URLString;
   accountIndexingPollingIntervalMS?: number;

@@ -1,9 +1,10 @@
-import { AccountAddress, ChainId } from "@objects/primitives/index.js";
+import { EChain } from "@objects/enum/index.js";
+import { AccountAddress } from "@objects/primitives/index.js";
 
 export class PortfolioUpdate<T> {
   public constructor(
     public accountAddress: AccountAddress,
-    public chainId: ChainId,
+    public chain: EChain,
     public timestamp: number,
     public data: T,
   ) {}

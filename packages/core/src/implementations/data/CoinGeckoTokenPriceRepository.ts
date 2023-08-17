@@ -15,7 +15,10 @@ import {
   EExternalApi,
   ERecordKey,
   EVMContractAddress,
+  getChainInfoByChain,
   getChainInfoByChainId,
+  IMasterIndexer,
+  IMasterIndexerType,
   ITokenPriceRepository,
   PersistenceError,
   TickerSymbol,
@@ -64,6 +67,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
+    @inject(IMasterIndexerType) protected indexer: IMasterIndexer,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
@@ -374,7 +378,8 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     this._assetPlatforms = ResultUtils.combine([
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),
-    ]).andThen(([config, context]) => {
+      this.indexer.getSupportedChains(),
+    ]).andThen(([config, context, supportedChains]) => {
       context.privateEvents.onApiAccessed.next(EExternalApi.CoinGecko);
       return this.ajaxUtils
         .get<
@@ -393,15 +398,15 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
           items.forEach((item) => {
             if (
               item.chain_identifier &&
-              config.supportedChains.includes(ChainId(item.chain_identifier))
+              supportedChains.includes(ChainId(item.chain_identifier))
             ) {
               mapping.forward[item.id] = ChainId(item.chain_identifier);
               mapping.backward[ChainId(item.chain_identifier)] = item.id;
             }
           });
 
-          config.supportedChains.forEach((chainId) => {
-            const info = getChainInfoByChainId(chainId);
+          supportedChains.forEach((chain) => {
+            const info = getChainInfoByChain(chain);
             if (info.coinGeckoSlug) {
               mapping.forward[info.coinGeckoSlug] = info.chainId;
               mapping.backward[info.chainId] = info.coinGeckoSlug;
