@@ -10,6 +10,7 @@ import {
   AjaxError,
   BigNumberString,
   ChainTransaction,
+  compareComponentStatus,
   EChain,
   EChainTechnology,
   EComponentStatus,
@@ -112,8 +113,7 @@ export class MasterIndexer implements IMasterIndexer {
       })
       .map((supportedChains) => {
         this.logUtils.log(
-          `Initialized indexers. Supported chains:`,
-          supportedChains,
+          `Initialized indexers. Supported chains: ${supportedChains}`,
         );
       });
   }
@@ -411,25 +411,10 @@ export class MasterIndexer implements IMasterIndexer {
 
           // Check if the status is better than the existing status
           // InUse > Available > TemporarilyDisabled > Disabled > Error > NoKeyProvided
-          else if (status == EComponentStatus.InUse) {
-            baseHealthStatus.set(chain, status);
-            return;
-          } else if (status == EComponentStatus.Available) {
-            baseHealthStatus.set(chain, status);
-            return;
-          } else if (status == EComponentStatus.TemporarilyDisabled) {
-            baseHealthStatus.set(chain, status);
-            return;
-          } else if (status == EComponentStatus.Disabled) {
-            baseHealthStatus.set(chain, status);
-            return;
-          } else if (status == EComponentStatus.Error) {
-            baseHealthStatus.set(chain, status);
-            return;
-          } else if (status == EComponentStatus.NoKeyProvided) {
-            baseHealthStatus.set(chain, status);
-            return;
-          }
+          baseHealthStatus.set(
+            chain,
+            compareComponentStatus(baseStatus, status),
+          );
         });
         return baseHealthStatus;
       }, chainStatuses);
