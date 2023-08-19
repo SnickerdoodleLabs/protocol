@@ -1,3 +1,4 @@
+import { ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
   EBoolean,
   PersistenceError,
@@ -23,6 +24,7 @@ export class IndexedDB {
     public name: string,
     private schema: VolatileTableIndex<VersionedObject>[],
     private dbFactory: IDBFactory,
+    protected logUtils: ILogUtils,
   ) {
     this._keyPaths = new Map();
     this.schema.forEach((x) => {
@@ -94,7 +96,7 @@ export class IndexedDB {
           });
         };
       } catch (e) {
-        console.error(e);
+        this.logUtils.error(e);
         clearTimeout(timeout);
         reject(e);
       }
@@ -105,7 +107,7 @@ export class IndexedDB {
     }).andThen((db) => {
       this._db = db;
       return this.persist().andThen((persisted) => {
-        console.log("IndexDB Persist success: " + persisted);
+        this.logUtils.debug("IndexDB Persist success: " + persisted);
         return okAsync(db);
       });
     });
@@ -118,7 +120,7 @@ export class IndexedDB {
       typeof navigator === "undefined" ||
       !(navigator.storage && navigator.storage.persist)
     ) {
-      console.warn("navigator.storage does not exist not supported");
+      this.logUtils.warning("navigator.storage does not exist not supported");
       return okAsync(false);
     }
 
@@ -133,14 +135,19 @@ export class IndexedDB {
   public clear(): ResultAsync<void, PersistenceError> {
     return this.initialize()
       .andThen((db) => {
-        return this.getTransaction("Clear", "readwrite").andThen((tx) => {
-          const objectStoreNames = [...db.objectStoreNames];
-          return ResultUtils.combine(
-            objectStoreNames.map((objectStoreName) => {
-              return this._clearNamedObjectStore(tx, objectStoreName);
-            }),
-          );
-        });
+        const objectStoreNames = [...db.objectStoreNames];
+        return this.getTransaction(objectStoreNames, "readwrite").andThen(
+          (tx) => {
+            this.logUtils.log(
+              `Clearing local IndexDB, object store names: ${objectStoreNames}`,
+            );
+            return ResultUtils.combine(
+              objectStoreNames.map((objectStoreName) => {
+                return this._clearNamedObjectStore(tx, objectStoreName);
+              }),
+            );
+          },
+        );
       })
       .map(() => {});
   }
@@ -159,7 +166,7 @@ export class IndexedDB {
     obj: T,
   ): ResultAsync<void, PersistenceError> {
     if (obj == null) {
-      console.warn("null object placed in volatile store");
+      this.logUtils.warning("null object placed in volatile store");
       return okAsync(undefined);
     }
 
@@ -169,7 +176,6 @@ export class IndexedDB {
       })
       .andThen((tx) => {
         const promise = new Promise((resolve, reject) => {
-          // console.log("creating promise", obj);
           try {
             const store = tx.objectStore(name);
             const request = store.put(obj);
@@ -177,7 +183,8 @@ export class IndexedDB {
               resolve(undefined);
             };
             request.onerror = (event) => {
-              console.log("err", event);
+              this.logUtils.error("Error in IndexDB.putObject");
+              this.logUtils.error(event);
               reject(
                 new PersistenceError(
                   "error updating object store: " + event.target,
@@ -454,7 +461,8 @@ export class IndexedDB {
     tx: IDBTransaction,
     name: string,
   ): ResultAsync<void, PersistenceError> {
-    const promise = new Promise((resolve, reject) => {
+    this.logUtils.log(`Clearing object store ${name}`);
+    const promise = new Promise<void>((resolve, reject) => {
       const timeout = setTimeout(() => {
         reject(
           new PersistenceError(
@@ -468,7 +476,7 @@ export class IndexedDB {
         const req = store.clear();
         req.onsuccess = function (evt) {
           clearTimeout(timeout);
-          resolve(store);
+          resolve();
         };
         req.onerror = function (evt) {
           clearTimeout(timeout);
@@ -482,15 +490,15 @@ export class IndexedDB {
 
     return ResultAsync.fromPromise(promise, (e) => {
       return e as PersistenceError;
-    }).andThen((_store) => okAsync(undefined));
+    });
   }
 
   protected getTransaction(
-    name: string,
+    storeNames: string | Iterable<string>,
     mode: IDBTransactionMode,
   ): ResultAsync<IDBTransaction, PersistenceError> {
     return this.initialize().map((db) => {
-      return db.transaction(name, mode);
+      return db.transaction(storeNames, mode);
     });
   }
 

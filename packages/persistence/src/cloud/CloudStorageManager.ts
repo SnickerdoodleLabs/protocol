@@ -97,7 +97,6 @@ export class CloudStorageManager implements ICloudStorageManager {
       this.contextProvider.getContext(),
       this.deactivateAuthenticatedStorage(credentials),
     ]).andThen(([context, deactivated]) => {
-      console.log("within here activateAuthenticatedStorage: ");
       credentials.path = credentials.path;
       if (credentials.type == ECloudStorageType.Dropbox) {
         this.provider = this.dropbox;
@@ -174,9 +173,6 @@ export class CloudStorageManager implements ICloudStorageManager {
 
   public getCloudStorage(): ResultAsync<ICloudStorage, never> {
     return this.initializeResult.map((storage) => {
-      console.log("cloudStorage: " + JSON.stringify(storage));
-      console.log("this.provider: " + JSON.stringify(this.provider));
-
       return this.provider;
     });
   }
