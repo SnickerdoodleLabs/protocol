@@ -1,7 +1,12 @@
 import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { IRequestConfig } from "@snickerdoodlelabs/common-utils";
-import { AccessToken, ECloudStorageType } from "@snickerdoodlelabs/objects";
+import {
+  AccessToken,
+  DropboxTokens,
+  ECloudStorageType,
+  RefreshToken,
+} from "@snickerdoodlelabs/objects";
 import { Radio } from "@snickerdoodlelabs/shared-components";
 import { Dropbox } from "dropbox";
 import { ResultAsync, errAsync, ok, okAsync } from "neverthrow";
@@ -85,6 +90,9 @@ const StorageSettings = () => {
   const [accessToken, setAccessToken] = useState<AccessToken>(
     AccessToken(sessionStorage.getItem("dropboxAccessToken") || ""),
   );
+  const [refreshToken, setRefreshToken] = useState<RefreshToken>(
+    RefreshToken(sessionStorage.getItem("dropboxRefreshToken") || ""),
+  );
 
   const [folders, setFolders] = useState<NestedFolder[]>();
   const [storageOption, setStorageOption] = useState<ECloudStorageType>();
@@ -112,13 +120,16 @@ const StorageSettings = () => {
   const handleCode = (code) => {
     sdlDataWallet.storage
       .authenticateDropbox(code)
-      .map((accessToken) => {
-        setAccessToken(accessToken);
-        sessionStorage.setItem("dropboxAccessToken", accessToken);
+      .map((tokens) => {
+        setAccessToken(tokens.accessToken);
+        setRefreshToken(tokens.refreshToken);
+        sessionStorage.setItem("dropboxAccessToken", tokens.accessToken);
+        sessionStorage.setItem("dropboxRefreshToken", tokens.refreshToken);
         return window.history.replaceState(null, "", window.location.pathname);
       })
       .mapErr((e) => {
         sessionStorage.setItem("dropboxAccessToken", accessToken);
+        sessionStorage.setItem("dropboxRefreshToken", refreshToken);
         console.log(e);
       });
   };
@@ -207,8 +218,13 @@ const StorageSettings = () => {
   // only hits when we select dropbox for now
   const onFolderSelect = (path: string) => {
     sessionStorage.removeItem("dropboxAccessToken");
+    sessionStorage.removeItem("dropboxRefreshToken");
     sdlDataWallet.storage
-      .setAuthenticatedStorage(ECloudStorageType.Dropbox, path, accessToken)
+      .setAuthenticatedStorage(
+        ECloudStorageType.Dropbox,
+        path,
+        new DropboxTokens(accessToken, refreshToken),
+      )
       .map(() => {
         setAlert({
           severity: EAlertSeverity.SUCCESS,
@@ -232,7 +248,7 @@ const StorageSettings = () => {
             .setAuthenticatedStorage(
               ECloudStorageType.Local,
               "",
-              AccessToken(""),
+              new DropboxTokens(AccessToken(""), RefreshToken("")),
             )
             .map((val) => {
               setStorageOption(ECloudStorageType.Local);
@@ -280,6 +296,7 @@ const StorageSettings = () => {
               folders={folders}
               onCancel={() => {
                 sessionStorage.removeItem("dropboxAccessToken");
+                sessionStorage.removeItem("dropboxRefreshToken");
                 setFolders(undefined);
               }}
             />

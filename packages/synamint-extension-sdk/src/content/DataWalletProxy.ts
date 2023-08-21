@@ -56,6 +56,7 @@ import {
   SocialProfileLinkedEvent,
   IProxyStorageMethods,
   ECoreProxyType,
+  DropboxTokens,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -311,10 +312,10 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       setAuthenticatedStorage: (
         storageType: ECloudStorageType,
         path: string,
-        accessToken: AccessToken,
+        tokens: DropboxTokens,
       ) => {
         return coreGateway.setAuthenticatedStorage(
-          new SetAuthenticatedStorageParams(storageType, path, accessToken),
+          new SetAuthenticatedStorageParams(storageType, path, tokens),
         );
       },
       getCurrentCloudStorage: () => {

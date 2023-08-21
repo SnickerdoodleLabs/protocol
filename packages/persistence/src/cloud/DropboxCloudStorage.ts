@@ -112,7 +112,7 @@ export class DropboxCloudStorage implements ICloudStorage {
 
         return this.ajaxUtils.post<IDropboxWalletBackupDirectory>(url, data, {
           headers: {
-            Authorization: `Bearer ${settingsData.accessToken}`,
+            Authorization: `Bearer ${settingsData.dropboxTokens.accessToken}`,
             "Content-Type": `application/json`,
           },
         });
@@ -154,7 +154,7 @@ export class DropboxCloudStorage implements ICloudStorage {
         return this.ajaxUtils
           .post<ITempUrl>(new URL(url), data, {
             headers: {
-              Authorization: `Bearer ${settingsData.accessToken}`,
+              Authorization: `Bearer ${settingsData.dropboxTokens.accessToken}`,
               "Content-Type": `application/json`,
             },
           } as IRequestConfig)
@@ -236,7 +236,7 @@ export class DropboxCloudStorage implements ICloudStorage {
       return this.ajaxUtils
         .post<void>(url, data, {
           headers: {
-            Authorization: `Bearer ${settingsData.accessToken}`,
+            Authorization: `Bearer ${settingsData.dropboxTokens.accessToken}`,
             "Content-Type": `application/json`,
           },
         })
@@ -311,7 +311,7 @@ export class DropboxCloudStorage implements ICloudStorage {
         path: dropboxFile.id,
       };
       const headerParams = {
-        Authorization: `Bearer ${settingsData.accessToken}`,
+        Authorization: `Bearer ${settingsData.dropboxTokens.accessToken}`,
         "Dropbox-API-Arg": `${JSON.stringify(data)}`,
         "Content-Type": "text/plain",
       };

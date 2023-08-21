@@ -4,7 +4,7 @@ export * from "@objects/extensionShared/businessObjects/AccountRemovedNotificati
 export * from "@objects/extensionShared/businessObjects/BaseNotification";
 
 export * from "@objects/extensionShared/businessObjects/CloudProviderActivatedNotification";
-
+export * from "@objects/extensionShared/businessObjects/DropboxTokens";
 export * from "@objects/extensionShared/businessObjects/EarnedRewardsAddedNotification";
 export * from "@objects/extensionShared/businessObjects/CohortJoinedNotification";
 export * from "@objects/extensionShared/businessObjects/ProfileFieldChangedNotification";

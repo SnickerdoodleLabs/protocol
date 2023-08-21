@@ -1,5 +1,7 @@
 import { ResultAsync } from "neverthrow";
 
+import { DropboxTokens } from "..";
+
 import {
   AdSignature,
   ChainTransaction,
@@ -106,6 +108,7 @@ import {
   URLString,
   PasswordString,
   AccessToken,
+  RefreshToken,
 } from "@objects/primitives/index.js";
 
 /**
@@ -621,13 +624,13 @@ export interface IStorageMethods {
   setAuthenticatedStorage(
     type: ECloudStorageType,
     path: string,
-    accessToken: AccessToken,
+    tokens: DropboxTokens,
     sourceDomain: DomainName | undefined,
   ): ResultAsync<void, PersistenceError>;
   authenticateDropbox(
     code: string,
     sourceDomain: DomainName | undefined,
-  ): ResultAsync<AccessToken, AjaxError>;
+  ): ResultAsync<DropboxTokens, AjaxError>;
   getCurrentCloudStorage(
     sourceDomain: DomainName | undefined,
   ): ResultAsync<ECloudStorageType, never>;

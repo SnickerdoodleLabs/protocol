@@ -1,14 +1,3 @@
-import { ICoreListener } from "@core-iframe/interfaces/api/index";
-import {
-  IAccountService,
-  IAccountServiceType,
-} from "@core-iframe/interfaces/business/index";
-import {
-  IConfigProvider,
-  IConfigProviderType,
-  ICoreProvider,
-  ICoreProviderType,
-} from "@core-iframe/interfaces/utilities/index";
 import {
   ICryptoUtils,
   ICryptoUtilsType,
@@ -51,6 +40,8 @@ import {
   UnixTimestamp,
   ECloudStorageType,
   AccessToken,
+  RefreshToken,
+  DropboxTokens,
 } from "@snickerdoodlelabs/objects";
 import {
   IIFrameCallData,
@@ -63,6 +54,18 @@ import { okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import Postmate from "postmate";
 import { parse } from "tldts";
+
+import { ICoreListener } from "@core-iframe/interfaces/api/index";
+import {
+  IAccountService,
+  IAccountServiceType,
+} from "@core-iframe/interfaces/business/index";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+  ICoreProvider,
+  ICoreProviderType,
+} from "@core-iframe/interfaces/utilities/index";
 @injectable()
 export class CoreListener extends ChildProxy implements ICoreListener {
   // Get the source domain
@@ -96,6 +99,62 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.coreProvider.setConfig(data.data);
         }, data.callId);
       },
+      unlock: (
+        data: IIFrameCallData<{
+          accountAddress: AccountAddress;
+          signature: Signature;
+          languageCode: LanguageCode;
+          chain: EChain;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.account
+              .unlock(
+                data.data.accountAddress,
+                data.data.signature,
+                data.data.languageCode,
+                data.data.chain,
+                sourceDomain,
+              )
+              .andThen(() => {
+                // Store the unlock values in local storage
+                console.log("Storing unlock values in local storage");
+                return ResultUtils.combine([
+                  this.storageUtils.write(
+                    "storedAccountAddress",
+                    data.data.accountAddress,
+                  ),
+                  this.storageUtils.write(
+                    "storedSignature",
+                    data.data.signature,
+                  ),
+                  this.storageUtils.write("storedChain", data.data.chain),
+                  this.storageUtils.write(
+                    "storedLanguageCode",
+                    data.data.languageCode,
+                  ),
+                ])
+                  .map(() => {})
+                  .orElse((e) => {
+                    console.error("Error storing unlock values", e);
+                    return okAsync(undefined);
+                  });
+              })
+              .andThen(() => {
+                // We want to record the sourceDomain as a site visit
+                return core.addSiteVisits([
+                  new SiteVisit(
+                    URLString(this.sourceDomain), // We can't get the full URL, but the domain will suffice
+                    this.timeUtils.getUnixNow(), // Visit started now
+                    UnixTimestamp(this.timeUtils.getUnixNow() + 10), // We're not going to wait, so just record the visit as for 10 seconds
+                  ),
+                ]);
+              });
+          });
+        }, data.callId);
+      },
+
       addAccount: (
         data: IIFrameCallData<{
           accountAddress: AccountAddress;
@@ -118,14 +177,14 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      getLinkAccountMessage: (
+      getUnlockMessage: (
         data: IIFrameCallData<{
           languageCode: LanguageCode;
         }>,
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.account.getLinkAccountMessage(
+            return core.account.getUnlockMessage(
               data.data.languageCode,
               sourceDomain,
             );
@@ -336,6 +395,18 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
+      // closeTab: (data: IIFrameCallData<Record<string, never>>) => {
+      //   this.returnForModel(() => {
+      //     return core.closeTab(sourceDomain);
+      //   }, data.callId);
+      // },
+
+      // getDataWalletAddress: (data: IIFrameCallData<Record<string, never>>) => {
+      //   this.returnForModel(() => {
+      //     return core.account.(sourceDomain);
+      //   }, data.callId);
+      // },
+
       getAcceptedInvitationsCID: (
         data: IIFrameCallData<Record<string, never>>,
       ) => {
@@ -524,7 +595,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           consentContractAddress: EVMContractAddress;
           tokenId?: BigNumberString;
           businessSignature?: Signature;
-          rejectUntil?: UnixTimestamp,
+          rejectUntil?: UnixTimestamp;
         }>,
       ) => {
         this.returnForModel(() => {
@@ -563,6 +634,8 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       unlinkAccount: (
         data: IIFrameCallData<{
           accountAddress: AccountAddress;
+          signature: Signature;
+          languageCode: LanguageCode;
           chain: EChain;
         }>,
       ) => {
@@ -570,6 +643,8 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.coreProvider.getCore().andThen((core) => {
             return core.account.unlinkAccount(
               data.data.accountAddress,
+              data.data.signature,
+              data.data.languageCode,
               data.data.chain,
               sourceDomain,
             );
@@ -886,6 +961,13 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           });
         }, data.callId);
       },
+      "metrics.getUnlocked": (data: IIFrameCallData<Record<string, never>>) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.metrics.getUnlocked(sourceDomain);
+          });
+        }, data.callId);
+      },
 
       "twitter.getOAuth1aRequestToken": (
         data: IIFrameCallData<Record<string, never>>,
@@ -936,7 +1018,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         data: IIFrameCallData<{
           storageType: ECloudStorageType;
           path: string;
-          accessToken: AccessToken;
+          tokens: DropboxTokens;
         }>,
       ) => {
         this.returnForModel(() => {
@@ -944,7 +1026,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
             return core.storage.setAuthenticatedStorage(
               data.data.storageType,
               data.data.path,
-              data.data.accessToken,
+              data.data.tokens,
               sourceDomain,
             );
           });

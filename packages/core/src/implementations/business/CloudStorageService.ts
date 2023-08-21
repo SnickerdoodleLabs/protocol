@@ -12,6 +12,7 @@ import {
   URLString,
   PersistenceError,
   DataWalletAddress,
+  DropboxTokens,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -32,6 +33,7 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
+import { RefreshToken } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class CloudStorageService implements ICloudStorageService {
@@ -150,7 +152,7 @@ export class CloudStorageService implements ICloudStorageService {
       return URLString(
         "https://www.dropbox.com/oauth2/authorize?client_id=" +
           config.dropboxAppKey +
-          " &response_type=code&redirect_uri=" +
+          "&token_access_type=offline&response_type=code&redirect_uri=" +
           config.dropboxRedirectUri,
       );
     });
@@ -158,12 +160,12 @@ export class CloudStorageService implements ICloudStorageService {
 
   public authenticateDropbox(
     code: string,
-  ): ResultAsync<AccessToken, AjaxError> {
+  ): ResultAsync<DropboxTokens, AjaxError> {
     return this.configProvider
       .getConfig()
       .andThen((config) => {
         // pass in code
-        return this.ajaxUtils.post<{ access_token: AccessToken }>(
+        return this.ajaxUtils.post<DropboxTokens>(
           new URL("https://api.dropbox.com/oauth2/token"),
           new URLSearchParams({
             client_id: config.dropboxAppKey,
@@ -180,6 +182,9 @@ export class CloudStorageService implements ICloudStorageService {
           } as IRequestConfig,
         );
       })
-      .map((tokens) => tokens.access_token);
+      .map((tokens) => {
+        console.log("cloud storage service tokens: " + JSON.stringify(tokens));
+        return tokens;
+      });
   }
 }

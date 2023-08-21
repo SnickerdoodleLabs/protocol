@@ -88,6 +88,7 @@ import {
   AccessToken,
   AuthenticatedStorageSettings,
   IStorageMethods,
+  DropboxTokens,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -583,7 +584,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       setAuthenticatedStorage: (
         type: ECloudStorageType,
         path: string,
-        accessToken: AccessToken,
+        tokens: DropboxTokens,
         sourceDomain: DomainName | undefined,
       ) => {
         const cloudStorageService = this.iocContainer.get<ICloudStorageService>(
@@ -591,7 +592,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         );
 
         return cloudStorageService.setAuthenticatedStorage(
-          new AuthenticatedStorageSettings(type, path, accessToken),
+          new AuthenticatedStorageSettings(type, path, tokens),
         );
       },
     };
@@ -1093,6 +1094,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public getTokenInfo(
     chainId: ChainId,
     contractAddress: TokenAddress,
+    
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<TokenInfo | null, AccountIndexingError> {
     const tokenPriceRepo = this.iocContainer.get<ITokenPriceRepository>(
