@@ -1,14 +1,3 @@
-import { ICoreListener } from "@core-iframe/interfaces/api/index";
-import {
-  IAccountService,
-  IAccountServiceType,
-} from "@core-iframe/interfaces/business/index";
-import {
-  IConfigProvider,
-  IConfigProviderType,
-  ICoreProvider,
-  ICoreProviderType,
-} from "@core-iframe/interfaces/utilities/index";
 import {
   ICryptoUtils,
   ICryptoUtilsType,
@@ -51,6 +40,7 @@ import {
   UnixTimestamp,
   ECloudStorageType,
   AccessToken,
+  RefreshToken,
 } from "@snickerdoodlelabs/objects";
 import {
   IIFrameCallData,
@@ -63,6 +53,18 @@ import { okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import Postmate from "postmate";
 import { parse } from "tldts";
+
+import { ICoreListener } from "@core-iframe/interfaces/api/index";
+import {
+  IAccountService,
+  IAccountServiceType,
+} from "@core-iframe/interfaces/business/index";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+  ICoreProvider,
+  ICoreProviderType,
+} from "@core-iframe/interfaces/utilities/index";
 @injectable()
 export class CoreListener extends ChildProxy implements ICoreListener {
   // Get the source domain
@@ -524,7 +526,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           consentContractAddress: EVMContractAddress;
           tokenId?: BigNumberString;
           businessSignature?: Signature;
-          rejectUntil?: UnixTimestamp,
+          rejectUntil?: UnixTimestamp;
         }>,
       ) => {
         this.returnForModel(() => {
@@ -936,7 +938,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         data: IIFrameCallData<{
           storageType: ECloudStorageType;
           path: string;
-          accessToken: AccessToken;
+          refreshToken: RefreshToken;
         }>,
       ) => {
         this.returnForModel(() => {
@@ -944,7 +946,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
             return core.storage.setAuthenticatedStorage(
               data.data.storageType,
               data.data.path,
-              data.data.accessToken,
+              data.data.refreshToken,
               sourceDomain,
             );
           });

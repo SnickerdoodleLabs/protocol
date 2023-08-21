@@ -1,4 +1,3 @@
-import { Brand, make } from "ts-brand";
+import { OAuth2AccessToken } from "@objects/primitives/OAuthRelatedTypes.js";
 
-export type AccessToken = Brand<string, "AccessToken">;
-export const AccessToken = make<AccessToken>();
+export type AccessToken = OAuth2AccessToken;
