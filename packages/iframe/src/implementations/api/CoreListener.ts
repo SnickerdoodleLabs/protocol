@@ -336,18 +336,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      // closeTab: (data: IIFrameCallData<Record<string, never>>) => {
-      //   this.returnForModel(() => {
-      //     return core.closeTab(sourceDomain);
-      //   }, data.callId);
-      // },
-
-      // getDataWalletAddress: (data: IIFrameCallData<Record<string, never>>) => {
-      //   this.returnForModel(() => {
-      //     return core.account.(sourceDomain);
-      //   }, data.callId);
-      // },
-
       getAcceptedInvitationsCID: (
         data: IIFrameCallData<Record<string, never>>,
       ) => {

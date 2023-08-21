@@ -43,7 +43,7 @@ export class BlockchainStuff {
   public constructor(public accountWallets: TestWallet[]) {
     // Initialize a connection to the local blockchain
     this.provider = new ethers.providers.JsonRpcProvider(
-      "http://localhost:8545",
+      "http://127.0.0.1:8545",
       31337,
     );
     // We'll use account 0

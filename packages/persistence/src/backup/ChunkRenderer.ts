@@ -3,7 +3,6 @@ import {
   DataWalletBackup,
   DataWalletBackupHeader,
   EDataStorageType,
-  EVMPrivateKey,
   FieldDataUpdate,
   PersistenceError,
   UnixTimestamp,
@@ -25,8 +24,6 @@ export class ChunkRenderer implements IChunkRenderer {
 
   public constructor(
     protected schema: FieldIndex | VolatileTableIndex<VersionedObject>,
-    protected enableEncryption: boolean,
-    protected privateKey: EVMPrivateKey,
     protected backupUtils: IBackupUtils,
     protected timeUtils: ITimeUtils,
   ) {
@@ -120,26 +117,17 @@ export class ChunkRenderer implements IChunkRenderer {
   private _dump(
     updates: VolatileDataUpdate[] | FieldDataUpdate,
   ): ResultAsync<DataWalletBackup, PersistenceError> {
-    return this.backupUtils
-      .encryptBlob(updates, this.enableEncryption ? this.privateKey : null)
-      .andThen((encryptedBlob) => {
-        return this.backupUtils.getBackupHash(encryptedBlob).andThen((hash) => {
-          const timestamp = this.timeUtils.getUnixNow();
-          return this.backupUtils
-            .generateBackupSignature(hash, timestamp, this.privateKey)
-            .map((signature) => {
-              const header = new DataWalletBackupHeader(
-                hash,
-                UnixTimestamp(timestamp),
-                signature,
-                this.schema.priority,
-                this.schema.name,
-                this.mode == EDataStorageType.Field,
-              );
+    return this.backupUtils.getBackupHash(updates).map((hash) => {
+      const timestamp = this.timeUtils.getUnixNow();
+      const header = new DataWalletBackupHeader(
+        hash,
+        UnixTimestamp(timestamp),
+        this.schema.priority,
+        this.schema.name,
+        this.mode == EDataStorageType.Field,
+      );
 
-              return new DataWalletBackup(header, encryptedBlob);
-            });
-        });
-      });
+      return new DataWalletBackup(header, updates);
+    });
   }
 }

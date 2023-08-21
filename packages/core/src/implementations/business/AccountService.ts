@@ -127,7 +127,7 @@ export class AccountService implements IAccountService {
             .createDataWalletPrivateKey()
             .andThen((newDataWalletAccount) => {
               // We need to unlock before we can write the new key
-              return this.unlockAndActivate(newDataWalletAccount)
+              return this.activateAuthenticatedStorage(newDataWalletAccount)
                 .andThen(() => {
                   return this.entropyRepo.setDataWalletPrivateKey(
                     newDataWalletAccount.privateKey,
@@ -141,7 +141,7 @@ export class AccountService implements IAccountService {
         this.logUtils.log(
           `Existing Data Wallet ${dataWalletAccount.accountAddress} found in volatile storage`,
         );
-        return this.unlockAndActivate(dataWalletAccount);
+        return this.activateAuthenticatedStorage(dataWalletAccount);
       })
       .andThen((dataWalletAccount) => {
         return this.contextProvider.getContext().andThen((context) => {
@@ -380,14 +380,11 @@ export class AccountService implements IAccountService {
     });
   }
 
-  protected unlockAndActivate(
+  protected activateAuthenticatedStorage(
     dataWalletAccount: ExternallyOwnedAccount,
   ): ResultAsync<ExternallyOwnedAccount, PersistenceError> {
-    return this.dataWalletPersistence
-      .unlock(dataWalletAccount.privateKey)
-      .andThen(() => {
-        return this.authenticatedStorageRepo.getCredentials();
-      })
+    return this.authenticatedStorageRepo
+      .getCredentials()
       .andThen((credentials) => {
         if (credentials == null) {
           return okAsync(undefined);

@@ -70,7 +70,6 @@ export class AuthenticatedStorageRepository
         EFieldKey.AUTHENTICATED_STORAGE_SETTINGS,
       )
       .map((credentials) => {
-        console.log("credentials: " + credentials);
         if (credentials && credentials.hasOwnProperty("type") === false) {
           return null;
         }
