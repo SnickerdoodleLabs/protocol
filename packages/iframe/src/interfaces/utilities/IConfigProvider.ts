@@ -3,7 +3,7 @@ import { DomainName } from "@snickerdoodlelabs/objects";
 
 export interface IConfigProvider {
   getConfig(): IFrameConfig;
-  overrideSourceDomain(domain: DomainName | undefined): void;
+  overrideSourceDomain(domain: DomainName): void;
 }
 
 export const IConfigProviderType = Symbol.for("IConfigProvider");
