@@ -96,16 +96,15 @@ export class EtherscanIndexer implements IEVMIndexer {
   public initialize(): ResultAsync<void, never> {
     return this.configProvider.getConfig().map((config) => {
       this.indexerSupport.forEach(
-        (value: IndexerSupportSummary, key: EChain) => {
+        (value: IndexerSupportSummary, chain: EChain) => {
+          const chainInfo = getChainInfoByChain(chain);
           if (
-            config.apiKeys.etherscanApiKeys[getChainInfoByChain(key).name] ==
-              "" ||
-            config.apiKeys.etherscanApiKeys[getChainInfoByChain(key).name] ==
-              undefined
+            config.apiKeys.etherscanApiKeys[chainInfo.name] == "" ||
+            config.apiKeys.etherscanApiKeys[chainInfo.name] == undefined
           ) {
-            this.health.set(key, EComponentStatus.NoKeyProvided);
+            this.health.set(chain, EComponentStatus.NoKeyProvided);
           } else {
-            this.health.set(key, EComponentStatus.Available);
+            this.health.set(chain, EComponentStatus.Available);
           }
         },
       );
@@ -143,7 +142,7 @@ export class EtherscanIndexer implements IEVMIndexer {
 
     return errAsync(
       new MethodSupportError(
-        "getTokensForAccount not supported for AlchemyIndexer",
+        "getTokensForAccount not supported for Etherscan Indexer",
         400,
       ),
     );

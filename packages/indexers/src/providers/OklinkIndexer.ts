@@ -151,7 +151,7 @@ export class OklinkIndexer implements IEVMIndexer {
   > {
     return errAsync(
       new MethodSupportError(
-        "getTokensForAccount not supported for AlchemyIndexer",
+        "getTokensForAccount not supported for Oklink Indexer",
         400,
       ),
     );
@@ -168,7 +168,7 @@ export class OklinkIndexer implements IEVMIndexer {
   > {
     return errAsync(
       new MethodSupportError(
-        "getTokensForAccount not supported for AlchemyIndexer",
+        "getTokensForAccount not supported for Oklink Indexer",
         400,
       ),
     );
