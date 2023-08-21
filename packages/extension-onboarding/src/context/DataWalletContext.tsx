@@ -1,11 +1,4 @@
 import "reflect-metadata";
-import useIsMobile from "@extension-onboarding/hooks/useIsMobile";
-import { WebIntegrationConfigProvider } from "@extension-onboarding/services/implementations/utilities";
-import { ISdlDataWalletProxy } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import InstallationRequired from "@extension-onboarding/setupScreens/InstallationRequired";
-import Loading from "@extension-onboarding/setupScreens/Loading";
-import MobileScreen from "@extension-onboarding/setupScreens/MobileScreen/MobileScreen";
-import ProviderSelector from "@extension-onboarding/setupScreens/ProviderSelector";
 import { ECoreProxyType, ISdlDataWallet } from "@snickerdoodlelabs/objects";
 import { SnickerdoodleWebIntegration } from "@snickerdoodlelabs/web-integration";
 import React, {
@@ -16,6 +9,14 @@ import React, {
   useState,
   useMemo,
 } from "react";
+
+import useIsMobile from "@extension-onboarding/hooks/useIsMobile";
+import { WebIntegrationConfigProvider } from "@extension-onboarding/services/implementations/utilities";
+import { ISdlDataWalletProxy } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import InstallationRequired from "@extension-onboarding/setupScreens/InstallationRequired";
+import Loading from "@extension-onboarding/setupScreens/Loading";
+import MobileScreen from "@extension-onboarding/setupScreens/MobileScreen/MobileScreen";
+import ProviderSelector from "@extension-onboarding/setupScreens/ProviderSelector";
 
 interface IDataWalletContext {
   sdlDataWallet: ISdlDataWallet;
@@ -57,7 +58,7 @@ export const DataWalletContextProvider: FC = ({ children }) => {
         if (sdlDataWallet.proxyType === ECoreProxyType.EXTENSION_INJECTED) {
           return waitAndInitializeExtensionInjectedProxy(sdlDataWallet);
         }
-        return waitAndInitializeIframeInjectedProxy(sdlDataWallet);
+        return setSdlDataWallet(sdlDataWallet);
       })
       .mapErr((err) => {
         return setSetupStatus(ESetupStatus.FAILED);
@@ -75,14 +76,6 @@ export const DataWalletContextProvider: FC = ({ children }) => {
         setSdlDataWallet(proxy);
       }
     }, 500);
-  };
-
-  const waitAndInitializeIframeInjectedProxy = (proxy: ISdlDataWallet) => {
-    // give extra time for iframe unlock the wallet;
-    // once we remove crumbs it will be instant
-    setTimeout(() => {
-      setSdlDataWallet(proxy);
-    }, 2000);
   };
 
   useEffect(() => {

@@ -1,3 +1,4 @@
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   PersistenceError,
   VersionedObject,
@@ -23,6 +24,7 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
   public constructor(
     @inject(IVolatileStorageSchemaProviderType)
     protected schemaProvider: IVolatileStorageSchemaProvider,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
   private _getIDB(): ResultAsync<IndexedDB, never> {
@@ -38,6 +40,7 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
             "SD_Wallet",
             Array.from(schema.values()),
             fakeIndexedDB,
+            this.logUtils,
           ),
       );
     return this.indexedDB;
@@ -56,6 +59,10 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
 
   public persist(): ResultAsync<boolean, PersistenceError> {
     return this._getIDB().andThen((db) => db.persist());
+  }
+
+  public clear(): ResultAsync<void, PersistenceError> {
+    return this._getIDB().andThen((db) => db.clear());
   }
 
   public clearObjectStore(name: string): ResultAsync<void, PersistenceError> {

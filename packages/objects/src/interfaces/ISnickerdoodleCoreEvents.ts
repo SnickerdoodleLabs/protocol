@@ -1,6 +1,7 @@
 import { Observable } from "rxjs";
 
 import {
+  CloudStorageActivatedEvent,
   BackupCreatedEvent,
   BackupRestoreEvent,
   DataPermissionsUpdatedEvent,
@@ -50,6 +51,9 @@ export interface ISnickerdoodleCoreEvents {
   onPermissionsRevoked: Observable<DomainName>;
   onSocialProfileLinked: Observable<SocialProfileLinkedEvent>;
   onSocialProfileUnlinked: Observable<SocialProfileUnlinkedEvent>;
+  onCloudStorageActivated: Observable<CloudStorageActivatedEvent>;
+  onCloudStorageDeactivated: Observable<CloudStorageActivatedEvent>;
+
   onBirthdayUpdated: Observable<UnixTimestamp>;
   onGenderUpdated: Observable<Gender>;
   onLocationUpdated: Observable<CountryCode>;

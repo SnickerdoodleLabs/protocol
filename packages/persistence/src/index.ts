@@ -1,5 +1,7 @@
 export * from "@persistence/IPersistenceConfig.js";
 export * from "@persistence/IPersistenceConfigProvider.js";
+export * from "@persistence/IPersistenceContext.js";
+export * from "@persistence/IPersistenceContextProvider.js";
 export * from "@persistence/IStorageIndex.js";
 export * from "@persistence/PersistenceKey.js";
 

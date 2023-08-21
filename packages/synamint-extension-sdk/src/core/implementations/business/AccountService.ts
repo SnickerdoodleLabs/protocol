@@ -1,6 +1,5 @@
 import {
   AccountAddress,
-  DataWalletAddress,
   EarnedReward,
   EChain,
   WalletNFT,
@@ -12,14 +11,15 @@ import {
   IpfsCID,
   QueryStatus,
 } from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
+import { ResultAsync } from "neverthrow";
+
 import { IAccountService } from "@synamint-extension-sdk/core/interfaces/business";
 import {
   IAccountRepository,
   IAccountRepositoryType,
 } from "@synamint-extension-sdk/core/interfaces/data";
 import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared";
-import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
 
 @injectable()
 export class AccountService implements IAccountService {
@@ -69,40 +69,10 @@ export class AccountService implements IAccountService {
     );
   }
 
-  public getDataWalletForAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-  ): ResultAsync<DataWalletAddress | null, SnickerDoodleCoreError> {
-    return this.accountRepository.getDataWalletForAccount(
-      accountAddress,
-      signature,
-      languageCode,
-      chain,
-    );
-  }
-
-  public unlock(
-    account: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode: LanguageCode,
-    calledWithCookie?: boolean,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.accountRepository.unlock(
-      account,
-      signature,
-      chain,
-      languageCode,
-      calledWithCookie || false,
-    );
-  }
-
-  public getUnlockMessage(
+  public getLinkAccountMessage(
     languageCode: LanguageCode,
   ): ResultAsync<string, SnickerDoodleCoreError> {
-    return this.accountRepository.getUnlockMessage(languageCode);
+    return this.accountRepository.getLinkAccountMessage(languageCode);
   }
 
   public isDataWalletAddressInitialized(): ResultAsync<
@@ -114,15 +84,8 @@ export class AccountService implements IAccountService {
 
   public unlinkAccount(
     account: AccountAddress,
-    signature: Signature,
     chain: EChain,
-    languageCode: LanguageCode,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.accountRepository.unlinkAccount(
-      account,
-      signature,
-      chain,
-      languageCode,
-    );
+    return this.accountRepository.unlinkAccount(account, chain);
   }
 }

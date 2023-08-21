@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import React, { FC, useEffect, useState } from "react";
 import { motion, useMotionValue, animate } from "framer-motion";
+import React, { FC, useEffect, useState } from "react";
 
 interface ICarouselProps {
   visibleItemCount?: number;

@@ -10,8 +10,14 @@ import {
   DomainName,
   EInvitationStatus,
   EWalletDataType,
+  LinkedAccount,
   PageInvitation,
 } from "@snickerdoodlelabs/objects";
+import { okAsync } from "neverthrow";
+import React, { useMemo, useState, useEffect, FC, useRef } from "react";
+import { Subscription } from "rxjs";
+import { parse } from "tldts";
+
 import {
   RootContainer,
   ModalContainer,
@@ -24,14 +30,9 @@ import { InvitationCard } from "@web-integration/implementations/app/ui/widgets/
 import { PermissionSelection } from "@web-integration/implementations/app/ui/widgets/PermissionSelection/index.js";
 import { SubscriptionSuccess } from "@web-integration/implementations/app/ui/widgets/SubscriptionSuccess/index.js";
 import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/index.js";
-import { okAsync } from "neverthrow";
-import React, { useMemo, useState, useEffect, FC, useRef } from "react";
-import { Subscription } from "rxjs";
-import { parse } from "tldts";
 
 interface IAppProps {
   proxy: ISnickerdoodleIFrameProxy;
-  signerProvided: boolean;
 }
 
 export enum EAPP_STATE {
@@ -44,19 +45,17 @@ export enum EAPP_STATE {
   LOADING,
 }
 
-export const App: FC<IAppProps> = ({ proxy, signerProvided }) => {
+export const App: FC<IAppProps> = ({ proxy }) => {
   const _pathName = usePath();
   const [theme, setTheme] = useState<Theme>(createTheme(themeOptions));
   const [appState, setAppState] = useState<EAPP_STATE>(EAPP_STATE.IDLE);
   const [pageInvitation, setPageInvitation] = useState<PageInvitation>();
   const [invitaitonStatus, setInvitationStatus] = useState<EInvitationStatus>();
-  const [isUnlocked, setIsUnlocked] = useState<boolean>(false);
-  const initializedSubscription = useRef<Subscription | null>(null);
-  const isUnlockedRef = useRef<boolean>(false);
-  const recheckRequiredRef = useRef<boolean>(false);
+  const [accounts, setAccounts] = useState<LinkedAccount[]>([]);
+  const accountAddedSubscription = useRef<Subscription | null>(null);
 
   useEffect(() => {
-    if (isUnlocked) {
+    if (accounts.length > 0) {
       const path = window.location.pathname;
       const urlInfo = parse(window.location.href);
       const domain = urlInfo.domain;
@@ -64,7 +63,7 @@ export const App: FC<IAppProps> = ({ proxy, signerProvided }) => {
       const domainName = DomainName(`snickerdoodle-protocol.${domain}`);
       getDomainInvitation(domainName, url);
     }
-  }, [_pathName, isUnlocked]);
+  }, [_pathName, accounts.length]);
 
   const getDomainInvitation = (domain: DomainName, path: string) => {
     return proxy
@@ -72,54 +71,31 @@ export const App: FC<IAppProps> = ({ proxy, signerProvided }) => {
       .andThen((_pageInvitation) => {
         if (_pageInvitation) {
           setPageInvitation(_pageInvitation);
-          return (
-            isUnlockedRef.current
-              ? proxy.checkInvitationStatus(
-                  _pageInvitation.invitation.consentContractAddress,
-                )
-              : (() => {
-                  recheckRequiredRef.current = true;
-                  return okAsync(EInvitationStatus.New);
-                })()
-          ).map((status) => {
-            setInvitationStatus(status);
-          });
+          return proxy
+            .checkInvitationStatus(
+              _pageInvitation.invitation.consentContractAddress,
+            )
+            .map((status) => {
+              setInvitationStatus(status);
+            });
         }
         return okAsync(undefined);
       });
   };
 
   useEffect(() => {
-    // if signer is not provided we need to give some time for the iframe to be unlocked
-    setTimeout(checkUnlockStatus, signerProvided ? 0 : 2000);
+    subsribeAccountAddedEvent();
+    getAccounts();
+    return () => {
+      accountAddedSubscription.current?.unsubscribe();
+    };
   }, []);
 
-  const checkUnlockStatus = () => {
-    proxy.metrics
-      .getUnlocked()
-      .map((isUnlocked) => {
-        if (!isUnlocked) {
-          subsribeInitailizeEvent();
-        }
-        setIsUnlocked(isUnlocked);
-      })
-      .mapErr((err) => {
-        console.log(err);
-      });
+  const getAccounts = () => {
+    proxy.getAccounts().map((accounts) => {
+      setAccounts(accounts);
+    });
   };
-
-  useEffect(() => {
-    if (isUnlockedRef.current !== isUnlocked) {
-      isUnlockedRef.current = isUnlocked;
-    }
-    if (isUnlocked) {
-      initializedSubscription.current?.unsubscribe();
-      if (recheckRequiredRef.current) {
-        checkInvitationStatus();
-        recheckRequiredRef.current = false;
-      }
-    }
-  }, [isUnlocked]);
 
   const clearInvitation = () => {
     setAppState(EAPP_STATE.IDLE);
@@ -127,22 +103,10 @@ export const App: FC<IAppProps> = ({ proxy, signerProvided }) => {
     setInvitationStatus(undefined);
   };
 
-  const checkInvitationStatus = () => {
-    if (pageInvitation) {
-      proxy
-        .checkInvitationStatus(pageInvitation.invitation.consentContractAddress)
-        .map((status) => {
-          if (status !== EInvitationStatus.New) {
-            clearInvitation();
-          }
-        });
-    }
-  };
-
-  const subsribeInitailizeEvent = () => {
-    initializedSubscription.current = proxy.events.onInitialized.subscribe(
+  const subsribeAccountAddedEvent = () => {
+    accountAddedSubscription.current = proxy.events.onAccountAdded.subscribe(
       () => {
-        setIsUnlocked(true);
+        getAccounts();
       },
     );
   };
@@ -200,9 +164,7 @@ export const App: FC<IAppProps> = ({ proxy, signerProvided }) => {
   }, [pageInvitation, invitaitonStatus]);
 
   const handleContinueClick = () => {
-    if (isUnlockedRef.current) {
-      setAppState(EAPP_STATE.PERMISSION_SELECTION);
-    }
+    setAppState(EAPP_STATE.PERMISSION_SELECTION);
   };
 
   const leftComponent = useMemo(() => {

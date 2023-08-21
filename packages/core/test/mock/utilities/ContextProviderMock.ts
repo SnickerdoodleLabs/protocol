@@ -54,7 +54,7 @@ export class ContextProviderMock implements IContextProvider {
       this.context = new CoreContext(
         dataWalletAddress, // dataWalletAddress
         dataWalletKey, // dataWalletKey
-        false, // unlockInProgress
+        false, // initializeInProgress
         new PublicEvents(), //publicEvents
         new PrivateEvents(), // privateEvents
         false, // restoreInProgress

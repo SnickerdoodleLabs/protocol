@@ -144,7 +144,7 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
   > {
     return errAsync(
       new MethodSupportError(
-        "getTokensForAccount not supported for AlchemyIndexer",
+        "getTokensForAccount not supported for NFTScan Indexer",
         400,
       ),
     );

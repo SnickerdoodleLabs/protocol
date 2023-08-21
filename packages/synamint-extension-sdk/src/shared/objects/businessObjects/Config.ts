@@ -13,8 +13,6 @@ import {
 export class ExtensionConfig {
   constructor(
     public onboardingUrl: string,
-    public accountCookieUrl: string,
-    public cookieLifeTime: number,
     public manifestVersion: EManifestVersion,
     public platform: EPlatform,
     public controlChainId: ChainId,
@@ -53,6 +51,10 @@ export class ExtensionConfig {
     public requestForDataCheckingFrequency?: number,
     public domainFilter?: string,
     public defaultGoogleCloudBucket?: string,
+
+    public dropboxAppKey?: string,
+    public dropboxAppSecret?: string,
+
     public portfolioPollingIntervalMS?: number,
     public transactionPollingIntervalMS?: number,
     public backupPollingIntervalMS?: number,

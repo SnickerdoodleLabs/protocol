@@ -7,10 +7,9 @@ import {
   ITimeUtils,
   ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
-import { EVMPrivateKey, PersistenceError } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { BackupManager } from "@persistence/backup/BackupManager.js";
@@ -44,8 +43,6 @@ import {
 @injectable()
 export class BackupManagerProvider implements IBackupManagerProvider {
   private backupManager?: ResultAsync<IBackupManager, never>;
-  private unlockPromise: Promise<EVMPrivateKey>;
-  private resolveUnlock: ((dataWalletKey: EVMPrivateKey) => void) | null = null;
 
   public constructor(
     @inject(IVolatileStorageType) protected volatileStorage: IVolatileStorage,
@@ -62,17 +59,7 @@ export class BackupManagerProvider implements IBackupManagerProvider {
     @inject(IChunkRendererFactoryType)
     protected chunkRendererFactory: IChunkRendererFactory,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
-  ) {
-    this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
-      this.resolveUnlock = resolve;
-    });
-  }
-
-  public unlock(derivedKey: EVMPrivateKey): ResultAsync<void, never> {
-    this.resolveUnlock!(derivedKey);
-
-    return okAsync(undefined);
-  }
+  ) {}
 
   public getBackupManager(): ResultAsync<IBackupManager, never> {
     if (this.backupManager != undefined) {
@@ -80,19 +67,15 @@ export class BackupManagerProvider implements IBackupManagerProvider {
     }
 
     this.backupManager = ResultUtils.combine([
-      this.waitForUnlock(),
-      this.configProvider.getConfig(),
       this.recordSchemaProvider.getVolatileStorageSchema(),
       this.fieldSchemaProvider.getLocalStorageSchema(),
-    ]).map(([key, config, recordSchema, fieldSchema]) => {
+    ]).map(([recordSchema, fieldSchema]) => {
       return new BackupManager(
-        key,
         Array.from(recordSchema.values()),
         Array.from(fieldSchema.values()),
         this.cryptoUtils,
         this.volatileStorage,
         this.storageUtils,
-        config.enableBackupEncryption,
         this.timeUtils,
         this.backupUtils,
         this.chunkRendererFactory,
@@ -100,11 +83,6 @@ export class BackupManagerProvider implements IBackupManagerProvider {
         this.logUtils,
       );
     });
-
     return this.backupManager;
-  }
-
-  protected waitForUnlock(): ResultAsync<EVMPrivateKey, never> {
-    return ResultAsync.fromSafePromise(this.unlockPromise);
   }
 }

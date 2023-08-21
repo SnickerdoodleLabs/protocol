@@ -84,11 +84,15 @@ export const SubscriptionConfirmation: FC<ISubscriptionConfirmationProps> = ({
   };
 
   useEffect(() => {
-    getRecievingAccount();
-  }, []);
+    if (accounts.length > 0) {
+      getRecievingAccount();
+    }
+  }, [accounts.length]);
 
   const getRecievingAccount = () => {
-    getReceivingAddress(consentAddress).map(setReceivingAccount);
+    getReceivingAddress(consentAddress).map((receivingAddress) => {
+      setReceivingAccount(receivingAddress || accounts?.[0]);
+    });
   };
   const classes = useStyles();
   return (
@@ -308,6 +312,7 @@ export const SubscriptionConfirmation: FC<ISubscriptionConfirmationProps> = ({
 
           <Button
             buttonType="primary"
+            disabled={!receivingAccount}
             onClick={() => {
               onConfirmClick(receivingAccount);
             }}

@@ -1,3 +1,4 @@
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   ERecordKey,
   PersistenceError,
@@ -23,6 +24,7 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
   public constructor(
     @inject(IVolatileStorageSchemaProviderType)
     protected schemaProvider: IVolatileStorageSchemaProvider,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
   private _getIDB(): ResultAsync<IndexedDB, never> {
@@ -37,6 +39,7 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
           "SD_Wallet",
           Array.from(schema.values()),
           indexedDB, // This is magical; it's a global variable IDBFactory
+          this.logUtils,
         );
       });
     return this.indexedDB;
@@ -61,6 +64,12 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
 
   public clearObjectStore(name: string): ResultAsync<void, PersistenceError> {
     return this._getIDB().andThen((db) => db.clearObjectStore(name));
+  }
+
+  public clear(): ResultAsync<void, PersistenceError> {
+    return this._getIDB().andThen((db) => {
+      return db.clear();
+    });
   }
 
   public putObject<T extends VersionedObject>(

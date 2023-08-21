@@ -3,12 +3,8 @@ import { ICryptoUtils, ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
   EVMPrivateKey,
   UnixTimestamp,
-  ERecordKey,
-  EBackupPriority,
   VolatileDataUpdate,
   EDataUpdateOpCode,
-  DataWalletBackup,
-  DataWalletBackupHeader,
   DataWalletBackupID,
   Signature,
   AESKey,
@@ -25,8 +21,6 @@ import { BackupUtils, IBackupUtils } from "@persistence/backup/index.js";
 import { TestVersionedObject } from "@persistence-test/mocks/index.js";
 
 const accountAddress = EVMAccountAddress("Account Address");
-const accountAddress2 = EVMAccountAddress("Account Address 2");
-const recordKey = ERecordKey.ACCOUNT;
 const privateKey = EVMPrivateKey("Private Key");
 const aesKey = AESKey("AES Key");
 const keyValue = "Key Value";
@@ -54,18 +48,6 @@ const volatileDataUpdate = new VolatileDataUpdate(
 );
 
 const volatileDataUpdates = [volatileDataUpdate];
-
-const dataWalletBackup = new DataWalletBackup(
-  new DataWalletBackupHeader(
-    dataWalletBackupId,
-    now,
-    dataWalletBackupSignature,
-    EBackupPriority.NORMAL,
-    recordKey,
-    false,
-  ),
-  volatileDataUpdates,
-);
 
 class BackupUtilsMocks {
   public cryptoUtils: ICryptoUtils;
@@ -115,41 +97,6 @@ class BackupUtilsMocks {
 }
 
 describe("BackupUtils Tests", () => {
-  test("encryptBlob() returns the input if no encryption key is provided", async () => {
-    // Arrange
-    const mocks = new BackupUtilsMocks();
-
-    const backupUtils = mocks.factory();
-
-    // Act
-    const result = await backupUtils.encryptBlob(volatileDataUpdates, null);
-
-    // Assert
-    expect(result).toBeDefined();
-    expect(result.isErr()).toBeFalsy();
-    const encryptedBlob = result._unsafeUnwrap();
-    expect(encryptedBlob).toBe(volatileDataUpdates);
-  });
-
-  test("encryptBlob() returns the AES encrypted value if encryption key is provided", async () => {
-    // Arrange
-    const mocks = new BackupUtilsMocks();
-
-    const backupUtils = mocks.factory();
-
-    // Act
-    const result = await backupUtils.encryptBlob(
-      volatileDataUpdates,
-      privateKey,
-    );
-
-    // Assert
-    expect(result).toBeDefined();
-    expect(result.isErr()).toBeFalsy();
-    const encryptedBlob = result._unsafeUnwrap();
-    expect(encryptedBlob).toBe(encryptedBlobString);
-  });
-
   test("getBackupHash() works", async () => {
     // Arrange
     const mocks = new BackupUtilsMocks();
@@ -164,63 +111,5 @@ describe("BackupUtils Tests", () => {
     expect(result.isErr()).toBeFalsy();
     const dataWalletBackupId = result._unsafeUnwrap();
     expect(dataWalletBackupId).toBe(dataWalletBackupId);
-  });
-
-  test("generateBackupSignature() works", async () => {
-    // Arrange
-    const mocks = new BackupUtilsMocks();
-
-    const backupUtils = mocks.factory();
-
-    // Act
-    const result = await backupUtils.generateBackupSignature(
-      dataWalletBackupId,
-      now,
-      privateKey,
-    );
-
-    // Assert
-    expect(result).toBeDefined();
-    expect(result.isErr()).toBeFalsy();
-    const signature = result._unsafeUnwrap();
-    expect(signature).toBe(dataWalletBackupSignature);
-  });
-
-  test("verifyBackupSignature() verifies with matching account", async () => {
-    // Arrange
-    const mocks = new BackupUtilsMocks();
-
-    const backupUtils = mocks.factory();
-
-    // Act
-    const result = await backupUtils.verifyBackupSignature(
-      dataWalletBackup,
-      accountAddress,
-    );
-
-    // Assert
-    expect(result).toBeDefined();
-    expect(result.isErr()).toBeFalsy();
-    const verified = result._unsafeUnwrap();
-    expect(verified).toBeTruthy();
-  });
-
-  test("verifyBackupSignature() does not verify with mismatching account", async () => {
-    // Arrange
-    const mocks = new BackupUtilsMocks();
-
-    const backupUtils = mocks.factory();
-
-    // Act
-    const result = await backupUtils.verifyBackupSignature(
-      dataWalletBackup,
-      accountAddress2,
-    );
-
-    // Assert
-    expect(result).toBeDefined();
-    expect(result.isErr()).toBeFalsy();
-    const verified = result._unsafeUnwrap();
-    expect(verified).toBeFalsy();
   });
 });

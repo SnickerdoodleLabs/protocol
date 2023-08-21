@@ -1,4 +1,3 @@
-import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
 import {
   Box,
   Typography,
@@ -30,13 +29,21 @@ import {
   UI_SUPPORTED_PERMISSIONS,
 } from "@snickerdoodlelabs/shared-components";
 import { set } from "date-fns";
-import React, { FC, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  FC,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useInView } from "react-intersection-observer";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import Breadcrumb from "@extension-onboarding/components/Breadcrumb";
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
+import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
@@ -136,6 +143,7 @@ const RewardProgramDetails: FC = () => {
     earnedRewards,
     updateOptedInContracts,
     appMode,
+    linkedAccounts,
     setLinkerModalOpen,
   } = useAppContext();
   const { setAlert } = useNotificationContext();
@@ -174,11 +182,10 @@ const RewardProgramDetails: FC = () => {
     }
   };
 
-  const handleSubscribeButton = () => {
-    if (appMode != EAppModes.AUTH_USER) {
-      return setLinkerModalOpen();
+  const handleSubscribeButton = useCallback(() => {
+    if (linkedAccounts.length === 0) {
+      setLinkerModalOpen();
     }
-
     setModal({
       modalSelector: EModalSelectors.SUBSCRIPTION_CONFIRMATION_MODAL,
       onPrimaryButtonClick: (receivingAccount: AccountAddress) => {
@@ -219,7 +226,7 @@ const RewardProgramDetails: FC = () => {
         campaignName: info?.rewardName,
       },
     });
-  };
+  }, [linkedAccounts.length]);
 
   const getCapacityInfo = () => {
     sdlDataWallet

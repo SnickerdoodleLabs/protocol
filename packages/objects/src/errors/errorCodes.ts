@@ -1,6 +1,7 @@
 const errorCodes = {
   AccountIndexingError: "ERR_ACCOUNT_INDEXER",
   AjaxError: "ERR_AJAX",
+  BackupError: "ERR_BACKUP",
   BlockchainProviderError: "ERR_BLOCKCHAIN_PROVIDER",
   CloudStorageError: "ERR_CLOUD_STORAGE",
   ConsentContractRepositoryError: "CONSENT_CONTRACT_REPOSITORY_ERROR",
@@ -62,6 +63,7 @@ const errorCodes = {
   ReturnNotImplementedError: "ERR_SDQL_RETURN_NOT_IMPLEMENTED",
   ParsingError: "ERR_SDQL_PARSING",
   InvalidRegularExpression: "ERR_SDQL_INVALID_REGULAR_EXPRESSION",
+  AuthenticationError: "ERR_AUTHENTICATION",
 };
 
 export default errorCodes;

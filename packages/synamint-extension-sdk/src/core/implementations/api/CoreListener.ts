@@ -1,6 +1,8 @@
 import {
+  CloudStorageActivatedEvent,
   DataWalletAddress,
   EarnedReward,
+  ECloudStorageType,
   EProfileFieldType,
   ESolidityAbiParameterType,
   IDynamicRewardParameter,
@@ -24,8 +26,6 @@ import {
   IInvitationServiceType,
 } from "@synamint-extension-sdk/core/interfaces/business";
 import {
-  IAccountCookieUtils,
-  IAccountCookieUtilsType,
   IContextProvider,
   IContextProviderType,
 } from "@synamint-extension-sdk/core/interfaces/utilities";
@@ -36,8 +36,6 @@ export class CoreListener implements ICoreListener {
   constructor(
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
-    @inject(IAccountCookieUtilsType)
-    protected accountCookieUtils: IAccountCookieUtils,
     @inject(IInvitationServiceType)
     protected invitationService: IInvitationService,
   ) {}
@@ -56,6 +54,16 @@ export class CoreListener implements ICoreListener {
       );
       events.onSocialProfileUnlinked.subscribe(
         this.onSocialProfileUnlinked.bind(this),
+      );
+
+      // Add a listener for cloud storage being switched out
+
+      // rename, event emitted from api listeners. keyed and activated by initialize function
+      events.onCloudStorageActivated.subscribe(
+        this.onCloudStorageActivated.bind(this),
+      );
+      events.onCloudStorageDeactivated.subscribe(
+        this.onCloudStorageDeactivated.bind(this),
       );
       events.onBirthdayUpdated.subscribe((birthday) => {
         this.contextProvider.onProfileFieldChanged(
@@ -87,7 +95,6 @@ export class CoreListener implements ICoreListener {
         });
       }
     });
-    this.accountCookieUtils.writeDataWalletAddressToCookie(dataWalletAddress);
     this.contextProvider.setAccountContext(dataWalletAddress);
     console.log(
       `Extension: Initialized data wallet with address ${dataWalletAddress}`,
@@ -163,9 +170,6 @@ export class CoreListener implements ICoreListener {
   }
 
   private onAccountRemoved(account: LinkedAccount): void {
-    this.accountCookieUtils.removeAccountInfoFromCookie(
-      account.sourceAccountAddress,
-    );
     this.contextProvider.onAccountRemoved(account);
   }
 
@@ -176,5 +180,13 @@ export class CoreListener implements ICoreListener {
   private onSocialProfileLinked(event: SocialProfileLinkedEvent): void {
     this.contextProvider.onSocialProfileLinked(event);
   }
+
   private onSocialProfileUnlinked(event: SocialProfileUnlinkedEvent): void {}
+
+  private onCloudStorageActivated(event: CloudStorageActivatedEvent): void {
+    this.contextProvider.onCloudStorageActivated(event);
+  }
+  private onCloudStorageDeactivated(event: CloudStorageActivatedEvent): void {
+    this.contextProvider.onCloudStorageDeactivated(event);
+  }
 }

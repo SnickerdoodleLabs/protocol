@@ -1,10 +1,11 @@
 import {
   DataWalletBackupID,
-  EVMPrivateKey,
   DataWalletBackup,
   PersistenceError,
   BackupFileName,
   StorageKey,
+  ECloudStorageType,
+  AuthenticatedStorageSettings,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -15,6 +16,11 @@ import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
 export class NullCloudStorage implements ICloudStorage {
   protected _backups = new Map<string, DataWalletBackup>();
   protected _lastRestore = 0;
+
+  public name(): ECloudStorageType {
+    console.log("null storage is local");
+    return ECloudStorageType.Local;
+  }
 
   public pollByStorageType(
     restored: Set<DataWalletBackupID>,
@@ -44,9 +50,13 @@ export class NullCloudStorage implements ICloudStorage {
     return okAsync([]);
   }
 
-  public unlock(
-    derivedKey: EVMPrivateKey,
+  public saveCredentials(
+    credentials: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError> {
+    return okAsync(undefined);
+  }
+
+  public clearCredentials(): ResultAsync<void, PersistenceError> {
     return okAsync(undefined);
   }
 

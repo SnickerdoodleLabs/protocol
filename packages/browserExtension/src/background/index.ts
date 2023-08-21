@@ -1,7 +1,8 @@
-import { configs } from "@browser-extension/background/configs";
 import { initializeSDKCore } from "@snickerdoodlelabs/synamint-extension-sdk/core";
 import { ExtensionUtils } from "@snickerdoodlelabs/synamint-extension-sdk/extensionShared";
 import Browser, { Runtime } from "webextension-polyfill";
+
+import { configs } from "@browser-extension/background/configs";
 
 //#region first installation
 Browser.runtime.onInstalled.addListener((details) => {

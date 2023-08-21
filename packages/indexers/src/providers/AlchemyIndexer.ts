@@ -146,6 +146,7 @@ export class AlchemyIndexer implements IEVMIndexer {
     EVMTransaction[],
     AccountIndexingError | AjaxError | MethodSupportError
   > {
+    // return okAsync([]);
     return errAsync(
       new MethodSupportError(
         "getEVMTransactions not supported for AlchemyIndexer",

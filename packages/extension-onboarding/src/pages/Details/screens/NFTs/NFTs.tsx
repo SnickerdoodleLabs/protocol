@@ -22,7 +22,6 @@ import { useStyles } from "@extension-onboarding/pages/Details/screens/NFTs/NFTs
 import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
 import UnauthScreen from "@extension-onboarding/components/UnauthScreen";
 
-
 export enum EDisplayMode {
   MAINNET,
   TESTNET,
@@ -38,7 +37,7 @@ export default () => {
     EDisplayMode.MAINNET,
   );
 
-  const { appMode } = useAppContext();
+  const { linkedAccounts } = useAppContext();
 
   const nftsToRender: WalletNFT[] | null = useMemo(() => {
     if (accountNFTs && accountTestnetNFTs) {
@@ -68,7 +67,7 @@ export default () => {
     accountTestnetNFTs,
   ]);
 
-  if (appMode != EAppModes.AUTH_USER) {
+  if (!(linkedAccounts.length > 0)) {
     return <UnauthScreen />;
   }
 

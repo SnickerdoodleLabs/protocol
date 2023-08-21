@@ -132,7 +132,6 @@ export class ContractFactory implements IContractFactory {
         primaryProvider,
         config.controlChainInformation.crumbsContractAddress,
       );
-
       const secondary =
         secondaryProvider != null
           ? new CrumbsContract(

@@ -10,14 +10,13 @@ services:
     networks:
       - internal
 
-  # extension-onboarding:
-  #   image: snickerdoodlelabs/extension-onboarding:local
-  #   ports:
-  #     - 8080:80
-  #   volumes:
-  #     - ./packages/extension-onboarding:/app/packages/extension-onboarding
-  #   networks:
-  #     - internal
+  extension-onboarding:
+    env_file: docker-compose.env
+    image: snickerdoodlelabs/extension-onboarding:local
+    ports:
+      - 9001:80
+    networks:
+      - internal
 
   core-iframe:
     container_name: core-iframe

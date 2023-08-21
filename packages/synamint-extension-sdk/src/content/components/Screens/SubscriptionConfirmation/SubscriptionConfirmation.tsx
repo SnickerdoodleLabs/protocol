@@ -27,6 +27,7 @@ interface ISubscriptionConfirmationProps {
   onConfirmClick: (receivingAccount: AccountAddress | undefined) => void;
   onCancelClick: () => void;
   config: IExtensionConfig;
+  accounts: LinkedAccount[];
 }
 
 const SubscriptionConfirmationModal: FC<ISubscriptionConfirmationProps> = ({
@@ -38,18 +39,9 @@ const SubscriptionConfirmationModal: FC<ISubscriptionConfirmationProps> = ({
   onCancelClick,
   onConfirmClick,
   config,
+  accounts,
 }) => {
   const classes = useStyles();
-  const [accounts, setAccounts] = useState<LinkedAccount[]>();
-
-  useEffect(() => {
-    getAccounts();
-  }, []);
-  const getAccounts = () => {
-    coreGateway.getAccounts().map((linkedAccounts) => {
-      setAccounts(linkedAccounts);
-    });
-  };
 
   return (
     <Dialog

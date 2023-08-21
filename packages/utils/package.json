@@ -42,6 +42,7 @@
     "@snickerdoodlelabs/objects": "workspace:^",
     "inversify": "^6.0.1",
     "neverthrow": "^5.1.0",
+    "neverthrow-result-utils": "^2.0.2",
     "postmate": "^1.5.2"
   }
 }

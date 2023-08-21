@@ -12,9 +12,9 @@ export default () => {
   const classes = useStyles();
 
   const { isNFTsLoading, poapNFTs } = useDashboardContext();
-  const { appMode } = useAppContext();
+  const { linkedAccounts } = useAppContext();
 
-  if (appMode != EAppModes.AUTH_USER) {
+  if (!(linkedAccounts.length > 0)) {
     return <UnauthScreen />;
   }
 
