@@ -15,7 +15,7 @@ export class URLUtilsMocks {
   public keywordRepository = new MockKeywordRepository().factory();
 
   public factory(): URLUtils {
-    return new URLUtils(new KeywordUtils());
+    return new URLUtils(new KeywordUtils(this.keywordRepository));
   }
 }
 
@@ -67,11 +67,7 @@ describe("URLUtils", () => {
     const url = AMAZON_URL;
 
     // Act
-    const result = await urlUtils.getTask(
-      keywordRepository,
-      url,
-      ELanguageCode.English,
-    );
+    const result = await urlUtils.getTask(url, ELanguageCode.English);
     const expected = result._unsafeUnwrap();
 
     // Assert
@@ -86,11 +82,7 @@ describe("URLUtils", () => {
     const url = GOOGLE_URL;
 
     // Act
-    const result = await urlUtils.getTask(
-      keywordRepository,
-      url,
-      ELanguageCode.English,
-    );
+    const result = await urlUtils.getTask(url, ELanguageCode.English);
     const expected = result._unsafeUnwrap();
 
     // Assert

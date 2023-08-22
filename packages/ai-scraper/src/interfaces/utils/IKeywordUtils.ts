@@ -7,7 +7,6 @@ import { Keyword } from "@ai-scraper/interfaces/primitives/Keyword.js";
 
 export interface IKeywordUtils {
   getTaskByKeywords(
-    keywordRepository: IKeywordRepository,
     language: ELanguageCode,
     keywords: Set<Keyword>,
   ): ResultAsync<ETask, never>;

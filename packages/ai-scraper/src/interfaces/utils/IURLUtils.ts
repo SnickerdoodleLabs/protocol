@@ -12,18 +12,17 @@ import { ETask } from "@ai-scraper/interfaces/enums/ETask.js";
 import { Keyword } from "@ai-scraper/interfaces/primitives/Keyword.js";
 
 export interface IURLUtils {
-  getHostname(url: URLString): Result<HostName, TypeError>;
-  getDomain(url: URLString): Result<DomainName, TypeError>;
+  getHostname(url: URLString): ResultAsync<HostName, TypeError>;
+  getDomain(url: URLString): ResultAsync<DomainName, TypeError>;
   getKeywords(
     url: URLString,
     language: ELanguageCode,
-  ): Result<Set<Keyword>, TypeError>;
+  ): ResultAsync<Set<Keyword>, TypeError>;
   getHash(
     url: URLString,
     language: ELanguageCode,
   ): ResultAsync<HexString, TypeError>;
   getTask(
-    keywordRepository: IKeywordRepository,
     url: URLString,
     language: ELanguageCode,
   ): ResultAsync<ETask, TypeError>;
