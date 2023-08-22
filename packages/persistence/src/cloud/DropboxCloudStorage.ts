@@ -360,20 +360,19 @@ export class DropboxCloudStorage implements ICloudStorage {
     return this.waitForSettings().andThen((settings) => {
       // Check if the lastAuthTokenTimestamp is null, we need to get a new token immediately
       const now = this.timeUtils.getUnixNow();
-
+      // console.log("settings.refreshToken: " + settings.refreshToken);
+      const refreshToken = settings["refresh_token"];
       if (
         this.lastAuthTokenTimestamp == null ||
         this.currentAccessToken == null ||
         now - this.lastAuthTokenTimestamp > this.refreshSeconds
       ) {
         // Need to get a new access token
-        return this.getNewAuthToken(settings.refreshToken).map(
-          (accessToken) => {
-            this.lastAuthTokenTimestamp = now;
-            this.currentAccessToken = accessToken;
-            return this.currentAccessToken;
-          },
-        );
+        return this.getNewAuthToken(refreshToken).map((accessToken) => {
+          this.lastAuthTokenTimestamp = now;
+          this.currentAccessToken = accessToken;
+          return this.currentAccessToken;
+        });
       }
       return okAsync(this.currentAccessToken);
     });
