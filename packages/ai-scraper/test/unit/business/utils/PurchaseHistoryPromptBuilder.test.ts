@@ -1,6 +1,11 @@
 import "reflect-metadata";
 import { PurchaseHistoryPromptBuilder } from "@ai-scraper/implementations";
-import { Exemplar, LLMQuestion } from "@ai-scraper/interfaces";
+import {
+  Exemplar,
+  LLMAnswerStructure,
+  LLMData,
+  LLMQuestion,
+} from "@ai-scraper/interfaces";
 import { Exemplars } from "@ai-scraper-test/mocks";
 
 class PHPBuilderMocks {
@@ -15,14 +20,19 @@ describe("PurchaseHistoryPromptBuilder", () => {
     const mocks = new PHPBuilderMocks();
     const builder = mocks.factory();
     const question = LLMQuestion("What is 10 + 20?");
+    const answerStructure = LLMAnswerStructure("json");
+    const data = LLMData("na");
 
     // Act
     builder.setExemplars(Exemplars);
+    builder.setQuestion(question);
+    builder.setAnswerStructure(answerStructure);
+    builder.setData(data);
     const result = await builder.getPrompt();
-    const prompt = result._unsafeUnwrap();
 
     // Assert
     expect(result.isOk()).toBe(true);
+    const prompt = result._unsafeUnwrap();
     expect(prompt.includes(question)).toBe(true);
     expect(prompt.includes(Exemplars[0])).toBe(false);
   });
