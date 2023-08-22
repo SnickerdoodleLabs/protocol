@@ -25,15 +25,23 @@ export class URLUtils implements IURLUtils {
     private keywordUtils: IKeywordUtils,
   ) {}
 
-  public getHostname(url: URLString): Result<HostName, TypeError> {
+  public isValid(url: URLString): boolean {
     try {
-      return ok(HostName(new URL(url).hostname));
+      new URL(url);
+      return true;
     } catch (error) {
-      return err(error as TypeError);
+      return false;
+    }
+  }
+  public getHostname(url: URLString): ResultAsync<HostName, TypeError> {
+    try {
+      return okAsync(HostName(new URL(url).hostname));
+    } catch (error) {
+      return errAsync(new TypeError((error as Error).message));
     }
   }
 
-  public getDomain(url: URLString): Result<DomainName, TypeError> {
+  public getDomain(url: URLString): ResultAsync<DomainName, TypeError> {
     return this.getHostname(url).map((hostname) => {
       if (hostname.includes(EKnownDomains.Amazon)) {
         return DomainName(EKnownDomains.Amazon);
@@ -46,7 +54,7 @@ export class URLUtils implements IURLUtils {
   public getKeywords(
     url: URLString,
     language: ELanguageCode,
-  ): Result<Set<Keyword>, TypeError> {
+  ): ResultAsync<Set<Keyword>, TypeError> {
     // keywords are in the path or in search params
     const uniqueKeywords = new Set<Keyword>();
 
@@ -62,7 +70,7 @@ export class URLUtils implements IURLUtils {
       uniqueKeywords.add(Keyword(key));
     });
 
-    return ok(uniqueKeywords);
+    return okAsync(uniqueKeywords);
   }
   public getHash(
     url: URLString,
@@ -72,7 +80,6 @@ export class URLUtils implements IURLUtils {
   }
 
   public getTask(
-    keywordRepository: IKeywordRepository,
     url: URLString,
     language: ELanguageCode,
   ): ResultAsync<ETask, TypeError> {
@@ -80,12 +87,8 @@ export class URLUtils implements IURLUtils {
     // 2. get urlKeywords
     // 3. get task
 
-    return this.getKeywords(url, language).asyncAndThen((urlKeywords) => {
-      return this.keywordUtils.getTaskByKeywords(
-        keywordRepository,
-        language,
-        urlKeywords,
-      );
+    return this.getKeywords(url, language).andThen((urlKeywords) => {
+      return this.keywordUtils.getTaskByKeywords(language, urlKeywords);
     });
   }
 }

@@ -14,7 +14,7 @@ export class WebpageClassifierMocks {
   public keywordRepository = new MockKeywordRepository().factory();
   public factory(): WebpageClassifier {
     return new WebpageClassifier(
-      new URLUtils(new KeywordUtils()),
+      new URLUtils(new KeywordUtils(this.keywordRepository)),
       this.keywordRepository,
     );
   }

@@ -1,5 +1,5 @@
 import { ELanguageCode } from "@snickerdoodlelabs/objects";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
 import { DefaultKeywords } from "@ai-scraper/data/index.js";
@@ -9,22 +9,22 @@ import {
   ETask,
   Keywords,
   IKeywordRepository,
+  IKeywordRepositoryType,
 } from "@ai-scraper/interfaces/index.js";
 
 @injectable()
 export class KeywordUtils implements IKeywordUtils {
-  protected keywords: Keywords;
-  constructor() {
-    this.keywords = JSON.parse(DefaultKeywords) as Keywords;
-  }
+  constructor(
+    @inject(IKeywordRepositoryType)
+    readonly keywordRepository: IKeywordRepository,
+  ) {}
   public getTaskByKeywords(
-    keywordRepository: IKeywordRepository,
     language: ELanguageCode,
     keywords: Set<Keyword>,
   ): ResultAsync<ETask, never> {
     // returns the first matched taskType only
     for (const taskType in ETask) {
-      const taskKeywords = keywordRepository.getKeywordsByTask(
+      const taskKeywords = this.keywordRepository.getKeywordsByTask(
         language,
         ETask[taskType],
       );

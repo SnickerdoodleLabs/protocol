@@ -1,4 +1,8 @@
-import { CryptoUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  CryptoUtils,
+  LogUtils,
+  TimeUtils,
+} from "@snickerdoodlelabs/common-utils";
 import { ConfigProvider } from "@snickerdoodlelabs/core";
 import {
   DomainName,
@@ -24,8 +28,12 @@ export class TestHarnessMocks {
     this.configProvider,
   );
   public timeUtils = new TimeUtils();
+  public logUtils = new LogUtils();
 
-  public fakeDBVolatileStorage = new FakeDBVolatileStorage(this.schemaProvider);
+  public fakeDBVolatileStorage = new FakeDBVolatileStorage(
+    this.schemaProvider,
+    this.logUtils,
+  );
 
   public devAccountKeys = [
     new TestWallet(

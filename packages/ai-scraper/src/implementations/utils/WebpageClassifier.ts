@@ -24,12 +24,10 @@ export class WebpageClassifier implements IWebpageClassifier {
     language: ELanguageCode,
   ): ResultAsync<DomainTask, TypeError> {
     // Simplest version
-    return this.urlUtils.getDomain(url).asyncAndThen((domain) => {
-      return this.urlUtils
-        .getTask(this.keywordRepository, url, language)
-        .andThen((task) => {
-          return okAsync(new DomainTask(domain, task));
-        });
+    return this.urlUtils.getDomain(url).andThen((domain) => {
+      return this.urlUtils.getTask(url, language).andThen((task) => {
+        return okAsync(new DomainTask(domain, task));
+      });
     });
   }
 }
