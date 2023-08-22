@@ -6,3 +6,4 @@ export * from "@ai-scraper/interfaces/primitives/LLMQuestion.js";
 export * from "@ai-scraper/interfaces/primitives/LLMResponse.js";
 export * from "@ai-scraper/interfaces/primitives/LLMRole.js";
 export * from "@ai-scraper/interfaces/primitives/Prompt.js";
+export * from "@ai-scraper/interfaces/primitives/Keyword.js";
