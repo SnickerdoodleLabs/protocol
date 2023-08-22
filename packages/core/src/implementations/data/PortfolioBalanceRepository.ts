@@ -26,6 +26,7 @@ import {
   EVMNFT,
   BigNumberString,
   URLString,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
@@ -161,7 +162,11 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
     accountAddress: AccountAddress,
   ): ResultAsync<
     TokenBalance[],
-    PersistenceError | AccountIndexingError | AjaxError | MethodSupportError
+    | PersistenceError
+    | AccountIndexingError
+    | AjaxError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return ResultUtils.combine([
       this._getBalanceCache(),
@@ -196,7 +201,11 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
     accountAddress: AccountAddress,
   ): ResultAsync<
     WalletNFT[],
-    PersistenceError | AjaxError | AccountIndexingError | MethodSupportError
+    | PersistenceError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return ResultUtils.combine([
       this._getNftCache(),
@@ -285,7 +294,11 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
   private _getBalanceCache(): ResultAsync<
     PortfolioCache<
       TokenBalance[],
-      PersistenceError | AccountIndexingError | AjaxError | MethodSupportError
+      | PersistenceError
+      | AccountIndexingError
+      | AjaxError
+      | MethodSupportError
+      | InvalidParametersError
     >,
     never
   > {
@@ -307,7 +320,11 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
   private _getNftCache(): ResultAsync<
     PortfolioCache<
       WalletNFT[],
-      PersistenceError | AccountIndexingError | AjaxError | MethodSupportError
+      | PersistenceError
+      | AccountIndexingError
+      | AjaxError
+      | MethodSupportError
+      | InvalidParametersError
     >,
     never
   > {

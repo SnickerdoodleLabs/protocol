@@ -4,6 +4,7 @@ import {
   AjaxError,
   ChainTransaction,
   EChain,
+  InvalidParametersError,
   MethodSupportError,
   PersistenceError,
   TokenBalance,
@@ -19,14 +20,22 @@ export interface IMasterIndexer {
     accountAddress: AccountAddress,
   ): ResultAsync<
     TokenBalance[],
-    PersistenceError | AccountIndexingError | AjaxError | MethodSupportError
+    | PersistenceError
+    | AccountIndexingError
+    | AjaxError
+    | MethodSupportError
+    | InvalidParametersError
   >;
   getLatestNFTs(
     chain: EChain,
     accountAddress: AccountAddress,
   ): ResultAsync<
     WalletNFT[],
-    PersistenceError | AccountIndexingError | AjaxError | MethodSupportError
+    | PersistenceError
+    | AccountIndexingError
+    | AjaxError
+    | MethodSupportError
+    | InvalidParametersError
   >;
   getLatestTransactions(
     accountAddress: AccountAddress,
@@ -34,7 +43,10 @@ export interface IMasterIndexer {
     chain: EChain,
   ): ResultAsync<
     ChainTransaction[],
-    AccountIndexingError | AjaxError | MethodSupportError
+    | AccountIndexingError
+    | AjaxError
+    | MethodSupportError
+    | InvalidParametersError
   >;
   getSupportedChains(): ResultAsync<EChain[], never>;
 }

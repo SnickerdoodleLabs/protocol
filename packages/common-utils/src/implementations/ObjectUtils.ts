@@ -3,9 +3,11 @@ import {
   PagedResponse,
   PagingRequest,
   JSONString,
+  InvalidParametersError,
+  BaseError,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 export class ObjectUtils {
@@ -213,5 +215,28 @@ export class ObjectUtils {
       return true;
     }
     return array.filter(notEmpty);
+  }
+
+  static progressiveFallback<TReturn, TProvider, TError>(
+    method: (TProvider) => ResultAsync<TReturn, TError>,
+    provider: TProvider[],
+  ): ResultAsync<TReturn, TError | InvalidParametersError> {
+    if (provider.length == 0) {
+      return errAsync(
+        new InvalidParametersError(
+          "No providers provided to progressiveFallback()",
+        ),
+      );
+    }
+
+    return method(provider[0]).orElse((err) => {
+      // If we're on the last provider, just return the error
+      if (provider.length == 1) {
+        return errAsync(err);
+      }
+
+      // Otherwise, try the next provider
+      return ObjectUtils.progressiveFallback(method, provider.slice(1));
+    });
   }
 }
