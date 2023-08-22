@@ -50,3 +50,4 @@ export * from "@objects/errors/UnexpectedArgumentError.js";
 export * from "@objects/errors/GasTooLowError.js";
 export * from "@objects/errors/InvalidAddressError.js";
 export * from "@objects/errors/ExecutionRevertedError.js";
+export * from "@objects/errors/ERC20ContractError.js";
