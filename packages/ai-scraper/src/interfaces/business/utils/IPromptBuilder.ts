@@ -1,5 +1,5 @@
 import { LLMError } from "@snickerdoodlelabs/objects";
-import { Result } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 
 import {
   Exemplar,
@@ -16,7 +16,7 @@ export interface IPromptBuilder {
   setQuestion(question: LLMQuestion): void;
   setAnswerStructure(structure: LLMAnswerStructure): void;
   setData(data: LLMData): void;
-  getPrompt(): Result<Prompt, LLMError>;
+  getPrompt(): ResultAsync<Prompt, LLMError>;
 }
 
 export const IPromptBuilderType = Symbol.for("IPromptBuilder");

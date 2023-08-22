@@ -1,9 +1,9 @@
 import { LLMError } from "@snickerdoodlelabs/objects";
-import { Result, err, ok } from "neverthrow";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
+import { IPromptBuilder } from "@ai-scraper/interfaces/business/utils/IPromptBuilder.js";
 import {
   Exemplar,
-  IPromptBuilder,
   LLMAnswerStructure,
   LLMData,
   LLMQuestion,
@@ -11,7 +11,11 @@ import {
   Prompt,
 } from "@ai-scraper/interfaces/index.js";
 
-export class PurchaseHistoryPromptBuilder implements IPromptBuilder {
+/**
+ * @description All the prompt builders should extend this class as
+ * it provides a generic implementation of the IPromptBuilder interface and should work in most of the cases
+ */
+export abstract class PromptBuilder implements IPromptBuilder {
   private exemplars: Exemplar[] | null = null;
   private role: LLMRole | null = null;
   private question: LLMQuestion | null = null;
@@ -33,15 +37,15 @@ export class PurchaseHistoryPromptBuilder implements IPromptBuilder {
   public setData(data: LLMData): void {
     this.data = data;
   }
-  public getPrompt(): Result<Prompt, LLMError> {
+  public getPrompt(): ResultAsync<Prompt, LLMError> {
     if (this.question == null) {
-      return err(new LLMError("Missing question for prompts", this));
+      return errAsync(new LLMError("Missing question for prompts", this));
     }
 
     let orderedInstructions: (string | null)[] = [];
     // 1. role
     if (this.role != null) {
-      orderedInstructions = [`You are a ${this.role}`, ...orderedInstructions];
+      orderedInstructions = [this.role, ...orderedInstructions];
     }
 
     // 2. exemplars
@@ -60,6 +64,6 @@ export class PurchaseHistoryPromptBuilder implements IPromptBuilder {
       this.data,
     ];
 
-    return ok(Prompt(orderedInstructions.join(" ")));
+    return okAsync(Prompt(orderedInstructions.join(" ")));
   }
 }
