@@ -4,12 +4,12 @@ import {
   EBackupPriority,
   EFieldKey,
   ERecordKey,
-  EVMPrivateKey,
   DataWalletBackup,
   PersistenceError,
   VersionedObject,
   VolatileStorageKey,
   AuthenticatedStorageSettings,
+  BackupError,
 } from "@snickerdoodlelabs/objects";
 import { IVolatileCursor } from "@snickerdoodlelabs/persistence";
 import { ResultAsync } from "neverthrow";
@@ -23,17 +23,6 @@ import { ResultAsync } from "neverthrow";
  *
  */
 export interface IDataWalletPersistence {
-  /**
-   * This method is called on the IDataWalletPersistence after the data wallet's derived
-   * key is determined. All other methods should not return UNTIL after unlock is complete.
-   * This means that if I call addAccount() before unlock(), addAccount() should not resolve,
-   * indefinately. Once unlock() is complete, the outstanding call to addAccount() can continue.
-   * This is trivially implemented internally by maintaining a consistent unlocked ResultAsync,
-   * and using "return this.unlocked.andThen()" at the beginning of the other methods.
-   * @param dataWalletKey
-   */
-  unlock(dataWalletKey: EVMPrivateKey): ResultAsync<void, PersistenceError>;
-  waitForUnlock(): ResultAsync<EVMPrivateKey, never>;
   activateAuthenticatedStorage(
     settings: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError>;
@@ -97,6 +86,11 @@ export interface IDataWalletPersistence {
   // #endregion
 
   // #region Backup Methods
+  /**
+   * This method will go over all the data in all the repositories and create a complete set of backups.
+   */
+  dumpVolatileStorage(): ResultAsync<void, BackupError>;
+
   /**
    * Restores a backup directly to the data wallet. This should only be called for test purposes.
    * Normally, you should use pollBackups().

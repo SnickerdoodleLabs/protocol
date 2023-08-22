@@ -7,7 +7,6 @@ import {
 } from "@snickerdoodlelabs/common-utils";
 import {
   PersistenceError,
-  EVMPrivateKey,
   DataWalletBackup,
   DataWalletBackupID,
   EBackupPriority,
@@ -18,14 +17,13 @@ import {
   EFieldKey,
   ERecordKey,
   SerializedObject,
-  UnixTimestamp,
   StorageKey,
   BackupRestoreEvent,
   EDataStorageType,
   BackupCreatedEvent,
-  ECloudStorageType,
   AuthenticatedStorageSettings,
   FieldDataUpdate,
+  BackupError,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -42,6 +40,7 @@ import {
   Serializer,
   ICloudStorageManagerType,
   ICloudStorageManager,
+  IBackupManager,
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
@@ -56,10 +55,6 @@ import {
 
 @injectable()
 export class DataWalletPersistence implements IDataWalletPersistence {
-  protected unlockPromise: Promise<EVMPrivateKey>;
-  protected resolveUnlock: ((dataWalletKey: EVMPrivateKey) => void) | null =
-    null;
-
   protected ongoingRestores: Map<
     StorageKey,
     ResultAsync<void, PersistenceError>
@@ -82,11 +77,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     @inject(IFieldSchemaProviderType)
     protected fieldSchemaProvider: IFieldSchemaProvider,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
-  ) {
-    this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
-      this.resolveUnlock = resolve;
-    });
-  }
+  ) {}
 
   // #region Field Methods
   public getField<T>(
@@ -137,14 +128,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     fieldKey: EFieldKey,
     value: object,
   ): ResultAsync<void, PersistenceError> {
-    return ResultUtils.combine([
-      this.backupManagerProvider.getBackupManager(),
-      Serializer.serialize(value).asyncAndThen((val) => {
-        return okAsync(val);
-      }),
-    ]).andThen(([backupManager, serializedValue]) => {
-      return backupManager.updateField(fieldKey, serializedValue);
-    });
+    return this.backupManagerProvider
+      .getBackupManager()
+      .andThen((backupManager) => {
+        return this.updateFieldInternal(fieldKey, value, backupManager, false);
+      });
   }
   // #endregion
 
@@ -217,83 +205,26 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     recordKey: ERecordKey,
     value: T,
   ): ResultAsync<void, PersistenceError> {
-    return ResultUtils.combine([
-      this.backupManagerProvider.getBackupManager(),
-      this.waitForUnlock(),
-    ]).andThen(([backupManager]) => {
-      // There is special handling for Account records, since they are
-      // added (for unfortunate reasons) before the unlock is complete.
-      if (recordKey == ERecordKey.ACCOUNT) {
-        return this.volatileStorage
-          .putObject(
-            recordKey,
-            new VolatileStorageMetadata<T>(value, UnixTimestamp(0)),
-          )
-          .andThen(() => {
-            return this.volatileStorage
-              .getKey(recordKey, value)
-              .andThen((key) => {
-                return this.volatileStorage.getObject(recordKey, key);
-              })
-              .andThen((found) => {
-                if (found!.lastUpdate == 0) {
-                  return backupManager.addRecord(
-                    recordKey,
-                    new VolatileStorageMetadata<T>(
-                      value,
-                      this.timeUtils.getUnixNow(),
-                    ),
-                  );
-                }
-                return okAsync(undefined);
-              });
-          });
-      }
-
-      // For all other record types, we just add the record to the backup manager
-
-      return backupManager.addRecord(
-        recordKey,
-        new VolatileStorageMetadata<T>(value, this.timeUtils.getUnixNow()),
-      );
-    });
+    return this.backupManagerProvider
+      .getBackupManager()
+      .andThen((backupManager) => {
+        return this.updateRecordInternal(recordKey, value, backupManager);
+      });
   }
 
   public deleteRecord(
     recordKey: ERecordKey,
     key: VolatileStorageKey,
   ): ResultAsync<void, PersistenceError> {
-    return ResultUtils.combine([
-      this.waitForUnlock(),
-      this.backupManagerProvider.getBackupManager(),
-    ]).andThen(([_key, backupManager]) => {
-      return backupManager.deleteRecord(recordKey, key);
-    });
+    return this.backupManagerProvider
+      .getBackupManager()
+      .andThen((backupManager) => {
+        return backupManager.deleteRecord(recordKey, key);
+      });
   }
   // #endregion
 
   // #region Initialization
-  public waitForUnlock(): ResultAsync<EVMPrivateKey, never> {
-    return ResultAsync.fromSafePromise(this.unlockPromise);
-  }
-
-  public unlock(
-    dataWalletKey: EVMPrivateKey,
-  ): ResultAsync<void, PersistenceError> {
-    return ResultUtils.combine([
-      this.cloudStorageManager.unlock(dataWalletKey),
-      this.backupManagerProvider.unlock(dataWalletKey),
-    ])
-      .map(() => {
-        // The derived key is stored in this result
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.resolveUnlock!(dataWalletKey);
-      })
-      .mapErr((error) => {
-        return new PersistenceError((error as Error).message, error);
-      });
-  }
-
   public activateAuthenticatedStorage(
     settings: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError> {
@@ -309,6 +240,67 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   // #endregion
 
   // #region Backup Management Methods
+  public dumpVolatileStorage(): ResultAsync<void, BackupError> {
+    this.logUtils.warning(
+      `Dumping everything in volatile storage into backups`,
+    );
+    return this.backupManagerProvider
+      .getBackupManager()
+      .andThen((backupManager) => {
+        // We are going to reset the backup manager, so that new chunks will be generated
+        return backupManager
+          .reset()
+          .andThen(() => {
+            // We are going to loop over EFieldKey and ERecordKey, and get all of the data from them.
+            return ResultUtils.combine(
+              Object.values(EFieldKey).map((fieldKey) => {
+                return this.getField<object>(fieldKey).andThen((fieldVal) => {
+                  // No need to backup null fields
+                  if (fieldVal == null) {
+                    return okAsync(undefined);
+                  }
+
+                  // update
+                  return this.updateFieldInternal(
+                    fieldKey,
+                    fieldVal,
+                    backupManager,
+                    true, // Force the backup, that's the whole point
+                  );
+                });
+              }),
+            );
+          })
+          .andThen(() => {
+            // Done with fields, now do records
+            return ResultUtils.combine(
+              Object.values(ERecordKey).map((recordKey) => {
+                return this.getAll(recordKey).andThen((records) => {
+                  // Need to loop over all the records
+                  return ResultUtils.combine(
+                    records.map((record) => {
+                      return this.updateRecordInternal(
+                        recordKey,
+                        record,
+                        backupManager,
+                      );
+                    }),
+                  );
+                });
+              }),
+            );
+          })
+          .andThen(() => {
+            // Now that the backup manager should have this huge set of backups, dump them to the cloud
+            return this.postBackupsInternal(backupManager, true);
+          });
+      })
+      .map(() => {})
+      .mapErr((err) => {
+        return new BackupError("Error while dumping volatile storage", err);
+      });
+  }
+
   public restoreBackup(
     backup: DataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
@@ -449,54 +441,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public postBackups(
-    force?: boolean,
+    force = false,
   ): ResultAsync<DataWalletBackupID[], PersistenceError> {
-    return ResultUtils.combine([
-      this.backupManagerProvider.getBackupManager(),
-      this.cloudStorageManager.getCloudStorage(),
-    ]).andThen(([backupManager, cloudStorage]) => {
-      return backupManager.getRendered(force).andThen((backups) => {
-        const postedBackupIds = new Array<DataWalletBackupID>();
-        let backupsToCreateCount = backups.length;
-        let totalBackupsCreated = 0;
-        return ResultUtils.combine(
-          backups.map((backup) => {
-            return cloudStorage
-              .putBackup(backup)
-              .andThen((id) => {
-                return backupManager.markRenderedChunkAsRestored(id);
-              })
-              .andThen(() => {
-                return this.contextProvider.getContext();
-              })
-              .map((context) => {
-                context.publicEvents.onBackupCreated.next(
-                  new BackupCreatedEvent(
-                    backup.header.isField
-                      ? EDataStorageType.Field
-                      : EDataStorageType.Record,
-                    backup.header.dataType,
-                    backup.id,
-                    backup.header.name,
-                    --backupsToCreateCount,
-                    ++totalBackupsCreated,
-                  ),
-                );
-                postedBackupIds.push(backup.id);
-              })
-              .orElse((e) => {
-                this.logUtils.warning(
-                  `Error placing backup ${backup.header.name} in cloud store`,
-                  e,
-                );
-                return okAsync(undefined);
-              });
-          }),
-        ).map(() => {
-          return postedBackupIds;
-        });
+    return this.backupManagerProvider
+      .getBackupManager()
+      .andThen((backupManager) => {
+        return this.postBackupsInternal(backupManager, force);
       });
-    });
   }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {
@@ -512,6 +463,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   // #region Volatile Storage Methods
   public clearVolatileStorage(): ResultAsync<void, PersistenceError> {
+    this.logUtils.warning("Clearing volatile storage");
     return ResultUtils.combine([
       this.volatileStorage.clear(),
       this.storageUtils.clear(),
@@ -528,11 +480,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       return restore;
     }
 
-    restore = ResultUtils.combine([
-      this.backupManagerProvider.getBackupManager(),
-      this.waitForUnlock(),
-    ])
-      .andThen(([backupManager, privateKey]) => {
+    restore = this.backupManagerProvider
+      .getBackupManager()
+      .andThen((backupManager) => {
         this.logUtils.debug(
           `Beginning restoration of record backups for ${recordKey}`,
         );
@@ -615,11 +565,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     }
 
     this.logUtils.log(`Beginning restoration of field backup for ${fieldKey}`);
-    restore = ResultUtils.combine([
-      this.cloudStorageManager.getCloudStorage(),
-      this.waitForUnlock(),
-    ])
-      .andThen(([cloudStorage]) => {
+    restore = this.cloudStorageManager
+      .getCloudStorage()
+      .andThen((cloudStorage) => {
         return cloudStorage.getLatestBackup(fieldKey);
       })
       .andThen((backup) => {
@@ -656,6 +604,28 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return restore;
   }
 
+  protected updateFieldInternal(
+    fieldKey: EFieldKey,
+    value: object,
+    backupManager: IBackupManager,
+    forceBackup: boolean,
+  ): ResultAsync<void, PersistenceError> {
+    return Serializer.serialize(value).asyncAndThen((serializedValue) => {
+      return backupManager.updateField(fieldKey, serializedValue, forceBackup);
+    });
+  }
+
+  protected updateRecordInternal<T extends VersionedObject>(
+    recordKey: ERecordKey,
+    value: T,
+    backupManager: IBackupManager,
+  ): ResultAsync<void, PersistenceError> {
+    return backupManager.addRecord(
+      recordKey,
+      new VolatileStorageMetadata<T>(value, this.timeUtils.getUnixNow()),
+    );
+  }
+
   protected restoreBackupInternal(
     backup: DataWalletBackup,
   ): ResultAsync<boolean, never> {
@@ -674,6 +644,57 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             );
             return okAsync(false);
           });
+      });
+  }
+
+  protected postBackupsInternal(
+    backupManager: IBackupManager,
+    force: boolean,
+  ): ResultAsync<DataWalletBackupID[], PersistenceError> {
+    return this.cloudStorageManager
+      .getCloudStorage()
+      .andThen((cloudStorage) => {
+        return backupManager.getRendered(force).andThen((backups) => {
+          const postedBackupIds = new Array<DataWalletBackupID>();
+          let backupsToCreateCount = backups.length;
+          let totalBackupsCreated = 0;
+          return ResultUtils.combine(
+            backups.map((backup) => {
+              return cloudStorage
+                .putBackup(backup)
+                .andThen((id) => {
+                  return backupManager.markRenderedChunkAsRestored(id);
+                })
+                .andThen(() => {
+                  return this.contextProvider.getContext();
+                })
+                .map((context) => {
+                  context.publicEvents.onBackupCreated.next(
+                    new BackupCreatedEvent(
+                      backup.header.isField
+                        ? EDataStorageType.Field
+                        : EDataStorageType.Record,
+                      backup.header.dataType,
+                      backup.id,
+                      backup.header.name,
+                      --backupsToCreateCount,
+                      ++totalBackupsCreated,
+                    ),
+                  );
+                  postedBackupIds.push(backup.id);
+                })
+                .orElse((e) => {
+                  this.logUtils.warning(
+                    `Error placing backup ${backup.header.name} in cloud store`,
+                    e,
+                  );
+                  return okAsync(undefined);
+                });
+            }),
+          ).map(() => {
+            return postedBackupIds;
+          });
+        });
       });
   }
 }
