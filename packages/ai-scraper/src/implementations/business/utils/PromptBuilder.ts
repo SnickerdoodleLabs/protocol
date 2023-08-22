@@ -16,11 +16,11 @@ import {
  * it provides a generic implementation of the IPromptBuilder interface and should work in most of the cases
  */
 export abstract class PromptBuilder implements IPromptBuilder {
-  private exemplars: Exemplar[] | null = null;
-  private role: LLMRole | null = null;
-  private question: LLMQuestion | null = null;
-  private answerStructure: LLMAnswerStructure | null = null;
-  private data: LLMData | null = null;
+  protected exemplars: Exemplar[] | null = null;
+  protected role: LLMRole | null = null;
+  protected question: LLMQuestion | null = null;
+  protected answerStructure: LLMAnswerStructure | null = null;
+  protected data: LLMData | null = null;
 
   public setExemplars(exemplars: Exemplar[]): void {
     this.exemplars = exemplars;
