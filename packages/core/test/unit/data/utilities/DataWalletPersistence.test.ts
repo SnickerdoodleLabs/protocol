@@ -1,6 +1,4 @@
 import "reflect-metadata";
-import { version } from "process";
-
 import { ILogUtils, ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   DataWalletBackup,
@@ -12,11 +10,9 @@ import {
   EDataUpdateOpCode,
   EFieldKey,
   ERecordKey,
-  EVMPrivateKey,
   FieldDataUpdate,
   PersistenceError,
   SerializedObject,
-  Signature,
   UnixTimestamp,
   VolatileDataUpdate,
   VolatileStorageMetadata,
@@ -33,7 +29,7 @@ import {
   ICloudStorageManager,
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils } from "@snickerdoodlelabs/utils";
-import { errAsync, ok, okAsync } from "neverthrow";
+import { errAsync, okAsync } from "neverthrow";
 import * as td from "testdouble";
 
 import { DataWalletPersistence } from "@core/implementations/data/index.js";
@@ -47,15 +43,12 @@ import {
 
 const now = UnixTimestamp(30);
 const beforeNow = UnixTimestamp(20);
-const dataWalletKey = EVMPrivateKey("DataWalletPrivateKey");
 const fieldKey = EFieldKey.GENDER;
 const recordKey = ERecordKey.QUERY_STATUS;
 const fieldValue = { foo: "bar" };
 const serializedFieldValue = Serializer.serialize(fieldValue)._unsafeUnwrap();
 const fieldBackupId = DataWalletBackupID("FieldBackupId");
 const recordBackupId = DataWalletBackupID("RecordBackupId");
-const fieldBackupSignature = Signature("FieldBackupSignature");
-const recordBackupSignature = Signature("RecordBackupSignature");
 
 const volatileStorageKey = "VolatileStorageKey";
 
@@ -76,7 +69,6 @@ const volatileStorageMetadata0 = new VolatileStorageMetadata(
 const fieldBackupHeader = new DataWalletBackupHeader(
   fieldBackupId,
   beforeNow,
-  fieldBackupSignature,
   EBackupPriority.HIGH,
   fieldKey,
   true,
@@ -91,7 +83,6 @@ const fieldBackup = new DataWalletBackup(fieldBackupHeader, fieldDataUpdate);
 const recordBackupHeader = new DataWalletBackupHeader(
   recordBackupId,
   beforeNow,
-  recordBackupSignature,
   EBackupPriority.HIGH,
   recordKey,
   false,
@@ -145,10 +136,6 @@ class DataWalletPersistenceMocks {
     this.logUtils = td.object<ILogUtils>();
 
     // BackupManagerProvider -------------------------------------------
-    td.when(this.backupManagerProvider.unlock(dataWalletKey)).thenReturn(
-      okAsync(undefined),
-    );
-
     td.when(this.backupManagerProvider.getBackupManager()).thenReturn(
       okAsync(this.backupManager),
     );
@@ -303,34 +290,12 @@ class DataWalletPersistenceMocks {
 }
 
 describe("DataWalletPersistence tests", () => {
-  test("waitForUnlock() works", async () => {
-    // Arrange
-    const mocks = new DataWalletPersistenceMocks();
-    const persistence = mocks.factory();
-
-    // Act
-    persistence.unlock(dataWalletKey);
-    const result = await persistence.waitForUnlock();
-
-    // Assert
-    expect(result).toBeDefined();
-    expect(result.isOk()).toBeTruthy();
-    const privateKey = result._unsafeUnwrap();
-    expect(privateKey).toEqual(dataWalletKey);
-
-    mocks.contextProvider.assertEventCounts({
-      onBackupCreated: 0,
-      onBackupRestored: 0,
-    });
-  });
-
   test("getField() works, no restored backups but non-null value in storage", async () => {
     // Arrange
     const mocks = new DataWalletPersistenceMocks();
     const persistence = mocks.factory();
 
     // Act
-    persistence.unlock(dataWalletKey);
     const result = await persistence.getField(fieldKey);
 
     // Assert
@@ -356,7 +321,6 @@ describe("DataWalletPersistence tests", () => {
     const persistence = mocks.factory();
 
     // Act
-    persistence.unlock(dataWalletKey);
     const result = await persistence.getField(fieldKey);
 
     // Assert
@@ -382,7 +346,6 @@ describe("DataWalletPersistence tests", () => {
     const persistence = mocks.factory();
 
     // Act
-    persistence.unlock(dataWalletKey);
     const result = await persistence.getField(fieldKey);
 
     // Assert
@@ -432,7 +395,6 @@ describe("DataWalletPersistence tests", () => {
     const persistence = mocks.factory();
 
     // Act
-    persistence.unlock(dataWalletKey);
     const result = await persistence.getField(fieldKey);
 
     // Assert
@@ -453,7 +415,6 @@ describe("DataWalletPersistence tests", () => {
     const persistence = mocks.factory();
 
     // Act
-    await persistence.unlock(dataWalletKey);
     const result = await persistence.updateField(fieldKey, fieldValue);
 
     // Assert
@@ -472,7 +433,6 @@ describe("DataWalletPersistence tests", () => {
     const persistence = mocks.factory();
 
     // Act
-    persistence.unlock(dataWalletKey);
     const result = await persistence.getObject(recordKey, volatileStorageKey);
 
     // Assert
@@ -498,7 +458,6 @@ describe("DataWalletPersistence tests", () => {
     const persistence = mocks.factory();
 
     // Act
-    persistence.unlock(dataWalletKey);
     const result = await persistence.getObject(recordKey, volatileStorageKey);
 
     // Assert
@@ -529,7 +488,6 @@ describe("DataWalletPersistence tests", () => {
     const persistence = mocks.factory();
 
     // Act
-    persistence.unlock(dataWalletKey);
     const result = await persistence.getObject(recordKey, volatileStorageKey);
 
     // Assert
@@ -566,7 +524,6 @@ describe("DataWalletPersistence tests", () => {
     const persistence = mocks.factory();
 
     // Act
-    persistence.unlock(dataWalletKey);
     const result = await persistence.getCursor(
       recordKey,
       indexName,
@@ -593,7 +550,6 @@ describe("DataWalletPersistence tests", () => {
     const persistence = mocks.factory();
 
     // Act
-    persistence.unlock(dataWalletKey);
     const result = await persistence.getAll(recordKey, indexName);
 
     // Assert
@@ -615,7 +571,6 @@ describe("DataWalletPersistence tests", () => {
     const persistence = mocks.factory();
 
     // Act
-    persistence.unlock(dataWalletKey);
     const result = await persistence.getAllByIndex(recordKey, indexName, query);
 
     // Assert
@@ -637,7 +592,6 @@ describe("DataWalletPersistence tests", () => {
     const persistence = mocks.factory();
 
     // Act
-    persistence.unlock(dataWalletKey);
     const result = await persistence.updateRecord(recordKey, versionedObject);
 
     // Assert
@@ -661,7 +615,6 @@ describe("DataWalletPersistence tests", () => {
     const persistence = mocks.factory();
 
     // Act
-    persistence.unlock(dataWalletKey);
     const result = await persistence.updateRecord(
       ERecordKey.ACCOUNT,
       versionedObject,
@@ -684,7 +637,6 @@ describe("DataWalletPersistence tests", () => {
     const persistence = mocks.factory();
 
     // Act
-    persistence.unlock(dataWalletKey);
     const result = await persistence.updateRecord(
       ERecordKey.ACCOUNT,
       versionedObject,
@@ -706,7 +658,6 @@ describe("DataWalletPersistence tests", () => {
     const persistence = mocks.factory();
 
     // Act
-    persistence.unlock(dataWalletKey);
     const result = await persistence.deleteRecord(
       recordKey,
       volatileStorageKey,
@@ -729,7 +680,6 @@ describe("DataWalletPersistence tests", () => {
     const persistence = mocks.factory();
 
     // Act
-    persistence.unlock(dataWalletKey);
     const result = await persistence.restoreBackup(fieldBackup);
 
     // Assert
@@ -773,7 +723,6 @@ describe("DataWalletPersistence tests", () => {
     const persistence = mocks.factory();
 
     // Act
-    persistence.unlock(dataWalletKey);
     const result = await persistence.restoreBackup(fieldBackup);
 
     // Assert
@@ -792,7 +741,6 @@ describe("DataWalletPersistence tests", () => {
     const persistence = mocks.factory();
 
     // Act
-    persistence.unlock(dataWalletKey);
     const result = await persistence.postBackups(true);
 
     // Assert
@@ -840,7 +788,6 @@ describe("DataWalletPersistence tests", () => {
     const persistence = mocks.factory();
 
     // Act
-    persistence.unlock(dataWalletKey);
     const result = await persistence.postBackups(true);
 
     // Assert
@@ -876,7 +823,6 @@ describe("DataWalletPersistence tests", () => {
     const persistence = mocks.factory();
 
     // Act
-    persistence.unlock(dataWalletKey);
     const result = await persistence.pollBackups();
 
     // Assert
@@ -920,7 +866,6 @@ describe("DataWalletPersistence tests", () => {
     const persistence = mocks.factory();
 
     // Act
-    persistence.unlock(dataWalletKey);
     const resultProm1 = persistence.pollBackups();
     const resultProm2 = persistence.pollBackups();
 

@@ -15,10 +15,10 @@ import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert
 import Typography from "@extension-onboarding/components/Typography";
 import UnauthScreen from "@extension-onboarding/components/UnauthScreen/UnauthScreen";
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import FileExplorer from "@extension-onboarding/pages/Details/screens/StorageSettings/FileExplorer";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 
 interface DropboxFolder {
   ".tag": string;
@@ -61,7 +61,7 @@ const STORAGE_OPTIONS: IStorageOption[] = [
     icon: dropboxIcon,
     name: "Dropbox",
     description:
-      "You can now import your data through your very own Dropbox storage. If you storage your data files in Dropbox. SDL will still keep a copy of your data in SDL storage.",
+      "You can now import your data through your very own Dropbox storage. If you store your data files in Dropbox, SDL will still keep a copy of your data in SDL storage.",
   },
 ];
 const StorageSettings = () => {

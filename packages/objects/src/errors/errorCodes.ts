@@ -1,6 +1,7 @@
 const errorCodes = {
   AccountIndexingError: "ERR_ACCOUNT_INDEXER",
   AjaxError: "ERR_AJAX",
+  BackupError: "ERR_BACKUP",
   BlockchainProviderError: "ERR_BLOCKCHAIN_PROVIDER",
   CloudStorageError: "ERR_CLOUD_STORAGE",
   ConsentContractRepositoryError: "CONSENT_CONTRACT_REPOSITORY_ERROR",

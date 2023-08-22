@@ -74,7 +74,7 @@ import {
   PageInvitation,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { Subject } from "rxjs";
 
 import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/index.js";
@@ -383,14 +383,7 @@ export class SnickerdoodleIFrameProxy
   }
 
   public closeTab(): ResultAsync<void, ProxyError> {
-    return this._createCall("closeTab", null);
-  }
-
-  public getDataWalletAddress(): ResultAsync<
-    DataWalletAddress | null,
-    ProxyError
-  > {
-    return this._createCall("getDataWalletAddress", null);
+    return okAsync(undefined);
   }
 
   public getAcceptedInvitationsCID(): ResultAsync<
