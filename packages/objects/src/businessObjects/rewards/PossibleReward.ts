@@ -1,4 +1,4 @@
-import { ERewardType } from "@objects/enum/index.js";
+import { EQueryProcessingStatus, ERewardType } from "@objects/enum/index.js";
 import {
   ChainId,
   CompensationKey,
@@ -8,6 +8,7 @@ import {
 } from "@objects/primitives/index.js";
 
 export class PossibleReward {
+  public queryStatus : EQueryProcessingStatus | undefined
   constructor(
     readonly queryCID: IpfsCID,
     readonly compensationKey: CompensationKey,

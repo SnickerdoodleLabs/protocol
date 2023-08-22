@@ -75,19 +75,8 @@ const Permissions: FC<IPermissionsProps> = ({
     earnedRewards: EarnedReward[];
     possibleRewards: PossibleReward[];
   }>();
-  const [queryStatus, setQueryStatus] = useState<QueryStatus | null>(null);
 
-  useEffect(() => {
-    if (rewards && rewards?.possibleRewards.length > 0) {
-      coreGateway
-        .getQueryStatusByQueryCID(
-          new GetQueryStatusByCidParams(rewards.possibleRewards[0].queryCID),
-        )
-        .map((queryStatus) => {
-          setQueryStatus(queryStatus);
-        });
-    }
-  }, [JSON.stringify(rewards)]);
+
 
   useEffect(() => {
     getRewards();
@@ -251,7 +240,6 @@ const Permissions: FC<IPermissionsProps> = ({
     >
       {rewards ? (
         <PermissionSelection
-          queryStatus={queryStatus}
           setBirthday={(birthday) =>
             coreGateway.setBirtday(new SetBirthdayParams(birthday))
           }

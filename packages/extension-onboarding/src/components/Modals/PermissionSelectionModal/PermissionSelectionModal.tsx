@@ -52,7 +52,7 @@ const PermissionSelectionModalV2: FC = () => {
   };
 
   const [possibleRewards, setPossibleRewards] = useState<PossibleReward[]>([]);
-  const [queryStatus, setQueryStatus] = useState<QueryStatus | null>(null);
+
 
   const handleSocialLink = async (socialType: ESocialType) => {
     const twitterProvider = socialMediaProviderList.find(
@@ -84,6 +84,17 @@ const PermissionSelectionModalV2: FC = () => {
     }
   };
 
+  useEffect( () => {
+    sdlDataWallet
+      .getPossibleRewards([consentContractAddress])
+      .map((res) => {
+        setPossibleRewards(res.get(consentContractAddress) ?? []);
+      })
+      .mapErr((e) => {
+        console.error(e);
+      });
+  } ,[earnedRewards])
+
   useEffect(() => {
     sdlDataWallet
       .getPossibleRewards([consentContractAddress])
@@ -95,15 +106,7 @@ const PermissionSelectionModalV2: FC = () => {
       });
   }, []);
 
-  useEffect(() => {
-    if (possibleRewards.length > 0) {
-      sdlDataWallet
-        .getQueryStatusByQueryCID(possibleRewards[0].queryCID)
-        .map((queryStatus) => {
-          setQueryStatus(queryStatus);
-        });
-    }
-  }, [possibleRewards]);
+
 
   const classes = useStyles();
   return (
@@ -118,7 +121,6 @@ const PermissionSelectionModalV2: FC = () => {
       className={classes.container}
     >
       <PermissionSelection
-        queryStatus={queryStatus}
         ipfsBaseUrl={apiGateway.config.ipfsFetchBaseUrl}
         setBirthday={(birthday) =>
           sdlDataWallet.setBirthday(birthday).map(() => {

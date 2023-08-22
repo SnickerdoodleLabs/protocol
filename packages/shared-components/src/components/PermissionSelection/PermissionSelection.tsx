@@ -30,7 +30,6 @@ import {
 } from "@shared-components/utils";
 
 interface IPermissionSelectionProps {
-  queryStatus: QueryStatus | null;
   setBirthday(birthday: UnixTimestamp): ResultAsync<void, unknown>;
   setLocation(location: CountryCode): ResultAsync<void, unknown>;
   setGender(gender: Gender): ResultAsync<void, unknown>;
@@ -53,7 +52,6 @@ interface IPermissionSelectionProps {
 }
 
 export const PermissionSelection: FC<IPermissionSelectionProps> = ({
-  queryStatus,
   isSafe,
   generateAllPermissions,
   possibleRewards,
@@ -88,33 +86,53 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
     let rewardsThatTheUserWasIneligible: PossibleReward[] = [];
     let rewardsThatRequireMorePermission: PossibleReward[] = [];
 
-    if (queryStatus) {
-      if (queryStatus.status === EQueryProcessingStatus.RewardsReceived) {
-        const { rewardsThatWereNotEarned, rewardsThatTheUserWereUnableToGet } =
-          getRewardsAfterRewardsWereDeliveredFromIP(
-            possibleRewards,
-            earnedRewards,
-            permissions,
-          );
-        rewardsThatRequireMorePermission = rewardsThatWereNotEarned;
-        rewardsThatTheUserWasIneligible = rewardsThatTheUserWereUnableToGet;
-      } else {
-        const { rewardsThatCannotBeEarned } =
-          getRewardsBeforeRewardsWereDeliveredFromIP(
-            possibleRewards,
-            permissions,
-          );
-        rewardsThatRequireMorePermission = rewardsThatCannotBeEarned;
-      }
-    } else {
-      const { rewardsThatCanBeEarned, rewardsThatCannotBeEarned } =
-        getRewardsBeforeRewardsWereDeliveredFromIP(
-          possibleRewards,
-          permissions,
-        );
-      rewardsThatCanBeAcquired = rewardsThatCanBeEarned;
-      rewardsThatRequireMorePermission = rewardsThatCannotBeEarned;
-    }
+    const { queryBeingProcessed, queryProcessed, queryNotJoined } =
+      possibleRewards.reduce<{
+        queryBeingProcessed: PossibleReward[];
+        queryProcessed: PossibleReward[];
+        queryNotJoined: PossibleReward[];
+      }>(
+        (queryStates, reward) => {
+          if (reward.queryStatus) {
+            if (reward.queryStatus < 4) {
+              queryStates.queryBeingProcessed.push(reward);
+            } else {
+              queryStates.queryProcessed.push(reward);
+            }
+          } else {
+            queryStates.queryNotJoined.push(reward);
+          }
+          return queryStates;
+        },
+        { queryBeingProcessed: [], queryProcessed: [], queryNotJoined: [] },
+      );
+
+    const { rewardsThatWereNotEarned, rewardsThatTheUserWereUnableToGet } =
+      getRewardsAfterRewardsWereDeliveredFromIP(
+        queryProcessed,
+        earnedRewards,
+        permissions,
+      );
+    rewardsThatRequireMorePermission = rewardsThatRequireMorePermission.concat(
+      rewardsThatWereNotEarned,
+    );
+    rewardsThatTheUserWasIneligible = rewardsThatTheUserWereUnableToGet;
+
+    const { rewardsThatCannotBeEarned: rewardsThatCannotBeEarnedInProcess } =
+      getRewardsBeforeRewardsWereDeliveredFromIP(
+        queryBeingProcessed,
+        permissions,
+      );
+    rewardsThatRequireMorePermission = rewardsThatRequireMorePermission.concat(
+      rewardsThatCannotBeEarnedInProcess,
+    );
+
+    const { rewardsThatCanBeEarned, rewardsThatCannotBeEarned } =
+      getRewardsBeforeRewardsWereDeliveredFromIP(queryNotJoined, permissions);
+    rewardsThatCanBeAcquired = rewardsThatCanBeEarned;
+    rewardsThatRequireMorePermission = rewardsThatRequireMorePermission.concat(
+      rewardsThatCannotBeEarned,
+    );
 
     return {
       rewardsThatCanBeAcquired,

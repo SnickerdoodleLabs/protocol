@@ -17,8 +17,6 @@ import {
   PagedResponse,
   PagingRequest,
   ConsentContractError,
-  ConsentToken,
-  EVMPrivateKey,
   DuplicateIdInSchema,
   EvalNotImplementedError,
   MissingTokenConstructorError,
@@ -30,6 +28,8 @@ import {
   MissingASTError,
   MissingWalletDataTypeError,
   BlockchainCommonErrors,
+  QueryStatus,
+  EQueryProcessingStatus,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -54,7 +54,6 @@ import {
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data/index.js";
-import { CoreConfig } from "@core/interfaces/objects/index.js";
 import {
   IConfigProviderType,
   IConfigProvider,
@@ -86,6 +85,8 @@ export class MarketplaceService implements IMarketplaceService {
     protected dataWalletUtils: IDataWalletUtils,
     @inject(IQueryParsingEngineType)
     protected queryParsingEngine: IQueryParsingEngine,
+    @inject(ISDQLQueryRepositoryType)
+    protected sdqlQueryRepository: ISDQLQueryRepository,
   ) {}
 
   public getMarketplaceListingsByTag(
@@ -159,12 +160,14 @@ export class MarketplaceService implements IMarketplaceService {
 
     return ResultUtils.combine(
       contractAddresses.map((address) => {
-        return this._getPublishedQueries(address).andThen((queries) => {
-          return this._getPossibleRewards(queries, timeoutMs).map(
-            (rewards) =>
-              [address, rewards] as [EVMContractAddress, PossibleReward[]],
-          );
-        });
+        return this._getPublishedQueries(address).andThen(
+          (queryCIDsWithStatus) => {
+            return this._getPossibleRewards(queryCIDsWithStatus, timeoutMs).map(
+              (rewards) =>
+                [address, rewards] as [EVMContractAddress, PossibleReward[]],
+            );
+          },
+        );
       }),
     ).map(this._filterEmptyRewards);
   }
@@ -182,23 +185,52 @@ export class MarketplaceService implements IMarketplaceService {
   private _getPublishedQueries(
     contractAddress: EVMContractAddress,
   ): ResultAsync<
-    IpfsCID[],
+    Map<IpfsCID, EQueryProcessingStatus | null>,
     | BlockchainProviderError
     | UninitializedError
     | ConsentFactoryContractError
     | ConsentContractError
+    | BlockchainCommonErrors
+    | PersistenceError
   > {
-    return this._getConsentContract(contractAddress)
-      .andThen((contract) => {
-        return this._getPublishedQueriesPerContract(contract);
+    return ResultUtils.combine([
+      this._getConsentContract(contractAddress),
+      this.consentContractRepository.getQueryHorizon(contractAddress),
+    ])
+      .andThen(([contract, queryHorizon]) => {
+        return ResultUtils.combine([
+          this._getPublishedQueriesPerContract(contract),
+          this.sdqlQueryRepository.getQueryStatusByConsentContract(
+            contractAddress,
+            queryHorizon,
+          ),
+        ]).map(([queryCIDs, queryStatus]) => {
+          return this._getQueryStatusPerContract(queryCIDs, queryStatus);
+        });
       })
       .orElse((e) => {
         this.logUtils.warning(
           `No contract could be retrieved with address ${contractAddress}. ` +
             `Returning [] as published queries. Error message: ${e.message}`,
         );
-        return okAsync([]);
+        return okAsync(new Map());
       });
+  }
+
+  private _getQueryStatusPerContract(
+    queryCIDs: IpfsCID[],
+    queryStatus: QueryStatus[],
+  ): Map<IpfsCID, EQueryProcessingStatus | null> {
+    return queryCIDs.reduce<Map<IpfsCID, EQueryProcessingStatus | null>>(
+      (cidsWithStatusMap, queryCID) => {
+        const qStatus = queryStatus.find(
+          (queryStatus) => queryStatus.queryCID === queryCID,
+        );
+        cidsWithStatusMap.set(queryCID, qStatus ? qStatus.status : null);
+        return cidsWithStatusMap;
+      },
+      new Map(),
+    );
   }
 
   private _getConsentContract(
@@ -237,7 +269,7 @@ export class MarketplaceService implements IMarketplaceService {
   }
 
   private _getPossibleRewards(
-    queryCids: IpfsCID[],
+    queryCidsWithStatus: Map<IpfsCID, EQueryProcessingStatus | null>,
     timeoutMs: number,
   ): ResultAsync<
     PossibleReward[],
@@ -260,15 +292,40 @@ export class MarketplaceService implements IMarketplaceService {
     | MissingASTError
     | BlockchainCommonErrors
   > {
-    if (!queryCids || queryCids.length == 0) {
+    if (!queryCidsWithStatus || queryCidsWithStatus.size == 0) {
       return okAsync([]);
     }
 
-    return ResultUtils.combine(
-      queryCids.map((cid) => this._getPossibleRewardsPerQuery(cid, timeoutMs)),
-    ).map((rewardsOfAllQueries) =>
-      Array.from(new Set(rewardsOfAllQueries.flat())),
-    );
+    const possibleRewards: ResultAsync<
+      PossibleReward[],
+      | AjaxError
+      | EvaluationError
+      | QueryFormatError
+      | QueryExpiredError
+      | ParserError
+      | EvaluationError
+      | QueryFormatError
+      | QueryExpiredError
+      | MissingTokenConstructorError
+      | DuplicateIdInSchema
+      | PersistenceError
+      | EvalNotImplementedError
+      | MissingASTError
+    >[] = [];
+
+    queryCidsWithStatus.forEach((_status, queryCID) => {
+      possibleRewards.push(
+        this._getPossibleRewardsPerQuery(queryCID, timeoutMs),
+      );
+    });
+
+    return ResultUtils.combine(possibleRewards).map((rewardsOfAllQueries) => {
+      const joinedRewards = new Set(rewardsOfAllQueries.flat());
+      joinedRewards.forEach((reward) => {
+        reward.queryStatus = queryCidsWithStatus.get(reward.queryCID) ?? undefined
+      });
+      return Array.from(new Set(rewardsOfAllQueries.flat()));
+    });
   }
 
   private _getPossibleRewardsPerQuery(
