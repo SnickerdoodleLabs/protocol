@@ -105,8 +105,10 @@ export class AlchemyIndexer implements IEVMIndexer {
   public initialize(): ResultAsync<void, never> {
     return this.configProvider.getConfig().map((config) => {
       this.indexerSupport.forEach((indexerSupportSummary, chain) => {
+        const chainInfo = getChainInfoByChain(chain);
         if (
-          config.apiKeys.alchemyApiKeys[getChainInfoByChain(chain).name] == ""
+          config.apiKeys.alchemyApiKeys[chainInfo.name] == "" ||
+          config.apiKeys.alchemyApiKeys[chainInfo.name] == undefined
         ) {
           this.health.set(chain, EComponentStatus.NoKeyProvided);
         } else {
