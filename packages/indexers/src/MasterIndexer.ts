@@ -373,6 +373,8 @@ export class MasterIndexer implements IMasterIndexer {
         `No healthy indexer found for chain ${chain}, for operation ${indexerMethod}`,
       );
     }
+
+    console.log("preferredIndexers", preferredIndexers);
     return preferredIndexers;
   }
 
@@ -400,10 +402,16 @@ export class MasterIndexer implements IMasterIndexer {
 
       const indexerStatuses = context.components;
       indexerStatuses.alchemyIndexer = alchemyHealth;
+      indexerStatuses.ankrIndexer = ankrHealth;
+      indexerStatuses.covalentIndexer = covalentHealth;
       indexerStatuses.etherscanIndexer = etherscanHealth;
+      indexerStatuses.maticIndexer = maticHealth;
       indexerStatuses.moralisIndexer = moralisHealth;
       indexerStatuses.nftScanIndexer = nftscanHealth;
       indexerStatuses.oklinkIndexer = oklinkHealth;
+      indexerStatuses.poapIndexer = poapHealth;
+      indexerStatuses.simulatorIndexer = simHealth;
+      indexerStatuses.solanaIndexer = solHealth;
 
       // The status of each indexer is known, and the chains that those indexers support is known.
       // We need to consolidate the component status for each chain via a group-by.
