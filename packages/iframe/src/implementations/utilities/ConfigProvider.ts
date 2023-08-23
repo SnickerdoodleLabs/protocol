@@ -35,8 +35,8 @@ export class ConfigProvider implements IConfigProvider {
       }),
       __IPFS_FETCH_BASE_URL__,
       __DEFAULT_INSIGHT_PLATFORM_BASE_URL__,
-      // Get the source domain
-      DomainName(document.location.ancestorOrigins[0]),
+      // we gonna overide this once handshake is completed
+      DomainName(window.location.origin), // Placaholder sourcedomain
       LanguageCode("en"), // This may come in from the URL
       typeof __PORTFOLIO_POLLING_INTERVAL__ !== "undefined" &&
       !!__PORTFOLIO_POLLING_INTERVAL__
@@ -56,6 +56,11 @@ export class ConfigProvider implements IConfigProvider {
         : 300000, // requestForDataPollingIntervalMS
     );
   }
+
+  overrideSourceDomain(domain: DomainName): void {
+    this.config.sourceDomain = domain;
+  }
+
   getConfig(): IFrameConfig {
     return this.config;
   }
