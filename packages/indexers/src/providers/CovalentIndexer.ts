@@ -118,7 +118,7 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
   > {
     return errAsync(
       new MethodSupportError(
-        "getTokensForAccount not supported for AlchemyIndexer",
+        "getTokensForAccount not supported for Covalent Indexer",
         400,
       ),
     );

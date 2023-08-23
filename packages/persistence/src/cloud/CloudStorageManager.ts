@@ -49,9 +49,6 @@ export class CloudStorageManager implements ICloudStorageManager {
   protected resolveProvider: null | ((provider: ICloudStorage) => void) = null;
   protected activated = false;
   protected storageList: Set<ECloudStorageType>;
-  private _unlockPromise: Promise<EVMPrivateKey>;
-  private _resolveUnlock: ((dataWalletKey: EVMPrivateKey) => void) | null =
-    null;
 
   public constructor(
     @inject(INullCloudStorageType) protected localStorage: ICloudStorage,
@@ -70,30 +67,6 @@ export class CloudStorageManager implements ICloudStorageManager {
         this.resolveProvider = resolve;
       }),
     );
-    this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
-      this._resolveUnlock = resolve;
-    });
-  }
-
-  public unlock(
-    derivedKey: EVMPrivateKey,
-  ): ResultAsync<void, PersistenceError> {
-    // Store the result
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    this._resolveUnlock!(derivedKey);
-
-    return okAsync(undefined);
-
-    // username/password or an auth token from the FF
-    // return okAsync(undefined);
-    // return ResultUtils.combine([
-    //   this.gDrive.unlock(dataWalletKey),
-    //   this.dropbox.unlock(dataWalletKey),
-    // ]).map(() => {});
-  }
-
-  protected waitForUnlock(): ResultAsync<EVMPrivateKey, never> {
-    return ResultAsync.fromSafePromise(this._unlockPromise);
   }
 
   public cloudStorageActivated(): boolean {
@@ -106,7 +79,7 @@ export class CloudStorageManager implements ICloudStorageManager {
         URLString(
           "https://www.dropbox.com/oauth2/authorize?client_id=" +
             config.dropboxAppKey +
-            "&response_type=code&redirect_uri=" +
+            "&token_access_type=offline&response_type=code&redirect_uri=" +
             config.dropboxRedirectUri,
         ),
       );
@@ -121,13 +94,9 @@ export class CloudStorageManager implements ICloudStorageManager {
     credentials: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError> {
     return ResultUtils.combine([
-      this.waitForUnlock(),
       this.contextProvider.getContext(),
       this.deactivateAuthenticatedStorage(credentials),
-    ]).andThen(([privateKey, context, deactivated]) => {
-      console.log("within here activateAuthenticatedStorage: ");
-      const addr =
-        this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
+    ]).andThen(([context, deactivated]) => {
       credentials.path = credentials.path;
       if (credentials.type == ECloudStorageType.Dropbox) {
         this.provider = this.dropbox;
@@ -204,15 +173,11 @@ export class CloudStorageManager implements ICloudStorageManager {
 
   public getCloudStorage(): ResultAsync<ICloudStorage, never> {
     return this.initializeResult.map((storage) => {
-      console.log("cloudStorage: " + JSON.stringify(storage));
-      console.log("this.provider: " + JSON.stringify(this.provider));
-
       return this.provider;
     });
   }
 
   public getCurrentCloudStorage(): ResultAsync<ECloudStorageType, never> {
-    console.log("Inside getCurrentCloudStorage: ");
     return okAsync(this.provider.name());
   }
 

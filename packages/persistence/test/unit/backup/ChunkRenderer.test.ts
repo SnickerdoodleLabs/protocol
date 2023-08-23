@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import "reflect-metadata";
-import { ICryptoUtils, ITimeUtils } from "@snickerdoodlelabs/common-utils";
+import { ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
-  EVMPrivateKey,
   UnixTimestamp,
   ERecordKey,
   VersionedObject,
@@ -13,7 +12,6 @@ import {
   DataWalletBackup,
   DataWalletBackupHeader,
   DataWalletBackupID,
-  Signature,
   FieldDataUpdate,
   PersistenceError,
 } from "@snickerdoodlelabs/objects";
@@ -37,14 +35,12 @@ const maxChunkSize = 2;
 const maxChunkSizeImmediate = 1;
 const recordKey = ERecordKey.ACCOUNT;
 const fieldKey = EFieldKey.GENDER;
-const privateKey = EVMPrivateKey("Private Key");
 const keyPath = "foo";
 const keyValue = "Key Value";
 const now = UnixTimestamp(30);
 const beforeNow = UnixTimestamp(20);
 const newValue = Serializer.serialize("New Value")._unsafeUnwrap();
 const dataWalletBackupId = DataWalletBackupID("Data Wallet Backup ID");
-const dataWalletBackupSignature = Signature("Data Wallet Backup Signature");
 
 const volatileTableIndex = new VolatileTableIndex<VersionedObject>(
   recordKey,
@@ -103,7 +99,6 @@ class ChunkRendererMocks {
 
   public constructor(
     protected schema: VolatileTableIndex<VersionedObject> | FieldIndex,
-    protected enableEncryption = true,
   ) {
     this.timeUtils = td.object<ITimeUtils>();
     this.backupUtils = td.object<IBackupUtils>();
@@ -112,42 +107,6 @@ class ChunkRendererMocks {
     td.when(this.timeUtils.getUnixNow()).thenReturn(now as never);
 
     // BackupUtils -----------------------------------------------------------
-    td.when(
-      this.backupUtils.encryptBlob(
-        td.matchers.contains(fieldDataUpdate), // A deep copy is made first
-        privateKey,
-      ),
-    ).thenReturn(okAsync(fieldDataUpdate)); // Returns the blob unencrypted (and oddly, returned to the original....)
-    td.when(
-      this.backupUtils.encryptBlob(
-        td.matchers.contains(fieldDataUpdateBefore), // A deep copy is made first
-        privateKey,
-      ),
-    ).thenReturn(okAsync(fieldDataUpdateBefore));
-    td.when(
-      this.backupUtils.encryptBlob(
-        td.matchers.argThat((arg) => {
-          return (
-            arg.length == 1 &&
-            JSON.stringify(arg[0]) == JSON.stringify(volatileDataUpdate)
-          );
-        }),
-        privateKey,
-      ),
-    ).thenReturn(okAsync([volatileDataUpdate]));
-    td.when(
-      this.backupUtils.encryptBlob(
-        td.matchers.argThat((arg) => {
-          return (
-            arg.length == 2 &&
-            JSON.stringify(arg[0]) == JSON.stringify(volatileDataUpdate0) &&
-            JSON.stringify(arg[1]) == JSON.stringify(volatileDataUpdate)
-          );
-        }),
-        privateKey,
-      ),
-    ).thenReturn(okAsync([volatileDataUpdate0, volatileDataUpdate]));
-
     td.when(this.backupUtils.getBackupHash(fieldDataUpdate)).thenReturn(
       okAsync(dataWalletBackupId),
     );
@@ -175,24 +134,10 @@ class ChunkRendererMocks {
         }),
       ),
     ).thenReturn(okAsync(dataWalletBackupId));
-
-    td.when(
-      this.backupUtils.generateBackupSignature(
-        dataWalletBackupId,
-        now,
-        privateKey,
-      ),
-    ).thenReturn(okAsync(dataWalletBackupSignature));
   }
 
   public factory(): IChunkRenderer {
-    return new ChunkRenderer(
-      this.schema,
-      this.enableEncryption,
-      privateKey,
-      this.backupUtils,
-      this.timeUtils,
-    );
+    return new ChunkRenderer(this.schema, this.backupUtils, this.timeUtils);
   }
 }
 
@@ -248,7 +193,6 @@ describe("ChunkRenderer Tests", () => {
     expect(dataWalletBackup!.blob).toBe(fieldDataUpdate);
     expect(dataWalletBackup!.header).toBeInstanceOf(DataWalletBackupHeader);
     expect(dataWalletBackup!.header.hash).toBe(dataWalletBackupId);
-    expect(dataWalletBackup!.header.signature).toBe(dataWalletBackupSignature);
     expect(dataWalletBackup!.header.timestamp).toBe(now);
     expect(dataWalletBackup!.header.priority).toBe(EBackupPriority.HIGH);
     expect(dataWalletBackup!.header.isField).toBeTruthy();
@@ -277,7 +221,6 @@ describe("ChunkRenderer Tests", () => {
     expect(dataWalletBackup!.blob).toBe(fieldDataUpdate);
     expect(dataWalletBackup!.header).toBeInstanceOf(DataWalletBackupHeader);
     expect(dataWalletBackup!.header.hash).toBe(dataWalletBackupId);
-    expect(dataWalletBackup!.header.signature).toBe(dataWalletBackupSignature);
     expect(dataWalletBackup!.header.timestamp).toBe(now);
     expect(dataWalletBackup!.header.priority).toBe(EBackupPriority.HIGH);
     expect(dataWalletBackup!.header.isField).toBeTruthy();
@@ -302,7 +245,6 @@ describe("ChunkRenderer Tests", () => {
     expect(dataWalletBackup!.blob).toEqual([volatileDataUpdate]);
     expect(dataWalletBackup!.header).toBeInstanceOf(DataWalletBackupHeader);
     expect(dataWalletBackup!.header.hash).toBe(dataWalletBackupId);
-    expect(dataWalletBackup!.header.signature).toBe(dataWalletBackupSignature);
     expect(dataWalletBackup!.header.timestamp).toBe(now);
     expect(dataWalletBackup!.header.priority).toBe(EBackupPriority.NORMAL);
     expect(dataWalletBackup!.header.isField).toBeFalsy();
@@ -335,7 +277,6 @@ describe("ChunkRenderer Tests", () => {
     ]);
     expect(dataWalletBackup!.header).toBeInstanceOf(DataWalletBackupHeader);
     expect(dataWalletBackup!.header.hash).toBe(dataWalletBackupId);
-    expect(dataWalletBackup!.header.signature).toBe(dataWalletBackupSignature);
     expect(dataWalletBackup!.header.timestamp).toBe(now);
     expect(dataWalletBackup!.header.priority).toBe(EBackupPriority.NORMAL);
     expect(dataWalletBackup!.header.isField).toBeFalsy();
