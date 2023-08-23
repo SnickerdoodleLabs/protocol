@@ -8984,8 +8984,8 @@ __metadata:
     rxjs: ^7.5.5
     tldts: ^5.7.89
   peerDependencies:
-    react: 17.0.1
-    react-dom: 17.0.2
+    react: ">=17.0.0"
+    react-dom: ">=17.0.0"
   languageName: unknown
   linkType: soft
 
