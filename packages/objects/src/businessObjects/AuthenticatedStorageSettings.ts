@@ -5,6 +5,6 @@ export class AuthenticatedStorageSettings {
   public constructor(
     public type: ECloudStorageType,
     public path: string,
-    public refreshToken: RefreshToken,
+    public refresh_token: RefreshToken,
   ) {}
 }
