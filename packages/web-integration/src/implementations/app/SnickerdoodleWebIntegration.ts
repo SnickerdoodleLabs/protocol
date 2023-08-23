@@ -22,7 +22,6 @@ import {
 import {
   IIFrameProxyFactory,
   IIFrameProxyFactoryType,
-  ISnickerdoodleIFrameProxy,
 } from "@web-integration/interfaces/proxy/index.js";
 import {
   IConfigProvider,
@@ -32,7 +31,7 @@ import { webIntegrationModule } from "@web-integration/WebIntegrationModule.js";
 export class SnickerdoodleWebIntegration
   implements ISnickerdoodleWebIntegration
 {
-  protected iframeURL = URLString("http://localhost:9010");
+  protected iframeURL = URLString("https://iframe.snickerdoodle.com");
   protected debug = false;
   protected iocContainer: Container;
 

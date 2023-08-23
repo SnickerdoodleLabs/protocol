@@ -1,7 +1,7 @@
 {
-  "name": "@snickerdoodlelabs/objects",
-  "version": "0.0.72",
-  "description": "Objects and types shared by the Snickerdoodle Protocol",
+  "name": "@snickerdoodlelabs/ai-scraper",
+  "version": "0.0.17",
+  "description": "Utilities for parsing and understanding SDQL Queries",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -10,11 +10,11 @@
   "bugs": {
     "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
   },
-  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/objects#readme",
-  "author": "Charlie Sibbach <charlie@snickerdoodlelabs.io>",
+  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/documentation/ai-scraper",
+  "author": "Golam Muktadir <muktadir@snickerdoodlelabs.io>",
   "keywords": [
-    "Blockchain",
-    "Snickerdoodle"
+    "Snickerdoodle",
+    "SDQL"
   ],
   "main": "dist/index.js",
   "files": [
@@ -36,11 +36,14 @@
     "prepublish": "yarn build",
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --maxWorkers=50% --coverage --passWithNoTests"
   },
+  "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
+    "@snickerdoodlelabs/common-utils": "workspace:^",
+    "@snickerdoodlelabs/objects": "workspace:^",
     "ethers": "^5.6.6",
+    "inversify": "^6.0.1",
     "neverthrow": "^5.1.0",
-    "rxjs": "^7.5.5",
-    "ts-brand": "^0.0.2"
+    "neverthrow-result-utils": "^2.0.2"
   }
 }
