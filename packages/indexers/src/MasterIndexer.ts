@@ -15,9 +15,11 @@ import {
   EChain,
   EChainTechnology,
   EComponentStatus,
+  EIndexerMethod,
   EVMAccountAddress,
   EVMContractAddress,
   getChainInfoByChain,
+  IndexerSupportSummary,
   InvalidParametersError,
   MethodSupportError,
   PersistenceError,
@@ -51,12 +53,6 @@ import {
   ISolanaIndexerType,
   ISolanaIndexer,
 } from "@indexers/interfaces/index.js";
-
-enum EIndexerMethod {
-  Balances = "Balances",
-  Transactions = "Transactions",
-  NFTs = "NFTs",
-}
 
 @injectable()
 export class MasterIndexer implements IMasterIndexer {
@@ -120,13 +116,68 @@ export class MasterIndexer implements IMasterIndexer {
       });
   }
 
-  public getSupportedChains(): ResultAsync<EChain[], never> {
+  public getSupportedChains(
+    method: EIndexerMethod | null = null,
+  ): ResultAsync<EChain[], never> {
     return this.getHealthStatuses().map((healthStatuses) => {
+      let supportedChains = new Map<EChain, boolean>();
+
+      // if the method is provided, we need to limit the list of supported chains to those that support the method
+      if (method != null) {
+        const indexers = [
+          this.alchemy,
+          this.ankr,
+          this.covalent,
+          this.etherscan,
+          this.matic,
+          this.moralis,
+          this.nftscan,
+          this.oklink,
+          this.poapRepo,
+          this.sim,
+          this.sol,
+        ];
+
+        supportedChains = indexers
+          .map((indexer) => {
+            return indexer.getSupportedChains();
+          })
+          .reduce((acc, supportedChains) => {
+            // Reduce it down to a summary of the method- yes or no, do we support that method
+            supportedChains.forEach((indexerSupportSummary, chain) => {
+              const support = acc.get(chain);
+              if (support == null) {
+                acc.set(
+                  chain,
+                  IndexerSupportSummary.isMethodSupported(
+                    indexerSupportSummary,
+                    method,
+                  ),
+                );
+                return;
+              }
+              acc.set(
+                chain,
+                support ||
+                  IndexerSupportSummary.isMethodSupported(
+                    indexerSupportSummary,
+                    method,
+                  ), // OR together, if any support is true it's true
+              );
+            });
+            return acc;
+          }, new Map<EChain, boolean>());
+      }
+
       const activeChains = new Array<EChain>();
       healthStatuses.forEach((componentStatus, chain) => {
+        // Have to filter by the method
+        const methodSupported =
+          method != null ? supportedChains.get(chain) : true;
         if (
-          componentStatus == EComponentStatus.Available ||
-          componentStatus == EComponentStatus.InUse
+          (componentStatus === EComponentStatus.Available ||
+            componentStatus === EComponentStatus.InUse) &&
+          methodSupported === true
         ) {
           activeChains.push(chain);
         }
@@ -380,23 +431,47 @@ export class MasterIndexer implements IMasterIndexer {
     return EVMContractAddress("0x0");
   }
 
-  /* Sets the health statuses of each provider */
+  /**
+   * Returns the status of each chain. If method is not provided, the status reflects if at least one indexer
+   * supports at least one method for the chain. If method is provided, the status reflects if at least one
+   * indexer supports that method for the chain.
+   */
   protected getHealthStatuses(): ResultAsync<
     Map<EChain, EComponentStatus>,
     never
   > {
     return this.indexerContext.getContext().map((context) => {
-      const alchemyHealth = this.alchemy.healthStatus();
-      const ankrHealth = this.ankr.healthStatus();
-      const covalentHealth = this.covalent.healthStatus();
-      const etherscanHealth = this.etherscan.healthStatus();
-      const maticHealth = this.matic.healthStatus();
-      const moralisHealth = this.moralis.healthStatus();
-      const nftscanHealth = this.nftscan.healthStatus();
-      const oklinkHealth = this.oklink.healthStatus();
-      const poapHealth = this.poapRepo.healthStatus();
-      const simHealth = this.sim.healthStatus();
-      const solHealth = this.sol.healthStatus();
+      const indexers = [
+        this.alchemy,
+        this.ankr,
+        this.covalent,
+        this.etherscan,
+        this.matic,
+        this.moralis,
+        this.nftscan,
+        this.oklink,
+        this.poapRepo,
+        this.sim,
+        this.sol,
+      ];
+
+      const healthchecks = indexers.map((indexer) => {
+        return indexer.healthStatus();
+      });
+
+      const [
+        alchemyHealth,
+        ankrHealth,
+        covalentHealth,
+        etherscanHealth,
+        maticHealth,
+        moralisHealth,
+        nftscanHealth,
+        oklinkHealth,
+        poapHealth,
+        simHealth,
+        solHealth,
+      ] = healthchecks;
 
       const indexerStatuses = context.components;
       indexerStatuses.alchemyIndexer = alchemyHealth;
@@ -412,19 +487,7 @@ export class MasterIndexer implements IMasterIndexer {
       // Need to consolidate the maps of chain->EComponentStatus
       const chainStatuses = new Map<EChain, EComponentStatus>();
 
-      [
-        alchemyHealth,
-        ankrHealth,
-        covalentHealth,
-        etherscanHealth,
-        maticHealth,
-        moralisHealth,
-        nftscanHealth,
-        oklinkHealth,
-        poapHealth,
-        simHealth,
-        solHealth,
-      ].reduce((baseHealthStatus, healthStatus) => {
+      healthchecks.reduce((baseHealthStatus, healthStatus) => {
         healthStatus.forEach((status, chain) => {
           const baseStatus = baseHealthStatus.get(chain);
           if (baseStatus == null) {

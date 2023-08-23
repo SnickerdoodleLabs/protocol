@@ -72,4 +72,36 @@ describe("TimedCache tests", () => {
     // Assert
     expect(result).toBeNull();
   });
+
+  test("TimedCache returns null if cache is completely cleared", async () => {
+    // Arrange
+    const timeUtils = td.object<ITimeUtils>();
+    td.when(timeUtils.getUnixNow()).thenReturn(then as never, now as never);
+
+    const timedCache = new TimedCache<string>(0.5, timeUtils);
+
+    // Act
+    timedCache.set(cachedValue, param1, param2, param3);
+    timedCache.clearAll();
+    const result = timedCache.get(param1, param2, param3);
+
+    // Assert
+    expect(result).toBeNull();
+  });
+
+  test("TimedCache returns null if cache is cleared", async () => {
+    // Arrange
+    const timeUtils = td.object<ITimeUtils>();
+    td.when(timeUtils.getUnixNow()).thenReturn(then as never, now as never);
+
+    const timedCache = new TimedCache<string>(0.5, timeUtils);
+
+    // Act
+    timedCache.set(cachedValue, param1, param2, param3);
+    timedCache.clear(param1, param2, param3);
+    const result = timedCache.get(param1, param2, param3);
+
+    // Assert
+    expect(result).toBeNull();
+  });
 });

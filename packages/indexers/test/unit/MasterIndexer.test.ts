@@ -22,6 +22,7 @@ import {
   TickerSymbol,
   UnixTimestamp,
   EVMTransactionHash,
+  EIndexerMethod,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import * as td from "testdouble";
@@ -201,6 +202,9 @@ class MasterIndexerMocks {
     td.when(this.sol.healthStatus()).thenReturn(
       new Map<EChain, EComponentStatus>(),
     );
+    td.when(this.sol.getSupportedChains()).thenReturn(
+      new Map<EChain, IndexerSupportSummary>(),
+    );
   }
 
   public factory(): MasterIndexer {
@@ -299,6 +303,50 @@ describe("MasterIndexer tests", () => {
     const supportedChains = result._unsafeUnwrap();
     expect(supportedChains.length).toBe(1);
     expect(supportedChains[0]).toBe(chain);
+  });
+
+  test("getSupportedChains() works with method specified", async () => {
+    // Arrange
+    const mocks = new MasterIndexerMocks();
+    const indexer = mocks.factory();
+
+    // Act
+    const result = await indexer.getSupportedChains(EIndexerMethod.Balances);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const supportedChains = result._unsafeUnwrap();
+    expect(supportedChains.length).toBe(1);
+    expect(supportedChains[0]).toBe(chain);
+  });
+
+  test("getSupportedChains() works with method specified but no support for that method", async () => {
+    // Arrange
+    const mocks = new MasterIndexerMocks();
+
+    mocks.alchemy = new EVMIndexerMock(
+      "Alchemy",
+      new Map<EChain, IndexerSupportSummary>([
+        [chain, new IndexerSupportSummary(chain, false, true, true)],
+      ]),
+    );
+    mocks.ankr = new EVMIndexerMock(
+      "Ankr",
+      new Map<EChain, IndexerSupportSummary>([
+        [chain, new IndexerSupportSummary(chain, false, true, true)],
+      ]),
+    );
+    const indexer = mocks.factory();
+
+    // Act
+    const result = await indexer.getSupportedChains(EIndexerMethod.Balances);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const supportedChains = result._unsafeUnwrap();
+    expect(supportedChains.length).toBe(0);
   });
 
   test("getLatestBalances() works, returns from Ankr", async () => {

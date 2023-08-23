@@ -38,6 +38,15 @@ export class TimedCache<T> {
     this.cache.set(key, new CacheEntry(now, value));
   }
 
+  public clearAll(): void {
+    this.cache.clear();
+  }
+
+  public clear(...args: unknown[]) {
+    const key = this.getKey(args);
+    this.cache.delete(key);
+  }
+
   protected getKey(args: unknown[]): string {
     const json = ObjectUtils.serialize(args);
     return Crypto.createHash("md5").update(json).digest("base64");
