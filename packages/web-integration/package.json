@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/web-integration",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Utilities for general consumption within the Snickerdoodle Protocol",
   "license": "ISC",
   "repository": {
