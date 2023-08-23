@@ -382,7 +382,10 @@ export class DropboxCloudStorage implements ICloudStorage {
     refreshToken: RefreshToken,
   ): ResultAsync<AccessToken, PersistenceError> {
     // Do the work of trading the refresh token for a new access token
-    return this.configProvider.getConfig().andThen((config) => {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+    ]).andThen(([config, context]) => {
       const url = urlJoinP("https://api.dropbox.com/oauth2/token", [], {
         grant_type: "refresh_token",
         refresh_token: refreshToken,
@@ -390,6 +393,7 @@ export class DropboxCloudStorage implements ICloudStorage {
         client_secret: config.dropboxAppSecret,
       });
 
+      context.privateEvents.onApiAccessed.next(EExternalApi.Dropbox);
       return this.ajaxUtils
         .post<{ access_token: AccessToken }>(new URL(url))
         .map((token) => {
@@ -408,7 +412,10 @@ https://api.dropbox.com/oauth2/token?grant_type=refresh_token&refresh_token=bu_D
   protected getBackupFile(
     dropboxFile: IDropboxFileBackup,
   ): ResultAsync<DataWalletBackup, PersistenceError> {
-    return this.getAccessToken().andThen((accessToken) => {
+    return ResultUtils.combine([
+      this.getAccessToken(),
+      this.contextProvider.getContext(),
+    ]).andThen(([accessToken, context]) => {
       const url = new URL("https://content.dropboxapi.com/2/files/download");
       const data = {
         path: dropboxFile.id,
@@ -418,6 +425,8 @@ https://api.dropbox.com/oauth2/token?grant_type=refresh_token&refresh_token=bu_D
         "Dropbox-API-Arg": `${JSON.stringify(data)}`,
         "Content-Type": "text/plain",
       };
+
+      context.privateEvents.onApiAccessed.next(EExternalApi.Dropbox);
       return this.ajaxUtils
         .post<DataWalletBackup>(url, undefined, {
           headers: headerParams,
