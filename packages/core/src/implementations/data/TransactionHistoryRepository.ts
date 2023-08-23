@@ -6,7 +6,6 @@ import {
   ChainTransaction,
   chainConfig,
   EVMTransaction,
-  getChainInfoByChainId,
   TransactionFilter,
   ERecordKey,
   getChainInfoByChain,
