@@ -64,8 +64,8 @@ export class ERC20Contract
       (e) => {
         return this.generateError(e, "Unable to call decimals()");
       },
-    ).map((bnDecimals) => {
-      return bnDecimals.toNumber();
+    ).map((decimalsBN) => {
+      return decimalsBN.toNumber();
     });
   }
 
@@ -78,8 +78,8 @@ export class ERC20Contract
       (e) => {
         return this.generateError(e, "Unable to call totalSupply()");
       },
-    ).map((bnTotalSupply) => {
-      return bnTotalSupply.toNumber();
+    ).map((totalSupplyBN) => {
+      return totalSupplyBN.toNumber();
     });
   }
 
@@ -91,8 +91,8 @@ export class ERC20Contract
       (e) => {
         return this.generateError(e, "Unable to call balanceOf()");
       },
-    ).map((bnBalance) => {
-      return bnBalance.toNumber();
+    ).map((balanceBN) => {
+      return balanceBN.toNumber();
     });
   }
 
@@ -105,8 +105,8 @@ export class ERC20Contract
       (e) => {
         return this.generateError(e, "Unable to call allowance()");
       },
-    ).map((bnAllowance) => {
-      return bnAllowance.toNumber();
+    ).map((allowanceBN) => {
+      return allowanceBN.toNumber();
     });
   }
 
