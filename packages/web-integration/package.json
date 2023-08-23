@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/web-integration",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Utilities for general consumption within the Snickerdoodle Protocol",
   "license": "ISC",
   "repository": {
@@ -27,7 +27,7 @@
   "scripts": {
     "alias": "tsc-alias",
     "build": "yarn clean && yarn compile",
-    "clean": "rimraf dist tsconfig.tsbuildinfo",
+    "clean": "npx rimraf dist tsconfig.tsbuildinfo",
     "compile": "npx tsc --build && cd ../.. && yarn alias",
     "prepare": "yarn build",
     "prepublish": "yarn build",
