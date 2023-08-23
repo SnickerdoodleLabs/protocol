@@ -5779,7 +5779,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mapbox/node-pre-gyp@npm:^1.0.0, @mapbox/node-pre-gyp@npm:^1.0.9":
+"@mapbox/node-pre-gyp@npm:^1.0.0":
   version: 1.0.11
   resolution: "@mapbox/node-pre-gyp@npm:1.0.11"
   dependencies:
@@ -8372,12 +8372,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snickerdoodlelabs/common-utils@workspace:^, @snickerdoodlelabs/common-utils@workspace:packages/common-utils":
+"@snickerdoodlelabs/common-utils@^1.0.0, @snickerdoodlelabs/common-utils@workspace:^, @snickerdoodlelabs/common-utils@workspace:packages/common-utils":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/common-utils@workspace:packages/common-utils"
   dependencies:
-    "@snickerdoodlelabs/objects": "workspace:^"
-    argon2: ^0.28.4
+    "@snickerdoodlelabs/objects": ^1.0.0
     axios: ^0.27.2
     ethers: ^5.6.6
     inversify: ^6.0.1
@@ -8432,10 +8431,10 @@ __metadata:
   resolution: "@snickerdoodlelabs/core-test-harness@workspace:packages/test-harness"
   dependencies:
     "@google-cloud/storage": ^6.7.0
-    "@snickerdoodlelabs/common-utils": "workspace:^"
+    "@snickerdoodlelabs/common-utils": ^1.0.0
     "@snickerdoodlelabs/contracts-sdk": "workspace:^"
     "@snickerdoodlelabs/core": "workspace:^"
-    "@snickerdoodlelabs/objects": "workspace:^"
+    "@snickerdoodlelabs/objects": ^1.0.0
     "@snickerdoodlelabs/persistence": "workspace:^"
     "@snickerdoodlelabs/signature-verification": "workspace:^"
     "@solana/web3.js": ^1.63.0
@@ -8571,8 +8570,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/insight-platform-api@workspace:packages/insight-platform-api"
   dependencies:
-    "@snickerdoodlelabs/common-utils": "workspace:^"
-    "@snickerdoodlelabs/objects": "workspace:^"
+    "@snickerdoodlelabs/common-utils": ^1.0.0
+    "@snickerdoodlelabs/objects": ^1.0.0
     "@snickerdoodlelabs/signature-verification": "workspace:^"
     ethers: ^5.6.6
     inversify: ^6.0.1
@@ -8752,7 +8751,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snickerdoodlelabs/objects@workspace:^, @snickerdoodlelabs/objects@workspace:packages/objects":
+"@snickerdoodlelabs/objects@^1.0.0, @snickerdoodlelabs/objects@workspace:^, @snickerdoodlelabs/objects@workspace:packages/objects":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/objects@workspace:packages/objects"
   dependencies:
@@ -8768,9 +8767,9 @@ __metadata:
   resolution: "@snickerdoodlelabs/persistence@workspace:packages/persistence"
   dependencies:
     "@react-native-async-storage/async-storage": ^1.17.11
-    "@snickerdoodlelabs/common-utils": "workspace:^"
+    "@snickerdoodlelabs/common-utils": ^1.0.0
     "@snickerdoodlelabs/objects": "workspace:^"
-    "@snickerdoodlelabs/utils": "workspace:^"
+    "@snickerdoodlelabs/utils": ^1.0.0
     ethers: ^5.6.6
     inversify: ^6.0.1
     neverthrow: ^5.1.0
@@ -8789,7 +8788,7 @@ __metadata:
   resolution: "@snickerdoodlelabs/query-parser@workspace:packages/query-parser"
   dependencies:
     "@snickerdoodlelabs/common-utils": "workspace:^"
-    "@snickerdoodlelabs/objects": "workspace:^"
+    "@snickerdoodlelabs/objects": ^1.0.0
     ethers: ^5.6.6
     inversify: ^6.0.1
     neverthrow: ^5.1.0
@@ -8805,7 +8804,7 @@ __metadata:
     "@download/blockies": ^1.0.3
     "@material-ui/lab": 4.0.0-alpha.60
     "@material-ui/pickers": 3.2.4
-    "@snickerdoodlelabs/objects": "workspace:^"
+    "@snickerdoodlelabs/objects": ^1.0.0
     clsx: ^1.2.1
     date-fns: ^2.29.1
     formik: 2.2.9
@@ -8843,7 +8842,7 @@ __metadata:
     "@material-ui/icons": 4.11.2
     "@material-ui/lab": 4.0.0-alpha.60
     "@material-ui/pickers": 3.2.4
-    "@snickerdoodlelabs/objects": "workspace:^"
+    "@snickerdoodlelabs/objects": ^1.0.0
     "@snickerdoodlelabs/shared-components": "workspace:^"
     "@snickerdoodlelabs/web-integration": "workspace:^"
     "@walletconnect/web3-provider": ^1.6.6
@@ -8889,9 +8888,9 @@ __metadata:
     "@material-ui/core": ^4.12.4
     "@material-ui/icons": ^4.11.3
     "@material-ui/styles": ^4.11.5
-    "@snickerdoodlelabs/common-utils": "workspace:^"
+    "@snickerdoodlelabs/common-utils": ^1.0.0
     "@snickerdoodlelabs/core": "workspace:^"
-    "@snickerdoodlelabs/objects": "workspace:^"
+    "@snickerdoodlelabs/objects": ^1.0.0
     "@snickerdoodlelabs/persistence": "workspace:^"
     "@snickerdoodlelabs/shared-components": "workspace:^"
     "@webcomponents/custom-elements": ^1.5.0
@@ -8919,12 +8918,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snickerdoodlelabs/utils@workspace:^, @snickerdoodlelabs/utils@workspace:packages/utils":
+"@snickerdoodlelabs/utils@^1.0.0, @snickerdoodlelabs/utils@workspace:^, @snickerdoodlelabs/utils@workspace:packages/utils":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/utils@workspace:packages/utils"
   dependencies:
-    "@snickerdoodlelabs/common-utils": "workspace:^"
-    "@snickerdoodlelabs/objects": "workspace:^"
+    "@snickerdoodlelabs/common-utils": ^1.0.0
+    "@snickerdoodlelabs/objects": ^1.0.0
     inversify: ^6.0.1
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
@@ -8942,7 +8941,7 @@ __metadata:
     "@material-ui/icons": 4.11.2
     "@material-ui/lab": 4.0.0-alpha.60
     "@material-ui/pickers": 3.2.4
-    "@snickerdoodlelabs/objects": "workspace:^"
+    "@snickerdoodlelabs/objects": ^1.0.0
     "@snickerdoodlelabs/shared-components": "workspace:^"
     "@snickerdoodlelabs/web-integration": "workspace:^"
     "@walletconnect/web3-provider": ^1.6.6
@@ -8985,9 +8984,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/web-integration@workspace:packages/web-integration"
   dependencies:
-    "@snickerdoodlelabs/common-utils": "workspace:^"
-    "@snickerdoodlelabs/objects": "workspace:^"
-    "@snickerdoodlelabs/utils": "workspace:^"
+    "@snickerdoodlelabs/common-utils": ^1.0.0
+    "@snickerdoodlelabs/objects": ^1.0.0
+    "@snickerdoodlelabs/utils": ^1.0.0
     "@webcomponents/custom-elements": ^1.5.0
     ethers: ^5.6.6
     inversify: ^6.0.1
@@ -12678,17 +12677,6 @@ __metadata:
   version: 5.0.2
   resolution: "arg@npm:5.0.2"
   checksum: 6c69ada1a9943d332d9e5382393e897c500908d91d5cb735a01120d5f71daf1b339b7b8980cbeaba8fd1afc68e658a739746179e4315a26e8a28951ff9930078
-  languageName: node
-  linkType: hard
-
-"argon2@npm:^0.28.4":
-  version: 0.28.7
-  resolution: "argon2@npm:0.28.7"
-  dependencies:
-    "@mapbox/node-pre-gyp": ^1.0.9
-    "@phc/format": ^1.0.0
-    node-addon-api: ^5.0.0
-  checksum: 047b777e920127c59eab58a99373a90847e35ccd0a5426c17d905ace57dad83131a6b3b33b4996f7c94c13f115794ba8421012d44d0b24a61b06b8f5b76aa312
   languageName: node
   linkType: hard
 
@@ -32011,15 +31999,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-addon-api@npm:^5.0.0":
-  version: 5.1.0
-  resolution: "node-addon-api@npm:5.1.0"
-  dependencies:
-    node-gyp: latest
-  checksum: 2508bd2d2981945406243a7bd31362fc7af8b70b8b4d65f869c61731800058fb818cc2fd36c8eac714ddd0e568cc85becf5e165cebbdf7b5024d5151bbc75ea1
-  languageName: node
-  linkType: hard
-
 "node-dir@npm:^0.1.17":
   version: 0.1.17
   resolution: "node-dir@npm:0.1.17"
@@ -41231,7 +41210,7 @@ __metadata:
 "sync-promise@git+https://github.com/brettz9/sync-promise.git#full-sync-missing-promise-features":
   version: 1.0.1
   resolution: "sync-promise@https://github.com/brettz9/sync-promise.git#commit=25845a49a00aa2d2c985a5149b97c86a1fcdc75a"
-  checksum: f536c50c270ef2ec28511af3b90ba10b8e2b3b51b3e4079136d428150ccc9592f47d02e2cf41ba02135e4a81f59fb472d642794d807bacf8c55a20f85ff57c8a
+  checksum: 80f8808f2bbb8c4f809fae0b0283dbe663a23c88cd2bf6de6ce1facada5e29cc3800027dd5123f126d119bc3090c9a82da9dd2288ebb9526070280d4aab66e3c
   languageName: node
   linkType: hard
 
@@ -45282,7 +45261,7 @@ __metadata:
   dependenciesMeta:
     sqlite3:
       optional: true
-  checksum: 60d7fea6d974cf5df4361a0cdf9e7b6bca17cd59028fa2a7a72754f34e54242ef6e85aa09b97a8898566baa452c3700cf30f8d8cfbc230a2b9b7f514ce99a469
+  checksum: 9a7b155e65d6bfaeed004917daceab31e7081128535682e32b305661547253284b50088d4121d9e67352018735aa5784f0c8a819cdde1ee1a92fdd9fff0de579
   languageName: node
   linkType: hard
 

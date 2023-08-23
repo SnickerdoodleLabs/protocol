@@ -18,7 +18,7 @@
     "@download/blockies": "^1.0.3",
     "@material-ui/lab": "4.0.0-alpha.60",
     "@material-ui/pickers": "3.2.4",
-    "@snickerdoodlelabs/objects": "workspace:^",
+    "@snickerdoodlelabs/objects": "^1.0.0",
     "clsx": "^1.2.1",
     "date-fns": "^2.29.1",
     "formik": "2.2.9",

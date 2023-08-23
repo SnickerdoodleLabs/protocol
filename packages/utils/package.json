@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/utils",
-  "version": "0.0.4",
+  "version": "1.0.0",
   "description": "Utilities for general consumption within the Snickerdoodle Protocol",
   "license": "ISC",
   "repository": {
@@ -38,8 +38,8 @@
   "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@snickerdoodlelabs/common-utils": "workspace:^",
-    "@snickerdoodlelabs/objects": "workspace:^",
+    "@snickerdoodlelabs/common-utils": "^1.0.0",
+    "@snickerdoodlelabs/objects": "^1.0.0",
     "inversify": "^6.0.1",
     "neverthrow": "^5.1.0",
     "neverthrow-result-utils": "^2.0.2",

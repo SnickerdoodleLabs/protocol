@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/common-utils",
-  "version": "0.0.24",
+  "version": "1.0.0",
   "description": "Common utils classes used in snickerdoodlelabs projects",
   "license": "MIT",
   "repository": {
@@ -41,8 +41,7 @@
   "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@snickerdoodlelabs/objects": "workspace:^",
-    "argon2": "^0.28.4",
+    "@snickerdoodlelabs/objects": "^1.0.0",
     "axios": "^0.27.2",
     "ethers": "^5.6.6",
     "inversify": "^6.0.1",

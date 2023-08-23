@@ -29,7 +29,6 @@ import {
   UUID,
   OAuth1Config,
 } from "@snickerdoodlelabs/objects";
-// import argon2 from "argon2";
 import { BigNumber, ethers } from "ethers";
 import { base58 } from "ethers/lib/utils.js";
 import { injectable } from "inversify";
