@@ -193,6 +193,25 @@ export const chainConfig = new Map<EChain, ChainInformation>([
     ),
   ],
   [
+    EChain.SolanaTestnet,
+    new ChainInformation(
+      "Solana Testnet",
+      ChainId(EChain.SolanaTestnet),
+      EChain.SolanaTestnet,
+      EChainTechnology.Solana,
+      true,
+      "solana",
+      400,
+      EIndexer.Solana,
+      new NativeCurrencyInformation("Sol", 9, "SOL", "solana"),
+      EChainType.Testnet,
+      "https://explorer.solana.com/tx/",
+      getExplorerUrl,
+      undefined,
+      undefined,
+    ),
+  ],
+  [
     EChain.Gnosis,
     new ChainInformation(
       "Gnosis",

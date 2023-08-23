@@ -80,9 +80,10 @@ export class SolanaIndexer implements ISolanaIndexer {
     return this.configProvider.getConfig().map((config) => {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, chain: EChain) => {
+          const chainInfo = getChainInfoByChain(chain);
           if (
-            config.apiKeys.alchemyApiKeys["Solana"] == "" ||
-            config.apiKeys.alchemyApiKeys["Solana"] == undefined
+            config.apiKeys.alchemyApiKeys[chainInfo.name] == "" ||
+            config.apiKeys.alchemyApiKeys[chainInfo.name] == undefined
           ) {
             this.health.set(chain, EComponentStatus.NoKeyProvided);
           } else {
