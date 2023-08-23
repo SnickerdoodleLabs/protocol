@@ -1000,9 +1000,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
   protected onModelActivated(parent: Postmate.ChildAPI): void {
     console.log("Core IFrame Model Activated");
     // we have parent and parent has parentOrigin
-    // https://github.com/dollarshaveclub/postmate/blob/f267096b59d469757932dd14c41f72b5c3341413/src/postmate.js#L191
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     const sourceDomain = DomainName(parent.parentOrigin);
     this.configProvider.overrideSourceDomain(sourceDomain);
 
