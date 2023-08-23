@@ -374,7 +374,13 @@ export class MasterIndexer implements IMasterIndexer {
       );
     }
 
-    console.log("preferredIndexers", preferredIndexers);
+    console.log(
+      "preferredIndexers for method",
+      indexerMethod,
+      preferredIndexers.map((indexer) => {
+        return indexer.name();
+      }),
+    );
     return preferredIndexers;
   }
 
