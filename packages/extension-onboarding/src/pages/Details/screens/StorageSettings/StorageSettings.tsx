@@ -43,12 +43,6 @@ interface NestedFolder {
   children?: NestedFolder[];
 }
 
-// enum EStorage {
-//   SDL_STORAGE,
-//   DROPBOX,
-//   LOCAL_DISC,
-// }
-
 interface IStorageOption {
   key: ECloudStorageType;
   icon: string;
@@ -134,7 +128,6 @@ const StorageSettings = () => {
         return window.history.replaceState(null, "", window.location.pathname);
       })
       .mapErr((e) => {
-        // sessionStorage.setItem("dropboxAccessToken", accessToken);
         sessionStorage.setItem("dropboxRefreshToken", refreshToken);
         console.log(e);
       });
@@ -223,7 +216,6 @@ const StorageSettings = () => {
 
   // only hits when we select dropbox for now
   const onFolderSelect = (path: string) => {
-    // sessionStorage.removeItem("dropboxAccessToken");
     sessionStorage.removeItem("dropboxRefreshToken");
     sdlDataWallet.storage
       .setAuthenticatedStorage(ECloudStorageType.Dropbox, path, refreshToken)
@@ -293,7 +285,6 @@ const StorageSettings = () => {
               onFolderSelect={onFolderSelect}
               folders={folders}
               onCancel={() => {
-                // sessionStorage.removeItem("dropboxAccessToken");
                 sessionStorage.removeItem("dropboxRefreshToken");
                 setFolders(undefined);
               }}
