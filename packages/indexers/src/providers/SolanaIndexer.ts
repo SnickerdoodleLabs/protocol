@@ -59,10 +59,10 @@ export class SolanaIndexer implements ISolanaIndexer {
   >();
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [EChain.Solana, new IndexerSupportSummary(EChain.Solana, true, true, true)],
-    [
-      EChain.SolanaTestnet,
-      new IndexerSupportSummary(EChain.SolanaTestnet, true, true, true),
-    ],
+    // [
+    //   EChain.SolanaTestnet,
+    //   new IndexerSupportSummary(EChain.SolanaTestnet, true, true, true),
+    // ],
   ]);
 
   public constructor(
