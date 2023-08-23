@@ -1,14 +1,3 @@
-import { ICoreListener } from "@core-iframe/interfaces/api/index";
-import {
-  IAccountService,
-  IAccountServiceType,
-} from "@core-iframe/interfaces/business/index";
-import {
-  IConfigProvider,
-  IConfigProviderType,
-  ICoreProvider,
-  ICoreProviderType,
-} from "@core-iframe/interfaces/utilities/index";
 import {
   ICryptoUtils,
   ICryptoUtilsType,
@@ -51,6 +40,7 @@ import {
   UnixTimestamp,
   ECloudStorageType,
   AccessToken,
+  RefreshToken,
 } from "@snickerdoodlelabs/objects";
 import {
   IIFrameCallData,
@@ -63,9 +53,20 @@ import { okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import Postmate from "postmate";
 import { parse } from "tldts";
+
+import { ICoreListener } from "@core-iframe/interfaces/api/index";
+import {
+  IAccountService,
+  IAccountServiceType,
+} from "@core-iframe/interfaces/business/index";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+  ICoreProvider,
+  ICoreProviderType,
+} from "@core-iframe/interfaces/utilities/index";
 @injectable()
 export class CoreListener extends ChildProxy implements ICoreListener {
-
   constructor(
     @inject(IAccountServiceType) protected accountService: IAccountService,
     @inject(IStorageUtilsType) protected storageUtils: IStorageUtils,
@@ -937,7 +938,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         data: IIFrameCallData<{
           storageType: ECloudStorageType;
           path: string;
-          accessToken: AccessToken;
+          refreshToken: RefreshToken;
         }>,
       ) => {
         this.returnForModel(() => {
@@ -945,7 +946,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
             return core.storage.setAuthenticatedStorage(
               data.data.storageType,
               data.data.path,
-              data.data.accessToken,
+              data.data.refreshToken,
               this.sourceDomain,
             );
           });

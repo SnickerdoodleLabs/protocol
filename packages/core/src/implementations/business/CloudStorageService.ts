@@ -12,6 +12,12 @@ import {
   URLString,
   PersistenceError,
   DataWalletAddress,
+  RefreshToken,
+  OAuthAuthorizationCode,
+  OAuth2Tokens,
+  UnixTimestamp,
+  OAuth2RefreshToken,
+  OAuth2AccessToken,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -150,20 +156,24 @@ export class CloudStorageService implements ICloudStorageService {
       return URLString(
         "https://www.dropbox.com/oauth2/authorize?client_id=" +
           config.dropboxAppKey +
-          " &response_type=code&redirect_uri=" +
+          "&token_access_type=offline&response_type=code&redirect_uri=" +
           config.dropboxRedirectUri,
       );
     });
   }
 
   public authenticateDropbox(
-    code: string,
-  ): ResultAsync<AccessToken, AjaxError> {
+    code: OAuthAuthorizationCode,
+  ): ResultAsync<OAuth2Tokens, AjaxError> {
     return this.configProvider
       .getConfig()
       .andThen((config) => {
         // pass in code
-        return this.ajaxUtils.post<{ access_token: AccessToken }>(
+        return this.ajaxUtils.post<{
+          access_token: OAuth2AccessToken;
+          refresh_token: OAuth2RefreshToken;
+          expires_in: UnixTimestamp;
+        }>(
           new URL("https://api.dropbox.com/oauth2/token"),
           new URLSearchParams({
             client_id: config.dropboxAppKey,
@@ -180,6 +190,12 @@ export class CloudStorageService implements ICloudStorageService {
           } as IRequestConfig,
         );
       })
-      .map((tokens) => tokens.access_token);
+      .map((tokens) => {
+        return new OAuth2Tokens(
+          tokens.access_token,
+          tokens.refresh_token,
+          tokens.expires_in,
+        );
+      });
   }
 }
