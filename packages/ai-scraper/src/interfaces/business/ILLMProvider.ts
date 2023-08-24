@@ -7,7 +7,7 @@ import {
 } from "@ai-scraper/interfaces/primitives/index.js";
 
 export interface ILLMProvider {
-  maxTokens(): number;
+  maxTokens(model: string): number;
   executePrompt(prompt: Prompt): ResultAsync<LLMResponse, LLMError>;
 }
 

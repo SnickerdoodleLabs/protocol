@@ -42,10 +42,18 @@ export class ChatGPTProvider implements ILLMProvider {
     this.temperature = 0.1;
     this.chatEncoder = encoding_for_model(this.chatModel);
   }
-  maxTokens(): number {
-    throw new Error("Method not implemented.");
+
+  public maxTokens(model: TiktokenModel): number {
+    switch (model) {
+      case "gpt-3.5-turbo":
+        return 4096;
+      case "gpt-4":
+        return 8192;
+    }
+    return 0;
   }
-  executePrompt(prompt: Prompt): ResultAsync<LLMResponse, LLMError> {
+
+  public executePrompt(prompt: Prompt): ResultAsync<LLMResponse, LLMError> {
     const messages = [
       { role: "system", content: "You are an helpful assistant." },
       { role: "user", content: prompt },
