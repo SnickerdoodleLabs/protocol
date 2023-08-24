@@ -53,6 +53,11 @@ export class ChatGPTProvider implements ILLMProvider {
     return 0;
   }
 
+  public getPromptTokens(prompt: Prompt): ResultAsync<number, Error> {
+    const tokens = this.chatEncoder.encode(prompt); // This might take a while
+    return okAsync(tokens.length);
+  }
+
   public executePrompt(prompt: Prompt): ResultAsync<LLMResponse, LLMError> {
     const messages = [
       { role: "system", content: "You are an helpful assistant." },
@@ -75,13 +80,6 @@ export class ChatGPTProvider implements ILLMProvider {
         return errAsync(new LLMError((e as Error).message, e));
       }
     });
-    // const clientOptions = {
-    //   apiKey: process.env.OPENAI_API_KEY,
-    //   timeout: this.timeout,
-    // };
-
-    // this.logUtils.debug("ChatGPTProvider", "constructor", clientOptions);
-    // this.openai = new OpenAI(clientOptions);
   }
 
   private chatOnce(messages): ResultAsync<LLMResponse, LLMError> {

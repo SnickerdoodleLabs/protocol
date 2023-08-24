@@ -13,6 +13,8 @@ export interface IScraperService {
     html: HTMLString,
     suggestedDomainTask: DomainTask,
   ): ResultAsync<void, ScraperError>;
+
+  poll(): ResultAsync<void, ScraperError>;
 }
 
 export const IScraperServiceType = Symbol.for("IScraperService");

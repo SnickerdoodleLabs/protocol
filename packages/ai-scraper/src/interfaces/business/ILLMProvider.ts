@@ -8,6 +8,7 @@ import {
 
 export interface ILLMProvider {
   maxTokens(model: string): number;
+  getPromptTokens(prompt: Prompt): ResultAsync<number, Error>;
   executePrompt(prompt: Prompt): ResultAsync<LLMResponse, LLMError>;
 }
 
