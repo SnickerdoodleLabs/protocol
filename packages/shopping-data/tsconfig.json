@@ -5,8 +5,8 @@
     "rootDir": "./src",
     "module": "ES2022",
     "paths": {
-      "@ai-scraper/*": ["./packages/ai-scraper/src/*"],
-      "@ai-scraper-test/*": ["./packages/ai-scraper/test/*"],
+      "@shopping-data/*": ["./packages/shopping-data/src/*"],
+      "@shopping-data-test/*": ["./packages/shopping-data/test/*"],
     },
   },
   "include": [
@@ -22,9 +22,6 @@
     },
     {
       "path": "../common-utils"
-    },
-    {
-      "path": "../shopping-data"
     }
   ]
 }

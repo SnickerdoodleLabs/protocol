@@ -8354,6 +8354,7 @@ __metadata:
     "@dqbd/tiktoken": ^1.0.7
     "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
+    "@snickerdoodlelabs/shopping-data": "workspace:^"
     ethers: ^5.6.6
     html-to-text: ^9.0.5
     inversify: ^6.0.1
@@ -8839,6 +8840,22 @@ __metadata:
     neverthrow-result-utils: ^2.0.2
     react: ^17.0.2
     react-dom: ^17.0.2
+  languageName: unknown
+  linkType: soft
+
+"@snickerdoodlelabs/shopping-data@workspace:^, @snickerdoodlelabs/shopping-data@workspace:packages/shopping-data":
+  version: 0.0.0-use.local
+  resolution: "@snickerdoodlelabs/shopping-data@workspace:packages/shopping-data"
+  dependencies:
+    "@dqbd/tiktoken": ^1.0.7
+    "@snickerdoodlelabs/common-utils": "workspace:^"
+    "@snickerdoodlelabs/objects": "workspace:^"
+    ethers: ^5.6.6
+    html-to-text: ^9.0.5
+    inversify: ^6.0.1
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
+    openai: ^4.0.1
   languageName: unknown
   linkType: soft
 

@@ -78,6 +78,12 @@
       "path": "packages/signatureVerification/test"
     },
     {
+      "path": "packages/shopping-data"
+    },
+    {
+      "path": "packages/shopping-data/test"
+    },
+    {
       "path": "packages/static-web-integration"
     },
     {
