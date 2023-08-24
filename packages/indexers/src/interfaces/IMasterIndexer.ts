@@ -4,6 +4,7 @@ import {
   AjaxError,
   ChainTransaction,
   EChain,
+  EIndexerMethod,
   InvalidParametersError,
   MethodSupportError,
   PersistenceError,
@@ -48,7 +49,7 @@ export interface IMasterIndexer {
     | MethodSupportError
     | InvalidParametersError
   >;
-  getSupportedChains(): ResultAsync<EChain[], never>;
+  getSupportedChains(method?: EIndexerMethod): ResultAsync<EChain[], never>;
 }
 
 export const IMasterIndexerType = Symbol.for("IMasterIndexer");
