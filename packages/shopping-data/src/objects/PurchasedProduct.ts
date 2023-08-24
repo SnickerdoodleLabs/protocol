@@ -22,7 +22,7 @@ export class PurchasedProduct extends VersionedObject {
     readonly name: string,
     readonly brand: string | null,
     readonly price: number,
-    readonly datePurchased: UnixTimestamp,
+    readonly datePurchased: UnixTimestamp | null,
 
     readonly dateCreated: UnixTimestamp,
     readonly description: string | null,

@@ -37,15 +37,10 @@ export class PurchaseHistoryPromptBuilder
       orderedInstructions = [this.role, ...orderedInstructions];
     }
 
-    // 2. no exemplars
-
-    // 3. question
-    // 4. answer structure
-    // 5. data
     orderedInstructions = [
       ...orderedInstructions,
-      this.question,
       this.answerStructure,
+      this.question,
       "\n\n",
       this.data,
     ];

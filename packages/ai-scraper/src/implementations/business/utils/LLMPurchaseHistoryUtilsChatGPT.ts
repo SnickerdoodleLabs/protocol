@@ -1,9 +1,11 @@
 import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
+import { LLMError, ScraperError } from "@snickerdoodlelabs/objects";
 import {
   ProductKeyword,
   PurchasedProduct,
 } from "@snickerdoodlelabs/shopping-data";
 import { inject, injectable } from "inversify";
+import { ResultAsync, okAsync } from "neverthrow";
 
 import { IPurchaseBlock } from "../../../interfaces/IPurchaseBlock";
 
@@ -26,33 +28,44 @@ export class LLMPurchaseHistoryUtilsChatGPT
 {
   public constructor(@inject(ITimeUtilsType) private timeUtils: ITimeUtils) {}
   public getRole(): LLMRole {
-    return LLMRole("You are an expert in understanding e-commerce");
+    return LLMRole("You are an expert in understanding e-commerce.");
   }
 
   public getQuestion(): LLMQuestion {
     return LLMQuestion(
-      "Can you get the product names from the following text? I also need the product brand, price, classification, keywords, and date purchased.",
+      "Can you get the product names from the following text? I also need the product brand, price, classification, keywords, and date purchased. Give response in a JSON array in the preceding format.",
     );
   }
 
   public getAnswerStructure(): LLMAnswerStructure {
     return LLMAnswerStructure(
-      "Respond with the names, brand, price, classification, keywords, and date only. Please, use JSON structure for output",
+      `I need all the output in this format:
+      \n\nJSON format: \n
+          {
+              name: string,
+              brand: string,
+              price: number,
+              classification: string,
+              keywords: string[],
+              date: string
+          }`,
     );
   }
 
-  public parsePurchases(llmResponse: LLMResponse): PurchasedProduct {
+  public parsePurchases(
+    llmResponse: LLMResponse,
+  ): ResultAsync<PurchasedProduct[], LLMError> {
     const jsonObj = JSON.parse(llmResponse);
     // worst possible parser
     const purchases: IPurchaseBlock[] = jsonObj["purchases"];
     const purchasedProducts = purchases.map((purchase) => {
-      new PurchasedProduct(
+      return new PurchasedProduct(
         null,
         purchase["name"],
         purchase["brand"],
-        purchase["price"],
-        purchase["date_purchased"],
-        this.timeUtils.now(),
+        this.extractPrice(purchase["price"]),
+        this.timeUtils.parseToSDTimestamp(purchase["date_purchased"]),
+        this.timeUtils.getUnixNow(),
         null,
         null,
         null,
@@ -60,5 +73,15 @@ export class LLMPurchaseHistoryUtilsChatGPT
         purchase["keywords"] as ProductKeyword[],
       );
     });
+
+    return okAsync(purchasedProducts);
+  }
+
+  public extractPrice(priceStr: string): number {
+    try {
+      return parseFloat(priceStr.replace("$", ""));
+    } catch (e) {
+      return 0;
+    }
   }
 }

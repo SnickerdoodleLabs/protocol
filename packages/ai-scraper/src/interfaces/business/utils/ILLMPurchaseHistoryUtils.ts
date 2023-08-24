@@ -1,4 +1,6 @@
+import { LLMError } from "@snickerdoodlelabs/objects";
 import { PurchasedProduct } from "@snickerdoodlelabs/shopping-data";
+import { ResultAsync } from "neverthrow";
 
 import {
   Exemplar,
@@ -13,7 +15,9 @@ export interface ILLMPurchaseHistoryUtils {
   getQuestion(): LLMQuestion;
   getAnswerStructure(): LLMAnswerStructure;
 
-  parsePurchases(llmResponse: LLMResponse): PurchasedProduct;
+  parsePurchases(
+    llmResponse: LLMResponse,
+  ): ResultAsync<PurchasedProduct[], LLMError>;
 }
 
 export const ILLMPurchaseHistoryUtilsType = Symbol.for(
