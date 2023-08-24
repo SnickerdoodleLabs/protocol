@@ -1,11 +1,13 @@
 import {
-  Typography,
   Box,
-  Divider,
-  Grid,
+  Typography,
   Button,
+  Grid,
   Switch,
-} from "@material-ui/core";
+  useTheme,
+  ITheme,
+  defaultDarkTheme,
+} from "@web-integration/implementations/app/ui/lib/index.js";
 import { EWalletDataType } from "@snickerdoodlelabs/objects";
 import React, { FC } from "react";
 
@@ -43,6 +45,8 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
     permissions.map((item) => item.key),
   );
 
+  const theme = useTheme<ITheme>() || defaultDarkTheme;
+
   const updateDataTypes = (key: EWalletDataType) => {
     if (dataTypes.includes(key)) {
       setDataTypes(dataTypes.filter((item) => item != key));
@@ -52,11 +56,9 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
   };
   return (
     <>
-      <Typography variant="h3" color="textPrimary">
-        Data Permissions
-      </Typography>
+      <Typography variant="subtitle">Data Permissions</Typography>
       <Box mt={0.5} mb={3}>
-        <Typography variant="body1" color="textPrimary">
+        <Typography variant="body">
           Shape the future of web3! Share anonymous data with brands and use
           your on-chain data (tokens, NFTs, dApps) for a personalized
           experience. You're not just enhancing your journey, but also
@@ -70,8 +72,7 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
         mb={5.5}
         px={1.5}
         py={2}
-        borderColor="secondary.main"
-        border="1px solid"
+        border={`1px solid ${theme.palette.border}`}
         width="-webkit-fill-available"
       >
         {permissions.map((item, index) => {
@@ -83,23 +84,23 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
                 alignItems="center"
                 mb={1}
               >
-                <Typography variant="h2" color="textPrimary">
+                <Typography variant="title2" color="textPrimary">
                   {item.name}
                 </Typography>
                 <Switch
-                  onClick={() => {
+                  onChange={() => {
                     updateDataTypes(item.key);
                   }}
                   checked={dataTypes.includes(item.key)}
                 />
               </Box>
               <Box mb={1}>
-                <Typography variant="body1" color="textPrimary">
+                <Typography variant="body" color="textPrimary">
                   {item.description}
                 </Typography>
               </Box>
               {permissions.length - 1 != index && (
-                <Divider style={{ width: "100%" }} />
+                <Box width="100%" height={1} bg={theme.palette.border} />
               )}
               <Box mb={1} />
             </React.Fragment>
@@ -111,19 +112,14 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
           <Button
             onClick={onCancelClick}
             fullWidth
-            variant="outlined"
+            variant="outlined-primary"
             color="primary"
           >
             Cancel
           </Button>
         </Grid>
         <Grid item xs={4}>
-          <Button
-            onClick={onRejectClick}
-            fullWidth
-            variant="outlined"
-            color="primary"
-          >
+          <Button onClick={onRejectClick} fullWidth variant="outlined-primary">
             Reject
           </Button>
         </Grid>
@@ -133,7 +129,7 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
               onSaveClick(dataTypes);
             }}
             fullWidth
-            variant="contained"
+            variant="contained-gradient"
             color="primary"
           >
             Save & Continue

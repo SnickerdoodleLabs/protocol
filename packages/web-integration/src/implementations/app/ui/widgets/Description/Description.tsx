@@ -1,4 +1,9 @@
-import { Box, Button, Grid, Typography } from "@material-ui/core";
+import {
+  Box,
+  Typography,
+  Button,
+  Grid,
+} from "@web-integration/implementations/app/ui/lib/index.js";
 import { PageInvitation } from "@snickerdoodlelabs/objects";
 import React, { FC } from "react";
 
@@ -22,28 +27,18 @@ export const Description: FC<IDescriptionProps> = ({
       width="-webkit-fill-available"
       height="-webkit-fill-available"
     >
-      <Typography variant="body1" color="textPrimary">
+      <Typography variant="description" color="textPrimary">
         {pageInvitation.domainDetails.description}
       </Typography>
 
       <Grid container spacing={2}>
         <Grid item xs={4}>
-          <Button
-            onClick={onCancelClick}
-            fullWidth
-            variant="outlined"
-            color="primary"
-          >
+          <Button onClick={onCancelClick} fullWidth variant="outlined-primary">
             Cancel
           </Button>
         </Grid>
         <Grid item xs={4}>
-          <Button
-            onClick={onRejectClick}
-            fullWidth
-            variant="outlined"
-            color="primary"
-          >
+          <Button onClick={onRejectClick} fullWidth variant="outlined-primary">
             Reject
           </Button>
         </Grid>
@@ -51,8 +46,7 @@ export const Description: FC<IDescriptionProps> = ({
           <Button
             onClick={onContinueClick}
             fullWidth
-            variant="contained"
-            color="primary"
+            variant="contained-gradient"
           >
             Continue
           </Button>
