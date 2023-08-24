@@ -33,7 +33,7 @@ export interface IERC20Contract extends IBaseContract {
    * Returns the total supply of the ERC20 token
    */
   totalSupply(): ResultAsync<
-    number,
+    bigint,
     ERC20ContractError | BlockchainCommonErrors
   >;
 
@@ -43,7 +43,7 @@ export interface IERC20Contract extends IBaseContract {
    */
   balanceOf(
     address: EVMAccountAddress | EVMContractAddress,
-  ): ResultAsync<number, ERC20ContractError | BlockchainCommonErrors>;
+  ): ResultAsync<bigint, ERC20ContractError | BlockchainCommonErrors>;
 
   /**
    * Returns the spending allowance of the EOA / contract address
@@ -53,7 +53,7 @@ export interface IERC20Contract extends IBaseContract {
   allowance(
     owner: EVMAccountAddress | EVMContractAddress,
     spender: EVMAccountAddress | EVMContractAddress,
-  ): ResultAsync<number, ERC20ContractError | BlockchainCommonErrors>;
+  ): ResultAsync<bigint, ERC20ContractError | BlockchainCommonErrors>;
 
   /**
    * Allows caller to approve an amount of tokens for spender to transfer

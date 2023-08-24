@@ -1,7 +1,7 @@
 export default {
   _format: "hh-sol-artifact-1",
-  contractName: "DoodleToken",
-  sourceName: "contracts/token/DoodleToken.sol",
+  contractName: "ERC20",
+  sourceName: "contracts/token/ERC20.sol",
   abi: [
     {
       inputs: [

@@ -70,7 +70,7 @@ export class ERC20Contract
   }
 
   public totalSupply(): ResultAsync<
-    number,
+    bigint,
     ERC20ContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
@@ -79,34 +79,34 @@ export class ERC20Contract
         return this.generateError(e, "Unable to call totalSupply()");
       },
     ).map((totalSupplyBN) => {
-      return totalSupplyBN.toNumber();
+      return BigInt(totalSupplyBN.toString());
     });
   }
 
   public balanceOf(
     address: EVMAccountAddress | EVMContractAddress,
-  ): ResultAsync<number, ERC20ContractError | BlockchainCommonErrors> {
+  ): ResultAsync<bigint, ERC20ContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       this.contract.balanceOf(address) as Promise<BigNumber>,
       (e) => {
         return this.generateError(e, "Unable to call balanceOf()");
       },
     ).map((balanceBN) => {
-      return balanceBN.toNumber();
+      return BigInt(balanceBN.toString());
     });
   }
 
   public allowance(
     owner: EVMAccountAddress | EVMContractAddress,
     spender: EVMAccountAddress | EVMContractAddress,
-  ): ResultAsync<number, ERC20ContractError | BlockchainCommonErrors> {
+  ): ResultAsync<bigint, ERC20ContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       this.contract.allowance(owner, spender) as Promise<BigNumber>,
       (e) => {
         return this.generateError(e, "Unable to call allowance()");
       },
     ).map((allowanceBN) => {
-      return allowanceBN.toNumber();
+      return BigInt(allowanceBN.toString());
     });
   }
 
