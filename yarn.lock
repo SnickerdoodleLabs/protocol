@@ -8969,9 +8969,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/web-integration@workspace:packages/web-integration"
   dependencies:
-    "@snickerdoodlelabs/common-utils": "workspace:^"
-    "@snickerdoodlelabs/objects": "workspace:^"
-    "@snickerdoodlelabs/utils": "workspace:^"
+    "@snickerdoodlelabs/common-utils": ^0.0.24
+    "@snickerdoodlelabs/objects": ^0.0.72
+    "@snickerdoodlelabs/utils": ^0.0.5
     "@webcomponents/custom-elements": ^1.5.0
     ethers: ^5.6.6
     inversify: ^6.0.1
