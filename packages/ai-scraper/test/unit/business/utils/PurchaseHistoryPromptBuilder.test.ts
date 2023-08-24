@@ -1,10 +1,15 @@
 import "reflect-metadata";
+import { LLMError } from "@snickerdoodlelabs/objects";
+import { Result, ResultAsync } from "neverthrow";
+
 import { PurchaseHistoryPromptBuilder } from "@ai-scraper/implementations";
 import {
   Exemplar,
   LLMAnswerStructure,
   LLMData,
   LLMQuestion,
+  LLMRole,
+  Prompt,
 } from "@ai-scraper/interfaces";
 import { Exemplars } from "@ai-scraper-test/mocks";
 
@@ -14,21 +19,43 @@ class PHPBuilderMocks {
   }
 }
 
+function getTestPrompt(
+  exemplars: Exemplar[] | null,
+  question: LLMQuestion | null,
+  answerStructure: LLMAnswerStructure | null,
+  data: LLMData | null,
+  role: LLMRole | null,
+): ResultAsync<Prompt, LLMError> {
+  // Arrange
+  const mocks = new PHPBuilderMocks();
+  const builder = mocks.factory();
+
+  // Act
+  if (exemplars != null) builder.setExemplars(Exemplars);
+
+  if (question != null) builder.setQuestion(question);
+  if (answerStructure != null) builder.setAnswerStructure(answerStructure);
+  if (data != null) builder.setData(data);
+  if (role != null) builder.setRole(role);
+  return builder.getPrompt();
+}
+
 describe("PurchaseHistoryPromptBuilder", () => {
   test("no exemplars in prompt", async () => {
     // Arrange
-    const mocks = new PHPBuilderMocks();
-    const builder = mocks.factory();
     const question = LLMQuestion("What is 10 + 20?");
     const answerStructure = LLMAnswerStructure("json");
     const data = LLMData("na");
+    const role = LLMRole("assistant");
 
     // Act
-    builder.setExemplars(Exemplars);
-    builder.setQuestion(question);
-    builder.setAnswerStructure(answerStructure);
-    builder.setData(data);
-    const result = await builder.getPrompt();
+    const result = await getTestPrompt(
+      Exemplars,
+      question,
+      answerStructure,
+      data,
+      role,
+    );
 
     // Assert
     expect(result.isOk()).toBe(true);
@@ -37,8 +64,89 @@ describe("PurchaseHistoryPromptBuilder", () => {
     expect(prompt.includes(Exemplars[0])).toBe(false);
   });
 
-  test("must have question", async () => {});
-  test("must have answer structure", async () => {});
-  test("must have data", async () => {});
-  test("role is optional", async () => {});
+  test("must have question", async () => {
+    // Arrange
+    const question = null;
+    const answerStructure = LLMAnswerStructure("json");
+    const data = LLMData("na");
+    const role = LLMRole("assistant");
+
+    // Act
+    const result = await getTestPrompt(
+      Exemplars,
+      question,
+      answerStructure,
+      data,
+      role,
+    );
+
+    // Assert
+    expect(result.isErr()).toBe(true);
+    const error = result._unsafeUnwrapErr();
+    expect(error.message).toContain("question");
+  });
+
+  test("must have answer structure", async () => {
+    // Arrange
+    const question = LLMQuestion("What is 10 + 20?");
+    const answerStructure = null;
+    const data = LLMData("na");
+    const role = LLMRole("assistant");
+
+    // Act
+    const result = await getTestPrompt(
+      Exemplars,
+      question,
+      answerStructure,
+      data,
+      role,
+    );
+
+    // Assert
+    expect(result.isErr()).toBe(true);
+    const error = result._unsafeUnwrapErr();
+    expect(error.message).toContain("answerStructure");
+  });
+
+  test("must have data", async () => {
+    // Arrange
+    const question = LLMQuestion("What is 10 + 20?");
+    const answerStructure = LLMAnswerStructure("json");
+    const data = null;
+    const role = LLMRole("assistant");
+
+    // Act
+    const result = await getTestPrompt(
+      Exemplars,
+      question,
+      answerStructure,
+      data,
+      role,
+    );
+
+    // Assert
+    expect(result.isErr()).toBe(true);
+    const error = result._unsafeUnwrapErr();
+    expect(error.message).toContain("data");
+  });
+
+  test("role is optional", async () => {
+    // Arrange
+    const question = LLMQuestion("What is 10 + 20?");
+    const answerStructure = LLMAnswerStructure("json");
+    const data = LLMData("na");
+    const role = null;
+
+    // Act
+    const result = await getTestPrompt(
+      Exemplars,
+      question,
+      answerStructure,
+      data,
+      role,
+    );
+
+    // Assert
+    expect(result.isOk()).toBe(true);
+  });
 });
