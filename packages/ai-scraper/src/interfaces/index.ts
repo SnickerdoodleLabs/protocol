@@ -4,5 +4,8 @@ export * from "@ai-scraper/interfaces/enums/index.js";
 export * from "@ai-scraper/interfaces/objects/index.js";
 export * from "@ai-scraper/interfaces/primitives/index.js";
 export * from "@ai-scraper/interfaces/utils/index.js";
-export * from "@ai-scraper/interfaces/TaskKeywords.js";
+
+export * from "@ai-scraper/interfaces/IScraperConfig.js";
+export * from "@ai-scraper/interfaces/IScraperConfigProvider.js";
 export * from "@ai-scraper/interfaces/Keywords.js";
+export * from "@ai-scraper/interfaces/TaskKeywords.js";
