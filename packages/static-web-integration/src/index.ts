@@ -1,4 +1,3 @@
-//@ts-nocheck
 import "reflect-metadata";
 import {
   EInvitationStatus,
@@ -9,6 +8,7 @@ import {
 import { SnickerdoodleWebIntegration } from "@snickerdoodlelabs/web-integration";
 import { WalletProvider } from "@static-web-integration/WalletProvider";
 import WCProvider from "@static-web-integration/WCProvider";
+import { okAsync } from "neverthrow";
 
 declare const __LOGO_PATH__: URLString;
 
@@ -41,9 +41,6 @@ async function startIntegration(
     await walletProvider
       .connect()
       .andThen((accountAddress) => {
-        console.log("walletProvider.signer", walletProvider.signer);
-        coreConfig.iframeURL = "http://localhost:9010";
-        coreConfig.primaryInfuraKey = "a8ae124ed6aa44bb97a7166cda30f1bc";
         const webIntegration = new SnickerdoodleWebIntegration(
           coreConfig,
           walletProvider.signer,
