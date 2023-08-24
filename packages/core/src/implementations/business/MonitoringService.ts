@@ -8,6 +8,7 @@ import {
   AjaxError,
   DataWalletBackupID,
   DiscordError,
+  EIndexerMethod,
   isAccountValidForChain,
   PersistenceError,
   SiteVisit,
@@ -71,7 +72,8 @@ export class MonitoringService implements IMonitoringService {
     // Grab the linked accounts and the config
     return ResultUtils.combine([
       this.accountRepo.getAccounts(),
-      this.masterIndexer.getSupportedChains(),
+      // Only get the supported chains for transactions!
+      this.masterIndexer.getSupportedChains(EIndexerMethod.Transactions),
     ])
       .andThen(([linkedAccounts, supportedChains]) => {
         // Loop over all the linked accounts in the data wallet, and get the last transaction for each supported chain
@@ -95,8 +97,8 @@ export class MonitoringService implements IMonitoringService {
                       startTime = tx.timestamp;
                     }
                     if (startTime == 0) {
-                      this.logUtils.warning(
-                        "Cold starting transaction history",
+                      this.logUtils.debug(
+                        `For chain ${chain}, we are either cold-starting the transaction history for ${linkedAccount.sourceAccountAddress} or there are actually no transactions for this account yet. Fetching all transactions for this account.`,
                       );
                     }
 

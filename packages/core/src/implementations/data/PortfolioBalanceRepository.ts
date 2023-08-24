@@ -89,7 +89,8 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
   ): ResultAsync<TokenBalance[], PersistenceError> {
     return ResultUtils.combine([
       this.accountRepo.getAccounts(),
-      this.masterIndexer.getSupportedChains(),
+      // Only get the supported chains for balances!
+      this.masterIndexer.getSupportedChains(EIndexerMethod.Balances),
     ])
       .andThen(([linkedAccounts, supportedChains]) => {
         return ResultUtils.combine(
@@ -123,7 +124,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
   ): ResultAsync<WalletNFT[], PersistenceError> {
     return ResultUtils.combine([
       this.accountRepo.getAccounts(),
-      this.masterIndexer.getSupportedChains(),
+      this.masterIndexer.getSupportedChains(EIndexerMethod.NFTs),
     ])
       .andThen(([linkedAccounts, supportedChains]) => {
         return ResultUtils.combine(
