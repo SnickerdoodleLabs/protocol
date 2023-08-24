@@ -70,7 +70,10 @@
   "packageManager": "yarn@3.2.1",
   "resolutions": {
     "@types/react": "^17.0.38",
-    "ethereumjs-abi": "^0.6.8"
+    "ethereumjs-abi": "^0.6.8",
+    "@snickerdoodlelabs/objects": "workspace:^",
+    "@snickerdoodlelabs/common-utils": "workspace:^",
+    "@snickerdoodlelabs/utils": "workspace:^",
   },
   "devDependencies": {
     "@babel/core": "^7.22",

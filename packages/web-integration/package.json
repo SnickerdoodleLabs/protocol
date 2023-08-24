@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/web-integration",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Utilities for general consumption within the Snickerdoodle Protocol",
   "license": "ISC",
   "repository": {
@@ -38,10 +38,12 @@
   "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@snickerdoodlelabs/common-utils": "workspace:^",
-    "@snickerdoodlelabs/objects": "workspace:^",
-    "@snickerdoodlelabs/utils": "workspace:^",
+    "@snickerdoodlelabs/objects": "^0.0.72",
+    "@snickerdoodlelabs/common-utils": "^0.0.24",
+    "@snickerdoodlelabs/utils": "^0.0.5",
     "@webcomponents/custom-elements": "^1.5.0",
+    "crypto": "npm:crypto-browserify",
+    "stream": "npm:stream-browserify",
     "ethers": "^5.6.6",
     "inversify": "^6.0.1",
     "jss": "^10.9.0",
@@ -52,6 +54,15 @@
     "react-jss": "^10.10.0",
     "rxjs": "^7.5.5",
     "tldts": "^5.7.89"
+  },
+  "overrides": {
+    "@snickerdoodlelabs/common-utils": {
+      "@snickerdoodlelabs/objects": "$@snickerdoodlelabs/objects"
+    },
+    "@snickerdoodlelabs/utils": {
+      "@snickerdoodlelabs/common-utils": "$@snickerdoodlelabs/common-utils",
+      "@snickerdoodlelabs/objects": "$@snickerdoodlelabs/objects"
+    }
   },
   "peerDependencies": {
     "react": ">=17.0.0",
