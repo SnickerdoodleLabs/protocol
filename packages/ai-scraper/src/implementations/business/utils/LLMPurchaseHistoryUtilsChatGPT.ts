@@ -5,7 +5,7 @@ import {
   PurchasedProduct,
 } from "@snickerdoodlelabs/shopping-data";
 import { inject, injectable } from "inversify";
-import { ResultAsync, okAsync } from "neverthrow";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
 import { IPurchaseBlock } from "../../../interfaces/IPurchaseBlock";
 
@@ -55,30 +55,37 @@ export class LLMPurchaseHistoryUtilsChatGPT
   public parsePurchases(
     llmResponse: LLMResponse,
   ): ResultAsync<PurchasedProduct[], LLMError> {
-    const purchases: IPurchaseBlock[] = JSON.parse(llmResponse);
-    // worst possible parser
-    const purchasedProducts = purchases.map((purchase) => {
-      return new PurchasedProduct(
-        null,
-        purchase["name"],
-        purchase["brand"],
-        this.extractPrice(purchase["price"]),
-        this.timeUtils.parseToSDTimestamp(purchase["date_purchased"]),
-        this.timeUtils.getUnixNow(),
-        null,
-        null,
-        null,
-        purchase["classification"],
-        purchase["keywords"] as ProductKeyword[],
-      );
-    });
+    try {
+      const purchases: IPurchaseBlock[] = JSON.parse(llmResponse);
+      // worst possible parser
+      const purchasedProducts = purchases.map((purchase) => {
+        return new PurchasedProduct(
+          null,
+          purchase.name,
+          purchase.brand,
+          this.parsePrice(purchase.price),
+          this.timeUtils.parseToSDTimestamp(purchase.date),
+          this.timeUtils.getUnixNow(),
+          null,
+          null,
+          null,
+          purchase.classification,
+          purchase.keywords as ProductKeyword[],
+        );
+      });
 
-    return okAsync(purchasedProducts);
+      return okAsync(purchasedProducts);
+    } catch (e) {
+      return errAsync(new LLMError((e as Error).message, e));
+    }
   }
 
-  public extractPrice(priceStr: string): number {
+  public parsePrice(priceStr: string | number): number {
+    if (typeof priceStr === "number") {
+      return priceStr;
+    }
     try {
-      return parseFloat(priceStr.replace("$", ""));
+      return parseFloat(priceStr.replace("$", "")); // TODO make a regex to extract the decimal number instead of this.
     } catch (e) {
       return 0;
     }
