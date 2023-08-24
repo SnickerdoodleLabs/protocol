@@ -142,12 +142,6 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
       });
   }
 
-  // private editComponentStatus(): Map<EChain, IndexerSupportSummary> {
-
-  //   return this.indexerSupport;
-
-  // }
-
   public getEVMTransactions(
     chain: EChain,
     accountAddress: EVMAccountAddress,

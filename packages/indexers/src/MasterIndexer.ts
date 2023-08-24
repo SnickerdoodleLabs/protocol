@@ -369,18 +369,11 @@ export class MasterIndexer implements IMasterIndexer {
     }
 
     if (preferredIndexers.length == 0) {
-      this.logUtils.log(
+      this.logUtils.debug(
         `No healthy indexer found for chain ${chain}, for operation ${indexerMethod}`,
       );
     }
 
-    console.log(
-      "preferredIndexers for method",
-      indexerMethod,
-      preferredIndexers.map((indexer) => {
-        return indexer.name();
-      }),
-    );
     return preferredIndexers;
   }
 

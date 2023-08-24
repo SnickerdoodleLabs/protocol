@@ -52,25 +52,25 @@ export class EtherscanIndexer implements IEVMIndexer {
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [
       EChain.EthereumMainnet,
-      new IndexerSupportSummary(EChain.EthereumMainnet, true, true, true),
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, true, false),
     ],
     [
       EChain.Binance,
-      new IndexerSupportSummary(EChain.Binance, true, true, true),
+      new IndexerSupportSummary(EChain.Binance, true, true, false),
     ],
     [
       EChain.Avalanche,
-      new IndexerSupportSummary(EChain.Avalanche, true, true, true),
+      new IndexerSupportSummary(EChain.Avalanche, true, true, false),
     ],
     [
       EChain.Moonbeam,
-      new IndexerSupportSummary(EChain.Moonbeam, true, true, true),
+      new IndexerSupportSummary(EChain.Moonbeam, true, true, false),
     ],
     [
       EChain.Gnosis,
       new IndexerSupportSummary(EChain.Gnosis, true, true, false),
     ],
-    [EChain.Fuji, new IndexerSupportSummary(EChain.Fuji, true, true, true)],
+    [EChain.Fuji, new IndexerSupportSummary(EChain.Fuji, true, true, false)],
   ]);
 
   protected nonNativeSupportCheck = new Map<EChain, boolean>([

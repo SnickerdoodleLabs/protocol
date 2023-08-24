@@ -54,23 +54,23 @@ export class AnkrIndexer implements IEVMIndexer {
     ],
     [
       EChain.Polygon,
-      new IndexerSupportSummary(EChain.Polygon, true, true, true),
+      new IndexerSupportSummary(EChain.Polygon, true, false, true),
     ],
     [
       EChain.Binance,
-      new IndexerSupportSummary(EChain.Binance, true, true, true),
+      new IndexerSupportSummary(EChain.Binance, true, false, true),
     ],
     [
       EChain.Optimism,
-      new IndexerSupportSummary(EChain.Optimism, true, true, true),
+      new IndexerSupportSummary(EChain.Optimism, true, false, true),
     ],
     [
       EChain.Avalanche,
-      new IndexerSupportSummary(EChain.Avalanche, true, true, true),
+      new IndexerSupportSummary(EChain.Avalanche, true, false, true),
     ],
     [
       EChain.Arbitrum,
-      new IndexerSupportSummary(EChain.Arbitrum, true, true, true),
+      new IndexerSupportSummary(EChain.Arbitrum, true, false, true),
     ],
   ]);
 
