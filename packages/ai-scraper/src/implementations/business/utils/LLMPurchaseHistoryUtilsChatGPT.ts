@@ -55,9 +55,8 @@ export class LLMPurchaseHistoryUtilsChatGPT
   public parsePurchases(
     llmResponse: LLMResponse,
   ): ResultAsync<PurchasedProduct[], LLMError> {
-    const jsonObj = JSON.parse(llmResponse);
+    const purchases: IPurchaseBlock[] = JSON.parse(llmResponse);
     // worst possible parser
-    const purchases: IPurchaseBlock[] = jsonObj["purchases"];
     const purchasedProducts = purchases.map((purchase) => {
       return new PurchasedProduct(
         null,

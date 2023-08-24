@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 
 import { LLMPurchaseHistoryUtilsChatGPT } from "@ai-scraper/implementations";
