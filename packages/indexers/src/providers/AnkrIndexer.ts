@@ -277,10 +277,6 @@ export class AnkrIndexer implements IEVMIndexer {
           },
         })
         .andThen((response) => {
-          console.log(
-            "Ankr transactions response is: " + JSON.stringify(response),
-          );
-
           return ResultUtils.combine(
             response.result.transactions.map((item) => {
               return okAsync(
@@ -302,9 +298,6 @@ export class AnkrIndexer implements IEVMIndexer {
               );
             }),
           );
-        })
-        .andThen((vals) => {
-          return okAsync(vals);
         });
     });
   }
