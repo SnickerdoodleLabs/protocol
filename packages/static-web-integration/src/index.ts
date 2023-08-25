@@ -7,8 +7,9 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { SnickerdoodleWebIntegration } from "@snickerdoodlelabs/web-integration";
 import { WalletProvider } from "@static-web-integration/WalletProvider";
-import WCProvider from "@static-web-integration/WCProvider";
-import { okAsync } from "neverthrow";
+import { Result, ResultAsync, errAsync, okAsync } from "neverthrow";
+import { WCProvider } from "@static-web-integration/WCProvider";
+import { Signer } from "ethers";
 
 declare const __LOGO_PATH__: URLString;
 
@@ -18,7 +19,6 @@ export function integrateSnickerdoodle(
 ): void {
   // Create a floating div with the snickerdoodle logo
   const fixie = document.createElement("img");
-  fixie.id = "snickerdoodle-logo";
   fixie.src = __LOGO_PATH__;
   fixie.style.position = "fixed";
   fixie.style.bottom = "30px";
@@ -34,44 +34,60 @@ export function integrateSnickerdoodle(
 async function startIntegration(
   coreConfig: IConfigOverrides,
   consentContractAddress?: EVMContractAddress,
-): Promise<void> {
-  console.log("coreConfig", coreConfig);
-  if (window.ethereum) {
-    const walletProvider = new WalletProvider();
-    await walletProvider
-      .connect()
-      .andThen((accountAddress) => {
+) {
+  ResultAsync.fromPromise(getSigner(coreConfig), (e) => {
+    return new Error(`Failed to get signer: ${e}`);
+  })
+    .andThen((signerResult) => {
+      if (signerResult.isOk()) {
+        const signer = signerResult.value;
         const webIntegration = new SnickerdoodleWebIntegration(
           coreConfig,
-          walletProvider.signer,
+          signer,
         );
-        return webIntegration.initialize();
-      })
-      .andThen((dataWallet) => {
-        console.log("Snickerdoodle Data Wallet Initialized");
 
-        // If a consent contract was provided, we should pop up the invitation
-        if (consentContractAddress != null) {
-          return dataWallet
-            .checkInvitationStatus(consentContractAddress)
-            .andThen((invitationStatus) => {
-              if (invitationStatus === EInvitationStatus.New) {
-                return dataWallet.acceptInvitation([], consentContractAddress);
-              }
-              return okAsync(undefined);
-            });
-        }
+        return webIntegration.initialize().andThen((dataWallet) => {
+          console.log("Snickerdoodle Data Wallet Initialized");
+          if (consentContractAddress != null) {
+            return dataWallet
+              .checkInvitationStatus(consentContractAddress)
+              .andThen((invitationStatus) => {
+                if (invitationStatus === EInvitationStatus.New) {
+                  return dataWallet.acceptInvitation(
+                    [],
+                    consentContractAddress,
+                  );
+                }
+                return okAsync(undefined);
+              });
+          }
+          return okAsync(undefined);
+        });
+      } else {
+        return errAsync(new Error("Failed to get a valid signer"));
+      }
+    })
+    .mapErr((e) => {
+      console.error("An error occurred:", e);
+    });
+}
 
-        return okAsync(undefined);
-      })
-      .mapErr((e) => {
-        console.error(e);
-      });
-  } else {
-    const walletConnectIntegration = new WCProvider(
-      coreConfig,
-      consentContractAddress,
-    );
-    const webWallet_ = await walletConnectIntegration.connectToProvider();
+function getSigner(coreConfig: IConfigOverrides): ResultAsync<Signer, Error> {
+  if (!coreConfig.walletConnect?.projectId) {
+    const walletProvider = new WalletProvider();
+
+    return ResultAsync.fromPromise(
+      walletProvider.connect(),
+      (e) => new Error(`Failed to connect wallet: ${(e as Error).message}`),
+    ).map(() => {
+      return walletProvider.signer;
+    });
   }
+
+  const newWalletProvider = new WCProvider();
+  return newWalletProvider
+    .init(coreConfig.walletConnect?.projectId as string)
+    .andThen(() => {
+      return newWalletProvider.getSigner();
+    });
 }
