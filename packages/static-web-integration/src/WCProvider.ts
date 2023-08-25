@@ -56,12 +56,9 @@ export class WCProvider {
       }),
       (e) => new Error(`User cancelled: ${(e as Error).message}`),
     )
-      .andThen((provider) => {
-        return okAsync(provider);
-      })
-      .mapErr((e) => {
-        console.log("WalletConnect Init Error", e);
-        return new Error(`Initialization error: ${e.message}`);
-      });
+    .mapErr((e) => {
+      console.log("WalletConnect Init Error", e);
+      return new Error(`Initialization error: ${e.message}`);
+    });
   }
 }
