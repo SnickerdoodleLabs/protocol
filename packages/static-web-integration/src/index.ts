@@ -26,8 +26,6 @@ export function integrateSnickerdoodle(
   fixie.style.width = "100px";
   fixie.style.height = "100px";
   fixie.onclick = () => {
-    coreConfig.iframeURL = URLString("http://localhost:9010");
-    coreConfig.primaryInfuraKey = "a8ae124ed6aa44bb97a7166cda30f1bc";
     startIntegration(coreConfig, consentContract);
   };
   document.body.appendChild(fixie);
