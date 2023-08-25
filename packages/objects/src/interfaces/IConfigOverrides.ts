@@ -58,4 +58,12 @@ export interface IConfigOverrides {
   devChainProviderURL?: ProviderUrl;
   iframeURL?: URLString;
   debug?: boolean;
+
+  walletConnect?: {
+    projectId: string;
+    metadata_name: string;
+    metadata_description: string;
+    metadata_url: string;
+    metadata_icons: string[];
+  };
 }

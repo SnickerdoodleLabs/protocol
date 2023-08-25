@@ -1,11 +1,4 @@
 import {
-  Box,
-  ThemeProvider,
-  Theme,
-  createTheme,
-  CircularProgress,
-} from "@material-ui/core";
-import {
   BigNumberString,
   DomainName,
   EInvitationStatus,
@@ -24,7 +17,12 @@ import {
   ModalContentContainer,
 } from "@web-integration/implementations/app/ui/components/Container/index.js";
 import { usePath } from "@web-integration/implementations/app/ui/hooks/usePath.js";
-import { themeOptions } from "@web-integration/implementations/app/ui/theme/index.js";
+import {
+  ThemeProvider,
+  defaultDarkTheme,
+  Spinner,
+  ITheme,
+} from "@web-integration/implementations/app/ui/lib/index.js";
 import { Description } from "@web-integration/implementations/app/ui/widgets/Description/index.js";
 import { InvitationCard } from "@web-integration/implementations/app/ui/widgets/InvitationCard/index.js";
 import { PermissionSelection } from "@web-integration/implementations/app/ui/widgets/PermissionSelection/index.js";
@@ -47,7 +45,7 @@ export enum EAPP_STATE {
 
 export const App: FC<IAppProps> = ({ proxy }) => {
   const _pathName = usePath();
-  const [theme, setTheme] = useState<Theme>(createTheme(themeOptions));
+  const [theme, setTheme] = useState<ITheme>(defaultDarkTheme);
   const [appState, setAppState] = useState<EAPP_STATE>(EAPP_STATE.IDLE);
   const [pageInvitation, setPageInvitation] = useState<PageInvitation>();
   const [invitaitonStatus, setInvitationStatus] = useState<EInvitationStatus>();
@@ -67,7 +65,7 @@ export const App: FC<IAppProps> = ({ proxy }) => {
 
   const getDomainInvitation = (domain: DomainName, path: string) => {
     return proxy
-      .getInvitationByDomain(DomainName(domain), path)
+      .getInvitationByDomain(domain, path)
       .andThen((_pageInvitation) => {
         if (_pageInvitation) {
           setPageInvitation(_pageInvitation);
@@ -172,7 +170,7 @@ export const App: FC<IAppProps> = ({ proxy }) => {
       switch (appState) {
         case EAPP_STATE.IDLE:
         case EAPP_STATE.LOADING:
-          return <CircularProgress />;
+          return <Spinner />;
         case EAPP_STATE.SUBSCRIPTION_SUCCESS:
           return (
             <SubscriptionSuccess

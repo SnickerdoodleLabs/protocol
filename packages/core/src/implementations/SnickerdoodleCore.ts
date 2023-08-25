@@ -87,6 +87,7 @@ import {
   AccessToken,
   AuthenticatedStorageSettings,
   IStorageMethods,
+  RefreshToken,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -577,12 +578,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           ICloudStorageServiceType,
         );
 
-        return cloudStorageService.authenticateDropbox(code);
+        return cloudStorageService.authenticateDropbox(
+          OAuthAuthorizationCode(code),
+        );
       },
       setAuthenticatedStorage: (
         type: ECloudStorageType,
         path: string,
-        accessToken: AccessToken,
+        refreshToken: RefreshToken,
         sourceDomain: DomainName | undefined,
       ) => {
         const cloudStorageService = this.iocContainer.get<ICloudStorageService>(
@@ -590,7 +593,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         );
 
         return cloudStorageService.setAuthenticatedStorage(
-          new AuthenticatedStorageSettings(type, path, accessToken),
+          new AuthenticatedStorageSettings(type, path, refreshToken),
         );
       },
     };
