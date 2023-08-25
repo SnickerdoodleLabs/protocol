@@ -304,7 +304,6 @@ export class AnkrIndexer implements IEVMIndexer {
           );
         })
         .andThen((vals) => {
-          console.log("Ankr transactions response is: " + JSON.stringify(vals));
           return okAsync(vals);
         });
     });
