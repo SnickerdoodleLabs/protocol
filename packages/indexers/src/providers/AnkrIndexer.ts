@@ -254,7 +254,10 @@ export class AnkrIndexer implements IEVMIndexer {
     EVMTransaction[],
     AccountIndexingError | AjaxError | MethodSupportError
   > {
-    return this.configProvider.getConfig().andThen((config) => {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+    ]).andThen(([config, context]) => {
       const url =
         "https://rpc.ankr.com/multichain/" +
         config.apiKeys.ankrApiKey +
@@ -269,6 +272,7 @@ export class AnkrIndexer implements IEVMIndexer {
         id: 1,
       };
 
+      context.privateEvents.onApiAccessed.next(EExternalApi.Ankr);
       return this.ajaxUtils
         .post<IAnkrTransactionReponse>(new URL(url), requestParams, {
           headers: {
@@ -276,28 +280,27 @@ export class AnkrIndexer implements IEVMIndexer {
             "Content-Type": `application/json`,
           },
         })
-        .andThen((response) => {
-          return ResultUtils.combine(
-            response.result.transactions.map((item) => {
-              return okAsync(
-                new EVMTransaction(
-                  chainId,
-                  EVMTransactionHash(item.hash),
-                  UnixTimestamp(item.timestamp),
-                  item.blockNumber,
-                  EVMAccountAddress(item.to),
-                  EVMAccountAddress(item.from),
-                  BigNumberString(item.value),
-                  BigNumberString(item.gasPrice),
-                  null,
-                  item.input,
-                  item.type,
-                  null,
-                  null,
-                ),
-              );
-            }),
-          );
+        .map((response) => {
+          return response.result.transactions.map((item) => {
+            return new EVMTransaction(
+              chainId,
+              EVMTransactionHash(item.hash),
+              UnixTimestamp(item.timestamp),
+              item.blockNumber,
+              EVMAccountAddress(item.to),
+              EVMAccountAddress(item.from),
+              BigNumberString(item.value),
+              BigNumberString(item.gasPrice),
+              null,
+              item.input,
+              item.type,
+              null,
+              null,
+            );
+          });
+        })
+        .mapErr((error) => {
+          return error;
         });
     });
   }
