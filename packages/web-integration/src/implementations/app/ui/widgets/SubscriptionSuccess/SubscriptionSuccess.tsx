@@ -1,4 +1,8 @@
-import { Box, Typography, Button } from "@material-ui/core";
+import {
+  Box,
+  Typography,
+  Button,
+} from "@web-integration/implementations/app/ui/lib/index.js";
 import { PageInvitation } from "@snickerdoodlelabs/objects";
 import React, { FC } from "react";
 
@@ -13,9 +17,7 @@ export const SubscriptionSuccess: FC<ISubscriptionSuccessProps> = ({
   return (
     <>
       <Box px={6}>
-        <Typography variant="h1" color="textPrimary">
-          Congrats!
-        </Typography>
+        <Typography variant="title">Congrats!</Typography>
       </Box>
       <Box
         width="-webkit-fill-available"
@@ -33,15 +35,15 @@ export const SubscriptionSuccess: FC<ISubscriptionSuccessProps> = ({
           src={pageInvitation.domainDetails.nftClaimedImage}
         />
       </Box>
-      <Typography variant="h3" color="textPrimary">
+      <Typography variant="subtitle">
         You have successfully subscribed!
       </Typography>
       <Box mb={1.5} />
-      <Typography variant="h1" color="textPrimary">
+      <Typography variant="title">
         {pageInvitation.domainDetails.rewardName}
       </Typography>
       <Box mb={5.5} />
-      <Button onClick={onClick} fullWidth variant="contained" color="primary">
+      <Button onClick={onClick} fullWidth variant="contained-gradient">
         OK!
       </Button>
     </>

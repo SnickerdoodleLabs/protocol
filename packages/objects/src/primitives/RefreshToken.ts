@@ -1,4 +1,3 @@
-import { Brand, make } from "ts-brand";
+import { OAuth2RefreshToken } from "@objects/primitives/OAuthRelatedTypes.js";
 
-export type RefreshToken = Brand<string, "RefreshToken">;
-export const RefreshToken = make<RefreshToken>();
+export type RefreshToken = OAuth2RefreshToken;

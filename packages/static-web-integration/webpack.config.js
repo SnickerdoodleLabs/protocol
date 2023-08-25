@@ -17,8 +17,9 @@ module.exports = {
   entry: path.join(__dirname, "src/index.ts"),
   output: {
     filename: "snickerdoodle.js",
+    chunkFilename: "[id].snickerdoodle.js",
     path: path.join(__dirname, "/dist/bundle"),
-    publicPath: "/",
+    publicPath: "/packages/static-web-integration/dist/bundle/",
     libraryTarget: "var",
     library: "snickerdoodle",
   },
