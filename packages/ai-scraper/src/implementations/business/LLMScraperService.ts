@@ -8,7 +8,9 @@ import {
   HTMLString,
   ScraperError,
   LLMError,
+  PersistenceError,
 } from "@snickerdoodlelabs/objects";
+import { PurchasedProduct } from "@snickerdoodlelabs/shopping-data";
 import { inject } from "inversify";
 import { ResultAsync, errAsync } from "neverthrow";
 
@@ -54,9 +56,19 @@ export class LLMScraperService implements IScraperService {
     // 3. parse response for information
     // 4. persist information
 
-    const prompt = this.buildPrompt(url, html, suggestedDomainTask);
-
-    return errAsync(new ScraperError("scrape not implemented."));
+    return this.buildPrompt(url, html, suggestedDomainTask)
+      .andThen((prompt) => {
+        return this.llmProvider.executePrompt(prompt).andThen((llmResponse) => {
+          return this.purchaseHistoryLLMUtils
+            .parsePurchases(llmResponse)
+            .andThen((purchases) => {
+              return this.savePurchases(purchases);
+            });
+        });
+      })
+      .mapErr((err) => {
+        return new ScraperError(err.message, err);
+      });
   }
 
   private buildPrompt(
@@ -65,5 +77,11 @@ export class LLMScraperService implements IScraperService {
     suggestedDomainTask: DomainTask,
   ): ResultAsync<Prompt, LLMError> {
     throw new Error("Method not implemented.");
+  }
+
+  private savePurchases(
+    purchases: PurchasedProduct[],
+  ): ResultAsync<void, PersistenceError> {
+    return errAsync(new PersistenceError("savePurchases not implemented."));
   }
 }
