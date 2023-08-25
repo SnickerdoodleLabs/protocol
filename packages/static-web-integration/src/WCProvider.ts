@@ -1,5 +1,4 @@
 import { Web3Provider, ExternalProvider } from "@ethersproject/providers";
-import { AccountAddress, Signature } from "@snickerdoodlelabs/objects";
 import EthereumProvider from "@walletconnect/ethereum-provider";
 import { ethers } from "ethers";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";

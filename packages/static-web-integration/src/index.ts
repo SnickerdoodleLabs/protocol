@@ -26,6 +26,8 @@ export function integrateSnickerdoodle(
   fixie.style.width = "100px";
   fixie.style.height = "100px";
   fixie.onclick = () => {
+    coreConfig.iframeURL = URLString("http://localhost:9010");
+    coreConfig.primaryInfuraKey = "a8ae124ed6aa44bb97a7166cda30f1bc";
     startIntegration(coreConfig, consentContract);
   };
   document.body.appendChild(fixie);
@@ -35,37 +37,27 @@ async function startIntegration(
   coreConfig: IConfigOverrides,
   consentContractAddress?: EVMContractAddress,
 ) {
-  ResultAsync.fromPromise(getSigner(coreConfig), (e) => {
-    return new Error(`Failed to get signer: ${e}`);
-  })
+  getSigner(coreConfig)
     .andThen((signerResult) => {
-      if (signerResult.isOk()) {
-        const signer = signerResult.value;
-        const webIntegration = new SnickerdoodleWebIntegration(
-          coreConfig,
-          signer,
-        );
+      const webIntegration = new SnickerdoodleWebIntegration(
+        coreConfig,
+        signerResult,
+      );
 
-        return webIntegration.initialize().andThen((dataWallet) => {
-          console.log("Snickerdoodle Data Wallet Initialized");
-          if (consentContractAddress != null) {
-            return dataWallet
-              .checkInvitationStatus(consentContractAddress)
-              .andThen((invitationStatus) => {
-                if (invitationStatus === EInvitationStatus.New) {
-                  return dataWallet.acceptInvitation(
-                    [],
-                    consentContractAddress,
-                  );
-                }
-                return okAsync(undefined);
-              });
-          }
-          return okAsync(undefined);
-        });
-      } else {
-        return errAsync(new Error("Failed to get a valid signer"));
-      }
+      return webIntegration.initialize().andThen((dataWallet) => {
+        console.log("Snickerdoodle Data Wallet Initialized");
+        if (consentContractAddress != null) {
+          return dataWallet
+            .checkInvitationStatus(consentContractAddress)
+            .andThen((invitationStatus) => {
+              if (invitationStatus === EInvitationStatus.New) {
+                return dataWallet.acceptInvitation([], consentContractAddress);
+              }
+              return okAsync(undefined);
+            });
+        }
+        return okAsync(undefined);
+      });
     })
     .mapErr((e) => {
       console.error("An error occurred:", e);
