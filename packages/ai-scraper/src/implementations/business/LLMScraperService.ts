@@ -16,6 +16,9 @@ import { ResultAsync, errAsync } from "neverthrow";
 
 import {
   DomainTask,
+  ETask,
+  IHTMLPreProcessor,
+  IHTMLPreProcessorType,
   ILLMProvider,
   ILLMProviderType,
   ILLMPurchaseHistoryUtils,
@@ -23,6 +26,8 @@ import {
   IPromptDirector,
   IPromptDirectorType,
   IScraperService,
+  LLMData,
+  LLMResponse,
   Prompt,
 } from "@ai-scraper/interfaces/index.js";
 
@@ -30,6 +35,8 @@ export class LLMScraperService implements IScraperService {
   public constructor(
     @inject(ILogUtilsType)
     private logUtils: ILogUtils,
+    @inject(IHTMLPreProcessorType)
+    private htmlPreProcessor: IHTMLPreProcessor,
     @inject(ILLMProviderType)
     private llmProvider: ILLMProvider,
     @inject(IPromptDirectorType)
@@ -43,7 +50,7 @@ export class LLMScraperService implements IScraperService {
   }
 
   /**
-   * Now we will scrape it immmediately. In future it's done by a job executor with a rate limiter
+   * Now we will scrape it immmediately and assume the task is . In future it's done by a job executor with a rate limiter
    */
   public scrape(
     url: URLString,
@@ -59,11 +66,7 @@ export class LLMScraperService implements IScraperService {
     return this.buildPrompt(url, html, suggestedDomainTask)
       .andThen((prompt) => {
         return this.llmProvider.executePrompt(prompt).andThen((llmResponse) => {
-          return this.purchaseHistoryLLMUtils
-            .parsePurchases(llmResponse)
-            .andThen((purchases) => {
-              return this.savePurchases(purchases);
-            });
+          return this.processLLMResponse(suggestedDomainTask, llmResponse);
         });
       })
       .mapErr((err) => {
@@ -74,9 +77,28 @@ export class LLMScraperService implements IScraperService {
   private buildPrompt(
     url: URLString,
     html: HTMLString,
-    suggestedDomainTask: DomainTask,
-  ): ResultAsync<Prompt, LLMError> {
-    throw new Error("Method not implemented.");
+    domainTask: DomainTask,
+  ): ResultAsync<Prompt, ScraperError | LLMError> {
+    if (domainTask.taskType == ETask.PurchaseHistory) {
+      return this.htmlPreProcessor.htmlToText(html).andThen((text) => {
+        return this.promptDirector.makePurchaseHistoryPrompt(LLMData(text));
+      });
+    }
+    return errAsync(new LLMError("Task type not supported."));
+  }
+
+  private processLLMResponse(
+    domainTask: DomainTask,
+    llmResponse: LLMResponse,
+  ): ResultAsync<void, ScraperError | PersistenceError | LLMError> {
+    if (domainTask.taskType == ETask.PurchaseHistory) {
+      return this.purchaseHistoryLLMUtils
+        .parsePurchases(llmResponse)
+        .andThen((purchases) => {
+          return this.savePurchases(purchases);
+        });
+    }
+    return errAsync(new LLMError("Task type not supported."));
   }
 
   private savePurchases(
