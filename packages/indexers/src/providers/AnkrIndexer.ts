@@ -173,7 +173,7 @@ export class AnkrIndexer implements IEVMIndexer {
               );
             }),
           );
-        })
+        });
     });
   }
 
@@ -229,7 +229,7 @@ export class AnkrIndexer implements IEVMIndexer {
                 this.supportedNfts.get(item.blockchain)!,
               ).chainId, // chainId
               undefined,
-              UnixTimestamp(Number(item.timestamp)),
+              undefined,
             );
           });
         })
@@ -254,67 +254,60 @@ export class AnkrIndexer implements IEVMIndexer {
     EVMTransaction[],
     AccountIndexingError | AjaxError | MethodSupportError
   > {
-    return okAsync([]);
-    // return errAsync(
-    //   new MethodSupportError(
-    //     "getEVMTransactions not supported for AnkrIndexer",
-    //     400,
-    //   ),
-    // );
-    // return this.configProvider.getConfig().andThen((config) => {
-    //   const url =
-    //     "https://rpc.ankr.com/multichain/" +
-    //     config.apiKeys.ankrApiKey +
-    //     "/?ankr_getTransactionsByAddress";
-    //   const requestParams = {
-    //     jsonrpc: "2.0",
-    //     method: "ankr_getTransactionsByAddress",
-    //     params: {
-    //       walletAddress: accountAddress,
-    //     },
-    //     id: 1,
-    //   };
+    return this.configProvider.getConfig().andThen((config) => {
+      const url =
+        "https://rpc.ankr.com/multichain/" +
+        config.apiKeys.ankrApiKey +
+        "/?ankr_getTransactionsByAddress";
+      const requestParams = {
+        jsonrpc: "2.0",
+        method: "ankr_getTransactionsByAddress",
+        params: {
+          address: [accountAddress],
+          blockchain: [this.supportedAnkrChains.get(chainId)],
+        },
+        id: 1,
+      };
 
-    //   console.log("Ankr component set to NoKeyProvided");
-    //   console.log("Ankr transactions url is: " + url);
-    //   return this.ajaxUtils
-    //     .post<IAnkrTransactionReponse>(new URL(url), requestParams, {
-    //       headers: {
-    //         "Content-Type": `application/json;`,
-    //       },
-    //     })
-    //     .andThen((response) => {
-    //       console.log(
-    //         "Ankr transactions response is: " + JSON.stringify(response),
-    //       );
+      return this.ajaxUtils
+        .post<IAnkrTransactionReponse>(new URL(url), requestParams, {
+          headers: {
+            Accept: `application/json`,
+            "Content-Type": `application/json`,
+          },
+        })
+        .andThen((response) => {
+          console.log(
+            "Ankr transactions response is: " + JSON.stringify(response),
+          );
 
-    //       return ResultUtils.combine(
-    //         response.result.transactions.map((item) => {
-    //           return okAsync(
-    //             new EVMTransaction(
-    //               chainId,
-    //               EVMTransactionHash(item.hash),
-    //               UnixTimestamp(0), // item.timestamp
-    //               null,
-    //               EVMAccountAddress(item.to),
-    //               EVMAccountAddress(item.from),
-    //               BigNumberString(item.value),
-    //               BigNumberString(item.gasPrice),
-    //               item.contractAddress,
-    //               item.input,
-    //               null,
-    //               null,
-    //               null,
-    //             ),
-    //           );
-    //         }),
-    //       );
-    //     })
-    //     .andThen((vals) => {
-    //       console.log("Ankr transactions response is: " + JSON.stringify(vals));
-    //       return okAsync(vals);
-    //     });
-    // });
+          return ResultUtils.combine(
+            response.result.transactions.map((item) => {
+              return okAsync(
+                new EVMTransaction(
+                  chainId,
+                  EVMTransactionHash(item.hash),
+                  UnixTimestamp(item.timestamp),
+                  item.blockNumber,
+                  EVMAccountAddress(item.to),
+                  EVMAccountAddress(item.from),
+                  BigNumberString(item.value),
+                  BigNumberString(item.gasPrice),
+                  null,
+                  item.input,
+                  item.type,
+                  null,
+                  null,
+                ),
+              );
+            }),
+          );
+        })
+        .andThen((vals) => {
+          console.log("Ankr transactions response is: " + JSON.stringify(vals));
+          return okAsync(vals);
+        });
+    });
   }
 
   public getHealthCheck(): ResultAsync<
@@ -402,17 +395,17 @@ interface IAnkrTransactionReponse {
   jsonrpc: string;
   id: number;
   result: {
-    transactions: IAnkrNftAsset[];
+    transactions: IAnkrTransaction[];
   };
   nextPageToken: string;
 }
 
-interface IAnkrNftAsset {
+interface IAnkrTransaction {
   v: string;
   r: string;
   s: string;
   nonce: string;
-  blockNumber: string;
+  blockNumber: number;
   from: string;
   to: string;
   gas: string;
@@ -427,5 +420,5 @@ interface IAnkrNftAsset {
   hash: string;
   status: string;
   blockchain: string;
-  timestamp: string;
+  timestamp: number;
 }
