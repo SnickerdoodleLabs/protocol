@@ -66,10 +66,7 @@ export const App: FC<IAppProps> = ({ proxy, palette }) => {
 
   const getDomainInvitation = (domain: DomainName, path: string) => {
     return proxy
-      .getInvitationByDomain(
-        DomainName("snickerdoodle-protocol.toddchapman.io"),
-        "toddchapman.io",
-      )
+      .getInvitationByDomain(domain, path)
       .andThen((_pageInvitation) => {
         if (_pageInvitation) {
           setPageInvitation(_pageInvitation);
