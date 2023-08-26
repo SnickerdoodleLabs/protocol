@@ -47,7 +47,7 @@ export interface ITheme {
   };
 }
 
-export interface IPallette {
+export interface IPalette {
   primary: string;
   primaryContrast: string;
   button?: string;
@@ -57,7 +57,7 @@ export interface IPallette {
   background: string;
   border: string;
 }
-export interface IPalletteOverrides {
+export interface IPaletteOverrides {
   primary?: string;
   primaryContrast?: string;
   button?: string;

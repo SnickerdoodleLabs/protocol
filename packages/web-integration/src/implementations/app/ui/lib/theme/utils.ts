@@ -1,5 +1,5 @@
 import {
-  IPalletteOverrides,
+  IPaletteOverrides,
   ITheme,
   ThemeColorType,
 } from "@web-integration/implementations/app/ui/lib/interfaces/index.js";
@@ -10,27 +10,23 @@ import {
   defaultLightPalette,
 } from "@web-integration/implementations/app/ui/lib/theme/theme.defaults.js";
 
-export const generateTheme = (
-  palletteOverrides: IPalletteOverrides,
-): ITheme => {
+export const generateTheme = (paletteOverrides: IPaletteOverrides): ITheme => {
   return {
     breakPoints,
     constants,
     typography,
     colorType: ThemeColorType.CUSTOM,
     palette: {
-      primary: palletteOverrides.primary ?? defaultLightPalette.primary,
+      primary: paletteOverrides.primary ?? defaultLightPalette.primary,
       primaryContrast:
-        palletteOverrides.primaryContrast ??
-        defaultLightPalette.primaryContrast,
-      button: palletteOverrides.button ?? defaultLightPalette.button,
+        paletteOverrides.primaryContrast ?? defaultLightPalette.primaryContrast,
+      button: paletteOverrides.button ?? defaultLightPalette.button,
       buttonContrast:
-        palletteOverrides.buttonContrast ?? defaultLightPalette.buttonContrast,
-      linkText: palletteOverrides.linkText ?? defaultLightPalette.linkText,
-      text: palletteOverrides.text ?? defaultLightPalette.text,
-      background:
-        palletteOverrides.background ?? defaultLightPalette.background,
-      border: palletteOverrides.border ?? defaultLightPalette.border,
+        paletteOverrides.buttonContrast ?? defaultLightPalette.buttonContrast,
+      linkText: paletteOverrides.linkText ?? defaultLightPalette.linkText,
+      text: paletteOverrides.text ?? defaultLightPalette.text,
+      background: paletteOverrides.background ?? defaultLightPalette.background,
+      border: paletteOverrides.border ?? defaultLightPalette.border,
     },
   };
 };

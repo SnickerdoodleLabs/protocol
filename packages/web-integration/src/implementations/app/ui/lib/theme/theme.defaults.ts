@@ -1,4 +1,4 @@
-import { IPallette } from "@web-integration/implementations/app/ui/lib/interfaces/index.js";
+import { IPalette } from "@web-integration/implementations/app/ui/lib/interfaces/index.js";
 
 export const typography = {
   title: { fontSize: 24, fontWeight: 700, fontFamily: "Poppins" },
@@ -45,7 +45,7 @@ export const breakPoints = {
   xl: 1920, // Extra large devices (large desktops)
 };
 
-export const defaultLightPalette: IPallette = {
+export const defaultLightPalette: IPalette = {
   primary: "#000",
   primaryContrast: `#FFF`,
   text: "#212121",
@@ -54,7 +54,7 @@ export const defaultLightPalette: IPallette = {
   border: "rgba(236, 236, 236, 0.30)",
 };
 
-export const defaultDarkPalette: IPallette = {
+export const defaultDarkPalette: IPalette = {
   primary: `#FFF`,
   primaryContrast: "#212121",
   text: "#FFF",

@@ -1,2 +1,2 @@
 export * from "@web-integration/implementations/app/ui/UIClient.js";
-export { IPalletteOverrides } from "@web-integration/implementations/app/ui/lib/interfaces/index.js";
+export { IPaletteOverrides } from "@web-integration/implementations/app/ui/lib/interfaces/index.js";

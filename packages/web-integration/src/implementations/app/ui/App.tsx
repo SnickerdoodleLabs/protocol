@@ -13,7 +13,7 @@ import {
   ThemeProvider,
   ITheme,
   defaultLightTheme,
-  IPalletteOverrides,
+  IPaletteOverrides,
   generateTheme,
 } from "@web-integration/implementations/app/ui/lib/index.js";
 import { Description } from "@web-integration/implementations/app/ui/widgets/Description/index.js";
@@ -29,7 +29,7 @@ import { parse } from "tldts";
 
 interface IAppProps {
   proxy: ISnickerdoodleIFrameProxy;
-  palette?: IPalletteOverrides;
+  palette?: IPaletteOverrides;
 }
 
 export enum EAPP_STATE {

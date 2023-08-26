@@ -1,5 +1,5 @@
 import { App } from "@web-integration/implementations/app/ui/App.js";
-import { IPalletteOverrides } from "@web-integration/implementations/app/ui/lib/index.js";
+import { IPaletteOverrides } from "@web-integration/implementations/app/ui/lib/index.js";
 import { IUIClient } from "@web-integration/interfaces/app/ui/index.js";
 import { EProxyContainerID } from "@web-integration/interfaces/objects/enums/index.js";
 import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/index.js";
@@ -12,7 +12,7 @@ import { JssProvider, createGenerateId } from "react-jss";
 export class UIClient implements IUIClient {
   constructor(
     protected proxy: ISnickerdoodleIFrameProxy,
-    protected palette?: IPalletteOverrides,
+    protected palette?: IPaletteOverrides,
   ) {}
 
   public register(): void {
