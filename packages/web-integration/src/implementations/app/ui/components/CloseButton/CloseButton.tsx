@@ -1,4 +1,8 @@
-import { Box } from "@web-integration/implementations/app/ui/lib/index.js";
+import {
+  Box,
+  useTheme,
+  ITheme,
+} from "@web-integration/implementations/app/ui/lib/index.js";
 import React from "react";
 
 interface ICloseButtonProps {
@@ -10,6 +14,7 @@ export const CloseButton: React.FC<ICloseButtonProps> = ({
   size = 24,
   onClick = () => {},
 }) => {
+  const theme = useTheme<ITheme>();
   return (
     <Box ml={3} pointer width={size} height={size} onClick={onClick}>
       <svg
@@ -22,7 +27,7 @@ export const CloseButton: React.FC<ICloseButtonProps> = ({
       >
         <path
           d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
-          fill="black"
+          fill={theme.palette.text}
         />
       </svg>
     </Box>
