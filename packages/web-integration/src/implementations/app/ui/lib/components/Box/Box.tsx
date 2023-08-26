@@ -13,6 +13,7 @@ import {
   ITextAlign,
   ITheme,
   IZIndex,
+  IPointer,
 } from "@web-integration/implementations/app/ui/lib/interfaces/index.js";
 import {
   backgroundStyles,
@@ -27,14 +28,16 @@ import {
   sizeStyles,
   textAlignStyles,
   zIndexStyles,
+  pointer,
 } from "@web-integration/implementations/app/ui/lib/styles/index.js";
 import { defaultDarkTheme } from "@web-integration/implementations/app/ui/lib/theme/index.js";
 import clsx from "clsx";
-import React, { forwardRef, Ref, useMemo } from "react";
+import React, { forwardRef, HTMLAttributes, Ref, useMemo } from "react";
 import { createUseStyles, useTheme } from "react-jss";
 
 interface IBoxProps
   extends IComponentDefaultProps,
+    HTMLAttributes<HTMLDivElement>,
     IMargin,
     IPadding,
     IFlex,
@@ -46,7 +49,8 @@ interface IBoxProps
     ITextAlign,
     IOverflow,
     IPosition,
-    IZIndex {}
+    IZIndex,
+    IPointer {}
 
 const styleObject = {
   root: {
@@ -58,6 +62,7 @@ const styleObject = {
   ...flexStyles,
   ...backgroundStyles,
   ...center,
+  ...pointer,
   ...borderStyles,
   ...sizeStyles,
   ...textAlignStyles,
@@ -74,7 +79,7 @@ const useStyles = createUseStyles<classListType, IBoxProps, ITheme>(
 
 export const Box = forwardRef(
   (
-    { key, children, style, className, ...rest }: IBoxProps,
+    { key, children, className, ...rest }: IBoxProps,
     ref: Ref<HTMLDivElement>,
   ) => {
     const theme = useTheme<ITheme>() || defaultDarkTheme;
@@ -92,7 +97,7 @@ export const Box = forwardRef(
     }, [classes, className, rest]);
 
     return (
-      <div key={key} ref={ref} className={combinedClassNames} style={style}>
+      <div key={key} ref={ref} className={combinedClassNames} {...rest}>
         {children}
       </div>
     );

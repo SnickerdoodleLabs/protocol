@@ -1,4 +1,5 @@
 import { App } from "@web-integration/implementations/app/ui/App.js";
+import { IPalletteOverrides } from "@web-integration/implementations/app/ui/lib/index.js";
 import { IUIClient } from "@web-integration/interfaces/app/ui/index.js";
 import { EProxyContainerID } from "@web-integration/interfaces/objects/enums/index.js";
 import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/index.js";
@@ -9,7 +10,10 @@ import { render } from "react-dom";
 import { JssProvider, createGenerateId } from "react-jss";
 
 export class UIClient implements IUIClient {
-  constructor(protected proxy: ISnickerdoodleIFrameProxy) {}
+  constructor(
+    protected proxy: ISnickerdoodleIFrameProxy,
+    protected palette?: IPalletteOverrides,
+  ) {}
 
   public register(): void {
     const customElementName = `sdl-protocol-iframe-ui-client`;
@@ -42,7 +46,7 @@ export class UIClient implements IUIClient {
         });
         render(
           <JssProvider jss={jss} generateId={createGenerateId()}>
-            <App proxy={_this.proxy} />
+            <App proxy={_this.proxy} palette={_this.palette} />
           </JssProvider>,
           mountPoint,
         );

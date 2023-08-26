@@ -19,13 +19,13 @@ const styleObject = {
     transition: "background 0.2s",
     "&:checked": {
       background: ({ theme }) =>
-        theme.palette.primaryGradient ?? theme.palette.primary,
+        (theme as ITheme).palette.button ?? (theme as ITheme).palette.primary,
     },
 
     "&:before": {
       content: '""',
       position: "absolute",
-      boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
+      boxShadow: "rgba(0, 0, 0, 0.35) 0px 1px 3px",
       width: "20px",
       height: "20px",
       borderRadius: "50%",

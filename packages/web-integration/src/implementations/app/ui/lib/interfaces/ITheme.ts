@@ -15,20 +15,17 @@ export interface ITheme {
   palette: {
     primary: string;
     primaryContrast: string;
-    secondary?: string;
-    secondaryContrast?: string;
-    primaryGradient?: string;
-    gradientContrast?: string;
-    primaryText: string;
-    secondaryText: string;
+    button?: string;
+    buttonContrast?: string;
+    text: string;
+    linkText: string;
     background: string;
     border: string;
-    divider: string;
-    link?: string;
   };
   typography: {
     title: IFont;
     title2: IFont;
+    titleBold: IFont;
     subtitle: IFont;
     subtitle2: IFont;
     description: IFont;
@@ -48,4 +45,25 @@ export interface ITheme {
     lg: number;
     xl: number;
   };
+}
+
+export interface IPallette {
+  primary: string;
+  primaryContrast: string;
+  button?: string;
+  buttonContrast?: string;
+  text: string;
+  linkText: string;
+  background: string;
+  border: string;
+}
+export interface IPalletteOverrides {
+  primary?: string;
+  primaryContrast?: string;
+  button?: string;
+  buttonContrast?: string;
+  text?: string;
+  linkText?: string;
+  background?: string;
+  border?: string;
 }

@@ -7,8 +7,8 @@ const styleObject = {
   spinner: {
     display: "inline-block",
     border: "4px solid rgba(0, 0, 0, 0.1)",
-    borderTop: ({ theme }) => `4px solid ${theme.palette.primary}`,
-    borderLeft: ({ theme }) => `4px solid ${theme.palette.primary}`,
+    borderTop: ({ theme }) => `4px solid ${(theme as ITheme).palette.primary}`,
+    borderLeft: ({ theme }) => `4px solid ${(theme as ITheme).palette.primary}`,
     borderRadius: "50%",
     width: ({ size = 0 }) => (size ? size : 36),
     height: ({ size = 0 }) => (size ? size : 36),
@@ -27,7 +27,7 @@ const styleObject = {
 type classListType = keyof typeof styleObject;
 
 const useStyles = createUseStyles<classListType, ISpinnerProps, ITheme>(
-  styleObject
+  styleObject,
 );
 
 interface ISpinnerProps {
