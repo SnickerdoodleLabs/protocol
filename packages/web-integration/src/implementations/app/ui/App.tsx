@@ -6,31 +6,30 @@ import {
   LinkedAccount,
   PageInvitation,
 } from "@snickerdoodlelabs/objects";
+import { RootContainer } from "@web-integration/implementations/app/ui/components/Container/index.js";
+import { permissions } from "@web-integration/implementations/app/ui/constants.js";
+import { usePath } from "@web-integration/implementations/app/ui/hooks/usePath.js";
+import {
+  ThemeProvider,
+  ITheme,
+  defaultLightTheme,
+  IPaletteOverrides,
+  generateTheme,
+} from "@web-integration/implementations/app/ui/lib/index.js";
+import { Description } from "@web-integration/implementations/app/ui/widgets/Description/index.js";
+import { InvitationCard } from "@web-integration/implementations/app/ui/widgets/InvitationCard/index.js";
+import { Loading } from "@web-integration/implementations/app/ui/widgets/Loading/index.js";
+import { PermissionSelection } from "@web-integration/implementations/app/ui/widgets/PermissionSelection/index.js";
+import { SubscriptionSuccess } from "@web-integration/implementations/app/ui/widgets/SubscriptionSuccess/index.js";
+import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/index.js";
 import { okAsync } from "neverthrow";
 import React, { useMemo, useState, useEffect, FC, useRef } from "react";
 import { Subscription } from "rxjs";
 import { parse } from "tldts";
 
-import {
-  RootContainer,
-  ModalContainer,
-  ModalContentContainer,
-} from "@web-integration/implementations/app/ui/components/Container/index.js";
-import { usePath } from "@web-integration/implementations/app/ui/hooks/usePath.js";
-import {
-  ThemeProvider,
-  defaultDarkTheme,
-  Spinner,
-  ITheme,
-} from "@web-integration/implementations/app/ui/lib/index.js";
-import { Description } from "@web-integration/implementations/app/ui/widgets/Description/index.js";
-import { InvitationCard } from "@web-integration/implementations/app/ui/widgets/InvitationCard/index.js";
-import { PermissionSelection } from "@web-integration/implementations/app/ui/widgets/PermissionSelection/index.js";
-import { SubscriptionSuccess } from "@web-integration/implementations/app/ui/widgets/SubscriptionSuccess/index.js";
-import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/index.js";
-
 interface IAppProps {
   proxy: ISnickerdoodleIFrameProxy;
+  palette?: IPaletteOverrides;
 }
 
 export enum EAPP_STATE {
@@ -43,9 +42,11 @@ export enum EAPP_STATE {
   LOADING,
 }
 
-export const App: FC<IAppProps> = ({ proxy }) => {
+export const App: FC<IAppProps> = ({ proxy, palette }) => {
   const _pathName = usePath();
-  const [theme, setTheme] = useState<ITheme>(defaultDarkTheme);
+  const [theme, setTheme] = useState<ITheme>(
+    palette ? generateTheme(palette) : defaultLightTheme,
+  );
   const [appState, setAppState] = useState<EAPP_STATE>(EAPP_STATE.IDLE);
   const [pageInvitation, setPageInvitation] = useState<PageInvitation>();
   const [invitaitonStatus, setInvitationStatus] = useState<EInvitationStatus>();
@@ -165,13 +166,40 @@ export const App: FC<IAppProps> = ({ proxy }) => {
     setAppState(EAPP_STATE.PERMISSION_SELECTION);
   };
 
-  const leftComponent = useMemo(() => {
+  const component = useMemo(() => {
     if (pageInvitation && invitaitonStatus === EInvitationStatus.New) {
       switch (appState) {
         case EAPP_STATE.IDLE:
+          return null;
+        case EAPP_STATE.INVITATION_PREVIEW:
+          return (
+            <Description
+              pageInvitation={pageInvitation}
+              onCancelClick={onCancelClick}
+              onSetPermissions={handleContinueClick}
+              onContinueClick={() => {
+                onPermissionSelected(permissions.map((item) => item.key));
+              }}
+            />
+          );
+        case EAPP_STATE.PERMISSION_SELECTION:
+          return (
+            <PermissionSelection
+              onCancelClick={onCancelClick}
+              pageInvitation={pageInvitation}
+              onSaveClick={onPermissionSelected}
+            />
+          );
         case EAPP_STATE.LOADING:
-          return <Spinner />;
+          return <Loading />;
         case EAPP_STATE.SUBSCRIPTION_SUCCESS:
+          return (
+            <SubscriptionSuccess
+              pageInvitation={pageInvitation}
+              onClick={clearInvitation}
+            />
+          );
+        case EAPP_STATE.SUBSCRIPTION_FAILURE:
           return (
             <SubscriptionSuccess
               pageInvitation={pageInvitation}
@@ -186,51 +214,13 @@ export const App: FC<IAppProps> = ({ proxy }) => {
     }
   }, [appState, pageInvitation, invitaitonStatus]);
 
-  const rightComponent = useMemo(() => {
-    if (pageInvitation && invitaitonStatus === EInvitationStatus.New) {
-      switch (appState) {
-        case EAPP_STATE.INVITATION_PREVIEW:
-          return (
-            <Description
-              pageInvitation={pageInvitation}
-              onCancelClick={onCancelClick}
-              onRejectClick={onRejectClick}
-              onContinueClick={() => {
-                handleContinueClick();
-              }}
-            />
-          );
-        case EAPP_STATE.PERMISSION_SELECTION:
-          return (
-            <PermissionSelection
-              onCancelClick={onCancelClick}
-              onRejectClick={onRejectClick}
-              onSaveClick={onPermissionSelected}
-            />
-          );
-        default: {
-          return null;
-        }
-      }
-    } else {
-      return null;
-    }
-  }, [appState, pageInvitation, invitaitonStatus]);
-
   if (EAPP_STATE.IDLE === appState) {
     return null;
   }
 
   return (
     <ThemeProvider theme={theme}>
-      <RootContainer>
-        <ModalContainer>
-          <ModalContentContainer
-            leftComponent={leftComponent}
-            rightComponent={rightComponent}
-          />
-        </ModalContainer>
-      </RootContainer>
+      <RootContainer>{component}</RootContainer>
     </ThemeProvider>
   );
 };

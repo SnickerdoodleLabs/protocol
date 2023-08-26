@@ -102,6 +102,9 @@ export const flexStyles = {
   alignItems: {
     alignItems: ({ alignItems }: IFlex) => alignItems || "stretch",
   },
+  flexFlow: {
+    flexFlow: ({ flexFlow }: IFlex) => flexFlow || "stretch",
+  },
 };
 
 export const backgroundStyles = {
@@ -128,6 +131,12 @@ export const sizeStyles = {
   },
   height: {
     height: ({ height }: ISize) => height || "",
+  },
+  maxWidth: {
+    maxWidth: ({ maxWidth }: ISize) => maxWidth || "",
+  },
+  maxHeight: {
+    maxHeight: ({ maxHeight }: ISize) => maxHeight || "",
   },
 };
 
@@ -173,6 +182,12 @@ export const center = {
   center: {
     justifyContent: "center",
     alignItems: "center",
+  },
+};
+
+export const pointer = {
+  pointer: {
+    cursor: "pointer",
   },
 };
 

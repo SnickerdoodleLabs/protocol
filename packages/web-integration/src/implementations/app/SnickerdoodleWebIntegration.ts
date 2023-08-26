@@ -13,7 +13,7 @@ import { Container } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { UIClient } from "@web-integration/implementations/app/ui/index.js";
+import { UIClient, IPaletteOverrides } from "@web-integration/implementations/app/ui/index.js";
 import { ISnickerdoodleWebIntegration } from "@web-integration/interfaces/app/index.js";
 import {
   IBlockchainProviderRepository,
@@ -43,7 +43,7 @@ export class SnickerdoodleWebIntegration
   > | null = null;
 
   constructor(
-    protected config: IConfigOverrides,
+    protected config: IConfigOverrides & { palette?: IPaletteOverrides },
     protected signer: ethers.Signer | null,
   ) {
     this.iframeURL = config.iframeURL || this.iframeURL;
@@ -133,7 +133,7 @@ export class SnickerdoodleWebIntegration
             // Assign the iframe proxy to the internal reference and the window object
             this._core = proxy;
             window.sdlDataWallet = this.core;
-            const uiClient = new UIClient(proxy);
+            const uiClient = new UIClient(proxy, this.config.palette);
             uiClient.register();
             return proxy;
           });
