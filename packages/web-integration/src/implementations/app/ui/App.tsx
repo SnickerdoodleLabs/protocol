@@ -20,6 +20,7 @@ import { Description } from "@web-integration/implementations/app/ui/widgets/Des
 import { InvitationCard } from "@web-integration/implementations/app/ui/widgets/InvitationCard/index.js";
 import { Loading } from "@web-integration/implementations/app/ui/widgets/Loading/index.js";
 import { PermissionSelection } from "@web-integration/implementations/app/ui/widgets/PermissionSelection/index.js";
+import { SubscriptionFail } from "@web-integration/implementations/app/ui/widgets/SubscriptionFail/index.js";
 import { SubscriptionSuccess } from "@web-integration/implementations/app/ui/widgets/SubscriptionSuccess/index.js";
 import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/index.js";
 import { okAsync } from "neverthrow";
@@ -200,14 +201,9 @@ export const App: FC<IAppProps> = ({ proxy, palette }) => {
             />
           );
         case EAPP_STATE.SUBSCRIPTION_FAILURE:
-          return (
-            <SubscriptionSuccess
-              pageInvitation={pageInvitation}
-              onClick={clearInvitation}
-            />
-          );
+          return <SubscriptionFail onClick={clearInvitation} />;
         default:
-          return <InvitationCard pageInvitation={pageInvitation} />;
+          return null;
       }
     } else {
       return null;
