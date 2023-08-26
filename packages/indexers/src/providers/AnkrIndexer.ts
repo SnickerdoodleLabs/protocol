@@ -27,6 +27,7 @@ import {
   EExternalApi,
   URLString,
   DecimalString,
+  EVMTransactionHash,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -50,27 +51,27 @@ export class AnkrIndexer implements IEVMIndexer {
   protected supportedChains = new Map<EChain, IndexerSupportSummary>([
     [
       EChain.EthereumMainnet,
-      new IndexerSupportSummary(EChain.EthereumMainnet, true, false, true),
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, true, true),
     ],
     [
       EChain.Polygon,
-      new IndexerSupportSummary(EChain.Polygon, true, false, true),
+      new IndexerSupportSummary(EChain.Polygon, true, true, true),
     ],
     [
       EChain.Binance,
-      new IndexerSupportSummary(EChain.Binance, true, false, true),
+      new IndexerSupportSummary(EChain.Binance, true, true, true),
     ],
     [
       EChain.Optimism,
-      new IndexerSupportSummary(EChain.Optimism, true, false, true),
+      new IndexerSupportSummary(EChain.Optimism, true, true, true),
     ],
     [
       EChain.Avalanche,
-      new IndexerSupportSummary(EChain.Avalanche, true, false, true),
+      new IndexerSupportSummary(EChain.Avalanche, true, true, true),
     ],
     [
       EChain.Arbitrum,
-      new IndexerSupportSummary(EChain.Arbitrum, true, false, true),
+      new IndexerSupportSummary(EChain.Arbitrum, true, true, true),
     ],
   ]);
 
@@ -242,7 +243,7 @@ export class AnkrIndexer implements IEVMIndexer {
                 this.supportedNfts.get(item.blockchain)!,
               ).chainId, // chainId
               undefined,
-              UnixTimestamp(Number(item.timestamp)),
+              undefined,
             );
           });
         })
@@ -267,67 +268,55 @@ export class AnkrIndexer implements IEVMIndexer {
     EVMTransaction[],
     AccountIndexingError | AjaxError | MethodSupportError
   > {
-    return okAsync([]);
-    // return errAsync(
-    //   new MethodSupportError(
-    //     "getEVMTransactions not supported for AnkrIndexer",
-    //     400,
-    //   ),
-    // );
-    // return this.configProvider.getConfig().andThen((config) => {
-    //   const url =
-    //     "https://rpc.ankr.com/multichain/" +
-    //     config.apiKeys.ankrApiKey +
-    //     "/?ankr_getTransactionsByAddress";
-    //   const requestParams = {
-    //     jsonrpc: "2.0",
-    //     method: "ankr_getTransactionsByAddress",
-    //     params: {
-    //       walletAddress: accountAddress,
-    //     },
-    //     id: 1,
-    //   };
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+    ]).andThen(([config, context]) => {
+      const url =
+        "https://rpc.ankr.com/multichain/" +
+        config.apiKeys.ankrApiKey +
+        "/?ankr_getTransactionsByAddress";
+      const requestParams = {
+        jsonrpc: "2.0",
+        method: "ankr_getTransactionsByAddress",
+        params: {
+          address: [accountAddress],
+          blockchain: [this.supportedAnkrChains.get(chain)],
+        },
+        id: 1,
+      };
 
-    //   console.log("Ankr component set to NoKeyProvided");
-    //   console.log("Ankr transactions url is: " + url);
-    //   return this.ajaxUtils
-    //     .post<IAnkrTransactionReponse>(new URL(url), requestParams, {
-    //       headers: {
-    //         "Content-Type": `application/json;`,
-    //       },
-    //     })
-    //     .andThen((response) => {
-    //       console.log(
-    //         "Ankr transactions response is: " + JSON.stringify(response),
-    //       );
-
-    //       return ResultUtils.combine(
-    //         response.result.transactions.map((item) => {
-    //           return okAsync(
-    //             new EVMTransaction(
-    //               chainId,
-    //               EVMTransactionHash(item.hash),
-    //               UnixTimestamp(0), // item.timestamp
-    //               null,
-    //               EVMAccountAddress(item.to),
-    //               EVMAccountAddress(item.from),
-    //               BigNumberString(item.value),
-    //               BigNumberString(item.gasPrice),
-    //               item.contractAddress,
-    //               item.input,
-    //               null,
-    //               null,
-    //               null,
-    //             ),
-    //           );
-    //         }),
-    //       );
-    //     })
-    //     .andThen((vals) => {
-    //       console.log("Ankr transactions response is: " + JSON.stringify(vals));
-    //       return okAsync(vals);
-    //     });
-    // });
+      context.privateEvents.onApiAccessed.next(EExternalApi.Ankr);
+      return this.ajaxUtils
+        .post<IAnkrTransactionReponse>(new URL(url), requestParams, {
+          headers: {
+            Accept: `application/json`,
+            "Content-Type": `application/json`,
+          },
+        })
+        .map((response) => {
+          return response.result.transactions.map((item) => {
+            return new EVMTransaction(
+              getChainInfoByChain(chain).chainId,
+              EVMTransactionHash(item.hash),
+              UnixTimestamp(item.timestamp),
+              item.blockNumber,
+              EVMAccountAddress(item.to),
+              EVMAccountAddress(item.from),
+              BigNumberString(item.value),
+              BigNumberString(item.gasPrice),
+              null,
+              item.input,
+              item.type,
+              null,
+              null,
+            );
+          });
+        })
+        .mapErr((error) => {
+          return error;
+        });
+    });
   }
 
   public healthStatus(): Map<EChain, EComponentStatus> {
@@ -394,17 +383,17 @@ interface IAnkrTransactionReponse {
   jsonrpc: string;
   id: number;
   result: {
-    transactions: IAnkrNftAsset[];
+    transactions: IAnkrTransaction[];
   };
   nextPageToken: string;
 }
 
-interface IAnkrNftAsset {
+interface IAnkrTransaction {
   v: string;
   r: string;
   s: string;
   nonce: string;
-  blockNumber: string;
+  blockNumber: number;
   from: string;
   to: string;
   gas: string;
@@ -419,5 +408,5 @@ interface IAnkrNftAsset {
   hash: string;
   status: string;
   blockchain: string;
-  timestamp: string;
+  timestamp: number;
 }
