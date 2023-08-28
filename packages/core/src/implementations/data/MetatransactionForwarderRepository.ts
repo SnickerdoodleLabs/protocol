@@ -1,8 +1,5 @@
-import {
-  ICryptoUtils,
-  ICryptoUtilsType,
-} from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
+import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   BigNumberString,
   BlockchainProviderError,

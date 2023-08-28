@@ -39,7 +39,7 @@ import OAuth from "oauth-1.0a";
 import nacl from "tweetnacl";
 import { v4 } from "uuid";
 
-import { ICryptoUtils } from "@common-utils/interfaces/index.js";
+import { ICryptoUtils } from "@node-utils/interfaces/index.js";
 
 @injectable()
 export class CryptoUtils implements ICryptoUtils {

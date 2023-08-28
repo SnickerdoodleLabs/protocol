@@ -32,14 +32,13 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
-import { MasterIndexer } from "@indexers/MasterIndexer.js";
-
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
   IIndexerContextProvider,
   IIndexerContextProviderType,
 } from "@indexers/interfaces/index.js";
+import { MasterIndexer } from "@indexers/MasterIndexer.js";
 
 @injectable()
 export class MoralisEVMPortfolioRepository implements IEVMIndexer {

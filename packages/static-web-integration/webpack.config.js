@@ -6,7 +6,6 @@ const webpack = require("webpack");
 const configFilePath = require.resolve("./tsconfig.json");
 const argon2 = require("argon2");
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
-
 /** @type import('webpack').Configuration */
 module.exports = {
   externals: {
@@ -19,7 +18,6 @@ module.exports = {
     filename: "snickerdoodle.js",
     chunkFilename: "[id].snickerdoodle.js",
     path: path.join(__dirname, "/dist/bundle"),
-    publicPath: "/packages/static-web-integration/dist/bundle/",
     libraryTarget: "var",
     library: "snickerdoodle",
   },

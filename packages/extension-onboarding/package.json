@@ -27,6 +27,7 @@
     "@material-ui/pickers": "3.2.4",
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/contracts-sdk": "workspace:^",
+    "@snickerdoodlelabs/node-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
     "@snickerdoodlelabs/shared-components": "workspace:^",
     "@snickerdoodlelabs/signature-verification": "workspace:^",

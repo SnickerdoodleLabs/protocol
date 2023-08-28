@@ -9,7 +9,7 @@ import {
   File,
   GetFilesCallback,
 } from "@google-cloud/storage";
-import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
+import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BigNumberString,
