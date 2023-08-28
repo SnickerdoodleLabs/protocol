@@ -1,9 +1,9 @@
 import { Metaplex } from "@metaplex-foundation/js";
 import {
-  IAxiosAjaxUtils,
-  IAxiosAjaxUtilsType,
   ILogUtils,
   ILogUtilsType,
+  IAxiosAjaxUtils,
+  IAxiosAjaxUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
@@ -43,14 +43,13 @@ import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { MasterIndexer } from "@indexers/MasterIndexer.js";
-
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
   IIndexerContextProvider,
   IIndexerContextProviderType,
 } from "@indexers/interfaces/index.js";
+import { MasterIndexer } from "@indexers/MasterIndexer.js";
 
 @injectable()
 export class SolanaIndexer implements ISolanaIndexer {
