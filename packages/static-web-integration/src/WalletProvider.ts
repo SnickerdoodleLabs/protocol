@@ -64,24 +64,18 @@ export class WalletProvider {
     });
   }
 
-  public async checkConnection() {
+  public checkConnection() {
     if (!this.sourceProvider) {
-      return false;
+      return okAsync(false);
     } else {
       this._web3Provider = new ethers.providers.Web3Provider(
         this.sourceProvider,
       );
-
-      try {
-        const accounts = await this._web3Provider.listAccounts();
-        if (accounts.length === 0) {
-          return false;
-        } else {
-          return true;
-        }
-      } catch (error) {
-        return false; // Handle any errors that occur during the process
-      }
+      return ResultAsync.fromSafePromise(this._web3Provider.listAccounts()).map(
+        (accounts) => {
+          return accounts.length > 0;
+        },
+      );
     }
   }
 

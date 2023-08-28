@@ -20,7 +20,9 @@ export function integrateSnickerdoodle(
   checkConnections(coreConfig)
     .map((connected) => {
       if (connected) {
-        startIntegration(coreConfig, consentContract);
+        startIntegration(coreConfig, consentContract).mapErr((e) => {
+          console.error("Error starting integration:", e);
+        });
       } else {
         // Create a floating div with the snickerdoodle logo
         const fixie = document.createElement("img");
@@ -32,8 +34,13 @@ export function integrateSnickerdoodle(
         fixie.style.width = "100px";
         fixie.style.height = "100px";
         fixie.onclick = () => {
-          startIntegration(coreConfig, consentContract);
-          fixie?.style.setProperty("display", "none");
+          startIntegration(coreConfig, consentContract)
+            .map(() => {
+              fixie?.style.setProperty("display", "none");
+            })
+            .mapErr((e) => {
+              console.error("Error starting integration:", e);
+            });
         };
         document.body.appendChild(fixie);
       }
@@ -43,11 +50,11 @@ export function integrateSnickerdoodle(
     });
 }
 
-async function startIntegration(
+function startIntegration(
   coreConfig: IConfigOverrides,
   consentContractAddress?: EVMContractAddress,
 ) {
-  getSigner(coreConfig)
+  return getSigner(coreConfig)
     .andThen((signerResult) => {
       const webIntegration = new SnickerdoodleWebIntegration(
         coreConfig,
@@ -98,10 +105,7 @@ function checkConnections(coreConfig: IConfigOverrides) {
   if (!coreConfig.walletConnect?.projectId) {
     const walletProvider = new WalletProvider();
 
-    return ResultAsync.fromPromise(
-      walletProvider.checkConnection(),
-      (e) => false,
-    ).map((connection) => {
+    return walletProvider.checkConnection().map((connection) => {
       return connection;
     });
   }

@@ -59,7 +59,7 @@ export class WCProvider {
     });
   }
 
-  public checkConnection(projectId: string): ResultAsync<boolean, boolean> {
+  public checkConnection(projectId: string): ResultAsync<boolean, never> {
     return ResultAsync.fromPromise(
       EthereumProvider.init({
         projectId,
@@ -76,9 +76,9 @@ export class WCProvider {
           return true;
         }
       })
-      .mapErr((e) => {
+      .orElse((e) => {
         console.log("WalletConnect Init Error", e);
-        return false;
+        return okAsync(false);
       });
   }
 }
