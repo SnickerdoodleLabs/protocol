@@ -195,7 +195,6 @@ const RewardProgramDetails: FC = () => {
   };
 
   const handleSubscribeButton = useCallback(() => {
-    console.log(`accept perm `, permissionsState)
     if (linkedAccounts.length === 0) {
       setLinkerModalOpen();
     }
@@ -206,11 +205,9 @@ const RewardProgramDetails: FC = () => {
         sdlDataWallet
           .setReceivingAddress(consentContractAddress, receivingAccount)
           .map(() => {
-            console.log(`receiving address set `)
             sdlDataWallet
               .acceptInvitation(permissionsState, consentContractAddress)
               .map(() => {
-                console.log(`invitation accepted`)
                 updateOptedInContracts();
                 setLoadingStatus(false);
                 setModal({
@@ -241,7 +238,7 @@ const RewardProgramDetails: FC = () => {
         campaignName: info?.rewardName,
       },
     });
-  }, [linkedAccounts.length]);
+  }, [linkedAccounts.length , permissionsState]);
 
   const getCapacityInfo = () => {
     sdlDataWallet
@@ -288,7 +285,6 @@ const RewardProgramDetails: FC = () => {
 
   const setDefaultPermissions = () => {
     generateAllPermissions().map((dataTypes) => {
-      console.log(`data types `,dataTypes)
       setPermissionsState(dataTypes);
     });
   };
@@ -306,9 +302,6 @@ const RewardProgramDetails: FC = () => {
     let rewardsThatAreBeingProcessed: PossibleReward[] = [];
     let rewardsThatCanBeAcquired: PossibleReward[] = [];
     let rewardsThatRequireMorePermission: PossibleReward[] = [];
-    console.log(`Permission state `,permissionsState )
-    console.log(`nani `, optedInContracts)
-    console.log(`is sub`,isSubscribed)
     if (!isSubscribed) {
       const { rewardsThatCanBeEarned, rewardsThatCannotBeEarned } =
         getRewardsBeforeRewardsWereDeliveredFromIP(
@@ -347,6 +340,7 @@ const RewardProgramDetails: FC = () => {
           queryInProcess,
           consentPermissions,
         );
+        console.log(`rar ,`, rewardsThatCanBeEarned, rewardsThatCannotBeEarned)
       rewardsThatAreBeingProcessed = rewardsThatCanBeEarned;
       rewardsThatRequireMorePermission =
         rewardsThatRequireMorePermission.concat(rewardsThatCannotBeEarned);

@@ -82,6 +82,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     | EvalNotImplementedError
     | MissingASTError
   > {
+    console.log(`Query Parsing engine perms `, dataPermissions)
     return this.parseQuery(query).andThen((ast) => {
       return this.gatherDeliveryItems(ast, query.cid, dataPermissions);
     });
