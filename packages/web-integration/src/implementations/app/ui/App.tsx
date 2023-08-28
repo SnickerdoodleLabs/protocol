@@ -1,11 +1,4 @@
 import {
-  Box,
-  ThemeProvider,
-  Theme,
-  createTheme,
-  CircularProgress,
-} from "@material-ui/core";
-import {
   BigNumberString,
   DomainName,
   EInvitationStatus,
@@ -13,26 +6,31 @@ import {
   LinkedAccount,
   PageInvitation,
 } from "@snickerdoodlelabs/objects";
+import { RootContainer } from "@web-integration/implementations/app/ui/components/Container/index.js";
+import { permissions } from "@web-integration/implementations/app/ui/constants.js";
+import { usePath } from "@web-integration/implementations/app/ui/hooks/usePath.js";
+import {
+  ThemeProvider,
+  ITheme,
+  defaultLightTheme,
+  IPaletteOverrides,
+  generateTheme,
+} from "@web-integration/implementations/app/ui/lib/index.js";
+import { Description } from "@web-integration/implementations/app/ui/widgets/Description/index.js";
+import { InvitationCard } from "@web-integration/implementations/app/ui/widgets/InvitationCard/index.js";
+import { Loading } from "@web-integration/implementations/app/ui/widgets/Loading/index.js";
+import { PermissionSelection } from "@web-integration/implementations/app/ui/widgets/PermissionSelection/index.js";
+import { SubscriptionFail } from "@web-integration/implementations/app/ui/widgets/SubscriptionFail/index.js";
+import { SubscriptionSuccess } from "@web-integration/implementations/app/ui/widgets/SubscriptionSuccess/index.js";
+import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/index.js";
 import { okAsync } from "neverthrow";
 import React, { useMemo, useState, useEffect, FC, useRef } from "react";
 import { Subscription } from "rxjs";
 import { parse } from "tldts";
 
-import {
-  RootContainer,
-  ModalContainer,
-  ModalContentContainer,
-} from "@web-integration/implementations/app/ui/components/Container/index.js";
-import { usePath } from "@web-integration/implementations/app/ui/hooks/usePath.js";
-import { themeOptions } from "@web-integration/implementations/app/ui/theme/index.js";
-import { Description } from "@web-integration/implementations/app/ui/widgets/Description/index.js";
-import { InvitationCard } from "@web-integration/implementations/app/ui/widgets/InvitationCard/index.js";
-import { PermissionSelection } from "@web-integration/implementations/app/ui/widgets/PermissionSelection/index.js";
-import { SubscriptionSuccess } from "@web-integration/implementations/app/ui/widgets/SubscriptionSuccess/index.js";
-import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/index.js";
-
 interface IAppProps {
   proxy: ISnickerdoodleIFrameProxy;
+  palette?: IPaletteOverrides;
 }
 
 export enum EAPP_STATE {
@@ -45,9 +43,11 @@ export enum EAPP_STATE {
   LOADING,
 }
 
-export const App: FC<IAppProps> = ({ proxy }) => {
+export const App: FC<IAppProps> = ({ proxy, palette }) => {
   const _pathName = usePath();
-  const [theme, setTheme] = useState<Theme>(createTheme(themeOptions));
+  const [theme, setTheme] = useState<ITheme>(
+    palette ? generateTheme(palette) : defaultLightTheme,
+  );
   const [appState, setAppState] = useState<EAPP_STATE>(EAPP_STATE.IDLE);
   const [pageInvitation, setPageInvitation] = useState<PageInvitation>();
   const [invitaitonStatus, setInvitationStatus] = useState<EInvitationStatus>();
@@ -67,7 +67,7 @@ export const App: FC<IAppProps> = ({ proxy }) => {
 
   const getDomainInvitation = (domain: DomainName, path: string) => {
     return proxy
-      .getInvitationByDomain(DomainName(domain), path)
+      .getInvitationByDomain(domain, path)
       .andThen((_pageInvitation) => {
         if (_pageInvitation) {
           setPageInvitation(_pageInvitation);
@@ -167,38 +167,19 @@ export const App: FC<IAppProps> = ({ proxy }) => {
     setAppState(EAPP_STATE.PERMISSION_SELECTION);
   };
 
-  const leftComponent = useMemo(() => {
+  const component = useMemo(() => {
     if (pageInvitation && invitaitonStatus === EInvitationStatus.New) {
       switch (appState) {
         case EAPP_STATE.IDLE:
-        case EAPP_STATE.LOADING:
-          return <CircularProgress />;
-        case EAPP_STATE.SUBSCRIPTION_SUCCESS:
-          return (
-            <SubscriptionSuccess
-              pageInvitation={pageInvitation}
-              onClick={clearInvitation}
-            />
-          );
-        default:
-          return <InvitationCard pageInvitation={pageInvitation} />;
-      }
-    } else {
-      return null;
-    }
-  }, [appState, pageInvitation, invitaitonStatus]);
-
-  const rightComponent = useMemo(() => {
-    if (pageInvitation && invitaitonStatus === EInvitationStatus.New) {
-      switch (appState) {
+          return null;
         case EAPP_STATE.INVITATION_PREVIEW:
           return (
             <Description
               pageInvitation={pageInvitation}
               onCancelClick={onCancelClick}
-              onRejectClick={onRejectClick}
+              onSetPermissions={handleContinueClick}
               onContinueClick={() => {
-                handleContinueClick();
+                onPermissionSelected(permissions.map((item) => item.key));
               }}
             />
           );
@@ -206,13 +187,23 @@ export const App: FC<IAppProps> = ({ proxy }) => {
           return (
             <PermissionSelection
               onCancelClick={onCancelClick}
-              onRejectClick={onRejectClick}
+              pageInvitation={pageInvitation}
               onSaveClick={onPermissionSelected}
             />
           );
-        default: {
+        case EAPP_STATE.LOADING:
+          return <Loading />;
+        case EAPP_STATE.SUBSCRIPTION_SUCCESS:
+          return (
+            <SubscriptionSuccess
+              pageInvitation={pageInvitation}
+              onClick={clearInvitation}
+            />
+          );
+        case EAPP_STATE.SUBSCRIPTION_FAILURE:
+          return <SubscriptionFail onClick={clearInvitation} />;
+        default:
           return null;
-        }
       }
     } else {
       return null;
@@ -225,14 +216,7 @@ export const App: FC<IAppProps> = ({ proxy }) => {
 
   return (
     <ThemeProvider theme={theme}>
-      <RootContainer>
-        <ModalContainer>
-          <ModalContentContainer
-            leftComponent={leftComponent}
-            rightComponent={rightComponent}
-          />
-        </ModalContainer>
-      </RootContainer>
+      <RootContainer>{component}</RootContainer>
     </ThemeProvider>
   );
 };

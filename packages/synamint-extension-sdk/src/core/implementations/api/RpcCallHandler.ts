@@ -815,7 +815,7 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this.core.storage.setAuthenticatedStorage(
           params.storageType,
           params.path,
-          params.accessToken,
+          params.refreshToken,
           undefined,
         );
       },

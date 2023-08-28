@@ -36,4 +36,7 @@
   "./src/**/*.json",
   "index.d.ts"],
   "exclude": ["node_modules"],
+  "files": [
+    "./postmate-custom.d.ts"
+  ]
 }
