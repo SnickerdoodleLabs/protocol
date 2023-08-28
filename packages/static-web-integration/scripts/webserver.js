@@ -8,6 +8,7 @@ process.env.__HOTJAR_ID__ = "";
 process.env.__HOTJAR_SNIPPET_VERSION__ = "";
 process.env.__IPFS_FETCH_BASE_URL__ =
   "https://ipfs-gateway.snickerdoodle.com/ipfs/";
+process.env.__LOGO_PATH__ = "https://webpackage.snickerdoodle.com/snickerdoodle.png";
 
 var WebpackDevServer = require("webpack-dev-server"),
   webpack = require("webpack"),

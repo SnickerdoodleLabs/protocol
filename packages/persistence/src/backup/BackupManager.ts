@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
-  ICryptoUtils,
   ILogUtils,
   ITimeUtils,
   ObjectUtils,
 } from "@snickerdoodlelabs/common-utils";
+import { ICryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   VersionedObjectMigrator,
   VersionedObject,

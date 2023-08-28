@@ -1,4 +1,7 @@
-import { IMargin, ITheme } from "@web-integration/implementations/app/ui/lib/interfaces/index.js"
+import {
+  IMargin,
+  ITheme,
+} from "@web-integration/implementations/app/ui/lib/interfaces/index.js";
 import { marginStyles } from "@web-integration/implementations/app/ui/lib/styles/index.js";
 import { defaultDarkTheme } from "@web-integration/implementations/app/ui/lib/theme/index.js";
 import clsx from "clsx";
@@ -14,6 +17,10 @@ import { createUseStyles, useTheme } from "react-jss";
 
 const styleObject = {
   "sd-button": {
+    overflow: "hidden",
+    height: 40,
+    borderRadius: 4,
+    texAlign: "center",
     padding: "10px 20px",
     fontSize: ({ theme }) => theme.typography.button.fontSize,
     fontWeight: ({ theme }) => theme.typography.button.fontWeight,
@@ -26,31 +33,24 @@ const styleObject = {
       cursor: "not-allowed",
     },
   },
-  "contained-primary": {
-    backgroundColor: ({ theme }) => theme.palette.primary,
-    color: ({ theme }) => theme.palette.primaryContrast,
+  contained: {
+    backgroundColor: ({ theme }) =>
+      (theme as ITheme).palette.button ?? (theme as ITheme).palette.primary,
+    color: ({ theme }) =>
+      (theme as ITheme).palette.buttonContrast ??
+      (theme as ITheme).palette.primaryContrast,
     "&:hover": {},
   },
-  "contained-secondary": {
-    backgroundColor: ({ theme }) => theme.palette.secondary,
-    color: ({ theme }) => theme.palette.secondaryContrast,
-    "&:hover": {},
-  },
-  "contained-gradient": {
-    background: ({ theme }) => theme.palette.primaryGradient,
-    color: ({ theme }) => theme.palette.gradientContrast,
-    "&:hover": {},
-  },
-  "outlined-primary": {
+  outlined: {
     backgroundColor: "transparent",
-    color: ({ theme }) => theme.palette.primary,
-    boxShadow: ({ theme }) => `inset 0 0 0 1px ${theme.palette.primary}`,
+    color: ({ theme }) => (theme as ITheme).palette.primary,
+    boxShadow: ({ theme }) =>
+      `inset 0 0 0 1px ${(theme as ITheme).palette.primary}`,
     "&:hover": {},
   },
-  "outlined-secondary": {
+  text: {
     backgroundColor: "transparent",
-    color: ({ theme }) => theme.palette.secondary,
-    boxShadow: ({ theme }) => `inset 0 0 0 1px ${theme.palette.secondary}`,
+    color: ({ theme }) => (theme as ITheme).palette.primary,
     "&:hover": {},
   },
   "sd-button-text": {
@@ -58,6 +58,10 @@ const styleObject = {
     fontSize: "inherit",
     fontFamily: "inherit",
     color: "inherit",
+    display: "block",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
   },
   ...marginStyles,
 };
@@ -72,12 +76,8 @@ interface IButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>,
     IMargin {
   disabled?: boolean;
-  variant?:
-    | "contained-primary"
-    | "contained-secondary"
-    | "contained-gradient"
-    | "outlined-primary"
-    | "outlined-secondary";
+  variant?: "contained" | "outlined" | "text";
+
   fullWidth?: boolean;
   children: ReactNode;
 }

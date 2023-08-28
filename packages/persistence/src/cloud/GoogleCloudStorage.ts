@@ -1,8 +1,6 @@
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
-  CryptoUtils,
-  ICryptoUtilsType,
   ILogUtilsType,
   ILogUtils,
 } from "@snickerdoodlelabs/common-utils";
@@ -10,17 +8,16 @@ import {
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
 } from "@snickerdoodlelabs/insight-platform-api";
+import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   EVMPrivateKey,
   DataWalletBackup,
   PersistenceError,
   DataWalletBackupID,
-  EBackupPriority,
   BackupFileName,
   StorageKey,
   DataWalletBackupHeader,
   ECloudStorageType,
-  AccessToken,
   AuthenticatedStorageSettings,
   ParsedBackupFileName,
 } from "@snickerdoodlelabs/objects";
@@ -49,7 +46,7 @@ export class GoogleCloudStorage implements ICloudStorage {
   public constructor(
     @inject(IPersistenceConfigProviderType)
     protected _configProvider: IPersistenceConfigProvider,
-    @inject(ICryptoUtilsType) protected _cryptoUtils: CryptoUtils,
+    @inject(ICryptoUtilsType) protected _cryptoUtils: ICryptoUtils,
     @inject(IInsightPlatformRepositoryType)
     protected insightPlatformRepo: IInsightPlatformRepository,
     @inject(IAxiosAjaxUtilsType)

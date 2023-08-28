@@ -1,10 +1,10 @@
 import {
-  ICryptoUtils,
   ILogUtils,
   ITimeUtils,
   ObjectUtils,
 } from "@snickerdoodlelabs/common-utils";
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
+import { ICryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   BlockNumber,
   ConsentToken,
@@ -15,11 +15,8 @@ import {
   EVMContractAddress,
   EVMPrivateKey,
   EarnedReward,
-  EligibleReward,
-  HexString32,
   IDynamicRewardParameter,
   IPFSError,
-  InsightString,
   IpfsCID,
   ESolidityAbiParameterType,
   PersistenceError,

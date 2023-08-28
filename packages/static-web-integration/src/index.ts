@@ -17,25 +17,44 @@ export function integrateSnickerdoodle(
   coreConfig: IConfigOverrides,
   consentContract?: EVMContractAddress,
 ): void {
-  // Create a floating div with the snickerdoodle logo
-  const fixie = document.createElement("img");
-  fixie.src = __LOGO_PATH__;
-  fixie.style.position = "fixed";
-  fixie.style.bottom = "30px";
-  fixie.style.right = "30px";
-  fixie.style.width = "100px";
-  fixie.style.height = "100px";
-  fixie.onclick = () => {
-    startIntegration(coreConfig, consentContract);
-  };
-  document.body.appendChild(fixie);
+  checkConnections(coreConfig)
+    .map((connected) => {
+      if (connected) {
+        startIntegration(coreConfig, consentContract).mapErr((e) => {
+          console.error("Error starting integration:", e);
+        });
+      } else {
+        // Create a floating div with the snickerdoodle logo
+        const fixie = document.createElement("img");
+        fixie.src = __LOGO_PATH__;
+        fixie.id = "snickerdoodle-fixie";
+        fixie.style.position = "fixed";
+        fixie.style.top = "calc(100vh - 130px)";
+        fixie.style.right = "30px";
+        fixie.style.width = "100px";
+        fixie.style.height = "100px";
+        fixie.onclick = () => {
+          startIntegration(coreConfig, consentContract)
+            .map(() => {
+              fixie?.style.setProperty("display", "none");
+            })
+            .mapErr((e) => {
+              console.error("Error starting integration:", e);
+            });
+        };
+        document.body.appendChild(fixie);
+      }
+    })
+    .mapErr((e) => {
+      console.error("CheckConnection Error:", e);
+    });
 }
 
-async function startIntegration(
+function startIntegration(
   coreConfig: IConfigOverrides,
   consentContractAddress?: EVMContractAddress,
 ) {
-  getSigner(coreConfig)
+  return getSigner(coreConfig)
     .andThen((signerResult) => {
       const webIntegration = new SnickerdoodleWebIntegration(
         coreConfig,
@@ -80,4 +99,19 @@ function getSigner(coreConfig: IConfigOverrides): ResultAsync<Signer, Error> {
     .andThen(() => {
       return newWalletProvider.getSigner();
     });
+}
+
+function checkConnections(
+  coreConfig: IConfigOverrides,
+): ResultAsync<boolean, unknown> {
+  if (!coreConfig.walletConnect?.projectId) {
+    const walletProvider = new WalletProvider();
+
+    return walletProvider.checkConnection().map((connection) => {
+      return connection;
+    });
+  }
+
+  const newWalletProvider = new WCProvider();
+  return newWalletProvider.checkConnection(coreConfig.walletConnect?.projectId);
 }
