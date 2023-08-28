@@ -17,6 +17,7 @@ COPY packages/iframe/package.json /build/packages/iframe/package.json
 COPY packages/indexers/package.json /build/packages/indexers/package.json
 COPY packages/insight-platform-api/package.json /build/packages/insight-platform-api/package.json
 COPY packages/mobile/package.json /build/packages/mobile/package.json
+COPY packages/node-utils/package.json /build/packages/node-utils/package.json
 COPY packages/objects/package.json /build/packages/objects/package.json
 COPY packages/persistence/package.json /build/packages/persistence/package.json
 COPY packages/query-parser/package.json /build/packages/query-parser/package.json
