@@ -72,6 +72,8 @@ import {
   IProxyStorageMethods,
   ECoreProxyType,
   PageInvitation,
+  RefreshToken,
+  OAuth2Tokens,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -718,17 +720,17 @@ export class SnickerdoodleIFrameProxy
     setAuthenticatedStorage: (
       storageType: ECloudStorageType,
       path: string,
-      accessToken: AccessToken,
+      refreshToken: RefreshToken,
     ): ResultAsync<void, ProxyError> => {
       return this._createCall("storage.setAuthenticatedStorage", {
         storageType,
         path,
-        accessToken,
+        refreshToken,
       });
     },
     authenticateDropbox: (
       code: string,
-    ): ResultAsync<AccessToken, ProxyError> => {
+    ): ResultAsync<OAuth2Tokens, ProxyError> => {
       return this._createCall("storage.authenticateDropbox", {
         code,
       });

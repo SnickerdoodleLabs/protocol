@@ -1,9 +1,10 @@
 import {
-  AccessToken,
   AjaxError,
   URLString,
   AuthenticatedStorageSettings,
   PersistenceError,
+  OAuth2Tokens,
+  OAuthAuthorizationCode,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -13,7 +14,9 @@ export interface ICloudStorageService {
     settings: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError>;
   getDropboxAuth(): ResultAsync<URLString, never>;
-  authenticateDropbox(code: string): ResultAsync<AccessToken, AjaxError>;
+  authenticateDropbox(
+    code: OAuthAuthorizationCode,
+  ): ResultAsync<OAuth2Tokens, AjaxError>;
 }
 
 export const ICloudStorageServiceType = Symbol.for("ICloudStorageService");

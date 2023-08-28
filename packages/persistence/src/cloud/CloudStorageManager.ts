@@ -79,7 +79,7 @@ export class CloudStorageManager implements ICloudStorageManager {
         URLString(
           "https://www.dropbox.com/oauth2/authorize?client_id=" +
             config.dropboxAppKey +
-            "&response_type=code&redirect_uri=" +
+            "&token_access_type=offline&response_type=code&redirect_uri=" +
             config.dropboxRedirectUri,
         ),
       );
