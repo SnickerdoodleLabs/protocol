@@ -1,7 +1,7 @@
 import { Web3Provider, ExternalProvider } from "@ethersproject/providers";
 import { AccountAddress, Signature } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
-import { ResultAsync, errAsync } from "neverthrow";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
 export class WalletProvider {
   protected _web3Provider: Web3Provider | null = null;
@@ -62,6 +62,27 @@ export class WalletProvider {
         (e) => new Error("Unexpected error"),
       );
     });
+  }
+
+  public async checkConnection() {
+    if (!this.sourceProvider) {
+      return false;
+    } else {
+      this._web3Provider = new ethers.providers.Web3Provider(
+        this.sourceProvider,
+      );
+
+      try {
+        const accounts = await this._web3Provider.listAccounts();
+        if (accounts.length === 0) {
+          return false;
+        } else {
+          return true;
+        }
+      } catch (error) {
+        return false; // Handle any errors that occur during the process
+      }
+    }
   }
 
   public getSignature(message: string): ResultAsync<Signature, unknown> {

@@ -58,4 +58,27 @@ export class WCProvider {
       return new Error(`Initialization error: ${e.message}`);
     });
   }
+
+  public checkConnection(projectId: string): ResultAsync<boolean, boolean> {
+    return ResultAsync.fromPromise(
+      EthereumProvider.init({
+        projectId,
+        showQrModal: false,
+        chains: [1],
+      }),
+      (e) => new Error(`User cancelled: ${(e as Error).message}`),
+    )
+      .map((provider) => {
+        this.ethereumProvider = provider;
+        if (this.ethereumProvider.accounts.length === 0) {
+          return false;
+        } else {
+          return true;
+        }
+      })
+      .mapErr((e) => {
+        console.log("WalletConnect Init Error", e);
+        return false;
+      });
+  }
 }
