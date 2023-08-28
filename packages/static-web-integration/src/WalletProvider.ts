@@ -64,7 +64,7 @@ export class WalletProvider {
     });
   }
 
-  public checkConnection() {
+  public checkConnection(): ResultAsync<boolean, never> {
     if (!this.sourceProvider) {
       return okAsync(false);
     } else {
