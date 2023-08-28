@@ -1,4 +1,4 @@
-import { CryptoUtils, ICryptoUtils } from "@snickerdoodlelabs/common-utils";
+import { CryptoUtils, ICryptoUtils } from "@snickerdoodlelabs/node-utils";
 
 export class CryptoUtilsMocks {
   public constructor() {}

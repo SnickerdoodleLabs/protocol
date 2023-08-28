@@ -29,6 +29,9 @@
       "path": "../contracts-sdk"
     },
     {
+      "path": "../node-utils"
+    },
+    {
       "path": "../objects"
     },
     {

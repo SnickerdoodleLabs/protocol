@@ -1,9 +1,4 @@
-import {
-  ICryptoUtils,
-  ICryptoUtilsType,
-  ILogUtils,
-  ILogUtilsType,
-} from "@snickerdoodlelabs/common-utils";
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   ConsentContract,
   IConsentContract,
@@ -16,6 +11,7 @@ import {
   ISiftContract,
   ConsentFactoryContract,
 } from "@snickerdoodlelabs/contracts-sdk";
+import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   BlockchainProviderError,
   EVMContractAddress,

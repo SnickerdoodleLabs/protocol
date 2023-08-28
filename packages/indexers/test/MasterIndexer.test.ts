@@ -1,26 +1,10 @@
 import "reflect-metadata";
+import { IAxiosAjaxUtils, ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
-  IAxiosAjaxUtils,
-  ILogUtils,
-  ObjectUtils,
-} from "@snickerdoodlelabs/common-utils";
-import {
-  UninitializedError,
-  DataPermissions,
-  IPFSError,
-  SDQLQueryRequest,
-  QueryStatus,
-  EQueryProcessingStatus,
-  BlockNumber,
-  PersistenceError,
   IEVMIndexer,
   ITokenPriceRepository,
   ISolanaIndexer,
-  ChainId,
-  EVMAccountAddress,
 } from "@snickerdoodlelabs/objects";
-import { errAsync, okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 import * as td from "testdouble";
 
 import {

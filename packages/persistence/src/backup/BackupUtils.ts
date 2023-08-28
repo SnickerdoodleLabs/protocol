@@ -1,8 +1,5 @@
-import {
-  ICryptoUtils,
-  ICryptoUtilsType,
-  ObjectUtils,
-} from "@snickerdoodlelabs/common-utils";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
+import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   DataWalletBackupID,
   AESEncryptedString,

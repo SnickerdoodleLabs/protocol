@@ -51,6 +51,12 @@
       "path": "packages/insight-platform-api/test"
     },
     {
+      "path": "packages/node-utils"
+    },
+    {
+      "path": "packages/node-utils/test"
+    },
+    {
       "path": "packages/objects"
     },
     {
