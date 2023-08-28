@@ -4,9 +4,6 @@ FROM snickerdoodlelabs/protocol-docker-base:${BASE_TAG} as builder
 ARG LOGO_PATH=https://webpackage.snickerdoodle.com/snickerdoodle.png
 ENV __LOGO_PATH__ $LOGO_PATH
 
-ARG INTEGRATION_PATH=https://webpackage.snickerdoodle.com/
-ENV __INTEGRATION_PATH__ $INTEGRATION_PATH
-
 RUN cd packages/static-web-integration && yarn postCompile
 
 FROM nginx:latest AS server

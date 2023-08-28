@@ -18,7 +18,6 @@ module.exports = {
     filename: "snickerdoodle.js",
     chunkFilename: "[id].snickerdoodle.js",
     path: path.join(__dirname, "/dist/bundle"),
-    publicPath: process.env.__INTEGRATION_PATH__,
     libraryTarget: "var",
     library: "snickerdoodle",
   },

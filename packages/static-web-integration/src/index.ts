@@ -21,7 +21,7 @@ export function integrateSnickerdoodle(
   const fixie = document.createElement("img");
   fixie.src = __LOGO_PATH__;
   fixie.style.position = "fixed";
-  fixie.style.bottom = "30px";
+  fixie.style.top = "calc(100vh - 130px)";
   fixie.style.right = "30px";
   fixie.style.width = "100px";
   fixie.style.height = "100px";
