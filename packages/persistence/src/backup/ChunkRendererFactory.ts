@@ -21,13 +21,9 @@ export class ChunkRendererFactory implements IChunkRendererFactory {
 
   public createChunkRenderer(
     schema: VolatileTableIndex<VersionedObject> | FieldIndex,
-    enableEncryption: boolean,
-    privateKey: EVMPrivateKey,
   ): IChunkRenderer {
     return new ChunkRenderer(
       schema,
-      enableEncryption,
-      privateKey,
       this.backupUtils,
       this.timeUtils,
     );

@@ -73,9 +73,11 @@ import {
   ECoreProxyType,
   PageInvitation,
   BlockNumber,
+  RefreshToken,
+  OAuth2Tokens,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { Subject } from "rxjs";
 
 import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/index.js";
@@ -384,14 +386,7 @@ export class SnickerdoodleIFrameProxy
   }
 
   public closeTab(): ResultAsync<void, ProxyError> {
-    return this._createCall("closeTab", null);
-  }
-
-  public getDataWalletAddress(): ResultAsync<
-    DataWalletAddress | null,
-    ProxyError
-  > {
-    return this._createCall("getDataWalletAddress", null);
+    return okAsync(undefined);
   }
 
   public getAcceptedInvitationsCID(): ResultAsync<
@@ -737,17 +732,17 @@ export class SnickerdoodleIFrameProxy
     setAuthenticatedStorage: (
       storageType: ECloudStorageType,
       path: string,
-      accessToken: AccessToken,
+      refreshToken: RefreshToken,
     ): ResultAsync<void, ProxyError> => {
       return this._createCall("storage.setAuthenticatedStorage", {
         storageType,
         path,
-        accessToken,
+        refreshToken,
       });
     },
     authenticateDropbox: (
       code: string,
-    ): ResultAsync<AccessToken, ProxyError> => {
+    ): ResultAsync<OAuth2Tokens, ProxyError> => {
       return this._createCall("storage.authenticateDropbox", {
         code,
       });

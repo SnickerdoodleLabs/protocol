@@ -1,4 +1,7 @@
-import { Box, Typography } from "@material-ui/core";
+import {
+  Box,
+  Typography,
+} from "@web-integration/implementations/app/ui/lib/index.js";
 import { PageInvitation } from "@snickerdoodlelabs/objects";
 import React, { FC } from "react";
 
@@ -11,7 +14,7 @@ export const InvitationCard: FC<IInvitationCardProps> = ({
   return (
     <>
       <Box px={6}>
-        <Typography variant="h1" color="textPrimary">
+        <Typography variant="title">
           {pageInvitation.domainDetails.title}
         </Typography>
       </Box>
@@ -31,7 +34,7 @@ export const InvitationCard: FC<IInvitationCardProps> = ({
           src={pageInvitation.domainDetails.nftClaimedImage}
         />
       </Box>
-      <Typography variant="h4" color="textPrimary">
+      <Typography variant="bodyBold">
         {pageInvitation.domainDetails.rewardName}
       </Typography>
     </>

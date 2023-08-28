@@ -53,6 +53,8 @@ import {
   AccessToken,
   ECloudStorageType,
   BlockNumber,
+  RefreshToken,
+  OAuth2Tokens,
 } from "@snickerdoodlelabs/objects";
 
 import { IExtensionConfig } from "./IExtensionConfig";
@@ -857,7 +859,7 @@ export class SetAuthenticatedStorageParams extends CoreActionParams<void> {
   public constructor(
     public storageType: ECloudStorageType,
     public path: string,
-    public accessToken: AccessToken,
+    public refreshToken: RefreshToken,
   ) {
     super(SetAuthenticatedStorageParams.getCoreAction());
   }
@@ -866,7 +868,7 @@ export class SetAuthenticatedStorageParams extends CoreActionParams<void> {
   }
 }
 
-export class AuthenticateDropboxParams extends CoreActionParams<AccessToken> {
+export class AuthenticateDropboxParams extends CoreActionParams<OAuth2Tokens> {
   public constructor(public code: string) {
     super(AuthenticateDropboxParams.getCoreAction());
   }

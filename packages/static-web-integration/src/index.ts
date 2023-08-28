@@ -6,9 +6,10 @@ import {
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { SnickerdoodleWebIntegration } from "@snickerdoodlelabs/web-integration";
-import { okAsync } from "neverthrow";
-
 import { WalletProvider } from "@static-web-integration/WalletProvider";
+import { Result, ResultAsync, errAsync, okAsync } from "neverthrow";
+import { WCProvider } from "@static-web-integration/WCProvider";
+import { Signer } from "ethers";
 
 declare const __LOGO_PATH__: URLString;
 
@@ -27,43 +28,56 @@ export function integrateSnickerdoodle(
   fixie.onclick = () => {
     startIntegration(coreConfig, consentContract);
   };
-
   document.body.appendChild(fixie);
 }
 
 async function startIntegration(
   coreConfig: IConfigOverrides,
   consentContractAddress?: EVMContractAddress,
-): Promise<void> {
-  const walletProvider = new WalletProvider();
-
-  await walletProvider
-    .connect()
-    .andThen((accountAddress) => {
+) {
+  getSigner(coreConfig)
+    .andThen((signerResult) => {
       const webIntegration = new SnickerdoodleWebIntegration(
         coreConfig,
-        walletProvider.signer,
+        signerResult,
       );
-      return webIntegration.initialize();
-    })
-    .andThen((dataWallet) => {
-      console.log("Snickerdoodle Data Wallet Initialized");
 
-      // If a consent contract was provided, we should pop up the invitation
-      if (consentContractAddress != null) {
-        return dataWallet
-          .checkInvitationStatus(consentContractAddress)
-          .andThen((invitationStatus) => {
-            if (invitationStatus === EInvitationStatus.New) {
-              return dataWallet.acceptInvitation([], consentContractAddress);
-            }
-            return okAsync(undefined);
-          });
-      }
-
-      return okAsync(undefined);
+      return webIntegration.initialize().andThen((dataWallet) => {
+        console.log("Snickerdoodle Data Wallet Initialized");
+        if (consentContractAddress != null) {
+          return dataWallet
+            .checkInvitationStatus(consentContractAddress)
+            .andThen((invitationStatus) => {
+              if (invitationStatus === EInvitationStatus.New) {
+                return dataWallet.acceptInvitation([], consentContractAddress);
+              }
+              return okAsync(undefined);
+            });
+        }
+        return okAsync(undefined);
+      });
     })
     .mapErr((e) => {
-      console.error(e);
+      console.error("An error occurred:", e);
+    });
+}
+
+function getSigner(coreConfig: IConfigOverrides): ResultAsync<Signer, Error> {
+  if (!coreConfig.walletConnect?.projectId) {
+    const walletProvider = new WalletProvider();
+
+    return ResultAsync.fromPromise(
+      walletProvider.connect(),
+      (e) => new Error(`Failed to connect wallet: ${(e as Error).message}`),
+    ).map(() => {
+      return walletProvider.signer;
+    });
+  }
+
+  const newWalletProvider = new WCProvider();
+  return newWalletProvider
+    .init(coreConfig.walletConnect?.projectId as string)
+    .andThen(() => {
+      return newWalletProvider.getSigner();
     });
 }

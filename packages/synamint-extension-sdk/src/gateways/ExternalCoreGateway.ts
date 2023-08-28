@@ -49,6 +49,7 @@ import {
   QueryStatus,
   AccessToken,
   ECloudStorageType,
+  OAuth2Tokens,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -537,7 +538,7 @@ export class ExternalCoreGateway {
 
   public authenticateDropbox(
     params: AuthenticateDropboxParams,
-  ): ResultAsync<AccessToken, ProxyError> {
+  ): ResultAsync<OAuth2Tokens, ProxyError> {
     return this._handler.call(params);
   }
 
