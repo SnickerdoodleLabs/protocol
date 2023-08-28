@@ -40,7 +40,7 @@ export class WalletProvider {
           this._web3Provider!.send("wallet_requestPermissions", [
             { eth_accounts: {} },
           ]) as Promise<unknown>,
-          (e) => new Error(`User cancelled: ${(e as Error).message}`),
+          (e) => new Error("Connection request was cancelled by the user."),
         )
           .andThen(() => {
             return ResultAsync.fromPromise(
@@ -48,7 +48,7 @@ export class WalletProvider {
               this._web3Provider!.send("eth_requestAccounts", []) as Promise<
                 AccountAddress[]
               >,
-              (e) => new Error("User cancelled"),
+              (e) => new Error("Connection request was cancelled by the user."),
             );
           })
           .map((accounts) => {
@@ -59,23 +59,26 @@ export class WalletProvider {
       }
       return ResultAsync.fromPromise(
         Promise.resolve(accounts[0]),
-        (e) => new Error("Unexpected error"),
+        (e) =>
+          new Error(
+            "An unexpected error occurred while attempting to establish a connection.",
+          ),
       );
     });
   }
 
-  public checkConnection(): ResultAsync<boolean, never> {
+  public checkConnection(): ResultAsync<boolean, unknown> {
     if (!this.sourceProvider) {
       return okAsync(false);
     } else {
       this._web3Provider = new ethers.providers.Web3Provider(
         this.sourceProvider,
       );
-      return ResultAsync.fromSafePromise(this._web3Provider.listAccounts()).map(
-        (accounts) => {
-          return accounts.length > 0;
-        },
-      );
+      return ResultAsync.fromPromise(this._web3Provider.listAccounts(), (e) => {
+        return new Error("An unexpected error occurred while checking the connection status.");
+      }).map((accounts) => {
+        return accounts.length > 0;
+      });
     }
   }
 

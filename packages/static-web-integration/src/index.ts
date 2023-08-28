@@ -103,7 +103,7 @@ function getSigner(coreConfig: IConfigOverrides): ResultAsync<Signer, Error> {
 
 function checkConnections(
   coreConfig: IConfigOverrides,
-): ResultAsync<boolean, never> {
+): ResultAsync<boolean, unknown> {
   if (!coreConfig.walletConnect?.projectId) {
     const walletProvider = new WalletProvider();
 
