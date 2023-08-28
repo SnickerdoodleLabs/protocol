@@ -8,7 +8,6 @@ import {
 } from "@objects/primitives/index.js";
 
 export class PossibleReward {
-  public queryStatus : EQueryProcessingStatus | undefined
   constructor(
     readonly queryCID: IpfsCID,
     readonly compensationKey: CompensationKey,

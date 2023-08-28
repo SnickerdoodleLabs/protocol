@@ -52,6 +52,7 @@ import {
   QueryStatus,
   AccessToken,
   ECloudStorageType,
+  BlockNumber,
 } from "@snickerdoodlelabs/objects";
 
 import { IExtensionConfig } from "./IExtensionConfig";
@@ -669,6 +670,18 @@ export class GetQueryStatusByCidParams extends CoreActionParams<QueryStatus | nu
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_QUERY_STATUS_BY_CID;
+  }
+}
+
+export class GetQueryStatusesParams extends CoreActionParams<QueryStatus[]> {
+  public constructor(
+    public contractAddress: EVMContractAddress,
+    public blockNumber?: BlockNumber,
+  ) {
+    super(GetQueryStatusesParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_QUERY_STATUSES;
   }
 }
 

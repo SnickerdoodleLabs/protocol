@@ -22,7 +22,7 @@ import {
   EInvitationStatus,
   EWalletDataType,
 } from "@objects/enum/index.js";
-import { ProxyError } from "@objects/errors/index.js";
+import {  ProxyError } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata.js";
 import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences.js";
@@ -38,6 +38,7 @@ import {
   AccountAddress,
   Age,
   BigNumberString,
+  BlockNumber,
   ChainId,
   CountryCode,
   EmailAddressString,
@@ -317,6 +318,15 @@ export interface ISdlDataWallet {
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, ProxyError>;
 
+  getQueryStatuses(
+    contractAddress: EVMContractAddress,
+    blockNumber?: BlockNumber,
+  ): ResultAsync<
+    QueryStatus[],
+    | ProxyError
+  > 
+  
+  
   getSiteVisits(): ResultAsync<SiteVisit[], ProxyError>;
 
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, ProxyError>;

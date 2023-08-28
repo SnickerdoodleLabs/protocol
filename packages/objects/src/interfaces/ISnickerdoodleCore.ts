@@ -106,6 +106,7 @@ import {
   URLString,
   PasswordString,
   AccessToken,
+  BlockNumber,
 } from "@objects/primitives/index.js";
 
 /**
@@ -711,6 +712,18 @@ export interface ISnickerdoodleCore {
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, PersistenceError>;
 
+  getQueryStatuses(
+    contractAddress: EVMContractAddress,
+    blockNumber?: BlockNumber,
+  ): ResultAsync<
+    QueryStatus[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | PersistenceError
+  > 
+  
   /**
    * Restores a backup directly. Should only be called for testing purposes.
    * @param backup

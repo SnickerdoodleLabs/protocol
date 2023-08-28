@@ -10,17 +10,13 @@ import {
   AccountAddress,
   EarnedReward,
   EInvitationStatus,
-  EQueryProcessingStatus,
   ESocialType,
   ETag,
   EVMContractAddress,
   EWalletDataType,
   IConsentCapacity,
   IOpenSeaMetadata,
-  IpfsCID,
   PossibleReward,
-  QueryStatus,
-  QueryTypePermissionMap,
 } from "@snickerdoodlelabs/objects";
 import {
   PermissionBar,
@@ -28,7 +24,6 @@ import {
   PERMISSIONS_WITH_ICONS,
   UI_SUPPORTED_PERMISSIONS,
 } from "@snickerdoodlelabs/shared-components";
-import { set } from "date-fns";
 import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { useLocation } from "react-router-dom";
@@ -51,9 +46,13 @@ import {
 import { useStyles } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/RewardProgramDetails.style";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import {
+  addQueryStatusToPossibleReward,
+  categorizePossibleRewardsBasedOnStatus,
   getRewardsAfterRewardsWereDeliveredFromIP,
   getRewardsBeforeRewardsWereDeliveredFromIP,
+  PossibleRewardWithQueryStatus,
 } from "@extension-onboarding/utils";
+import { ResultUtils } from "neverthrow-result-utils";
 
 const ManageSettingsButton = withStyles({
   root: {
@@ -104,7 +103,6 @@ const RewardProgramDetails: FC = () => {
   const classes = useStyles();
   const {
     tag = "",
-    possibleRewards: initialPossibleRewards,
     info,
     consentContractAddress,
   } = (useLocation().state || {}) as {
@@ -113,14 +111,14 @@ const RewardProgramDetails: FC = () => {
     info?: IOpenSeaMetadata;
     consentContractAddress: EVMContractAddress;
   };
-  const [possibleRewards, setPossibleRewards] = useState<PossibleReward[]>(
-    initialPossibleRewards,
-  );
+  const [possibleRewardWithQueryStatus, setPossibleRewardWithQueryStatus] =
+    useState<PossibleRewardWithQueryStatus[]>([]);
+
   const { ref: saveButtonRef, inView: isSaveButtonInView } = useInView({
     threshold: 0.5,
   });
   const { sdlDataWallet } = useDataWalletContext();
-  const { generateAllPermissions, isSafe, updateProfileValues } =
+  const { generateAllPermissions, isSafe } =
     usePermissionContext();
   const generateSuccessMessage = (dataType: EWalletDataType) => {
     return `Your "${
@@ -140,28 +138,37 @@ const RewardProgramDetails: FC = () => {
     setLinkerModalOpen,
   } = useAppContext();
   const { setAlert } = useNotificationContext();
-  const { setModal, setLoadingStatus, closeModal } = useLayoutContext();
+  const { setModal, setLoadingStatus } = useLayoutContext();
   const { twitterProvider, discordProvider } = useAccountLinkingContext();
   const [permissionsState, setPermissionsState] = useState<EWalletDataType[]>(
     [],
   );
 
   useEffect(() => {
-    if (consentPermissions.length > 0) {
-      setPermissionsState(consentPermissions);
-    }
-  }, [JSON.stringify(consentPermissions)]);
-
-  useEffect(() => {
-    getPossibleRewards();
+    ResultUtils.combine([getPossibleRewards(), getQueryStatuses()]).map(
+      ([possibleRewards, queryStatuses]) => {
+        const currentPossibleRewards =
+          possibleRewards.get(consentContractAddress) ?? [];
+        const possibleRewardWithStatus = addQueryStatusToPossibleReward(
+          currentPossibleRewards,
+          queryStatuses,
+        );
+        if (
+          JSON.stringify(possibleRewardWithStatus) !==
+          JSON.stringify(possibleRewardWithQueryStatus)
+        ) {
+          setPossibleRewardWithQueryStatus(possibleRewardWithStatus);
+        }
+      },
+    );
   }, [earnedRewards]);
 
   const getPossibleRewards = () => {
-    sdlDataWallet
-      ?.getPossibleRewards?.([consentContractAddress])
-      .map((possibleRewards) =>
-        setPossibleRewards(possibleRewards.get(consentContractAddress) ?? []),
-      );
+    return sdlDataWallet?.getPossibleRewards?.([consentContractAddress]);
+  };
+
+  const getQueryStatuses = () => {
+    return sdlDataWallet?.getQueryStatuses?.(consentContractAddress);
   };
 
   const handleSocialLink = async (socialType: ESocialType) => {
@@ -188,6 +195,7 @@ const RewardProgramDetails: FC = () => {
   };
 
   const handleSubscribeButton = useCallback(() => {
+    console.log(`accept perm `, permissionsState)
     if (linkedAccounts.length === 0) {
       setLinkerModalOpen();
     }
@@ -198,9 +206,11 @@ const RewardProgramDetails: FC = () => {
         sdlDataWallet
           .setReceivingAddress(consentContractAddress, receivingAccount)
           .map(() => {
+            console.log(`receiving address set `)
             sdlDataWallet
               .acceptInvitation(permissionsState, consentContractAddress)
               .map(() => {
+                console.log(`invitation accepted`)
                 updateOptedInContracts();
                 setLoadingStatus(false);
                 setModal({
@@ -278,6 +288,7 @@ const RewardProgramDetails: FC = () => {
 
   const setDefaultPermissions = () => {
     generateAllPermissions().map((dataTypes) => {
+      console.log(`data types `,dataTypes)
       setPermissionsState(dataTypes);
     });
   };
@@ -295,35 +306,27 @@ const RewardProgramDetails: FC = () => {
     let rewardsThatAreBeingProcessed: PossibleReward[] = [];
     let rewardsThatCanBeAcquired: PossibleReward[] = [];
     let rewardsThatRequireMorePermission: PossibleReward[] = [];
-
+    console.log(`Permission state `,permissionsState )
+    console.log(`nani `, optedInContracts)
+    console.log(`is sub`,isSubscribed)
     if (!isSubscribed) {
       const { rewardsThatCanBeEarned, rewardsThatCannotBeEarned } =
         getRewardsBeforeRewardsWereDeliveredFromIP(
-          possibleRewards,
+          possibleRewardWithQueryStatus,
           permissionsState,
         );
       rewardsThatCanBeAcquired = rewardsThatCanBeEarned;
       rewardsThatRequireMorePermission = rewardsThatCannotBeEarned;
     } else {
-      const { queryBeingProcessed, queryProcessed } = possibleRewards.reduce<{
-        queryBeingProcessed: PossibleReward[];
-        queryProcessed: PossibleReward[];
-      }>(
-        (queryStates, reward) => {
-          if (reward.queryStatus) {
-            if (reward.queryStatus < 4) {
-              queryStates.queryBeingProcessed.push(reward);
-            } else {
-              queryStates.queryProcessed.push(reward);
-            }
-          } else {
-            queryStates.queryBeingProcessed.push(reward);
-          }
-          return queryStates;
-        },
-        { queryBeingProcessed: [], queryProcessed: [] },
-      );
 
+      const { queryBeingProcessed, queryProcessed, queryNotReceived } =
+        categorizePossibleRewardsBasedOnStatus(possibleRewardWithQueryStatus);
+      //User is subscribed, we will assume if no record for the query exist yet, one will be created shortly
+      console.log(`test `, queryBeingProcessed ,queryProcessed, queryNotReceived )
+      const queryInProcess =
+        queryNotReceived.length === 0
+          ? queryBeingProcessed
+          : queryBeingProcessed.concat(queryNotReceived);
       const {
         rewardsThatWereEarned,
         rewardsThatWereNotEarned,
@@ -341,7 +344,7 @@ const RewardProgramDetails: FC = () => {
 
       const { rewardsThatCanBeEarned, rewardsThatCannotBeEarned } =
         getRewardsBeforeRewardsWereDeliveredFromIP(
-          queryBeingProcessed,
+          queryInProcess,
           consentPermissions,
         );
       rewardsThatAreBeingProcessed = rewardsThatCanBeEarned;
@@ -357,7 +360,7 @@ const RewardProgramDetails: FC = () => {
       rewardsThatAreBeingProcessed,
     };
   }, [
-    possibleRewards,
+    possibleRewardWithQueryStatus,
     isSubscribed,
     earnedRewards,
     consentPermissions,
@@ -425,7 +428,7 @@ const RewardProgramDetails: FC = () => {
                   Total Rewards
                 </Typography>
                 <Typography className={classes.infoText}>
-                  {possibleRewards.length}
+                  {possibleRewardWithQueryStatus.length}
                 </Typography>
               </Box>
               <Box px={1.5} py={0.75} borderRadius={8} bgcolor="#F6F6F6">
@@ -552,7 +555,7 @@ const RewardProgramDetails: FC = () => {
                 <CollectedRewards
                   consentContractAddress={consentContractAddress}
                   rewards={collectedRewards}
-                  possibleRewards={possibleRewards}
+                  possibleRewards={possibleRewardWithQueryStatus}
                   rewardsThatAreBeingProcessed={rewardsThatAreBeingProcessed}
                 />
               </Box>

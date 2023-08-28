@@ -72,6 +72,7 @@ import {
   IProxyStorageMethods,
   ECoreProxyType,
   PageInvitation,
+  BlockNumber,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ResultAsync } from "neverthrow";
@@ -628,6 +629,17 @@ export class SnickerdoodleIFrameProxy
       queryCID,
     });
   }
+
+  public getQueryStatuses(
+    contractAddress: EVMContractAddress,
+    blockNumber ?:   BlockNumber
+  ): ResultAsync<QueryStatus[], ProxyError> {
+    return this._createCall("getQueryStatuses", {
+      contractAddress,
+      blockNumber
+    });
+  }
+
 
   public switchToTab(tabId: number): ResultAsync<void, ProxyError> {
     throw new Error("Method not implemented.");

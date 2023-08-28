@@ -3,7 +3,31 @@ import {
   EarnedReward,
   QueryTypePermissionMap,
   EWalletDataType,
+  EQueryProcessingStatus,
+  QueryStatus,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
+
+export type PossibleRewardWithQueryStatus = PossibleReward & {
+  queryStatus: EQueryProcessingStatus | undefined;
+};
+
+export const addQueryStatusToPossibleReward = (
+  possibleRewards: PossibleReward[],
+  queryStatuses: QueryStatus[],
+): PossibleRewardWithQueryStatus[] => {
+  const queryCIDToStatusMap = getQueryCIDToStatusMap(queryStatuses);
+  return possibleRewards.reduce<PossibleRewardWithQueryStatus[]>(
+    (arr, possibleReward) => {
+      arr.push({
+        ...possibleReward,
+        queryStatus: queryCIDToStatusMap.get(possibleReward.queryCID),
+      });
+      return arr;
+    },
+    [],
+  );
+};
 
 export const isSameReward = (
   reward1: PossibleReward | EarnedReward,
@@ -14,6 +38,34 @@ export const isSameReward = (
     reward1.image === reward2.image &&
     reward1.description === reward2.description &&
     reward1.type === reward2.type
+  );
+};
+
+export const categorizePossibleRewardsBasedOnStatus = (
+  possibleRewardWithQueryStatus: PossibleRewardWithQueryStatus[],
+): {
+  queryBeingProcessed: PossibleReward[];
+  queryProcessed: PossibleReward[];
+  queryNotReceived: PossibleReward[];
+} => {
+  return possibleRewardWithQueryStatus.reduce<{
+    queryBeingProcessed: PossibleReward[];
+    queryProcessed: PossibleReward[];
+    queryNotReceived: PossibleReward[];
+  }>(
+    (queryStates, reward) => {
+      if (reward.queryStatus) {
+        if (reward.queryStatus < 4) {
+          queryStates.queryBeingProcessed.push(reward);
+        } else {
+          queryStates.queryProcessed.push(reward);
+        }
+      } else {
+        queryStates.queryNotReceived.push(reward);
+      }
+      return queryStates;
+    },
+    { queryBeingProcessed: [], queryProcessed: [], queryNotReceived: [] },
   );
 };
 
@@ -82,5 +134,17 @@ export const getRewardsBeforeRewardsWereDeliveredFromIP = (
       return acc;
     },
     { rewardsThatCanBeEarned: [], rewardsThatCannotBeEarned: [] },
+  );
+};
+
+const getQueryCIDToStatusMap = (
+  queryStatuses: QueryStatus[],
+): Map<IpfsCID, EQueryProcessingStatus> => {
+  return queryStatuses.reduce<Map<IpfsCID, EQueryProcessingStatus>>(
+    (cidsWithStatusMap, queryStatus) => {
+      cidsWithStatusMap.set(queryStatus.queryCID, queryStatus.status);
+      return cidsWithStatusMap;
+    },
+    new Map(),
   );
 };
