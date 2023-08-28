@@ -17,16 +17,12 @@ export const addQueryStatusToPossibleReward = (
   queryStatuses: QueryStatus[],
 ): PossibleRewardWithQueryStatus[] => {
   const queryCIDToStatusMap = getQueryCIDToStatusMap(queryStatuses);
-  return possibleRewards.reduce<PossibleRewardWithQueryStatus[]>(
-    (arr, possibleReward) => {
-      arr.push({
-        ...possibleReward,
-        queryStatus: queryCIDToStatusMap.get(possibleReward.queryCID),
-      });
-      return arr;
-    },
-    [],
-  );
+  return possibleRewards.map((possibleReward) => {
+    return {
+      ...possibleReward,
+      queryStatus: queryCIDToStatusMap.get(possibleReward.queryCID),
+    };
+  });
 };
 
 export const isSameReward = (

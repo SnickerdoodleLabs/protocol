@@ -25,8 +25,9 @@ import {
   TwitterProvider,
 } from "@extension-onboarding/services/socialMediaProviders/implementations";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { addQueryStatusToPossibleReward, PossibleRewardWithQueryStatus } from "@extension-onboarding/utils";
+import { addQueryStatusToPossibleReward, PossibleRewardWithQueryStatus } from "@snickerdoodlelabs/shared-components";
 import { ResultUtils } from "neverthrow-result-utils";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 
 const PermissionSelectionModalV2: FC = () => {
   const { modalState, closeModal, setModal, setLoadingStatus } =
@@ -96,8 +97,8 @@ const PermissionSelectionModalV2: FC = () => {
           queryStatuses,
         );
         if (
-          JSON.stringify(possibleRewardWithStatus) !==
-          JSON.stringify(possibleRewardWithQueryStatus)
+          ObjectUtils.serialize(possibleRewardWithStatus).valueOf() !==
+          ObjectUtils.serialize(possibleRewardWithQueryStatus).valueOf()
         ) {
           setPossibleRewardWithQueryStatus(possibleRewardWithStatus);
         }

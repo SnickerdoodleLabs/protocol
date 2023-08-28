@@ -1,4 +1,4 @@
-import { EQueryProcessingStatus, ERewardType } from "@objects/enum/index.js";
+import { ERewardType } from "@objects/enum/index.js";
 import {
   ChainId,
   CompensationKey,

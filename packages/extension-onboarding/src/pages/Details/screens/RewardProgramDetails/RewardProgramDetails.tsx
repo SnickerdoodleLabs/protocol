@@ -51,8 +51,9 @@ import {
   getRewardsAfterRewardsWereDeliveredFromIP,
   getRewardsBeforeRewardsWereDeliveredFromIP,
   PossibleRewardWithQueryStatus,
-} from "@extension-onboarding/utils";
+} from "@snickerdoodlelabs/shared-components";
 import { ResultUtils } from "neverthrow-result-utils";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 
 const ManageSettingsButton = withStyles({
   root: {
@@ -154,8 +155,8 @@ const RewardProgramDetails: FC = () => {
           queryStatuses,
         );
         if (
-          JSON.stringify(possibleRewardWithStatus) !==
-          JSON.stringify(possibleRewardWithQueryStatus)
+          ObjectUtils.serialize(possibleRewardWithStatus).valueOf() !==
+          ObjectUtils.serialize(possibleRewardWithQueryStatus).valueOf()
         ) {
           setPossibleRewardWithQueryStatus(possibleRewardWithStatus);
         }
