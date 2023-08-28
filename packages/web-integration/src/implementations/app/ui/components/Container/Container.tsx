@@ -10,7 +10,8 @@ export const RootContainer: FC = ({ children }) => (
   <Box
     width="100%"
     height="100%"
-    position="absolute"
+    overflow="auto"
+    position="fixed"
     top="0"
     left="0"
     bg="rgba(0,0,0,0.02)"
