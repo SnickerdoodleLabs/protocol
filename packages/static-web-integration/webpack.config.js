@@ -6,7 +6,6 @@ const webpack = require("webpack");
 const configFilePath = require.resolve("./tsconfig.json");
 const argon2 = require("argon2");
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
-const dotenv = require("dotenv");
 /** @type import('webpack').Configuration */
 module.exports = {
   externals: {
