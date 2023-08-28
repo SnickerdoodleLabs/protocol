@@ -19,7 +19,7 @@ module.exports = {
     filename: "snickerdoodle.js",
     chunkFilename: "[id].snickerdoodle.js",
     path: path.join(__dirname, "/dist/bundle"),
-    publicPath: "/packages/static-web-integration/dist/bundle/",
+    publicPath: "https://webpackage.snickerdoodle.com/",
     libraryTarget: "var",
     library: "snickerdoodle",
   },

@@ -35,7 +35,7 @@ async function startIntegration(
   coreConfig: IConfigOverrides,
   consentContractAddress?: EVMContractAddress,
 ) {
-  getSigner(coreConfig)
+   getSigner(coreConfig)
     .andThen((signerResult) => {
       const webIntegration = new SnickerdoodleWebIntegration(
         coreConfig,
