@@ -315,7 +315,6 @@ const RewardProgramDetails: FC = () => {
       const { queryBeingProcessed, queryProcessed, queryNotReceived } =
         categorizePossibleRewardsBasedOnStatus(possibleRewardWithQueryStatus);
       //User is subscribed, we will assume if no record for the query exist yet, one will be created shortly
-      console.log(`test `, queryBeingProcessed ,queryProcessed, queryNotReceived )
       const queryInProcess =
         queryNotReceived.length === 0
           ? queryBeingProcessed
@@ -340,7 +339,7 @@ const RewardProgramDetails: FC = () => {
           queryInProcess,
           consentPermissions,
         );
-        console.log(`rar ,`, rewardsThatCanBeEarned, rewardsThatCannotBeEarned)
+      
       rewardsThatAreBeingProcessed = rewardsThatCanBeEarned;
       rewardsThatRequireMorePermission =
         rewardsThatRequireMorePermission.concat(rewardsThatCannotBeEarned);
