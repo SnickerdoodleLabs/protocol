@@ -16,6 +16,7 @@ export * from "@core/implementations/data/MetatransactionForwarderRepository.js"
 export * from "@core/implementations/data/MetricsRepository.js";
 export * from "@core/implementations/data/PermissionRepository.js";
 export * from "@core/implementations/data/PortfolioBalanceRepository.js";
+export * from "@core/implementations/data/PurchaseRepository.js";
 export * from "@core/implementations/data/SDQLQueryRepository.js";
 export * from "@core/implementations/data/SiftContractRepository.js";
 export * from "@core/implementations/data/TransactionHistoryRepository.js";

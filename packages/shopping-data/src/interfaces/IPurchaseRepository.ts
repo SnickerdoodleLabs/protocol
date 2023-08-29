@@ -1,6 +1,7 @@
 import { DomainName, PersistenceError } from "@snickerdoodlelabs/objects";
-import { PurchasedProduct } from "@snickerdoodlelabs/shopping-data";
 import { ResultAsync } from "neverthrow";
+
+import { PurchasedProduct } from "@shopping-data/objects/index.js";
 
 export interface IPurchaseRepository {
   add(purchase: PurchasedProduct): ResultAsync<void, PersistenceError>;
@@ -9,3 +10,5 @@ export interface IPurchaseRepository {
     marketPlace: DomainName,
   ): ResultAsync<PurchasedProduct[], PersistenceError>;
 }
+
+export const IPurchaseRepositoryType = Symbol.for("IPurchaseRepository");

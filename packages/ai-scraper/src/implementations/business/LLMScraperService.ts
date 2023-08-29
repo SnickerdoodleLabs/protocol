@@ -10,7 +10,11 @@ import {
   LLMError,
   PersistenceError,
 } from "@snickerdoodlelabs/objects";
-import { PurchasedProduct } from "@snickerdoodlelabs/shopping-data";
+import {
+  IPurchaseRepository,
+  IPurchaseRepositoryType,
+  PurchasedProduct,
+} from "@snickerdoodlelabs/shopping-data";
 import { inject } from "inversify";
 import { ResultAsync, errAsync } from "neverthrow";
 
@@ -43,6 +47,8 @@ export class LLMScraperService implements IScraperService {
     private promptDirector: IPromptDirector,
     @inject(ILLMPurchaseHistoryUtilsType)
     private purchaseHistoryLLMUtils: ILLMPurchaseHistoryUtils,
+    @inject(IPurchaseRepositoryType)
+    private purchaseRepository: IPurchaseRepository,
   ) {}
 
   public poll(): ResultAsync<void, ScraperError> {

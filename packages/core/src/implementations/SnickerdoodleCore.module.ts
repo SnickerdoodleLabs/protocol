@@ -106,6 +106,11 @@ import {
   QueryFactories,
   SDQLQueryWrapperFactory,
 } from "@snickerdoodlelabs/query-parser";
+import {
+  IPurchaseRepository,
+  IPurchaseRepositoryType,
+  Purchase,
+} from "@snickerdoodlelabs/shopping-data";
 import { ContainerModule, interfaces } from "inversify";
 
 import {
@@ -165,6 +170,7 @@ import {
   TransactionHistoryRepository,
   TwitterRepository,
   AuthenticatedStorageRepository,
+  PurchaseRepository,
 } from "@core/implementations/data/index.js";
 import { ContractFactory } from "@core/implementations/utilities/factory/index.js";
 import {
@@ -437,7 +443,15 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<ITwitterRepository>(ITwitterRepositoryType)
       .to(TwitterRepository)
       .inSingletonScope();
-    bind<ISocialRepository>(ISocialRepositoryType).to(SocialRepository);
+    bind<ISocialRepository>(ISocialRepositoryType)
+      .to(SocialRepository)
+      .inSingletonScope();
+
+    // region shopping data
+    bind<IPurchaseRepository>(IPurchaseRepositoryType)
+      .to(PurchaseRepository)
+      .inSingletonScope();
+    // endregion
 
     bind<IBackupUtils>(IBackupUtilsType).to(BackupUtils).inSingletonScope();
     bind<IVolatileStorageSchemaProvider>(IVolatileStorageSchemaProviderType)
