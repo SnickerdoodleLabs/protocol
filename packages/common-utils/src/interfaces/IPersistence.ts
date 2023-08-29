@@ -1,3 +1,4 @@
+import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
 import {
   BackupFileName,
   DataWalletBackupID,
@@ -12,8 +13,6 @@ import {
   BackupError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
 
 export interface IPersistence {
   getObject<T extends VersionedObject>(

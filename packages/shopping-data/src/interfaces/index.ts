@@ -1,1 +1,1 @@
-export * from "@shopping-data/interfaces/IPurchasedProductRepository.js";
+export * from "@shopping-data/interfaces/IPurchaseRepository.js";

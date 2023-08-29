@@ -19,6 +19,7 @@ import {
   SocialGroupProfileMigrator,
   RejectedInvitationMigrator,
 } from "@snickerdoodlelabs/objects";
+import { PurchasedProductMigrator } from "@snickerdoodlelabs/shopping-data";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
@@ -245,7 +246,7 @@ export class VolatileStorageSchemaProvider
             false,
             new SocialProfileMigrator(),
             EBackupPriority.NORMAL,
-            0,
+            config.dataWalletBackupIntervalMS,
             config.backupChunkSizeTarget,
             [["type", false]],
           ),
@@ -263,6 +264,23 @@ export class VolatileStorageSchemaProvider
             [
               ["type", false],
               ["ownerId", false],
+            ],
+          ),
+        ],
+        [
+          ERecordKey.PURCHASED_PRODUCT,
+          new VolatileTableIndex(
+            ERecordKey.PURCHASED_PRODUCT,
+            "id",
+            true,
+            new PurchasedProductMigrator(),
+            EBackupPriority.NORMAL,
+            config.dataWalletBackupIntervalMS,
+            config.backupChunkSizeTarget,
+            [
+              ["marketPlace", false],
+              ["datePurchased", false],
+              ["Category", false],
             ],
           ),
         ],

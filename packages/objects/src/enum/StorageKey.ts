@@ -19,6 +19,7 @@ export enum ERecordKey {
   QUERY_STATUS = "SD_QueryStatus",
   DOMAIN_CREDENTIALS = "SD_DomainCredentials",
   REJECTED_INVITATIONS = "SD_RejectedInvitations",
+  PURCHASED_PRODUCT = "SD_PurchasedProduct",
 }
 
 export enum EFieldKey {
