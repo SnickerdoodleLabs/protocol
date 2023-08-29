@@ -1,7 +1,9 @@
 import {
   ISO8601DateString,
   MillisecondTimestamp,
+  Month,
   UnixTimestamp,
+  Year,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 
@@ -37,5 +39,12 @@ export class TimeUtils implements ITimeUtils {
       return null;
     }
     return UnixTimestamp(Math.floor(time / 1000));
+  }
+
+  public getCurYear(): Year {
+    return Year(new Date().getFullYear());
+  }
+  public getCurMonth(): Month {
+    return Month(new Date().getMonth());
   }
 }
