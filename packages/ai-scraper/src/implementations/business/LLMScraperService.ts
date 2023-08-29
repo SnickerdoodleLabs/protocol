@@ -80,7 +80,7 @@ export class LLMScraperService implements IScraperService {
     domainTask: DomainTask,
   ): ResultAsync<Prompt, ScraperError | LLMError> {
     if (domainTask.taskType == ETask.PurchaseHistory) {
-      return this.htmlPreProcessor.htmlToText(html).andThen((text) => {
+      return this.htmlPreProcessor.htmlToText(html, null).andThen((text) => {
         return this.promptDirector.makePurchaseHistoryPrompt(LLMData(text));
       });
     }
