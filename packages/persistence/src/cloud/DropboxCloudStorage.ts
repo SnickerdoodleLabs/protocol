@@ -1,39 +1,29 @@
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
-  AxiosAjaxUtils,
-  CryptoUtils,
-  ICryptoUtilsType,
   ILogUtilsType,
   ILogUtils,
-  ObjectUtils,
-  IRequestConfig,
   ITimeUtilsType,
   ITimeUtils,
+  IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
+import { CryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   EVMPrivateKey,
   DataWalletBackup,
   PersistenceError,
-  AjaxError,
   DataWalletBackupID,
   DataWalletBackupHeader,
-  EBackupPriority,
   BackupFileName,
   StorageKey,
   ECloudStorageType,
   AccessToken,
-  AccessCode,
   RefreshToken,
-  SerializedObject,
-  EFieldKey,
   AuthenticatedStorageSettings,
-  JSONString,
   ParsedBackupFileName,
   UnixTimestamp,
   EExternalApi,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync, errAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -76,7 +66,7 @@ export class DropboxCloudStorage implements ICloudStorage {
     protected contextProvider: IPersistenceContextProvider,
     @inject(ICryptoUtilsType) protected _cryptoUtils: CryptoUtils,
     @inject(IAxiosAjaxUtilsType)
-    protected ajaxUtils: AxiosAjaxUtils,
+    protected ajaxUtils: IAxiosAjaxUtils,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {

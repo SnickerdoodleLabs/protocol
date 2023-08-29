@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
-  ICryptoUtils,
-  ICryptoUtilsType,
   ILogUtils,
   ILogUtilsType,
   ITimeUtils,
@@ -12,6 +10,7 @@ import {
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
 } from "@snickerdoodlelabs/insight-platform-api";
+import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   AjaxError,
   BlockNumber,
@@ -46,6 +45,7 @@ import {
   BlockchainCommonErrors,
   JSONString,
   EarnedReward,
+  ConsentFactoryContractError,
 } from "@snickerdoodlelabs/objects";
 import {
   SDQLQueryWrapper,
@@ -228,6 +228,33 @@ export class QueryService implements IQueryService {
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, PersistenceError> {
     return this.sdqlQueryRepo.getQueryStatusByQueryCID(queryCID);
+  }
+
+  public getQueryStatuses(
+    contractAddress: EVMContractAddress,
+    blockNumber?: BlockNumber,
+  ): ResultAsync<
+    QueryStatus[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | PersistenceError
+  > {
+    if (blockNumber) {
+      return this.sdqlQueryRepo.getQueryStatusByConsentContract(
+        contractAddress,
+        blockNumber,
+      );
+    }
+    return this.consentContractRepository
+      .getQueryHorizon(contractAddress)
+      .andThen((queryHorizon) => {
+        return this.sdqlQueryRepo.getQueryStatusByConsentContract(
+          contractAddress,
+          queryHorizon,
+        );
+      });
   }
 
   /**

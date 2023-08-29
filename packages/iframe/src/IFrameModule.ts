@@ -1,7 +1,4 @@
 import {
-  CryptoUtils,
-  ICryptoUtils,
-  ICryptoUtilsType,
   ILogUtils,
   ILogUtilsType,
   ITimeUtils,
@@ -9,6 +6,11 @@ import {
   LogUtils,
   TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
+import {
+  CryptoUtils,
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/node-utils";
 import {
   IStorageUtils,
   IStorageUtilsType,

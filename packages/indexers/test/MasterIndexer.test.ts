@@ -3,23 +3,8 @@ import {
   IAxiosAjaxUtils,
   IBigNumberUtils,
   ILogUtils,
-  ObjectUtils,
 } from "@snickerdoodlelabs/common-utils";
-import {
-  UninitializedError,
-  DataPermissions,
-  IPFSError,
-  SDQLQueryRequest,
-  QueryStatus,
-  EQueryProcessingStatus,
-  BlockNumber,
-  PersistenceError,
-  ITokenPriceRepository,
-  ChainId,
-  EVMAccountAddress,
-} from "@snickerdoodlelabs/objects";
-import { errAsync, okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
+import { ITokenPriceRepository } from "@snickerdoodlelabs/objects";
 import * as td from "testdouble";
 
 import {

@@ -1,8 +1,8 @@
 import {
-  IAxiosAjaxUtils,
-  IAxiosAjaxUtilsType,
   ILogUtils,
   ILogUtilsType,
+  IAxiosAjaxUtils,
+  IAxiosAjaxUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
