@@ -1,7 +1,5 @@
 import { IIndexerConfig } from "@snickerdoodlelabs/indexers";
 import {
-  ChainId,
-  ChainInformation,
   ControlChainInformation,
   DiscordConfig,
   ECurrencyCode,
@@ -15,9 +13,7 @@ import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
 
 export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
   public constructor(
-    public controlChainId: ChainId,
-    public supportedChains: ChainId[],
-    public chainInformation: Map<ChainId, ChainInformation>,
+    public controlChainId: EChain,
     public controlChainInformation: ControlChainInformation,
     public ipfsFetchBaseUrl: URLString,
     public defaultInsightPlatformBaseUrl: URLString,
@@ -76,7 +72,7 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public twitter: TwitterConfig,
     public heartbeatIntervalMS: number,
     public gasAmounts: MetatransactionGasAmounts,
-    public devChainProviderURL: ProviderUrl,
+    public devChainProviderURL: ProviderUrl | null,
     public maxStatsRetentionSeconds: number,
     public passwordLanguageCode: LanguageCode,
   ) {}

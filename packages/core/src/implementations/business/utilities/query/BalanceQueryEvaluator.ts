@@ -1,3 +1,4 @@
+import { MasterIndexer } from "@snickerdoodlelabs/indexers";
 import {
   BigNumberString,
   ChainId,
@@ -25,7 +26,6 @@ import {
   IPortfolioBalanceRepository,
   IPortfolioBalanceRepositoryType,
 } from "@core/interfaces/data/index.js";
-import { MasterIndexer } from "@snickerdoodlelabs/indexers";
 
 @injectable()
 export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {

@@ -42,7 +42,7 @@ Current Supported Chains can be found at [README.md](/documentation/sdql/README.
 ## OPTIONAL CONFIGS
 21. Default Insight Platform Base URL: The IP http used for run  Insight Platform.  The url would adjust depending on the entity that uses the product. 
 Ex: __DEFAULT_INSIGHT_PLATFORM_BASE_URL__: "https://insight-api.dev.snickerdoodle.dev/v0/"
-22. Dev Chain Provider URL: The Url used to host the development protocol chain. 
+22. Dev Chain Provider URL: The Url used to host the development protocol chain. Keep this as null or undefined to disable DoodleChain support
 Ex: __DEV_CHAIN_PROVIDER_URL__: "https://doodlechain.demo-01.snickerdoodle.dev";
 23. IPFS Fetch Base URL: 
 The IPFS fetching url needed to get info based off of the hosted node. 

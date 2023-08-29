@@ -143,7 +143,6 @@ var options = {
       ),
       __PLATFORM__: JSON.stringify(process.env.__PLATFORM__ || "chrome"),
       __CONTROL_CHAIN_ID__: JSON.stringify(process.env.__CONTROL_CHAIN_ID__),
-      __SUPPORTED_CHAINS__: JSON.stringify(process.env.__SUPPORTED_CHAINS__),
       __IPFS_FETCH_BASE_URL__: JSON.stringify(
         process.env.__IPFS_FETCH_BASE_URL__,
       ),

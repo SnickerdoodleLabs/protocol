@@ -14,7 +14,6 @@ declare const __CONTROL_CHAIN_ID__: string;
 declare const __IPFS_FETCH_BASE_URL__: URLString;
 declare const __DEFAULT_INSIGHT_PLATFORM_BASE_URL__: URLString;
 declare const __DEV_CHAIN_PROVIDER_URL__: ProviderUrl;
-declare const __SUPPORTED_CHAINS__: string;
 declare const __PORTFOLIO_POLLING_INTERVAL__: string;
 declare const __TRANSACTION_POLLING_INTERVAL__: string;
 declare const __BACKUP_POLLING_INTERVAL__: string;
@@ -29,10 +28,9 @@ export class ConfigProvider implements IConfigProvider {
   public constructor() {
     this.config = new IFrameConfig(
       ChainId(Number(__CONTROL_CHAIN_ID__)),
-      __DEV_CHAIN_PROVIDER_URL__,
-      __SUPPORTED_CHAINS__.split(",").map((chain) => {
-        return ChainId(Number.parseInt(chain));
-      }),
+      __DEV_CHAIN_PROVIDER_URL__ != null && __DEV_CHAIN_PROVIDER_URL__ != ""
+        ? __DEV_CHAIN_PROVIDER_URL__
+        : null,
       __IPFS_FETCH_BASE_URL__,
       __DEFAULT_INSIGHT_PLATFORM_BASE_URL__,
       // we gonna overide this once handshake is completed

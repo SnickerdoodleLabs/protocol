@@ -1,35 +1,34 @@
-import { ResultAsync } from "neverthrow";
-
 import {
-  EVMNFT,
-  EVMTransaction,
-  TokenBalance,
-} from "@objects/businessObjects/index.js";
-import {
+  EChain,
+  EVMAccountAddress,
   AccountIndexingError,
   AjaxError,
   MethodSupportError,
-} from "@objects/errors/index.js";
-import { IIndexer } from "@objects/interfaces/chains/IIndexer.js";
-import { ChainId, EVMAccountAddress } from "@objects/primitives/index.js";
+  EVMNFT,
+  EVMTransaction,
+  TokenBalance,
+} from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow";
+
+import { IIndexer } from "@indexers/interfaces/IIndexer.js";
 
 export interface IEVMIndexer extends IIndexer {
   getBalancesForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
     TokenBalance[],
     AccountIndexingError | AjaxError | MethodSupportError
   >;
   getTokensForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
     EVMNFT[],
     AccountIndexingError | AjaxError | MethodSupportError
   >;
   getEVMTransactions(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
     startTime: Date,
     endTime?: Date,

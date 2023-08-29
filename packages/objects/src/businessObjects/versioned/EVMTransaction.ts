@@ -6,8 +6,8 @@ import {
   EVMFunctionSignature,
 } from "@objects/businessObjects/EVMFunctionSignature.js";
 import { ChainTransaction } from "@objects/businessObjects/versioned/ChainTransaction.js";
+import { EChain } from "@objects/enum/index.js";
 import {
-  ChainId,
   EVMAccountAddress,
   BigNumberString,
   UnixTimestamp,
@@ -27,7 +27,7 @@ export class EVMTransaction extends ChainTransaction {
   public functionSignature: EVMFunctionSignature | null = null;
 
   public constructor(
-    public chainId: ChainId,
+    public chain: EChain,
     public hash: EVMTransactionHash,
     public timestamp: UnixTimestamp,
     public blockHeight: number | null,
@@ -41,7 +41,7 @@ export class EVMTransaction extends ChainTransaction {
     public functionName: string | null,
     events: EVMEvent[] | null,
   ) {
-    super(chainId, hash, timestamp);
+    super(chain, hash, timestamp);
     let addrs = new Set<EVMAccountAddress>();
     if (this.to) {
       addrs.add(this.to);

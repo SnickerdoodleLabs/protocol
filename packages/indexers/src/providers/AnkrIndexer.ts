@@ -10,7 +10,6 @@ import {
   TickerSymbol,
   AccountIndexingError,
   AjaxError,
-  ChainId,
   TokenBalance,
   BigNumberString,
   EVMAccountAddress,
@@ -21,21 +20,20 @@ import {
   EVMTransaction,
   UnixTimestamp,
   EComponentStatus,
-  IEVMIndexer,
   IndexerSupportSummary,
   getChainInfoByChain,
   MethodSupportError,
   EDataProvider,
   EExternalApi,
-  EVMTransactionHash,
   URLString,
   DecimalString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import {
+  IEVMIndexer,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
   IIndexerContextProvider,
@@ -85,15 +83,15 @@ export class AnkrIndexer implements IEVMIndexer {
     ["optimism", EChain.Optimism],
   ]);
 
-  protected supportedAnkrChains = new Map<ChainId, string>([
-    [ChainId(1), "eth"],
-    [ChainId(137), "polygon"],
-    [ChainId(80001), "polygon_mumbai"],
-    [ChainId(43114), "avalanche"],
-    [ChainId(43113), "avalanche_fuji"],
-    [ChainId(56), "bsc"],
-    [ChainId(42161), "arbitrum"],
-    [ChainId(10), "optimism"],
+  protected supportedAnkrChains = new Map<EChain, string>([
+    [EChain.EthereumMainnet, "eth"],
+    [EChain.Polygon, "polygon"],
+    [EChain.Mumbai, "polygon_mumbai"],
+    [EChain.Avalanche, "avalanche"],
+    [EChain.Fuji, "avalanche_fuji"],
+    [EChain.Binance, "bsc"],
+    [EChain.Arbitrum, "arbitrum"],
+    [EChain.Optimism, "optimism"],
   ]);
 
   public constructor(
@@ -105,12 +103,27 @@ export class AnkrIndexer implements IEVMIndexer {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
+  public initialize(): ResultAsync<void, never> {
+    return this.configProvider.getConfig().map((config) => {
+      this.supportedAnkrChains.forEach((indexerSupportSummary, chain) => {
+        if (
+          config.apiKeys.ankrApiKey == "" ||
+          config.apiKeys.ankrApiKey == undefined
+        ) {
+          this.health.set(chain, EComponentStatus.NoKeyProvided);
+        } else {
+          this.health.set(chain, EComponentStatus.Available);
+        }
+      });
+    });
+  }
+
   public name(): string {
     return EDataProvider.Ankr;
   }
 
   public getBalancesForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
@@ -122,7 +135,7 @@ export class AnkrIndexer implements IEVMIndexer {
         config.apiKeys.ankrApiKey +
         "/?ankr_getAccountBalance";
 
-      const balanceSupportChain = this.supportedAnkrChains.get(chainId);
+      const balanceSupportChain = this.supportedAnkrChains.get(chain);
       if (balanceSupportChain == undefined) {
         return okAsync([]);
       }
@@ -152,7 +165,7 @@ export class AnkrIndexer implements IEVMIndexer {
                   new TokenBalance(
                     EChainTechnology.EVM,
                     item.tokenSymbol,
-                    chainId,
+                    chain,
                     MasterIndexer.nativeAddress,
                     accountAddress,
                     item.balanceRawInteger,
@@ -164,7 +177,7 @@ export class AnkrIndexer implements IEVMIndexer {
                 new TokenBalance(
                   EChainTechnology.EVM,
                   item.tokenSymbol,
-                  chainId,
+                  chain,
                   item.contractAddress,
                   accountAddress,
                   item.balanceRawInteger,
@@ -178,7 +191,7 @@ export class AnkrIndexer implements IEVMIndexer {
   }
 
   public getTokensForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
@@ -190,7 +203,7 @@ export class AnkrIndexer implements IEVMIndexer {
         config.apiKeys.ankrApiKey +
         "/?ankr_getNFTsByOwner";
 
-      const nftSupportChain = this.supportedAnkrChains.get(chainId);
+      const nftSupportChain = this.supportedAnkrChains.get(chain);
       if (nftSupportChain == undefined) {
         return okAsync([]);
       }
@@ -236,7 +249,7 @@ export class AnkrIndexer implements IEVMIndexer {
         .map((unfilteredNfts) => {
           return unfilteredNfts
             .filter((nft) => {
-              return nft.chain == chainId;
+              return nft.chain == chain;
             })
             .map((filteredNfts) => {
               return filteredNfts;
@@ -246,7 +259,7 @@ export class AnkrIndexer implements IEVMIndexer {
   }
 
   public getEVMTransactions(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
     startTime: Date,
     endTime?: Date | undefined,
@@ -315,27 +328,6 @@ export class AnkrIndexer implements IEVMIndexer {
     //       return okAsync(vals);
     //     });
     // });
-  }
-
-  public getHealthCheck(): ResultAsync<
-    Map<EChain, EComponentStatus>,
-    AjaxError
-  > {
-    return this.configProvider.getConfig().andThen((config) => {
-      this.supportedChains.forEach(
-        (value: IndexerSupportSummary, key: EChain) => {
-          if (
-            config.apiKeys.ankrApiKey == "" ||
-            config.apiKeys.ankrApiKey == undefined
-          ) {
-            this.health.set(key, EComponentStatus.NoKeyProvided);
-          } else {
-            this.health.set(key, EComponentStatus.Available);
-          }
-        },
-      );
-      return okAsync(this.health);
-    });
   }
 
   public healthStatus(): Map<EChain, EComponentStatus> {

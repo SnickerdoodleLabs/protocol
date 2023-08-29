@@ -1,17 +1,19 @@
 import "reflect-metadata";
-import { IAxiosAjaxUtils, ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
-  IEVMIndexer,
-  ITokenPriceRepository,
-  ISolanaIndexer,
-} from "@snickerdoodlelabs/objects";
+  IAxiosAjaxUtils,
+  IBigNumberUtils,
+  ILogUtils,
+} from "@snickerdoodlelabs/common-utils";
+import { ITokenPriceRepository } from "@snickerdoodlelabs/objects";
 import * as td from "testdouble";
 
 import {
+  IEVMIndexer,
   IIndexerConfigProvider,
   IIndexerContextProvider,
-} from "@indexers/interfaces";
-import { MasterIndexer } from "@indexers/MasterIndexer";
+  ISolanaIndexer,
+} from "@indexers/interfaces/index.js";
+import { MasterIndexer } from "@indexers/MasterIndexer.js";
 
 // @mock
 class MasterIndexerMocks {
@@ -32,6 +34,7 @@ class MasterIndexerMocks {
   public ajaxUtils: IAxiosAjaxUtils;
   public tokenPriceRepo: ITokenPriceRepository;
   public logUtils: ILogUtils;
+  public bigNumberUtils: IBigNumberUtils;
 
   public constructor() {
     this.context = td.object<IIndexerContextProvider>();
@@ -47,6 +50,7 @@ class MasterIndexerMocks {
     this.matic = td.object<IEVMIndexer>();
     this.sim = td.object<IEVMIndexer>();
     this.sol = td.object<ISolanaIndexer>();
+    this.bigNumberUtils = td.object<IBigNumberUtils>();
 
     this.configProvider = td.object<IIndexerConfigProvider>();
     this.ajaxUtils = td.object<IAxiosAjaxUtils>();
@@ -60,6 +64,7 @@ class MasterIndexerMocks {
   }
   public factory(): MasterIndexer {
     return new MasterIndexer(
+      this.configProvider,
       this.context,
       this.alchemy,
       this.ankr,
@@ -73,6 +78,7 @@ class MasterIndexerMocks {
       this.sim,
       this.sol,
       this.logUtils,
+      this.bigNumberUtils,
     );
   }
 }

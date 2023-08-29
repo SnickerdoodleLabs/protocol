@@ -1,33 +1,28 @@
-import { ResultAsync } from "neverthrow";
-
-import {
-  ChainTransaction,
-  TokenBalance,
-  WalletNFT,
-} from "@objects/businessObjects/index.js";
-import {
-  AccountIndexingError,
-  AjaxError,
-  MethodSupportError,
-  PersistenceError,
-} from "@objects/errors/index.js";
 import {
   AccountAddress,
-  ChainId,
+  AccountIndexingError,
+  AjaxError,
+  ChainTransaction,
+  EChain,
+  MethodSupportError,
+  PersistenceError,
+  TokenBalance,
   UnixTimestamp,
-} from "@objects/primitives/index.js";
+  WalletNFT,
+} from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow";
 
 export interface IMasterIndexer {
   initialize(): ResultAsync<void, AjaxError>;
   getLatestBalances(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: AccountAddress,
   ): ResultAsync<
     TokenBalance[],
     PersistenceError | AccountIndexingError | AjaxError | MethodSupportError
   >;
   getLatestNFTs(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: AccountAddress,
   ): ResultAsync<
     WalletNFT[],
@@ -36,11 +31,12 @@ export interface IMasterIndexer {
   getLatestTransactions(
     accountAddress: AccountAddress,
     timestamp: UnixTimestamp,
-    chainId: ChainId,
+    chain: EChain,
   ): ResultAsync<
     ChainTransaction[],
     AccountIndexingError | AjaxError | MethodSupportError
   >;
+  getSupportedChains(): ResultAsync<EChain[], never>;
 }
 
 export const IMasterIndexerType = Symbol.for("IMasterIndexer");

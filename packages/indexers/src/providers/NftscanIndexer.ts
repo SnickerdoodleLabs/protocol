@@ -7,13 +7,11 @@ import {
   AccountIndexingError,
   AjaxError,
   BigNumberString,
-  ChainId,
   EVMAccountAddress,
   EVMContractAddress,
   EVMNFT,
   EVMTransaction,
   getChainInfoByChain,
-  IEVMIndexer,
   TokenBalance,
   TokenUri,
   UnixTimestamp,
@@ -30,6 +28,7 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
 import {
+  IEVMIndexer,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
   IIndexerContextProvider,
@@ -73,12 +72,29 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
 
+  public initialize(): ResultAsync<void, never> {
+    return this.configProvider.getConfig().map((config) => {
+      this.indexerSupport.forEach(
+        (value: IndexerSupportSummary, key: EChain) => {
+          if (
+            config.apiKeys.nftScanApiKey == undefined ||
+            config.apiKeys.nftScanApiKey == ""
+          ) {
+            this.health.set(key, EComponentStatus.NoKeyProvided);
+          } else {
+            this.health.set(key, EComponentStatus.Available);
+          }
+        },
+      );
+    });
+  }
+
   public name(): string {
     return EDataProvider.NftScan;
   }
 
   public getBalancesForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
     TokenBalance[],
@@ -93,11 +109,11 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
   }
 
   public getTokensForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
     return ResultUtils.combine([
-      this.generateQueryConfig(chainId, accountAddress),
+      this.generateQueryConfig(chain, accountAddress),
       this.contextProvider.getContext(),
     ])
       .andThen(([requestConfig, context]) => {
@@ -122,7 +138,7 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
             ),
           );
         }
-        return this.getPages(chainId, response);
+        return this.getPages(chain, response);
       });
   }
 
@@ -133,7 +149,7 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
   // }
 
   public getEVMTransactions(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
     startTime: Date,
     endTime?: Date | undefined,
@@ -149,27 +165,6 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
     );
   }
 
-  public getHealthCheck(): ResultAsync<
-    Map<EChain, EComponentStatus>,
-    AjaxError
-  > {
-    return this.configProvider.getConfig().andThen((config) => {
-      this.indexerSupport.forEach(
-        (value: IndexerSupportSummary, key: EChain) => {
-          if (
-            config.apiKeys.nftScanApiKey == undefined ||
-            config.apiKeys.nftScanApiKey == ""
-          ) {
-            this.health.set(key, EComponentStatus.NoKeyProvided);
-          } else {
-            this.health.set(key, EComponentStatus.Available);
-          }
-        },
-      );
-      return okAsync(this.health);
-    });
-  }
-
   public healthStatus(): Map<EChain, EComponentStatus> {
     return this.health;
   }
@@ -179,7 +174,7 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
   }
 
   private getPages(
-    chainId: ChainId,
+    chain: EChain,
     response: INftScanResponse,
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
     if (response.code >= 500) {
@@ -198,7 +193,7 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
           { raw: asset.metadata_json },
           BigNumberString(asset.amount),
           asset.name,
-          chainId,
+          chain,
           undefined,
           UnixTimestamp(Number(asset.own_timestamp)),
         );
@@ -208,24 +203,24 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
     return okAsync(items.flat(1));
   }
 
-  private generateBaseUrl(chainId: ChainId): string {
-    switch (chainId) {
-      case ChainId(1):
+  private generateBaseUrl(chain: EChain): string {
+    switch (chain) {
+      case EChain.EthereumMainnet:
         return "rest";
-      case ChainId(56):
+      case EChain.Binance:
         return "bnb";
-      case ChainId(43114):
+      case EChain.Avalanche:
         return "avax";
       default:
-        return getChainInfoByChain(chainId).name;
+        return getChainInfoByChain(chain).name;
     }
   }
 
   private generateQueryConfig(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<IRequestConfig, never> {
-    const chainName = this.generateBaseUrl(chainId);
+    const chainName = this.generateBaseUrl(chain);
     const url = urlJoinP(`https://${chainName}api.nftscan.com`, [
       "api",
       "v2",

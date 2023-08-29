@@ -24,9 +24,9 @@ const getExplorerUrl = function (this: ChainInformation, txHash: string) {
   return this.explorerURL + txHash;
 };
 
-export const chainConfig = new Map<ChainId, ChainInformation>([
+export const chainConfig = new Map<EChain, ChainInformation>([
   [
-    ChainId(EChain.DevDoodle),
+    EChain.DevDoodle,
     new ControlChainInformation(
       "Dev Env Doodle Chain",
       ChainId(EChain.DevDoodle),
@@ -46,7 +46,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(EChain.EthereumMainnet),
+    EChain.EthereumMainnet,
     new ChainInformation(
       "Ethereum",
       ChainId(EChain.EthereumMainnet),
@@ -64,7 +64,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(EChain.Sepolia),
+    EChain.Sepolia,
     new ChainInformation(
       "Sepolia",
       ChainId(EChain.Sepolia),
@@ -99,7 +99,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
   //   ),
   // ],
   [
-    ChainId(EChain.Mumbai),
+    EChain.Mumbai,
     new ChainInformation(
       "Mumbai",
       ChainId(EChain.Mumbai),
@@ -117,7 +117,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(EChain.Polygon),
+    EChain.Polygon,
     new ChainInformation(
       "Polygon",
       ChainId(EChain.Polygon),
@@ -135,7 +135,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(EChain.Avalanche),
+    EChain.Avalanche,
     new ChainInformation(
       "Avalanche",
       ChainId(EChain.Avalanche),
@@ -153,7 +153,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(EChain.Fuji),
+    EChain.Fuji,
     new ControlChainInformation(
       "Fuji",
       ChainId(EChain.Fuji),
@@ -174,7 +174,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(EChain.Solana),
+    EChain.Solana,
     new ChainInformation(
       "Solana",
       ChainId(EChain.Solana),
@@ -193,7 +193,26 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(EChain.Gnosis),
+    EChain.SolanaTestnet,
+    new ChainInformation(
+      "Solana Testnet",
+      ChainId(EChain.SolanaTestnet),
+      EChain.SolanaTestnet,
+      EChainTechnology.Solana,
+      true,
+      "solana",
+      400,
+      EIndexer.Solana,
+      new NativeCurrencyInformation("Sol", 9, "SOL", "solana"),
+      EChainType.Testnet,
+      "https://explorer.solana.com/tx/",
+      getExplorerUrl,
+      undefined,
+      undefined,
+    ),
+  ],
+  [
+    EChain.Gnosis,
     new ChainInformation(
       "Gnosis",
       ChainId(EChain.Gnosis),
@@ -211,7 +230,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(EChain.Binance),
+    EChain.Binance,
     new ChainInformation(
       "Binance",
       ChainId(EChain.Binance),
@@ -229,7 +248,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(EChain.Moonbeam),
+    EChain.Moonbeam,
     new ChainInformation(
       "Moonbeam",
       ChainId(EChain.Moonbeam),
@@ -247,7 +266,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(EChain.Arbitrum),
+    EChain.Arbitrum,
     new ChainInformation(
       "Arbitrum",
       ChainId(EChain.Arbitrum),
@@ -265,7 +284,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(EChain.Optimism),
+    EChain.Optimism,
     new ChainInformation(
       "Optimism",
       ChainId(EChain.Optimism),
@@ -283,7 +302,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(EChain.Astar),
+    EChain.Astar,
     new ChainInformation(
       "Astar",
       ChainId(EChain.Astar),
@@ -301,7 +320,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(EChain.Shibuya),
+    EChain.Shibuya,
     new ChainInformation(
       "Shibuya",
       ChainId(EChain.Shibuya),
@@ -321,7 +340,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
 ]);
 
 export function getChainInfoByChain(chain: EChain): ChainInformation {
-  const chainInfo = chainConfig.get(ChainId(chain));
+  const chainInfo = chainConfig.get(chain);
   if (chainInfo == null) {
     throw new Error(`Unknown chain ${chain}`);
   }
@@ -338,7 +357,7 @@ export function getChainInfoByChainId(chainId: ChainId): ChainInformation {
   return chainInfo;
 }
 
-export function isAccountValidForChain(
+export function isAccountValidForChainId(
   chainId: ChainId,
   account: LinkedAccount,
 ): boolean {
@@ -346,6 +365,15 @@ export function isAccountValidForChain(
   // A query being processed.
   if (chainId === 5) return false;
   const targetChainInfo = getChainInfoByChainId(chainId);
+  const accountChainInfo = getChainInfoByChain(account.sourceChain);
+  return targetChainInfo.chainTechnology == accountChainInfo.chainTechnology;
+}
+
+export function isAccountValidForChain(
+  chain: EChain,
+  account: LinkedAccount,
+): boolean {
+  const targetChainInfo = getChainInfoByChain(chain);
   const accountChainInfo = getChainInfoByChain(account.sourceChain);
   return targetChainInfo.chainTechnology == accountChainInfo.chainTechnology;
 }

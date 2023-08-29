@@ -1,5 +1,4 @@
-import { CoreConfig } from "@snickerdoodlelabs/core/dist/interfaces/objects";
-import { IConfigProvider } from "@snickerdoodlelabs/core/dist/interfaces/utilities";
+import { CoreConfig, IConfigProvider } from "@snickerdoodlelabs/core";
 import { IIndexerConfigProvider } from "@snickerdoodlelabs/indexers";
 import {
   chainConfig,
@@ -12,7 +11,6 @@ import {
   IConfigOverrides,
   ProviderUrl,
   TokenSecret,
-  TwitterConfig,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
@@ -83,8 +81,6 @@ export class ConfigProvider
     // All the default config below is for testing on local, using the test-harness package
     this.config = new CoreConfig(
       controlChainId,
-      [ChainId(EChain.DevDoodle)], // supported chains (local hardhat only for the test harness, we can index other chains here though)
-      chainConfig,
       controlChainInformation,
       URLString("http://127.0.0.1:8080/ipfs"), // ipfsFetchBaseUrl
       URLString("http://localhost:3006"), // defaultInsightPlatformBaseUrl
@@ -191,8 +187,6 @@ export class ConfigProvider
     }
 
     // The rest of the config is easier
-    this.config.supportedChains =
-      overrides.supportedChains ?? this.config.supportedChains;
     this.config.ipfsFetchBaseUrl =
       overrides.ipfsFetchBaseUrl ?? this.config.ipfsFetchBaseUrl;
     this.config.defaultInsightPlatformBaseUrl =
