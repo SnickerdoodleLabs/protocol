@@ -39,4 +39,9 @@ To publish a package, first, make sure that its version is updated in the packag
 `cd packages/common-utils`
 `yarn version --deferred patch`
 
-`yarn workspace @snickerdoodlelabs/common-utils npm publish`
+Deferred versions are checked into Yarn and stored in .yarn/versions/4bce8eccc.yml (although it's possible this can change). One problem is that deferred versions seem to overwrite each other, so if I've committed a deferred major upgrade, if you do a patch upgrade it will take precedence. That's an issue with the yarn design for sure.
+
+Once you are ready to publish the actual packags, run these commands at the root:
+`yarn version apply` to apply any deferred versions.
+`yarn workspace @snickerdoodlelabs/common-utils npm publish` Enter the proper name of the package to publish it.
+Using this command at the root will transform the workspace:^ dependencies to the proper versions before publishing the package.

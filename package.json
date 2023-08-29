@@ -1,6 +1,6 @@
 {
   "name": "snickerdoodle-protocol",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Snickerdoodle Protocol contracts and SDK",
   "license": "MIT",
   "repository": {
@@ -45,7 +45,6 @@
     "dockerize-static-web-integration": "yarn build && cd packages/docker && yarn dockerize && cd ../static-web-integration && yarn dockerize",
     "format": "eslint --fix \"packages/**/*.ts\" && yarn format:pkg",
     "format:pkg": "format-package -w",
-    "initCeramic": "npx run scripts/ceramic_init.mjs",
     "lint": "eslint \"packages/*/{src,test}/**/*.{ts,tsx}\" --quiet",
     "lint:fix": "eslint \"packages/*/{src,test}/**/*.{ts,tsx}\" --quiet --fix",
     "postCompile": "yarn workspaces foreach -p run postCompile",
