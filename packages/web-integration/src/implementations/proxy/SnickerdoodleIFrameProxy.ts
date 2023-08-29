@@ -72,6 +72,9 @@ import {
   IProxyStorageMethods,
   ECoreProxyType,
   PageInvitation,
+  BlockNumber,
+  RefreshToken,
+  OAuth2Tokens,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -622,6 +625,17 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
+  public getQueryStatuses(
+    contractAddress: EVMContractAddress,
+    blockNumber ?:   BlockNumber
+  ): ResultAsync<QueryStatus[], ProxyError> {
+    return this._createCall("getQueryStatuses", {
+      contractAddress,
+      blockNumber
+    });
+  }
+
+
   public switchToTab(tabId: number): ResultAsync<void, ProxyError> {
     throw new Error("Method not implemented.");
   }
@@ -718,17 +732,17 @@ export class SnickerdoodleIFrameProxy
     setAuthenticatedStorage: (
       storageType: ECloudStorageType,
       path: string,
-      accessToken: AccessToken,
+      refreshToken: RefreshToken,
     ): ResultAsync<void, ProxyError> => {
       return this._createCall("storage.setAuthenticatedStorage", {
         storageType,
         path,
-        accessToken,
+        refreshToken,
       });
     },
     authenticateDropbox: (
       code: string,
-    ): ResultAsync<AccessToken, ProxyError> => {
+    ): ResultAsync<OAuth2Tokens, ProxyError> => {
       return this._createCall("storage.authenticateDropbox", {
         code,
       });

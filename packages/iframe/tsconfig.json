@@ -25,6 +25,9 @@
       "path": "../core"
     },
     {
+      "path": "../node-utils"
+    },
+    {
       "path": "../objects"
     },
     {
@@ -36,4 +39,7 @@
   "./src/**/*.json",
   "index.d.ts"],
   "exclude": ["node_modules"],
+  "files": [
+    "./postmate-custom.d.ts"
+  ]
 }

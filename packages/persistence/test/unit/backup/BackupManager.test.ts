@@ -1,9 +1,6 @@
 import "reflect-metadata";
-import {
-  ICryptoUtils,
-  ILogUtils,
-  ITimeUtils,
-} from "@snickerdoodlelabs/common-utils";
+import { ILogUtils, ITimeUtils } from "@snickerdoodlelabs/common-utils";
+import { ICryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   UnixTimestamp,
   VolatileStorageMetadata,

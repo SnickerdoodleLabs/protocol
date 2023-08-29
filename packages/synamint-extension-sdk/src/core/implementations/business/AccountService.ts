@@ -10,6 +10,8 @@ import {
   UnauthorizedError,
   IpfsCID,
   QueryStatus,
+  EVMContractAddress,
+  BlockNumber,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -31,6 +33,13 @@ export class AccountService implements IAccountService {
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, SnickerDoodleCoreError> {
     return this.accountRepository.getQueryStatusByQueryCID(queryCID);
+  }
+
+  getQueryStatuses(
+    contractAddress: EVMContractAddress,
+    blockNumber?: BlockNumber,
+  ): ResultAsync<QueryStatus[], SnickerDoodleCoreError>{
+    return this.accountRepository.getQueryStatuses(contractAddress , blockNumber);
   }
 
   public getEarnedRewards(): ResultAsync<

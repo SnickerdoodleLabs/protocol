@@ -49,6 +49,7 @@ import {
   QueryStatus,
   AccessToken,
   ECloudStorageType,
+  OAuth2Tokens,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -137,6 +138,7 @@ import {
   GetCurrentCloudStorageParams,
   RejectInvitationParams,
   RejectInvitationByUUIDParams,
+  GetQueryStatusesParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -462,6 +464,12 @@ export class ExternalCoreGateway {
     return this._handler.call(params);
   }
 
+  public getQueryStatuses(
+    params: GetQueryStatusesParams,
+  ): ResultAsync<QueryStatus[], ProxyError> {
+    return this._handler.call(params);
+  }
+
   public getSiteVisits(): ResultAsync<SiteVisit[], ProxyError> {
     return this._handler.call(new GetSiteVisitsParams());
   }
@@ -530,7 +538,7 @@ export class ExternalCoreGateway {
 
   public authenticateDropbox(
     params: AuthenticateDropboxParams,
-  ): ResultAsync<AccessToken, ProxyError> {
+  ): ResultAsync<OAuth2Tokens, ProxyError> {
     return this._handler.call(params);
   }
 

@@ -25,6 +25,9 @@ import {
   TwitterProvider,
 } from "@extension-onboarding/services/socialMediaProviders/implementations";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { addQueryStatusToPossibleReward, PossibleRewardWithQueryStatus } from "@snickerdoodlelabs/shared-components";
+import { ResultUtils } from "neverthrow-result-utils";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 
 const PermissionSelectionModalV2: FC = () => {
   const { modalState, closeModal, setModal, setLoadingStatus } =
@@ -51,8 +54,8 @@ const PermissionSelectionModalV2: FC = () => {
     }" data has successfully saved`;
   };
 
-  const [possibleRewards, setPossibleRewards] = useState<PossibleReward[]>([]);
-  const [queryStatus, setQueryStatus] = useState<QueryStatus | null>(null);
+  const [possibleRewardWithQueryStatus, setPossibleRewardWithQueryStatus] = useState<PossibleRewardWithQueryStatus[]>([]);
+
 
   const handleSocialLink = async (socialType: ESocialType) => {
     const twitterProvider = socialMediaProviderList.find(
@@ -85,25 +88,34 @@ const PermissionSelectionModalV2: FC = () => {
   };
 
   useEffect(() => {
-    sdlDataWallet
-      .getPossibleRewards([consentContractAddress])
-      .map((res) => {
-        setPossibleRewards(res.get(consentContractAddress) ?? []);
-      })
-      .mapErr((e) => {
-        console.error(e);
-      });
-  }, []);
+    ResultUtils.combine([getPossibleRewards(), getQueryStatuses()]).map(
+      ([possibleRewards, queryStatuses]) => {
+        const currentPossibleRewards =
+          possibleRewards.get(consentContractAddress) ?? [];
+        const possibleRewardWithStatus = addQueryStatusToPossibleReward(
+          currentPossibleRewards,
+          queryStatuses,
+        );
+        if (
+          ObjectUtils.serialize(possibleRewardWithStatus).valueOf() !==
+          ObjectUtils.serialize(possibleRewardWithQueryStatus).valueOf()
+        ) {
+          setPossibleRewardWithQueryStatus(possibleRewardWithStatus);
+        }
+      },
+    );
+  }, [earnedRewards]);
 
-  useEffect(() => {
-    if (possibleRewards.length > 0) {
-      sdlDataWallet
-        .getQueryStatusByQueryCID(possibleRewards[0].queryCID)
-        .map((queryStatus) => {
-          setQueryStatus(queryStatus);
-        });
-    }
-  }, [possibleRewards]);
+  const getPossibleRewards = () => {
+    return sdlDataWallet?.getPossibleRewards?.([consentContractAddress]);
+  };
+
+  const getQueryStatuses = () => {
+    return sdlDataWallet?.getQueryStatuses?.(consentContractAddress);
+  };
+
+
+
 
   const classes = useStyles();
   return (
@@ -118,7 +130,6 @@ const PermissionSelectionModalV2: FC = () => {
       className={classes.container}
     >
       <PermissionSelection
-        queryStatus={queryStatus}
         ipfsBaseUrl={apiGateway.config.ipfsFetchBaseUrl}
         setBirthday={(birthday) =>
           sdlDataWallet.setBirthday(birthday).map(() => {
@@ -147,7 +158,7 @@ const PermissionSelectionModalV2: FC = () => {
         isSafe={isSafe}
         generateAllPermissions={generateAllPermissions}
         campaignInfo={campaignInfo}
-        possibleRewards={possibleRewards}
+        possibleRewardWithQueryStatus={possibleRewardWithQueryStatus}
         earnedRewards={earnedRewards}
         consentContractAddress={consentContractAddress}
         onCancelClick={closeModal}

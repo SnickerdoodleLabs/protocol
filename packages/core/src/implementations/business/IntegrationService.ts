@@ -1,7 +1,7 @@
 import {
   ICryptoUtils,
   ICryptoUtilsType,
-} from "@snickerdoodlelabs/common-utils";
+} from "@snickerdoodlelabs/node-utils";
 import {
   PersistenceError,
   DomainName,

@@ -2,8 +2,10 @@ import {
   AjaxError,
   BlockchainCommonErrors,
   BlockchainProviderError,
+  BlockNumber,
   ConsentContractError,
   ConsentError,
+  ConsentFactoryContractError,
   ConsentToken,
   DuplicateIdInSchema,
   EvalNotImplementedError,
@@ -113,6 +115,18 @@ export interface IQueryService {
   getQueryStatusByQueryCID(
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, PersistenceError>;
+
+  getQueryStatuses(
+    contractAddress: EVMContractAddress,
+    blockNumber?: BlockNumber,
+  ): ResultAsync<
+    QueryStatus[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | PersistenceError
+  >;
 }
 
 export const IQueryServiceType = Symbol.for("IQueryService");

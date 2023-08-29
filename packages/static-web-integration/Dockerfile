@@ -1,7 +1,7 @@
 ARG BASE_TAG=local
 FROM snickerdoodlelabs/protocol-docker-base:${BASE_TAG} as builder
 
-ARG LOGO_PATH=http://localhost:9012/snickerdoodle.png
+ARG LOGO_PATH=https://webpackage.snickerdoodle.com/snickerdoodle.png
 ENV __LOGO_PATH__ $LOGO_PATH
 
 RUN cd packages/static-web-integration && yarn postCompile

@@ -88,6 +88,8 @@ import {
   AccessToken,
   AuthenticatedStorageSettings,
   IStorageMethods,
+  BlockNumber,
+  RefreshToken,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -578,12 +580,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           ICloudStorageServiceType,
         );
 
-        return cloudStorageService.authenticateDropbox(code);
+        return cloudStorageService.authenticateDropbox(
+          OAuthAuthorizationCode(code),
+        );
       },
       setAuthenticatedStorage: (
         type: ECloudStorageType,
         path: string,
-        accessToken: AccessToken,
+        refreshToken: RefreshToken,
         sourceDomain: DomainName | undefined,
       ) => {
         const cloudStorageService = this.iocContainer.get<ICloudStorageService>(
@@ -591,7 +595,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         );
 
         return cloudStorageService.setAuthenticatedStorage(
-          new AuthenticatedStorageSettings(type, path, accessToken),
+          new AuthenticatedStorageSettings(type, path, refreshToken),
         );
       },
     };
@@ -745,6 +749,23 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
     return queryService.getQueryStatusByQueryCID(queryCID);
+  }
+
+  public getQueryStatuses(
+    contractAddress: EVMContractAddress,
+    blockNumber?: BlockNumber,
+  ): ResultAsync<
+    QueryStatus[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | PersistenceError
+  > {
+    const queryService =
+      this.iocContainer.get<IQueryService>(IQueryServiceType);
+
+    return queryService.getQueryStatuses(contractAddress, blockNumber);
   }
 
   public isDataWalletAddressInitialized(): ResultAsync<boolean, never> {

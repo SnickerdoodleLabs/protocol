@@ -1,27 +1,14 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {
-  ICryptoUtils,
-  ICryptoUtilsType,
-  ObjectUtils,
-} from "@snickerdoodlelabs/common-utils";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
+import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   Invitation,
   DomainName,
-  EarnedReward,
-  EChain,
-  EInvitationStatus,
   TokenId,
   BigNumberString,
-  URLString,
   ISnickerdoodleCoreType,
   ISnickerdoodleCore,
-  ECloudStorageType,
-  AuthenticatedStorageSettings,
 } from "@snickerdoodlelabs/objects";
-import {
-  ICloudStorageManager,
-  ICloudStorageManagerType,
-} from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import {
   AsyncJsonRpcEngineNextCallback,
@@ -154,6 +141,7 @@ import {
   GetAvailableCloudStorageOptionsParams,
   GetCurrentCloudStorageParams,
   RejectInvitationParams,
+  GetQueryStatusesParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -599,6 +587,12 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this.accountService.getQueryStatusByQueryCID(params.queryCID);
       },
     ),
+    new CoreActionHandler<GetQueryStatusesParams>(
+      GetQueryStatusesParams.getCoreAction(),
+      (params) => {
+        return this.accountService.getQueryStatuses(params.contractAddress , params.blockNumber);
+      },
+    ),
     new CoreActionHandler<SwitchToTabParams>(
       SwitchToTabParams.getCoreAction(),
       (params, sender) => {
@@ -815,7 +809,7 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this.core.storage.setAuthenticatedStorage(
           params.storageType,
           params.path,
-          params.accessToken,
+          params.refreshToken,
           undefined,
         );
       },

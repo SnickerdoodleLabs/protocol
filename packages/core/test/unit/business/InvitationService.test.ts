@@ -1,6 +1,7 @@
 import "reflect-metadata";
-import { ICryptoUtils, ILogUtils } from "@snickerdoodlelabs/common-utils";
+import { ILogUtils } from "@snickerdoodlelabs/common-utils";
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
+import { ICryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   BigNumberString,
   ConsentError,

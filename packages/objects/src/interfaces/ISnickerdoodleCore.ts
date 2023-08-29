@@ -30,6 +30,7 @@ import {
   WalletNFT,
   RuntimeMetrics,
   QueryStatus,
+  OAuth2Tokens,
   // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
@@ -106,6 +107,9 @@ import {
   URLString,
   PasswordString,
   AccessToken,
+  BlockNumber,
+  OAuth2RefreshToken,
+  RefreshToken,
 } from "@objects/primitives/index.js";
 
 /**
@@ -621,13 +625,13 @@ export interface IStorageMethods {
   setAuthenticatedStorage(
     type: ECloudStorageType,
     path: string,
-    accessToken: AccessToken,
+    refreshToken: RefreshToken,
     sourceDomain: DomainName | undefined,
   ): ResultAsync<void, PersistenceError>;
   authenticateDropbox(
     code: string,
     sourceDomain: DomainName | undefined,
-  ): ResultAsync<AccessToken, AjaxError>;
+  ): ResultAsync<OAuth2Tokens, AjaxError>;
   getCurrentCloudStorage(
     sourceDomain: DomainName | undefined,
   ): ResultAsync<ECloudStorageType, never>;
@@ -711,6 +715,18 @@ export interface ISnickerdoodleCore {
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, PersistenceError>;
 
+  getQueryStatuses(
+    contractAddress: EVMContractAddress,
+    blockNumber?: BlockNumber,
+  ): ResultAsync<
+    QueryStatus[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | PersistenceError
+  > 
+  
   /**
    * Restores a backup directly. Should only be called for testing purposes.
    * @param backup

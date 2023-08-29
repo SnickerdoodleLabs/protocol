@@ -1,5 +1,6 @@
 import "reflect-metadata";
-import { ICryptoUtils, ObjectUtils } from "@snickerdoodlelabs/common-utils";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
+import { ICryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   EVMPrivateKey,
   UnixTimestamp,
