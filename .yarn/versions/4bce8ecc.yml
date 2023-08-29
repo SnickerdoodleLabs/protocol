@@ -1,0 +1,10 @@
+undecided:
+  - snickerdoodle-protocol
+  - "@snickerdoodlelabs/core"
+  - "@snickerdoodlelabs/extension-onboarding"
+  - "@snickerdoodlelabs/iframe"
+  - "@snickerdoodlelabs/objects"
+  - "@snickerdoodlelabs/shared-components"
+  - "@snickerdoodlelabs/synamint-extension-sdk"
+  - "@snickerdoodlelabs/utils"
+  - "@snickerdoodlelabs/web-integration"

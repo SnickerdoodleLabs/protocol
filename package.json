@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "description": "Snickerdoodle Protocol contracts and SDK",
   "license": "MIT",
-  "private": true,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SnickerdoodleLabs/protocol.git"
