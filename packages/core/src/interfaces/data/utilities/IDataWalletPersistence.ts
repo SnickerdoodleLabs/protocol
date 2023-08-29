@@ -1,4 +1,3 @@
-import { IPersistence } from "@snickerdoodlelabs/common-utils";
 import {
   BackupFileName,
   DataWalletBackupID,
@@ -8,6 +7,7 @@ import {
   AuthenticatedStorageSettings,
   BackupError,
 } from "@snickerdoodlelabs/objects";
+import { IPersistence } from "@snickerdoodlelabs/persistence";
 import { ResultAsync } from "neverthrow";
 
 /**

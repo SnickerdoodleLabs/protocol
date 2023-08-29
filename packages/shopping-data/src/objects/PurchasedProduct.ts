@@ -48,7 +48,7 @@ export class PurchasedProductMigrator extends VersionedObjectMigrator<PurchasedP
   protected factory(data: Record<string, unknown>): PurchasedProduct {
     return new PurchasedProduct(
       DomainName(data["marketPlace"] as string),
-      ProductId(data["id"] as string),
+      ProductId(data["id"] as number),
       data["name"] as string,
       data["brand"] as string,
       data["price"] as number,
