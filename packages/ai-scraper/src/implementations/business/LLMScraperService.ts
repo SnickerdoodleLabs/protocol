@@ -17,6 +17,7 @@ import {
 } from "@snickerdoodlelabs/shopping-data";
 import { inject } from "inversify";
 import { ResultAsync, errAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import {
   DomainTask,
@@ -110,6 +111,11 @@ export class LLMScraperService implements IScraperService {
   private savePurchases(
     purchases: PurchasedProduct[],
   ): ResultAsync<void, PersistenceError> {
-    return errAsync(new PersistenceError("savePurchases not implemented."));
+    // return errAsync(new PersistenceError("savePurchases not implemented."));
+    const results = purchases.map((purchase) => {
+      return this.purchaseRepository.add(purchase);
+    });
+
+    return ResultUtils.combine(results).map(() => {});
   }
 }
