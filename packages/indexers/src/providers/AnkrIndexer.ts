@@ -173,7 +173,7 @@ export class AnkrIndexer implements IEVMIndexer {
               );
             }),
           );
-        })
+        });
     });
   }
 

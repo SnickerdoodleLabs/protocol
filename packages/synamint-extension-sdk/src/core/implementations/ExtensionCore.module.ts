@@ -1,14 +1,16 @@
 import {
   AxiosAjaxUtils,
-  CryptoUtils,
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
-  ICryptoUtils,
-  ICryptoUtilsType,
   ITimeUtils,
   ITimeUtilsType,
   TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
+import {
+  CryptoUtils,
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/node-utils";
 import { ContainerModule, interfaces } from "inversify";
 
 import {
@@ -40,7 +42,6 @@ import {
   TokenPriceRepository,
   UserSiteInteractionRepository,
 } from "@synamint-extension-sdk/core/implementations/data";
-import { RpcEngineFactory } from "@synamint-extension-sdk/core/implementations/utilities/factory";
 import {
   ContextProvider,
   DataPermissionsUtils,
@@ -48,6 +49,7 @@ import {
   ScamFilterSettingsUtils,
   ConfigProvider,
 } from "@synamint-extension-sdk/core/implementations/utilities";
+import { RpcEngineFactory } from "@synamint-extension-sdk/core/implementations/utilities/factory";
 import {
   IBrowserTabListener,
   IBrowserTabListenerType,
@@ -101,10 +103,6 @@ import {
   IUserSiteInteractionRepositoryType,
 } from "@synamint-extension-sdk/core/interfaces/data";
 import {
-  IRpcEngineFactory,
-  IRpcEngineFactoryType,
-} from "@synamint-extension-sdk/core/interfaces/utilities/factory";
-import {
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
@@ -116,6 +114,10 @@ import {
   IScamFilterSettingsUtils,
   IScamFilterSettingsUtilsType,
 } from "@synamint-extension-sdk/core/interfaces/utilities";
+import {
+  IRpcEngineFactory,
+  IRpcEngineFactoryType,
+} from "@synamint-extension-sdk/core/interfaces/utilities/factory";
 
 export const extensionCoreModule = new ContainerModule(
   (

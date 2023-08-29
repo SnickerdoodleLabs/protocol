@@ -39,6 +39,7 @@
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.17.11",
     "@snickerdoodlelabs/common-utils": "workspace:^",
+    "@snickerdoodlelabs/node-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
     "@snickerdoodlelabs/utils": "workspace:^",
     "ethers": "^5.6.6",

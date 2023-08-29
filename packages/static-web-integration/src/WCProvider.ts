@@ -17,14 +17,12 @@ export class WCProvider {
       .andThen((provider) => {
         this.ethereumProvider = provider;
         if (this.ethereumProvider.accounts.length === 0) {
-          this.connectWithQR(projectId).map((provider_) => {
+          return this.connectWithQR(projectId).andThen((provider_) => {
             this.ethereumProvider = provider_;
-            ResultAsync.fromPromise(
+            return ResultAsync.fromPromise(
               this.ethereumProvider.connect(),
               (e) => new Error(`Failed to connect: ${(e as Error).message}`),
-            ).andThen(() => {
-              return okAsync(undefined);
-            });
+            );
           });
         }
         return okAsync(undefined);
@@ -55,10 +53,32 @@ export class WCProvider {
         methods: ["eth_sendTransaction", "personal_sign"],
       }),
       (e) => new Error(`User cancelled: ${(e as Error).message}`),
-    )
-    .mapErr((e) => {
+    ).mapErr((e) => {
       console.log("WalletConnect Init Error", e);
       return new Error(`Initialization error: ${e.message}`);
     });
+  }
+
+  public checkConnection(projectId: string): ResultAsync<boolean, never> {
+    return ResultAsync.fromPromise(
+      EthereumProvider.init({
+        projectId,
+        showQrModal: false,
+        chains: [1],
+      }),
+      (e) => new Error(`User cancelled: ${(e as Error).message}`),
+    )
+      .map((provider) => {
+        this.ethereumProvider = provider;
+        if (this.ethereumProvider.accounts.length === 0) {
+          return false;
+        } else {
+          return true;
+        }
+      })
+      .orElse((e) => {
+        console.log("WalletConnect Init Error", e);
+        return okAsync(false);
+      });
   }
 }
