@@ -3,6 +3,7 @@ import {
   IBigNumberUtilsType,
   ILogUtils,
   ILogUtilsType,
+  ObjectUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountAddress,
@@ -14,9 +15,12 @@ import {
   EChain,
   EChainTechnology,
   EComponentStatus,
+  EIndexerMethod,
   EVMAccountAddress,
   EVMContractAddress,
   getChainInfoByChain,
+  IndexerSupportSummary,
+  InvalidParametersError,
   MethodSupportError,
   PersistenceError,
   SolanaAccountAddress,
@@ -49,12 +53,6 @@ import {
   ISolanaIndexerType,
   ISolanaIndexer,
 } from "@indexers/interfaces/index.js";
-
-enum EIndexerMethod {
-  Balances = "Balances",
-  Transactions = "Transactions",
-  NFTs = "NFTs",
-}
 
 @injectable()
 export class MasterIndexer implements IMasterIndexer {
@@ -118,13 +116,68 @@ export class MasterIndexer implements IMasterIndexer {
       });
   }
 
-  public getSupportedChains(): ResultAsync<EChain[], never> {
+  public getSupportedChains(
+    method: EIndexerMethod | null = null,
+  ): ResultAsync<EChain[], never> {
     return this.getHealthStatuses().map((healthStatuses) => {
+      let supportedChains = new Map<EChain, boolean>();
+
+      // if the method is provided, we need to limit the list of supported chains to those that support the method
+      if (method != null) {
+        const indexers = [
+          this.alchemy,
+          this.ankr,
+          this.covalent,
+          this.etherscan,
+          this.matic,
+          this.moralis,
+          this.nftscan,
+          this.oklink,
+          this.poapRepo,
+          this.sim,
+          this.sol,
+        ];
+
+        supportedChains = indexers
+          .map((indexer) => {
+            return indexer.getSupportedChains();
+          })
+          .reduce((acc, supportedChains) => {
+            // Reduce it down to a summary of the method- yes or no, do we support that method
+            supportedChains.forEach((indexerSupportSummary, chain) => {
+              const support = acc.get(chain);
+              if (support == null) {
+                acc.set(
+                  chain,
+                  IndexerSupportSummary.isMethodSupported(
+                    indexerSupportSummary,
+                    method,
+                  ),
+                );
+                return;
+              }
+              acc.set(
+                chain,
+                support ||
+                  IndexerSupportSummary.isMethodSupported(
+                    indexerSupportSummary,
+                    method,
+                  ), // OR together, if any support is true it's true
+              );
+            });
+            return acc;
+          }, new Map<EChain, boolean>());
+      }
+
       const activeChains = new Array<EChain>();
       healthStatuses.forEach((componentStatus, chain) => {
+        // Have to filter by the method
+        const methodSupported =
+          method != null ? supportedChains.get(chain) : true;
         if (
-          componentStatus == EComponentStatus.Available ||
-          componentStatus == EComponentStatus.InUse
+          (componentStatus === EComponentStatus.Available ||
+            componentStatus === EComponentStatus.InUse) &&
+          methodSupported === true
         ) {
           activeChains.push(chain);
         }
@@ -138,7 +191,7 @@ export class MasterIndexer implements IMasterIndexer {
     accountAddress: AccountAddress,
   ): ResultAsync<
     TokenBalance[],
-    PersistenceError | AccountIndexingError | AjaxError
+    PersistenceError | AccountIndexingError | AjaxError | InvalidParametersError
   > {
     const chainInfo = getChainInfoByChain(chain);
     if (chainInfo.chainTechnology == EChainTechnology.Solana) {
@@ -164,34 +217,42 @@ export class MasterIndexer implements IMasterIndexer {
         });
     }
 
-    const indexer = this.getPreferredEVMIndexer(chain, EIndexerMethod.Balances);
+    const indexers = this.getPreferredEVMIndexers(
+      chain,
+      EIndexerMethod.Balances,
+    );
 
-    if (indexer == undefined) {
+    // If there are no indexers, just return an empty array
+    if (indexers.length == 0) {
       return okAsync([]);
     }
 
-    return indexer
-      .getBalancesForAccount(chain, EVMAccountAddress(accountAddress))
-      .orElse((e) => {
-        this.logUtils.log(
-          "Error fetching balances from " + indexer.name() + " indexer",
-          chain,
-          accountAddress,
-          e,
-        );
-        return okAsync([]);
-      })
-      .map((tokenBalances) => {
-        // Apprently the tokenBalance.balance can return as in invalid
-        // BigNumber (blank or null), so we'll just correct any possible issue
-        // here.
-        return tokenBalances.map((tokenBalance) => {
-          if (!this.bigNumberUtils.validateBNS(tokenBalance.balance)) {
-            tokenBalance.balance = BigNumberString("0");
-          }
-          return tokenBalance;
+    return ObjectUtils.progressiveFallback((indexer: IEVMIndexer) => {
+      return indexer
+        .getBalancesForAccount(chain, EVMAccountAddress(accountAddress))
+        .map((tokenBalances) => {
+          // Apprently the tokenBalance.balance can return as in invalid
+          // BigNumber (blank or null), so we'll just correct any possible issue
+          // here.
+          return tokenBalances.map((tokenBalance) => {
+            if (!this.bigNumberUtils.validateBNS(tokenBalance.balance)) {
+              tokenBalance.balance = BigNumberString("0");
+            }
+            return tokenBalance;
+          });
+        })
+        .mapErr((e) => {
+          this.logUtils.warning(
+            "Error fetching balances from " + indexer.name() + " indexer",
+            chain,
+            accountAddress,
+            e,
+          );
+          return e;
         });
-      });
+    }, indexers).orElse((e) => {
+      return okAsync([]);
+    });
   }
 
   public getLatestNFTs(
@@ -199,7 +260,11 @@ export class MasterIndexer implements IMasterIndexer {
     accountAddress: AccountAddress,
   ): ResultAsync<
     WalletNFT[],
-    PersistenceError | AccountIndexingError | AjaxError | MethodSupportError
+    | PersistenceError
+    | AccountIndexingError
+    | AjaxError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     const chainInfo = getChainInfoByChain(chain);
     if (chainInfo.chainTechnology == EChainTechnology.Solana) {
@@ -209,37 +274,39 @@ export class MasterIndexer implements IMasterIndexer {
       );
     }
 
-    const indexer = this.getPreferredEVMIndexer(chain, EIndexerMethod.NFTs);
+    const indexers = this.getPreferredEVMIndexers(chain, EIndexerMethod.NFTs);
 
-    if (indexer == null) {
+    // If there are no indexers, just return an empty array
+    if (indexers.length == 0) {
       return okAsync([]);
     }
 
-    return indexer
-      .getTokensForAccount(chain, EVMAccountAddress(accountAddress))
-      .map((tokens) => {
-        return tokens;
-      })
-      .orElse((e) => {
-        this.logUtils.log(
-          "Error fetching nfts from " + indexer.name() + " indexer",
-          chain,
-          accountAddress,
-          e,
-        );
-        return okAsync([]);
-      })
-      .map((nfts) => {
-        // Apprently the nft.amount can return as in invalid
-        // BigNumber (blank or null), so we'll just correct any possible issue
-        // here.
-        return nfts.map((nft) => {
-          if (!this.bigNumberUtils.validateBNS(nft.amount)) {
-            nft.amount = BigNumberString("0");
-          }
-          return nft;
+    return ObjectUtils.progressiveFallback((indexer: IEVMIndexer) => {
+      return indexer
+        .getTokensForAccount(chain, EVMAccountAddress(accountAddress))
+        .map((nfts) => {
+          // Apprently the nft.amount can return as in invalid
+          // BigNumber (blank or null), so we'll just correct any possible issue
+          // here.
+          return nfts.map((nft) => {
+            if (!this.bigNumberUtils.validateBNS(nft.amount)) {
+              nft.amount = BigNumberString("0");
+            }
+            return nft;
+          });
+        })
+        .mapErr((e) => {
+          this.logUtils.warning(
+            "Error fetching nfts from " + indexer.name() + " indexer",
+            chain,
+            accountAddress,
+            e,
+          );
+          return e;
         });
-      });
+    }, indexers).orElse(() => {
+      return okAsync([]);
+    });
   }
 
   public getLatestTransactions(
@@ -248,7 +315,10 @@ export class MasterIndexer implements IMasterIndexer {
     chain: EChain,
   ): ResultAsync<
     ChainTransaction[],
-    AccountIndexingError | AjaxError | MethodSupportError
+    | AccountIndexingError
+    | AjaxError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     const chainInfo = getChainInfoByChain(chain);
     if (chainInfo.chainTechnology == EChainTechnology.Solana) {
@@ -259,37 +329,42 @@ export class MasterIndexer implements IMasterIndexer {
       );
     }
 
-    const indexer = this.getPreferredEVMIndexer(
+    const indexers = this.getPreferredEVMIndexers(
       chain,
       EIndexerMethod.Transactions,
     );
 
-    if (indexer == null) {
+    // If there are no healthy indexers return
+    if (indexers.length == 0) {
       return okAsync([]);
     }
 
-    return indexer
-      .getEVMTransactions(
-        chain,
-        EVMAccountAddress(accountAddress),
-        new Date(timestamp * 1000),
-      )
-      .orElse((e) => {
-        this.logUtils.log(
-          "Error fetching transactions from " + indexer.name() + " indexer",
+    return ObjectUtils.progressiveFallback((indexer: IEVMIndexer) => {
+      return indexer
+        .getEVMTransactions(
           chain,
-          accountAddress,
-          e,
-        );
-        return okAsync([]);
-      });
+          EVMAccountAddress(accountAddress),
+          new Date(timestamp * 1000),
+        )
+        .mapErr((e) => {
+          this.logUtils.warning(
+            "Error fetching transactions from " + indexer.name() + " indexer",
+            chain,
+            accountAddress,
+            e,
+          );
+          return e;
+        });
+    }, indexers).orElse((e) => {
+      return okAsync([]);
+    });
   }
 
-  protected getPreferredEVMIndexer(
+  protected getPreferredEVMIndexers(
     chain: EChain,
     indexerMethod: EIndexerMethod,
-  ): IEVMIndexer | null {
-    let preferredIndexer: IEVMIndexer | ISolanaIndexer | null = null;
+  ): IEVMIndexer[] {
+    const preferredIndexers = new Array<IEVMIndexer>();
 
     // Sanity check that this is an EVM chain
     const chainInfo = getChainInfoByChain(chain);
@@ -297,7 +372,7 @@ export class MasterIndexer implements IMasterIndexer {
       this.logUtils.error(
         `Requested preferred EVM Indexer for non EVM chain ${chain}`,
       );
-      return null;
+      return [];
     }
 
     // Go through the indexers by weight.
@@ -341,55 +416,51 @@ export class MasterIndexer implements IMasterIndexer {
       }
 
       // Got this far, the indexer is the one we want!
-      preferredIndexer = indexer;
-      break;
+      preferredIndexers.push(indexer);
     }
 
-    if (preferredIndexer == null) {
-      this.logUtils.log(
+    if (preferredIndexers.length == 0) {
+      this.logUtils.debug(
         `No healthy indexer found for chain ${chain}, for operation ${indexerMethod}`,
       );
     }
-    return preferredIndexer;
+
+    return preferredIndexers;
   }
 
   static get nativeAddress(): TokenAddress {
     return EVMContractAddress("0x0");
   }
 
-  /* Sets the health statuses of each provider */
+  /**
+   * Returns the status of each chain. If method is not provided, the status reflects if at least one indexer
+   * supports at least one method for the chain. If method is provided, the status reflects if at least one
+   * indexer supports that method for the chain.
+   */
   protected getHealthStatuses(): ResultAsync<
     Map<EChain, EComponentStatus>,
     never
   > {
     return this.indexerContext.getContext().map((context) => {
-      const alchemyHealth = this.alchemy.healthStatus();
-      const ankrHealth = this.ankr.healthStatus();
-      const covalentHealth = this.covalent.healthStatus();
-      const etherscanHealth = this.etherscan.healthStatus();
-      const maticHealth = this.matic.healthStatus();
-      const moralisHealth = this.moralis.healthStatus();
-      const nftscanHealth = this.nftscan.healthStatus();
-      const oklinkHealth = this.oklink.healthStatus();
-      const poapHealth = this.poapRepo.healthStatus();
-      const simHealth = this.sim.healthStatus();
-      const solHealth = this.sol.healthStatus();
+      const indexers = [
+        this.alchemy,
+        this.ankr,
+        this.covalent,
+        this.etherscan,
+        this.matic,
+        this.moralis,
+        this.nftscan,
+        this.oklink,
+        this.poapRepo,
+        this.sim,
+        this.sol,
+      ];
 
-      const indexerStatuses = context.components;
-      indexerStatuses.alchemyIndexer = alchemyHealth;
-      indexerStatuses.etherscanIndexer = etherscanHealth;
-      indexerStatuses.moralisIndexer = moralisHealth;
-      indexerStatuses.nftScanIndexer = nftscanHealth;
-      indexerStatuses.oklinkIndexer = oklinkHealth;
+      const healthchecks = indexers.map((indexer) => {
+        return indexer.healthStatus();
+      });
 
-      // The status of each indexer is known, and the chains that those indexers support is known.
-      // We need to consolidate the component status for each chain via a group-by.
-      // For each chain, use the best status of any indexer as the overall status for the chain
-
-      // Need to consolidate the maps of chain->EComponentStatus
-      const chainStatuses = new Map<EChain, EComponentStatus>();
-
-      [
+      const [
         alchemyHealth,
         ankrHealth,
         covalentHealth,
@@ -401,7 +472,29 @@ export class MasterIndexer implements IMasterIndexer {
         poapHealth,
         simHealth,
         solHealth,
-      ].reduce((baseHealthStatus, healthStatus) => {
+      ] = healthchecks;
+
+      const indexerStatuses = context.components;
+      indexerStatuses.alchemyIndexer = alchemyHealth;
+      indexerStatuses.ankrIndexer = ankrHealth;
+      indexerStatuses.covalentIndexer = covalentHealth;
+      indexerStatuses.etherscanIndexer = etherscanHealth;
+      indexerStatuses.maticIndexer = maticHealth;
+      indexerStatuses.moralisIndexer = moralisHealth;
+      indexerStatuses.nftScanIndexer = nftscanHealth;
+      indexerStatuses.oklinkIndexer = oklinkHealth;
+      indexerStatuses.poapIndexer = poapHealth;
+      indexerStatuses.simulatorIndexer = simHealth;
+      indexerStatuses.solanaIndexer = solHealth;
+
+      // The status of each indexer is known, and the chains that those indexers support is known.
+      // We need to consolidate the component status for each chain via a group-by.
+      // For each chain, use the best status of any indexer as the overall status for the chain
+
+      // Need to consolidate the maps of chain->EComponentStatus
+      const chainStatuses = new Map<EChain, EComponentStatus>();
+
+      healthchecks.reduce((baseHealthStatus, healthStatus) => {
         healthStatus.forEach((status, chain) => {
           const baseStatus = baseHealthStatus.get(chain);
           if (baseStatus == null) {

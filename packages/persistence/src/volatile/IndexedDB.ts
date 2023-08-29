@@ -136,11 +136,11 @@ export class IndexedDB {
     return this.initialize()
       .andThen((db) => {
         const objectStoreNames = [...db.objectStoreNames];
+        this.logUtils.log(
+          `Clearing local IndexDB, object store names: ${objectStoreNames}`,
+        );
         return this.getTransaction(objectStoreNames, "readwrite").andThen(
           (tx) => {
-            this.logUtils.log(
-              `Clearing local IndexDB, object store names: ${objectStoreNames}`,
-            );
             return ResultUtils.combine(
               objectStoreNames.map((objectStoreName) => {
                 return this._clearNamedObjectStore(tx, objectStoreName);

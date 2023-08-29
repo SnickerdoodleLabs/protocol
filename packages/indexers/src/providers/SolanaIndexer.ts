@@ -78,19 +78,25 @@ export class SolanaIndexer implements ISolanaIndexer {
 
   public initialize(): ResultAsync<void, never> {
     return this.configProvider.getConfig().map((config) => {
-      this.indexerSupport.forEach(
-        (value: IndexerSupportSummary, chain: EChain) => {
-          const chainInfo = getChainInfoByChain(chain);
-          if (
-            config.apiKeys.alchemyApiKeys[chainInfo.name] == "" ||
-            config.apiKeys.alchemyApiKeys[chainInfo.name] == undefined
-          ) {
-            this.health.set(chain, EComponentStatus.NoKeyProvided);
-          } else {
-            this.health.set(chain, EComponentStatus.Available);
-          }
-        },
-      );
+      // Solana Mainnet
+      if (
+        config.apiKeys.alchemyApiKeys.Solana == "" ||
+        config.apiKeys.alchemyApiKeys.Solana == undefined
+      ) {
+        this.health.set(EChain.Solana, EComponentStatus.NoKeyProvided);
+      } else {
+        this.health.set(EChain.Solana, EComponentStatus.Available);
+      }
+
+      // Solana Testnet
+      if (
+        config.apiKeys.alchemyApiKeys.SolanaTestnet == "" ||
+        config.apiKeys.alchemyApiKeys.SolanaTestnet == undefined
+      ) {
+        this.health.set(EChain.SolanaTestnet, EComponentStatus.NoKeyProvided);
+      } else {
+        this.health.set(EChain.SolanaTestnet, EComponentStatus.Available);
+      }
     });
   }
 

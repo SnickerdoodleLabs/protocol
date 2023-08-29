@@ -51,7 +51,7 @@ export class PolygonIndexer implements IEVMIndexer {
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [
       EChain.Polygon,
-      new IndexerSupportSummary(EChain.Polygon, true, true, true),
+      new IndexerSupportSummary(EChain.Polygon, false, true, false),
     ],
   ]);
 
