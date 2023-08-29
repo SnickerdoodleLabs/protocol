@@ -28,6 +28,7 @@ export interface IFlex {
     | "space-around"
     | "space-evenly";
   alignItems?: "flex-start" | "flex-end" | "center" | "baseline" | "stretch";
+  flexFlow?: "row" | "row-reverse" | "column" | "column-reverse";
 }
 
 export interface IDisplay {
@@ -58,6 +59,8 @@ export interface IBorder {
 export interface ISize {
   width?: string | number;
   height?: string | number;
+  maxWidth?: string | number;
+  maxHeight?: string | number;
 }
 
 export interface ITextAlign {
@@ -78,4 +81,8 @@ export interface IPosition {
 
 export interface IZIndex {
   zIndex?: number | string;
+}
+
+export interface IPointer {
+  pointer?: boolean;
 }

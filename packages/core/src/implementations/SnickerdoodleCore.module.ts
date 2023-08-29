@@ -1,13 +1,10 @@
 import {
   AxiosAjaxUtils,
   BigNumberUtils,
-  CryptoUtils,
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
   IBigNumberUtils,
   IBigNumberUtilsType,
-  ICryptoUtils,
-  ICryptoUtilsType,
   ILogUtils,
   ILogUtilsType,
   ITimeUtils,
@@ -26,6 +23,11 @@ import {
   IInsightPlatformRepositoryType,
   InsightPlatformRepository,
 } from "@snickerdoodlelabs/insight-platform-api";
+import {
+  CryptoUtils,
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/node-utils";
 import {
   ITokenPriceRepository,
   ITokenPriceRepositoryType,

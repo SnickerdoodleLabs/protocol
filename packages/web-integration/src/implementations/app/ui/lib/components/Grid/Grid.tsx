@@ -35,19 +35,18 @@ const styleObject = {
     boxSizing: "border-box",
     display: "flex",
     flexWrap: "wrap",
-    marginLeft: ({ spacing = 0, theme }) =>
-      `-${spacing * theme.constants.coef}px`,
-    marginRight: ({ spacing = 0, theme }) =>
-      `-${spacing * theme.constants.coef}px`,
+    margin: ({ spacing = 0, theme }) =>
+      `-${(spacing / 2) * theme.constants.coef}px`,
     width: ({ spacing = 0, theme }) =>
-      `calc(100% + ${spacing * 2 * theme.constants.coef}px)`,
+      `calc(100% + ${spacing * theme.constants.coef}px)`,
   },
   item: {
     boxSizing: "border-box",
     flexBasis: "100%",
     maxWidth: "100%",
     flexGrow: 0,
-    padding: ({ spacing = 0, theme }) => `${spacing * theme.constants.coef}px`,
+    padding: ({ spacing = 0, theme }) =>
+      `${(spacing / 2) * theme.constants.coef}px`,
   },
   ...gridColumnStyles,
   ...flexStyles,

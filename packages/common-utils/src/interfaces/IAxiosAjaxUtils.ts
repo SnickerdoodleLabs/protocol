@@ -1,5 +1,3 @@
-import { Readable } from "stream";
-
 import { AjaxError, JsonWebToken } from "@snickerdoodlelabs/objects";
 import { AxiosRequestConfig } from "axios";
 import { ResultAsync } from "neverthrow";
@@ -16,7 +14,6 @@ export interface IAxiosAjaxUtils {
       | Record<string, unknown>
       | ArrayBuffer
       | ArrayBufferView
-      | Readable
       | URLSearchParams,
     config?: IRequestConfig,
   ): ResultAsync<T, AjaxError>;
@@ -28,7 +25,6 @@ export interface IAxiosAjaxUtils {
       | Record<string, unknown>
       | ArrayBuffer
       | ArrayBufferView
-      | Readable
       | URLSearchParams,
     config?: IRequestConfig,
   ): ResultAsync<T, AjaxError>;

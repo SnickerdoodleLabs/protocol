@@ -1,4 +1,3 @@
-import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ConsentContract,
   ConsentFactoryContract,
@@ -6,6 +5,7 @@ import {
   MinimalForwarderContract,
   WrappedTransactionResponse,
 } from "@snickerdoodlelabs/contracts-sdk";
+import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   AccountAddress,
   BaseURI,

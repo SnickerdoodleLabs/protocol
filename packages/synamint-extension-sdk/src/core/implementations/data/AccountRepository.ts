@@ -14,6 +14,8 @@ import {
   UnauthorizedError,
   IpfsCID,
   QueryStatus,
+  EVMContractAddress,
+  BlockNumber,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -41,6 +43,18 @@ export class AccountRepository implements IAccountRepository {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
+  }
+
+  getQueryStatuses(
+    contractAddress: EVMContractAddress,
+    blockNumber?: BlockNumber,
+  ): ResultAsync<QueryStatus[], SnickerDoodleCoreError> {
+    return this.core
+      .getQueryStatuses(contractAddress, blockNumber)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
 
   public getEarnedRewards(): ResultAsync<

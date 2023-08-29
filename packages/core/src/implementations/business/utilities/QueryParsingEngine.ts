@@ -23,10 +23,8 @@ import {
   EvalNotImplementedError,
   MissingASTError,
   PossibleReward,
-  SDQLString,
   CompensationKey,
   InsightKey,
-  QueryDeliveryItems,
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
@@ -35,14 +33,12 @@ import {
   IQueryFactoriesType,
   IQueryRepository,
   IQueryRepositoryType,
-  ISDQLParserFactory,
-  ISDQLParserFactoryType,
   ISDQLQueryUtils,
   ISDQLQueryUtilsType,
   SDQLParser,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import {  ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { BaseOf } from "ts-brand";
 
