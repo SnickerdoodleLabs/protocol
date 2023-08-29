@@ -1,6 +1,10 @@
 import { HTMLPreProcessor } from "@ai-scraper/implementations/business/HTMLPreProcessor";
 import { IHTMLPreProcessor } from "@ai-scraper/interfaces";
-import { html1, text1 } from "@ai-scraper-test/mocks/testHTMLPreprocessorData";
+import {
+  fullHtml,
+  html1,
+  text1,
+} from "@ai-scraper-test/mocks/testHTMLPreprocessorData";
 
 class mocks {
   public factory(): IHTMLPreProcessor {
@@ -22,9 +26,32 @@ describe("HTMLPreProcessor", () => {
     // Arrange
     const processor = new mocks().factory();
     // Act
-    const result = await processor.htmlToText(html1, null);
+    const result = await processor.htmlToText(fullHtml, null);
     // Assert
     expect(result.isOk()).toBeTruthy();
-    expect(result._unsafeUnwrap()).toEqual(text1);
+    expect(result._unsafeUnwrap()).toEqual(fullTextOnly);
+  });
+
+  test("htmlToText full text with images", async () => {
+    // Arrange
+    const processor = new mocks().factory();
+    // Act
+    const result = await processor.htmlToTextWithImages(fullHtml);
+    // Assert
+    expect(result.isOk()).toBeTruthy();
+    expect(result._unsafeUnwrap()).toEqual(fullTextWithImages);
+  });
+
+  test("htmlToText full text with images", async () => {
+    // Arrange
+    const processor = new mocks().factory();
+    const amazonPagination = {
+      baseElements: { selectors: [".a-pagination"] },
+    };
+    // Act
+    const result = await processor.htmlToText(fullHtml, amazonPagination);
+    // Assert
+    expect(result.isOk()).toBeTruthy();
+    expect(result._unsafeUnwrap()).toEqual(fullTextAmazonPaginationOnly);
   });
 });
