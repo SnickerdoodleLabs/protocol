@@ -1,4 +1,29 @@
 import {
+  ChatGPTProvider,
+  HTMLPreProcessor,
+  IHTMLPreProcessor,
+  IHTMLPreProcessorType,
+  ILLMProvider,
+  ILLMProviderType,
+  ILLMPurchaseHistoryUtils,
+  ILLMPurchaseHistoryUtilsType,
+  IOpenAIUtils,
+  IOpenAIUtilsType,
+  IPromptBuilderFactory,
+  IPromptBuilderFactoryType,
+  IPromptDirector,
+  IPromptDirectorType,
+  IScraperConfigProvider,
+  IScraperConfigProviderType,
+  IScraperService,
+  IScraperServiceType,
+  LLMPurchaseHistoryUtilsChatGPT,
+  LLMScraperService,
+  OpenAIUtils,
+  PromptBuilderFactory,
+  PromptDirector,
+} from "@snickerdoodlelabs/ai-scraper";
+import {
   AxiosAjaxUtils,
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
@@ -447,12 +472,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(SocialRepository)
       .inSingletonScope();
 
-    // region shopping data
-    bind<IPurchaseRepository>(IPurchaseRepositoryType)
-      .to(PurchaseRepository)
-      .inSingletonScope();
-    // endregion
-
     bind<IBackupUtils>(IBackupUtilsType).to(BackupUtils).inSingletonScope();
     bind<IVolatileStorageSchemaProvider>(IVolatileStorageSchemaProviderType)
       .to(VolatileStorageSchemaProvider)
@@ -607,5 +626,34 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<ISolanaIndexer>(ISolanaIndexerType)
       .to(SolanaIndexer)
       .inSingletonScope();
+
+    // region shopping data
+    bind<IPurchaseRepository>(IPurchaseRepositoryType)
+      .to(PurchaseRepository)
+      .inSingletonScope();
+    // endregion
+
+    // region scraper
+    bind<IScraperConfigProvider>(IScraperConfigProviderType).toService(
+      IConfigProviderType,
+    );
+    bind<IOpenAIUtils>(IOpenAIUtilsType).to(OpenAIUtils).inSingletonScope();
+    bind<IScraperService>(IScraperServiceType)
+      .to(LLMScraperService)
+      .inSingletonScope();
+    bind<ILLMProvider>(ILLMProviderType).to(ChatGPTProvider).inSingletonScope();
+    bind<IHTMLPreProcessor>(IHTMLPreProcessorType)
+      .to(HTMLPreProcessor)
+      .inSingletonScope();
+    bind<IPromptDirector>(IPromptDirectorType)
+      .to(PromptDirector)
+      .inSingletonScope();
+    bind<ILLMPurchaseHistoryUtils>(ILLMPurchaseHistoryUtilsType)
+      .to(LLMPurchaseHistoryUtilsChatGPT)
+      .inSingletonScope();
+    bind<IPromptBuilderFactory>(IPromptBuilderFactoryType)
+      .to(PromptBuilderFactory)
+      .inSingletonScope();
+    // endregion
   },
 );

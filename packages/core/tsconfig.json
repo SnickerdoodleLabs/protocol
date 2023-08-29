@@ -15,6 +15,9 @@
   },
   "references": [
     {
+      "path": "../ai-scraper"
+    },
+    {
       "path": "../common-utils"
     },
     {
@@ -40,6 +43,9 @@
     },
     {
       "path": "../signatureVerification"
+    },
+    {
+      "path": "../shopping-data"
     }
   ],
   "include": [

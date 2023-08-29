@@ -15,7 +15,7 @@ import {
   IPurchaseRepositoryType,
   PurchasedProduct,
 } from "@snickerdoodlelabs/shopping-data";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
@@ -36,6 +36,7 @@ import {
   Prompt,
 } from "@ai-scraper/interfaces/index.js";
 
+@injectable()
 export class LLMScraperService implements IScraperService {
   public constructor(
     @inject(ILogUtilsType)
