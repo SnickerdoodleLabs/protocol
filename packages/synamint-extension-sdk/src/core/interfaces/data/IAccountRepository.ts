@@ -10,6 +10,8 @@ import {
   UnauthorizedError,
   IpfsCID,
   QueryStatus,
+  EVMContractAddress,
+  BlockNumber,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -37,6 +39,10 @@ export interface IAccountRepository {
   getQueryStatusByQueryCID(
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, SnickerDoodleCoreError>;
+  getQueryStatuses(
+    contractAddress: EVMContractAddress,
+    blockNumber?: BlockNumber,
+  ): ResultAsync<QueryStatus[], SnickerDoodleCoreError>
 }
 
 export const IAccountRepositoryType = Symbol.for("IAccountRepository");

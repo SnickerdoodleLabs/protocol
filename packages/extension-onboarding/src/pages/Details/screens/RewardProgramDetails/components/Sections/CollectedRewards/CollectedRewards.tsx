@@ -23,7 +23,7 @@ import { EBadgeType } from "@extension-onboarding/objects";
 import Section, {
   useSectionStyles,
 } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";
-import { isSameReward } from "@extension-onboarding/utils";
+import { isSameReward } from "@snickerdoodlelabs/shared-components";
 
 interface ICollectedRewardsProps {
   rewards: EarnedReward[];
