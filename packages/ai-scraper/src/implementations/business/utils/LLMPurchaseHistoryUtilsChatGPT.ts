@@ -1,5 +1,5 @@
 import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
-import { LLMError, ScraperError } from "@snickerdoodlelabs/objects";
+import { DomainName, LLMError, ScraperError } from "@snickerdoodlelabs/objects";
 import {
   ProductKeyword,
   PurchasedProduct,
@@ -7,9 +7,8 @@ import {
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
-import { IPurchaseBlock } from "../../../interfaces/IPurchaseBlock";
-
 import {
+  IPurchaseBlock,
   Exemplar,
   ILLMPurchaseHistoryUtils,
   LLMAnswerStructure,
@@ -53,6 +52,7 @@ export class LLMPurchaseHistoryUtilsChatGPT
   }
 
   public parsePurchases(
+    domain: DomainName,
     llmResponse: LLMResponse,
   ): ResultAsync<PurchasedProduct[], LLMError> {
     try {
@@ -60,6 +60,7 @@ export class LLMPurchaseHistoryUtilsChatGPT
       // worst possible parser
       const purchasedProducts = purchases.map((purchase) => {
         return new PurchasedProduct(
+          domain,
           null,
           purchase.name,
           purchase.brand,

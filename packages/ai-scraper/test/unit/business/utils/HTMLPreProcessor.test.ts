@@ -1,7 +1,11 @@
+import "reflect-metadata";
 import { HTMLPreProcessor } from "@ai-scraper/implementations/business/HTMLPreProcessor";
 import { IHTMLPreProcessor } from "@ai-scraper/interfaces";
 import {
   fullHtml,
+  fullTextAmazonPaginationOnly,
+  fullTextOnly,
+  fullTextWithImages,
   html1,
   text1,
 } from "@ai-scraper-test/mocks/testHTMLPreprocessorData";
@@ -42,7 +46,7 @@ describe("HTMLPreProcessor", () => {
     expect(result._unsafeUnwrap()).toEqual(fullTextWithImages);
   });
 
-  test("htmlToText full text with images", async () => {
+  test("htmlToText amazon pagination", async () => {
     // Arrange
     const processor = new mocks().factory();
     const amazonPagination = {

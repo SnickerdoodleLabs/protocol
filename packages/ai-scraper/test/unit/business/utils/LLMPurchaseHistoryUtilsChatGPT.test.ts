@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
+import { DomainName } from "@snickerdoodlelabs/objects";
 
 import { LLMPurchaseHistoryUtilsChatGPT } from "@ai-scraper/implementations";
 import {
@@ -21,7 +22,10 @@ describe("LLMPurchaseHistoryUtilsChatGPT", () => {
     const utils = mocks.factory();
 
     // Act
-    const result = await utils.parsePurchases(chatGPTPurchaseHistoryResponse);
+    const result = await utils.parsePurchases(
+      DomainName("amazon.com"),
+      chatGPTPurchaseHistoryResponse,
+    );
 
     // Assert
     expect(result.isOk()).toBeTruthy();

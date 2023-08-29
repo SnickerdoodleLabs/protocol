@@ -1,4 +1,4 @@
-import { LLMError } from "@snickerdoodlelabs/objects";
+import { LLMError, DomainName } from "@snickerdoodlelabs/objects";
 import { PurchasedProduct } from "@snickerdoodlelabs/shopping-data";
 import { ResultAsync } from "neverthrow";
 
@@ -16,6 +16,7 @@ export interface ILLMPurchaseHistoryUtils {
   getAnswerStructure(): LLMAnswerStructure;
 
   parsePurchases(
+    domain: DomainName,
     llmResponse: LLMResponse,
   ): ResultAsync<PurchasedProduct[], LLMError>;
 }

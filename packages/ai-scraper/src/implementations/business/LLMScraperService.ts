@@ -93,7 +93,7 @@ export class LLMScraperService implements IScraperService {
   ): ResultAsync<void, ScraperError | PersistenceError | LLMError> {
     if (domainTask.taskType == ETask.PurchaseHistory) {
       return this.purchaseHistoryLLMUtils
-        .parsePurchases(llmResponse)
+        .parsePurchases(domainTask.domain, llmResponse)
         .andThen((purchases) => {
           return this.savePurchases(purchases);
         });

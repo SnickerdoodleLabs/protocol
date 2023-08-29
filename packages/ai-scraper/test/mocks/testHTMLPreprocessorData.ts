@@ -121,7 +121,7 @@ export const fullHtml = `
             </body>
             </html>
             `;
-const fullTextOnly = `THIS IS BODY
+export const fullTextOnly = `THIS IS BODY
 
 this is a paragraph
 
@@ -139,7 +139,7 @@ View your item
  * 3
  * Next→`;
 
-const fullTextWithImages = `THIS IS BODY
+export const fullTextWithImages = `THIS IS BODY
 
 this is a paragraph
 
@@ -163,13 +163,13 @@ View your item
  * 3
  * Next→`;
 
-const fullTextAmazonPaginationOnly = ` * ←Previous
-[/gp/your-account/order-history/ref=ppx_yo_dt_b_pagination_7_6?ie=UTF8&orderFilter=year-2022&search=&startIndex=50]
-* 1
-[/gp/your-account/order-history/ref=ppx_yo_dt_b_pagination_7_1?ie=UTF8&orderFilter=year-2022&search=&startIndex=0]
-* 2
-[/gp/your-account/order-history/ref=ppx_yo_dt_b_pagination_7_2?ie=UTF8&orderFilter=year-2022&search=&startIndex=10]
-* 3
-[/gp/your-account/order-history/ref=ppx_yo_dt_b_pagination_7_3?ie=UTF8&orderFilter=year-2022&search=&startIndex=20]
-* Next→
-[/gp/your-account/order-history/ref=ppx_yo_dt_b_pagination_7_8?ie=UTF8&orderFilter=year-2022&search=&startIndex=70]`;
+export const fullTextAmazonPaginationOnly = ` * ←Previous
+   [/gp/your-account/order-history/ref=ppx_yo_dt_b_pagination_7_6?ie=UTF8&orderFilter=year-2022&search=&startIndex=50]
+ * 1
+   [/gp/your-account/order-history/ref=ppx_yo_dt_b_pagination_7_1?ie=UTF8&orderFilter=year-2022&search=&startIndex=0]
+ * 2
+   [/gp/your-account/order-history/ref=ppx_yo_dt_b_pagination_7_2?ie=UTF8&orderFilter=year-2022&search=&startIndex=10]
+ * 3
+   [/gp/your-account/order-history/ref=ppx_yo_dt_b_pagination_7_3?ie=UTF8&orderFilter=year-2022&search=&startIndex=20]
+ * Next→
+   [/gp/your-account/order-history/ref=ppx_yo_dt_b_pagination_7_8?ie=UTF8&orderFilter=year-2022&search=&startIndex=70]`;
