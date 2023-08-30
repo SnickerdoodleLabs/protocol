@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
 
-const argon2 = require("argon2");
+// const argon2 = require("argon2");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const fileSystem = require("fs-extra");
@@ -44,7 +44,7 @@ console.log(`env.NODE_ENV: ${env.NODE_ENV}`);
 
 var options = {
   externals: {
-    argon2: argon2,
+    // argon2: argon2,
   },
   target: "webworker",
   // mode: env.NODE_ENV || "development",
