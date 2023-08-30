@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/protocol-docker-base",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Package that contains the base dockerfile, which is used by all other packages",
   "license": "MIT",
   "repository": {

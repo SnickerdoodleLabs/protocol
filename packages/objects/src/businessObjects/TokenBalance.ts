@@ -1,12 +1,11 @@
 import { BigNumber, utils } from "ethers";
 
 import { TokenAddress } from "@objects/businessObjects/TokenAddress.js";
-import { EChainTechnology } from "@objects/enum/index.js";
-
+import { EChain, EChainTechnology } from "@objects/enum/index.js";
 import {
   AccountAddress,
   BigNumberString,
-  ChainId,
+  DecimalString,
   TickerSymbol,
 } from "@objects/primitives/index.js";
 
@@ -14,7 +13,7 @@ export class TokenBalance {
   public constructor(
     public type: EChainTechnology,
     public ticker: TickerSymbol,
-    public chainId: ChainId,
+    public chainId: EChain,
     public tokenAddress: TokenAddress,
     public accountAddress: AccountAddress,
     public balance: BigNumberString,
@@ -22,8 +21,8 @@ export class TokenBalance {
   ) {}
 }
 
-export function formatValue(balance: TokenBalance): BigNumberString {
-  return BigNumberString(
+export function formatValue(balance: TokenBalance): DecimalString {
+  return DecimalString(
     utils.formatUnits(BigNumber.from(balance.balance), balance.decimals),
   );
 }

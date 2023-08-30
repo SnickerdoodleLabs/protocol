@@ -117,8 +117,6 @@ const testTwitterConfig = {
 
 export const testCoreConfig = new CoreConfig(
   controlChainId,
-  [], //TODO: supported chains
-  chainConfig,
   controlChainInformation,
   URLString("http://ipfstest.com/whatever"),
   defaultInsightPlatformBaseUrl, // defaultInsightPlatformBaseUrl
@@ -190,7 +188,7 @@ export const testCoreConfig = new CoreConfig(
     10000000, // optOutGas
     10000000, // updateAgreementFlagsGas
   ), // metatransactionGasAmounts
-  ProviderUrl(""), // devChainProviderUrl
+  ProviderUrl("devChainProviderURL"), // devChainProviderURL
   60, // maxStatsRetentionSeconds
   LanguageCode("en-pw"), // passwordLanguageCode
 );

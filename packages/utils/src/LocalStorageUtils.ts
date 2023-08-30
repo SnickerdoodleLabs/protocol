@@ -35,10 +35,12 @@ export class LocalStorageUtils implements IStorageUtils {
     if (typeof window !== "undefined" && window.localStorage) {
       this.logUtils.log("Using LocalStorage for IStorageUtils");
       this.simpleStorage = new LocalStorageStore();
-    } else if (chrome.storage != null) {
-      this.logUtils.log("Using Chrome Storage API for IStorageUtils");
-      this.simpleStorage = new ChromeStorageStore();
-    } else {
+    }
+    // else if (chrome != null &&chrome.storage != null) {
+    //   this.logUtils.log("Using Chrome Storage API for IStorageUtils");
+    //   this.simpleStorage = new ChromeStorageStore();
+    // }
+    else {
       this.logUtils.log(
         "No storage API available, using memory-only storage for IStorageUtils",
       );
@@ -134,18 +136,18 @@ class LocalStorageStore implements ISimpleStorage {
   }
 }
 
-class ChromeStorageStore implements ISimpleStorage {
-  public async getItem(key) {
-    return (await chrome.storage.local.get(key))[key];
-  }
+// class ChromeStorageStore implements ISimpleStorage {
+//   public async getItem(key) {
+//     return (await chrome.storage.local.get(key))[key];
+//   }
 
-  public setItem(key, value) {
-    return chrome.storage.local.set({ key: value });
-  }
-  public removeItem(key: string) {
-    return chrome.storage.local.remove(key);
-  }
-  public clear() {
-    return chrome.storage.local.clear();
-  }
-}
+//   public setItem(key, value) {
+//     return chrome.storage.local.set({ key: value });
+//   }
+//   public removeItem(key: string) {
+//     return chrome.storage.local.remove(key);
+//   }
+//   public clear() {
+//     return chrome.storage.local.clear();
+//   }
+// }

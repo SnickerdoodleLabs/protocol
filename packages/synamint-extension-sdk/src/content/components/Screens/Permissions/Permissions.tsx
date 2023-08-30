@@ -14,7 +14,9 @@ import {
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
+  addQueryStatusToPossibleReward,
   PermissionSelection,
+  PossibleRewardWithQueryStatus,
   UI_SUPPORTED_PERMISSIONS,
 } from "@snickerdoodlelabs/shared-components";
 import { JsonRpcError } from "json-rpc-engine";
@@ -31,7 +33,7 @@ import {
 } from "@synamint-extension-sdk/shared";
 import {
   GetPossibleRewardsParams,
-  GetQueryStatusByCidParams,
+  GetQueryStatusesParams,
   SetBirthdayParams,
   SetGenderParams,
   SetLocationParams,
@@ -73,22 +75,14 @@ const Permissions: FC<IPermissionsProps> = ({
   }>({ discordProfiles: [] });
   const [rewards, setRewards] = useState<{
     earnedRewards: EarnedReward[];
-    possibleRewards: PossibleReward[];
+    possibleRewardWithQueryStatus: PossibleRewardWithQueryStatus[];
   }>();
-  const [queryStatus, setQueryStatus] = useState<QueryStatus | null>(null);
 
-  useEffect(() => {
-    if (rewards && rewards?.possibleRewards.length > 0) {
-      coreGateway
-        .getQueryStatusByQueryCID(
-          new GetQueryStatusByCidParams(rewards.possibleRewards[0].queryCID),
-        )
-        .map((queryStatus) => {
-          setQueryStatus(queryStatus);
-        });
-    }
-  }, [JSON.stringify(rewards)]);
-
+  const getQueryStatuses = () => {
+    return coreGateway.getQueryStatuses(
+      new GetQueryStatusesParams(domainDetails.consentAddress),
+    );
+  };
   useEffect(() => {
     getRewards();
   }, []);
@@ -148,11 +142,16 @@ const Permissions: FC<IPermissionsProps> = ({
       coreGateway.getPossibleRewards(
         new GetPossibleRewardsParams([domainDetails.consentAddress]),
       ),
-    ]).map(([earnedRewards, possibleRewards]) => {
+      getQueryStatuses(),
+    ]).map(([earnedRewards, possibleRewards, queryStatuses]) => {
+      const currentPossibleRewards =
+        possibleRewards.get(domainDetails.consentAddress) ?? [];
       setRewards({
         earnedRewards,
-        possibleRewards:
-          possibleRewards.get(domainDetails.consentAddress) ?? [],
+        possibleRewardWithQueryStatus: addQueryStatusToPossibleReward(
+          currentPossibleRewards,
+          queryStatuses,
+        ),
       });
     });
   }, [isUnlocked]);
@@ -251,7 +250,6 @@ const Permissions: FC<IPermissionsProps> = ({
     >
       {rewards ? (
         <PermissionSelection
-          queryStatus={queryStatus}
           setBirthday={(birthday) =>
             coreGateway.setBirtday(new SetBirthdayParams(birthday))
           }
@@ -265,7 +263,7 @@ const Permissions: FC<IPermissionsProps> = ({
           isSafe={isSafe}
           consentContractAddress={domainDetails.consentAddress}
           campaignInfo={domainDetails}
-          possibleRewards={rewards.possibleRewards}
+          possibleRewardWithQueryStatus={rewards.possibleRewardWithQueryStatus}
           earnedRewards={rewards.earnedRewards}
           onCancelClick={onCancelClick}
           onAcceptClick={onNextClick}

@@ -39,6 +39,7 @@ import {
   UnixTimestamp,
   ECloudStorageType,
   AccessToken,
+  BlockNumber,
   RefreshToken,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -751,6 +752,19 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
             return core.getQueryStatusByQueryCID(data.data.queryCID);
+          });
+        }, data.callId);
+      },
+
+      getQueryStatuses: (
+        data: IIFrameCallData<{
+          contractAddress: EVMContractAddress,
+          blockNumber?: BlockNumber,
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.getQueryStatuses(data.data.contractAddress , data.data.blockNumber);
           });
         }, data.callId);
       },

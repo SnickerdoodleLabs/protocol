@@ -1,5 +1,4 @@
 export * from "@core/interfaces/objects/BusinessConsentContract.js";
-export * from "@core/interfaces/objects/ComponentStatus.js";
 export * from "@core/interfaces/objects/CoreConfig.js";
 export * from "@core/interfaces/objects/CoreContext.js";
 export * from "@core/interfaces/objects/CrumbCallData.js";

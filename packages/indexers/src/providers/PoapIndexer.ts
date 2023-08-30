@@ -7,13 +7,11 @@ import {
   AccountIndexingError,
   AjaxError,
   BigNumberString,
-  ChainId,
   EComponentStatus,
   EVMAccountAddress,
   EVMContractAddress,
   EVMNFT,
   EVMTransaction,
-  IEVMIndexer,
   TokenBalance,
   TokenUri,
   MethodSupportError,
@@ -28,13 +26,16 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
 import {
+  IEVMIndexer,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
   IIndexerContextProvider,
   IIndexerContextProviderType,
 } from "@indexers/interfaces/index.js";
 
-const poapContractAddress = "0x22c1f6050e56d2876009903609a2cc3fef83b415";
+const poapContractAddress = EVMContractAddress(
+  "0x22c1f6050e56d2876009903609a2cc3fef83b415",
+);
 
 @injectable()
 export class PoapRepository implements IEVMIndexer {
@@ -58,12 +59,16 @@ export class PoapRepository implements IEVMIndexer {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
 
+  public initialize(): ResultAsync<void, never> {
+    return this.setHealth();
+  }
+
   public name(): string {
     return EDataProvider.Poap;
   }
 
   public getBalancesForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
     TokenBalance[],
@@ -78,7 +83,7 @@ export class PoapRepository implements IEVMIndexer {
   }
 
   public getTokensForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
     return ResultUtils.combine([
@@ -94,7 +99,7 @@ export class PoapRepository implements IEVMIndexer {
         );
       })
       .map((result) => {
-        return this.getPages(chainId, result);
+        return this.getPages(chain, result);
       })
       .mapErr(
         (e) => new AccountIndexingError("error fetching nfts from nftscan", e),
@@ -102,7 +107,7 @@ export class PoapRepository implements IEVMIndexer {
   }
 
   public getEVMTransactions(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
     startTime: Date,
     endTime?: Date | undefined,
@@ -118,46 +123,6 @@ export class PoapRepository implements IEVMIndexer {
     );
   }
 
-  public getHealthCheck(): ResultAsync<
-    Map<EChain, EComponentStatus>,
-    AjaxError
-  > {
-    const url = urlJoinP("https://api.poap.tech", ["health-check"]);
-    return ResultUtils.combine([
-      this.configProvider.getConfig(),
-      this.contextProvider.getContext(),
-    ]).andThen(([config, context]) => {
-      if (config.apiKeys.poapApiKey == "") {
-        this.health.set(EChain.Gnosis, EComponentStatus.NoKeyProvided);
-        return okAsync(this.health);
-      }
-      const result: IRequestConfig = {
-        method: "get",
-        url: url,
-        headers: {
-          accept: "application/json",
-          "X-API-Key": config.apiKeys.poapApiKey,
-        },
-      };
-
-      context.privateEvents.onApiAccessed.next(EExternalApi.POAP);
-      return this.ajaxUtils
-        .get<IHealthCheck>(
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          new URL(result.url!),
-          result,
-        )
-        .map((result) => {
-          if (result.status !== undefined) {
-            this.health.set(EChain.Gnosis, EComponentStatus.Available);
-            return this.health;
-          }
-          this.health.set(EChain.Gnosis, EComponentStatus.Error);
-          return this.health;
-        });
-    });
-  }
-
   public healthStatus(): Map<EChain, EComponentStatus> {
     return this.health;
   }
@@ -166,7 +131,40 @@ export class PoapRepository implements IEVMIndexer {
     return this.indexerSupport;
   }
 
-  private getPages(chainId: ChainId, response: IPoapResponse[]): EVMNFT[] {
+  protected setHealth(): ResultAsync<void, never> {
+    const url = urlJoinP("https://api.poap.tech", ["health-check"]);
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+    ]).andThen(([config, context]) => {
+      if (config.apiKeys.poapApiKey == "") {
+        this.health.set(EChain.Gnosis, EComponentStatus.NoKeyProvided);
+        return okAsync(undefined);
+      }
+      const requestConfig: IRequestConfig = {
+        headers: {
+          accept: "application/json",
+          "X-API-Key": config.apiKeys.poapApiKey,
+        },
+      };
+
+      context.privateEvents.onApiAccessed.next(EExternalApi.POAP);
+      return this.ajaxUtils
+        .get<IHealthCheck>(new URL(url), requestConfig)
+        .map((result) => {
+          if (result.status !== undefined) {
+            this.health.set(EChain.Gnosis, EComponentStatus.Available);
+          }
+          this.health.set(EChain.Gnosis, EComponentStatus.Error);
+        })
+        .orElse((e) => {
+          this.health.set(EChain.Gnosis, EComponentStatus.Error);
+          return okAsync(undefined);
+        });
+    });
+  }
+
+  private getPages(chain: EChain, response: IPoapResponse[]): EVMNFT[] {
     const items: EVMNFT[] = response.map((token) => {
       return new EVMNFT(
         EVMContractAddress(poapContractAddress),
@@ -177,7 +175,7 @@ export class PoapRepository implements IEVMIndexer {
         { raw: JSON.stringify(token.event) },
         BigNumberString(token.event.supply),
         token.event.name,
-        chainId,
+        chain,
       );
     });
     return items;

@@ -21,7 +21,6 @@ import {
   getEtherscanBaseURLForChain,
   PolygonTransaction,
   EPolygonTransactionType,
-  IEVMIndexer,
   EVMNFT,
   MethodSupportError,
   getChainInfoByChain,
@@ -40,6 +39,7 @@ import {
   IIndexerConfigProvider,
   IIndexerContextProvider,
   IIndexerContextProviderType,
+  IEVMIndexer,
 } from "@indexers/interfaces/index.js";
 
 @injectable()
@@ -51,7 +51,7 @@ export class PolygonIndexer implements IEVMIndexer {
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [
       EChain.Polygon,
-      new IndexerSupportSummary(EChain.Polygon, true, true, true),
+      new IndexerSupportSummary(EChain.Polygon, false, true, false),
     ],
   ]);
 
@@ -65,6 +65,18 @@ export class PolygonIndexer implements IEVMIndexer {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
+
+  public initialize(): ResultAsync<void, never> {
+    return this.configProvider.getConfig().map((config) => {
+      this.indexerSupport.forEach((indexerSupportSummary, chain) => {
+        if (config.apiKeys.etherscanApiKeys[chain] == undefined) {
+          this.health.set(chain, EComponentStatus.NoKeyProvided);
+        } else {
+          this.health.set(chain, EComponentStatus.Available);
+        }
+      });
+    });
+  }
 
   public name(): string {
     return EDataProvider.Polygon;
@@ -188,25 +200,6 @@ export class PolygonIndexer implements IEVMIndexer {
       ]).map(([erc20, erc721, erc1155]) => {
         return [...erc20, ...erc721, ...erc1155];
       });
-    });
-  }
-
-  public getHealthCheck(): ResultAsync<
-    Map<EChain, EComponentStatus>,
-    AjaxError
-  > {
-    return this.configProvider.getConfig().andThen((config) => {
-      const keys = this.indexerSupport.keys();
-      this.indexerSupport.forEach(
-        (value: IndexerSupportSummary, key: EChain) => {
-          if (config.apiKeys.etherscanApiKeys[key] == undefined) {
-            this.health.set(key, EComponentStatus.NoKeyProvided);
-          } else {
-            this.health.set(key, EComponentStatus.Available);
-          }
-        },
-      );
-      return okAsync(this.health);
     });
   }
 

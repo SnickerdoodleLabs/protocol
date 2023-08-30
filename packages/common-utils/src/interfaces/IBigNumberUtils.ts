@@ -10,6 +10,7 @@ export interface IBigNumberUtils {
   BNToDS(bigNumber: BigNumber, decimals?: number): DecimalString;
   BNSToBN(bigNumberString: BigNumberString): BigNumber;
   BNSToDS(bigNumberString: BigNumberString, decimals?: number): DecimalString;
+  validateBNS(bigNumberString: string): boolean;
 }
 
 export const IBigNumberUtilsType = Symbol.for("IBigNumberUtils");

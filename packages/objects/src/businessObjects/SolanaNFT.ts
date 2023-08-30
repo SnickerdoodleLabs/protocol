@@ -1,7 +1,6 @@
 import { WalletNFT } from "@objects/businessObjects/WalletNFT.js";
-import { EChainTechnology } from "@objects/enum/index.js";
+import { EChain, EChainTechnology } from "@objects/enum/index.js";
 import {
-  ChainId,
   SolanaAccountAddress,
   SolanaTokenAddress,
   TickerSymbol,
@@ -16,7 +15,7 @@ export class SolanaCollection {
 
 export class SolanaNFT extends WalletNFT {
   public constructor(
-    public chain: ChainId,
+    public chain: EChain,
     public owner: SolanaAccountAddress,
     public mint: SolanaTokenAddress,
     public collection: SolanaCollection | null,

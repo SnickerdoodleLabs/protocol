@@ -30,7 +30,7 @@ export class TransactionFilter {
   }
 
   public matches(tx: ChainTransaction): boolean {
-    if (this.chainIDs != undefined && !this.chainIDs.has(tx.chainId)) {
+    if (this.chainIDs != undefined && !this.chainIDs.has(ChainId(tx.chain))) {
       return false;
     }
     if (this.hashes != undefined && !this.hashes.has(tx.hash.toLowerCase())) {

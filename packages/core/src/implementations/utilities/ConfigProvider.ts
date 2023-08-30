@@ -8,6 +8,7 @@ import {
   ECurrencyCode,
   EHashAlgorithm,
   ESignatureAlgorithm,
+  getChainInfoByChain,
   IConfigOverrides,
   LanguageCode,
   ProviderUrl,
@@ -89,8 +90,6 @@ export class ConfigProvider
     // All the default config below is for testing on local, using the test-harness package
     this.config = new CoreConfig(
       controlChainId, // controlChainId
-      [ChainId(EChain.DevDoodle)], // supportedChains (local hardhat only for the test harness, we can index other chains here though)
-      chainConfig, // chainInformation
       controlChainInformation, // controlChainInformation
       URLString("http://127.0.0.1:8080/ipfs"), // ipfsFetchBaseUrl
       URLString("http://localhost:3006"), // defaultInsightPlatformBaseUrl
@@ -169,7 +168,7 @@ export class ConfigProvider
         10000000, // optOutGas
         10000000, // updateAgreementFlagsGas
       ),
-      ProviderUrl("http://127.0.0.1:8545"), // devChainProviderURL
+      null, // devChainProviderURL, Defaults to null but will be set if the control chain is Doodlechain
       60 * 60 * 6, // maxStatsRetentionSeconds 6 hours
       LanguageCode("en"), // passwordLanguageCode
     );
@@ -187,7 +186,9 @@ export class ConfigProvider
       overrides.defaultGoogleCloudBucket ??
       this.config.defaultGoogleCloudBucket;
 
-    const controlChainInformation = chainConfig.get(this.config.controlChainId);
+    const controlChainInformation = getChainInfoByChain(
+      this.config.controlChainId,
+    );
 
     if (controlChainInformation == null) {
       throw new Error(
@@ -206,14 +207,15 @@ export class ConfigProvider
     // The whole point of making a different chainID for dev and local was to avoid this,
     // but it is unrealistic to assign a different ChainID for every sandbox. So instead,
     // if the chain ID is 31337 (DevDoodle), we can dynamically override the provider URL
+    // This is also important because the supported chains list is based on the available
+    // healthy indexers; the simulator indexer for the doodle chain is available if this
+    // value is set
     if (this.config.controlChainId == EChain.DevDoodle) {
       this.config.devChainProviderURL =
         overrides.devChainProviderURL || ProviderUrl("http://127.0.0.1:8545");
     }
 
     // The rest of the config is easier
-    this.config.supportedChains =
-      overrides.supportedChains ?? this.config.supportedChains;
     this.config.ipfsFetchBaseUrl =
       overrides.ipfsFetchBaseUrl ?? this.config.ipfsFetchBaseUrl;
     this.config.defaultInsightPlatformBaseUrl =

@@ -5,6 +5,7 @@ import {
   TokenInfo,
   TokenMarketData,
 } from "@objects/businessObjects/index.js";
+import { EChain } from "@objects/enum/index.js";
 import {
   AccountIndexingError,
   AjaxError,
@@ -14,14 +15,14 @@ import { ChainId, UnixTimestamp } from "@objects/primitives/index.js";
 
 export interface ITokenPriceRepository {
   getTokenInfo(
-    chainId: ChainId,
+    chain: EChain,
     contractAddress: TokenAddress,
   ): ResultAsync<TokenInfo | null, AccountIndexingError>;
 
   addTokenInfo(info: TokenInfo): ResultAsync<void, PersistenceError>;
 
   getTokenPrice(
-    chainId: ChainId,
+    chain: EChain,
     contractAddress: TokenAddress,
     timestamp: UnixTimestamp,
   ): ResultAsync<number, AccountIndexingError>;
