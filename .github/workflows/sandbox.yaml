@@ -127,4 +127,4 @@ jobs:
         ./get_helm.sh
         cd infra/
         helm install --set ENV=$JIRA_TICKET -n $JIRA_TICKET  insight-platform-protocol ./insight-platform-protocol || true
-        helm upgrade -f ./insight-platform-protocol/values.yaml --reuse-values --set ProtocolIframe.Image.Tag=$GITHUB_SHA --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA -n $JIRA_TICKET  insight-platform-protocol ./insight-platform-protocol 
+        helm upgrade -f ./insight-platform-protocol/values.yaml --reuse-values --set ProtocolIframe.Image.Tag=$GITHUB_SHA --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA  --set ProtocolStaticWebIntegration.Image.Tag=$GITHUB_SHA -n $JIRA_TICKET  insight-platform-protocol ./insight-platform-protocol 
