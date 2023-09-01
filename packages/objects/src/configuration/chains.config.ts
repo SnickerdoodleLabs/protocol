@@ -307,7 +307,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
     new ChainInformation(
       "Shibuya",
       ChainId(EChain.Shibuya),
-      EChain.Astar,
+      EChain.Shibuya,
       EChainTechnology.EVM,
       true,
       "shibuya",
