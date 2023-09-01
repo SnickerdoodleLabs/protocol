@@ -53,8 +53,10 @@ export interface IConfigOverrides {
   discordOverrides?: Partial<DiscordConfig>;
   twitterOverrides?: Partial<TwitterConfig>;
   heartbeatIntervalMS?: number;
-  primaryInfuraKey: string;
+  primaryInfuraKey?: string;
+  primaryRPCProviderURL?: ProviderUrl;
   secondaryInfuraKey?: string;
+  secondaryRPCProviderURL?: ProviderUrl;
   devChainProviderURL?: ProviderUrl;
   iframeURL?: URLString;
   debug?: boolean;

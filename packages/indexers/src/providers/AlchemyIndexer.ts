@@ -108,7 +108,7 @@ export class AlchemyIndexer implements IEVMIndexer {
         const chainInfo = getChainInfoByChain(chain);
         if (
           config.apiKeys.alchemyApiKeys[chainInfo.name] == "" ||
-          config.apiKeys.alchemyApiKeys[chainInfo.name] == undefined
+          config.apiKeys.alchemyApiKeys[chainInfo.name] == null
         ) {
           this.health.set(chain, EComponentStatus.NoKeyProvided);
         } else {

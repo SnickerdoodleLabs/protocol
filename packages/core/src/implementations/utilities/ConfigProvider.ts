@@ -104,35 +104,37 @@ export class ConfigProvider
       5, // backupChunkSizeTarget
       {
         alchemyApiKeys: {
-          Arbitrum: "",
-          Astar: "",
-          Mumbai: "",
-          Optimism: "",
-          Polygon: "",
-          Solana: "",
-          SolanaTestnet: "",
+          Arbitrum: null,
+          Astar: null,
+          Mumbai: null,
+          Optimism: null,
+          Polygon: null,
+          Solana: null,
+          SolanaTestnet: null,
         },
         etherscanApiKeys: {
-          Ethereum: "",
-          Polygon: "",
-          Avalanche: "",
-          Binance: "",
-          Moonbeam: "",
-          Optimism: "",
-          Arbitrum: "",
-          Gnosis: "",
-          Fuji: "",
+          Ethereum: null,
+          Polygon: null,
+          Avalanche: null,
+          Binance: null,
+          Moonbeam: null,
+          Optimism: null,
+          Arbitrum: null,
+          Gnosis: null,
+          Fuji: null,
         },
-        covalentApiKey: "", // "ckey_ee277e2a0e9542838cf30325665", // covalent api key
-        moralisApiKey: "",
+        covalentApiKey: null, // "ckey_ee277e2a0e9542838cf30325665", // covalent api key
+        moralisApiKey: null,
         // "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
-        nftScanApiKey: "", // "lusr87vNmTtHGMmktlFyi4Nt", // NftScan api key
-        poapApiKey: "",
+        nftScanApiKey: null, // "lusr87vNmTtHGMmktlFyi4Nt", // NftScan api key
+        poapApiKey: null,
         // "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm", // Poap Api Key
-        oklinkApiKey: "", // "700c2f71-a4e2-4a85-b87f-58c8a341d1bf", // oklinkApiKeys
-        ankrApiKey: "", // ankrApiKey
-        primaryInfuraKey: "a8ae124ed6aa44bb97a7166cda30f1bc", // primary Infura Key
-        secondaryInfuraKey: "", // secondaryInfuraKey
+        oklinkApiKey: null, // "700c2f71-a4e2-4a85-b87f-58c8a341d1bf", // oklinkApiKeys
+        ankrApiKey: null, // ankrApiKey
+        primaryInfuraKey: null, // primary Infura Key
+        primaryRPCProviderURL: null,
+        secondaryInfuraKey: null, // secondaryInfuraKey
+        secondaryRPCProviderURL: null,
       },
       URLString("https://cloudflare-dns.com/dns-query"), // dnsServerAddress
       ECurrencyCode.USD, // quoteCurrency
@@ -256,8 +258,14 @@ export class ConfigProvider
       overrides.ankrApiKey ?? this.config.apiKeys.ankrApiKey;
     this.config.apiKeys.primaryInfuraKey =
       overrides.primaryInfuraKey ?? this.config.apiKeys.primaryInfuraKey;
+    this.config.apiKeys.primaryRPCProviderURL =
+      overrides.primaryRPCProviderURL ??
+      this.config.apiKeys.primaryRPCProviderURL;
     this.config.apiKeys.secondaryInfuraKey =
       overrides.secondaryInfuraKey ?? this.config.apiKeys.secondaryInfuraKey;
+    this.config.apiKeys.secondaryRPCProviderURL =
+      overrides.secondaryRPCProviderURL ??
+      this.config.apiKeys.secondaryRPCProviderURL;
 
     this.config.dnsServerAddress =
       overrides.dnsServerAddress ?? this.config.dnsServerAddress;

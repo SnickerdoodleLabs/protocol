@@ -74,7 +74,7 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
       const keys = this.indexerSupport.keys();
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
-          if (config.apiKeys.covalentApiKey == "") {
+          if (config.apiKeys.covalentApiKey == null) {
             this.health.set(key, EComponentStatus.NoKeyProvided);
           } else {
             this.health.set(key, EComponentStatus.Available);

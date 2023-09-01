@@ -1,5 +1,4 @@
 import {
-  ChainId,
   EChain,
   ECurrencyCode,
   ProviderUrl,
@@ -9,33 +8,31 @@ import {
 export interface IIndexerConfig {
   apiKeys: {
     alchemyApiKeys: {
-      Arbitrum: string;
-      Astar: string;
-      Mumbai: string;
-      Optimism: string;
-      Polygon: string;
-      Solana: string;
-      SolanaTestnet: string;
+      Arbitrum: string | null;
+      Astar: string | null;
+      Mumbai: string | null;
+      Optimism: string | null;
+      Polygon: string | null;
+      Solana: string | null;
+      SolanaTestnet: string | null;
     };
     etherscanApiKeys: {
-      Ethereum: string;
-      Polygon: string;
-      Avalanche: string;
-      Binance: string;
-      Moonbeam: string;
-      Optimism: string;
-      Arbitrum: string;
-      Gnosis: string;
-      Fuji: string;
+      Ethereum: string | null;
+      Polygon: string | null;
+      Avalanche: string | null;
+      Binance: string | null;
+      Moonbeam: string | null;
+      Optimism: string | null;
+      Arbitrum: string | null;
+      Gnosis: string | null;
+      Fuji: string | null;
     };
-    covalentApiKey: string;
-    moralisApiKey: string;
-    nftScanApiKey: string;
-    poapApiKey: string;
-    oklinkApiKey: string;
-    primaryInfuraKey: string;
-    secondaryInfuraKey: string;
-    ankrApiKey: string;
+    covalentApiKey: string | null;
+    moralisApiKey: string | null;
+    nftScanApiKey: string | null;
+    poapApiKey: string | null;
+    oklinkApiKey: string | null;
+    ankrApiKey: string | null;
   };
   etherscanTransactionsBatchSize: number;
   quoteCurrency: ECurrencyCode;

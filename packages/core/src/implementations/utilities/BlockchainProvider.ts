@@ -44,32 +44,57 @@ export class BlockchainProvider implements IBlockchainProvider {
     this.providerInitializationResult = this.configProvider
       .getConfig()
       .map((config) => {
+        if (config.controlChainId === EChain.DevDoodle) {
+          if (config.devChainProviderURL == null) {
+            throw new Error(
+              "No dev chain provider URL but control chain is doodlechain. That's a programming error",
+            );
+          }
+          this.primaryProvider = new ethers.providers.JsonRpcProvider(
+            config.devChainProviderURL,
+          );
+          return;
+        }
+        // Not the doodle chain
+        // We need to figure out if we should use the infura provider or the RPC provider.
         if (
-          config.devChainProviderURL == null &&
-          config.controlChainId === EChain.DevDoodle
+          config.apiKeys.primaryInfuraKey == null &&
+          config.apiKeys.primaryRPCProviderURL == null
         ) {
-          throw new Error(
-            "No dev chain provider URL but control chain is doodlechain. That's a programming error",
+          throw new Error("No primary provider URL or infura key!");
+        }
+        // Prefer infura if given
+        if (config.apiKeys.primaryInfuraKey != null) {
+          this.primaryProvider = new ethers.providers.InfuraProvider(
+            config.controlChainInformation.chainId,
+            config.apiKeys.primaryInfuraKey,
+          );
+        } else {
+          this.primaryProvider = new ethers.providers.JsonRpcProvider(
+            config.apiKeys.primaryRPCProviderURL!,
           );
         }
-        this.primaryProvider = new ethers.providers.JsonRpcProvider(
-          config.controlChainId === EChain.DevDoodle
-            ? config.devChainProviderURL!
-            : `https://${config.controlChainInformation.networkName}.infura.io/v3/${config.apiKeys.primaryInfuraKey}`,
-        );
 
         // The secondary is optional, and depends on the config. We only have backups for non-devchains
-
-        if (config.controlChainId != EChain.DevDoodle) {
-          if (
-            config.apiKeys.secondaryInfuraKey != null &&
-            config.apiKeys.secondaryInfuraKey != ""
-          ) {
+        if (
+          config.apiKeys.secondaryInfuraKey != null ||
+          config.apiKeys.secondaryRPCProviderURL != null
+        ) {
+          // Prefer infura if given
+          if (config.apiKeys.secondaryInfuraKey != null) {
             this.logUtils.log(
               `Configuring secondary provider with secondaryInfuraKey for network ${config.controlChainInformation.networkName}`,
             );
+            this.secondaryProvider = new ethers.providers.InfuraProvider(
+              config.controlChainInformation.chainId,
+              config.apiKeys.secondaryInfuraKey,
+            );
+          } else {
+            this.logUtils.log(
+              `Configuring secondary provider with secondaryRPCProviderURL for network ${config.controlChainInformation.networkName}`,
+            );
             this.secondaryProvider = new ethers.providers.JsonRpcProvider(
-              `https://${config.controlChainInformation.networkName}.infura.io/v3/${config.apiKeys.secondaryInfuraKey}`,
+              config.apiKeys.secondaryRPCProviderURL!,
             );
           }
         }
