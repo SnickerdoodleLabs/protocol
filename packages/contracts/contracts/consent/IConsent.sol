@@ -42,8 +42,6 @@ interface IConsent {
 
     function openOptInDisabled() external view returns(bool);
 
-    function trustedForwarder() external view returns(address);
-
     function queryHorizon() external view returns(uint);
 
     function agreementFlagsArray(uint256) external view returns(bytes32);
@@ -64,7 +62,7 @@ interface IConsent {
 
     function removeListing(string memory tag) external returns (string memory);
 
-    function optIn(uint256 tokenId, bytes32 agreementFlags) external;
+    function optIn(uint256 tokenId, bytes32 agreementFlags, bytes32 identityCommitment, bytes memory stealthSignature) external;
 
     function restrictedOptIn(uint256 tokenId, bytes32 agreementFlags, bytes memory signature) external;
 
@@ -79,8 +77,6 @@ interface IConsent {
     function updateAgreementFlags(uint256 tokenId, bytes32 newAgreementFlags) external;
 
     function setQueryHorizon(uint queryHorizon_) external;
-
-    function updateTrustedForwarder() external;
 
     function updateMaxTagsLimit() external;
 

@@ -14,8 +14,8 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 contract DoodleToken is ERC20, ERC20Permit, ERC20Votes {
 
     constructor(address distributionAddress) ERC20("Doodle", "DOODLE") ERC20Permit("Doodle") {
-        // TODO: confirm total cap supply, mints to foundation/DAO/treasury address 
-        _mint(distributionAddress, 100000000000000000000000000);
+        // total initial supply is 13.5 billion tokens with 18 decimal places of precision
+        _mint(distributionAddress, 13500000000e18);
     }
 
     // The following functions are overrides required by Solidity.
