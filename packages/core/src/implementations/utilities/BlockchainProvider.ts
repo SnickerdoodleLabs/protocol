@@ -65,11 +65,23 @@ export class BlockchainProvider implements IBlockchainProvider {
         }
         // Prefer infura if given
         if (config.apiKeys.primaryInfuraKey != null) {
-          this.primaryProvider = new ethers.providers.InfuraProvider(
-            config.controlChainInformation.chainId,
-            config.apiKeys.primaryInfuraKey,
+          this.logUtils.log(
+            `Configuring primary provider with InfuraProvider with primaryInfuraKey for network ${config.controlChainInformation.networkName}`,
+          );
+          // Leaving this here; Infura does not support Fuji yet, but when it does, we can move to the optimized provider
+          // this.primaryProvider = new ethers.providers.InfuraProvider(
+          //   config.controlChainInformation.chainId,
+          //   config.apiKeys.primaryInfuraKey,
+          // );
+
+          this.primaryProvider = new ethers.providers.JsonRpcProvider(
+            `https://${config.controlChainInformation.networkName}.infura.io/v3/${config.apiKeys.primaryInfuraKey}`,
           );
         } else {
+          this.logUtils.log(
+            `Configuring primary provider with RPCProvider with primaryRPCProviderURL ${config.apiKeys.primaryRPCProviderURL} for network ${config.controlChainInformation.networkName}`,
+          );
+
           this.primaryProvider = new ethers.providers.JsonRpcProvider(
             config.apiKeys.primaryRPCProviderURL!,
           );
@@ -85,9 +97,12 @@ export class BlockchainProvider implements IBlockchainProvider {
             this.logUtils.log(
               `Configuring secondary provider with secondaryInfuraKey for network ${config.controlChainInformation.networkName}`,
             );
-            this.secondaryProvider = new ethers.providers.InfuraProvider(
-              config.controlChainInformation.chainId,
-              config.apiKeys.secondaryInfuraKey,
+            // this.secondaryProvider = new ethers.providers.InfuraProvider(
+            //   config.controlChainInformation.chainId,
+            //   config.apiKeys.secondaryInfuraKey,
+            // );
+            this.secondaryProvider = new ethers.providers.JsonRpcProvider(
+              `https://${config.controlChainInformation.networkName}.infura.io/v3/${config.apiKeys.secondaryInfuraKey}`,
             );
           } else {
             this.logUtils.log(
