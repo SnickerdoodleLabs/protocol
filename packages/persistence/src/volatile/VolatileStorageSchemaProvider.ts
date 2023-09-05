@@ -281,6 +281,7 @@ export class VolatileStorageSchemaProvider
               ["marketPlace", false],
               ["datePurchased", false],
               ["Category", false],
+              [["marketPlace", "datePurchased"], false],
             ],
           ),
         ],

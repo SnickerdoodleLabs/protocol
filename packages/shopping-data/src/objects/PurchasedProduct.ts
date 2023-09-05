@@ -1,5 +1,6 @@
 import {
   DomainName,
+  ELanguageCode,
   URLString,
   UnixTimestamp,
   VersionedObject,
@@ -21,11 +22,12 @@ export class PurchasedProduct extends VersionedObject {
    */
   constructor(
     readonly marketPlace: DomainName,
+    readonly language: ELanguageCode,
     readonly id: ProductId | null,
     readonly name: string,
     readonly brand: string | null,
     readonly price: number,
-    readonly datePurchased: UnixTimestamp | null,
+    readonly datePurchased: UnixTimestamp,
 
     readonly dateCreated: UnixTimestamp,
     readonly description: string | null,
@@ -48,6 +50,7 @@ export class PurchasedProductMigrator extends VersionedObjectMigrator<PurchasedP
   protected factory(data: Record<string, unknown>): PurchasedProduct {
     return new PurchasedProduct(
       DomainName(data["marketPlace"] as string),
+      ELanguageCode[data["languageCode"] as string],
       ProductId(data["id"] as number),
       data["name"] as string,
       data["brand"] as string,

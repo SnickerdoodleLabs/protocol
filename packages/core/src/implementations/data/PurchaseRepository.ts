@@ -2,6 +2,7 @@ import {
   PersistenceError,
   DomainName,
   ERecordKey,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
   IPurchaseRepository,
@@ -41,6 +42,16 @@ export class PurchaseRepository implements IPurchaseRepository {
       ERecordKey.PURCHASED_PRODUCT,
       "marketPlace",
       marketPlace,
+    );
+  }
+  public getByMarketplaceAndDate(
+    marketPlace: DomainName,
+    datePurchased: UnixTimestamp,
+  ): ResultAsync<PurchasedProduct[], PersistenceError> {
+    return this.persistence.getAllByMultiIndex<PurchasedProduct>(
+      ERecordKey.PURCHASED_PRODUCT,
+      ["marketPlace", "datePurchased"],
+      [marketPlace, datePurchased],
     );
   }
 }

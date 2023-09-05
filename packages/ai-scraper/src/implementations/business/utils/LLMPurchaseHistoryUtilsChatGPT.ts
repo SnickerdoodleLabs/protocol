@@ -1,5 +1,10 @@
 import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
-import { DomainName, LLMError, ScraperError } from "@snickerdoodlelabs/objects";
+import {
+  DomainName,
+  ELanguageCode,
+  LLMError,
+  ScraperError,
+} from "@snickerdoodlelabs/objects";
 import {
   ProductKeyword,
   PurchasedProduct,
@@ -53,19 +58,28 @@ export class LLMPurchaseHistoryUtilsChatGPT
 
   public parsePurchases(
     domain: DomainName,
+    language: ELanguageCode,
     llmResponse: LLMResponse,
   ): ResultAsync<PurchasedProduct[], LLMError> {
     try {
       const purchases: IPurchaseBlock[] = JSON.parse(llmResponse);
       // worst possible parser
       const purchasedProducts = purchases.map((purchase) => {
+        const timestampPurchased = this.timeUtils.parseToSDTimestamp(
+          purchase.date,
+        );
+
+        if (timestampPurchased == null) {
+          throw new LLMError(`Invalid purchase date ${purchase.date}`);
+        }
         return new PurchasedProduct(
           domain,
+          language,
           null,
           purchase.name,
           purchase.brand,
           this.parsePrice(purchase.price),
-          this.timeUtils.parseToSDTimestamp(purchase.date),
+          timestampPurchased,
           this.timeUtils.getUnixNow(),
           null,
           null,

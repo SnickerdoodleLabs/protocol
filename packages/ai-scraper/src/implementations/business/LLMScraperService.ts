@@ -84,15 +84,23 @@ export class LLMScraperService implements IScraperService {
     // 3. parse response for information
     // 4. persist information
 
-    return this.buildPrompt(url, html, suggestedDomainTask)
-      .andThen((prompt) => {
-        return this.llmProvider.executePrompt(prompt).andThen((llmResponse) => {
-          return this.processLLMResponse(suggestedDomainTask, llmResponse);
+    return this.htmlPreProcessor.getLanguage(html).andThen((language) => {
+      return this.buildPrompt(url, html, suggestedDomainTask)
+        .andThen((prompt) => {
+          return this.llmProvider
+            .executePrompt(prompt)
+            .andThen((llmResponse) => {
+              return this.processLLMResponse(
+                suggestedDomainTask,
+                language,
+                llmResponse,
+              );
+            });
+        })
+        .mapErr((err) => {
+          return new ScraperError(err.message, err);
         });
-      })
-      .mapErr((err) => {
-        return new ScraperError(err.message, err);
-      });
+    });
   }
 
   private buildPrompt(
@@ -110,11 +118,12 @@ export class LLMScraperService implements IScraperService {
 
   private processLLMResponse(
     domainTask: DomainTask,
+    language: ELanguageCode,
     llmResponse: LLMResponse,
   ): ResultAsync<void, ScraperError | PersistenceError | LLMError> {
     if (domainTask.taskType == ETask.PurchaseHistory) {
       return this.purchaseHistoryLLMUtils
-        .parsePurchases(domainTask.domain, llmResponse)
+        .parsePurchases(domainTask.domain, language, llmResponse)
         .andThen((purchases) => {
           return this.savePurchases(purchases);
         });

@@ -1,4 +1,8 @@
-import { ScraperError } from "@snickerdoodlelabs/objects";
+import {
+  ELanguageCode,
+  HTMLString,
+  ScraperError,
+} from "@snickerdoodlelabs/objects";
 import { compile, convert } from "html-to-text";
 import { injectable } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
@@ -42,8 +46,14 @@ export class HTMLPreProcessor implements IHTMLPreProcessor {
     this.headConverter = compile(headOptions);
   }
 
+  public getLanguage(
+    html: HTMLString,
+  ): ResultAsync<ELanguageCode, ScraperError> {
+    return okAsync(ELanguageCode.English); // TODO parse html tag for language. if not found, use third party library to detect language such as google translate.
+  }
+
   public htmlToText(
-    html: string,
+    html: HTMLString,
     options: unknown | null,
   ): ResultAsync<string, ScraperError> {
     if (options == null) {
@@ -52,10 +62,14 @@ export class HTMLPreProcessor implements IHTMLPreProcessor {
       return okAsync(convert(html, options));
     }
   }
-  public htmlToTextWithImages(html: string): ResultAsync<string, ScraperError> {
+  public htmlToTextWithImages(
+    html: HTMLString,
+  ): ResultAsync<string, ScraperError> {
     return okAsync(this.converterWithImages(html));
   }
-  public htmlToTextWithLinks(html: string): ResultAsync<string, ScraperError> {
+  public htmlToTextWithLinks(
+    html: HTMLString,
+  ): ResultAsync<string, ScraperError> {
     return okAsync(this.converterWithLinks(html));
   }
 }
