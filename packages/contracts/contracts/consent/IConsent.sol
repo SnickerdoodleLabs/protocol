@@ -52,6 +52,9 @@ interface IConsent {
 
     function getTagArray() external view returns (Tag[] memory);
 
+    function getDomains() external view returns (string[] memory);  
+
+    // ranking engine functions
     function newGlobalTag(string memory tag, uint256 _newSlot) external;
 
     function newLocalTagUpstream(string memory tag, uint256 _newSlot, uint256 _existingSlot) external;
@@ -62,16 +65,18 @@ interface IConsent {
 
     function removeListing(string memory tag) external returns (string memory);
 
+    // Opt-in and Opt-out methods & query methods
     function optIn(uint256 tokenId, bytes32 agreementFlags, bytes32 identityCommitment, bytes memory stealthSignature) external;
 
-    function restrictedOptIn(uint256 tokenId, bytes32 agreementFlags, bytes memory signature) external;
+    function restrictedOptIn(uint256 tokenId, bytes32 agreementFlags, bytes32 identityCommitment, bytes memory stealthSignature, bytes memory signature) external;
 
-    function anonymousRestrictedOptIn(uint256 tokenId, bytes32 agreementFlags, bytes memory signature) external;
+    function anonymousRestrictedOptIn(uint256 tokenId, bytes32 agreementFlags, bytes32 identityCommitment, bytes memory stealthSignature, bytes memory signature) external;
 
     function optOut(uint256 tokenId) external;
 
     function requestForData(string memory ipfsCID) external;
 
+    // parameter updating functions
     function updateMaxCapacity(uint _maxCapacity) external;
 
     function updateAgreementFlags(uint256 tokenId, bytes32 newAgreementFlags) external;
@@ -92,7 +97,5 @@ interface IConsent {
 
     function disableOpenOptIn() external;
 
-    function enableOpenOptIn() external;
-
-    function getDomains() external view returns (string[] memory);    
+    function enableOpenOptIn() external;  
 }
