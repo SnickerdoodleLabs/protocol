@@ -11,6 +11,8 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
 
+import { MetatransactionGasAmounts } from "@core/interfaces/objects/MetatransactionGasAmounts.js";
+
 export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
   public constructor(
     public controlChainId: EChain,
@@ -77,15 +79,5 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public devChainProviderURL: ProviderUrl | null,
     public maxStatsRetentionSeconds: number,
     public passwordLanguageCode: LanguageCode,
-  ) {}
-}
-
-export class MetatransactionGasAmounts {
-  public constructor(
-    public createCrumbGas: number,
-    public removeCrumbGas: number,
-    public optInGas: number,
-    public optOutGas: number,
-    public updateAgreementFlagsGas: number,
   ) {}
 }
