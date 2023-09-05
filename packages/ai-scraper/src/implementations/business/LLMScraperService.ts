@@ -9,6 +9,7 @@ import {
   ScraperError,
   LLMError,
   PersistenceError,
+  ELanguageCode,
 } from "@snickerdoodlelabs/objects";
 import {
   IPurchaseRepository,
@@ -31,6 +32,8 @@ import {
   IPromptDirector,
   IPromptDirectorType,
   IScraperService,
+  IWebpageClassifier,
+  IWebpageClassifierType,
   LLMData,
   LLMResponse,
   Prompt,
@@ -51,12 +54,22 @@ export class LLMScraperService implements IScraperService {
     private purchaseHistoryLLMUtils: ILLMPurchaseHistoryUtils,
     @inject(IPurchaseRepositoryType)
     private purchaseRepository: IPurchaseRepository,
+    @inject(IWebpageClassifierType)
+    private webpageClassifier: IWebpageClassifier,
   ) {}
 
   public poll(): ResultAsync<void, ScraperError> {
     throw new Error("Method not implemented.");
   }
 
+  public classifyURL(
+    url: URLString,
+    language: ELanguageCode,
+  ): ResultAsync<DomainTask, ScraperError> {
+    return this.webpageClassifier.classify(url, language).mapErr((err) => {
+      return new ScraperError(err.message, err);
+    });
+  }
   /**
    * Now we will scrape it immmediately and assume the task is . In future it's done by a job executor with a rate limiter
    */

@@ -2,6 +2,7 @@ import {
   URLString,
   HTMLString,
   ScraperError,
+  ELanguageCode,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -13,6 +14,11 @@ export interface IScraperService {
     html: HTMLString,
     suggestedDomainTask: DomainTask,
   ): ResultAsync<void, ScraperError>;
+
+  classifyURL(
+    url: URLString,
+    language: ELanguageCode,
+  ): ResultAsync<DomainTask, ScraperError>;
 
   poll(): ResultAsync<void, ScraperError>;
 }
