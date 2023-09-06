@@ -21,7 +21,7 @@ describe("StemmerService", () => {
     // Assert
     expect(result.isOk()).toBeTruthy();
     const tokens = result._unsafeUnwrap();
-    console.log(tokens);
+    // console.log(tokens);
     expect(tokens.includes("the")).toBeFalsy();
     expect(tokens.includes("a")).toBeFalsy();
     expect(tokens.includes("an")).toBeFalsy();
