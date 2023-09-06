@@ -32,7 +32,7 @@ export class PurchaseUtils implements IPurchaseUtils {
     });
   }
 
-  public getSame(
+  public findSame(
     purchases: PurchasedProduct[],
     purchase: PurchasedProduct,
   ): ResultAsync<PurchasedProduct | null, never> {
@@ -41,7 +41,7 @@ export class PurchaseUtils implements IPurchaseUtils {
       purchase.marketPlace,
       purchase.datePurchased,
     ).andThen((filtered) => {
-      return this.getSameWithSimilarNameAndPrice(filtered, purchase);
+      return this.findSameWithSimilarNameAndPrice(filtered, purchase);
     });
   }
 
@@ -49,7 +49,7 @@ export class PurchaseUtils implements IPurchaseUtils {
     purchasesWithSameMPAndDate: PurchasedProduct[],
     purchase: PurchasedProduct,
   ): ResultAsync<boolean, never> {
-    return this.getSameWithSimilarNameAndPrice(
+    return this.findSameWithSimilarNameAndPrice(
       purchasesWithSameMPAndDate,
       purchase,
     ).map((matched) => {
@@ -57,7 +57,7 @@ export class PurchaseUtils implements IPurchaseUtils {
     });
   }
 
-  public getSameWithSimilarNameAndPrice(
+  public findSameWithSimilarNameAndPrice(
     purchasesWithSameMPAndDate: PurchasedProduct[],
     purchase: PurchasedProduct,
   ): ResultAsync<PurchasedProduct | null, never> {
@@ -70,7 +70,8 @@ export class PurchaseUtils implements IPurchaseUtils {
     );
     const matched = purchasesWithSameMPAndDate.find(
       (p) =>
-        this.productUtils.getProductHashSync(p.language, p.name) == searchHash,
+        this.productUtils.getProductHashSync(p.language, p.name) ==
+          searchHash && p.price == purchase.price,
     );
     return okAsync(matched ?? null);
   }

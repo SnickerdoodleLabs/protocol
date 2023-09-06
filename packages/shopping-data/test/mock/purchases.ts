@@ -9,7 +9,27 @@ export const febDate = timeUtils.parseToSDTimestamp("2021-02-11");
 export const mp1 = DomainName("amazon.com");
 export const mp2 = DomainName("ebay.com");
 
-export const janPruchases = [
+export const iphone12JanVariant = new PurchasedProduct(
+  mp1,
+  ELanguageCode.English,
+  null,
+  "The IPhone 12",
+  "Orange",
+  1000,
+  janDate!,
+  febDate!,
+  null,
+  null,
+  null,
+  "Unknown",
+  [
+    ProductKeyword("phone"),
+    ProductKeyword("orange"),
+    ProductKeyword("smart phone"),
+  ],
+);
+
+export const janPruchasesAmazon = [
   new PurchasedProduct(
     mp1,
     ELanguageCode.English,
@@ -67,6 +87,10 @@ export const janPruchases = [
       ProductKeyword("body lotion"),
     ],
   ),
+];
+
+export const janPruchases = [
+  ...janPruchasesAmazon,
   new PurchasedProduct(
     mp2,
     ELanguageCode.English,

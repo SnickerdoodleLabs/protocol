@@ -9,7 +9,7 @@ export interface IPurchaseUtils {
    * @param purchases
    * @param purchase
    */
-  getSame(
+  findSame(
     purchases: PurchasedProduct[],
     purchase: PurchasedProduct,
   ): ResultAsync<PurchasedProduct | null, never>;
@@ -19,7 +19,7 @@ export interface IPurchaseUtils {
    * @param purchasesWithSameMPAndDate
    * @param purchase
    */
-  getSameWithSimilarNameAndPrice(
+  findSameWithSimilarNameAndPrice(
     purchasesWithSameMPAndDate: PurchasedProduct[],
     purchase: PurchasedProduct,
   ): ResultAsync<PurchasedProduct | null, never>;
