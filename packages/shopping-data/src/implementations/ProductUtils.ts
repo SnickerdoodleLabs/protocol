@@ -12,6 +12,14 @@ export class ProductUtils implements IProductUtils {
     private stemmerService: IStemmerService,
   ) {}
 
+  public getProductHashSync(
+    language: ELanguageCode,
+    productName: string,
+  ): string {
+    const tokens = this.stemmerService.tokenizeSync(language, productName);
+    return this.getHashFromTokens(tokens);
+  }
+
   public getProductHash(
     language: ELanguageCode,
     productName: string,

@@ -1,14 +1,13 @@
 import { IStemmerServiceType, IStemmerService } from "@snickerdoodlelabs/nlp";
-import {
-  DomainName,
-  ELanguageCode,
-  NLPError,
-  UnixTimestamp,
-} from "@snickerdoodlelabs/objects";
+import { DomainName, UnixTimestamp } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync, ok, okAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
 
-import { IPurchaseUtils } from "@shopping-data/interfaces/index.js";
+import {
+  IProductUtils,
+  IProductUtilsType,
+  IPurchaseUtils,
+} from "@shopping-data/interfaces/index.js";
 import { PurchasedProduct } from "@shopping-data/objects/index.js";
 
 @injectable()
@@ -16,6 +15,8 @@ export class PurchaseUtils implements IPurchaseUtils {
   constructor(
     @inject(IStemmerServiceType)
     private stemmerService: IStemmerService,
+    @inject(IProductUtilsType)
+    private productUtils: IProductUtils,
   ) {}
 
   public contains(
@@ -48,17 +49,30 @@ export class PurchaseUtils implements IPurchaseUtils {
     purchasesWithSameMPAndDate: PurchasedProduct[],
     purchase: PurchasedProduct,
   ): ResultAsync<boolean, never> {
-    // TODO, instead of bag-of-words, use word2vec model to do a similarity comparison on vectors. https://github.com/georgegach/w2v
-    // TODO: talk to Charlie about bunlding nlp.js with the app https://github.com/axa-group/nlp.js/blob/master/docs/v4/webandreact.md
-
-    throw new Error("Method not implemented.");
+    return this.getSameWithSimilarNameAndPrice(
+      purchasesWithSameMPAndDate,
+      purchase,
+    ).map((matched) => {
+      return matched != null;
+    });
   }
 
   public getSameWithSimilarNameAndPrice(
     purchasesWithSameMPAndDate: PurchasedProduct[],
     purchase: PurchasedProduct,
   ): ResultAsync<PurchasedProduct | null, never> {
-    throw new Error("Method not implemented.");
+    // TODO, instead of bag-of-words, use word2vec model to do a similarity comparison on vectors. https://github.com/georgegach/w2v
+    // TODO: talk to Charlie about bunlding nlp.js with the app https://github.com/axa-group/nlp.js/blob/master/docs/v4/webandreact.md
+
+    const searchHash = this.productUtils.getProductHashSync(
+      purchase.language,
+      purchase.name,
+    );
+    const matched = purchasesWithSameMPAndDate.find(
+      (p) =>
+        this.productUtils.getProductHashSync(p.language, p.name) == searchHash,
+    );
+    return okAsync(matched ?? null);
   }
 
   private filterByMPAndDate(
