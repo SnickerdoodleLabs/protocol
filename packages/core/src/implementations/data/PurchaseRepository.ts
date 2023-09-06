@@ -6,10 +6,12 @@ import {
 } from "@snickerdoodlelabs/objects";
 import {
   IPurchaseRepository,
+  IPurchaseUtils,
+  IPurchaseUtilsType,
   PurchasedProduct,
 } from "@snickerdoodlelabs/shopping-data";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
 
 import {
   IDataWalletPersistence,
@@ -21,12 +23,26 @@ export class PurchaseRepository implements IPurchaseRepository {
   public constructor(
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
+    @inject(IPurchaseUtilsType)
+    protected purchaseUtils: IPurchaseUtils,
   ) {}
   public add(purchase: PurchasedProduct): ResultAsync<void, PersistenceError> {
-    return this.persistence.updateRecord<PurchasedProduct>(
-      ERecordKey.PURCHASED_PRODUCT,
-      purchase,
-    );
+    return this.getByMarketplaceAndDate(
+      purchase.marketPlace,
+      purchase.datePurchased,
+    ).andThen((existingPurchases) => {
+      return this.purchaseUtils
+        .contains(existingPurchases, purchase)
+        .andThen((contains) => {
+          if (contains) {
+            return okAsync(undefined);
+          }
+          return this.persistence.updateRecord<PurchasedProduct>(
+            ERecordKey.PURCHASED_PRODUCT,
+            purchase,
+          );
+        });
+    });
   }
 
   public get(): ResultAsync<PurchasedProduct[], PersistenceError> {
