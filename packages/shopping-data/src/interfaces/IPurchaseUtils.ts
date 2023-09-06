@@ -1,4 +1,4 @@
-import { ELanguageCode } from "@snickerdoodlelabs/objects";
+import { ELanguageCode, NLPError } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 import { PurchasedProduct } from "@shopping-data/objects/PurchasedProduct.js";
@@ -10,7 +10,10 @@ export interface IPurchaseUtils {
    * @param productName
    * @returns a hash containing first 10 non stop words stemmed and sorted alphabetically and glued together with a hypen
    */
-  getProductHash(language: ELanguageCode, productName: string): string;
+  getProductHash(
+    language: ELanguageCode,
+    productName: string,
+  ): ResultAsync<string, NLPError>;
 
   /**
    * Returns true if the purchases array contains a purchase with the same marketplace, date of purchase, name and price as the purchase parameter.

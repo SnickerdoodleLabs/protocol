@@ -2,6 +2,7 @@ import { IStemmerServiceType, IStemmerService } from "@snickerdoodlelabs/nlp";
 import {
   DomainName,
   ELanguageCode,
+  NLPError,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -57,15 +58,22 @@ export class PurchaseUtils implements IPurchaseUtils {
     return okAsync(filtered);
   }
 
-  public getProductHash(language: ELanguageCode, productName: string): string {
-    const tokens = this.getProductNameTokens(language, productName);
+  public getProductHash(
+    language: ELanguageCode,
+    productName: string,
+  ): ResultAsync<string, NLPError> {
+    const result = this.getProductNameTokens(language, productName);
+    return result.map((tokens) => this.getHashFromTokens(tokens));
+  }
+
+  private getHashFromTokens(tokens: string[]): string {
     return tokens.sort().slice(0, 10).join("-");
   }
 
   private getProductNameTokens(
     language: ELanguageCode,
     productName: string,
-  ): string[] {
+  ): ResultAsync<string[], NLPError> {
     return this.stemmerService.tokenize(language, productName);
   }
 }
