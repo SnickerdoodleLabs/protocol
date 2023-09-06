@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { IStemmerService, StemmerService } from "@snickerdoodlelabs/nlp";
+import { StemmerService } from "@snickerdoodlelabs/nlp";
 import * as td from "testdouble";
 
 import { ProductUtils, PurchaseUtils } from "@shopping-data/implementations";
@@ -22,7 +22,7 @@ class Mocks {
   }
 }
 
-describe.skip("PurchaseUtils slow search", () => {
+describe("PurchaseUtils slow search", () => {
   test("findSame truthy", async () => {
     // Arrange
     const mocks = new Mocks();
@@ -97,7 +97,7 @@ describe.skip("PurchaseUtils slow search", () => {
 });
 
 describe("PurchaseUtils fast search", () => {
-  test.only("findSame truthy", async () => {
+  test("findSame truthy", async () => {
     // Arrange
     const mocks = new Mocks();
     const utils = mocks.factory();
