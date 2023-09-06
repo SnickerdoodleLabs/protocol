@@ -1,1 +1,1 @@
-export * from "@shopping-data/objects/SupportedLanguages.js";
+export * from "@nlp/objects/NLPSupportedLanguages.js";

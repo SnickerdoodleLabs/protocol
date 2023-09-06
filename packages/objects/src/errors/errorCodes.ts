@@ -46,6 +46,7 @@ const errorCodes = {
   ExecutionRevertedError: "ERR_EXECUTION_REVERTED",
   ProofError: "ERR_PROOF",
   ScraperError: "ERR_SCRAPER",
+  NLPError: "ERR_NLP",
   LLMError: "ERR_LLM",
   //SDQL errors
   OperandTypeError: "ER_SDQL_OPERAND_TYPE",

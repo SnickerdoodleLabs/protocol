@@ -1,1 +1,1 @@
-export * from "@nlp/interfaces/IStemmer.js";
+export * from "@nlp/interfaces/IStemmerService.js";

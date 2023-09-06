@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
-import { DomainName } from "@snickerdoodlelabs/objects";
+import { DomainName, ELanguageCode } from "@snickerdoodlelabs/objects";
 
 import { LLMPurchaseHistoryUtilsChatGPT } from "@ai-scraper/implementations";
 import {
@@ -24,6 +24,7 @@ describe("LLMPurchaseHistoryUtilsChatGPT", () => {
     // Act
     const result = await utils.parsePurchases(
       DomainName("amazon.com"),
+      ELanguageCode.English,
       chatGPTPurchaseHistoryResponse,
     );
 

@@ -1,19 +1,22 @@
-import { BaseStemmer } from "@nlpjs/core";
-import { TokenizerEn, StopwordsEn, StemmerEn } from "@nlpjs/lang-en";
+import { IStemmerServiceType, IStemmerService } from "@snickerdoodlelabs/nlp";
 import {
   DomainName,
   ELanguageCode,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
 import { ResultAsync, ok, okAsync } from "neverthrow";
 
 import { IPurchaseUtils } from "@shopping-data/interfaces/index.js";
-import {
-  PurchasedProduct,
-  SupportedLanguages,
-} from "@shopping-data/objects/index.js";
+import { PurchasedProduct } from "@shopping-data/objects/index.js";
 
+@injectable()
 export class PurchaseUtils implements IPurchaseUtils {
+  constructor(
+    @inject(IStemmerServiceType)
+    private stemmerService: IStemmerService,
+  ) {}
+
   public contains(
     purchases: PurchasedProduct[],
     purchase: PurchasedProduct,
@@ -54,30 +57,15 @@ export class PurchaseUtils implements IPurchaseUtils {
     return okAsync(filtered);
   }
 
+  public getProductHash(language: ELanguageCode, productName: string): string {
+    const tokens = this.getProductNameTokens(language, productName);
+    return tokens.sort().slice(0, 10).join("-");
+  }
+
   private getProductNameTokens(
     language: ELanguageCode,
     productName: string,
   ): string[] {
-    if (!SupportedLanguages.includes(language)) {
-      return productName.split(" ");
-    }
-    // const tokenizer = new TokenizerEn();
-    const stemmer = new StemmerEn();
-    // const stopWords = new StopwordsEn();
-    // const tokens = tokenizer.tokenize(productName, true);
-    return stemmer.tokenizeAndStem(productName, false); // does normalization by default and, false means "dont keep stopwords"
-  }
-
-  /**
-   *
-   * @param language
-   * @returns returns english stemmer by default
-   */
-  private getStemmer(language: ELanguageCode): BaseStemmer {
-    switch (language) {
-      case ELanguageCode.English:
-        return new StemmerEn();
-    }
-    return new StemmerEn();
+    return this.stemmerService.tokenize(language, productName);
   }
 }

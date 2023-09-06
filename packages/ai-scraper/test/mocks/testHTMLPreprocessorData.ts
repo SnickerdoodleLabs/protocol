@@ -1,7 +1,9 @@
-export const html1 = "<div>Hello world</div>";
+import { HTMLString } from "@snickerdoodlelabs/objects";
+
+export const html1 = HTMLString("<div>Hello world</div>");
 export const text1 = "Hello world";
 
-export const fullHtml = `
+export const fullHtml = HTMLString(`
             <!DOCTYPE html>
             <head>
                 <title>This is a title</title>
@@ -120,7 +122,7 @@ export const fullHtml = `
                 </div>
             </body>
             </html>
-            `;
+            `);
 export const fullTextOnly = `THIS IS BODY
 
 this is a paragraph
