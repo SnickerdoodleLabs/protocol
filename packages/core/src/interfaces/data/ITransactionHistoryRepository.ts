@@ -1,7 +1,7 @@
 import {
   TransactionPaymentCounter,
   PersistenceError,
-  ChainId,
+  EChain,
   AccountAddress,
   ChainTransaction,
   TransactionFilter,
@@ -14,7 +14,7 @@ export interface ITransactionHistoryRepository {
     PersistenceError
   >;
   getLatestTransactionForAccount(
-    chainId: ChainId,
+    chain: EChain,
     address: AccountAddress,
   ): ResultAsync<ChainTransaction | null, PersistenceError>;
   addTransactions(

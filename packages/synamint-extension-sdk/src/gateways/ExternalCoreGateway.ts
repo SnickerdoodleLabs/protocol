@@ -138,6 +138,7 @@ import {
   GetCurrentCloudStorageParams,
   RejectInvitationParams,
   RejectInvitationByUUIDParams,
+  GetQueryStatusesParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -460,6 +461,12 @@ export class ExternalCoreGateway {
   public getQueryStatusByQueryCID(
     params: GetQueryStatusByCidParams,
   ): ResultAsync<QueryStatus | null, ProxyError> {
+    return this._handler.call(params);
+  }
+
+  public getQueryStatuses(
+    params: GetQueryStatusesParams,
+  ): ResultAsync<QueryStatus[], ProxyError> {
     return this._handler.call(params);
   }
 

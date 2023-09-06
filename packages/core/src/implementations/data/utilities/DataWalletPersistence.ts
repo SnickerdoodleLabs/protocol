@@ -251,9 +251,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         return backupManager
           .reset()
           .andThen(() => {
+            this.logUtils.debug("Looping over Fields and getting data");
             // We are going to loop over EFieldKey and ERecordKey, and get all of the data from them.
             return ResultUtils.combine(
               Object.values(EFieldKey).map((fieldKey) => {
+                this.logUtils.debug(`Getting field ${fieldKey}`);
                 return this.getField<object>(fieldKey).andThen((fieldVal) => {
                   // No need to backup null fields
                   if (fieldVal == null) {
@@ -273,8 +275,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           })
           .andThen(() => {
             // Done with fields, now do records
+            this.logUtils.debug("Looping over Fields and getting data");
             return ResultUtils.combine(
               Object.values(ERecordKey).map((recordKey) => {
+                this.logUtils.debug(`Getting all records for ${recordKey}`);
                 return this.getAll(recordKey).andThen((records) => {
                   // Need to loop over all the records
                   return ResultUtils.combine(

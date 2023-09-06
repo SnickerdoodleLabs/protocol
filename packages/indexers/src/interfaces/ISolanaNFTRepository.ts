@@ -1,8 +1,11 @@
+import {
+  ChainId,
+  SolanaAccountAddress,
+  SolanaNFT,
+  AccountIndexingError,
+  AjaxError,
+} from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { SolanaNFT } from "@objects/businessObjects/index.js";
-import { AccountIndexingError, AjaxError } from "@objects/errors/index.js";
-import { ChainId, SolanaAccountAddress } from "@objects/primitives/index.js";
 
 export interface ISolanaNFTRepository {
   getTokensForAccount(

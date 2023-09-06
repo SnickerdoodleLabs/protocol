@@ -44,9 +44,17 @@ export class BlockchainProvider implements IBlockchainProvider {
     this.providerInitializationResult = this.configProvider
       .getConfig()
       .map((config) => {
+        if (
+          config.devChainProviderURL == null &&
+          config.controlChainId === EChain.DevDoodle
+        ) {
+          throw new Error(
+            "No dev chain provider URL but control chain is doodlechain. That's a programming error",
+          );
+        }
         this.primaryProvider = new ethers.providers.JsonRpcProvider(
           config.controlChainId === EChain.DevDoodle
-            ? config.devChainProviderURL
+            ? config.devChainProviderURL!
             : `https://${config.controlChainInformation.networkName}.infura.io/v3/${config.apiKeys.primaryInfuraKey}`,
         );
 

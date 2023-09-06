@@ -56,6 +56,7 @@ import {
   SocialProfileLinkedEvent,
   IProxyStorageMethods,
   ECoreProxyType,
+  BlockNumber,
   RefreshToken,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
@@ -105,8 +106,10 @@ import {
   AuthenticateDropboxParams,
   SetAuthenticatedStorageParams,
   RejectInvitationParams,
+  GetQueryStatusesParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
+
 
 let coreGateway: ExternalCoreGateway;
 let eventEmitter: UpdatableEventEmitterWrapper;
@@ -409,6 +412,20 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       new GetQueryStatusByCidParams(queryCID),
     );
   }
+
+  public getQueryStatuses(
+    contractAddress: EVMContractAddress,
+    blockNumber?: BlockNumber,
+  ): ResultAsync<
+    QueryStatus[],
+    | ProxyError
+  > {
+    return coreGateway.getQueryStatuses(
+      new GetQueryStatusesParams(contractAddress , blockNumber),
+    );
+  }
+
+  
   public checkInvitationStatus(
     consentAddress: EVMContractAddress,
     signature?: Signature,

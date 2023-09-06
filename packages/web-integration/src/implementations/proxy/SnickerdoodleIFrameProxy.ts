@@ -72,6 +72,7 @@ import {
   IProxyStorageMethods,
   ECoreProxyType,
   PageInvitation,
+  BlockNumber,
   RefreshToken,
   OAuth2Tokens,
 } from "@snickerdoodlelabs/objects";
@@ -623,6 +624,17 @@ export class SnickerdoodleIFrameProxy
       queryCID,
     });
   }
+
+  public getQueryStatuses(
+    contractAddress: EVMContractAddress,
+    blockNumber ?:   BlockNumber
+  ): ResultAsync<QueryStatus[], ProxyError> {
+    return this._createCall("getQueryStatuses", {
+      contractAddress,
+      blockNumber
+    });
+  }
+
 
   public switchToTab(tabId: number): ResultAsync<void, ProxyError> {
     throw new Error("Method not implemented.");

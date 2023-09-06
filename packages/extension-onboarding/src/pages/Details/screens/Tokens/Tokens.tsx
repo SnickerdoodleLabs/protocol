@@ -34,11 +34,11 @@ import { Pie } from "react-chartjs-2";
 import emptyTokens from "@extension-onboarding/assets/images/empty-tokens.svg";
 import AccountChainBar from "@extension-onboarding/components/AccountChainBar";
 import TokenItem from "@extension-onboarding/components/TokenItem";
+import UnauthScreen from "@extension-onboarding/components/UnauthScreen/UnauthScreen";
 import { useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { IBalanceItem } from "@extension-onboarding/objects";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/Tokens/Tokens.style";
-import UnauthScreen from "@extension-onboarding/components/UnauthScreen/UnauthScreen";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 
 ChartJS.register(
   CategoryScale,
@@ -146,13 +146,20 @@ export default () => {
     sdlDataWallet
       .getAccountBalances()
       .map((balances) =>
-        balances.map((b) => ({ ...b, balance: formatValue(b) })),
+        // TODO: Fix this. This is really bad- The balance is a BNS, and should be formatted at the point of display
+        balances.map((b) => ({
+          ...b,
+          balance: BigNumberString(formatValue(b)),
+        })),
       )
       .andThen((balanceResults) => {
         return ResultUtils.combine(
           balanceResults.map((balanceItem) =>
             sdlDataWallet
-              .getTokenInfo(balanceItem.chainId, balanceItem.tokenAddress)
+              .getTokenInfo(
+                ChainId(balanceItem.chainId),
+                balanceItem.tokenAddress,
+              )
               .orElse((e) => okAsync(null)),
           ),
         ).map((tokenInfo) => {
@@ -202,7 +209,7 @@ export default () => {
             const structeredBalances = combinedBalances.reduce(
               (acc, item) => {
                 const isMainnetItem = mainnetSupportedChainIds.includes(
-                  item.chainId,
+                  ChainId(item.chainId),
                 );
                 if (isMainnetItem) {
                   acc.mainnetBalances = [...acc.mainnetBalances, item];
