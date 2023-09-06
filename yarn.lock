@@ -6596,6 +6596,32 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nlpjs/core@npm:^4.26.1":
+  version: 4.26.1
+  resolution: "@nlpjs/core@npm:4.26.1"
+  checksum: 9ca4d73efec085b3873bbe67ed6189d1bae6d74b7daaf366b44153631706f13446a1d23451412cd4ae1fc128a9adc1a72a5513f424a4eaf663cb33415b249fe1
+  languageName: node
+  linkType: hard
+
+"@nlpjs/lang-en-min@npm:^4.26.1":
+  version: 4.26.1
+  resolution: "@nlpjs/lang-en-min@npm:4.26.1"
+  dependencies:
+    "@nlpjs/core": ^4.26.1
+  checksum: 2f6171a17582dbc3357bb5d67060bbab725b70a2b9ba99b79dc264a4170634d4c8b10748f0a0fe6cceb079cb0e256fd358c5b67442b3ea13016c461e97d100f6
+  languageName: node
+  linkType: hard
+
+"@nlpjs/lang-en@npm:^4.26.1":
+  version: 4.26.1
+  resolution: "@nlpjs/lang-en@npm:4.26.1"
+  dependencies:
+    "@nlpjs/core": ^4.26.1
+    "@nlpjs/lang-en-min": ^4.26.1
+  checksum: b6c5cb51652bec8b0291af1d134b3c4f2ea111aea030e3ee397305bcd29d8e4e4255d483f521b9fd57f7e7c2194e771df7f16ad0a2b985fd873bf3614728bb5d
+  languageName: node
+  linkType: hard
+
 "@noble/curves@npm:1.1.0, @noble/curves@npm:~1.1.0":
   version: 1.1.0
   resolution: "@noble/curves@npm:1.1.0"
@@ -8470,13 +8496,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@snickerdoodlelabs/ai-scraper@workspace:packages/ai-scraper":
+"@snickerdoodlelabs/ai-scraper@workspace:^, @snickerdoodlelabs/ai-scraper@workspace:packages/ai-scraper":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/ai-scraper@workspace:packages/ai-scraper"
   dependencies:
     "@dqbd/tiktoken": ^1.0.7
     "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
+    "@snickerdoodlelabs/persistence": "workspace:^"
     "@snickerdoodlelabs/shopping-data": "workspace:^"
     ethers: ^5.6.6
     html-to-text: ^9.0.5
@@ -8602,6 +8629,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/core@workspace:packages/core"
   dependencies:
+    "@snickerdoodlelabs/ai-scraper": "workspace:^"
     "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/contracts-sdk": "workspace:^"
     "@snickerdoodlelabs/indexers": "workspace:^"
@@ -8610,6 +8638,7 @@ __metadata:
     "@snickerdoodlelabs/objects": "workspace:^"
     "@snickerdoodlelabs/persistence": "workspace:^"
     "@snickerdoodlelabs/query-parser": "workspace:^"
+    "@snickerdoodlelabs/shopping-data": "workspace:^"
     "@snickerdoodlelabs/signature-verification": "workspace:^"
     ethers: ^5.6.6
     inversify: ^6.0.1
@@ -8902,6 +8931,23 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snickerdoodlelabs/nlp@workspace:packages/nlp":
+  version: 0.0.0-use.local
+  resolution: "@snickerdoodlelabs/nlp@workspace:packages/nlp"
+  dependencies:
+    "@dqbd/tiktoken": ^1.0.7
+    "@nlpjs/lang-en": ^4.26.1
+    "@snickerdoodlelabs/common-utils": "workspace:^"
+    "@snickerdoodlelabs/objects": "workspace:^"
+    ethers: ^5.6.6
+    html-to-text: ^9.0.5
+    inversify: ^6.0.1
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
+    openai: ^4.0.1
+  languageName: unknown
+  linkType: soft
+
 "@snickerdoodlelabs/node-utils@workspace:^, @snickerdoodlelabs/node-utils@workspace:packages/node-utils":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/node-utils@workspace:packages/node-utils"
@@ -8938,6 +8984,7 @@ __metadata:
     "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/node-utils": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
+    "@snickerdoodlelabs/shopping-data": "workspace:^"
     "@snickerdoodlelabs/utils": "workspace:^"
     ethers: ^5.6.6
     inversify: ^6.0.1
@@ -8995,6 +9042,7 @@ __metadata:
   resolution: "@snickerdoodlelabs/shopping-data@workspace:packages/shopping-data"
   dependencies:
     "@dqbd/tiktoken": ^1.0.7
+    "@nlpjs/lang-en": ^4.26.1
     "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
     ethers: ^5.6.6

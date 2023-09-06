@@ -49,7 +49,7 @@ export class HTMLPreProcessor implements IHTMLPreProcessor {
   public getLanguage(
     html: HTMLString,
   ): ResultAsync<ELanguageCode, ScraperError> {
-    return okAsync(ELanguageCode.English); // TODO parse html tag for language. if not found, use third party library to detect language such as google translate.
+    return okAsync(ELanguageCode.English); // TODO parse html tag for language. if not found, use third party library (nlp.js) to detect language such as google translate.
   }
 
   public htmlToText(

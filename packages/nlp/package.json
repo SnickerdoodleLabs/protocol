@@ -1,5 +1,5 @@
 {
-  "name": "@snickerdoodlelabs/shopping-data",
+  "name": "@snickerdoodlelabs/nlp",
   "version": "0.0.17",
   "description": "Shopping data library for Data Wallet extension",
   "license": "MIT",
@@ -10,7 +10,7 @@
   "bugs": {
     "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
   },
-  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/documentation/shopping-data",
+  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/documentation/nlp",
   "author": "Golam Muktadir <muktadir@snickerdoodlelabs.io>",
   "keywords": [
     "Snickerdoodle",
