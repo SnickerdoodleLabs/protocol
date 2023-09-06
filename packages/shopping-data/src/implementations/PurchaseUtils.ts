@@ -31,6 +31,19 @@ export class PurchaseUtils implements IPurchaseUtils {
     });
   }
 
+  public getSame(
+    purchases: PurchasedProduct[],
+    purchase: PurchasedProduct,
+  ): ResultAsync<PurchasedProduct | null, never> {
+    return this.filterByMPAndDate(
+      purchases,
+      purchase.marketPlace,
+      purchase.datePurchased,
+    ).andThen((filtered) => {
+      return this.getSameWithSimilarNameAndPrice(filtered, purchase);
+    });
+  }
+
   public containsWithSimilarNameAndPrice(
     purchasesWithSameMPAndDate: PurchasedProduct[],
     purchase: PurchasedProduct,
@@ -38,6 +51,13 @@ export class PurchaseUtils implements IPurchaseUtils {
     // TODO, instead of bag-of-words, use word2vec model to do a similarity comparison on vectors. https://github.com/georgegach/w2v
     // TODO: talk to Charlie about bunlding nlp.js with the app https://github.com/axa-group/nlp.js/blob/master/docs/v4/webandreact.md
 
+    throw new Error("Method not implemented.");
+  }
+
+  public getSameWithSimilarNameAndPrice(
+    purchasesWithSameMPAndDate: PurchasedProduct[],
+    purchase: PurchasedProduct,
+  ): ResultAsync<PurchasedProduct | null, never> {
     throw new Error("Method not implemented.");
   }
 
@@ -56,24 +76,5 @@ export class PurchaseUtils implements IPurchaseUtils {
       return acc;
     }, [] as PurchasedProduct[]);
     return okAsync(filtered);
-  }
-
-  public getProductHash(
-    language: ELanguageCode,
-    productName: string,
-  ): ResultAsync<string, NLPError> {
-    const result = this.getProductNameTokens(language, productName);
-    return result.map((tokens) => this.getHashFromTokens(tokens));
-  }
-
-  private getHashFromTokens(tokens: string[]): string {
-    return tokens.sort().slice(0, 10).join("-");
-  }
-
-  private getProductNameTokens(
-    language: ELanguageCode,
-    productName: string,
-  ): ResultAsync<string[], NLPError> {
-    return this.stemmerService.tokenize(language, productName);
   }
 }

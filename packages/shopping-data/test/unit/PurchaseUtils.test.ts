@@ -5,7 +5,7 @@ import * as td from "testdouble";
 import { PurchaseUtils } from "@shopping-data/implementations";
 import { IPurchaseUtils } from "@shopping-data/interfaces";
 
-class mocks {
+class Mocks {
   public stemmerService = td.object<IStemmerService>();
   public constructor() {}
   public factory(): IPurchaseUtils {
@@ -13,6 +13,4 @@ class mocks {
   }
 }
 
-describe("PurchaseUtils", () => {
-  test("contains", async () => {});
-});
+describe("PurchaseUtils", () => {});

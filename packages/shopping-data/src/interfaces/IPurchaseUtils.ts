@@ -5,15 +5,24 @@ import { PurchasedProduct } from "@shopping-data/objects/PurchasedProduct.js";
 
 export interface IPurchaseUtils {
   /**
-   *
-   * @param language
-   * @param productName
-   * @returns a hash containing first 10 non stop words stemmed and sorted alphabetically and glued together with a hypen
+   * Returns the purchase if the purchases array contains a purchase with the same marketplace, date of purchase, name and price as the purchase parameter.
+   * @param purchases
+   * @param purchase
    */
-  getProductHash(
-    language: ELanguageCode,
-    productName: string,
-  ): ResultAsync<string, NLPError>;
+  getSame(
+    purchases: PurchasedProduct[],
+    purchase: PurchasedProduct,
+  ): ResultAsync<PurchasedProduct | null, never>;
+
+  /**
+   * Returns the purchase if the purchases array contains a purchase with the similar name and price as the purchase parameter.
+   * @param purchasesWithSameMPAndDate
+   * @param purchase
+   */
+  getSameWithSimilarNameAndPrice(
+    purchasesWithSameMPAndDate: PurchasedProduct[],
+    purchase: PurchasedProduct,
+  ): ResultAsync<PurchasedProduct | null, never>;
 
   /**
    * Returns true if the purchases array contains a purchase with the same marketplace, date of purchase, name and price as the purchase parameter.
@@ -24,6 +33,7 @@ export interface IPurchaseUtils {
     purchases: PurchasedProduct[],
     purchase: PurchasedProduct,
   ): ResultAsync<boolean, never>;
+
   /**
    * Returns true if the purchases array contains a purchase with the name and price as the purchase parameter.
    * @param purchasesWithSameMPAndDate
