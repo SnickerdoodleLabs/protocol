@@ -34,5 +34,6 @@ export enum EPaths {
   BROWSER_ACTIVITY = "/data-dashboard/browser-activity",
   SOCIAL_MEDIA_DATA = "/data-dashboard/social-media-data",
   // PERSONAL_INFO = "/data-dashboard/personal-info",
+  SHOPPING_DATA = "/data-dashboard/shopping-data",
   NFT_DETAIL = "/data-dashboard/nfts/detail",
 }

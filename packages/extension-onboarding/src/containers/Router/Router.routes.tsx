@@ -20,12 +20,13 @@ import PoapNFTs from "@extension-onboarding/pages/Details/screens/PoapNFTs";
 import RewardDetail from "@extension-onboarding/pages/Details/screens/RewardDetail";
 import RewardProgramDetails from "@extension-onboarding/pages/Details/screens/RewardProgramDetails";
 import ScamFilterSettings from "@extension-onboarding/pages/Details/screens/ScamFilterSettings";
+import ShoppingData from "@extension-onboarding/pages/Details/screens/ShoppingData";
 import SocialMediaInfo from "@extension-onboarding/pages/Details/screens/SocialMediaInfo";
+import StorageSettings from "@extension-onboarding/pages/Details/screens/StorageSettings/StorageSettings";
 import Tokens from "@extension-onboarding/pages/Details/screens/Tokens";
 import AccountLinking from "@extension-onboarding/pages/Onboarding/AccountLinking";
 import CategorySelection from "@extension-onboarding/pages/Onboarding/CategorySelection";
 import PermissionSelection from "@extension-onboarding/pages/Onboarding/PermissionSelection";
-import StorageSettings from "@extension-onboarding/pages/Details/screens/StorageSettings/StorageSettings";
 import ProfileCreation from "@extension-onboarding/pages/Onboarding/ProfileCreation";
 
 export const OnboardingRoutes = (
@@ -62,6 +63,7 @@ export const AuthFlowRoutes = (
         <Route path={EPaths.POAP_NFTS} element={<PoapNFTs />} />
         <Route path={EPaths.BROWSER_ACTIVITY} element={<BrowserActivity />} />
         <Route path={EPaths.SOCIAL_MEDIA_DATA} element={<SocialMediaInfo />} />
+        <Route path={EPaths.SHOPPING_DATA} element={<ShoppingData />} />
         {/* <Route
           path={EPaths.PERSONAL_INFO}
           element={<DataDashboarPersonalInfo />}

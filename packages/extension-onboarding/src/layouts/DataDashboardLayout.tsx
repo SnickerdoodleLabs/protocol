@@ -37,6 +37,7 @@ const LINKS: ILink[] = [
   { path: EPaths.BROWSER_ACTIVITY, title: "Browser Activity" },
   { path: EPaths.SOCIAL_MEDIA_DATA, title: "Social Media Data" },
   // { path: EPaths.PERSONAL_INFO, title: "Personal Info" },
+  { path: EPaths.SHOPPING_DATA, title: "Shopping Data" },
 ];
 
 const DataDashboardLayout = () => {
