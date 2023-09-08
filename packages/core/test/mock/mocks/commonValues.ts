@@ -157,6 +157,7 @@ export const testCoreConfig = new CoreConfig(
     oklinkApiKey: "oklink api key",
     primaryInfuraKey: "",
     ankrApiKey: "ankr api key",
+    bluezApiKey: "bluez api key",
     secondaryInfuraKey: "",
   },
   URLString("http://dnsServerAddress"),

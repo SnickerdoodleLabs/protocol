@@ -131,6 +131,7 @@ export class ConfigProvider
         // "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm", // Poap Api Key
         oklinkApiKey: "", // "700c2f71-a4e2-4a85-b87f-58c8a341d1bf", // oklinkApiKeys
         ankrApiKey: "", // ankrApiKey
+        bluezApiKey: "", // bluezApiKey
         primaryInfuraKey: "a8ae124ed6aa44bb97a7166cda30f1bc", // primary Infura Key
         secondaryInfuraKey: "", // secondaryInfuraKey
       },
@@ -254,6 +255,8 @@ export class ConfigProvider
       overrides.oklinkApiKey ?? this.config.apiKeys.oklinkApiKey;
     this.config.apiKeys.ankrApiKey =
       overrides.ankrApiKey ?? this.config.apiKeys.ankrApiKey;
+    this.config.apiKeys.bluezApiKey =
+      overrides.bluezApiKey ?? this.config.apiKeys.bluezApiKey;
     this.config.apiKeys.primaryInfuraKey =
       overrides.primaryInfuraKey ?? this.config.apiKeys.primaryInfuraKey;
     this.config.apiKeys.secondaryInfuraKey =

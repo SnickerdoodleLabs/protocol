@@ -36,6 +36,7 @@ export interface IIndexerConfig {
     primaryInfuraKey: string;
     secondaryInfuraKey: string;
     ankrApiKey: string;
+    bluezApiKey: string;
   };
   etherscanTransactionsBatchSize: number;
   quoteCurrency: ECurrencyCode;

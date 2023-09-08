@@ -57,6 +57,7 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
       primaryInfuraKey: string;
       secondaryInfuraKey: string;
       ankrApiKey: string;
+      bluezApiKey: string;
     },
     public dnsServerAddress: URLString,
     public quoteCurrency: ECurrencyCode,
