@@ -20,6 +20,7 @@ import {
   DataPermissions,
   QueryExpiredError,
   EWalletDataType,
+  PublicEvents,
 } from "@snickerdoodlelabs/objects";
 import {
   IQueryObjectFactory,
@@ -61,6 +62,7 @@ import { avalanche1AstInstance } from "@core-tests/mock/mocks/commonValues.js";
 import {
   AjaxUtilsMock,
   ConfigProviderMock,
+  ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
 
 const queryCID = IpfsCID("Beep");
@@ -144,6 +146,7 @@ class QueryParsingMocks {
     td.when(this.balanceRepo.getAccountBalances()).thenReturn(okAsync([]));
     td.when(this.balanceRepo.getAccountNFTs(chainIds)).thenReturn(okAsync([]));
 
+
     this.queryEvaluator = new QueryEvaluator(
       this.balanceQueryEvaluator,
       this.blockchainTransactionQueryEvaluator,
@@ -152,6 +155,7 @@ class QueryParsingMocks {
       this.browsingDataRepo,
       this.transactionRepo,
       this.socialRepo,
+      new ContextProviderMock()
     );
     this.queryRepository = new QueryRepository(this.queryEvaluator);
 
@@ -256,7 +260,7 @@ describe("Handle Query", () => {
     const engine = mocks.factory();
 
     await engine
-      .handleQuery(sdqlQuery2, new DataPermissions(allPermissions))
+      .handleQuery(sdqlQuery2, new DataPermissions(allPermissions), new PublicEvents())
       .andThen((insights) => {
         expect(insights).toEqual({
           insights: {
@@ -281,7 +285,7 @@ describe("Handle Query", () => {
     const engine = mocks.factory();
 
     await engine
-      .handleQuery(sdqlQueryExpired, new DataPermissions(allPermissions))
+      .handleQuery(sdqlQueryExpired, new DataPermissions(allPermissions), new PublicEvents())
       .andThen((_insights) => {
         fail("Expired query was executed!");
       })
@@ -299,7 +303,7 @@ describe("Tests with data permissions", () => {
     const givenPermissions = new DataPermissions(noPermissions);
 
     await engine
-      .handleQuery(sdqlQuery2, givenPermissions)
+      .handleQuery(sdqlQuery2, givenPermissions, new PublicEvents())
       .andThen((deliveredInsights) => {
         expect(deliveredInsights.insights!["i1"]).toBe(null);
         return okAsync(undefined);
@@ -316,7 +320,7 @@ describe("Tests with data permissions", () => {
     ]);
 
     await engine
-      .handleQuery(sdqlQuery2, givenPermissions)
+      .handleQuery(sdqlQuery2, givenPermissions, new PublicEvents())
       .andThen((deliveredInsights) => {
         expect(deliveredInsights.insights!["i1"]).toBe(null);
         return okAsync(undefined);
@@ -333,7 +337,7 @@ describe("Tests with data permissions", () => {
     ]);
 
     await engine
-      .handleQuery(sdqlQuery2, givenPermissions)
+      .handleQuery(sdqlQuery2, givenPermissions, new PublicEvents())
       .andThen((deliveredInsights) => {
         console.log("walach : ", deliveredInsights);
         expect(deliveredInsights.insights!["i2"] !== null).toBeTruthy();
@@ -356,7 +360,7 @@ describe("Tests with data permissions", () => {
       i5: null,
     };
     await engine
-      .handleQuery(sdqlQuery2, givenPermissions)
+      .handleQuery(sdqlQuery2, givenPermissions, new PublicEvents())
       .andThen((deliveredInsights) => {
         expect(deliveredInsights.insights).toEqual(expectedResult);
         return okAsync(undefined);
@@ -373,7 +377,7 @@ describe("Tests with data permissions", () => {
     ]);
 
     await engine
-      .handleQuery(sdqlQuery2, givenPermissions)
+      .handleQuery(sdqlQuery2, givenPermissions, new PublicEvents())
       .andThen((deliveredInsights) => {
         expect(deliveredInsights.insights!["q5"] !== null).toBeTruthy();
         return okAsync(undefined);
@@ -405,7 +409,7 @@ describe("Testing avalanche 4", () => {
     };
 
     await engine
-      .handleQuery(sdqlQuery4, new DataPermissions(allPermissions))
+      .handleQuery(sdqlQuery4, new DataPermissions(allPermissions), new PublicEvents())
       .andThen((deliveredInsights) => {
         expect(deliveredInsights).toMatchObject(expectedInsights);
 

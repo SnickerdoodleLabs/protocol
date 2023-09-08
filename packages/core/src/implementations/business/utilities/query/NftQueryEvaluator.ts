@@ -9,6 +9,9 @@ import {
   UnixTimestamp,
   ISDQLTimestampRange,
   NftHolding,
+  PublicEvents,
+  QueryPerformanceEvent,
+  EQueryEvents,
 } from "@snickerdoodlelabs/objects";
 import { AST_NftQuery } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
@@ -27,7 +30,7 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
     protected portfolioBalanceRepository: IPortfolioBalanceRepository,
   ) {}
 
-  public eval(query: AST_NftQuery): ResultAsync<SDQL_Return, PersistenceError> {
+  public eval(query: AST_NftQuery, publicEvents  : PublicEvents): ResultAsync<SDQL_Return, PersistenceError> {
     const networkId = query.schema.networkid;
     const address = query.schema.address;
     const timestampRange = query.schema.timestampRange;
@@ -39,10 +42,11 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
         ? [...networkId.map((id) => ChainId(Number(id)))]
         : [ChainId(Number(networkId))];
     }
-
+    publicEvents.queryPerformance.next(new QueryPerformanceEvent(EQueryEvents.NftDataAccess, `start`))  
     return this.portfolioBalanceRepository
       .getAccountNFTs(chainIds)
       .map((walletNfts) => {
+        publicEvents.queryPerformance.next(new QueryPerformanceEvent(EQueryEvents.NftDataAccess, `end`)) 
         return SDQL_Return(
           this.getNftHoldings(walletNfts, address, timestampRange),
         );

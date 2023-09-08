@@ -14,6 +14,7 @@ import {
   EChainTechnology,
   ESDQLQueryReturn,
   Age,
+  PublicEvents,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -139,7 +140,7 @@ describe("BalanceQueryEvaluator", () => {
     );
     const repo = mocks.factory();
 
-    const result = await repo.eval(balanceQuery);
+    const result = await repo.eval(balanceQuery, new PublicEvents());
     console.log("result: ", result);
     expect(result["value"].length).toEqual(6);
 
@@ -231,7 +232,7 @@ describe("BalanceQueryEvaluator", () => {
     );
     const repo = mocks.factory();
 
-    const result = await repo.eval(balanceQuery);
+    const result = await repo.eval(balanceQuery, new PublicEvents());
     console.log("result: ", result);
 
     expect(result["value"].length).toEqual(2);
@@ -311,7 +312,7 @@ describe("BalanceQueryEvaluator", () => {
     );
     const repo = mocks.factory();
 
-    const result = await repo.eval(balanceQuery);
+    const result = await repo.eval(balanceQuery, new PublicEvents());
     expect(result["value"].length).toEqual(0);
   });
 
@@ -381,7 +382,7 @@ describe("BalanceQueryEvaluator", () => {
     );
     const repo = mocks.factory();
 
-    const result = await repo.eval(balanceQuery);
+    const result = await repo.eval(balanceQuery, new PublicEvents());
     console.log("result: ", result);
 
     expect(result["value"].length).toEqual(2);
@@ -462,7 +463,7 @@ describe("BalanceQueryEvaluator", () => {
       ),
     );
 
-    const result = await repo.eval(balanceQuery);
+    const result = await repo.eval(balanceQuery, new PublicEvents());
     console.log("result: ", result);
 
     expect(result["value"].length).toEqual(4);

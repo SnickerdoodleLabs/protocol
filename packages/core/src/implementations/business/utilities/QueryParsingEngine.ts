@@ -25,6 +25,9 @@ import {
   PossibleReward,
   CompensationKey,
   InsightKey,
+  PublicEvents,
+  EQueryEvents,
+  QueryPerformanceEvent
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
@@ -38,7 +41,7 @@ import {
   SDQLParser,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
-import {  ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { BaseOf } from "ts-brand";
 
@@ -49,6 +52,7 @@ import {
   IAdDataRepositoryType,
   IAdRepositoryType,
 } from "@core/interfaces/data/index.js";
+
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {
   public constructor(
@@ -67,6 +71,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   public handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
+    publicEvents : PublicEvents
   ): ResultAsync<
     IQueryDeliveryItems,
     | EvaluationError
@@ -82,8 +87,14 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     | EvalNotImplementedError
     | MissingASTError
   > {
+    publicEvents.queryPerformance.next( new QueryPerformanceEvent(EQueryEvents.QueryEvaluation , "start"))
+    publicEvents.queryPerformance.next( new QueryPerformanceEvent(EQueryEvents.QueryParsing , "start"))
     return this.parseQuery(query).andThen((ast) => {
-      return this.gatherDeliveryItems(ast, query.cid, dataPermissions);
+      publicEvents.queryPerformance.next( new QueryPerformanceEvent(EQueryEvents.QueryParsing , "end"))
+      return this.gatherDeliveryItems(ast, query.cid, dataPermissions).map( (result) => {
+        publicEvents.queryPerformance.next( new QueryPerformanceEvent(EQueryEvents.QueryEvaluation , "end"))
+        return result;
+      });
     });
   }
 
@@ -138,6 +149,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
 
   public getPossibleQueryDeliveryItems(
     query: SDQLQuery,
+    publicEvents : PublicEvents
   ): ResultAsync<
     IQueryDeliveryItems,
     | EvaluationError
@@ -153,7 +165,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     | EvalNotImplementedError
     | MissingASTError
   > {
-    return this.handleQuery(query, DataPermissions.createWithAllPermissions());
+    return this.handleQuery(query, DataPermissions.createWithAllPermissions() , publicEvents);
   }
 
   /** Used for reward generation on the SPA. Purpose is to show all the rewards to the user

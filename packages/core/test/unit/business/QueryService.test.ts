@@ -258,6 +258,7 @@ class QueryServiceMocks {
       this.queryParsingEngine.handleQuery(
         sdqlQuery,
         this.consentToken.dataPermissions,
+        td.matchers.anything(),
       ),
     ).thenReturn(okAsync(queryDeliveryItems));
 
@@ -265,6 +266,7 @@ class QueryServiceMocks {
       this.queryParsingEngine.handleQuery(
         sdqlQuery2,
         this.consentToken.dataPermissions,
+        td.matchers.anything(),
       ),
     ).thenReturn(okAsync(queryDeliveryItems));
 

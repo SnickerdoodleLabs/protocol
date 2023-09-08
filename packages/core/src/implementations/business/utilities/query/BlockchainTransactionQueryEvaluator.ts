@@ -3,6 +3,9 @@ import {
   TransactionFilter,
   PersistenceError,
   SDQL_Return,
+  PublicEvents,
+  QueryPerformanceEvent,
+  EQueryEvents,
 } from "@snickerdoodlelabs/objects";
 import { AST_BlockchainTransactionQuery } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
@@ -25,6 +28,7 @@ export class BlockchainTransactionQueryEvaluator
 
   public eval(
     query: AST_BlockchainTransactionQuery,
+    publicEvents  : PublicEvents
   ): ResultAsync<SDQL_Return, PersistenceError> {
     const chainId = query.contract.networkId;
     const address = query.contract.address as EVMAccountAddress;
@@ -40,9 +44,11 @@ export class BlockchainTransactionQueryEvaluator
     );
 
     if (query.returnType == "object") {
+      publicEvents.queryPerformance.next(new QueryPerformanceEvent(EQueryEvents.ChainTransactionDataAccess, `start`))
       return this.transactionHistoryRepo
         .getTransactions(filter)
         .andThen((transactions) => {
+          publicEvents.queryPerformance.next(new QueryPerformanceEvent(EQueryEvents.ChainTransactionDataAccess, `end`))
           if (transactions == null) {
             return okAsync(
               SDQL_Return({
@@ -71,9 +77,11 @@ export class BlockchainTransactionQueryEvaluator
           );
         });
     } else if (query.returnType == "boolean") {
+      publicEvents.queryPerformance.next(new QueryPerformanceEvent(EQueryEvents.ChainTransactionDataAccess, `start`)) 
       return this.transactionHistoryRepo
         .getTransactions(filter)
         .andThen((transactions) => {
+          publicEvents.queryPerformance.next(new QueryPerformanceEvent(EQueryEvents.ChainTransactionDataAccess, `end`))
           if (transactions == null) {
             return okAsync(SDQL_Return(false));
           }
@@ -86,9 +94,11 @@ export class BlockchainTransactionQueryEvaluator
     }
 
     if (query.name == "chain_transactions") {
+      publicEvents.queryPerformance.next(new QueryPerformanceEvent(EQueryEvents.ChainTransactionDataAccess, `start`))
       return this.transactionHistoryRepo
         .getTransactionByChain()
         .andThen((transactionsArray) => {
+          publicEvents.queryPerformance.next(new QueryPerformanceEvent(EQueryEvents.ChainTransactionDataAccess, `end`))
           return okAsync(SDQL_Return(transactionsArray));
         });
     }

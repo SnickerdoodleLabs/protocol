@@ -6,14 +6,19 @@ import {
   BackupFileName,
   EDataStorageType,
   BackupStat,
+  EQueryEvents,
+  QueryPerformanceMetrics,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+import { QueryPerformanceEvent } from "packages/objects/src/businessObjects/events/query";
 
 export interface IMetricsRepository {
   recordApiCall(api: EExternalApi): ResultAsync<void, never>;
   recordQueryPosted(): ResultAsync<void, never>;
-  getApiStatSummaries(): ResultAsync<StatSummary[], never>;
+  recordQueryPerformanceEvent(event : QueryPerformanceEvent, elapsed : number): void
+  createQueryPerformanceStorage(eventName : EQueryEvents) : void
 
+  getApiStatSummaries(): ResultAsync<StatSummary[], never>;
   getCreatedBackupsSummary(): ResultAsync<StatSummary, never>;
   getCreatedBackupsByTypeSummary(): ResultAsync<StatSummary[], never>;
   getCreatedBackups(): ResultAsync<BackupStat[], never>;
@@ -23,7 +28,8 @@ export interface IMetricsRepository {
   getRestoredBackups(): ResultAsync<BackupStat[], never>;
 
   getQueriesPostedSummary(): ResultAsync<StatSummary, never>;
-
+  getQueryPerformanceData(): QueryPerformanceMetrics[]
+  
   recordBackupCreated(
     storageType: EDataStorageType,
     dataType: StorageKey,

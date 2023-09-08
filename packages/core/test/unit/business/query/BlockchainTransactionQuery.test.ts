@@ -23,6 +23,7 @@ import {
   EChainTechnology,
   EVMTransactionHash,
   ESDQLQueryReturn,
+  PublicEvents,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BlockchainTransactionQuery,
@@ -120,7 +121,7 @@ describe("QueryEvaluator: ", () => {
         ),
       ]),
     );
-    const result = await repo.eval(blockchainTransactionQuery);
+    const result = await repo.eval(blockchainTransactionQuery, new PublicEvents());
     // console.log("Age is: ", result["value"]);
     // console.log(result)
     expect(result).toBeDefined();
@@ -181,7 +182,7 @@ describe("QueryEvaluator: ", () => {
         ),
       ]),
     );
-    const result = await repo.eval(blockchainTransactionQuery);
+    const result = await repo.eval(blockchainTransactionQuery, new PublicEvents());
     // console.log("Age is: ", result["value"]);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(true);
@@ -224,7 +225,7 @@ describe("QueryEvaluator: ", () => {
     td.when(
       mocks.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
-    const result = await repo.eval(blockchainTransactionQuery);
+    const result = await repo.eval(blockchainTransactionQuery, new PublicEvents());
     // console.log("Age is: ", result["value"]);
     // console.log(result)
     expect(result).toBeDefined();
@@ -269,7 +270,7 @@ describe("Blockchain Transaction Query Testing: ", () => {
     td.when(
       mocks.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
-    const result = await repo.eval(blockchainTransactionQuery);
+    const result = await repo.eval(blockchainTransactionQuery, new PublicEvents());
     // console.log("Age is: ", result["value"]);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
@@ -311,7 +312,7 @@ describe("Blockchain Transaction Query Testing: ", () => {
     td.when(
       mocks.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
-    const result = await repo.eval(blockchainTransactionQuery);
+    const result = await repo.eval(blockchainTransactionQuery, new PublicEvents());
     // console.log("Age is: ", result["value"]);
     expect(result).toBeDefined();
     //expect(result["value"]).toBe(false);

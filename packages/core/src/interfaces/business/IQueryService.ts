@@ -29,8 +29,7 @@ import {
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { CoreConfig } from "../objects";
+import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
 
 export interface IQueryService {
   initialize(): ResultAsync<void, never>;
@@ -95,6 +94,7 @@ export interface IQueryService {
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
     config: CoreConfig,
+    context: CoreContext,
   ): ResultAsync<
     PossibleReward[],
     | AjaxError

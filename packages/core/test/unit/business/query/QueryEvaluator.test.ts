@@ -42,6 +42,7 @@ import {
   IDemographicDataRepository,
   ISocialRepository,
 } from "@core/interfaces/data/index.js";
+import { ContextProviderMock } from "@core-tests/mock/utilities";
 
 const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 20)];
 const conditionsGE2 = [new ConditionGE(SDQL_OperatorName("ge"), null, 25)];
@@ -75,11 +76,12 @@ class QueryEvaluatorMocks {
   public browsingDataRepo = td.object<IBrowsingDataRepository>();
   public transactionRepo = td.object<ITransactionHistoryRepository>();
   public socialRepo = td.object<ISocialRepository>();
-
+  public contextProvider: ContextProviderMock;
   public URLmap = new Map<URLString, number>([
     [URLString("www.snickerdoodlelabs.io"), 10],
   ]);
 
+ 
   public evmReturns: EVMTransaction[] = [
     new EVMTransaction(
       ChainId(43113),
@@ -175,7 +177,7 @@ class QueryEvaluatorMocks {
 
   public constructor() {
     td.when(this.demoDataRepo.getAge()).thenReturn(okAsync(Age(25)));
-
+    this.contextProvider = new ContextProviderMock();
     td.when(this.demoDataRepo.getGender()).thenReturn(okAsync(Gender("male")));
 
     td.when(
@@ -200,7 +202,8 @@ class QueryEvaluatorMocks {
       this.browsingDataRepo,
       this.transactionRepo,
       this.socialRepo,
-    );
+      this.contextProvider
+      );
     // td.when(this.dataWalletPersistence.getTransactionsMap())
     // .thenReturn(
     //     okAsync(this.chainTransactions),

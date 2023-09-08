@@ -44,8 +44,8 @@ import {
   MissingASTError,
   BlockchainCommonErrors,
   JSONString,
-  EarnedReward,
-  ConsentFactoryContractError,
+  EQueryEvents,
+  QueryPerformanceEvent
 } from "@snickerdoodlelabs/objects";
 import {
   SDQLQueryWrapper,
@@ -180,7 +180,7 @@ export class QueryService implements IQueryService {
           queryWrapper,
         );
       }
-
+      context.publicEvents.queryPerformance.next( new QueryPerformanceEvent(EQueryEvents.ProcessesBeforeOnQueryPostedEvaluation , `start`))
       // Now we will record the query as having been recieved; it is now at the start of the processing pipeline
       // This is just a prototype, we probably need to do the parsing before this becuase QueryStatus
       // should grow significantly
@@ -342,6 +342,7 @@ export class QueryService implements IQueryService {
       ),
     ])
       .andThen(([context, config, queryStatii]) => {
+        context.publicEvents.queryPerformance.next( new QueryPerformanceEvent(EQueryEvents.ProcessesBeforeReturningQueryEvaluation , `start`))
         if (queryStatii.length == 0) {
           this.logUtils.debug("No queries to process and return");
           return okAsync(undefined);
@@ -395,12 +396,14 @@ export class QueryService implements IQueryService {
                 .andThen(() => {
                   // After sanity checking, we process the query into insights for a
                   // (hopefully) final time, and get our opt-in key
+                  context.publicEvents.queryPerformance.next( new QueryPerformanceEvent(EQueryEvents.ProcessesBeforeReturningQueryEvaluation , `end`))
                   this.logUtils.debug(
                     `Starting queryParsingEngine for query ${query.cid}`,
                   );
+                  console.log(`rar  ,`,context.publicEvents)
                   return ResultUtils.combine([
                     this.queryParsingEngine
-                      .handleQuery(query, consentToken!.dataPermissions)
+                      .handleQuery(query, consentToken!.dataPermissions, context.publicEvents)
                       .map((insights) => {
                         this.logUtils.debug(
                           `Query ${query.cid} processed into insights`,
@@ -427,7 +430,7 @@ export class QueryService implements IQueryService {
                 })
                 .orElse((err) => {
                   if (err instanceof AjaxError) {
-                    if (err.code == 403) {
+                    
                       // 403 means a response has already been submitted, and we should stop asking
                       queryStatus.status =
                         EQueryProcessingStatus.RewardsReceived;
@@ -436,7 +439,7 @@ export class QueryService implements IQueryService {
                         .map(() => {
                           return [];
                         });
-                    }
+                    
                   }
 
                   // All other errors are just reported
@@ -483,6 +486,7 @@ export class QueryService implements IQueryService {
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
     config: CoreConfig,
+    context: CoreContext,
   ): ResultAsync<
     PossibleReward[],
     | AjaxError
@@ -499,8 +503,9 @@ export class QueryService implements IQueryService {
     | EvalNotImplementedError
     | MissingASTError
   > {
+    context.publicEvents.queryPerformance.next( new QueryPerformanceEvent(EQueryEvents.ProcessesBeforeOnQueryPostedEvaluation , `end`))
     return this.queryParsingEngine
-      .getPossibleQueryDeliveryItems(query)
+      .getPossibleQueryDeliveryItems(query , context.publicEvents)
       .andThen((queryDeliveryItems) => {
         return this.getPossibleRewardsFromIP(
           consentToken,
@@ -564,6 +569,7 @@ export class QueryService implements IQueryService {
       consentContractAddress,
       query,
       config,
+      context
     ).map((possibleRewards) => {
       this.publishSDQLQueryRequest(
         consentContractAddress,

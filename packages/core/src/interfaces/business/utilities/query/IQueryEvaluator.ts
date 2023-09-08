@@ -1,4 +1,4 @@
-import { PersistenceError, SDQL_Return } from "@snickerdoodlelabs/objects";
+import { PersistenceError, PublicEvents, SDQL_Return } from "@snickerdoodlelabs/objects";
 import {
   AST_PropertyQuery,
   AST_SubQuery,
@@ -9,6 +9,7 @@ export interface IQueryEvaluator {
   eval(query: AST_SubQuery): ResultAsync<SDQL_Return, PersistenceError>;
   evalPropertyQuery(
     q: AST_PropertyQuery,
+    publicEvents : PublicEvents
   ): ResultAsync<SDQL_Return, PersistenceError>;
 }
 

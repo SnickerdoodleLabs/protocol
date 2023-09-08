@@ -8,10 +8,12 @@ import {
   EChain,
   EComponentStatus,
   EExternalApi,
+  EQueryEvents,
   Gender,
   IpfsCID,
   LinkedAccount,
   PublicEvents,
+  QueryPerformanceEvent,
   SDQLQueryRequest,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
@@ -41,6 +43,7 @@ export class ContextProviderMock implements IContextProvider {
     [];
   public heartbeatActivations: void[] = [];
   public onApiAccessedActivations: EExternalApi[] = [];
+  public onQueryPerformance: QueryPerformanceEvent[] = [];
   public onBackupCreatedActivations: BackupCreatedEvent[] = [];
   public onBackupRestoredActivations: BackupRestoreEvent[] = [];
   public onBirthdayUpdatedActivations: UnixTimestamp[] = [];
@@ -140,6 +143,10 @@ export class ContextProviderMock implements IContextProvider {
     this.privateEvents.onApiAccessed.subscribe((val) => {
       this.onApiAccessedActivations.push(val);
     });
+
+    this.publicEvents.queryPerformance.subscribe((val) => {
+      this.onQueryPerformance.push(val)
+    })
   }
 
   public getContext(): ResultAsync<CoreContext, never> {

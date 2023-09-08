@@ -199,4 +199,6 @@ describe("MetricsService tests", () => {
     expect(primaryControlMetrics?.fifteenMinuteRate).toBe(1);
     mocks.contextProvider.assertEventCounts({ onApiAccessed: 1 });
   });
+
+
 });

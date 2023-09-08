@@ -1,3 +1,4 @@
+import { CoreContext } from "@core/interfaces/objects";
 import {
   DataPermissions,
   DuplicateIdInSchema,
@@ -12,6 +13,7 @@ import {
   PersistenceError,
   MissingASTError,
   PossibleReward,
+  PublicEvents,
 } from "@snickerdoodlelabs/objects";
 import { AST } from "@snickerdoodlelabs/query-parser";
 import { ResultAsync } from "neverthrow";
@@ -20,6 +22,7 @@ export interface IQueryParsingEngine {
   handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
+    publicEvents : PublicEvents,
   ): ResultAsync<
     IQueryDeliveryItems,
     | EvaluationError
@@ -69,6 +72,7 @@ export interface IQueryParsingEngine {
 
   getPossibleQueryDeliveryItems(
     query: SDQLQuery,
+    publicEvents : PublicEvents
   ): ResultAsync<
     IQueryDeliveryItems,
     | EvaluationError

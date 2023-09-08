@@ -6,12 +6,15 @@ import {
   EDataStorageType,
   StorageKey,
   BackupStat,
+  EQueryEvents,
+  QueryPerformanceMetrics,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
-import { Meter } from "measured-core";
+import { Meter, Timer } from "measured-core";
 import { ResultAsync, okAsync } from "neverthrow";
 
 import { IMetricsRepository } from "@core/interfaces/data/index.js";
+import { QueryPerformanceEvent } from "packages/objects/src/businessObjects/events/query";
 
 @injectable()
 export class MetricsRepository implements IMetricsRepository {
@@ -26,6 +29,8 @@ export class MetricsRepository implements IMetricsRepository {
 
   protected queryPostedMeter = new Meter();
 
+  protected queryEventsDurations: Record<EQueryEvents, number[]> | {} = {};
+  protected queryEventsTimers: Record<EQueryEvents, Timer> | {} = {};
   public constructor() {}
 
   public recordApiCall(api: EExternalApi): ResultAsync<void, never> {
@@ -99,6 +104,34 @@ export class MetricsRepository implements IMetricsRepository {
     this.queryPostedMeter.mark(1);
 
     return okAsync(undefined);
+  }
+
+  public recordQueryPerformanceEvent(event : QueryPerformanceEvent, elapsed : number): void {
+    this.queryEventsDurations[event.type].push(elapsed);
+    this.queryEventsTimers[event.type].update(elapsed);
+  }
+
+  public createQueryPerformanceStorage(eventName : EQueryEvents) : void{
+    this.queryEventsTimers[eventName] = new Timer();
+    this.queryEventsDurations[eventName] = [];
+  }      
+
+  public getQueryPerformanceData(): QueryPerformanceMetrics[] {
+    const queryPerformanceData: QueryPerformanceMetrics[] = [];
+    for (let eventName in this.queryEventsTimers) {
+      const { meter: meterData, histogram: histogramData } =
+        this.queryEventsTimers[eventName].toJSON();
+      const durations = this.queryEventsDurations[eventName];
+      queryPerformanceData.push(
+        new QueryPerformanceMetrics(
+          eventName,
+          meterData,
+          histogramData,
+          durations,
+        ),
+      );
+    }
+    return queryPerformanceData;
   }
 
   public getApiStatSummaries(): ResultAsync<StatSummary[], never> {

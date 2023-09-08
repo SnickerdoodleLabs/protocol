@@ -1,5 +1,10 @@
 import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
-import { EExternalApi, RuntimeMetrics } from "@snickerdoodlelabs/objects";
+import {
+  EExternalApi,
+  EQueryEvents,
+  QueryPerformanceMetrics,
+  RuntimeMetrics,
+} from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -15,6 +20,9 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
+import { Timer } from "measured-core";
+import { CoreContext } from "@core/interfaces/objects";
+import { QueryPerformanceEvent } from "packages/objects/src/businessObjects/events/query";
 
 @injectable()
 export class MetricsService implements IMetricsService {
@@ -23,13 +31,17 @@ export class MetricsService implements IMetricsService {
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
-  ) { }
+  ) {}
+
+  queryEventsElapsedStartTimes: Record<EQueryEvents, number[]> | {} = {};
+  queryEventsTimers: Record<EQueryEvents, Timer> | {} = {};
+  queryEventsDurations: Record<EQueryEvents, number[]> | {} = {};
 
   public initialize(): ResultAsync<void, never> {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
-    ]).map(([context, config]) => {
+    ]).map(([context, _config]) => {
       context.privateEvents.onApiAccessed.subscribe((apiName) => {
         this.metricsRepo.recordApiCall(apiName);
       });
@@ -55,6 +67,11 @@ export class MetricsService implements IMetricsService {
           event.name,
         );
       });
+
+      // Will create event listeners and store durations
+      // For query performance events
+      this.generateQueryEventStorage();
+      this.attachEventListenersToQueryPerformanceEvents(context);
 
       // Now, we can look for some patterns. For instance, if the API is spiking,
       // we can notify the system and potentially disable things
@@ -102,8 +119,36 @@ export class MetricsService implements IMetricsService {
           restoredBackupsByType,
           restoredBackups,
           context.components,
+          this.metricsRepo.getQueryPerformanceData(),
         );
       },
     );
   }
+
+  private attachEventListenersToQueryPerformanceEvents(
+    context: CoreContext,
+  ): void {
+    const processEvent = (event: QueryPerformanceEvent) => {
+      if (event.status === "start") {
+        this.queryEventsElapsedStartTimes[event.type].push(Date.now());
+      } else if (
+        event.status === "end" &&
+        this.queryEventsElapsedStartTimes[event.type].length
+      ) {
+        const elapsed =
+          Date.now() - this.queryEventsElapsedStartTimes[event.type].pop()!;
+        this.metricsRepo.recordQueryPerformanceEvent(event , elapsed)
+
+      }
+    };
+    context.publicEvents.queryPerformance.subscribe(processEvent);
+  }
+
+  private generateQueryEventStorage() : void {
+    Object.values(EQueryEvents).forEach((eventName) => {
+      this.metricsRepo.createQueryPerformanceStorage(eventName)
+      this.queryEventsElapsedStartTimes[eventName] = [];
+    });
+  }
+ 
 }

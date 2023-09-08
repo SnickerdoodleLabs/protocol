@@ -2,8 +2,11 @@ import { MasterIndexer } from "@snickerdoodlelabs/indexers";
 import {
   BigNumberString,
   ChainId,
+  EQueryEvents,
   EvalNotImplementedError,
   PersistenceError,
+  PublicEvents,
+  QueryPerformanceEvent,
   SDQL_Return,
   TokenAddress,
   TokenBalance,
@@ -36,10 +39,13 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
 
   public eval(
     query: AST_BalanceQuery,
+    publicEvents  : PublicEvents
   ): ResultAsync<SDQL_Return, PersistenceError> {
+    publicEvents.queryPerformance.next(new QueryPerformanceEvent(EQueryEvents.BalanceDataAccess, `start`))  
     return this.balanceRepo
       .getAccountBalances()
       .andThen((balances) => {
+        publicEvents.queryPerformance.next(new QueryPerformanceEvent(EQueryEvents.BalanceDataAccess, `end`)) 
         if (query.networkId == null) {
           return okAsync(balances);
         }
