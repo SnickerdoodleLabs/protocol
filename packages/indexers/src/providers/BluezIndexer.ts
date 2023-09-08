@@ -30,7 +30,7 @@ import {
   EVMTransactionHash,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import {
@@ -49,7 +49,7 @@ export class BluezIndexer implements IEVMIndexer {
     EComponentStatus
   >();
   protected supportedChains = new Map<EChain, IndexerSupportSummary>([
-    [EChain.Astar, new IndexerSupportSummary(EChain.Astar, true, true, true)],
+    [EChain.Astar, new IndexerSupportSummary(EChain.Astar, false, false, true)],
   ]);
 
   protected supportedNfts = new Map<string, EChain>([["astar", EChain.Astar]]);
@@ -89,72 +89,16 @@ export class BluezIndexer implements IEVMIndexer {
   public getBalancesForAccount(
     chain: EChain,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    return ResultUtils.combine([
-      this.configProvider.getConfig(),
-      this.contextProvider.getContext(),
-    ]).andThen(([config, context]) => {
-      const url =
-        "https://api.bluez.app/api/nft/v3/" +
-        config.apiKeys.bluezApiKey +
-        "/getNFTsForOwner?owner=" +
-        +"&orderBy=tokenId&pageKey=1&pageSize=100" +
-        config.apiKeys.ankrApiKey +
-        "/?ankr_getAccountBalance";
-
-      const balanceSupportChain = this.supportedAnkrChains.get(chain);
-      if (balanceSupportChain == undefined) {
-        return okAsync([]);
-      }
-
-      const requestParams = {
-        jsonrpc: "2.0",
-        method: "ankr_getAccountBalance",
-        params: {
-          walletAddress: accountAddress,
-          blockchain: [balanceSupportChain],
-        },
-        id: 1,
-      };
-
-      context.privateEvents.onApiAccessed.next(EExternalApi.Ankr);
-      return this.ajaxUtils
-        .post<IAnkrBalancesReponse>(new URL(url), requestParams, {
-          headers: {
-            "Content-Type": `application/json;`,
-          },
-        })
-        .andThen((response) => {
-          return ResultUtils.combine(
-            response.result.assets.map((item) => {
-              if (item.tokenType == "NATIVE") {
-                return okAsync(
-                  new TokenBalance(
-                    EChainTechnology.EVM,
-                    item.tokenSymbol,
-                    chain,
-                    MasterIndexer.nativeAddress,
-                    accountAddress,
-                    item.balanceRawInteger,
-                    item.tokenDecimals,
-                  ),
-                );
-              }
-              return okAsync(
-                new TokenBalance(
-                  EChainTechnology.EVM,
-                  item.tokenSymbol,
-                  chain,
-                  item.contractAddress,
-                  accountAddress,
-                  item.balanceRawInteger,
-                  item.tokenDecimals,
-                ),
-              );
-            }),
-          );
-        });
-    });
+  ): ResultAsync<
+    TokenBalance[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getBalancesForAccount not supported for Bluez Indexer",
+        400,
+      ),
+    );
   }
 
   public getTokensForAccount(
@@ -166,9 +110,11 @@ export class BluezIndexer implements IEVMIndexer {
       this.contextProvider.getContext(),
     ]).andThen(([config, context]) => {
       const url =
-        "https://rpc.ankr.com/multichain/" +
-        config.apiKeys.ankrApiKey +
-        "/?ankr_getNFTsByOwner";
+        "https://api.bluez.app/api/nft/v3/" +
+        config.apiKeys.bluezApiKey +
+        "/getNFTsForOwner?owner=" +
+        accountAddress +
+        "&orderBy=tokenId&pageKey=1&pageSize=100";
 
       const nftSupportChain = this.supportedAnkrChains.get(chain);
       if (nftSupportChain == undefined) {
@@ -234,55 +180,12 @@ export class BluezIndexer implements IEVMIndexer {
     EVMTransaction[],
     AccountIndexingError | AjaxError | MethodSupportError
   > {
-    return ResultUtils.combine([
-      this.configProvider.getConfig(),
-      this.contextProvider.getContext(),
-    ]).andThen(([config, context]) => {
-      const url =
-        "https://rpc.ankr.com/multichain/" +
-        config.apiKeys.ankrApiKey +
-        "/?ankr_getTransactionsByAddress";
-      const requestParams = {
-        jsonrpc: "2.0",
-        method: "ankr_getTransactionsByAddress",
-        params: {
-          address: [accountAddress],
-          blockchain: [this.supportedAnkrChains.get(chain)],
-        },
-        id: 1,
-      };
-
-      context.privateEvents.onApiAccessed.next(EExternalApi.Ankr);
-      return this.ajaxUtils
-        .post<IAnkrTransactionReponse>(new URL(url), requestParams, {
-          headers: {
-            Accept: `application/json`,
-            "Content-Type": `application/json`,
-          },
-        })
-        .map((response) => {
-          return response.result.transactions.map((item) => {
-            return new EVMTransaction(
-              getChainInfoByChain(chain).chainId,
-              EVMTransactionHash(item.hash),
-              UnixTimestamp(item.timestamp),
-              item.blockNumber,
-              EVMAccountAddress(item.to),
-              EVMAccountAddress(item.from),
-              BigNumberString(item.value),
-              BigNumberString(item.gasPrice),
-              null,
-              item.input,
-              item.type,
-              null,
-              null,
-            );
-          });
-        })
-        .mapErr((error) => {
-          return error;
-        });
-    });
+    return errAsync(
+      new MethodSupportError(
+        "getBalancesForAccount not supported for Bluez Indexer",
+        400,
+      ),
+    );
   }
 
   public healthStatus(): Map<EChain, EComponentStatus> {
