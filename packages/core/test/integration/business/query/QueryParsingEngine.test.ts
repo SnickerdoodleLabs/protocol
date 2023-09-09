@@ -339,7 +339,6 @@ describe("Tests with data permissions", () => {
     await engine
       .handleQuery(sdqlQuery2, givenPermissions, new PublicEvents())
       .andThen((deliveredInsights) => {
-        console.log("walach : ", deliveredInsights);
         expect(deliveredInsights.insights!["i2"] !== null).toBeTruthy();
         return okAsync(undefined);
       })

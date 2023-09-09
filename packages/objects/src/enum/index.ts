@@ -23,6 +23,7 @@ export * from "@objects/enum/EIndexer.js";
 export * from "@objects/enum/EIndexerMethod.js";
 export * from "@objects/enum/EInvitationStatus.js";
 export * from "@objects/enum/ELanguageCode.js";
+export * from "@objects/enum/EQueryEvents.js";
 export * from "@objects/enum/EQueryProcessingStatus.js";
 export * from "@objects/enum/ERewardType.js";
 export * from "@objects/enum/EScamFilterStatus.js";

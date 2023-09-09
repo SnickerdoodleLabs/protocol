@@ -400,7 +400,6 @@ export class QueryService implements IQueryService {
                   this.logUtils.debug(
                     `Starting queryParsingEngine for query ${query.cid}`,
                   );
-                  console.log(`rar  ,`,context.publicEvents)
                   return ResultUtils.combine([
                     this.queryParsingEngine
                       .handleQuery(query, consentToken!.dataPermissions, context.publicEvents)

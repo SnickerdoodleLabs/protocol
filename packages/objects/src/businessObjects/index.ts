@@ -35,6 +35,7 @@ export * from "@objects/businessObjects/ParsedBackupFileName.js";
 export * from "@objects/businessObjects/PortfolioUpdate.js";
 export * from "@objects/businessObjects/RequestForData.js";
 export * from "@objects/businessObjects/QueryDeliveryItems.js";
+export * from "@objects/businessObjects/QueryPerformanceMetrics.js";
 export * from "@objects/businessObjects/Reward.js";
 export * from "@objects/businessObjects/RSAKeyPair.js";
 export * from "@objects/businessObjects/RuntimeMetrics.js";

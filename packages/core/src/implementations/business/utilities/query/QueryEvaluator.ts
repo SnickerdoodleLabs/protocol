@@ -53,7 +53,7 @@ import {
 import {
   IContextProvider,
   IContextProviderType,
-} from "@core/interfaces/utilities";
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {

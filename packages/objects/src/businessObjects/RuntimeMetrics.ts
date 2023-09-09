@@ -3,6 +3,7 @@ import { ComponentStatus } from "@objects/businessObjects/ComponentStatus.js";
 import { StatSummary } from "@objects/businessObjects/StatSummary.js";
 import { EExternalApi } from "@objects/enum/index.js";
 import { UnixTimestamp } from "@objects/primitives/index.js";
+import { QueryPerformanceMetrics } from "@objects/businessObjects/QueryPerformanceMetrics.js";
 
 export class RuntimeMetrics {
   public constructor(
@@ -17,5 +18,6 @@ export class RuntimeMetrics {
     public restoredBackupsByType: StatSummary[],
     public restoredBackups: BackupStat[],
     public componentStatus: ComponentStatus,
+    public queryPerformanceMetrics : QueryPerformanceMetrics[]
   ) {}
 }

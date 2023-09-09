@@ -30,6 +30,7 @@ import {
   IpfsCID,
   UnixTimestamp,
 } from "@objects/primitives/index.js";
+import { QueryPerformanceEvent } from "@objects/businessObjects/events/query/index.js";
 
 export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onInitialized: Subject<DataWalletAddress>;
@@ -59,6 +60,8 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onLocationUpdated: Subject<CountryCode>;
   public onCloudStorageActivated: Subject<CloudStorageActivatedEvent>;
   public onCloudStorageDeactivated: Subject<CloudStorageActivatedEvent>;
+  public queryPerformance: Subject<QueryPerformanceEvent>;
+
 
   public constructor() {
     this.onInitialized = new Subject();
@@ -88,5 +91,6 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onBirthdayUpdated = new Subject();
     this.onGenderUpdated = new Subject();
     this.onLocationUpdated = new Subject();
+    this.queryPerformance = new Subject();
   }
 }

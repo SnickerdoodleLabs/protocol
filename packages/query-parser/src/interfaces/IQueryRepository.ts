@@ -2,6 +2,7 @@ import {
   DataPermissions,
   IpfsCID,
   PersistenceError,
+  PublicEvents,
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -13,6 +14,7 @@ export interface IQueryRepository {
     cid: IpfsCID,
     q: AST_SubQuery,
     dataPermissions: DataPermissions,
+    publicEvents  ?: PublicEvents
   ): ResultAsync<SDQL_Return, PersistenceError>;
 }
 

@@ -70,8 +70,8 @@ export class MetricsService implements IMetricsService {
 
       // Will create event listeners and store durations
       // For query performance events
-      this.generateQueryEventStorage();
-      this.attachEventListenersToQueryPerformanceEvents(context);
+      // - this.generateQueryEventStorage();
+      // - this.attachEventListenersToQueryPerformanceEvents(context);
 
       // Now, we can look for some patterns. For instance, if the API is spiking,
       // we can notify the system and potentially disable things
