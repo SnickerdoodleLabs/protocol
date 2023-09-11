@@ -32,6 +32,10 @@ import {
 import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
 import { DataWalletGateway } from "@extension-onboarding/services/implementations/DataWalletGateway";
 import {
+  getProviderList as getShoppingDataProviderList,
+  IShoppingDataWrapper,
+} from "@extension-onboarding/services/shoppingDataProvider";
+import {
   getProviderList as getSocialMediaProviderList,
   ISocialMediaWrapper,
 } from "@extension-onboarding/services/socialMediaProviders";
@@ -58,6 +62,7 @@ export interface IAppContext {
   updateOptedInContracts: () => void;
   optedInContracts: EVMContractAddress[];
   socialMediaProviderList: ISocialMediaWrapper[];
+  shoppingDataProviderList: IShoppingDataWrapper[];
   getUserAccounts(): ResultAsync<void, unknown>;
   addAccount(account: LinkedAccount): void;
   appMode: EAppModes | undefined;
@@ -266,6 +271,7 @@ export const AppContextProvider: FC = ({ children }) => {
         dataWalletGateway: new DataWalletGateway(sdlDataWallet),
         providerList: chainProviderList,
         socialMediaProviderList: getSocialMediaProviderList(sdlDataWallet),
+        shoppingDataProviderList: getShoppingDataProviderList(sdlDataWallet),
         linkedAccounts,
         getUserAccounts,
         appMode,

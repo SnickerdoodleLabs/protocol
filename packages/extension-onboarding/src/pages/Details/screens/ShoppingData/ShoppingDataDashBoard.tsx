@@ -21,7 +21,7 @@ interface IShoppingDataProps {
 
 export default () => {
   const classes = useStyles();
-  const { appMode } = useAppContext();
+  const { shoppingDataProviderList, appMode } = useAppContext();
 
   const getShoppingDataComponentGivenProps = ({
     name,
@@ -30,7 +30,7 @@ export default () => {
   }: IShoppingDataProps) => {
     switch (key) {
       case EShoppingDataType.AMAZON:
-        return <Amazon />;
+        return <Amazon name={name} icon={icon} />;
 
       default:
         return null;
@@ -43,7 +43,11 @@ export default () => {
 
   return (
     <Box>
-      <Amazon />
+      {shoppingDataProviderList.map(({ icon, name, key }) => (
+        <Box key={key} padding={3}>
+          {getShoppingDataComponentGivenProps({ icon, name, key })}
+        </Box>
+      ))}
     </Box>
   );
 };
