@@ -31,19 +31,13 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
   public addSiteVisits(
     siteVisits: SiteVisit[],
   ): ResultAsync<void, PersistenceError> {
-    console.log(1)
     return ResultUtils.combine(
       siteVisits.map((visit: SiteVisit) => {
-
         const url = parse(visit.url);
         visit.domain = url.domain ? DomainName(url.domain) : undefined;
-        console.log(ERecordKey.SITE_VISITS, visit)
         return this.persistence.updateRecord(ERecordKey.SITE_VISITS, visit);
       }),
-    ).map(() => {
-      console.log(`done`)
-    }
-    );
+    ).map(() => undefined);
   }
 
   public getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
@@ -61,7 +55,6 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
   public getSiteVisitsMap(
     timestampRange?: ISDQLTimestampRange,
   ): ResultAsync<SiteVisitsMap, PersistenceError> {
-    console.log(this.getSiteVisits())
     return this.getSiteVisits().andThen((siteVisits) => {
       const filteredVisits = timestampRange
         ? this.filterSiteVisists(siteVisits, timestampRange)
@@ -82,7 +75,6 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
       return visit.startTime >= start && visit.endTime <= end;
     });
   }
-
 
   protected mapSiteVisitDataWithoutAverageScreenTime(
     siteVisits: SiteVisit[],
