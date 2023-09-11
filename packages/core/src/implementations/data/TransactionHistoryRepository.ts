@@ -177,14 +177,14 @@ export class TransactionHistoryRepository
   ): TransactionPaymentCounter[] {
     const flowMap = new Map<EChain, TransactionPaymentCounter>();
     chainTransactions.forEach((chainTransaction) => {
-      const getObject = flowMap.get(chainTransaction.chain);
+      const getObject = flowMap.get(chainTransaction.chainId);
       if (getObject == null) {
-        flowMap.set(chainTransaction.chain, chainTransaction);
+        flowMap.set(chainTransaction.chainId, chainTransaction);
       } else {
         flowMap.set(
-          chainTransaction.chain,
+          chainTransaction.chainId,
           new TransactionPaymentCounter(
-            chainTransaction.chain,
+            chainTransaction.chainId,
             chainTransaction.incomingValue + getObject.incomingValue,
             chainTransaction.incomingCount + getObject.incomingCount,
             chainTransaction.outgoingValue + getObject.outgoingValue,
