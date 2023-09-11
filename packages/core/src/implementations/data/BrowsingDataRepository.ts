@@ -7,6 +7,8 @@ import {
   ERecordKey,
   ISDQLTimestampRange,
   UnixTimestamp,
+  SiteVisitsMap,
+  SiteVisitsData,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
@@ -29,44 +31,23 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
   public addSiteVisits(
     siteVisits: SiteVisit[],
   ): ResultAsync<void, PersistenceError> {
+    console.log(1)
     return ResultUtils.combine(
       siteVisits.map((visit: SiteVisit) => {
+
         const url = parse(visit.url);
         visit.domain = url.domain ? DomainName(url.domain) : undefined;
+        console.log(ERecordKey.SITE_VISITS, visit)
         return this.persistence.updateRecord(ERecordKey.SITE_VISITS, visit);
       }),
-    ).map(() => undefined);
+    ).map(() => {
+      console.log(`done`)
+    }
+    );
   }
 
   public getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
     return this.persistence.getAll(ERecordKey.SITE_VISITS);
-  }
-
-  // return a map of URLs
-  public getSiteVisitsMap(
-    timestampRange?: ISDQLTimestampRange,
-  ): ResultAsync<Map<URLString, number>, PersistenceError> {
-    return this.getSiteVisits().andThen((siteVisits) => {
-      const result = new Map<URLString, number>();
-      siteVisits.forEach((siteVisit, _i, _arr) => {
-        if (
-          timestampRange &&
-          this.timestampBetweenDates(
-            siteVisit.startTime,
-            siteVisit.endTime,
-            timestampRange,
-          )
-        ) {
-          return;
-        }
-        const baseUrl = DomainName(
-          siteVisit.domain ? siteVisit.domain : siteVisit.url,
-        );
-        baseUrl in result || (result[baseUrl] = 0);
-        result[baseUrl] += 1;
-      });
-      return okAsync(result);
-    });
   }
 
   public addClick(click: ClickData): ResultAsync<void, PersistenceError> {
@@ -77,28 +58,66 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
     return this.persistence.getAll<ClickData>(ERecordKey.CLICKS);
   }
 
-  protected timestampBetweenDates(
-    startTime: UnixTimestamp,
-    endTime: UnixTimestamp,
+  public getSiteVisitsMap(
+    timestampRange?: ISDQLTimestampRange,
+  ): ResultAsync<SiteVisitsMap, PersistenceError> {
+    console.log(this.getSiteVisits())
+    return this.getSiteVisits().andThen((siteVisits) => {
+      const filteredVisits = timestampRange
+        ? this.filterSiteVisists(siteVisits, timestampRange)
+        : siteVisits;
+      const visitsMap =
+        this.mapSiteVisitDataWithoutAverageScreenTime(filteredVisits);
+
+      return okAsync(visitsMap);
+    });
+  }
+
+  protected filterSiteVisists(
+    siteVisits: SiteVisit[],
     timestampRange: ISDQLTimestampRange,
-  ): boolean {
-    const start = timestampRange.start;
-    const end = timestampRange.end;
+  ): SiteVisit[] {
+    const { start, end } = timestampRange;
+    return siteVisits.filter((visit) => {
+      return visit.startTime >= start && visit.endTime <= end;
+    });
+  }
 
-    if (start !== "*") {
-      const startTimeStamp = UnixTimestamp(Number(start));
-      if (startTimeStamp > startTime) {
-        return true;
+
+  protected mapSiteVisitDataWithoutAverageScreenTime(
+    siteVisits: SiteVisit[],
+  ): SiteVisitsMap {
+    const visitsMap = new Map<URLString | DomainName, SiteVisitsData>();
+    siteVisits.forEach((visit) => {
+      const siteName = visit.domain || visit.url;
+      const screenTime = visit.endTime - visit.startTime;
+      const siteVisitData = visitsMap.get(siteName);
+
+      if (siteVisitData) {
+        siteVisitData.numberOfVisits += 1;
+        siteVisitData.totalScreenTime = UnixTimestamp(
+          siteVisitData.totalScreenTime + screenTime,
+        );
+        if (visit.endTime > siteVisitData.lastReportedTime) {
+          siteVisitData.lastReportedTime = visit.endTime;
+        }
+      } else {
+        visitsMap.set(siteName, {
+          numberOfVisits: 1,
+          totalScreenTime: UnixTimestamp(screenTime),
+          averageScreenTime: UnixTimestamp(screenTime),
+          lastReportedTime: visit.endTime,
+        });
       }
-    }
+    });
+    return visitsMap;
+  }
 
-    if (end !== "*") {
-      const endTimeStamp = UnixTimestamp(Number(end));
-      if (endTimeStamp < endTime) {
-        return true;
-      }
+  protected calculateAverageScreenTime(visitsMap: SiteVisitsMap): void {
+    for (const [_, siteVisitData] of visitsMap) {
+      siteVisitData.averageScreenTime = UnixTimestamp(
+        siteVisitData.totalScreenTime / siteVisitData.numberOfVisits,
+      );
     }
-
-    return false;
   }
 }

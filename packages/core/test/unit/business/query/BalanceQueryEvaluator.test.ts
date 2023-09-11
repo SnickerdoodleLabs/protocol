@@ -14,6 +14,9 @@ import {
   EChainTechnology,
   ESDQLQueryReturn,
   Age,
+  SiteVisitsMap,
+  UnixTimestamp,
+  SiteVisitsData,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -55,10 +58,12 @@ class BalanceQueryEvaluatorMocks {
   public browsingRepo = td.object<IBrowsingDataRepository>();
   public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
 
-  public URLmap = new Map<URLString, number>([
-    [URLString("www.snickerdoodlelabs.io"), 10],
+  public URLmap : SiteVisitsMap = new Map<URLString, SiteVisitsData>([
+    [URLString("www.snickerdoodlelabs.io"), { numberOfVisits : 10 ,
+        averageScreenTime: UnixTimestamp(3),
+      totalScreenTime: UnixTimestamp(12),
+      lastReportedTime: UnixTimestamp(8), }],
   ]);
-
   public constructor() {
     td.when(this.demoRepo.getAge()).thenReturn(okAsync(Age(25)));
     td.when(this.demoRepo.getGender()).thenReturn(okAsync(Gender("male")));

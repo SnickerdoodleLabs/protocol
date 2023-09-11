@@ -28,6 +28,8 @@ import {
   Version,
   EVMAccountAddress,
   EVMChainCode,
+  SiteVisit,
+  SiteVisitsMap,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_ConditionExpr,
@@ -427,5 +429,63 @@ export const avalanche1AstInstance = new AST(
   compensationParameters,
   compensationsMap,
 );
+
+export const siteVisits: SiteVisit[] = [
+  new SiteVisit(
+    URLString("http://google.com"),
+    UnixTimestamp(100),
+    UnixTimestamp(200),
+  ),
+  new SiteVisit(
+    URLString("http://google.com"),
+    UnixTimestamp(100),
+    UnixTimestamp(200),
+  ),
+  new SiteVisit(
+    URLString("http://google.com"),
+    UnixTimestamp(100),
+    UnixTimestamp(200),
+  ),
+  new SiteVisit(
+    URLString("http://gog.com"),
+    UnixTimestamp(200),
+    UnixTimestamp(400),
+  ),
+  new SiteVisit(
+    URLString("http://discord.com"),
+    UnixTimestamp(300),
+    UnixTimestamp(600),
+  ),
+];
+
+export const siteVisitsMap: SiteVisitsMap = new Map([
+  [
+    URLString("google.com"),
+    {
+      numberOfVisits: 3,
+      totalScreenTime: UnixTimestamp(300),
+      averageScreenTime: UnixTimestamp(100),
+      lastReportedTime: UnixTimestamp(200),
+    },
+  ],
+  [
+    URLString("gog.com"),
+    {
+      numberOfVisits: 1,
+      totalScreenTime: UnixTimestamp(200),
+      averageScreenTime: UnixTimestamp(200),
+      lastReportedTime: UnixTimestamp(400),
+    },
+  ],
+  [
+    URLString("discord.com"),
+    {
+      numberOfVisits: 1,
+      totalScreenTime: UnixTimestamp(300),
+      averageScreenTime: UnixTimestamp(300),
+      lastReportedTime: UnixTimestamp(600),
+    },
+  ],
+]);
 
 // #endregion
