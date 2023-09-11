@@ -34,6 +34,7 @@ import {
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { urlJoinP } from "url-join-ts";
 
 import {
   IEVMIndexer,
@@ -54,9 +55,7 @@ export class BluezIndexer implements IEVMIndexer {
     [EChain.Astar, new IndexerSupportSummary(EChain.Astar, false, false, true)],
   ]);
 
-  protected supportedNfts = new Map<string, EChain>([["astar", EChain.Astar]]);
-
-  protected supportedAnkrChains = new Map<EChain, string>([
+  protected supportedBluezChains = new Map<EChain, string>([
     [EChain.Astar, "astar"],
   ]);
 
@@ -71,7 +70,7 @@ export class BluezIndexer implements IEVMIndexer {
 
   public initialize(): ResultAsync<void, never> {
     return this.configProvider.getConfig().map((config) => {
-      this.supportedAnkrChains.forEach((indexerSupportSummary, chain) => {
+      this.supportedBluezChains.forEach((indexerSupportSummary, chain) => {
         if (
           config.apiKeys.bluezApiKey == "" ||
           config.apiKeys.bluezApiKey == undefined
@@ -106,13 +105,22 @@ export class BluezIndexer implements IEVMIndexer {
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),
     ]).andThen(([config, context]) => {
-      const url =
-        "https://api.bluez.app/api/nft/v3/" +
-        config.apiKeys.bluezApiKey +
-        "/getNFTsForOwner?owner=" +
-        accountAddress +
-        "&orderBy=tokenId&pageKey=1&pageSize=100";
-      const nftSupportChain = this.supportedAnkrChains.get(chain);
+      const url = new URL(
+        urlJoinP(
+          "https://api.bluez.app/api/nft/v3/" +
+            config.apiKeys.bluezApiKey +
+            "/getNFTsForOwner",
+          [""],
+          {
+            owner: accountAddress,
+            orderBy: "tokenId",
+            pageKey: "1",
+            pageSize: "100",
+          },
+        ),
+      );
+
+      const nftSupportChain = this.supportedBluezChains.get(chain);
       if (nftSupportChain == undefined) {
         return okAsync([]);
       }
