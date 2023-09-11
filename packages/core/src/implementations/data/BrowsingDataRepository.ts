@@ -94,12 +94,15 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
           siteVisitData.lastReportedTime = visit.endTime;
         }
       } else {
-        visitsMap.set(siteName, {
-          numberOfVisits: 1,
-          totalScreenTime: UnixTimestamp(screenTime),
-          averageScreenTime: screenTime,
-          lastReportedTime: visit.endTime,
-        });
+        visitsMap.set(
+          siteName,
+          new SiteVisitsData(
+            1,
+            screenTime,//Will be average later
+            UnixTimestamp(screenTime),
+            visit.endTime,
+          ),
+        );
       }
     });
     return visitsMap;
@@ -107,9 +110,8 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
 
   protected calculateAverageScreenTime(visitsMap: SiteVisitsMap): void {
     for (const [_, siteVisitData] of visitsMap) {
-      siteVisitData.averageScreenTime = 
-        siteVisitData.totalScreenTime / siteVisitData.numberOfVisits
-      
+      siteVisitData.averageScreenTime =
+        siteVisitData.totalScreenTime / siteVisitData.numberOfVisits;
     }
   }
 }

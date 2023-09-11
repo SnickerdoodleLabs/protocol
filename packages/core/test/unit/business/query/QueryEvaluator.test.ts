@@ -4,18 +4,15 @@ import {
   Age,
   ChainId,
   EVMAccountAddress,
-  EVMContractAddress,
   Gender,
   SDQL_Name,
   SDQL_OperatorName,
   URLString,
-  TickerSymbol,
   BigNumberString,
   TokenBalance,
   EVMTransaction,
   UnixTimestamp,
   EVMTransactionHash,
-  EChainTechnology,
   TransactionPaymentCounter,
   ESDQLQueryReturn,
   SiteVisitsData,
@@ -81,12 +78,12 @@ class QueryEvaluatorMocks {
   public URLmap: SiteVisitsMap = new Map<URLString, SiteVisitsData>([
     [
       URLString("www.snickerdoodlelabs.io"),
-      {
-        numberOfVisits: 10,
-        averageScreenTime: 3,
-        totalScreenTime: UnixTimestamp(12),
-        lastReportedTime: UnixTimestamp(8),
-      },
+      new SiteVisitsData(
+        10,
+        3,
+        UnixTimestamp(12),
+        UnixTimestamp(8),
+     ),
     ],
   ]);
 

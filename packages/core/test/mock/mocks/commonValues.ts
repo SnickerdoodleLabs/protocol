@@ -30,6 +30,7 @@ import {
   EVMChainCode,
   SiteVisit,
   SiteVisitsMap,
+  SiteVisitsData,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_ConditionExpr,
@@ -461,30 +462,15 @@ export const siteVisits: SiteVisit[] = [
 export const siteVisitsMap: SiteVisitsMap = new Map([
   [
     URLString("google.com"),
-    {
-      numberOfVisits: 3,
-      totalScreenTime: UnixTimestamp(300),
-      averageScreenTime: 100,
-      lastReportedTime: UnixTimestamp(200),
-    },
+    new SiteVisitsData(3, 100, UnixTimestamp(300), UnixTimestamp(200)),
   ],
   [
     URLString("gog.com"),
-    {
-      numberOfVisits: 1,
-      totalScreenTime: UnixTimestamp(200),
-      averageScreenTime: 200,
-      lastReportedTime: UnixTimestamp(400),
-    },
+    new SiteVisitsData(1, 200, UnixTimestamp(200), UnixTimestamp(400)),
   ],
   [
     URLString("discord.com"),
-    {
-      numberOfVisits: 1,
-      totalScreenTime: UnixTimestamp(300),
-      averageScreenTime: 300,
-      lastReportedTime: UnixTimestamp(600),
-    },
+    new SiteVisitsData(1, 300, UnixTimestamp(300), UnixTimestamp(600)),
   ],
 ]);
 

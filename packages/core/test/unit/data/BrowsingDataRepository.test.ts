@@ -5,6 +5,7 @@ import { siteVisits, siteVisitsMap } from "@core-tests/mock/mocks/index.js";
 import { IDataWalletPersistence } from "@core/interfaces/data/utilities/index.js";
 import {
   ERecordKey,
+  SiteVisitsData,
   UnixTimestamp,
   URLString,
 } from "@snickerdoodlelabs/objects";
@@ -77,12 +78,7 @@ describe("BrowsingDataRepository", () => {
       const expected = new Map([
         [
           URLString("gog.com"),
-          {
-            numberOfVisits: 1,
-            totalScreenTime: UnixTimestamp(200),
-            averageScreenTime: 200,
-            lastReportedTime: UnixTimestamp(400),
-          },
+          new SiteVisitsData(1, 200, UnixTimestamp(200), UnixTimestamp(400)),
         ],
       ]);
       //Act
