@@ -17,6 +17,6 @@ export class ConfigProviderMock implements IConfigProvider {
   }
 
   public setConfigOverrides(overrides: IConfigOverrides): void {
-    this.config = { ...this.config, ...overrides };
+    this.config = { ...this.config, ...overrides } as CoreConfig;
   }
 }

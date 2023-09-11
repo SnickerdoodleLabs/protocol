@@ -1,9 +1,4 @@
-import {
-  EChain,
-  EChainTechnology,
-  EIndexer,
-  EChainType,
-} from "@objects/enum/index.js";
+import { EChain, EChainTechnology, EChainType } from "@objects/enum/index.js";
 import {
   ChainId,
   EVMContractAddress,

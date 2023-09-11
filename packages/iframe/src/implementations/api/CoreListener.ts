@@ -31,14 +31,11 @@ import {
   OAuthVerifier,
   PagingRequest,
   Signature,
-  SiteVisit,
   TokenAddress,
   TokenId,
   TwitterID,
-  URLString,
   UnixTimestamp,
   ECloudStorageType,
-  AccessToken,
   BlockNumber,
   RefreshToken,
 } from "@snickerdoodlelabs/objects";
@@ -50,7 +47,6 @@ import {
 } from "@snickerdoodlelabs/utils";
 import { injectable, inject } from "inversify";
 import { okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 import Postmate from "postmate";
 import { parse } from "tldts";
 
