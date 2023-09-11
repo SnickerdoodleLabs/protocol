@@ -242,6 +242,71 @@ export class ConfigProvider
     this.config.dropboxRedirectUri =
       overrides.dropboxRedirectUri ?? this.config.dropboxRedirectUri;
 
+    // Blockchain Provider
+    this.config.apiKeys.primaryInfuraKey =
+      overrides.primaryInfuraKey ?? this.config.apiKeys.primaryInfuraKey;
+    this.config.apiKeys.primaryRPCProviderURL =
+      overrides.primaryRPCProviderURL ??
+      this.config.apiKeys.primaryRPCProviderURL;
+    this.config.apiKeys.secondaryInfuraKey =
+      overrides.secondaryInfuraKey ?? this.config.apiKeys.secondaryInfuraKey;
+    this.config.apiKeys.secondaryRPCProviderURL =
+      overrides.secondaryRPCProviderURL ??
+      this.config.apiKeys.secondaryRPCProviderURL;
+
+    // Alchemy
+    this.config.apiKeys.alchemyApiKeys.Arbitrum =
+      overrides.alchemyApiKeys?.Arbitrum ??
+      this.config.apiKeys.alchemyApiKeys.Arbitrum;
+    this.config.apiKeys.alchemyApiKeys.Astar =
+      overrides.alchemyApiKeys?.Astar ??
+      this.config.apiKeys.alchemyApiKeys.Astar;
+    this.config.apiKeys.alchemyApiKeys.Mumbai =
+      overrides.alchemyApiKeys?.Mumbai ??
+      this.config.apiKeys.alchemyApiKeys.Mumbai;
+    this.config.apiKeys.alchemyApiKeys.Optimism =
+      overrides.alchemyApiKeys?.Optimism ??
+      this.config.apiKeys.alchemyApiKeys.Optimism;
+    this.config.apiKeys.alchemyApiKeys.Polygon =
+      overrides.alchemyApiKeys?.Polygon ??
+      this.config.apiKeys.alchemyApiKeys.Polygon;
+    this.config.apiKeys.alchemyApiKeys.Solana =
+      overrides.alchemyApiKeys?.Solana ??
+      this.config.apiKeys.alchemyApiKeys.Solana;
+    this.config.apiKeys.alchemyApiKeys.SolanaTestnet =
+      overrides.alchemyApiKeys?.SolanaTestnet ??
+      this.config.apiKeys.alchemyApiKeys.SolanaTestnet;
+
+    // Etherscan
+    this.config.apiKeys.etherscanApiKeys.Arbitrum =
+      overrides.etherscanApiKeys?.Arbitrum ??
+      this.config.apiKeys.etherscanApiKeys.Arbitrum;
+    this.config.apiKeys.etherscanApiKeys.Avalanche =
+      overrides.etherscanApiKeys?.Avalanche ??
+      this.config.apiKeys.etherscanApiKeys.Avalanche;
+    this.config.apiKeys.etherscanApiKeys.Binance =
+      overrides.etherscanApiKeys?.Binance ??
+      this.config.apiKeys.etherscanApiKeys.Binance;
+    this.config.apiKeys.etherscanApiKeys.Ethereum =
+      overrides.etherscanApiKeys?.Ethereum ??
+      this.config.apiKeys.etherscanApiKeys.Ethereum;
+    this.config.apiKeys.etherscanApiKeys.Fuji =
+      overrides.etherscanApiKeys?.Fuji ??
+      this.config.apiKeys.etherscanApiKeys.Fuji;
+    this.config.apiKeys.etherscanApiKeys.Gnosis =
+      overrides.etherscanApiKeys?.Gnosis ??
+      this.config.apiKeys.etherscanApiKeys.Gnosis;
+    this.config.apiKeys.etherscanApiKeys.Moonbeam =
+      overrides.etherscanApiKeys?.Moonbeam ??
+      this.config.apiKeys.etherscanApiKeys.Moonbeam;
+    this.config.apiKeys.etherscanApiKeys.Optimism =
+      overrides.etherscanApiKeys?.Optimism ??
+      this.config.apiKeys.etherscanApiKeys.Optimism;
+    this.config.apiKeys.etherscanApiKeys.Polygon =
+      ovverrides.etherscanApiKeys?.Polygon ??
+      this.config.apiKeys.etherscanApiKeys.Polygon;
+
+    // Miscellaneous Indexers and APIs
     this.config.apiKeys.covalentApiKey =
       overrides.covalentApiKey ?? this.config.apiKeys.covalentApiKey;
     this.config.apiKeys.moralisApiKey =
@@ -254,18 +319,18 @@ export class ConfigProvider
       overrides.oklinkApiKey ?? this.config.apiKeys.oklinkApiKey;
     this.config.apiKeys.ankrApiKey =
       overrides.ankrApiKey ?? this.config.apiKeys.ankrApiKey;
-    this.config.apiKeys.bluezApiKey =
-      overrides.bluezApiKey ?? this.config.apiKeys.bluezApiKey;
-    this.config.apiKeys.primaryInfuraKey =
-      overrides.primaryInfuraKey ?? this.config.apiKeys.primaryInfuraKey;
-    this.config.apiKeys.primaryRPCProviderURL =
-      overrides.primaryRPCProviderURL ??
-      this.config.apiKeys.primaryRPCProviderURL;
-    this.config.apiKeys.secondaryInfuraKey =
-      overrides.secondaryInfuraKey ?? this.config.apiKeys.secondaryInfuraKey;
-    this.config.apiKeys.secondaryRPCProviderURL =
-      overrides.secondaryRPCProviderURL ??
-      this.config.apiKeys.secondaryRPCProviderURL;
+    // this.config.apiKeys.bluezApiKey =
+    //   overrides.bluezApiKey ?? this.config.apiKeys.bluezApiKey;
+    // this.config.apiKeys.primaryInfuraKey =
+    //   overrides.primaryInfuraKey ?? this.config.apiKeys.primaryInfuraKey;
+    // this.config.apiKeys.primaryRPCProviderURL =
+    //   overrides.primaryRPCProviderURL ??
+    //   this.config.apiKeys.primaryRPCProviderURL;
+    // this.config.apiKeys.secondaryInfuraKey =
+    //   overrides.secondaryInfuraKey ?? this.config.apiKeys.secondaryInfuraKey;
+    // this.config.apiKeys.secondaryRPCProviderURL =
+    //   overrides.secondaryRPCProviderURL ??
+    //   this.config.apiKeys.secondaryRPCProviderURL;
 
     this.config.dnsServerAddress =
       overrides.dnsServerAddress ?? this.config.dnsServerAddress;
