@@ -42,6 +42,7 @@ import {
   IEVMIndexer,
   IAlchemyIndexerType,
   IAnkrIndexerType,
+  IBluezIndexerType,
   ICovalentEVMTransactionRepositoryType,
   IEtherscanIndexerType,
   IMoralisEVMPortfolioRepositoryType,
@@ -57,6 +58,7 @@ import {
 @injectable()
 export class MasterIndexer implements IMasterIndexer {
   protected evmIndexerWeights = [
+    this.bluez,
     this.ankr,
     this.alchemy,
     this.etherscan,
@@ -77,6 +79,7 @@ export class MasterIndexer implements IMasterIndexer {
     protected indexerContext: IIndexerContextProvider,
     @inject(IAlchemyIndexerType) protected alchemy: IEVMIndexer,
     @inject(IAnkrIndexerType) protected ankr: IEVMIndexer,
+    @inject(IBluezIndexerType) protected bluez: IEVMIndexer,
     @inject(ICovalentEVMTransactionRepositoryType)
     protected covalent: IEVMIndexer,
     @inject(IEtherscanIndexerType) protected etherscan: IEVMIndexer,
@@ -96,6 +99,7 @@ export class MasterIndexer implements IMasterIndexer {
     return ResultUtils.combine([
       this.alchemy.initialize(),
       this.ankr.initialize(),
+      this.bluez.initialize(),
       this.covalent.initialize(),
       this.etherscan.initialize(),
       this.matic.initialize(),
@@ -125,6 +129,7 @@ export class MasterIndexer implements IMasterIndexer {
       // if the method is provided, we need to limit the list of supported chains to those that support the method
       if (method != null) {
         const indexers = [
+          this.bluez,
           this.alchemy,
           this.ankr,
           this.covalent,
@@ -275,7 +280,6 @@ export class MasterIndexer implements IMasterIndexer {
     }
 
     const indexers = this.getPreferredEVMIndexers(chain, EIndexerMethod.NFTs);
-
     // If there are no indexers, just return an empty array
     if (indexers.length == 0) {
       return okAsync([]);

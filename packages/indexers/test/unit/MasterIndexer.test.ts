@@ -128,6 +128,7 @@ class MasterIndexerMocks {
   public context: IIndexerContextProvider;
   public alchemy: EVMIndexerMock;
   public ankr: EVMIndexerMock;
+  public bluez: EVMIndexerMock;
   public covalent: EVMIndexerMock;
   public etherscan: EVMIndexerMock;
   public moralis: EVMIndexerMock;
@@ -155,6 +156,12 @@ class MasterIndexerMocks {
       "Ankr",
       new Map<EChain, IndexerSupportSummary>([
         [chain, new IndexerSupportSummary(chain, true, true, true)],
+      ]),
+    );
+    this.bluez = new EVMIndexerMock(
+      "Bluez",
+      new Map<EChain, IndexerSupportSummary>([
+        [chain, new IndexerSupportSummary(chain, false, false, true)],
       ]),
     );
     this.covalent = new EVMIndexerMock(
@@ -213,6 +220,7 @@ class MasterIndexerMocks {
       this.context,
       this.alchemy,
       this.ankr,
+      this.bluez,
       this.covalent,
       this.etherscan,
       this.moralis,

@@ -28,6 +28,8 @@ import {
   URLString,
   DecimalString,
   EVMTransactionHash,
+  ChainId,
+  TokenId,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -93,12 +95,7 @@ export class BluezIndexer implements IEVMIndexer {
     TokenBalance[],
     AccountIndexingError | AjaxError | MethodSupportError
   > {
-    return errAsync(
-      new MethodSupportError(
-        "getBalancesForAccount not supported for Bluez Indexer",
-        400,
-      ),
-    );
+    return okAsync([]);
   }
 
   public getTokensForAccount(
@@ -115,58 +112,38 @@ export class BluezIndexer implements IEVMIndexer {
         "/getNFTsForOwner?owner=" +
         accountAddress +
         "&orderBy=tokenId&pageKey=1&pageSize=100";
-
       const nftSupportChain = this.supportedAnkrChains.get(chain);
       if (nftSupportChain == undefined) {
         return okAsync([]);
       }
 
-      const requestParams = {
-        jsonrpc: "2.0",
-        method: "ankr_getNFTsByOwner",
-        params: {
-          walletAddress: accountAddress,
-          pageSize: 50,
-          blockchain: [nftSupportChain],
-        },
-        id: 1,
-      };
-
-      context.privateEvents.onApiAccessed.next(EExternalApi.Ankr);
+      context.privateEvents.onApiAccessed.next(EExternalApi.Bluez);
       return this.ajaxUtils
-        .post<IAnkrNftReponse>(new URL(url), requestParams, {
+        .get<IBluezNftReponse>(new URL(url), {
           headers: {
-            "Content-Type": `application/json;`,
+            Accept: `application/json;`,
           },
         })
         .map((response) => {
-          // return ResultUtils.combine(
-          return response.result.assets.map((item) => {
+          return response.items.map((item) => {
             return new EVMNFT(
               item.contractAddress,
               BigNumberString(item.tokenId),
-              item.contractType,
+              item.tokenType,
               accountAddress,
-              TokenUri(item.imageUrl),
+              TokenUri(item.image),
               { raw: ObjectUtils.serialize(item) },
               BigNumberString("1"),
               item.name,
-              getChainInfoByChain(
-                this.supportedNfts.get(item.blockchain)!,
-              ).chainId, // chainId
+              EChain.Astar,
               undefined,
               undefined,
             );
           });
         })
-        .map((unfilteredNfts) => {
-          return unfilteredNfts
-            .filter((nft) => {
-              return nft.chain == chain;
-            })
-            .map((filteredNfts) => {
-              return filteredNfts;
-            });
+        .mapErr((e) => {
+          console.log("error getting bluez formatted data: " + e);
+          return e;
         });
     });
   }
@@ -180,12 +157,7 @@ export class BluezIndexer implements IEVMIndexer {
     EVMTransaction[],
     AccountIndexingError | AjaxError | MethodSupportError
   > {
-    return errAsync(
-      new MethodSupportError(
-        "getBalancesForAccount not supported for Bluez Indexer",
-        400,
-      ),
-    );
+    return okAsync([]);
   }
 
   public healthStatus(): Map<EChain, EComponentStatus> {
@@ -197,85 +169,17 @@ export class BluezIndexer implements IEVMIndexer {
   }
 }
 
-interface IAnkrBalancesReponse {
-  jsonrpc: string;
-  id: number;
-  result: {
-    totalBalanceUsd: string;
-    totalCount: number;
-    assets: IAnkrBalanceAsset[];
-  };
-}
-
-interface IAnkrBalanceAsset {
-  contractAddress: EVMContractAddress;
-  blockchain: string;
-  tokenName: string;
-  tokenSymbol: TickerSymbol;
-  tokenDecimals: number;
-  tokenType: string;
-  holderAddress: EVMAccountAddress;
-  balance: BigNumberString;
-  balanceRawInteger: BigNumberString;
-  balanceUsd: DecimalString;
-  tokenPrice: DecimalString;
-  thumbnail: URLString;
-}
-
-interface IAnkrNftReponse {
-  jsonrpc: string;
-  id: number;
-  result: {
-    owner: EVMAccountAddress;
-    assets: IAnkrNftAsset[];
-  };
-  nextPageToken: string;
-}
-
-interface IAnkrNftAsset {
-  blockchain: string;
-  name: string;
-  tokenId: string;
-  tokenUrl: string;
-  imageUrl: string;
-  collectionName: string;
-  symbol: string;
-  contractType: string;
-  contractAddress: EVMContractAddress;
-  traits: {
-    trait_type: string;
-    value: string;
+interface IBluezNftReponse {
+  items: {
+    chainId: ChainId;
+    tokenId: string;
+    tokenType: string;
+    contractAddress: EVMContractAddress;
+    name: string;
+    image: string;
+    ownerAddress: EVMAccountAddress;
+    description: string;
+    totalSupply: number;
+    tokenUri: TokenUri;
   }[];
-}
-
-interface IAnkrTransactionReponse {
-  jsonrpc: string;
-  id: number;
-  result: {
-    transactions: IAnkrTransaction[];
-  };
-  nextPageToken: string;
-}
-
-interface IAnkrTransaction {
-  v: string;
-  r: string;
-  s: string;
-  nonce: string;
-  blockNumber: number;
-  from: string;
-  to: string;
-  gas: string;
-  gasPrice: string;
-  input: string;
-  transactionIndex: string;
-  blockHash: string;
-  value: string;
-  type: string;
-  cumulativeGasUsed: string;
-  gasUsed: string;
-  hash: string;
-  status: string;
-  blockchain: string;
-  timestamp: number;
 }
