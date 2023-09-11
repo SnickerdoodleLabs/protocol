@@ -149,9 +149,8 @@ export class BluezIndexer implements IEVMIndexer {
             );
           });
         })
-        .mapErr((e) => {
-          console.log("error getting bluez formatted data: " + e);
-          return e;
+        .mapErr((error) => {
+          return error;
         });
     });
   }
