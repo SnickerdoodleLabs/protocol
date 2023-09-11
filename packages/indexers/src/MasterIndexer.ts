@@ -143,13 +143,18 @@ export class MasterIndexer implements IMasterIndexer {
           this.sol,
         ];
 
+        console.log("indexers: " + indexers);
+
         supportedChains = indexers
           .map((indexer) => {
             return indexer.getSupportedChains();
           })
           .reduce((acc, supportedChains) => {
+            console.log("find Astar 1: " + JSON.stringify(supportedChains));
             // Reduce it down to a summary of the method- yes or no, do we support that method
             supportedChains.forEach((indexerSupportSummary, chain) => {
+              console.log("find chain: " + chain);
+
               const support = acc.get(chain);
               if (support == null) {
                 acc.set(
@@ -170,9 +175,15 @@ export class MasterIndexer implements IMasterIndexer {
                   ), // OR together, if any support is true it's true
               );
             });
+
+            console.log("acc: " + JSON.stringify(acc));
             return acc;
           }, new Map<EChain, boolean>());
       }
+
+      console.log(
+        "lookie here supportedChains: " + JSON.stringify(supportedChains),
+      );
 
       const activeChains = new Array<EChain>();
       healthStatuses.forEach((componentStatus, chain) => {
@@ -280,6 +291,10 @@ export class MasterIndexer implements IMasterIndexer {
     }
 
     const indexers = this.getPreferredEVMIndexers(chain, EIndexerMethod.NFTs);
+    console.log("chain: " + indexers);
+
+    console.log("indexers: " + indexers);
+
     // If there are no indexers, just return an empty array
     if (indexers.length == 0) {
       return okAsync([]);
@@ -409,6 +424,9 @@ export class MasterIndexer implements IMasterIndexer {
 
       // Get the health status
       const status = indexer.healthStatus().get(chain);
+      console.log("chain: " + chain);
+      console.log("status: " + status);
+
       if (status == null) {
         continue;
       }

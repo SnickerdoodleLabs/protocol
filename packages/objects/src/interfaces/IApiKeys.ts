@@ -31,4 +31,5 @@ export interface IApiKeys {
   poapApiKey: string | null;
   oklinkApiKey: string | null;
   ankrApiKey: string | null;
+  bluezApiKey: string | null;
 }

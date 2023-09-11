@@ -44,6 +44,7 @@ declare const __NFTSCAN_API_KEY__: string;
 declare const __POAP_API_KEY__: string;
 declare const __OKLINK_API_KEY__: string;
 declare const __ANKR_API_KEY__: string;
+declare const __BLUEZ_API_KEY__: string;
 
 // Infura: 8497d7f3186c4edcaaff8838478c634d
 // Ankr: f50d7a208124e6a6df731477fdc9ef420ce59769ced1e9339318a383365cb6a1
@@ -176,6 +177,7 @@ export class ConfigProvider implements IConfigProvider {
         poapApiKey: __POAP_API_KEY__ == "" ? null : __POAP_API_KEY__,
         oklinkApiKey: __OKLINK_API_KEY__ == "" ? null : __OKLINK_API_KEY__,
         ankrApiKey: __ANKR_API_KEY__ == "" ? null : __ANKR_API_KEY__,
+        bluezApiKey: __BLUEZ_API_KEY__ == "" ? null : __BLUEZ_API_KEY__,
       }, // defaultKeys
     );
   }
