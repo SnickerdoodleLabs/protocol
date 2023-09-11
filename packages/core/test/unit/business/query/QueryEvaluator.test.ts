@@ -78,11 +78,16 @@ class QueryEvaluatorMocks {
   public transactionRepo = td.object<ITransactionHistoryRepository>();
   public socialRepo = td.object<ISocialRepository>();
 
-  public URLmap : SiteVisitsMap = new Map<URLString, SiteVisitsData>([
-    [URLString("www.snickerdoodlelabs.io"), { numberOfVisits : 10 ,
-        averageScreenTime: UnixTimestamp(3),
-      totalScreenTime: UnixTimestamp(12),
-      lastReportedTime: UnixTimestamp(8), }],
+  public URLmap: SiteVisitsMap = new Map<URLString, SiteVisitsData>([
+    [
+      URLString("www.snickerdoodlelabs.io"),
+      {
+        numberOfVisits: 10,
+        averageScreenTime: 3,
+        totalScreenTime: UnixTimestamp(12),
+        lastReportedTime: UnixTimestamp(8),
+      },
+    ],
   ]);
 
   public evmReturns: EVMTransaction[] = [

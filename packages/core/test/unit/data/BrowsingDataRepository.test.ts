@@ -10,30 +10,28 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { BrowsingDataRepository } from "@core/implementations/data";
 
-
 describe("BrowsingDataRepository", () => {
   const persistence = td.object<IDataWalletPersistence>();
   td.when(persistence.getAll(ERecordKey.SITE_VISITS)).thenReturn(
     okAsync(siteVisits),
   );
   td.when(
-    persistence.updateRecord(
-      ERecordKey.SITE_VISITS,
-      td.matchers.anything(),
-    ),
+    persistence.updateRecord(ERecordKey.SITE_VISITS, td.matchers.anything()),
   ).thenReturn(okAsync(undefined));
 
   let browsingDataRepository: IBrowsingDataRepository;
 
   beforeEach(() => {
+    // Arrange
     browsingDataRepository = new BrowsingDataRepository(persistence);
   });
 
- 
-
   describe("addSiteVisits", () => {
-    it("should add site visits", async () => {
+    test("should add site visits", async () => {
+      // Act
       await browsingDataRepository.addSiteVisits(siteVisits);
+
+      // Assert
       td.verify(
         persistence.updateRecord(
           ERecordKey.SITE_VISITS,
@@ -41,6 +39,7 @@ describe("BrowsingDataRepository", () => {
         ),
         { times: siteVisits.length },
       );
+      // Assert
       siteVisits.forEach((visit) => {
         td.verify(
           persistence.updateRecord(
@@ -53,23 +52,27 @@ describe("BrowsingDataRepository", () => {
   });
 
   describe("getSiteVisists", () => {
-    it("should get site visits", async () => {
-      await browsingDataRepository.getSiteVisits().andThen( (result) => {
+    test("should get site visits", async () => {
+      //Act
+      await browsingDataRepository.getSiteVisits().andThen((result) => {
+        //Assert
         expect(result).toEqual(siteVisits);
         return okAsync(undefined);
       });
-
     });
   });
 
   describe("getSiteVisitsMap", () => {
-    it("should return site visits map", async () => {
+    test("should return site visits map", async () => {
+      //Act
       await browsingDataRepository.getSiteVisitsMap().andThen((result) => {
+        //Assert
         expect(result).toEqual(siteVisitsMap);
         return okAsync(undefined);
       });
     });
-    it("should return site visits map with visits filtered by timestamp", async () => {
+    test("should return site visits map with visits filtered by timestamp", async () => {
+      //Arrange
       const timestampRange = { start: 150, end: 450 };
       const expected = new Map([
         [
@@ -77,14 +80,16 @@ describe("BrowsingDataRepository", () => {
           {
             numberOfVisits: 1,
             totalScreenTime: UnixTimestamp(200),
-            averageScreenTime: UnixTimestamp(200),
+            averageScreenTime: 200,
             lastReportedTime: UnixTimestamp(400),
           },
-        ]
-      ])
+        ],
+      ]);
+      //Act
       await browsingDataRepository
         .getSiteVisitsMap(timestampRange)
         .andThen((result) => {
+          //Assert
           expect(result).toEqual(expected);
           return okAsync(undefined);
         });

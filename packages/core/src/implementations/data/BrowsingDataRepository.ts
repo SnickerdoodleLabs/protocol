@@ -11,7 +11,7 @@ import {
   SiteVisitsData,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync, okAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { parse } from "tldts";
 
@@ -55,14 +55,14 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
   public getSiteVisitsMap(
     timestampRange?: ISDQLTimestampRange,
   ): ResultAsync<SiteVisitsMap, PersistenceError> {
-    return this.getSiteVisits().andThen((siteVisits) => {
+    return this.getSiteVisits().map((siteVisits) => {
       const filteredVisits = timestampRange
         ? this.filterSiteVisists(siteVisits, timestampRange)
         : siteVisits;
       const visitsMap =
         this.mapSiteVisitDataWithoutAverageScreenTime(filteredVisits);
 
-      return okAsync(visitsMap);
+      return visitsMap;
     });
   }
 
@@ -97,7 +97,7 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
         visitsMap.set(siteName, {
           numberOfVisits: 1,
           totalScreenTime: UnixTimestamp(screenTime),
-          averageScreenTime: UnixTimestamp(screenTime),
+          averageScreenTime: screenTime,
           lastReportedTime: visit.endTime,
         });
       }
@@ -107,9 +107,9 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
 
   protected calculateAverageScreenTime(visitsMap: SiteVisitsMap): void {
     for (const [_, siteVisitData] of visitsMap) {
-      siteVisitData.averageScreenTime = UnixTimestamp(
-        siteVisitData.totalScreenTime / siteVisitData.numberOfVisits,
-      );
+      siteVisitData.averageScreenTime = 
+        siteVisitData.totalScreenTime / siteVisitData.numberOfVisits
+      
     }
   }
 }

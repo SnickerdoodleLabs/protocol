@@ -107,7 +107,7 @@ const direction: IDBCursorDirection = "next";
 const mode: IDBTransactionMode = "readonly";
 const cursor = td.object<IVolatileCursor<TestVersionedObject>>();
 
-export class DataWalletPersistenceMocks {
+class DataWalletPersistenceMocks {
   public backupManagerProvider: IBackupManagerProvider;
   public backupManager: IBackupManager;
   public storageUtils: IStorageUtils;

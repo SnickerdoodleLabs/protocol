@@ -464,7 +464,7 @@ export const siteVisitsMap: SiteVisitsMap = new Map([
     {
       numberOfVisits: 3,
       totalScreenTime: UnixTimestamp(300),
-      averageScreenTime: UnixTimestamp(100),
+      averageScreenTime: 100,
       lastReportedTime: UnixTimestamp(200),
     },
   ],
@@ -473,7 +473,7 @@ export const siteVisitsMap: SiteVisitsMap = new Map([
     {
       numberOfVisits: 1,
       totalScreenTime: UnixTimestamp(200),
-      averageScreenTime: UnixTimestamp(200),
+      averageScreenTime: 200,
       lastReportedTime: UnixTimestamp(400),
     },
   ],
@@ -482,7 +482,7 @@ export const siteVisitsMap: SiteVisitsMap = new Map([
     {
       numberOfVisits: 1,
       totalScreenTime: UnixTimestamp(300),
-      averageScreenTime: UnixTimestamp(300),
+      averageScreenTime: 300,
       lastReportedTime: UnixTimestamp(600),
     },
   ],

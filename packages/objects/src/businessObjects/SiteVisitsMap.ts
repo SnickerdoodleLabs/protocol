@@ -7,7 +7,7 @@ export type SiteVisitsMap = Map<URLString | DomainName, SiteVisitsData>;
 
 export type SiteVisitsData = {
   numberOfVisits: number;
-  averageScreenTime: UnixTimestamp;
+  averageScreenTime: number;
   totalScreenTime: UnixTimestamp;
   lastReportedTime: UnixTimestamp;
 };
