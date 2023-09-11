@@ -100,7 +100,7 @@ export class EtherscanIndexer implements IEVMIndexer {
           const chainInfo = getChainInfoByChain(chain);
           if (
             config.apiKeys.etherscanApiKeys[chainInfo.name] == "" ||
-            config.apiKeys.etherscanApiKeys[chainInfo.name] == undefined
+            config.apiKeys.etherscanApiKeys[chainInfo.name] == null
           ) {
             this.health.set(chain, EComponentStatus.NoKeyProvided);
           } else {

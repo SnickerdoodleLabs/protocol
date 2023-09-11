@@ -51,6 +51,8 @@ export class PoapRepository implements IEVMIndexer {
     ],
   ]);
 
+  protected poapApiKey: string | null = null;
+
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -86,11 +88,18 @@ export class PoapRepository implements IEVMIndexer {
     chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
-    return ResultUtils.combine([
-      this.generateQueryConfig(accountAddress),
-      this.contextProvider.getContext(),
-    ])
-      .andThen(([requestConfig, context]) => {
+    if (this.poapApiKey == null) {
+      return okAsync([]);
+    }
+
+    const requestConfig = this.generateQueryConfig(
+      accountAddress,
+      this.poapApiKey,
+    );
+
+    return this.contextProvider
+      .getContext()
+      .andThen((context) => {
         context.privateEvents.onApiAccessed.next(EExternalApi.POAP);
         return this.ajaxUtils.get<IPoapResponse[]>(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -137,10 +146,11 @@ export class PoapRepository implements IEVMIndexer {
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),
     ]).andThen(([config, context]) => {
-      if (config.apiKeys.poapApiKey == "") {
+      if (config.apiKeys.poapApiKey == null) {
         this.health.set(EChain.Gnosis, EComponentStatus.NoKeyProvided);
         return okAsync(undefined);
       }
+      this.poapApiKey = config.apiKeys.poapApiKey;
       const requestConfig: IRequestConfig = {
         headers: {
           accept: "application/json",
@@ -183,23 +193,23 @@ export class PoapRepository implements IEVMIndexer {
 
   private generateQueryConfig(
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<IRequestConfig, never> {
+    poapApiKey: string,
+  ): IRequestConfig {
     const url = urlJoinP("https://api.poap.tech", [
       "actions",
       "scan",
       accountAddress.toString(),
     ]);
-    return this.configProvider.getConfig().map((config) => {
-      const result: IRequestConfig = {
-        method: "get",
-        url: url,
-        headers: {
-          accept: "application/json",
-          "X-API-Key": config.apiKeys.poapApiKey,
-        },
-      };
-      return result;
-    });
+
+    const result: IRequestConfig = {
+      method: "get",
+      url: url,
+      headers: {
+        accept: "application/json",
+        "X-API-Key": poapApiKey,
+      },
+    };
+    return result;
   }
 }
 

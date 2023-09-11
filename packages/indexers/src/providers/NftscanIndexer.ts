@@ -64,6 +64,8 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
     ],
   ]);
 
+  protected nftScanApiKey: string | null = null;
+
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -77,12 +79,13 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
           if (
-            config.apiKeys.nftScanApiKey == undefined ||
+            config.apiKeys.nftScanApiKey == null ||
             config.apiKeys.nftScanApiKey == ""
           ) {
             this.health.set(key, EComponentStatus.NoKeyProvided);
           } else {
             this.health.set(key, EComponentStatus.Available);
+            this.nftScanApiKey = config.apiKeys.nftScanApiKey;
           }
         },
       );
@@ -112,11 +115,17 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
     chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
-    return ResultUtils.combine([
-      this.generateQueryConfig(chain, accountAddress),
-      this.contextProvider.getContext(),
-    ])
-      .andThen(([requestConfig, context]) => {
+    if (this.nftScanApiKey == null) {
+      return okAsync([]);
+    }
+    const requestConfig = this.generateQueryConfig(
+      chain,
+      accountAddress,
+      this.nftScanApiKey,
+    );
+    return this.contextProvider
+      .getContext()
+      .andThen((context) => {
         context.privateEvents.onApiAccessed.next(EExternalApi.NftScan);
         return this.ajaxUtils
           .get<INftScanResponse>(
@@ -213,7 +222,8 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
   private generateQueryConfig(
     chain: EChain,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<IRequestConfig, never> {
+    nftScanApiKey: string,
+  ): IRequestConfig {
     const chainName = this.generateBaseUrl(chain);
     const url = urlJoinP(`https://${chainName}api.nftscan.com`, [
       "api",
@@ -223,17 +233,16 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
       "all",
       accountAddress.toString() + "?erc_type=&show_attribute=false",
     ]);
-    return this.configProvider.getConfig().map((config) => {
-      const result: IRequestConfig = {
-        method: "get",
-        url: url,
-        headers: {
-          accept: "application/json",
-          "X-API-Key": config.apiKeys.nftScanApiKey,
-        },
-      };
-      return result;
-    });
+
+    const result: IRequestConfig = {
+      method: "get",
+      url: url,
+      headers: {
+        accept: "application/json",
+        "X-API-Key": nftScanApiKey,
+      },
+    };
+    return result;
   }
 }
 

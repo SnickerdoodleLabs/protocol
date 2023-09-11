@@ -1,6 +1,7 @@
 import {
   ChainId,
   DomainName,
+  IApiKeys,
   LanguageCode,
   ProviderUrl,
   URLString,
@@ -18,5 +19,6 @@ export class IFrameConfig {
     public transactionPollingIntervalMS: number,
     public backupPollingIntervalMS: number,
     public requestForDataPollingIntervalMS: number,
+    public defaultKeys: IApiKeys,
   ) {}
 }
