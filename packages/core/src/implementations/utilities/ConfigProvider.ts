@@ -242,10 +242,6 @@ export class ConfigProvider
 
     this.config.apiKeys.covalentApiKey =
       overrides.covalentApiKey ?? this.config.apiKeys.covalentApiKey;
-    this.config.apiKeys.alchemyApiKeys =
-      overrides.alchemyApiKeys ?? this.config.apiKeys.alchemyApiKeys;
-    this.config.apiKeys.etherscanApiKeys =
-      overrides.etherscanApiKeys ?? this.config.apiKeys.etherscanApiKeys;
     this.config.apiKeys.moralisApiKey =
       overrides.moralisApiKey ?? this.config.apiKeys.moralisApiKey;
     this.config.apiKeys.nftScanApiKey =
