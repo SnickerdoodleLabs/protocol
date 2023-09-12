@@ -303,7 +303,7 @@ export class ConfigProvider
       overrides.etherscanApiKeys?.Optimism ??
       this.config.apiKeys.etherscanApiKeys.Optimism;
     this.config.apiKeys.etherscanApiKeys.Polygon =
-      ovverrides.etherscanApiKeys?.Polygon ??
+      overrides.etherscanApiKeys?.Polygon ??
       this.config.apiKeys.etherscanApiKeys.Polygon;
 
     // Miscellaneous Indexers and APIs
@@ -319,18 +319,8 @@ export class ConfigProvider
       overrides.oklinkApiKey ?? this.config.apiKeys.oklinkApiKey;
     this.config.apiKeys.ankrApiKey =
       overrides.ankrApiKey ?? this.config.apiKeys.ankrApiKey;
-    // this.config.apiKeys.bluezApiKey =
-    //   overrides.bluezApiKey ?? this.config.apiKeys.bluezApiKey;
-    // this.config.apiKeys.primaryInfuraKey =
-    //   overrides.primaryInfuraKey ?? this.config.apiKeys.primaryInfuraKey;
-    // this.config.apiKeys.primaryRPCProviderURL =
-    //   overrides.primaryRPCProviderURL ??
-    //   this.config.apiKeys.primaryRPCProviderURL;
-    // this.config.apiKeys.secondaryInfuraKey =
-    //   overrides.secondaryInfuraKey ?? this.config.apiKeys.secondaryInfuraKey;
-    // this.config.apiKeys.secondaryRPCProviderURL =
-    //   overrides.secondaryRPCProviderURL ??
-    //   this.config.apiKeys.secondaryRPCProviderURL;
+    this.config.apiKeys.bluezApiKey =
+      overrides.bluezApiKey ?? this.config.apiKeys.bluezApiKey;
 
     this.config.dnsServerAddress =
       overrides.dnsServerAddress ?? this.config.dnsServerAddress;
