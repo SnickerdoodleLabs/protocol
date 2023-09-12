@@ -82,6 +82,7 @@ declare interface IExtensionConfigOverrides {
     poapApiKey?: string;
     oklinkApiKey?: string;
     ankrApiKey?: string;
+    bluezApiKey?: string;
     primaryInfuraKey?: string;
     secondaryInfuraKey?: string;
   };

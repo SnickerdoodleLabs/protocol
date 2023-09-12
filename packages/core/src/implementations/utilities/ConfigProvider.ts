@@ -129,8 +129,10 @@ export class ConfigProvider
         nftScanApiKey: null, // "lusr87vNmTtHGMmktlFyi4Nt", // NftScan api key
         poapApiKey: null,
         // "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm", // Poap Api Key
+
         oklinkApiKey: null, // "700c2f71-a4e2-4a85-b87f-58c8a341d1bf", // oklinkApiKeys
         ankrApiKey: null, // ankrApiKey
+        bluezApiKey: null, // bluezApiKey
         primaryInfuraKey: null, // primary Infura Key
         primaryRPCProviderURL: null,
         secondaryInfuraKey: null, // secondaryInfuraKey
@@ -317,6 +319,8 @@ export class ConfigProvider
       overrides.oklinkApiKey ?? this.config.apiKeys.oklinkApiKey;
     this.config.apiKeys.ankrApiKey =
       overrides.ankrApiKey ?? this.config.apiKeys.ankrApiKey;
+    this.config.apiKeys.bluezApiKey =
+      overrides.bluezApiKey ?? this.config.apiKeys.bluezApiKey;
 
     this.config.dnsServerAddress =
       overrides.dnsServerAddress ?? this.config.dnsServerAddress;

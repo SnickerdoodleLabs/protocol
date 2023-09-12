@@ -106,6 +106,9 @@ ENV __OKLINK_API_KEY__ $OKLINK_API_KEY
 ARG ANKR_API_KEY=""
 ENV __ANKR_API_KEY__ $ANKR_API_KEY
 
+ARG BLUEZ_API_KEY=""
+ENV __BLUEZ_API_KEY__ $BLUEZ_API_KEY
+
 RUN cd packages/iframe && yarn postCompile
 
 FROM nginx:latest AS server

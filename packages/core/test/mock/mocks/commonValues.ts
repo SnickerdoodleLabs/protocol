@@ -156,6 +156,7 @@ export const testCoreConfig = new CoreConfig(
     poapApiKey: "poap api key",
     oklinkApiKey: "oklink api key",
     ankrApiKey: "ankr api key",
+    bluezApiKey: "bluez api key",
     primaryInfuraKey: "primary infura key",
     primaryRPCProviderURL: ProviderUrl("Primary RPC Provider URL"),
     secondaryInfuraKey: "",

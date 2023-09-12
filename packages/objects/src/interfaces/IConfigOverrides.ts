@@ -38,6 +38,7 @@ export interface IConfigOverrides {
   poapApiKey?: string | null;
   oklinkApiKey?: string | null;
   ankrApiKey?: string | null;
+  bluezApiKey?: string | null;
   dnsServerAddress?: URLString;
   dataWalletBackupIntervalMS?: number;
   backupChunkSizeTarget?: number;

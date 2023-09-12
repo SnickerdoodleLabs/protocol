@@ -181,6 +181,7 @@ module.exports = {
       __POAP_API_KEY__: JSON.stringify(process.env.__POAP_API_KEY__),
       __OKLINK_API_KEY__: JSON.stringify(process.env.__OKLINK_API_KEY__),
       __ANKR_API_KEY__: JSON.stringify(process.env.__ANKR_API_KEY__),
+      __BLUEZ_API_KEY__: JSON.stringify(process.env.__BLUEZ_API_KEY__),
     }),
   ],
 };
