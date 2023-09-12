@@ -301,7 +301,7 @@ export class ConfigProvider
       overrides.etherscanApiKeys?.Optimism ??
       this.config.apiKeys.etherscanApiKeys.Optimism;
     this.config.apiKeys.etherscanApiKeys.Polygon =
-      ovverrides.etherscanApiKeys?.Polygon ??
+      overrides.etherscanApiKeys?.Polygon ??
       this.config.apiKeys.etherscanApiKeys.Polygon;
 
     // Miscellaneous Indexers and APIs
