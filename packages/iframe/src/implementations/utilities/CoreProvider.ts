@@ -56,6 +56,90 @@ export class CoreProvider implements ICoreProvider {
     // This probably needs to go away entirely
     config.enableBackupEncryption = false;
 
+    // We may be guaranteed some API keys
+    config.primaryInfuraKey =
+      config.primaryInfuraKey ?? immutableConfig.defaultKeys.primaryInfuraKey;
+    config.primaryRPCProviderURL =
+      config.primaryRPCProviderURL ??
+      immutableConfig.defaultKeys.primaryRPCProviderURL;
+    config.secondaryInfuraKey =
+      config.secondaryInfuraKey ??
+      immutableConfig.defaultKeys.secondaryInfuraKey;
+    config.secondaryRPCProviderURL =
+      config.secondaryRPCProviderURL ??
+      immutableConfig.defaultKeys.secondaryRPCProviderURL;
+
+    // Alchemy
+    config.alchemyApiKeys =
+      config.alchemyApiKeys ?? immutableConfig.defaultKeys.alchemyApiKeys;
+    config.alchemyApiKeys.Arbitrum =
+      config.alchemyApiKeys.Arbitrum ??
+      immutableConfig.defaultKeys.alchemyApiKeys.Arbitrum;
+    config.alchemyApiKeys.Astar =
+      config.alchemyApiKeys.Astar ??
+      immutableConfig.defaultKeys.alchemyApiKeys.Astar;
+    config.alchemyApiKeys.Mumbai =
+      config.alchemyApiKeys.Mumbai ??
+      immutableConfig.defaultKeys.alchemyApiKeys.Mumbai;
+    config.alchemyApiKeys.Optimism =
+      config.alchemyApiKeys.Optimism ??
+      immutableConfig.defaultKeys.alchemyApiKeys.Optimism;
+    config.alchemyApiKeys.Polygon =
+      config.alchemyApiKeys.Polygon ??
+      immutableConfig.defaultKeys.alchemyApiKeys.Polygon;
+    config.alchemyApiKeys.Solana =
+      config.alchemyApiKeys.Solana ??
+      immutableConfig.defaultKeys.alchemyApiKeys.Solana;
+    config.alchemyApiKeys.SolanaTestnet =
+      config.alchemyApiKeys.SolanaTestnet ??
+      immutableConfig.defaultKeys.alchemyApiKeys.SolanaTestnet;
+
+    // Etherscan
+    config.etherscanApiKeys =
+      config.etherscanApiKeys ?? immutableConfig.defaultKeys.etherscanApiKeys;
+    config.etherscanApiKeys.Ethereum =
+      config.etherscanApiKeys.Ethereum ??
+      immutableConfig.defaultKeys.etherscanApiKeys.Ethereum;
+    config.etherscanApiKeys.Polygon =
+      config.etherscanApiKeys.Polygon ??
+      immutableConfig.defaultKeys.etherscanApiKeys.Polygon;
+    config.etherscanApiKeys.Avalanche =
+      config.etherscanApiKeys.Avalanche ??
+      immutableConfig.defaultKeys.etherscanApiKeys.Avalanche;
+    config.etherscanApiKeys.Binance =
+      config.etherscanApiKeys.Binance ??
+      immutableConfig.defaultKeys.etherscanApiKeys.Binance;
+    config.etherscanApiKeys.Moonbeam =
+      config.etherscanApiKeys.Moonbeam ??
+      immutableConfig.defaultKeys.etherscanApiKeys.Moonbeam;
+    config.etherscanApiKeys.Optimism =
+      config.etherscanApiKeys.Optimism ??
+      immutableConfig.defaultKeys.etherscanApiKeys.Optimism;
+    config.etherscanApiKeys.Arbitrum =
+      config.etherscanApiKeys.Arbitrum ??
+      immutableConfig.defaultKeys.etherscanApiKeys.Arbitrum;
+    config.etherscanApiKeys.Gnosis =
+      config.etherscanApiKeys.Gnosis ??
+      immutableConfig.defaultKeys.etherscanApiKeys.Gnosis;
+    config.etherscanApiKeys.Fuji =
+      config.etherscanApiKeys.Fuji ??
+      immutableConfig.defaultKeys.etherscanApiKeys.Fuji;
+
+    // Other Indexers
+    config.covalentApiKey =
+      config.covalentApiKey ?? immutableConfig.defaultKeys.covalentApiKey;
+    config.moralisApiKey =
+      config.moralisApiKey ?? immutableConfig.defaultKeys.moralisApiKey;
+    config.nftScanApiKey =
+      config.nftScanApiKey ?? immutableConfig.defaultKeys.nftScanApiKey;
+    config.poapApiKey =
+      config.poapApiKey ?? immutableConfig.defaultKeys.poapApiKey;
+    config.oklinkApiKey =
+      config.oklinkApiKey ?? immutableConfig.defaultKeys.oklinkApiKey;
+    config.ankrApiKey =
+      config.ankrApiKey ?? immutableConfig.defaultKeys.ankrApiKey;
+
+    // Now we can create the actual snickerdoodle core instance
     this.core = new SnickerdoodleCore(config);
 
     return this.core.initialize().map(() => {
