@@ -46,18 +46,6 @@ declare const __OKLINK_API_KEY__: string;
 declare const __ANKR_API_KEY__: string;
 declare const __BLUEZ_API_KEY__: string;
 
-// Infura: 8497d7f3186c4edcaaff8838478c634d
-// Ankr: f50d7a208124e6a6df731477fdc9ef420ce59769ced1e9339318a383365cb6a1
-// Covalent: cqt_wFfHg4vmGKyMxGvPPxdHm8VCDPCY
-// POAP: wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm
-// Alchemy-Arbitrum: _G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF
-// Alchemy-Optimism: f3mMgv03KKiX8h-pgOc9ZZyu7F9ECcHG
-// Alchemy-Astar: Tk2NcwnHwrmRvzZCkqgSr6fOYIgH7xh7
-// Alchemy-Polygon: el_YkQK0DMQqqGlgXPO5gm8g6WmpdNfX
-// Alchemy-Solana: pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg
-// Alchemy-Mumbai: UA7tIJ6CdCE1351h24CQUE-MNCIV3DSf
-// Alchemy-Solana-Testnet: K1r7FB6hBm0QyXy4qyUa0xHun1Dmkc05
-
 const ONE_MINUTE_MS = 60000;
 
 @injectable()

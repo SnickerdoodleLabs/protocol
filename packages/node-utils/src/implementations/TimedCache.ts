@@ -1,9 +1,7 @@
 import Crypto from "crypto";
 
+import { ObjectUtils, ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import { UnixTimestamp } from "@snickerdoodlelabs/objects";
-
-import { ObjectUtils } from "@common-utils/implementations/ObjectUtils.js";
-import { ITimeUtils } from "@common-utils/interfaces/index.js";
 
 export class TimedCache<T> {
   protected cache = new Map<string, CacheEntry<T>>();

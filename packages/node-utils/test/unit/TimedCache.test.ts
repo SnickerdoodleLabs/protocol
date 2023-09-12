@@ -1,9 +1,9 @@
 import "reflect-metadata";
+import { ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import { UnixTimestamp } from "@snickerdoodlelabs/objects";
 import * as td from "testdouble";
 
-import { TimedCache } from "@common-utils/implementations/index.js";
-import { ITimeUtils } from "@common-utils/interfaces/index.js";
+import { TimedCache } from "@node-utils/implementations/index.js";
 
 const then = UnixTimestamp(1);
 const now = UnixTimestamp(2);
