@@ -1,6 +1,9 @@
 import {
+  AmazonNavigationUtils,
   ChatGPTProvider,
   HTMLPreProcessor,
+  IAmazonNavigationUtils,
+  IAmazonNavigationUtilsType,
   IHTMLPreProcessor,
   IHTMLPreProcessorType,
   ILLMProvider,
@@ -653,6 +656,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IPromptBuilderFactory>(IPromptBuilderFactoryType)
       .to(PromptBuilderFactory)
+      .inSingletonScope();
+    bind<IAmazonNavigationUtils>(IAmazonNavigationUtilsType)
+      .to(AmazonNavigationUtils)
       .inSingletonScope();
     // endregion
   },

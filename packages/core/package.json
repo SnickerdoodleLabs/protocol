@@ -43,6 +43,7 @@
     "@snickerdoodlelabs/indexers": "workspace:^",
     "@snickerdoodlelabs/insight-platform-api": "workspace:^",
     "@snickerdoodlelabs/node-utils": "workspace:^",
+    "@snickerdoodlelabs/nlp": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
     "@snickerdoodlelabs/persistence": "workspace:^",
     "@snickerdoodlelabs/query-parser": "workspace:^",

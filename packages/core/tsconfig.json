@@ -30,6 +30,9 @@
       "path": "../insight-platform-api"
     },
     {
+      "path": "../nlp"
+    },
+    {
       "path": "../node-utils"
     },
     {
