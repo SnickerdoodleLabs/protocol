@@ -6,10 +6,11 @@ import {
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { SnickerdoodleWebIntegration } from "@snickerdoodlelabs/web-integration";
-import { WalletProvider } from "@static-web-integration/WalletProvider";
-import { Result, ResultAsync, errAsync, okAsync } from "neverthrow";
-import { WCProvider } from "@static-web-integration/WCProvider";
 import { Signer } from "ethers";
+import { ResultAsync, okAsync } from "neverthrow";
+
+import { WalletProvider } from "@static-web-integration/WalletProvider";
+import { WCProvider } from "@static-web-integration/WCProvider";
 
 declare const __LOGO_PATH__: URLString;
 

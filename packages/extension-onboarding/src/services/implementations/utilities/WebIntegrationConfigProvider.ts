@@ -1,6 +1,7 @@
+import { IConfigOverrides, URLString } from "@snickerdoodlelabs/objects";
+
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { IWebIntegrationConfigProvider } from "@extension-onboarding/services/interfaces/utilities";
-import { IConfigOverrides, URLString } from "@snickerdoodlelabs/objects";
 
 declare const __PRIMARY_INFURA_KEY__: string;
 declare const __IFRAME_URL__: string;
