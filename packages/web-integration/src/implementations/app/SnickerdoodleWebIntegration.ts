@@ -186,7 +186,7 @@ export class SnickerdoodleWebIntegration
     configProvider: IConfigProvider,
   ): ResultAsync<void, ProxyError | PersistenceError | ProviderRpcError> {
     return ResultUtils.combine([
-      proxy.getAccounts(),
+      proxy.account.getAccounts(),
       blockchainProvider.getCurrentAccount(),
       blockchainProvider.getCurrentChain(),
     ]).andThen(([linkedAccounts, accountAddress, chainInfo]) => {
@@ -212,18 +212,18 @@ export class SnickerdoodleWebIntegration
         `Detected unlinked account ${accountAddress} being used on the DApp, adding to Snickerdoodle Data Wallet`,
       );
 
-      return proxy
-        .getLinkAccountMessage()
+      const config = configProvider.getConfig();
+      return proxy.account
+        .getLinkAccountMessage(config.languageCode)
         .andThen((unlockMessage) => {
           return blockchainProvider.getSignature(unlockMessage);
         })
         .andThen((signature) => {
-          const config = configProvider.getConfig();
-          return proxy.addAccount(
+          return proxy.account.addAccount(
             accountAddress,
             signature,
-            chainInfo.chain,
             config.languageCode,
+            chainInfo.chain,
           );
         });
     });

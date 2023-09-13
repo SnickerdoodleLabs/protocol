@@ -143,7 +143,7 @@ export interface IAccountMethods {
    */
   getLinkAccountMessage(
     languageCode: LanguageCode,
-    sourceDomain?: DomainName | undefined,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<string, UnsupportedLanguageError | UnauthorizedError>;
 
   /**
@@ -162,7 +162,7 @@ export interface IAccountMethods {
     signature: Signature,
     languageCode: LanguageCode,
     chain: EChain,
-    sourceDomain?: DomainName | undefined,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<
     void,
     | PersistenceError
@@ -181,11 +181,15 @@ export interface IAccountMethods {
   unlinkAccount(
     accountAddress: AccountAddress,
     chain: EChain,
-    sourceDomain?: DomainName | undefined,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<
     void,
     PersistenceError | UninitializedError | InvalidParametersError
   >;
+
+  getAccounts(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<LinkedAccount[], PersistenceError | UnauthorizedError>;
 }
 
 export interface ICoreMarketplaceMethods {
@@ -726,8 +730,8 @@ export interface ISnickerdoodleCore {
     | ConsentContractError
     | BlockchainCommonErrors
     | PersistenceError
-  > 
-  
+  >;
+
   /**
    * Restores a backup directly. Should only be called for testing purposes.
    * @param backup
@@ -845,9 +849,6 @@ export interface ISnickerdoodleCore {
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<SiteVisitsMap, PersistenceError | UnauthorizedError>;
 
-  getAccounts(
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<LinkedAccount[], PersistenceError | UnauthorizedError>;
   getAccountBalances(
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<TokenBalance[], PersistenceError | UnauthorizedError>;

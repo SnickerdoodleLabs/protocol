@@ -106,9 +106,7 @@ export class AddAccountParams extends CoreActionParams<void> {
 export class UnlinkAccountParams extends CoreActionParams<void> {
   public constructor(
     public accountAddress: AccountAddress,
-    public signature: Signature,
     public chain: EChain,
-    public languageCode: LanguageCode,
   ) {
     super(UnlinkAccountParams.getCoreAction());
   }

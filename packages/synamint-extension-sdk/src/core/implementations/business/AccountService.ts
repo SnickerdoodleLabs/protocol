@@ -12,6 +12,7 @@ import {
   QueryStatus,
   EVMContractAddress,
   BlockNumber,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -38,8 +39,11 @@ export class AccountService implements IAccountService {
   getQueryStatuses(
     contractAddress: EVMContractAddress,
     blockNumber?: BlockNumber,
-  ): ResultAsync<QueryStatus[], SnickerDoodleCoreError>{
-    return this.accountRepository.getQueryStatuses(contractAddress , blockNumber);
+  ): ResultAsync<QueryStatus[], SnickerDoodleCoreError> {
+    return this.accountRepository.getQueryStatuses(
+      contractAddress,
+      blockNumber,
+    );
   }
 
   public getEarnedRewards(): ResultAsync<
@@ -49,8 +53,10 @@ export class AccountService implements IAccountService {
     return this.accountRepository.getEarnedRewards();
   }
 
-  public getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {
-    return this.accountRepository.getAccounts();
+  public getAccounts(
+    sourceDomain?: DomainName,
+  ): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {
+    return this.accountRepository.getAccounts(sourceDomain);
   }
 
   public getAccountBalances(): ResultAsync<
@@ -69,19 +75,25 @@ export class AccountService implements IAccountService {
     signature: Signature,
     chain: EChain,
     languageCode: LanguageCode,
+    sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.accountRepository.addAccount(
       account,
       signature,
       chain,
       languageCode,
+      sourceDomain,
     );
   }
 
   public getLinkAccountMessage(
     languageCode: LanguageCode,
+    sourceDomain?: DomainName,
   ): ResultAsync<string, SnickerDoodleCoreError> {
-    return this.accountRepository.getLinkAccountMessage(languageCode);
+    return this.accountRepository.getLinkAccountMessage(
+      languageCode,
+      sourceDomain,
+    );
   }
 
   public isDataWalletAddressInitialized(): ResultAsync<
@@ -94,7 +106,8 @@ export class AccountService implements IAccountService {
   public unlinkAccount(
     account: AccountAddress,
     chain: EChain,
+    sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.accountRepository.unlinkAccount(account, chain);
+    return this.accountRepository.unlinkAccount(account, chain, sourceDomain);
   }
 }

@@ -260,7 +260,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
             // TODO- make this provide the source domain after
             // we have an interface to grant permissions
             // return core.getAccounts(this.sourceDomain);
-            return core.getAccounts();
+            return core.account.getAccounts(this.sourceDomain);
           });
         }, data.callId);
       },
@@ -754,13 +754,16 @@ export class CoreListener extends ChildProxy implements ICoreListener {
 
       getQueryStatuses: (
         data: IIFrameCallData<{
-          contractAddress: EVMContractAddress,
-          blockNumber?: BlockNumber,
+          contractAddress: EVMContractAddress;
+          blockNumber?: BlockNumber;
         }>,
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.getQueryStatuses(data.data.contractAddress , data.data.blockNumber);
+            return core.getQueryStatuses(
+              data.data.contractAddress,
+              data.data.blockNumber,
+            );
           });
         }, data.callId);
       },
@@ -977,7 +980,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      "storage.getDropboxAuth": (data: IIFrameCallData<{}>) => {
+      "storage.getDropboxAuth": (data: IIFrameCallData<object>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
             return core.storage.getDropboxAuth(this.sourceDomain);
@@ -985,7 +988,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      "storage.getCurrentCloudStorage": (data: IIFrameCallData<{}>) => {
+      "storage.getCurrentCloudStorage": (data: IIFrameCallData<object>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
             return core.storage.getCurrentCloudStorage(this.sourceDomain);

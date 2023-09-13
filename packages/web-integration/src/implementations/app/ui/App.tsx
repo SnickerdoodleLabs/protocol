@@ -6,6 +6,11 @@ import {
   LinkedAccount,
   PageInvitation,
 } from "@snickerdoodlelabs/objects";
+import { okAsync } from "neverthrow";
+import React, { useMemo, useState, useEffect, FC, useRef } from "react";
+import { Subscription } from "rxjs";
+import { parse } from "tldts";
+
 import { RootContainer } from "@web-integration/implementations/app/ui/components/Container/index.js";
 import { permissions } from "@web-integration/implementations/app/ui/constants.js";
 import { usePath } from "@web-integration/implementations/app/ui/hooks/usePath.js";
@@ -17,16 +22,11 @@ import {
   generateTheme,
 } from "@web-integration/implementations/app/ui/lib/index.js";
 import { Description } from "@web-integration/implementations/app/ui/widgets/Description/index.js";
-import { InvitationCard } from "@web-integration/implementations/app/ui/widgets/InvitationCard/index.js";
 import { Loading } from "@web-integration/implementations/app/ui/widgets/Loading/index.js";
 import { PermissionSelection } from "@web-integration/implementations/app/ui/widgets/PermissionSelection/index.js";
 import { SubscriptionFail } from "@web-integration/implementations/app/ui/widgets/SubscriptionFail/index.js";
 import { SubscriptionSuccess } from "@web-integration/implementations/app/ui/widgets/SubscriptionSuccess/index.js";
 import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/index.js";
-import { okAsync } from "neverthrow";
-import React, { useMemo, useState, useEffect, FC, useRef } from "react";
-import { Subscription } from "rxjs";
-import { parse } from "tldts";
 
 interface IAppProps {
   proxy: ISnickerdoodleIFrameProxy;
@@ -92,7 +92,7 @@ export const App: FC<IAppProps> = ({ proxy, palette }) => {
   }, []);
 
   const getAccounts = () => {
-    proxy.getAccounts().map((accounts) => {
+    proxy.account.getAccounts().map((accounts) => {
       setAccounts(accounts);
     });
   };

@@ -58,6 +58,7 @@ import {
   ECoreProxyType,
   BlockNumber,
   RefreshToken,
+  IProxyAccountMethods,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -110,7 +111,6 @@ import {
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
-
 let coreGateway: ExternalCoreGateway;
 let eventEmitter: UpdatableEventEmitterWrapper;
 let appID: string;
@@ -157,6 +157,7 @@ const initConnection = () => {
 };
 
 export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
+  public account: IProxyAccountMethods;
   public discord: IProxyDiscordMethods;
   public integration: IProxyIntegrationMethods;
   public metrics: IProxyMetricsMethods;
@@ -232,6 +233,34 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
         }
       },
     );
+
+    this.account = {
+      addAccount: (
+        accountAddress: AccountAddress,
+        signature: Signature,
+        languageCode: LanguageCode,
+        chain: EChain,
+      ) => {
+        return coreGateway.addAccount(
+          new AddAccountParams(accountAddress, signature, chain, languageCode),
+        );
+      },
+      unlinkAccount: (accountAddress: AccountAddress, chain: EChain) => {
+        return coreGateway.unlinkAccount(
+          new UnlinkAccountParams(accountAddress, chain),
+        );
+      },
+      getLinkAccountMessage: (
+        languageCode: LanguageCode = LanguageCode("en"),
+      ) => {
+        return coreGateway.getLinkAccountMessage(
+          new GetUnlockMessageParams(languageCode),
+        );
+      },
+      getAccounts: () => {
+        return coreGateway.getAccounts();
+      },
+    };
 
     this.discord = {
       initializeUserWithAuthorizationCode: (code: OAuthAuthorizationCode) => {
@@ -416,16 +445,12 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public getQueryStatuses(
     contractAddress: EVMContractAddress,
     blockNumber?: BlockNumber,
-  ): ResultAsync<
-    QueryStatus[],
-    | ProxyError
-  > {
+  ): ResultAsync<QueryStatus[], ProxyError> {
     return coreGateway.getQueryStatuses(
-      new GetQueryStatusesParams(contractAddress , blockNumber),
+      new GetQueryStatusesParams(contractAddress, blockNumber),
     );
   }
 
-  
   public checkInvitationStatus(
     consentAddress: EVMContractAddress,
     signature?: Signature,
@@ -446,36 +471,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     return coreGateway.getState();
   }
 
-  public addAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode: LanguageCode = LanguageCode("en"),
-  ) {
-    return coreGateway.addAccount(
-      new AddAccountParams(accountAddress, signature, chain, languageCode),
-    );
-  }
-  public unlinkAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode: LanguageCode = LanguageCode("en"),
-  ) {
-    return coreGateway.unlinkAccount(
-      new UnlinkAccountParams(accountAddress, signature, chain, languageCode),
-    );
-  }
-  public getLinkAccountMessage(
-    languageCode: LanguageCode = LanguageCode("en"),
-  ) {
-    return coreGateway.getLinkAccountMessage(
-      new GetUnlockMessageParams(languageCode),
-    );
-  }
-  public getAccounts() {
-    return coreGateway.getAccounts();
-  }
   public getAccountBalances() {
     return coreGateway.getAccountBalances();
   }

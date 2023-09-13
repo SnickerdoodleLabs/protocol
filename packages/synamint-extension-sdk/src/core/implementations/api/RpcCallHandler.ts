@@ -87,7 +87,6 @@ import {
   SetDefaultReceivingAddressParams,
   SetReceivingAddressParams,
   GetReceivingAddressParams,
-  mapToObj,
   GetEarnedRewardsParams,
   GetAccountsParams,
   GetAccountBalancesParams,
@@ -150,19 +149,23 @@ export class RpcCallHandler implements IRpcCallHandler {
   protected rpcCalls: CoreActionHandler<any>[] = [
     new CoreActionHandler<AddAccountParams>(
       AddAccountParams.getCoreAction(),
-      (params) => {
+      (params, sender) => {
         return this.accountService.addAccount(
           params.accountAddress,
           params.signature,
           params.chain,
           params.languageCode,
+          this.getDomainFromSender(sender),
         );
       },
     ),
     new CoreActionHandler<GetUnlockMessageParams>(
       GetUnlockMessageParams.getCoreAction(),
-      (params) => {
-        return this.accountService.getLinkAccountMessage(params.languageCode);
+      (params, sender) => {
+        return this.accountService.getLinkAccountMessage(
+          params.languageCode,
+          this.getDomainFromSender(sender),
+        );
       },
     ),
     new CoreActionHandler<GetEarnedRewardsParams>(
@@ -173,8 +176,10 @@ export class RpcCallHandler implements IRpcCallHandler {
     ),
     new CoreActionHandler<GetAccountsParams>(
       GetAccountsParams.getCoreAction(),
-      (_params) => {
-        return this.accountService.getAccounts();
+      (_params, sender) => {
+        return this.accountService.getAccounts(
+          this.getDomainFromSender(sender),
+        );
       },
     ),
     new CoreActionHandler<GetTokenPriceParams>(
@@ -372,10 +377,11 @@ export class RpcCallHandler implements IRpcCallHandler {
     ),
     new CoreActionHandler<UnlinkAccountParams>(
       UnlinkAccountParams.getCoreAction(),
-      (params) => {
+      (params, sender) => {
         return this.accountService.unlinkAccount(
           params.accountAddress,
           params.chain,
+          this.getDomainFromSender(sender),
         );
       },
     ),
@@ -590,7 +596,10 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<GetQueryStatusesParams>(
       GetQueryStatusesParams.getCoreAction(),
       (params) => {
-        return this.accountService.getQueryStatuses(params.contractAddress , params.blockNumber);
+        return this.accountService.getQueryStatuses(
+          params.contractAddress,
+          params.blockNumber,
+        );
       },
     ),
     new CoreActionHandler<SwitchToTabParams>(

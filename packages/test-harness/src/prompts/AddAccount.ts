@@ -22,8 +22,8 @@ export class AddAccount extends Prompt {
     | UnsupportedLanguageError
     | InvalidSignatureError
   > {
-    return this.core
-      .getAccounts()
+    return this.core.account
+      .getAccounts(undefined)
       .andThen((linkedAccounts) => {
         const addableAccounts = this.mocks.blockchain.accountWallets.filter(
           (aw) => {
@@ -59,6 +59,7 @@ export class AddAccount extends Prompt {
               signature,
               this.mocks.languageCode,
               wallet.chain,
+              undefined,
             );
           });
       })
