@@ -64,6 +64,18 @@ contract Consent is
     /// @dev the maximum number of consent tokens that can be issued
     uint public maxCapacity;
 
+    /// @dev updateable name for the consent registry used in data wallet UI
+    string private registryName;
+
+    /// @dev updatable description for the consent registry used in data wallet UI
+    string private registryDesc;
+
+    /// @dev updateable image URL for this consent registry used in data wallet UI
+    string private registryImg;
+
+    /// @dev Mapping owner address to a token id
+    mapping(address => uint256) private ownership;
+
     /* MODIFIERS */
 
     /// Checks if open opt in is current disabled (i.e. invite-only opt ins)
@@ -123,6 +135,45 @@ contract Consent is
     }
 
     /* CORE FUNCTIONS */
+
+    /// @notice Get all details for a consent registry in one rpc call
+    /// @dev also takes an address as an input so the data wallet can determin membership info
+    /// @param audienceMember address of the consent key used by the calling data wallet client. 
+    function getRegistryDetails(address audienceMember) external view returns(RegistryDetails memory) {
+        // if memberTokenId is 0, then the address is not an audience member
+        address memberTokenId = ownership(audienceMember);
+        RegistryDetails memory deets = RegistryDetails(
+            registryName,
+            registryDesc,
+            registryImg,
+            baseURI,
+            maxCapacity,
+            totalSupply,
+            openOptInDisabled,
+            queryHorizon,
+            domains,
+            tags,
+            memberTokenId
+        );
+        return deets; 
+    }
+
+    /// @notice Adds a new tag to the global namespace and stakes it for this consent contract
+    /// @dev  passing an empty string will leave the attribute unchanged after the transaction completes
+    /// @param _name Human readable string used as the display name for the rewards marketplace
+    /// @param _desc Human readable description used in the rewards marketplace for user context
+    /// @param _img URL pointing to thumbnail image for use in rewards marketplace UI
+    function updateConsentRegistryDetails(string calldata _name, string calldata _desc, string calldata _img) external {
+        if (bytes(_name).length > 0) {
+            registryName = _name;
+        }
+        if (bytes(_desc).length > 0) {
+            registryDesc = _desc;
+        }
+        if (bytes(_img).length > 0) {
+            registryImg = _img;
+        }
+    }
 
     /// @notice Get the number of tags staked by this contract
     function getNumberOfStakedTags() external view returns (uint256) {
@@ -216,7 +267,50 @@ contract Consent is
         consentFactoryInstance.insertDownstream(tag, _existingSlot, _newSlot);
     }
 
-    /// @notice Replaces an existing listing that has expired (works for head and tail listings)
+    /// @notice Move an existing listing from its current slot to upstream of a new existing slot 
+    /// @dev This function assumes that tag is not the only member in the global list (i.e. getTagTotal(tag) > 1)
+    /// @dev This function also assumes that the listing is not expired
+    /// @param tag Human readable string denoting the target tag to stake
+    /// @param _newSlot The new slot to move the listing to
+    /// @param _existingSlot The neighboring listing to _newSlow
+    function moveExistingListingUpstream(
+        string memory tag,
+        uint256 _newSlot,
+        uint256 _existingSlot
+    ) external onlyRole(STAKER_ROLE) {
+        // check
+        require(
+            tagIndices[tag] > 0,
+            "Consent Contract: This tag has not been staked"
+        );
+
+        // effects
+        uint256 removalSlot  = tags[tagIndices[tag] - 1].slot;
+        tags[tagIndices[tag] - 1].slot = _newSlot;
+
+        // interaction
+        // remove from current slot, reverts if the listing was replaced after expiration
+        consentFactoryInstance.removeListing(tag, removalSlot);
+        // add to the new slot, reverts if _existingSlot has no current listing
+        consentFactoryInstance.insertUpstream(tag, _newSlot, _existingSlot);
+    }
+
+    /// @notice Restakes a listing from this registry that has expired (works for head and tail listings)
+    /// @param tag Human readable string denoting the target tag to stake
+    function restakeExpiredListing(
+        string memory tag
+    ) external onlyRole(STAKER_ROLE) {
+        // check
+        require(
+            tagIndices[tag] > 0,
+            "Consent Contract: This tag has not been staked"
+        );
+
+        // interaction
+        consentFactoryInstance.replaceExpiredListing(tag, tags[tagIndices[tag] - 1].slot);
+    }
+
+    /// @notice Replaces an existing listing from another registry that has expired (works for head and tail listings)
     /// @param tag Human readable string denoting the target tag to stake
     /// @param _slot The expired slot to replace with a new listing
     function replaceExpiredListing(
@@ -306,6 +400,9 @@ contract Consent is
 
         /// increase total supply count, this is 20,000 gas
         totalSupply++;
+
+        /// create reverse mapping
+        ownership[_msgSender()] = tokenId;
     }
 
     /// @notice Allows specific users to opt in to sharing their data
@@ -350,6 +447,9 @@ contract Consent is
 
         /// increase total supply count
         totalSupply++;
+
+        /// create reverse mapping
+        ownership[_msgSender()] = tokenId;
     }
 
     /// @notice Allows Signature Issuer to send anonymous invitation link to end user to opt in
@@ -395,6 +495,9 @@ contract Consent is
 
         /// increase total supply count before interaction
         totalSupply++;
+
+        /// create reverse mapping
+        ownership[_msgSender()] = tokenId;
     }
 
     /// @notice Allows users to opt out of sharing their data
@@ -691,6 +794,9 @@ contract Consent is
     function _burn(uint256 tokenId) internal override(ERC721Upgradeable) {
         /// decrease total supply count
         totalSupply--;
+
+        /// create reverse mapping
+        delete ownership[_msgSender()];
 
         _updateCounterAndTokenFlags(tokenId, agreementFlagsArray[tokenId]);
 
