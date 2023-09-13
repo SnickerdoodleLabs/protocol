@@ -51,7 +51,6 @@ import {
   PEMEncodedRSAPublicKey,
   JsonWebToken,
   QueryStatus,
-  AccessToken,
   ECloudStorageType,
   SocialProfileLinkedEvent,
   IProxyStorageMethods,
@@ -73,13 +72,9 @@ import {
   ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
   ONBOARDING_PROVIDER_SUBSTREAM,
   PORT_NOTIFICATION,
-  AddAccountParams,
-  UnlockParams,
-  UnlinkAccountParams,
   SetBirthdayParams,
   SetGivenNameParams,
   SetFamilyNameParams,
-  GetUnlockMessageParams,
   SetApplyDefaultPermissionsParams,
   SetEmailParams,
   SetLocationParams,
@@ -241,24 +236,23 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
         languageCode: LanguageCode,
         chain: EChain,
       ) => {
-        return coreGateway.addAccount(
-          new AddAccountParams(accountAddress, signature, chain, languageCode),
+        return coreGateway.account.addAccount(
+          accountAddress,
+          signature,
+          languageCode,
+          chain,
         );
       },
       unlinkAccount: (accountAddress: AccountAddress, chain: EChain) => {
-        return coreGateway.unlinkAccount(
-          new UnlinkAccountParams(accountAddress, chain),
-        );
+        return coreGateway.account.unlinkAccount(accountAddress, chain);
       },
       getLinkAccountMessage: (
         languageCode: LanguageCode = LanguageCode("en"),
       ) => {
-        return coreGateway.getLinkAccountMessage(
-          new GetUnlockMessageParams(languageCode),
-        );
+        return coreGateway.account.getLinkAccountMessage(languageCode);
       },
       getAccounts: () => {
-        return coreGateway.getAccounts();
+        return coreGateway.account.getAccounts();
       },
     };
 

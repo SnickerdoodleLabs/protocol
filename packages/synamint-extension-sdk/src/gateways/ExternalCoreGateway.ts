@@ -47,9 +47,12 @@ import {
   PEMEncodedRSAPublicKey,
   JsonWebToken,
   QueryStatus,
-  AccessToken,
   ECloudStorageType,
   OAuth2Tokens,
+  IProxyAccountMethods,
+  LanguageCode,
+  EChain,
+  Signature,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -84,7 +87,6 @@ import {
   GetReceivingAddressParams,
   IScamFilterPreferences,
   IExternalState,
-  UnlockParams,
   AddAccountParams,
   UnlinkAccountParams,
   GetSiteVisitsMapParams,
@@ -143,6 +145,7 @@ import {
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
 export class ExternalCoreGateway {
+  public account: IProxyAccountMethods;
   public discord: IProxyDiscordMethods;
   public integration: IProxyIntegrationMethods;
   public metrics: IProxyMetricsMethods;
@@ -150,6 +153,35 @@ export class ExternalCoreGateway {
   protected _handler: CoreHandler;
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
+
+    this.account = {
+      addAccount: (
+        accountAddress: AccountAddress,
+        signature: Signature,
+        languageCode: LanguageCode,
+        chain: EChain,
+      ): ResultAsync<void, ProxyError> => {
+        return this._handler.call(
+          new AddAccountParams(accountAddress, signature, chain, languageCode),
+        );
+      },
+      unlinkAccount: (
+        accountAddress: AccountAddress,
+        chain: EChain,
+      ): ResultAsync<void, ProxyError> => {
+        return this._handler.call(
+          new UnlinkAccountParams(accountAddress, chain),
+        );
+      },
+      getLinkAccountMessage: (
+        languageCode: LanguageCode,
+      ): ResultAsync<string, ProxyError> => {
+        return this._handler.call(new GetUnlockMessageParams(languageCode));
+      },
+      getAccounts: (): ResultAsync<LinkedAccount[], ProxyError> => {
+        return this._handler.call(new GetAccountsParams());
+      },
+    };
 
     this.discord = {
       initializeUserWithAuthorizationCode: (
@@ -333,20 +365,6 @@ export class ExternalCoreGateway {
     return this._handler.call(params);
   }
 
-  public addAccount(params: AddAccountParams): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
-  }
-
-  public unlinkAccount(
-    params: UnlinkAccountParams,
-  ): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
-  }
-  public getLinkAccountMessage(
-    params: GetUnlockMessageParams,
-  ): ResultAsync<string, ProxyError> {
-    return this._handler.call(params);
-  }
   public getApplyDefaultPermissionsOption(): ResultAsync<boolean, ProxyError> {
     return this._handler.call(new GetApplyDefaultPermissionsOptionParams());
   }
@@ -355,9 +373,7 @@ export class ExternalCoreGateway {
   ): ResultAsync<void, ProxyError> {
     return this._handler.call(params);
   }
-  public getAccounts(): ResultAsync<LinkedAccount[], ProxyError> {
-    return this._handler.call(new GetAccountsParams());
-  }
+
   public getAccountBalances(): ResultAsync<TokenBalance[], ProxyError> {
     return this._handler.call(new GetAccountBalancesParams());
   }
