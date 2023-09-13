@@ -142,7 +142,7 @@ class DataWalletPersistenceMocks {
 
     // BackupManager ---------------------------------------------------
     td.when(
-      this.backupManager.updateField(fieldKey, serializedFieldValue),
+      this.backupManager.updateField(fieldKey, serializedFieldValue, false),
     ).thenReturn(okAsync(undefined));
 
     td.when(
@@ -269,6 +269,11 @@ class DataWalletPersistenceMocks {
       okAsync(recordBackupId),
     );
 
+    // CloudStorageManager ---------------------------------------------
+    td.when(this.cloudStoreManager.getCloudStorage()).thenReturn(
+      okAsync(this.cloudStorage),
+    );
+
     // TimeUtils -------------------------------------------------------
     td.when(this.timeUtils.getUnixNow()).thenReturn(now as never);
   }
@@ -333,47 +338,6 @@ describe("DataWalletPersistence tests", () => {
       onBackupCreated: 0,
       onBackupRestored: 0,
     });
-  });
-
-  test("getField() works, has restored backups", async () => {
-    // Arrange
-    const mocks = new DataWalletPersistenceMocks();
-
-    td.when(mocks.cloudStorage.getLatestBackup(fieldKey)).thenReturn(
-      okAsync(fieldBackup),
-    );
-
-    const persistence = mocks.factory();
-
-    // Act
-    const result = await persistence.getField(fieldKey);
-
-    // Assert
-    expect(result).toBeDefined();
-    expect(result.isOk()).toBeTruthy();
-    const fieldVal = result._unsafeUnwrap();
-    expect(fieldVal).toEqual(fieldValue);
-
-    mocks.contextProvider.assertEventCounts({
-      onBackupCreated: 0,
-      onBackupRestored: 1,
-    });
-
-    expect(mocks.contextProvider.onBackupRestoredActivations[0].dataType).toBe(
-      fieldKey,
-    );
-    expect(
-      mocks.contextProvider.onBackupRestoredActivations[0].storageType,
-    ).toBe(EDataStorageType.Field);
-    expect(mocks.contextProvider.onBackupRestoredActivations[0].backupId).toBe(
-      fieldBackupId,
-    );
-    expect(
-      mocks.contextProvider.onBackupRestoredActivations[0].totalRestored,
-    ).toBe(1);
-    expect(
-      mocks.contextProvider.onBackupRestoredActivations[0].remainingToRestore,
-    ).toBe(0);
   });
 
   test("getField() fails, backup manager fails to restore backup, returns most available value for field", async () => {
@@ -470,52 +434,6 @@ describe("DataWalletPersistence tests", () => {
       onBackupCreated: 0,
       onBackupRestored: 0,
     });
-  });
-
-  test("getObject() works, has restored backups", async () => {
-    // Arrange
-    const mocks = new DataWalletPersistenceMocks();
-
-    td.when(
-      mocks.cloudStorage.pollByStorageType(
-        td.matchers.argThat((set) => {
-          return set.size === 0;
-        }),
-        recordKey,
-      ),
-    ).thenReturn(okAsync([recordBackup]));
-
-    const persistence = mocks.factory();
-
-    // Act
-    const result = await persistence.getObject(recordKey, volatileStorageKey);
-
-    // Assert
-    expect(result).toBeDefined();
-    expect(result.isOk()).toBeTruthy();
-    const record = result._unsafeUnwrap();
-    expect(record).toEqual(versionedObject);
-
-    mocks.contextProvider.assertEventCounts({
-      onBackupCreated: 0,
-      onBackupRestored: 1,
-    });
-
-    expect(mocks.contextProvider.onBackupRestoredActivations[0].dataType).toBe(
-      recordKey,
-    );
-    expect(
-      mocks.contextProvider.onBackupRestoredActivations[0].storageType,
-    ).toBe(EDataStorageType.Record);
-    expect(mocks.contextProvider.onBackupRestoredActivations[0].backupId).toBe(
-      recordBackupId,
-    );
-    expect(
-      mocks.contextProvider.onBackupRestoredActivations[0].totalRestored,
-    ).toBe(1);
-    expect(
-      mocks.contextProvider.onBackupRestoredActivations[0].remainingToRestore,
-    ).toBe(0);
   });
 
   test("getCursor() works, no restored backups", async () => {

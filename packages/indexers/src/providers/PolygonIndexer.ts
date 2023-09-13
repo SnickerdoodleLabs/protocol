@@ -424,13 +424,13 @@ export class PolygonIndexer implements IEVMIndexer {
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
       const chainId = getChainInfoByChain(chain).chainId;
-      if (!config.apiKeys.etherscanApiKeys[chainId] == undefined) {
+      if (config.apiKeys.etherscanApiKeys[chainId] == null) {
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain", chain),
         );
       }
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return okAsync(config.apiKeys.etherscanApiKeys[chainId]!);
+      return okAsync(config.apiKeys.etherscanApiKeys[chainId]);
     });
   }
 }

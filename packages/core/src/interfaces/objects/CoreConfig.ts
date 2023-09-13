@@ -8,8 +8,11 @@ import {
   EChain,
   ProviderUrl,
   LanguageCode,
+  IApiKeys,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
+
+import { MetatransactionGasAmounts } from "@core/interfaces/objects/MetatransactionGasAmounts.js";
 
 export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
   public constructor(
@@ -28,36 +31,7 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public accountNFTPollingIntervalMS: number,
     public dataWalletBackupIntervalMS: number,
     public backupChunkSizeTarget: number,
-    public apiKeys: {
-      alchemyApiKeys: {
-        Arbitrum: string;
-        Astar: string;
-        Mumbai: string;
-        Optimism: string;
-        Polygon: string;
-        Solana: string;
-        SolanaTestnet: string;
-      };
-      etherscanApiKeys: {
-        Ethereum: string;
-        Polygon: string;
-        Avalanche: string;
-        Binance: string;
-        Moonbeam: string;
-        Optimism: string;
-        Arbitrum: string;
-        Gnosis: string;
-        Fuji: string;
-      };
-      covalentApiKey: string;
-      moralisApiKey: string;
-      nftScanApiKey: string;
-      poapApiKey: string;
-      oklinkApiKey: string;
-      primaryInfuraKey: string;
-      secondaryInfuraKey: string;
-      ankrApiKey: string;
-    },
+    public apiKeys: IApiKeys,
     public dnsServerAddress: URLString,
     public quoteCurrency: ECurrencyCode,
     public etherscanTransactionsBatchSize: number,
@@ -75,15 +49,5 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public devChainProviderURL: ProviderUrl | null,
     public maxStatsRetentionSeconds: number,
     public passwordLanguageCode: LanguageCode,
-  ) {}
-}
-
-export class MetatransactionGasAmounts {
-  public constructor(
-    public createCrumbGas: number,
-    public removeCrumbGas: number,
-    public optInGas: number,
-    public optOutGas: number,
-    public updateAgreementFlagsGas: number,
   ) {}
 }

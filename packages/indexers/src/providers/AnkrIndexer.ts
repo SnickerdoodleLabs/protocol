@@ -109,7 +109,7 @@ export class AnkrIndexer implements IEVMIndexer {
       this.supportedAnkrChains.forEach((indexerSupportSummary, chain) => {
         if (
           config.apiKeys.ankrApiKey == "" ||
-          config.apiKeys.ankrApiKey == undefined
+          config.apiKeys.ankrApiKey == null
         ) {
           this.health.set(chain, EComponentStatus.NoKeyProvided);
         } else {

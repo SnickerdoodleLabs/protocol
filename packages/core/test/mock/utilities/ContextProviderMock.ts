@@ -41,6 +41,7 @@ export class ContextProviderMock implements IContextProvider {
     [];
   public heartbeatActivations: void[] = [];
   public onApiAccessedActivations: EExternalApi[] = [];
+  public postBackupsRequestedActivations: void[] = [];
   public onBackupCreatedActivations: BackupCreatedEvent[] = [];
   public onBackupRestoredActivations: BackupRestoreEvent[] = [];
   public onBirthdayUpdatedActivations: UnixTimestamp[] = [];
@@ -140,6 +141,10 @@ export class ContextProviderMock implements IContextProvider {
     this.privateEvents.onApiAccessed.subscribe((val) => {
       this.onApiAccessedActivations.push(val);
     });
+
+    this.privateEvents.postBackupsRequested.subscribe((val) => {
+      this.postBackupsRequestedActivations.push(val);
+    });
   }
 
   public getContext(): ResultAsync<CoreContext, never> {
@@ -169,6 +174,7 @@ export class ContextProviderMock implements IContextProvider {
       onBirthdayUpdated: 0,
       onGenderUpdated: 0,
       onLocationUpdated: 0,
+      postBackupsRequested: 0,
     };
 
     // Merge the passed in counts with the basic counts
@@ -222,4 +228,5 @@ export interface IExpectedEventCounts {
   onBirthdayUpdated?: number;
   onGenderUpdated?: number;
   onLocationUpdated?: number;
+  postBackupsRequested?: number;
 }

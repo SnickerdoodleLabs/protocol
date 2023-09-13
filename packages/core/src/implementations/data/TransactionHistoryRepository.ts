@@ -90,7 +90,7 @@ export class TransactionHistoryRepository
       transactions.map((tx) => {
         return this.persistence.updateRecord(ERecordKey.TRANSACTIONS, tx);
       }),
-    ).andThen(() => okAsync(undefined));
+    ).map(() => {});
   }
 
   public getTransactions(
@@ -98,11 +98,11 @@ export class TransactionHistoryRepository
   ): ResultAsync<ChainTransaction[], PersistenceError> {
     return this.persistence
       .getAll<ChainTransaction>(ERecordKey.TRANSACTIONS)
-      .andThen((transactions) => {
+      .map((transactions) => {
         if (filter == undefined) {
-          return okAsync(transactions);
+          return transactions;
         }
-        return okAsync(transactions.filter((value) => filter.matches(value)));
+        return transactions.filter((value) => filter.matches(value));
       });
   }
 
@@ -177,14 +177,14 @@ export class TransactionHistoryRepository
   ): TransactionPaymentCounter[] {
     const flowMap = new Map<EChain, TransactionPaymentCounter>();
     chainTransactions.forEach((chainTransaction) => {
-      const getObject = flowMap.get(chainTransaction.chain);
+      const getObject = flowMap.get(chainTransaction.chainId);
       if (getObject == null) {
-        flowMap.set(chainTransaction.chain, chainTransaction);
+        flowMap.set(chainTransaction.chainId, chainTransaction);
       } else {
         flowMap.set(
-          chainTransaction.chain,
+          chainTransaction.chainId,
           new TransactionPaymentCounter(
-            chainTransaction.chain,
+            chainTransaction.chainId,
             chainTransaction.incomingValue + getObject.incomingValue,
             chainTransaction.incomingCount + getObject.incomingCount,
             chainTransaction.outgoingValue + getObject.outgoingValue,
