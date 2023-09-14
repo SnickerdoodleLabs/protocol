@@ -101,45 +101,49 @@ export class OklinkIndexer implements IEVMIndexer {
       this._getOKXConfig(chain),
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),
-    ])
-      .andThen(([okxSettings, config, context]) => {
-        const chainInfo = this.getChainShortName(chain);
-        const url = urlJoinP(
-          "https://www.oklink.com/api/v5/explorer/address/",
-          ["address-balance-fills"],
-          {
-            chainShortName: chainInfo.toString(),
-            address: accountAddress,
-            protocolType: "token_20",
-          },
-        );
+    ]).andThen(([okxSettings, config, context]) => {
+      if (config.apiKeys.oklinkApiKey == null) {
+        return okAsync([]);
+      }
 
-        context.privateEvents.onApiAccessed.next(EExternalApi.Oklink);
-        return this.ajaxUtils.get<IOKXNativeBalanceResponse>(new URL(url), {
+      const chainInfo = this.getChainShortName(chain);
+      const url = urlJoinP(
+        "https://www.oklink.com/api/v5/explorer/address/",
+        ["address-balance-fills"],
+        {
+          chainShortName: chainInfo.toString(),
+          address: accountAddress,
+          protocolType: "token_20",
+        },
+      );
+
+      context.privateEvents.onApiAccessed.next(EExternalApi.Oklink);
+      return this.ajaxUtils
+        .get<IOKXNativeBalanceResponse>(new URL(url), {
           headers: {
             "Ok-Access-Key": config.apiKeys.oklinkApiKey,
           },
+        })
+        .andThen((response) => {
+          if (response.code != "0") {
+            return errAsync(
+              new AccountIndexingError("Bad url response from Oklink"),
+            );
+          }
+          const balances = response.data[0].tokenList.map((token) => {
+            return new TokenBalance(
+              EChainTechnology.EVM,
+              token.token,
+              chain,
+              token.tokenContractAddress,
+              accountAddress,
+              BigNumberString(BigNumber.from(token.holdingAmount).toString()),
+              18,
+            );
+          });
+          return okAsync(balances);
         });
-      })
-      .andThen((response) => {
-        if (response.code != "0") {
-          return errAsync(
-            new AccountIndexingError("Bad url response from Oklink"),
-          );
-        }
-        const balances = response.data[0].tokenList.map((token) => {
-          return new TokenBalance(
-            EChainTechnology.EVM,
-            token.token,
-            chain,
-            token.tokenContractAddress,
-            accountAddress,
-            BigNumberString(BigNumber.from(token.holdingAmount).toString()),
-            18,
-          );
-        });
-        return okAsync(balances);
-      });
+    });
   }
 
   public getTokensForAccount(

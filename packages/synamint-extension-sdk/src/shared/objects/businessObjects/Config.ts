@@ -45,6 +45,7 @@ export class ExtensionConfig {
       poapApiKey?: string;
       oklinkApiKey?: string;
       ankrApiKey?: string;
+      bluezApiKey?: string;
     },
     public dnsServerAddress?: URLString,
     public requestForDataCheckingFrequency?: number,

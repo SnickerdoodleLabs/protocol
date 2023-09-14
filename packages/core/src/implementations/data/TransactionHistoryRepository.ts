@@ -90,7 +90,7 @@ export class TransactionHistoryRepository
       transactions.map((tx) => {
         return this.persistence.updateRecord(ERecordKey.TRANSACTIONS, tx);
       }),
-    ).andThen(() => okAsync(undefined));
+    ).map(() => {});
   }
 
   public getTransactions(
@@ -98,11 +98,11 @@ export class TransactionHistoryRepository
   ): ResultAsync<ChainTransaction[], PersistenceError> {
     return this.persistence
       .getAll<ChainTransaction>(ERecordKey.TRANSACTIONS)
-      .andThen((transactions) => {
+      .map((transactions) => {
         if (filter == undefined) {
-          return okAsync(transactions);
+          return transactions;
         }
-        return okAsync(transactions.filter((value) => filter.matches(value)));
+        return transactions.filter((value) => filter.matches(value));
       });
   }
 

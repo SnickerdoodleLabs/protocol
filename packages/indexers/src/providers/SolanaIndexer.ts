@@ -38,7 +38,7 @@ import {
 } from "@solana/web3.js";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import {
@@ -52,7 +52,6 @@ import { MasterIndexer } from "@indexers/MasterIndexer.js";
 
 @injectable()
 export class SolanaIndexer implements ISolanaIndexer {
-  private _connections?: ResultAsync<SolClients, never>;
   protected health: Map<EChain, EComponentStatus> = new Map<
     EChain,
     EComponentStatus
@@ -64,6 +63,9 @@ export class SolanaIndexer implements ISolanaIndexer {
       new IndexerSupportSummary(EChain.SolanaTestnet, true, true, true),
     ],
   ]);
+
+  protected solanaApiKey: string | null = null;
+  protected solanaTestnetApiKey: string | null = null;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -81,7 +83,7 @@ export class SolanaIndexer implements ISolanaIndexer {
       // Solana Mainnet
       if (
         config.apiKeys.alchemyApiKeys.Solana == "" ||
-        config.apiKeys.alchemyApiKeys.Solana == undefined
+        config.apiKeys.alchemyApiKeys.Solana == null
       ) {
         this.health.set(EChain.Solana, EComponentStatus.NoKeyProvided);
       } else {
@@ -91,12 +93,15 @@ export class SolanaIndexer implements ISolanaIndexer {
       // Solana Testnet
       if (
         config.apiKeys.alchemyApiKeys.SolanaTestnet == "" ||
-        config.apiKeys.alchemyApiKeys.SolanaTestnet == undefined
+        config.apiKeys.alchemyApiKeys.SolanaTestnet == null
       ) {
         this.health.set(EChain.SolanaTestnet, EComponentStatus.NoKeyProvided);
       } else {
         this.health.set(EChain.SolanaTestnet, EComponentStatus.Available);
       }
+
+      this.solanaApiKey = config.apiKeys.alchemyApiKeys.Solana;
+      this.solanaTestnetApiKey = config.apiKeys.alchemyApiKeys.SolanaTestnet;
     });
   }
 
@@ -124,12 +129,14 @@ export class SolanaIndexer implements ISolanaIndexer {
     chain: EChain,
     accountAddress: SolanaAccountAddress,
   ): ResultAsync<SolanaNFT[], AccountIndexingError | AjaxError> {
-    // return okAsync([]);
-    return ResultUtils.combine([
-      this._getConnectionForChainId(chain),
-      this.contextProvider.getContext(),
-    ])
-      .andThen(([[conn, metaplex], context]) => {
+    const connection = this._getConnectionForChainId(chain);
+    if (connection == null) {
+      return okAsync([]);
+    }
+    const [conn, metaplex] = connection;
+    return this.contextProvider
+      .getContext()
+      .andThen((context) => {
         context.privateEvents.onApiAccessed.next(EExternalApi.Solana);
         return ResultAsync.fromPromise(
           metaplex
@@ -232,12 +239,28 @@ export class SolanaIndexer implements ISolanaIndexer {
     accountAddress: SolanaAccountAddress,
   ): ResultAsync<TokenBalance, AccountIndexingError | AjaxError> {
     const publicKey = new PublicKey(accountAddress);
+
+    const connection = this._getConnectionForChainId(chain);
+    if (connection == null) {
+      return okAsync(
+        new TokenBalance(
+          EChainTechnology.Solana,
+          TickerSymbol("SOL"),
+          chain,
+          MasterIndexer.nativeAddress,
+          accountAddress,
+          BigNumberString(BigNumber.from(0).toString()),
+          getChainInfoByChain(chain).nativeCurrency.decimals,
+        ),
+      );
+    }
+    const [conn] = connection;
+
     return ResultUtils.combine([
-      this._getConnectionForChainId(chain),
       this._getFilters(accountAddress),
       this.contextProvider.getContext(),
     ])
-      .andThen(([[conn], filters, context]) => {
+      .andThen(([_filters, context]) => {
         context.privateEvents.onApiAccessed.next(EExternalApi.Solana);
         return ResultAsync.fromPromise(conn.getBalance(publicKey), (e) => {
           return new AccountIndexingError(
@@ -262,56 +285,31 @@ export class SolanaIndexer implements ISolanaIndexer {
 
   private _getConnectionForChainId(
     chain: EChain,
-  ): ResultAsync<[Connection, Metaplex], AccountIndexingError> {
-    return this._getConnections().andThen((connections) => {
-      switch (chain) {
-        case EChain.Solana:
-          return okAsync(connections.mainnet);
-        case EChain.SolanaTestnet:
-          return okAsync(connections.testnet);
-        default:
-          return errAsync(
-            new AccountIndexingError("invalid chain id for solana"),
-          );
-      }
-    });
+  ): [Connection, Metaplex] | null {
+    if (chain === EChain.Solana && this.solanaApiKey != null) {
+      const mainnet = URLString(
+        "https://solana-mainnet.g.alchemy.com/v2/" + this.solanaApiKey,
+      );
+      return this._getConnectionForEndpoint(mainnet);
+    } else if (
+      chain === EChain.SolanaTestnet &&
+      this.solanaTestnetApiKey != null
+    ) {
+      const testnet = URLString(
+        "https://solana-devnet.g.alchemy.com/v2/" + this.solanaTestnetApiKey,
+      );
+      return this._getConnectionForEndpoint(testnet);
+    } else {
+      return null;
+    }
   }
 
-  private _getConnections(): ResultAsync<SolClients, never> {
-    if (this._connections) {
-      return this._connections;
-    }
-    this._connections = this.configProvider.getConfig().andThen((config) => {
-      const mainnet = URLString(
-        "https://solana-mainnet.g.alchemy.com/v2/" +
-          config.apiKeys.alchemyApiKeys["Solana"],
-      );
-      const testnet = URLString(
-        "https://solana-devnet.g.alchemy.com/v2/" +
-          config.apiKeys.alchemyApiKeys["SolanaTestnet"],
-      );
-      return ResultUtils.combine([
-        this._getConnectionForEndpoint(mainnet),
-        this._getConnectionForEndpoint(testnet),
-      ]).map(([mainnet, testnet]) => {
-        return {
-          mainnet,
-          testnet,
-        };
-      });
-    });
-    return this._connections;
-  }
-  private _getConnectionForEndpoint(
-    endpoint: string,
-  ): ResultAsync<[Connection, Metaplex], never> {
-    // if (endpoint == "" || endpoint == undefined) {
-    //   return
-    // }
+  private _getConnectionForEndpoint(endpoint: string): [Connection, Metaplex] {
     const connection = new Connection(endpoint);
     const metaplex = new Metaplex(connection);
-    return okAsync([connection, metaplex]);
+    return [connection, metaplex];
   }
+
   private _getParsedAccounts(
     chain: EChain,
     accountAddress: SolanaAccountAddress,
@@ -319,12 +317,16 @@ export class SolanaIndexer implements ISolanaIndexer {
     AccountInfo<Buffer | ParsedAccountData>[],
     AccountIndexingError
   > {
+    const connection = this._getConnectionForChainId(chain);
+    if (connection == null) {
+      return okAsync([]);
+    }
+    const [conn] = connection;
     return ResultUtils.combine([
-      this._getConnectionForChainId(chain),
       this._getFilters(accountAddress),
       this.contextProvider.getContext(),
     ])
-      .andThen(([[conn], filters, context]) => {
+      .andThen(([filters, context]) => {
         context.privateEvents.onApiAccessed.next(EExternalApi.Solana);
         return ResultAsync.fromPromise(
           conn.getParsedProgramAccounts(TOKEN_PROGRAM_ID, {
@@ -361,10 +363,11 @@ export class SolanaIndexer implements ISolanaIndexer {
     return BigNumberString((lamports / LAMPORTS_PER_SOL).toString());
   }
 }
-interface SolClients {
+interface ISolClients {
   mainnet: [Connection, Metaplex];
   testnet: [Connection, Metaplex];
 }
+
 type ISolscanBalanceResponse = {
   tokenAddress: SolanaTokenAddress;
   tokenAmount: {

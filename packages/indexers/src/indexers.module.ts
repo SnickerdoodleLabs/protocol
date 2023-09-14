@@ -5,6 +5,7 @@ import {
   IMasterIndexerType,
   IAlchemyIndexerType,
   IAnkrIndexerType,
+  IBluezIndexerType,
   ICovalentEVMTransactionRepositoryType,
   IEtherscanIndexerType,
   IEVMIndexer,
@@ -21,6 +22,7 @@ import { MasterIndexer } from "@indexers/MasterIndexer.js";
 import {
   AnkrIndexer,
   AlchemyIndexer,
+  BluezIndexer,
   CovalentEVMTransactionRepository,
   EtherscanIndexer,
   MoralisEVMPortfolioRepository,
@@ -45,6 +47,7 @@ export const indexersModule = new ContainerModule(
 
     /* EVM compatible Indexers */
     bind<IEVMIndexer>(IAnkrIndexerType).to(AnkrIndexer).inSingletonScope();
+    bind<IEVMIndexer>(IBluezIndexerType).to(BluezIndexer).inSingletonScope();
     bind<IEVMIndexer>(IAlchemyIndexerType)
       .to(AlchemyIndexer)
       .inSingletonScope();
