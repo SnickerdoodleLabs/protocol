@@ -9,6 +9,7 @@ import {
   IAmazonNavigationUtilsType,
   IScraperService,
   IScraperServiceType,
+  scraperModule,
 } from "@snickerdoodlelabs/ai-scraper";
 import {
   IMasterIndexer,
@@ -203,7 +204,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     this.iocContainer = new Container();
 
     // Elaborate syntax to demonstrate that we can use multiple modules
-    this.iocContainer.load(...[snickerdoodleCoreModule, indexersModule]);
+    this.iocContainer.load(
+      ...[snickerdoodleCoreModule, indexersModule, scraperModule],
+    );
 
     // If persistence is provided, we need to hook it up. If it is not, we will use the default
     // persistence.

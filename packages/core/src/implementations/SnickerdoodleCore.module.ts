@@ -589,47 +589,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(DropboxCloudStorage)
       .inSingletonScope();
 
-    /* EVM compatible Indexers */
-    // bind<IEVMIndexer>(IAnkrIndexerType).to(AnkrIndexer).inSingletonScope();
-    // bind<IEVMIndexer>(IAlchemyIndexerType)
-    //   .to(AlchemyIndexer)
-    //   .inSingletonScope();
-
-    // bind<IEVMIndexer>(ICovalentEVMTransactionRepositoryType)
-    //   .to(CovalentEVMTransactionRepository)
-    //   .inSingletonScope();
-
-    // bind<IEVMIndexer>(IEtherscanIndexerType)
-    //   .to(EtherscanIndexer)
-    //   .inSingletonScope();
-
-    // bind<IEVMIndexer>(IMoralisEVMPortfolioRepositoryType)
-    //   .to(MoralisEVMPortfolioRepository)
-    //   .inSingletonScope();
-
-    // bind<IEVMIndexer>(INftScanEVMPortfolioRepositoryType)
-    //   .to(NftScanEVMPortfolioRepository)
-    //   .inSingletonScope();
-
-    // bind<IEVMIndexer>(IOklinkIndexerType).to(OklinkIndexer).inSingletonScope();
-
-    // bind<IEVMIndexer>(IPoapRepositoryType)
-    //   .to(PoapRepository)
-    //   .inSingletonScope();
-
-    // bind<IEVMIndexer>(IPolygonIndexerType)
-    //   .to(PolygonIndexer)
-    //   .inSingletonScope();
-
-    // bind<IEVMIndexer>(ISimulatorEVMTransactionRepositoryType)
-    //   .to(SimulatorEVMTransactionRepository)
-    //   .inSingletonScope();
-
-    // /* Solana Indexers */
-    // bind<ISolanaIndexer>(ISolanaIndexerType)
-    //   .to(SolanaIndexer)
-    //   .inSingletonScope();
-
     // region shopping data
     bind<IPurchaseRepository>(IPurchaseRepositoryType)
       .to(PurchaseRepository)
@@ -640,26 +599,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IScraperConfigProvider>(IScraperConfigProviderType).toService(
       IConfigProviderType,
     );
-    bind<IOpenAIUtils>(IOpenAIUtilsType).to(OpenAIUtils).inSingletonScope();
-    bind<IScraperService>(IScraperServiceType)
-      .to(LLMScraperService)
-      .inSingletonScope();
-    bind<ILLMProvider>(ILLMProviderType).to(ChatGPTProvider).inSingletonScope();
-    bind<IHTMLPreProcessor>(IHTMLPreProcessorType)
-      .to(HTMLPreProcessor)
-      .inSingletonScope();
-    bind<IPromptDirector>(IPromptDirectorType)
-      .to(PromptDirector)
-      .inSingletonScope();
-    bind<ILLMPurchaseHistoryUtils>(ILLMPurchaseHistoryUtilsType)
-      .to(LLMPurchaseHistoryUtilsChatGPT)
-      .inSingletonScope();
-    bind<IPromptBuilderFactory>(IPromptBuilderFactoryType)
-      .to(PromptBuilderFactory)
-      .inSingletonScope();
-    bind<IAmazonNavigationUtils>(IAmazonNavigationUtilsType)
-      .to(AmazonNavigationUtils)
-      .inSingletonScope();
     // endregion
   },
 );
