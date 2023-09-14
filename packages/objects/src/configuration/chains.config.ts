@@ -278,7 +278,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       true,
       "optimism",
       10000, // average block mining time
-      new NativeCurrencyInformation("OP-ETH", 18, "ETH", "ethereum"),
+      new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
       EChainType.Mainnet,
       "https://optimistic.etherscan.io/tx/",
       getExplorerUrl,
