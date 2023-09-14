@@ -1,15 +1,15 @@
-import { LLMError } from "@snickerdoodlelabs/objects";
-import { ResultAsync, errAsync, okAsync } from "neverthrow";
-
-import { IPromptBuilder } from "@ai-scraper/interfaces/business/utils/IPromptBuilder.js";
 import {
   Exemplar,
   LLMAnswerStructure,
   LLMData,
+  LLMError,
   LLMQuestion,
   LLMRole,
   Prompt,
-} from "@ai-scraper/interfaces/index.js";
+} from "@snickerdoodlelabs/objects";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
+
+import { IPromptBuilder } from "@ai-scraper/interfaces/business/utils/IPromptBuilder.js";
 
 /**
  * @description All the prompt builders should extend this class as

@@ -4,12 +4,10 @@ import {
   HostName,
   HexString,
   ELanguageCode,
+  ETask,
+  Keyword,
 } from "@snickerdoodlelabs/objects";
 import { Result, ResultAsync } from "neverthrow";
-
-import { IKeywordRepository } from "@ai-scraper/interfaces/data/IKeywordRepository.js";
-import { ETask } from "@ai-scraper/interfaces/enums/ETask.js";
-import { Keyword } from "@ai-scraper/interfaces/primitives/Keyword.js";
 
 export interface IURLUtils {
   getHostname(url: URLString): ResultAsync<HostName, TypeError>;

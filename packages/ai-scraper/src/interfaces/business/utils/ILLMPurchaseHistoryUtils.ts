@@ -2,17 +2,13 @@ import {
   LLMError,
   DomainName,
   ELanguageCode,
-} from "@snickerdoodlelabs/objects";
-import { PurchasedProduct } from "@snickerdoodlelabs/shopping-data";
-import { ResultAsync } from "neverthrow";
-
-import {
-  Exemplar,
   LLMAnswerStructure,
   LLMQuestion,
   LLMResponse,
   LLMRole,
-} from "@ai-scraper/interfaces/primitives/index.js";
+} from "@snickerdoodlelabs/objects";
+import { PurchasedProduct } from "@snickerdoodlelabs/shopping-data";
+import { ResultAsync } from "neverthrow";
 
 export interface ILLMPurchaseHistoryUtils {
   getRole(): LLMRole;

@@ -3,10 +3,9 @@ import {
   HTMLString,
   ScraperError,
   ELanguageCode,
+  DomainTask,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { DomainTask } from "@ai-scraper/interfaces/objects/index.js";
 
 export interface IScraperService {
   /**

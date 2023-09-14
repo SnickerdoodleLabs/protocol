@@ -10,6 +10,11 @@ import {
   LLMError,
   PersistenceError,
   ELanguageCode,
+  DomainTask,
+  ETask,
+  LLMData,
+  LLMResponse,
+  Prompt,
 } from "@snickerdoodlelabs/objects";
 import {
   IPurchaseRepository,
@@ -21,8 +26,6 @@ import { ResultAsync, errAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import {
-  DomainTask,
-  ETask,
   IHTMLPreProcessor,
   IHTMLPreProcessorType,
   ILLMProvider,
@@ -34,9 +37,6 @@ import {
   IScraperService,
   IWebpageClassifier,
   IWebpageClassifierType,
-  LLMData,
-  LLMResponse,
-  Prompt,
 } from "@ai-scraper/interfaces/index.js";
 
 @injectable()

@@ -1,4 +1,4 @@
-import { ScraperJob } from "@ai-scraper/interfaces/objects/index.js";
+import { ScraperJob } from "@snickerdoodlelabs/objects";
 
 export interface ILLMScraper {
   scrape(jobs: ScraperJob[]);

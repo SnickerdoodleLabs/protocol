@@ -38,6 +38,7 @@ import {
   ECloudStorageType,
   EDataWalletPermission,
   EInvitationStatus,
+  ELanguageCode,
   EScamFilterStatus,
 } from "@objects/enum/index.js";
 import {
@@ -71,6 +72,7 @@ import {
   DuplicateIdInSchema,
   MissingWalletDataTypeError,
   ParserError,
+  ScraperError,
 } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata.js";
@@ -110,6 +112,7 @@ import {
   BlockNumber,
   OAuth2RefreshToken,
   RefreshToken,
+  HTMLString,
 } from "@objects/primitives/index.js";
 
 /**
@@ -643,6 +646,18 @@ export interface IStorageMethods {
   ): ResultAsync<URLString, never>;
 }
 
+// export interface IScraperMethods {
+//   scrape(
+//     url: URLString,
+//     html: HTMLString,
+//     suggestedDomainTask: DomainTask,
+//   ): ResultAsync<void, ScraperError>;
+//   classifyURL(
+//     url: URLString,
+//     language: ELanguageCode,
+//   ): ResultAsync<DomainTask, ScraperError>;
+// }
+
 export interface ISnickerdoodleCore {
   /**
    * initialize() should be the first call you make on a new SnickerdoodleCore.
@@ -725,8 +740,8 @@ export interface ISnickerdoodleCore {
     | ConsentContractError
     | BlockchainCommonErrors
     | PersistenceError
-  > 
-  
+  >;
+
   /**
    * Restores a backup directly. Should only be called for testing purposes.
    * @param backup

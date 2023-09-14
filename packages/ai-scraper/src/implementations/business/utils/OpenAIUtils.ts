@@ -1,4 +1,4 @@
-import { LLMError } from "@snickerdoodlelabs/objects";
+import { LLMError, LLMResponse } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import OpenAI from "openai";
@@ -6,8 +6,6 @@ import {
   ChatCompletion,
   CompletionCreateParamsNonStreaming,
 } from "openai/resources/chat";
-
-import { LLMResponse } from "@ai-scraper/interfaces/index.js";
 
 @injectable()
 export class OpenAIUtils {

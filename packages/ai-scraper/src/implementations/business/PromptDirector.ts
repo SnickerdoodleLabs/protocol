@@ -1,20 +1,22 @@
-import { LLMError } from "@snickerdoodlelabs/objects";
+import {
+  Exemplar,
+  LLMAnswerStructure,
+  LLMData,
+  LLMError,
+  LLMQuestion,
+  LLMRole,
+  Prompt,
+} from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 import {
   IPromptDirector,
-  LLMData,
   ILLMPurchaseHistoryUtilsType,
   ILLMPurchaseHistoryUtils,
   IPromptBuilderFactoryType,
   IPromptBuilderFactory,
-  Prompt,
   IPromptBuilder,
-  LLMRole,
-  Exemplar,
-  LLMQuestion,
-  LLMAnswerStructure,
 } from "@ai-scraper/interfaces/index.js";
 
 @injectable()

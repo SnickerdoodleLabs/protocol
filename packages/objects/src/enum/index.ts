@@ -32,3 +32,5 @@ export * from "@objects/enum/ESocialType.js";
 export * from "@objects/enum/ETag.js";
 export * from "@objects/enum/EWalletDataType.js";
 export * from "@objects/enum/StorageKey.js";
+
+export * from "@objects/enum/scraper/index.js";

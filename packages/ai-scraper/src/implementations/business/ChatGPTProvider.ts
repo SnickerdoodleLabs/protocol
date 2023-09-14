@@ -5,7 +5,7 @@ import {
   Tiktoken,
 } from "@dqbd/tiktoken"; // TODO should be optimized for browsers to not to load all the encodings
 import { ILogUtilsType, ILogUtils } from "@snickerdoodlelabs/common-utils";
-import { LLMError } from "@snickerdoodlelabs/objects";
+import { LLMError, LLMResponse, Prompt } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
 import OpenAI from "openai";
@@ -20,8 +20,6 @@ import {
   IOpenAIUtilsType,
   IScraperConfigProvider,
   IScraperConfigProviderType,
-  LLMResponse,
-  Prompt,
 } from "@ai-scraper/interfaces/index.js";
 
 @injectable()
