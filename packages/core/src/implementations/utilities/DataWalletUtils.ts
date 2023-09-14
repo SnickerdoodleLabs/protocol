@@ -69,7 +69,6 @@ export class DataWalletUtils implements IDataWalletUtils {
       .andThen((hashedPassword2) => {
         const buffer = Buffer.from(hashedPassword2, "base64");
         const salt = HexString(buffer.toString("hex"));
-        console.log(salt);
         return this.cryptoUtils.deriveAESKeyFromString(password, salt);
       });
   }
@@ -114,7 +113,6 @@ export class DataWalletUtils implements IDataWalletUtils {
       .andThen((hashedPassword2) => {
         const buffer = Buffer.from(hashedPassword2, "base64");
         const salt = HexString(buffer.toString("hex"));
-        console.log(salt);
         return this.cryptoUtils.deriveEVMPrivateKeyFromString(password, salt);
       })
       .map((derivedEVMKey) => {

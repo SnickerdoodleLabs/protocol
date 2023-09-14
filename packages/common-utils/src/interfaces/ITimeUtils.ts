@@ -5,6 +5,7 @@ import {
 
 export interface ITimeUtils {
   getUnixNow(): UnixTimestamp;
+  getMillisecondNow(): MillisecondTimestamp;
   getISO8601TimeString(time: MillisecondTimestamp): string;
 }
 

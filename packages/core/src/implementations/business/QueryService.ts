@@ -118,6 +118,15 @@ export class QueryService implements IQueryService {
           this.logUtils.error(e);
         });
       });
+
+      // If the query status is updated to AdsCompleted, we'll immediately returnQueries()
+      context.publicEvents.onQueryStatusUpdated.subscribe((queryStatus) => {
+        if (queryStatus.status == EQueryProcessingStatus.AdsCompleted) {
+          this.returnQueries().mapErr((e) => {
+            this.logUtils.error(e);
+          });
+        }
+      });
     });
   }
 
@@ -212,16 +221,22 @@ export class QueryService implements IQueryService {
     requestForData: RequestForData,
     queryWrapper: SDQLQueryWrapper,
   ): ResultAsync<void, PersistenceError> {
-    return this.sdqlQueryRepo.upsertQueryStatus([
-      new QueryStatus(
-        requestForData.consentContractAddress,
-        requestForData.requestedCID,
-        requestForData.blockNumber,
-        EQueryProcessingStatus.Received,
-        queryWrapper.expiry,
-        null,
-      ),
-    ]);
+    const queryStatus = new QueryStatus(
+      requestForData.consentContractAddress,
+      requestForData.requestedCID,
+      requestForData.blockNumber,
+      EQueryProcessingStatus.Received,
+      queryWrapper.expiry,
+      null,
+    );
+    return this.sdqlQueryRepo
+      .upsertQueryStatus([queryStatus])
+      .andThen(() => {
+        return this.contextProvider.getContext();
+      })
+      .map((context) => {
+        context.publicEvents.onQueryStatusUpdated.next(queryStatus);
+      });
   }
 
   public getQueryStatusByQueryCID(
@@ -288,16 +303,19 @@ export class QueryService implements IQueryService {
           this.logUtils.warning(
             `No record of having recieved query ${query.cid}, but processing it anyway`,
           );
-          return this.sdqlQueryRepo.upsertQueryStatus([
-            new QueryStatus(
-              consentContractAddress,
-              query.cid,
-              BlockNumber(1),
-              EQueryProcessingStatus.AdsCompleted,
-              this.timeUtils.getUnixNow(),
-              ObjectUtils.serialize(rewardParameters),
-            ),
-          ]);
+          const newQueryStatus = new QueryStatus(
+            consentContractAddress,
+            query.cid,
+            BlockNumber(1),
+            EQueryProcessingStatus.AdsCompleted,
+            this.timeUtils.getUnixNow(),
+            ObjectUtils.serialize(rewardParameters),
+          );
+          return this.sdqlQueryRepo
+            .upsertQueryStatus([newQueryStatus])
+            .map(() => {
+              return newQueryStatus;
+            });
         }
 
         // Update the query status and store the reward parameters
@@ -305,7 +323,14 @@ export class QueryService implements IQueryService {
         // the query for ads here.
         queryStatus.status = EQueryProcessingStatus.AdsCompleted;
         queryStatus.rewardsParameters = ObjectUtils.serialize(rewardParameters);
-        return this.sdqlQueryRepo.upsertQueryStatus([queryStatus]);
+        return this.sdqlQueryRepo.upsertQueryStatus([queryStatus]).map(() => {
+          return queryStatus;
+        });
+      })
+      .andThen((queryStatus) => {
+        return this.contextProvider.getContext().map((context) => {
+          context.publicEvents.onQueryStatusUpdated.next(queryStatus);
+        });
       });
   }
 
@@ -366,6 +391,7 @@ export class QueryService implements IQueryService {
                   context.publicEvents.onQueryParametersRequired.next(
                     queryStatus.queryCID,
                   );
+                  context.publicEvents.onQueryStatusUpdated.next(queryStatus);
                   this.logUtils.warning(
                     `Cannot return data for query ${queryStatus.queryCID} because it lacks defined rewards parameters.`,
                   );
@@ -434,6 +460,9 @@ export class QueryService implements IQueryService {
                       return this.sdqlQueryRepo
                         .upsertQueryStatus([queryStatus])
                         .map(() => {
+                          context.publicEvents.onQueryStatusUpdated.next(
+                            queryStatus,
+                          );
                           return [];
                         });
                     }
@@ -460,7 +489,9 @@ export class QueryService implements IQueryService {
                   /* Show Lazy Rewards in rewards tab? */
                   /* Web2 rewards are also EarnedRewards, TBD */
                 })
-                .map(() => {})
+                .map(() => {
+                  context.publicEvents.onQueryStatusUpdated.next(queryStatus);
+                })
                 .orElse((err) => {
                   // We are going to consume errors from adding earned rewards or updating the
                   // query status, or a continuing error from posting, and just say it's successful
@@ -517,18 +548,21 @@ export class QueryService implements IQueryService {
     requestForData: RequestForData,
     queryWrapper: SDQLQueryWrapper,
   ): ResultAsync<void, EvaluationError | PersistenceError> {
+    const queryStatus = new QueryStatus(
+      requestForData.consentContractAddress,
+      requestForData.requestedCID,
+      requestForData.blockNumber,
+      EQueryProcessingStatus.NoConsentToken,
+      queryWrapper.expiry,
+      null,
+    );
     return this.sdqlQueryRepo
-      .upsertQueryStatus([
-        new QueryStatus(
-          requestForData.consentContractAddress,
-          requestForData.requestedCID,
-          requestForData.blockNumber,
-          EQueryProcessingStatus.NoConsentToken,
-          queryWrapper.expiry,
-          null,
-        ),
-      ])
+      .upsertQueryStatus([queryStatus])
       .andThen(() => {
+        return this.contextProvider.getContext();
+      })
+      .andThen((context) => {
+        context.publicEvents.onQueryStatusUpdated.next(queryStatus);
         return errAsync(new EvaluationError(`Consent token not found!`));
       });
   }
