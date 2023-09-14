@@ -58,6 +58,10 @@ import {
   ECoreProxyType,
   BlockNumber,
   RefreshToken,
+  DomainTask,
+  HTMLString,
+  ScraperError,
+  ELanguageCode,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -107,9 +111,10 @@ import {
   SetAuthenticatedStorageParams,
   RejectInvitationParams,
   GetQueryStatusesParams,
+  GetScrapeParams,
+  GetScrapeClassifyUrlParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
-
 
 let coreGateway: ExternalCoreGateway;
 let eventEmitter: UpdatableEventEmitterWrapper;
@@ -334,6 +339,25 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     });
   }
 
+  public getScrape(
+    url: URLString,
+    html: HTMLString,
+    suggestedDomainTask: DomainTask,
+  ): ResultAsync<void, ProxyError | ScraperError> {
+    return coreGateway.getScrape(
+      new GetScrapeParams(url, html, suggestedDomainTask),
+    );
+  }
+
+  public getScrapeClassifyUrl(
+    url: URLString,
+    language: ELanguageCode,
+  ): ResultAsync<DomainTask, ProxyError | ScraperError> {
+    return coreGateway.getScrapeClassifyUrl(
+      new GetScrapeClassifyUrlParams(url, language),
+    );
+  }
+
   public switchToTab(tabId: number): ResultAsync<void, ProxyError> {
     return coreGateway.switchToTab(new SwitchToTabParams(tabId));
   }
@@ -416,16 +440,12 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public getQueryStatuses(
     contractAddress: EVMContractAddress,
     blockNumber?: BlockNumber,
-  ): ResultAsync<
-    QueryStatus[],
-    | ProxyError
-  > {
+  ): ResultAsync<QueryStatus[], ProxyError> {
     return coreGateway.getQueryStatuses(
-      new GetQueryStatusesParams(contractAddress , blockNumber),
+      new GetQueryStatusesParams(contractAddress, blockNumber),
     );
   }
 
-  
   public checkInvitationStatus(
     consentAddress: EVMContractAddress,
     signature?: Signature,

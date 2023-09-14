@@ -6,6 +6,7 @@ import { Amazon } from "./Platforms";
 
 import UnauthScreen from "@extension-onboarding/components/UnauthScreen/UnauthScreen";
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { EShoppingDataType } from "@extension-onboarding/objects/enums/EShoppingDataType";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/ShoppingData/ShoppingDataDashBoard.style";
 import {
@@ -22,6 +23,7 @@ interface IShoppingDataProps {
 export default () => {
   const classes = useStyles();
   const { shoppingDataProviderList, appMode } = useAppContext();
+  const { sdlDataWallet } = useDataWalletContext();
 
   const getShoppingDataComponentGivenProps = ({
     name,

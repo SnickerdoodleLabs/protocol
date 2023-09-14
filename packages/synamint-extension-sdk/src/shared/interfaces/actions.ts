@@ -55,6 +55,9 @@ import {
   BlockNumber,
   RefreshToken,
   OAuth2Tokens,
+  HTMLString,
+  DomainTask,
+  ELanguageCode,
 } from "@snickerdoodlelabs/objects";
 
 import { IExtensionConfig } from "./IExtensionConfig";
@@ -896,4 +899,27 @@ export class GetCurrentCloudStorageParams extends CoreActionParams<ECloudStorage
     return ECoreActions.GET_CURRENT_STORAGE_TYPE;
   }
 }
+
+export class GetScrapeParams extends CoreActionParams<void> {
+  public constructor(
+    public url: URLString,
+    public html: HTMLString,
+    public suggestedDomainTask: DomainTask,
+  ) {
+    super(GetScrapeParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_SCRAPE;
+  }
+}
+
+export class GetScrapeClassifyUrlParams extends CoreActionParams<DomainTask> {
+  public constructor(public url: URLString, public language: ELanguageCode) {
+    super(GetScrapeClassifyUrlParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_SCRAPE_CLASSIFY_URL;
+  }
+}
+
 // #endregion

@@ -75,6 +75,10 @@ import {
   BlockNumber,
   RefreshToken,
   OAuth2Tokens,
+  DomainTask,
+  ELanguageCode,
+  HTMLString,
+  ScraperError,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -98,6 +102,7 @@ export class SnickerdoodleIFrameProxy
     this.events = new PublicEvents();
     this.onIframeDisplayRequested = new Subject<void>();
   }
+
   public proxyType: ECoreProxyType = ECoreProxyType.IFRAME_INJECTED;
 
   public onIframeDisplayRequested: Subject<void>;
@@ -255,6 +260,20 @@ export class SnickerdoodleIFrameProxy
 
   public initialize(): ResultAsync<void, ProxyError> {
     return this._createCall("initialize", null);
+  }
+
+  getScrape(
+    url: URLString,
+    html: HTMLString,
+    suggestedDomainTask: DomainTask,
+  ): ResultAsync<void, ScraperError | ProxyError> {
+    return this._createCall("getScrape", { url, html, suggestedDomainTask });
+  }
+  getScrapeClassifyUrl(
+    url: URLString,
+    language: ELanguageCode,
+  ): ResultAsync<DomainTask, ScraperError | ProxyError> {
+    return this._createCall("getScrapeClassifyUrl", { url, language });
   }
 
   public addAccount(
@@ -627,14 +646,13 @@ export class SnickerdoodleIFrameProxy
 
   public getQueryStatuses(
     contractAddress: EVMContractAddress,
-    blockNumber ?:   BlockNumber
+    blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], ProxyError> {
     return this._createCall("getQueryStatuses", {
       contractAddress,
-      blockNumber
+      blockNumber,
     });
   }
-
 
   public switchToTab(tabId: number): ResultAsync<void, ProxyError> {
     throw new Error("Method not implemented.");

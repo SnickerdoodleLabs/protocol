@@ -43,6 +43,10 @@ import {
   IUserSiteInteractionServiceType,
 } from "@synamint-extension-sdk/core/interfaces/business";
 import {
+  IScraperService,
+  IScraperServiceType,
+} from "@synamint-extension-sdk/core/interfaces/business/IScraperService";
+import {
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
@@ -142,6 +146,8 @@ import {
   GetCurrentCloudStorageParams,
   RejectInvitationParams,
   GetQueryStatusesParams,
+  GetScrapeParams,
+  GetScrapeClassifyUrlParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -590,7 +596,10 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<GetQueryStatusesParams>(
       GetQueryStatusesParams.getCoreAction(),
       (params) => {
-        return this.accountService.getQueryStatuses(params.contractAddress , params.blockNumber);
+        return this.accountService.getQueryStatuses(
+          params.contractAddress,
+          params.blockNumber,
+        );
       },
     ),
     new CoreActionHandler<SwitchToTabParams>(
@@ -829,6 +838,25 @@ export class RpcCallHandler implements IRpcCallHandler {
       },
     ),
     // #endregion
+
+    // #region Scrapper
+    new CoreActionHandler<GetScrapeParams>(
+      GetScrapeParams.getCoreAction(),
+      (params) => {
+        return this.scraperService.scrape(
+          params.url,
+          params.html,
+          params.suggestedDomainTask,
+        );
+      },
+    ),
+    new CoreActionHandler<GetScrapeClassifyUrlParams>(
+      GetScrapeClassifyUrlParams.getCoreAction(),
+      (params) => {
+        return this.scraperService.classifyURL(params.url, params.language);
+      },
+    ),
+    // #endregion
   ];
 
   constructor(
@@ -850,6 +878,8 @@ export class RpcCallHandler implements IRpcCallHandler {
     protected userSiteInteractionService: IUserSiteInteractionService,
     @inject(IDiscordServiceType)
     protected discordService: IDiscordService,
+    @inject(IScraperServiceType)
+    protected scraperService: IScraperService,
     @inject(ITwitterServiceType)
     protected twitterService: ITwitterService,
     @inject(IConfigProviderType)

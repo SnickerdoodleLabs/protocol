@@ -15,14 +15,16 @@ import {
   TokenMarketData,
   WalletNFT,
   QueryStatus,
+  DomainTask,
 } from "@objects/businessObjects/index.js";
 import {
   EChain,
   ECoreProxyType,
   EInvitationStatus,
+  ELanguageCode,
   EWalletDataType,
 } from "@objects/enum/index.js";
-import {  ProxyError } from "@objects/errors/index.js";
+import { ProxyError, ScraperError } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata.js";
 import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences.js";
@@ -31,6 +33,7 @@ import {
   ICoreIntegrationMethods,
   ICoreTwitterMethods,
   IMetricsMethods,
+  IScraperMethods,
   IStorageMethods,
 } from "@objects/interfaces/ISnickerdoodleCore.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
@@ -46,6 +49,7 @@ import {
   FamilyName,
   Gender,
   GivenName,
+  HTMLString,
   IpfsCID,
   LanguageCode,
   MarketplaceTag,
@@ -164,6 +168,15 @@ export type IProxyStorageMethods = {
     ...args: [...PopTuple<Parameters<IStorageMethods[key]>>]
   ) => ResultAsync<
     GetResultAsyncValueType<ReturnType<IStorageMethods[key]>>,
+    ProxyError
+  >;
+};
+
+export type IProxyScrapperMethods = {
+  [key in FunctionKeys<IScraperMethods>]: (
+    ...args: [...PopTuple<Parameters<IScraperMethods[key]>>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<IScraperMethods[key]>>,
     ProxyError
   >;
 };
@@ -321,12 +334,8 @@ export interface ISdlDataWallet {
   getQueryStatuses(
     contractAddress: EVMContractAddress,
     blockNumber?: BlockNumber,
-  ): ResultAsync<
-    QueryStatus[],
-    | ProxyError
-  > 
-  
-  
+  ): ResultAsync<QueryStatus[], ProxyError>;
+
   getSiteVisits(): ResultAsync<SiteVisit[], ProxyError>;
 
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, ProxyError>;
@@ -362,6 +371,17 @@ export interface ISdlDataWallet {
   ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, ProxyError>;
 
   switchToTab(tabId: number): ResultAsync<void, ProxyError>;
+
+  getScrape(
+    url: URLString,
+    html: HTMLString,
+    suggestedDomainTask: DomainTask,
+  ): ResultAsync<void, ScraperError | ProxyError>;
+
+  getScrapeClassifyUrl(
+    url: URLString,
+    language: ELanguageCode,
+  ): ResultAsync<DomainTask, ScraperError | ProxyError>;
 
   proxyType: ECoreProxyType;
   discord: IProxyDiscordMethods;

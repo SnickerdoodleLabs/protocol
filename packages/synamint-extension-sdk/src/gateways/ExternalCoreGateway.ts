@@ -50,6 +50,8 @@ import {
   AccessToken,
   ECloudStorageType,
   OAuth2Tokens,
+  ScraperError,
+  DomainTask,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -139,6 +141,8 @@ import {
   RejectInvitationParams,
   RejectInvitationByUUIDParams,
   GetQueryStatusesParams,
+  GetScrapeParams,
+  GetScrapeClassifyUrlParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -562,5 +566,16 @@ export class ExternalCoreGateway {
     return this.getConfig().map((config) => {
       return config.providerKey;
     });
+  };
+  public getScrape = (
+    params: GetScrapeParams,
+  ): ResultAsync<void, ScraperError | ProxyError> => {
+    return this._handler.call(params);
+  };
+
+  public getScrapeClassifyUrl = (
+    params: GetScrapeClassifyUrlParams,
+  ): ResultAsync<DomainTask, ScraperError | ProxyError> => {
+    return this._handler.call(params);
   };
 }
