@@ -590,45 +590,45 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
 
     /* EVM compatible Indexers */
-    bind<IEVMIndexer>(IAnkrIndexerType).to(AnkrIndexer).inSingletonScope();
-    bind<IEVMIndexer>(IAlchemyIndexerType)
-      .to(AlchemyIndexer)
-      .inSingletonScope();
+    // bind<IEVMIndexer>(IAnkrIndexerType).to(AnkrIndexer).inSingletonScope();
+    // bind<IEVMIndexer>(IAlchemyIndexerType)
+    //   .to(AlchemyIndexer)
+    //   .inSingletonScope();
 
-    bind<IEVMIndexer>(ICovalentEVMTransactionRepositoryType)
-      .to(CovalentEVMTransactionRepository)
-      .inSingletonScope();
+    // bind<IEVMIndexer>(ICovalentEVMTransactionRepositoryType)
+    //   .to(CovalentEVMTransactionRepository)
+    //   .inSingletonScope();
 
-    bind<IEVMIndexer>(IEtherscanIndexerType)
-      .to(EtherscanIndexer)
-      .inSingletonScope();
+    // bind<IEVMIndexer>(IEtherscanIndexerType)
+    //   .to(EtherscanIndexer)
+    //   .inSingletonScope();
 
-    bind<IEVMIndexer>(IMoralisEVMPortfolioRepositoryType)
-      .to(MoralisEVMPortfolioRepository)
-      .inSingletonScope();
+    // bind<IEVMIndexer>(IMoralisEVMPortfolioRepositoryType)
+    //   .to(MoralisEVMPortfolioRepository)
+    //   .inSingletonScope();
 
-    bind<IEVMIndexer>(INftScanEVMPortfolioRepositoryType)
-      .to(NftScanEVMPortfolioRepository)
-      .inSingletonScope();
+    // bind<IEVMIndexer>(INftScanEVMPortfolioRepositoryType)
+    //   .to(NftScanEVMPortfolioRepository)
+    //   .inSingletonScope();
 
-    bind<IEVMIndexer>(IOklinkIndexerType).to(OklinkIndexer).inSingletonScope();
+    // bind<IEVMIndexer>(IOklinkIndexerType).to(OklinkIndexer).inSingletonScope();
 
-    bind<IEVMIndexer>(IPoapRepositoryType)
-      .to(PoapRepository)
-      .inSingletonScope();
+    // bind<IEVMIndexer>(IPoapRepositoryType)
+    //   .to(PoapRepository)
+    //   .inSingletonScope();
 
-    bind<IEVMIndexer>(IPolygonIndexerType)
-      .to(PolygonIndexer)
-      .inSingletonScope();
+    // bind<IEVMIndexer>(IPolygonIndexerType)
+    //   .to(PolygonIndexer)
+    //   .inSingletonScope();
 
-    bind<IEVMIndexer>(ISimulatorEVMTransactionRepositoryType)
-      .to(SimulatorEVMTransactionRepository)
-      .inSingletonScope();
+    // bind<IEVMIndexer>(ISimulatorEVMTransactionRepositoryType)
+    //   .to(SimulatorEVMTransactionRepository)
+    //   .inSingletonScope();
 
-    /* Solana Indexers */
-    bind<ISolanaIndexer>(ISolanaIndexerType)
-      .to(SolanaIndexer)
-      .inSingletonScope();
+    // /* Solana Indexers */
+    // bind<ISolanaIndexer>(ISolanaIndexerType)
+    //   .to(SolanaIndexer)
+    //   .inSingletonScope();
 
     // region shopping data
     bind<IPurchaseRepository>(IPurchaseRepositoryType)

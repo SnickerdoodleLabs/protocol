@@ -31,6 +31,7 @@
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
     "compile": "npx tsc --build && cd ../.. && yarn alias",
     "start": "yarn compile && node --experimental-json-modules dist/ConsoleApp.js",
+    "just-start": "node --experimental-json-modules dist/ConsoleApp.js",
     "start-old": "yarn compile && node  dist/index-deleted-but-kept-for-ref.js",
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --maxWorkers=50% --coverage --passWithNoTests",
     "test-check": "npx ts-node-esm ../../node_modules/@cucumber/cucumber/bin/cucumber-js -p default --dry-run",
