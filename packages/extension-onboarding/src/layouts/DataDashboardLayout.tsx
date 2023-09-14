@@ -16,12 +16,16 @@ const useStyles = makeStyles((theme) => ({
     lineHeight: "28px",
     textAlign: "center",
     color: "#000000",
+    whiteSpace: "nowrap",
   },
   selected: {
     fontWeight: 700,
   },
   linkWrapper: {
     cursor: "pointer",
+  },
+  containerWrapper: {
+    overflow: "auto",
   },
 }));
 
@@ -55,7 +59,11 @@ const DataDashboardLayout = () => {
           you.
         </Typography>
       </Box>
-      <Box display="flex" alignItems="center">
+      <Box
+        display="flex"
+        alignItems="center"
+        className={classes.containerWrapper}
+      >
         {LINKS.map((link) => (
           <Box
             mt={4}

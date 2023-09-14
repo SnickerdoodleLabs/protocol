@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { createTheme, ThemeProvider } from "@material-ui/core";
 import {
   BigNumberString,
   DataWalletAddress,
@@ -100,6 +101,18 @@ export const AppContextProvider: FC = ({ children }) => {
   const [isLinkerModalOpen, setIsLinkerModalOpen] =
     React.useState<boolean>(false);
   const [popupsDisabled, setPopupsDisabled] = useState<boolean>(false);
+
+  const customTheme = createTheme({
+    breakpoints: {
+      values: {
+        xs: 444,
+        sm: 600,
+        md: 900,
+        lg: 1200,
+        xl: 1535,
+      },
+    },
+  });
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
@@ -282,7 +295,7 @@ export const AppContextProvider: FC = ({ children }) => {
         disablePopups: () => setPopupsDisabled(true),
       }}
     >
-      {children}
+      <ThemeProvider theme={customTheme}>{children}</ThemeProvider>
     </AppContext.Provider>
   );
 };

@@ -48,6 +48,15 @@ export const DiscordAccountItem: FC<IDiscordAccountItemProps> = memo(
             </Button>
           </Box>
         </Box>
+        <Box>
+          <Button
+            onClick={handleUnlinkClick}
+            className={classes.unlinkAccountButtonXS}
+            fullWidth
+          >
+            Unlink Account
+          </Button>
+        </Box>
         <Box mt={2} mb={3} className={classes.divider} />
         <Box px={2.5}>
           {servers.length > 0 && (
@@ -56,7 +65,7 @@ export const DiscordAccountItem: FC<IDiscordAccountItemProps> = memo(
               <Box my={2} />
               <Grid spacing={3} container>
                 {servers.map((server, index) => (
-                  <Grid key={index} item xs={6}>
+                  <Grid key={index} item xs={12} sm={12} md={12} lg={6}>
                     <DiscordServerItem server={server} />
                   </Grid>
                 ))}

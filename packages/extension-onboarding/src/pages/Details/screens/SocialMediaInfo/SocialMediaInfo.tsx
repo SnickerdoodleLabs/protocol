@@ -2,13 +2,13 @@ import { Box } from "@material-ui/core";
 import { ESocialType } from "@snickerdoodlelabs/objects";
 import React from "react";
 
+import UnauthScreen from "@extension-onboarding/components/UnauthScreen/UnauthScreen";
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import {
   DiscordInfo,
   TwitterInfo,
 } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/SocialMediaInfo.style";
-import UnauthScreen from "@extension-onboarding/components/UnauthScreen/UnauthScreen";
 
 interface ISocialMediaInfoProps {
   name: string;
@@ -43,7 +43,7 @@ export default () => {
   return (
     <Box>
       {socialMediaProviderList.map(({ icon, name, key }) => (
-        <Box key={key} padding={3}>
+        <Box key={key} paddingY={3}>
           {getSocialMediaComponentGivenProps({ icon, name, key })}
         </Box>
       ))}

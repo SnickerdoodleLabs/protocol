@@ -39,12 +39,30 @@ const PhantomLinkingSteps: FC = () => {
             You can link another wallet account by using these steps:
           </Typography>
         </Box>
-        <Box mt={5} display="flex" justifyContent="flex-end">
-          <Box display="flex" flex={1}>
+        <Box
+          display="flex"
+          flex={1}
+          justifyContent="center"
+          className={classes.phantomPlaceholderImageXS}
+          mt={5}
+        >
+          <img src={phantomPlaceholderImage} />
+        </Box>
+        <Box mt={5} display="flex" justifyContent="center">
+          <Box
+            display="flex"
+            flex={1}
+            className={classes.phantomPlaceholderImage}
+          >
             <img src={phantomPlaceholderImage} />
           </Box>
-          <Box display="flex" alignItems="center" flex={3} pl={5}>
-            <Box width="100%">
+          <Box
+            display="flex"
+            alignItems="center"
+            flex={3}
+            pl={{ xs: 0, sm: 3, md: 5, lg: 5 }}
+          >
+            <Box width={{ xs: "50px", sm: "50px", md: "70px", lg: "100%" }}>
               <img src={phantomStepsImage} />
             </Box>
           </Box>

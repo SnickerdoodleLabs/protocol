@@ -38,6 +38,23 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: "15px",
     textTransform: "none",
     color: "red",
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    },
+  },
+  unlinkAccountButtonXS: {
+    border: "1px solid red",
+    height: "42px",
+    fontFamily: "'Inter'",
+    fontWeight: 500,
+    fontSize: "15px",
+    textTransform: "none",
+    color: "red",
+    display: "none",
+    marginTop: "10px",
+    [theme.breakpoints.down("xs")]: {
+      display: "flex",
+    },
   },
   linkAccountButton: {
     border: "1px solid #B9B6D3",

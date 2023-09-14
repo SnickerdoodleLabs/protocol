@@ -23,4 +23,22 @@ export const useStyles = makeStyles((theme) => ({
   accountTxt: {
     color: "#000000",
   },
+  phantomPlaceholderImage: {
+    display: "flex",
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    },
+  },
+  phantomPlaceholderImageXS: {
+    display: "none",
+    [theme.breakpoints.down("sm")]: {
+      display: "flex",
+    },
+    [theme.breakpoints.down("xs")]: {
+      display: "flex",
+    },
+  },
 }));

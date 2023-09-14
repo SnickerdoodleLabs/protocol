@@ -11,6 +11,10 @@ export const useStyles = makeStyles((theme) => ({
   },
   btn: {
     cursor: "pointer",
+    padding: "4px 12px",
+    [theme.breakpoints.down("xs")]: {
+      padding: "4px 0px",
+    },
   },
   title: {
     fontFamily: "'Roboto'",

@@ -4,6 +4,17 @@ export const useStyles = makeStyles((theme) => ({
   container: {
     minWidth: 256,
     maxWidth: 256,
+    [theme.breakpoints.down("md")]: {
+      minWidth: 251,
+      maxWidth: 251,
+    },
+    [theme.breakpoints.down("sm")]: {
+      minWidth: 82,
+      maxWidth: 82,
+    },
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    },
     height: "100vh",
     alignItems: "center",
     backgroundColor: "#F3F2F8",
