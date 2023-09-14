@@ -31,6 +31,7 @@ import {
   RuntimeMetrics,
   QueryStatus,
   OAuth2Tokens,
+  DomainTask,
   // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
@@ -113,6 +114,8 @@ import {
   OAuth2RefreshToken,
   RefreshToken,
   HTMLString,
+  PageNo,
+  Year,
 } from "@objects/primitives/index.js";
 
 /**
@@ -646,17 +649,30 @@ export interface IStorageMethods {
   ): ResultAsync<URLString, never>;
 }
 
-// export interface IScraperMethods {
-//   scrape(
-//     url: URLString,
-//     html: HTMLString,
-//     suggestedDomainTask: DomainTask,
-//   ): ResultAsync<void, ScraperError>;
-//   classifyURL(
-//     url: URLString,
-//     language: ELanguageCode,
-//   ): ResultAsync<DomainTask, ScraperError>;
-// }
+export interface IScraperMethods {
+  scrape(
+    url: URLString,
+    html: HTMLString,
+    suggestedDomainTask: DomainTask,
+  ): ResultAsync<void, ScraperError>;
+  classifyURL(
+    url: URLString,
+    language: ELanguageCode,
+  ): ResultAsync<DomainTask, ScraperError>;
+}
+
+export interface IScraperNavigationMethods {
+  amazon: {
+    getOrderHistoryPage(lang: ELanguageCode, page: PageNo): URLString;
+    getYears(html: HTMLString): Year[];
+    getOrderHistoryPageByYear(
+      lang: ELanguageCode,
+      year: Year,
+      page: PageNo,
+    ): URLString;
+    getPageCount(html: HTMLString, year: Year): number;
+  };
+}
 
 export interface ISnickerdoodleCore {
   /**
@@ -920,6 +936,8 @@ export interface ISnickerdoodleCore {
   twitter: ICoreTwitterMethods;
   metrics: IMetricsMethods;
   storage: IStorageMethods;
+  scraper: IScraperMethods;
+  scraperNavigation: IScraperNavigationMethods;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

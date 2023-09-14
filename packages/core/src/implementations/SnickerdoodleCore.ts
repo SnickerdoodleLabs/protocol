@@ -5,6 +5,12 @@
  * of SnickerdoodleCore.
  */
 import {
+  IAmazonNavigationUtils,
+  IAmazonNavigationUtilsType,
+  IScraperService,
+  IScraperServiceType,
+} from "@snickerdoodlelabs/ai-scraper";
+import {
   IMasterIndexer,
   IMasterIndexerType,
   indexersModule,
@@ -93,6 +99,14 @@ import {
   IStorageMethods,
   BlockNumber,
   RefreshToken,
+  IScraperMethods,
+  DomainTask,
+  ELanguageCode,
+  HTMLString,
+  ScraperError,
+  IScraperNavigationMethods,
+  PageNo,
+  Year,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -106,9 +120,12 @@ import {
   IStorageUtilsType,
   LocalStorageUtils,
 } from "@snickerdoodlelabs/utils";
+import { query } from "express";
+import number from "inquirer/lib/prompts/number";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { never, filter, timestamp } from "rxjs";
 
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
 import {
@@ -175,7 +192,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public metrics: IMetricsMethods;
   public storage: IStorageMethods;
 
-  // public scraper: IScraperMethods;
+  public scraper: IScraperMethods;
+  public scraperNavigation: IScraperNavigationMethods;
 
   public constructor(
     configOverrides?: IConfigOverrides,
@@ -602,6 +620,68 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return cloudStorageService.setAuthenticatedStorage(
           new AuthenticatedStorageSettings(type, path, refreshToken),
         );
+      },
+    };
+
+    // Scraper Methods ---------------------------------------------------------------------------
+    this.scraper = {
+      scrape: (
+        url: URLString,
+        html: HTMLString,
+        suggestedDomainTask: DomainTask,
+      ): ResultAsync<void, ScraperError> => {
+        const scraperService =
+          this.iocContainer.get<IScraperService>(IScraperServiceType);
+        return scraperService.scrape(url, html, suggestedDomainTask);
+      },
+      classifyURL: (
+        url: URLString,
+        language: ELanguageCode,
+      ): ResultAsync<DomainTask, ScraperError> => {
+        const scraperService =
+          this.iocContainer.get<IScraperService>(IScraperServiceType);
+        return scraperService.classifyURL(url, language);
+      },
+    };
+
+    this.scraperNavigation = {
+      amazon: {
+        getOrderHistoryPage: (lang: ELanguageCode, page: PageNo): URLString => {
+          const amazonNavigationUtils =
+            this.iocContainer.get<IAmazonNavigationUtils>(
+              IAmazonNavigationUtilsType,
+            );
+          return amazonNavigationUtils.getOrderHistoryPage(lang, page);
+        },
+        getYears: (html: HTMLString): Year[] => {
+          const amazonNavigationUtils =
+            this.iocContainer.get<IAmazonNavigationUtils>(
+              IAmazonNavigationUtilsType,
+            );
+          return amazonNavigationUtils.getYears(html);
+        },
+        getOrderHistoryPageByYear: (
+          lang: ELanguageCode,
+          year: Year,
+          page: PageNo,
+        ): URLString => {
+          const amazonNavigationUtils =
+            this.iocContainer.get<IAmazonNavigationUtils>(
+              IAmazonNavigationUtilsType,
+            );
+          return amazonNavigationUtils.getOrderHistoryPageByYear(
+            lang,
+            year,
+            page,
+          );
+        },
+        getPageCount: (html: HTMLString, year: Year): number => {
+          const amazonNavigationUtils =
+            this.iocContainer.get<IAmazonNavigationUtils>(
+              IAmazonNavigationUtilsType,
+            );
+          return amazonNavigationUtils.getPageCount(html, year);
+        },
       },
     };
   }
