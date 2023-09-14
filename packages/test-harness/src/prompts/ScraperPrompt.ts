@@ -1,9 +1,6 @@
+import { IConfigProvider, IConfigProviderType } from "@snickerdoodlelabs/core";
 import { Container } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
-import {
-  IConfigProvider,
-  IConfigProviderType,
-} from "packages/core/src/interfaces/utilities";
 
 import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
 import { Prompt } from "@test-harness/prompts/Prompt.js";
@@ -56,6 +53,8 @@ export class ScraperPrompt extends Prompt {
           case "scrape":
             // TODO initialize with scrape
             break;
+          default:
+            return okAsync(undefined); //going back
         }
         return okAsync(undefined); //going back
       })
