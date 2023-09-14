@@ -1,3 +1,4 @@
+import { IScraperConfig } from "@snickerdoodlelabs/ai-scraper";
 import { IIndexerConfig } from "@snickerdoodlelabs/indexers";
 import {
   ControlChainInformation,
@@ -14,7 +15,9 @@ import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
 
 import { MetatransactionGasAmounts } from "@core/interfaces/objects/MetatransactionGasAmounts.js";
 
-export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
+export class CoreConfig
+  implements IIndexerConfig, IPersistenceConfig, IScraperConfig
+{
   public constructor(
     public controlChainId: EChain,
     public controlChainInformation: ControlChainInformation,
@@ -49,5 +52,9 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public devChainProviderURL: ProviderUrl | null,
     public maxStatsRetentionSeconds: number,
     public passwordLanguageCode: LanguageCode,
+    public scraper: {
+      OPENAI_API_KEY: string;
+      timeout: number;
+    },
   ) {}
 }
