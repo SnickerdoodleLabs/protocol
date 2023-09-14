@@ -13,14 +13,6 @@ const FIVE_SECONDS_MS = 5000;
 const defaultConfigs: IExtensionConfig = {
   onboardingUrl: "https://datawallet.snickerdoodle.com/",
   controlChainId: ChainId(43113),
-  supportedChains: [
-    ChainId(80001),
-    ChainId(43113),
-    ChainId(1),
-    ChainId(137),
-    ChainId(43114),
-    ChainId(-1),
-  ],
   ipfsFetchBaseUrl: URLString("https://ipfs-gateway.snickerdoodle.com/ipfs/"),
   defaultInsightPlatformBaseUrl: URLString(
     "https://insight-api.snickerdoodle.com/v0/",
@@ -44,8 +36,6 @@ export class ConfigProvider implements IConfigProvider {
       configOverrides.controlChainId ?? this.config.controlChainId;
     this.config.devChainProviderURL =
       configOverrides.devChainProviderURL ?? this.config.devChainProviderURL;
-    this.config.supportedChains =
-      configOverrides.supportedChains ?? this.config.supportedChains;
     this.config.ipfsFetchBaseUrl =
       configOverrides.ipfsFetchBaseUrl ?? this.config.ipfsFetchBaseUrl;
     this.config.defaultInsightPlatformBaseUrl =
@@ -80,6 +70,10 @@ export class ConfigProvider implements IConfigProvider {
       configOverrides.apiKeys.oklinkApiKey ?? this.config.oklinkApiKey;
     this.config.ankrApiKey =
       configOverrides.apiKeys.ankrApiKey ?? this.config.ankrApiKey;
+
+    this.config.bluezApiKey =
+      configOverrides.apiKeys.bluezApiKey ?? this.config.bluezApiKey;
+
     this.config.dnsServerAddress =
       configOverrides.dnsServerAddress ?? this.config.dnsServerAddress;
     this.config.requestForDataCheckingFrequency =

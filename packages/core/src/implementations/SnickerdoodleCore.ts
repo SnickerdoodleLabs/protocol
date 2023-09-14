@@ -4,6 +4,7 @@
  * Regardless of form factor, you need to instantiate an instance
  * of SnickerdoodleCore.
  */
+import { IMasterIndexer, IMasterIndexerType, indexersModule } from "@snickerdoodlelabs/indexers";
 import {
   AccountAddress,
   AccountIndexingError,
@@ -44,7 +45,6 @@ import {
   ICoreTwitterMethods,
   IDynamicRewardParameter,
   IInvitationMethods,
-  IMasterIndexerType,
   IMetricsMethods,
   Invitation,
   IpfsCID,
@@ -80,7 +80,6 @@ import {
   UnixTimestamp,
   URLString,
   WalletNFT,
-  IMasterIndexer,
   IAccountMethods,
   QueryStatus,
   BlockchainCommonErrors,
@@ -180,7 +179,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     this.iocContainer = new Container();
 
     // Elaborate syntax to demonstrate that we can use multiple modules
-    this.iocContainer.load(...[snickerdoodleCoreModule]);
+    this.iocContainer.load(...[snickerdoodleCoreModule, indexersModule]);
 
     // If persistence is provided, we need to hook it up. If it is not, we will use the default
     // persistence.

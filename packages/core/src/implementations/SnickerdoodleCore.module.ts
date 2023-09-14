@@ -28,8 +28,11 @@ import {
 } from "@snickerdoodlelabs/ai-scraper";
 import {
   AxiosAjaxUtils,
+  BigNumberUtils,
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
+  IBigNumberUtils,
+  IBigNumberUtilsType,
   ILogUtils,
   ILogUtilsType,
   ITimeUtils,
@@ -38,22 +41,10 @@ import {
   TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  AnkrIndexer,
-  AlchemyIndexer,
-  CovalentEVMTransactionRepository,
-  EtherscanIndexer,
-  MoralisEVMPortfolioRepository,
-  NftScanEVMPortfolioRepository,
-  OklinkIndexer,
-  PoapRepository,
-  PolygonIndexer,
-  SimulatorEVMTransactionRepository,
-  SolanaIndexer,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
   IIndexerContextProvider,
   IIndexerContextProviderType,
-  MasterIndexer,
 } from "@snickerdoodlelabs/indexers";
 import {
   IInsightPlatformRepository,
@@ -66,21 +57,6 @@ import {
   ICryptoUtilsType,
 } from "@snickerdoodlelabs/node-utils";
 import {
-  IAlchemyIndexerType,
-  IAnkrIndexerType,
-  ICovalentEVMTransactionRepositoryType,
-  IEtherscanIndexerType,
-  IEVMIndexer,
-  IMasterIndexer,
-  IMasterIndexerType,
-  IMoralisEVMPortfolioRepositoryType,
-  INftScanEVMPortfolioRepositoryType,
-  IOklinkIndexerType,
-  IPoapRepositoryType,
-  IPolygonIndexerType,
-  ISimulatorEVMTransactionRepositoryType,
-  ISolanaIndexer,
-  ISolanaIndexerType,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
 } from "@snickerdoodlelabs/objects";
@@ -483,9 +459,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(FieldSchemaProvider)
       .inSingletonScope();
 
-    bind<IMasterIndexer>(IMasterIndexerType)
-      .to(MasterIndexer)
-      .inSingletonScope();
     bind<ICloudStorageManager>(ICloudStorageManagerType)
       .to(CloudStorageManager)
       .inSingletonScope();
@@ -525,6 +498,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<ICryptoUtils>(ICryptoUtilsType).to(CryptoUtils).inSingletonScope();
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)
       .to(AxiosAjaxUtils)
+      .inSingletonScope();
+    bind<IBigNumberUtils>(IBigNumberUtilsType)
+      .to(BigNumberUtils)
       .inSingletonScope();
 
     // Utilites/factory

@@ -2,42 +2,43 @@ import {
   DiscordConfig,
   TwitterConfig,
 } from "@objects/businessObjects/index.js";
-import { ChainId, ProviderUrl, URLString } from "@objects/primitives/index.js";
+import { EChain } from "@objects/enum/index.js";
+import { ProviderUrl, URLString } from "@objects/primitives/index.js";
 
 export interface IConfigOverrides {
-  controlChainId?: ChainId;
-  supportedChains?: ChainId[];
+  controlChainId?: EChain;
   ipfsFetchBaseUrl?: URLString;
   defaultInsightPlatformBaseUrl?: URLString;
   accountIndexingPollingIntervalMS?: number;
   accountBalancePollingIntervalMS?: number;
   accountNFTPollingIntervalMS?: number;
   alchemyApiKeys?: {
-    Arbitrum: string;
-    Astar: string;
-    Mumbai: string;
-    Optimism: string;
-    Polygon: string;
-    Solana: string;
-    SolanaTestnet: string;
+    Arbitrum?: string | null;
+    Astar?: string | null;
+    Mumbai?: string | null;
+    Optimism?: string | null;
+    Polygon?: string | null;
+    Solana?: string | null;
+    SolanaTestnet?: string | null;
   };
   etherscanApiKeys?: {
-    Ethereum: string;
-    Polygon: string;
-    Avalanche: string;
-    Binance: string;
-    Moonbeam: string;
-    Optimism: string;
-    Arbitrum: string;
-    Gnosis: string;
-    Fuji: string;
+    Ethereum?: string | null;
+    Polygon?: string | null;
+    Avalanche?: string | null;
+    Binance?: string | null;
+    Moonbeam?: string | null;
+    Optimism?: string | null;
+    Arbitrum?: string | null;
+    Gnosis?: string | null;
+    Fuji?: string | null;
   };
-  covalentApiKey?: string;
-  moralisApiKey?: string;
-  nftScanApiKey?: string;
-  poapApiKey?: string;
-  oklinkApiKey?: string;
-  ankrApiKey?: string;
+  covalentApiKey?: string | null;
+  moralisApiKey?: string | null;
+  nftScanApiKey?: string | null;
+  poapApiKey?: string | null;
+  oklinkApiKey?: string | null;
+  ankrApiKey?: string | null;
+  bluezApiKey?: string | null;
   dnsServerAddress?: URLString;
   dataWalletBackupIntervalMS?: number;
   backupChunkSizeTarget?: number;
@@ -52,9 +53,11 @@ export interface IConfigOverrides {
   enableBackupEncryption?: boolean;
   discordOverrides?: Partial<DiscordConfig>;
   twitterOverrides?: Partial<TwitterConfig>;
-  heartbeatIntervalMS?: number;
-  primaryInfuraKey: string;
-  secondaryInfuraKey?: string;
+  heartbeatIntervalMS?: number | null;
+  primaryInfuraKey?: string | null;
+  primaryRPCProviderURL?: ProviderUrl | null;
+  secondaryInfuraKey?: string | null;
+  secondaryRPCProviderURL?: ProviderUrl | null;
   devChainProviderURL?: ProviderUrl;
   iframeURL?: URLString;
   debug?: boolean;

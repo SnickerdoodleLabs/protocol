@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
 
-const argon2 = require("argon2");
+// const argon2 = require("argon2");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const fileSystem = require("fs-extra");
@@ -44,7 +44,7 @@ console.log(`env.NODE_ENV: ${env.NODE_ENV}`);
 
 var options = {
   externals: {
-    argon2: argon2,
+    // argon2: argon2,
   },
   target: "webworker",
   // mode: env.NODE_ENV || "development",
@@ -143,7 +143,6 @@ var options = {
       ),
       __PLATFORM__: JSON.stringify(process.env.__PLATFORM__ || "chrome"),
       __CONTROL_CHAIN_ID__: JSON.stringify(process.env.__CONTROL_CHAIN_ID__),
-      __SUPPORTED_CHAINS__: JSON.stringify(process.env.__SUPPORTED_CHAINS__),
       __IPFS_FETCH_BASE_URL__: JSON.stringify(
         process.env.__IPFS_FETCH_BASE_URL__,
       ),
@@ -211,6 +210,7 @@ var options = {
       __POAP_API_KEY__: JSON.stringify(process.env.__POAP_API_KEY__),
       __OKLINK_API_KEY__: JSON.stringify(process.env.__OKLINK_API_KEY__),
       __ANKR_API_KEY__: JSON.stringify(process.env.__ANKR_API_KEY__),
+      __BLUEZ_API_KEY__: JSON.stringify(process.env.__BLUEZ_API_KEY__),
       __PRIMARY_INFURA_KEY__: JSON.stringify(
         process.env.__PRIMARY_INFURA_KEY__,
       ),

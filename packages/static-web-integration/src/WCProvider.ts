@@ -12,7 +12,9 @@ export class WCProvider {
         showQrModal: false,
         chains: [1],
       }),
-      (e) => new Error(`User cancelled: ${(e as Error).message}`),
+      (e) => {
+        return new Error(`User cancelled: ${(e as Error).message}`);
+      },
     )
       .andThen((provider) => {
         this.ethereumProvider = provider;
@@ -21,7 +23,9 @@ export class WCProvider {
             this.ethereumProvider = provider_;
             return ResultAsync.fromPromise(
               this.ethereumProvider.connect(),
-              (e) => new Error(`Failed to connect: ${(e as Error).message}`),
+              (e) => {
+                return new Error(`Failed to connect: ${(e as Error).message}`);
+              },
             );
           });
         }
@@ -52,7 +56,9 @@ export class WCProvider {
         chains: [1],
         methods: ["eth_sendTransaction", "personal_sign"],
       }),
-      (e) => new Error(`User cancelled: ${(e as Error).message}`),
+      (e) => {
+        return new Error(`User cancelled: ${(e as Error).message}`);
+      },
     ).mapErr((e) => {
       console.log("WalletConnect Init Error", e);
       return new Error(`Initialization error: ${e.message}`);

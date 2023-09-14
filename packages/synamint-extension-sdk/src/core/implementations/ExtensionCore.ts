@@ -56,7 +56,6 @@ export class ExtensionCore {
     const UNREALISTIC_BUT_WORKING_BACKUP_INTERVAL = 10000;
     const coreConfig = {
       controlChainId: config.controlChainId,
-      supportedChains: config.supportedChains,
       ipfsFetchBaseUrl: config.ipfsFetchBaseUrl,
       defaultInsightPlatformBaseUrl: config.defaultInsightPlatformBaseUrl,
       alchemyApiKeys: config.alchemyApiKeys,
@@ -67,6 +66,7 @@ export class ExtensionCore {
       poapApiKey: config.poapApiKey,
       oklinkApiKey: config.oklinkApiKey,
       ankrApiKey: config.ankrApiKey,
+      bluezApiKey: config.bluezApiKey,
 
       dnsServerAddress: config.dnsServerAddress,
       accountBalancePollingIntervalMS: config.portfolioPollingIntervalMS,

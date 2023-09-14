@@ -15,17 +15,6 @@ const UNREALISTIC_BUT_WORKING_BACKUP_INTERVAL = 10000;
 
 export const coreConfig = {
   controlChainId: ChainId(43113),
-  supportedChains: [
-    ChainId(43113),
-    ChainId(1),
-    ChainId(43114),
-    ChainId(137),
-    ChainId(56),
-    ChainId(100),
-    ChainId(1284),
-    ChainId(42161),
-    ChainId(592),
-  ],
   ipfsFetchBaseUrl: URLString("https://ipfs-gateway.snickerdoodle.com/ipfs/"),
   defaultInsightPlatformBaseUrl: URLString(
     "https://insight-api.snickerdoodle.com/v0/",
@@ -64,8 +53,9 @@ export const coreConfig = {
     "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm",
   ankrApiKey:
     "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
+  bluezApiKey: "aed4aab2cbc573bbf8e7c6b448c916e5",
   primaryInfuraKey: "7ac88985c1ed458dbd464b2c5245a6e1",
   secondaryInfuraKey: "",
-  devChainProviderURL: ProviderUrl("https://doodlechain.dev.snickerdoodle.dev"),
+  devChainProviderURL: undefined, //ProviderUrl("https://doodlechain.dev.snickerdoodle.dev"), Must be null for production
   enableBackupEncryption: true,
 } as IConfigOverrides;
