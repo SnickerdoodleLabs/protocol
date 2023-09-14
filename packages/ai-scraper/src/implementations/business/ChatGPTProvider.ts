@@ -72,7 +72,7 @@ export class ChatGPTProvider implements ILLMProvider {
           apiKey: config.scraper.OPENAI_API_KEY,
           timeout: config.scraper.timeout,
         };
-        this.logUtils.debug("ChatGPTProvider", "constructor", clientOptions);
+        // this.logUtils.debug("ChatGPTProvider", "constructor", clientOptions);
         return okAsync(new OpenAI(clientOptions));
       } catch (e) {
         return errAsync(new LLMError((e as Error).message, e));

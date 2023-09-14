@@ -1,12 +1,7 @@
-import { URLString } from "@snickerdoodlelabs/objects";
+import { Exemplar, URLString } from "@snickerdoodlelabs/objects";
 import { ChatCompletion } from "openai/resources/chat";
 
-import {
-  Exemplar,
-  IScraperConfig,
-  LLMData,
-  LLMResponse,
-} from "@ai-scraper/interfaces";
+import { IScraperConfig } from "@ai-scraper/interfaces";
 
 export const AMAZON_URL = URLString(
   "https://www.amazon.com/gp/css/order-history?ref_=nav_orders_first",
