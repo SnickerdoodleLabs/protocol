@@ -1,11 +1,9 @@
-import { IpfsCID, JSONString, ELanguageCode } from "@snickerdoodlelabs/objects";
+import { IpfsCID, JSONString, ELanguageCode, ETask, Keyword } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
 import { DefaultKeywords } from "@ai-scraper/data/index.js";
 import {
-  Keyword,
-  ETask,
   IKeywordRepository,
   Keywords,
   TaskKeywords,

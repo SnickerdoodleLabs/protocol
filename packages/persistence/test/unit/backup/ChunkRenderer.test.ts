@@ -107,12 +107,14 @@ class ChunkRendererMocks {
     td.when(this.timeUtils.getUnixNow()).thenReturn(now as never);
 
     // BackupUtils -----------------------------------------------------------
-    td.when(this.backupUtils.getBackupHash(fieldDataUpdate)).thenReturn(
-      okAsync(dataWalletBackupId),
-    );
-    td.when(this.backupUtils.getBackupHash(fieldDataUpdateBefore)).thenReturn(
-      okAsync(dataWalletBackupId),
-    );
+    td.when(
+      this.backupUtils.getBackupHash(td.matchers.contains(fieldDataUpdate)),
+    ).thenReturn(okAsync(dataWalletBackupId));
+    td.when(
+      this.backupUtils.getBackupHash(
+        td.matchers.contains(fieldDataUpdateBefore),
+      ),
+    ).thenReturn(okAsync(dataWalletBackupId));
     td.when(
       this.backupUtils.getBackupHash(
         td.matchers.argThat((arg) => {
@@ -190,7 +192,7 @@ describe("ChunkRenderer Tests", () => {
     expect(dataWalletBackup).toBeDefined();
     expect(dataWalletBackup).toBeInstanceOf(DataWalletBackup);
     expect(dataWalletBackup!.id).toEqual(dataWalletBackupId);
-    expect(dataWalletBackup!.blob).toBe(fieldDataUpdate);
+    expect(dataWalletBackup!.blob).toEqual(fieldDataUpdate);
     expect(dataWalletBackup!.header).toBeInstanceOf(DataWalletBackupHeader);
     expect(dataWalletBackup!.header.hash).toBe(dataWalletBackupId);
     expect(dataWalletBackup!.header.timestamp).toBe(now);
@@ -218,7 +220,7 @@ describe("ChunkRenderer Tests", () => {
     expect(dataWalletBackup).toBeDefined();
     expect(dataWalletBackup).toBeInstanceOf(DataWalletBackup);
     expect(dataWalletBackup!.id).toEqual(dataWalletBackupId);
-    expect(dataWalletBackup!.blob).toBe(fieldDataUpdate);
+    expect(dataWalletBackup!.blob).toEqual(fieldDataUpdate);
     expect(dataWalletBackup!.header).toBeInstanceOf(DataWalletBackupHeader);
     expect(dataWalletBackup!.header.hash).toBe(dataWalletBackupId);
     expect(dataWalletBackup!.header.timestamp).toBe(now);

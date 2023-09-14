@@ -1,7 +1,7 @@
 import "reflect-metadata";
 
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
-import { LLMError } from "@snickerdoodlelabs/objects";
+import { LLMError, LLMResponse, Prompt } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 import {
@@ -11,7 +11,6 @@ import {
   PromptDirector,
 } from "@ai-scraper/implementations";
 import { PromptBuilderFactory } from "@ai-scraper/implementations/business/utils/PromptBuilderFactory";
-import { Prompt, LLMResponse } from "@ai-scraper/interfaces";
 import {
   MockLogUtils,
   MockOpenAIUtils,

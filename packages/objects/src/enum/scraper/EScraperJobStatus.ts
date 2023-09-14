@@ -1,4 +1,4 @@
-export enum ScraperJobStatus {
+export enum EScraperJobStatus {
   Initiated = 1,
   PreProcessed = 2,
   PreProcessFailed = 3,

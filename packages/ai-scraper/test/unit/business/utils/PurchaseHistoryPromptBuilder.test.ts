@@ -1,16 +1,16 @@
 import "reflect-metadata";
-import { LLMError } from "@snickerdoodlelabs/objects";
-import { Result, ResultAsync } from "neverthrow";
-
-import { PurchaseHistoryPromptBuilder } from "@ai-scraper/implementations";
 import {
   Exemplar,
   LLMAnswerStructure,
   LLMData,
+  LLMError,
   LLMQuestion,
   LLMRole,
   Prompt,
-} from "@ai-scraper/interfaces";
+} from "@snickerdoodlelabs/objects";
+import { Result, ResultAsync } from "neverthrow";
+
+import { PurchaseHistoryPromptBuilder } from "@ai-scraper/implementations";
 import { Exemplars } from "@ai-scraper-test/mocks";
 
 class PHPBuilderMocks {

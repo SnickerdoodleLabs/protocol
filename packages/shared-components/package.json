@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/shared-components",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Shared components for extension and SPA projects",
   "main": "dist/index.js",
   "author": "okan@snickerdoodlelabs.io",

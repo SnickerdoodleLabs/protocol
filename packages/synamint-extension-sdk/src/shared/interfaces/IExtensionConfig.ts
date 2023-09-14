@@ -9,7 +9,6 @@ import {
 export interface IExtensionConfigDefaults {
   onboardingUrl: string;
   controlChainId: ChainId;
-  supportedChains: ChainId[];
   ipfsFetchBaseUrl: URLString;
   defaultInsightPlatformBaseUrl: URLString;
   domainFilter: string;
@@ -46,6 +45,7 @@ export interface IExtensionConfig extends IExtensionConfigDefaults {
   poapApiKey?: string;
   oklinkApiKey?: string;
   ankrApiKey?: string;
+  bluezApiKey?: string;
   dnsServerAddress?: URLString;
   defaultGoogleCloudBucket?: string;
   dropboxAppKey?: string;
@@ -63,7 +63,6 @@ export interface IExtensionConfig extends IExtensionConfigDefaults {
 export interface IExtensionConfigOverrides {
   onboardingUrl?: URLString;
   controlChainId?: ChainId;
-  supportedChains?: ChainId[];
   ipfsFetchBaseUrl?: URLString;
   defaultInsightPlatformBaseUrl?: URLString;
   domainFilter?: string;
@@ -97,6 +96,7 @@ export interface IExtensionConfigOverrides {
     poapApiKey?: string;
     oklinkApiKey?: string;
     ankrApiKey?: string;
+    bluezApiKey?: string;
     primaryInfuraKey?: string;
     secondaryInfuraKey?: string;
   };

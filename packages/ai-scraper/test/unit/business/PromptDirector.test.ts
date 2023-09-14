@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import { LLMData, Prompt } from "@snickerdoodlelabs/objects";
 import * as td from "testdouble";
 
 import { PromptDirector } from "@ai-scraper/implementations";
@@ -6,12 +7,6 @@ import {
   ILLMPurchaseHistoryUtils,
   IPromptBuilderFactory,
   IPromptDirector,
-  IPurchaseHistoryPromptBuilder,
-  LLMAnswerStructure,
-  LLMData,
-  LLMQuestion,
-  LLMRole,
-  Prompt,
 } from "@ai-scraper/interfaces";
 import { MockPromptBuilder } from "@ai-scraper-test/mocks/MockPromptBuilder";
 

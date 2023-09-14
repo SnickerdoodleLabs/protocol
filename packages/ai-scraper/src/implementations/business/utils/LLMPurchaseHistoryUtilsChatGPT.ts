@@ -2,8 +2,11 @@ import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   DomainName,
   ELanguageCode,
+  LLMAnswerStructure,
   LLMError,
-  ScraperError,
+  LLMQuestion,
+  LLMResponse,
+  LLMRole,
 } from "@snickerdoodlelabs/objects";
 import {
   ProductKeyword,
@@ -14,12 +17,7 @@ import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
 import {
   IPurchaseBlock,
-  Exemplar,
   ILLMPurchaseHistoryUtils,
-  LLMAnswerStructure,
-  LLMQuestion,
-  LLMResponse,
-  LLMRole,
 } from "@ai-scraper/interfaces/index.js";
 
 /**

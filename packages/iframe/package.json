@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/iframe",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Account indexer implementations compatible with Snickerdoodle Core",
   "license": "ISC",
   "repository": {

@@ -8,7 +8,6 @@ import {
 } from "openai/resources/chat";
 
 import { OpenAIUtils } from "@ai-scraper/implementations/index.js";
-import { LLMResponse } from "@ai-scraper/interfaces/index.js";
 import { chatCompletion } from "@ai-scraper-test/mocks/testValues.js";
 // import { chatCompletion } from "@ai-scraper-test/mocks/testValues.js";
 

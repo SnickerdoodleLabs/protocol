@@ -1,10 +1,5 @@
-import { LLMError } from "@snickerdoodlelabs/objects";
+import { LLMError, LLMResponse, Prompt } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import {
-  LLMResponse,
-  Prompt,
-} from "@ai-scraper/interfaces/primitives/index.js";
 
 export interface ILLMProvider {
   maxTokens(model: string): number;

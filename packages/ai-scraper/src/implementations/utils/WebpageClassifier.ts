@@ -1,9 +1,8 @@
-import { ELanguageCode, URLString } from "@snickerdoodlelabs/objects";
+import { DomainTask, ELanguageCode, URLString } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
 import {
-  DomainTask,
   IKeywordRepository,
   IKeywordRepositoryType,
   IURLUtils,

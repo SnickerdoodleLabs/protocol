@@ -1,14 +1,13 @@
-import { LLMError } from "@snickerdoodlelabs/objects";
-import { ResultAsync } from "neverthrow";
-
 import {
   Exemplar,
   LLMAnswerStructure,
   LLMData,
+  LLMError,
   LLMQuestion,
   LLMRole,
   Prompt,
-} from "@ai-scraper/interfaces/primitives/index.js";
+} from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow";
 
 export interface IPromptBuilder {
   setExemplars(exemplars: Exemplar[]): void;

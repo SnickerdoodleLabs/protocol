@@ -51,9 +51,7 @@ export class CorePrompt extends DataWalletPrompt {
   public start(): ResultAsync<void, Error> {
     const choicesWhenUnlocked = [
       { name: "Add Account", value: "addAccount" },
-      { name: "Add Password", value: "addPassword" },
       { name: "Remove Account", value: "removeAccount" },
-      { name: "Remove Password", value: "removePassword" },
       { name: "Check Account", value: "checkAccount" },
       new inquirer.Separator(),
       {

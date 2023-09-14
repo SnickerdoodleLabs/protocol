@@ -4,6 +4,9 @@ import {
   HostName,
   HexString,
   ELanguageCode,
+  EKnownDomains,
+  ETask,
+  Keyword,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { Result, ResultAsync, err, errAsync, ok, okAsync } from "neverthrow";
@@ -13,9 +16,6 @@ import {
   IKeywordUtils,
   IKeywordUtilsType,
   IURLUtils,
-  Keyword,
-  EKnownDomains,
-  ETask,
 } from "@ai-scraper/interfaces/index.js";
 
 @injectable()

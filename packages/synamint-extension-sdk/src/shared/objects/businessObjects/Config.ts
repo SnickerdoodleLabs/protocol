@@ -16,7 +16,6 @@ export class ExtensionConfig {
     public manifestVersion: EManifestVersion,
     public platform: EPlatform,
     public controlChainId: ChainId,
-    public supportedChains: ChainId[],
     public ipfsFetchBaseUrl: URLString,
     public defaultInsightPlatformBaseUrl: URLString,
     public apiKeys: {
@@ -46,6 +45,7 @@ export class ExtensionConfig {
       poapApiKey?: string;
       oklinkApiKey?: string;
       ankrApiKey?: string;
+      bluezApiKey?: string;
     },
     public dnsServerAddress?: URLString,
     public requestForDataCheckingFrequency?: number,

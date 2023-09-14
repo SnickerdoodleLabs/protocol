@@ -4,7 +4,6 @@ const envVars = {
   __CONTROL_CHAIN_ID__: 43113,
   __ONBOARDING_URL__: "https://datawallet.snickerdoodle.com/",
   __ACCOUNT_COOKIE_URL__: "https://snickerdoodlelabs.io/",
-  __SUPPORTED_CHAINS__: "1,43113,43114,137,-1,100,56,1284,42161,592",
   __IPFS_FETCH_BASE_URL__: "https://ipfs-gateway.snickerdoodle.com/ipfs/",
   __DEFAULT_INSIGHT_PLATFORM_BASE_URL__:
     "https://insight-api.snickerdoodle.com/v0/",
@@ -44,6 +43,8 @@ const envVars = {
 
   __ANKR_API_KEY__:
     "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
+  __BLUEZ_API_KEY__: "aed4aab2cbc573bbf8e7c6b448c916e5",
+
   __PRIMARY_INFURA_KEY__: "a6271a49218848a7ad939ee62d225914",
   __SECONDARY_INFURA_KEY__: "",
 
@@ -53,7 +54,7 @@ const envVars = {
   __DOMAIN_FILTER__: "(localhost|chrome://)",
   __DNS_SERVER_ADDRESS__: "",
   __GOOGLE_CLOUD_BUCKET__: "prod-qkppf-sdl-dw",
-  __DEV_CHAIN_PROVIDER_URL__: "https://doodlechain.dev.snickerdoodle.dev",
+  __DEV_CHAIN_PROVIDER_URL__: "",
 };
 
 for (const key in envVars) {

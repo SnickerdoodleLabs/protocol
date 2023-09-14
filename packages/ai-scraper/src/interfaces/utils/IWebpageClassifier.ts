@@ -1,7 +1,9 @@
-import { ELanguageCode, URLString } from "@snickerdoodlelabs/objects";
+import {
+  DomainTask,
+  ELanguageCode,
+  URLString,
+} from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { DomainTask } from "@ai-scraper/interfaces/index.js";
 
 export interface IWebpageClassifier {
   classify(

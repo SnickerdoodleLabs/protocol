@@ -1,17 +1,8 @@
-import { LLMError } from "@snickerdoodlelabs/objects";
+import { Exemplar, LLMError, Prompt } from "@snickerdoodlelabs/objects";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
 import { PromptBuilder } from "@ai-scraper/implementations/business/utils/PromptBuilder.js";
-import { IPromptBuilder } from "@ai-scraper/interfaces/business/utils/IPromptBuilder.js";
-import {
-  Exemplar,
-  IPurchaseHistoryPromptBuilder,
-  LLMAnswerStructure,
-  LLMData,
-  LLMQuestion,
-  LLMRole,
-  Prompt,
-} from "@ai-scraper/interfaces/index.js";
+import { IPurchaseHistoryPromptBuilder } from "@ai-scraper/interfaces/index.js";
 
 /**
  * @description this class is responsible for building prompts for purchase history

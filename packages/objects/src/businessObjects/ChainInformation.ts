@@ -1,9 +1,4 @@
-import {
-  EChain,
-  EChainTechnology,
-  EIndexer,
-  EChainType,
-} from "@objects/enum/index.js";
+import { EChain, EChainTechnology, EChainType } from "@objects/enum/index.js";
 import {
   ChainId,
   EVMContractAddress,
@@ -29,7 +24,6 @@ export class ChainInformation {
     public isDev: boolean,
     public networkName: string,
     public averageBlockMiningTime: number,
-    public indexer: EIndexer,
     public nativeCurrency: NativeCurrencyInformation,
     public type: EChainType,
     public explorerURL: string,
@@ -48,7 +42,6 @@ export class ControlChainInformation extends ChainInformation {
     public isDev: boolean,
     public networkName: string,
     public averageBlockMiningTime: number,
-    public indexer: EIndexer,
     public nativeCurrency: NativeCurrencyInformation,
     public type: EChainType,
     public explorerURL: string,
@@ -67,7 +60,6 @@ export class ControlChainInformation extends ChainInformation {
       isDev,
       networkName,
       averageBlockMiningTime,
-      indexer,
       nativeCurrency,
       type,
       explorerURL,

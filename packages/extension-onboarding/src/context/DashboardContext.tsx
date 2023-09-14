@@ -19,7 +19,6 @@ import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { NftMetadataParseUtils } from "@extension-onboarding/utils";
 
-
 interface IDashboardContext {
   accountNFTs?: WalletNFT[];
   accountTestnetNFTs?: WalletNFT[];
@@ -78,7 +77,9 @@ export const DashboardContextProvider: FC = ({ children }) => {
       .map((result) => {
         const structeredNfts = result.reduce(
           (acc, item) => {
-            const isMainnetItem = mainnetSupportedChainIds.includes(item.chain);
+            const isMainnetItem = mainnetSupportedChainIds.includes(
+              ChainId(item.chain),
+            );
             const isPopap =
               item.chain === EChain.Gnosis ||
               (item.type === EChainTechnology.EVM &&

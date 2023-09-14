@@ -4,7 +4,6 @@ const envVars = {
   __CONTROL_CHAIN_ID__: 31337,
   __ONBOARDING_URL__: "https://datawallet.demo-05.snickerdoodle.dev/",
   __ACCOUNT_COOKIE_URL__: "https://snickerdoodlelabs.io/",
-  __SUPPORTED_CHAINS__: "80001,43113,1,137,43114,-1,100,56,1284,42161,592",
   __IPFS_FETCH_BASE_URL__: "https://ipfs-gateway.snickerdoodle.dev/ipfs/",
   __DEFAULT_INSIGHT_PLATFORM_BASE_URL__:
     "https://insight-api.demo-05.snickerdoodle.dev/v0/",
@@ -45,6 +44,8 @@ const envVars = {
 
   __ANKR_API_KEY__:
     "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
+  __BLUEZ_API_KEY__: "aed4aab2cbc573bbf8e7c6b448c916e5",
+
   __PRIMARY_INFURA_KEY__: "a8ae124ed6aa44bb97a7166cda30f1bc",
   __SECONDARY_INFURA_KEY__: "",
 

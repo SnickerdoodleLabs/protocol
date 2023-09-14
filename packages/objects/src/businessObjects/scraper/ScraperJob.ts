@@ -1,16 +1,16 @@
+import { DomainTask } from "@objects/businessObjects/scraper/DomainTask.js";
+import {
+  VersionedObject,
+  VersionedObjectMigrator,
+} from "@objects/businessObjects/versioned/VersionedObject.js";
+import { ETask } from "@objects/enum/scraper/ETask.js";
 import {
   DomainName,
   HTMLString,
   URLString,
   UnixTimestamp,
-  VersionedObject,
-  VersionedObjectMigrator,
   WebPageText,
-} from "@snickerdoodlelabs/objects";
-
-import { ETask } from "../enums";
-
-import { DomainTask } from "@ai-scraper/interfaces/objects/DomainTask.js";
+} from "@objects/primitives/index.js";
 
 export class ScraperJob extends VersionedObject {
   public static CURRENT_VERSION = 1;

@@ -6,13 +6,13 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const webpack = require("webpack");
 const configFilePath = require.resolve("./tsconfig.json");
-const argon2 = require("argon2");
+// const argon2 = require("argon2");
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 
 /** @type import('webpack').Configuration */
 module.exports = {
   externals: {
-    argon2: argon2,
+    // argon2: argon2,
   },
   context: __dirname,
   mode: process.env.__BUILD_ENV__ === "dev" ? "development" : "production",
@@ -103,7 +103,6 @@ module.exports = {
       __DEV_CHAIN_PROVIDER_URL__: JSON.stringify(
         process.env.__DEV_CHAIN_PROVIDER_URL__,
       ),
-      __SUPPORTED_CHAINS__: JSON.stringify(process.env.__SUPPORTED_CHAINS__),
       __PORTFOLIO_POLLING_INTERVAL__: JSON.stringify(
         process.env.__PORTFOLIO_POLLING_INTERVAL__,
       ),
@@ -116,6 +115,73 @@ module.exports = {
       __REQUEST_FOR_DATA_POLLING_INTERVAL__: JSON.stringify(
         process.env.__REQUEST_FOR_DATA_POLLING_INTERVAL__,
       ),
+      __PRIMARY_INFURA_KEY__: JSON.stringify(
+        process.env.__PRIMARY_INFURA_KEY__,
+      ),
+      __PRIMARY_RPC_PROVIDER_URL__: JSON.stringify(
+        process.env.__PRIMARY_RPC_PROVIDER_URL__,
+      ),
+      __SECONDARY_INFURA_KEY__: JSON.stringify(
+        process.env.__SECONDARY_INFURA_KEY__,
+      ),
+      __SECONDARY_RPC_PROVIDER_URL__: JSON.stringify(
+        process.env.__SECONDARY_RPC_PROVIDER_URL__,
+      ),
+      __ALCHEMY_ARBITRUM_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_ARBITRUM_API_KEY__,
+      ),
+      __ALCHEMY_ASTAR_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_ASTAR_API_KEY__,
+      ),
+      __ALCHEMY_MUMBAI_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_MUMBAI_API_KEY__,
+      ),
+      __ALCHEMY_OPTIMISM_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_OPTIMISM_API_KEY__,
+      ),
+      __ALCHEMY_POLYGON_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_POLYGON_API_KEY__,
+      ),
+      __ALCHEMY_SOLANA_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_SOLANA_API_KEY__,
+      ),
+      __ALCHEMY_SOLANA_TESTNET_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_SOLANA_TESTNET_API_KEY__,
+      ),
+      __ETHERSCAN_ETHEREUM_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_ETHEREUM_API_KEY__,
+      ),
+      __ETHERSCAN_POLYGON_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_POLYGON_API_KEY__,
+      ),
+      __ETHERSCAN_AVALANCHE_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_AVALANCHE_API_KEY__,
+      ),
+      __ETHERSCAN_BINANCE_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_BINANCE_API_KEY__,
+      ),
+      __ETHERSCAN_MOONBEAM_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_MOONBEAM_API_KEY__,
+      ),
+      __ETHERSCAN_OPTIMISM_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_OPTIMISM_API_KEY__,
+      ),
+      __ETHERSCAN_ARBITRUM_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_ARBITRUM_API_KEY__,
+      ),
+      __ETHERSCAN_GNOSIS_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_GNOSIS_API_KEY__,
+      ),
+      __ETHERSCAN_FUJI_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_FUJI_API_KEY__,
+      ),
+      __COVALENT_API_KEY__: JSON.stringify(process.env.__COVALENT_API_KEY__),
+      __MORALIS_API_KEY__: JSON.stringify(process.env.__MORALIS_API_KEY__),
+      __NFTSCAN_API_KEY__: JSON.stringify(process.env.__NFTSCAN_API_KEY__),
+      __POAP_API_KEY__: JSON.stringify(process.env.__POAP_API_KEY__),
+      __OKLINK_API_KEY__: JSON.stringify(process.env.__OKLINK_API_KEY__),
+      __ANKR_API_KEY__: JSON.stringify(process.env.__ANKR_API_KEY__),
+      __BLUEZ_API_KEY__: JSON.stringify(process.env.__BLUEZ_API_KEY__),
     }),
   ],
 };

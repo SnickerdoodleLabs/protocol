@@ -100,3 +100,5 @@ export * from "@objects/primitives/VolatileStorageKey.js";
 export * from "@objects/primitives/Web2Credential.js";
 export * from "@objects/primitives/WebPageText.js";
 export * from "@objects/primitives/Year.js";
+
+export * from "@objects/primitives/scraper/index.js";

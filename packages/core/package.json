@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/core",
-  "version": "0.0.6",
+  "version": "1.0.0",
   "description": "Snickerdoodle Labs Core. Core encapsulates the data wallet and query processor functions of the Protocol",
   "license": "ISC",
   "repository": {
@@ -42,8 +42,8 @@
     "@snickerdoodlelabs/contracts-sdk": "workspace:^",
     "@snickerdoodlelabs/indexers": "workspace:^",
     "@snickerdoodlelabs/insight-platform-api": "workspace:^",
-    "@snickerdoodlelabs/node-utils": "workspace:^",
     "@snickerdoodlelabs/nlp": "workspace:^",
+    "@snickerdoodlelabs/node-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
     "@snickerdoodlelabs/persistence": "workspace:^",
     "@snickerdoodlelabs/query-parser": "workspace:^",
