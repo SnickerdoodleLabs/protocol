@@ -1,15 +1,15 @@
-import { LLMError } from "@snickerdoodlelabs/objects";
-import { ResultAsync, okAsync } from "neverthrow";
-
 import {
   Exemplar,
-  IPromptBuilder,
   LLMAnswerStructure,
   LLMData,
+  LLMError,
   LLMQuestion,
   LLMRole,
   Prompt,
-} from "@ai-scraper/interfaces";
+} from "@snickerdoodlelabs/objects";
+import { ResultAsync, okAsync } from "neverthrow";
+
+import { IPromptBuilder } from "@ai-scraper/interfaces";
 
 export class MockPromptBuilder implements IPromptBuilder {
   private promptToReturn: Prompt;

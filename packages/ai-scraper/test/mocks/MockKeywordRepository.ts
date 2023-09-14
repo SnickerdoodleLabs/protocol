@@ -1,14 +1,8 @@
-import { ELanguageCode } from "@snickerdoodlelabs/objects";
+import { ELanguageCode, ETask, Keyword } from "@snickerdoodlelabs/objects";
 import * as td from "testdouble";
 
 import { DefaultKeywords } from "@ai-scraper/data";
-import {
-  ETask,
-  IKeywordRepository,
-  IKeywordUtils,
-  Keyword,
-  Keywords,
-} from "@ai-scraper/interfaces";
+import { IKeywordRepository, Keywords } from "@ai-scraper/interfaces";
 
 export class MockKeywordRepository {
   public keywords = JSON.parse(DefaultKeywords) as Keywords;

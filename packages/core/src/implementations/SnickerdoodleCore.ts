@@ -175,7 +175,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public metrics: IMetricsMethods;
   public storage: IStorageMethods;
 
-  public scraper: IScraperMethods;
+  // public scraper: IScraperMethods;
 
   public constructor(
     configOverrides?: IConfigOverrides,

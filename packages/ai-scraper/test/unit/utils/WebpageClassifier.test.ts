@@ -1,12 +1,15 @@
 import "reflect-metadata";
-import { ELanguageCode } from "@snickerdoodlelabs/objects";
+import {
+  EKnownDomains,
+  ELanguageCode,
+  ETask,
+} from "@snickerdoodlelabs/objects";
 
 import {
   KeywordUtils,
   URLUtils,
   WebpageClassifier,
 } from "@ai-scraper/implementations/index.js";
-import { EKnownDomains, ETask } from "@ai-scraper/interfaces";
 import { AMAZON_URL } from "@ai-scraper-test/mocks";
 import { MockKeywordRepository } from "@ai-scraper-test/mocks/MockKeywordRepository.js";
 
