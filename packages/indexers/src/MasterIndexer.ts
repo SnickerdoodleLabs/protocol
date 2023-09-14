@@ -62,14 +62,12 @@ export class MasterIndexer implements IMasterIndexer {
     this.ankr,
     this.alchemy,
     this.etherscan,
-    this.nftscan,
     this.poapRepo,
+    this.nftscan,
     this.sim,
     // TODO- enable these indexers as well
     // this.moralis,
     // this.oklink,
-    // this.poapRepo,
-    // this.matic,
   ];
 
   public constructor(
