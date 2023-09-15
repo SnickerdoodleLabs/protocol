@@ -59,10 +59,10 @@ import {
 export class MasterIndexer implements IMasterIndexer {
   protected evmIndexerWeights = [
     this.bluez,
+    this.poapRepo,
     this.ankr,
     this.alchemy,
     this.etherscan,
-    this.poapRepo,
     this.nftscan,
     this.sim,
     // TODO- enable these indexers as well
