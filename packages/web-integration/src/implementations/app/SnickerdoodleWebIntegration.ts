@@ -1,4 +1,9 @@
-import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import {
+  ILogUtils,
+  ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import {
   IConfigOverrides,
   ISdlDataWallet,
@@ -7,13 +12,17 @@ import {
   ProxyError,
   URLString,
   UninitializedError,
+  MillisecondTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { Container } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { UIClient, IPaletteOverrides } from "@web-integration/implementations/app/ui/index.js";
+import {
+  UIClient,
+  IPaletteOverrides,
+} from "@web-integration/implementations/app/ui/index.js";
 import { ISnickerdoodleWebIntegration } from "@web-integration/interfaces/app/index.js";
 import {
   IBlockchainProviderRepository,
@@ -36,6 +45,9 @@ export class SnickerdoodleWebIntegration
   protected iocContainer: Container;
 
   protected _core: ISdlDataWallet | null = null;
+  protected timeUtils: ITimeUtils;
+
+  protected startTimestamp: MillisecondTimestamp;
 
   protected initializeResult: ResultAsync<
     ISdlDataWallet,
@@ -58,6 +70,9 @@ export class SnickerdoodleWebIntegration
     const configProvider =
       this.iocContainer.get<IConfigProvider>(IConfigProviderType);
     configProvider.setValues(this.signer, this.iframeURL);
+
+    this.timeUtils = this.iocContainer.get<ITimeUtils>(ITimeUtilsType);
+    this.startTimestamp = this.timeUtils.getMillisecondNow();
   }
 
   public get core(): ISdlDataWallet {
@@ -94,7 +109,7 @@ export class SnickerdoodleWebIntegration
       new Promise<ISdlDataWallet | undefined>((resolve) => {
         const maxResolveTime = 2000;
         const checkInterval = 200;
-        const startTime = Date.now();
+        const startTime = this.timeUtils.getMillisecondNow();
 
         function checkWindow() {
           if (typeof window.sdlDataWallet !== "undefined") {
@@ -147,6 +162,12 @@ export class SnickerdoodleWebIntegration
           blockchainProvider,
           configProvider,
         ).map(() => {
+          const startupCompleteTime = this.timeUtils.getMillisecondNow();
+          logUtils.warning(
+            `Completed starting iframe in ${
+              startupCompleteTime - this.startTimestamp
+            }ms`,
+          );
           return proxy;
         });
       })
