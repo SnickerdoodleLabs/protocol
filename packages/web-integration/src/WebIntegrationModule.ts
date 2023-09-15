@@ -1,7 +1,10 @@
 import {
   ILogUtils,
   ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
   LogUtils,
+  TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   IStorageUtils,
@@ -47,6 +50,7 @@ export const webIntegrationModule = new ContainerModule(
     bind<IConfigProvider>(IConfigProviderType)
       .to(ConfigProvider)
       .inSingletonScope();
+    bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
     bind<ILogUtils>(ILogUtilsType).to(LogUtils).inSingletonScope();
   },
 );
