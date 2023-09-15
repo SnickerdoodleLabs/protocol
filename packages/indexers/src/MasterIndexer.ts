@@ -68,8 +68,6 @@ export class MasterIndexer implements IMasterIndexer {
     // TODO- enable these indexers as well
     // this.moralis,
     // this.oklink,
-    // this.poapRepo,
-    // this.matic,
   ];
 
   public constructor(
