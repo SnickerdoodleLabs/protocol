@@ -78,12 +78,7 @@ class QueryEvaluatorMocks {
   public URLmap: SiteVisitsMap = new Map<URLString, SiteVisitsData>([
     [
       URLString("www.snickerdoodlelabs.io"),
-      new SiteVisitsData(
-        10,
-        3,
-        UnixTimestamp(12),
-        UnixTimestamp(8),
-     ),
+      new SiteVisitsData(10, 3, UnixTimestamp(12), UnixTimestamp(8)),
     ],
   ]);
 
@@ -751,8 +746,7 @@ describe("Return URLs Map", () => {
     const result = await repo.eval(propertyQuery);
     // console.log("URLs is: ", result["value"]);
     expect(result["value"]).toEqual(
-      new Map<URLString, number>([[URLString("www.snickerdoodlelabs.io"), 10]]),
-    );
+      {"www.snickerdoodlelabs.io": {"averageScreenTime": 3, "lastReportedTime": 8, "numberOfVisits": 10, "totalScreenTime": 12}})
   });
 });
 

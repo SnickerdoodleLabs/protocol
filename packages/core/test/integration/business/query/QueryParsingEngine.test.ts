@@ -385,8 +385,8 @@ describe("Tests with data permissions", () => {
   });
 });
 
-describe("Testing avalanche 4", () => {
-  test("avalanche 4 insights", async () => {
+describe.only("Testing avalanche 4", () => {
+  test.only("avalanche 4 insights", async () => {
     const mocks = new QueryParsingMocks();
     const engine = mocks.factory();
 
@@ -407,6 +407,7 @@ describe("Testing avalanche 4", () => {
     await engine
       .handleQuery(sdqlQuery4, new DataPermissions(allPermissions))
       .andThen((deliveredInsights) => {
+        console.log(`d`,deliveredInsights)
         expect(deliveredInsights).toMatchObject(expectedInsights);
 
         expect(

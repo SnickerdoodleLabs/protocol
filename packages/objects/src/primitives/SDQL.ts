@@ -1,7 +1,7 @@
 import { Brand, make } from "ts-brand";
 
 import {
-  SiteVisitsMap,
+  SiteVisitsData,
   ChainTransaction,
   NftHolding,
 } from "@objects/businessObjects/index.js";
@@ -19,7 +19,7 @@ export type SDQL_Return = Brand<
   | boolean
   | number
   | Array<any>
-  | SiteVisitsMap
+  | Record<URLString , SiteVisitsData>
   | Map<ChainId, number>
   | TokenBalanceInsight[]
   | ChainTransaction[]

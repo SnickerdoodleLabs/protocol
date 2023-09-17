@@ -21,7 +21,6 @@ describe("BrowsingDataRepository", () => {
   ).thenReturn(okAsync(undefined));
 
   let browsingDataRepository: IBrowsingDataRepository;
-
   beforeEach(() => {
     // Arrange
     browsingDataRepository = new BrowsingDataRepository(persistence);
