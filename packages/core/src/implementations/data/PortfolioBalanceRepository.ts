@@ -2,7 +2,6 @@ import {
   ILogUtilsType,
   ILogUtils,
   ObjectUtils,
-  TimedCache,
   ITimeUtilsType,
   ITimeUtils,
 } from "@snickerdoodlelabs/common-utils";
@@ -10,6 +9,7 @@ import {
   IMasterIndexer,
   IMasterIndexerType,
 } from "@snickerdoodlelabs/indexers";
+import { TimedCache } from "@snickerdoodlelabs/node-utils";
 import {
   LinkedAccount,
   TokenBalance,

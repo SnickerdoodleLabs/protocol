@@ -39,9 +39,8 @@ export interface IEVMIndexer extends IIndexer {
 }
 
 export const IAnkrIndexerType = Symbol.for("IAnkrIndexer");
-
 export const IAlchemyIndexerType = Symbol.for("IAlchemyIndexer");
-
+export const IBluezIndexerType = Symbol.for("IBluezIndexer");
 export const ICovalentEVMTransactionRepositoryType = Symbol.for(
   "ICovalentEVMTransactionRepository",
 );

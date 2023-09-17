@@ -1,5 +1,6 @@
 export * from "@indexers/providers/AnkrIndexer.js";
 export * from "@indexers/providers/AlchemyIndexer.js";
+export * from "@indexers/providers/BluezIndexer.js";
 export * from "@indexers/providers/CovalentIndexer.js";
 export * from "@indexers/providers/EtherscanIndexer.js";
 export * from "@indexers/providers/MoralisIndexer.js";
