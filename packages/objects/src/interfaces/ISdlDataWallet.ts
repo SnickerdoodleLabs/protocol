@@ -172,12 +172,12 @@ export type IProxyStorageMethods = {
   >;
 };
 
-export type IProxyScrapperMethods = {
+export type IProxyScraperMethods = {
   [key in FunctionKeys<IScraperMethods>]: (
     ...args: [...PopTuple<Parameters<IScraperMethods[key]>>]
   ) => ResultAsync<
     GetResultAsyncValueType<ReturnType<IScraperMethods[key]>>,
-    ProxyError
+    ProxyError | ScraperError
   >;
 };
 
@@ -372,17 +372,6 @@ export interface ISdlDataWallet {
 
   switchToTab(tabId: number): ResultAsync<void, ProxyError>;
 
-  getScrape(
-    url: URLString,
-    html: HTMLString,
-    suggestedDomainTask: DomainTask,
-  ): ResultAsync<void, ScraperError | ProxyError>;
-
-  getScrapeClassifyUrl(
-    url: URLString,
-    language: ELanguageCode,
-  ): ResultAsync<DomainTask, ScraperError | ProxyError>;
-
   proxyType: ECoreProxyType;
   discord: IProxyDiscordMethods;
   integration: IProxyIntegrationMethods;
@@ -390,4 +379,5 @@ export interface ISdlDataWallet {
   metrics: IProxyMetricsMethods;
   storage: IProxyStorageMethods;
   events: ISnickerdoodleCoreEvents;
+  scraper: IProxyScraperMethods;
 }

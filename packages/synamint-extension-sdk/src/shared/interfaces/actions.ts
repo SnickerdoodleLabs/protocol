@@ -900,25 +900,25 @@ export class GetCurrentCloudStorageParams extends CoreActionParams<ECloudStorage
   }
 }
 
-export class GetScrapeParams extends CoreActionParams<void> {
+export class ScraperScrapeParams extends CoreActionParams<void> {
   public constructor(
     public url: URLString,
     public html: HTMLString,
     public suggestedDomainTask: DomainTask,
   ) {
-    super(GetScrapeParams.getCoreAction());
+    super(ScraperScrapeParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
-    return ECoreActions.GET_SCRAPE;
+    return ECoreActions.SCRAPER_SCRAPE_PARAMS;
   }
 }
 
-export class GetScrapeClassifyUrlParams extends CoreActionParams<DomainTask> {
+export class ScraperClassifyUrlParams extends CoreActionParams<DomainTask> {
   public constructor(public url: URLString, public language: ELanguageCode) {
-    super(GetScrapeClassifyUrlParams.getCoreAction());
+    super(ScraperClassifyUrlParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
-    return ECoreActions.GET_SCRAPE_CLASSIFY_URL;
+    return ECoreActions.SCRAPER_CLASSIFY_URL_PARAMS;
   }
 }
 

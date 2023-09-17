@@ -62,6 +62,7 @@ import {
   HTMLString,
   ScraperError,
   ELanguageCode,
+  IProxyScraperMethods,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -111,8 +112,8 @@ import {
   SetAuthenticatedStorageParams,
   RejectInvitationParams,
   GetQueryStatusesParams,
-  GetScrapeParams,
-  GetScrapeClassifyUrlParams,
+  ScraperScrapeParams,
+  ScraperClassifyUrlParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
@@ -168,6 +169,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public twitter: IProxyTwitterMethods;
   public storage: IProxyStorageMethods;
   public events: PublicEvents;
+  public scraper: IProxyScraperMethods;
 
   public proxyType: ECoreProxyType = ECoreProxyType.EXTENSION_INJECTED;
 
@@ -307,6 +309,19 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       },
     };
 
+    this.scraper = {
+      scrape: (
+        url: URLString,
+        html: HTMLString,
+        suggestedDomainTask: DomainTask,
+      ) => {
+        return coreGateway.scraper.scrape(url, html, suggestedDomainTask);
+      },
+      classifyURL: (url: URLString, language: ELanguageCode) => {
+        return coreGateway.scraper.classifyURL(url, language);
+      },
+    };
+
     this.storage = {
       // @TODO below functions are not added to ISDLDataWallet interface and iframe
       getDropboxAuth: () => {
@@ -337,25 +352,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     eventEmitter.on(PORT_NOTIFICATION, (resp: BaseNotification) => {
       _this.emit(resp.type, resp);
     });
-  }
-
-  public getScrape(
-    url: URLString,
-    html: HTMLString,
-    suggestedDomainTask: DomainTask,
-  ): ResultAsync<void, ProxyError | ScraperError> {
-    return coreGateway.getScrape(
-      new GetScrapeParams(url, html, suggestedDomainTask),
-    );
-  }
-
-  public getScrapeClassifyUrl(
-    url: URLString,
-    language: ELanguageCode,
-  ): ResultAsync<DomainTask, ProxyError | ScraperError> {
-    return coreGateway.getScrapeClassifyUrl(
-      new GetScrapeClassifyUrlParams(url, language),
-    );
   }
 
   public switchToTab(tabId: number): ResultAsync<void, ProxyError> {

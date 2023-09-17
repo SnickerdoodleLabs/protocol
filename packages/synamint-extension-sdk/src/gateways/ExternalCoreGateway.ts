@@ -52,6 +52,9 @@ import {
   OAuth2Tokens,
   ScraperError,
   DomainTask,
+  IProxyScraperMethods,
+  HTMLString,
+  ELanguageCode,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -141,8 +144,8 @@ import {
   RejectInvitationParams,
   RejectInvitationByUUIDParams,
   GetQueryStatusesParams,
-  GetScrapeParams,
-  GetScrapeClassifyUrlParams,
+  ScraperScrapeParams,
+  ScraperClassifyUrlParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -151,6 +154,7 @@ export class ExternalCoreGateway {
   public integration: IProxyIntegrationMethods;
   public metrics: IProxyMetricsMethods;
   public twitter: IProxyTwitterMethods;
+  public scraper: IProxyScraperMethods;
   protected _handler: CoreHandler;
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
@@ -230,6 +234,24 @@ export class ExternalCoreGateway {
       },
       getUserProfiles: (): ResultAsync<TwitterProfile[], ProxyError> => {
         return this._handler.call(new TwitterGetLinkedProfilesParams());
+      },
+    };
+
+    this.scraper = {
+      scrape: (
+        url: URLString,
+        html: HTMLString,
+        suggestedDomainTask: DomainTask,
+      ): ResultAsync<void, ProxyError | ScraperError> => {
+        return this._handler.call(
+          new ScraperScrapeParams(url, html, suggestedDomainTask),
+        );
+      },
+      classifyURL: (
+        url: URLString,
+        language: ELanguageCode,
+      ): ResultAsync<DomainTask, ProxyError | ScraperError> => {
+        return this._handler.call(new ScraperClassifyUrlParams(url, language));
       },
     };
   }
@@ -566,16 +588,5 @@ export class ExternalCoreGateway {
     return this.getConfig().map((config) => {
       return config.providerKey;
     });
-  };
-  public getScrape = (
-    params: GetScrapeParams,
-  ): ResultAsync<void, ScraperError | ProxyError> => {
-    return this._handler.call(params);
-  };
-
-  public getScrapeClassifyUrl = (
-    params: GetScrapeClassifyUrlParams,
-  ): ResultAsync<DomainTask, ScraperError | ProxyError> => {
-    return this._handler.call(params);
   };
 }

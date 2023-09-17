@@ -146,8 +146,8 @@ import {
   GetCurrentCloudStorageParams,
   RejectInvitationParams,
   GetQueryStatusesParams,
-  GetScrapeParams,
-  GetScrapeClassifyUrlParams,
+  ScraperScrapeParams,
+  ScraperClassifyUrlParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -839,9 +839,9 @@ export class RpcCallHandler implements IRpcCallHandler {
     ),
     // #endregion
 
-    // #region Scrapper
-    new CoreActionHandler<GetScrapeParams>(
-      GetScrapeParams.getCoreAction(),
+    // #region Scraper
+    new CoreActionHandler<ScraperScrapeParams>(
+      ScraperScrapeParams.getCoreAction(),
       (params) => {
         return this.scraperService.scrape(
           params.url,
@@ -850,8 +850,8 @@ export class RpcCallHandler implements IRpcCallHandler {
         );
       },
     ),
-    new CoreActionHandler<GetScrapeClassifyUrlParams>(
-      GetScrapeClassifyUrlParams.getCoreAction(),
+    new CoreActionHandler<ScraperClassifyUrlParams>(
+      ScraperClassifyUrlParams.getCoreAction(),
       (params) => {
         return this.scraperService.classifyURL(params.url, params.language);
       },

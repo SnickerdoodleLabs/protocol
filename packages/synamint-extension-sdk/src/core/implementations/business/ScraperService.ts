@@ -31,9 +31,10 @@ export class ScraperService implements IScraperService {
     url: URLString,
     html: HTMLString,
     suggestedDomainTask: DomainTask,
+    sourceDomain?: DomainName,
   ): ResultAsync<void, ScraperError> {
     return this.core.scraper
-      .scrape(url, html, suggestedDomainTask)
+      .scrape(url, html, suggestedDomainTask, sourceDomain)
       .mapErr((error) => {
         this.errorUtils.emit(error);
         return new ScraperError((error as Error).message, error);
@@ -42,8 +43,9 @@ export class ScraperService implements IScraperService {
   classifyURL(
     url: URLString,
     language: ELanguageCode,
+    sourceDomain?: DomainName,
   ): ResultAsync<DomainTask, ScraperError> {
-    return this.classifyURL(url, language).mapErr((error) => {
+    return this.classifyURL(url, language, sourceDomain).mapErr((error) => {
       this.errorUtils.emit(error);
       return new ScraperError((error as Error).message, error);
     });
