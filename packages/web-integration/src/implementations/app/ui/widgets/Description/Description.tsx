@@ -9,7 +9,9 @@ import {
   useTheme,
   ITheme,
   useMedia,
+  createUseStyles,
 } from "@web-integration/implementations/app/ui/lib/index.js";
+import parse from "html-react-parser";
 import React, { FC, useMemo } from "react";
 
 interface IDescriptionProps {
@@ -19,6 +21,30 @@ interface IDescriptionProps {
   onSetPermissions: () => void;
 }
 
+const useStyles = createUseStyles({
+  rawHtmlWrapper: {
+    color: ({ theme }: { theme: ITheme }) => theme.palette.text,
+    fontSize: ({ theme }: { theme: ITheme }) => theme.typography.body.fontSize,
+    fontFamily: ({ theme }: { theme: ITheme }) =>
+      theme.typography.body.fontFamily,
+    "& h1": {
+      ...({ theme }: { theme: ITheme }) => theme.typography.title,
+    },
+    "& h2": {
+      ...({ theme }: { theme: ITheme }) => theme.typography.title2,
+    },
+    "& h3": {
+      ...({ theme }: { theme: ITheme }) => theme.typography.subtitle,
+    },
+    "& a:link": {
+      color: ({ theme }: { theme: ITheme }) => theme.palette.linkText,
+    },
+    "& ol, ul": {
+      paddingLeft: "1em",
+    },
+  },
+});
+
 export const Description: FC<IDescriptionProps> = ({
   pageInvitation,
   onCancelClick,
@@ -26,8 +52,44 @@ export const Description: FC<IDescriptionProps> = ({
   onContinueClick,
 }) => {
   const theme = useTheme<ITheme>();
+  const classes = useStyles({ theme });
   const media = useMedia();
   const isMobile = useMemo(() => media === "xs", [media]);
+
+  const description = useMemo(() => {
+    const descriptionText = pageInvitation.domainDetails.description;
+
+    if (!descriptionText) {
+      return (
+        <Typography variant="description">
+          We believe you deserve control over your own data. Here's why we're
+          offering a new way - a better way:
+          <br />
+          <br /> • <strong> Empowerment:</strong> It's your data. We're here to
+          ensure you retain control and ownership, always.
+          <br /> • <strong>Privacy First:</strong> Thanks to our integration
+          with Snickerdoodle, we ensure your data remains anonymous and private
+          by leveraging their proprietary tech and Zero Knowledge Proofs.
+          <br /> • <strong>Enhanced Experience:</strong> Sharing your web3 data,
+          like token balances, NFTs, and transaction history, allows you to
+          access unique experiences tailored just for you.
+          <br /> • <strong>Exclusive Rewards:</strong> Unlock exclusive NFTs as
+          rewards for sharing your data. It's our way of saying thanks.
+          <br />
+          <br />
+          By clicking "Accept," you acknowledge our web3 data permissions policy
+          and terms. Remember, your privacy is paramount to us; we've integrated
+          with Snickerdoodle to ensure it.
+        </Typography>
+      );
+    }
+    if (descriptionText.trim().startsWith("<")) {
+      return (
+        <span className={classes.rawHtmlWrapper}>{parse(descriptionText)}</span>
+      );
+    }
+    return <Typography variant="description">{descriptionText}</Typography>;
+  }, [JSON.stringify(pageInvitation.domainDetails), JSON.stringify(theme)]);
 
   return (
     <Box
@@ -52,35 +114,13 @@ export const Description: FC<IDescriptionProps> = ({
           alignItems="flex-start"
         >
           <Typography variant="title">
-            Why are we giving you a choice for data sharing?!
+            {pageInvitation.domainDetails.title || "Your Data, Your Choice."}
           </Typography>
           {isMobile && <CloseButton onClick={onCancelClick} />}
         </Box>
-        <Box mb={3} />
-        <Typography variant="description">
-          • We believe in empowering you to own and control your data in the
-          Web3 world! Our site uses Web3 data permissions to enhance your
-          experience and offer exciting rewards.
-          <br /> • You have the power to own your data and decide how it's used.
-          With us, you can lease your data anonymously to brands in exchange for
-          fantastic rewards!
-          <br /> • We utilize on-chain data, including token balances, NFTs,
-          transaction history, and dApps, to provide you with personalized
-          experiences and exclusive NFT rewards.
-          <br /> • To unlock your one-of-a-kind NFTs, all you need to do is
-          share your Web3 data with us. It's quick, easy, and a great way to
-          showcase your journey in the decentralized world!
-          <br />
-          <br />
-          <br />
-          By clicking "Continue" you agree to our Web3 data permissions policy
-          and the terms of data usage. Your privacy matters to us, and we ensure
-          your data is protected with top-notch security measures.
-          <br />
-          Embrace the Web3 revolution and let's embark on a rewarding journey
-          together!
-        </Typography>
-        <Box mb={3} />
+        <Box mb={0.5} />
+        {description}
+        <Box mb={4} />
         <Grid
           container
           spacing={2}

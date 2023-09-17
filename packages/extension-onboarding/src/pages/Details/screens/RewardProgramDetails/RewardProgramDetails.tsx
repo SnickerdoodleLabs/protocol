@@ -54,6 +54,7 @@ import {
 } from "@snickerdoodlelabs/shared-components";
 import { ResultUtils } from "neverthrow-result-utils";
 import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
+import Description from "@extension-onboarding/components/Description/Description";
 
 const ManageSettingsButton = withStyles({
   root: {
@@ -119,8 +120,7 @@ const RewardProgramDetails: FC = () => {
     threshold: 0.5,
   });
   const { sdlDataWallet } = useDataWalletContext();
-  const { generateAllPermissions, isSafe } =
-    usePermissionContext();
+  const { generateAllPermissions, isSafe } = usePermissionContext();
   const generateSuccessMessage = (dataType: EWalletDataType) => {
     return `Your "${
       PERMISSIONS_WITH_ICONS[dataType]!.name
@@ -239,7 +239,7 @@ const RewardProgramDetails: FC = () => {
         campaignName: info?.rewardName,
       },
     });
-  }, [linkedAccounts.length , permissionsState]);
+  }, [linkedAccounts.length, permissionsState]);
 
   const getCapacityInfo = () => {
     sdlDataWallet
@@ -312,7 +312,6 @@ const RewardProgramDetails: FC = () => {
       rewardsThatCanBeAcquired = rewardsThatCanBeEarned;
       rewardsThatRequireMorePermission = rewardsThatCannotBeEarned;
     } else {
-
       const { queryBeingProcessed, queryProcessed, queryNotReceived } =
         categorizePossibleRewardsBasedOnStatus(possibleRewardWithQueryStatus);
       //User is subscribed, we will assume if no record for the query exist yet, one will be created shortly
@@ -340,7 +339,7 @@ const RewardProgramDetails: FC = () => {
           queryInProcess,
           consentPermissions,
         );
-      
+
       rewardsThatAreBeingProcessed = rewardsThatCanBeEarned;
       rewardsThatRequireMorePermission =
         rewardsThatRequireMorePermission.concat(rewardsThatCannotBeEarned);
@@ -389,9 +388,10 @@ const RewardProgramDetails: FC = () => {
               {info?.rewardName}
             </Typography>
             <Box mt={1.5} mb={4}>
-              <Typography className={classes.description}>
-                {info?.description}
-              </Typography>
+              <Description
+                className={classes.description}
+                description={info?.description || ""}
+              />
             </Box>
             <Box display="flex">
               <Box
