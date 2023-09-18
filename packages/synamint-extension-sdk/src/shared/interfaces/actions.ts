@@ -58,6 +58,8 @@ import {
   HTMLString,
   DomainTask,
   ELanguageCode,
+  PageNo,
+  Year,
 } from "@snickerdoodlelabs/objects";
 
 import { IExtensionConfig } from "./IExtensionConfig";
@@ -900,6 +902,9 @@ export class GetCurrentCloudStorageParams extends CoreActionParams<ECloudStorage
   }
 }
 
+// #endregion
+
+// #region Scraper
 export class ScraperScrapeParams extends CoreActionParams<void> {
   public constructor(
     public url: URLString,
@@ -919,6 +924,48 @@ export class ScraperClassifyUrlParams extends CoreActionParams<DomainTask> {
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.SCRAPER_CLASSIFY_URL_PARAMS;
+  }
+}
+// #endregion
+
+// #region Scraper Navigation
+
+export class ScraperGetOrderHistoryPageParams extends CoreActionParams<URLString> {
+  public constructor(public lang: ELanguageCode, public page: PageNo) {
+    super(ScraperGetOrderHistoryPageParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SCRAPER_NAVIGATION_AMAZON_GET_ORDER_HISTORY_PAGE_PARAMS;
+  }
+}
+
+export class ScraperGetYearsParams extends CoreActionParams<Year[]> {
+  public constructor(public html: HTMLString) {
+    super(ScraperGetYearsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SCRAPER_NAVIGATION_AMAZON_GET_YEARS_PARAMS;
+  }
+}
+
+export class ScraperGetOrderHistoryPageByYearParams extends CoreActionParams<URLString> {
+  public constructor(
+    public lang: ELanguageCode,
+    public year: Year,
+    public page: PageNo,
+  ) {
+    super(ScraperGetOrderHistoryPageByYearParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SCRAPER_NAVIGATION_AMAZON_GET_ORDER_HISTORY_PAGE_BY_YEAR_PARAMS;
+  }
+}
+export class ScraperGetPageCountParams extends CoreActionParams<number> {
+  public constructor(public html: HTMLString, public year: Year) {
+    super(ScraperGetPageCountParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SCRAPER_NAVIGATION_AMAZON_GET_PAGE_COUNT_PARAMS;
   }
 }
 

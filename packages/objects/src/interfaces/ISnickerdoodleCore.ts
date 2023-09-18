@@ -654,28 +654,21 @@ export interface IScraperMethods {
     url: URLString,
     html: HTMLString,
     suggestedDomainTask: DomainTask,
-    sourceDomain: DomainName | undefined,
   ): ResultAsync<void, ScraperError>;
   classifyURL(
     url: URLString,
     language: ELanguageCode,
-    sourceDomain: DomainName | undefined,
   ): ResultAsync<DomainTask, ScraperError>;
 }
 
 export interface IScraperNavigationMethods {
   amazon: {
-    getOrderHistoryPage(
-      lang: ELanguageCode,
-      page: PageNo,
-      sourceDomain: DomainName | undefined,
-    ): URLString;
-    getYears(html: HTMLString, sourceDomain: DomainName | undefined): Year[];
+    getOrderHistoryPage(lang: ELanguageCode, page: PageNo): URLString;
+    getYears(html: HTMLString): Year[];
     getOrderHistoryPageByYear(
       lang: ELanguageCode,
       year: Year,
       page: PageNo,
-      sourceDomain: DomainName | undefined,
     ): URLString;
     getPageCount(html: HTMLString, year: Year): number;
   };

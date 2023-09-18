@@ -55,6 +55,9 @@ import {
   IProxyScraperMethods,
   HTMLString,
   ELanguageCode,
+  IProxyScraperNavigationMethods,
+  PageNo,
+  Year,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -146,6 +149,10 @@ import {
   GetQueryStatusesParams,
   ScraperScrapeParams,
   ScraperClassifyUrlParams,
+  ScraperGetOrderHistoryPageParams,
+  ScraperGetYearsParams,
+  ScraperGetOrderHistoryPageByYearParams,
+  ScraperGetPageCountParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -155,6 +162,7 @@ export class ExternalCoreGateway {
   public metrics: IProxyMetricsMethods;
   public twitter: IProxyTwitterMethods;
   public scraper: IProxyScraperMethods;
+  public scraperNavigation: IProxyScraperNavigationMethods;
   protected _handler: CoreHandler;
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
@@ -252,6 +260,37 @@ export class ExternalCoreGateway {
         language: ELanguageCode,
       ): ResultAsync<DomainTask, ProxyError | ScraperError> => {
         return this._handler.call(new ScraperClassifyUrlParams(url, language));
+      },
+    };
+
+    this.scraperNavigation = {
+      getOrderHistoryPage: (
+        lang: ELanguageCode,
+        page: PageNo,
+      ): ResultAsync<URLString, ProxyError | ScraperError> => {
+        return this._handler.call(
+          new ScraperGetOrderHistoryPageParams(lang, page),
+        );
+      },
+      getYears: (
+        html: HTMLString,
+      ): ResultAsync<Year[], ProxyError | ScraperError> => {
+        return this._handler.call(new ScraperGetYearsParams(html));
+      },
+      getOrderHistoryPageByYear: (
+        lang: ELanguageCode,
+        year: Year,
+        page: PageNo,
+      ): ResultAsync<URLString, ProxyError | ScraperError> => {
+        return this._handler.call(
+          new ScraperGetOrderHistoryPageByYearParams(lang, year, page),
+        );
+      },
+      getPageCount: (
+        html: HTMLString,
+        year: Year,
+      ): ResultAsync<number, ProxyError | ScraperError> => {
+        return this._handler.call(new ScraperGetPageCountParams(html, year));
       },
     };
   }

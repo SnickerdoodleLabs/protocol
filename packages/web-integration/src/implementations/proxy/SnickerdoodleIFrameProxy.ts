@@ -80,6 +80,9 @@ import {
   HTMLString,
   ScraperError,
   IProxyScraperMethods,
+  IProxyScraperNavigationMethods,
+  PageNo,
+  Year,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -785,6 +788,48 @@ export class SnickerdoodleIFrameProxy
       return this._createCall("scraper.classifyURL", {
         url,
         language,
+      });
+    },
+  };
+
+  public scrapernavigation: IProxyScraperNavigationMethods = {
+    getOrderHistoryPage: (
+      lang: ELanguageCode,
+      page: PageNo,
+    ): ResultAsync<URLString, ProxyError | ScraperError> => {
+      return this._createCall("scrapernavigation.amazon.getOrderHistoryPage", {
+        lang,
+        page,
+      });
+    },
+    getYears: (
+      html: HTMLString,
+    ): ResultAsync<Year[], ProxyError | ScraperError> => {
+      return this._createCall("scrapernavigation.amazon.getYears", {
+        html,
+      });
+    },
+    getOrderHistoryPageByYear: (
+      lang: ELanguageCode,
+      year: Year,
+      page: PageNo,
+    ): ResultAsync<URLString, ProxyError | ScraperError> => {
+      return this._createCall(
+        "scrapernavigation.amazon.getOrderHistoryPageByYear",
+        {
+          lang,
+          year,
+          page,
+        },
+      );
+    },
+    getPageCount: (
+      html: HTMLString,
+      year: Year,
+    ): ResultAsync<number, ProxyError | ScraperError> => {
+      return this._createCall("scrapernavigation.amazon.getPageCount", {
+        html,
+        year,
       });
     },
   };

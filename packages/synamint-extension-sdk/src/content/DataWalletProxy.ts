@@ -63,6 +63,9 @@ import {
   ScraperError,
   ELanguageCode,
   IProxyScraperMethods,
+  IProxyScraperNavigationMethods,
+  PageNo,
+  Year,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -170,6 +173,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public storage: IProxyStorageMethods;
   public events: PublicEvents;
   public scraper: IProxyScraperMethods;
+  public scrapernavigation: IProxyScraperNavigationMethods;
 
   public proxyType: ECoreProxyType = ECoreProxyType.EXTENSION_INJECTED;
 
@@ -319,6 +323,29 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       },
       classifyURL: (url: URLString, language: ELanguageCode) => {
         return coreGateway.scraper.classifyURL(url, language);
+      },
+    };
+
+    this.scrapernavigation = {
+      getOrderHistoryPage: (lang: ELanguageCode, page: PageNo) => {
+        return coreGateway.scraperNavigation.getOrderHistoryPage(lang, page);
+      },
+      getYears: (html: HTMLString) => {
+        return coreGateway.scraperNavigation.getYears(html);
+      },
+      getOrderHistoryPageByYear: (
+        lang: ELanguageCode,
+        year: Year,
+        page: PageNo,
+      ) => {
+        return coreGateway.scraperNavigation.getOrderHistoryPageByYear(
+          lang,
+          year,
+          page,
+        );
+      },
+      getPageCount: (html: HTMLString, year: Year) => {
+        return coreGateway.scraperNavigation.getPageCount(html, year);
       },
     };
 

@@ -43,6 +43,10 @@ import {
   IUserSiteInteractionServiceType,
 } from "@synamint-extension-sdk/core/interfaces/business";
 import {
+  IScraperNavigationService,
+  IScraperNavigationServiceType,
+} from "@synamint-extension-sdk/core/interfaces/business/IScraperNavigationService";
+import {
   IScraperService,
   IScraperServiceType,
 } from "@synamint-extension-sdk/core/interfaces/business/IScraperService";
@@ -148,6 +152,10 @@ import {
   GetQueryStatusesParams,
   ScraperScrapeParams,
   ScraperClassifyUrlParams,
+  ScraperGetOrderHistoryPageParams,
+  ScraperGetYearsParams,
+  ScraperGetOrderHistoryPageByYearParams,
+  ScraperGetPageCountParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -857,6 +865,52 @@ export class RpcCallHandler implements IRpcCallHandler {
       },
     ),
     // #endregion
+
+    // #region Scraper Navigation
+
+    new CoreActionHandler<ScraperGetOrderHistoryPageParams>(
+      ScraperGetOrderHistoryPageParams.getCoreAction(),
+      (params) => {
+        const url = this.scrapernavigationService.getOrderHistoryPage(
+          params.lang,
+          params.page,
+        );
+        return okAsync(url);
+      },
+    ),
+
+    new CoreActionHandler<ScraperGetYearsParams>(
+      ScraperGetYearsParams.getCoreAction(),
+      (params) => {
+        const url = this.scrapernavigationService.getYears(params.html);
+        return okAsync(url);
+      },
+    ),
+
+    new CoreActionHandler<ScraperGetOrderHistoryPageByYearParams>(
+      ScraperGetOrderHistoryPageByYearParams.getCoreAction(),
+      (params) => {
+        const url = this.scrapernavigationService.getOrderHistoryPageByYear(
+          params.lang,
+          params.year,
+          params.page,
+        );
+        return okAsync(url);
+      },
+    ),
+
+    new CoreActionHandler<ScraperGetPageCountParams>(
+      ScraperGetPageCountParams.getCoreAction(),
+      (params) => {
+        const url = this.scrapernavigationService.getPageCount(
+          params.html,
+          params.year,
+        );
+        return okAsync(url);
+      },
+    ),
+
+    // #endregion
   ];
 
   constructor(
@@ -880,6 +934,8 @@ export class RpcCallHandler implements IRpcCallHandler {
     protected discordService: IDiscordService,
     @inject(IScraperServiceType)
     protected scraperService: IScraperService,
+    @inject(IScraperNavigationServiceType)
+    protected scrapernavigationService: IScraperNavigationService,
     @inject(ITwitterServiceType)
     protected twitterService: ITwitterService,
     @inject(IConfigProviderType)

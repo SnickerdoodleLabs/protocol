@@ -34,6 +34,7 @@ import {
   ICoreTwitterMethods,
   IMetricsMethods,
   IScraperMethods,
+  IScraperNavigationMethods,
   IStorageMethods,
 } from "@objects/interfaces/ISnickerdoodleCore.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
@@ -174,9 +175,18 @@ export type IProxyStorageMethods = {
 
 export type IProxyScraperMethods = {
   [key in FunctionKeys<IScraperMethods>]: (
-    ...args: [...PopTuple<Parameters<IScraperMethods[key]>>]
+    ...args: [...Parameters<IScraperMethods[key]>]
   ) => ResultAsync<
     GetResultAsyncValueType<ReturnType<IScraperMethods[key]>>,
+    ProxyError | ScraperError
+  >;
+};
+
+export type IProxyScraperNavigationMethods = {
+  [key in FunctionKeys<IScraperNavigationMethods["amazon"]>]: (
+    ...args: [...Parameters<IScraperNavigationMethods["amazon"][key]>]
+  ) => ResultAsync<
+    ReturnType<IScraperNavigationMethods["amazon"][key]>,
     ProxyError | ScraperError
   >;
 };
@@ -380,4 +390,5 @@ export interface ISdlDataWallet {
   storage: IProxyStorageMethods;
   events: ISnickerdoodleCoreEvents;
   scraper: IProxyScraperMethods;
+  scrapernavigation: IProxyScraperNavigationMethods;
 }
