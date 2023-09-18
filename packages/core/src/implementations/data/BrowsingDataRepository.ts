@@ -9,6 +9,7 @@ import {
   UnixTimestamp,
   SiteVisitsMap,
   SiteVisitsData,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -62,6 +63,7 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
       const visitsMap =
         this.mapSiteVisitDataWithoutAverageScreenTime(filteredVisits);
 
+      this.calculateAverageScreenTime(visitsMap);
       return visitsMap;
     });
   }
@@ -90,22 +92,27 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
         siteVisitData.totalScreenTime = UnixTimestamp(
           siteVisitData.totalScreenTime + screenTime,
         );
-        if (visit.endTime > siteVisitData.lastReportedTime) {
-          siteVisitData.lastReportedTime = visit.endTime;
+        if (this.convertTimestampToISOString(visit.endTime) > siteVisitData.lastReportedTime) {
+          siteVisitData.lastReportedTime = this.convertTimestampToISOString(visit.endTime);
         }
       } else {
         visitsMap.set(
           siteName,
           new SiteVisitsData(
             1,
-            screenTime,//Will be average later
+            screenTime, //Will be average later
             UnixTimestamp(screenTime),
-            visit.endTime,
+            this.convertTimestampToISOString(visit.endTime),
           ),
         );
       }
     });
     return visitsMap;
+  }
+
+  protected convertTimestampToISOString(unixTimestamp: UnixTimestamp): ISO8601DateString {
+    const date = new Date(unixTimestamp * 1000);  
+    return ISO8601DateString(date.toISOString());
   }
 
   protected calculateAverageScreenTime(visitsMap: SiteVisitsMap): void {

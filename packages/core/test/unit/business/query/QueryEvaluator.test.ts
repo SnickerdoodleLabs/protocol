@@ -17,6 +17,7 @@ import {
   ESDQLQueryReturn,
   SiteVisitsData,
   SiteVisitsMap,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_PropertyQuery,
@@ -78,7 +79,7 @@ class QueryEvaluatorMocks {
   public URLmap: SiteVisitsMap = new Map<URLString, SiteVisitsData>([
     [
       URLString("www.snickerdoodlelabs.io"),
-      new SiteVisitsData(10, 3, UnixTimestamp(12), UnixTimestamp(8)),
+      new SiteVisitsData(10, 3, UnixTimestamp(12), ISO8601DateString("2022-09-15T18:45:30.123Z")),
     ],
   ]);
 

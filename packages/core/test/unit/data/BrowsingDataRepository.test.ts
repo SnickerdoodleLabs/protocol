@@ -5,6 +5,7 @@ import { siteVisits, siteVisitsMap } from "@core-tests/mock/mocks/index.js";
 import { IDataWalletPersistence } from "@core/interfaces/data/utilities/index.js";
 import {
   ERecordKey,
+  ISO8601DateString,
   SiteVisitsData,
   UnixTimestamp,
   URLString,
@@ -77,7 +78,7 @@ describe("BrowsingDataRepository", () => {
       const expected = new Map([
         [
           URLString("gog.com"),
-          new SiteVisitsData(1, 200, UnixTimestamp(200), UnixTimestamp(400)),
+          new SiteVisitsData(1, 200, UnixTimestamp(200), ISO8601DateString("2022-09-15T18:45:30.123Z")),
         ],
       ]);
       //Act

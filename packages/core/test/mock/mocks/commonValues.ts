@@ -31,6 +31,7 @@ import {
   SiteVisit,
   SiteVisitsMap,
   SiteVisitsData,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_ConditionExpr,
@@ -465,15 +466,15 @@ export const siteVisits: SiteVisit[] = [
 export const siteVisitsMap: SiteVisitsMap = new Map([
   [
     URLString("google.com"),
-    new SiteVisitsData(3, 100, UnixTimestamp(300), UnixTimestamp(200)),
+    new SiteVisitsData(3, 100, UnixTimestamp(300), ISO8601DateString("2022-09-15T18:45:30.123Z")),
   ],
   [
     URLString("gog.com"),
-    new SiteVisitsData(1, 200, UnixTimestamp(200), UnixTimestamp(400)),
+    new SiteVisitsData(1, 200, UnixTimestamp(200), ISO8601DateString("2022-09-15T18:45:30.123Z")),
   ],
   [
     URLString("discord.com"),
-    new SiteVisitsData(1, 300, UnixTimestamp(300), UnixTimestamp(600)),
+    new SiteVisitsData(1, 300, UnixTimestamp(300), ISO8601DateString("2022-09-15T18:45:30.123Z")),
   ],
 ]);
 
