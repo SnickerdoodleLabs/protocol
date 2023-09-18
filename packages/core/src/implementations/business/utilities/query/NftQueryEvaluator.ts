@@ -9,6 +9,7 @@ import {
   UnixTimestamp,
   ISDQLTimestampRange,
   NftHolding,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import { AST_NftQuery } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
@@ -19,6 +20,7 @@ import {
   IPortfolioBalanceRepository,
   IPortfolioBalanceRepositoryType,
 } from "@core/interfaces/data/index.js";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 
 @injectable()
 export class NftQueryEvaluator implements INftQueryEvaluator {
@@ -43,8 +45,14 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
     return this.portfolioBalanceRepository
       .getAccountNFTs(chainIds)
       .map((walletNfts) => {
+        const dummyInstance = new NftHolding(`Arbitrum` , EVMContractAddress(`0x`), 1 , "")
+        const filteredNfts = this.getNftHoldings(
+          walletNfts,
+          address,
+          timestampRange,
+        ).map(( unFilteredInstance) => ObjectUtils.cleanExtraPropertiesOnInstances(unFilteredInstance , dummyInstance));
         return SDQL_Return(
-          this.getNftHoldings(walletNfts, address, timestampRange),
+          filteredNfts
         );
       });
   }

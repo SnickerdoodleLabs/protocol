@@ -9,6 +9,7 @@ import { BigNumber } from "ethers";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import { ObjectUtils } from "@common-utils/implementations/ObjectUtils.js";
+import { Description } from "@ethersproject/properties";
 
 describe("ObjectUtils tests", () => {
   test("iterateCursor runs over all data", async () => {
@@ -280,8 +281,61 @@ describe("ObjectUtils tests", () => {
     const err = result._unsafeUnwrapErr();
     expect(err.message).toBe("Final Error");
   });
+
+  test("cleanExtraPropertiesOnInstances, an instance with no extra properties ", async () => {
+    // Arrange
+    const regularInstance = new TestClass(1, `desc`);
+    const dummyInstance = new TestClass( 0 ,``)
+
+    // Act
+    const result = ObjectUtils.cleanExtraPropertiesOnInstances(
+      regularInstance,
+      dummyInstance
+    );
+
+    // Assert
+    expect(result).toEqual(regularInstance);
+  });
+
+  test("cleanExtraPropertiesOnInstances, an instance , optional properties added later on, should preserve ", async () => {
+    // Arrange
+    const regularInstance = new TestClass(1, `desc`);
+    regularInstance.text = "test"
+    const dummyInstance = new TestClass( 0 ,``)
+    dummyInstance.text = ""
+
+    // Act
+    const result = ObjectUtils.cleanExtraPropertiesOnInstances(
+      regularInstance,
+      dummyInstance
+    );
+
+    // Assert
+    expect(result).toEqual(regularInstance);
+  });
+
+  test("cleanExtraPropertiesOnInstances, an instance that has props it should not have ", async () => {
+    // Arrange
+    const regularInstance = new TestClass(1, `desc`);
+    regularInstance.text = "test"
+    regularInstance[`badData`] = "badData";
+    const dummyInstance = new TestClass( 0 ,``)
+    dummyInstance.text = ""
+
+    // Act
+    const result = ObjectUtils.cleanExtraPropertiesOnInstances(
+      regularInstance,
+      dummyInstance
+    );
+    // Assert
+    expect(result[`badData`]).toEqual(undefined);
+  });
 });
 
+class TestClass {
+  text? : string;
+  constructor(public data : number , readonly description : string){}
+ }
 class TestProvider {
   public constructor(
     public returnVal: number,

@@ -239,4 +239,22 @@ export class ObjectUtils {
       return ObjectUtils.progressiveFallback(method, provider.slice(1));
     });
   }
+
+    /**
+   * Removes properties from `object` that don't exist on the `dummyInstance` .
+   * Only properties that exist on the dummy will remain. This method mutates
+   * The object and uses the delete operation
+   */
+  static cleanExtraPropertiesOnInstances<T extends object>(object: T, dummyInstance: T): T {
+    const expectedProperties = new Set(Object.keys(dummyInstance));
+    
+    Object.keys(object).forEach(key => {
+      if (!expectedProperties.has(key)) {
+        delete (object as any)[key];
+      }
+    });
+
+    return object;
+  }
+
 }
