@@ -22,6 +22,7 @@ import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import Description from "@extension-onboarding/components/Description";
 const CampaignPopup: FC = () => {
   const [invitationMeta, setInvitationMeta] = useState<IOpenSeaMetadata>();
   const [loading, setLoading] = useState<boolean>(false);
@@ -340,9 +341,10 @@ const CampaignPopup: FC = () => {
               </Typography>
             </Box>
             <Box mb={2}>
-              <Typography className={classes.subtitle}>
-                {invitationMeta.description}
-              </Typography>
+              <Description
+                description={invitationMeta.description}
+                className={classes.subtitle}
+              />
             </Box>
             <Box display="flex" alignItems="center" justifyContent="center">
               <Box mr={2}>
