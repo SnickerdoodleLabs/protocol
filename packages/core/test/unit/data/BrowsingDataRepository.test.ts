@@ -74,11 +74,11 @@ describe("BrowsingDataRepository", () => {
     });
     test("should return site visits map with visits filtered by timestamp", async () => {
       //Arrange
-      const timestampRange = { start: 150, end: 450 };
+      const timestampRange = { start: 300, end: 700 };
       const expected = new Map([
         [
-          URLString("gog.com"),
-          new SiteVisitsData(1, 200, UnixTimestamp(200), ISO8601DateString("2022-09-15T18:45:30.123Z")),
+          URLString("discord.com"),
+          new SiteVisitsData(1, 300, UnixTimestamp(300), ISO8601DateString("1970-01-01T00:10:00.000Z")),
         ],
       ]);
       //Act

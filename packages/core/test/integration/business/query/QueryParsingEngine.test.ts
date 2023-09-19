@@ -385,8 +385,8 @@ describe("Tests with data permissions", () => {
   });
 });
 
-describe.only("Testing avalanche 4", () => {
-  test.only("avalanche 4 insights", async () => {
+describe("Testing avalanche 4", () => {
+  test("avalanche 4 insights", async () => {
     const mocks = new QueryParsingMocks();
     const engine = mocks.factory();
 

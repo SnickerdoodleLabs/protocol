@@ -61,9 +61,8 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
         ? this.filterSiteVisists(siteVisits, timestampRange)
         : siteVisits;
       const visitsMap =
-        this.mapSiteVisitDataWithoutAverageScreenTime(filteredVisits);
+        this.mapSiteVisitData(filteredVisits);
 
-      this.calculateAverageScreenTime(visitsMap);
       return visitsMap;
     });
   }
@@ -78,7 +77,7 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
     });
   }
 
-  protected mapSiteVisitDataWithoutAverageScreenTime(
+  protected mapSiteVisitData(
     siteVisits: SiteVisit[],
   ): SiteVisitsMap {
     const visitsMap = new Map<URLString | DomainName, SiteVisitsData>();
@@ -107,6 +106,7 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
         );
       }
     });
+    this.calculateAverageScreenTime(visitsMap);
     return visitsMap;
   }
 

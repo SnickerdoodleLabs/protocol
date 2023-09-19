@@ -747,7 +747,7 @@ describe("Return URLs Map", () => {
     const result = await repo.eval(propertyQuery);
     // console.log("URLs is: ", result["value"]);
     expect(result["value"]).toEqual(
-      {"www.snickerdoodlelabs.io": {"averageScreenTime": 3, "lastReportedTime": 8, "numberOfVisits": 10, "totalScreenTime": 12}})
+      {"www.snickerdoodlelabs.io": {"averageScreenTime": 3, "lastReportedTime": "2022-09-15T18:45:30.123Z", "numberOfVisits": 10, "totalScreenTime": 12}})
   });
 });
 
