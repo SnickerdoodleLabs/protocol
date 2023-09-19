@@ -24,6 +24,7 @@ import {
   DomainName,
   UnauthorizedError,
   AccountIndexingError,
+  SiteVisitsMap,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -72,7 +73,7 @@ export interface IAccountService {
     PersistenceError
   >;
 
-  getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
+  getSiteVisitsMap(): ResultAsync<SiteVisitsMap, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
   addTransactions(

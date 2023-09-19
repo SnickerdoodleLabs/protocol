@@ -31,6 +31,7 @@ import {
   ITokenPriceRepositoryType,
   ITokenPriceRepository,
   AccountIndexingError,
+  SiteVisitsMap,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -337,7 +338,7 @@ export class AccountService implements IAccountService {
   }
 
   public getSiteVisitsMap(): ResultAsync<
-    Map<URLString, number>,
+    SiteVisitsMap,
     PersistenceError
   > {
     return this.browsingDataRepo.getSiteVisitsMap();

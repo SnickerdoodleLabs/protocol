@@ -28,6 +28,10 @@ import {
   Version,
   EVMAccountAddress,
   EVMChainCode,
+  SiteVisit,
+  SiteVisitsMap,
+  SiteVisitsData,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_ConditionExpr,
@@ -430,5 +434,48 @@ export const avalanche1AstInstance = new AST(
   compensationParameters,
   compensationsMap,
 );
+
+export const siteVisits: SiteVisit[] = [
+  new SiteVisit(
+    URLString("http://google.com"),
+    UnixTimestamp(100),
+    UnixTimestamp(Math.floor((new Date("1970-01-01T00:10:00.000Z")).getTime() / 1000)),
+  ),
+  new SiteVisit(
+    URLString("http://google.com"),
+    UnixTimestamp(100),
+    UnixTimestamp(Math.floor((new Date("1970-01-01T00:10:00.000Z")).getTime() / 1000)),
+  ),
+  new SiteVisit(
+    URLString("http://google.com"),
+    UnixTimestamp(100),
+    UnixTimestamp(Math.floor((new Date("1970-01-01T00:10:00.000Z")).getTime() / 1000)),
+  ),
+  new SiteVisit(
+    URLString("http://gog.com"),
+    UnixTimestamp(200),
+    UnixTimestamp(Math.floor((new Date("1970-01-01T00:10:00.000Z")).getTime() / 1000)),
+  ),
+  new SiteVisit(
+    URLString("http://discord.com"),
+    UnixTimestamp(300),
+    UnixTimestamp(Math.floor((new Date("1970-01-01T00:10:00.000Z")).getTime() / 1000)),
+  ),
+];
+
+export const siteVisitsMap: SiteVisitsMap = new Map([
+  [
+    URLString("google.com"),
+    new SiteVisitsData(3, 500, UnixTimestamp(1500), ISO8601DateString("1970-01-01T00:10:00.000Z")),
+  ],
+  [
+    URLString("gog.com"),
+    new SiteVisitsData(1, 400, UnixTimestamp(400), ISO8601DateString("1970-01-01T00:10:00.000Z")),
+  ],
+  [
+    URLString("discord.com"),
+    new SiteVisitsData(1, 300, UnixTimestamp(300), ISO8601DateString("1970-01-01T00:10:00.000Z")),
+  ],
+]);
 
 // #endregion
