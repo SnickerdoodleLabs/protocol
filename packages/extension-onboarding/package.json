@@ -42,6 +42,7 @@
     "formik": "2.2.9",
     "formik-material-ui": "3.0.1",
     "gapi-script": "^1.2.0",
+    "html-react-parser": "^4.2.2",
     "neverthrow": "^5.1.0",
     "neverthrow-result-utils": "^2.0.2",
     "notistack": "^2.0.5",

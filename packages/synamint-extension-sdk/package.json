@@ -77,6 +77,7 @@
     "end-of-stream": "^1.4.4",
     "ethers": "^5.6.6",
     "extension-port-stream": "^2.0.1",
+    "html-react-parser": "^4.2.2",
     "inversify": "^6.0.1",
     "json-rpc-engine": "^6.1.0",
     "json-rpc-middleware-stream": "^3.0.0",
