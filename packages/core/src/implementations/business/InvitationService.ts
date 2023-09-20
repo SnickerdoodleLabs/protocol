@@ -34,6 +34,8 @@ import {
   UnixTimestamp,
   DataPermissionsUpdatedEvent,
   BlockchainCommonErrors,
+  InvalidArgumentError,
+  OptInInfo,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -144,13 +146,14 @@ export class InvitationService implements IInvitationService {
             return this.consentRepo
               .getLatestConsentTokenId(invitation.consentContractAddress)
               .andThen((tokenIdOrNull) => {
+                if (tokenIdOrNull == null) {
+                  return errAsync(new ConsentContractError("No token ID"));
+                }
                 return this.invitationRepo
                   .addAcceptedInvitations([
-                    new Invitation(
-                      invitation.domain,
+                    new OptInInfo(
                       invitation.consentContractAddress,
                       tokenIdOrNull ?? invitation.tokenId,
-                      invitation.businessSignature,
                     ),
                   ])
                   .map(() => EInvitationStatus.Accepted);
@@ -180,16 +183,21 @@ export class InvitationService implements IInvitationService {
           }
 
           // If invitation has bussiness signature verify signature
-          if (invitation.businessSignature) {
+          if (
+            invitation.businessSignature != null &&
+            invitation.tokenId != null
+          ) {
             // If business signature exist then open optIn should be disabled
             if (!openOptInDisabled) {
               return okAsync(EInvitationStatus.Invalid);
             }
 
+            const tokenId = invitation.tokenId;
+
             // Check if the consent token already exists
             // If it does, it means this invitation has already been claimed
             return this.consentRepo
-              .getConsentToken(invitation)
+              .getConsentToken(invitation.consentContractAddress, tokenId)
               .andThen((existingConsentToken) => {
                 // If the existing consent token exists, it must NOT be owned by us- we'd have found
                 // the token via isAddressOptedIn() above. So somebody else has gotten this invitation.
@@ -198,7 +206,7 @@ export class InvitationService implements IInvitationService {
                 }
                 return this.isValidSignatureForInvitation(
                   invitation.consentContractAddress,
-                  invitation.tokenId,
+                  tokenId,
                   invitation.businessSignature!,
                 ).map((validSignature) => {
                   return validSignature
@@ -215,12 +223,13 @@ export class InvitationService implements IInvitationService {
 
           // If invitation belongs any domain verify URLs
           if (invitation.domain) {
+            const domain = invitation.domain;
             // Not rejected or already in the cohort, we need to verify the invitation
             return ResultUtils.combine([
               this.consentRepo.getInvitationUrls(
                 invitation.consentContractAddress,
               ),
-              this.getConsentContractAddressesFromDNS(invitation.domain),
+              this.getConsentContractAddressesFromDNS(domain),
             ]).map(([urls, consentContractAddresses]) => {
               // Derive a list of domains from a list of URLs
 
@@ -234,7 +243,7 @@ export class InvitationService implements IInvitationService {
                 .map((href) => getDomain(href));
 
               // We need to remove the subdomain so it would match with the saved domains in the blockchain
-              const domainStr = getDomain(invitation.domain);
+              const domainStr = getDomain(domain);
               // The contract must include the domain
               if (!domains.includes(domainStr)) {
                 return EInvitationStatus.Invalid;
@@ -289,58 +298,78 @@ export class InvitationService implements IInvitationService {
           );
         }
 
-        return this.dataWalletUtils
-          .deriveOptInPrivateKey(
+        if (
+          invitation.businessSignature != null &&
+          invitation.tokenId == null
+        ) {
+          return errAsync(
+            new InvalidArgumentError(
+              "tokenId is required for signed invitations",
+            ),
+          );
+        }
+
+        let invitationCheck = okAsync<void, ConsentError>(undefined);
+        if (invitation.domain != null) {
+          invitationCheck = this.consentContractHasMatchingTXT(
             invitation.consentContractAddress,
-            context.dataWalletKey!,
-          )
+          ).andThen((matchingTxt) => {
+            if (!matchingTxt) {
+              return errAsync(
+                new ConsentError(
+                  `Invitation for contract ${invitation.consentContractAddress} does not have valid domain information. Check the DNS settings for a proper TXT record!`,
+                ),
+              );
+            }
+            return okAsync(undefined);
+          });
+        }
+
+        return invitationCheck
+          .andThen(() => {
+            return this.dataWalletUtils.deriveOptInPrivateKey(
+              invitation.consentContractAddress,
+              context.dataWalletKey!,
+            );
+          })
           .andThen((optInPrivateKey) => {
-            if (invitation.businessSignature == null) {
-              // If the invitation includes a domain, we will check that DNS records
-              // just to be extra safe.
-              let invitationCheck = okAsync<void, ConsentError>(undefined);
-              if (invitation.domain != "") {
-                invitationCheck = this.consentContractHasMatchingTXT(
+            if (
+              invitation.businessSignature != null &&
+              invitation.tokenId != null
+            ) {
+              // It's a private invitation
+              return okAsync({
+                optInData: this.consentRepo.encodeAnonymousRestrictedOptIn(
                   invitation.consentContractAddress,
-                ).andThen((matchingTxt) => {
-                  if (!matchingTxt) {
-                    return errAsync(
-                      new ConsentError(
-                        `Invitation for contract ${invitation.consentContractAddress} does not have valid domain information. Check the DNS settings for a proper TXT record!`,
-                      ),
-                    );
-                  }
-                  return okAsync(undefined);
-                });
-              }
-              // Only thing left is the actual opt in data
-              return invitationCheck.map(() => {
-                return {
-                  optInData: this.consentRepo.encodeOptIn(
-                    invitation.consentContractAddress,
-                    invitation.tokenId,
-                    dataPermissions,
-                  ),
-                  context,
-                  optInPrivateKey,
-                };
+                  invitation.tokenId,
+                  invitation.businessSignature,
+                  dataPermissions,
+                ),
+                context,
+                optInPrivateKey,
+                tokenId: invitation.tokenId,
               });
             }
 
-            // It's a private invitation
-            return okAsync({
-              optInData: this.consentRepo.encodeAnonymousRestrictedOptIn(
-                invitation.consentContractAddress,
-                invitation.tokenId,
-                invitation.businessSignature,
-                dataPermissions,
-              ),
-              context,
-              optInPrivateKey,
+            return (
+              invitation.tokenId == null
+                ? this.cryptoUtils.getTokenId()
+                : okAsync(invitation.tokenId)
+            ).map((tokenId) => {
+              return {
+                optInData: this.consentRepo.encodeOptIn(
+                  invitation.consentContractAddress,
+                  tokenId,
+                  dataPermissions,
+                ),
+                context,
+                optInPrivateKey,
+                tokenId,
+              };
             });
           });
       })
-      .andThen(({ optInData, context, optInPrivateKey }) => {
+      .andThen(({ optInData, context, optInPrivateKey, tokenId }) => {
         const optInAddress =
           this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
             optInPrivateKey,
@@ -357,7 +386,9 @@ export class InvitationService implements IInvitationService {
           optInData,
           this.forwarderRepo.getNonce(optInAddress),
           this.configProvider.getConfig(),
-          this.invitationRepo.addAcceptedInvitations([invitation]),
+          this.invitationRepo.addAcceptedInvitations([
+            new OptInInfo(invitation.consentContractAddress, tokenId),
+          ]),
         ])
           .andThen(([callData, nonce, config]) => {
             // We need to take the types, and send it to the account signer
@@ -392,7 +423,7 @@ export class InvitationService implements IInvitationService {
               })
               .map(() => {
                 this.consentRepo
-                  .getConsentToken(invitation)
+                  .getConsentToken(invitation.consentContractAddress, tokenId)
                   .map((consentToken) => {
                     if (consentToken == null) {
                       this.logUtils.error(
@@ -485,8 +516,8 @@ export class InvitationService implements IInvitationService {
       // We need to find your opt-in token
       return this.invitationRepo
         .getAcceptedInvitations()
-        .andThen((invitations) => {
-          const currentInvitation = invitations.find((invitation) => {
+        .andThen((acceptedInvitations) => {
+          const currentInvitation = acceptedInvitations.find((invitation) => {
             return invitation.consentContractAddress == consentContractAddress;
           });
           if (currentInvitation == null) {
@@ -497,7 +528,10 @@ export class InvitationService implements IInvitationService {
             );
           }
           return ResultUtils.combine([
-            this.consentRepo.getConsentToken(currentInvitation),
+            this.consentRepo.getConsentToken(
+              currentInvitation.consentContractAddress,
+              currentInvitation.tokenId,
+            ),
             this.dataWalletUtils.deriveOptInPrivateKey(
               consentContractAddress,
               context.dataWalletKey!,
@@ -577,7 +611,7 @@ export class InvitationService implements IInvitationService {
     });
   }
 
-  public getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError> {
+  public getAcceptedInvitations(): ResultAsync<OptInInfo[], PersistenceError> {
     return this.invitationRepo.getAcceptedInvitations();
   }
 
@@ -725,9 +759,9 @@ export class InvitationService implements IInvitationService {
                 return new PageInvitation(
                   invitationUrl, // getDomains() is actually misnamed, it returns URLs now
                   new Invitation(
-                    domain,
                     consentContractAddress,
                     tokenId,
+                    domain,
                     null, // getInvitationsByDomain() is only for public invitations, so will never have a business signature
                   ),
                   invitationDomain,
@@ -766,8 +800,8 @@ export class InvitationService implements IInvitationService {
       // We need to find your opt-in token
       return this.invitationRepo
         .getAcceptedInvitations()
-        .andThen((invitations) => {
-          const currentInvitation = invitations.find((invitation) => {
+        .andThen((acceptedInvitations) => {
+          const currentInvitation = acceptedInvitations.find((invitation) => {
             return invitation.consentContractAddress == consentContractAddress;
           });
           if (currentInvitation == null) {
@@ -778,7 +812,10 @@ export class InvitationService implements IInvitationService {
             );
           }
           return ResultUtils.combine([
-            this.consentRepo.getConsentToken(currentInvitation),
+            this.consentRepo.getConsentToken(
+              currentInvitation.consentContractAddress,
+              currentInvitation.tokenId,
+            ),
             this.dataWalletUtils.deriveOptInPrivateKey(
               consentContractAddress,
               context.dataWalletKey!,

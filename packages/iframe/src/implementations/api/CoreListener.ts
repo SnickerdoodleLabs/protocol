@@ -502,9 +502,9 @@ export class CoreListener extends ChildProxy implements ICoreListener {
             return this.coreProvider.getCore().andThen((core) => {
               return core.invitation.acceptInvitation(
                 new Invitation(
-                  "" as DomainName,
                   data.data.consentContractAddress,
                   tokenId,
+                  null,
                   data.data.businessSignature ?? null,
                 ),
                 data.data.dataTypes
@@ -530,9 +530,9 @@ export class CoreListener extends ChildProxy implements ICoreListener {
             return this.coreProvider.getCore().andThen((core) => {
               return core.invitation.rejectInvitation(
                 new Invitation(
-                  "" as DomainName,
                   data.data.consentContractAddress,
                   tokenId,
+                  null,
                   data.data.businessSignature ?? null,
                 ),
                 data.data.rejectUntil,
@@ -586,11 +586,11 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.coreProvider.getCore().andThen((core) => {
             return core.invitation.checkInvitationStatus(
               new Invitation(
-                DomainName(""),
                 data.data.consentAddress,
                 data.data.tokenId != null
                   ? TokenId(BigInt(data.data.tokenId))
                   : TokenId(BigInt(0)),
+                DomainName(""),
                 data.data.signature ?? null,
               ),
               this.sourceDomain,

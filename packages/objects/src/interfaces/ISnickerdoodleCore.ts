@@ -32,6 +32,7 @@ import {
   QueryStatus,
   OAuth2Tokens,
   SiteVisitsMap,
+  OptInInfo,
   // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
@@ -538,7 +539,7 @@ export interface IInvitationMethods {
 
   getAcceptedInvitations(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<Invitation[], PersistenceError | UnauthorizedError>;
+  ): ResultAsync<OptInInfo[], PersistenceError | UnauthorizedError>;
 
   getInvitationsByDomain(
     domain: DomainName,

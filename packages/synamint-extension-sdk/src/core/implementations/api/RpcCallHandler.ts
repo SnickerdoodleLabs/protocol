@@ -9,6 +9,7 @@ import {
   ISnickerdoodleCoreType,
   ISnickerdoodleCore,
 } from "@snickerdoodlelabs/objects";
+import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import {
   AsyncJsonRpcEngineNextCallback,
@@ -355,16 +356,14 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<CheckInvitationStatusParams>(
       CheckInvitationStatusParams.getCoreAction(),
       (params) => {
-        return this._getTokenId(params.tokenId).andThen((tokenId) => {
-          return this.invitationService.checkInvitationStatus(
-            new Invitation(
-              "" as DomainName,
-              params.consentAddress,
-              tokenId,
-              params.signature ?? null,
-            ),
-          );
-        });
+        return this.invitationService.checkInvitationStatus(
+          new Invitation(
+            params.consentAddress,
+            this.toTokenId(params.tokenId),
+            null,
+            params.signature ?? null,
+          ),
+        );
       },
     ),
     new CoreActionHandler<GetConsentContractCIDParams>(
@@ -512,17 +511,15 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<AcceptInvitationParams>(
       AcceptInvitationParams.getCoreAction(),
       (params) => {
-        return this._getTokenId(params.tokenId).andThen((tokenId) => {
-          return this.invitationService.acceptInvitation(
-            new Invitation(
-              "" as DomainName,
-              params.consentContractAddress,
-              tokenId,
-              params.businessSignature ?? null,
-            ),
-            params.dataTypes,
-          );
-        });
+        return this.invitationService.acceptInvitation(
+          new Invitation(
+            params.consentContractAddress,
+            this.toTokenId(params.tokenId),
+            null,
+            params.businessSignature ?? null,
+          ),
+          params.dataTypes,
+        );
       },
     ),
     new CoreActionHandler<RejectInvitationByUUIDParams>(
@@ -537,17 +534,15 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<RejectInvitationParams>(
       RejectInvitationParams.getCoreAction(),
       (params) => {
-        return this._getTokenId(params.tokenId).andThen((tokenId) => {
-          return this.invitationService.rejectInvitation(
-            new Invitation(
-              "" as DomainName,
-              params.consentContractAddress,
-              tokenId,
-              params.businessSignature ?? null,
-            ),
-            params.rejectUntil,
-          );
-        });
+        return this.invitationService.rejectInvitation(
+          new Invitation(
+            params.consentContractAddress,
+            this.toTokenId(params.tokenId),
+            null,
+            params.businessSignature ?? null,
+          ),
+          params.rejectUntil,
+        );
       },
     ),
     new CoreActionHandler<CheckURLParams>(
@@ -893,19 +888,16 @@ export class RpcCallHandler implements IRpcCallHandler {
     return externalActionHandler.execute(params, res, sender);
   }
 
-  private _getTokenId(tokenId: BigNumberString | undefined) {
-    if (tokenId) {
-      return okAsync(TokenId(BigInt(tokenId)));
-    }
-    return this.cryptoUtils.getTokenId();
-  }
-
   private getDomainFromSender(
     sender: Runtime.MessageSender | undefined,
   ): DomainName {
     // TODO: If the sender is undefined we need to do something smart here.
     const url = new URL(sender?.tab?.url ?? "");
     return DomainName(url.hostname);
+  }
+
+  private toTokenId(tokenId: BigNumberString | undefined): TokenId | null {
+    return tokenId != null ? TokenId(BigNumber.from(tokenId).toBigInt()) : null;
   }
 }
 

@@ -65,7 +65,7 @@ export type IProxyAccountMethods = {
 
 // export type IProxyInvitationMethods = {
 //   [key in FunctionKeys<IInvitationMethods>]: (
-//     ...args: [...Exclude<Parameters<IInvitationMethods[key]>, "sourceDomain">]
+//     ...args: [...PopTuple<Parameters<IInvitationMethods[key]>>]
 //   ) => ResultAsync<
 //     GetResultAsyncValueType<ReturnType<IInvitationMethods[key]>>,
 //     ProxyError

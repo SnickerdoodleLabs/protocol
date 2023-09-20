@@ -88,7 +88,6 @@ import {
   QueryStatus,
   BlockchainCommonErrors,
   ECloudStorageType,
-  AccessToken,
   AuthenticatedStorageSettings,
   IStorageMethods,
   BlockNumber,
