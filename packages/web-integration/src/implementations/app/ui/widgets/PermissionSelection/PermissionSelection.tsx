@@ -63,7 +63,9 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
           justifyContent="space-between"
           alignItems="flex-start"
         >
-          <Typography variant="title">Share Data & Get This NFT!</Typography>
+          <Typography variant="title">
+            Unlock Exclusive NFTs With Your Data
+          </Typography>
           {isMobile && <CloseButton onClick={onCancelClick} />}
         </Box>
         <Box
@@ -102,11 +104,11 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
         </Typography>
         <Box mt={isMobile ? 3 : 0.5} mb={3}>
           <Typography variant="body">
-            Shape the future of web3! Share anonymous data with brands and use
-            your on-chain data (tokens, NFTs, dApps) for a personalized
-            experience. You're not just enhancing your journey, but also
-            pioneering digital innovation. Learn more about this unique
-            opportunity.
+            Share anonymous data and use your on-chain information to generate
+            rewards.
+            <strong> Snickerdoodle anonymizes & protects your data</strong>, so
+            you're in control. Now that's how privacy should be - Goodbye
+            Cookies. Hello Snickerdoodle.
           </Typography>
         </Box>
         <Box

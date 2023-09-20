@@ -2,18 +2,18 @@ import { EWalletDataType } from "@snickerdoodlelabs/objects";
 
 export const permissions = [
   {
-    description: `On-chain transaction history, such as the kinds of dApps you've used in the past and how often you use them`,
+    description: `The on-chain activity of your connected digital, including what applications you use and how frequently you use them`,
     key: EWalletDataType.EVMTransactions,
     name: "Transaction History",
   },
   {
-    description: "Fungible tokens you own across different blockchain networks",
+    description: "The fungible token balances in your connected digital wallet",
     key: EWalletDataType.AccountBalances,
     name: "Token Balances",
   },
   {
     description:
-      "NFT projects you interact with and/or currently own accross different blockchain networks",
+      "The non-fungible token collections in your connected digital wallet",
     key: EWalletDataType.AccountNFTs,
     name: "NFTs",
   },
