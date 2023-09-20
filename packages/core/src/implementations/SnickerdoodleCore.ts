@@ -89,6 +89,7 @@ import {
   IStorageMethods,
   BlockNumber,
   RefreshToken,
+  SiteVisitsMap,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -933,7 +934,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public getSiteVisitsMap(
     sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<Map<URLString, number>, PersistenceError> {
+  ): ResultAsync<SiteVisitsMap, PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getSiteVisitsMap();

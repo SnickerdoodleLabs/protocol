@@ -31,6 +31,23 @@ export const useStyles = makeStyles((theme) =>
       textAlign: "center",
       color: "#424242",
     },
+    rawHtmlWrapper: {
+      color: "#424242",
+      fontSize: "14px",
+      fontFamily: "'Roboto'",
+      "& h1": {
+        fontSize: "20px",
+      },
+      "& h2": {
+        fontSize: "18px",
+      },
+      "& h3": {
+        fontSize: "16px",
+      },
+      "& ol, ul": {
+        paddingLeft: "1em",
+      },
+    },
     primaryButton: {
       textTransform: "unset",
       padding: "21px 26px 10px 12px",

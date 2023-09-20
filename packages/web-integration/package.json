@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/web-integration",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Utilities for general consumption within the Snickerdoodle Protocol",
   "license": "ISC",
   "repository": {
@@ -43,6 +43,7 @@
     "@snickerdoodlelabs/utils": "workspace:^",
     "@webcomponents/custom-elements": "^1.5.0",
     "ethers": "^5.6.6",
+    "html-react-parser": "^4.2.2",
     "inversify": "^6.0.1",
     "jss": "^10.9.0",
     "jss-preset-default": "^10.10.0",

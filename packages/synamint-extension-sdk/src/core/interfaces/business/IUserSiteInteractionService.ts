@@ -1,4 +1,4 @@
-import { SiteVisit, URLString } from "@snickerdoodlelabs/objects";
+import { SiteVisit, SiteVisitsMap, URLString } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
@@ -10,7 +10,7 @@ export interface IUserSiteInteractionService {
   getSiteVisits(): ResultAsync<SiteVisit[], SnickerDoodleCoreError>;
 
   getSiteVisitsMap(): ResultAsync<
-    Map<URLString, number>,
+    SiteVisitsMap,
     SnickerDoodleCoreError
   >;
 }

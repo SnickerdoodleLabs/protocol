@@ -31,6 +31,7 @@ import {
   RuntimeMetrics,
   QueryStatus,
   OAuth2Tokens,
+  SiteVisitsMap,
   // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
@@ -842,7 +843,7 @@ export interface ISnickerdoodleCore {
   ): ResultAsync<SiteVisit[], PersistenceError | UnauthorizedError>;
   getSiteVisitsMap(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<Map<URLString, number>, PersistenceError | UnauthorizedError>;
+  ): ResultAsync<SiteVisitsMap, PersistenceError | UnauthorizedError>;
 
   getAccounts(
     sourceDomain?: DomainName | undefined,
