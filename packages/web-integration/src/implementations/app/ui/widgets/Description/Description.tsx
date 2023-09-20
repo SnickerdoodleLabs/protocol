@@ -27,6 +27,7 @@ const useStyles = createUseStyles({
     fontSize: ({ theme }: { theme: ITheme }) => theme.typography.body.fontSize,
     fontFamily: ({ theme }: { theme: ITheme }) =>
       theme.typography.body.fontFamily,
+    lineHeight: 1.45,
     "& h1": {
       ...({ theme }: { theme: ITheme }) => theme.typography.title,
     },
@@ -135,7 +136,7 @@ export const Description: FC<IDescriptionProps> = ({
           )}
           <Grid item sm={4}>
             <Button onClick={onSetPermissions} fullWidth variant="outlined">
-              Select Permissions
+              Set Permissions
             </Button>
           </Grid>
           <Grid item sm={5}>
