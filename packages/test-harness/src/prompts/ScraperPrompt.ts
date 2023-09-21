@@ -53,10 +53,10 @@ export class ScraperPrompt extends Prompt {
           case "scrape":
             // TODO initialize with scrape
             break;
-          default:
+          case "Cancel":
             return okAsync(undefined); //going back
         }
-        return okAsync(undefined); //going back
+        return this.start();
       })
       .mapErr((e) => {
         console.error(e);

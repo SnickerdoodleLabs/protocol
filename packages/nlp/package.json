@@ -39,7 +39,6 @@
   "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@dqbd/tiktoken": "^1.0.7",
     "@nlpjs/lang-en": "^4.26.1",
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
