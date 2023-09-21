@@ -149,8 +149,8 @@ export class QueryEvaluator implements IQueryEvaluator {
       case "url_visited_count":
         return this.browsingDataRepo
           .getSiteVisitsMap(q.timestampRange!)
-          .andThen((url_visited_count) => {
-            return okAsync(SDQL_Return(url_visited_count));
+          .map((url_visited_count) => {
+            return SDQL_Return(this.mapToRecord(url_visited_count))
           });
       case "chain_transactions":
         return this.transactionRepo
@@ -210,7 +210,15 @@ export class QueryEvaluator implements IQueryEvaluator {
     );
   }
 
-  getDiscordProfiles(): ResultAsync<SDQL_Return, PersistenceError> {
+  protected mapToRecord<K extends string, V>(map: Map<K, V>): Record<K, V> {
+    const obj: any = {};
+    map.forEach((value, key) => {
+        obj[key] = value;
+    });
+    return obj;
+}
+
+  protected getDiscordProfiles(): ResultAsync<SDQL_Return, PersistenceError> {
     return this.socialRepo
       .getGroupProfiles<DiscordGuildProfile>(ESocialType.DISCORD)
       .map((profiles) => {
@@ -227,7 +235,7 @@ export class QueryEvaluator implements IQueryEvaluator {
       });
   }
 
-  getTwitterFollowers(): ResultAsync<SDQL_Return, PersistenceError> {
+  protected getTwitterFollowers(): ResultAsync<SDQL_Return, PersistenceError> {
     return this.socialRepo
       .getProfiles<TwitterProfile>(ESocialType.TWITTER)
       .map((profiles) => {

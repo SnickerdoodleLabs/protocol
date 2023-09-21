@@ -101,7 +101,7 @@ jobs:
           --build-arg CONTROL_CHAIN_ID=43113 \
           --build-arg IPFS_FETCH_BASE_URL=https://ipfs-gateway.snickerdoodle.com/ipfs/ \
           --build-arg BASE_TAG="$GITHUB_SHA" \
-          --build-arg INFURA_PRIMARY_KEY=8497d7f3186c4edcaaff8838478c634d \
+          --build-arg PRIMARY_INFURA_KEY=8497d7f3186c4edcaaff8838478c634d \
           --build-arg ANKR_API_KEY=f50d7a208124e6a6df731477fdc9ef420ce59769ced1e9339318a383365cb6a1 \
           --build-arg BLUEZ_API_KEY=aed4aab2cbc573bbf8e7c6b448c916e5 \
           --build-arg COVALENT_API_KEY=cqt_wFfHg4vmGKyMxGvPPxdHm8VCDPCY \

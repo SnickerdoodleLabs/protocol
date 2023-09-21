@@ -262,25 +262,6 @@ const App = () => {
     initiateCohort();
   }, [_path]);
 
-  // useEffect(() => {
-  //   if (
-  //     invitationDomain &&
-  //     walletState === EWalletState.UNLOCKED &&
-  //     isStatusCheckRequiredRef.current
-  //   ) {
-  //     coreGateway
-  //       .checkInvitationStatus(
-  //         new CheckInvitationStatusParams(invitationDomain.consentAddress),
-  //       )
-  //       .map((result) => {
-  //         if (result != EInvitationStatus.New) {
-  //           emptyReward();
-  //         }
-  //         isStatusCheckRequiredRef.current = false;
-  //       });
-  //   }
-  // }, [JSON.stringify(invitationDomain)]);
-
   const initiateCohort = useCallback(async () => {
     const path = window.location.pathname;
     const urlInfo = parse(window.location.href);
