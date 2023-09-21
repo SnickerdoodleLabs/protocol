@@ -79,7 +79,10 @@ export class OklinkIndexer implements IEVMIndexer {
     return this.configProvider.getConfig().map((config) => {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
-          if (config.apiKeys.oklinkApiKey == "") {
+          if (
+            config.apiKeys.oklinkApiKey == null ||
+            config.apiKeys.oklinkApiKey == ""
+          ) {
             this.health.set(key, EComponentStatus.NoKeyProvided);
           } else {
             this.health.set(key, EComponentStatus.Available);
