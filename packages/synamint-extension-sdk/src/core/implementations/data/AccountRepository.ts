@@ -1,9 +1,7 @@
 import {
   AccountAddress,
-  DataWalletAddress,
   EarnedReward,
   EChain,
-  EVMAccountAddress,
   WalletNFT,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,

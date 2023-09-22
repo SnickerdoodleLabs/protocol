@@ -49,6 +49,21 @@ export interface IAccountService {
     | InvalidParametersError
   >;
 
+  addAccountWithExternalSignature(
+    accountAddress: AccountAddress,
+    message: string,
+    signature: Signature,
+    chain: EChain,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | InvalidParametersError
+  >;
+
   unlinkAccount(
     accountAddress: AccountAddress,
     chain: EChain,

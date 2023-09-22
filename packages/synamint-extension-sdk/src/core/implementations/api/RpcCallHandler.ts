@@ -142,6 +142,7 @@ import {
   GetCurrentCloudStorageParams,
   RejectInvitationParams,
   GetQueryStatusesParams,
+  AddAccountWithExternalSignatureParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -156,6 +157,18 @@ export class RpcCallHandler implements IRpcCallHandler {
           params.signature,
           params.chain,
           params.languageCode,
+          this.getDomainFromSender(sender),
+        );
+      },
+    ),
+    new CoreActionHandler<AddAccountWithExternalSignatureParams>(
+      AddAccountWithExternalSignatureParams.getCoreAction(),
+      (params, sender) => {
+        return this.accountService.addAccountWithExternalSignature(
+          params.accountAddress,
+          params.message,
+          params.signature,
+          params.chain,
           this.getDomainFromSender(sender),
         );
       },

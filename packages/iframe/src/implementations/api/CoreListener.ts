@@ -111,6 +111,28 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
+      addAccountWithExternalSignature: (
+        data: IIFrameCallData<{
+          accountAddress: AccountAddress;
+          message: string;
+          signature: Signature;
+          chain: EChain;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            // We need to get a signature for this account
+            return core.account.addAccountWithExternalSignature(
+              data.data.accountAddress,
+              data.data.message,
+              data.data.signature,
+              data.data.chain,
+              this.sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
       getLinkAccountMessage: (
         data: IIFrameCallData<{
           languageCode: LanguageCode;

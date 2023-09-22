@@ -193,10 +193,77 @@ export class AccountService implements IAccountService {
     | InvalidParametersError
   > {
     // First, let's do some validation and make sure that the signature is actually for the account
+    return this.getLinkAccountMessage(languageCode)
+      .andThen((message) => {
+        return this.validateSignatureForAddress(
+          accountAddress,
+          signature,
+          message,
+          chain,
+        );
+      })
+      .andThen(() => {
+        return this.contextProvider.getContext();
+      })
+      .andThen((context) => {
+        if (
+          context.dataWalletAddress == null ||
+          context.dataWalletKey == null
+        ) {
+          return errAsync(
+            new UninitializedError(
+              "Core must be initialized first before you can add an additional account",
+            ),
+          );
+        }
+
+        // Check if the account is already linked
+        return this.accountRepo
+          .getLinkedAccount(accountAddress, chain)
+          .andThen((existingAccount) => {
+            if (existingAccount != null) {
+              // The account is already linked
+              return errAsync(
+                new InvalidParametersError(
+                  `Account ${accountAddress} is already linked to your data wallet`,
+                ),
+              );
+            }
+
+            // Add the account to the data wallet
+            return this.accountRepo.addAccount(
+              new LinkedAccount(chain, accountAddress),
+            );
+          })
+          .map(() => {
+            // Notify the outside world of what we did
+            context.privateEvents.postBackupsRequested.next();
+            context.publicEvents.onAccountAdded.next(
+              new LinkedAccount(chain, accountAddress),
+            );
+          });
+      });
+  }
+
+  public addAccountWithExternalSignature(
+    accountAddress: AccountAddress,
+    message: string,
+    signature: Signature,
+    chain: EChain,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | InvalidParametersError
+  > {
+    // First, let's do some validation and make sure that the signature is actually for the account
     return this.validateSignatureForAddress(
       accountAddress,
       signature,
-      languageCode,
+      message,
       chain,
     )
       .andThen(() => {
@@ -337,10 +404,7 @@ export class AccountService implements IAccountService {
     return this.transactionRepo.getTransactionByChain();
   }
 
-  public getSiteVisitsMap(): ResultAsync<
-    SiteVisitsMap,
-    PersistenceError
-  > {
+  public getSiteVisitsMap(): ResultAsync<SiteVisitsMap, PersistenceError> {
     return this.browsingDataRepo.getSiteVisitsMap();
   }
 
@@ -402,18 +466,11 @@ export class AccountService implements IAccountService {
   protected validateSignatureForAddress(
     accountAddress: AccountAddress,
     signature: Signature,
-    languageCode: LanguageCode,
+    message: string,
     chain: EChain,
   ): ResultAsync<void, InvalidSignatureError | UnsupportedLanguageError> {
-    return this.getLinkAccountMessage(languageCode)
-      .andThen((message) => {
-        return this.dataWalletUtils.verifySignature(
-          chain,
-          accountAddress,
-          signature,
-          message,
-        );
-      })
+    return this.dataWalletUtils
+      .verifySignature(chain, accountAddress, signature, message)
       .andThen((verified) => {
         if (verified) {
           return okAsync(undefined);

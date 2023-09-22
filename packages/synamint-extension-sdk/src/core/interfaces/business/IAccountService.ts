@@ -26,6 +26,13 @@ export interface IAccountService {
     languageCode: LanguageCode,
     sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError>;
+  addAccountWithExternalSignature(
+    accountAddress: AccountAddress,
+    message: string,
+    signature: Signature,
+    chain: EChain,
+    sourceDomain?: DomainName,
+  ): ResultAsync<void, SnickerDoodleCoreError>;
   getLinkAccountMessage(
     languageCode: LanguageCode,
     sourceDomain?: DomainName,

@@ -246,6 +246,25 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         );
       },
 
+      addAccountWithExternalSignature: (
+        accountAddress: AccountAddress,
+        message: string,
+        signature: Signature,
+        chain: EChain,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        return accountService.addAccountWithExternalSignature(
+          accountAddress,
+          message,
+          signature,
+          chain,
+          sourceDomain,
+        );
+      },
+
       unlinkAccount: (
         accountAddress: AccountAddress,
         chain: EChain,

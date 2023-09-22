@@ -613,6 +613,19 @@ export class SnickerdoodleIFrameProxy
         languageCode,
       });
     },
+    addAccountWithExternalSignature: (
+      accountAddress: AccountAddress,
+      message: string,
+      signature: Signature,
+      chain: EChain,
+    ): ResultAsync<void, ProxyError> => {
+      return this._createCall("addAccountWithExternalSignature", {
+        accountAddress,
+        message,
+        signature,
+        chain,
+      });
+    },
     getLinkAccountMessage: (
       languageCode: LanguageCode,
     ): ResultAsync<string, ProxyError> => {

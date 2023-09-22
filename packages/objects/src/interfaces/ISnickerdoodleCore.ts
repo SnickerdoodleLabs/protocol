@@ -173,6 +173,21 @@ export interface IAccountMethods {
     | InvalidParametersError
   >;
 
+  addAccountWithExternalSignature(
+    accountAddress: AccountAddress,
+    message: string,
+    signature: Signature,
+    chain: EChain,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | InvalidParametersError
+  >;
+
   /**
    * unlinkAccount() will un-link a Solana account from the data wallet, but works differently
    * from getUnlinkAccountRequest(). It requires a signature from the account to derive the EVM key,

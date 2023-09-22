@@ -243,6 +243,19 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
           chain,
         );
       },
+      addAccountWithExternalSignature: (
+        accountAddress: AccountAddress,
+        message: string,
+        signature: Signature,
+        chain: EChain,
+      ) => {
+        return coreGateway.account.addAccountWithExternalSignature(
+          accountAddress,
+          message,
+          signature,
+          chain,
+        );
+      },
       unlinkAccount: (accountAddress: AccountAddress, chain: EChain) => {
         return coreGateway.account.unlinkAccount(accountAddress, chain);
       },

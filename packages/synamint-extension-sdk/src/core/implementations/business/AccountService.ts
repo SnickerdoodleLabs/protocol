@@ -13,15 +13,21 @@ import {
   EVMContractAddress,
   BlockNumber,
   DomainName,
+  ISnickerdoodleCore,
+  ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 
 import { IAccountService } from "@synamint-extension-sdk/core/interfaces/business";
 import {
   IAccountRepository,
   IAccountRepositoryType,
 } from "@synamint-extension-sdk/core/interfaces/data";
+import {
+  IErrorUtils,
+  IErrorUtilsType,
+} from "@synamint-extension-sdk/core/interfaces/utilities";
 import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -29,6 +35,8 @@ export class AccountService implements IAccountService {
   constructor(
     @inject(IAccountRepositoryType)
     protected accountRepository: IAccountRepository,
+    @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
+    @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
   ) {}
   getQueryStatusByQueryCID(
     queryCID: IpfsCID,
@@ -84,6 +92,35 @@ export class AccountService implements IAccountService {
       languageCode,
       sourceDomain,
     );
+  }
+
+  // NOTE: I did this one without the AccountRepository, because
+  // that layer is not needed- we don't need to wrap access to the core,
+  // it is effectively a repository by itself. I had wanted to refactor
+  // this whole file for a while.
+  public addAccountWithExternalSignature(
+    accountAddress: AccountAddress,
+    message: string,
+    signature: Signature,
+    chain: EChain,
+    sourceDomain?: DomainName,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.core.account
+      .addAccountWithExternalSignature(
+        accountAddress,
+        message,
+        signature,
+        chain,
+        sourceDomain,
+      )
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      })
+      .orElse((error) => {
+        this.errorUtils.emit(error);
+        return okAsync(undefined);
+      });
   }
 
   public getLinkAccountMessage(

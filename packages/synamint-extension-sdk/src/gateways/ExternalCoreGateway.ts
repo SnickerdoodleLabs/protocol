@@ -141,6 +141,7 @@ import {
   RejectInvitationParams,
   RejectInvitationByUUIDParams,
   GetQueryStatusesParams,
+  AddAccountWithExternalSignatureParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -163,6 +164,22 @@ export class ExternalCoreGateway {
       ): ResultAsync<void, ProxyError> => {
         return this._handler.call(
           new AddAccountParams(accountAddress, signature, chain, languageCode),
+        );
+      },
+
+      addAccountWithExternalSignature: (
+        accountAddress: AccountAddress,
+        message: string,
+        signature: Signature,
+        chain: EChain,
+      ): ResultAsync<void, ProxyError> => {
+        return this._handler.call(
+          new AddAccountWithExternalSignatureParams(
+            accountAddress,
+            message,
+            signature,
+            chain,
+          ),
         );
       },
       unlinkAccount: (

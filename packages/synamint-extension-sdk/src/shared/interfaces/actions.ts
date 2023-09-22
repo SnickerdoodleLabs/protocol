@@ -103,6 +103,20 @@ export class AddAccountParams extends CoreActionParams<void> {
   }
 }
 
+export class AddAccountWithExternalSignatureParams extends CoreActionParams<void> {
+  public constructor(
+    public accountAddress: AccountAddress,
+    public message: string,
+    public signature: Signature,
+    public chain: EChain,
+  ) {
+    super(AddAccountParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.ADD_ACCOUNT;
+  }
+}
+
 export class UnlinkAccountParams extends CoreActionParams<void> {
   public constructor(
     public accountAddress: AccountAddress,
