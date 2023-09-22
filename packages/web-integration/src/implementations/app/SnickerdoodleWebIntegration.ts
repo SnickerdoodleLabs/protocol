@@ -185,6 +185,16 @@ export class SnickerdoodleWebIntegration
     blockchainProvider: IBlockchainProviderRepository,
     configProvider: IConfigProvider,
   ): ResultAsync<void, ProxyError | PersistenceError | ProviderRpcError> {
+    const config = configProvider.getConfig();
+
+    // If we were not given a signer, we can't possibly add an account automatically
+    if (config.signer == null) {
+      return okAsync(undefined);
+    }
+
+    console.debug(
+      "Signer provided, checking if account is already linked to the data wallet",
+    );
     return ResultUtils.combine([
       proxy.account.getAccounts(),
       blockchainProvider.getCurrentAccount(),
@@ -212,7 +222,6 @@ export class SnickerdoodleWebIntegration
         `Detected unlinked account ${accountAddress} being used on the DApp, adding to Snickerdoodle Data Wallet`,
       );
 
-      const config = configProvider.getConfig();
       return proxy.account
         .getLinkAccountMessage(config.languageCode)
         .andThen((unlockMessage) => {
