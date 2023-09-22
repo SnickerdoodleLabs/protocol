@@ -56,7 +56,7 @@ export class SnickerdoodleWebIntegration
 
   constructor(
     protected config: IConfigOverrides & { palette?: IPaletteOverrides },
-    protected signer: ethers.Signer | null,
+    protected signer?: ethers.Signer | null,
   ) {
     this.iframeURL = config.iframeURL || this.iframeURL;
     this.debug = config.debug || this.debug;
@@ -69,7 +69,7 @@ export class SnickerdoodleWebIntegration
     // Set the config values that we need in the integration
     const configProvider =
       this.iocContainer.get<IConfigProvider>(IConfigProviderType);
-    configProvider.setValues(this.signer, this.iframeURL);
+    configProvider.setValues(this.signer ?? null, this.iframeURL);
 
     this.timeUtils = this.iocContainer.get<ITimeUtils>(ITimeUtilsType);
     this.startTimestamp = this.timeUtils.getMillisecondNow();
