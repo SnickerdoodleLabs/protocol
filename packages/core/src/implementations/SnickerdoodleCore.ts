@@ -82,7 +82,6 @@ import {
   UnauthorizedError,
   UninitializedError,
   UnixTimestamp,
-  URLString,
   WalletNFT,
   IAccountMethods,
   QueryStatus,
@@ -261,7 +260,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           message,
           signature,
           chain,
-          sourceDomain,
         );
       },
 

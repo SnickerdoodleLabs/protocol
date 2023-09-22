@@ -54,7 +54,6 @@ export interface IAccountService {
     message: string,
     signature: Signature,
     chain: EChain,
-    sourceDomain: DomainName | undefined,
   ): ResultAsync<
     void,
     | PersistenceError
