@@ -16,7 +16,7 @@ import {
   JsonRpcRequest,
   PendingJsonRpcResponse,
 } from "json-rpc-engine";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { parse } from "tldts";
 import { Runtime } from "webextension-polyfill";
 
@@ -143,6 +143,7 @@ import {
   RejectInvitationParams,
   GetQueryStatusesParams,
   AddAccountWithExternalSignatureParams,
+  ERequestChannel,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -151,34 +152,34 @@ export class RpcCallHandler implements IRpcCallHandler {
   protected rpcCalls: CoreActionHandler<any>[] = [
     new CoreActionHandler<AddAccountParams>(
       AddAccountParams.getCoreAction(),
-      (params, sender) => {
+      (params, _sender, sourceDomain) => {
         return this.accountService.addAccount(
           params.accountAddress,
           params.signature,
           params.chain,
           params.languageCode,
-          this.getDomainFromSender(sender),
+          sourceDomain,
         );
       },
     ),
     new CoreActionHandler<AddAccountWithExternalSignatureParams>(
       AddAccountWithExternalSignatureParams.getCoreAction(),
-      (params, sender) => {
+      (params, _sender, sourceDomain) => {
         return this.accountService.addAccountWithExternalSignature(
           params.accountAddress,
           params.message,
           params.signature,
           params.chain,
-          this.getDomainFromSender(sender),
+          sourceDomain,
         );
       },
     ),
     new CoreActionHandler<GetUnlockMessageParams>(
       GetUnlockMessageParams.getCoreAction(),
-      (params, sender) => {
+      (params, _sender, sourceDomain) => {
         return this.accountService.getLinkAccountMessage(
           params.languageCode,
-          this.getDomainFromSender(sender),
+          sourceDomain,
         );
       },
     ),
@@ -190,10 +191,8 @@ export class RpcCallHandler implements IRpcCallHandler {
     ),
     new CoreActionHandler<GetAccountsParams>(
       GetAccountsParams.getCoreAction(),
-      (_params, sender) => {
-        return this.accountService.getAccounts(
-          this.getDomainFromSender(sender),
-        );
+      (_params, _sender, sourceDomain) => {
+        return this.accountService.getAccounts(sourceDomain);
       },
     ),
     new CoreActionHandler<GetTokenPriceParams>(
@@ -389,11 +388,11 @@ export class RpcCallHandler implements IRpcCallHandler {
     ),
     new CoreActionHandler<UnlinkAccountParams>(
       UnlinkAccountParams.getCoreAction(),
-      (params, sender) => {
+      (params, _sender, sourceDomain) => {
         return this.accountService.unlinkAccount(
           params.accountAddress,
           params.chain,
-          this.getDomainFromSender(sender),
+          sourceDomain,
         );
       },
     ),
@@ -625,16 +624,16 @@ export class RpcCallHandler implements IRpcCallHandler {
     // #region Discord
     new CoreActionHandler<InitializeDiscordUserParams>(
       InitializeDiscordUserParams.getCoreAction(),
-      (params, sender) => {
+      (params, _sender, sourceDomain) => {
         return this.discordService.initializeUserWithAuthorizationCode(
           params.code,
-          this.getDomainFromSender(sender),
+          sourceDomain,
         );
       },
     ),
     new CoreActionHandler<GetDiscordInstallationUrlParams>(
       GetDiscordInstallationUrlParams.getCoreAction(),
-      (params, sender) => {
+      (params, sender, sourceDomain) => {
         // This is a bit of a hack, but literally the ONLY place we can
         // get a tab ID is from this message sender in the extension.
         // But the URL must be formulated in the core itself, so we pass
@@ -644,38 +643,31 @@ export class RpcCallHandler implements IRpcCallHandler {
         if (params.redirectTabId != null && sender?.tab?.id != null) {
           return this.discordService.installationUrl(
             sender.tab.id,
-            this.getDomainFromSender(sender),
+            sourceDomain,
           );
         }
 
-        return this.discordService.installationUrl(
-          undefined,
-          this.getDomainFromSender(sender),
-        );
+        return this.discordService.installationUrl(undefined, sourceDomain);
       },
     ),
     new CoreActionHandler<GetDiscordGuildProfilesParams>(
       GetDiscordGuildProfilesParams.getCoreAction(),
-      (_params, sender) => {
-        return this.discordService.getGuildProfiles(
-          this.getDomainFromSender(sender),
-        );
+      (_params, _sender, sourceDomain) => {
+        return this.discordService.getGuildProfiles(sourceDomain);
       },
     ),
     new CoreActionHandler<GetDiscordUserProfilesParams>(
       GetDiscordUserProfilesParams.getCoreAction(),
-      (_params, sender) => {
-        return this.discordService.getUserProfiles(
-          this.getDomainFromSender(sender),
-        );
+      (_params, _sender, sourceDomain) => {
+        return this.discordService.getUserProfiles(sourceDomain);
       },
     ),
     new CoreActionHandler<UnlinkDiscordAccountParams>(
       UnlinkDiscordAccountParams.getCoreAction(),
-      (params, sender) => {
+      (params, _sender, sourceDomain) => {
         return this.discordService.unlink(
           params.discordProfileId,
-          this.getDomainFromSender(sender),
+          sourceDomain,
         );
       },
     ),
@@ -719,37 +711,30 @@ export class RpcCallHandler implements IRpcCallHandler {
     // #region Twitter
     new CoreActionHandler<TwitterGetRequestTokenParams>(
       TwitterGetRequestTokenParams.getCoreAction(),
-      (_params, sender) => {
-        return this.twitterService.getOAuth1aRequestToken(
-          this.getDomainFromSender(sender),
-        );
+      (_params, _sender, sourceDomain) => {
+        return this.twitterService.getOAuth1aRequestToken(sourceDomain);
       },
     ),
     new CoreActionHandler<TwitterLinkProfileParams>(
       TwitterLinkProfileParams.getCoreAction(),
-      (params, sender) => {
+      (params, _sender, sourceDomain) => {
         return this.twitterService.initTwitterProfile(
           params.requestToken,
           params.oAuthVerifier,
-          this.getDomainFromSender(sender),
+          sourceDomain,
         );
       },
     ),
     new CoreActionHandler<TwitterUnlinkProfileParams>(
       TwitterUnlinkProfileParams.getCoreAction(),
-      (params, sender) => {
-        return this.twitterService.unlinkProfile(
-          params.id,
-          this.getDomainFromSender(sender),
-        );
+      (params, _sender, sourceDomain) => {
+        return this.twitterService.unlinkProfile(params.id, sourceDomain);
       },
     ),
     new CoreActionHandler<TwitterGetLinkedProfilesParams>(
       TwitterGetLinkedProfilesParams.getCoreAction(),
-      (_params, sender) => {
-        return this.twitterService.getUserProfiles(
-          this.getDomainFromSender(sender),
-        );
+      (_params, _sender, sourceDomain) => {
+        return this.twitterService.getUserProfiles(sourceDomain);
       },
     ),
     // #endregion
@@ -764,27 +749,32 @@ export class RpcCallHandler implements IRpcCallHandler {
     // #region Metrics
     new CoreActionHandler<GetMetricsParams>(
       GetMetricsParams.getCoreAction(),
-      (_params, sender) => {
-        return this.metricsService.getMetrics(this.getDomainFromSender(sender));
+      (_params, _sender, sourceDomain) => {
+        return this.metricsService.getMetrics(sourceDomain);
       },
     ),
     // #endregion
     // #region Integration
+
+    // this is the only function that goes against my new source domain logic
+    // but if this function will only be called by the proxy, which it seems to be, then it should be fine
     new CoreActionHandler<RequestPermissionsParams>(
       RequestPermissionsParams.getCoreAction(),
-      (params, sender) => {
-        return this.integrationService.requestPermissions(
-          params.permissions,
-          this.getDomainFromSender(sender),
-        );
+      (params, _sender, sourceDomain) => {
+        return sourceDomain
+          ? this.integrationService.requestPermissions(
+              params.permissions,
+              sourceDomain,
+            )
+          : errAsync(new Error("No source domain found"));
       },
     ),
     new CoreActionHandler<GetPermissionsParams>(
       GetPermissionsParams.getCoreAction(),
-      (params, sender) => {
+      (params, _sender, sourceDomain) => {
         return this.integrationService.getPermissions(
           params.domain,
-          this.getDomainFromSender(sender),
+          sourceDomain,
         );
       },
     ),
@@ -882,8 +872,11 @@ export class RpcCallHandler implements IRpcCallHandler {
     res: PendingJsonRpcResponse<unknown>,
     next: AsyncJsonRpcEngineNextCallback,
     sender: Runtime.MessageSender | undefined,
+    requestChannel: ERequestChannel,
   ) {
     const { method, params } = req;
+
+    const sourceDomain = this.getSourceDomain(sender, requestChannel);
 
     // Find the action
     const externalActionHandler = this.rpcCalls.find((rpc) => {
@@ -898,7 +891,23 @@ export class RpcCallHandler implements IRpcCallHandler {
       return next();
     }
 
-    return externalActionHandler.execute(params, res, sender);
+    return externalActionHandler.execute(params, res, sender, sourceDomain);
+  }
+
+  private getSourceDomain(
+    sender: Runtime.MessageSender | undefined,
+    requestChannel,
+  ): DomainName | undefined {
+    // check if the request is coming from the proxy
+    // if not no need to check the domain
+    // cuz the other requesters are internal and those are trusted
+    if (requestChannel != ERequestChannel.PROXY) {
+      return undefined;
+    }
+    // TODO: we have not yet encountered a case where the url is undefined, but it should be double checked just in case
+    // the only case I can think of is when the request comes from the extension's popup or from other extensions trying to communicate with our extension, which we don't allow anyway.
+    const url = new URL(sender?.tab?.url ?? "");
+    return DomainName(url.hostname);
   }
 
   private getDomainFromSender(
@@ -922,6 +931,7 @@ class CoreActionHandler<
     public handler: (
       params: TParams,
       sender?: Runtime.MessageSender | undefined,
+      sourceDomain?: DomainName | undefined,
     ) => ResultAsync<ReturnType<TParams["returnMethodMarker"]>, unknown>,
   ) {}
 
@@ -929,8 +939,9 @@ class CoreActionHandler<
     params: TParams,
     res: PendingJsonRpcResponse<unknown>,
     sender: Runtime.MessageSender | undefined,
+    sourceDomain: DomainName | undefined,
   ): Promise<void> {
-    await this.handler(params!, sender)
+    await this.handler(params!, sender, sourceDomain)
       .mapErr((err) => {
         res.error = err as Error;
       })
