@@ -11,14 +11,14 @@ import { Loading } from "@core-iframe/app/ui/widgets/Loading";
 import { PermissionSelection } from "@core-iframe/app/ui/widgets/PermissionSelection";
 import { SubscriptionFail } from "@core-iframe/app/ui/widgets/SubscriptionFail";
 import { SubscriptionSuccess } from "@core-iframe/app/ui/widgets/SubscriptionSuccess";
+import { IFrameControlConfig } from "@core-iframe/interfaces/objects";
 import {
-  CoreListenerEvents,
-  EInvitationType,
-} from "@core-iframe/interfaces/objects/CoreListenerEvents";
+  EInvitationSourceType,
+  IFrameEvents,
+} from "@core-iframe/interfaces/objects/IFrameEvents";
 import {
   DataPermissions,
   EWalletDataType,
-  IIFrameConfigOverrides,
   IOpenSeaMetadata,
   ISnickerdoodleCore,
   Invitation,
@@ -38,8 +38,8 @@ interface IInvitationHandlerProps {
   core: ISnickerdoodleCore;
   hide: () => void;
   show: () => void;
-  events: CoreListenerEvents;
-  config: IIFrameConfigOverrides;
+  events: IFrameEvents;
+  config: IFrameControlConfig;
 }
 
 export enum EAPP_STATE {
@@ -59,7 +59,7 @@ interface IInvitation {
 
 interface ICurrentInvitation {
   data: IInvitation;
-  type: EInvitationType;
+  type: EInvitationSourceType;
 }
 
 export const InvitationHandler: FC<IInvitationHandlerProps> = ({
@@ -93,10 +93,10 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
       return null;
     }
     if (deepLinkInvitation) {
-      return { data: deepLinkInvitation, type: EInvitationType.DEEPLINK };
+      return { data: deepLinkInvitation, type: EInvitationSourceType.DEEPLINK };
     }
     if (domainInvitation) {
-      return { data: domainInvitation, type: EInvitationType.DOMAIN };
+      return { data: domainInvitation, type: EInvitationSourceType.DOMAIN };
     }
     return null;
   }, [deepLinkInvitation, domainInvitation, accounts.length]);
@@ -131,8 +131,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   const subscribeInvitationDisplayRequestEvent = () => {
     invitationDisplayRequestSubscription.current =
       events.onInvitationDisplayRequested.subscribe(({ data, type }) => {
-        console.log("UI: Invitation Display Requested", data, type);
-        if (type === EInvitationType.DEEPLINK) {
+        if (type === EInvitationSourceType.DEEPLINK) {
           setDeepLinkInvitation(data);
         } else {
           setDomainInvitation(data);
@@ -162,8 +161,6 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     [currentInvitation],
   );
 
-  console.log("UI: Invitation Handler", currentInvitation, appState);
-
   const onRejectClick = () => {};
 
   const handleContinueClick = () => {
@@ -173,10 +170,10 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   const clearInvitation = useCallback(() => {
     if (currentInvitation) {
       switch (currentInvitation.type) {
-        case EInvitationType.DEEPLINK:
+        case EInvitationSourceType.DEEPLINK:
           setDeepLinkInvitation(null);
           break;
-        case EInvitationType.DOMAIN:
+        case EInvitationSourceType.DOMAIN:
           setDomainInvitation(null);
           break;
       }

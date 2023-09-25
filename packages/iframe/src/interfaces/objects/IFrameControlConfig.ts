@@ -15,12 +15,4 @@ export class IFrameControlConfig {
     this.checkDomainInvitations = true;
     this.consentAddress = undefined;
   }
-  public overrideConfig(config: IIFrameConfigOverrides) {
-    this.consentAddress = config.consentAddress ?? config.consentAddress;
-    this.showDeeplinkInvitations =
-      config.showDeeplinkInvitations ?? this.showDeeplinkInvitations;
-    this.checkDomainInvitations =
-      config.checkDomainInvitations ?? this.checkDomainInvitations;
-    this.palette = config.palette ?? this.palette;
-  }
 }

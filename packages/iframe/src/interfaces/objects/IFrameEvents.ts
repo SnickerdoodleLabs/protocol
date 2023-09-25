@@ -5,7 +5,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { Subject } from "rxjs";
 
-export enum EInvitationType {
+export enum EInvitationSourceType {
   DEEPLINK = "DEEPLINK",
   DOMAIN = "DOMAIN",
 }
@@ -15,10 +15,10 @@ export interface IInvitationDisplayRequest {
     invitation: Invitation;
     metadata: IOpenSeaMetadata | InvitationDomain;
   } | null;
-  type: EInvitationType;
+  type: EInvitationSourceType;
 }
 
-export class CoreListenerEvents {
+export class IFrameEvents {
   public onInvitationDisplayRequested: Subject<IInvitationDisplayRequest>;
   public constructor() {
     this.onInvitationDisplayRequested = new Subject();

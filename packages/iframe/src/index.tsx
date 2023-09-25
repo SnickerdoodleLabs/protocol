@@ -1,9 +1,8 @@
 import "reflect-metadata";
-import React from "react";
-import ReactDOM from "react-dom";
-
 import App from "@core-iframe/app/App";
 import { IFrameFormFactor } from "@core-iframe/implementations/IFrameFormFactor";
+import React from "react";
+import ReactDOM from "react-dom";
 
 console.log("Snickerdoodle Core IFrame Loaded");
 
@@ -14,14 +13,14 @@ formFactor
   .mapErr((e) => {
     console.error("Error while initializing IFrameFormFactor!", e);
   })
-  .map(({ core, childApi, coreListenerEvents, iframeControlConfig }) => {
+  .map(({ core, childApi, iframeEvents, config }) => {
     console.log("Snickerdoodle Iframe UI Client Initialized");
     return ReactDOM.render(
       <App
         core={core}
         childApi={childApi}
-        events={coreListenerEvents}
-        config={iframeControlConfig}
+        events={iframeEvents}
+        config={config}
       />,
       document.getElementById("root") as HTMLElement,
     );

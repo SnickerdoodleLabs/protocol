@@ -23,6 +23,7 @@ import { AccountService } from "@core-iframe/implementations/business/index";
 import {
   ConfigProvider,
   CoreProvider,
+  IFrameContextProvider,
 } from "@core-iframe/implementations/utilities/index";
 import {
   ICoreListener,
@@ -37,6 +38,8 @@ import {
   IConfigProviderType,
   ICoreProvider,
   ICoreProviderType,
+  IIFrameContextProvider,
+  IIFrameContextProviderType,
 } from "@core-iframe/interfaces/utilities/index";
 
 export const iframeModule = new ContainerModule(
@@ -62,6 +65,9 @@ export const iframeModule = new ContainerModule(
     // #region Utilities
     bind<IStorageUtils>(IStorageUtilsType)
       .to(LocalStorageUtils)
+      .inSingletonScope();
+    bind<IIFrameContextProvider>(IIFrameContextProviderType)
+      .to(IFrameContextProvider)
       .inSingletonScope();
     bind<IConfigProvider>(IConfigProviderType)
       .to(ConfigProvider)

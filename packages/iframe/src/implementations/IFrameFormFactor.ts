@@ -4,13 +4,14 @@ import {
   ICoreListener,
   ICoreListenerType,
 } from "@core-iframe/interfaces/api/index";
-import { IFrameControlConfig } from "@core-iframe/interfaces/objects";
-import { CoreListenerEvents } from "@core-iframe/interfaces/objects/CoreListenerEvents";
+import { IFrameControlConfig, IFrameEvents } from "@core-iframe/interfaces/objects";
 import {
   IConfigProvider,
   IConfigProviderType,
   ICoreProvider,
   ICoreProviderType,
+  IIFrameContextProvider,
+  IIFrameContextProviderType,
 } from "@core-iframe/interfaces/utilities/index";
 import {
   ILogUtils,
@@ -52,8 +53,8 @@ export class IFrameFormFactor {
     {
       core: ISnickerdoodleCore;
       childApi: ChildAPI;
-      coreListenerEvents: CoreListenerEvents;
-      iframeControlConfig: IFrameControlConfig;
+      iframeEvents: IFrameEvents;
+      config: IFrameControlConfig;
     },
     Error
   > {
@@ -65,6 +66,9 @@ export class IFrameFormFactor {
     const configProvider =
       this.iocContainer.get<IConfigProvider>(IConfigProviderType);
     const logUtils = this.iocContainer.get<ILogUtils>(ILogUtilsType);
+    const contextProvider = this.iocContainer.get<IIFrameContextProvider>(
+      IIFrameContextProviderType,
+    );
 
     logUtils.log("Initializing Iframe Form Factor");
 
@@ -94,8 +98,8 @@ export class IFrameFormFactor {
             return {
               core,
               childApi,
-              coreListenerEvents: coreListener.events,
-              iframeControlConfig: coreListener.iframeControlConfig,
+              iframeEvents: contextProvider.getEvents(),
+              config: contextProvider.getConfig(),
             };
           });
       });

@@ -55,11 +55,7 @@ import Postmate from "postmate";
 import { parse } from "tldts";
 
 import { ICoreListener } from "@core-iframe/interfaces/api/index";
-import {
-  CoreListenerEvents,
-  EInvitationType,
-  IFrameControlConfig,
-} from "@core-iframe/interfaces/objects";
+import { EInvitationSourceType } from "@core-iframe/interfaces/objects";
 import {
   IAccountService,
   IAccountServiceType,
@@ -69,12 +65,12 @@ import {
   IConfigProviderType,
   ICoreProvider,
   ICoreProviderType,
+  IIFrameContextProvider,
+  IIFrameContextProviderType,
 } from "@core-iframe/interfaces/utilities/index";
 import { ResultUtils } from "neverthrow-result-utils";
 @injectable()
 export class CoreListener extends ChildProxy implements ICoreListener {
-  public events: CoreListenerEvents;
-  public iframeControlConfig: IFrameControlConfig;
   constructor(
     @inject(IAccountServiceType) protected accountService: IAccountService,
     @inject(IStorageUtilsType) protected storageUtils: IStorageUtils,
@@ -83,13 +79,10 @@ export class CoreListener extends ChildProxy implements ICoreListener {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
+    @inject(IIFrameContextProviderType)
+    protected contextProvider: IIFrameContextProvider,
   ) {
     super();
-    // TODO: obviously both of these are not belong here
-    // need to right new injectable utilities for this
-    // could be context
-    this.events = new CoreListenerEvents();
-    this.iframeControlConfig = new IFrameControlConfig();
   }
 
   protected getModel(): Postmate.Model {
@@ -103,9 +96,11 @@ export class CoreListener extends ChildProxy implements ICoreListener {
        */
       setConfig: (data: IIFrameCallData<IWebIntegrationConfigOverrides>) => {
         this.returnForModel(() => {
-          return this.overrideControlConfig(data.data).andThen(() => {
-            return this.coreProvider.setConfig(data.data);
-          });
+          return this.contextProvider
+            .setConfigOverrides(data.data)
+            .andThen(() => {
+              return this.coreProvider.setConfig(data.data);
+            });
         }, data.callId);
       },
       addAccount: (
@@ -1134,13 +1129,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
     });
   }
 
-  private overrideControlConfig(
-    config: IWebIntegrationConfigOverrides,
-  ): ResultAsync<void, never> {
-    this.iframeControlConfig.overrideConfig(config);
-    return okAsync(undefined);
-  }
-
   private get sourceDomain(): DomainName {
     return this.configProvider.getConfig().sourceDomain;
   }
@@ -1187,13 +1175,15 @@ export class CoreListener extends ChildProxy implements ICoreListener {
                     .getInvitationMetadataByCID(cid)
                     .andThen((invitationData) => {
                       console.log("Invitation data", invitationData);
-                      this.events.onInvitationDisplayRequested.next({
-                        data: {
-                          invitation: invitation,
-                          metadata: invitationData,
-                        },
-                        type: EInvitationType.DEEPLINK,
-                      });
+                      this.contextProvider
+                        .getEvents()
+                        .onInvitationDisplayRequested.next({
+                          data: {
+                            invitation: invitation,
+                            metadata: invitationData,
+                          },
+                          type: EInvitationSourceType.DEEPLINK,
+                        });
                       return okAsync(undefined);
                     });
                 });
@@ -1216,13 +1206,15 @@ export class CoreListener extends ChildProxy implements ICoreListener {
               .checkInvitationStatus(pageInvitaiton.invitation)
               .andThen((invitationStatus) => {
                 if (invitationStatus === EInvitationStatus.New) {
-                  this.events.onInvitationDisplayRequested.next({
-                    data: {
-                      invitation: pageInvitaiton.invitation,
-                      metadata: pageInvitaiton.domainDetails,
-                    },
-                    type: EInvitationType.DOMAIN,
-                  });
+                  this.contextProvider
+                    .getEvents()
+                    .onInvitationDisplayRequested.next({
+                      data: {
+                        invitation: pageInvitaiton.invitation,
+                        metadata: pageInvitaiton.domainDetails,
+                      },
+                      type: EInvitationSourceType.DOMAIN,
+                    });
                   return okAsync(undefined);
                 }
                 return okAsync(undefined);
