@@ -65,4 +65,9 @@ export interface IConfigOverrides {
   walletConnect?: {
     projectId: string;
   };
+
+  scraper?: {
+    OPENAI_API_KEY: string;
+    timeout: number;
+  };
 }

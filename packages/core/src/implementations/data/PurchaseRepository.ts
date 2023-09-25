@@ -16,7 +16,7 @@ import { ResultAsync, okAsync } from "neverthrow";
 import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-} from "@core/interfaces/data";
+} from "@core/interfaces/data/index.js";
 
 @injectable()
 export class PurchaseRepository implements IPurchaseRepository {

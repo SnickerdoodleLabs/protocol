@@ -1,12 +1,12 @@
-import {
-  get_encoding,
-  encoding_for_model,
-  TiktokenModel,
-  Tiktoken,
-} from "@dqbd/tiktoken"; // TODO should be optimized for browsers to not to load all the encodings
 import { ILogUtilsType, ILogUtils } from "@snickerdoodlelabs/common-utils";
 import { LLMError, LLMResponse, Prompt } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
+import {
+  getEncoding,
+  encodingForModel,
+  TiktokenModel,
+  Tiktoken,
+} from "js-tiktoken";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
 import OpenAI from "openai";
 import {
@@ -38,7 +38,7 @@ export class ChatGPTProvider implements ILLMProvider {
     private openAIUtils: IOpenAIUtils,
   ) {
     this.temperature = 0.1;
-    this.chatEncoder = encoding_for_model(this.chatModel);
+    this.chatEncoder = encodingForModel(this.chatModel);
   }
 
   public maxTokens(model: TiktokenModel): number {
