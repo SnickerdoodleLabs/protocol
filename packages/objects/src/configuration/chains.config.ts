@@ -278,11 +278,11 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       true,
       "arbitrum",
       10000, // average block mining time
-      new NativeCurrencyInformation("ARB", 18, "ARB", "arbitrum"),
+      new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
       EChainType.Mainnet,
       "https://api.arbiscan.io/api",
       getExplorerUrl,
-      URLString("https://api.arbiscan.io/"),
+      URLString("https://arbiscan.io/"),
     ),
   ],
   [
