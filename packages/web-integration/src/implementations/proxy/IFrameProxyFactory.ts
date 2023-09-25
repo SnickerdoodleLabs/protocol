@@ -44,8 +44,21 @@ export class IFrameProxyFactory implements IIFrameProxyFactory {
     const style = document.createElement("style");
     style.appendChild(
       document.createTextNode(`
-            iframe {
+            #${EProxyContainerID.ROOT} {
+              position: fixed;
               display: none;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+              z-index: 999999999;
+            }
+            iframe[name="snickerdoodle-core-iframe"] {
+              display: none;
+              width: 100%;
+              height: 100%;
+              border: none;
+              background-color: #00000010;
             }
         `),
     );

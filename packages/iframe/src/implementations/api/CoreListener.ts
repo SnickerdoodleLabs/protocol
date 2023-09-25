@@ -38,6 +38,9 @@ import {
   ECloudStorageType,
   BlockNumber,
   RefreshToken,
+  URLString,
+  EInvitationStatus,
+  PageInvitation,
 } from "@snickerdoodlelabs/objects";
 import {
   IIFrameCallData,
@@ -46,7 +49,7 @@ import {
   IStorageUtils,
 } from "@snickerdoodlelabs/utils";
 import { injectable, inject } from "inversify";
-import { okAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
 import Postmate from "postmate";
 import { parse } from "tldts";
 
@@ -61,8 +64,14 @@ import {
   ICoreProvider,
   ICoreProviderType,
 } from "@core-iframe/interfaces/utilities/index";
+import { ResultUtils } from "neverthrow-result-utils";
+import {
+  CoreListenerEvents,
+  EInvitationType,
+} from "@core-iframe/implementations/objects";
 @injectable()
 export class CoreListener extends ChildProxy implements ICoreListener {
+  public events: CoreListenerEvents;
   constructor(
     @inject(IAccountServiceType) protected accountService: IAccountService,
     @inject(IStorageUtilsType) protected storageUtils: IStorageUtils,
@@ -73,6 +82,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
   ) {
     super();
+    this.events = new CoreListenerEvents();
   }
 
   protected getModel(): Postmate.Model {
@@ -483,31 +493,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }>,
       ) => {
         this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.invitation
-              .getInvitationsByDomain(data.data.domain)
-              .andThen((pageInvitations) => {
-                const pageInvitation = pageInvitations.find((value) => {
-                  const incomingUrl = value.url.replace(/^https?:\/\//, "");
-                  const incomingUrlInfo = parse(incomingUrl);
-                  if (
-                    !incomingUrlInfo.subdomain &&
-                    parse(data.data.path).subdomain
-                  ) {
-                    return (
-                      `${"www"}.${incomingUrl.replace(/\/$/, "")}` ===
-                      data.data.path
-                    );
-                  }
-                  return incomingUrl.replace(/\/$/, "") === data.data.path;
-                });
-                if (pageInvitation) {
-                  return okAsync(pageInvitation);
-                } else {
-                  return okAsync(null);
-                }
-              });
-          });
+          return this._getInvitationByDomain(data.data.domain, data.data.path);
         }, data.callId);
       },
 
@@ -1017,6 +1003,13 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           });
         }, data.callId);
       },
+
+      // ivitations
+      checkURLForInvitation: (data: IIFrameCallData<{ url: URLString }>) => {
+        this.returnForModel(() => {
+          return this.handleURL(data.data.url);
+        }, data.callId);
+      },
     });
   }
 
@@ -1141,5 +1134,112 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       return okAsync(TokenId(BigInt(tokenId)));
     }
     return this.cryptoUtils.getTokenId();
+  }
+
+  private handleURL(url: URLString) {
+    const urlObj = new URL(url);
+    const queryParams = new URLSearchParams(urlObj.search);
+    // check if we have a consent address
+    // if we do, check for deeplink
+    if (queryParams.has("consentAddress")) {
+      console.log("Deeplink detected");
+      const consentAddress = EVMContractAddress(
+        queryParams.get("consentAddress")!,
+      );
+      const tokenId = queryParams.get("tokenId");
+      const signature = queryParams.get("signature");
+      return ResultUtils.combine([
+        this.coreProvider.getCore(),
+        this._getTokenId(tokenId ? BigNumberString(tokenId) : undefined),
+      ]).andThen(([core, tokenId]) => {
+        const invitation = new Invitation(
+          consentAddress,
+          tokenId,
+          null,
+          signature ? Signature(signature) : null,
+        );
+        console.log("Checking invitation status", invitation);
+        return core.invitation
+          .checkInvitationStatus(invitation)
+          .andThen((invitationStatus) => {
+            console.log("Invitation status", invitationStatus);
+            if (invitationStatus === EInvitationStatus.New) {
+              return core
+                .getConsentContractCID(consentAddress)
+                .andThen((cid) => {
+                  return core.invitation
+                    .getInvitationMetadataByCID(cid)
+                    .andThen((invitationData) => {
+                      console.log("Invitation data", invitationData);
+                      this.events.onInvitationDisplayRequested.next({
+                        data: {
+                          invitation: invitation,
+                          metadata: invitationData,
+                        },
+                        type: EInvitationType.DEEPLINK,
+                      });
+                      return okAsync(undefined);
+                    });
+                });
+            }
+            return okAsync(undefined);
+          });
+      });
+    }
+    // continue with domain invitation
+    const path = urlObj.pathname;
+    const urlInfo = parse(url);
+    const domain = urlInfo.domain;
+    const domainPath = `${urlInfo.hostname}${path.replace(/\/$/, "")}`;
+    const domainName = DomainName(`snickerdoodle-protocol.${domain}`);
+    return this._getInvitationByDomain(domainName, domainPath).andThen(
+      (pageInvitaiton) => {
+        if (pageInvitaiton) {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.invitation
+              .checkInvitationStatus(pageInvitaiton.invitation)
+              .andThen((invitationStatus) => {
+                if (invitationStatus === EInvitationStatus.New) {
+                  this.events.onInvitationDisplayRequested.next({
+                    data: {
+                      invitation: pageInvitaiton.invitation,
+                      metadata: pageInvitaiton.domainDetails,
+                    },
+                    type: EInvitationType.DOMAIN,
+                  });
+                  return okAsync(undefined);
+                }
+                return okAsync(undefined);
+              });
+          });
+        }
+        return okAsync(undefined);
+      },
+    );
+  }
+
+  private _getInvitationByDomain(
+    domain: DomainName,
+    path: string,
+  ): ResultAsync<PageInvitation | null, Error> {
+    return this.coreProvider.getCore().andThen((core) => {
+      return core.invitation
+        .getInvitationsByDomain(domain)
+        .andThen((pageInvitations) => {
+          const pageInvitation = pageInvitations.find((value) => {
+            const incomingUrl = value.url.replace(/^https?:\/\//, "");
+            const incomingUrlInfo = parse(incomingUrl);
+            if (!incomingUrlInfo.subdomain && parse(path).subdomain) {
+              return `${"www"}.${incomingUrl.replace(/\/$/, "")}` === path;
+            }
+            return incomingUrl.replace(/\/$/, "") === path;
+          });
+          if (pageInvitation) {
+            return okAsync(pageInvitation);
+          } else {
+            return okAsync(null);
+          }
+        });
+    });
   }
 }
