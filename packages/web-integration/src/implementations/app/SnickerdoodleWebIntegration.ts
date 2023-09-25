@@ -53,7 +53,7 @@ export class SnickerdoodleWebIntegration
 
   constructor(
     protected config: IWebIntegrationConfigOverrides,
-    protected signer: ethers.Signer | null,
+    protected signer?: ethers.Signer | null,
   ) {
     this.iframeURL = config.iframeURL || this.iframeURL;
     this.debug = config.debug || this.debug;
@@ -66,7 +66,7 @@ export class SnickerdoodleWebIntegration
     // Set the config values that we need in the integration
     const configProvider =
       this.iocContainer.get<IConfigProvider>(IConfigProviderType);
-    configProvider.setValues(this.signer, this.iframeURL);
+    configProvider.setValues(this.signer ?? null, this.iframeURL);
 
     this.timeUtils = this.iocContainer.get<ITimeUtils>(ITimeUtilsType);
     this.startTimestamp = this.timeUtils.getMillisecondNow();
@@ -177,6 +177,16 @@ export class SnickerdoodleWebIntegration
     blockchainProvider: IBlockchainProviderRepository,
     configProvider: IConfigProvider,
   ): ResultAsync<void, ProxyError | PersistenceError | ProviderRpcError> {
+    const config = configProvider.getConfig();
+
+    // If we were not given a signer, we can't possibly add an account automatically
+    if (config.signer == null) {
+      return okAsync(undefined);
+    }
+
+    console.debug(
+      "Signer provided, checking if account is already linked to the data wallet",
+    );
     return ResultUtils.combine([
       proxy.account.getAccounts(),
       blockchainProvider.getCurrentAccount(),
@@ -204,7 +214,6 @@ export class SnickerdoodleWebIntegration
         `Detected unlinked account ${accountAddress} being used on the DApp, adding to Snickerdoodle Data Wallet`,
       );
 
-      const config = configProvider.getConfig();
       return proxy.account
         .getLinkAccountMessage(config.languageCode)
         .andThen((unlockMessage) => {
