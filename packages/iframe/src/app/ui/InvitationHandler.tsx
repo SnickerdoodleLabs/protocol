@@ -4,7 +4,6 @@ import {
   ThemeProvider,
   ITheme,
   defaultLightTheme,
-  IPaletteOverrides,
   generateTheme,
 } from "@core-iframe/app/ui/lib";
 import { Description } from "@core-iframe/app/ui/widgets/Description";
@@ -15,11 +14,11 @@ import { SubscriptionSuccess } from "@core-iframe/app/ui/widgets/SubscriptionSuc
 import {
   CoreListenerEvents,
   EInvitationType,
-} from "@core-iframe/implementations/objects/CoreListenerEvents";
+} from "@core-iframe/interfaces/objects/CoreListenerEvents";
 import {
-  BigNumberString,
   DataPermissions,
   EWalletDataType,
+  IIFrameConfigOverrides,
   IOpenSeaMetadata,
   ISnickerdoodleCore,
   Invitation,
@@ -40,7 +39,7 @@ interface IInvitationHandlerProps {
   hide: () => void;
   show: () => void;
   events: CoreListenerEvents;
-  palette?: IPaletteOverrides;
+  config: IIFrameConfigOverrides;
 }
 
 export enum EAPP_STATE {
@@ -68,10 +67,10 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   hide,
   show,
   events,
-  palette,
+  config,
 }) => {
   const [theme, setTheme] = useState<ITheme>(
-    palette ? generateTheme(palette) : defaultLightTheme,
+    config.palette ? generateTheme(config.palette) : defaultLightTheme,
   );
   const [appState, setAppState] = useState<EAPP_STATE>(EAPP_STATE.IDLE);
   const [accounts, setAccounts] = useState<LinkedAccount[]>([]);

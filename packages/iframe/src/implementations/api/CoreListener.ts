@@ -41,6 +41,7 @@ import {
   URLString,
   EInvitationStatus,
   PageInvitation,
+  IWebIntegrationConfigOverrides,
 } from "@snickerdoodlelabs/objects";
 import {
   IIFrameCallData,
@@ -55,6 +56,11 @@ import { parse } from "tldts";
 
 import { ICoreListener } from "@core-iframe/interfaces/api/index";
 import {
+  CoreListenerEvents,
+  EInvitationType,
+  IFrameControlConfig,
+} from "@core-iframe/interfaces/objects";
+import {
   IAccountService,
   IAccountServiceType,
 } from "@core-iframe/interfaces/business/index";
@@ -65,13 +71,10 @@ import {
   ICoreProviderType,
 } from "@core-iframe/interfaces/utilities/index";
 import { ResultUtils } from "neverthrow-result-utils";
-import {
-  CoreListenerEvents,
-  EInvitationType,
-} from "@core-iframe/implementations/objects";
 @injectable()
 export class CoreListener extends ChildProxy implements ICoreListener {
   public events: CoreListenerEvents;
+  public iframeControlConfig: IFrameControlConfig;
   constructor(
     @inject(IAccountServiceType) protected accountService: IAccountService,
     @inject(IStorageUtilsType) protected storageUtils: IStorageUtils,
@@ -82,7 +85,11 @@ export class CoreListener extends ChildProxy implements ICoreListener {
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
   ) {
     super();
+    // TODO: obviously both of these are not belong here
+    // need to right new injectable utilities for this
+    // could be context
     this.events = new CoreListenerEvents();
+    this.iframeControlConfig = new IFrameControlConfig();
   }
 
   protected getModel(): Postmate.Model {
@@ -94,9 +101,11 @@ export class CoreListener extends ChildProxy implements ICoreListener {
        * pass over the config data.
        * @param data
        */
-      setConfig: (data: IIFrameCallData<IConfigOverrides>) => {
+      setConfig: (data: IIFrameCallData<IWebIntegrationConfigOverrides>) => {
         this.returnForModel(() => {
-          return this.coreProvider.setConfig(data.data);
+          return this.overrideControlConfig(data.data).andThen(() => {
+            return this.coreProvider.setConfig(data.data);
+          });
         }, data.callId);
       },
       addAccount: (
@@ -1123,6 +1132,13 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         });
       });
     });
+  }
+
+  private overrideControlConfig(
+    config: IWebIntegrationConfigOverrides,
+  ): ResultAsync<void, never> {
+    this.iframeControlConfig.overrideConfig(config);
+    return okAsync(undefined);
   }
 
   private get sourceDomain(): DomainName {

@@ -1,4 +1,17 @@
 import "reflect-metadata";
+import { iframeModule } from "@core-iframe/IFrameModule";
+import {
+  ICoreListener,
+  ICoreListenerType,
+} from "@core-iframe/interfaces/api/index";
+import { IFrameControlConfig } from "@core-iframe/interfaces/objects";
+import { CoreListenerEvents } from "@core-iframe/interfaces/objects/CoreListenerEvents";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+  ICoreProvider,
+  ICoreProviderType,
+} from "@core-iframe/interfaces/utilities/index";
 import {
   ILogUtils,
   ILogUtilsType,
@@ -25,20 +38,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
-
-import { iframeModule } from "@core-iframe/IFrameModule";
-import {
-  ICoreListener,
-  ICoreListenerType,
-} from "@core-iframe/interfaces/api/index";
-import {
-  IConfigProvider,
-  IConfigProviderType,
-  ICoreProvider,
-  ICoreProviderType,
-} from "@core-iframe/interfaces/utilities/index";
 import { ChildAPI } from "postmate";
-import { CoreListenerEvents } from "./objects";
 
 export class IFrameFormFactor {
   protected iocContainer = new Container();
@@ -53,6 +53,7 @@ export class IFrameFormFactor {
       core: ISnickerdoodleCore;
       childApi: ChildAPI;
       coreListenerEvents: CoreListenerEvents;
+      iframeControlConfig: IFrameControlConfig;
     },
     Error
   > {
@@ -90,7 +91,12 @@ export class IFrameFormFactor {
           })
           .map(() => {
             logUtils.log("Snickerdoodle Core CoreListener initialized");
-            return { core, childApi, coreListenerEvents: coreListener.events };
+            return {
+              core,
+              childApi,
+              coreListenerEvents: coreListener.events,
+              iframeControlConfig: coreListener.iframeControlConfig,
+            };
           });
       });
     });

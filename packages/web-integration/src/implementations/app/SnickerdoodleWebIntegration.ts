@@ -5,7 +5,6 @@ import {
   ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  IConfigOverrides,
   ISdlDataWallet,
   PersistenceError,
   ProviderRpcError,
@@ -13,6 +12,7 @@ import {
   URLString,
   UninitializedError,
   MillisecondTimestamp,
+  IWebIntegrationConfigOverrides,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { Container } from "inversify";
@@ -52,7 +52,7 @@ export class SnickerdoodleWebIntegration
   > | null = null;
 
   constructor(
-    protected config: IConfigOverrides,
+    protected config: IWebIntegrationConfigOverrides,
     protected signer: ethers.Signer | null,
   ) {
     this.iframeURL = config.iframeURL || this.iframeURL;
