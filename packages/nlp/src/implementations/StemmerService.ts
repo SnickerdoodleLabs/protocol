@@ -1,11 +1,13 @@
 import { BaseStemmer } from "@nlpjs/core";
 import { StemmerEn, StopwordsEn } from "@nlpjs/lang-en";
 import { ELanguageCode, NLPError } from "@snickerdoodlelabs/objects";
+import { injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
 import { IStemmerService } from "@nlp/interfaces/index.js";
 import { NLPSupportedLanguages } from "@nlp/objects/index.js";
 
+@injectable()
 export class StemmerService implements IStemmerService {
   public tokenizeSync(language: ELanguageCode, text: string): string[] {
     if (!NLPSupportedLanguages.includes(language)) {

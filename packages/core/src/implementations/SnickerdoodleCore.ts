@@ -16,6 +16,7 @@ import {
   IMasterIndexerType,
   indexersModule,
 } from "@snickerdoodlelabs/indexers";
+import { nlpModule } from "@snickerdoodlelabs/nlp";
 import {
   AccountAddress,
   AccountIndexingError,
@@ -116,6 +117,7 @@ import {
   ICloudStorageManager,
   ICloudStorageManagerType,
 } from "@snickerdoodlelabs/persistence";
+import { shoppingDataModule } from "@snickerdoodlelabs/shopping-data";
 import {
   IStorageUtils,
   IStorageUtilsType,
@@ -205,7 +207,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
     // Elaborate syntax to demonstrate that we can use multiple modules
     this.iocContainer.load(
-      ...[snickerdoodleCoreModule, indexersModule, scraperModule],
+      ...[
+        snickerdoodleCoreModule,
+        indexersModule,
+        scraperModule,
+        nlpModule,
+        shoppingDataModule,
+      ],
     );
 
     // If persistence is provided, we need to hook it up. If it is not, we will use the default
