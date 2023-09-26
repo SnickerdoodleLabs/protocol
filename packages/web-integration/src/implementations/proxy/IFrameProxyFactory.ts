@@ -58,7 +58,7 @@ export class IFrameProxyFactory implements IIFrameProxyFactory {
               width: 100%;
               height: 100%;
               border: none;
-              background-color: #00000010;
+              background-color: transparent;
             }
         `),
     );
