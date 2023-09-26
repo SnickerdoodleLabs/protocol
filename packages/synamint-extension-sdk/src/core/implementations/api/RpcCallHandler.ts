@@ -9,6 +9,7 @@ import {
   ISnickerdoodleCoreType,
   ISnickerdoodleCore,
 } from "@snickerdoodlelabs/objects";
+import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import {
   AsyncJsonRpcEngineNextCallback,
@@ -87,7 +88,6 @@ import {
   SetDefaultReceivingAddressParams,
   SetReceivingAddressParams,
   GetReceivingAddressParams,
-  mapToObj,
   GetEarnedRewardsParams,
   GetAccountsParams,
   GetAccountBalancesParams,
@@ -142,6 +142,8 @@ import {
   GetCurrentCloudStorageParams,
   RejectInvitationParams,
   GetQueryStatusesParams,
+  AddAccountWithExternalSignatureParams,
+  AddAccountWithExternalTypedDataSignatureParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -150,19 +152,49 @@ export class RpcCallHandler implements IRpcCallHandler {
   protected rpcCalls: CoreActionHandler<any>[] = [
     new CoreActionHandler<AddAccountParams>(
       AddAccountParams.getCoreAction(),
-      (params) => {
+      (params, sender) => {
         return this.accountService.addAccount(
           params.accountAddress,
           params.signature,
           params.chain,
           params.languageCode,
+          this.getDomainFromSender(sender),
+        );
+      },
+    ),
+    new CoreActionHandler<AddAccountWithExternalSignatureParams>(
+      AddAccountWithExternalSignatureParams.getCoreAction(),
+      (params, sender) => {
+        return this.accountService.addAccountWithExternalSignature(
+          params.accountAddress,
+          params.message,
+          params.signature,
+          params.chain,
+          this.getDomainFromSender(sender),
+        );
+      },
+    ),
+    new CoreActionHandler<AddAccountWithExternalTypedDataSignatureParams>(
+      AddAccountWithExternalTypedDataSignatureParams.getCoreAction(),
+      (params, sender) => {
+        return this.accountService.addAccountWithExternalTypedDataSignature(
+          params.accountAddress,
+          params.domain,
+          params.types,
+          params.value,
+          params.signature,
+          params.chain,
+          this.getDomainFromSender(sender),
         );
       },
     ),
     new CoreActionHandler<GetUnlockMessageParams>(
       GetUnlockMessageParams.getCoreAction(),
-      (params) => {
-        return this.accountService.getLinkAccountMessage(params.languageCode);
+      (params, sender) => {
+        return this.accountService.getLinkAccountMessage(
+          params.languageCode,
+          this.getDomainFromSender(sender),
+        );
       },
     ),
     new CoreActionHandler<GetEarnedRewardsParams>(
@@ -173,8 +205,10 @@ export class RpcCallHandler implements IRpcCallHandler {
     ),
     new CoreActionHandler<GetAccountsParams>(
       GetAccountsParams.getCoreAction(),
-      (_params) => {
-        return this.accountService.getAccounts();
+      (_params, sender) => {
+        return this.accountService.getAccounts(
+          this.getDomainFromSender(sender),
+        );
       },
     ),
     new CoreActionHandler<GetTokenPriceParams>(
@@ -350,16 +384,14 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<CheckInvitationStatusParams>(
       CheckInvitationStatusParams.getCoreAction(),
       (params) => {
-        return this._getTokenId(params.tokenId).andThen((tokenId) => {
-          return this.invitationService.checkInvitationStatus(
-            new Invitation(
-              "" as DomainName,
-              params.consentAddress,
-              tokenId,
-              params.signature ?? null,
-            ),
-          );
-        });
+        return this.invitationService.checkInvitationStatus(
+          new Invitation(
+            params.consentAddress,
+            this.toTokenId(params.tokenId),
+            null,
+            params.signature ?? null,
+          ),
+        );
       },
     ),
     new CoreActionHandler<GetConsentContractCIDParams>(
@@ -372,10 +404,11 @@ export class RpcCallHandler implements IRpcCallHandler {
     ),
     new CoreActionHandler<UnlinkAccountParams>(
       UnlinkAccountParams.getCoreAction(),
-      (params) => {
+      (params, sender) => {
         return this.accountService.unlinkAccount(
           params.accountAddress,
           params.chain,
+          this.getDomainFromSender(sender),
         );
       },
     ),
@@ -506,17 +539,15 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<AcceptInvitationParams>(
       AcceptInvitationParams.getCoreAction(),
       (params) => {
-        return this._getTokenId(params.tokenId).andThen((tokenId) => {
-          return this.invitationService.acceptInvitation(
-            new Invitation(
-              "" as DomainName,
-              params.consentContractAddress,
-              tokenId,
-              params.businessSignature ?? null,
-            ),
-            params.dataTypes,
-          );
-        });
+        return this.invitationService.acceptInvitation(
+          new Invitation(
+            params.consentContractAddress,
+            this.toTokenId(params.tokenId),
+            null,
+            params.businessSignature ?? null,
+          ),
+          params.dataTypes,
+        );
       },
     ),
     new CoreActionHandler<RejectInvitationByUUIDParams>(
@@ -531,17 +562,15 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<RejectInvitationParams>(
       RejectInvitationParams.getCoreAction(),
       (params) => {
-        return this._getTokenId(params.tokenId).andThen((tokenId) => {
-          return this.invitationService.rejectInvitation(
-            new Invitation(
-              "" as DomainName,
-              params.consentContractAddress,
-              tokenId,
-              params.businessSignature ?? null,
-            ),
-            params.rejectUntil,
-          );
-        });
+        return this.invitationService.rejectInvitation(
+          new Invitation(
+            params.consentContractAddress,
+            this.toTokenId(params.tokenId),
+            null,
+            params.businessSignature ?? null,
+          ),
+          params.rejectUntil,
+        );
       },
     ),
     new CoreActionHandler<CheckURLParams>(
@@ -590,7 +619,10 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<GetQueryStatusesParams>(
       GetQueryStatusesParams.getCoreAction(),
       (params) => {
-        return this.accountService.getQueryStatuses(params.contractAddress , params.blockNumber);
+        return this.accountService.getQueryStatuses(
+          params.contractAddress,
+          params.blockNumber,
+        );
       },
     ),
     new CoreActionHandler<SwitchToTabParams>(
@@ -884,19 +916,16 @@ export class RpcCallHandler implements IRpcCallHandler {
     return externalActionHandler.execute(params, res, sender);
   }
 
-  private _getTokenId(tokenId: BigNumberString | undefined) {
-    if (tokenId) {
-      return okAsync(TokenId(BigInt(tokenId)));
-    }
-    return this.cryptoUtils.getTokenId();
-  }
-
   private getDomainFromSender(
     sender: Runtime.MessageSender | undefined,
   ): DomainName {
     // TODO: If the sender is undefined we need to do something smart here.
     const url = new URL(sender?.tab?.url ?? "");
     return DomainName(url.hostname);
+  }
+
+  private toTokenId(tokenId: BigNumberString | undefined): TokenId | null {
+    return tokenId != null ? TokenId(BigNumber.from(tokenId).toBigInt()) : null;
   }
 }
 

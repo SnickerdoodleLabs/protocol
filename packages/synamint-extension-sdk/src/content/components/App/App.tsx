@@ -200,7 +200,7 @@ const App = () => {
   }, []);
 
   const getAccounts = () => {
-    coreGateway.getAccounts().map((linkedAccounts) => {
+    coreGateway.account.getAccounts().map((linkedAccounts) => {
       setAccounts(linkedAccounts);
     });
   };

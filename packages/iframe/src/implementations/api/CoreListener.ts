@@ -1,4 +1,8 @@
 import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
+import {
   ILogUtils,
   ILogUtilsType,
   ITimeUtils,
@@ -104,6 +108,54 @@ export class CoreListener extends ChildProxy implements ICoreListener {
               data.data.accountAddress,
               data.data.signature,
               data.data.languageCode,
+              data.data.chain,
+              this.sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
+      addAccountWithExternalSignature: (
+        data: IIFrameCallData<{
+          accountAddress: AccountAddress;
+          message: string;
+          signature: Signature;
+          chain: EChain;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            // We need to get a signature for this account
+            return core.account.addAccountWithExternalSignature(
+              data.data.accountAddress,
+              data.data.message,
+              data.data.signature,
+              data.data.chain,
+              this.sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
+      addAccountWithExternalTypedDataSignature: (
+        data: IIFrameCallData<{
+          accountAddress: AccountAddress;
+          domain: TypedDataDomain;
+          types: Record<string, Array<TypedDataField>>;
+          value: Record<string, unknown>;
+          signature: Signature;
+          chain: EChain;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            // We need to get a signature for this account
+            return core.account.addAccountWithExternalTypedDataSignature(
+              data.data.accountAddress,
+              data.data.domain,
+              data.data.types,
+              data.data.value,
+              data.data.signature,
               data.data.chain,
               this.sourceDomain,
             );
@@ -260,7 +312,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
             // TODO- make this provide the source domain after
             // we have an interface to grant permissions
             // return core.getAccounts(this.sourceDomain);
-            return core.getAccounts();
+            return core.account.getAccounts(this.sourceDomain);
           });
         }, data.callId);
       },
@@ -502,9 +554,9 @@ export class CoreListener extends ChildProxy implements ICoreListener {
             return this.coreProvider.getCore().andThen((core) => {
               return core.invitation.acceptInvitation(
                 new Invitation(
-                  "" as DomainName,
                   data.data.consentContractAddress,
                   tokenId,
+                  null,
                   data.data.businessSignature ?? null,
                 ),
                 data.data.dataTypes
@@ -530,9 +582,9 @@ export class CoreListener extends ChildProxy implements ICoreListener {
             return this.coreProvider.getCore().andThen((core) => {
               return core.invitation.rejectInvitation(
                 new Invitation(
-                  "" as DomainName,
                   data.data.consentContractAddress,
                   tokenId,
+                  null,
                   data.data.businessSignature ?? null,
                 ),
                 data.data.rejectUntil,
@@ -586,11 +638,11 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.coreProvider.getCore().andThen((core) => {
             return core.invitation.checkInvitationStatus(
               new Invitation(
-                DomainName(""),
                 data.data.consentAddress,
                 data.data.tokenId != null
                   ? TokenId(BigInt(data.data.tokenId))
                   : TokenId(BigInt(0)),
+                DomainName(""),
                 data.data.signature ?? null,
               ),
               this.sourceDomain,
@@ -754,13 +806,16 @@ export class CoreListener extends ChildProxy implements ICoreListener {
 
       getQueryStatuses: (
         data: IIFrameCallData<{
-          contractAddress: EVMContractAddress,
-          blockNumber?: BlockNumber,
+          contractAddress: EVMContractAddress;
+          blockNumber?: BlockNumber;
         }>,
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.getQueryStatuses(data.data.contractAddress , data.data.blockNumber);
+            return core.getQueryStatuses(
+              data.data.contractAddress,
+              data.data.blockNumber,
+            );
           });
         }, data.callId);
       },
@@ -977,7 +1032,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      "storage.getDropboxAuth": (data: IIFrameCallData<{}>) => {
+      "storage.getDropboxAuth": (data: IIFrameCallData<object>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
             return core.storage.getDropboxAuth(this.sourceDomain);
@@ -985,7 +1040,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      "storage.getCurrentCloudStorage": (data: IIFrameCallData<{}>) => {
+      "storage.getCurrentCloudStorage": (data: IIFrameCallData<object>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
             return core.storage.getCurrentCloudStorage(this.sourceDomain);

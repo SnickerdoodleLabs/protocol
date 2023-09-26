@@ -234,7 +234,7 @@ export const AppContextProvider: FC = ({ children }) => {
   };
 
   const getUserAccounts = () => {
-    return sdlDataWallet.getAccounts().map((accounts) => {
+    return sdlDataWallet.account.getAccounts().map((accounts) => {
       setLinkedAccounts((prev) =>
         [...new Set(accounts.map((o) => JSON.stringify(o)))].map((s) =>
           JSON.parse(s),

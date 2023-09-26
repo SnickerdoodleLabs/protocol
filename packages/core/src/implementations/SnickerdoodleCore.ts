@@ -4,7 +4,15 @@
  * Regardless of form factor, you need to instantiate an instance
  * of SnickerdoodleCore.
  */
-import { IMasterIndexer, IMasterIndexerType, indexersModule } from "@snickerdoodlelabs/indexers";
+import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
+import {
+  IMasterIndexer,
+  IMasterIndexerType,
+  indexersModule,
+} from "@snickerdoodlelabs/indexers";
 import {
   AccountAddress,
   AccountIndexingError,
@@ -78,13 +86,11 @@ import {
   UnauthorizedError,
   UninitializedError,
   UnixTimestamp,
-  URLString,
   WalletNFT,
   IAccountMethods,
   QueryStatus,
   BlockchainCommonErrors,
   ECloudStorageType,
-  AccessToken,
   AuthenticatedStorageSettings,
   IStorageMethods,
   BlockNumber,
@@ -243,6 +249,47 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         );
       },
 
+      addAccountWithExternalSignature: (
+        accountAddress: AccountAddress,
+        message: string,
+        signature: Signature,
+        chain: EChain,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        return accountService.addAccountWithExternalSignature(
+          accountAddress,
+          message,
+          signature,
+          chain,
+        );
+      },
+
+      addAccountWithExternalTypedDataSignature: (
+        accountAddress: AccountAddress,
+        domain: TypedDataDomain,
+        types: Record<string, Array<TypedDataField>>,
+        value: Record<string, unknown>,
+        signature: Signature,
+        chain: EChain,
+        sourceDomain: DomainName | undefined,
+      ) => {
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        return accountService.addAccountWithExternalTypedDataSignature(
+          accountAddress,
+          domain,
+          types,
+          value,
+          signature,
+          chain,
+          sourceDomain,
+        );
+      },
+
       unlinkAccount: (
         accountAddress: AccountAddress,
         chain: EChain,
@@ -252,6 +299,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           this.iocContainer.get<IAccountService>(IAccountServiceType);
 
         return accountService.unlinkAccount(accountAddress, chain);
+      },
+
+      getAccounts: (
+        sourceDomain: DomainName | undefined = undefined,
+      ): ResultAsync<LinkedAccount[], UnauthorizedError | PersistenceError> => {
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+        return accountService.getAccounts(sourceDomain);
       },
     };
 
@@ -889,14 +944,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const profileService =
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.getAge();
-  }
-
-  public getAccounts(
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<LinkedAccount[], UnauthorizedError | PersistenceError> {
-    const accountService =
-      this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.getAccounts(sourceDomain);
   }
 
   public getTransactions(

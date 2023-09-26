@@ -22,6 +22,7 @@ import {
   IConsentCapacity,
   UnixTimestamp,
   BlockchainCommonErrors,
+  OptInInfo,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -93,7 +94,7 @@ export interface IInvitationService {
     contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, PersistenceError>;
 
-  getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError>;
+  getAcceptedInvitations(): ResultAsync<OptInInfo[], PersistenceError>;
 
   getConsentContractCID(
     consentAddress: EVMContractAddress,

@@ -15,6 +15,7 @@ import {
   Invitation,
   InvitationDomain,
   IpfsCID,
+  OptInInfo,
   Signature,
   TokenId,
   URLString,
@@ -84,12 +85,7 @@ const invitationDomain = new InvitationDomain(
   URLString("nftClaimedImage"),
 );
 
-const acceptedInvitation = new Invitation(
-  domain,
-  consentContractAddress1,
-  tokenId1,
-  null,
-);
+const acceptedInvitation = new OptInInfo(consentContractAddress1, tokenId1);
 
 const consentToken1 = new ConsentToken(
   consentContractAddress1,
@@ -154,9 +150,12 @@ class InvitationServiceMocks {
     td.when(
       this.consentRepo.getConsentCapacity(consentContractAddress1),
     ).thenReturn(okAsync({ availableOptInCount: 10, maxCapacity: 10 }));
-    td.when(this.consentRepo.getConsentToken(acceptedInvitation)).thenReturn(
-      okAsync(consentToken1),
-    );
+    td.when(
+      this.consentRepo.getConsentToken(
+        acceptedInvitation.consentContractAddress,
+        acceptedInvitation.tokenId,
+      ),
+    ).thenReturn(okAsync(consentToken1));
     td.when(
       this.consentRepo.encodeUpdateAgreementFlags(
         consentContractAddress1,
@@ -360,9 +359,12 @@ describe("InvitationService.updateDataPermissions() tests", () => {
     // Arrange
     const mocks = new InvitationServiceMocks();
 
-    td.when(mocks.consentRepo.getConsentToken(acceptedInvitation)).thenReturn(
-      okAsync(null),
-    );
+    td.when(
+      mocks.consentRepo.getConsentToken(
+        acceptedInvitation.consentContractAddress,
+        acceptedInvitation.tokenId,
+      ),
+    ).thenReturn(okAsync(null));
 
     const service = mocks.factory();
 

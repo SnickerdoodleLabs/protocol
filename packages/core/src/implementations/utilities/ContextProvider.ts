@@ -28,8 +28,8 @@ export class ContextProvider
       false, // restoreInProgress
       this.timeUtils.getUnixNow(), // startTime
       new ComponentStatus(
-        EComponentStatus.TemporarilyDisabled,
-        EComponentStatus.TemporarilyDisabled,
+        EComponentStatus.NoKeyProvided,
+        EComponentStatus.NoKeyProvided,
         new Map<EChain, EComponentStatus>(),
         new Map<EChain, EComponentStatus>(),
         new Map<EChain, EComponentStatus>(),
