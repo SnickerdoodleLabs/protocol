@@ -87,6 +87,7 @@ export class VolatileStorageSchemaProvider
               ["value", false],
               ["to", false],
               ["from", false],
+              ["measurementDate", false]
             ],
           ),
         ],

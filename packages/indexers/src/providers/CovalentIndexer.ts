@@ -24,6 +24,7 @@ import {
   IndexerSupportSummary,
   EExternalApi,
   EDataProvider,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -270,6 +271,7 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
             );
           })
         : null,
+        ISO8601DateString( new Date().toISOString())
     );
     return busObj;
   }

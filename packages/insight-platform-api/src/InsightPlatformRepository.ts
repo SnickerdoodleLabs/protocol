@@ -166,6 +166,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       queryCID: queryCID,
       insights: JSON.stringify(insights),
       rewardParameters: JSON.stringify(rewardParameters),
+      responseTime : (new Date()).toISOString()
     } as Record<string, unknown>;
 
     return this.cryptoUtils
@@ -186,6 +187,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           queryCID: queryCID,
           insights: insights,
           rewardParameters: rewardParameters,
+          responseTime : (new Date()).toISOString(),
           signature: signature,
         } as IDeliverInsightsParams as unknown as Record<string, unknown>);
       });

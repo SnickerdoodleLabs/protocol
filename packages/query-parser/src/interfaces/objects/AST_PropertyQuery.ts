@@ -74,8 +74,6 @@ export class AST_PropertyQuery extends AST_SubQuery {
         return ok(EWalletDataType.Location);
       case "url_visited_count":
         return ok(EWalletDataType.SiteVisits);
-      case "chain_transactions":
-        return ok(EWalletDataType.EVMTransactions);
       case "social_discord":
         return ok(EWalletDataType.Discord);
       case "social_twitter":

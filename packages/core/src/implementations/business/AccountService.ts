@@ -32,6 +32,7 @@ import {
   ITokenPriceRepository,
   AccountIndexingError,
   SiteVisitsMap,
+  TransactionFlowInsight,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -331,16 +332,13 @@ export class AccountService implements IAccountService {
   }
 
   public getTransactionValueByChain(): ResultAsync<
-    TransactionPaymentCounter[],
+    TransactionFlowInsight[],
     PersistenceError
   > {
     return this.transactionRepo.getTransactionByChain();
   }
 
-  public getSiteVisitsMap(): ResultAsync<
-    SiteVisitsMap,
-    PersistenceError
-  > {
+  public getSiteVisitsMap(): ResultAsync<SiteVisitsMap, PersistenceError> {
     return this.browsingDataRepo.getSiteVisitsMap();
   }
 

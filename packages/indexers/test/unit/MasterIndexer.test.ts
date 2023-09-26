@@ -23,6 +23,7 @@ import {
   UnixTimestamp,
   EVMTransactionHash,
   EIndexerMethod,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import * as td from "testdouble";
@@ -278,6 +279,7 @@ class MasterIndexerMocks {
       null,
       null,
       null,
+      ISO8601DateString( new Date().toISOString())
     );
   }
 }

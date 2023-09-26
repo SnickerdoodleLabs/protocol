@@ -17,6 +17,7 @@ import {
   EChain,
   IndexerSupportSummary,
   EDataProvider,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -147,6 +148,7 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
         null,
         null,
         null,
+        ISO8601DateString(new Date().toISOString())
       );
     }
     return okAsync(result);

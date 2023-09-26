@@ -73,6 +73,7 @@ export class QueryEvaluator implements IQueryEvaluator {
   public eval<T extends AST_SubQuery>(
     query: T,
   ): ResultAsync<SDQL_Return, PersistenceError> {
+    console.log(`query `,query)
     if (query instanceof AST_BlockchainTransactionQuery) {
       return this.blockchainTransactionQueryEvaluator.eval(query);
     } else if (query instanceof AST_BalanceQuery) {
@@ -151,12 +152,6 @@ export class QueryEvaluator implements IQueryEvaluator {
           .getSiteVisitsMap(q.timestampRange!)
           .map((url_visited_count) => {
             return SDQL_Return(this.mapToRecord(url_visited_count))
-          });
-      case "chain_transactions":
-        return this.transactionRepo
-          .getTransactionByChain()
-          .andThen((transactionArray) => {
-            return okAsync(SDQL_Return(transactionArray));
           });
       case "social_discord":
         return this.getDiscordProfiles();

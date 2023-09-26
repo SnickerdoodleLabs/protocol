@@ -36,6 +36,7 @@ import {
   BlockchainProviderError,
   PersistenceError,
   UninitializedError,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { injectable } from "inversify";
@@ -356,6 +357,7 @@ export class DataWalletProfile {
               evmT.methodId ?? null,
               evmT.functionName ?? null,
               evmT.events,
+              ISO8601DateString( new Date().toISOString())
             ),
         );
 

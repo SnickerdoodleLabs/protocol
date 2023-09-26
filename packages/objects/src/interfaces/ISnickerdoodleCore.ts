@@ -32,6 +32,7 @@ import {
   QueryStatus,
   OAuth2Tokens,
   SiteVisitsMap,
+  TransactionFlowInsight,
   // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
@@ -726,8 +727,8 @@ export interface ISnickerdoodleCore {
     | ConsentContractError
     | BlockchainCommonErrors
     | PersistenceError
-  > 
-  
+  >;
+
   /**
    * Restores a backup directly. Should only be called for testing purposes.
    * @param backup
@@ -857,7 +858,7 @@ export interface ISnickerdoodleCore {
   getTransactionValueByChain(
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<
-    TransactionPaymentCounter[],
+    TransactionFlowInsight[],
     PersistenceError | UnauthorizedError
   >;
 

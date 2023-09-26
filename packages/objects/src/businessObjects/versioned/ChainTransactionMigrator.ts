@@ -11,6 +11,7 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   EVMTransactionHash,
+  ISO8601DateString,
   SolanaTransactionSignature,
   UnixTimestamp,
 } from "@objects/primitives/index.js";
@@ -30,6 +31,7 @@ export class ChainTransactionMigrator extends VersionedObjectMigrator<ChainTrans
           data["slot"] as number,
           data["err"] as object,
           data["memo"] as string,
+          data["measurementDate"] as ISO8601DateString
         );
       case EChainTechnology.EVM:
         return new EVMTransaction(
@@ -46,6 +48,7 @@ export class ChainTransactionMigrator extends VersionedObjectMigrator<ChainTrans
           data["methodId"] as string,
           data["functionName"] as string,
           data["events"] as EVMEvent[],
+          data["measurementDate"] as ISO8601DateString
         );
       default:
         throw new Error("chain ID does not match known technology");

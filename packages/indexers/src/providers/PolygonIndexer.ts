@@ -28,6 +28,7 @@ import {
   IndexerSupportSummary,
   EDataProvider,
   EExternalApi,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -261,6 +262,7 @@ export class PolygonIndexer implements IEVMIndexer {
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               tx.tokenID == "" ? null : tx.tokenID!,
               type,
+              ISO8601DateString( new Date().toISOString())
             );
           });
         });
@@ -316,6 +318,7 @@ export class PolygonIndexer implements IEVMIndexer {
               : EVMContractAddress(tx.contractAddress),
             null,
             EPolygonTransactionType.ERC20,
+            ISO8601DateString( new Date().toISOString())
           );
         });
       });

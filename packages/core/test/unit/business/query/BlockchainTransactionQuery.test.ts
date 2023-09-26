@@ -23,6 +23,7 @@ import {
   EChainTechnology,
   EVMTransactionHash,
   ESDQLQueryReturn,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BlockchainTransactionQuery,
@@ -46,17 +47,6 @@ class blockchainTransactionQueryEvaluatorMocks {
   public transactionsArray = new Array<ChainTransaction>();
 
   public constructor() {
-    //this.dataWalletPersistence.setLocation(CountryCode("US"));
-    // td.when(this.dataWalletPersistence.getAge()).thenReturn(okAsync(Age(25)));
-    // td.when(this.dataWalletPersistence.getGender()).thenReturn(
-    //   okAsync(Gender("male")),
-    // );
-    // td.when(this.dataWalletPersistence.getSiteVisitsMap()).thenReturn(
-    //   okAsync(this.URLmap),
-    // );
-    // td.when(this.dataWalletPersistence.getAccountBalances()).thenReturn(
-    //   okAsync(this.accountBalances),
-    // );
   }
 
   public factory() {
@@ -84,14 +74,13 @@ describe("QueryEvaluator: ", () => {
         new EVMTimestampRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
-    const chainId = blockchainTransactionQuery.contract.networkId;
-    const address = blockchainTransactionQuery.contract.address;
+
+    const chainId = blockchainTransactionQuery.contract!.networkId;
+    const address = blockchainTransactionQuery.contract!.address;
     const hash = "";
-    const startTime = blockchainTransactionQuery.contract.timestampRange.start;
-    const endTime = blockchainTransactionQuery.contract.timestampRange.end;
-    // console.log("Address: ", address)
-    // console.log("Start Time: ", startTime)
-    // console.log("End Time: ", endTime)
+    const startTime = blockchainTransactionQuery.contract!.timestampRange.start;
+    const endTime = blockchainTransactionQuery.contract!.timestampRange.end;
+
     const filter = new TransactionFilter(
       [chainId],
       [address],
@@ -117,12 +106,11 @@ describe("QueryEvaluator: ", () => {
           null,
           null,
           null,
+          ISO8601DateString( new Date().toISOString())
         ),
       ]),
     );
     const result = await repo.eval(blockchainTransactionQuery);
-    // console.log("Age is: ", result["value"]);
-    // console.log(result)
     expect(result).toBeDefined();
     expect(result["value"]).toBe(true);
   });
@@ -146,12 +134,12 @@ describe("QueryEvaluator: ", () => {
         new EVMTimestampRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
-    const chainId = blockchainTransactionQuery.contract.networkId;
-    const address = blockchainTransactionQuery.contract
+    const chainId = blockchainTransactionQuery.contract!.networkId;
+    const address = blockchainTransactionQuery.contract!
       .address as EVMAccountAddress;
     const hash = "";
-    const startTime = blockchainTransactionQuery.contract.timestampRange.start;
-    const endTime = blockchainTransactionQuery.contract.timestampRange.end;
+    const startTime = blockchainTransactionQuery.contract!.timestampRange.start;
+    const endTime = blockchainTransactionQuery.contract!.timestampRange.end;
 
     const filter = new TransactionFilter(
       [chainId],
@@ -178,6 +166,7 @@ describe("QueryEvaluator: ", () => {
           null,
           null,
           null,
+          ISO8601DateString( new Date().toISOString())
         ),
       ]),
     );
@@ -205,15 +194,13 @@ describe("QueryEvaluator: ", () => {
         new EVMTimestampRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
-    const chainId = blockchainTransactionQuery.contract.networkId;
-    const address = blockchainTransactionQuery.contract
+    const chainId = blockchainTransactionQuery.contract!.networkId;
+    const address = blockchainTransactionQuery.contract!
       .address as EVMAccountAddress;
     const hash = "";
-    const startTime = blockchainTransactionQuery.contract.timestampRange.start;
-    const endTime = blockchainTransactionQuery.contract.timestampRange.end;
-    // console.log("Address: ", address)
-    // console.log("Start Time: ", startTime)
-    // console.log("End Time: ", endTime)
+    const startTime = blockchainTransactionQuery.contract!.timestampRange.start;
+    const endTime = blockchainTransactionQuery.contract!.timestampRange.end;
+
     const filter = new TransactionFilter(
       [chainId],
       [address],
@@ -225,8 +212,7 @@ describe("QueryEvaluator: ", () => {
       mocks.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
     const result = await repo.eval(blockchainTransactionQuery);
-    // console.log("Age is: ", result["value"]);
-    // console.log(result)
+
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
   });
@@ -252,12 +238,12 @@ describe("Blockchain Transaction Query Testing: ", () => {
         new EVMTimestampRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
-    const chainId = blockchainTransactionQuery.contract.networkId;
-    const address = blockchainTransactionQuery.contract
+    const chainId = blockchainTransactionQuery.contract!.networkId;
+    const address = blockchainTransactionQuery.contract!
       .address as EVMAccountAddress;
     const hash = "";
-    const startTime = blockchainTransactionQuery.contract.timestampRange.start;
-    const endTime = blockchainTransactionQuery.contract.timestampRange.end;
+    const startTime = blockchainTransactionQuery.contract!.timestampRange.start;
+    const endTime = blockchainTransactionQuery.contract!.timestampRange.end;
 
     const filter = new TransactionFilter(
       [chainId],
@@ -294,12 +280,12 @@ describe("Blockchain Transaction Query Testing: ", () => {
         new EVMTimestampRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
-    const chainId = blockchainTransactionQuery.contract.networkId;
-    const address = blockchainTransactionQuery.contract
+    const chainId = blockchainTransactionQuery.contract!.networkId;
+    const address = blockchainTransactionQuery.contract!
       .address as EVMAccountAddress;
     const hash = "";
-    const startTime = blockchainTransactionQuery.contract.timestampRange.start;
-    const endTime = blockchainTransactionQuery.contract.timestampRange.end;
+    const startTime = blockchainTransactionQuery.contract!.timestampRange.start;
+    const endTime = blockchainTransactionQuery.contract!.timestampRange.end;
 
     const filter = new TransactionFilter(
       [chainId],
@@ -323,4 +309,6 @@ describe("Blockchain Transaction Query Testing: ", () => {
     // );
     // expect(result["value"]["return"]).toBe(false);
   });
+
+
 });
