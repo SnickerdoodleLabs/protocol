@@ -41,9 +41,7 @@ export class AST_BlockchainTransactionQuery extends AST_Web3Query {
       ESDQLQueryReturn,
       ESDQLQueryReturn.Enum | ESDQLQueryReturn.List
     >;
-    console.log(`q name `, name , schema.name)
     if (schema.name === "chain_transactions") {
-      console.log(`chain`)
       return new AST_BlockchainTransactionQuery(
         name,
         returnType,

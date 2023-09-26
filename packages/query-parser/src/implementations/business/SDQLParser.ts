@@ -283,8 +283,6 @@ export class SDQLParser {
         this.saveInContext(query.name, query);
         this.queries.set(query.name, query);
       }
-      console.log(`context , `,this.context)
-      console.log(`queries `,this.queries)
       return okAsync(undefined);
     } catch (err) {
       return errAsync(this.transformError(err as Error));
