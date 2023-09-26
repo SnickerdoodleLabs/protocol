@@ -37,7 +37,6 @@ export class URLChangeObserver implements IURLChangeObserver {
     if (this.isUrlDifferent(newUrl)) {
       // Update the current URL.
       this.currentUrl = newUrl;
-      // Call the  callback and wait for it to complete.
       this.callback(newUrl).mapErr((e) => {
         console.log("url check failed", e);
       });
