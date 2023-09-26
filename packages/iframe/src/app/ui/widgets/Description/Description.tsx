@@ -22,6 +22,17 @@ interface IDescriptionProps {
 }
 
 const useStyles = createUseStyles({
+  "@keyframes disappear": {
+    from: {
+      opacity: 1,
+    },
+    to: {
+      opacity: 0,
+    },
+  },
+  unmountAnimation: {
+    animation: "$disappear 0.4s ease-in-out",
+  },
   rawHtmlWrapper: {
     color: ({ theme }: { theme: ITheme }) => theme.palette.text,
     fontSize: ({ theme }: { theme: ITheme }) => theme.typography.body.fontSize,
@@ -56,7 +67,8 @@ export const Description: FC<IDescriptionProps> = ({
   const classes = useStyles({ theme });
   const media = useMedia();
   const isMobile = useMemo(() => media === "xs", [media]);
-
+  const [unmountAnimation, setUnmountAnimation] =
+    React.useState<boolean>(false);
   const description = useMemo(() => {
     const descriptionText = invitationData.description;
 
@@ -92,6 +104,10 @@ export const Description: FC<IDescriptionProps> = ({
     return <Typography variant="description">{descriptionText}</Typography>;
   }, [JSON.stringify(invitationData), JSON.stringify(theme)]);
 
+  const cancelWithAnimation = () => {
+    setUnmountAnimation(true);
+    setTimeout(onCancelClick, 400);
+  };
   return (
     <Box
       display="flex"
@@ -102,6 +118,7 @@ export const Description: FC<IDescriptionProps> = ({
       width={isMobile ? "calc(95% - 48px)" : "40%"}
       borderRadius={isMobile ? 12 : 0}
       justifyContent="center"
+      className={unmountAnimation ? classes.unmountAnimation : undefined}
     >
       <Box
         display="flex"
@@ -117,7 +134,7 @@ export const Description: FC<IDescriptionProps> = ({
           <Typography variant="title">
             {invitationData.title || "Your Data, Your Choice."}
           </Typography>
-          {isMobile && <CloseButton onClick={onCancelClick} />}
+          {isMobile && <CloseButton onClick={cancelWithAnimation} />}
         </Box>
         <Box mb={0.5} />
         {description}
@@ -129,7 +146,7 @@ export const Description: FC<IDescriptionProps> = ({
         >
           {!isMobile && (
             <Grid item sm={3}>
-              <Button onClick={onCancelClick} fullWidth variant="text">
+              <Button onClick={cancelWithAnimation} fullWidth variant="text">
                 Cancel
               </Button>
             </Grid>
