@@ -12,11 +12,11 @@ import {
 } from "@core-iframe/app/ui/lib";
 import React, { FC, useMemo } from "react";
 interface ISubscriptionSuccessProps {
-  pageInvitation: IOpenSeaMetadata;
+  invitationData: IOpenSeaMetadata;
   onClick: () => void;
 }
 export const SubscriptionSuccess: FC<ISubscriptionSuccessProps> = ({
-  pageInvitation,
+  invitationData,
   onClick,
 }) => {
   const theme = useTheme<ITheme>() || defaultDarkTheme;
@@ -65,7 +65,7 @@ export const SubscriptionSuccess: FC<ISubscriptionSuccessProps> = ({
             aspectRatio: 1,
             objectFit: "cover",
           }}
-          src={pageInvitation.nftClaimedImage}
+          src={invitationData.nftClaimedImage}
         />
       </Box>
       <Typography

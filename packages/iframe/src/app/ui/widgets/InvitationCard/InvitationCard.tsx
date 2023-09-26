@@ -3,15 +3,15 @@ import { IOpenSeaMetadata } from "@snickerdoodlelabs/objects";
 import React, { FC } from "react";
 
 interface IInvitationCardProps {
-  pageInvitation: IOpenSeaMetadata;
+  invitationData: IOpenSeaMetadata;
 }
 export const InvitationCard: FC<IInvitationCardProps> = ({
-  pageInvitation,
+  invitationData,
 }) => {
   return (
     <>
       <Box px={6}>
-        <Typography variant="title">{pageInvitation.title}</Typography>
+        <Typography variant="title">{invitationData.title}</Typography>
       </Box>
       <Box
         width="-webkit-fill-available"
@@ -26,10 +26,10 @@ export const InvitationCard: FC<IInvitationCardProps> = ({
             aspectRatio: 2 / 3,
             objectFit: "cover",
           }}
-          src={pageInvitation.nftClaimedImage}
+          src={invitationData.nftClaimedImage}
         />
       </Box>
-      <Typography variant="bodyBold">{pageInvitation.rewardName}</Typography>
+      <Typography variant="bodyBold">{invitationData.rewardName}</Typography>
     </>
   );
 };

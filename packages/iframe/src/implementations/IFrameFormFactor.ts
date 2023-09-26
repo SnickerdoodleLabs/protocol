@@ -4,7 +4,11 @@ import {
   ICoreListener,
   ICoreListenerType,
 } from "@core-iframe/interfaces/api/index";
-import { IFrameControlConfig, IFrameEvents } from "@core-iframe/interfaces/objects";
+import {
+  IFrameConfig,
+  IFrameControlConfig,
+  IFrameEvents,
+} from "@core-iframe/interfaces/objects";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -55,6 +59,7 @@ export class IFrameFormFactor {
       childApi: ChildAPI;
       iframeEvents: IFrameEvents;
       config: IFrameControlConfig;
+      coreConfig: IFrameConfig;
     },
     Error
   > {
@@ -100,6 +105,7 @@ export class IFrameFormFactor {
               childApi,
               iframeEvents: contextProvider.getEvents(),
               config: contextProvider.getConfig(),
+              coreConfig: configProvider.getConfig(),
             };
           });
       });

@@ -1,4 +1,10 @@
-import { EWalletDataType, IOpenSeaMetadata } from "@snickerdoodlelabs/objects";
+import {
+  EVMContractAddress,
+  EWalletDataType,
+  IOpenSeaMetadata,
+  ISnickerdoodleCore,
+  PossibleReward,
+} from "@snickerdoodlelabs/objects";
 import { AcnowledgmentBanner } from "@core-iframe/app/ui/components/AcknowledgmentBanner";
 import { CloseButton } from "@core-iframe/app/ui/components/CloseButton";
 import { permissions } from "@core-iframe/app/ui/constants";
@@ -13,17 +19,24 @@ import {
   defaultDarkTheme,
   useMedia,
 } from "@core-iframe/app/ui/lib";
-import React, { FC, useMemo } from "react";
+import React, { FC, useState, useMemo, useEffect } from "react";
+import { IFrameConfig } from "@core-iframe/interfaces/objects";
 
 interface IPermissionSelectionProps {
   onCancelClick: () => void;
   onSaveClick: (dataTypes: EWalletDataType[]) => void;
-  pageInvitation: IOpenSeaMetadata;
+  core: ISnickerdoodleCore;
+  invitationData: IOpenSeaMetadata;
+  consentAddress: EVMContractAddress;
+  coreConfig: IFrameConfig;
 }
 export const PermissionSelection: FC<IPermissionSelectionProps> = ({
   onSaveClick,
   onCancelClick,
-  pageInvitation,
+  invitationData,
+  core,
+  consentAddress,
+  coreConfig,
 }) => {
   const [dataTypes, setDataTypes] = React.useState<EWalletDataType[]>(
     permissions.map((item) => item.key),
@@ -32,6 +45,24 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
   const theme = useTheme<ITheme>() || defaultDarkTheme;
   const media = useMedia();
   const isMobile = useMemo(() => media === "xs", [media]);
+  const [possibleRewards, setPossibleRewards] = useState<PossibleReward[]>([]);
+  const [rewardsLoading, setRewardsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    getPossibleRewards();
+  }, []);
+
+  const getPossibleRewards = () => {
+    core.marketplace
+      .getPossibleRewards([consentAddress])
+      .map((rewards) => {
+        setPossibleRewards(rewards.get(consentAddress) || []);
+        setRewardsLoading(false);
+      })
+      .mapErr((e) => {
+        setRewardsLoading(false);
+      });
+  };
 
   const updateDataTypes = (key: EWalletDataType) => {
     if (dataTypes.includes(key)) {
@@ -82,12 +113,12 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
               aspectRatio: 2 / 3,
               objectFit: "cover",
             }}
-            src={pageInvitation.nftClaimedImage}
+            src={invitationData.nftClaimedImage}
           />
         </Box>
         {!isMobile && (
           <Typography variant="bodyBold">
-            {pageInvitation.rewardName}
+            {invitationData.rewardName}
           </Typography>
         )}
       </Box>

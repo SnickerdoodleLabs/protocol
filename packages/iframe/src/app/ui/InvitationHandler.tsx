@@ -11,7 +11,10 @@ import { Loading } from "@core-iframe/app/ui/widgets/Loading";
 import { PermissionSelection } from "@core-iframe/app/ui/widgets/PermissionSelection";
 import { SubscriptionFail } from "@core-iframe/app/ui/widgets/SubscriptionFail";
 import { SubscriptionSuccess } from "@core-iframe/app/ui/widgets/SubscriptionSuccess";
-import { IFrameControlConfig } from "@core-iframe/interfaces/objects";
+import {
+  IFrameConfig,
+  IFrameControlConfig,
+} from "@core-iframe/interfaces/objects";
 import {
   EInvitationSourceType,
   IFrameEvents,
@@ -42,6 +45,7 @@ interface IInvitationHandlerProps {
   show: () => void;
   events: IFrameEvents;
   config: IFrameControlConfig;
+  coreConfig: IFrameConfig;
 }
 
 export enum EAPP_STATE {
@@ -70,6 +74,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   show,
   events,
   config,
+  coreConfig,
 }) => {
   const [theme, setTheme] = useState<ITheme>(
     config.palette ? generateTheme(config.palette) : defaultLightTheme,
@@ -255,7 +260,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
         case EAPP_STATE.INVITATION_PREVIEW:
           return (
             <Description
-              pageInvitation={currentInvitation.data.metadata}
+              invitationData={currentInvitation.data.metadata}
               onCancelClick={clearInvitation}
               onSetPermissions={handleContinueClick}
               onContinueClick={() => {
@@ -267,8 +272,13 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
           return (
             <PermissionSelection
               onCancelClick={clearInvitation}
-              pageInvitation={currentInvitation.data.metadata}
+              invitationData={currentInvitation.data.metadata}
               onSaveClick={onPermissionSelected}
+              core={core}
+              coreConfig={coreConfig}
+              consentAddress={
+                currentInvitation.data.invitation.consentContractAddress
+              }
             />
           );
         case EAPP_STATE.LOADING:
@@ -276,7 +286,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
         case EAPP_STATE.SUBSCRIPTION_SUCCESS:
           return (
             <SubscriptionSuccess
-              pageInvitation={currentInvitation.data.metadata}
+              invitationData={currentInvitation.data.metadata}
               onClick={clearInvitation}
             />
           );

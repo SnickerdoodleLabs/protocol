@@ -1,5 +1,6 @@
 import { InvitationHandler } from "@core-iframe/app/ui";
 import {
+  IFrameConfig,
   IFrameControlConfig,
   IFrameEvents,
 } from "@core-iframe/interfaces/objects";
@@ -12,9 +13,10 @@ interface IAppProps {
   childApi: ChildAPI;
   events: IFrameEvents;
   config: IFrameControlConfig;
+  coreConfig: IFrameConfig;
 }
 
-const App: FC<IAppProps> = ({ core, childApi, events, config }) => {
+const App: FC<IAppProps> = ({ core, childApi, events, config, coreConfig }) => {
   const hide = () => childApi.emit("onIframeHideRequested");
   const show = () => childApi.emit("onIframeDisplayRequested");
 
@@ -26,6 +28,7 @@ const App: FC<IAppProps> = ({ core, childApi, events, config }) => {
         hide={hide}
         show={show}
         config={config}
+        coreConfig={coreConfig}
       />
     </>
   );

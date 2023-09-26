@@ -13,7 +13,7 @@ formFactor
   .mapErr((e) => {
     console.error("Error while initializing IFrameFormFactor!", e);
   })
-  .map(({ core, childApi, iframeEvents, config }) => {
+  .map(({ core, childApi, iframeEvents, config, coreConfig }) => {
     console.log("Snickerdoodle Iframe UI Client Initialized");
     return ReactDOM.render(
       <App
@@ -21,6 +21,7 @@ formFactor
         childApi={childApi}
         events={iframeEvents}
         config={config}
+        coreConfig={coreConfig}
       />,
       document.getElementById("root") as HTMLElement,
     );

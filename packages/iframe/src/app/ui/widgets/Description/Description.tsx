@@ -1,4 +1,3 @@
-import { IOpenSeaMetadata, PageInvitation } from "@snickerdoodlelabs/objects";
 import { AcnowledgmentBanner } from "@core-iframe/app/ui/components/AcknowledgmentBanner";
 import { CloseButton } from "@core-iframe/app/ui/components/CloseButton";
 import {
@@ -11,11 +10,12 @@ import {
   useMedia,
   createUseStyles,
 } from "@core-iframe/app/ui/lib";
+import { IOpenSeaMetadata } from "@snickerdoodlelabs/objects";
 import parse from "html-react-parser";
 import React, { FC, useMemo } from "react";
 
 interface IDescriptionProps {
-  pageInvitation: IOpenSeaMetadata;
+  invitationData: IOpenSeaMetadata;
   onCancelClick: () => void;
   onContinueClick: () => void;
   onSetPermissions: () => void;
@@ -47,7 +47,7 @@ const useStyles = createUseStyles({
 });
 
 export const Description: FC<IDescriptionProps> = ({
-  pageInvitation,
+  invitationData,
   onCancelClick,
   onSetPermissions,
   onContinueClick,
@@ -58,7 +58,7 @@ export const Description: FC<IDescriptionProps> = ({
   const isMobile = useMemo(() => media === "xs", [media]);
 
   const description = useMemo(() => {
-    const descriptionText = pageInvitation.description;
+    const descriptionText = invitationData.description;
 
     if (!descriptionText) {
       return (
@@ -90,7 +90,7 @@ export const Description: FC<IDescriptionProps> = ({
       );
     }
     return <Typography variant="description">{descriptionText}</Typography>;
-  }, [JSON.stringify(pageInvitation), JSON.stringify(theme)]);
+  }, [JSON.stringify(invitationData), JSON.stringify(theme)]);
 
   return (
     <Box
@@ -115,7 +115,7 @@ export const Description: FC<IDescriptionProps> = ({
           alignItems="flex-start"
         >
           <Typography variant="title">
-            {pageInvitation.title || "Your Data, Your Choice."}
+            {invitationData.title || "Your Data, Your Choice."}
           </Typography>
           {isMobile && <CloseButton onClick={onCancelClick} />}
         </Box>
