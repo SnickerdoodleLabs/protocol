@@ -15,9 +15,11 @@ import { IFrameControlConfig } from "@core-iframe/interfaces/objects";
 import {
   EInvitationSourceType,
   IFrameEvents,
+  IInvitationDisplayRequest,
 } from "@core-iframe/interfaces/objects/IFrameEvents";
 import {
   DataPermissions,
+  EVMContractAddress,
   EWalletDataType,
   IOpenSeaMetadata,
   ISnickerdoodleCore,
@@ -78,12 +80,18 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   const invitationDisplayRequestSubscription = useRef<Subscription | null>(
     null,
   );
+  const uniqueConsentAdressesRef = useRef<EVMContractAddress[]>([]);
   const [deepLinkInvitation, setDeepLinkInvitation] = useState<{
     invitation: Invitation;
     metadata: IOpenSeaMetadata;
   } | null>(null);
 
   const [domainInvitation, setDomainInvitation] = useState<{
+    invitation: Invitation;
+    metadata: IOpenSeaMetadata;
+  } | null>(null);
+
+  const [consentInvitation, setConsentInvitation] = useState<{
     invitation: Invitation;
     metadata: IOpenSeaMetadata;
   } | null>(null);
@@ -98,8 +106,35 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     if (domainInvitation) {
       return { data: domainInvitation, type: EInvitationSourceType.DOMAIN };
     }
+    if (consentInvitation) {
+      return {
+        data: consentInvitation,
+        type: EInvitationSourceType.CONSENT_ADDRESS,
+      };
+    }
     return null;
-  }, [deepLinkInvitation, domainInvitation, accounts.length]);
+  }, [
+    deepLinkInvitation,
+    domainInvitation,
+    consentInvitation,
+    accounts.length,
+  ]);
+
+  // length of this could be used for bagde
+  const uniqueConsentAdresses = useMemo(() => {
+    const adresses = [
+      domainInvitation,
+      deepLinkInvitation,
+      consentInvitation,
+    ].reduce((acc, item) => {
+      if (item) {
+        return acc.concat(item.invitation.consentContractAddress);
+      }
+      return acc;
+    }, [] as EVMContractAddress[]);
+    uniqueConsentAdressesRef.current = adresses;
+    return adresses;
+  }, [deepLinkInvitation, domainInvitation, consentInvitation]);
 
   useEffect(() => {
     subsribeAccountAddedEvent();
@@ -130,13 +165,29 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
 
   const subscribeInvitationDisplayRequestEvent = () => {
     invitationDisplayRequestSubscription.current =
-      events.onInvitationDisplayRequested.subscribe(({ data, type }) => {
-        if (type === EInvitationSourceType.DEEPLINK) {
-          setDeepLinkInvitation(data);
-        } else {
-          setDomainInvitation(data);
-        }
-      });
+      events.onInvitationDisplayRequested.subscribe(
+        invitationDisplayRequestHandler,
+      );
+  };
+
+  const invitationDisplayRequestHandler = ({
+    data,
+    type,
+  }: IInvitationDisplayRequest) => {
+    if (
+      uniqueConsentAdressesRef.current.includes(
+        data.invitation.consentContractAddress,
+      )
+    ) {
+      return;
+    }
+    if (type === EInvitationSourceType.DEEPLINK) {
+      setDeepLinkInvitation(data);
+    } else if (type === EInvitationSourceType.DOMAIN) {
+      setDomainInvitation(data);
+    } else {
+      setConsentInvitation(data);
+    }
   };
 
   const onPermissionSelected = useCallback(
@@ -161,8 +212,6 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     [currentInvitation],
   );
 
-  const onRejectClick = () => {};
-
   const handleContinueClick = () => {
     setAppState(EAPP_STATE.PERMISSION_SELECTION);
   };
@@ -176,6 +225,8 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
         case EInvitationSourceType.DOMAIN:
           setDomainInvitation(null);
           break;
+        case EInvitationSourceType.CONSENT_ADDRESS:
+          setConsentInvitation(null);
       }
     }
   }, [currentInvitation]);

@@ -19,7 +19,10 @@ import {
 import { ContainerModule, interfaces } from "inversify";
 
 import { CoreListener } from "@core-iframe/implementations/api/index";
-import { AccountService } from "@core-iframe/implementations/business/index";
+import {
+  AccountService,
+  InvitationService,
+} from "@core-iframe/implementations/business/index";
 import {
   ConfigProvider,
   CoreProvider,
@@ -32,6 +35,8 @@ import {
 import {
   IAccountService,
   IAccountServiceType,
+  IInvitationService,
+  IInvitationServiceType,
 } from "@core-iframe/interfaces/business/index";
 import {
   IConfigProvider,
@@ -56,6 +61,9 @@ export const iframeModule = new ContainerModule(
     // #region Business
     bind<IAccountService>(IAccountServiceType)
       .to(AccountService)
+      .inSingletonScope();
+    bind<IInvitationService>(IInvitationServiceType)
+      .to(InvitationService)
       .inSingletonScope();
     // #endregion
 

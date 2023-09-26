@@ -21,8 +21,10 @@ export class IFrameContextProvider implements IIFrameContextProvider {
   public setConfigOverrides(
     configOverrides: IIFrameConfigOverrides,
   ): ResultAsync<void, never> {
-    this.config.consentAddress =
-      configOverrides.consentAddress ?? this.config.consentAddress;
+    if (configOverrides.consentAddress) {
+      this.config.consentAddress = configOverrides.consentAddress;
+      this.events.onConsentAddressFound.next(configOverrides.consentAddress);
+    }
     this.config.showDeeplinkInvitations =
       configOverrides.showDeeplinkInvitations ??
       this.config.showDeeplinkInvitations;
