@@ -1,4 +1,8 @@
 import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
+import {
   ILogUtils,
   ILogUtilsType,
   ITimeUtils,
@@ -125,6 +129,32 @@ export class CoreListener extends ChildProxy implements ICoreListener {
             return core.account.addAccountWithExternalSignature(
               data.data.accountAddress,
               data.data.message,
+              data.data.signature,
+              data.data.chain,
+              this.sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
+      addAccountWithExternalTypedDataSignature: (
+        data: IIFrameCallData<{
+          accountAddress: AccountAddress;
+          domain: TypedDataDomain;
+          types: Record<string, Array<TypedDataField>>;
+          value: Record<string, unknown>;
+          signature: Signature;
+          chain: EChain;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            // We need to get a signature for this account
+            return core.account.addAccountWithExternalTypedDataSignature(
+              data.data.accountAddress,
+              data.data.domain,
+              data.data.types,
+              data.data.value,
               data.data.signature,
               data.data.chain,
               this.sourceDomain,

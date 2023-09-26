@@ -1,4 +1,8 @@
 import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
+import {
   AccountAddress,
   EarnedReward,
   EChain,
@@ -109,6 +113,35 @@ export class AccountService implements IAccountService {
       .addAccountWithExternalSignature(
         accountAddress,
         message,
+        signature,
+        chain,
+        sourceDomain,
+      )
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      })
+      .orElse((error) => {
+        this.errorUtils.emit(error);
+        return okAsync(undefined);
+      });
+  }
+
+  public addAccountWithExternalTypedDataSignature(
+    accountAddress: AccountAddress,
+    domain: TypedDataDomain,
+    types: Record<string, Array<TypedDataField>>,
+    value: Record<string, unknown>,
+    signature: Signature,
+    chain: EChain,
+    sourceDomain?: DomainName,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.core.account
+      .addAccountWithExternalTypedDataSignature(
+        accountAddress,
+        domain,
+        types,
+        value,
         signature,
         chain,
         sourceDomain,

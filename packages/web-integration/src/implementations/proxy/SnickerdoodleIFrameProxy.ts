@@ -1,4 +1,8 @@
 import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
+import {
   AccountAddress,
   Age,
   BackupCreatedEvent,
@@ -622,6 +626,23 @@ export class SnickerdoodleIFrameProxy
       return this._createCall("addAccountWithExternalSignature", {
         accountAddress,
         message,
+        signature,
+        chain,
+      });
+    },
+    addAccountWithExternalTypedDataSignature: (
+      accountAddress: AccountAddress,
+      domain: TypedDataDomain,
+      types: Record<string, Array<TypedDataField>>,
+      value: Record<string, unknown>,
+      signature: Signature,
+      chain: EChain,
+    ): ResultAsync<void, ProxyError> => {
+      return this._createCall("addAccountWithExternalTypedDataSignature", {
+        accountAddress,
+        domain,
+        types,
+        value,
         signature,
         chain,
       });

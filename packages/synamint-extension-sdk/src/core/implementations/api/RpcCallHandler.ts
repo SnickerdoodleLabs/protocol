@@ -143,6 +143,7 @@ import {
   RejectInvitationParams,
   GetQueryStatusesParams,
   AddAccountWithExternalSignatureParams,
+  AddAccountWithExternalTypedDataSignatureParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -167,6 +168,20 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this.accountService.addAccountWithExternalSignature(
           params.accountAddress,
           params.message,
+          params.signature,
+          params.chain,
+          this.getDomainFromSender(sender),
+        );
+      },
+    ),
+    new CoreActionHandler<AddAccountWithExternalTypedDataSignatureParams>(
+      AddAccountWithExternalTypedDataSignatureParams.getCoreAction(),
+      (params, sender) => {
+        return this.accountService.addAccountWithExternalTypedDataSignature(
+          params.accountAddress,
+          params.domain,
+          params.types,
+          params.value,
           params.signature,
           params.chain,
           this.getDomainFromSender(sender),

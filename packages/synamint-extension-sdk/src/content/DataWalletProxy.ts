@@ -1,6 +1,10 @@
 import { EventEmitter } from "events";
 
 import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
+import {
   AccountAddress,
   OAuth1RequstToken,
   BigNumberString,
@@ -252,6 +256,23 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
         return coreGateway.account.addAccountWithExternalSignature(
           accountAddress,
           message,
+          signature,
+          chain,
+        );
+      },
+      addAccountWithExternalTypedDataSignature: (
+        accountAddress: AccountAddress,
+        domain: TypedDataDomain,
+        types: Record<string, Array<TypedDataField>>,
+        value: Record<string, unknown>,
+        signature: Signature,
+        chain: EChain,
+      ) => {
+        return coreGateway.account.addAccountWithExternalTypedDataSignature(
+          accountAddress,
+          domain,
+          types,
+          value,
           signature,
           chain,
         );

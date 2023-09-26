@@ -1,4 +1,8 @@
 import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
+import {
   BigNumberString,
   ChainId,
   CountryCode,
@@ -110,10 +114,26 @@ export class AddAccountWithExternalSignatureParams extends CoreActionParams<void
     public signature: Signature,
     public chain: EChain,
   ) {
-    super(AddAccountParams.getCoreAction());
+    super(AddAccountWithExternalSignatureParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
-    return ECoreActions.ADD_ACCOUNT;
+    return ECoreActions.ADD_ACCOUNT_WITH_EXTERNAL_SIGNATURE;
+  }
+}
+
+export class AddAccountWithExternalTypedDataSignatureParams extends CoreActionParams<void> {
+  public constructor(
+    public accountAddress: AccountAddress,
+    public domain: TypedDataDomain,
+    public types: Record<string, Array<TypedDataField>>,
+    public value: Record<string, unknown>,
+    public signature: Signature,
+    public chain: EChain,
+  ) {
+    super(AddAccountWithExternalTypedDataSignatureParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.ADD_ACCOUNT_WITH_EXTERNAL_TYPED_DATA_SIGNATURE;
   }
 }
 

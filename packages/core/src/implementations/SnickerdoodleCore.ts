@@ -5,6 +5,10 @@
  * of SnickerdoodleCore.
  */
 import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
+import {
   IMasterIndexer,
   IMasterIndexerType,
   indexersModule,
@@ -260,6 +264,29 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           message,
           signature,
           chain,
+        );
+      },
+
+      addAccountWithExternalTypedDataSignature: (
+        accountAddress: AccountAddress,
+        domain: TypedDataDomain,
+        types: Record<string, Array<TypedDataField>>,
+        value: Record<string, unknown>,
+        signature: Signature,
+        chain: EChain,
+        sourceDomain: DomainName | undefined,
+      ) => {
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        return accountService.addAccountWithExternalTypedDataSignature(
+          accountAddress,
+          domain,
+          types,
+          value,
+          signature,
+          chain,
+          sourceDomain,
         );
       },
 

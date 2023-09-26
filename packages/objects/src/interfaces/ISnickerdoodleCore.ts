@@ -1,3 +1,7 @@
+import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
 import { ResultAsync } from "neverthrow";
 
 import {
@@ -107,10 +111,7 @@ import {
   TwitterID,
   UnixTimestamp,
   URLString,
-  PasswordString,
-  AccessToken,
   BlockNumber,
-  OAuth2RefreshToken,
   RefreshToken,
 } from "@objects/primitives/index.js";
 
@@ -176,6 +177,23 @@ export interface IAccountMethods {
   addAccountWithExternalSignature(
     accountAddress: AccountAddress,
     message: string,
+    signature: Signature,
+    chain: EChain,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | InvalidParametersError
+  >;
+
+  addAccountWithExternalTypedDataSignature(
+    accountAddress: AccountAddress,
+    domain: TypedDataDomain,
+    types: Record<string, Array<TypedDataField>>,
+    value: Record<string, unknown>,
     signature: Signature,
     chain: EChain,
     sourceDomain: DomainName | undefined,
