@@ -229,9 +229,26 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       10000, // average block mining time
       new NativeCurrencyInformation("BNB", 18, "BNB", "binancecoin"),
       EChainType.Mainnet,
-      "https://api.bscscan.com/api",
+      "https://bscscan.com/",
       getExplorerUrl,
-      URLString("https://api.bscscan.com/"),
+      URLString("https://bscscan.com/"),
+    ),
+  ],
+  [
+    EChain.BinanceTestnet,
+    new ChainInformation(
+      "BinanceTestnet",
+      ChainId(EChain.BinanceTestnet),
+      EChain.BinanceTestnet,
+      EChainTechnology.EVM,
+      true,
+      "binance",
+      10000, // average block mining time
+      new NativeCurrencyInformation("BNB", 18, "BNB", "binancecoin"),
+      EChainType.Testnet,
+      "https://testnet.bscscan.com/",
+      getExplorerUrl,
+      URLString("https://testnet.bscscan.com/"),
     ),
   ],
   [
@@ -261,11 +278,11 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       true,
       "arbitrum",
       10000, // average block mining time
-      new NativeCurrencyInformation("ARB", 18, "ARB", "arbitrum"),
+      new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
       EChainType.Mainnet,
       "https://api.arbiscan.io/api",
       getExplorerUrl,
-      URLString("https://api.arbiscan.io/"),
+      URLString("https://arbiscan.io/"),
     ),
   ],
   [
