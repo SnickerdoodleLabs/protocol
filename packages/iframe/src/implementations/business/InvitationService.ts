@@ -107,7 +107,6 @@ export class InvitationService implements IInvitationService {
           return core.invitation
             .checkInvitationStatus(invitation)
             .andThen((invitationStatus) => {
-              console.log("Invitation status", invitationStatus);
               if (invitationStatus === EInvitationStatus.New) {
                 return core
                   .getConsentContractCID(consentAddress)
