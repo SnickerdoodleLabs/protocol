@@ -409,7 +409,6 @@ describe("Testing avalanche 4", () => {
     await engine
       .handleQuery(sdqlQuery4, new DataPermissions(allPermissions))
       .andThen((deliveredInsights) => {
-        console.log(`r `, deliveredInsights);
         expect(deliveredInsights).toMatchObject(expectedInsights);
         expect(
           Object.values(deliveredInsights.insights!).length > 0,
