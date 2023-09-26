@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import {
   ILogUtils,
   ILogUtilsType,
@@ -5,7 +6,6 @@ import {
   ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  IConfigOverrides,
   ISdlDataWallet,
   PersistenceError,
   ProviderRpcError,
@@ -13,16 +13,14 @@ import {
   URLString,
   UninitializedError,
   MillisecondTimestamp,
+  IWebIntegrationConfigOverrides,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { Container } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import {
-  UIClient,
-  IPaletteOverrides,
-} from "@web-integration/implementations/app/ui/index.js";
+import { URLChangeObserver } from "@web-integration/implementations/utilities/index.js";
 import { ISnickerdoodleWebIntegration } from "@web-integration/interfaces/app/index.js";
 import {
   IBlockchainProviderRepository,
@@ -55,7 +53,7 @@ export class SnickerdoodleWebIntegration
   > | null = null;
 
   constructor(
-    protected config: IConfigOverrides & { palette?: IPaletteOverrides },
+    protected config: IWebIntegrationConfigOverrides,
     protected signer?: ethers.Signer | null,
   ) {
     this.iframeURL = config.iframeURL || this.iframeURL;
@@ -140,16 +138,11 @@ export class SnickerdoodleWebIntegration
         return proxyFactory
           .createProxy(this.iframeURL, this.config)
           .map((proxy) => {
-            // Listen for the iframe; sometimes it needs to be shown
-            proxy.onIframeDisplayRequested.subscribe(() => {
-              logUtils.warning("IFrame display requested");
-            });
-
+            // initialize the URL change observer
+            new URLChangeObserver(proxy.checkURLForInvitation.bind(proxy));
             // Assign the iframe proxy to the internal reference and the window object
             this._core = proxy;
             window.sdlDataWallet = this.core;
-            const uiClient = new UIClient(proxy, this.config.palette);
-            uiClient.register();
             return proxy;
           });
       })

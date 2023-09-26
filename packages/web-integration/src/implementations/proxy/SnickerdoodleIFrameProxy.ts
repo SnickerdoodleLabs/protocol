@@ -102,6 +102,7 @@ export class SnickerdoodleIFrameProxy
     this.events = new PublicEvents();
     this.onIframeDisplayRequested = new Subject<void>();
   }
+
   public proxyType: ECoreProxyType = ECoreProxyType.IFRAME_INJECTED;
 
   public onIframeDisplayRequested: Subject<void>;
@@ -243,7 +244,11 @@ export class SnickerdoodleIFrameProxy
         });
 
         this.child.on("onIframeDisplayRequested", () => {
-          this.onIframeDisplayRequested.next();
+          this._displayCoreIFrame();
+        });
+
+        this.child.on("onIframeHideRequested", () => {
+          this._closeCoreIFrame();
         });
 
         /* Now, we need to pass the config over to the iframe */
@@ -259,6 +264,10 @@ export class SnickerdoodleIFrameProxy
 
   public initialize(): ResultAsync<void, ProxyError> {
     return this._createCall("initialize", null);
+  }
+
+  public checkURLForInvitation(url: URLString): ResultAsync<void, ProxyError> {
+    return this._createCall("checkURLForInvitation", { url });
   }
 
   public getAge(): ResultAsync<Age | null, ProxyError> {

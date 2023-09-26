@@ -6,7 +6,9 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "cSpell.words": [
     "ethersproject",
+    "inversify",
     "neverthrow",
+    "Snickerdoodle",
     "snickerdoodlelabs",
     "Solana"
   ]

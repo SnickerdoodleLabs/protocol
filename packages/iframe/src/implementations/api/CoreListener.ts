@@ -42,6 +42,10 @@ import {
   ECloudStorageType,
   BlockNumber,
   RefreshToken,
+  URLString,
+  EInvitationStatus,
+  PageInvitation,
+  IWebIntegrationConfigOverrides,
 } from "@snickerdoodlelabs/objects";
 import {
   IIFrameCallData,
@@ -50,31 +54,41 @@ import {
   IStorageUtils,
 } from "@snickerdoodlelabs/utils";
 import { injectable, inject } from "inversify";
-import { okAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
 import Postmate from "postmate";
 import { parse } from "tldts";
 
 import { ICoreListener } from "@core-iframe/interfaces/api/index";
+import { EInvitationSourceType } from "@core-iframe/interfaces/objects";
 import {
   IAccountService,
   IAccountServiceType,
+  IInvitationService,
+  IInvitationServiceType,
 } from "@core-iframe/interfaces/business/index";
 import {
   IConfigProvider,
   IConfigProviderType,
   ICoreProvider,
   ICoreProviderType,
+  IIFrameContextProvider,
+  IIFrameContextProviderType,
 } from "@core-iframe/interfaces/utilities/index";
+import { ResultUtils } from "neverthrow-result-utils";
 @injectable()
 export class CoreListener extends ChildProxy implements ICoreListener {
   constructor(
     @inject(IAccountServiceType) protected accountService: IAccountService,
+    @inject(IInvitationServiceType)
+    protected invitationService: IInvitationService,
     @inject(IStorageUtilsType) protected storageUtils: IStorageUtils,
     @inject(ICoreProviderType) protected coreProvider: ICoreProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
+    @inject(IIFrameContextProviderType)
+    protected contextProvider: IIFrameContextProvider,
   ) {
     super();
   }
@@ -88,9 +102,13 @@ export class CoreListener extends ChildProxy implements ICoreListener {
        * pass over the config data.
        * @param data
        */
-      setConfig: (data: IIFrameCallData<IConfigOverrides>) => {
+      setConfig: (data: IIFrameCallData<IWebIntegrationConfigOverrides>) => {
         this.returnForModel(() => {
-          return this.coreProvider.setConfig(data.data);
+          return this.contextProvider
+            .setConfigOverrides(data.data)
+            .andThen(() => {
+              return this.coreProvider.setConfig(data.data);
+            });
         }, data.callId);
       },
       addAccount: (
@@ -513,31 +531,10 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }>,
       ) => {
         this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.invitation
-              .getInvitationsByDomain(data.data.domain)
-              .andThen((pageInvitations) => {
-                const pageInvitation = pageInvitations.find((value) => {
-                  const incomingUrl = value.url.replace(/^https?:\/\//, "");
-                  const incomingUrlInfo = parse(incomingUrl);
-                  if (
-                    !incomingUrlInfo.subdomain &&
-                    parse(data.data.path).subdomain
-                  ) {
-                    return (
-                      `${"www"}.${incomingUrl.replace(/\/$/, "")}` ===
-                      data.data.path
-                    );
-                  }
-                  return incomingUrl.replace(/\/$/, "") === data.data.path;
-                });
-                if (pageInvitation) {
-                  return okAsync(pageInvitation);
-                } else {
-                  return okAsync(null);
-                }
-              });
-          });
+          return this.invitationService.getInvitationByDomain(
+            data.data.domain,
+            data.data.path,
+          );
         }, data.callId);
       },
 
@@ -1045,6 +1042,13 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.coreProvider.getCore().andThen((core) => {
             return core.storage.getCurrentCloudStorage(this.sourceDomain);
           });
+        }, data.callId);
+      },
+
+      // ivitations
+      checkURLForInvitation: (data: IIFrameCallData<{ url: URLString }>) => {
+        this.returnForModel(() => {
+          return this.invitationService.handleURL(data.data.url);
         }, data.callId);
       },
     });
