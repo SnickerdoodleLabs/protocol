@@ -59,7 +59,6 @@ import { ExtensionUtils } from "@synamint-extension-sdk/extensionShared";
 import {
   DEFAULT_RPC_SUCCESS_RESULT,
   ECoreActions,
-  UnlockParams,
   GetUnlockMessageParams,
   AddAccountParams,
   SetGivenNameParams,
@@ -143,6 +142,7 @@ import {
   RejectInvitationParams,
   GetQueryStatusesParams,
   AddAccountWithExternalSignatureParams,
+  AddAccountWithExternalTypedDataSignatureParams,
   ERequestChannel,
 } from "@synamint-extension-sdk/shared";
 
@@ -168,6 +168,20 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this.accountService.addAccountWithExternalSignature(
           params.accountAddress,
           params.message,
+          params.signature,
+          params.chain,
+          sourceDomain,
+        );
+      },
+    ),
+    new CoreActionHandler<AddAccountWithExternalTypedDataSignatureParams>(
+      AddAccountWithExternalTypedDataSignatureParams.getCoreAction(),
+      (params, _sender, sourceDomain) => {
+        return this.accountService.addAccountWithExternalTypedDataSignature(
+          params.accountAddress,
+          params.domain,
+          params.types,
+          params.value,
           params.signature,
           params.chain,
           sourceDomain,

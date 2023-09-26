@@ -1,4 +1,8 @@
 import "reflect-metadata";
+import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
 import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
   AccountAddress,
@@ -142,6 +146,7 @@ import {
   RejectInvitationByUUIDParams,
   GetQueryStatusesParams,
   AddAccountWithExternalSignatureParams,
+  AddAccountWithExternalTypedDataSignatureParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -177,6 +182,25 @@ export class ExternalCoreGateway {
           new AddAccountWithExternalSignatureParams(
             accountAddress,
             message,
+            signature,
+            chain,
+          ),
+        );
+      },
+      addAccountWithExternalTypedDataSignature: (
+        accountAddress: AccountAddress,
+        domain: TypedDataDomain,
+        types: Record<string, Array<TypedDataField>>,
+        value: Record<string, unknown>,
+        signature: Signature,
+        chain: EChain,
+      ): ResultAsync<void, ProxyError> => {
+        return this._handler.call(
+          new AddAccountWithExternalTypedDataSignatureParams(
+            accountAddress,
+            domain,
+            types,
+            value,
             signature,
             chain,
           ),

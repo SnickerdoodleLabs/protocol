@@ -1,4 +1,8 @@
 import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
+import {
   AccountAddress,
   EarnedReward,
   EChain,
@@ -29,6 +33,15 @@ export interface IAccountService {
   addAccountWithExternalSignature(
     accountAddress: AccountAddress,
     message: string,
+    signature: Signature,
+    chain: EChain,
+    sourceDomain?: DomainName,
+  ): ResultAsync<void, SnickerDoodleCoreError>;
+  addAccountWithExternalTypedDataSignature(
+    accountAddress: AccountAddress,
+    domain: TypedDataDomain,
+    types: Record<string, Array<TypedDataField>>,
+    value: Record<string, unknown>,
     signature: Signature,
     chain: EChain,
     sourceDomain?: DomainName,
