@@ -15,6 +15,9 @@ import {
   TokenMarketData,
   WalletNFT,
   QueryStatus,
+  TransactionFilter,
+  ChainTransaction,
+  TransactionFlowInsight,
 } from "@objects/businessObjects/index.js";
 import {
   EChain,
@@ -22,7 +25,7 @@ import {
   EInvitationStatus,
   EWalletDataType,
 } from "@objects/enum/index.js";
-import {  ProxyError } from "@objects/errors/index.js";
+import { ProxyError } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata.js";
 import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences.js";
@@ -251,6 +254,15 @@ export interface ISdlDataWallet {
   ): ResultAsync<TokenInfo | null, ProxyError>;
   getAccountBalances(): ResultAsync<TokenBalance[], ProxyError>;
   getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError>;
+
+  getTransactionValueByChain(): ResultAsync<
+    TransactionFlowInsight[],
+    ProxyError
+  >;
+  getTransactions(
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], ProxyError>;
+
   closeTab(): ResultAsync<void, ProxyError>;
   getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
@@ -321,12 +333,8 @@ export interface ISdlDataWallet {
   getQueryStatuses(
     contractAddress: EVMContractAddress,
     blockNumber?: BlockNumber,
-  ): ResultAsync<
-    QueryStatus[],
-    | ProxyError
-  > 
-  
-  
+  ): ResultAsync<QueryStatus[], ProxyError>;
+
   getSiteVisits(): ResultAsync<SiteVisit[], ProxyError>;
 
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, ProxyError>;

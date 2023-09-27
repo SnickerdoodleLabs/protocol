@@ -58,6 +58,7 @@ import {
   ECoreProxyType,
   BlockNumber,
   RefreshToken,
+  TransactionFilter,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -107,9 +108,9 @@ import {
   SetAuthenticatedStorageParams,
   RejectInvitationParams,
   GetQueryStatusesParams,
+  GetTransactionsParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
-
 
 let coreGateway: ExternalCoreGateway;
 let eventEmitter: UpdatableEventEmitterWrapper;
@@ -416,16 +417,12 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public getQueryStatuses(
     contractAddress: EVMContractAddress,
     blockNumber?: BlockNumber,
-  ): ResultAsync<
-    QueryStatus[],
-    | ProxyError
-  > {
+  ): ResultAsync<QueryStatus[], ProxyError> {
     return coreGateway.getQueryStatuses(
-      new GetQueryStatusesParams(contractAddress , blockNumber),
+      new GetQueryStatusesParams(contractAddress, blockNumber),
     );
   }
 
-  
   public checkInvitationStatus(
     consentAddress: EVMContractAddress,
     signature?: Signature,
@@ -473,6 +470,14 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       new GetUnlockMessageParams(languageCode),
     );
   }
+
+  public getTransactionValueByChain() {
+    return coreGateway.getTransactionValueByChain();
+  }
+  public getTransactions(filter?: TransactionFilter) {
+    return coreGateway.getTransactions(new GetTransactionsParams(filter));
+  }
+
   public getAccounts() {
     return coreGateway.getAccounts();
   }

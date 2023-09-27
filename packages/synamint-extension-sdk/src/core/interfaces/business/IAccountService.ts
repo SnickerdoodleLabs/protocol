@@ -12,6 +12,9 @@ import {
   QueryStatus,
   EVMContractAddress,
   BlockNumber,
+  TransactionFlowInsight,
+  TransactionFilter,
+  ChainTransaction,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -43,6 +46,14 @@ export interface IAccountService {
     contractAddress: EVMContractAddress,
     blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], SnickerDoodleCoreError>;
+  getTransactionValueByChain(): ResultAsync<
+    TransactionFlowInsight[],
+    SnickerDoodleCoreError
+  >;
+  getTransactions(
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], SnickerDoodleCoreError>;
+
 }
 
 export const IAccountServiceType = Symbol.for("IAccountService");

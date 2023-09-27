@@ -12,6 +12,9 @@ import {
   QueryStatus,
   EVMContractAddress,
   BlockNumber,
+  ChainTransaction,
+  TransactionFilter,
+  TransactionFlowInsight,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -29,6 +32,7 @@ export class AccountService implements IAccountService {
     @inject(IAccountRepositoryType)
     protected accountRepository: IAccountRepository,
   ) {}
+
   getQueryStatusByQueryCID(
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, SnickerDoodleCoreError> {
@@ -38,8 +42,11 @@ export class AccountService implements IAccountService {
   getQueryStatuses(
     contractAddress: EVMContractAddress,
     blockNumber?: BlockNumber,
-  ): ResultAsync<QueryStatus[], SnickerDoodleCoreError>{
-    return this.accountRepository.getQueryStatuses(contractAddress , blockNumber);
+  ): ResultAsync<QueryStatus[], SnickerDoodleCoreError> {
+    return this.accountRepository.getQueryStatuses(
+      contractAddress,
+      blockNumber,
+    );
   }
 
   public getEarnedRewards(): ResultAsync<
@@ -76,6 +83,18 @@ export class AccountService implements IAccountService {
       chain,
       languageCode,
     );
+  }
+
+  getTransactionValueByChain(): ResultAsync<
+    TransactionFlowInsight[],
+    SnickerDoodleCoreError
+  > {
+    return this.accountRepository.getTransactionValueByChain();
+  }
+  getTransactions(
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], SnickerDoodleCoreError> {
+    return this.accountRepository.getTransactions(filter);
   }
 
   public getLinkAccountMessage(

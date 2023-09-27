@@ -75,6 +75,9 @@ import {
   BlockNumber,
   RefreshToken,
   OAuth2Tokens,
+  TransactionFlowInsight,
+  ChainTransaction,
+  TransactionFilter,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -385,6 +388,20 @@ export class SnickerdoodleIFrameProxy
     return this._createCall("getAccountNFTs", null);
   }
 
+  public getTransactionValueByChain(): ResultAsync<
+    TransactionFlowInsight[],
+    ProxyError
+  > {
+    return this._createCall("getTransactionValueByChain", null);
+  }
+  public getTransactions(
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], ProxyError> {
+    return this._createCall("getTransactions", {
+      filter,
+    });
+  }
+
   public closeTab(): ResultAsync<void, ProxyError> {
     return okAsync(undefined);
   }
@@ -627,14 +644,13 @@ export class SnickerdoodleIFrameProxy
 
   public getQueryStatuses(
     contractAddress: EVMContractAddress,
-    blockNumber ?:   BlockNumber
+    blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], ProxyError> {
     return this._createCall("getQueryStatuses", {
       contractAddress,
-      blockNumber
+      blockNumber,
     });
   }
-
 
   public switchToTab(tabId: number): ResultAsync<void, ProxyError> {
     throw new Error("Method not implemented.");

@@ -55,6 +55,9 @@ import {
   BlockNumber,
   RefreshToken,
   OAuth2Tokens,
+  TransactionFlowInsight,
+  ChainTransaction,
+  TransactionFilter,
 } from "@snickerdoodlelabs/objects";
 
 import { IExtensionConfig } from "./IExtensionConfig";
@@ -363,6 +366,25 @@ export class GetTokenPriceParams extends CoreActionParams<number> {
   }
 }
 
+export class GetTransactionsParams extends CoreActionParams<ChainTransaction[]> {
+  public constructor(
+    public filter?: TransactionFilter
+  ) {
+    super(GetTransactionsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_TRANSACTIONS;
+  }
+}
+
+export class GetTransactionValueByChainParams extends CoreActionParams<TransactionFlowInsight[]> {
+  public constructor() {
+    super(GetTransactionValueByChainParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_TRANSACTION_VALUE_BY_CHAIN;
+  }
+}
 export class GetConsentCapacityParams extends CoreActionParams<IConsentCapacity> {
   public constructor(public contractAddress: EVMContractAddress) {
     super(GetConsentCapacityParams.getCoreAction());

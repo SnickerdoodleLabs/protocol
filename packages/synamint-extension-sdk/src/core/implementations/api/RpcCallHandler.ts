@@ -142,6 +142,8 @@ import {
   GetCurrentCloudStorageParams,
   RejectInvitationParams,
   GetQueryStatusesParams,
+  GetTransactionsParams,
+  GetTransactionValueByChainParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -214,6 +216,21 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this.accountService.getAccountNFTs();
       },
     ),
+
+    new CoreActionHandler<GetTransactionsParams>(
+      GetTransactionsParams.getCoreAction(),
+      (_params) => {
+        return this.accountService.getTransactions(_params.filter);
+      },
+    ),
+
+    new CoreActionHandler<GetTransactionValueByChainParams>(
+      GetTransactionValueByChainParams.getCoreAction(),
+      (_params) => {
+        return this.accountService.getTransactionValueByChain();
+      },
+    ),
+
     new CoreActionHandler<SetGivenNameParams>(
       SetGivenNameParams.getCoreAction(),
       (params) => {
