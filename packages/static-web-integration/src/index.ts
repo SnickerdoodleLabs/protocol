@@ -1,5 +1,8 @@
 import "reflect-metadata";
-import { IConfigOverrides, URLString } from "@snickerdoodlelabs/objects";
+import {
+  IWebIntegrationConfigOverrides,
+  URLString,
+} from "@snickerdoodlelabs/objects";
 import { SnickerdoodleWebIntegration } from "@snickerdoodlelabs/web-integration";
 import { Signer } from "ethers";
 import { ResultAsync, okAsync } from "neverthrow";
@@ -9,7 +12,9 @@ import { WCProvider } from "@static-web-integration/WCProvider";
 
 declare const __LOGO_PATH__: URLString;
 
-export function integrateSnickerdoodle(coreConfig: IConfigOverrides): void {
+export function integrateSnickerdoodle(
+  coreConfig: IWebIntegrationConfigOverrides,
+): void {
   checkConnections(coreConfig)
     .map((connected) => {
       if (connected) {
@@ -43,7 +48,7 @@ export function integrateSnickerdoodle(coreConfig: IConfigOverrides): void {
     });
 }
 
-function startIntegration(coreConfig: IConfigOverrides) {
+function startIntegration(coreConfig: IWebIntegrationConfigOverrides) {
   return getSigner(coreConfig)
     .andThen((signerResult) => {
       const webIntegration = new SnickerdoodleWebIntegration(
@@ -82,7 +87,7 @@ function getSigner(coreConfig: IConfigOverrides): ResultAsync<Signer, Error> {
 }
 
 function checkConnections(
-  coreConfig: IConfigOverrides,
+  coreConfig: IWebIntegrationConfigOverrides,
 ): ResultAsync<boolean, unknown> {
   if (!coreConfig.walletConnect?.projectId) {
     const walletProvider = new WalletProvider();
