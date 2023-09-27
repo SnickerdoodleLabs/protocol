@@ -172,7 +172,7 @@ export class RpcCallHandler implements IRpcCallHandler {
           params.accountAddress,
           params.domain,
           params.types,
-          params.value,
+          ObjectUtils.deserialize(params.value),
           params.signature,
           params.chain,
           sourceDomain,
