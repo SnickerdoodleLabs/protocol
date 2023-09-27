@@ -200,7 +200,7 @@ const App = () => {
   }, []);
 
   const getAccounts = () => {
-    coreGateway.getAccounts().map((linkedAccounts) => {
+    coreGateway.account.getAccounts().map((linkedAccounts) => {
       setAccounts(linkedAccounts);
     });
   };
@@ -261,25 +261,6 @@ const App = () => {
     }
     initiateCohort();
   }, [_path]);
-
-  // useEffect(() => {
-  //   if (
-  //     invitationDomain &&
-  //     walletState === EWalletState.UNLOCKED &&
-  //     isStatusCheckRequiredRef.current
-  //   ) {
-  //     coreGateway
-  //       .checkInvitationStatus(
-  //         new CheckInvitationStatusParams(invitationDomain.consentAddress),
-  //       )
-  //       .map((result) => {
-  //         if (result != EInvitationStatus.New) {
-  //           emptyReward();
-  //         }
-  //         isStatusCheckRequiredRef.current = false;
-  //       });
-  //   }
-  // }, [JSON.stringify(invitationDomain)]);
 
   const initiateCohort = useCallback(async () => {
     const path = window.location.pathname;

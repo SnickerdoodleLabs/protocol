@@ -1,10 +1,10 @@
 import { Box, Typography, Dialog, IconButton, Button } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
-import React from "react";
+import React, { useMemo } from "react";
 
 import { useStyles } from "@synamint-extension-sdk/content/components/Screens/RewardCard/RewardCard.style";
 import { IRewardItem } from "@synamint-extension-sdk/content/constants";
-import { ExtensionConfig } from "@synamint-extension-sdk/shared";
+import parse from "html-react-parser";
 
 interface IRewardCardProps {
   onJoinClick: () => void;
@@ -22,6 +22,20 @@ const RewardCard: React.FC<IRewardCardProps> = ({
   linkedAccountExist,
 }: IRewardCardProps) => {
   const classes = useStyles();
+
+  const description = useMemo(() => {
+    const descriptionText = rewardItem.description;
+    if (descriptionText.includes("<")) {
+      return (
+        <span className={classes.rawHtmlWrapper}>{parse(descriptionText)}</span>
+      );
+    }
+    return (
+      <Typography className={classes.description} align="center">
+        {descriptionText}
+      </Typography>
+    );
+  }, [JSON.stringify(rewardItem)]);
 
   return (
     <Dialog
@@ -85,9 +99,7 @@ const RewardCard: React.FC<IRewardCardProps> = ({
             <Typography className={classes.title} align="center">
               {rewardItem.title}
             </Typography>
-            <Typography className={classes.description} align="center">
-              {rewardItem.description}
-            </Typography>
+            {description}
           </Box>
           <Box px={6} mb={3} display="flex" justifyContent="space-between">
             <Button

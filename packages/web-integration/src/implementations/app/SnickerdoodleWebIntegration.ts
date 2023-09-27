@@ -1,19 +1,26 @@
-import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import "reflect-metadata";
 import {
-  IConfigOverrides,
+  ILogUtils,
+  ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+import {
   ISdlDataWallet,
   PersistenceError,
   ProviderRpcError,
   ProxyError,
   URLString,
   UninitializedError,
+  MillisecondTimestamp,
+  IWebIntegrationConfigOverrides,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { Container } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { UIClient, IPaletteOverrides } from "@web-integration/implementations/app/ui/index.js";
+import { URLChangeObserver } from "@web-integration/implementations/utilities/index.js";
 import { ISnickerdoodleWebIntegration } from "@web-integration/interfaces/app/index.js";
 import {
   IBlockchainProviderRepository,
@@ -36,6 +43,9 @@ export class SnickerdoodleWebIntegration
   protected iocContainer: Container;
 
   protected _core: ISdlDataWallet | null = null;
+  protected timeUtils: ITimeUtils;
+
+  protected startTimestamp: MillisecondTimestamp;
 
   protected initializeResult: ResultAsync<
     ISdlDataWallet,
@@ -43,8 +53,8 @@ export class SnickerdoodleWebIntegration
   > | null = null;
 
   constructor(
-    protected config: IConfigOverrides & { palette?: IPaletteOverrides },
-    protected signer: ethers.Signer | null,
+    protected config: IWebIntegrationConfigOverrides,
+    protected signer?: ethers.Signer | null,
   ) {
     this.iframeURL = config.iframeURL || this.iframeURL;
     this.debug = config.debug || this.debug;
@@ -57,7 +67,10 @@ export class SnickerdoodleWebIntegration
     // Set the config values that we need in the integration
     const configProvider =
       this.iocContainer.get<IConfigProvider>(IConfigProviderType);
-    configProvider.setValues(this.signer, this.iframeURL);
+    configProvider.setValues(this.signer ?? null, this.iframeURL);
+
+    this.timeUtils = this.iocContainer.get<ITimeUtils>(ITimeUtilsType);
+    this.startTimestamp = this.timeUtils.getMillisecondNow();
   }
 
   public get core(): ISdlDataWallet {
@@ -94,7 +107,7 @@ export class SnickerdoodleWebIntegration
       new Promise<ISdlDataWallet | undefined>((resolve) => {
         const maxResolveTime = 2000;
         const checkInterval = 200;
-        const startTime = Date.now();
+        const startTime = this.timeUtils.getMillisecondNow();
 
         function checkWindow() {
           if (typeof window.sdlDataWallet !== "undefined") {
@@ -125,16 +138,11 @@ export class SnickerdoodleWebIntegration
         return proxyFactory
           .createProxy(this.iframeURL, this.config)
           .map((proxy) => {
-            // Listen for the iframe; sometimes it needs to be shown
-            proxy.onIframeDisplayRequested.subscribe(() => {
-              logUtils.warning("IFrame display requested");
-            });
-
+            // initialize the URL change observer
+            new URLChangeObserver(proxy.checkURLForInvitation.bind(proxy));
             // Assign the iframe proxy to the internal reference and the window object
             this._core = proxy;
             window.sdlDataWallet = this.core;
-            const uiClient = new UIClient(proxy, this.config.palette);
-            uiClient.register();
             return proxy;
           });
       })
@@ -147,6 +155,12 @@ export class SnickerdoodleWebIntegration
           blockchainProvider,
           configProvider,
         ).map(() => {
+          const startupCompleteTime = this.timeUtils.getMillisecondNow();
+          logUtils.warning(
+            `Completed starting iframe in ${
+              startupCompleteTime - this.startTimestamp
+            }ms`,
+          );
           return proxy;
         });
       })
@@ -164,8 +178,18 @@ export class SnickerdoodleWebIntegration
     blockchainProvider: IBlockchainProviderRepository,
     configProvider: IConfigProvider,
   ): ResultAsync<void, ProxyError | PersistenceError | ProviderRpcError> {
+    const config = configProvider.getConfig();
+
+    // If we were not given a signer, we can't possibly add an account automatically
+    if (config.signer == null) {
+      return okAsync(undefined);
+    }
+
+    console.debug(
+      "Signer provided, checking if account is already linked to the data wallet",
+    );
     return ResultUtils.combine([
-      proxy.getAccounts(),
+      proxy.account.getAccounts(),
       blockchainProvider.getCurrentAccount(),
       blockchainProvider.getCurrentChain(),
     ]).andThen(([linkedAccounts, accountAddress, chainInfo]) => {
@@ -191,18 +215,17 @@ export class SnickerdoodleWebIntegration
         `Detected unlinked account ${accountAddress} being used on the DApp, adding to Snickerdoodle Data Wallet`,
       );
 
-      return proxy
-        .getLinkAccountMessage()
+      return proxy.account
+        .getLinkAccountMessage(config.languageCode)
         .andThen((unlockMessage) => {
           return blockchainProvider.getSignature(unlockMessage);
         })
         .andThen((signature) => {
-          const config = configProvider.getConfig();
-          return proxy.addAccount(
+          return proxy.account.addAccount(
             accountAddress,
             signature,
-            chainInfo.chain,
             config.languageCode,
+            chainInfo.chain,
           );
         });
     });

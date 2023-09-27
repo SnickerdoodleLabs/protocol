@@ -1,4 +1,8 @@
 import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
+import {
   AccountAddress,
   Age,
   BackupCreatedEvent,
@@ -67,7 +71,6 @@ import {
   JsonWebToken,
   IProxyIntegrationMethods,
   QueryStatus,
-  AccessToken,
   ECloudStorageType,
   IProxyStorageMethods,
   ECoreProxyType,
@@ -75,6 +78,7 @@ import {
   BlockNumber,
   RefreshToken,
   OAuth2Tokens,
+  IProxyAccountMethods,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -98,6 +102,7 @@ export class SnickerdoodleIFrameProxy
     this.events = new PublicEvents();
     this.onIframeDisplayRequested = new Subject<void>();
   }
+
   public proxyType: ECoreProxyType = ECoreProxyType.IFRAME_INJECTED;
 
   public onIframeDisplayRequested: Subject<void>;
@@ -239,7 +244,11 @@ export class SnickerdoodleIFrameProxy
         });
 
         this.child.on("onIframeDisplayRequested", () => {
-          this.onIframeDisplayRequested.next();
+          this._displayCoreIFrame();
+        });
+
+        this.child.on("onIframeHideRequested", () => {
+          this._closeCoreIFrame();
         });
 
         /* Now, we need to pass the config over to the iframe */
@@ -257,26 +266,8 @@ export class SnickerdoodleIFrameProxy
     return this._createCall("initialize", null);
   }
 
-  public addAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode: LanguageCode = LanguageCode("en"),
-  ): ResultAsync<void, ProxyError> {
-    return this._createCall("addAccount", {
-      accountAddress,
-      signature,
-      chain,
-      languageCode,
-    });
-  }
-
-  public getLinkAccountMessage(
-    languageCode: LanguageCode = LanguageCode("en"),
-  ): ResultAsync<string, ProxyError> {
-    return this._createCall("getLinkAccountMessage", {
-      languageCode,
-    });
+  public checkURLForInvitation(url: URLString): ResultAsync<void, ProxyError> {
+    return this._createCall("checkURLForInvitation", { url });
   }
 
   public getAge(): ResultAsync<Age | null, ProxyError> {
@@ -341,10 +332,6 @@ export class SnickerdoodleIFrameProxy
 
   public getLocation(): ResultAsync<CountryCode | null, ProxyError> {
     return this._createCall("getLocation", null);
-  }
-
-  public getAccounts(): ResultAsync<LinkedAccount[], ProxyError> {
-    return this._createCall("getAccounts", null);
   }
 
   public getTokenPrice(
@@ -507,20 +494,6 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
-  public unlinkAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode?: LanguageCode,
-  ): ResultAsync<void, ProxyError> {
-    return this._createCall("unlinkAccount", {
-      accountAddress,
-      signature,
-      chain,
-      languageCode,
-    });
-  }
-
   public checkInvitationStatus(
     consentAddress: EVMContractAddress,
     signature?: Signature,
@@ -627,18 +600,82 @@ export class SnickerdoodleIFrameProxy
 
   public getQueryStatuses(
     contractAddress: EVMContractAddress,
-    blockNumber ?:   BlockNumber
+    blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], ProxyError> {
     return this._createCall("getQueryStatuses", {
       contractAddress,
-      blockNumber
+      blockNumber,
     });
   }
-
 
   public switchToTab(tabId: number): ResultAsync<void, ProxyError> {
     throw new Error("Method not implemented.");
   }
+
+  public account: IProxyAccountMethods = {
+    addAccount: (
+      accountAddress: AccountAddress,
+      signature: Signature,
+      languageCode: LanguageCode,
+      chain: EChain,
+    ): ResultAsync<void, ProxyError> => {
+      return this._createCall("addAccount", {
+        accountAddress,
+        signature,
+        chain,
+        languageCode,
+      });
+    },
+    addAccountWithExternalSignature: (
+      accountAddress: AccountAddress,
+      message: string,
+      signature: Signature,
+      chain: EChain,
+    ): ResultAsync<void, ProxyError> => {
+      return this._createCall("addAccountWithExternalSignature", {
+        accountAddress,
+        message,
+        signature,
+        chain,
+      });
+    },
+    addAccountWithExternalTypedDataSignature: (
+      accountAddress: AccountAddress,
+      domain: TypedDataDomain,
+      types: Record<string, Array<TypedDataField>>,
+      value: Record<string, unknown>,
+      signature: Signature,
+      chain: EChain,
+    ): ResultAsync<void, ProxyError> => {
+      return this._createCall("addAccountWithExternalTypedDataSignature", {
+        accountAddress,
+        domain,
+        types,
+        value,
+        signature,
+        chain,
+      });
+    },
+    getLinkAccountMessage: (
+      languageCode: LanguageCode,
+    ): ResultAsync<string, ProxyError> => {
+      return this._createCall("getLinkAccountMessage", {
+        languageCode,
+      });
+    },
+    getAccounts: (): ResultAsync<LinkedAccount[], ProxyError> => {
+      return this._createCall("getAccounts", null);
+    },
+    unlinkAccount: (
+      accountAddress: AccountAddress,
+      chain: EChain,
+    ): ResultAsync<void, ProxyError> => {
+      return this._createCall("unlinkAccount", {
+        accountAddress,
+        chain,
+      });
+    },
+  };
 
   public discord: IProxyDiscordMethods = {
     initializeUserWithAuthorizationCode: (
