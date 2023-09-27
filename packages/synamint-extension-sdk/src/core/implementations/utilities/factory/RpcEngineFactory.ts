@@ -1,12 +1,4 @@
 import { URLString } from "@snickerdoodlelabs/objects";
-import endOfStream from "end-of-stream";
-import { inject, injectable } from "inversify";
-import { JsonRpcEngine, createAsyncMiddleware } from "json-rpc-engine";
-import { createEngineStream } from "json-rpc-middleware-stream";
-import { err, ok } from "neverthrow";
-import pump from "pump";
-import { Runtime } from "webextension-polyfill";
-
 import {
   IRpcCallHandler,
   IRpcCallHandlerType,
@@ -16,7 +8,16 @@ import {
   IContextProviderType,
 } from "@synamint-extension-sdk/core/interfaces/utilities";
 import { IRpcEngineFactory } from "@synamint-extension-sdk/core/interfaces/utilities/factory";
-import { EPortNames } from "@synamint-extension-sdk/shared/enums/ports";
+import { ERequestChannel, EPortNames } from "@synamint-extension-sdk/shared";
+import endOfStream from "end-of-stream";
+import PortDuplexStream from "extension-port-stream";
+import { inject, injectable } from "inversify";
+import { JsonRpcEngine, createAsyncMiddleware } from "json-rpc-engine";
+import { createEngineStream } from "json-rpc-middleware-stream";
+import { Ok, err, ok } from "neverthrow";
+import pump from "pump";
+import { Duplex } from "readable-stream";
+import { Runtime } from "webextension-polyfill";
 
 @injectable()
 export class RpcEngineFactory implements IRpcEngineFactory {
@@ -28,8 +29,9 @@ export class RpcEngineFactory implements IRpcEngineFactory {
   public createRpcEngine(
     remotePort: Runtime.Port,
     origin: EPortNames | URLString,
-    stream: any,
-  ) {
+    stream: Duplex | PortDuplexStream,
+    requestChannel: ERequestChannel,
+  ): Ok<JsonRpcEngine, never> {
     // create rpc handler engine
     const rpcEngine = new JsonRpcEngine();
     // add middleware for handling rpc events
@@ -40,6 +42,7 @@ export class RpcEngineFactory implements IRpcEngineFactory {
           res,
           next,
           remotePort.sender,
+          requestChannel,
         );
       }),
     );

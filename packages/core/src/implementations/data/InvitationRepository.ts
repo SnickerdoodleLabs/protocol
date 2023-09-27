@@ -9,14 +9,13 @@ import {
   EFieldKey,
   ERecordKey,
   EVMContractAddress,
-  Invitation,
   InvitationDomain,
   IOpenSeaMetadata,
   IpfsCID,
   IPFSError,
+  OptInInfo,
   PersistenceError,
   RejectedInvitation,
-  Signature,
   TokenId,
   UnixTimestamp,
   URLString,
@@ -48,7 +47,7 @@ export class InvitationRepository implements IInvitationRepository {
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
-  public getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError> {
+  public getAcceptedInvitations(): ResultAsync<OptInInfo[], PersistenceError> {
     return this.persistence
       .getField<InvitationForStorage[]>(EFieldKey.ACCEPTED_INVITATIONS)
       .map((storedInvitations) => {
@@ -63,7 +62,7 @@ export class InvitationRepository implements IInvitationRepository {
   }
 
   public addAcceptedInvitations(
-    invitations: Invitation[],
+    acceptedInvitations: OptInInfo[],
   ): ResultAsync<void, PersistenceError> {
     return this.persistence
       .getField<InvitationForStorage[]>(EFieldKey.ACCEPTED_INVITATIONS)
@@ -73,8 +72,8 @@ export class InvitationRepository implements IInvitationRepository {
         }
 
         const allInvitations = storedInvitations.concat(
-          invitations.map((invitation) => {
-            return InvitationForStorage.fromInvitation(invitation);
+          acceptedInvitations.map((invitation) => {
+            return InvitationForStorage.fromOptInInfo(invitation);
           }),
         );
 
@@ -206,27 +205,21 @@ export class InvitationRepository implements IInvitationRepository {
 
 class InvitationForStorage {
   public constructor(
-    public domain: DomainName,
     public consentContractAddress: EVMContractAddress,
     public tokenId: string,
-    public businessSignature: Signature | null,
   ) {}
 
-  static toInvitation(src: InvitationForStorage): Invitation {
-    return new Invitation(
-      src.domain,
+  static toInvitation(src: InvitationForStorage): OptInInfo {
+    return new OptInInfo(
       src.consentContractAddress,
       TokenId(BigInt(src.tokenId)),
-      src.businessSignature,
     );
   }
 
-  static fromInvitation(src: Invitation): InvitationForStorage {
+  static fromOptInInfo(src: OptInInfo): InvitationForStorage {
     return new InvitationForStorage(
-      src.domain,
       src.consentContractAddress,
       src.tokenId.toString(),
-      src.businessSignature,
     );
   }
 }

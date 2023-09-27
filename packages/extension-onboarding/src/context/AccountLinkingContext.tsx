@@ -1,4 +1,8 @@
-import { EChain, ESocialType } from "@snickerdoodlelabs/objects";
+import {
+  defaultLanguageCode,
+  EChain,
+  ESocialType,
+} from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import React, {
@@ -108,7 +112,7 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
       // setSelectedProviderKey(providerObj.key);
       return ResultUtils.combine([
         providerObj.provider.connect(),
-        sdlDataWallet.getLinkAccountMessage(),
+        sdlDataWallet.account.getLinkAccountMessage(defaultLanguageCode),
       ]).andThen(([account, message]) => {
         return providerObj.provider
           .getSignature(message)
@@ -126,8 +130,13 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
                 type: ELoadingIndicatorType.COMPONENT,
                 component: <AccountLinkingIndicator />,
               });
-              return sdlDataWallet
-                .addAccount(account, signature, getChain(providerObj.key))
+              return sdlDataWallet.account
+                .addAccount(
+                  account,
+                  signature,
+                  defaultLanguageCode,
+                  getChain(providerObj.key),
+                )
                 .mapErr((e) => {
                   console.error(e);
                   setLoadingStatus(false);
