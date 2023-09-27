@@ -66,7 +66,9 @@ function startIntegration(coreConfig: IWebIntegrationConfigOverrides) {
     });
 }
 
-function getSigner(coreConfig: IConfigOverrides): ResultAsync<Signer, Error> {
+function getSigner(
+  coreConfig: IWebIntegrationConfigOverrides,
+): ResultAsync<Signer, Error> {
   if (!coreConfig.walletConnect?.projectId) {
     const walletProvider = new WalletProvider();
 
