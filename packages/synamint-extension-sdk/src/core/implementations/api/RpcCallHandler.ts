@@ -34,8 +34,6 @@ import {
   IMetricsServiceType,
   IPIIService,
   IPIIServiceType,
-  IScamFilterService,
-  IScamFilterServiceType,
   ITokenPriceService,
   ITokenPriceServiceType,
   ITwitterService,
@@ -51,10 +49,6 @@ import {
   IDataPermissionsUtils,
   IDataPermissionsUtilsType,
 } from "@synamint-extension-sdk/core/interfaces/utilities";
-import {
-  IScamFilterSettingsUtils,
-  IScamFilterSettingsUtilsType,
-} from "@synamint-extension-sdk/core/interfaces/utilities/IScamFilterSettingsUtils";
 import { ExtensionUtils } from "@synamint-extension-sdk/extensionShared";
 import {
   DEFAULT_RPC_SUCCESS_RESULT,
@@ -72,13 +66,11 @@ import {
   RejectInvitationByUUIDParams,
   LeaveCohortParams,
   GetInvitationMetadataByCIDParams,
-  CheckURLParams,
   GetAgreementPermissionsParams,
   SetDefaultPermissionsWithDataTypesParams,
   SetApplyDefaultPermissionsParams,
   UnlinkAccountParams,
   AcceptInvitationParams,
-  ScamFilterSettingsParams,
   GetConsentContractCIDParams,
   CheckInvitationStatusParams,
   GetTokenPriceParams,
@@ -105,7 +97,6 @@ import {
   GetDefaultPermissionsParams,
   SetDefaultPermissionsToAllParams,
   GetApplyDefaultPermissionsOptionParams,
-  GetScamFilterSettingsParams,
   CloseTabParams,
   GetStateParams,
   GetInternalStateParams,
@@ -519,21 +510,6 @@ export class RpcCallHandler implements IRpcCallHandler {
         );
       },
     ),
-    new CoreActionHandler<GetScamFilterSettingsParams>(
-      GetScamFilterSettingsParams.getCoreAction(),
-      (_params) => {
-        return this.scamFilterSettingsUtils.getScamFilterSettings();
-      },
-    ),
-    new CoreActionHandler<ScamFilterSettingsParams>(
-      ScamFilterSettingsParams.getCoreAction(),
-      (params) => {
-        return this.scamFilterSettingsUtils.setScamFilterSettings(
-          params.isScamFilterActive,
-          params.showMessageEveryTime,
-        );
-      },
-    ),
     new CoreActionHandler<AcceptInvitationParams>(
       AcceptInvitationParams.getCoreAction(),
       (params) => {
@@ -569,12 +545,6 @@ export class RpcCallHandler implements IRpcCallHandler {
           ),
           params.rejectUntil,
         );
-      },
-    ),
-    new CoreActionHandler<CheckURLParams>(
-      CheckURLParams.getCoreAction(),
-      (params) => {
-        return this.scamFilterService.checkURL(params.domain);
       },
     ),
     new CoreActionHandler<CloseTabParams>(
@@ -860,13 +830,9 @@ export class RpcCallHandler implements IRpcCallHandler {
     @inject(IPIIServiceType) protected piiService: IPIIService,
     @inject(IInvitationServiceType)
     protected invitationService: IInvitationService,
-    @inject(IScamFilterServiceType)
-    protected scamFilterService: IScamFilterService,
     @inject(IDataPermissionsUtilsType)
     protected dataPermissionsUtils: IDataPermissionsUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
-    @inject(IScamFilterSettingsUtilsType)
-    protected scamFilterSettingsUtils: IScamFilterSettingsUtils,
     @inject(IUserSiteInteractionServiceType)
     protected userSiteInteractionService: IUserSiteInteractionService,
     @inject(IDiscordServiceType)

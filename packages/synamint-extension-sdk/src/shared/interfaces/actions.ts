@@ -68,7 +68,6 @@ import {
   IExternalState,
   IInternalState,
   IInvitationDomainWithUUID,
-  IScamFilterPreferences,
 } from "@synamint-extension-sdk/shared";
 
 export abstract class CoreActionParams<TReturn> {
@@ -314,15 +313,6 @@ export class GetInvitationMetadataByCIDParams extends CoreActionParams<IOpenSeaM
   }
 }
 
-export class CheckURLParams extends CoreActionParams<string> {
-  public constructor(public domain: DomainName) {
-    super(CheckURLParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.CHECK_URL;
-  }
-}
-
 export class GetMarketplaceListingsByTagParams extends CoreActionParams<
   PagedResponse<MarketplaceListing>
 > {
@@ -345,18 +335,6 @@ export class GetListingsTotalByTagParams extends CoreActionParams<number> {
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_LISTING_TOTAL_BY_TAG;
-  }
-}
-
-export class ScamFilterSettingsParams extends CoreActionParams<void> {
-  public constructor(
-    public isScamFilterActive: boolean,
-    public showMessageEveryTime: boolean,
-  ) {
-    super(ScamFilterSettingsParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.SET_SCAM_FILTER_SETTINGS;
   }
 }
 
@@ -600,15 +578,6 @@ export class GetAcceptedInvitationsCIDParams extends CoreActionParams<JSONString
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_ACCEPTED_INVITATIONS_CID;
-  }
-}
-
-export class GetScamFilterSettingsParams extends CoreActionParams<IScamFilterPreferences> {
-  public constructor() {
-    super(GetScamFilterSettingsParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.GET_SCAM_FILTER_SETTINGS;
   }
 }
 

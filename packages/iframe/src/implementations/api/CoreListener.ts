@@ -494,26 +494,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       //   }, data.callId);
       // },
 
-      // getScamFilterSettings: (
-      //   data: IIFrameCallData<Record<string, never>>,
-      // ) => {
-      //   this.returnForModel(() => {
-      //     return core.get(
-      //       sourceDomain,
-      //     );
-      //   }, data.callId);
-      // },
-
-      // setScamFilterSettings: (
-      //   data: IIFrameCallData<Record<string, never>>,
-      // ) => {
-      //   this.returnForModel(() => {
-      //     return core.get(
-      //       sourceDomain,
-      //     );
-      //   }, data.callId);
-      // },
-
       // setDefaultPermissionsToAll: (
       //   data: IIFrameCallData<Record<string, never>>,
       // ) => {

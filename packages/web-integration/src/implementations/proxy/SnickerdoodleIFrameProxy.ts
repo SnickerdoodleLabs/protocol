@@ -30,7 +30,6 @@ import {
   IConsentCapacity,
   IOpenSeaMetadata,
   IProxyMetricsMethods,
-  IScamFilterPreferences,
   IProxyDiscordMethods,
   IProxyTwitterMethods,
   IpfsCID,
@@ -427,23 +426,6 @@ export class SnickerdoodleIFrameProxy
   ): ResultAsync<void, ProxyError> {
     return this._createCall("setDefaultPermissions", {
       dataTypes,
-    });
-  }
-
-  public getScamFilterSettings(): ResultAsync<
-    IScamFilterPreferences,
-    ProxyError
-  > {
-    return this._createCall("getScamFilterSettings", null);
-  }
-
-  public setScamFilterSettings(
-    isScamFilterActive: boolean,
-    showMessageEveryTime: boolean,
-  ): ResultAsync<void, ProxyError> {
-    return this._createCall("setScamFilterSettings", {
-      isScamFilterActive,
-      showMessageEveryTime,
     });
   }
 

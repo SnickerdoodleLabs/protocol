@@ -75,12 +75,10 @@ import {
   SetGenderParams,
   SetGivenNameParams,
   SetLocationParams,
-  CheckURLParams,
   AcceptInvitationByUUIDParams,
   GetAgreementPermissionsParams,
   SetDefaultPermissionsWithDataTypesParams,
   SetApplyDefaultPermissionsParams,
-  ScamFilterSettingsParams,
   GetConsentContractCIDParams,
   CheckInvitationStatusParams,
   GetTokenPriceParams,
@@ -89,7 +87,6 @@ import {
   SetDefaultReceivingAddressParams,
   SetReceivingAddressParams,
   GetReceivingAddressParams,
-  IScamFilterPreferences,
   IExternalState,
   AddAccountParams,
   UnlinkAccountParams,
@@ -111,7 +108,6 @@ import {
   GetAccountsParams,
   GetApplyDefaultPermissionsOptionParams,
   GetAcceptedInvitationsCIDParams,
-  GetScamFilterSettingsParams,
   SetDefaultPermissionsToAllParams,
   GetDefaultPermissionsParams,
   GetAvailableInvitationsCIDParams,
@@ -360,19 +356,6 @@ export class ExternalCoreGateway {
     return this._handler.call(new SetDefaultPermissionsToAllParams());
   }
 
-  public getScamFilterSettings(): ResultAsync<
-    IScamFilterPreferences,
-    ProxyError
-  > {
-    return this._handler.call(new GetScamFilterSettingsParams());
-  }
-
-  public setScamFilterSettings(
-    params: ScamFilterSettingsParams,
-  ): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
-  }
-
   public rejectInvitationByUUID(
     params: RejectInvitationByUUIDParams,
   ): ResultAsync<void, ProxyError> {
@@ -494,9 +477,6 @@ export class ExternalCoreGateway {
     ProxyError
   > {
     return this._handler.call(new GetDataWalletAddressParams());
-  }
-  public checkURL(params: CheckURLParams): ResultAsync<string, ProxyError> {
-    return this._handler.call(params);
   }
 
   public checkInvitationStatus(
