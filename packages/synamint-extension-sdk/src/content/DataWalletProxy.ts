@@ -88,7 +88,6 @@ import {
   SetDefaultPermissionsWithDataTypesParams,
   LeaveCohortParams,
   GetInvitationMetadataByCIDParams,
-  ScamFilterSettingsParams,
   GetConsentContractCIDParams,
   CheckInvitationStatusParams,
   GetTokenPriceParams,
@@ -611,17 +610,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   }
   public getDataWalletAddress() {
     return coreGateway.getDataWalletAddress();
-  }
-  public getScamFilterSettings() {
-    return coreGateway.getScamFilterSettings();
-  }
-  public setScamFilterSettings(
-    isScamFilterActive: boolean,
-    showMessageEveryTime: boolean,
-  ) {
-    return coreGateway.setScamFilterSettings(
-      new ScamFilterSettingsParams(isScamFilterActive, showMessageEveryTime),
-    );
   }
   public getSiteVisits(): ResultAsync<SiteVisit[], ProxyError> {
     return coreGateway.getSiteVisits();

@@ -7,8 +7,6 @@ import {
   IMinimalForwarderContract,
   MinimalForwarderContract,
   IConsentFactoryContract,
-  SiftContract,
-  ISiftContract,
   ConsentFactoryContract,
 } from "@snickerdoodlelabs/contracts-sdk";
 import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
@@ -25,7 +23,6 @@ import { ConsentContractWrapper } from "@core/implementations/utilities/factory/
 import { ConsentFactoryContractWrapper } from "@core/implementations/utilities/factory/ConsentFactoryContractWrapper.js";
 import { CrumbsContractWrapper } from "@core/implementations/utilities/factory/CrumbsContractWrapper.js";
 import { MinimalForwarderContractWrapper } from "@core/implementations/utilities/factory/MinimalForwarderContractWrapper.js";
-import { SiftContractWrapper } from "@core/implementations/utilities/factory/SiftContractWrapper.js";
 import { IContractFactory } from "@core/interfaces/utilities/factory/index.js";
 import {
   IBlockchainProvider,
@@ -168,37 +165,6 @@ export class ContractFactory implements IContractFactory {
           : null;
 
       return new MinimalForwarderContractWrapper(
-        primary,
-        secondary,
-        this.contextProvider,
-        this.logUtils,
-      );
-    });
-  }
-
-  public factorySiftContract(): ResultAsync<
-    ISiftContract,
-    BlockchainProviderError | UninitializedError
-  > {
-    return ResultUtils.combine([
-      this.configProvider.getConfig(),
-      this.blockchainProvider.getPrimaryProvider(),
-      this.blockchainProvider.getSecondaryProvider(),
-    ]).map(([config, primaryProvider, secondaryProvider]) => {
-      const primary = new SiftContract(
-        primaryProvider,
-        config.controlChainInformation.siftContractAddress,
-      );
-
-      const secondary =
-        secondaryProvider != null
-          ? new SiftContract(
-              secondaryProvider,
-              config.controlChainInformation.siftContractAddress,
-            )
-          : null;
-
-      return new SiftContractWrapper(
         primary,
         secondary,
         this.contextProvider,

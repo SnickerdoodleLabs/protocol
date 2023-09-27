@@ -38,7 +38,6 @@ import {
   EDataWalletPermission,
   EligibleAd,
   EmailAddressString,
-  EScamFilterStatus,
   EvaluationError,
   EVMContractAddress,
   FamilyName,
@@ -73,7 +72,6 @@ import {
   QueryFormatError,
   SDQLQuery,
   SHA256Hash,
-  SiftContractError,
   Signature,
   SiteVisit,
   TokenAddress,
@@ -145,8 +143,6 @@ import {
   IProfileServiceType,
   IQueryService,
   IQueryServiceType,
-  ISiftContractService,
-  ISiftContractServiceType,
   ITwitterService,
   ITwitterServiceType,
 } from "@core/interfaces/business/index.js";
@@ -830,22 +826,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return contextProvider.getContext().map((context) => {
       return !!context.dataWalletAddress;
     });
-  }
-
-  public checkURL(
-    domain: DomainName,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    EScamFilterStatus,
-    | BlockchainProviderError
-    | UninitializedError
-    | SiftContractError
-    | BlockchainCommonErrors
-  > {
-    const siftService = this.iocContainer.get<ISiftContractService>(
-      ISiftContractServiceType,
-    );
-    return siftService.checkURL(domain);
   }
 
   public setGivenName(

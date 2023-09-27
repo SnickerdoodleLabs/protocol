@@ -9,7 +9,6 @@ export * from "@objects/interfaces/IPaletteOverrides.js";
 export * from "@objects/interfaces/IQueryDeliveryAds.js";
 export * from "@objects/interfaces/IQueryDeliveryInsights.js";
 export * from "@objects/interfaces/IQueryDeliveryItems.js";
-export * from "@objects/interfaces/IScamFilterPreferences.js";
 export * from "@objects/interfaces/ISdlDataWallet.js";
 export * from "@objects/interfaces/ISDQLAd.js";
 export * from "@objects/interfaces/ISDQLAdsBlock.js";
