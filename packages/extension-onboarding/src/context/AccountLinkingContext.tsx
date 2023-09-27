@@ -20,7 +20,10 @@ import {
   ELoadingIndicatorType,
   useLayoutContext,
 } from "@extension-onboarding/context/LayoutContext";
+import { EShoppingDataType } from "@extension-onboarding/objects/enums/EShoppingDataType";
 import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
+import { AmazonProvider } from "@extension-onboarding/services/shoppingDataProvider/implementations";
+import { IAmazonProvider } from "@extension-onboarding/services/shoppingDataProvider/interfaces";
 import {
   DiscordProvider,
   TwitterProvider,
@@ -34,6 +37,7 @@ interface IAccountLinkingContext {
   detectedProviders: IProvider[];
   unDetectedProviders: IProvider[];
   walletConnect: IProvider | null;
+  amazonProvider: IAmazonProvider;
   discordProvider: IDiscordProvider;
   twitterProvider: ITwitterProvider;
   onProviderConnectClick: (
@@ -53,6 +57,7 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
     isLinkerModalOpen,
     setLinkerModalClose,
     socialMediaProviderList,
+    shoppingDataProviderList,
   } = useAppContext();
   const { setModal, setLoadingStatus } = useLayoutContext();
 
@@ -80,6 +85,12 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
         },
       );
     }, [providerList.length]);
+
+  const amazonProvider = useMemo(() => {
+    return (shoppingDataProviderList.find((provider) => {
+      return provider.key === EShoppingDataType.AMAZON;
+    })?.provider ?? new AmazonProvider(sdlDataWallet)) as IAmazonProvider;
+  }, [shoppingDataProviderList.length]);
 
   const discordProvider = useMemo(() => {
     return (socialMediaProviderList.find((provider) => {
@@ -153,6 +164,7 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
         detectedProviders,
         unDetectedProviders,
         walletConnect,
+        amazonProvider,
         discordProvider,
         twitterProvider,
         onProviderConnectClick,

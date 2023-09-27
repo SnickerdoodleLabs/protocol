@@ -14,6 +14,18 @@ import {
 import { ContainerModule, interfaces } from "inversify";
 
 import {
+  IScraperNavigationService,
+  IScraperNavigationServiceType,
+} from "../interfaces/business/IScraperNavigationService";
+import {
+  IScraperService,
+  IScraperServiceType,
+} from "../interfaces/business/IScraperService";
+
+import { ScraperNavigationService } from "./business/ScraperNavigationService";
+import { ScraperService } from "./business/ScraperService";
+
+import {
   BrowserTabListener,
   CoreListener,
   ErrorListener,
@@ -219,6 +231,16 @@ export const extensionCoreModule = new ContainerModule(
     // Utilities/Factory
     bind<IRpcEngineFactory>(IRpcEngineFactoryType)
       .to(RpcEngineFactory)
+      .inSingletonScope();
+
+    //Scraper
+
+    bind<IScraperService>(IScraperServiceType)
+      .to(ScraperService)
+      .inSingletonScope();
+
+    bind<IScraperNavigationService>(IScraperNavigationServiceType)
+      .to(ScraperNavigationService)
       .inSingletonScope();
   },
 );

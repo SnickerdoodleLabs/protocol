@@ -16,13 +16,20 @@ import { AmazonConnectItem } from "./Items/AmazonConnectItem";
 import { AmazonDataItem } from "./Items/AmazonDataItem";
 import { AmazonDisConnectItem } from "./Items/AmazonDisconnectItem";
 
+import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/ShoppingData/Platforms/Amazon/Amazon.style";
 
 export const Amazon: FC<IShoppingDataPlatformProps> = memo(
   ({ name, icon }: IShoppingDataPlatformProps) => {
     const [isConnected, setIsConnected] = useState(false);
+    const { sdlDataWallet } = useDataWalletContext();
+    const { amazonProvider: provider } = useAccountLinkingContext();
+
     const handleConnectClick = () => {
-      setIsConnected(true);
+      provider
+        .getInitializationURL()
+        .map((url) => (window.location.href = `${url}`));
     };
     const handleDisconnectClick = () => {
       setIsConnected(false);
