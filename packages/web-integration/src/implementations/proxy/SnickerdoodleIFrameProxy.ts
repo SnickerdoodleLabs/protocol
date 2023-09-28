@@ -115,7 +115,6 @@ export class SnickerdoodleIFrameProxy
             "Child proxy not initialized in activate extension in SnickerdoodleIFrameProxy. This indicates a logical error.",
           );
         }
-
         // Subscribe to the message streams from the iframe,
         // and convert them back to RXJS Subjects.
         this.child.on("onInitialized", (data: DataWalletAddress) => {

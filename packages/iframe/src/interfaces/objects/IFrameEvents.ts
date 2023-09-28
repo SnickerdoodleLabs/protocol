@@ -1,6 +1,7 @@
 import {
   EVMContractAddress,
   IOpenSeaMetadata,
+  ISnickerdoodleCore,
   Invitation,
   InvitationDomain,
 } from "@snickerdoodlelabs/objects";
@@ -25,8 +26,12 @@ export interface IInvitationDisplayRequest {
 export class IFrameEvents {
   public onInvitationDisplayRequested: Subject<IInvitationDisplayRequest>;
   public onConsentAddressFound: Subject<EVMContractAddress>;
+  public onStorageAccessHandled: Subject<void>;
+  public onCorePromiseResolved: Subject<ISnickerdoodleCore>;
   public constructor() {
     this.onInvitationDisplayRequested = new Subject();
     this.onConsentAddressFound = new Subject();
+    this.onStorageAccessHandled = new Subject();
+    this.onCorePromiseResolved = new Subject();
   }
 }

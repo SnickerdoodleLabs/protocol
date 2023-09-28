@@ -5,23 +5,38 @@ import {
   ISnickerdoodleCore,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
 
 import {
   IConfigProvider,
   IConfigProviderType,
   ICoreProvider,
+  IIFrameContextProvider,
+  IIFrameContextProviderType,
 } from "@core-iframe/interfaces/utilities/index";
+import { Subscription } from "rxjs";
 
 @injectable()
 export class CoreProvider implements ICoreProvider {
+  protected configPromise: Promise<IConfigOverrides>;
+  protected configPromiseResolve: ((IConfigOverrides) => void) | null = null;
   protected corePromise: Promise<ISnickerdoodleCore>;
   protected corePromiseResolve: ((ISnickerdoodleCore) => void) | null = null;
   protected core: ISnickerdoodleCore | null = null;
+  protected storageAccessHandledSubscription: Subscription;
+  protected config: IConfigOverrides | null = null;
 
   public constructor(
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
+    @inject(IIFrameContextProviderType)
+    protected contextProvider: IIFrameContextProvider,
   ) {
+    this.storageAccessHandledSubscription = this.contextProvider
+      .getEvents()
+      .onStorageAccessHandled.subscribe(this.initializeCore.bind(this));
+    this.configPromise = new Promise((resolve) => {
+      this.configPromiseResolve = resolve;
+    });
     this.corePromise = new Promise((resolve) => {
       this.corePromiseResolve = resolve;
     });
@@ -140,12 +155,23 @@ export class CoreProvider implements ICoreProvider {
       config.ankrApiKey ?? immutableConfig.defaultKeys.ankrApiKey;
     config.bluezApiKey =
       config.bluezApiKey ?? immutableConfig.defaultKeys.bluezApiKey;
-
     // Now we can create the actual snickerdoodle core instance
-    this.core = new SnickerdoodleCore(config);
+    this.config = config;
+    this.configPromiseResolve!(config);
+    return okAsync(undefined);
+  }
 
-    return this.core.initialize().map(() => {
-      this.corePromiseResolve!(this.core);
+  protected getConfig(): ResultAsync<IConfigOverrides, Error> {
+    return ResultAsync.fromSafePromise(this.configPromise);
+  }
+
+  protected initializeCore() {
+    return this.getConfig().andThen((config) => {
+      this.core = new SnickerdoodleCore(this.config!);
+      return this.core!.initialize().map(() => {
+        this.corePromiseResolve!(this.core);
+        this.contextProvider.getEvents().onCorePromiseResolved.next(this.core!);
+      });
     });
   }
 }

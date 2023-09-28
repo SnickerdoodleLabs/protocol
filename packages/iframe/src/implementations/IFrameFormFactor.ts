@@ -55,30 +55,42 @@ export class IFrameFormFactor {
 
   public initialize(): ResultAsync<
     {
-      core: ISnickerdoodleCore;
       childApi: ChildAPI;
-      iframeEvents: IFrameEvents;
-      config: IFrameControlConfig;
-      coreConfig: IFrameConfig;
+      configProvider: IConfigProvider;
+      contextProvider: IIFrameContextProvider;
     },
     Error
   > {
     const coreListener =
       this.iocContainer.get<ICoreListener>(ICoreListenerType);
-    const coreProvider =
-      this.iocContainer.get<ICoreProvider>(ICoreProviderType);
-    const timeUtils = this.iocContainer.get<ITimeUtils>(ITimeUtilsType);
-    const configProvider =
-      this.iocContainer.get<IConfigProvider>(IConfigProviderType);
-    const logUtils = this.iocContainer.get<ILogUtils>(ILogUtilsType);
+
     const contextProvider = this.iocContainer.get<IIFrameContextProvider>(
       IIFrameContextProviderType,
     );
 
-    logUtils.log("Initializing Iframe Form Factor");
+    const configProvider =
+      this.iocContainer.get<IConfigProvider>(IConfigProviderType);
 
-    return coreListener.activateModel().andThen((childApi) => {
-      return coreProvider.getCore().andThen((core) => {
+    return coreListener.activateModel().map((childApi) => {
+      this.x();
+      return {
+        childApi,
+        configProvider,
+        contextProvider,
+      };
+    });
+  }
+
+  protected x() {
+    const logUtils = this.iocContainer.get<ILogUtils>(ILogUtilsType);
+    const timeUtils = this.iocContainer.get<ITimeUtils>(ITimeUtilsType);
+    const coreProvider =
+      this.iocContainer.get<ICoreProvider>(ICoreProviderType);
+    const configProvider =
+      this.iocContainer.get<IConfigProvider>(IConfigProviderType);
+    return coreProvider
+      .getCore()
+      .andThen((core) => {
         return core
           .getEvents()
           .andThen((events) => {
@@ -100,16 +112,18 @@ export class IFrameFormFactor {
           })
           .map(() => {
             logUtils.log("Snickerdoodle Core CoreListener initialized");
-            return {
-              core,
-              childApi,
-              iframeEvents: contextProvider.getEvents(),
-              config: contextProvider.getConfig(),
-              coreConfig: configProvider.getConfig(),
-            };
+            // return {
+            //   core,
+            //   childApi,
+            //   iframeEvents: contextProvider.getEvents(),
+            //   config: contextProvider.getConfig(),
+            //   coreConfig: configProvider.getConfig(),
+            // };
           });
+      })
+      .mapErr((e) => {
+        logUtils.log("Snickerdoodle Core CoreListener initialized");
       });
-    });
   }
 
   protected respondToQuery(
