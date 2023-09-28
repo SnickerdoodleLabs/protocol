@@ -47,7 +47,7 @@ const AutFlowLayout = () => {
   return (
     <Box display="flex" overflow="hidden" height="100vh">
       {!hideSidebar && <Sidebar />}
-      <CampaignPopup />
+      {/* <CampaignPopup /> */}
       <Box
         id="authflow"
         display="flex"

@@ -101,11 +101,11 @@ jobs:
           --build-arg CONTROL_CHAIN_ID=43113 \
           --build-arg IPFS_FETCH_BASE_URL=https://ipfs-gateway.snickerdoodle.com/ipfs/ \
           --build-arg BASE_TAG="$GITHUB_SHA" \
-          --build-arg INFURA_PRIMARY_KEY=8497d7f3186c4edcaaff8838478c634d \
+          --build-arg PRIMARY_INFURA_KEY=8497d7f3186c4edcaaff8838478c634d \
           --build-arg ANKR_API_KEY=f50d7a208124e6a6df731477fdc9ef420ce59769ced1e9339318a383365cb6a1 \
           --build-arg BLUEZ_API_KEY=aed4aab2cbc573bbf8e7c6b448c916e5 \
           --build-arg COVALENT_API_KEY=cqt_wFfHg4vmGKyMxGvPPxdHm8VCDPCY \
-          --build-arg POAP_API_KEY=wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm
+          --build-arg POAP_API_KEY=wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm \
           --build-arg ALCHEMY_ARBITRUM_API_KEY=_G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF \
           --build-arg ALCHEMY_ASTAR_API_KEY=Tk2NcwnHwrmRvzZCkqgSr6fOYIgH7xh7 \
           --build-arg ALCHEMY_MUMBAI_API_KEY=UA7tIJ6CdCE1351h24CQUE-MNCIV3DSf \

@@ -1,3 +1,7 @@
+import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
 import { ResultAsync } from "neverthrow";
 
 import {
@@ -31,6 +35,8 @@ import {
   RuntimeMetrics,
   QueryStatus,
   OAuth2Tokens,
+  SiteVisitsMap,
+  OptInInfo,
   DomainTask,
   // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
@@ -40,7 +46,6 @@ import {
   EDataWalletPermission,
   EInvitationStatus,
   ELanguageCode,
-  EScamFilterStatus,
 } from "@objects/enum/index.js";
 import {
   AccountIndexingError,
@@ -64,7 +69,6 @@ import {
   PersistenceError,
   QueryExpiredError,
   QueryFormatError,
-  SiftContractError,
   BlockchainCommonErrors,
   TwitterError,
   UnauthorizedError,
@@ -108,10 +112,7 @@ import {
   TwitterID,
   UnixTimestamp,
   URLString,
-  PasswordString,
-  AccessToken,
   BlockNumber,
-  OAuth2RefreshToken,
   RefreshToken,
   HTMLString,
   PageNo,
@@ -148,7 +149,7 @@ export interface IAccountMethods {
    */
   getLinkAccountMessage(
     languageCode: LanguageCode,
-    sourceDomain?: DomainName | undefined,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<string, UnsupportedLanguageError | UnauthorizedError>;
 
   /**
@@ -167,7 +168,39 @@ export interface IAccountMethods {
     signature: Signature,
     languageCode: LanguageCode,
     chain: EChain,
-    sourceDomain?: DomainName | undefined,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | InvalidParametersError
+  >;
+
+  addAccountWithExternalSignature(
+    accountAddress: AccountAddress,
+    message: string,
+    signature: Signature,
+    chain: EChain,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | InvalidParametersError
+  >;
+
+  addAccountWithExternalTypedDataSignature(
+    accountAddress: AccountAddress,
+    domain: TypedDataDomain,
+    types: Record<string, Array<TypedDataField>>,
+    value: Record<string, unknown>,
+    signature: Signature,
+    chain: EChain,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<
     void,
     | PersistenceError
@@ -186,11 +219,15 @@ export interface IAccountMethods {
   unlinkAccount(
     accountAddress: AccountAddress,
     chain: EChain,
-    sourceDomain?: DomainName | undefined,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<
     void,
     PersistenceError | UninitializedError | InvalidParametersError
   >;
+
+  getAccounts(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<LinkedAccount[], PersistenceError | UnauthorizedError>;
 }
 
 export interface ICoreMarketplaceMethods {
@@ -539,7 +576,7 @@ export interface IInvitationMethods {
 
   getAcceptedInvitations(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<Invitation[], PersistenceError | UnauthorizedError>;
+  ): ResultAsync<OptInInfo[], PersistenceError | UnauthorizedError>;
 
   getInvitationsByDomain(
     domain: DomainName,
@@ -710,18 +747,6 @@ export interface ISnickerdoodleCore {
     | BlockchainCommonErrors
   >;
 
-  checkURL(
-    domain: DomainName,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    EScamFilterStatus,
-    | BlockchainProviderError
-    | UninitializedError
-    | SiftContractError
-    | UnauthorizedError
-    | BlockchainCommonErrors
-  >;
-
   // Called by the form factor to approve the processing of the query.
   // This is basically per-query consent. The consent token will be
   // re-checked, of course (trust nobody!).
@@ -873,11 +898,8 @@ export interface ISnickerdoodleCore {
   ): ResultAsync<SiteVisit[], PersistenceError | UnauthorizedError>;
   getSiteVisitsMap(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<Map<URLString, number>, PersistenceError | UnauthorizedError>;
+  ): ResultAsync<SiteVisitsMap, PersistenceError | UnauthorizedError>;
 
-  getAccounts(
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<LinkedAccount[], PersistenceError | UnauthorizedError>;
   getAccountBalances(
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<TokenBalance[], PersistenceError | UnauthorizedError>;

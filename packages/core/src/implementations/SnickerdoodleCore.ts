@@ -5,6 +5,10 @@
  * of SnickerdoodleCore.
  */
 import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
+import {
   IAmazonNavigationUtils,
   IAmazonNavigationUtilsType,
   IScraperService,
@@ -42,7 +46,6 @@ import {
   EDataWalletPermission,
   EligibleAd,
   EmailAddressString,
-  EScamFilterStatus,
   EvaluationError,
   EVMContractAddress,
   FamilyName,
@@ -77,7 +80,6 @@ import {
   QueryFormatError,
   SDQLQuery,
   SHA256Hash,
-  SiftContractError,
   Signature,
   SiteVisit,
   TokenAddress,
@@ -90,17 +92,16 @@ import {
   UnauthorizedError,
   UninitializedError,
   UnixTimestamp,
-  URLString,
   WalletNFT,
   IAccountMethods,
   QueryStatus,
   BlockchainCommonErrors,
   ECloudStorageType,
-  AccessToken,
   AuthenticatedStorageSettings,
   IStorageMethods,
   BlockNumber,
   RefreshToken,
+  SiteVisitsMap,
   IScraperMethods,
   DomainTask,
   ELanguageCode,
@@ -162,8 +163,6 @@ import {
   IProfileServiceType,
   IQueryService,
   IQueryServiceType,
-  ISiftContractService,
-  ISiftContractServiceType,
   ITwitterService,
   ITwitterServiceType,
 } from "@core/interfaces/business/index.js";
@@ -277,6 +276,47 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         );
       },
 
+      addAccountWithExternalSignature: (
+        accountAddress: AccountAddress,
+        message: string,
+        signature: Signature,
+        chain: EChain,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        return accountService.addAccountWithExternalSignature(
+          accountAddress,
+          message,
+          signature,
+          chain,
+        );
+      },
+
+      addAccountWithExternalTypedDataSignature: (
+        accountAddress: AccountAddress,
+        domain: TypedDataDomain,
+        types: Record<string, Array<TypedDataField>>,
+        value: Record<string, unknown>,
+        signature: Signature,
+        chain: EChain,
+        sourceDomain: DomainName | undefined,
+      ) => {
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        return accountService.addAccountWithExternalTypedDataSignature(
+          accountAddress,
+          domain,
+          types,
+          value,
+          signature,
+          chain,
+          sourceDomain,
+        );
+      },
+
       unlinkAccount: (
         accountAddress: AccountAddress,
         chain: EChain,
@@ -286,6 +326,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           this.iocContainer.get<IAccountService>(IAccountServiceType);
 
         return accountService.unlinkAccount(accountAddress, chain);
+      },
+
+      getAccounts: (
+        sourceDomain: DomainName | undefined = undefined,
+      ): ResultAsync<LinkedAccount[], UnauthorizedError | PersistenceError> => {
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+        return accountService.getAccounts(sourceDomain);
       },
     };
 
@@ -873,22 +921,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     });
   }
 
-  public checkURL(
-    domain: DomainName,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    EScamFilterStatus,
-    | BlockchainProviderError
-    | UninitializedError
-    | SiftContractError
-    | BlockchainCommonErrors
-  > {
-    const siftService = this.iocContainer.get<ISiftContractService>(
-      ISiftContractServiceType,
-    );
-    return siftService.checkURL(domain);
-  }
-
   public setGivenName(
     name: GivenName,
     sourceDomain: DomainName | undefined = undefined,
@@ -987,14 +1019,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return profileService.getAge();
   }
 
-  public getAccounts(
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<LinkedAccount[], UnauthorizedError | PersistenceError> {
-    const accountService =
-      this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.getAccounts(sourceDomain);
-  }
-
   public getTransactions(
     filter?: TransactionFilter,
     sourceDomain: DomainName | undefined = undefined,
@@ -1030,7 +1054,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public getSiteVisitsMap(
     sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<Map<URLString, number>, PersistenceError> {
+  ): ResultAsync<SiteVisitsMap, PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getSiteVisitsMap();

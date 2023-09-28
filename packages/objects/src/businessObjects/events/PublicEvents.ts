@@ -18,6 +18,7 @@ import { TokenBalance } from "@objects/businessObjects/TokenBalance.js";
 import {
   EVMTransaction,
   LinkedAccount,
+  QueryStatus,
 } from "@objects/businessObjects/versioned/index.js";
 import { WalletNFT } from "@objects/businessObjects/WalletNFT.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/index.js";
@@ -35,6 +36,7 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onInitialized: Subject<DataWalletAddress>;
   public onQueryPosted: Subject<SDQLQueryRequest>;
   public onQueryParametersRequired: Subject<IpfsCID>;
+  public onQueryStatusUpdated: Subject<QueryStatus>;
   public onAccountAdded: Subject<LinkedAccount>;
   public onPasswordAdded: Subject<void>;
   public onAccountRemoved: Subject<LinkedAccount>;
@@ -64,6 +66,7 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onInitialized = new Subject();
     this.onQueryPosted = new Subject();
     this.onQueryParametersRequired = new Subject();
+    this.onQueryStatusUpdated = new Subject();
     this.onAccountAdded = new Subject();
     this.onPasswordAdded = new Subject();
     this.onAccountRemoved = new Subject();
