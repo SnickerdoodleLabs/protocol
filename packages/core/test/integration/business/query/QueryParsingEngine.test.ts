@@ -89,13 +89,15 @@ class QueryParsingMocks {
   public browsingDataRepo = td.object<IBrowsingDataRepository>();
   public adDataRepo = td.object<AdDataRepository>();
   public socialRepo = td.object<ISocialRepository>();
+  public contextProvider: ContextProviderMock = new ContextProviderMock();
+
 
   public blockchainTransactionQueryEvaluator =
-    new BlockchainTransactionQueryEvaluator(this.transactionRepo);
+    new BlockchainTransactionQueryEvaluator(this.transactionRepo, this.contextProvider);
 
-  public nftQueryEvaluator = new NftQueryEvaluator(this.balanceRepo);
+  public nftQueryEvaluator = new NftQueryEvaluator(this.balanceRepo, this.contextProvider);
 
-  public balanceQueryEvaluator = new BalanceQueryEvaluator(this.balanceRepo);
+  public balanceQueryEvaluator = new BalanceQueryEvaluator(this.balanceRepo, this.contextProvider);
 
   public queryUtils = td.object<ISDQLQueryUtils>();
 
@@ -146,7 +148,6 @@ class QueryParsingMocks {
     td.when(this.balanceRepo.getAccountBalances()).thenReturn(okAsync([]));
     td.when(this.balanceRepo.getAccountNFTs(chainIds)).thenReturn(okAsync([]));
 
-
     this.queryEvaluator = new QueryEvaluator(
       this.balanceQueryEvaluator,
       this.blockchainTransactionQueryEvaluator,
@@ -155,7 +156,7 @@ class QueryParsingMocks {
       this.browsingDataRepo,
       this.transactionRepo,
       this.socialRepo,
-      new ContextProviderMock()
+      this.contextProvider,
     );
     this.queryRepository = new QueryRepository(this.queryEvaluator);
 
@@ -177,6 +178,7 @@ class QueryParsingMocks {
       this.queryUtils,
       this.adContentRepository,
       this.adDataRepo,
+      this.contextProvider
     );
   }
 
@@ -260,7 +262,7 @@ describe("Handle Query", () => {
     const engine = mocks.factory();
 
     await engine
-      .handleQuery(sdqlQuery2, new DataPermissions(allPermissions), new PublicEvents())
+      .handleQuery(sdqlQuery2, new DataPermissions(allPermissions))
       .andThen((insights) => {
         expect(insights).toEqual({
           insights: {
@@ -285,7 +287,7 @@ describe("Handle Query", () => {
     const engine = mocks.factory();
 
     await engine
-      .handleQuery(sdqlQueryExpired, new DataPermissions(allPermissions), new PublicEvents())
+      .handleQuery(sdqlQueryExpired, new DataPermissions(allPermissions))
       .andThen((_insights) => {
         fail("Expired query was executed!");
       })
@@ -303,7 +305,7 @@ describe("Tests with data permissions", () => {
     const givenPermissions = new DataPermissions(noPermissions);
 
     await engine
-      .handleQuery(sdqlQuery2, givenPermissions, new PublicEvents())
+      .handleQuery(sdqlQuery2, givenPermissions)
       .andThen((deliveredInsights) => {
         expect(deliveredInsights.insights!["i1"]).toBe(null);
         return okAsync(undefined);
@@ -320,7 +322,7 @@ describe("Tests with data permissions", () => {
     ]);
 
     await engine
-      .handleQuery(sdqlQuery2, givenPermissions, new PublicEvents())
+      .handleQuery(sdqlQuery2, givenPermissions)
       .andThen((deliveredInsights) => {
         expect(deliveredInsights.insights!["i1"]).toBe(null);
         return okAsync(undefined);
@@ -337,7 +339,7 @@ describe("Tests with data permissions", () => {
     ]);
 
     await engine
-      .handleQuery(sdqlQuery2, givenPermissions, new PublicEvents())
+      .handleQuery(sdqlQuery2, givenPermissions)
       .andThen((deliveredInsights) => {
         expect(deliveredInsights.insights!["i2"] !== null).toBeTruthy();
         return okAsync(undefined);
@@ -359,7 +361,7 @@ describe("Tests with data permissions", () => {
       i5: null,
     };
     await engine
-      .handleQuery(sdqlQuery2, givenPermissions, new PublicEvents())
+      .handleQuery(sdqlQuery2, givenPermissions)
       .andThen((deliveredInsights) => {
         expect(deliveredInsights.insights).toEqual(expectedResult);
         return okAsync(undefined);
@@ -376,7 +378,7 @@ describe("Tests with data permissions", () => {
     ]);
 
     await engine
-      .handleQuery(sdqlQuery2, givenPermissions, new PublicEvents())
+      .handleQuery(sdqlQuery2, givenPermissions)
       .andThen((deliveredInsights) => {
         expect(deliveredInsights.insights!["q5"] !== null).toBeTruthy();
         return okAsync(undefined);
@@ -408,7 +410,7 @@ describe("Testing avalanche 4", () => {
     };
 
     await engine
-      .handleQuery(sdqlQuery4, new DataPermissions(allPermissions), new PublicEvents())
+      .handleQuery(sdqlQuery4, new DataPermissions(allPermissions))
       .andThen((deliveredInsights) => {
         expect(deliveredInsights).toMatchObject(expectedInsights);
 

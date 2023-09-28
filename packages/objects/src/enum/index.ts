@@ -30,6 +30,7 @@ export * from "@objects/enum/EScamFilterStatus.js";
 export * from "@objects/enum/ESDQLQueryReturn.js";
 export * from "@objects/enum/ESignatureAlgorithm.js";
 export * from "@objects/enum/ESocialType.js";
+export * from "@objects/enum/EStatus.js";
 export * from "@objects/enum/ETag.js";
 export * from "@objects/enum/EWalletDataType.js";
 export * from "@objects/enum/StorageKey.js";

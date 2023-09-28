@@ -2,6 +2,8 @@ import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   EExternalApi,
   EQueryEvents,
+  EStatus,
+  IpfsCID,
   QueryPerformanceMetrics,
   RuntimeMetrics,
 } from "@snickerdoodlelabs/objects";
@@ -22,7 +24,7 @@ import {
 } from "@core/interfaces/utilities/index.js";
 import { Timer } from "measured-core";
 import { CoreContext } from "@core/interfaces/objects";
-import { QueryPerformanceEvent } from "packages/objects/src/businessObjects/events/query";
+import { QueryPerformanceEvent } from "packages/objects/src/businessObjects/events/query/index.js";
 
 @injectable()
 export class MetricsService implements IMetricsService {
@@ -33,15 +35,14 @@ export class MetricsService implements IMetricsService {
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
-  queryEventsElapsedStartTimes: Record<EQueryEvents, number[]> | {} = {};
-  queryEventsTimers: Record<EQueryEvents, Timer> | {} = {};
-  queryEventsDurations: Record<EQueryEvents, number[]> | {} = {};
+  protected queryEventsElapsedStartTimes: Record<EQueryEvents, number[]> | {} =
+    {};
+  protected queryEventsTimers: Record<EQueryEvents, Timer> | {} = {};
+  protected queryEventsDurations: Record<EQueryEvents, number[]> | {} = {};
+  protected queryErrors: Record<IpfsCID, QueryPerformanceEvent[]> | {} = {};
 
   public initialize(): ResultAsync<void, never> {
-    return ResultUtils.combine([
-      this.contextProvider.getContext(),
-      this.configProvider.getConfig(),
-    ]).map(([context, _config]) => {
+    return this.contextProvider.getContext().map((context) => {
       context.privateEvents.onApiAccessed.subscribe((apiName) => {
         this.metricsRepo.recordApiCall(apiName);
       });
@@ -120,6 +121,7 @@ export class MetricsService implements IMetricsService {
           restoredBackups,
           context.components,
           this.metricsRepo.getQueryPerformanceData(),
+          this.queryErrors,
         );
       },
     );
@@ -129,26 +131,35 @@ export class MetricsService implements IMetricsService {
     context: CoreContext,
   ): void {
     const processEvent = (event: QueryPerformanceEvent) => {
-      if (event.status === "start") {
-        this.queryEventsElapsedStartTimes[event.type].push(Date.now());
+      if (event.status === EStatus.Start) {
+        this.queryEventsElapsedStartTimes[event.type].push(
+          this.timeUtils.getUnixNow(),
+        );
       } else if (
-        event.status === "end" &&
+        event.status === EStatus.End &&
         this.queryEventsElapsedStartTimes[event.type].length
       ) {
-        const elapsed =
-          Date.now() - this.queryEventsElapsedStartTimes[event.type].pop()!;
-        this.metricsRepo.recordQueryPerformanceEvent(event , elapsed)
+        if (event.error) {
+          if (this.queryErrors[event.queryCID] === undefined) {
+            this.queryErrors[event.queryCID].push(event);
+          } else {
+            this.queryErrors[event.queryCID] = [event];
+          }
+        }
 
+        const elapsed =
+          this.timeUtils.getUnixNow() -
+          this.queryEventsElapsedStartTimes[event.type].pop()!;
+        this.metricsRepo.recordQueryPerformanceEvent(event, elapsed);
       }
     };
     context.publicEvents.queryPerformance.subscribe(processEvent);
   }
 
-  private generateQueryEventStorage() : void {
+  private generateQueryEventStorage(): void {
     Object.values(EQueryEvents).forEach((eventName) => {
-      this.metricsRepo.createQueryPerformanceStorage(eventName)
+      this.metricsRepo.createQueryPerformanceStorage(eventName);
       this.queryEventsElapsedStartTimes[eventName] = [];
     });
   }
- 
 }

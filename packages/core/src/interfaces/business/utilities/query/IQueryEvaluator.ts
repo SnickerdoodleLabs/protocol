@@ -1,4 +1,4 @@
-import { PersistenceError, PublicEvents, SDQL_Return } from "@snickerdoodlelabs/objects";
+import { IpfsCID, PersistenceError, PublicEvents, SDQL_Return } from "@snickerdoodlelabs/objects";
 import {
   AST_PropertyQuery,
   AST_SubQuery,
@@ -6,10 +6,11 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface IQueryEvaluator {
-  eval(query: AST_SubQuery): ResultAsync<SDQL_Return, PersistenceError>;
+  eval(query: AST_SubQuery, queryCID : IpfsCID): ResultAsync<SDQL_Return, PersistenceError>;
   evalPropertyQuery(
     q: AST_PropertyQuery,
-    publicEvents : PublicEvents
+    publicEvents : PublicEvents,
+    queryCID : IpfsCID
   ): ResultAsync<SDQL_Return, PersistenceError>;
 }
 

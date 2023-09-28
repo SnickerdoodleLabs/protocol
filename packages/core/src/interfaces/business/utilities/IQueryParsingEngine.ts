@@ -21,8 +21,7 @@ import { ResultAsync } from "neverthrow";
 export interface IQueryParsingEngine {
   handleQuery(
     query: SDQLQuery,
-    dataPermissions: DataPermissions,
-    publicEvents : PublicEvents,
+    dataPermissions: DataPermissions
   ): ResultAsync<
     IQueryDeliveryItems,
     | EvaluationError
@@ -71,8 +70,7 @@ export interface IQueryParsingEngine {
   >;
 
   getPossibleQueryDeliveryItems(
-    query: SDQLQuery,
-    publicEvents : PublicEvents
+    query: SDQLQuery
   ): ResultAsync<
     IQueryDeliveryItems,
     | EvaluationError

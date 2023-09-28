@@ -93,8 +93,7 @@ export interface IQueryService {
     optInKey: EVMPrivateKey,
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
-    config: CoreConfig,
-    context: CoreContext,
+    config: CoreConfig
   ): ResultAsync<
     PossibleReward[],
     | AjaxError

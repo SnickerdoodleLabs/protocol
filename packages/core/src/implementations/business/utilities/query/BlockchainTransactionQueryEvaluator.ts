@@ -6,6 +6,8 @@ import {
   PublicEvents,
   QueryPerformanceEvent,
   EQueryEvents,
+  IpfsCID,
+  EStatus,
 } from "@snickerdoodlelabs/objects";
 import { AST_BlockchainTransactionQuery } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
@@ -16,6 +18,10 @@ import {
   ITransactionHistoryRepository,
   ITransactionHistoryRepositoryType,
 } from "@core/interfaces/data/index.js";
+import {
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class BlockchainTransactionQueryEvaluator
@@ -24,85 +30,164 @@ export class BlockchainTransactionQueryEvaluator
   constructor(
     @inject(ITransactionHistoryRepositoryType)
     protected transactionHistoryRepo: ITransactionHistoryRepository,
+    @inject(IContextProviderType)
+    protected contextProvider: IContextProvider,
   ) {}
 
   public eval(
     query: AST_BlockchainTransactionQuery,
-    publicEvents  : PublicEvents
+    queryCID : IpfsCID
   ): ResultAsync<SDQL_Return, PersistenceError> {
-    const chainId = query.contract.networkId;
-    const address = query.contract.address as EVMAccountAddress;
-    const startTime = query.contract.timestampRange.start;
-    const endTime = query.contract.timestampRange.end;
+    return this.contextProvider.getContext().andThen((context) => {
+      const chainId = query.contract.networkId;
+      const address = query.contract.address as EVMAccountAddress;
+      const startTime = query.contract.timestampRange.start;
+      const endTime = query.contract.timestampRange.end;
 
-    const filter = new TransactionFilter(
-      [chainId],
-      [address],
-      undefined,
-      startTime,
-      endTime,
-    );
+      const filter = new TransactionFilter(
+        [chainId],
+        [address],
+        undefined,
+        startTime,
+        endTime,
+      );
 
-    if (query.returnType == "object") {
-      publicEvents.queryPerformance.next(new QueryPerformanceEvent(EQueryEvents.ChainTransactionDataAccess, `start`))
-      return this.transactionHistoryRepo
-        .getTransactions(filter)
-        .andThen((transactions) => {
-          publicEvents.queryPerformance.next(new QueryPerformanceEvent(EQueryEvents.ChainTransactionDataAccess, `end`))
-          if (transactions == null) {
+      if (query.returnType == "object") {
+        context.publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.ChainTransactionDataAccess,
+            EStatus.Start,
+            queryCID,
+            query.name
+          ),
+        );
+        return this.transactionHistoryRepo
+          .getTransactions(filter)
+          .andThen((transactions) => {
+            context.publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.ChainTransactionDataAccess,
+                EStatus.End,
+                queryCID,
+                query.name
+              ),
+            );
+            if (transactions == null) {
+              return okAsync(
+                SDQL_Return({
+                  networkId: chainId,
+                  address: address,
+                  return: false,
+                }),
+              );
+            }
+            if (transactions.length == 0) {
+              return okAsync(
+                SDQL_Return({
+                  networkId: chainId,
+                  address: address,
+                  return: false,
+                }),
+              );
+            }
+
             return okAsync(
               SDQL_Return({
                 networkId: chainId,
                 address: address,
-                return: false,
+                return: true,
               }),
             );
-          }
-          if (transactions.length == 0) {
-            return okAsync(
-              SDQL_Return({
-                networkId: chainId,
-                address: address,
-                return: false,
-              }),
+          }).mapErr( (err) => {
+            context.publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.ChainTransactionDataAccess,
+                EStatus.End,
+                queryCID,
+                query.name,
+                err
+              ),
             );
-          }
+            throw err
+          });
+      } else if (query.returnType == "boolean") {
+        context.publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.ChainTransactionDataAccess,
+            EStatus.Start,
+            queryCID,
+            query.name
+          ),
+        );
+        return this.transactionHistoryRepo
+          .getTransactions(filter)
+          .andThen((transactions) => {
+            context.publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.ChainTransactionDataAccess,
+                EStatus.End,
+                queryCID,
+                query.name
+              ),
+            );
+            if (transactions == null) {
+              return okAsync(SDQL_Return(false));
+            }
+            if (transactions.length == 0) {
+              return okAsync(SDQL_Return(false));
+            }
 
-          return okAsync(
-            SDQL_Return({
-              networkId: chainId,
-              address: address,
-              return: true,
-            }),
-          );
-        });
-    } else if (query.returnType == "boolean") {
-      publicEvents.queryPerformance.next(new QueryPerformanceEvent(EQueryEvents.ChainTransactionDataAccess, `start`)) 
-      return this.transactionHistoryRepo
-        .getTransactions(filter)
-        .andThen((transactions) => {
-          publicEvents.queryPerformance.next(new QueryPerformanceEvent(EQueryEvents.ChainTransactionDataAccess, `end`))
-          if (transactions == null) {
-            return okAsync(SDQL_Return(false));
-          }
-          if (transactions.length == 0) {
-            return okAsync(SDQL_Return(false));
-          }
+            return okAsync(SDQL_Return(true));
+          }).mapErr( (err) => {
+            context.publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.ChainTransactionDataAccess,
+                EStatus.End,
+                queryCID,
+                query.name,
+                err
+              ),
+            );
+            throw err
+          });
+      }
 
-          return okAsync(SDQL_Return(true));
-        });
-    }
+      if (query.name == "chain_transactions") {
+        context.publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.ChainTransactionDataAccess,
+            EStatus.Start,
+            queryCID,
+            query.name
+          ),
+        );
+        return this.transactionHistoryRepo
+          .getTransactionByChain()
+          .andThen((transactionsArray) => {
+            context.publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.ChainTransactionDataAccess,
+                EStatus.End,
+                queryCID,
+                query.name
+              ),
+            );
+            return okAsync(SDQL_Return(transactionsArray));
+          }).mapErr( (err) => {
+            context.publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.ChainTransactionDataAccess,
+                EStatus.End,
+                queryCID,
+                query.name,
+                err
+              ),
+            );
+            throw err
+          });
+      }
 
-    if (query.name == "chain_transactions") {
-      publicEvents.queryPerformance.next(new QueryPerformanceEvent(EQueryEvents.ChainTransactionDataAccess, `start`))
-      return this.transactionHistoryRepo
-        .getTransactionByChain()
-        .andThen((transactionsArray) => {
-          publicEvents.queryPerformance.next(new QueryPerformanceEvent(EQueryEvents.ChainTransactionDataAccess, `end`))
-          return okAsync(SDQL_Return(transactionsArray));
-        });
-    }
-
-    return okAsync(SDQL_Return(false));
+      return okAsync(SDQL_Return(false));
+    });
   }
 }

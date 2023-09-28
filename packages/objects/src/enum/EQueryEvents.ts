@@ -15,7 +15,7 @@ export enum EQueryEvents {
    * Before creating a query record and requesting available rewards from MP,
    * we process the query and utilize the outcome to inquire about possible rewards.
    */
-  ProcessesBeforeOnQueryPostedEvaluation = "ProcessesBeforeQueryEvaluation",
+  OnQueryPostedEvaluationProcesses = "ProcessesBeforeQueryEvaluation",
   /**
    * Will emit on `returnQueries` in QueryService:
    * Prior to the final processing of the query, we perform certain preliminary tasks.

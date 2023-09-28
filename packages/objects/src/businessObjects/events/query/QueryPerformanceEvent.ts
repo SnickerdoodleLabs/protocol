@@ -1,4 +1,5 @@
-import { EQueryEvents } from "@objects/enum";
+import { EQueryEvents, EStatus } from "@objects/enum";
+import { IpfsCID, SDQL_Name } from "@objects/primitives";
 
 /**
  * Important Note on Evaluation Events:
@@ -12,6 +13,11 @@ import { EQueryEvents } from "@objects/enum";
  * caution when leveraging these events for large queries.
  */
 export class QueryPerformanceEvent {
-    constructor(public type: EQueryEvents , public status : `start` | `end` ) {}
-  }
-  
+  constructor(
+    public type: EQueryEvents,
+    public status: EStatus,
+    public queryCID : IpfsCID,
+    public subQueryIdentifier?: SDQL_Name,
+    public error?: Error,
+  ) {}
+}

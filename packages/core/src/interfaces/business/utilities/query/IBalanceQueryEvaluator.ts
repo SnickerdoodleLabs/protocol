@@ -1,6 +1,6 @@
 import {
+  IpfsCID,
   PersistenceError,
-  PublicEvents,
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
 import { AST_BalanceQuery } from "@snickerdoodlelabs/query-parser";
@@ -11,7 +11,7 @@ import { IQueryTypeEvaluator } from "@core/interfaces/business/utilities/query/I
 export interface IBalanceQueryEvaluator extends IQueryTypeEvaluator {
   eval(
     query: AST_BalanceQuery,
-    publicEvents: PublicEvents,
+    queryCID : IpfsCID
   ): ResultAsync<SDQL_Return, PersistenceError>;
 }
 

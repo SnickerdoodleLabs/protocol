@@ -45,7 +45,8 @@ import {
   BlockchainCommonErrors,
   JSONString,
   EQueryEvents,
-  QueryPerformanceEvent
+  QueryPerformanceEvent,
+  EStatus,
 } from "@snickerdoodlelabs/objects";
 import {
   SDQLQueryWrapper,
@@ -180,31 +181,56 @@ export class QueryService implements IQueryService {
           queryWrapper,
         );
       }
-      context.publicEvents.queryPerformance.next( new QueryPerformanceEvent(EQueryEvents.ProcessesBeforeOnQueryPostedEvaluation , `start`))
+      context.publicEvents.queryPerformance.next(
+        new QueryPerformanceEvent(
+          EQueryEvents.OnQueryPostedEvaluationProcesses,
+          EStatus.Start,
+          requestForData.requestedCID,
+        ),
+      );
       // Now we will record the query as having been recieved; it is now at the start of the processing pipeline
       // This is just a prototype, we probably need to do the parsing before this becuase QueryStatus
       // should grow significantly
-      return this.createQueryStatusWithConsent(
-        requestForData,
-        queryWrapper,
-      ).andThen(() => {
-        return this.dataWalletUtils
-          .deriveOptInPrivateKey(
-            requestForData.consentContractAddress,
-            context.dataWalletKey!,
-          )
-          .andThen((optInKey) => {
-            return this.constructAndPublishSDQLQueryRequest(
-              consentToken,
-              optInKey,
+      return this.createQueryStatusWithConsent(requestForData, queryWrapper)
+        .andThen(() => {
+          return this.dataWalletUtils
+            .deriveOptInPrivateKey(
               requestForData.consentContractAddress,
-              queryWrapper.sdqlQuery,
-              accounts,
-              context,
-              config,
-            );
-          });
-      });
+              context.dataWalletKey!,
+            )
+            .andThen((optInKey) => {
+              return this.constructAndPublishSDQLQueryRequest(
+                consentToken,
+                optInKey,
+                requestForData.consentContractAddress,
+                queryWrapper.sdqlQuery,
+                accounts,
+                context,
+                config,
+              );
+            })
+            .map(() => {
+              context.publicEvents.queryPerformance.next(
+                new QueryPerformanceEvent(
+                  EQueryEvents.OnQueryPostedEvaluationProcesses,
+                  EStatus.End,
+                  requestForData.requestedCID,
+                ),
+              );
+            });
+        })
+        .mapErr((err) => {
+          context.publicEvents.queryPerformance.next(
+            new QueryPerformanceEvent(
+              EQueryEvents.OnQueryPostedEvaluationProcesses,
+              EStatus.End,
+              requestForData.requestedCID,
+              undefined,
+              err,
+            ),
+          );
+          return err;
+        });
     });
   }
 
@@ -342,18 +368,23 @@ export class QueryService implements IQueryService {
       ),
     ])
       .andThen(([context, config, queryStatii]) => {
-        context.publicEvents.queryPerformance.next( new QueryPerformanceEvent(EQueryEvents.ProcessesBeforeReturningQueryEvaluation , `start`))
         if (queryStatii.length == 0) {
           this.logUtils.debug("No queries to process and return");
           return okAsync(undefined);
         }
-
         // For each query, we'll do some basic checks- make sure consent is still
         // valid, that the context is sane, etc.
         return ResultUtils.combine(
           queryStatii.map((queryStatus) => {
             this.logUtils.debug(
               `Attempting to process and return query ${queryStatus.queryCID}`,
+            );
+            context.publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.ProcessesBeforeReturningQueryEvaluation,
+                EStatus.Start,
+                queryStatus.queryCID,
+              ),
             );
 
             // The rewards parameters need to be deserialized, or at least the basics provided.
@@ -366,6 +397,17 @@ export class QueryService implements IQueryService {
                 .map(() => {
                   context.publicEvents.onQueryParametersRequired.next(
                     queryStatus.queryCID,
+                  );
+                  context.publicEvents.queryPerformance.next(
+                    new QueryPerformanceEvent(
+                      EQueryEvents.ProcessesBeforeReturningQueryEvaluation,
+                      EStatus.End,
+                      queryStatus.queryCID,
+                      undefined,
+                      new Error(
+                        `Cannot return data for query ${queryStatus.queryCID} because it lacks defined rewards parameters.`,
+                      ),
+                    ),
                   );
                   this.logUtils.warning(
                     `Cannot return data for query ${queryStatus.queryCID} because it lacks defined rewards parameters.`,
@@ -396,13 +438,22 @@ export class QueryService implements IQueryService {
                 .andThen(() => {
                   // After sanity checking, we process the query into insights for a
                   // (hopefully) final time, and get our opt-in key
-                  context.publicEvents.queryPerformance.next( new QueryPerformanceEvent(EQueryEvents.ProcessesBeforeReturningQueryEvaluation , `end`))
+                  context.publicEvents.queryPerformance.next(
+                    new QueryPerformanceEvent(
+                      EQueryEvents.ProcessesBeforeReturningQueryEvaluation,
+                      EStatus.End,
+                      query.cid,
+                    ),
+                  );
                   this.logUtils.debug(
                     `Starting queryParsingEngine for query ${query.cid}`,
                   );
                   return ResultUtils.combine([
                     this.queryParsingEngine
-                      .handleQuery(query, consentToken!.dataPermissions, context.publicEvents)
+                      .handleQuery(
+                        query,
+                        consentToken!.dataPermissions
+                      )
                       .map((insights) => {
                         this.logUtils.debug(
                           `Query ${query.cid} processed into insights`,
@@ -414,6 +465,17 @@ export class QueryService implements IQueryService {
                       context.dataWalletKey!,
                     ),
                   ]);
+                })
+                .mapErr((err) => {
+                  context.publicEvents.queryPerformance.next(
+                    new QueryPerformanceEvent(
+                      EQueryEvents.ProcessesBeforeReturningQueryEvaluation,
+                      EStatus.End,
+                      query.cid,
+                      undefined,
+                      err,
+                    ),
+                  );
                 })
                 .andThen(([insights, optInKey]) => {
                   // Deliver the insights to the backend
@@ -429,7 +491,7 @@ export class QueryService implements IQueryService {
                 })
                 .orElse((err) => {
                   if (err instanceof AjaxError) {
-                    
+                    if (err.code == 403) {
                       // 403 means a response has already been submitted, and we should stop asking
                       queryStatus.status =
                         EQueryProcessingStatus.RewardsReceived;
@@ -438,7 +500,7 @@ export class QueryService implements IQueryService {
                         .map(() => {
                           return [];
                         });
-                    
+                    }
                   }
 
                   // All other errors are just reported
@@ -485,7 +547,6 @@ export class QueryService implements IQueryService {
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
     config: CoreConfig,
-    context: CoreContext,
   ): ResultAsync<
     PossibleReward[],
     | AjaxError
@@ -502,9 +563,8 @@ export class QueryService implements IQueryService {
     | EvalNotImplementedError
     | MissingASTError
   > {
-    context.publicEvents.queryPerformance.next( new QueryPerformanceEvent(EQueryEvents.ProcessesBeforeOnQueryPostedEvaluation , `end`))
     return this.queryParsingEngine
-      .getPossibleQueryDeliveryItems(query , context.publicEvents)
+      .getPossibleQueryDeliveryItems(query)
       .andThen((queryDeliveryItems) => {
         return this.getPossibleRewardsFromIP(
           consentToken,
@@ -567,8 +627,7 @@ export class QueryService implements IQueryService {
       optInKey,
       consentContractAddress,
       query,
-      config,
-      context
+      config
     ).map((possibleRewards) => {
       this.publishSDQLQueryRequest(
         consentContractAddress,
