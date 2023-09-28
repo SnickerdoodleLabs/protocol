@@ -14,7 +14,6 @@ export interface IQueryRepository {
     cid: IpfsCID,
     q: AST_SubQuery,
     dataPermissions: DataPermissions,
-    publicEvents  ?: PublicEvents
   ): ResultAsync<SDQL_Return, PersistenceError>;
 }
 

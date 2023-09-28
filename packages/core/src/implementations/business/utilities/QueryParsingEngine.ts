@@ -53,7 +53,7 @@ import {
   IAdDataRepositoryType,
   IAdRepositoryType,
 } from "@core/interfaces/data/index.js";
-import { IContextProvider } from "@core/interfaces/utilities";
+import { IContextProvider, IContextProviderType } from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {
@@ -387,7 +387,5 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     }
   }
 }
-function IContextProviderType(IContextProviderType: any) {
-  throw new Error("Function not implemented.");
-}
+
 
