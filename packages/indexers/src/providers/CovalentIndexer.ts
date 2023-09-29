@@ -49,15 +49,15 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [
       EChain.EthereumMainnet,
-      new IndexerSupportSummary(EChain.Arbitrum, true, true, false),
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, true, false),
     ],
     [
       EChain.Polygon,
-      new IndexerSupportSummary(EChain.Arbitrum, true, true, false),
+      new IndexerSupportSummary(EChain.Polygon, true, true, false),
     ],
     [
       EChain.Binance,
-      new IndexerSupportSummary(EChain.Arbitrum, true, true, false),
+      new IndexerSupportSummary(EChain.Binance, true, true, false),
     ],
   ]);
 
