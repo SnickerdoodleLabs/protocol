@@ -1,3 +1,5 @@
+import SuiIcon from "@extension-onboarding/assets/icons/sui.svg";
+
 import CoinbaseIcon from "@extension-onboarding/assets/icons/coinbase.svg";
 import MetamaskIcon from "@extension-onboarding/assets/icons/metamask.svg";
 import PhantomIcon from "@extension-onboarding/assets/icons/phantom.svg";
@@ -38,6 +40,13 @@ export const getProviderList = (): IProvider[] => {
       name: "Phantom",
       key: EWalletProviderKeys.PHANTOM,
       installationUrl: "https://phantom.app/download",
+    },
+    {
+      provider: new SuiWalletProvider(),
+      icon: SuiIcon,
+      name: "Sui",
+      key: EWalletProviderKeys.SUI,
+      installationUrl: "https://docs.mystenlabs.com/wallet",
     },
     // {
     //   provider: new WalletConnectProvider(),
