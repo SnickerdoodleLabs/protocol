@@ -74,6 +74,9 @@ export class ConfigProvider implements IConfigProvider {
     this.config.bluezApiKey =
       configOverrides.apiKeys.bluezApiKey ?? this.config.bluezApiKey;
 
+    this.config.spaceAndTimeKey =
+      configOverrides.apiKeys.spaceAndTimeKey ?? this.config.spaceAndTimeKey;
+
     this.config.dnsServerAddress =
       configOverrides.dnsServerAddress ?? this.config.dnsServerAddress;
     this.config.requestForDataCheckingFrequency =

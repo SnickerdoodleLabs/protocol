@@ -61,6 +61,7 @@ export class SuiIndexer implements ISuiIndexer {
   ]);
 
   protected suiApiKey: string | null = null;
+  protected suiTestnetApiKey: string | null = null;
   //   protected suiTestnetApiKey: string | null = null;
 
   public constructor(
@@ -77,10 +78,7 @@ export class SuiIndexer implements ISuiIndexer {
   public initialize(): ResultAsync<void, never> {
     return this.configProvider.getConfig().map((config) => {
       // Solana Mainnet
-      if (
-        config.apiKeys.alchemyApiKeys.Sui == "" ||
-        config.apiKeys.alchemyApiKeys.Sui == null
-      ) {
+      if (config.apiKeys.Sui == "" || config.apiKeys.Sui == null) {
         this.health.set(EChain.Sui, EComponentStatus.NoKeyProvided);
       } else {
         this.health.set(EChain.Sui, EComponentStatus.Available);
@@ -287,11 +285,13 @@ export class SuiIndexer implements ISuiIndexer {
         "https://solana-mainnet.g.alchemy.com/v2/" + this.suiApiKey,
       );
       return this._getConnectionForEndpoint(mainnet);
-    } else if (chain === EChain.SuiTestnet && this.suiTestnetApiKey != null) {
-      const testnet = URLString(
-        "https://solana-devnet.g.alchemy.com/v2/" + this.suiTestnetApiKey,
-      );
-      return this._getConnectionForEndpoint(testnet);
+      // }
+      // else if (chain === EChain.SuiTestnet && this.suiTestnetApiKey != null) {
+      //   const testnet = URLString(
+      //     "https://api.blockvision.org/v2/sui/nft/nftActivity?objectId=0x2db7f2d02dfa110905b0ecbd1f210316e8a70636615384429823958ed46ab6a0&pageIndex=1&pageSize=20" +
+      //       this.suiTestnetApiKey,
+      //   );
+      //   return this._getConnectionForEndpoint(testnet);
     } else {
       return null;
     }

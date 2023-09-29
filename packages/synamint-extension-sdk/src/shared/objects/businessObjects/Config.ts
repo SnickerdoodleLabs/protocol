@@ -46,6 +46,7 @@ export class ExtensionConfig {
       oklinkApiKey?: string;
       ankrApiKey?: string;
       bluezApiKey?: string;
+      spaceAndTimeKey?: string;
     },
     public dnsServerAddress?: URLString,
     public requestForDataCheckingFrequency?: number,

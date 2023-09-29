@@ -83,6 +83,7 @@ declare interface IExtensionConfigOverrides {
     oklinkApiKey?: string;
     ankrApiKey?: string;
     bluezApiKey?: string;
+    spaceAndTimeKey?: string;
     primaryInfuraKey?: string;
     secondaryInfuraKey?: string;
   };

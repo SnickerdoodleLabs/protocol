@@ -8,6 +8,7 @@ export enum EDataProvider {
   Alchemy = "Alchemy",
   Oklink = "Oklink",
   Solana = "Solana",
+  Sui = "Sui",
   NftScan = "NftScan",
   Moralis = "Moralis",
   Matic = "Matic",
