@@ -24,6 +24,7 @@ import {
   CONTENT_SCRIPT_SUBSTREAM,
   ONBOARDING_PROVIDER_SUBSTREAM,
   EXTERNAL_PORTS,
+  ERequestChannel,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -59,6 +60,7 @@ export class PortConnectionRepository implements IPortConnectionRepository {
       remotePort,
       remotePort.name as EPortNames,
       portStream,
+      ERequestChannel.INTERNAL,
     );
   }
 
@@ -75,12 +77,14 @@ export class PortConnectionRepository implements IPortConnectionRepository {
       remotePort,
       origin as URLString,
       portStreamMux.createStream(CONTENT_SCRIPT_SUBSTREAM),
+      ERequestChannel.INTERNAL,
     );
     // create injected proxy handler
     this.rpcEngineFactory.createRpcEngine(
       remotePort,
       origin as URLString,
       portStreamMux.createStream(ONBOARDING_PROVIDER_SUBSTREAM),
+      ERequestChannel.PROXY,
     );
 
     endOfStream(portStream, () => {

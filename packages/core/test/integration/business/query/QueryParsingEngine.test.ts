@@ -408,7 +408,6 @@ describe("Testing avalanche 4", () => {
       .handleQuery(sdqlQuery4, new DataPermissions(allPermissions))
       .andThen((deliveredInsights) => {
         expect(deliveredInsights).toMatchObject(expectedInsights);
-
         expect(
           Object.values(deliveredInsights.insights!).length > 0,
         ).toBeTruthy();

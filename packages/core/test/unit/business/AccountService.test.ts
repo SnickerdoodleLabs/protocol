@@ -55,6 +55,7 @@ const evmAccountAddress = EVMAccountAddress("evmAccountAddress");
 const solanaAccountAddress = SolanaAccountAddress("solanaAccountAddress");
 const evmSignature = Signature("evmSignature");
 const solanaSignature = Signature("solanaSignature");
+const externalSignature = Signature("externalSignature");
 
 const evmDerivedPrivateKey = EVMPrivateKey("evmDerivedPrivateKey");
 const solanaDerivedPrivateKey = EVMPrivateKey("solanaDerivedPrivateKey");
@@ -76,6 +77,7 @@ const evmChain = EChain.DevDoodle;
 const solanaChain = EChain.Solana;
 const languageCode = LanguageCode("en");
 const unlockMessage = "Login to your Snickerdoodle data wallet"; // Needs to match result of getLinkAccountMessage(en)
+const externalMessage = "Signed message from some other stupid DApp";
 
 const evmDerivedEncryptionKey = AESKey("evmDerivedEncryptionKey");
 const solanaDerivedEncryptionKey = AESKey("solanaDerivedEncryptionKey");
@@ -163,6 +165,14 @@ class AccountServiceMocks {
         solanaAccountAddress,
         solanaSignature,
         unlockMessage,
+      ),
+    ).thenReturn(okAsync(true));
+    td.when(
+      this.dataWalletUtils.verifySignature(
+        evmChain,
+        evmAccountAddress,
+        externalSignature,
+        externalMessage,
       ),
     ).thenReturn(okAsync(true));
 
@@ -271,6 +281,31 @@ describe("AccountService addAccount() tests", () => {
       evmAccountAddress,
       evmSignature,
       languageCode,
+      evmChain,
+    );
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+
+    mocks.contextProvider.assertEventCounts({
+      onAccountAdded: 1,
+      postBackupsRequested: 1,
+    });
+    expect(mocks.contextProvider.setContextValues.length).toBe(0);
+  });
+
+  test("addAccountWithExternalSignature() with EVM based account works with no existing linked account", async () => {
+    // Arrange
+    const mocks = new AccountServiceMocks(false, true);
+
+    const service = mocks.factory();
+
+    // Act
+    const result = await service.addAccountWithExternalSignature(
+      evmAccountAddress,
+      externalMessage,
+      externalSignature,
       evmChain,
     );
 

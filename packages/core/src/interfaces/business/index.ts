@@ -11,5 +11,4 @@ export * from "@core/interfaces/business/IMetricsService.js";
 export * from "@core/interfaces/business/IMonitoringService.js";
 export * from "@core/interfaces/business/IProfileService.js";
 export * from "@core/interfaces/business/IQueryService.js";
-export * from "@core/interfaces/business/ISiftContractService.js";
 export * from "@core/interfaces/business/ITwitterService.js";

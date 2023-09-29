@@ -1,4 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   AccountAddress,
@@ -19,18 +23,19 @@ import {
   SiteVisit,
   UninitializedError,
   UnsupportedLanguageError,
-  URLString,
   EarnedReward,
   TokenAddress,
   UnixTimestamp,
   DataWalletBackupID,
   TransactionPaymentCounter,
-  EDataWalletPermission,
   DomainName,
   UnauthorizedError,
   ITokenPriceRepositoryType,
   ITokenPriceRepository,
   AccountIndexingError,
+  SiteVisitsMap,
+  getChainInfoByChain,
+  EChainTechnology,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -192,10 +197,143 @@ export class AccountService implements IAccountService {
     | InvalidParametersError
   > {
     // First, let's do some validation and make sure that the signature is actually for the account
+    return this.getLinkAccountMessage(languageCode)
+      .andThen((message) => {
+        return this.validateSignatureForAddress(
+          accountAddress,
+          signature,
+          message,
+          chain,
+        );
+      })
+      .andThen(() => {
+        return this.contextProvider.getContext();
+      })
+      .andThen((context) => {
+        if (
+          context.dataWalletAddress == null ||
+          context.dataWalletKey == null
+        ) {
+          return errAsync(
+            new UninitializedError(
+              "Core must be initialized first before you can add an additional account",
+            ),
+          );
+        }
+
+        // Check if the account is already linked
+        return this.accountRepo
+          .getLinkedAccount(accountAddress, chain)
+          .andThen((existingAccount) => {
+            if (existingAccount != null) {
+              // The account is already linked
+              return errAsync(
+                new InvalidParametersError(
+                  `Account ${accountAddress} is already linked to your data wallet`,
+                ),
+              );
+            }
+
+            // Add the account to the data wallet
+            return this.accountRepo.addAccount(
+              new LinkedAccount(chain, accountAddress),
+            );
+          })
+          .map(() => {
+            // Notify the outside world of what we did
+            context.privateEvents.postBackupsRequested.next();
+            context.publicEvents.onAccountAdded.next(
+              new LinkedAccount(chain, accountAddress),
+            );
+          });
+      });
+  }
+
+  public addAccountWithExternalSignature(
+    accountAddress: AccountAddress,
+    message: string,
+    signature: Signature,
+    chain: EChain,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | InvalidParametersError
+  > {
+    // First, let's do some validation and make sure that the signature is actually for the account
     return this.validateSignatureForAddress(
       accountAddress,
       signature,
-      languageCode,
+      message,
+      chain,
+    )
+      .andThen(() => {
+        return this.contextProvider.getContext();
+      })
+      .andThen((context) => {
+        if (
+          context.dataWalletAddress == null ||
+          context.dataWalletKey == null
+        ) {
+          return errAsync(
+            new UninitializedError(
+              "Core must be initialized first before you can add an additional account",
+            ),
+          );
+        }
+
+        // Check if the account is already linked
+        return this.accountRepo
+          .getLinkedAccount(accountAddress, chain)
+          .andThen((existingAccount) => {
+            if (existingAccount != null) {
+              // The account is already linked
+              return errAsync(
+                new InvalidParametersError(
+                  `Account ${accountAddress} is already linked to your data wallet`,
+                ),
+              );
+            }
+
+            // Add the account to the data wallet
+            return this.accountRepo.addAccount(
+              new LinkedAccount(chain, accountAddress),
+            );
+          })
+          .map(() => {
+            // Notify the outside world of what we did
+            context.privateEvents.postBackupsRequested.next();
+            context.publicEvents.onAccountAdded.next(
+              new LinkedAccount(chain, accountAddress),
+            );
+          });
+      });
+  }
+
+  public addAccountWithExternalTypedDataSignature(
+    accountAddress: AccountAddress,
+    domain: TypedDataDomain,
+    types: Record<string, Array<TypedDataField>>,
+    value: Record<string, unknown>,
+    signature: Signature,
+    chain: EChain,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | InvalidSignatureError
+    | InvalidParametersError
+  > {
+    // First, let's do some validation and make sure that the signature is actually for the account
+    return this.validateTypedDataSignatureForAddress(
+      accountAddress,
+      domain,
+      types,
+      value,
+      signature,
       chain,
     )
       .andThen(() => {
@@ -295,14 +433,16 @@ export class AccountService implements IAccountService {
   public getAccounts(
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<LinkedAccount[], UnauthorizedError | PersistenceError> {
-    return this.permissionUtils
-      .assureSourceDomainHasPermission(
-        sourceDomain,
-        EDataWalletPermission.ReadLinkedAccounts,
-      )
-      .andThen(() => {
-        return this.accountRepo.getAccounts();
-      });
+    // TODO: restore this once we have a way to request and grant permissions.
+    // return this.permissionUtils
+    //   .assureSourceDomainHasPermission(
+    //     sourceDomain,
+    //     EDataWalletPermission.ReadLinkedAccounts,
+    //   )
+    //   .andThen(() => {
+    //     return this.accountRepo.getAccounts();
+    //   });
+    return this.accountRepo.getAccounts();
   }
 
   public getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError> {
@@ -336,10 +476,7 @@ export class AccountService implements IAccountService {
     return this.transactionRepo.getTransactionByChain();
   }
 
-  public getSiteVisitsMap(): ResultAsync<
-    Map<URLString, number>,
-    PersistenceError
-  > {
+  public getSiteVisitsMap(): ResultAsync<SiteVisitsMap, PersistenceError> {
     return this.browsingDataRepo.getSiteVisitsMap();
   }
 
@@ -401,18 +538,11 @@ export class AccountService implements IAccountService {
   protected validateSignatureForAddress(
     accountAddress: AccountAddress,
     signature: Signature,
-    languageCode: LanguageCode,
+    message: string,
     chain: EChain,
   ): ResultAsync<void, InvalidSignatureError | UnsupportedLanguageError> {
-    return this.getLinkAccountMessage(languageCode)
-      .andThen((message) => {
-        return this.dataWalletUtils.verifySignature(
-          chain,
-          accountAddress,
-          signature,
-          message,
-        );
-      })
+    return this.dataWalletUtils
+      .verifySignature(chain, accountAddress, signature, message)
       .andThen((verified) => {
         if (verified) {
           return okAsync(undefined);
@@ -421,6 +551,45 @@ export class AccountService implements IAccountService {
         return errAsync(
           new InvalidSignatureError(
             `Provided signature from account address ${accountAddress} on chain ${chain} is invalid`,
+          ),
+        );
+      });
+  }
+
+  protected validateTypedDataSignatureForAddress(
+    accountAddress: AccountAddress,
+    domain: TypedDataDomain,
+    types: Record<string, Array<TypedDataField>>,
+    value: Record<string, unknown>,
+    signature: Signature,
+    chain: EChain,
+  ): ResultAsync<void, InvalidSignatureError> {
+    const chainInfo = getChainInfoByChain(chain);
+
+    if (chainInfo.chainTechnology != EChainTechnology.EVM) {
+      return errAsync(
+        new InvalidSignatureError(
+          "Typed data signatures are only supported on EVM chains",
+        ),
+      );
+    }
+    return this.dataWalletUtils
+      .verifyTypedDataSignature(
+        accountAddress,
+        domain,
+        types,
+        value,
+        signature,
+        chain,
+      )
+      .andThen((verified) => {
+        if (verified) {
+          return okAsync(undefined);
+        }
+
+        return errAsync(
+          new InvalidSignatureError(
+            `Provided signature from account address ${accountAddress} on chain ${chain} for typed data is invalid`,
           ),
         );
       });

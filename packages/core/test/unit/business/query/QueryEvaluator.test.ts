@@ -4,20 +4,20 @@ import {
   Age,
   ChainId,
   EVMAccountAddress,
-  EVMContractAddress,
   Gender,
   SDQL_Name,
   SDQL_OperatorName,
   URLString,
-  TickerSymbol,
   BigNumberString,
   TokenBalance,
   EVMTransaction,
   UnixTimestamp,
   EVMTransactionHash,
-  EChainTechnology,
   TransactionPaymentCounter,
   ESDQLQueryReturn,
+  SiteVisitsData,
+  SiteVisitsMap,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_PropertyQuery,
@@ -76,8 +76,11 @@ class QueryEvaluatorMocks {
   public transactionRepo = td.object<ITransactionHistoryRepository>();
   public socialRepo = td.object<ISocialRepository>();
 
-  public URLmap = new Map<URLString, number>([
-    [URLString("www.snickerdoodlelabs.io"), 10],
+  public URLmap: SiteVisitsMap = new Map<URLString, SiteVisitsData>([
+    [
+      URLString("www.snickerdoodlelabs.io"),
+      new SiteVisitsData(10, 3, UnixTimestamp(12), ISO8601DateString("2022-09-15T18:45:30.123Z")),
+    ],
   ]);
 
   public evmReturns: EVMTransaction[] = [
@@ -744,8 +747,7 @@ describe("Return URLs Map", () => {
     const result = await repo.eval(propertyQuery);
     // console.log("URLs is: ", result["value"]);
     expect(result["value"]).toEqual(
-      new Map<URLString, number>([[URLString("www.snickerdoodlelabs.io"), 10]]),
-    );
+      {"www.snickerdoodlelabs.io": {"averageScreenTime": 3, "lastReportedTime": "2022-09-15T18:45:30.123Z", "numberOfVisits": 10, "totalScreenTime": 12}})
   });
 });
 
