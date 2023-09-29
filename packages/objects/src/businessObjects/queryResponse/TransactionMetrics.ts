@@ -1,8 +1,8 @@
 export class TransactionMetrics {
   constructor(
-    public incomingValue: number,
+    public incomingNativeValue: number,
     public incomingCount: number,
-    public outgoingValue: number,
+    public outgoingNativeValue: number,
     public outgoingCount: number,
   ) {}
 }

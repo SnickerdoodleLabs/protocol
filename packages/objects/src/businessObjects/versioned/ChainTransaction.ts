@@ -3,7 +3,7 @@ import { EChain } from "@objects/enum/index.js";
 import { ISO8601DateString, TransactionHash, UnixTimestamp } from "@objects/primitives/index.js";
 
 export abstract class ChainTransaction extends VersionedObject {
-  public static CURRENT_VERSION = 1;
+  public static CURRENT_VERSION = 2;
  
   constructor(
     public chain: EChain,

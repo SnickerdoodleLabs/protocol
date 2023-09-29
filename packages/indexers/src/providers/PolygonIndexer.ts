@@ -42,7 +42,7 @@ import {
   IIndexerContextProviderType,
   IEVMIndexer,
 } from "@indexers/interfaces/index.js";
-
+import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 @injectable()
 export class PolygonIndexer implements IEVMIndexer {
   protected health: Map<EChain, EComponentStatus> = new Map<
@@ -65,6 +65,7 @@ export class PolygonIndexer implements IEVMIndexer {
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -262,7 +263,7 @@ export class PolygonIndexer implements IEVMIndexer {
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               tx.tokenID == "" ? null : tx.tokenID!,
               type,
-              ISO8601DateString( new Date().toISOString())
+              this.timeUtils.getISO8601TimeString(this.timeUtils.getMillisecondNow())
             );
           });
         });
@@ -318,7 +319,7 @@ export class PolygonIndexer implements IEVMIndexer {
               : EVMContractAddress(tx.contractAddress),
             null,
             EPolygonTransactionType.ERC20,
-            ISO8601DateString( new Date().toISOString())
+            this.timeUtils.getISO8601TimeString(this.timeUtils.getMillisecondNow())
           );
         });
       });

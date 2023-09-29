@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import { TimeUtils } from "@snickerdoodlelabs/common-utils";
+import { ITimeUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   Age,
   ChainId,
@@ -90,7 +90,7 @@ class QueryParsingMocks {
   public socialRepo = td.object<ISocialRepository>();
 
   public blockchainTransactionQueryEvaluator =
-    new BlockchainTransactionQueryEvaluator(this.transactionRepo);
+    new BlockchainTransactionQueryEvaluator(this.transactionRepo, new TimeUtils());
 
   public nftQueryEvaluator = new NftQueryEvaluator(this.balanceRepo);
 

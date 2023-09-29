@@ -137,18 +137,17 @@ export class TransactionHistoryRepository
     arrayOfTransactionFlowMaps: Map<EChain, TransactionFlowInsight>[],
   ): TransactionFlowInsight[] {
     const aggregatedMap = new Map<EChain, TransactionFlowInsight>();
-
+    const periods: (keyof Omit<TransactionFlowInsight, 'chainId' | 'measurementTime'>)[] = ['day', 'week', 'month', 'year'];
     arrayOfTransactionFlowMaps.forEach((transactionFlowMap) => {
       transactionFlowMap.forEach((flow, chainId) => {
         const existingFlow = aggregatedMap.get(chainId);
-
         if (!existingFlow) {
-          aggregatedMap.set(chainId, { ...flow });
+          aggregatedMap.set(chainId, flow );
         } else {
-          ["day", "week", "month", "year"].forEach((period) => {
-            existingFlow[period].incomingValue += flow[period].incomingValue;
+          periods.forEach((period) => {
+            existingFlow[period].incomingNativeValue += flow[period].incomingNativeValue;
             existingFlow[period].incomingCount += flow[period].incomingCount;
-            existingFlow[period].outgoingValue += flow[period].outgoingValue;
+            existingFlow[period].outgoingNativeValue += flow[period].outgoingNativeValue;
             existingFlow[period].outgoingCount += flow[period].outgoingCount;
           });
           if (flow.measurementTime > existingFlow.measurementTime) {
@@ -219,10 +218,10 @@ export class TransactionHistoryRepository
     const period = this.determineTimePeriod(tx.timestamp);
 
     if (isIncoming) {
-      chainInsight[period].incomingValue += this._getTxValue(tx);
+      chainInsight[period].incomingNativeValue += this._getTxValue(tx);
       chainInsight[period].incomingCount += 1;
     } else {
-      chainInsight[period].outgoingValue += this._getTxValue(tx);
+      chainInsight[period].outgoingNativeValue += this._getTxValue(tx);
       chainInsight[period].outgoingCount += 1;
     }
 

@@ -43,6 +43,7 @@ import { injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { Subscription } from "rxjs";
+import { ITimeUtils, ITimeUtilsType, TimeUtils } from "@snickerdoodlelabs/common-utils";
 
 import { Environment, TestHarnessMocks } from "@test-harness/mocks/index.js";
 import { ApproveQuery } from "@test-harness/prompts/index.js";
@@ -58,12 +59,13 @@ export class DataWalletProfile {
   private _profilePathInfo = this.defaultPathInfo;
 
   private _destroyed = false;
-
+  protected timeUtils: ITimeUtils;
   private coreSubscriptions = new Array<Subscription>();
   public acceptedInvitations = new Array<PageInvitation>();
 
   public constructor(readonly mocks: TestHarnessMocks) {
     this.core = this.createCore(mocks);
+    this.timeUtils = new TimeUtils()
   }
 
   public get name(): string {
@@ -357,7 +359,7 @@ export class DataWalletProfile {
               evmT.methodId ?? null,
               evmT.functionName ?? null,
               evmT.events,
-              ISO8601DateString( new Date().toISOString())
+              this.timeUtils.getISO8601TimeString(this.timeUtils.getMillisecondNow())
             ),
         );
 

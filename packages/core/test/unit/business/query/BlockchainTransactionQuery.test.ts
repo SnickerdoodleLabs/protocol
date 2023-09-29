@@ -35,11 +35,13 @@ import * as td from "testdouble";
 import { BlockchainTransactionQueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
 import { ITransactionHistoryRepository } from "@core/interfaces/data/index.js";
-
+import { ITimeUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
+const iso = ISO8601DateString("11")
+const now = UnixTimestamp(2);
 class blockchainTransactionQueryEvaluatorMocks {
   public transactionRepo = td.object<ITransactionHistoryRepository>();
   public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
-
+  public timeUtils: ITimeUtils;
   public URLmap = new Map<URLString, number>([
     [URLString("www.snickerdoodlelabs.io"), 10],
   ]);
@@ -47,10 +49,13 @@ class blockchainTransactionQueryEvaluatorMocks {
   public transactionsArray = new Array<ChainTransaction>();
 
   public constructor() {
+    this.timeUtils = td.object<ITimeUtils>();
+    td.when(this.timeUtils.getUnixNow()).thenReturn(now as never);
+
   }
 
   public factory() {
-    return new BlockchainTransactionQueryEvaluator(this.transactionRepo);
+    return new BlockchainTransactionQueryEvaluator(this.transactionRepo, this.timeUtils);
   }
 }
 
@@ -106,7 +111,7 @@ describe("QueryEvaluator: ", () => {
           null,
           null,
           null,
-          ISO8601DateString( new Date().toISOString())
+          iso
         ),
       ]),
     );
@@ -166,7 +171,7 @@ describe("QueryEvaluator: ", () => {
           null,
           null,
           null,
-          ISO8601DateString( new Date().toISOString())
+          iso
         ),
       ]),
     );

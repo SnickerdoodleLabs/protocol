@@ -33,7 +33,7 @@ import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
-
+import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   IEVMIndexer,
   IIndexerConfigProvider,
@@ -92,6 +92,7 @@ export class EtherscanIndexer implements IEVMIndexer {
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -349,7 +350,7 @@ export class EtherscanIndexer implements IEVMIndexer {
                 tx.methodId == "" ? null : tx.methodId,
                 tx.functionName == "" ? null : tx.functionName,
                 null,
-                ISO8601DateString( new Date().toISOString())
+                this.timeUtils.getISO8601TimeString(this.timeUtils.getMillisecondNow())
               );
             });
 

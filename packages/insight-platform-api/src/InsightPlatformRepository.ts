@@ -1,6 +1,8 @@
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
@@ -45,6 +47,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
   public constructor(
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public clearAllBackups(
@@ -166,7 +169,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       queryCID: queryCID,
       insights: JSON.stringify(insights),
       rewardParameters: JSON.stringify(rewardParameters),
-      responseTime : (new Date()).toISOString()
+      responseTime :   this.timeUtils.getISO8601TimeString(this.timeUtils.getMillisecondNow())
     } as Record<string, unknown>;
 
     return this.cryptoUtils
@@ -187,7 +190,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           queryCID: queryCID,
           insights: insights,
           rewardParameters: rewardParameters,
-          responseTime : (new Date()).toISOString(),
+          responseTime :   this.timeUtils.getISO8601TimeString(this.timeUtils.getMillisecondNow()),
           signature: signature,
         } as IDeliverInsightsParams as unknown as Record<string, unknown>);
       });

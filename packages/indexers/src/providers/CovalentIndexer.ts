@@ -31,6 +31,8 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP, urlJoin } from "url-join-ts";
 
+import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
+
 import {
   IEVMIndexer,
   IIndexerConfigProvider,
@@ -68,6 +70,7 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -271,7 +274,7 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
             );
           })
         : null,
-        ISO8601DateString( new Date().toISOString())
+        this.timeUtils.getISO8601TimeString(this.timeUtils.getMillisecondNow())
     );
     return busObj;
   }

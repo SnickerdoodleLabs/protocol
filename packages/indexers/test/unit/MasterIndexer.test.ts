@@ -46,7 +46,7 @@ const tokenDecimals = 18;
 const tokenId = BigNumberString("1");
 const timestamp = UnixTimestamp(12345);
 const evmTransactionHash1 = EVMTransactionHash("hash1");
-
+const iso = ISO8601DateString("11")
 class EVMIndexerMock implements IEVMIndexer {
   public constructor(
     public _name: string,
@@ -279,7 +279,7 @@ class MasterIndexerMocks {
       null,
       null,
       null,
-      ISO8601DateString( new Date().toISOString())
+      iso
     );
   }
 }

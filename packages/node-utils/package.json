@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/node-utils",
-  "version": "1.0.2",
+  "version": "1.0.1",
   "description": "Utilities that rely on Node APIs. They are usable in a browser with polyfills",
   "license": "MIT",
   "repository": {

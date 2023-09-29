@@ -18,6 +18,7 @@ import {
   ITransactionHistoryRepository,
   ITransactionHistoryRepositoryType,
 } from "@core/interfaces/data/index.js";
+import { ITimeUtilsType, ITimeUtils } from "@snickerdoodlelabs/common-utils/src/index.js";
 
 @injectable()
 export class BlockchainTransactionQueryEvaluator
@@ -26,6 +27,7 @@ export class BlockchainTransactionQueryEvaluator
   constructor(
     @inject(ITransactionHistoryRepositoryType)
     protected transactionHistoryRepo: ITransactionHistoryRepository,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public eval(
@@ -40,7 +42,7 @@ export class BlockchainTransactionQueryEvaluator
         });
     }
     
-    // Transactions related to a spesific address , e.g. Dapp Query
+    // Transactions related to a specific address, e.g. Dapp Query
     if (query.contract && query.chain) {
       const chainId = query.contract.networkId;
       const address = query.contract.address as EVMAccountAddress;
@@ -94,7 +96,7 @@ export class BlockchainTransactionQueryEvaluator
 
 
   protected determineTimePeriod(transactionTime: number): ETimePeriods {
-    const currentTime = Date.now();
+    const currentTime = this.timeUtils.getUnixNow()
     const transactionTimeInMs = transactionTime * 1000;
 
     const dayInMs = 24 * 60 * 60 * 1000;
@@ -114,5 +116,5 @@ export class BlockchainTransactionQueryEvaluator
     }
   }
 
-
+  
 }

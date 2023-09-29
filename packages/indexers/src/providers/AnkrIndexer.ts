@@ -43,6 +43,8 @@ import {
 } from "@indexers/interfaces/index.js";
 import { MasterIndexer } from "@indexers/MasterIndexer.js";
 
+import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
+
 @injectable()
 export class AnkrIndexer implements IEVMIndexer {
   protected health: Map<EChain, EComponentStatus> = new Map<
@@ -103,6 +105,7 @@ export class AnkrIndexer implements IEVMIndexer {
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -311,7 +314,7 @@ export class AnkrIndexer implements IEVMIndexer {
               item.type,
               null,
               null,
-              ISO8601DateString( new Date().toISOString())
+              this.timeUtils.getISO8601TimeString(this.timeUtils.getMillisecondNow())
             );
           });
         })
