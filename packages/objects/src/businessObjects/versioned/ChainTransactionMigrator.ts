@@ -55,10 +55,19 @@ export class ChainTransactionMigrator extends VersionedObjectMigrator<ChainTrans
     }
   }
 
+
   protected getUpgradeFunctions(): Map<
-    number,
-    (data: Record<string, unknown>, version: number) => Record<string, unknown>
-  > {
-    return new Map();
-  }
+  number,
+  (data: Record<string, unknown>, version: number) => Record<string, unknown>
+> {
+  return new Map([
+    [
+      1,
+      (data, version) => {
+        data["measurementDate"] = ( new Date().toISOString())
+        return data;
+      },
+    ],
+  ]);
+}
 }
