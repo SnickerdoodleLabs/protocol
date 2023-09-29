@@ -4,6 +4,7 @@ import {
   IAxiosAjaxUtilsType,
   IAxiosAjaxUtils,
 } from "@snickerdoodlelabs/common-utils";
+import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
   AjaxError,
@@ -42,7 +43,6 @@ import {
   IIndexerContextProviderType,
   IEVMIndexer,
 } from "@indexers/interfaces/index.js";
-import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 @injectable()
 export class PolygonIndexer implements IEVMIndexer {
   protected health: Map<EChain, EComponentStatus> = new Map<
@@ -263,7 +263,9 @@ export class PolygonIndexer implements IEVMIndexer {
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               tx.tokenID == "" ? null : tx.tokenID!,
               type,
-              this.timeUtils.getISO8601TimeString(this.timeUtils.getMillisecondNow())
+              this.timeUtils.getISO8601TimeString(
+                this.timeUtils.getMillisecondNow(),
+              ),
             );
           });
         });
@@ -319,7 +321,9 @@ export class PolygonIndexer implements IEVMIndexer {
               : EVMContractAddress(tx.contractAddress),
             null,
             EPolygonTransactionType.ERC20,
-            this.timeUtils.getISO8601TimeString(this.timeUtils.getMillisecondNow())
+            this.timeUtils.getISO8601TimeString(
+              this.timeUtils.getMillisecondNow(),
+            ),
           );
         });
       });

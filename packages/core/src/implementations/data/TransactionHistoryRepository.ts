@@ -137,17 +137,22 @@ export class TransactionHistoryRepository
     arrayOfTransactionFlowMaps: Map<EChain, TransactionFlowInsight>[],
   ): TransactionFlowInsight[] {
     const aggregatedMap = new Map<EChain, TransactionFlowInsight>();
-    const periods: (keyof Omit<TransactionFlowInsight, 'chainId' | 'measurementTime'>)[] = ['day', 'week', 'month', 'year'];
+    const periods: (keyof Omit<
+      TransactionFlowInsight,
+      "chainId" | "measurementTime"
+    >)[] = ["day", "week", "month", "year"];
     arrayOfTransactionFlowMaps.forEach((transactionFlowMap) => {
       transactionFlowMap.forEach((flow, chainId) => {
         const existingFlow = aggregatedMap.get(chainId);
         if (!existingFlow) {
-          aggregatedMap.set(chainId, flow );
+          aggregatedMap.set(chainId, flow);
         } else {
           periods.forEach((period) => {
-            existingFlow[period].incomingNativeValue += flow[period].incomingNativeValue;
+            existingFlow[period].incomingNativeValue +=
+              flow[period].incomingNativeValue;
             existingFlow[period].incomingCount += flow[period].incomingCount;
-            existingFlow[period].outgoingNativeValue += flow[period].outgoingNativeValue;
+            existingFlow[period].outgoingNativeValue +=
+              flow[period].outgoingNativeValue;
             existingFlow[period].outgoingCount += flow[period].outgoingCount;
           });
           if (flow.measurementTime > existingFlow.measurementTime) {

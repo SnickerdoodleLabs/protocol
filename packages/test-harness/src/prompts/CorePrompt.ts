@@ -208,7 +208,9 @@ export class CorePrompt extends DataWalletPrompt {
             null,
             null,
             null,
-            this.timeUtils.getISO8601TimeString(this.timeUtils.getMillisecondNow())
+            this.timeUtils.getISO8601TimeString(
+              this.timeUtils.getMillisecondNow(),
+            ),
           );
           transactions[1] = new EVMTransaction(
             ChainId(43113),
@@ -224,7 +226,9 @@ export class CorePrompt extends DataWalletPrompt {
             null,
             null,
             null,
-            this.timeUtils.getISO8601TimeString(this.timeUtils.getMillisecondNow())
+            this.timeUtils.getISO8601TimeString(
+              this.timeUtils.getMillisecondNow(),
+            ),
           );
           transactions[2] = new EVMTransaction(
             ChainId(43113),
@@ -240,7 +244,9 @@ export class CorePrompt extends DataWalletPrompt {
             null,
             null,
             null,
-            this.timeUtils.getISO8601TimeString(this.timeUtils.getMillisecondNow())
+            this.timeUtils.getISO8601TimeString(
+              this.timeUtils.getMillisecondNow(),
+            ),
           );
           transactions[3] = new EVMTransaction(
             ChainId(43113),
@@ -256,7 +262,9 @@ export class CorePrompt extends DataWalletPrompt {
             null,
             null,
             null,
-            this.timeUtils.getISO8601TimeString(this.timeUtils.getMillisecondNow())
+            this.timeUtils.getISO8601TimeString(
+              this.timeUtils.getMillisecondNow(),
+            ),
           );
           console.log(
             `adding ${transactions.length} transactions for chain 43113`,
@@ -277,7 +285,9 @@ export class CorePrompt extends DataWalletPrompt {
             null,
             null,
             null,
-            this.timeUtils.getISO8601TimeString(this.timeUtils.getMillisecondNow())
+            this.timeUtils.getISO8601TimeString(
+              this.timeUtils.getMillisecondNow(),
+            ),
           );
           return this.core.addTransactions(transactions).map(console.log);
         case "addSiteVisit - google":

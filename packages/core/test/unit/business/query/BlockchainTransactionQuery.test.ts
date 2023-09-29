@@ -1,5 +1,6 @@
 import "reflect-metadata";
 
+import { ITimeUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   Age,
   BigNumberString,
@@ -35,8 +36,7 @@ import * as td from "testdouble";
 import { BlockchainTransactionQueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
 import { ITransactionHistoryRepository } from "@core/interfaces/data/index.js";
-import { ITimeUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
-const iso = ISO8601DateString("11")
+const iso = ISO8601DateString("11");
 const now = UnixTimestamp(2);
 class blockchainTransactionQueryEvaluatorMocks {
   public transactionRepo = td.object<ITransactionHistoryRepository>();
@@ -51,11 +51,13 @@ class blockchainTransactionQueryEvaluatorMocks {
   public constructor() {
     this.timeUtils = td.object<ITimeUtils>();
     td.when(this.timeUtils.getUnixNow()).thenReturn(now as never);
-
   }
 
   public factory() {
-    return new BlockchainTransactionQueryEvaluator(this.transactionRepo, this.timeUtils);
+    return new BlockchainTransactionQueryEvaluator(
+      this.transactionRepo,
+      this.timeUtils,
+    );
   }
 }
 
@@ -111,7 +113,7 @@ describe("QueryEvaluator: ", () => {
           null,
           null,
           null,
-          iso
+          iso,
         ),
       ]),
     );
@@ -171,7 +173,7 @@ describe("QueryEvaluator: ", () => {
           null,
           null,
           null,
-          iso
+          iso,
         ),
       ]),
     );
@@ -314,6 +316,4 @@ describe("Blockchain Transaction Query Testing: ", () => {
     // );
     // expect(result["value"]["return"]).toBe(false);
   });
-
-
 });

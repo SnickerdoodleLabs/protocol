@@ -279,7 +279,6 @@ export class SDQLParser {
         }
       }
       for (const query of queries) {
-        
         this.saveInContext(query.name, query);
         this.queries.set(query.name, query);
       }

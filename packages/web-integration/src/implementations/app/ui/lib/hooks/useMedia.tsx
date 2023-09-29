@@ -1,5 +1,6 @@
-import { breakPoints } from "@web-integration/implementations/app/ui/lib/theme/theme.defaults.js";
 import { useState, useEffect } from "react";
+
+import { breakPoints } from "@web-integration/implementations/app/ui/lib/theme/theme.defaults.js";
 
 const defaultBreakpoint = "md"; // Define your default breakpoint here
 

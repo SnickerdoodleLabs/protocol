@@ -169,7 +169,9 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       queryCID: queryCID,
       insights: JSON.stringify(insights),
       rewardParameters: JSON.stringify(rewardParameters),
-      responseTime :   this.timeUtils.getISO8601TimeString(this.timeUtils.getMillisecondNow())
+      responseTime: this.timeUtils.getISO8601TimeString(
+        this.timeUtils.getMillisecondNow(),
+      ),
     } as Record<string, unknown>;
 
     return this.cryptoUtils
@@ -190,7 +192,9 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           queryCID: queryCID,
           insights: insights,
           rewardParameters: rewardParameters,
-          responseTime :   this.timeUtils.getISO8601TimeString(this.timeUtils.getMillisecondNow()),
+          responseTime: this.timeUtils.getISO8601TimeString(
+            this.timeUtils.getMillisecondNow(),
+          ),
           signature: signature,
         } as IDeliverInsightsParams as unknown as Record<string, unknown>);
       });

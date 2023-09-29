@@ -6,6 +6,11 @@ import {
   LinkedAccount,
   PageInvitation,
 } from "@snickerdoodlelabs/objects";
+import { okAsync } from "neverthrow";
+import React, { useMemo, useState, useEffect, FC, useRef } from "react";
+import { Subscription } from "rxjs";
+import { parse } from "tldts";
+
 import { RootContainer } from "@web-integration/implementations/app/ui/components/Container/index.js";
 import { permissions } from "@web-integration/implementations/app/ui/constants.js";
 import { usePath } from "@web-integration/implementations/app/ui/hooks/usePath.js";
@@ -23,10 +28,6 @@ import { PermissionSelection } from "@web-integration/implementations/app/ui/wid
 import { SubscriptionFail } from "@web-integration/implementations/app/ui/widgets/SubscriptionFail/index.js";
 import { SubscriptionSuccess } from "@web-integration/implementations/app/ui/widgets/SubscriptionSuccess/index.js";
 import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/index.js";
-import { okAsync } from "neverthrow";
-import React, { useMemo, useState, useEffect, FC, useRef } from "react";
-import { Subscription } from "rxjs";
-import { parse } from "tldts";
 
 interface IAppProps {
   proxy: ISnickerdoodleIFrameProxy;

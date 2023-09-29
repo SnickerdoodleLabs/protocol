@@ -1,3 +1,5 @@
+import React, { FC, useMemo } from "react";
+
 import { CloseButton } from "@web-integration/implementations/app/ui/components/CloseButton/index.js";
 import {
   Box,
@@ -8,7 +10,6 @@ import {
   ITheme,
   defaultDarkTheme,
 } from "@web-integration/implementations/app/ui/lib/index.js";
-import React, { FC, useMemo } from "react";
 interface ISubscriptionFailProps {
   onClick: () => void;
 }

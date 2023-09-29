@@ -754,13 +754,16 @@ export class CoreListener extends ChildProxy implements ICoreListener {
 
       getQueryStatuses: (
         data: IIFrameCallData<{
-          contractAddress: EVMContractAddress,
-          blockNumber?: BlockNumber,
+          contractAddress: EVMContractAddress;
+          blockNumber?: BlockNumber;
         }>,
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.getQueryStatuses(data.data.contractAddress , data.data.blockNumber);
+            return core.getQueryStatuses(
+              data.data.contractAddress,
+              data.data.blockNumber,
+            );
           });
         }, data.callId);
       },

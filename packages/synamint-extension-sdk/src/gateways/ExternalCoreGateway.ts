@@ -394,7 +394,7 @@ export class ExternalCoreGateway {
     return this._handler.call(new GetTransactionValueByChainParams());
   }
   public getTransactions(
-    params : GetTransactionsParams,
+    params: GetTransactionsParams,
   ): ResultAsync<ChainTransaction[], ProxyError> {
     return this._handler.call(params);
   }

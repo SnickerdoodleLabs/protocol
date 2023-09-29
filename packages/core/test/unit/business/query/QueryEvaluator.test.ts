@@ -43,7 +43,7 @@ import {
   IDemographicDataRepository,
   ISocialRepository,
 } from "@core/interfaces/data/index.js";
-const iso = ISO8601DateString("11")
+const iso = ISO8601DateString("11");
 const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 20)];
 const conditionsGE2 = [new ConditionGE(SDQL_OperatorName("ge"), null, 25)];
 const conditionsGE3 = [new ConditionGE(SDQL_OperatorName("ge"), null, 30)];
@@ -80,7 +80,12 @@ class QueryEvaluatorMocks {
   public URLmap: SiteVisitsMap = new Map<URLString, SiteVisitsData>([
     [
       URLString("www.snickerdoodlelabs.io"),
-      new SiteVisitsData(10, 3, UnixTimestamp(12), ISO8601DateString("2022-09-15T18:45:30.123Z")),
+      new SiteVisitsData(
+        10,
+        3,
+        UnixTimestamp(12),
+        ISO8601DateString("2022-09-15T18:45:30.123Z"),
+      ),
     ],
   ]);
 
@@ -99,7 +104,7 @@ class QueryEvaluatorMocks {
       null,
       null,
       null,
-      iso
+      iso,
     ),
     new EVMTransaction(
       ChainId(43113),
@@ -115,7 +120,7 @@ class QueryEvaluatorMocks {
       null,
       null,
       null,
-      iso
+      iso,
     ),
     new EVMTransaction(
       ChainId(43113),
@@ -131,7 +136,7 @@ class QueryEvaluatorMocks {
       null,
       null,
       null,
-      iso
+      iso,
     ),
     new EVMTransaction(
       ChainId(43113),
@@ -147,7 +152,7 @@ class QueryEvaluatorMocks {
       null,
       null,
       null,
-      iso
+      iso,
     ),
   ];
 
@@ -751,9 +756,13 @@ describe("Return URLs Map", () => {
 
     const result = await repo.eval(propertyQuery);
     // console.log("URLs is: ", result["value"]);
-    expect(result["value"]).toEqual(
-      {"www.snickerdoodlelabs.io": {"averageScreenTime": 3, "lastReportedTime": "2022-09-15T18:45:30.123Z", "numberOfVisits": 10, "totalScreenTime": 12}})
+    expect(result["value"]).toEqual({
+      "www.snickerdoodlelabs.io": {
+        averageScreenTime: 3,
+        lastReportedTime: "2022-09-15T18:45:30.123Z",
+        numberOfVisits: 10,
+        totalScreenTime: 12,
+      },
+    });
   });
 });
-
-

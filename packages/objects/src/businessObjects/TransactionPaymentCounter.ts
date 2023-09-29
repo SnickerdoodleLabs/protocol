@@ -7,9 +7,5 @@ export class TransactionPaymentCounter {
     public incomingCount: number,
     public outgoingValue: number,
     public outgoingCount: number,
-    ) {}
+  ) {}
 }
-
-
-
-

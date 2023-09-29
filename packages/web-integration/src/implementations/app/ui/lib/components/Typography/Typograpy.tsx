@@ -1,3 +1,7 @@
+import clsx from "clsx";
+import React, { forwardRef, HTMLProps, Ref, useMemo } from "react";
+import { createUseStyles, useTheme } from "react-jss";
+
 import {
   IMargin,
   ITextAlign,
@@ -8,9 +12,6 @@ import {
   textAlignStyles,
 } from "@web-integration/implementations/app/ui/lib/styles/index.js";
 import { defaultDarkTheme } from "@web-integration/implementations/app/ui/lib/theme/index.js";
-import clsx from "clsx";
-import React, { forwardRef, HTMLProps, Ref, useMemo } from "react";
-import { createUseStyles, useTheme } from "react-jss";
 
 const styleObject = {
   "sd-typography": {

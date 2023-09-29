@@ -1,6 +1,11 @@
 import { readFile } from "node:fs/promises";
 import path from "path";
 
+import {
+  ITimeUtils,
+  ITimeUtilsType,
+  TimeUtils,
+} from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
@@ -43,7 +48,6 @@ import { injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { Subscription } from "rxjs";
-import { ITimeUtils, ITimeUtilsType, TimeUtils } from "@snickerdoodlelabs/common-utils";
 
 import { Environment, TestHarnessMocks } from "@test-harness/mocks/index.js";
 import { ApproveQuery } from "@test-harness/prompts/index.js";
@@ -65,7 +69,7 @@ export class DataWalletProfile {
 
   public constructor(readonly mocks: TestHarnessMocks) {
     this.core = this.createCore(mocks);
-    this.timeUtils = new TimeUtils()
+    this.timeUtils = new TimeUtils();
   }
 
   public get name(): string {
@@ -359,7 +363,9 @@ export class DataWalletProfile {
               evmT.methodId ?? null,
               evmT.functionName ?? null,
               evmT.events,
-              this.timeUtils.getISO8601TimeString(this.timeUtils.getMillisecondNow())
+              this.timeUtils.getISO8601TimeString(
+                this.timeUtils.getMillisecondNow(),
+              ),
             ),
         );
 

@@ -4,6 +4,7 @@ import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
 } from "@snickerdoodlelabs/common-utils";
+import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
   AjaxError,
@@ -33,7 +34,7 @@ import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
-import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
+
 import {
   IEVMIndexer,
   IIndexerConfigProvider,
@@ -350,7 +351,9 @@ export class EtherscanIndexer implements IEVMIndexer {
                 tx.methodId == "" ? null : tx.methodId,
                 tx.functionName == "" ? null : tx.functionName,
                 null,
-                this.timeUtils.getISO8601TimeString(this.timeUtils.getMillisecondNow())
+                this.timeUtils.getISO8601TimeString(
+                  this.timeUtils.getMillisecondNow(),
+                ),
               );
             });
 

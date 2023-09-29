@@ -1,3 +1,13 @@
+import clsx from "clsx";
+import React, {
+  ReactNode,
+  HTMLProps,
+  Children,
+  cloneElement,
+  useMemo,
+} from "react";
+import { createUseStyles, useTheme } from "react-jss";
+
 import { useMedia } from "@web-integration/implementations/app/ui/lib/hooks/index.js";
 import {
   IFlex,
@@ -8,15 +18,6 @@ import {
   gridColumnStyles,
 } from "@web-integration/implementations/app/ui/lib/styles/index.js";
 import { defaultDarkTheme } from "@web-integration/implementations/app/ui/lib/theme/index.js";
-import clsx from "clsx";
-import React, {
-  ReactNode,
-  HTMLProps,
-  Children,
-  cloneElement,
-  useMemo,
-} from "react";
-import { createUseStyles, useTheme } from "react-jss";
 
 interface IGridProps extends HTMLProps<HTMLDivElement>, IFlex {
   children: ReactNode;

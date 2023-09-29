@@ -17,7 +17,7 @@ import { ResultAsync } from "neverthrow";
 export interface IBackupManager {
   /**
    * This method adds a new or updated record for the purposes of making an incremental backup.
-   * 
+   *
    * @param tableName
    * @param value
    */
@@ -32,7 +32,7 @@ export interface IBackupManager {
 
   /**
    * This methods registers a new value for a field for the purposes of doing an incremental backup.
-   * 
+   *
    * @param key
    * @param value
    * @param force This will force the value to generate a backup even if it hasn't changed.

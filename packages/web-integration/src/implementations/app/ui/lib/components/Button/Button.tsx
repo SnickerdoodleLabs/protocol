@@ -1,9 +1,3 @@
-import {
-  IMargin,
-  ITheme,
-} from "@web-integration/implementations/app/ui/lib/interfaces/index.js";
-import { marginStyles } from "@web-integration/implementations/app/ui/lib/styles/index.js";
-import { defaultDarkTheme } from "@web-integration/implementations/app/ui/lib/theme/index.js";
 import clsx from "clsx";
 import React, {
   ReactNode,
@@ -14,6 +8,13 @@ import React, {
   forwardRef,
 } from "react";
 import { createUseStyles, useTheme } from "react-jss";
+
+import {
+  IMargin,
+  ITheme,
+} from "@web-integration/implementations/app/ui/lib/interfaces/index.js";
+import { marginStyles } from "@web-integration/implementations/app/ui/lib/styles/index.js";
+import { defaultDarkTheme } from "@web-integration/implementations/app/ui/lib/theme/index.js";
 
 const styleObject = {
   "sd-button": {

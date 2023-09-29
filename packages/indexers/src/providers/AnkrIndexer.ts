@@ -5,6 +5,7 @@ import {
   ILogUtilsType,
   ObjectUtils,
 } from "@snickerdoodlelabs/common-utils";
+import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   EChainTechnology,
   TickerSymbol,
@@ -42,8 +43,6 @@ import {
   IIndexerContextProviderType,
 } from "@indexers/interfaces/index.js";
 import { MasterIndexer } from "@indexers/MasterIndexer.js";
-
-import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 
 @injectable()
 export class AnkrIndexer implements IEVMIndexer {
@@ -314,7 +313,9 @@ export class AnkrIndexer implements IEVMIndexer {
               item.type,
               null,
               null,
-              this.timeUtils.getISO8601TimeString(this.timeUtils.getMillisecondNow())
+              this.timeUtils.getISO8601TimeString(
+                this.timeUtils.getMillisecondNow(),
+              ),
             );
           });
         })

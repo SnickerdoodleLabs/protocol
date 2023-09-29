@@ -13,6 +13,6 @@ export interface IDeliverInsightsParams {
   queryCID: IpfsCID;
   insights: IQueryDeliveryItems;
   rewardParameters: IDynamicRewardParameter[];
-  responseTime : ISO8601DateString
+  responseTime: ISO8601DateString;
   signature: Signature;
 }

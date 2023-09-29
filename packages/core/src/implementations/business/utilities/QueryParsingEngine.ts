@@ -38,7 +38,7 @@ import {
   SDQLParser,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
-import {  ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { BaseOf } from "ts-brand";
 

@@ -10,8 +10,8 @@ import React, { FC, useEffect, useState } from "react";
 
 import Switch from "@extension-onboarding/components/Switch";
 import Typography from "@extension-onboarding/components/Typography";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/ScamFilterSettings/ScamFilterSettings.style";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/ScamFilterSettings/ScamFilterSettings.style";
 interface IScamFilterPreferences {
   isScamFilterActive: boolean;
   showMessageEveryTime: boolean;

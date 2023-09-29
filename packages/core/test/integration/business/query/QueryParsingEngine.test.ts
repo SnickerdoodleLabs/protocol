@@ -72,7 +72,6 @@ const sdqlQuery = new SDQLQuery(queryCID, SDQLString(avalanche1SchemaStr));
 const sdqlQuery2 = new SDQLQuery(queryCID, SDQLString(avalanche2SchemaStr));
 const sdqlQuery4 = new SDQLQuery(queryCID, SDQLString(avalanche4SchemaStr));
 
-
 const country = CountryCode("1");
 const allPermissions = HexString32(
   "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
@@ -90,7 +89,10 @@ class QueryParsingMocks {
   public socialRepo = td.object<ISocialRepository>();
 
   public blockchainTransactionQueryEvaluator =
-    new BlockchainTransactionQueryEvaluator(this.transactionRepo, new TimeUtils());
+    new BlockchainTransactionQueryEvaluator(
+      this.transactionRepo,
+      new TimeUtils(),
+    );
 
   public nftQueryEvaluator = new NftQueryEvaluator(this.balanceRepo);
 

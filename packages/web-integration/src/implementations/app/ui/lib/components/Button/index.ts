@@ -1,1 +1,1 @@
-export * from '@web-integration/implementations/app/ui/lib/components/Button/Button.js';
+export * from "@web-integration/implementations/app/ui/lib/components/Button/Button.js";

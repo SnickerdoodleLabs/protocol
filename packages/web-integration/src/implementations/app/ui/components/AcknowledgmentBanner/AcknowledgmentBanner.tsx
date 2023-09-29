@@ -1,8 +1,9 @@
+import React from "react";
+
 import {
   Box,
   Typography,
 } from "@web-integration/implementations/app/ui/lib/index.js";
-import React from "react";
 
 interface IAcnowledgmentBannerProps {
   iconSize?: number;

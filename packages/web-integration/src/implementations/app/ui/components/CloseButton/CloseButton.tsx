@@ -1,9 +1,10 @@
+import React from "react";
+
 import {
   Box,
   useTheme,
   ITheme,
 } from "@web-integration/implementations/app/ui/lib/index.js";
-import React from "react";
 
 interface ICloseButtonProps {
   size?: number;

@@ -4,9 +4,9 @@ import Router from "@extension-onboarding/containers/Router";
 import { AccountLinkingContextProvider } from "@extension-onboarding/context/AccountLinkingContext";
 import { AnalyticsContextProvider } from "@extension-onboarding/context/AnalyticsContext";
 import { AppContextProvider } from "@extension-onboarding/context/App";
+import { DataWalletContextProvider } from "@extension-onboarding/context/DataWalletContext";
 import { LayoutProvider } from "@extension-onboarding/context/LayoutContext";
 import { NotificationContextProvider } from "@extension-onboarding/context/NotificationContext";
-import { DataWalletContextProvider } from "@extension-onboarding/context/DataWalletContext";
 
 const MainContainer: React.FC = () => {
   return (

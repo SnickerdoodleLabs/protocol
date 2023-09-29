@@ -1,4 +1,6 @@
 import { EWalletDataType, PageInvitation } from "@snickerdoodlelabs/objects";
+import React, { FC, useMemo } from "react";
+
 import { AcnowledgmentBanner } from "@web-integration/implementations/app/ui/components/AcknowledgmentBanner/index.js";
 import { CloseButton } from "@web-integration/implementations/app/ui/components/CloseButton/index.js";
 import { permissions } from "@web-integration/implementations/app/ui/constants.js";
@@ -13,7 +15,6 @@ import {
   defaultDarkTheme,
   useMedia,
 } from "@web-integration/implementations/app/ui/lib/index.js";
-import React, { FC, useMemo } from "react";
 
 interface IPermissionSelectionProps {
   onCancelClick: () => void;

@@ -3,6 +3,7 @@ import {
   IAxiosAjaxUtilsType,
   IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
+import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
   AjaxError,
@@ -30,8 +31,6 @@ import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP, urlJoin } from "url-join-ts";
-
-import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 
 import {
   IEVMIndexer,
@@ -274,7 +273,7 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
             );
           })
         : null,
-        this.timeUtils.getISO8601TimeString(this.timeUtils.getMillisecondNow())
+      this.timeUtils.getISO8601TimeString(this.timeUtils.getMillisecondNow()),
     );
     return busObj;
   }

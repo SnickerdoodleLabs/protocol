@@ -1,4 +1,8 @@
 import {
+  ITimeUtilsType,
+  ITimeUtils,
+} from "@snickerdoodlelabs/common-utils";
+import {
   EVMAccountAddress,
   TransactionFilter,
   PersistenceError,
@@ -18,7 +22,6 @@ import {
   ITransactionHistoryRepository,
   ITransactionHistoryRepositoryType,
 } from "@core/interfaces/data/index.js";
-import { ITimeUtilsType, ITimeUtils } from "@snickerdoodlelabs/common-utils/src/index.js";
 
 @injectable()
 export class BlockchainTransactionQueryEvaluator
@@ -41,7 +44,7 @@ export class BlockchainTransactionQueryEvaluator
           return okAsync(SDQL_Return(transactionsArray));
         });
     }
-    
+
     // Transactions related to a specific address, e.g. Dapp Query
     if (query.contract && query.chain) {
       const chainId = query.contract.networkId;
@@ -66,9 +69,17 @@ export class BlockchainTransactionQueryEvaluator
               );
             }
             const latestTransaction = this.getLatestTransaction(transactions);
-            const timePeriod = this.determineTimePeriod(latestTransaction.timestamp);
+            const timePeriod = this.determineTimePeriod(
+              latestTransaction.timestamp,
+            );
             return SDQL_Return(
-              new BlockchainInteractionInsight(chainId, address, true, timePeriod, latestTransaction.measurementDate)
+              new BlockchainInteractionInsight(
+                chainId,
+                address,
+                true,
+                timePeriod,
+                latestTransaction.measurementDate,
+              ),
             );
           });
       } else if (query.returnType == "boolean") {
@@ -88,15 +99,16 @@ export class BlockchainTransactionQueryEvaluator
     return okAsync(SDQL_Return(false));
   }
 
-  protected getLatestTransaction(transactions: ChainTransaction[]): ChainTransaction {
+  protected getLatestTransaction(
+    transactions: ChainTransaction[],
+  ): ChainTransaction {
     return transactions.reduce((latest, current) => {
-        return current.timestamp > latest.timestamp ? current : latest;
+      return current.timestamp > latest.timestamp ? current : latest;
     });
-}
-
+  }
 
   protected determineTimePeriod(transactionTime: number): ETimePeriods {
-    const currentTime = this.timeUtils.getUnixNow()
+    const currentTime = this.timeUtils.getUnixNow();
     const transactionTimeInMs = transactionTime * 1000;
 
     const dayInMs = 24 * 60 * 60 * 1000;
@@ -115,6 +127,4 @@ export class BlockchainTransactionQueryEvaluator
       return ETimePeriods.Year;
     }
   }
-
-  
 }

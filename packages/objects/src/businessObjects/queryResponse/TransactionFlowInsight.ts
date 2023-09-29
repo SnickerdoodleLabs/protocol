@@ -1,22 +1,19 @@
+import { TransactionMetrics } from "@objects/businessObjects/queryResponse/TransactionMetrics.js";
 import { EChain } from "@objects/enum/index.js";
 import { ISO8601DateString } from "@objects/primitives/index.js";
-import { TransactionMetrics } from "@objects/businessObjects/queryResponse/TransactionMetrics.js";
 
 export class TransactionFlowInsight {
   constructor(
     public chainId: EChain,
-    public day : TransactionMetrics,
+    public day: TransactionMetrics,
     public week: TransactionMetrics,
     public month: TransactionMetrics,
     public year: TransactionMetrics,
-    public measurementTime : ISO8601DateString
-    ) {}
+    public measurementTime: ISO8601DateString,
+  ) {}
 }
-// public 
-// day - year - week - month  --- old 
+// public
+// day - year - week - month  --- old
 // measuremnt time : utc
-// query repsponse time : 
+// query repsponse time :
 // EDate
-
-
-

@@ -148,7 +148,7 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
         null,
         null,
         null,
-        ISO8601DateString(new Date().toISOString())
+        ISO8601DateString(new Date().toISOString()),
       );
     }
     return okAsync(result);

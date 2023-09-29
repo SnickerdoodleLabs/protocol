@@ -1,7 +1,8 @@
-import { ITheme } from "@web-integration/implementations/app/ui/lib/interfaces/index.js";
-import { defaultDarkTheme } from "@web-integration/implementations/app/ui/lib/theme/index.js";
 import React from "react";
 import { createUseStyles, useTheme } from "react-jss";
+
+import { ITheme } from "@web-integration/implementations/app/ui/lib/interfaces/index.js";
+import { defaultDarkTheme } from "@web-integration/implementations/app/ui/lib/theme/index.js";
 
 const styleObject = {
   spinner: {

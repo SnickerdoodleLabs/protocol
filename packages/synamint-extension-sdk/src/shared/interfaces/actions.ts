@@ -366,10 +366,10 @@ export class GetTokenPriceParams extends CoreActionParams<number> {
   }
 }
 
-export class GetTransactionsParams extends CoreActionParams<ChainTransaction[]> {
-  public constructor(
-    public filter?: TransactionFilter
-  ) {
+export class GetTransactionsParams extends CoreActionParams<
+  ChainTransaction[]
+> {
+  public constructor(public filter?: TransactionFilter) {
     super(GetTransactionsParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
@@ -377,7 +377,9 @@ export class GetTransactionsParams extends CoreActionParams<ChainTransaction[]> 
   }
 }
 
-export class GetTransactionValueByChainParams extends CoreActionParams<TransactionFlowInsight[]> {
+export class GetTransactionValueByChainParams extends CoreActionParams<
+  TransactionFlowInsight[]
+> {
   public constructor() {
     super(GetTransactionValueByChainParams.getCoreAction());
   }

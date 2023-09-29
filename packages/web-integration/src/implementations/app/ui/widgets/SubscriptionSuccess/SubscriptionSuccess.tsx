@@ -1,4 +1,6 @@
 import { PageInvitation } from "@snickerdoodlelabs/objects";
+import React, { FC, useMemo } from "react";
+
 import { CloseButton } from "@web-integration/implementations/app/ui/components/CloseButton/index.js";
 import { PROD_DATA_WALLET_URL } from "@web-integration/implementations/app/ui/constants.js";
 import {
@@ -10,7 +12,6 @@ import {
   ITheme,
   defaultDarkTheme,
 } from "@web-integration/implementations/app/ui/lib/index.js";
-import React, { FC, useMemo } from "react";
 interface ISubscriptionSuccessProps {
   pageInvitation: PageInvitation;
   onClick: () => void;

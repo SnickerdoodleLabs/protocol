@@ -1,4 +1,7 @@
 import { PageInvitation } from "@snickerdoodlelabs/objects";
+import parse from "html-react-parser";
+import React, { FC, useMemo } from "react";
+
 import { AcnowledgmentBanner } from "@web-integration/implementations/app/ui/components/AcknowledgmentBanner/index.js";
 import { CloseButton } from "@web-integration/implementations/app/ui/components/CloseButton/index.js";
 import {
@@ -11,8 +14,6 @@ import {
   useMedia,
   createUseStyles,
 } from "@web-integration/implementations/app/ui/lib/index.js";
-import parse from "html-react-parser";
-import React, { FC, useMemo } from "react";
 
 interface IDescriptionProps {
   pageInvitation: PageInvitation;

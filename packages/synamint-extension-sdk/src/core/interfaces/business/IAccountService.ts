@@ -53,7 +53,6 @@ export interface IAccountService {
   getTransactions(
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], SnickerDoodleCoreError>;
-
 }
 
 export const IAccountServiceType = Symbol.for("IAccountService");

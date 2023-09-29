@@ -4,7 +4,11 @@
  * Regardless of form factor, you need to instantiate an instance
  * of SnickerdoodleCore.
  */
-import { IMasterIndexer, IMasterIndexerType, indexersModule } from "@snickerdoodlelabs/indexers";
+import {
+  IMasterIndexer,
+  IMasterIndexerType,
+  indexersModule,
+} from "@snickerdoodlelabs/indexers";
 import {
   AccountAddress,
   AccountIndexingError,

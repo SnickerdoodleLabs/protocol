@@ -1,9 +1,10 @@
+import { PageInvitation } from "@snickerdoodlelabs/objects";
+import React, { FC } from "react";
+
 import {
   Box,
   Typography,
 } from "@web-integration/implementations/app/ui/lib/index.js";
-import { PageInvitation } from "@snickerdoodlelabs/objects";
-import React, { FC } from "react";
 
 interface IInvitationCardProps {
   pageInvitation: PageInvitation;

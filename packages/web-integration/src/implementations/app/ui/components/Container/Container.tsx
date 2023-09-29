@@ -1,10 +1,11 @@
+import React, { FC } from "react";
+
 import {
   Box,
   useTheme,
   ITheme,
   defaultDarkTheme,
 } from "@web-integration/implementations/app/ui/lib/index.js";
-import React, { FC } from "react";
 
 export const RootContainer: FC = ({ children }) => (
   <Box

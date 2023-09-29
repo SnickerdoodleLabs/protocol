@@ -607,7 +607,10 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<GetQueryStatusesParams>(
       GetQueryStatusesParams.getCoreAction(),
       (params) => {
-        return this.accountService.getQueryStatuses(params.contractAddress , params.blockNumber);
+        return this.accountService.getQueryStatuses(
+          params.contractAddress,
+          params.blockNumber,
+        );
       },
     ),
     new CoreActionHandler<SwitchToTabParams>(

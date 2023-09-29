@@ -1,13 +1,14 @@
-import { App } from "@web-integration/implementations/app/ui/App.js";
-import { IPaletteOverrides } from "@web-integration/implementations/app/ui/lib/index.js";
-import { IUIClient } from "@web-integration/interfaces/app/ui/index.js";
-import { EProxyContainerID } from "@web-integration/interfaces/objects/enums/index.js";
-import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/index.js";
 import { create } from "jss";
 import preset from "jss-preset-default";
 import React from "react";
 import { render } from "react-dom";
 import { JssProvider, createGenerateId } from "react-jss";
+
+import { App } from "@web-integration/implementations/app/ui/App.js";
+import { IPaletteOverrides } from "@web-integration/implementations/app/ui/lib/index.js";
+import { IUIClient } from "@web-integration/interfaces/app/ui/index.js";
+import { EProxyContainerID } from "@web-integration/interfaces/objects/enums/index.js";
+import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/index.js";
 
 export class UIClient implements IUIClient {
   constructor(

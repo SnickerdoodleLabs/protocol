@@ -1,3 +1,5 @@
+import React, { FC, useMemo } from "react";
+
 import {
   Box,
   Spinner,
@@ -5,7 +7,6 @@ import {
   ITheme,
   useMedia,
 } from "@web-integration/implementations/app/ui/lib/index.js";
-import React, { FC, useMemo } from "react";
 
 interface ILoadingProps {}
 

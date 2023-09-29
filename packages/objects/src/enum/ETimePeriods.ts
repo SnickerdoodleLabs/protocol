@@ -1,7 +1,6 @@
 export enum ETimePeriods {
-    Day = "Day",
-    Week = "Week",
-    Month = "Month",
-    Year = "Year"
-  }
-  
+  Day = "Day",
+  Week = "Week",
+  Month = "Month",
+  Year = "Year",
+}
