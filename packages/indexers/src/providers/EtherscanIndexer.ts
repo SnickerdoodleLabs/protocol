@@ -351,9 +351,7 @@ export class EtherscanIndexer implements IEVMIndexer {
                 tx.methodId == "" ? null : tx.methodId,
                 tx.functionName == "" ? null : tx.functionName,
                 null,
-                this.timeUtils.getISO8601TimeString(
-                  this.timeUtils.getMillisecondNow(),
-                ),
+                this.timeUtils.getUnixNow(),
               );
             });
 

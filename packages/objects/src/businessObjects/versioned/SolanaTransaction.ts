@@ -1,7 +1,6 @@
 import { ChainTransaction } from "@objects/businessObjects/versioned/ChainTransaction.js";
 import {
   ChainId,
-  ISO8601DateString,
   SolanaTransactionSignature,
   UnixTimestamp,
 } from "@objects/primitives/index.js";
@@ -14,7 +13,7 @@ export class SolanaTransaction extends ChainTransaction {
     public slot: number,
     public err: object | null,
     public memo: string | null,
-    public measurementDate: ISO8601DateString,
+    public measurementDate: UnixTimestamp,
   ) {
     super(chainId, hash, timestamp, measurementDate);
   }

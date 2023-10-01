@@ -1,6 +1,6 @@
 import { ETimePeriods, EChain } from "@objects/enum/index.js";
 import {
-  ISO8601DateString,
+  UnixTimestamp,
   AccountAddress,
 } from "@objects/primitives/index.js";
 
@@ -10,6 +10,6 @@ export class BlockchainInteractionInsight {
     public address: AccountAddress,
     public interacted: boolean,
     public timePeriods?: ETimePeriods,
-    public measurementTime?: ISO8601DateString,
+    public measurementTime?: UnixTimestamp,
   ) {}
 }

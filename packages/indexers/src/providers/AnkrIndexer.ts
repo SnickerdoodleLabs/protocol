@@ -313,9 +313,7 @@ export class AnkrIndexer implements IEVMIndexer {
               item.type,
               null,
               null,
-              this.timeUtils.getISO8601TimeString(
-                this.timeUtils.getMillisecondNow(),
-              ),
+              this.timeUtils.getUnixNow(),
             );
           });
         })

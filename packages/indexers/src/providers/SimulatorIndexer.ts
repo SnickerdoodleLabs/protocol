@@ -27,6 +27,7 @@ import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/interfaces/index.js";
+import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 
 @injectable()
 export class SimulatorEVMTransactionRepository implements IEVMIndexer {
@@ -44,6 +45,7 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -148,7 +150,7 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
         null,
         null,
         null,
-        ISO8601DateString(new Date().toISOString()),
+        this.timeUtils.getUnixNow(),
       );
     }
     return okAsync(result);

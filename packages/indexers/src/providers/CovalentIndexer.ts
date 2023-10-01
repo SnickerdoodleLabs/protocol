@@ -273,7 +273,7 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
             );
           })
         : null,
-      this.timeUtils.getISO8601TimeString(this.timeUtils.getMillisecondNow()),
+        this.timeUtils.getUnixNow(),
     );
     return busObj;
   }

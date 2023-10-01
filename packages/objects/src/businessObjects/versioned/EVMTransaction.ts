@@ -41,7 +41,7 @@ export class EVMTransaction extends ChainTransaction {
     public methodId: string | null,
     public functionName: string | null,
     events: EVMEvent[] | null,
-    public measurementDate: ISO8601DateString,
+    public measurementDate: UnixTimestamp,
   ) {
     super(chain, hash, timestamp, measurementDate);
     let addrs = new Set<EVMAccountAddress>();

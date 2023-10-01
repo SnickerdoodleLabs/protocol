@@ -43,7 +43,7 @@ import {
   IDemographicDataRepository,
   ISocialRepository,
 } from "@core/interfaces/data/index.js";
-const iso = ISO8601DateString("11");
+const iso = UnixTimestamp(11);
 const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 20)];
 const conditionsGE2 = [new ConditionGE(SDQL_OperatorName("ge"), null, 25)];
 const conditionsGE3 = [new ConditionGE(SDQL_OperatorName("ge"), null, 30)];

@@ -13,6 +13,7 @@ import {
   TransactionFlowInsight,
   TransactionMetrics,
   LinkedAccount,
+  ETimePeriods,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
@@ -137,24 +138,14 @@ export class TransactionHistoryRepository
     arrayOfTransactionFlowMaps: Map<EChain, TransactionFlowInsight>[],
   ): TransactionFlowInsight[] {
     const aggregatedMap = new Map<EChain, TransactionFlowInsight>();
-    const periods: (keyof Omit<
-      TransactionFlowInsight,
-      "chainId" | "measurementTime"
-    >)[] = ["day", "week", "month", "year"];
     arrayOfTransactionFlowMaps.forEach((transactionFlowMap) => {
       transactionFlowMap.forEach((flow, chainId) => {
         const existingFlow = aggregatedMap.get(chainId);
         if (!existingFlow) {
           aggregatedMap.set(chainId, flow);
         } else {
-          periods.forEach((period) => {
-            existingFlow[period].incomingNativeValue +=
-              flow[period].incomingNativeValue;
-            existingFlow[period].incomingCount += flow[period].incomingCount;
-            existingFlow[period].outgoingNativeValue +=
-              flow[period].outgoingNativeValue;
-            existingFlow[period].outgoingCount += flow[period].outgoingCount;
-          });
+          TransactionFlowInsight.additionOfMetrics(existingFlow, flow);
+
           if (flow.measurementTime > existingFlow.measurementTime) {
             existingFlow.measurementTime = flow.measurementTime;
           }
@@ -222,13 +213,18 @@ export class TransactionHistoryRepository
       );
     const period = this.determineTimePeriod(tx.timestamp);
 
+    let newMetric: TransactionMetrics;
     if (isIncoming) {
-      chainInsight[period].incomingNativeValue += this._getTxValue(tx);
-      chainInsight[period].incomingCount += 1;
+      newMetric = new TransactionMetrics(this._getTxValue(tx), 1, 0, 0);
     } else {
-      chainInsight[period].outgoingNativeValue += this._getTxValue(tx);
-      chainInsight[period].outgoingCount += 1;
+      newMetric = new TransactionMetrics(0, 0, this._getTxValue(tx), 1);
     }
+
+    TransactionFlowInsight.addNewTransactionMetrics(
+      chainInsight,
+      period,
+      newMetric,
+    );
 
     if (tx.measurementDate > chainInsight.measurementTime) {
       chainInsight.measurementTime = tx.measurementDate;
@@ -237,9 +233,7 @@ export class TransactionHistoryRepository
     transactionFlowInsights.set(tx.chain, chainInsight);
   };
 
-  protected determineTimePeriod(
-    transactionTime: number,
-  ): keyof Pick<TransactionFlowInsight, "day" | "week" | "month" | "year"> {
+  protected determineTimePeriod(transactionTime: number): ETimePeriods {
     const currentTime = Date.now();
     const transactionTimeInMs = transactionTime * 1000;
 
@@ -250,13 +244,13 @@ export class TransactionHistoryRepository
     const elapsedTime = currentTime - transactionTimeInMs;
 
     if (elapsedTime < dayInMs) {
-      return "day";
+      return ETimePeriods.Day;
     } else if (elapsedTime < weekInMs) {
-      return "week";
+      return ETimePeriods.Week;
     } else if (elapsedTime < monthInMs) {
-      return "month";
+      return ETimePeriods.Month;
     } else {
-      return "year";
+      return ETimePeriods.Year;
     }
   }
 

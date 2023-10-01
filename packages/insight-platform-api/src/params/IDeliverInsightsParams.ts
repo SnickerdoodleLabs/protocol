@@ -3,8 +3,8 @@ import {
   IDynamicRewardParameter,
   IpfsCID,
   IQueryDeliveryItems,
-  ISO8601DateString,
   Signature,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 
 export interface IDeliverInsightsParams {
@@ -13,6 +13,6 @@ export interface IDeliverInsightsParams {
   queryCID: IpfsCID;
   insights: IQueryDeliveryItems;
   rewardParameters: IDynamicRewardParameter[];
-  responseTime: ISO8601DateString;
+  responseTime: UnixTimestamp;
   signature: Signature;
 }

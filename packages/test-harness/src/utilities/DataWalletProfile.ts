@@ -363,9 +363,7 @@ export class DataWalletProfile {
               evmT.methodId ?? null,
               evmT.functionName ?? null,
               evmT.events,
-              this.timeUtils.getISO8601TimeString(
-                this.timeUtils.getMillisecondNow(),
-              ),
+              this.timeUtils.getUnixNow(),
             ),
         );
 

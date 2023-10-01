@@ -263,9 +263,7 @@ export class PolygonIndexer implements IEVMIndexer {
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               tx.tokenID == "" ? null : tx.tokenID!,
               type,
-              this.timeUtils.getISO8601TimeString(
-                this.timeUtils.getMillisecondNow(),
-              ),
+              this.timeUtils.getUnixNow(),
             );
           });
         });
@@ -321,9 +319,7 @@ export class PolygonIndexer implements IEVMIndexer {
               : EVMContractAddress(tx.contractAddress),
             null,
             EPolygonTransactionType.ERC20,
-            this.timeUtils.getISO8601TimeString(
-              this.timeUtils.getMillisecondNow(),
-            ),
+            this.timeUtils.getUnixNow(),
           );
         });
       });
