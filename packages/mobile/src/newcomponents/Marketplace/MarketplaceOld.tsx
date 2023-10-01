@@ -1,3 +1,4 @@
+import { EarnedReward, IpfsCID } from "@snickerdoodlelabs/objects";
 import React, { useEffect } from "react";
 import {
   Button,
@@ -11,8 +12,8 @@ import {
 } from "react-native";
 
 import { useAppContext } from "../../context/AppContextProvider";
-import { EarnedReward, IpfsCID } from "@snickerdoodlelabs/objects";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
+
 import CardItem from "./CardItem";
 
 const MarketplaceOld = () => {

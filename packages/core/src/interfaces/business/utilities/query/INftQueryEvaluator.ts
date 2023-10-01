@@ -9,7 +9,7 @@ import { ResultAsync } from "neverthrow";
 export interface INftQueryEvaluator {
   eval(
     query: AST_NftQuery,
-    queryCID : IpfsCID,
+    queryCID: IpfsCID,
   ): ResultAsync<SDQL_Return, PersistenceError>;
 }
 

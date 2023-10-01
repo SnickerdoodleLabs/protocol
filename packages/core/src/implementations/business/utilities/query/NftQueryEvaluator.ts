@@ -24,7 +24,6 @@ import {
   IPortfolioBalanceRepository,
   IPortfolioBalanceRepositoryType,
 } from "@core/interfaces/data/index.js";
-
 import {
   IContextProviderType,
   IContextProvider,
@@ -39,33 +38,58 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
     protected contextProvider: IContextProvider,
   ) {}
 
-  public eval(query: AST_NftQuery, queryCID : IpfsCID): ResultAsync<SDQL_Return, PersistenceError> {
-    return this.contextProvider.getContext().andThen( (context) => {
+  public eval(
+    query: AST_NftQuery,
+    queryCID: IpfsCID,
+  ): ResultAsync<SDQL_Return, PersistenceError> {
+    return this.contextProvider.getContext().andThen((context) => {
       const networkId = query.schema.networkid;
       const address = query.schema.address;
       const timestampRange = query.schema.timestampRange;
-  
+
       let chainIds: undefined | ChainId[];
-  
+
       if (networkId && networkId !== "*") {
         chainIds = Array.isArray(networkId)
           ? [...networkId.map((id) => ChainId(Number(id)))]
           : [ChainId(Number(networkId))];
       }
-      context.publicEvents.queryPerformance.next(new QueryPerformanceEvent(EQueryEvents.NftDataAccess, EStatus.Start, queryCID, query.name))  
+      context.publicEvents.queryPerformance.next(
+        new QueryPerformanceEvent(
+          EQueryEvents.NftDataAccess,
+          EStatus.Start,
+          queryCID,
+          query.name,
+        ),
+      );
       return this.portfolioBalanceRepository
         .getAccountNFTs(chainIds)
         .map((walletNfts) => {
-          context.publicEvents.queryPerformance.next(new QueryPerformanceEvent(EQueryEvents.NftDataAccess,EStatus.End, queryCID, query.name)) 
+          context.publicEvents.queryPerformance.next(
+            new QueryPerformanceEvent(
+              EQueryEvents.NftDataAccess,
+              EStatus.End,
+              queryCID,
+              query.name,
+            ),
+          );
           return SDQL_Return(
             this.getNftHoldings(walletNfts, address, timestampRange),
           );
-        }).mapErr( (err) => {
-          context.publicEvents.queryPerformance.next(new QueryPerformanceEvent(EQueryEvents.NftDataAccess,EStatus.End, queryCID, query.name, err)) 
-          return err
+        })
+        .mapErr((err) => {
+          context.publicEvents.queryPerformance.next(
+            new QueryPerformanceEvent(
+              EQueryEvents.NftDataAccess,
+              EStatus.End,
+              queryCID,
+              query.name,
+              err,
+            ),
+          );
+          return err;
         });
-    } )
-
+    });
   }
 
   private getNftHoldings(

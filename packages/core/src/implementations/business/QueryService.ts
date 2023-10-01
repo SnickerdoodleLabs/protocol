@@ -476,10 +476,7 @@ export class QueryService implements IQueryService {
                   );
                   return ResultUtils.combine([
                     this.queryParsingEngine
-                      .handleQuery(
-                        query,
-                        consentToken!.dataPermissions
-                      )
+                      .handleQuery(query, consentToken!.dataPermissions)
                       .map((insights) => {
                         this.logUtils.debug(
                           `Query ${query.cid} processed into insights`,
@@ -661,7 +658,7 @@ export class QueryService implements IQueryService {
       optInKey,
       consentContractAddress,
       query,
-      config
+      config,
     ).map((possibleRewards) => {
       this.publishSDQLQueryRequest(
         consentContractAddress,

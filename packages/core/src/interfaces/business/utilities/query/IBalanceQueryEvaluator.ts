@@ -11,7 +11,7 @@ import { IQueryTypeEvaluator } from "@core/interfaces/business/utilities/query/I
 export interface IBalanceQueryEvaluator extends IQueryTypeEvaluator {
   eval(
     query: AST_BalanceQuery,
-    queryCID : IpfsCID
+    queryCID: IpfsCID,
   ): ResultAsync<SDQL_Return, PersistenceError>;
 }
 

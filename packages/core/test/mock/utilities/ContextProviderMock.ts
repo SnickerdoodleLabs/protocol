@@ -152,8 +152,8 @@ export class ContextProviderMock implements IContextProvider {
     });
 
     this.publicEvents.queryPerformance.subscribe((val) => {
-      this.onQueryPerformanceActivations.push(val)
-    })
+      this.onQueryPerformanceActivations.push(val);
+    });
     this.privateEvents.postBackupsRequested.subscribe((val) => {
       this.postBackupsRequestedActivations.push(val);
     });
@@ -187,7 +187,7 @@ export class ContextProviderMock implements IContextProvider {
       onBirthdayUpdated: 0,
       onGenderUpdated: 0,
       onLocationUpdated: 0,
-      onQueryPerformanceActivations : 0,
+      onQueryPerformanceActivations: 0,
       postBackupsRequested: 0,
     };
 
@@ -246,6 +246,6 @@ export interface IExpectedEventCounts {
   onBirthdayUpdated?: number;
   onGenderUpdated?: number;
   onLocationUpdated?: number;
-  onQueryPerformanceActivations ? : number;
+  onQueryPerformanceActivations?: number;
   postBackupsRequested?: number;
 }

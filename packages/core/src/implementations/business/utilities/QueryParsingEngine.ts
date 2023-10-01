@@ -28,7 +28,7 @@ import {
   PublicEvents,
   EQueryEvents,
   QueryPerformanceEvent,
-  EStatus
+  EStatus,
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
@@ -53,7 +53,10 @@ import {
   IAdDataRepositoryType,
   IAdRepositoryType,
 } from "@core/interfaces/data/index.js";
-import { IContextProvider, IContextProviderType } from "@core/interfaces/utilities/index.js";
+import {
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {
@@ -74,7 +77,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
 
   public handleQuery(
     query: SDQLQuery,
-    dataPermissions: DataPermissions
+    dataPermissions: DataPermissions,
   ): ResultAsync<
     IQueryDeliveryItems,
     | EvaluationError
@@ -90,22 +93,65 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     | EvalNotImplementedError
     | MissingASTError
   > {
-    return this.contextProvider.getContext().andThen( (context) => {
-      context.publicEvents.queryPerformance.next( new QueryPerformanceEvent(EQueryEvents.QueryEvaluation , EStatus.Start, query.cid))
-      context.publicEvents.queryPerformance.next( new QueryPerformanceEvent(EQueryEvents.QueryParsing , EStatus.Start, query.cid))
-      return this.parseQuery(query).andThen((ast) => {
-        context.publicEvents.queryPerformance.next( new QueryPerformanceEvent(EQueryEvents.QueryParsing , EStatus.End, query.cid))
-        return this.gatherDeliveryItems(ast, query.cid, dataPermissions).map( (result) => {
-          context.publicEvents.queryPerformance.next( new QueryPerformanceEvent(EQueryEvents.QueryEvaluation , EStatus.End,query.cid))
-          return result;
+    return this.contextProvider.getContext().andThen((context) => {
+      context.publicEvents.queryPerformance.next(
+        new QueryPerformanceEvent(
+          EQueryEvents.QueryEvaluation,
+          EStatus.Start,
+          query.cid,
+        ),
+      );
+      context.publicEvents.queryPerformance.next(
+        new QueryPerformanceEvent(
+          EQueryEvents.QueryParsing,
+          EStatus.Start,
+          query.cid,
+        ),
+      );
+      return this.parseQuery(query)
+        .andThen((ast) => {
+          context.publicEvents.queryPerformance.next(
+            new QueryPerformanceEvent(
+              EQueryEvents.QueryParsing,
+              EStatus.End,
+              query.cid,
+            ),
+          );
+          return this.gatherDeliveryItems(ast, query.cid, dataPermissions).map(
+            (result) => {
+              context.publicEvents.queryPerformance.next(
+                new QueryPerformanceEvent(
+                  EQueryEvents.QueryEvaluation,
+                  EStatus.End,
+                  query.cid,
+                ),
+              );
+              return result;
+            },
+          );
+        })
+        .mapErr((err) => {
+          context.publicEvents.queryPerformance.next(
+            new QueryPerformanceEvent(
+              EQueryEvents.QueryEvaluation,
+              EStatus.End,
+              query.cid,
+              undefined,
+              err,
+            ),
+          );
+          context.publicEvents.queryPerformance.next(
+            new QueryPerformanceEvent(
+              EQueryEvents.QueryParsing,
+              EStatus.End,
+              query.cid,
+              undefined,
+              err,
+            ),
+          );
+          return err;
         });
-      }).mapErr( (err) => {
-        context.publicEvents.queryPerformance.next( new QueryPerformanceEvent(EQueryEvents.QueryEvaluation , EStatus.End, query.cid, undefined, err))
-        context.publicEvents.queryPerformance.next( new QueryPerformanceEvent(EQueryEvents.QueryParsing , EStatus.End, query.cid, undefined, err))
-        return err
-      });
-    })
-
+    });
   }
 
   public parseQuery(
@@ -158,7 +204,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   }
 
   public getPossibleQueryDeliveryItems(
-    query: SDQLQuery
+    query: SDQLQuery,
   ): ResultAsync<
     IQueryDeliveryItems,
     | EvaluationError
@@ -174,7 +220,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     | EvalNotImplementedError
     | MissingASTError
   > {
-    return this.handleQuery(query, DataPermissions.createWithAllPermissions() );
+    return this.handleQuery(query, DataPermissions.createWithAllPermissions());
   }
 
   /** Used for reward generation on the SPA. Purpose is to show all the rewards to the user
@@ -387,5 +433,3 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     }
   }
 }
-
-

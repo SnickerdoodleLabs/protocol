@@ -257,14 +257,14 @@ class QueryServiceMocks {
     td.when(
       this.queryParsingEngine.handleQuery(
         sdqlQuery,
-        this.consentToken.dataPermissions
+        this.consentToken.dataPermissions,
       ),
     ).thenReturn(okAsync(queryDeliveryItems));
 
     td.when(
       this.queryParsingEngine.handleQuery(
         sdqlQuery2,
-        this.consentToken.dataPermissions
+        this.consentToken.dataPermissions,
       ),
     ).thenReturn(okAsync(queryDeliveryItems));
 

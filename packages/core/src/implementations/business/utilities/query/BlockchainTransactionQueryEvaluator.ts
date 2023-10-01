@@ -36,7 +36,7 @@ export class BlockchainTransactionQueryEvaluator
 
   public eval(
     query: AST_BlockchainTransactionQuery,
-    queryCID : IpfsCID
+    queryCID: IpfsCID,
   ): ResultAsync<SDQL_Return, PersistenceError> {
     return this.contextProvider.getContext().andThen((context) => {
       const chainId = query.contract.networkId;
@@ -58,7 +58,7 @@ export class BlockchainTransactionQueryEvaluator
             EQueryEvents.ChainTransactionDataAccess,
             EStatus.Start,
             queryCID,
-            query.name
+            query.name,
           ),
         );
         return this.transactionHistoryRepo
@@ -69,7 +69,7 @@ export class BlockchainTransactionQueryEvaluator
                 EQueryEvents.ChainTransactionDataAccess,
                 EStatus.End,
                 queryCID,
-                query.name
+                query.name,
               ),
             );
             if (transactions == null) {
@@ -98,17 +98,18 @@ export class BlockchainTransactionQueryEvaluator
                 return: true,
               }),
             );
-          }).mapErr( (err) => {
+          })
+          .mapErr((err) => {
             context.publicEvents.queryPerformance.next(
               new QueryPerformanceEvent(
                 EQueryEvents.ChainTransactionDataAccess,
                 EStatus.End,
                 queryCID,
                 query.name,
-                err
+                err,
               ),
             );
-            return err 
+            return err;
           });
       } else if (query.returnType == "boolean") {
         context.publicEvents.queryPerformance.next(
@@ -116,7 +117,7 @@ export class BlockchainTransactionQueryEvaluator
             EQueryEvents.ChainTransactionDataAccess,
             EStatus.Start,
             queryCID,
-            query.name
+            query.name,
           ),
         );
         return this.transactionHistoryRepo
@@ -127,7 +128,7 @@ export class BlockchainTransactionQueryEvaluator
                 EQueryEvents.ChainTransactionDataAccess,
                 EStatus.End,
                 queryCID,
-                query.name
+                query.name,
               ),
             );
             if (transactions == null) {
@@ -138,17 +139,18 @@ export class BlockchainTransactionQueryEvaluator
             }
 
             return okAsync(SDQL_Return(true));
-          }).mapErr( (err) => {
+          })
+          .mapErr((err) => {
             context.publicEvents.queryPerformance.next(
               new QueryPerformanceEvent(
                 EQueryEvents.ChainTransactionDataAccess,
                 EStatus.End,
                 queryCID,
                 query.name,
-                err
+                err,
               ),
             );
-            return err 
+            return err;
           });
       }
 
@@ -158,7 +160,7 @@ export class BlockchainTransactionQueryEvaluator
             EQueryEvents.ChainTransactionDataAccess,
             EStatus.Start,
             queryCID,
-            query.name
+            query.name,
           ),
         );
         return this.transactionHistoryRepo
@@ -169,21 +171,22 @@ export class BlockchainTransactionQueryEvaluator
                 EQueryEvents.ChainTransactionDataAccess,
                 EStatus.End,
                 queryCID,
-                query.name
+                query.name,
               ),
             );
             return okAsync(SDQL_Return(transactionsArray));
-          }).mapErr( (err) => {
+          })
+          .mapErr((err) => {
             context.publicEvents.queryPerformance.next(
               new QueryPerformanceEvent(
                 EQueryEvents.ChainTransactionDataAccess,
                 EStatus.End,
                 queryCID,
                 query.name,
-                err
+                err,
               ),
             );
-            return err 
+            return err;
           });
       }
 

@@ -49,7 +49,7 @@ const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 10)];
 const conditionsE = [new ConditionE(SDQL_OperatorName("e"), null, 29)];
 
 const conditionsIn = [new ConditionIn(SDQL_OperatorName("e"), null, ["29"])];
-const queryCID = IpfsCID("mockCID")
+const queryCID = IpfsCID("mockCID");
 class BalanceQueryEvaluatorMocks {
   public balanceRepo = td.object<IPortfolioBalanceRepository>();
   public demoRepo = td.object<IDemographicDataRepository>();
@@ -61,10 +61,10 @@ class BalanceQueryEvaluatorMocks {
     [
       URLString("www.snickerdoodlelabs.io"),
       new SiteVisitsData(
-         10,
-         3,
-         UnixTimestamp(12),
-         ISO8601DateString("2022-09-15T18:45:30.123Z"),
+        10,
+        3,
+        UnixTimestamp(12),
+        ISO8601DateString("2022-09-15T18:45:30.123Z"),
       ),
     ],
   ]);

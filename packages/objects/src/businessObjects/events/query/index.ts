@@ -1,1 +1,1 @@
-export * from "@objects/businessObjects/events/query/QueryPerformanceEvent.js"
+export * from "@objects/businessObjects/events/query/QueryPerformanceEvent.js";

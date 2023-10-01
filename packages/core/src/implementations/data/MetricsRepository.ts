@@ -12,9 +12,9 @@ import {
 import { injectable } from "inversify";
 import { Meter, Timer } from "measured-core";
 import { ResultAsync, okAsync } from "neverthrow";
+import { QueryPerformanceEvent } from "packages/objects/src/businessObjects/events/query";
 
 import { IMetricsRepository } from "@core/interfaces/data/index.js";
-import { QueryPerformanceEvent } from "packages/objects/src/businessObjects/events/query";
 
 @injectable()
 export class MetricsRepository implements IMetricsRepository {
@@ -106,19 +106,22 @@ export class MetricsRepository implements IMetricsRepository {
     return okAsync(undefined);
   }
 
-  public recordQueryPerformanceEvent(event : QueryPerformanceEvent, elapsed : number): void {
+  public recordQueryPerformanceEvent(
+    event: QueryPerformanceEvent,
+    elapsed: number,
+  ): void {
     this.queryEventsDurations[event.type].push(elapsed);
     this.queryEventsTimers[event.type].update(elapsed);
   }
 
-  public createQueryPerformanceStorage(eventName : EQueryEvents) : void{
+  public createQueryPerformanceStorage(eventName: EQueryEvents): void {
     this.queryEventsTimers[eventName] = new Timer();
     this.queryEventsDurations[eventName] = [];
-  }      
+  }
 
   public getQueryPerformanceData(): QueryPerformanceMetrics[] {
     const queryPerformanceData: QueryPerformanceMetrics[] = [];
-    for (let eventName in this.queryEventsTimers) {
+    for (const eventName in this.queryEventsTimers) {
       const { meter: meterData, histogram: histogramData } =
         this.queryEventsTimers[eventName].toJSON();
       const durations = this.queryEventsDurations[eventName];

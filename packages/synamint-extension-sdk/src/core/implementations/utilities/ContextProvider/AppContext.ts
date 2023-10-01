@@ -5,6 +5,10 @@ import {
   UUID,
   BaseNotification,
 } from "@snickerdoodlelabs/objects";
+import { JsonRpcEngine } from "json-rpc-engine";
+import { okAsync } from "neverthrow";
+import { v4 } from "uuid";
+
 import {
   IPortConnection,
   IPortConnectionObject,
@@ -13,9 +17,6 @@ import {
 import { ExtensionDisplayUtils } from "@synamint-extension-sdk/extensionShared";
 import { PORT_NOTIFICATION } from "@synamint-extension-sdk/shared/constants/ports";
 import { EPortNames } from "@synamint-extension-sdk/shared/enums/ports";
-import { JsonRpcEngine } from "json-rpc-engine";
-import { okAsync } from "neverthrow";
-import { v4 } from "uuid";
 
 export class AppContext {
   constructor(

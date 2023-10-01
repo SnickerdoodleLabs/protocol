@@ -8,23 +8,23 @@ import {
   RuntimeMetrics,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
+import { Timer } from "measured-core";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { QueryPerformanceEvent } from "packages/objects/src/businessObjects/events/query/index.js";
 
 import { IMetricsService } from "@core/interfaces/business/index.js";
 import {
   IMetricsRepository,
   IMetricsRepositoryType,
 } from "@core/interfaces/data/index.js";
+import { CoreContext } from "@core/interfaces/objects";
 import {
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
-import { Timer } from "measured-core";
-import { CoreContext } from "@core/interfaces/objects";
-import { QueryPerformanceEvent } from "packages/objects/src/businessObjects/events/query/index.js";
 
 @injectable()
 export class MetricsService implements IMetricsService {

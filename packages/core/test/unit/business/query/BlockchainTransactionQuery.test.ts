@@ -38,8 +38,7 @@ import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/quer
 import { ITransactionHistoryRepository } from "@core/interfaces/data/index.js";
 import { ContextProviderMock } from "@core-tests/mock/utilities/ContextProviderMock";
 
-
-const queryCID = IpfsCID("mockCID")
+const queryCID = IpfsCID("mockCID");
 
 class blockchainTransactionQueryEvaluatorMocks {
   public transactionRepo = td.object<ITransactionHistoryRepository>();
@@ -67,7 +66,10 @@ class blockchainTransactionQueryEvaluatorMocks {
   }
 
   public factory() {
-    return new BlockchainTransactionQueryEvaluator(this.transactionRepo, this.contextProvider);
+    return new BlockchainTransactionQueryEvaluator(
+      this.transactionRepo,
+      this.contextProvider,
+    );
   }
 }
 

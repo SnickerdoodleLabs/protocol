@@ -1,4 +1,3 @@
-import { CoreContext } from "@core/interfaces/objects";
 import {
   DataPermissions,
   DuplicateIdInSchema,
@@ -18,10 +17,12 @@ import {
 import { AST } from "@snickerdoodlelabs/query-parser";
 import { ResultAsync } from "neverthrow";
 
+import { CoreContext } from "@core/interfaces/objects";
+
 export interface IQueryParsingEngine {
   handleQuery(
     query: SDQLQuery,
-    dataPermissions: DataPermissions
+    dataPermissions: DataPermissions,
   ): ResultAsync<
     IQueryDeliveryItems,
     | EvaluationError
@@ -70,7 +71,7 @@ export interface IQueryParsingEngine {
   >;
 
   getPossibleQueryDeliveryItems(
-    query: SDQLQuery
+    query: SDQLQuery,
   ): ResultAsync<
     IQueryDeliveryItems,
     | EvaluationError

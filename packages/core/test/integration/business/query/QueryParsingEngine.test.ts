@@ -91,13 +91,21 @@ class QueryParsingMocks {
   public socialRepo = td.object<ISocialRepository>();
   public contextProvider: ContextProviderMock = new ContextProviderMock();
 
-
   public blockchainTransactionQueryEvaluator =
-    new BlockchainTransactionQueryEvaluator(this.transactionRepo, this.contextProvider);
+    new BlockchainTransactionQueryEvaluator(
+      this.transactionRepo,
+      this.contextProvider,
+    );
 
-  public nftQueryEvaluator = new NftQueryEvaluator(this.balanceRepo, this.contextProvider);
+  public nftQueryEvaluator = new NftQueryEvaluator(
+    this.balanceRepo,
+    this.contextProvider,
+  );
 
-  public balanceQueryEvaluator = new BalanceQueryEvaluator(this.balanceRepo, this.contextProvider);
+  public balanceQueryEvaluator = new BalanceQueryEvaluator(
+    this.balanceRepo,
+    this.contextProvider,
+  );
 
   public queryUtils = td.object<ISDQLQueryUtils>();
 
@@ -178,7 +186,7 @@ class QueryParsingMocks {
       this.queryUtils,
       this.adContentRepository,
       this.adDataRepo,
-      this.contextProvider
+      this.contextProvider,
     );
   }
 

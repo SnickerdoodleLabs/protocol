@@ -15,8 +15,11 @@ import { QueryPerformanceEvent } from "packages/objects/src/businessObjects/even
 export interface IMetricsRepository {
   recordApiCall(api: EExternalApi): ResultAsync<void, never>;
   recordQueryPosted(): ResultAsync<void, never>;
-  recordQueryPerformanceEvent(event : QueryPerformanceEvent, elapsed : number): void
-  createQueryPerformanceStorage(eventName : EQueryEvents) : void
+  recordQueryPerformanceEvent(
+    event: QueryPerformanceEvent,
+    elapsed: number,
+  ): void;
+  createQueryPerformanceStorage(eventName: EQueryEvents): void;
 
   getApiStatSummaries(): ResultAsync<StatSummary[], never>;
   getCreatedBackupsSummary(): ResultAsync<StatSummary, never>;
@@ -28,8 +31,8 @@ export interface IMetricsRepository {
   getRestoredBackups(): ResultAsync<BackupStat[], never>;
 
   getQueriesPostedSummary(): ResultAsync<StatSummary, never>;
-  getQueryPerformanceData(): QueryPerformanceMetrics[]
-  
+  getQueryPerformanceData(): QueryPerformanceMetrics[];
+
   recordBackupCreated(
     storageType: EDataStorageType,
     dataType: StorageKey,

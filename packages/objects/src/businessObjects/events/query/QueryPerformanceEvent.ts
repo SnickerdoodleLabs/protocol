@@ -16,7 +16,7 @@ export class QueryPerformanceEvent {
   constructor(
     public type: EQueryEvents,
     public status: EStatus,
-    public queryCID : IpfsCID,
+    public queryCID: IpfsCID,
     public subQueryIdentifier?: SDQL_Name,
     public error?: Error,
   ) {}
