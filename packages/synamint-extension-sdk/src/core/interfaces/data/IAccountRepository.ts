@@ -15,6 +15,7 @@ import {
   TransactionFlowInsight,
   TransactionFilter,
   ChainTransaction,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -26,17 +27,22 @@ export interface IAccountRepository {
     signature: Signature,
     chain: EChain,
     languageCode: LanguageCode,
+    sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   getLinkAccountMessage(
     languageCode: LanguageCode,
+    sourceDomain?: DomainName,
   ): ResultAsync<string, SnickerDoodleCoreError>;
-  getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError>;
+  getAccounts(
+    sourceDomain?: DomainName,
+  ): ResultAsync<LinkedAccount[], SnickerDoodleCoreError>;
   getAccountBalances(): ResultAsync<TokenBalance[], SnickerDoodleCoreError>;
   getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError>;
   isDataWalletAddressInitialized(): ResultAsync<boolean, UnauthorizedError>;
   unlinkAccount(
     account: AccountAddress,
     chain: EChain,
+    sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   getEarnedRewards(): ResultAsync<EarnedReward[], SnickerDoodleCoreError>;
   getQueryStatusByQueryCID(

@@ -126,20 +126,22 @@ export class ConsentContractRepository implements IConsentContractRepository {
   }
 
   public getConsentToken(
-    optInInfo: OptInInfo,
+    consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
   ): ResultAsync<
     ConsentToken | null,
     UninitializedError | BlockchainProviderError
   > {
-    return this.getConsentContract(optInInfo.consentContractAddress)
+    return this.getConsentContract(consentContractAddress)
       .andThen((consentContract) => {
-        return consentContract.getConsentToken(
-          optInInfo.tokenId,
-        ) as ResultAsync<ConsentToken | null, ConsentContractError>;
+        return consentContract.getConsentToken(tokenId) as ResultAsync<
+          ConsentToken | null,
+          ConsentContractError
+        >;
       })
       .orElse((e) => {
         this.logUtils.warning(
-          `Cannot get consent token for token ID ${optInInfo.tokenId} on consent contract ${optInInfo.consentContractAddress}. Error returned from either ownerOf() or agreementFlags(). Assuming the consent token does not exist!`,
+          `Cannot get consent token for token ID ${tokenId} on consent contract ${consentContractAddress}. Error returned from either ownerOf() or agreementFlags(). Assuming the consent token does not exist!`,
           e,
         );
         return okAsync(null);

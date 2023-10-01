@@ -1,4 +1,8 @@
 import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
+import {
   BigNumberString,
   ChainId,
   CountryCode,
@@ -67,7 +71,6 @@ import {
   IExternalState,
   IInternalState,
   IInvitationDomainWithUUID,
-  IScamFilterPreferences,
 } from "@synamint-extension-sdk/shared";
 
 export abstract class CoreActionParams<TReturn> {
@@ -106,12 +109,40 @@ export class AddAccountParams extends CoreActionParams<void> {
   }
 }
 
+export class AddAccountWithExternalSignatureParams extends CoreActionParams<void> {
+  public constructor(
+    public accountAddress: AccountAddress,
+    public message: string,
+    public signature: Signature,
+    public chain: EChain,
+  ) {
+    super(AddAccountWithExternalSignatureParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.ADD_ACCOUNT_WITH_EXTERNAL_SIGNATURE;
+  }
+}
+
+export class AddAccountWithExternalTypedDataSignatureParams extends CoreActionParams<void> {
+  public constructor(
+    public accountAddress: AccountAddress,
+    public domain: TypedDataDomain,
+    public types: Record<string, Array<TypedDataField>>,
+    public value: Record<string, unknown>,
+    public signature: Signature,
+    public chain: EChain,
+  ) {
+    super(AddAccountWithExternalTypedDataSignatureParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.ADD_ACCOUNT_WITH_EXTERNAL_TYPED_DATA_SIGNATURE;
+  }
+}
+
 export class UnlinkAccountParams extends CoreActionParams<void> {
   public constructor(
     public accountAddress: AccountAddress,
-    public signature: Signature,
     public chain: EChain,
-    public languageCode: LanguageCode,
   ) {
     super(UnlinkAccountParams.getCoreAction());
   }
@@ -285,15 +316,6 @@ export class GetInvitationMetadataByCIDParams extends CoreActionParams<IOpenSeaM
   }
 }
 
-export class CheckURLParams extends CoreActionParams<string> {
-  public constructor(public domain: DomainName) {
-    super(CheckURLParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.CHECK_URL;
-  }
-}
-
 export class GetMarketplaceListingsByTagParams extends CoreActionParams<
   PagedResponse<MarketplaceListing>
 > {
@@ -316,18 +338,6 @@ export class GetListingsTotalByTagParams extends CoreActionParams<number> {
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_LISTING_TOTAL_BY_TAG;
-  }
-}
-
-export class ScamFilterSettingsParams extends CoreActionParams<void> {
-  public constructor(
-    public isScamFilterActive: boolean,
-    public showMessageEveryTime: boolean,
-  ) {
-    super(ScamFilterSettingsParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.SET_SCAM_FILTER_SETTINGS;
   }
 }
 
@@ -592,15 +602,6 @@ export class GetAcceptedInvitationsCIDParams extends CoreActionParams<JSONString
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_ACCEPTED_INVITATIONS_CID;
-  }
-}
-
-export class GetScamFilterSettingsParams extends CoreActionParams<IScamFilterPreferences> {
-  public constructor() {
-    super(GetScamFilterSettingsParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.GET_SCAM_FILTER_SETTINGS;
   }
 }
 

@@ -173,7 +173,7 @@ export class CorePrompt extends DataWalletPrompt {
         case "getTransactions":
           return this.core.getTransactions().map(console.log);
         case "getAccounts":
-          return this.core.getAccounts().map(console.log);
+          return this.core.account.getAccounts(undefined).map(console.log);
         case "getNFTs":
           return this.core.getAccountNFTs().map(console.log);
         case "getBalances":

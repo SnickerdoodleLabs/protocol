@@ -495,7 +495,7 @@ export class DataWalletProfile {
     wallet: TestWallet,
   ): ResultAsync<Signature, UnsupportedLanguageError | UnauthorizedError> {
     return this.core.account
-      .getLinkAccountMessage(this.mocks.languageCode)
+      .getLinkAccountMessage(this.mocks.languageCode, undefined)
       .andThen((message) => {
         return wallet.signMessage(message);
       });

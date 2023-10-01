@@ -9,13 +9,14 @@ import {
   ISnickerdoodleCoreType,
   ISnickerdoodleCore,
 } from "@snickerdoodlelabs/objects";
+import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import {
   AsyncJsonRpcEngineNextCallback,
   JsonRpcRequest,
   PendingJsonRpcResponse,
 } from "json-rpc-engine";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { parse } from "tldts";
 import { Runtime } from "webextension-polyfill";
 
@@ -33,8 +34,6 @@ import {
   IMetricsServiceType,
   IPIIService,
   IPIIServiceType,
-  IScamFilterService,
-  IScamFilterServiceType,
   ITokenPriceService,
   ITokenPriceServiceType,
   ITwitterService,
@@ -50,15 +49,10 @@ import {
   IDataPermissionsUtils,
   IDataPermissionsUtilsType,
 } from "@synamint-extension-sdk/core/interfaces/utilities";
-import {
-  IScamFilterSettingsUtils,
-  IScamFilterSettingsUtilsType,
-} from "@synamint-extension-sdk/core/interfaces/utilities/IScamFilterSettingsUtils";
 import { ExtensionUtils } from "@synamint-extension-sdk/extensionShared";
 import {
   DEFAULT_RPC_SUCCESS_RESULT,
   ECoreActions,
-  UnlockParams,
   GetUnlockMessageParams,
   AddAccountParams,
   SetGivenNameParams,
@@ -72,13 +66,11 @@ import {
   RejectInvitationByUUIDParams,
   LeaveCohortParams,
   GetInvitationMetadataByCIDParams,
-  CheckURLParams,
   GetAgreementPermissionsParams,
   SetDefaultPermissionsWithDataTypesParams,
   SetApplyDefaultPermissionsParams,
   UnlinkAccountParams,
   AcceptInvitationParams,
-  ScamFilterSettingsParams,
   GetConsentContractCIDParams,
   CheckInvitationStatusParams,
   GetTokenPriceParams,
@@ -87,7 +79,6 @@ import {
   SetDefaultReceivingAddressParams,
   SetReceivingAddressParams,
   GetReceivingAddressParams,
-  mapToObj,
   GetEarnedRewardsParams,
   GetAccountsParams,
   GetAccountBalancesParams,
@@ -106,7 +97,6 @@ import {
   GetDefaultPermissionsParams,
   SetDefaultPermissionsToAllParams,
   GetApplyDefaultPermissionsOptionParams,
-  GetScamFilterSettingsParams,
   CloseTabParams,
   GetStateParams,
   GetInternalStateParams,
@@ -144,6 +134,9 @@ import {
   GetQueryStatusesParams,
   GetTransactionsParams,
   GetTransactionValueByChainParams,
+  AddAccountWithExternalSignatureParams,
+  AddAccountWithExternalTypedDataSignatureParams,
+  ERequestChannel,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -152,19 +145,49 @@ export class RpcCallHandler implements IRpcCallHandler {
   protected rpcCalls: CoreActionHandler<any>[] = [
     new CoreActionHandler<AddAccountParams>(
       AddAccountParams.getCoreAction(),
-      (params) => {
+      (params, _sender, sourceDomain) => {
         return this.accountService.addAccount(
           params.accountAddress,
           params.signature,
           params.chain,
           params.languageCode,
+          sourceDomain,
+        );
+      },
+    ),
+    new CoreActionHandler<AddAccountWithExternalSignatureParams>(
+      AddAccountWithExternalSignatureParams.getCoreAction(),
+      (params, _sender, sourceDomain) => {
+        return this.accountService.addAccountWithExternalSignature(
+          params.accountAddress,
+          params.message,
+          params.signature,
+          params.chain,
+          sourceDomain,
+        );
+      },
+    ),
+    new CoreActionHandler<AddAccountWithExternalTypedDataSignatureParams>(
+      AddAccountWithExternalTypedDataSignatureParams.getCoreAction(),
+      (params, _sender, sourceDomain) => {
+        return this.accountService.addAccountWithExternalTypedDataSignature(
+          params.accountAddress,
+          params.domain,
+          params.types,
+          params.value,
+          params.signature,
+          params.chain,
+          sourceDomain,
         );
       },
     ),
     new CoreActionHandler<GetUnlockMessageParams>(
       GetUnlockMessageParams.getCoreAction(),
-      (params) => {
-        return this.accountService.getLinkAccountMessage(params.languageCode);
+      (params, _sender, sourceDomain) => {
+        return this.accountService.getLinkAccountMessage(
+          params.languageCode,
+          sourceDomain,
+        );
       },
     ),
     new CoreActionHandler<GetEarnedRewardsParams>(
@@ -175,8 +198,8 @@ export class RpcCallHandler implements IRpcCallHandler {
     ),
     new CoreActionHandler<GetAccountsParams>(
       GetAccountsParams.getCoreAction(),
-      (_params) => {
-        return this.accountService.getAccounts();
+      (_params, _sender, sourceDomain) => {
+        return this.accountService.getAccounts(sourceDomain);
       },
     ),
     new CoreActionHandler<GetTokenPriceParams>(
@@ -367,16 +390,14 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<CheckInvitationStatusParams>(
       CheckInvitationStatusParams.getCoreAction(),
       (params) => {
-        return this._getTokenId(params.tokenId).andThen((tokenId) => {
-          return this.invitationService.checkInvitationStatus(
-            new Invitation(
-              "" as DomainName,
-              params.consentAddress,
-              tokenId,
-              params.signature ?? null,
-            ),
-          );
-        });
+        return this.invitationService.checkInvitationStatus(
+          new Invitation(
+            params.consentAddress,
+            this.toTokenId(params.tokenId),
+            null,
+            params.signature ?? null,
+          ),
+        );
       },
     ),
     new CoreActionHandler<GetConsentContractCIDParams>(
@@ -389,10 +410,11 @@ export class RpcCallHandler implements IRpcCallHandler {
     ),
     new CoreActionHandler<UnlinkAccountParams>(
       UnlinkAccountParams.getCoreAction(),
-      (params) => {
+      (params, _sender, sourceDomain) => {
         return this.accountService.unlinkAccount(
           params.accountAddress,
           params.chain,
+          sourceDomain,
         );
       },
     ),
@@ -505,35 +527,18 @@ export class RpcCallHandler implements IRpcCallHandler {
         );
       },
     ),
-    new CoreActionHandler<GetScamFilterSettingsParams>(
-      GetScamFilterSettingsParams.getCoreAction(),
-      (_params) => {
-        return this.scamFilterSettingsUtils.getScamFilterSettings();
-      },
-    ),
-    new CoreActionHandler<ScamFilterSettingsParams>(
-      ScamFilterSettingsParams.getCoreAction(),
-      (params) => {
-        return this.scamFilterSettingsUtils.setScamFilterSettings(
-          params.isScamFilterActive,
-          params.showMessageEveryTime,
-        );
-      },
-    ),
     new CoreActionHandler<AcceptInvitationParams>(
       AcceptInvitationParams.getCoreAction(),
       (params) => {
-        return this._getTokenId(params.tokenId).andThen((tokenId) => {
-          return this.invitationService.acceptInvitation(
-            new Invitation(
-              "" as DomainName,
-              params.consentContractAddress,
-              tokenId,
-              params.businessSignature ?? null,
-            ),
-            params.dataTypes,
-          );
-        });
+        return this.invitationService.acceptInvitation(
+          new Invitation(
+            params.consentContractAddress,
+            this.toTokenId(params.tokenId),
+            null,
+            params.businessSignature ?? null,
+          ),
+          params.dataTypes,
+        );
       },
     ),
     new CoreActionHandler<RejectInvitationByUUIDParams>(
@@ -548,23 +553,15 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<RejectInvitationParams>(
       RejectInvitationParams.getCoreAction(),
       (params) => {
-        return this._getTokenId(params.tokenId).andThen((tokenId) => {
-          return this.invitationService.rejectInvitation(
-            new Invitation(
-              "" as DomainName,
-              params.consentContractAddress,
-              tokenId,
-              params.businessSignature ?? null,
-            ),
-            params.rejectUntil,
-          );
-        });
-      },
-    ),
-    new CoreActionHandler<CheckURLParams>(
-      CheckURLParams.getCoreAction(),
-      (params) => {
-        return this.scamFilterService.checkURL(params.domain);
+        return this.invitationService.rejectInvitation(
+          new Invitation(
+            params.consentContractAddress,
+            this.toTokenId(params.tokenId),
+            null,
+            params.businessSignature ?? null,
+          ),
+          params.rejectUntil,
+        );
       },
     ),
     new CoreActionHandler<CloseTabParams>(
@@ -628,16 +625,16 @@ export class RpcCallHandler implements IRpcCallHandler {
     // #region Discord
     new CoreActionHandler<InitializeDiscordUserParams>(
       InitializeDiscordUserParams.getCoreAction(),
-      (params, sender) => {
+      (params, _sender, sourceDomain) => {
         return this.discordService.initializeUserWithAuthorizationCode(
           params.code,
-          this.getDomainFromSender(sender),
+          sourceDomain,
         );
       },
     ),
     new CoreActionHandler<GetDiscordInstallationUrlParams>(
       GetDiscordInstallationUrlParams.getCoreAction(),
-      (params, sender) => {
+      (params, sender, sourceDomain) => {
         // This is a bit of a hack, but literally the ONLY place we can
         // get a tab ID is from this message sender in the extension.
         // But the URL must be formulated in the core itself, so we pass
@@ -647,38 +644,31 @@ export class RpcCallHandler implements IRpcCallHandler {
         if (params.redirectTabId != null && sender?.tab?.id != null) {
           return this.discordService.installationUrl(
             sender.tab.id,
-            this.getDomainFromSender(sender),
+            sourceDomain,
           );
         }
 
-        return this.discordService.installationUrl(
-          undefined,
-          this.getDomainFromSender(sender),
-        );
+        return this.discordService.installationUrl(undefined, sourceDomain);
       },
     ),
     new CoreActionHandler<GetDiscordGuildProfilesParams>(
       GetDiscordGuildProfilesParams.getCoreAction(),
-      (_params, sender) => {
-        return this.discordService.getGuildProfiles(
-          this.getDomainFromSender(sender),
-        );
+      (_params, _sender, sourceDomain) => {
+        return this.discordService.getGuildProfiles(sourceDomain);
       },
     ),
     new CoreActionHandler<GetDiscordUserProfilesParams>(
       GetDiscordUserProfilesParams.getCoreAction(),
-      (_params, sender) => {
-        return this.discordService.getUserProfiles(
-          this.getDomainFromSender(sender),
-        );
+      (_params, _sender, sourceDomain) => {
+        return this.discordService.getUserProfiles(sourceDomain);
       },
     ),
     new CoreActionHandler<UnlinkDiscordAccountParams>(
       UnlinkDiscordAccountParams.getCoreAction(),
-      (params, sender) => {
+      (params, _sender, sourceDomain) => {
         return this.discordService.unlink(
           params.discordProfileId,
-          this.getDomainFromSender(sender),
+          sourceDomain,
         );
       },
     ),
@@ -722,37 +712,30 @@ export class RpcCallHandler implements IRpcCallHandler {
     // #region Twitter
     new CoreActionHandler<TwitterGetRequestTokenParams>(
       TwitterGetRequestTokenParams.getCoreAction(),
-      (_params, sender) => {
-        return this.twitterService.getOAuth1aRequestToken(
-          this.getDomainFromSender(sender),
-        );
+      (_params, _sender, sourceDomain) => {
+        return this.twitterService.getOAuth1aRequestToken(sourceDomain);
       },
     ),
     new CoreActionHandler<TwitterLinkProfileParams>(
       TwitterLinkProfileParams.getCoreAction(),
-      (params, sender) => {
+      (params, _sender, sourceDomain) => {
         return this.twitterService.initTwitterProfile(
           params.requestToken,
           params.oAuthVerifier,
-          this.getDomainFromSender(sender),
+          sourceDomain,
         );
       },
     ),
     new CoreActionHandler<TwitterUnlinkProfileParams>(
       TwitterUnlinkProfileParams.getCoreAction(),
-      (params, sender) => {
-        return this.twitterService.unlinkProfile(
-          params.id,
-          this.getDomainFromSender(sender),
-        );
+      (params, _sender, sourceDomain) => {
+        return this.twitterService.unlinkProfile(params.id, sourceDomain);
       },
     ),
     new CoreActionHandler<TwitterGetLinkedProfilesParams>(
       TwitterGetLinkedProfilesParams.getCoreAction(),
-      (_params, sender) => {
-        return this.twitterService.getUserProfiles(
-          this.getDomainFromSender(sender),
-        );
+      (_params, _sender, sourceDomain) => {
+        return this.twitterService.getUserProfiles(sourceDomain);
       },
     ),
     // #endregion
@@ -767,27 +750,32 @@ export class RpcCallHandler implements IRpcCallHandler {
     // #region Metrics
     new CoreActionHandler<GetMetricsParams>(
       GetMetricsParams.getCoreAction(),
-      (_params, sender) => {
-        return this.metricsService.getMetrics(this.getDomainFromSender(sender));
+      (_params, _sender, sourceDomain) => {
+        return this.metricsService.getMetrics(sourceDomain);
       },
     ),
     // #endregion
     // #region Integration
+
+    // this is the only function that goes against my new source domain logic
+    // but if this function will only be called by the proxy, which it seems to be, then it should be fine
     new CoreActionHandler<RequestPermissionsParams>(
       RequestPermissionsParams.getCoreAction(),
-      (params, sender) => {
-        return this.integrationService.requestPermissions(
-          params.permissions,
-          this.getDomainFromSender(sender),
-        );
+      (params, _sender, sourceDomain) => {
+        return sourceDomain
+          ? this.integrationService.requestPermissions(
+              params.permissions,
+              sourceDomain,
+            )
+          : errAsync(new Error("No source domain found"));
       },
     ),
     new CoreActionHandler<GetPermissionsParams>(
       GetPermissionsParams.getCoreAction(),
-      (params, sender) => {
+      (params, _sender, sourceDomain) => {
         return this.integrationService.getPermissions(
           params.domain,
-          this.getDomainFromSender(sender),
+          sourceDomain,
         );
       },
     ),
@@ -859,13 +847,9 @@ export class RpcCallHandler implements IRpcCallHandler {
     @inject(IPIIServiceType) protected piiService: IPIIService,
     @inject(IInvitationServiceType)
     protected invitationService: IInvitationService,
-    @inject(IScamFilterServiceType)
-    protected scamFilterService: IScamFilterService,
     @inject(IDataPermissionsUtilsType)
     protected dataPermissionsUtils: IDataPermissionsUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
-    @inject(IScamFilterSettingsUtilsType)
-    protected scamFilterSettingsUtils: IScamFilterSettingsUtils,
     @inject(IUserSiteInteractionServiceType)
     protected userSiteInteractionService: IUserSiteInteractionService,
     @inject(IDiscordServiceType)
@@ -885,8 +869,11 @@ export class RpcCallHandler implements IRpcCallHandler {
     res: PendingJsonRpcResponse<unknown>,
     next: AsyncJsonRpcEngineNextCallback,
     sender: Runtime.MessageSender | undefined,
+    requestChannel: ERequestChannel,
   ) {
     const { method, params } = req;
+
+    const sourceDomain = this.getSourceDomain(sender, requestChannel);
 
     // Find the action
     const externalActionHandler = this.rpcCalls.find((rpc) => {
@@ -901,14 +888,23 @@ export class RpcCallHandler implements IRpcCallHandler {
       return next();
     }
 
-    return externalActionHandler.execute(params, res, sender);
+    return externalActionHandler.execute(params, res, sender, sourceDomain);
   }
 
-  private _getTokenId(tokenId: BigNumberString | undefined) {
-    if (tokenId) {
-      return okAsync(TokenId(BigInt(tokenId)));
+  private getSourceDomain(
+    sender: Runtime.MessageSender | undefined,
+    requestChannel,
+  ): DomainName | undefined {
+    // check if the request is coming from the proxy
+    // if not no need to check the domain
+    // cuz the other requesters are internal and those are trusted
+    if (requestChannel != ERequestChannel.PROXY) {
+      return undefined;
     }
-    return this.cryptoUtils.getTokenId();
+    // TODO: we have not yet encountered a case where the url is undefined, but it should be double checked just in case
+    // the only case I can think of is when the request comes from the extension's popup or from other extensions trying to communicate with our extension, which we don't allow anyway.
+    const url = new URL(sender?.tab?.url ?? "");
+    return DomainName(url.hostname);
   }
 
   private getDomainFromSender(
@@ -917,6 +913,10 @@ export class RpcCallHandler implements IRpcCallHandler {
     // TODO: If the sender is undefined we need to do something smart here.
     const url = new URL(sender?.tab?.url ?? "");
     return DomainName(url.hostname);
+  }
+
+  private toTokenId(tokenId: BigNumberString | undefined): TokenId | null {
+    return tokenId != null ? TokenId(BigNumber.from(tokenId).toBigInt()) : null;
   }
 }
 
@@ -928,6 +928,7 @@ class CoreActionHandler<
     public handler: (
       params: TParams,
       sender?: Runtime.MessageSender | undefined,
+      sourceDomain?: DomainName | undefined,
     ) => ResultAsync<ReturnType<TParams["returnMethodMarker"]>, unknown>,
   ) {}
 
@@ -935,8 +936,9 @@ class CoreActionHandler<
     params: TParams,
     res: PendingJsonRpcResponse<unknown>,
     sender: Runtime.MessageSender | undefined,
+    sourceDomain: DomainName | undefined,
   ): Promise<void> {
-    await this.handler(params!, sender)
+    await this.handler(params!, sender, sourceDomain)
       .mapErr((err) => {
         res.error = err as Error;
       })

@@ -1,9 +1,7 @@
 import {
   AccountAddress,
-  DataWalletAddress,
   EarnedReward,
   EChain,
-  EVMAccountAddress,
   WalletNFT,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
@@ -19,6 +17,7 @@ import {
   ChainTransaction,
   TransactionFilter,
   TransactionFlowInsight,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -86,8 +85,10 @@ export class AccountRepository implements IAccountRepository {
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
-  public getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {
-    return this.core.getAccounts().mapErr((error) => {
+  public getAccounts(
+    sourceDomain?: DomainName,
+  ): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {
+    return this.core.account.getAccounts(sourceDomain).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
@@ -115,9 +116,10 @@ export class AccountRepository implements IAccountRepository {
     signature: Signature,
     chain: EChain,
     languageCode: LanguageCode,
+    sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.core.account
-      .addAccount(account, signature, languageCode, chain)
+      .addAccount(account, signature, languageCode, chain, sourceDomain)
       .mapErr((error) => {
         this.errorUtils.emit(error);
         return new SnickerDoodleCoreError((error as Error).message, error);
@@ -130,9 +132,10 @@ export class AccountRepository implements IAccountRepository {
 
   public getLinkAccountMessage(
     languageCode: LanguageCode,
+    sourceDomain?: DomainName,
   ): ResultAsync<string, SnickerDoodleCoreError> {
     return this.core.account
-      .getLinkAccountMessage(languageCode)
+      .getLinkAccountMessage(languageCode, sourceDomain)
       .mapErr((error) => {
         this.errorUtils.emit(error);
         return new SnickerDoodleCoreError((error as Error).message, error);
@@ -149,10 +152,13 @@ export class AccountRepository implements IAccountRepository {
   public unlinkAccount(
     account: AccountAddress,
     chain: EChain,
+    sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core.account.unlinkAccount(account, chain).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
+    return this.core.account
+      .unlinkAccount(account, chain, sourceDomain)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
 }
