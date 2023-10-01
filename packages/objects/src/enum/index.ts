@@ -26,7 +26,6 @@ export * from "@objects/enum/ELanguageCode.js";
 export * from "@objects/enum/EQueryEvents.js";
 export * from "@objects/enum/EQueryProcessingStatus.js";
 export * from "@objects/enum/ERewardType.js";
-export * from "@objects/enum/EScamFilterStatus.js";
 export * from "@objects/enum/ESDQLQueryReturn.js";
 export * from "@objects/enum/ESignatureAlgorithm.js";
 export * from "@objects/enum/ESocialType.js";

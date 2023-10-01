@@ -2,6 +2,7 @@ import {
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
   SiteVisit,
+  SiteVisitsMap,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -40,7 +41,7 @@ export class UserSiteInteractionRepository
   }
 
   public getSiteVisitsMap(): ResultAsync<
-    Map<URLString, number>,
+    SiteVisitsMap,
     SnickerDoodleCoreError
   > {
     return this.core.getSiteVisitsMap().mapErr((error) => {

@@ -45,6 +45,7 @@ export interface IExtensionConfig extends IExtensionConfigDefaults {
   poapApiKey?: string;
   oklinkApiKey?: string;
   ankrApiKey?: string;
+  bluezApiKey?: string;
   dnsServerAddress?: URLString;
   defaultGoogleCloudBucket?: string;
   dropboxAppKey?: string;
@@ -95,6 +96,7 @@ export interface IExtensionConfigOverrides {
     poapApiKey?: string;
     oklinkApiKey?: string;
     ankrApiKey?: string;
+    bluezApiKey?: string;
     primaryInfuraKey?: string;
     secondaryInfuraKey?: string;
   };

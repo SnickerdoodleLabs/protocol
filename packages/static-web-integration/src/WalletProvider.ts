@@ -24,7 +24,7 @@ export class WalletProvider {
     return this._web3Provider.getSigner();
   }
 
-  public connect(): ResultAsync<AccountAddress, unknown> {
+  public connect(): ResultAsync<AccountAddress, Error> {
     if (!this.sourceProvider) {
       return errAsync(new Error("Metamask is not installed!"));
     }
@@ -33,14 +33,19 @@ export class WalletProvider {
 
     return ResultAsync.fromPromise(
       this._web3Provider.listAccounts() as Promise<AccountAddress[]>,
-      (e) => {},
+      (e) => {
+        return e as Error;
+      },
     ).andThen((accounts) => {
       if (accounts.length === 0) {
         return ResultAsync.fromPromise(
           this._web3Provider!.send("wallet_requestPermissions", [
             { eth_accounts: {} },
           ]) as Promise<unknown>,
-          (e) => new Error("Connection request was cancelled by the user."),
+          (e) => {
+            console.error(e);
+            return new Error("Connection request was cancelled by the user.");
+          },
         )
           .andThen(() => {
             return ResultAsync.fromPromise(
@@ -48,7 +53,11 @@ export class WalletProvider {
               this._web3Provider!.send("eth_requestAccounts", []) as Promise<
                 AccountAddress[]
               >,
-              (e) => new Error("Connection request was cancelled by the user."),
+              (e) => {
+                return new Error(
+                  "Connection request was cancelled by the user.",
+                );
+              },
             );
           })
           .map((accounts) => {
@@ -67,7 +76,7 @@ export class WalletProvider {
     });
   }
 
-  public checkConnection(): ResultAsync<boolean, unknown> {
+  public checkConnection(): ResultAsync<boolean, Error> {
     if (!this.sourceProvider) {
       return okAsync(false);
     } else {
@@ -75,21 +84,25 @@ export class WalletProvider {
         this.sourceProvider,
       );
       return ResultAsync.fromPromise(this._web3Provider.listAccounts(), (e) => {
-        return new Error("An unexpected error occurred while checking the connection status.");
+        return new Error(
+          "An unexpected error occurred while checking the connection status.",
+        );
       }).map((accounts) => {
         return accounts.length > 0;
       });
     }
   }
 
-  public getSignature(message: string): ResultAsync<Signature, unknown> {
+  public getSignature(message: string): ResultAsync<Signature, Error> {
     if (!this._web3Provider) {
-      return errAsync("Should call connect() first.");
+      return errAsync(new Error("Should call connect() first."));
     }
     const signer = this._web3Provider.getSigner();
-    return ResultAsync.fromPromise(signer.signMessage(message), (e) => {}).map(
-      (signature) => Signature(signature),
-    );
+    return ResultAsync.fromPromise(signer.signMessage(message), (e) => {
+      return e as Error;
+    }).map((signature) => {
+      return Signature(signature);
+    });
   }
 
   private get sourceProvider(): ExternalProvider | null {

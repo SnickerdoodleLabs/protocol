@@ -65,6 +65,8 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     ],
   ]);
 
+  protected moralisKey: string | null = null;
+
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -77,10 +79,11 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     return this.configProvider.getConfig().map((config) => {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
-          if (config.apiKeys.moralisApiKey == "") {
+          if (config.apiKeys.moralisApiKey == null) {
             this.health.set(key, EComponentStatus.NoKeyProvided);
           } else {
             this.health.set(key, EComponentStatus.Available);
+            this.moralisKey = config.apiKeys.moralisApiKey;
           }
         },
       );
@@ -95,11 +98,22 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AjaxError | AccountIndexingError> {
-    return ResultUtils.combine([
-      this.generateQueryConfig(chain, accountAddress, "erc20"),
-      this.generateQueryConfig(chain, accountAddress, "balance"),
-      this.contextProvider.getContext(),
-    ]).andThen(([tokenRequest, balanceRequest, context]) => {
+    if (this.moralisKey == null) {
+      return okAsync([]);
+    }
+    const tokenRequest = this.generateQueryConfig(
+      chain,
+      accountAddress,
+      "erc20",
+      this.moralisKey,
+    );
+    const balanceRequest = this.generateQueryConfig(
+      chain,
+      accountAddress,
+      "balance",
+      this.moralisKey,
+    );
+    return this.contextProvider.getContext().andThen((context) => {
       context.privateEvents.onApiAccessed.next(EExternalApi.Moralis);
       context.privateEvents.onApiAccessed.next(EExternalApi.Moralis);
       return ResultUtils.combine([
@@ -146,11 +160,18 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
-    return ResultUtils.combine([
-      this.generateQueryConfig(chain, accountAddress, "nft"),
-      this.contextProvider.getContext(),
-    ])
-      .andThen(([requestConfig, context]) => {
+    if (this.moralisKey == null) {
+      return okAsync([]);
+    }
+    const requestConfig = this.generateQueryConfig(
+      chain,
+      accountAddress,
+      "nft",
+      this.moralisKey,
+    );
+    return this.contextProvider
+      .getContext()
+      .andThen((context) => {
         context.privateEvents.onApiAccessed.next(EExternalApi.Moralis);
         return this.ajaxUtils.get<IMoralisNFTResponse>(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -196,6 +217,10 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     accountAddress: EVMAccountAddress,
     response: IMoralisNFTResponse,
   ): ResultAsync<EVMNFT[], AjaxError> {
+    if (this.moralisKey == null) {
+      return okAsync([]);
+    }
+
     const items: EVMNFT[] = response.result.map((token) => {
       return new EVMNFT(
         EVMContractAddress(token.token_address),
@@ -216,10 +241,15 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
       return okAsync(items);
     }
 
-    return ResultUtils.combine([
-      this.generateQueryConfig(chain, accountAddress, "nft", response.cursor),
-      this.contextProvider.getContext(),
-    ]).andThen(([requestConfig, context]) => {
+    const requestConfig = this.generateQueryConfig(
+      chain,
+      accountAddress,
+      "nft",
+      this.moralisKey,
+      response.cursor,
+    );
+
+    return this.contextProvider.getContext().andThen((context) => {
       context.privateEvents.onApiAccessed.next(EExternalApi.Moralis);
       return (
         this.ajaxUtils
@@ -240,9 +270,10 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     chain: EChain,
     accountAddress: EVMAccountAddress,
     endpoint: string,
+    moralisApiKey: string,
     cursor?: string,
     contracts?: EVMContractAddress[],
-  ): ResultAsync<IRequestConfig, never> {
+  ): IRequestConfig {
     const params = {
       format: "decimal",
       chain: `0x${chain.toString(16)}`,
@@ -259,17 +290,15 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
       ["api", "v2", accountAddress.toString(), endpoint],
       params,
     );
-    return this.configProvider.getConfig().map((config) => {
-      const result: IRequestConfig = {
-        method: "get",
-        url: url,
-        headers: {
-          accept: "application/json",
-          "X-API-Key": config.apiKeys.moralisApiKey,
-        },
-      };
-      return result;
-    });
+    const result: IRequestConfig = {
+      method: "get",
+      url: url,
+      headers: {
+        accept: "application/json",
+        "X-API-Key": moralisApiKey,
+      },
+    };
+    return result;
   }
 }
 

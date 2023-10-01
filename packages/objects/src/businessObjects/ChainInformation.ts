@@ -1,9 +1,4 @@
-import {
-  EChain,
-  EChainTechnology,
-  EIndexer,
-  EChainType,
-} from "@objects/enum/index.js";
+import { EChain, EChainTechnology, EChainType } from "@objects/enum/index.js";
 import {
   ChainId,
   EVMContractAddress,
@@ -53,7 +48,6 @@ export class ControlChainInformation extends ChainInformation {
     public consentFactoryContractAddress: EVMContractAddress,
     public crumbsContractAddress: EVMContractAddress,
     public metatransactionForwarderAddress: EVMContractAddress,
-    public siftContractAddress: EVMContractAddress,
     public etherscanEndpointURL?: URLString,
     public coinGeckoSlug?: CoinGeckoAssetPlatformID,
   ) {

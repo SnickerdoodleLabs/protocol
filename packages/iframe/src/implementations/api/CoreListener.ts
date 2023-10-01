@@ -1,4 +1,8 @@
 import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
+import {
   ILogUtils,
   ILogUtilsType,
   ITimeUtils,
@@ -31,16 +35,17 @@ import {
   OAuthVerifier,
   PagingRequest,
   Signature,
-  SiteVisit,
   TokenAddress,
   TokenId,
   TwitterID,
-  URLString,
   UnixTimestamp,
   ECloudStorageType,
-  AccessToken,
   BlockNumber,
   RefreshToken,
+  URLString,
+  EInvitationStatus,
+  PageInvitation,
+  IWebIntegrationConfigOverrides,
 } from "@snickerdoodlelabs/objects";
 import {
   IIFrameCallData,
@@ -49,32 +54,41 @@ import {
   IStorageUtils,
 } from "@snickerdoodlelabs/utils";
 import { injectable, inject } from "inversify";
-import { okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
+import { ResultAsync, okAsync } from "neverthrow";
 import Postmate from "postmate";
 import { parse } from "tldts";
 
 import { ICoreListener } from "@core-iframe/interfaces/api/index";
+import { EInvitationSourceType } from "@core-iframe/interfaces/objects";
 import {
   IAccountService,
   IAccountServiceType,
+  IInvitationService,
+  IInvitationServiceType,
 } from "@core-iframe/interfaces/business/index";
 import {
   IConfigProvider,
   IConfigProviderType,
   ICoreProvider,
   ICoreProviderType,
+  IIFrameContextProvider,
+  IIFrameContextProviderType,
 } from "@core-iframe/interfaces/utilities/index";
+import { ResultUtils } from "neverthrow-result-utils";
 @injectable()
 export class CoreListener extends ChildProxy implements ICoreListener {
   constructor(
     @inject(IAccountServiceType) protected accountService: IAccountService,
+    @inject(IInvitationServiceType)
+    protected invitationService: IInvitationService,
     @inject(IStorageUtilsType) protected storageUtils: IStorageUtils,
     @inject(ICoreProviderType) protected coreProvider: ICoreProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
+    @inject(IIFrameContextProviderType)
+    protected contextProvider: IIFrameContextProvider,
   ) {
     super();
   }
@@ -88,9 +102,13 @@ export class CoreListener extends ChildProxy implements ICoreListener {
        * pass over the config data.
        * @param data
        */
-      setConfig: (data: IIFrameCallData<IConfigOverrides>) => {
+      setConfig: (data: IIFrameCallData<IWebIntegrationConfigOverrides>) => {
         this.returnForModel(() => {
-          return this.coreProvider.setConfig(data.data);
+          return this.contextProvider
+            .setConfigOverrides(data.data)
+            .andThen(() => {
+              return this.coreProvider.setConfig(data.data);
+            });
         }, data.callId);
       },
       addAccount: (
@@ -108,6 +126,54 @@ export class CoreListener extends ChildProxy implements ICoreListener {
               data.data.accountAddress,
               data.data.signature,
               data.data.languageCode,
+              data.data.chain,
+              this.sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
+      addAccountWithExternalSignature: (
+        data: IIFrameCallData<{
+          accountAddress: AccountAddress;
+          message: string;
+          signature: Signature;
+          chain: EChain;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            // We need to get a signature for this account
+            return core.account.addAccountWithExternalSignature(
+              data.data.accountAddress,
+              data.data.message,
+              data.data.signature,
+              data.data.chain,
+              this.sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
+      addAccountWithExternalTypedDataSignature: (
+        data: IIFrameCallData<{
+          accountAddress: AccountAddress;
+          domain: TypedDataDomain;
+          types: Record<string, Array<TypedDataField>>;
+          value: Record<string, unknown>;
+          signature: Signature;
+          chain: EChain;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            // We need to get a signature for this account
+            return core.account.addAccountWithExternalTypedDataSignature(
+              data.data.accountAddress,
+              data.data.domain,
+              data.data.types,
+              data.data.value,
+              data.data.signature,
               data.data.chain,
               this.sourceDomain,
             );
@@ -264,7 +330,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
             // TODO- make this provide the source domain after
             // we have an interface to grant permissions
             // return core.getAccounts(this.sourceDomain);
-            return core.getAccounts();
+            return core.account.getAccounts(this.sourceDomain);
           });
         }, data.callId);
       },
@@ -428,26 +494,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       //   }, data.callId);
       // },
 
-      // getScamFilterSettings: (
-      //   data: IIFrameCallData<Record<string, never>>,
-      // ) => {
-      //   this.returnForModel(() => {
-      //     return core.get(
-      //       sourceDomain,
-      //     );
-      //   }, data.callId);
-      // },
-
-      // setScamFilterSettings: (
-      //   data: IIFrameCallData<Record<string, never>>,
-      // ) => {
-      //   this.returnForModel(() => {
-      //     return core.get(
-      //       sourceDomain,
-      //     );
-      //   }, data.callId);
-      // },
-
       // setDefaultPermissionsToAll: (
       //   data: IIFrameCallData<Record<string, never>>,
       // ) => {
@@ -465,31 +511,10 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }>,
       ) => {
         this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.invitation
-              .getInvitationsByDomain(data.data.domain)
-              .andThen((pageInvitations) => {
-                const pageInvitation = pageInvitations.find((value) => {
-                  const incomingUrl = value.url.replace(/^https?:\/\//, "");
-                  const incomingUrlInfo = parse(incomingUrl);
-                  if (
-                    !incomingUrlInfo.subdomain &&
-                    parse(data.data.path).subdomain
-                  ) {
-                    return (
-                      `${"www"}.${incomingUrl.replace(/\/$/, "")}` ===
-                      data.data.path
-                    );
-                  }
-                  return incomingUrl.replace(/\/$/, "") === data.data.path;
-                });
-                if (pageInvitation) {
-                  return okAsync(pageInvitation);
-                } else {
-                  return okAsync(null);
-                }
-              });
-          });
+          return this.invitationService.getInvitationByDomain(
+            data.data.domain,
+            data.data.path,
+          );
         }, data.callId);
       },
 
@@ -506,9 +531,9 @@ export class CoreListener extends ChildProxy implements ICoreListener {
             return this.coreProvider.getCore().andThen((core) => {
               return core.invitation.acceptInvitation(
                 new Invitation(
-                  "" as DomainName,
                   data.data.consentContractAddress,
                   tokenId,
+                  null,
                   data.data.businessSignature ?? null,
                 ),
                 data.data.dataTypes
@@ -534,9 +559,9 @@ export class CoreListener extends ChildProxy implements ICoreListener {
             return this.coreProvider.getCore().andThen((core) => {
               return core.invitation.rejectInvitation(
                 new Invitation(
-                  "" as DomainName,
                   data.data.consentContractAddress,
                   tokenId,
+                  null,
                   data.data.businessSignature ?? null,
                 ),
                 data.data.rejectUntil,
@@ -590,11 +615,11 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.coreProvider.getCore().andThen((core) => {
             return core.invitation.checkInvitationStatus(
               new Invitation(
-                DomainName(""),
                 data.data.consentAddress,
                 data.data.tokenId != null
                   ? TokenId(BigInt(data.data.tokenId))
                   : TokenId(BigInt(0)),
+                DomainName(""),
                 data.data.signature ?? null,
               ),
               this.sourceDomain,
@@ -758,13 +783,16 @@ export class CoreListener extends ChildProxy implements ICoreListener {
 
       getQueryStatuses: (
         data: IIFrameCallData<{
-          contractAddress: EVMContractAddress,
-          blockNumber?: BlockNumber,
+          contractAddress: EVMContractAddress;
+          blockNumber?: BlockNumber;
         }>,
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.getQueryStatuses(data.data.contractAddress , data.data.blockNumber);
+            return core.getQueryStatuses(
+              data.data.contractAddress,
+              data.data.blockNumber,
+            );
           });
         }, data.callId);
       },
@@ -981,7 +1009,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      "storage.getDropboxAuth": (data: IIFrameCallData<{}>) => {
+      "storage.getDropboxAuth": (data: IIFrameCallData<object>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
             return core.storage.getDropboxAuth(this.sourceDomain);
@@ -989,11 +1017,18 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      "storage.getCurrentCloudStorage": (data: IIFrameCallData<{}>) => {
+      "storage.getCurrentCloudStorage": (data: IIFrameCallData<object>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
             return core.storage.getCurrentCloudStorage(this.sourceDomain);
           });
+        }, data.callId);
+      },
+
+      // ivitations
+      checkURLForInvitation: (data: IIFrameCallData<{ url: URLString }>) => {
+        this.returnForModel(() => {
+          return this.invitationService.handleURL(data.data.url);
         }, data.callId);
       },
     });

@@ -71,12 +71,9 @@ jobs:
           .
 
     # Push the Docker image to Google Artifact Registry
-    - name: Publish protocol
+    - name: Publish Onboarding SPA
       run: |-
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA"
-
-
-
 
 
     - name: Build Static Web Integration
@@ -93,7 +90,7 @@ jobs:
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-static-web-integration:$GITHUB_SHA"
 
 
-    - name: Build protocol Iframe
+    - name: Build Protocol Iframe
       run: |-
         JIRA_TICKET=$(echo $GITHUB_REF | grep -Eo '[A-Za-z0-9]+-[0-9]+' | awk '{print tolower($0)}')
       
@@ -106,11 +103,9 @@ jobs:
           --build-arg BASE_TAG="$GITHUB_SHA" \
           -f ./packages/iframe/Dockerfile \
           .
-    - name: Publish protocol Iframe
+    - name: Publish Protocol Iframe
       run: |-
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-iframe:$GITHUB_SHA"
-
-
 
     - name: 'Set up Cloud SDK'
       uses: 'google-github-actions/setup-gcloud@v1'
@@ -127,4 +122,5 @@ jobs:
         ./get_helm.sh
         cd infra/
         helm install --set ENV=$JIRA_TICKET -n $JIRA_TICKET  insight-platform-protocol ./insight-platform-protocol || true
-        helm upgrade -f ./insight-platform-protocol/values.yaml --reuse-values --set ProtocolIframe.Image.Tag=$GITHUB_SHA --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA  --set ProtocolStaticWebIntegration.Image.Tag=$GITHUB_SHA -n $JIRA_TICKET  insight-platform-protocol ./insight-platform-protocol 
+        helm upgrade -f ./insight-platform-protocol/values.yaml --reuse-values --set ProtocolIframe.Image.Tag=$GITHUB_SHA --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA -n $JIRA_TICKET  insight-platform-protocol ./insight-platform-protocol 
+        

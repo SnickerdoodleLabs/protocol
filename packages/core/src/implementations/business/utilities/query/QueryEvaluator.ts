@@ -148,7 +148,7 @@ export class QueryEvaluator implements IQueryEvaluator {
               query.name,
               err,
             );
-            return err ;
+            return err;
           });
       } else if (query instanceof AST_NftQuery) {
         context.publicEvents.queryPerformance.next(
@@ -182,7 +182,7 @@ export class QueryEvaluator implements IQueryEvaluator {
                 err,
               ),
             );
-            return err ;
+            return err;
           });
       } else if (query instanceof AST_PropertyQuery) {
         return this.evalPropertyQuery(query, context.publicEvents, queryCID);
@@ -274,7 +274,7 @@ export class QueryEvaluator implements IQueryEvaluator {
                 err,
               ),
             );
-            return err ;
+            return err;
           });
       case "location":
         publicEvents.queryPerformance.next(
@@ -372,7 +372,7 @@ export class QueryEvaluator implements IQueryEvaluator {
                 err,
               ),
             );
-            return err ;
+            return err;
           });
       case "gender":
         publicEvents.queryPerformance.next(
@@ -459,7 +459,7 @@ export class QueryEvaluator implements IQueryEvaluator {
                 err,
               ),
             );
-            return err ;
+            return err;
           });
       case "url_visited_count":
         publicEvents.queryPerformance.next(
@@ -480,25 +480,6 @@ export class QueryEvaluator implements IQueryEvaluator {
         );
         return this.browsingDataRepo
           .getSiteVisitsMap(q.timestampRange!)
-          .andThen((url_visited_count) => {
-            publicEvents.queryPerformance.next(
-              new QueryPerformanceEvent(
-                EQueryEvents.BrowserActivityDataAccess,
-                EStatus.End,
-                queryCID,
-                q.name,
-              ),
-            );
-            publicEvents.queryPerformance.next(
-              new QueryPerformanceEvent(
-                EQueryEvents.BrowserActivityEvaluation,
-                EStatus.End,
-                queryCID,
-                q.name,
-              ),
-            );
-            return okAsync(SDQL_Return(url_visited_count));
-          })
           .mapErr((err) => {
             publicEvents.queryPerformance.next(
               new QueryPerformanceEvent(
@@ -518,7 +499,27 @@ export class QueryEvaluator implements IQueryEvaluator {
                 err,
               ),
             );
-            return err ;
+            return err;
+          })
+
+          .map((url_visited_count) => {
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.BrowserActivityDataAccess,
+                EStatus.End,
+                queryCID,
+                q.name,
+              ),
+            );
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.BrowserActivityEvaluation,
+                EStatus.End,
+                queryCID,
+                q.name,
+              ),
+            );
+            return SDQL_Return(this.mapToRecord(url_visited_count));
           });
       case "chain_transactions":
         publicEvents.queryPerformance.next(
@@ -577,7 +578,7 @@ export class QueryEvaluator implements IQueryEvaluator {
                 err,
               ),
             );
-            return err ;
+            return err;
           });
       case "social_discord":
         publicEvents.queryPerformance.next(
@@ -635,7 +636,7 @@ export class QueryEvaluator implements IQueryEvaluator {
                 err,
               ),
             );
-            return err ;
+            return err;
           });
       case "social_twitter":
         return this.getTwitterFollowers();
@@ -685,6 +686,14 @@ export class QueryEvaluator implements IQueryEvaluator {
     throw new EvalNotImplementedError(
       `${condition.constructor.name} not implemented`,
     );
+  }
+
+  protected mapToRecord<K extends string, V>(map: Map<K, V>): Record<K, V> {
+    const obj: any = {};
+    map.forEach((value, key) => {
+      obj[key] = value;
+    });
+    return obj;
   }
 
   protected getDiscordProfiles(): ResultAsync<SDQL_Return, PersistenceError> {

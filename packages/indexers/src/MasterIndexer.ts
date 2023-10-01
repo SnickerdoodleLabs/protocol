@@ -42,6 +42,7 @@ import {
   IEVMIndexer,
   IAlchemyIndexerType,
   IAnkrIndexerType,
+  IBluezIndexerType,
   ICovalentEVMTransactionRepositoryType,
   IEtherscanIndexerType,
   IMoralisEVMPortfolioRepositoryType,
@@ -57,17 +58,16 @@ import {
 @injectable()
 export class MasterIndexer implements IMasterIndexer {
   protected evmIndexerWeights = [
+    this.bluez,
+    this.poapRepo,
     this.ankr,
     this.alchemy,
     this.etherscan,
     this.nftscan,
-    this.poapRepo,
     this.sim,
     // TODO- enable these indexers as well
     // this.moralis,
     // this.oklink,
-    // this.poapRepo,
-    // this.matic,
   ];
 
   public constructor(
@@ -77,6 +77,7 @@ export class MasterIndexer implements IMasterIndexer {
     protected indexerContext: IIndexerContextProvider,
     @inject(IAlchemyIndexerType) protected alchemy: IEVMIndexer,
     @inject(IAnkrIndexerType) protected ankr: IEVMIndexer,
+    @inject(IBluezIndexerType) protected bluez: IEVMIndexer,
     @inject(ICovalentEVMTransactionRepositoryType)
     protected covalent: IEVMIndexer,
     @inject(IEtherscanIndexerType) protected etherscan: IEVMIndexer,
@@ -96,6 +97,7 @@ export class MasterIndexer implements IMasterIndexer {
     return ResultUtils.combine([
       this.alchemy.initialize(),
       this.ankr.initialize(),
+      this.bluez.initialize(),
       this.covalent.initialize(),
       this.etherscan.initialize(),
       this.matic.initialize(),
@@ -125,6 +127,7 @@ export class MasterIndexer implements IMasterIndexer {
       // if the method is provided, we need to limit the list of supported chains to those that support the method
       if (method != null) {
         const indexers = [
+          this.bluez,
           this.alchemy,
           this.ankr,
           this.covalent,
@@ -165,6 +168,7 @@ export class MasterIndexer implements IMasterIndexer {
                   ), // OR together, if any support is true it's true
               );
             });
+
             return acc;
           }, new Map<EChain, boolean>());
       }
@@ -275,7 +279,6 @@ export class MasterIndexer implements IMasterIndexer {
     }
 
     const indexers = this.getPreferredEVMIndexers(chain, EIndexerMethod.NFTs);
-
     // If there are no indexers, just return an empty array
     if (indexers.length == 0) {
       return okAsync([]);
@@ -405,6 +408,7 @@ export class MasterIndexer implements IMasterIndexer {
 
       // Get the health status
       const status = indexer.healthStatus().get(chain);
+
       if (status == null) {
         continue;
       }

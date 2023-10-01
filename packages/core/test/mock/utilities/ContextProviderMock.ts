@@ -14,6 +14,7 @@ import {
   LinkedAccount,
   PublicEvents,
   QueryPerformanceEvent,
+  QueryStatus,
   SDQLQueryRequest,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
@@ -34,6 +35,7 @@ export class ContextProviderMock implements IContextProvider {
 
   public onInitializedActivations: DataWalletAddress[] = [];
   public onQueryPostedActivations: SDQLQueryRequest[] = [];
+  public onQueryStatusUpdatedActivations: QueryStatus[] = [];
   public onQueryParametersRequiredActivations: IpfsCID[] = [];
   public onAccountAddedActivations: LinkedAccount[] = [];
   public onPasswordAddedActivations: void[] = [];
@@ -44,6 +46,7 @@ export class ContextProviderMock implements IContextProvider {
   public heartbeatActivations: void[] = [];
   public onApiAccessedActivations: EExternalApi[] = [];
   public onQueryPerformanceActivations: QueryPerformanceEvent[] = [];
+  public postBackupsRequestedActivations: void[] = [];
   public onBackupCreatedActivations: BackupCreatedEvent[] = [];
   public onBackupRestoredActivations: BackupRestoreEvent[] = [];
   public onBirthdayUpdatedActivations: UnixTimestamp[] = [];
@@ -90,6 +93,10 @@ export class ContextProviderMock implements IContextProvider {
 
     this.publicEvents.onQueryPosted.subscribe((val) => {
       this.onQueryPostedActivations.push(val);
+    });
+
+    this.publicEvents.onQueryStatusUpdated.subscribe((val) => {
+      this.onQueryStatusUpdatedActivations.push(val);
     });
 
     this.publicEvents.onQueryParametersRequired.subscribe((val) => {
@@ -147,6 +154,9 @@ export class ContextProviderMock implements IContextProvider {
     this.publicEvents.queryPerformance.subscribe((val) => {
       this.onQueryPerformanceActivations.push(val)
     })
+    this.privateEvents.postBackupsRequested.subscribe((val) => {
+      this.postBackupsRequestedActivations.push(val);
+    });
   }
 
   public getContext(): ResultAsync<CoreContext, never> {
@@ -163,6 +173,7 @@ export class ContextProviderMock implements IContextProvider {
     const counts: IExpectedEventCounts = {
       onInitialized: 0,
       onQueryPosted: 0,
+      onQueryStatusUpdated: 0,
       onQueryParametersRequired: 0,
       onAccountAdded: 0,
       onPasswordAdded: 0,
@@ -177,6 +188,7 @@ export class ContextProviderMock implements IContextProvider {
       onGenderUpdated: 0,
       onLocationUpdated: 0,
       onQueryPerformanceActivations : 0,
+      postBackupsRequested: 0,
     };
 
     // Merge the passed in counts with the basic counts
@@ -184,6 +196,9 @@ export class ContextProviderMock implements IContextProvider {
 
     expect(this.onInitializedActivations.length).toBe(counts.onInitialized);
     expect(this.onQueryPostedActivations.length).toBe(counts.onQueryPosted);
+    expect(this.onQueryStatusUpdatedActivations.length).toBe(
+      counts.onQueryStatusUpdated,
+    );
     expect(this.onQueryParametersRequiredActivations.length).toBe(
       counts.onQueryParametersRequired,
     );
@@ -217,6 +232,7 @@ export class ContextProviderMock implements IContextProvider {
 export interface IExpectedEventCounts {
   onInitialized?: number;
   onQueryPosted?: number;
+  onQueryStatusUpdated?: number;
   onQueryParametersRequired?: number;
   onAccountAdded?: number;
   onPasswordAdded?: number;
@@ -231,4 +247,5 @@ export interface IExpectedEventCounts {
   onGenderUpdated?: number;
   onLocationUpdated?: number;
   onQueryPerformanceActivations ? : number;
+  postBackupsRequested?: number;
 }

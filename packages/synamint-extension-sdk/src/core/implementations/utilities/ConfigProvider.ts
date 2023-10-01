@@ -70,6 +70,10 @@ export class ConfigProvider implements IConfigProvider {
       configOverrides.apiKeys.oklinkApiKey ?? this.config.oklinkApiKey;
     this.config.ankrApiKey =
       configOverrides.apiKeys.ankrApiKey ?? this.config.ankrApiKey;
+
+    this.config.bluezApiKey =
+      configOverrides.apiKeys.bluezApiKey ?? this.config.bluezApiKey;
+
     this.config.dnsServerAddress =
       configOverrides.dnsServerAddress ?? this.config.dnsServerAddress;
     this.config.requestForDataCheckingFrequency =

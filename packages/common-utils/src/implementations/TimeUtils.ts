@@ -16,6 +16,11 @@ export class TimeUtils implements ITimeUtils {
   public getUnixNow(): UnixTimestamp {
     return UnixTimestamp(Math.floor(Date.now() / 1000));
   }
+
+  public getMillisecondNow(): MillisecondTimestamp {
+    return MillisecondTimestamp(Date.now());
+  }
+
   public getISO8601TimeString(
     time = MillisecondTimestamp(Date.now()),
   ): ISO8601DateString {

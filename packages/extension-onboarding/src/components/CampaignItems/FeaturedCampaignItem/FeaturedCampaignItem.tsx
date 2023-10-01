@@ -11,6 +11,7 @@ import LinearProgress from "@extension-onboarding/components/LinearProgress";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { useAppContext } from "@extension-onboarding/context/App";
 import useCampaignLogic from "@extension-onboarding/hooks/useCampaignLogic";
+import Description from "@extension-onboarding/components/Description";
 
 interface IFeaturedCampaignItemProps {
   consentContractAddress: EVMContractAddress;
@@ -93,13 +94,15 @@ const FeaturedCampaignItem: FC<IFeaturedCampaignItemProps> = ({
             )}
           </Typography>
           <Box mt={2} mb={2} height={42}>
-            <Typography className={classes.description}>
-              {isLoading ? (
-                <Skeleton animation="wave" height={42} />
-              ) : (
-                campaignInfo?.description
-              )}
-            </Typography>
+            {!isLoading ? (
+              <Description
+                maxHeight={42}
+                className={classes.description}
+                description={campaignInfo?.description || ""}
+              />
+            ) : (
+              <Skeleton animation="wave" height={42} />
+            )}
           </Box>
           {!isSubscribed ? (
             <Box mb={1.5}>

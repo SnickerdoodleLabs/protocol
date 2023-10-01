@@ -1,3 +1,4 @@
+import { ERequestChannel } from "@synamint-extension-sdk/shared";
 import {
   JsonRpcRequest,
   PendingJsonRpcResponse,
@@ -11,6 +12,7 @@ export interface IRpcCallHandler {
     res: PendingJsonRpcResponse<unknown>,
     next: AsyncJsonRpcEngineNextCallback,
     sender: Runtime.MessageSender | undefined,
+    requestChannel: ERequestChannel,
   ): void;
 }
 

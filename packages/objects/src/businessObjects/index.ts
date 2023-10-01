@@ -42,6 +42,8 @@ export * from "@objects/businessObjects/RuntimeMetrics.js";
 export * from "@objects/businessObjects/SDQLQuery.js";
 export * from "@objects/businessObjects/SDQLQueryRequest.js";
 export * from "@objects/businessObjects/SerializedObject.js";
+export * from "@objects/businessObjects/SiteVisitsData.js";
+export * from "@objects/businessObjects/SiteVisitsMap.js";
 export * from "@objects/businessObjects/SolanaNFT.js";
 export * from "@objects/businessObjects/StatSummary.js";
 export * from "@objects/businessObjects/TokenAddress.js";

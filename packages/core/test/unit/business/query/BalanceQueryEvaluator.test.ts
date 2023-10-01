@@ -3,19 +3,17 @@ import "reflect-metadata";
 import {
   TokenBalance,
   ChainId,
-  EVMAccountAddress,
-  EVMContractAddress,
   Gender,
   SDQL_Name,
   SDQL_OperatorName,
   URLString,
-  TickerSymbol,
-  BigNumberString,
-  EChainTechnology,
   ESDQLQueryReturn,
   Age,
-  PublicEvents,
   IpfsCID,
+  SiteVisitsMap,
+  UnixTimestamp,
+  SiteVisitsData,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -58,10 +56,18 @@ class BalanceQueryEvaluatorMocks {
   public browsingRepo = td.object<IBrowsingDataRepository>();
   public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
   public contextProvider: ContextProviderMock;
-  public URLmap = new Map<URLString, number>([
-    [URLString("www.snickerdoodlelabs.io"), 10],
-  ]);
 
+  public URLmap: SiteVisitsMap = new Map<URLString, SiteVisitsData>([
+    [
+      URLString("www.snickerdoodlelabs.io"),
+      new SiteVisitsData(
+         10,
+         3,
+         UnixTimestamp(12),
+         ISO8601DateString("2022-09-15T18:45:30.123Z"),
+      ),
+    ],
+  ]);
   public constructor() {
     this.contextProvider = new ContextProviderMock();
     td.when(this.demoRepo.getAge()).thenReturn(okAsync(Age(25)));

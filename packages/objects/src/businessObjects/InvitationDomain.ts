@@ -1,6 +1,7 @@
+import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { DomainName, URLString } from "@objects/primitives/index.js";
 
-export class InvitationDomain {
+export class InvitationDomain implements IOpenSeaMetadata {
   public constructor(
     public domain: DomainName,
     public title: string,

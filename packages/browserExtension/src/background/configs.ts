@@ -38,6 +38,7 @@ declare const __NFTSCAN_API_KEY__: string;
 declare const __POAP_API_KEY__: string;
 declare const __OKLINK_API_KEY__: string;
 declare const __ANKR_API_KEY__: string;
+declare const __BLUEZ_API_KEY__: string;
 declare const __PRIMARY_INFURA_KEY__: string;
 declare const __SECONDARY_INFURA_KEY__: string;
 
@@ -276,6 +277,11 @@ export const configs: IExtensionConfigOverrides = {
       typeof __ANKR_API_KEY__ !== "undefined" && !!__ANKR_API_KEY__
         ? __ANKR_API_KEY__
         : undefined,
+    bluezApiKey:
+      typeof __BLUEZ_API_KEY__ !== "undefined" && !!__BLUEZ_API_KEY__
+        ? __BLUEZ_API_KEY__
+        : undefined,
+
     primaryInfuraKey:
       typeof __PRIMARY_INFURA_KEY__ !== "undefined" && !!__PRIMARY_INFURA_KEY__
         ? __PRIMARY_INFURA_KEY__

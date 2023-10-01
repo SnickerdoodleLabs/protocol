@@ -28,6 +28,10 @@ import {
   Version,
   EVMAccountAddress,
   EVMChainCode,
+  SiteVisit,
+  SiteVisitsMap,
+  SiteVisitsData,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_ConditionExpr,
@@ -69,9 +73,9 @@ export const consentContractAddress2 = EVMContractAddress(
 
 export const queryCID = IpfsCID("queryCID");
 
-export const qureyString = SDQLString("qurey");
+export const queryString = SDQLString("queryString");
 
-export const SDQuery = new SDQLQuery(queryCID, qureyString);
+export const SDQuery = new SDQLQuery(queryCID, queryString);
 
 // #region for config provider mock
 
@@ -131,33 +135,36 @@ export const testCoreConfig = new CoreConfig(
   100000, // backupChunkSizeTarget
   {
     alchemyApiKeys: {
-      Arbitrum: "",
-      Astar: "",
-      Mumbai: "",
-      Optimism: "",
-      Polygon: "",
-      Solana: "",
-      SolanaTestnet: "",
+      Arbitrum: null,
+      Astar: null,
+      Mumbai: null,
+      Optimism: null,
+      Polygon: null,
+      Solana: null,
+      SolanaTestnet: null,
     },
     etherscanApiKeys: {
-      Ethereum: "",
-      Polygon: "",
-      Avalanche: "",
-      Binance: "",
-      Moonbeam: "",
-      Optimism: "",
-      Arbitrum: "",
-      Gnosis: "",
-      Fuji: "",
+      Ethereum: null,
+      Polygon: null,
+      Avalanche: null,
+      Binance: null,
+      Moonbeam: null,
+      Optimism: null,
+      Arbitrum: null,
+      Gnosis: null,
+      Fuji: null,
     },
     covalentApiKey: "covalent api key",
     moralisApiKey: "moralis api key",
     nftScanApiKey: "nftScan api key",
     poapApiKey: "poap api key",
     oklinkApiKey: "oklink api key",
-    primaryInfuraKey: "",
     ankrApiKey: "ankr api key",
+    bluezApiKey: "bluez api key",
+    primaryInfuraKey: "primary infura key",
+    primaryRPCProviderURL: ProviderUrl("Primary RPC Provider URL"),
     secondaryInfuraKey: "",
+    secondaryRPCProviderURL: ProviderUrl("Secondary RPC Provider URL"),
   },
   URLString("http://dnsServerAddress"),
   ECurrencyCode.USD,
@@ -165,13 +172,13 @@ export const testCoreConfig = new CoreConfig(
   5000,
   new Map<EChain, URLString>([
     // alchemy endpoints
-    [EChain.Solana, URLString("")],
-    [EChain.SolanaTestnet, URLString("")],
-    [EChain.Polygon, URLString("")],
-    [EChain.Mumbai, URLString("")],
-    [EChain.Arbitrum, URLString("")],
-    [EChain.Optimism, URLString("")],
-    [EChain.Astar, URLString("")],
+    [EChain.Solana, URLString("AlchemySolanaEndpoint")],
+    [EChain.SolanaTestnet, URLString("AlchemySolanaTestnetEndpoint")],
+    [EChain.Polygon, URLString("AlchemyPolygonEndpoint")],
+    [EChain.Mumbai, URLString("AlchemyMumbaiEndpoint")],
+    [EChain.Arbitrum, URLString("AlchemyArbitrumEndpoint")],
+    [EChain.Optimism, URLString("AlchemyOptimismEndpoint")],
+    [EChain.Astar, URLString("AlchemyAstroEndpoint")],
   ]),
   10000,
   "(localhost|chrome://)",
@@ -427,5 +434,48 @@ export const avalanche1AstInstance = new AST(
   compensationParameters,
   compensationsMap,
 );
+
+export const siteVisits: SiteVisit[] = [
+  new SiteVisit(
+    URLString("http://google.com"),
+    UnixTimestamp(100),
+    UnixTimestamp(Math.floor((new Date("1970-01-01T00:10:00.000Z")).getTime() / 1000)),
+  ),
+  new SiteVisit(
+    URLString("http://google.com"),
+    UnixTimestamp(100),
+    UnixTimestamp(Math.floor((new Date("1970-01-01T00:10:00.000Z")).getTime() / 1000)),
+  ),
+  new SiteVisit(
+    URLString("http://google.com"),
+    UnixTimestamp(100),
+    UnixTimestamp(Math.floor((new Date("1970-01-01T00:10:00.000Z")).getTime() / 1000)),
+  ),
+  new SiteVisit(
+    URLString("http://gog.com"),
+    UnixTimestamp(200),
+    UnixTimestamp(Math.floor((new Date("1970-01-01T00:10:00.000Z")).getTime() / 1000)),
+  ),
+  new SiteVisit(
+    URLString("http://discord.com"),
+    UnixTimestamp(300),
+    UnixTimestamp(Math.floor((new Date("1970-01-01T00:10:00.000Z")).getTime() / 1000)),
+  ),
+];
+
+export const siteVisitsMap: SiteVisitsMap = new Map([
+  [
+    URLString("google.com"),
+    new SiteVisitsData(3, 500, UnixTimestamp(1500), ISO8601DateString("1970-01-01T00:10:00.000Z")),
+  ],
+  [
+    URLString("gog.com"),
+    new SiteVisitsData(1, 400, UnixTimestamp(400), ISO8601DateString("1970-01-01T00:10:00.000Z")),
+  ],
+  [
+    URLString("discord.com"),
+    new SiteVisitsData(1, 300, UnixTimestamp(300), ISO8601DateString("1970-01-01T00:10:00.000Z")),
+  ],
+]);
 
 // #endregion

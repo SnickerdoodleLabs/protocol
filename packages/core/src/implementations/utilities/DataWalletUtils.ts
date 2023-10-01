@@ -1,3 +1,7 @@
+import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
 import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   EVMPrivateKey,
@@ -18,7 +22,7 @@ import {
 import { ethers } from "ethers";
 import { base58 } from "ethers/lib/utils.js";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import {
@@ -69,7 +73,6 @@ export class DataWalletUtils implements IDataWalletUtils {
       .andThen((hashedPassword2) => {
         const buffer = Buffer.from(hashedPassword2, "base64");
         const salt = HexString(buffer.toString("hex"));
-        console.log(salt);
         return this.cryptoUtils.deriveAESKeyFromString(password, salt);
       });
   }
@@ -114,7 +117,6 @@ export class DataWalletUtils implements IDataWalletUtils {
       .andThen((hashedPassword2) => {
         const buffer = Buffer.from(hashedPassword2, "base64");
         const salt = HexString(buffer.toString("hex"));
-        console.log(salt);
         return this.cryptoUtils.deriveEVMPrivateKeyFromString(password, salt);
       })
       .map((derivedEVMKey) => {
@@ -157,6 +159,39 @@ export class DataWalletUtils implements IDataWalletUtils {
         signature,
         accountAddress as SolanaAccountAddress,
       );
+    }
+
+    // No match for the chain technology!
+    throw new Error(`Unknown chainTechnology ${chainInfo.chainTechnology}`);
+  }
+
+  public verifyTypedDataSignature(
+    accountAddress: AccountAddress,
+    domain: TypedDataDomain,
+    types: Record<string, Array<TypedDataField>>,
+    value: Record<string, unknown>,
+    signature: Signature,
+    chain: EChain,
+  ): ResultAsync<boolean, never> {
+    const chainInfo = chainConfig.get(ChainId(chain));
+
+    if (chainInfo == null) {
+      throw new Error();
+    }
+
+    // The signature has to be verified based on the chain technology
+    if (chainInfo.chainTechnology == EChainTechnology.EVM) {
+      return this.cryptoUtils
+        .verifyTypedData(domain, types, value, signature)
+        .map((verifiedAccountAddress) => {
+          return (
+            verifiedAccountAddress.toLowerCase() == accountAddress.toLowerCase()
+          );
+        });
+    }
+    if (chainInfo.chainTechnology == EChainTechnology.Solana) {
+      // There is no equivalent to typed data in Solana
+      return okAsync(false);
     }
 
     // No match for the chain technology!

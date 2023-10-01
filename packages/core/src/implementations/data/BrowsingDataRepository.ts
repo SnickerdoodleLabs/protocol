@@ -7,9 +7,12 @@ import {
   ERecordKey,
   ISDQLTimestampRange,
   UnixTimestamp,
+  SiteVisitsMap,
+  SiteVisitsData,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync, okAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { parse } from "tldts";
 
@@ -42,33 +45,6 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
     return this.persistence.getAll(ERecordKey.SITE_VISITS);
   }
 
-  // return a map of URLs
-  public getSiteVisitsMap(
-    timestampRange?: ISDQLTimestampRange,
-  ): ResultAsync<Map<URLString, number>, PersistenceError> {
-    return this.getSiteVisits().andThen((siteVisits) => {
-      const result = new Map<URLString, number>();
-      siteVisits.forEach((siteVisit, _i, _arr) => {
-        if (
-          timestampRange &&
-          this.timestampBetweenDates(
-            siteVisit.startTime,
-            siteVisit.endTime,
-            timestampRange,
-          )
-        ) {
-          return;
-        }
-        const baseUrl = DomainName(
-          siteVisit.domain ? siteVisit.domain : siteVisit.url,
-        );
-        baseUrl in result || (result[baseUrl] = 0);
-        result[baseUrl] += 1;
-      });
-      return okAsync(result);
-    });
-  }
-
   public addClick(click: ClickData): ResultAsync<void, PersistenceError> {
     return this.persistence.updateRecord(ERecordKey.CLICKS, click);
   }
@@ -77,28 +53,72 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
     return this.persistence.getAll<ClickData>(ERecordKey.CLICKS);
   }
 
-  protected timestampBetweenDates(
-    startTime: UnixTimestamp,
-    endTime: UnixTimestamp,
+  public getSiteVisitsMap(
+    timestampRange?: ISDQLTimestampRange,
+  ): ResultAsync<SiteVisitsMap, PersistenceError> {
+    return this.getSiteVisits().map((siteVisits) => {
+      const filteredVisits = timestampRange
+        ? this.filterSiteVisists(siteVisits, timestampRange)
+        : siteVisits;
+      const visitsMap =
+        this.mapSiteVisitData(filteredVisits);
+
+      return visitsMap;
+    });
+  }
+
+  protected filterSiteVisists(
+    siteVisits: SiteVisit[],
     timestampRange: ISDQLTimestampRange,
-  ): boolean {
-    const start = timestampRange.start;
-    const end = timestampRange.end;
+  ): SiteVisit[] {
+    const { start, end } = timestampRange;
+    return siteVisits.filter((visit) => {
+      return visit.startTime >= start && visit.endTime <= end;
+    });
+  }
 
-    if (start !== "*") {
-      const startTimeStamp = UnixTimestamp(Number(start));
-      if (startTimeStamp > startTime) {
-        return true;
+  protected mapSiteVisitData(
+    siteVisits: SiteVisit[],
+  ): SiteVisitsMap {
+    const visitsMap = new Map<URLString | DomainName, SiteVisitsData>();
+    siteVisits.forEach((visit) => {
+      const siteName = visit.domain || visit.url;
+      const screenTime = visit.endTime - visit.startTime;
+      const siteVisitData = visitsMap.get(siteName);
+
+      if (siteVisitData) {
+        siteVisitData.numberOfVisits += 1;
+        siteVisitData.totalScreenTime = UnixTimestamp(
+          siteVisitData.totalScreenTime + screenTime,
+        );
+        if (this.convertTimestampToISOString(visit.endTime) > siteVisitData.lastReportedTime) {
+          siteVisitData.lastReportedTime = this.convertTimestampToISOString(visit.endTime);
+        }
+      } else {
+        visitsMap.set(
+          siteName,
+          new SiteVisitsData(
+            1,
+            screenTime, //Will be average later
+            UnixTimestamp(screenTime),
+            this.convertTimestampToISOString(visit.endTime),
+          ),
+        );
       }
-    }
+    });
+    this.calculateAverageScreenTime(visitsMap);
+    return visitsMap;
+  }
 
-    if (end !== "*") {
-      const endTimeStamp = UnixTimestamp(Number(end));
-      if (endTimeStamp < endTime) {
-        return true;
-      }
-    }
+  protected convertTimestampToISOString(unixTimestamp: UnixTimestamp): ISO8601DateString {
+    const date = new Date(unixTimestamp * 1000);  
+    return ISO8601DateString(date.toISOString());
+  }
 
-    return false;
+  protected calculateAverageScreenTime(visitsMap: SiteVisitsMap): void {
+    for (const [_, siteVisitData] of visitsMap) {
+      siteVisitData.averageScreenTime =
+        siteVisitData.totalScreenTime / siteVisitData.numberOfVisits;
+    }
   }
 }

@@ -1,26 +1,24 @@
 import "reflect-metadata";
 import {
-  EInvitationStatus,
-  EVMContractAddress,
-  IConfigOverrides,
+  IWebIntegrationConfigOverrides,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { SnickerdoodleWebIntegration } from "@snickerdoodlelabs/web-integration";
-import { WalletProvider } from "@static-web-integration/WalletProvider";
-import { Result, ResultAsync, errAsync, okAsync } from "neverthrow";
-import { WCProvider } from "@static-web-integration/WCProvider";
 import { Signer } from "ethers";
+import { ResultAsync, okAsync } from "neverthrow";
+
+import { WalletProvider } from "@static-web-integration/WalletProvider";
+import { WCProvider } from "@static-web-integration/WCProvider";
 
 declare const __LOGO_PATH__: URLString;
 
 export function integrateSnickerdoodle(
-  coreConfig: IConfigOverrides,
-  consentContract?: EVMContractAddress,
+  coreConfig: IWebIntegrationConfigOverrides,
 ): void {
   checkConnections(coreConfig)
     .map((connected) => {
       if (connected) {
-        startIntegration(coreConfig, consentContract).mapErr((e) => {
+        startIntegration(coreConfig).mapErr((e) => {
           console.error("Error starting integration:", e);
         });
       } else {
@@ -34,7 +32,7 @@ export function integrateSnickerdoodle(
         fixie.style.width = "100px";
         fixie.style.height = "100px";
         fixie.onclick = () => {
-          startIntegration(coreConfig, consentContract)
+          startIntegration(coreConfig)
             .map(() => {
               fixie?.style.setProperty("display", "none");
             })
@@ -50,10 +48,7 @@ export function integrateSnickerdoodle(
     });
 }
 
-function startIntegration(
-  coreConfig: IConfigOverrides,
-  consentContractAddress?: EVMContractAddress,
-) {
+function startIntegration(coreConfig: IWebIntegrationConfigOverrides) {
   return getSigner(coreConfig)
     .andThen((signerResult) => {
       const webIntegration = new SnickerdoodleWebIntegration(
@@ -63,16 +58,6 @@ function startIntegration(
 
       return webIntegration.initialize().andThen((dataWallet) => {
         console.log("Snickerdoodle Data Wallet Initialized");
-        if (consentContractAddress != null) {
-          return dataWallet
-            .checkInvitationStatus(consentContractAddress)
-            .andThen((invitationStatus) => {
-              if (invitationStatus === EInvitationStatus.New) {
-                return dataWallet.acceptInvitation([], consentContractAddress);
-              }
-              return okAsync(undefined);
-            });
-        }
         return okAsync(undefined);
       });
     })
@@ -81,7 +66,9 @@ function startIntegration(
     });
 }
 
-function getSigner(coreConfig: IConfigOverrides): ResultAsync<Signer, Error> {
+function getSigner(
+  coreConfig: IWebIntegrationConfigOverrides,
+): ResultAsync<Signer, Error> {
   if (!coreConfig.walletConnect?.projectId) {
     const walletProvider = new WalletProvider();
 
@@ -102,7 +89,7 @@ function getSigner(coreConfig: IConfigOverrides): ResultAsync<Signer, Error> {
 }
 
 function checkConnections(
-  coreConfig: IConfigOverrides,
+  coreConfig: IWebIntegrationConfigOverrides,
 ): ResultAsync<boolean, unknown> {
   if (!coreConfig.walletConnect?.projectId) {
     const walletProvider = new WalletProvider();
