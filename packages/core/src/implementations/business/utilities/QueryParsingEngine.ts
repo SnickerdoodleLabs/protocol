@@ -102,7 +102,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       }).mapErr( (err) => {
         context.publicEvents.queryPerformance.next( new QueryPerformanceEvent(EQueryEvents.QueryEvaluation , EStatus.End, query.cid, undefined, err))
         context.publicEvents.queryPerformance.next( new QueryPerformanceEvent(EQueryEvents.QueryParsing , EStatus.End, query.cid, undefined, err))
-        throw err
+        return err
       });
     })
 

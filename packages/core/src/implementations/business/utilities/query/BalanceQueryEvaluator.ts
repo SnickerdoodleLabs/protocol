@@ -87,7 +87,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
               err,
             ),
           );
-          throw err;
+          return err;
         })
         .andThen((balanceArray) => {
           return this.evalConditions(query, balanceArray);

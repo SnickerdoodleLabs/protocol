@@ -62,7 +62,7 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
           );
         }).mapErr( (err) => {
           context.publicEvents.queryPerformance.next(new QueryPerformanceEvent(EQueryEvents.NftDataAccess,EStatus.End, queryCID, query.name, err)) 
-          throw err
+          return err
         });
     } )
 

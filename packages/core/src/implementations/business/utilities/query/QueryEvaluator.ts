@@ -116,7 +116,7 @@ export class QueryEvaluator implements IQueryEvaluator {
               query.name,
               err,
             );
-            throw err;
+            return err;
           });
       } else if (query instanceof AST_BalanceQuery) {
         context.publicEvents.queryPerformance.next(
@@ -148,7 +148,7 @@ export class QueryEvaluator implements IQueryEvaluator {
               query.name,
               err,
             );
-            throw err;
+            return err ;
           });
       } else if (query instanceof AST_NftQuery) {
         context.publicEvents.queryPerformance.next(
@@ -182,7 +182,7 @@ export class QueryEvaluator implements IQueryEvaluator {
                 err,
               ),
             );
-            throw err;
+            return err ;
           });
       } else if (query instanceof AST_PropertyQuery) {
         return this.evalPropertyQuery(query, context.publicEvents, queryCID);
@@ -274,7 +274,7 @@ export class QueryEvaluator implements IQueryEvaluator {
                 err,
               ),
             );
-            throw err;
+            return err ;
           });
       case "location":
         publicEvents.queryPerformance.next(
@@ -372,7 +372,7 @@ export class QueryEvaluator implements IQueryEvaluator {
                 err,
               ),
             );
-            throw err;
+            return err ;
           });
       case "gender":
         publicEvents.queryPerformance.next(
@@ -459,7 +459,7 @@ export class QueryEvaluator implements IQueryEvaluator {
                 err,
               ),
             );
-            throw err;
+            return err ;
           });
       case "url_visited_count":
         publicEvents.queryPerformance.next(
@@ -518,7 +518,7 @@ export class QueryEvaluator implements IQueryEvaluator {
                 err,
               ),
             );
-            throw err;
+            return err ;
           });
       case "chain_transactions":
         publicEvents.queryPerformance.next(
@@ -577,7 +577,7 @@ export class QueryEvaluator implements IQueryEvaluator {
                 err,
               ),
             );
-            throw err;
+            return err ;
           });
       case "social_discord":
         publicEvents.queryPerformance.next(
@@ -635,7 +635,7 @@ export class QueryEvaluator implements IQueryEvaluator {
                 err,
               ),
             );
-            throw err;
+            return err ;
           });
       case "social_twitter":
         return this.getTwitterFollowers();
@@ -651,7 +651,7 @@ export class QueryEvaluator implements IQueryEvaluator {
     if (propertyVal == null) {
       // const err = new Error("In evalPropertyConditon, propertyVal is null!");
       // console.error(err);
-      // throw err;
+      // return err ;
       return SDQL_Return(null);
     }
     //console.log(`Evaluating property condition ${condition} against ${propertyVal}`);

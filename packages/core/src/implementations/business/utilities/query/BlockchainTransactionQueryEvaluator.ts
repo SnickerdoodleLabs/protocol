@@ -108,7 +108,7 @@ export class BlockchainTransactionQueryEvaluator
                 err
               ),
             );
-            throw err
+            return err 
           });
       } else if (query.returnType == "boolean") {
         context.publicEvents.queryPerformance.next(
@@ -148,7 +148,7 @@ export class BlockchainTransactionQueryEvaluator
                 err
               ),
             );
-            throw err
+            return err 
           });
       }
 
@@ -183,7 +183,7 @@ export class BlockchainTransactionQueryEvaluator
                 err
               ),
             );
-            throw err
+            return err 
           });
       }
 
