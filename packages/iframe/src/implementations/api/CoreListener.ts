@@ -46,6 +46,7 @@ import {
   EInvitationStatus,
   PageInvitation,
   IWebIntegrationConfigOverrides,
+  TransactionFilter,
 } from "@snickerdoodlelabs/objects";
 import {
   IIFrameCallData,
@@ -395,6 +396,28 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
             return core.getAccountNFTs(this.sourceDomain);
+          });
+        }, data.callId);
+      },
+
+      getTransactions: (
+        data: IIFrameCallData<{
+          filter?: TransactionFilter;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.getTransactions(data.data.filter, this.sourceDomain);
+          });
+        }, data.callId);
+      },
+
+      getTransactionValueByChain: (
+        data: IIFrameCallData<Record<string, never>>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.getTransactionValueByChain(this.sourceDomain);
           });
         }, data.callId);
       },
