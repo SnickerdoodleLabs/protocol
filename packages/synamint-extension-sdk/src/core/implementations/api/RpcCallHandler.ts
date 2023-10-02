@@ -246,7 +246,7 @@ export class RpcCallHandler implements IRpcCallHandler {
       },
     ),
     new CoreActionHandler<GetTransactionsParams>(
-      GetConsentCapacityParams.getCoreAction(),
+      GetTransactionsParams.getCoreAction(),
       (params, _sender, sourceDomain) => {
         return this.accountService.getTransactions(params.filter, sourceDomain);
       },
