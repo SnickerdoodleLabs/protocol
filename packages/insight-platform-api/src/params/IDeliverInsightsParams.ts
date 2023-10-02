@@ -4,7 +4,6 @@ import {
   IpfsCID,
   IQueryDeliveryItems,
   Signature,
-  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 
 export interface IDeliverInsightsParams {

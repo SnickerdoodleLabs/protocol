@@ -1,8 +1,6 @@
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
-  ITimeUtils,
-  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
@@ -46,8 +44,7 @@ import {
 export class InsightPlatformRepository implements IInsightPlatformRepository {
   public constructor(
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
-    @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
-    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
+    @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils
   ) {}
 
   public clearAllBackups(
