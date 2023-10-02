@@ -44,7 +44,7 @@ import {
 export class InsightPlatformRepository implements IInsightPlatformRepository {
   public constructor(
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
-    @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils
+    @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
 
   public clearAllBackups(
@@ -159,6 +159,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     if (rewardParameters !== undefined) {
       parameters = JSON.stringify(rewardParameters);
     }
+
     const signableData = {
       consentContractId: consentContractAddress,
       tokenId: tokenId,
