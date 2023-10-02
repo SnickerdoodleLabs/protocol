@@ -17,6 +17,9 @@ import {
   EVMContractAddress,
   BlockNumber,
   DomainName,
+  ChainTransaction,
+  TransactionFilter,
+  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -69,6 +72,14 @@ export interface IAccountService {
     contractAddress: EVMContractAddress,
     blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], SnickerDoodleCoreError>;
+  getTransactions(
+    filter?: TransactionFilter,
+    sourceDomain?: DomainName,
+  ): ResultAsync<ChainTransaction[], SnickerDoodleCoreError>;
+  getTransactionValueByChain(sourceDomain?: DomainName): ResultAsync<
+    TransactionPaymentCounter[],
+    SnickerDoodleCoreError
+  >;
 }
 
 export const IAccountServiceType = Symbol.for("IAccountService");
