@@ -2,19 +2,22 @@ import { makeStyles } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme) => ({
   container: {
-    minWidth: 256,
-    maxWidth: 256,
-    [theme.breakpoints.down("md")]: {
-      minWidth: 251,
-      maxWidth: 251,
-    },
-    [theme.breakpoints.down("sm")]: {
-      display: "none",
-    },
-    height: "100vh",
+    width: "100%",
+    display: "flex",
+    flexDirection: "column",
     alignItems: "center",
-    backgroundColor: "#F3F2F8",
+    backgroundColor: "#FFFFFF",
+    [theme.breakpoints.down("sm")]: {
+      width: "100%",
+    },
+    [theme.breakpoints.up("md")]: {
+      width: "80%",
+    },
+    [theme.breakpoints.up("lg")]: {
+      width: "70%",
+    },
   },
+
   linkAccountButtonIcon: {
     fontSize: 24,
     color: "#F2F4F7",
@@ -47,6 +50,7 @@ export const useStyles = makeStyles((theme) => ({
   },
   button: {
     cursor: "pointer",
+    width: "100%",
   },
   link: {
     fontFamily: "'Roboto'",

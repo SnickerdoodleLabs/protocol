@@ -4,6 +4,7 @@ import { matchPath, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import CampaignPopup from "@extension-onboarding/components/Modals/CampaignPopup/CampaignPopup";
 import Sidebar from "@extension-onboarding/components/Sidebar";
+import Topbar from "@extension-onboarding/components/Topbar";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { authFlowRouteSettings } from "@extension-onboarding/containers/Router/Router.settings";
 
@@ -45,23 +46,26 @@ const AutFlowLayout = () => {
   }, [pathname, JSON.stringify(search), JSON.stringify(state)]);
 
   return (
-    <Box display="flex" overflow="hidden" height="100vh">
-      {!hideSidebar && <Sidebar />}
-      {/* <CampaignPopup /> */}
-      <Box
-        id="authflow"
-        display="flex"
-        bgcolor={bgColor}
-        style={{ overflowY: "auto" }}
-        p={removeDefaultPadding ? 0 : 6}
-        flex={1}
-        flexDirection="column"
-      >
-        <Box mb={4}>
-          <Outlet />
+    <>
+      <Box>{!hideSidebar && <Topbar />}</Box>
+      <Box display="flex" overflow="hidden" height="100vh">
+        {!hideSidebar && <Sidebar />}
+        {/* <CampaignPopup /> */}
+        <Box
+          id="authflow"
+          display="flex"
+          bgcolor={bgColor}
+          style={{ overflowY: "auto" }}
+          p={removeDefaultPadding ? 0 : 6}
+          flex={1}
+          flexDirection="column"
+        >
+          <Box mb={4}>
+            <Outlet />
+          </Box>
         </Box>
       </Box>
-    </Box>
+    </>
   );
 };
 
