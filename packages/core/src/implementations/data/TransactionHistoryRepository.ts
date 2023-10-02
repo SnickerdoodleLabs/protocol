@@ -1,3 +1,4 @@
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   TransactionPaymentCounter,
   PersistenceError,
@@ -10,6 +11,7 @@ import {
   ERecordKey,
   getChainInfoByChain,
   EChain,
+  LinkedAccount,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
@@ -24,8 +26,6 @@ import { ResultUtils } from "neverthrow-result-utils";
 import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-  ILinkedAccountRepository,
-  ILinkedAccountRepositoryType,
   ITransactionHistoryRepository,
 } from "@core/interfaces/data/index.js";
 import {
@@ -43,40 +43,81 @@ export class TransactionHistoryRepository
     protected configProvider: IPersistenceConfigProvider,
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
-    @inject(ILinkedAccountRepositoryType)
-    protected accountRepo: ILinkedAccountRepository,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
   public getTransactionByChain(): ResultAsync<
     TransactionPaymentCounter[],
     PersistenceError
   > {
-    return this.accountRepo.getAccounts().andThen((accounts) => {
-      return ResultUtils.combine(
-        accounts.map((account) => {
-          return ResultUtils.combine([
-            this.persistence
-              .getCursor<EVMTransaction>(
-                ERecordKey.TRANSACTIONS,
-                "to",
-                account.sourceAccountAddress,
-              )
-              .andThen((cursor) => cursor.allValues().map((evm) => evm || [])),
-            this.persistence
-              .getCursor<EVMTransaction>(
-                ERecordKey.TRANSACTIONS,
-                "from",
-                account.sourceAccountAddress,
-              )
-              .andThen((cursor) => cursor.allValues().map((evm) => evm || [])),
-          ]).andThen(([toTransactions, fromTransactions]) => {
-            return this.pushTransaction(toTransactions, fromTransactions, []);
-          });
-        }),
-      ).map((transactionsArray) => {
-        return this.compoundTransaction(transactionsArray.flat(1));
+    return this.persistence
+      .getAll<LinkedAccount>(ERecordKey.ACCOUNT)
+      .andThen((accounts) => {
+        this.logUtils.debug(
+          `In getTransactionByChain, active accounts: `,
+          accounts,
+        );
+        return ResultUtils.combine(
+          accounts.map((account) => {
+            return ResultUtils.combine([
+              this.persistence
+                .getCursor<EVMTransaction>(
+                  ERecordKey.TRANSACTIONS,
+                  "to",
+                  account.sourceAccountAddress,
+                )
+                .andThen((cursor) =>
+                  cursor.allValues().map((evm) => {
+                    this.logUtils.debug(
+                      `In getTransactionByChain on account ${account}, all values for "to" transactions:`,
+                      evm,
+                    );
+                    return evm || [];
+                  }),
+                ),
+              this.persistence
+                .getCursor<EVMTransaction>(
+                  ERecordKey.TRANSACTIONS,
+                  "from",
+                  account.sourceAccountAddress,
+                )
+                .andThen((cursor) =>
+                  cursor.allValues().map((evm) => {
+                    this.logUtils.debug(
+                      `In getTransactionByChain on account ${account}, all values for "from" transactions:`,
+                      evm,
+                    );
+                    return evm || [];
+                  }),
+                ),
+            ]).map(([toTransactions, fromTransactions]) => {
+              const counters = [
+                ...toTransactions.map((tx) => {
+                  return new TransactionPaymentCounter(
+                    tx.chain,
+                    this._getTxValue(tx),
+                    1,
+                    0,
+                    0,
+                  );
+                }),
+                ...fromTransactions.map((tx) => {
+                  return new TransactionPaymentCounter(
+                    tx.chain,
+                    0,
+                    0,
+                    this._getTxValue(tx),
+                    1,
+                  );
+                }),
+              ];
+              return counters;
+            });
+          }),
+        ).map((transactionsArray) => {
+          return this.compoundTransaction(transactionsArray.flat(1));
+        });
       });
-    });
   }
 
   public addTransactions(
@@ -145,24 +186,6 @@ export class TransactionHistoryRepository
       });
       return okAsync(returnVal);
     });
-  }
-
-  protected pushTransaction(
-    incomingTransactions: EVMTransaction[],
-    outgoingTransactions: EVMTransaction[],
-    counters: TransactionPaymentCounter[],
-  ): ResultAsync<TransactionPaymentCounter[], PersistenceError> {
-    incomingTransactions.forEach((tx) => {
-      counters.push(
-        new TransactionPaymentCounter(tx.chain, this._getTxValue(tx), 1, 0, 0),
-      );
-    });
-    outgoingTransactions.forEach((tx) => {
-      counters.push(
-        new TransactionPaymentCounter(tx.chain, 0, 0, this._getTxValue(tx), 1),
-      );
-    });
-    return okAsync(counters);
   }
 
   protected _getTxValue(tx: EVMTransaction): number {
