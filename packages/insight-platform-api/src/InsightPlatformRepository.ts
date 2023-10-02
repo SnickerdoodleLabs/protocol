@@ -162,14 +162,12 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     if (rewardParameters !== undefined) {
       parameters = JSON.stringify(rewardParameters);
     }
-    const responseTime = this.timeUtils.getUnixNow()
     const signableData = {
       consentContractId: consentContractAddress,
       tokenId: tokenId,
       queryCID: queryCID,
       insights: JSON.stringify(insights),
       rewardParameters: JSON.stringify(rewardParameters),
-      responseTime
     } as Record<string, unknown>;
 
     return this.cryptoUtils
@@ -190,7 +188,6 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           queryCID: queryCID,
           insights: insights,
           rewardParameters: rewardParameters,
-          responseTime,
           signature: signature,
         } as IDeliverInsightsParams as unknown as Record<string, unknown>);
       });
