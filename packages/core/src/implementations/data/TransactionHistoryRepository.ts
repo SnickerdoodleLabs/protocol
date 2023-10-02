@@ -115,7 +115,9 @@ export class TransactionHistoryRepository
             });
           }),
         ).map((transactionsArray) => {
-          return this.compoundTransaction(transactionsArray.flat(1));
+          return this.compoundTransactionPaymentCounters(
+            transactionsArray.flat(1),
+          );
         });
       });
   }
@@ -195,28 +197,24 @@ export class TransactionHistoryRepository
     );
   }
 
-  protected compoundTransaction(
+  protected compoundTransactionPaymentCounters(
     chainTransactions: TransactionPaymentCounter[],
   ): TransactionPaymentCounter[] {
     const flowMap = new Map<EChain, TransactionPaymentCounter>();
     chainTransactions.forEach((chainTransaction) => {
-      const getObject = flowMap.get(chainTransaction.chainId);
-      if (getObject == null) {
+      const existingTPC = flowMap.get(chainTransaction.chainId);
+      if (existingTPC == null) {
         flowMap.set(chainTransaction.chainId, chainTransaction);
       } else {
-        flowMap.set(
-          chainTransaction.chainId,
-          new TransactionPaymentCounter(
-            chainTransaction.chainId,
-            chainTransaction.incomingValue + getObject.incomingValue,
-            chainTransaction.incomingCount + getObject.incomingCount,
-            chainTransaction.outgoingValue + getObject.outgoingValue,
-            chainTransaction.outgoingCount + getObject.outgoingCount,
-          ),
-        );
+        // Just need to increment the existing TPC
+        existingTPC.incomingValue += chainTransaction.incomingValue;
+        existingTPC.incomingCount += chainTransaction.incomingCount;
+        existingTPC.outgoingValue += chainTransaction.outgoingValue;
+        existingTPC.outgoingCount += chainTransaction.outgoingCount;
       }
     });
 
+    // Convert back to an array
     return [...flowMap.values()];
   }
 
