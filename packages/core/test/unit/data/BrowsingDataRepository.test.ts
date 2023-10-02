@@ -1,8 +1,3 @@
-import * as td from "testdouble";
-import { okAsync } from "neverthrow";
-import { IBrowsingDataRepository } from "@core/interfaces/data/index.js";
-import { siteVisits, siteVisitsMap } from "@core-tests/mock/mocks/index.js";
-import { IDataWalletPersistence } from "@core/interfaces/data/utilities/index.js";
 import {
   ERecordKey,
   ISO8601DateString,
@@ -10,7 +5,13 @@ import {
   UnixTimestamp,
   URLString,
 } from "@snickerdoodlelabs/objects";
+import { okAsync } from "neverthrow";
+import * as td from "testdouble";
+
 import { BrowsingDataRepository } from "@core/implementations/data";
+import { IBrowsingDataRepository } from "@core/interfaces/data/index.js";
+import { IDataWalletPersistence } from "@core/interfaces/data/utilities/index.js";
+import { siteVisits, siteVisitsMap } from "@core-tests/mock/mocks/index.js";
 
 describe("BrowsingDataRepository", () => {
   const persistence = td.object<IDataWalletPersistence>();
@@ -78,7 +79,12 @@ describe("BrowsingDataRepository", () => {
       const expected = new Map([
         [
           URLString("discord.com"),
-          new SiteVisitsData(1, 300, UnixTimestamp(300), ISO8601DateString("1970-01-01T00:10:00.000Z")),
+          new SiteVisitsData(
+            1,
+            300,
+            UnixTimestamp(300),
+            ISO8601DateString("1970-01-01T00:10:00.000Z"),
+          ),
         ],
       ]);
       //Act

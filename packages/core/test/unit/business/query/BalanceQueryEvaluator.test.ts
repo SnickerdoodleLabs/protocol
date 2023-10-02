@@ -63,10 +63,10 @@ class BalanceQueryEvaluatorMocks {
     [
       URLString("www.snickerdoodlelabs.io"),
       new SiteVisitsData(
-         10,
-         3,
-         UnixTimestamp(12),
-         ISO8601DateString("2022-09-15T18:45:30.123Z"),
+        10,
+        3,
+        UnixTimestamp(12),
+        ISO8601DateString("2022-09-15T18:45:30.123Z"),
       ),
     ],
   ]);

@@ -18,12 +18,12 @@
     "Utils"
   ],
   "main": "dist/index.js",
+  "module": "./dist/index.js",
   "files": [
     "dist",
     "!dist/test",
     "!dist/tsconfig.tsbuildinfo"
   ],
-  "module": "./dist/index.js",
   "scripts": {
     "alias": "tsc-alias && tsc-alias -p test/tsconfig.json",
     "build": "yarn clean && yarn compile",

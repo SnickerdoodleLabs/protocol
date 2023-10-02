@@ -60,8 +60,7 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
       const filteredVisits = timestampRange
         ? this.filterSiteVisists(siteVisits, timestampRange)
         : siteVisits;
-      const visitsMap =
-        this.mapSiteVisitData(filteredVisits);
+      const visitsMap = this.mapSiteVisitData(filteredVisits);
 
       return visitsMap;
     });
@@ -77,9 +76,7 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
     });
   }
 
-  protected mapSiteVisitData(
-    siteVisits: SiteVisit[],
-  ): SiteVisitsMap {
+  protected mapSiteVisitData(siteVisits: SiteVisit[]): SiteVisitsMap {
     const visitsMap = new Map<URLString | DomainName, SiteVisitsData>();
     siteVisits.forEach((visit) => {
       const siteName = visit.domain || visit.url;
@@ -91,8 +88,13 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
         siteVisitData.totalScreenTime = UnixTimestamp(
           siteVisitData.totalScreenTime + screenTime,
         );
-        if (this.convertTimestampToISOString(visit.endTime) > siteVisitData.lastReportedTime) {
-          siteVisitData.lastReportedTime = this.convertTimestampToISOString(visit.endTime);
+        if (
+          this.convertTimestampToISOString(visit.endTime) >
+          siteVisitData.lastReportedTime
+        ) {
+          siteVisitData.lastReportedTime = this.convertTimestampToISOString(
+            visit.endTime,
+          );
         }
       } else {
         visitsMap.set(
@@ -110,8 +112,10 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
     return visitsMap;
   }
 
-  protected convertTimestampToISOString(unixTimestamp: UnixTimestamp): ISO8601DateString {
-    const date = new Date(unixTimestamp * 1000);  
+  protected convertTimestampToISOString(
+    unixTimestamp: UnixTimestamp,
+  ): ISO8601DateString {
+    const date = new Date(unixTimestamp * 1000);
     return ISO8601DateString(date.toISOString());
   }
 
