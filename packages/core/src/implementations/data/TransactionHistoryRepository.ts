@@ -36,6 +36,7 @@ import {
   IContextProviderType,
   IContextProvider,
 } from "@core/interfaces/utilities/index.js";
+import { ITimeUtilsType, ITimeUtils } from "@snickerdoodlelabs/common-utils";
 
 @injectable()
 export class TransactionHistoryRepository
@@ -49,6 +50,7 @@ export class TransactionHistoryRepository
     protected persistence: IDataWalletPersistence,
     @inject(ILinkedAccountRepositoryType)
     protected accountRepo: ILinkedAccountRepository,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public getTransactionByChain(): ResultAsync<
@@ -234,7 +236,7 @@ export class TransactionHistoryRepository
   };
 
   protected determineTimePeriod(transactionTime: number): ETimePeriods {
-    const currentTime = Date.now();
+    const currentTime = this.timeUtils.getUnixNow();
     const transactionTimeInMs = transactionTime * 1000;
 
     const dayInMs = 24 * 60 * 60 * 1000;

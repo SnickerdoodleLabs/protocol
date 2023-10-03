@@ -20,6 +20,7 @@ import {
   DataPermissions,
   QueryExpiredError,
   EWalletDataType,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
   IQueryObjectFactory,
@@ -79,6 +80,9 @@ const allPermissions = HexString32(
 const noPermissions = HexString32(
   "0x0000000000000000000000000000000000000000000000000000000000000000",
 );
+
+const now = UnixTimestamp(2);
+
 const chainIds = undefined;
 class QueryParsingMocks {
   public transactionRepo = td.object<ITransactionHistoryRepository>();
@@ -87,11 +91,11 @@ class QueryParsingMocks {
   public browsingDataRepo = td.object<IBrowsingDataRepository>();
   public adDataRepo = td.object<AdDataRepository>();
   public socialRepo = td.object<ISocialRepository>();
-
+  public timeUtils: ITimeUtils = td.object<ITimeUtils>();
   public blockchainTransactionQueryEvaluator =
     new BlockchainTransactionQueryEvaluator(
       this.transactionRepo,
-      new TimeUtils(),
+      this.timeUtils,
     );
 
   public nftQueryEvaluator = new NftQueryEvaluator(this.balanceRepo);
@@ -111,7 +115,7 @@ class QueryParsingMocks {
   public constructor() {
     this.queryObjectFactory = new QueryObjectFactory();
     this.queryWrapperFactory = new SDQLQueryWrapperFactory(new TimeUtils());
-
+    td.when(this.timeUtils.getUnixNow()).thenReturn(now as never);
     const expectedCompensationsMap = new Map<
       CompensationKey,
       ISDQLCompensations
