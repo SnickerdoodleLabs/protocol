@@ -338,8 +338,8 @@ export class EtherscanIndexer implements IEVMIndexer {
                 UnixTimestamp(Number.parseInt(tx.timeStamp)),
                 tx.blockNumber == "" ? null : Number.parseInt(tx.blockNumber),
                 tx.to == "" ? null : EVMAccountAddress(tx.to),
-                tx.from == "" ? null : EVMAccountAddress(tx.from),
-                tx.value == "" ? null : BigNumberString(tx.value),
+                tx.from == "" ? null : EVMAccountAddress(tx.from.toLocaleLowerCase()),
+                tx.value == "" ? null : BigNumberString(tx.value.toLocaleLowerCase()),
                 tx.gasPrice == "" ? null : BigNumberString(tx.gasPrice),
                 tx.contractAddress == ""
                   ? null
