@@ -64,7 +64,7 @@ export class TransactionHistoryRepository
                 .getCursor<EVMTransaction>(
                   ERecordKey.TRANSACTIONS,
                   "to",
-                  account.sourceAccountAddress,
+                  account.sourceAccountAddress.toLowerCase(),
                 )
                 .andThen((cursor) =>
                   cursor.allValues().map((evm) => {
@@ -79,7 +79,7 @@ export class TransactionHistoryRepository
                 .getCursor<EVMTransaction>(
                   ERecordKey.TRANSACTIONS,
                   "from",
-                  account.sourceAccountAddress,
+                  account.sourceAccountAddress.toLowerCase(),
                 )
                 .andThen((cursor) =>
                   cursor.allValues().map((evm) => {
