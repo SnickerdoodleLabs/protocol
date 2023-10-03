@@ -14,6 +14,9 @@ import {
   TokenMarketData,
   WalletNFT,
   QueryStatus,
+  TransactionFilter,
+  ChainTransaction,
+  TransactionPaymentCounter,
 } from "@objects/businessObjects/index.js";
 import {
   ECoreProxyType,
@@ -23,7 +26,6 @@ import {
 import { ProxyError } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata.js";
-import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences.js";
 import {
   IAccountMethods,
   ICoreDiscordMethods,
@@ -229,6 +231,15 @@ export interface ISdlDataWallet {
   ): ResultAsync<TokenInfo | null, ProxyError>;
   getAccountBalances(): ResultAsync<TokenBalance[], ProxyError>;
   getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError>;
+
+  getTransactions(
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], ProxyError>;
+  getTransactionValueByChain(): ResultAsync<
+    TransactionPaymentCounter[],
+    ProxyError
+  >;
+
   closeTab(): ResultAsync<void, ProxyError>;
   getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
@@ -251,11 +262,6 @@ export interface ISdlDataWallet {
   getDefaultPermissions(): ResultAsync<EWalletDataType[], ProxyError>;
   setDefaultPermissions(
     dataTypes: EWalletDataType[],
-  ): ResultAsync<void, ProxyError>;
-  getScamFilterSettings(): ResultAsync<IScamFilterPreferences, ProxyError>;
-  setScamFilterSettings(
-    isScamFilterActive: boolean,
-    showMessageEveryTime: boolean,
   ): ResultAsync<void, ProxyError>;
   setDefaultPermissionsToAll(): ResultAsync<void, ProxyError>;
   acceptInvitation(

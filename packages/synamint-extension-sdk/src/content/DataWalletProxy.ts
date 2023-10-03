@@ -62,6 +62,9 @@ import {
   BlockNumber,
   RefreshToken,
   IProxyAccountMethods,
+  ChainTransaction,
+  TransactionFilter,
+  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -88,7 +91,6 @@ import {
   SetDefaultPermissionsWithDataTypesParams,
   LeaveCohortParams,
   GetInvitationMetadataByCIDParams,
-  ScamFilterSettingsParams,
   GetConsentContractCIDParams,
   CheckInvitationStatusParams,
   GetTokenPriceParams,
@@ -107,6 +109,7 @@ import {
   SetAuthenticatedStorageParams,
   RejectInvitationParams,
   GetQueryStatusesParams,
+  GetTransactionsParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
@@ -428,6 +431,18 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     );
   }
 
+  public getTransactions(
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], ProxyError> {
+    return coreGateway.getTransactions(new GetTransactionsParams(filter));
+  }
+  public getTransactionValueByChain(): ResultAsync<
+    TransactionPaymentCounter[],
+    ProxyError
+  > {
+    return coreGateway.getTransactionValueByChain();
+  }
+
   public getListingsTotalByTag(
     tag: MarketplaceTag,
   ): ResultAsync<number, ProxyError> {
@@ -611,17 +626,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   }
   public getDataWalletAddress() {
     return coreGateway.getDataWalletAddress();
-  }
-  public getScamFilterSettings() {
-    return coreGateway.getScamFilterSettings();
-  }
-  public setScamFilterSettings(
-    isScamFilterActive: boolean,
-    showMessageEveryTime: boolean,
-  ) {
-    return coreGateway.setScamFilterSettings(
-      new ScamFilterSettingsParams(isScamFilterActive, showMessageEveryTime),
-    );
   }
   public getSiteVisits(): ResultAsync<SiteVisit[], ProxyError> {
     return coreGateway.getSiteVisits();

@@ -30,7 +30,6 @@ import {
   IConsentCapacity,
   IOpenSeaMetadata,
   IProxyMetricsMethods,
-  IScamFilterPreferences,
   IProxyDiscordMethods,
   IProxyTwitterMethods,
   IpfsCID,
@@ -79,6 +78,9 @@ import {
   RefreshToken,
   OAuth2Tokens,
   IProxyAccountMethods,
+  ChainTransaction,
+  TransactionFilter,
+  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -364,6 +366,20 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
+  getTransactions(
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], ProxyError> {
+    return this._createCall("getTransactions", {
+      filter,
+    });
+  }
+  getTransactionValueByChain(): ResultAsync<
+    TransactionPaymentCounter[],
+    ProxyError
+  > {
+    return this._createCall("getTransactionValueByChain", null);
+  }
+
   public getAccountBalances(): ResultAsync<TokenBalance[], ProxyError> {
     return this._createCall("getAccountBalances", null);
   }
@@ -427,23 +443,6 @@ export class SnickerdoodleIFrameProxy
   ): ResultAsync<void, ProxyError> {
     return this._createCall("setDefaultPermissions", {
       dataTypes,
-    });
-  }
-
-  public getScamFilterSettings(): ResultAsync<
-    IScamFilterPreferences,
-    ProxyError
-  > {
-    return this._createCall("getScamFilterSettings", null);
-  }
-
-  public setScamFilterSettings(
-    isScamFilterActive: boolean,
-    showMessageEveryTime: boolean,
-  ): ResultAsync<void, ProxyError> {
-    return this._createCall("setScamFilterSettings", {
-      isScamFilterActive,
-      showMessageEveryTime,
     });
   }
 

@@ -46,6 +46,7 @@ import {
   EInvitationStatus,
   PageInvitation,
   IWebIntegrationConfigOverrides,
+  TransactionFilter,
 } from "@snickerdoodlelabs/objects";
 import {
   IIFrameCallData,
@@ -399,6 +400,28 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
+      getTransactions: (
+        data: IIFrameCallData<{
+          filter?: TransactionFilter;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.getTransactions(data.data.filter, this.sourceDomain);
+          });
+        }, data.callId);
+      },
+
+      getTransactionValueByChain: (
+        data: IIFrameCallData<Record<string, never>>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.getTransactionValueByChain(this.sourceDomain);
+          });
+        }, data.callId);
+      },
+
       getAcceptedInvitationsCID: (
         data: IIFrameCallData<Record<string, never>>,
       ) => {
@@ -485,26 +508,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       // },
 
       // setDefaultPermissions: (
-      //   data: IIFrameCallData<Record<string, never>>,
-      // ) => {
-      //   this.returnForModel(() => {
-      //     return core.get(
-      //       sourceDomain,
-      //     );
-      //   }, data.callId);
-      // },
-
-      // getScamFilterSettings: (
-      //   data: IIFrameCallData<Record<string, never>>,
-      // ) => {
-      //   this.returnForModel(() => {
-      //     return core.get(
-      //       sourceDomain,
-      //     );
-      //   }, data.callId);
-      // },
-
-      // setScamFilterSettings: (
       //   data: IIFrameCallData<Record<string, never>>,
       // ) => {
       //   this.returnForModel(() => {

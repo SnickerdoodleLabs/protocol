@@ -57,6 +57,9 @@ import {
   LanguageCode,
   EChain,
   Signature,
+  ChainTransaction,
+  TransactionFilter,
+  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -75,12 +78,10 @@ import {
   SetGenderParams,
   SetGivenNameParams,
   SetLocationParams,
-  CheckURLParams,
   AcceptInvitationByUUIDParams,
   GetAgreementPermissionsParams,
   SetDefaultPermissionsWithDataTypesParams,
   SetApplyDefaultPermissionsParams,
-  ScamFilterSettingsParams,
   GetConsentContractCIDParams,
   CheckInvitationStatusParams,
   GetTokenPriceParams,
@@ -89,7 +90,6 @@ import {
   SetDefaultReceivingAddressParams,
   SetReceivingAddressParams,
   GetReceivingAddressParams,
-  IScamFilterPreferences,
   IExternalState,
   AddAccountParams,
   UnlinkAccountParams,
@@ -111,7 +111,6 @@ import {
   GetAccountsParams,
   GetApplyDefaultPermissionsOptionParams,
   GetAcceptedInvitationsCIDParams,
-  GetScamFilterSettingsParams,
   SetDefaultPermissionsToAllParams,
   GetDefaultPermissionsParams,
   GetAvailableInvitationsCIDParams,
@@ -147,6 +146,8 @@ import {
   GetQueryStatusesParams,
   AddAccountWithExternalSignatureParams,
   AddAccountWithExternalTypedDataSignatureParams,
+  GetTransactionsParams,
+  GetTransactionValueByChainParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -360,19 +361,6 @@ export class ExternalCoreGateway {
     return this._handler.call(new SetDefaultPermissionsToAllParams());
   }
 
-  public getScamFilterSettings(): ResultAsync<
-    IScamFilterPreferences,
-    ProxyError
-  > {
-    return this._handler.call(new GetScamFilterSettingsParams());
-  }
-
-  public setScamFilterSettings(
-    params: ScamFilterSettingsParams,
-  ): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
-  }
-
   public rejectInvitationByUUID(
     params: RejectInvitationByUUIDParams,
   ): ResultAsync<void, ProxyError> {
@@ -439,6 +427,18 @@ export class ExternalCoreGateway {
     return this._handler.call(new GetAccountNFTsParams());
   }
 
+  public getTransactions(
+    params: GetTransactionsParams,
+  ): ResultAsync<ChainTransaction[], ProxyError> {
+    return this._handler.call(params);
+  }
+  public getTransactionValueByChain(): ResultAsync<
+    TransactionPaymentCounter[],
+    ProxyError
+  > {
+    return this._handler.call(new GetTransactionValueByChainParams());
+  }
+
   public setFamilyName(
     params: SetFamilyNameParams,
   ): ResultAsync<void, ProxyError> {
@@ -494,9 +494,6 @@ export class ExternalCoreGateway {
     ProxyError
   > {
     return this._handler.call(new GetDataWalletAddressParams());
-  }
-  public checkURL(params: CheckURLParams): ResultAsync<string, ProxyError> {
-    return this._handler.call(params);
   }
 
   public checkInvitationStatus(

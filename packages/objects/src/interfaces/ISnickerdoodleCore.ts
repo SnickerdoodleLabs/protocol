@@ -44,7 +44,6 @@ import {
   ECloudStorageType,
   EDataWalletPermission,
   EInvitationStatus,
-  EScamFilterStatus,
 } from "@objects/enum/index.js";
 import {
   AccountIndexingError,
@@ -68,7 +67,6 @@ import {
   PersistenceError,
   QueryExpiredError,
   QueryFormatError,
-  SiftContractError,
   BlockchainCommonErrors,
   TwitterError,
   UnauthorizedError,
@@ -714,18 +712,6 @@ export interface ISnickerdoodleCore {
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | UnauthorizedError
-    | BlockchainCommonErrors
-  >;
-
-  checkURL(
-    domain: DomainName,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    EScamFilterStatus,
-    | BlockchainProviderError
-    | UninitializedError
-    | SiftContractError
     | UnauthorizedError
     | BlockchainCommonErrors
   >;
