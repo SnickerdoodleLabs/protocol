@@ -6,6 +6,7 @@ import {
   AccountAddress,
   BigNumberString,
   DecimalString,
+  SuiAccountAddress,
   TickerSymbol,
 } from "@objects/primitives/index.js";
 
@@ -15,7 +16,7 @@ export class TokenBalance {
     public ticker: TickerSymbol,
     public chainId: EChain,
     public tokenAddress: TokenAddress,
-    public accountAddress: AccountAddress,
+    public accountAddress: AccountAddress | SuiAccountAddress,
     public balance: BigNumberString,
     public decimals: number,
   ) {}

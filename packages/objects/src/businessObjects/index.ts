@@ -45,6 +45,9 @@ export * from "@objects/businessObjects/SiteVisitsData.js";
 export * from "@objects/businessObjects/SiteVisitsMap.js";
 export * from "@objects/businessObjects/SolanaNFT.js";
 export * from "@objects/businessObjects/StatSummary.js";
+
+export * from "@objects/businessObjects/SuiNFT.js";
+
 export * from "@objects/businessObjects/TokenAddress.js";
 export * from "@objects/businessObjects/TokenAndSecret.js";
 export * from "@objects/businessObjects/TokenBalance.js";

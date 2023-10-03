@@ -5,7 +5,10 @@ import {
   AjaxError,
   SolanaNFT,
   SolanaTransaction,
+  SuiAccountAddress,
+  SuiTransaction,
   TokenBalance,
+  SuiNFT,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -19,7 +22,7 @@ export interface ISuiIndexer extends IIndexer {
   getTokensForAccount(
     chain: EChain,
     accountAddress: SuiAccountAddress,
-  ): ResultAsync<SolanaNFT[], AccountIndexingError | AjaxError>;
+  ): ResultAsync<SuiNFT[], AccountIndexingError | AjaxError>;
   getSuiTransactions(
     chain: EChain,
     accountAddress: SuiAccountAddress,

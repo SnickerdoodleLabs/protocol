@@ -61,7 +61,7 @@ export class SuiIndexer implements ISuiIndexer {
   ]);
 
   protected suiApiKey: string | null = null;
-  protected suiTestnetApiKey: string | null = null;
+  // protected suiTestnetApiKey: string | null = null;
   //   protected suiTestnetApiKey: string | null = null;
 
   public constructor(
@@ -77,8 +77,8 @@ export class SuiIndexer implements ISuiIndexer {
 
   public initialize(): ResultAsync<void, never> {
     return this.configProvider.getConfig().map((config) => {
-      // Solana Mainnet
-      if (config.apiKeys.Sui == "" || config.apiKeys.Sui == null) {
+      // Sui Mainnet
+      if (this.suiApiKey == "" || this.suiApiKey == null) {
         this.health.set(EChain.Sui, EComponentStatus.NoKeyProvided);
       } else {
         this.health.set(EChain.Sui, EComponentStatus.Available);
@@ -94,8 +94,8 @@ export class SuiIndexer implements ISuiIndexer {
       //     this.health.set(EChain.SuiTestnet, EComponentStatus.Available);
       //   }
 
-      this.suiApiKey = config.apiKeys.alchemyApiKeys.Sui;
-      this.suiTestnetApiKey = config.apiKeys.alchemyApiKeys.SuiTestnet;
+      this.suiApiKey = ""; //config.apiKeys.alchemyApiKeys.Sui;
+      // this.suiTestnetApiKey = config.apiKeys.alchemyApiKeys.SuiTestnet;
     });
   }
 
