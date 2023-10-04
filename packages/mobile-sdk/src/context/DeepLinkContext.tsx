@@ -36,18 +36,23 @@ const DeepLinkHandler = () => {
     const searchParams: DeepLinkParams = parseDeepLink(url);
     const cryptoUtils = new CryptoUtils();
     if (searchParams.consentAddress) {
-      cryptoUtils.getTokenId().map((tokenId) => {
-        const _invitation: Invitation = {
-          domain: "" as DomainName,
-          consentContractAddress:
-            searchParams.consentAddress as EVMContractAddress,
-          tokenId: searchParams?.tokenId
-            ? TokenId(BigInt(searchParams?.tokenId))
-            : tokenId,
-          businessSignature: searchParams?.signature as Signature | null,
-        };
-        handleInvitation(_invitation);
-      });
+      cryptoUtils
+        .getTokenId()
+        .map((tokenId) => {
+          const _invitation: Invitation = {
+            domain: "" as DomainName,
+            consentContractAddress:
+              searchParams.consentAddress as EVMContractAddress,
+            tokenId: searchParams?.tokenId
+              ? TokenId(BigInt(searchParams?.tokenId))
+              : tokenId,
+            businessSignature: searchParams?.signature as Signature | null,
+          };
+          handleInvitation(_invitation);
+        })
+        .mapErr((error) => {
+          console.log("Error getting token id", error);
+        });
     }
 
     return searchParams;
