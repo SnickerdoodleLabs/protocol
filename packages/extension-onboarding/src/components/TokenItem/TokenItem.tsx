@@ -56,7 +56,7 @@ const TokenItem: FC<ITokenItemProps> = ({ item }) => {
       py={1}
       justifyContent="space-between"
     >
-      <Box display="flex" flex={1}>
+      <Box display="flex" flex={1} alignItems={{ xs: "center" }}>
         <img
           width={36}
           height={36}
@@ -80,7 +80,7 @@ const TokenItem: FC<ITokenItemProps> = ({ item }) => {
               {tokenInfoObj[item.ticker]?.displayName ?? item?.ticker}
             </Typography>
           </Box>
-          <Box>
+          <Box className={classes.itemBalanceTicker}>
             <Typography
               style={{
                 fontFamily: "Space Grotesk",
@@ -95,7 +95,7 @@ const TokenItem: FC<ITokenItemProps> = ({ item }) => {
           </Box>
         </Box>
       </Box>
-      <Box height={50} display="flex" justifyContent="center" flex={1}>
+      <Box className={classes.priceHistory}>
         {priceHistory && (
           <Line
             height={50}

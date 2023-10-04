@@ -48,7 +48,7 @@ export const SolanaNFTItem: FC<ISolanaNFTItemProps> = ({
   }, [JSON.stringify(metadata)]);
 
   return (
-    <Grid item sm={3}>
+    <Grid item xs={6} sm={4} md={4} lg={3}>
       <Box
         border="1px solid #D9D9D9"
         display="flex"

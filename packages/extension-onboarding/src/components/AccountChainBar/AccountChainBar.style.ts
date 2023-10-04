@@ -9,6 +9,9 @@ export const useStyles = makeStyles((theme) => ({
   },
   selectAccount: {
     width: 260,
+    [theme.breakpoints.down("md")]: {
+      width: 170,
+    },
     height: 55,
     borderRadius: 8,
     fontSize: 14,
@@ -50,5 +53,19 @@ export const useStyles = makeStyles((theme) => ({
   },
   unfocused: {
     opacity: 0.3,
+  },
+  mobileswitchNetworkContainer: {
+    alignItems: "center",
+    display: "none",
+    [theme.breakpoints.down("xs")]: {
+      display: "flex",
+    },
+  },
+  switchNetworkContainer: {
+    alignItems: "center",
+    display: "flex",
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    },
   },
 }));

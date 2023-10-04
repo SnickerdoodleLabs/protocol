@@ -352,7 +352,7 @@ export default () => {
         chainSelect={chainSelect}
       />
       <Grid container spacing={3}>
-        <Grid item xs={6}>
+        <Grid item xs={12} sm={4} md={4} lg={6}>
           <Box
             p={3}
             pb={6}
@@ -387,7 +387,7 @@ export default () => {
             </Typography>
           </Box>
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={12} sm={8} md={8} lg={6}>
           <Box border="1px solid #EAECF0" borderRadius={8} p={3}>
             <Typography
               style={{

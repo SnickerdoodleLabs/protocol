@@ -1,3 +1,4 @@
+import { makeStyles } from "@material-ui/core";
 import React, { useEffect, useState, FC } from "react";
 import { useNavigate } from "react-router";
 
@@ -35,15 +36,29 @@ const MediaRenderer: FC<IMediaRendererProps> = ({ metadataString }) => {
     );
   }
 
+  const useStyles = makeStyles((theme) => ({
+    image: {
+      width: "160px",
+      height: "160px",
+      borderRadius: "80px",
+      objectFit: "cover",
+      [theme.breakpoints.down("sm")]: {
+        width: "140px",
+        height: "140px",
+      },
+      [theme.breakpoints.down("xs")]: {
+        width: "130px",
+        height: "130px",
+      },
+    },
+  }));
+
+  const classes = useStyles();
+
   return (
     <>
       {nftData && (
-        <img
-          width={160}
-          height={160}
-          style={{ borderRadius: 80, objectFit: "cover" }}
-          src={nftData.imageUrl || placeholder}
-        />
+        <img className={classes.image} src={nftData.imageUrl || placeholder} />
       )}
     </>
   );

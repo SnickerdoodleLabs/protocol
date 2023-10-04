@@ -1,11 +1,3 @@
-import { useStyles } from "@extension-onboarding/components/AccountChainBar/AccountChainBar.style";
-import {
-  AccountIdentIcon,
-  getAccountAddressText,
-} from "@snickerdoodlelabs/shared-components";
-import Switch from "@extension-onboarding/components/Switch";
-import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
-import { useAppContext } from "@extension-onboarding/context/App";
 import { Box, MenuItem, Select, Typography } from "@material-ui/core";
 import {
   AccountAddress,
@@ -13,9 +5,17 @@ import {
   ChainId,
   EChainType,
 } from "@snickerdoodlelabs/objects";
-
+import {
+  AccountIdentIcon,
+  getAccountAddressText,
+} from "@snickerdoodlelabs/shared-components";
 import clsx from "clsx";
 import React, { FC, useEffect, useMemo } from "react";
+
+import { useStyles } from "@extension-onboarding/components/AccountChainBar/AccountChainBar.style";
+import Switch from "@extension-onboarding/components/Switch";
+import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
+import { useAppContext } from "@extension-onboarding/context/App";
 
 export enum EDisplayMode {
   MAINNET,
@@ -98,50 +98,11 @@ const AccountChainBar: FC<IAccountChainBarProps> = ({
   }, [displayMode]);
 
   return (
-    <Box mt={5} display="flex" mb={2}>
-      <Box>
-        <Typography id="portfolio-test" className={classes.subTitle}>
-          Accounts
-        </Typography>
-        <Box mt={0.5} display="flex" justifyContent="space-between">
-          <Box>
-            <Select
-              className={classes.selectAccount}
-              fullWidth
-              variant="outlined"
-              name="accounts"
-              value={accountSelect ?? "all"}
-              placeholder="All"
-              onChange={handleAccountChange}
-            >
-              <MenuItem value="all">All</MenuItem>
-              {linkedAccounts?.map((account) => {
-                return (
-                  <MenuItem
-                    key={account.sourceAccountAddress}
-                    value={account.sourceAccountAddress}
-                  >
-                    <Box display="flex" alignItems="center">
-                      <Box>
-                        <AccountIdentIcon
-                          accountAddress={account.sourceAccountAddress}
-                        />
-                      </Box>
-                      <Typography className={classes.accountAddressText}>
-                        {getAccountAddressText(account.sourceAccountAddress)}
-                      </Typography>
-                    </Box>
-                  </MenuItem>
-                );
-              })}
-            </Select>
-          </Box>
-        </Box>
-      </Box>
-      <Box display="flex" marginLeft="auto" alignItems="center">
+    <>
+      <Box mt={5} display="flex" mb={2}>
         <Box>
           <Typography id="portfolio-test" className={classes.subTitle}>
-            Chain
+            Accounts
           </Typography>
           <Box mt={0.5} display="flex" justifyContent="space-between">
             <Box>
@@ -149,26 +110,26 @@ const AccountChainBar: FC<IAccountChainBarProps> = ({
                 className={classes.selectAccount}
                 fullWidth
                 variant="outlined"
-                name="chains"
-                value={chainSelect ?? "all"}
+                name="accounts"
+                value={accountSelect ?? "all"}
                 placeholder="All"
-                onChange={handleChainChange}
+                onChange={handleAccountChange}
               >
                 <MenuItem value="all">All</MenuItem>
-                {chainIdsToRender.map((chainId) => {
-                  const iconSrc =
-                    tokenInfoObj[
-                      chainConfig.get(chainId)?.nativeCurrency?.symbol ?? ""
-                    ]?.iconSrc;
+                {linkedAccounts?.map((account) => {
                   return (
-                    <MenuItem key={chainId} value={chainId}>
+                    <MenuItem
+                      key={account.sourceAccountAddress}
+                      value={account.sourceAccountAddress}
+                    >
                       <Box display="flex" alignItems="center">
-                        <img
-                          src={iconSrc}
-                          style={{ width: 24, height: 24, marginRight: 8 }}
-                        />
+                        <Box>
+                          <AccountIdentIcon
+                            accountAddress={account.sourceAccountAddress}
+                          />
+                        </Box>
                         <Typography className={classes.accountAddressText}>
-                          {chainConfig.get(chainId)?.name}
+                          {getAccountAddressText(account.sourceAccountAddress)}
                         </Typography>
                       </Box>
                     </MenuItem>
@@ -178,41 +139,120 @@ const AccountChainBar: FC<IAccountChainBarProps> = ({
             </Box>
           </Box>
         </Box>
-        <Box ml={2} mt={2} display="flex" alignItems="center">
-          <Typography
-            onClick={() => {
-              setDisplayMode(EDisplayMode.TESTNET);
-            }}
-            className={clsx(classes.switchNetwork, {
-              [classes.unfocused]: displayMode != EDisplayMode.TESTNET,
-            })}
-          >
-            Testnet
-          </Typography>
-          <Switch
-            checked={displayMode === EDisplayMode.MAINNET}
-            value={displayMode === EDisplayMode.MAINNET}
-            onChange={(e) => {
-              if (e.target.checked) {
-                setDisplayMode(EDisplayMode.MAINNET);
-              } else {
+        <Box display="flex" marginLeft="auto" alignItems="center">
+          <Box>
+            <Typography id="portfolio-test" className={classes.subTitle}>
+              Chain
+            </Typography>
+            <Box mt={0.5} display="flex" justifyContent="space-between">
+              <Box>
+                <Select
+                  className={classes.selectAccount}
+                  fullWidth
+                  variant="outlined"
+                  name="chains"
+                  value={chainSelect ?? "all"}
+                  placeholder="All"
+                  onChange={handleChainChange}
+                >
+                  <MenuItem value="all">All</MenuItem>
+                  {chainIdsToRender.map((chainId) => {
+                    const iconSrc =
+                      tokenInfoObj[
+                        chainConfig.get(chainId)?.nativeCurrency?.symbol ?? ""
+                      ]?.iconSrc;
+                    return (
+                      <MenuItem key={chainId} value={chainId}>
+                        <Box display="flex" alignItems="center">
+                          <img
+                            src={iconSrc}
+                            style={{ width: 24, height: 24, marginRight: 8 }}
+                          />
+                          <Typography className={classes.accountAddressText}>
+                            {chainConfig.get(chainId)?.name}
+                          </Typography>
+                        </Box>
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </Box>
+            </Box>
+          </Box>
+          <Box ml={2} mt={2} className={classes.switchNetworkContainer}>
+            <Typography
+              onClick={() => {
                 setDisplayMode(EDisplayMode.TESTNET);
-              }
-            }}
-          />
-          <Typography
-            onClick={() => {
-              setDisplayMode(EDisplayMode.MAINNET);
-            }}
-            className={clsx(classes.switchNetwork, {
-              [classes.unfocused]: displayMode != EDisplayMode.MAINNET,
-            })}
-          >
-            Mainnet
-          </Typography>
+              }}
+              className={clsx(classes.switchNetwork, {
+                [classes.unfocused]: displayMode != EDisplayMode.TESTNET,
+              })}
+            >
+              Testnet
+            </Typography>
+            <Switch
+              checked={displayMode === EDisplayMode.MAINNET}
+              value={displayMode === EDisplayMode.MAINNET}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setDisplayMode(EDisplayMode.MAINNET);
+                } else {
+                  setDisplayMode(EDisplayMode.TESTNET);
+                }
+              }}
+            />
+            <Typography
+              onClick={() => {
+                setDisplayMode(EDisplayMode.MAINNET);
+              }}
+              className={clsx(classes.switchNetwork, {
+                [classes.unfocused]: displayMode != EDisplayMode.MAINNET,
+              })}
+            >
+              Mainnet
+            </Typography>
+          </Box>
         </Box>
       </Box>
-    </Box>
+      <Box
+        ml={2}
+        mt={2}
+        mb={2}
+        className={classes.mobileswitchNetworkContainer}
+      >
+        <Typography
+          onClick={() => {
+            setDisplayMode(EDisplayMode.TESTNET);
+          }}
+          className={clsx(classes.switchNetwork, {
+            [classes.unfocused]: displayMode != EDisplayMode.TESTNET,
+          })}
+        >
+          Testnet
+        </Typography>
+        <Switch
+          checked={displayMode === EDisplayMode.MAINNET}
+          value={displayMode === EDisplayMode.MAINNET}
+          onChange={(e) => {
+            if (e.target.checked) {
+              setDisplayMode(EDisplayMode.MAINNET);
+            } else {
+              setDisplayMode(EDisplayMode.TESTNET);
+            }
+          }}
+        />
+        <Typography
+          onClick={() => {
+            setDisplayMode(EDisplayMode.MAINNET);
+          }}
+          className={clsx(classes.switchNetwork, {
+            [classes.unfocused]: displayMode != EDisplayMode.MAINNET,
+          })}
+        >
+          Mainnet
+        </Typography>
+      </Box>
+    </>
   );
 };
 export default AccountChainBar;

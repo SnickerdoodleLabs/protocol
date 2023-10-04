@@ -115,4 +115,18 @@ export const useStyles = makeStyles((theme) => ({
     lineHeight: "160%",
     opacity: "0.6",
   },
+  priceHistory: {
+    height: 50,
+    display: "flex",
+    justifyContent: "center",
+    flex: 1,
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    },
+  },
+  itemBalanceTicker: {
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    },
+  },
 }));
