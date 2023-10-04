@@ -17,6 +17,7 @@ import {
   Signature,
   SolanaAccountAddress,
   SolanaPrivateKey,
+  SuiAccountAddress,
   TokenAndSecret,
   TokenId,
   URLString,
@@ -79,6 +80,12 @@ export interface ICryptoUtils {
     signature: Signature,
     accountAddress: SolanaAccountAddress,
   ): ResultAsync<boolean, never>;
+
+  verifySuiSignature(
+    message: string,
+    signature: Signature,
+    accountAddress: SolanaAccountAddress,
+  ): ResultAsync<SuiAccountAddress, never>;
 
   verifyTypedData(
     domain: TypedDataDomain,

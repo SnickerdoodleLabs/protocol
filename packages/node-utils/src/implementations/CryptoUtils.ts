@@ -28,6 +28,7 @@ import {
   URLString,
   UUID,
   OAuth1Config,
+  SuiAccountAddress,
 } from "@snickerdoodlelabs/objects";
 // import argon2 from "argon2";
 import { BigNumber, ethers } from "ethers";
@@ -253,6 +254,17 @@ export class CryptoUtils implements ICryptoUtils {
     signature: Signature,
   ): ResultAsync<EVMAccountAddress, never> {
     const address = EVMAccountAddress(
+      ethers.utils.verifyMessage(message, signature),
+    );
+    return okAsync(address);
+  }
+
+  public verifySuiSignature(
+    message: string,
+    signature: Signature,
+    accountAddress: SolanaAccountAddress,
+  ): ResultAsync<SuiAccountAddress, never> {
+    const address = SuiAccountAddress(
       ethers.utils.verifyMessage(message, signature),
     );
     return okAsync(address);
