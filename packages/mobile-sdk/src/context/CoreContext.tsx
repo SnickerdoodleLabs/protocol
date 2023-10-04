@@ -1,4 +1,3 @@
-// src/DeepLinkContext.tsx
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import React, { createContext, useContext, useMemo, useState } from "react";
 import {
@@ -11,7 +10,6 @@ import {
 import { MobileStorageUtils } from "../components/MobileStorageUtils";
 import { ResultAsync } from "neverthrow";
 
-// Define the context and its default values
 interface CoreContextType {
   snickerdoodleCore: SnickerdoodleCore;
   isUnlocked: boolean;

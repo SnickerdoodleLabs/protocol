@@ -10,12 +10,10 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
 
-//@TODO we can use it as a service rather than component
 type DeepLinkParams = {
   consentAddress?: string;
   tokenId?: string;
   signature?: string;
-  // Add more query parameters as needed
 };
 const DeepLinkHandler = () => {
   const { handleInvitation } = useInvitationContext();

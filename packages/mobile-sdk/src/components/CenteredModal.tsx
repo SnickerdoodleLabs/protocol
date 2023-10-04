@@ -32,7 +32,7 @@ const CenteredModal: React.FC<CenteredModalProps> = ({
       .andThen(() => {
         setIsLoading(false);
         setStatus(2);
-        return okAsync("unlocked");
+        return okAsync("accepted");
       })
       .mapErr((e) => {
         console.log("Error while accepting an invitation", e);

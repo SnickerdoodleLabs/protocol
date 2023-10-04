@@ -1,4 +1,3 @@
-// src/DeepLinkContext.tsx
 import React, { createContext, useContext, useEffect, useMemo } from "react";
 import { useCoreContext } from "./CoreContext";
 import {
@@ -21,7 +20,6 @@ const LayoutContext = createContext<ILayoutContextType>(
   {} as ILayoutContextType
 );
 
-// Deep link handling component
 const LayoutProvider: React.FC<ILayoutContextProps> = ({ children }: any) => {
   const { snickerdoodleCore } = useCoreContext();
   const [invitation, setInvitation] = React.useState<Invitation | null>(null);
@@ -31,17 +29,14 @@ const LayoutProvider: React.FC<ILayoutContextProps> = ({ children }: any) => {
 
   useEffect(() => {
     if (showPopup && invitation) {
-      console.log("showPopup", showPopup);
       snickerdoodleCore
         ?.getConsentContractCID(
           invitation?.consentContractAddress as EVMContractAddress
         )
         .map((cid) => {
-          console.log("cid", cid);
           snickerdoodleCore.invitation
             .getInvitationMetadataByCID(cid)
             .map((metaData) => {
-              console.log("metaData", metaData);
               setInvitationMetadata(metaData);
             });
         })
@@ -52,7 +47,6 @@ const LayoutProvider: React.FC<ILayoutContextProps> = ({ children }: any) => {
   }, [showPopup, invitation]);
 
   const invitationPopup = useMemo(() => {
-    console.log("invitationPopup", invitationMetadata);
     if (showPopup && invitationMetadata) {
       return (
         <CenteredModal
@@ -69,10 +63,8 @@ const LayoutProvider: React.FC<ILayoutContextProps> = ({ children }: any) => {
   }, [showPopup, invitationMetadata]);
 
   const handlePopup = (invitationParams: InvitationPopupProps) => {
-    console.log("handlePopup", invitationParams);
     setShowPopup(invitationParams.status);
     setInvitation(invitationParams.invitation);
-    console.log("popupend");
   };
   return (
     <LayoutContext.Provider value={{ handlePopup }}>

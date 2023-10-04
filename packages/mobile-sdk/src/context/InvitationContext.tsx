@@ -1,4 +1,3 @@
-// src/DeepLinkContext.tsx
 import React, { createContext, useContext, useState, useEffect } from "react";
 import {
   EVMContractAddress,
@@ -16,7 +15,6 @@ export interface IInvitationParams {
   signature: Signature | undefined;
 }
 
-// Define the context and its default values
 export interface InvitationContextType {
   invitation: Invitation | null;
   handleInvitation: (invitation: Invitation | null) => void;
@@ -26,7 +24,6 @@ const InvitationContext = createContext<InvitationContextType>(
   {} as InvitationContextType
 );
 
-// Deep link handling component
 const InvitationProvider: React.FC = ({ children }:any) => {
   const { snickerdoodleCore , isUnlocked } = useCoreContext();
   const { handlePopup } = useLayoutContext();
