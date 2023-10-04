@@ -33,7 +33,6 @@ const InvitationProvider: React.FC = ({ children }:any) => {
       snickerdoodleCore?.invitation
         .checkInvitationStatus(invitation)
         .map((invitationStatus) => {
-          console.log('INVITATION STATUS', invitationStatus)
           if (invitationStatus === EInvitationStatus.New) {
             handlePopup({ status: true, invitation: invitation } as InvitationPopupProps);
           }

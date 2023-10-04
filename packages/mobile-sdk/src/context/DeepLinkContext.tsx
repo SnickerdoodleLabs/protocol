@@ -33,7 +33,6 @@ const DeepLinkHandler = () => {
     if (!url) {
       return null;
     }
-    console.log("FOUND URL", url);
     const searchParams: DeepLinkParams = parseDeepLink(url);
     const cryptoUtils = new CryptoUtils();
     if (searchParams.consentAddress) {
