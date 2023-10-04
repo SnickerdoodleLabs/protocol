@@ -346,8 +346,8 @@ export class DataWalletProfile {
               evmT.hash,
               evmT.timestamp,
               evmT.blockHeight,
-              EVMAccountAddress(evmT.to),
-              EVMAccountAddress(evmT.from),
+              EVMAccountAddress(evmT.to.toLowerCase()),
+              EVMAccountAddress(evmT.from.toLowerCase()),
               evmT.value ? BigNumberString(evmT.value) : null,
               evmT.gasPrice ? BigNumberString(evmT.gasPrice) : null,
               evmT.contractAddress

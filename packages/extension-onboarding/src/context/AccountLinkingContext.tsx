@@ -2,6 +2,8 @@ import {
   defaultLanguageCode,
   EChain,
   ESocialType,
+  AccountAddress,
+  Signature,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -12,6 +14,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useState,
 } from "react";
 
 import AccountLinkingIndicator from "@extension-onboarding/components/loadingIndicators/AccountLinking";
@@ -33,6 +36,11 @@ import {
   IDiscordProvider,
   ITwitterProvider,
 } from "@extension-onboarding/services/socialMediaProviders/interfaces";
+import { ConnectModal, useWallet } from "@suiet/wallet-kit";
+
+export enum EWalletProviderKit {
+  SUI = "SUI",
+}
 
 interface IAccountLinkingContext {
   detectedProviders: IProvider[];
@@ -43,6 +51,7 @@ interface IAccountLinkingContext {
   onProviderConnectClick: (
     providerObj: IProvider,
   ) => ResultAsync<void, unknown>;
+  onWalletKitConnectClick: (walletKit: EWalletProviderKit) => void;
 }
 
 const AccountLinkingContext = createContext<IAccountLinkingContext>(
@@ -59,6 +68,16 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
     socialMediaProviderList,
   } = useAppContext();
   const { setModal, setLoadingStatus } = useLayoutContext();
+  const [isSuiOpen, setIsSuiOpen] = useState(false);
+  const suiWallet = useWallet();
+
+  useEffect(() => {}, [suiWallet.connected]);
+
+  useEffect(() => {
+    if (suiWallet.connected) {
+      handleSuiWalletConnect();
+    }
+  }, [suiWallet.connected]);
 
   const { detectedProviders, unDetectedProviders, walletConnect } =
     useMemo(() => {
@@ -106,6 +125,70 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
       ? EChain.Solana
       : EChain.EthereumMainnet;
   };
+
+  const handleSuiWalletConnect = useCallback(() => {
+    if (suiWallet.connected) {
+      return sdlDataWallet.account
+        .getLinkAccountMessage(defaultLanguageCode)
+        .andThen((message) => {
+          return ResultAsync.fromPromise(
+            suiWallet.signMessage({
+              message: new TextEncoder().encode(message),
+            }),
+            () => new Error("Error signing message"),
+          ).andThen((signature) => {
+            console.log("signature", signature);
+            console.log("account", suiWallet.account?.address || "");
+            if (
+              !linkedAccounts?.find(
+                (linkedAccount) =>
+                  linkedAccount.sourceAccountAddress ===
+                  (suiWallet.account?.address || ""),
+              )
+            ) {
+              setLoadingStatus(true, {
+                type: ELoadingIndicatorType.COMPONENT,
+                component: <AccountLinkingIndicator />,
+              });
+              return (
+                okAsync(undefined)
+                  // @TODO use that function with correct params
+                  // sdlDataWallet.account
+                  //   .addAccount(
+                  //     (suiWallet.account?.address || "") as AccountAddress,
+                  //     signature.signature as Signature,
+                  //     defaultLanguageCode,
+                  //     EChain.EthereumMainnet,
+                  //   )
+                  .mapErr((e) => {
+                    console.error(e);
+                    setLoadingStatus(false);
+                  })
+                  .map(() => {
+                    setIsSuiOpen(false);
+                    setLoadingStatus(false);
+                  })
+              );
+            }
+            // The new account is already linked
+            setModal({
+              modalSelector: EModalSelectors.PHANTOM_LINKING_STEPS,
+              onPrimaryButtonClick: () => {},
+              customProps: { accountAddress: suiWallet.account?.address || "" },
+            });
+            return okAsync(undefined);
+          });
+        })
+        .mapErr(() => {
+          setIsSuiOpen(false);
+          suiWallet.disconnect();
+        })
+        .map(() => {
+          suiWallet.disconnect();
+        });
+    }
+    return;
+  }, [suiWallet, linkedAccounts]);
 
   const onProviderConnectClick = useCallback(
     (providerObj: IProvider) => {
@@ -156,6 +239,12 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
     [linkedAccounts],
   );
 
+  const onWalletKitConnectClick = (walletKit: EWalletProviderKit) => {
+    if (walletKit === EWalletProviderKit.SUI) {
+      setIsSuiOpen(true);
+    }
+  };
+
   return (
     <AccountLinkingContext.Provider
       value={{
@@ -165,11 +254,18 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
         discordProvider,
         twitterProvider,
         onProviderConnectClick,
+        onWalletKitConnectClick,
       }}
     >
       {isLinkerModalOpen && (
         <LinkAccountModal closeModal={setLinkerModalClose} />
       )}
+      <ConnectModal
+        onOpenChange={() => {
+          setIsSuiOpen(false);
+        }}
+        open={isSuiOpen}
+      />
       {children}
     </AccountLinkingContext.Provider>
   );
