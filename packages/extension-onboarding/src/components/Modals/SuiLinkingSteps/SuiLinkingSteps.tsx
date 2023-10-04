@@ -1,8 +1,10 @@
-import suiPlaceholderImage from "@extension-onboarding/assets/images/sui-placeholder.png";
-import suiStepsImage from "@extension-onboarding/assets/images/sui-steps.png";
+// import suiPlaceholderImage from "@extension-onboarding/assets/images/sui-placeholder.png";
+// import suiStepsImage from "@extension-onboarding/assets/images/sui-steps.png";
 import { Button, Box, makeStyles, Dialog, Typography } from "@material-ui/core";
 import React, { useContext, useEffect, useMemo, useState, FC } from "react";
 
+import phantomPlaceholderImage from "@extension-onboarding/assets/images/phantom-placeholder.png";
+import phantomStepsImage from "@extension-onboarding/assets/images/phantom-steps.png";
 import { useStyles } from "@extension-onboarding/components/Modals/SuiLinkingSteps/SuiLinkingSteps.style";
 import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
@@ -41,11 +43,11 @@ const SuiLinkingSteps: FC = () => {
         </Box>
         <Box mt={5} display="flex" justifyContent="flex-end">
           <Box display="flex" flex={1}>
-            <img src={suiPlaceholderImage} />
+            <img src={phantomPlaceholderImage} />
           </Box>
           <Box display="flex" alignItems="center" flex={3} pl={5}>
             <Box width="100%">
-              <img src={suiStepsImage} />
+              <img src={phantomStepsImage} />
             </Box>
           </Box>
         </Box>

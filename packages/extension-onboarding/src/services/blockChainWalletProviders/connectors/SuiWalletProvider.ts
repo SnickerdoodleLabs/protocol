@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Web3Provider, JsonRpcSigner } from "@ethersproject/providers";
-import { AccountAddress, Signature } from "@snickerdoodlelabs/objects";
+import {
+  AccountAddress,
+  EVMAccountAddress,
+  Signature,
+  SuiAccountAddress,
+} from "@snickerdoodlelabs/objects";
 import { PublicKey } from "@solana/web3.js";
 import { ethers } from "ethers";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
@@ -13,7 +18,7 @@ type DisplayEncoding = "utf8" | "hex";
 interface ConnectOpts {
   onlyIfTrusted: boolean;
 }
-type SuiRequestMethod =
+type PhantomRequestMethod =
   | "connect"
   | "disconnect"
   | "signAndSendTransaction"
@@ -21,10 +26,10 @@ type SuiRequestMethod =
   | "signAllTransactions"
   | "signMessage";
 
-interface SuiProvider {
+interface PhantomProvider {
   publicKey: PublicKey | null;
   isConnected: boolean | null;
-  request: (method: SuiRequestMethod, params: any) => Promise<unknown>;
+  request: (method: PhantomRequestMethod, params: any) => Promise<unknown>;
   connect: (opts?: Partial<ConnectOpts>) => Promise<{ publicKey: PublicKey }>;
   signMessage: (
     message: Uint8Array | string,
@@ -33,40 +38,57 @@ interface SuiProvider {
 }
 
 export class SuiWalletProvider implements IWalletProvider {
-  protected _provider: SuiProvider | null;
+  protected _provider: PhantomProvider | null;
 
   constructor() {
+    console.log("Sui Wallet Constructor!");
+
     // @ts-ignore
     this._provider = window?.solana?.isPhantom && window.solana;
+    // this._provider = window?.sui?.isSuiWallet && window.sui;
+
+    // this._provider = SuiProvider();
+    console.log("Sui provider: " + this._provider);
   }
 
   public get isInstalled(): boolean {
     return !!this._provider;
   }
   public connect(): ResultAsync<AccountAddress, unknown> {
+    console.log("Sui Connect 1!");
+    // return okAsync(EVMAccountAddress(""));
+
     if (!this._provider) {
-      return errAsync(new Error("Phantom is not installed!"));
+      return errAsync(new Error("Sui Wallet is not installed!"));
     }
     return ResultAsync.fromPromise(
       this._provider.connect() as Promise<{ publicKey: PublicKey }>,
       (e) => errAsync(new Error("User cancelled")),
     ).andThen((publicKey) => {
-      const account = publicKey.publicKey.toBase58();
+      console.log("Sui Connect 2!");
+
+      //   const account = publicKey.publicKey.toBase58();
+      const account = publicKey.publicKey.toString();
       return okAsync(account as AccountAddress);
     });
   }
   public getSignature(message: string): ResultAsync<Signature, unknown> {
-    if (!this._provider) {
-      return errAsync("Should call connect() first.");
-    }
-    const encodedMessage = new TextEncoder().encode(message);
-    return ResultAsync.fromPromise(
-      // @ts-ignore
-      this._provider.signMessage(encodedMessage),
-      (e) => errAsync(new Error("User cancelled")),
-    ).andThen((signatureResult) => {
-      return okAsync(Signature(signatureResult?.signature?.toString?.("hex")));
-    });
+    console.log("Sui Connect 3!");
+    return okAsync(Signature(""));
+
+    // if (!this._provider) {
+    //   return errAsync("Should call connect() first.");
+    // }
+    // const encodedMessage = new TextEncoder().encode(message);
+    // return ResultAsync.fromPromise(
+    //   // @ts-ignore
+    //   this._provider.signMessage(encodedMessage),
+    //   (e) => errAsync(new Error("User cancelled")),
+    // ).andThen((signatureResult) => {
+    //   console.log("Sui Connect 4!");
+
+    //   return okAsync(Signature(signatureResult?.signature?.toString?.("hex")));
+    // });
   }
   public checkAndSwitchToControlChain(): ResultAsync<
     ethers.providers.Web3Provider,

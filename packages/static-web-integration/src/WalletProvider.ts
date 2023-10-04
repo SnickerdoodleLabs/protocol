@@ -117,5 +117,6 @@ export class WalletProvider {
 declare global {
   interface Window {
     ethereum?: ExternalProvider;
+    sui?: ExternalProvider;
   }
 }
