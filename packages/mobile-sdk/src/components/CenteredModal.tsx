@@ -5,7 +5,7 @@ import {
   Invitation,
 } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
-import { useCoreContext } from "snickerdoodlesdk-test";
+import { useCoreContext } from "@snickerdoodlelabs/mobile-integration";
 import CustomSwitch from "./CustomSwitch";
 interface CenteredModalProps {
   invitation: Invitation;

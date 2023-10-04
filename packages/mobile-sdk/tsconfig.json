@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "snickerdoodlesdk-test": ["./src/index"]
+      "@snickerdoodlelabs/mobile-integration": ["./src/index"]
     },
     "typeRoots": ["./typings"],
     "allowUnreachableCode": false,
