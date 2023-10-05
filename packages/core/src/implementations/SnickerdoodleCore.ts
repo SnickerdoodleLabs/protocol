@@ -110,6 +110,7 @@ import {
   IScraperNavigationMethods,
   PageNo,
   Year,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
