@@ -30,8 +30,6 @@ export interface IScraperService {
     url: URLString,
     language: ELanguageCode,
   ): ResultAsync<DomainTask, ScraperError>;
-
-  poll(): ResultAsync<void, ScraperError>;
 }
 
 export const IScraperServiceType = Symbol.for("IScraperService");

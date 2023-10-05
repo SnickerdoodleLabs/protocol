@@ -43,13 +43,8 @@ export class ScraperService implements IScraperService {
     url: URLString,
     language: ELanguageCode,
   ): ResultAsync<DomainTask, ScraperError> {
-    return this.classifyURL(url, language).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new ScraperError((error as Error).message, error);
-    });
-  }
-  poll(): ResultAsync<void, ScraperError> {
-    return this.poll().mapErr((error) => {
+    console.log("RPCSCRAPERSERVICE");
+    return this.core.scraper.classifyURL(url, language).mapErr((error) => {
       this.errorUtils.emit(error);
       return new ScraperError((error as Error).message, error);
     });

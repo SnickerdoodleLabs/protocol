@@ -3,10 +3,13 @@ import {
   BaseNotification,
   DomainName,
   EInvitationStatus,
+  ELanguageCode,
   ENotificationTypes,
   EWalletDataType,
+  HTMLString,
   LinkedAccount,
   PossibleReward,
+  URLString,
   UUID,
 } from "@snickerdoodlelabs/objects";
 import endOfStream from "end-of-stream";
@@ -198,6 +201,31 @@ const App = () => {
       eventEmitter.off(PORT_NOTIFICATION, handleNotification);
     };
   }, []);
+
+  useEffect(() => {
+    checkURLAMAZON();
+  }, []);
+
+  const checkURLAMAZON = () => {
+    const url = window.location.href;
+    console.log(url, "URLLL");
+    const html = document.documentElement.outerHTML;
+
+    if (url.includes("order-history") && url.includes("amazon")) {
+      console.log("TEST1");
+      coreGateway.scraper
+        .classifyURL(URLString(url), ELanguageCode.English)
+        .andThen((DomainTask) => {
+          console.log("DOMAINTASKSKKK", DomainTask);
+          return coreGateway.scraper
+            .scrape(URLString(url), HTMLString(html), DomainTask)
+            .map((result) => console.log("RESULLLTTT", result))
+            .mapErr((err) => console.log("iç", err));
+        })
+        .mapErr((err) => console.log("broooo", err));
+    }
+    console.log("TEST2");
+  };
 
   const getAccounts = () => {
     coreGateway.getAccounts().map((linkedAccounts) => {
