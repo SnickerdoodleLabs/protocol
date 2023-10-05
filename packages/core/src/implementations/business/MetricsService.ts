@@ -44,8 +44,6 @@ export class MetricsService implements IMetricsService {
   protected globalQueryErrors: DoublyLinkedList<QueryPerformanceEvent> =
     new DoublyLinkedList<QueryPerformanceEvent>();
 
-  //protected queryErrors: Record<IpfsCID, QueryPerformanceEvent[]> | {} = {};
-
   public initialize(): ResultAsync<void, never> {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
@@ -116,7 +114,7 @@ export class MetricsService implements IMetricsService {
         const statsMap = new Map(
           apiStats.map((stats) => [stats.stat as EExternalApi, stats]),
         );
-        const queryErrors : Record<IpfsCID,QueryPerformanceEvent[]> = {}
+        const queryErrors: Record<IpfsCID, QueryPerformanceEvent[]> = {};
         for (const cid in this.queryErrors) {
           queryErrors[cid] = this.queryErrors[cid].toArray();
         }
@@ -133,7 +131,7 @@ export class MetricsService implements IMetricsService {
           restoredBackups,
           context.components,
           this.metricsRepo.getQueryPerformanceData(),
-          queryErrors
+          queryErrors,
         );
       },
     );
@@ -159,7 +157,7 @@ export class MetricsService implements IMetricsService {
           }
           this.queryErrors[event.queryCID].append(event);
           this.globalQueryErrors.append(event);
-          this.removeOldestErrorsUntilLimit(sizeLimit)
+          this.removeOldestErrorsUntilLimit(sizeLimit);
         }
 
         const elapsed =
@@ -186,7 +184,7 @@ export class MetricsService implements IMetricsService {
     }
   }
 
-  private generateQueryEventStorage(sizeLimit : number): void {
+  private generateQueryEventStorage(sizeLimit: number): void {
     Object.values(EQueryEvents).forEach((eventName) => {
       this.metricsRepo.createQueryPerformanceStorage(eventName, sizeLimit);
       this.queryEventsElapsedStartTimes[eventName] = [];
