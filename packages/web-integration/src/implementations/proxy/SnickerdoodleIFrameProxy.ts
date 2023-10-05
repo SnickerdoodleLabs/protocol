@@ -78,6 +78,9 @@ import {
   RefreshToken,
   OAuth2Tokens,
   IProxyAccountMethods,
+  ChainTransaction,
+  TransactionFilter,
+  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -361,6 +364,20 @@ export class SnickerdoodleIFrameProxy
       chainId,
       contractAddress,
     });
+  }
+
+  getTransactions(
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], ProxyError> {
+    return this._createCall("getTransactions", {
+      filter,
+    });
+  }
+  getTransactionValueByChain(): ResultAsync<
+    TransactionPaymentCounter[],
+    ProxyError
+  > {
+    return this._createCall("getTransactionValueByChain", null);
   }
 
   public getAccountBalances(): ResultAsync<TokenBalance[], ProxyError> {

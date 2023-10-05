@@ -57,6 +57,9 @@ import {
   LanguageCode,
   EChain,
   Signature,
+  ChainTransaction,
+  TransactionFilter,
+  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -143,6 +146,8 @@ import {
   GetQueryStatusesParams,
   AddAccountWithExternalSignatureParams,
   AddAccountWithExternalTypedDataSignatureParams,
+  GetTransactionsParams,
+  GetTransactionValueByChainParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -420,6 +425,18 @@ export class ExternalCoreGateway {
   }
   public getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError> {
     return this._handler.call(new GetAccountNFTsParams());
+  }
+
+  public getTransactions(
+    params: GetTransactionsParams,
+  ): ResultAsync<ChainTransaction[], ProxyError> {
+    return this._handler.call(params);
+  }
+  public getTransactionValueByChain(): ResultAsync<
+    TransactionPaymentCounter[],
+    ProxyError
+  > {
+    return this._handler.call(new GetTransactionValueByChainParams());
   }
 
   public setFamilyName(
