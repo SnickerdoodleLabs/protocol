@@ -27,7 +27,6 @@ export enum EPaths {
   REWARDS_SUBSCRIPTION_REWARD_DETAIL = "/settings/rewards-subscriptions/reward-program-detail/reward-detail",
   STORAGE_SETTINGS = "/settings/storage",
   // DATA_PERMISSIONS_SETTING = "/settings/data-permissions",
-  SCAM_FILTER_SETTINGS = "/settings/scam-filter",
   TOKENS = "/data-dashboard/tokens",
   NFTS = "/data-dashboard/nfts",
   POAP_NFTS = "/data-dashboard/poap-nfts",

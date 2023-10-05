@@ -160,7 +160,6 @@ import {
   MonitoringService,
   ProfileService,
   QueryService,
-  SiftContractService,
   TwitterService,
   CloudStorageService,
 } from "@core/implementations/business/index.js";
@@ -193,7 +192,6 @@ import {
   PermissionRepository,
   PortfolioBalanceRepository,
   SDQLQueryRepository,
-  SiftContractRepository,
   SocialRepository,
   TransactionHistoryRepository,
   TwitterRepository,
@@ -240,8 +238,6 @@ import {
   IProfileServiceType,
   IQueryService,
   IQueryServiceType,
-  ISiftContractService,
-  ISiftContractServiceType,
   ITwitterService,
   ITwitterServiceType,
 } from "@core/interfaces/business/index.js";
@@ -296,8 +292,6 @@ import {
   IPortfolioBalanceRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
-  ISiftContractRepository,
-  ISiftContractRepositoryType,
   ISocialRepository,
   ISocialRepositoryType,
   ITransactionHistoryRepository,
@@ -372,9 +366,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IMonitoringService>(IMonitoringServiceType)
       .to(MonitoringService)
       .inSingletonScope();
-    bind<ISiftContractService>(ISiftContractServiceType)
-      .to(SiftContractService)
-      .inSingletonScope();
 
     bind<IDiscordService>(IDiscordServiceType)
       .to(DiscordService)
@@ -405,9 +396,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IConsentContractRepository>(IConsentContractRepositoryType).to(
       ConsentContractRepository,
     );
-    bind<ISiftContractRepository>(ISiftContractRepositoryType)
-      .to(SiftContractRepository)
-      .inSingletonScope();
     bind<IMetatransactionForwarderRepository>(
       IMetatransactionForwarderRepositoryType,
     ).to(MetatransactionForwarderRepository);

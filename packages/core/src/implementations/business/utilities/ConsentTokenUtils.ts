@@ -53,7 +53,10 @@ export class ConsentTokenUtils {
       if (currentOptIn == null) {
         return okAsync(null);
       }
-      return this.consentRepo.getConsentToken(currentOptIn);
+      return this.consentRepo.getConsentToken(
+        currentOptIn.consentContractAddress,
+        currentOptIn.tokenId,
+      );
     });
   }
 

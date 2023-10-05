@@ -9,6 +9,10 @@ import {
   LLMPurchaseHistoryUtilsChatGPT,
   PromptBuilderFactory,
   AmazonNavigationUtils,
+  WebpageClassifier,
+  URLUtils,
+  KeywordRepository,
+  KeywordUtils,
 } from "@ai-scraper/implementations/index.js";
 import {
   IScraperConfigProvider,
@@ -29,6 +33,14 @@ import {
   IPromptBuilderFactoryType,
   IAmazonNavigationUtils,
   IAmazonNavigationUtilsType,
+  IWebpageClassifier,
+  IWebpageClassifierType,
+  IURLUtils,
+  IURLUtilsType,
+  IKeywordRepository,
+  IKeywordRepositoryType,
+  IKeywordUtils,
+  IKeywordUtilsType,
 } from "@ai-scraper/interfaces/index.js";
 
 export const scraperModule = new ContainerModule(
@@ -62,5 +74,13 @@ export const scraperModule = new ContainerModule(
     bind<IAmazonNavigationUtils>(IAmazonNavigationUtilsType)
       .to(AmazonNavigationUtils)
       .inSingletonScope();
+    bind<IWebpageClassifier>(IWebpageClassifierType)
+      .to(WebpageClassifier)
+      .inSingletonScope();
+    bind<IURLUtils>(IURLUtilsType).to(URLUtils).inSingletonScope();
+    bind<IKeywordRepository>(IKeywordRepositoryType)
+      .to(KeywordRepository)
+      .inSingletonScope();
+    bind<IKeywordUtils>(IKeywordUtilsType).to(KeywordUtils).inSingletonScope();
   },
 );

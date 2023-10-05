@@ -71,7 +71,6 @@ export const routes: IRoute[] = [
       { title: "Personal Info", path: EPaths.WEB2_SETTINGS },
       { title: "Rewards Subscriptions", path: EPaths.REWARDS_SUBSCRIPTIONS },
       { title: "Storage Settings", path: EPaths.STORAGE_SETTINGS },
-      { title: "Scam Filter", path: EPaths.SCAM_FILTER_SETTINGS },
     ],
   },
 ];

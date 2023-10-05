@@ -31,9 +31,6 @@ import React, {
 import { parse } from "tldts";
 import Browser from "webextension-polyfill";
 
-import ScamFilterComponent, {
-  EScamFilterStatus,
-} from "@synamint-extension-sdk/content/components/ScamFilterComponent";
 import Loading from "@synamint-extension-sdk/content/components/Screens/Loading";
 import Permissions from "@synamint-extension-sdk/content/components/Screens/Permissions";
 import RewardCard from "@synamint-extension-sdk/content/components/Screens/RewardCard";
@@ -57,7 +54,6 @@ import {
   GetInvitationWithDomainParams,
   AcceptInvitationByUUIDParams,
   RejectInvitationByUUIDParams,
-  CheckURLParams,
   SetReceivingAddressParams,
   IExtensionConfig,
   PORT_NOTIFICATION,
@@ -155,7 +151,6 @@ const App = () => {
   const [accounts, setAccounts] = useState<LinkedAccount[]>([]);
   const [invitationDomain, setInvitationDomain] =
     useState<IInvitationDomainWithUUID>();
-  const [scamFilterStatus, setScamFilterStatus] = useState<EScamFilterStatus>();
   const [subscriptionPreviewData, setSubscriptionPreviewData] = useState<{
     rewardsThatCanBeAcquired: PossibleReward[];
     rewardsThatRequireMorePermission: PossibleReward[];
@@ -188,10 +183,6 @@ const App = () => {
     return () => {
       window.removeEventListener("message", handleTabManagerMessage);
     };
-  }, []);
-
-  useEffect(() => {
-    initiateScamFilterStatus();
   }, []);
 
   useEffect(() => {
@@ -228,7 +219,7 @@ const App = () => {
   };
 
   const getAccounts = () => {
-    coreGateway.getAccounts().map((linkedAccounts) => {
+    coreGateway.account.getAccounts().map((linkedAccounts) => {
       setAccounts(linkedAccounts);
     });
   };
@@ -239,75 +230,12 @@ const App = () => {
     }
   };
 
-  const initiateScamFilterStatus = () => {
-    const url = window.location.hostname.replace("www.", "");
-
-    ResultUtils.combine([
-      coreGateway.getScamFilterSettings(),
-      coreGateway.checkURL(new CheckURLParams(url as DomainName)),
-    ]).andThen(([scamSettings, scamStatus]) => {
-      if (scamSettings.isScamFilterActive) {
-        if (scamSettings.showMessageEveryTime) {
-          setScamFilterStatus(scamStatus as EScamFilterStatus);
-        } else {
-          const arr: ISafeURLHistory[] = [];
-          Browser.storage.local.get("safeURLHistory").then((history) => {
-            if (history?.safeURLHistory?.length > 0) {
-              const isVisited = history.safeURLHistory.find(
-                (value) => value.url === url,
-              );
-              if (!isVisited) {
-                setScamFilterStatus(scamStatus as EScamFilterStatus);
-
-                if (scamStatus === EScamFilterStatus.VERIFIED) {
-                  Browser.storage.local.set({
-                    safeURLHistory: [...history.safeURLHistory, { url }],
-                  });
-                }
-              }
-            } else {
-              if (scamStatus === EScamFilterStatus.VERIFIED) {
-                arr.push({
-                  url,
-                });
-                Browser.storage.local.set({
-                  safeURLHistory: arr,
-                });
-              }
-            }
-          });
-        }
-      }
-
-      return okAsync(undefined);
-    });
-  };
-
   useEffect(() => {
     if (rewardToDisplay) {
       emptyReward();
     }
     initiateCohort();
   }, [_path]);
-
-  // useEffect(() => {
-  //   if (
-  //     invitationDomain &&
-  //     walletState === EWalletState.UNLOCKED &&
-  //     isStatusCheckRequiredRef.current
-  //   ) {
-  //     coreGateway
-  //       .checkInvitationStatus(
-  //         new CheckInvitationStatusParams(invitationDomain.consentAddress),
-  //       )
-  //       .map((result) => {
-  //         if (result != EInvitationStatus.New) {
-  //           emptyReward();
-  //         }
-  //         isStatusCheckRequiredRef.current = false;
-  //       });
-  //   }
-  // }, [JSON.stringify(invitationDomain)]);
 
   const initiateCohort = useCallback(async () => {
     const path = window.location.pathname;
@@ -482,17 +410,7 @@ const App = () => {
     return null;
   }
 
-  return (
-    <div>
-      {scamFilterStatus && (
-        <ScamFilterComponent
-          scamFilterStatus={scamFilterStatus}
-          coreGateway={coreGateway}
-        />
-      )}
-      {renderComponent}
-    </div>
-  );
+  return <div>{renderComponent}</div>;
 };
 
 export default App;

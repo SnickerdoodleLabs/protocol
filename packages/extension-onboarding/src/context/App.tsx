@@ -105,16 +105,12 @@ export const AppContextProvider: FC = ({ children }) => {
   const [isLinkerModalOpen, setIsLinkerModalOpen] =
     React.useState<boolean>(false);
   const [popupsDisabled, setPopupsDisabled] = useState<boolean>(false);
+  const initialAccountsFetchRef = React.useRef<boolean>(false);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
-    if (
-      localStorage.getItem(LOCAL_STORAGE_SDL_INVITATION_KEY) &&
-      !queryParams.get("consentAddress")
-    ) {
-      return setInvitationInfo(
-        JSON.parse(localStorage.getItem(LOCAL_STORAGE_SDL_INVITATION_KEY)!),
-      );
+    if (!queryParams.has("consentAddress")) {
+      return;
     }
     return setInvitationInfo({
       consentAddress: queryParams.get("consentAddress")
@@ -133,13 +129,14 @@ export const AppContextProvider: FC = ({ children }) => {
   }, [JSON.stringify(window.location.search)]);
 
   useEffect(() => {
-    if (invitationInfo.consentAddress) {
-      localStorage.setItem(
-        LOCAL_STORAGE_SDL_INVITATION_KEY,
-        JSON.stringify(invitationInfo),
-      );
+    if (
+      invitationInfo.consentAddress &&
+      linkedAccounts.length === 0 &&
+      initialAccountsFetchRef.current
+    ) {
+      setIsLinkerModalOpen(true);
     }
-  }, [JSON.stringify(invitationInfo)]);
+  }, [JSON.stringify(invitationInfo), linkedAccounts]);
 
   const updateInvitationInfo = (invitationInfo: IInvitationInfo) => {
     setInvitationInfo(invitationInfo);
@@ -239,7 +236,10 @@ export const AppContextProvider: FC = ({ children }) => {
   };
 
   const getUserAccounts = () => {
-    return sdlDataWallet.getAccounts().map((accounts) => {
+    if (!initialAccountsFetchRef.current) {
+      initialAccountsFetchRef.current = true;
+    }
+    return sdlDataWallet.account.getAccounts().map((accounts) => {
       setLinkedAccounts((prev) =>
         [...new Set(accounts.map((o) => JSON.stringify(o)))].map((s) =>
           JSON.parse(s),
