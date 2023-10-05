@@ -17,9 +17,12 @@ export interface IMetricsRepository {
   recordQueryPosted(): ResultAsync<void, never>;
   recordQueryPerformanceEvent(
     event: QueryPerformanceEvent,
-    elapsed: number,
+    elapsed: number
   ): void;
-  createQueryPerformanceStorage(eventName: EQueryEvents): void;
+  createQueryPerformanceStorage(
+    eventName: EQueryEvents,
+    sizeLimit: number,
+  ): void;
 
   getApiStatSummaries(): ResultAsync<StatSummary[], never>;
   getCreatedBackupsSummary(): ResultAsync<StatSummary, never>;

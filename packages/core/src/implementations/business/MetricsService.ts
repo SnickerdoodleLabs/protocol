@@ -4,11 +4,9 @@ import {
   EQueryEvents,
   EStatus,
   IpfsCID,
-  QueryPerformanceMetrics,
   RuntimeMetrics,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { Timer } from "measured-core";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { QueryPerformanceEvent } from "packages/objects/src/businessObjects/events/query/index.js";
@@ -25,6 +23,7 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
+import { DoublyLinkedList } from "@core/implementations/data/utilities/index.js";
 
 @injectable()
 export class MetricsService implements IMetricsService {
@@ -37,12 +36,21 @@ export class MetricsService implements IMetricsService {
 
   protected queryEventsElapsedStartTimes: Record<EQueryEvents, number[]> | {} =
     {};
-  protected queryEventsTimers: Record<EQueryEvents, Timer> | {} = {};
-  protected queryEventsDurations: Record<EQueryEvents, number[]> | {} = {};
-  protected queryErrors: Record<IpfsCID, QueryPerformanceEvent[]> | {} = {};
+
+  protected queryErrors: Record<
+    IpfsCID,
+    DoublyLinkedList<QueryPerformanceEvent>
+  > = {};
+  protected globalQueryErrors: DoublyLinkedList<QueryPerformanceEvent> =
+    new DoublyLinkedList<QueryPerformanceEvent>();
+
+  //protected queryErrors: Record<IpfsCID, QueryPerformanceEvent[]> | {} = {};
 
   public initialize(): ResultAsync<void, never> {
-    return this.contextProvider.getContext().map((context) => {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+    ]).map(([config, context]) => {
       context.privateEvents.onApiAccessed.subscribe((apiName) => {
         this.metricsRepo.recordApiCall(apiName);
       });
@@ -69,10 +77,11 @@ export class MetricsService implements IMetricsService {
         );
       });
 
-      // Will create event listeners and store durations
-      // For query performance events
-      //this.generateQueryEventStorage();
-      //this.attachEventListenersToQueryPerformanceEvents(context);
+      this.generateQueryEventStorage(config.queryPerformanceMetricsLimit);
+      this.attachEventListenersToQueryPerformanceEvents(
+        context,
+        config.queryPerformanceMetricsLimit,
+      );
 
       // Now, we can look for some patterns. For instance, if the API is spiking,
       // we can notify the system and potentially disable things
@@ -107,7 +116,10 @@ export class MetricsService implements IMetricsService {
         const statsMap = new Map(
           apiStats.map((stats) => [stats.stat as EExternalApi, stats]),
         );
-
+        const queryErrors : Record<IpfsCID,QueryPerformanceEvent[]> = {}
+        for (const cid in this.queryErrors) {
+          queryErrors[cid] = this.queryErrors[cid].toArray();
+        }
         return new RuntimeMetrics(
           uptime,
           context.startTime,
@@ -121,7 +133,7 @@ export class MetricsService implements IMetricsService {
           restoredBackups,
           context.components,
           this.metricsRepo.getQueryPerformanceData(),
-          this.queryErrors,
+          queryErrors
         );
       },
     );
@@ -129,6 +141,7 @@ export class MetricsService implements IMetricsService {
 
   private attachEventListenersToQueryPerformanceEvents(
     context: CoreContext,
+    sizeLimit: number,
   ): void {
     const processEvent = (event: QueryPerformanceEvent) => {
       if (event.status === EStatus.Start) {
@@ -140,11 +153,13 @@ export class MetricsService implements IMetricsService {
         this.queryEventsElapsedStartTimes[event.type].length
       ) {
         if (event.error) {
-          if (this.queryErrors[event.queryCID] === undefined) {
-            this.queryErrors[event.queryCID].push(event);
-          } else {
-            this.queryErrors[event.queryCID] = [event];
+          if (!this.queryErrors[event.queryCID]) {
+            this.queryErrors[event.queryCID] =
+              new DoublyLinkedList<QueryPerformanceEvent>(sizeLimit);
           }
+          this.queryErrors[event.queryCID].append(event);
+          this.globalQueryErrors.append(event);
+          this.removeOldestErrorsUntilLimit(sizeLimit)
         }
 
         const elapsed =
@@ -156,9 +171,24 @@ export class MetricsService implements IMetricsService {
     context.publicEvents.queryPerformance.subscribe(processEvent);
   }
 
-  private generateQueryEventStorage(): void {
+  private removeOldestErrorsUntilLimit(sizeLimit: number): void {
+    while (this.globalQueryErrors.size > sizeLimit) {
+      const oldestError = this.globalQueryErrors.removeFirst();
+      if (oldestError) {
+        const cidList = this.queryErrors[oldestError.queryCID];
+        if (cidList && cidList.size > 0) {
+          cidList.removeFirst();
+          if (cidList.size === 0) {
+            delete this.queryErrors[oldestError.queryCID];
+          }
+        }
+      }
+    }
+  }
+
+  private generateQueryEventStorage(sizeLimit : number): void {
     Object.values(EQueryEvents).forEach((eventName) => {
-      this.metricsRepo.createQueryPerformanceStorage(eventName);
+      this.metricsRepo.createQueryPerformanceStorage(eventName, sizeLimit);
       this.queryEventsElapsedStartTimes[eventName] = [];
     });
   }
