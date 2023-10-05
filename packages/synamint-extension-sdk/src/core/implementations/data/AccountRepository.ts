@@ -18,6 +18,7 @@ import {
   TransactionFilter,
   TransactionFlowInsight,
   DomainName,
+  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";

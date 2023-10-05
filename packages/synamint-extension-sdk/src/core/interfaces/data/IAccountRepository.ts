@@ -52,12 +52,12 @@ export interface IAccountRepository {
     contractAddress: EVMContractAddress,
     blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], SnickerDoodleCoreError>;
-  getTransactionValueByChain(): ResultAsync<
+  getTransactionValueByChain(  sourceDomain?: DomainName): ResultAsync<
     TransactionFlowInsight[],
     SnickerDoodleCoreError
   >;
   getTransactions(
-    filter?: TransactionFilter,
+    filter?: TransactionFilter,  sourceDomain?: DomainName,
   ): ResultAsync<ChainTransaction[], SnickerDoodleCoreError>;
 }
 

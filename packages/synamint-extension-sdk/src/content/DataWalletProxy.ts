@@ -429,6 +429,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     );
   }
 
+
   public getListingsTotalByTag(
     tag: MarketplaceTag,
   ): ResultAsync<number, ProxyError> {

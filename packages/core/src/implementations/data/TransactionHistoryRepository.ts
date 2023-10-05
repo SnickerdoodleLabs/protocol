@@ -1,5 +1,5 @@
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
-  TransactionPaymentCounter,
   PersistenceError,
   ChainId,
   AccountAddress,
@@ -51,6 +51,7 @@ export class TransactionHistoryRepository
     @inject(ILinkedAccountRepositoryType)
     protected accountRepo: ILinkedAccountRepository,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
   public getTransactionByChain(): ResultAsync<
@@ -58,6 +59,10 @@ export class TransactionHistoryRepository
     PersistenceError
   > {
     return this.accountRepo.getAccounts().andThen((accounts) => {
+      this.logUtils.debug(
+        `In getTransactionByChain, active accounts: `,
+        accounts,
+      );
       return ResultUtils.combine(
         accounts.map((account) => {
           return this.getTransactionFlowsByAccount(account);
@@ -65,8 +70,8 @@ export class TransactionHistoryRepository
       ).map((arrayOfTransactionFlowMap) => {
         return this.aggregateTransactionFlowsArrays(arrayOfTransactionFlowMap);
       });
-    });
-  }
+  })
+}
 
   public addTransactions(
     transactions: ChainTransaction[],

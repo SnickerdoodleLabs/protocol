@@ -54,7 +54,6 @@ import {
   JsonWebToken,
   JSONString,
   QueryStatus,
-  AccessToken,
   ECloudStorageType,
   BlockNumber,
   RefreshToken,

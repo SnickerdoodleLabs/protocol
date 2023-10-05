@@ -78,9 +78,10 @@ import {
   RefreshToken,
   OAuth2Tokens,
   TransactionFlowInsight,
+  IProxyAccountMethods,
   ChainTransaction,
   TransactionFilter,
-  IProxyAccountMethods,
+  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { okAsync, ResultAsync } from "neverthrow";
