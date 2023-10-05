@@ -30,7 +30,7 @@ const EventContextProvider = ({ children }: any) => {
 
   const onInitialized = (dataWalletAddress: DataWalletAddress) => {
     console.warn(
-      `Event: Initialized data wallet with address ${dataWalletAddress}`
+      `Event: Initialized data wallet with address ${dataWalletAddress}`,
     ); /*   setUnlockState(true);
       updateLinkedAccounts();
       cancelLoading(); */
@@ -52,7 +52,7 @@ const EventContextProvider = ({ children }: any) => {
 
   const onQueryPosted = (request: SDQLQueryRequest) => {
     console.warn(
-      `Event: query posted with contract address: ${request.consentContractAddress} and CID: ${request.query.cid}`
+      `Event: query posted with contract address: ${request.consentContractAddress} and CID: ${request.query.cid}`,
     );
     console.log("Event Request:", request.query.query);
 
@@ -74,7 +74,7 @@ const EventContextProvider = ({ children }: any) => {
 
     snickerdoodleCore
       .getReceivingAddress(request.consentContractAddress)
-      .map((accountAddress) => {
+      .andThen((accountAddress) => {
         request.rewardsPreview.forEach((eligibleReward) => {
           if (request.dataWalletAddress !== null) {
             parameters.push({
@@ -90,23 +90,23 @@ const EventContextProvider = ({ children }: any) => {
           }
         });
 
-        snickerdoodleCore
+        return snickerdoodleCore
           .approveQuery(
             request.consentContractAddress,
             {
               cid: request.query.cid,
               query: getStringQuery(),
             },
-            parameters
+            parameters,
           )
           .map(() => {
             console.log(
-              `Processing Query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`
+              `Processing Query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
             );
           })
           .mapErr((e) => {
             console.log(
-              `Error while processing query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`
+              `Error while processing query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
             );
             console.log(e);
           });

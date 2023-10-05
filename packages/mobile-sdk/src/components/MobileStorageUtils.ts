@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { PersistenceError } from "@snickerdoodlelabs/objects";
+import { PersistenceError, JSONString } from "@snickerdoodlelabs/objects";
 import { IStorageUtils } from "@snickerdoodlelabs/utils";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import { ResultAsync } from "neverthrow";
 
 export class MobileStorageUtils implements IStorageUtils {
@@ -14,7 +15,7 @@ export class MobileStorageUtils implements IStorageUtils {
 
   public write<T>(key: string, value: T): ResultAsync<void, PersistenceError> {
     return ResultAsync.fromPromise(
-      AsyncStorage.setItem(key, JSON.stringify(value)),
+      AsyncStorage.setItem(key, ObjectUtils.serialize(value)),
       (e) => {
         return new PersistenceError(
           `Cannot write key ${key} to mobile storage, ${e}`,
@@ -30,7 +31,7 @@ export class MobileStorageUtils implements IStorageUtils {
       );
     }).map((val) => {
       if (val) {
-        return JSON.parse(val) as T;
+        return ObjectUtils.deserialize(JSONString(val)) as T;
       } else {
         return null;
       }

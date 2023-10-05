@@ -20,7 +20,7 @@ interface CoreContextType {
     account: AccountAddress,
     signature: Signature,
     language: LanguageCode,
-    chain: EChain
+    chain: EChain,
   ) => void;
 }
 interface ICoreProviderProps {
@@ -33,7 +33,7 @@ const CoreContext = createContext<CoreContextType>({} as CoreContextType);
 const CoreProvider: React.FC<ICoreProviderProps> = ({ children, configs }) => {
   const snickerdoodleCore = useMemo(
     () => new SnickerdoodleCore(configs, new MobileStorageUtils(), undefined),
-    []
+    [],
   );
   const [isUnlocked, setIsUnlocked] = useState<boolean>(false);
   const [isInitiliazed, setIsInitialized] = useState<boolean>(false);
@@ -45,22 +45,19 @@ const CoreProvider: React.FC<ICoreProviderProps> = ({ children, configs }) => {
     account: AccountAddress,
     signature: Signature,
     language: LanguageCode,
-    chain: EChain
+    chain: EChain,
   ) => {
     return snickerdoodleCore.account.addAccount(
       account,
       signature,
       language,
       chain,
-      undefined
+      undefined,
     );
   };
   const getLinkAccountMessage = () => {
     return snickerdoodleCore.account
       .getLinkAccountMessage(LanguageCode("en"), undefined)
-      .map((message) => {
-        return message;
-      })
       .mapErr((error) => {
         console.log("Error getting link account message", error);
         return null;

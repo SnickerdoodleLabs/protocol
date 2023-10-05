@@ -33,8 +33,8 @@ const LayoutProvider: React.FC<ILayoutContextProps> = ({ children }: any) => {
         ?.getConsentContractCID(
           invitation?.consentContractAddress as EVMContractAddress
         )
-        .map((cid) => {
-          snickerdoodleCore.invitation
+        .andThen((cid) => {
+          return snickerdoodleCore.invitation
             .getInvitationMetadataByCID(cid)
             .map((metaData) => {
               setInvitationMetadata(metaData);

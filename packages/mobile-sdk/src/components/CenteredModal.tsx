@@ -1,9 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
-import {
-  IOpenSeaMetadata,
-  Invitation,
-} from "@snickerdoodlelabs/objects";
+import { IOpenSeaMetadata, Invitation } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
 import { useCoreContext } from "@snickerdoodlelabs/mobile-integration";
 import CustomSwitch from "./CustomSwitch";
@@ -29,10 +26,9 @@ const CenteredModal: React.FC<CenteredModalProps> = ({
     setIsLoading(true);
     return snickerdoodleCore.invitation
       .acceptInvitation(invitation!, null, undefined)
-      .andThen(() => {
+      .map(() => {
         setIsLoading(false);
         setStatus(2);
-        return okAsync("accepted");
       })
       .mapErr((e) => {
         console.log("Error while accepting an invitation", e);
@@ -190,7 +186,7 @@ const CenteredModal: React.FC<CenteredModalProps> = ({
                   marginTop: 35,
                 }}
               >
-            {/* TODO: Change logo url with CDN */}
+                {/* TODO: Change logo url with CDN */}
                 <Image
                   width={28}
                   height={28}
