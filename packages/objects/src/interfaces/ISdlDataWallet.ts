@@ -14,6 +14,9 @@ import {
   TokenMarketData,
   WalletNFT,
   QueryStatus,
+  TransactionFilter,
+  ChainTransaction,
+  TransactionPaymentCounter,
 } from "@objects/businessObjects/index.js";
 import {
   ECoreProxyType,
@@ -228,6 +231,15 @@ export interface ISdlDataWallet {
   ): ResultAsync<TokenInfo | null, ProxyError>;
   getAccountBalances(): ResultAsync<TokenBalance[], ProxyError>;
   getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError>;
+
+  getTransactions(
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], ProxyError>;
+  getTransactionValueByChain(): ResultAsync<
+    TransactionPaymentCounter[],
+    ProxyError
+  >;
+
   closeTab(): ResultAsync<void, ProxyError>;
   getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,

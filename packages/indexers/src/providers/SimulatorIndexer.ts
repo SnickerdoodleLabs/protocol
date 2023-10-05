@@ -138,7 +138,7 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
         EVMTransactionHash("hash"),
         UnixTimestamp(timestamp.getTime() / 1000),
         null,
-        accountAddress,
+        EVMAccountAddress(accountAddress.toLowerCase()),
         null,
         BigNumberString(Math.floor(Math.random() * 1000) + ""),
         null,
