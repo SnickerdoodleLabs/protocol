@@ -17,7 +17,7 @@ export interface InvitationPopupProps {
 }
 
 const LayoutContext = createContext<ILayoutContextType>(
-  {} as ILayoutContextType
+  {} as ILayoutContextType,
 );
 
 const LayoutProvider: React.FC<ILayoutContextProps> = ({ children }: any) => {
@@ -31,14 +31,13 @@ const LayoutProvider: React.FC<ILayoutContextProps> = ({ children }: any) => {
     if (showPopup && invitation) {
       snickerdoodleCore
         ?.getConsentContractCID(
-          invitation?.consentContractAddress as EVMContractAddress
+          invitation?.consentContractAddress as EVMContractAddress,
         )
         .andThen((cid) => {
-          return snickerdoodleCore.invitation
-            .getInvitationMetadataByCID(cid)
-            .map((metaData) => {
-              setInvitationMetadata(metaData);
-            });
+          return snickerdoodleCore.invitation.getInvitationMetadataByCID(cid);
+        })
+        .map((metaData) => {
+          setInvitationMetadata(metaData);
         })
         .mapErr((error) => {
           console.log("Error getting invitation metadata", error);
