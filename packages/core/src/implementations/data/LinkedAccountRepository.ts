@@ -1,10 +1,14 @@
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   AccountAddress,
   EarnedReward,
   EChain,
+  EChainTechnology,
   EFieldKey,
   ERecordKey,
+  EVMAccountAddress,
   EVMContractAddress,
+  getChainInfoByChain,
   LinkedAccount,
   PersistenceError,
   ReceivingAccount,
@@ -13,6 +17,7 @@ import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { DataValidationUtils } from "@core/implementations/utilities/index.js";
 import { ILinkedAccountRepository } from "@core/interfaces/data/index.js";
 import {
   IDataWalletPersistence,
@@ -29,25 +34,49 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
   public getAccounts(): ResultAsync<LinkedAccount[], PersistenceError> {
-    return this.persistence.getAll<LinkedAccount>(ERecordKey.ACCOUNT);
+    return this.persistence
+      .getAll<LinkedAccount>(ERecordKey.ACCOUNT)
+      .map((accounts) => {
+        return accounts.map((account) => {
+          account.sourceAccountAddress =
+            DataValidationUtils.removeChecksumFromAccountAddress(
+              account.sourceAccountAddress,
+              account.sourceChain,
+            );
+          return account;
+        });
+      });
   }
 
   public getLinkedAccount(
     accountAddress: AccountAddress,
     chain: EChain,
   ): ResultAsync<LinkedAccount | null, PersistenceError> {
+    const chainInfo = getChainInfoByChain(chain);
     return this.persistence
       .getAll<LinkedAccount>(ERecordKey.ACCOUNT)
       .map((accounts) => {
-        const found = accounts.find((account) => {
-          return (
-            account.sourceAccountAddress == accountAddress &&
-            account.sourceChain == chain
-          );
-        });
+        const found = accounts
+          .map((account) => {
+            // If we're on an EVM chain, we need to make sure the account address is not checksum'd
+            // Solana addresses are Base-58; lowercasing them will destroy them.
+            account.sourceAccountAddress =
+              DataValidationUtils.removeChecksumFromAccountAddress(
+                account.sourceAccountAddress,
+                account.sourceChain,
+              );
+            return account;
+          })
+          .find((account) => {
+            return (
+              account.sourceAccountAddress == accountAddress &&
+              account.sourceChain == chain
+            );
+          });
         if (found == null) {
           return null;
         }
@@ -114,13 +143,14 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     contractAddress: EVMContractAddress,
     receivingAddress: AccountAddress | null,
   ): ResultAsync<void, PersistenceError> {
-    if (receivingAddress && receivingAddress != "") {
+    if (receivingAddress != null && receivingAddress != "") {
       return this.persistence.updateRecord(
         ERecordKey.RECEIVING_ADDRESSES,
         new ReceivingAccount(contractAddress, receivingAddress),
       );
     }
 
+    this.logUtils.info(`Removing receiving address for ${contractAddress}`);
     return this.persistence.deleteRecord(
       ERecordKey.RECEIVING_ADDRESSES,
       contractAddress,

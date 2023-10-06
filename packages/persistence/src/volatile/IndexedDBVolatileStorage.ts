@@ -110,12 +110,8 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
 
   public getAll<T extends VersionedObject>(
     schemaKey: ERecordKey,
-    indexName?: string,
-    query?: IDBValidKey | IDBKeyRange,
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
-    return this._getIDB().andThen((db) =>
-      db.getAll<T>(schemaKey, indexName, query),
-    );
+    return this._getIDB().andThen((db) => db.getAll<T>(schemaKey));
   }
 
   public getAllByIndex<T extends VersionedObject>(

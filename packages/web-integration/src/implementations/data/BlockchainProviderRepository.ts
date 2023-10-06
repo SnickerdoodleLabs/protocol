@@ -1,5 +1,4 @@
 import {
-  AccountAddress,
   ChainId,
   ChainInformation,
   EVMAccountAddress,
@@ -20,7 +19,7 @@ import {
 export class BlockchainProviderRepository
   implements IBlockchainProviderRepository
 {
-  protected lastAccount: AccountAddress | null = null;
+  protected lastAccount: EVMAccountAddress | null = null;
   protected lastChain: ChainInformation | null = null;
 
   constructor(
@@ -45,7 +44,7 @@ export class BlockchainProviderRepository
   }
 
   public getCurrentAccount(): ResultAsync<
-    AccountAddress | null,
+    EVMAccountAddress | null,
     ProviderRpcError
   > {
     // If we have a last account, then just return that
@@ -64,7 +63,7 @@ export class BlockchainProviderRepository
     return ResultAsync.fromPromise(config.signer.getAddress(), (e) => {
       return new ProviderRpcError("Unable to obtain address of signer", e);
     }).map((address) => {
-      this.lastAccount = EVMAccountAddress(address);
+      this.lastAccount = EVMAccountAddress(address.toLowerCase());
       return this.lastAccount;
     });
   }

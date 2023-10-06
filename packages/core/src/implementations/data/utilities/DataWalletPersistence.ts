@@ -177,7 +177,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     recordKey: ERecordKey,
     indexName: string,
     query: IDBValidKey | IDBKeyRange,
-    priority?: EBackupPriority,
   ): ResultAsync<T[], PersistenceError> {
     return this.volatileStorage
       .getAllByIndex<T>(recordKey, indexName, query)
