@@ -41,13 +41,13 @@ export const getProviderList = (): IProvider[] => {
       key: EWalletProviderKeys.PHANTOM,
       installationUrl: "https://phantom.app/download",
     },
-    {
-      provider: new SuiWalletProvider(),
-      icon: SuiIcon,
-      name: "Sui",
-      key: EWalletProviderKeys.SUI,
-      installationUrl: "https://docs.mystenlabs.com/wallet",
-    },
+    // {
+    //   provider: new SuiWalletProvider(),
+    //   icon: SuiIcon,
+    //   name: "Sui",
+    //   key: EWalletProviderKeys.SUI,
+    //   installationUrl: "https://docs.mystenlabs.com/wallet",
+    // },
     // {
     //   provider: new WalletConnectProvider(),
     //   icon: WalleConnectIcon,
