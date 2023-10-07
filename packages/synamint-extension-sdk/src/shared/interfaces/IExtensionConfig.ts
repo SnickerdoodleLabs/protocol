@@ -55,6 +55,10 @@ export interface IExtensionConfig extends IExtensionConfigDefaults {
   discordOverrides?: Partial<DiscordConfig>;
   twitterOverrides?: Partial<TwitterConfig>;
   primaryInfuraKey?: string;
+  scraper?: {
+    OPENAI_API_KEY: string;
+    timeout: number;
+  };
   secondaryInfuraKey?: string;
   devChainProviderURL?: ProviderUrl;
   providerKey?: string;
@@ -110,6 +114,10 @@ export interface IExtensionConfigOverrides {
   enableBackupEncryption?: boolean;
   discordOverrides?: Partial<DiscordConfig>;
   twitterOverrides?: Partial<TwitterConfig>;
+  scraper?: {
+    OPENAI_API_KEY: string;
+    timeout: number;
+  };
   devChainProviderURL?: ProviderUrl;
   providerKey?: string;
 }

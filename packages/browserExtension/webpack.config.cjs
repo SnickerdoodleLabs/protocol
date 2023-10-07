@@ -258,6 +258,10 @@ var options = {
       __DEV_CHAIN_PROVIDER_URL__: JSON.stringify(
         process.env.__DEV_CHAIN_PROVIDER_URL__,
       ),
+      /* SCRAPER KEY */
+      __OPEN_API_KEY__: JSON.stringify(process.env.__OPEN_API_KEY__),
+      __SCRAPER_TIMEOUT__: JSON.stringify(process.env.__SCRAPER_TIMEOUT__),
+      /* */
     }),
 
     new CopyWebpackPlugin({

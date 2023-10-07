@@ -55,6 +55,8 @@ const envVars = {
   __DNS_SERVER_ADDRESS__: "",
   __GOOGLE_CLOUD_BUCKET__: "dev-zitrz-sdl-dw",
   __DEV_CHAIN_PROVIDER_URL__: "https://doodlechain.dev.snickerdoodle.dev",
+  __OPEN_API_KEY__: "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",
+  __SCRAPER_TIMEOUT__: 300000,
 };
 
 for (const key in envVars) {

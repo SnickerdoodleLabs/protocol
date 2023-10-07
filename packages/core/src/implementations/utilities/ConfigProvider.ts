@@ -90,7 +90,7 @@ export class ConfigProvider
 
     const scraperConfig = {
       scraper: {
-        OPENAI_API_KEY: process.env.OPENAI_API_KEY ?? "",
+        OPENAI_API_KEY: "",
         timeout: 5 * 60 * 1000, // 5 minutes
       },
     } as IScraperConfig;

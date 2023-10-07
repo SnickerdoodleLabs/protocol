@@ -109,6 +109,7 @@ export class ConfigProvider implements IConfigProvider {
       configOverrides.twitterOverrides ?? this.config.twitterOverrides;
     this.config.providerKey =
       configOverrides.providerKey ?? this.config.providerKey;
+    this.config.scraper = configOverrides.scraper ?? this.config.scraper;
   }
   public getConfig(): IExtensionConfig {
     return this.config;

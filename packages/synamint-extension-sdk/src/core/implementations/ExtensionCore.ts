@@ -79,6 +79,7 @@ export class ExtensionCore {
       enableBackupEncryption: config.enableBackupEncryption,
       discordOverrides: config.discordOverrides,
       twitterOverrides: config.twitterOverrides,
+      scraper: config.scraper,
       primaryInfuraKey: config.primaryInfuraKey,
       secondaryInfuraKey: config.secondaryInfuraKey,
       devChainProviderURL: config.devChainProviderURL,

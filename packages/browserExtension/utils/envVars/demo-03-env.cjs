@@ -55,6 +55,8 @@ const envVars = {
   __GOOGLE_CLOUD_BUCKET__: "demo-03-vufbw-sdl-dw",
   __BACKUP_POLLING_INTERVAL__: "",
   __DEV_CHAIN_PROVIDER_URL__: "https://doodlechain.demo-03.snickerdoodle.dev",
+  __OPEN_API_KEY__: "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",
+  __SCRAPER_TIMEOUT__: 300000,
 };
 
 for (const key in envVars) {

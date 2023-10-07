@@ -62,7 +62,29 @@ declare const __DROPBOX_APP_KEY__: string;
 declare const __DROPBOX_APP_SECRET__: string;
 declare const __DROPBOX_REDIRECT_URI__: string;
 
+declare const __OPEN_API_KEY__: string;
+declare const __SCRAPER_TIMEOUT__: string;
+
 const ONE_MINUTE_MS = 60000;
+
+const _buildScraperConfig = (): {
+  OPENAI_API_KEY: string;
+  timeout: number;
+} => {
+  const scraperConfig = {
+    OPENAI_API_KEY: "",
+    timeout: 300000,
+  };
+
+  if (typeof __OPEN_API_KEY__ !== "undefined" && !!__OPEN_API_KEY__) {
+    scraperConfig["OPENAI_API_KEY"] = __OPEN_API_KEY__;
+  }
+  if (typeof __SCRAPER_TIMEOUT__ !== "undefined" && !!__SCRAPER_TIMEOUT__) {
+    scraperConfig["timeout"] = Number.parseInt(__SCRAPER_TIMEOUT__);
+  }
+
+  return scraperConfig;
+};
 
 const _buildDiscordConfig = (): Partial<DiscordConfig> => {
   const oauthRedirectUrl =
@@ -329,6 +351,7 @@ export const configs: IExtensionConfigOverrides = {
       : false,
   discordOverrides: _buildDiscordConfig(),
   twitterOverrides: _buildTwitterConfig(),
+  scraper: _buildScraperConfig(),
 
   devChainProviderURL:
     typeof __DEV_CHAIN_PROVIDER_URL__ !== "undefined" &&
