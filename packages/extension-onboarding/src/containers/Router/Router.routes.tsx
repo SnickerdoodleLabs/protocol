@@ -19,11 +19,7 @@ import PersonalInfo from "@extension-onboarding/pages/Details/screens/PersonalIn
 import PoapNFTs from "@extension-onboarding/pages/Details/screens/PoapNFTs";
 import RewardDetail from "@extension-onboarding/pages/Details/screens/RewardDetail";
 import RewardProgramDetails from "@extension-onboarding/pages/Details/screens/RewardProgramDetails";
-<<<<<<< HEAD
-import ScamFilterSettings from "@extension-onboarding/pages/Details/screens/ScamFilterSettings";
 import ShoppingData from "@extension-onboarding/pages/Details/screens/ShoppingData";
-=======
->>>>>>> feat/ENGT-1717
 import SocialMediaInfo from "@extension-onboarding/pages/Details/screens/SocialMediaInfo";
 import StorageSettings from "@extension-onboarding/pages/Details/screens/StorageSettings/StorageSettings";
 import Tokens from "@extension-onboarding/pages/Details/screens/Tokens";

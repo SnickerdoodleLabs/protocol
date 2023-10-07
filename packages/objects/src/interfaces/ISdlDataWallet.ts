@@ -22,11 +22,7 @@ import {
   ELanguageCode,
   EWalletDataType,
 } from "@objects/enum/index.js";
-<<<<<<< HEAD
 import { ProxyError, ScraperError } from "@objects/errors/index.js";
-=======
-import { ProxyError } from "@objects/errors/index.js";
->>>>>>> feat/ENGT-1717
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata.js";
 import {
