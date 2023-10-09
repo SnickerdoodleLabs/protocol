@@ -68,6 +68,7 @@ export class ExtensionCore {
       ankrApiKey: config.ankrApiKey,
       bluezApiKey: config.bluezApiKey,
       spaceAndTimeKey: config.spaceAndTimeKey,
+      blockvisionKey: config.blockvisionKey,
 
       dnsServerAddress: config.dnsServerAddress,
       accountBalancePollingIntervalMS: config.portfolioPollingIntervalMS,

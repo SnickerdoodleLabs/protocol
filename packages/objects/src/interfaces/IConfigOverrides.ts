@@ -40,6 +40,8 @@ export interface IConfigOverrides {
   ankrApiKey?: string | null;
   bluezApiKey?: string | null;
   spaceAndTimeKey?: string | null;
+  blockvisionKey: string | null;
+
   dnsServerAddress?: URLString;
   dataWalletBackupIntervalMS?: number;
   backupChunkSizeTarget?: number;

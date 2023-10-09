@@ -106,8 +106,6 @@ export class AccountService implements IAccountService {
   public getLinkAccountMessage(
     languageCode: LanguageCode,
   ): ResultAsync<string, UnsupportedLanguageError> {
-    console.log("Core AccountService getLinkAccountMessage");
-
     switch (languageCode) {
       case LanguageCode("en"):
         return okAsync("Login to your Snickerdoodle data wallet");
@@ -215,7 +213,6 @@ export class AccountService implements IAccountService {
         return this.contextProvider.getContext();
       })
       .andThen((context) => {
-        console.log("context: " + context);
         if (
           context.dataWalletAddress == null ||
           context.dataWalletKey == null

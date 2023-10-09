@@ -84,6 +84,7 @@ declare interface IExtensionConfigOverrides {
     ankrApiKey?: string;
     bluezApiKey?: string;
     spaceAndTimeKey?: string;
+    blockvisionKey?: string;
     primaryInfuraKey?: string;
     secondaryInfuraKey?: string;
   };

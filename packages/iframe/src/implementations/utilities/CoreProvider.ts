@@ -142,7 +142,8 @@ export class CoreProvider implements ICoreProvider {
       config.bluezApiKey ?? immutableConfig.defaultKeys.bluezApiKey;
     config.spaceAndTimeKey =
       config.spaceAndTimeKey ?? immutableConfig.defaultKeys.spaceAndTimeKey;
-
+    config.blockvisionKey =
+      config.blockvisionKey ?? immutableConfig.defaultKeys.blockvisionKey;
     // Now we can create the actual snickerdoodle core instance
     this.core = new SnickerdoodleCore(config);
 

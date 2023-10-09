@@ -82,8 +82,6 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
   public addAccount(
     linkedAccount: LinkedAccount,
   ): ResultAsync<void, PersistenceError> {
-    console.log("addAccount: ");
-
     return this.persistence.updateRecord(ERecordKey.ACCOUNT, linkedAccount);
   }
 

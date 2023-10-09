@@ -46,6 +46,7 @@ declare const __OKLINK_API_KEY__: string;
 declare const __ANKR_API_KEY__: string;
 declare const __BLUEZ_API_KEY__: string;
 declare const __SPACEANDTIME_API_KEY__: string;
+declare const __BLOCKVISION_API_KEY__: string;
 
 const ONE_MINUTE_MS = 60000;
 
@@ -169,6 +170,8 @@ export class ConfigProvider implements IConfigProvider {
         bluezApiKey: __BLUEZ_API_KEY__ == "" ? null : __BLUEZ_API_KEY__,
         spaceAndTimeKey:
           __SPACEANDTIME_API_KEY__ == "" ? null : __SPACEANDTIME_API_KEY__,
+        blockvisionKey:
+          __BLOCKVISION_API_KEY__ == "" ? null : __BLOCKVISION_API_KEY__,
       }, // defaultKeys
     );
   }

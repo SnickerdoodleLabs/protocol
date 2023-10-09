@@ -134,6 +134,7 @@ export class ConfigProvider
         ankrApiKey: null, // ankrApiKey
         bluezApiKey: null, // bluezApiKey
         spaceAndTimeKey: null, // spaceAndTimeKey
+        blockvisionKey: null, // blockvisionKey
         primaryInfuraKey: null, // primary Infura Key
         primaryRPCProviderURL: null,
         secondaryInfuraKey: null, // secondaryInfuraKey
@@ -325,6 +326,8 @@ export class ConfigProvider
 
     this.config.apiKeys.spaceAndTimeKey =
       overrides.spaceAndTimeKey ?? this.config.apiKeys.spaceAndTimeKey;
+    this.config.apiKeys.blockvisionKey =
+      overrides.blockvisionKey ?? this.config.apiKeys.blockvisionKey;
 
     this.config.dnsServerAddress =
       overrides.dnsServerAddress ?? this.config.dnsServerAddress;

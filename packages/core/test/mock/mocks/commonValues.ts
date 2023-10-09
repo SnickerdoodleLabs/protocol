@@ -162,6 +162,7 @@ export const testCoreConfig = new CoreConfig(
     ankrApiKey: "ankr api key",
     bluezApiKey: "bluez api key",
     spaceAndTimeKey: "spaceAndTime api key",
+    blockvisionKey: "blockvision api key",
     primaryInfuraKey: "primary infura key",
     primaryRPCProviderURL: ProviderUrl("Primary RPC Provider URL"),
     secondaryInfuraKey: "",

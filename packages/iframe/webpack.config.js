@@ -185,6 +185,9 @@ module.exports = {
       __SPACEANDTIME_API_KEY__: JSON.stringify(
         process.env.__SPACEANDTIME_API_KEY__,
       ),
+      __BLOCKVISION_API_KEY__: JSON.stringify(
+        process.env.__BLOCKVISION_API_KEY__,
+      ),
     }),
   ],
 };
