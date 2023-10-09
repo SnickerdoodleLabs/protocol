@@ -18,9 +18,8 @@ import {
 
 import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
 import { useAppContext } from "../../context/AppContextProvider";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
-
 import { useTheme } from "../../context/ThemeContext";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 interface ILoadingProps {
   status: boolean;
