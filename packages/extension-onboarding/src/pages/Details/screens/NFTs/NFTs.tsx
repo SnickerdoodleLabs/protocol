@@ -17,10 +17,10 @@ import {
   EVMNFTItem,
   SolanaNFTItem,
 } from "@extension-onboarding/components/NFTItem";
-import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/NFTs/NFTs.style";
-import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
 import UnauthScreen from "@extension-onboarding/components/UnauthScreen";
+import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
+import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/NFTs/NFTs.style";
 
 export enum EDisplayMode {
   MAINNET,

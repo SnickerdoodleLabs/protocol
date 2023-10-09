@@ -6,6 +6,7 @@ import { CloudStorageActivatedEvent } from "@objects/businessObjects/events/Clou
 import { DataPermissionsUpdatedEvent } from "@objects/businessObjects/events/DataPermissionsUpdatedEvent.js";
 import { PermissionsGrantedEvent } from "@objects/businessObjects/events/PermissionsGrantedEvent.js";
 import { PermissionsRequestedEvent } from "@objects/businessObjects/events/PermissionsRequestedEvent.js";
+import { QueryPerformanceEvent } from "@objects/businessObjects/events/query/index.js";
 import {
   SocialProfileLinkedEvent,
   SocialProfileUnlinkedEvent,
@@ -61,6 +62,7 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onLocationUpdated: Subject<CountryCode>;
   public onCloudStorageActivated: Subject<CloudStorageActivatedEvent>;
   public onCloudStorageDeactivated: Subject<CloudStorageActivatedEvent>;
+  public queryPerformance: Subject<QueryPerformanceEvent>;
 
   public constructor() {
     this.onInitialized = new Subject();
@@ -91,5 +93,6 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onBirthdayUpdated = new Subject();
     this.onGenderUpdated = new Subject();
     this.onLocationUpdated = new Subject();
+    this.queryPerformance = new Subject();
   }
 }

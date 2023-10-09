@@ -12,10 +12,10 @@ import Icon from "react-native-vector-icons/Ionicons";
 
 import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
 import { useAppContext } from "../../context/AppContextProvider";
+import { useTheme } from "../../context/ThemeContext";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import RadioButton from "../Custom/RadioButton";
 import MyComponent from "../Onboarding/Mycomponent";
-import { useTheme } from "../../context/ThemeContext";
 
 export default function PersonalSettings() {
   const { onWCButtonClicked } = useAccountLinkingContext();

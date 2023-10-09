@@ -10,11 +10,11 @@ import {
 import React, { FC, useEffect, useState } from "react";
 
 import emptyReward from "@extension-onboarding/assets/images/empty-reward.svg";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import DirectRewardItem from "@extension-onboarding/pages/Details/screens/EarnedRewards/components/DirectReward";
 import LazyRewardItem from "@extension-onboarding/pages/Details/screens/EarnedRewards/components/LazyReward";
 import Web2RewardItem from "@extension-onboarding/pages/Details/screens/EarnedRewards/components/Web2Reward";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/EarnedRewards/EarnedRewards.style";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 
 const EarnedRewards: FC = () => {
   const { sdlDataWallet } = useDataWalletContext();

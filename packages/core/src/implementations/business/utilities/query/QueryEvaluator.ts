@@ -2,10 +2,15 @@ import {
   Age,
   CountryCode,
   DiscordGuildProfile,
+  EQueryEvents,
   ESocialType,
+  EStatus,
   EvalNotImplementedError,
   Gender,
+  IpfsCID,
   PersistenceError,
+  PublicEvents,
+  QueryPerformanceEvent,
   SDQL_Return,
   TwitterProfile,
 } from "@snickerdoodlelabs/objects";
@@ -47,6 +52,10 @@ import {
   ITransactionHistoryRepository,
   ITransactionHistoryRepositoryType,
 } from "@core/interfaces/data/index.js";
+import {
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
@@ -65,6 +74,8 @@ export class QueryEvaluator implements IQueryEvaluator {
     protected transactionRepo: ITransactionHistoryRepository,
     @inject(ISocialRepositoryType)
     protected socialRepo: ISocialRepository,
+    @inject(IContextProviderType)
+    protected contextProvider: IContextProvider,
   ) {}
 
   protected age: Age = Age(0);
@@ -72,94 +83,561 @@ export class QueryEvaluator implements IQueryEvaluator {
 
   public eval<T extends AST_SubQuery>(
     query: T,
+    queryCID: IpfsCID,
   ): ResultAsync<SDQL_Return, PersistenceError> {
-    if (query instanceof AST_BlockchainTransactionQuery) {
-      return this.blockchainTransactionQueryEvaluator.eval(query);
-    } else if (query instanceof AST_BalanceQuery) {
-      return this.balanceQueryEvaluator.eval(query);
-    } else if (query instanceof AST_NftQuery) {
-      return this.nftQueryEvaluator.eval(query);
-    } else if (query instanceof AST_PropertyQuery) {
-      return this.evalPropertyQuery(query);
-    }
-
-    return errAsync(
-      new PersistenceError(
-        `Unknown query type in QueryEvaluator.eval, ${query.name}`,
-      ),
-    );
+    return this.contextProvider.getContext().andThen((context) => {
+      if (query instanceof AST_BlockchainTransactionQuery) {
+        context.publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.ChainTransactionEvaluation,
+            EStatus.Start,
+            queryCID,
+            query.name,
+          ),
+        );
+        return this.blockchainTransactionQueryEvaluator
+          .eval(query, queryCID)
+          .map((result) => {
+            context.publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.ChainTransactionEvaluation,
+                EStatus.End,
+                queryCID,
+                query.name,
+              ),
+            );
+            return result;
+          })
+          .mapErr((err) => {
+            new QueryPerformanceEvent(
+              EQueryEvents.ChainTransactionEvaluation,
+              EStatus.End,
+              queryCID,
+              query.name,
+              err,
+            );
+            return err;
+          });
+      } else if (query instanceof AST_BalanceQuery) {
+        context.publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.BalanceEvaluation,
+            EStatus.Start,
+            queryCID,
+            query.name,
+          ),
+        );
+        return this.balanceQueryEvaluator
+          .eval(query, queryCID)
+          .map((result) => {
+            context.publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.BalanceEvaluation,
+                EStatus.End,
+                queryCID,
+                query.name,
+              ),
+            );
+            return result;
+          })
+          .mapErr((err) => {
+            new QueryPerformanceEvent(
+              EQueryEvents.BalanceEvaluation,
+              EStatus.End,
+              queryCID,
+              query.name,
+              err,
+            );
+            return err;
+          });
+      } else if (query instanceof AST_NftQuery) {
+        context.publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.NftDataEvaluation,
+            EStatus.Start,
+            queryCID,
+            query.name,
+          ),
+        );
+        return this.nftQueryEvaluator
+          .eval(query, queryCID)
+          .map((result) => {
+            context.publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.NftDataEvaluation,
+                EStatus.End,
+                queryCID,
+                query.name,
+              ),
+            );
+            return result;
+          })
+          .mapErr((err) => {
+            context.publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.NftDataEvaluation,
+                EStatus.End,
+                queryCID,
+                query.name,
+                err,
+              ),
+            );
+            return err;
+          });
+      } else if (query instanceof AST_PropertyQuery) {
+        return this.evalPropertyQuery(query, context.publicEvents, queryCID);
+      }
+      return errAsync(
+        new PersistenceError(
+          `Unknown query type in QueryEvaluator.eval, ${query.name}`,
+        ),
+      );
+    });
   }
 
   public evalPropertyQuery(
     q: AST_PropertyQuery,
+    publicEvents: PublicEvents,
+    queryCID: IpfsCID,
   ): ResultAsync<SDQL_Return, PersistenceError> {
     let result = SDQL_Return(true);
     switch (q.property) {
       case "age":
-        return this.demographicDataRepo.getAge().andThen((age) => {
-          switch (q.returnType) {
-            case "boolean":
+        publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.AgeEvaluation,
+            EStatus.Start,
+            queryCID,
+            q.name,
+          ),
+        );
+        publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.AgeDataAccess,
+            EStatus.Start,
+            queryCID,
+            q.name,
+          ),
+        );
+        return this.demographicDataRepo
+          .getAge()
+          .andThen((age) => {
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.AgeDataAccess,
+                EStatus.End,
+                queryCID,
+                q.name,
+              ),
+            );
+            if (q.returnType === "boolean") {
               for (const condition of q.conditions) {
                 result = result && this.evalPropertyConditon(age, condition);
               }
+              publicEvents.queryPerformance.next(
+                new QueryPerformanceEvent(
+                  EQueryEvents.AgeEvaluation,
+                  EStatus.End,
+                  queryCID,
+                  q.name,
+                ),
+              );
               return okAsync(result);
-            case "integer":
-            case "number":
-              result = SDQL_Return(age);
-              return okAsync(result);
-            default:
-              return okAsync(result);
-          }
-        });
+            } else {
+              publicEvents.queryPerformance.next(
+                new QueryPerformanceEvent(
+                  EQueryEvents.AgeEvaluation,
+                  EStatus.End,
+                  queryCID,
+                  q.name,
+                ),
+              );
+              return okAsync(SDQL_Return(age));
+            }
+          })
+          .mapErr((err) => {
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.AgeEvaluation,
+                EStatus.End,
+                queryCID,
+                q.name,
+                err,
+              ),
+            );
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.AgeDataAccess,
+                EStatus.End,
+                queryCID,
+                q.name,
+                err,
+              ),
+            );
+            return err;
+          });
       case "location":
-        return this.demographicDataRepo.getLocation().andThen((location) => {
-          switch (q.returnType) {
-            case "string":
-              result = SDQL_Return(location);
-              return okAsync(result);
-            case "boolean":
-              for (const condition of q.conditions) {
-                result =
-                  result && this.evalPropertyConditon(location, condition);
-              }
-              return okAsync(result);
-            case "integer":
-              result = SDQL_Return(location);
-              return okAsync(result);
-            default:
-              return okAsync(result);
-          }
-        });
+        publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.LocationEvaluation,
+            EStatus.Start,
+            queryCID,
+            q.name,
+          ),
+        );
+        publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.LocationDataAccess,
+            EStatus.Start,
+            queryCID,
+            q.name,
+          ),
+        );
+        return this.demographicDataRepo
+          .getLocation()
+          .andThen((location) => {
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.LocationDataAccess,
+                EStatus.End,
+                queryCID,
+                q.name,
+              ),
+            );
+            switch (q.returnType) {
+              case "string":
+                result = SDQL_Return(location);
+                publicEvents.queryPerformance.next(
+                  new QueryPerformanceEvent(
+                    EQueryEvents.LocationEvaluation,
+                    EStatus.End,
+                    queryCID,
+                    q.name,
+                  ),
+                );
+                return okAsync(result);
+              case "boolean":
+                for (const condition of q.conditions) {
+                  result =
+                    result && this.evalPropertyConditon(location, condition);
+                }
+                publicEvents.queryPerformance.next(
+                  new QueryPerformanceEvent(
+                    EQueryEvents.LocationEvaluation,
+                    EStatus.End,
+                    queryCID,
+                    q.name,
+                  ),
+                );
+                return okAsync(result);
+              case "integer":
+                result = SDQL_Return(location);
+                publicEvents.queryPerformance.next(
+                  new QueryPerformanceEvent(
+                    EQueryEvents.LocationEvaluation,
+                    EStatus.End,
+                    queryCID,
+                    q.name,
+                  ),
+                );
+                return okAsync(result);
+              default:
+                publicEvents.queryPerformance.next(
+                  new QueryPerformanceEvent(
+                    EQueryEvents.LocationEvaluation,
+                    EStatus.End,
+                    queryCID,
+                    q.name,
+                  ),
+                );
+                return okAsync(result);
+            }
+          })
+          .mapErr((err) => {
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.LocationEvaluation,
+                EStatus.End,
+                queryCID,
+                q.name,
+                err,
+              ),
+            );
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.LocationDataAccess,
+                EStatus.End,
+                queryCID,
+                q.name,
+                err,
+              ),
+            );
+            return err;
+          });
       case "gender":
-        return this.demographicDataRepo.getGender().andThen((gender) => {
-          switch (q.returnType) {
-            case "enum":
-              if (q.enum_keys) {
-                for (const key of q.enum_keys) {
-                  if (key == gender) {
-                    return okAsync(SDQL_Return(gender));
+        publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.GenderEvaluation,
+            EStatus.Start,
+            queryCID,
+            q.name,
+          ),
+        );
+        publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.GenderDataAccess,
+            EStatus.Start,
+            queryCID,
+            q.name,
+          ),
+        );
+        return this.demographicDataRepo
+          .getGender()
+          .andThen((gender) => {
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.GenderDataAccess,
+                EStatus.End,
+                queryCID,
+                q.name,
+              ),
+            );
+            switch (q.returnType) {
+              case "enum":
+                if (q.enum_keys) {
+                  for (const key of q.enum_keys) {
+                    if (key == gender) {
+                      publicEvents.queryPerformance.next(
+                        new QueryPerformanceEvent(
+                          EQueryEvents.GenderEvaluation,
+                          EStatus.End,
+                          queryCID,
+                          q.name,
+                        ),
+                      );
+                      return okAsync(SDQL_Return(gender));
+                    }
                   }
                 }
-              }
-              return okAsync(SDQL_Return(Gender("unknown")));
-            default:
-              return okAsync(result);
-          }
-        });
+                publicEvents.queryPerformance.next(
+                  new QueryPerformanceEvent(
+                    EQueryEvents.GenderEvaluation,
+                    EStatus.End,
+                    queryCID,
+                    q.name,
+                  ),
+                );
+                return okAsync(SDQL_Return(Gender("unknown")));
+              default:
+                publicEvents.queryPerformance.next(
+                  new QueryPerformanceEvent(
+                    EQueryEvents.GenderEvaluation,
+                    EStatus.End,
+                    queryCID,
+                    q.name,
+                  ),
+                );
+                return okAsync(result);
+            }
+          })
+          .mapErr((err) => {
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.GenderEvaluation,
+                EStatus.End,
+                queryCID,
+                q.name,
+                err,
+              ),
+            );
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.GenderDataAccess,
+                EStatus.End,
+                queryCID,
+                q.name,
+                err,
+              ),
+            );
+            return err;
+          });
       case "url_visited_count":
+        publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.BrowserActivityEvaluation,
+            EStatus.Start,
+            queryCID,
+            q.name,
+          ),
+        );
+        publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.BrowserActivityDataAccess,
+            EStatus.Start,
+            queryCID,
+            q.name,
+          ),
+        );
         return this.browsingDataRepo
           .getSiteVisitsMap(q.timestampRange!)
+          .mapErr((err) => {
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.BrowserActivityEvaluation,
+                EStatus.End,
+                queryCID,
+                q.name,
+                err,
+              ),
+            );
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.BrowserActivityDataAccess,
+                EStatus.End,
+                queryCID,
+                q.name,
+                err,
+              ),
+            );
+            return err;
+          })
+
           .map((url_visited_count) => {
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.BrowserActivityDataAccess,
+                EStatus.End,
+                queryCID,
+                q.name,
+              ),
+            );
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.BrowserActivityEvaluation,
+                EStatus.End,
+                queryCID,
+                q.name,
+              ),
+            );
             return SDQL_Return(this.mapToRecord(url_visited_count));
           });
       case "chain_transactions":
+        publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.ChainTransactionEvaluation,
+            EStatus.Start,
+            queryCID,
+            q.name,
+          ),
+        );
+        publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.ChainTransactionDataAccess,
+            EStatus.Start,
+            queryCID,
+            q.name,
+          ),
+        );
         return this.transactionRepo
           .getTransactionByChain()
           .andThen((transactionArray) => {
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.ChainTransactionDataAccess,
+                EStatus.End,
+                queryCID,
+                q.name,
+              ),
+            );
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.ChainTransactionEvaluation,
+                EStatus.End,
+                queryCID,
+                q.name,
+              ),
+            );
             return okAsync(SDQL_Return(transactionArray));
+          })
+          .mapErr((err) => {
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.ChainTransactionEvaluation,
+                EStatus.End,
+                queryCID,
+                q.name,
+                err,
+              ),
+            );
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.ChainTransactionDataAccess,
+                EStatus.End,
+                queryCID,
+                q.name,
+                err,
+              ),
+            );
+            return err;
           });
       case "social_discord":
-        return this.getDiscordProfiles();
+        publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.DiscordEvaluation,
+            EStatus.Start,
+            queryCID,
+            q.name,
+          ),
+        );
+        publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.DiscordDataAccess,
+            EStatus.Start,
+            queryCID,
+            q.name,
+          ),
+        );
+        return this.getDiscordProfiles()
+          .map((res) => {
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.DiscordDataAccess,
+                EStatus.End,
+                queryCID,
+                q.name,
+              ),
+            );
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.DiscordEvaluation,
+                EStatus.End,
+                queryCID,
+                q.name,
+              ),
+            );
+            return res;
+          })
+          .mapErr((err) => {
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.DiscordEvaluation,
+                EStatus.Start,
+                queryCID,
+                q.name,
+                err,
+              ),
+            );
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.DiscordDataAccess,
+                EStatus.Start,
+                queryCID,
+                q.name,
+                err,
+              ),
+            );
+            return err;
+          });
       case "social_twitter":
         return this.getTwitterFollowers();
       default:
@@ -174,7 +652,7 @@ export class QueryEvaluator implements IQueryEvaluator {
     if (propertyVal == null) {
       // const err = new Error("In evalPropertyConditon, propertyVal is null!");
       // console.error(err);
-      // throw err;
+      // return err ;
       return SDQL_Return(null);
     }
     //console.log(`Evaluating property condition ${condition} against ${propertyVal}`);

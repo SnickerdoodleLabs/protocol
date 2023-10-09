@@ -1,6 +1,7 @@
-import { Box, Typography } from "@core-iframe/app/ui/lib";
 import { IOpenSeaMetadata } from "@snickerdoodlelabs/objects";
 import React, { FC } from "react";
+
+import { Box, Typography } from "@core-iframe/app/ui/lib";
 
 interface IInvitationCardProps {
   invitationData: IOpenSeaMetadata;

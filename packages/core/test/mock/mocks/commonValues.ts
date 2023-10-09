@@ -198,6 +198,7 @@ export const testCoreConfig = new CoreConfig(
   ProviderUrl("devChainProviderURL"), // devChainProviderURL
   60, // maxStatsRetentionSeconds
   LanguageCode("en-pw"), // passwordLanguageCode
+  100
 );
 
 const adContent1: AdContent = new AdContent(
@@ -439,37 +440,27 @@ export const siteVisits: SiteVisit[] = [
   new SiteVisit(
     URLString("http://google.com"),
     UnixTimestamp(100),
-    UnixTimestamp(
-      Math.floor(new Date("1970-01-01T00:10:00.000Z").getTime() / 1000),
-    ),
+    UnixTimestamp(400),
   ),
   new SiteVisit(
     URLString("http://google.com"),
     UnixTimestamp(100),
-    UnixTimestamp(
-      Math.floor(new Date("1970-01-01T00:10:00.000Z").getTime() / 1000),
-    ),
+    UnixTimestamp(400),
   ),
   new SiteVisit(
     URLString("http://google.com"),
     UnixTimestamp(100),
-    UnixTimestamp(
-      Math.floor(new Date("1970-01-01T00:10:00.000Z").getTime() / 1000),
-    ),
+    UnixTimestamp(400),
   ),
   new SiteVisit(
     URLString("http://gog.com"),
     UnixTimestamp(200),
-    UnixTimestamp(
-      Math.floor(new Date("1970-01-01T00:10:00.000Z").getTime() / 1000),
-    ),
+    UnixTimestamp(400),
   ),
   new SiteVisit(
     URLString("http://discord.com"),
     UnixTimestamp(300),
-    UnixTimestamp(
-      Math.floor(new Date("1970-01-01T00:10:00.000Z").getTime() / 1000),
-    ),
+    UnixTimestamp(400),
   ),
 ];
 
@@ -478,27 +469,27 @@ export const siteVisitsMap: SiteVisitsMap = new Map([
     URLString("google.com"),
     new SiteVisitsData(
       3,
-      500,
-      UnixTimestamp(1500),
-      ISO8601DateString("1970-01-01T00:10:00.000Z"),
+      300,
+      UnixTimestamp(900),
+      ISO8601DateString("1970-01-01T00:06:40.000Z"),
     ),
   ],
   [
     URLString("gog.com"),
     new SiteVisitsData(
       1,
-      400,
-      UnixTimestamp(400),
-      ISO8601DateString("1970-01-01T00:10:00.000Z"),
+      200,
+      UnixTimestamp(200),
+      ISO8601DateString("1970-01-01T00:06:40.000Z"),
     ),
   ],
   [
     URLString("discord.com"),
     new SiteVisitsData(
       1,
-      300,
-      UnixTimestamp(300),
-      ISO8601DateString("1970-01-01T00:10:00.000Z"),
+      100,
+      UnixTimestamp(100),
+      ISO8601DateString("1970-01-01T00:06:40.000Z"),
     ),
   ],
 ]);

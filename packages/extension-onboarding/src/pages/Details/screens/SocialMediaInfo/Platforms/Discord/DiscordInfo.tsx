@@ -10,12 +10,12 @@ import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert
 import SocialUnlinkingModal from "@extension-onboarding/components/Modals/SocialUnlinkingModal";
 import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
 import { useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import { ISocialMediaPlatformProps } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/Discord.style";
 import { DiscordAccountItem } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/Items/DiscordAccountItem";
 import { ILinkedDiscordAccount } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/types";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 export const DiscordInfo: FC<ISocialMediaPlatformProps> = memo(
   ({ name, icon }: ISocialMediaPlatformProps) => {
     const [discordProfiles, setDiscordProfiles] = useState<DiscordProfile[]>(

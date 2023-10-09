@@ -1,12 +1,13 @@
+import { Box } from "@material-ui/core";
+import { Radio } from "@snickerdoodlelabs/shared-components";
+import React, { FC, useMemo } from "react";
+
 import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
 import Typography from "@extension-onboarding/components/Typography/Typography";
 import {
   ISdlDataWalletProxy,
   IWindowWithSdlDataWallet,
 } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { Box } from "@material-ui/core";
-import { Radio } from "@snickerdoodlelabs/shared-components";
-import React, { FC, useMemo } from "react";
 
 declare const window: IWindowWithSdlDataWallet;
 
