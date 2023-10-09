@@ -99,10 +99,12 @@ export class AccountRepository implements IAccountRepository {
   public getTransactionValueByChain(
     sourceDomain?: DomainName,
   ): ResultAsync<TransactionPaymentCounter[], SnickerDoodleCoreError> {
-    return this.core.getTransactionValueByChain(sourceDomain).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
+    return this.core
+      .getTransactionValueByChain(sourceDomain)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
 
   public getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {

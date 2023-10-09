@@ -150,7 +150,7 @@ export class QueryEvaluator implements IQueryEvaluator {
         return this.browsingDataRepo
           .getSiteVisitsMap(q.timestampRange!)
           .map((url_visited_count) => {
-            return SDQL_Return(this.mapToRecord(url_visited_count))
+            return SDQL_Return(this.mapToRecord(url_visited_count));
           });
       case "chain_transactions":
         return this.transactionRepo
@@ -213,10 +213,10 @@ export class QueryEvaluator implements IQueryEvaluator {
   protected mapToRecord<K extends string, V>(map: Map<K, V>): Record<K, V> {
     const obj: any = {};
     map.forEach((value, key) => {
-        obj[key] = value;
+      obj[key] = value;
     });
     return obj;
-}
+  }
 
   protected getDiscordProfiles(): ResultAsync<SDQL_Return, PersistenceError> {
     return this.socialRepo

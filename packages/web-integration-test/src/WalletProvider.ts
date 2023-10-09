@@ -58,7 +58,7 @@ export class WalletProvider {
       return errAsync("Should call connect() first.");
     }
     const signer = this._web3Provider.getSigner();
-    return ResultAsync.fromPromise(signer.signMessage(message), (e) => { }).map(
+    return ResultAsync.fromPromise(signer.signMessage(message), (e) => {}).map(
       (signature) => Signature(signature),
     );
   }
