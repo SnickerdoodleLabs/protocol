@@ -1,11 +1,12 @@
+import { IIFrameConfigOverrides } from "@snickerdoodlelabs/objects";
+import { injectable } from "inversify";
+import { ResultAsync, okAsync } from "neverthrow";
+
 import {
   IFrameEvents,
   IFrameControlConfig,
 } from "@core-iframe/interfaces/objects";
 import { IIFrameContextProvider } from "@core-iframe/interfaces/utilities";
-import { IIFrameConfigOverrides } from "@snickerdoodlelabs/objects";
-import { injectable } from "inversify";
-import { ResultAsync, okAsync } from "neverthrow";
 
 @injectable()
 export class IFrameContextProvider implements IIFrameContextProvider {

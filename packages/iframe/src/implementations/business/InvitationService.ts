@@ -1,11 +1,3 @@
-import { IInvitationService } from "@core-iframe/interfaces/business";
-import { EInvitationSourceType } from "@core-iframe/interfaces/objects";
-import {
-  ICoreProvider,
-  ICoreProviderType,
-  IIFrameContextProvider,
-  IIFrameContextProviderType,
-} from "@core-iframe/interfaces/utilities/index";
 import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   BigNumberString,
@@ -23,6 +15,15 @@ import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { Subscription } from "rxjs";
 import { parse } from "tldts";
+
+import { IInvitationService } from "@core-iframe/interfaces/business";
+import { EInvitationSourceType } from "@core-iframe/interfaces/objects";
+import {
+  ICoreProvider,
+  ICoreProviderType,
+  IIFrameContextProvider,
+  IIFrameContextProviderType,
+} from "@core-iframe/interfaces/utilities/index";
 @injectable()
 export class InvitationService implements IInvitationService {
   private consentCheckSubscription: Subscription;

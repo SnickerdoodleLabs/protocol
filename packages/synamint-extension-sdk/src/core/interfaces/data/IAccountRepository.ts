@@ -56,10 +56,9 @@ export interface IAccountRepository {
     filter?: TransactionFilter,
     sourceDomain?: DomainName,
   ): ResultAsync<ChainTransaction[], SnickerDoodleCoreError>;
-  getTransactionValueByChain(sourceDomain?: DomainName): ResultAsync<
-    TransactionPaymentCounter[],
-    SnickerDoodleCoreError
-  >;
+  getTransactionValueByChain(
+    sourceDomain?: DomainName,
+  ): ResultAsync<TransactionPaymentCounter[], SnickerDoodleCoreError>;
 }
 
 export const IAccountRepositoryType = Symbol.for("IAccountRepository");

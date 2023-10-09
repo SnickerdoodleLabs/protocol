@@ -23,13 +23,13 @@ import marketplaceImage from "@extension-onboarding/assets/images/marketplace.sv
 import { LOCAL_STORAGE_REWARDS_MARKETPLACE_INTRODUCTION } from "@extension-onboarding/constants";
 import { tags } from "@extension-onboarding/constants/tags";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import {
   FeaturedRewardsPrograms,
   PopularRewardsPrograms,
   RecommendedRewardPrograms,
 } from "@extension-onboarding/pages/Details/screens/Marketplace/components/Sections";
 import { useMarketplaceStyles } from "@extension-onboarding/pages/Details/screens/Marketplace/Marketplace.style";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 
 const Marketplace = () => {
   const classes = useMarketplaceStyles();

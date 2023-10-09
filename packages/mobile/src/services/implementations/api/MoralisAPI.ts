@@ -12,8 +12,7 @@ export class MoralisAPI {
         {
           headers: {
             accept: "application/json",
-            "X-API-Key":
-              "",
+            "X-API-Key": "",
           },
         },
       );

@@ -1,9 +1,3 @@
-import {
-  IMargin,
-  ITheme,
-} from "@core-iframe/app/ui/lib/interfaces";
-import { marginStyles } from "@core-iframe/app/ui/lib/styles";
-import { defaultDarkTheme } from "@core-iframe/app/ui/lib/theme";
 import clsx from "clsx";
 import React, {
   ReactNode,
@@ -14,6 +8,10 @@ import React, {
   forwardRef,
 } from "react";
 import { createUseStyles, useTheme } from "react-jss";
+
+import { IMargin, ITheme } from "@core-iframe/app/ui/lib/interfaces";
+import { marginStyles } from "@core-iframe/app/ui/lib/styles";
+import { defaultDarkTheme } from "@core-iframe/app/ui/lib/theme";
 
 const styleObject = {
   "sd-button": {

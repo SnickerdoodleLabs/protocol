@@ -1,3 +1,10 @@
+import { useNavigation } from "@react-navigation/native";
+import {
+  AccountAddress,
+  TokenBalance,
+  WalletNFT,
+} from "@snickerdoodlelabs/objects";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Animated,
   Dimensions,
@@ -10,23 +17,17 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useMemo, useState } from "react";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
-import Dropdown from "./Dropdown";
 import Icon from "react-native-vector-icons/Ionicons";
 
 import { useAppContext } from "../../context/AppContextProvider";
-import { MoralisAPI } from "../../services/implementations/api/MoralisAPI";
-import {
-  AccountAddress,
-  TokenBalance,
-  WalletNFT,
-} from "@snickerdoodlelabs/objects";
 import { useTheme } from "../../context/ThemeContext";
-import { useNavigation } from "@react-navigation/native";
-import DashboardTab from "./DashboardTab";
-import RadioButton from "../Custom/RadioButton";
+import { MoralisAPI } from "../../services/implementations/api/MoralisAPI";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import MultiSelect from "../Custom/MultiSelect";
+import RadioButton from "../Custom/RadioButton";
+
+import DashboardTab from "./DashboardTab";
+import Dropdown from "./Dropdown";
 
 export interface IDashboardChildrenProps {
   data: {

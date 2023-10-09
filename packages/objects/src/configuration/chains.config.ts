@@ -6,11 +6,7 @@ import {
   LinkedAccount,
   NativeCurrencyInformation,
 } from "@objects/businessObjects";
-import {
-  EChain,
-  EChainTechnology,
-  EChainType,
-} from "@objects/enum/index.js";
+import { EChain, EChainTechnology, EChainType } from "@objects/enum/index.js";
 import { AccountIndexingError } from "@objects/errors/index.js";
 import {
   ChainId,

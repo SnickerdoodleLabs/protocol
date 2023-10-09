@@ -9,8 +9,8 @@ import {
   File,
   GetFilesCallback,
 } from "@google-cloud/storage";
-import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
+import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   BigNumberString,
   ConsentContractError,

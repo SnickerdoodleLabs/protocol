@@ -1,9 +1,3 @@
-import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
-import {
-  WrappedTransactionResponse,
-  ConsentRoles,
-  ContractOverrides,
-} from "@contracts-sdk/interfaces/objects/index.js";
 import {
   BaseURI,
   BigNumberString,
@@ -18,6 +12,13 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
+
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import {
+  WrappedTransactionResponse,
+  ConsentRoles,
+  ContractOverrides,
+} from "@contracts-sdk/interfaces/objects/index.js";
 
 export interface IConsentFactoryContract extends IBaseContract {
   /**
@@ -43,11 +44,14 @@ export interface IConsentFactoryContract extends IBaseContract {
    * @param baseUri URI for consent contract
    * @param name Name of the consent contract
    */
-   estimateGasToCreateConsent(
+  estimateGasToCreateConsent(
     ownerAddress: EVMAccountAddress,
     baseUri: BaseURI,
     name: ConsentName,
-  ): ResultAsync<ethers.BigNumber, ConsentFactoryContractError | BlockchainCommonErrors>
+  ): ResultAsync<
+    ethers.BigNumber,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  >;
 
   /**
    *  Return the number Consent addresses that user has deployed

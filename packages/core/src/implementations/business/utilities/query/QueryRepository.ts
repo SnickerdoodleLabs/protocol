@@ -29,7 +29,7 @@ export class QueryRepository implements IQueryRepository {
     dataPermissions: DataPermissions,
   ): ResultAsync<SDQL_Return, PersistenceError> {
     return this.isSubQueryPermitted(q, dataPermissions)
-      ? this.queryValuator.eval(q)
+      ? this.queryValuator.eval(q, cid)
       : okAsync(SDQL_Return(null));
   }
 

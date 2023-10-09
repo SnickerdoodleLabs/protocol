@@ -2,6 +2,7 @@ import {
   DataPermissions,
   IpfsCID,
   PersistenceError,
+  PublicEvents,
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";

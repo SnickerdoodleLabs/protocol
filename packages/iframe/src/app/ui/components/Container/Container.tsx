@@ -1,10 +1,11 @@
+import React, { FC } from "react";
+
 import {
   Box,
   useTheme,
   ITheme,
   defaultDarkTheme,
 } from "@core-iframe/app/ui/lib";
-import React, { FC } from "react";
 
 export const RootContainer: FC = ({ children }) => (
   <Box

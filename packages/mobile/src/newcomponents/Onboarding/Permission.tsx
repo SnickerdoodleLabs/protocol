@@ -1,12 +1,12 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Age, EWalletDataType } from "@snickerdoodlelabs/objects";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Text, Switch } from "react-native";
 
 import { useAppContext } from "../../context/AppContextProvider";
+import { useTheme } from "../../context/ThemeContext";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import CustomSwitch from "../Custom/CustomSwitch";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useTheme } from "../../context/ThemeContext";
 
 const ToggleRow = ({ title, perms }: { title: string; perms: Array<any> }) => {
   const theme = useTheme();

@@ -1,10 +1,11 @@
-import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import { useAppContext } from "@extension-onboarding/context/App";
 import { Box, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Button } from "@snickerdoodlelabs/shared-components";
 import React, { useMemo } from "react";
 import { useLocation } from "react-router-dom";
+
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { useAppContext } from "@extension-onboarding/context/App";
 
 const useStyles = makeStyles((theme) => ({
   title: {

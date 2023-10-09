@@ -16,20 +16,20 @@
     "Snickerdoodle Labs",
     "SDQL"
   ],
-  "browser": "dist/index.js",
   "main": "dist/index.js",
+  "browser": "dist/index.js",
   "files": [
     "dist",
     "!dist/test",
     "!dist/tsconfig.tsbuildinfo"
   ],
   "scripts": {
+    "alias": "npx tsc-alias",
     "build": "yarn clean && yarn compile && yarn postCompile",
-    "dockerize": "docker build -t snickerdoodlelabs/core-iframe:local -f Dockerfile --progress=plain ../..",
-    "dev": "webpack watch --config webpack.config.js --mode development",
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
     "compile": "npx tsc --build && cd ../.. && yarn alias",
-    "alias": "npx tsc-alias",
+    "dev": "webpack watch --config webpack.config.js --mode development",
+    "dockerize": "docker build -t snickerdoodlelabs/core-iframe:local -f Dockerfile --progress=plain ../..",
     "postCompile": "npx webpack",
     "prepare": "yarn build",
     "start": "node scripts/webserver.js",

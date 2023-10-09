@@ -1,11 +1,12 @@
+import type { Bytes, SignatureLike } from "@ethersproject/bytes";
+import { hashMessage } from "@ethersproject/hash";
+import { recoverAddress } from "@ethersproject/transactions";
 import { numberToHex, sanitizeHex, utf8ToHex } from "@walletconnect/encoding";
 import { ethers, TypedDataDomain, TypedDataField } from "ethers";
-import { recoverAddress } from "@ethersproject/transactions";
-import { hashMessage } from "@ethersproject/hash";
-import type { Bytes, SignatureLike } from "@ethersproject/bytes";
 import { _TypedDataEncoder } from "ethers/lib/utils";
-import { FormattedRpcResponse, RpcRequestParams } from "./methods";
+
 import { getTypedDataExample } from "./epi712";
+import { FormattedRpcResponse, RpcRequestParams } from "./methods";
 
 export function verifyMessage(
   message: Bytes | string,
@@ -48,7 +49,7 @@ export const signMessage = async ({
 
   const signature = await web3Provider.send("personal_sign", [hexMsg, address]);
   const valid = verifyEip155MessageSignature(msg, signature, address);
-  
+
   return {
     method,
     address,

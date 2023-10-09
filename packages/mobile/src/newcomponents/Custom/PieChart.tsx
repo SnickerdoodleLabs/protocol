@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { View, Text } from "react-native";
 import { Text as SvgText } from "react-native-svg";
-import { useTheme } from "../../context/ThemeContext";
 import { PieChart } from "react-native-svg-charts";
+
+import { useTheme } from "../../context/ThemeContext";
 
 export interface SliceData {
   key: number;

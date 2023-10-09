@@ -19,7 +19,7 @@ export type SDQL_Return = Brand<
   | boolean
   | number
   | Array<any>
-  | Record<URLString , SiteVisitsData>
+  | Record<URLString, SiteVisitsData>
   | Map<ChainId, number>
   | TokenBalanceInsight[]
   | ChainTransaction[]

@@ -16,10 +16,10 @@ import {
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Bar } from "react-chartjs-2";
 
-import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/BrowserActivity/BrowserActivity.style";
 import UnauthScreen from "@extension-onboarding/components/UnauthScreen/UnauthScreen";
+import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/BrowserActivity/BrowserActivity.style";
 ChartJS.register(
   CategoryScale,
   LinearScale,

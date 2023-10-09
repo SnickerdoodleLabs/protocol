@@ -1,5 +1,6 @@
-import { breakPoints } from "@core-iframe/app/ui/lib/theme/theme.defaults";
 import { useState, useEffect } from "react";
+
+import { breakPoints } from "@core-iframe/app/ui/lib/theme/theme.defaults";
 
 const defaultBreakpoint = "md"; // Define your default breakpoint here
 

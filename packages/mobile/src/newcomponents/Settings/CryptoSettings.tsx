@@ -1,4 +1,7 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Clipboard from "@react-native-clipboard/clipboard";
 import { useNavigation } from "@react-navigation/native";
+import { EVMAccountAddress } from "@snickerdoodlelabs/objects";
 import React, { useEffect } from "react";
 import {
   Alert,
@@ -13,12 +16,9 @@ import {
 
 import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
 import { useAppContext } from "../../context/AppContextProvider";
+import { useTheme } from "../../context/ThemeContext";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import RadioButton from "../Custom/RadioButton";
-import { EVMAccountAddress } from "@snickerdoodlelabs/objects";
-import { useTheme } from "../../context/ThemeContext";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import Clipboard from "@react-native-clipboard/clipboard";
 export default function CryptoSettings() {
   const { mobileCore } = useAppContext();
   const { onWCButtonClicked } = useAccountLinkingContext();

@@ -1,3 +1,22 @@
+import {
+  DataPermissions,
+  EVMContractAddress,
+  EWalletDataType,
+  IOpenSeaMetadata,
+  ISnickerdoodleCore,
+  Invitation,
+  LinkedAccount,
+} from "@snickerdoodlelabs/objects";
+import React, {
+  useMemo,
+  useState,
+  useEffect,
+  FC,
+  useRef,
+  useCallback,
+} from "react";
+import { Subscription } from "rxjs";
+
 import { RootContainer } from "@core-iframe/app/ui/components/Container";
 import { permissions } from "@core-iframe/app/ui/constants";
 import {
@@ -20,24 +39,6 @@ import {
   IFrameEvents,
   IInvitationDisplayRequest,
 } from "@core-iframe/interfaces/objects/IFrameEvents";
-import {
-  DataPermissions,
-  EVMContractAddress,
-  EWalletDataType,
-  IOpenSeaMetadata,
-  ISnickerdoodleCore,
-  Invitation,
-  LinkedAccount,
-} from "@snickerdoodlelabs/objects";
-import React, {
-  useMemo,
-  useState,
-  useEffect,
-  FC,
-  useRef,
-  useCallback,
-} from "react";
-import { Subscription } from "rxjs";
 
 interface IInvitationHandlerProps {
   core: ISnickerdoodleCore;

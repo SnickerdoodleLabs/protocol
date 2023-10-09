@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 
+import { useTheme } from "../../../context/ThemeContext";
 import { normalizeHeight, normalizeWidth } from "../../../themes/Metrics";
 import { LineBreaker } from "../../Marketplace/CardDetails";
-import { useTheme } from "../../../context/ThemeContext";
 
 export default function TokenItem({ tickerSymbol, groupedTokens, index }) {
   const group = groupedTokens[tickerSymbol];

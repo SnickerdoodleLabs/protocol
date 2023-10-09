@@ -6,6 +6,7 @@ import {
   Grid,
   Divider,
 } from "@material-ui/core";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
   AccountAddress,
   EarnedReward,
@@ -24,15 +25,25 @@ import {
   PERMISSIONS_WITH_ICONS,
   UI_SUPPORTED_PERMISSIONS,
 } from "@snickerdoodlelabs/shared-components";
+import {
+  addQueryStatusToPossibleReward,
+  categorizePossibleRewardsBasedOnStatus,
+  getRewardsAfterRewardsWereDeliveredFromIP,
+  getRewardsBeforeRewardsWereDeliveredFromIP,
+  PossibleRewardWithQueryStatus,
+} from "@snickerdoodlelabs/shared-components";
+import { ResultUtils } from "neverthrow-result-utils";
 import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { useLocation } from "react-router-dom";
 
 import Breadcrumb from "@extension-onboarding/components/Breadcrumb";
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import Description from "@extension-onboarding/components/Description/Description";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import {
@@ -44,17 +55,6 @@ import {
   ProgramRewards,
 } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/RewardProgramDetails.style";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import {
-  addQueryStatusToPossibleReward,
-  categorizePossibleRewardsBasedOnStatus,
-  getRewardsAfterRewardsWereDeliveredFromIP,
-  getRewardsBeforeRewardsWereDeliveredFromIP,
-  PossibleRewardWithQueryStatus,
-} from "@snickerdoodlelabs/shared-components";
-import { ResultUtils } from "neverthrow-result-utils";
-import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
-import Description from "@extension-onboarding/components/Description/Description";
 
 const ManageSettingsButton = withStyles({
   root: {

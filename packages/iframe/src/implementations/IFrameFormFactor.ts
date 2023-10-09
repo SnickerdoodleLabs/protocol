@@ -1,22 +1,4 @@
 import "reflect-metadata";
-import { iframeModule } from "@core-iframe/IFrameModule";
-import {
-  ICoreListener,
-  ICoreListenerType,
-} from "@core-iframe/interfaces/api/index";
-import {
-  IFrameConfig,
-  IFrameControlConfig,
-  IFrameEvents,
-} from "@core-iframe/interfaces/objects";
-import {
-  IConfigProvider,
-  IConfigProviderType,
-  ICoreProvider,
-  ICoreProviderType,
-  IIFrameContextProvider,
-  IIFrameContextProviderType,
-} from "@core-iframe/interfaces/utilities/index";
 import {
   ILogUtils,
   ILogUtilsType,
@@ -44,6 +26,25 @@ import {
 import { Container } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ChildAPI } from "postmate";
+
+import { iframeModule } from "@core-iframe/IFrameModule";
+import {
+  ICoreListener,
+  ICoreListenerType,
+} from "@core-iframe/interfaces/api/index";
+import {
+  IFrameConfig,
+  IFrameControlConfig,
+  IFrameEvents,
+} from "@core-iframe/interfaces/objects";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+  ICoreProvider,
+  ICoreProviderType,
+  IIFrameContextProvider,
+  IIFrameContextProviderType,
+} from "@core-iframe/interfaces/utilities/index";
 
 export class IFrameFormFactor {
   protected iocContainer = new Container();

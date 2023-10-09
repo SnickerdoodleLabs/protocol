@@ -1,10 +1,3 @@
-import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
-import {
-  ConsentRoles,
-  ContractOverrides,
-  Tag,
-  WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/objects";
 import {
   ConsentContractError,
   EVMAccountAddress,
@@ -26,6 +19,14 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event, BigNumber } from "ethers";
 import { ResultAsync } from "neverthrow";
+
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import {
+  ConsentRoles,
+  ContractOverrides,
+  Tag,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects";
 
 export interface IConsentContract extends IBaseContract {
   /**
@@ -306,10 +307,7 @@ export interface IConsentContract extends IBaseContract {
    */
   getLatestTokenIdByOptInAddress(
     optInAddress: EVMAccountAddress,
-  ): ResultAsync<
-    TokenId | null,
-    ConsentContractError | BlockchainCommonErrors
-  >;
+  ): ResultAsync<TokenId | null, ConsentContractError | BlockchainCommonErrors>;
 
   /**
    * Disables open opt ins on the contract

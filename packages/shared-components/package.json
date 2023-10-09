@@ -2,8 +2,8 @@
   "name": "@snickerdoodlelabs/shared-components",
   "version": "1.0.0",
   "description": "Shared components for extension and SPA projects",
-  "main": "dist/index.js",
   "author": "okan@snickerdoodlelabs.io",
+  "main": "dist/index.js",
   "scripts": {
     "alias": "tsc-alias",
     "build": "yarn clean && yarn compile",

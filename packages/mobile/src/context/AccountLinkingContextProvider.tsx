@@ -4,11 +4,13 @@ import {
   AccountAddress,
   Signature,
 } from "@snickerdoodlelabs/objects";
+import { useWalletConnectModal } from "@walletconnect/modal-react-native";
 import React, { useContext, useEffect, useState } from "react";
+
+import { BlockchainActions } from "../newcomponents/Settings/BlockchainActions";
+
 import { useAppContext } from "./AppContextProvider";
 import { useLayoutContext, ELoadingStatusType } from "./LayoutContext";
-import { BlockchainActions } from "../newcomponents/Settings/BlockchainActions";
-import { useWalletConnectModal } from "@walletconnect/modal-react-native";
 export interface IAccountLinkingContext {
   onWCButtonClicked: () => void;
 }

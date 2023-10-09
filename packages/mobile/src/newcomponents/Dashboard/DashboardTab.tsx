@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
+import { useTheme } from "../../context/ThemeContext";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 import { IDashboardChildrenProps } from "./Dashboard";
 import NFTs from "./NFTs/NFTs";
-import { useTheme } from "../../context/ThemeContext";
 import Tokens from "./Tokens/Tokens";
 
 const Tab = ({ item, isActive }: any) => {

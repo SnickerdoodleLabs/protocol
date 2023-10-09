@@ -1,7 +1,4 @@
-import {
-  ITheme,
-  ThemeColorType,
-} from "@core-iframe/app/ui/lib/interfaces";
+import { ITheme, ThemeColorType } from "@core-iframe/app/ui/lib/interfaces";
 import {
   breakPoints,
   constants,

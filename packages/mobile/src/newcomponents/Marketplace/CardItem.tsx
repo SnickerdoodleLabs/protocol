@@ -1,4 +1,9 @@
 import { useNavigation } from "@react-navigation/native";
+import {
+  IOpenSeaMetadata,
+  IpfsCID,
+  MarketplaceListing,
+} from "@snickerdoodlelabs/objects";
 import React, { useEffect } from "react";
 import {
   View,
@@ -10,14 +15,9 @@ import {
 } from "react-native";
 
 import { ROUTES } from "../../constants";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
-import {
-  IOpenSeaMetadata,
-  IpfsCID,
-  MarketplaceListing,
-} from "@snickerdoodlelabs/objects";
 import { useAppContext } from "../../context/AppContextProvider";
 import { useTheme } from "../../context/ThemeContext";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 interface CardItemProps {
   marketplaceListing: MarketplaceListing | null;

@@ -1,9 +1,23 @@
-import React, { useEffect } from "react";
+import {
+  AccountAddress,
+  EChain,
+  EVMAccountAddress,
+  LanguageCode,
+  Signature,
+} from "@snickerdoodlelabs/objects";
 import { useWalletConnectModal } from "@walletconnect/modal-react-native";
 import { ethers } from "ethers";
+import React, { useEffect } from "react";
 import { useMemo, useState } from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity } from "react-native";
 
+import { useAppContext } from "../../context/AppContextProvider";
+import {
+  ELoadingStatusType,
+  useLayoutContext,
+} from "../../context/LayoutContext";
+
+import { getFilterChanges, readContract } from "./ContractUtil";
 import {
   AccountAction,
   FormattedRpcError,
@@ -17,19 +31,6 @@ import {
   signTransaction,
   signTypedData,
 } from "./MethodUtil";
-import { getFilterChanges, readContract } from "./ContractUtil";
-import { useAppContext } from "../../context/AppContextProvider";
-import {
-  AccountAddress,
-  EChain,
-  EVMAccountAddress,
-  LanguageCode,
-  Signature,
-} from "@snickerdoodlelabs/objects";
-import {
-  ELoadingStatusType,
-  useLayoutContext,
-} from "../../context/LayoutContext";
 
 interface Props {
   onDisconnect: () => void;

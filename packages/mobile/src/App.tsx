@@ -11,7 +11,9 @@
 import "@walletconnect/react-native-compat";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationContainer } from "@react-navigation/native";
+import { WalletConnectModal } from "@walletconnect/modal-react-native";
 import WalletConnectProvider from "@walletconnect/react-native-dapp";
+import setGlobalVars from "indexeddbshim/dist/indexeddbshim-noninvasive";
 import React, { useEffect } from "react";
 import {
   Platform,
@@ -20,8 +22,12 @@ import {
   LogBox,
   Clipboard,
 } from "react-native";
+import { Colors } from "react-native/Libraries/NewAppScreen";
+import Orientation from "react-native-orientation-locker";
+import SQLite from "react-native-sqlite-2";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
+import { providerMetadata } from "./constants/WCConfig";
 import AccountLinkingContextProvider from "./context/AccountLinkingContextProvider";
 import AppContextProvider, {
   useAppContext,
@@ -29,16 +35,10 @@ import AppContextProvider, {
 import EventContextProvider from "./context/EventContextProvider";
 import InvitationContextProvider from "./context/InvitationContext";
 import LayoutContextProvider from "./context/LayoutContext";
-import { AuthNavigator } from "./navigators/AuthNavigator";
-import Orientation from "react-native-orientation-locker";
 import { ThemeContextProvider } from "./context/ThemeContext";
-import { WalletConnectModal } from "@walletconnect/modal-react-native";
-import { providerMetadata } from "./constants/WCConfig";
-import setGlobalVars from "indexeddbshim/dist/indexeddbshim-noninvasive";
-import SQLite from "react-native-sqlite-2";
-import { Colors } from "react-native/Libraries/NewAppScreen";
-import DeepLinkHandler from "./navigators/DeepLinkHandler";
+import { AuthNavigator } from "./navigators/AuthNavigator";
 import BottomTabNavigator from "./navigators/BottomTabNavigator";
+import DeepLinkHandler from "./navigators/DeepLinkHandler";
 
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications

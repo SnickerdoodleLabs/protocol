@@ -3,10 +3,10 @@ import React from "react";
 
 import emptyNfts from "@extension-onboarding/assets/images/empty-nfts.svg";
 import { PoapNFTItem } from "@extension-onboarding/components/NFTItem";
+import UnauthScreen from "@extension-onboarding/components/UnauthScreen";
+import { useAppContext, EAppModes } from "@extension-onboarding/context/App";
 import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/PoapNFTs/PoapNFTs.style";
-import { useAppContext, EAppModes } from "@extension-onboarding/context/App";
-import UnauthScreen from "@extension-onboarding/components/UnauthScreen";
 
 export default () => {
   const classes = useStyles();

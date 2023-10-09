@@ -1,15 +1,18 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createStackNavigator } from "@react-navigation/stack";
 import React from "react";
-import { COLORS, ROUTES } from "../constants";
 import Icon from "react-native-vector-icons/Ionicons";
+
+import { COLORS, ROUTES } from "../constants";
+import { useTheme } from "../context/ThemeContext";
+import { normalizeHeight, normalizeWidth } from "../themes/Metrics";
+
 import {
   DashboardStack,
   MarketplaceStack,
   SettingStack,
 } from "./AuthNavigator";
-import { createStackNavigator } from "@react-navigation/stack";
-import { normalizeHeight, normalizeWidth } from "../themes/Metrics";
-import { useTheme } from "../context/ThemeContext";
+
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 const BottomTabNavigator = () => {

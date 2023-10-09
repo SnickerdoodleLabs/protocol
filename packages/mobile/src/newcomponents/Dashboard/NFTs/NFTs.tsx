@@ -1,11 +1,12 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useEffect } from "react";
-import { ROUTES } from "../../../constants";
-import { normalizeHeight, normalizeWidth } from "../../../themes/Metrics";
 import { useNavigation } from "@react-navigation/native";
+import React, { useEffect } from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
+import { ROUTES } from "../../../constants";
 import { useAppContext } from "../../../context/AppContextProvider";
-import { IDashboardChildrenProps } from "../Dashboard";
 import { useTheme } from "../../../context/ThemeContext";
+import { normalizeHeight, normalizeWidth } from "../../../themes/Metrics";
+import { IDashboardChildrenProps } from "../Dashboard";
 
 export default function NFTs({ data }: IDashboardChildrenProps) {
   const navigation = useNavigation();

@@ -49,5 +49,6 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public devChainProviderURL: ProviderUrl | null,
     public maxStatsRetentionSeconds: number,
     public passwordLanguageCode: LanguageCode,
+    public queryPerformanceMetricsLimit : number
   ) {}
 }

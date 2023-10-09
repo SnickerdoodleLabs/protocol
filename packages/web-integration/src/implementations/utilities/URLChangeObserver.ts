@@ -1,6 +1,7 @@
 import { URLString } from "@snickerdoodlelabs/objects";
-import { IURLChangeObserver } from "@web-integration/interfaces/utilities/index.js";
 import { ResultAsync } from "neverthrow";
+
+import { IURLChangeObserver } from "@web-integration/interfaces/utilities/index.js";
 
 export class URLChangeObserver implements IURLChangeObserver {
   private observer: MutationObserver;

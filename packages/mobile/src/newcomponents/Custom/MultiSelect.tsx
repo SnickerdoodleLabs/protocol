@@ -9,8 +9,8 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import { useTheme } from "../../context/ThemeContext";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 const MultiSelectOption = ({
   value,
@@ -101,7 +101,7 @@ const MultiSelect = ({ options, handleSelectChain, selectedChains }) => {
   };
 
   return (
-    <ScrollView style={{height:normalizeHeight(300)}}>
+    <ScrollView style={{ height: normalizeHeight(300) }}>
       {options.map((option) => (
         <MultiSelectOption
           key={option.value}

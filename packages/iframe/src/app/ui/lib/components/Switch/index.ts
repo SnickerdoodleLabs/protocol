@@ -1,1 +1,1 @@
-export * from '@core-iframe/app/ui/lib/components/Switch/Switch';
+export * from "@core-iframe/app/ui/lib/components/Switch/Switch";

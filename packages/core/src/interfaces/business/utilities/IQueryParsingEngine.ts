@@ -12,9 +12,12 @@ import {
   PersistenceError,
   MissingASTError,
   PossibleReward,
+  PublicEvents,
 } from "@snickerdoodlelabs/objects";
 import { AST } from "@snickerdoodlelabs/query-parser";
 import { ResultAsync } from "neverthrow";
+
+import { CoreContext } from "@core/interfaces/objects";
 
 export interface IQueryParsingEngine {
   handleQuery(

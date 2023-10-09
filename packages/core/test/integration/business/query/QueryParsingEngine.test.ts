@@ -20,6 +20,7 @@ import {
   DataPermissions,
   QueryExpiredError,
   EWalletDataType,
+  PublicEvents,
 } from "@snickerdoodlelabs/objects";
 import {
   IQueryObjectFactory,
@@ -61,6 +62,7 @@ import { avalanche1AstInstance } from "@core-tests/mock/mocks/commonValues.js";
 import {
   AjaxUtilsMock,
   ConfigProviderMock,
+  ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
 
 const queryCID = IpfsCID("Beep");
@@ -87,13 +89,23 @@ class QueryParsingMocks {
   public browsingDataRepo = td.object<IBrowsingDataRepository>();
   public adDataRepo = td.object<AdDataRepository>();
   public socialRepo = td.object<ISocialRepository>();
+  public contextProvider: ContextProviderMock = new ContextProviderMock();
 
   public blockchainTransactionQueryEvaluator =
-    new BlockchainTransactionQueryEvaluator(this.transactionRepo);
+    new BlockchainTransactionQueryEvaluator(
+      this.transactionRepo,
+      this.contextProvider,
+    );
 
-  public nftQueryEvaluator = new NftQueryEvaluator(this.balanceRepo);
+  public nftQueryEvaluator = new NftQueryEvaluator(
+    this.balanceRepo,
+    this.contextProvider,
+  );
 
-  public balanceQueryEvaluator = new BalanceQueryEvaluator(this.balanceRepo);
+  public balanceQueryEvaluator = new BalanceQueryEvaluator(
+    this.balanceRepo,
+    this.contextProvider,
+  );
 
   public queryUtils = td.object<ISDQLQueryUtils>();
 
@@ -152,6 +164,7 @@ class QueryParsingMocks {
       this.browsingDataRepo,
       this.transactionRepo,
       this.socialRepo,
+      this.contextProvider,
     );
     this.queryRepository = new QueryRepository(this.queryEvaluator);
 
@@ -173,6 +186,7 @@ class QueryParsingMocks {
       this.queryUtils,
       this.adContentRepository,
       this.adDataRepo,
+      this.contextProvider,
     );
   }
 
@@ -335,7 +349,6 @@ describe("Tests with data permissions", () => {
     await engine
       .handleQuery(sdqlQuery2, givenPermissions)
       .andThen((deliveredInsights) => {
-        console.log("walach : ", deliveredInsights);
         expect(deliveredInsights.insights!["i2"] !== null).toBeTruthy();
         return okAsync(undefined);
       })

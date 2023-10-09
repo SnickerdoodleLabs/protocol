@@ -1,4 +1,14 @@
 import { URLString } from "@snickerdoodlelabs/objects";
+import endOfStream from "end-of-stream";
+import PortDuplexStream from "extension-port-stream";
+import { inject, injectable } from "inversify";
+import { JsonRpcEngine, createAsyncMiddleware } from "json-rpc-engine";
+import { createEngineStream } from "json-rpc-middleware-stream";
+import { Ok, err, ok } from "neverthrow";
+import pump from "pump";
+import { Duplex } from "readable-stream";
+import { Runtime } from "webextension-polyfill";
+
 import {
   IRpcCallHandler,
   IRpcCallHandlerType,
@@ -9,15 +19,6 @@ import {
 } from "@synamint-extension-sdk/core/interfaces/utilities";
 import { IRpcEngineFactory } from "@synamint-extension-sdk/core/interfaces/utilities/factory";
 import { ERequestChannel, EPortNames } from "@synamint-extension-sdk/shared";
-import endOfStream from "end-of-stream";
-import PortDuplexStream from "extension-port-stream";
-import { inject, injectable } from "inversify";
-import { JsonRpcEngine, createAsyncMiddleware } from "json-rpc-engine";
-import { createEngineStream } from "json-rpc-middleware-stream";
-import { Ok, err, ok } from "neverthrow";
-import pump from "pump";
-import { Duplex } from "readable-stream";
-import { Runtime } from "webextension-polyfill";
 
 @injectable()
 export class RpcEngineFactory implements IRpcEngineFactory {

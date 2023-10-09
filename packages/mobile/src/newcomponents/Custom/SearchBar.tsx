@@ -6,8 +6,9 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
+
 import { useTheme } from "../../context/ThemeContext";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 const SearchBar = ({ onSearch, onClickCategoryFilter }) => {
   const [searchText, setSearchText] = useState("");
@@ -32,7 +33,7 @@ const SearchBar = ({ onSearch, onClickCategoryFilter }) => {
       fontSize: 16,
       paddingVertical: normalizeHeight(16),
       paddingHorizontal: normalizeWidth(16),
-      color:theme?.colors.description
+      color: theme?.colors.description,
     },
   });
 

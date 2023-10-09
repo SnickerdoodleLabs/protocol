@@ -10,12 +10,12 @@ import { PossibleRewardComponent } from "@snickerdoodlelabs/shared-components";
 import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
 
 import { useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { EBadgeType } from "@extension-onboarding/objects";
 import { EPossibleRewardDisplayType } from "@extension-onboarding/objects/enums/EPossibleRewardDisplayType";
 import Section, {
   useSectionStyles,
 } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 interface IWaitingRewardsProps {
   rewards: PossibleReward[];
   type: EPossibleRewardDisplayType;

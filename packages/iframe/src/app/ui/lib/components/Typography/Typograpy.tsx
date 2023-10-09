@@ -1,16 +1,14 @@
+import clsx from "clsx";
+import React, { forwardRef, HTMLProps, Ref, useMemo } from "react";
+import { createUseStyles, useTheme } from "react-jss";
+
 import {
   IMargin,
   ITextAlign,
   ITheme,
 } from "@core-iframe/app/ui/lib/interfaces";
-import {
-  marginStyles,
-  textAlignStyles,
-} from "@core-iframe/app/ui/lib/styles";
+import { marginStyles, textAlignStyles } from "@core-iframe/app/ui/lib/styles";
 import { defaultDarkTheme } from "@core-iframe/app/ui/lib/theme";
-import clsx from "clsx";
-import React, { forwardRef, HTMLProps, Ref, useMemo } from "react";
-import { createUseStyles, useTheme } from "react-jss";
 
 const styleObject = {
   "sd-typography": {

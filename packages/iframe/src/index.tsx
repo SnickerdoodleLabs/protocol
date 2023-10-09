@@ -1,8 +1,9 @@
 import "reflect-metadata";
-import App from "@core-iframe/app/App";
-import { IFrameFormFactor } from "@core-iframe/implementations/IFrameFormFactor";
 import React from "react";
 import ReactDOM from "react-dom";
+
+import App from "@core-iframe/app/App";
+import { IFrameFormFactor } from "@core-iframe/implementations/IFrameFormFactor";
 
 console.log("Snickerdoodle Core IFrame Loaded");
 

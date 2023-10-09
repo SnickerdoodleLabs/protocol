@@ -56,17 +56,18 @@ import {
 } from "@snickerdoodlelabs/utils";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import Postmate from "postmate";
 import { parse } from "tldts";
 
 import { ICoreListener } from "@core-iframe/interfaces/api/index";
-import { EInvitationSourceType } from "@core-iframe/interfaces/objects";
 import {
   IAccountService,
   IAccountServiceType,
   IInvitationService,
   IInvitationServiceType,
 } from "@core-iframe/interfaces/business/index";
+import { EInvitationSourceType } from "@core-iframe/interfaces/objects";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -75,7 +76,6 @@ import {
   IIFrameContextProvider,
   IIFrameContextProviderType,
 } from "@core-iframe/interfaces/utilities/index";
-import { ResultUtils } from "neverthrow-result-utils";
 @injectable()
 export class CoreListener extends ChildProxy implements ICoreListener {
   constructor(

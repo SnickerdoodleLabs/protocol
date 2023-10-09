@@ -1,3 +1,5 @@
+import { IPaletteOverrides } from "@snickerdoodlelabs/objects";
+
 import { ITheme, ThemeColorType } from "@core-iframe/app/ui/lib/interfaces";
 import {
   breakPoints,
@@ -5,7 +7,6 @@ import {
   typography,
   defaultLightPalette,
 } from "@core-iframe/app/ui/lib/theme/theme.defaults";
-import { IPaletteOverrides } from "@snickerdoodlelabs/objects";
 
 export const generateTheme = (paletteOverrides: IPaletteOverrides): ITheme => {
   return {

@@ -1,9 +1,10 @@
+import { IIFrameConfigOverrides } from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow";
+
 import {
   IFrameEvents,
   IFrameControlConfig,
 } from "@core-iframe/interfaces/objects";
-import { IIFrameConfigOverrides } from "@snickerdoodlelabs/objects";
-import { ResultAsync } from "neverthrow";
 
 export interface IIFrameContextProvider {
   getEvents(): IFrameEvents;

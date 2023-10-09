@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   AccountAddress,
   EChain,
@@ -8,10 +9,10 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import React, { useEffect, useMemo, useState } from "react";
 import { StyleSheet, Image, View, Dimensions } from "react-native";
+
 import { useAppContext } from "../../context/AppContextProvider";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import { useTheme } from "../../context/ThemeContext";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 // Make all neccassary checks here
 

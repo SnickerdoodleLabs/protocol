@@ -1,8 +1,6 @@
-import {
-  Box,
-  Typography,
-} from "@core-iframe/app/ui/lib";
 import React from "react";
+
+import { Box, Typography } from "@core-iframe/app/ui/lib";
 
 interface IAcnowledgmentBannerProps {
   iconSize?: number;

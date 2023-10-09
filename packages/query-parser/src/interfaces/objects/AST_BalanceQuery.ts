@@ -7,8 +7,8 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { Result, ok } from "neverthrow";
 
-import { Condition } from "@query-parser/interfaces/objects/condition/index.js";
 import { AST_Web3Query } from "@query-parser/interfaces/objects/AST_Web3Query.js";
+import { Condition } from "@query-parser/interfaces/objects/condition/index.js";
 
 export class AST_BalanceQuery extends AST_Web3Query {
   /**

@@ -12,11 +12,11 @@ import Icon from "react-native-vector-icons/Ionicons";
 
 import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
 import { useAppContext } from "../../context/AppContextProvider";
+import { useTheme } from "../../context/ThemeContext";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import RadioButton from "../Custom/RadioButton";
 import MyComponent from "../Onboarding/Mycomponent";
 import Permission from "../Onboarding/Permission";
-import { useTheme } from "../../context/ThemeContext";
 
 export default function PermissionSettings() {
   const theme = useTheme();
@@ -36,7 +36,7 @@ export default function PermissionSettings() {
           backgroundColor: theme?.colors.background,
         }}
       >
-        <SafeAreaView style={{height:normalizeHeight(750)}}>
+        <SafeAreaView style={{ height: normalizeHeight(750) }}>
           <Text
             style={{
               fontWeight: "700",

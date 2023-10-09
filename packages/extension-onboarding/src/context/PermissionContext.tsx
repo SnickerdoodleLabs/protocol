@@ -11,10 +11,10 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { Subscription } from "rxjs";
 
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { PII } from "@extension-onboarding/services/interfaces/objects";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 

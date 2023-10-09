@@ -14,8 +14,8 @@ import { useLocation } from "react-router-dom";
 
 import Breadcrumb from "@extension-onboarding/components/Breadcrumb";
 import { useAppContext } from "@extension-onboarding/context/App";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/RewardDetail/RewardDetail.style";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/RewardDetail/RewardDetail.style";
 const RewardDetail: FC = () => {
   const { reward, consentContractAddress, permissions } = (useLocation()
     .state || {}) as {

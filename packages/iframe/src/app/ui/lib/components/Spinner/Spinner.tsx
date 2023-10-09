@@ -1,7 +1,8 @@
-import { ITheme } from "@core-iframe/app/ui/lib/interfaces";
-import { defaultDarkTheme } from "@core-iframe/app/ui/lib/theme";
 import React from "react";
 import { createUseStyles, useTheme } from "react-jss";
+
+import { ITheme } from "@core-iframe/app/ui/lib/interfaces";
+import { defaultDarkTheme } from "@core-iframe/app/ui/lib/theme";
 
 const styleObject = {
   spinner: {
