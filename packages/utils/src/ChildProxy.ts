@@ -9,7 +9,7 @@ export interface IIFrameCallData<T> {
 }
 
 class IFrameCallData<T> implements IIFrameCallData<T> {
-  constructor(public callId: number, public data: T) { }
+  constructor(public callId: number, public data: T) {}
 }
 
 @injectable()

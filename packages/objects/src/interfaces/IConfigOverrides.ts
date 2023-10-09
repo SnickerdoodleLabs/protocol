@@ -68,4 +68,6 @@ export interface IConfigOverrides {
   walletConnect?: {
     projectId: string;
   };
+
+  queryPerformanceMetricsLimit ? : number
 }

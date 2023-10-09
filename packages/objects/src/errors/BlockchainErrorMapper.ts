@@ -111,8 +111,8 @@ export class BlockchainErrorMapper {
         providerError = this.getSpecificProviderError(error);
       }
 
-      let errorReason = error?.reason;
-      let errorMessage = error?.message || error?.msg;
+      const errorReason = error?.reason;
+      const errorMessage = error?.message || error?.msg;
 
       const errorInitializerFromProviderError = this.blockchainErrorMapping.get(
         this.getErrorKey(providerError),

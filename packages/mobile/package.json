@@ -2,17 +2,94 @@
   "name": "@snickerdoodlelabs/mobile",
   "version": "1.0.0",
   "private": true,
+  "browser": {
+    "_stream_duplex": "readable-stream/duplex",
+    "_stream_passthrough": "readable-stream/passthrough",
+    "_stream_readable": "readable-stream/readable",
+    "_stream_transform": "readable-stream/transform",
+    "_stream_writable": "readable-stream/writable",
+    "console": "console-browserify",
+    "constants": "constants-browserify",
+    "crypto": "react-native-quick-crypto",
+    "dgram": "react-native-udp",
+    "dns": "dns.js",
+    "domain": "domain-browser",
+    "fs": "react-native-level-fs",
+    "http": "@tradle/react-native-http",
+    "https": "https-browserify",
+    "net": "react-native-tcp",
+    "os": "react-native-os",
+    "path": "path-browserify",
+    "querystring": "querystring-es3",
+    "stream": "stream-browserify",
+    "timers": "timers-browserify",
+    "tls": false,
+    "tty": "tty-browserify",
+    "vm": "vm-browserify",
+    "zlib": "browserify-zlib"
+  },
   "scripts": {
     "android": "react-native run-android",
-    "ios": "react-native run-ios",
-    "start": "react-native start",
-    "test": "jest",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "build:ios": "react-native bundle --entry-file='index.js' --bundle-output='./ios/main.jsbundle' --dev=false --platform='ios'",
     "compile": "cd ../.. %% yarn compile && cd packages/mobile && yarn start --reset-cache",
-    "build:ios": "react-native bundle --entry-file='index.js' --bundle-output='./ios/main.jsbundle' --dev=false --platform='ios'"
+    "ios": "react-native run-ios",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "start": "react-native start",
+    "test": "jest"
   },
   "installConfig": {
     "hoistingLimits": "workspaces"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ],
+    "preset": "react-native"
+  },
+  "overrides": {
+    "dependency": {
+      "zlib": "browserify-zlib"
+    }
+  },
+  "react-native": {
+    "_stream_duplex": "readable-stream/duplex",
+    "_stream_passthrough": "readable-stream/passthrough",
+    "_stream_readable": "readable-stream/readable",
+    "_stream_transform": "readable-stream/transform",
+    "_stream_writable": "readable-stream/writable",
+    "argon2": "react-native-argon2",
+    "console": "console-browserify",
+    "constants": "constants-browserify",
+    "crypto": "react-native-quick-crypto",
+    "dgram": "react-native-udp",
+    "dns": "dns.js",
+    "domain": "domain-browser",
+    "fs": "react-native-level-fs",
+    "http": "@tradle/react-native-http",
+    "https": "https-browserify",
+    "moduleFileExtensions": [
+      "ts"
+    ],
+    "net": "react-native-tcp",
+    "os": "react-native-os",
+    "path": "path-browserify",
+    "querystring": "querystring-es3",
+    "stream": "stream-browserify",
+    "timers": "timers-browserify",
+    "tls": false,
+    "tty": "tty-browserify",
+    "vm": "vm-browserify",
+    "zlib": "browserify-zlib"
+  },
+  "rnpm": {
+    "assets": [
+      "./assests/fonts/"
+    ]
   },
   "dependencies": {
     "@babel/plugin-proposal-decorators": "^7.20.13",
@@ -180,82 +257,5 @@
     "node-libs-react-native": "^1.2.1",
     "react-test-renderer": "18.1.0",
     "typescript": "5.1.6"
-  },
-  "jest": {
-    "preset": "react-native",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ]
-  },
-  "rnpm": {
-    "assets": [
-      "./assests/fonts/"
-    ]
-  },
-  "react-native": {
-    "moduleFileExtensions": [
-      "ts"
-    ],
-    "zlib": "browserify-zlib",
-    "console": "console-browserify",
-    "constants": "constants-browserify",
-    "crypto": "react-native-quick-crypto",
-    "argon2": "react-native-argon2",
-    "dns": "dns.js",
-    "net": "react-native-tcp",
-    "domain": "domain-browser",
-    "http": "@tradle/react-native-http",
-    "https": "https-browserify",
-    "os": "react-native-os",
-    "path": "path-browserify",
-    "querystring": "querystring-es3",
-    "fs": "react-native-level-fs",
-    "_stream_transform": "readable-stream/transform",
-    "_stream_readable": "readable-stream/readable",
-    "_stream_writable": "readable-stream/writable",
-    "_stream_duplex": "readable-stream/duplex",
-    "_stream_passthrough": "readable-stream/passthrough",
-    "dgram": "react-native-udp",
-    "stream": "stream-browserify",
-    "timers": "timers-browserify",
-    "tty": "tty-browserify",
-    "vm": "vm-browserify",
-    "tls": false
-  },
-  "overrides": {
-    "dependency": {
-      "zlib": "browserify-zlib"
-    }
-  },
-  "browser": {
-    "_stream_duplex": "readable-stream/duplex",
-    "_stream_passthrough": "readable-stream/passthrough",
-    "_stream_readable": "readable-stream/readable",
-    "_stream_transform": "readable-stream/transform",
-    "_stream_writable": "readable-stream/writable",
-    "console": "console-browserify",
-    "constants": "constants-browserify",
-    "crypto": "react-native-quick-crypto",
-    "dgram": "react-native-udp",
-    "dns": "dns.js",
-    "domain": "domain-browser",
-    "fs": "react-native-level-fs",
-    "http": "@tradle/react-native-http",
-    "https": "https-browserify",
-    "net": "react-native-tcp",
-    "os": "react-native-os",
-    "path": "path-browserify",
-    "querystring": "querystring-es3",
-    "stream": "stream-browserify",
-    "timers": "timers-browserify",
-    "tls": false,
-    "tty": "tty-browserify",
-    "vm": "vm-browserify",
-    "zlib": "browserify-zlib"
   }
 }

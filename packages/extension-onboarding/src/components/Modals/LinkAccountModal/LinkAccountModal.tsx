@@ -1,12 +1,13 @@
+import { Box, Dialog, IconButton, Typography } from "@material-ui/core";
+import CloseIcon from "@material-ui/icons/Close";
+import { Button } from "@snickerdoodlelabs/shared-components";
+import React, { FC } from "react";
+
 import { useStyles } from "@extension-onboarding/components/Modals/LinkAccountModal/LinkAccountModal.style";
 import {
   useAccountLinkingContext,
   EWalletProviderKit,
 } from "@extension-onboarding/context/AccountLinkingContext";
-import { Box, Dialog, IconButton, Typography } from "@material-ui/core";
-import CloseIcon from "@material-ui/icons/Close";
-import { Button } from "@snickerdoodlelabs/shared-components";
-import React, { FC } from "react";
 
 import "@suiet/wallet-kit/style.css";
 
