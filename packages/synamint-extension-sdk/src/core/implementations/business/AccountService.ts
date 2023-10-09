@@ -105,18 +105,12 @@ export class AccountService implements IAccountService {
     filter?: TransactionFilter,
     sourceDomain?: DomainName,
   ): ResultAsync<ChainTransaction[], SnickerDoodleCoreError> {
-    return this.accountRepository.getTransactions(
-      filter,
-      sourceDomain
-    );
+    return this.accountRepository.getTransactions(filter, sourceDomain);
   }
-  public getTransactionValueByChain(sourceDomain?: DomainName): ResultAsync<
-    TransactionPaymentCounter[],
-    SnickerDoodleCoreError
-  > {
-    return this.accountRepository.getTransactionValueByChain(
-      sourceDomain
-    );
+  public getTransactionValueByChain(
+    sourceDomain?: DomainName,
+  ): ResultAsync<TransactionPaymentCounter[], SnickerDoodleCoreError> {
+    return this.accountRepository.getTransactionValueByChain(sourceDomain);
   }
 
   // NOTE: I did this one without the AccountRepository, because
