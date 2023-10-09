@@ -99,10 +99,12 @@ export class AccountRepository implements IAccountRepository {
   public getTransactionValueByChain(
     sourceDomain?: DomainName,
   ): ResultAsync<TransactionPaymentCounter[], SnickerDoodleCoreError> {
-    return this.core.getTransactionValueByChain(sourceDomain).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
+    return this.core
+      .getTransactionValueByChain(sourceDomain)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
 
   public getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
@@ -119,6 +121,8 @@ export class AccountRepository implements IAccountRepository {
     languageCode: LanguageCode,
     sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError> {
+    console.log("addAccount: ");
+
     return this.core.account
       .addAccount(account, signature, languageCode, chain, sourceDomain)
       .mapErr((error) => {
@@ -135,6 +139,7 @@ export class AccountRepository implements IAccountRepository {
     languageCode: LanguageCode,
     sourceDomain?: DomainName,
   ): ResultAsync<string, SnickerDoodleCoreError> {
+    console.log("Synamint AccountRepository getLinkAccountMessage");
     return this.core.account
       .getLinkAccountMessage(languageCode, sourceDomain)
       .mapErr((error) => {

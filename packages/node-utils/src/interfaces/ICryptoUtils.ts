@@ -84,8 +84,8 @@ export interface ICryptoUtils {
   verifySuiSignature(
     message: string,
     signature: Signature,
-    accountAddress: SolanaAccountAddress,
-  ): ResultAsync<SuiAccountAddress, never>;
+    accountAddress: SuiAccountAddress,
+  ): ResultAsync<boolean, never>;
 
   verifyTypedData(
     domain: TypedDataDomain,

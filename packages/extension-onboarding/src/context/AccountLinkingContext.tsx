@@ -5,6 +5,7 @@ import {
   AccountAddress,
   Signature,
 } from "@snickerdoodlelabs/objects";
+import { ConnectModal, useWallet } from "@suiet/wallet-kit";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import React, {
@@ -36,7 +37,6 @@ import {
   IDiscordProvider,
   ITwitterProvider,
 } from "@extension-onboarding/services/socialMediaProviders/interfaces";
-import { ConnectModal, useWallet } from "@suiet/wallet-kit";
 
 export enum EWalletProviderKit {
   SUI = "SUI",
@@ -128,9 +128,13 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
 
   const handleSuiWalletConnect = useCallback(() => {
     if (suiWallet.connected) {
+      console.log("suiWallet connect: " + defaultLanguageCode);
       return sdlDataWallet.account
         .getLinkAccountMessage(defaultLanguageCode)
         .andThen((message) => {
+          console.log("suiWallet getLinkAccountMessage");
+          console.log("suiWallet message: " + message);
+
           return ResultAsync.fromPromise(
             suiWallet.signMessage({
               message: new TextEncoder().encode(message),
@@ -146,25 +150,43 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
                   (suiWallet.account?.address || ""),
               )
             ) {
+              console.log("sui setLoadingStatus");
               setLoadingStatus(true, {
                 type: ELoadingIndicatorType.COMPONENT,
                 component: <AccountLinkingIndicator />,
               });
+
+              console.log(
+                "suiWallet accountAddress: " +
+                  (suiWallet.account?.address || ""),
+              );
+              const addr = (suiWallet.account?.address || "") as AccountAddress;
+              console.log("suiWallet addr: " + addr);
+              console.log(
+                "signature.signature as Signature: " + signature.signature,
+              );
+              const sig = signature.signature as Signature;
+              console.log("sig: " + sig);
+              console.log("defaultLanguageCode: " + defaultLanguageCode);
+              console.log("EChain.EthereumMainnet: " + EChain.EthereumMainnet);
+
               return (
-                okAsync(undefined)
-                  // @TODO use that function with correct params
-                  // sdlDataWallet.account
-                  //   .addAccount(
-                  //     (suiWallet.account?.address || "") as AccountAddress,
-                  //     signature.signature as Signature,
-                  //     defaultLanguageCode,
-                  //     EChain.EthereumMainnet,
-                  //   )
+                // okAsync(undefined)
+                // @TODO use that function with correct params
+                sdlDataWallet.account
+                  .addAccount(
+                    (suiWallet.account?.address || "") as AccountAddress,
+                    signature.signature as Signature,
+                    defaultLanguageCode,
+                    EChain.EthereumMainnet,
+                  )
                   .mapErr((e) => {
                     console.error(e);
+                    console.log("sui setIsSuiOpen mapErr");
                     setLoadingStatus(false);
                   })
                   .map(() => {
+                    console.log("sui setIsSuiOpen map");
                     setIsSuiOpen(false);
                     setLoadingStatus(false);
                   })

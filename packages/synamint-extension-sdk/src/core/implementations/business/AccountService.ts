@@ -92,6 +92,7 @@ export class AccountService implements IAccountService {
     languageCode: LanguageCode,
     sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError> {
+    console.log("addAccount: ");
     return this.accountRepository.addAccount(
       account,
       signature,
@@ -105,18 +106,12 @@ export class AccountService implements IAccountService {
     filter?: TransactionFilter,
     sourceDomain?: DomainName,
   ): ResultAsync<ChainTransaction[], SnickerDoodleCoreError> {
-    return this.accountRepository.getTransactions(
-      filter,
-      sourceDomain
-    );
+    return this.accountRepository.getTransactions(filter, sourceDomain);
   }
-  public getTransactionValueByChain(sourceDomain?: DomainName): ResultAsync<
-    TransactionPaymentCounter[],
-    SnickerDoodleCoreError
-  > {
-    return this.accountRepository.getTransactionValueByChain(
-      sourceDomain
-    );
+  public getTransactionValueByChain(
+    sourceDomain?: DomainName,
+  ): ResultAsync<TransactionPaymentCounter[], SnickerDoodleCoreError> {
+    return this.accountRepository.getTransactionValueByChain(sourceDomain);
   }
 
   // NOTE: I did this one without the AccountRepository, because
@@ -181,6 +176,7 @@ export class AccountService implements IAccountService {
     languageCode: LanguageCode,
     sourceDomain?: DomainName,
   ): ResultAsync<string, SnickerDoodleCoreError> {
+    console.log("Synamint AccountService getLinkAccountMessage");
     return this.accountRepository.getLinkAccountMessage(
       languageCode,
       sourceDomain,

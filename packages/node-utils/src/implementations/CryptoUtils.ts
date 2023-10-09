@@ -262,12 +262,18 @@ export class CryptoUtils implements ICryptoUtils {
   public verifySuiSignature(
     message: string,
     signature: Signature,
-    accountAddress: SolanaAccountAddress,
-  ): ResultAsync<SuiAccountAddress, never> {
-    const address = SuiAccountAddress(
-      ethers.utils.verifyMessage(message, signature),
+    accountAddress: SuiAccountAddress,
+  ): ResultAsync<boolean, never> {
+    console.log("verifySuiSignature message: " + message);
+    console.log("verifySuiSignature signature: " + signature);
+    console.log("verifySuiSignature accountAddress: " + accountAddress);
+    return okAsync(
+      nacl.sign.detached.verify(
+        Buffer.from(message, "utf-8"),
+        Buffer.from(signature, "hex"),
+        base58.decode(accountAddress),
+      ),
     );
-    return okAsync(address);
   }
 
   public verifySolanaSignature(
