@@ -264,9 +264,6 @@ export class CryptoUtils implements ICryptoUtils {
     signature: Signature,
     accountAddress: SuiAccountAddress,
   ): ResultAsync<boolean, never> {
-    console.log("verifySuiSignature message: " + message);
-    console.log("verifySuiSignature signature: " + signature);
-    console.log("verifySuiSignature accountAddress: " + accountAddress);
     return okAsync(
       nacl.sign.detached.verify(
         Buffer.from(message, "utf-8"),

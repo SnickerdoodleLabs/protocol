@@ -92,7 +92,6 @@ export class AccountService implements IAccountService {
     languageCode: LanguageCode,
     sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    console.log("addAccount: ");
     return this.accountRepository.addAccount(
       account,
       signature,
@@ -176,7 +175,6 @@ export class AccountService implements IAccountService {
     languageCode: LanguageCode,
     sourceDomain?: DomainName,
   ): ResultAsync<string, SnickerDoodleCoreError> {
-    console.log("Synamint AccountService getLinkAccountMessage");
     return this.accountRepository.getLinkAccountMessage(
       languageCode,
       sourceDomain,

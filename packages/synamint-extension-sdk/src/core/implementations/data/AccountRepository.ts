@@ -121,8 +121,6 @@ export class AccountRepository implements IAccountRepository {
     languageCode: LanguageCode,
     sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    console.log("addAccount: ");
-
     return this.core.account
       .addAccount(account, signature, languageCode, chain, sourceDomain)
       .mapErr((error) => {
@@ -139,7 +137,6 @@ export class AccountRepository implements IAccountRepository {
     languageCode: LanguageCode,
     sourceDomain?: DomainName,
   ): ResultAsync<string, SnickerDoodleCoreError> {
-    console.log("Synamint AccountRepository getLinkAccountMessage");
     return this.core.account
       .getLinkAccountMessage(languageCode, sourceDomain)
       .mapErr((error) => {

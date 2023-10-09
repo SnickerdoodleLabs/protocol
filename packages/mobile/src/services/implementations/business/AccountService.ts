@@ -40,8 +40,6 @@ export class AccountService implements IAccountService {
     languageCode: LanguageCode,
     chain: EChain,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    console.log("addAccount: ");
-
     return this.core.account
       .addAccount(account, signature, languageCode, chain)
       .mapErr((error) => {
@@ -52,8 +50,6 @@ export class AccountService implements IAccountService {
   public getLinkAccountMessage(
     languageCode: LanguageCode,
   ): ResultAsync<string, SnickerDoodleCoreError> {
-    console.log("Mobile AccountService getLinkAccountMessage");
-
     return this.core.account
       .getLinkAccountMessage(languageCode)
       .mapErr((error) => {
