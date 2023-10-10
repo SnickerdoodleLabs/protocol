@@ -1,4 +1,4 @@
-import { URLString } from "@objects/primitives/index.js";
+import { HexColorString, URLString } from "@objects/primitives/index.js";
 
 // https://docs.opensea.io/docs/metadata-standards#metadata-structure
 export interface IERC721Metadata {
@@ -8,7 +8,7 @@ export interface IERC721Metadata {
   description?: string;
   name?: string;
   attributes?: IERC721Attribute[];
-  background_color?: string; // six-digit hex color code, ex. "#FF0000"
+  background_color?: HexColorString; // six-digit hex color code without prefix #, ex. "FF0000"
   animation_url?: URLString;
   youtube_url?: URLString;
 }
