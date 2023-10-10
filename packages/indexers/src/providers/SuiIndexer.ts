@@ -140,7 +140,10 @@ export class SuiIndexer implements ISuiIndexer {
         );
       })
       .orElse((e) => {
-        this.logUtils.error("error fetching sui nfts", e);
+        this.logUtils.error(
+          `In SuiIndexer, error received while fetching NFTs for chain ${chain} for account ${accountAddress}`,
+          e,
+        );
         return okAsync([]);
       })
       .map((nfts) => {

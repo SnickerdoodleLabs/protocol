@@ -5869,9 +5869,9 @@ __metadata:
   linkType: hard
 
 "@lit-labs/ssr-dom-shim@npm:^1.0.0, @lit-labs/ssr-dom-shim@npm:^1.1.0":
-  version: 1.1.1
-  resolution: "@lit-labs/ssr-dom-shim@npm:1.1.1"
-  checksum: 7a7add78e3ee570a7b987b9bf85e700b20d35d31c8b54cf4c8b2e3c8458ed4e2b0ff328706e5be7887f0ca8a02878c186e76609defb78f0d1b3c0e6b47c9f6ef
+  version: 1.1.2
+  resolution: "@lit-labs/ssr-dom-shim@npm:1.1.2"
+  checksum: 73fd787893851d4ec4aaa5c775405ed2aae4ca0891b2dd3c973b32c2f4bf70ada5481dd0224e52b786d037aa8a00052186ad1623c44551affd66f6409cca8da6
   languageName: node
   linkType: hard
 
@@ -16659,9 +16659,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30001538, caniuse-lite@npm:^1.0.30001541":
-  version: 1.0.30001546
-  resolution: "caniuse-lite@npm:1.0.30001546"
-  checksum: d3ef82f5ee94743002c5b2dd61c84342debcc94b2d5907b64ade3514ecfc4f20bbe86a6bc453fd6436d5fbcf6582e07405d7c2077565675a71c83adc238a11fa
+  version: 1.0.30001547
+  resolution: "caniuse-lite@npm:1.0.30001547"
+  checksum: ec0fc2b46721887f6f4aca1f3902f03d9a1a07416d16a86b7cd4bfba60e7b6b03ab3969659d3ea0158cc2f298972c80215c06c9457eb15c649d7780e8f5e91a7
   languageName: node
   linkType: hard
 
@@ -20246,9 +20246,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.3.47, electron-to-chromium@npm:^1.4.535":
-  version: 1.4.545
-  resolution: "electron-to-chromium@npm:1.4.545"
-  checksum: ab420d982b7a357302c3ee86020f908d72f44a1e47b3e8cf8c7716c7b521c11c73ce43ce10d75871f3aca3ff467059847052079dbdcc66b11a225f45bfc2edf4
+  version: 1.4.548
+  resolution: "electron-to-chromium@npm:1.4.548"
+  checksum: 25a53fc238fdddbfc52d93257b32e6db54a3aa6cc8670f9c2e964036cad0de6a47fe395a3702edb33fe3abbc357cf8cb3bb54075c67f713753e112f4af6210d3
   languageName: node
   linkType: hard
 
@@ -33397,11 +33397,11 @@ __metadata:
   linkType: hard
 
 "node-abi@npm:^3.3.0":
-  version: 3.47.0
-  resolution: "node-abi@npm:3.47.0"
+  version: 3.48.0
+  resolution: "node-abi@npm:3.48.0"
   dependencies:
     semver: ^7.3.5
-  checksum: ff8498dcd4a805ebf0af27162023bb17e56cb973c955d6c411ebce0938b0827e34323ede846b635daff516d5cd2ea8d64f9d99f2d63f61d1d7469415323fa9a6
+  checksum: d5d7e9837e22d41a28d4c14c23c2d32ce4b2a98546d8a21c2e52080a0fa840fd320ee380734dee964b7d14a733800190dfa5602697e71945ae45c36fdfc008b9
   languageName: node
   linkType: hard
 
@@ -34027,8 +34027,8 @@ __metadata:
   linkType: hard
 
 "npm-registry-fetch@npm:^16.0.0":
-  version: 16.0.0
-  resolution: "npm-registry-fetch@npm:16.0.0"
+  version: 16.1.0
+  resolution: "npm-registry-fetch@npm:16.1.0"
   dependencies:
     make-fetch-happen: ^13.0.0
     minipass: ^7.0.2
@@ -34037,7 +34037,7 @@ __metadata:
     minizlib: ^2.1.2
     npm-package-arg: ^11.0.0
     proc-log: ^3.0.0
-  checksum: d50363d1f7e03234b9fcd6aea061f2a2cb6c65f5de0b9af9bf9d3f39174cc92c02bb227f6f49e3d12d35f07fb0bd568857b67481f0ec53649727e004cf1261cd
+  checksum: 6aa8483973aaf8c8543753d415983eb6722ecba0703030f3b152074eaa1106df75ffd084e483f30a33c81203c7ec07555bcc9e45fc07f7c0904501506c0929a2
   languageName: node
   linkType: hard
 
@@ -37845,8 +37845,8 @@ __metadata:
   linkType: hard
 
 "react-joyride@npm:^2.5.3":
-  version: 2.6.0
-  resolution: "react-joyride@npm:2.6.0"
+  version: 2.6.1
+  resolution: "react-joyride@npm:2.6.1"
   dependencies:
     "@gilbarbara/deep-equal": ^0.2.0
     "@gilbarbara/helpers": ^0.8.6
@@ -37862,7 +37862,7 @@ __metadata:
   peerDependencies:
     react: 15 - 18
     react-dom: 15 - 18
-  checksum: 1994ce9b06bf294a24aa4a3a4e065aa2a16fd9e1567d26a29d9552f0394ba635123f8ae9b34b9bbc7b4383d1ae95197f02c1f90f5b2e20719c780b5b0287c6bd
+  checksum: b27e5838993d4b1599622c93f50291ad8a06550fa8617f9037e390ead56c9411ae1856a01e8593aaf8172fc61f80145bd23af8a8adfb3ca91053c3e3db118dc2
   languageName: node
   linkType: hard
 
@@ -40294,15 +40294,15 @@ __metadata:
   linkType: hard
 
 "sass@npm:^1.55.0":
-  version: 1.69.0
-  resolution: "sass@npm:1.69.0"
+  version: 1.69.1
+  resolution: "sass@npm:1.69.1"
   dependencies:
     chokidar: ">=3.0.0 <4.0.0"
     immutable: ^4.0.0
     source-map-js: ">=0.6.2 <2.0.0"
   bin:
     sass: sass.js
-  checksum: eabea31ea3b1dd529c7eff345c8b6468afe6ab8011bd4f95caa2cffb8fb115cc055ea21de425be6197f7ed22516f5652eccb98d315d592ea152ada553f964b8a
+  checksum: e3f0754fc8e1ffc239919cba8d1cc8d89908d596161992c562d0679a6aa1e1c57b0a11846726f9222f96622495a5bfc00461b3f31182e71a54ad91a86dd10a8f
   languageName: node
   linkType: hard
 

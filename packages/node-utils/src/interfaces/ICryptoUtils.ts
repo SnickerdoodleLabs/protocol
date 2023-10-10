@@ -85,7 +85,7 @@ export interface ICryptoUtils {
     message: string,
     signature: Signature,
     accountAddress: SuiAccountAddress,
-  ): ResultAsync<boolean, never>;
+  ): ResultAsync<EVMAccountAddress, never>;
 
   verifyTypedData(
     domain: TypedDataDomain,

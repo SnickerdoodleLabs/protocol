@@ -16,7 +16,7 @@ export class TokenBalance {
     public ticker: TickerSymbol,
     public chainId: EChain,
     public tokenAddress: TokenAddress,
-    public accountAddress: AccountAddress | SuiAccountAddress,
+    public accountAddress: AccountAddress,
     public balance: BigNumberString,
     public decimals: number,
   ) {}

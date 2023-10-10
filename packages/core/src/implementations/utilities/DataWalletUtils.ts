@@ -138,10 +138,7 @@ export class DataWalletUtils implements IDataWalletUtils {
     signature: Signature,
     message: string,
   ): ResultAsync<boolean, never> {
-    console.log("verifySignature: ");
     const chainInfo = chainConfig.get(ChainId(chain));
-    console.log("chainInfo: " + chainInfo);
-
     if (chainInfo == null) {
       throw new Error();
     }
@@ -157,11 +154,13 @@ export class DataWalletUtils implements IDataWalletUtils {
         });
     }
     if (chainInfo.chainTechnology == EChainTechnology.Sui) {
-      return this.cryptoUtils.verifySuiSignature(
-        message,
-        signature,
-        accountAddress as SuiAccountAddress,
-      );
+      return this.cryptoUtils
+        .verifySuiSignature(
+          message,
+          signature,
+          accountAddress as SuiAccountAddress,
+        )
+        .map(() => true);
     }
     if (chainInfo.chainTechnology == EChainTechnology.Solana) {
       return this.cryptoUtils.verifySolanaSignature(

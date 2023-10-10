@@ -55,8 +55,7 @@ export const coreConfig = {
     "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
   bluezApiKey: "aed4aab2cbc573bbf8e7c6b448c916e5",
   spaceAndTimeKey: "",
-  blockvisionKey: "",
-
+  blockvisionKey: "2WZR8yswGqdTwUkN973939WYAKv",
   primaryInfuraKey: "7ac88985c1ed458dbd464b2c5245a6e1",
   secondaryInfuraKey: "",
   devChainProviderURL: undefined, //ProviderUrl("https://doodlechain.dev.snickerdoodle.dev"), Must be null for production

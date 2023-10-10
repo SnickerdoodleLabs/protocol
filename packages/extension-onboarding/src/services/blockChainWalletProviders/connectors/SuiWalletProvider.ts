@@ -13,7 +13,10 @@ import { ResultAsync, okAsync, errAsync } from "neverthrow";
 import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
 import { Config } from "@extension-onboarding/services/blockChainWalletProviders/interfaces/objects";
 
-type DisplayEncoding = "utf8" | "hex";
+enum DisplayEncoding {
+  utf8 = "utf8",
+  hex = "hex",
+}
 
 interface ConnectOpts {
   onlyIfTrusted: boolean;
@@ -41,14 +44,11 @@ export class SuiWalletProvider implements IWalletProvider {
   protected _provider: PhantomProvider | null;
 
   constructor() {
-    console.log("Sui Wallet Constructor!");
-
-    // @ts-ignore
-    this._provider = window?.solana?.isPhantom && window.solana;
+    // this._provider = window?.solana?.isPhantom && window.solana;
     // this._provider = window?.sui?.isSuiWallet && window.sui;
-
     // this._provider = SuiProvider();
-    console.log("Sui provider: " + this._provider);
+    // console.log("Sui provider: " + this._provider);
+    this._provider = null;
   }
 
   public get isInstalled(): boolean {
@@ -73,7 +73,7 @@ export class SuiWalletProvider implements IWalletProvider {
     });
   }
   public getSignature(message: string): ResultAsync<Signature, unknown> {
-    console.log("Sui Connect 3!");
+    // TODO
     return okAsync(Signature(""));
 
     // if (!this._provider) {

@@ -196,12 +196,9 @@ export class AccountService implements IAccountService {
     | UnsupportedLanguageError
     | InvalidParametersError
   > {
-    console.log("addAccount: ");
-
     // First, let's do some validation and make sure that the signature is actually for the account
     return this.getLinkAccountMessage(languageCode)
       .andThen((message) => {
-        console.log("message: " + message);
         return this.validateSignatureForAddress(
           accountAddress,
           signature,
@@ -228,7 +225,6 @@ export class AccountService implements IAccountService {
         return this.accountRepo
           .getLinkedAccount(accountAddress, chain)
           .andThen((existingAccount) => {
-            console.log("existingAccount: " + existingAccount);
             if (existingAccount != null) {
               // The account is already linked
               return errAsync(
@@ -545,11 +541,9 @@ export class AccountService implements IAccountService {
     message: string,
     chain: EChain,
   ): ResultAsync<void, InvalidSignatureError | UnsupportedLanguageError> {
-    console.log("validateSignatureForAddress: ");
     return this.dataWalletUtils
       .verifySignature(chain, accountAddress, signature, message)
       .andThen((verified) => {
-        console.log("verified: " + verified);
         if (verified) {
           return okAsync(undefined);
         }

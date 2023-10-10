@@ -21,7 +21,6 @@ import {
   UnixTimestamp,
   EComponentStatus,
   IndexerSupportSummary,
-  getChainInfoByChain,
   MethodSupportError,
   EDataProvider,
   EExternalApi,
@@ -31,7 +30,9 @@ import {
   SuiAccountAddress,
   SuiNFT,
   SuiTransaction,
+  getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
+import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -77,7 +78,50 @@ export class BlockvisionIndexer implements ISuiIndexer {
     chain: EChain,
     accountAddress: SuiAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    return okAsync([]);
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+    ])
+      .andThen(([config, context]) => {
+        const url =
+          "https://sui-mainnet.blockvision.org/v1/" +
+          config.apiKeys.blockvisionKey;
+
+        const requestParams = {
+          jsonrpc: "2.0",
+          id: 1,
+          method: "suix_getBalance",
+          params: [
+            accountAddress, // "0x316a0693b0d900bb34711438b6974ead2c9a93716fd41f8a8377fa3dc5997abd",
+            "0x2::sui::SUI",
+          ],
+        };
+
+        context.privateEvents.onApiAccessed.next(EExternalApi.Blockvision);
+        return this.ajaxUtils.post<IBlockvisionBalancesReponse>(
+          new URL(url),
+          requestParams,
+          {
+            headers: {
+              "Content-Type": `application/json;`,
+            },
+          },
+        );
+      })
+      .map((balance) => {
+        const nativeBalance = new TokenBalance(
+          EChainTechnology.Sui,
+          TickerSymbol("SUI"),
+          chain,
+          MasterIndexer.nativeAddress,
+          accountAddress,
+          BigNumberString(
+            BigNumber.from(balance.result.totalBalance).toString(),
+          ),
+          getChainInfoByChain(chain).nativeCurrency.decimals,
+        );
+        return [nativeBalance];
+      });
   }
 
   public getTokensForAccount(
@@ -103,4 +147,15 @@ export class BlockvisionIndexer implements ISuiIndexer {
   public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
     return this.supportedChains;
   }
+}
+
+interface IBlockvisionBalancesReponse {
+  id: number;
+  jsonrpc: number;
+  result: {
+    coinType: string;
+    coinObjectCount: number;
+    totalBalance: number;
+    lockedBalance: {};
+  };
 }

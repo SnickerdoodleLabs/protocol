@@ -12,7 +12,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { IIndexer } from "./IIndexer";
+import { IIndexer } from "@indexers/interfaces/IIndexer.js";
 
 export interface ISuiIndexer extends IIndexer {
   getBalancesForAccount(
