@@ -1,12 +1,3 @@
-import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
-import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract.js";
-import {
-  WrappedTransactionResponse,
-  ConsentRoles,
-  Tag,
-  ContractOverrides,
-  ContractsAbis,
-} from "@contracts-sdk/interfaces/objects/index.js";
 import { ICryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   ConsentContractError,
@@ -34,6 +25,15 @@ import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
+import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract.js";
+import {
+  WrappedTransactionResponse,
+  ConsentRoles,
+  Tag,
+  ContractOverrides,
+  ContractsAbis,
+} from "@contracts-sdk/interfaces/objects/index.js";
 @injectable()
 export class ConsentContract
   extends BaseContract<ConsentContractError>
