@@ -1,3 +1,12 @@
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
+import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract.js";
+import {
+  WrappedTransactionResponse,
+  ConsentRoles,
+  Tag,
+  ContractOverrides,
+  ContractsAbis,
+} from "@contracts-sdk/interfaces/objects/index.js";
 import { ICryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   ConsentContractError,
@@ -24,16 +33,6 @@ import { ethers, EventFilter, Event, BigNumber } from "ethers";
 import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-
-import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
-import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract.js";
-import {
-  WrappedTransactionResponse,
-  ConsentRoles,
-  Tag,
-  ContractOverrides,
-  ContractsAbis,
-} from "@contracts-sdk/interfaces/objects/index.js";
 
 @injectable()
 export class ConsentContract
@@ -682,6 +681,21 @@ export class ConsentContract
     BlockchainCommonErrors | ConsentContractError
   > {
     return this.writeToContract("setQueryHorizon", [blockNumber], overrides);
+  }
+
+  public estimateGasLimitForSetQueryHorizon(
+    blockNumber: BlockNumber,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    BigNumberString,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.estimateGas["setQueryHorizon"](blockNumber, { overrides }),
+      (e) => this.generateError(e, `Failed to estimate gas with error: ${e}`),
+    ).map((bnGas) => {
+      return BigNumberString(bnGas.toString());
+    });
   }
 
   // Get the number of opted in addresses

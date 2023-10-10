@@ -428,6 +428,14 @@ export interface IConsentContract extends IBaseContract {
     BlockchainCommonErrors | ConsentContractError
   >;
 
+  estimateGasLimitForSetQueryHorizon(
+    blockNumber: BlockNumber,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    BigNumberString,
+    BlockchainCommonErrors | ConsentContractError
+  >;
+
   /**
    * Get the number of opted in addresses
    */
