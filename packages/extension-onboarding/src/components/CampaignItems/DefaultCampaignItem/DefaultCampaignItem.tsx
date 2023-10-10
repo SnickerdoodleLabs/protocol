@@ -7,11 +7,11 @@ import { useNavigate } from "react-router";
 import { generatePath } from "react-router-dom";
 
 import { useStyles } from "@extension-onboarding/components/CampaignItems/DefaultCampaignItem/DefaultCampaignItem.style";
+import Description from "@extension-onboarding/components/Description";
 import LinearProgress from "@extension-onboarding/components/LinearProgress";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { useAppContext } from "@extension-onboarding/context/App";
 import useCampaignLogic from "@extension-onboarding/hooks/useCampaignLogic";
-import Description from "@extension-onboarding/components/Description";
 
 interface ICampaignItemProps {
   consentContractAddress: EVMContractAddress;
