@@ -1,6 +1,6 @@
+import { BaseError } from "@objects/errors/BaseError.js";
 import errorCodes from "@objects/errors/errorCodes.js";
 import { ProviderRpcError } from "@objects/errors/ProviderRpcError.js";
-import { BaseError } from "@objects/errors/BaseError.js";
 
 export class CrumbsContractError extends BaseError {
   protected errorCode: string = errorCodes[CrumbsContractError.name];

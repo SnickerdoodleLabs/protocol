@@ -1,18 +1,19 @@
 import { createStackNavigator } from "@react-navigation/stack";
+
 import { COLORS, ROUTES } from "../constants";
-import Initial from "../screens/Initial";
-import OnboardingMain from "../newcomponents/Onboarding/OnboardingMain";
-import Marketplace from "../newcomponents/Marketplace/Marketplace";
-import CardDetails from "../newcomponents/Marketplace/CardDetails";
+import { useTheme } from "../context/ThemeContext";
 import Dashboard from "../newcomponents/Dashboard/Dashboard";
-import Settings from "../newcomponents/Settings/Settings";
+import NFTDetails from "../newcomponents/Dashboard/NFTs/NFTDetails";
+import CardDetails from "../newcomponents/Marketplace/CardDetails";
+import Marketplace from "../newcomponents/Marketplace/Marketplace";
+import OnboardingMain from "../newcomponents/Onboarding/OnboardingMain";
 import CryptoSettings from "../newcomponents/Settings/CryptoSettings";
+import PermissionSettings from "../newcomponents/Settings/PermissionSettings";
 import PersonalSettings from "../newcomponents/Settings/PersonalSettings";
 import RewardsSettings from "../newcomponents/Settings/RewardsSettings";
-import PermissionSettings from "../newcomponents/Settings/PermissionSettings";
-import NFTDetails from "../newcomponents/Dashboard/NFTs/NFTDetails";
-import { useTheme } from "../context/ThemeContext";
+import Settings from "../newcomponents/Settings/Settings";
 import SocialSettings from "../newcomponents/Settings/SocialSettings";
+import Initial from "../screens/Initial";
 
 const Stack = createStackNavigator();
 export function AuthNavigator() {

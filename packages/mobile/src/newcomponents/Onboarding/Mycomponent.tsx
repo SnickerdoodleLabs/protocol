@@ -11,8 +11,8 @@ import {
 import Icon from "react-native-vector-icons/Ionicons";
 
 import { useAppContext } from "../../context/AppContextProvider";
-import { countries } from "../../services/interfaces/objects/Countries";
 import { useTheme } from "../../context/ThemeContext";
+import { countries } from "../../services/interfaces/objects/Countries";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 interface Country {

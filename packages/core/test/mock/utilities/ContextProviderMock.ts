@@ -8,10 +8,12 @@ import {
   EChain,
   EComponentStatus,
   EExternalApi,
+  EQueryEvents,
   Gender,
   IpfsCID,
   LinkedAccount,
   PublicEvents,
+  QueryPerformanceEvent,
   QueryStatus,
   SDQLQueryRequest,
   UnixTimestamp,
@@ -43,6 +45,7 @@ export class ContextProviderMock implements IContextProvider {
     [];
   public heartbeatActivations: void[] = [];
   public onApiAccessedActivations: EExternalApi[] = [];
+  public onQueryPerformanceActivations: QueryPerformanceEvent[] = [];
   public postBackupsRequestedActivations: void[] = [];
   public onBackupCreatedActivations: BackupCreatedEvent[] = [];
   public onBackupRestoredActivations: BackupRestoreEvent[] = [];
@@ -148,6 +151,9 @@ export class ContextProviderMock implements IContextProvider {
       this.onApiAccessedActivations.push(val);
     });
 
+    this.publicEvents.queryPerformance.subscribe((val) => {
+      this.onQueryPerformanceActivations.push(val);
+    });
     this.privateEvents.postBackupsRequested.subscribe((val) => {
       this.postBackupsRequestedActivations.push(val);
     });
@@ -181,6 +187,7 @@ export class ContextProviderMock implements IContextProvider {
       onBirthdayUpdated: 0,
       onGenderUpdated: 0,
       onLocationUpdated: 0,
+      onQueryPerformanceActivations: 0,
       postBackupsRequested: 0,
     };
 
@@ -239,5 +246,6 @@ export interface IExpectedEventCounts {
   onBirthdayUpdated?: number;
   onGenderUpdated?: number;
   onLocationUpdated?: number;
+  onQueryPerformanceActivations?: number;
   postBackupsRequested?: number;
 }
