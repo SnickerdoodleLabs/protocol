@@ -111,13 +111,17 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
       rewardsThatCannotBeEarned,
     );
 
-    const { rewardsThatCanBeEarned, rewardsThatCannotBeEarned : unprocessedRewardsThatCannotBeEarned } =
-    getRewardsBeforeRewardsWereDeliveredFromIP(
+    const {
+      rewardsThatCanBeEarned,
+      rewardsThatCannotBeEarned: unprocessedRewardsThatCannotBeEarned,
+    } = getRewardsBeforeRewardsWereDeliveredFromIP(
       queryNotReceived,
       permissions,
     );
-  rewardsThatCanBeAcquired = rewardsThatCanBeEarned;
-  rewardsThatRequireMorePermission = rewardsThatRequireMorePermission.concat(unprocessedRewardsThatCannotBeEarned);
+    rewardsThatCanBeAcquired = rewardsThatCanBeEarned;
+    rewardsThatRequireMorePermission = rewardsThatRequireMorePermission.concat(
+      unprocessedRewardsThatCannotBeEarned,
+    );
 
     return {
       rewardsThatCanBeAcquired,

@@ -1,3 +1,4 @@
+import { ISDQLCallback } from "@objects/interfaces/ISDQLCallback.js";
 import {
   ChainId,
   CompensationKey,
@@ -5,7 +6,6 @@ import {
   URLString,
   ISDQLConditionString,
 } from "@objects/primitives/index.js";
-import { ISDQLCallback } from "@objects/interfaces/ISDQLCallback.js";
 
 export interface ISDQLCompensations {
   name: string;

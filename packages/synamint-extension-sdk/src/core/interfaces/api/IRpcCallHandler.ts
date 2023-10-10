@@ -1,10 +1,11 @@
-import { ERequestChannel } from "@synamint-extension-sdk/shared";
 import {
   JsonRpcRequest,
   PendingJsonRpcResponse,
   AsyncJsonRpcEngineNextCallback,
 } from "json-rpc-engine";
 import { Runtime } from "webextension-polyfill";
+
+import { ERequestChannel } from "@synamint-extension-sdk/shared";
 
 export interface IRpcCallHandler {
   handleRpcCall(

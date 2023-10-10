@@ -1,12 +1,12 @@
 import { Dialog } from "@material-ui/core";
+import { EVMContractAddress } from "@snickerdoodlelabs/objects";
 import { SubscriptionConfirmation } from "@snickerdoodlelabs/shared-components";
 import React, { FC } from "react";
 
 import { useStyles } from "@extension-onboarding/components/Modals/SubscriptionConfirmationModal/SubscriptionConfirmationModal.style";
 import { useAppContext } from "@extension-onboarding/context/App";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { EVMContractAddress } from "@snickerdoodlelabs/objects";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 
 const SubscriptionConfirmationModal: FC = () => {
   const { sdlDataWallet } = useDataWalletContext();

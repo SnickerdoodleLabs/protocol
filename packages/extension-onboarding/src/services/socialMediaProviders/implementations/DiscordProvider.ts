@@ -13,7 +13,6 @@ import {
   IDiscordProvider,
 } from "@extension-onboarding/services/socialMediaProviders/interfaces";
 
-
 export class DiscordProvider implements IDiscordProvider {
   constructor(private sdlDataWallet: ISdlDataWallet) {}
 
