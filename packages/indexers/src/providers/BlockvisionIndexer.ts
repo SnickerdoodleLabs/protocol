@@ -97,6 +97,9 @@ export class BlockvisionIndexer implements ISuiIndexer {
           ],
         };
 
+        console.log("url: " + url);
+        console.log("requestParams: " + requestParams);
+
         context.privateEvents.onApiAccessed.next(EExternalApi.Blockvision);
         return this.ajaxUtils.post<IBlockvisionBalancesReponse>(
           new URL(url),
