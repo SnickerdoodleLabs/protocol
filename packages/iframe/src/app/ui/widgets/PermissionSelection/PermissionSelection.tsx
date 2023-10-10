@@ -1,7 +1,7 @@
 import {
   EVMContractAddress,
   EWalletDataType,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   ISnickerdoodleCore,
   PossibleReward,
 } from "@snickerdoodlelabs/objects";
@@ -27,7 +27,7 @@ interface IPermissionSelectionProps {
   onCancelClick: () => void;
   onSaveClick: (dataTypes: EWalletDataType[]) => void;
   core: ISnickerdoodleCore;
-  invitationData: IOpenSeaMetadata;
+  invitationData: IOldUserAgreement;
   consentAddress: EVMContractAddress;
   coreConfig: IFrameConfig;
 }

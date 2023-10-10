@@ -14,7 +14,7 @@ import {
   UninitializedError,
   PageInvitation,
   IPFSError,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   ConsentFactoryContractError,
   IpfsCID,
   HexString32,
@@ -140,7 +140,7 @@ export interface IInvitationService {
 
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, IPFSError>;
+  ): ResultAsync<IOldUserAgreement, IPFSError>;
 
   getAgreementFlags(
     consentContractAddress: EVMContractAddress,
