@@ -1,6 +1,6 @@
 import {
   EVMContractAddress,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import React, { useEffect } from "react";
@@ -37,7 +37,7 @@ export default function RewardsSettings() {
   const [cids, setCids] = React.useState<IpfsCID[]>([]);
   const [isLoading, setIsLoading] = React.useState<ILoadingProps[]>([]);
   const [unsubsribed, setUnsubscribed] = React.useState<boolean>(false);
-  const [campainJoined, setCampainJoined] = React.useState<IOpenSeaMetadata[]>(
+  const [campainJoined, setCampainJoined] = React.useState<IOldUserAgreement[]>(
     [],
   );
 

@@ -20,7 +20,7 @@ import {
   EVMContractAddress,
   HexString32,
   Invitation,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   IpfsCID,
   IPFSError,
   LinkedAccount,
@@ -693,7 +693,7 @@ export class InvitationService implements IInvitationService {
 
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, IPFSError> {
+  ): ResultAsync<IOldUserAgreement, IPFSError> {
     return this.invitationRepo.getInvitationMetadataByCID(ipfsCID);
   }
 
