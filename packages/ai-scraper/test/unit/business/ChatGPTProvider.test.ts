@@ -29,6 +29,7 @@ class Mocks {
   public timeUtils = new TimeUtils();
   public purchaseHistoryLLMUtils = new LLMPurchaseHistoryUtilsChatGPT(
     this.timeUtils,
+    this.logUtils,
   );
   public promptBuilderFactory = new PromptBuilderFactory();
   public promptDirector = new PromptDirector(

@@ -1,4 +1,9 @@
-import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
+import {
+  ILogUtils,
+  ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import {
   DomainName,
   ELanguageCode,
@@ -28,7 +33,12 @@ import {
 export class LLMPurchaseHistoryUtilsChatGPT
   implements ILLMPurchaseHistoryUtils
 {
-  public constructor(@inject(ITimeUtilsType) private timeUtils: ITimeUtils) {}
+  public constructor(
+    @inject(ITimeUtilsType)
+    private timeUtils: ITimeUtils,
+    @inject(ILogUtilsType)
+    private logUtils: ILogUtils,
+  ) {}
   public getRole(): LLMRole {
     return LLMRole("You are an expert in understanding e-commerce.");
   }
@@ -71,7 +81,11 @@ export class LLMPurchaseHistoryUtilsChatGPT
         );
 
         if (timestampPurchased == null) {
-          throw new LLMError(`Invalid purchase date ${purchase.date}`);
+          this.logUtils.debug(
+            `Invalid purchase date ${purchase.date} for ${purchase.name}`,
+          );
+          // throw new LLMError(`Invalid purchase date for ${purchase.name}`);
+          return null;
         }
         return new PurchasedProduct(
           domain,
@@ -90,9 +104,15 @@ export class LLMPurchaseHistoryUtilsChatGPT
         );
       });
 
-      return okAsync(purchasedProducts);
+      const validPurchases = purchasedProducts.filter(
+        (purchase) => purchase != null,
+      ) as PurchasedProduct[];
+
+      return okAsync(validPurchases);
     } catch (e) {
-      return errAsync(new LLMError((e as Error).message, e));
+      // return errAsync(new LLMError((e as Error).message, e));
+      this.logUtils.warning(`No product history. LLMRReponse: ${llmResponse}`);
+      return okAsync([]); // TODO do something else
     }
   }
 
