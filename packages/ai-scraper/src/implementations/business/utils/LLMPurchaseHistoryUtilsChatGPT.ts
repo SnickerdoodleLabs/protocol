@@ -34,14 +34,17 @@ export class LLMPurchaseHistoryUtilsChatGPT
   }
 
   public getQuestion(): LLMQuestion {
+    // return LLMQuestion(
+    //   "Can you get the product names from the following text? I also need the product brand, price, classification, keywords, and date purchased. Give response in a JSON array in the preceding format.",
+    // );
     return LLMQuestion(
-      "Can you get the product names from the following text? I also need the product brand, price, classification, keywords, and date purchased. Give response in a JSON array in the preceding format.",
+      "I need the purchase history from the following content. A purchase history must have a product name, price, and date of purchase. It can also have brand, classification, keywords which are optional. The purchase date and price cannot be null. Do not include a purchase information in the output if the purchase date or price is missing. Give response in a JSON array in the preceding format.",
     );
   }
 
   public getAnswerStructure(): LLMAnswerStructure {
     return LLMAnswerStructure(
-      `I need all the output in this format:
+      `I need to extract purchase information. I need all the output in this format:
       \n\nJSON format: \n
           {
               name: string,
