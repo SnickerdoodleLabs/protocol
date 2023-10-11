@@ -344,7 +344,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Mainnet,
       "https://suiexplorer.com/",
       getExplorerUrl,
-      URLString("https://suiexplorer.com/"),
+      URLString("https://suiscan.xyz/"),
     ),
   ],
 ]);
