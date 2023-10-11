@@ -67,7 +67,17 @@ export class BlockvisionIndexer implements ISuiIndexer {
   ) {}
 
   public initialize(): ResultAsync<void, never> {
-    return okAsync(undefined);
+    return this.configProvider.getConfig().map((config) => {
+      console.log("config.apiKeys: " + JSON.stringify(config.apiKeys));
+      if (
+        config.apiKeys.blockvisionKey == "" ||
+        config.apiKeys.blockvisionKey == null
+      ) {
+        this.health.set(EChain.Sui, EComponentStatus.NoKeyProvided);
+      } else {
+        this.health.set(EChain.Sui, EComponentStatus.Available);
+      }
+    });
   }
 
   public name(): string {
@@ -158,7 +168,7 @@ interface IBlockvisionBalancesReponse {
   result: {
     coinType: string;
     coinObjectCount: number;
-    totalBalance: number;
+    totalBalance: BigNumberString;
     lockedBalance: {};
   };
 }

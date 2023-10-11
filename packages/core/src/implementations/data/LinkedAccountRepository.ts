@@ -39,9 +39,11 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     accountAddress: AccountAddress,
     chain: EChain,
   ): ResultAsync<LinkedAccount | null, PersistenceError> {
+    console.log("Inside getLinkedAccount");
     return this.persistence
       .getAll<LinkedAccount>(ERecordKey.ACCOUNT)
       .map((accounts) => {
+        console.log("accounts: " + accounts);
         const found = accounts.find((account) => {
           return (
             account.sourceAccountAddress == accountAddress &&

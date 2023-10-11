@@ -178,7 +178,7 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
                     (suiWallet.account?.address || "") as AccountAddress,
                     signature.signature as Signature,
                     defaultLanguageCode,
-                    EChain.EthereumMainnet,
+                    EChain.Sui,
                   )
                   .mapErr((e) => {
                     console.error(e);
@@ -262,6 +262,7 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
   );
 
   const onWalletKitConnectClick = (walletKit: EWalletProviderKit) => {
+    console.log("sui is set now!");
     if (walletKit === EWalletProviderKit.SUI) {
       setIsSuiOpen(true);
     }

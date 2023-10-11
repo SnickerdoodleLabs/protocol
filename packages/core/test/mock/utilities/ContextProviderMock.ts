@@ -80,6 +80,7 @@ export class ContextProviderMock implements IContextProvider {
           new Map<EChain, EComponentStatus>(),
           new Map<EChain, EComponentStatus>(),
           new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
         ), // components
       );
     }

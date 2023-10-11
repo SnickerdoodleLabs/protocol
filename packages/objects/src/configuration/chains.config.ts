@@ -314,6 +314,23 @@ export const chainConfig = new Map<EChain, ChainInformation>([
     ),
   ],
   [
+    EChain.Sui,
+    new ChainInformation(
+      "Sui",
+      ChainId(EChain.Sui),
+      EChain.Sui,
+      EChainTechnology.Sui,
+      true,
+      "sui",
+      10000, // average block mining time
+      new NativeCurrencyInformation("SUI", 9, "SUI", "sui"),
+      EChainType.Mainnet,
+      "https://suiexplorer.com/",
+      getExplorerUrl,
+      URLString("https://suiscan.xyz/"),
+    ),
+  ],
+  [
     EChain.Shibuya,
     new ChainInformation(
       "Shibuya",
@@ -328,23 +345,6 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       "https://shibuya.subscan.io/api",
       getExplorerUrl,
       URLString("https://shibya.subscan.io/"),
-    ),
-  ],
-  [
-    EChain.Sui,
-    new ChainInformation(
-      "Sui",
-      ChainId(EChain.Sui),
-      EChain.Sui,
-      EChainTechnology.Sui,
-      true,
-      "sui",
-      10000, // average block mining time
-      new NativeCurrencyInformation("SUI", 18, "SUI", "Sui"),
-      EChainType.Mainnet,
-      "https://suiexplorer.com/",
-      getExplorerUrl,
-      URLString("https://suiscan.xyz/"),
     ),
   ],
 ]);
@@ -376,6 +376,9 @@ export function isAccountValidForChainId(
   if (chainId === 5) return false;
   const targetChainInfo = getChainInfoByChainId(chainId);
   const accountChainInfo = getChainInfoByChain(account.sourceChain);
+  console.log("targetChainInfo: " + JSON.stringify(targetChainInfo));
+  console.log("accountChainInfo: " + JSON.stringify(accountChainInfo));
+
   return targetChainInfo.chainTechnology == accountChainInfo.chainTechnology;
 }
 
@@ -385,6 +388,8 @@ export function isAccountValidForChain(
 ): boolean {
   const targetChainInfo = getChainInfoByChain(chain);
   const accountChainInfo = getChainInfoByChain(account.sourceChain);
+  console.log("targetChainInfo: " + JSON.stringify(targetChainInfo));
+  console.log("accountChainInfo: " + JSON.stringify(accountChainInfo));
   return targetChainInfo.chainTechnology == accountChainInfo.chainTechnology;
 }
 

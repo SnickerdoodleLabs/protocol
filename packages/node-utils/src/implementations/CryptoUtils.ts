@@ -267,8 +267,18 @@ export class CryptoUtils implements ICryptoUtils {
     const address = EVMAccountAddress(
       ethers.utils.verifyMessage(message, signature),
     );
-    console.log("address: " + address);
     return okAsync(address);
+
+    // return okAsync(
+    //   nacl.sign.detached.verify(
+    //     Buffer.from(message, "utf-8"),
+    //     Buffer.from(signature, "hex"),
+    //     base58.decode(accountAddress),
+    //   ),
+    // );
+    // .andThen(() => {
+    //   return EVMAccountAddress("");
+    // });
   }
 
   public verifySolanaSignature(

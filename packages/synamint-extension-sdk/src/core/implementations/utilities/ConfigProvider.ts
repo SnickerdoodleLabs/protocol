@@ -73,7 +73,8 @@ export class ConfigProvider implements IConfigProvider {
 
     this.config.bluezApiKey =
       configOverrides.apiKeys.bluezApiKey ?? this.config.bluezApiKey;
-
+    this.config.blockvisionKey =
+      configOverrides.apiKeys.blockvisionKey ?? this.config.blockvisionKey;
     this.config.spaceAndTimeKey =
       configOverrides.apiKeys.spaceAndTimeKey ?? this.config.spaceAndTimeKey;
 
