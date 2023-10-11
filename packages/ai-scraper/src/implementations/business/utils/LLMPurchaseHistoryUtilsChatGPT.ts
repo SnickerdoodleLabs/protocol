@@ -1,4 +1,9 @@
-import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
+import {
+  ILogUtils,
+  ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import {
   DomainName,
   ELanguageCode,
@@ -28,20 +33,28 @@ import {
 export class LLMPurchaseHistoryUtilsChatGPT
   implements ILLMPurchaseHistoryUtils
 {
-  public constructor(@inject(ITimeUtilsType) private timeUtils: ITimeUtils) {}
+  public constructor(
+    @inject(ITimeUtilsType)
+    private timeUtils: ITimeUtils,
+    @inject(ILogUtilsType)
+    private logUtils: ILogUtils,
+  ) {}
   public getRole(): LLMRole {
     return LLMRole("You are an expert in understanding e-commerce.");
   }
 
   public getQuestion(): LLMQuestion {
+    // return LLMQuestion(
+    //   "Can you get the product names from the following text? I also need the product brand, price, classification, keywords, and date purchased. Give response in a JSON array in the preceding format.",
+    // );
     return LLMQuestion(
-      "Can you get the product names from the following text? I also need the product brand, price, classification, keywords, and date purchased. Give response in a JSON array in the preceding format.",
+      "I need the purchase history from the following content. A purchase history must have a product name, price, and date of purchase. It can also have brand, classification, keywords which are optional. The purchase date and price cannot be null. Do not include a purchase information in the output if the purchase date or price is missing. Give response in a JSON array in the preceding format.",
     );
   }
 
   public getAnswerStructure(): LLMAnswerStructure {
     return LLMAnswerStructure(
-      `I need all the output in this format:
+      `I need to extract purchase information. I need all the output in this format:
       \n\nJSON format: \n
           {
               name: string,
@@ -68,7 +81,11 @@ export class LLMPurchaseHistoryUtilsChatGPT
         );
 
         if (timestampPurchased == null) {
-          throw new LLMError(`Invalid purchase date ${purchase.date}`);
+          this.logUtils.debug(
+            `Invalid purchase date ${purchase.date} for ${purchase.name}`,
+          );
+          // throw new LLMError(`Invalid purchase date for ${purchase.name}`);
+          return null;
         }
         return new PurchasedProduct(
           domain,
@@ -87,9 +104,15 @@ export class LLMPurchaseHistoryUtilsChatGPT
         );
       });
 
-      return okAsync(purchasedProducts);
+      const validPurchases = purchasedProducts.filter(
+        (purchase) => purchase != null,
+      ) as PurchasedProduct[];
+
+      return okAsync(validPurchases);
     } catch (e) {
-      return errAsync(new LLMError((e as Error).message, e));
+      // return errAsync(new LLMError((e as Error).message, e));
+      this.logUtils.warning(`No product history. LLMRReponse: ${llmResponse}`);
+      return okAsync([]); // TODO do something else
     }
   }
 
