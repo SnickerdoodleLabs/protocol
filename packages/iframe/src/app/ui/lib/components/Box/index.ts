@@ -1,1 +1,1 @@
-export * from '@core-iframe/app/ui/lib/components/Box/Box';
+export * from "@core-iframe/app/ui/lib/components/Box/Box";

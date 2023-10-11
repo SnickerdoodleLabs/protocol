@@ -30,7 +30,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { CoreConfig } from "../objects";
+import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
 
 export interface IQueryService {
   initialize(): ResultAsync<void, never>;

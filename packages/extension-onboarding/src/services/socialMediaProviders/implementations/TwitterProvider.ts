@@ -13,7 +13,6 @@ import {
   ITwitterUnlinkProfileParams,
 } from "@extension-onboarding/services/socialMediaProviders/interfaces";
 
-
 export class TwitterProvider implements ITwitterProvider {
   constructor(private sdlDataWallet: ISdlDataWallet) {}
 

@@ -25,6 +25,10 @@ import {
   PossibleReward,
   CompensationKey,
   InsightKey,
+  PublicEvents,
+  EQueryEvents,
+  QueryPerformanceEvent,
+  EStatus,
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
@@ -38,7 +42,7 @@ import {
   SDQLParser,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
-import {  ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { BaseOf } from "ts-brand";
 
@@ -49,6 +53,11 @@ import {
   IAdDataRepositoryType,
   IAdRepositoryType,
 } from "@core/interfaces/data/index.js";
+import {
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/index.js";
+
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {
   public constructor(
@@ -62,6 +71,8 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected adContentRepository: IAdContentRepository,
     @inject(IAdDataRepositoryType)
     protected adDataRepository: IAdDataRepository,
+    @inject(IContextProviderType)
+    protected contextProvider: IContextProvider,
   ) {}
 
   public handleQuery(
@@ -82,8 +93,64 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     | EvalNotImplementedError
     | MissingASTError
   > {
-    return this.parseQuery(query).andThen((ast) => {
-      return this.gatherDeliveryItems(ast, query.cid, dataPermissions);
+    return this.contextProvider.getContext().andThen((context) => {
+      context.publicEvents.queryPerformance.next(
+        new QueryPerformanceEvent(
+          EQueryEvents.QueryEvaluation,
+          EStatus.Start,
+          query.cid,
+        ),
+      );
+      context.publicEvents.queryPerformance.next(
+        new QueryPerformanceEvent(
+          EQueryEvents.QueryParsing,
+          EStatus.Start,
+          query.cid,
+        ),
+      );
+      return this.parseQuery(query)
+        .andThen((ast) => {
+          context.publicEvents.queryPerformance.next(
+            new QueryPerformanceEvent(
+              EQueryEvents.QueryParsing,
+              EStatus.End,
+              query.cid,
+            ),
+          );
+          return this.gatherDeliveryItems(ast, query.cid, dataPermissions).map(
+            (result) => {
+              context.publicEvents.queryPerformance.next(
+                new QueryPerformanceEvent(
+                  EQueryEvents.QueryEvaluation,
+                  EStatus.End,
+                  query.cid,
+                ),
+              );
+              return result;
+            },
+          );
+        })
+        .mapErr((err) => {
+          context.publicEvents.queryPerformance.next(
+            new QueryPerformanceEvent(
+              EQueryEvents.QueryEvaluation,
+              EStatus.End,
+              query.cid,
+              undefined,
+              err,
+            ),
+          );
+          context.publicEvents.queryPerformance.next(
+            new QueryPerformanceEvent(
+              EQueryEvents.QueryParsing,
+              EStatus.End,
+              query.cid,
+              undefined,
+              err,
+            ),
+          );
+          return err;
+        });
     });
   }
 

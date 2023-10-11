@@ -1,6 +1,6 @@
 import {
   EVMContractAddress,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   Invitation,
   InvitationDomain,
 } from "@snickerdoodlelabs/objects";
@@ -14,7 +14,7 @@ export enum EInvitationSourceType {
 
 export interface IInvitationDisplayRequestData {
   invitation: Invitation;
-  metadata: IOpenSeaMetadata | InvitationDomain;
+  metadata: IOldUserAgreement | InvitationDomain;
 }
 
 export interface IInvitationDisplayRequest {

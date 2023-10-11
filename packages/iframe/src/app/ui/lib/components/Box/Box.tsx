@@ -1,3 +1,7 @@
+import clsx from "clsx";
+import React, { forwardRef, HTMLAttributes, Ref, useMemo } from "react";
+import { createUseStyles, useTheme } from "react-jss";
+
 import {
   IBackground,
   IBorder,
@@ -31,9 +35,6 @@ import {
   pointer,
 } from "@core-iframe/app/ui/lib/styles";
 import { defaultDarkTheme } from "@core-iframe/app/ui/lib/theme";
-import clsx from "clsx";
-import React, { forwardRef, HTMLAttributes, Ref, useMemo } from "react";
-import { createUseStyles, useTheme } from "react-jss";
 
 interface IBoxProps
   extends IComponentDefaultProps,
