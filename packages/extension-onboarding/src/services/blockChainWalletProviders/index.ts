@@ -7,7 +7,6 @@ import { EWalletProviderKeys } from "@extension-onboarding/constants";
 import {
   MetamaskWalletProvider,
   PhantomWalletProvider,
-  SuiWalletProvider,
   WalletConnectProvider,
   CoinbaseWalletProvider,
 } from "@extension-onboarding/services/blockChainWalletProviders/connectors";
