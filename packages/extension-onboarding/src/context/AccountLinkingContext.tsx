@@ -128,21 +128,15 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
 
   const handleSuiWalletConnect = useCallback(() => {
     if (suiWallet.connected) {
-      console.log("suiWallet connect: " + defaultLanguageCode);
       return sdlDataWallet.account
         .getLinkAccountMessage(defaultLanguageCode)
         .andThen((message) => {
-          console.log("suiWallet getLinkAccountMessage");
-          console.log("suiWallet message: " + message);
-
           return ResultAsync.fromPromise(
             suiWallet.signMessage({
               message: new TextEncoder().encode(message),
             }),
             () => new Error("Error signing message"),
           ).andThen((signature) => {
-            console.log("signature", signature);
-            console.log("account", suiWallet.account?.address || "");
             if (
               !linkedAccounts?.find(
                 (linkedAccount) =>
@@ -150,26 +144,12 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
                   (suiWallet.account?.address || ""),
               )
             ) {
-              console.log("sui setLoadingStatus");
               setLoadingStatus(true, {
                 type: ELoadingIndicatorType.COMPONENT,
                 component: <AccountLinkingIndicator />,
               });
-
-              console.log(
-                "suiWallet accountAddress: " +
-                  (suiWallet.account?.address || ""),
-              );
               const addr = (suiWallet.account?.address || "") as AccountAddress;
-              console.log("suiWallet addr: " + addr);
-              console.log(
-                "signature.signature as Signature: " + signature.signature,
-              );
               const sig = signature.signature as Signature;
-              console.log("sig: " + sig);
-              console.log("defaultLanguageCode: " + defaultLanguageCode);
-              console.log("EChain.EthereumMainnet: " + EChain.EthereumMainnet);
-
               return (
                 // okAsync(undefined)
                 // @TODO use that function with correct params
@@ -182,11 +162,9 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
                   )
                   .mapErr((e) => {
                     console.error(e);
-                    console.log("sui setIsSuiOpen mapErr");
                     setLoadingStatus(false);
                   })
                   .map(() => {
-                    console.log("sui setIsSuiOpen map");
                     setIsSuiOpen(false);
                     setLoadingStatus(false);
                   })
@@ -262,7 +240,6 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
   );
 
   const onWalletKitConnectClick = (walletKit: EWalletProviderKit) => {
-    console.log("sui is set now!");
     if (walletKit === EWalletProviderKit.SUI) {
       setIsSuiOpen(true);
     }
