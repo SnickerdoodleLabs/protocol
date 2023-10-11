@@ -8,6 +8,7 @@ import binanceCircle from "@extension-onboarding/assets/images/bnb-circle.png";
 import moonbeamCircle from "@extension-onboarding/assets/images/moonbeam-circle.png";
 import optimismCircle from "@extension-onboarding/assets/images/optimism-circle.png";
 import polygonCircle from "@extension-onboarding/assets/images/polygon-circle.png";
+import suiCircle from "@extension-onboarding/assets/images/sui-circle.png";
 import gnosisCircle from "@extension-onboarding/assets/images/xDAI-circle.png";
 
 interface ITokenInfo {
@@ -26,6 +27,7 @@ export const tokenInfoObj: ITokenInfo = {
   ARB: { displayName: "Arbitrum", iconSrc: arbitrumCircle },
   OP: { displayName: "Optimism", iconSrc: optimismCircle },
   ASTR: { displayName: "Astar", iconSrc: astarCircle },
+  Sui: { displayName: "Sui", iconSrc: suiCircle },
 };
 
 export const stableCoins = [
@@ -43,4 +45,5 @@ export const stableCoins = [
   "ARB",
   "OP",
   "ASTR",
+  "Sui",
 ];
