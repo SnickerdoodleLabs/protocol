@@ -1,4 +1,4 @@
-import { Box, Typography } from "@material-ui/core";
+import { Box, Grid, Typography } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import { ETag, EVMContractAddress } from "@snickerdoodlelabs/objects";
 import { Button } from "@snickerdoodlelabs/shared-components";
@@ -7,11 +7,11 @@ import { useNavigate } from "react-router";
 import { generatePath } from "react-router-dom";
 
 import { useStyles } from "@extension-onboarding/components/CampaignItems/DefaultCampaignItem/DefaultCampaignItem.style";
+import Description from "@extension-onboarding/components/Description";
 import LinearProgress from "@extension-onboarding/components/LinearProgress";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { useAppContext } from "@extension-onboarding/context/App";
 import useCampaignLogic from "@extension-onboarding/hooks/useCampaignLogic";
-import Description from "@extension-onboarding/components/Description";
 
 interface ICampaignItemProps {
   consentContractAddress: EVMContractAddress;
@@ -63,7 +63,7 @@ const CampaignItem: FC<ICampaignItemProps> = ({
         </Typography>
       </Box>
       <Box display="flex">
-        <Box width="30%" mr={2}>
+        <Box mr={{ xs: 0, sm: 2 }}>
           <img src={campaignInfo?.image} className={classes.image} />
         </Box>
         <Box display="flex" flex={1} flexDirection="column">
@@ -159,7 +159,7 @@ const CampaignItem: FC<ICampaignItemProps> = ({
             <Box mb={5} height={31.3125} />
           )}
 
-          <Box marginLeft="auto">
+          <Box marginLeft="auto" className={classes.buttonDekstop}>
             {onLeaveClick && isSubscribed && (
               <Button onClick={onLeaveClick} buttonType="v2Danger">
                 Unsubscribe
@@ -183,6 +183,36 @@ const CampaignItem: FC<ICampaignItemProps> = ({
                 Details
               </Button>
             </Box>
+          </Box>
+          <Box className={classes.buttonMobile}>
+            <Grid xs={12}>
+              {onLeaveClick && isSubscribed && (
+                <Button fullWidth onClick={onLeaveClick} buttonType="v2Danger">
+                  Unsubscribe
+                </Button>
+              )}
+            </Grid>
+            <Grid xs={12}>
+              <Box display="inline">
+                <Button
+                  fullWidth
+                  disabled={!possibleRewards || !campaignInfo}
+                  onClick={() => {
+                    navigate(navigationPath, {
+                      state: {
+                        possibleRewards,
+                        info: campaignInfo,
+                        consentContractAddress,
+                        tag,
+                      },
+                    });
+                  }}
+                  buttonType="v2Primary"
+                >
+                  Details
+                </Button>
+              </Box>
+            </Grid>
           </Box>
         </Box>
       </Box>

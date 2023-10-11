@@ -525,118 +525,123 @@ export const PermissionBar: FC<IPermissionBarProps> = ({
               Data you are willing to rent
             </Typography>
           </Box>
-          {UI_SUPPORTED_PERMISSIONS.map((permission, index) => {
-            const dataType = PERMISSIONS_WITH_ICONS[permission]!.dataType;
-            const isSelected = permissions.includes(dataType);
-            const valid = !isSelected ? isSafe(dataType) : true;
-            if (valid && expandeds.includes(dataType)) {
-              setExpandeds((expandeds) =>
-                expandeds.filter((item) => item != dataType),
-              );
-            }
-            return (
-              <Box
-                mb={2}
-                key={index}
-                {...(expandeds.includes(dataType) && {
-                  py: 1.5,
-                  px: 0.75,
-                  border: "1px solid #C5C1DD",
-                  borderRadius: 4,
-                })}
-              >
+          <Box className={classes.permissionsOptions}>
+            {UI_SUPPORTED_PERMISSIONS.map((permission, index) => {
+              const dataType = PERMISSIONS_WITH_ICONS[permission]!.dataType;
+              const isSelected = permissions.includes(dataType);
+              const valid = !isSelected ? isSafe(dataType) : true;
+              if (valid && expandeds.includes(dataType)) {
+                setExpandeds((expandeds) =>
+                  expandeds.filter((item) => item != dataType),
+                );
+              }
+              return (
                 <Box
-                  bgcolor="#F2F2F8"
-                  border={`1px solid ${
-                    isSelected
-                      ? "#C5C1DD"
-                      : !valid || !isUnlocked
-                      ? "#F18935"
-                      : "transparent"
-                  }`}
-                  {...(isSelected && {
-                    boxShadow: "0px 2px 0px rgba(0, 0, 0, 0.043)",
+                  mb={2}
+                  key={index}
+                  {...(expandeds.includes(dataType) && {
+                    py: 1.5,
+                    px: 0.75,
+                    border: "1px solid #C5C1DD",
+                    borderRadius: 4,
                   })}
-                  borderRadius={8}
-                  display="flex"
-                  alignItems="center"
-                  py={0.5}
-                  px={1.25}
-                  style={{ cursor: "pointer" }}
-                  onClick={(event) => {
-                    if (!isUnlocked) {
-                      onClickWhenLocked();
-                    } else {
-                      if (!valid) {
-                        setExpandeds((expandeds) => [...expandeds, dataType]);
-                        return;
-                      }
-                      onClick(dataType);
-                    }
-                  }}
+                  className={classes.permissionSelection}
                 >
-                  <Box display="flex" alignItems="center">
-                    <img
-                      width={27}
-                      src={PERMISSIONS_WITH_ICONS[permission]!.icon}
-                    />
-                    <Box ml={1.25}>
-                      <Typography
-                        style={{
-                          fontFamily: "'Roboto'",
-                          fontStyle: "normal",
-                          fontWeight: 400,
-                          fontSize: "12px",
-                          lineHeight: "20px",
-                          color: "#262626",
-                        }}
-                      >
-                        {PERMISSIONS_WITH_ICONS[permission]!.name}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  {isSelected && (
-                    <Box ml="auto">
+                  <Box
+                    bgcolor="#F2F2F8"
+                    border={`1px solid ${
+                      isSelected
+                        ? "#C5C1DD"
+                        : !valid || !isUnlocked
+                        ? "#F18935"
+                        : "transparent"
+                    }`}
+                    {...(isSelected && {
+                      boxShadow: "0px 2px 0px rgba(0, 0, 0, 0.043)",
+                    })}
+                    borderRadius={8}
+                    display="flex"
+                    alignItems="center"
+                    py={0.5}
+                    px={1.25}
+                    style={{ cursor: "pointer" }}
+                    onClick={(event) => {
+                      if (!isUnlocked) {
+                        onClickWhenLocked();
+                      } else {
+                        if (!valid) {
+                          setExpandeds((expandeds) => [...expandeds, dataType]);
+                          return;
+                        }
+                        onClick(dataType);
+                      }
+                    }}
+                  >
+                    <Box display="flex" alignItems="center">
                       <img
-                        width={12}
-                        src={
-                          "https://storage.googleapis.com/dw-assets/shared/icons/tick-primary.png"
-                        }
+                        width={27}
+                        src={PERMISSIONS_WITH_ICONS[permission]!.icon}
                       />
+                      <Box ml={1.25}>
+                        <Typography
+                          style={{
+                            fontFamily: "'Roboto'",
+                            fontStyle: "normal",
+                            fontWeight: 400,
+                            fontSize: "12px",
+                            lineHeight: "20px",
+                            color: "#262626",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                          }}
+                        >
+                          {PERMISSIONS_WITH_ICONS[permission]!.name}
+                        </Typography>
+                      </Box>
                     </Box>
-                  )}
-                  {(!valid || !isUnlocked) && (
-                    <Box ml="auto">
-                      <Tooltip
-                        PopperProps={{
-                          disablePortal: true,
-                          style: { zIndex: "9999 !important" },
-                        }}
-                        arrow
-                        title={
-                          isUnlocked
-                            ? `Looks like there is no input for your “${
-                                PERMISSIONS_WITH_ICONS[permission]!.name
-                              }” data click to resolve`
-                            : `You need to link your crypto account first to make changes.`
-                        }
-                      >
+                    {isSelected && (
+                      <Box ml="auto">
                         <img
                           width={12}
                           src={
-                            "https://storage.googleapis.com/dw-assets/shared/icons/exclamation.png"
+                            "https://storage.googleapis.com/dw-assets/shared/icons/tick-primary.png"
                           }
                         />
-                      </Tooltip>
-                    </Box>
-                  )}
+                      </Box>
+                    )}
+                    {(!valid || !isUnlocked) && (
+                      <Box ml="auto">
+                        <Tooltip
+                          PopperProps={{
+                            disablePortal: true,
+                            style: { zIndex: "9999 !important" },
+                          }}
+                          arrow
+                          title={
+                            isUnlocked
+                              ? `Looks like there is no input for your “${
+                                  PERMISSIONS_WITH_ICONS[permission]!.name
+                                }” data click to resolve`
+                              : `You need to link your crypto account first to make changes.`
+                          }
+                        >
+                          <img
+                            width={12}
+                            src={
+                              "https://storage.googleapis.com/dw-assets/shared/icons/exclamation.png"
+                            }
+                          />
+                        </Tooltip>
+                      </Box>
+                    )}
+                  </Box>
+                  <Collapse in={expandeds.includes(dataType)} unmountOnExit>
+                    {renderForm(dataType)}
+                  </Collapse>
                 </Box>
-                <Collapse in={expandeds.includes(dataType)} unmountOnExit>
-                  {renderForm(dataType)}
-                </Collapse>
-              </Box>
-            );
-          })}
+              );
+            })}
+          </Box>
           <Box px={1.5}>
             {isSelectAllVisible ? (
               <Typography

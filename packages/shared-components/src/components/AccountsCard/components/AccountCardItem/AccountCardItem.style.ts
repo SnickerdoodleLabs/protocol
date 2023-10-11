@@ -61,4 +61,7 @@ export const useStyles = makeStyles((theme) => ({
     fontWeight: 500,
     fontSize: "12px",
   },
+  container: {
+    overflow: "auto",
+  },
 }));

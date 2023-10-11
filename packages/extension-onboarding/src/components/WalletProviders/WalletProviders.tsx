@@ -22,7 +22,7 @@ const WalletProviders: FC = () => {
       </Box>
       <Grid container spacing={3}>
         {detectedProviders.map((provider) => (
-          <Grid item xs={3} key={provider.key}>
+          <Grid item xs={12} sm={6} md={4} lg={3} key={provider.key}>
             <WalletProviderItem
               onConnectClick={() => {
                 onProviderConnectClick(provider);
@@ -32,7 +32,7 @@ const WalletProviders: FC = () => {
           </Grid>
         ))}
         {unDetectedProviders.map((provider) => (
-          <Grid item xs={3} key={provider.key}>
+          <Grid item xs={12} sm={6} md={4} lg={3} key={provider.key}>
             <WalletProviderItem
               onConnectClick={() => {
                 window.open(provider.installationUrl, "_blank");

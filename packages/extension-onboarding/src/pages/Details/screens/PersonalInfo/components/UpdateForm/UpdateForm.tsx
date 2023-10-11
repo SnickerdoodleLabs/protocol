@@ -51,15 +51,17 @@ const UpdateForm: FC<IUpdateFormProps> = ({
                 Sync your demographic info by connecting your Google account.
               </Typography>
             </Box>
-            <GoogleLogin
-              clientId={gapiClientID}
-              className={classes.googleButton}
-              buttonText="Link your data from Google"
-              onSuccess={onGoogleLoginSuccess}
-              onFailure={onGoogleLoginFail}
-              cookiePolicy={"single_host_origin"}
-              isSignedIn={false}
-            />
+            <Box display="flex" justifyContent="center">
+              <GoogleLogin
+                clientId={gapiClientID}
+                className={classes.googleButton}
+                buttonText="Link your data from Google"
+                onSuccess={onGoogleLoginSuccess}
+                onFailure={onGoogleLoginFail}
+                cookiePolicy={"single_host_origin"}
+                isSignedIn={false}
+              />
+            </Box>
             <Box mt={2} display="flex" alignItems="center">
               <Box mr={1} className={classes.divider} />
               <Typography className={classes.dividerText}>
@@ -108,7 +110,7 @@ const UpdateForm: FC<IUpdateFormProps> = ({
                   id="profile-create-form"
                 >
                   <Grid spacing={3} container>
-                    <Grid item xs={6}>
+                    <Grid item xs={12} sm={6}>
                       <Typography className={classes.formLabel}>
                         Date of Birth
                       </Typography>
@@ -158,7 +160,7 @@ const UpdateForm: FC<IUpdateFormProps> = ({
                         consent.
                       </Typography>
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item xs={12} sm={6}>
                       <Box>
                         <Typography className={classes.formLabel}>
                           Country
@@ -189,7 +191,7 @@ const UpdateForm: FC<IUpdateFormProps> = ({
                         </Field>
                       </Box>
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item xs={12} sm={6}>
                       <Box>
                         <Typography className={classes.formLabel}>
                           Gender

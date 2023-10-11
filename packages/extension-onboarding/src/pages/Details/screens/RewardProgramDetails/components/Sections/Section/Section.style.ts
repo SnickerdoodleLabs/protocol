@@ -46,4 +46,16 @@ export const useSectionStyles = makeStyles((theme) => ({
     letterSpacing: "0.25px",
     color: "#616161",
   },
+  displayModeToggleDekstop: {
+    display: "block",
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
+  },
+  displayModeToggleTabletMobile: {
+    display: "none",
+    [theme.breakpoints.down("sm")]: {
+      display: "block",
+    },
+  },
 }));

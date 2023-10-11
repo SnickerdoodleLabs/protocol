@@ -1,4 +1,5 @@
 import { makeStyles } from "@material-ui/core/styles";
+import { right } from "inquirer/lib/utils/readline";
 
 export const useStyles = makeStyles((theme) => ({
   permissionsTitle: {
@@ -111,5 +112,18 @@ export const useStyles = makeStyles((theme) => ({
     fontWeight: 400,
     lineHeight: 1.66,
     letterSpacing: "0.03333em",
+  },
+  permissionsOptions: {
+    display: "block",
+    [theme.breakpoints.down("xs")]: {
+      direction: "row",
+      overflowX: "auto",
+      display: "flex",
+    },
+  },
+  permissionSelection: {
+    [theme.breakpoints.down("xs")]: {
+      marginRight: "16px",
+    },
   },
 }));

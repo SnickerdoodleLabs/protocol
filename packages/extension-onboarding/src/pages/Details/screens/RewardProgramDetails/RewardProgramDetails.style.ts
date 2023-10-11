@@ -49,4 +49,40 @@ export const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     color: "#28A745",
   },
+  subscribeButtonDekstop: {
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
+  },
+  subscribeButtonTabletMobile: {
+    marginTop: "12px",
+    display: "none",
+    [theme.breakpoints.down("sm")]: {
+      display: "flex",
+    },
+  },
+  rewardMobile: {
+    display: "none",
+    [theme.breakpoints.down("xs")]: {
+      display: "flex",
+    },
+  },
+  rewardTabletMobile: {
+    display: "none",
+    [theme.breakpoints.down("sm")]: {
+      display: "flex",
+    },
+  },
+  rewardDekstop: {
+    display: "flex",
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    },
+  },
+  rentDekstop: {
+    display: "block",
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
+  },
 }));

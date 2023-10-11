@@ -16,10 +16,14 @@ export const useStyles = makeStyles((theme) => ({
     WebkitBoxOrient: "vertical",
   },
   image: {
-    width: "100%",
+    width: "143px",
+    height: "146px",
     aspectRatio: "1",
     objectFit: "cover",
     borderRadius: "50%",
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    },
   },
   description: {
     fontFamily: "'Roboto'",
@@ -88,5 +92,17 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: "12px",
     lineHeight: "13px",
     color: "#54A858",
+  },
+  buttonDekstop: {
+    display: "flex",
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    },
+  },
+  buttonMobile: {
+    display: "none",
+    [theme.breakpoints.down("xs")]: {
+      display: "flex",
+    },
   },
 }));

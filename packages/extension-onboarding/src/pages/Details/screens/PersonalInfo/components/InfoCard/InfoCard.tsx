@@ -26,12 +26,12 @@ const InfoCard: FC<IInfoCardProps> = ({ onEditClick }) => {
   };
   const Item = (label, value) => {
     return (
-      <Grid item sm={6}>
+      <Grid item xs={12} sm={6}>
         <Grid container>
-          <Grid item sm={6}>
+          <Grid item xs={12} sm={6}>
             <Typography className={classes.itemLabel}>{label}</Typography>
           </Grid>
-          <Grid item sm={6}>
+          <Grid item xs={12} sm={6}>
             <Typography className={classes.itemValue}>{value}</Typography>
           </Grid>
         </Grid>

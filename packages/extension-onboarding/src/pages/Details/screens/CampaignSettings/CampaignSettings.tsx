@@ -11,10 +11,10 @@ import Typography from "@extension-onboarding/components/Typography";
 import UnauthScreen from "@extension-onboarding/components/UnauthScreen";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/CampaignSettings/CampaignSettings.style";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 
 const RewardsInfo: FC = () => {
   const navigate = useNavigate();
@@ -110,7 +110,7 @@ const RewardsInfo: FC = () => {
           {campaignContractAddressesWithCID &&
           campaignContractAddressesWithCID.size > 0 ? (
             Array.from(campaignContractAddressesWithCID!.keys()).map((key) => (
-              <Grid item key={key} xs={6}>
+              <Grid item key={key} xs={12} sm={12} md={12} lg={6}>
                 <DefaultCampaignItem
                   navigationPath={EPaths.REWARDS_SUBSCRIPTION_DETAIL}
                   isSubscriptionsPage

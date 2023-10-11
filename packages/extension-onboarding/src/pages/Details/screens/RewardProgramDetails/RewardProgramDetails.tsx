@@ -6,6 +6,7 @@ import {
   Grid,
   Divider,
 } from "@material-ui/core";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
   AccountAddress,
   EarnedReward,
@@ -23,16 +24,24 @@ import {
   Permissions,
   PERMISSIONS_WITH_ICONS,
   UI_SUPPORTED_PERMISSIONS,
+  addQueryStatusToPossibleReward,
+  categorizePossibleRewardsBasedOnStatus,
+  getRewardsAfterRewardsWereDeliveredFromIP,
+  getRewardsBeforeRewardsWereDeliveredFromIP,
+  PossibleRewardWithQueryStatus,
 } from "@snickerdoodlelabs/shared-components";
+import { ResultUtils } from "neverthrow-result-utils";
 import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { useLocation } from "react-router-dom";
 
 import Breadcrumb from "@extension-onboarding/components/Breadcrumb";
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import Description from "@extension-onboarding/components/Description/Description";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import {
@@ -44,17 +53,6 @@ import {
   ProgramRewards,
 } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/RewardProgramDetails.style";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import {
-  addQueryStatusToPossibleReward,
-  categorizePossibleRewardsBasedOnStatus,
-  getRewardsAfterRewardsWereDeliveredFromIP,
-  getRewardsBeforeRewardsWereDeliveredFromIP,
-  PossibleRewardWithQueryStatus,
-} from "@snickerdoodlelabs/shared-components";
-import { ResultUtils } from "neverthrow-result-utils";
-import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
-import Description from "@extension-onboarding/components/Description/Description";
 
 const ManageSettingsButton = withStyles({
   root: {
@@ -379,7 +377,7 @@ const RewardProgramDetails: FC = () => {
         boxShadow="0px 2px 0px rgba(0, 0, 0, 0.016)"
       >
         <Breadcrumb currentPathName={info?.rewardName} />
-        <Box display="flex">
+        <Box display="flex" className={classes.rewardMobile}>
           <Box mr={3}>
             <img src={info?.image} width={160} className={classes.image} />
           </Box>
@@ -387,6 +385,18 @@ const RewardProgramDetails: FC = () => {
             <Typography className={classes.title}>
               {info?.rewardName}
             </Typography>
+          </Box>
+        </Box>
+        <Box display="flex">
+          <Box mr={3} className={classes.rewardDekstop}>
+            <img src={info?.image} width={160} className={classes.image} />
+          </Box>
+          <Box display="flex" flex={1} flexDirection="column">
+            <Box className={classes.rewardDekstop}>
+              <Typography className={classes.title}>
+                {info?.rewardName}
+              </Typography>
+            </Box>
             <Box mt={1.5} mb={4}>
               <Description
                 className={classes.description}
@@ -441,22 +451,29 @@ const RewardProgramDetails: FC = () => {
                   </Typography>
                 )}
               </Box>
-              {isSubscribed && consentPermissions && (
-                <Box
-                  px={1.5}
-                  ml={1.5}
-                  pt={0.75}
-                  py={0.25}
-                  borderRadius={8}
-                  bgcolor="#F6F6F6"
-                >
-                  <Typography className={classes.infoTitle}>
-                    Renting Your
-                  </Typography>
-                  <Permissions permissions={consentPermissions} />
-                </Box>
-              )}
-              <Box display="flex" alignItems="center" marginLeft="auto">
+              <Box className={classes.rentDekstop}>
+                {isSubscribed && consentPermissions && (
+                  <Box
+                    px={1.5}
+                    ml={1.5}
+                    pt={0.75}
+                    py={0.25}
+                    borderRadius={8}
+                    bgcolor="#F6F6F6"
+                  >
+                    <Typography className={classes.infoTitle}>
+                      Renting Your
+                    </Typography>
+                    <Permissions permissions={consentPermissions} />
+                  </Box>
+                )}
+              </Box>
+              <Box
+                display="flex"
+                alignItems="center"
+                marginLeft="auto"
+                className={classes.subscribeButtonDekstop}
+              >
                 {isSubscribed ? (
                   <>
                     {/* <ManageSettingsButton variant="contained">
@@ -484,12 +501,61 @@ const RewardProgramDetails: FC = () => {
                 )}
               </Box>
             </Box>
+            <Box className={classes.rewardTabletMobile}>
+              {isSubscribed && consentPermissions && (
+                <Box
+                  px={1.5}
+                  mt={1.5}
+                  pt={0.75}
+                  py={0.25}
+                  borderRadius={8}
+                  bgcolor="#F6F6F6"
+                >
+                  <Typography className={classes.infoTitle}>
+                    Renting Your
+                  </Typography>
+                  <Permissions permissions={consentPermissions} />
+                </Box>
+              )}
+            </Box>
+            <Box
+              display="flex"
+              alignItems="center"
+              className={classes.subscribeButtonTabletMobile}
+            >
+              {isSubscribed ? (
+                <>
+                  {/* <ManageSettingsButton variant="contained">
+                      Manage Data Permissions
+                    </ManageSettingsButton> */}
+                  <Box ml={2} mr={0.5}>
+                    <img
+                      width={17}
+                      height={13}
+                      src="https://storage.googleapis.com/dw-assets/spa/icons/check-mark.png"
+                    />
+                  </Box>
+                  <Typography className={classes.subscribedText}>
+                    Subscribed
+                  </Typography>
+                </>
+              ) : (
+                <SubscribeButton
+                  ref={saveButtonRef}
+                  onClick={handleSubscribeButton}
+                  variant="contained"
+                  fullWidth
+                >
+                  Subscribe and get your rewards
+                </SubscribeButton>
+              )}
+            </Box>
           </Box>
         </Box>
       </Box>
       <Box px={2.5}>
         <Grid spacing={2} container>
-          <Grid item xs={2}>
+          <Grid item xs={12} sm={4} md={3} lg={2}>
             <Box mt={2.5}>
               <PermissionBar
                 setBirthday={(birthday) =>
@@ -528,7 +594,7 @@ const RewardProgramDetails: FC = () => {
               />
             </Box>
           </Grid>
-          <Grid item xs={10}>
+          <Grid item xs={12} sm={8} md={9} lg={10}>
             <Box mt={2.5}>
               <ProgramRewards
                 consentContractAddress={consentContractAddress}

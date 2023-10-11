@@ -37,6 +37,7 @@ const AccountCardItem: FC<IAccountCardItemProps> = ({
       pl={3.75}
       py={2}
       {...(useBg && { bgcolor: "#F2F2F8" })}
+      className={classes.container}
     >
       <AccountIdentIcon accountAddress={accountAddress} />
       <Typography className={classes.accountAddressText}>

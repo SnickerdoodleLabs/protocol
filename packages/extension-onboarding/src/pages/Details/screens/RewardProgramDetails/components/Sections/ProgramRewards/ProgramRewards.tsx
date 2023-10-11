@@ -94,6 +94,14 @@ const ProgramRewards: FC<IProgramRewardsProps> = ({
             </Typography>
           </Box>
         </Box>
+        <Box ml="auto" className={sectionClasses.displayModeToggleDekstop}>
+          <DisplayModeToggle
+            selectedDisplayMode={displayMode}
+            setDisplayMode={setDisplayMode}
+          />
+        </Box>
+      </Box>
+      <Box mb={4} className={sectionClasses.displayModeToggleTabletMobile}>
         <Box ml="auto">
           <DisplayModeToggle
             selectedDisplayMode={displayMode}
