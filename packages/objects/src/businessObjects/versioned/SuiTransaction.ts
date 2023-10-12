@@ -9,11 +9,14 @@ import { ChainTransaction } from "@objects/businessObjects/versioned/ChainTransa
 import { EChain } from "@objects/enum/index.js";
 import {
   EVMAccountAddress,
+  SuiAccountAddress,
   BigNumberString,
   UnixTimestamp,
   EVMAccountAddressRegex,
   EVMTransactionHash,
   EVMContractAddress,
+  SuiTransactionHash,
+  SuiContractAddress,
 } from "@objects/primitives/index.js";
 
 /**
@@ -23,26 +26,26 @@ import {
  * Docs are here: https://docs.ethers.io/v5/api/utils/transactions/#Transaction
  */
 export class SuiTransaction extends ChainTransaction {
-  public accountAddresses: EVMAccountAddress[]; // null safety necessary for old transactions
+  public accountAddresses: SuiAccountAddress[]; // null safety necessary for old transactions
   public functionSignature: EVMFunctionSignature | null = null;
 
   public constructor(
     public chain: EChain,
-    public hash: EVMTransactionHash,
+    public hash: SuiTransactionHash,
     public timestamp: UnixTimestamp,
     public blockHeight: number | null,
-    public to: EVMAccountAddress | null,
-    public from: EVMAccountAddress | null,
+    public to: SuiAccountAddress | null,
+    public from: SuiAccountAddress | null,
     public value: BigNumberString | null,
     public gasPrice: BigNumberString | null,
-    public contractAddress: EVMContractAddress | null,
+    public contractAddress: SuiContractAddress | null,
     public input: string | null,
     public methodId: string | null,
     public functionName: string | null,
     events: EVMEvent[] | null,
   ) {
     super(chain, hash, timestamp);
-    let addrs = new Set<EVMAccountAddress>();
+    let addrs = new Set<SuiAccountAddress>();
     if (this.to) {
       addrs.add(this.to);
     }
@@ -92,14 +95,14 @@ export class SuiTransaction extends ChainTransaction {
     this.accountAddresses = Array.from(addrs);
   }
 
-  private _getDescendants(obj): Set<EVMAccountAddress> {
-    let result = new Set<EVMAccountAddress>();
+  private _getDescendants(obj): Set<SuiAccountAddress> {
+    let result = new Set<SuiAccountAddress>();
     for (const [key, value] of Object.entries(obj)) {
       if (value && typeof value === "object") {
         result = new Set([...result, ...this._getDescendants(value)]);
       } else {
         if (typeof value === "string" && value.match(EVMAccountAddressRegex)) {
-          result.add(EVMAccountAddress(value));
+          result.add(SuiAccountAddress(value));
         }
       }
     }

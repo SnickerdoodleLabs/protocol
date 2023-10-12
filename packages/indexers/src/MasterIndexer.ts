@@ -129,11 +129,6 @@ export class MasterIndexer implements IMasterIndexer {
     return this.getHealthStatuses().map((healthStatuses) => {
       let supportedChains = new Map<EChain, boolean>();
 
-      healthStatuses.forEach((val, key) => {
-        console.log("healthStatuses val: " + val);
-        console.log("healthStatuses key: " + key);
-      });
-
       // if the method is provided, we need to limit the list of supported chains to those that support the method
       if (method != null) {
         const indexers = [
@@ -184,11 +179,6 @@ export class MasterIndexer implements IMasterIndexer {
           }, new Map<EChain, boolean>());
       }
 
-      supportedChains.forEach((val, key) => {
-        console.log("supported key: " + key);
-        console.log("supported val: " + val);
-      });
-
       const activeChains = new Array<EChain>();
       healthStatuses.forEach((componentStatus, chain) => {
         // Have to filter by the method
@@ -202,7 +192,6 @@ export class MasterIndexer implements IMasterIndexer {
           activeChains.push(chain);
         }
       });
-      console.log("activeChains: " + activeChains);
       return activeChains;
     });
   }
@@ -215,7 +204,6 @@ export class MasterIndexer implements IMasterIndexer {
     PersistenceError | AccountIndexingError | AjaxError | InvalidParametersError
   > {
     const chainInfo = getChainInfoByChain(chain);
-    console.log("chain: " + chain);
     if (chainInfo.chainTechnology == EChainTechnology.Solana) {
       return this.sol
         .getBalancesForAccount(chain, SolanaAccountAddress(accountAddress))
@@ -548,10 +536,6 @@ export class MasterIndexer implements IMasterIndexer {
       indexerStatuses.simulatorIndexer = simHealth;
       indexerStatuses.solanaIndexer = solHealth;
       indexerStatuses.blockvisionIndexer = blockvisionHealth;
-      indexerStatuses.blockvisionIndexer.forEach((val, key) => {
-        console.log("blockvisionHealth val : " + val);
-        console.log("blockvisionHealth key : " + key);
-      });
 
       // The status of each indexer is known, and the chains that those indexers support is known.
       // We need to consolidate the component status for each chain via a group-by.

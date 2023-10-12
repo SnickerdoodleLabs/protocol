@@ -376,9 +376,7 @@ export function isAccountValidForChainId(
   if (chainId === 5) return false;
   const targetChainInfo = getChainInfoByChainId(chainId);
   const accountChainInfo = getChainInfoByChain(account.sourceChain);
-  console.log("targetChainInfo: " + JSON.stringify(targetChainInfo));
-  console.log("accountChainInfo: " + JSON.stringify(accountChainInfo));
-
+  s;
   return targetChainInfo.chainTechnology == accountChainInfo.chainTechnology;
 }
 
@@ -388,8 +386,6 @@ export function isAccountValidForChain(
 ): boolean {
   const targetChainInfo = getChainInfoByChain(chain);
   const accountChainInfo = getChainInfoByChain(account.sourceChain);
-  console.log("targetChainInfo: " + JSON.stringify(targetChainInfo));
-  console.log("accountChainInfo: " + JSON.stringify(accountChainInfo));
   return targetChainInfo.chainTechnology == accountChainInfo.chainTechnology;
 }
 
