@@ -154,15 +154,11 @@ export class DataWalletUtils implements IDataWalletUtils {
         });
     }
     if (chainInfo.chainTechnology == EChainTechnology.Sui) {
-      console.log("Return true for sui");
-      return okAsync(true);
-      // return this.cryptoUtils
-      //   .verifySuiSignature(
-      //     message,
-      //     signature,
-      //     accountAddress as SuiAccountAddress,
-      //   )
-      //   .map(() => true);
+      return this.cryptoUtils.verifySuiSignature(
+        message,
+        signature,
+        accountAddress as SuiAccountAddress,
+      );
     }
     if (chainInfo.chainTechnology == EChainTechnology.Solana) {
       return this.cryptoUtils.verifySolanaSignature(

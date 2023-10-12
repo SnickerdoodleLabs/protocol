@@ -106,10 +106,6 @@ export class BlockvisionIndexer implements ISuiIndexer {
             "0x2::sui::SUI",
           ],
         };
-
-        console.log("url: " + url);
-        console.log("requestParams: " + requestParams);
-
         context.privateEvents.onApiAccessed.next(EExternalApi.Blockvision);
         return this.ajaxUtils.post<IBlockvisionBalancesReponse>(
           new URL(url),
@@ -137,6 +133,7 @@ export class BlockvisionIndexer implements ISuiIndexer {
       });
   }
 
+  // TODO: BLOCKVISION ENTERPRISE ACCESS REQUIRED
   public getTokensForAccount(
     chain: EChain,
     accountAddress: SuiAccountAddress,
@@ -144,6 +141,7 @@ export class BlockvisionIndexer implements ISuiIndexer {
     return okAsync([]);
   }
 
+  // TODO: BLOCKVISION ENTERPRISE ACCESS REQUIRED
   public getSuiTransactions(
     chain: EChain,
     accountAddress: SuiAccountAddress,
