@@ -376,7 +376,6 @@ export function isAccountValidForChainId(
   if (chainId === 5) return false;
   const targetChainInfo = getChainInfoByChainId(chainId);
   const accountChainInfo = getChainInfoByChain(account.sourceChain);
-  s;
   return targetChainInfo.chainTechnology == accountChainInfo.chainTechnology;
 }
 
