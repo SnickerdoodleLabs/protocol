@@ -69,7 +69,6 @@ export class BlockvisionIndexer implements ISuiIndexer {
 
   public initialize(): ResultAsync<void, never> {
     return this.configProvider.getConfig().map((config) => {
-      console.log("config.apiKeys: " + JSON.stringify(config.apiKeys));
       if (
         config.apiKeys.blockvisionKey == "" ||
         config.apiKeys.blockvisionKey == null
