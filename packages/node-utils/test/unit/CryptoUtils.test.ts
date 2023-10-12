@@ -4,6 +4,7 @@ import {
   Signature,
   SolanaAccountAddress,
   SolanaPrivateKey,
+  SuiAccountAddress,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -486,6 +487,38 @@ describe("CryptoUtils tests", () => {
       solanaSignature,
       solanaPublicKey,
     );
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const verified = result._unsafeUnwrap();
+    expect(verified).toBeTruthy();
+  });
+
+  test("verifySuiSignature() works", async () => {
+    // Arrange
+    const mocks = new CryptoUtilsMocks();
+    const utils = mocks.factoryCryptoUtils();
+
+    // This signature was generated from an account with this public key
+    const suiPublicKey = SuiAccountAddress(
+      "0x316a0693b0d900bb34711438b6974ead2c9a93716fd41f8a8377fa3dc5997abd",
+    );
+    const suiSignature = Signature(
+      "8f6d2d8b7844e881c5eadb3901afc0ee35060a0cafac4209c629bae112d9f3b7bf5447becd615d95350f56beef391a755af80ba4f45883f0084242c7f63e8e04",
+    );
+    const message = "I hope sui works";
+
+    console.log("message: " + message);
+
+    // Act
+    const result = await utils.verifySuiSignature(
+      message,
+      suiSignature,
+      suiPublicKey,
+    );
+
+    console.log("result: " + JSON.stringify(result));
 
     // Assert
     expect(result).toBeDefined();

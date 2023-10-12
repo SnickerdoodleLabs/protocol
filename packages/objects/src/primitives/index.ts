@@ -82,10 +82,10 @@ export * from "@objects/primitives/SolanaTokenAddress.js";
 export * from "@objects/primitives/SolanaTransactionSignature.js";
 export * from "@objects/primitives/SubQueryKey.js";
 export * from "@objects/primitives/SuiAccountAddress.js";
-
+export * from "@objects/primitives/SuiContractAddress.js";
 export * from "@objects/primitives/SuiPrivateKey.js";
 export * from "@objects/primitives/SuiTokenAddress.js";
-
+export * from "@objects/primitives/SuiTransactionHash.js";
 export * from "@objects/primitives/TIckerSymbol.js";
 export * from "@objects/primitives/TokenBalanceInsight.js";
 export * from "@objects/primitives/TokenId.js";

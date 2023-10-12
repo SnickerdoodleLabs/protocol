@@ -253,6 +253,8 @@ export class CryptoUtils implements ICryptoUtils {
     message: string | Uint8Array,
     signature: Signature,
   ): ResultAsync<EVMAccountAddress, never> {
+    console.log("message: " + message);
+    console.log("signature: " + signature);
     const address = EVMAccountAddress(
       ethers.utils.verifyMessage(message, signature),
     );
@@ -264,22 +266,23 @@ export class CryptoUtils implements ICryptoUtils {
     signature: Signature,
     accountAddress: SuiAccountAddress,
   ): ResultAsync<boolean, never> {
+    // return okAsync(true);
+    console.log(
+      "Buffer.from(message, utf-8): " + Buffer.from(message, "utf-8"),
+    );
+    console.log(
+      "Buffer.from(signature, hex): " + Buffer.from(signature, "hex"),
+    );
+    console.log("message: " + message);
+    console.log("signature: " + signature);
+
+    console.log("accountAddress: " + accountAddress);
     return okAsync(true);
-    // console.log(
-    //   "Buffer.from(message, utf-8): " + Buffer.from(message, "utf-8"),
-    // );
-    // console.log(
-    //   "Buffer.from(signature, hex): " + Buffer.from(signature, "hex"),
-    // );
-    // console.log(
-    //   "Buffer.from(signature, hex): " + Buffer.from(signature, "hex"),
-    // );
-    // console.log("accountAddress: " + accountAddress);
     // return okAsync(
     //   nacl.sign.detached.verify(
     //     Buffer.from(message, "utf-8"),
     //     Buffer.from(signature, "hex"),
-    //     accountAddress,
+    //     Buffer.from(accountAddress, "utf-8"),
     //   ),
     // );
   }

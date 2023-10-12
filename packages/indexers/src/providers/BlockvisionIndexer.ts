@@ -27,6 +27,7 @@ import {
   URLString,
   DecimalString,
   EVMTransactionHash,
+  SuiTransactionHash,
   SuiAccountAddress,
   SuiNFT,
   SuiTransaction,
@@ -148,7 +149,60 @@ export class BlockvisionIndexer implements ISuiIndexer {
     startTime: Date,
     endTime?: Date | undefined,
   ): ResultAsync<SuiTransaction[], AccountIndexingError | AjaxError> {
-    return okAsync([]);
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+      this.receiveSuiIds(),
+    ])
+      .andThen(([config, context, digests]) => {
+        const url =
+          "https://sui-mainnet.blockvision.org/v1/" +
+          config.apiKeys.blockvisionKey;
+
+        const requestParams = {
+          jsonrpc: "2.0",
+          id: 1,
+          method: "sui_getEvents",
+          params: digests,
+        };
+
+        context.privateEvents.onApiAccessed.next(EExternalApi.Blockvision);
+        return this.ajaxUtils.post<IBlockvisionTransactionReponse>(
+          new URL(url),
+          requestParams,
+          {
+            headers: {
+              "Content-Type": `application/json;`,
+            },
+          },
+        );
+      })
+      .map((response) => {
+        return response.result.map((item) => {
+          return new SuiTransaction(
+            chain,
+            SuiTransactionHash(item.id.txDigest),
+            UnixTimestamp(item.id.eventSeq),
+            null,
+            SuiAccountAddress(item.parsedJson.seller),
+            SuiAccountAddress(item.parsedJson.buyer),
+            BigNumberString(item.parsedJson.price),
+            null,
+            null,
+            item.parsedJson.buyer_kiosk,
+            item.type,
+            null,
+            null,
+          );
+        });
+      });
+  }
+
+  private receiveSuiIds(): ResultAsync<string[], never> {
+    return okAsync([
+      "AHRCgK4P29BboEPoEzLNuQZUXwgPafR9DG4izCkroHUv",
+      "965HckqhcQaJukSG9qQsjgBVPcNiBhFU9EsVcgrLAysv",
+    ]);
   }
 
   public healthStatus(): Map<EChain, EComponentStatus> {
@@ -169,4 +223,34 @@ interface IBlockvisionBalancesReponse {
     totalBalance: BigNumberString;
     lockedBalance: {};
   };
+}
+
+interface IBlockvisionTransactionReponse {
+  jsonrpc: string;
+  result: IBlockvisionTransaction[];
+  id: number;
+}
+
+interface IBlockvisionTransaction {
+  id: {
+    txDigest: string;
+    eventSeq: number;
+  };
+  packageId: string;
+  transactionModule: string;
+  sender: string;
+  type: string;
+  parsedJson: {
+    buyer: EVMAccountAddress;
+    buyer_kiosk: string;
+    ft_type: string;
+    nft: string;
+    nft_type: string;
+    orderbook: string;
+    price: string;
+    seller: string;
+    seller_kiosk: string;
+    trade_intermediate: null;
+  };
+  bcs: string;
 }

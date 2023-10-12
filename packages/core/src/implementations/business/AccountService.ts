@@ -207,12 +207,9 @@ export class AccountService implements IAccountService {
         );
       })
       .andThen(() => {
-        console.log("before get context: ");
         return this.contextProvider.getContext();
       })
       .andThen((context) => {
-        console.log("context: " + context);
-
         if (
           context.dataWalletAddress == null ||
           context.dataWalletKey == null
@@ -223,9 +220,6 @@ export class AccountService implements IAccountService {
             ),
           );
         }
-
-        console.log("accountAddress: " + accountAddress);
-        console.log("chain: " + chain);
 
         // Check if the account is already linked
         return this.accountRepo
@@ -276,12 +270,9 @@ export class AccountService implements IAccountService {
       chain,
     )
       .andThen(() => {
-        console.log("before get context: ");
         return this.contextProvider.getContext();
       })
       .andThen((context) => {
-        console.log("context: " + context);
-
         if (
           context.dataWalletAddress == null ||
           context.dataWalletKey == null
@@ -292,9 +283,6 @@ export class AccountService implements IAccountService {
             ),
           );
         }
-
-        console.log("accountAddress: " + accountAddress);
-        console.log("chain: " + chain);
         // Check if the account is already linked
         return this.accountRepo
           .getLinkedAccount(accountAddress, chain)
