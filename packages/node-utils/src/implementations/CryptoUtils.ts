@@ -264,14 +264,13 @@ export class CryptoUtils implements ICryptoUtils {
     signature: Signature,
     accountAddress: SuiAccountAddress,
   ): ResultAsync<boolean, never> {
-    return okAsync(true);
-    // return okAsync(
-    //   nacl.sign.detached.verify(
-    //     Buffer.from(message, "utf-8"),
-    //     Buffer.from(signature, "hex"),
-    //     accountAddress,
-    //   ),
-    // );
+    return okAsync(
+      nacl.sign.detached.verify(
+        Buffer.from(message, "utf-8"),
+        Buffer.from(signature, "hex"),
+        accountAddress,
+      ),
+    );
   }
 
   public verifySolanaSignature(
