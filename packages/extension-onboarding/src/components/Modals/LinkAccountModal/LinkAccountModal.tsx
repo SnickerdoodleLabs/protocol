@@ -1,9 +1,15 @@
-import { useStyles } from "@extension-onboarding/components/Modals/LinkAccountModal/LinkAccountModal.style";
-import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
 import { Box, Dialog, IconButton, Typography } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import { Button } from "@snickerdoodlelabs/shared-components";
 import React, { FC } from "react";
+
+import { useStyles } from "@extension-onboarding/components/Modals/LinkAccountModal/LinkAccountModal.style";
+import {
+  useAccountLinkingContext,
+  EWalletProviderKit,
+} from "@extension-onboarding/context/AccountLinkingContext";
+
+import "@suiet/wallet-kit/style.css";
 
 interface ILinkAccountModalProps {
   closeModal: () => void;
@@ -11,9 +17,12 @@ interface ILinkAccountModalProps {
 const LinkAccountModal: FC<ILinkAccountModalProps> = ({
   closeModal,
 }: ILinkAccountModalProps) => {
-  const { detectedProviders, unDetectedProviders, onProviderConnectClick } =
-    useAccountLinkingContext();
-
+  const {
+    detectedProviders,
+    unDetectedProviders,
+    onProviderConnectClick,
+    onWalletKitConnectClick,
+  } = useAccountLinkingContext();
   const classes = useStyles();
   return (
     <Dialog
@@ -61,6 +70,33 @@ const LinkAccountModal: FC<ILinkAccountModalProps> = ({
             </Box>
           </Box>
         ))}
+        <Box
+          mt={4}
+          display="flex"
+          alignItems="center"
+          border="1px solid #D9D9D9"
+          p={3}
+          borderRadius={12}
+        >
+          <img
+            width={40}
+            src="https://framerusercontent.com/images/eDZRos3xvCrlWxmLFr72sFtiyQ.png?scale-down-to=512"
+          />
+          <Box ml={3}>
+            <Typography className={classes.label}>Suiet Kit</Typography>
+          </Box>
+          <Box display="flex" marginLeft="auto">
+            <Button
+              buttonType="secondary"
+              onClick={() => {
+                onWalletKitConnectClick(EWalletProviderKit.SUI);
+                closeModal();
+              }}
+            >
+              Link Account
+            </Button>
+          </Box>
+        </Box>
         <Box mt={4}>
           <Typography className={classes.description}>
             By linking a crypto account you are giving permission for the use of

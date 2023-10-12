@@ -193,6 +193,8 @@ export class DataWalletProfile {
         ankrApiKey:
           "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
         bluezApiKey: "aed4aab2cbc573bbf8e7c6b448c916e5",
+        spaceAndTimeKey: "",
+        blockvisionKey: "2WZR8yswGqdTwUkN973939WYAKv",
         nftScanApiKey: "lusr87vNmTtHGMmktlFyi4Nt",
         oklinkApiKey: "700c2f71-a4e2-4a85-b87f-58c8a341d1bf",
       } as IConfigOverrides,
@@ -345,8 +347,8 @@ export class DataWalletProfile {
               evmT.hash,
               evmT.timestamp,
               evmT.blockHeight,
-              EVMAccountAddress(evmT.to),
-              EVMAccountAddress(evmT.from),
+              EVMAccountAddress(evmT.to.toLowerCase()),
+              EVMAccountAddress(evmT.from.toLowerCase()),
               evmT.value ? BigNumberString(evmT.value) : null,
               evmT.gasPrice ? BigNumberString(evmT.gasPrice) : null,
               evmT.contractAddress
@@ -487,7 +489,7 @@ export class DataWalletProfile {
     wallet: TestWallet,
   ): ResultAsync<Signature, UnsupportedLanguageError | UnauthorizedError> {
     return this.core.account
-      .getLinkAccountMessage(this.mocks.languageCode)
+      .getLinkAccountMessage(this.mocks.languageCode, undefined)
       .andThen((message) => {
         return wallet.signMessage(message);
       });

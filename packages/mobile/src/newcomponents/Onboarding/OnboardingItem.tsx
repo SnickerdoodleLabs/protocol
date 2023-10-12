@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,12 +8,12 @@ import {
   Dimensions,
   Platform,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import { ScrollView } from "react-native-gesture-handler";
+import Icon from "react-native-vector-icons/Ionicons";
+
+import { useTheme } from "../../context/ThemeContext";
 import { normalizeWidth, normalizeHeight } from "../../themes/Metrics";
 import VideoPlayer from "../VideoPlayer";
-import Icon from "react-native-vector-icons/Ionicons";
-import { ScrollView } from "react-native-gesture-handler";
-import { useTheme } from "../../context/ThemeContext";
 
 interface OnboardingItemProps {
   item: {

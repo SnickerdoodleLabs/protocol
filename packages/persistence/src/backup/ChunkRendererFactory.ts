@@ -22,10 +22,6 @@ export class ChunkRendererFactory implements IChunkRendererFactory {
   public createChunkRenderer(
     schema: VolatileTableIndex<VersionedObject> | FieldIndex,
   ): IChunkRenderer {
-    return new ChunkRenderer(
-      schema,
-      this.backupUtils,
-      this.timeUtils,
-    );
+    return new ChunkRenderer(schema, this.backupUtils, this.timeUtils);
   }
 }

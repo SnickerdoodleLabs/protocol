@@ -1,4 +1,5 @@
 import { Dialog } from "@material-ui/core";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ESocialType,
   EVMContractAddress,
@@ -8,12 +9,18 @@ import {
   QueryStatus,
 } from "@snickerdoodlelabs/objects";
 import { PermissionSelection } from "@snickerdoodlelabs/shared-components";
+import {
+  addQueryStatusToPossibleReward,
+  PossibleRewardWithQueryStatus,
+} from "@snickerdoodlelabs/shared-components";
+import { ResultUtils } from "neverthrow-result-utils";
 import React, { FC, useEffect, useState } from "react";
 
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import { useStyles } from "@extension-onboarding/components/Modals/PermissionSelectionModal/PermissionSelectionModal.style";
 import { PERMISSIONS_WITH_ICONS } from "@extension-onboarding/constants/permissions";
 import { useAppContext, EAppModes } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import {
@@ -24,10 +31,6 @@ import {
   DiscordProvider,
   TwitterProvider,
 } from "@extension-onboarding/services/socialMediaProviders/implementations";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { addQueryStatusToPossibleReward, PossibleRewardWithQueryStatus } from "@snickerdoodlelabs/shared-components";
-import { ResultUtils } from "neverthrow-result-utils";
-import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 
 const PermissionSelectionModalV2: FC = () => {
   const { modalState, closeModal, setModal, setLoadingStatus } =
@@ -54,8 +57,8 @@ const PermissionSelectionModalV2: FC = () => {
     }" data has successfully saved`;
   };
 
-  const [possibleRewardWithQueryStatus, setPossibleRewardWithQueryStatus] = useState<PossibleRewardWithQueryStatus[]>([]);
-
+  const [possibleRewardWithQueryStatus, setPossibleRewardWithQueryStatus] =
+    useState<PossibleRewardWithQueryStatus[]>([]);
 
   const handleSocialLink = async (socialType: ESocialType) => {
     const twitterProvider = socialMediaProviderList.find(
@@ -113,9 +116,6 @@ const PermissionSelectionModalV2: FC = () => {
   const getQueryStatuses = () => {
     return sdlDataWallet?.getQueryStatuses?.(consentContractAddress);
   };
-
-
-
 
   const classes = useStyles();
   return (

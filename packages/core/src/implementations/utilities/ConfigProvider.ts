@@ -133,6 +133,8 @@ export class ConfigProvider
         oklinkApiKey: null, // "700c2f71-a4e2-4a85-b87f-58c8a341d1bf", // oklinkApiKeys
         ankrApiKey: null, // ankrApiKey
         bluezApiKey: null, // bluezApiKey
+        spaceAndTimeKey: null, // spaceAndTimeKey
+        blockvisionKey: null, // blockvisionKey
         primaryInfuraKey: null, // primary Infura Key
         primaryRPCProviderURL: null,
         secondaryInfuraKey: null, // secondaryInfuraKey
@@ -175,6 +177,7 @@ export class ConfigProvider
       null, // devChainProviderURL, Defaults to null but will be set if the control chain is Doodlechain
       60 * 60 * 6, // maxStatsRetentionSeconds 6 hours
       LanguageCode("en"), // passwordLanguageCode
+      100, // sets the size for query performance events, e.g. how many errors and durations will be stored, main metric object will not be effected
     );
   }
 
@@ -322,6 +325,11 @@ export class ConfigProvider
     this.config.apiKeys.bluezApiKey =
       overrides.bluezApiKey ?? this.config.apiKeys.bluezApiKey;
 
+    this.config.apiKeys.spaceAndTimeKey =
+      overrides.spaceAndTimeKey ?? this.config.apiKeys.spaceAndTimeKey;
+    this.config.apiKeys.blockvisionKey =
+      overrides.blockvisionKey ?? this.config.apiKeys.blockvisionKey;
+
     this.config.dnsServerAddress =
       overrides.dnsServerAddress ?? this.config.dnsServerAddress;
     this.config.dataWalletBackupIntervalMS =
@@ -346,5 +354,8 @@ export class ConfigProvider
     };
     this.config.heartbeatIntervalMS =
       overrides.heartbeatIntervalMS ?? this.config.heartbeatIntervalMS;
+    this.config.queryPerformanceMetricsLimit =
+      overrides.queryPerformanceMetricsLimit ??
+      this.config.queryPerformanceMetricsLimit;
   }
 }

@@ -1,5 +1,5 @@
 import {
-  IConfigOverrides,
+  IWebIntegrationConfigOverrides,
   ProxyError,
   URLString,
 } from "@snickerdoodlelabs/objects";
@@ -10,7 +10,7 @@ import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/ISn
 export interface IIFrameProxyFactory {
   createProxy(
     iframeUrl: URLString,
-    configOverrides: IConfigOverrides,
+    configOverrides: IWebIntegrationConfigOverrides,
   ): ResultAsync<ISnickerdoodleIFrameProxy, ProxyError>;
 }
 

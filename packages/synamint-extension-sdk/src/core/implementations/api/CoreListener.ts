@@ -103,6 +103,7 @@ export class CoreListener implements ICoreListener {
 
   private onAccountAdded(account: LinkedAccount): void {
     this.contextProvider.onAccountAdded(account);
+    console.log("account: " + JSON.stringify(account));
     console.log(`Extension: account ${account.sourceAccountAddress} added`);
   }
 

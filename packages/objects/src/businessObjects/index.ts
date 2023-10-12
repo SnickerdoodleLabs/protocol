@@ -35,6 +35,7 @@ export * from "@objects/businessObjects/ParsedBackupFileName.js";
 export * from "@objects/businessObjects/PortfolioUpdate.js";
 export * from "@objects/businessObjects/RequestForData.js";
 export * from "@objects/businessObjects/QueryDeliveryItems.js";
+export * from "@objects/businessObjects/QueryPerformanceMetrics.js";
 export * from "@objects/businessObjects/Reward.js";
 export * from "@objects/businessObjects/RSAKeyPair.js";
 export * from "@objects/businessObjects/RuntimeMetrics.js";
@@ -45,6 +46,9 @@ export * from "@objects/businessObjects/SiteVisitsData.js";
 export * from "@objects/businessObjects/SiteVisitsMap.js";
 export * from "@objects/businessObjects/SolanaNFT.js";
 export * from "@objects/businessObjects/StatSummary.js";
+
+export * from "@objects/businessObjects/SuiNFT.js";
+
 export * from "@objects/businessObjects/TokenAddress.js";
 export * from "@objects/businessObjects/TokenAndSecret.js";
 export * from "@objects/businessObjects/TokenBalance.js";

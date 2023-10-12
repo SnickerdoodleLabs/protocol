@@ -6,8 +6,8 @@ import React, { FC, useEffect, useState } from "react";
 import Typography from "@extension-onboarding/components/Typography";
 import WalletProviders from "@extension-onboarding/components/WalletProviders";
 import { useAppContext } from "@extension-onboarding/context/App";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/OnChainIfo/OnChainInfo.style";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/OnChainIfo/OnChainInfo.style";
 const OnChainInfo: FC = () => {
   const classes = useStyles();
   const { sdlDataWallet } = useDataWalletContext();

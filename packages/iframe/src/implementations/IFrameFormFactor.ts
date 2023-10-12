@@ -24,7 +24,8 @@ import {
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
+import { ChildAPI } from "postmate";
 
 import { iframeModule } from "@core-iframe/IFrameModule";
 import {
@@ -32,10 +33,17 @@ import {
   ICoreListenerType,
 } from "@core-iframe/interfaces/api/index";
 import {
+  IFrameConfig,
+  IFrameControlConfig,
+  IFrameEvents,
+} from "@core-iframe/interfaces/objects";
+import {
   IConfigProvider,
   IConfigProviderType,
   ICoreProvider,
   ICoreProviderType,
+  IIFrameContextProvider,
+  IIFrameContextProviderType,
 } from "@core-iframe/interfaces/utilities/index";
 
 export class IFrameFormFactor {
@@ -46,7 +54,16 @@ export class IFrameFormFactor {
     this.iocContainer.load(...[iframeModule]);
   }
 
-  public initialize(): ResultAsync<void, Error> {
+  public initialize(): ResultAsync<
+    {
+      core: ISnickerdoodleCore;
+      childApi: ChildAPI;
+      iframeEvents: IFrameEvents;
+      config: IFrameControlConfig;
+      coreConfig: IFrameConfig;
+    },
+    Error
+  > {
     const coreListener =
       this.iocContainer.get<ICoreListener>(ICoreListenerType);
     const coreProvider =
@@ -55,36 +72,45 @@ export class IFrameFormFactor {
     const configProvider =
       this.iocContainer.get<IConfigProvider>(IConfigProviderType);
     const logUtils = this.iocContainer.get<ILogUtils>(ILogUtilsType);
+    const contextProvider = this.iocContainer.get<IIFrameContextProvider>(
+      IIFrameContextProviderType,
+    );
 
     logUtils.log("Initializing Iframe Form Factor");
 
-    return coreListener
-      .activateModel()
-      .andThen(() => {
-        return coreProvider.getCore();
-      })
-      .andThen((core) => {
-        return core.getEvents().andThen((events) => {
-          // Subscribe to onQueryPosted and approve all incoming queries
-          events.onQueryPosted.subscribe((request) => {
-            this.respondToQuery(request, core, logUtils);
-          });
+    return coreListener.activateModel().andThen((childApi) => {
+      return coreProvider.getCore().andThen((core) => {
+        return core
+          .getEvents()
+          .andThen((events) => {
+            // Subscribe to onQueryPosted and approve all incoming queries
+            events.onQueryPosted.subscribe((request) => {
+              this.respondToQuery(request, core, logUtils);
+            });
 
-          // We want to record the sourceDomain as a site visit
-          const now = timeUtils.getUnixNow();
-          const config = configProvider.getConfig();
-          return core.addSiteVisits([
-            new SiteVisit(
-              URLString(config.sourceDomain), // We can't get the full URL, but the domain will suffice
-              now, // Visit started now
-              UnixTimestamp(now + 10), // We're not going to wait, so just record the visit as for 10 seconds
-            ),
-          ]);
-        });
-      })
-      .map(() => {
-        logUtils.log("Snickerdoodle Core CoreListener initialized");
+            // We want to record the sourceDomain as a site visit
+            const now = timeUtils.getUnixNow();
+            const config = configProvider.getConfig();
+            return core.addSiteVisits([
+              new SiteVisit(
+                URLString(config.sourceDomain), // We can't get the full URL, but the domain will suffice
+                now, // Visit started now
+                UnixTimestamp(now + 10), // We're not going to wait, so just record the visit as for 10 seconds
+              ),
+            ]);
+          })
+          .map(() => {
+            logUtils.log("Snickerdoodle Core CoreListener initialized");
+            return {
+              core,
+              childApi,
+              iframeEvents: contextProvider.getEvents(),
+              config: contextProvider.getConfig(),
+              coreConfig: configProvider.getConfig(),
+            };
+          });
       });
+    });
   }
 
   protected respondToQuery(

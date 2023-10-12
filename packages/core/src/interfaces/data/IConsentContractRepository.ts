@@ -15,7 +15,6 @@ import {
   URLString,
   IpfsCID,
   Signature,
-  OptInInfo,
   TokenUri,
   IConsentCapacity,
   BlockNumber,
@@ -68,7 +67,8 @@ export interface IConsentContractRepository {
   >;
 
   getConsentToken(
-    optInInfo: OptInInfo,
+    consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
   ): ResultAsync<
     ConsentToken | null,
     | ConsentContractError

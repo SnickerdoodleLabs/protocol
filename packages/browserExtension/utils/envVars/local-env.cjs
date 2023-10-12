@@ -36,6 +36,9 @@ const envVars = {
   __OKLINK_API_KEY__: "",
   __ANKR_API_KEY__: "",
   __BLUEZ_API_KEY__: "",
+  __SPACEANDTIME_API_KEY__: "",
+  __BLOCKVISION_API_KEY__: "",
+
   __PRIMARY_INFURA_KEY__: "a8ae124ed6aa44bb97a7166cda30f1bc",
   __SECONDARY_INFURA_KEY__: "",
   __DNS_SERVER_ADDRESS__: "",

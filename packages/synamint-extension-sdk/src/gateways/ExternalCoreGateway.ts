@@ -1,4 +1,8 @@
 import "reflect-metadata";
+import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
 import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
   AccountAddress,
@@ -47,9 +51,15 @@ import {
   PEMEncodedRSAPublicKey,
   JsonWebToken,
   QueryStatus,
-  AccessToken,
   ECloudStorageType,
   OAuth2Tokens,
+  IProxyAccountMethods,
+  LanguageCode,
+  EChain,
+  Signature,
+  ChainTransaction,
+  TransactionFilter,
+  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -68,12 +78,10 @@ import {
   SetGenderParams,
   SetGivenNameParams,
   SetLocationParams,
-  CheckURLParams,
   AcceptInvitationByUUIDParams,
   GetAgreementPermissionsParams,
   SetDefaultPermissionsWithDataTypesParams,
   SetApplyDefaultPermissionsParams,
-  ScamFilterSettingsParams,
   GetConsentContractCIDParams,
   CheckInvitationStatusParams,
   GetTokenPriceParams,
@@ -82,9 +90,7 @@ import {
   SetDefaultReceivingAddressParams,
   SetReceivingAddressParams,
   GetReceivingAddressParams,
-  IScamFilterPreferences,
   IExternalState,
-  UnlockParams,
   AddAccountParams,
   UnlinkAccountParams,
   GetSiteVisitsMapParams,
@@ -105,7 +111,6 @@ import {
   GetAccountsParams,
   GetApplyDefaultPermissionsOptionParams,
   GetAcceptedInvitationsCIDParams,
-  GetScamFilterSettingsParams,
   SetDefaultPermissionsToAllParams,
   GetDefaultPermissionsParams,
   GetAvailableInvitationsCIDParams,
@@ -139,10 +144,15 @@ import {
   RejectInvitationParams,
   RejectInvitationByUUIDParams,
   GetQueryStatusesParams,
+  AddAccountWithExternalSignatureParams,
+  AddAccountWithExternalTypedDataSignatureParams,
+  GetTransactionsParams,
+  GetTransactionValueByChainParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
 export class ExternalCoreGateway {
+  public account: IProxyAccountMethods;
   public discord: IProxyDiscordMethods;
   public integration: IProxyIntegrationMethods;
   public metrics: IProxyMetricsMethods;
@@ -150,6 +160,70 @@ export class ExternalCoreGateway {
   protected _handler: CoreHandler;
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
+
+    this.account = {
+      addAccount: (
+        accountAddress: AccountAddress,
+        signature: Signature,
+        languageCode: LanguageCode,
+        chain: EChain,
+      ): ResultAsync<void, ProxyError> => {
+        return this._handler.call(
+          new AddAccountParams(accountAddress, signature, chain, languageCode),
+        );
+      },
+
+      addAccountWithExternalSignature: (
+        accountAddress: AccountAddress,
+        message: string,
+        signature: Signature,
+        chain: EChain,
+      ): ResultAsync<void, ProxyError> => {
+        return this._handler.call(
+          new AddAccountWithExternalSignatureParams(
+            accountAddress,
+            message,
+            signature,
+            chain,
+          ),
+        );
+      },
+      addAccountWithExternalTypedDataSignature: (
+        accountAddress: AccountAddress,
+        domain: TypedDataDomain,
+        types: Record<string, Array<TypedDataField>>,
+        value: Record<string, unknown>,
+        signature: Signature,
+        chain: EChain,
+      ): ResultAsync<void, ProxyError> => {
+        return this._handler.call(
+          new AddAccountWithExternalTypedDataSignatureParams(
+            accountAddress,
+            domain,
+            types,
+            value,
+            signature,
+            chain,
+          ),
+        );
+      },
+      unlinkAccount: (
+        accountAddress: AccountAddress,
+        chain: EChain,
+      ): ResultAsync<void, ProxyError> => {
+        return this._handler.call(
+          new UnlinkAccountParams(accountAddress, chain),
+        );
+      },
+      getLinkAccountMessage: (
+        languageCode: LanguageCode,
+      ): ResultAsync<string, ProxyError> => {
+        return this._handler.call(new GetUnlockMessageParams(languageCode));
+      },
+      getAccounts: (): ResultAsync<LinkedAccount[], ProxyError> => {
+        return this._handler.call(new GetAccountsParams());
+      },
+    };
 
     this.discord = {
       initializeUserWithAuthorizationCode: (
@@ -287,19 +361,6 @@ export class ExternalCoreGateway {
     return this._handler.call(new SetDefaultPermissionsToAllParams());
   }
 
-  public getScamFilterSettings(): ResultAsync<
-    IScamFilterPreferences,
-    ProxyError
-  > {
-    return this._handler.call(new GetScamFilterSettingsParams());
-  }
-
-  public setScamFilterSettings(
-    params: ScamFilterSettingsParams,
-  ): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
-  }
-
   public rejectInvitationByUUID(
     params: RejectInvitationByUUIDParams,
   ): ResultAsync<void, ProxyError> {
@@ -333,20 +394,6 @@ export class ExternalCoreGateway {
     return this._handler.call(params);
   }
 
-  public addAccount(params: AddAccountParams): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
-  }
-
-  public unlinkAccount(
-    params: UnlinkAccountParams,
-  ): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
-  }
-  public getLinkAccountMessage(
-    params: GetUnlockMessageParams,
-  ): ResultAsync<string, ProxyError> {
-    return this._handler.call(params);
-  }
   public getApplyDefaultPermissionsOption(): ResultAsync<boolean, ProxyError> {
     return this._handler.call(new GetApplyDefaultPermissionsOptionParams());
   }
@@ -355,9 +402,7 @@ export class ExternalCoreGateway {
   ): ResultAsync<void, ProxyError> {
     return this._handler.call(params);
   }
-  public getAccounts(): ResultAsync<LinkedAccount[], ProxyError> {
-    return this._handler.call(new GetAccountsParams());
-  }
+
   public getAccountBalances(): ResultAsync<TokenBalance[], ProxyError> {
     return this._handler.call(new GetAccountBalancesParams());
   }
@@ -380,6 +425,18 @@ export class ExternalCoreGateway {
   }
   public getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError> {
     return this._handler.call(new GetAccountNFTsParams());
+  }
+
+  public getTransactions(
+    params: GetTransactionsParams,
+  ): ResultAsync<ChainTransaction[], ProxyError> {
+    return this._handler.call(params);
+  }
+  public getTransactionValueByChain(): ResultAsync<
+    TransactionPaymentCounter[],
+    ProxyError
+  > {
+    return this._handler.call(new GetTransactionValueByChainParams());
   }
 
   public setFamilyName(
@@ -437,9 +494,6 @@ export class ExternalCoreGateway {
     ProxyError
   > {
     return this._handler.call(new GetDataWalletAddressParams());
-  }
-  public checkURL(params: CheckURLParams): ResultAsync<string, ProxyError> {
-    return this._handler.call(params);
   }
 
   public checkInvitationStatus(

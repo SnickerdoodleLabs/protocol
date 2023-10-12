@@ -6,11 +6,7 @@ import {
   LinkedAccount,
   NativeCurrencyInformation,
 } from "@objects/businessObjects";
-import {
-  EChain,
-  EChainTechnology,
-  EChainType,
-} from "@objects/enum/index.js";
+import { EChain, EChainTechnology, EChainType } from "@objects/enum/index.js";
 import { AccountIndexingError } from "@objects/errors/index.js";
 import {
   ChainId,
@@ -40,7 +36,6 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EVMContractAddress("0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"), // Consent Contract Factory
       EVMContractAddress("0x610178dA211FEF7D417bC0e6FeD39F05609AD788"), // Crumbs Contract
       EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"), // Metatransaction Forwarder Contract
-      EVMContractAddress("0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e"), // Sift Contract
     ),
   ],
   [
@@ -160,7 +155,6 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EVMContractAddress("0x5540122e78241679Da8d07A04A74D3a7f52aED97"), // Consent Contract Factory
       EVMContractAddress("0x49a04d6545b1511742033b0ddF6a2Ba880A69287"), // Crumbs Contract
       EVMContractAddress("0xdB5c885944d903Ac5c146eef400D2ee20572d357"), // Metatransaction Forwarder Contract
-      EVMContractAddress("0x1007D88962A3c0c4A11649480168B6456355d91a"), // Sift Contract
       URLString("https://api-testnet.snowtrace.io/"),
     ),
   ],
@@ -229,9 +223,26 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       10000, // average block mining time
       new NativeCurrencyInformation("BNB", 18, "BNB", "binancecoin"),
       EChainType.Mainnet,
-      "https://api.bscscan.com/api",
+      "https://bscscan.com/",
       getExplorerUrl,
-      URLString("https://api.bscscan.com/"),
+      URLString("https://bscscan.com/"),
+    ),
+  ],
+  [
+    EChain.BinanceTestnet,
+    new ChainInformation(
+      "BinanceTestnet",
+      ChainId(EChain.BinanceTestnet),
+      EChain.BinanceTestnet,
+      EChainTechnology.EVM,
+      true,
+      "binance",
+      10000, // average block mining time
+      new NativeCurrencyInformation("BNB", 18, "BNB", "binancecoin"),
+      EChainType.Testnet,
+      "https://testnet.bscscan.com/",
+      getExplorerUrl,
+      URLString("https://testnet.bscscan.com/"),
     ),
   ],
   [
@@ -261,11 +272,11 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       true,
       "arbitrum",
       10000, // average block mining time
-      new NativeCurrencyInformation("ARB", 18, "ARB", "arbitrum"),
+      new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
       EChainType.Mainnet,
       "https://api.arbiscan.io/api",
       getExplorerUrl,
-      URLString("https://api.arbiscan.io/"),
+      URLString("https://arbiscan.io/"),
     ),
   ],
   [
@@ -300,6 +311,23 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       "https://astar.subscan.io/api",
       getExplorerUrl,
       URLString("https://astar.subscan.io/"),
+    ),
+  ],
+  [
+    EChain.Sui,
+    new ChainInformation(
+      "Sui",
+      ChainId(EChain.Sui),
+      EChain.Sui,
+      EChainTechnology.Sui,
+      true,
+      "sui",
+      10000, // average block mining time
+      new NativeCurrencyInformation("SUI", 9, "SUI", "sui"),
+      EChainType.Mainnet,
+      "https://suiexplorer.com/",
+      getExplorerUrl,
+      URLString("https://suiscan.xyz/"),
     ),
   ],
   [
@@ -348,6 +376,9 @@ export function isAccountValidForChainId(
   if (chainId === 5) return false;
   const targetChainInfo = getChainInfoByChainId(chainId);
   const accountChainInfo = getChainInfoByChain(account.sourceChain);
+  console.log("targetChainInfo: " + JSON.stringify(targetChainInfo));
+  console.log("accountChainInfo: " + JSON.stringify(accountChainInfo));
+
   return targetChainInfo.chainTechnology == accountChainInfo.chainTechnology;
 }
 
@@ -357,6 +388,8 @@ export function isAccountValidForChain(
 ): boolean {
   const targetChainInfo = getChainInfoByChain(chain);
   const accountChainInfo = getChainInfoByChain(account.sourceChain);
+  console.log("targetChainInfo: " + JSON.stringify(targetChainInfo));
+  console.log("accountChainInfo: " + JSON.stringify(accountChainInfo));
   return targetChainInfo.chainTechnology == accountChainInfo.chainTechnology;
 }
 

@@ -38,6 +38,12 @@ export class PhantomWalletProvider implements IWalletProvider {
   constructor() {
     // @ts-ignore
     this._provider = window?.solana?.isPhantom && window.solana;
+
+    if (this._provider !== null) {
+      console.log("Phantom provider: " + JSON.stringify(this._provider));
+    } else {
+      console.log("Phantom provider is null: " + this._provider);
+    }
   }
 
   public get isInstalled(): boolean {
@@ -47,6 +53,13 @@ export class PhantomWalletProvider implements IWalletProvider {
     if (!this._provider) {
       return errAsync(new Error("Phantom is not installed!"));
     }
+
+    if (this._provider !== null) {
+      console.log("Phantom provider: " + JSON.stringify(this._provider));
+    } else {
+      console.log("Phantom provider is null: " + this._provider);
+    }
+
     return ResultAsync.fromPromise(
       this._provider.connect() as Promise<{ publicKey: PublicKey }>,
       (e) => errAsync(new Error("User cancelled")),
@@ -59,12 +72,19 @@ export class PhantomWalletProvider implements IWalletProvider {
     if (!this._provider) {
       return errAsync("Should call connect() first.");
     }
+
     const encodedMessage = new TextEncoder().encode(message);
     return ResultAsync.fromPromise(
       // @ts-ignore
       this._provider.signMessage(encodedMessage),
       (e) => errAsync(new Error("User cancelled")),
     ).andThen((signatureResult) => {
+      if (this._provider !== null) {
+        console.log("Phantom provider: " + JSON.stringify(this._provider));
+      } else {
+        console.log("Phantom provider is null: " + this._provider);
+      }
+
       return okAsync(Signature(signatureResult?.signature?.toString?.("hex")));
     });
   }

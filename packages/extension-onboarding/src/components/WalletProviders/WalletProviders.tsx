@@ -4,7 +4,11 @@ import React, { FC, memo } from "react";
 import WalletProviderItem from "@extension-onboarding/components/WalletProviders/WalletProviderItem";
 import { useStyles } from "@extension-onboarding/components/WalletProviders/WalletProviders.style";
 import { EWalletProviderKeys } from "@extension-onboarding/constants";
-import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
+import {
+  useAccountLinkingContext,
+  EWalletProviderKit,
+} from "@extension-onboarding/context/AccountLinkingContext";
+import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
 
 const WalletProviders: FC = () => {
   const classes = useStyles();
@@ -13,6 +17,7 @@ const WalletProviders: FC = () => {
     unDetectedProviders,
     walletConnect,
     onProviderConnectClick,
+    onWalletKitConnectClick,
   } = useAccountLinkingContext();
 
   return (
@@ -31,6 +36,20 @@ const WalletProviders: FC = () => {
             />
           </Grid>
         ))}
+        <Grid item xs={3}>
+          <WalletProviderItem
+            onConnectClick={() => {
+              onWalletKitConnectClick(EWalletProviderKit.SUI);
+            }}
+            provider={{
+              name: "Suiet Kit",
+              icon: "https://framerusercontent.com/images/eDZRos3xvCrlWxmLFr72sFtiyQ.png?scale-down-to=512",
+              key: "SUI" as EWalletProviderKeys,
+              provider: { isInstalled: true } as IWalletProvider,
+              installationUrl: "",
+            }}
+          />
+        </Grid>
         {unDetectedProviders.map((provider) => (
           <Grid item xs={3} key={provider.key}>
             <WalletProviderItem

@@ -86,6 +86,9 @@ export class MonitoringService implements IMonitoringService {
                   return okAsync([]);
                 }
 
+                console.log(
+                  "Getting getLatestTransactionForAccount for chain: " + chain,
+                );
                 return this.transactionRepo
                   .getLatestTransactionForAccount(
                     chain,

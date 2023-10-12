@@ -1,4 +1,8 @@
 import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
+import {
   AccountAddress,
   EarnedReward,
   EChain,
@@ -12,15 +16,25 @@ import {
   QueryStatus,
   EVMContractAddress,
   BlockNumber,
+  DomainName,
+  ISnickerdoodleCore,
+  ISnickerdoodleCoreType,
+  ChainTransaction,
+  TransactionFilter,
+  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 
 import { IAccountService } from "@synamint-extension-sdk/core/interfaces/business";
 import {
   IAccountRepository,
   IAccountRepositoryType,
 } from "@synamint-extension-sdk/core/interfaces/data";
+import {
+  IErrorUtils,
+  IErrorUtilsType,
+} from "@synamint-extension-sdk/core/interfaces/utilities";
 import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -28,6 +42,8 @@ export class AccountService implements IAccountService {
   constructor(
     @inject(IAccountRepositoryType)
     protected accountRepository: IAccountRepository,
+    @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
+    @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
   ) {}
   getQueryStatusByQueryCID(
     queryCID: IpfsCID,
@@ -38,8 +54,11 @@ export class AccountService implements IAccountService {
   getQueryStatuses(
     contractAddress: EVMContractAddress,
     blockNumber?: BlockNumber,
-  ): ResultAsync<QueryStatus[], SnickerDoodleCoreError>{
-    return this.accountRepository.getQueryStatuses(contractAddress , blockNumber);
+  ): ResultAsync<QueryStatus[], SnickerDoodleCoreError> {
+    return this.accountRepository.getQueryStatuses(
+      contractAddress,
+      blockNumber,
+    );
   }
 
   public getEarnedRewards(): ResultAsync<
@@ -49,8 +68,10 @@ export class AccountService implements IAccountService {
     return this.accountRepository.getEarnedRewards();
   }
 
-  public getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {
-    return this.accountRepository.getAccounts();
+  public getAccounts(
+    sourceDomain?: DomainName,
+  ): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {
+    return this.accountRepository.getAccounts(sourceDomain);
   }
 
   public getAccountBalances(): ResultAsync<
@@ -69,19 +90,95 @@ export class AccountService implements IAccountService {
     signature: Signature,
     chain: EChain,
     languageCode: LanguageCode,
+    sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.accountRepository.addAccount(
       account,
       signature,
       chain,
       languageCode,
+      sourceDomain,
     );
+  }
+
+  public getTransactions(
+    filter?: TransactionFilter,
+    sourceDomain?: DomainName,
+  ): ResultAsync<ChainTransaction[], SnickerDoodleCoreError> {
+    return this.accountRepository.getTransactions(filter, sourceDomain);
+  }
+  public getTransactionValueByChain(
+    sourceDomain?: DomainName,
+  ): ResultAsync<TransactionPaymentCounter[], SnickerDoodleCoreError> {
+    return this.accountRepository.getTransactionValueByChain(sourceDomain);
+  }
+
+  // NOTE: I did this one without the AccountRepository, because
+  // that layer is not needed- we don't need to wrap access to the core,
+  // it is effectively a repository by itself. I had wanted to refactor
+  // this whole file for a while.
+  public addAccountWithExternalSignature(
+    accountAddress: AccountAddress,
+    message: string,
+    signature: Signature,
+    chain: EChain,
+    sourceDomain?: DomainName,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.core.account
+      .addAccountWithExternalSignature(
+        accountAddress,
+        message,
+        signature,
+        chain,
+        sourceDomain,
+      )
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      })
+      .orElse((error) => {
+        this.errorUtils.emit(error);
+        return okAsync(undefined);
+      });
+  }
+
+  public addAccountWithExternalTypedDataSignature(
+    accountAddress: AccountAddress,
+    domain: TypedDataDomain,
+    types: Record<string, Array<TypedDataField>>,
+    value: Record<string, unknown>,
+    signature: Signature,
+    chain: EChain,
+    sourceDomain?: DomainName,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.core.account
+      .addAccountWithExternalTypedDataSignature(
+        accountAddress,
+        domain,
+        types,
+        value,
+        signature,
+        chain,
+        sourceDomain,
+      )
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      })
+      .orElse((error) => {
+        this.errorUtils.emit(error);
+        return okAsync(undefined);
+      });
   }
 
   public getLinkAccountMessage(
     languageCode: LanguageCode,
+    sourceDomain?: DomainName,
   ): ResultAsync<string, SnickerDoodleCoreError> {
-    return this.accountRepository.getLinkAccountMessage(languageCode);
+    return this.accountRepository.getLinkAccountMessage(
+      languageCode,
+      sourceDomain,
+    );
   }
 
   public isDataWalletAddressInitialized(): ResultAsync<
@@ -94,7 +191,8 @@ export class AccountService implements IAccountService {
   public unlinkAccount(
     account: AccountAddress,
     chain: EChain,
+    sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.accountRepository.unlinkAccount(account, chain);
+    return this.accountRepository.unlinkAccount(account, chain, sourceDomain);
   }
 }

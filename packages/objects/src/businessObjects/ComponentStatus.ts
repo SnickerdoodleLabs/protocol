@@ -16,6 +16,7 @@ export class ComponentStatus {
     public polygonIndexer: Map<EChain, EComponentStatus>,
     public simulatorIndexer: Map<EChain, EComponentStatus>,
     public solanaIndexer: Map<EChain, EComponentStatus>,
+    public blockvisionIndexer: Map<EChain, EComponentStatus>,
   ) {}
 }
 

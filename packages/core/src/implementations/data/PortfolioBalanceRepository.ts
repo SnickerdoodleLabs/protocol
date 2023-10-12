@@ -101,6 +101,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                   return okAsync([]);
                 }
 
+                console.log("Getting getCachedBalances for chain: " + chain);
                 return this.getCachedBalances(
                   chain,
                   linkedAccount.sourceAccountAddress as EVMAccountAddress,
@@ -135,6 +136,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                   return okAsync([]);
                 }
 
+                console.log("Getting getCachedNFTs for chain: " + chain);
                 return this.getCachedNFTs(
                   chain,
                   linkedAccount.sourceAccountAddress,
