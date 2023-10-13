@@ -4,6 +4,7 @@ import {
   ILogUtils,
   ILogUtilsType,
   ObjectUtils,
+  IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
 import {
   EChainTechnology,
@@ -141,7 +142,6 @@ export class BlockvisionIndexer implements ISuiIndexer {
     return okAsync([]);
   }
 
-  // TODO: BLOCKVISION ENTERPRISE ACCESS REQUIRED
   public getSuiTransactions(
     chain: EChain,
     accountAddress: SuiAccountAddress,
@@ -151,7 +151,7 @@ export class BlockvisionIndexer implements ISuiIndexer {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),
-      this.receiveSuiIds(),
+      this.getTxDigests(accountAddress),
     ])
       .andThen(([config, context, digests]) => {
         const url =
@@ -166,7 +166,7 @@ export class BlockvisionIndexer implements ISuiIndexer {
         };
 
         context.privateEvents.onApiAccessed.next(EExternalApi.Blockvision);
-        return this.ajaxUtils.post<IBlockvisionTransactionReponse>(
+        return this.ajaxUtils.post<IBlockvisionEventsResponse>(
           new URL(url),
           requestParams,
           {
@@ -197,11 +197,43 @@ export class BlockvisionIndexer implements ISuiIndexer {
       });
   }
 
-  private receiveSuiIds(): ResultAsync<string[], never> {
-    return okAsync([
-      "AHRCgK4P29BboEPoEzLNuQZUXwgPafR9DG4izCkroHUv",
-      "965HckqhcQaJukSG9qQsjgBVPcNiBhFU9EsVcgrLAysv",
-    ]);
+  private getTxDigests(
+    accountAddress: SuiAccountAddress,
+  ): ResultAsync<string[], AjaxError> {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+    ])
+      .andThen(([config, context]) => {
+        const url =
+          "https://api.blockvision.org/v2/sui/account/activities?address=" +
+          accountAddress;
+
+        let apiKey = config.apiKeys.blockvisionKey;
+        if (apiKey == null) {
+          apiKey = "";
+        }
+
+        const requestParams: IRequestConfig = {
+          method: "get",
+          url: url,
+          headers: {
+            accept: "application/json",
+            "X-API-Key": apiKey,
+          },
+        };
+
+        context.privateEvents.onApiAccessed.next(EExternalApi.Blockvision);
+        return this.ajaxUtils.get<IBlockvisionDigestReponse>(
+          new URL(url),
+          requestParams,
+        );
+      })
+      .map((response) => {
+        return response.result.data.map((item) => {
+          return item.txDigest;
+        });
+      });
   }
 
   public healthStatus(): Map<EChain, EComponentStatus> {
@@ -224,13 +256,13 @@ interface IBlockvisionBalancesReponse {
   };
 }
 
-interface IBlockvisionTransactionReponse {
+interface IBlockvisionEventsResponse {
   jsonrpc: string;
-  result: IBlockvisionTransaction[];
+  result: IBlockvisionEvent[];
   id: number;
 }
 
-interface IBlockvisionTransaction {
+interface IBlockvisionEvent {
   id: {
     txDigest: string;
     eventSeq: number;
@@ -252,4 +284,26 @@ interface IBlockvisionTransaction {
     trade_intermediate: null;
   };
   bcs: string;
+}
+
+interface IBlockvisionDigestReponse {
+  code: number;
+  message: string;
+  result: {
+    data: IBlockvisionDigest[];
+  };
+  nextPageCursor: number;
+}
+
+interface IBlockvisionDigest {
+  txDigest: string;
+  package: string;
+  timestampMs: number;
+  projectName: string;
+  icon: string;
+  projectURL: string;
+  activityType: string;
+  moduleName: string;
+  functionName: string;
+  nftMetadata: string | null;
 }
