@@ -1,4 +1,4 @@
-import { IOpenSeaMetadata } from "@snickerdoodlelabs/objects";
+import { IOldUserAgreement } from "@snickerdoodlelabs/objects";
 import parse from "html-react-parser";
 import React, { FC, useMemo } from "react";
 
@@ -16,7 +16,7 @@ import {
 } from "@core-iframe/app/ui/lib";
 
 interface IDescriptionProps {
-  invitationData: IOpenSeaMetadata;
+  invitationData: IOldUserAgreement;
   onCancelClick: () => void;
   onContinueClick: () => void;
   onSetPermissions: () => void;

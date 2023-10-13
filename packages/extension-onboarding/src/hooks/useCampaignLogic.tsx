@@ -3,7 +3,7 @@ import {
   EVMContractAddress,
   EWalletDataType,
   IConsentCapacity,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   PossibleReward,
   QueryTypePermissionMap,
 } from "@snickerdoodlelabs/objects";
@@ -23,7 +23,7 @@ interface IUseCampaignItemLogicProps {
 const useCampaignItemLogic = ({
   consentContractAddress,
 }: IUseCampaignItemLogicProps): {
-  campaignInfo: IOpenSeaMetadata | undefined;
+  campaignInfo: IOldUserAgreement | undefined;
   subscriberCount: number;
   isLoading: boolean;
   isSubscribed: boolean;
@@ -31,7 +31,7 @@ const useCampaignItemLogic = ({
   collectedRewards: EarnedReward[];
   handleSubscribeButton: () => void;
 } => {
-  const [campaignInfo, setCampaignInfo] = useState<IOpenSeaMetadata>();
+  const [campaignInfo, setCampaignInfo] = useState<IOldUserAgreement>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [possibleRewards, setPossibleRewards] = useState<PossibleReward[]>();
   const { optedInContracts, earnedRewards, updateOptedInContracts } =

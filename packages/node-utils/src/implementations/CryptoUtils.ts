@@ -294,6 +294,11 @@ export class CryptoUtils implements ICryptoUtils {
     value: Record<string, unknown>,
     signature: Signature,
   ): ResultAsync<EVMAccountAddress, never> {
+    // The types per the spec have a type, EIP712Domain, which is actually added by ethers.
+    // But if you're not using ethers, you may be providing the types yourself. Since ethers
+    // will re-add it, we'll remove it.
+    delete types.EIP712Domain;
+
     return okAsync(
       EVMAccountAddress(
         ethers.utils.verifyTypedData(domain, types, value, signature),
@@ -411,6 +416,11 @@ export class CryptoUtils implements ICryptoUtils {
     privateKey: EVMPrivateKey,
   ): ResultAsync<Signature, never> {
     const wallet = new ethers.Wallet(privateKey); // TODO, need to specify default provider (https://github.com/ethers-io/ethers.js/issues/2258)
+
+    // The types per the spec have a type, EIP712Domain, which is actually added by ethers.
+    // But if you're not using ethers, you may be providing the types yourself. Since ethers
+    // will re-add it, we'll remove it.
+    delete types.EIP712Domain;
 
     return ResultAsync.fromSafePromise<string, never>(
       wallet._signTypedData(domain, types, value),
