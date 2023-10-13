@@ -6,8 +6,12 @@ import {
   SolanaPrivateKey,
   SuiAccountAddress,
 } from "@snickerdoodlelabs/objects";
+import { SuietWalletAdapter } from "@suiet/wallet-adapter";
+import { ConnectModal, useWallet } from "@suiet/wallet-kit";
 import { BigNumber } from "ethers";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import * as tweetnacl from "tweetnacl"; // crypto lib for verify signature
 
 import { CryptoUtilsMocks } from "../mocks/CryptoUtilsMocks";
 
@@ -501,29 +505,58 @@ describe("CryptoUtils tests", () => {
     const utils = mocks.factoryCryptoUtils();
 
     // This signature was generated from an account with this public key
-    const suiPublicKey = SuiAccountAddress(
-      "0x316a0693b0d900bb34711438b6974ead2c9a93716fd41f8a8377fa3dc5997abd",
-    );
+    const message = "I hope sui works";
     const suiSignature = Signature(
       "8f6d2d8b7844e881c5eadb3901afc0ee35060a0cafac4209c629bae112d9f3b7bf5447becd615d95350f56beef391a755af80ba4f45883f0084242c7f63e8e04",
     );
-    const message = "I hope sui works";
+    const suiPublicKey = SuiAccountAddress(
+      "0x316a0693b0d900bb34711438b6974ead2c9a93716fd41f8a8377fa3dc5997abd",
+    );
 
-    console.log("message: " + message);
+    // const suietAdapter = new SuietWalletAdapter();
+    // const suiWallet = useWallet();
 
+    // const result = suiWallet.signMessage({
+    //   message: new TextEncoder().encode("Hello world"),
+    // });
+
+    // const textDecoder = new TextDecoder();
+    // console.log("signMessage success", result);
+    // console.log("signMessage signature", result.signature); // output -> Uint8Array
+    // console.log(
+    //   "signMessage signedMessage",
+    //   textDecoder.decode(result.messageBytes).toString(),
+    // ); // Uint8Array of your raw message
+
+    // // verify signMessage with
+    // const publicKey = await suietAdapter.getPublicKey();
+    // console.log("publicKey", publicKey); // output -> Uint8Array(32)
+
+    // const isValidSignature = tweetnacl.sign.detached.verify(
+    //   result.messageBytes,
+    //   result.signature,
+    //   publicKey,
+    // );
+    // console.log("verify signature with publicKey: ", isValidSignature);
+
+    const publicKey2 =
+      "196,13,90,130,53,163,48,178,235,189,216,116,232,253,13,223,1,8,158,145,140,226,190,139,162,191,189,32,6,27,250,18";
     // Act
-    const result = await utils.verifySuiSignature(
-      message,
-      suiSignature,
+
+    const suiBoolean = await utils.verifySuiSignature(
+      "TG9naW4gdG8geW91ciBTbmlja2VyZG9vZGxlIGRhdGEgd2FsbGV0",
+      "8f6d2d8b7844e881c5eadb3901afc0ee35060a0cafac4209c629bae112d9f3b7bf5447becd615d95350f56beef391a755af80ba4f45883f0084242c7f63e8e04" as Signature,
+      Buffer.from(publicKey2, "utf-8"),
       suiPublicKey,
     );
 
-    console.log("result: " + JSON.stringify(result));
+    // YYV3 + UOutuB7wvEDVqCNaMwsuu92HTo;
+    console.log("result: " + JSON.stringify(suiBoolean));
 
     // Assert
-    expect(result).toBeDefined();
-    expect(result.isErr()).toBeFalsy();
-    const verified = result._unsafeUnwrap();
+    expect(suiBoolean).toBeDefined();
+    expect(suiBoolean.isErr()).toBeFalsy();
+    const verified = suiBoolean._unsafeUnwrap();
     expect(verified).toBeTruthy();
   });
 

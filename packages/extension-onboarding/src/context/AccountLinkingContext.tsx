@@ -151,7 +151,17 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
               const addr = (suiWallet.account?.address || "") as AccountAddress;
               const sig = signature.signature as Signature;
               console.log("wallet address: " + addr);
-              console.log("sui signature: " + sig);
+              console.log("sui signature: " + JSON.stringify(signature));
+              console.log("sui sig: " + sig);
+
+              console.log("wallet account: " + suiWallet.account);
+              const publicKey = suiWallet.account?.publicKey;
+              console.log("wallet publicKey: " + publicKey);
+              const suiReg: ISuiCredentials = {
+                messageBytes: signature.messageBytes,
+                publicKey: suiWallet.account?.publicKey,
+              };
+
               return (
                 // okAsync(undefined)
                 // @TODO use that function with correct params
@@ -183,6 +193,7 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
         })
         .mapErr(() => {
           setIsSuiOpen(false);
+
           suiWallet.disconnect();
         })
         .map(() => {
@@ -274,3 +285,8 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
 };
 
 export const useAccountLinkingContext = () => useContext(AccountLinkingContext);
+
+export interface ISuiCredentials {
+  messageBytes: string;
+  publicKey: Uint8Array | undefined;
+}

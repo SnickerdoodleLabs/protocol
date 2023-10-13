@@ -2,6 +2,7 @@ import {
   TypedDataDomain,
   TypedDataField,
 } from "@ethersproject/abstract-signer";
+import { SuiSignMessageOutput } from "@mysten/wallet-standard";
 import {
   AESEncryptedString,
   AESKey,
@@ -84,6 +85,7 @@ export interface ICryptoUtils {
   verifySuiSignature(
     message: string,
     signature: Signature,
+    publicKey: Uint8Array,
     accountAddress: SuiAccountAddress,
   ): ResultAsync<boolean, never>;
 

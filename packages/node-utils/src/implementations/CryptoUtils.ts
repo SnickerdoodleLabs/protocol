@@ -4,6 +4,8 @@ import {
   TypedDataDomain,
   TypedDataField,
 } from "@ethersproject/abstract-signer";
+import { verifyPersonalMessage } from "@mysten/sui.js/verify";
+import { SuiSignMessageOutput } from "@mysten/wallet-standard";
 import {
   AESEncryptedString,
   AESKey,
@@ -31,6 +33,12 @@ import {
   SuiAccountAddress,
 } from "@snickerdoodlelabs/objects";
 // import argon2 from "argon2";
+import {
+  ConnectModal,
+  useWallet,
+  verifySignedMessage,
+  stringBytesToUint8Array,
+} from "@suiet/wallet-kit";
 import { BigNumber, ethers } from "ethers";
 import { base58 } from "ethers/lib/utils.js";
 import { injectable } from "inversify";
@@ -262,16 +270,22 @@ export class CryptoUtils implements ICryptoUtils {
   public verifySuiSignature(
     message: string,
     signature: Signature,
+    publicKey: Uint8Array,
     accountAddress: SuiAccountAddress,
   ): ResultAsync<boolean, never> {
-    return okAsync(true);
-    // return okAsync(
-    //   nacl.sign.detached.verify(
-    //     Buffer.from(message, "utf-8"),
-    //     Buffer.from(signature, "hex"),
-    //     Buffer.from(accountAddress, "utf-8"),
-    //   ),
-    // );
+    console.log("Inside Sui Signature");
+    console.log("message: " + message);
+    console.log("utf 8  signature: " + Buffer.from(signature, "utf-8"));
+    console.log("hex signature: " + Buffer.from(signature, "hex"));
+
+    return okAsync(
+      nacl.sign.detached.verify(
+        Buffer.from(message, "utf-8"),
+        Buffer.from(signature, "hex"),
+        Buffer.from(accountAddress, "utf-8"),
+        // publicKey,
+      ),
+    );
   }
 
   public verifySolanaSignature(
