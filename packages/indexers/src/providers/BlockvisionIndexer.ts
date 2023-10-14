@@ -183,7 +183,7 @@ export class BlockvisionIndexer implements ISuiIndexer {
             SuiTransactionHash(item.id.txDigest),
             UnixTimestamp(item.id.eventSeq),
             null,
-            SuiAccountAddress(item.parsedJson.seller),
+            SuiAccountAddress(item.sender),
             SuiAccountAddress(item.parsedJson.buyer),
             BigNumberString(item.parsedJson.price),
             null,
