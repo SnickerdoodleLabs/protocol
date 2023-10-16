@@ -18,6 +18,7 @@ export enum ETypographyColorOverrides {
   TEXTWARNING = "textWarning",
   TEXTINGFO = "textInfo",
   TEXTSUCCESS = "textSuccess",
+  TEXTWHITE = "textWhite",
 }
 
 export enum EFontWeight {
@@ -325,6 +326,9 @@ export const generateDynamicTypographyColorClasses = (theme: Theme) => ({
   [ETypographyColorOverrides.TEXTSUCCESS]: {
     color: theme.palette.successColor,
   },
+  [ETypographyColorOverrides.TEXTWHITE]: {
+    color: colors.WHITE,
+  },
 });
 
 export const typograpyVariants = {
@@ -518,6 +522,9 @@ export const createDefaultTheme = (
       },
     },
     typography: {
+      fontWeightRegular: 400,
+      fontWeightMedium: 500,
+      fontWeightBold: 700,
       fontFamily: "Roboto",
       fontSize: 14,
     },

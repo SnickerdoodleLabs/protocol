@@ -18,7 +18,7 @@ const customButtons = {
       color: theme.palette.error.main,
       backgroundColor: "transparent",
       "&:hover": {
-        borderColor: theme.palette.error.dark,
+        borderColor: theme.palette.error.main,
       },
       borderColor: theme.palette.error.main,
     },

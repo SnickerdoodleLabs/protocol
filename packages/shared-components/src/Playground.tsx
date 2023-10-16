@@ -1,24 +1,32 @@
-import { Grid, Tab, Tabs, Box, Radio } from "@material-ui/core";
+import {
+  Grid,
+  Tab,
+  Tabs,
+  Box,
+  Radio,
+  ButtonGroup,
+  AppBar,
+  Toolbar,
+} from "@material-ui/core";
 import { ThemeProvider, useTheme } from "@material-ui/styles";
 import {
   createDefaultTheme,
   EColorMode,
-} from "@shared-components/v2/theme/theme";
+  SDButton as Button,
+  SDSwitch as Switch,
+  SDTypography,
+  useMedia,
+  DescriptionWidget,
+  PermissionSelectionWidget,
+} from "@shared-components/v2";
+import { IOpenSeaMetadata } from "@snickerdoodlelabs/objects";
 import chroma from "chroma-js";
 import React from "react";
 import ReactDOM from "react-dom";
 
-import { SDButton as Button } from "./v2/components/Button/Button";
-import { SDSwitch as Switch } from "./v2/components/Switch/Switch";
-import { SDTypography } from "./v2/components/Typograpy";
-import { useMedia } from "./v2/hooks/useMedia";
-
 const App = () => {
   const [value, setValue] = React.useState(0);
   const media = useMedia();
-  const color1 = chroma("#8079B4"); // Base color for the first button
-  const color2 = chroma("#6E62A6"); // Hover color for the first button
-  console.log(color2.brighten(1).hex());
   return (
     <>
       <SDTypography align="center" variant="displayLg" color="textSuccess">
@@ -28,6 +36,7 @@ const App = () => {
         <Tabs value={value} onChange={(_e, newValue) => setValue(newValue)}>
           <Tab label="SDTypography" />
           <Tab label="Buttons" />
+          <Tab label="Widgets" />
           <Tab label="Cards" />
         </Tabs>
       </Box>
@@ -175,65 +184,143 @@ const App = () => {
       )}
 
       {value === 1 && (
-        <Box bgcolor="background.default">
-          <Box width="fill-available">
-            <Button fullWidth size="large">
-              TEST LARGE
-            </Button>
-          </Box>
-          <Button size="medium">TEST MEDIUM</Button>
-          <Button size="small">TEST SMALL</Button>
-
-          <Button variant="outlined" size="large">
-            TEST LARGE
-          </Button>
-          <Button variant="outlined" size="medium">
-            TEST MEDIUM
-          </Button>
-          <Button variant="outlined" size="small">
-            TEST SMALL
-          </Button>
-          <Button variant="text" size="large">
-            TEST LARGE
-          </Button>
-          <Button variant="text" size="medium">
-            TEST MEDIUM
-          </Button>
-          <Button variant="text" size="small">
-            TEST SMALL
-          </Button>
-
-          <Button color="danger" size="small">
-            TEST SMALL
-          </Button>
-          <Button color="danger" size="large">
-            TEST SMALL
-          </Button>
-          <Button color="danger" size="medium">
-            TEST SMALL
-          </Button>
-          <Button variant="outlined" color="danger" size="medium">
-            TEST SMALL
-          </Button>
-          <Button variant="text" color="danger" size="medium">
-            TEST SMALL
-          </Button>
-          <Button variant="text" color="button" size="large">
-            TEST SMALL
-          </Button>
-          <Button variant="outlined" color="button" size="small">
-            TEST SMALL
-          </Button>
-          <Radio></Radio>
-          <Switch checked={true}></Switch>
-          <Box
-            bgcolor={{ xs: "backgroundColor", sm: "red" }}
-            width={200}
-            height={300}
-          >
-            Box
-          </Box>
+        <Box bgcolor="background.default" width="50%" m="auto">
+          <Grid container spacing={4}>
+            <Grid item xs={12} sm={6}>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Button size="large">TEST LARGE</Button>
+                <Button size="medium">TEST MEDIUM</Button>
+                <Button size="small">TEST SMALL</Button>
+              </Box>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Button variant="outlined" size="large">
+                  TEST LARGE
+                </Button>
+                <Button variant="outlined" size="medium">
+                  TEST MEDIUM
+                </Button>
+                <Button variant="outlined" size="small">
+                  TEST SMALL
+                </Button>
+              </Box>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Button variant="text" size="large">
+                  TEST LARGE
+                </Button>
+                <Button variant="text" size="medium">
+                  TEST MEDIUM
+                </Button>
+                <Button variant="text" size="small">
+                  TEST SMALL
+                </Button>
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Button color="danger" size="large">
+                  TEST Large
+                </Button>
+                <Button color="danger" size="medium">
+                  TEST Medium
+                </Button>
+                <Button color="danger" size="small">
+                  TEST Small
+                </Button>
+              </Box>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Button variant="outlined" color="danger" size="large">
+                  Danger Large
+                </Button>
+                <Button variant="outlined" color="danger" size="medium">
+                  Danger Medium
+                </Button>
+                <Button variant="outlined" color="danger" size="small">
+                  Danger Small
+                </Button>
+              </Box>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Button variant="text" color="danger" size="large">
+                  Danger Large
+                </Button>
+                <Button variant="text" color="danger" size="medium">
+                  Danger Medium
+                </Button>
+                <Button variant="text" color="danger" size="small">
+                  Danger Small
+                </Button>
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Button color="button" size="large">
+                  TEST Large
+                </Button>
+                <Button color="button" size="medium">
+                  TEST Medium
+                </Button>
+                <Button color="button" size="small">
+                  TEST Medium
+                </Button>
+              </Box>
+            </Grid>
+            <Box>
+              <Radio></Radio>
+              <Switch checked={true}></Switch>
+            </Box>
+          </Grid>
         </Box>
+      )}
+      {value === 2 && (
+        <>
+          <DescriptionWidget
+            onCancelClick={() => {}}
+            onContinueClick={() => {}}
+            onSetPermissions={() => {}}
+            invitationData={{} as IOpenSeaMetadata}
+          />
+          <PermissionSelectionWidget
+            onCancelClick={() => {}}
+            onSaveClick={(dataTypes) => {}}
+          />
+        </>
+      )}
+
+      {value === 3 && (
+        <>
+          <AppBar position="static">
+            <Toolbar>
+              <SDTypography>fksaf</SDTypography>
+            </Toolbar>
+          </AppBar>
+        </>
       )}
     </>
   );
