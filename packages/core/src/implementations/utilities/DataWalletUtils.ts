@@ -154,12 +154,11 @@ export class DataWalletUtils implements IDataWalletUtils {
         });
     }
     if (chainInfo.chainTechnology == EChainTechnology.Sui) {
-      // return this.cryptoUtils.verifySuiSignature(
-      //   message,
-      //   signature,
-      //   new Uint8Array(),
-      // );
-      return okAsync(true);
+      return this.cryptoUtils.verifySuiSignature(
+        message,
+        signature,
+        accountAddress as SuiAccountAddress,
+      );
     }
     if (chainInfo.chainTechnology == EChainTechnology.Solana) {
       return this.cryptoUtils.verifySolanaSignature(

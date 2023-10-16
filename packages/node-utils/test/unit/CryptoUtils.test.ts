@@ -503,61 +503,81 @@ describe("CryptoUtils tests", () => {
     // Arrange
     const mocks = new CryptoUtilsMocks();
     const utils = mocks.factoryCryptoUtils();
-
     // This signature was generated from an account with this public key
-    const message = "I hope sui works";
-    const suiSignature = Signature(
-      "8f6d2d8b7844e881c5eadb3901afc0ee35060a0cafac4209c629bae112d9f3b7bf5447becd615d95350f56beef391a755af80ba4f45883f0084242c7f63e8e04",
+    const message = "Hello world!";
+    const publicKey = Uint8Array.from([
+      34, 75, 176, 247, 2, 153, 208, 222, 185, 81, 23, 152, 29, 41, 93, 221,
+      238, 219, 246, 153, 103, 41, 27, 116, 229, 75, 24, 77, 21, 77, 116, 31,
+    ]);
+    const signature = Signature(
+      "ADmKQDG8f1BQfTDqxryx64ok0Bvkd4z3Q8VZ+sfn8aeK7F/toAJKW4FsNMytXyjDAIxcXLDV7o+xHtEcKplcLQwiS7D3ApnQ3rlRF5gdKV3d7tv2mWcpG3TlSxhNFU10Hw==",
     );
-    const suiPublicKey = SuiAccountAddress(
-      "0x316a0693b0d900bb34711438b6974ead2c9a93716fd41f8a8377fa3dc5997abd",
+    const suiAddress = SuiAccountAddress(
+      "0xe2664e827c8aaa42035c78e285ad6d8702af220d662b0614bd64d356a678e5b7",
     );
-
-    // const suietAdapter = new SuietWalletAdapter();
-    // const suiWallet = useWallet();
-
-    // const result = suiWallet.signMessage({
-    //   message: new TextEncoder().encode("Hello world"),
-    // });
-
-    // const textDecoder = new TextDecoder();
-    // console.log("signMessage success", result);
-    // console.log("signMessage signature", result.signature); // output -> Uint8Array
-    // console.log(
-    //   "signMessage signedMessage",
-    //   textDecoder.decode(result.messageBytes).toString(),
-    // ); // Uint8Array of your raw message
-
-    // // verify signMessage with
-    // const publicKey = await suietAdapter.getPublicKey();
-    // console.log("publicKey", publicKey); // output -> Uint8Array(32)
-
-    // const isValidSignature = tweetnacl.sign.detached.verify(
-    //   result.messageBytes,
-    //   result.signature,
-    //   publicKey,
-    // );
-    // console.log("verify signature with publicKey: ", isValidSignature);
-
-    const publicKey2 =
-      "196,13,90,130,53,163,48,178,235,189,216,116,232,253,13,223,1,8,158,145,140,226,190,139,162,191,189,32,6,27,250,18";
-    // Act
-
     const suiBoolean = await utils.verifySuiSignature(
-      "TG9naW4gdG8geW91ciBTbmlja2VyZG9vZGxlIGRhdGEgd2FsbGV0",
-      "8f6d2d8b7844e881c5eadb3901afc0ee35060a0cafac4209c629bae112d9f3b7bf5447becd615d95350f56beef391a755af80ba4f45883f0084242c7f63e8e04" as Signature,
-      Buffer.from(publicKey2, "utf-8"),
-      suiPublicKey,
+      message,
+      signature,
+      suiAddress,
     );
-
-    // YYV3 + UOutuB7wvEDVqCNaMwsuu92HTo;
-    console.log("result: " + JSON.stringify(suiBoolean));
 
     // Assert
     expect(suiBoolean).toBeDefined();
     expect(suiBoolean.isErr()).toBeFalsy();
     const verified = suiBoolean._unsafeUnwrap();
     expect(verified).toBeTruthy();
+  });
+
+  test("verifySuiSignature() wrong message", async () => {
+    // Arrange
+    const mocks = new CryptoUtilsMocks();
+    const utils = mocks.factoryCryptoUtils();
+
+    const message = "Hello world2!";
+    const signature = Signature(
+      "ADmKQDG8f1BQfTDqxryx64ok0Bvkd4z3Q8VZ+sfn8aeK7F/toAJKW4FsNMytXyjDAIxcXLDV7o+xHtEcKplcLQwiS7D3ApnQ3rlRF5gdKV3d7tv2mWcpG3TlSxhNFU10Hw==",
+    );
+    const suiAddress = SuiAccountAddress(
+      "0xe2664e827c8aaa42035c78e285ad6d8702af220d662b0614bd64d356a678e5b7",
+    );
+    const suiBoolean = await utils.verifySuiSignature(
+      message,
+      signature,
+      suiAddress,
+    );
+
+    // Assert
+    expect(suiBoolean).toBeDefined();
+    expect(suiBoolean.isErr()).toBeFalsy();
+    const verified = suiBoolean._unsafeUnwrap();
+    expect(verified).toBeFalsy();
+  });
+
+  test("verifySuiSignature() wrong signature", async () => {
+    // Arrange
+    const mocks = new CryptoUtilsMocks();
+    const utils = mocks.factoryCryptoUtils();
+    const message = "Hello world!";
+
+    // Changed "e" to "f" in signature portion
+    // SUI signatures are 97 byes- 1 for scheme, 64 for sig, 32 for the public key
+    const signature = Signature(
+      "ADmKQDG8f1BQfTDqxryx64ok0Bvkd4z3Q8VZ+sfn8afK7F/toAJKW4FsNMytXyjDAIxcXLDV7o+xHtEcKplcLQwiS7D3ApnQ3rlRF5gdKV3d7tv2mWcpG3TlSxhNFU10Hw==",
+    );
+    const suiAddress = SuiAccountAddress(
+      "0xe2664e827c8aaa42035c78e285ad6d8702af220d662b0614bd64d356a678e5b7",
+    );
+    const suiBoolean = await utils.verifySuiSignature(
+      message,
+      signature,
+      suiAddress,
+    );
+
+    // Assert
+    expect(suiBoolean).toBeDefined();
+    expect(suiBoolean.isErr()).toBeFalsy();
+    const verified = suiBoolean._unsafeUnwrap();
+    expect(verified).toBeFalsy();
   });
 
   test("signMessageSolana() works", async () => {

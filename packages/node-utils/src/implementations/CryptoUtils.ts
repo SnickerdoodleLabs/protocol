@@ -5,7 +5,6 @@ import {
   TypedDataField,
 } from "@ethersproject/abstract-signer";
 import { verifyPersonalMessage } from "@mysten/sui.js/verify";
-import { SuiSignMessageOutput } from "@mysten/wallet-standard";
 import {
   AESEncryptedString,
   AESKey,
@@ -33,12 +32,6 @@ import {
   SuiAccountAddress,
 } from "@snickerdoodlelabs/objects";
 // import argon2 from "argon2";
-import {
-  ConnectModal,
-  useWallet,
-  verifySignedMessage,
-  stringBytesToUint8Array,
-} from "@suiet/wallet-kit";
 import { BigNumber, ethers } from "ethers";
 import { base58 } from "ethers/lib/utils.js";
 import { injectable } from "inversify";
@@ -267,25 +260,37 @@ export class CryptoUtils implements ICryptoUtils {
     return okAsync(address);
   }
 
+  /**
+   * Sui signatures are documented here: https://docs.sui.io/learn/cryptography/sui-signatures
+   * @param message
+   * @param signature
+   * @param accountAddress
+   * @returns a boolean representing if the message was signed by the provided account address
+   */
   public verifySuiSignature(
     message: string,
     signature: Signature,
-    publicKey: Uint8Array,
     accountAddress: SuiAccountAddress,
   ): ResultAsync<boolean, never> {
-    console.log("Inside Sui Signature");
-    console.log("message: " + message);
-    console.log("utf 8  signature: " + Buffer.from(signature, "utf-8"));
-    console.log("hex signature: " + Buffer.from(signature, "hex"));
-
-    return okAsync(
-      nacl.sign.detached.verify(
-        Buffer.from(message, "utf-8"),
-        Buffer.from(signature, "hex"),
-        Buffer.from(accountAddress, "utf-8"),
-        // publicKey,
-      ),
-    );
+    return ResultAsync.fromPromise(
+      verifyPersonalMessage(Buffer.from(message, "utf-8"), signature),
+      (e) => {
+        return e as Error;
+      },
+    )
+      .map((publicKey) => {
+        const recoveredAccountAddress = SuiAccountAddress(
+          publicKey.toSuiAddress(),
+        );
+        return (
+          recoveredAccountAddress.toLowerCase() == accountAddress.toLowerCase()
+        );
+      })
+      .orElse((e) => {
+        // The signature is almost certainly invalid; verifyPersonalMessage returns an error if the crypto fails
+        // in the verification step
+        return okAsync(false);
+      });
   }
 
   public verifySolanaSignature(

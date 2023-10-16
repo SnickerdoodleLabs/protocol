@@ -85,7 +85,6 @@ export interface ICryptoUtils {
   verifySuiSignature(
     message: string,
     signature: Signature,
-    publicKey: Uint8Array,
     accountAddress: SuiAccountAddress,
   ): ResultAsync<boolean, never>;
 
