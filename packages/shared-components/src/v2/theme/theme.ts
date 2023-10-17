@@ -68,7 +68,7 @@ declare module "@material-ui/core/styles/createPalette" {
     primaryContrastColor: string;
     secondaryColor: string;
     secondaryContrastColor: string;
-    backgroundColor: string;
+    cardBgColor: string;
     borderColor: string;
     buttonColor: string;
     buttonContrastColor: string;
@@ -88,7 +88,7 @@ declare module "@material-ui/core/styles/createPalette" {
     primaryContrastColor: string;
     secondaryColor: string;
     secondaryContrastColor: string;
-    backgroundColor: string;
+    cardBgColor: string;
     borderColor: string;
     buttonColor: string;
     buttonContrastColor: string;
@@ -141,6 +141,10 @@ declare module "@material-ui/core/styles/createTypography" {
 
 //#region custom colors
 export const colors = {
+  // BgColors
+  DEFAULT_LIGHT_BG: "rgba(250, 250, 250, 0.98)",
+  DEFAULT_DARK_BG: "rgba(250, 250, 250, 0.98)",
+
   WHITE: "#FFFFFF",
   // main purple
   MAINPURPLE50: "#f1eff6",
@@ -257,7 +261,8 @@ interface IPalette {
   textLight: string;
   linkText: string;
   border: string;
-  background: string;
+  bgColor: string;
+  cardBgColor: string;
   secondary: string;
   secondaryContrast: string;
 }
@@ -267,14 +272,15 @@ const lightPalette: IPalette = {
   mode: EColorMode.LIGHT,
   primary: colors.MAINPURPLE500,
   primaryContrast: colors.WHITE,
-  button: "linear-gradient(to right, #24c6dc, #514a9d)",
+  button: colors.MAINPURPLE500,
   buttonContrast: colors.WHITE,
   textBody: colors.GREY800,
   textHeading: colors.GREY900,
   textLight: colors.GREY500,
   linkText: colors.BLUE500,
   border: colors.GREY500,
-  background: colors.WHITE,
+  bgColor: colors.DEFAULT_LIGHT_BG,
+  cardBgColor: colors.WHITE,
   secondary: colors.MAINPURPLE500,
   secondaryContrast: colors.WHITE,
 };
@@ -289,7 +295,8 @@ const darkPalette: IPalette = {
   textLight: colors.GREY500,
   linkText: colors.BLUE500,
   border: colors.GREY500,
-  background: colors.WHITE,
+  bgColor: colors.DEFAULT_DARK_BG,
+  cardBgColor: colors.WHITE,
   secondary: colors.RED50,
   secondaryContrast: colors.WHITE,
 };
@@ -464,7 +471,8 @@ const createPalletteWithOverrides = (
     textLight: paletteOverrides.text ?? lightPalette.textLight,
     linkText: paletteOverrides.linkText ?? lightPalette.linkText,
     border: paletteOverrides.border ?? lightPalette.border,
-    background: paletteOverrides.background ?? lightPalette.background,
+    cardBgColor: paletteOverrides.background ?? lightPalette.cardBgColor,
+    bgColor: paletteOverrides.background ?? lightPalette.bgColor,
     secondary: paletteOverrides.primary ?? lightPalette.secondary,
     secondaryContrast:
       paletteOverrides.primaryContrast ?? lightPalette.secondaryContrast,
@@ -492,7 +500,7 @@ export const createDefaultTheme = (
   }
   return createTheme({
     palette: {
-      background: { default: palette.background },
+      background: { default: palette.bgColor },
       primary: { main: palette.primary },
       secondary: { main: palette.secondary },
       success: { main: colors.GREEN400 },
@@ -512,7 +520,7 @@ export const createDefaultTheme = (
       primaryContrastColor: palette.primaryContrast,
       buttonColor: palette.button,
       buttonContrastColor: palette.buttonContrast,
-      backgroundColor: palette.background,
+      cardBgColor: palette.cardBgColor,
       borderColor: palette.border,
       secondaryColor: palette.secondary,
       secondaryContrastColor: palette.secondaryContrast,

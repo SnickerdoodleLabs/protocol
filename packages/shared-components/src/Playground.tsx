@@ -7,6 +7,7 @@ import {
   ButtonGroup,
   AppBar,
   Toolbar,
+  CssBaseline,
 } from "@material-ui/core";
 import { ThemeProvider, useTheme } from "@material-ui/styles";
 import {
@@ -306,6 +307,7 @@ const App = () => {
             onSetPermissions={() => {}}
             invitationData={{} as IOpenSeaMetadata}
           />
+          <Box mb={2} />
           <PermissionSelectionWidget
             onCancelClick={() => {}}
             onSaveClick={(dataTypes) => {}}
@@ -328,6 +330,7 @@ const App = () => {
 
 ReactDOM.render(
   <ThemeProvider theme={createDefaultTheme(EColorMode.LIGHT)}>
+    <CssBaseline />
     <App />
   </ThemeProvider>,
   document.getElementById("root") as HTMLElement,

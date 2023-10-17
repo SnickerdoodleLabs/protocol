@@ -105,7 +105,7 @@ export const DescriptionWidget: FC<IDescriptionProps> = ({
   return (
     <Box
       display="flex"
-      bgcolor="backgroundColor"
+      bgcolor="cardBgColor"
       m="auto"
       p={{ xs: 3, sm: 4 }}
       pt={{ xs: 3, sm: 8 }}
@@ -151,7 +151,12 @@ export const DescriptionWidget: FC<IDescriptionProps> = ({
             </SDButton>
           </Grid>
           <Grid item sm={5}>
-            <SDButton onClick={onContinueClick} fullWidth variant="contained">
+            <SDButton
+              onClick={onContinueClick}
+              color="button"
+              fullWidth
+              variant="contained"
+            >
               Continue
             </SDButton>
           </Grid>

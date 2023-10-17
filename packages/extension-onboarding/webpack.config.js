@@ -1,19 +1,13 @@
 /* eslint-disable import/order */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
-
+const DeadCodePlugin = require("webpack-deadcode-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const webpack = require("webpack");
 const configFilePath = require.resolve("./tsconfig.json");
-// const argon2 = require("argon2");
-const fileSystem = require("fs-extra");
 
-/** @type import('webpack').Configuration */
 module.exports = {
-  externals: {
-    // argon2: argon2,
-  },
   context: __dirname,
   mode: process.env.__BUILD_ENV__ === "dev" ? "development" : "production",
   entry: path.join(__dirname, "src/index.tsx"),
@@ -21,6 +15,7 @@ module.exports = {
     filename: "index.js",
     path: path.join(__dirname, "/dist/bundle"),
     publicPath: "/",
+    pathinfo: !(process.env.__BUILD_ENV__ === "dev"),
   },
   devServer: {
     https: true,
@@ -29,11 +24,8 @@ module.exports = {
     },
     historyApiFallback: true,
     liveReload: true,
-    compress: true,
     port: 9005,
-    devMiddleware: {
-      writeToDisk: true,
-    },
+    devMiddleware: {},
   },
   module: {
     rules: [
@@ -42,41 +34,26 @@ module.exports = {
         loader: "ts-loader",
         exclude: /node_modules/,
         options: {
-          projectReferences: true,
+          transpileOnly: process.env.__BUILD_ENV__ === "dev",
+          projectReferences: !(process.env.__BUILD_ENV__ === "dev"),
           configFile: configFilePath,
-          compilerOptions: {
-            noUnusedLocals: false,
-            noUnusedParameters: false,
-          },
         },
       },
       {
         enforce: "pre",
         test: /\.html$/,
         loader: "html-loader",
-      },
-      {
-        test: /\.(s[ac]ss|css)$/i,
-        use: [
-          "style-loader",
-          "css-loader",
-          {
-            loader: "sass-loader",
-            options: {
-              sassOptions: {
-                includePaths: [path.resolve(__dirname, "node_modules")],
-              },
-            },
-          },
-        ],
+        exclude: /node_modules/,
       },
       {
         test: /\.(png|svg|jpg|jpeg|gif|eot|woff|woff2)$/i,
         type: "asset/resource",
+        exclude: /node_modules/,
       },
       {
         test: /\.ttf$/,
         use: ["file-loader"],
+        exclude: /node_modules/,
       },
     ],
   },
@@ -97,9 +74,16 @@ module.exports = {
       fs: false,
     },
   },
-  devtool:
-    process.env.__BUILD_ENV__ === "dev" ? "eval-source-map" : "source-map",
+  devtool: process.env.__BUILD_ENV__ === "dev" ? "eval" : "source-map",
+  optimization: {
+    removeAvailableModules: false,
+    removeEmptyChunks: false,
+    splitChunks: false,
+  },
   plugins: [
+    new DeadCodePlugin({
+      patterns: ["src/**/*.(png|gif|jpg|svg|ttf|woff|woff2)"],
+    }),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "src/index.html"),
       favicon: "src/favicon/favicon.ico",

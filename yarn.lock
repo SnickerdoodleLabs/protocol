@@ -16195,6 +16195,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"chalk@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "chalk@npm:3.0.0"
+  dependencies:
+    ansi-styles: ^4.1.0
+    supports-color: ^7.1.0
+  checksum: 8e3ddf3981c4da405ddbd7d9c8d91944ddf6e33d6837756979f7840a29272a69a5189ecae0ff84006750d6d1e92368d413335eab4db5476db6e6703a1d1e0505
+  languageName: node
+  linkType: hard
+
 "chalk@npm:^4.0.0, chalk@npm:^4.0.2, chalk@npm:^4.1.0, chalk@npm:^4.1.1, chalk@npm:^4.1.2":
   version: 4.1.2
   resolution: "chalk@npm:4.1.2"
@@ -22028,7 +22038,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-glob@npm:^3.0.3, fast-glob@npm:^3.2.12, fast-glob@npm:^3.2.4, fast-glob@npm:^3.2.9":
+"fast-glob@npm:^3.0.3, fast-glob@npm:^3.1.1, fast-glob@npm:^3.2.12, fast-glob@npm:^3.2.4, fast-glob@npm:^3.2.9":
   version: 3.3.1
   resolution: "fast-glob@npm:3.3.1"
   dependencies:
@@ -40444,6 +40454,7 @@ __metadata:
     wait-on: ^5.2.0
     webpack: ^5.68.0
     webpack-cli: ^4.9.2
+    webpack-deadcode-plugin: ^0.1.17
     webpack-dev-server: ^4.7.4
     webpack-merge: ^5.8.0
   languageName: unknown
@@ -45896,6 +45907,18 @@ __metadata:
   bin:
     webpack-cli: bin/cli.js
   checksum: 2ff5355ac348e6b40f2630a203b981728834dca96d6d621be96249764b2d0fc01dd54edfcc37f02214d02935de2cf0eefd6ce689d970d154ef493f01ba922390
+  languageName: node
+  linkType: hard
+
+"webpack-deadcode-plugin@npm:^0.1.17":
+  version: 0.1.17
+  resolution: "webpack-deadcode-plugin@npm:0.1.17"
+  dependencies:
+    chalk: ^3.0.0
+    fast-glob: ^3.1.1
+  peerDependencies:
+    webpack: "> 3"
+  checksum: 3c5d0754e445da50cc31cd4f092b6b9462720da4d1f16b3a2f182e4e14160a488cce70cd471d8c0abb56c5301186687ef66febff44820484ebc361e310fd6d76
   languageName: node
   linkType: hard
 

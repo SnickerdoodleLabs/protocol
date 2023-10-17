@@ -38,7 +38,7 @@ export const PermissionSelectionWidget: FC<IPermissionSelectionProps> = ({
     <Box
       display="flex"
       flexDirection="column"
-      bgcolor="backgroundColor"
+      bgcolor="cardBgColor"
       m="auto"
       p={{ xs: 3, sm: 4 }}
       pt={{ xs: 3, sm: 8 }}
@@ -128,7 +128,7 @@ export const PermissionSelectionWidget: FC<IPermissionSelectionProps> = ({
             }}
             fullWidth
             variant="contained"
-            color="primary"
+            color="button"
           >
             Save & Continue
           </SDButton>
