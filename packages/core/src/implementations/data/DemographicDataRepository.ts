@@ -103,8 +103,9 @@ export class DemographicDataRepository implements IDemographicDataRepository {
             return null;
           }
           const _country = timezoneList[timezone].c[0];
-          const country = countryList[_country];
-          return CountryCode(country);
+          console.log("Timezone Location has been used:", _country);
+          this.setLocation(CountryCode(_country));
+          return CountryCode(_country);
         }
         return location as CountryCode;
       })
