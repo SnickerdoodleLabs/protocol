@@ -6,8 +6,6 @@ import {
   SolanaPrivateKey,
   SuiAccountAddress,
 } from "@snickerdoodlelabs/objects";
-import { SuietWalletAdapter } from "@suiet/wallet-adapter";
-import { ConnectModal, useWallet } from "@suiet/wallet-kit";
 import { BigNumber } from "ethers";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
