@@ -197,10 +197,10 @@ export class IndexedDB {
           }
         });
 
-        return ResultAsync.fromPromise(
-          promise,
-          (e) => new PersistenceError("error placing object", e),
-        );
+        return ResultAsync.fromPromise(promise, (e) => {
+          console.log(e);
+          return new PersistenceError("error placing object", e);
+        });
       })
       .map(() => {});
   }
