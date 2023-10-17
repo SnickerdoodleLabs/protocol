@@ -81,9 +81,9 @@ module.exports = {
     splitChunks: false,
   },
   plugins: [
-    new DeadCodePlugin({
-      patterns: ["src/**/*.(png|gif|jpg|svg|ttf|woff|woff2)"],
-    }),
+    // new DeadCodePlugin({
+    //   patterns: ["src/**/*.(png|gif|jpg|svg|ttf|woff|woff2)"],
+    // }),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "src/index.html"),
       favicon: "src/favicon/favicon.ico",
