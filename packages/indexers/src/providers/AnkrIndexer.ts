@@ -73,7 +73,7 @@ export class AnkrIndexer implements IEVMIndexer {
       EChain.Arbitrum,
       new IndexerSupportSummary(EChain.Arbitrum, true, true, true),
     ],
-    [EChain.Fuji, new IndexerSupportSummary(EChain.Fuji, true, false, false)],
+    [EChain.Fuji, new IndexerSupportSummary(EChain.Fuji, true, true, true)],
     // [
     //   EChain.BinanceTestnet,
     //   new IndexerSupportSummary(EChain.BinanceTestnet, true, false, false),
@@ -87,6 +87,7 @@ export class AnkrIndexer implements IEVMIndexer {
     ["avalanche", EChain.Avalanche],
     ["arbitrum", EChain.Arbitrum],
     ["optimism", EChain.Optimism],
+    ["avalanche_fuji", EChain.Fuji],
   ]);
 
   protected supportedAnkrChains = new Map<EChain, string>([
