@@ -19,6 +19,7 @@ import {
   IDataWalletPersistenceType,
   IDemographicDataRepository,
 } from "@core/interfaces/data/index.js";
+import timezoneList from "@core/implementations/data/timezoneList.json"; //assert { type: "json" };
 
 @injectable()
 export class DemographicDataRepository implements IDemographicDataRepository {
@@ -92,6 +93,23 @@ export class DemographicDataRepository implements IDemographicDataRepository {
   }
 
   public getLocation(): ResultAsync<CountryCode | null, PersistenceError> {
-    return this.persistence.getField<CountryCode | null>(EFieldKey.LOCATION);
+    return this.persistence
+      .getField<CountryCode | null>(EFieldKey.LOCATION)
+      .andThen((location) => {
+        if (location == null) {
+          const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          if (timezone === "" || !timezone) {
+            return okAsync(null);
+          }
+          const _country = timezoneList[timezone].c[0];
+          return this.setLocation(CountryCode(_country)).andThen(() => {
+            return okAsync(CountryCode(_country));
+          });
+        }
+        return okAsync(location);
+      })
+      .mapErr((error) => {
+        return error;
+      });
   }
 }

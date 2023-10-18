@@ -9,7 +9,7 @@ import {
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync, errAsync, okAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 
 import { IProfileService } from "@core/interfaces/business/index.js";
 import {
@@ -20,7 +20,6 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
-import timezoneList from "@core/implementations/business/timezoneList.json"; //assert { type: "json" };
 
 @injectable()
 export class ProfileService implements IProfileService {
@@ -85,36 +84,9 @@ export class ProfileService implements IProfileService {
       });
   }
   getLocation(): ResultAsync<CountryCode | null, PersistenceError> {
-    return this.demographicDataRepo.getLocation().andThen((location) => {
-      if (location === null) {
-        return this.getCountryCodeByTimezone().andThen((_location) => {
-          if (_location !== null) {
-            return this.setLocation(_location).andThen(() => {
-              return okAsync(_location);
-            });
-          } else {
-            return errAsync(
-              new PersistenceError("Failed to get country code by timezone"),
-            );
-          }
-        });
-      } else {
-        return okAsync(location);
-      }
-    });
+    return this.demographicDataRepo.getLocation();
   }
   getAge(): ResultAsync<Age | null, PersistenceError> {
     return this.demographicDataRepo.getAge();
-  }
-  getCountryCodeByTimezone(): ResultAsync<
-    CountryCode | null,
-    PersistenceError
-  > {
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (timezone === "" || !timezone) {
-      return okAsync(null);
-    }
-    const _country = timezoneList[timezone].c[0];
-    return okAsync(CountryCode(_country));
   }
 }
