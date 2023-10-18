@@ -33,7 +33,7 @@ export class PurchasedProduct extends VersionedObject {
     readonly description: string | null,
     readonly image: URLString | null,
     readonly url: URLString | null,
-    readonly category: string | null,
+    readonly category: string,
     readonly keywords: ProductKeyword[] | null,
   ) {
     super();

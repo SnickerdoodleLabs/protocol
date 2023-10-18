@@ -98,6 +98,8 @@ export class LLMPurchaseHistoryUtilsChatGPT
           // throw new LLMError(`Invalid purchase date for ${purchase.name}`);
           return null;
         }
+
+        const category = purchase.classification ?? "unknown";
         return new PurchasedProduct(
           domain,
           language,
@@ -110,7 +112,7 @@ export class LLMPurchaseHistoryUtilsChatGPT
           null,
           null,
           null,
-          purchase.classification,
+          category,
           purchase.keywords as ProductKeyword[],
         );
       });
