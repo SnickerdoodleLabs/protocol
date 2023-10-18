@@ -1,7 +1,11 @@
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import { DomainName, ELanguageCode } from "@snickerdoodlelabs/objects";
 
-import { ProductKeyword, PurchasedProduct } from "@shopping-data/objects";
+import {
+  ProductKeyword,
+  PurchaseId,
+  PurchasedProduct,
+} from "@shopping-data/objects";
 
 const timeUtils = new TimeUtils();
 export const janDate = timeUtils.parseToSDTimestamp("2021-01-01");
@@ -12,7 +16,7 @@ export const mp2 = DomainName("ebay.com");
 export const iphone12JanVariant = new PurchasedProduct(
   mp1,
   ELanguageCode.English,
-  null,
+  PurchaseId("amazon-iphone-12-2021-01-01"),
   "The IPhone 12",
   "Orange",
   1000,
@@ -33,7 +37,7 @@ export const janPruchasesAmazon = [
   new PurchasedProduct(
     mp1,
     ELanguageCode.English,
-    null,
+    PurchaseId("amazon-iphone-12-2021-01-01"),
     "IPhone 12",
     "Apple",
     1000,
@@ -52,7 +56,7 @@ export const janPruchasesAmazon = [
   new PurchasedProduct(
     mp1,
     ELanguageCode.English,
-    null,
+    PurchaseId("amazon-iphone-11-2021-01-11"),
     "IPhone 11",
     "Apple",
     600,
@@ -71,7 +75,7 @@ export const janPruchasesAmazon = [
   new PurchasedProduct(
     mp1,
     ELanguageCode.English,
-    null,
+    PurchaseId("amazon-aveeno-baby-lotion-2021-01-11"),
     "Aveeno Baby Lotion",
     "Aveeno",
     15,
@@ -94,7 +98,7 @@ export const janPruchases = [
   new PurchasedProduct(
     mp2,
     ELanguageCode.English,
-    null,
+    PurchaseId("ebay-aveeno-baby-lotion-2021-01-11"),
     "Aveeno Baby Lotion",
     "Aveeno",
     11,
@@ -116,7 +120,7 @@ export const febPruchases = [
   new PurchasedProduct(
     mp1,
     ELanguageCode.English,
-    null,
+    PurchaseId("amazon-iphone-12-2021-02-11"),
     "IPhone 12",
     "Apple",
     1000,
@@ -135,7 +139,7 @@ export const febPruchases = [
   new PurchasedProduct(
     mp1,
     ELanguageCode.English,
-    null,
+    PurchaseId("amazon-iphone-11-2021-02-11"),
     "IPhone 11",
     "Apple",
     1800,
@@ -154,7 +158,7 @@ export const febPruchases = [
   new PurchasedProduct(
     mp1,
     ELanguageCode.English,
-    null,
+    PurchaseId("amazon-aveeno-baby-lotion-2021-02-11"),
     "Aveeno Baby Lotion",
     "Aveeno",
     20,
@@ -173,7 +177,7 @@ export const febPruchases = [
   new PurchasedProduct(
     mp2,
     ELanguageCode.English,
-    null,
+    PurchaseId("ebay-aveeno-baby-lotion-2021-02-11"),
     "Aveeno Baby Lotion",
     "Aveeno",
     3.5,
