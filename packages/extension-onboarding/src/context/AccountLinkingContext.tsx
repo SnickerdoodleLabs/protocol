@@ -150,13 +150,7 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
               });
               const addr = (suiWallet.account?.address || "") as AccountAddress;
               const sig = signature.signature as Signature;
-              console.log("wallet address: " + addr);
-              console.log("sui signature: " + JSON.stringify(signature));
-              console.log("sui sig: " + sig);
-
-              console.log("wallet account: " + suiWallet.account);
               const publicKey = suiWallet.account?.publicKey;
-              console.log("wallet publicKey: " + publicKey);
               const suiReg: ISuiCredentials = {
                 messageBytes: signature.messageBytes,
                 publicKey: suiWallet.account?.publicKey,
