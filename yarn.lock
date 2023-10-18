@@ -6842,6 +6842,55 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@mysten/bcs@npm:0.8.1":
+  version: 0.8.1
+  resolution: "@mysten/bcs@npm:0.8.1"
+  dependencies:
+    bs58: ^5.0.0
+  checksum: bd161b10dd4e6e891f786945967c4b09b25eeeac477515cb05a85e47acb131d504221b50e8ad13b2aea0dfff6b18a7e95382cc2ff0bd145519c9232de0299eda
+  languageName: node
+  linkType: hard
+
+"@mysten/sui.js@npm:0.11.0":
+  version: 0.11.0
+  resolution: "@mysten/sui.js@npm:0.11.0"
+  dependencies:
+    "@mysten/bcs": 0.3.0
+    "@noble/hashes": ^1.1.2
+    "@noble/secp256k1": ^1.6.3
+    bn.js: ^5.2.0
+    buffer: ^6.0.3
+    cross-fetch: ^3.1.5
+    jayson: ^3.6.6
+    js-sha3: ^0.8.0
+    lossless-json: ^1.0.5
+    rpc-websockets: ^7.5.0
+    tweetnacl: ^1.0.3
+  checksum: 4c64c98985eb2f49938bb56c43c924a55a4d278073ee5edf2b2a0650036e32857c5af99dc7fd8b4d02b09a852a148ef47d206106d0722ff07cb4fd86c2147808
+  languageName: node
+  linkType: hard
+
+"@mysten/sui.js@npm:0.20.0":
+  version: 0.20.0
+  resolution: "@mysten/sui.js@npm:0.20.0"
+  dependencies:
+    "@mysten/bcs": 0.5.0
+    "@noble/hashes": ^1.1.2
+    "@noble/secp256k1": ^1.6.3
+    "@scure/bip32": ^1.1.0
+    "@scure/bip39": ^1.1.0
+    "@suchipi/femver": ^1.0.0
+    bs58: ^5.0.0
+    cross-fetch: ^3.1.5
+    jayson: ^3.6.6
+    js-sha3: ^0.8.0
+    lossless-json: ^1.0.5
+    rpc-websockets: ^7.5.0
+    tweetnacl: ^1.0.3
+  checksum: dcb491c0ed4b3ac6016c0e46b3b274d8e74e1ddc51d00f67453114e3d41a092999024b4b23f6b74bb8983332aa5fd67fc2b1653ce4dbbf183f749b4aed5b470a
+  languageName: node
+  linkType: hard
+
 "@mysten/sui.js@npm:0.41.1":
   version: 0.41.1
   resolution: "@mysten/sui.js@npm:0.41.1"
@@ -6860,6 +6909,36 @@ __metadata:
   languageName: node
   linkType: hard
 
+<<<<<<< HEAD
+=======
+"@mysten/sui.js@npm:^0.44.0":
+  version: 0.44.0
+  resolution: "@mysten/sui.js@npm:0.44.0"
+  dependencies:
+    "@mysten/bcs": 0.8.1
+    "@noble/curves": ^1.1.0
+    "@noble/hashes": ^1.3.1
+    "@open-rpc/client-js": ^1.8.1
+    "@scure/bip32": ^1.3.1
+    "@scure/bip39": ^1.2.1
+    "@suchipi/femver": ^1.0.0
+    events: ^3.3.0
+    superstruct: ^1.0.3
+    tweetnacl: ^1.0.3
+  checksum: d140f1463a2202afdd2cd5b8fa20772c15a5d8457a5946820c4882be61c3ad1c9b5766eb86c51cce45bfa629b9bc1a2507704026991c7c523923a0837ca5956d
+  languageName: node
+  linkType: hard
+
+"@mysten/wallet-adapter-base@npm:0.1.0":
+  version: 0.1.0
+  resolution: "@mysten/wallet-adapter-base@npm:0.1.0"
+  dependencies:
+    "@mysten/sui.js": 0.11.0
+  checksum: 62153f0d153f1d0faaae592bfd13941e762d0c1f9ea640adc298d61989b872fa905ff9eb77ced6285eefcbf96c0f89fda3a2e092d32775cd7ef1f2e048cfc1bb
+  languageName: node
+  linkType: hard
+
+>>>>>>> feature/sui
 "@mysten/wallet-standard@npm:0.7.1":
   version: 0.7.1
   resolution: "@mysten/wallet-standard@npm:0.7.1"
@@ -9262,6 +9341,7 @@ __metadata:
     "@snickerdoodlelabs/shared-components": "workspace:^"
     "@snickerdoodlelabs/signature-verification": "workspace:^"
     "@snickerdoodlelabs/web-integration": "workspace:^"
+    "@suiet/wallet-adapter": ^0.0.19
     "@suiet/wallet-kit": ^0.2.19
     "@walletconnect/web3-provider": ^1.6.6
     chart.js: ^3.9.1
@@ -9558,6 +9638,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/node-utils@workspace:packages/node-utils"
   dependencies:
+    "@mysten/sui.js": ^0.44.0
     "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
     axios: ^0.27.2
@@ -43049,7 +43130,7 @@ __metadata:
 "sync-promise@git+https://github.com/brettz9/sync-promise.git#full-sync-missing-promise-features":
   version: 1.0.1
   resolution: "sync-promise@https://github.com/brettz9/sync-promise.git#commit=25845a49a00aa2d2c985a5149b97c86a1fcdc75a"
-  checksum: f536c50c270ef2ec28511af3b90ba10b8e2b3b51b3e4079136d428150ccc9592f47d02e2cf41ba02135e4a81f59fb472d642794d807bacf8c55a20f85ff57c8a
+  checksum: 80f8808f2bbb8c4f809fae0b0283dbe663a23c88cd2bf6de6ce1facada5e29cc3800027dd5123f126d119bc3090c9a82da9dd2288ebb9526070280d4aab66e3c
   languageName: node
   linkType: hard
 
@@ -47241,7 +47322,7 @@ __metadata:
   dependenciesMeta:
     sqlite3:
       optional: true
-  checksum: 60d7fea6d974cf5df4361a0cdf9e7b6bca17cd59028fa2a7a72754f34e54242ef6e85aa09b97a8898566baa452c3700cf30f8d8cfbc230a2b9b7f514ce99a469
+  checksum: 9a7b155e65d6bfaeed004917daceab31e7081128535682e32b305661547253284b50088d4121d9e67352018735aa5784f0c8a819cdde1ee1a92fdd9fff0de579
   languageName: node
   linkType: hard
 

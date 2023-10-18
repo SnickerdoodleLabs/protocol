@@ -4,6 +4,8 @@ import {
   TypedDataDomain,
   TypedDataField,
 } from "@ethersproject/abstract-signer";
+import { verifyPersonalMessage } from "@mysten/sui.js/verify";
+import { SuiSignMessageOutput } from "@mysten/wallet-standard";
 import {
   AESEncryptedString,
   AESKey,
@@ -31,6 +33,12 @@ import {
   SuiAccountAddress,
 } from "@snickerdoodlelabs/objects";
 // import argon2 from "argon2";
+import {
+  ConnectModal,
+  useWallet,
+  verifySignedMessage,
+  stringBytesToUint8Array,
+} from "@suiet/wallet-kit";
 import { BigNumber, ethers } from "ethers";
 import { base58 } from "ethers/lib/utils.js";
 import { injectable } from "inversify";
@@ -264,14 +272,25 @@ export class CryptoUtils implements ICryptoUtils {
     signature: Signature,
     accountAddress: SuiAccountAddress,
   ): ResultAsync<boolean, never> {
-    return okAsync(true);
-    // return okAsync(
-    //   nacl.sign.detached.verify(
-    //     Buffer.from(message, "utf-8"),
-    //     Buffer.from(signature, "hex"),
-    //     Buffer.from(accountAddress, "utf-8"),
-    //   ),
-    // );
+    return ResultAsync.fromPromise(
+      verifyPersonalMessage(Buffer.from(message, "utf-8"), signature),
+      (e) => {
+        return e as Error;
+      },
+    )
+      .map((publicKey) => {
+        const recoveredAccountAddress = SuiAccountAddress(
+          publicKey.toSuiAddress(),
+        );
+        return (
+          recoveredAccountAddress.toLowerCase() == accountAddress.toLowerCase()
+        );
+      })
+      .orElse((e) => {
+        // The signature is almost certainly invalid; verifyPersonalMessage returns an error if the crypto fails
+        // in the verification step
+        return okAsync(false);
+      });
   }
 
   public verifySolanaSignature(
@@ -279,6 +298,14 @@ export class CryptoUtils implements ICryptoUtils {
     signature: Signature,
     accountAddress: SolanaAccountAddress,
   ): ResultAsync<boolean, never> {
+    console.log("Inside Solana Signature");
+    console.log("message: " + message);
+    console.log("utf-8 message: " + Buffer.from(message, "utf-8"));
+    console.log("signature: " + signature);
+    console.log("hex signature: " + Buffer.from(signature, "hex"));
+    console.log("accountAddress: " + accountAddress);
+    console.log("accountAddress: " + base58.decode(accountAddress));
+
     return okAsync(
       nacl.sign.detached.verify(
         Buffer.from(message, "utf-8"),
@@ -294,11 +321,6 @@ export class CryptoUtils implements ICryptoUtils {
     value: Record<string, unknown>,
     signature: Signature,
   ): ResultAsync<EVMAccountAddress, never> {
-    // The types per the spec have a type, EIP712Domain, which is actually added by ethers.
-    // But if you're not using ethers, you may be providing the types yourself. Since ethers
-    // will re-add it, we'll remove it.
-    delete types.EIP712Domain;
-
     return okAsync(
       EVMAccountAddress(
         ethers.utils.verifyTypedData(domain, types, value, signature),
@@ -416,11 +438,6 @@ export class CryptoUtils implements ICryptoUtils {
     privateKey: EVMPrivateKey,
   ): ResultAsync<Signature, never> {
     const wallet = new ethers.Wallet(privateKey); // TODO, need to specify default provider (https://github.com/ethers-io/ethers.js/issues/2258)
-
-    // The types per the spec have a type, EIP712Domain, which is actually added by ethers.
-    // But if you're not using ethers, you may be providing the types yourself. Since ethers
-    // will re-add it, we'll remove it.
-    delete types.EIP712Domain;
 
     return ResultAsync.fromSafePromise<string, never>(
       wallet._signTypedData(domain, types, value),

@@ -150,8 +150,7 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
               });
               const addr = (suiWallet.account?.address || "") as AccountAddress;
               const sig = signature.signature as Signature;
-              console.log("wallet address: " + addr);
-              console.log("sui signature: " + sig);
+
               return (
                 // okAsync(undefined)
                 // @TODO use that function with correct params

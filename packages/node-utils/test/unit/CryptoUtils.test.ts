@@ -499,32 +499,77 @@ describe("CryptoUtils tests", () => {
     // Arrange
     const mocks = new CryptoUtilsMocks();
     const utils = mocks.factoryCryptoUtils();
-
     // This signature was generated from an account with this public key
-    const suiPublicKey = SuiAccountAddress(
-      "0x316a0693b0d900bb34711438b6974ead2c9a93716fd41f8a8377fa3dc5997abd",
+    const message = "Hello world!";
+    const signature = Signature(
+      "ADmKQDG8f1BQfTDqxryx64ok0Bvkd4z3Q8VZ+sfn8aeK7F/toAJKW4FsNMytXyjDAIxcXLDV7o+xHtEcKplcLQwiS7D3ApnQ3rlRF5gdKV3d7tv2mWcpG3TlSxhNFU10Hw==",
     );
-    const suiSignature = Signature(
-      "8f6d2d8b7844e881c5eadb3901afc0ee35060a0cafac4209c629bae112d9f3b7bf5447becd615d95350f56beef391a755af80ba4f45883f0084242c7f63e8e04",
+    const suiAddress = SuiAccountAddress(
+      "0xe2664e827c8aaa42035c78e285ad6d8702af220d662b0614bd64d356a678e5b7",
     );
-    const message = "I hope sui works";
-
-    console.log("message: " + message);
-
-    // Act
-    const result = await utils.verifySuiSignature(
+    const suiBoolean = await utils.verifySuiSignature(
       message,
-      suiSignature,
-      suiPublicKey,
+      signature,
+      suiAddress,
     );
-
-    console.log("result: " + JSON.stringify(result));
 
     // Assert
-    expect(result).toBeDefined();
-    expect(result.isErr()).toBeFalsy();
-    const verified = result._unsafeUnwrap();
+    expect(suiBoolean).toBeDefined();
+    expect(suiBoolean.isErr()).toBeFalsy();
+    const verified = suiBoolean._unsafeUnwrap();
     expect(verified).toBeTruthy();
+  });
+
+  test("verifySuiSignature() wrong message", async () => {
+    // Arrange
+    const mocks = new CryptoUtilsMocks();
+    const utils = mocks.factoryCryptoUtils();
+
+    const message = "Hello world2!";
+    const signature = Signature(
+      "ADmKQDG8f1BQfTDqxryx64ok0Bvkd4z3Q8VZ+sfn8aeK7F/toAJKW4FsNMytXyjDAIxcXLDV7o+xHtEcKplcLQwiS7D3ApnQ3rlRF5gdKV3d7tv2mWcpG3TlSxhNFU10Hw==",
+    );
+    const suiAddress = SuiAccountAddress(
+      "0xe2664e827c8aaa42035c78e285ad6d8702af220d662b0614bd64d356a678e5b7",
+    );
+    const suiBoolean = await utils.verifySuiSignature(
+      message,
+      signature,
+      suiAddress,
+    );
+
+    // Assert
+    expect(suiBoolean).toBeDefined();
+    expect(suiBoolean.isErr()).toBeFalsy();
+    const verified = suiBoolean._unsafeUnwrap();
+    expect(verified).toBeFalsy();
+  });
+
+  test("verifySuiSignature() wrong signature", async () => {
+    // Arrange
+    const mocks = new CryptoUtilsMocks();
+    const utils = mocks.factoryCryptoUtils();
+    const message = "Hello world!";
+
+    // Changed "e" to "f" in signature portion
+    // SUI signatures are 97 byes- 1 for scheme, 64 for sig, 32 for the public key
+    const signature = Signature(
+      "ADmKQDG8f1BQfTDqxryx64ok0Bvkd4z3Q8VZ+sfn8afK7F/toAJKW4FsNMytXyjDAIxcXLDV7o+xHtEcKplcLQwiS7D3ApnQ3rlRF5gdKV3d7tv2mWcpG3TlSxhNFU10Hw==",
+    );
+    const suiAddress = SuiAccountAddress(
+      "0xe2664e827c8aaa42035c78e285ad6d8702af220d662b0614bd64d356a678e5b7",
+    );
+    const suiBoolean = await utils.verifySuiSignature(
+      message,
+      signature,
+      suiAddress,
+    );
+
+    // Assert
+    expect(suiBoolean).toBeDefined();
+    expect(suiBoolean.isErr()).toBeFalsy();
+    const verified = suiBoolean._unsafeUnwrap();
+    expect(verified).toBeFalsy();
   });
 
   test("signMessageSolana() works", async () => {

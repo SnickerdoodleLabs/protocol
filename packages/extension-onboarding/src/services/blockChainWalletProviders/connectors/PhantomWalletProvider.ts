@@ -38,12 +38,6 @@ export class PhantomWalletProvider implements IWalletProvider {
   constructor() {
     // @ts-ignore
     this._provider = window?.solana?.isPhantom && window.solana;
-
-    if (this._provider !== null) {
-      console.log("Phantom provider: " + JSON.stringify(this._provider));
-    } else {
-      console.log("Phantom provider is null: " + this._provider);
-    }
   }
 
   public get isInstalled(): boolean {
@@ -52,12 +46,6 @@ export class PhantomWalletProvider implements IWalletProvider {
   public connect(): ResultAsync<AccountAddress, unknown> {
     if (!this._provider) {
       return errAsync(new Error("Phantom is not installed!"));
-    }
-
-    if (this._provider !== null) {
-      console.log("Phantom provider: " + JSON.stringify(this._provider));
-    } else {
-      console.log("Phantom provider is null: " + this._provider);
     }
 
     return ResultAsync.fromPromise(
@@ -79,12 +67,6 @@ export class PhantomWalletProvider implements IWalletProvider {
       this._provider.signMessage(encodedMessage),
       (e) => errAsync(new Error("User cancelled")),
     ).andThen((signatureResult) => {
-      if (this._provider !== null) {
-        console.log("Phantom provider: " + JSON.stringify(this._provider));
-      } else {
-        console.log("Phantom provider is null: " + this._provider);
-      }
-
       return okAsync(Signature(signatureResult?.signature?.toString?.("hex")));
     });
   }
