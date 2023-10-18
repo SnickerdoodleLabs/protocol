@@ -19,7 +19,7 @@ import {
   IDataWalletPersistenceType,
   IDemographicDataRepository,
 } from "@core/interfaces/data/index.js";
-import timezoneList from "@core/implementations/data/timezoneList.json"; //assert { type: "json" };
+import timezoneList from "@core/implementations/data/timezoneList.json";
 
 @injectable()
 export class DemographicDataRepository implements IDemographicDataRepository {
