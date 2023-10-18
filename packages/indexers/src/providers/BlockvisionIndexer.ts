@@ -158,11 +158,24 @@ export class BlockvisionIndexer implements ISuiIndexer {
           "https://sui-mainnet.blockvision.org/v1/" +
           config.apiKeys.blockvisionKey;
 
+        digests = digests.filter(
+          (item, index) => digests.indexOf(item) === index,
+        );
         const requestParams = {
           jsonrpc: "2.0",
           id: 1,
-          method: "sui_getEvents",
-          params: digests,
+          method: "sui_multiGetTransactionBlocks",
+          params: [
+            digests,
+            {
+              showInput: false,
+              showRawInput: false,
+              showEffects: false,
+              showEvents: false,
+              showObjectChanges: true,
+              showBalanceChanges: true,
+            },
+          ],
         };
 
         context.privateEvents.onApiAccessed.next(EExternalApi.Blockvision);
@@ -177,24 +190,67 @@ export class BlockvisionIndexer implements ISuiIndexer {
         );
       })
       .map((response) => {
-        return response.result.map((item) => {
-          return new SuiTransaction(
-            chain,
-            SuiTransactionHash(item.id.txDigest),
-            UnixTimestamp(item.id.eventSeq),
-            null,
-            SuiAccountAddress(item.sender),
-            SuiAccountAddress(item.parsedJson.buyer),
-            BigNumberString(item.parsedJson.price),
-            null,
-            null,
-            item.parsedJson.buyer_kiosk,
-            item.type,
-            null,
-            null,
-          );
-        });
+        return response.result
+          .map((value) => {
+            const balanceUpdates = this.retrieveBalanceChanges(
+              value.digest,
+              value.balanceChanges,
+            );
+            const objectUpdates = this.retrieveObjectChanges(
+              value.objectChanges,
+            );
+            const updates = [...balanceUpdates, ...objectUpdates];
+            return updates;
+          })
+          .flat();
+      })
+      .mapErr((e) => {
+        console.log(e);
+        return e;
       });
+  }
+
+  private retrieveBalanceChanges(
+    digest: string,
+    param: IBalanceChanges[],
+  ): SuiTransaction[] {
+    return param.map((item) => {
+      return new SuiTransaction(
+        EChain.Sui,
+        SuiTransactionHash(digest),
+        UnixTimestamp(0),
+        null,
+        null,
+        null,
+        BigNumberString(item.amount),
+        null,
+        null,
+        null,
+        null,
+        "balance",
+        null,
+      );
+    });
+  }
+
+  private retrieveObjectChanges(param: IObjectChanges[]): SuiTransaction[] {
+    return param.map((item) => {
+      return new SuiTransaction(
+        EChain.Sui,
+        SuiTransactionHash(item.digest),
+        UnixTimestamp(item.version),
+        null,
+        SuiAccountAddress(item.sender),
+        SuiAccountAddress(item.owner.ObjectOwner),
+        null,
+        null,
+        null,
+        null,
+        null,
+        "object",
+        null,
+      );
+    });
   }
 
   private getTxDigests(
@@ -258,8 +314,37 @@ interface IBlockvisionBalancesReponse {
 
 interface IBlockvisionEventsResponse {
   jsonrpc: string;
-  result: IBlockvisionEvent[];
+  result: IBlockvisionChanges[];
   id: number;
+}
+
+interface IObjectChanges {
+  type: string;
+  sender: string;
+  owner: {
+    ObjectOwner: string;
+  };
+  objectType: string;
+  objectId: string;
+  version: number;
+  previousVersion: string;
+  digest: string;
+}
+
+interface IBalanceChanges {
+  owner: {
+    AddressOwner: SuiAccountAddress;
+  };
+  coinType: string;
+  amount: string;
+}
+
+interface IBlockvisionChanges {
+  digest: string;
+  objectChanges: IObjectChanges[];
+  balanceChanges: IBalanceChanges[];
+  timestampMs: string;
+  checkpoint: string;
 }
 
 interface IBlockvisionEvent {
