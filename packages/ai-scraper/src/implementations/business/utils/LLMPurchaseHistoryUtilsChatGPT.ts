@@ -12,9 +12,11 @@ import {
   LLMQuestion,
   LLMResponse,
   LLMRole,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
   ProductKeyword,
+  PurchaseId,
   PurchasedProduct,
 } from "@snickerdoodlelabs/shopping-data";
 import { inject, injectable } from "inversify";
@@ -49,6 +51,15 @@ export class LLMPurchaseHistoryUtilsChatGPT
     // );
     return LLMQuestion(
       "I need the purchase history from the following content. A purchase history must have a product name, price, and date of purchase. It can also have brand, classification, keywords which are optional. The purchase date and price cannot be null. Do not include a purchase information in the output if the purchase date or price is missing. Give response in a JSON array in the preceding format.",
+    );
+  }
+
+  public makePurchaseId(
+    purchase: IPurchaseBlock,
+    timestampPurchased: UnixTimestamp,
+  ): PurchaseId {
+    return PurchaseId(
+      `${purchase.name}-${timestampPurchased}`.replace(" ", "-"),
     );
   }
 
@@ -90,7 +101,7 @@ export class LLMPurchaseHistoryUtilsChatGPT
         return new PurchasedProduct(
           domain,
           language,
-          null,
+          this.makePurchaseId(purchase, timestampPurchased),
           purchase.name,
           purchase.brand,
           this.parsePrice(purchase.price),

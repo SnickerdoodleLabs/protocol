@@ -8,7 +8,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 
 import {
-  ProductId,
+  PurchaseId,
   ProductKeyword,
 } from "@shopping-data/objects/primitives/index.js";
 
@@ -23,7 +23,7 @@ export class PurchasedProduct extends VersionedObject {
   constructor(
     readonly marketPlace: DomainName,
     readonly language: ELanguageCode,
-    readonly id: ProductId | null,
+    readonly id: PurchaseId,
     readonly name: string,
     readonly brand: string | null,
     readonly price: number,
@@ -51,7 +51,7 @@ export class PurchasedProductMigrator extends VersionedObjectMigrator<PurchasedP
     return new PurchasedProduct(
       DomainName(data["marketPlace"] as string),
       ELanguageCode[data["languageCode"] as string],
-      ProductId(data["id"] as number),
+      PurchaseId(data["id"] as string),
       data["name"] as string,
       data["brand"] as string,
       data["price"] as number,

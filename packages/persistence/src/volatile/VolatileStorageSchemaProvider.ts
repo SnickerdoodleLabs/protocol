@@ -272,13 +272,14 @@ export class VolatileStorageSchemaProvider
           new VolatileTableIndex(
             ERecordKey.PURCHASED_PRODUCT,
             "id",
-            true,
+            false,
             new PurchasedProductMigrator(),
             EBackupPriority.NORMAL,
             config.dataWalletBackupIntervalMS,
             config.backupChunkSizeTarget,
             [
               ["marketPlace", false],
+              ["category", false],
               ["datePurchased", false],
               [["marketPlace", "datePurchased"], false],
             ],
