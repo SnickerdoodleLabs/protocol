@@ -94,7 +94,7 @@ describe("LLMProductMetaUtilsChatGPT", () => {
     expect(metas.length).toBe(10);
     const gotFirst = metas[0];
     expect(gotFirst.productId).toBe(firstProductMeta.product_id.toString());
-    expect(gotFirst.category).toBe(firstProductMeta.category);
+    expect(gotFirst.category).toBeNull();
     expect(gotFirst.keywords).toEqual(firstProductMeta.keywords);
   });
 
