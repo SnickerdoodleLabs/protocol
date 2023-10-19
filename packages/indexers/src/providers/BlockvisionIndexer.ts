@@ -33,6 +33,8 @@ import {
   SuiNFT,
   SuiTransaction,
   getChainInfoByChain,
+  SuiTokenAddress,
+  SuiCollection,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
@@ -142,7 +144,58 @@ export class BlockvisionIndexer implements ISuiIndexer {
     chain: EChain,
     accountAddress: SuiAccountAddress,
   ): ResultAsync<SuiNFT[], AccountIndexingError | AjaxError> {
-    return okAsync([]);
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+    ])
+      .andThen(([config, context]) => {
+        const url =
+          "https://api.blockvision.org/v2/sui/account/activities?address=" +
+          accountAddress;
+
+        let apiKey = config.apiKeys.blockvisionKey;
+        if (apiKey == null) {
+          apiKey = "";
+        }
+
+        const requestParams: IRequestConfig = {
+          method: "get",
+          url: url,
+          headers: {
+            accept: "application/json",
+            "X-API-Key": apiKey,
+          },
+        };
+
+        context.privateEvents.onApiAccessed.next(EExternalApi.Blockvision);
+        return this.ajaxUtils.get<IBlockvisionDigestReponse>(
+          new URL(url),
+          requestParams,
+        );
+      })
+      .map((response) => {
+        return response.result.data.map((item) => {
+          if (item.nftMetadata == null) {
+            return null;
+          }
+          return new SuiNFT(
+            SuiTokenAddress(item.nftMetadata.objectId),
+            BigNumberString("1"),
+            item.nftMetadata.eventType,
+            accountAddress,
+            TokenUri(item.nftMetadata.imageURL),
+            { raw: ObjectUtils.serialize(item.nftMetadata) },
+            BigNumberString("1"),
+            item.nftMetadata.name,
+            EChain.Sui,
+            undefined,
+            undefined,
+          );
+        });
+      })
+      .map((balances) => {
+        return balances.filter((obj) => obj != null) as SuiNFT[];
+      });
   }
 
   public getSuiTransactions(
@@ -225,12 +278,17 @@ export class BlockvisionIndexer implements ISuiIndexer {
       let from = item.owner.AddressOwner;
       let to = accountAddress;
       let amount = item.amount;
+
       if (amount < 0) {
         from = accountAddress;
         to = this.nativeSuiAddress;
         amount = amount * -1;
       }
       amount = amount * 10 ** 9;
+
+      console.log("amount: " + amount);
+      console.log("timestamp.toString(): " + timestamp.toString());
+      console.log("balance item: " + JSON.stringify(item));
 
       return new SuiTransaction(
         EChain.Sui,
@@ -252,6 +310,8 @@ export class BlockvisionIndexer implements ISuiIndexer {
 
   private retrieveObjectChanges(param: IObjectChanges[]): SuiTransaction[] {
     return param.map((item) => {
+      console.log("amount: " + item.digest);
+      console.log("object item: " + JSON.stringify(item));
       return new SuiTransaction(
         EChain.Sui,
         SuiTransactionHash(item.digest),
@@ -407,5 +467,20 @@ interface IBlockvisionDigest {
   activityType: string;
   moduleName: string;
   functionName: string;
-  nftMetadata: string | null;
+  nftMetadata: IBlockvisionNftMetadata | null;
+}
+
+interface IBlockvisionNftMetadata {
+  objectId: SuiTokenAddress;
+  objectType: string;
+  eventType: string;
+  eventFunc: string;
+  marketPlace: string;
+  description: string;
+  projectURL: string;
+  imageURL: string;
+  name: string;
+  price: number;
+  from: SuiAccountAddress;
+  to: SuiAccountAddress;
 }
