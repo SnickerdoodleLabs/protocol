@@ -58,6 +58,9 @@ export class BlockvisionIndexer implements ISuiIndexer {
   protected supportedChains = new Map<EChain, IndexerSupportSummary>([
     [EChain.Sui, new IndexerSupportSummary(EChain.Sui, true, true, true)],
   ]);
+  nativeSuiAddress = SuiAccountAddress(
+    "0x0000000000000000000000000000000000000000000000000000000000000000",
+  );
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -194,6 +197,7 @@ export class BlockvisionIndexer implements ISuiIndexer {
           .map((value) => {
             const balanceUpdates = this.retrieveBalanceChanges(
               value.digest,
+              accountAddress,
               value.balanceChanges,
             );
             const objectUpdates = this.retrieveObjectChanges(
@@ -212,17 +216,30 @@ export class BlockvisionIndexer implements ISuiIndexer {
 
   private retrieveBalanceChanges(
     digest: string,
+    accountAddress: SuiAccountAddress,
     param: IBalanceChanges[],
   ): SuiTransaction[] {
+    let timestamp = 0;
     return param.map((item) => {
+      timestamp++;
+      let from = item.owner.AddressOwner;
+      let to = accountAddress;
+      let amount = item.amount;
+      if (amount < 0) {
+        from = accountAddress;
+        to = this.nativeSuiAddress;
+        amount = amount * -1;
+      }
+      amount = amount * 10 ** 9;
+
       return new SuiTransaction(
         EChain.Sui,
-        SuiTransactionHash(digest),
-        UnixTimestamp(0),
+        SuiTransactionHash(timestamp.toString()),
+        UnixTimestamp(timestamp),
         null,
-        null,
-        null,
-        BigNumberString(item.amount),
+        from,
+        to,
+        BigNumberString(amount.toString()),
         null,
         null,
         null,
@@ -336,7 +353,7 @@ interface IBalanceChanges {
     AddressOwner: SuiAccountAddress;
   };
   coinType: string;
-  amount: string;
+  amount: number;
 }
 
 interface IBlockvisionChanges {
