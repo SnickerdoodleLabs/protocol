@@ -27,7 +27,7 @@ export const tokenInfoObj: ITokenInfo = {
   ARB: { displayName: "Arbitrum", iconSrc: arbitrumCircle },
   OP: { displayName: "Optimism", iconSrc: optimismCircle },
   ASTR: { displayName: "Astar", iconSrc: astarCircle },
-  Sui: { displayName: "Sui", iconSrc: suiCircle },
+  SUI: { displayName: "Sui", iconSrc: suiCircle },
 };
 
 export const stableCoins = [
@@ -45,5 +45,5 @@ export const stableCoins = [
   "ARB",
   "OP",
   "ASTR",
-  "Sui",
+  "SUI",
 ];

@@ -8,13 +8,10 @@ import {
 import { ChainTransaction } from "@objects/businessObjects/versioned/ChainTransaction.js";
 import { EChain } from "@objects/enum/index.js";
 import {
-  EVMAccountAddress,
   SuiAccountAddress,
   BigNumberString,
   UnixTimestamp,
   EVMAccountAddressRegex,
-  EVMTransactionHash,
-  EVMContractAddress,
   SuiTransactionHash,
   SuiContractAddress,
 } from "@objects/primitives/index.js";
