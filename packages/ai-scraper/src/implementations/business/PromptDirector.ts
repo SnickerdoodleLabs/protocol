@@ -44,6 +44,10 @@ export class PromptDirector implements IPromptDirector {
     return this.make(builder, [], role, question, answerStructure, data);
   }
 
+  public makeProductMetaPrompt(data: LLMData): ResultAsync<Prompt, LLMError> {
+    throw new Error("Method not implemented.");
+  }
+
   private make(
     builder: IPromptBuilder,
     exemplars: Exemplar[],
