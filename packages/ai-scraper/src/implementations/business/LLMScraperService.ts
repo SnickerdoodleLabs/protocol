@@ -28,6 +28,8 @@ import { ResultUtils } from "neverthrow-result-utils";
 import {
   IHTMLPreProcessor,
   IHTMLPreProcessorType,
+  ILLMProductMetaUtils,
+  ILLMProductMetaUtilsType,
   ILLMProvider,
   ILLMProviderType,
   ILLMPurchaseHistoryUtils,
@@ -50,12 +52,14 @@ export class LLMScraperService implements IScraperService {
     private llmProvider: ILLMProvider,
     @inject(IPromptDirectorType)
     private promptDirector: IPromptDirector,
+    @inject(IWebpageClassifierType)
+    private webpageClassifier: IWebpageClassifier,
     @inject(ILLMPurchaseHistoryUtilsType)
     private purchaseHistoryLLMUtils: ILLMPurchaseHistoryUtils,
     @inject(IPurchaseRepositoryType)
     private purchaseRepository: IPurchaseRepository,
-    @inject(IWebpageClassifierType)
-    private webpageClassifier: IWebpageClassifier,
+    @inject(ILLMProductMetaUtilsType)
+    private productMetaUtils: ILLMProductMetaUtils,
   ) {}
 
   public poll(): ResultAsync<void, ScraperError> {
@@ -78,6 +82,23 @@ export class LLMScraperService implements IScraperService {
     html: HTMLString,
     suggestedDomainTask: DomainTask,
   ): ResultAsync<void, ScraperError> {
+    
+    if (suggestedDomainTask.taskType == ETask.PurchaseHistory) {
+      return this.scrapePurchaseHistory(url, html, suggestedDomainTask);
+    }
+    return errAsync(new ScraperError("Task type not supported."));
+  }
+
+  private scrapePurchaseHistory(
+    url: URLString,
+    html: HTMLString,
+    suggestedDomainTask: DomainTask,
+  ): ResultAsync<void, ScraperError> {
+    /*
+    This is a two step process.
+    Step 1: get purchase information from LLM
+    Step 2: for each purchase, if category is null/unknown, then add it to the next prompt to get meta information
+    */
     // throw new Error("Method not implemented.");
     // 1. build prompt
     // 2. execute prompt
@@ -103,6 +124,7 @@ export class LLMScraperService implements IScraperService {
     });
   }
 
+
   private buildPrompt(
     url: URLString,
     html: HTMLString,
@@ -125,7 +147,12 @@ export class LLMScraperService implements IScraperService {
       return this.purchaseHistoryLLMUtils
         .parsePurchases(domainTask.domain, language, llmResponse)
         .andThen((purchases) => {
-          return this.savePurchases(purchases);
+          // Find a better way to refactor it
+          // return this.savePurchases(purchases);
+          return this.savePurchases(purchases)
+            .andThen(() => {
+              return this.scrapeProductMeta(domainTask, language, purchases);
+            });
         });
     }
     return errAsync(new LLMError("Task type not supported."));
@@ -140,5 +167,27 @@ export class LLMScraperService implements IScraperService {
     });
 
     return ResultUtils.combine(results).map(() => {});
+  }
+
+  private scrapeProductMeta(
+    domainTask: DomainTask,
+    language: ELanguageCode,
+    purchases: PurchasedProduct[],
+  ): ResultAsync<void, ScraperError> {
+    // convert purchases to LLM data first
+    const purchaseJsonArr = purchases.map((purchase, idx) => {
+      return {
+        product_id: idx,
+        product_name: purchase.name,
+      };
+    });
+    const llmData = LLMData(JSON.stringify(purchaseJsonArr));
+
+    return this.promptDirector.makeProductMetaPrompt(llmData).andThen((prompt) => {
+      return this.llmProvider.executePrompt(prompt).andThen((llmResponse) => {
+        const productMetas = this.productMetaUtils.parseMeta(domainTask.domain, language, llmResponse);
+        // TODO
+      });
+    });
   }
 }

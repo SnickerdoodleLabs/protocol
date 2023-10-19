@@ -1,9 +1,9 @@
 export const ProductCategories = [
+  "unknown",
   "Home Improvement",
   "Electronics",
   "Outdoors",
   "Hair Care",
-  "unknown",
   "Automotive Accessories",
   "Phone Accessories",
   "Fashion",
