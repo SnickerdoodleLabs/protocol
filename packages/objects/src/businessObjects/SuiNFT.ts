@@ -10,6 +10,7 @@ import {
   SuiAccountAddress,
   SuiTokenAddress,
   TickerSymbol,
+  SuiContractAddress,
 } from "@objects/primitives/index.js";
 
 export class SuiCollection {
@@ -21,19 +22,18 @@ export class SuiCollection {
 
 export class SuiNFT extends WalletNFT {
   public constructor(
-    public chain: EChain,
+    public token: SuiTokenAddress,
+    public tokenId: BigNumberString,
+    public contractType: string,
     public owner: SuiAccountAddress,
-    public mint: SuiTokenAddress,
-    public collection: SuiCollection | null,
-    public metadataUri: string,
-    public isMutable: boolean,
-    public primarySaleHappened: boolean,
-    public sellerFeeBasisPoints: number,
-    public updateAuthority: SuiAccountAddress | null,
-    public tokenStandard: number | null,
-    public symbol: TickerSymbol,
+    public tokenUri: TokenUri | undefined,
+    public metadata: object | undefined,
+    public amount: BigNumberString,
     public name: string,
+    public chain: EChain,
+    public blockNumber?: BlockNumber,
+    public lastOwnerTimeStamp?: UnixTimestamp,
   ) {
-    super(EChainTechnology.Sui, chain, owner, mint, name);
+    super(EChainTechnology.Sui, chain, owner, token, name);
   }
 }

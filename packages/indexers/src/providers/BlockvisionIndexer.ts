@@ -179,18 +179,17 @@ export class BlockvisionIndexer implements ISuiIndexer {
             return null;
           }
           return new SuiNFT(
-            EChain.Sui,
-            accountAddress,
             SuiTokenAddress(item.nftMetadata.objectId),
-            null,
-            item.nftMetadata.imageURL,
-            false,
-            true,
-            item.nftMetadata.price,
-            null,
-            null,
-            TickerSymbol("SUI"),
+            BigNumberString("1"),
+            item.nftMetadata.eventType,
+            accountAddress,
+            TokenUri(item.nftMetadata.imageURL),
+            { raw: ObjectUtils.serialize(item.nftMetadata) },
+            BigNumberString("1"),
             item.nftMetadata.name,
+            EChain.Sui,
+            undefined,
+            undefined,
           );
         });
       })
@@ -279,13 +278,13 @@ export class BlockvisionIndexer implements ISuiIndexer {
       let from = item.owner.AddressOwner;
       let to = accountAddress;
       let amount = item.amount;
+
       if (amount < 0) {
         from = accountAddress;
         to = this.nativeSuiAddress;
         amount = amount * -1;
       }
       amount = amount * 10 ** 9;
-
       return new SuiTransaction(
         EChain.Sui,
         SuiTransactionHash(timestamp.toString()),
