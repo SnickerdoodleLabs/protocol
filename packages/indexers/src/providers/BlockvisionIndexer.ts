@@ -33,6 +33,8 @@ import {
   SuiNFT,
   SuiTransaction,
   getChainInfoByChain,
+  SuiTokenAddress,
+  SuiCollection,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
@@ -142,7 +144,59 @@ export class BlockvisionIndexer implements ISuiIndexer {
     chain: EChain,
     accountAddress: SuiAccountAddress,
   ): ResultAsync<SuiNFT[], AccountIndexingError | AjaxError> {
-    return okAsync([]);
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+    ])
+      .andThen(([config, context]) => {
+        const url =
+          "https://api.blockvision.org/v2/sui/account/activities?address=" +
+          accountAddress;
+
+        let apiKey = config.apiKeys.blockvisionKey;
+        if (apiKey == null) {
+          apiKey = "";
+        }
+
+        const requestParams: IRequestConfig = {
+          method: "get",
+          url: url,
+          headers: {
+            accept: "application/json",
+            "X-API-Key": apiKey,
+          },
+        };
+
+        context.privateEvents.onApiAccessed.next(EExternalApi.Blockvision);
+        return this.ajaxUtils.get<IBlockvisionDigestReponse>(
+          new URL(url),
+          requestParams,
+        );
+      })
+      .map((response) => {
+        return response.result.data.map((item) => {
+          if (item.nftMetadata == null) {
+            return null;
+          }
+          return new SuiNFT(
+            EChain.Sui,
+            accountAddress,
+            SuiTokenAddress(item.nftMetadata.objectId),
+            null,
+            item.nftMetadata.imageURL,
+            false,
+            true,
+            item.nftMetadata.price,
+            null,
+            null,
+            TickerSymbol("SUI"),
+            item.nftMetadata.name,
+          );
+        });
+      })
+      .map((balances) => {
+        return balances.filter((obj) => obj != null) as SuiNFT[];
+      });
   }
 
   public getSuiTransactions(
@@ -407,5 +461,20 @@ interface IBlockvisionDigest {
   activityType: string;
   moduleName: string;
   functionName: string;
-  nftMetadata: string | null;
+  nftMetadata: IBlockvisionNftMetadata | null;
+}
+
+interface IBlockvisionNftMetadata {
+  objectId: SuiTokenAddress;
+  objectType: string;
+  eventType: string;
+  eventFunc: string;
+  marketPlace: string;
+  description: string;
+  projectURL: string;
+  imageURL: string;
+  name: string;
+  price: number;
+  from: SuiAccountAddress;
+  to: SuiAccountAddress;
 }

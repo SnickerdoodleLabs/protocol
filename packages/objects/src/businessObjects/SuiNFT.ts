@@ -29,7 +29,7 @@ export class SuiNFT extends WalletNFT {
     public isMutable: boolean,
     public primarySaleHappened: boolean,
     public sellerFeeBasisPoints: number,
-    public updateAuthority: SuiAccountAddress,
+    public updateAuthority: SuiAccountAddress | null,
     public tokenStandard: number | null,
     public symbol: TickerSymbol,
     public name: string,
