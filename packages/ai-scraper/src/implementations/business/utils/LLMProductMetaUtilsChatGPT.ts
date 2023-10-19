@@ -83,13 +83,24 @@ export class LLMProductMetaUtilsChatGPT implements ILLMProductMetaUtils {
       const metas: IProductMetaBlock[] = JSON.parse(llmResponse);
       // worst possible parser
       const productMetas = metas.map((meta) => {
+        if (meta.product_id == null) {
+          this.logUtils.debug(
+            `Invalid product id ${meta.product_id} in ${meta}`,
+          );
+          return null;
+        }
+
         return new ProductMeta(
           ProductId(meta.product_id.toString()),
           meta.category,
-          meta.keywords as ProductKeyword[],
+          (meta.keywords ?? []) as ProductKeyword[],
         );
       });
-      return okAsync(productMetas);
+      const validMetas = productMetas.filter(
+        (meta) => meta != null,
+      ) as ProductMeta[];
+
+      return okAsync(validMetas);
     } catch (e) {
       // return errAsync(new LLMError((e as Error).message, e));
       this.logUtils.warning(`No product meta. LLMRReponse: ${llmResponse}`);

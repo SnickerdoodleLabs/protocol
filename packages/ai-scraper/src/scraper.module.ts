@@ -13,6 +13,7 @@ import {
   URLUtils,
   KeywordRepository,
   KeywordUtils,
+  LLMProductMetaUtilsChatGPT,
 } from "@ai-scraper/implementations/index.js";
 import {
   IScraperConfigProvider,
@@ -41,6 +42,8 @@ import {
   IKeywordRepositoryType,
   IKeywordUtils,
   IKeywordUtilsType,
+  ILLMProductMetaUtils,
+  ILLMProductMetaUtilsType,
 } from "@ai-scraper/interfaces/index.js";
 
 export const scraperModule = new ContainerModule(
@@ -65,12 +68,18 @@ export const scraperModule = new ContainerModule(
     bind<IPromptDirector>(IPromptDirectorType)
       .to(PromptDirector)
       .inSingletonScope();
-    bind<ILLMPurchaseHistoryUtils>(ILLMPurchaseHistoryUtilsType)
-      .to(LLMPurchaseHistoryUtilsChatGPT)
-      .inSingletonScope();
+
     bind<IPromptBuilderFactory>(IPromptBuilderFactoryType)
       .to(PromptBuilderFactory)
       .inSingletonScope();
+
+    bind<ILLMPurchaseHistoryUtils>(ILLMPurchaseHistoryUtilsType)
+      .to(LLMPurchaseHistoryUtilsChatGPT)
+      .inSingletonScope();
+    bind<ILLMProductMetaUtils>(ILLMProductMetaUtilsType)
+      .to(LLMProductMetaUtilsChatGPT)
+      .inSingletonScope();
+
     bind<IAmazonNavigationUtils>(IAmazonNavigationUtilsType)
       .to(AmazonNavigationUtils)
       .inSingletonScope();
