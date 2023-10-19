@@ -90,7 +90,7 @@ export class LLMScraperService implements IScraperService {
           return this.llmProvider
             .executePrompt(prompt)
             .andThen((llmResponse) => {
-              return this.processLLMResponse(
+              return this.processLLMPurchaseResponse(
                 suggestedDomainTask,
                 language,
                 llmResponse,
@@ -116,7 +116,7 @@ export class LLMScraperService implements IScraperService {
     return errAsync(new LLMError("Task type not supported."));
   }
 
-  private processLLMResponse(
+  private processLLMPurchaseResponse(
     domainTask: DomainTask,
     language: ELanguageCode,
     llmResponse: LLMResponse,
