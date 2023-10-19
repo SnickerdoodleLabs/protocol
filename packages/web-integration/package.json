@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/web-integration",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Utilities for general consumption within the Snickerdoodle Protocol",
   "license": "ISC",
   "repository": {
@@ -18,12 +18,12 @@
     "Web"
   ],
   "main": "dist/index.js",
+  "module": "./dist/index.js",
   "files": [
     "dist",
     "!dist/test",
     "!dist/tsconfig.tsbuildinfo"
   ],
-  "module": "./dist/index.js",
   "scripts": {
     "alias": "tsc-alias",
     "build": "yarn clean && yarn compile",

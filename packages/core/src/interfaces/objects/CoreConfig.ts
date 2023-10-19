@@ -52,6 +52,7 @@ export class CoreConfig
     public devChainProviderURL: ProviderUrl | null,
     public maxStatsRetentionSeconds: number,
     public passwordLanguageCode: LanguageCode,
+    public queryPerformanceMetricsLimit: number,
     public scraper: {
       OPENAI_API_KEY: string;
       timeout: number;

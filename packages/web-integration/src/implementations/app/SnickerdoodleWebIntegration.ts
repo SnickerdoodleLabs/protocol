@@ -17,7 +17,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { Container } from "inversify";
-import { ResultAsync, okAsync } from "neverthrow";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { URLChangeObserver } from "@web-integration/implementations/utilities/index.js";
@@ -87,6 +87,14 @@ export class SnickerdoodleWebIntegration
   > {
     if (this.initializeResult != null) {
       return this.initializeResult;
+    } else if (window.sdlDataWalletInitializeAttempted) {
+      return errAsync(
+        new ProxyError(
+          "Snickedoodle Web Integration initialize() has already been called via another instance",
+        ),
+      );
+    } else {
+      window.sdlDataWalletInitializeAttempted = true;
     }
 
     const logUtils = this.iocContainer.get<ILogUtils>(ILogUtilsType);
@@ -165,6 +173,8 @@ export class SnickerdoodleWebIntegration
         });
       })
       .mapErr((e) => {
+        // Reset the initialize flag so that we can try again
+        window.sdlDataWalletInitializeAttempted = undefined;
         logUtils.error(e);
         return e;
       });
@@ -234,4 +244,5 @@ export class SnickerdoodleWebIntegration
 
 declare let window: {
   sdlDataWallet: ISdlDataWallet | undefined;
+  sdlDataWalletInitializeAttempted: boolean | undefined;
 };

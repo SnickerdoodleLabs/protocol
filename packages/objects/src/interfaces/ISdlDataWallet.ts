@@ -14,6 +14,9 @@ import {
   TokenMarketData,
   WalletNFT,
   QueryStatus,
+  TransactionFilter,
+  ChainTransaction,
+  TransactionPaymentCounter,
 } from "@objects/businessObjects/index.js";
 import {
   ECoreProxyType,
@@ -22,7 +25,7 @@ import {
 } from "@objects/enum/index.js";
 import { ProxyError } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
-import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata.js";
+import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
 import {
   IAccountMethods,
   ICoreDiscordMethods,
@@ -228,6 +231,15 @@ export interface ISdlDataWallet {
   ): ResultAsync<TokenInfo | null, ProxyError>;
   getAccountBalances(): ResultAsync<TokenBalance[], ProxyError>;
   getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError>;
+
+  getTransactions(
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], ProxyError>;
+  getTransactionValueByChain(): ResultAsync<
+    TransactionPaymentCounter[],
+    ProxyError
+  >;
+
   closeTab(): ResultAsync<void, ProxyError>;
   getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
@@ -239,7 +251,7 @@ export interface ISdlDataWallet {
   >;
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, ProxyError>;
+  ): ResultAsync<IOldUserAgreement, ProxyError>;
   getAgreementPermissions(
     consentContractAddres: EVMContractAddress,
   ): ResultAsync<EWalletDataType[], ProxyError>;

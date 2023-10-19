@@ -52,4 +52,11 @@ export class TimeUtils implements ITimeUtils {
   public getCurMonth(): Month {
     return Month(new Date().getMonth());
   }
+
+  public convertTimestampToISOString(
+    unixTimestamp: UnixTimestamp,
+  ): ISO8601DateString {
+    const date = new Date(unixTimestamp * 1000);
+    return ISO8601DateString(date.toISOString());
+  }
 }

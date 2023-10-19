@@ -8,6 +8,7 @@ import {
   View,
 } from "react-native";
 import Modal from "react-native-modal";
+
 import { FormattedRpcError, FormattedRpcResponse } from "./methods";
 
 interface Props {

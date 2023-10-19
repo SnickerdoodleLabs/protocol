@@ -1,8 +1,9 @@
-import { useStyles } from "@extension-onboarding/components/WalletProviders/WalletProviderItem/WalletProviderItem.style";
-import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
-import {  Box } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import { Button } from "@snickerdoodlelabs/shared-components";
 import React, { useMemo, FC, memo } from "react";
+
+import { useStyles } from "@extension-onboarding/components/WalletProviders/WalletProviderItem/WalletProviderItem.style";
+import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
 
 interface IWalletProviderItemProps {
   provider: IProvider;

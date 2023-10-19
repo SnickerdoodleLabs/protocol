@@ -5,7 +5,7 @@ import {
   PageInvitation,
   DomainName,
   EVMContractAddress,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   IpfsCID,
   EWalletDataType,
   MarketplaceListing,
@@ -54,7 +54,7 @@ export interface IInvitationService {
 
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError>;
+  ): ResultAsync<IOldUserAgreement, SnickerDoodleCoreError>;
 
   getConsentCapacity(
     consentContractAddress: EVMContractAddress,
