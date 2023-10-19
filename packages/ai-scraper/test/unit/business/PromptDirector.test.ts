@@ -65,4 +65,18 @@ describe("PromptDirector", () => {
     const prompt = promptRes._unsafeUnwrap();
     expect(prompt).toEqual(promptPH);
   });
+
+  test("makePromptBuilderPrompt", async () => {
+    // Arrange
+    const m = new mocks();
+    const director = m.factory();
+
+    // Act
+    const promptRes = await director.makeProductMetaPrompt(LLMData("anything"));
+
+    // Assert
+    expect(promptRes.isOk()).toBe(true);
+    const prompt = promptRes._unsafeUnwrap();
+    expect(prompt).toEqual(promptProductMeta);
+  });
 });

@@ -48,7 +48,7 @@ describe("LLMProductMetaUtilsChatGPT", () => {
     const metas = result._unsafeUnwrap();
     expect(metas.length).toBe(10);
     const gotFirst = metas[0];
-    expect(gotFirst.productId).toBe(firstProductMeta.product_id);
+    expect(gotFirst.productId).toBe(firstProductMeta.product_id.toString());
     expect(gotFirst.category).toBe(firstProductMeta.category);
     expect(gotFirst.keywords).toEqual(firstProductMeta.keywords);
   });
@@ -70,7 +70,7 @@ describe("LLMProductMetaUtilsChatGPT", () => {
     const metas = result._unsafeUnwrap();
     expect(metas.length).toBe(9);
     const gotFirst = metas[0];
-    expect(gotFirst.productId).toBe(secondProductMeta.product_id);
+    expect(gotFirst.productId).toBe(secondProductMeta.product_id.toString());
     expect(gotFirst.category).toBe(secondProductMeta.category);
     expect(gotFirst.keywords).toEqual(secondProductMeta.keywords);
   });
@@ -93,7 +93,7 @@ describe("LLMProductMetaUtilsChatGPT", () => {
     const metas = result._unsafeUnwrap();
     expect(metas.length).toBe(10);
     const gotFirst = metas[0];
-    expect(gotFirst.productId).toBe(firstProductMeta.product_id);
+    expect(gotFirst.productId).toBe(firstProductMeta.product_id.toString());
     expect(gotFirst.category).toBe(firstProductMeta.category);
     expect(gotFirst.keywords).toEqual(firstProductMeta.keywords);
   });
