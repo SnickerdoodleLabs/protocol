@@ -1,14 +1,13 @@
 import {
   Box,
-  Button,
   FormControl,
   FormControlLabel,
   Grid,
   RadioGroup,
-  Typography,
 } from "@material-ui/core";
+import { PurchasedProduct } from "@snickerdoodlelabs/objects";
 import { Radio } from "@snickerdoodlelabs/shared-components/src/components/Radio/Radio";
-import React, { FC, memo, useState } from "react";
+import React, { FC, memo, useEffect, useState } from "react";
 
 import { IShoppingDataPlatformProps } from "../types";
 
@@ -22,9 +21,24 @@ import { useStyles } from "@extension-onboarding/pages/Details/screens/ShoppingD
 
 export const Amazon: FC<IShoppingDataPlatformProps> = memo(
   ({ name, icon }: IShoppingDataPlatformProps) => {
-    const [isConnected, setIsConnected] = useState(false);
+    const [isConnected, setIsConnected] = useState(true);
+    const [product, setProduct] = useState<PurchasedProduct[]>([]);
     const { sdlDataWallet } = useDataWalletContext();
     const { amazonProvider: provider } = useAccountLinkingContext();
+
+    useEffect(() => {
+      getEarnedRewards();
+    }, []);
+
+    useEffect(() => {
+      console.log(product);
+    }, [product.length]);
+
+    const getEarnedRewards = () => {
+      return sdlDataWallet.purchase.get().map((products) => {
+        setProduct(products);
+      });
+    };
 
     const handleConnectClick = () => {
       provider
@@ -72,7 +86,7 @@ export const Amazon: FC<IShoppingDataPlatformProps> = memo(
               </FormControl>
             </Grid>
             <Grid className={classes.containers}>
-              <AmazonDataItem />
+              <AmazonDataItem product={product} />
             </Grid>
           </>
         )}

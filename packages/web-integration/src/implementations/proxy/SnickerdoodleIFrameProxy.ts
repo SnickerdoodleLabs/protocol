@@ -77,15 +77,16 @@ import {
   BlockNumber,
   RefreshToken,
   OAuth2Tokens,
-  DomainTask,
   ELanguageCode,
   HTMLString,
   ScraperError,
-  IProxyScraperMethods,
   IProxyScraperNavigationMethods,
   PageNo,
   Year,
   IProxyAccountMethods,
+  IProxyPurchaseMethods,
+  PersistenceError,
+  PurchasedProduct,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -788,67 +789,34 @@ export class SnickerdoodleIFrameProxy
     },
   };
 
-  public scraper: IProxyScraperMethods = {
-    scrape: (
-      url: URLString,
-      html: HTMLString,
-      suggestedDomainTask: DomainTask,
-    ): ResultAsync<void, ProxyError | ScraperError> => {
-      return this._createCall("scraper.scrape", {
-        url,
-        html,
-        suggestedDomainTask,
-      });
-    },
-    classifyURL: (
-      url: URLString,
-      language: ELanguageCode,
-    ): ResultAsync<DomainTask, ProxyError | ScraperError> => {
-      return this._createCall("scraper.classifyURL", {
-        url,
-        language,
-      });
-    },
-  };
-
   public scrapernavigation: IProxyScraperNavigationMethods = {
     getOrderHistoryPage: (
       lang: ELanguageCode,
       page: PageNo,
-    ): ResultAsync<URLString, ProxyError | ScraperError> => {
+    ): ResultAsync<URLString, ProxyError> => {
       return this._createCall("scrapernavigation.amazon.getOrderHistoryPage", {
         lang,
         page,
       });
     },
-    getYears: (
-      html: HTMLString,
-    ): ResultAsync<Year[], ProxyError | ScraperError> => {
-      return this._createCall("scrapernavigation.amazon.getYears", {
-        html,
-      });
+  };
+
+  public purchase: IProxyPurchaseMethods = {
+    get: (): ResultAsync<PurchasedProduct[], ProxyError> => {
+      return this._createCall("purchase.get", {});
     },
-    getOrderHistoryPageByYear: (
-      lang: ELanguageCode,
-      year: Year,
-      page: PageNo,
-    ): ResultAsync<URLString, ProxyError | ScraperError> => {
-      return this._createCall(
-        "scrapernavigation.amazon.getOrderHistoryPageByYear",
-        {
-          lang,
-          year,
-          page,
-        },
-      );
+    getByMarketplace: (
+      marketPlace: DomainName,
+    ): ResultAsync<PurchasedProduct[], ProxyError> => {
+      return this._createCall("purchase.getByMarketplace", { marketPlace });
     },
-    getPageCount: (
-      html: HTMLString,
-      year: Year,
-    ): ResultAsync<number, ProxyError | ScraperError> => {
-      return this._createCall("scrapernavigation.amazon.getPageCount", {
-        html,
-        year,
+    getByMarketplaceAndDate: (
+      marketPlace: DomainName,
+      datePurchased: UnixTimestamp,
+    ): ResultAsync<PurchasedProduct[], ProxyError> => {
+      return this._createCall("purchase.getByMarketplaceAndDate", {
+        marketPlace,
+        datePurchased,
       });
     },
   };

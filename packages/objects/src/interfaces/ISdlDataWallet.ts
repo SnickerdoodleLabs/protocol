@@ -14,15 +14,13 @@ import {
   TokenMarketData,
   WalletNFT,
   QueryStatus,
-  DomainTask,
 } from "@objects/businessObjects/index.js";
 import {
   ECoreProxyType,
   EInvitationStatus,
-  ELanguageCode,
   EWalletDataType,
 } from "@objects/enum/index.js";
-import { ProxyError, ScraperError } from "@objects/errors/index.js";
+import { ProxyError } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata.js";
 import {
@@ -31,7 +29,7 @@ import {
   ICoreIntegrationMethods,
   ICoreTwitterMethods,
   IMetricsMethods,
-  IScraperMethods,
+  IPurchaseMethods,
   IScraperNavigationMethods,
   IStorageMethods,
 } from "@objects/interfaces/ISnickerdoodleCore.js";
@@ -48,7 +46,6 @@ import {
   FamilyName,
   Gender,
   GivenName,
-  HTMLString,
   IpfsCID,
   LanguageCode,
   MarketplaceTag,
@@ -171,21 +168,24 @@ export type IProxyStorageMethods = {
   >;
 };
 
-export type IProxyScraperMethods = {
-  [key in FunctionKeys<IScraperMethods>]: (
-    ...args: [...Parameters<IScraperMethods[key]>]
-  ) => ResultAsync<
-    GetResultAsyncValueType<ReturnType<IScraperMethods[key]>>,
-    ProxyError | ScraperError
-  >;
-};
-
 export type IProxyScraperNavigationMethods = {
-  [key in FunctionKeys<IScraperNavigationMethods["amazon"]>]: (
+  [key in Exclude<
+    FunctionKeys<IScraperNavigationMethods["amazon"]>,
+    "getYears" | "getPageCount" | "getOrderHistoryPageByYear"
+  >]: (
     ...args: [...Parameters<IScraperNavigationMethods["amazon"][key]>]
   ) => ResultAsync<
     ReturnType<IScraperNavigationMethods["amazon"][key]>,
-    ProxyError | ScraperError
+    ProxyError
+  >;
+};
+
+export type IProxyPurchaseMethods = {
+  [key in FunctionKeys<IPurchaseMethods>]: (
+    ...args: [...Parameters<IPurchaseMethods[key]>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<IPurchaseMethods[key]>>,
+    ProxyError
   >;
 };
 
@@ -356,7 +356,7 @@ export interface ISdlDataWallet {
   metrics: IProxyMetricsMethods;
   storage: IProxyStorageMethods;
   events: ISnickerdoodleCoreEvents;
-  scraper: IProxyScraperMethods;
+  purchase: IProxyPurchaseMethods;
   scrapernavigation: IProxyScraperNavigationMethods;
 }
 

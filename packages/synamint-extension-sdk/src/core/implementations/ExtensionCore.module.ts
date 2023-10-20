@@ -14,18 +14,6 @@ import {
 import { ContainerModule, interfaces } from "inversify";
 
 import {
-  IScraperNavigationService,
-  IScraperNavigationServiceType,
-} from "../interfaces/business/IScraperNavigationService";
-import {
-  IScraperService,
-  IScraperServiceType,
-} from "../interfaces/business/IScraperService";
-
-import { ScraperNavigationService } from "./business/ScraperNavigationService";
-import { ScraperService } from "./business/ScraperService";
-
-import {
   BrowserTabListener,
   CoreListener,
   ErrorListener,
@@ -40,6 +28,9 @@ import {
   MetricsService,
   PIIService,
   PortConnectionService,
+  PurchaseService,
+  ScraperNavigationService,
+  ScraperService,
   TokenPriceService,
   TwitterService,
   UserSiteInteractionService,
@@ -86,6 +77,12 @@ import {
   IPIIServiceType,
   IPortConnectionService,
   IPortConnectionServiceType,
+  IPurchaseService,
+  IPurchaseServiceType,
+  IScraperNavigationService,
+  IScraperNavigationServiceType,
+  IScraperService,
+  IScraperServiceType,
   ITokenPriceService,
   ITokenPriceServiceType,
   ITwitterService,
@@ -223,6 +220,10 @@ export const extensionCoreModule = new ContainerModule(
 
     bind<IScraperNavigationService>(IScraperNavigationServiceType)
       .to(ScraperNavigationService)
+      .inSingletonScope();
+
+    bind<IPurchaseService>(IPurchaseServiceType)
+      .to(PurchaseService)
       .inSingletonScope();
   },
 );

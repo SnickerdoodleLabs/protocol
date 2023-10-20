@@ -9,6 +9,7 @@ export * from "@core/implementations/business/MarketplaceService.js";
 export * from "@core/implementations/business/MetricsService.js";
 export * from "@core/implementations/business/MonitoringService.js";
 export * from "@core/implementations/business/ProfileService.js";
+export * from "@core/implementations/business/PurchaseService.js";
 export * from "@core/implementations/business/QueryService.js";
 export * from "@core/implementations/business/TwitterService.js";
 export * from "@core/implementations/business/utilities/index.js";

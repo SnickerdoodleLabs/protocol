@@ -55,19 +55,23 @@ import {
   OAuth2Tokens,
   ScraperError,
   DomainTask,
-  IProxyScraperMethods,
   HTMLString,
   ELanguageCode,
-  IProxyScraperNavigationMethods,
   PageNo,
   Year,
   IProxyAccountMethods,
   LanguageCode,
   EChain,
   Signature,
+  IProxyPurchaseMethods,
+  PurchasedProduct,
+  IScraperNavigationMethods,
+  IScraperMethods,
+  GetResultAsyncValueType,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
+import { FunctionKeys } from "utility-types";
 
 import CoreHandler from "@synamint-extension-sdk/gateways/handler/CoreHandler";
 import {
@@ -157,8 +161,30 @@ import {
   ScraperGetPageCountParams,
   AddAccountWithExternalSignatureParams,
   AddAccountWithExternalTypedDataSignatureParams,
+  PurchaseGetParams,
+  PurchaseGetByMarketPlaceParams,
+  PurchaseGetByMarketPlaceAndDateParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
+
+// We are not passing all the functions in IScraperNavigationMethods to proxy thats why we need to redifine type for gateway
+type IGatewayScraperNavigationMethods = {
+  [key in FunctionKeys<IScraperNavigationMethods["amazon"]>]: (
+    ...args: [...Parameters<IScraperNavigationMethods["amazon"][key]>]
+  ) => ResultAsync<
+    ReturnType<IScraperNavigationMethods["amazon"][key]>,
+    ProxyError
+  >;
+};
+
+type IGatewayScraperMethods = {
+  [key in FunctionKeys<IScraperMethods>]: (
+    ...args: [...Parameters<IScraperMethods[key]>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<IScraperMethods[key]>>,
+    ProxyError
+  >;
+};
 
 export class ExternalCoreGateway {
   public account: IProxyAccountMethods;
@@ -166,8 +192,9 @@ export class ExternalCoreGateway {
   public integration: IProxyIntegrationMethods;
   public metrics: IProxyMetricsMethods;
   public twitter: IProxyTwitterMethods;
-  public scraper: IProxyScraperMethods;
-  public scraperNavigation: IProxyScraperNavigationMethods;
+  public purchase: IProxyPurchaseMethods;
+  public scraper: IGatewayScraperMethods;
+  public scraperNavigation: IGatewayScraperNavigationMethods;
   protected _handler: CoreHandler;
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
@@ -319,7 +346,7 @@ export class ExternalCoreGateway {
         url: URLString,
         html: HTMLString,
         suggestedDomainTask: DomainTask,
-      ): ResultAsync<void, ProxyError | ScraperError> => {
+      ): ResultAsync<void, ProxyError> => {
         return this._handler.call(
           new ScraperScrapeParams(url, html, suggestedDomainTask),
         );
@@ -327,7 +354,7 @@ export class ExternalCoreGateway {
       classifyURL: (
         url: URLString,
         language: ELanguageCode,
-      ): ResultAsync<DomainTask, ProxyError | ScraperError> => {
+      ): ResultAsync<DomainTask, ProxyError> => {
         return this._handler.call(new ScraperClassifyUrlParams(url, language));
       },
     };
@@ -336,21 +363,19 @@ export class ExternalCoreGateway {
       getOrderHistoryPage: (
         lang: ELanguageCode,
         page: PageNo,
-      ): ResultAsync<URLString, ProxyError | ScraperError> => {
+      ): ResultAsync<URLString, ProxyError> => {
         return this._handler.call(
           new ScraperGetOrderHistoryPageParams(lang, page),
         );
       },
-      getYears: (
-        html: HTMLString,
-      ): ResultAsync<Year[], ProxyError | ScraperError> => {
+      getYears: (html: HTMLString): ResultAsync<Year[], ProxyError> => {
         return this._handler.call(new ScraperGetYearsParams(html));
       },
       getOrderHistoryPageByYear: (
         lang: ELanguageCode,
         year: Year,
         page: PageNo,
-      ): ResultAsync<URLString, ProxyError | ScraperError> => {
+      ): ResultAsync<URLString, ProxyError> => {
         return this._handler.call(
           new ScraperGetOrderHistoryPageByYearParams(lang, year, page),
         );
@@ -358,8 +383,29 @@ export class ExternalCoreGateway {
       getPageCount: (
         html: HTMLString,
         year: Year,
-      ): ResultAsync<number, ProxyError | ScraperError> => {
+      ): ResultAsync<number, ProxyError> => {
         return this._handler.call(new ScraperGetPageCountParams(html, year));
+      },
+    };
+
+    this.purchase = {
+      get: (): ResultAsync<PurchasedProduct[], ProxyError> => {
+        return this._handler.call(new PurchaseGetParams());
+      },
+      getByMarketplace: (
+        marketPlace: DomainName,
+      ): ResultAsync<PurchasedProduct[], ProxyError> => {
+        return this._handler.call(
+          new PurchaseGetByMarketPlaceParams(marketPlace),
+        );
+      },
+      getByMarketplaceAndDate: (
+        marketPlace: DomainName,
+        datePurchased: UnixTimestamp,
+      ): ResultAsync<PurchasedProduct[], ProxyError> => {
+        return this._handler.call(
+          new PurchaseGetByMarketPlaceAndDateParams(marketPlace, datePurchased),
+        );
       },
     };
   }

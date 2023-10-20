@@ -64,6 +64,7 @@ import {
   ELanguageCode,
   PageNo,
   Year,
+  PurchasedProduct,
 } from "@snickerdoodlelabs/objects";
 
 import { IExtensionConfig } from "./IExtensionConfig";
@@ -970,4 +971,40 @@ export class ScraperGetPageCountParams extends CoreActionParams<number> {
   }
 }
 
+// #endregion
+
+// #region Purchase
+export class PurchaseGetParams extends CoreActionParams<PurchasedProduct[]> {
+  public constructor() {
+    super(PurchaseGetParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.PURCHASE_GET_PARAMS;
+  }
+}
+
+export class PurchaseGetByMarketPlaceParams extends CoreActionParams<
+  PurchasedProduct[]
+> {
+  public constructor(public marketPlace: DomainName) {
+    super(PurchaseGetParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.PURCHASE_GET_BY_MARKET_PLACE;
+  }
+}
+
+export class PurchaseGetByMarketPlaceAndDateParams extends CoreActionParams<
+  PurchasedProduct[]
+> {
+  public constructor(
+    public marketPlace: DomainName,
+    public datePurchased: UnixTimestamp,
+  ) {
+    super(PurchaseGetParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.PURCHASE_GET_BY_MARKET_PLACE_AND_DATE;
+  }
+}
 // #endregion

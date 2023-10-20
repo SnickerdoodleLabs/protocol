@@ -111,6 +111,7 @@ import {
   PageNo,
   Year,
   URLString,
+  IPurchaseMethods,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -119,7 +120,10 @@ import {
   ICloudStorageManager,
   ICloudStorageManagerType,
 } from "@snickerdoodlelabs/persistence";
-import { shoppingDataModule } from "@snickerdoodlelabs/shopping-data";
+import {
+  PurchasedProduct,
+  shoppingDataModule,
+} from "@snickerdoodlelabs/shopping-data";
 import {
   IStorageUtils,
   IStorageUtilsType,
@@ -162,6 +166,8 @@ import {
   IMetricsServiceType,
   IProfileService,
   IProfileServiceType,
+  IPurchaseService,
+  IPurchaseServiceType,
   IQueryService,
   IQueryServiceType,
   ITwitterService,
@@ -195,6 +201,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public metrics: IMetricsMethods;
   public storage: IStorageMethods;
 
+  public purchase: IPurchaseMethods;
   public scraper: IScraperMethods;
   public scraperNavigation: IScraperNavigationMethods;
 
@@ -701,6 +708,32 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         const scraperService =
           this.iocContainer.get<IScraperService>(IScraperServiceType);
         return scraperService.classifyURL(url, language);
+      },
+    };
+
+    this.purchase = {
+      get: (): ResultAsync<PurchasedProduct[], PersistenceError> => {
+        const purchaseService =
+          this.iocContainer.get<IPurchaseService>(IPurchaseServiceType);
+        return purchaseService.get();
+      },
+      getByMarketplace: (
+        marketPlace: DomainName,
+      ): ResultAsync<PurchasedProduct[], PersistenceError> => {
+        const purchaseService =
+          this.iocContainer.get<IPurchaseService>(IPurchaseServiceType);
+        return purchaseService.getByMarketplace(marketPlace);
+      },
+      getByMarketplaceAndDate: (
+        marketPlace: DomainName,
+        datePurchased: UnixTimestamp,
+      ): ResultAsync<PurchasedProduct[], PersistenceError> => {
+        const purchaseService =
+          this.iocContainer.get<IPurchaseService>(IPurchaseServiceType);
+        return purchaseService.getByMarketplaceAndDate(
+          marketPlace,
+          datePurchased,
+        );
       },
     };
 

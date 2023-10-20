@@ -162,6 +162,7 @@ import {
   QueryService,
   TwitterService,
   CloudStorageService,
+  PurchaseService,
 } from "@core/implementations/business/index.js";
 import { PermissionUtils } from "@core/implementations/business/utilities/index.js";
 import {
@@ -240,6 +241,8 @@ import {
   IQueryServiceType,
   ITwitterService,
   ITwitterServiceType,
+  IPurchaseService,
+  IPurchaseServiceType,
 } from "@core/interfaces/business/index.js";
 import {
   IBalanceQueryEvaluator,
@@ -587,6 +590,12 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IScraperConfigProvider>(IScraperConfigProviderType).toService(
       IConfigProviderType,
     );
+    // endregion
+
+    // region purchase
+    bind<IPurchaseService>(IPurchaseServiceType)
+      .to(PurchaseService)
+      .inSingletonScope();
     // endregion
   },
 );

@@ -38,6 +38,7 @@ import {
   SiteVisitsMap,
   OptInInfo,
   DomainTask,
+  PurchasedProduct,
   // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
@@ -711,6 +712,17 @@ export interface IScraperNavigationMethods {
   };
 }
 
+export interface IPurchaseMethods {
+  get(): ResultAsync<PurchasedProduct[], PersistenceError>;
+  getByMarketplace(
+    marketPlace: DomainName,
+  ): ResultAsync<PurchasedProduct[], PersistenceError>;
+  getByMarketplaceAndDate(
+    marketPlace: DomainName,
+    datePurchased: UnixTimestamp,
+  ): ResultAsync<PurchasedProduct[], PersistenceError>;
+}
+
 export interface ISnickerdoodleCore {
   /**
    * initialize() should be the first call you make on a new SnickerdoodleCore.
@@ -958,6 +970,7 @@ export interface ISnickerdoodleCore {
   twitter: ICoreTwitterMethods;
   metrics: IMetricsMethods;
   storage: IStorageMethods;
+  purchase: IPurchaseMethods;
   scraper: IScraperMethods;
   scraperNavigation: IScraperNavigationMethods;
 }

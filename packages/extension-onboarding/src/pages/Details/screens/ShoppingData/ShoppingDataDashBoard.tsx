@@ -1,18 +1,12 @@
 import { Box } from "@material-ui/core";
-import { ESocialType } from "@snickerdoodlelabs/objects";
 import React from "react";
 
 import { Amazon } from "./Platforms";
 
 import UnauthScreen from "@extension-onboarding/components/UnauthScreen/UnauthScreen";
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { EShoppingDataType } from "@extension-onboarding/objects/enums/EShoppingDataType";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/ShoppingData/ShoppingDataDashBoard.style";
-import {
-  DiscordInfo,
-  TwitterInfo,
-} from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms";
 
 interface IShoppingDataProps {
   name: string;
@@ -23,7 +17,6 @@ interface IShoppingDataProps {
 export default () => {
   const classes = useStyles();
   const { shoppingDataProviderList, appMode } = useAppContext();
-  const { sdlDataWallet } = useDataWalletContext();
 
   const getShoppingDataComponentGivenProps = ({
     name,

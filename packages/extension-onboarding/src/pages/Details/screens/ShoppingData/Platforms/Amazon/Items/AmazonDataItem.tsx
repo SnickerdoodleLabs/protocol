@@ -1,5 +1,6 @@
 import { Box, Button, Grid, Typography } from "@material-ui/core";
 import { PieChart } from "@material-ui/icons";
+import { PurchasedProduct } from "@snickerdoodlelabs/objects";
 import { ChartData, ChartOptions } from "chart.js";
 import React, { FC, memo } from "react";
 import { Bar, Pie } from "react-chartjs-2";
@@ -7,12 +8,61 @@ import { Bar, Pie } from "react-chartjs-2";
 import { useStyles } from "../Amazon.style";
 
 import csvIcon from "@extension-onboarding/assets/icons/csv-ıcon.png";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 
-interface IAmazonDataItemProps {}
+interface IAmazonDataItemProps {
+  product: PurchasedProduct[];
+}
 
 export const AmazonDataItem: FC<IAmazonDataItemProps> = memo(
-  ({}: IAmazonDataItemProps) => {
-    const data: number[] = [12546, 10423, 10710, 1032];
+  ({ product }: IAmazonDataItemProps) => {
+    const totalPrice = parseFloat(
+      product.reduce((total, product) => total + product.price, 0).toFixed(3),
+    );
+    const clothesProducts = product.filter(
+      (product) => product.category === "Clothes",
+    );
+    const clothesTotalPrice = parseFloat(
+      clothesProducts
+        .reduce((total, product) => total + product.price, 0)
+        .toFixed(3),
+    );
+    const electronicsProducts = product.filter(
+      (product) => product.category === "Electronics",
+    );
+    const electronicsTotalPrice = parseFloat(
+      electronicsProducts
+        .reduce((total, product) => total + product.price, 0)
+        .toFixed(3),
+    );
+    const gameProducts = product.filter(
+      (product) => product.category === "Game",
+    );
+    const gameTotalPrice = parseFloat(
+      gameProducts
+        .reduce((total, product) => total + product.price, 0)
+        .toFixed(3),
+    );
+    const otherProducts = product.filter(
+      (product) =>
+        !(
+          product.category === "Clothes" ||
+          product.category === "Electronics" ||
+          product.category === "Game"
+        ),
+    );
+    const otherTotalPrice = parseFloat(
+      otherProducts
+        .reduce((total, product) => total + product.price, 0)
+        .toFixed(3),
+    );
+
+    const data: number[] = [
+      clothesTotalPrice,
+      electronicsTotalPrice,
+      gameTotalPrice,
+      otherTotalPrice,
+    ];
     const labels: string[] = ["Clothes ", "Electronic ", "Game", "Other"];
     const pieChartData: ChartData<"pie", number[], any> = {
       labels: labels,
@@ -70,7 +120,7 @@ export const AmazonDataItem: FC<IAmazonDataItemProps> = memo(
                 </Box>
                 <Box className={classes.dataTitleSubTitleBox}>
                   <Typography className={classes.dataSubTitle}>
-                    $1,220
+                    ${totalPrice}
                   </Typography>
                 </Box>
                 <Box className={classes.profitContainer}>
@@ -89,7 +139,9 @@ export const AmazonDataItem: FC<IAmazonDataItemProps> = memo(
                   </Typography>
                 </Box>
                 <Box className={classes.dataTitleSubTitleBox}>
-                  <Typography className={classes.dataSubTitle}>48</Typography>
+                  <Typography className={classes.dataSubTitle}>
+                    {product.length}
+                  </Typography>
                 </Box>
               </Box>
             </Box>

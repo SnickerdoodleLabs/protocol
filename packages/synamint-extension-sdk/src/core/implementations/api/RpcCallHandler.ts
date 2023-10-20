@@ -42,6 +42,10 @@ import {
   IUserSiteInteractionServiceType,
 } from "@synamint-extension-sdk/core/interfaces/business";
 import {
+  IPurchaseService,
+  IPurchaseServiceType,
+} from "@synamint-extension-sdk/core/interfaces/business/IPurchaseService";
+import {
   IScraperNavigationService,
   IScraperNavigationServiceType,
 } from "@synamint-extension-sdk/core/interfaces/business/IScraperNavigationService";
@@ -149,6 +153,9 @@ import {
   AddAccountWithExternalSignatureParams,
   AddAccountWithExternalTypedDataSignatureParams,
   ERequestChannel,
+  PurchaseGetParams,
+  PurchaseGetByMarketPlaceParams,
+  PurchaseGetByMarketPlaceAndDateParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -899,6 +906,30 @@ export class RpcCallHandler implements IRpcCallHandler {
     ),
 
     // #endregion
+
+    // #region Purchase
+    new CoreActionHandler<PurchaseGetParams>(
+      PurchaseGetParams.getCoreAction(),
+      (_params) => {
+        return this.purchaseService.get();
+      },
+    ),
+    new CoreActionHandler<PurchaseGetByMarketPlaceParams>(
+      PurchaseGetByMarketPlaceParams.getCoreAction(),
+      (params) => {
+        return this.purchaseService.getByMarketplace(params.marketPlace);
+      },
+    ),
+    new CoreActionHandler<PurchaseGetByMarketPlaceAndDateParams>(
+      PurchaseGetByMarketPlaceAndDateParams.getCoreAction(),
+      (params) => {
+        return this.purchaseService.getByMarketplaceAndDate(
+          params.marketPlace,
+          params.datePurchased,
+        );
+      },
+    ),
+    // #endregion
   ];
 
   constructor(
@@ -916,6 +947,8 @@ export class RpcCallHandler implements IRpcCallHandler {
     protected userSiteInteractionService: IUserSiteInteractionService,
     @inject(IDiscordServiceType)
     protected discordService: IDiscordService,
+    @inject(IPurchaseServiceType)
+    protected purchaseService: IPurchaseService,
     @inject(IScraperServiceType)
     protected scraperService: IScraperService,
     @inject(IScraperNavigationServiceType)

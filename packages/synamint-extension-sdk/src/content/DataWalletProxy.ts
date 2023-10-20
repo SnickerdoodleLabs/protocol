@@ -61,15 +61,11 @@ import {
   ECoreProxyType,
   BlockNumber,
   RefreshToken,
-  DomainTask,
-  HTMLString,
-  ScraperError,
   ELanguageCode,
-  IProxyScraperMethods,
   IProxyScraperNavigationMethods,
   PageNo,
-  Year,
   IProxyAccountMethods,
+  IProxyPurchaseMethods,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -172,7 +168,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public twitter: IProxyTwitterMethods;
   public storage: IProxyStorageMethods;
   public events: PublicEvents;
-  public scraper: IProxyScraperMethods;
+  public purchase: IProxyPurchaseMethods;
   public scrapernavigation: IProxyScraperNavigationMethods;
 
   public proxyType: ECoreProxyType = ECoreProxyType.EXTENSION_INJECTED;
@@ -370,39 +366,27 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       },
     };
 
-    this.scraper = {
-      scrape: (
-        url: URLString,
-        html: HTMLString,
-        suggestedDomainTask: DomainTask,
-      ) => {
-        return coreGateway.scraper.scrape(url, html, suggestedDomainTask);
-      },
-      classifyURL: (url: URLString, language: ELanguageCode) => {
-        return coreGateway.scraper.classifyURL(url, language);
-      },
-    };
-
     this.scrapernavigation = {
       getOrderHistoryPage: (lang: ELanguageCode, page: PageNo) => {
         return coreGateway.scraperNavigation.getOrderHistoryPage(lang, page);
       },
-      getYears: (html: HTMLString) => {
-        return coreGateway.scraperNavigation.getYears(html);
+    };
+
+    this.purchase = {
+      get: () => {
+        return coreGateway.purchase.get();
       },
-      getOrderHistoryPageByYear: (
-        lang: ELanguageCode,
-        year: Year,
-        page: PageNo,
+      getByMarketplace: (marketPlace: DomainName) => {
+        return coreGateway.purchase.getByMarketplace(marketPlace);
+      },
+      getByMarketplaceAndDate: (
+        marketPlace: DomainName,
+        datePurchased: UnixTimestamp,
       ) => {
-        return coreGateway.scraperNavigation.getOrderHistoryPageByYear(
-          lang,
-          year,
-          page,
+        return coreGateway.purchase.getByMarketplaceAndDate(
+          marketPlace,
+          datePurchased,
         );
-      },
-      getPageCount: (html: HTMLString, year: Year) => {
-        return coreGateway.scraperNavigation.getPageCount(html, year);
       },
     };
 
