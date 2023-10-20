@@ -19,6 +19,7 @@ import {
 import {
   IPurchaseRepository,
   IPurchaseRepositoryType,
+  ProductCategories,
   PurchasedProduct,
 } from "@snickerdoodlelabs/shopping-data";
 import { inject, injectable } from "inversify";
@@ -176,6 +177,8 @@ export class LLMScraperService implements IScraperService {
   ): ResultAsync<void, ScraperError> {
     // convert purchases to LLM data first
     const purchaseJsonArr = purchases.map((purchase, idx) => {
+
+      // TODO only do it if there is not category as this is a extra cost.
       return {
         product_id: idx,
         product_name: purchase.name,
@@ -187,7 +190,20 @@ export class LLMScraperService implements IScraperService {
       return this.llmProvider.executePrompt(prompt).andThen((llmResponse) => {
         const productMetas = this.productMetaUtils.parseMeta(domainTask.domain, language, llmResponse);
         // TODO
+        return productMetas.andThen((metas) => {
+          const purchasesToUpdate = metas.map((meta) => {
+            const purchase = purchases[parseInt(meta.productId)];
+            purchase.category = meta.category ?? "unknown"; // TODO convert to enum
+            purchase.keywords = meta.keywords;
+            return purchase;
+          });
+
+          return this.savePurchases(purchasesToUpdate);
+        });
       });
-    });
+    })
+    .mapErr((err) => {
+      return new ScraperError(err.message, err);
+    });;
   }
 }
