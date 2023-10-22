@@ -2,7 +2,7 @@ import Container from "@extension-onboarding/components/v2/Container";
 import DashboardTitle from "@extension-onboarding/components/v2/DashboardTitle";
 import Table from "@extension-onboarding/components/v2/Table";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { EVMTransaction } from "@snickerdoodlelabs/objects";
+import { EVMTransaction, chainConfig } from "@snickerdoodlelabs/objects";
 import {
   getCalculatedAge,
   abbreviateString,
@@ -19,7 +19,14 @@ const columns = [
   {
     label: "Txn Hash",
     render: (txn: EVMTransaction, breakPoint) => {
-      return <>{abbreviateWithBreakPoint(txn.hash, breakPoint)}</>;
+      return (
+        <a
+          target="_blank"
+          href={chainConfig.get(txn.chain)?.getExplorerURL(txn.hash)}
+        >
+          {abbreviateWithBreakPoint(txn.hash, breakPoint)}
+        </a>
+      );
     },
   },
   {
@@ -37,14 +44,38 @@ const columns = [
   {
     label: "From",
     render: (txn: EVMTransaction, breakPoint) => {
-      return <>{abbreviateWithBreakPoint(txn.from ?? "", breakPoint)}</>;
+      return (
+        <a
+          target="_blank"
+          href={
+            chainConfig
+              .get(txn.chain)
+              ?.explorerURL.replace("/tx/", "/address/")
+              .replace("/extrinsic/", "/account/") + (txn.from ?? "")
+          }
+        >
+          {abbreviateWithBreakPoint(txn.from ?? "", breakPoint)}
+        </a>
+      );
     },
   },
 
   {
     label: "To",
     render: (txn: EVMTransaction, breakPoint) => {
-      return <>{abbreviateWithBreakPoint(txn.to ?? "", breakPoint)}</>;
+      return (
+        <a
+          target="_blank"
+          href={
+            chainConfig
+              .get(txn.chain)
+              ?.explorerURL.replace("/tx/", "/address/")
+              .replace("/extrinsic/", "/account/") + (txn.to ?? "")
+          }
+        >
+          {abbreviateWithBreakPoint(txn.to ?? "", breakPoint)}
+        </a>
+      );
     },
   },
   {
@@ -55,7 +86,7 @@ const columns = [
     hideOn: ["xs" as const, "sm" as const],
   },
   {
-    label: "Txn Fee",
+    label: "Gas Fee",
     render: (txn: EVMTransaction, breakPoint) => {
       return <>{txn.gasPrice}</>;
     },
