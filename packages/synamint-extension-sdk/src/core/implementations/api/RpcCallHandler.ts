@@ -137,6 +137,7 @@ import {
   ERequestChannel,
   GetTransactionValueByChainParams,
   GetTransactionsParams,
+  UpdateAgreementPermissionsParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -509,6 +510,15 @@ export class RpcCallHandler implements IRpcCallHandler {
       (params) => {
         return this.dataPermissionsUtils.setApplyDefaultPermissionsOption(
           params.option,
+        );
+      },
+    ),
+    new CoreActionHandler<UpdateAgreementPermissionsParams>(
+      UpdateAgreementPermissionsParams.getCoreAction(),
+      (params) => {
+        return this.invitationService.updateAgreementPermissions(
+          params.consentContractAddress,
+          params.dataTypes,
         );
       },
     ),

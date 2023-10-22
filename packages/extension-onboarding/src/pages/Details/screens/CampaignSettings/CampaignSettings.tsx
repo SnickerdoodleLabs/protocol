@@ -11,7 +11,10 @@ import Typography from "@extension-onboarding/components/Typography";
 import UnauthScreen from "@extension-onboarding/components/UnauthScreen";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import {
+  IModal,
+  useLayoutContext,
+} from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/CampaignSettings/CampaignSettings.style";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";

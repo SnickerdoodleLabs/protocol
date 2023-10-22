@@ -39,7 +39,7 @@ const RewardDetail: FC = () => {
       });
   };
   const isSubscribed = useMemo(
-    () => optedInContracts.includes(consentContractAddress),
+    () => false,
     [optedInContracts],
   );
   const _permissions = permissions

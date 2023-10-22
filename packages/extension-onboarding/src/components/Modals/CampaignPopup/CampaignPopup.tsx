@@ -89,8 +89,6 @@ const CampaignPopup: FC = () => {
         })(),
         primaryButtonText: "Got it",
         secondaryButtonText: "",
-        primaryClicked: () => {},
-        secondaryClicked: () => {},
       },
     });
   };
@@ -188,8 +186,6 @@ const CampaignPopup: FC = () => {
             message: `Looks like this reward link has been reserved for another data wallet user.`,
             primaryButtonText: "Got it",
             secondaryButtonText: "",
-            primaryClicked: () => {},
-            secondaryClicked: () => {},
           },
         });
         setLoadingStatus(false);
@@ -207,8 +203,6 @@ const CampaignPopup: FC = () => {
             message: `You have successfully claimed your reward.\n\nOnce it is ready, your reward will appear on your portfolio. This may take upto 24 hours. `,
             primaryButtonText: "Got it",
             secondaryButtonText: "",
-            primaryClicked: () => {},
-            secondaryClicked: () => {},
           },
         });
       });

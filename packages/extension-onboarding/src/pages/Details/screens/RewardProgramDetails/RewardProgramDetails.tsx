@@ -250,7 +250,7 @@ const RewardProgramDetails: FC = () => {
   };
 
   const isSubscribed = useMemo(() => {
-    return optedInContracts.includes(consentContractAddress);
+    return false
   }, [JSON.stringify(optedInContracts), consentContractAddress]);
 
   useEffect(() => {

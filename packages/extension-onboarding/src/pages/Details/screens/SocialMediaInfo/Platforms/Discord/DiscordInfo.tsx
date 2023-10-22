@@ -7,7 +7,6 @@ import {
 import React, { FC, memo, useEffect, useState } from "react";
 
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import SocialUnlinkingModal from "@extension-onboarding/components/Modals/SocialUnlinkingModal";
 import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
@@ -108,20 +107,6 @@ export const DiscordInfo: FC<ISocialMediaPlatformProps> = memo(
     const classes = useStyles();
     return (
       <>
-        {isModalOpen && (
-          <SocialUnlinkingModal
-            profileName={`${selectedProfile.name}#${selectedProfile.discriminator}`}
-            closeModal={() => {
-              setIsModalOpen(false);
-            }}
-            unlinkAccount={() => {
-              provider.unlink(DiscordID(selectedProfile.userId)).map(() => {
-                getUserProfiles();
-                setIsModalOpen(false);
-              });
-            }}
-          />
-        )}
         <Box
           p={3}
           display="flex"
@@ -140,19 +125,6 @@ export const DiscordInfo: FC<ISocialMediaPlatformProps> = memo(
               <Box ml={2} justifyContent="flex-start" alignItems="center">
                 <Typography className={classes.providerName}>{name}</Typography>
               </Box>
-            </Box>
-            <Box justifyContent="center" alignItems="center">
-              <Button
-                variant="outlined"
-                className={classes.linkAccountButton}
-                onClick={() => {
-                  provider
-                    .installationUrl()
-                    .map((url) => window.open(url, "_self"));
-                }}
-              >
-                Link Account
-              </Button>
             </Box>
           </Box>
           {linkedDiscordAccount.map((discordProfile, index) => {

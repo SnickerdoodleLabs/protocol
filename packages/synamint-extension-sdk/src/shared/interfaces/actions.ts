@@ -241,6 +241,18 @@ export class AcceptInvitationByUUIDParams extends CoreActionParams<void> {
   }
 }
 
+export class UpdateAgreementPermissionsParams extends CoreActionParams<void> {
+  public constructor(
+    public consentContractAddress: EVMContractAddress,
+    public dataTypes: EWalletDataType[],
+  ) {
+    super(UpdateAgreementPermissionsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.UPDATE_AGREEMENT_PERMISSIONS;
+  }
+}
+
 export class AcceptInvitationParams extends CoreActionParams<void> {
   public constructor(
     public dataTypes: EWalletDataType[],

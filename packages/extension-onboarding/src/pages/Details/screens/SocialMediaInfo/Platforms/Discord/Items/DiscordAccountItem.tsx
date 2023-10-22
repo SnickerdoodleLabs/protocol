@@ -39,14 +39,6 @@ export const DiscordAccountItem: FC<IDiscordAccountItemProps> = memo(
               >{`${name}#${discriminator}`}</Typography>
             </Box>
           </Box>
-          <Box>
-            <Button
-              onClick={handleUnlinkClick}
-              className={classes.unlinkAccountButton}
-            >
-              Unlink Account
-            </Button>
-          </Box>
         </Box>
         <Box mt={2} mb={3} className={classes.divider} />
         <Box px={2.5}>

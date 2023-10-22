@@ -7,9 +7,9 @@ import MainContainer from "@extension-onboarding/containers/MainContainer";
 const App = () => {
   const classes = useStyles();
   return (
-    <Box className={classes.appWrapper}>
-      <MainContainer />
-    </Box>
+    // <Box className={classes.appWrapper}>
+    <MainContainer />
+    // </Box>
   );
 };
 

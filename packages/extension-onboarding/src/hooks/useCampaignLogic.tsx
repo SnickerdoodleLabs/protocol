@@ -85,7 +85,7 @@ const useCampaignItemLogic = ({
   };
 
   const isSubscribed = useMemo(() => {
-    return optedInContracts.includes(consentContractAddress);
+    return false
   }, [optedInContracts]);
 
   const subscriberCount = useMemo(() => {

@@ -4,6 +4,7 @@ import {
   DataWalletAddress,
   EarnedReward,
   EVMContractAddress,
+  IpfsCID,
   LinkedAccount,
   Signature,
   URLString,
@@ -56,7 +57,7 @@ export interface IAppContext {
   providerList: IProvider[];
   earnedRewards: EarnedReward[];
   updateOptedInContracts: () => void;
-  optedInContracts: EVMContractAddress[];
+  optedInContracts: Map<EVMContractAddress, IpfsCID> | undefined;
   socialMediaProviderList: ISocialMediaWrapper[];
   getUserAccounts(): ResultAsync<void, unknown>;
   addAccount(account: LinkedAccount): void;
@@ -91,9 +92,8 @@ export const AppContextProvider: FC = ({ children }) => {
     INITIAL_INVITATION_INFO,
   );
   const [earnedRewards, setEarnedRewards] = useState<EarnedReward[]>([]);
-  const [optedInContracts, setUptedInContracts] = useState<
-    EVMContractAddress[]
-  >([]);
+  const [optedInContracts, setOptedInContracts] =
+    useState<Map<EVMContractAddress, IpfsCID>>();
   const [isProductTourCompleted, setIsProductTourCompleted] = useState<boolean>(
     localStorage.getItem("SDL_UserCompletedIntro") === "COMPLETED",
   );
@@ -226,7 +226,7 @@ export const AppContextProvider: FC = ({ children }) => {
 
   const getOptedInContracts = () => {
     sdlDataWallet.getAcceptedInvitationsCID().map((res) => {
-      setUptedInContracts(Array.from(res.keys()) as EVMContractAddress[]);
+      setOptedInContracts(res);
     });
   };
 

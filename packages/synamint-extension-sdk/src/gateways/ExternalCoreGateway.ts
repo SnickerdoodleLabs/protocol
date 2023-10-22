@@ -148,6 +148,7 @@ import {
   AddAccountWithExternalTypedDataSignatureParams,
   GetTransactionsParams,
   GetTransactionValueByChainParams,
+  UpdateAgreementPermissionsParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -337,6 +338,12 @@ export class ExternalCoreGateway {
 
   public acceptInvitation(
     params: AcceptInvitationParams,
+  ): ResultAsync<void, ProxyError> {
+    return this._handler.call(params);
+  }
+
+  public updateAgreementPermissions(
+    params: UpdateAgreementPermissionsParams,
   ): ResultAsync<void, ProxyError> {
     return this._handler.call(params);
   }

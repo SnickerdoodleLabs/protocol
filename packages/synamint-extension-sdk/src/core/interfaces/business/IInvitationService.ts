@@ -29,6 +29,11 @@ export interface IInvitationService {
     invitation: Invitation,
   ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError>;
 
+  updateAgreementPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataTypes: EWalletDataType[],
+  ): ResultAsync<void, SnickerDoodleCoreError>;
+
   acceptInvitation(
     invitation: Invitation,
     dataTypes: EWalletDataType[] | null,

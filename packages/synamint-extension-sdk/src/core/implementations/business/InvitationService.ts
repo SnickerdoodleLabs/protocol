@@ -45,6 +45,20 @@ export class InvitationService implements IInvitationService {
     protected dataPermissionsUtils: IDataPermissionsUtils,
   ) {}
 
+  public updateAgreementPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataTypes: EWalletDataType[],
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.dataPermissionsUtils
+      .generateDataPermissionsClassWithDataTypes(dataTypes)
+      .andThen((dataPermissions) => {
+        return this.invitationRepository.updateAgreementPermissions(
+          consentContractAddress,
+          dataPermissions,
+        );
+      });
+  }
+
   public getMarketplaceListingsByTag(
     pagingReq: PagingRequest,
     tag: MarketplaceTag,
@@ -179,19 +193,12 @@ export class InvitationService implements IInvitationService {
 
   protected getDataPermissions(
     dataTypes: EWalletDataType[] | null,
-  ): ResultAsync<DataPermissions | null, never | ExtensionStorageError> {
-    return this.dataPermissionsUtils.applyDefaultPermissionsOption.andThen(
-      (option) => {
-        if (option) {
-          return this.dataPermissionsUtils.DefaultDataPermissions;
-        }
-        if (dataTypes) {
-          return this.dataPermissionsUtils.generateDataPermissionsClassWithDataTypes(
-            dataTypes,
-          );
-        }
-        return okAsync(null);
-      },
-    );
+  ): ResultAsync<DataPermissions | null, never> {
+    if (dataTypes) {
+      return this.dataPermissionsUtils.generateDataPermissionsClassWithDataTypes(
+        dataTypes,
+      );
+    }
+    return okAsync(null);
   }
 }

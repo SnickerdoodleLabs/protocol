@@ -21,11 +21,33 @@ import RewardDetailModal from "@extension-onboarding/components/Modals/RewardDet
 import SubscriptionConfirmationModal from "@extension-onboarding/components/Modals/SubscriptionConfirmationModal";
 import SubscriptionSuccessModal from "@extension-onboarding/components/Modals/SubscriptionSuccessModal";
 import ViewDetailsModal from "@extension-onboarding/components/Modals/ViewDetailsModal";
+import OTPModal, {
+  IOTPModal,
+} from "@extension-onboarding/components/Modals/V2/OTPModal";
+// under construction
+type ModalSelectorTypeMap = {
+  [EModalSelectors.ACCOUNT_UNLINKED]: any;
+  [EModalSelectors.PHANTOM_LINKING_STEPS]: any;
+  [EModalSelectors.VIEW_ACCOUNT_DETAILS]: any;
+  [EModalSelectors.MANAGE_PERMISSIONS]: any;
+  [EModalSelectors.CONFIRMATION_MODAL]: any;
+  [EModalSelectors.LEAVE_COHORT_MODAL]: any;
+  [EModalSelectors.SUBSCRIPTION_SUCCESS_MODAL]: any;
+  [EModalSelectors.SUBSCRIPTION_CONFIRMATION_MODAL]: any;
+  [EModalSelectors.REWARD_DETAIL_MODAL]: any;
+  [EModalSelectors.CUSTOMIZABLE_MODAL]: any;
+  [EModalSelectors.PERMISSION_SELECTION]: any;
+  [EModalSelectors.OTP_MODAL]: IOTPModal;
+};
 
-export interface IModal {
-  modalSelector: EModalSelectors | null;
+type ModalSelector = keyof ModalSelectorTypeMap;
+
+export interface IModal<T extends keyof ModalSelectorTypeMap | null> {
+  modalSelector: T;
   onPrimaryButtonClick: (params?: any) => void;
-  customProps?: any;
+  customProps?: T extends keyof ModalSelectorTypeMap
+    ? ModalSelectorTypeMap[T]
+    : null;
 }
 
 export enum ELoadingIndicatorType {
@@ -42,24 +64,28 @@ export interface ILoaderInfo {
 interface ILayout {
   setLoadingStatus: (loadingStatus: boolean, loadingInfo?: ILoaderInfo) => void;
   closeModal: () => void;
-  setModal: (modalProps: IModal) => void;
-  modalState: IModal;
+  setModal: <T extends ModalSelector | null = null>(
+    modalProps: IModal<T>,
+  ) => void;
+  modalState: IModal<ModalSelector>;
   loading: boolean;
   loaderInfo: ILoaderInfo | undefined;
 }
 
-const initialModalState: IModal = {
+const initialModalState: IModal<keyof ModalSelectorTypeMap | null> = {
   modalSelector: null,
   onPrimaryButtonClick: () => {},
   customProps: null,
-};
+} as IModal<keyof ModalSelectorTypeMap | null>;
 
 const LayoutContext = createContext<ILayout>({} as ILayout);
 
 export const LayoutProvider: FC = ({ children }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loaderInfo, setLoaderInfo] = useState<ILoaderInfo>();
-  const [modalState, setModalState] = useState<IModal>(initialModalState);
+  const [modalState, setModalState] = useState<IModal<ModalSelector>>(
+    initialModalState as IModal<keyof ModalSelectorTypeMap>,
+  );
   const modalComponent = useMemo(() => {
     switch (true) {
       case modalState.modalSelector === EModalSelectors.ACCOUNT_UNLINKED:
@@ -91,6 +117,8 @@ export const LayoutProvider: FC = ({ children }) => {
             secondaryButtonText={modalState?.customProps?.secondaryButtonText}
           />
         );
+      case modalState.modalSelector === EModalSelectors.OTP_MODAL:
+        return <OTPModal />;
       case modalState.modalSelector === EModalSelectors.PERMISSION_SELECTION:
         return <PermissionSelectionModal />;
       default:
@@ -119,11 +147,13 @@ export const LayoutProvider: FC = ({ children }) => {
   };
 
   const closeModal = () => {
-    setModalState(initialModalState);
+    setModalState(initialModalState as IModal<keyof ModalSelectorTypeMap>);
   };
 
-  const setModal = (modalProps: IModal) => {
-    setModalState(modalProps);
+  const setModal = <T extends ModalSelector | null = null>(
+    modalProps: IModal<T>,
+  ) => {
+    setModalState(modalProps as IModal<ModalSelector>);
   };
 
   return (

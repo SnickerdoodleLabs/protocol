@@ -252,6 +252,10 @@ export interface ISdlDataWallet {
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, ProxyError>;
+  updateAgreementPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataTypes: EWalletDataType[],
+  ): ResultAsync<void, ProxyError>;
   getAgreementPermissions(
     consentContractAddres: EVMContractAddress,
   ): ResultAsync<EWalletDataType[], ProxyError>;

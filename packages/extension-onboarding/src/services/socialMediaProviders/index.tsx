@@ -24,10 +24,10 @@ export const getProviderList = (
     name: "Discord Data",
     key: ESocialType.DISCORD,
   },
-  {
-    provider: new TwitterProvider(sdlDataWallet),
-    icon: TwitterIcon,
-    name: "Twitter Data",
-    key: ESocialType.TWITTER,
-  },
+  // {
+  //   provider: new TwitterProvider(sdlDataWallet),
+  //   icon: TwitterIcon,
+  //   name: "Twitter Data",
+  //   key: ESocialType.TWITTER,
+  // },
 ];

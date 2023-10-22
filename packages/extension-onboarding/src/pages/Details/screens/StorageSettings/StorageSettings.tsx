@@ -21,7 +21,7 @@ import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import FileExplorer from "@extension-onboarding/pages/Details/screens/StorageSettings/FileExplorer";
+import FileExplorer from "@extension-onboarding/components/v2/FileExplorer";
 
 interface DropboxFolder {
   ".tag": string;

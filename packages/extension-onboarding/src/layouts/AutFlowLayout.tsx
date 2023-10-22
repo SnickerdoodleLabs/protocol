@@ -1,12 +1,9 @@
-import { Box } from "@material-ui/core";
-import React, { useEffect, useMemo } from "react";
-import { matchPath, Outlet, useLocation, useNavigate } from "react-router-dom";
-
-import CampaignPopup from "@extension-onboarding/components/Modals/CampaignPopup/CampaignPopup";
-import Sidebar from "@extension-onboarding/components/Sidebar";
+import Footer from "@extension-onboarding/components/v2/Footer";
+import NavigationBar from "@extension-onboarding/components/v2/NavigationBar";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { authFlowRouteSettings } from "@extension-onboarding/containers/Router/Router.settings";
-
+import React, { useEffect, useMemo } from "react";
+import { matchPath, Outlet, useLocation, useNavigate } from "react-router-dom";
 const AutFlowLayout = () => {
   // TODO remove below code when extension navigations fixed
   const SCREENS_OBJ = {
@@ -45,23 +42,11 @@ const AutFlowLayout = () => {
   }, [pathname, JSON.stringify(search), JSON.stringify(state)]);
 
   return (
-    <Box display="flex" overflow="hidden" height="100vh">
-      {!hideSidebar && <Sidebar />}
-      {/* <CampaignPopup /> */}
-      <Box
-        id="authflow"
-        display="flex"
-        bgcolor={bgColor}
-        style={{ overflowY: "auto" }}
-        p={removeDefaultPadding ? 0 : 6}
-        flex={1}
-        flexDirection="column"
-      >
-        <Box mb={4}>
-          <Outlet />
-        </Box>
-      </Box>
-    </Box>
+    <>
+      <NavigationBar />
+      <Outlet />
+      <Footer />
+    </>
   );
 };
 

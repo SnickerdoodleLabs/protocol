@@ -1,13 +1,62 @@
 import "@material-ui/core/styles/createPalette";
-import createTheme, { Theme } from "@material-ui/core/styles/createTheme";
+export declare enum _EColorMode {
+  LIGHT = "light",
+  DARK = "dark",
+  CUSTOM = "custom",
+}
+declare module "@material-ui/core/styles/createPalette" {
+  interface PaletteOptions {
+    colorMode: _EColorMode;
+    textHeading: string;
+    textBody: string;
+    textLight: string;
+    textLink: string;
+    textSubtitle: string;
+    errorColor: string;
+    warningColor: string;
+    infoColor: string;
+    successColor: string;
+    primaryColor: string;
+    primaryContrastColor: string;
+    secondaryColor: string;
+    secondaryContrastColor: string;
+    cardBgColor: string;
+    borderColor: string;
+    buttonColor: string;
+    buttonContrastColor: string;
+  }
+
+  interface Palette {
+    colorMode: EColorMode;
+    textHeading: string;
+    textBody: string;
+    textLight: string;
+    textSubtitle: string;
+    textLink: string;
+    errorColor: string;
+    warningColor: string;
+    infoColor: string;
+    successColor: string;
+    primaryColor: string;
+    primaryContrastColor: string;
+    secondaryColor: string;
+    secondaryContrastColor: string;
+    cardBgColor: string;
+    borderColor: string;
+    buttonColor: string;
+    buttonContrastColor: string;
+  }
+}
+
+import { createTheme, Theme } from "@material-ui/core";
 import { IPaletteOverrides } from "@snickerdoodlelabs/objects";
 export enum EColorMode {
   LIGHT = "light",
   DARK = "dark",
   CUSTOM = "custom",
 }
-
 export enum ETypographyColorOverrides {
+  TEXTSUBTITLE = "textSubtitle",
   TEXTPRIMARY = "textPrimary",
   TEXTSECONDARY = "textSecondary",
   TEXTHEADING = "textHeading",
@@ -29,6 +78,7 @@ export enum EFontWeight {
 
 export enum EFontFamily {
   ROBOTO = "roboto",
+  PUBLIC_SANS = "publicSans",
 }
 
 export enum ECustomTypographyVariant {
@@ -52,98 +102,10 @@ export enum ECustomTypographyVariant {
   LINK = "link",
 }
 
-//#region type overrides
-declare module "@material-ui/core/styles/createPalette" {
-  interface PaletteOptions {
-    colorMode: EColorMode;
-    textHeading: string;
-    textBody: string;
-    textLight: string;
-    textLink: string;
-    errorColor: string;
-    warningColor: string;
-    infoColor: string;
-    successColor: string;
-    primaryColor: string;
-    primaryContrastColor: string;
-    secondaryColor: string;
-    secondaryContrastColor: string;
-    cardBgColor: string;
-    borderColor: string;
-    buttonColor: string;
-    buttonContrastColor: string;
-  }
-
-  interface Palette {
-    colorMode: EColorMode;
-    textHeading: string;
-    textBody: string;
-    textLight: string;
-    textLink: string;
-    errorColor: string;
-    warningColor: string;
-    infoColor: string;
-    successColor: string;
-    primaryColor: string;
-    primaryContrastColor: string;
-    secondaryColor: string;
-    secondaryContrastColor: string;
-    cardBgColor: string;
-    borderColor: string;
-    buttonColor: string;
-    buttonContrastColor: string;
-  }
-}
-
-declare module "@material-ui/core/styles/createTypography" {
-  interface TypographyOptions {
-    [ECustomTypographyVariant.DISPLAYLG]?: TypographyStyleOptions;
-    [ECustomTypographyVariant.DISPLAYMD]?: TypographyStyleOptions;
-    [ECustomTypographyVariant.DISPLAYSM]?: TypographyStyleOptions;
-    [ECustomTypographyVariant.HEADLINELG]?: TypographyStyleOptions;
-    [ECustomTypographyVariant.HEADLINEMD]?: TypographyStyleOptions;
-    [ECustomTypographyVariant.HEADLINESM]?: TypographyStyleOptions;
-    [ECustomTypographyVariant.TITLEXL]?: TypographyStyleOptions;
-    [ECustomTypographyVariant.TITLELG]?: TypographyStyleOptions;
-    [ECustomTypographyVariant.TITLEMD]?: TypographyStyleOptions;
-    [ECustomTypographyVariant.TITLESM]?: TypographyStyleOptions;
-    [ECustomTypographyVariant.TITLEXS]?: TypographyStyleOptions;
-    [ECustomTypographyVariant.LABELLG]?: TypographyStyleOptions;
-    [ECustomTypographyVariant.LABELMD]?: TypographyStyleOptions;
-    [ECustomTypographyVariant.LABELSM]?: TypographyStyleOptions;
-    [ECustomTypographyVariant.BODYLG]?: TypographyStyleOptions;
-    [ECustomTypographyVariant.BODYMD]?: TypographyStyleOptions;
-    [ECustomTypographyVariant.BODYSM]?: TypographyStyleOptions;
-    [ECustomTypographyVariant.LINK]?: TypographyStyleOptions;
-  }
-  interface Typography {
-    [ECustomTypographyVariant.DISPLAYLG]: TypographyStyleOptions;
-    [ECustomTypographyVariant.DISPLAYMD]: TypographyStyleOptions;
-    [ECustomTypographyVariant.DISPLAYSM]: TypographyStyleOptions;
-    [ECustomTypographyVariant.HEADLINELG]: TypographyStyleOptions;
-    [ECustomTypographyVariant.HEADLINEMD]: TypographyStyleOptions;
-    [ECustomTypographyVariant.HEADLINESM]: TypographyStyleOptions;
-    [ECustomTypographyVariant.TITLEXL]: TypographyStyleOptions;
-    [ECustomTypographyVariant.TITLELG]: TypographyStyleOptions;
-    [ECustomTypographyVariant.TITLEMD]: TypographyStyleOptions;
-    [ECustomTypographyVariant.TITLESM]: TypographyStyleOptions;
-    [ECustomTypographyVariant.TITLEXS]: TypographyStyleOptions;
-    [ECustomTypographyVariant.LABELLG]: TypographyStyleOptions;
-    [ECustomTypographyVariant.LABELMD]: TypographyStyleOptions;
-    [ECustomTypographyVariant.LABELSM]: TypographyStyleOptions;
-    [ECustomTypographyVariant.BODYLG]: TypographyStyleOptions;
-    [ECustomTypographyVariant.BODYMD]: TypographyStyleOptions;
-    [ECustomTypographyVariant.BODYSM]: TypographyStyleOptions;
-    [ECustomTypographyVariant.LINK]: TypographyStyleOptions;
-  }
-}
-//#endregion
-
-//#region custom colors
 export const colors = {
   // BgColors
   DEFAULT_LIGHT_BG: "rgba(250, 250, 250, 0.98)",
-  DEFAULT_DARK_BG: "rgba(250, 250, 250, 0.98)",
+  DEFAULT_DARK_BG: "#000",
 
   WHITE: "#FFFFFF",
   // main purple
@@ -247,8 +209,20 @@ export const colors = {
   GREY800: "#424242", // BODY
   GREY700: "#616161", // SUBTITLE
   GREY500: "#9E9E9E", // LIGHT
+  GREY300: "#E0E0E0", // BORDER
+  GREY50: "#fafafa", // BG
 };
 //#endregion
+
+export const shadows = {
+  xs: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
+  sm: "0px 1px 2px 0px rgba(16, 24, 40, 0.06), 0px 1px 3px 0px rgba(16, 24, 40, 0.10)",
+  md: "0px 2px 4px -2px rgba(16, 24, 40, 0.06), 0px 4px 8px -2px rgba(16, 24, 40, 0.10)",
+  lg: "0px 4px 6px -2px rgba(16, 24, 40, 0.03), 0px 12px 16px -4px rgba(16, 24, 40, 0.08)",
+  xl: "0px 8px 8px -4px rgba(16, 24, 40, 0.03), 0px 20px 24px -4px rgba(16, 24, 40, 0.08)",
+  xl2: "0px 24px 48px -12px rgba(16, 24, 40, 0.18)",
+  xl3: "0px 32px 64px -12px rgba(16, 24, 40, 0.14)",
+};
 
 interface IPalette {
   mode: EColorMode;
@@ -258,6 +232,7 @@ interface IPalette {
   buttonContrast: string;
   textBody: string;
   textHeading: string;
+  textSubtitle: string;
   textLight: string;
   linkText: string;
   border: string;
@@ -276,10 +251,11 @@ const lightPalette: IPalette = {
   buttonContrast: colors.WHITE,
   textBody: colors.GREY800,
   textHeading: colors.GREY900,
+  textSubtitle: colors.GREY700,
   textLight: colors.GREY500,
   linkText: colors.BLUE500,
-  border: colors.GREY500,
-  bgColor: colors.DEFAULT_LIGHT_BG,
+  border: colors.GREY300,
+  bgColor: colors.GREY50,
   cardBgColor: colors.WHITE,
   secondary: colors.MAINPURPLE500,
   secondaryContrast: colors.WHITE,
@@ -293,8 +269,9 @@ const darkPalette: IPalette = {
   textBody: colors.GREY800,
   textHeading: colors.GREY900,
   textLight: colors.GREY500,
+  textSubtitle: colors.GREY700,
   linkText: colors.BLUE500,
-  border: colors.GREY500,
+  border: colors.GREY300,
   bgColor: colors.DEFAULT_DARK_BG,
   cardBgColor: colors.WHITE,
   secondary: colors.RED50,
@@ -431,6 +408,9 @@ export const genareteFontFamiles = () => ({
   [EFontFamily.ROBOTO]: {
     fontFamily: "Roboto",
   },
+  [EFontFamily.PUBLIC_SANS]: {
+    fontFamily: "Public Sans",
+  },
 });
 
 const breakpoints = {
@@ -469,6 +449,7 @@ const createPalletteWithOverrides = (
     textBody: paletteOverrides.text ?? lightPalette.textBody,
     textHeading: paletteOverrides.text ?? lightPalette.textHeading,
     textLight: paletteOverrides.text ?? lightPalette.textLight,
+    textSubtitle: paletteOverrides.text ?? lightPalette.textSubtitle,
     linkText: paletteOverrides.linkText ?? lightPalette.linkText,
     border: paletteOverrides.border ?? lightPalette.border,
     cardBgColor: paletteOverrides.background ?? lightPalette.cardBgColor,
@@ -507,11 +488,12 @@ export const createDefaultTheme = (
       error: { main: colors.RED500 },
       info: { main: colors.BLUE500 },
       warning: { main: colors.SUNRISE500 },
-      colorMode: palette.mode,
+      colorMode: palette.mode as unknown as _EColorMode,
       textHeading: palette.textHeading,
       textBody: palette.textBody,
       textLight: palette.textLight,
       textLink: palette.linkText,
+      textSubtitle: palette.textSubtitle,
       errorColor: colors.RED500,
       warningColor: colors.SUNRISE500,
       infoColor: colors.BLUE500,
@@ -560,6 +542,9 @@ export const createDefaultTheme = (
         },
         iconSizeLarge: {
           fontSize: 18,
+        },
+        text: {
+          padding: "0px 24px",
         },
         iconSizeMedium: {
           fontSize: 18,

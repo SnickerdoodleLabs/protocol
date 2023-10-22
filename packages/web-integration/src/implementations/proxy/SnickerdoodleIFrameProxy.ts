@@ -413,7 +413,15 @@ export class SnickerdoodleIFrameProxy
       ipfsCID,
     });
   }
-
+  public updateAgreementPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataTypes: EWalletDataType[],
+  ): ResultAsync<void, ProxyError> {
+    return this._createCall("updateAgreementPermissions", {
+      consentContractAddress,
+      dataTypes,
+    });
+  }
   public getAgreementPermissions(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<EWalletDataType[], ProxyError> {

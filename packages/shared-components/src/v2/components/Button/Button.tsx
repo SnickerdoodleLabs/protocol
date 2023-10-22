@@ -2,7 +2,7 @@ import { Button as MuiButton, Theme, ButtonProps } from "@material-ui/core";
 import { withStyles, useTheme } from "@material-ui/styles";
 import React from "react";
 
-const customColors = ["danger", "button"] as const;
+const customColors = ["danger", "warn", "button"] as const;
 
 const customButtons = {
   danger: withStyles((theme: Theme) => ({
@@ -24,6 +24,29 @@ const customButtons = {
     },
     text: {
       color: theme.palette.error.main,
+      backgroundColor: "transparent",
+      borderColor: "transparent",
+    },
+  }))(MuiButton),
+  warn: withStyles((theme: Theme) => ({
+    root: {},
+    contained: {
+      backgroundColor: theme.palette.warning.main,
+      color: theme.palette.common.white,
+      "&:hover": {
+        backgroundColor: theme.palette.warning.dark,
+      },
+    },
+    outlined: {
+      color: theme.palette.warning.main,
+      backgroundColor: "transparent",
+      "&:hover": {
+        borderColor: theme.palette.warning.main,
+      },
+      borderColor: theme.palette.warning.main,
+    },
+    text: {
+      color: theme.palette.warning.main,
       backgroundColor: "transparent",
       borderColor: "transparent",
     },

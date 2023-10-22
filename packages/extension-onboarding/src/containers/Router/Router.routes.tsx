@@ -26,7 +26,8 @@ import CategorySelection from "@extension-onboarding/pages/Onboarding/CategorySe
 import PermissionSelection from "@extension-onboarding/pages/Onboarding/PermissionSelection";
 import StorageSettings from "@extension-onboarding/pages/Details/screens/StorageSettings/StorageSettings";
 import ProfileCreation from "@extension-onboarding/pages/Onboarding/ProfileCreation";
-
+import DataPermissions from "@extension-onboarding/pages/V2/DataPermissions";
+import Settings from "@extension-onboarding/pages/V2/Settings";
 export const OnboardingRoutes = (
   <Route>
     {/* <Route path={EPaths.ONBOARDING_WELCOME} element={<OnboardingWelcome />} /> */}
@@ -55,6 +56,8 @@ export const OnboardingRoutes = (
 export const AuthFlowRoutes = (
   <Route element={<ProductTourLayout />}>
     <Route element={<AuthFlowLayout />}>
+      <Route path={"/data-permissions"} element={<DataPermissions />} />
+      <Route path={"/settings"} element={<Settings />} />
       <Route element={<DataDashBoardLayout />}>
         <Route path={EPaths.TOKENS} element={<Tokens />} />
         <Route path={EPaths.NFTS} element={<NFTs />} />
