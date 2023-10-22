@@ -3,7 +3,7 @@ import {
   EVMContractAddress,
   EWalletDataType,
   Invitation,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
 } from "@snickerdoodlelabs/objects";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
@@ -182,7 +182,7 @@ export interface ILoadingStatus {
 }
 export interface IInvitationStatus {
   status: boolean;
-  data?: IOpenSeaMetadata;
+  data?: IOldUserAgreement;
   invitationParams?: Invitation;
 }
 
@@ -239,7 +239,7 @@ const LayoutContextProvider = ({ children }) => {
   const [pickerLinkedAccounts, setPickerLinkedAccount] = React.useState<any[]>(
     [],
   );
-  const [invitationData, setInvitationData] = useState<IOpenSeaMetadata>();
+  const [invitationData, setInvitationData] = useState<IOldUserAgreement>();
   const [invitation, setInvitation] = useState<IInvitationParams | null>(null);
   const setLoadingStatus = (loadingStatus: ILoadingStatus) => {
     _setLoadingStatus(loadingStatus);

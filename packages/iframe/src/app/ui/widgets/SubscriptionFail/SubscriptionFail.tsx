@@ -1,4 +1,5 @@
 import React, { FC, useMemo } from "react";
+
 import { CloseButton } from "@core-iframe/app/ui/components/CloseButton";
 import {
   Box,
@@ -9,7 +10,6 @@ import {
   ITheme,
   defaultDarkTheme,
 } from "@core-iframe/app/ui/lib";
-
 interface ISubscriptionFailProps {
   onClick: () => void;
 }

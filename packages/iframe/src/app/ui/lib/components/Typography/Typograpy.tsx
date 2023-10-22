@@ -7,12 +7,8 @@ import {
   ITextAlign,
   ITheme,
 } from "@core-iframe/app/ui/lib/interfaces";
-import {
-  marginStyles,
-  textAlignStyles,
-} from "@core-iframe/app/ui/lib/styles";
+import { marginStyles, textAlignStyles } from "@core-iframe/app/ui/lib/styles";
 import { defaultDarkTheme } from "@core-iframe/app/ui/lib/theme";
-
 
 const styleObject = {
   "sd-typography": {

@@ -6,13 +6,16 @@ import {
   EDataStorageType,
   StorageKey,
   BackupStat,
+  EQueryEvents,
+  QueryPerformanceMetrics,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
-import { Meter } from "measured-core";
+import { Meter, Timer } from "measured-core";
 import { ResultAsync, okAsync } from "neverthrow";
+import { QueryPerformanceEvent } from "packages/objects/src/businessObjects/events/query";
 
 import { IMetricsRepository } from "@core/interfaces/data/index.js";
-
+import { DoublyLinkedList } from "@core/implementations/data/utilities/index.js";
 @injectable()
 export class MetricsRepository implements IMetricsRepository {
   protected apiMeters = new Map<EExternalApi, Meter>();
@@ -25,6 +28,11 @@ export class MetricsRepository implements IMetricsRepository {
   protected restoredBackups = new Array<BackupStat>();
 
   protected queryPostedMeter = new Meter();
+
+  protected queryEventsDurations:
+    | Record<EQueryEvents, DoublyLinkedList<number>>
+    | {} = {};
+  protected queryEventsTimers: Record<EQueryEvents, Timer> | {} = {};
 
   public constructor() {}
 
@@ -99,6 +107,45 @@ export class MetricsRepository implements IMetricsRepository {
     this.queryPostedMeter.mark(1);
 
     return okAsync(undefined);
+  }
+
+  public recordQueryPerformanceEvent(
+    event: QueryPerformanceEvent,
+    elapsed: number,
+  ): void {
+    this.queryEventsDurations[event.type].append(elapsed);
+    this.queryEventsTimers[event.type].update(elapsed);
+  }
+
+  public createQueryPerformanceStorage(
+    eventName: EQueryEvents,
+    sizeLimit: number,
+  ): void {
+    this.queryEventsTimers[eventName] = new Timer();
+    this.queryEventsDurations[eventName] = new DoublyLinkedList<number>(
+      sizeLimit,
+    );
+  }
+
+  public getQueryPerformanceData(): QueryPerformanceMetrics[] {
+    const queryPerformanceData: QueryPerformanceMetrics[] = [];
+    for (const eventName in this.queryEventsTimers) {
+      const { meter: meterData, histogram: histogramData } =
+        this.queryEventsTimers[eventName].toJSON();
+
+      const durations = this.queryEventsDurations[
+        eventName
+      ] as DoublyLinkedList<number>;
+      queryPerformanceData.push(
+        new QueryPerformanceMetrics(
+          eventName,
+          meterData,
+          histogramData,
+          durations.toArray(),
+        ),
+      );
+    }
+    return queryPerformanceData;
   }
 
   public getApiStatSummaries(): ResultAsync<StatSummary[], never> {

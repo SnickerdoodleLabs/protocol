@@ -36,7 +36,6 @@ import {
 } from "@core-iframe/app/ui/lib/styles";
 import { defaultDarkTheme } from "@core-iframe/app/ui/lib/theme";
 
-
 interface IBoxProps
   extends IComponentDefaultProps,
     HTMLAttributes<HTMLDivElement>,

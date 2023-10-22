@@ -102,16 +102,16 @@ export class AccountService implements IAccountService {
     );
   }
 
-  getTransactionValueByChain(): ResultAsync<
-    TransactionFlowInsight[],
-    SnickerDoodleCoreError
-  > {
-    return this.accountRepository.getTransactionValueByChain();
-  }
-  getTransactions(
+  public getTransactions(
     filter?: TransactionFilter,
+    sourceDomain?: DomainName,
   ): ResultAsync<ChainTransaction[], SnickerDoodleCoreError> {
-    return this.accountRepository.getTransactions(filter); 
+    return this.accountRepository.getTransactions(filter, sourceDomain);
+  }
+  public getTransactionValueByChain(
+    sourceDomain?: DomainName,
+  ): ResultAsync<TransactionFlowInsight[], SnickerDoodleCoreError> {
+    return this.accountRepository.getTransactionValueByChain(sourceDomain);
   }
   // NOTE: I did this one without the AccountRepository, because
   // that layer is not needed- we don't need to wrap access to the core,

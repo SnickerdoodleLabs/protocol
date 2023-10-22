@@ -39,23 +39,7 @@ export class AccountRepository implements IAccountRepository {
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
   ) {}
-  getTransactionValueByChain(): ResultAsync<
-    TransactionFlowInsight[],
-    SnickerDoodleCoreError
-  > {
-    return this.core.getTransactionValueByChain().mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
-  }
-  getTransactions(
-    filter?: TransactionFilter,
-  ): ResultAsync<ChainTransaction[], SnickerDoodleCoreError> {
-    return this.core.getTransactions(filter).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
-  }
+
   getQueryStatusByQueryCID(
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, SnickerDoodleCoreError> {
@@ -103,6 +87,26 @@ export class AccountRepository implements IAccountRepository {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
+  }
+
+  public getTransactions(
+    filter?: TransactionFilter,
+    sourceDomain?: DomainName,
+  ): ResultAsync<ChainTransaction[], SnickerDoodleCoreError> {
+    return this.core.getTransactions(filter, sourceDomain).mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
+  }
+  public getTransactionValueByChain(
+    sourceDomain?: DomainName,
+  ): ResultAsync<TransactionFlowInsight[], SnickerDoodleCoreError> {
+    return this.core
+      .getTransactionValueByChain(sourceDomain)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
 
   public getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {

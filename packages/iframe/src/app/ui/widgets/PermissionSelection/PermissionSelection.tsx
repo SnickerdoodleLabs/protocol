@@ -1,12 +1,12 @@
-import React, { FC, useState, useMemo, useEffect } from "react";
-import { IFrameConfig } from "@core-iframe/interfaces/objects";
 import {
   EVMContractAddress,
   EWalletDataType,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   ISnickerdoodleCore,
   PossibleReward,
 } from "@snickerdoodlelabs/objects";
+import React, { FC, useState, useMemo, useEffect } from "react";
+
 import { AcnowledgmentBanner } from "@core-iframe/app/ui/components/AcknowledgmentBanner";
 import { CloseButton } from "@core-iframe/app/ui/components/CloseButton";
 import { permissions } from "@core-iframe/app/ui/constants";
@@ -21,13 +21,13 @@ import {
   defaultDarkTheme,
   useMedia,
 } from "@core-iframe/app/ui/lib";
-
+import { IFrameConfig } from "@core-iframe/interfaces/objects";
 
 interface IPermissionSelectionProps {
   onCancelClick: () => void;
   onSaveClick: (dataTypes: EWalletDataType[]) => void;
   core: ISnickerdoodleCore;
-  invitationData: IOpenSeaMetadata;
+  invitationData: IOldUserAgreement;
   consentAddress: EVMContractAddress;
   coreConfig: IFrameConfig;
 }

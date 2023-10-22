@@ -1,7 +1,4 @@
-import {
-  ITimeUtilsType,
-  ITimeUtils,
-} from "@snickerdoodlelabs/common-utils";
+import { ITimeUtilsType, ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   EVMAccountAddress,
   TransactionFilter,
@@ -12,6 +9,11 @@ import {
   BlockchainInteractionInsight,
   ETimePeriods,
   ChainTransaction,
+  PublicEvents,
+  QueryPerformanceEvent,
+  EQueryEvents,
+  IpfsCID,
+  EStatus,
 } from "@snickerdoodlelabs/objects";
 import { AST_BlockchainTransactionQuery } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
@@ -22,6 +24,10 @@ import {
   ITransactionHistoryRepository,
   ITransactionHistoryRepositoryType,
 } from "@core/interfaces/data/index.js";
+import {
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class BlockchainTransactionQueryEvaluator
@@ -31,72 +37,126 @@ export class BlockchainTransactionQueryEvaluator
     @inject(ITransactionHistoryRepositoryType)
     protected transactionHistoryRepo: ITransactionHistoryRepository,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
+    @inject(IContextProviderType)
+    protected contextProvider: IContextProvider,
   ) {}
 
   public eval(
     query: AST_BlockchainTransactionQuery,
+    queryCID: IpfsCID,
   ): ResultAsync<SDQL_Return, PersistenceError> {
-    // Aggregate Transactions
-    if (query.type === "chain_transactions") {
-      return this.transactionHistoryRepo
-        .getTransactionByChain()
-        .andThen((transactionsArray) => {
-          return okAsync(SDQL_Return(transactionsArray));
-        });
-    }
-
-    // Transactions related to a specific address, e.g. Dapp Query
-    if (query.contract && query.chain) {
-      const chainId = query.contract.networkId;
-      const address = query.contract.address as EVMAccountAddress;
-      const startTime = query.contract.timestampRange.start;
-      const endTime = query.contract.timestampRange.end;
-      const filter = new TransactionFilter(
-        [chainId],
-        [address],
-        undefined,
-        startTime,
-        endTime,
-      );
-
-      if (query.returnType == "object") {
+    return this.contextProvider.getContext().andThen((context) => {
+      // Aggregate Transactions
+      if (query.type === "chain_transactions") {
+        context.publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.ChainTransactionDataAccess,
+            EStatus.Start,
+            queryCID,
+            query.name,
+          ),
+        );
         return this.transactionHistoryRepo
-          .getTransactions(filter)
-          .map((transactions) => {
-            if (transactions === null || transactions.length === 0) {
-              return SDQL_Return(
-                new BlockchainInteractionInsight(chainId, address, false),
-              );
-            }
-            const latestTransaction = this.getLatestTransaction(transactions);
-            const timePeriod = this.determineTimePeriod(
-              latestTransaction.timestamp,
-            );
-            return SDQL_Return(
-              new BlockchainInteractionInsight(
-                chainId,
-                address,
-                true,
-                timePeriod,
-                latestTransaction.measurementDate,
+          .getTransactionByChain()
+          .andThen((transactionsArray) => {
+            context.publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.ChainTransactionDataAccess,
+                EStatus.End,
+                queryCID,
+                query.name,
               ),
             );
+            return okAsync(SDQL_Return(transactionsArray));
+          })
+          .mapErr((err) => {
+            context.publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.ChainTransactionDataAccess,
+                EStatus.End,
+                queryCID,
+                query.name,
+                err,
+              ),
+            );
+            return err;
           });
-      } else if (query.returnType == "boolean") {
+      }
+
+      // Transactions related to a specific address, e.g. Dapp Query
+      if (query.contract && query.chain) {
+        const chainId = query.contract.networkId;
+        const address = query.contract.address as EVMAccountAddress;
+        const startTime = query.contract.timestampRange.start;
+        const endTime = query.contract.timestampRange.end;
+        const filter = new TransactionFilter(
+          [chainId],
+          [address],
+          undefined,
+          startTime,
+          endTime,
+        );
+        context.publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.TransactionDataAccess,
+            EStatus.Start,
+            queryCID,
+            query.name,
+          ),
+        );
         return this.transactionHistoryRepo
           .getTransactions(filter)
           .map((transactions) => {
-            if (transactions == null) {
-              return SDQL_Return(false);
+            context.publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.TransactionDataAccess,
+                EStatus.End,
+                queryCID,
+                query.name,
+              ),
+            );
+            if (query.returnType == "object") {
+              if (transactions === null || transactions.length === 0) {
+                return SDQL_Return(
+                  new BlockchainInteractionInsight(chainId, address, false),
+                );
+              }
+              const latestTransaction = this.getLatestTransaction(transactions);
+              const timePeriod = this.determineTimePeriod(
+                latestTransaction.timestamp,
+              );
+              return SDQL_Return(
+                new BlockchainInteractionInsight(
+                  chainId,
+                  address,
+                  true,
+                  timePeriod,
+                  latestTransaction.measurementDate,
+                ),
+              );
+            } else if (query.returnType == "boolean") {
+              if (transactions === null || transactions.length === 0) {
+                return SDQL_Return(false);
+              }
+              return SDQL_Return(true);
             }
-            if (transactions.length == 0) {
-              return SDQL_Return(false);
-            }
-            return SDQL_Return(true);
+            return SDQL_Return(false);
+          })
+          .mapErr((err) => {
+            context.publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.TransactionDataAccess,
+                EStatus.End,
+                queryCID,
+                query.name,
+                err,
+              ),
+            );
+            return err;
           });
       }
-    }
-    return okAsync(SDQL_Return(false));
+      return okAsync(SDQL_Return(false));
+    });
   }
 
   protected getLatestTransaction(

@@ -22,7 +22,7 @@ import {
   EWalletDataType,
   AccountAddress,
   TokenAddress,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   LinkedAccount,
   TokenBalance,
   TokenMarketData,
@@ -306,7 +306,7 @@ export class LeaveCohortParams extends CoreActionParams<void> {
   }
 }
 
-export class GetInvitationMetadataByCIDParams extends CoreActionParams<IOpenSeaMetadata> {
+export class GetInvitationMetadataByCIDParams extends CoreActionParams<IOldUserAgreement> {
   public constructor(public ipfsCID: IpfsCID) {
     super(GetInvitationMetadataByCIDParams.getCoreAction());
   }

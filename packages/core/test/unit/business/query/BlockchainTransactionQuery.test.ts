@@ -25,6 +25,8 @@ import {
   EVMTransactionHash,
   ESDQLQueryReturn,
   ISO8601DateString,
+  PublicEvents,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BlockchainTransactionQuery,
@@ -36,11 +38,15 @@ import * as td from "testdouble";
 import { BlockchainTransactionQueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
 import { ITransactionHistoryRepository } from "@core/interfaces/data/index.js";
+import { ContextProviderMock } from "@core-tests/mock/utilities/ContextProviderMock";
+
+const queryCID = IpfsCID("mockCID");
 const iso = UnixTimestamp(11);
 const now = UnixTimestamp(2);
 class blockchainTransactionQueryEvaluatorMocks {
   public transactionRepo = td.object<ITransactionHistoryRepository>();
   public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
+  public contextProvider: ContextProviderMock;
   public timeUtils: ITimeUtils;
   public URLmap = new Map<URLString, number>([
     [URLString("www.snickerdoodlelabs.io"), 10],
@@ -51,12 +57,14 @@ class blockchainTransactionQueryEvaluatorMocks {
   public constructor() {
     this.timeUtils = td.object<ITimeUtils>();
     td.when(this.timeUtils.getUnixNow()).thenReturn(now as never);
+    this.contextProvider = new ContextProviderMock();
   }
 
   public factory() {
     return new BlockchainTransactionQueryEvaluator(
       this.transactionRepo,
       this.timeUtils,
+      this.contextProvider,
     );
   }
 }
@@ -117,7 +125,7 @@ describe("QueryEvaluator: ", () => {
         ),
       ]),
     );
-    const result = await repo.eval(blockchainTransactionQuery);
+    const result = await repo.eval(blockchainTransactionQuery, queryCID);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(true);
   });
@@ -177,7 +185,7 @@ describe("QueryEvaluator: ", () => {
         ),
       ]),
     );
-    const result = await repo.eval(blockchainTransactionQuery);
+    const result = await repo.eval(blockchainTransactionQuery, queryCID);
     // console.log("Age is: ", result["value"]);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(true);
@@ -218,8 +226,7 @@ describe("QueryEvaluator: ", () => {
     td.when(
       mocks.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
-    const result = await repo.eval(blockchainTransactionQuery);
-
+    const result = await repo.eval(blockchainTransactionQuery, queryCID);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
   });
@@ -262,7 +269,7 @@ describe("Blockchain Transaction Query Testing: ", () => {
     td.when(
       mocks.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
-    const result = await repo.eval(blockchainTransactionQuery);
+    const result = await repo.eval(blockchainTransactionQuery, queryCID);
     // console.log("Age is: ", result["value"]);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
@@ -304,7 +311,7 @@ describe("Blockchain Transaction Query Testing: ", () => {
     td.when(
       mocks.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
-    const result = await repo.eval(blockchainTransactionQuery);
+    const result = await repo.eval(blockchainTransactionQuery, queryCID);
     // console.log("Age is: ", result["value"]);
     expect(result).toBeDefined();
     //expect(result["value"]).toBe(false);

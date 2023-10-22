@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import { PersistenceError, JSONString } from "@snickerdoodlelabs/objects";
 import { IStorageUtils } from "@snickerdoodlelabs/utils";
-import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import { ResultAsync } from "neverthrow";
 
 export class MobileStorageUtils implements IStorageUtils {

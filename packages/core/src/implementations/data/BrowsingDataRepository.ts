@@ -21,12 +21,14 @@ import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
 } from "@core/interfaces/data/index.js";
+import { ITimeUtilsType, ITimeUtils } from "@snickerdoodlelabs/common-utils";
 
 @injectable()
 export class BrowsingDataRepository implements IBrowsingDataRepository {
   public constructor(
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public addSiteVisits(
@@ -89,10 +91,10 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
           siteVisitData.totalScreenTime + screenTime,
         );
         if (
-          this.convertTimestampToISOString(visit.endTime) >
+          this.timeUtils.convertTimestampToISOString(visit.endTime) >
           siteVisitData.lastReportedTime
         ) {
-          siteVisitData.lastReportedTime = this.convertTimestampToISOString(
+          siteVisitData.lastReportedTime = this.timeUtils.convertTimestampToISOString(
             visit.endTime,
           );
         }
@@ -103,7 +105,7 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
             1,
             screenTime, //Will be average later
             UnixTimestamp(screenTime),
-            this.convertTimestampToISOString(visit.endTime),
+            this.timeUtils.convertTimestampToISOString(visit.endTime),
           ),
         );
       }
@@ -112,12 +114,6 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
     return visitsMap;
   }
 
-  protected convertTimestampToISOString(
-    unixTimestamp: UnixTimestamp,
-  ): ISO8601DateString {
-    const date = new Date(unixTimestamp * 1000);
-    return ISO8601DateString(date.toISOString());
-  }
 
   protected calculateAverageScreenTime(visitsMap: SiteVisitsMap): void {
     for (const [_, siteVisitData] of visitsMap) {

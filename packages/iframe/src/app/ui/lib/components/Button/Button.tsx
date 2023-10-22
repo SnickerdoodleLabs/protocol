@@ -9,10 +9,7 @@ import React, {
 } from "react";
 import { createUseStyles, useTheme } from "react-jss";
 
-import {
-  IMargin,
-  ITheme,
-} from "@core-iframe/app/ui/lib/interfaces";
+import { IMargin, ITheme } from "@core-iframe/app/ui/lib/interfaces";
 import { marginStyles } from "@core-iframe/app/ui/lib/styles";
 import { defaultDarkTheme } from "@core-iframe/app/ui/lib/theme";
 

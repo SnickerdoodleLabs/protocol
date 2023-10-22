@@ -1,11 +1,6 @@
 import React from "react";
 
-import {
-  Box,
-  useTheme,
-  ITheme,
-} from "@core-iframe/app/ui/lib";
-
+import { Box, useTheme, ITheme } from "@core-iframe/app/ui/lib";
 
 interface ICloseButtonProps {
   size?: number;

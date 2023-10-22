@@ -52,13 +52,13 @@ export interface IAccountRepository {
     contractAddress: EVMContractAddress,
     blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], SnickerDoodleCoreError>;
-  getTransactionValueByChain(  sourceDomain?: DomainName): ResultAsync<
-    TransactionFlowInsight[],
-    SnickerDoodleCoreError
-  >;
   getTransactions(
-    filter?: TransactionFilter,  sourceDomain?: DomainName,
+    filter?: TransactionFilter,
+    sourceDomain?: DomainName,
   ): ResultAsync<ChainTransaction[], SnickerDoodleCoreError>;
+  getTransactionValueByChain(
+    sourceDomain?: DomainName,
+  ): ResultAsync<TransactionFlowInsight[], SnickerDoodleCoreError>;
 }
 
 export const IAccountRepositoryType = Symbol.for("IAccountRepository");

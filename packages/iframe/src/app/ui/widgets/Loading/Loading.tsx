@@ -8,7 +8,6 @@ import {
   useMedia,
 } from "@core-iframe/app/ui/lib";
 
-
 interface ILoadingProps {}
 
 export const Loading: FC<ILoadingProps> = ({}) => {

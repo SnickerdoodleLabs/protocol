@@ -9,16 +9,9 @@ import React, {
 import { createUseStyles, useTheme } from "react-jss";
 
 import { useMedia } from "@core-iframe/app/ui/lib/hooks";
-import {
-  IFlex,
-  ITheme,
-} from "@core-iframe/app/ui/lib/interfaces";
-import {
-  flexStyles,
-  gridColumnStyles,
-} from "@core-iframe/app/ui/lib/styles";
+import { IFlex, ITheme } from "@core-iframe/app/ui/lib/interfaces";
+import { flexStyles, gridColumnStyles } from "@core-iframe/app/ui/lib/styles";
 import { defaultDarkTheme } from "@core-iframe/app/ui/lib/theme";
-
 
 interface IGridProps extends HTMLProps<HTMLDivElement>, IFlex {
   children: ReactNode;

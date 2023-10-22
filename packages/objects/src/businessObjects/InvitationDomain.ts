@@ -1,7 +1,7 @@
-import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
+import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement";
 import { DomainName, URLString } from "@objects/primitives/index.js";
 
-export class InvitationDomain implements IOpenSeaMetadata {
+export class InvitationDomain implements IOldUserAgreement {
   public constructor(
     public domain: DomainName,
     public title: string,

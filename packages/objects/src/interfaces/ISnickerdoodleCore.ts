@@ -78,7 +78,7 @@ import {
   ParserError,
 } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
-import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata.js";
+import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import {
   AccountAddress,
@@ -631,7 +631,7 @@ export interface IInvitationMethods {
 
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, IPFSError | UnauthorizedError>;
+  ): ResultAsync<IOldUserAgreement, IPFSError | UnauthorizedError>;
 
   updateDataPermissions(
     consentContractAddress: EVMContractAddress,

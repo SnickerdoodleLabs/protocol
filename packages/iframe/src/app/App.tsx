@@ -1,12 +1,13 @@
+import { ISnickerdoodleCore, LanguageCode } from "@snickerdoodlelabs/objects";
+import { ChildAPI } from "postmate";
+import React, { FC, useEffect } from "react";
+
 import { InvitationHandler } from "@core-iframe/app/ui";
 import {
   IFrameConfig,
   IFrameControlConfig,
   IFrameEvents,
 } from "@core-iframe/interfaces/objects";
-import { ISnickerdoodleCore, LanguageCode } from "@snickerdoodlelabs/objects";
-import { ChildAPI } from "postmate";
-import React, { FC, useEffect } from "react";
 
 interface IAppProps {
   core: ISnickerdoodleCore;

@@ -72,13 +72,13 @@ export interface IAccountService {
     contractAddress: EVMContractAddress,
     blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], SnickerDoodleCoreError>;
-  getTransactionValueByChain(): ResultAsync<
-    TransactionFlowInsight[],
-    SnickerDoodleCoreError
-  >;
   getTransactions(
     filter?: TransactionFilter,
+    sourceDomain?: DomainName,
   ): ResultAsync<ChainTransaction[], SnickerDoodleCoreError>;
+  getTransactionValueByChain(
+    sourceDomain?: DomainName,
+  ): ResultAsync<TransactionFlowInsight[], SnickerDoodleCoreError>;
 }
 
 export const IAccountServiceType = Symbol.for("IAccountService");
