@@ -1,5 +1,6 @@
 // @TODO move EAlertSeverity to objects
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import CustomSDSwitch from "@extension-onboarding/components/v2/Switch/";
 import { PERMS } from "@extension-onboarding/constants/permissionsV2";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
@@ -11,13 +12,7 @@ import {
   Box,
   Divider,
   Hidden,
-  Switch,
-  SwitchClassKey,
-  SwitchProps,
-  Theme,
-  createStyles,
   makeStyles,
-  withStyles,
 } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Skeleton } from "@material-ui/lab";
@@ -34,65 +29,6 @@ import {
 } from "@snickerdoodlelabs/shared-components";
 import clsx from "clsx";
 import React, { useEffect, useRef, useState, FC, useCallback } from "react";
-
-interface Styles extends Partial<Record<SwitchClassKey, string>> {
-  focusVisible?: string;
-}
-
-interface Props extends SwitchProps {
-  classes: Styles;
-}
-const CustomSwitch = withStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      marginLeft: 10,
-      width: 44,
-      height: 24,
-      padding: 0,
-    },
-    switchBase: {
-      padding: 2,
-      "&$checked": {
-        transform: "translateX(20px)",
-        color: theme.palette.common.white,
-        "& + $track": {
-          backgroundColor: colors.MAINPURPLE900,
-          opacity: 1,
-          border: "none",
-        },
-      },
-      "&$focusVisible $thumb": {},
-    },
-    thumb: {
-      width: 20,
-      height: 20,
-      backgroundColor: colors.WHITE,
-    },
-    track: {
-      borderRadius: 12,
-      backgroundColor: colors.MAINPURPLE50,
-      border: `0.5px solid ${colors.MAINPURPLE100}`,
-      opacity: 1,
-    },
-    checked: {},
-    focusVisible: {},
-  }),
-)(({ classes, ...props }: Props) => {
-  return (
-    <Switch
-      focusVisibleClassName={classes.focusVisible}
-      disableRipple
-      classes={{
-        root: classes.root,
-        switchBase: classes.switchBase,
-        thumb: classes.thumb,
-        track: classes.track,
-        checked: classes.checked,
-      }}
-      {...props}
-    />
-  );
-});
 
 const useStyles = makeStyles((theme) => ({
   accordionRoot: {
@@ -304,7 +240,7 @@ const AudienceItem: FC<IAudienceItemProps> = ({
                       </Box>
                     </Hidden>
                   </Box>
-                  <CustomSwitch
+                  <CustomSDSwitch
                     onClick={() => {
                       permissions?.includes(permission.key)
                         ? setPermissions((p) =>

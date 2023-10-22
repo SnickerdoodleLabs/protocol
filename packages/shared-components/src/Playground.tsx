@@ -20,8 +20,8 @@ import {
   DescriptionWidget,
   PermissionSelectionWidget,
 } from "@shared-components/v2";
+
 import { IOpenSeaMetadata } from "@snickerdoodlelabs/objects";
-import chroma from "chroma-js";
 import React from "react";
 import ReactDOM from "react-dom";
 

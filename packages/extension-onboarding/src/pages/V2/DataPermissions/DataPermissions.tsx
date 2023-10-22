@@ -41,9 +41,6 @@ const DataPermissions = () => {
   return (
     <Container>
       <PageTitle title="Data Permissions" />
-      {/* <Box width={300}>
-        <YearSelector onSelect={(selected) => console.log(selected)} />
-      </Box> */}
       {pageComponent}
     </Container>
   );
