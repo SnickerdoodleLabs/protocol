@@ -784,7 +784,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.marketplace.getPossibleRewards(
+            return core.marketplace.getEarnedRewardsByContractAddress(
               data.data.contractAddresses,
               data.data.timeoutMs,
             );

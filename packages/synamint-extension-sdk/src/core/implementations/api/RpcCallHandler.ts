@@ -111,7 +111,7 @@ import {
   GetMarketplaceListingsByTagParams,
   GetListingsTotalByTagParams,
   GetConsentCapacityParams,
-  GetPossibleRewardsParams,
+  GetPossibleRewardsParams as GetEarnedRewardsByContractAddressParams,
   DEFAULT_SUBDOMAIN,
   TwitterGetRequestTokenParams,
   TwitterLinkProfileParams,
@@ -695,11 +695,11 @@ export class RpcCallHandler implements IRpcCallHandler {
         );
       },
     ),
-    new CoreActionHandler<GetPossibleRewardsParams>(
-      GetPossibleRewardsParams.getCoreAction(),
+    new CoreActionHandler<GetEarnedRewardsByContractAddressParams>(
+      GetEarnedRewardsByContractAddressParams.getCoreAction(),
       (params) => {
         return this.invitationService
-          .getPossibleRewards(params.contractAddresses, params.timeoutMs)
+          .getEarnedRewardsByContractAddress(params.contractAddresses)
           .map((res) => {
             return ObjectUtils.serialize(res);
           });

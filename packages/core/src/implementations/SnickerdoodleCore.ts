@@ -499,16 +499,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return marketplaceService.getRecommendationsByListing(listing);
       },
 
-      getPossibleRewards: (
+      getEarnedRewardsByContractAddress: (
         contractAddresses: EVMContractAddress[],
-        timeoutMs?: number,
       ) => {
         const marketplaceService = this.iocContainer.get<IMarketplaceService>(
           IMarketplaceServiceType,
         );
-        return marketplaceService.getPossibleRewards(
+        return marketplaceService.getEarnedRewardsByContractAddress(
           contractAddresses,
-          timeoutMs ?? 3000,
         );
       },
     };

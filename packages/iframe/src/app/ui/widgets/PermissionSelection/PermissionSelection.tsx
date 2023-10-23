@@ -55,9 +55,11 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
 
   const getPossibleRewards = () => {
     core.marketplace
-      .getPossibleRewards([consentAddress])
+      .getEarnedRewardsByContractAddress([consentAddress])
       .map((rewards) => {
-        setPossibleRewards(rewards.get(consentAddress) || []);
+        setPossibleRewards(
+          (rewards.get(consentAddress) || []) as PossibleReward[],
+        ); //!!!
         setRewardsLoading(false);
       })
       .mapErr((e) => {

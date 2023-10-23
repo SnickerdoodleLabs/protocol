@@ -658,12 +658,14 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     );
   }
 
-  public getPossibleRewards(
+  public getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
-    timeoutMs?: number,
-  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, ProxyError> {
-    return coreGateway.getPossibleRewards(
-      new GetPossibleRewardsParams(contractAddresses, timeoutMs),
+  ): ResultAsync<
+    Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
+    ProxyError
+  > {
+    return coreGateway.getEarnedRewardsByContractAddress(
+      new GetPossibleRewardsParams(contractAddresses),
     );
   }
 }

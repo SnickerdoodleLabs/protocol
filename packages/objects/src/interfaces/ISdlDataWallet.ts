@@ -330,10 +330,13 @@ export interface ISdlDataWallet {
     contractAddress: EVMContractAddress,
   ): ResultAsync<IConsentCapacity, ProxyError>;
 
-  getPossibleRewards(
+  getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
-  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, ProxyError>;
+  ): ResultAsync<
+    Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
+    ProxyError
+  >;
 
   switchToTab(tabId: number): ResultAsync<void, ProxyError>;
 
