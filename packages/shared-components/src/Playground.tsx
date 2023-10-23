@@ -21,7 +21,7 @@ import {
   PermissionSelectionWidget,
 } from "@shared-components/v2";
 
-import { IOpenSeaMetadata } from "@snickerdoodlelabs/objects";
+import { IOldUserAgreement } from "@snickerdoodlelabs/objects";
 import React from "react";
 import ReactDOM from "react-dom";
 
@@ -305,7 +305,7 @@ const App = () => {
             onCancelClick={() => {}}
             onContinueClick={() => {}}
             onSetPermissions={() => {}}
-            invitationData={{} as IOpenSeaMetadata}
+            invitationData={{} as IOldUserAgreement}
           />
           <Box mb={2} />
           <PermissionSelectionWidget
