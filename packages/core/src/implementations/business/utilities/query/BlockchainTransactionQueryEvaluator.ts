@@ -57,7 +57,7 @@ export class BlockchainTransactionQueryEvaluator
           ),
         );
         return this.transactionHistoryRepo
-          .getTransactionByChain()
+          .getTransactionByChain(queryTimestamp)
           .andThen((transactionsArray) => {
             context.publicEvents.queryPerformance.next(
               new QueryPerformanceEvent(

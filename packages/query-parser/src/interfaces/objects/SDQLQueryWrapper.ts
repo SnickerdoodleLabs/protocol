@@ -28,8 +28,6 @@ export class SDQLQueryWrapper {
     readonly internalObj: ISDQLQueryObject,
     readonly timeUtils: ITimeUtils,
   ) {
-    console.log(`sdqlQuery`, sdqlQuery);
-    console.log(`internalObj`, internalObj);
     this.fixDateFormats();
     this.preProcessAds();
     this.preProcessInsights();
@@ -130,11 +128,6 @@ export class SDQLQueryWrapper {
     if (this.internalObj.timestamp == null) {
       return null;
     }
-    console.log(`Internal object after formatting `, this.internalObj);
-    console.log(
-      `QueryTimestamp `,
-      Math.floor(Date.parse(this.internalObj.timestamp) / 1000),
-    );
     return UnixTimestamp(
       Math.floor(Date.parse(this.internalObj.timestamp) / 1000),
     );
