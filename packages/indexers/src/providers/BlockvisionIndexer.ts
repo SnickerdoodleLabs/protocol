@@ -305,6 +305,8 @@ export class BlockvisionIndexer implements ISuiIndexer {
 
   private retrieveObjectChanges(param: IObjectChanges[]): SuiTransaction[] {
     return param.map((item) => {
+      console.log("amount: " + item.digest);
+      console.log("object item: " + JSON.stringify(item));
       return new SuiTransaction(
         EChain.Sui,
         SuiTransactionHash(item.digest),
