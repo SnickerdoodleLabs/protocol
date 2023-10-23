@@ -19,6 +19,8 @@ import {
 import {
   IPurchaseRepository,
   IPurchaseRepositoryType,
+  IPurchaseUtils,
+  IPurchaseUtilsType,
   ProductCategories,
   PurchasedProduct,
   UnknownProductCategory,
@@ -56,6 +58,8 @@ export class LLMScraperService implements IScraperService {
     private promptDirector: IPromptDirector,
     @inject(IWebpageClassifierType)
     private webpageClassifier: IWebpageClassifier,
+    @inject(IPurchaseUtilsType)
+    private purchaseUtils: IPurchaseUtils,
     @inject(ILLMPurchaseHistoryUtilsType)
     private purchaseHistoryLLMUtils: ILLMPurchaseHistoryUtils,
     @inject(IPurchaseRepositoryType)
@@ -174,7 +178,8 @@ export class LLMScraperService implements IScraperService {
     purchases: PurchasedProduct[],
   ): ResultAsync<void, ScraperError> {
     // convert purchases to LLM data first
-    const nullCategoryPurchases = this.getNullCategoryPurchases(purchases);
+    const nullCategoryPurchases =
+      this.purchaseUtils.getNullCategoryPurchases(purchases);
 
     return this.scrapeCategory(domainTask, language, nullCategoryPurchases);
   }
@@ -217,15 +222,5 @@ export class LLMScraperService implements IScraperService {
       .mapErr((err) => {
         return new ScraperError(err.message, err);
       });
-  }
-
-  private getNullCategoryPurchases(
-    purchases: PurchasedProduct[],
-  ): PurchasedProduct[] {
-    return purchases.filter((purchase) => {
-      return (
-        purchase.category == UnknownProductCategory || purchase.category == null
-      );
-    });
   }
 }

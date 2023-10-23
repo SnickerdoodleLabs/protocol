@@ -44,5 +44,11 @@ export interface IPurchaseUtils {
     purchasesWithSameMPAndDate: PurchasedProduct[],
     purchase: PurchasedProduct,
   ): ResultAsync<boolean, never>;
+
+  /**
+   * Returns purchases missing categories (with unknowns only)
+   * @param purchases
+   */
+  getNullCategoryPurchases(purchases: PurchasedProduct[]): PurchasedProduct[];
 }
 export const IPurchaseUtilsType = Symbol.for("IPurchaseUtils");

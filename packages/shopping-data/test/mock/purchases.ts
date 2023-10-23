@@ -5,6 +5,7 @@ import {
   ProductKeyword,
   PurchaseId,
   PurchasedProduct,
+  UnknownProductCategory,
 } from "@shopping-data/objects";
 
 const timeUtils = new TimeUtils();
@@ -195,4 +196,48 @@ export const febPruchases = [
   ),
 ];
 
-export const allPurchases = [...janPruchases, ...febPruchases];
+export const nullCategoryPruchases = [
+  new PurchasedProduct(
+    mp2,
+    ELanguageCode.English,
+    PurchaseId("null-ebay-aveeno-baby-lotion-2021-01-11"),
+    "Aveeno Baby Lotion",
+    "Aveeno",
+    11,
+    janDate!,
+    janDate!,
+    null,
+    null,
+    null,
+    UnknownProductCategory,
+    [
+      ProductKeyword("baby"),
+      ProductKeyword("skincare"),
+      ProductKeyword("body lotion"),
+    ],
+  ),
+  new PurchasedProduct(
+    mp2,
+    ELanguageCode.English,
+    PurchaseId("ebay-aveeno-baby-lotion-2021-02-11"),
+    "Aveeno Baby Lotion",
+    "Aveeno",
+    3.5,
+    febDate!,
+    febDate!,
+    null,
+    null,
+    null,
+    UnknownProductCategory,
+    [
+      ProductKeyword("baby"),
+      ProductKeyword("skincare"),
+      ProductKeyword("body lotion"),
+    ],
+  ),
+];
+export const allPurchases = [
+  ...janPruchases,
+  ...febPruchases,
+  ...nullCategoryPruchases,
+];

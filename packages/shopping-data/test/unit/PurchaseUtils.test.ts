@@ -5,10 +5,12 @@ import * as td from "testdouble";
 import { ProductUtils, PurchaseUtils } from "@shopping-data/implementations";
 import { IPurchaseUtils } from "@shopping-data/interfaces";
 import {
+  allPurchases,
   febPruchases,
   iphone12JanVariant,
   janPruchases,
   janPruchasesAmazon,
+  nullCategoryPruchases,
 } from "@shopping-data-test/mock";
 
 class Mocks {
@@ -133,5 +135,19 @@ describe("PurchaseUtils fast search", () => {
     // Assert
     expect(result.isOk()).toBeTruthy();
     expect(result._unsafeUnwrap()).toBeTruthy();
+  });
+});
+
+describe("PurchaseUtils other tools", () => {
+  test("get null category products", async () => {
+    // Arrange
+    const mocks = new Mocks();
+    const utils = mocks.factory();
+
+    // Act
+    const got = utils.getNullCategoryPurchases(allPurchases);
+
+    // Assert
+    expect(got).toEqual(nullCategoryPruchases);
   });
 });
