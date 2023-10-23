@@ -19,6 +19,7 @@ import emptyTag from "@extension-onboarding/assets/images/empty-tag.png";
 import Breadcrumb from "@extension-onboarding/components/Breadcrumb";
 import { tags } from "@extension-onboarding/constants/tags";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/Marketplace/CategoryDetail/CategoryDetail.style";
 import {
   FeaturedRewardsPrograms,
@@ -26,7 +27,6 @@ import {
   RecommendedRewardPrograms,
 } from "@extension-onboarding/pages/Details/screens/Marketplace/components/Sections";
 import { useMarketplaceStyles } from "@extension-onboarding/pages/Details/screens/Marketplace/Marketplace.style";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 
 const CategoryDetail = () => {
   const params = useParams();

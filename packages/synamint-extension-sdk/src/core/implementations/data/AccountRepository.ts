@@ -15,6 +15,9 @@ import {
   EVMContractAddress,
   BlockNumber,
   DomainName,
+  ChainTransaction,
+  TransactionFilter,
+  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -82,6 +85,26 @@ export class AccountRepository implements IAccountRepository {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
+  }
+
+  public getTransactions(
+    filter?: TransactionFilter,
+    sourceDomain?: DomainName,
+  ): ResultAsync<ChainTransaction[], SnickerDoodleCoreError> {
+    return this.core.getTransactions(filter, sourceDomain).mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
+  }
+  public getTransactionValueByChain(
+    sourceDomain?: DomainName,
+  ): ResultAsync<TransactionPaymentCounter[], SnickerDoodleCoreError> {
+    return this.core
+      .getTransactionValueByChain(sourceDomain)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
 
   public getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {

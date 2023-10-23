@@ -4,6 +4,7 @@ import * as td from "testdouble";
 
 import { PromptDirector } from "@ai-scraper/implementations";
 import {
+  ILLMProductMetaUtils,
   ILLMPurchaseHistoryUtils,
   IPromptBuilderFactory,
   IPromptDirector,
@@ -15,10 +16,13 @@ import { MockPromptBuilder } from "@ai-scraper-test/mocks/MockPromptBuilder";
  */
 
 const promptPH = Prompt("This is a purchase history prompt");
+const promptProductMeta = Prompt("This is a product meta prompt");
 class mocks {
   private purchaseHistoryLLMUtils = td.object<ILLMPurchaseHistoryUtils>();
+  private productMetaUtils = td.object<ILLMProductMetaUtils>();
   private promptBuilderFactory = td.object<IPromptBuilderFactory>();
   private phBuilder = new MockPromptBuilder(promptPH);
+  private productMetaBuilder = new MockPromptBuilder(promptProductMeta);
   public constructor() {
     // td.when(this.purchaseHistoryLLMUtils.getRole()).thenReturn(
     //   LLMRole("user PH"),
@@ -32,11 +36,15 @@ class mocks {
     td.when(this.promptBuilderFactory.purchaseHistory()).thenReturn(
       this.phBuilder,
     );
+    td.when(this.promptBuilderFactory.productMeta()).thenReturn(
+      this.productMetaBuilder,
+    );
   }
   public factory(): IPromptDirector {
     return new PromptDirector(
-      this.purchaseHistoryLLMUtils,
       this.promptBuilderFactory,
+      this.purchaseHistoryLLMUtils,
+      this.productMetaUtils,
     );
   }
 }
@@ -56,5 +64,19 @@ describe("PromptDirector", () => {
     expect(promptRes.isOk()).toBe(true);
     const prompt = promptRes._unsafeUnwrap();
     expect(prompt).toEqual(promptPH);
+  });
+
+  test("makePromptBuilderPrompt", async () => {
+    // Arrange
+    const m = new mocks();
+    const director = m.factory();
+
+    // Act
+    const promptRes = await director.makeProductMetaPrompt(LLMData("anything"));
+
+    // Assert
+    expect(promptRes.isOk()).toBe(true);
+    const prompt = promptRes._unsafeUnwrap();
+    expect(prompt).toEqual(promptProductMeta);
   });
 });

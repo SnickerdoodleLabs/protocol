@@ -8,7 +8,10 @@ import {
   IProductUtilsType,
   IPurchaseUtils,
 } from "@shopping-data/interfaces/index.js";
-import { PurchasedProduct } from "@shopping-data/objects/index.js";
+import {
+  PurchasedProduct,
+  UnknownProductCategory,
+} from "@shopping-data/objects/index.js";
 
 @injectable()
 export class PurchaseUtils implements IPurchaseUtils {
@@ -91,5 +94,15 @@ export class PurchaseUtils implements IPurchaseUtils {
       return acc;
     }, [] as PurchasedProduct[]);
     return okAsync(filtered);
+  }
+
+  public getNullCategoryPurchases(
+    purchases: PurchasedProduct[],
+  ): PurchasedProduct[] {
+    return purchases.filter((purchase) => {
+      return (
+        purchase.category == UnknownProductCategory || purchase.category == null
+      );
+    });
   }
 }

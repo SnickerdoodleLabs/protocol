@@ -43,6 +43,7 @@ export * from "@objects/primitives/FamilyName.js";
 export * from "@objects/primitives/Gender.js";
 export * from "@objects/primitives/GivenName.js";
 export * from "@objects/primitives/HostName.js";
+export * from "@objects/primitives/HexColorString.js";
 export * from "@objects/primitives/HexString.js";
 export * from "@objects/primitives/HexString32.js";
 export * from "@objects/primitives/HTMLString.js";

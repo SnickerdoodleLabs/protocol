@@ -22,7 +22,7 @@ import {
   EWalletDataType,
   AccountAddress,
   TokenAddress,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   LinkedAccount,
   TokenBalance,
   TokenMarketData,
@@ -65,6 +65,9 @@ import {
   PageNo,
   Year,
   PurchasedProduct,
+  ChainTransaction,
+  TransactionPaymentCounter,
+  TransactionFilter,
 } from "@snickerdoodlelabs/objects";
 
 import { IExtensionConfig } from "./IExtensionConfig";
@@ -310,7 +313,7 @@ export class LeaveCohortParams extends CoreActionParams<void> {
   }
 }
 
-export class GetInvitationMetadataByCIDParams extends CoreActionParams<IOpenSeaMetadata> {
+export class GetInvitationMetadataByCIDParams extends CoreActionParams<IOldUserAgreement> {
   public constructor(public ipfsCID: IpfsCID) {
     super(GetInvitationMetadataByCIDParams.getCoreAction());
   }
@@ -566,6 +569,26 @@ export class GetAccountsParams extends CoreActionParams<LinkedAccount[]> {
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_ACCOUNTS;
+  }
+}
+export class GetTransactionsParams extends CoreActionParams<
+  ChainTransaction[]
+> {
+  public constructor(public filter?: TransactionFilter) {
+    super(GetTransactionsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_TRANSACTIONS;
+  }
+}
+export class GetTransactionValueByChainParams extends CoreActionParams<
+  TransactionPaymentCounter[]
+> {
+  public constructor() {
+    super(GetTransactionValueByChainParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_TRANSACTIONS_VALUE_BY_CHAIN;
   }
 }
 

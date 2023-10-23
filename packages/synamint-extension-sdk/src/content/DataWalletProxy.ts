@@ -66,6 +66,9 @@ import {
   PageNo,
   IProxyAccountMethods,
   IProxyPurchaseMethods,
+  ChainTransaction,
+  TransactionFilter,
+  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -110,8 +113,7 @@ import {
   SetAuthenticatedStorageParams,
   RejectInvitationParams,
   GetQueryStatusesParams,
-  ScraperScrapeParams,
-  ScraperClassifyUrlParams,
+  GetTransactionsParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
@@ -457,6 +459,18 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     return coreGateway.getMarketplaceListingsByTag(
       new GetMarketplaceListingsByTagParams(pagingReq, tag, filterActive),
     );
+  }
+
+  public getTransactions(
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], ProxyError> {
+    return coreGateway.getTransactions(new GetTransactionsParams(filter));
+  }
+  public getTransactionValueByChain(): ResultAsync<
+    TransactionPaymentCounter[],
+    ProxyError
+  > {
+    return coreGateway.getTransactionValueByChain();
   }
 
   public getListingsTotalByTag(

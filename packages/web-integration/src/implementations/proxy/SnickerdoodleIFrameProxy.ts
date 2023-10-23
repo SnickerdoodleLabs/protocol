@@ -28,7 +28,7 @@ import {
   GivenName,
   IConfigOverrides,
   IConsentCapacity,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   IProxyMetricsMethods,
   IProxyDiscordMethods,
   IProxyTwitterMethods,
@@ -87,6 +87,9 @@ import {
   IProxyPurchaseMethods,
   PersistenceError,
   PurchasedProduct,
+  ChainTransaction,
+  TransactionFilter,
+  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -372,6 +375,20 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
+  getTransactions(
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], ProxyError> {
+    return this._createCall("getTransactions", {
+      filter,
+    });
+  }
+  getTransactionValueByChain(): ResultAsync<
+    TransactionPaymentCounter[],
+    ProxyError
+  > {
+    return this._createCall("getTransactionValueByChain", null);
+  }
+
   public getAccountBalances(): ResultAsync<TokenBalance[], ProxyError> {
     return this._createCall("getAccountBalances", null);
   }
@@ -400,7 +417,7 @@ export class SnickerdoodleIFrameProxy
 
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, ProxyError> {
+  ): ResultAsync<IOldUserAgreement, ProxyError> {
     return this._createCall("getInvitationMetadataByCID", {
       ipfsCID,
     });

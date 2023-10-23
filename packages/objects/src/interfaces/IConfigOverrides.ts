@@ -66,6 +66,7 @@ export interface IConfigOverrides {
     projectId: string;
   };
 
+  queryPerformanceMetricsLimit?: number;
   scraper?: {
     OPENAI_API_KEY: string;
     timeout: number;

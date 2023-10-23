@@ -1,4 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
+import React, { useEffect } from "react";
 import {
   Button,
   Clipboard,
@@ -11,15 +12,16 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect } from "react";
 import "@walletconnect/react-native-compat";
 
 import Icon from "react-native-vector-icons/Ionicons";
 
 import { ROUTES } from "../../constants";
 import { useTheme } from "../../context/ThemeContext";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useWalletConnectModal } from "@walletconnect/modal-react-native";
+
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 export default function Settings() {

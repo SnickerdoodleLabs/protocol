@@ -185,6 +185,8 @@ export class IndexedDB {
             request.onerror = (event) => {
               this.logUtils.error("Error in IndexDB.putObject");
               this.logUtils.error(event);
+              // console.log("Error in IndexDB.putObject");
+              // console.log(event);
               reject(
                 new PersistenceError(
                   "error updating object store: " + event.target,
@@ -197,10 +199,11 @@ export class IndexedDB {
           }
         });
 
-        return ResultAsync.fromPromise(
-          promise,
-          (e) => new PersistenceError("error placing object", e),
-        );
+        return ResultAsync.fromPromise(promise, (e) => {
+          // console.log("error placing object");
+          // console.log(e);
+          return new PersistenceError("error placing object", e);
+        });
       })
       .map(() => {});
   }

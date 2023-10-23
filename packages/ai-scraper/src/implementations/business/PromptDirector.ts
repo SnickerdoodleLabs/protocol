@@ -17,15 +17,19 @@ import {
   IPromptBuilderFactoryType,
   IPromptBuilderFactory,
   IPromptBuilder,
+  ILLMProductMetaUtilsType,
+  ILLMProductMetaUtils,
 } from "@ai-scraper/interfaces/index.js";
 
 @injectable()
 export class PromptDirector implements IPromptDirector {
   constructor(
-    @inject(ILLMPurchaseHistoryUtilsType)
-    private purchaseHistoryLLMUtils: ILLMPurchaseHistoryUtils,
     @inject(IPromptBuilderFactoryType)
     private promptBuilderFactory: IPromptBuilderFactory,
+    @inject(ILLMPurchaseHistoryUtilsType)
+    private purchaseHistoryLLMUtils: ILLMPurchaseHistoryUtils,
+    @inject(ILLMProductMetaUtilsType)
+    private productMetaUtils: ILLMProductMetaUtils,
   ) {}
 
   /**
@@ -39,6 +43,17 @@ export class PromptDirector implements IPromptDirector {
     const role = this.purchaseHistoryLLMUtils.getRole();
     const question = this.purchaseHistoryLLMUtils.getQuestion();
     const answerStructure = this.purchaseHistoryLLMUtils.getAnswerStructure();
+
+    // Attend
+    return this.make(builder, [], role, question, answerStructure, data);
+  }
+
+  public makeProductMetaPrompt(data: LLMData): ResultAsync<Prompt, LLMError> {
+    // Acquire
+    const builder = this.promptBuilderFactory.productMeta();
+    const role = this.productMetaUtils.getRole();
+    const question = this.productMetaUtils.getQuestion();
+    const answerStructure = this.productMetaUtils.getAnswerStructure();
 
     // Attend
     return this.make(builder, [], role, question, answerStructure, data);

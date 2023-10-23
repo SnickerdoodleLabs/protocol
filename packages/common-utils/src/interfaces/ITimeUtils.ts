@@ -1,4 +1,5 @@
 import {
+  ISO8601DateString,
   MillisecondTimestamp,
   Month,
   UnixTimestamp,
@@ -14,6 +15,7 @@ export interface ITimeUtils {
 
   getCurYear(): Year;
   getCurMonth(): Month;
+  convertTimestampToISOString(unixTimestamp: UnixTimestamp): ISO8601DateString;
 }
 
 export const ITimeUtilsType = Symbol.for("ITimeUtils");

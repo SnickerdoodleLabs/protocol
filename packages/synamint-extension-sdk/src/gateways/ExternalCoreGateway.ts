@@ -15,7 +15,7 @@ import {
   FamilyName,
   Gender,
   GivenName,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   IpfsCID,
   LinkedAccount,
   DataWalletAddress,
@@ -68,6 +68,9 @@ import {
   IScraperNavigationMethods,
   IScraperMethods,
   GetResultAsyncValueType,
+  ChainTransaction,
+  TransactionPaymentCounter,
+  TransactionFilter,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -164,6 +167,8 @@ import {
   PurchaseGetParams,
   PurchaseGetByMarketPlaceParams,
   PurchaseGetByMarketPlaceAndDateParams,
+  GetTransactionsParams,
+  GetTransactionValueByChainParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -492,7 +497,7 @@ export class ExternalCoreGateway {
 
   public getInvitationMetadataByCID(
     params: GetInvitationMetadataByCIDParams,
-  ): ResultAsync<IOpenSeaMetadata, ProxyError> {
+  ): ResultAsync<IOldUserAgreement, ProxyError> {
     return this._handler.call(params);
   }
 
@@ -531,6 +536,18 @@ export class ExternalCoreGateway {
   }
   public getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError> {
     return this._handler.call(new GetAccountNFTsParams());
+  }
+
+  public getTransactions(
+    params: GetTransactionsParams,
+  ): ResultAsync<ChainTransaction[], ProxyError> {
+    return this._handler.call(params);
+  }
+  public getTransactionValueByChain(): ResultAsync<
+    TransactionPaymentCounter[],
+    ProxyError
+  > {
+    return this._handler.call(new GetTransactionValueByChainParams());
   }
 
   public setFamilyName(

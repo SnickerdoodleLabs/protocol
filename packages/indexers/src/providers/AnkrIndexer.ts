@@ -73,6 +73,18 @@ export class AnkrIndexer implements IEVMIndexer {
       EChain.Arbitrum,
       new IndexerSupportSummary(EChain.Arbitrum, true, true, true),
     ],
+    [
+      EChain.Fuji, 
+      new IndexerSupportSummary(EChain.Fuji, true, true, true),
+    ],
+    [
+      EChain.Mumbai,
+      new IndexerSupportSummary(EChain.Mumbai, true, true, true),
+    ],
+    // [
+    //   EChain.BinanceTestnet,
+    //   new IndexerSupportSummary(EChain.BinanceTestnet, true, false, false),
+    // ],
   ]);
 
   protected supportedNfts = new Map<string, EChain>([
@@ -82,6 +94,8 @@ export class AnkrIndexer implements IEVMIndexer {
     ["avalanche", EChain.Avalanche],
     ["arbitrum", EChain.Arbitrum],
     ["optimism", EChain.Optimism],
+    ["avalanche_fuji", EChain.Fuji],
+    ["polygon_mumbai", EChain.Mumbai],
   ]);
 
   protected supportedAnkrChains = new Map<EChain, string>([
@@ -89,10 +103,11 @@ export class AnkrIndexer implements IEVMIndexer {
     [EChain.Polygon, "polygon"],
     [EChain.Mumbai, "polygon_mumbai"],
     [EChain.Avalanche, "avalanche"],
-    [EChain.Fuji, "avalanche_fuji"],
     [EChain.Binance, "bsc"],
     [EChain.Arbitrum, "arbitrum"],
     [EChain.Optimism, "optimism"],
+    [EChain.Fuji, "avalanche_fuji"],
+    // [EChain.BinanceTestnet, "bsc_testnet_chapel"],
   ]);
 
   public constructor(
@@ -150,6 +165,7 @@ export class AnkrIndexer implements IEVMIndexer {
         },
         id: 1,
       };
+      console.log("requestParams: " + JSON.stringify(requestParams));
 
       context.privateEvents.onApiAccessed.next(EExternalApi.Ankr);
       return this.ajaxUtils
@@ -229,7 +245,9 @@ export class AnkrIndexer implements IEVMIndexer {
         })
         .map((response) => {
           // return ResultUtils.combine(
+          console.log("chain: " + chain);
           return response.result.assets.map((item) => {
+            console.log("item: " + JSON.stringify(item));
             return new EVMNFT(
               item.contractAddress,
               BigNumberString(item.tokenId),
@@ -301,8 +319,8 @@ export class AnkrIndexer implements IEVMIndexer {
               EVMTransactionHash(item.hash),
               UnixTimestamp(item.timestamp),
               item.blockNumber,
-              EVMAccountAddress(item.to),
-              EVMAccountAddress(item.from),
+              EVMAccountAddress(item.to.toLowerCase()),
+              EVMAccountAddress(item.from.toLowerCase()),
               BigNumberString(item.value),
               BigNumberString(item.gasPrice),
               null,

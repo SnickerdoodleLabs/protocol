@@ -1,4 +1,15 @@
 import {
+  ETag,
+  IOldUserAgreement,
+  MarketplaceListing,
+  MarketplaceTag,
+  PagedResponse,
+  PagingRequest,
+} from "@snickerdoodlelabs/objects";
+import { ResultAsync, okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+import React, { useEffect, useMemo, useState } from "react";
+import {
   Animated,
   FlatList,
   Image,
@@ -11,34 +22,25 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useMemo, useState } from "react";
 import Orientation from "react-native-orientation-locker";
-import { useAppContext } from "../../context/AppContextProvider";
-import { ResultUtils } from "neverthrow-result-utils";
-import {
-  ETag,
-  IOpenSeaMetadata,
-  MarketplaceListing,
-  MarketplaceTag,
-  PagedResponse,
-  PagingRequest,
-} from "@snickerdoodlelabs/objects";
-import { ITagItem, tags } from "./tags";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
-import CardItem from "./CardItem";
-import SearchBar from "../Custom/SearchBar";
-import { ResultAsync, okAsync } from "neverthrow";
-import { ipfsParse } from "../Dashboard/NFTs/NFTDetails";
-import { walletDataTypeMap } from "./CardDetails";
 import Icon from "react-native-vector-icons/Ionicons";
+
+import { useAppContext } from "../../context/AppContextProvider";
 import { useTheme } from "../../context/ThemeContext";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
+import SearchBar from "../Custom/SearchBar";
+import { ipfsParse } from "../Dashboard/NFTs/NFTDetails";
+
+import { walletDataTypeMap } from "./CardDetails";
+import CardItem from "./CardItem";
+import { ITagItem, tags } from "./tags";
 
 export default function Marketplace() {
   const { mobileCore } = useAppContext();
   const [categoryFilter, setCategoryFilter] = useState<boolean>(false);
   const [listings, setListings] =
     useState<Record<ETag, PagedResponse<MarketplaceListing>>>();
-  const [allListings, setAllListings] = useState<IOpenSeaMetadata[]>([]);
+  const [allListings, setAllListings] = useState<IOldUserAgreement[]>([]);
   const [filteredData, setFilteredData] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredByCategory, setFilteredByCategory] = useState(null);
@@ -74,7 +76,7 @@ export default function Marketplace() {
         return acc;
       }, {} as Record<ETag, PagedResponse<MarketplaceListing>>);
 
-      let allResponseListings = [];
+      const allResponseListings = [];
 
       for (const key in structuredItems) {
         if (
@@ -258,7 +260,7 @@ export default function Marketplace() {
         return acc;
       }, {} as Record<ETag, PagedResponse<MarketplaceListing>>);
 
-      let allResponseListings = [];
+      const allResponseListings = [];
 
       for (const key in structuredItems) {
         if (

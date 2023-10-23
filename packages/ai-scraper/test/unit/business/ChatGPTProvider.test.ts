@@ -6,6 +6,7 @@ import { ResultAsync } from "neverthrow";
 
 import {
   ChatGPTProvider,
+  LLMProductMetaUtilsChatGPT,
   LLMPurchaseHistoryUtilsChatGPT,
   OpenAIUtils,
   PromptDirector,
@@ -31,10 +32,15 @@ class Mocks {
     this.timeUtils,
     this.logUtils,
   );
+  public productMetaLLMUtils = new LLMProductMetaUtilsChatGPT(
+    this.timeUtils,
+    this.logUtils,
+  );
   public promptBuilderFactory = new PromptBuilderFactory();
   public promptDirector = new PromptDirector(
-    this.purchaseHistoryLLMUtils,
     this.promptBuilderFactory,
+    this.purchaseHistoryLLMUtils,
+    this.productMetaLLMUtils,
   );
 
   public factoryWithMockedClient(): ChatGPTProvider {

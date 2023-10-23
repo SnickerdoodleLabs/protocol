@@ -1,3 +1,6 @@
+import { useNavigation } from "@react-navigation/native";
+import { ResultAsync } from "neverthrow";
+import React, { useEffect } from "react";
 import {
   Image,
   Linking,
@@ -9,17 +12,15 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect } from "react";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
+import { authorize, AuthorizeResult } from "react-native-app-auth";
 import Icon from "react-native-vector-icons/Ionicons";
+
 import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
 import { useAppContext } from "../../context/AppContextProvider";
-import RadioButton from "../Custom/RadioButton";
-import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../../context/ThemeContext";
-import { ResultAsync } from "neverthrow";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
+import RadioButton from "../Custom/RadioButton";
 import { DiscordProvider } from "../Social/DiscordProvider";
-import { authorize, AuthorizeResult } from "react-native-app-auth";
 
 interface AuthorizeConfig {
   clientId: string;

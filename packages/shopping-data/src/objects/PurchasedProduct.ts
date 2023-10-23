@@ -25,16 +25,16 @@ export class PurchasedProduct extends VersionedObject {
     readonly language: ELanguageCode,
     readonly id: PurchaseId,
     readonly name: string,
-    readonly brand: string | null,
+    public brand: string | null,
     readonly price: number,
-    readonly datePurchased: UnixTimestamp,
+    public datePurchased: UnixTimestamp,
 
     readonly dateCreated: UnixTimestamp,
-    readonly description: string | null,
-    readonly image: URLString | null,
-    readonly url: URLString | null,
-    readonly category: string,
-    readonly keywords: ProductKeyword[] | null,
+    public description: string | null,
+    public image: URLString | null,
+    public url: URLString | null,
+    public category: string,
+    public keywords: ProductKeyword[] | null,
   ) {
     super();
   }
