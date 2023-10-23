@@ -110,9 +110,7 @@ export class MonitoringService implements IMonitoringService {
                       )
                       .orElse((e) => {
                         this.logUtils.error(
-                          "error fetching transactions",
-                          chain,
-                          linkedAccount.sourceAccountAddress,
+                          `In pollTransactions(), received an error fetching transactions on chain ${chain} for account address ${linkedAccount.sourceAccountAddress}.`,
                           e,
                         );
                         return okAsync([]);
