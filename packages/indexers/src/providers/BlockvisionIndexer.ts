@@ -174,6 +174,7 @@ export class BlockvisionIndexer implements ISuiIndexer {
         );
       })
       .map((response) => {
+        console.log("response: " + JSON.stringify(response));
         return response.result.data.map((item) => {
           if (item.nftMetadata == null) {
             return null;
