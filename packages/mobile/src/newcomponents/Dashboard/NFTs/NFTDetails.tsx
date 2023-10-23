@@ -22,8 +22,8 @@ import {
 } from "react-native";
 
 import { useAppContext } from "../../../context/AppContextProvider";
-import { useTheme } from "../../../context/ThemeContext";
 import { useLayoutContext } from "../../../context/LayoutContext";
+import { useTheme } from "../../../context/ThemeContext";
 import { normalizeHeight, normalizeWidth } from "../../../themes/Metrics";
 
 interface ICardDetailsProps {

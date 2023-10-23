@@ -3,7 +3,7 @@ import {
   EVMContractAddress,
   EWalletDataType,
   Invitation,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
 } from "@snickerdoodlelabs/objects";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
@@ -16,15 +16,16 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import FastImage from "react-native-fast-image";
 import Icon from "react-native-vector-icons/Ionicons";
 
-import { useAppContext } from "./AppContextProvider";
+import CustomSwitch from "../newcomponents/Custom/CustomSwitch";
 import Dropdown from "../newcomponents/Dashboard/Dropdown";
 import { normalizeHeight, normalizeWidth } from "../themes/Metrics";
-import CustomSwitch from "../newcomponents/Custom/CustomSwitch";
-import FastImage from "react-native-fast-image";
-import { useTheme } from "./ThemeContext";
+
+import { useAppContext } from "./AppContextProvider";
 import { IInvitationParams } from "./InvitationContext";
+import { useTheme } from "./ThemeContext";
 
 const styles = StyleSheet.create({
   overlay: {
@@ -181,7 +182,7 @@ export interface ILoadingStatus {
 }
 export interface IInvitationStatus {
   status: boolean;
-  data?: IOpenSeaMetadata;
+  data?: IOldUserAgreement;
   invitationParams?: Invitation;
 }
 
@@ -238,7 +239,7 @@ const LayoutContextProvider = ({ children }) => {
   const [pickerLinkedAccounts, setPickerLinkedAccount] = React.useState<any[]>(
     [],
   );
-  const [invitationData, setInvitationData] = useState<IOpenSeaMetadata>();
+  const [invitationData, setInvitationData] = useState<IOldUserAgreement>();
   const [invitation, setInvitation] = useState<IInvitationParams | null>(null);
   const setLoadingStatus = (loadingStatus: ILoadingStatus) => {
     _setLoadingStatus(loadingStatus);
@@ -343,7 +344,7 @@ const LayoutContextProvider = ({ children }) => {
     setSelectedAccount(item.label);
   };
   useEffect(() => {
-    let accs: { label: string; value: string }[] = [];
+    const accs: { label: string; value: string }[] = [];
     linkedAccounts?.map((acc) => {
       accs.push({ label: acc as string, value: acc as string });
     });
@@ -450,7 +451,7 @@ const LayoutContextProvider = ({ children }) => {
 
   const InvitationPopUp = useMemo(() => {
     const theme = useTheme();
-    var styles = StyleSheet.create({
+    const styles = StyleSheet.create({
       overlay: {
         flex: 1,
         backgroundColor: "rgba(0, 0, 0, 0.5)",

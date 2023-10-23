@@ -1,8 +1,3 @@
-import { Box, CircularProgress, Grid } from "@material-ui/core";
-import { EVMContractAddress, IpfsCID } from "@snickerdoodlelabs/objects";
-import React, { FC, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
 import emptySubscriptions from "@extension-onboarding/assets/images/empty-subscriptions.svg";
 import { DefaultCampaignItem } from "@extension-onboarding/components/CampaignItems";
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
@@ -11,13 +6,14 @@ import Typography from "@extension-onboarding/components/Typography";
 import UnauthScreen from "@extension-onboarding/components/UnauthScreen";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
-import {
-  IModal,
-  useLayoutContext,
-} from "@extension-onboarding/context/LayoutContext";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/CampaignSettings/CampaignSettings.style";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { Box, CircularProgress, Grid } from "@material-ui/core";
+import { EVMContractAddress, IpfsCID } from "@snickerdoodlelabs/objects";
+import React, { FC, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const RewardsInfo: FC = () => {
   const navigate = useNavigate();

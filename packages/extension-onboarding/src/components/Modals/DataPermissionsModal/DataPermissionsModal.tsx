@@ -16,8 +16,8 @@ import {
   PERMISSION_NAMES,
   PERMISSIONS,
 } from "@extension-onboarding/constants/permissions";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 
 const DataPermissionsModal: FC = () => {
   const { sdlDataWallet } = useDataWalletContext();

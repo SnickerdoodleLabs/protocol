@@ -6,7 +6,7 @@ import {
   EInvitationStatus,
   EVMContractAddress,
   EWalletDataType,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   Signature,
 } from "@snickerdoodlelabs/objects";
 import { Button } from "@snickerdoodlelabs/shared-components";
@@ -15,16 +15,16 @@ import React, { useEffect, useState, FC, useCallback, useRef } from "react";
 
 import SDLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
 import RewardBG from "@extension-onboarding/assets/images/rewardBg.svg";
+import Description from "@extension-onboarding/components/Description";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import { useStyles } from "@extension-onboarding/components/Modals/CampaignPopup/CampaignPopup.style";
 import { LOCAL_STORAGE_SDL_INVITATION_KEY } from "@extension-onboarding/constants";
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import Description from "@extension-onboarding/components/Description";
 const CampaignPopup: FC = () => {
-  const [invitationMeta, setInvitationMeta] = useState<IOpenSeaMetadata>();
+  const [invitationMeta, setInvitationMeta] = useState<IOldUserAgreement>();
   const [loading, setLoading] = useState<boolean>(false);
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);

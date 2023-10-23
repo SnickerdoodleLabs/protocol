@@ -1,3 +1,7 @@
+import { IOldUserAgreement } from "@snickerdoodlelabs/objects";
+import parse from "html-react-parser";
+import React, { FC, useMemo } from "react";
+
 import { AcnowledgmentBanner } from "@core-iframe/app/ui/components/AcknowledgmentBanner";
 import { CloseButton } from "@core-iframe/app/ui/components/CloseButton";
 import {
@@ -10,12 +14,9 @@ import {
   useMedia,
   createUseStyles,
 } from "@core-iframe/app/ui/lib";
-import { IOpenSeaMetadata } from "@snickerdoodlelabs/objects";
-import parse from "html-react-parser";
-import React, { FC, useMemo } from "react";
 
 interface IDescriptionProps {
-  invitationData: IOpenSeaMetadata;
+  invitationData: IOldUserAgreement;
   onCancelClick: () => void;
   onContinueClick: () => void;
   onSetPermissions: () => void;

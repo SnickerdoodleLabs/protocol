@@ -5,7 +5,7 @@ import {
   EInvitationStatus,
   PageInvitation,
   EVMContractAddress,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   IpfsCID,
   EWalletDataType,
   MarketplaceListing,
@@ -128,7 +128,7 @@ export class InvitationService implements IInvitationService {
 
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError> {
+  ): ResultAsync<IOldUserAgreement, SnickerDoodleCoreError> {
     return this.invitationRepository.getInvitationMetadataByCID(ipfsCID);
   }
 

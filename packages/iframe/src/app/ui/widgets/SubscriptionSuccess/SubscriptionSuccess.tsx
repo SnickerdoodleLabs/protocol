@@ -1,4 +1,6 @@
-import { IOpenSeaMetadata } from "@snickerdoodlelabs/objects";
+import { IOldUserAgreement } from "@snickerdoodlelabs/objects";
+import React, { FC, useMemo } from "react";
+
 import { CloseButton } from "@core-iframe/app/ui/components/CloseButton";
 import { PROD_DATA_WALLET_URL } from "@core-iframe/app/ui/constants";
 import {
@@ -10,9 +12,8 @@ import {
   ITheme,
   defaultDarkTheme,
 } from "@core-iframe/app/ui/lib";
-import React, { FC, useMemo } from "react";
 interface ISubscriptionSuccessProps {
-  invitationData: IOpenSeaMetadata;
+  invitationData: IOldUserAgreement;
   onClick: () => void;
 }
 export const SubscriptionSuccess: FC<ISubscriptionSuccessProps> = ({

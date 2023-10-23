@@ -1,11 +1,14 @@
 import { create } from "jss";
 import React from "react";
 import { render } from "react-dom";
+
 import "@webcomponents/custom-elements";
+import { v4 } from "uuid";
+
 import App from "@synamint-extension-sdk/content/components/App";
 import PopupTabManager from "@synamint-extension-sdk/content/PopupTabManager";
+
 import { StylesProvider, jssPreset } from "@material-ui/styles";
-import { v4 } from "uuid";
 
 class ReactPopupManagerContainer extends HTMLElement {
   connectedCallback() {

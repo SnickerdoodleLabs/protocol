@@ -1,6 +1,6 @@
 import {
   EVMContractAddress,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import React, { useEffect } from "react";
@@ -18,9 +18,8 @@ import {
 
 import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
 import { useAppContext } from "../../context/AppContextProvider";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
-
 import { useTheme } from "../../context/ThemeContext";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 interface ILoadingProps {
   status: boolean;
@@ -38,7 +37,7 @@ export default function RewardsSettings() {
   const [cids, setCids] = React.useState<IpfsCID[]>([]);
   const [isLoading, setIsLoading] = React.useState<ILoadingProps[]>([]);
   const [unsubsribed, setUnsubscribed] = React.useState<boolean>(false);
-  const [campainJoined, setCampainJoined] = React.useState<IOpenSeaMetadata[]>(
+  const [campainJoined, setCampainJoined] = React.useState<IOldUserAgreement[]>(
     [],
   );
 

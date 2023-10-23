@@ -11,6 +11,7 @@ import {
   Web2Reward,
 } from "@snickerdoodlelabs/objects";
 import { PossibleRewardComponent } from "@snickerdoodlelabs/shared-components";
+import { isSameReward } from "@snickerdoodlelabs/shared-components";
 import React, { FC, useState } from "react";
 
 import {
@@ -23,7 +24,6 @@ import { EBadgeType } from "@extension-onboarding/objects";
 import Section, {
   useSectionStyles,
 } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";
-import { isSameReward } from "@snickerdoodlelabs/shared-components";
 
 interface ICollectedRewardsProps {
   rewards: EarnedReward[];
