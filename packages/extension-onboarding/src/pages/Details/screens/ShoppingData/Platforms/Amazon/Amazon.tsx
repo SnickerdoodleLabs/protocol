@@ -58,6 +58,7 @@ export const Amazon: FC<IShoppingDataPlatformProps> = memo(
               icon={icon}
               providerName={name}
               handleDisconnectClick={handleDisconnectClick}
+              product={product}
             />
           ) : (
             <AmazonConnectItem

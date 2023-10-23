@@ -16,52 +16,59 @@ interface IAmazonDataItemProps {
 
 export const AmazonDataItem: FC<IAmazonDataItemProps> = memo(
   ({ product }: IAmazonDataItemProps) => {
-    const totalPrice = parseFloat(
-      product.reduce((total, product) => total + product.price, 0).toFixed(3),
-    );
-    const clothesProducts = product.filter(
-      (product) => product.category === "Clothes",
-    );
-    const clothesTotalPrice = parseFloat(
-      clothesProducts
-        .reduce((total, product) => total + product.price, 0)
-        .toFixed(3),
-    );
-    const electronicsProducts = product.filter(
-      (product) => product.category === "Electronics",
-    );
-    const electronicsTotalPrice = parseFloat(
-      electronicsProducts
-        .reduce((total, product) => total + product.price, 0)
-        .toFixed(3),
-    );
-    const gameProducts = product.filter(
-      (product) => product.category === "Game",
-    );
-    const gameTotalPrice = parseFloat(
-      gameProducts
-        .reduce((total, product) => total + product.price, 0)
-        .toFixed(3),
-    );
-    const otherProducts = product.filter(
-      (product) =>
-        !(
-          product.category === "Clothes" ||
-          product.category === "Electronics" ||
-          product.category === "Game"
-        ),
-    );
-    const otherTotalPrice = parseFloat(
-      otherProducts
-        .reduce((total, product) => total + product.price, 0)
-        .toFixed(3),
-    );
+    const calculateTotalPrices = (products) => {
+      const totalPrice = parseFloat(
+        products
+          .reduce((total, product) => total + product.price, 0)
+          .toFixed(3),
+      );
+
+      const getCategoryTotalPrice = (category, products) => {
+        const categoryProducts = products.filter(
+          (product) => product.category === category,
+        );
+        return parseFloat(
+          categoryProducts
+            .reduce((total, product) => total + product.price, 0)
+            .toFixed(3),
+        );
+      };
+
+      const clothesTotalPrice = getCategoryTotalPrice("Clothes", products);
+      const electronicsTotalPrice = getCategoryTotalPrice(
+        "Electronics",
+        products,
+      );
+      const gameTotalPrice = getCategoryTotalPrice("Game", products);
+
+      const otherProducts = products.filter(
+        (product) =>
+          !(
+            product.category === "Clothes" ||
+            product.category === "Electronics" ||
+            product.category === "Game"
+          ),
+      );
+      const otherTotalPrice = parseFloat(
+        otherProducts
+          .reduce((total, product) => total + product.price, 0)
+          .toFixed(3),
+      );
+
+      return {
+        totalPrice,
+        clothesTotalPrice,
+        electronicsTotalPrice,
+        gameTotalPrice,
+        otherTotalPrice,
+      };
+    };
 
     const data: number[] = [
-      clothesTotalPrice,
-      electronicsTotalPrice,
-      gameTotalPrice,
-      otherTotalPrice,
+      calculateTotalPrices(product).clothesTotalPrice,
+      calculateTotalPrices(product).electronicsTotalPrice,
+      calculateTotalPrices(product).gameTotalPrice,
+      calculateTotalPrices(product).totalPrice,
     ];
     const labels: string[] = ["Clothes ", "Electronic ", "Game", "Other"];
     const pieChartData: ChartData<"pie", number[], any> = {
@@ -120,7 +127,7 @@ export const AmazonDataItem: FC<IAmazonDataItemProps> = memo(
                 </Box>
                 <Box className={classes.dataTitleSubTitleBox}>
                   <Typography className={classes.dataSubTitle}>
-                    ${totalPrice}
+                    ${calculateTotalPrices(product).totalPrice}
                   </Typography>
                 </Box>
                 <Box className={classes.profitContainer}>

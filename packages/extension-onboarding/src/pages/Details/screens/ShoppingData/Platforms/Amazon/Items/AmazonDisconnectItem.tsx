@@ -1,4 +1,5 @@
 import { Box, Button, Typography } from "@material-ui/core";
+import { PurchasedProduct } from "@snickerdoodlelabs/objects";
 import React, { FC, memo } from "react";
 
 import { useStyles } from "../Amazon.style";
@@ -10,6 +11,7 @@ interface IAmazonDisConnectItemProps {
   icon: string;
   providerName: string;
   handleDisconnectClick: () => void;
+  product: PurchasedProduct[];
 }
 
 export const AmazonDisConnectItem: FC<IAmazonDisConnectItemProps> = memo(
@@ -17,8 +19,29 @@ export const AmazonDisConnectItem: FC<IAmazonDisConnectItemProps> = memo(
     icon,
     providerName,
     handleDisconnectClick,
+    product,
   }: IAmazonDisConnectItemProps) => {
     const classes = useStyles();
+    const dateCreatedArray = product.map((product) => {
+      const unixTimestamp = product.dateCreated;
+      const date = new Date(unixTimestamp * 1000);
+      const options: Intl.DateTimeFormatOptions = {
+        day: "numeric",
+        month: "long",
+        hour: "2-digit",
+        minute: "2-digit",
+      };
+      return date.toLocaleDateString("en-US", options);
+    });
+
+    const lastUpdate = dateCreatedArray.reduce((oldestDate, currentDate) => {
+      const currentDateTimestamp = new Date(currentDate).getTime();
+      const oldestDateTimestamp = new Date(oldestDate).getTime();
+      return currentDateTimestamp < oldestDateTimestamp
+        ? currentDate
+        : oldestDate;
+    }, dateCreatedArray[0]);
+
     return (
       <>
         <Box className={classes.logoProviderNameContainer}>
@@ -42,7 +65,7 @@ export const AmazonDisConnectItem: FC<IAmazonDisConnectItemProps> = memo(
         </Box>
         <Box>
           <Typography className={classes.lastUpdated}>
-            Last Updated on 23 August 16:42
+            Last Updated on {lastUpdate}
           </Typography>
         </Box>
         <Box>

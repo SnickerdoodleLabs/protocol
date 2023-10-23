@@ -31,9 +31,13 @@ import React, {
 import { parse } from "tldts";
 import Browser from "webextension-polyfill";
 
+import ShoppingDataDone from "../Screens/ShoppingDataDone";
+import ShoppingDataProcess from "../Screens/ShoppingDataProcess";
+
 import Loading from "@synamint-extension-sdk/content/components/Screens/Loading";
 import Permissions from "@synamint-extension-sdk/content/components/Screens/Permissions";
 import RewardCard from "@synamint-extension-sdk/content/components/Screens/RewardCard";
+import ShoppingDataINIT from "@synamint-extension-sdk/content/components/Screens/ShoppingDataINIT/ShoppingDataINIT";
 import SubscriptionConfirmation from "@synamint-extension-sdk/content/components/Screens/SubscriptionConfirmation";
 import SubscriptionSuccess from "@synamint-extension-sdk/content/components/Screens/SubscriptionSuccess";
 import {
@@ -159,6 +163,8 @@ const App = () => {
   const _path = usePath();
   const isStatusCheckRequiredRef = useRef<boolean>(false);
   const [isHidden, setIsHidden] = useState<boolean>(false);
+  const [shoppingDataScrapeStart, setShoppingDataScrapeStart] =
+    useState<boolean>(false);
 
   useEffect(() => {
     window.postMessage(
@@ -195,27 +201,46 @@ const App = () => {
 
   useEffect(() => {
     checkURLAMAZON();
-  }, []);
+  }, [shoppingDataScrapeStart]);
+
+  const exitScraper = () => {
+    setAppState(EAPP_STATE.INIT);
+  };
 
   const checkURLAMAZON = () => {
     const url = window.location.href;
     console.log(url, "URLLL");
     const html = document.documentElement.outerHTML;
 
-    if (url.includes("order-history") && url.includes("amazon")) {
-      console.log("TEST1");
-      coreGateway.scraper
-        .classifyURL(URLString(url), ELanguageCode.English)
-        .andThen((DomainTask) => {
-          console.log("DOMAINTASKSKKK", DomainTask);
-          return coreGateway.scraper
-            .scrape(URLString(url), HTMLString(html), DomainTask)
-            .map((result) => console.log("RESULLLTTT", result))
-            .mapErr((err) => console.log("iç", err));
-        })
-        .mapErr((err) => console.log("broooo", err));
+    if (
+      url.includes("order-history" || "your-orders") &&
+      url.includes("amazon")
+    ) {
+      setAppState(EAPP_STATE.SHOPPINGDATA_INIT);
+      if (shoppingDataScrapeStart) {
+        setAppState(EAPP_STATE.SHOPPINGDATA_SCRAPE_PROCESS);
+        console.log("TEST1");
+        coreGateway.scraperNavigation
+          .getYears(HTMLString(html))
+          .andThen((years) => {
+            return coreGateway.scraperNavigation.getPageCount(
+              HTMLString(html),
+              years[0],
+            );
+          });
+        coreGateway.scraper
+          .classifyURL(URLString(url), ELanguageCode.English)
+          .andThen((DomainTask) => {
+            console.log("DOMAINTASKSKKK", DomainTask);
+            return coreGateway.scraper
+              .scrape(URLString(url), HTMLString(html), DomainTask)
+              .map((result) => setAppState(EAPP_STATE.SHOPPINGDATA_SCRAPE_DONE))
+              .mapErr((err) => console.log("iç", err));
+          })
+          .mapErr((err) => console.log("broooo", err));
+      }
+      console.log("TEST2");
     }
-    console.log("TEST2");
   };
 
   const getAccounts = () => {
@@ -323,8 +348,20 @@ const App = () => {
   };
 
   const renderComponent = useMemo(() => {
+    console.log(appState);
     switch (true) {
+      case appState === EAPP_STATE.SHOPPINGDATA_INIT:
+        return (
+          <ShoppingDataINIT
+            setShoppingDataScrapeStart={setShoppingDataScrapeStart}
+          />
+        );
+      case appState === EAPP_STATE.SHOPPINGDATA_SCRAPE_PROCESS:
+        return <ShoppingDataProcess onCloseClick={exitScraper} />;
+      case appState === EAPP_STATE.SHOPPINGDATA_SCRAPE_DONE:
+        return <ShoppingDataDone />;
       case !rewardToDisplay:
+        console.log("rewardToDisplay");
         return null;
       case appState === EAPP_STATE.INVITATION_PREVIEW:
         return (

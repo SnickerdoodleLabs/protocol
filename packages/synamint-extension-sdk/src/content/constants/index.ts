@@ -7,6 +7,10 @@ export enum EAPP_STATE {
   SUBSCRIPTION_CONFIRMATION,
   SUBSCRIPTION_SUCCESS,
   LOADING,
+  SHOPPINGDATA,
+  SHOPPINGDATA_INIT,
+  SHOPPINGDATA_SCRAPE_PROCESS,
+  SHOPPINGDATA_SCRAPE_DONE,
 }
 
 export interface IRewardItem {
@@ -31,4 +35,15 @@ export const safeURLsObject = {
   "pancake.finance": "pancakeswap.finance",
   "cradaba.com": "crabada.com",
   "pangolin.xyz": "pangolin.exchange",
+};
+
+export const PRIVACY_POLICY_URL =
+  "https://policy.snickerdoodle.com/snickerdoodle-labs-data-privacy-policy";
+
+export const WEBSITE_URL = "https://www.snickerdoodle.com/";
+
+export const SPA_PATHS = {
+  settings: "settings/web3",
+  rewardsMarketplace: "marketplace",
+  dashboard: "data-dashboard/tokens",
 };
