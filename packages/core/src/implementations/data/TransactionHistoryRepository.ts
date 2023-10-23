@@ -243,6 +243,9 @@ export class TransactionHistoryRepository
       );
     const period = this.determineTimePeriod(tx.timestamp, benchmarkTimestamp);
 
+    if (period === false) {
+      return;
+    }
     let newMetric: TransactionMetrics;
     if (isIncoming) {
       newMetric = new TransactionMetrics(this._getTxValue(tx), 1, 0, 0);
@@ -271,7 +274,7 @@ export class TransactionHistoryRepository
   protected determineTimePeriod(
     transactionTime: number,
     benchmarkTimestamp?: UnixTimestamp,
-  ): ETimePeriods {
+  ): ETimePeriods | false {
     const currentTime = benchmarkTimestamp
       ? benchmarkTimestamp * 1000
       : this.timeUtils.getMillisecondNow();
@@ -291,6 +294,11 @@ export class TransactionHistoryRepository
     const monthInMs = 30 * dayInMs;
 
     const elapsedTime = currentTime - transactionTimeInMs;
+
+    if (elapsedTime < 0) {
+      return false;
+    }
+
     if (elapsedTime < dayInMs) {
       return ETimePeriods.Day;
     } else if (elapsedTime < weekInMs) {

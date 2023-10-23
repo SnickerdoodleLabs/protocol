@@ -126,6 +126,11 @@ export class BlockchainTransactionQueryEvaluator
                 latestTransaction.timestamp,
                 queryTimestamp,
               );
+              if (timePeriod === false) {
+                return SDQL_Return(
+                  new BlockchainInteractionInsight(chainId, address, false),
+                );
+              }
               return SDQL_Return(
                 new BlockchainInteractionInsight(
                   chainId,
@@ -171,7 +176,7 @@ export class BlockchainTransactionQueryEvaluator
   protected determineTimePeriod(
     transactionTime: number,
     benchmarkTimestamp: UnixTimestamp,
-  ): ETimePeriods {
+  ): ETimePeriods | false {
     const currentTime = benchmarkTimestamp * 1000;
     const transactionTimeInMs = transactionTime * 1000;
 
@@ -180,6 +185,10 @@ export class BlockchainTransactionQueryEvaluator
     const monthInMs = 30 * dayInMs;
 
     const elapsedTime = currentTime - transactionTimeInMs;
+
+    if (elapsedTime < 0) {
+      return false;
+    }
 
     if (elapsedTime < dayInMs) {
       return ETimePeriods.Day;
