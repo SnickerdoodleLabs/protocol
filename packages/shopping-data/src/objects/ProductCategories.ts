@@ -1,5 +1,7 @@
+export const UnknownProductCategory = "unknown";
+
 export const ProductCategories = [
-  "unknown",
+  UnknownProductCategory,
   "Home Improvement",
   "Electronics",
   "Outdoors",

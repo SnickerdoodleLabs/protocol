@@ -21,6 +21,7 @@ import {
   IPurchaseRepositoryType,
   ProductCategories,
   PurchasedProduct,
+  UnknownProductCategory,
 } from "@snickerdoodlelabs/shopping-data";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync } from "neverthrow";
@@ -83,7 +84,6 @@ export class LLMScraperService implements IScraperService {
     html: HTMLString,
     suggestedDomainTask: DomainTask,
   ): ResultAsync<void, ScraperError> {
-    
     if (suggestedDomainTask.taskType == ETask.PurchaseHistory) {
       return this.scrapePurchaseHistory(url, html, suggestedDomainTask);
     }
@@ -125,7 +125,6 @@ export class LLMScraperService implements IScraperService {
     });
   }
 
-
   private buildPrompt(
     url: URLString,
     html: HTMLString,
@@ -150,10 +149,9 @@ export class LLMScraperService implements IScraperService {
         .andThen((purchases) => {
           // Find a better way to refactor it
           // return this.savePurchases(purchases);
-          return this.savePurchases(purchases)
-            .andThen(() => {
-              return this.scrapeProductMeta(domainTask, language, purchases);
-            });
+          return this.savePurchases(purchases).andThen(() => {
+            return this.scrapeProductMeta(domainTask, language, purchases);
+          });
         });
     }
     return errAsync(new LLMError("Task type not supported."));
@@ -176,9 +174,17 @@ export class LLMScraperService implements IScraperService {
     purchases: PurchasedProduct[],
   ): ResultAsync<void, ScraperError> {
     // convert purchases to LLM data first
-    const purchaseJsonArr = purchases.map((purchase, idx) => {
+    const nullCategoryPurchases = this.getNullCategoryPurchases(purchases);
 
-      // TODO only do it if there is not category as this is a extra cost.
+    return this.scrapeCategory(domainTask, language, nullCategoryPurchases);
+  }
+
+  private scrapeCategory(
+    domainTask: DomainTask,
+    language: ELanguageCode,
+    nullCategoryPurchases: PurchasedProduct[],
+  ) {
+    const purchaseJsonArr = nullCategoryPurchases.map((purchase, idx) => {
       return {
         product_id: idx,
         product_name: purchase.name,
@@ -186,24 +192,40 @@ export class LLMScraperService implements IScraperService {
     });
     const llmData = LLMData(JSON.stringify(purchaseJsonArr));
 
-    return this.promptDirector.makeProductMetaPrompt(llmData).andThen((prompt) => {
-      return this.llmProvider.executePrompt(prompt).andThen((llmResponse) => {
-        const productMetas = this.productMetaUtils.parseMeta(domainTask.domain, language, llmResponse);
-        // TODO
-        return productMetas.andThen((metas) => {
-          const purchasesToUpdate = metas.map((meta) => {
-            const purchase = purchases[parseInt(meta.productId)];
-            purchase.category = meta.category ?? "unknown"; // TODO convert to enum
-            purchase.keywords = meta.keywords;
-            return purchase;
-          });
+    return this.promptDirector
+      .makeProductMetaPrompt(llmData)
+      .andThen((prompt) => {
+        return this.llmProvider.executePrompt(prompt).andThen((llmResponse) => {
+          const productMetas = this.productMetaUtils.parseMeta(
+            domainTask.domain,
+            language,
+            llmResponse,
+          );
+          // TODO
+          return productMetas.andThen((metas) => {
+            const purchasesToUpdate = metas.map((meta) => {
+              const purchase = nullCategoryPurchases[parseInt(meta.productId)]; // this indexing is not correct
+              purchase.category = meta.category ?? "unknown"; // TODO convert to enum
+              purchase.keywords = meta.keywords;
+              return purchase;
+            });
 
-          return this.savePurchases(purchasesToUpdate);
+            return this.savePurchases(purchasesToUpdate);
+          });
         });
+      })
+      .mapErr((err) => {
+        return new ScraperError(err.message, err);
       });
-    })
-    .mapErr((err) => {
-      return new ScraperError(err.message, err);
-    });;
+  }
+
+  private getNullCategoryPurchases(
+    purchases: PurchasedProduct[],
+  ): PurchasedProduct[] {
+    return purchases.filter((purchase) => {
+      return (
+        purchase.category == UnknownProductCategory || purchase.category == null
+      );
+    });
   }
 }
