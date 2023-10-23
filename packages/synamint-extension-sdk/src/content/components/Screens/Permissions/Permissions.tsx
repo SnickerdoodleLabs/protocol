@@ -139,7 +139,7 @@ const Permissions: FC<IPermissionsProps> = ({
   const getRewards = useCallback(() => {
     return ResultUtils.combine([
       isUnlocked ? coreGateway.getEarnedRewards() : okAsync([]),
-      coreGateway.getPossibleRewards(
+      coreGateway.getEarnedRewardsByContractAddress(
         new GetPossibleRewardsParams([domainDetails.consentAddress]),
       ),
       getQueryStatuses(),
@@ -149,7 +149,7 @@ const Permissions: FC<IPermissionsProps> = ({
       setRewards({
         earnedRewards,
         possibleRewardWithQueryStatus: addQueryStatusToPossibleReward(
-          currentPossibleRewards,
+          currentPossibleRewards as PossibleReward[], //!!!
           queryStatuses,
         ),
       });

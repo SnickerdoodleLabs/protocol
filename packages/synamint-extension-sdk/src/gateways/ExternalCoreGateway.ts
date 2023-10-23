@@ -579,9 +579,12 @@ export class ExternalCoreGateway {
     return this._handler.call(params);
   }
 
-  public getPossibleRewards(
+  public getEarnedRewardsByContractAddress(
     params: GetPossibleRewardsParams,
-  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, ProxyError> {
+  ): ResultAsync<
+    Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
+    ProxyError
+  > {
     return this._handler.call(params).map((jsonString) => {
       return ObjectUtils.deserialize(jsonString);
     });

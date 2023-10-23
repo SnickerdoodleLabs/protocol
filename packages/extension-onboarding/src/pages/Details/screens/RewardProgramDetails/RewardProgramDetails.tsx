@@ -149,7 +149,7 @@ const RewardProgramDetails: FC = () => {
         const currentPossibleRewards =
           possibleRewards.get(consentContractAddress) ?? [];
         const possibleRewardWithStatus = addQueryStatusToPossibleReward(
-          currentPossibleRewards,
+          currentPossibleRewards as PossibleReward[], //!!!
           queryStatuses,
         );
         if (
@@ -163,7 +163,9 @@ const RewardProgramDetails: FC = () => {
   }, [earnedRewards]);
 
   const getPossibleRewards = () => {
-    return sdlDataWallet?.getPossibleRewards?.([consentContractAddress]);
+    return sdlDataWallet?.getEarnedRewardsByContractAddress?.([
+      consentContractAddress,
+    ]);
   };
 
   const getQueryStatuses = () => {

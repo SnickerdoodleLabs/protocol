@@ -399,15 +399,12 @@ export class GetConsentCapacityParams extends CoreActionParams<IConsentCapacity>
 }
 
 export class GetPossibleRewardsParams extends CoreActionParams<JSONString> {
-  public constructor(
-    public contractAddresses: EVMContractAddress[],
-    public timeoutMs?: number,
-  ) {
+  public constructor(public contractAddresses: EVMContractAddress[]) {
     super(GetPossibleRewardsParams.getCoreAction());
   }
 
   static getCoreAction(): ECoreActions {
-    return ECoreActions.GET_POSSIBLE_REWARDS;
+    return ECoreActions.GET_EARNED_REWARDS_BY_CONTRACT_ADDRESS;
   }
 }
 

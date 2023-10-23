@@ -259,17 +259,16 @@ export interface ICoreMarketplaceMethods {
 
   /**
    * This method will accept a list of consent contract addresses and returns
-   * all possible rewards with their dependencies.
-   * i.e. Join this campaign, share your age; and get a discount
+   * earned rewards with respect to queryCIDs
    * @param contractAddresses List of consent contract addresses (of campaigns)
    * @param timeoutMs Timeout for fetching the queries from Ipfs, in case form
    * factor wants to tune the marketplace loading time.
    */
-  getPossibleRewards(
+  getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
   ): ResultAsync<
-    Map<EVMContractAddress, PossibleReward[]>,
+    Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
     | AjaxError
     | EvaluationError
     | QueryFormatError

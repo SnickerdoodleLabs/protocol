@@ -15,6 +15,7 @@ import {
   MarketplaceTag,
   PagingRequest,
   PagedResponse,
+  EarnedReward,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -113,16 +114,14 @@ export class InvitationService implements IInvitationService {
     return this.invitationRepository.getConsentCapacity(consentContractAddress);
   }
 
-  public getPossibleRewards(
+  public getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
-    timeoutMs?: number | undefined,
   ): ResultAsync<
-    Map<EVMContractAddress, PossibleReward[]>,
+    Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
     SnickerDoodleCoreError
   > {
-    return this.invitationRepository.getPossibleRewards(
+    return this.invitationRepository.getEarnedRewardsByContractAddress(
       contractAddresses,
-      timeoutMs,
     );
   }
 

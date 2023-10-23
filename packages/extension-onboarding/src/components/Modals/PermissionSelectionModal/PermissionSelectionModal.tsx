@@ -96,7 +96,7 @@ const PermissionSelectionModalV2: FC = () => {
         const currentPossibleRewards =
           possibleRewards.get(consentContractAddress) ?? [];
         const possibleRewardWithStatus = addQueryStatusToPossibleReward(
-          currentPossibleRewards,
+          currentPossibleRewards as PossibleReward[], //!!!
           queryStatuses,
         );
         if (
@@ -110,7 +110,9 @@ const PermissionSelectionModalV2: FC = () => {
   }, [earnedRewards]);
 
   const getPossibleRewards = () => {
-    return sdlDataWallet?.getPossibleRewards?.([consentContractAddress]);
+    return sdlDataWallet?.getEarnedRewardsByContractAddress?.([
+      consentContractAddress,
+    ]);
   };
 
   const getQueryStatuses = () => {

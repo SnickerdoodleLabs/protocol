@@ -14,6 +14,7 @@ import {
   PagingRequest,
   MarketplaceTag,
   PagedResponse,
+  EarnedReward,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -54,11 +55,10 @@ export interface IInvitationRepository {
     Map<EVMContractAddress, IpfsCID>,
     SnickerDoodleCoreError
   >;
-  getPossibleRewards(
+  getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
-    timeoutMs?: number,
   ): ResultAsync<
-    Map<EVMContractAddress, PossibleReward[]>,
+    Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
     SnickerDoodleCoreError
   >;
   getAgreementFlags(
