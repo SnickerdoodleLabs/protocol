@@ -1,8 +1,8 @@
-export enum EPathsV {
+export enum EPathsV2 {
   SETTINGS = "/settings",
   DATA_PERMISSIONS = "/data-permissions",
-  DATA_PERMISSIONS_AUDIENCE = "/data-permissions/audience",
-  DATA_PERMISSIONS_REWARD_DETAIL = "/data-permissions/audience/reward-detail",
+  DATA_PERMISSIONS_AUDIENCE = "/data-permissions/audience/:consentAddress",
+  DATA_PERMISSIONS_REWARD_DETAIL = "/data-permissions/audience/:consentAddress/reward-detail",
   TOKENS = "/data-dashboard/tokens",
   NFTS = "/data-dashboard/nfts",
   NFT_DETAIL = "/data-dashboard/nfts/detail",

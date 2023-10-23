@@ -49,7 +49,13 @@ const AccountItem: FC<IAccountItemProps> = ({ account }) => {
         src={"https://storage.googleapis.com/dw-assets/shared/icons/copy.svg"}
       />
       <Fade in={isCopied}>
-        <SDTypography>copied</SDTypography>
+        <SDTypography
+          style={{ marginLeft: 8 }}
+          variant="labelMd"
+          color="textSuccess"
+        >
+          copied
+        </SDTypography>
       </Fade>
     </Box>
   );

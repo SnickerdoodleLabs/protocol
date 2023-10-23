@@ -1,13 +1,3 @@
-import { Box, Dialog, Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import CloseIcon from "@material-ui/icons/Close";
-import { Button } from "@snickerdoodlelabs/shared-components";
-import { Field, Form, Formik } from "formik";
-import { TextField } from "formik-material-ui";
-import { debounce } from "lodash";
-import { ResultAsync } from "neverthrow";
-import React, { useMemo, useState } from "react";
-
 import backIcon from "@extension-onboarding/assets/icons/back.svg";
 import folderIcon from "@extension-onboarding/assets/icons/folder.svg";
 import forwardIcon from "@extension-onboarding/assets/icons/forward.svg";
@@ -15,6 +5,18 @@ import newFolderIcon from "@extension-onboarding/assets/icons/new-folder.svg";
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import { Box, Dialog } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+import {
+  CloseButton,
+  SDButton,
+  SDTypography,
+} from "@snickerdoodlelabs/shared-components";
+import { Field, Form, Formik } from "formik";
+import { TextField } from "formik-material-ui";
+import { debounce } from "lodash";
+import { ResultAsync } from "neverthrow";
+import React, { useMemo, useState } from "react";
 
 interface NestedFolder {
   name: string;
@@ -122,17 +124,17 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
     <Dialog open fullWidth maxWidth="sm">
       <Box p={3}>
         <Box display="flex" alignItems="center" mb={2}>
-          <Typography className={classes.modalTitle}>
+          <SDTypography fontWeight="bold" variant="titleXl" color="textHeading">
             Select Your Storage
-          </Typography>
+          </SDTypography>
           <Box marginLeft="auto">
-            <CloseIcon className={classes.pointer} onClick={onCancel} />
+            <CloseButton onClick={onCancel} />
           </Box>
         </Box>
         <Box mb={2}>
-          <Typography className={classes.description}>
+          <SDTypography variant="bodyLg" color="textHeading">
             Select a folder to store your data.
-          </Typography>
+          </SDTypography>
         </Box>
         {isNewFolderModalOpen && (
           <Dialog
@@ -144,10 +146,15 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
           >
             <Box py={2} px={3} display="flex" flexDirection="column">
               <Box display="flex" alignItems="center" mb={2}>
-                <Typography>New Folder</Typography>
+                <SDTypography
+                  fontWeight="bold"
+                  variant="titleLg"
+                  color="textHeading"
+                >
+                  New Folder
+                </SDTypography>
                 <Box marginLeft="auto">
-                  <CloseIcon
-                    className={classes.pointer}
+                  <CloseButton
                     onClick={() => {
                       setIsNewFolderModalOpen(false);
                     }}
@@ -173,22 +180,22 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
                       />
                       <Box mt={4} display="flex">
                         <Box marginLeft="auto" mr={2}>
-                          <Button
+                          <SDButton
                             onClick={() => {
                               setIsNewFolderModalOpen(false);
                             }}
-                            buttonType="secondary"
+                            variant="outlined"
                           >
                             Cancel
-                          </Button>
+                          </SDButton>
                         </Box>
-                        <Button
+                        <SDButton
                           type="submit"
                           disabled={!values.name}
-                          buttonType="primary"
+                          variant="contained"
                         >
                           Save
-                        </Button>
+                        </SDButton>
                       </Box>
                     </Form>
                   );
@@ -208,9 +215,9 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
               <img src={backIcon} />
             </Box>
           )}
-          <Typography className={classes.title}>
+          <SDTypography variant="bodyMd" fontWeight="regular">
             {currentPath === "/" ? "root" : `Folder ${currentPath}`}
-          </Typography>
+          </SDTypography>
         </Box>
         <Box
           className={classes.pointer}
@@ -224,7 +231,9 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
         >
           <img src={newFolderIcon} />
           <Box ml={2}>
-            <Typography className={classes.title}>New Folder</Typography>
+            <SDTypography variant="bodyMd" fontWeight="regular">
+              New Folder
+            </SDTypography>
           </Box>
         </Box>
         <Box className={classes.container}>
@@ -240,9 +249,9 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
               >
                 <img src={folderIcon} />
                 <Box ml={2}>
-                  <Typography className={classes.folder}>
+                  <SDTypography variant="bodyMd" fontWeight="regular">
                     {folder.name}
-                  </Typography>
+                  </SDTypography>
                 </Box>
                 <Box display="flex" marginLeft="auto">
                   <img src={forwardIcon} />
@@ -253,19 +262,19 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
         </Box>
         <Box display="flex" mt={3}>
           <Box marginLeft="auto" mr={2}>
-            <Button buttonType="secondary" onClick={onCancel}>
+            <SDButton variant="outlined" onClick={onCancel}>
               Cancel
-            </Button>
+            </SDButton>
           </Box>
-          <Button
+          <SDButton
             onClick={() => {
               selected && onFolderSelect(selected);
             }}
             disabled={!selected}
-            buttonType="primary"
+            variant="contained"
           >
             Ok
-          </Button>
+          </SDButton>
         </Box>
       </Box>
     </Dialog>
@@ -275,22 +284,6 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
 export default FileExplorer;
 
 const useStyles = makeStyles((theme) => ({
-  modalTitle: {
-    color: "#212121",
-    fontFamily: "Roboto",
-    fontSize: "22px",
-    fontStyle: "normal",
-    fontWeight: 700,
-    lineHeight: "normal",
-  },
-  description: {
-    color: "#212121",
-    fontFamily: "Roboto",
-    fontSize: "16px",
-    fontStyle: "normal",
-    fontWeight: 400,
-    lineHeight: "normal",
-  },
   pointer: {
     cursor: "pointer",
   },
@@ -304,21 +297,5 @@ const useStyles = makeStyles((theme) => ({
     "-webkit-user-select": "none",
     "-ms-user-select": "none",
     userSelect: "none",
-  },
-  title: {
-    color: "rgba(35, 32, 57, 0.87)",
-    fontFamily: "Roboto",
-    fontSize: "14px",
-    fontStyle: "normal",
-    fontWeight: 500,
-    lineHeight: "normal",
-  },
-  folder: {
-    color: "#262626",
-    fontFamily: "Public Sans",
-    fontSize: "14px",
-    fontStyle: "normal",
-    fontWeight: 400,
-    lineHeight: "22px",
   },
 }));

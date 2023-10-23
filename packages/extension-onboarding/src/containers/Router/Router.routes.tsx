@@ -28,6 +28,7 @@ import StorageSettings from "@extension-onboarding/pages/Details/screens/Storage
 import ProfileCreation from "@extension-onboarding/pages/Onboarding/ProfileCreation";
 import DataPermissions from "@extension-onboarding/pages/V2/DataPermissions";
 import Settings from "@extension-onboarding/pages/V2/Settings";
+import AudienceDetails from "@extension-onboarding/pages/V2/AudienceDetails";
 export const OnboardingRoutes = (
   <Route>
     {/* <Route path={EPaths.ONBOARDING_WELCOME} element={<OnboardingWelcome />} /> */}
@@ -58,6 +59,10 @@ export const AuthFlowRoutes = (
     <Route element={<AuthFlowLayout />}>
       <Route path={"/data-permissions"} element={<DataPermissions />} />
       <Route path={"/settings"} element={<Settings />} />
+      <Route
+        path={"/data-permissions/audience/:consentAddress"}
+        element={<AudienceDetails />}
+      />
       <Route element={<DataDashBoardLayout />}>
         <Route path={EPaths.TOKENS} element={<Tokens />} />
         <Route path={EPaths.NFTS} element={<NFTs />} />
@@ -69,7 +74,7 @@ export const AuthFlowRoutes = (
           element={<DataDashboarPersonalInfo />}
         /> */}
       </Route>
-      <Route path={EPaths.MARKETPLACE} element={<Marketplace />} />
+      {/* <Route path={EPaths.MARKETPLACE} element={<Marketplace />} /> */}
       <Route path={EPaths.NFT_DETAIL} element={<NFTDetails />} />
       {/* <Route path={EPaths.MY_REWARDS} element={<MarketplaceRewardsTemp />} />
       <Route path={EPaths.MARKETPLACE_REWARD} element={<RewardReview />} />
@@ -82,8 +87,8 @@ export const AuthFlowRoutes = (
         path={EPaths.MARKETPLACE_CAMPAIGNS}
         element={<MarketPlaceCampaigns />}
       /> */}
-      <Route path={EPaths.WEB3_SETTINGS} element={<OnChainIfo />} />
-      <Route path={EPaths.WEB2_SETTINGS} element={<PersonalInfo />} />
+      {/* <Route path={EPaths.WEB3_SETTINGS} element={<OnChainIfo />} />
+      <Route path={EPaths.WEB2_SETTINGS} element={<PersonalInfo />} /> */}
       <Route path={EPaths.STORAGE_SETTINGS} element={<StorageSettings />} />
       <Route
         path={EPaths.REWARDS_SUBSCRIPTIONS}
@@ -93,10 +98,10 @@ export const AuthFlowRoutes = (
         path={EPaths.DATA_PERMISSIONS_SETTING}
         element={<DataPermissionsSettings />}
       /> */}
-      <Route
+      {/* <Route
         path={EPaths.REWARDS_SUBSCRIPTION_DETAIL}
         element={<RewardProgramDetails />}
-      />
+      /> */}
       <Route
         path={EPaths.MARKETPLACE_CAMPAIGN_DETAIL}
         element={<RewardProgramDetails />}

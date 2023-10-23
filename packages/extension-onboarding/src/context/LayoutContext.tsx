@@ -24,6 +24,7 @@ import ViewDetailsModal from "@extension-onboarding/components/Modals/ViewDetail
 import OTPModal, {
   IOTPModal,
 } from "@extension-onboarding/components/Modals/V2/OTPModal";
+import LeaveAudienceModal from "@extension-onboarding/components/Modals/V2/LeaveAudienceModal";
 // under construction
 type ModalSelectorTypeMap = {
   [EModalSelectors.ACCOUNT_UNLINKED]: any;
@@ -38,6 +39,7 @@ type ModalSelectorTypeMap = {
   [EModalSelectors.CUSTOMIZABLE_MODAL]: any;
   [EModalSelectors.PERMISSION_SELECTION]: any;
   [EModalSelectors.OTP_MODAL]: IOTPModal;
+  [EModalSelectors.LEAVE_AUDIENCE_MODAL]: undefined;
 };
 
 type ModalSelector = keyof ModalSelectorTypeMap;
@@ -100,6 +102,8 @@ export const LayoutProvider: FC = ({ children }) => {
         return <ConfirmationModal />;
       case modalState.modalSelector === EModalSelectors.LEAVE_COHORT_MODAL:
         return <LeaveCohortModal />;
+      case modalState.modalSelector === EModalSelectors.LEAVE_AUDIENCE_MODAL:
+        return <LeaveAudienceModal />;
       case modalState.modalSelector ===
         EModalSelectors.SUBSCRIPTION_SUCCESS_MODAL:
         return <SubscriptionSuccessModal />;
