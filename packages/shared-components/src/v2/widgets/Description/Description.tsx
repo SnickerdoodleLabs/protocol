@@ -7,11 +7,11 @@ import {
 } from "@shared-components/v2/components";
 import { useMedia } from "@shared-components/v2/hooks";
 import { typograpyVariants } from "@shared-components/v2/theme";
-import { IOpenSeaMetadata } from "@snickerdoodlelabs/objects";
+import { IOldUserAgreement } from "@snickerdoodlelabs/objects";
 import parse from "html-react-parser";
 import React, { FC, useMemo } from "react";
 interface IDescriptionProps {
-  invitationData: IOpenSeaMetadata;
+  invitationData: IOldUserAgreement;
   onCancelClick: () => void;
   onContinueClick: () => void;
   onSetPermissions: () => void;

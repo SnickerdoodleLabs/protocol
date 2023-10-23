@@ -8,7 +8,7 @@ import {
 } from "@shared-components/v2/components";
 import { FF_SUPPORTED_PERMISSIONS } from "@shared-components/v2/constants";
 import { useMedia } from "@shared-components/v2/hooks";
-import { EWalletDataType, IOpenSeaMetadata } from "@snickerdoodlelabs/objects";
+import { EWalletDataType } from "@snickerdoodlelabs/objects";
 import React, { FC, useMemo } from "react";
 
 interface IPermissionSelectionProps {

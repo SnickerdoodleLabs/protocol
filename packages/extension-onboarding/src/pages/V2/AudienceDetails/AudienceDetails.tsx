@@ -22,7 +22,7 @@ import {
   AccountAddress,
   EChain,
   EVMContractAddress,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   IpfsCID,
   LinkedAccount,
 } from "@snickerdoodlelabs/objects";
@@ -47,7 +47,7 @@ const AudienceDetails = () => {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const [metadata, setMetadata] = useState<IOpenSeaMetadata>();
+  const [metadata, setMetadata] = useState<IOldUserAgreement>();
   const [ipfsCID, setIpfsCID] = useState<IpfsCID>();
   const [receivingAccount, setReceivingAccount] = useState<AccountAddress>();
   const { optedInContracts, linkedAccounts, updateOptedInContracts } =

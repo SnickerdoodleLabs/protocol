@@ -21,7 +21,7 @@ import { Skeleton } from "@material-ui/lab";
 import {
   EVMContractAddress,
   EWalletDataType,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -93,7 +93,7 @@ const AudienceItem: FC<IAudienceItemProps> = ({
   const classes = useStyles();
   const { sdlDataWallet } = useDataWalletContext();
   const lastSetPermissions = useRef<EWalletDataType[]>();
-  const [metadata, setMetadata] = useState<IOpenSeaMetadata>();
+  const [metadata, setMetadata] = useState<IOldUserAgreement>();
   const [permissions, setPermissions] = useState<EWalletDataType[]>();
   const [saveRequired, setSaveRequired] = useState<boolean>(false);
   const { setAlert } = useNotificationContext();
