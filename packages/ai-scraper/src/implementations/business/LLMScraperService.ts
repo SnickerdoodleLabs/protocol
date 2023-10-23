@@ -210,7 +210,7 @@ export class LLMScraperService implements IScraperService {
           return productMetas.andThen((metas) => {
             const purchasesToUpdate = metas.map((meta) => {
               const purchase = nullCategoryPurchases[parseInt(meta.productId)]; // this indexing is not correct
-              purchase.category = meta.category ?? "unknown"; // TODO convert to enum
+              purchase.category = meta.category ?? UnknownProductCategory; // TODO convert to enum
               purchase.keywords = meta.keywords;
               return purchase;
             });

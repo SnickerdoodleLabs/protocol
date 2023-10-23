@@ -18,6 +18,7 @@ import {
   ProductKeyword,
   PurchaseId,
   PurchasedProduct,
+  UnknownProductCategory,
 } from "@snickerdoodlelabs/shopping-data";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
@@ -99,7 +100,7 @@ export class LLMPurchaseHistoryUtilsChatGPT
           return null;
         }
 
-        const category = purchase.classification ?? "unknown";
+        const category = purchase.classification ?? UnknownProductCategory;
         return new PurchasedProduct(
           domain,
           language,
