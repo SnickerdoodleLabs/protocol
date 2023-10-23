@@ -7,6 +7,7 @@ import {
   SDQL_Return,
   PersistenceError,
   EvalNotImplementedError,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { utils } from "ethers";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -28,7 +29,7 @@ export class RequiresEvaluator extends AST_Evaluator {
   constructor(readonly availableMap: Map<SDQL_Name, unknown>) {
     const queryRepo = new CachedQueryRepository(new Map()); // a blank query repository
     const permissions = new DataPermissions(DataPermissions.permissionString);
-    super(IpfsCID("TestCID"), queryRepo, permissions);
+    super(IpfsCID("TestCID"), queryRepo, permissions, UnixTimestamp(1));
   }
 
   public evalAny(

@@ -63,7 +63,6 @@ class blockchainTransactionQueryEvaluatorMocks {
   public factory() {
     return new BlockchainTransactionQueryEvaluator(
       this.transactionRepo,
-      this.timeUtils,
       this.contextProvider,
     );
   }
@@ -125,7 +124,7 @@ describe("QueryEvaluator: ", () => {
         ),
       ]),
     );
-    const result = await repo.eval(blockchainTransactionQuery, queryCID);
+    const result = await repo.eval(blockchainTransactionQuery, queryCID, now);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(true);
   });
@@ -185,7 +184,7 @@ describe("QueryEvaluator: ", () => {
         ),
       ]),
     );
-    const result = await repo.eval(blockchainTransactionQuery, queryCID);
+    const result = await repo.eval(blockchainTransactionQuery, queryCID, now);
     // console.log("Age is: ", result["value"]);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(true);
@@ -226,7 +225,7 @@ describe("QueryEvaluator: ", () => {
     td.when(
       mocks.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
-    const result = await repo.eval(blockchainTransactionQuery, queryCID);
+    const result = await repo.eval(blockchainTransactionQuery, queryCID, now);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
   });
@@ -269,7 +268,7 @@ describe("Blockchain Transaction Query Testing: ", () => {
     td.when(
       mocks.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
-    const result = await repo.eval(blockchainTransactionQuery, queryCID);
+    const result = await repo.eval(blockchainTransactionQuery, queryCID, now);
     // console.log("Age is: ", result["value"]);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
@@ -311,7 +310,7 @@ describe("Blockchain Transaction Query Testing: ", () => {
     td.when(
       mocks.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
-    const result = await repo.eval(blockchainTransactionQuery, queryCID);
+    const result = await repo.eval(blockchainTransactionQuery, queryCID, now);
     // console.log("Age is: ", result["value"]);
     expect(result).toBeDefined();
     //expect(result["value"]).toBe(false);

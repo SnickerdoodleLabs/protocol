@@ -36,7 +36,6 @@ export class BlockchainTransactionQueryEvaluator
   constructor(
     @inject(ITransactionHistoryRepositoryType)
     protected transactionHistoryRepo: ITransactionHistoryRepository,
-    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
     @inject(IContextProviderType)
     protected contextProvider: IContextProvider,
   ) {}
@@ -44,6 +43,7 @@ export class BlockchainTransactionQueryEvaluator
   public eval(
     query: AST_BlockchainTransactionQuery,
     queryCID: IpfsCID,
+    queryTimestamp: UnixTimestamp,
   ): ResultAsync<SDQL_Return, PersistenceError> {
     return this.contextProvider.getContext().andThen((context) => {
       // Aggregate Transactions
@@ -124,6 +124,7 @@ export class BlockchainTransactionQueryEvaluator
               const latestTransaction = this.getLatestTransaction(transactions);
               const timePeriod = this.determineTimePeriod(
                 latestTransaction.timestamp,
+                queryTimestamp,
               );
               return SDQL_Return(
                 new BlockchainInteractionInsight(
@@ -167,8 +168,11 @@ export class BlockchainTransactionQueryEvaluator
     });
   }
 
-  protected determineTimePeriod(transactionTime: number): ETimePeriods {
-    const currentTime = this.timeUtils.getUnixNow();
+  protected determineTimePeriod(
+    transactionTime: number,
+    benchmarkTimestamp: UnixTimestamp,
+  ): ETimePeriods {
+    const currentTime = benchmarkTimestamp * 1000;
     const transactionTimeInMs = transactionTime * 1000;
 
     const dayInMs = 24 * 60 * 60 * 1000;

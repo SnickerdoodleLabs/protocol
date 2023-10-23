@@ -198,7 +198,7 @@ export const testCoreConfig = new CoreConfig(
   ProviderUrl("devChainProviderURL"), // devChainProviderURL
   60, // maxStatsRetentionSeconds
   LanguageCode("en-pw"), // passwordLanguageCode
-  100
+  100,
 );
 
 const adContent1: AdContent = new AdContent(
@@ -434,6 +434,7 @@ export const avalanche1AstInstance = new AST(
   insightsMap,
   compensationParameters,
   compensationsMap,
+  UnixTimestamp(1),
 );
 
 export const siteVisits: SiteVisit[] = [

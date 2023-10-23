@@ -5,14 +5,14 @@ import {
   ChainTransaction,
   TransactionFilter,
   TransactionFlowInsight,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface ITransactionHistoryRepository {
-  getTransactionByChain(): ResultAsync<
-    TransactionFlowInsight[],
-    PersistenceError
-  >;
+  getTransactionByChain(
+    benchmarkTimestamp?: UnixTimestamp,
+  ): ResultAsync<TransactionFlowInsight[], PersistenceError>;
   getLatestTransactionForAccount(
     chain: EChain,
     address: AccountAddress,

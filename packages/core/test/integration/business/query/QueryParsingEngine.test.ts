@@ -97,7 +97,6 @@ class QueryParsingMocks {
   public blockchainTransactionQueryEvaluator =
     new BlockchainTransactionQueryEvaluator(
       this.transactionRepo,
-      this.timeUtils,
       this.contextProvider,
     );
 

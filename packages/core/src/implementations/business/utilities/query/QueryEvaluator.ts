@@ -13,6 +13,7 @@ import {
   QueryPerformanceEvent,
   SDQL_Return,
   TwitterProfile,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -84,6 +85,7 @@ export class QueryEvaluator implements IQueryEvaluator {
   public eval<T extends AST_SubQuery>(
     query: T,
     queryCID: IpfsCID,
+    queryTimestamp: UnixTimestamp,
   ): ResultAsync<SDQL_Return, PersistenceError> {
     return this.contextProvider.getContext().andThen((context) => {
       if (query instanceof AST_BlockchainTransactionQuery) {
@@ -96,7 +98,7 @@ export class QueryEvaluator implements IQueryEvaluator {
           ),
         );
         return this.blockchainTransactionQueryEvaluator
-          .eval(query, queryCID)
+          .eval(query, queryCID, queryTimestamp)
           .map((result) => {
             context.publicEvents.queryPerformance.next(
               new QueryPerformanceEvent(

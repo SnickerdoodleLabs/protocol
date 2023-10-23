@@ -1,4 +1,9 @@
-import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import {
+  ILogUtils,
+  ILogUtilsType,
+  ITimeUtilsType,
+  ITimeUtils,
+} from "@snickerdoodlelabs/common-utils";
 import {
   PersistenceError,
   ChainId,
@@ -14,6 +19,7 @@ import {
   TransactionMetrics,
   LinkedAccount,
   ETimePeriods,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
@@ -36,7 +42,6 @@ import {
   IContextProviderType,
   IContextProvider,
 } from "@core/interfaces/utilities/index.js";
-import { ITimeUtilsType, ITimeUtils } from "@snickerdoodlelabs/common-utils";
 
 @injectable()
 export class TransactionHistoryRepository
@@ -54,24 +59,25 @@ export class TransactionHistoryRepository
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
-  public getTransactionByChain(): ResultAsync<
-    TransactionFlowInsight[],
-    PersistenceError
-  > {
+  public getTransactionByChain(
+    benchmarkTimestamp?: UnixTimestamp,
+  ): ResultAsync<TransactionFlowInsight[], PersistenceError> {
     return this.accountRepo.getAccounts().andThen((accounts) => {
       this.logUtils.debug(
         `In getTransactionByChain, active accounts: `,
         accounts,
+        ` Using benchmark :`,
+        benchmarkTimestamp ? benchmarkTimestamp : ` current date `,
       );
       return ResultUtils.combine(
         accounts.map((account) => {
-          return this.getTransactionFlowsByAccount(account);
+          return this.getTransactionFlowsByAccount(account, benchmarkTimestamp);
         }),
       ).map((arrayOfTransactionFlowMap) => {
         return this.aggregateTransactionFlowsArrays(arrayOfTransactionFlowMap);
       });
-  })
-}
+    });
+  }
 
   public addTransactions(
     transactions: ChainTransaction[],
@@ -166,6 +172,7 @@ export class TransactionHistoryRepository
 
   protected getTransactionFlowsByAccount(
     account: LinkedAccount,
+    benchmarkTimestamp?: UnixTimestamp,
   ): ResultAsync<Map<EChain, TransactionFlowInsight>, PersistenceError> {
     return ResultUtils.combine([
       this.persistence
@@ -183,21 +190,36 @@ export class TransactionHistoryRepository
         )
         .andThen((cursor) => cursor.allValues().map((evm) => evm || [])),
     ]).map(([toTransactions, fromTransactions]) => {
-      return this.generateTransactionFlows(toTransactions, fromTransactions);
+      return this.generateTransactionFlows(
+        toTransactions,
+        fromTransactions,
+        benchmarkTimestamp,
+      );
     });
   }
 
   protected generateTransactionFlows(
     incomingTransactions: EVMTransaction[],
     outgoingTransactions: EVMTransaction[],
+    benchmarkTimestamp?: UnixTimestamp,
   ): Map<EChain, TransactionFlowInsight> {
     const transactionFlowInsights = new Map<EChain, TransactionFlowInsight>();
 
     incomingTransactions.forEach((tx) =>
-      this.categorizeTransaction(tx, true, transactionFlowInsights),
+      this.categorizeTransaction(
+        tx,
+        true,
+        transactionFlowInsights,
+        benchmarkTimestamp,
+      ),
     );
     outgoingTransactions.forEach((tx) =>
-      this.categorizeTransaction(tx, false, transactionFlowInsights),
+      this.categorizeTransaction(
+        tx,
+        false,
+        transactionFlowInsights,
+        benchmarkTimestamp,
+      ),
     );
 
     return transactionFlowInsights;
@@ -207,6 +229,7 @@ export class TransactionHistoryRepository
     tx: EVMTransaction,
     isIncoming: boolean,
     transactionFlowInsights: Map<EChain, TransactionFlowInsight>,
+    benchmarkTimestamp?: UnixTimestamp,
   ) => {
     const chainInsight =
       transactionFlowInsights.get(tx.chain) ||
@@ -218,7 +241,7 @@ export class TransactionHistoryRepository
         new TransactionMetrics(0, 0, 0, 0),
         tx.measurementDate,
       );
-    const period = this.determineTimePeriod(tx.timestamp);
+    const period = this.determineTimePeriod(tx.timestamp, benchmarkTimestamp);
 
     let newMetric: TransactionMetrics;
     if (isIncoming) {
@@ -240,16 +263,34 @@ export class TransactionHistoryRepository
     transactionFlowInsights.set(tx.chain, chainInsight);
   };
 
-  protected determineTimePeriod(transactionTime: number): ETimePeriods {
-    const currentTime = this.timeUtils.getUnixNow();
-    const transactionTimeInMs = transactionTime * 1000;
+  protected isHexadecimal(value: number | string): boolean {
+    const hexString = typeof value === "number" ? value.toString(16) : value;
+    return /^(0x)?[0-9a-fA-F]+$/.test(hexString);
+  }
 
+  protected determineTimePeriod(
+    transactionTime: number,
+    benchmarkTimestamp?: UnixTimestamp,
+  ): ETimePeriods {
+    const currentTime = benchmarkTimestamp
+      ? benchmarkTimestamp * 1000
+      : this.timeUtils.getMillisecondNow();
+
+    let transactionTimeInMs: number;
+    if (
+      typeof transactionTime === "string" &&
+      this.isHexadecimal(transactionTime)
+    ) {
+      transactionTimeInMs = parseInt(transactionTime, 16) * 1000;
+    } else {
+      //Unixtimestamp or hex32
+      transactionTimeInMs = transactionTime * 1000;
+    }
     const dayInMs = 24 * 60 * 60 * 1000;
     const weekInMs = 7 * dayInMs;
     const monthInMs = 30 * dayInMs;
 
     const elapsedTime = currentTime - transactionTimeInMs;
-
     if (elapsedTime < dayInMs) {
       return ETimePeriods.Day;
     } else if (elapsedTime < weekInMs) {

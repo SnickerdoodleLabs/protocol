@@ -46,6 +46,7 @@ import {
 import { ContextProviderMock } from "@core-tests/mock/utilities";
 
 const iso = UnixTimestamp(11);
+const queryTimestamp = UnixTimestamp(1);
 const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 20)];
 const conditionsGE2 = [new ConditionGE(SDQL_OperatorName("ge"), null, 25)];
 const conditionsGE3 = [new ConditionGE(SDQL_OperatorName("ge"), null, 30)];
@@ -237,7 +238,7 @@ describe("QueryEvaluator checking age boolean: GE", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(true);
   });
@@ -253,7 +254,7 @@ describe("QueryEvaluator checking age boolean: GE", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(true);
   });
@@ -268,7 +269,7 @@ describe("QueryEvaluator checking age boolean: GE", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
   });
@@ -286,7 +287,7 @@ describe("QueryEvaluator checking age boolean: LE", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
   });
@@ -301,7 +302,7 @@ describe("QueryEvaluator checking age boolean: LE", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(true);
   });
@@ -316,7 +317,7 @@ describe("QueryEvaluator checking age boolean: LE", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(true);
   });
@@ -334,7 +335,7 @@ describe("QueryEvaluator checking age boolean: G", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(true);
   });
@@ -350,7 +351,7 @@ describe("QueryEvaluator checking age boolean: G", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
   });
@@ -366,7 +367,7 @@ describe("QueryEvaluator checking age boolean: G", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
   });
@@ -384,7 +385,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
   });
@@ -400,7 +401,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
   });
@@ -416,7 +417,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(true);
   });
@@ -434,7 +435,7 @@ describe("QueryEvaluator checking age boolean: GE", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(true);
   });
@@ -450,7 +451,7 @@ describe("QueryEvaluator checking age boolean: GE", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(true);
   });
@@ -465,7 +466,7 @@ describe("QueryEvaluator checking age boolean: GE", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
   });
@@ -483,7 +484,7 @@ describe("QueryEvaluator checking age boolean: LE", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
   });
@@ -498,7 +499,7 @@ describe("QueryEvaluator checking age boolean: LE", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(true);
   });
@@ -513,7 +514,7 @@ describe("QueryEvaluator checking age boolean: LE", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(true);
   });
@@ -531,7 +532,7 @@ describe("QueryEvaluator checking age boolean: G", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(true);
   });
@@ -547,7 +548,7 @@ describe("QueryEvaluator checking age boolean: G", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
   });
@@ -563,7 +564,7 @@ describe("QueryEvaluator checking age boolean: G", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
   });
@@ -581,7 +582,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
   });
@@ -597,7 +598,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
   });
@@ -613,7 +614,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
 
     expect(result).toBeDefined();
     expect(result["value"]).toBe(true);
@@ -632,7 +633,7 @@ describe("QueryEvaluator checking age boolean: E", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(true);
   });
@@ -647,7 +648,7 @@ describe("QueryEvaluator checking age boolean: E", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
   });
@@ -707,7 +708,7 @@ describe("QueryEvaluator return integer values", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     // console.log("Age is: ", result["value"]);
     expect(result["value"]).toEqual(Age(25));
   });
@@ -739,7 +740,7 @@ describe("QueryEvaluator return integer values", () => {
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     // console.log("Gender is: ", result["value"]);
     expect(result["value"]).toEqual(Gender("male"));
   });
@@ -758,7 +759,7 @@ describe("Return URLs Map", () => {
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
 
-    const result = await repo.eval(propertyQuery, queryCID);
+    const result = await repo.eval(propertyQuery, queryCID, queryTimestamp);
     // console.log("URLs is: ", result["value"]);
     expect(result["value"]).toEqual({
       "www.snickerdoodlelabs.io": {

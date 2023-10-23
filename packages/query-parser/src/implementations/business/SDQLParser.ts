@@ -84,6 +84,7 @@ export class SDQLParser {
           this.insights,
           this.compensationParameters,
           this.compensations,
+          this.schema.timestamp!,
         );
       });
     });
