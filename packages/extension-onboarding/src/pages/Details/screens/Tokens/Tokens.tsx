@@ -30,7 +30,8 @@ import { okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import React, { useEffect, useMemo, useState } from "react";
 import { Pie } from "react-chartjs-2";
-
+import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
+import defaultToken from "@extension-onboarding/assets/icons/default-token.png";
 import emptyTokens from "@extension-onboarding/assets/images/empty-tokens.svg";
 import AccountChainBar from "@extension-onboarding/components/AccountChainBar";
 import TokenItem from "@extension-onboarding/components/TokenItem";
@@ -39,6 +40,10 @@ import { useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { IBalanceItem } from "@extension-onboarding/objects";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/Tokens/Tokens.style";
+import Table from "@extension-onboarding/components/v2/Table";
+import Card from "@extension-onboarding/components/v2/Card";
+import TrendItem from "@extension-onboarding/components/v2/TrendItem";
+import { SDTypography } from "@snickerdoodlelabs/shared-components";
 
 ChartJS.register(
   CategoryScale,
@@ -341,230 +346,236 @@ export default () => {
     return <UnauthScreen />;
   }
 
+  const columns = [
+    {
+      label: "Name",
+      render: (item: IBalanceItem) => {
+        return (
+          <Box display="flex">
+            <img
+              width={24}
+              height={24}
+              style={{ borderRadius: 18 }}
+              src={
+                item.marketaData?.image
+                  ? item.marketaData?.image
+                  : tokenInfoObj[item.ticker]?.iconSrc ?? defaultToken
+              }
+            />
+            <Box ml={1}>
+              <Box>
+                <SDTypography
+                  variant="bodyLg"
+                  fontWeight="medium"
+                  color="textHeading"
+                >
+                  {tokenInfoObj[item.ticker]?.displayName ?? item?.ticker}
+                </SDTypography>
+              </Box>
+              <Box>
+                <SDTypography
+                  variant="bodySm"
+                  fontWeight="medium"
+                  color="textLight"
+                >
+                  {`${item.balance || "0"} ${item.ticker}`}
+                </SDTypography>
+              </Box>
+            </Box>
+          </Box>
+        );
+      },
+    },
+    {
+      label: "Trend",
+      hideOn: ["xs" as const],
+      render: (item: IBalanceItem) => {
+        return <TrendItem item={item} />;
+      },
+    },
+    {
+      label: "Value",
+      align: "right" as const,
+      render: (item: IBalanceItem) => {
+        return (
+          <Box>
+            <SDTypography variant="bodyLg">
+              ${item.quoteBalance.toFixed(4)}
+            </SDTypography>
+            {item.marketaData?.priceChangePercentage24h != null && (
+              <SDTypography
+                variant="bodySm"
+                color={
+                  (item.marketaData?.priceChangePercentage24h || 0) > 0
+                    ? "textSuccess"
+                    : "textError"
+                }
+              >
+                {`${item.marketaData?.priceChangePercentage24h.toFixed(2)}% ($${
+                  item.marketaData.currentPrice
+                })`}
+              </SDTypography>
+            )}
+          </Box>
+        );
+      },
+    },
+  ];
+
   return (
     <>
-      <AccountChainBar
-        accountSelect={accountSelect}
-        displayMode={displayMode}
-        setDisplayMode={setDisplayMode}
-        setAccountSelect={setAccountSelect}
-        setChainSelect={setChainSelect}
-        chainSelect={chainSelect}
-      />
-      <Grid container spacing={3}>
-        <Grid item xs={6}>
-          <Box
-            p={3}
-            pb={6}
-            bgcolor="#F2F2F8"
-            border="1px solid rgba(234, 236, 240, 0.6)"
-            borderRadius={8}
-            mb={3}
-          >
-            <Box mb={1.5}>
-              <Typography className={classes.infoCardLabel}>
-                Total Token Value
-              </Typography>
-            </Box>
-            <Typography className={classes.infoCardValue}>
-              ${(totalBalance || 0).toFixed(2)}
-            </Typography>
-          </Box>
-          <Box
-            p={3}
-            pb={6}
-            bgcolor="#F2F2F8"
-            border="1px solid rgba(234, 236, 240, 0.6)"
-            borderRadius={8}
-          >
-            <Box mb={1.5}>
-              <Typography className={classes.infoCardLabel}>
-                Number of Tokens
-              </Typography>
-            </Box>
-            <Typography className={classes.infoCardValue}>
-              {totalItems || 0}
-            </Typography>
-          </Box>
-        </Grid>
-        <Grid item xs={6}>
-          <Box border="1px solid #EAECF0" borderRadius={8} p={3}>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                fontWeight: 500,
-                fontSize: 16,
-                lineHeight: "24px",
-                color: "#101828",
-              }}
-            >
-              Token Value Breakdown
-            </Typography>
-            <Box display="flex" justifyContent="center" mt={4}>
-              {(charItemsToRender?.data?.length || 0) > 0 && (
-                <Box maxWidth="190px" mr={5}>
-                  {totalBalance == 0 ? (
-                    <Box
-                      width={190}
-                      height={190}
-                      borderRadius={125}
-                      bgcolor="#f0f0f0"
-                    />
-                  ) : (
-                    <Pie
-                      options={chartOptions}
-                      data={{
-                        labels: charItemsToRender?.labels,
-                        datasets: [
-                          {
-                            data: charItemsToRender?.data,
-                            backgroundColor:
-                              charItemsToRender?.data?.reduce(
-                                (acc, _, index) => {
-                                  acc = [
-                                    ...acc,
-                                    colorGenarator(
-                                      index *
-                                        (1 /
-                                          (charItemsToRender.data.length - 1 ||
-                                            1)),
-                                    ).hex(),
-                                  ];
-                                  return acc;
-                                },
-                                [] as string[],
-                              ) ?? "#7F79B0",
-                            borderWidth: 0,
-                          },
-                        ],
-                      }}
-                    />
-                  )}
-                </Box>
-              )}
-              {(charItemsToRender?.data?.length || 0) > 0 && (
-                <Box mt={2} maxHeight={245} overflow="auto">
-                  {charItemsToRender?.data?.map((item, index) => {
-                    return (
-                      <Box mb={0.5}>
-                        <Box display="flex" alignItems="center">
-                          <Box
-                            mr={2}
-                            width={8}
-                            height={8}
-                            borderRadius={4}
-                            bgcolor={colorGenarator(
-                              index *
-                                (1 / (charItemsToRender.data.length - 1 || 1)),
-                            ).hex()}
-                          />
-                          <Typography className={classes.metricTitle}>
-                            {charItemsToRender.labels[index]}
-                          </Typography>
-                        </Box>
-                        <Box ml={2.5} mt={0.5}>
-                          <Typography className={classes.metricValue}>
-                            {((100 * item) / (totalBalance || 1)).toFixed(2)}%
-                          </Typography>
-                        </Box>
-                      </Box>
-                    );
-                  })}
-                </Box>
-              )}
-            </Box>
-          </Box>
-        </Grid>
-      </Grid>
-      <Box mt={4} mb={3}>
-        <Box mb={0.5}>
-          <Typography className={classes.title}>Tokens</Typography>
-        </Box>
+      <Box mb={3}>
+        <AccountChainBar
+          accountSelect={accountSelect}
+          displayMode={displayMode}
+          setDisplayMode={setDisplayMode}
+          setAccountSelect={setAccountSelect}
+          setChainSelect={setChainSelect}
+          chainSelect={chainSelect}
+        />
       </Box>
+
       {isBalancesLoading ? (
         <Box display="flex" alignItems="center" justifyContent="center" mt={10}>
           <CircularProgress />
         </Box>
       ) : (
-        <Box
-          display="flex"
-          border="1px solid #FAFAFA"
-          borderRadius={12}
-          minHeight={440}
-          flexDirection="column"
-        >
+        <Card>
           {tokensToRender?.length ? (
             <>
-              <Box display="flex" py={2} px={3} justifyContent="space-between">
-                <Typography className={classes.tableTitle}>Name</Typography>
-                <Typography className={classes.tableTitle}>Trend</Typography>
-                <Typography className={classes.tableTitle}>Value</Typography>
-              </Box>
-              {(tokensPagination
-                ? tokensToRender.slice(
-                    (tokensPagination?.currentIndex - 1) * PAGINATION_RANGE,
-                    tokensPagination?.currentIndex * PAGINATION_RANGE,
-                  )
-                : tokensToRender
-              ).map((token, index) => {
-                return (
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={6}>
                   <Box
-                    key={JSON.stringify(token)}
-                    {...(index % 2 === 0 && {
-                      bgcolor: "rgba(245, 244, 245, 0.52)",
-                    })}
+                    p={3}
+                    pb={6}
+                    bgcolor="#F2F2F8"
+                    border="1px solid rgba(234, 236, 240, 0.6)"
+                    borderRadius={8}
+                    mb={3}
                   >
-                    <TokenItem item={token} />
+                    <Box mb={1.5}>
+                      <Typography className={classes.infoCardLabel}>
+                        Total Token Value
+                      </Typography>
+                    </Box>
+                    <Typography className={classes.infoCardValue}>
+                      ${(totalBalance || 0).toFixed(2)}
+                    </Typography>
                   </Box>
-                );
-              })}
-              {tokensPagination && (
-                <Box
-                  display="flex"
-                  marginTop="auto"
-                  alignItems="center"
-                  py={0.5}
-                  justifyContent="flex-end"
-                >
-                  <Typography className={classes.paginationText}>
-                    {`${
-                      (tokensPagination.currentIndex - 1) * PAGINATION_RANGE + 1
-                    } - ${
-                      tokensPagination.currentIndex * PAGINATION_RANGE <
-                      tokensPagination.totalItems
-                        ? tokensPagination.currentIndex * PAGINATION_RANGE
-                        : tokensPagination.totalItems
-                    } of ${tokensPagination.totalItems}`}
-                  </Typography>
-                  <IconButton
-                    size="small"
-                    onClick={() => {
-                      setTokensPagination({
-                        ...tokensPagination,
-                        currentIndex: tokensPagination.currentIndex - 1,
-                      });
-                    }}
-                    disabled={tokensPagination.currentIndex === 1}
+                  <Box
+                    p={3}
+                    pb={6}
+                    bgcolor="#F2F2F8"
+                    border="1px solid rgba(234, 236, 240, 0.6)"
+                    borderRadius={8}
                   >
-                    <KeyboardArrowLeft />
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    disabled={
-                      tokensPagination.currentIndex ===
-                      tokensPagination.numberOfPages
-                    }
-                    onClick={() => {
-                      setTokensPagination({
-                        ...tokensPagination,
-                        currentIndex: tokensPagination.currentIndex + 1,
-                      });
-                    }}
-                  >
-                    <KeyboardArrowRight />
-                  </IconButton>
-                </Box>
-              )}
+                    <Box mb={1.5}>
+                      <Typography className={classes.infoCardLabel}>
+                        Number of Tokens
+                      </Typography>
+                    </Box>
+                    <Typography className={classes.infoCardValue}>
+                      {totalItems || 0}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Box border="1px solid #EAECF0" borderRadius={8} p={3}>
+                    <Typography
+                      style={{
+                        fontFamily: "Space Grotesk",
+                        fontWeight: 500,
+                        fontSize: 16,
+                        lineHeight: "24px",
+                        color: "#101828",
+                      }}
+                    >
+                      Token Value Breakdown
+                    </Typography>
+                    <Box display="flex" justifyContent="center" mt={4}>
+                      {(charItemsToRender?.data?.length || 0) > 0 && (
+                        <Box maxWidth="190px" mr={5}>
+                          {totalBalance == 0 ? (
+                            <Box
+                              width={190}
+                              height={190}
+                              borderRadius={125}
+                              bgcolor="#f0f0f0"
+                            />
+                          ) : (
+                            <Pie
+                              options={chartOptions}
+                              data={{
+                                labels: charItemsToRender?.labels,
+                                datasets: [
+                                  {
+                                    data: charItemsToRender?.data,
+                                    backgroundColor:
+                                      charItemsToRender?.data?.reduce(
+                                        (acc, _, index) => {
+                                          acc = [
+                                            ...acc,
+                                            colorGenarator(
+                                              index *
+                                                (1 /
+                                                  (charItemsToRender.data
+                                                    .length - 1 || 1)),
+                                            ).hex(),
+                                          ];
+                                          return acc;
+                                        },
+                                        [] as string[],
+                                      ) ?? "#7F79B0",
+                                    borderWidth: 0,
+                                  },
+                                ],
+                              }}
+                            />
+                          )}
+                        </Box>
+                      )}
+                      {(charItemsToRender?.data?.length || 0) > 0 && (
+                        <Box mt={2} maxHeight={245} overflow="auto">
+                          {charItemsToRender?.data?.map((item, index) => {
+                            return (
+                              <Box mb={0.5}>
+                                <Box display="flex" alignItems="center">
+                                  <Box
+                                    mr={2}
+                                    width={8}
+                                    height={8}
+                                    borderRadius={4}
+                                    bgcolor={colorGenarator(
+                                      index *
+                                        (1 /
+                                          (charItemsToRender.data.length - 1 ||
+                                            1)),
+                                    ).hex()}
+                                  />
+                                  <Typography className={classes.metricTitle}>
+                                    {charItemsToRender.labels[index]}
+                                  </Typography>
+                                </Box>
+                                <Box ml={2.5} mt={0.5}>
+                                  <Typography className={classes.metricValue}>
+                                    {(
+                                      (100 * item) /
+                                      (totalBalance || 1)
+                                    ).toFixed(2)}
+                                    %
+                                  </Typography>
+                                </Box>
+                              </Box>
+                            );
+                          })}
+                        </Box>
+                      )}
+                    </Box>
+                  </Box>
+                </Grid>
+              </Grid>
+              <Box mb={3} />
+              <Table data={tokensToRender} columns={columns} />
             </>
           ) : (
             <Box width="100%" display="flex">
@@ -573,13 +584,13 @@ export default () => {
                 alignItems="center"
                 width="100%"
                 display="flex"
-                pt={8}
+                py={6}
               >
                 <img style={{ width: 255, height: "auto" }} src={emptyTokens} />
               </Box>
             </Box>
           )}
-        </Box>
+        </Card>
       )}
     </>
   );

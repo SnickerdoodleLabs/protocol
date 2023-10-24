@@ -113,15 +113,11 @@ const Transactions = () => {
       });
   };
   return (
-    <Container>
-      <DashboardTitle
-        title="Transactions"
-        description="Track your transactions for linked web3 accounts. Stay updated on your token, NFT, and airdrop activity."
-      />
+    <>
       {transactions && (
         <Table defaultItemsPerPage={10} columns={columns} data={transactions} />
       )}
-    </Container>
+    </>
   );
 };
 

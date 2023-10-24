@@ -29,6 +29,7 @@ import ProfileCreation from "@extension-onboarding/pages/Onboarding/ProfileCreat
 import DataPermissions from "@extension-onboarding/pages/V2/DataPermissions";
 import Settings from "@extension-onboarding/pages/V2/Settings";
 import AudienceDetails from "@extension-onboarding/pages/V2/AudienceDetails";
+import Transactions from "@extension-onboarding/pages/V2/Transactions";
 export const OnboardingRoutes = (
   <Route>
     {/* <Route path={EPaths.ONBOARDING_WELCOME} element={<OnboardingWelcome />} /> */}
@@ -64,6 +65,7 @@ export const AuthFlowRoutes = (
         element={<AudienceDetails />}
       />
       <Route element={<DataDashBoardLayout />}>
+        <Route path={EPaths.TRANSACTION_HISTORY} element={<Transactions />} />
         <Route path={EPaths.TOKENS} element={<Tokens />} />
         <Route path={EPaths.NFTS} element={<NFTs />} />
         <Route path={EPaths.POAP_NFTS} element={<PoapNFTs />} />

@@ -43,7 +43,7 @@ export default () => {
   return (
     <Box>
       {socialMediaProviderList.map(({ icon, name, key }) => (
-        <Box key={key} padding={3}>
+        <Box key={key} >
           {getSocialMediaComponentGivenProps({ icon, name, key })}
         </Box>
       ))}
