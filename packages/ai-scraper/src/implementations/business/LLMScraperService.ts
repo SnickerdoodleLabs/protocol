@@ -27,7 +27,7 @@ import {
   UnknownProductCategory,
 } from "@snickerdoodlelabs/shopping-data";
 import { inject, injectable } from "inversify";
-import { ResultAsync, errAsync } from "neverthrow";
+import { ResultAsync, errAsync, ok, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import {
@@ -193,6 +193,10 @@ export class LLMScraperService implements IScraperService {
     // convert purchases to LLM data first
     const nullCategoryPurchases =
       this.purchaseUtils.getNullCategoryPurchases(purchases);
+
+    if (nullCategoryPurchases.length == 0) {
+      return okAsync(undefined);
+    }
 
     return this.scrapeCategory(domainTask, language, nullCategoryPurchases);
   }
