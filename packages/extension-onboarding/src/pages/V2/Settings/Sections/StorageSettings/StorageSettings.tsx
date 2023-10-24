@@ -9,13 +9,16 @@ import { useNotificationContext } from "@extension-onboarding/context/Notificati
 import { Box } from "@material-ui/core";
 import {
   ECloudStorageType,
+  EOAuthProvider,
   OAuth2AccessToken,
   OAuth2RefreshToken,
+  OAuthURLState,
 } from "@snickerdoodlelabs/objects";
 import { SDButton, SDTypography } from "@snickerdoodlelabs/shared-components";
 import { Dropbox } from "dropbox";
 import { ResultAsync, errAsync } from "neverthrow";
 import React, { FC, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 interface DropboxFolder {
   ".tag": string;
@@ -46,11 +49,7 @@ const STORAGE_OPTIONS: IStorageOption[] = [
   },
 ];
 
-interface StorageSettingsProps {
-  code?: string;
-}
-
-const StorageSettings: FC<StorageSettingsProps> = ({ code }) => {
+const StorageSettings: FC = () => {
   const { sdlDataWallet } = useDataWalletContext();
   const [storageOption, setStorageOption] = useState<ECloudStorageType>();
   const [accessToken, setAccessToken] = useState<OAuth2AccessToken>(
@@ -63,6 +62,7 @@ const StorageSettings: FC<StorageSettingsProps> = ({ code }) => {
   const { setAlert } = useNotificationContext();
   const [folders, setFolders] = useState<NestedFolder[]>();
   const { setModal } = useLayoutContext();
+  const [searchParams] = useSearchParams();
 
   const dropbox = useMemo(() => {
     if (accessToken && Dropbox) {
@@ -87,10 +87,22 @@ const StorageSettings: FC<StorageSettingsProps> = ({ code }) => {
   }, []);
 
   useEffect(() => {
-    if (code) {
-      handleCode(code);
+    onSearchParamChange();
+  }, [searchParams]);
+
+  const onSearchParamChange = () => {
+    const code = searchParams.get("code");
+    const state = searchParams.get("state");
+    if (!code || !state) {
+      return null;
     }
-  }, [code]);
+    const { provider } = OAuthURLState.getParsedState(state);
+    if (provider !== EOAuthProvider.DROPBOX) {
+      return;
+    }
+    window.history.replaceState(null, "", window.location.pathname);
+    return handleCode(code);
+  };
 
   const getInitialStorageOption = () => {
     getStorageOption().map((option) => {

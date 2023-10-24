@@ -2,18 +2,19 @@ import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import Card from "@extension-onboarding/components/v2/Card";
 import CardTitle from "@extension-onboarding/components/v2/CardTitle";
-import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import { Box } from "@material-ui/core";
-import { DiscordProfile, ESocialType } from "@snickerdoodlelabs/objects";
+import {
+  DiscordProfile,
+  EOAuthProvider,
+  OAuthAuthorizationCode,
+  OAuthURLState,
+} from "@snickerdoodlelabs/objects";
 import { SDButton, SDTypography } from "@snickerdoodlelabs/shared-components";
-import React, { FC, useEffect, useState } from "react";
-
-interface ISocialMediaAccountsProps {
-  code?: string;
-}
+import React, { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 const discordImageUrl = "https://cdn.discordapp.com";
 
@@ -33,9 +34,48 @@ const SocialMediaAccounts = () => {
   const { setModal } = useLayoutContext();
   const { setAlert } = useNotificationContext();
   const [profiles, setProfiles] = useState<DiscordProfile[]>();
+  const [searchParams] = useSearchParams();
+
   useEffect(() => {
     getProfiles();
   }, []);
+
+  useEffect(() => {
+    onSearchParamChange();
+  }, [searchParams]);
+
+  const onSearchParamChange = () => {
+    const code = searchParams.get("code");
+    const state = searchParams.get("state");
+    if (!code || !state) {
+      return null;
+    }
+    const { provider, redirectTabId } = OAuthURLState.getParsedState(state);
+    if (provider !== EOAuthProvider.DISCORD) {
+      return;
+    }
+    return sdlDataWallet.discord
+      .initializeUserWithAuthorizationCode(OAuthAuthorizationCode(code))
+      .map(() => {
+        setAlert({
+          severity: EAlertSeverity.SUCCESS,
+          message: "Your account has successfully been linked. ",
+        });
+        getProfiles();
+        if (redirectTabId) {
+          return (
+            sdlDataWallet?.switchToTab?.(redirectTabId) ??
+            sdlDataWallet.closeTab()
+          ).mapErr((err) => {
+            console.log(err);
+          });
+        }
+        return window.history.replaceState(null, "", window.location.pathname);
+      })
+      .mapErr((err) => {
+        console.log(err);
+      });
+  };
 
   const getProfiles = () => {
     sdlDataWallet.discord

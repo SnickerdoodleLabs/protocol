@@ -9,7 +9,7 @@ const envVars = {
 
   __DROPBOX_APP_KEY__: "w69949reoalc9xg",
   __DROPBOX_APP_SECRET__: "78jch5z5o800dyw",
-  __DROPBOX_REDIRECT_URI__: "https://localhost:9005/settings/storage",
+  __DROPBOX_REDIRECT_URI__: "https://localhost:9005/settings",
 
   __ALCHEMY_ARBITRUM_API_KEY__: "",
   __ALCHEMY_ASTAR_API_KEY__: "",

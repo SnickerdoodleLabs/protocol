@@ -67,12 +67,8 @@ const ONE_MINUTE_MS = 60000;
 const _buildDiscordConfig = (): Partial<DiscordConfig> => {
   const oauthRedirectUrl =
     typeof __ONBOARDING_URL__ !== "undefined" && !!__ONBOARDING_URL__
-      ? URLString(
-          urlJoin(__ONBOARDING_URL__, "/data-dashboard/social-media-data"),
-        )
-      : URLString(
-          "https://datawallet.snickerdoodle.com/data-dashboard/social-media-data",
-        );
+      ? URLString(urlJoin(__ONBOARDING_URL__, "/settings"))
+      : URLString("https://datawallet.snickerdoodle.com/settings");
 
   const discordConfig = {
     oauthRedirectUrl,
@@ -100,12 +96,8 @@ const _buildDiscordConfig = (): Partial<DiscordConfig> => {
 const _buildTwitterConfig = (): Partial<TwitterConfig> => {
   const oauthRedirectUrl =
     typeof __ONBOARDING_URL__ !== "undefined" && !!__ONBOARDING_URL__
-      ? URLString(
-          urlJoin(__ONBOARDING_URL__, "/data-dashboard/social-media-data"),
-        )
-      : URLString(
-          "https://datawallet.snickerdoodle.com/data-dashboard/social-media-data",
-        );
+      ? URLString(urlJoin(__ONBOARDING_URL__, "/settings"))
+      : URLString("https://datawallet.snickerdoodle.com/settings");
 
   const twitterConfig = {
     oAuthCallbackUrl: URLString(oauthRedirectUrl),

@@ -10,10 +10,10 @@ import Transactions from "../Transactions";
 
 const Settings = () => {
   //@TODO we need to handle code here and pass it to storage settings and social media accounts
+
   return (
     <Container>
       <PageTitle title="Settings" />
-      <Transactions />
       <Wallets />
       <LinkedCryptoAccounts />
       <PersonalInfo />
