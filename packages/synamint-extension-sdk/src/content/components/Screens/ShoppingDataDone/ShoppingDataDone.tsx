@@ -10,7 +10,9 @@ import {
   WEBSITE_URL,
 } from "@synamint-extension-sdk/content/constants";
 
-interface IShoppingDataDoneProps {}
+interface IShoppingDataDoneProps {
+  coreGateway;
+}
 
 const SOCIAL_LINKS = [
   {
@@ -31,11 +33,17 @@ const SOCIAL_LINKS = [
   },
 ];
 
-const ShoppingDataDone: React.FC<
-  IShoppingDataDoneProps
-> = ({}: IShoppingDataDoneProps) => {
+const ShoppingDataDone: React.FC<IShoppingDataDoneProps> = ({
+  coreGateway,
+}: IShoppingDataDoneProps) => {
   const classes = useStyles();
-
+  const navigateShoppingData = () => {
+    console.log(coreGateway);
+    coreGateway.getConfig().map((config) => {
+      console.log(config);
+      window.open(`${config.onboardingUrl}${SPA_PATHS.shoppingData}`, "_blank");
+    });
+  };
   return (
     <Box width={445} bgcolor="#FFFFFF" className={classes.container}>
       <Box pl={4} py={3}>
@@ -58,20 +66,27 @@ const ShoppingDataDone: React.FC<
             navigateTo={SPA_PATHS.rewardsMarketplace}
             icon={Browser.runtime.getURL("assets/icons/rewards.svg")}
             title="Rewards Marketplace"
+            coreGateway={coreGateway}
           />
           <LinkCard
             navigateTo={SPA_PATHS.dashboard}
             icon={Browser.runtime.getURL("assets/icons/portfolio.svg")}
             title="My Data Dashboard"
+            coreGateway={coreGateway}
           />
           <LinkCard
             navigateTo={SPA_PATHS.settings}
             icon={Browser.runtime.getURL("assets/icons/settings.svg")}
             title="Settings"
+            coreGateway={coreGateway}
           />
         </Box>
         <Box mt={3}>
-          <Button fullWidth className={classes.button}>
+          <Button
+            onClick={navigateShoppingData}
+            fullWidth
+            className={classes.button}
+          >
             Go to Shopping Data
           </Button>
         </Box>

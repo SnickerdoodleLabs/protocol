@@ -46,4 +46,5 @@ export const SPA_PATHS = {
   settings: "settings/web3",
   rewardsMarketplace: "marketplace",
   dashboard: "data-dashboard/tokens",
+  shoppingData: "data-dashboard/shopping-data",
 };

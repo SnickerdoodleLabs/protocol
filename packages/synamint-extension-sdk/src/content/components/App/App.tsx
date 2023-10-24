@@ -220,14 +220,6 @@ const App = () => {
       if (shoppingDataScrapeStart) {
         setAppState(EAPP_STATE.SHOPPINGDATA_SCRAPE_PROCESS);
         console.log("TEST1");
-        coreGateway.scraperNavigation
-          .getYears(HTMLString(html))
-          .andThen((years) => {
-            return coreGateway.scraperNavigation.getPageCount(
-              HTMLString(html),
-              years[0],
-            );
-          });
         coreGateway.scraper
           .classifyURL(URLString(url), ELanguageCode.English)
           .andThen((DomainTask) => {
@@ -359,7 +351,7 @@ const App = () => {
       case appState === EAPP_STATE.SHOPPINGDATA_SCRAPE_PROCESS:
         return <ShoppingDataProcess onCloseClick={exitScraper} />;
       case appState === EAPP_STATE.SHOPPINGDATA_SCRAPE_DONE:
-        return <ShoppingDataDone />;
+        return <ShoppingDataDone coreGateway={coreGateway} />;
       case !rewardToDisplay:
         console.log("rewardToDisplay");
         return null;

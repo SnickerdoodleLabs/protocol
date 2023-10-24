@@ -9,16 +9,15 @@ interface ILinkCardProps {
   navigateTo: string;
   icon: string;
   title: string;
+  coreGateway;
 }
-const LinkCard = ({ navigateTo, icon, title }: ILinkCardProps) => {
-  let coreGateway: ExternalCoreGateway;
+const LinkCard = ({ navigateTo, icon, title, coreGateway }: ILinkCardProps) => {
   const classes = useStyles();
   const navigate = () => {
     console.log(coreGateway);
     coreGateway.getConfig().map((config) => {
       console.log(config);
       window.open(`${config.onboardingUrl}${navigateTo}`, "_blank");
-      console.log(navigateTo);
     });
   };
   return (
