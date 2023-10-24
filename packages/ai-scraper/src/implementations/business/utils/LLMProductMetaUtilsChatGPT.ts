@@ -57,14 +57,14 @@ export class LLMProductMetaUtilsChatGPT implements ILLMProductMetaUtils {
       `Classification denotes the category of the product and keywords describe the products using a few keywords. For categories choose from [${ProductCategories.join(
         ", ",
       )}] only. A product has one category and multiple keywords. Here is a list of products seperated by new lines. 
-      Give response in a JSON array in the preceding format.`,
+      Give response in a JSON array in the preceding format. The array is enclosed in third brackets.`,
     );
   }
 
   public getAnswerStructure(): LLMAnswerStructure {
     return LLMAnswerStructure(
       `I need to extract categories and keywords of some products. Sub-category is more specific.  I need all the output in this format:
-      \n\nJSON format: \n
+      \n\nJSON format for each product: \n
           {
               product_id: number,
               sub_category: string,
