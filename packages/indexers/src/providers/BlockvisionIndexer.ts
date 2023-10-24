@@ -150,8 +150,9 @@ export class BlockvisionIndexer implements ISuiIndexer {
     ])
       .andThen(([config, context]) => {
         const url =
-          "https://api.blockvision.org/v2/sui/account/activities?address=" +
-          accountAddress;
+          "https://api.blockvision.org/v2/sui/nft/accountCollection?owner=" +
+          accountAddress +
+          "&pageIndex=1&pageSize=20";
 
         let apiKey = config.apiKeys.blockvisionKey;
         if (apiKey == null) {
@@ -168,26 +169,25 @@ export class BlockvisionIndexer implements ISuiIndexer {
         };
 
         context.privateEvents.onApiAccessed.next(EExternalApi.Blockvision);
-        return this.ajaxUtils.get<IBlockvisionDigestReponse>(
+        return this.ajaxUtils.get<IBlockvisionNftReponse>(
           new URL(url),
           requestParams,
         );
       })
       .map((response) => {
-        console.log("response: " + JSON.stringify(response));
         return response.result.data.map((item) => {
-          if (item.nftMetadata == null) {
+          if (item == null) {
             return null;
           }
           return new SuiNFT(
-            SuiTokenAddress(item.nftMetadata.objectId),
+            SuiTokenAddress(item.package),
             BigNumberString("1"),
-            item.nftMetadata.eventType,
+            SuiTokenAddress(item.package),
             accountAddress,
-            TokenUri(item.nftMetadata.imageURL),
-            { raw: ObjectUtils.serialize(item.nftMetadata) },
-            BigNumberString("1"),
-            item.nftMetadata.name,
+            TokenUri(item.imageURL),
+            { raw: ObjectUtils.serialize(item) },
+            BigNumberString(item.quantity.toString()),
+            item.name,
             EChain.Sui,
             undefined,
             undefined,
@@ -286,11 +286,6 @@ export class BlockvisionIndexer implements ISuiIndexer {
         amount = amount * -1;
       }
       amount = amount * 10 ** 9;
-
-      console.log("amount: " + amount);
-      console.log("timestamp.toString(): " + timestamp.toString());
-      console.log("balance item: " + JSON.stringify(item));
-
       return new SuiTransaction(
         EChain.Sui,
         SuiTransactionHash(timestamp.toString()),
@@ -311,8 +306,6 @@ export class BlockvisionIndexer implements ISuiIndexer {
 
   private retrieveObjectChanges(param: IObjectChanges[]): SuiTransaction[] {
     return param.map((item) => {
-      console.log("amount: " + item.digest);
-      console.log("object item: " + JSON.stringify(item));
       return new SuiTransaction(
         EChain.Sui,
         SuiTransactionHash(item.digest),
@@ -454,6 +447,24 @@ interface IBlockvisionDigestReponse {
   message: string;
   result: {
     data: IBlockvisionDigest[];
+  };
+  nextPageCursor: number;
+}
+
+interface IBlockvisionNftReponse {
+  code: number;
+  message: string;
+  result: {
+    data: {
+      objectType: string;
+      package: string;
+      name: string;
+      imageURL: string;
+      projectURL: string;
+      description: string;
+      standard: string;
+      quantity: number;
+    }[];
   };
   nextPageCursor: number;
 }
