@@ -91,5 +91,9 @@ export const scraperModule = new ContainerModule(
       .to(KeywordRepository)
       .inSingletonScope();
     bind<IKeywordUtils>(IKeywordUtilsType).to(KeywordUtils).inSingletonScope();
+
+    bind<IAmazonNavigationUtils>(IAmazonNavigationUtilsType)
+      .to(AmazonNavigationUtils)
+      .inSingletonScope();
   },
 );
