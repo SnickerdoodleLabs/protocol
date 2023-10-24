@@ -56,8 +56,7 @@ export class LLMProductMetaUtilsChatGPT implements ILLMProductMetaUtils {
     return LLMQuestion(
       `Classification denotes the category of the product and keywords describe the products using a few keywords. For categories choose from [${ProductCategories.join(
         ", ",
-      )}] only. A product has one category and multiple keywords. Here is a list of products seperated by new lines. 
-      Give response in a JSON array in the preceding format. The array is enclosed in third brackets.`,
+      )}] only. A product has one category and multiple keywords. Here is a list of products seperated by new lines.`,
     );
   }
 
@@ -70,7 +69,8 @@ export class LLMProductMetaUtilsChatGPT implements ILLMProductMetaUtils {
               sub_category: string,
               category: string,
               keywords: string[],
-          }`,
+          }
+          \n\nGive response in a JSON array in the preceding format. The array is enclosed in third brackets.`,
     );
   }
 
