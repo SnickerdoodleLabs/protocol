@@ -20,7 +20,7 @@ import {
   EVMContractAddress,
   HexString32,
   Invitation,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   IpfsCID,
   IPFSError,
   LinkedAccount,
@@ -693,7 +693,7 @@ export class InvitationService implements IInvitationService {
 
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, IPFSError> {
+  ): ResultAsync<IOldUserAgreement, IPFSError> {
     return this.invitationRepo.getInvitationMetadataByCID(ipfsCID);
   }
 
@@ -978,12 +978,11 @@ export class InvitationService implements IInvitationService {
     receivingAddress: AccountAddress | null,
   ): ResultAsync<void, PersistenceError> {
     return this.accountRepo.getAccounts().andThen((linkedAccounts) => {
-      if (
-        !this._doLinkedAccountsContainReceivingAddress(
-          linkedAccounts,
-          receivingAddress,
-        )
-      ) {
+      const linkedAccount = this.getLinkedAccountForReceivingAddress(
+        linkedAccounts,
+        receivingAddress,
+      );
+      if (linkedAccount == null) {
         return errAsync(
           new PersistenceError(
             "Unlinked accounts cannot be selected as recipient addresses.",
@@ -991,7 +990,12 @@ export class InvitationService implements IInvitationService {
         );
       }
 
-      return this.accountRepo.setDefaultReceivingAddress(receivingAddress);
+      // NOTE: we are using linkedAccount.sourceAccountAddress because it is already
+      // de-checksum'd. receivingAddress could be a Solana or EVM address and we don't know
+      // the chain to use.
+      return this.accountRepo.setDefaultReceivingAddress(
+        linkedAccount.sourceAccountAddress,
+      );
     });
   }
 
@@ -1000,12 +1004,11 @@ export class InvitationService implements IInvitationService {
     receivingAddress: AccountAddress | null,
   ): ResultAsync<void, PersistenceError> {
     return this.accountRepo.getAccounts().andThen((linkedAccounts) => {
-      if (
-        !this._doLinkedAccountsContainReceivingAddress(
-          linkedAccounts,
-          receivingAddress,
-        )
-      ) {
+      const linkedAccount = this.getLinkedAccountForReceivingAddress(
+        linkedAccounts,
+        receivingAddress,
+      );
+      if (linkedAccount == null) {
         return errAsync(
           new PersistenceError(
             "Unlinked accounts cannot be selected as recipient addresses.",
@@ -1013,9 +1016,10 @@ export class InvitationService implements IInvitationService {
         );
       }
 
+      // NOTE: We are using the sourceAccountAddress because it is already de-checksum'd.
       return this.accountRepo.setReceivingAddress(
         contractAddress,
-        receivingAddress,
+        linkedAccount.sourceAccountAddress,
       );
     });
   }
@@ -1032,7 +1036,7 @@ export class InvitationService implements IInvitationService {
     return this.accountRepo
       .getReceivingAddress(contractAddress)
       .andThen((receivingAddress) => {
-        if (!receivingAddress) {
+        if (receivingAddress == null) {
           return this._getDefaultReceivingAddress();
         }
 
@@ -1041,15 +1045,16 @@ export class InvitationService implements IInvitationService {
         );
 
         return this.accountRepo.getAccounts().andThen((linkedAccounts) => {
-          if (
-            this._doLinkedAccountsContainReceivingAddress(
-              linkedAccounts,
-              receivingAddress,
-            )
-          ) {
-            return okAsync(receivingAddress);
+          const linkedAccount = this.getLinkedAccountForReceivingAddress(
+            linkedAccounts,
+            receivingAddress,
+          );
+          if (linkedAccount != null) {
+            return okAsync(linkedAccount.sourceAccountAddress);
           }
 
+          // This check removes the receiving address from the contract and replaces 
+          // it with the default 
           return this.accountRepo
             .setReceivingAddress(contractAddress, null)
             .andThen(() => {
@@ -1190,17 +1195,24 @@ export class InvitationService implements IInvitationService {
     });
   }
 
-  private _doLinkedAccountsContainReceivingAddress(
+  private getLinkedAccountForReceivingAddress(
     linkedAccounts: LinkedAccount[],
     receivingAddress: AccountAddress | null,
-  ): boolean {
+  ): LinkedAccount | null {
     if (!receivingAddress) {
-      return false;
+      return null;
     }
 
-    return !!linkedAccounts.find(
-      (ac) => ac.sourceAccountAddress == receivingAddress,
-    );
+    const linkedAccount = linkedAccounts.find((ac) => {
+      // Since we don't know what chain the address is for, we need to check
+      // both the direct input (for Solana) or the lowercase version (for Ethereum)
+      return (
+        ac.sourceAccountAddress == receivingAddress ||
+        ac.sourceAccountAddress == receivingAddress.toLowerCase()
+      );
+    });
+
+    return linkedAccount ?? null;
   }
 
   private _getDefaultReceivingAddress(): ResultAsync<
@@ -1211,13 +1223,11 @@ export class InvitationService implements IInvitationService {
       this.accountRepo.getAccounts(),
       this.accountRepo.getDefaultReceivingAddress(),
     ]).andThen(([linkedAccounts, defaultReceivingAddress]) => {
-      if (
-        !defaultReceivingAddress ||
-        !this._doLinkedAccountsContainReceivingAddress(
-          linkedAccounts,
-          defaultReceivingAddress,
-        )
-      ) {
+      const linkedAccount = this.getLinkedAccountForReceivingAddress(
+        linkedAccounts,
+        defaultReceivingAddress,
+      );
+      if (defaultReceivingAddress == null || linkedAccount == null) {
         return this.accountRepo
           .setDefaultReceivingAddress(linkedAccounts[0].sourceAccountAddress)
           .map(() => linkedAccounts[0].sourceAccountAddress);
