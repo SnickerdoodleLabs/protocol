@@ -1,6 +1,15 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  ScrollView,
+} from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+
+import { useTheme } from "../../context/ThemeContext";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 const MultiSelectOption = ({
@@ -18,7 +27,7 @@ const MultiSelectOption = ({
       onSelect(value);
     }
   };
-
+  const theme = useTheme();
   return (
     <TouchableOpacity onPress={handlePress} style={styles.option}>
       <View
@@ -56,10 +65,23 @@ const MultiSelectOption = ({
 
       <View style={{ flexDirection: "row", marginLeft: normalizeWidth(5) }}>
         <Image
-          style={{ width: normalizeWidth(24), height: normalizeHeight(24) }}
+          style={{
+            width: normalizeWidth(24),
+            height: normalizeHeight(24),
+            borderRadius: 60,
+          }}
           source={image}
         />
-        <Text style={styles.label}>{label}</Text>
+        <Text
+          style={{
+            fontSize: normalizeWidth(18),
+            fontWeight: "600",
+            color: theme?.colors.title,
+            marginLeft: normalizeWidth(5),
+          }}
+        >
+          {label}
+        </Text>
       </View>
     </TouchableOpacity>
   );
@@ -79,7 +101,7 @@ const MultiSelect = ({ options, handleSelectChain, selectedChains }) => {
   };
 
   return (
-    <View>
+    <ScrollView style={{ height: normalizeHeight(300) }}>
       {options.map((option) => (
         <MultiSelectOption
           key={option.value}
@@ -89,7 +111,7 @@ const MultiSelect = ({ options, handleSelectChain, selectedChains }) => {
           onDeselect={handleDeselect}
         />
       ))}
-    </View>
+    </ScrollView>
   );
 };
 

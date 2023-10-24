@@ -6,9 +6,12 @@ process.env.ASSET_PATH = "/";
 process.env.__ONBOARDING_URL__ = "https://localhost:9005/";
 process.env.__ACCOUNT_COOKIE_URL__ = "https://snickerdoodlelabs.io/";
 process.env.__CONTROL_CHAIN_ID__ = "31337";
-process.env.__SUPPORTED_CHAINS__ = "42,43113";
 process.env.__IPFS_FETCH_BASE_URL__ = "http://localhost:8080/ipfs";
 process.env.__DEFAULT_INSIGHT_PLATFORM_BASE_URL__ = "http://localhost:3006";
+
+process.env.__DROPBOX_APP_KEY__ = "";
+process.env.__DROPBOX_APP_SECRET__ = "";
+process.env.__DROPBOX_REDIRECT_URI__ = "";
 
 process.env.__COVALENT_API_KEY__ = "";
 process.env.__MORALIS_API_KEY__ = "";
@@ -16,6 +19,7 @@ process.env.__NFTSCAN_API_KEY__ = "";
 process.env.__POAP_API_KEY__ = "";
 process.env.__OKLINK_API_KEY__ = "";
 process.env.__ANKR_API_KEY__ = "";
+process.env.__BLUEZ_API_KEY__ = "";
 
 process.env.__ALCHEMY_ARBITRUM_API_KEY__ = "";
 process.env.__ALCHEMY_ASTAR_API_KEY__ = "";
@@ -58,6 +62,7 @@ var WebpackDevServer = require("webpack-dev-server"),
   config = require("../webpack.config.cjs"),
   env = require("./env.cjs"),
   path = require("path");
+
 
 config.plugins = [new webpack.HotModuleReplacementPlugin()].concat(
   config.plugins || [],

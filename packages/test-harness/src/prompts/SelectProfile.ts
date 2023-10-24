@@ -41,7 +41,7 @@ export class SelectProfile extends DataWalletPrompt {
           path: string;
         };
 
-        this.env.loadDataWalletProfile(pathInfo); // we cannot return this promise as it's halted till core is unlocked.
+        this.env.loadDataWalletProfile(pathInfo); // we cannot return this promise as it's halted till core is initialized.
         return okAsync(undefined);
       })
       .map(() => {

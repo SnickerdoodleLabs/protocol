@@ -6,13 +6,13 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const webpack = require("webpack");
 const configFilePath = require.resolve("./tsconfig.json");
-const argon2 = require("argon2");
+// const argon2 = require("argon2");
 const fileSystem = require("fs-extra");
 
 /** @type import('webpack').Configuration */
 module.exports = {
   externals: {
-    argon2: argon2,
+    // argon2: argon2,
   },
   context: __dirname,
   mode: process.env.__BUILD_ENV__ === "dev" ? "development" : "production",
@@ -119,6 +119,13 @@ module.exports = {
       __HOTJAR_ID__: JSON.stringify(process.env.__HOTJAR_ID__),
       __HOTJAR_SNIPPET_VERSION__: JSON.stringify(
         process.env.__HOTJAR_SNIPPET_VERSION__,
+      ),
+      __PRIMARY_INFURA_KEY__: JSON.stringify(
+        process.env.__PRIMARY_INFURA_KEY__,
+      ),
+      __IFRAME_URL__: JSON.stringify(process.env.__IFRAME_URL__),
+      __GOOGLE_CLOUD_BUCKET__: JSON.stringify(
+        process.env.__GOOGLE_CLOUD_BUCKET__ || "",
       ),
     }),
   ],

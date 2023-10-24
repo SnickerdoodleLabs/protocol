@@ -1,6 +1,7 @@
 export enum EDataProvider {
   Etherscan = "Etherscan",
   Ankr = "Ankr",
+  Bluez = "Bluez",
   Poap = "Poap",
   EtherscanNative = "EtherscanNative",
   Covalent = "Covalent",

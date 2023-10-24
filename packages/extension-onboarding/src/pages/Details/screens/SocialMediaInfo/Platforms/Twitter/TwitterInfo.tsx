@@ -1,10 +1,3 @@
-import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import SocialUnlinkingModal from "@extension-onboarding/components/Modals/SocialUnlinkingModal";
-import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
-import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import { ISocialMediaPlatformProps } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Twitter/Twitter.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, Button, Typography } from "@material-ui/core";
 import {
   OAuth1RequstToken,
@@ -15,9 +8,13 @@ import {
 } from "@snickerdoodlelabs/objects";
 import React, { FC, memo, useEffect, useState } from "react";
 
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import SocialUnlinkingModal from "@extension-onboarding/components/Modals/SocialUnlinkingModal";
+import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import { ISocialMediaPlatformProps } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms";
 import { TwitterAccountItem } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Twitter/Items/TwitterAccountItem";
-
-declare const window: IWindowWithSdlDataWallet;
+import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Twitter/Twitter.style";
 
 export const TwitterInfo: FC<ISocialMediaPlatformProps> = memo(
   ({ name, icon }: ISocialMediaPlatformProps) => {

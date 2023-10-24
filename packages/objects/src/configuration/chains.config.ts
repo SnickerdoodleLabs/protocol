@@ -6,12 +6,7 @@ import {
   LinkedAccount,
   NativeCurrencyInformation,
 } from "@objects/businessObjects";
-import {
-  EChain,
-  EChainTechnology,
-  EIndexer,
-  EChainType,
-} from "@objects/enum/index.js";
+import { EChain, EChainTechnology, EChainType } from "@objects/enum/index.js";
 import { AccountIndexingError } from "@objects/errors/index.js";
 import {
   ChainId,
@@ -24,9 +19,9 @@ const getExplorerUrl = function (this: ChainInformation, txHash: string) {
   return this.explorerURL + txHash;
 };
 
-export const chainConfig = new Map<ChainId, ChainInformation>([
+export const chainConfig = new Map<EChain, ChainInformation>([
   [
-    ChainId(EChain.DevDoodle),
+    EChain.DevDoodle,
     new ControlChainInformation(
       "Dev Env Doodle Chain",
       ChainId(EChain.DevDoodle),
@@ -35,18 +30,16 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       "doodlechain",
       4000,
-      EIndexer.Simulator,
       new NativeCurrencyInformation("DOODLE", 18, "DOODLE"),
       EChainType.Hardhat,
       "",
       EVMContractAddress("0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"), // Consent Contract Factory
       EVMContractAddress("0x610178dA211FEF7D417bC0e6FeD39F05609AD788"), // Crumbs Contract
       EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"), // Metatransaction Forwarder Contract
-      EVMContractAddress("0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e"), // Sift Contract
     ),
   ],
   [
-    ChainId(EChain.EthereumMainnet),
+    EChain.EthereumMainnet,
     new ChainInformation(
       "Ethereum",
       ChainId(EChain.EthereumMainnet),
@@ -55,7 +48,6 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       "mainnet",
       10000,
-      EIndexer.Ethereum,
       new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
       EChainType.Mainnet,
       "https://etherscan.io/tx/",
@@ -64,7 +56,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(EChain.Sepolia),
+    EChain.Sepolia,
     new ChainInformation(
       "Sepolia",
       ChainId(EChain.Sepolia),
@@ -73,7 +65,6 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       "sepolia",
       10000,
-      EIndexer.Ethereum,
       new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
       EChainType.Testnet,
       "https://sepolia.etherscan.io/tx/",
@@ -91,7 +82,6 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
   //     true,
   //     [],
   //     10000,
-  //     EIndexer.EVM,
   //     new NativeCurrencyInformation("ETH", 18, "ETH"),
   //     EChainType.Testnet,
   //     "https://kovan.etherscan.io/tx/",
@@ -99,7 +89,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
   //   ),
   // ],
   [
-    ChainId(EChain.Mumbai),
+    EChain.Mumbai,
     new ChainInformation(
       "Mumbai",
       ChainId(EChain.Mumbai),
@@ -108,7 +98,6 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       "polygon-mumbai",
       10000,
-      EIndexer.Polygon,
       new NativeCurrencyInformation("MATIC", 18, "MATIC", "matic-network"),
       EChainType.Testnet,
       "https://mumbai.polygonscan.com/tx/",
@@ -117,7 +106,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(EChain.Polygon),
+    EChain.Polygon,
     new ChainInformation(
       "Polygon",
       ChainId(EChain.Polygon),
@@ -126,7 +115,6 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       "polygon-mainnet",
       10000,
-      EIndexer.Polygon,
       new NativeCurrencyInformation("MATIC", 18, "MATIC", "matic-network"),
       EChainType.Mainnet,
       "https=//polygonscan.com/tx/",
@@ -135,7 +123,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(EChain.Avalanche),
+    EChain.Avalanche,
     new ChainInformation(
       "Avalanche",
       ChainId(EChain.Avalanche),
@@ -144,7 +132,6 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       "avalanche-mainnet",
       4000,
-      EIndexer.EVM,
       new NativeCurrencyInformation("AVAX", 18, "AVAX", "avalanche-2"),
       EChainType.Mainnet,
       "https=//snowtrace.io/block/",
@@ -153,7 +140,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(EChain.Fuji),
+    EChain.Fuji,
     new ControlChainInformation(
       "Fuji",
       ChainId(EChain.Fuji),
@@ -162,19 +149,17 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       "avalanche-fuji",
       4000,
-      EIndexer.EVM,
       new NativeCurrencyInformation("AVAX", 18, "AVAX", "avalanche-2"),
       EChainType.Testnet,
       "https://testnet.snowtrace.io/block/",
       EVMContractAddress("0x5540122e78241679Da8d07A04A74D3a7f52aED97"), // Consent Contract Factory
       EVMContractAddress("0x49a04d6545b1511742033b0ddF6a2Ba880A69287"), // Crumbs Contract
       EVMContractAddress("0xdB5c885944d903Ac5c146eef400D2ee20572d357"), // Metatransaction Forwarder Contract
-      EVMContractAddress("0x1007D88962A3c0c4A11649480168B6456355d91a"), // Sift Contract
       URLString("https://api-testnet.snowtrace.io/"),
     ),
   ],
   [
-    ChainId(EChain.Solana),
+    EChain.Solana,
     new ChainInformation(
       "Solana",
       ChainId(EChain.Solana),
@@ -183,7 +168,6 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       "solana",
       400,
-      EIndexer.Solana,
       new NativeCurrencyInformation("Sol", 9, "SOL", "solana"),
       EChainType.Mainnet,
       "https://explorer.solana.com/tx/",
@@ -193,7 +177,25 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(EChain.Gnosis),
+    EChain.SolanaTestnet,
+    new ChainInformation(
+      "Solana Testnet",
+      ChainId(EChain.SolanaTestnet),
+      EChain.SolanaTestnet,
+      EChainTechnology.Solana,
+      true,
+      "solana",
+      400,
+      new NativeCurrencyInformation("Sol", 9, "SOL", "solana"),
+      EChainType.Testnet,
+      "https://explorer.solana.com/tx/",
+      getExplorerUrl,
+      undefined,
+      undefined,
+    ),
+  ],
+  [
+    EChain.Gnosis,
     new ChainInformation(
       "Gnosis",
       ChainId(EChain.Gnosis),
@@ -202,7 +204,6 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       "Gnosis",
       10000, // average block mining time
-      EIndexer.Gnosis,
       new NativeCurrencyInformation("xDAI", 18, "xDAI", "xdai"),
       EChainType.Mainnet,
       "https://gnosisscan.io/",
@@ -211,7 +212,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(EChain.Binance),
+    EChain.Binance,
     new ChainInformation(
       "Binance",
       ChainId(EChain.Binance),
@@ -220,16 +221,32 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       "binance",
       10000, // average block mining time
-      EIndexer.Binance,
       new NativeCurrencyInformation("BNB", 18, "BNB", "binancecoin"),
       EChainType.Mainnet,
-      "https://api.bscscan.com/api",
+      "https://bscscan.com/",
       getExplorerUrl,
-      URLString("https://api.bscscan.com/"),
+      URLString("https://bscscan.com/"),
     ),
   ],
   [
-    ChainId(EChain.Moonbeam),
+    EChain.BinanceTestnet,
+    new ChainInformation(
+      "BinanceTestnet",
+      ChainId(EChain.BinanceTestnet),
+      EChain.BinanceTestnet,
+      EChainTechnology.EVM,
+      true,
+      "binance",
+      10000, // average block mining time
+      new NativeCurrencyInformation("BNB", 18, "BNB", "binancecoin"),
+      EChainType.Testnet,
+      "https://testnet.bscscan.com/",
+      getExplorerUrl,
+      URLString("https://testnet.bscscan.com/"),
+    ),
+  ],
+  [
+    EChain.Moonbeam,
     new ChainInformation(
       "Moonbeam",
       ChainId(EChain.Moonbeam),
@@ -238,7 +255,6 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       "moonbeam",
       10000, // average block mining time
-      EIndexer.Moonbeam,
       new NativeCurrencyInformation("GLMR", 18, "GLMR", "moonbeam"),
       EChainType.Mainnet,
       "https://api-moonbeam.moonscan.io/api",
@@ -247,7 +263,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(EChain.Arbitrum),
+    EChain.Arbitrum,
     new ChainInformation(
       "Arbitrum",
       ChainId(EChain.Arbitrum),
@@ -256,16 +272,15 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       "arbitrum",
       10000, // average block mining time
-      EIndexer.Arbitrum,
-      new NativeCurrencyInformation("ARB", 18, "ARB", "arbitrum"),
+      new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
       EChainType.Mainnet,
       "https://api.arbiscan.io/api",
       getExplorerUrl,
-      URLString("https://api.arbiscan.io/"),
+      URLString("https://arbiscan.io/"),
     ),
   ],
   [
-    ChainId(EChain.Optimism),
+    EChain.Optimism,
     new ChainInformation(
       "Optimism",
       ChainId(EChain.Optimism),
@@ -274,16 +289,15 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       "optimism",
       10000, // average block mining time
-      EIndexer.Optimism,
-      new NativeCurrencyInformation("OP", 18, "OP", "optimism"),
+      new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
       EChainType.Mainnet,
-      "https://api-optimistic.etherscan.io/api",
+      "https://optimistic.etherscan.io/tx/",
       getExplorerUrl,
       URLString("https://api-optimistic.etherscan.io/"),
     ),
   ],
   [
-    ChainId(EChain.Astar),
+    EChain.Astar,
     new ChainInformation(
       "Astar",
       ChainId(EChain.Astar),
@@ -292,7 +306,6 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       "astar",
       10000, // average block mining time
-      EIndexer.Astar,
       new NativeCurrencyInformation("ASTR", 18, "ASTR", "astar"),
       EChainType.Mainnet,
       "https://astar.subscan.io/api",
@@ -301,16 +314,15 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(EChain.Shibuya),
+    EChain.Shibuya,
     new ChainInformation(
       "Shibuya",
       ChainId(EChain.Shibuya),
-      EChain.Astar,
+      EChain.Shibuya,
       EChainTechnology.EVM,
       true,
       "shibuya",
       10000, // average block mining time
-      EIndexer.Astar,
       new NativeCurrencyInformation("SBY", 18, "SBY", "shibuya"),
       EChainType.Testnet,
       "https://shibuya.subscan.io/api",
@@ -321,7 +333,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
 ]);
 
 export function getChainInfoByChain(chain: EChain): ChainInformation {
-  const chainInfo = chainConfig.get(ChainId(chain));
+  const chainInfo = chainConfig.get(chain);
   if (chainInfo == null) {
     throw new Error(`Unknown chain ${chain}`);
   }
@@ -338,11 +350,23 @@ export function getChainInfoByChainId(chainId: ChainId): ChainInformation {
   return chainInfo;
 }
 
-export function isAccountValidForChain(
+export function isAccountValidForChainId(
   chainId: ChainId,
   account: LinkedAccount,
 ): boolean {
+  // Goerli is deprecated, but still supported (exists). Will throw an error while
+  // A query being processed.
+  if (chainId === 5) return false;
   const targetChainInfo = getChainInfoByChainId(chainId);
+  const accountChainInfo = getChainInfoByChain(account.sourceChain);
+  return targetChainInfo.chainTechnology == accountChainInfo.chainTechnology;
+}
+
+export function isAccountValidForChain(
+  chain: EChain,
+  account: LinkedAccount,
+): boolean {
+  const targetChainInfo = getChainInfoByChain(chain);
   const accountChainInfo = getChainInfoByChain(account.sourceChain);
   return targetChainInfo.chainTechnology == accountChainInfo.chainTechnology;
 }

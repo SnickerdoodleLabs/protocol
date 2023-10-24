@@ -1,16 +1,28 @@
 import {
   AjaxError,
+  BlockchainCommonErrors,
   BlockchainProviderError,
+  BlockNumber,
   ConsentContractError,
-  ConsentContractRepositoryError,
   ConsentError,
+  ConsentFactoryContractError,
+  ConsentToken,
+  DuplicateIdInSchema,
+  EvalNotImplementedError,
   EvaluationError,
   EVMContractAddress,
+  EVMPrivateKey,
   IDynamicRewardParameter,
+  IpfsCID,
   IPFSError,
+  MissingASTError,
+  MissingTokenConstructorError,
+  ParserError,
   PersistenceError,
+  PossibleReward,
   QueryExpiredError,
   QueryFormatError,
+  QueryStatus,
   RequestForData,
   SDQLQuery,
   ServerRewardError,
@@ -18,21 +30,36 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
+import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
+
 export interface IQueryService {
   initialize(): ResultAsync<void, never>;
   onQueryPosted(
     requestForData: RequestForData,
   ): ResultAsync<
     void,
+    | EvaluationError
+    | PersistenceError
     | ConsentContractError
-    | ConsentContractRepositoryError
     | UninitializedError
     | BlockchainProviderError
     | AjaxError
     | QueryFormatError
-    | EvaluationError
     | QueryExpiredError
     | ServerRewardError
+    | ConsentContractError
+    | ConsentError
+    | IPFSError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
+    | BlockchainCommonErrors
   >;
 
   approveQuery(
@@ -59,6 +86,46 @@ export interface IQueryService {
     | EvaluationError
     | QueryFormatError
     | AjaxError
+    | BlockchainCommonErrors
+  >;
+
+  getPossibleRewards(
+    consentToken: ConsentToken,
+    optInKey: EVMPrivateKey,
+    consentContractAddress: EVMContractAddress,
+    query: SDQLQuery,
+    config: CoreConfig,
+  ): ResultAsync<
+    PossibleReward[],
+    | AjaxError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
+  >;
+
+  getQueryStatusByQueryCID(
+    queryCID: IpfsCID,
+  ): ResultAsync<QueryStatus | null, PersistenceError>;
+
+  getQueryStatuses(
+    contractAddress: EVMContractAddress,
+    blockNumber?: BlockNumber,
+  ): ResultAsync<
+    QueryStatus[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | PersistenceError
   >;
 }
 

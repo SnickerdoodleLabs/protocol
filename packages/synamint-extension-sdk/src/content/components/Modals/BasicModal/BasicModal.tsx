@@ -1,7 +1,8 @@
-import { useStyles } from "@synamint-extension-sdk/content/components/Modals/BasicModal/BasicModal.style";
 import { Box, Dialog, IconButton, Typography } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import React, { ReactNode } from "react";
+
+import { useStyles } from "@synamint-extension-sdk/content/components/Modals/BasicModal/BasicModal.style";
 
 interface IBasicModalProps {
   title: string;

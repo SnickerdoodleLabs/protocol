@@ -1,5 +1,3 @@
-import { Readable } from "stream";
-
 import {
   IAxiosAjaxUtils,
   IRequestConfig,
@@ -41,7 +39,6 @@ export class AjaxUtilsMock implements IAxiosAjaxUtils {
     url: URL,
     data:
       | string
-      | Readable
       | Record<string, unknown>
       | ArrayBuffer
       | ArrayBufferView
@@ -54,7 +51,6 @@ export class AjaxUtilsMock implements IAxiosAjaxUtils {
     url: URL,
     data:
       | string
-      | Readable
       | Record<string, unknown>
       | ArrayBuffer
       | ArrayBufferView

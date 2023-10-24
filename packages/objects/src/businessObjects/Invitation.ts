@@ -1,4 +1,3 @@
-import { OptInInfo } from "@objects/businessObjects/OptInInfo.js";
 import {
   DomainName,
   EVMContractAddress,
@@ -6,13 +5,11 @@ import {
   TokenId,
 } from "@objects/primitives/index.js";
 
-export class Invitation extends OptInInfo {
+export class Invitation {
   public constructor(
-    public domain: DomainName,
     public consentContractAddress: EVMContractAddress,
-    public tokenId: TokenId,
+    public tokenId: TokenId | null,
+    public domain: DomainName | null,
     public businessSignature: Signature | null,
-  ) {
-    super(consentContractAddress, tokenId);
-  }
+  ) {}
 }

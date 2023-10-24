@@ -5,7 +5,7 @@ import {
   EInvitationStatus,
   PageInvitation,
   EVMContractAddress,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   IpfsCID,
   EWalletDataType,
   MarketplaceListing,
@@ -48,7 +48,7 @@ export class InvitationService implements IInvitationService {
   public getMarketplaceListingsByTag(
     pagingReq: PagingRequest,
     tag: MarketplaceTag,
-    filterActive: boolean = true,
+    filterActive = true,
   ): ResultAsync<PagedResponse<MarketplaceListing>, SnickerDoodleCoreError> {
     return this.invitationRepository.getMarketplaceListingsByTag(
       pagingReq,
@@ -114,7 +114,7 @@ export class InvitationService implements IInvitationService {
 
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError> {
+  ): ResultAsync<IOldUserAgreement, SnickerDoodleCoreError> {
     return this.invitationRepository.getInvitationMetadataByCID(ipfsCID);
   }
 

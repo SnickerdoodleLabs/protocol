@@ -1,14 +1,19 @@
-import { IUserSiteInteractionRepository } from "@synamint-extension-sdk/core/interfaces/data";
-import { IErrorUtils, IErrorUtilsType } from "@synamint-extension-sdk/core/interfaces/utilities";
-import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
 import {
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
   SiteVisit,
+  SiteVisitsMap,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
+
+import { IUserSiteInteractionRepository } from "@synamint-extension-sdk/core/interfaces/data";
+import {
+  IErrorUtils,
+  IErrorUtilsType,
+} from "@synamint-extension-sdk/core/interfaces/utilities";
+import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
 
 @injectable()
 export class UserSiteInteractionRepository
@@ -36,7 +41,7 @@ export class UserSiteInteractionRepository
   }
 
   public getSiteVisitsMap(): ResultAsync<
-    Map<URLString, number>,
+    SiteVisitsMap,
     SnickerDoodleCoreError
   > {
     return this.core.getSiteVisitsMap().mapErr((error) => {

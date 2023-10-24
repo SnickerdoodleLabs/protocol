@@ -10,12 +10,13 @@ export const useStyles = makeStyles((theme) => ({
   },
   linkAccountButtonIcon: {
     fontSize: 24,
+    color: "#F2F4F7",
   },
   linkAccountButtonText: {
     fontFamily: "'Roboto'",
     fontStyle: "normal",
     fontWeight: 500,
-    fontSize: "18px",
+    fontSize: "16px",
     lineHeight: "24px",
     color: "#F2F4F7",
   },

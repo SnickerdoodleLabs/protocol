@@ -29,6 +29,9 @@
       "path": "../contracts-sdk"
     },
     {
+      "path": "../node-utils"
+    },
+    {
       "path": "../objects"
     },
     {
@@ -36,6 +39,9 @@
     },
     {
       "path": "../shared-components"
+    },
+    {
+      "path": "../web-integration"
     }
   ],
   "include": [

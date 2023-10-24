@@ -1,5 +1,5 @@
-import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
+import { ICryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   AccountAddress,
   chainConfig,

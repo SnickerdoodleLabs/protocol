@@ -8,6 +8,7 @@ export enum EExternalApi {
   AlchemyPolygon = "Alchemy Polygon",
   AlchemySolana = "Alchemy Solana",
   Ankr = "Ankr",
+  Bluez = "Bluez",
   CoinGecko = "Coin Gecko",
   Covalent = "Covalent",
   EtherscanEthereum = "Etherscan Ethereum",
@@ -21,5 +22,6 @@ export enum EExternalApi {
   POAP = "POAP",
   Polygon = "Polygon",
   Solana = "Solana",
+  Dropbox = "Dropbox",
   Unknown = "Unknown",
 }

@@ -1,5 +1,3 @@
-import { AST_Contract } from "@query-parser/interfaces/objects/AST_Contract.js";
-import { AST_Web3Query } from "@query-parser/interfaces/objects/AST_Web3Query.js";
 import {
   EVMChainCode,
   EWalletDataType,
@@ -9,6 +7,9 @@ import {
   MissingWalletDataTypeError,
 } from "@snickerdoodlelabs/objects";
 import { ok, Result } from "neverthrow";
+
+import { AST_Contract } from "@query-parser/interfaces/objects/AST_Contract.js";
+import { AST_Web3Query } from "@query-parser/interfaces/objects/AST_Web3Query.js";
 
 export class AST_BlockchainTransactionQuery extends AST_Web3Query {
   /**

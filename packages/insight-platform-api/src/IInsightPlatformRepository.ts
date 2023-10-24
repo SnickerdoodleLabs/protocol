@@ -2,18 +2,17 @@ import {
   AjaxError,
   BigNumberString,
   EarnedReward,
-  EligibleReward,
   EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
   HexString,
   IDynamicRewardParameter,
-  IInsights,
   IpfsCID,
-  QueryIdentifier,
   Signature,
   TokenId,
   URLString,
+  IQueryDeliveryItems,
+  PossibleReward,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -35,14 +34,14 @@ export interface IInsightPlatformRepository {
     queryCID: IpfsCID,
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-    answeredQueries: QueryIdentifier[],
-  ): ResultAsync<EligibleReward[], AjaxError>;
+    queryDeliveryItems: IQueryDeliveryItems,
+  ): ResultAsync<PossibleReward[], AjaxError>;
 
   deliverInsights(
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
     queryCID: IpfsCID,
-    insights: IInsights,
+    insights: IQueryDeliveryItems,
     rewardParameters: IDynamicRewardParameter[],
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,

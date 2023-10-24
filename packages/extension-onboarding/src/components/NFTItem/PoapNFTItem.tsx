@@ -1,12 +1,13 @@
+import { Box, Grid, Typography } from "@material-ui/core";
+import { EVMNFT } from "@snickerdoodlelabs/objects";
+import React, { FC, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router";
+
 import MediaRenderer from "@extension-onboarding/components/NFTItem/MediaRenderer";
 import { useStyles } from "@extension-onboarding/components/NFTItem/NFTItem.style";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { POAPMetadata } from "@extension-onboarding/objects";
 import { NftMetadataParseUtils } from "@extension-onboarding/utils";
-import { Box, Grid, Typography } from "@material-ui/core";
-import { EVMNFT } from "@snickerdoodlelabs/objects";
-import React, { FC, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router";
 
 export interface IPoapNFTItemProps {
   item: EVMNFT;

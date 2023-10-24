@@ -1,9 +1,3 @@
-import { useStyles } from "@extension-onboarding/components/AccountChainBar/AccountChainBar.style";
-import { AccountIdentIcon } from "@snickerdoodlelabs/shared-components";
-import Switch from "@extension-onboarding/components/Switch";
-import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, MenuItem, Select, Typography } from "@material-ui/core";
 import {
   AccountAddress,
@@ -11,8 +5,17 @@ import {
   ChainId,
   EChainType,
 } from "@snickerdoodlelabs/objects";
+import {
+  AccountIdentIcon,
+  getAccountAddressText,
+} from "@snickerdoodlelabs/shared-components";
 import clsx from "clsx";
 import React, { FC, useEffect, useMemo } from "react";
+
+import { useStyles } from "@extension-onboarding/components/AccountChainBar/AccountChainBar.style";
+import Switch from "@extension-onboarding/components/Switch";
+import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
+import { useAppContext } from "@extension-onboarding/context/App";
 
 export enum EDisplayMode {
   MAINNET,
@@ -42,7 +45,6 @@ const { mainnetSupportedChainIds, testnetSupportedChainIds } = Array.from(
   },
 );
 
-declare const window: IWindowWithSdlDataWallet;
 interface IAccountChainBarProps {
   displayMode: EDisplayMode;
   accountSelect: AccountAddress | undefined;
@@ -116,18 +118,17 @@ const AccountChainBar: FC<IAccountChainBarProps> = ({
               {linkedAccounts?.map((account) => {
                 return (
                   <MenuItem
-                    key={account.accountAddress}
-                    value={account.accountAddress}
+                    key={account.sourceAccountAddress}
+                    value={account.sourceAccountAddress}
                   >
                     <Box display="flex" alignItems="center">
                       <Box>
                         <AccountIdentIcon
-                          accountAddress={account.accountAddress}
+                          accountAddress={account.sourceAccountAddress}
                         />
                       </Box>
                       <Typography className={classes.accountAddressText}>
-                        {account.accountAddress.slice(0, 5)} ................
-                        {account.accountAddress.slice(-4)}
+                        {getAccountAddressText(account.sourceAccountAddress)}
                       </Typography>
                     </Box>
                   </MenuItem>

@@ -1,7 +1,7 @@
 import {
   TransactionPaymentCounter,
   PersistenceError,
-  ChainId,
+  EChain,
   AccountAddress,
   ChainTransaction,
   TransactionFilter,
@@ -9,12 +9,12 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface ITransactionHistoryRepository {
-  getTransactionValueByChain(): ResultAsync<
+  getTransactionByChain(): ResultAsync<
     TransactionPaymentCounter[],
     PersistenceError
   >;
   getLatestTransactionForAccount(
-    chainId: ChainId,
+    chain: EChain,
     address: AccountAddress,
   ): ResultAsync<ChainTransaction | null, PersistenceError>;
   addTransactions(

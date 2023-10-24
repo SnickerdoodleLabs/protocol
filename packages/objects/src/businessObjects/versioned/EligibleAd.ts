@@ -3,12 +3,12 @@ import {
   VersionedObject,
   VersionedObjectMigrator,
 } from "@objects/businessObjects/versioned/VersionedObject.js";
+import { EAdDisplayType } from "@objects/enum/index.js";
 import {
   AdKey,
   EVMContractAddress,
   IpfsCID,
   UnixTimestamp,
-  EAdDisplayType,
 } from "@objects/primitives/index.js";
 
 export class EligibleAd extends VersionedObject {

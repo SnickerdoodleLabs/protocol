@@ -9,12 +9,4 @@ export const useSectionStyles = makeStyles((theme) => ({
     lineHeight: "38px",
     color: "#101828",
   },
-  carouselWrapper: {
-    "& .react-multiple-carousel__arrow--right": {
-      right: 0,
-    },
-    "& .react-multiple-carousel__arrow--left": {
-      left: 0,
-    },
-  },
 }));

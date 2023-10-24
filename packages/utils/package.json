@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/utils",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "description": "Utilities for general consumption within the Snickerdoodle Protocol",
   "license": "ISC",
   "repository": {
@@ -18,16 +18,16 @@
     "Utils"
   ],
   "main": "dist/index.js",
+  "module": "./dist/index.js",
   "files": [
     "dist",
     "!dist/test",
     "!dist/tsconfig.tsbuildinfo"
   ],
-  "module": "./dist/index.js",
   "scripts": {
     "alias": "tsc-alias && tsc-alias -p test/tsconfig.json",
     "build": "yarn clean && yarn compile",
-    "clean": "rimraf dist tsconfig.tsbuildinfo",
+    "clean": "npx rimraf dist tsconfig.tsbuildinfo",
     "compile": "npx tsc --build && cd ../.. && yarn alias",
     "prepare": "yarn build",
     "prepublish": "yarn build",
@@ -40,7 +40,9 @@
   "dependencies": {
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
-    "inversify": "^5.1.1",
-    "neverthrow": "^5.1.0"
+    "inversify": "^6.0.1",
+    "neverthrow": "^5.1.0",
+    "neverthrow-result-utils": "^2.0.2",
+    "postmate": "^1.5.2"
   }
 }

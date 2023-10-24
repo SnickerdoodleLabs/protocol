@@ -1,1 +1,1 @@
-export {default} from '@browser-extension/popup/components/Header/Header';
+export { default } from "@browser-extension/popup/components/Header/Header";

@@ -1,11 +1,18 @@
+import { MasterIndexer } from "@snickerdoodlelabs/indexers";
 import {
   BigNumberString,
   ChainId,
+  EQueryEvents,
+  EStatus,
   EvalNotImplementedError,
-  TokenBalance,
+  IpfsCID,
   PersistenceError,
+  PublicEvents,
+  QueryPerformanceEvent,
   SDQL_Return,
   TokenAddress,
+  TokenBalance,
+  TokenBalanceInsight,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -24,37 +31,76 @@ import {
   IPortfolioBalanceRepository,
   IPortfolioBalanceRepositoryType,
 } from "@core/interfaces/data/index.js";
+import {
+  IContextProviderType,
+  IContextProvider,
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
   constructor(
     @inject(IPortfolioBalanceRepositoryType)
     protected balanceRepo: IPortfolioBalanceRepository,
+    @inject(IContextProviderType)
+    protected contextProvider: IContextProvider,
   ) {}
 
   public eval(
     query: AST_BalanceQuery,
+    queryCID: IpfsCID,
   ): ResultAsync<SDQL_Return, PersistenceError> {
-    return this.balanceRepo
-      .getAccountBalances()
-      .andThen((balances) => {
-        if (query.networkId == null) {
-          return okAsync(balances);
-        }
-        const networkBalances = balances.filter(
-          (balance) => balance.chainId == query.networkId,
-        );
-        return okAsync(networkBalances);
-      })
-      .andThen((balanceArray) => {
-        return this.evalConditions(query, balanceArray);
-      })
-      .andThen((balanceArray) => {
-        return this.combineContractValues(query, balanceArray);
-      })
-      .andThen((balanceArray) => {
-        return okAsync(SDQL_Return(balanceArray));
-      });
+    return this.contextProvider.getContext().andThen((context) => {
+      context.publicEvents.queryPerformance.next(
+        new QueryPerformanceEvent(
+          EQueryEvents.BalanceDataAccess,
+          EStatus.Start,
+          queryCID,
+          query.name,
+        ),
+      );
+      return this.balanceRepo
+        .getAccountBalances()
+        .andThen((balances) => {
+          context.publicEvents.queryPerformance.next(
+            new QueryPerformanceEvent(
+              EQueryEvents.BalanceDataAccess,
+              EStatus.End,
+              queryCID,
+              query.name,
+            ),
+          );
+          if (query.networkId == null) {
+            return okAsync(balances);
+          }
+          const networkBalances = balances.filter(
+            (balance) => balance.chainId == query.networkId,
+          );
+          return okAsync(networkBalances);
+        })
+        .mapErr((err) => {
+          context.publicEvents.queryPerformance.next(
+            new QueryPerformanceEvent(
+              EQueryEvents.BalanceDataAccess,
+              EStatus.End,
+              queryCID,
+              query.name,
+              err,
+            ),
+          );
+          return err;
+        })
+        .andThen((balanceArray) => {
+          return this.evalConditions(query, balanceArray);
+        })
+        .andThen((balanceArray) => {
+          return this.combineContractValues(query, balanceArray);
+        })
+        .map((balanceArray) => {
+          return SDQL_Return(
+            this.getAccountBalancesWithoutOwnerAddress(balanceArray),
+          );
+        });
+    });
   }
 
   public evalConditions(
@@ -102,7 +148,9 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
 
         default:
           console.error("EvalNotImplementedError");
-          throw new EvalNotImplementedError(condition.constructor.name);
+          throw new EvalNotImplementedError(
+            `${condition.constructor.name} not implemented`,
+          );
       }
     }
     return okAsync(balanceArray);
@@ -130,7 +178,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
             getObject.type,
             getObject.ticker,
             getObject.chainId,
-            getObject.tokenAddress || "NATIVE",
+            getObject.tokenAddress || MasterIndexer.nativeAddress,
             getObject.accountAddress,
             BigNumberString(
               BigNumber.from(getObject.balance)
@@ -146,5 +194,13 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
     });
 
     return okAsync(Array.from(balanceMap.values()));
+  }
+
+  protected getAccountBalancesWithoutOwnerAddress(
+    tokenBalances: TokenBalance[],
+  ): TokenBalanceInsight[] {
+    return tokenBalances.map(
+      ({ accountAddress, ...restOfBalance }) => restOfBalance,
+    );
   }
 }

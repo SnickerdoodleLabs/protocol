@@ -1,4 +1,5 @@
 import React, { ReactNode } from "react";
+
 import Home from "@browser-extension/popup/pages/Home";
 
 interface IRoute {

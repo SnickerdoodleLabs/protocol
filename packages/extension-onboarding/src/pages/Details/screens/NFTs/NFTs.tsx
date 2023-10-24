@@ -17,12 +17,10 @@ import {
   EVMNFTItem,
   SolanaNFTItem,
 } from "@extension-onboarding/components/NFTItem";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/NFTs/NFTs.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import UnauthScreen from "@extension-onboarding/components/UnauthScreen";
+import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
-
-declare const window: IWindowWithSdlDataWallet;
+import { useStyles } from "@extension-onboarding/pages/Details/screens/NFTs/NFTs.style";
 
 export enum EDisplayMode {
   MAINNET,
@@ -38,6 +36,8 @@ export default () => {
   const [displayMode, setDisplayMode] = useState<EDisplayMode>(
     EDisplayMode.MAINNET,
   );
+
+  const { linkedAccounts } = useAppContext();
 
   const nftsToRender: WalletNFT[] | null = useMemo(() => {
     if (accountNFTs && accountTestnetNFTs) {
@@ -66,6 +66,10 @@ export default () => {
     accountNFTs,
     accountTestnetNFTs,
   ]);
+
+  if (!(linkedAccounts.length > 0)) {
+    return <UnauthScreen />;
+  }
 
   return (
     <Box>

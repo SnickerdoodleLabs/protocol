@@ -1,6 +1,7 @@
-import { useStyles } from "@synamint-extension-sdk/content/components/Screens/Loading/Loading.style";
 import { CircularProgress, Box, Dialog } from "@material-ui/core";
 import React, { FC } from "react";
+
+import { useStyles } from "@synamint-extension-sdk/content/components/Screens/Loading/Loading.style";
 const Loading: FC = () => {
   const classes = useStyles();
   return (

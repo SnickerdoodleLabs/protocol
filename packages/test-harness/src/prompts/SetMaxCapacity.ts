@@ -2,10 +2,11 @@ import {
   ConsentContractError,
   EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
-import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
-import { Prompt } from "@test-harness/prompts/Prompt.js";
 import inquirer from "inquirer";
 import { okAsync, ResultAsync } from "neverthrow";
+
+import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
+import { Prompt } from "@test-harness/prompts/Prompt.js";
 
 export class SetMaxCapacity extends Prompt {
   public start(): ResultAsync<void, Error | ConsentContractError> {

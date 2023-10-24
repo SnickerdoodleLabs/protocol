@@ -19,7 +19,7 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: 20,
   },
   accountCardTitle: {
-    fontFamily: "'Space Grotesk'",
+    fontFamily: "Roboto",
     fontStyle: "normal",
     fontWeight: 500,
     fontSize: "12px",

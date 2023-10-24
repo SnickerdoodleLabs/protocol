@@ -29,17 +29,13 @@ import {
   URLString,
   Web2Credential,
   Web2Reward,
-  AjaxError,
-  BlockchainProviderError,
-  CrumbsContractError,
-  InvalidSignatureError,
-  MinimalForwarderContractError,
-  PersistenceError,
-  UninitializedError,
   EVMContractAddress,
   TokenSecret,
   UnauthorizedError,
-  PasswordString,
+  AjaxError,
+  BlockchainProviderError,
+  PersistenceError,
+  UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { injectable } from "inversify";
@@ -54,7 +50,6 @@ import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 @injectable()
 export class DataWalletProfile {
   readonly core: SnickerdoodleCore;
-  private _unlocked = false;
   private defaultPathInfo = {
     name: "empty",
     path: "data/profiles/dataWallet/empty",
@@ -74,122 +69,70 @@ export class DataWalletProfile {
     return this._profilePathInfo.name;
   }
 
-  public get unlocked(): boolean {
-    return this._unlocked;
-  }
-
   public destroy(): void {
     this.destroyCore();
     this._destroyed = true;
   }
 
-  public initCore(env: Environment): void {
+  public initCore(
+    env: Environment,
+  ): ResultAsync<
+    void,
+    PersistenceError | UninitializedError | BlockchainProviderError | AjaxError
+  > {
     if (this.coreSubscriptions.length > 0) {
       this.destroyCore();
     }
-
-    this.core.getEvents().map(async (events) => {
-      this.coreSubscriptions.push(
-        events.onAccountAdded.subscribe((addedAccount) => {
-          console.log(`Added account`);
-          console.log(addedAccount);
-        }),
-      );
-
-      this.coreSubscriptions.push(
-        events.onInitialized.subscribe((dataWalletAddress) => {
-          console.log(`Initialized with address ${dataWalletAddress}`);
-        }),
-      );
-
-      this.coreSubscriptions.push(
-        events.onQueryPosted.subscribe(
-          async (queryRequest: SDQLQueryRequest) => {
-            console.log(
-              `Recieved query for consentContract ${queryRequest.consentContractAddress} with id ${queryRequest.query.cid}`,
-            );
-
-            try {
-              await new ApproveQuery(env, queryRequest).start();
-            } catch (e) {
-              console.error(e);
-            }
-          },
-        ),
-      );
-
-      this.coreSubscriptions.push(
-        events.onMetatransactionSignatureRequested.subscribe(
-          async (request) => {
-            // This method needs to happen in nicer form in all form factors
-            console.log(
-              `Metadata Transaction Requested!`,
-              `Request account address: ${request.accountAddress}`,
-            );
-
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            await env
-              .dataWalletProfile!.signMetatransactionRequest(request)
-              .mapErr((e) => {
-                console.error(`Error signing forwarding request!`, e);
-                process.exit(1);
-              });
-          },
-        ),
-      );
-    });
-  }
-  public unlock(
-    wallet: TestWallet,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | AjaxError
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-    | MinimalForwarderContractError
-    | Error
-  > {
-    return this.getSignatureForAccount(wallet)
-      .andThen((signature) => {
-        return this.core.account.unlock(
-          wallet.accountAddress,
-          signature,
-          this.mocks.languageCode,
-          wallet.chain,
+    return this.core.initialize().map(() => {
+      this.core.getEvents().map(async (events) => {
+        this.coreSubscriptions.push(
+          events.onAccountAdded.subscribe((addedAccount) => {
+            console.log(`Added account`);
+            console.log(addedAccount);
+          }),
         );
-      })
-      .andThen(() => {
-        this._unlocked = true;
-        console.log(`Unlocked account ${wallet.accountAddress}!`);
-        return this.loadFromPathAfterUnlocked().map(() => {
-          console.log(`Loaded complete profile for newly unlocked wallet`);
-        });
-      });
-  }
 
-  public unlockWithPassword(
-    password: PasswordString,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | AjaxError
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-    | MinimalForwarderContractError
-    | Error
-  > {
-    return this.core.account.unlockWithPassword(password).andThen(() => {
-      this._unlocked = true;
-      console.log(`Unlocked account with password ${password}!`);
-      return this.loadFromPathAfterUnlocked().map(() => {
-        console.log(`Loaded complete profile for password`);
+        this.coreSubscriptions.push(
+          events.onInitialized.subscribe((dataWalletAddress) => {
+            console.log(`Initialized with address ${dataWalletAddress}`);
+          }),
+        );
+
+        this.coreSubscriptions.push(
+          events.onQueryPosted.subscribe(
+            async (queryRequest: SDQLQueryRequest) => {
+              console.log(
+                `Recieved query for consentContract ${queryRequest.consentContractAddress} with id ${queryRequest.query.cid}`,
+              );
+
+              try {
+                await new ApproveQuery(env, queryRequest).start();
+              } catch (e) {
+                console.error(e);
+              }
+            },
+          ),
+        );
+
+        this.coreSubscriptions.push(
+          events.onMetatransactionSignatureRequested.subscribe(
+            async (request) => {
+              // This method needs to happen in nicer form in all form factors
+              console.log(
+                `Metadata Transaction Requested!`,
+                `Request account address: ${request.accountAddress}`,
+              );
+
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              await env
+                .dataWalletProfile!.signMetatransactionRequest(request)
+                .mapErr((e) => {
+                  console.error(`Error signing forwarding request!`, e);
+                  process.exit(1);
+                });
+            },
+          ),
+        );
       });
     });
   }
@@ -201,8 +144,8 @@ export class DataWalletProfile {
 
   protected createCore(mocks: TestHarnessMocks): SnickerdoodleCore {
     const discordConfig = {
-      clientId: "1093307083102887996",
-      clientSecret: TokenSecret("w7BG8KmbqQ2QYF2U8ZIZIV7KUalvZQDK"),
+      clientId: "1089994449830027344",
+      clientSecret: TokenSecret("uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ"),
       oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
       oauthRedirectUrl: URLString(
         "https://localhost:9005/data-dashboard/social-media-data",
@@ -214,12 +157,44 @@ export class DataWalletProfile {
       pollInterval: 2 * 1000, // days * hours * seconds * milliseconds
     };
 
+    // Create the SnickerdoodleCore. All of these indexer keys should be just for dev purposes
     const core = new SnickerdoodleCore(
       {
         defaultInsightPlatformBaseUrl: "http://localhost:3006",
         dnsServerAddress: "http://localhost:3006/dns",
+        devChainProviderURL: "http://127.0.0.1:8545",
         discordOverrides: discordConfig,
         heartbeatIntervalMS: 5000, // Set the heartbeat to 5 seconds
+        alchemyApiKeys: {
+          Arbitrum: "_G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF",
+          Astar: "Tk2NcwnHwrmRvzZCkqgSr6fOYIgH7xh7",
+          Mumbai: "UA7tIJ6CdCE1351h24CQUE-MNCIV3DSf",
+          Optimism: "f3mMgv03KKiX8h-pgOc9ZZyu7F9ECcHG",
+          Polygon: "el_YkQK0DMQqqGlgXPO5gm8g6WmpdNfX",
+          Solana: "pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
+          SolanaTestnet: "Fko-iHgKEnUKTkM1SvnFMFMw1AvTVAtg",
+        },
+        etherscanApiKeys: {
+          Ethereum: "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7",
+          Polygon: "G4XTF3MERFUKFNGANGVY6DTMX1WKAD6V4G",
+          Avalanche: "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1",
+          Binance: "KRWYKPQ3CDD81RXUM5H5UMWVXPJP4C29AY",
+          Moonbeam: "EE9QD4D9TE7S7D6C8WVJW592BGMA4HYH71",
+          Optimism: "XX9XPVXCBA9VCIQ3YBIZHET5U3BR1DG8B3",
+          Arbitrum: "CTJ33WVF49E4UG6EYN6P4KSFC749JPYAFV",
+          Gnosis: "J7G8U27J1Y9F88E1E56CNNG2K3H98GF4XE",
+          Fuji: "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1",
+        },
+        covalentApiKey: "ckey_ee277e2a0e9542838cf30325665",
+        moralisApiKey:
+          "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag",
+        poapApiKey:
+          "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm",
+        ankrApiKey:
+          "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
+        bluezApiKey: "aed4aab2cbc573bbf8e7c6b448c916e5",
+        nftScanApiKey: "lusr87vNmTtHGMmktlFyi4Nt",
+        oklinkApiKey: "700c2f71-a4e2-4a85-b87f-58c8a341d1bf",
       } as IConfigOverrides,
       undefined,
       mocks.fakeDBVolatileStorage,
@@ -370,8 +345,8 @@ export class DataWalletProfile {
               evmT.hash,
               evmT.timestamp,
               evmT.blockHeight,
-              EVMAccountAddress(evmT.to),
-              EVMAccountAddress(evmT.from),
+              EVMAccountAddress(evmT.to.toLowerCase()),
+              EVMAccountAddress(evmT.from.toLowerCase()),
               evmT.value ? BigNumberString(evmT.value) : null,
               evmT.gasPrice ? BigNumberString(evmT.gasPrice) : null,
               evmT.contractAddress
@@ -512,7 +487,7 @@ export class DataWalletProfile {
     wallet: TestWallet,
   ): ResultAsync<Signature, UnsupportedLanguageError | UnauthorizedError> {
     return this.core.account
-      .getUnlockMessage(this.mocks.languageCode)
+      .getLinkAccountMessage(this.mocks.languageCode, undefined)
       .andThen((message) => {
         return wallet.signMessage(message);
       });

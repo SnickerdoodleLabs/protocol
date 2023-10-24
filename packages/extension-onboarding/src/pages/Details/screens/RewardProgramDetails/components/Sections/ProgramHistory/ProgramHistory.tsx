@@ -1,9 +1,10 @@
 import { Box, Typography } from "@material-ui/core";
+import { EarnedReward } from "@snickerdoodlelabs/objects";
 import React, { FC, useState } from "react";
+
 import Section, {
   useSectionStyles,
 } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";
-import { EarnedReward } from "@snickerdoodlelabs/objects";
 
 interface IProgramHistoryProps {
   rewards: EarnedReward[];

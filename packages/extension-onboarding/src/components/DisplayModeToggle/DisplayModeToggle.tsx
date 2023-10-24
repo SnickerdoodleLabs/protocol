@@ -1,7 +1,8 @@
 import { Box } from "@material-ui/core";
 import React, { FC } from "react";
-import cozyIcon from "@extension-onboarding/assets/icons/cozy-toggle.png";
+
 import compactIcon from "@extension-onboarding/assets/icons/compact-toggle.png";
+import cozyIcon from "@extension-onboarding/assets/icons/cozy-toggle.png";
 import listIcon from "@extension-onboarding/assets/icons/list-toggle.png";
 export enum EDISPLAY_MODE {
   COMPACT,

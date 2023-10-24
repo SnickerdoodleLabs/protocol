@@ -2,13 +2,14 @@ import { inject, injectable } from "inversify";
 import { okAsync } from "neverthrow";
 import Browser, { Runtime } from "webextension-polyfill";
 
-import { PortConnectionUtils } from "@synamint-extension-sdk/enviroment/manifest3/utils";
 import { IPortConnectionListener } from "@synamint-extension-sdk/core/interfaces/api";
 import {
   IPortConnectionService,
   IPortConnectionServiceType,
 } from "@synamint-extension-sdk/core/interfaces/business";
+import { PortConnectionUtils } from "@synamint-extension-sdk/enviroment/manifest3/utils";
 import { VersionUtils } from "@synamint-extension-sdk/extensionShared";
+import { EPortNames } from "@synamint-extension-sdk/shared";
 
 @injectable()
 export class PortConnectionListener implements IPortConnectionListener {
@@ -19,20 +20,23 @@ export class PortConnectionListener implements IPortConnectionListener {
 
   public initialize() {
     Browser.runtime.onConnect.addListener((port) => {
-      try {
-        if (VersionUtils.isManifest3) {
-          PortConnectionUtils.autoDisconnectWrapper(
-            port,
-            this.handlePortConnectionRequest.bind(this),
+      // register rpc handlers if only the port is sdl port
+      if (Object.values(EPortNames).includes(port.name as EPortNames)) {
+        try {
+          if (VersionUtils.isManifest3) {
+            PortConnectionUtils.autoDisconnectWrapper(
+              port,
+              this.handlePortConnectionRequest.bind(this),
+            );
+          } else {
+            this.handlePortConnectionRequest(port);
+          }
+        } catch (e) {
+          console.debug(
+            "Error in runtime.onConnect() after calling PortConnectionUtils.autoDisconnectWrapper()",
+            e,
           );
-        } else {
-          this.handlePortConnectionRequest(port);
         }
-      } catch (e) {
-        console.debug(
-          "Error in runtime.onConnect() after calling PortConnectionUtils.autoDisconnectWrapper()",
-          e,
-        );
       }
     });
     return okAsync(undefined);

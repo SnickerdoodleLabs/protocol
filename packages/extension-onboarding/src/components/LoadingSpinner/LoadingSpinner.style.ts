@@ -10,6 +10,6 @@ export const useStyles = makeStyles({
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    zIndex: 99,
+    zIndex: 999999999,
   },
 });

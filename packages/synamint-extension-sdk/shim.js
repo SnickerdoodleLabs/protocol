@@ -8,8 +8,7 @@ const lineReader = readline.createInterface({
   output: process.stdout,
 });
 
-const REQUIRED_PERMISSIONS = ["cookies", "tabs", "storage", "activeTab"];
-const HOST_PERMISSIONS = ["https://snickerdoodlelabs.io/"];
+const REQUIRED_PERMISSIONS = ["tabs", "storage", "activeTab"];
 
 const INJECTABLE_BUNDLE_NAME = "dataWalletProxy.bundle.js";
 const INJECTABLE_BUNDLE_PATH = "injectables/";
@@ -74,13 +73,13 @@ const copyBundle = () => {
         );
       } else {
         console.log("bundle successfully copied");
-        ovverideManifest();
+        overrideManifest();
       }
     },
   );
 };
 
-const ovverideManifest = () => {
+const overrideManifest = () => {
   fs.readFile(manifestAbsolutePath, "utf8", (err, data) => {
     if (err) {
       console.error("could not read manifest file", err);
@@ -99,15 +98,6 @@ const ovverideManifest = () => {
         ...REQUIRED_PERMISSIONS,
         ...(Array.isArray(manifestObj[V3_MANIFEST_KEYS.permissions])
           ? manifestObj[V3_MANIFEST_KEYS.permissions]
-          : []),
-      ]),
-    );
-    // update host permissions
-    manifestObj[V3_MANIFEST_KEYS.host_permissions] = Array.from(
-      new Set([
-        ...HOST_PERMISSIONS,
-        ...(Array.isArray(manifestObj[V3_MANIFEST_KEYS.host_permissions])
-          ? manifestObj[V3_MANIFEST_KEYS.host_permissions]
           : []),
       ]),
     );
@@ -139,6 +129,7 @@ const ovverideManifest = () => {
         ACCESSIBLE_RESOURCE,
       ];
     }
+    // write changes to manifest file
     fs.writeFile(manifestAbsolutePath, JSON.stringify(manifestObj), (err) => {
       if (err) console.err(err);
       else {

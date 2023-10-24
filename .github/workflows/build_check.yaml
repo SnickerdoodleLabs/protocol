@@ -1,7 +1,10 @@
 name: Protocol - Sanity Check
 
 on:
-  pull_request:
+  push:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 
 env:
@@ -34,11 +37,19 @@ jobs:
     - name: Docker configuration
       run: |-
         gcloud --quiet auth configure-docker $GAR_LOCATION-docker.pkg.dev
-        
+
+    - name: Build protocol base
+      run: |-
+        docker build \
+          --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-base:$GITHUB_SHA" \
+          --tag "snickerdoodlelabs/protocol-docker-base:$GITHUB_SHA" \
+          -f ./packages/docker/Dockerfile \
+          .
     - name: Build protocol
       run: |-
         docker build \
           --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA" \
+          --build-arg BASE_TAG="$GITHUB_SHA" \
           --build-arg DOMAIN="extension.dev.snickerdoodle.dev" \
           --build-arg CONTROL_CHAIN_ID=31337 \
           --build-arg BUILD_ENV=production \
@@ -46,6 +57,20 @@ jobs:
           --build-arg GAPI_CLIENT_ID=332580693256-mifj8rkovvlc332n8gtllpdl93e6nvio.apps.googleusercontent.com \
           -f ./packages/extension-onboarding/Dockerfile \
           .
+    - name: Build protocol Iframe
+      run: |-
+        JIRA_TICKET=$(echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})" | grep -Eo '[A-Za-z0-9]*-[0-9]*' | awk '{print tolower($0)}')
+      
+        docker build \
+          --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-iframe:$GITHUB_SHA" \
+          --build-arg DEFAULT_INSIGHT_PLATFORM_BASE_URL="app.snickerdoodle.com" \
+          --build-arg CONTROL_CHAIN_ID=31337 \
+          --build-arg IPFS_FETCH_BASE_URL=https://ipfs-gateway.snickerdoodle.com/ipfs \
+          --build-arg BASE_TAG="$GITHUB_SHA" \
+          -f ./packages/iframe/Dockerfile \
+          .
+          
+
     - name: Slack Notification
       if: ${{ failure() }}
       run: |-

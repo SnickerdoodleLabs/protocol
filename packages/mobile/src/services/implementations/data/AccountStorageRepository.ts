@@ -1,5 +1,4 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import CookieManager, { Cookie, Cookies } from "@react-native-cookies/cookies";
 import {
   UnixTimestamp,
   Signature,
@@ -10,8 +9,8 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
-import { IAccountStorageRepository } from "../../interfaces/data/IAccountStorageRepository";
 
+import { IAccountStorageRepository } from "../../interfaces/data/IAccountStorageRepository";
 import { MobileCookieError } from "../../interfaces/objects/errors/MobileCookieError";
 import { IUnlockParams } from "../../interfaces/objects/params/IParams";
 export enum ECookieName {

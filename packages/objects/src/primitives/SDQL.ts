@@ -1,11 +1,12 @@
 import { Brand, make } from "ts-brand";
 
 import {
-  TokenBalance,
+  SiteVisitsData,
   ChainTransaction,
   NftHolding,
 } from "@objects/businessObjects/index.js";
 import { ChainId } from "@objects/primitives/ChainId.js";
+import { TokenBalanceInsight } from "@objects/primitives/TokenBalanceInsight.js";
 import { URLString } from "@objects/primitives/URLString.js";
 
 //#region types
@@ -18,9 +19,9 @@ export type SDQL_Return = Brand<
   | boolean
   | number
   | Array<any>
-  | Map<URLString, number>
+  | Record<URLString, SiteVisitsData>
   | Map<ChainId, number>
-  | TokenBalance[]
+  | TokenBalanceInsight[]
   | ChainTransaction[]
   | NftHolding[]
   | Object

@@ -1,8 +1,18 @@
 /**
- * This is the main implementation of the Snickerdoodle Query Engine.
+ * This is the main implementation of the Snickerdoodle Protocol.
  *
- * Regardless of form factor, you need to instantiate an instance of
+ * Regardless of form factor, you need to instantiate an instance
+ * of SnickerdoodleCore.
  */
+import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
+import {
+  IMasterIndexer,
+  IMasterIndexerType,
+  indexersModule,
+} from "@snickerdoodlelabs/indexers";
 import {
   AccountAddress,
   AccountIndexingError,
@@ -18,9 +28,7 @@ import {
   ConsentContractError,
   ConsentError,
   CountryCode,
-  CrumbsContractError,
   DataPermissions,
-  DataWalletAddress,
   DataWalletBackup,
   DataWalletBackupID,
   DiscordID,
@@ -30,7 +38,6 @@ import {
   EDataWalletPermission,
   EligibleAd,
   EmailAddressString,
-  EScamFilterStatus,
   EvaluationError,
   EVMContractAddress,
   FamilyName,
@@ -45,10 +52,7 @@ import {
   ICoreTwitterMethods,
   IDynamicRewardParameter,
   IInvitationMethods,
-  IMasterIndexerType,
   IMetricsMethods,
-  InvalidParametersError,
-  InvalidSignatureError,
   Invitation,
   IpfsCID,
   IPFSError,
@@ -60,7 +64,6 @@ import {
   LinkedAccount,
   MarketplaceListing,
   MarketplaceTag,
-  MinimalForwarderContractError,
   OAuth1RequstToken,
   OAuthAuthorizationCode,
   OAuthVerifier,
@@ -69,7 +72,6 @@ import {
   QueryFormatError,
   SDQLQuery,
   SHA256Hash,
-  SiftContractError,
   Signature,
   SiteVisit,
   TokenAddress,
@@ -82,20 +84,23 @@ import {
   UnauthorizedError,
   UninitializedError,
   UnixTimestamp,
-  UnsupportedLanguageError,
-  URLString,
   WalletNFT,
-  IMasterIndexer,
   IAccountMethods,
-  PasswordString,
+  QueryStatus,
+  BlockchainCommonErrors,
+  ECloudStorageType,
+  AuthenticatedStorageSettings,
+  IStorageMethods,
+  BlockNumber,
+  RefreshToken,
+  SiteVisitsMap,
 } from "@snickerdoodlelabs/objects";
 import {
-  GoogleCloudStorage,
-  ICloudStorage,
-  ICloudStorageType,
   IndexedDBVolatileStorage,
   IVolatileStorage,
   IVolatileStorageType,
+  ICloudStorageManager,
+  ICloudStorageManagerType,
 } from "@snickerdoodlelabs/persistence";
 import {
   IStorageUtils,
@@ -107,6 +112,7 @@ import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
+import { DataValidationUtils } from "@core/implementations/utilities/index.js";
 import {
   IAccountIndexerPoller,
   IAccountIndexerPollerType,
@@ -122,6 +128,8 @@ import {
   IAccountServiceType,
   IAdService,
   IAdServiceType,
+  ICloudStorageService,
+  ICloudStorageServiceType,
   IDiscordService,
   IDiscordServiceType,
   IIntegrationService,
@@ -136,8 +144,6 @@ import {
   IProfileServiceType,
   IQueryService,
   IQueryServiceType,
-  ISiftContractService,
-  ISiftContractServiceType,
   ITwitterService,
   ITwitterServiceType,
 } from "@core/interfaces/business/index.js";
@@ -167,36 +173,27 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public twitter: ICoreTwitterMethods;
   public ads: IAdMethods;
   public metrics: IMetricsMethods;
+  public storage: IStorageMethods;
 
   public constructor(
     configOverrides?: IConfigOverrides,
     storageUtils?: IStorageUtils,
     volatileStorage?: IVolatileStorage,
-    cloudStorage?: ICloudStorage,
   ) {
     this.iocContainer = new Container();
 
     // Elaborate syntax to demonstrate that we can use multiple modules
-    this.iocContainer.load(...[snickerdoodleCoreModule]);
+    this.iocContainer.load(...[snickerdoodleCoreModule, indexersModule]);
 
     // If persistence is provided, we need to hook it up. If it is not, we will use the default
     // persistence.
+
     if (storageUtils != null) {
       this.iocContainer.bind(IStorageUtilsType).toConstantValue(storageUtils);
     } else {
       this.iocContainer
         .bind(IStorageUtilsType)
         .to(LocalStorageUtils)
-        .inSingletonScope();
-    }
-
-    if (cloudStorage != null) {
-      this.iocContainer.bind(ICloudStorageType).toConstantValue(cloudStorage);
-    } else {
-      this.iocContainer
-        .bind(ICloudStorageType)
-        // .to(NullCloudStorage)
-        .to(GoogleCloudStorage)
         .inSingletonScope();
     }
 
@@ -221,96 +218,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
     // Account Methods -------------------------------------------------------------------------------
     this.account = {
-      getUnlockMessage: (
+      getLinkAccountMessage: (
         languageCode: LanguageCode,
         sourceDomain: DomainName | undefined = undefined,
       ) => {
         const accountService =
           this.iocContainer.get<IAccountService>(IAccountServiceType);
 
-        return accountService.getUnlockMessage(languageCode);
-      },
-
-      /**
-       * Very important method, as it serves two purposes- it initializes the core and effectively logs the user in.
-       * The core doesn't do any query processing until it has been unlocked.
-       * @param accountAddress
-       * @param signature
-       * @param languageCode
-       * @returns
-       */
-      unlock: (
-        accountAddress: AccountAddress,
-        signature: Signature,
-        languageCode: LanguageCode,
-        chain: EChain,
-        sourceDomain: DomainName | undefined = undefined,
-      ) => {
-        // Get all of our indexers and initialize them
-        // TODO
-        const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
-          IBlockchainProviderType,
-        );
-
-        const accountIndexerPoller =
-          this.iocContainer.get<IAccountIndexerPoller>(
-            IAccountIndexerPollerType,
-          );
-
-        const accountService =
-          this.iocContainer.get<IAccountService>(IAccountServiceType);
-
-        const queryService =
-          this.iocContainer.get<IQueryService>(IQueryServiceType);
-
-        const metricsService =
-          this.iocContainer.get<IMetricsService>(IMetricsServiceType);
-
-        const blockchainListener = this.iocContainer.get<IBlockchainListener>(
-          IBlockchainListenerType,
-        );
-
-        const socialPoller = this.iocContainer.get<ISocialMediaPoller>(
-          ISocialMediaPollerType,
-        );
-
-        const heartbeatGenerator = this.iocContainer.get<IHeartbeatGenerator>(
-          IHeartbeatGeneratorType,
-        );
-
-        const indexers =
-          this.iocContainer.get<IMasterIndexer>(IMasterIndexerType);
-
-        // BlockchainProvider needs to be ready to go in order to do the unlock
-        return ResultUtils.combine([
-          blockchainProvider.initialize(),
-          indexers.initialize(),
-        ])
-          .andThen(() => {
-            return accountService.unlock(
-              accountAddress,
-              signature,
-              languageCode,
-              chain,
-            );
-          })
-          .andThen(() => {
-            // Service Layer
-            return ResultUtils.combine([
-              queryService.initialize(),
-              metricsService.initialize(),
-            ]);
-          })
-          .andThen(() => {
-            // API Layer
-            return ResultUtils.combine([
-              accountIndexerPoller.initialize(),
-              blockchainListener.initialize(),
-              socialPoller.initialize(),
-              heartbeatGenerator.initialize(),
-            ]);
-          })
-          .map(() => {});
+        return accountService.getLinkAccountMessage(languageCode);
       },
 
       addAccount: (
@@ -324,17 +239,65 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           this.iocContainer.get<IAccountService>(IAccountServiceType);
 
         return accountService.addAccount(
-          accountAddress,
+          DataValidationUtils.removeChecksumFromAccountAddress(
+            accountAddress,
+            chain,
+          ),
           signature,
           languageCode,
           chain,
         );
       },
 
+      addAccountWithExternalSignature: (
+        accountAddress: AccountAddress,
+        message: string,
+        signature: Signature,
+        chain: EChain,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        return accountService.addAccountWithExternalSignature(
+          DataValidationUtils.removeChecksumFromAccountAddress(
+            accountAddress,
+            chain,
+          ),
+          message,
+          signature,
+          chain,
+        );
+      },
+
+      addAccountWithExternalTypedDataSignature: (
+        accountAddress: AccountAddress,
+        domain: TypedDataDomain,
+        types: Record<string, Array<TypedDataField>>,
+        value: Record<string, unknown>,
+        signature: Signature,
+        chain: EChain,
+        sourceDomain: DomainName | undefined,
+      ) => {
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        return accountService.addAccountWithExternalTypedDataSignature(
+          DataValidationUtils.removeChecksumFromAccountAddress(
+            accountAddress,
+            chain,
+          ),
+          domain,
+          types,
+          value,
+          signature,
+          chain,
+          sourceDomain,
+        );
+      },
+
       unlinkAccount: (
         accountAddress: AccountAddress,
-        signature: Signature,
-        languageCode: LanguageCode,
         chain: EChain,
         sourceDomain: DomainName | undefined = undefined,
       ) => {
@@ -342,121 +305,20 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           this.iocContainer.get<IAccountService>(IAccountServiceType);
 
         return accountService.unlinkAccount(
-          accountAddress,
-          signature,
-          languageCode,
+          DataValidationUtils.removeChecksumFromAccountAddress(
+            accountAddress,
+            chain,
+          ),
           chain,
         );
       },
 
-      getDataWalletForAccount: (
-        accountAddress: AccountAddress,
-        signature: Signature,
-        languageCode: LanguageCode,
-        chain: EChain,
+      getAccounts: (
         sourceDomain: DomainName | undefined = undefined,
-      ) => {
-        const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
-          IBlockchainProviderType,
-        );
-
+      ): ResultAsync<LinkedAccount[], UnauthorizedError | PersistenceError> => {
         const accountService =
           this.iocContainer.get<IAccountService>(IAccountServiceType);
-
-        // BlockchainProvider needs to be ready to go in order to do the unlock
-        return blockchainProvider.initialize().andThen(() => {
-          return accountService.getDataWalletForAccount(
-            accountAddress,
-            signature,
-            languageCode,
-            chain,
-          );
-        });
-      },
-      unlockWithPassword: (
-        password: PasswordString,
-        sourceDomain: DomainName | undefined = undefined,
-      ) => {
-        // Get all of our indexers and initialize them
-        // TODO
-        const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
-          IBlockchainProviderType,
-        );
-
-        const accountIndexerPoller =
-          this.iocContainer.get<IAccountIndexerPoller>(
-            IAccountIndexerPollerType,
-          );
-
-        const accountService =
-          this.iocContainer.get<IAccountService>(IAccountServiceType);
-
-        const queryService =
-          this.iocContainer.get<IQueryService>(IQueryServiceType);
-
-        const metricsService =
-          this.iocContainer.get<IMetricsService>(IMetricsServiceType);
-
-        const blockchainListener = this.iocContainer.get<IBlockchainListener>(
-          IBlockchainListenerType,
-        );
-
-        const socialPoller = this.iocContainer.get<ISocialMediaPoller>(
-          ISocialMediaPollerType,
-        );
-
-        const heartbeatGenerator = this.iocContainer.get<IHeartbeatGenerator>(
-          IHeartbeatGeneratorType,
-        );
-
-        const indexers =
-          this.iocContainer.get<IMasterIndexer>(IMasterIndexerType);
-
-        // BlockchainProvider needs to be ready to go in order to do the unlock
-        return ResultUtils.combine([
-          blockchainProvider.initialize(),
-          indexers.initialize(),
-        ])
-          .andThen(() => {
-            return accountService.unlockWithPassword(password);
-          })
-          .andThen(() => {
-            // Service Layer
-            return ResultUtils.combine([
-              queryService.initialize(),
-              metricsService.initialize(),
-            ]);
-          })
-          .andThen(() => {
-            // API Layer
-            return ResultUtils.combine([
-              accountIndexerPoller.initialize(),
-              blockchainListener.initialize(),
-              socialPoller.initialize(),
-              heartbeatGenerator.initialize(),
-            ]);
-          })
-          .map(() => {});
-      },
-
-      addPassword: (
-        password: PasswordString,
-        sourceDomain: DomainName | undefined = undefined,
-      ) => {
-        const accountService =
-          this.iocContainer.get<IAccountService>(IAccountServiceType);
-
-        return accountService.addPassword(password);
-      },
-
-      removePassword: (
-        password: PasswordString,
-        sourceDomain: DomainName | undefined = undefined,
-      ) => {
-        const accountService =
-          this.iocContainer.get<IAccountService>(IAccountServiceType);
-
-        return accountService.removePassword(password);
+        return accountService.getAccounts(sourceDomain);
       },
     };
 
@@ -710,10 +572,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return discordService.initializeUserWithAuthorizationCode(code);
       },
 
-      installationUrl: () => {
+      installationUrl: (redirectTabId?: number) => {
         const discordService =
           this.iocContainer.get<IDiscordService>(IDiscordServiceType);
-        return discordService.installationUrl();
+        return discordService.installationUrl(redirectTabId);
       },
 
       getUserProfiles: () => {
@@ -751,12 +613,149 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         throw new Error("Unimplemented");
       },
     };
+
+    // Storage Methods ---------------------------------------------------------------------------
+    this.storage = {
+      getCurrentCloudStorage: (sourceDomain: DomainName | undefined) => {
+        const cloudStorageManager = this.iocContainer.get<ICloudStorageManager>(
+          ICloudStorageManagerType,
+        );
+
+        return cloudStorageManager.getCurrentCloudStorage();
+      },
+      getAvailableCloudStorageOptions: (
+        sourceDomain: DomainName | undefined,
+      ) => {
+        const cloudStorageManager = this.iocContainer.get<ICloudStorageManager>(
+          ICloudStorageManagerType,
+        );
+
+        return cloudStorageManager.getAvailableCloudStorageOptions();
+      },
+      getDropboxAuth: (sourceDomain: DomainName | undefined) => {
+        const cloudStorageManager = this.iocContainer.get<ICloudStorageManager>(
+          ICloudStorageManagerType,
+        );
+
+        return cloudStorageManager.getDropboxAuth();
+      },
+      authenticateDropbox: (
+        code: string,
+        sourceDomain: DomainName | undefined,
+      ) => {
+        const cloudStorageService = this.iocContainer.get<ICloudStorageService>(
+          ICloudStorageServiceType,
+        );
+
+        return cloudStorageService.authenticateDropbox(
+          OAuthAuthorizationCode(code),
+        );
+      },
+      setAuthenticatedStorage: (
+        type: ECloudStorageType,
+        path: string,
+        refreshToken: RefreshToken,
+        sourceDomain: DomainName | undefined,
+      ) => {
+        const cloudStorageService = this.iocContainer.get<ICloudStorageService>(
+          ICloudStorageServiceType,
+        );
+
+        return cloudStorageService.setAuthenticatedStorage(
+          new AuthenticatedStorageSettings(type, path, refreshToken),
+        );
+      },
+    };
   }
+
+  /**
+   * Very important method, as it serves two purposes- it initializes the core and effectively logs the user in.
+   * The core doesn't do any query processing until it has been initialized.
+   * @param accountAddress
+   * @param signature
+   * @param languageCode
+   * @returns
+   */
+  public initialize(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<
+    void,
+    PersistenceError | UninitializedError | BlockchainProviderError | AjaxError
+  > {
+    const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
+      IBlockchainProviderType,
+    );
+
+    const accountIndexerPoller = this.iocContainer.get<IAccountIndexerPoller>(
+      IAccountIndexerPollerType,
+    );
+
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+    const queryService =
+      this.iocContainer.get<IQueryService>(IQueryServiceType);
+    const cloudStorageService = this.iocContainer.get<ICloudStorageService>(
+      ICloudStorageServiceType,
+    );
+
+    const metricsService =
+      this.iocContainer.get<IMetricsService>(IMetricsServiceType);
+
+    const blockchainListener = this.iocContainer.get<IBlockchainListener>(
+      IBlockchainListenerType,
+    );
+
+    const socialPoller = this.iocContainer.get<ISocialMediaPoller>(
+      ISocialMediaPollerType,
+    );
+
+    const heartbeatGenerator = this.iocContainer.get<IHeartbeatGenerator>(
+      IHeartbeatGeneratorType,
+    );
+
+    const indexers = this.iocContainer.get<IMasterIndexer>(IMasterIndexerType);
+
+    // All of these initialize() methods do the same things, mostly just setup
+    // subscriptions to events or setting up timers.
+    // Only AccountService.initialize() should actually do anything
+    // These are broken up into layers mainly for visual organization.
+    return ResultUtils.combine([
+      blockchainProvider.initialize(),
+      indexers.initialize(),
+    ])
+      .andThen(() => {
+        // Service Layer
+        return ResultUtils.combine([
+          queryService.initialize(),
+          metricsService.initialize(),
+          cloudStorageService.initialize(),
+        ]);
+      })
+      .andThen(() => {
+        // API Layer
+        return ResultUtils.combine([
+          accountIndexerPoller.initialize(),
+          blockchainListener.initialize(),
+          socialPoller.initialize(),
+          heartbeatGenerator.initialize(),
+        ]);
+      })
+      .andThen(() => {
+        // Now the actual initialization!
+        return accountService.initialize();
+      })
+      .map(() => {});
+  }
+
   public getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     IConsentCapacity,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
   > {
     const invitationService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
@@ -769,7 +768,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     consentAddress: EVMContractAddress,
   ): ResultAsync<
     IpfsCID,
-    ConsentContractError | UninitializedError | BlockchainProviderError
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | BlockchainCommonErrors
   > {
     const cohortService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
@@ -799,11 +801,38 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     | IPFSError
     | QueryFormatError
     | EvaluationError
+    | PersistenceError
   > {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
     return queryService.approveQuery(consentContractAddress, query, parameters);
+  }
+
+  public getQueryStatusByQueryCID(
+    queryCID: IpfsCID,
+  ): ResultAsync<QueryStatus | null, PersistenceError> {
+    const queryService =
+      this.iocContainer.get<IQueryService>(IQueryServiceType);
+
+    return queryService.getQueryStatusByQueryCID(queryCID);
+  }
+
+  public getQueryStatuses(
+    contractAddress: EVMContractAddress,
+    blockNumber?: BlockNumber,
+  ): ResultAsync<
+    QueryStatus[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | PersistenceError
+  > {
+    const queryService =
+      this.iocContainer.get<IQueryService>(IQueryServiceType);
+
+    return queryService.getQueryStatuses(contractAddress, blockNumber);
   }
 
   public isDataWalletAddressInitialized(): ResultAsync<boolean, never> {
@@ -813,19 +842,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return contextProvider.getContext().map((context) => {
       return !!context.dataWalletAddress;
     });
-  }
-
-  public checkURL(
-    domain: DomainName,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    EScamFilterStatus,
-    BlockchainProviderError | UninitializedError | SiftContractError
-  > {
-    const siftService = this.iocContainer.get<ISiftContractService>(
-      ISiftContractServiceType,
-    );
-    return siftService.checkURL(domain);
   }
 
   public setGivenName(
@@ -918,20 +934,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.getLocation();
   }
-  getAge(
+  public getAge(
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<Age | null, PersistenceError> {
     const profileService =
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.getAge();
-  }
-
-  public getAccounts(
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<LinkedAccount[], UnauthorizedError | PersistenceError> {
-    const accountService =
-      this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.getAccounts(sourceDomain);
   }
 
   public getTransactions(
@@ -969,7 +977,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public getSiteVisitsMap(
     sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<Map<URLString, number>, PersistenceError> {
+  ): ResultAsync<SiteVisitsMap, PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getSiteVisitsMap();
@@ -1027,7 +1035,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return invitationService.getReceivingAddress(contractAddress);
   }
 
-  getEarnedRewards(
+  public getEarnedRewards(
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<EarnedReward[], PersistenceError> {
     const accountService =
@@ -1137,7 +1145,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public getTokenPrice(
     chainId: ChainId,
-    address: TokenAddress | null,
+    address: TokenAddress,
     timestamp: UnixTimestamp,
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<number, AccountIndexingError> {
@@ -1148,7 +1156,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public getTokenInfo(
     chainId: ChainId,
-    contractAddress: TokenAddress | null,
+    contractAddress: TokenAddress,
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<TokenInfo | null, AccountIndexingError> {
     const tokenPriceRepo = this.iocContainer.get<ITokenPriceRepository>(

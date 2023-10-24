@@ -1,3 +1,13 @@
+import React, {
+  ReactNode,
+  FC,
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  useEffect,
+} from "react";
+
 import LoadingSpinner from "@extension-onboarding/components/LoadingSpinner";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import AccountUnlinkingModal from "@extension-onboarding/components/Modals/AccountUnlinkingModal";
@@ -11,15 +21,6 @@ import RewardDetailModal from "@extension-onboarding/components/Modals/RewardDet
 import SubscriptionConfirmationModal from "@extension-onboarding/components/Modals/SubscriptionConfirmationModal";
 import SubscriptionSuccessModal from "@extension-onboarding/components/Modals/SubscriptionSuccessModal";
 import ViewDetailsModal from "@extension-onboarding/components/Modals/ViewDetailsModal";
-import React, {
-  ReactNode,
-  FC,
-  createContext,
-  useContext,
-  useState,
-  useMemo,
-  useEffect,
-} from "react";
 
 export interface IModal {
   modalSelector: EModalSelectors | null;

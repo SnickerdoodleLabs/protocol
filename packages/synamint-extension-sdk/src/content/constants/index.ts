@@ -2,10 +2,11 @@ import { DomainName, URLString } from "@snickerdoodlelabs/objects";
 
 export enum EAPP_STATE {
   INIT,
+  INVITATION_PREVIEW,
   PERMISSION_SELECTION,
   SUBSCRIPTION_CONFIRMATION,
   SUBSCRIPTION_SUCCESS,
-  LOADING
+  LOADING,
 }
 
 export interface IRewardItem {

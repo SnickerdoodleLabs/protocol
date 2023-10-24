@@ -1,8 +1,9 @@
 import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
+import {
   EarnedReward,
-  AjaxError,
-  BlockchainProviderError,
-  CrumbsContractError,
   InvalidSignatureError,
   TokenBalance,
   WalletNFT,
@@ -19,9 +20,7 @@ import {
   ChainTransaction,
   LinkedAccount,
   EChain,
-  MinimalForwarderContractError,
   AccountAddress,
-  DataWalletAddress,
   TokenAddress,
   UnixTimestamp,
   DataWalletBackupID,
@@ -29,31 +28,16 @@ import {
   DomainName,
   UnauthorizedError,
   AccountIndexingError,
-  PasswordString,
+  SiteVisitsMap,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface IAccountService {
-  getUnlockMessage(
+  getLinkAccountMessage(
     languageCode: LanguageCode,
   ): ResultAsync<string, UnsupportedLanguageError>;
 
-  unlock(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | AjaxError
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-    | MinimalForwarderContractError
-  >;
+  initialize(): ResultAsync<void, PersistenceError>;
 
   addAccount(
     accountAddress: AccountAddress,
@@ -62,84 +46,49 @@ export interface IAccountService {
     chain: EChain,
   ): ResultAsync<
     void,
-    | BlockchainProviderError
+    | PersistenceError
     | UninitializedError
-    | CrumbsContractError
     | InvalidSignatureError
     | UnsupportedLanguageError
+    | InvalidParametersError
+  >;
+
+  addAccountWithExternalSignature(
+    accountAddress: AccountAddress,
+    message: string,
+    signature: Signature,
+    chain: EChain,
+  ): ResultAsync<
+    void,
     | PersistenceError
-    | AjaxError
-    | MinimalForwarderContractError
+    | UninitializedError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | InvalidParametersError
+  >;
+
+  addAccountWithExternalTypedDataSignature(
+    accountAddress: AccountAddress,
+    domain: TypedDataDomain,
+    types: Record<string, Array<TypedDataField>>,
+    value: Record<string, unknown>,
+    signature: Signature,
+    chain: EChain,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | InvalidSignatureError
+    | InvalidParametersError
   >;
 
   unlinkAccount(
     accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
     chain: EChain,
   ): ResultAsync<
     void,
-    | PersistenceError
-    | InvalidParametersError
-    | BlockchainProviderError
-    | UninitializedError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-    | CrumbsContractError
-    | AjaxError
-    | MinimalForwarderContractError
-  >;
-
-  getDataWalletForAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-  ): ResultAsync<
-    DataWalletAddress | null,
-    | PersistenceError
-    | UninitializedError
-    | BlockchainProviderError
-    | CrumbsContractError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-  >;
-
-  unlockWithPassword(
-    password: PasswordString,
-  ): ResultAsync<
-    void,
-    | UnsupportedLanguageError
-    | PersistenceError
-    | AjaxError
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | InvalidSignatureError
-    | MinimalForwarderContractError
-  >;
-
-  addPassword(
-    password: PasswordString,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | AjaxError
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | MinimalForwarderContractError
-  >;
-
-  removePassword(
-    password: PasswordString,
-  ): ResultAsync<
-    void,
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | AjaxError
-    | MinimalForwarderContractError
+    PersistenceError | UninitializedError | InvalidParametersError
   >;
 
   getAccounts(
@@ -158,7 +107,7 @@ export interface IAccountService {
     PersistenceError
   >;
 
-  getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
+  getSiteVisitsMap(): ResultAsync<SiteVisitsMap, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
   addTransactions(
@@ -175,7 +124,7 @@ export interface IAccountService {
 
   getTokenPrice(
     chainId: ChainId,
-    address: TokenAddress | null,
+    address: TokenAddress,
     timestamp: UnixTimestamp,
   ): ResultAsync<number, AccountIndexingError>;
 }

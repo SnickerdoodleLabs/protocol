@@ -1,3 +1,4 @@
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   TransactionPaymentCounter,
   PersistenceError,
@@ -6,11 +7,11 @@ import {
   ChainTransaction,
   chainConfig,
   EVMTransaction,
-  getChainInfoByChainId,
   TransactionFilter,
-  ITokenPriceRepository,
-  ITokenPriceRepositoryType,
   ERecordKey,
+  getChainInfoByChain,
+  EChain,
+  LinkedAccount,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
@@ -25,8 +26,6 @@ import { ResultUtils } from "neverthrow-result-utils";
 import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-  ILinkedAccountRepository,
-  ILinkedAccountRepositoryType,
   ITransactionHistoryRepository,
 } from "@core/interfaces/data/index.js";
 import {
@@ -44,42 +43,83 @@ export class TransactionHistoryRepository
     protected configProvider: IPersistenceConfigProvider,
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
-    @inject(ILinkedAccountRepositoryType)
-    protected accountRepo: ILinkedAccountRepository,
-    @inject(ITokenPriceRepositoryType)
-    protected tokenPriceRepo: ITokenPriceRepository,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
-  public getTransactionValueByChain(): ResultAsync<
+  public getTransactionByChain(): ResultAsync<
     TransactionPaymentCounter[],
     PersistenceError
   > {
-    return this.accountRepo.getAccounts().andThen((accounts) => {
-      return ResultUtils.combine(
-        accounts.map((account) => {
-          return ResultUtils.combine([
-            this.persistence
-              .getCursor<EVMTransaction>(
-                ERecordKey.TRANSACTIONS,
-                "to",
-                account.sourceAccountAddress,
-              )
-              .andThen((cursor) => cursor.allValues().map((evm) => evm || [])),
-            this.persistence
-              .getCursor<EVMTransaction>(
-                ERecordKey.TRANSACTIONS,
-                "from",
-                account.sourceAccountAddress,
-              )
-              .andThen((cursor) => cursor.allValues().map((evm) => evm || [])),
-          ]).andThen(([toTransactions, fromTransactions]) => {
-            return this.pushTransaction(toTransactions, fromTransactions, []);
-          });
-        }),
-      ).andThen((transactionsArray) => {
-        return this.compoundTransaction(transactionsArray.flat(1));
+    return this.persistence
+      .getAll<LinkedAccount>(ERecordKey.ACCOUNT)
+      .andThen((accounts) => {
+        this.logUtils.debug(
+          `In getTransactionByChain, active accounts: `,
+          accounts,
+        );
+        return ResultUtils.combine(
+          accounts.map((account) => {
+            return ResultUtils.combine([
+              this.persistence
+                .getCursor<EVMTransaction>(
+                  ERecordKey.TRANSACTIONS,
+                  "to",
+                  account.sourceAccountAddress.toLowerCase(),
+                )
+                .andThen((cursor) =>
+                  cursor.allValues().map((evm) => {
+                    this.logUtils.debug(
+                      `In getTransactionByChain on account ${account}, all values for "to" transactions:`,
+                      evm,
+                    );
+                    return evm || [];
+                  }),
+                ),
+              this.persistence
+                .getCursor<EVMTransaction>(
+                  ERecordKey.TRANSACTIONS,
+                  "from",
+                  account.sourceAccountAddress.toLowerCase(),
+                )
+                .andThen((cursor) =>
+                  cursor.allValues().map((evm) => {
+                    this.logUtils.debug(
+                      `In getTransactionByChain on account ${account}, all values for "from" transactions:`,
+                      evm,
+                    );
+                    return evm || [];
+                  }),
+                ),
+            ]).map(([toTransactions, fromTransactions]) => {
+              const counters = [
+                ...toTransactions.map((tx) => {
+                  return new TransactionPaymentCounter(
+                    tx.chain,
+                    this._getTxValue(tx),
+                    1,
+                    0,
+                    0,
+                  );
+                }),
+                ...fromTransactions.map((tx) => {
+                  return new TransactionPaymentCounter(
+                    tx.chain,
+                    0,
+                    0,
+                    this._getTxValue(tx),
+                    1,
+                  );
+                }),
+              ];
+              return counters;
+            });
+          }),
+        ).map((transactionsArray) => {
+          return this.compoundTransactionPaymentCounters(
+            transactionsArray.flat(1),
+          );
+        });
       });
-    });
   }
 
   public addTransactions(
@@ -93,7 +133,7 @@ export class TransactionHistoryRepository
       transactions.map((tx) => {
         return this.persistence.updateRecord(ERecordKey.TRANSACTIONS, tx);
       }),
-    ).andThen(() => okAsync(undefined));
+    ).map(() => {});
   }
 
   public getTransactions(
@@ -101,11 +141,11 @@ export class TransactionHistoryRepository
   ): ResultAsync<ChainTransaction[], PersistenceError> {
     return this.persistence
       .getAll<ChainTransaction>(ERecordKey.TRANSACTIONS)
-      .andThen((transactions) => {
+      .map((transactions) => {
         if (filter == undefined) {
-          return okAsync(transactions);
+          return transactions;
         }
-        return okAsync(transactions.filter((value) => filter.matches(value)));
+        return transactions.filter((value) => filter.matches(value));
       });
   }
 
@@ -150,88 +190,32 @@ export class TransactionHistoryRepository
     });
   }
 
-  protected pushTransaction(
-    incomingTransactions: EVMTransaction[],
-    outgoingTransactions: EVMTransaction[],
-    counters: TransactionPaymentCounter[],
-  ): ResultAsync<TransactionPaymentCounter[], PersistenceError> {
-    incomingTransactions.forEach((tx) => {
-      counters.push(
-        new TransactionPaymentCounter(
-          tx.chainId,
-          this._getTxValue(tx),
-          1,
-          0,
-          0,
-        ),
-      );
-    });
-    outgoingTransactions.forEach((tx) => {
-      counters.push(
-        new TransactionPaymentCounter(
-          tx.chainId,
-          0,
-          0,
-          this._getTxValue(tx),
-          1,
-        ),
-      );
-    });
-    return okAsync(counters);
-  }
-
   protected _getTxValue(tx: EVMTransaction): number {
-    const decimals = getChainInfoByChainId(tx.chainId).nativeCurrency.decimals;
+    const decimals = getChainInfoByChain(tx.chain).nativeCurrency.decimals;
     return Number.parseFloat(
       ethers.utils.formatUnits(tx.value || "0", decimals).toString(),
     );
   }
 
-  protected compoundTransaction(
-    chainTransaction: TransactionPaymentCounter[],
-  ): ResultAsync<TransactionPaymentCounter[], PersistenceError> {
-    const flowMap = new Map<ChainId, TransactionPaymentCounter>();
-    chainTransaction.forEach((obj) => {
-      const getObject = flowMap.get(obj.chainId);
-      if (getObject == null) {
-        flowMap.set(obj.chainId, obj);
+  protected compoundTransactionPaymentCounters(
+    chainTransactions: TransactionPaymentCounter[],
+  ): TransactionPaymentCounter[] {
+    const flowMap = new Map<EChain, TransactionPaymentCounter>();
+    chainTransactions.forEach((chainTransaction) => {
+      const existingTPC = flowMap.get(chainTransaction.chainId);
+      if (existingTPC == null) {
+        flowMap.set(chainTransaction.chainId, chainTransaction);
       } else {
-        flowMap.set(
-          obj.chainId,
-          new TransactionPaymentCounter(
-            obj.chainId,
-            obj.incomingValue + getObject.incomingValue,
-            obj.incomingCount + getObject.incomingCount,
-            obj.outgoingValue + getObject.outgoingValue,
-            obj.outgoingCount + getObject.outgoingCount,
-          ),
-        );
+        // Just need to increment the existing TPC
+        existingTPC.incomingValue += chainTransaction.incomingValue;
+        existingTPC.incomingCount += chainTransaction.incomingCount;
+        existingTPC.outgoingValue += chainTransaction.outgoingValue;
+        existingTPC.outgoingCount += chainTransaction.outgoingCount;
       }
     });
 
-    return this.tokenPriceRepo
-      .getMarketDataForTokens(
-        [...flowMap.keys()].map((chain) => {
-          return { chain: chain, address: null };
-        }),
-      )
-      .map((marketDataMap) => {
-        const retVal: TransactionPaymentCounter[] = [];
-        flowMap.forEach((counter, chainId) => {
-          const marketData = marketDataMap.get(`${chainId}-${null}`);
-          if (marketData != null) {
-            counter.incomingValue *= marketData.currentPrice;
-            counter.outgoingValue *= marketData.currentPrice;
-            retVal.push(counter);
-          } else {
-            counter.incomingValue = 0;
-            counter.outgoingValue = 0;
-            retVal.push(counter);
-          }
-        });
-        return retVal;
-      })
-      .mapErr((e) => new PersistenceError("error compounding transactions", e));
+    // Convert back to an array
+    return [...flowMap.values()];
   }
 
   private _getNextMatchingTx(

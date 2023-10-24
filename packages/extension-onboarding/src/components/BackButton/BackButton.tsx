@@ -1,5 +1,5 @@
-import React, { FC } from "react";
 import { Box } from "@material-ui/core";
+import React, { FC } from "react";
 
 interface IBackButtonProps {
   onClick: () => void;

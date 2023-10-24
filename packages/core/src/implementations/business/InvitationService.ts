@@ -1,14 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {
-  ICryptoUtils,
-  ICryptoUtilsType,
-  ILogUtils,
-  ILogUtilsType,
-} from "@snickerdoodlelabs/common-utils";
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
 } from "@snickerdoodlelabs/insight-platform-api";
+import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   AccountAddress,
   AjaxError,
@@ -24,7 +20,7 @@ import {
   EVMContractAddress,
   HexString32,
   Invitation,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   IpfsCID,
   IPFSError,
   LinkedAccount,
@@ -37,6 +33,9 @@ import {
   UninitializedError,
   UnixTimestamp,
   DataPermissionsUpdatedEvent,
+  BlockchainCommonErrors,
+  InvalidArgumentError,
+  OptInInfo,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -104,6 +103,7 @@ export class InvitationService implements IInvitationService {
     | UninitializedError
     | BlockchainProviderError
     | AjaxError
+    | BlockchainCommonErrors
   > {
     let cleanupActions = okAsync<void, PersistenceError>(undefined);
     return ResultUtils.combine([
@@ -146,13 +146,14 @@ export class InvitationService implements IInvitationService {
             return this.consentRepo
               .getLatestConsentTokenId(invitation.consentContractAddress)
               .andThen((tokenIdOrNull) => {
+                if (tokenIdOrNull == null) {
+                  return errAsync(new ConsentContractError("No token ID"));
+                }
                 return this.invitationRepo
                   .addAcceptedInvitations([
-                    new Invitation(
-                      invitation.domain,
+                    new OptInInfo(
                       invitation.consentContractAddress,
                       tokenIdOrNull ?? invitation.tokenId,
-                      invitation.businessSignature,
                     ),
                   ])
                   .map(() => EInvitationStatus.Accepted);
@@ -182,16 +183,21 @@ export class InvitationService implements IInvitationService {
           }
 
           // If invitation has bussiness signature verify signature
-          if (invitation.businessSignature) {
+          if (
+            invitation.businessSignature != null &&
+            invitation.tokenId != null
+          ) {
             // If business signature exist then open optIn should be disabled
             if (!openOptInDisabled) {
               return okAsync(EInvitationStatus.Invalid);
             }
 
+            const tokenId = invitation.tokenId;
+
             // Check if the consent token already exists
             // If it does, it means this invitation has already been claimed
             return this.consentRepo
-              .getConsentToken(invitation)
+              .getConsentToken(invitation.consentContractAddress, tokenId)
               .andThen((existingConsentToken) => {
                 // If the existing consent token exists, it must NOT be owned by us- we'd have found
                 // the token via isAddressOptedIn() above. So somebody else has gotten this invitation.
@@ -200,7 +206,7 @@ export class InvitationService implements IInvitationService {
                 }
                 return this.isValidSignatureForInvitation(
                   invitation.consentContractAddress,
-                  invitation.tokenId,
+                  tokenId,
                   invitation.businessSignature!,
                 ).map((validSignature) => {
                   return validSignature
@@ -217,12 +223,13 @@ export class InvitationService implements IInvitationService {
 
           // If invitation belongs any domain verify URLs
           if (invitation.domain) {
+            const domain = invitation.domain;
             // Not rejected or already in the cohort, we need to verify the invitation
             return ResultUtils.combine([
               this.consentRepo.getInvitationUrls(
                 invitation.consentContractAddress,
               ),
-              this.getConsentContractAddressesFromDNS(invitation.domain),
+              this.getConsentContractAddressesFromDNS(domain),
             ]).map(([urls, consentContractAddresses]) => {
               // Derive a list of domains from a list of URLs
 
@@ -236,7 +243,7 @@ export class InvitationService implements IInvitationService {
                 .map((href) => getDomain(href));
 
               // We need to remove the subdomain so it would match with the saved domains in the blockchain
-              const domainStr = getDomain(invitation.domain);
+              const domainStr = getDomain(domain);
               // The contract must include the domain
               if (!domains.includes(domainStr)) {
                 return EInvitationStatus.Invalid;
@@ -275,6 +282,7 @@ export class InvitationService implements IInvitationService {
     | BlockchainProviderError
     | MinimalForwarderContractError
     | ConsentError
+    | BlockchainCommonErrors
   > {
     // This will actually create a metatransaction, since the invitation is issued
     // to the data wallet address
@@ -286,62 +294,82 @@ export class InvitationService implements IInvitationService {
           context.dataWalletKey == null
         ) {
           return errAsync(
-            new UninitializedError("Data wallet has not been unlocked yet!"),
+            new UninitializedError("Data wallet has not been initialized yet!"),
           );
         }
 
-        return this.dataWalletUtils
-          .deriveOptInPrivateKey(
+        if (
+          invitation.businessSignature != null &&
+          invitation.tokenId == null
+        ) {
+          return errAsync(
+            new InvalidArgumentError(
+              "tokenId is required for signed invitations",
+            ),
+          );
+        }
+
+        let invitationCheck = okAsync<void, ConsentError>(undefined);
+        if (invitation.domain != null) {
+          invitationCheck = this.consentContractHasMatchingTXT(
             invitation.consentContractAddress,
-            context.dataWalletKey!,
-          )
+          ).andThen((matchingTxt) => {
+            if (!matchingTxt) {
+              return errAsync(
+                new ConsentError(
+                  `Invitation for contract ${invitation.consentContractAddress} does not have valid domain information. Check the DNS settings for a proper TXT record!`,
+                ),
+              );
+            }
+            return okAsync(undefined);
+          });
+        }
+
+        return invitationCheck
+          .andThen(() => {
+            return this.dataWalletUtils.deriveOptInPrivateKey(
+              invitation.consentContractAddress,
+              context.dataWalletKey!,
+            );
+          })
           .andThen((optInPrivateKey) => {
-            if (invitation.businessSignature == null) {
-              // If the invitation includes a domain, we will check that DNS records
-              // just to be extra safe.
-              let invitationCheck = okAsync<void, ConsentError>(undefined);
-              if (invitation.domain != "") {
-                invitationCheck = this.consentContractHasMatchingTXT(
+            if (
+              invitation.businessSignature != null &&
+              invitation.tokenId != null
+            ) {
+              // It's a private invitation
+              return okAsync({
+                optInData: this.consentRepo.encodeAnonymousRestrictedOptIn(
                   invitation.consentContractAddress,
-                ).andThen((matchingTxt) => {
-                  if (!matchingTxt) {
-                    return errAsync(
-                      new ConsentError(
-                        `Invitation for contract ${invitation.consentContractAddress} does not have valid domain information. Check the DNS settings for a proper TXT record!`,
-                      ),
-                    );
-                  }
-                  return okAsync(undefined);
-                });
-              }
-              // Only thing left is the actual opt in data
-              return invitationCheck.map(() => {
-                return {
-                  optInData: this.consentRepo.encodeOptIn(
-                    invitation.consentContractAddress,
-                    invitation.tokenId,
-                    dataPermissions,
-                  ),
-                  context,
-                  optInPrivateKey,
-                };
+                  invitation.tokenId,
+                  invitation.businessSignature,
+                  dataPermissions,
+                ),
+                context,
+                optInPrivateKey,
+                tokenId: invitation.tokenId,
               });
             }
 
-            // It's a private invitation
-            return okAsync({
-              optInData: this.consentRepo.encodeAnonymousRestrictedOptIn(
-                invitation.consentContractAddress,
-                invitation.tokenId,
-                invitation.businessSignature,
-                dataPermissions,
-              ),
-              context,
-              optInPrivateKey,
+            return (
+              invitation.tokenId == null
+                ? this.cryptoUtils.getTokenId()
+                : okAsync(invitation.tokenId)
+            ).map((tokenId) => {
+              return {
+                optInData: this.consentRepo.encodeOptIn(
+                  invitation.consentContractAddress,
+                  tokenId,
+                  dataPermissions,
+                ),
+                context,
+                optInPrivateKey,
+                tokenId,
+              };
             });
           });
       })
-      .andThen(({ optInData, context, optInPrivateKey }) => {
+      .andThen(({ optInData, context, optInPrivateKey, tokenId }) => {
         const optInAddress =
           this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
             optInPrivateKey,
@@ -358,7 +386,9 @@ export class InvitationService implements IInvitationService {
           optInData,
           this.forwarderRepo.getNonce(optInAddress),
           this.configProvider.getConfig(),
-          this.invitationRepo.addAcceptedInvitations([invitation]),
+          this.invitationRepo.addAcceptedInvitations([
+            new OptInInfo(invitation.consentContractAddress, tokenId),
+          ]),
         ])
           .andThen(([callData, nonce, config]) => {
             // We need to take the types, and send it to the account signer
@@ -393,7 +423,7 @@ export class InvitationService implements IInvitationService {
               })
               .map(() => {
                 this.consentRepo
-                  .getConsentToken(invitation)
+                  .getConsentToken(invitation.consentContractAddress, tokenId)
                   .map((consentToken) => {
                     if (consentToken == null) {
                       this.logUtils.error(
@@ -440,6 +470,7 @@ export class InvitationService implements IInvitationService {
     | BlockchainProviderError
     | AjaxError
     | ConsentError
+    | BlockchainCommonErrors
   > {
     // Need to check first if we are already opted in
     return this.consentRepo
@@ -471,21 +502,22 @@ export class InvitationService implements IInvitationService {
     | ConsentContractError
     | ConsentError
     | PersistenceError
+    | BlockchainCommonErrors
   > {
     // This will actually create a metatransaction, since the invitation is issued
     // to the data wallet address
     return this.contextProvider.getContext().andThen((context) => {
       if (context.dataWalletAddress == null || context.dataWalletKey == null) {
         return errAsync(
-          new UninitializedError("Data wallet has not been unlocked yet!"),
+          new UninitializedError("Data wallet has not been initialized yet!"),
         );
       }
 
       // We need to find your opt-in token
       return this.invitationRepo
         .getAcceptedInvitations()
-        .andThen((invitations) => {
-          const currentInvitation = invitations.find((invitation) => {
+        .andThen((acceptedInvitations) => {
+          const currentInvitation = acceptedInvitations.find((invitation) => {
             return invitation.consentContractAddress == consentContractAddress;
           });
           if (currentInvitation == null) {
@@ -496,7 +528,10 @@ export class InvitationService implements IInvitationService {
             );
           }
           return ResultUtils.combine([
-            this.consentRepo.getConsentToken(currentInvitation),
+            this.consentRepo.getConsentToken(
+              currentInvitation.consentContractAddress,
+              currentInvitation.tokenId,
+            ),
             this.dataWalletUtils.deriveOptInPrivateKey(
               consentContractAddress,
               context.dataWalletKey!,
@@ -576,7 +611,7 @@ export class InvitationService implements IInvitationService {
     });
   }
 
-  public getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError> {
+  public getAcceptedInvitations(): ResultAsync<OptInInfo[], PersistenceError> {
     return this.invitationRepo.getAcceptedInvitations();
   }
 
@@ -590,6 +625,7 @@ export class InvitationService implements IInvitationService {
     | AjaxError
     | IPFSError
     | PersistenceError
+    | BlockchainCommonErrors
   > {
     return this.getConsentContractAddressesFromDNS(domain)
       .andThen((contractAddresses) => {
@@ -614,6 +650,7 @@ export class InvitationService implements IInvitationService {
     | ConsentFactoryContractError
     | ConsentContractError
     | PersistenceError
+    | BlockchainCommonErrors
   > {
     return this.invitationRepo
       .getAcceptedInvitations()
@@ -646,14 +683,17 @@ export class InvitationService implements IInvitationService {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     IConsentCapacity,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
   > {
     return this.consentRepo.getConsentCapacity(consentContractAddress);
   }
 
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, IPFSError> {
+  ): ResultAsync<IOldUserAgreement, IPFSError> {
     return this.invitationRepo.getInvitationMetadataByCID(ipfsCID);
   }
 
@@ -661,7 +701,10 @@ export class InvitationService implements IInvitationService {
     consentAddress: EVMContractAddress,
   ): ResultAsync<
     IpfsCID,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
   > {
     return this.consentRepo.getMetadataCID(consentAddress);
   }
@@ -676,57 +719,58 @@ export class InvitationService implements IInvitationService {
     | ConsentContractError
     | IPFSError
     | PersistenceError
+    | BlockchainCommonErrors
   > {
     return ResultUtils.combine([
       this.consentRepo.getInvitationUrls(consentContractAddress),
       this.consentRepo.getMetadataCID(consentContractAddress),
       this.getConsentCapacity(consentContractAddress),
-      this.invitationRepo.getRejectedInvitations(),
-    ]).andThen(
-      ([invitationUrls, ipfsCID, consentCapacity, rejectedInvitations]) => {
-        // If there's no slots, there's no invites
-        if (consentCapacity.availableOptInCount == 0) {
-          return okAsync([]);
-        }
+      // @TODO - check later
+      // this.invitationRepo.getRejectedInvitations(),
+    ]).andThen(([invitationUrls, ipfsCID, consentCapacity]) => {
+      // If there's no slots, there's no invites
+      if (consentCapacity.availableOptInCount == 0) {
+        return okAsync([]);
+      }
 
-        const rejected = rejectedInvitations.find((rejectedInvitation) => {
-          return rejectedInvitation == consentContractAddress;
-        });
+      // @TODO - blocks the promise to be resolved
+      // const rejected = rejectedInvitations.find((rejectedInvitation) => {
+      //   return rejectedInvitation == consentContractAddress;
+      // });
 
-        if (rejected != null) {
-          return okAsync([]);
-        }
+      // if (rejected != null) {
+      //   return okAsync([]);
+      // }
 
-        // The baseUri is an IPFS CID
-        return this.invitationRepo
-          .getInvitationDomainByCID(ipfsCID, domain)
-          .andThen((invitationDomain) => {
-            if (invitationDomain == null) {
-              return errAsync(
-                new IPFSError(
-                  `No invitation details could be found at IPFS CID ${ipfsCID}`,
-                ),
-              );
-            }
-            return ResultUtils.combine(
-              invitationUrls.map((invitationUrl) => {
-                return this.cryptoUtils.getTokenId().map((tokenId) => {
-                  return new PageInvitation(
-                    invitationUrl, // getDomains() is actually misnamed, it returns URLs now
-                    new Invitation(
-                      domain,
-                      consentContractAddress,
-                      tokenId,
-                      null, // getInvitationsByDomain() is only for public invitations, so will never have a business signature
-                    ),
-                    invitationDomain,
-                  );
-                });
-              }),
+      // The baseUri is an IPFS CID
+      return this.invitationRepo
+        .getInvitationDomainByCID(ipfsCID, domain)
+        .andThen((invitationDomain) => {
+          if (invitationDomain == null) {
+            return errAsync(
+              new IPFSError(
+                `No invitation details could be found at IPFS CID ${ipfsCID}`,
+              ),
             );
-          });
-      },
-    );
+          }
+          return ResultUtils.combine(
+            invitationUrls.map((invitationUrl) => {
+              return this.cryptoUtils.getTokenId().map((tokenId) => {
+                return new PageInvitation(
+                  invitationUrl, // getDomains() is actually misnamed, it returns URLs now
+                  new Invitation(
+                    consentContractAddress,
+                    tokenId,
+                    domain,
+                    null, // getInvitationsByDomain() is only for public invitations, so will never have a business signature
+                  ),
+                  invitationDomain,
+                );
+              });
+            }),
+          );
+        });
+    });
   }
 
   public updateDataPermissions(
@@ -741,6 +785,7 @@ export class InvitationService implements IInvitationService {
     | BlockchainProviderError
     | MinimalForwarderContractError
     | AjaxError
+    | BlockchainCommonErrors
   > {
     // This will actually create a metatransaction. We need to update the on-chain
     // DataPermissions. You can only do this every so often, which we will need to
@@ -748,15 +793,15 @@ export class InvitationService implements IInvitationService {
     return this.contextProvider.getContext().andThen((context) => {
       if (context.dataWalletAddress == null || context.dataWalletKey == null) {
         return errAsync(
-          new UninitializedError("Data wallet has not been unlocked yet!"),
+          new UninitializedError("Data wallet has not been initialized yet!"),
         );
       }
 
       // We need to find your opt-in token
       return this.invitationRepo
         .getAcceptedInvitations()
-        .andThen((invitations) => {
-          const currentInvitation = invitations.find((invitation) => {
+        .andThen((acceptedInvitations) => {
+          const currentInvitation = acceptedInvitations.find((invitation) => {
             return invitation.consentContractAddress == consentContractAddress;
           });
           if (currentInvitation == null) {
@@ -767,7 +812,10 @@ export class InvitationService implements IInvitationService {
             );
           }
           return ResultUtils.combine([
-            this.consentRepo.getConsentToken(currentInvitation),
+            this.consentRepo.getConsentToken(
+              currentInvitation.consentContractAddress,
+              currentInvitation.tokenId,
+            ),
             this.dataWalletUtils.deriveOptInPrivateKey(
               consentContractAddress,
               context.dataWalletKey!,
@@ -874,6 +922,7 @@ export class InvitationService implements IInvitationService {
     | ConsentError
     | PersistenceError
     | ConsentFactoryContractError
+    | BlockchainCommonErrors
   > {
     return this.consentTokenUtils.getAgreementFlags(consentContractAddress);
   }
@@ -885,6 +934,7 @@ export class InvitationService implements IInvitationService {
     | ConsentFactoryContractError
     | ConsentContractError
     | PersistenceError
+    | BlockchainCommonErrors
   > {
     return this.getAvailableConsentContractAddresses().andThen(
       (consentAddresses) => {
@@ -928,12 +978,11 @@ export class InvitationService implements IInvitationService {
     receivingAddress: AccountAddress | null,
   ): ResultAsync<void, PersistenceError> {
     return this.accountRepo.getAccounts().andThen((linkedAccounts) => {
-      if (
-        !this._doLinkedAccountsContainReceivingAddress(
-          linkedAccounts,
-          receivingAddress,
-        )
-      ) {
+      const linkedAccount = this.getLinkedAccountForReceivingAddress(
+        linkedAccounts,
+        receivingAddress,
+      );
+      if (linkedAccount == null) {
         return errAsync(
           new PersistenceError(
             "Unlinked accounts cannot be selected as recipient addresses.",
@@ -941,7 +990,12 @@ export class InvitationService implements IInvitationService {
         );
       }
 
-      return this.accountRepo.setDefaultReceivingAddress(receivingAddress);
+      // NOTE: we are using linkedAccount.sourceAccountAddress because it is already
+      // de-checksum'd. receivingAddress could be a Solana or EVM address and we don't know
+      // the chain to use.
+      return this.accountRepo.setDefaultReceivingAddress(
+        linkedAccount.sourceAccountAddress,
+      );
     });
   }
 
@@ -950,12 +1004,11 @@ export class InvitationService implements IInvitationService {
     receivingAddress: AccountAddress | null,
   ): ResultAsync<void, PersistenceError> {
     return this.accountRepo.getAccounts().andThen((linkedAccounts) => {
-      if (
-        !this._doLinkedAccountsContainReceivingAddress(
-          linkedAccounts,
-          receivingAddress,
-        )
-      ) {
+      const linkedAccount = this.getLinkedAccountForReceivingAddress(
+        linkedAccounts,
+        receivingAddress,
+      );
+      if (linkedAccount == null) {
         return errAsync(
           new PersistenceError(
             "Unlinked accounts cannot be selected as recipient addresses.",
@@ -963,9 +1016,10 @@ export class InvitationService implements IInvitationService {
         );
       }
 
+      // NOTE: We are using the sourceAccountAddress because it is already de-checksum'd.
       return this.accountRepo.setReceivingAddress(
         contractAddress,
-        receivingAddress,
+        linkedAccount.sourceAccountAddress,
       );
     });
   }
@@ -982,7 +1036,7 @@ export class InvitationService implements IInvitationService {
     return this.accountRepo
       .getReceivingAddress(contractAddress)
       .andThen((receivingAddress) => {
-        if (!receivingAddress) {
+        if (receivingAddress == null) {
           return this._getDefaultReceivingAddress();
         }
 
@@ -991,15 +1045,16 @@ export class InvitationService implements IInvitationService {
         );
 
         return this.accountRepo.getAccounts().andThen((linkedAccounts) => {
-          if (
-            this._doLinkedAccountsContainReceivingAddress(
-              linkedAccounts,
-              receivingAddress,
-            )
-          ) {
-            return okAsync(receivingAddress);
+          const linkedAccount = this.getLinkedAccountForReceivingAddress(
+            linkedAccounts,
+            receivingAddress,
+          );
+          if (linkedAccount != null) {
+            return okAsync(linkedAccount.sourceAccountAddress);
           }
 
+          // This check removes the receiving address from the contract and replaces 
+          // it with the default 
           return this.accountRepo
             .setReceivingAddress(contractAddress, null)
             .andThen(() => {
@@ -1015,7 +1070,10 @@ export class InvitationService implements IInvitationService {
     businessSignature: Signature,
   ): ResultAsync<
     boolean,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
   > {
     return this.consentRepo
       .getSignerRoleMembers(consentContractAddres)
@@ -1081,6 +1139,7 @@ export class InvitationService implements IInvitationService {
     | ConsentFactoryContractError
     | PersistenceError
     | ConsentContractError
+    | BlockchainCommonErrors
   > {
     return ResultUtils.combine([
       // can be fetched via insight-platform API call
@@ -1136,17 +1195,24 @@ export class InvitationService implements IInvitationService {
     });
   }
 
-  private _doLinkedAccountsContainReceivingAddress(
+  private getLinkedAccountForReceivingAddress(
     linkedAccounts: LinkedAccount[],
     receivingAddress: AccountAddress | null,
-  ): boolean {
+  ): LinkedAccount | null {
     if (!receivingAddress) {
-      return false;
+      return null;
     }
 
-    return !!linkedAccounts.find(
-      (ac) => ac.sourceAccountAddress == receivingAddress,
-    );
+    const linkedAccount = linkedAccounts.find((ac) => {
+      // Since we don't know what chain the address is for, we need to check
+      // both the direct input (for Solana) or the lowercase version (for Ethereum)
+      return (
+        ac.sourceAccountAddress == receivingAddress ||
+        ac.sourceAccountAddress == receivingAddress.toLowerCase()
+      );
+    });
+
+    return linkedAccount ?? null;
   }
 
   private _getDefaultReceivingAddress(): ResultAsync<
@@ -1157,13 +1223,11 @@ export class InvitationService implements IInvitationService {
       this.accountRepo.getAccounts(),
       this.accountRepo.getDefaultReceivingAddress(),
     ]).andThen(([linkedAccounts, defaultReceivingAddress]) => {
-      if (
-        !defaultReceivingAddress ||
-        !this._doLinkedAccountsContainReceivingAddress(
-          linkedAccounts,
-          defaultReceivingAddress,
-        )
-      ) {
+      const linkedAccount = this.getLinkedAccountForReceivingAddress(
+        linkedAccounts,
+        defaultReceivingAddress,
+      );
+      if (defaultReceivingAddress == null || linkedAccount == null) {
         return this.accountRepo
           .setDefaultReceivingAddress(linkedAccounts[0].sourceAccountAddress)
           .map(() => linkedAccounts[0].sourceAccountAddress);

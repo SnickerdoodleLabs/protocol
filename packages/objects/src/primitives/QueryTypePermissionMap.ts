@@ -15,6 +15,7 @@ export const QueryTypePermissionMap = new Map<QueryTypes, EWalletDataType>([
   ["social_discord", EWalletDataType.Discord],
   ["social_twitter", EWalletDataType.Twitter],
   // web3
+  ["balance", EWalletDataType.AccountBalances],
   ["nft", EWalletDataType.AccountNFTs],
   ["network", EWalletDataType.EVMTransactions],
 ]);

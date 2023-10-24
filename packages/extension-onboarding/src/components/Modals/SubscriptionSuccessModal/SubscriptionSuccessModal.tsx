@@ -1,8 +1,9 @@
-import { useStyles } from "@extension-onboarding/components/Modals/SubscriptionSuccessModal/SubscriptionSuccessModal.style";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { Dialog } from "@material-ui/core";
 import { SubscriptionSuccess } from "@snickerdoodlelabs/shared-components";
 import React, { FC } from "react";
+
+import { useStyles } from "@extension-onboarding/components/Modals/SubscriptionSuccessModal/SubscriptionSuccessModal.style";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 
 const SubscriptionSuccessModal: FC = () => {
   const { modalState, closeModal } = useLayoutContext();

@@ -1,3 +1,7 @@
+import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
 import { ResultAsync } from "neverthrow";
 
 import {
@@ -29,12 +33,17 @@ import {
   TwitterProfile,
   WalletNFT,
   RuntimeMetrics,
+  QueryStatus,
+  OAuth2Tokens,
+  SiteVisitsMap,
+  OptInInfo,
+  // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
   EChain,
+  ECloudStorageType,
   EDataWalletPermission,
   EInvitationStatus,
-  EScamFilterStatus,
 } from "@objects/enum/index.js";
 import {
   AccountIndexingError,
@@ -44,25 +53,31 @@ import {
   ConsentContractRepositoryError,
   ConsentError,
   ConsentFactoryContractError,
-  CrumbsContractError,
   DiscordError,
+  EvalNotImplementedError,
   EvaluationError,
   InvalidParametersError,
   InvalidSignatureError,
   IPFSError,
   KeyGenerationError,
   MinimalForwarderContractError,
+  MissingASTError,
+  MissingTokenConstructorError,
   OAuthError,
   PersistenceError,
+  QueryExpiredError,
   QueryFormatError,
-  SiftContractError,
+  BlockchainCommonErrors,
   TwitterError,
   UnauthorizedError,
   UninitializedError,
   UnsupportedLanguageError,
+  DuplicateIdInSchema,
+  MissingWalletDataTypeError,
+  ParserError,
 } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
-import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata.js";
+import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import {
   AccountAddress,
@@ -73,7 +88,6 @@ import {
   OAuth1RequstToken,
   ChainId,
   CountryCode,
-  DataWalletAddress,
   DataWalletBackupID,
   DiscordID,
   DomainName,
@@ -95,7 +109,8 @@ import {
   TwitterID,
   UnixTimestamp,
   URLString,
-  PasswordString,
+  BlockNumber,
+  RefreshToken,
 } from "@objects/primitives/index.js";
 
 /**
@@ -104,55 +119,32 @@ import {
  ISdlDataWallet.ts. This interface represents the actual core methods, but ISdlDataWallet mostly
  clones this interface, with some methods removed or added, but all of them updated to remove
  sourceDomain (which is managed by the integration package)
+
+ UPDATE: ISdlDataWallet for the most part is derived from this interface, and changes
+ here should be reflected there. By and large, ISdlDataWallet contains all the
+ methods of ISnickerdoodleCore, with the error types changed to ProxyError and
+ the sourceDomain parameter removed. Some methods need special handling and that
+ is done manually in ISdlDataWallet.
+ */
+
+/**
+ * NOTE
+ * There is a bug in PopTuple<> that seems to be an error in typescript, when dealing with optional (?)
+ * parameters. Bascically, if you try to PopTuple<[string, number?]> it will
+ * return "never" and not [string]. The solution is to use a non-optional parameter,
+ * so sourceDomain is now "sourceDomain: DomainName | undefined" instead of optional,
+ * at least on methods that are being dynamically altered in ISdlDataWallet.
  */
 
 export interface IAccountMethods {
-  /** getUnlockMessage() returns a localized string for the requested LanguageCode.
+  /** getLinkAccountMessage() returns a localized string for the requested LanguageCode.
    * The Form Factor must have this string signed by the user's key (via Metamask,
-   * wallet connect, etc), in order to call unlock() or addAccount();
+   * wallet connect, etc), in order to call addAccount();
    */
-  getUnlockMessage(
+  getLinkAccountMessage(
     languageCode: LanguageCode,
-    sourceDomain?: DomainName | undefined,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<string, UnsupportedLanguageError | UnauthorizedError>;
-
-  /**
-   * unlock() serves a very important task as it both initializes the Query Engine
-   * and establishes the actual address of the data wallet. After getUnlockMessage(),
-   * this should be the second method you call on the Snickerdoodle Core. If this is the first
-   * time using this account + unlock message, the Data Wallet will be created.
-   * If this is a subsequent time, you will regain access to the existing wallet.
-   * For an existing wallet with multiple connected accounts, you can unlock with a
-   * signature from any of the accounts (form factor can decide), but you cannot
-   * add a new account via unlock, use addAccount() to link a new account once you
-   * have already logged in. It will return an error if you call it twice.
-   * unlockWithSolana() is identical to unlock() but uses a Solana account address instead of an
-   * EVM based account. Internally, it will map the Solana account to an EVM account using the signature
-   * to generate an EVM private key. This key will generate the EVM account address, but will also be
-   * stored in memory and used to sign the metatransaction for the crumb. The Solana wallet will never
-   * have to sign the metatransaction request itself, unlike unlock(); so this method will never generate
-   * a MetatransactionSignatureRequestedEvent.
-   * @param signature
-   * @param countryCode
-   */
-  unlock(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | AjaxError
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-    | MinimalForwarderContractError
-    | UnauthorizedError
-  >;
 
   /**
    * addAccount() adds an additional account to the data wallet. It is almost
@@ -161,8 +153,6 @@ export interface IAccountMethods {
    * can be used for subsequent logins. This can prevent you from being locked out
    * of your data wallet, as long as you have at least 2 accounts connected.
    * addSolanaAccount() is identical to addAccount, but adds a Solana (non-EVM) account.
-   * Like unlock, an EVM private key will be derived from the signature and used for the account
-   * the crumb is assigned to on the doodlechain.
    * @param accountAddress
    * @param signature
    * @param countryCode
@@ -172,18 +162,46 @@ export interface IAccountMethods {
     signature: Signature,
     languageCode: LanguageCode,
     chain: EChain,
-    sourceDomain?: DomainName | undefined,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<
     void,
-    | BlockchainProviderError
+    | PersistenceError
     | UninitializedError
-    | CrumbsContractError
     | InvalidSignatureError
     | UnsupportedLanguageError
+    | InvalidParametersError
+  >;
+
+  addAccountWithExternalSignature(
+    accountAddress: AccountAddress,
+    message: string,
+    signature: Signature,
+    chain: EChain,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    void,
     | PersistenceError
-    | AjaxError
-    | MinimalForwarderContractError
-    | UnauthorizedError
+    | UninitializedError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | InvalidParametersError
+  >;
+
+  addAccountWithExternalTypedDataSignature(
+    accountAddress: AccountAddress,
+    domain: TypedDataDomain,
+    types: Record<string, Array<TypedDataField>>,
+    value: Record<string, unknown>,
+    signature: Signature,
+    chain: EChain,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | InvalidParametersError
   >;
 
   /**
@@ -194,89 +212,16 @@ export interface IAccountMethods {
    */
   unlinkAccount(
     accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
     chain: EChain,
-    sourceDomain?: DomainName | undefined,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<
     void,
-    | PersistenceError
-    | InvalidParametersError
-    | BlockchainProviderError
-    | UninitializedError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-    | CrumbsContractError
-    | AjaxError
-    | MinimalForwarderContractError
-    | UnauthorizedError
+    PersistenceError | UninitializedError | InvalidParametersError
   >;
 
-  /**
-   * Checks if the account address has already been linked to a data wallet, and returns the
-   * address of the data wallet. You can only do this if you control the account address, since
-   * it requires you to decrypt the crumb. If there is no crumb, it returns null.
-   * @param accountAddress
-   * @param signature
-   * @param languageCode
-   * @param chain
-   */
-  getDataWalletForAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    DataWalletAddress | null,
-    | PersistenceError
-    | UninitializedError
-    | BlockchainProviderError
-    | CrumbsContractError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-    | UnauthorizedError
-  >;
-
-  unlockWithPassword(
-    password: PasswordString,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    void,
-    | UnsupportedLanguageError
-    | PersistenceError
-    | AjaxError
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | InvalidSignatureError
-    | MinimalForwarderContractError
-  >;
-
-  addPassword(
-    password: PasswordString,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | AjaxError
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | MinimalForwarderContractError
-  >;
-
-  removePassword(
-    password: PasswordString,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    void,
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | AjaxError
-    | MinimalForwarderContractError
-  >;
+  getAccounts(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<LinkedAccount[], PersistenceError | UnauthorizedError>;
 }
 
 export interface ICoreMarketplaceMethods {
@@ -286,21 +231,30 @@ export interface ICoreMarketplaceMethods {
     filterActive: boolean, // make it optional in interface, = true here
   ): ResultAsync<
     PagedResponse<MarketplaceListing>,
-    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
   >;
 
   getListingsTotalByTag(
     tag: MarketplaceTag,
   ): ResultAsync<
     number,
-    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
   >;
 
   getRecommendationsByListing(
     listing: MarketplaceListing,
   ): ResultAsync<
     MarketplaceTag[],
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
   >;
 
   /**
@@ -314,7 +268,26 @@ export interface ICoreMarketplaceMethods {
   getPossibleRewards(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
-  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError>;
+  ): ResultAsync<
+    Map<EVMContractAddress, PossibleReward[]>,
+    | AjaxError
+    | EvaluationError
+    | QueryFormatError
+    | ParserError
+    | QueryExpiredError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentFactoryContractError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | PersistenceError
+    | EvalNotImplementedError
+    | ConsentError
+  >;
 }
 
 export interface ICoreDiscordMethods {
@@ -325,6 +298,7 @@ export interface ICoreDiscordMethods {
    */
   initializeUserWithAuthorizationCode(
     code: OAuthAuthorizationCode,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<void, DiscordError | PersistenceError>;
 
   /**
@@ -332,10 +306,17 @@ export interface ICoreDiscordMethods {
    * call to be made. If user gives consent token can be used
    * to initialize the user
    */
-  installationUrl(): ResultAsync<URLString, OAuthError>;
+  installationUrl(
+    redirectTabId: number | undefined,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<URLString, OAuthError>;
 
-  getUserProfiles(): ResultAsync<DiscordProfile[], PersistenceError>;
-  getGuildProfiles(): ResultAsync<DiscordGuildProfile[], PersistenceError>;
+  getUserProfiles(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<DiscordProfile[], PersistenceError>;
+  getGuildProfiles(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<DiscordGuildProfile[], PersistenceError>;
   /**
    * This method will remove a users discord profile and
    * discord guild data given their profile id
@@ -343,25 +324,32 @@ export interface ICoreDiscordMethods {
    */
   unlink(
     discordProfileId: DiscordID,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<void, DiscordError | PersistenceError>;
 }
 
 export interface ICoreTwitterMethods {
-  getOAuth1aRequestToken(): ResultAsync<TokenAndSecret, TwitterError>;
+  getOAuth1aRequestToken(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<TokenAndSecret, TwitterError>;
   initTwitterProfile(
     requestToken: OAuth1RequstToken,
     oAuthVerifier: OAuthVerifier,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<TwitterProfile, TwitterError | PersistenceError>;
   unlinkProfile(
     id: TwitterID,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<void, TwitterError | PersistenceError>;
-  getUserProfiles(): ResultAsync<TwitterProfile[], PersistenceError>;
+  getUserProfiles(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<TwitterProfile[], PersistenceError>;
 }
 
 export interface ICoreIntegrationMethods {
   /**
    * This method grants the requested permissions to the wallet to the specified domain name.
-   * Other than being unlocked, there are no special requirements to do this- the host of the core
+   * Other than being initialized, there are no special requirements to do this- the host of the core
    * is assumed to know what it's doing here. The permissions are only enforced on a particular method
    * if the sourceDomain parameter is provided; which again is up to the core host. The integration
    * package must determine if a request should be permissioned and pass along the sourceDomain.
@@ -405,7 +393,7 @@ export interface ICoreIntegrationMethods {
    */
   getPermissions(
     domain: DomainName,
-    sourceDomain?: DomainName | undefined,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<EDataWalletPermission[], PersistenceError | UnauthorizedError>;
 
   /**
@@ -506,6 +494,7 @@ export interface IInvitationMethods {
     | ConsentContractError
     | ConsentContractRepositoryError
     | UnauthorizedError
+    | BlockchainCommonErrors
   >;
 
   /**
@@ -528,6 +517,7 @@ export interface IInvitationMethods {
     | MinimalForwarderContractError
     | ConsentError
     | UnauthorizedError
+    | BlockchainCommonErrors
   >;
 
   /**
@@ -554,6 +544,7 @@ export interface IInvitationMethods {
     | ConsentContractError
     | ConsentContractRepositoryError
     | UnauthorizedError
+    | BlockchainCommonErrors
   >;
 
   /**
@@ -574,11 +565,12 @@ export interface IInvitationMethods {
     | MinimalForwarderContractError
     | ConsentError
     | UnauthorizedError
+    | BlockchainCommonErrors
   >;
 
   getAcceptedInvitations(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<Invitation[], PersistenceError | UnauthorizedError>;
+  ): ResultAsync<OptInInfo[], PersistenceError | UnauthorizedError>;
 
   getInvitationsByDomain(
     domain: DomainName,
@@ -592,6 +584,7 @@ export interface IInvitationMethods {
     | IPFSError
     | UnauthorizedError
     | PersistenceError
+    | BlockchainCommonErrors
   >;
 
   getAgreementFlags(
@@ -606,6 +599,7 @@ export interface IInvitationMethods {
     | PersistenceError
     | ConsentError
     | UnauthorizedError
+    | BlockchainCommonErrors
   >;
 
   getAvailableInvitationsCID(
@@ -618,6 +612,7 @@ export interface IInvitationMethods {
     | ConsentContractError
     | PersistenceError
     | UnauthorizedError
+    | BlockchainCommonErrors
   >;
 
   getAcceptedInvitationsCID(
@@ -630,11 +625,12 @@ export interface IInvitationMethods {
     | ConsentFactoryContractError
     | PersistenceError
     | UnauthorizedError
+    | BlockchainCommonErrors
   >;
 
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, IPFSError | UnauthorizedError>;
+  ): ResultAsync<IOldUserAgreement, IPFSError | UnauthorizedError>;
 
   updateDataPermissions(
     consentContractAddress: EVMContractAddress,
@@ -649,6 +645,7 @@ export interface IInvitationMethods {
     | BlockchainProviderError
     | MinimalForwarderContractError
     | AjaxError
+    | BlockchainCommonErrors
   >;
 }
 
@@ -656,15 +653,56 @@ export interface IMetricsMethods {
   /**
    * Returns the current runtime data for the user's data wallet.
    */
-  getMetrics(): ResultAsync<RuntimeMetrics, never>;
+  getMetrics(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<RuntimeMetrics, never>;
+}
+
+export interface IStorageMethods {
+  setAuthenticatedStorage(
+    type: ECloudStorageType,
+    path: string,
+    refreshToken: RefreshToken,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<void, PersistenceError>;
+  authenticateDropbox(
+    code: string,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<OAuth2Tokens, AjaxError>;
+  getCurrentCloudStorage(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<ECloudStorageType, never>;
+  getAvailableCloudStorageOptions(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<Set<ECloudStorageType>, never>;
+  getDropboxAuth(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<URLString, never>;
 }
 
 export interface ISnickerdoodleCore {
+  /**
+   * initialize() should be the first call you make on a new SnickerdoodleCore.
+   * It looks for an existing source entropy in volatile storage, and
+   * if it doesn't exist, it creates it.
+   * @param signature
+   * @param countryCode
+   */
+  initialize(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    PersistenceError | UninitializedError | BlockchainProviderError | AjaxError
+  >;
+
   getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     IConsentCapacity,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
   >;
 
   getConsentContractCID(
@@ -675,17 +713,7 @@ export interface ISnickerdoodleCore {
     | UninitializedError
     | ConsentContractError
     | UnauthorizedError
-  >;
-
-  checkURL(
-    domain: DomainName,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    EScamFilterStatus,
-    | BlockchainProviderError
-    | UninitializedError
-    | SiftContractError
-    | UnauthorizedError
+    | BlockchainCommonErrors
   >;
 
   // Called by the form factor to approve the processing of the query.
@@ -705,8 +733,29 @@ export interface ISnickerdoodleCore {
     | QueryFormatError
     | EvaluationError
     | UnauthorizedError
+    | PersistenceError
   >;
 
+  getQueryStatusByQueryCID(
+    queryCID: IpfsCID,
+  ): ResultAsync<QueryStatus | null, PersistenceError>;
+
+  getQueryStatuses(
+    contractAddress: EVMContractAddress,
+    blockNumber?: BlockNumber,
+  ): ResultAsync<
+    QueryStatus[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | PersistenceError
+  >;
+
+  /**
+   * Restores a backup directly. Should only be called for testing purposes.
+   * @param backup
+   */
   restoreBackup(backup: DataWalletBackup): ResultAsync<void, PersistenceError>;
   unpackBackupChunk(
     backup: DataWalletBackup,
@@ -762,10 +811,9 @@ export interface ISnickerdoodleCore {
     name: GivenName,
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, PersistenceError | UnauthorizedError>;
-  getGivenName(): ResultAsync<
-    GivenName | null,
-    PersistenceError | UnauthorizedError
-  >;
+  getGivenName(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<GivenName | null, PersistenceError | UnauthorizedError>;
 
   setFamilyName(
     name: FamilyName,
@@ -819,11 +867,8 @@ export interface ISnickerdoodleCore {
   ): ResultAsync<SiteVisit[], PersistenceError | UnauthorizedError>;
   getSiteVisitsMap(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<Map<URLString, number>, PersistenceError | UnauthorizedError>;
+  ): ResultAsync<SiteVisitsMap, PersistenceError | UnauthorizedError>;
 
-  getAccounts(
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<LinkedAccount[], PersistenceError | UnauthorizedError>;
   getAccountBalances(
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<TokenBalance[], PersistenceError | UnauthorizedError>;
@@ -881,6 +926,7 @@ export interface ISnickerdoodleCore {
   discord: ICoreDiscordMethods;
   twitter: ICoreTwitterMethods;
   metrics: IMetricsMethods;
+  storage: IStorageMethods;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

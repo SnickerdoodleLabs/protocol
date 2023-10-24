@@ -1,14 +1,17 @@
 import { Box, Typography, Dialog, IconButton, Button } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
+import parse from "html-react-parser";
+import React, { useMemo } from "react";
+
 import { useStyles } from "@synamint-extension-sdk/content/components/Screens/RewardCard/RewardCard.style";
 import { IRewardItem } from "@synamint-extension-sdk/content/constants";
-import React from "react";
 
 interface IRewardCardProps {
   onJoinClick: () => void;
   onCloseClick: () => void;
   onCancelClick: () => void;
   rewardItem: IRewardItem;
+  linkedAccountExist: boolean;
 }
 
 const RewardCard: React.FC<IRewardCardProps> = ({
@@ -16,8 +19,23 @@ const RewardCard: React.FC<IRewardCardProps> = ({
   onCloseClick,
   onCancelClick,
   rewardItem,
+  linkedAccountExist,
 }: IRewardCardProps) => {
   const classes = useStyles();
+
+  const description = useMemo(() => {
+    const descriptionText = rewardItem.description;
+    if (descriptionText.includes("<")) {
+      return (
+        <span className={classes.rawHtmlWrapper}>{parse(descriptionText)}</span>
+      );
+    }
+    return (
+      <Typography className={classes.description} align="center">
+        {descriptionText}
+      </Typography>
+    );
+  }, [JSON.stringify(rewardItem)]);
 
   return (
     <Dialog
@@ -25,6 +43,9 @@ const RewardCard: React.FC<IRewardCardProps> = ({
         square: true,
       }}
       open={true}
+      disableAutoFocus
+      disableEnforceFocus
+      disableRestoreFocus
       disablePortal
     >
       <Box width={480} bgcolor="#FDF3E1">
@@ -78,9 +99,7 @@ const RewardCard: React.FC<IRewardCardProps> = ({
             <Typography className={classes.title} align="center">
               {rewardItem.title}
             </Typography>
-            <Typography className={classes.description} align="center">
-              {rewardItem.description}
-            </Typography>
+            {description}
           </Box>
           <Box px={6} mb={3} display="flex" justifyContent="space-between">
             <Button
@@ -96,7 +115,9 @@ const RewardCard: React.FC<IRewardCardProps> = ({
               onClick={onJoinClick}
               className={classes.primaryButton}
             >
-              {rewardItem.primaryButtonText}
+              {linkedAccountExist
+                ? rewardItem.primaryButtonText
+                : "Connect and Claim"}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 17 16"

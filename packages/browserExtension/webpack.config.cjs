@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
 
-const argon2 = require("argon2");
+// const argon2 = require("argon2");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const fileSystem = require("fs-extra");
@@ -44,7 +44,7 @@ console.log(`env.NODE_ENV: ${env.NODE_ENV}`);
 
 var options = {
   externals: {
-    argon2: argon2,
+    // argon2: argon2,
   },
   target: "webworker",
   // mode: env.NODE_ENV || "development",
@@ -83,9 +83,6 @@ var options = {
           {
             loader: "sass-loader",
             options: {
-              sassOptions: {
-                includePaths: [path.resolve(__dirname, "node_modules")],
-              },
               sourceMap: true,
             },
           },
@@ -129,25 +126,29 @@ var options = {
     new webpack.ProgressPlugin(),
     new webpack.DefinePlugin({
       __ONBOARDING_URL__: JSON.stringify(process.env.__ONBOARDING_URL__),
-      __ACCOUNT_COOKIE_URL__: JSON.stringify(
-        process.env.__ACCOUNT_COOKIE_URL__,
-      ),
       __MANIFEST_VERSION__: JSON.stringify(
         process.env.__MANIFEST_VERSION__ || "v3",
       ),
       __GOOGLE_CLOUD_BUCKET__: JSON.stringify(
         process.env.__GOOGLE_CLOUD_BUCKET__ || "ceramic-replacement-bucket",
       ),
+      __DROPBOX_APP_KEY__: JSON.stringify(
+        process.env.__DROPBOX_APP_KEY__ || "",
+      ),
+      __DROPBOX_APP_SECRET__: JSON.stringify(
+        process.env.__DROPBOX_APP_SECRET__ || "",
+      ),
+      __DROPBOX_REDIRECT_URI__: JSON.stringify(
+        process.env.__DROPBOX_REDIRECT_URI__ || "",
+      ),
       __PLATFORM__: JSON.stringify(process.env.__PLATFORM__ || "chrome"),
       __CONTROL_CHAIN_ID__: JSON.stringify(process.env.__CONTROL_CHAIN_ID__),
-      __SUPPORTED_CHAINS__: JSON.stringify(process.env.__SUPPORTED_CHAINS__),
       __IPFS_FETCH_BASE_URL__: JSON.stringify(
         process.env.__IPFS_FETCH_BASE_URL__,
       ),
       __DEFAULT_INSIGHT_PLATFORM_BASE_URL__: JSON.stringify(
         process.env.__DEFAULT_INSIGHT_PLATFORM_BASE_URL__,
       ),
-      __CERAMIC_NODE_URL__: JSON.stringify(process.env.__CERAMIC_NODE_URL__),
       __REQUEST_FOR_DATA_EVENT_FREQ__: JSON.stringify(
         process.env.__REQUEST_FOR_DATA_EVENT_FREQ__,
       ),
@@ -209,6 +210,7 @@ var options = {
       __POAP_API_KEY__: JSON.stringify(process.env.__POAP_API_KEY__),
       __OKLINK_API_KEY__: JSON.stringify(process.env.__OKLINK_API_KEY__),
       __ANKR_API_KEY__: JSON.stringify(process.env.__ANKR_API_KEY__),
+      __BLUEZ_API_KEY__: JSON.stringify(process.env.__BLUEZ_API_KEY__),
       __PRIMARY_INFURA_KEY__: JSON.stringify(
         process.env.__PRIMARY_INFURA_KEY__,
       ),
@@ -220,9 +222,6 @@ var options = {
 
       __DNS_SERVER_ADDRESS__: JSON.stringify(
         process.env.__DNS_SERVER_ADDRESS__,
-      ),
-      __COOKIE_LIFETIME__: JSON.stringify(
-        process.env.__COOKIE_LIFETIME__ || "1",
       ),
       __DOMAIN_FILTER__: JSON.stringify(process.env.__DOMAIN_FILTER__),
       __PORTFOLIO_POLLING_INTERVAL__: JSON.stringify(
@@ -279,15 +278,6 @@ var options = {
                       process.env.__MANIFEST_VERSION__ || "v3"
                     }/${process.env.__PLATFORM__ || "chrome"}.json`,
                   ),
-                  {
-                    ...((process.env.__MANIFEST_VERSION__ || "v3") === "v3"
-                      ? {
-                          host_permissions: [
-                            process.env.__ACCOUNT_COOKIE_URL__,
-                          ],
-                        }
-                      : { permissions: [process.env.__ACCOUNT_COOKIE_URL__] }),
-                  },
                 ),
               ),
             );

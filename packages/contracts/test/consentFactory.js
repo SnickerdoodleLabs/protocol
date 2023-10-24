@@ -1,5 +1,6 @@
 const { expect } = require("chai");
 const { ethers, upgrades } = require("hardhat");
+const { time } = require("hardhat");
 
 const agreementFlags1 = ethers.utils.formatBytes32String(1);
 const agreementFlags2 = ethers.utils.formatBytes32String(2);
@@ -23,6 +24,7 @@ describe("ConsentFactory", () => {
   let owner;
   let user1;
   let user2;
+  let user3;
   let trustedForwarder;
 
   const pauserRoleBytes = ethers.utils.id("PAUSER_ROLE");
@@ -35,6 +37,7 @@ describe("ConsentFactory", () => {
     owner = accounts[0];
     user1 = accounts[1];
     user2 = accounts[2];
+    user3 = accounts[3];
     trustedForwarder = accounts[19];
 
     // deploy the Consent contract before each test
@@ -536,6 +539,170 @@ describe("ConsentFactory", () => {
       ).to.eq(0);
 
       expect(await consentFactory.getTagTotal(tag2)).to.eq(0);
+    });
+
+    it.only("Test get listings with mix of expired and non-expired listings", async function () {
+      // create a couple of consent contracts
+      await consentFactory
+        .connect(owner)
+        .createConsent(user1.address, "Listing1", "Brand1")
+        .then((tx) => {
+          return tx.wait();
+        });
+
+      // add a tail listing behind the head
+      await consentFactory
+        .connect(owner)
+        .createConsent(user2.address, "Listing2", "Brand2")
+        .then((tx) => {
+          return tx.wait();
+        });
+
+      // add a tail listing behind the head
+      await consentFactory
+        .connect(owner)
+        .createConsent(user3.address, "Listing3", "Brand3")
+        .then((tx) => {
+          return tx.wait();
+        });
+
+      // get the deployed address by looking up the provided name
+      deployedConsentAddressArray1 =
+        await consentFactory.getUserDeployedConsentsByIndex(
+          user1.address,
+          0,
+          1,
+        );
+
+      deployedConsentAddressArray2 =
+        await consentFactory.getUserDeployedConsentsByIndex(
+          user2.address,
+          0,
+          1,
+        );
+
+      deployedConsentAddressArray3 =
+        await consentFactory.getUserDeployedConsentsByIndex(
+          user3.address,
+          0,
+          1,
+        );
+
+      // attach the deployed Consent address and check it's uri
+      const deployedConsentInstance1 = consent.attach(
+        deployedConsentAddressArray1[0],
+      );
+      const deployedConsentInstance2 = consent.attach(
+        deployedConsentAddressArray2[0],
+      );
+      const deployedConsentInstance3 = consent.attach(
+        deployedConsentAddressArray3[0],
+      );
+
+      const slot1 = 1;
+      const slot2 = 2;
+      const slot3 = 3;
+      const slot4 = 4;
+
+      const tag2 = "short-string-2";
+
+      // user 1 initializes a new tag globally
+      await deployedConsentInstance1
+        .connect(user1)
+        .newGlobalTag(tag2, slot3)
+        .then((txrct) => {
+          return txrct.wait();
+        });
+
+      // user 3 enters with new local tag downstream, has not expired
+      await deployedConsentInstance3
+        .connect(user3)
+        .newLocalTagDownstream(tag2, slot3, slot1)
+        .then((txrct) => {
+          return txrct.wait();
+        });
+
+      // fast forward until the listing expires
+      // At this point, user 1's slot 3 and user 3's slot 1 expires
+      const listingDuration = await consentFactory.listingDuration();
+      await ethers.provider.send("evm_increaseTime", [
+        listingDuration.toNumber(),
+      ]);
+      await ethers.provider.send("evm_mine");
+
+      // user 2 enters with new local tag downstream, has not expired
+      await deployedConsentInstance2
+        .connect(user2)
+        .newLocalTagDownstream(tag2, slot3, slot2)
+        .then((txrct) => {
+          return txrct.wait();
+        });
+
+      // Check with getListingsForward
+      const forwardListFiltered = await consentFactory
+        .getListingsForward(tag2, 3, 4, true)
+        .then((list) => {
+          return list[1].filter((item) => {
+            return item.timeExpiring != 0;
+          });
+        });
+
+      const forwardListNotFiltered = await consentFactory
+        .getListingsForward(tag2, 3, 4, false)
+        .then((list) => {
+          return list[1].filter((item) => {
+            return item.timeExpiring != 0;
+          });
+        });
+
+      // The filtered one should only have listing slot 2 since slot 1 and 3 has expired.
+      expect(forwardListFiltered.length).to.eq(1);
+      expect(forwardListFiltered[0].next).to.eq(1);
+      expect(forwardListFiltered[0].previous).to.eq(3);
+
+      // The unfiltered on should have 3 listings 1, 2 and 3 since it doesn't filter for expired.
+      expect(forwardListNotFiltered.length).to.eq(3);
+      expect(forwardListNotFiltered[0].next).to.eq(2);
+      expect(forwardListNotFiltered[0].previous).to.eq(
+        ethers.constants.MaxUint256,
+      );
+      expect(forwardListNotFiltered[1].next).to.eq(1);
+      expect(forwardListNotFiltered[1].previous).to.eq(3);
+      expect(forwardListNotFiltered[2].next).to.eq(0);
+      expect(forwardListNotFiltered[2].previous).to.eq(2);
+
+      // Check with getListingsBackwards
+      const backwardListFiltered = await consentFactory
+        .getListingsBackward(tag2, 2, 4, true)
+        .then((list) => {
+          return list[1].filter((item) => {
+            return item.timeExpiring != 0;
+          });
+        });
+
+      const backwardListNotFiltered = await consentFactory
+        .getListingsBackward(tag2, 1, 4, false)
+        .then((list) => {
+          return list[1].filter((item) => {
+            return item.timeExpiring != 0;
+          });
+        });
+
+      // The filtered one should only have listing slot 2 since slot 1 and 3 has expired.
+      expect(backwardListFiltered.length).to.eq(1);
+      expect(backwardListFiltered[0].next).to.eq(1);
+      expect(backwardListFiltered[0].previous).to.eq(3);
+
+      // The unfiltered on should have 3 listings 1, 2 and 3 since it doesn't filter for expired.
+      expect(backwardListNotFiltered.length).to.eq(3);
+      expect(backwardListNotFiltered[0].next).to.eq(0);
+      expect(backwardListNotFiltered[0].previous).to.eq(2);
+      expect(backwardListNotFiltered[1].next).to.eq(1);
+      expect(backwardListNotFiltered[1].previous).to.eq(3);
+      expect(backwardListNotFiltered[2].next).to.eq(2);
+      expect(backwardListNotFiltered[2].previous).to.eq(
+        ethers.constants.MaxUint256,
+      );
     });
   });
 

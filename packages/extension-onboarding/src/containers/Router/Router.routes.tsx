@@ -1,3 +1,6 @@
+import React from "react";
+import { Route } from "react-router-dom";
+
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import AuthFlowLayout from "@extension-onboarding/layouts/AutFlowLayout";
 import DataDashBoardLayout from "@extension-onboarding/layouts/DataDashboardLayout";
@@ -16,16 +19,13 @@ import PersonalInfo from "@extension-onboarding/pages/Details/screens/PersonalIn
 import PoapNFTs from "@extension-onboarding/pages/Details/screens/PoapNFTs";
 import RewardDetail from "@extension-onboarding/pages/Details/screens/RewardDetail";
 import RewardProgramDetails from "@extension-onboarding/pages/Details/screens/RewardProgramDetails";
-import ScamFilterSettings from "@extension-onboarding/pages/Details/screens/ScamFilterSettings";
 import SocialMediaInfo from "@extension-onboarding/pages/Details/screens/SocialMediaInfo";
+import StorageSettings from "@extension-onboarding/pages/Details/screens/StorageSettings/StorageSettings";
 import Tokens from "@extension-onboarding/pages/Details/screens/Tokens";
 import AccountLinking from "@extension-onboarding/pages/Onboarding/AccountLinking";
 import CategorySelection from "@extension-onboarding/pages/Onboarding/CategorySelection";
-import OptIn from "@extension-onboarding/pages/Onboarding/OptIn";
 import PermissionSelection from "@extension-onboarding/pages/Onboarding/PermissionSelection";
 import ProfileCreation from "@extension-onboarding/pages/Onboarding/ProfileCreation";
-import React from "react";
-import { Route } from "react-router-dom";
 
 export const OnboardingRoutes = (
   <Route>
@@ -61,10 +61,10 @@ export const AuthFlowRoutes = (
         <Route path={EPaths.POAP_NFTS} element={<PoapNFTs />} />
         <Route path={EPaths.BROWSER_ACTIVITY} element={<BrowserActivity />} />
         <Route path={EPaths.SOCIAL_MEDIA_DATA} element={<SocialMediaInfo />} />
-        <Route
+        {/* <Route
           path={EPaths.PERSONAL_INFO}
           element={<DataDashboarPersonalInfo />}
-        />
+        /> */}
       </Route>
       <Route path={EPaths.MARKETPLACE} element={<Marketplace />} />
       <Route path={EPaths.NFT_DETAIL} element={<NFTDetails />} />
@@ -81,6 +81,7 @@ export const AuthFlowRoutes = (
       /> */}
       <Route path={EPaths.WEB3_SETTINGS} element={<OnChainIfo />} />
       <Route path={EPaths.WEB2_SETTINGS} element={<PersonalInfo />} />
+      <Route path={EPaths.STORAGE_SETTINGS} element={<StorageSettings />} />
       <Route
         path={EPaths.REWARDS_SUBSCRIPTIONS}
         element={<CampaignSettings />}
@@ -89,10 +90,6 @@ export const AuthFlowRoutes = (
         path={EPaths.DATA_PERMISSIONS_SETTING}
         element={<DataPermissionsSettings />}
       /> */}
-      <Route
-        path={EPaths.SCAM_FILTER_SETTINGS}
-        element={<ScamFilterSettings />}
-      />
       <Route
         path={EPaths.REWARDS_SUBSCRIPTION_DETAIL}
         element={<RewardProgramDetails />}

@@ -1,0 +1,30 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "module": "ES2022",
+    "paths": {
+      "@node-utils/*": [
+        "./packages/node-utils/src/*"
+      ],
+      "@node-utils-test/*": [
+        "./packages/node-utils/test/*"
+      ],
+    }
+  },
+  "include": [
+    "./src/**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
+  "references": [
+    {
+      "path": "../common-utils"
+    },
+    {
+      "path": "../objects"
+    }
+  ],
+}

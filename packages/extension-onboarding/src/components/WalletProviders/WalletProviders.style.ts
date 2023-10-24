@@ -2,9 +2,13 @@ import { makeStyles } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme) => ({
   sectionTitle: {
-    fontFamily: "Space Grotesk, sans-serif",
+    color: "#232039",
+    fontFamily: "Roboto",
+    fontSize: "20px",
+    fontStyle: "normal",
     fontWeight: 700,
-    fontSize: 20,
+    lineHeight: "normal",
+    letterSpacing: "0.7px",
   },
   phantomSteps: {
     fontSize: 14,

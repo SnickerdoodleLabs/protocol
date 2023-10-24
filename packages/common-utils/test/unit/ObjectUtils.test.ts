@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import {
   CursorPagedResponse,
   PagedResponse,
@@ -5,7 +6,7 @@ import {
   BigNumberString,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
-import { errAsync, okAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import { ObjectUtils } from "@common-utils/implementations/ObjectUtils.js";
 
@@ -238,4 +239,60 @@ describe("ObjectUtils tests", () => {
     // 5 successful processes
     expect(seenResults.length).toBe(5);
   });
+
+  test("progressiveFallback() returns first available result", async () => {
+    // Arrange
+    const provider1 = new TestProvider(1, true);
+    const provider2 = new TestProvider(2, false);
+    const provider3 = new TestProvider(3, false);
+
+    // Act
+    const result = await ObjectUtils.progressiveFallback(
+      (provider: TestProvider) => {
+        return provider.getResult();
+      },
+      [provider1, provider2, provider3],
+    );
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    expect(result._unsafeUnwrap()).toBe(2);
+  });
+
+  test("progressiveFallback() returns last error if everything errors", async () => {
+    // Arrange
+    const provider1 = new TestProvider(1, true);
+    const provider2 = new TestProvider(2, true);
+    const provider3 = new TestProvider(3, true, "Final Error");
+
+    // Act
+    const result = await ObjectUtils.progressiveFallback(
+      (provider: TestProvider) => {
+        return provider.getResult();
+      },
+      [provider1, provider2, provider3],
+    );
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeTruthy();
+    const err = result._unsafeUnwrapErr();
+    expect(err.message).toBe("Final Error");
+  });
 });
+
+class TestProvider {
+  public constructor(
+    public returnVal: number,
+    public fail: boolean,
+    public failMessage = "Failed!",
+  ) {}
+
+  public getResult(): ResultAsync<number, Error> {
+    if (this.fail) {
+      return errAsync(new Error(this.failMessage));
+    }
+    return okAsync(this.returnVal);
+  }
+}

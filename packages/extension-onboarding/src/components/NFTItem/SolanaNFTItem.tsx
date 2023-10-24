@@ -1,11 +1,12 @@
-import MediaRenderer from "@extension-onboarding/components/NFTItem/MediaRenderer";
-import { useStyles } from "@extension-onboarding/components/NFTItem/NFTItem.style";
-import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import { useAppContext } from "@extension-onboarding/context/App";
 import { Box, Grid, Typography } from "@material-ui/core";
 import { SolanaNFT } from "@snickerdoodlelabs/objects";
 import React, { FC, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+
+import MediaRenderer from "@extension-onboarding/components/NFTItem/MediaRenderer";
+import { useStyles } from "@extension-onboarding/components/NFTItem/NFTItem.style";
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { useAppContext } from "@extension-onboarding/context/App";
 
 export interface ISolanaNFTItemProps {
   item: SolanaNFT;

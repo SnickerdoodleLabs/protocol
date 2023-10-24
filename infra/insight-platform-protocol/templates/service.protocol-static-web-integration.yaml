@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: protocol-static-web-integration
+  namespace: {{ .Values.ENV }}
+  labels:
+    app: protocol-static-web-integration
+    tier: backend
+spec:
+  type: ClusterIP
+  ports:
+    - name: protocol-static-web-integration
+      port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    app: protocol-static-web-integration
+    tier: backend

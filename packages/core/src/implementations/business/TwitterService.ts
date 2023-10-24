@@ -12,6 +12,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { ITwitterService } from "@core/interfaces/business/index.js";
 import {
@@ -22,7 +23,6 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
-import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
 export class TwitterService implements ITwitterService {

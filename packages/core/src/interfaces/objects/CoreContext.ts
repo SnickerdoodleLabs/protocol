@@ -5,12 +5,11 @@ import {
   ComponentStatus,
   DataWalletAddress,
   EVMPrivateKey,
+  PublicEvents,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
-import { Subject } from "rxjs";
 
 import { PrivateEvents } from "@core/interfaces/objects/PrivateEvents.js";
-import { PublicEvents } from "@core/interfaces/objects/PublicEvents.js";
 
 /**
  * Some people may object to some of the values in here- like private keys.
@@ -30,7 +29,7 @@ export class CoreContext implements IIndexerContext {
   public constructor(
     public dataWalletAddress: DataWalletAddress | null,
     public dataWalletKey: EVMPrivateKey | null,
-    public unlockInProgress: boolean,
+    public initializeInProgress: boolean,
     public publicEvents: PublicEvents,
     public privateEvents: PrivateEvents,
     public restoreInProgress: boolean,

@@ -6,6 +6,7 @@ import {
   DataWalletAddress,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
 import { MobileCookieError } from "../objects/errors/MobileCookieError";
 import { IUnlockParams } from "../objects/params/IParams";
 
@@ -32,4 +33,6 @@ export interface IAccountStorageRepository {
   removeDataWalletAddressFromstorage(): ResultAsync<void, MobileCookieError>;
 }
 
-export const IAccountStorageRepositoryType = Symbol.for("IAccountStorageRepository");
+export const IAccountStorageRepositoryType = Symbol.for(
+  "IAccountStorageRepository",
+);

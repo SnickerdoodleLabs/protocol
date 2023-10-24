@@ -1,15 +1,16 @@
 import {
-  EWalletDataType,
   ESDQLQueryReturn,
+  EWalletDataType,
+  ISDQLQueryClause,
+  ISDQLTimestampRange,
   MissingWalletDataTypeError,
   SDQL_Name,
   SDQL_OperatorName,
   Web2QueryTypes,
-  ISDQLQueryClause,
-  ISDQLTimestampRange,
 } from "@snickerdoodlelabs/objects";
+import { Result, err, ok } from "neverthrow";
 
-import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
+import { AST_SubQuery } from "@query-parser/interfaces/objects/AST_SubQuery.js";
 import {
   BinaryCondition,
   ConditionE,
@@ -20,9 +21,7 @@ import {
   ConditionLE,
 } from "@query-parser/interfaces/objects/condition/index.js";
 
-import { err, ok, Result } from "neverthrow";
-
-export class AST_PropertyQuery extends AST_Query {
+export class AST_PropertyQuery extends AST_SubQuery {
   /**
    * @param name - the key of the query from schema, e.g., q1, q2, a3 ...
    * @param property - the name of the query from the schema, e.g., "age"
@@ -82,7 +81,9 @@ export class AST_PropertyQuery extends AST_Query {
       case "social_twitter":
         return ok(EWalletDataType.Twitter);
       default:
-        const missingWalletType = new MissingWalletDataTypeError(this.property);
+        const missingWalletType = new MissingWalletDataTypeError(
+          `no wallet data type defined for ${this.property}`,
+        );
         console.error(missingWalletType);
         return err(missingWalletType);
     }

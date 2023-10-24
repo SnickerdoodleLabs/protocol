@@ -1,3 +1,8 @@
+import { Box, Button, Grid, Hidden, MobileStepper } from "@material-ui/core";
+import { KeyboardArrowLeft, KeyboardArrowRight } from "@material-ui/icons";
+import React, { FC, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import welcome1Right from "@extension-onboarding/assets/images/welcome-sc1-right.png";
 import welcome1 from "@extension-onboarding/assets/images/welcome-sc1.svg";
 import welcome2 from "@extension-onboarding/assets/images/welcome-sc2.svg";
@@ -6,10 +11,6 @@ import welcome3 from "@extension-onboarding/assets/images/welcome-sc3.svg";
 import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/OnboardingWelcome/OnboardingWelcome.style";
-import { Box, Button, Grid, Hidden, MobileStepper } from "@material-ui/core";
-import { KeyboardArrowLeft, KeyboardArrowRight } from "@material-ui/icons";
-import React, { FC, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 const OnboardingWelcome: FC = () => {
   const navigate = useNavigate();

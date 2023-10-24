@@ -4,6 +4,7 @@ import {
   OAuthAuthorizationCode,
   DiscordID,
   URLString,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -11,15 +12,21 @@ import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/e
 export interface IDiscordService {
   initializeUserWithAuthorizationCode(
     code: OAuthAuthorizationCode,
+    sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError>;
-  installationUrl(): ResultAsync<URLString, SnickerDoodleCoreError>;
-  getUserProfiles(): ResultAsync<DiscordProfile[], SnickerDoodleCoreError>;
-  getGuildProfiles(): ResultAsync<
-    DiscordGuildProfile[],
-    SnickerDoodleCoreError
-  >;
+  installationUrl(
+    redirectTabId?: number,
+    sourceDomain?: DomainName,
+  ): ResultAsync<URLString, SnickerDoodleCoreError>;
+  getUserProfiles(
+    sourceDomain?: DomainName,
+  ): ResultAsync<DiscordProfile[], SnickerDoodleCoreError>;
+  getGuildProfiles(
+    sourceDomain?: DomainName,
+  ): ResultAsync<DiscordGuildProfile[], SnickerDoodleCoreError>;
   unlink(
     discordProfileId: DiscordID,
+    sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError>;
 }
 

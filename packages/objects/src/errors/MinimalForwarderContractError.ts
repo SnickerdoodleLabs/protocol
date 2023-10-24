@@ -1,7 +1,8 @@
+import { BaseError } from "@objects/errors/BaseError.js";
 import errorCodes from "@objects/errors/errorCodes.js";
 import { ProviderRpcError } from "@objects/errors/ProviderRpcError.js";
 
-export class MinimalForwarderContractError extends Error {
+export class MinimalForwarderContractError extends BaseError {
   protected errorCode: string = errorCodes[MinimalForwarderContractError.name];
   constructor(
     message?: string,
@@ -10,6 +11,10 @@ export class MinimalForwarderContractError extends Error {
   ) {
     super(
       `${message} ${(src as any)?.reason ? `: ${(src as any)?.reason}` : ``}`,
+      500,
+      errorCodes[MinimalForwarderContractError.name],
+      src,
+      false,
     );
   }
 }

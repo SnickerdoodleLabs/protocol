@@ -1,7 +1,4 @@
-import {
-  ICryptoUtils,
-  ICryptoUtilsType,
-} from "@snickerdoodlelabs/common-utils";
+import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   EligibleAd,
   PersistenceError,
@@ -95,7 +92,7 @@ export class AdService implements IAdService {
   > {
     return this.contextProvider.getContext().andThen((context) => {
       if (context.dataWalletAddress == null || context.dataWalletKey == null) {
-        return errAsync(new UninitializedError("Core is not unlocked!"));
+        return errAsync(new UninitializedError("Core is not initialized!"));
       }
 
       return okAsync(context);

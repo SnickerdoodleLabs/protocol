@@ -153,7 +153,7 @@ There can be three types of earned rewards after a data wallet has posted the in
 [
     {
         cid: '..'
-        compensationId: 'c1',
+        CompensationKey: 'c1',
         type: Web2Reward
         data: {
             url:...,
@@ -162,7 +162,7 @@ There can be three types of earned rewards after a data wallet has posted the in
     },
     {
         cid: '..'
-        compensationId: 'c2',
+        CompensationKey: 'c2',
         type: LazyReward
         data: {
             transactionReceipt: ....
@@ -170,7 +170,7 @@ There can be three types of earned rewards after a data wallet has posted the in
     },
     {
         cid: '..'
-        compensationId: 'c3',
+        CompensationKey: 'c3',
         type: DirectReward
         data: ..signed data..
     }

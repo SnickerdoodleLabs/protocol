@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
+import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   EVMContractAddress,
   EVMPrivateKey,

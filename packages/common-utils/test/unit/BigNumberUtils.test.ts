@@ -50,4 +50,17 @@ describe("BigNumberUtils class", () => {
     expect(utils.formatUnits(mulValue5)).toBe("0.000301204819277108");
     expect(utils.formatUnits(mulValue6)).toBe("871.558956292883789855");
   });
+
+  test("BigNumber from hex string", () => {
+    const hexString1 = "0x7f49b9052e509c";
+    const hexString2 = "0x1";
+    const bigNum1 = BigNumber.from(hexString1);
+    const bigNum2 = BigNumber.from(hexString2);
+
+    console.log(bigNum1.toString());
+    console.log(bigNum2.toString());
+
+    expect(bigNum1.toString()).toBe("35828381046952092");
+    expect(bigNum2.toString()).toBe("1");
+  });
 });

@@ -1,17 +1,21 @@
-import { EModalSelectors } from "@extension-onboarding/components/Modals";
-import { useStyles } from "@extension-onboarding/components/RewardItems/DirectReward/DirectReward.style";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { Box, Typography } from "@material-ui/core";
 import {
   DirectReward,
   EVMContractAddress,
   EWalletDataType,
 } from "@snickerdoodlelabs/objects";
-import { useRewardItemsStyles, Permissions } from "@snickerdoodlelabs/shared-components";
+import {
+  useRewardItemsStyles,
+  Permissions,
+} from "@snickerdoodlelabs/shared-components";
 import React from "react";
 import { useNavigate } from "react-router";
 import { useLocation } from "react-router-dom";
+
+import { EModalSelectors } from "@extension-onboarding/components/Modals";
+import { useStyles } from "@extension-onboarding/components/RewardItems/DirectReward/DirectReward.style";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 
 interface IDirectRewardProps {
   reward: DirectReward;

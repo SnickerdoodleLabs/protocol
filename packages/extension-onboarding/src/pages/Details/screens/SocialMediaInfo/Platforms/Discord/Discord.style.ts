@@ -44,7 +44,7 @@ export const useStyles = makeStyles((theme) => ({
     width: "142px",
     height: "42px",
     textTransform: "none",
-    fontFamily: 'Roboto',
+    fontFamily: "Roboto",
     fontStyle: "normal",
     fontWeight: 500,
     fontSize: "15px",

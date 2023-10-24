@@ -1,7 +1,7 @@
 import { ERewardType } from "@objects/enum/index.js";
 import {
   ChainId,
-  CompensationId,
+  CompensationKey,
   IpfsCID,
   QueryTypes,
   URLString,
@@ -10,8 +10,8 @@ import {
 export class PossibleReward {
   constructor(
     readonly queryCID: IpfsCID,
-    readonly compensationKey: CompensationId,
-    readonly queryDependencies: QueryTypes[],
+    readonly compensationKey: CompensationKey,
+    readonly estimatedQueryDependencies: QueryTypes[], // never use this in any business logic, because it is largely incorrect. Use this in SPA to hint at which queries the user should be giving permission to. This is only for form factors.
     readonly name: string,
     readonly image: IpfsCID | URLString | null,
     readonly description: string,

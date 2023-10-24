@@ -1,5 +1,6 @@
 import { Button, Box, makeStyles, Dialog, Typography } from "@material-ui/core";
 import React, { useContext, useEffect, useMemo, useState, FC } from "react";
+
 import { useStyles } from "@extension-onboarding/components/Modals/AccountUnlinkingModal/AccountUnlinkingModal.style";
 import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";

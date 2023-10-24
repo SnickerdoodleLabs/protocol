@@ -1,4 +1,3 @@
-import { TransactionResponse } from "@ethersproject/abstract-provider";
 import { ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
   IMinimalForwarderContract,
@@ -11,6 +10,7 @@ import {
   MinimalForwarderContractError,
   BigNumberString,
   Signature,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -34,7 +34,10 @@ export class MinimalForwarderContractWrapper
   }
   public getNonce(
     from: EVMAccountAddress,
-  ): ResultAsync<BigNumberString, MinimalForwarderContractError> {
+  ): ResultAsync<
+    BigNumberString,
+    MinimalForwarderContractError | BlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.getNonce(from),
       () => this.secondary?.getNonce(from),
@@ -43,7 +46,10 @@ export class MinimalForwarderContractWrapper
   public verify(
     request: IMinimalForwarderRequest,
     signature: Signature,
-  ): ResultAsync<boolean, MinimalForwarderContractError> {
+  ): ResultAsync<
+    boolean,
+    MinimalForwarderContractError | BlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.verify(request, signature),
       () => this.secondary?.verify(request, signature),
@@ -52,7 +58,10 @@ export class MinimalForwarderContractWrapper
   public execute(
     request: IMinimalForwarderRequest,
     signature: Signature,
-  ): ResultAsync<WrappedTransactionResponse, MinimalForwarderContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | MinimalForwarderContractError
+  > {
     return this.fallback(
       () => this.primary.execute(request, signature),
       () => this.secondary?.execute(request, signature),

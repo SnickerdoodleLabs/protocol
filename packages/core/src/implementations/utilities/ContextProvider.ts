@@ -4,15 +4,12 @@ import {
   ComponentStatus,
   EChain,
   EComponentStatus,
+  PublicEvents,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import {
-  PublicEvents,
-  CoreContext,
-  PrivateEvents,
-} from "@core/interfaces/objects/index.js";
+import { CoreContext, PrivateEvents } from "@core/interfaces/objects/index.js";
 import { IContextProvider } from "@core/interfaces/utilities/index.js";
 
 @injectable()
@@ -25,20 +22,26 @@ export class ContextProvider
     this.context = new CoreContext(
       null, // dataWalletAddress
       null, // dataWalletKey
-      false, // unlockInProgress
+      false, // initializeInProgress
       new PublicEvents(), // publicEvents,
       new PrivateEvents(), // privateEvents
       false, // restoreInProgress
       this.timeUtils.getUnixNow(), // startTime
       new ComponentStatus(
-        EComponentStatus.TemporarilyDisabled,
-        EComponentStatus.TemporarilyDisabled,
+        EComponentStatus.NoKeyProvided,
+        EComponentStatus.NoKeyProvided,
         new Map<EChain, EComponentStatus>(),
         new Map<EChain, EComponentStatus>(),
         new Map<EChain, EComponentStatus>(),
         new Map<EChain, EComponentStatus>(),
         new Map<EChain, EComponentStatus>(),
-        [],
+        new Map<EChain, EComponentStatus>(),
+        new Map<EChain, EComponentStatus>(),
+        new Map<EChain, EComponentStatus>(),
+        new Map<EChain, EComponentStatus>(),
+        new Map<EChain, EComponentStatus>(),
+        new Map<EChain, EComponentStatus>(),
+        new Map<EChain, EComponentStatus>(),
       ),
     );
   }

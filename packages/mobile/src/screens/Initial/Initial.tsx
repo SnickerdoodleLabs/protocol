@@ -1,29 +1,20 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   AccountAddress,
   EChain,
   LanguageCode,
   Signature,
 } from "@snickerdoodlelabs/objects";
-import LottieView from "lottie-react-native";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import React, { useEffect, useMemo, useState } from "react";
 import { StyleSheet, Image, View, Dimensions } from "react-native";
 
-import LoadingLottie from "../../assets/lotties/loading.json";
 import { useAppContext } from "../../context/AppContextProvider";
-
-import { styles } from "./Initial.styles";
+import { useTheme } from "../../context/ThemeContext";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 // Make all neccassary checks here
-
-interface IUnlockParams {
-  accountAddress: AccountAddress;
-  signature: Signature;
-  chain: EChain;
-  languageCode: LanguageCode;
-}
 
 enum EUnlockState {
   "IDLE",
@@ -47,18 +38,6 @@ const Initial = ({ navigation }) => {
   useEffect(() => {
     tryUnlock();
   }, []);
-
-  useEffect(() => {
-    navigation.getParent()?.setOptions({
-      tabBarStyle: {
-        display: "none",
-      },
-    });
-    return () =>
-      navigation.getParent()?.setOptions({
-        tabBarStyle: undefined,
-      });
-  }, [navigation]);
 
   useEffect(() => {
     if (allChecksCompleted) {
@@ -113,9 +92,8 @@ const Initial = ({ navigation }) => {
                 .unlock(
                   accountAddress,
                   signature,
-                  chain ?? EChain.EthereumMainnet,
                   languageCode,
-                  true,
+                  chain ?? EChain.EthereumMainnet,
                 )
                 .map(() => {
                   console.error("WAITING EVENT");
@@ -140,34 +118,38 @@ const Initial = ({ navigation }) => {
         return okAsync(setUnlockCompleted(EUnlockState.NO_ACCOUNT));
       });
   };
-
+  const theme = useTheme();
+  useEffect(() => {
+    AsyncStorage.getItem("darkMode").then((value) => {
+      if (value) {
+        theme?.setIsDarkMode(JSON.parse(value));
+      }
+    });
+  }, [theme]);
+  useEffect(() => {
+    navigation.getParent()?.setOptions({
+      tabBarStyle: {
+        display: "none",
+      },
+    });
+  }, [navigation]);
   return (
     <View
-      style={[
-        {
-          flex: 1,
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "white",
-        },
-      ]}
+      style={{
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "white",
+      }}
     >
       <Image
         source={require("../../assets/images/sd-animated.gif")}
-        style={{ height: normalizeHeight(140), width: normalizeWidth(380) }}
+        style={{
+          height: normalizeHeight(140),
+          width: normalizeWidth(380),
+        }}
         onLoadEnd={() => setGifLoaded(true)}
       />
-
-      {/*      <Image
-        resizeMode={"cover"}
-        source={require("../../assets/images/sd-horizontal.png")}
-        style={{
-          width: Dimensions.get("window").width * 0.8,
-          marginTop: Dimensions.get("window").height * 0.3,
-        }}
-      />
-
-      <LottieView source={LoadingLottie} autoPlay loop /> */}
     </View>
   );
 };

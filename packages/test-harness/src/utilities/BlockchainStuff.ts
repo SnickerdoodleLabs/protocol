@@ -1,4 +1,3 @@
-import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ConsentContract,
   ConsentFactoryContract,
@@ -6,6 +5,7 @@ import {
   MinimalForwarderContract,
   WrappedTransactionResponse,
 } from "@snickerdoodlelabs/contracts-sdk";
+import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   AccountAddress,
   BaseURI,
@@ -18,12 +18,14 @@ import {
   DomainName,
   EVMContractAddress,
   IpfsCID,
+  BlockchainCommonErrors,
   TransactionResponseError,
 } from "@snickerdoodlelabs/objects";
-import { localChainAccounts } from "@test-harness/mocks/LocalChainAccounts.js";
-import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
+
+import { localChainAccounts } from "@test-harness/mocks/LocalChainAccounts.js";
+import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 
 export class BlockchainStuff {
   public serverSigner: ethers.Wallet;
@@ -41,7 +43,7 @@ export class BlockchainStuff {
   public constructor(public accountWallets: TestWallet[]) {
     // Initialize a connection to the local blockchain
     this.provider = new ethers.providers.JsonRpcProvider(
-      "http://localhost:8545",
+      "http://127.0.0.1:8545",
       31337,
     );
     // We'll use account 0
@@ -106,6 +108,7 @@ export class BlockchainStuff {
     metadataCID: IpfsCID,
   ): ResultAsync<
     EVMContractAddress,
+    | BlockchainCommonErrors
     | ConsentFactoryContractError
     | ConsentContractError
     | TransactionResponseError
@@ -137,7 +140,10 @@ export class BlockchainStuff {
   public setConsentContractMaxCapacity(
     contractAddress: EVMContractAddress,
     maxCapacity: number,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
     const contract = this.getConsentContract(contractAddress);
 
     return contract.updateMaxCapacity(maxCapacity);

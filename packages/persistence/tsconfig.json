@@ -15,13 +15,16 @@
 	},
 	"references": [
 		{
+			"path": "../common-utils"
+		},
+		{
+			"path": "../node-utils"
+		},
+		{
 			"path": "../objects"
 		},
 		{
 			"path": "../utils"
-		},
-		{
-			"path": "../common-utils"
 		},
 		{
 			"path": "../insight-platform-api"

@@ -1,9 +1,10 @@
-import * as confettiAnimation from "@extension-onboarding/assets/lotties/confetti.json";
-import { useStyles } from "@extension-onboarding/components/VisualAlert/VisualAlert.style";
-import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import { Box } from "@material-ui/core";
 import React, { FC } from "react";
 import Lottie from "react-lottie";
+
+import * as confettiAnimation from "@extension-onboarding/assets/lotties/confetti.json";
+import { useStyles } from "@extension-onboarding/components/VisualAlert/VisualAlert.style";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 
 const VisualAlert: FC = () => {
   const classes = useStyles();

@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   EWalletDataType,
   HexString32,
@@ -5,9 +6,9 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
-import { MobileStorageError } from "../../interfaces/objects/errors/MobileStorageError";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import { IDataPermissionsRepository } from "../../interfaces/data/IDataPermissionsRepository";
+import { MobileStorageError } from "../../interfaces/objects/errors/MobileStorageError";
 
 export const dependedFlags = {
   [EWalletDataType.Age]: [EWalletDataType.Birthday],
@@ -170,5 +171,22 @@ export class DataPermissionsRepository implements IDataPermissionsRepository {
       ),
       (e) => new MobileStorageError("could not set value of defaultFlags"),
     );
+  }
+
+  public createWithAllPermissions(): ResultAsync<DataPermissions, never> {
+    const allPermissions: EWalletDataType[] = Object.keys(EWalletDataType).map(
+      (key) => Number(key) as EWalletDataType,
+    );
+    const _dataTypes = allPermissions.reduce((acc, dataType) => {
+      acc = Array.from(
+        new Set([
+          ...acc,
+          dataType,
+          ...(dependedFlags[dataType] != null ? dependedFlags[dataType] : []),
+        ]),
+      );
+      return acc;
+    }, [] as EWalletDataType[]);
+    return okAsync(DataPermissions.createWithPermissions(_dataTypes));
   }
 }

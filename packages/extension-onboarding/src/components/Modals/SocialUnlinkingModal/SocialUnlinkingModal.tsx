@@ -1,9 +1,10 @@
-import ExclamationIcon from "@extension-onboarding/assets/icons/exclamationIcon.svg";
-import { useStyles } from "@extension-onboarding/components/Modals/SocialUnlinkingModal/SocialUnlinkingModal.style";
 import { Box, Button, Dialog, Typography } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import clsx from "clsx";
 import React, { FC, useMemo, useState } from "react";
+
+import ExclamationIcon from "@extension-onboarding/assets/icons/exclamationIcon.svg";
+import { useStyles } from "@extension-onboarding/components/Modals/SocialUnlinkingModal/SocialUnlinkingModal.style";
 
 interface ISocialUnlinkingModal {
   profileName: string;

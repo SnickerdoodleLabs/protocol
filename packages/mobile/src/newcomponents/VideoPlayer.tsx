@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
-import Video from "react-native-video";
 import Icon from "react-native-vector-icons/Ionicons";
+import Video from "react-native-video";
 
 const VideoPlayer = ({ source, ...props }) => {
   const [paused, setPaused] = useState(true);

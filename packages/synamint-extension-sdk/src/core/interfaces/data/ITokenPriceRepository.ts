@@ -1,4 +1,3 @@
-import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
 import {
   ChainId,
   TokenAddress,
@@ -7,6 +6,8 @@ import {
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
+import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
 
 export interface ITokenPriceRepository {
   getTokenPrice(

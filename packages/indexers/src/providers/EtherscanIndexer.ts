@@ -1,13 +1,12 @@
 import {
-  IAxiosAjaxUtils,
-  IAxiosAjaxUtilsType,
   ILogUtils,
   ILogUtilsType,
+  IAxiosAjaxUtils,
+  IAxiosAjaxUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
   AjaxError,
-  ChainId,
   EVMAccountAddress,
   EVMTransaction,
   TokenBalance,
@@ -20,7 +19,6 @@ import {
   EVMTransactionHash,
   UnixTimestamp,
   getEtherscanBaseURLForChain,
-  IEVMIndexer,
   EVMNFT,
   MethodSupportError,
   getChainInfoByChain,
@@ -36,11 +34,13 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
 import {
+  IEVMIndexer,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
   IIndexerContextProvider,
   IIndexerContextProviderType,
 } from "@indexers/interfaces/index.js";
+import { MasterIndexer } from "@indexers/MasterIndexer.js";
 
 @injectable()
 export class EtherscanIndexer implements IEVMIndexer {
@@ -52,22 +52,25 @@ export class EtherscanIndexer implements IEVMIndexer {
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [
       EChain.EthereumMainnet,
-      new IndexerSupportSummary(EChain.EthereumMainnet, true, true, true),
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, true, false),
     ],
     [
       EChain.Binance,
-      new IndexerSupportSummary(EChain.Binance, true, true, true),
+      new IndexerSupportSummary(EChain.Binance, true, true, false),
     ],
     [
       EChain.Avalanche,
-      new IndexerSupportSummary(EChain.Avalanche, true, true, true),
+      new IndexerSupportSummary(EChain.Avalanche, true, true, false),
     ],
     [
       EChain.Moonbeam,
-      new IndexerSupportSummary(EChain.Moonbeam, true, true, true),
+      new IndexerSupportSummary(EChain.Moonbeam, true, true, false),
     ],
-    [EChain.Gnosis, new IndexerSupportSummary(EChain.Gnosis, true, true, true)],
-    [EChain.Fuji, new IndexerSupportSummary(EChain.Fuji, true, true, true)],
+    [
+      EChain.Gnosis,
+      new IndexerSupportSummary(EChain.Gnosis, true, true, false),
+    ],
+    [EChain.Fuji, new IndexerSupportSummary(EChain.Fuji, true, true, false)],
   ]);
 
   protected nonNativeSupportCheck = new Map<EChain, boolean>([
@@ -90,6 +93,24 @@ export class EtherscanIndexer implements IEVMIndexer {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
+  public initialize(): ResultAsync<void, never> {
+    return this.configProvider.getConfig().map((config) => {
+      this.indexerSupport.forEach(
+        (value: IndexerSupportSummary, chain: EChain) => {
+          const chainInfo = getChainInfoByChain(chain);
+          if (
+            config.apiKeys.etherscanApiKeys[chainInfo.name] == "" ||
+            config.apiKeys.etherscanApiKeys[chainInfo.name] == null
+          ) {
+            this.health.set(chain, EComponentStatus.NoKeyProvided);
+          } else {
+            this.health.set(chain, EComponentStatus.Available);
+          }
+        },
+      );
+    });
+  }
+
   public name(): string {
     return EDataProvider.Etherscan;
   }
@@ -110,32 +131,34 @@ export class EtherscanIndexer implements IEVMIndexer {
   }
 
   public getTokensForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
     EVMNFT[],
     AccountIndexingError | AjaxError | MethodSupportError
   > {
     // throw new Error("Method not implemented.");
+    // return okAsync([]);
+
     return errAsync(
       new MethodSupportError(
-        "getTokensForAccount not supported for AlchemyIndexer",
+        "getTokensForAccount not supported for Etherscan Indexer",
         400,
       ),
     );
   }
 
   public getEVMTransactions(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
     startTime: Date,
     endTime?: Date | undefined,
   ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
-      this._getEtherscanApiKey(chainId),
-      this._getBlockNumber(chainId, startTime),
-      this._getBlockNumber(chainId, endTime),
+      this._getEtherscanApiKey(chain),
+      this._getBlockNumber(chain, startTime),
+      this._getBlockNumber(chain, endTime),
     ]).andThen(([config, apiKey, fromBlock, toBlock]) => {
       const params = {
         module: "account",
@@ -153,33 +176,10 @@ export class EtherscanIndexer implements IEVMIndexer {
       }
 
       return this._paginateTransactions(
-        chainId,
+        chain,
         params,
         config.etherscanTransactionsBatchSize,
       );
-    });
-  }
-
-  public getHealthCheck(): ResultAsync<
-    Map<EChain, EComponentStatus>,
-    AjaxError
-  > {
-    return this.configProvider.getConfig().andThen((config) => {
-      this.indexerSupport.forEach(
-        (value: IndexerSupportSummary, key: EChain) => {
-          if (
-            config.apiKeys.etherscanApiKeys[getChainInfoByChain(key).name] ==
-              "" ||
-            config.apiKeys.etherscanApiKeys[getChainInfoByChain(key).name] ==
-              undefined
-          ) {
-            this.health.set(key, EComponentStatus.NoKeyProvided);
-          } else {
-            this.health.set(key, EComponentStatus.Available);
-          }
-        },
-      );
-      return okAsync(this.health);
     });
   }
 
@@ -216,7 +216,7 @@ export class EtherscanIndexer implements IEVMIndexer {
           EChainTechnology.EVM,
           TickerSymbol(getChainInfoByChain(chain).nativeCurrency.symbol),
           getChainInfoByChain(chain).chainId,
-          null,
+          MasterIndexer.nativeAddress,
           accountAddress,
           BigNumberString(response.result),
           getChainInfoByChain(chain).nativeCurrency.decimals,
@@ -337,8 +337,8 @@ export class EtherscanIndexer implements IEVMIndexer {
                 EVMTransactionHash(tx.hash),
                 UnixTimestamp(Number.parseInt(tx.timeStamp)),
                 tx.blockNumber == "" ? null : Number.parseInt(tx.blockNumber),
-                tx.to == "" ? null : EVMAccountAddress(tx.to),
-                tx.from == "" ? null : EVMAccountAddress(tx.from),
+                tx.to == "" ? null : EVMAccountAddress(tx.to.toLowerCase()),
+                tx.from == "" ? null : EVMAccountAddress(tx.from.toLowerCase()),
                 tx.value == "" ? null : BigNumberString(tx.value),
                 tx.gasPrice == "" ? null : BigNumberString(tx.gasPrice),
                 tx.contractAddress == ""

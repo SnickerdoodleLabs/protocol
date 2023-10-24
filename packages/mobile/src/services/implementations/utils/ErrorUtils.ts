@@ -1,4 +1,5 @@
 import { inject, injectable } from "inversify";
+
 import { IErrorUtils } from "../../interfaces/utils/IErrorUtils";
 
 @injectable()

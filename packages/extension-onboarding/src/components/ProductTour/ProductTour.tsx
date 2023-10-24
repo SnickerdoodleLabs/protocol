@@ -1,11 +1,5 @@
-import pdTour from "@extension-onboarding/assets/images/pd-tour.svg";
-import { Button } from "@snickerdoodlelabs/shared-components";
-import ProductTourInitial from "@extension-onboarding/components/Modals/ProductTourInitial";
-import ProductTourStart from "@extension-onboarding/components/Modals/ProductTourStart";
-import { useStyles } from "@extension-onboarding/components/ProductTour/ProductTour.style";
-import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import { useAppContext } from "@extension-onboarding/context/App";
 import { Box, Typography } from "@material-ui/core";
+import { Button } from "@snickerdoodlelabs/shared-components";
 import React, { FC, useCallback, useMemo, useState } from "react";
 import Joyride, {
   CallBackProps,
@@ -13,6 +7,13 @@ import Joyride, {
   TooltipRenderProps,
 } from "react-joyride";
 import { useNavigate } from "react-router-dom";
+
+import pdTour from "@extension-onboarding/assets/images/pd-tour.svg";
+import ProductTourInitial from "@extension-onboarding/components/Modals/ProductTourInitial";
+import ProductTourStart from "@extension-onboarding/components/Modals/ProductTourStart";
+import { useStyles } from "@extension-onboarding/components/ProductTour/ProductTour.style";
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { useAppContext } from "@extension-onboarding/context/App";
 
 export interface IProductTourProps {}
 
@@ -86,10 +87,11 @@ const steps: Step[] = [
     disableBeacon: true,
     content: (
       <>
-        You can browse and claim digital collectibles in<br />
-         the marketplace.
+        You can browse and claim digital collectibles in
         <br />
-        Earn them by renting out your anonymized <br /> 
+        the marketplace.
+        <br />
+        Earn them by renting out your anonymized <br />
         data!
       </>
     ),
@@ -124,8 +126,11 @@ const steps: Step[] = [
     target: `#sb-link-account`,
     disableBeacon: true,
     content: (
-      <>Linking additional wallets makes you eligible for more reward offers.
-       It also allows you to view your NFTs and Tokens from all your accounts on your Data Dashboard.</>
+      <>
+        Linking additional wallets makes you eligible for more reward offers. It
+        also allows you to view your NFTs and Tokens from all your accounts on
+        your Data Dashboard.
+      </>
     ),
     placement: "right-start",
   },
@@ -134,8 +139,8 @@ const steps: Step[] = [
 const ProductTour: FC<IProductTourProps> = ({}: IProductTourProps) => {
   const classes = useStyles();
   const navigate = useNavigate();
-  const {isProductTourCompleted, completeProductTour} = useAppContext();
-  
+  const { isProductTourCompleted, completeProductTour } = useAppContext();
+
   const [tourState, setTourState] = useState<ETourState>(
     ETourState.INITIAL_MODAL,
   );

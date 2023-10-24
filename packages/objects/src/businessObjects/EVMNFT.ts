@@ -1,9 +1,8 @@
 import { WalletNFT } from "@objects/businessObjects/WalletNFT.js";
-import { EChainTechnology } from "@objects/enum/index.js";
+import { EChain, EChainTechnology } from "@objects/enum/index.js";
 import {
   EVMContractAddress,
   EVMAccountAddress,
-  ChainId,
   TokenUri,
   BigNumberString,
   BlockNumber,
@@ -20,7 +19,7 @@ export class EVMNFT extends WalletNFT {
     public metadata: object | undefined,
     public amount: BigNumberString,
     public name: string,
-    public chain: ChainId,
+    public chain: EChain,
     public blockNumber?: BlockNumber,
     public lastOwnerTimeStamp?: UnixTimestamp,
   ) {

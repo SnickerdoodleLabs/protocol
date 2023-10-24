@@ -1,7 +1,8 @@
-import sdAnimation from "@extension-onboarding/assets/images/sdAnimation.gif";
 import { Box, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import React, { FC } from "react";
+
+import sdAnimation from "@extension-onboarding/assets/images/sdAnimation.gif";
 
 export const useStyles = makeStyles((theme) => ({
   title: {

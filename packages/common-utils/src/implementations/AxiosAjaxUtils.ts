@@ -1,6 +1,3 @@
-import * as http from "http";
-import { Readable } from "stream";
-
 import { AjaxError, JsonWebToken } from "@snickerdoodlelabs/objects";
 import axios, { AxiosAdapter, AxiosInstance, AxiosResponse } from "axios";
 import { injectable } from "inversify";
@@ -54,7 +51,6 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
       | Record<string, unknown>
       | ArrayBuffer
       | ArrayBufferView
-      | Readable
       | URLSearchParams,
     config?: IRequestConfig,
   ): ResultAsync<T, AjaxError> {
@@ -82,7 +78,6 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
       | Record<string, unknown>
       | ArrayBuffer
       | ArrayBufferView
-      | Readable
       | URLSearchParams,
     config?: IRequestConfig,
   ): ResultAsync<T, AjaxError> {

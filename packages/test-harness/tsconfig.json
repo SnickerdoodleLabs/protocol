@@ -27,6 +27,9 @@
       "path": "../core"
     },
     {
+      "path": "../node-utils"
+    },
+    {
       "path": "../objects"
     },
     {

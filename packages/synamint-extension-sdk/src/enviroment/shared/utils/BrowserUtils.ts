@@ -1,5 +1,6 @@
-import { VersionUtils } from "@synamint-extension-sdk/extensionShared";
 import Browser from "webextension-polyfill";
+
+import { VersionUtils } from "@synamint-extension-sdk/extensionShared";
 
 export class BrowserUtils {
   public static get browserAction() {

@@ -1,9 +1,10 @@
-import Section, {
-  useSectionStyles,
-} from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";
 import { Box, Typography } from "@material-ui/core";
 import { ETag, EVMContractAddress } from "@snickerdoodlelabs/objects";
 import React, { FC } from "react";
+
+import Section, {
+  useSectionStyles,
+} from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";
 
 interface IOtherProgramsForSameTagProps {
   tag: ETag;

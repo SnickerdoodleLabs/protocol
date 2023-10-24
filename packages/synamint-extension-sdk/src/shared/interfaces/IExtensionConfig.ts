@@ -8,10 +8,7 @@ import {
 
 export interface IExtensionConfigDefaults {
   onboardingUrl: string;
-  accountCookieUrl: string;
-  cookieLifeTime: number;
   controlChainId: ChainId;
-  supportedChains: ChainId[];
   ipfsFetchBaseUrl: URLString;
   defaultInsightPlatformBaseUrl: URLString;
   domainFilter: string;
@@ -48,22 +45,24 @@ export interface IExtensionConfig extends IExtensionConfigDefaults {
   poapApiKey?: string;
   oklinkApiKey?: string;
   ankrApiKey?: string;
+  bluezApiKey?: string;
   dnsServerAddress?: URLString;
   defaultGoogleCloudBucket?: string;
+  dropboxAppKey?: string;
+  dropboxAppSecret?: string;
+  dropboxRedirectUri?: string;
   enableBackupEncryption?: boolean;
   discordOverrides?: Partial<DiscordConfig>;
   twitterOverrides?: Partial<TwitterConfig>;
   primaryInfuraKey?: string;
   secondaryInfuraKey?: string;
   devChainProviderURL?: ProviderUrl;
+  providerKey?: string;
 }
 
 export interface IExtensionConfigOverrides {
   onboardingUrl?: URLString;
-  accountCookieUrl?: URLString;
   controlChainId?: ChainId;
-  supportedChains?: ChainId[];
-  cookieLifeTime?: number;
   ipfsFetchBaseUrl?: URLString;
   defaultInsightPlatformBaseUrl?: URLString;
   domainFilter?: string;
@@ -97,6 +96,7 @@ export interface IExtensionConfigOverrides {
     poapApiKey?: string;
     oklinkApiKey?: string;
     ankrApiKey?: string;
+    bluezApiKey?: string;
     primaryInfuraKey?: string;
     secondaryInfuraKey?: string;
   };
@@ -104,8 +104,12 @@ export interface IExtensionConfigOverrides {
   dnsServerAddress?: URLString;
   requestForDataCheckingFrequency?: number;
   defaultGoogleCloudBucket?: string;
+  dropboxAppKey?: string;
+  dropboxAppSecret?: string;
+  dropboxRedirectUri?: string;
   enableBackupEncryption?: boolean;
   discordOverrides?: Partial<DiscordConfig>;
   twitterOverrides?: Partial<TwitterConfig>;
   devChainProviderURL?: ProviderUrl;
+  providerKey?: string;
 }

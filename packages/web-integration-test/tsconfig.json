@@ -1,0 +1,37 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "jsx": "react",
+    "target": "es5",
+    "module": "commonjs",
+    "lib": [
+      "es5",
+      "es6",
+      "dom"
+    ],
+    "paths": {
+      "@web-integration-test/*": [
+        "./packages/web-integration-test/src/*"
+      ],
+    }
+  },
+  "references": [
+    {
+      "path": "../objects"
+    },
+    {
+      "path": "../web-integration"
+    },
+  ],
+  "include": [
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
+    "./src/**/*.json",
+    "index.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

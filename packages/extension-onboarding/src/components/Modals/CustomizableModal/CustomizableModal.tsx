@@ -1,9 +1,10 @@
-import { Button } from "@snickerdoodlelabs/shared-components";
-import { useStyles } from "@extension-onboarding/components/Modals/CustomizableModal/CustomizableModal.style";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { Box, Dialog, Typography, IconButton } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
+import { Button } from "@snickerdoodlelabs/shared-components";
 import React, { FC } from "react";
+
+import { useStyles } from "@extension-onboarding/components/Modals/CustomizableModal/CustomizableModal.style";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 
 interface ICustomizableModal {
   title: string;

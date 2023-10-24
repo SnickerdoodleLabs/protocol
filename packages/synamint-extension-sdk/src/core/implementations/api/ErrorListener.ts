@@ -2,7 +2,10 @@ import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import { IErrorListener } from "@synamint-extension-sdk/core/interfaces/api";
-import { IContextProvider, IContextProviderType } from "@synamint-extension-sdk/core/interfaces/utilities";
+import {
+  IContextProvider,
+  IContextProviderType,
+} from "@synamint-extension-sdk/core/interfaces/utilities";
 
 @injectable()
 export class ErrorListener implements IErrorListener {

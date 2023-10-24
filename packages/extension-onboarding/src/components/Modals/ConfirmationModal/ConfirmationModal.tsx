@@ -1,9 +1,10 @@
-import { useStyles } from "@extension-onboarding/components/Modals/ConfirmationModal/ConfirmationModal.style";
-import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { Box, Dialog, IconButton, Typography } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import React, { FC } from "react";
+
+import { useStyles } from "@extension-onboarding/components/Modals/ConfirmationModal/ConfirmationModal.style";
+import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 
 const ConfirmationModal: FC = () => {
   const { modalState, closeModal } = useLayoutContext();

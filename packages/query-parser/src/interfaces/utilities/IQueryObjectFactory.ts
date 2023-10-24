@@ -19,7 +19,7 @@ export interface IQueryObjectFactory {
     name: SDQL_Name,
     type: Web3QueryTypes,
     schema: ISDQLQueryClause,
-  ): AST_BlockchainTransactionQuery | AST_NftQuery;
+  ): AST_BlockchainTransactionQuery | AST_NftQuery | AST_BalanceQuery;
   toBlockchainTransactionQuery(
     name: SDQL_Name,
     schema: ISDQLQueryClause,

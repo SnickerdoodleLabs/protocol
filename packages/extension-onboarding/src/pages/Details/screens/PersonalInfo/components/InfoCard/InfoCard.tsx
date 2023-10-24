@@ -1,10 +1,11 @@
+import { Box, Button, Divider, Grid, Typography } from "@material-ui/core";
+import EditIcon from "@material-ui/icons/Edit";
+import React, { FC, useEffect, useState } from "react";
+
 import { countries } from "@extension-onboarding/constants/countries";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/PersonalInfo/components/InfoCard/InfoCard.style";
 import { PII } from "@extension-onboarding/services/interfaces/objects";
-import { Box, Button, Divider, Grid, Typography } from "@material-ui/core";
-import EditIcon from "@material-ui/icons/Edit";
-import React, { FC, useEffect, useState } from "react";
 
 interface IInfoCardProps {
   onEditClick: () => void;

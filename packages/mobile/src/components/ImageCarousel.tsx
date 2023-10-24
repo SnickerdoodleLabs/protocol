@@ -1,6 +1,6 @@
-import { View, Image, Dimensions, StyleSheet, Animated } from "react-native";
-import React from "react";
 import { RouteProp, useRoute } from "@react-navigation/native";
+import React from "react";
+import { View, Image, Dimensions, StyleSheet, Animated } from "react-native";
 export type ParamList = {
   Params: {
     userID: string;

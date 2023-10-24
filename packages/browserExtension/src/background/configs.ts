@@ -9,10 +9,7 @@ import { IExtensionConfigOverrides } from "@snickerdoodlelabs/synamint-extension
 import { urlJoin } from "url-join-ts";
 
 declare const __ONBOARDING_URL__: string;
-declare const __ACCOUNT_COOKIE_URL__: string;
-declare const __COOKIE_LIFETIME__: string; // year
 declare const __CONTROL_CHAIN_ID__: string;
-declare const __SUPPORTED_CHAINS__: string;
 declare const __IPFS_FETCH_BASE_URL__: URLString;
 declare const __DEFAULT_INSIGHT_PLATFORM_BASE_URL__: URLString;
 
@@ -41,11 +38,11 @@ declare const __NFTSCAN_API_KEY__: string;
 declare const __POAP_API_KEY__: string;
 declare const __OKLINK_API_KEY__: string;
 declare const __ANKR_API_KEY__: string;
+declare const __BLUEZ_API_KEY__: string;
 declare const __PRIMARY_INFURA_KEY__: string;
 declare const __SECONDARY_INFURA_KEY__: string;
 
 declare const __DNS_SERVER_ADDRESS__: URLString;
-declare const __CERAMIC_NODE_URL__: URLString;
 declare const __REQUEST_FOR_DATA_EVENT_FREQ__: string;
 declare const __DOMAIN_FILTER__: string;
 declare const __GOOGLE_CLOUD_BUCKET__: string;
@@ -61,17 +58,12 @@ declare const __TWITTER_CONSUMER_SECRET__: string;
 declare const __TWITTER_POLL_INTERVAL__: string;
 declare const __DEV_CHAIN_PROVIDER_URL__: ProviderUrl;
 
+declare const __DROPBOX_APP_KEY__: string;
+declare const __DROPBOX_APP_SECRET__: string;
+declare const __DROPBOX_REDIRECT_URI__: string;
+
 const ONE_MINUTE_MS = 60000;
 
-const supportedChains = (
-  typeof __SUPPORTED_CHAINS__ !== "undefined" && !!__SUPPORTED_CHAINS__
-    ? __SUPPORTED_CHAINS__
-    : "80001,43113,1,137,43114,-1"
-)
-  .split(",")
-  .map((chain) => {
-    return ChainId(Number.parseInt(chain));
-  });
 const _buildDiscordConfig = (): Partial<DiscordConfig> => {
   const oauthRedirectUrl =
     typeof __ONBOARDING_URL__ !== "undefined" && !!__ONBOARDING_URL__
@@ -146,19 +138,10 @@ export const configs: IExtensionConfigOverrides = {
     typeof __ONBOARDING_URL__ !== "undefined" && !!__ONBOARDING_URL__
       ? URLString(__ONBOARDING_URL__)
       : URLString("https://datawallet.snickerdoodle.com/"),
-  accountCookieUrl:
-    typeof __ACCOUNT_COOKIE_URL__ !== "undefined" && !!__ACCOUNT_COOKIE_URL__
-      ? URLString(__ACCOUNT_COOKIE_URL__)
-      : URLString("https://snickerdoodlelabs.io/"),
   controlChainId:
     typeof __CONTROL_CHAIN_ID__ !== "undefined" && !!__CONTROL_CHAIN_ID__
       ? ChainId(Number.parseInt(__CONTROL_CHAIN_ID__))
       : ChainId(43113),
-  supportedChains,
-  cookieLifeTime:
-    typeof __COOKIE_LIFETIME__ !== "undefined" && !!__COOKIE_LIFETIME__
-      ? Number.parseInt(__COOKIE_LIFETIME__)
-      : 1,
   domainFilter:
     typeof __DOMAIN_FILTER__ !== "undefined" && !!__DOMAIN_FILTER__
       ? __DOMAIN_FILTER__
@@ -294,6 +277,11 @@ export const configs: IExtensionConfigOverrides = {
       typeof __ANKR_API_KEY__ !== "undefined" && !!__ANKR_API_KEY__
         ? __ANKR_API_KEY__
         : undefined,
+    bluezApiKey:
+      typeof __BLUEZ_API_KEY__ !== "undefined" && !!__BLUEZ_API_KEY__
+        ? __BLUEZ_API_KEY__
+        : undefined,
+
     primaryInfuraKey:
       typeof __PRIMARY_INFURA_KEY__ !== "undefined" && !!__PRIMARY_INFURA_KEY__
         ? __PRIMARY_INFURA_KEY__
@@ -317,6 +305,23 @@ export const configs: IExtensionConfigOverrides = {
     typeof __GOOGLE_CLOUD_BUCKET__ !== "undefined" && !!__GOOGLE_CLOUD_BUCKET__
       ? __GOOGLE_CLOUD_BUCKET__
       : undefined,
+
+  dropboxAppKey:
+    typeof __DROPBOX_APP_KEY__ !== "undefined" && !!__DROPBOX_APP_KEY__
+      ? __DROPBOX_APP_KEY__
+      : undefined,
+
+  dropboxAppSecret:
+    typeof __DROPBOX_APP_SECRET__ !== "undefined" && !!__DROPBOX_APP_SECRET__
+      ? __DROPBOX_APP_SECRET__
+      : undefined,
+
+  dropboxRedirectUri:
+    typeof __DROPBOX_REDIRECT_URI__ !== "undefined" &&
+    !!__DROPBOX_REDIRECT_URI__
+      ? __DROPBOX_REDIRECT_URI__
+      : undefined,
+
   enableBackupEncryption:
     typeof __ENABLE_BACKUP_ENCRYPTION__ !== "undefined" &&
     !!__ENABLE_BACKUP_ENCRYPTION__
@@ -329,7 +334,7 @@ export const configs: IExtensionConfigOverrides = {
     typeof __DEV_CHAIN_PROVIDER_URL__ !== "undefined" &&
     !!__DEV_CHAIN_PROVIDER_URL__
       ? __DEV_CHAIN_PROVIDER_URL__
-      : ProviderUrl("https://doodlechain.dev.snickerdoodle.dev"),
+      : undefined, // Important, should not have a default so that prod can have this turned off
   ipfsFetchBaseUrl:
     typeof __IPFS_FETCH_BASE_URL__ !== "undefined" && !!__IPFS_FETCH_BASE_URL__
       ? __IPFS_FETCH_BASE_URL__

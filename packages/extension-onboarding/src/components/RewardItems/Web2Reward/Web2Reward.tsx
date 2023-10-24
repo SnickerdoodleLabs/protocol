@@ -1,6 +1,3 @@
-import { useStyles } from "@extension-onboarding/components/RewardItems/Web2Reward/Web2Reward.style";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { EBadgeType } from "@extension-onboarding/objects";
 import { Box, Typography } from "@material-ui/core";
 import {
   EVMContractAddress,
@@ -11,6 +8,10 @@ import { useRewardItemsStyles } from "@snickerdoodlelabs/shared-components";
 import React from "react";
 import { useNavigate } from "react-router";
 import { useLocation } from "react-router-dom";
+
+import { useStyles } from "@extension-onboarding/components/RewardItems/Web2Reward/Web2Reward.style";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { EBadgeType } from "@extension-onboarding/objects";
 
 interface IWeb2RewardProps {
   reward: Web2Reward;

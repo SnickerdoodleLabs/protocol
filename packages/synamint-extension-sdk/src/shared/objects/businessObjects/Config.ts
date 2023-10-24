@@ -13,12 +13,9 @@ import {
 export class ExtensionConfig {
   constructor(
     public onboardingUrl: string,
-    public accountCookieUrl: string,
-    public cookieLifeTime: number,
     public manifestVersion: EManifestVersion,
     public platform: EPlatform,
     public controlChainId: ChainId,
-    public supportedChains: ChainId[],
     public ipfsFetchBaseUrl: URLString,
     public defaultInsightPlatformBaseUrl: URLString,
     public apiKeys: {
@@ -48,11 +45,16 @@ export class ExtensionConfig {
       poapApiKey?: string;
       oklinkApiKey?: string;
       ankrApiKey?: string;
+      bluezApiKey?: string;
     },
     public dnsServerAddress?: URLString,
     public requestForDataCheckingFrequency?: number,
     public domainFilter?: string,
     public defaultGoogleCloudBucket?: string,
+
+    public dropboxAppKey?: string,
+    public dropboxAppSecret?: string,
+
     public portfolioPollingIntervalMS?: number,
     public transactionPollingIntervalMS?: number,
     public backupPollingIntervalMS?: number,
@@ -62,5 +64,6 @@ export class ExtensionConfig {
     public primaryInfuraKey?: string,
     public secondaryInfuraKey?: string,
     public devChainProviderURL?: ProviderUrl,
+    public injectedKey?: string,
   ) {}
 }

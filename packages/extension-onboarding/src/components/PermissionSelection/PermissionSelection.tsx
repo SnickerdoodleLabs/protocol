@@ -1,12 +1,3 @@
-import { useStyles } from "@extension-onboarding/components/PermissionSelection/PermissionSelection.style";
-import Switch from "@extension-onboarding/components/Switch";
-import Typography from "@extension-onboarding/components/Typography";
-import {
-  PERMISSIONS,
-  PERMISSION_DESCRIPTIONS,
-  PERMISSION_NAMES,
-} from "@extension-onboarding/constants/permissions";
-import usePermissionSettingsLogic from "@extension-onboarding/hooks/usePermissionSettingsLogic";
 import {
   Box,
   Divider,
@@ -16,6 +7,16 @@ import {
   RadioGroup,
 } from "@material-ui/core";
 import React, { FC } from "react";
+
+import { useStyles } from "@extension-onboarding/components/PermissionSelection/PermissionSelection.style";
+import Switch from "@extension-onboarding/components/Switch";
+import Typography from "@extension-onboarding/components/Typography";
+import {
+  PERMISSIONS,
+  PERMISSION_DESCRIPTIONS,
+  PERMISSION_NAMES,
+} from "@extension-onboarding/constants/permissions";
+import usePermissionSettingsLogic from "@extension-onboarding/hooks/usePermissionSettingsLogic";
 
 interface IPermissionSelection {
   showDefaultsSettings?: boolean;

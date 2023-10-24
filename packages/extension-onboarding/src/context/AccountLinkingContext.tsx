@@ -1,5 +1,10 @@
-import { EChain, ESocialType } from "@snickerdoodlelabs/objects";
+import {
+  defaultLanguageCode,
+  EChain,
+  ESocialType,
+} from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import React, {
   createContext,
   FC,
@@ -11,20 +16,23 @@ import React, {
 
 import AccountLinkingIndicator from "@extension-onboarding/components/loadingIndicators/AccountLinking";
 import { EModalSelectors } from "@extension-onboarding/components/Modals/";
-import {
-  EWalletProviderKeys,
-} from "@extension-onboarding/constants";
+import LinkAccountModal from "@extension-onboarding/components/Modals/LinkAccountModal";
+import { EWalletProviderKeys } from "@extension-onboarding/constants";
 import { useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import {
   ELoadingIndicatorType,
   useLayoutContext,
 } from "@extension-onboarding/context/LayoutContext";
 import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { IDiscordProvider, ITwitterProvider } from "@extension-onboarding/services/socialMediaProviders/interfaces";
-import { DiscordProvider, TwitterProvider } from "@extension-onboarding/services/socialMediaProviders/implementations";
-
-declare const window: IWindowWithSdlDataWallet;
+import {
+  DiscordProvider,
+  TwitterProvider,
+} from "@extension-onboarding/services/socialMediaProviders/implementations";
+import {
+  IDiscordProvider,
+  ITwitterProvider,
+} from "@extension-onboarding/services/socialMediaProviders/interfaces";
 
 interface IAccountLinkingContext {
   detectedProviders: IProvider[];
@@ -42,10 +50,12 @@ const AccountLinkingContext = createContext<IAccountLinkingContext>(
 );
 
 export const AccountLinkingContextProvider: FC = ({ children }) => {
+  const { sdlDataWallet } = useDataWalletContext();
   const {
     providerList,
     linkedAccounts,
-    isSDLDataWalletDetected,
+    isLinkerModalOpen,
+    setLinkerModalClose,
     socialMediaProviderList,
   } = useAppContext();
   const { setModal, setLoadingStatus } = useLayoutContext();
@@ -78,18 +88,14 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
   const discordProvider = useMemo(() => {
     return (socialMediaProviderList.find((provider) => {
       return provider.key === ESocialType.DISCORD;
-    })?.provider ?? new DiscordProvider()) as IDiscordProvider;
+    })?.provider ?? new DiscordProvider(sdlDataWallet)) as IDiscordProvider;
   }, [socialMediaProviderList.length]);
 
   const twitterProvider = useMemo(() => {
     return (socialMediaProviderList.find((provider) => {
       return provider.key === ESocialType.TWITTER;
-    })?.provider ?? new TwitterProvider()) as ITwitterProvider;
+    })?.provider ?? new TwitterProvider(sdlDataWallet)) as ITwitterProvider;
   }, [socialMediaProviderList.length]);
-
-  useEffect(() => {
-    setLoadingStatus(false);
-  }, [(linkedAccounts ?? []).length]);
 
   useEffect(() => {
     setLoadingStatus(false);
@@ -104,52 +110,46 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
   const onProviderConnectClick = useCallback(
     (providerObj: IProvider) => {
       // setSelectedProviderKey(providerObj.key);
-      return providerObj.provider.connect().andThen((account) => {
-        return window.sdlDataWallet.getUnlockMessage().andThen((message) => {
-          return providerObj.provider
-            .getSignature(message)
-            .andThen((signature) => {
-              if (
-                !linkedAccounts?.find(
-                  (linkedAccount) => linkedAccount.accountAddress === account,
-                )
-              ) {
-                // use it for metadata
-                localStorage.setItem(`${account}`, providerObj.key);
-                return window.sdlDataWallet
-                  .getDataWalletAddress()
-                  .andThen((address) => {
-                    if (!linkedAccounts.length && !address) {
-                      setLoadingStatus(true, {
-                        type: ELoadingIndicatorType.COMPONENT,
-                        component: <AccountLinkingIndicator />,
-                      });
-                      return window.sdlDataWallet
-                        .unlock(account, signature, getChain(providerObj.key))
-                        .mapErr((e) => {
-                          setLoadingStatus(false);
-                        });
-                    }
-                    setLoadingStatus(true, {
-                      type: ELoadingIndicatorType.COMPONENT,
-                      component: <AccountLinkingIndicator />,
-                    });
-                    return window.sdlDataWallet
-                      .addAccount(account, signature, getChain(providerObj.key))
-                      .mapErr((e) => {
-                        setLoadingStatus(false);
-                      });
-                  });
-              } else {
-                setModal({
-                  modalSelector: EModalSelectors.PHANTOM_LINKING_STEPS,
-                  onPrimaryButtonClick: () => {},
-                  customProps: { accountAddress: account },
+      return ResultUtils.combine([
+        providerObj.provider.connect(),
+        sdlDataWallet.account.getLinkAccountMessage(defaultLanguageCode),
+      ]).andThen(([account, message]) => {
+        return providerObj.provider
+          .getSignature(message)
+          .andThen((signature) => {
+            // If the new chosen account is not already linked
+            const chain = getChain(providerObj.key);
+            if (
+              !linkedAccounts?.find(
+                (linkedAccount) =>
+                  linkedAccount.sourceAccountAddress ===
+                  (chain === EChain.EthereumMainnet
+                    ? account.toLowerCase()
+                    : account),
+              )
+            ) {
+              // use it for metadata
+              localStorage.setItem(`${account}`, providerObj.key);
+              setLoadingStatus(true, {
+                type: ELoadingIndicatorType.COMPONENT,
+                component: <AccountLinkingIndicator />,
+              });
+              return sdlDataWallet.account
+                .addAccount(account, signature, defaultLanguageCode, chain)
+                .mapErr((e) => {
+                  console.error(e);
+                  setLoadingStatus(false);
                 });
-              }
-              return okAsync(undefined);
+            }
+
+            // The new account is already linked
+            setModal({
+              modalSelector: EModalSelectors.PHANTOM_LINKING_STEPS,
+              onPrimaryButtonClick: () => {},
+              customProps: { accountAddress: account },
             });
-        });
+            return okAsync(undefined);
+          });
       });
     },
     [linkedAccounts],
@@ -166,6 +166,9 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
         onProviderConnectClick,
       }}
     >
+      {isLinkerModalOpen && (
+        <LinkAccountModal closeModal={setLinkerModalClose} />
+      )}
       {children}
     </AccountLinkingContext.Provider>
   );

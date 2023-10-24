@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -5,14 +6,14 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
+  Platform,
 } from "react-native";
-import React, { useEffect, useState } from "react";
-import { normalizeWidth, normalizeHeight } from "../../themes/Metrics";
-import Video from "react-native-video";
-import VideoPlayer from "../VideoPlayer";
-import Icon from "react-native-vector-icons/Ionicons";
 import { ScrollView } from "react-native-gesture-handler";
-import BottomSheetComponenet from "../Custom/BottomSheetComponenet";
+import Icon from "react-native-vector-icons/Ionicons";
+
+import { useTheme } from "../../context/ThemeContext";
+import { normalizeWidth, normalizeHeight } from "../../themes/Metrics";
+import VideoPlayer from "../VideoPlayer";
 
 interface OnboardingItemProps {
   item: {
@@ -34,6 +35,7 @@ export default function OnboardingItem({
 }: OnboardingItemProps) {
   const { width, height } = Dimensions.get("window");
   const ITEM_WIDTH = width;
+  const theme = useTheme();
   return (
     <SafeAreaView style={{ height: "90%" }}>
       <ScrollView>
@@ -45,20 +47,32 @@ export default function OnboardingItem({
           }}
         >
           <View
-            style={{
-              paddingHorizontal: normalizeWidth(18),
-              marginTop: normalizeHeight(10),
-              height: normalizeHeight(item?.asset?.height ?? 0),
-            }}
+            style={
+              Platform.OS === "ios"
+                ? {
+                    paddingHorizontal: normalizeWidth(18),
+                    marginTop: normalizeHeight(40),
+                    height: normalizeHeight(item?.asset?.height ?? 0),
+                  }
+                : {
+                    paddingHorizontal: normalizeWidth(18),
+                    marginTop: normalizeHeight(60),
+                    height: normalizeHeight(item?.asset?.height ?? 0),
+                  }
+            }
           >
-            {item.asset && item.asset.type === "image" ? (
-              <Image
-                style={{ flex: 1, resizeMode: "contain" }}
-                source={item?.asset?.source}
-              />
-            ) : (
-              <VideoPlayer source={item.asset?.source} />
-            )}
+            {item.asset?.height > 0 &&
+              (item.asset.type === "image" ? (
+                <Image
+                  style={{
+                    flex: 1,
+                    resizeMode: "contain",
+                  }}
+                  source={item?.asset?.source}
+                />
+              ) : (
+                <VideoPlayer source={item.asset?.source} />
+              ))}
           </View>
           <View>
             <View
@@ -71,7 +85,7 @@ export default function OnboardingItem({
                   textAlign: "center",
                   fontWeight: "700",
                   fontSize: normalizeWidth(24),
-                  color: "#4E4676",
+                  color: theme?.colors.title,
                   lineHeight: normalizeWidth(29),
                 }}
               >
@@ -83,9 +97,8 @@ export default function OnboardingItem({
                 style={{
                   textAlign: "center",
                   fontWeight: "400",
-                  color: "#616161",
+                  color: theme?.colors.description,
                   fontSize: normalizeWidth(16),
-                  lineHeight: normalizeWidth(23),
                 }}
               >
                 {item.description}

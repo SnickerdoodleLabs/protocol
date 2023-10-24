@@ -5,6 +5,6 @@ export const WEBSITE_URL = "https://www.snickerdoodle.com/";
 
 export const SPA_PATHS = {
   settings: "settings/web3",
-  rewardsMarketplace: "my-rewards",
+  rewardsMarketplace: "marketplace",
   dashboard: "data-dashboard/tokens",
 };

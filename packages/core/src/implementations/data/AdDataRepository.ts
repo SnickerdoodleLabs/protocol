@@ -1,9 +1,7 @@
 import {
   EligibleAd,
   PersistenceError,
-  EBackupPriority,
   AdSignature,
-  VolatileStorageMetadata,
   ERecordKey,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";

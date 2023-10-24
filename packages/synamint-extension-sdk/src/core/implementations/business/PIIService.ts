@@ -11,13 +11,21 @@ import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 import { IPIIService } from "@synamint-extension-sdk/core/interfaces/business";
-import { IPIIRepository, IPIIRepositoryType } from "@synamint-extension-sdk/core/interfaces/data";
+import {
+  IPIIRepository,
+  IPIIRepositoryType,
+} from "@synamint-extension-sdk/core/interfaces/data";
+import {
+  IContextProviderType,
+  IContextProvider,
+} from "@synamint-extension-sdk/core/interfaces/utilities";
 import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared";
 
 @injectable()
 export class PIIService implements IPIIService {
   constructor(
     @inject(IPIIRepositoryType) protected piiRespository: IPIIRepository,
+    @inject(IContextProviderType) protected contextProvider: IContextProvider,
   ) {}
 
   public getAge(): ResultAsync<Age | null, SnickerDoodleCoreError> {

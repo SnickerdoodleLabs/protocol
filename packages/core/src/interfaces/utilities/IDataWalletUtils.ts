@@ -1,4 +1,8 @@
 import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
+import {
   AccountAddress,
   AESKey,
   EChain,
@@ -43,6 +47,15 @@ export interface IDataWalletUtils {
     accountAddress: AccountAddress,
     signature: Signature,
     message: string,
+  ): ResultAsync<boolean, never>;
+
+  verifyTypedDataSignature(
+    accountAddress: AccountAddress,
+    domain: TypedDataDomain,
+    types: Record<string, Array<TypedDataField>>,
+    value: Record<string, unknown>,
+    signature: Signature,
+    chain: EChain,
   ): ResultAsync<boolean, never>;
 
   /**

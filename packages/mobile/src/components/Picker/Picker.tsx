@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-
 import { View } from "react-native";
-
 import DropDownPicker from "react-native-dropdown-picker";
 
 export default function Picker() {

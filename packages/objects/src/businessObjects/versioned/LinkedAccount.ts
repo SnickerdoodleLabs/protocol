@@ -3,10 +3,7 @@ import {
   VersionedObjectMigrator,
 } from "@objects/businessObjects/versioned/VersionedObject.js";
 import { EChain } from "@objects/enum/index.js";
-import {
-  AccountAddress,
-  EVMAccountAddress,
-} from "@objects/primitives/index.js";
+import { AccountAddress } from "@objects/primitives/index.js";
 
 export class LinkedAccountMigrator extends VersionedObjectMigrator<LinkedAccount> {
   public getCurrentVersion(): number {
@@ -17,7 +14,6 @@ export class LinkedAccountMigrator extends VersionedObjectMigrator<LinkedAccount
     return new LinkedAccount(
       data["sourceChain"] as EChain,
       data["sourceAccountAddress"] as AccountAddress,
-      data["derivedAccountAddress"] as EVMAccountAddress,
     );
   }
 
@@ -38,12 +34,11 @@ export class LinkedAccountMigrator extends VersionedObjectMigrator<LinkedAccount
 }
 
 export class LinkedAccount extends VersionedObject {
-  public static CURRENT_VERSION = 1;
+  public static CURRENT_VERSION = 2;
 
   public constructor(
     public sourceChain: EChain,
     public sourceAccountAddress: AccountAddress,
-    public derivedAccountAddress: EVMAccountAddress,
   ) {
     super();
   }
@@ -52,17 +47,3 @@ export class LinkedAccount extends VersionedObject {
     return LinkedAccount.CURRENT_VERSION;
   }
 }
-
-// export class LinkedAccountV1 extends VersionedObject {
-//   public constructor(
-//     public sourceChain: EChain,
-//     public sourceAccountAddress: AccountAddress,
-//     public derivedAccountAddress: EVMAccountAddress,
-//   ) {
-//     super();
-//   }
-
-//   public getVersion(): number {
-//     return 1;
-//   }
-// }

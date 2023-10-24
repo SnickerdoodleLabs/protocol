@@ -1,20 +1,16 @@
 import { Grid, Box, Typography, IconButton } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
-import { Button } from "@shared-components/components/Button";
-import { PermissionBar } from "@shared-components/components/PermissionBar";
-import { useStyles } from "@shared-components/components/PermissionSelection/PermissionSelection.style";
-import { PossibleRewardComponent } from "@shared-components/components/PossibleReward";
-import { UI_SUPPORTED_PERMISSIONS } from "@shared-components/constants";
-import { EBadgeType } from "@shared-components/objects";
-import { isSameReward } from "@shared-components/utils";
 import {
   CountryCode,
   EarnedReward,
+  EQueryProcessingStatus,
+  ESocialType,
   EVMContractAddress,
   EWalletDataType,
   Gender,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   PossibleReward,
+  QueryStatus,
   QueryTypePermissionMap,
   QueryTypes,
   UnixTimestamp,
@@ -22,31 +18,45 @@ import {
 import { ResultAsync } from "neverthrow";
 import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
 
+import { Button } from "@shared-components/components/Button";
+import { PermissionBar } from "@shared-components/components/PermissionBar";
+import { useStyles } from "@shared-components/components/PermissionSelection/PermissionSelection.style";
+import { PossibleRewardComponent } from "@shared-components/components/PossibleReward";
+import { UI_SUPPORTED_PERMISSIONS } from "@shared-components/constants";
+import { EBadgeType } from "@shared-components/objects";
+import {
+  categorizePossibleRewardsBasedOnStatus,
+  getRewardsAfterRewardsWereDeliveredFromIP,
+  getRewardsBeforeRewardsWereDeliveredFromIP,
+  PossibleRewardWithQueryStatus,
+} from "@shared-components/utils";
+
 interface IPermissionSelectionProps {
   setBirthday(birthday: UnixTimestamp): ResultAsync<void, unknown>;
   setLocation(location: CountryCode): ResultAsync<void, unknown>;
   setGender(gender: Gender): ResultAsync<void, unknown>;
   isSafe: (dataType: EWalletDataType) => boolean;
   generateAllPermissions: () => ResultAsync<EWalletDataType[], unknown>;
-  updateProfileValues: () => void;
-  campaignInfo: IOpenSeaMetadata;
-  possibleRewards: PossibleReward[];
+  campaignInfo: IOldUserAgreement;
+  possibleRewardWithQueryStatus: PossibleRewardWithQueryStatus[];
   earnedRewards: EarnedReward[];
   consentContractAddress: EVMContractAddress;
   onCancelClick(): void;
   onAcceptClick(
-    eligibleRewards: PossibleReward[],
-    missingRewards: PossibleReward[],
+    rewardsThatCanBeAcquired: PossibleReward[],
+    rewardsThatRequireMorePermission: PossibleReward[],
     dataTypes: EWalletDataType[],
   ): void;
   ipfsBaseUrl: string;
+  isUnlocked: boolean;
+  onPermissionClickWhenLocked(): void;
+  onSocialConnect(socialType: ESocialType): void;
 }
 
 export const PermissionSelection: FC<IPermissionSelectionProps> = ({
   isSafe,
   generateAllPermissions,
-  updateProfileValues,
-  possibleRewards,
+  possibleRewardWithQueryStatus,
   earnedRewards,
   consentContractAddress,
   setBirthday,
@@ -55,6 +65,9 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
   onCancelClick,
   onAcceptClick,
   ipfsBaseUrl,
+  isUnlocked,
+  onPermissionClickWhenLocked,
+  onSocialConnect,
 }) => {
   const [permissions, setPermissions] = useState<EWalletDataType[]>([]);
   const classes = useStyles();
@@ -66,48 +79,76 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
       : setPermissions((permissions) => [...permissions, permission]);
   };
 
-  const getBadge = useCallback(
-    (queryDependencies: QueryTypes[]) =>
-      queryDependencies
-        .map((dependency) => QueryTypePermissionMap.get(dependency)!)
-        .every((dataType) => permissions.includes(dataType))
-        ? EBadgeType.Available
-        : EBadgeType.MorePermissionRequired,
-    [permissions],
-  );
+  const {
+    rewardsThatCanBeAcquired,
+    rewardsThatTheUserWasIneligible,
+    rewardsThatRequireMorePermission,
+  } = useMemo(() => {
+    let rewardsThatCanBeAcquired: PossibleReward[] = [];
+    let rewardsThatTheUserWasIneligible: PossibleReward[] = [];
+    let rewardsThatRequireMorePermission: PossibleReward[] = [];
 
-  const { programRewards } = useMemo(() => {
-    // earned rewards
-    const collectedRewards = possibleRewards.reduce((acc, item) => {
-      const matchedReward = earnedRewards.find((reward) =>
-        isSameReward(reward, item),
+    const { queryBeingProcessed, queryProcessed, queryNotReceived } =
+      categorizePossibleRewardsBasedOnStatus(possibleRewardWithQueryStatus);
+
+    const { rewardsThatWereNotEarned, rewardsThatTheUserWereUnableToGet } =
+      getRewardsAfterRewardsWereDeliveredFromIP(
+        queryProcessed,
+        earnedRewards,
+        permissions,
       );
-      if (matchedReward) {
-        acc = [...acc, matchedReward];
-      }
-      return acc;
-    }, [] as EarnedReward[]);
+    rewardsThatRequireMorePermission = rewardsThatRequireMorePermission.concat(
+      rewardsThatWereNotEarned,
+    );
+    rewardsThatTheUserWasIneligible = rewardsThatTheUserWereUnableToGet;
 
-    const collectedRewardQueryCIDs = Array.from(
-      new Set(collectedRewards.map((item) => item.queryCID)),
+    const { rewardsThatCannotBeEarned } =
+      getRewardsBeforeRewardsWereDeliveredFromIP(
+        queryBeingProcessed,
+        permissions,
+      );
+    rewardsThatRequireMorePermission = rewardsThatRequireMorePermission.concat(
+      rewardsThatCannotBeEarned,
+    );
+
+    const {
+      rewardsThatCanBeEarned,
+      rewardsThatCannotBeEarned: unprocessedRewardsThatCannotBeEarned,
+    } = getRewardsBeforeRewardsWereDeliveredFromIP(
+      queryNotReceived,
+      permissions,
+    );
+    rewardsThatCanBeAcquired = rewardsThatCanBeEarned;
+    rewardsThatRequireMorePermission = rewardsThatRequireMorePermission.concat(
+      unprocessedRewardsThatCannotBeEarned,
     );
 
     return {
-      programRewards: possibleRewards
-        .filter(
-          (possibleReward) =>
-            !collectedRewards.find((item) =>
-              isSameReward(possibleReward, item),
-            ),
-        )
-        // filter queries which are already replied
-        .filter((item) => !collectedRewardQueryCIDs.includes(item.queryCID)),
+      rewardsThatCanBeAcquired,
+      rewardsThatTheUserWasIneligible,
+      rewardsThatRequireMorePermission,
     };
-  }, [possibleRewards, earnedRewards]);
+  }, [possibleRewardWithQueryStatus, earnedRewards, permissions]);
+
+  const getPossibleRewardComponent = (
+    reward: PossibleReward,
+    badge: EBadgeType,
+  ) => (
+    <Grid key={JSON.stringify(reward)} item xs={3}>
+      <PossibleRewardComponent
+        ipfsBaseUrl={ipfsBaseUrl}
+        consentContractAddress={consentContractAddress}
+        badgeType={badge}
+        reward={reward}
+      />
+    </Grid>
+  );
 
   useEffect(() => {
-    generateAllPermissions().map((perms) => setPermissions(perms));
-  }, []);
+    if (isUnlocked) {
+      generateAllPermissions().map((perms) => setPermissions(perms));
+    }
+  }, [isUnlocked]);
 
   return (
     <>
@@ -140,26 +181,30 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
             setLocation={setLocation}
             setGender={setGender}
             isSafe={isSafe}
-            updateProfileValues={updateProfileValues}
             permissions={permissions}
             onClick={handlePermissionSelect}
             handleSelectAllClick={() => {
               setPermissions(UI_SUPPORTED_PERMISSIONS);
             }}
+            isUnlocked={isUnlocked}
+            onClickWhenLocked={onPermissionClickWhenLocked}
+            onSocialClick={onSocialConnect}
           />
         </Grid>
         <Grid item xs={9}>
           <Grid container spacing={3}>
-            {programRewards.map((rewardItem) => (
-              <Grid key={JSON.stringify(rewardItem)} item xs={3}>
-                <PossibleRewardComponent
-                  ipfsBaseUrl={ipfsBaseUrl}
-                  consentContractAddress={consentContractAddress}
-                  badgeType={getBadge(rewardItem.queryDependencies)}
-                  reward={rewardItem}
-                />
-              </Grid>
-            ))}
+            {rewardsThatCanBeAcquired.map((reward) =>
+              getPossibleRewardComponent(reward, EBadgeType.Available),
+            )}
+            {rewardsThatRequireMorePermission.map((reward) =>
+              getPossibleRewardComponent(
+                reward,
+                EBadgeType.MorePermissionRequired,
+              ),
+            )}
+            {rewardsThatTheUserWasIneligible.map((reward) =>
+              getPossibleRewardComponent(reward, EBadgeType.UserWasInEligible),
+            )}
           </Grid>
         </Grid>
       </Grid>
@@ -172,37 +217,15 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
         <Button
           buttonType="primary"
           onClick={() => {
-            const { eligibleRewards, unEligibleRewards } =
-              programRewards.reduce(
-                (acc, item) => {
-                  const requiredDataTypes = item.queryDependencies.map(
-                    (queryType) => QueryTypePermissionMap.get(queryType)!,
-                  );
-                  const permissionsMatched = requiredDataTypes.every((item) =>
-                    permissions.includes(item),
-                  );
-                  if (permissionsMatched) {
-                    acc.eligibleRewards = [...acc.eligibleRewards, item];
-                  } else {
-                    acc.unEligibleRewards = [...acc.unEligibleRewards, item];
-                  }
-                  return acc;
-                },
-                { eligibleRewards: [], unEligibleRewards: [] } as {
-                  eligibleRewards: PossibleReward[];
-                  unEligibleRewards: PossibleReward[];
-                },
-              );
+            if (!isUnlocked) {
+              return onPermissionClickWhenLocked();
+            }
 
-            const uniqueCIDsofEligibleRewards = Array.from(
-              new Set(eligibleRewards.map((rewardItem) => rewardItem.queryCID)),
+            onAcceptClick(
+              rewardsThatCanBeAcquired,
+              rewardsThatRequireMorePermission,
+              permissions,
             );
-
-            const missingRewards = unEligibleRewards.filter((item) =>
-              uniqueCIDsofEligibleRewards.includes(item.queryCID),
-            );
-
-            onAcceptClick(eligibleRewards, missingRewards, permissions);
           }}
         >
           Next

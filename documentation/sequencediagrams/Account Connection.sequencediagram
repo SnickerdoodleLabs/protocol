@@ -5,7 +5,7 @@ participant Snickerdoodle Core
 participant Crumb Registry
 note over Crumb Registry:The Crumb Registry is a ERC721 contract on the DoodleChain.\nEach external account (such as 0xDEADBEEF) is issued a token\nin the registry containing the the AES256 encrypted \nprivate key for their data wallet once the account is connected to the data wallet
 ==User wants to connect Account 0xDEADBEEF to [New] Data Wallet with no existing connected accounts.==
-User Account->Snickerdoodle Core:getUnlockMessage(languageCode)\nThis allows for localization of the unlock message
+User Account->Snickerdoodle Core:getLinkAccountMessage(languageCode)\nThis allows for localization of the unlock message
 activate Snickerdoodle Core
 User Account<-Snickerdoodle Core:"Sign in to your Snickerdoodle Data Wallet" (Eng)\n"Melden Sie sich bei Ihrer Snickerdoodle Data Wallet an" (Ger)
 deactivate Snickerdoodle Core
@@ -30,7 +30,7 @@ deactivate Snickerdoodle Core
 User Account->Snickerdoodle Core:doTheThing()
 
 ==Login to Existing Data Wallet==
-User Account->Snickerdoodle Core:getUnlockMessage(languageCode)
+User Account->Snickerdoodle Core:getLinkAccountMessage(languageCode)
 activate Snickerdoodle Core
 User Account<-Snickerdoodle Core:"Sign in to your Snickerdoodle Data Wallet"
 deactivate Snickerdoodle Core
@@ -50,7 +50,7 @@ User Account->Snickerdoodle Core:doTheThing()
 
 ==Connect a new account 0xFADECAB==
 note over User Account:User must first be logged in with an existing wallet
-User Account->Snickerdoodle Core:getUnlockMessage(languageCode)
+User Account->Snickerdoodle Core:getLinkAccountMessage(languageCode)
 activate Snickerdoodle Core
 User Account<-Snickerdoodle Core:"Sign in to your Snickerdoodle Data Wallet"
 deactivate Snickerdoodle Core

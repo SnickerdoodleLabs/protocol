@@ -1,12 +1,12 @@
+import { Box, Typography } from "@material-ui/core";
+import EditIcon from "@material-ui/icons/Edit";
+import React, { useEffect, useState, ReactNode } from "react";
+
 import CardItem from "@extension-onboarding/components/PersonalInfoCard/components/CardItem";
 import { useStyles } from "@extension-onboarding/components/PersonalInfoCard/PersonalInfoCard.style";
 import { countries } from "@extension-onboarding/constants/countries";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { PII } from "@extension-onboarding/services/interfaces/objects";
-import { Box, Typography } from "@material-ui/core";
-import EditIcon from "@material-ui/icons/Edit";
-
-import React, { useEffect, useState, ReactNode } from "react";
 
 interface IPersonalInfoCardProps {
   topRightContent?: ReactNode;

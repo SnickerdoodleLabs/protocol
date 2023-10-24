@@ -1,4 +1,7 @@
-import { OAuth2AccessToken, OAuth2RefreshToken } from "@snickerdoodlelabs/objects";
+import {
+  OAuth2AccessToken,
+  OAuth2RefreshToken,
+} from "@snickerdoodlelabs/objects";
 
 export interface DiscordOAuth2TokensAPIResponse {
   access_token: OAuth2AccessToken;

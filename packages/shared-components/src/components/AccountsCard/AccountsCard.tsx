@@ -1,9 +1,10 @@
 import { Box } from "@material-ui/core";
+import { AccountAddress } from "@snickerdoodlelabs/objects";
+import React, { ReactNode } from "react";
+
 import { useStyles } from "@shared-components/components/AccountsCard/AccountsCard.style";
 import AccountCardItem from "@shared-components/components/AccountsCard/components/AccountCardItem";
 import EmptyContent from "@shared-components/components/AccountsCard/components/EmptyContent";
-import { AccountAddress } from "@snickerdoodlelabs/objects";
-import React, { ReactNode } from "react";
 
 interface IAccountCardProps {
   receivingAddress: AccountAddress | undefined;

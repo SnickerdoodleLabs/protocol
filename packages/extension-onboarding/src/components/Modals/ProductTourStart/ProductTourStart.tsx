@@ -1,8 +1,9 @@
-import pdTour from "@extension-onboarding/assets/images/pd-tour.svg";
-import { Button } from "@snickerdoodlelabs/shared-components";
-import { useStyles } from "@extension-onboarding/components/Modals/ProductTourStart/ProductTourStart.style";
 import { Box, Dialog, Typography } from "@material-ui/core";
+import { Button } from "@snickerdoodlelabs/shared-components";
 import React, { FC } from "react";
+
+import pdTour from "@extension-onboarding/assets/images/pd-tour.svg";
+import { useStyles } from "@extension-onboarding/components/Modals/ProductTourStart/ProductTourStart.style";
 
 interface IProductTourStartProps {
   onNextClick: () => void;

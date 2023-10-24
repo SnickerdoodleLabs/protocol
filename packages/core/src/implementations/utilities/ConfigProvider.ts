@@ -8,6 +8,7 @@ import {
   ECurrencyCode,
   EHashAlgorithm,
   ESignatureAlgorithm,
+  getChainInfoByChain,
   IConfigOverrides,
   LanguageCode,
   ProviderUrl,
@@ -62,8 +63,8 @@ export class ConfigProvider
     }
 
     const discordConfig = {
-      clientId: "1093307083102887996",
-      clientSecret: TokenSecret("w7BG8KmbqQ2QYF2U8ZIZIV7KUalvZQDK"),
+      clientId: "1089994449830027344",
+      clientSecret: TokenSecret("uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ"),
       oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
       oauthRedirectUrl: URLString("spa-url"),
       accessTokenUrl: URLString("https://discord.com/api/oauth2/token"),
@@ -89,48 +90,53 @@ export class ConfigProvider
     // All the default config below is for testing on local, using the test-harness package
     this.config = new CoreConfig(
       controlChainId, // controlChainId
-      [ChainId(EChain.DevDoodle)], // supportedChains (local hardhat only for the test harness, we can index other chains here though)
-      chainConfig, // chainInformation
       controlChainInformation, // controlChainInformation
       URLString("http://127.0.0.1:8080/ipfs"), // ipfsFetchBaseUrl
       URLString("http://localhost:3006"), // defaultInsightPlatformBaseUrl
-      "ceramic-replacement-bucket",
+      "ceramic-replacement-bucket", // default Google Cloud Bucket
+      "w69949reoalc9xg", // default dropbox app key
+      "78jch5z5o800dyw", // default dropbox app secret
+      "", // dropboxRedirectUri
       5000, // polling interval indexing,
       5000, // polling interval balance
       5000, // polling interval nfts
       60000, // backup interval
-      5, // backup chunk size target
+      5, // backupChunkSizeTarget
       {
         alchemyApiKeys: {
-          Arbitrum: "",
-          Astar: "",
-          Mumbai: "",
-          Optimism: "",
-          Polygon: "",
-          Solana: "",
-          SolanaTestnet: "",
+          Arbitrum: null,
+          Astar: null,
+          Mumbai: null,
+          Optimism: null,
+          Polygon: null,
+          Solana: null,
+          SolanaTestnet: null,
         },
         etherscanApiKeys: {
-          Ethereum: "",
-          Polygon: "",
-          Avalanche: "",
-          Binance: "",
-          Moonbeam: "",
-          Optimism: "",
-          Arbitrum: "",
-          Gnosis: "",
-          Fuji: "",
+          Ethereum: null,
+          Polygon: null,
+          Avalanche: null,
+          Binance: null,
+          Moonbeam: null,
+          Optimism: null,
+          Arbitrum: null,
+          Gnosis: null,
+          Fuji: null,
         },
-        covalentApiKey: "", // "ckey_ee277e2a0e9542838cf30325665", // covalent api key
-        moralisApiKey: "",
+        covalentApiKey: null, // "ckey_ee277e2a0e9542838cf30325665", // covalent api key
+        moralisApiKey: null,
         // "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
-        nftScanApiKey: "", // "lusr87vNmTtHGMmktlFyi4Nt", // NftScan api key
-        poapApiKey: "",
+        nftScanApiKey: null, // "lusr87vNmTtHGMmktlFyi4Nt", // NftScan api key
+        poapApiKey: null,
         // "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm", // Poap Api Key
-        oklinkApiKey: "", // "700c2f71-a4e2-4a85-b87f-58c8a341d1bf", // oklinkApiKeys
-        ankrApiKey: "", // ankrApiKey
-        primaryInfuraKey: "a8ae124ed6aa44bb97a7166cda30f1bc", // primary Infura Key
-        secondaryInfuraKey: "", // secondaryInfuraKey
+
+        oklinkApiKey: null, // "700c2f71-a4e2-4a85-b87f-58c8a341d1bf", // oklinkApiKeys
+        ankrApiKey: null, // ankrApiKey
+        bluezApiKey: null, // bluezApiKey
+        primaryInfuraKey: null, // primary Infura Key
+        primaryRPCProviderURL: null,
+        secondaryInfuraKey: null, // secondaryInfuraKey
+        secondaryRPCProviderURL: null,
       },
       URLString("https://cloudflare-dns.com/dns-query"), // dnsServerAddress
       ECurrencyCode.USD, // quoteCurrency
@@ -166,9 +172,10 @@ export class ConfigProvider
         10000000, // optOutGas
         10000000, // updateAgreementFlagsGas
       ),
-      ProviderUrl("http://127.0.0.1:8545"), // devChainProviderURL
+      null, // devChainProviderURL, Defaults to null but will be set if the control chain is Doodlechain
       60 * 60 * 6, // maxStatsRetentionSeconds 6 hours
       LanguageCode("en"), // passwordLanguageCode
+      100, // sets the size for query performance events, e.g. how many errors and durations will be stored, main metric object will not be effected
     );
   }
 
@@ -184,7 +191,9 @@ export class ConfigProvider
       overrides.defaultGoogleCloudBucket ??
       this.config.defaultGoogleCloudBucket;
 
-    const controlChainInformation = chainConfig.get(this.config.controlChainId);
+    const controlChainInformation = getChainInfoByChain(
+      this.config.controlChainId,
+    );
 
     if (controlChainInformation == null) {
       throw new Error(
@@ -203,14 +212,15 @@ export class ConfigProvider
     // The whole point of making a different chainID for dev and local was to avoid this,
     // but it is unrealistic to assign a different ChainID for every sandbox. So instead,
     // if the chain ID is 31337 (DevDoodle), we can dynamically override the provider URL
+    // This is also important because the supported chains list is based on the available
+    // healthy indexers; the simulator indexer for the doodle chain is available if this
+    // value is set
     if (this.config.controlChainId == EChain.DevDoodle) {
       this.config.devChainProviderURL =
         overrides.devChainProviderURL || ProviderUrl("http://127.0.0.1:8545");
     }
 
     // The rest of the config is easier
-    this.config.supportedChains =
-      overrides.supportedChains ?? this.config.supportedChains;
     this.config.ipfsFetchBaseUrl =
       overrides.ipfsFetchBaseUrl ?? this.config.ipfsFetchBaseUrl;
     this.config.defaultInsightPlatformBaseUrl =
@@ -225,12 +235,81 @@ export class ConfigProvider
     this.config.accountNFTPollingIntervalMS =
       overrides.accountNFTPollingIntervalMS ??
       this.config.accountNFTPollingIntervalMS;
+    this.config.dropboxAppKey =
+      overrides.dropboxAppKey ?? this.config.dropboxAppKey;
+    this.config.dropboxAppSecret =
+      overrides.dropboxAppSecret ?? this.config.dropboxAppSecret;
+
+    this.config.dropboxRedirectUri =
+      overrides.dropboxRedirectUri ?? this.config.dropboxRedirectUri;
+
+    // Blockchain Provider
+    this.config.apiKeys.primaryInfuraKey =
+      overrides.primaryInfuraKey ?? this.config.apiKeys.primaryInfuraKey;
+    this.config.apiKeys.primaryRPCProviderURL =
+      overrides.primaryRPCProviderURL ??
+      this.config.apiKeys.primaryRPCProviderURL;
+    this.config.apiKeys.secondaryInfuraKey =
+      overrides.secondaryInfuraKey ?? this.config.apiKeys.secondaryInfuraKey;
+    this.config.apiKeys.secondaryRPCProviderURL =
+      overrides.secondaryRPCProviderURL ??
+      this.config.apiKeys.secondaryRPCProviderURL;
+
+    // Alchemy
+    this.config.apiKeys.alchemyApiKeys.Arbitrum =
+      overrides.alchemyApiKeys?.Arbitrum ??
+      this.config.apiKeys.alchemyApiKeys.Arbitrum;
+    this.config.apiKeys.alchemyApiKeys.Astar =
+      overrides.alchemyApiKeys?.Astar ??
+      this.config.apiKeys.alchemyApiKeys.Astar;
+    this.config.apiKeys.alchemyApiKeys.Mumbai =
+      overrides.alchemyApiKeys?.Mumbai ??
+      this.config.apiKeys.alchemyApiKeys.Mumbai;
+    this.config.apiKeys.alchemyApiKeys.Optimism =
+      overrides.alchemyApiKeys?.Optimism ??
+      this.config.apiKeys.alchemyApiKeys.Optimism;
+    this.config.apiKeys.alchemyApiKeys.Polygon =
+      overrides.alchemyApiKeys?.Polygon ??
+      this.config.apiKeys.alchemyApiKeys.Polygon;
+    this.config.apiKeys.alchemyApiKeys.Solana =
+      overrides.alchemyApiKeys?.Solana ??
+      this.config.apiKeys.alchemyApiKeys.Solana;
+    this.config.apiKeys.alchemyApiKeys.SolanaTestnet =
+      overrides.alchemyApiKeys?.SolanaTestnet ??
+      this.config.apiKeys.alchemyApiKeys.SolanaTestnet;
+
+    // Etherscan
+    this.config.apiKeys.etherscanApiKeys.Arbitrum =
+      overrides.etherscanApiKeys?.Arbitrum ??
+      this.config.apiKeys.etherscanApiKeys.Arbitrum;
+    this.config.apiKeys.etherscanApiKeys.Avalanche =
+      overrides.etherscanApiKeys?.Avalanche ??
+      this.config.apiKeys.etherscanApiKeys.Avalanche;
+    this.config.apiKeys.etherscanApiKeys.Binance =
+      overrides.etherscanApiKeys?.Binance ??
+      this.config.apiKeys.etherscanApiKeys.Binance;
+    this.config.apiKeys.etherscanApiKeys.Ethereum =
+      overrides.etherscanApiKeys?.Ethereum ??
+      this.config.apiKeys.etherscanApiKeys.Ethereum;
+    this.config.apiKeys.etherscanApiKeys.Fuji =
+      overrides.etherscanApiKeys?.Fuji ??
+      this.config.apiKeys.etherscanApiKeys.Fuji;
+    this.config.apiKeys.etherscanApiKeys.Gnosis =
+      overrides.etherscanApiKeys?.Gnosis ??
+      this.config.apiKeys.etherscanApiKeys.Gnosis;
+    this.config.apiKeys.etherscanApiKeys.Moonbeam =
+      overrides.etherscanApiKeys?.Moonbeam ??
+      this.config.apiKeys.etherscanApiKeys.Moonbeam;
+    this.config.apiKeys.etherscanApiKeys.Optimism =
+      overrides.etherscanApiKeys?.Optimism ??
+      this.config.apiKeys.etherscanApiKeys.Optimism;
+    this.config.apiKeys.etherscanApiKeys.Polygon =
+      overrides.etherscanApiKeys?.Polygon ??
+      this.config.apiKeys.etherscanApiKeys.Polygon;
+
+    // Miscellaneous Indexers and APIs
     this.config.apiKeys.covalentApiKey =
       overrides.covalentApiKey ?? this.config.apiKeys.covalentApiKey;
-    this.config.apiKeys.alchemyApiKeys =
-      overrides.alchemyApiKeys ?? this.config.apiKeys.alchemyApiKeys;
-    this.config.apiKeys.etherscanApiKeys =
-      overrides.etherscanApiKeys ?? this.config.apiKeys.etherscanApiKeys;
     this.config.apiKeys.moralisApiKey =
       overrides.moralisApiKey ?? this.config.apiKeys.moralisApiKey;
     this.config.apiKeys.nftScanApiKey =
@@ -241,10 +320,8 @@ export class ConfigProvider
       overrides.oklinkApiKey ?? this.config.apiKeys.oklinkApiKey;
     this.config.apiKeys.ankrApiKey =
       overrides.ankrApiKey ?? this.config.apiKeys.ankrApiKey;
-    this.config.apiKeys.primaryInfuraKey =
-      overrides.primaryInfuraKey ?? this.config.apiKeys.primaryInfuraKey;
-    this.config.apiKeys.secondaryInfuraKey =
-      overrides.secondaryInfuraKey ?? this.config.apiKeys.secondaryInfuraKey;
+    this.config.apiKeys.bluezApiKey =
+      overrides.bluezApiKey ?? this.config.apiKeys.bluezApiKey;
 
     this.config.dnsServerAddress =
       overrides.dnsServerAddress ?? this.config.dnsServerAddress;
@@ -270,5 +347,8 @@ export class ConfigProvider
     };
     this.config.heartbeatIntervalMS =
       overrides.heartbeatIntervalMS ?? this.config.heartbeatIntervalMS;
+    this.config.queryPerformanceMetricsLimit =
+      overrides.queryPerformanceMetricsLimit ??
+      this.config.queryPerformanceMetricsLimit;
   }
 }

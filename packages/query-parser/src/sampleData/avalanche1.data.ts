@@ -13,6 +13,47 @@ export const avalanche1SchemaStr = SDQLString(
     description:
       "Interactions with the Avalanche blockchain for 15-year and older individuals",
     business: "Shrapnel",
+    ads: {
+      a1: {
+        name: "a1",
+        content: {
+          type: "image",
+          src: "testSrc",
+        },
+        text: "QWEQWEWQE",
+        displayType: "banner",
+        weight: 6,
+        expiry: 1735678800,
+        keywords: ["a", "b", "c"],
+        target: "$q1",
+      },
+      a2: {
+        name: "a2",
+        content: {
+          type: "video",
+          src: "testSrc",
+        },
+        text: "ASDASD",
+        displayType: "popup",
+        weight: 7,
+        expiry: 1735678,
+        keywords: ["1", "2", "3"],
+        target: "$q2",
+      },
+      a3: {
+        name: "a3",
+        content: {
+          type: "image",
+          src: "testSrc",
+        },
+        text: "text",
+        displayType: "banner",
+        weight: 8,
+        expiry: 1735678800,
+        keywords: ["q", "w", "e"],
+        target: "$q1>30",
+      },
+    },
     queries: {
       q1: {
         name: "network",
@@ -30,13 +71,9 @@ export const avalanche1SchemaStr = SDQLString(
           },
         },
       },
-
       q2: {
         name: "age",
-        return: "boolean",
-        conditions: {
-          ge: 15,
-        },
+        return: "number",
       },
       q3: {
         name: "location",
@@ -51,20 +88,22 @@ export const avalanche1SchemaStr = SDQLString(
         return: "array",
       },
     },
-    returns: {
-      r1: {
-        name: "callback",
-        message: "qualified",
+    insights: {
+      i1: {
+        name: "user age range",
+        target: "$q3>10",
+        returns: "'qualified'",
       },
-      r2: {
-        name: "callback",
-        message: "not qualified",
+      i2: {
+        name: "q2",
+        target: "$q2",
+        returns: "'yum'", //TODO add not qualified
       },
-      r3: {
+      i3: {
         name: "query_response",
-        query: "q3",
+        target: "true",
+        returns: "$q3",
       },
-      url: "https://418e-64-85-231-39.ngrok.io/insights",
     },
     compensations: {
       parameters: {
@@ -86,6 +125,7 @@ export const avalanche1SchemaStr = SDQLString(
         name: "Sugar to your coffee",
         image: "QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR",
         description: "10% discount code for Starbucks",
+        requires: "$i1 or $a2",
         chainId: 1,
         callback: {
           parameters: ["recipientAddress"],
@@ -98,6 +138,7 @@ export const avalanche1SchemaStr = SDQLString(
         name: "The CryptoPunk Draw",
         image: "33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ",
         description: "participate in the draw to win a CryptoPunk NFT",
+        requires: "$i1 and $i2",
         chainId: 1,
         callback: {
           parameters: ["recipientAddress", "productId"],
@@ -111,6 +152,7 @@ export const avalanche1SchemaStr = SDQLString(
         name: "CrazyApesClub NFT distro",
         image: "GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8",
         description: "a free CrazyApesClub NFT",
+        requires: "$i3 or $a1",
         chainId: 1,
         callback: {
           parameters: ["recipientAddress", "productId"],
@@ -118,12 +160,7 @@ export const avalanche1SchemaStr = SDQLString(
             trackingId: "982JJDSLAcx",
           },
         },
-        alternatives: ["c2"],
       },
-    },
-    logic: {
-      returns: ["if($q1and$q2)then$r1else$r2", "$r3"],
-      compensations: ["if$q1then$c1", "if$q2then$c2", "if$q3then$c3"],
     },
   }),
 );

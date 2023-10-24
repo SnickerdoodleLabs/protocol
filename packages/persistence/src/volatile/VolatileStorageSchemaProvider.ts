@@ -42,13 +42,13 @@ export class VolatileStorageSchemaProvider
     tableName: ERecordKey,
   ): ResultAsync<number, PersistenceError> {
     return this.getVolatileStorageSchema().andThen((schema) => {
-      if (!schema.has(tableName)) {
+      const volatileTableIndex = schema.get(tableName);
+      if (volatileTableIndex == null) {
         return errAsync(
           new PersistenceError("no schema present for table", tableName),
         );
       }
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return okAsync(schema.get(tableName)!.migrator.getCurrentVersion());
+      return okAsync(volatileTableIndex.migrator.getCurrentVersion());
     });
   }
 
@@ -94,7 +94,7 @@ export class VolatileStorageSchemaProvider
           ERecordKey.SITE_VISITS,
           new VolatileTableIndex(
             ERecordKey.SITE_VISITS,
-            VolatileTableIndex.DEFAULT_KEY,
+            "id", // This was previously the "DEFAULT_KEY" (which was "id"), but that's not a valid key.
             true,
             new SiteVisitMigrator(),
             EBackupPriority.NORMAL,
@@ -111,7 +111,7 @@ export class VolatileStorageSchemaProvider
           ERecordKey.CLICKS,
           new VolatileTableIndex(
             ERecordKey.CLICKS,
-            VolatileTableIndex.DEFAULT_KEY,
+            "TODO",
             true,
             new ClickDataMigrator(),
             EBackupPriority.NORMAL,
@@ -192,7 +192,7 @@ export class VolatileStorageSchemaProvider
           ERecordKey.RESTORED_BACKUPS,
           new VolatileTableIndex(
             ERecordKey.RESTORED_BACKUPS,
-            VolatileTableIndex.DEFAULT_KEY,
+            "id",
             false,
             new RestoredBackupMigrator(),
             EBackupPriority.DISABLED,

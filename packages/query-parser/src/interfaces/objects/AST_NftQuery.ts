@@ -5,8 +5,9 @@ import {
   SDQL_Name,
   MissingWalletDataTypeError,
 } from "@snickerdoodlelabs/objects";
-import { AST_Web3Query } from "@query-parser/interfaces/objects/AST_Web3Query.js";
 import { ok, Result } from "neverthrow";
+
+import { AST_Web3Query } from "@query-parser/interfaces/objects/AST_Web3Query.js";
 
 export class AST_NftQuery extends AST_Web3Query {
   constructor(

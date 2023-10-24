@@ -4,6 +4,7 @@ export const useStyles = makeStyles((theme) => ({
   container: {
     border: "1px solid #ECECEC",
     borderRadius: 12,
+    backgroundColor: "#FFFFFF",
   },
   accountsContainer: {
     maxHeight: 400,

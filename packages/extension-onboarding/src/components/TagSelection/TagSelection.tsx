@@ -1,10 +1,11 @@
+import { Grid, Typography, Box, FormControlLabel } from "@material-ui/core";
+import { ETag } from "@snickerdoodlelabs/objects";
+import React, { FC, useEffect, useState } from "react";
+
 import Checkbox from "@extension-onboarding/components/Checkbox";
 import { useStyles } from "@extension-onboarding/components/TagSelection/TagSelection.style";
 import { LOCAL_STORAGE_TAGS_KEY } from "@extension-onboarding/constants";
 import { tags } from "@extension-onboarding/constants/tags";
-import { Grid, Typography, Box, FormControlLabel } from "@material-ui/core";
-import { ETag } from "@snickerdoodlelabs/objects";
-import React, { FC, useEffect, useState } from "react";
 
 interface ITagSelectionProps {
   onSaveClick?: () => void;

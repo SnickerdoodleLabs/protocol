@@ -1,11 +1,13 @@
-import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
+import { Box, Typography } from "@material-ui/core";
 import { Button } from "@snickerdoodlelabs/shared-components";
+import React, { FC } from "react";
+import { useNavigate } from "react-router-dom";
+
+import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
 import PermissionSelectionComponent from "@extension-onboarding/components/PermissionSelection";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/PermissionSelection/PermissionSelection.style";
-import { Box, Typography } from "@material-ui/core";
-import React, { FC } from "react";
-import { useNavigate } from "react-router-dom";
+
 const PermissionSelection: FC = () => {
   const classes = useStyles();
   const navigate = useNavigate();
@@ -29,11 +31,7 @@ const PermissionSelection: FC = () => {
           alignItems="center"
           width="30%"
         >
-          <Button
-            onClick={() => {
-            }}
-            fullWidth
-          >
+          <Button onClick={() => {}} fullWidth>
             Next
           </Button>
         </Box>
@@ -42,4 +40,4 @@ const PermissionSelection: FC = () => {
   );
 };
 
-export default PermissionSelection; 
+export default PermissionSelection;

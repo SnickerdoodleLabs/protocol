@@ -5,15 +5,12 @@ import {
   TokenBalance,
   WalletNFT,
 } from "@snickerdoodlelabs/objects";
-
 import React, { FC } from "react";
+
 import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
 import { useStyles } from "@extension-onboarding/components/Modals/ViewDetailsModal/ViewDetailsModal.style";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-// import Portfolio from "@extension-onboarding/components/Portfolio";
 
-declare const window: IWindowWithSdlDataWallet;
 export interface IAccountBalanceObject {
   [id: EVMAccountAddress]: TokenBalance[];
 }

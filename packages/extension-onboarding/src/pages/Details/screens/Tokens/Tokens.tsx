@@ -34,11 +34,11 @@ import { Pie } from "react-chartjs-2";
 import emptyTokens from "@extension-onboarding/assets/images/empty-tokens.svg";
 import AccountChainBar from "@extension-onboarding/components/AccountChainBar";
 import TokenItem from "@extension-onboarding/components/TokenItem";
+import UnauthScreen from "@extension-onboarding/components/UnauthScreen/UnauthScreen";
 import { useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { IBalanceItem } from "@extension-onboarding/objects";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/Tokens/Tokens.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-declare const window: IWindowWithSdlDataWallet;
 
 ChartJS.register(
   CategoryScale,
@@ -120,6 +120,7 @@ const CHART_ITEM_COUNT = 3;
 
 export default () => {
   const classes = useStyles();
+  const { sdlDataWallet } = useDataWalletContext();
   const { linkedAccounts } = useAppContext();
 
   const [accountSelect, setAccountSelect] = useState<
@@ -142,27 +143,34 @@ export default () => {
   }, [linkedAccounts.length]);
 
   const initializeBalances = () => {
-    window.sdlDataWallet
+    sdlDataWallet
       .getAccountBalances()
       .map((balances) =>
-        balances.map((b) => ({ ...b, balance: formatValue(b) })),
+        // TODO: Fix this. This is really bad- The balance is a BNS, and should be formatted at the point of display
+        balances.map((b) => ({
+          ...b,
+          balance: BigNumberString(formatValue(b)),
+        })),
       )
-      .andThen((balanceResults) =>
-        ResultUtils.combine(
+      .andThen((balanceResults) => {
+        return ResultUtils.combine(
           balanceResults.map((balanceItem) =>
-            window.sdlDataWallet
-              .getTokenInfo(balanceItem.chainId, balanceItem.tokenAddress)
+            sdlDataWallet
+              .getTokenInfo(
+                ChainId(balanceItem.chainId),
+                balanceItem.tokenAddress,
+              )
               .orElse((e) => okAsync(null)),
           ),
-        ).map((tokenInfo) =>
-          balanceResults.map((balanceItem, index) => ({
+        ).map((tokenInfo) => {
+          return balanceResults.map((balanceItem, index) => ({
             ...balanceItem,
             tokenInfo: tokenInfo[index],
-          })),
-        ),
-      )
+          }));
+        });
+      })
       .andThen((balancesWithTokenInfo) => {
-        return window.sdlDataWallet
+        return sdlDataWallet
           .getTokenMarketData(
             balancesWithTokenInfo.map((item) => item.tokenInfo?.id ?? ""),
           )
@@ -201,7 +209,7 @@ export default () => {
             const structeredBalances = combinedBalances.reduce(
               (acc, item) => {
                 const isMainnetItem = mainnetSupportedChainIds.includes(
-                  item.chainId,
+                  ChainId(item.chainId),
                 );
                 if (isMainnetItem) {
                   acc.mainnetBalances = [...acc.mainnetBalances, item];
@@ -328,6 +336,10 @@ export default () => {
       setTokensPagination(getPaginationObject(tokensToRender.length));
     }
   }, [tokensToRender]);
+
+  if (!(linkedAccounts.length > 0)) {
+    return <UnauthScreen />;
+  }
 
   return (
     <>

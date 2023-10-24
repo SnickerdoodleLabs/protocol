@@ -1,5 +1,3 @@
-import { AnalyticsConfigProvider } from "@extension-onboarding/services/implementations/AnalyticsConfigProvider";
-import { AnalyticsConfig } from "@extension-onboarding/services/interfaces/objects/AnalyticsConfig";
 import React, {
   FC,
   createContext,
@@ -9,6 +7,9 @@ import React, {
 } from "react";
 import ReactGA from "react-ga";
 import { hotjar } from "react-hotjar";
+
+import { AnalyticsConfigProvider } from "@extension-onboarding/services/implementations/AnalyticsConfigProvider";
+import { AnalyticsConfig } from "@extension-onboarding/services/interfaces/objects/AnalyticsConfig";
 
 const config: AnalyticsConfig = new AnalyticsConfigProvider().config;
 

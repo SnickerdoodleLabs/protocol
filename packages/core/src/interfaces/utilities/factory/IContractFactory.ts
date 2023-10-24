@@ -3,7 +3,6 @@ import {
   IConsentFactoryContract,
   ICrumbsContract,
   IMinimalForwarderContract,
-  ISiftContract,
 } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BlockchainProviderError,
@@ -32,10 +31,6 @@ export interface IContractFactory {
 
   factoryMinimalForwarderContract(): ResultAsync<
     IMinimalForwarderContract,
-    BlockchainProviderError | UninitializedError
-  >;
-  factorySiftContract(): ResultAsync<
-    ISiftContract,
     BlockchainProviderError | UninitializedError
   >;
 }

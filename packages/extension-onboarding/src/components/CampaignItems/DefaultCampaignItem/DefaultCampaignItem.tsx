@@ -1,18 +1,18 @@
-import { Button } from "@snickerdoodlelabs/shared-components";
-import { useStyles } from "@extension-onboarding/components/CampaignItems/DefaultCampaignItem/DefaultCampaignItem.style";
-import LinearProgress from "@extension-onboarding/components/LinearProgress";
-import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import { useAppContext } from "@extension-onboarding/context/App";
-import useCampaignLogic from "@extension-onboarding/hooks/useCampaignLogic";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, Typography } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import { ETag, EVMContractAddress } from "@snickerdoodlelabs/objects";
+import { Button } from "@snickerdoodlelabs/shared-components";
 import React, { FC } from "react";
 import { useNavigate } from "react-router";
 import { generatePath } from "react-router-dom";
 
-declare const window: IWindowWithSdlDataWallet;
+import { useStyles } from "@extension-onboarding/components/CampaignItems/DefaultCampaignItem/DefaultCampaignItem.style";
+import Description from "@extension-onboarding/components/Description";
+import LinearProgress from "@extension-onboarding/components/LinearProgress";
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { useAppContext } from "@extension-onboarding/context/App";
+import useCampaignLogic from "@extension-onboarding/hooks/useCampaignLogic";
+
 interface ICampaignItemProps {
   consentContractAddress: EVMContractAddress;
   onLeaveClick?: () => void;
@@ -68,13 +68,15 @@ const CampaignItem: FC<ICampaignItemProps> = ({
         </Box>
         <Box display="flex" flex={1} flexDirection="column">
           <Box mb={2} height={42}>
-            <Typography className={classes.description}>
-              {isLoading ? (
-                <Skeleton animation="wave" height={42} />
-              ) : (
-                campaignInfo?.description
-              )}
-            </Typography>
+            {!isLoading ? (
+              <Description
+                maxHeight={42}
+                className={classes.description}
+                description={campaignInfo?.description || ""}
+              />
+            ) : (
+              <Skeleton animation="wave" height={42} />
+            )}
           </Box>
           {!isSubscribed ? (
             <Box mb={1.5}>

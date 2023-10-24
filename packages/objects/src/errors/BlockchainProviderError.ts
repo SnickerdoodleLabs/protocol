@@ -1,9 +1,10 @@
+import { EChain } from "@objects/enum/index.js";
+import { BaseError } from "@objects/errors/BaseError.js";
 import errorCodes from "@objects/errors/errorCodes.js";
-import { ChainId } from "@objects/primitives/index.js";
 
-export class BlockchainProviderError extends Error {
+export class BlockchainProviderError extends BaseError {
   protected errorCode: string = errorCodes[BlockchainProviderError.name];
-  constructor(public chainId: ChainId, message?: string, public src?: unknown) {
-    super(message);
+  constructor(public chain: EChain, message: string, public src?: unknown) {
+    super(message, 500, errorCodes[BlockchainProviderError.name], src, false);
   }
 }

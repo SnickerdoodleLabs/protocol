@@ -1,4 +1,8 @@
-import { SiteVisit, URLString } from "@snickerdoodlelabs/objects";
+import {
+  SiteVisit,
+  SiteVisitsMap,
+  URLString,
+} from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
@@ -27,7 +31,7 @@ export class UserSiteInteractionService implements IUserSiteInteractionService {
   }
 
   public getSiteVisitsMap(): ResultAsync<
-    Map<URLString, number>,
+    SiteVisitsMap,
     SnickerDoodleCoreError
   > {
     return this.userSiteInteractionRepository.getSiteVisitsMap();

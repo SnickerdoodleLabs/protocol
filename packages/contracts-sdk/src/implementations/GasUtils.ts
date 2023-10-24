@@ -1,32 +1,36 @@
+import {
+  BlockchainCommonErrors,
+  BlockchainErrorMapper,
+} from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
-import { ResultAsync } from "neverthrow";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/index.js";
 import { injectable } from "inversify";
-import { GasPriceError } from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow";
+
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/index.js";
 
 @injectable()
 export class GasUtils {
-  static getGasFee<E = GasPriceError>(
+  static getGasFee(
     providerOrSigner:
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
-  ): ResultAsync<ContractOverrides, E> {
+  ): ResultAsync<ContractOverrides, BlockchainCommonErrors> {
     return ResultAsync.fromPromise(providerOrSigner.getFeeData(), (e) => {
-      return e as E;
+      return BlockchainErrorMapper.buildBlockchainError(e);
     }).map((feeData) => {
       return new ContractOverrides(feeData.maxFeePerGas);
     });
   }
 
-  static getGasPrice<E = GasPriceError>(
+  static getGasPrice(
     providerOrSigner:
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
-  ): ResultAsync<ContractOverrides, E> {
+  ): ResultAsync<ContractOverrides, BlockchainCommonErrors> {
     return ResultAsync.fromPromise(providerOrSigner.getFeeData(), (e) => {
-      return e as E;
+      return BlockchainErrorMapper.buildBlockchainError(e);
     }).map((feeData) => {
       return new ContractOverrides(null, feeData.gasPrice);
     });

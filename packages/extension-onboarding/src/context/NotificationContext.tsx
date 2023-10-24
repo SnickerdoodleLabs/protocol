@@ -1,7 +1,3 @@
-import CustomizedAlert, {
-  EAlertSeverity,
-} from "@extension-onboarding/components/CustomizedAlert";
-import VisualAlert from "@extension-onboarding/components/VisualAlert";
 import React, {
   FC,
   createContext,
@@ -10,6 +6,11 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
+
+import CustomizedAlert, {
+  EAlertSeverity,
+} from "@extension-onboarding/components/CustomizedAlert";
+import VisualAlert from "@extension-onboarding/components/VisualAlert";
 
 export interface IAlert {
   message: string | null;

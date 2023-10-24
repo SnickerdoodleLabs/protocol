@@ -58,12 +58,14 @@ export class QueryObjectFactory implements IQueryObjectFactory {
     name: SDQL_Name,
     type: Web3QueryTypes,
     schema: ISDQLQueryClause,
-  ): AST_NftQuery | AST_BlockchainTransactionQuery {
+  ): AST_NftQuery | AST_BlockchainTransactionQuery | AST_BalanceQuery {
     switch (type) {
       case "network":
         return this.toBlockchainTransactionQuery(name, schema);
       case "nft":
         return this.toNftQuery(name, schema);
+      case "balance":
+        return this.toBalanceQuery(name, schema);
     }
   }
 
@@ -105,6 +107,7 @@ export class QueryObjectFactory implements IQueryObjectFactory {
     return new AST_BalanceQuery(
       name,
       ESDQLQueryReturn.Array,
+      "balance",
       networkId,
       conditions,
     );
