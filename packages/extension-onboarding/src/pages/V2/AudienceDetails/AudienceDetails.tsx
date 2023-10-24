@@ -20,11 +20,16 @@ import {
 import { Skeleton } from "@material-ui/lab";
 import {
   AccountAddress,
+  DirectReward,
   EChain,
+  ERewardType,
   EVMContractAddress,
+  EarnedReward,
   IOldUserAgreement,
   IpfsCID,
+  LazyReward,
   LinkedAccount,
+  Web2Reward,
 } from "@snickerdoodlelabs/objects";
 import {
   SDButton,
@@ -50,11 +55,17 @@ const AudienceDetails = () => {
   const [metadata, setMetadata] = useState<IOldUserAgreement>();
   const [ipfsCID, setIpfsCID] = useState<IpfsCID>();
   const [receivingAccount, setReceivingAccount] = useState<AccountAddress>();
-  const { optedInContracts, linkedAccounts, updateOptedInContracts } =
-    useAppContext();
+  const {
+    optedInContracts,
+    linkedAccounts,
+    earnedRewards,
+    updateOptedInContracts,
+  } = useAppContext();
   const { sdlDataWallet } = useDataWalletContext();
   const { setAlert } = useNotificationContext();
   const { setModal, setLoadingStatus } = useLayoutContext();
+  const [contractEarnedRewards, setContractEarnedReward] =
+    useState<EarnedReward[]>();
 
   const userOptedIn = useMemo(() => {
     if (!optedInContracts || !consentAddress) {
@@ -104,6 +115,71 @@ const AudienceDetails = () => {
       getReceivingAccount();
     }
   }, [userOptedIn]);
+
+  const routeValidated = useMemo(() => {
+    return Boolean(ipfsCID && metadata);
+  }, [ipfsCID, metadata]);
+
+  useEffect(() => {
+    if (!routeValidated || earnedRewards.length === 0) {
+      return;
+    }
+    getContractEarnedRewards();
+  }, [routeValidated, earnedRewards.length]);
+
+  const getContractEarnedRewards = () => {
+    if (!consentAddress) {
+      return;
+    }
+    sdlDataWallet
+      .getEarnedRewardsByContractAddress([consentAddress])
+      .map((res) => {
+        const rewadsMap = res.get(consentAddress);
+        if (rewadsMap) {
+          const rewardsArr = Array.from(rewadsMap.values()).flat();
+          setContractEarnedReward(rewardsArr);
+        }
+      })
+      .mapErr((err) => {
+        console.log(err);
+      });
+  };
+
+  const { directRewards, lazyRewards, web2Rewards } = useMemo(() => {
+    if (!contractEarnedRewards) {
+      return {
+        directRewards: [] as DirectReward[],
+        lazyRewards: [] as LazyReward[],
+        web2Rewards: [] as Web2Reward[],
+      };
+    }
+    return contractEarnedRewards.reduce(
+      (acc, rewardItem) => {
+        switch (rewardItem.type) {
+          case ERewardType.Direct:
+            acc.directRewards = [
+              ...acc.directRewards,
+              rewardItem as DirectReward,
+            ];
+            break;
+          case ERewardType.Lazy:
+            acc.lazyRewards = [...acc.lazyRewards, rewardItem as LazyReward];
+            break;
+          case ERewardType.Web2:
+            acc.web2Rewards = [...acc.web2Rewards, rewardItem as Web2Reward];
+            break;
+        }
+        return acc;
+      },
+      { directRewards: [], lazyRewards: [], web2Rewards: [] } as {
+        directRewards: DirectReward[];
+        lazyRewards: LazyReward[];
+        web2Rewards: Web2Reward[];
+      },
+    );
+  }, [contractEarnedRewards]);
+
+  console.log({ directRewards }, { lazyRewards }, { web2Rewards });
 
   useEffect(() => {
     if (location.state && location.state._metadata && location.state._ipfsCID) {

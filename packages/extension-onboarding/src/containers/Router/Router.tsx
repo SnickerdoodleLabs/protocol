@@ -2,6 +2,7 @@ import React, { FC, useMemo } from "react";
 import { Route, BrowserRouter, Routes, Navigate } from "react-router-dom";
 
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
 import { AuthFlowRoutes } from "@extension-onboarding/containers/Router/Router.routes";
 import { useAppContext, EAppModes } from "@extension-onboarding/context/App";
 import RootRouteLayout from "@extension-onboarding/layouts/RootRouteLayout";
@@ -26,7 +27,7 @@ const Router: FC = () => {
               {routes}
               <Route
                 path="*"
-                element={<Navigate replace to={EPaths.MARKETPLACE} />}
+                element={<Navigate replace to={EPathsV2.DATA_PERMISSIONS} />}
               />
             </Route>
           </Routes>
