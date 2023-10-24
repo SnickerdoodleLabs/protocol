@@ -103,7 +103,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
 
                 return this.getCachedBalances(
                   chain,
-                  linkedAccount.sourceAccountAddress as EVMAccountAddress,
+                  linkedAccount.sourceAccountAddress,
                 );
               }),
             );

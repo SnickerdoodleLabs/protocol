@@ -202,10 +202,14 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
           .getSignature(message)
           .andThen((signature) => {
             // If the new chosen account is not already linked
+            const chain = getChain(providerObj.key);
             if (
               !linkedAccounts?.find(
                 (linkedAccount) =>
-                  linkedAccount.sourceAccountAddress === account,
+                  linkedAccount.sourceAccountAddress ===
+                  (chain === EChain.EthereumMainnet
+                    ? account.toLowerCase()
+                    : account),
               )
             ) {
               // use it for metadata
@@ -215,12 +219,7 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
                 component: <AccountLinkingIndicator />,
               });
               return sdlDataWallet.account
-                .addAccount(
-                  account,
-                  signature,
-                  defaultLanguageCode,
-                  getChain(providerObj.key),
-                )
+                .addAccount(account, signature, defaultLanguageCode, chain)
                 .mapErr((e) => {
                   console.error(e);
                   setLoadingStatus(false);

@@ -254,7 +254,7 @@ export class CryptoUtils implements ICryptoUtils {
     privateKey: EVMPrivateKey,
   ): EVMAccountAddress {
     const wallet = new ethers.Wallet(privateKey);
-    return EVMAccountAddress(wallet.address);
+    return EVMAccountAddress(wallet.address.toLowerCase());
   }
 
   public verifyEVMSignature(
