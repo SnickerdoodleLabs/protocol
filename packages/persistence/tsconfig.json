@@ -24,6 +24,9 @@
 			"path": "../objects"
 		},
 		{
+			"path": "../shopping-data"
+		},
+		{
 			"path": "../utils"
 		},
 		{

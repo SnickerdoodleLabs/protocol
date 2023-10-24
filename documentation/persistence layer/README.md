@@ -44,13 +44,18 @@ We add the migrator definition to the same file where we defined the Animal clas
         }
     }
 ```
-3. Every entity requires a schema which is analogous to table definitions in SQL. We add the schema to [VolatileStorageSchema.ts](./../../packages/persistence/src/volatile/VolatileStorageSchema.ts) by adding an object of type [VolatileTableIndex](./../../packages/persistence/src/volatile/VolatileTableIndex.ts). 
+3. Every entity requires a schema which is analogous to table definitions in SQL. We add the schema to [VolatileStorageSchemaProvider.ts](./../../packages/persistence/src/volatile/VolatileStorageSchemaProvider.ts) by adding an object of type [VolatileTableIndex](./../../packages/persistence/src/volatile/VolatileTableIndex.ts). 
 ```
   new VolatileTableIndex(
     ERecordKey.ANIMAL, // The name of our object store / table
     "id", // primary key field.
     false, // false disables the auto-increment key generator. 
     new AnimalMigrator(), // migrator that our database client will use to convert data into animal objects.
+    
+    EBackupPriority.NORMAL, // Backup priority
+    3600 * 1000, // Backup Interval in milliseconds
+    config.backupChunkSizeTarget,
+    [], // Index
   ),
 
 ```
@@ -65,7 +70,12 @@ We add the migrator definition to the same file where we defined the Animal clas
     "id", // primary key field.
     false, // false disables the auto-increment key generator. 
     new AnimalMigrator(),
-    [['name', false], ['someOtherField', false], [['comp1', 'comp2'], true]
+
+    EBackupPriority.NORMAL, // Backup priority
+    3600 * 1000, // Backup Interval in milliseconds
+    config.backupChunkSizeTarget,
+
+    [['name', false], ['someOtherField', false], [['comp1', 'comp2'], true]]
   ),
 
 
@@ -78,12 +88,7 @@ In the examples, **this.persistence** is an instance of DataWalletPersistence. A
 **Add an animal**: We add a new object to the store by wrapping it in a [VolatileStorageMetadata](./../../packages/objects/src/businessObjects/VolatileStorageMetadata.ts) object.
 ```
     const myDog = new Animal("XX12", "Tom");
-    const metadata = new VolatileStorageMetadata<Animal>(
-        EBackupPriority.NORMAL,
-        myDog,
-        Animal.CURRENT_VERSION,
-    );
-    return this.persistence.updateRecord(ERecordKey.ANIMAL, metadata);
+    return this.persistence.updateRecord(ERecordKey.ANIMAL, myDog);
 ```
 
 **Update an animal**: Update works exactly the same way as adding a new object. The engine will update and existing object if an object with the same primary key exists.
@@ -91,12 +96,12 @@ In the examples, **this.persistence** is an instance of DataWalletPersistence. A
 **Delete an animal**: Current we only support deleting by the primary key. The value of the primary key needs to be wrapped in a [VolatileStorageKey](./../../packages/objects/src/primitives/VolatileStorageKey.ts) object.
 
 ```
-    return this.persistence.deleteRecord(ERecordKey.ANIMAL, VolatileStorageKey("XX12"), EBackupPriority.NORMAL); // Deletes Tom from the animal store.
+    return this.persistence.deleteRecord(ERecordKey.ANIMAL, "XX12", EBackupPriority.NORMAL); // Deletes Tom from the animal store.
 ```
 
 **Find an animal by primary key**:
 ```
-    return this.persistence.getObject(ERecordKey.ANIMAL, VolatileStorageKey("XX12"), EBackupPriority.NORMAL); // Deletes Tom from the animal store.
+    return this.persistence.getObject(ERecordKey.ANIMAL, "XX12", EBackupPriority.NORMAL); // Deletes Tom from the animal store.
 ```
 
 **Get all animals**:
@@ -105,7 +110,7 @@ In the examples, **this.persistence** is an instance of DataWalletPersistence. A
 ```
 **Get all animals by an index**:
 ```
-    return this.persistence.getAllByIndex(ERecordKey.ANIMAL, "name", IDBValidKey("Tom")); // Analogous to the getCursor function. But it returns all the objects.
+    return this.persistence.getAllByIndex(ERecordKey.ANIMAL, "name", "Tom"); // Analogous to the getCursor function. But it returns all the objects.
 ```
 **Get all primary keys**:
 ```
@@ -115,7 +120,7 @@ In the examples, **this.persistence** is an instance of DataWalletPersistence. A
 **Get cursor**:
 Cursors can return all the objects or a subset matching an index field. For details, please check [IndexDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB) document.
 ```
-    return this.persistence.getCursor(ERecordKey.ANIMAL, "name", IDBValidKey("Tom")); // will return a cursor with all the Toms. 
+    return this.persistence.getCursor(ERecordKey.ANIMAL, "name", "Tom"); // will return a cursor with all the Toms. 
 ```
 
 

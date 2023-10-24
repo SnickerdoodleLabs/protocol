@@ -37,6 +37,7 @@ import {
   OAuth2Tokens,
   SiteVisitsMap,
   OptInInfo,
+  DomainTask,
   // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
@@ -44,6 +45,7 @@ import {
   ECloudStorageType,
   EDataWalletPermission,
   EInvitationStatus,
+  ELanguageCode,
 } from "@objects/enum/index.js";
 import {
   AccountIndexingError,
@@ -75,6 +77,7 @@ import {
   DuplicateIdInSchema,
   MissingWalletDataTypeError,
   ParserError,
+  ScraperError,
 } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
@@ -111,6 +114,9 @@ import {
   URLString,
   BlockNumber,
   RefreshToken,
+  HTMLString,
+  PageNo,
+  Year,
 } from "@objects/primitives/index.js";
 
 /**
@@ -680,6 +686,31 @@ export interface IStorageMethods {
   ): ResultAsync<URLString, never>;
 }
 
+export interface IScraperMethods {
+  scrape(
+    url: URLString,
+    html: HTMLString,
+    suggestedDomainTask: DomainTask,
+  ): ResultAsync<void, ScraperError>;
+  classifyURL(
+    url: URLString,
+    language: ELanguageCode,
+  ): ResultAsync<DomainTask, ScraperError>;
+}
+
+export interface IScraperNavigationMethods {
+  amazon: {
+    getOrderHistoryPage(lang: ELanguageCode, page: PageNo): URLString;
+    getYears(html: HTMLString): Year[];
+    getOrderHistoryPageByYear(
+      lang: ELanguageCode,
+      year: Year,
+      page: PageNo,
+    ): URLString;
+    getPageCount(html: HTMLString, year: Year): number;
+  };
+}
+
 export interface ISnickerdoodleCore {
   /**
    * initialize() should be the first call you make on a new SnickerdoodleCore.
@@ -927,6 +958,8 @@ export interface ISnickerdoodleCore {
   twitter: ICoreTwitterMethods;
   metrics: IMetricsMethods;
   storage: IStorageMethods;
+  scraper: IScraperMethods;
+  scraperNavigation: IScraperNavigationMethods;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

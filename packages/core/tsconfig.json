@@ -15,6 +15,9 @@
   },
   "references": [
     {
+      "path": "../ai-scraper"
+    },
+    {
       "path": "../common-utils"
     },
     {
@@ -25,6 +28,9 @@
     },
     {
       "path": "../insight-platform-api"
+    },
+    {
+      "path": "../nlp"
     },
     {
       "path": "../node-utils"
@@ -40,6 +46,9 @@
     },
     {
       "path": "../signatureVerification"
+    },
+    {
+      "path": "../shopping-data"
     }
   ],
   "include": [

@@ -1,4 +1,4 @@
-import { Keyword } from "@ai-scraper/interfaces/primitives/Keyword.js";
+import { Keyword } from "@snickerdoodlelabs/objects";
 
 export interface TaskKeywords {
   [task: string]: Keyword[];

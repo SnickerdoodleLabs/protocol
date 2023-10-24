@@ -184,6 +184,17 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         return values.map((x) => x.data);
       });
   }
+  public getAllByMultiIndex<T extends VersionedObject>(
+    recordKey: ERecordKey,
+    indices: string[],
+    values: IDBValidKey | IDBKeyRange,
+  ): ResultAsync<T[], PersistenceError> {
+    return this.volatileStorage
+      .getAllByIndex<T>(recordKey, indices, values)
+      .map((values) => {
+        return values.map((x) => x.data);
+      });
+  }
 
   // TODO: Fix this- it should return keys, not T!
   public getAllKeys<T>(

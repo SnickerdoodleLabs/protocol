@@ -78,7 +78,7 @@ participant SJR as Scraper Job Repository
 participant LLM as LLM Scraper
 participant PU as PromptUtils
 participant LLMProvider as LLM Provider
-participant T as Text Preprocessor
+participant Pre as HTML Preprocessor
 participant DTU as DomainTaskUtils
 
 loop Periodically
@@ -95,8 +95,8 @@ loop Periodically
             PU-->LLM: Prompt
 
             loop for each job
-                LLM->>T: convert HTML to text and minimize
-                T-->>LLM: minimzed Text
+                LLM->>Pre: convert HTML to text and minimize
+                Pre-->>LLM: minimzed Text
                 LLM->>PU: add to Prompt if have token budget
             end
 
@@ -118,3 +118,66 @@ end
 
 1. Web-workers
 2. IPFS to collect URLs?
+
+### Prompt Builder
+
+```mermaid
+classDiagram
+
+    class PromptDirector {
+        +makePurchaseHistoryPrompt(data) Prompt
+    }
+
+    PromptDirector --> PromptBuilder
+
+    class PromptBuilder {
+        <<interface>>
+        +setExemplars(exemplars)
+        +setRole(role)
+        +setQuestion(question)
+        +setAnswerStructure(structure)
+        +setData(data)
+        +getPrompt() Prompt
+    }
+    
+    class PurchaseHistoryPromptBuilder {
+
+    }
+    PromptBuilder <|-- PurchaseHistoryPromptBuilder
+
+    class ShoppingCartPromptBuilder {
+
+    }
+    PromptBuilder <|-- ShoppingCartPromptBuilder
+
+    %% Collection prompts
+
+    class CollectionPromptBuilder {
+
+        <<interface>>
+    }
+    PromptBuilder <|-- CollectionPromptBuilder
+
+    class ProductCollectionPromptBuilder {
+
+    }
+    CollectionPromptBuilder <|-- ProductCollectionPromptBuilder
+
+    class GameCollectionPromptBuilder {
+
+    }
+    CollectionPromptBuilder <|-- GameCollectionPromptBuilder
+
+    
+    %% Single Item Prompts
+    class ItemDetailsPromptBuilder {
+
+    }
+    PromptBuilder <|-- ItemDetailsPromptBuilder
+
+    class OrderDetailsPromptBuilder {
+
+    }
+    ItemDetailsPromptBuilder <|-- OrderDetailsPromptBuilder
+
+```

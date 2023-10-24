@@ -1,4 +1,32 @@
 import {
+  AmazonNavigationUtils,
+  ChatGPTProvider,
+  HTMLPreProcessor,
+  IAmazonNavigationUtils,
+  IAmazonNavigationUtilsType,
+  IHTMLPreProcessor,
+  IHTMLPreProcessorType,
+  ILLMProvider,
+  ILLMProviderType,
+  ILLMPurchaseHistoryUtils,
+  ILLMPurchaseHistoryUtilsType,
+  IOpenAIUtils,
+  IOpenAIUtilsType,
+  IPromptBuilderFactory,
+  IPromptBuilderFactoryType,
+  IPromptDirector,
+  IPromptDirectorType,
+  IScraperConfigProvider,
+  IScraperConfigProviderType,
+  IScraperService,
+  IScraperServiceType,
+  LLMPurchaseHistoryUtilsChatGPT,
+  LLMScraperService,
+  OpenAIUtils,
+  PromptBuilderFactory,
+  PromptDirector,
+} from "@snickerdoodlelabs/ai-scraper";
+import {
   AxiosAjaxUtils,
   BigNumberUtils,
   IAxiosAjaxUtils,
@@ -13,10 +41,34 @@ import {
   TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
+  AlchemyIndexer,
+  AnkrIndexer,
+  CovalentEVMTransactionRepository,
+  EtherscanIndexer,
+  IAlchemyIndexerType,
+  IAnkrIndexerType,
+  ICovalentEVMTransactionRepositoryType,
+  IEVMIndexer,
+  IEtherscanIndexerType,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
   IIndexerContextProvider,
   IIndexerContextProviderType,
+  IMoralisEVMPortfolioRepositoryType,
+  INftScanEVMPortfolioRepositoryType,
+  IOklinkIndexerType,
+  IPoapRepositoryType,
+  IPolygonIndexerType,
+  ISimulatorEVMTransactionRepositoryType,
+  ISolanaIndexer,
+  ISolanaIndexerType,
+  MoralisEVMPortfolioRepository,
+  NftScanEVMPortfolioRepository,
+  OklinkIndexer,
+  PoapRepository,
+  PolygonIndexer,
+  SimulatorEVMTransactionRepository,
+  SolanaIndexer,
 } from "@snickerdoodlelabs/indexers";
 import {
   IInsightPlatformRepository,
@@ -82,6 +134,11 @@ import {
   QueryFactories,
   SDQLQueryWrapperFactory,
 } from "@snickerdoodlelabs/query-parser";
+import {
+  IPurchaseRepository,
+  IPurchaseRepositoryType,
+  Purchase,
+} from "@snickerdoodlelabs/shopping-data";
 import { ContainerModule, interfaces } from "inversify";
 
 import {
@@ -139,6 +196,7 @@ import {
   TransactionHistoryRepository,
   TwitterRepository,
   AuthenticatedStorageRepository,
+  PurchaseRepository,
 } from "@core/implementations/data/index.js";
 import { ContractFactory } from "@core/implementations/utilities/factory/index.js";
 import {
@@ -401,7 +459,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<ITwitterRepository>(ITwitterRepositoryType)
       .to(TwitterRepository)
       .inSingletonScope();
-    bind<ISocialRepository>(ISocialRepositoryType).to(SocialRepository);
+    bind<ISocialRepository>(ISocialRepositoryType)
+      .to(SocialRepository)
+      .inSingletonScope();
 
     bind<IBackupUtils>(IBackupUtilsType).to(BackupUtils).inSingletonScope();
     bind<IVolatileStorageSchemaProvider>(IVolatileStorageSchemaProviderType)
@@ -516,5 +576,17 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<ICloudStorage>(IDropboxCloudStorageType)
       .to(DropboxCloudStorage)
       .inSingletonScope();
+
+    // region shopping data
+    bind<IPurchaseRepository>(IPurchaseRepositoryType)
+      .to(PurchaseRepository)
+      .inSingletonScope();
+    // endregion
+
+    // region scraper
+    bind<IScraperConfigProvider>(IScraperConfigProviderType).toService(
+      IConfigProviderType,
+    );
+    // endregion
   },
 );

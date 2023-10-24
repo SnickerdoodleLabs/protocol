@@ -26,6 +26,7 @@ import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
 import { OptInCampaign } from "@test-harness/prompts/OptInCampaign.js";
 import { OptOutCampaign } from "@test-harness/prompts/OptOutCampaign.js";
 import { RemoveAccount } from "@test-harness/prompts/RemoveAccount.js";
+import { ScraperPrompt } from "@test-harness/prompts/ScraperPrompt.js";
 import { SelectProfile } from "@test-harness/prompts/SelectProfile.js";
 import { UpdateDataPermissions } from "@test-harness/prompts/UpdateDataPermissions.js";
 
@@ -36,6 +37,7 @@ export class CorePrompt extends DataWalletPrompt {
   private optOutCampaign: OptOutCampaign;
   private selectProfile: SelectProfile;
   private updateDataPermissions: UpdateDataPermissions;
+  private scraperService: ScraperPrompt;
 
   public constructor(public env: Environment, protected timeUtils: ITimeUtils) {
     super(env);
@@ -46,6 +48,7 @@ export class CorePrompt extends DataWalletPrompt {
     this.optOutCampaign = new OptOutCampaign(this.env);
     this.selectProfile = new SelectProfile(this.env);
     this.updateDataPermissions = new UpdateDataPermissions(this.env);
+    this.scraperService = new ScraperPrompt(this.env);
   }
 
   public start(): ResultAsync<void, Error> {
@@ -117,6 +120,7 @@ export class CorePrompt extends DataWalletPrompt {
     const choices = [
       { name: "NOOP", value: "NOOP" },
       { name: "Switch Profile", value: "selectProfile" },
+      { name: "Scraper Service", value: "scraperService" },
       new inquirer.Separator(),
       ...choicesWhenUnlocked,
       new inquirer.Separator(),
@@ -147,6 +151,8 @@ export class CorePrompt extends DataWalletPrompt {
           return okAsync<void, never>(undefined);
         case "selectProfile":
           return this.selectProfile.start();
+        case "scraperService":
+          return this.scraperService.start();
         case "addAccount":
           return this.addAccount.start();
         case "removeAccount":
