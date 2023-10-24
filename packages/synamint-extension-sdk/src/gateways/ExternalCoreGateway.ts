@@ -15,7 +15,7 @@ import {
   FamilyName,
   Gender,
   GivenName,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   IpfsCID,
   LinkedAccount,
   DataWalletAddress,
@@ -386,7 +386,7 @@ export class ExternalCoreGateway {
 
   public getInvitationMetadataByCID(
     params: GetInvitationMetadataByCIDParams,
-  ): ResultAsync<IOpenSeaMetadata, ProxyError> {
+  ): ResultAsync<IOldUserAgreement, ProxyError> {
     return this._handler.call(params);
   }
 

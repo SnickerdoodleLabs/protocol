@@ -4,12 +4,12 @@ import {
   ESocialType,
   EVMContractAddress,
   EWalletDataType,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   PossibleReward,
   QueryStatus,
 } from "@snickerdoodlelabs/objects";
-import { PermissionSelection } from "@snickerdoodlelabs/shared-components";
 import {
+  PermissionSelection,
   addQueryStatusToPossibleReward,
   PossibleRewardWithQueryStatus,
 } from "@snickerdoodlelabs/shared-components";
@@ -39,7 +39,7 @@ const PermissionSelectionModalV2: FC = () => {
   const { setAlert } = useNotificationContext();
   const { consentContractAddress, campaignInfo } = customProps as {
     consentContractAddress: EVMContractAddress;
-    campaignInfo: IOpenSeaMetadata;
+    campaignInfo: IOldUserAgreement;
   };
   const { sdlDataWallet } = useDataWalletContext();
   const {

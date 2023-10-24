@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useMemo } from "react";
 import { useCoreContext } from "./CoreContext";
 import {
   EVMContractAddress,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   Invitation,
 } from "@snickerdoodlelabs/objects";
 import CenteredModal from "../components/CenteredModal";
@@ -25,7 +25,7 @@ const LayoutProvider: React.FC<ILayoutContextProps> = ({ children }: any) => {
   const [invitation, setInvitation] = React.useState<Invitation | null>(null);
   const [showPopup, setShowPopup] = React.useState<boolean>(false);
   const [invitationMetadata, setInvitationMetadata] =
-    React.useState<IOpenSeaMetadata | null>(null);
+    React.useState<IOldUserAgreement | null>(null);
 
   useEffect(() => {
     if (showPopup && invitation) {

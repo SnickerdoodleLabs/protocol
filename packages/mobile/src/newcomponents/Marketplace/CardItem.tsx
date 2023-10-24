@@ -1,6 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
 import {
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   IpfsCID,
   MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
@@ -26,7 +26,7 @@ interface CardItemProps {
 const CardItem: React.FC<CardItemProps> = ({ marketplaceListing }) => {
   const { mobileCore } = useAppContext();
   const navigation = useNavigation();
-  const [metaData, setMetaData] = React.useState<IOpenSeaMetadata>();
+  const [metaData, setMetaData] = React.useState<IOldUserAgreement>();
   const theme = useTheme();
 
   const styles = StyleSheet.create({

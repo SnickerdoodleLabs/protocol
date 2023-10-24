@@ -1,6 +1,6 @@
 import { URLString } from "@objects/primitives/index.js";
 
-export interface IOpenSeaMetadata {
+export interface IOldUserAgreement {
   title: string;
   description: string;
   image: URLString;

@@ -9,7 +9,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import {
   EWalletDataType,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   MarketplaceListing,
   PossibleReward,
   QueryTypePermissionMap,
@@ -53,7 +53,7 @@ export interface IInvitationParams {
 }
 
 interface ICardDetailsProps {
-  metaData: IOpenSeaMetadata;
+  metaData: IOldUserAgreement;
   marketplaceListing: MarketplaceListing;
 }
 

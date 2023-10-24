@@ -5,6 +5,7 @@ import {
   TokenUri,
   BaseURI,
   BlockchainCommonErrors,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { EventFilter } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -131,6 +132,42 @@ export interface IERC721RewardContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  >;
+
+  /**
+   * Adds a domain to the contract storage
+   * Only callable by address with DEFAULT_ADMIN_ROLE
+   * If domain already exists, reverts with error message "Reward : Domain already added"
+   * @param domain Domain name
+   */
+  addDomain(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  >;
+
+  /**
+   * Removes a domain from the contract storage
+   * Only callable by address with DEFAULT_ADMIN_ROLE
+   * If domain does not exist, reverts with error message "Reward : Domain is not in the list"
+   * @param domain Domain name
+   */
+  removeDomain(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  >;
+
+  /**
+   * Returns an array of domains added to the contract
+   */
+  getDomains(): ResultAsync<
+    DomainName[],
     BlockchainCommonErrors | ERC721RewardContractError
   >;
 

@@ -2,7 +2,7 @@ import {
   DomainName,
   EVMContractAddress,
   InvitationDomain,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   IpfsCID,
   IPFSError,
   OptInInfo,
@@ -41,7 +41,7 @@ export interface IInvitationRepository {
   ): ResultAsync<InvitationDomain | null, IPFSError>;
   getInvitationMetadataByCID(
     cid: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, IPFSError>;
+  ): ResultAsync<IOldUserAgreement, IPFSError>;
 
   /**
    * Returns a list of consent contract addresses that the user has rejected

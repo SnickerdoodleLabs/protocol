@@ -28,7 +28,7 @@ import {
   GivenName,
   IConfigOverrides,
   IConsentCapacity,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   IProxyMetricsMethods,
   IProxyDiscordMethods,
   IProxyTwitterMethods,
@@ -408,7 +408,7 @@ export class SnickerdoodleIFrameProxy
 
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, ProxyError> {
+  ): ResultAsync<IOldUserAgreement, ProxyError> {
     return this._createCall("getInvitationMetadataByCID", {
       ipfsCID,
     });

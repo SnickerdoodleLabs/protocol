@@ -7,6 +7,7 @@ import {
   ERC721RewardContractError,
   BlockchainCommonErrors,
   BlockchainErrorMapper,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers, EventFilter } from "ethers";
 import { injectable } from "inversify";
@@ -260,6 +261,39 @@ export class ERC721RewardContract
       "renounceRole",
       [ERewardRoles[role], address],
       overrides,
+    );
+  }
+
+  public addDomain(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  > {
+    return this.writeToContract("addDomain", [domain], overrides);
+  }
+
+  public removeDomain(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  > {
+    return this.writeToContract("removeDomain", [domain], overrides);
+  }
+
+  public getDomains(): ResultAsync<
+    DomainName[],
+    BlockchainCommonErrors | ERC721RewardContractError
+  > {
+    return ResultAsync.fromPromise(
+      // returns array of domains
+      this.contract.getDomains() as Promise<DomainName[]>,
+      (e) => {
+        return this.generateError(e, "Unable to call getDomains()");
+      },
     );
   }
 

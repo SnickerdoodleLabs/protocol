@@ -1,6 +1,6 @@
 import {
   ETag,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   MarketplaceListing,
   MarketplaceTag,
   PagedResponse,
@@ -40,7 +40,7 @@ export default function Marketplace() {
   const [categoryFilter, setCategoryFilter] = useState<boolean>(false);
   const [listings, setListings] =
     useState<Record<ETag, PagedResponse<MarketplaceListing>>>();
-  const [allListings, setAllListings] = useState<IOpenSeaMetadata[]>([]);
+  const [allListings, setAllListings] = useState<IOldUserAgreement[]>([]);
   const [filteredData, setFilteredData] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredByCategory, setFilteredByCategory] = useState(null);

@@ -8,7 +8,7 @@ import {
   EVMContractAddress,
   EWalletDataType,
   Gender,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   PossibleReward,
   QueryStatus,
   QueryTypePermissionMap,
@@ -37,7 +37,7 @@ interface IPermissionSelectionProps {
   setGender(gender: Gender): ResultAsync<void, unknown>;
   isSafe: (dataType: EWalletDataType) => boolean;
   generateAllPermissions: () => ResultAsync<EWalletDataType[], unknown>;
-  campaignInfo: IOpenSeaMetadata;
+  campaignInfo: IOldUserAgreement;
   possibleRewardWithQueryStatus: PossibleRewardWithQueryStatus[];
   earnedRewards: EarnedReward[];
   consentContractAddress: EVMContractAddress;

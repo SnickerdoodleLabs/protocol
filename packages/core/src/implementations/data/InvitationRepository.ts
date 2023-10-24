@@ -10,7 +10,7 @@ import {
   ERecordKey,
   EVMContractAddress,
   InvitationDomain,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   IpfsCID,
   IPFSError,
   OptInInfo,
@@ -134,13 +134,13 @@ export class InvitationRepository implements IInvitationRepository {
 
   public getInvitationMetadataByCID(
     cid: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, IPFSError> {
+  ): ResultAsync<IOldUserAgreement, IPFSError> {
     return this.configProvider
       .getConfig()
       .andThen((config) => {
         const ipfsUrl = urlJoin(config.ipfsFetchBaseUrl, cid);
         return this.ajaxUtil
-          .get<IOpenSeaMetadata>(new URL(ipfsUrl))
+          .get<IOldUserAgreement>(new URL(ipfsUrl))
           .map((metadata) => {
             metadata.image = URLString(
               metadata.image?.replace("ipfs://", config.ipfsFetchBaseUrl) ?? "",

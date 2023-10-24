@@ -1,10 +1,10 @@
-import { IOpenSeaMetadata } from "@snickerdoodlelabs/objects";
+import { IOldUserAgreement } from "@snickerdoodlelabs/objects";
 import React, { FC } from "react";
 
 import { Box, Typography } from "@core-iframe/app/ui/lib";
 
 interface IInvitationCardProps {
-  invitationData: IOpenSeaMetadata;
+  invitationData: IOldUserAgreement;
 }
 export const InvitationCard: FC<IInvitationCardProps> = ({
   invitationData,

@@ -16,7 +16,7 @@ import {
   EVMContractAddress,
   EWalletDataType,
   IConsentCapacity,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   PossibleReward,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -24,8 +24,6 @@ import {
   Permissions,
   PERMISSIONS_WITH_ICONS,
   UI_SUPPORTED_PERMISSIONS,
-} from "@snickerdoodlelabs/shared-components";
-import {
   addQueryStatusToPossibleReward,
   categorizePossibleRewardsBasedOnStatus,
   getRewardsAfterRewardsWereDeliveredFromIP,
@@ -110,7 +108,7 @@ const RewardProgramDetails: FC = () => {
   } = (useLocation().state || {}) as {
     tag: ETag;
     possibleRewards: PossibleReward[];
-    info?: IOpenSeaMetadata;
+    info?: IOldUserAgreement;
     consentContractAddress: EVMContractAddress;
   };
   const [possibleRewardWithQueryStatus, setPossibleRewardWithQueryStatus] =

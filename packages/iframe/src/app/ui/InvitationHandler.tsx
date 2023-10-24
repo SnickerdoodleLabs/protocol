@@ -2,7 +2,7 @@ import {
   DataPermissions,
   EVMContractAddress,
   EWalletDataType,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   ISnickerdoodleCore,
   Invitation,
   LinkedAccount,
@@ -61,7 +61,7 @@ export enum EAPP_STATE {
 
 interface IInvitation {
   invitation: Invitation;
-  metadata: IOpenSeaMetadata;
+  metadata: IOldUserAgreement;
 }
 
 interface ICurrentInvitation {
@@ -89,17 +89,17 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   const uniqueConsentAdressesRef = useRef<EVMContractAddress[]>([]);
   const [deepLinkInvitation, setDeepLinkInvitation] = useState<{
     invitation: Invitation;
-    metadata: IOpenSeaMetadata;
+    metadata: IOldUserAgreement;
   } | null>(null);
 
   const [domainInvitation, setDomainInvitation] = useState<{
     invitation: Invitation;
-    metadata: IOpenSeaMetadata;
+    metadata: IOldUserAgreement;
   } | null>(null);
 
   const [consentInvitation, setConsentInvitation] = useState<{
     invitation: Invitation;
-    metadata: IOpenSeaMetadata;
+    metadata: IOldUserAgreement;
   } | null>(null);
 
   const currentInvitation: ICurrentInvitation | null = useMemo(() => {
