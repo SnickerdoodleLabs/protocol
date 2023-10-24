@@ -247,6 +247,7 @@ export class BlockvisionIndexer implements ISuiIndexer {
         );
       })
       .map((response) => {
+        console.log("response: " + JSON.stringify(response));
         return response.result
           .map((value) => {
             const balanceUpdates = this.retrieveBalanceChanges(
@@ -357,7 +358,12 @@ export class BlockvisionIndexer implements ISuiIndexer {
         );
       })
       .map((response) => {
+        console.log("response: " + JSON.stringify(response));
+        if (response.result.data == null) {
+          return [];
+        }
         return response.result.data.map((item) => {
+          console.log("item: " + item);
           return item.txDigest;
         });
       });
