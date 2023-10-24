@@ -15,6 +15,7 @@ import {
   LLMData,
   LLMResponse,
   Prompt,
+  EKnownDomains,
 } from "@snickerdoodlelabs/objects";
 import {
   IPurchaseRepository,
@@ -30,6 +31,8 @@ import { ResultAsync, errAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import {
+  IAmazonNavigationUtils,
+  IAmazonNavigationUtilsType,
   IHTMLPreProcessor,
   IHTMLPreProcessorType,
   ILLMProductMetaUtils,
@@ -66,6 +69,8 @@ export class LLMScraperService implements IScraperService {
     private purchaseRepository: IPurchaseRepository,
     @inject(ILLMProductMetaUtilsType)
     private productMetaUtils: ILLMProductMetaUtils,
+    @inject(IAmazonNavigationUtilsType)
+    private amazonNavigationUtils: IAmazonNavigationUtils,
   ) {}
 
   public poll(): ResultAsync<void, ScraperError> {
@@ -134,10 +139,18 @@ export class LLMScraperService implements IScraperService {
     html: HTMLString,
     domainTask: DomainTask,
   ): ResultAsync<Prompt, ScraperError | LLMError> {
-    if (domainTask.taskType == ETask.PurchaseHistory) {
-      return this.htmlPreProcessor.htmlToText(html, null).andThen((text) => {
-        return this.promptDirector.makePurchaseHistoryPrompt(LLMData(text));
-      });
+    if (
+      domainTask.taskType == ETask.PurchaseHistory &&
+      domainTask.domain == EKnownDomains.Amazon
+    ) {
+      const preprocessingOptions =
+        this.amazonNavigationUtils.getPurchaseHistoryPagePreprocessingOptions();
+      return this.htmlPreProcessor
+        .htmlToText(html, preprocessingOptions)
+        .andThen((text) => {
+          text = text.substring(0, this.llmProvider.defaultMaxTokens() - 1000);
+          return this.promptDirector.makePurchaseHistoryPrompt(LLMData(text));
+        });
     }
     return errAsync(new LLMError("Task type not supported."));
   }

@@ -11,6 +11,7 @@ import { ResultAsync, okAsync, errAsync } from "neverthrow";
 import OpenAI from "openai";
 import {
   ChatCompletion,
+  ChatCompletionCreateParamsNonStreaming,
   CompletionCreateParamsNonStreaming,
 } from "openai/resources/chat";
 
@@ -39,6 +40,10 @@ export class ChatGPTProvider implements ILLMProvider {
   ) {
     this.temperature = 0.1;
     this.chatEncoder = encodingForModel(this.chatModel);
+  }
+
+  public defaultMaxTokens(): number {
+    return 4096;
   }
 
   public maxTokens(model: TiktokenModel): number {
@@ -82,7 +87,7 @@ export class ChatGPTProvider implements ILLMProvider {
 
   private chatOnce(messages): ResultAsync<LLMResponse, LLMError> {
     return this.getClient().andThen((openai) => {
-      const params: CompletionCreateParamsNonStreaming = {
+      const params: ChatCompletionCreateParamsNonStreaming = {
         model: this.chatModel,
         messages: messages,
         temperature: this.temperature,

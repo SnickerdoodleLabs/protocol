@@ -15,5 +15,6 @@ export interface IAmazonNavigationUtils {
     page: PageNo,
   ): URLString;
   getPageCount(html: HTMLString, year: Year): number;
+  getPurchaseHistoryPagePreprocessingOptions(): unknown;
 }
 export const IAmazonNavigationUtilsType = Symbol.for("IAmazonNavigationUtils");

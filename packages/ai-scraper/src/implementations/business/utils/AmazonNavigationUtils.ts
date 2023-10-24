@@ -53,4 +53,15 @@ export class AmazonNavigationUtils implements IAmazonNavigationUtils {
       `https://www.amazon.com/gp/your-account/order-history?orderFilter=year-${year}&startIndex=${startIndex}`,
     );
   }
+
+  public getPurchaseHistoryPagePreprocessingOptions(): unknown {
+    const options = {
+      baseElements: { selectors: [".your-orders-content-container"] },
+      selectors: [
+        { selector: "a", options: { ignoreHref: true } },
+        { selector: "img", format: "skip" },
+      ],
+    };
+    return options;
+  }
 }
