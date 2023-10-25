@@ -175,7 +175,7 @@ export class BlockvisionIndexer implements ISuiIndexer {
         );
       })
       .map((response) => {
-        if (response.result.data == null || response.result.data.length == 0) {
+        if (response.result == null) {
           return [];
         }
         return response.result.data.map((item) => {
