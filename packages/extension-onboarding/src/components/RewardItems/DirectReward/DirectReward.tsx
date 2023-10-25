@@ -1,32 +1,19 @@
-import { Box, Typography } from "@material-ui/core";
-import {
-  DirectReward,
-  EVMContractAddress,
-  EWalletDataType,
-} from "@snickerdoodlelabs/objects";
-import {
-  useRewardItemsStyles,
-  Permissions,
-} from "@snickerdoodlelabs/shared-components";
-import React from "react";
-import { useNavigate } from "react-router";
-import { useLocation } from "react-router-dom";
-
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import { useStyles } from "@extension-onboarding/components/RewardItems/DirectReward/DirectReward.style";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { Box, Typography } from "@material-ui/core";
+import { DirectReward, EVMContractAddress } from "@snickerdoodlelabs/objects";
+import { useRewardItemsStyles } from "@snickerdoodlelabs/shared-components";
+import React from "react";
+import { useNavigate } from "react-router";
+import { useLocation } from "react-router-dom";
 
 interface IDirectRewardProps {
   reward: DirectReward;
   consentContractAddress: EVMContractAddress;
-  permissions: EWalletDataType[];
 }
-export default ({
-  reward,
-  permissions,
-  consentContractAddress,
-}: IDirectRewardProps) => {
+export default ({ reward, consentContractAddress }: IDirectRewardProps) => {
   const { apiGateway } = useAppContext();
   const classes = useStyles();
   const rewardItemsClasses = useRewardItemsStyles();
@@ -54,7 +41,6 @@ export default ({
           modalSelector: EModalSelectors.REWARD_DETAIL_MODAL,
           onPrimaryButtonClick: () => {},
           customProps: {
-            permissions,
             reward,
           },
         });
@@ -68,22 +54,6 @@ export default ({
         <Typography className={rewardItemsClasses.title}>
           {reward.name}
         </Typography>
-      </Box>
-      <Box
-        py={0.75}
-        px={1.5}
-        bgcolor="rgba(22, 22, 26, 0.04)"
-        borderRadius={10}
-      >
-        <Box mb={0.5}>
-          <Typography className={rewardItemsClasses.priceTitle}>
-            Price:
-          </Typography>
-        </Box>
-        <Permissions
-          rowItemProps={{ width: 20, mr: 0.75 }}
-          permissions={permissions}
-        />
       </Box>
     </Box>
   );

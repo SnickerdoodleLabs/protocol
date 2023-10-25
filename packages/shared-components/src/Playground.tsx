@@ -4,7 +4,6 @@ import {
   Tabs,
   Box,
   Radio,
-  ButtonGroup,
   AppBar,
   Toolbar,
   CssBaseline,
@@ -20,7 +19,6 @@ import {
   DescriptionWidget,
   PermissionSelectionWidget,
 } from "@shared-components/v2";
-
 import { IOldUserAgreement } from "@snickerdoodlelabs/objects";
 import React from "react";
 import ReactDOM from "react-dom";
@@ -310,7 +308,9 @@ const App = () => {
           <Box mb={2} />
           <PermissionSelectionWidget
             onCancelClick={() => {}}
-            onSaveClick={(dataTypes) => {}}
+            onSaveClick={(dataTypes) => {
+              console.log(dataTypes);
+            }}
           />
         </>
       )}

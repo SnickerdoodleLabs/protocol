@@ -19,8 +19,8 @@ export const PermissionSelectionWidget: FC<IPermissionSelectionProps> = ({
   onSaveClick,
   onCancelClick,
 }) => {
-  const [dataTypes, setDataTypes] = React.useState<EWalletDataType[]>(
-    FF_SUPPORTED_PERMISSIONS.map((item) => item.key),
+  const [indexes, setIndexes] = React.useState<number[]>(
+    Array.from({ length: FF_SUPPORTED_PERMISSIONS.length }, (_, i) => i),
   );
 
   const theme = useTheme<Theme>();
@@ -28,10 +28,10 @@ export const PermissionSelectionWidget: FC<IPermissionSelectionProps> = ({
   const isMobile = useMemo(() => media === "xs", [media]);
 
   const updateDataTypes = (key: EWalletDataType) => {
-    if (dataTypes.includes(key)) {
-      setDataTypes(dataTypes.filter((item) => item != key));
+    if (indexes.includes(key)) {
+      setIndexes(indexes.filter((item) => item != key));
     } else {
-      setDataTypes([...dataTypes, key]);
+      setIndexes([...indexes, key]);
     }
   };
   return (
@@ -75,7 +75,7 @@ export const PermissionSelectionWidget: FC<IPermissionSelectionProps> = ({
       >
         {FF_SUPPORTED_PERMISSIONS.map((item, index) => {
           return (
-            <React.Fragment key={item.key}>
+            <React.Fragment key={item.name}>
               <Box
                 display="flex"
                 justifyContent="space-between"
@@ -87,9 +87,9 @@ export const PermissionSelectionWidget: FC<IPermissionSelectionProps> = ({
                 </SDTypography>
                 <SDSwitch
                   onChange={() => {
-                    updateDataTypes(item.key);
+                    updateDataTypes(index);
                   }}
-                  checked={dataTypes.includes(item.key)}
+                  checked={indexes.includes(index)}
                 />
               </Box>
               <Box mb={1}>
@@ -124,7 +124,11 @@ export const PermissionSelectionWidget: FC<IPermissionSelectionProps> = ({
         <Grid item xs={12} sm={6}>
           <SDButton
             onClick={() => {
-              onSaveClick(dataTypes);
+              onSaveClick(
+                indexes
+                  .map((index) => FF_SUPPORTED_PERMISSIONS[index].key)
+                  .flat(),
+              );
             }}
             fullWidth
             variant="contained"

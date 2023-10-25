@@ -9,4 +9,5 @@ export enum EPathsV2 {
   POAP_NFTS = "/data-dashboard/poap-nfts",
   BROWSER_ACTIVITY = "/data-dashboard/browser-activity",
   SOCIAL_MEDIA_DATA = "/data-dashboard/social-media-data",
+  TRANSACTION_HISTORY = "/data-dashboard/transaction-history",
 }
