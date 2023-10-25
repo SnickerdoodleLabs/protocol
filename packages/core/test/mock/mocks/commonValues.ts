@@ -161,6 +161,8 @@ export const testCoreConfig = new CoreConfig(
     oklinkApiKey: "oklink api key",
     ankrApiKey: "ankr api key",
     bluezApiKey: "bluez api key",
+    spaceAndTimeKey: "spaceAndTime api key",
+    blockvisionKey: "blockvision api key",
     primaryInfuraKey: "primary infura key",
     primaryRPCProviderURL: ProviderUrl("Primary RPC Provider URL"),
     secondaryInfuraKey: "",
@@ -198,7 +200,7 @@ export const testCoreConfig = new CoreConfig(
   ProviderUrl("devChainProviderURL"), // devChainProviderURL
   60, // maxStatsRetentionSeconds
   LanguageCode("en-pw"), // passwordLanguageCode
-  100
+  100,
 );
 
 const adContent1: AdContent = new AdContent(
