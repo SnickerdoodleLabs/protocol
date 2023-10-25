@@ -1,13 +1,20 @@
 import Card from "@extension-onboarding/components/v2/Card";
 import CardTitle from "@extension-onboarding/components/v2/CardTitle";
-import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
+import {
+  useAccountLinkingContext,
+  EWalletProviderKit,
+} from "@extension-onboarding/context/AccountLinkingContext";
 import { Box, Grid } from "@material-ui/core";
 import { SDTypography, SDButton } from "@snickerdoodlelabs/shared-components";
 import React from "react";
 
 const Wallets = () => {
-  const { detectedProviders, unDetectedProviders, onProviderConnectClick } =
-    useAccountLinkingContext();
+  const {
+    detectedProviders,
+    unDetectedProviders,
+    onProviderConnectClick,
+    onWalletKitConnectClick,
+  } = useAccountLinkingContext();
   return (
     <Card>
       <CardTitle
@@ -51,6 +58,43 @@ const Wallets = () => {
             </Box>
           </Grid>
         ))}
+        <Grid xs={12} sm={6} md={4} lg={3} item>
+          <Box
+            px={3}
+            display="flex"
+            flexDirection={{ xs: "row", sm: "column" }}
+            py={1.5}
+            borderRadius={12}
+            border="1px solid"
+            borderColor={"borderColor"}
+          >
+            <Box display="flex" alignItems="center" mb={{ xs: 0, sm: 1.5 }}>
+              <img
+                src="https://framerusercontent.com/images/eDZRos3xvCrlWxmLFr72sFtiyQ.png?scale-down-to=512"
+                width={40}
+                height={40}
+              />
+              <Box ml={2} />
+              <SDTypography
+                variant="bodyLg"
+                fontWeight="medium"
+                color="textHeading"
+              >
+                Suiet Kit
+              </SDTypography>
+            </Box>
+            <Box ml={{ xs: "auto", sm: 0 }}>
+              <SDButton
+                onClick={() => {
+                  onWalletKitConnectClick(EWalletProviderKit.SUI);
+                }}
+                variant="outlined"
+              >
+                Link Account
+              </SDButton>
+            </Box>
+          </Box>
+        </Grid>
         {unDetectedProviders.map((provider, index) => (
           <Grid key={`d.${index}`} xs={12} sm={6} md={4} lg={3} item>
             <Box

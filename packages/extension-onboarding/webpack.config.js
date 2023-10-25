@@ -46,6 +46,21 @@ module.exports = {
         exclude: /node_modules/,
       },
       {
+        test: /\.(s[ac]ss|css)$/i,
+        use: [
+          "style-loader",
+          "css-loader",
+          // {
+          //   loader: "sass-loader",
+          //   options: {
+          //     sassOptions: {
+          //       includePaths: [path.resolve(__dirname, "node_modules")],
+          //     },
+          //   },
+          // },
+        ],
+      },
+      {
         test: /\.(png|svg|jpg|jpeg|gif|eot|woff|woff2)$/i,
         type: "asset/resource",
         exclude: /node_modules/,

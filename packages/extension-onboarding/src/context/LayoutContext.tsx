@@ -41,6 +41,7 @@ type ModalSelectorTypeMap = {
   [EModalSelectors.PERMISSION_SELECTION]: any;
   [EModalSelectors.OTP_MODAL]: IOTPModal;
   [EModalSelectors.LEAVE_AUDIENCE_MODAL]: undefined;
+  [EModalSelectors.SUI_LINKING_STEPS]: any;
 };
 
 type ModalSelector = keyof ModalSelectorTypeMap;
