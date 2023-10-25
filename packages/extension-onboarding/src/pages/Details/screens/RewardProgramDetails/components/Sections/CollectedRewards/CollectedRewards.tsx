@@ -66,7 +66,6 @@ const CollectedRewards: FC<ICollectedRewardsProps> = ({
           <DirectRewardComponent
             consentContractAddress={consentContractAddress}
             reward={reward as DirectReward}
-            permissions={permissions}
           />
         );
     }

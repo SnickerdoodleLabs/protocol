@@ -66,7 +66,7 @@ const DataDashboardLayout = () => {
   const navigate = useNavigate();
   const classes = useStyles();
 
-  const navContainerRef = React.useRef(null);
+  const navContainerRef = React.useRef<HTMLDivElement | null>(null);
 
   React.useEffect(() => {
     if (navContainerRef.current) {
@@ -75,7 +75,7 @@ const DataDashboardLayout = () => {
         `[data-path="${location.pathname}"]`,
       );
 
-      if (selectedLinkElement) {
+      if (selectedLinkElement && selectedLinkElement instanceof HTMLElement) {
         // Scroll to the selected link element's position within the container
         navContainerRef.current.scrollLeft =
           selectedLinkElement.offsetLeft - navContainerRef.current.offsetLeft;
