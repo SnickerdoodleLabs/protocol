@@ -17,6 +17,7 @@ import {
   PagedResponse,
   UnixTimestamp,
   EarnedReward,
+  IUserAgreement,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -60,7 +61,7 @@ export interface IInvitationService {
 
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement, SnickerDoodleCoreError>;
+  ): ResultAsync<IOldUserAgreement | IUserAgreement, SnickerDoodleCoreError>;
 
   getConsentCapacity(
     consentContractAddress: EVMContractAddress,

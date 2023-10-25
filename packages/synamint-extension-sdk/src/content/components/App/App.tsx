@@ -1,11 +1,14 @@
 import {
   AccountAddress,
   BaseNotification,
+  BigNumberString,
   DomainName,
   EInvitationStatus,
   ENotificationTypes,
   EWalletDataType,
+  IOldUserAgreement,
   LinkedAccount,
+  PageInvitation,
   PossibleReward,
   UUID,
 } from "@snickerdoodlelabs/objects";
@@ -35,7 +38,6 @@ import SubscriptionConfirmation from "@synamint-extension-sdk/content/components
 import SubscriptionSuccess from "@synamint-extension-sdk/content/components/Screens/SubscriptionSuccess";
 import {
   EAPP_STATE,
-  IRewardItem,
 } from "@synamint-extension-sdk/content/constants";
 import usePath from "@synamint-extension-sdk/content/hooks/usePath";
 import DataWalletProxyInjectionUtils from "@synamint-extension-sdk/content/utils/DataWalletProxyInjectionUtils";
@@ -43,30 +45,19 @@ import { VersionUtils } from "@synamint-extension-sdk/extensionShared";
 import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 import {
   EPortNames,
-  IInvitationDomainWithUUID,
   CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
   CONTENT_SCRIPT_SUBSTREAM,
   ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
   ONBOARDING_PROVIDER_SUBSTREAM,
   GetInvitationWithDomainParams,
-  AcceptInvitationByUUIDParams,
-  RejectInvitationByUUIDParams,
   SetReceivingAddressParams,
   IExtensionConfig,
   PORT_NOTIFICATION,
   CheckInvitationStatusParams,
+  RejectInvitationParams,
+  AcceptInvitationParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
-
-enum EWalletState {
-  UNKNOWN,
-  UNLOCKED,
-  LOCKED,
-}
-
-interface ISafeURLHistory {
-  url: string;
-}
 
 let coreGateway: ExternalCoreGateway;
 let extensionConfig: IExtensionConfig;
@@ -142,12 +133,8 @@ connect();
 
 const App = () => {
   const [appState, setAppState] = useState<EAPP_STATE>(EAPP_STATE.INIT);
-  const [rewardToDisplay, setRewardToDisplay] = useState<
-    IRewardItem | undefined
-  >();
   const [accounts, setAccounts] = useState<LinkedAccount[]>([]);
-  const [invitationDomain, setInvitationDomain] =
-    useState<IInvitationDomainWithUUID>();
+  const [pageInvitation, setPageInvitation] = useState<PageInvitation>();
   const [subscriptionPreviewData, setSubscriptionPreviewData] = useState<{
     rewardsThatCanBeAcquired: PossibleReward[];
     rewardsThatRequireMorePermission: PossibleReward[];
@@ -203,9 +190,6 @@ const App = () => {
   };
 
   useEffect(() => {
-    if (rewardToDisplay) {
-      emptyReward();
-    }
     initiateCohort();
   }, [_path]);
 
@@ -224,13 +208,14 @@ const App = () => {
         if (result) {
           return coreGateway
             .checkInvitationStatus(
-              new CheckInvitationStatusParams(result.consentAddress),
+              new CheckInvitationStatusParams(
+                result.invitation.consentContractAddress,
+              ),
             )
             .map((status) => {
               if (status === EInvitationStatus.New) {
-                setInvitationDomain(result);
+                setPageInvitation(result);
                 setAppState(EAPP_STATE.INVITATION_PREVIEW);
-                initiateRewardPopup(result);
               }
             });
         }
@@ -241,29 +226,18 @@ const App = () => {
       });
   }, []);
 
-  const initiateRewardPopup = (domainDetails: IInvitationDomainWithUUID) => {
-    setRewardToDisplay({
-      host: domainDetails.domain,
-      title: domainDetails.title,
-      description: domainDetails.description,
-      image: domainDetails.image,
-      primaryButtonText: "Claim Rewards",
-      secondaryButtonText: "Reject Rewards",
-      rewardName: domainDetails.rewardName,
-      nftClaimedImage: domainDetails.nftClaimedImage,
-    });
-  };
-
   const emptyReward = () => {
     setSubscriptionPreviewData(undefined);
-    setRewardToDisplay(undefined);
+    setPageInvitation(undefined);
     setAppState(EAPP_STATE.INIT);
   };
 
   const rejectInvitation = () => {
     coreGateway
-      .rejectInvitationByUUID(
-        new RejectInvitationByUUIDParams(invitationDomain?.id as UUID),
+      .rejectInvitation(
+        new RejectInvitationParams(
+          pageInvitation!.invitation.consentContractAddress,
+        ),
       )
       .map(() => emptyReward());
   };
@@ -273,16 +247,20 @@ const App = () => {
     coreGateway
       .setReceivingAddress(
         new SetReceivingAddressParams(
-          invitationDomain!.consentAddress,
+          pageInvitation!.invitation.consentContractAddress,
           receivingAccount ?? null,
         ),
       )
       .map(() => {
         coreGateway
-          .acceptInvitationByUUID(
-            new AcceptInvitationByUUIDParams(
+          .acceptInvitation(
+            new AcceptInvitationParams(
               subscriptionPreviewData!.dataTypes,
-              invitationDomain?.id as UUID,
+              pageInvitation!.invitation.consentContractAddress,
+              pageInvitation!.invitation.tokenId
+                ? BigNumberString(pageInvitation!.invitation.tokenId.toString())
+                : undefined,
+              pageInvitation!.invitation.businessSignature ?? undefined,
             ),
           )
           .map(() => {
@@ -296,7 +274,7 @@ const App = () => {
 
   const renderComponent = useMemo(() => {
     switch (true) {
-      case !rewardToDisplay:
+      case !pageInvitation:
         return null;
       case appState === EAPP_STATE.INVITATION_PREVIEW:
         return (
@@ -306,7 +284,7 @@ const App = () => {
                 const deeplinkURL = new URL(extensionConfig.onboardingUrl);
                 deeplinkURL.searchParams.append(
                   "consentAddress",
-                  invitationDomain!.consentAddress,
+                  pageInvitation!.invitation.consentContractAddress,
                 );
                 window.open(deeplinkURL, "blank");
                 return emptyReward();
@@ -317,7 +295,7 @@ const App = () => {
               rejectInvitation();
             }}
             onCloseClick={emptyReward}
-            rewardItem={rewardToDisplay!}
+            rewardItem={pageInvitation!.invitationMetadata as IOldUserAgreement}
             linkedAccountExist={accounts.length > 0}
           />
         );
@@ -325,9 +303,12 @@ const App = () => {
         return (
           <Permissions
             config={extensionConfig}
-            domainDetails={invitationDomain!}
+            domainDetails={
+              pageInvitation!.invitationMetadata as IOldUserAgreement
+            }
             onCancelClick={emptyReward}
             coreGateway={coreGateway}
+            consentAddress={pageInvitation!.invitation.consentContractAddress}
             eventEmitter={eventEmitter}
             isUnlocked={true}
             onNextClick={(
@@ -350,8 +331,11 @@ const App = () => {
           <SubscriptionConfirmation
             {...subscriptionPreviewData!}
             config={extensionConfig}
+            consentAddress={pageInvitation!.invitation.consentContractAddress}
             coreGateway={coreGateway}
-            domainDetails={invitationDomain!}
+            domainDetails={
+              pageInvitation!.invitationMetadata as IOldUserAgreement
+            }
             onCancelClick={emptyReward}
             accounts={accounts}
             onConfirmClick={(receivingAccount) => {
@@ -362,7 +346,9 @@ const App = () => {
       case appState === EAPP_STATE.SUBSCRIPTION_SUCCESS:
         return (
           <SubscriptionSuccess
-            domainDetails={invitationDomain!}
+            domainDetails={
+              pageInvitation!.invitationMetadata as IOldUserAgreement
+            }
             onCancelClick={emptyReward}
           />
         );
@@ -373,7 +359,7 @@ const App = () => {
     }
   }, [
     accounts.length,
-    JSON.stringify(rewardToDisplay),
+    JSON.stringify(pageInvitation?.invitationMetadata),
     appState,
     JSON.stringify(subscriptionPreviewData),
   ]);

@@ -55,6 +55,7 @@ import {
   URLString,
 } from "@objects/primitives/index.js";
 import { GetResultAsyncValueType, PopTuple } from "@objects/types.js";
+import { IUserAgreement } from "./IUserAgreement";
 
 export type IProxyAccountMethods = {
   [key in FunctionKeys<IAccountMethods>]: (
@@ -251,7 +252,7 @@ export interface ISdlDataWallet {
   >;
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement, ProxyError>;
+  ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError>;
   updateAgreementPermissions(
     consentContractAddress: EVMContractAddress,
     dataTypes: EWalletDataType[],

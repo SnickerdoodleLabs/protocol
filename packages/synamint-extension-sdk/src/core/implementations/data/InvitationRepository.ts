@@ -20,6 +20,7 @@ import {
   MarketplaceTag,
   PagedResponse,
   EarnedReward,
+  IUserAgreement,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -137,7 +138,7 @@ export class InvitationRepository implements IInvitationRepository {
   }
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement, SnickerDoodleCoreError> {
+  ): ResultAsync<IOldUserAgreement | IUserAgreement, SnickerDoodleCoreError> {
     return this.core.invitation
       .getInvitationMetadataByCID(ipfsCID)
       .mapErr((error) => {

@@ -4,13 +4,13 @@ import parse from "html-react-parser";
 import React, { useMemo } from "react";
 
 import { useStyles } from "@synamint-extension-sdk/content/components/Screens/RewardCard/RewardCard.style";
-import { IRewardItem } from "@synamint-extension-sdk/content/constants";
+import { IOldUserAgreement } from "@snickerdoodlelabs/objects";
 
 interface IRewardCardProps {
   onJoinClick: () => void;
   onCloseClick: () => void;
   onCancelClick: () => void;
-  rewardItem: IRewardItem;
+  rewardItem: IOldUserAgreement;
   linkedAccountExist: boolean;
 }
 
@@ -107,7 +107,7 @@ const RewardCard: React.FC<IRewardCardProps> = ({
               className={classes.secondaryButton}
               onClick={onCancelClick}
             >
-              {rewardItem.secondaryButtonText}
+              Reject Rewards
             </Button>
             <Button
               variant="outlined"
@@ -115,9 +115,7 @@ const RewardCard: React.FC<IRewardCardProps> = ({
               onClick={onJoinClick}
               className={classes.primaryButton}
             >
-              {linkedAccountExist
-                ? rewardItem.primaryButtonText
-                : "Connect and Claim"}
+              {linkedAccountExist ? "Claim Rewards" : "Connect and Claim"}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 17 16"

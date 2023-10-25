@@ -443,16 +443,7 @@ export class RpcCallHandler implements IRpcCallHandler {
               return incomingUrl.replace(/\/$/, "") === params.path;
             });
             if (pageInvitation) {
-              const invitationUUID = this.contextProvider.addInvitation(
-                pageInvitation.invitation,
-              );
-              return okAsync(
-                Object.assign(pageInvitation.domainDetails, {
-                  id: invitationUUID,
-                  consentAddress:
-                    pageInvitation.invitation.consentContractAddress,
-                }),
-              );
+              return okAsync(ObjectUtils.serialize(pageInvitation));
             } else {
               return okAsync(null);
             }

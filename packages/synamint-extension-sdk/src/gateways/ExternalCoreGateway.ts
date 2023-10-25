@@ -60,6 +60,8 @@ import {
   ChainTransaction,
   TransactionFilter,
   TransactionPaymentCounter,
+  IUserAgreement,
+  PageInvitation,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -70,7 +72,6 @@ import {
   GetInvitationMetadataByCIDParams,
   GetInvitationWithDomainParams,
   GetUnlockMessageParams,
-  IInvitationDomainWithUUID,
   LeaveCohortParams,
   SetBirthdayParams,
   SetEmailParams,
@@ -315,8 +316,13 @@ export class ExternalCoreGateway {
 
   public getInvitationsByDomain(
     params: GetInvitationWithDomainParams,
-  ): ResultAsync<IInvitationDomainWithUUID | null, ProxyError> {
-    return this._handler.call(params);
+  ): ResultAsync<PageInvitation | null, ProxyError> {
+    return this._handler.call(params).map((jsonString) => {
+      if (jsonString) {
+        return ObjectUtils.deserialize(jsonString);
+      }
+      return null;
+    });
   }
 
   public acceptInvitationByUUID(
@@ -393,7 +399,7 @@ export class ExternalCoreGateway {
 
   public getInvitationMetadataByCID(
     params: GetInvitationMetadataByCIDParams,
-  ): ResultAsync<IOldUserAgreement, ProxyError> {
+  ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError> {
     return this._handler.call(params);
   }
 

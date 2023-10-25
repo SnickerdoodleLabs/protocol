@@ -60,6 +60,7 @@ const AudienceDetails = () => {
     linkedAccounts,
     earnedRewards,
     updateOptedInContracts,
+    apiGateway,
   } = useAppContext();
   const { sdlDataWallet } = useDataWalletContext();
   const { setAlert } = useNotificationContext();
@@ -91,7 +92,7 @@ const AudienceDetails = () => {
         return sdlDataWallet
           .getInvitationMetadataByCID(_ipfsCID)
           .map((metadata) => {
-            setMetadata(metadata);
+            setMetadata(metadata as IOldUserAgreement);
           });
       })
       .mapErr((err) => {
@@ -244,7 +245,7 @@ const AudienceDetails = () => {
   const columns = useMemo(() => {
     const columns: IColumn<LinkedAccount>[] = [
       {
-        label: "AccountAddress",
+        label: "Account Address",
         render: (row: LinkedAccount) => <AccountItem account={row} />,
       },
       {
@@ -334,7 +335,10 @@ const AudienceDetails = () => {
                 <Skeleton width="100%" height="100%" />
               ) : (
                 <img
-                  src={metadata?.image}
+                  src={(metadata?.image || "").replace(
+                    "ipfs://",
+                    apiGateway.config.ipfsFetchBaseUrl,
+                  )}
                   style={{
                     maxWidth: "100%",
                     height: "100%",

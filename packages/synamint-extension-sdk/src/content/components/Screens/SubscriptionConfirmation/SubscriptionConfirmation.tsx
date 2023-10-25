@@ -3,6 +3,7 @@ import {
   AccountAddress,
   EVMContractAddress,
   EWalletDataType,
+  IOldUserAgreement,
   LinkedAccount,
   PossibleReward,
 } from "@snickerdoodlelabs/objects";
@@ -13,14 +14,14 @@ import React, { FC, useEffect, useState } from "react";
 import { useStyles } from "@synamint-extension-sdk/content/components/Screens/SubscriptionConfirmation/SubscriptionConfirmation.style";
 import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 import {
-  IInvitationDomainWithUUID,
   GetReceivingAddressParams,
   IExtensionConfig,
 } from "@synamint-extension-sdk/shared";
 
 interface ISubscriptionConfirmationProps {
   coreGateway: ExternalCoreGateway;
-  domainDetails: IInvitationDomainWithUUID;
+  domainDetails: IOldUserAgreement;
+  consentAddress: EVMContractAddress;
   rewardsThatCanBeAcquired: PossibleReward[];
   rewardsThatRequireMorePermission: PossibleReward[];
   dataTypes: EWalletDataType[];
@@ -38,6 +39,7 @@ const SubscriptionConfirmationModal: FC<ISubscriptionConfirmationProps> = ({
   dataTypes,
   onCancelClick,
   onConfirmClick,
+  consentAddress,
   config,
   accounts,
 }) => {
@@ -58,7 +60,7 @@ const SubscriptionConfirmationModal: FC<ISubscriptionConfirmationProps> = ({
           rewardsThatRequireMorePermission={rewardsThatRequireMorePermission}
           dataTypes={dataTypes}
           campaignName={domainDetails.title}
-          consentAddress={domainDetails.consentAddress}
+          consentAddress={consentAddress}
           onCloseClick={onCancelClick}
           onConfirmClick={onConfirmClick}
           ipfsBaseUrl={config.ipfsFetchBaseUrl}

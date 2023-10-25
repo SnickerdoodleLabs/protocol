@@ -112,6 +112,7 @@ import {
   BlockNumber,
   RefreshToken,
 } from "@objects/primitives/index.js";
+import { IUserAgreement } from "./IUserAgreement";
 
 /**
  ************************ MAINTENANCE HAZARD ***********************************************
@@ -629,7 +630,10 @@ export interface IInvitationMethods {
 
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement, IPFSError | UnauthorizedError>;
+  ): ResultAsync<
+    IOldUserAgreement | IUserAgreement,
+    IPFSError | UnauthorizedError
+  >;
 
   updateDataPermissions(
     consentContractAddress: EVMContractAddress,

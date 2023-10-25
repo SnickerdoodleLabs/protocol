@@ -60,7 +60,7 @@ const useCampaignItemLogic = ({
         sdlDataWallet
           .getInvitationMetadataByCID(campaignCID)
           .map((metadata) => {
-            setCampaignInfo(metadata);
+            setCampaignInfo(metadata as IOldUserAgreement);
           })
           .mapErr((e) => {
             setIsLoading(false);

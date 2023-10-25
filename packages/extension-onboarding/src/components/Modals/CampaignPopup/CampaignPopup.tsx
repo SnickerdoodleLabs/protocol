@@ -147,7 +147,7 @@ const CampaignPopup: FC = () => {
               return sdlDataWallet.getInvitationMetadataByCID(ipfsCID);
             })
             .map((invitationMetaData) => {
-              setInvitationMeta(invitationMetaData);
+              setInvitationMeta(invitationMetaData as IOldUserAgreement);
             });
         }
         if (

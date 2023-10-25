@@ -3,10 +3,10 @@ import { SubscriptionSuccess } from "@snickerdoodlelabs/shared-components";
 import React, { FC } from "react";
 
 import { useStyles } from "@synamint-extension-sdk/content/components/Screens/SubscriptionSuccess/SubscriptionSuccess.style";
-import { IInvitationDomainWithUUID } from "@synamint-extension-sdk/shared/interfaces/IInvitationDomainWithUUID";
+import { IOldUserAgreement } from "@snickerdoodlelabs/objects";
 
 interface ISubscriptionSuccessProps {
-  domainDetails: IInvitationDomainWithUUID;
+  domainDetails: IOldUserAgreement;
   onCancelClick: () => void;
 }
 

@@ -15,6 +15,7 @@ import {
   MarketplaceTag,
   PagedResponse,
   EarnedReward,
+  IUserAgreement,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -47,7 +48,7 @@ export interface IInvitationRepository {
   >;
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement, SnickerDoodleCoreError>;
+  ): ResultAsync<IOldUserAgreement | IUserAgreement, SnickerDoodleCoreError>;
   getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError>;

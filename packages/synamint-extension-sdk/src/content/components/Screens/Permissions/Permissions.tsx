@@ -6,8 +6,10 @@ import {
   EarnedReward,
   ENotificationTypes,
   ESocialType,
+  EVMContractAddress,
   EWalletDataType,
   Gender,
+  IOldUserAgreement,
   PossibleReward,
   QueryStatus,
   TwitterProfile,
@@ -19,7 +21,6 @@ import {
   PossibleRewardWithQueryStatus,
   UI_SUPPORTED_PERMISSIONS,
 } from "@snickerdoodlelabs/shared-components";
-import { JsonRpcError } from "json-rpc-engine";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import React, { FC, useCallback, useEffect, useState } from "react";
@@ -27,7 +28,6 @@ import React, { FC, useCallback, useEffect, useState } from "react";
 import { useStyles } from "@synamint-extension-sdk/content/components/Screens/Permissions/Permissions.style";
 import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 import {
-  IInvitationDomainWithUUID,
   IExtensionConfig,
   PORT_NOTIFICATION,
 } from "@synamint-extension-sdk/shared";
@@ -42,7 +42,8 @@ import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
 interface IPermissionsProps {
   coreGateway: ExternalCoreGateway;
-  domainDetails: IInvitationDomainWithUUID;
+  domainDetails: IOldUserAgreement;
+  consentAddress: EVMContractAddress;
   config: IExtensionConfig;
   onCancelClick: () => void;
   eventEmitter: UpdatableEventEmitterWrapper;
@@ -62,6 +63,7 @@ const Permissions: FC<IPermissionsProps> = ({
   config,
   eventEmitter,
   isUnlocked,
+  consentAddress,
 }) => {
   const classes = useStyles();
   const [profileValues, setProfileValues] = useState<{
@@ -80,7 +82,7 @@ const Permissions: FC<IPermissionsProps> = ({
 
   const getQueryStatuses = () => {
     return coreGateway.getQueryStatuses(
-      new GetQueryStatusesParams(domainDetails.consentAddress),
+      new GetQueryStatusesParams(consentAddress),
     );
   };
   useEffect(() => {
@@ -140,12 +142,11 @@ const Permissions: FC<IPermissionsProps> = ({
     return ResultUtils.combine([
       isUnlocked ? coreGateway.getEarnedRewards() : okAsync([]),
       coreGateway.getEarnedRewardsByContractAddress(
-        new GetPossibleRewardsParams([domainDetails.consentAddress]),
+        new GetPossibleRewardsParams([consentAddress]),
       ),
       getQueryStatuses(),
     ]).map(([earnedRewards, possibleRewards, queryStatuses]) => {
-      const currentPossibleRewards =
-        possibleRewards.get(domainDetails.consentAddress) ?? [];
+      const currentPossibleRewards = possibleRewards.get(consentAddress) ?? [];
       setRewards({
         earnedRewards,
         possibleRewardWithQueryStatus: addQueryStatusToPossibleReward(
@@ -261,7 +262,7 @@ const Permissions: FC<IPermissionsProps> = ({
           }
           generateAllPermissions={generateAllPermissions}
           isSafe={isSafe}
-          consentContractAddress={domainDetails.consentAddress}
+          consentContractAddress={consentAddress}
           campaignInfo={domainDetails}
           possibleRewardWithQueryStatus={rewards.possibleRewardWithQueryStatus}
           earnedRewards={rewards.earnedRewards}

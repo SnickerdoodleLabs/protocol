@@ -16,6 +16,7 @@ import {
   PagingRequest,
   PagedResponse,
   EarnedReward,
+  IUserAgreement,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -127,7 +128,7 @@ export class InvitationService implements IInvitationService {
 
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement, SnickerDoodleCoreError> {
+  ): ResultAsync<IOldUserAgreement | IUserAgreement, SnickerDoodleCoreError> {
     return this.invitationRepository.getInvitationMetadataByCID(ipfsCID);
   }
 

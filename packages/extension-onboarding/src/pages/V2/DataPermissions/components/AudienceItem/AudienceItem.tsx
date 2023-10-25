@@ -166,7 +166,7 @@ const AudienceItem: FC<IAudienceItemProps> = ({
     return sdlDataWallet
       .getInvitationMetadataByCID(ipfsCID)
       .andThen((metadata) => {
-        setMetadata(metadata);
+        setMetadata(metadata as IOldUserAgreement);
         return sdlDataWallet
           .getAgreementPermissions(contractAddress)
           .map((permissions) => {

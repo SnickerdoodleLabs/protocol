@@ -62,16 +62,16 @@ import {
   ChainTransaction,
   TransactionPaymentCounter,
   TransactionFilter,
+  IUserAgreement,
+  PageInvitation,
 } from "@snickerdoodlelabs/objects";
-
-import { IExtensionConfig } from "./IExtensionConfig";
-
 import {
   ECoreActions,
   IExternalState,
   IInternalState,
-  IInvitationDomainWithUUID,
 } from "@synamint-extension-sdk/shared";
+
+import { IExtensionConfig } from "./IExtensionConfig";
 
 export abstract class CoreActionParams<TReturn> {
   public constructor(public method: ECoreActions) {}
@@ -223,7 +223,7 @@ export class SetApplyDefaultPermissionsParams extends CoreActionParams<void> {
   }
 }
 
-export class GetInvitationWithDomainParams extends CoreActionParams<IInvitationDomainWithUUID | null> {
+export class GetInvitationWithDomainParams extends CoreActionParams<JSONString | null> {
   public constructor(public domain: DomainName, public path: string) {
     super(GetInvitationWithDomainParams.getCoreAction());
   }
@@ -319,7 +319,9 @@ export class LeaveCohortParams extends CoreActionParams<void> {
   }
 }
 
-export class GetInvitationMetadataByCIDParams extends CoreActionParams<IOldUserAgreement> {
+export class GetInvitationMetadataByCIDParams extends CoreActionParams<
+  IOldUserAgreement | IUserAgreement
+> {
   public constructor(public ipfsCID: IpfsCID) {
     super(GetInvitationMetadataByCIDParams.getCoreAction());
   }

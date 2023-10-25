@@ -81,6 +81,7 @@ import {
   ChainTransaction,
   TransactionFilter,
   TransactionPaymentCounter,
+  IUserAgreement,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -408,7 +409,7 @@ export class SnickerdoodleIFrameProxy
 
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement, ProxyError> {
+  ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError> {
     return this._createCall("getInvitationMetadataByCID", {
       ipfsCID,
     });

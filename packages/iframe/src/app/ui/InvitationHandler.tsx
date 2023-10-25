@@ -188,11 +188,17 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
       return;
     }
     if (type === EInvitationSourceType.DEEPLINK) {
-      setDeepLinkInvitation(data);
+      setDeepLinkInvitation(
+        data as { invitation: Invitation; metadata: IOldUserAgreement },
+      );
     } else if (type === EInvitationSourceType.DOMAIN) {
-      setDomainInvitation(data);
+      setDomainInvitation(
+        data as { invitation: Invitation; metadata: IOldUserAgreement },
+      );
     } else {
-      setConsentInvitation(data);
+      setConsentInvitation(
+        data as { invitation: Invitation; metadata: IOldUserAgreement },
+      );
     }
   };
 
