@@ -6,6 +6,7 @@ export const useStyles = makeStyles((theme) => ({
       borderRadius: 12,
       maxWidth: 640,
     },
+    zIndex: "999 !important",
   },
   title: {
     color: "#101828",

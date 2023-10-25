@@ -10,3 +10,4 @@ export * from "@indexers/interfaces/ISolanaBalanceRepository.js";
 export * from "@indexers/interfaces/ISolanaIndexer.js";
 export * from "@indexers/interfaces/ISolanaNFTRepository.js";
 export * from "@indexers/interfaces/ISolanaTransactionRepository.js";
+export * from "@indexers/interfaces/ISuiIndexer.js";

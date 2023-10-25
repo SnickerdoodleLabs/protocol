@@ -314,6 +314,23 @@ export const chainConfig = new Map<EChain, ChainInformation>([
     ),
   ],
   [
+    EChain.Sui,
+    new ChainInformation(
+      "Sui",
+      ChainId(EChain.Sui),
+      EChain.Sui,
+      EChainTechnology.Sui,
+      true,
+      "sui",
+      10000, // average block mining time
+      new NativeCurrencyInformation("SUI", 9, "SUI", "sui"),
+      EChainType.Mainnet,
+      "https://suiexplorer.com/",
+      getExplorerUrl,
+      URLString("https://suiscan.xyz/"),
+    ),
+  ],
+  [
     EChain.Shibuya,
     new ChainInformation(
       "Shibuya",

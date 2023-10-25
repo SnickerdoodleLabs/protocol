@@ -8,6 +8,7 @@ export const ALERT_MESSAGES = {
 export enum EWalletProviderKeys {
   METAMASK = "metamask",
   PHANTOM = "phantom",
+  SUI = "sui",
   WALLET_CONNECT = "walletConnect",
   COINBASE = "coinbase",
 }
