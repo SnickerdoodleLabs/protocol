@@ -15,6 +15,8 @@ interface IDescriptionProps {
   onCancelClick: () => void;
   onContinueClick: () => void;
   onSetPermissions: () => void;
+  primaryButtonText?: string;
+  redirectRequired?: boolean;
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -57,6 +59,8 @@ export const DescriptionWidget: FC<IDescriptionProps> = ({
   onCancelClick,
   onSetPermissions,
   onContinueClick,
+  primaryButtonText = "Continue",
+  redirectRequired = false,
 }) => {
   const media = useMedia();
   const classes = useStyles();
@@ -109,7 +113,7 @@ export const DescriptionWidget: FC<IDescriptionProps> = ({
       m="auto"
       p={{ xs: 3, sm: 4 }}
       pt={{ xs: 3, sm: 8 }}
-      width={{ xs: "calc(95% - 48px)", sm: "40%" }}
+      width={{ xs: "calc(95% - 48px)", sm: "70%", md: "40%" }}
       borderRadius={{ xs: 12, sm: 0 }}
       justifyContent="center"
       className={unmountAnimation ? classes.unmountAnimation : undefined}
@@ -136,6 +140,7 @@ export const DescriptionWidget: FC<IDescriptionProps> = ({
         <Grid
           container
           spacing={2}
+          justifyContent="center"
           direction={isMobile ? "column-reverse" : "row"}
         >
           <Hidden xsDown>
@@ -145,11 +150,13 @@ export const DescriptionWidget: FC<IDescriptionProps> = ({
               </SDButton>
             </Grid>
           </Hidden>
-          <Grid item sm={4}>
-            <SDButton onClick={onSetPermissions} fullWidth variant="outlined">
-              Set Permissions
-            </SDButton>
-          </Grid>
+          {!redirectRequired && (
+            <Grid item sm={4}>
+              <SDButton onClick={onSetPermissions} fullWidth variant="outlined">
+                Set Permissions
+              </SDButton>
+            </Grid>
+          )}
           <Grid item sm={5}>
             <SDButton
               onClick={onContinueClick}
@@ -157,7 +164,7 @@ export const DescriptionWidget: FC<IDescriptionProps> = ({
               fullWidth
               variant="contained"
             >
-              Continue
+              {primaryButtonText}
             </SDButton>
           </Grid>
         </Grid>

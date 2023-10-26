@@ -1,5 +1,5 @@
+import { ThemeProvider } from "@material-ui/core";
 import {
-  AccountAddress,
   BaseNotification,
   BigNumberString,
   DomainName,
@@ -11,16 +11,17 @@ import {
   IUserAgreement,
   Invitation,
   LinkedAccount,
-  PageInvitation,
-  PossibleReward,
   Signature,
 } from "@snickerdoodlelabs/objects";
-import Loading from "@synamint-extension-sdk/content/components/Screens/Loading";
-import Permissions from "@synamint-extension-sdk/content/components/Screens/Permissions";
-import RewardCard from "@synamint-extension-sdk/content/components/Screens/RewardCard";
-import SubscriptionConfirmation from "@synamint-extension-sdk/content/components/Screens/SubscriptionConfirmation";
-import SubscriptionSuccess from "@synamint-extension-sdk/content/components/Screens/SubscriptionSuccess";
-import { EAPP_STATE } from "@synamint-extension-sdk/content/constants";
+import {
+  DescriptionWidget,
+  EColorMode,
+  FF_SUPPORTED_ALL_PERMISSIONS,
+  ModalContainer,
+  PermissionSelectionWidget,
+  createDefaultTheme,
+} from "@snickerdoodlelabs/shared-components";
+import { EAppState } from "@synamint-extension-sdk/content/constants";
 import usePath from "@synamint-extension-sdk/content/hooks/usePath";
 import DataWalletProxyInjectionUtils from "@synamint-extension-sdk/content/utils/DataWalletProxyInjectionUtils";
 import { VersionUtils } from "@synamint-extension-sdk/extensionShared";
@@ -32,12 +33,9 @@ import {
   ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
   ONBOARDING_PROVIDER_SUBSTREAM,
   GetInvitationWithDomainParams,
-  SetReceivingAddressParams,
   IExtensionConfig,
   PORT_NOTIFICATION,
   CheckInvitationStatusParams,
-  RejectInvitationParams,
-  AcceptInvitationParams,
   GetInvitationMetadataByCIDParams,
   GetConsentContractCIDParams,
 } from "@synamint-extension-sdk/shared";
@@ -171,16 +169,9 @@ const origin = window.location.origin;
 const awaitAccountLinking = SDL_ORIGIN_LIST.includes(origin);
 
 const App = () => {
-  const [appState, setAppState] = useState<EAPP_STATE>(EAPP_STATE.INIT);
+  const [appState, setAppState] = useState<EAppState>(EAppState.IDLE);
   const [accounts, setAccounts] = useState<LinkedAccount[]>([]);
-  const [pageInvitation, setPageInvitation] = useState<PageInvitation>();
-  const [subscriptionPreviewData, setSubscriptionPreviewData] = useState<{
-    rewardsThatCanBeAcquired: PossibleReward[];
-    rewardsThatRequireMorePermission: PossibleReward[];
-    dataTypes: EWalletDataType[];
-  }>();
   const _path = usePath();
-  const isStatusCheckRequiredRef = useRef<boolean>(false);
   const [isHidden, setIsHidden] = useState<boolean>(false);
 
   // #region new flow
@@ -285,9 +276,9 @@ const App = () => {
 
   useEffect(() => {
     if (currentInvitation) {
-      setAppState(EAPP_STATE.INVITATION_PREVIEW);
+      setAppState(EAppState.AUDIENCE_PREVIEW);
     } else {
-      setAppState(EAPP_STATE.INIT);
+      setAppState(EAppState.IDLE);
     }
   }, [currentInvitation]);
 
@@ -340,7 +331,7 @@ const App = () => {
         type: "popupContentUpdated",
         id: appID,
         name: extensionConfig?.providerKey || "",
-        hasContent: appState !== EAPP_STATE.INIT,
+        hasContent: appState !== EAppState.IDLE,
       },
       "*",
     );
@@ -388,82 +379,40 @@ const App = () => {
     // delay showing popup until user link an account
     if (awaitAccountLinking && accounts.length === 0) return null;
     switch (true) {
-      case appState === EAPP_STATE.INVITATION_PREVIEW:
+      case appState === EAppState.AUDIENCE_PREVIEW:
         return (
-          <RewardCard
-            onJoinClick={() => {
-              if (accounts.length === 0) {
-                const deeplinkURL = new URL(extensionConfig.onboardingUrl);
-                deeplinkURL.searchParams.append(
-                  "consentAddress",
-                  currentInvitation.data.invitation.consentContractAddress,
-                );
-                window.open(deeplinkURL, "blank");
-                return emptyReward();
-              }
-              setAppState(EAPP_STATE.PERMISSION_SELECTION);
-            }}
-            onCancelClick={() => {
-              rejectInvitation();
-            }}
-            onCloseClick={emptyReward}
-            rewardItem={currentInvitation.data.metadata as IOldUserAgreement}
-            linkedAccountExist={accounts.length > 0}
-          />
-        );
-      case appState === EAPP_STATE.PERMISSION_SELECTION:
-        return (
-          <Permissions
-            config={extensionConfig}
-            domainDetails={currentInvitation.data.metadata as IOldUserAgreement}
-            onCancelClick={emptyReward}
-            coreGateway={coreGateway}
-            consentAddress={
-              currentInvitation.data.invitation.consentContractAddress
+          <DescriptionWidget
+            invitationData={
+              // TODO make this widget accept both old and new user agreement
+              currentInvitation.data.metadata as IOldUserAgreement
             }
-            eventEmitter={eventEmitter}
-            isUnlocked={true}
-            onNextClick={(
-              rewardsThatCanBeAcquired: PossibleReward[],
-              rewardsThatRequireMorePermission: PossibleReward[],
-              dataTypes: EWalletDataType[],
-            ) => {
-              setSubscriptionPreviewData({
-                rewardsThatCanBeAcquired,
-                rewardsThatRequireMorePermission,
-                dataTypes,
-              });
-              setAppState(EAPP_STATE.SUBSCRIPTION_CONFIRMATION);
+            redirectRequired={!(accounts.length > 0)}
+            primaryButtonText={
+              accounts.length > 0 ? "Continue" : "Connect and Continue"
+            }
+            onContinueClick={() => {
+              if (accounts.length > 0) {
+                acceptInvitation(FF_SUPPORTED_ALL_PERMISSIONS);
+              } else {
+                window.open(
+                  `${extensionConfig.onboardingUrl}/?consentAddress=${currentInvitation.data.invitation.consentContractAddress}`,
+                  "_blank",
+                );
+              }
+            }}
+            onCancelClick={emptyReward}
+            onSetPermissions={() => {
+              setAppState(EAppState.PERMISSION_SELECTION);
             }}
           />
         );
-      // case subscriptionPreviewData &&
-      //   appState === EAPP_STATE.SUBSCRIPTION_CONFIRMATION:
-      //   return (
-      //     <SubscriptionConfirmation
-      //       {...subscriptionPreviewData!}
-      //       config={extensionConfig}
-      //       consentAddress={
-      //         currentInvitation.data.invitation.consentContractAddress
-      //       }
-      //       coreGateway={coreGateway}
-      //       domainDetails={currentInvitation.data.metadata as IOldUserAgreement}
-      //       onCancelClick={emptyReward}
-      //       accounts={accounts}
-      //       onConfirmClick={(receivingAccount) => {
-      //         acceptInvitation(receivingAccount);
-      //       }}
-      //     />
-      //   );
-      case appState === EAPP_STATE.SUBSCRIPTION_SUCCESS:
+      case appState === EAppState.PERMISSION_SELECTION:
         return (
-          <SubscriptionSuccess
-            domainDetails={currentInvitation.data.metadata as IOldUserAgreement}
+          <PermissionSelectionWidget
             onCancelClick={emptyReward}
+            onSaveClick={acceptInvitation}
           />
         );
-      case appState === EAPP_STATE.LOADING:
-        return <Loading />;
       default:
         return null;
     }
@@ -473,7 +422,13 @@ const App = () => {
     return null;
   }
 
-  return <div>{renderComponent}</div>;
+  return (
+    <ThemeProvider theme={createDefaultTheme(EColorMode.LIGHT)}>
+      <>
+        {renderComponent && <ModalContainer>{renderComponent}</ModalContainer>}
+      </>
+    </ThemeProvider>
+  );
 };
 
 export default App;

@@ -1,12 +1,9 @@
 import { DomainName, URLString } from "@snickerdoodlelabs/objects";
 
-export enum EAPP_STATE {
-  INIT,
-  INVITATION_PREVIEW,
+export enum EAppState {
+  IDLE,
+  AUDIENCE_PREVIEW,
   PERMISSION_SELECTION,
-  SUBSCRIPTION_CONFIRMATION,
-  SUBSCRIPTION_SUCCESS,
-  LOADING,
 }
 
 export interface IRewardItem {

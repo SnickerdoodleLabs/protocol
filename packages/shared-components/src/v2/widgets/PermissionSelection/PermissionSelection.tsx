@@ -1,4 +1,12 @@
-import { Box, Grid, Hidden, Theme, useTheme } from "@material-ui/core";
+import {
+  Box,
+  CircularProgress,
+  Grid,
+  Hidden,
+  Theme,
+  makeStyles,
+  useTheme,
+} from "@material-ui/core";
 import {
   SDTypography,
   SDButton,
@@ -10,6 +18,12 @@ import { FF_SUPPORTED_PERMISSIONS } from "@shared-components/v2/constants";
 import { useMedia } from "@shared-components/v2/hooks";
 import { EWalletDataType } from "@snickerdoodlelabs/objects";
 import React, { FC, useMemo } from "react";
+
+const useStyles = makeStyles((theme: Theme) => ({
+  wrapper: {
+    position: "relative",
+  },
+}));
 
 interface IPermissionSelectionProps {
   onCancelClick: () => void;
@@ -42,7 +56,7 @@ export const PermissionSelectionWidget: FC<IPermissionSelectionProps> = ({
       m="auto"
       p={{ xs: 3, sm: 4 }}
       pt={{ xs: 3, sm: 8 }}
-      width={{ xs: "calc(95% - 48px)", sm: "40%" }}
+      width={{ xs: "calc(95% - 48px)", sm: "70%", md: "40%" }}
       borderRadius={{ xs: 12, sm: 0 }}
       justifyContent="center"
     >

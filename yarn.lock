@@ -9202,6 +9202,7 @@ __metadata:
     "@snickerdoodlelabs/core": "workspace:^"
     "@snickerdoodlelabs/node-utils": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
+    "@snickerdoodlelabs/shared-components": "workspace:^"
     "@snickerdoodlelabs/utils": "workspace:^"
     html-react-parser: ^4.2.2
     inversify: ^6.0.1
