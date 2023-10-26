@@ -1,12 +1,15 @@
-import {
-  Box,
-  CircularProgress,
-  IconButton,
-  Grid,
-  Typography,
-} from "@material-ui/core";
-import KeyboardArrowLeft from "@material-ui/icons/KeyboardArrowLeft";
-import KeyboardArrowRight from "@material-ui/icons/KeyboardArrowRight";
+import defaultToken from "@extension-onboarding/assets/icons/default-token.png";
+import emptyTokens from "@extension-onboarding/assets/images/empty-tokens.svg";
+import AccountChainBar from "@extension-onboarding/components/AccountChainBar";
+import UnauthScreen from "@extension-onboarding/components/UnauthScreen/UnauthScreen";
+import Card from "@extension-onboarding/components/v2/Card";
+import Table from "@extension-onboarding/components/v2/Table";
+import TrendItem from "@extension-onboarding/components/v2/TrendItem";
+import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { IBalanceItem } from "@extension-onboarding/objects";
+import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
 import {
   AccountAddress,
   BigNumberString,
@@ -30,19 +33,7 @@ import { okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import React, { useEffect, useMemo, useState } from "react";
 import { Pie } from "react-chartjs-2";
-import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
-import defaultToken from "@extension-onboarding/assets/icons/default-token.png";
-import emptyTokens from "@extension-onboarding/assets/images/empty-tokens.svg";
-import AccountChainBar from "@extension-onboarding/components/AccountChainBar";
-import TokenItem from "@extension-onboarding/components/TokenItem";
-import UnauthScreen from "@extension-onboarding/components/UnauthScreen/UnauthScreen";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { IBalanceItem } from "@extension-onboarding/objects";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/Tokens/Tokens.style";
-import Table from "@extension-onboarding/components/v2/Table";
-import Card from "@extension-onboarding/components/v2/Card";
-import TrendItem from "@extension-onboarding/components/v2/TrendItem";
 import { SDTypography } from "@snickerdoodlelabs/shared-components";
 
 ChartJS.register(
