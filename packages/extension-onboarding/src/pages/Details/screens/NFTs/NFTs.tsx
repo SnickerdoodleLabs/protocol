@@ -8,6 +8,7 @@ import {
   EVMNFT,
   SolanaNFT,
   EChainTechnology,
+  SuiNFT,
 } from "@snickerdoodlelabs/objects";
 import React, { useEffect, useMemo, useState } from "react";
 
@@ -16,6 +17,7 @@ import AccountChainBar from "@extension-onboarding/components/AccountChainBar";
 import {
   EVMNFTItem,
   SolanaNFTItem,
+  SuiNFTItem,
 } from "@extension-onboarding/components/NFTItem";
 import UnauthScreen from "@extension-onboarding/components/UnauthScreen";
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
@@ -94,6 +96,13 @@ export default () => {
                   <EVMNFTItem
                     key={JSON.stringify(nftItem)}
                     item={nftItem as EVMNFT}
+                  />
+                );
+              } else if (nftItem.type === EChainTechnology.Sui) {
+                return (
+                  <SuiNFTItem
+                    key={JSON.stringify(nftItem)}
+                    item={nftItem as SuiNFT}
                   />
                 );
               } else {

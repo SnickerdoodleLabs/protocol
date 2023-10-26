@@ -18,6 +18,7 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   PasswordString,
+  SuiAccountAddress,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { base58 } from "ethers/lib/utils.js";
@@ -138,7 +139,6 @@ export class DataWalletUtils implements IDataWalletUtils {
     message: string,
   ): ResultAsync<boolean, never> {
     const chainInfo = chainConfig.get(ChainId(chain));
-
     if (chainInfo == null) {
       throw new Error();
     }
@@ -152,6 +152,13 @@ export class DataWalletUtils implements IDataWalletUtils {
             verifiedAccountAddress.toLowerCase() == accountAddress.toLowerCase()
           );
         });
+    }
+    if (chainInfo.chainTechnology == EChainTechnology.Sui) {
+      return this.cryptoUtils.verifySuiSignature(
+        message,
+        signature,
+        accountAddress as SuiAccountAddress,
+      );
     }
     if (chainInfo.chainTechnology == EChainTechnology.Solana) {
       return this.cryptoUtils.verifySolanaSignature(

@@ -44,6 +44,8 @@ const envVars = {
   __ANKR_API_KEY__:
     "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
   __BLUEZ_API_KEY__: "aed4aab2cbc573bbf8e7c6b448c916e5",
+  __SPACEANDTIME_API_KEY__: "",
+  __BLOCKVISION_API_KEY__: "2WaEih5fqe8NUavbvaR2PSuVSSp",
 
   __PRIMARY_INFURA_KEY__: "a6271a49218848a7ad939ee62d225914",
   __SECONDARY_INFURA_KEY__: "",
