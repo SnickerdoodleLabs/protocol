@@ -42,10 +42,6 @@ const useStyles = makeStyles((theme) => ({
       display: "none",
     },
   },
-  warn: {
-    border: `1px solid ${colors.SUNRISE100}`,
-    transition: "all 0.2s ease-in-out",
-  },
   accordion: {
     "& .MuiPaper-rounded": {
       boxShadow: "none",
@@ -185,7 +181,7 @@ const AudienceItem: FC<IAudienceItemProps> = ({
         setIsExpanded(!isExpanded);
       }}
       classes={{
-        root: clsx(classes.accordionRoot, saveRequired && classes.warn),
+        root: clsx(classes.accordionRoot),
       }}
       elevation={0}
       className={classes.accordion}
@@ -196,15 +192,26 @@ const AudienceItem: FC<IAudienceItemProps> = ({
         </SDTypography>
         <Box ml="auto" />
         {saveRequired ? (
-          <SDButton
-            onClick={(e) => {
-              e.stopPropagation();
-              onSaveClick();
-            }}
-            color="warn"
-          >
-            Apply Changes
-          </SDButton>
+          <Box display="flex" alignItems="center">
+            <SDButton
+              onClick={(e) => {
+                e.stopPropagation();
+                setPermissions(lastSetPermissions.current);
+              }}
+              variant="outlined"
+            >
+              Discard
+            </SDButton>
+            <Box ml={2} />
+            <SDButton
+              onClick={(e) => {
+                e.stopPropagation();
+                onSaveClick();
+              }}
+            >
+              Apply
+            </SDButton>
+          </Box>
         ) : (
           <SDButton
             onClick={(e) => {
