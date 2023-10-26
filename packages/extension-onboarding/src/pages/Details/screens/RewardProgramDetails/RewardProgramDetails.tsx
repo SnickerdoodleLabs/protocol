@@ -195,51 +195,51 @@ const RewardProgramDetails: FC = () => {
     }
   };
 
-  const handleSubscribeButton = useCallback(() => {
-    if (linkedAccounts.length === 0) {
-      setLinkerModalOpen();
-    }
-    setModal({
-      modalSelector: EModalSelectors.SUBSCRIPTION_CONFIRMATION_MODAL,
-      onPrimaryButtonClick: (receivingAccount: AccountAddress) => {
-        setLoadingStatus(true);
-        sdlDataWallet
-          .setReceivingAddress(consentContractAddress, receivingAccount)
-          .map(() => {
-            sdlDataWallet
-              .acceptInvitation(permissionsState, consentContractAddress)
-              .map(() => {
-                updateOptedInContracts();
-                setLoadingStatus(false);
-                setModal({
-                  modalSelector: EModalSelectors.SUBSCRIPTION_SUCCESS_MODAL,
-                  onPrimaryButtonClick: () => {},
-                  customProps: {
-                    campaignImage: info?.image,
-                    campaignName: info?.rewardName,
-                  },
-                });
-              })
-              .mapErr(() => {
-                setLoadingStatus(false);
-                setAlert({
-                  severity: EAlertSeverity.ERROR,
-                  message: `${info?.rewardName} Rewards Program Subscription Failed!`,
-                });
-              });
-          });
-      },
-      customProps: {
-        onCloseClicked: () => {},
-        campaignImage: info?.image,
-        rewardsThatCanBeAcquired,
-        rewardsThatRequireMorePermission,
-        dataTypes: permissionsState,
-        consentContractAddress,
-        campaignName: info?.rewardName,
-      },
-    });
-  }, [linkedAccounts.length, permissionsState]);
+  // const handleSubscribeButton = useCallback(() => {
+  //   if (linkedAccounts.length === 0) {
+  //     setLinkerModalOpen();
+  //   }
+  //   setModal({
+  //     modalSelector: EModalSelectors.SUBSCRIPTION_CONFIRMATION_MODAL,
+  //     onPrimaryButtonClick: (receivingAccount: AccountAddress) => {
+  //       setLoadingStatus(true);
+  //       sdlDataWallet
+  //         .setReceivingAddress(consentContractAddress, receivingAccount)
+  //         .map(() => {
+  //           sdlDataWallet
+  //             .acceptInvitation(permissionsState, consentContractAddress)
+  //             .map(() => {
+  //               updateOptedInContracts();
+  //               setLoadingStatus(false);
+  //               setModal({
+  //                 modalSelector: EModalSelectors.SUBSCRIPTION_SUCCESS_MODAL,
+  //                 onPrimaryButtonClick: () => {},
+  //                 customProps: {
+  //                   campaignImage: info?.image,
+  //                   campaignName: info?.rewardName,
+  //                 },
+  //               });
+  //             })
+  //             .mapErr(() => {
+  //               setLoadingStatus(false);
+  //               setAlert({
+  //                 severity: EAlertSeverity.ERROR,
+  //                 message: `${info?.rewardName} Rewards Program Subscription Failed!`,
+  //               });
+  //             });
+  //         });
+  //     },
+  //     customProps: {
+  //       onCloseClicked: () => {},
+  //       campaignImage: info?.image,
+  //       rewardsThatCanBeAcquired,
+  //       rewardsThatRequireMorePermission,
+  //       dataTypes: permissionsState,
+  //       consentContractAddress,
+  //       campaignName: info?.rewardName,
+  //     },
+  //   });
+  // }, [linkedAccounts.length, permissionsState]);
 
   const getCapacityInfo = () => {
     sdlDataWallet
@@ -250,7 +250,7 @@ const RewardProgramDetails: FC = () => {
   };
 
   const isSubscribed = useMemo(() => {
-    return false
+    return false;
   }, [JSON.stringify(optedInContracts), consentContractAddress]);
 
   useEffect(() => {
@@ -476,7 +476,7 @@ const RewardProgramDetails: FC = () => {
                 ) : (
                   <SubscribeButton
                     ref={saveButtonRef}
-                    onClick={handleSubscribeButton}
+                    onClick={() => {}}
                     variant="contained"
                   >
                     Subscribe and get your rewards

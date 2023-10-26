@@ -62,6 +62,7 @@ import {
   TransactionPaymentCounter,
   IUserAgreement,
   PageInvitation,
+  Invitation,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -79,10 +80,7 @@ import {
   SetGenderParams,
   SetGivenNameParams,
   SetLocationParams,
-  AcceptInvitationByUUIDParams,
   GetAgreementPermissionsParams,
-  SetDefaultPermissionsWithDataTypesParams,
-  SetApplyDefaultPermissionsParams,
   GetConsentContractCIDParams,
   CheckInvitationStatusParams,
   GetTokenPriceParams,
@@ -110,10 +108,7 @@ import {
   GetAccountNFTsParams,
   GetAccountBalancesParams,
   GetAccountsParams,
-  GetApplyDefaultPermissionsOptionParams,
   GetAcceptedInvitationsCIDParams,
-  SetDefaultPermissionsToAllParams,
-  GetDefaultPermissionsParams,
   GetAvailableInvitationsCIDParams,
   GetStateParams,
   InitializeDiscordUserParams,
@@ -143,7 +138,6 @@ import {
   GetAvailableCloudStorageOptionsParams,
   GetCurrentCloudStorageParams,
   RejectInvitationParams,
-  RejectInvitationByUUIDParams,
   GetQueryStatusesParams,
   AddAccountWithExternalSignatureParams,
   AddAccountWithExternalTypedDataSignatureParams,
@@ -325,12 +319,6 @@ export class ExternalCoreGateway {
     });
   }
 
-  public acceptInvitationByUUID(
-    params: AcceptInvitationByUUIDParams,
-  ): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
-  }
-
   public getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     ProxyError
@@ -343,9 +331,12 @@ export class ExternalCoreGateway {
   }
 
   public acceptInvitation(
-    params: AcceptInvitationParams,
+    invitation: Invitation,
+    dataTypes: EWalletDataType[] | null,
   ): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
+    return this._handler.call(
+      new AcceptInvitationParams(ObjectUtils.serialize(invitation), dataTypes),
+    );
   }
 
   public updateAgreementPermissions(
@@ -360,30 +351,16 @@ export class ExternalCoreGateway {
     return this._handler.call(params);
   }
 
-  public getDefaultPermissions(): ResultAsync<EWalletDataType[], ProxyError> {
-    return this._handler.call(new GetDefaultPermissionsParams());
-  }
-
-  public setDefaultPermissionsWithDataTypes(
-    params: SetDefaultPermissionsWithDataTypesParams,
-  ): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
-  }
-
-  public setDefaultPermissionsToAll(): ResultAsync<void, ProxyError> {
-    return this._handler.call(new SetDefaultPermissionsToAllParams());
-  }
-
-  public rejectInvitationByUUID(
-    params: RejectInvitationByUUIDParams,
-  ): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
-  }
-
   public rejectInvitation(
-    params: RejectInvitationParams,
+    invitation: Invitation,
+    rejectUntil?: UnixTimestamp,
   ): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
+    return this._handler.call(
+      new RejectInvitationParams(
+        ObjectUtils.serialize(invitation),
+        rejectUntil,
+      ),
+    );
   }
 
   public getAcceptedInvitationsCID(): ResultAsync<
@@ -404,15 +381,6 @@ export class ExternalCoreGateway {
   }
 
   public leaveCohort(params: LeaveCohortParams): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
-  }
-
-  public getApplyDefaultPermissionsOption(): ResultAsync<boolean, ProxyError> {
-    return this._handler.call(new GetApplyDefaultPermissionsOptionParams());
-  }
-  public setApplyDefaultPermissionsOption(
-    params: SetApplyDefaultPermissionsParams,
-  ): ResultAsync<void, ProxyError> {
     return this._handler.call(params);
   }
 

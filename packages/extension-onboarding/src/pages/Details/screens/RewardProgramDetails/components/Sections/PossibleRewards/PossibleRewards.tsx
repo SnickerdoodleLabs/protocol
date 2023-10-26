@@ -36,23 +36,18 @@ const WaitingRewards: FC<IWaitingRewardsProps> = ({
 
   useEffect(() => {
     if (type === EPossibleRewardDisplayType.Available) {
-      getDefaultPermissions();
+      // getDefaultPermissions();
     }
   }, [type]);
 
-  const getDefaultPermissions = () => {
-    sdlDataWallet.getDefaultPermissions().map((dataTypes) => {
-      setDefaultPermissions(dataTypes);
-    });
-  };
+  // const getDefaultPermissions = () => {
+  //   sdlDataWallet.getDefaultPermissions().map((dataTypes) => {
+  //     setDefaultPermissions(dataTypes);
+  //   });
+  // };
 
   const getBadge = useCallback(
-    (estimatedQueryDependencies: QueryTypes[]) =>
-      estimatedQueryDependencies
-        .map((dependency) => QueryTypePermissionMap.get(dependency)!)
-        .every((dataType) => defaultPermissions.includes(dataType))
-        ? EBadgeType.Available
-        : EBadgeType.MorePermissionRequired,
+    (estimatedQueryDependencies: QueryTypes[]) => EBadgeType.Available,
     [defaultPermissions],
   );
 

@@ -494,56 +494,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      // getApplyDefaultPermissionsOption: (
-      //   data: IIFrameCallData<Record<string, never>>,
-      // ) => {
-      //   this.returnForModel(() => {
-      //     return core.get(
-      //       sourceDomain,
-      //     );
-      //   }, data.callId);
-      // },
-
-      // setApplyDefaultPermissionsOption: (
-      //   data: IIFrameCallData<Record<string, never>>,
-      // ) => {
-      //   this.returnForModel(() => {
-      //     return core.get(
-      //       sourceDomain,
-      //     );
-      //   }, data.callId);
-      // },
-
-      // getDefaultPermissions: (
-      //   data: IIFrameCallData<Record<string, never>>,
-      // ) => {
-      //   this.returnForModel(() => {
-      //     return core.get(
-      //       sourceDomain,
-      //     );
-      //   }, data.callId);
-      // },
-
-      // setDefaultPermissions: (
-      //   data: IIFrameCallData<Record<string, never>>,
-      // ) => {
-      //   this.returnForModel(() => {
-      //     return core.get(
-      //       sourceDomain,
-      //     );
-      //   }, data.callId);
-      // },
-
-      // setDefaultPermissionsToAll: (
-      //   data: IIFrameCallData<Record<string, never>>,
-      // ) => {
-      //   this.returnForModel(() => {
-      //     return core.get(
-      //       sourceDomain,
-      //     );
-      //   }, data.callId);
-      // },
-
       getInvitationByDomain: (
         data: IIFrameCallData<{
           domain: DomainName;
@@ -555,60 +505,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
             data.data.domain,
             data.data.path,
           );
-        }, data.callId);
-      },
-
-      acceptInvitation: (
-        data: IIFrameCallData<{
-          dataTypes: EWalletDataType[] | null;
-          consentContractAddress: EVMContractAddress;
-          tokenId?: BigNumberString;
-          businessSignature?: Signature;
-        }>,
-      ) => {
-        this.returnForModel(() => {
-          return this._getTokenId(data.data.tokenId).andThen((tokenId) => {
-            return this.coreProvider.getCore().andThen((core) => {
-              return core.invitation.acceptInvitation(
-                new Invitation(
-                  data.data.consentContractAddress,
-                  tokenId,
-                  null,
-                  data.data.businessSignature ?? null,
-                ),
-                data.data.dataTypes
-                  ? DataPermissions.createWithPermissions(data.data.dataTypes)
-                  : null,
-                this.sourceDomain,
-              );
-            });
-          });
-        }, data.callId);
-      },
-
-      rejectInvitation: (
-        data: IIFrameCallData<{
-          consentContractAddress: EVMContractAddress;
-          tokenId?: BigNumberString;
-          businessSignature?: Signature;
-          rejectUntil?: UnixTimestamp;
-        }>,
-      ) => {
-        this.returnForModel(() => {
-          return this._getTokenId(data.data.tokenId).andThen((tokenId) => {
-            return this.coreProvider.getCore().andThen((core) => {
-              return core.invitation.rejectInvitation(
-                new Invitation(
-                  data.data.consentContractAddress,
-                  tokenId,
-                  null,
-                  data.data.businessSignature ?? null,
-                ),
-                data.data.rejectUntil,
-                this.sourceDomain,
-              );
-            });
-          });
         }, data.callId);
       },
 

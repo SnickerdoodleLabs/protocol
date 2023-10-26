@@ -42,7 +42,6 @@ import {
   DiscordGuildProfile,
   PagedResponse,
   IConsentCapacity,
-  PossibleReward,
   OAuth1RequstToken,
   OAuthVerifier,
   TwitterID,
@@ -54,7 +53,6 @@ import {
   JsonWebToken,
   JSONString,
   QueryStatus,
-  AccessToken,
   ECloudStorageType,
   BlockNumber,
   RefreshToken,
@@ -63,7 +61,6 @@ import {
   TransactionPaymentCounter,
   TransactionFilter,
   IUserAgreement,
-  PageInvitation,
 } from "@snickerdoodlelabs/objects";
 import {
   ECoreActions,
@@ -214,30 +211,12 @@ export class SetLocationParams extends CoreActionParams<void> {
   }
 }
 
-export class SetApplyDefaultPermissionsParams extends CoreActionParams<void> {
-  public constructor(public option: boolean) {
-    super(SetApplyDefaultPermissionsParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.SET_APPLY_DEFAULT_PERMISSIONS_OPTION;
-  }
-}
-
 export class GetInvitationWithDomainParams extends CoreActionParams<JSONString | null> {
   public constructor(public domain: DomainName, public path: string) {
     super(GetInvitationWithDomainParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_COHORT_INVITATION_WITH_DOMAIN;
-  }
-}
-
-export class AcceptInvitationByUUIDParams extends CoreActionParams<void> {
-  public constructor(public dataTypes: EWalletDataType[], public id: UUID) {
-    super(AcceptInvitationByUUIDParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.ACCEPT_INVITATION_BY_UUID;
   }
 }
 
@@ -255,10 +234,8 @@ export class UpdateAgreementPermissionsParams extends CoreActionParams<void> {
 
 export class AcceptInvitationParams extends CoreActionParams<void> {
   public constructor(
-    public dataTypes: EWalletDataType[],
-    public consentContractAddress: EVMContractAddress,
-    public tokenId?: BigNumberString,
-    public businessSignature?: Signature,
+    public invitation: JSONString,
+    public dataTypes: EWalletDataType[] | null,
   ) {
     super(AcceptInvitationParams.getCoreAction());
   }
@@ -269,9 +246,7 @@ export class AcceptInvitationParams extends CoreActionParams<void> {
 
 export class RejectInvitationParams extends CoreActionParams<void> {
   public constructor(
-    public consentContractAddress: EVMContractAddress,
-    public tokenId?: BigNumberString,
-    public businessSignature?: Signature,
+    public invitation: JSONString,
     public rejectUntil?: UnixTimestamp,
   ) {
     super(RejectInvitationParams.getCoreAction());
@@ -289,24 +264,6 @@ export class GetAgreementPermissionsParams extends CoreActionParams<
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_AGREEMENT_PERMISSIONS;
-  }
-}
-
-export class SetDefaultPermissionsWithDataTypesParams extends CoreActionParams<void> {
-  public constructor(public dataTypes: EWalletDataType[]) {
-    super(SetDefaultPermissionsWithDataTypesParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.SET_DEFAULT_PERMISSIONS;
-  }
-}
-
-export class RejectInvitationByUUIDParams extends CoreActionParams<void> {
-  public constructor(public id: UUID) {
-    super(RejectInvitationByUUIDParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.REJECT_INVITATION_BY_UUID;
   }
 }
 
@@ -597,41 +554,12 @@ export class GetTransactionValueByChainParams extends CoreActionParams<
   }
 }
 
-export class GetApplyDefaultPermissionsOptionParams extends CoreActionParams<boolean> {
-  public constructor() {
-    super(GetApplyDefaultPermissionsOptionParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.GET_APPLY_DEFAULT_PERMISSIONS_OPTION;
-  }
-}
-
 export class GetAcceptedInvitationsCIDParams extends CoreActionParams<JSONString> {
   public constructor() {
     super(GetAcceptedInvitationsCIDParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_ACCEPTED_INVITATIONS_CID;
-  }
-}
-
-export class SetDefaultPermissionsToAllParams extends CoreActionParams<void> {
-  public constructor() {
-    super(SetDefaultPermissionsToAllParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.SET_DEFAULT_PERMISSIONS_TO_ALL;
-  }
-}
-
-export class GetDefaultPermissionsParams extends CoreActionParams<
-  EWalletDataType[]
-> {
-  public constructor() {
-    super(GetDefaultPermissionsParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.GET_DEFAULT_PERMISSIONS;
   }
 }
 

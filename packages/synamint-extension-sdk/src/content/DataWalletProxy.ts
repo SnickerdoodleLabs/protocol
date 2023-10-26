@@ -30,7 +30,6 @@ import {
   OAuthAuthorizationCode,
   PagedResponse,
   PagingRequest,
-  PossibleReward,
   Signature,
   SiteVisit,
   DiscordID,
@@ -66,13 +65,6 @@ import {
   TransactionFilter,
   TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
-import { JsonRpcEngine } from "json-rpc-engine";
-import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import { ResultAsync } from "neverthrow";
-import ObjectMultiplex from "obj-multiplex";
-import LocalMessageStream from "post-message-stream";
-import pump from "pump";
-
 import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 import {
   CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
@@ -82,13 +74,10 @@ import {
   SetBirthdayParams,
   SetGivenNameParams,
   SetFamilyNameParams,
-  SetApplyDefaultPermissionsParams,
   SetEmailParams,
   SetLocationParams,
   SetGenderParams,
-  AcceptInvitationParams,
   GetAgreementPermissionsParams,
-  SetDefaultPermissionsWithDataTypesParams,
   LeaveCohortParams,
   GetInvitationMetadataByCIDParams,
   GetConsentContractCIDParams,
@@ -107,12 +96,17 @@ import {
   GetQueryStatusByCidParams,
   AuthenticateDropboxParams,
   SetAuthenticatedStorageParams,
-  RejectInvitationParams,
   GetQueryStatusesParams,
   GetTransactionsParams,
   UpdateAgreementPermissionsParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
+import { JsonRpcEngine } from "json-rpc-engine";
+import { createStreamMiddleware } from "json-rpc-middleware-stream";
+import { ResultAsync } from "neverthrow";
+import ObjectMultiplex from "obj-multiplex";
+import LocalMessageStream from "post-message-stream";
+import pump from "pump";
 
 let coreGateway: ExternalCoreGateway;
 let eventEmitter: UpdatableEventEmitterWrapper;
@@ -568,20 +562,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     return coreGateway.getAvailableInvitationsCID();
   }
 
-  public getDefaultPermissions() {
-    return coreGateway.getDefaultPermissions();
-  }
-
-  public setDefaultPermissions(dataTypes: EWalletDataType[]) {
-    return coreGateway.setDefaultPermissionsWithDataTypes(
-      new SetDefaultPermissionsWithDataTypesParams(dataTypes),
-    );
-  }
-
-  public setDefaultPermissionsToAll() {
-    return coreGateway.setDefaultPermissionsToAll();
-  }
-
   public getInvitationMetadataByCID(ipfsCID: IpfsCID) {
     return coreGateway.getInvitationMetadataByCID(
       new GetInvitationMetadataByCIDParams(ipfsCID),
@@ -593,35 +573,12 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       new GetAgreementPermissionsParams(consentContractAddress),
     );
   }
-  public getApplyDefaultPermissionsOption() {
-    return coreGateway.getApplyDefaultPermissionsOption();
-  }
-  public setApplyDefaultPermissionsOption(option: boolean) {
-    return coreGateway.setApplyDefaultPermissionsOption(
-      new SetApplyDefaultPermissionsParams(option),
-    );
-  }
   public updateAgreementPermissions(
     consentContractAddress: EVMContractAddress,
     dataTypes: EWalletDataType[],
   ): ResultAsync<void, ProxyError> {
     return coreGateway.updateAgreementPermissions(
       new UpdateAgreementPermissionsParams(consentContractAddress, dataTypes),
-    );
-  }
-  public acceptInvitation(
-    dataTypes: EWalletDataType[],
-    consentContractAddress: EVMContractAddress,
-    tokenId?: BigNumberString,
-    businessSignature?: Signature,
-  ) {
-    return coreGateway.acceptInvitation(
-      new AcceptInvitationParams(
-        dataTypes,
-        consentContractAddress,
-        tokenId,
-        businessSignature,
-      ),
     );
   }
 
@@ -641,22 +598,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   }
   public getSiteVisitsMap(): ResultAsync<Map<URLString, number>, ProxyError> {
     return coreGateway.getSiteVisitsMap();
-  }
-
-  public rejectInvitation(
-    consentContractAddress: EVMContractAddress,
-    tokenId?: BigNumberString,
-    businessSignature?: Signature,
-    rejectUntil?: UnixTimestamp,
-  ) {
-    return coreGateway.rejectInvitation(
-      new RejectInvitationParams(
-        consentContractAddress,
-        tokenId,
-        businessSignature,
-        rejectUntil,
-      ),
-    );
   }
 
   public getConsentCapacity(

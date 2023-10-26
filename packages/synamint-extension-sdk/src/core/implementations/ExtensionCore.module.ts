@@ -42,7 +42,6 @@ import {
 } from "@synamint-extension-sdk/core/implementations/data";
 import {
   ContextProvider,
-  DataPermissionsUtils,
   ErrorUtils,
   ConfigProvider,
 } from "@synamint-extension-sdk/core/implementations/utilities";
@@ -100,8 +99,6 @@ import {
   IConfigProviderType,
   IContextProvider,
   IContextProviderType,
-  IDataPermissionsUtils,
-  IDataPermissionsUtilsType,
   IErrorUtils,
   IErrorUtilsType,
 } from "@synamint-extension-sdk/core/interfaces/utilities";
@@ -187,9 +184,6 @@ export const extensionCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IConfigProvider>(IConfigProviderType)
       .to(ConfigProvider)
-      .inSingletonScope();
-    bind<IDataPermissionsUtils>(IDataPermissionsUtilsType)
-      .to(DataPermissionsUtils)
       .inSingletonScope();
     bind<IErrorUtils>(IErrorUtilsType).to(ErrorUtils).inSingletonScope();
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)

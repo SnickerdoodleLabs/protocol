@@ -14,9 +14,7 @@ import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import AccountUnlinkingModal from "@extension-onboarding/components/Modals/AccountUnlinkingModal";
 import ConfirmationModal from "@extension-onboarding/components/Modals/ConfirmationModal";
 import CustomizableModal from "@extension-onboarding/components/Modals/CustomizableModal";
-import DataPermissionsModal from "@extension-onboarding/components/Modals/DataPermissionsModal";
 import LeaveCohortModal from "@extension-onboarding/components/Modals/LeaveCohortModal";
-import PermissionSelectionModal from "@extension-onboarding/components/Modals/PermissionSelectionModal";
 import PhantomLinkingSteps from "@extension-onboarding/components/Modals/PhantomLinkingSteps";
 import RewardDetailModal from "@extension-onboarding/components/Modals/RewardDetailModal";
 import SubscriptionConfirmationModal from "@extension-onboarding/components/Modals/SubscriptionConfirmationModal";
@@ -31,14 +29,12 @@ type ModalSelectorTypeMap = {
   [EModalSelectors.ACCOUNT_UNLINKED]: any;
   [EModalSelectors.PHANTOM_LINKING_STEPS]: any;
   [EModalSelectors.VIEW_ACCOUNT_DETAILS]: any;
-  [EModalSelectors.MANAGE_PERMISSIONS]: any;
   [EModalSelectors.CONFIRMATION_MODAL]: any;
   [EModalSelectors.LEAVE_COHORT_MODAL]: any;
   [EModalSelectors.SUBSCRIPTION_SUCCESS_MODAL]: any;
   [EModalSelectors.SUBSCRIPTION_CONFIRMATION_MODAL]: any;
   [EModalSelectors.REWARD_DETAIL_MODAL]: any;
   [EModalSelectors.CUSTOMIZABLE_MODAL]: any;
-  [EModalSelectors.PERMISSION_SELECTION]: any;
   [EModalSelectors.OTP_MODAL]: IOTPModal;
   [EModalSelectors.LEAVE_AUDIENCE_MODAL]: undefined;
   [EModalSelectors.SUI_LINKING_STEPS]: any;
@@ -100,8 +96,6 @@ export const LayoutProvider: FC = ({ children }) => {
         return <SuiLinkingSteps />;
       case modalState.modalSelector === EModalSelectors.VIEW_ACCOUNT_DETAILS:
         return <ViewDetailsModal />;
-      case modalState.modalSelector === EModalSelectors.MANAGE_PERMISSIONS:
-        return <DataPermissionsModal />;
       case modalState.modalSelector === EModalSelectors.CONFIRMATION_MODAL:
         return <ConfirmationModal />;
       case modalState.modalSelector === EModalSelectors.LEAVE_COHORT_MODAL:
@@ -127,8 +121,6 @@ export const LayoutProvider: FC = ({ children }) => {
         );
       case modalState.modalSelector === EModalSelectors.OTP_MODAL:
         return <OTPModal />;
-      case modalState.modalSelector === EModalSelectors.PERMISSION_SELECTION:
-        return <PermissionSelectionModal />;
       default:
         return null;
     }

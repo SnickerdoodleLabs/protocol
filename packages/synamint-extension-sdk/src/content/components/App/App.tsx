@@ -5,40 +5,22 @@ import {
   DomainName,
   EInvitationStatus,
   ENotificationTypes,
+  EVMContractAddress,
   EWalletDataType,
   IOldUserAgreement,
+  IUserAgreement,
+  Invitation,
   LinkedAccount,
   PageInvitation,
   PossibleReward,
-  UUID,
+  Signature,
 } from "@snickerdoodlelabs/objects";
-import endOfStream from "end-of-stream";
-import PortStream from "extension-port-stream";
-import { JsonRpcEngine } from "json-rpc-engine";
-import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import { okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
-import ObjectMultiplex from "obj-multiplex";
-import LocalMessageStream from "post-message-stream";
-import pump from "pump";
-import React, {
-  useEffect,
-  useMemo,
-  useState,
-  useCallback,
-  useRef,
-} from "react";
-import { parse } from "tldts";
-import Browser from "webextension-polyfill";
-
 import Loading from "@synamint-extension-sdk/content/components/Screens/Loading";
 import Permissions from "@synamint-extension-sdk/content/components/Screens/Permissions";
 import RewardCard from "@synamint-extension-sdk/content/components/Screens/RewardCard";
 import SubscriptionConfirmation from "@synamint-extension-sdk/content/components/Screens/SubscriptionConfirmation";
 import SubscriptionSuccess from "@synamint-extension-sdk/content/components/Screens/SubscriptionSuccess";
-import {
-  EAPP_STATE,
-} from "@synamint-extension-sdk/content/constants";
+import { EAPP_STATE } from "@synamint-extension-sdk/content/constants";
 import usePath from "@synamint-extension-sdk/content/hooks/usePath";
 import DataWalletProxyInjectionUtils from "@synamint-extension-sdk/content/utils/DataWalletProxyInjectionUtils";
 import { VersionUtils } from "@synamint-extension-sdk/extensionShared";
@@ -56,9 +38,29 @@ import {
   CheckInvitationStatusParams,
   RejectInvitationParams,
   AcceptInvitationParams,
+  GetInvitationMetadataByCIDParams,
+  GetConsentContractCIDParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
+import endOfStream from "end-of-stream";
+import PortStream from "extension-port-stream";
+import { JsonRpcEngine } from "json-rpc-engine";
+import { createStreamMiddleware } from "json-rpc-middleware-stream";
+import { err, okAsync } from "neverthrow";
+import ObjectMultiplex from "obj-multiplex";
+import LocalMessageStream from "post-message-stream";
+import pump from "pump";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+  useRef,
+} from "react";
+import { parse } from "tldts";
+import Browser from "webextension-polyfill";
 
+// #region connection
 let coreGateway: ExternalCoreGateway;
 let extensionConfig: IExtensionConfig;
 let eventEmitter: UpdatableEventEmitterWrapper;
@@ -131,6 +133,43 @@ const connect = () => {
 
 connect();
 
+// #endregion
+
+enum EInvitationSourceType {
+  DEEPLINK,
+  DOMAIN,
+}
+
+interface IInvitaionData {
+  invitation: Invitation;
+  metadata: IOldUserAgreement | IUserAgreement;
+}
+
+interface ICurrentInvitation {
+  data: IInvitaionData;
+  type: EInvitationSourceType;
+}
+
+// this is really bad way to do this
+// for now only place user can link an account is one of the origins below
+// if user is directed to one of the origin below just because does not have an acount we should wait for user to link an account to display popup
+const SDL_ORIGIN_LIST = [
+  "https://datawallet.demo-01.snickerdoodle.dev",
+  "https://datawallet.demo-02.snickerdoodle.dev",
+  "https://datawallet.demo-03.snickerdoodle.dev",
+  "https://datawallet.demo-04.snickerdoodle.dev",
+  "https://datawallet.demo-05.snickerdoodle.dev",
+  "https://datawallet.snickerdoodle.com",
+  "https://datawallet.dev.snickerdoodle.dev",
+  // those are even worse
+  "https://localhost:9005",
+  "http://localhost:9001",
+];
+
+const origin = window.location.origin;
+
+const awaitAccountLinking = SDL_ORIGIN_LIST.includes(origin);
+
 const App = () => {
   const [appState, setAppState] = useState<EAPP_STATE>(EAPP_STATE.INIT);
   const [accounts, setAccounts] = useState<LinkedAccount[]>([]);
@@ -143,6 +182,157 @@ const App = () => {
   const _path = usePath();
   const isStatusCheckRequiredRef = useRef<boolean>(false);
   const [isHidden, setIsHidden] = useState<boolean>(false);
+
+  // #region new flow
+  const [deepLinkInvitation, setDeepLinkInvitation] =
+    useState<IInvitaionData | null>(null);
+
+  const [domainInvitation, setDomainInvitation] =
+    useState<IInvitaionData | null>(null);
+
+  useEffect(() => {
+    handleURLChange();
+  }, [_path]);
+
+  const handleURLChange = useCallback(() => {
+    const url = window.location.href;
+    const urlObj = new URL(url);
+    const queryParams = new URLSearchParams(urlObj.search);
+    const path = urlObj.pathname;
+    const urlInfo = parse(url);
+    const domain = urlInfo.domain;
+    const domainPath = `${urlInfo.hostname}${path.replace(/\/$/, "")}`;
+    const domainName = DomainName(`snickerdoodle-protocol.${domain}`);
+    const _consentAddress = queryParams.get("consentAddress");
+
+    // #region deeplink invitation
+
+    // not sure about this part, this logic cause any domain can display any invitation
+    // we can make it show deep link popups only if the current domain is our domain
+    if (_consentAddress) {
+      // when queryID added to domain update here
+      const consentAddress = EVMContractAddress(_consentAddress);
+      const tokenId = queryParams.get("tokenId");
+      const signature = queryParams.get("signature");
+      // this function actually designed for proxy initialy
+      // since we are not using it in proxy we can change
+      // double check requirements for proxy
+      coreGateway
+        .checkInvitationStatus(
+          new CheckInvitationStatusParams(
+            consentAddress,
+            signature ? Signature(signature) : undefined,
+            tokenId ? BigNumberString(tokenId) : undefined,
+          ),
+        )
+        .andThen((status) => {
+          if (status === EInvitationStatus.New) {
+            return coreGateway
+              .getContractCID(new GetConsentContractCIDParams(consentAddress))
+              .andThen((cid) => {
+                return coreGateway
+                  .getInvitationMetadataByCID(
+                    new GetInvitationMetadataByCIDParams(cid),
+                  )
+                  .map((metadata) => {
+                    setDeepLinkInvitation({
+                      invitation: new Invitation(
+                        consentAddress,
+                        null,
+                        null,
+                        null,
+                      ),
+                      metadata,
+                    });
+                  });
+              });
+          }
+          return okAsync(undefined);
+        })
+        .mapErr((err) => {
+          console.warn(" Data Wallet:  Unable to get deeplink invitation", err);
+        });
+    }
+    // #endregion
+    // #region domain invitation
+    coreGateway
+      .getInvitationsByDomain(
+        new GetInvitationWithDomainParams(domainName, domainPath),
+      )
+      .map((result) => {
+        if (result) {
+          setDomainInvitation({
+            invitation: result.invitation,
+            metadata: result.invitationMetadata,
+          });
+        }
+      })
+      .mapErr((err) => {
+        console.warn(" Data Wallet:  Unable to get invitation by domain", err);
+      });
+    // #endregion
+  }, []);
+
+  const currentInvitation: ICurrentInvitation | null = useMemo(() => {
+    if (domainInvitation) {
+      return { data: domainInvitation, type: EInvitationSourceType.DOMAIN };
+    }
+    if (deepLinkInvitation) {
+      return { data: deepLinkInvitation, type: EInvitationSourceType.DEEPLINK };
+    }
+    return null;
+  }, [deepLinkInvitation, domainInvitation]);
+
+  useEffect(() => {
+    if (currentInvitation) {
+      setAppState(EAPP_STATE.INVITATION_PREVIEW);
+    } else {
+      setAppState(EAPP_STATE.INIT);
+    }
+  }, [currentInvitation]);
+
+  const emptyReward = useCallback(() => {
+    if (!currentInvitation) return;
+    switch (currentInvitation.type) {
+      case EInvitationSourceType.DOMAIN:
+        setDomainInvitation(null);
+        break;
+      case EInvitationSourceType.DEEPLINK:
+        setDeepLinkInvitation(null);
+        break;
+    }
+  }, [currentInvitation]);
+
+  const acceptInvitation = useCallback(
+    (dataTypes: EWalletDataType[] | null) => {
+      if (!currentInvitation) return;
+      coreGateway
+        .acceptInvitation(currentInvitation.data.invitation, dataTypes)
+        .map(() => {
+          emptyReward();
+        })
+        .mapErr(() => {
+          console.warn("Data Wallet:  Unable to accept invitation:", err);
+        });
+    },
+    [currentInvitation],
+  );
+
+  const rejectInvitation = useCallback(() => {
+    if (!currentInvitation) return;
+    coreGateway
+      .rejectInvitation(currentInvitation.data.invitation)
+      .map(() => {
+        emptyReward();
+      })
+      .mapErr(() => {
+        console.warn(" Data Wallet:  Unable to reject invitation:", err);
+      });
+  }, [currentInvitation]);
+
+  // #endregion
+
+  // #region multiple instance handler messaging
 
   useEffect(() => {
     window.postMessage(
@@ -168,7 +358,9 @@ const App = () => {
       window.removeEventListener("message", handleTabManagerMessage);
     };
   }, []);
+  // #endregion
 
+  // #region port notification handler
   useEffect(() => {
     eventEmitter.on(PORT_NOTIFICATION, handleNotification);
     getAccounts();
@@ -177,105 +369,25 @@ const App = () => {
     };
   }, []);
 
-  const getAccounts = () => {
-    coreGateway.account.getAccounts().map((linkedAccounts) => {
-      setAccounts(linkedAccounts);
-    });
-  };
-
   const handleNotification = (notification: BaseNotification) => {
     if (notification.type === ENotificationTypes.ACCOUNT_ADDED) {
       getAccounts();
     }
   };
 
-  useEffect(() => {
-    initiateCohort();
-  }, [_path]);
+  // #endregion
 
-  const initiateCohort = useCallback(async () => {
-    const path = window.location.pathname;
-    const urlInfo = parse(window.location.href);
-    const domain = urlInfo.domain;
-    const url = `${urlInfo.hostname}${path.replace(/\/$/, "")}`;
-    const domainName = DomainName(`snickerdoodle-protocol.${domain}`);
-
-    coreGateway
-      .getInvitationsByDomain(
-        new GetInvitationWithDomainParams(domainName, url),
-      )
-      .andThen((result) => {
-        if (result) {
-          return coreGateway
-            .checkInvitationStatus(
-              new CheckInvitationStatusParams(
-                result.invitation.consentContractAddress,
-              ),
-            )
-            .map((status) => {
-              if (status === EInvitationStatus.New) {
-                setPageInvitation(result);
-                setAppState(EAPP_STATE.INVITATION_PREVIEW);
-              }
-            });
-        }
-        return okAsync(undefined);
-      })
-      .mapErr((err) => {
-        console.error("Unable to get invitation by domain", err);
-      });
-  }, []);
-
-  const emptyReward = () => {
-    setSubscriptionPreviewData(undefined);
-    setPageInvitation(undefined);
-    setAppState(EAPP_STATE.INIT);
-  };
-
-  const rejectInvitation = () => {
-    coreGateway
-      .rejectInvitation(
-        new RejectInvitationParams(
-          pageInvitation!.invitation.consentContractAddress,
-        ),
-      )
-      .map(() => emptyReward());
-  };
-
-  const acceptInvitation = (receivingAccount: AccountAddress | undefined) => {
-    setAppState(EAPP_STATE.LOADING);
-    coreGateway
-      .setReceivingAddress(
-        new SetReceivingAddressParams(
-          pageInvitation!.invitation.consentContractAddress,
-          receivingAccount ?? null,
-        ),
-      )
-      .map(() => {
-        coreGateway
-          .acceptInvitation(
-            new AcceptInvitationParams(
-              subscriptionPreviewData!.dataTypes,
-              pageInvitation!.invitation.consentContractAddress,
-              pageInvitation!.invitation.tokenId
-                ? BigNumberString(pageInvitation!.invitation.tokenId.toString())
-                : undefined,
-              pageInvitation!.invitation.businessSignature ?? undefined,
-            ),
-          )
-          .map(() => {
-            setAppState(EAPP_STATE.SUBSCRIPTION_SUCCESS);
-          });
-      })
-      .mapErr(() => {
-        emptyReward();
-      });
+  const getAccounts = () => {
+    coreGateway.account.getAccounts().map((linkedAccounts) => {
+      setAccounts(linkedAccounts);
+    });
   };
 
   const renderComponent = useMemo(() => {
+    if (!currentInvitation) return null;
+    // delay showing popup until user link an account
+    if (awaitAccountLinking && accounts.length === 0) return null;
     switch (true) {
-      case !pageInvitation:
-        return null;
       case appState === EAPP_STATE.INVITATION_PREVIEW:
         return (
           <RewardCard
@@ -284,7 +396,7 @@ const App = () => {
                 const deeplinkURL = new URL(extensionConfig.onboardingUrl);
                 deeplinkURL.searchParams.append(
                   "consentAddress",
-                  pageInvitation!.invitation.consentContractAddress,
+                  currentInvitation.data.invitation.consentContractAddress,
                 );
                 window.open(deeplinkURL, "blank");
                 return emptyReward();
@@ -295,7 +407,7 @@ const App = () => {
               rejectInvitation();
             }}
             onCloseClick={emptyReward}
-            rewardItem={pageInvitation!.invitationMetadata as IOldUserAgreement}
+            rewardItem={currentInvitation.data.metadata as IOldUserAgreement}
             linkedAccountExist={accounts.length > 0}
           />
         );
@@ -303,12 +415,12 @@ const App = () => {
         return (
           <Permissions
             config={extensionConfig}
-            domainDetails={
-              pageInvitation!.invitationMetadata as IOldUserAgreement
-            }
+            domainDetails={currentInvitation.data.metadata as IOldUserAgreement}
             onCancelClick={emptyReward}
             coreGateway={coreGateway}
-            consentAddress={pageInvitation!.invitation.consentContractAddress}
+            consentAddress={
+              currentInvitation.data.invitation.consentContractAddress
+            }
             eventEmitter={eventEmitter}
             isUnlocked={true}
             onNextClick={(
@@ -325,30 +437,28 @@ const App = () => {
             }}
           />
         );
-      case subscriptionPreviewData &&
-        appState === EAPP_STATE.SUBSCRIPTION_CONFIRMATION:
-        return (
-          <SubscriptionConfirmation
-            {...subscriptionPreviewData!}
-            config={extensionConfig}
-            consentAddress={pageInvitation!.invitation.consentContractAddress}
-            coreGateway={coreGateway}
-            domainDetails={
-              pageInvitation!.invitationMetadata as IOldUserAgreement
-            }
-            onCancelClick={emptyReward}
-            accounts={accounts}
-            onConfirmClick={(receivingAccount) => {
-              acceptInvitation(receivingAccount);
-            }}
-          />
-        );
+      // case subscriptionPreviewData &&
+      //   appState === EAPP_STATE.SUBSCRIPTION_CONFIRMATION:
+      //   return (
+      //     <SubscriptionConfirmation
+      //       {...subscriptionPreviewData!}
+      //       config={extensionConfig}
+      //       consentAddress={
+      //         currentInvitation.data.invitation.consentContractAddress
+      //       }
+      //       coreGateway={coreGateway}
+      //       domainDetails={currentInvitation.data.metadata as IOldUserAgreement}
+      //       onCancelClick={emptyReward}
+      //       accounts={accounts}
+      //       onConfirmClick={(receivingAccount) => {
+      //         acceptInvitation(receivingAccount);
+      //       }}
+      //     />
+      //   );
       case appState === EAPP_STATE.SUBSCRIPTION_SUCCESS:
         return (
           <SubscriptionSuccess
-            domainDetails={
-              pageInvitation!.invitationMetadata as IOldUserAgreement
-            }
+            domainDetails={currentInvitation.data.metadata as IOldUserAgreement}
             onCancelClick={emptyReward}
           />
         );
@@ -357,12 +467,7 @@ const App = () => {
       default:
         return null;
     }
-  }, [
-    accounts.length,
-    JSON.stringify(pageInvitation?.invitationMetadata),
-    appState,
-    JSON.stringify(subscriptionPreviewData),
-  ]);
+  }, [accounts.length, appState, currentInvitation]);
 
   if (isHidden) {
     return null;

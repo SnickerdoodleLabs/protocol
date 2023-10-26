@@ -260,27 +260,6 @@ export interface ISdlDataWallet {
   getAgreementPermissions(
     consentContractAddres: EVMContractAddress,
   ): ResultAsync<EWalletDataType[], ProxyError>;
-  getApplyDefaultPermissionsOption(): ResultAsync<boolean, ProxyError>;
-  setApplyDefaultPermissionsOption(
-    option: boolean,
-  ): ResultAsync<void, ProxyError>;
-  getDefaultPermissions(): ResultAsync<EWalletDataType[], ProxyError>;
-  setDefaultPermissions(
-    dataTypes: EWalletDataType[],
-  ): ResultAsync<void, ProxyError>;
-  setDefaultPermissionsToAll(): ResultAsync<void, ProxyError>;
-  acceptInvitation(
-    dataTypes: EWalletDataType[] | null,
-    consentContractAddress: EVMContractAddress,
-    tokenId?: BigNumberString,
-    businessSignature?: Signature,
-  ): ResultAsync<void, ProxyError>;
-  rejectInvitation(
-    consentContractAddress: EVMContractAddress,
-    tokenId?: BigNumberString,
-    businessSignature?: Signature,
-    rejectUntil?: UnixTimestamp,
-  );
   leaveCohort(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, ProxyError>;

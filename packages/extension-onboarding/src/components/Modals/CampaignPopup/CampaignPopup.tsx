@@ -167,99 +167,99 @@ const CampaignPopup: FC = () => {
       });
   }, [appMode]);
 
-  const acceptInvitation = (
-    dataTypes: EWalletDataType[] | null,
-    consentContractAddress: EVMContractAddress,
-    tokenId?: BigNumberString,
-    signature?: Signature,
-  ) => {
-    setLoadingStatus(true);
-    return sdlDataWallet
-      .acceptInvitation(dataTypes, consentContractAddress, tokenId, signature)
-      .mapErr((e) => {
-        handleClose();
-        setModal({
-          modalSelector: EModalSelectors.CUSTOMIZABLE_MODAL,
-          onPrimaryButtonClick: () => {},
-          customProps: {
-            title: "Thank you for your interest!",
-            message: `Looks like this reward link has been reserved for another data wallet user.`,
-            primaryButtonText: "Got it",
-            secondaryButtonText: "",
-          },
-        });
-        setLoadingStatus(false);
-      })
-      .map(() => {
-        updateOptedInContracts();
-        setLoadingStatus(false);
-        setVisualAlert(true);
-        handleClose();
-        setModal({
-          modalSelector: EModalSelectors.CUSTOMIZABLE_MODAL,
-          onPrimaryButtonClick: () => {},
-          customProps: {
-            title: "Congratulations",
-            message: `You have successfully claimed your reward.\n\nOnce it is ready, your reward will appear on your portfolio. This may take upto 24 hours. `,
-            primaryButtonText: "Got it",
-            secondaryButtonText: "",
-          },
-        });
-      });
-  };
+  // const acceptInvitation = (
+  //   dataTypes: EWalletDataType[] | null,
+  //   consentContractAddress: EVMContractAddress,
+  //   tokenId?: BigNumberString,
+  //   signature?: Signature,
+  // ) => {
+  //   setLoadingStatus(true);
+  //   return sdlDataWallet
+  //     .acceptInvitation(dataTypes, consentContractAddress, tokenId, signature)
+  //     .mapErr((e) => {
+  //       handleClose();
+  //       setModal({
+  //         modalSelector: EModalSelectors.CUSTOMIZABLE_MODAL,
+  //         onPrimaryButtonClick: () => {},
+  //         customProps: {
+  //           title: "Thank you for your interest!",
+  //           message: `Looks like this reward link has been reserved for another data wallet user.`,
+  //           primaryButtonText: "Got it",
+  //           secondaryButtonText: "",
+  //         },
+  //       });
+  //       setLoadingStatus(false);
+  //     })
+  //     .map(() => {
+  //       updateOptedInContracts();
+  //       setLoadingStatus(false);
+  //       setVisualAlert(true);
+  //       handleClose();
+  //       setModal({
+  //         modalSelector: EModalSelectors.CUSTOMIZABLE_MODAL,
+  //         onPrimaryButtonClick: () => {},
+  //         customProps: {
+  //           title: "Congratulations",
+  //           message: `You have successfully claimed your reward.\n\nOnce it is ready, your reward will appear on your portfolio. This may take upto 24 hours. `,
+  //           primaryButtonText: "Got it",
+  //           secondaryButtonText: "",
+  //         },
+  //       });
+  //     });
+  // };
 
-  const onClaimClick = () => {
-    setOpen(false);
-    return setModal({
-      modalSelector: EModalSelectors.PERMISSION_SELECTION,
-      onPrimaryButtonClick: ({
-        rewardsThatCanBeAcquired,
-        rewardsThatRequireMorePermission,
-        dataTypes,
-      }) => {
-        if (linkedAccounts.length === 0) {
-          setLinkerModalOpen();
-        }
-        setModal({
-          modalSelector: EModalSelectors.SUBSCRIPTION_CONFIRMATION_MODAL,
-          onPrimaryButtonClick: (receivingAccount: AccountAddress) => {
-            setLoadingStatus(true);
-            sdlDataWallet
-              .setReceivingAddress(
-                invitationInfo.consentAddress!,
-                receivingAccount,
-              )
-              .map(() => {
-                acceptInvitation(
-                  dataTypes,
-                  invitationInfo.consentAddress!,
-                  invitationInfo.tokenId,
-                  invitationInfo.signature,
-                );
-              })
-              .mapErr((e) => {
-                console.error(e);
-              });
-          },
-          customProps: {
-            rewardsThatCanBeAcquired,
-            rewardsThatRequireMorePermission,
-            dataTypes,
-            campaignName: invitationMeta?.rewardName,
-            campaignImage: invitationMeta?.image,
-            consentAddress: invitationInfo.consentAddress!,
-          },
-        });
-      },
-      customProps: {
-        consentContractAddress: invitationInfo.consentAddress!,
-        campaignInfo: invitationMeta,
-        onCloseClicked: () => {
-          handleClose();
-        },
-      },
-    });
-  };
+  // const onClaimClick = () => {
+  //   setOpen(false);
+  //   return setModal({
+  //     modalSelector: EModalSelectors.PERMISSION_SELECTION,
+  //     onPrimaryButtonClick: ({
+  //       rewardsThatCanBeAcquired,
+  //       rewardsThatRequireMorePermission,
+  //       dataTypes,
+  //     }) => {
+  //       if (linkedAccounts.length === 0) {
+  //         setLinkerModalOpen();
+  //       }
+  //       setModal({
+  //         modalSelector: EModalSelectors.SUBSCRIPTION_CONFIRMATION_MODAL,
+  //         onPrimaryButtonClick: (receivingAccount: AccountAddress) => {
+  //           setLoadingStatus(true);
+  //           sdlDataWallet
+  //             .setReceivingAddress(
+  //               invitationInfo.consentAddress!,
+  //               receivingAccount,
+  //             )
+  //             .map(() => {
+  //               acceptInvitation(
+  //                 dataTypes,
+  //                 invitationInfo.consentAddress!,
+  //                 invitationInfo.tokenId,
+  //                 invitationInfo.signature,
+  //               );
+  //             })
+  //             .mapErr((e) => {
+  //               console.error(e);
+  //             });
+  //         },
+  //         customProps: {
+  //           rewardsThatCanBeAcquired,
+  //           rewardsThatRequireMorePermission,
+  //           dataTypes,
+  //           campaignName: invitationMeta?.rewardName,
+  //           campaignImage: invitationMeta?.image,
+  //           consentAddress: invitationInfo.consentAddress!,
+  //         },
+  //       });
+  //     },
+  //     customProps: {
+  //       consentContractAddress: invitationInfo.consentAddress!,
+  //       campaignInfo: invitationMeta,
+  //       onCloseClicked: () => {
+  //         handleClose();
+  //       },
+  //     },
+  //   });
+  // };
 
   if (!invitationMeta || !open || !isProductTourCompleted) {
     return null;
@@ -347,7 +347,7 @@ const CampaignPopup: FC = () => {
                 </Button>
               </Box>
               <Box>
-                <Button buttonType="primary" onClick={onClaimClick}>
+                <Button buttonType="primary" onClick={() => {}}>
                   Join
                 </Button>
               </Box>

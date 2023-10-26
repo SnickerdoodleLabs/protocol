@@ -29,8 +29,6 @@ import {
 import {
   IContextProvider,
   IContextProviderType,
-  IDataPermissionsUtils,
-  IDataPermissionsUtilsType,
 } from "@synamint-extension-sdk/core/interfaces/utilities";
 import {
   ExtensionStorageError,
@@ -43,22 +41,16 @@ export class InvitationService implements IInvitationService {
     @inject(IInvitationRepositoryType)
     protected invitationRepository: IInvitationRepository,
     @inject(IContextProviderType) protected contexProvider: IContextProvider,
-    @inject(IDataPermissionsUtilsType)
-    protected dataPermissionsUtils: IDataPermissionsUtils,
   ) {}
 
   public updateAgreementPermissions(
     consentContractAddress: EVMContractAddress,
     dataTypes: EWalletDataType[],
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.dataPermissionsUtils
-      .generateDataPermissionsClassWithDataTypes(dataTypes)
-      .andThen((dataPermissions) => {
-        return this.invitationRepository.updateAgreementPermissions(
-          consentContractAddress,
-          dataPermissions,
-        );
-      });
+    return this.invitationRepository.updateAgreementPermissions(
+      consentContractAddress,
+      DataPermissions.createWithPermissions(dataTypes),
+    );
   }
 
   public getMarketplaceListingsByTag(
@@ -90,9 +82,9 @@ export class InvitationService implements IInvitationService {
   ): ResultAsync<EWalletDataType[], SnickerDoodleCoreError> {
     return this.invitationRepository
       .getAgreementFlags(consentContractAddress)
-      .andThen((flags) =>
-        this.dataPermissionsUtils.getDataTypesFromFlagsString(flags),
-      );
+      .andThen((flags) => {
+        return okAsync(DataPermissions.getDataTypesFromFlags(flags));
+      });
   }
 
   public getAvailableInvitationsCID(): ResultAsync<
@@ -148,12 +140,10 @@ export class InvitationService implements IInvitationService {
     invitation: Invitation,
     dataTypes: EWalletDataType[] | null,
   ): ResultAsync<void, SnickerDoodleCoreError | ExtensionStorageError> {
-    return this.getDataPermissions(dataTypes).andThen((dataPermissions) => {
-      return this.invitationRepository.acceptInvitation(
-        invitation,
-        dataPermissions,
-      );
-    });
+    return this.invitationRepository.acceptInvitation(
+      invitation,
+      dataTypes ? DataPermissions.createWithPermissions(dataTypes) : null,
+    );
   }
   public rejectInvitation(
     invitation: Invitation,
@@ -189,16 +179,5 @@ export class InvitationService implements IInvitationService {
     contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, SnickerDoodleCoreError> {
     return this.invitationRepository.getReceivingAddress(contractAddress);
-  }
-
-  protected getDataPermissions(
-    dataTypes: EWalletDataType[] | null,
-  ): ResultAsync<DataPermissions | null, never> {
-    if (dataTypes) {
-      return this.dataPermissionsUtils.generateDataPermissionsClassWithDataTypes(
-        dataTypes,
-      );
-    }
-    return okAsync(null);
   }
 }
