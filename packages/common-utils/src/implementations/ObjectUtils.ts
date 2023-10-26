@@ -13,7 +13,7 @@ import { ResultUtils } from "neverthrow-result-utils";
 export class ObjectUtils {
   // Taken from https://stackoverflow.com/questions/27936772/how-to-deep-merge-instead-of-shallow-merge
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static mergeDeep<T>(...objects: any[]): unknown {
+  static mergeDeep<T = unknown>(...objects: any[]): T {
     const isObject = (obj) => obj && typeof obj === "object";
 
     return objects.reduce((prev, obj) => {

@@ -1,0 +1,54 @@
+{
+  "name": "@snickerdoodlelabs/erc7529",
+  "version": "1.0.2",
+  "description": "A library for interacting with ERC-7529 compliant contracts and domains for EVM based chains.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SnickerdoodleLabs/protocol.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
+  },
+  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/erc7529#readme",
+  "author": "Charlie Sibbach <charlie@snickerdoodlelabs.io>",
+  "keywords": [
+    "Snickerdoodle",
+    "Crypto",
+    "EIP-7529"
+  ],
+  "main": "dist/index.js",
+  "module": "./dist/index.js",
+  "files": [
+    "dist",
+    "!dist/test",
+    "!dist/tsconfig.tsbuildinfo",
+    "!test",
+    "!src",
+    "!tsconfig.json"
+  ],
+  "scripts": {
+    "alias": "tsc-alias && tsc-alias -p test/tsconfig.json",
+    "alias-with-copyfiles": "yarn copy-files && tsc-alias",
+    "build": "yarn clean && yarn compile",
+    "clean": "npx rimraf dist tsconfig.tsbuildinfo",
+    "compile": "npx tsc --build && cd ../.. && yarn alias",
+    "copy-files": "copyfiles -u 1 src/**/*.d.ts dist/",
+    "prepare": "yarn build",
+    "prepublish": "yarn build",
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --maxWorkers=50% --coverage --passWithNoTests"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@snickerdoodlelabs/common-utils": "workspace:^",
+    "@snickerdoodlelabs/contracts-sdk": "workspace:^",
+    "@snickerdoodlelabs/objects": "workspace:^",
+    "dns-packet": "^5.6.1",
+    "ethers": "^5.6.6",
+    "inversify": "^6.0.1",
+    "neverthrow": "^5.1.0",
+    "neverthrow-result-utils": "^2.0.2",
+    "url-join-ts": "^1.0.5"
+  }
+}
