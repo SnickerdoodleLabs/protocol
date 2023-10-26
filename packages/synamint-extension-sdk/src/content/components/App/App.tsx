@@ -297,6 +297,8 @@ const App = () => {
   const acceptInvitation = useCallback(
     (dataTypes: EWalletDataType[] | null) => {
       if (!currentInvitation) return;
+      // call function as background process
+      setAppState(EAppState.IDLE);
       coreGateway
         .acceptInvitation(currentInvitation.data.invitation, dataTypes)
         .map(() => {
@@ -304,6 +306,7 @@ const App = () => {
         })
         .mapErr(() => {
           console.warn("Data Wallet:  Unable to accept invitation:", err);
+          emptyReward();
         });
     },
     [currentInvitation],
@@ -395,7 +398,7 @@ const App = () => {
                 acceptInvitation(FF_SUPPORTED_ALL_PERMISSIONS);
               } else {
                 window.open(
-                  `${extensionConfig.onboardingUrl}/?consentAddress=${currentInvitation.data.invitation.consentContractAddress}`,
+                  `${extensionConfig.onboardingUrl}?consentAddress=${currentInvitation.data.invitation.consentContractAddress}`,
                   "_blank",
                 );
               }

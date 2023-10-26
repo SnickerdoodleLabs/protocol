@@ -1,12 +1,4 @@
-import {
-  Box,
-  CircularProgress,
-  Grid,
-  Hidden,
-  Theme,
-  makeStyles,
-  useTheme,
-} from "@material-ui/core";
+import { Box, Grid, Hidden } from "@material-ui/core";
 import {
   SDTypography,
   SDButton,
@@ -18,12 +10,6 @@ import { FF_SUPPORTED_PERMISSIONS } from "@shared-components/v2/constants";
 import { useMedia } from "@shared-components/v2/hooks";
 import { EWalletDataType } from "@snickerdoodlelabs/objects";
 import React, { FC, useMemo } from "react";
-
-const useStyles = makeStyles((theme: Theme) => ({
-  wrapper: {
-    position: "relative",
-  },
-}));
 
 interface IPermissionSelectionProps {
   onCancelClick: () => void;
@@ -37,7 +23,6 @@ export const PermissionSelectionWidget: FC<IPermissionSelectionProps> = ({
     Array.from({ length: FF_SUPPORTED_PERMISSIONS.length }, (_, i) => i),
   );
 
-  const theme = useTheme<Theme>();
   const media = useMedia();
   const isMobile = useMemo(() => media === "xs", [media]);
 
@@ -85,7 +70,8 @@ export const PermissionSelectionWidget: FC<IPermissionSelectionProps> = ({
         mb={{ xs: 3, sm: 5.5 }}
         py={{ xs: 2, sm: 0 }}
         px={{ xs: 1.5, sm: 0 }}
-        border={{ xs: `1px solid ${theme.palette.borderColor}`, sm: "none" }}
+        borderColor="borderColor"
+        border={{ xs: "1px solid", sm: "none" }}
       >
         {FF_SUPPORTED_PERMISSIONS.map((item, index) => {
           return (
@@ -110,11 +96,7 @@ export const PermissionSelectionWidget: FC<IPermissionSelectionProps> = ({
                 <SDTypography variant="bodyMd">{item.description}</SDTypography>
               </Box>
               {FF_SUPPORTED_PERMISSIONS.length - 1 != index && (
-                <Box
-                  width="100%"
-                  height={1}
-                  bgcolor={theme.palette.borderColor}
-                />
+                <Box width="100%" height={1} bgcolor="borderColor" />
               )}
               <Box mb={1} />
             </React.Fragment>

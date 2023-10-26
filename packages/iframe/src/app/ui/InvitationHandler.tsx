@@ -218,6 +218,8 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   const onPermissionSelected = useCallback(
     (dataTypes: EWalletDataType[]) => {
       if (currentInvitation) {
+        // call function as background process
+        setAppState(EAPP_STATE.IDLE);
         core.invitation
           .acceptInvitation(
             currentInvitation.data.invitation,
