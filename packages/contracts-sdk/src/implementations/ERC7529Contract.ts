@@ -22,7 +22,7 @@ export abstract class ERC7529Contract<T>
   constructor(
     protected providerOrSigner: ethers.providers.Provider | ethers.Signer,
     protected contractAddress: EVMContractAddress,
-    protected abi?: ethers.ContractInterface,
+    abi?: ethers.ContractInterface,
   ) {
     // If you provide your own ABI, we'll use that, but we have a built-in default ERC7529 ABI
     if (abi == undefined) {
