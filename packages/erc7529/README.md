@@ -83,9 +83,11 @@ const myEthersProvider = new ethers.providers.JsonRpcProvider();
 // get an Ethers signer object if you are going to be writing new domains
 const myEthersSigner = myEthersProvider.getSigner();
 
-// write domains to a contract if you have write permissions
+// get an object handle on your contract
 const myContractAddress = EVMContractAddress("0x...");
 const myERC7529Contract = new ERC7529Contract(myEthersSigner, myContractAddress);
+
+// write domains to a contract if you have write permissions
 await myERC7529Contract.addDomain("example.com");
 await myERC7529Contract.removeDomain("example.com");
 
@@ -119,7 +121,7 @@ const domainName = DomainName("snickerdoodle.com");
 const chainId = ChainId(43113);
 const contractAddresses = await staticUtils.getContractsFromDomain(domainName,chainId);
 
-// write domains to a contract if you have write permissions
+// get an object handle on your contract
 const myContractAddress = contractAddresses.ok[0];
 const myERC7529Contract = new ERC7529Contract(myEthersProvider, myContractAddress);
 
