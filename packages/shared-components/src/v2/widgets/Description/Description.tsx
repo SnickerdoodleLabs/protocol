@@ -114,7 +114,7 @@ export const DescriptionWidget: FC<IDescriptionProps> = ({
       p={{ xs: 3, sm: 4 }}
       pt={{ xs: 3, sm: 8 }}
       width={{ xs: "calc(95% - 48px)", sm: "70%", md: "40%" }}
-      borderRadius={{ xs: 12, sm: 0 }}
+      borderRadius={{ xs: 12, sm: 4 }}
       justifyContent="center"
       className={unmountAnimation ? classes.unmountAnimation : undefined}
     >

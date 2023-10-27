@@ -1,4 +1,4 @@
-import { Box, Grid, Hidden } from "@material-ui/core";
+import { Box, Divider, Grid, Hidden } from "@material-ui/core";
 import {
   SDTypography,
   SDButton,
@@ -42,7 +42,7 @@ export const PermissionSelectionWidget: FC<IPermissionSelectionProps> = ({
       p={{ xs: 3, sm: 4 }}
       pt={{ xs: 3, sm: 8 }}
       width={{ xs: "calc(95% - 48px)", sm: "70%", md: "40%" }}
-      borderRadius={{ xs: 12, sm: 0 }}
+      borderRadius={{ xs: 12, sm: 4 }}
       justifyContent="center"
     >
       <Box
@@ -68,10 +68,10 @@ export const PermissionSelectionWidget: FC<IPermissionSelectionProps> = ({
         display="flex"
         flexDirection="column"
         mb={{ xs: 3, sm: 5.5 }}
-        py={{ xs: 2, sm: 0 }}
-        px={{ xs: 1.5, sm: 0 }}
-        borderColor="borderColor"
-        border={{ xs: "1px solid", sm: "none" }}
+        py={{ xs: 0, sm: 2 }}
+        px={{ xs: 0, sm: 1.5 }}
+        border={{ xs: "none", sm: "1px solid" }}
+        borderColor={{ sm: "borderColor" }}
       >
         {FF_SUPPORTED_PERMISSIONS.map((item, index) => {
           return (
@@ -95,9 +95,7 @@ export const PermissionSelectionWidget: FC<IPermissionSelectionProps> = ({
               <Box mb={1}>
                 <SDTypography variant="bodyMd">{item.description}</SDTypography>
               </Box>
-              {FF_SUPPORTED_PERMISSIONS.length - 1 != index && (
-                <Box width="100%" height={1} bgcolor="borderColor" />
-              )}
+              {FF_SUPPORTED_PERMISSIONS.length - 1 != index && <Divider />}
               <Box mb={1} />
             </React.Fragment>
           );
