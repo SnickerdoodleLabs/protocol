@@ -1,4 +1,15 @@
+import LoadingSpinner from "@extension-onboarding/components/LoadingSpinner";
+import { EModalSelectors } from "@extension-onboarding/components/Modals";
+import AccountUnlinkingModal from "@extension-onboarding/components/Modals/AccountUnlinkingModal";
+import ConfirmationModal from "@extension-onboarding/components/Modals/ConfirmationModal";
+import CustomizableModal from "@extension-onboarding/components/Modals/CustomizableModal";
+import PhantomLinkingSteps from "@extension-onboarding/components/Modals/PhantomLinkingSteps";
+import RewardDetailModal from "@extension-onboarding/components/Modals/RewardDetailModal";
 import SuiLinkingSteps from "@extension-onboarding/components/Modals/SuiLinkingSteps";
+import LeaveAudienceModal from "@extension-onboarding/components/Modals/V2/LeaveAudienceModal";
+import OTPModal, {
+  IOTPModal,
+} from "@extension-onboarding/components/Modals/V2/OTPModal";
 import React, {
   ReactNode,
   FC,
@@ -8,31 +19,11 @@ import React, {
   useMemo,
   useEffect,
 } from "react";
-
-import LoadingSpinner from "@extension-onboarding/components/LoadingSpinner";
-import { EModalSelectors } from "@extension-onboarding/components/Modals";
-import AccountUnlinkingModal from "@extension-onboarding/components/Modals/AccountUnlinkingModal";
-import ConfirmationModal from "@extension-onboarding/components/Modals/ConfirmationModal";
-import CustomizableModal from "@extension-onboarding/components/Modals/CustomizableModal";
-import LeaveCohortModal from "@extension-onboarding/components/Modals/LeaveCohortModal";
-import PhantomLinkingSteps from "@extension-onboarding/components/Modals/PhantomLinkingSteps";
-import RewardDetailModal from "@extension-onboarding/components/Modals/RewardDetailModal";
-import SubscriptionConfirmationModal from "@extension-onboarding/components/Modals/SubscriptionConfirmationModal";
-import SubscriptionSuccessModal from "@extension-onboarding/components/Modals/SubscriptionSuccessModal";
-import ViewDetailsModal from "@extension-onboarding/components/Modals/ViewDetailsModal";
-import OTPModal, {
-  IOTPModal,
-} from "@extension-onboarding/components/Modals/V2/OTPModal";
-import LeaveAudienceModal from "@extension-onboarding/components/Modals/V2/LeaveAudienceModal";
 // under construction
 type ModalSelectorTypeMap = {
   [EModalSelectors.ACCOUNT_UNLINKED]: any;
   [EModalSelectors.PHANTOM_LINKING_STEPS]: any;
-  [EModalSelectors.VIEW_ACCOUNT_DETAILS]: any;
   [EModalSelectors.CONFIRMATION_MODAL]: any;
-  [EModalSelectors.LEAVE_COHORT_MODAL]: any;
-  [EModalSelectors.SUBSCRIPTION_SUCCESS_MODAL]: any;
-  [EModalSelectors.SUBSCRIPTION_CONFIRMATION_MODAL]: any;
   [EModalSelectors.REWARD_DETAIL_MODAL]: any;
   [EModalSelectors.CUSTOMIZABLE_MODAL]: any;
   [EModalSelectors.OTP_MODAL]: IOTPModal;
@@ -94,20 +85,10 @@ export const LayoutProvider: FC = ({ children }) => {
         return <PhantomLinkingSteps />;
       case modalState.modalSelector === EModalSelectors.SUI_LINKING_STEPS:
         return <SuiLinkingSteps />;
-      case modalState.modalSelector === EModalSelectors.VIEW_ACCOUNT_DETAILS:
-        return <ViewDetailsModal />;
       case modalState.modalSelector === EModalSelectors.CONFIRMATION_MODAL:
         return <ConfirmationModal />;
-      case modalState.modalSelector === EModalSelectors.LEAVE_COHORT_MODAL:
-        return <LeaveCohortModal />;
       case modalState.modalSelector === EModalSelectors.LEAVE_AUDIENCE_MODAL:
         return <LeaveAudienceModal />;
-      case modalState.modalSelector ===
-        EModalSelectors.SUBSCRIPTION_SUCCESS_MODAL:
-        return <SubscriptionSuccessModal />;
-      case modalState.modalSelector ===
-        EModalSelectors.SUBSCRIPTION_CONFIRMATION_MODAL:
-        return <SubscriptionConfirmationModal />;
       case modalState.modalSelector === EModalSelectors.REWARD_DETAIL_MODAL:
         return <RewardDetailModal />;
       case modalState.modalSelector === EModalSelectors.CUSTOMIZABLE_MODAL:

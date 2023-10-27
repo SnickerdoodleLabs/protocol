@@ -2,8 +2,8 @@ import { Button, Box, makeStyles, Dialog, Typography } from "@material-ui/core";
 import React, { useContext, useEffect, useMemo, useState, FC } from "react";
 
 import { useStyles } from "@extension-onboarding/components/Modals/AccountUnlinkingModal/AccountUnlinkingModal.style";
-import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { SDButton } from "@snickerdoodlelabs/shared-components";
 
 const AccountUnlinkingModal: FC = () => {
   const { modalState, closeModal } = useLayoutContext();
@@ -21,16 +21,16 @@ const AccountUnlinkingModal: FC = () => {
         </Box>
         <Box mt={5} display="flex" justifyContent="flex-end">
           <Box mr={3}>
-            <PrimaryButton
+            <SDButton
               onClick={() => {
                 closeModal();
               }}
               className={classes.secondaryButton}
             >
               Cancel
-            </PrimaryButton>
+            </SDButton>
           </Box>
-          <PrimaryButton
+          <SDButton
             onClick={() => {
               onPrimaryButtonClick();
               closeModal();
@@ -38,7 +38,7 @@ const AccountUnlinkingModal: FC = () => {
             className={classes.primaryButton}
           >
             Unlink
-          </PrimaryButton>
+          </SDButton>
         </Box>
       </Box>
     </Dialog>

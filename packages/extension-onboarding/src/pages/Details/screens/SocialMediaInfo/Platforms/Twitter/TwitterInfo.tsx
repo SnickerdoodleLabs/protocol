@@ -9,7 +9,6 @@ import {
 import React, { FC, memo, useEffect, useState } from "react";
 
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import SocialUnlinkingModal from "@extension-onboarding/components/Modals/SocialUnlinkingModal";
 import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import { ISocialMediaPlatformProps } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms";
@@ -73,22 +72,6 @@ export const TwitterInfo: FC<ISocialMediaPlatformProps> = memo(
     const classes = useStyles();
     return (
       <>
-        {isModalOpen && (
-          <SocialUnlinkingModal
-            profileName={`${selectedProfile?.userObject.username}#${selectedProfile?.userObject.id}`}
-            closeModal={() => setIsModalOpen(false)}
-            unlinkAccount={() =>
-              provider
-                .unlinkProfile({
-                  id: selectedProfile?.userObject.id as TwitterID,
-                })
-                .map(() => {
-                  getUserProfiles();
-                  setIsModalOpen(false);
-                })
-            }
-          />
-        )}
         <Box
           p={3}
           display="flex"

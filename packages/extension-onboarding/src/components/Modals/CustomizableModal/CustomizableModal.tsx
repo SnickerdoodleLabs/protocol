@@ -1,10 +1,9 @@
-import { Box, Dialog, Typography, IconButton } from "@material-ui/core";
-import CloseIcon from "@material-ui/icons/Close";
-import { Button } from "@snickerdoodlelabs/shared-components";
-import React, { FC } from "react";
-
 import { useStyles } from "@extension-onboarding/components/Modals/CustomizableModal/CustomizableModal.style";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { Box, Dialog, Typography, IconButton } from "@material-ui/core";
+import CloseIcon from "@material-ui/icons/Close";
+import { SDButton } from "@snickerdoodlelabs/shared-components";
+import React, { FC } from "react";
 
 interface ICustomizableModal {
   title: string;
@@ -57,22 +56,21 @@ const CustomizableModal: FC<ICustomizableModal> = ({
       <Box mt={4} display="flex">
         <Box marginLeft="auto" mr={2}>
           {secondaryButtonText ? (
-            <Button buttonType="secondary" onClick={secondaryClicked}>
+            <SDButton onClick={secondaryClicked}>
               {secondaryButtonText}
-            </Button>
+            </SDButton>
           ) : (
             ""
           )}
         </Box>
-        <Button
-          buttonType="primary"
+        <SDButton
           onClick={() => {
             primaryClicked();
             closeModal();
           }}
         >
           {primaryButtonText}
-        </Button>
+        </SDButton>
       </Box>
     </Dialog>
   );

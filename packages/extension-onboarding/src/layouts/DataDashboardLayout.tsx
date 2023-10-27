@@ -1,15 +1,13 @@
+import Container from "@extension-onboarding/components/v2/Container";
+import DashboardTitle from "@extension-onboarding/components/v2/DashboardTitle";
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { DashboardContextProvider } from "@extension-onboarding/context/DashboardContext";
 import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import { SDTypography } from "@snickerdoodlelabs/shared-components";
 import clsx from "clsx";
 import React from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-
-import Typography from "@extension-onboarding/components/Typography";
-import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import { DashboardContextProvider } from "@extension-onboarding/context/DashboardContext";
-import DashboardTitle from "@extension-onboarding/components/v2/DashboardTitle";
-import Container from "@extension-onboarding/components/v2/Container";
-import { SDTypography } from "@snickerdoodlelabs/shared-components";
 const useStyles = makeStyles((theme) => ({
   link: {
     textAlign: "center",

@@ -1,13 +1,12 @@
-import { Box, Dialog, IconButton, Typography } from "@material-ui/core";
-import CloseIcon from "@material-ui/icons/Close";
-import { Button } from "@snickerdoodlelabs/shared-components";
-import React, { FC } from "react";
-
 import { useStyles } from "@extension-onboarding/components/Modals/LinkAccountModal/LinkAccountModal.style";
 import {
   useAccountLinkingContext,
   EWalletProviderKit,
 } from "@extension-onboarding/context/AccountLinkingContext";
+import { Box, Dialog, IconButton, Typography } from "@material-ui/core";
+import CloseIcon from "@material-ui/icons/Close";
+import { SDButton } from "@snickerdoodlelabs/shared-components";
+import React, { FC } from "react";
 
 import "@suiet/wallet-kit/style.css";
 
@@ -58,15 +57,15 @@ const LinkAccountModal: FC<ILinkAccountModalProps> = ({
               <Typography className={classes.label}>{provider.name}</Typography>
             </Box>
             <Box display="flex" marginLeft="auto">
-              <Button
-                buttonType="secondary"
+              <SDButton
+                variant="outlined"
                 onClick={() => {
                   onProviderConnectClick(provider);
                   closeModal();
                 }}
               >
                 Link Account
-              </Button>
+              </SDButton>
             </Box>
           </Box>
         ))}
@@ -86,15 +85,15 @@ const LinkAccountModal: FC<ILinkAccountModalProps> = ({
             <Typography className={classes.label}>Suiet Kit</Typography>
           </Box>
           <Box display="flex" marginLeft="auto">
-            <Button
-              buttonType="secondary"
+            <SDButton
+              variant="outlined"
               onClick={() => {
                 onWalletKitConnectClick(EWalletProviderKit.SUI);
                 closeModal();
               }}
             >
               Link Account
-            </Button>
+            </SDButton>
           </Box>
         </Box>
         <Box mt={4}>

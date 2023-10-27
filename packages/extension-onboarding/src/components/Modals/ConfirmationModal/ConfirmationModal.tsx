@@ -1,10 +1,9 @@
+import { useStyles } from "@extension-onboarding/components/Modals/ConfirmationModal/ConfirmationModal.style";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { Box, Dialog, IconButton, Typography } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
+import { SDButton } from "@snickerdoodlelabs/shared-components";
 import React, { FC } from "react";
-
-import { useStyles } from "@extension-onboarding/components/Modals/ConfirmationModal/ConfirmationModal.style";
-import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 
 const ConfirmationModal: FC = () => {
   const { modalState, closeModal } = useLayoutContext();
@@ -32,16 +31,16 @@ const ConfirmationModal: FC = () => {
         </Box>
         <Box mt={5} display="flex" justifyContent="flex-end">
           <Box mr={3}>
-            <PrimaryButton
+            <SDButton
               onClick={() => {
                 closeModal();
               }}
               className={classes.secondaryButton}
             >
               Cancel
-            </PrimaryButton>
+            </SDButton>
           </Box>
-          <PrimaryButton
+          <SDButton
             onClick={() => {
               onPrimaryButtonClick();
               closeModal();
@@ -49,7 +48,7 @@ const ConfirmationModal: FC = () => {
             className={classes.primaryButton}
           >
             {primaryButtonText}
-          </PrimaryButton>
+          </SDButton>
         </Box>
       </Box>
     </Dialog>

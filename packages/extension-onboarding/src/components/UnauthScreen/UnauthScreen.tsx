@@ -1,6 +1,6 @@
 import { Box, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { Button } from "@snickerdoodlelabs/shared-components";
+import { SDButton } from "@snickerdoodlelabs/shared-components";
 import React, { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -67,9 +67,7 @@ const UnauthScreen = () => {
         <Typography className={classes.title}>{title}</Typography>
       </Box>
 
-      <Button buttonType="primary" onClick={setLinkerModalOpen}>
-        Link Account
-      </Button>
+      <SDButton onClick={setLinkerModalOpen}>Link Account</SDButton>
     </Box>
   );
 };
