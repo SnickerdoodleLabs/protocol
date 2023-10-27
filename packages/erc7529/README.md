@@ -44,9 +44,11 @@ import { ChainId, DomainName } from "@snickerdoodlelabs/objects";
 // check for contract addresses associated with snickerdoodle.com on the Fuji testnet
 const domainName = DomainName("snickerdoodle.com");
 const chainId = ChainId(43113);
-const results = await staticUtils.getContractsFromDOmain(domainName,chainId);
+const results = await staticUtils.getContractsFromDomain(domainName,chainId);
 
-console.log("Contracts: ", results);
+if (results.isOk()) }{
+  console.log("Contracts: ", results.ok);
+}
 ```
 
 ## Smart Contract Association with a Domain 
@@ -66,6 +68,7 @@ A smart contract need only store one new member variable, `domains`, which is an
 Use `@snickerdoodlelabs/contracts-sdk` to interact with this interface on any contract on any EVM-compatible network: 
 
 ```typescript
+import { ethers } from "ethers";
 import { ERC7529Contract } from "@snickerdoodlelabs/contracts-sdk";
 import {
   ChainId,
@@ -74,19 +77,32 @@ import {
   URLString,
 } from "@snickerdoodlelabs/objects";
 
+// set up your Ethers provider object
+const myEthersProvider = new ethers.providers.JsonRpcProvider();
+
+// get an Ethers signer object if you are going to be writing new domains
+const myEthersSigner = myEthersProvider.getSigner();
+
 // write domains to a contract if you have write permissions
+const myContractAddress = EVMContractAddress("0x...");
+const myERC7529Contract = new ERC7529Contract(myEthersSigner, myContractAddress);
+await myERC7529Contract.addDomain("example.com");
+await myERC7529Contract.removeDomain("example.com");
 
 // read domains from a contract if it supports the interface
-
-
+const result = await myERC7529Contract.getDomains();
+if (result.isOk()) {
+  console.log("Contract Domains: ", result.ok);
+}
 ```
 
 ## Client-side Verification
 
 The user client must verify that the eTLD+1 of the TXT record matches an entry in the `domains` list of the smart contract. This library handles that for you automatically: 
 
-```
-import { ERC7529Utils } from "@snickerdoodlelabs/erc7529";
+```typescript
+import { ethers } from "ethers";
+import { staticUtils } from "@snickerdoodlelabs/erc7529";
 import { ERC7529Contract } from "@snickerdoodlelabs/contracts-sdk";
 import {
   ChainId,
@@ -95,8 +111,21 @@ import {
   URLString,
 } from "@snickerdoodlelabs/objects";
 
+// set up your Ethers provider object
+const myEthersProvider = new ethers.providers.JsonRpcProvider();
+
 // check for contract addresses associated with snickerdoodle.com on the Fuji testnet
-const domainContracts = ERC7529Utils.getContractsFromDOmain("snickerdoodle.com","43113");
+const domainName = DomainName("snickerdoodle.com");
+const chainId = ChainId(43113);
+const contractAddresses = await staticUtils.getContractsFromDomain(domainName,chainId);
+
+// write domains to a contract if you have write permissions
+const myContractAddress = contractAddresses.ok[0];
+const myERC7529Contract = new ERC7529Contract(myEthersProvider, myContractAddress);
+
+// verify that the contracts at those addresses on Fuji testnet point back to snickerdoodle.com 
+const isVerified = await staticUtils.verifyContractForDomain(myERC7529Contract, domainName, chainId);
+console.log(isVerified.ok);
 ```
 
 ## Security Considerations
