@@ -173,12 +173,27 @@ export class BlockchainTransactionQueryEvaluator
     });
   }
 
+  protected isHexadecimal(value: number | string): boolean {
+    const hexString = typeof value === "number" ? value.toString(16) : value;
+    return /^(0x)?[0-9a-fA-F]+$/.test(hexString);
+  }
+
   protected determineTimePeriod(
     transactionTime: number,
     benchmarkTimestamp: UnixTimestamp,
   ): ETimePeriods | false {
     const currentTime = benchmarkTimestamp * 1000;
-    const transactionTimeInMs = transactionTime * 1000;
+
+    let transactionTimeInMs: number;
+    if (
+      typeof transactionTime === "string" &&
+      this.isHexadecimal(transactionTime)
+    ) {
+      transactionTimeInMs = parseInt(transactionTime, 16) * 1000;
+    } else {
+      //Unixtimestamp or hex32
+      transactionTimeInMs = transactionTime * 1000;
+    }
 
     const dayInMs = 24 * 60 * 60 * 1000;
     const weekInMs = 7 * dayInMs;
