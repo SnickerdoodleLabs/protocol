@@ -107,10 +107,8 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
 
   public getAll<T extends VersionedObject>(
     name: string,
-    indexName?: string,
-    query?: IDBValidKey | IDBKeyRange,
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
-    return this._getIDB().andThen((db) => db.getAll<T>(name, indexName, query));
+    return this._getIDB().andThen((db) => db.getAll<T>(name));
   }
 
   public getAllByIndex<T extends VersionedObject>(

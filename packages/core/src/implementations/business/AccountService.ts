@@ -283,7 +283,6 @@ export class AccountService implements IAccountService {
             ),
           );
         }
-
         // Check if the account is already linked
         return this.accountRepo
           .getLinkedAccount(accountAddress, chain)

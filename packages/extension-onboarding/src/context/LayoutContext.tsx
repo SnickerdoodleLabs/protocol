@@ -1,3 +1,4 @@
+import SuiLinkingSteps from "@extension-onboarding/components/Modals/SuiLinkingSteps";
 import React, {
   ReactNode,
   FC,
@@ -66,6 +67,8 @@ export const LayoutProvider: FC = ({ children }) => {
         return <AccountUnlinkingModal />;
       case modalState.modalSelector === EModalSelectors.PHANTOM_LINKING_STEPS:
         return <PhantomLinkingSteps />;
+      case modalState.modalSelector === EModalSelectors.SUI_LINKING_STEPS:
+        return <SuiLinkingSteps />;
       case modalState.modalSelector === EModalSelectors.VIEW_ACCOUNT_DETAILS:
         return <ViewDetailsModal />;
       case modalState.modalSelector === EModalSelectors.MANAGE_PERMISSIONS:

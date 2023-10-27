@@ -17,4 +17,11 @@ export const useStyles = makeStyles((theme) => ({
     fontFamily: "Space Grotesk",
     color: "#7F79B0",
   },
+  suiSteps: {
+    fontSize: 14,
+    fontWeight: 500,
+    textDecoration: "underline",
+    fontFamily: "Space Grotesk",
+    color: "#7F79B0",
+  },
 }));
