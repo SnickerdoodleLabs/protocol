@@ -8,6 +8,7 @@ import { SDTypography } from "@snickerdoodlelabs/shared-components";
 import clsx from "clsx";
 import React from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+
 const useStyles = makeStyles((theme) => ({
   link: {
     textAlign: "center",
@@ -15,8 +16,21 @@ const useStyles = makeStyles((theme) => ({
   selected: {
     fontWeight: 700,
   },
+  linkItemsWrapper: {
+    display: "flex",
+    alignItems: "center",
+    paddingLeft: 8,
+    width: "100%",
+    height: 68,
+    boxShadow:
+      "0px 1px 2px 0px rgba(16, 24, 40, 0.06), 0px 1px 3px 0px rgba(16, 24, 40, 0.10)",
+    background: "#FAFAFA",
+    overflowX: "auto",
+    overflowY: "hidden",
+  },
   linkWrapper: {
     cursor: "pointer",
+    whiteSpace: "nowrap",
   },
 }));
 
@@ -56,7 +70,6 @@ const LINKS: ILink[] = [
     subTitle:
       "Share what kinds of Discord channels you are subscribed to. No one will ever know your discord handle.",
   },
-  // { path: EPaths.PERSONAL_INFO, title: "Personal Info" },
 ];
 
 const DataDashboardLayout = () => {
@@ -68,13 +81,10 @@ const DataDashboardLayout = () => {
 
   React.useEffect(() => {
     if (navContainerRef.current) {
-      // Find the selected link element by its path
       const selectedLinkElement = navContainerRef.current.querySelector(
         `[data-path="${location.pathname}"]`,
       );
-
       if (selectedLinkElement && selectedLinkElement instanceof HTMLElement) {
-        // Scroll to the selected link element's position within the container
         navContainerRef.current.scrollLeft =
           selectedLinkElement.offsetLeft - navContainerRef.current.offsetLeft;
       }
@@ -83,43 +93,18 @@ const DataDashboardLayout = () => {
 
   return (
     <Box style={{ background: "#FAFAFA" }}>
-      {/* TODO: DELETE */}
-      {/*       <Typography variant="pageTitle">My Data Dashboard</Typography>
-      <Box mt={1}>
-        <Typography variant="pageDescription">
-          The dashboard is your command center. View, manage, and monetize your
-          information from linked accounts. Link new accounts for more rewards.
-          No one can see or access your personal Data Wallet information but
-          you.
-        </Typography>
-      </Box> */}
       <Box>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            paddingLeft: 8,
-            width: "100%",
-            height: 68,
-            boxShadow:
-              "0px 1px 2px 0px rgba(16, 24, 40, 0.06), 0px 1px 3px 0px rgba(16, 24, 40, 0.10)",
-            background: "#FAFAFA",
-            overflowX: "auto",
-            overflowY: "hidden",
-          }}
-          ref={navContainerRef}
-        >
+        <div className={classes.linkItemsWrapper} ref={navContainerRef}>
           {LINKS.map((link) => (
             <Box
               mt={4}
               mb={3}
               className={classes.linkWrapper}
               key={link.path}
-              data-path={link.path} // Add a data attribute with the link path
+              data-path={link.path}
               onClick={() => {
                 navigate(link.path);
               }}
-              style={{ whiteSpace: "nowrap" }} // Add this style
             >
               <Box px={4} mb={1}>
                 <SDTypography
@@ -155,7 +140,6 @@ const DataDashboardLayout = () => {
             ""
           }
         />
-
         <DashboardContextProvider>
           <Outlet />
         </DashboardContextProvider>
