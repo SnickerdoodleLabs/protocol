@@ -6,6 +6,7 @@ import {
   AccountAddress,
   BigNumberString,
   DecimalString,
+  SuiAccountAddress,
   TickerSymbol,
 } from "@objects/primitives/index.js";
 

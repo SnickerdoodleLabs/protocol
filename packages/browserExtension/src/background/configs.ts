@@ -39,6 +39,8 @@ declare const __POAP_API_KEY__: string;
 declare const __OKLINK_API_KEY__: string;
 declare const __ANKR_API_KEY__: string;
 declare const __BLUEZ_API_KEY__: string;
+declare const __SPACEANDTIME_API_KEY__: string;
+declare const __BLOCKVISION_API_KEY__: string;
 declare const __PRIMARY_INFURA_KEY__: string;
 declare const __SECONDARY_INFURA_KEY__: string;
 
@@ -281,7 +283,16 @@ export const configs: IExtensionConfigOverrides = {
       typeof __BLUEZ_API_KEY__ !== "undefined" && !!__BLUEZ_API_KEY__
         ? __BLUEZ_API_KEY__
         : undefined,
-
+    spaceAndTimeKey:
+      typeof __SPACEANDTIME_API_KEY__ !== "undefined" &&
+      !!__SPACEANDTIME_API_KEY__
+        ? __SPACEANDTIME_API_KEY__
+        : undefined,
+    blockvisionKey:
+      typeof __BLOCKVISION_API_KEY__ !== "undefined" &&
+      !!__BLOCKVISION_API_KEY__
+        ? __BLOCKVISION_API_KEY__
+        : undefined,
     primaryInfuraKey:
       typeof __PRIMARY_INFURA_KEY__ !== "undefined" && !!__PRIMARY_INFURA_KEY__
         ? __PRIMARY_INFURA_KEY__

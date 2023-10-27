@@ -113,6 +113,7 @@ import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
+import { DataValidationUtils } from "@core/implementations/utilities/index.js";
 import {
   IAccountIndexerPoller,
   IAccountIndexerPollerType,
@@ -239,7 +240,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           this.iocContainer.get<IAccountService>(IAccountServiceType);
 
         return accountService.addAccount(
-          accountAddress,
+          DataValidationUtils.removeChecksumFromAccountAddress(
+            accountAddress,
+            chain,
+          ),
           signature,
           languageCode,
           chain,
@@ -257,7 +261,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           this.iocContainer.get<IAccountService>(IAccountServiceType);
 
         return accountService.addAccountWithExternalSignature(
-          accountAddress,
+          DataValidationUtils.removeChecksumFromAccountAddress(
+            accountAddress,
+            chain,
+          ),
           message,
           signature,
           chain,
@@ -277,7 +284,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           this.iocContainer.get<IAccountService>(IAccountServiceType);
 
         return accountService.addAccountWithExternalTypedDataSignature(
-          accountAddress,
+          DataValidationUtils.removeChecksumFromAccountAddress(
+            accountAddress,
+            chain,
+          ),
           domain,
           types,
           value,
@@ -295,7 +305,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         const accountService =
           this.iocContainer.get<IAccountService>(IAccountServiceType);
 
-        return accountService.unlinkAccount(accountAddress, chain);
+        return accountService.unlinkAccount(
+          DataValidationUtils.removeChecksumFromAccountAddress(
+            accountAddress,
+            chain,
+          ),
+          chain,
+        );
       },
 
       getAccounts: (
@@ -919,7 +935,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.getLocation();
   }
-  getAge(
+  public getAge(
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<Age | null, PersistenceError> {
     const profileService =

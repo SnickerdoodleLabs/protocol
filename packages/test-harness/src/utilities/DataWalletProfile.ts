@@ -200,6 +200,8 @@ export class DataWalletProfile {
         ankrApiKey:
           "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
         bluezApiKey: "aed4aab2cbc573bbf8e7c6b448c916e5",
+        spaceAndTimeKey: "",
+        blockvisionKey: "2WaEih5fqe8NUavbvaR2PSuVSSp",
         nftScanApiKey: "lusr87vNmTtHGMmktlFyi4Nt",
         oklinkApiKey: "700c2f71-a4e2-4a85-b87f-58c8a341d1bf",
       } as IConfigOverrides,

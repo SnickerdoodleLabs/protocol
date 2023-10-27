@@ -33,6 +33,7 @@ import {
   IIndexerConfigProvider,
   IIndexerContextProvider,
   ISolanaIndexer,
+  ISuiIndexer,
 } from "@indexers/interfaces/index.js";
 import { MasterIndexer } from "@indexers/MasterIndexer.js";
 import { ContextProviderMock } from "@indexers-test/mock/ContextProviderMock";
@@ -130,6 +131,7 @@ class MasterIndexerMocks {
   public alchemy: EVMIndexerMock;
   public ankr: EVMIndexerMock;
   public bluez: EVMIndexerMock;
+  public blockvision: ISuiIndexer;
   public covalent: EVMIndexerMock;
   public etherscan: EVMIndexerMock;
   public moralis: EVMIndexerMock;
@@ -198,6 +200,7 @@ class MasterIndexerMocks {
       new Map<EChain, IndexerSupportSummary>(),
     );
     this.sol = td.object<ISolanaIndexer>();
+    this.blockvision = td.object<ISuiIndexer>();
     this.bigNumberUtils = td.object<IBigNumberUtils>();
 
     this.configProvider = td.object<IIndexerConfigProvider>();
@@ -221,6 +224,7 @@ class MasterIndexerMocks {
       this.context,
       this.alchemy,
       this.ankr,
+      this.blockvision,
       this.bluez,
       this.covalent,
       this.etherscan,
