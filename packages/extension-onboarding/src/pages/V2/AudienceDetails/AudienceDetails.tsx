@@ -246,7 +246,9 @@ const AudienceDetails = () => {
     const columns: IColumn<LinkedAccount>[] = [
       {
         label: "Account Address",
-        render: (row: LinkedAccount) => <AccountItem account={row} />,
+        render: (row: LinkedAccount) => (
+          <AccountItem abbreviationSize={3} account={row} />
+        ),
       },
       {
         label: "Chain",
