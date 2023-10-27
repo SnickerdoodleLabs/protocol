@@ -38,10 +38,15 @@ It is RECOMMENDED that EVM address strings adhere to [ERC-1191](./eip-1191.md) s
 Use `@snickerdoodlelabs/erc7529` to check for contracts associated with a domain like this:
 
 ```
-import { ERC7529Utils } from "@snickerdoodlelabs/erc7529";
+import { staticUtils } from "@snickerdoodlelabs/erc7529";
+import { ChainId, DomainName } from "@snickerdoodlelabs/objects";
 
 // check for contract addresses associated with snickerdoodle.com on the Fuji testnet
-const domainContracts = ERC7529Utils.getContractsFromDOmain("snickerdoodle.com","43113");
+const domainName = DomainName("snickerdoodle.com");
+const chainId = ChainId(43113);
+const results = await staticUtils.getContractsFromDOmain(domainName,chainId);
+
+console.log("Contracts: ", results);
 ```
 
 ## Smart Contract Association with a Domain 
