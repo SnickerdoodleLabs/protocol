@@ -6,6 +6,20 @@ The introduction of DNS-over-HTTPS (DoH) in [RFC 8484](https://www.rfc-editor.or
 
 This package is a library for interacting with and verifying EIP-7529 compliant contracts. It manages DoH as well as smart contract manipulation and interaction via the [Ethers](https://github.com/ethers-io/ethers.js) library. It should work on any [EVM-compatible](https://ethereum.org/en/developers/docs/evm) chain.
 
+## Motivation
+
+As mainstream businesses begin to adopt public blockchain and digital asset technologies more rapidly, there is a growing need for a discovery/search mechanism (compatible with conventional browser resources) of smart contracts associated with a known business domain as well as reasonable assurance that the smart contract does indeed belong to the business owner of the DNS domain. The relatively recent introduction and widespread support of DoH means it is possible to make direct queries of DNS records straight from the browser context and thus leverage a simple TXT record as a pointer to an on-chain smart contract. 
+
+A TXT pointer coupled with an appropriate smart contract interface (described in this ERC) yields a simple, yet flexible and robust mechanism for the client-side detection and reasonably secure verification of on-chain logic and digital assets associated with a the owner of a domain name. For example, a stablecoin issuer might leverage this standard to provide a method for an end user or web-based end user client to ensure that the asset their wallet is interacting with is indeed the contract issued or controlled by the owner or administrator of a well known DNS domain.
+
+**Example 1**:
+
+A user visits merchant.com who accepts payments via paymentprocessor.com. The business behind paymentprocessor.com has previously released a stable coin for easier cross-border payments which adheres to this ERC. On the checkout page, paymentprocessor.com is mounted as an iframe component. If the user has installed a browser-extension wallet compatible with this standard, then the wallet can detect the domain of the iframe in the context of the checkout page, discover and verify the stable coin's association with paymentprocessor.com, and automatically prompt to complete the purchase in paymentprocessor.com's stable coin. 
+
+**Example 2**:
+
+A user visits nftmarketplace.io to buy a limited release NFT from theirfavoritebrand.com. The marketplace app can leverage this ERC to allow the user to search by domain name and also indicate to the user that an NFT of interest is indeed an authentic asset associated with theirfavoritebrand.com. 
+
 ## Contract Pointers in TXT Records 
 
 The owner of a domain name must create a TXT record in their DNS settings that serves as a pointer to all relevant smart contracts they wish to associate with their domain. 
