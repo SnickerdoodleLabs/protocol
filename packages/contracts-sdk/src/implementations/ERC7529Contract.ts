@@ -22,14 +22,13 @@ export abstract class ERC7529Contract<T>
   constructor(
     protected providerOrSigner: ethers.providers.Provider | ethers.Signer,
     protected contractAddress: EVMContractAddress,
-    protected abi: ethers.ContractInterface = {},
+    protected abi?: ethers.ContractInterface,
   ) {
-    // We'll merge the ERC7529 ABI with the provided ABI
-    const mergedABI = ObjectUtils.mergeDeep<ethers.ContractInterface>(
-      abi,
-      ContractsAbis.ERC7529Abi,
-    );
-    super(providerOrSigner, contractAddress, mergedABI);
+    // If you provide your own ABI, we'll use that, but we have a built-in default ERC7529 ABI
+    if (abi == undefined) {
+      abi = ContractsAbis.ERC7529Abi.abi;
+    }
+    super(providerOrSigner, contractAddress, abi);
   }
 
   public addDomain(
