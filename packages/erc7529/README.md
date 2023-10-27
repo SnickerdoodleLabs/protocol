@@ -26,18 +26,18 @@ The owner of a domain name must create a TXT record in their DNS settings that s
 
 [TXT records](https://www.rfc-editor.org/rfc/rfc1035#section-3.3.14) are not intended (nor permitted by most DNS servers) to store large amounts of data. Every DNS provider has their own vendor-specific character limits. However, an EVM-compatible address string is 42 characters, so most DNS providers will allow for dozens of contract addresses to be stored under a single record. Furthermore, a domain is allowed to have multiple TXT records associated with the same host and the content of all duplicate records can be retrived in a single DoH query. 
 
-The TXT record msut adhere to the following schema:
+The TXT record must adhere to the following schema:
 
 - `HOST`: ERC-7529.`chain_id`._domaincontracts
 - `VALUE`: \<address 1\>,\<address 2\>,...
 
 This `HOST` naming scheme is designed to mimic the [DKIM](https://www.rfc-editor.org/rfc/rfc6376) naming convention. Additionally, this naming scheme makes it simple to programmatically ascertain if any smart contracts are associated with the domain on a given blockchain network. Prepending with "ERC-7529" will prevent naming collisions. The value of `chain_id` is simply the integer associated with the target network (i.e. `1` for Ethereum mainnet or `42` for Polygon). So, a typical `HOST` might be: `ERC-7529.1._domainContracts`, `ERC-7529.42._domaincontracts`, etc.
 
-It is RECOMMENDED that EVM address strings adhere to [ERC-1191](./eip-1191.md) so that the browser client can checksum the validity of the address and its target network before making an RPC call. 
+It is recommended that EVM address strings adhere to [ERC-1191](./eip-1191.md) so that the browser client can checksum the validity of the address and its target network before making an RPC call. 
 
 Use `@snickerdoodlelabs/erc7529` to check for contracts associated with a domain like this:
 
-```
+```typescript
 import { staticUtils } from "@snickerdoodlelabs/erc7529";
 import { ChainId, DomainName } from "@snickerdoodlelabs/objects";
 
@@ -65,7 +65,7 @@ A smart contract need only store one new member variable, `domains`, which is an
 
 Use `@snickerdoodlelabs/contracts-sdk` to interact with this interface on any contract on any EVM-compatible network: 
 
-```
+```typescript
 import { ERC7529Contract } from "@snickerdoodlelabs/contracts-sdk";
 import {
   ChainId,
