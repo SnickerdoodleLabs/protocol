@@ -14,7 +14,7 @@ export const DiscordServerItem: FC<IDiscordServerItem> = memo(
     return (
       <Box display="flex" alignItems="center">
         <Box mr={2}>
-          {!server.icon ? (
+          {server.icon ? (
             <img width={57} height={57} src={getDiscordGuildIcon()} />
           ) : (
             <Box
