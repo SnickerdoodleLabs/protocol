@@ -1,6 +1,8 @@
+import UnauthScreen from "@extension-onboarding/components/UnauthScreen";
 import Container from "@extension-onboarding/components/v2/Container";
 import DashboardTitle from "@extension-onboarding/components/v2/DashboardTitle";
 import Table from "@extension-onboarding/components/v2/Table";
+import { useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { EVMTransaction, chainConfig } from "@snickerdoodlelabs/objects";
 import {
@@ -97,6 +99,7 @@ const columns = [
 
 const Transactions = () => {
   const { sdlDataWallet } = useDataWalletContext();
+  const { linkedAccounts } = useAppContext();
   // noramally getTransaction designed to return also sol transactions double check
   const [transactions, setTransactions] = useState<EVMTransaction[]>();
   useEffect(() => {
@@ -112,6 +115,10 @@ const Transactions = () => {
         console.log(err);
       });
   };
+
+  if (!(linkedAccounts.length > 0)) {
+    return <UnauthScreen />;
+  }
   return (
     <>
       {transactions && (

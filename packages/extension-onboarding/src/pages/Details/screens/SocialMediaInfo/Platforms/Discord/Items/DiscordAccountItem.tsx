@@ -1,19 +1,16 @@
-import { Box, Button, Grid, Typography } from "@material-ui/core";
-import React, { FC, memo } from "react";
-
 import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/Discord.style";
 import { DiscordServerItem } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/Items/DiscordServerItem";
 import { ILinkedDiscordAccount } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/types";
+import { Box, Grid, Typography } from "@material-ui/core";
+import React, { FC, memo } from "react";
 
 interface IDiscordAccountItemProps {
   item: ILinkedDiscordAccount;
-  handleUnlinkClick: () => void;
 }
 
 export const DiscordAccountItem: FC<IDiscordAccountItemProps> = memo(
   ({
     item: { avatar, userId, discriminator, servers, name },
-    handleUnlinkClick,
   }: IDiscordAccountItemProps) => {
     const discordImageUrl = "https://cdn.discordapp.com";
     const classes = useStyles();

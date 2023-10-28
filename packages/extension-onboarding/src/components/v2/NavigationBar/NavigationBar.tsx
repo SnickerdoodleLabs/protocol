@@ -1,6 +1,11 @@
-import React, { Fragment, useEffect } from "react";
+import mobileMenu from "@extension-onboarding/assets/icons/mobile-menu.svg";
 import sdLogo from "@extension-onboarding/assets/icons/sd-logo-circle.svg";
 import HideOnScroll from "@extension-onboarding/components/v2/HideOnScroll";
+import {
+  DashboardIcon,
+  DataPermissionIcon,
+  SettingIcon,
+} from "@extension-onboarding/components/v2/Icons";
 import {
   AppBar,
   Box,
@@ -13,23 +18,12 @@ import {
   makeStyles,
 } from "@material-ui/core";
 import {
-  VpnKey,
-  WorkOutline,
-  Settings,
-  Menu as MenuIcon,
-} from "@material-ui/icons";
-import {
   SDTypography,
   colors,
   shadows,
 } from "@snickerdoodlelabs/shared-components";
+import React, { Fragment, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-
-import {
-  DashboardIcon,
-  DataPermissionIcon,
-  SettingIcon,
-} from "@extension-onboarding/components/v2/Icons";
 
 const useStyles = makeStyles((theme: Theme) => ({
   appbar: {
@@ -114,7 +108,7 @@ const NavigationBar = () => {
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
-  const onMobileMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const onMobileMenuClick = (event: React.MouseEvent<HTMLImageElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
@@ -167,9 +161,7 @@ const NavigationBar = () => {
                 ))}
               </Hidden>
               <Hidden smUp>
-                <IconButton onClick={onMobileMenuClick}>
-                  <MenuIcon />
-                </IconButton>
+                <img onClick={onMobileMenuClick} src={mobileMenu} width={40} />
                 <Menu
                   id="simple-menu"
                   anchorEl={anchorEl}

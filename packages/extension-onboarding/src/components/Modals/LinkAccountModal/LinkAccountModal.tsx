@@ -52,7 +52,7 @@ const LinkAccountModal: FC<ILinkAccountModalProps> = ({
             borderRadius={12}
             key={provider.key}
           >
-            <img src={provider.icon} />
+            <img src={provider.icon} width={40} />
             <Box ml={3}>
               <Typography className={classes.label}>{provider.name}</Typography>
             </Box>
@@ -96,6 +96,32 @@ const LinkAccountModal: FC<ILinkAccountModalProps> = ({
             </SDButton>
           </Box>
         </Box>
+        {unDetectedProviders?.map((provider) => (
+          <Box
+            mt={4}
+            display="flex"
+            alignItems="center"
+            border="1px solid #D9D9D9"
+            p={3}
+            borderRadius={12}
+            key={provider.key}
+          >
+            <img src={provider.icon} />
+            <Box ml={3}>
+              <Typography className={classes.label}>{provider.name}</Typography>
+            </Box>
+            <Box display="flex" marginLeft="auto">
+              <SDButton
+                variant="outlined"
+                onClick={() => {
+                  window.open(provider.installationUrl, "_blank");
+                }}
+              >
+                Install
+              </SDButton>
+            </Box>
+          </Box>
+        ))}
         <Box mt={4}>
           <Typography className={classes.description}>
             By linking a crypto account you are giving permission for the use of

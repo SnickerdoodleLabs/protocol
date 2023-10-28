@@ -15,6 +15,7 @@ import { ISocialMediaPlatformProps } from "@extension-onboarding/pages/Details/s
 import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/Discord.style";
 import { DiscordAccountItem } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/Items/DiscordAccountItem";
 import { ILinkedDiscordAccount } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/types";
+import Card from "@extension-onboarding/components/v2/Card";
 export const DiscordInfo: FC<ISocialMediaPlatformProps> = memo(
   ({ name, icon }: ISocialMediaPlatformProps) => {
     const [discordProfiles, setDiscordProfiles] = useState<DiscordProfile[]>(
@@ -23,13 +24,7 @@ export const DiscordInfo: FC<ISocialMediaPlatformProps> = memo(
     const [linkedDiscordAccount, setLinkedDiscordAccount] = useState<
       ILinkedDiscordAccount[]
     >([]);
-    const { sdlDataWallet } = useDataWalletContext();
-    const { setAlert } = useNotificationContext();
     const { discordProvider: provider } = useAccountLinkingContext();
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [selectedProfile, setSelectedProfile] =
-      useState<ILinkedDiscordAccount>({} as ILinkedDiscordAccount);
-    const { disablePopups } = useAppContext();
 
     const getGuildProfiles = (discordProfiles: DiscordProfile[]) => {
       provider.getGuildProfiles().map((guildProfiles) =>
@@ -46,48 +41,6 @@ export const DiscordInfo: FC<ISocialMediaPlatformProps> = memo(
         ),
       );
     };
-
-    const initializeUser = (code: string) => {
-      return provider
-        .initializeUserWithAuthorizationCode({
-          code: OAuthAuthorizationCode(code),
-        })
-        .map(() => {
-          setAlert({
-            severity: EAlertSeverity.SUCCESS,
-            message: "Your account has successfully been linked. ",
-          });
-          getUserProfiles();
-        });
-    };
-
-    useEffect(() => {
-      const code = new URLSearchParams(window.location.search).get("code");
-      if (!code) {
-        return;
-      }
-      const state = new URLSearchParams(window.location.search).get("state");
-      let redirectTabId: number | undefined = undefined;
-      if (state) {
-        try {
-          redirectTabId = JSON.parse(decodeURI(state)).redirect_tab_id;
-        } catch (e) {
-          console.error(e);
-        }
-      }
-      if (redirectTabId) {
-        disablePopups();
-      }
-      initializeUser(code).map(() => {
-        if (redirectTabId) {
-          return (
-            sdlDataWallet?.switchToTab?.(redirectTabId) ??
-            sdlDataWallet.closeTab()
-          );
-        }
-        return window.history.replaceState(null, "", window.location.pathname);
-      });
-    }, [JSON.stringify(window.location.search)]);
 
     const getUserProfiles = () => {
       provider
@@ -106,14 +59,8 @@ export const DiscordInfo: FC<ISocialMediaPlatformProps> = memo(
 
     const classes = useStyles();
     return (
-      <>
-        <Box
-          p={3}
-          display="flex"
-          border="1px solid #ECECEC"
-          borderRadius={12}
-          flexDirection="column"
-        >
+      <Card>
+        <Box display="flex" flexDirection="column">
           <Box
             alignItems="center"
             display="flex"
@@ -128,19 +75,10 @@ export const DiscordInfo: FC<ISocialMediaPlatformProps> = memo(
             </Box>
           </Box>
           {linkedDiscordAccount.map((discordProfile, index) => {
-            return (
-              <DiscordAccountItem
-                key={index}
-                handleUnlinkClick={() => {
-                  setIsModalOpen(true);
-                  setSelectedProfile(discordProfile);
-                }}
-                item={discordProfile}
-              />
-            );
+            return <DiscordAccountItem key={index} item={discordProfile} />;
           })}
         </Box>
-      </>
+      </Card>
     );
   },
 );
