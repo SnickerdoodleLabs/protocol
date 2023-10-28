@@ -5,12 +5,12 @@ import BrowserActivity from "@extension-onboarding/pages/Details/screens/Browser
 import NFTDetails from "@extension-onboarding/pages/Details/screens/NFTDetails";
 import NFTs from "@extension-onboarding/pages/Details/screens/NFTs";
 import PoapNFTs from "@extension-onboarding/pages/Details/screens/PoapNFTs";
-import SocialMediaInfo from "@extension-onboarding/pages/Details/screens/SocialMediaInfo";
 import Tokens from "@extension-onboarding/pages/Details/screens/Tokens";
 // v2 pages
 import AudienceDetails from "@extension-onboarding/pages/V2/AudienceDetails";
 import DataPermissions from "@extension-onboarding/pages/V2/DataPermissions";
 import Settings from "@extension-onboarding/pages/V2/Settings";
+import SocialMediaInfo from "@extension-onboarding/pages/V2/SocialMediaInfo";
 import Transactions from "@extension-onboarding/pages/V2/Transactions";
 import React from "react";
 import { Route } from "react-router-dom";

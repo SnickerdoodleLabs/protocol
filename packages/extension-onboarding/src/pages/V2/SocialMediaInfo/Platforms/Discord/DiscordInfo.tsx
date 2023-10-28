@@ -1,21 +1,12 @@
-import { Box, Button, Typography } from "@material-ui/core";
-import {
-  DiscordID,
-  DiscordProfile,
-  OAuthAuthorizationCode,
-} from "@snickerdoodlelabs/objects";
-import React, { FC, memo, useEffect, useState } from "react";
-
-import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import { ISocialMediaPlatformProps } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/Discord.style";
-import { DiscordAccountItem } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/Items/DiscordAccountItem";
-import { ILinkedDiscordAccount } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/types";
 import Card from "@extension-onboarding/components/v2/Card";
+import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
+import { ISocialMediaPlatformProps } from "@extension-onboarding/pages/V2/SocialMediaInfo/Platforms";
+import { DiscordAccountItem } from "@extension-onboarding/pages/V2/SocialMediaInfo/Platforms/Discord/Items/DiscordAccountItem";
+import { ILinkedDiscordAccount } from "@extension-onboarding/pages/V2/SocialMediaInfo/Platforms/Discord/types";
+import { Box } from "@material-ui/core";
+import { DiscordProfile } from "@snickerdoodlelabs/objects";
+import { SDTypography } from "@snickerdoodlelabs/shared-components";
+import React, { FC, memo, useEffect, useState } from "react";
 export const DiscordInfo: FC<ISocialMediaPlatformProps> = memo(
   ({ name, icon }: ISocialMediaPlatformProps) => {
     const [discordProfiles, setDiscordProfiles] = useState<DiscordProfile[]>(
@@ -57,7 +48,6 @@ export const DiscordInfo: FC<ISocialMediaPlatformProps> = memo(
       getGuildProfiles(discordProfiles);
     }, [JSON.stringify(discordProfiles)]);
 
-    const classes = useStyles();
     return (
       <Card>
         <Box display="flex" flexDirection="column">
@@ -68,9 +58,15 @@ export const DiscordInfo: FC<ISocialMediaPlatformProps> = memo(
             justifyContent="space-between"
           >
             <Box alignItems="center" display="flex">
-              <img className={classes.providerLogo} src={icon} />
+              <img width={44} src={icon} />
               <Box ml={2} justifyContent="flex-start" alignItems="center">
-                <Typography className={classes.providerName}>{name}</Typography>
+                <SDTypography
+                  variant="titleLg"
+                  fontWeight="bold"
+                  color="textHeading"
+                >
+                  {name}
+                </SDTypography>
               </Box>
             </Box>
           </Box>

@@ -358,10 +358,6 @@ const AudienceDetails = () => {
               >
                 {!metadata ? <Skeleton width={200} /> : metadata.rewardName}
               </SDTypography>
-              <Box mt={1.5} />
-              <SDTypography variant="titleSm" color="textBody">
-                {!metadata ? <Skeleton width={200} /> : metadata.description}
-              </SDTypography>
             </Box>
           </Box>
         </MuiContainer>

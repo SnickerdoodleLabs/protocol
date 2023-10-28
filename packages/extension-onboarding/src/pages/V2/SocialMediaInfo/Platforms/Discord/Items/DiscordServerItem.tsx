@@ -1,13 +1,11 @@
-import { Box, Typography } from "@material-ui/core";
+import { IDiscordServerItem } from "@extension-onboarding/pages/V2/SocialMediaInfo/Platforms/Discord/types";
+import { Box } from "@material-ui/core";
+import { SDTypography } from "@snickerdoodlelabs/shared-components";
 import React, { FC, memo } from "react";
-
-import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/Discord.style";
-import { IDiscordServerItem } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/types";
 
 export const DiscordServerItem: FC<IDiscordServerItem> = memo(
   ({ server }: IDiscordServerItem) => {
     const discordImageUrl = "https://cdn.discordapp.com";
-    const classes = useStyles();
 
     const getDiscordGuildIcon = (): string => {
       return `${discordImageUrl}/icons/${server.id}/${server.icon}.png`;
@@ -16,34 +14,36 @@ export const DiscordServerItem: FC<IDiscordServerItem> = memo(
     return (
       <Box display="flex" alignItems="center">
         <Box mr={2}>
-          {server.icon ? (
-            <img
-              className={classes.discordGuildImg}
-              src={getDiscordGuildIcon()}
-            />
+          {!server.icon ? (
+            <img width={57} height={57} src={getDiscordGuildIcon()} />
           ) : (
             <Box
               bgcolor="#000"
               alignItems="center"
+              display="flex"
               justifyContent="center"
               width={57}
               height={57}
             >
-              <Typography className={classes.guildIconPlaceholder}>
+              <SDTypography color="textWhite" align="center">
                 {server.name[0]}
-              </Typography>
+              </SDTypography>
             </Box>
           )}
         </Box>
         <Box>
           <Box mb={0.5}>
-            <Typography className={classes.discordGuildName}>
+            <SDTypography
+              fontWeight="medium"
+              variant="bodyMd"
+              color="textHeading"
+            >
               {server.name}
-            </Typography>
+            </SDTypography>
           </Box>
-          <Typography className={classes.discordGuildMemberText}>
+          <SDTypography variant="bodySm" color="textSubtitle">
             {server.isOwner ? "Owner" : "Member"}
-          </Typography>
+          </SDTypography>
         </Box>
       </Box>
     );

@@ -1,5 +1,5 @@
 import { useAppContext } from "@extension-onboarding/context/App";
-import { DiscordInfo } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms";
+import { DiscordInfo } from "@extension-onboarding/pages/V2/SocialMediaInfo/Platforms";
 import { Box } from "@material-ui/core";
 import { ESocialType } from "@snickerdoodlelabs/objects";
 import React from "react";

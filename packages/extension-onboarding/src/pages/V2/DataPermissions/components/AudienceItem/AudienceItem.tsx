@@ -56,11 +56,24 @@ const useStyles = makeStyles((theme) => ({
       padding: 0,
       paddingLeft: 32,
       paddingRight: 32,
+      [theme.breakpoints.down("xs")]: {
+        flexDirection: "row",
+        alignItems: "flex-start",
+        paddingLeft: 24,
+        paddingRight: 24,
+      },
     },
     "& .MuiIconButton-edgeEnd": {
       margin: 0,
       padding: 0,
       marginRight: 24,
+      [theme.breakpoints.down("xs")]: {
+        position: "absolute",
+        right: 24,
+        top: 12,
+        marginRight: 0,
+        marginLeft: 0,
+      },
       "& .Mui-expanded": {
         marginRight: 24,
         margin: 0,
@@ -187,47 +200,58 @@ const AudienceItem: FC<IAudienceItemProps> = ({
       className={classes.accordion}
     >
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <SDTypography variant="titleMd" color="textHeading" fontWeight="medium">
-          {!metadata ? <Skeleton width={100} /> : metadata.rewardName}
-        </SDTypography>
-        <Box ml="auto" />
-        {saveRequired ? (
-          <Box display="flex" alignItems="center">
+        <Box
+          display="flex"
+          flexDirection={{ xs: "column", sm: "row" }}
+          alignItems={{ xs: "unset", sm: "center" }}
+          width="100%"
+        >
+          <SDTypography
+            variant="titleMd"
+            color="textHeading"
+            fontWeight="medium"
+          >
+            {!metadata ? <Skeleton width={100} /> : metadata.rewardName}
+          </SDTypography>
+          <Box ml="auto" mt={{ xs: 3, sm: "unset" }} />
+          {saveRequired ? (
+            <Box display="flex" alignItems="center">
+              <SDButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setPermissions(lastSetPermissions.current);
+                }}
+                variant="outlined"
+              >
+                Discard
+              </SDButton>
+              <Box ml={2} />
+              <SDButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSaveClick();
+                }}
+              >
+                Apply
+              </SDButton>
+            </Box>
+          ) : (
             <SDButton
               onClick={(e) => {
                 e.stopPropagation();
-                setPermissions(lastSetPermissions.current);
+                navigate(
+                  generateRouteUrl(EPathsV2.DATA_PERMISSIONS_AUDIENCE, {
+                    consentAddress: contractAddress,
+                  }),
+                  { state: { _metadata: metadata, _ipfsCID: ipfsCID } },
+                );
               }}
               variant="outlined"
             >
-              Discard
+              Manage
             </SDButton>
-            <Box ml={2} />
-            <SDButton
-              onClick={(e) => {
-                e.stopPropagation();
-                onSaveClick();
-              }}
-            >
-              Apply
-            </SDButton>
-          </Box>
-        ) : (
-          <SDButton
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(
-                generateRouteUrl(EPathsV2.DATA_PERMISSIONS_AUDIENCE, {
-                  consentAddress: contractAddress,
-                }),
-                { state: { _metadata: metadata, _ipfsCID: ipfsCID } },
-              );
-            }}
-            variant="outlined"
-          >
-            Manage
-          </SDButton>
-        )}
+          )}
+        </Box>
       </AccordionSummary>
       <AccordionDetails>
         <Box display="flex" flexDirection="column" width="100%">

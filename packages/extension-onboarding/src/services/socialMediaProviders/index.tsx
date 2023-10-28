@@ -21,7 +21,7 @@ export const getProviderList = (
   {
     provider: new DiscordProvider(sdlDataWallet),
     icon: DiscordIcon,
-    name: "Discord Data",
+    name: "Discord",
     key: ESocialType.DISCORD,
   },
   // {
