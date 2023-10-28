@@ -414,14 +414,17 @@ export class AccountService implements IAccountService {
         }
 
         // Add the account to the data wallet
-        return this.accountRepo.removeAccount(accountAddress).andThen(() => {
-          // Notify the outside world of what we did
-          context.publicEvents.onAccountRemoved.next(
-            new LinkedAccount(chain, accountAddress),
-          );
-          // We need to post a backup immediately upon adding an account, so that we don't lose access
-          return this.dataWalletPersistence.postBackups();
-        });
+        return this.accountRepo
+          .removeAccount(accountAddress)
+          .andThen(() => {
+            // Notify the outside world of what we did
+            context.publicEvents.onAccountRemoved.next(
+              new LinkedAccount(chain, accountAddress),
+            );
+            // We need to post a backup immediately upon adding an account, so that we don't lose access
+            return this.dataWalletPersistence.postBackups();
+          })
+          .map(() => {});
       });
   }
 

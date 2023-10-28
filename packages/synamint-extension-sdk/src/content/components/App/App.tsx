@@ -320,6 +320,7 @@ const App = () => {
         emptyReward();
       })
       .mapErr(() => {
+        emptyReward();
         console.warn(" Data Wallet:  Unable to reject invitation:", err);
       });
   }, [currentInvitation]);
@@ -390,6 +391,7 @@ const App = () => {
               currentInvitation.data.metadata as IOldUserAgreement
             }
             redirectRequired={!(accounts.length > 0)}
+            onRejectClick={rejectInvitation}
             primaryButtonText={
               accounts.length > 0 ? "Continue" : "Connect and Continue"
             }

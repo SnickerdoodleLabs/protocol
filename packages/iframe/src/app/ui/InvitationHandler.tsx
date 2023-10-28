@@ -237,9 +237,18 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     [currentInvitation],
   );
 
-  const handleContinueClick = () => {
-    setAppState(EAPP_STATE.PERMISSION_SELECTION);
-  };
+  const rejectInvitation = useCallback(() => {
+    if (currentInvitation) {
+      core.invitation
+        .rejectInvitation(currentInvitation.data.invitation)
+        .map(() => {
+          clearInvitation();
+        })
+        .mapErr(() => {
+          clearInvitation();
+        });
+    }
+  }, [currentInvitation]);
 
   const clearInvitation = useCallback(() => {
     if (currentInvitation) {
@@ -280,6 +289,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
         case EAPP_STATE.INVITATION_PREVIEW:
           return (
             <DescriptionWidget
+              onRejectClick={rejectInvitation}
               invitationData={
                 currentInvitation.data.metadata as IOldUserAgreement
               }

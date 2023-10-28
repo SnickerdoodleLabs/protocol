@@ -304,6 +304,7 @@ const App = () => {
             onContinueClick={() => {}}
             onSetPermissions={() => {}}
             invitationData={{} as IOldUserAgreement}
+            onRejectClick={() => {}}
           />
           <Box mb={2} />
           <PermissionSelectionWidget

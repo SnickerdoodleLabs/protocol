@@ -15,6 +15,7 @@ interface IDescriptionProps {
   onCancelClick: () => void;
   onContinueClick: () => void;
   onSetPermissions: () => void;
+  onRejectClick: () => void;
   primaryButtonText?: string;
   redirectRequired?: boolean;
 }
@@ -60,6 +61,7 @@ export const DescriptionWidget: FC<IDescriptionProps> = ({
   onSetPermissions,
   onContinueClick,
   primaryButtonText = "Continue",
+  onRejectClick,
   redirectRequired = false,
 }) => {
   const media = useMedia();
@@ -168,6 +170,19 @@ export const DescriptionWidget: FC<IDescriptionProps> = ({
             </SDButton>
           </Grid>
         </Grid>
+        <Box
+          display="flex"
+          flexDirection={isMobile ? "column" : "row"}
+          justifyContent="center"
+          mt={4}
+        >
+          <SDButton variant="text" onClick={onRejectClick}>
+            Don’t show me this again
+          </SDButton>
+          <SDButton variant="text" onClick={cancelWithAnimation}>
+            Remind me later
+          </SDButton>
+        </Box>
         <AcnowledgmentBanner />
       </Box>
     </Box>
