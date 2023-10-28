@@ -12,7 +12,11 @@ import {
   OAuthAuthorizationCode,
   OAuthURLState,
 } from "@snickerdoodlelabs/objects";
-import { SDButton, SDTypography } from "@snickerdoodlelabs/shared-components";
+import {
+  SDButton,
+  SDTypography,
+  useMedia,
+} from "@snickerdoodlelabs/shared-components";
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -35,6 +39,7 @@ const SocialMediaAccounts = () => {
   const { setAlert } = useNotificationContext();
   const [profiles, setProfiles] = useState<DiscordProfile[]>();
   const [searchParams] = useSearchParams();
+  const currentBreakPoint = useMedia();
 
   useEffect(() => {
     getProfiles();
@@ -151,8 +156,17 @@ const SocialMediaAccounts = () => {
         borderColor="borderColor"
         borderRadius={12}
       >
-        <Box display="flex" alignItems="center" width="100%">
-          <Box display="flex" alignItems="center">
+        <Box
+          display="flex"
+          alignItems={{ xs: undefined, sm: "center" }}
+          flexDirection={{ xs: "column", sm: "row" }}
+          width="100%"
+        >
+          <Box
+            display="flex"
+            alignItems="center"
+            mb={{ xs: 1.5, sm: undefined }}
+          >
             <img
               src="https://storage.googleapis.com/dw-assets/shared/icons/discord-link.png"
               width={40}
@@ -167,8 +181,12 @@ const SocialMediaAccounts = () => {
               Discord
             </SDTypography>
           </Box>
-          <Box ml="auto">
-            <SDButton variant="outlined" onClick={handleLinkAccountClick}>
+          <Box ml={{ xs: undefined, sm: "auto" }}>
+            <SDButton
+              fullWidth={currentBreakPoint === "xs"}
+              variant="outlined"
+              onClick={handleLinkAccountClick}
+            >
               Link Acount
             </SDButton>
           </Box>
@@ -181,13 +199,18 @@ const SocialMediaAccounts = () => {
               p={3}
               display="flex"
               width="100%"
-              alignItems="center"
               justifyContent="space-between"
               border="1px solid"
               borderColor="borderColor"
               borderRadius={12}
+              alignItems={{ xs: undefined, sm: "center" }}
+              flexDirection={{ xs: "column", sm: "row" }}
             >
-              <Box display="flex" alignItems="center">
+              <Box
+                display="flex"
+                alignItems="center"
+                mb={{ xs: 1.5, sm: undefined }}
+              >
                 <img
                   src={getDiscordAvatar(profile)}
                   height={32}
@@ -196,8 +219,9 @@ const SocialMediaAccounts = () => {
                 <Box ml={1} />
                 <SDTypography variant="bodyMd">{`${profile.username}#${profile.discriminator}`}</SDTypography>
               </Box>
-              <Box ml="auto">
+              <Box ml={{ xs: undefined, sm: "auto" }}>
                 <SDButton
+                  fullWidth={currentBreakPoint === "xs"}
                   variant="outlined"
                   color="danger"
                   onClick={() => {

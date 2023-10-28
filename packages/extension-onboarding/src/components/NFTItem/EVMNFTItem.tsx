@@ -39,7 +39,7 @@ export const EVMNFTItem: FC<IEVMNFTItemProps> = ({
           })
         }
       >
-        <Box display="flex" justifyContent="center" mb={1.5}>
+        <Box display="flex" justifyContent="center">
           <MediaRenderer
             metadataString={
               item.metadata ? JSON.stringify(item.metadata) : null
@@ -47,7 +47,11 @@ export const EVMNFTItem: FC<IEVMNFTItemProps> = ({
           />
         </Box>
         <Box my={2}>
-          <SDTypography variant="bodyLg" fontWeight="medium" className={classes.name}>
+          <SDTypography
+            variant="bodyLg"
+            fontWeight="medium"
+            className={classes.name}
+          >
             {item?.name || "_"}
           </SDTypography>
         </Box>

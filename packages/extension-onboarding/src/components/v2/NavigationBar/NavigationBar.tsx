@@ -25,6 +25,12 @@ import {
 } from "@snickerdoodlelabs/shared-components";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import {
+  DashboardIcon,
+  DataPermissionIcon,
+  SettingIcon,
+} from "@extension-onboarding/components/v2/Icons";
+
 const useStyles = makeStyles((theme: Theme) => ({
   appbar: {
     boxShadow: shadows.sm,
@@ -47,6 +53,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
   },
   itemActive: {
+    transition: "all 0.75s ease-in-out",
     backgroundColor: colors.MAINPURPLE900,
     "& svg": {
       fill: colors.WHITE,
@@ -77,18 +84,18 @@ const navigationItems: INavigationItem[] = [
   {
     displayName: "Data Permissions",
     path: "/data-permissions",
-    icon: <VpnKey />,
+    icon: <DataPermissionIcon />,
   },
   {
     displayName: "Settings",
     path: "/settings",
-    icon: <Settings />,
+    icon: <SettingIcon />,
   },
   {
     displayName: "My Data Dashboard",
     path: "/data-dashboard",
     initialSubroutePath: "/data-dashboard/tokens",
-    icon: <WorkOutline />,
+    icon: <DashboardIcon />,
   },
 ];
 

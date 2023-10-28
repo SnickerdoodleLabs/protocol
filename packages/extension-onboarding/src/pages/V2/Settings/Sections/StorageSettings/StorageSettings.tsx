@@ -14,7 +14,11 @@ import {
   OAuth2RefreshToken,
   OAuthURLState,
 } from "@snickerdoodlelabs/objects";
-import { SDButton, SDTypography } from "@snickerdoodlelabs/shared-components";
+import {
+  SDButton,
+  SDTypography,
+  useMedia,
+} from "@snickerdoodlelabs/shared-components";
 import { Dropbox } from "dropbox";
 import { ResultAsync, errAsync } from "neverthrow";
 import React, { FC, useEffect, useMemo, useState } from "react";
@@ -63,6 +67,7 @@ const StorageSettings: FC = () => {
   const [folders, setFolders] = useState<NestedFolder[]>();
   const { setModal } = useLayoutContext();
   const [searchParams] = useSearchParams();
+  const currentBreakPoint = useMedia();
 
   const dropbox = useMemo(() => {
     if (accessToken && Dropbox) {
@@ -205,7 +210,7 @@ const StorageSettings: FC = () => {
     switch (option) {
       case ECloudStorageType.Local: {
         return setModal({
-          modalSelector: EModalSelectors.OTP_MODAL,
+          modalSelector: EModalSelectors.CONFIRMATION_MODAL,
           onPrimaryButtonClick: () => {
             sdlDataWallet.storage
               .setAuthenticatedStorage(
@@ -222,11 +227,9 @@ const StorageSettings: FC = () => {
               });
           },
           customProps: {
-            title: "Are you sure?",
-            subtitle: "You will lose your data if you lose your device.",
+            title: "Are you sure you want to change the storage?",
             description:
-              "You can always connect to a cloud storage provider later.",
-            actionText: "Disconnect",
+              "You are about to change your storage option to your local disk. If you choose this option, your data will only be stored on your device, and you will not be able to sync multiple data wallets together or recover your data if you lose your device.",
           },
         });
       }
@@ -270,12 +273,17 @@ const StorageSettings: FC = () => {
             key={index}
             p={3}
             display="flex"
-            alignItems="center"
+            alignItems={{ xs: undefined, sm: "center" }}
+            flexDirection={{ xs: "column", sm: "row" }}
             border="1px solid"
             borderColor="borderColor"
             borderRadius={12}
           >
-            <Box display="flex" alignItems="center">
+            <Box
+              display="flex"
+              alignItems="center"
+              mb={{ xs: 1.5, sm: undefined }}
+            >
               <img src={option.icon} width={40} height={40} />
               <Box ml={2} />
               <SDTypography
@@ -286,8 +294,9 @@ const StorageSettings: FC = () => {
                 DropBox
               </SDTypography>
             </Box>
-            <Box ml="auto">
+            <Box ml={{ xs: undefined, sm: "auto" }}>
               <SDButton
+                fullWidth={currentBreakPoint === "xs"}
                 variant="outlined"
                 color={isCurrent ? "danger" : "primary"}
                 onClick={() => {

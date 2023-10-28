@@ -28,13 +28,13 @@ const Wallets = () => {
             <Box
               px={3}
               display="flex"
-              flexDirection={{ xs: "row", sm: "column" }}
+              flexDirection="column"
               py={1.5}
               borderRadius={12}
               border="1px solid"
               borderColor={"borderColor"}
             >
-              <Box display="flex" alignItems="center" mb={{ xs: 0, sm: 1.5 }}>
+              <Box display="flex" alignItems="center" mb={1.5}>
                 <img src={provider.icon} width={40} height={40} />
                 <Box ml={2} />
                 <SDTypography
@@ -45,7 +45,7 @@ const Wallets = () => {
                   {provider.name}
                 </SDTypography>
               </Box>
-              <Box ml={{ xs: "auto", sm: 0 }}>
+              <Box>
                 <SDButton
                   onClick={() => {
                     onProviderConnectClick(provider);
@@ -62,13 +62,13 @@ const Wallets = () => {
           <Box
             px={3}
             display="flex"
-            flexDirection={{ xs: "row", sm: "column" }}
+            flexDirection="column"
             py={1.5}
             borderRadius={12}
             border="1px solid"
             borderColor={"borderColor"}
           >
-            <Box display="flex" alignItems="center" mb={{ xs: 0, sm: 1.5 }}>
+            <Box display="flex" alignItems="center" mb={1.5}>
               <img
                 src="https://framerusercontent.com/images/eDZRos3xvCrlWxmLFr72sFtiyQ.png?scale-down-to=512"
                 width={40}
@@ -83,7 +83,7 @@ const Wallets = () => {
                 Suiet Kit
               </SDTypography>
             </Box>
-            <Box ml={{ xs: "auto", sm: 0 }}>
+            <Box>
               <SDButton
                 onClick={() => {
                   onWalletKitConnectClick(EWalletProviderKit.SUI);
@@ -100,13 +100,13 @@ const Wallets = () => {
             <Box
               px={3}
               display="flex"
-              flexDirection={{ xs: "row", sm: "column" }}
+              flexDirection="column"
               py={1.5}
               borderRadius={12}
               border="1px solid"
               borderColor={"borderColor"}
             >
-              <Box display="flex" alignItems="center" mb={{ xs: 0, sm: 1.5 }}>
+              <Box display="flex" alignItems="center" mb={1.5}>
                 <img src={provider.icon} width={40} height={40} />
                 <Box ml={2} />
                 <SDTypography
@@ -117,7 +117,7 @@ const Wallets = () => {
                   {provider.name}
                 </SDTypography>
               </Box>
-              <Box ml={{ xs: "auto", sm: 0 }}>
+              <Box>
                 <SDButton
                   onClick={() => {
                     window.open(provider.installationUrl, "_blank");

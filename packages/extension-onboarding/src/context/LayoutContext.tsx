@@ -1,11 +1,11 @@
 import LoadingSpinner from "@extension-onboarding/components/LoadingSpinner";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
-import AccountUnlinkingModal from "@extension-onboarding/components/Modals/AccountUnlinkingModal";
-import ConfirmationModal from "@extension-onboarding/components/Modals/ConfirmationModal";
-import CustomizableModal from "@extension-onboarding/components/Modals/CustomizableModal";
 import PhantomLinkingSteps from "@extension-onboarding/components/Modals/PhantomLinkingSteps";
 import RewardDetailModal from "@extension-onboarding/components/Modals/RewardDetailModal";
 import SuiLinkingSteps from "@extension-onboarding/components/Modals/SuiLinkingSteps";
+import ConfirmationModal, {
+  IConfirmationModal,
+} from "@extension-onboarding/components/Modals/V2/ConfirmationModal";
 import LeaveAudienceModal from "@extension-onboarding/components/Modals/V2/LeaveAudienceModal";
 import OTPModal, {
   IOTPModal,
@@ -21,14 +21,13 @@ import React, {
 } from "react";
 // under construction
 type ModalSelectorTypeMap = {
-  [EModalSelectors.ACCOUNT_UNLINKED]: any;
+  [EModalSelectors.SUI_LINKING_STEPS]: any;
   [EModalSelectors.PHANTOM_LINKING_STEPS]: any;
-  [EModalSelectors.CONFIRMATION_MODAL]: any;
   [EModalSelectors.REWARD_DETAIL_MODAL]: any;
-  [EModalSelectors.CUSTOMIZABLE_MODAL]: any;
+  [EModalSelectors.CONFIRMATION_MODAL]: IConfirmationModal;
   [EModalSelectors.OTP_MODAL]: IOTPModal;
   [EModalSelectors.LEAVE_AUDIENCE_MODAL]: undefined;
-  [EModalSelectors.SUI_LINKING_STEPS]: any;
+
 };
 
 type ModalSelector = keyof ModalSelectorTypeMap;
@@ -79,8 +78,6 @@ export const LayoutProvider: FC = ({ children }) => {
   );
   const modalComponent = useMemo(() => {
     switch (true) {
-      case modalState.modalSelector === EModalSelectors.ACCOUNT_UNLINKED:
-        return <AccountUnlinkingModal />;
       case modalState.modalSelector === EModalSelectors.PHANTOM_LINKING_STEPS:
         return <PhantomLinkingSteps />;
       case modalState.modalSelector === EModalSelectors.SUI_LINKING_STEPS:
@@ -91,15 +88,6 @@ export const LayoutProvider: FC = ({ children }) => {
         return <LeaveAudienceModal />;
       case modalState.modalSelector === EModalSelectors.REWARD_DETAIL_MODAL:
         return <RewardDetailModal />;
-      case modalState.modalSelector === EModalSelectors.CUSTOMIZABLE_MODAL:
-        return (
-          <CustomizableModal
-            title={modalState?.customProps?.title}
-            message={modalState?.customProps?.message}
-            primaryButtonText={modalState?.customProps?.primaryButtonText}
-            secondaryButtonText={modalState?.customProps?.secondaryButtonText}
-          />
-        );
       case modalState.modalSelector === EModalSelectors.OTP_MODAL:
         return <OTPModal />;
       default:
