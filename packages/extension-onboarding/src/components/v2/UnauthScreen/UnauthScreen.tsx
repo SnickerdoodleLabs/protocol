@@ -1,11 +1,10 @@
-import { Box, Typography } from "@material-ui/core";
+import { EPathsV2 as EPaths } from "@extension-onboarding/containers/Router/Router.pathsV2";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { SDButton } from "@snickerdoodlelabs/shared-components";
+import { SDButton, SDTypography } from "@snickerdoodlelabs/shared-components";
 import React, { useMemo } from "react";
 import { useLocation } from "react-router-dom";
-
-import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import { useAppContext } from "@extension-onboarding/context/App";
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -59,15 +58,23 @@ const UnauthScreen = () => {
   }, [pathname]);
 
   return (
-    <Box display="flex" flexDirection="column" alignItems="center">
-      <Box mt={5} mb={2}>
-        <img width={350} height="auto" src={image} />
+    <Box display="flex">
+      <Box
+        width={{ xs: "60%", sm: "50%", md: "35%", lg: "30%" }}
+        ml="auto"
+        mr="auto"
+        mt={6}
+        display="flex"
+        flexDirection="column"
+      >
+        <img width="100%" src={image} />
+        <Box mt={1} />
+        <SDTypography variant="bodyLg" align="center">
+          {title}
+        </SDTypography>
+        <Box mt={3} />
+        <SDButton onClick={setLinkerModalOpen}>Link Account</SDButton>
       </Box>
-      <Box mb={2} textAlign="center">
-        <Typography className={classes.title}>{title}</Typography>
-      </Box>
-
-      <SDButton onClick={setLinkerModalOpen}>Link Account</SDButton>
     </Box>
   );
 };

@@ -43,6 +43,7 @@ const DataPermissions = () => {
             mt={6}
           >
             <img width="100%" src={emptyAudience} />
+            <Box mt={1} />
             <SDTypography variant="bodyLg" align="center">
               You are not subscribed to any
               <br />

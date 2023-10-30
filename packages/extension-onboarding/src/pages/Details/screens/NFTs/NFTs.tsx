@@ -19,7 +19,7 @@ import {
   SolanaNFTItem,
   SuiNFTItem,
 } from "@extension-onboarding/components/NFTItem";
-import UnauthScreen from "@extension-onboarding/components/UnauthScreen";
+import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen";
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/NFTs/NFTs.style";

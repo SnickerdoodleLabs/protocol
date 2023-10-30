@@ -1,4 +1,4 @@
-import UnauthScreen from "@extension-onboarding/components/UnauthScreen";
+import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen";
 import Container from "@extension-onboarding/components/v2/Container";
 import DashboardTitle from "@extension-onboarding/components/v2/DashboardTitle";
 import Table from "@extension-onboarding/components/v2/Table";
