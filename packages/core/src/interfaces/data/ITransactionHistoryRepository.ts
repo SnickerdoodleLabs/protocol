@@ -6,6 +6,7 @@ import {
   TransactionFilter,
   TransactionFlowInsight,
   UnixTimestamp,
+  ETimePeriods,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -23,6 +24,10 @@ export interface ITransactionHistoryRepository {
   getTransactions(
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], PersistenceError>;
+  determineTimePeriod(
+    transactionTime: number,
+    benchmarkTimestamp?: UnixTimestamp,
+  ): ETimePeriods | null;
 }
 
 export const ITransactionHistoryRepositoryType = Symbol.for(

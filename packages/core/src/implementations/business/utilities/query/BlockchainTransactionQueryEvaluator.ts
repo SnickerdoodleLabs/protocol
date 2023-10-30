@@ -84,9 +84,9 @@ export class BlockchainTransactionQueryEvaluator
       }
 
       // Transactions related to a specific address, e.g. Dapp Query
-      if (query.contract && query.chain) {
+      if (query.contract != null && query.chain != null) {
         const chainId = query.contract.networkId;
-        const address = query.contract.address as EVMAccountAddress;
+        const address = EVMAccountAddress(query.contract.address);
         const startTime = query.contract.timestampRange.start;
         const endTime = query.contract.timestampRange.end;
         const filter = new TransactionFilter(
@@ -122,11 +122,12 @@ export class BlockchainTransactionQueryEvaluator
                 );
               }
               const latestTransaction = this.getLatestTransaction(transactions);
-              const timePeriod = this.determineTimePeriod(
-                latestTransaction.timestamp,
-                queryTimestamp,
-              );
-              if (timePeriod === false) {
+              const timePeriod =
+                this.transactionHistoryRepo.determineTimePeriod(
+                  latestTransaction.timestamp,
+                  queryTimestamp,
+                );
+              if (timePeriod === null) {
                 return SDQL_Return(
                   new BlockchainInteractionInsight(chainId, address, false),
                 );
@@ -176,43 +177,5 @@ export class BlockchainTransactionQueryEvaluator
   protected isHexadecimal(value: number | string): boolean {
     const hexString = typeof value === "number" ? value.toString(16) : value;
     return /^(0x)?[0-9a-fA-F]+$/.test(hexString);
-  }
-
-  protected determineTimePeriod(
-    transactionTime: number,
-    benchmarkTimestamp: UnixTimestamp,
-  ): ETimePeriods | false {
-    const currentTime = benchmarkTimestamp * 1000;
-
-    let transactionTimeInMs: number;
-    if (
-      typeof transactionTime === "string" &&
-      this.isHexadecimal(transactionTime)
-    ) {
-      transactionTimeInMs = parseInt(transactionTime, 16) * 1000;
-    } else {
-      //Unixtimestamp or hex32
-      transactionTimeInMs = transactionTime * 1000;
-    }
-
-    const dayInMs = 24 * 60 * 60 * 1000;
-    const weekInMs = 7 * dayInMs;
-    const monthInMs = 30 * dayInMs;
-
-    const elapsedTime = currentTime - transactionTimeInMs;
-
-    if (elapsedTime < 0) {
-      return false;
-    }
-
-    if (elapsedTime < dayInMs) {
-      return ETimePeriods.Day;
-    } else if (elapsedTime < weekInMs) {
-      return ETimePeriods.Week;
-    } else if (elapsedTime < monthInMs) {
-      return ETimePeriods.Month;
-    } else {
-      return ETimePeriods.Year;
-    }
   }
 }

@@ -225,12 +225,12 @@ export class TransactionHistoryRepository
     return transactionFlowInsights;
   }
 
-  protected categorizeTransaction = (
+  protected categorizeTransaction(
     tx: EVMTransaction,
     isIncoming: boolean,
     transactionFlowInsights: Map<EChain, TransactionFlowInsight>,
     benchmarkTimestamp?: UnixTimestamp,
-  ) => {
+  ): void {
     const chainInsight =
       transactionFlowInsights.get(tx.chain) ||
       new TransactionFlowInsight(
@@ -243,7 +243,7 @@ export class TransactionHistoryRepository
       );
     const period = this.determineTimePeriod(tx.timestamp, benchmarkTimestamp);
 
-    if (period === false) {
+    if (period === null) {
       return;
     }
     let newMetric: TransactionMetrics;
@@ -264,17 +264,17 @@ export class TransactionHistoryRepository
     }
 
     transactionFlowInsights.set(tx.chain, chainInsight);
-  };
+  }
 
   protected isHexadecimal(value: number | string): boolean {
     const hexString = typeof value === "number" ? value.toString(16) : value;
     return /^(0x)?[0-9a-fA-F]+$/.test(hexString);
   }
 
-  protected determineTimePeriod(
+  public determineTimePeriod(
     transactionTime: number,
     benchmarkTimestamp?: UnixTimestamp,
-  ): ETimePeriods | false {
+  ): ETimePeriods | null {
     const currentTime = benchmarkTimestamp
       ? benchmarkTimestamp * 1000
       : this.timeUtils.getMillisecondNow();
@@ -296,7 +296,7 @@ export class TransactionHistoryRepository
     const elapsedTime = currentTime - transactionTimeInMs;
 
     if (elapsedTime < 0) {
-      return false;
+      return null;
     }
 
     if (elapsedTime < dayInMs) {
