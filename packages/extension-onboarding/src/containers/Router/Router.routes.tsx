@@ -29,7 +29,7 @@ export const AuthFlowRoutes = (
       <Route path={EPathsV2.POAP_NFTS} element={<PoapNFTs />} />
       <Route path={EPathsV2.BROWSER_ACTIVITY} element={<BrowserActivity />} />
       <Route path={EPathsV2.SOCIAL_MEDIA_DATA} element={<SocialMediaInfo />} />
+      <Route path={EPathsV2.NFT_DETAIL} element={<NFTDetails />} />
     </Route>
-    <Route path={EPathsV2.NFT_DETAIL} element={<NFTDetails />} />
   </Route>
 );
