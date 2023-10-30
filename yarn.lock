@@ -9137,6 +9137,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snickerdoodlelabs/erc7529@workspace:packages/erc7529":
+  version: 0.0.0-use.local
+  resolution: "@snickerdoodlelabs/erc7529@workspace:packages/erc7529"
+  dependencies:
+    "@snickerdoodlelabs/common-utils": "workspace:^"
+    "@snickerdoodlelabs/contracts-sdk": "workspace:^"
+    "@snickerdoodlelabs/objects": "workspace:^"
+    dns-packet: ^5.6.1
+    ethers: ^5.6.6
+    inversify: ^6.0.1
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
+    url-join-ts: ^1.0.5
+  languageName: unknown
+  linkType: soft
+
 "@snickerdoodlelabs/extension-onboarding@workspace:packages/extension-onboarding":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/extension-onboarding@workspace:packages/extension-onboarding"
@@ -10726,6 +10742,15 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: 119b8ea5760db58542cc66635e8b98b9e859d615e9fc7bfd520c0e2c94063e87759033a4242360e2aa66df2d7d092a406838ac35e8ca7034debf1c69abc27811
+  languageName: node
+  linkType: hard
+
+"@types/dns-packet@npm:^5.6.2":
+  version: 5.6.2
+  resolution: "@types/dns-packet@npm:5.6.2"
+  dependencies:
+    "@types/node": "*"
+  checksum: 55bdef7195df6c9ec09c0033a7e2af3f19dfede346bba620cba35bd40b5fcd9d5b50c697c3b5f366073dcb9096149704fdee94d8ab3f8eb85acf98b399e78667
   languageName: node
   linkType: hard
 
@@ -19966,7 +19991,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dns-packet@npm:^5.2.2":
+"dns-packet@npm:^5.2.2, dns-packet@npm:^5.6.1":
   version: 5.6.1
   resolution: "dns-packet@npm:5.6.1"
   dependencies:
@@ -41325,6 +41350,7 @@ __metadata:
     "@react-native-community/eslint-config": ^1.1.0
     "@types/chrome": ^0.0.193
     "@types/cors": ^2.8.10
+    "@types/dns-packet": ^5.6.2
     "@types/express": ^4.17.11
     "@types/inquirer": ^8.2.1
     "@types/jest": ^29.0.2
