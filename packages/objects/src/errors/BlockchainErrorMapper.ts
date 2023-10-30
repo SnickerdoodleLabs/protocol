@@ -8,6 +8,7 @@ import {
   GasTooLowError,
   InvalidAddressError,
   ExecutionRevertedError,
+  SignerUnavailableError,
 } from "@objects/errors/index.js";
 
 export class BlockchainErrorMapper {
@@ -185,4 +186,5 @@ export type BlockchainCommonErrors =
   | UnexpectedArgumentError
   | GasTooLowError
   | InvalidAddressError
-  | ExecutionRevertedError;
+  | ExecutionRevertedError
+  | SignerUnavailableError;
