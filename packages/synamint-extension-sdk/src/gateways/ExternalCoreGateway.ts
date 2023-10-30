@@ -53,13 +53,13 @@ import {
   QueryStatus,
   ECloudStorageType,
   OAuth2Tokens,
+  TransactionFlowInsight,
+  TransactionFilter,
+  ChainTransaction,
   IProxyAccountMethods,
   LanguageCode,
   EChain,
   Signature,
-  ChainTransaction,
-  TransactionFilter,
-  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -144,10 +144,10 @@ import {
   RejectInvitationParams,
   RejectInvitationByUUIDParams,
   GetQueryStatusesParams,
+  GetTransactionValueByChainParams,
+  GetTransactionsParams,
   AddAccountWithExternalSignatureParams,
   AddAccountWithExternalTypedDataSignatureParams,
-  GetTransactionsParams,
-  GetTransactionValueByChainParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -427,16 +427,16 @@ export class ExternalCoreGateway {
     return this._handler.call(new GetAccountNFTsParams());
   }
 
+  public getTransactionValueByChain(): ResultAsync<
+    TransactionFlowInsight[],
+    ProxyError
+  > {
+    return this._handler.call(new GetTransactionValueByChainParams());
+  }
   public getTransactions(
     params: GetTransactionsParams,
   ): ResultAsync<ChainTransaction[], ProxyError> {
     return this._handler.call(params);
-  }
-  public getTransactionValueByChain(): ResultAsync<
-    TransactionPaymentCounter[],
-    ProxyError
-  > {
-    return this._handler.call(new GetTransactionValueByChainParams());
   }
 
   public setFamilyName(

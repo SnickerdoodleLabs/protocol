@@ -36,6 +36,7 @@ import {
   QueryStatus,
   OAuth2Tokens,
   SiteVisitsMap,
+  TransactionFlowInsight,
   OptInInfo,
   // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
@@ -878,7 +879,7 @@ export interface ISnickerdoodleCore {
   getTransactionValueByChain(
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<
-    TransactionPaymentCounter[],
+    TransactionFlowInsight[],
     PersistenceError | UnauthorizedError
   >;
 

@@ -23,6 +23,7 @@ import {
   UnixTimestamp,
   EVMTransactionHash,
   EIndexerMethod,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import * as td from "testdouble";
@@ -46,7 +47,7 @@ const tokenDecimals = 18;
 const tokenId = BigNumberString("1");
 const timestamp = UnixTimestamp(12345);
 const evmTransactionHash1 = EVMTransactionHash("hash1");
-
+const iso = UnixTimestamp(11);
 class EVMIndexerMock implements IEVMIndexer {
   public constructor(
     public _name: string,
@@ -282,6 +283,7 @@ class MasterIndexerMocks {
       null,
       null,
       null,
+      iso,
     );
   }
 }

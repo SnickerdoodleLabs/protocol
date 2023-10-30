@@ -5,6 +5,8 @@ import {
   ILogUtilsType,
   ObjectUtils,
   IRequestConfig,
+  ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   EChainTechnology,
@@ -71,6 +73,7 @@ export class BlockvisionIndexer implements ISuiIndexer {
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -303,6 +306,7 @@ export class BlockvisionIndexer implements ISuiIndexer {
         null,
         "balance",
         null,
+        this.timeUtils.getUnixNow(),
       );
     });
   }
@@ -323,6 +327,7 @@ export class BlockvisionIndexer implements ISuiIndexer {
         null,
         "object",
         null,
+        this.timeUtils.getUnixNow(),
       );
     });
   }

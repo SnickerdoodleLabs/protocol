@@ -32,5 +32,6 @@ export * from "@objects/enum/ESignatureAlgorithm.js";
 export * from "@objects/enum/ESocialType.js";
 export * from "@objects/enum/EStatus.js";
 export * from "@objects/enum/ETag.js";
+export * from "@objects/enum/ETimePeriods.js";
 export * from "@objects/enum/EWalletDataType.js";
 export * from "@objects/enum/StorageKey.js";
