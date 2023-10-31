@@ -65,7 +65,7 @@ export enum ETypographyColorOverrides {
   TEXTLINK = "textLink",
   TEXTERROR = "textError",
   TEXTWARNING = "textWarning",
-  TEXTINGFO = "textInfo",
+  TEXTINFO = "textInfo",
   TEXTSUCCESS = "textSuccess",
   TEXTWHITE = "textWhite",
 }
@@ -304,7 +304,7 @@ export const generateDynamicTypographyColorClasses = (theme: Theme) => ({
   [ETypographyColorOverrides.TEXTWARNING]: {
     color: theme.palette.warningColor,
   },
-  [ETypographyColorOverrides.TEXTINGFO]: {
+  [ETypographyColorOverrides.TEXTINFO]: {
     color: theme.palette.infoColor,
   },
   [ETypographyColorOverrides.TEXTSUCCESS]: {
