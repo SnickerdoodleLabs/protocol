@@ -1,5 +1,9 @@
 import { Box, Grid } from "@material-ui/core";
-import { SDButton, SDTypography } from "@snickerdoodlelabs/shared-components";
+import {
+  SDButton,
+  SDTypography,
+  useMedia,
+} from "@snickerdoodlelabs/shared-components";
 import React, { FC } from "react";
 
 interface IWalletProviderItemProps {
@@ -15,6 +19,7 @@ const WalletProviderItem: FC<IWalletProviderItemProps> = ({
   onClick,
   buttonText = "Link Account",
 }) => {
+  const currentBreakpoint = useMedia();
   return (
     <Grid xs={12} sm={6} md={4} lg={3} item>
       <Box
@@ -38,7 +43,11 @@ const WalletProviderItem: FC<IWalletProviderItemProps> = ({
           </SDTypography>
         </Box>
         <Box>
-          <SDButton onClick={onClick} variant="outlined">
+          <SDButton
+            onClick={onClick}
+            {...(currentBreakpoint === "xs" && { fullWidth: true })}
+            variant="outlined"
+          >
             {buttonText}
           </SDButton>
         </Box>
