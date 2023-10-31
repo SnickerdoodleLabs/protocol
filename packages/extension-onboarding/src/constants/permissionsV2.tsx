@@ -61,6 +61,12 @@ export const PERMS: IPermissionItem[] = [
       "This refers to your gender, with options for male, female, non-binary, and unspecified.",
   },
   {
+    key: EWalletDataType.SiteVisits,
+    name: "Browser History",
+    description:
+      "Web navigation history recorded while your Snickerdoodle extension is active",
+  },
+  {
     key: EWalletDataType.Location,
     name: "Country",
     description:
@@ -71,11 +77,5 @@ export const PERMS: IPermissionItem[] = [
     name: "Discord",
     description:
       "Share what kinds of Discord channels you are subscribed to. No one will ever know your discord handle.",
-  },
-  {
-    key: EWalletDataType.SiteVisits,
-    name: "Browser History",
-    description:
-      "Share high-level information about your browser history. No one will ever see your actual browser history.",
   },
 ];

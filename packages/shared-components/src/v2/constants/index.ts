@@ -32,6 +32,12 @@ export const FF_SUPPORTED_PERMISSIONS: {
     name: "Demographics",
   },
   {
+    name: "Browser History",
+    description:
+      "Basic browser history and time spent on pages you have visited",
+    key: EWalletDataType.SiteVisits,
+  },
+  {
     name: "Social Media",
     description:
       "Discord Server Name, Joining/creation date, Server Icon, Ownership information",
