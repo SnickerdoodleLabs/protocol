@@ -61,10 +61,8 @@ import {
   ECoreProxyType,
   BlockNumber,
   RefreshToken,
-  IProxyAccountMethods,
-  ChainTransaction,
   TransactionFilter,
-  TransactionPaymentCounter,
+  IProxyAccountMethods,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -431,17 +429,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     );
   }
 
-  public getTransactions(
-    filter?: TransactionFilter,
-  ): ResultAsync<ChainTransaction[], ProxyError> {
-    return coreGateway.getTransactions(new GetTransactionsParams(filter));
-  }
-  public getTransactionValueByChain(): ResultAsync<
-    TransactionPaymentCounter[],
-    ProxyError
-  > {
-    return coreGateway.getTransactionValueByChain();
-  }
 
   public getListingsTotalByTag(
     tag: MarketplaceTag,
@@ -514,6 +501,13 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     return coreGateway.getState();
   }
 
+  public getTransactionValueByChain() {
+    return coreGateway.getTransactionValueByChain();
+  }
+  public getTransactions(filter?: TransactionFilter) {
+    return coreGateway.getTransactions(new GetTransactionsParams(filter));
+  }
+  
   public getAccountBalances() {
     return coreGateway.getAccountBalances();
   }

@@ -11,6 +11,7 @@ import {
   EVMTransactionHash,
   Gender,
   IpfsCID,
+  ISO8601DateString,
   SiteVisit,
   UnixTimestamp,
   URLString,
@@ -207,6 +208,7 @@ export class CorePrompt extends DataWalletPrompt {
             null,
             null,
             null,
+            this.timeUtils.getUnixNow(),
           );
           transactions[1] = new EVMTransaction(
             ChainId(43113),
@@ -222,6 +224,7 @@ export class CorePrompt extends DataWalletPrompt {
             null,
             null,
             null,
+            this.timeUtils.getUnixNow(),
           );
           transactions[2] = new EVMTransaction(
             ChainId(43113),
@@ -237,6 +240,7 @@ export class CorePrompt extends DataWalletPrompt {
             null,
             null,
             null,
+            this.timeUtils.getUnixNow(),
           );
           transactions[3] = new EVMTransaction(
             ChainId(43113),
@@ -252,6 +256,7 @@ export class CorePrompt extends DataWalletPrompt {
             null,
             null,
             null,
+            this.timeUtils.getUnixNow(),
           );
           console.log(
             `adding ${transactions.length} transactions for chain 43113`,
@@ -272,6 +277,7 @@ export class CorePrompt extends DataWalletPrompt {
             null,
             null,
             null,
+            this.timeUtils.getUnixNow(),
           );
           return this.core.addTransactions(transactions).map(console.log);
         case "addSiteVisit - google":

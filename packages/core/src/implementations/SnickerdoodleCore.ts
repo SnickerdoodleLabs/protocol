@@ -94,6 +94,7 @@ import {
   BlockNumber,
   RefreshToken,
   SiteVisitsMap,
+  TransactionFlowInsight,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -960,7 +961,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public getTransactionValueByChain(
     sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<TransactionPaymentCounter[], PersistenceError> {
+  ): ResultAsync<TransactionFlowInsight[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getTransactionValueByChain();

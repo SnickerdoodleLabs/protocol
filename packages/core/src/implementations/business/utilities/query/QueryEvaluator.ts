@@ -13,6 +13,7 @@ import {
   QueryPerformanceEvent,
   SDQL_Return,
   TwitterProfile,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -84,6 +85,7 @@ export class QueryEvaluator implements IQueryEvaluator {
   public eval<T extends AST_SubQuery>(
     query: T,
     queryCID: IpfsCID,
+    queryTimestamp: UnixTimestamp,
   ): ResultAsync<SDQL_Return, PersistenceError> {
     return this.contextProvider.getContext().andThen((context) => {
       if (query instanceof AST_BlockchainTransactionQuery) {
@@ -96,7 +98,7 @@ export class QueryEvaluator implements IQueryEvaluator {
           ),
         );
         return this.blockchainTransactionQueryEvaluator
-          .eval(query, queryCID)
+          .eval(query, queryCID, queryTimestamp)
           .map((result) => {
             context.publicEvents.queryPerformance.next(
               new QueryPerformanceEvent(
@@ -520,65 +522,6 @@ export class QueryEvaluator implements IQueryEvaluator {
               ),
             );
             return SDQL_Return(this.mapToRecord(url_visited_count));
-          });
-      case "chain_transactions":
-        publicEvents.queryPerformance.next(
-          new QueryPerformanceEvent(
-            EQueryEvents.ChainTransactionEvaluation,
-            EStatus.Start,
-            queryCID,
-            q.name,
-          ),
-        );
-        publicEvents.queryPerformance.next(
-          new QueryPerformanceEvent(
-            EQueryEvents.ChainTransactionDataAccess,
-            EStatus.Start,
-            queryCID,
-            q.name,
-          ),
-        );
-        return this.transactionRepo
-          .getTransactionByChain()
-          .andThen((transactionArray) => {
-            publicEvents.queryPerformance.next(
-              new QueryPerformanceEvent(
-                EQueryEvents.ChainTransactionDataAccess,
-                EStatus.End,
-                queryCID,
-                q.name,
-              ),
-            );
-            publicEvents.queryPerformance.next(
-              new QueryPerformanceEvent(
-                EQueryEvents.ChainTransactionEvaluation,
-                EStatus.End,
-                queryCID,
-                q.name,
-              ),
-            );
-            return okAsync(SDQL_Return(transactionArray));
-          })
-          .mapErr((err) => {
-            publicEvents.queryPerformance.next(
-              new QueryPerformanceEvent(
-                EQueryEvents.ChainTransactionEvaluation,
-                EStatus.End,
-                queryCID,
-                q.name,
-                err,
-              ),
-            );
-            publicEvents.queryPerformance.next(
-              new QueryPerformanceEvent(
-                EQueryEvents.ChainTransactionDataAccess,
-                EStatus.End,
-                queryCID,
-                q.name,
-                err,
-              ),
-            );
-            return err;
           });
       case "social_discord":
         publicEvents.queryPerformance.next(
