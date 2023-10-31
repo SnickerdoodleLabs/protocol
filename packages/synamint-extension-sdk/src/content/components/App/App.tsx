@@ -386,10 +386,7 @@ const App = () => {
       case appState === EAppState.AUDIENCE_PREVIEW:
         return (
           <DescriptionWidget
-            invitationData={
-              // TODO make this widget accept both old and new user agreement
-              currentInvitation.data.metadata as IOldUserAgreement
-            }
+            invitationData={currentInvitation.data.metadata}
             redirectRequired={!(accounts.length > 0)}
             onRejectClick={rejectInvitation}
             primaryButtonText={

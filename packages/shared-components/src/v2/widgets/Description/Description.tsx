@@ -7,11 +7,11 @@ import {
 } from "@shared-components/v2/components";
 import { useMedia } from "@shared-components/v2/hooks";
 import { typograpyVariants } from "@shared-components/v2/theme";
-import { IOldUserAgreement } from "@snickerdoodlelabs/objects";
+import { IOldUserAgreement, IUserAgreement } from "@snickerdoodlelabs/objects";
 import parse from "html-react-parser";
 import React, { FC, useMemo } from "react";
 interface IDescriptionProps {
-  invitationData: IOldUserAgreement;
+  invitationData: IOldUserAgreement | IUserAgreement;
   onCancelClick: () => void;
   onContinueClick: () => void;
   onSetPermissions: () => void;
@@ -67,6 +67,14 @@ export const DescriptionWidget: FC<IDescriptionProps> = ({
   const media = useMedia();
   const classes = useStyles();
   const isMobile = useMemo(() => media === "xs", [media]);
+  const title = useMemo(() => {
+    if (invitationData["attributes"]) {
+      return (invitationData as IUserAgreement).attributes.find(
+        (attr) => attr.trait_type === "title",
+      )?.value;
+    }
+    return (invitationData as IOldUserAgreement).title;
+  }, [invitationData]);
   const [unmountAnimation, setUnmountAnimation] =
     React.useState<boolean>(false);
   const description = useMemo(() => {
@@ -132,7 +140,7 @@ export const DescriptionWidget: FC<IDescriptionProps> = ({
           alignItems="flex-start"
         >
           <SDTypography variant="displaySm">
-            {invitationData.title || "Your Data, Your Choice."}
+            {title || "Your Data, Your Choice."}
           </SDTypography>
           {isMobile && <CloseButton onClick={cancelWithAnimation} />}
         </Box>

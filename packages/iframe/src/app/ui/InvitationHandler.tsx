@@ -15,6 +15,7 @@ import {
   IOldUserAgreement,
   IPaletteOverrides,
   ISnickerdoodleCore,
+  IUserAgreement,
   Invitation,
   LinkedAccount,
 } from "@snickerdoodlelabs/objects";
@@ -52,7 +53,7 @@ export enum EAPP_STATE {
 
 interface IInvitation {
   invitation: Invitation;
-  metadata: IOldUserAgreement;
+  metadata: IOldUserAgreement | IUserAgreement;
 }
 
 interface ICurrentInvitation {
@@ -100,20 +101,15 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     null,
   );
   const uniqueConsentAdressesRef = useRef<EVMContractAddress[]>([]);
-  const [deepLinkInvitation, setDeepLinkInvitation] = useState<{
-    invitation: Invitation;
-    metadata: IOldUserAgreement;
-  } | null>(null);
+  const [deepLinkInvitation, setDeepLinkInvitation] =
+    useState<IInvitation | null>(null);
 
-  const [domainInvitation, setDomainInvitation] = useState<{
-    invitation: Invitation;
-    metadata: IOldUserAgreement;
-  } | null>(null);
+  const [domainInvitation, setDomainInvitation] = useState<IInvitation | null>(
+    null,
+  );
 
-  const [consentInvitation, setConsentInvitation] = useState<{
-    invitation: Invitation;
-    metadata: IOldUserAgreement;
-  } | null>(null);
+  const [consentInvitation, setConsentInvitation] =
+    useState<IInvitation | null>(null);
 
   const currentInvitation: ICurrentInvitation | null = useMemo(() => {
     if (accounts.length === 0) {
@@ -201,17 +197,11 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
       return;
     }
     if (type === EInvitationSourceType.DEEPLINK) {
-      setDeepLinkInvitation(
-        data as { invitation: Invitation; metadata: IOldUserAgreement },
-      );
+      setDeepLinkInvitation(data);
     } else if (type === EInvitationSourceType.DOMAIN) {
-      setDomainInvitation(
-        data as { invitation: Invitation; metadata: IOldUserAgreement },
-      );
+      setDomainInvitation(data);
     } else {
-      setConsentInvitation(
-        data as { invitation: Invitation; metadata: IOldUserAgreement },
-      );
+      setConsentInvitation(data);
     }
   };
 
@@ -290,9 +280,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
           return (
             <DescriptionWidget
               onRejectClick={rejectInvitation}
-              invitationData={
-                currentInvitation.data.metadata as IOldUserAgreement
-              }
+              invitationData={currentInvitation.data.metadata}
               onCancelClick={clearInvitation}
               onContinueClick={() => {
                 onPermissionSelected(FF_SUPPORTED_ALL_PERMISSIONS);
