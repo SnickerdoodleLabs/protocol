@@ -57,8 +57,6 @@ const optOutSignature = Signature("OptOutSignature");
 const optInPrivateKey = EVMPrivateKey("optInPrivateKey");
 const optInAccountAddress = EVMAccountAddress("optInAccountAddress");
 const domain = DomainName("phoebe.com");
-const url1 = URLString("phoebe.com/cute");
-const url2 = URLString("phoebe.com/loud");
 const ipfsCID = IpfsCID("ipfscid");
 const tokenId1 = TokenId(BigInt(13));
 const tokenId2 = TokenId(BigInt(69));
@@ -144,6 +142,9 @@ class InvitationServiceMocks {
     td.when(
       this.consentRepo.getMetadataCID(consentContractAddress1),
     ).thenReturn(okAsync(ipfsCID));
+    td.when(this.consentRepo.getDomains(consentContractAddress1)).thenReturn(
+      okAsync([domain]),
+    );
     td.when(
       this.consentRepo.getConsentCapacity(consentContractAddress1),
     ).thenReturn(okAsync({ availableOptInCount: 10, maxCapacity: 10 }));
@@ -264,9 +265,9 @@ describe("InvitationService tests", () => {
     expect(result).toBeDefined();
     expect(result.isErr()).toBeFalsy();
     const pageInvitations = result._unsafeUnwrap();
-    expect(pageInvitations.length).toBe(2);
+    expect(pageInvitations.length).toBe(1);
 
-    expect(pageInvitations[0].url).toBe(url1);
+    expect(pageInvitations[0].url).toBe(domain);
     expect(pageInvitations[0].domainDetails).toBe(invitationDomain);
     expect(pageInvitations[0].invitation.businessSignature).toBeNull();
     expect(pageInvitations[0].invitation.consentContractAddress).toBe(
@@ -275,14 +276,14 @@ describe("InvitationService tests", () => {
     expect(pageInvitations[0].invitation.domain).toBe(domain);
     expect(pageInvitations[0].invitation.tokenId).toBe(tokenId1);
 
-    expect(pageInvitations[1].url).toBe(url2);
-    expect(pageInvitations[1].domainDetails).toBe(invitationDomain);
-    expect(pageInvitations[1].invitation.businessSignature).toBeNull();
-    expect(pageInvitations[1].invitation.consentContractAddress).toBe(
-      consentContractAddress1,
-    );
-    expect(pageInvitations[1].invitation.domain).toBe(domain);
-    expect(pageInvitations[1].invitation.tokenId).toBe(tokenId2);
+    // expect(pageInvitations[1].url).toBe(url2);
+    // expect(pageInvitations[1].domainDetails).toBe(invitationDomain);
+    // expect(pageInvitations[1].invitation.businessSignature).toBeNull();
+    // expect(pageInvitations[1].invitation.consentContractAddress).toBe(
+    //   consentContractAddress1,
+    // );
+    // expect(pageInvitations[1].invitation.domain).toBe(domain);
+    // expect(pageInvitations[1].invitation.tokenId).toBe(tokenId2);
   });
 
   test("getInvitationsByDomain no available slots", async () => {
