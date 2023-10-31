@@ -145,6 +145,7 @@ import {
   AddAccountWithExternalSignatureParams,
   AddAccountWithExternalTypedDataSignatureParams,
   UpdateAgreementPermissionsParams,
+  GetConsentContractURLsParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -552,6 +553,12 @@ export class ExternalCoreGateway {
     params: GetConsentCapacityParams,
   ): ResultAsync<IConsentCapacity, ProxyError> {
     return this._handler.call(params);
+  }
+
+  public getConsentContractURLs(
+    contractAdress: EVMContractAddress,
+  ): ResultAsync<URLString[], ProxyError> {
+    return this._handler.call(new GetConsentContractURLsParams(contractAdress));
   }
 
   public getEarnedRewardsByContractAddress(

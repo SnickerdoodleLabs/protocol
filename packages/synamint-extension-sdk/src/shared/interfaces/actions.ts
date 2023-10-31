@@ -766,6 +766,18 @@ export class SwitchToTabParams extends CoreActionParams<void> {
   }
 }
 
+export class GetConsentContractURLsParams extends CoreActionParams<
+  URLString[]
+> {
+  public constructor(public contractAddress: EVMContractAddress) {
+    super(GetConsentContractURLsParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_CONSENT_CONTRACT_URLS;
+  }
+}
+
 // #region Integration
 export class RequestPermissionsParams extends CoreActionParams<
   EDataWalletPermission[]

@@ -424,7 +424,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     );
   }
 
-
   public getListingsTotalByTag(
     tag: MarketplaceTag,
   ): ResultAsync<number, ProxyError> {
@@ -476,6 +475,12 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     );
   }
 
+  public getConsentContractURLs(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<URLString[], ProxyError> {
+    return coreGateway.getConsentContractURLs(contractAddress);
+  }
+
   public checkInvitationStatus(
     consentAddress: EVMContractAddress,
     signature?: Signature,
@@ -502,7 +507,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public getTransactions(filter?: TransactionFilter) {
     return coreGateway.getTransactions(new GetTransactionsParams(filter));
   }
-  
+
   public getAccountBalances() {
     return coreGateway.getAccountBalances();
   }

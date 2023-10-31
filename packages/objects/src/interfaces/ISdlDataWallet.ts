@@ -310,6 +310,10 @@ export interface ISdlDataWallet {
     contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, ProxyError>;
 
+  getConsentContractURLs(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<URLString[], ProxyError>;
+
   getConsentCapacity(
     contractAddress: EVMContractAddress,
   ): ResultAsync<IConsentCapacity, ProxyError>;

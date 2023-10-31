@@ -122,6 +122,7 @@ import {
   ERequestChannel,
   UpdateAgreementPermissionsParams,
   SnickerDoodleCoreError,
+  GetConsentContractURLsParams,
 } from "@synamint-extension-sdk/shared";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
@@ -393,6 +394,18 @@ export class RpcCallHandler implements IRpcCallHandler {
             params.signature ?? null,
           ),
         );
+      },
+    ),
+
+    new CoreActionHandler<GetConsentContractURLsParams>(
+      GetConsentContractURLsParams.getCoreAction(),
+      (params) => {
+        return this.core
+          .getConsentContractURLs(params.contractAddress)
+          .mapErr((error) => {
+            this.errorUtils.emit(error);
+            return new SnickerDoodleCoreError((error as Error).message, error);
+          });
       },
     ),
     new CoreActionHandler<GetConsentContractCIDParams>(

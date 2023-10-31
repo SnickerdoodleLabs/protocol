@@ -444,6 +444,18 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
+      getConsentContractURLs: (
+        data: IIFrameCallData<{
+          contractAddress: EVMContractAddress;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.getConsentContractURLs(data.data.contractAddress);
+          });
+        }, data.callId);
+      },
+
       getInvitationMetadataByCID: (
         data: IIFrameCallData<{
           ipfsCID: IpfsCID;
