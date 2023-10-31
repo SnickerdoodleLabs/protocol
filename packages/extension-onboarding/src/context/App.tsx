@@ -1,4 +1,22 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import {
+  ALERT_MESSAGES,
+  LOCAL_STORAGE_SDL_INVITATION_KEY,
+} from "@extension-onboarding/constants";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import {
+  getProviderList as getChainProviderList,
+  IProvider,
+} from "@extension-onboarding/services/blockChainWalletProviders";
+import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
+import { DataWalletGateway } from "@extension-onboarding/services/implementations/DataWalletGateway";
+import {
+  getProviderList as getSocialMediaProviderList,
+  ISocialMediaWrapper,
+} from "@extension-onboarding/services/socialMediaProviders";
 import {
   BigNumberString,
   DataWalletAddress,
@@ -18,24 +36,6 @@ import React, {
   useState,
 } from "react";
 import { Subscription } from "rxjs";
-
-import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import {
-  ALERT_MESSAGES,
-  LOCAL_STORAGE_SDL_INVITATION_KEY,
-} from "@extension-onboarding/constants";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import {
-  getProviderList as getChainProviderList,
-  IProvider,
-} from "@extension-onboarding/services/blockChainWalletProviders";
-import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
-import { DataWalletGateway } from "@extension-onboarding/services/implementations/DataWalletGateway";
-import {
-  getProviderList as getSocialMediaProviderList,
-  ISocialMediaWrapper,
-} from "@extension-onboarding/services/socialMediaProviders";
 
 export interface IInvitationInfo {
   consentAddress: EVMContractAddress | undefined;

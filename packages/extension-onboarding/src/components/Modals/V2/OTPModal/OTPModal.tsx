@@ -1,4 +1,5 @@
 import ExclamationIcon from "@extension-onboarding/assets/icons/exclamationIcon.svg";
+import { useModalStyles } from "@extension-onboarding/components/Modals/Modal.style";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { Box, Dialog, makeStyles } from "@material-ui/core";
 import {
@@ -9,12 +10,6 @@ import {
 import React, { FC, useMemo, useState } from "react";
 
 const useStyles = makeStyles((theme) => ({
-  container: {
-    "& .MuiDialog-paper": {
-      borderRadius: 12,
-      maxWidth: 640,
-    },
-  },
   codeContainer: {
     display: "flex",
     alignItems: "center",
@@ -30,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
     gap: "4px",
     [theme.breakpoints.down("xs")]: {
       width: 80,
-      height: 48,
+      height: 40,
       fontSize: 24,
     },
   },
@@ -45,8 +40,8 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 33,
     fontFamily: "Roboto",
     [theme.breakpoints.down("xs")]: {
-      width: 48,
-      height: 48,
+      width: 40,
+      height: 40,
       fontSize: 24,
     },
     textAlign: "center",
@@ -160,6 +155,7 @@ const OTPModal: FC = () => {
   };
 
   const classes = useStyles({ isSuccess, isError });
+  const modalClasses = useModalStyles();
   return (
     <Dialog
       open={true}
@@ -169,7 +165,7 @@ const OTPModal: FC = () => {
       }}
       disablePortal
       maxWidth="xs"
-      className={classes.container}
+      className={modalClasses.container}
     >
       <Box p={3}>
         <Box

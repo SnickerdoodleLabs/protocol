@@ -1,3 +1,22 @@
+import AccountLinkingIndicator from "@extension-onboarding/components/loadingIndicators/AccountLinking";
+import { EModalSelectors } from "@extension-onboarding/components/Modals/";
+import LinkAccountModal from "@extension-onboarding/components/Modals/V2/LinkAccountModal";
+import { EWalletProviderKeys } from "@extension-onboarding/constants";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import {
+  ELoadingIndicatorType,
+  useLayoutContext,
+} from "@extension-onboarding/context/LayoutContext";
+import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
+import {
+  DiscordProvider,
+  TwitterProvider,
+} from "@extension-onboarding/services/socialMediaProviders/implementations";
+import {
+  IDiscordProvider,
+  ITwitterProvider,
+} from "@extension-onboarding/services/socialMediaProviders/interfaces";
 import {
   defaultLanguageCode,
   EChain,
@@ -18,33 +37,30 @@ import React, {
   useState,
 } from "react";
 
-import AccountLinkingIndicator from "@extension-onboarding/components/loadingIndicators/AccountLinking";
-import { EModalSelectors } from "@extension-onboarding/components/Modals/";
-import LinkAccountModal from "@extension-onboarding/components/Modals/LinkAccountModal";
-import { EWalletProviderKeys } from "@extension-onboarding/constants";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import {
-  ELoadingIndicatorType,
-  useLayoutContext,
-} from "@extension-onboarding/context/LayoutContext";
-import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
-import {
-  DiscordProvider,
-  TwitterProvider,
-} from "@extension-onboarding/services/socialMediaProviders/implementations";
-import {
-  IDiscordProvider,
-  ITwitterProvider,
-} from "@extension-onboarding/services/socialMediaProviders/interfaces";
-
 export enum EWalletProviderKit {
   SUI = "SUI",
 }
 
+interface IWalletProviderKit {
+  key: EWalletProviderKit;
+  label: string;
+  icon: string;
+  mobileVisible: boolean;
+}
+
+const WalletKitProviderList: IWalletProviderKit[] = [
+  {
+    key: EWalletProviderKit.SUI,
+    label: "Suiet Kit",
+    icon: "https://framerusercontent.com/images/eDZRos3xvCrlWxmLFr72sFtiyQ.png?scale-down-to=512",
+    mobileVisible: false,
+  },
+];
+
 interface IAccountLinkingContext {
   detectedProviders: IProvider[];
   unDetectedProviders: IProvider[];
+  walletKits: IWalletProviderKit[];
   walletConnect: IProvider | null;
   discordProvider: IDiscordProvider;
   twitterProvider: ITwitterProvider;
@@ -261,6 +277,7 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
         twitterProvider,
         onProviderConnectClick,
         onWalletKitConnectClick,
+        walletKits: WalletKitProviderList,
       }}
     >
       {isLinkerModalOpen && (

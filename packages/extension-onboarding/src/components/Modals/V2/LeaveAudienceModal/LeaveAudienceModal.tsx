@@ -1,5 +1,6 @@
+import { useModalStyles } from "@extension-onboarding/components/Modals/Modal.style";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { Box, Dialog, makeStyles } from "@material-ui/core";
+import { Box, Dialog } from "@material-ui/core";
 import {
   CloseButton,
   SDButton,
@@ -7,22 +8,14 @@ import {
 } from "@snickerdoodlelabs/shared-components";
 import React, { FC } from "react";
 
-const useStyles = makeStyles((theme) => ({
-  container: {
-    "& .MuiDialog-paper": {
-      borderRadius: 12,
-      maxWidth: 720,
-    },
-  },
-}));
 
 const LeaveAudienceModal: FC = () => {
   const { modalState, closeModal } = useLayoutContext();
   const { onPrimaryButtonClick } = modalState;
 
-  const classes = useStyles();
+  const modalClasses = useModalStyles();
   return (
-    <Dialog open={true} fullWidth className={classes.container}>
+    <Dialog open={true} fullWidth className={modalClasses.container}>
       <Box p={3}>
         <Box display="flex" alignItems="center" justifyContent="space-between">
           <SDTypography variant="titleLg" fontWeight="bold" color="textHeading">

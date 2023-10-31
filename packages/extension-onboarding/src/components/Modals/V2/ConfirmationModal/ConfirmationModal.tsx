@@ -1,21 +1,12 @@
+import { useModalStyles } from "@extension-onboarding/components/Modals/Modal.style";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { Box, Dialog, makeStyles } from "@material-ui/core";
-import CloseIcon from "@material-ui/icons/Close";
+import { Box, Dialog } from "@material-ui/core";
 import {
   CloseButton,
   SDButton,
   SDTypography,
 } from "@snickerdoodlelabs/shared-components";
 import React, { FC } from "react";
-
-const useStyles = makeStyles((theme) => ({
-  container: {
-    "& .MuiDialog-paper": {
-      borderRadius: 12,
-      maxWidth: 720,
-    },
-  },
-}));
 
 export interface IConfirmationModal {
   title: string;
@@ -32,9 +23,9 @@ const ConfirmationModal: FC = () => {
     actionText = "Confirn",
   } = customProps as IConfirmationModal;
 
-  const classes = useStyles();
+  const modalClasses = useModalStyles();
   return (
-    <Dialog open={true} fullWidth className={classes.container}>
+    <Dialog open={true} fullWidth className={modalClasses.container}>
       <Box p={3}>
         <Box
           display="flex"
