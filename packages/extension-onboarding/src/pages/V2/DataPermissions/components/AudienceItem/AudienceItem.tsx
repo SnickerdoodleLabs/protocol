@@ -4,6 +4,7 @@ import CustomSDSwitch from "@extension-onboarding/components/v2/Switch/";
 import { PERMS } from "@extension-onboarding/constants/permissionsV2";
 import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
 import { generateRouteUrl } from "@extension-onboarding/containers/Router/utils";
+import { useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
@@ -22,7 +23,9 @@ import {
   EVMContractAddress,
   EWalletDataType,
   IOldUserAgreement,
+  IUserAgreement,
   IpfsCID,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import {
   SDButton,
@@ -30,7 +33,15 @@ import {
   colors,
 } from "@snickerdoodlelabs/shared-components";
 import clsx from "clsx";
-import React, { useEffect, useRef, useState, FC, useCallback } from "react";
+import { ResultUtils } from "neverthrow-result-utils";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  FC,
+  useCallback,
+  useMemo,
+} from "react";
 import { useNavigate } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
@@ -91,6 +102,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+interface IContractInfo {
+  metadata: IOldUserAgreement | IUserAgreement;
+  urls: URLString[];
+}
 interface IAudienceItemProps {
   contractAddress: EVMContractAddress;
   ipfsCID: IpfsCID;
@@ -102,9 +117,11 @@ const AudienceItem: FC<IAudienceItemProps> = ({
   const classes = useStyles();
   const { sdlDataWallet } = useDataWalletContext();
   const lastSetPermissions = useRef<EWalletDataType[]>();
-  const [metadata, setMetadata] = useState<IOldUserAgreement>();
+  const [contractInfo, setContractInfo] = useState<IContractInfo>();
   const [permissions, setPermissions] = useState<EWalletDataType[]>();
   const [saveRequired, setSaveRequired] = useState<boolean>(false);
+  const [domainVerificationStatus, setDomainVerificationStatus] =
+    useState<Map<URLString, boolean>>();
   const { setAlert } = useNotificationContext();
   const { setLoadingStatus } = useLayoutContext();
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
@@ -172,10 +189,12 @@ const AudienceItem: FC<IAudienceItemProps> = ({
   }, [permissions]);
 
   const getInitialData = () => {
-    return sdlDataWallet
-      .getInvitationMetadataByCID(ipfsCID)
-      .andThen((metadata) => {
-        setMetadata(metadata as IOldUserAgreement);
+    return ResultUtils.combine([
+      sdlDataWallet.getInvitationMetadataByCID(ipfsCID),
+      sdlDataWallet.getConsentContractURLs(contractAddress),
+    ])
+      .andThen(([metadata, urls]) => {
+        setContractInfo({ metadata, urls });
         return sdlDataWallet
           .getAgreementPermissions(contractAddress)
           .map((permissions) => {
@@ -184,8 +203,62 @@ const AudienceItem: FC<IAudienceItemProps> = ({
           .mapErr((err) => {
             console.log(err);
           });
+      })
+      .mapErr((err) => {
+        console.log("Error getting contract initial data", err);
       });
   };
+
+  useEffect(() => {
+    if (!contractInfo) {
+      return;
+    }
+    getURLVerificationStatuses();
+  }, [contractInfo]);
+
+  const getURLVerificationStatuses = useCallback(() => {
+    if (!contractInfo?.urls?.length) {
+      return;
+    }
+    const urls = contractInfo.urls;
+    // todo get verification status for each url
+  }, [contractInfo?.urls?.length]);
+
+  const title = useMemo(() => {
+    if (!contractInfo) {
+      return <Skeleton width={100} />;
+    }
+    if (contractInfo.urls.length) {
+      return (
+        <Box display="flex">
+          {contractInfo.urls.map((url, index) => {
+            return (
+              <SDTypography
+                key={index}
+                variant="titleMd"
+                color="textHeading"
+                fontWeight="medium"
+              >
+                {url}
+              </SDTypography>
+            );
+          })}
+        </Box>
+      );
+    }
+    if (contractInfo.metadata["attributes"]) {
+      return (
+        <SDTypography variant="titleMd" color="textHeading" fontWeight="medium">
+          {(contractInfo.metadata as IUserAgreement).name}
+        </SDTypography>
+      );
+    }
+    return (
+      <SDTypography variant="titleMd" color="textHeading" fontWeight="medium">
+        {(contractInfo.metadata as IOldUserAgreement).title}
+      </SDTypography>
+    );
+  }, [JSON.stringify(contractInfo)]);
 
   return (
     <Accordion
@@ -206,13 +279,7 @@ const AudienceItem: FC<IAudienceItemProps> = ({
           alignItems={{ xs: "unset", sm: "center" }}
           width="100%"
         >
-          <SDTypography
-            variant="titleMd"
-            color="textHeading"
-            fontWeight="medium"
-          >
-            {!metadata ? <Skeleton width={100} /> : metadata.rewardName}
-          </SDTypography>
+          {title}
           <Box ml="auto" mt={{ xs: 3, sm: "unset" }} />
           {saveRequired ? (
             <Box display="flex" alignItems="center">
@@ -243,7 +310,7 @@ const AudienceItem: FC<IAudienceItemProps> = ({
                   generateRouteUrl(EPathsV2.DATA_PERMISSIONS_AUDIENCE, {
                     consentAddress: contractAddress,
                   }),
-                  { state: { _metadata: metadata, _ipfsCID: ipfsCID } },
+                  { state: { _contractInfo: contractInfo, _ipfsCID: ipfsCID } },
                 );
               }}
               variant="outlined"

@@ -13,6 +13,7 @@ import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import {
   Box,
+  Divider,
   Container as MuiContainer,
   Radio,
   Tooltip,
@@ -26,9 +27,11 @@ import {
   EVMContractAddress,
   EarnedReward,
   IOldUserAgreement,
+  IUserAgreement,
   IpfsCID,
   LazyReward,
   LinkedAccount,
+  URLString,
   Web2Reward,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -36,6 +39,7 @@ import {
   SDTypography,
   getChainImageSrc,
 } from "@snickerdoodlelabs/shared-components";
+import { ResultUtils } from "neverthrow-result-utils";
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 
@@ -45,6 +49,11 @@ enum EOptedInStatus {
   NOT_OPTED_IN,
 }
 
+interface IContractInfo {
+  metadata: IOldUserAgreement | IUserAgreement;
+  urls: URLString[];
+}
+
 const AudienceDetails = () => {
   const { consentAddress } = useParams<{
     consentAddress: EVMContractAddress;
@@ -52,7 +61,6 @@ const AudienceDetails = () => {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const [metadata, setMetadata] = useState<IOldUserAgreement>();
   const [ipfsCID, setIpfsCID] = useState<IpfsCID>();
   const [receivingAccount, setReceivingAccount] = useState<AccountAddress>();
   const {
@@ -65,6 +73,7 @@ const AudienceDetails = () => {
   const { sdlDataWallet } = useDataWalletContext();
   const { setAlert } = useNotificationContext();
   const { setModal, setLoadingStatus } = useLayoutContext();
+  const [contractInfo, setContractInfo] = useState<IContractInfo>();
   const [contractEarnedRewards, setContractEarnedReward] =
     useState<EarnedReward[]>();
 
@@ -89,11 +98,12 @@ const AudienceDetails = () => {
       .getConsentContractCID(consentAddress)
       .andThen((_ipfsCID) => {
         setIpfsCID(ipfsCID);
-        return sdlDataWallet
-          .getInvitationMetadataByCID(_ipfsCID)
-          .map((metadata) => {
-            setMetadata(metadata as IOldUserAgreement);
-          });
+        return ResultUtils.combine([
+          sdlDataWallet.getInvitationMetadataByCID(_ipfsCID),
+          sdlDataWallet.getConsentContractURLs(consentAddress),
+        ]).map(([metadata, urls]) => {
+          setContractInfo({ metadata, urls });
+        });
       })
       .mapErr((err) => {
         console.error(err);
@@ -118,8 +128,8 @@ const AudienceDetails = () => {
   }, [userOptedIn]);
 
   const routeValidated = useMemo(() => {
-    return Boolean(ipfsCID && metadata);
-  }, [ipfsCID, metadata]);
+    return Boolean(ipfsCID && contractInfo);
+  }, [ipfsCID, contractInfo]);
 
   useEffect(() => {
     if (!routeValidated || earnedRewards.length === 0) {
@@ -183,8 +193,12 @@ const AudienceDetails = () => {
   console.log({ directRewards }, { lazyRewards }, { web2Rewards });
 
   useEffect(() => {
-    if (location.state && location.state._metadata && location.state._ipfsCID) {
-      setMetadata(location.state._metadata);
+    if (
+      location.state &&
+      location.state._contractInfo &&
+      location.state._ipfsCID
+    ) {
+      setContractInfo(location.state._contractInfo);
       setIpfsCID(location.state._ipfsCID);
     } else {
       getInitialData();
@@ -289,6 +303,72 @@ const AudienceDetails = () => {
     return columns;
   }, [linkedAccounts, receivingAccount]);
 
+  const { title, image } = useMemo(() => {
+    if (!contractInfo) {
+      return {
+        title: <Skeleton width={200} />,
+        image: <Skeleton width="100%" height="100%" />,
+      };
+    }
+    const image = (
+      <img
+        src={(contractInfo.metadata.image || "").replace(
+          "ipfs://",
+          apiGateway.config.ipfsFetchBaseUrl,
+        )}
+        style={{
+          maxWidth: "100%",
+          height: "100%",
+          aspectRatio: 1,
+          objectFit: "cover",
+        }}
+      />
+    );
+    const urls = (
+      <>
+        {contractInfo.urls.map((url, index) => (
+          <Box key={index} display="flex">
+            <SDTypography
+              variant="bodyLg"
+              fontWeight="medium"
+              color="textHeading"
+            >
+              {url}
+            </SDTypography>
+            {index !== contractInfo.urls.length - 1 && (
+              <>
+                <Box ml={0.5} />
+                <Divider orientation="vertical" flexItem />
+                <Box ml={0.5} />
+              </>
+            )}
+          </Box>
+        ))}
+      </>
+    );
+
+    const getTitle = (name: string) => (
+      <Box display="flex" alignItems="center">
+        <SDTypography variant="headlineSm" fontWeight="medium">
+          {name}
+        </SDTypography>
+        <Box ml={2} />
+        {urls}
+      </Box>
+    );
+
+    if (contractInfo.metadata["attributes"]) {
+      return {
+        title: getTitle((contractInfo.metadata as IUserAgreement).name || ""),
+        image: image,
+      };
+    }
+    return {
+      title: getTitle((contractInfo.metadata as IOldUserAgreement).title),
+      image: image,
+    };
+  }, [contractInfo]);
+
   return (
     <>
       <Box
@@ -333,22 +413,7 @@ const AudienceDetails = () => {
               width={{ xs: 80, sm: 90, md: 100, lg: 140 }}
               height={{ xs: 80, sm: 90, md: 100, lg: 140 }}
             >
-              {!metadata ? (
-                <Skeleton width="100%" height="100%" />
-              ) : (
-                <img
-                  src={(metadata?.image || "").replace(
-                    "ipfs://",
-                    apiGateway.config.ipfsFetchBaseUrl,
-                  )}
-                  style={{
-                    maxWidth: "100%",
-                    height: "100%",
-                    aspectRatio: 1,
-                    objectFit: "cover",
-                  }}
-                />
-              )}
+              {image}
             </Box>
             <Box>
               <SDTypography
@@ -356,7 +421,7 @@ const AudienceDetails = () => {
                 color="textHeading"
                 fontWeight="medium"
               >
-                {!metadata ? <Skeleton width={200} /> : metadata.rewardName}
+                {title}
               </SDTypography>
             </Box>
           </Box>
