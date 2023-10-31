@@ -385,9 +385,14 @@ export const typograpyVariants = {
     lineHeight: "16px",
   },
   link: {
-    fontSize: "12px",
-    lineHeight: "16px",
-    pointer: "cursor",
+    fontSize: "14px",
+    lineHeight: "20px",
+    cursor: "pointer",
+  },
+  linkUnderlined: {
+    fontSize: "14px",
+    lineHeight: "20px",
+    cursor: "pointer",
     textDecoration: "underline",
   },
 };
