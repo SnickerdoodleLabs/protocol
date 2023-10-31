@@ -89,6 +89,7 @@
     "@types/chroma-js": "^2.4.1",
     "@types/chrome": "^0.0.193",
     "@types/cors": "^2.8.10",
+    "@types/dns-packet": "^5.6.2",
     "@types/express": "^4.17.11",
     "@types/inquirer": "^8.2.1",
     "@types/jest": "^29.0.2",

@@ -34,6 +34,7 @@ import {
   ITokenPriceRepository,
   AccountIndexingError,
   SiteVisitsMap,
+  TransactionFlowInsight,
   getChainInfoByChain,
   EChainTechnology,
 } from "@snickerdoodlelabs/objects";
@@ -468,7 +469,7 @@ export class AccountService implements IAccountService {
   }
 
   public getTransactionValueByChain(): ResultAsync<
-    TransactionPaymentCounter[],
+    TransactionFlowInsight[],
     PersistenceError
   > {
     return this.transactionRepo.getTransactionByChain();

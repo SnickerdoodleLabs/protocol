@@ -21,10 +21,10 @@ export class AST_BlockchainTransactionQuery extends AST_Web3Query {
       ESDQLQueryReturn,
       ESDQLQueryReturn.Enum | ESDQLQueryReturn.List
     >,
-    readonly type: "network",
+    readonly type: "network" | "chain_transactions",
     public readonly schema: ISDQLQueryClause,
-    readonly chain: EVMChainCode,
-    readonly contract: AST_Contract,
+    readonly chain?: EVMChainCode,
+    readonly contract?: AST_Contract,
   ) {
     super(name, returnType, type);
   }
@@ -37,19 +37,27 @@ export class AST_BlockchainTransactionQuery extends AST_Web3Query {
     name: SDQL_Name,
     schema: ISDQLQueryClause,
   ): AST_BlockchainTransactionQuery {
-    // 1. make contract
-    const contract = AST_Contract.fromSchema(schema.contract);
     const returnType = schema.return as Exclude<
       ESDQLQueryReturn,
       ESDQLQueryReturn.Enum | ESDQLQueryReturn.List
     >;
-    return new AST_BlockchainTransactionQuery(
-      name,
-      returnType,
-      "network",
-      schema,
-      EVMChainCode(schema.chain ?? "1"),
-      contract,
-    );
+    if (schema.name === "chain_transactions") {
+      return new AST_BlockchainTransactionQuery(
+        name,
+        returnType,
+        "chain_transactions",
+        schema,
+      );
+    } else {
+      const contract = AST_Contract.fromSchema(schema.contract);
+      return new AST_BlockchainTransactionQuery(
+        name,
+        returnType,
+        "network",
+        schema,
+        EVMChainCode(schema.chain ?? "1"),
+        contract,
+      );
+    }
   }
 }

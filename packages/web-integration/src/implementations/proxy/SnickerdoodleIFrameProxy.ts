@@ -76,6 +76,7 @@ import {
   BlockNumber,
   RefreshToken,
   OAuth2Tokens,
+  TransactionFlowInsight,
   IProxyAccountMethods,
   ChainTransaction,
   TransactionFilter,
@@ -366,26 +367,26 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
-  getTransactions(
-    filter?: TransactionFilter,
-  ): ResultAsync<ChainTransaction[], ProxyError> {
-    return this._createCall("getTransactions", {
-      filter,
-    });
-  }
-  getTransactionValueByChain(): ResultAsync<
-    TransactionPaymentCounter[],
-    ProxyError
-  > {
-    return this._createCall("getTransactionValueByChain", null);
-  }
-
   public getAccountBalances(): ResultAsync<TokenBalance[], ProxyError> {
     return this._createCall("getAccountBalances", null);
   }
 
   public getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError> {
     return this._createCall("getAccountNFTs", null);
+  }
+
+  public getTransactionValueByChain(): ResultAsync<
+    TransactionFlowInsight[],
+    ProxyError
+  > {
+    return this._createCall("getTransactionValueByChain", null);
+  }
+  public getTransactions(
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], ProxyError> {
+    return this._createCall("getTransactions", {
+      filter,
+    });
   }
 
   public closeTab(): ResultAsync<void, ProxyError> {

@@ -6,8 +6,6 @@ import {
   Invitation,
   Signature,
   TokenId,
-} from "@snickerdoodlelabs/objects";
-import {
   EWalletDataType,
   IOldUserAgreement,
   MarketplaceListing,

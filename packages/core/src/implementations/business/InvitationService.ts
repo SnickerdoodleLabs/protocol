@@ -183,7 +183,7 @@ export class InvitationService implements IInvitationService {
             return okAsync(EInvitationStatus.OutOfCapacity);
           }
 
-          // If invitation has bussiness signature verify signature
+          // If invitation has business signature verify signature
           if (
             invitation.businessSignature != null &&
             invitation.tokenId != null

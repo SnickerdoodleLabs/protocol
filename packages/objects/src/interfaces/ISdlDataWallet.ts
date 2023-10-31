@@ -16,7 +16,7 @@ import {
   QueryStatus,
   TransactionFilter,
   ChainTransaction,
-  TransactionPaymentCounter,
+  TransactionFlowInsight,
 } from "@objects/businessObjects/index.js";
 import {
   ECoreProxyType,
@@ -233,13 +233,13 @@ export interface ISdlDataWallet {
   getAccountBalances(): ResultAsync<TokenBalance[], ProxyError>;
   getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError>;
 
+  getTransactionValueByChain(): ResultAsync<
+    TransactionFlowInsight[],
+    ProxyError
+  >;
   getTransactions(
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], ProxyError>;
-  getTransactionValueByChain(): ResultAsync<
-    TransactionPaymentCounter[],
-    ProxyError
-  >;
 
   closeTab(): ResultAsync<void, ProxyError>;
   getAcceptedInvitationsCID(): ResultAsync<
