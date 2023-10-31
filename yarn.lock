@@ -9116,6 +9116,7 @@ __metadata:
   dependencies:
     "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/contracts-sdk": "workspace:^"
+    "@snickerdoodlelabs/erc7529": "workspace:^"
     "@snickerdoodlelabs/indexers": "workspace:^"
     "@snickerdoodlelabs/insight-platform-api": "workspace:^"
     "@snickerdoodlelabs/node-utils": "workspace:^"
@@ -9137,7 +9138,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snickerdoodlelabs/erc7529@workspace:packages/erc7529":
+"@snickerdoodlelabs/erc7529@workspace:^, @snickerdoodlelabs/erc7529@workspace:packages/erc7529":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/erc7529@workspace:packages/erc7529"
   dependencies:

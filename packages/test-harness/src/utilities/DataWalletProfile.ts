@@ -161,7 +161,7 @@ export class DataWalletProfile {
     const core = new SnickerdoodleCore(
       {
         defaultInsightPlatformBaseUrl: "http://localhost:3006",
-        dnsServerAddress: "http://localhost:3006/dns",
+        dnsProviderBaseUrl: "http://localhost:3006/dns",
         devChainProviderURL: "http://127.0.0.1:8545",
         discordOverrides: discordConfig,
         heartbeatIntervalMS: 5000, // Set the heartbeat to 5 seconds

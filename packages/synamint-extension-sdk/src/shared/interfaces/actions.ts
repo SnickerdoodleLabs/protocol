@@ -624,15 +624,6 @@ export class GetDefaultPermissionsParams extends CoreActionParams<
   }
 }
 
-export class GetAvailableInvitationsCIDParams extends CoreActionParams<JSONString> {
-  public constructor() {
-    super(GetAvailableInvitationsCIDParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.GET_AVAILABLE_INVITATIONS_CID;
-  }
-}
-
 export class GetStateParams extends CoreActionParams<IExternalState> {
   public constructor() {
     super(GetStateParams.getCoreAction());

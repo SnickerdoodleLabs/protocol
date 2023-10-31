@@ -50,7 +50,6 @@ import {
   AjaxError,
   BlockchainProviderError,
   ConsentContractError,
-  ConsentContractRepositoryError,
   ConsentError,
   ConsentFactoryContractError,
   DiscordError,
@@ -492,7 +491,7 @@ export interface IInvitationMethods {
     | UninitializedError
     | AjaxError
     | ConsentContractError
-    | ConsentContractRepositoryError
+    | ConsentFactoryContractError
     | UnauthorizedError
     | BlockchainCommonErrors
   >;
@@ -516,6 +515,8 @@ export interface IInvitationMethods {
     | AjaxError
     | MinimalForwarderContractError
     | ConsentError
+    | ConsentContractError
+    | ConsentFactoryContractError
     | UnauthorizedError
     | BlockchainCommonErrors
   >;
@@ -542,7 +543,6 @@ export interface IInvitationMethods {
     | ConsentError
     | AjaxError
     | ConsentContractError
-    | ConsentContractRepositoryError
     | UnauthorizedError
     | BlockchainCommonErrors
   >;
@@ -598,19 +598,6 @@ export interface IInvitationMethods {
     | ConsentFactoryContractError
     | PersistenceError
     | ConsentError
-    | UnauthorizedError
-    | BlockchainCommonErrors
-  >;
-
-  getAvailableInvitationsCID(
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    Map<EVMContractAddress, IpfsCID>,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentFactoryContractError
-    | ConsentContractError
-    | PersistenceError
     | UnauthorizedError
     | BlockchainCommonErrors
   >;

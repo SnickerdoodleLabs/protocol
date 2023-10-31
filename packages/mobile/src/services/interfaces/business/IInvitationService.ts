@@ -4,7 +4,6 @@ import {
   Invitation,
   DataPermissions,
   ConsentContractError,
-  ConsentContractRepositoryError,
   ConsentError,
   DomainName,
   EInvitationStatus,
@@ -30,7 +29,6 @@ export interface IInvitationService {
     EInvitationStatus,
     | PersistenceError
     | ConsentContractError
-    | ConsentContractRepositoryError
     | UninitializedError
     | BlockchainProviderError
     | AjaxError
@@ -56,7 +54,6 @@ export interface IInvitationService {
     | UninitializedError
     | PersistenceError
     | ConsentContractError
-    | ConsentContractRepositoryError
     | BlockchainProviderError
     | AjaxError
     | ConsentError
@@ -135,15 +132,6 @@ export interface IInvitationService {
     | ConsentError
     | PersistenceError
     | ConsentFactoryContractError
-  >;
-
-  getAvailableInvitationsCID(): ResultAsync<
-    Map<EVMContractAddress, IpfsCID>,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentFactoryContractError
-    | ConsentContractError
-    | PersistenceError
   >;
 }
 

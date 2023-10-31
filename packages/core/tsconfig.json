@@ -21,6 +21,9 @@
       "path": "../contracts-sdk"
     },
     {
+      "path": "../erc7529"
+    },
+    {
       "path": "../indexers"
     },
     {

@@ -245,10 +245,6 @@ export interface ISdlDataWallet {
     Map<EVMContractAddress, IpfsCID>,
     ProxyError
   >;
-  getAvailableInvitationsCID(): ResultAsync<
-    Map<EVMContractAddress, IpfsCID>,
-    ProxyError
-  >;
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOldUserAgreement, ProxyError>;

@@ -113,7 +113,6 @@ import {
   GetAcceptedInvitationsCIDParams,
   SetDefaultPermissionsToAllParams,
   GetDefaultPermissionsParams,
-  GetAvailableInvitationsCIDParams,
   GetStateParams,
   InitializeDiscordUserParams,
   GetDiscordInstallationUrlParams,
@@ -322,17 +321,6 @@ export class ExternalCoreGateway {
     params: AcceptInvitationByUUIDParams,
   ): ResultAsync<void, ProxyError> {
     return this._handler.call(params);
-  }
-
-  public getAvailableInvitationsCID(): ResultAsync<
-    Map<EVMContractAddress, IpfsCID>,
-    ProxyError
-  > {
-    return this._handler
-      .call(new GetAvailableInvitationsCIDParams())
-      .map((jsonString) => {
-        return ObjectUtils.deserialize(jsonString);
-      });
   }
 
   public acceptInvitation(

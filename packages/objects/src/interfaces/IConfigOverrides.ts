@@ -42,7 +42,7 @@ export interface IConfigOverrides {
   spaceAndTimeKey?: string | null;
   blockvisionKey?: string | null;
 
-  dnsServerAddress?: URLString;
+  dnsProviderBaseUrl?: URLString;
   dataWalletBackupIntervalMS?: number;
   backupChunkSizeTarget?: number;
   requestForDataCheckingFrequency?: number;
@@ -69,5 +69,5 @@ export interface IConfigOverrides {
     projectId: string;
   };
 
-  queryPerformanceMetricsLimit ? : number
+  queryPerformanceMetricsLimit?: number;
 }

@@ -55,10 +55,8 @@ import {
   IStorageUtils,
 } from "@snickerdoodlelabs/utils";
 import { injectable, inject } from "inversify";
-import { ResultAsync, okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
+import { okAsync } from "neverthrow";
 import Postmate from "postmate";
-import { parse } from "tldts";
 
 import { ICoreListener } from "@core-iframe/interfaces/api/index";
 import {
@@ -428,18 +426,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
             return core.invitation.getAcceptedInvitationsCID(this.sourceDomain);
-          });
-        }, data.callId);
-      },
-
-      getAvailableInvitationsCID: (
-        data: IIFrameCallData<Record<string, never>>,
-      ) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.invitation.getAvailableInvitationsCID(
-              this.sourceDomain,
-            );
           });
         }, data.callId);
       },

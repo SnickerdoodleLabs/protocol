@@ -14,7 +14,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
@@ -101,29 +101,59 @@ export class ERC7529Utils implements IERC7529Utils {
             type: "TXT",
           }),
         );
-        return this.ajaxUtils.get<IGetTxtRecordsResponse>(url, {
-          headers: { Accept: "application/dns-json" },
-        });
+        // TODO: Remove this after we've fully migrated
+        const snickerdoodleUrl = new URL(
+          urlJoinP(config.dnsProviderBaseUrl, [], {
+            name: `snickerdoodle-protocol.${domain}`,
+            type: "TXT",
+          }),
+        );
+        return ResultUtils.combine([
+          this.ajaxUtils.get<IGetTxtRecordsResponse>(url, {
+            headers: { Accept: "application/dns-json" },
+          }),
+          this.ajaxUtils.get<IGetTxtRecordsResponse>(snickerdoodleUrl, {
+            headers: { Accept: "application/dns-json" },
+          }),
+        ]);
       })
-      .map((response) => {
-        if (response.Answer == null) {
-          return [];
+      .map(([response, snickerdoodleResponse]) => {
+        const records = new Array<string>();
+
+        if (response.Answer != null) {
+          response.Answer.reduce((records, txtRecord) => {
+            // txtRecord.Data comes back as a string- WITH QUOTES, '"string"'.
+            // We need to remove the quotes
+            try {
+              const stringOnly = JSON.parse(txtRecord.data);
+              records.push(stringOnly);
+            } catch (err) {
+              this.logUtils.warning(
+                `Error parsing TXT record. Value: ${txtRecord.data}`,
+                err,
+              );
+            }
+            return records;
+          }, records);
         }
 
-        return response.Answer.reduce((records, txtRecord) => {
-          // txtRecord.Data comes back as a string- WITH QUOTES, '"string"'.
-          // We need to remove the quotes
-          try {
-            const stringOnly = JSON.parse(txtRecord.data);
-            records.push(stringOnly);
-          } catch (err) {
-            this.logUtils.warning(
-              `Error parsing TXT record. Value: ${txtRecord.data}`,
-              err,
-            );
-          }
-          return records;
-        }, new Array<string>());
+        if (snickerdoodleResponse.Answer != null) {
+          snickerdoodleResponse.Answer.reduce((records, txtRecord) => {
+            // txtRecord.Data comes back as a string- WITH QUOTES, '"string"'.
+            // We need to remove the quotes
+            try {
+              const stringOnly = JSON.parse(txtRecord.data);
+              records.push(stringOnly);
+            } catch (err) {
+              this.logUtils.warning(
+                `Error parsing TXT record. Value: ${txtRecord.data}`,
+                err,
+              );
+            }
+            return records;
+          }, records);
+        }
+        return records;
       });
   }
 }

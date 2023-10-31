@@ -395,15 +395,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
         return invitationService.getAgreementFlags(consentContractAddress);
       },
-      getAvailableInvitationsCID: (
-        sourceDomain: DomainName | undefined = undefined,
-      ) => {
-        const invitationService = this.iocContainer.get<IInvitationService>(
-          IInvitationServiceType,
-        );
-
-        return invitationService.getAvailableInvitationsCID();
-      },
       getAcceptedInvitationsCID: (
         sourceDomain: DomainName | undefined = undefined,
       ) => {

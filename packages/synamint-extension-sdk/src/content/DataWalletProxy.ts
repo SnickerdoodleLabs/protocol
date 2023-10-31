@@ -563,10 +563,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     return coreGateway.getAcceptedInvitationsCID();
   }
 
-  public getAvailableInvitationsCID() {
-    return coreGateway.getAvailableInvitationsCID();
-  }
-
   public getDefaultPermissions() {
     return coreGateway.getDefaultPermissions();
   }

@@ -79,13 +79,6 @@ export class InvitationService implements IInvitationService {
       );
   }
 
-  public getAvailableInvitationsCID(): ResultAsync<
-    Map<EVMContractAddress, IpfsCID>,
-    SnickerDoodleCoreError
-  > {
-    return this.invitationRepository.getAvailableInvitationsCID();
-  }
-
   public getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     SnickerDoodleCoreError

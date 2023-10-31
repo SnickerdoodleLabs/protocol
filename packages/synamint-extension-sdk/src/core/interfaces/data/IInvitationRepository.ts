@@ -46,10 +46,6 @@ export interface IInvitationRepository {
   getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError>;
-  getAvailableInvitationsCID(): ResultAsync<
-    Map<EVMContractAddress, IpfsCID>,
-    SnickerDoodleCoreError
-  >;
   getPossibleRewards(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,

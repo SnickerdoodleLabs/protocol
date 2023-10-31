@@ -1,3 +1,4 @@
+import { ERC7529Config } from "@snickerdoodlelabs/erc7529";
 import { IIndexerConfig } from "@snickerdoodlelabs/indexers";
 import {
   ControlChainInformation,
@@ -14,7 +15,9 @@ import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
 
 import { MetatransactionGasAmounts } from "@core/interfaces/objects/MetatransactionGasAmounts.js";
 
-export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
+export class CoreConfig
+  implements IIndexerConfig, IPersistenceConfig, ERC7529Config
+{
   public constructor(
     public controlChainId: EChain,
     public controlChainInformation: ControlChainInformation,
@@ -32,7 +35,7 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public dataWalletBackupIntervalMS: number,
     public backupChunkSizeTarget: number,
     public apiKeys: IApiKeys,
-    public dnsServerAddress: URLString,
+    public dnsProviderBaseUrl: URLString,
     public quoteCurrency: ECurrencyCode,
     public etherscanTransactionsBatchSize: number,
     public requestForDataCheckingFrequency: number,
@@ -49,6 +52,6 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public devChainProviderURL: ProviderUrl | null,
     public maxStatsRetentionSeconds: number,
     public passwordLanguageCode: LanguageCode,
-    public queryPerformanceMetricsLimit : number
+    public queryPerformanceMetricsLimit: number,
   ) {}
 }
