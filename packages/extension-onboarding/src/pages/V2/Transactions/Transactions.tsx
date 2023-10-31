@@ -1,15 +1,20 @@
 import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen";
-import Container from "@extension-onboarding/components/v2/Container";
-import DashboardTitle from "@extension-onboarding/components/v2/DashboardTitle";
 import Table from "@extension-onboarding/components/v2/Table";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { EVMTransaction, chainConfig } from "@snickerdoodlelabs/objects";
+import {
+  EVMTransaction,
+  chainConfig,
+  getChainInfoByChain,
+} from "@snickerdoodlelabs/objects";
 import {
   getCalculatedAge,
   abbreviateString,
+  SDTypography,
 } from "@snickerdoodlelabs/shared-components";
 import React, { useEffect, useState } from "react";
+import Card from "@extension-onboarding/components/v2/Card";
+import { ethers } from "ethers";
 
 const abbreviateWithBreakPoint = (value: string, breakPoint): string => {
   const [prefixLength, suffixLength, dotLenght] =
@@ -22,42 +27,58 @@ const columns = [
     label: "Txn Hash",
     render: (txn: EVMTransaction, breakPoint) => {
       return (
-        <a
-          target="_blank"
-          href={chainConfig.get(txn.chain)?.getExplorerURL(txn.hash)}
+        <SDTypography
+          variant="link"
+          color="textInfo"
+          fontWeight="medium"
+          onClick={() => {
+            window.open(chainConfig.get(txn.chain)?.explorerURL + txn.hash);
+          }}
         >
           {abbreviateWithBreakPoint(txn.hash, breakPoint)}
-        </a>
+        </SDTypography>
       );
     },
   },
   {
-    label: "Method Id",
+    label: "Method",
     render: (txn: EVMTransaction, breakPoint) => {
-      return <>{txn.methodId}</>;
+      return (
+        <SDTypography variant="bodyMd" color="textHeading" fontWeight="medium">
+          {txn.methodId}
+        </SDTypography>
+      );
     },
     hideOn: ["xs" as const, "sm" as const],
   },
   {
     label: "Age",
     sortKey: "timestamp" as const,
-    render: (txn: EVMTransaction) => <>{getCalculatedAge(txn.timestamp)}</>,
+    render: (txn: EVMTransaction) => (
+      <SDTypography variant="bodyMd" color="textHeading" fontWeight="medium">
+        {getCalculatedAge(txn.timestamp)}
+      </SDTypography>
+    ),
   },
   {
     label: "From",
     render: (txn: EVMTransaction, breakPoint) => {
       return (
-        <a
-          target="_blank"
-          href={
-            chainConfig
-              .get(txn.chain)
-              ?.explorerURL.replace("/tx/", "/address/")
-              .replace("/extrinsic/", "/account/") + (txn.from ?? "")
-          }
+        <SDTypography
+          variant="link"
+          color="textInfo"
+          fontWeight="medium"
+          onClick={() => {
+            window.open(
+              chainConfig
+                .get(txn.chain)
+                ?.explorerURL.replace("/tx/", "/address/")
+                .replace("/extrinsic/", "/account/") + (txn.from ?? ""),
+            );
+          }}
         >
           {abbreviateWithBreakPoint(txn.from ?? "", breakPoint)}
-        </a>
+        </SDTypography>
       );
     },
   },
@@ -66,42 +87,65 @@ const columns = [
     label: "To",
     render: (txn: EVMTransaction, breakPoint) => {
       return (
-        <a
-          target="_blank"
-          href={
-            chainConfig
-              .get(txn.chain)
-              ?.explorerURL.replace("/tx/", "/address/")
-              .replace("/extrinsic/", "/account/") + (txn.to ?? "")
-          }
+        <SDTypography
+          variant="link"
+          color="textInfo"
+          fontWeight="medium"
+          onClick={() => {
+            window.open(
+              chainConfig
+                .get(txn.chain)
+                ?.explorerURL.replace("/tx/", "/address/")
+                .replace("/extrinsic/", "/account/") + (txn.to ?? ""),
+            );
+          }}
         >
           {abbreviateWithBreakPoint(txn.to ?? "", breakPoint)}
-        </a>
+        </SDTypography>
       );
     },
   },
   {
     label: "Value",
     render: (txn: EVMTransaction, breakPoint) => {
-      return <>{txn.value}</>;
+      return (
+        <SDTypography variant="bodyMd" color="textHeading" fontWeight="medium">
+          {_getTxValue(txn)}
+        </SDTypography>
+      );
     },
     hideOn: ["xs" as const, "sm" as const],
   },
   {
-    label: "Gas Fee",
+    label: "Txn Fee",
     render: (txn: EVMTransaction, breakPoint) => {
-      return <>{txn.gasPrice}</>;
+      return (
+        <SDTypography variant="bodyMd" color="textHeading" fontWeight="medium">
+          {parseFloat(_getTxValue(txn, "gasPrice")).toFixed(10)}
+        </SDTypography>
+      );
     },
     align: "right" as const,
     hideOn: ["xs" as const, "sm" as const],
   },
 ];
 
+const _getTxValue = (
+  tx: EVMTransaction,
+  field: "value" | "gasPrice" = "value",
+) => {
+  const { decimals, symbol } = getChainInfoByChain(tx.chain).nativeCurrency;
+  return `${Number.parseFloat(
+    ethers.utils.formatUnits(tx[field] || "0", decimals),
+  )} ${field === "value" ? symbol : ""}`;
+};
+
 const Transactions = () => {
   const { sdlDataWallet } = useDataWalletContext();
   const { linkedAccounts } = useAppContext();
   // noramally getTransaction designed to return also sol transactions double check
   const [transactions, setTransactions] = useState<EVMTransaction[]>();
+
   useEffect(() => {
     getTransactions();
   }, []);
@@ -122,7 +166,15 @@ const Transactions = () => {
   return (
     <>
       {transactions && (
-        <Table defaultItemsPerPage={10} columns={columns} data={transactions} />
+        <Card
+          children={
+            <Table
+              defaultItemsPerPage={10}
+              columns={columns}
+              data={transactions}
+            />
+          }
+        />
       )}
     </>
   );
