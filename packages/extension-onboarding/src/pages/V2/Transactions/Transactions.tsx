@@ -1,5 +1,6 @@
-import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen";
+import Card from "@extension-onboarding/components/v2/Card";
 import Table from "@extension-onboarding/components/v2/Table";
+import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import {
@@ -12,9 +13,8 @@ import {
   abbreviateString,
   SDTypography,
 } from "@snickerdoodlelabs/shared-components";
-import React, { useEffect, useState } from "react";
-import Card from "@extension-onboarding/components/v2/Card";
 import { ethers } from "ethers";
+import React, { useEffect, useState } from "react";
 
 const abbreviateWithBreakPoint = (value: string, breakPoint): string => {
   const [prefixLength, suffixLength, dotLenght] =
@@ -54,6 +54,7 @@ const columns = [
   {
     label: "Age",
     sortKey: "timestamp" as const,
+    sortAsDefault: true,
     render: (txn: EVMTransaction) => (
       <SDTypography variant="bodyMd" color="textHeading" fontWeight="medium">
         {getCalculatedAge(txn.timestamp)}

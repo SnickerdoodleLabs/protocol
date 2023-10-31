@@ -22,6 +22,7 @@ export interface IColumn<T> {
   label: string;
   align?: "left" | "right" | "center";
   sortKey?: keyof T;
+  sortAsDefault?: boolean;
   render: (
     value: T,
     breakPoint: "xs" | "sm" | "md" | "lg" | "xl",
@@ -44,16 +45,18 @@ interface ITableProps<T> {
   defaultItemsPerPage?: 5 | 10 | 25;
 }
 
-interface IWithID {}
+interface IDefault {}
 
-const Table = <T extends IWithID>({
+const Table = <T extends IDefault>({
   data,
   columns,
   useDoubleColor = true,
   defaultItemsPerPage = 5,
 }: ITableProps<T>) => {
-  const [orderBy, setOrderBy] = useState<keyof T>();
-  const [order, setOrder] = useState<"asc" | "desc">("asc");
+  const [orderBy, setOrderBy] = useState<keyof T | undefined>(
+    columns.find((column) => column.sortAsDefault)?.sortKey,
+  );
+  const [order, setOrder] = useState<"asc" | "desc">("desc");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(defaultItemsPerPage as number);
   const classes = useStyles();
@@ -150,6 +153,8 @@ const Table = <T extends IWithID>({
         component="div"
         count={data.length}
         rowsPerPage={rowsPerPage}
+        labelRowsPerPage={currentBreakPoint === "xs" ? "" : "Rows per page:"}
+        align={currentBreakPoint === "xs" ? "center" : "left"}
         page={page}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}

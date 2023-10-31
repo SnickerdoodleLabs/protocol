@@ -6,6 +6,7 @@ import {
   DataPermissionIcon,
   SettingIcon,
 } from "@extension-onboarding/components/v2/Icons";
+import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
 import {
   AppBar,
   Box,
@@ -56,6 +57,9 @@ const useStyles = makeStyles((theme: Theme) => ({
       color: colors.WHITE,
     },
   },
+  pointer: {
+    cursor: "pointer",
+  },
   mobileMenu: {
     "& .MuiPaper-root": {
       top: "0 !important",
@@ -70,25 +74,25 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 interface INavigationItem {
   displayName: string;
-  path: string;
+  path: EPathsV2;
   icon: React.JSX.Element;
   initialSubroutePath?: string;
 }
 const navigationItems: INavigationItem[] = [
   {
     displayName: "Data Permissions",
-    path: "/data-permissions",
+    path: EPathsV2.DATA_PERMISSIONS,
     icon: <DataPermissionIcon />,
   },
   {
     displayName: "Settings",
-    path: "/settings",
+    path: EPathsV2.SETTINGS,
     icon: <SettingIcon />,
   },
   {
     displayName: "My Data Dashboard",
-    path: "/data-dashboard",
-    initialSubroutePath: "/data-dashboard/tokens",
+    path: "" as EPathsV2,
+    initialSubroutePath: EPathsV2.TRANSACTION_HISTORY,
     icon: <DashboardIcon />,
   },
 ];
@@ -130,7 +134,15 @@ const NavigationBar = () => {
       <HideOnScroll>
         <AppBar className={classes.appbar}>
           <Toolbar className={classes.toolbar}>
-            <img src={sdLogo} width={48} height={48} />
+            <img
+              src={sdLogo}
+              width={48}
+              height={48}
+              onClick={() => {
+                navigate(EPathsV2.DATA_PERMISSIONS);
+              }}
+              className={classes.pointer}
+            />
             <Box ml="auto" display="flex">
               <Hidden xsDown>
                 {navigationItems.map((item, index) => (

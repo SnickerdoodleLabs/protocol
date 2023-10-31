@@ -7,9 +7,6 @@ import {
   SDTypography,
 } from "@snickerdoodlelabs/shared-components";
 import React, { FC } from "react";
-
-import "@suiet/wallet-kit/style.css";
-
 interface ILinkAccountModalProps {
   closeModal: () => void;
 }

@@ -6,7 +6,7 @@ import { DataWalletContextProvider } from "@extension-onboarding/context/DataWal
 import { LayoutProvider } from "@extension-onboarding/context/LayoutContext";
 import { NotificationContextProvider } from "@extension-onboarding/context/NotificationContext";
 import { ThemeContextProvider } from "@extension-onboarding/context/ThemeContext";
-import { WalletProvider } from "@suiet/wallet-kit";
+import WalletKits from "@extension-onboarding/context/WalletKits";
 import React from "react";
 
 const MainContainer: React.FC = () => {
@@ -17,11 +17,11 @@ const MainContainer: React.FC = () => {
           <NotificationContextProvider>
             <AppContextProvider>
               <LayoutProvider>
-                <WalletProvider autoConnect={false}>
+                <WalletKits>
                   <AccountLinkingContextProvider>
                     <Router />
                   </AccountLinkingContextProvider>
-                </WalletProvider>
+                </WalletKits>
               </LayoutProvider>
             </AppContextProvider>
           </NotificationContextProvider>
