@@ -65,7 +65,7 @@ const StorageSettings: FC = () => {
   );
   const { setAlert } = useNotificationContext();
   const [folders, setFolders] = useState<NestedFolder[]>();
-  const { setModal } = useLayoutContext();
+  const { setModal, setLoadingStatus } = useLayoutContext();
   const [searchParams] = useSearchParams();
   const currentBreakPoint = useMedia();
 
@@ -94,6 +94,20 @@ const StorageSettings: FC = () => {
   useEffect(() => {
     onSearchParamChange();
   }, [searchParams]);
+
+  useEffect(() => {
+    if (!dropbox) {
+      return;
+    }
+    setLoadingStatus(true);
+    fetchDropBoxFolders()
+      .map(() => {
+        setLoadingStatus(false);
+      })
+      .mapErr(() => {
+        setLoadingStatus(false);
+      });
+  }, [JSON.stringify(dropbox)]);
 
   const onSearchParamChange = () => {
     const code = searchParams.get("code");
