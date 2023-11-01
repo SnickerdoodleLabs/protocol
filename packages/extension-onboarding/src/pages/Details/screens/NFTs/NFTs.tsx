@@ -19,10 +19,13 @@ import {
   SolanaNFTItem,
   SuiNFTItem,
 } from "@extension-onboarding/components/NFTItem";
-import UnauthScreen from "@extension-onboarding/components/UnauthScreen";
+import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen";
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/NFTs/NFTs.style";
+import Card from "@extension-onboarding/components/v2/Card";
+import CustomSizeGrid from "@extension-onboarding/components/v2/CustomSizeGrid";
+import EmptyItem from "@extension-onboarding/components/v2/EmptyItem";
 
 export enum EDisplayMode {
   MAINNET,
@@ -83,58 +86,52 @@ export default () => {
         setChainSelect={setChainSelect}
         chainSelect={chainSelect}
       />
-      {isNFTsLoading ? (
-        <Box display="flex" alignItems="center" justifyContent="center" mt={10}>
-          <CircularProgress />
-        </Box>
-      ) : (
-        <Grid container spacing={3}>
-          {nftsToRender?.length ? (
-            nftsToRender.map((nftItem) => {
-              if (nftItem.type === EChainTechnology.EVM) {
-                return (
-                  <EVMNFTItem
-                    key={JSON.stringify(nftItem)}
-                    item={nftItem as EVMNFT}
-                  />
-                );
-              } else if (nftItem.type === EChainTechnology.Sui) {
-                return (
-                  <SuiNFTItem
-                    key={JSON.stringify(nftItem)}
-                    item={nftItem as SuiNFT}
-                  />
-                );
-              } else {
-                return (
-                  <SolanaNFTItem
-                    key={JSON.stringify(nftItem)}
-                    item={nftItem as SolanaNFT}
-                  />
-                );
-              }
-            })
-          ) : (
-            <Box width="100%" display="flex">
-              <Box
-                justifyContent="center"
-                alignItems="center"
-                width="100%"
-                display="flex"
-                flexDirection="column"
-                pt={8}
-              >
-                <img style={{ width: 255, height: "auto" }} src={emptyNfts} />
-                <Box mt={2}>
-                  <Typography className={classes.description}>
-                    You don't have any NFTs.
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-          )}
-        </Grid>
-      )}
+      <Box mt={3} />
+      <Card>
+        {isNFTsLoading ? (
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            my={10}
+          >
+            <CircularProgress />
+          </Box>
+        ) : (
+          <>
+            {nftsToRender?.length ? (
+              <CustomSizeGrid
+                items={nftsToRender.map((nftItem) => {
+                  if (nftItem.type === EChainTechnology.EVM) {
+                    return (
+                      <EVMNFTItem
+                        key={JSON.stringify(nftItem)}
+                        item={nftItem as EVMNFT}
+                      />
+                    );
+                  } else if (nftItem.type === EChainTechnology.Sui) {
+                    return (
+                      <SuiNFTItem
+                        key={JSON.stringify(nftItem)}
+                        item={nftItem as SuiNFT}
+                      />
+                    );
+                  } else {
+                    return (
+                      <SolanaNFTItem
+                        key={JSON.stringify(nftItem)}
+                        item={nftItem as SolanaNFT}
+                      />
+                    );
+                  }
+                })}
+              />
+            ) : (
+              <EmptyItem />
+            )}
+          </>
+        )}
+      </Card>
     </Box>
   );
 };

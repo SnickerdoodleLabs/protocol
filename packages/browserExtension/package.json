@@ -39,7 +39,7 @@
     "@metamask/detect-provider": "^1.2.0",
     "@snickerdoodlelabs/objects": "workspace:^",
     "@snickerdoodlelabs/synamint-extension-sdk": "workspace:^",
-    "inversify": "^6.0.1",
+    "inversify": "^6.0.2",
     "jss": "^10.9.0",
     "neverthrow": "^5.1.0",
     "neverthrow-result-utils": "^2.0.2",

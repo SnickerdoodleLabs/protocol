@@ -4,6 +4,9 @@ import { useNavigate } from "react-router";
 import placeholder from "@extension-onboarding/assets/images/image-placeholder.png";
 import { INFT } from "@extension-onboarding/objects";
 import { NftMetadataParseUtils } from "@extension-onboarding/utils";
+import { Box, CircularProgress } from "@material-ui/core";
+import { Skeleton } from "@material-ui/lab";
+import { colors } from "@snickerdoodlelabs/shared-components";
 
 interface IMediaRendererProps {
   metadataString: string | null;
@@ -11,6 +14,8 @@ interface IMediaRendererProps {
 
 const MediaRenderer: FC<IMediaRendererProps> = ({ metadataString }) => {
   const [nftData, setNftData] = useState<null | INFT>();
+  const [isError, setIsError] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   useEffect(() => {
     getNftData();
   }, []);
@@ -24,12 +29,11 @@ const MediaRenderer: FC<IMediaRendererProps> = ({ metadataString }) => {
     setNftData(NftMetadataParseUtils.getParsedNFT(metadataString!));
   };
 
-  if (!metadataString) {
+  if (!metadataString || isError) {
     return (
       <img
-        width={160}
-        height={160}
-        style={{ borderRadius: 80, objectFit: "cover" }}
+        width="100%"
+        style={{ borderRadius: 4, aspectRatio: "1.2", objectFit: "cover" }}
         src={placeholder}
       />
     );
@@ -38,12 +42,31 @@ const MediaRenderer: FC<IMediaRendererProps> = ({ metadataString }) => {
   return (
     <>
       {nftData && (
-        <img
-          width={160}
-          height={160}
-          style={{ borderRadius: 80, objectFit: "cover" }}
-          src={nftData.imageUrl || placeholder}
-        />
+        <>
+          {isLoading && (
+            <Skeleton
+              variant="rect"
+              width="100%"
+              style={{
+                aspectRatio: "1.2",
+                height: "auto",
+                borderRadius: 4,
+              }}
+            />
+          )}
+          <img
+            width="100%"
+            style={{
+              borderRadius: 4,
+              aspectRatio: "1.2",
+              objectFit: "cover",
+              display: isLoading ? "none" : "block",
+            }}
+            src={nftData.imageUrl || placeholder}
+            onError={() => setIsError(true)}
+            onLoad={() => setIsLoading(false)}
+          />
+        </>
       )}
     </>
   );

@@ -5,12 +5,22 @@
   },
   "typescript.tsdk": "node_modules/typescript/lib",
   "cSpell.words": [
+    "domaincontracts",
     "ethersproject",
+    "IDNS",
+    "IEIP",
+    "IERC",
     "inversify",
+    "Ipfs",
+    "ITXT",
+    "Metatransaction",
     "mysten",
     "neverthrow",
+    "Sibbach",
     "Snickerdoodle",
     "snickerdoodlelabs",
-    "Solana"
+    "Solana",
+    "tldts",
+    "tsbuildinfo"
   ]
 }

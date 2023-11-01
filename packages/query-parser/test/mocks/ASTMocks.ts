@@ -1,7 +1,11 @@
 import "reflect-metadata";
 
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
-import { DataPermissions, IpfsCID } from "@snickerdoodlelabs/objects";
+import {
+  DataPermissions,
+  IpfsCID,
+  UnixTimestamp,
+} from "@snickerdoodlelabs/objects";
 import * as td from "testdouble";
 
 import {
@@ -38,6 +42,7 @@ export class ASTMocks {
     return this.queryFactories.makeAstEvaluator(
       IpfsCID(""),
       DataPermissions.createWithAllPermissions(),
+      UnixTimestamp(1),
     );
   }
 }
