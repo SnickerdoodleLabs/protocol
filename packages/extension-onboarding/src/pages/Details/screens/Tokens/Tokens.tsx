@@ -1,15 +1,16 @@
 import defaultToken from "@extension-onboarding/assets/icons/default-token.png";
-import emptyTokens from "@extension-onboarding/assets/images/empty-tokens.svg";
 import AccountChainBar from "@extension-onboarding/components/AccountChainBar";
-import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen/UnauthScreen";
 import Card from "@extension-onboarding/components/v2/Card";
+import EmptyItem from "@extension-onboarding/components/v2/EmptyItem";
 import Table from "@extension-onboarding/components/v2/Table";
 import TrendItem from "@extension-onboarding/components/v2/TrendItem";
+import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen/UnauthScreen";
 import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { IBalanceItem } from "@extension-onboarding/objects";
-import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/Tokens/Tokens.style";
+import { Box, CircularProgress, Grid } from "@material-ui/core";
 import {
   AccountAddress,
   BigNumberString,
@@ -18,6 +19,7 @@ import {
   EChainType,
   formatValue,
 } from "@snickerdoodlelabs/objects";
+import { SDTypography } from "@snickerdoodlelabs/shared-components";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -33,9 +35,6 @@ import { okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import React, { useEffect, useMemo, useState } from "react";
 import { Pie } from "react-chartjs-2";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/Tokens/Tokens.style";
-import { SDTypography } from "@snickerdoodlelabs/shared-components";
-import EmptyItem from "@extension-onboarding/components/v2/EmptyItem";
 
 ChartJS.register(
   CategoryScale,
@@ -50,14 +49,6 @@ ChartJS.register(
 export enum EDisplayMode {
   MAINNET,
   TESTNET,
-}
-
-const PAGINATION_RANGE = 5;
-
-interface IPagination {
-  currentIndex: number;
-  numberOfPages: number;
-  totalItems: number;
 }
 
 const chartOptions = {
@@ -76,18 +67,6 @@ const chartOptions = {
   },
 };
 
-const getPaginationObject = (itemCount): IPagination | undefined => {
-  if (itemCount <= PAGINATION_RANGE) {
-    return undefined;
-  }
-  return {
-    currentIndex: 1,
-    numberOfPages:
-      ((itemCount / PAGINATION_RANGE) | 0) +
-      (itemCount % PAGINATION_RANGE != 0 ? 1 : 0),
-    totalItems: itemCount,
-  };
-};
 const colorGenarator = chroma.scale(["#5A5292", "#B9B6D3"]).mode("lab");
 
 const { mainnetSupportedChainIds, testnetSupportedChainIds } = Array.from(
@@ -439,13 +418,21 @@ export default () => {
                     mb={3}
                   >
                     <Box mb={1.5}>
-                      <Typography className={classes.infoCardLabel}>
+                      <SDTypography
+                        variant="titleSm"
+                        color="textHeading"
+                        fontWeight="medium"
+                      >
                         Total Token Value
-                      </Typography>
+                      </SDTypography>
                     </Box>
-                    <Typography className={classes.infoCardValue}>
+                    <SDTypography
+                      variant="headlineSm"
+                      color="textHeading"
+                      fontWeight="bold"
+                    >
                       ${(totalBalance || 0).toFixed(2)}
-                    </Typography>
+                    </SDTypography>
                   </Box>
                   <Box
                     p={3}
@@ -455,28 +442,32 @@ export default () => {
                     borderRadius={8}
                   >
                     <Box mb={1.5}>
-                      <Typography className={classes.infoCardLabel}>
+                      <SDTypography
+                        variant="titleSm"
+                        color="textHeading"
+                        fontWeight="medium"
+                      >
                         Number of Tokens
-                      </Typography>
+                      </SDTypography>
                     </Box>
-                    <Typography className={classes.infoCardValue}>
+                    <SDTypography
+                      variant="headlineSm"
+                      color="textHeading"
+                      fontWeight="bold"
+                    >
                       {totalItems || 0}
-                    </Typography>
+                    </SDTypography>
                   </Box>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <Box border="1px solid #EAECF0" borderRadius={8} p={3}>
-                    <Typography
-                      style={{
-                        fontFamily: "Space Grotesk",
-                        fontWeight: 500,
-                        fontSize: 16,
-                        lineHeight: "24px",
-                        color: "#101828",
-                      }}
+                    <SDTypography
+                      variant="titleSm"
+                      color="textHeading"
+                      fontWeight="medium"
                     >
                       Token Value Breakdown
-                    </Typography>
+                    </SDTypography>
                     <Box display="flex" justifyContent="center" mt={4}>
                       {(charItemsToRender?.data?.length || 0) > 0 && (
                         <Box maxWidth="190px" mr={5}>
@@ -537,18 +528,25 @@ export default () => {
                                             1)),
                                     ).hex()}
                                   />
-                                  <Typography className={classes.metricTitle}>
+                                  <SDTypography
+                                    variant="bodyLg"
+                                    fontWeight="medium"
+                                  >
                                     {charItemsToRender.labels[index]}
-                                  </Typography>
+                                  </SDTypography>
                                 </Box>
                                 <Box ml={2.5} mt={0.5}>
-                                  <Typography className={classes.metricValue}>
+                                  <SDTypography
+                                    variant="bodyLg"
+                                    fontWeight="medium"
+                                    color="textHeading"
+                                  >
                                     {(
                                       (100 * item) /
                                       (totalBalance || 1)
                                     ).toFixed(2)}
                                     %
-                                  </Typography>
+                                  </SDTypography>
                                 </Box>
                               </Box>
                             );
