@@ -74,7 +74,7 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
   ): SiteVisit[] {
     const { start, end } = timestampRange;
     return siteVisits.filter((visit) => {
-      return visit.startTime >= start && visit.endTime <= end;
+      return visit.startTime >= Number(start) && visit.endTime <= Number(end);
     });
   }
 

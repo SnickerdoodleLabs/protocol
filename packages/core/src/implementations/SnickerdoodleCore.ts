@@ -95,6 +95,7 @@ import {
   RefreshToken,
   SiteVisitsMap,
   TransactionFlowInsight,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -153,6 +154,8 @@ import {
   IAdDataRepositoryType,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
+  IConsentContractRepository,
+  IConsentContractRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IBlockchainProvider,
@@ -516,16 +519,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return marketplaceService.getRecommendationsByListing(listing);
       },
 
-      getPossibleRewards: (
+      getEarnedRewardsByContractAddress: (
         contractAddresses: EVMContractAddress[],
-        timeoutMs?: number,
       ) => {
         const marketplaceService = this.iocContainer.get<IMarketplaceService>(
           IMarketplaceServiceType,
         );
-        return marketplaceService.getPossibleRewards(
+        return marketplaceService.getEarnedRewardsByContractAddress(
           contractAddresses,
-          timeoutMs ?? 3000,
         );
       },
     };
@@ -747,6 +748,21 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return accountService.initialize();
       })
       .map(() => {});
+  }
+
+  public getConsentContractURLs(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    URLString[],
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentContractError
+    | BlockchainCommonErrors
+  > {
+    const consentRepo = this.iocContainer.get<IConsentContractRepository>(
+      IConsentContractRepositoryType,
+    );
+    return consentRepo.getInvitationUrls(consentContractAddress);
   }
 
   public getConsentCapacity(

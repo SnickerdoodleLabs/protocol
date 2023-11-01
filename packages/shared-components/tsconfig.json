@@ -20,7 +20,9 @@
 		"./src/**/*.tsx",
 		"index.d.ts"
 	],
+	"files": [],
 	"exclude": [
+		"./src/Playground.tsx",
 		"node_modules"
 	]
 }

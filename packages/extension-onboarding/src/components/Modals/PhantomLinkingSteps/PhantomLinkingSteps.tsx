@@ -1,11 +1,10 @@
-import { Button, Box, makeStyles, Dialog, Typography } from "@material-ui/core";
-import React, { useContext, useEffect, useMemo, useState, FC } from "react";
-
 import phantomPlaceholderImage from "@extension-onboarding/assets/images/phantom-placeholder.png";
 import phantomStepsImage from "@extension-onboarding/assets/images/phantom-steps.png";
 import { useStyles } from "@extension-onboarding/components/Modals/PhantomLinkingSteps/PhantomLinkingSteps.style";
-import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { Box, Dialog, Typography } from "@material-ui/core";
+import { SDButton } from "@snickerdoodlelabs/shared-components";
+import React, { FC } from "react";
 
 const PhantomLinkingSteps: FC = () => {
   const { modalState, closeModal } = useLayoutContext();
@@ -50,14 +49,14 @@ const PhantomLinkingSteps: FC = () => {
           </Box>
         </Box>
         <Box display="flex" justifyContent="flex-end" mt={5}>
-          <PrimaryButton
+          <SDButton
             onClick={() => {
               onPrimaryButtonClick();
               closeModal();
             }}
           >
             Got it!
-          </PrimaryButton>
+          </SDButton>
         </Box>
       </Box>
     </Dialog>

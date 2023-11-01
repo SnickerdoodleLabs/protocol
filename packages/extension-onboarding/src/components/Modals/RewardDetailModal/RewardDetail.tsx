@@ -6,7 +6,6 @@ import {
   EWalletDataType,
   QueryTypePermissionMap,
 } from "@snickerdoodlelabs/objects";
-import { Permissions } from "@snickerdoodlelabs/shared-components";
 import React, { FC, useState } from "react";
 
 import { useStyles } from "@extension-onboarding/components/Modals/RewardDetailModal/RewardDetail.style";
@@ -67,21 +66,6 @@ const RewardDetail: FC = () => {
               </Grid>
               <Grid xs={7} item>
                 <Typography className={classes.name}>{reward.name}</Typography>
-                <Box
-                  display="flex"
-                  flexDirection="column"
-                  mt={2}
-                  px={3}
-                  py={7}
-                  borderRadius={12}
-                  bgcolor="#FAFAFA"
-                >
-                  <Typography className={classes.price}>Price:</Typography>
-                  <Permissions
-                    permissions={_permissions}
-                    rowItemProps={{ width: 64, mr: 1.5 }}
-                  />
-                </Box>
               </Grid>
             </Grid>
           </Box>

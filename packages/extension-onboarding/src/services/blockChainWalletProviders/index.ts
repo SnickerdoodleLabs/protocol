@@ -1,8 +1,3 @@
-import CoinbaseIcon from "@extension-onboarding/assets/icons/coinbase.svg";
-import MetamaskIcon from "@extension-onboarding/assets/icons/metamask.svg";
-import PhantomIcon from "@extension-onboarding/assets/icons/phantom.svg";
-import SuiIcon from "@extension-onboarding/assets/icons/sui.svg";
-import WalleConnectIcon from "@extension-onboarding/assets/icons/wallet-connect.svg";
 import { EWalletProviderKeys } from "@extension-onboarding/constants";
 import {
   MetamaskWalletProvider,
@@ -15,7 +10,7 @@ import { IWalletProvider } from "@extension-onboarding/services/blockChainWallet
 
 export interface IProvider {
   provider: IWalletProvider;
-  icon: any;
+  icon: string;
   name: string;
   key: EWalletProviderKeys;
   installationUrl: string;
@@ -28,14 +23,14 @@ export const getProviderList = (): IProvider[] => {
   return [
     {
       provider: new MetamaskWalletProvider(),
-      icon: MetamaskIcon,
+      icon: "https://storage.googleapis.com/dw-assets/spa/icons/metamask.png",
       name: "MetaMask",
       key: EWalletProviderKeys.METAMASK,
       installationUrl: "https://metamask.io/",
     },
     {
       provider: new PhantomWalletProvider(),
-      icon: PhantomIcon,
+      icon: "https://storage.googleapis.com/dw-assets/spa/icons/phantom.png",
       name: "Phantom",
       key: EWalletProviderKeys.PHANTOM,
       installationUrl: "https://phantom.app/download",
@@ -49,7 +44,7 @@ export const getProviderList = (): IProvider[] => {
     // },
     {
       provider: new CoinbaseWalletProvider(),
-      icon: CoinbaseIcon,
+      icon: "https://storage.googleapis.com/dw-assets/spa/icons/coinbase.png",
       name: "Coinbase",
       key: EWalletProviderKeys.COINBASE,
       installationUrl: "https://www.coinbase.com/wallet",
