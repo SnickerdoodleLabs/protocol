@@ -4,6 +4,7 @@ import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import {
+  EChainTechnology,
   EVMTransaction,
   chainConfig,
   getChainInfoByChain,
@@ -144,7 +145,6 @@ const _getTxValue = (
 const Transactions = () => {
   const { sdlDataWallet } = useDataWalletContext();
   const { linkedAccounts } = useAppContext();
-  // noramally getTransaction designed to return also sol transactions double check
   const [transactions, setTransactions] = useState<EVMTransaction[]>();
 
   useEffect(() => {
@@ -154,7 +154,14 @@ const Transactions = () => {
     sdlDataWallet
       .getTransactions()
       .map((transactions) => {
-        setTransactions(transactions as EVMTransaction[]);
+        // filter out non-evm transactions for now
+        setTransactions(
+          transactions.filter(
+            (txn) =>
+              getChainInfoByChain(txn.chain).chainTechnology ===
+              EChainTechnology.EVM,
+          ) as EVMTransaction[],
+        );
       })
       .mapErr((err) => {
         console.log(err);

@@ -128,7 +128,7 @@ export const PermissionSelectionWidget: FC<IPermissionSelectionProps> = ({
             variant="contained"
             color="button"
           >
-            Save & Continue
+            Save
           </SDButton>
         </Grid>
       </Grid>
