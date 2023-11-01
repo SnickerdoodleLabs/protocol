@@ -43,7 +43,7 @@ const UnauthScreen = () => {
         return {
           title:
             "To see your NFTs, you have to link your crypto account first.",
-          image: "https://storage.googleapis.com/dw-assets/spa/images/nft.png",
+          image: "https://storage.googleapis.com/dw-assets/spa/images/nfts.png",
         };
       }
 
