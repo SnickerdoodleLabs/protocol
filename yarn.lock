@@ -9091,7 +9091,7 @@ __metadata:
     "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
     ethers: ^5.6.6
-    inversify: ^6.0.1
+    inversify: ^6.0.2
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
   languageName: unknown
@@ -9108,7 +9108,7 @@ __metadata:
     "@metamask/detect-provider": ^1.2.0
     "@snickerdoodlelabs/objects": "workspace:^"
     "@snickerdoodlelabs/synamint-extension-sdk": "workspace:^"
-    inversify: ^6.0.1
+    inversify: ^6.0.2
     jss: ^10.9.0
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
@@ -9133,7 +9133,7 @@ __metadata:
     "@snickerdoodlelabs/objects": "workspace:^"
     axios: ^0.27.2
     ethers: ^5.6.6
-    inversify: ^6.0.1
+    inversify: ^6.0.2
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
     oauth-1.0a: ^2.2.6
@@ -9151,7 +9151,7 @@ __metadata:
     "@snickerdoodlelabs/node-utils": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
     ethers: ^5.6.6
-    inversify: ^6.0.1
+    inversify: ^6.0.2
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
   languageName: unknown
@@ -9197,7 +9197,7 @@ __metadata:
     ethers: ^5.6.6
     express: ^4.18.1
     inquirer: ^8.0.0
-    inversify: ^6.0.1
+    inversify: ^6.0.2
     ipfs-http-client: ^55.0.0
     jsonwebtoken: ^9.0.0
     lzutf8: ^0.6.3
@@ -9221,7 +9221,7 @@ __metadata:
     "@snickerdoodlelabs/query-parser": "workspace:^"
     "@snickerdoodlelabs/signature-verification": "workspace:^"
     ethers: ^5.6.6
-    inversify: ^6.0.1
+    inversify: ^6.0.2
     jsonwebtoken: ^9.0.0
     measured-core: ^2.0.0
     neverthrow: ^5.1.0
@@ -9243,7 +9243,7 @@ __metadata:
     "@snickerdoodlelabs/objects": "workspace:^"
     dns-packet: ^5.6.1
     ethers: ^5.6.6
-    inversify: ^6.0.1
+    inversify: ^6.0.2
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
     url-join-ts: ^1.0.5
@@ -9286,7 +9286,6 @@ __metadata:
     notistack: ^2.0.5
     path-browserify: ^1.0.1
     path-to-regexp: ^6.2.0
-    phantom-wagmi-connector: ^1.0.7
     react: ^17.0.2
     react-chartjs-2: ^4.3.1
     react-dom: ^17.0.2
@@ -9305,8 +9304,6 @@ __metadata:
     url-loader: ^4.1.1
     viem: ^1.18.1
     wagmi: ^1.4.5
-    web3: ^1.6.0
-    web3modal: ^1.9.4
     yup: 0.32.9
   languageName: unknown
   linkType: soft
@@ -9322,7 +9319,7 @@ __metadata:
     "@snickerdoodlelabs/shared-components": "workspace:^"
     "@snickerdoodlelabs/utils": "workspace:^"
     html-react-parser: ^4.2.2
-    inversify: ^6.0.1
+    inversify: ^6.0.2
     jss: ^10.9.0
     jss-preset-default: ^10.10.0
     neverthrow: ^5.1.0
@@ -9347,7 +9344,7 @@ __metadata:
     "@solana/spl-token": ^0.3.6
     "@solana/web3.js": ^1.66.2
     ethers: ^5.6.6
-    inversify: ^6.0.1
+    inversify: ^6.0.2
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
     reflect-metadata: ^0.1.13
@@ -9365,7 +9362,7 @@ __metadata:
     "@snickerdoodlelabs/objects": "workspace:^"
     "@snickerdoodlelabs/signature-verification": "workspace:^"
     ethers: ^5.6.6
-    inversify: ^6.0.1
+    inversify: ^6.0.2
     neverthrow: ^5.1.0
     ts-brand: ^0.0.2
     url-join-ts: ^1.0.5
@@ -9477,7 +9474,7 @@ __metadata:
     global: ^4.4.0
     https-browserify: ^0.0.1
     indexeddbshim: ^10.1.0
-    inversify: ^6.0.1
+    inversify: ^6.0.2
     inversify-inject-decorators: ^3.1.0
     jest: ^26.6.3
     jsonwebtoken: ^9.0.0
@@ -9574,7 +9571,7 @@ __metadata:
     "@snickerdoodlelabs/objects": "workspace:^"
     axios: ^0.27.2
     ethers: ^5.6.6
-    inversify: ^6.0.1
+    inversify: ^6.0.2
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
     oauth-1.0a: ^2.2.6
@@ -9606,7 +9603,7 @@ __metadata:
     "@snickerdoodlelabs/objects": "workspace:^"
     "@snickerdoodlelabs/utils": "workspace:^"
     ethers: ^5.6.6
-    inversify: ^6.0.1
+    inversify: ^6.0.2
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
   languageName: unknown
@@ -9625,7 +9622,7 @@ __metadata:
     "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
     ethers: ^5.6.6
-    inversify: ^6.0.1
+    inversify: ^6.0.2
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
   languageName: unknown
@@ -9735,7 +9732,7 @@ __metadata:
     ethers: ^5.6.6
     extension-port-stream: ^2.0.1
     html-react-parser: ^4.2.2
-    inversify: ^6.0.1
+    inversify: ^6.0.2
     json-rpc-engine: ^6.1.0
     json-rpc-middleware-stream: ^3.0.0
     jss: ^10.9.0
@@ -9762,7 +9759,7 @@ __metadata:
   dependencies:
     "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
-    inversify: ^6.0.1
+    inversify: ^6.0.2
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
     postmate: ^1.5.2
@@ -9826,7 +9823,7 @@ __metadata:
     "@snickerdoodlelabs/objects": "workspace:^"
     "@snickerdoodlelabs/utils": "workspace:^"
     ethers: ^5.6.6
-    inversify: ^6.0.1
+    inversify: ^6.0.2
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
     postmate: ^1.5.2
@@ -27041,10 +27038,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"inversify@npm:^6.0.1":
-  version: 6.0.1
-  resolution: "inversify@npm:6.0.1"
-  checksum: b6c9b56ef7817a71534b06101c2b0a0130b67c47a769f58794d9c0643591a83ac02be30a48c00cb729c0c83ece96dde369c419d48c32d0201c6cc7407629fbc5
+"inversify@npm:^6.0.2":
+  version: 6.0.2
+  resolution: "inversify@npm:6.0.2"
+  checksum: 9aafd41de12cb1dc1cebe6e0cc51fbda8a0f9cbcdc024874a7bc078f1317bb3e0f4a51cb28b2f3c69cc00f3e1f16e77f6e153c063b19da56f3592903dc21552c
   languageName: node
   linkType: hard
 
@@ -36389,22 +36386,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"phantom-wagmi-connector@npm:^1.0.7":
-  version: 1.0.7
-  resolution: "phantom-wagmi-connector@npm:1.0.7"
-  dependencies:
-    wagmi: ^1.0.2
-  peerDependencies:
-    react: ">=17.0.0"
-    typescript: ">=4.9.4"
-    viem: ^0.3.19
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: 160604d6c91262b25657b8349a9414200b3af22c5b876e4a6324a410d551aaa1ecd872c6349df3f9fb3963db2572631604791bdbb4de994368ae3c29f86d62ff
-  languageName: node
-  linkType: hard
-
 "picocolors@npm:^0.2.1":
   version: 0.2.1
   resolution: "picocolors@npm:0.2.1"
@@ -42158,7 +42139,7 @@ __metadata:
     tsconfig-paths: ^3.9.0
     tsconfig-paths-webpack-plugin: ^3.3.0
     typedoc: ^0.20.16
-    typescript: ~4.6.4
+    typescript: ^5.2.2
     url-loader: 3.0.0
     wait-on: ^5.2.0
     webpack: ^5.68.0
@@ -45189,13 +45170,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:~4.6.4":
-  version: 4.6.4
-  resolution: "typescript@npm:4.6.4"
+"typescript@npm:^5.2.2":
+  version: 5.2.2
+  resolution: "typescript@npm:5.2.2"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: e7bfcc39cd4571a63a54e5ea21f16b8445268b9900bf55aee0e02ad981be576acc140eba24f1af5e3c1457767c96cea6d12861768fb386cf3ffb34013718631a
+  checksum: 7912821dac4d962d315c36800fe387cdc0a6298dba7ec171b350b4a6e988b51d7b8f051317786db1094bd7431d526b648aba7da8236607febb26cf5b871d2d3c
   languageName: node
   linkType: hard
 
@@ -45229,13 +45210,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@~4.6.4#~builtin<compat/typescript>":
-  version: 4.6.4
-  resolution: "typescript@patch:typescript@npm%3A4.6.4#~builtin<compat/typescript>::version=4.6.4&hash=7ad353"
+"typescript@patch:typescript@^5.2.2#~builtin<compat/typescript>":
+  version: 5.2.2
+  resolution: "typescript@patch:typescript@npm%3A5.2.2#~builtin<compat/typescript>::version=5.2.2&hash=7ad353"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 1cb434fbc637d347be90e3a0c6cd05e33c38f941713c8786d3031faf1842c2c148ba91d2fac01e7276b0ae3249b8633f1660e32686cc7a8c6a8fd5361dc52c66
+  checksum: 07106822b4305de3f22835cbba949a2b35451cad50888759b6818421290ff95d522b38ef7919e70fb381c5fe9c1c643d7dea22c8b31652a717ddbd57b7f4d554
   languageName: node
   linkType: hard
 
@@ -46407,7 +46388,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"wagmi@npm:^1.0.2, wagmi@npm:^1.4.5":
+"wagmi@npm:^1.4.5":
   version: 1.4.5
   resolution: "wagmi@npm:1.4.5"
   dependencies:
