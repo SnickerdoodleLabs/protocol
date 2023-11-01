@@ -213,7 +213,7 @@ const App = () => {
     const html = document.documentElement.outerHTML;
 
     if (
-      url.includes("order-history" || "your-orders") &&
+      (url.includes("order-history") || url.includes("your-orders")) &&
       url.includes("amazon")
     ) {
       setAppState(EAPP_STATE.SHOPPINGDATA_INIT);
