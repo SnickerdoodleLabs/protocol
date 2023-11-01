@@ -2,8 +2,6 @@ import {
   TypedDataDomain,
   TypedDataField,
 } from "@ethersproject/abstract-signer";
-import { ResultAsync } from "neverthrow";
-
 import {
   AdSignature,
   ChainTransaction,
@@ -80,6 +78,7 @@ import {
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
+import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
 import {
   AccountAddress,
   AdKey,
@@ -113,8 +112,7 @@ import {
   BlockNumber,
   RefreshToken,
 } from "@objects/primitives/index.js";
-import { IUserAgreement } from "./IUserAgreement";
-
+import { ResultAsync } from "neverthrow";
 /**
  ************************ MAINTENANCE HAZARD ***********************************************
  Whenever you add or change a method in this class, you also need to look at and probably update

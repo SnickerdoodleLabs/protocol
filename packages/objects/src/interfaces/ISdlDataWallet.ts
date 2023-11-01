@@ -1,6 +1,3 @@
-import { ResultAsync } from "neverthrow";
-import { FunctionKeys } from "utility-types";
-
 import {
   EarnedReward,
   MarketplaceListing,
@@ -35,6 +32,7 @@ import {
   IStorageMethods,
 } from "@objects/interfaces/ISnickerdoodleCore.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
+import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
 import {
   AccountAddress,
   Age,
@@ -55,7 +53,8 @@ import {
   URLString,
 } from "@objects/primitives/index.js";
 import { GetResultAsyncValueType, PopTuple } from "@objects/types.js";
-import { IUserAgreement } from "./IUserAgreement";
+import { ResultAsync } from "neverthrow";
+import { FunctionKeys } from "utility-types";
 
 export type IProxyAccountMethods = {
   [key in FunctionKeys<IAccountMethods>]: (
