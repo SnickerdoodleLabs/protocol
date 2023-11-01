@@ -1,13 +1,11 @@
+import compactIcon from "@extension-onboarding/assets/icons/compact-toggle.png";
+import cozyIcon from "@extension-onboarding/assets/icons/cozy-toggle.png";
 import { Box } from "@material-ui/core";
 import React, { FC } from "react";
 
-import compactIcon from "@extension-onboarding/assets/icons/compact-toggle.png";
-import cozyIcon from "@extension-onboarding/assets/icons/cozy-toggle.png";
-import listIcon from "@extension-onboarding/assets/icons/list-toggle.png";
 export enum EDISPLAY_MODE {
   COMPACT,
   COZY,
-  LIST,
 }
 
 interface IDisplayModeToogleProps {
@@ -18,7 +16,6 @@ interface IDisplayModeToogleProps {
 const items = [
   { icon: cozyIcon, mode: EDISPLAY_MODE.COZY },
   { icon: compactIcon, mode: EDISPLAY_MODE.COMPACT },
-  { icon: listIcon, mode: EDISPLAY_MODE.LIST },
 ];
 
 const DisplayModeToggle: FC<IDisplayModeToogleProps> = ({
@@ -33,6 +30,7 @@ const DisplayModeToggle: FC<IDisplayModeToogleProps> = ({
       display="flex"
       borderRadius={16}
       width="fit-content"
+      height="fit-content"
     >
       {items.map((item, index) => (
         <Box
@@ -41,7 +39,10 @@ const DisplayModeToggle: FC<IDisplayModeToogleProps> = ({
           }}
           borderRadius={14}
           py={1}
-          px={2.5}
+          px={2}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
           key={index}
           bgcolor={selectedDisplayMode === item.mode ? "#fff" : "transparent"}
         >

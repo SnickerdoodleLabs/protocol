@@ -12,6 +12,7 @@ export const useModalStyles = makeStyles((theme) => ({
     "& .MuiDialog-paperFullWidth": {
       [theme.breakpoints.down("xs")]: {
         width: "unset",
+        minWidth: "90%",
       },
     },
   },

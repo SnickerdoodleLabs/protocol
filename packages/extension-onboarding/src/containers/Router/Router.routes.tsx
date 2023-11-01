@@ -8,6 +8,7 @@ import PoapNFTs from "@extension-onboarding/pages/Details/screens/PoapNFTs";
 import Tokens from "@extension-onboarding/pages/Details/screens/Tokens";
 // v2 pages
 import AudienceDetails from "@extension-onboarding/pages/V2/AudienceDetails";
+import Airdrops from "@extension-onboarding/pages/V2/Airdrops";
 import DataPermissions from "@extension-onboarding/pages/V2/DataPermissions";
 import Settings from "@extension-onboarding/pages/V2/Settings";
 import SocialMediaInfo from "@extension-onboarding/pages/V2/SocialMediaInfo";
@@ -24,6 +25,7 @@ export const AuthFlowRoutes = (
     />
     <Route element={<DataDashBoardLayout />}>
       <Route path={EPathsV2.TRANSACTION_HISTORY} element={<Transactions />} />
+      <Route path={EPathsV2.AIRDROPS} element={<Airdrops />} />
       <Route path={EPathsV2.TOKENS} element={<Tokens />} />
       <Route path={EPathsV2.NFTS} element={<NFTs />} />
       <Route path={EPathsV2.POAP_NFTS} element={<PoapNFTs />} />

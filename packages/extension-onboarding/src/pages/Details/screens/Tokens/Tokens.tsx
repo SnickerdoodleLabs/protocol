@@ -35,6 +35,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Pie } from "react-chartjs-2";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/Tokens/Tokens.style";
 import { SDTypography } from "@snickerdoodlelabs/shared-components";
+import EmptyItem from "@extension-onboarding/components/v2/EmptyItem";
 
 ChartJS.register(
   CategoryScale,
@@ -130,7 +131,6 @@ export default () => {
   const [accountTestnetBalances, setAccountTestnetBalances] =
     useState<IBalanceItem[]>();
   const [isBalancesLoading, setIsBalancesLoading] = useState(true);
-  const [tokensPagination, setTokensPagination] = useState<IPagination>();
   useEffect(() => {
     if (linkedAccounts.length) {
       setIsBalancesLoading(true);
@@ -326,12 +326,6 @@ export default () => {
 
     return options;
   }, [tokensToRender, totalBalance]);
-
-  useEffect(() => {
-    if (tokensToRender) {
-      setTokensPagination(getPaginationObject(tokensToRender.length));
-    }
-  }, [tokensToRender]);
 
   if (!(linkedAccounts.length > 0)) {
     return <UnauthScreen />;
@@ -569,17 +563,7 @@ export default () => {
               <Table data={tokensToRender} columns={columns} />
             </>
           ) : (
-            <Box width="100%" display="flex">
-              <Box
-                justifyContent="center"
-                alignItems="center"
-                width="100%"
-                display="flex"
-                py={6}
-              >
-                <img style={{ width: 255, height: "auto" }} src={emptyTokens} />
-              </Box>
-            </Box>
+            <EmptyItem />
           )}
         </Card>
       )}

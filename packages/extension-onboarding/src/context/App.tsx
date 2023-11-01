@@ -55,7 +55,7 @@ export interface IAppContext {
   dataWalletGateway: DataWalletGateway;
   linkedAccounts: LinkedAccount[];
   providerList: IProvider[];
-  earnedRewards: EarnedReward[];
+  earnedRewards: EarnedReward[] | undefined;
   updateOptedInContracts: () => void;
   optedInContracts: Map<EVMContractAddress, IpfsCID> | undefined;
   socialMediaProviderList: ISocialMediaWrapper[];
@@ -64,13 +64,9 @@ export interface IAppContext {
   appMode: EAppModes | undefined;
   invitationInfo: IInvitationInfo;
   setInvitationInfo: (invitationInfo: IInvitationInfo) => void;
-  isProductTourCompleted: boolean;
-  completeProductTour: () => void;
   setLinkerModalOpen: () => void;
   setLinkerModalClose: () => void;
   isLinkerModalOpen: boolean;
-  disablePopups: () => void;
-  popupsDisabled: boolean;
 }
 
 const INITIAL_INVITATION_INFO: IInvitationInfo = {
@@ -91,15 +87,11 @@ export const AppContextProvider: FC = ({ children }) => {
   const [invitationInfo, setInvitationInfo] = useState<IInvitationInfo>(
     INITIAL_INVITATION_INFO,
   );
-  const [earnedRewards, setEarnedRewards] = useState<EarnedReward[]>([]);
+  const [earnedRewards, setEarnedRewards] = useState<EarnedReward[]>();
   const [optedInContracts, setOptedInContracts] =
     useState<Map<EVMContractAddress, IpfsCID>>();
-  const [isProductTourCompleted, setIsProductTourCompleted] = useState<boolean>(
-    localStorage.getItem("SDL_UserCompletedIntro") === "COMPLETED",
-  );
   const [isLinkerModalOpen, setIsLinkerModalOpen] =
     React.useState<boolean>(false);
-  const [popupsDisabled, setPopupsDisabled] = useState<boolean>(false);
   const initialAccountsFetchRef = React.useRef<boolean>(false);
 
   useEffect(() => {
@@ -253,9 +245,6 @@ export const AppContextProvider: FC = ({ children }) => {
     setLinkedAccounts((prev) => [...prev, account]);
   };
 
-  const completeProductTour = () => {
-    setIsProductTourCompleted(true);
-  };
 
   return (
     <AppContext.Provider
@@ -273,13 +262,9 @@ export const AppContextProvider: FC = ({ children }) => {
         addAccount,
         invitationInfo,
         setInvitationInfo: updateInvitationInfo,
-        isProductTourCompleted,
-        completeProductTour,
         setLinkerModalOpen: () => setIsLinkerModalOpen(true),
         setLinkerModalClose: () => setIsLinkerModalOpen(false),
         isLinkerModalOpen,
-        popupsDisabled,
-        disablePopups: () => setPopupsDisabled(true),
       }}
     >
       {children}

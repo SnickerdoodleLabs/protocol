@@ -36,37 +36,47 @@ const useStyles = makeStyles((theme) => ({
 interface ILink {
   path: EPaths;
   title: string;
-  subTitle?: string;
+  subtitle?: string;
 }
 
 const LINKS: ILink[] = [
   {
     path: EPaths.TRANSACTION_HISTORY,
     title: "Transaction History",
-    subTitle:
+    subtitle:
       "Track your transactions for linked web3 accounts. Stay updated on your token, NFT, and airdrop activity.",
+  },
+  {
+    path: EPaths.AIRDROPS,
+    title: "Airdrops",
+    subtitle:
+      "Targeted airdrops you have received through your Snickerdoodle profile to one of your linked web3 accounts.",
   },
   {
     path: EPaths.TOKENS,
     title: "Tokens",
-    subTitle:
+    subtitle:
       "See your fungible token statistics across your linked web3 accounts.",
   },
   {
     path: EPaths.NFTS,
     title: "NFTs",
-    subTitle: "See the NFTs you own across all of your linked web3 accounts.",
+    subtitle: "See the NFTs you own across all of your linked web3 accounts.",
   },
-  { path: EPaths.POAP_NFTS, title: "POAPs" },
+  {
+    path: EPaths.POAP_NFTS,
+    title: "POAPs",
+    subtitle: "See POAPs you own across all of your linked web3 accounts.",
+  },
   {
     path: EPaths.BROWSER_ACTIVITY,
     title: "Browser Activity",
-    subTitle: "See which sites you are spending the most time on.",
+    subtitle: "See which sites you are spending the most time on.",
   },
   {
     path: EPaths.SOCIAL_MEDIA_DATA,
     title: "Social Media Data",
-    subTitle:
+    subtitle:
       "Share what kinds of Discord channels you are subscribed to. No one will ever know your discord handle.",
   },
 ];
@@ -139,7 +149,7 @@ const DataDashboardLayout = () => {
             LINKS.find((link) => link.path === location.pathname)?.title ?? ""
           }
           description={
-            LINKS.find((link) => link.path === location.pathname)?.subTitle ??
+            LINKS.find((link) => link.path === location.pathname)?.subtitle ??
             ""
           }
         />

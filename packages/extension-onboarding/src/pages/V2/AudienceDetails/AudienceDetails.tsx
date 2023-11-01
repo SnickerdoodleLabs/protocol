@@ -11,9 +11,11 @@ import { useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import AirdropsSection from "@extension-onboarding/pages/V2/AudienceDetails/AirdropsSection";
 import {
   Box,
   Divider,
+  Hidden,
   Container as MuiContainer,
   Radio,
   Tooltip,
@@ -132,11 +134,11 @@ const AudienceDetails = () => {
   }, [ipfsCID, contractInfo]);
 
   useEffect(() => {
-    if (!routeValidated || earnedRewards.length === 0) {
+    if (!routeValidated || !earnedRewards || earnedRewards.length === 0) {
       return;
     }
     getContractEarnedRewards();
-  }, [routeValidated, earnedRewards.length]);
+  }, [routeValidated, earnedRewards?.length]);
 
   const getContractEarnedRewards = () => {
     if (!consentAddress) {
@@ -226,6 +228,13 @@ const AudienceDetails = () => {
         });
       });
   };
+
+  const urlString = useMemo(() => {
+    if (!contractInfo) {
+      return "";
+    }
+    return contractInfo.urls.join(", ");
+  }, [contractInfo]);
 
   const handleLeaveAudience = () => {
     if (!consentAddress) {
@@ -378,35 +387,42 @@ const AudienceDetails = () => {
         pb={3}
         bgcolor={"cardBgColor"}
       >
-        <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Box display="flex" alignItems="center">
           <Box display="flex" alignItems="center">
             <Box mr={3}>
               <BackButton
                 onClick={() => {
-                  navigate(-1);
+                  navigate(EPathsV2.DATA_PERMISSIONS);
                 }}
               />
             </Box>
+            <SDTypography variant="bodyMd"> Data Permissions</SDTypography>
           </Box>
         </Box>
-        <Box width="100%" display="flex" pr={{ xs: 0, sm: 5, md: 8 }}>
-          {userOptedIn === EOptedInStatus.OPTED_IN ? (
-            <Box ml="auto">
-              <SDButton
-                onClick={() => {
-                  handleLeaveAudience();
-                }}
-                color="danger"
-                variant="outlined"
-              >
-                Unsubscribe
-              </SDButton>
-            </Box>
-          ) : (
-            <Box mt={3.5} />
-          )}
-        </Box>
+
         <MuiContainer maxWidth="lg">
+          <Hidden smUp>
+            <Box mt={3} />
+          </Hidden>
+          <Hidden xsDown>
+            <Box width="100%" display="flex" pr={{ sm: 0, md: 4 }}>
+              {userOptedIn === EOptedInStatus.OPTED_IN ? (
+                <Box ml="auto">
+                  <SDButton
+                    onClick={() => {
+                      handleLeaveAudience();
+                    }}
+                    color="danger"
+                    variant="outlined"
+                  >
+                    Unsubscribe
+                  </SDButton>
+                </Box>
+              ) : (
+                <Box mt={3.5} />
+              )}
+            </Box>
+          </Hidden>
           <Box display="flex" alignItems="center" width="100%">
             <Box
               mr={3}
@@ -425,10 +441,36 @@ const AudienceDetails = () => {
               </SDTypography>
             </Box>
           </Box>
+          <Hidden smUp>
+            {userOptedIn === EOptedInStatus.OPTED_IN && (
+              <>
+                <Box mt={3} />
+                <SDButton
+                  fullWidth
+                  onClick={() => {
+                    handleLeaveAudience();
+                  }}
+                  color="danger"
+                  variant="outlined"
+                >
+                  Unsubscribe
+                </SDButton>
+              </>
+            )}
+          </Hidden>
         </MuiContainer>
       </Box>
       <Container>
         <>
+          {contractInfo && directRewards?.length > 0 && (
+            <>
+              <Box mt={3} />
+              <AirdropsSection
+                urlString={urlString}
+                rewardItems={directRewards}
+              />
+            </>
+          )}
           {userOptedIn === EOptedInStatus.OPTED_IN && receivingAccount && (
             <>
               <Box mt={3} />
