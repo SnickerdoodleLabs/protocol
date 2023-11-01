@@ -199,4 +199,18 @@ export const useStyles = makeStyles((theme) => ({
     fontStyle: "normal",
     color: "#000000",
   },
+  paginationText: {
+    fontFamily: "Roboto",
+    fontStyle: "normal",
+    fontWeight: 500,
+    fontSize: 16,
+    lineHeight: "25.6px",
+    color: "#424242",
+  },
+  tableTitle: {
+    fontWeight: 500,
+    fontSize: "12px",
+    lineHeight: "18px",
+    color: "#212121",
+  },
 }));

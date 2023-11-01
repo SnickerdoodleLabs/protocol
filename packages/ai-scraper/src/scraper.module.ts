@@ -80,9 +80,6 @@ export const scraperModule = new ContainerModule(
       .to(LLMProductMetaUtilsChatGPT)
       .inSingletonScope();
 
-    bind<IAmazonNavigationUtils>(IAmazonNavigationUtilsType)
-      .to(AmazonNavigationUtils)
-      .inSingletonScope();
     bind<IWebpageClassifier>(IWebpageClassifierType)
       .to(WebpageClassifier)
       .inSingletonScope();

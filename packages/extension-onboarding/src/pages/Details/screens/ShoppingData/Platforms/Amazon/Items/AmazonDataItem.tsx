@@ -68,7 +68,7 @@ export const AmazonDataItem: FC<IAmazonDataItemProps> = memo(
       calculateTotalPrices(product).clothesTotalPrice,
       calculateTotalPrices(product).electronicsTotalPrice,
       calculateTotalPrices(product).gameTotalPrice,
-      calculateTotalPrices(product).totalPrice,
+      calculateTotalPrices(product).otherTotalPrice,
     ];
     const labels: string[] = ["Clothes ", "Electronic ", "Game", "Other"];
     const pieChartData: ChartData<"pie", number[], any> = {
@@ -105,7 +105,7 @@ export const AmazonDataItem: FC<IAmazonDataItemProps> = memo(
 
     return (
       <>
-        <Box className={classes.csvContainer}>
+        {/*  <Box className={classes.csvContainer}>
           <Box>
             <Button
               className={classes.csvButton}
@@ -114,7 +114,7 @@ export const AmazonDataItem: FC<IAmazonDataItemProps> = memo(
               Download as CSV
             </Button>
           </Box>
-        </Box>
+        </Box> */}
 
         <Grid container>
           <Grid item xs={6}>

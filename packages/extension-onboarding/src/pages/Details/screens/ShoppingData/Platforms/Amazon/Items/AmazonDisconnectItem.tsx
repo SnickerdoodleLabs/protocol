@@ -69,14 +69,14 @@ export const AmazonDisConnectItem: FC<IAmazonDisConnectItemProps> = memo(
           </Typography>
         </Box>
         <Box>
-          <Button
+          {/*  <Button
             className={classes.SyncDataButton}
             endIcon={
               <img className={classes.syncDataIcon} src={SyncDataIcon} />
             }
           >
             Sync Data
-          </Button>
+          </Button> */}
           <Button className={classes.Button} onClick={handleDisconnectClick}>
             Disconnect
           </Button>

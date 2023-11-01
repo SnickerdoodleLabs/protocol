@@ -1,4 +1,10 @@
-import { Box, Typography, Button, IconButton } from "@material-ui/core";
+import {
+  Box,
+  Typography,
+  Button,
+  IconButton,
+  CircularProgress,
+} from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import React from "react";
 
@@ -34,18 +40,20 @@ const ShoppingDataProcess: React.FC<IShoppingDataProcessProps> = ({
           Adding your data to your Data Wallet
         </Typography>
       </Box>
-      <Box mt={1.5}>
-        <ProgressBar />
+      <Box
+        mt={1.5}
+        my={2}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        {/* <ProgressBar /> */}
+        <CircularProgress />
       </Box>
       <Box mt={1.5}>
         <Typography className={classes.subText}>
           please wait for the process!
         </Typography>
-      </Box>
-      <Box mt={1.5}>
-        <Button className={classes.button} fullWidth>
-          Next
-        </Button>
       </Box>
     </Box>
   );

@@ -14,6 +14,7 @@ import { IShoppingDataPlatformProps } from "../types";
 import { AmazonConnectItem } from "./Items/AmazonConnectItem";
 import { AmazonDataItem } from "./Items/AmazonDataItem";
 import { AmazonDisConnectItem } from "./Items/AmazonDisconnectItem";
+import { AmazonTable } from "./Items/AmazonTable";
 
 import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
@@ -88,6 +89,9 @@ export const Amazon: FC<IShoppingDataPlatformProps> = memo(
             </Grid>
             <Grid className={classes.containers}>
               <AmazonDataItem product={product} />
+            </Grid>
+            <Grid className={classes.containers}>
+              <AmazonTable product={product} />
             </Grid>
           </>
         )}
