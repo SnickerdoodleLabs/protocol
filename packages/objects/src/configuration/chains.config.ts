@@ -347,6 +347,40 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       URLString("https://shibya.subscan.io/"),
     ),
   ],
+  [
+    EChain.ZkSyncEra,
+    new ChainInformation(
+      "zkSync Era",
+      ChainId(EChain.ZkSyncEra),
+      EChain.ZkSyncEra,
+      EChainTechnology.EVM,
+      true,
+      "zksyncera",
+      10000, // average block mining time
+      new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
+      EChainType.Mainnet,
+      "https://explorer.zksync.io/tx/",
+      getExplorerUrl,
+      URLString("https://block-explorer-api.mainnet.zksync.io/"),
+    ),
+  ],
+  [
+    EChain.Base,
+    new ChainInformation(
+      "Base",
+      ChainId(EChain.Base),
+      EChain.Base,
+      EChainTechnology.EVM,
+      true,
+      "base",
+      10000, // average block mining time
+      new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
+      EChainType.Mainnet,
+      "https://basescan.org/tx/",
+      getExplorerUrl,
+      URLString("https://api.basescan.org/api"),
+    ),
+  ],
 ]);
 
 export function getChainInfoByChain(chain: EChain): ChainInformation {
