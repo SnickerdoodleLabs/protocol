@@ -355,7 +355,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChain.ZkSyncEra,
       EChainTechnology.EVM,
       true,
-      "zksyncera",
+      "zksync-era",
       10000, // average block mining time
       new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
       EChainType.Mainnet,
