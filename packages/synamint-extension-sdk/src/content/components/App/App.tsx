@@ -8,9 +8,11 @@ import {
   EWalletDataType,
   HTMLString,
   LinkedAccount,
+  PageNo,
   PossibleReward,
   URLString,
   UUID,
+  Year,
 } from "@snickerdoodlelabs/objects";
 import endOfStream from "end-of-stream";
 import PortStream from "extension-port-stream";
@@ -166,6 +168,9 @@ const App = () => {
   const [shoppingDataScrapeStart, setShoppingDataScrapeStart] =
     useState<boolean>(false);
 
+  const [years, setYears] = useState<Year[]>([]);
+  const [urls, setUrls] = useState<URLString[]>([]);
+
   useEffect(() => {
     window.postMessage(
       {
@@ -199,6 +204,37 @@ const App = () => {
     };
   }, []);
 
+  /*  useEffect(() => {
+    scrapeAmazon();
+  }, []);
+
+  const scrapeAmazon = () => {
+    const url = window.location.href;
+    const html = document.documentElement.outerHTML;
+
+    if (
+      (url.includes("order-history") || url.includes("your-orders")) &&
+      url.includes("amazon")
+    ) {
+      coreGateway.scraperNavigation.getYears(HTMLString(html)).map((year) => {
+        return setYears(year);
+      });
+      console.log("yearsss", years);
+      for (let i = 5; i > 0; i--) {
+        years.reverse().map((year) => {
+          coreGateway.scraperNavigation
+            .getOrderHistoryPageByYear(ELanguageCode.English, year, PageNo(i))
+            .map((result) => {
+              return setUrls([result]);
+            });
+
+          console.log(year, "year", i, "page");
+        });
+      }
+      console.log(urls, "urls");
+    }
+  }; */
+
   useEffect(() => {
     checkURLAMAZON();
   }, [shoppingDataScrapeStart]);
@@ -220,6 +256,8 @@ const App = () => {
       if (shoppingDataScrapeStart) {
         setAppState(EAPP_STATE.SHOPPINGDATA_SCRAPE_PROCESS);
         console.log("TEST1");
+        /*  scrapeAmazon(); */
+        console.log(urls, "urls");
         coreGateway.scraper
           .classifyURL(URLString(url), ELanguageCode.English)
           .andThen((DomainTask) => {

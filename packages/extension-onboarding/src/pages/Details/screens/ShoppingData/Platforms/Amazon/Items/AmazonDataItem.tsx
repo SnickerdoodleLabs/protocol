@@ -130,12 +130,6 @@ export const AmazonDataItem: FC<IAmazonDataItemProps> = memo(
                     ${calculateTotalPrices(product).totalPrice}
                   </Typography>
                 </Box>
-                <Box className={classes.profitContainer}>
-                  <Typography className={classes.profit}>+20%</Typography>
-                  <Typography className={classes.vsLastMonth}>
-                    vs last month
-                  </Typography>
-                </Box>
               </Box>
             </Box>
             <Box className={classes.productDataContainer}>
