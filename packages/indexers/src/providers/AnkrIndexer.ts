@@ -4,8 +4,9 @@ import {
   ILogUtils,
   ILogUtilsType,
   ObjectUtils,
+  ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
-import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   EChainTechnology,
   TickerSymbol,
@@ -75,14 +76,8 @@ export class AnkrIndexer implements IEVMIndexer {
       EChain.Arbitrum,
       new IndexerSupportSummary(EChain.Arbitrum, true, true, true),
     ],
-    [
-      EChain.Fuji, 
-      new IndexerSupportSummary(EChain.Fuji, true, true, true),
-    ],
-    [
-      EChain.Mumbai,
-      new IndexerSupportSummary(EChain.Mumbai, true, true, true),
-    ],
+    [EChain.Fuji, new IndexerSupportSummary(EChain.Fuji, true, true, true)],
+    [EChain.Mumbai, new IndexerSupportSummary(EChain.Mumbai, true, true, true)],
     // [
     //   EChain.BinanceTestnet,
     //   new IndexerSupportSummary(EChain.BinanceTestnet, true, false, false),
@@ -168,7 +163,6 @@ export class AnkrIndexer implements IEVMIndexer {
         },
         id: 1,
       };
-      console.log("requestParams: " + JSON.stringify(requestParams));
 
       context.privateEvents.onApiAccessed.next(EExternalApi.Ankr);
       return this.ajaxUtils
@@ -247,10 +241,7 @@ export class AnkrIndexer implements IEVMIndexer {
           },
         })
         .map((response) => {
-          // return ResultUtils.combine(
-          console.log("chain: " + chain);
           return response.result.assets.map((item) => {
-            console.log("item: " + JSON.stringify(item));
             return new EVMNFT(
               item.contractAddress,
               BigNumberString(item.tokenId),
