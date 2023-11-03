@@ -9130,7 +9130,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/common-utils@workspace:packages/common-utils"
   dependencies:
-    "@snickerdoodlelabs/objects": "workspace:^"
+    "@snickerdoodlelabs/objects": ^1.1.4
     axios: ^0.27.2
     ethers: ^5.6.6
     inversify: ^6.0.2
@@ -9581,7 +9581,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snickerdoodlelabs/objects@workspace:^, @snickerdoodlelabs/objects@workspace:packages/objects":
+"@snickerdoodlelabs/objects@^1.1.4, @snickerdoodlelabs/objects@workspace:^, @snickerdoodlelabs/objects@workspace:packages/objects":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/objects@workspace:packages/objects"
   dependencies:
