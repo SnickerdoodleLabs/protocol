@@ -151,7 +151,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       4000,
       new NativeCurrencyInformation("AVAX", 18, "AVAX", "avalanche-2"),
       EChainType.Testnet,
-      "https://testnet.snowtrace.io/block/",
+      "https://testnet.snowtrace.io/tx/",
       EVMContractAddress("0x5540122e78241679Da8d07A04A74D3a7f52aED97"), // Consent Contract Factory
       EVMContractAddress("0x49a04d6545b1511742033b0ddF6a2Ba880A69287"), // Crumbs Contract
       EVMContractAddress("0xdB5c885944d903Ac5c146eef400D2ee20572d357"), // Metatransaction Forwarder Contract
@@ -179,7 +179,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
   [
     EChain.SolanaTestnet,
     new ChainInformation(
-      "Solana Testnet",
+      "Solana",
       ChainId(EChain.SolanaTestnet),
       EChain.SolanaTestnet,
       EChainTechnology.Solana,
@@ -206,7 +206,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       10000, // average block mining time
       new NativeCurrencyInformation("xDAI", 18, "xDAI", "xdai"),
       EChainType.Mainnet,
-      "https://gnosisscan.io/",
+      "https://gnosisscan.io/tx/",
       getExplorerUrl,
       URLString("https://api.gnosisscan.io/"),
     ),
@@ -223,7 +223,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       10000, // average block mining time
       new NativeCurrencyInformation("BNB", 18, "BNB", "binancecoin"),
       EChainType.Mainnet,
-      "https://bscscan.com/",
+      "https://bscscan.com/tx/",
       getExplorerUrl,
       URLString("https://bscscan.com/"),
     ),
@@ -231,7 +231,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
   [
     EChain.BinanceTestnet,
     new ChainInformation(
-      "BinanceTestnet",
+      "Binance",
       ChainId(EChain.BinanceTestnet),
       EChain.BinanceTestnet,
       EChainTechnology.EVM,
@@ -240,7 +240,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       10000, // average block mining time
       new NativeCurrencyInformation("BNB", 18, "BNB", "binancecoin"),
       EChainType.Testnet,
-      "https://testnet.bscscan.com/",
+      "https://testnet.bscscan.com/tx/",
       getExplorerUrl,
       URLString("https://testnet.bscscan.com/"),
     ),
@@ -257,7 +257,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       10000, // average block mining time
       new NativeCurrencyInformation("GLMR", 18, "GLMR", "moonbeam"),
       EChainType.Mainnet,
-      "https://api-moonbeam.moonscan.io/api",
+      "https://moonscan.io/tx/",
       getExplorerUrl,
       URLString("https://api-moonbeam.moonscan.io/"),
     ),
@@ -272,9 +272,9 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       true,
       "arbitrum",
       10000, // average block mining time
-      new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
+      new NativeCurrencyInformation("ETH", 18, "ARB", "ethereum"),
       EChainType.Mainnet,
-      "https://api.arbiscan.io/api",
+      "https://arbiscan.io/tx/",
       getExplorerUrl,
       URLString("https://arbiscan.io/"),
     ),
@@ -289,7 +289,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       true,
       "optimism",
       10000, // average block mining time
-      new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
+      new NativeCurrencyInformation("ETH", 18, "OP", "ethereum"),
       EChainType.Mainnet,
       "https://optimistic.etherscan.io/tx/",
       getExplorerUrl,
@@ -308,7 +308,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       10000, // average block mining time
       new NativeCurrencyInformation("ASTR", 18, "ASTR", "astar"),
       EChainType.Mainnet,
-      "https://astar.subscan.io/api",
+      "https://astar.subscan.io/extrinsic/",
       getExplorerUrl,
       URLString("https://astar.subscan.io/"),
     ),
@@ -340,11 +340,11 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       true,
       "shibuya",
       10000, // average block mining time
-      new NativeCurrencyInformation("SBY", 18, "SBY", "shibuya"),
+      new NativeCurrencyInformation("SBY", 18, "ASTR", "shibuya"),
       EChainType.Testnet,
-      "https://shibuya.subscan.io/api",
+      "https://shibuya.subscan.io/extrinsic/",
       getExplorerUrl,
-      URLString("https://shibya.subscan.io/"),
+      URLString("https://shibuya.subscan.io/"),
     ),
   ],
   [

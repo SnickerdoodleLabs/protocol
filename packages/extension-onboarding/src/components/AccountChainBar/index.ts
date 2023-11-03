@@ -1,1 +1,4 @@
-export { default } from "@extension-onboarding/components/AccountChainBar/AccountChainBar";
+export {
+  default,
+  EDisplayMode,
+} from "@extension-onboarding/components/AccountChainBar/AccountChainBar";

@@ -1,12 +1,31 @@
 import {
+  IFrameConfig,
+  IFrameControlConfig,
+} from "@core-iframe/interfaces/objects";
+import {
+  EInvitationSourceType,
+  IFrameEvents,
+  IInvitationDisplayRequest,
+} from "@core-iframe/interfaces/objects/IFrameEvents";
+import { Theme, ThemeProvider } from "@material-ui/core";
+import {
   DataPermissions,
   EVMContractAddress,
   EWalletDataType,
   IOldUserAgreement,
+  IPaletteOverrides,
   ISnickerdoodleCore,
+  IUserAgreement,
   Invitation,
   LinkedAccount,
 } from "@snickerdoodlelabs/objects";
+import {
+  DescriptionWidget,
+  FF_SUPPORTED_ALL_PERMISSIONS,
+  ModalContainer,
+  PermissionSelectionWidget,
+  createThemeWithOverrides,
+} from "@snickerdoodlelabs/shared-components";
 import React, {
   useMemo,
   useState,
@@ -16,29 +35,6 @@ import React, {
   useCallback,
 } from "react";
 import { Subscription } from "rxjs";
-
-import { RootContainer } from "@core-iframe/app/ui/components/Container";
-import { permissions } from "@core-iframe/app/ui/constants";
-import {
-  ThemeProvider,
-  ITheme,
-  defaultLightTheme,
-  generateTheme,
-} from "@core-iframe/app/ui/lib";
-import { Description } from "@core-iframe/app/ui/widgets/Description";
-import { Loading } from "@core-iframe/app/ui/widgets/Loading";
-import { PermissionSelection } from "@core-iframe/app/ui/widgets/PermissionSelection";
-import { SubscriptionFail } from "@core-iframe/app/ui/widgets/SubscriptionFail";
-import { SubscriptionSuccess } from "@core-iframe/app/ui/widgets/SubscriptionSuccess";
-import {
-  IFrameConfig,
-  IFrameControlConfig,
-} from "@core-iframe/interfaces/objects";
-import {
-  EInvitationSourceType,
-  IFrameEvents,
-  IInvitationDisplayRequest,
-} from "@core-iframe/interfaces/objects/IFrameEvents";
 
 interface IInvitationHandlerProps {
   core: ISnickerdoodleCore;
@@ -53,21 +49,39 @@ export enum EAPP_STATE {
   IDLE,
   INVITATION_PREVIEW,
   PERMISSION_SELECTION,
-  SUBSCRIPTION_CONFIRMATION,
-  SUBSCRIPTION_SUCCESS,
-  SUBSCRIPTION_FAILURE,
-  LOADING,
 }
 
 interface IInvitation {
   invitation: Invitation;
-  metadata: IOldUserAgreement;
+  metadata: IOldUserAgreement | IUserAgreement;
 }
 
 interface ICurrentInvitation {
   data: IInvitation;
   type: EInvitationSourceType;
 }
+
+export const defaultLightPalette: IPaletteOverrides = {
+  primary: "#000",
+  primaryContrast: "#FFF",
+  button: "#000",
+  buttonContrast: "#FFF",
+  text: "#212121",
+  linkText: "#2795BD",
+  background: "#FFF",
+  border: "rgba(236, 236, 236, 0.30)",
+};
+
+export const defaultDarkPalette: IPaletteOverrides = {
+  primary: `#FFF`,
+  primaryContrast: "#212121",
+  button: "#FFF",
+  buttonContrast: "#212121",
+  text: "#FFF",
+  linkText: "#FFF",
+  background: "#212121",
+  border: "rgba(236, 236, 236, 0.30)",
+};
 
 export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   core,
@@ -77,8 +91,8 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   config,
   coreConfig,
 }) => {
-  const [theme, setTheme] = useState<ITheme>(
-    config.palette ? generateTheme(config.palette) : defaultLightTheme,
+  const [theme, setTheme] = useState<Theme>(
+    createThemeWithOverrides(config.palette ?? defaultLightPalette),
   );
   const [appState, setAppState] = useState<EAPP_STATE>(EAPP_STATE.IDLE);
   const [accounts, setAccounts] = useState<LinkedAccount[]>([]);
@@ -87,20 +101,15 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     null,
   );
   const uniqueConsentAdressesRef = useRef<EVMContractAddress[]>([]);
-  const [deepLinkInvitation, setDeepLinkInvitation] = useState<{
-    invitation: Invitation;
-    metadata: IOldUserAgreement;
-  } | null>(null);
+  const [deepLinkInvitation, setDeepLinkInvitation] =
+    useState<IInvitation | null>(null);
 
-  const [domainInvitation, setDomainInvitation] = useState<{
-    invitation: Invitation;
-    metadata: IOldUserAgreement;
-  } | null>(null);
+  const [domainInvitation, setDomainInvitation] = useState<IInvitation | null>(
+    null,
+  );
 
-  const [consentInvitation, setConsentInvitation] = useState<{
-    invitation: Invitation;
-    metadata: IOldUserAgreement;
-  } | null>(null);
+  const [consentInvitation, setConsentInvitation] =
+    useState<IInvitation | null>(null);
 
   const currentInvitation: ICurrentInvitation | null = useMemo(() => {
     if (accounts.length === 0) {
@@ -199,7 +208,8 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   const onPermissionSelected = useCallback(
     (dataTypes: EWalletDataType[]) => {
       if (currentInvitation) {
-        setAppState(EAPP_STATE.LOADING);
+        // call function as background process
+        setAppState(EAPP_STATE.IDLE);
         core.invitation
           .acceptInvitation(
             currentInvitation.data.invitation,
@@ -207,20 +217,28 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
             undefined,
           )
           .map(() => {
-            setAppState(EAPP_STATE.SUBSCRIPTION_SUCCESS);
-          })
-          .mapErr((err) => {
             clearInvitation();
-            setAppState(EAPP_STATE.SUBSCRIPTION_FAILURE);
+          })
+          .mapErr(() => {
+            clearInvitation();
           });
       }
     },
     [currentInvitation],
   );
 
-  const handleContinueClick = () => {
-    setAppState(EAPP_STATE.PERMISSION_SELECTION);
-  };
+  const rejectInvitation = useCallback(() => {
+    if (currentInvitation) {
+      core.invitation
+        .rejectInvitation(currentInvitation.data.invitation)
+        .map(() => {
+          clearInvitation();
+        })
+        .mapErr(() => {
+          clearInvitation();
+        });
+    }
+  }, [currentInvitation]);
 
   const clearInvitation = useCallback(() => {
     if (currentInvitation) {
@@ -260,39 +278,25 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
           return null;
         case EAPP_STATE.INVITATION_PREVIEW:
           return (
-            <Description
+            <DescriptionWidget
+              onRejectClick={rejectInvitation}
               invitationData={currentInvitation.data.metadata}
               onCancelClick={clearInvitation}
-              onSetPermissions={handleContinueClick}
               onContinueClick={() => {
-                onPermissionSelected(permissions.map((item) => item.key));
+                onPermissionSelected(FF_SUPPORTED_ALL_PERMISSIONS);
+              }}
+              onSetPermissions={() => {
+                setAppState(EAPP_STATE.PERMISSION_SELECTION);
               }}
             />
           );
         case EAPP_STATE.PERMISSION_SELECTION:
           return (
-            <PermissionSelection
+            <PermissionSelectionWidget
               onCancelClick={clearInvitation}
-              invitationData={currentInvitation.data.metadata}
               onSaveClick={onPermissionSelected}
-              core={core}
-              coreConfig={coreConfig}
-              consentAddress={
-                currentInvitation.data.invitation.consentContractAddress
-              }
             />
           );
-        case EAPP_STATE.LOADING:
-          return <Loading />;
-        case EAPP_STATE.SUBSCRIPTION_SUCCESS:
-          return (
-            <SubscriptionSuccess
-              invitationData={currentInvitation.data.metadata}
-              onClick={clearInvitation}
-            />
-          );
-        case EAPP_STATE.SUBSCRIPTION_FAILURE:
-          return <SubscriptionFail onClick={clearInvitation} />;
         default:
           return null;
       }
@@ -307,7 +311,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
 
   return (
     <ThemeProvider theme={theme}>
-      <RootContainer>{component}</RootContainer>
+      <>{component && <ModalContainer>{component}</ModalContainer>}</>
     </ThemeProvider>
   );
 };

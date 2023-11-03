@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/contracts-sdk",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "SDK for snickerdoodlelabs contracts wrappers",
   "license": "MIT",
   "repository": {
@@ -43,7 +43,7 @@
     "@snickerdoodlelabs/node-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
     "ethers": "^5.6.6",
-    "inversify": "^6.0.1",
+    "inversify": "^6.0.2",
     "neverthrow": "^5.1.0",
     "neverthrow-result-utils": "^2.0.2"
   }

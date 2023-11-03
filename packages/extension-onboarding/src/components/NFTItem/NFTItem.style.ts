@@ -12,12 +12,7 @@ export const useStyles = makeStyles((theme) => ({
     cursor: "pointer",
   },
   name: {
-    fontFamily: "'Space Grotesk'",
-    fontStyle: "normal",
-    fontWeight: 700,
-    fontSize: "16px",
-    lineHeight: "19px",
-    color: "rgba(35, 32, 57, 0.87)",
+    width: "100%",
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",

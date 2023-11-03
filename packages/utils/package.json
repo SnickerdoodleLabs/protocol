@@ -40,7 +40,7 @@
   "dependencies": {
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
-    "inversify": "^6.0.1",
+    "inversify": "^6.0.2",
     "neverthrow": "^5.1.0",
     "neverthrow-result-utils": "^2.0.2",
     "postmate": "^1.5.2"

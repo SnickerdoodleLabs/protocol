@@ -46,7 +46,7 @@
     "@snickerdoodlelabs/objects": "workspace:^",
     "dns-packet": "^5.6.1",
     "ethers": "^5.6.6",
-    "inversify": "^6.0.1",
+    "inversify": "^6.0.2",
     "neverthrow": "^5.1.0",
     "neverthrow-result-utils": "^2.0.2",
     "url-join-ts": "^1.0.5"

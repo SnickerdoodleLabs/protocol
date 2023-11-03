@@ -22,7 +22,6 @@ export * from "@objects/businessObjects/IndexerSupportSummary.js";
 export * from "@objects/businessObjects/Insight.js";
 export * from "@objects/businessObjects/InsightWithProof.js";
 export * from "@objects/businessObjects/Invitation.js";
-export * from "@objects/businessObjects/InvitationDomain.js";
 export * from "@objects/businessObjects/MarketplaceListing.js";
 export * from "@objects/businessObjects/MetatransactionSignatureRequest.js";
 export * from "@objects/businessObjects/NftHoldings.js";

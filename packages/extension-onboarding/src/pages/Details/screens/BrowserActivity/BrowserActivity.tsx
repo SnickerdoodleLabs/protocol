@@ -1,9 +1,14 @@
+import Card from "@extension-onboarding/components/v2/Card";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/BrowserActivity/BrowserActivity.style";
 import { Box, Typography } from "@material-ui/core";
 import {
   SiteVisit,
   UnixTimestamp,
   URLString,
 } from "@snickerdoodlelabs/objects";
+import { SDTypography } from "@snickerdoodlelabs/shared-components";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -16,10 +21,6 @@ import {
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Bar } from "react-chartjs-2";
 
-import UnauthScreen from "@extension-onboarding/components/UnauthScreen/UnauthScreen";
-import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/BrowserActivity/BrowserActivity.style";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -132,20 +133,14 @@ export default () => {
   };
 
   useEffect(() => {
-    if (appMode === EAppModes.AUTH_USER) getSiteVisits();
-  }, [appMode]);
-
-  if (appMode !== EAppModes.AUTH_USER) return <UnauthScreen />;
+    getSiteVisits();
+  }, []);
 
   return (
-    <>
-      <Box mb={2}>
-        <Box display="flex" mb={1} alignItems="center">
-          <Typography className={classes.title}>
-            Most Visited Domains
-          </Typography>
-        </Box>
-      </Box>
+    <Card>
+      <SDTypography variant="titleSm">
+        List of your most visited domains.
+      </SDTypography>
       {siteVisits && (
         <Box display="flex" flexDirection="row-reverse">
           {Object.keys(ETimeInterval)
@@ -177,6 +172,6 @@ export default () => {
       <Box height={300}>
         <Bar options={options} data={data} />
       </Box>
-    </>
+    </Card>
   );
 };

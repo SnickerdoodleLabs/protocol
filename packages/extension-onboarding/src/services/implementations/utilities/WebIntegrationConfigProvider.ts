@@ -2,6 +2,7 @@ import { IConfigOverrides, URLString } from "@snickerdoodlelabs/objects";
 
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { IWebIntegrationConfigProvider } from "@extension-onboarding/services/interfaces/utilities";
+import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
 
 declare const __PRIMARY_INFURA_KEY__: string;
 declare const __IFRAME_URL__: string;
@@ -18,11 +19,11 @@ export class WebIntegrationConfigProvider
       defaultGoogleCloudBucket: __GOOGLE_CLOUD_BUCKET__,
       discordOverrides: {
         oauthRedirectUrl: URLString(
-          `${window.location.origin}${EPaths.SOCIAL_MEDIA_DATA}`,
+          `${window.location.origin}${EPathsV2.SETTINGS}`,
         ),
       },
       dropboxRedirectUri: URLString(
-        `${window.location.origin}${EPaths.STORAGE_SETTINGS}`,
+        `${window.location.origin}${EPathsV2.SETTINGS}`,
       ),
       // @TODO move those env vars
       alchemyApiKeys: {
