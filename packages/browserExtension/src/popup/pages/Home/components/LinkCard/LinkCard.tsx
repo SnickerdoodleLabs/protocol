@@ -23,16 +23,13 @@ const LinkCard = ({ navigateTo, icon, title }: ILinkCardProps) => {
       mt={2}
       display="flex"
       alignItems="center"
+      bgcolor="#2E2946"
       className={classes.container}
     >
       <Box mx={2}>
         <img src={icon} />
       </Box>
-
       <Typography className={classes.linkTitle}>{title}</Typography>
-      <Box mr={2} marginLeft="auto">
-        <img src={Browser.runtime.getURL("assets/icons/arrow.svg")} />
-      </Box>
     </Box>
   );
 };

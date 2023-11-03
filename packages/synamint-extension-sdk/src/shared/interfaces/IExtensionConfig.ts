@@ -46,6 +46,8 @@ export interface IExtensionConfig extends IExtensionConfigDefaults {
   oklinkApiKey?: string;
   ankrApiKey?: string;
   bluezApiKey?: string;
+  spaceAndTimeKey?: string;
+  blockvisionKey?: string;
   dnsServerAddress?: URLString;
   defaultGoogleCloudBucket?: string;
   dropboxAppKey?: string;
@@ -101,6 +103,8 @@ export interface IExtensionConfigOverrides {
     oklinkApiKey?: string;
     ankrApiKey?: string;
     bluezApiKey?: string;
+    spaceAndTimeKey?: string;
+    blockvisionKey?: string;
     primaryInfuraKey?: string;
     secondaryInfuraKey?: string;
   };

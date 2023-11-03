@@ -24,6 +24,7 @@ import {
   MethodSupportError,
   PersistenceError,
   SolanaAccountAddress,
+  SuiAccountAddress,
   TokenAddress,
   TokenBalance,
   UnixTimestamp,
@@ -40,8 +41,10 @@ import {
   IIndexerConfigProviderType,
   IMasterIndexer,
   IEVMIndexer,
+  ISuiIndexer,
   IAlchemyIndexerType,
   IAnkrIndexerType,
+  IBlockvisionIndexerType,
   IBluezIndexerType,
   ICovalentEVMTransactionRepositoryType,
   IEtherscanIndexerType,
@@ -64,6 +67,8 @@ export class MasterIndexer implements IMasterIndexer {
     this.alchemy,
     this.etherscan,
     this.nftscan,
+    this.covalent,
+    this.moralis,
     this.sim,
     // TODO- enable these indexers as well
     // this.moralis,
@@ -77,6 +82,7 @@ export class MasterIndexer implements IMasterIndexer {
     protected indexerContext: IIndexerContextProvider,
     @inject(IAlchemyIndexerType) protected alchemy: IEVMIndexer,
     @inject(IAnkrIndexerType) protected ankr: IEVMIndexer,
+    @inject(IBlockvisionIndexerType) protected blockvision: ISuiIndexer,
     @inject(IBluezIndexerType) protected bluez: IEVMIndexer,
     @inject(ICovalentEVMTransactionRepositoryType)
     protected covalent: IEVMIndexer,
@@ -98,6 +104,7 @@ export class MasterIndexer implements IMasterIndexer {
       this.alchemy.initialize(),
       this.ankr.initialize(),
       this.bluez.initialize(),
+      this.blockvision.initialize(),
       this.covalent.initialize(),
       this.etherscan.initialize(),
       this.matic.initialize(),
@@ -128,6 +135,7 @@ export class MasterIndexer implements IMasterIndexer {
       if (method != null) {
         const indexers = [
           this.bluez,
+          this.blockvision,
           this.alchemy,
           this.ankr,
           this.covalent,
@@ -221,6 +229,29 @@ export class MasterIndexer implements IMasterIndexer {
         });
     }
 
+    if (chainInfo.chainTechnology == EChainTechnology.Sui) {
+      return this.blockvision
+        .getBalancesForAccount(chain, SuiAccountAddress(accountAddress))
+        .orElse((e) => {
+          this.logUtils.log(
+            "Error fetching balances from sui indexer",
+            chain,
+            accountAddress,
+            e,
+          );
+          return okAsync([]);
+        })
+        .map((tokenBalances) => {
+          return tokenBalances.map((tokenBalance) => {
+            if (!this.bigNumberUtils.validateBNS(tokenBalance.balance)) {
+              tokenBalance.balance = BigNumberString("0");
+            }
+
+            return tokenBalance;
+          });
+        });
+    }
+
     const indexers = this.getPreferredEVMIndexers(
       chain,
       EIndexerMethod.Balances,
@@ -277,6 +308,12 @@ export class MasterIndexer implements IMasterIndexer {
         SolanaAccountAddress(accountAddress),
       );
     }
+    if (chainInfo.chainTechnology == EChainTechnology.Sui) {
+      return this.blockvision.getTokensForAccount(
+        chain,
+        SuiAccountAddress(accountAddress),
+      );
+    }
 
     const indexers = this.getPreferredEVMIndexers(chain, EIndexerMethod.NFTs);
     // If there are no indexers, just return an empty array
@@ -328,6 +365,14 @@ export class MasterIndexer implements IMasterIndexer {
       return this.sol.getSolanaTransactions(
         chain,
         SolanaAccountAddress(accountAddress),
+        new Date(timestamp * 1000),
+      );
+    }
+
+    if (chainInfo.chainTechnology == EChainTechnology.Sui) {
+      return this.blockvision.getSuiTransactions(
+        chain,
+        SuiAccountAddress(accountAddress),
         new Date(timestamp * 1000),
       );
     }
@@ -458,6 +503,7 @@ export class MasterIndexer implements IMasterIndexer {
         this.poapRepo,
         this.sim,
         this.sol,
+        this.blockvision,
       ];
 
       const healthchecks = indexers.map((indexer) => {
@@ -476,6 +522,7 @@ export class MasterIndexer implements IMasterIndexer {
         poapHealth,
         simHealth,
         solHealth,
+        blockvisionHealth,
       ] = healthchecks;
 
       const indexerStatuses = context.components;
@@ -490,6 +537,7 @@ export class MasterIndexer implements IMasterIndexer {
       indexerStatuses.poapIndexer = poapHealth;
       indexerStatuses.simulatorIndexer = simHealth;
       indexerStatuses.solanaIndexer = solHealth;
+      indexerStatuses.blockvisionIndexer = blockvisionHealth;
 
       // The status of each indexer is known, and the chains that those indexers support is known.
       // We need to consolidate the component status for each chain via a group-by.

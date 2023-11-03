@@ -48,6 +48,7 @@ const errorCodes = {
   ScraperError: "ERR_SCRAPER",
   NLPError: "ERR_NLP",
   LLMError: "ERR_LLM",
+  SingerUnavailableError: "ERR_SIGNER_UNAVAILABLE",
   //SDQL errors
   OperandTypeError: "ER_SDQL_OPERAND_TYPE",
   ConditionOperandTypeError: "ERR_SDQL_CONDITION_OPERAND_TYPE",

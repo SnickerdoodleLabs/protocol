@@ -44,9 +44,7 @@
     "@snickerdoodlelabs/persistence": "workspace:^",
     "@snickerdoodlelabs/shopping-data": "workspace:^",
     "ethers": "^5.6.6",
-    "html-to-text": "^9.0.5",
-    "inversify": "^6.0.1",
-    "js-tiktoken": "^1.0.7",
+    "inversify": "^6.0.2",
     "neverthrow": "^5.1.0",
     "neverthrow-result-utils": "^2.0.2",
     "openai": "^4.0.1"

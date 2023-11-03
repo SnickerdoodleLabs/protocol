@@ -35,9 +35,10 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
           return new AjaxError(
             `Error returned from GET ${url}, ${err.message}`,
             err.response.status,
+            err,
           );
         }
-        return new AjaxError(`Unable to GET ${url}, ${err.message}`, 500);
+        return new AjaxError(`Unable to GET ${url}, ${err.message}`, 500, err);
       },
     ).map((response: AxiosResponse<T>) => {
       return response.data;
@@ -62,9 +63,10 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
           return new AjaxError(
             `Error returned from POST ${url}, ${err.message}`,
             err.response.status,
+            err,
           );
         }
-        return new AjaxError(`Unable to POST ${url}, ${err.message}`, 500);
+        return new AjaxError(`Unable to POST ${url}, ${err.message}`, 500, err);
       },
     ).map((response: AxiosResponse<T>) => {
       return response.data;
@@ -89,9 +91,10 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
           return new AjaxError(
             `Error returned from PUT ${url}, ${err.message}`,
             err.response.status,
+            err,
           );
         }
-        return new AjaxError(`Unable to PUT ${url}, ${err.message}`, 500);
+        return new AjaxError(`Unable to PUT ${url}, ${err.message}`, 500, err);
       },
     ).map((response: AxiosResponse<T>) => {
       return response.data;
@@ -110,9 +113,14 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
           return new AjaxError(
             `Error returned from DELETE ${url}, ${err.message}`,
             err.response.status,
+            err,
           );
         }
-        return new AjaxError(`Unable to DELETE ${url}, ${err.message}`, 500);
+        return new AjaxError(
+          `Unable to DELETE ${url}, ${err.message}`,
+          500,
+          err,
+        );
       },
     ).map((response: AxiosResponse<T>) => {
       return response.data;

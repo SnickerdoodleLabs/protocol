@@ -23,6 +23,7 @@ export * from "@objects/enum/ESolidityAbiParameterType.js";
 export * from "@objects/enum/EIndexer.js";
 export * from "@objects/enum/EIndexerMethod.js";
 export * from "@objects/enum/EInvitationStatus.js";
+export * from "@objects/enum/EOAuthProvider.js";
 export * from "@objects/enum/ELanguageCode.js";
 export * from "@objects/enum/EQueryEvents.js";
 export * from "@objects/enum/EQueryProcessingStatus.js";
@@ -32,6 +33,7 @@ export * from "@objects/enum/ESignatureAlgorithm.js";
 export * from "@objects/enum/ESocialType.js";
 export * from "@objects/enum/EStatus.js";
 export * from "@objects/enum/ETag.js";
+export * from "@objects/enum/ETimePeriods.js";
 export * from "@objects/enum/EWalletDataType.js";
 export * from "@objects/enum/StorageKey.js";
 

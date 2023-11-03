@@ -16,7 +16,6 @@ import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
 import { VolatileTableIndex } from "@persistence/volatile/VolatileTableIndex.js";
 
 export class IndexedDB {
-  private _db?: IDBDatabase;
   private _initialized?: ResultAsync<IDBDatabase, PersistenceError>;
   private _keyPaths: Map<string, string | string[]>;
 
@@ -105,7 +104,6 @@ export class IndexedDB {
     this._initialized = ResultAsync.fromPromise(promise, (e) => {
       return new PersistenceError("error initializing object store", e);
     }).andThen((db) => {
-      this._db = db;
       return this.persist().andThen((persisted) => {
         this.logUtils.debug("IndexDB Persist success: " + persisted);
         return okAsync(db);
@@ -314,39 +312,34 @@ export class IndexedDB {
   }
 
   public getAll<T extends VersionedObject>(
-    name: string,
-    index?: VolatileStorageKey,
-    query?: IDBValidKey | IDBKeyRange,
+    storeName: string,
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
-    return this.initialize().andThen((db) => {
-      return this.getTransaction(name, "readonly").andThen((tx) => {
+    return this.initialize().andThen(() => {
+      return this.getTransaction(storeName, "readonly").andThen((tx) => {
         const promise = new Promise<VolatileStorageMetadata<T>[]>(
           (resolve, reject) => {
-            const store = tx.objectStore(name);
-            let request: IDBRequest<VolatileStorageMetadata<T>[]>;
-            if (index == undefined) {
-              const indexObj: IDBIndex = store.index("deleted");
-              request = indexObj.getAll(EBoolean.FALSE);
-            } else {
-              // TODO: fix when we go to SQLite
-              throw new PersistenceError(
-                "getting all by index query no longer supported",
-              );
-            }
+            const store = tx.objectStore(storeName);
+            const indexObj: IDBIndex = store.index("deleted");
+            const request = indexObj.getAll(EBoolean.FALSE);
 
             request.onsuccess = (event) => {
               resolve(request.result);
             };
             request.onerror = (event) => {
-              reject(new PersistenceError("error reading from object store"));
+              reject(
+                new PersistenceError(
+                  `In IndexedDB, error received in getAll() for schema ${storeName}`,
+                ),
+              );
             };
           },
         );
 
-        return ResultAsync.fromPromise(
-          promise,
-          (e) => new PersistenceError("error getting all", e),
-        );
+        return ResultAsync.fromPromise(promise, (e) => {
+          // This is OK here, since we know what the promise above is returning
+          // error-wise, no need to re-wrap the error
+          return e as PersistenceError;
+        });
       });
     });
   }
@@ -361,7 +354,6 @@ export class IndexedDB {
         const promise = new Promise<VolatileStorageMetadata<T>[]>(
           (resolve, reject) => {
             const store = tx.objectStore(name);
-            // let request: IDBRequest<VolatileStorageMetadata<T>[]>;
             const indexObj: IDBIndex = store.index(this._getIndexName(index));
             const request = indexObj.getAll(query);
 
@@ -369,15 +361,21 @@ export class IndexedDB {
               resolve(request.result);
             };
             request.onerror = (event) => {
-              reject(new PersistenceError("error reading from object store"));
+              reject(
+                new PersistenceError(
+                  `In IndexedDB, error received in getAllByIndex() for schema ${name} and index ${index}`,
+                ),
+              );
             };
           },
         );
 
-        return ResultAsync.fromPromise(
-          promise,
-          (e) => new PersistenceError("error getting all", e),
-        ).map((result) => {
+        return ResultAsync.fromPromise(promise, (e) => {
+          // This is OK here, since we know what the promise above is returning
+          // error-wise, no need to re-wrap the error
+          return e as PersistenceError;
+        }).map((result) => {
+          // Need to manually remove deleted items here, since we're not using the deleted index.
           return result.filter((x) => {
             return x.deleted == EBoolean.FALSE;
           });

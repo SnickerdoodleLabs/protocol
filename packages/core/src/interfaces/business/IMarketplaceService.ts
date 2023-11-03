@@ -22,6 +22,8 @@ import {
   MissingASTError,
   MissingWalletDataTypeError,
   BlockchainCommonErrors,
+  EarnedReward,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -58,11 +60,10 @@ export interface IMarketplaceService {
     | BlockchainCommonErrors
   >;
 
-  getPossibleRewards(
+  getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
-    timeoutMs: number,
   ): ResultAsync<
-    Map<EVMContractAddress, PossibleReward[]>,
+    Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
     | AjaxError
     | EvaluationError
     | QueryFormatError

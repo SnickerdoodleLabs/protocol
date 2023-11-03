@@ -1,4 +1,4 @@
-import { Box, MenuItem, Select, Typography } from "@material-ui/core";
+import { Box, Grid, MenuItem, Select, Typography } from "@material-ui/core";
 import {
   AccountAddress,
   chainConfig,
@@ -7,15 +7,16 @@ import {
 } from "@snickerdoodlelabs/objects";
 import {
   AccountIdentIcon,
+  SDTypography,
   getAccountAddressText,
 } from "@snickerdoodlelabs/shared-components";
 import clsx from "clsx";
 import React, { FC, useEffect, useMemo } from "react";
 
 import { useStyles } from "@extension-onboarding/components/AccountChainBar/AccountChainBar.style";
-import Switch from "@extension-onboarding/components/Switch";
 import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
 import { useAppContext } from "@extension-onboarding/context/App";
+import Switch from "@extension-onboarding/components/v2/Switch";
 
 export enum EDisplayMode {
   MAINNET,
@@ -98,13 +99,58 @@ const AccountChainBar: FC<IAccountChainBarProps> = ({
   }, [displayMode]);
 
   return (
-    <Box mt={5} display="flex" mb={2}>
-      <Box>
-        <Typography id="portfolio-test" className={classes.subTitle}>
-          Accounts
-        </Typography>
-        <Box mt={0.5} display="flex" justifyContent="space-between">
-          <Box>
+    <Box>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <Box display="flex">
+            <Box display="flex" alignItems="center" ml="auto">
+              <SDTypography
+                variant="titleMd"
+                fontWeight="medium"
+                color="textHeading"
+                onClick={() => {
+                  setDisplayMode(EDisplayMode.TESTNET);
+                }}
+                className={clsx(classes.switchNetwork, {
+                  [classes.unfocused]: displayMode != EDisplayMode.TESTNET,
+                })}
+              >
+                Testnet
+              </SDTypography>
+              <Switch
+                checked={displayMode === EDisplayMode.MAINNET}
+                value={displayMode === EDisplayMode.MAINNET}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setDisplayMode(EDisplayMode.MAINNET);
+                  } else {
+                    setDisplayMode(EDisplayMode.TESTNET);
+                  }
+                }}
+              />
+              <Box ml={1} />
+              <SDTypography
+                variant="titleMd"
+                fontWeight="medium"
+                color="textHeading"
+                onClick={() => {
+                  setDisplayMode(EDisplayMode.MAINNET);
+                }}
+                className={clsx(classes.switchNetwork, {
+                  [classes.unfocused]: displayMode != EDisplayMode.MAINNET,
+                })}
+              >
+                Mainnet
+              </SDTypography>
+            </Box>
+          </Box>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <SDTypography variant="bodyLg" fontWeight="medium">
+            Accounts
+          </SDTypography>
+
+          <Box mt={0.5} display="flex" justifyContent="space-between">
             <Select
               className={classes.selectAccount}
               fullWidth
@@ -136,82 +182,46 @@ const AccountChainBar: FC<IAccountChainBarProps> = ({
               })}
             </Select>
           </Box>
-        </Box>
-      </Box>
-      <Box display="flex" marginLeft="auto" alignItems="center">
-        <Box>
-          <Typography id="portfolio-test" className={classes.subTitle}>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <SDTypography variant="bodyLg" fontWeight="medium">
             Chain
-          </Typography>
+          </SDTypography>
+
           <Box mt={0.5} display="flex" justifyContent="space-between">
-            <Box>
-              <Select
-                className={classes.selectAccount}
-                fullWidth
-                variant="outlined"
-                name="chains"
-                value={chainSelect ?? "all"}
-                placeholder="All"
-                onChange={handleChainChange}
-              >
-                <MenuItem value="all">All</MenuItem>
-                {chainIdsToRender.map((chainId) => {
-                  const iconSrc =
-                    tokenInfoObj[
-                      chainConfig.get(chainId)?.nativeCurrency?.symbol ?? ""
-                    ]?.iconSrc;
-                  return (
-                    <MenuItem key={chainId} value={chainId}>
-                      <Box display="flex" alignItems="center">
-                        <img
-                          src={iconSrc}
-                          style={{ width: 24, height: 24, marginRight: 8 }}
-                        />
-                        <Typography className={classes.accountAddressText}>
-                          {chainConfig.get(chainId)?.name}
-                        </Typography>
-                      </Box>
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-            </Box>
+            <Select
+              className={classes.selectAccount}
+              fullWidth
+              variant="outlined"
+              name="chains"
+              value={chainSelect ?? "all"}
+              placeholder="All"
+              onChange={handleChainChange}
+            >
+              <MenuItem value="all">All</MenuItem>
+              {chainIdsToRender.map((chainId) => {
+                const iconSrc =
+                  tokenInfoObj[
+                    chainConfig.get(chainId)?.nativeCurrency?.symbol ?? ""
+                  ]?.iconSrc;
+                return (
+                  <MenuItem key={chainId} value={chainId}>
+                    <Box display="flex" alignItems="center">
+                      <img
+                        src={iconSrc}
+                        style={{ width: 24, height: 24, marginRight: 8 }}
+                      />
+                      <Typography className={classes.accountAddressText}>
+                        {chainConfig.get(chainId)?.name}
+                      </Typography>
+                    </Box>
+                  </MenuItem>
+                );
+              })}
+            </Select>
           </Box>
-        </Box>
-        <Box ml={2} mt={2} display="flex" alignItems="center">
-          <Typography
-            onClick={() => {
-              setDisplayMode(EDisplayMode.TESTNET);
-            }}
-            className={clsx(classes.switchNetwork, {
-              [classes.unfocused]: displayMode != EDisplayMode.TESTNET,
-            })}
-          >
-            Testnet
-          </Typography>
-          <Switch
-            checked={displayMode === EDisplayMode.MAINNET}
-            value={displayMode === EDisplayMode.MAINNET}
-            onChange={(e) => {
-              if (e.target.checked) {
-                setDisplayMode(EDisplayMode.MAINNET);
-              } else {
-                setDisplayMode(EDisplayMode.TESTNET);
-              }
-            }}
-          />
-          <Typography
-            onClick={() => {
-              setDisplayMode(EDisplayMode.MAINNET);
-            }}
-            className={clsx(classes.switchNetwork, {
-              [classes.unfocused]: displayMode != EDisplayMode.MAINNET,
-            })}
-          >
-            Mainnet
-          </Typography>
-        </Box>
-      </Box>
+        </Grid>
+      </Grid>
     </Box>
   );
 };

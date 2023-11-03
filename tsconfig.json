@@ -30,6 +30,12 @@
       "path": "packages/core/test"
     },
     {
+      "path": "packages/erc7529"
+    },
+    {
+      "path": "packages/erc7529/test"
+    },
+    {
       "path": "packages/extension-onboarding"
     },
     {

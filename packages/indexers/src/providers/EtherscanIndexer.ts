@@ -4,6 +4,7 @@ import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
 } from "@snickerdoodlelabs/common-utils";
+import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
   AjaxError,
@@ -27,6 +28,7 @@ import {
   IndexerSupportSummary,
   EExternalApi,
   EDataProvider,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -91,6 +93,7 @@ export class EtherscanIndexer implements IEVMIndexer {
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -348,6 +351,7 @@ export class EtherscanIndexer implements IEVMIndexer {
                 tx.methodId == "" ? null : tx.methodId,
                 tx.functionName == "" ? null : tx.functionName,
                 null,
+                this.timeUtils.getUnixNow(),
               );
             });
 

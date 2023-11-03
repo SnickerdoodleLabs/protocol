@@ -3,6 +3,7 @@ import {
   IAxiosAjaxUtilsType,
   IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
+import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
   AjaxError,
@@ -24,6 +25,7 @@ import {
   IndexerSupportSummary,
   EExternalApi,
   EDataProvider,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -49,15 +51,19 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [
       EChain.EthereumMainnet,
-      new IndexerSupportSummary(EChain.Arbitrum, true, true, false),
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, true, false),
     ],
     [
       EChain.Polygon,
-      new IndexerSupportSummary(EChain.Arbitrum, true, true, false),
+      new IndexerSupportSummary(EChain.Polygon, true, true, false),
     ],
     [
       EChain.Binance,
-      new IndexerSupportSummary(EChain.Arbitrum, true, true, false),
+      new IndexerSupportSummary(EChain.Binance, true, true, true),
+    ],
+    [
+      EChain.BinanceTestnet,
+      new IndexerSupportSummary(EChain.BinanceTestnet, true, false, true),
     ],
   ]);
 
@@ -67,6 +73,7 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -274,6 +281,7 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
             );
           })
         : null,
+        this.timeUtils.getUnixNow(),
     );
     return busObj;
   }
@@ -331,6 +339,8 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
       EChain.Optimism,
       EChain.Polygon,
       EChain.Solana,
+      EChain.Binance,
+      EChain.BinanceTestnet,
     ];
     return supportedChains;
   }

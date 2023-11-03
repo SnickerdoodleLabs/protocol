@@ -1,22 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {
-  BigNumberString,
-  DataWalletAddress,
-  EarnedReward,
-  EVMContractAddress,
-  LinkedAccount,
-  Signature,
-  URLString,
-} from "@snickerdoodlelabs/objects";
-import { ResultAsync } from "neverthrow";
-import React, {
-  createContext,
-  FC,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import { Subscription } from "rxjs";
 
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import {
@@ -39,6 +21,25 @@ import {
   getProviderList as getSocialMediaProviderList,
   ISocialMediaWrapper,
 } from "@extension-onboarding/services/socialMediaProviders";
+import {
+  BigNumberString,
+  DataWalletAddress,
+  EarnedReward,
+  EVMContractAddress,
+  IpfsCID,
+  LinkedAccount,
+  Signature,
+  URLString,
+} from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow";
+import React, {
+  createContext,
+  FC,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { Subscription } from "rxjs";
 
 export interface IInvitationInfo {
   consentAddress: EVMContractAddress | undefined;
@@ -58,9 +59,9 @@ export interface IAppContext {
   dataWalletGateway: DataWalletGateway;
   linkedAccounts: LinkedAccount[];
   providerList: IProvider[];
-  earnedRewards: EarnedReward[];
+  earnedRewards: EarnedReward[] | undefined;
   updateOptedInContracts: () => void;
-  optedInContracts: EVMContractAddress[];
+  optedInContracts: Map<EVMContractAddress, IpfsCID> | undefined;
   socialMediaProviderList: ISocialMediaWrapper[];
   shoppingDataProviderList: IShoppingDataWrapper[];
   getUserAccounts(): ResultAsync<void, unknown>;
@@ -68,13 +69,9 @@ export interface IAppContext {
   appMode: EAppModes | undefined;
   invitationInfo: IInvitationInfo;
   setInvitationInfo: (invitationInfo: IInvitationInfo) => void;
-  isProductTourCompleted: boolean;
-  completeProductTour: () => void;
   setLinkerModalOpen: () => void;
   setLinkerModalClose: () => void;
   isLinkerModalOpen: boolean;
-  disablePopups: () => void;
-  popupsDisabled: boolean;
 }
 
 const INITIAL_INVITATION_INFO: IInvitationInfo = {
@@ -95,16 +92,11 @@ export const AppContextProvider: FC = ({ children }) => {
   const [invitationInfo, setInvitationInfo] = useState<IInvitationInfo>(
     INITIAL_INVITATION_INFO,
   );
-  const [earnedRewards, setEarnedRewards] = useState<EarnedReward[]>([]);
-  const [optedInContracts, setUptedInContracts] = useState<
-    EVMContractAddress[]
-  >([]);
-  const [isProductTourCompleted, setIsProductTourCompleted] = useState<boolean>(
-    localStorage.getItem("SDL_UserCompletedIntro") === "COMPLETED",
-  );
+  const [earnedRewards, setEarnedRewards] = useState<EarnedReward[]>();
+  const [optedInContracts, setOptedInContracts] =
+    useState<Map<EVMContractAddress, IpfsCID>>();
   const [isLinkerModalOpen, setIsLinkerModalOpen] =
     React.useState<boolean>(false);
-  const [popupsDisabled, setPopupsDisabled] = useState<boolean>(false);
   const initialAccountsFetchRef = React.useRef<boolean>(false);
 
   useEffect(() => {
@@ -231,7 +223,7 @@ export const AppContextProvider: FC = ({ children }) => {
 
   const getOptedInContracts = () => {
     sdlDataWallet.getAcceptedInvitationsCID().map((res) => {
-      setUptedInContracts(Array.from(res.keys()) as EVMContractAddress[]);
+      setOptedInContracts(res);
     });
   };
 
@@ -258,9 +250,6 @@ export const AppContextProvider: FC = ({ children }) => {
     setLinkedAccounts((prev) => [...prev, account]);
   };
 
-  const completeProductTour = () => {
-    setIsProductTourCompleted(true);
-  };
 
   return (
     <AppContext.Provider
@@ -279,13 +268,9 @@ export const AppContextProvider: FC = ({ children }) => {
         addAccount,
         invitationInfo,
         setInvitationInfo: updateInvitationInfo,
-        isProductTourCompleted,
-        completeProductTour,
         setLinkerModalOpen: () => setIsLinkerModalOpen(true),
         setLinkerModalClose: () => setIsLinkerModalOpen(false),
         isLinkerModalOpen,
-        popupsDisabled,
-        disablePopups: () => setPopupsDisabled(true),
       }}
     >
       {children}

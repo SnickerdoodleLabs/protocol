@@ -40,6 +40,7 @@ export * from "@objects/errors/RewardsFactoryError.js";
 export * from "@objects/errors/ScraperError.js";
 export * from "@objects/errors/ServerRewardError.js";
 export * from "@objects/errors/SiftContractError.js";
+export * from "@objects/errors/SignerUnavailableError.js";
 export * from "@objects/errors/TransactionResponseError";
 export * from "@objects/errors/TwitterError.js";
 export * from "@objects/errors/UnauthorizedError.js";

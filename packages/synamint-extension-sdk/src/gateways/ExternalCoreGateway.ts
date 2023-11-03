@@ -59,6 +59,9 @@ import {
   ELanguageCode,
   PageNo,
   Year,
+  TransactionFlowInsight,
+  TransactionFilter,
+  ChainTransaction,
   IProxyAccountMethods,
   LanguageCode,
   EChain,
@@ -71,6 +74,10 @@ import {
   ChainTransaction,
   TransactionPaymentCounter,
   TransactionFilter,
+  TransactionPaymentCounter,
+  IUserAgreement,
+  PageInvitation,
+  Invitation,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -82,7 +89,6 @@ import {
   GetInvitationMetadataByCIDParams,
   GetInvitationWithDomainParams,
   GetUnlockMessageParams,
-  IInvitationDomainWithUUID,
   LeaveCohortParams,
   SetBirthdayParams,
   SetEmailParams,
@@ -90,10 +96,7 @@ import {
   SetGenderParams,
   SetGivenNameParams,
   SetLocationParams,
-  AcceptInvitationByUUIDParams,
   GetAgreementPermissionsParams,
-  SetDefaultPermissionsWithDataTypesParams,
-  SetApplyDefaultPermissionsParams,
   GetConsentContractCIDParams,
   CheckInvitationStatusParams,
   GetTokenPriceParams,
@@ -121,10 +124,7 @@ import {
   GetAccountNFTsParams,
   GetAccountBalancesParams,
   GetAccountsParams,
-  GetApplyDefaultPermissionsOptionParams,
   GetAcceptedInvitationsCIDParams,
-  SetDefaultPermissionsToAllParams,
-  GetDefaultPermissionsParams,
   GetAvailableInvitationsCIDParams,
   GetStateParams,
   InitializeDiscordUserParams,
@@ -154,7 +154,6 @@ import {
   GetAvailableCloudStorageOptionsParams,
   GetCurrentCloudStorageParams,
   RejectInvitationParams,
-  RejectInvitationByUUIDParams,
   GetQueryStatusesParams,
   ScraperScrapeParams,
   ScraperClassifyUrlParams,
@@ -169,6 +168,12 @@ import {
   PurchaseGetByMarketPlaceAndDateParams,
   GetTransactionsParams,
   GetTransactionValueByChainParams,
+  GetTransactionValueByChainParams,
+  GetTransactionsParams,
+  AddAccountWithExternalSignatureParams,
+  AddAccountWithExternalTypedDataSignatureParams,
+  UpdateAgreementPermissionsParams,
+  GetConsentContractURLsParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -425,14 +430,13 @@ export class ExternalCoreGateway {
 
   public getInvitationsByDomain(
     params: GetInvitationWithDomainParams,
-  ): ResultAsync<IInvitationDomainWithUUID | null, ProxyError> {
-    return this._handler.call(params);
-  }
-
-  public acceptInvitationByUUID(
-    params: AcceptInvitationByUUIDParams,
-  ): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
+  ): ResultAsync<PageInvitation | null, ProxyError> {
+    return this._handler.call(params).map((jsonString) => {
+      if (jsonString) {
+        return ObjectUtils.deserialize(jsonString);
+      }
+      return null;
+    });
   }
 
   public getAvailableInvitationsCID(): ResultAsync<
@@ -447,7 +451,16 @@ export class ExternalCoreGateway {
   }
 
   public acceptInvitation(
-    params: AcceptInvitationParams,
+    invitation: Invitation,
+    dataTypes: EWalletDataType[] | null,
+  ): ResultAsync<void, ProxyError> {
+    return this._handler.call(
+      new AcceptInvitationParams(ObjectUtils.serialize(invitation), dataTypes),
+    );
+  }
+
+  public updateAgreementPermissions(
+    params: UpdateAgreementPermissionsParams,
   ): ResultAsync<void, ProxyError> {
     return this._handler.call(params);
   }
@@ -458,30 +471,16 @@ export class ExternalCoreGateway {
     return this._handler.call(params);
   }
 
-  public getDefaultPermissions(): ResultAsync<EWalletDataType[], ProxyError> {
-    return this._handler.call(new GetDefaultPermissionsParams());
-  }
-
-  public setDefaultPermissionsWithDataTypes(
-    params: SetDefaultPermissionsWithDataTypesParams,
-  ): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
-  }
-
-  public setDefaultPermissionsToAll(): ResultAsync<void, ProxyError> {
-    return this._handler.call(new SetDefaultPermissionsToAllParams());
-  }
-
-  public rejectInvitationByUUID(
-    params: RejectInvitationByUUIDParams,
-  ): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
-  }
-
   public rejectInvitation(
-    params: RejectInvitationParams,
+    invitation: Invitation,
+    rejectUntil?: UnixTimestamp,
   ): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
+    return this._handler.call(
+      new RejectInvitationParams(
+        ObjectUtils.serialize(invitation),
+        rejectUntil,
+      ),
+    );
   }
 
   public getAcceptedInvitationsCID(): ResultAsync<
@@ -497,20 +496,11 @@ export class ExternalCoreGateway {
 
   public getInvitationMetadataByCID(
     params: GetInvitationMetadataByCIDParams,
-  ): ResultAsync<IOldUserAgreement, ProxyError> {
+  ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError> {
     return this._handler.call(params);
   }
 
   public leaveCohort(params: LeaveCohortParams): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
-  }
-
-  public getApplyDefaultPermissionsOption(): ResultAsync<boolean, ProxyError> {
-    return this._handler.call(new GetApplyDefaultPermissionsOptionParams());
-  }
-  public setApplyDefaultPermissionsOption(
-    params: SetApplyDefaultPermissionsParams,
-  ): ResultAsync<void, ProxyError> {
     return this._handler.call(params);
   }
 
@@ -538,16 +528,16 @@ export class ExternalCoreGateway {
     return this._handler.call(new GetAccountNFTsParams());
   }
 
+  public getTransactionValueByChain(): ResultAsync<
+    TransactionFlowInsight[],
+    ProxyError
+  > {
+    return this._handler.call(new GetTransactionValueByChainParams());
+  }
   public getTransactions(
     params: GetTransactionsParams,
   ): ResultAsync<ChainTransaction[], ProxyError> {
     return this._handler.call(params);
-  }
-  public getTransactionValueByChain(): ResultAsync<
-    TransactionPaymentCounter[],
-    ProxyError
-  > {
-    return this._handler.call(new GetTransactionValueByChainParams());
   }
 
   public setFamilyName(
@@ -683,9 +673,18 @@ export class ExternalCoreGateway {
     return this._handler.call(params);
   }
 
-  public getPossibleRewards(
+  public getConsentContractURLs(
+    contractAdress: EVMContractAddress,
+  ): ResultAsync<URLString[], ProxyError> {
+    return this._handler.call(new GetConsentContractURLsParams(contractAdress));
+  }
+
+  public getEarnedRewardsByContractAddress(
     params: GetPossibleRewardsParams,
-  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, ProxyError> {
+  ): ResultAsync<
+    Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
+    ProxyError
+  > {
     return this._handler.call(params).map((jsonString) => {
       return ObjectUtils.deserialize(jsonString);
     });

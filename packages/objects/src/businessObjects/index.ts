@@ -22,7 +22,6 @@ export * from "@objects/businessObjects/IndexerSupportSummary.js";
 export * from "@objects/businessObjects/Insight.js";
 export * from "@objects/businessObjects/InsightWithProof.js";
 export * from "@objects/businessObjects/Invitation.js";
-export * from "@objects/businessObjects/InvitationDomain.js";
 export * from "@objects/businessObjects/MarketplaceListing.js";
 export * from "@objects/businessObjects/MetatransactionSignatureRequest.js";
 export * from "@objects/businessObjects/NftHoldings.js";
@@ -46,6 +45,9 @@ export * from "@objects/businessObjects/SiteVisitsData.js";
 export * from "@objects/businessObjects/SiteVisitsMap.js";
 export * from "@objects/businessObjects/SolanaNFT.js";
 export * from "@objects/businessObjects/StatSummary.js";
+
+export * from "@objects/businessObjects/SuiNFT.js";
+
 export * from "@objects/businessObjects/TokenAddress.js";
 export * from "@objects/businessObjects/TokenAndSecret.js";
 export * from "@objects/businessObjects/TokenBalance.js";
@@ -60,4 +62,5 @@ export * from "@objects/businessObjects/events/index.js";
 export * from "@objects/businessObjects/rewards/index.js";
 export * from "@objects/businessObjects/oauth/index.js";
 export * from "@objects/businessObjects/scraper/index.js";
+export * from "@objects/businessObjects/queryResponse/index.js";
 export * from "@objects/businessObjects/versioned/index.js";

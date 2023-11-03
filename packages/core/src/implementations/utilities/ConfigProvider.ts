@@ -141,6 +141,8 @@ export class ConfigProvider
         oklinkApiKey: null, // "700c2f71-a4e2-4a85-b87f-58c8a341d1bf", // oklinkApiKeys
         ankrApiKey: null, // ankrApiKey
         bluezApiKey: null, // bluezApiKey
+        spaceAndTimeKey: null, // spaceAndTimeKey
+        blockvisionKey: null, // blockvisionKey
         primaryInfuraKey: null, // primary Infura Key
         primaryRPCProviderURL: null,
         secondaryInfuraKey: null, // secondaryInfuraKey
@@ -331,6 +333,11 @@ export class ConfigProvider
       overrides.ankrApiKey ?? this.config.apiKeys.ankrApiKey;
     this.config.apiKeys.bluezApiKey =
       overrides.bluezApiKey ?? this.config.apiKeys.bluezApiKey;
+
+    this.config.apiKeys.spaceAndTimeKey =
+      overrides.spaceAndTimeKey ?? this.config.apiKeys.spaceAndTimeKey;
+    this.config.apiKeys.blockvisionKey =
+      overrides.blockvisionKey ?? this.config.apiKeys.blockvisionKey;
 
     this.config.dnsServerAddress =
       overrides.dnsServerAddress ?? this.config.dnsServerAddress;

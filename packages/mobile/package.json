@@ -157,7 +157,7 @@
     "global": "^4.4.0",
     "https-browserify": "^0.0.1",
     "indexeddbshim": "^10.1.0",
-    "inversify": "^6.0.1",
+    "inversify": "^6.0.2",
     "inversify-inject-decorators": "^3.1.0",
     "jsonwebtoken": "^9.0.0",
     "key-did-provider-ed25519": "^2.0.1",

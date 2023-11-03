@@ -110,8 +110,9 @@ import {
   IScraperNavigationMethods,
   PageNo,
   Year,
-  URLString,
   IPurchaseMethods,
+  TransactionFlowInsight,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -137,6 +138,7 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { never, filter, timestamp } from "rxjs";
 
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
+import { DataValidationUtils } from "@core/implementations/utilities/index.js";
 import {
   IAccountIndexerPoller,
   IAccountIndexerPollerType,
@@ -178,6 +180,8 @@ import {
   IAdDataRepositoryType,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
+  IConsentContractRepository,
+  IConsentContractRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IBlockchainProvider,
@@ -277,7 +281,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           this.iocContainer.get<IAccountService>(IAccountServiceType);
 
         return accountService.addAccount(
-          accountAddress,
+          DataValidationUtils.removeChecksumFromAccountAddress(
+            accountAddress,
+            chain,
+          ),
           signature,
           languageCode,
           chain,
@@ -295,7 +302,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           this.iocContainer.get<IAccountService>(IAccountServiceType);
 
         return accountService.addAccountWithExternalSignature(
-          accountAddress,
+          DataValidationUtils.removeChecksumFromAccountAddress(
+            accountAddress,
+            chain,
+          ),
           message,
           signature,
           chain,
@@ -315,7 +325,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           this.iocContainer.get<IAccountService>(IAccountServiceType);
 
         return accountService.addAccountWithExternalTypedDataSignature(
-          accountAddress,
+          DataValidationUtils.removeChecksumFromAccountAddress(
+            accountAddress,
+            chain,
+          ),
           domain,
           types,
           value,
@@ -333,7 +346,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         const accountService =
           this.iocContainer.get<IAccountService>(IAccountServiceType);
 
-        return accountService.unlinkAccount(accountAddress, chain);
+        return accountService.unlinkAccount(
+          DataValidationUtils.removeChecksumFromAccountAddress(
+            accountAddress,
+            chain,
+          ),
+          chain,
+        );
       },
 
       getAccounts: (
@@ -538,16 +557,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return marketplaceService.getRecommendationsByListing(listing);
       },
 
-      getPossibleRewards: (
+      getEarnedRewardsByContractAddress: (
         contractAddresses: EVMContractAddress[],
-        timeoutMs?: number,
       ) => {
         const marketplaceService = this.iocContainer.get<IMarketplaceService>(
           IMarketplaceServiceType,
         );
-        return marketplaceService.getPossibleRewards(
+        return marketplaceService.getEarnedRewardsByContractAddress(
           contractAddresses,
-          timeoutMs ?? 3000,
         );
       },
     };
@@ -859,6 +876,21 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       .map(() => {});
   }
 
+  public getConsentContractURLs(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    URLString[],
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentContractError
+    | BlockchainCommonErrors
+  > {
+    const consentRepo = this.iocContainer.get<IConsentContractRepository>(
+      IConsentContractRepositoryType,
+    );
+    return consentRepo.getInvitationUrls(consentContractAddress);
+  }
+
   public getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
@@ -1045,7 +1077,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.getLocation();
   }
-  getAge(
+  public getAge(
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<Age | null, PersistenceError> {
     const profileService =
@@ -1080,7 +1112,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public getTransactionValueByChain(
     sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<TransactionPaymentCounter[], PersistenceError> {
+  ): ResultAsync<TransactionFlowInsight[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getTransactionValueByChain();

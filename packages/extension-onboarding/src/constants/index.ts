@@ -8,6 +8,7 @@ export const ALERT_MESSAGES = {
 export enum EWalletProviderKeys {
   METAMASK = "metamask",
   PHANTOM = "phantom",
+  SUI = "sui",
   WALLET_CONNECT = "walletConnect",
   COINBASE = "coinbase",
 }
@@ -43,6 +44,29 @@ export const PRODUCT_VIDEO_URL =
 
 export const FAQ_URL =
   "https://data-wallet.zendesk.com/hc/en-us/sections/10560934964109-FAQ";
+
+export const External_URLs = [
+  {
+    displayName: "Survey",
+    url: SURVEY_URL,
+  },
+  {
+    displayName: "Contact Us",
+    url: ZENDEKS_URL,
+  },
+  {
+    displayName: "FAQ",
+    url: FAQ_URL,
+  },
+  {
+    displayName: "Privacy Policy",
+    url: PRIVACY_POLICY_URL,
+  },
+  {
+    displayName: "Hotjar Disclaimer",
+    url: HOTJAR_DISCLAIMER_URL,
+  },
+];
 
 export const TIKTOK_URL = "https://www.tiktok.com/@yosnickerdoodle/";
 export const YOUTUBE_URL = "https://www.youtube.com/channel/UC10ieFC8A/";

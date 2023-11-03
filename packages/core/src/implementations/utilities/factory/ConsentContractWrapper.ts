@@ -526,6 +526,18 @@ export class ConsentContractWrapper
     );
   }
 
+  public estimateGasLimitForSetQueryHorizon(
+    blockNumber: BlockNumber,
+  ): ResultAsync<
+    BigNumberString,
+    ConsentContractError | BlockchainCommonErrors
+  > {
+    return this.fallback(
+      () => this.primary.estimateGasLimitForSetQueryHorizon(blockNumber),
+      () => this.secondary?.estimateGasLimitForSetQueryHorizon(blockNumber),
+    );
+  }
+
   public totalSupply(): ResultAsync<
     number,
     ConsentContractError | BlockchainCommonErrors
