@@ -3,7 +3,6 @@ import {
   AjaxError,
   BlockchainProviderError,
   ConsentContractError,
-  ConsentContractRepositoryError,
   EInvitationStatus,
   PageInvitation,
   PersistenceError,
@@ -33,7 +32,6 @@ export class OptInCampaign extends Prompt {
     | UninitializedError
     | ConsentContractError
     | AjaxError
-    | ConsentContractRepositoryError
   > {
     return this.core.invitation
       .getInvitationsByDomain(this.mocks.domainName)

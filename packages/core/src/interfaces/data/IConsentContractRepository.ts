@@ -7,30 +7,29 @@ import {
   EVMAccountAddress,
   ConsentContractError,
   AjaxError,
-  ConsentContractRepositoryError,
   ConsentFactoryContractError,
   HexString,
   TokenId,
   DataPermissions,
-  URLString,
   IpfsCID,
   Signature,
   TokenUri,
   IConsentCapacity,
   BlockNumber,
   BlockchainCommonErrors,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface IConsentContractRepository {
   /**
-   * Returns all the URLs that are configured in the contract.
+   * Returns all the domains that are configured in the contract.
    * @param consentContractAddress
    */
-  getInvitationUrls(
+  getDomains(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
-    URLString[],
+    DomainName[],
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
@@ -82,7 +81,6 @@ export interface IConsentContractRepository {
   ): ResultAsync<
     boolean,
     | ConsentContractError
-    | ConsentContractRepositoryError
     | UninitializedError
     | BlockchainProviderError
     | AjaxError
@@ -103,6 +101,13 @@ export interface IConsentContractRepository {
     consentContractAddresses: EVMContractAddress[],
   ): ResultAsync<
     Map<EVMContractAddress, IConsentContract>,
+    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+  >;
+
+  getConsentContract(
+    consentContractAddresses: EVMContractAddress,
+  ): ResultAsync<
+    IConsentContract,
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   >;
 

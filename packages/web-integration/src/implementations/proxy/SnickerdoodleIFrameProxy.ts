@@ -400,13 +400,6 @@ export class SnickerdoodleIFrameProxy
     return this._createCall("getAcceptedInvitationsCID", null);
   }
 
-  public getAvailableInvitationsCID(): ResultAsync<
-    Map<EVMContractAddress, IpfsCID>,
-    ProxyError
-  > {
-    return this._createCall("getAvailableInvitationsCID", null);
-  }
-
   public getConsentContractURLs(
     contractAddress: EVMContractAddress,
   ): ResultAsync<URLString[], ProxyError> {

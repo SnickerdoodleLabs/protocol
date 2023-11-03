@@ -1,3 +1,4 @@
+import { ITimeUtilsType, ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   SiteVisit,
   PersistenceError,
@@ -9,7 +10,6 @@ import {
   UnixTimestamp,
   SiteVisitsMap,
   SiteVisitsData,
-  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -21,7 +21,6 @@ import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
 } from "@core/interfaces/data/index.js";
-import { ITimeUtilsType, ITimeUtils } from "@snickerdoodlelabs/common-utils";
 
 @injectable()
 export class BrowsingDataRepository implements IBrowsingDataRepository {
@@ -94,9 +93,8 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
           this.timeUtils.convertTimestampToISOString(visit.endTime) >
           siteVisitData.lastReportedTime
         ) {
-          siteVisitData.lastReportedTime = this.timeUtils.convertTimestampToISOString(
-            visit.endTime,
-          );
+          siteVisitData.lastReportedTime =
+            this.timeUtils.convertTimestampToISOString(visit.endTime);
         }
       } else {
         visitsMap.set(
@@ -113,7 +111,6 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
     this.calculateAverageScreenTime(visitsMap);
     return visitsMap;
   }
-
 
   protected calculateAverageScreenTime(visitsMap: SiteVisitsMap): void {
     for (const [_, siteVisitData] of visitsMap) {

@@ -140,7 +140,7 @@ export class ConfigProvider
         secondaryInfuraKey: null, // secondaryInfuraKey
         secondaryRPCProviderURL: null,
       },
-      URLString("https://cloudflare-dns.com/dns-query"), // dnsServerAddress
+      URLString("https://cloudflare-dns.com/dns-query"), // dnsProviderBaseUrl
       ECurrencyCode.USD, // quoteCurrency
       100, // etherscan tx batch size
       4000, // polling interval for consent contracts on control chain
@@ -330,8 +330,8 @@ export class ConfigProvider
     this.config.apiKeys.blockvisionKey =
       overrides.blockvisionKey ?? this.config.apiKeys.blockvisionKey;
 
-    this.config.dnsServerAddress =
-      overrides.dnsServerAddress ?? this.config.dnsServerAddress;
+    this.config.dnsProviderBaseUrl =
+      overrides.dnsProviderBaseUrl ?? this.config.dnsProviderBaseUrl;
     this.config.dataWalletBackupIntervalMS =
       overrides.dataWalletBackupIntervalMS ??
       this.config.dataWalletBackupIntervalMS;

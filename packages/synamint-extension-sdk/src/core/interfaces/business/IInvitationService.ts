@@ -73,10 +73,6 @@ export interface IInvitationService {
     Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
     SnickerDoodleCoreError
   >;
-  getAvailableInvitationsCID(): ResultAsync<
-    Map<EVMContractAddress, IpfsCID>,
-    SnickerDoodleCoreError
-  >;
 
   getAgreementPermissions(
     consentContractAddress: EVMContractAddress,

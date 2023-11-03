@@ -10,7 +10,6 @@ import {
   MarketplaceListing,
   AccountAddress,
   IConsentCapacity,
-  PossibleReward,
   PagingRequest,
   MarketplaceTag,
   PagedResponse,
@@ -52,10 +51,6 @@ export interface IInvitationRepository {
   getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError>;
-  getAvailableInvitationsCID(): ResultAsync<
-    Map<EVMContractAddress, IpfsCID>,
-    SnickerDoodleCoreError
-  >;
   getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
   ): ResultAsync<

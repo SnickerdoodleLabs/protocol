@@ -399,15 +399,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
         return invitationService.getAgreementFlags(consentContractAddress);
       },
-      getAvailableInvitationsCID: (
-        sourceDomain: DomainName | undefined = undefined,
-      ) => {
-        const invitationService = this.iocContainer.get<IInvitationService>(
-          IInvitationServiceType,
-        );
-
-        return invitationService.getAvailableInvitationsCID();
-      },
       getAcceptedInvitationsCID: (
         sourceDomain: DomainName | undefined = undefined,
       ) => {
@@ -762,7 +753,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const consentRepo = this.iocContainer.get<IConsentContractRepository>(
       IConsentContractRepositoryType,
     );
-    return consentRepo.getInvitationUrls(consentContractAddress);
+    return consentRepo.getDomains(consentContractAddress).map((domains) => {
+      // This method only returns domains, not complete urls
+      return domains.map((domain) => {
+        return URLString(domain);
+      });
+    });
   }
 
   public getConsentCapacity(

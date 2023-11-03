@@ -4,7 +4,6 @@ import {
   AjaxError,
   BlockchainProviderError,
   ConsentContractError,
-  ConsentContractRepositoryError,
   ConsentFactoryContractError,
   ConsentToken,
   DataPermissions,
@@ -12,15 +11,14 @@ import {
   EVMContractAddress,
   HexString,
   IpfsCID,
-  OptInInfo,
   Signature,
   TokenId,
   TokenUri,
   IConsentCapacity,
   UninitializedError,
-  URLString,
   BlockNumber,
   BlockchainCommonErrors,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -53,24 +51,20 @@ export class ConsentContractRepository implements IConsentContractRepository {
     BlockNumber | null
   >();
 
-  public getInvitationUrls(
+  public getDomains(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
-    URLString[],
+    DomainName[],
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
     | BlockchainCommonErrors
   > {
-    return this.getConsentContract(consentContractAddress)
-      .andThen((contract) => {
+    return this.getConsentContract(consentContractAddress).andThen(
+      (contract) => {
         return contract.getDomains();
-      })
-      .map((domains) => {
-        return domains.map((domain) => {
-          return URLString(domain);
-        });
-      });
+      },
+    );
   }
 
   public getConsentCapacity(
@@ -153,7 +147,6 @@ export class ConsentContractRepository implements IConsentContractRepository {
   ): ResultAsync<
     boolean,
     | ConsentContractError
-    | ConsentContractRepositoryError
     | UninitializedError
     | BlockchainProviderError
     | AjaxError
@@ -406,7 +399,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
       });
   }
 
-  protected getConsentContract(
+  public getConsentContract(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     IConsentContract,

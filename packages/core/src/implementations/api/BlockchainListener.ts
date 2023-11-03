@@ -4,7 +4,6 @@ import {
   BlockchainProviderError,
   BlockNumber,
   ConsentContractError,
-  ConsentContractRepositoryError,
   ConsentError,
   ConsentFactoryContractError,
   IPFSError,

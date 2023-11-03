@@ -39,6 +39,7 @@
   "dependencies": {
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/contracts-sdk": "workspace:^",
+    "@snickerdoodlelabs/erc7529": "workspace:^",
     "@snickerdoodlelabs/indexers": "workspace:^",
     "@snickerdoodlelabs/insight-platform-api": "workspace:^",
     "@snickerdoodlelabs/node-utils": "workspace:^",

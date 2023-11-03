@@ -79,7 +79,6 @@ import {
   GetSiteVisitsParams,
   GetSiteVisitsMapParams,
   GetAcceptedInvitationsCIDParams,
-  GetAvailableInvitationsCIDParams,
   CloseTabParams,
   GetStateParams,
   GetInternalStateParams,
@@ -457,16 +456,6 @@ export class RpcCallHandler implements IRpcCallHandler {
             } else {
               return okAsync(null);
             }
-          });
-      },
-    ),
-    new CoreActionHandler<GetAvailableInvitationsCIDParams>(
-      GetAvailableInvitationsCIDParams.getCoreAction(),
-      (_params) => {
-        return this.invitationService
-          .getAvailableInvitationsCID()
-          .map((res) => {
-            return ObjectUtils.serialize(res);
           });
       },
     ),

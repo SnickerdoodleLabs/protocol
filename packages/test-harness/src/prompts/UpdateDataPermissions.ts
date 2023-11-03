@@ -2,7 +2,6 @@ import {
   AjaxError,
   BlockchainProviderError,
   ConsentContractError,
-  ConsentContractRepositoryError,
   DataPermissions,
   EVMContractAddress,
   EWalletDataType,
@@ -24,7 +23,6 @@ export class UpdateDataPermissions extends Prompt {
     | UninitializedError
     | ConsentContractError
     | AjaxError
-    | ConsentContractRepositoryError
   > {
     return this.core.invitation
       .getAcceptedInvitations()

@@ -557,10 +557,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     return coreGateway.getAcceptedInvitationsCID();
   }
 
-  public getAvailableInvitationsCID() {
-    return coreGateway.getAvailableInvitationsCID();
-  }
-
   public getInvitationMetadataByCID(ipfsCID: IpfsCID) {
     return coreGateway.getInvitationMetadataByCID(
       new GetInvitationMetadataByCIDParams(ipfsCID),

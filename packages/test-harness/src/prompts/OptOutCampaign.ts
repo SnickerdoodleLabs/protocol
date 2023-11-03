@@ -2,7 +2,6 @@ import {
   AjaxError,
   BlockchainProviderError,
   ConsentContractError,
-  ConsentContractRepositoryError,
   Invitation,
   PersistenceError,
   UninitializedError,
@@ -22,7 +21,6 @@ export class OptOutCampaign extends Prompt {
     | UninitializedError
     | ConsentContractError
     | AjaxError
-    | ConsentContractRepositoryError
   > {
     return this.core.invitation
       .getAcceptedInvitations()

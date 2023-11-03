@@ -8,7 +8,6 @@ export * from "@objects/errors/BlockchainErrorMapper.js";
 export * from "@objects/errors/BlockchainProviderError.js";
 export * from "@objects/errors/CloudStorageError.js";
 export * from "@objects/errors/ConsentContractError.js";
-export * from "@objects/errors/ConsentContractRepositoryError.js";
 export * from "@objects/errors/ConsentError.js";
 export * from "@objects/errors/ConsentFactoryContractError.js";
 export * from "@objects/errors/CrumbsContractError.js";

@@ -3,7 +3,6 @@ export * from "@core/interfaces/data/IAdDataRepository.js";
 export * from "@core/interfaces/data/IAuthenticatedStorageRepository.js";
 export * from "@core/interfaces/data/IBrowsingDataRepository.js";
 export * from "@core/interfaces/data/IConsentContractRepository.js";
-export * from "@core/interfaces/data/IDNSRepository.js";
 export * from "@core/interfaces/data/IDemographicDataRepository.js";
 export * from "@core/interfaces/data/IDiscordRepository.js";
 export * from "@core/interfaces/data/IDomainCredentialRepository.js";

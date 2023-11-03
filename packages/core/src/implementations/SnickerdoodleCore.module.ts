@@ -13,6 +13,13 @@ import {
   TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
+  ERC7529Utils,
+  IERC7529ConfigProvider,
+  IERC7529ConfigProviderType,
+  IERC7529Utils,
+  IERC7529UtilsType,
+} from "@snickerdoodlelabs/erc7529";
+import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
   IIndexerContextProvider,
@@ -54,10 +61,8 @@ import {
   ICloudStorageManager,
   ICloudStorageManagerType,
   ICloudStorage,
-  GoogleCloudStorage,
   DropboxCloudStorage,
   IDropboxCloudStorageType,
-  IGDriveCloudStorageType,
   IPersistenceContextProvider,
   IPersistenceContextProviderType,
   NullCloudStorage,
@@ -120,7 +125,6 @@ import {
   BrowsingDataRepository,
   CoinGeckoTokenPriceRepository,
   ConsentContractRepository,
-  DNSRepository,
   DataWalletPersistence,
   DemographicDataRepository,
   DiscordRepository,
@@ -208,8 +212,6 @@ import {
   IBrowsingDataRepositoryType,
   IConsentContractRepository,
   IConsentContractRepositoryType,
-  IDNSRepository,
-  IDNSRepositoryType,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   IDemographicDataRepository,
@@ -344,9 +346,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IMarketplaceRepository>(IMarketplaceRepositoryType).to(
       MarketplaceRepository,
     );
-    bind<IDNSRepository>(IDNSRepositoryType)
-      .to(DNSRepository)
-      .inSingletonScope();
     bind<IDomainCredentialRepository>(IDomainCredentialRepositoryType)
       .to(DomainCredentialRepository)
       .inSingletonScope();
@@ -421,6 +420,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IIndexerConfigProvider>(IIndexerConfigProviderType).toConstantValue(
       configProvider,
     );
+    bind<IERC7529ConfigProvider>(IERC7529ConfigProviderType).toConstantValue(
+      configProvider,
+    );
 
     // Binding cloud storage manager
     bind<IPersistenceConfigProvider>(
@@ -454,6 +456,8 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IBigNumberUtils>(IBigNumberUtilsType)
       .to(BigNumberUtils)
       .inSingletonScope();
+    bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
+    bind<IERC7529Utils>(IERC7529UtilsType).to(ERC7529Utils).inSingletonScope();
 
     // Utilites/factory
     bind<IContractFactory>(IContractFactoryType)
@@ -507,9 +511,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(SDQLQueryWrapperFactory)
       .inSingletonScope();
 
-    bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
-
-    /* Cloud Storage Options - may need to comment out */
     bind<ICloudStorage>(INullCloudStorageType)
       .to(NullCloudStorage)
       .inSingletonScope();
