@@ -1,11 +1,3 @@
-import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import { EModalSelectors } from "@extension-onboarding/components/Modals/Modal.constants";
-import Card from "@extension-onboarding/components/v2/Card";
-import CardTitle from "@extension-onboarding/components/v2/CardTitle";
-import FileExplorer from "@extension-onboarding/components/v2/FileExplorer";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import { Box } from "@material-ui/core";
 import {
   ECloudStorageType,
@@ -23,6 +15,15 @@ import { Dropbox } from "dropbox";
 import { ResultAsync, errAsync } from "neverthrow";
 import React, { FC, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import { EModalSelectors } from "@extension-onboarding/components/Modals/Modal.constants";
+import Card from "@extension-onboarding/components/v2/Card";
+import CardTitle from "@extension-onboarding/components/v2/CardTitle";
+import FileExplorer from "@extension-onboarding/components/v2/FileExplorer";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 
 interface DropboxFolder {
   ".tag": string;
@@ -81,7 +82,6 @@ const StorageSettings: FC = () => {
     return sdlDataWallet.storage
       .getCurrentCloudStorage()
       .map((type) => {
-        console.log("type: " + type);
         return type;
       })
       .mapErr((e) => console.log(e));
