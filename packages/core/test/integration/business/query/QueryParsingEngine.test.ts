@@ -154,9 +154,9 @@ class QueryParsingMocks {
       this.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
 
-    td.when(this.transactionRepo.getTransactionByChain()).thenReturn(
-      okAsync([]),
-    );
+    td.when(
+      this.transactionRepo.getTransactionByChain(td.matchers.anything()),
+    ).thenReturn(okAsync([]));
     td.when(this.balanceRepo.getAccountBalances()).thenReturn(okAsync([]));
     td.when(this.balanceRepo.getAccountNFTs(chainIds)).thenReturn(okAsync([]));
 
@@ -424,6 +424,7 @@ describe("Testing avalanche 4", () => {
     await engine
       .handleQuery(sdqlQuery4, new DataPermissions(allPermissions))
       .andThen((deliveredInsights) => {
+        console.log(deliveredInsights);
         expect(deliveredInsights).toMatchObject(expectedInsights);
         expect(
           Object.values(deliveredInsights.insights!).length > 0,

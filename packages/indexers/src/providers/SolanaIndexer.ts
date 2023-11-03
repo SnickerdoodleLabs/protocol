@@ -105,7 +105,7 @@ export class SolanaIndexer implements ISolanaIndexer {
     });
   }
 
-  public name(): string {
+  public name(): EDataProvider {
     return EDataProvider.Solana;
   }
 

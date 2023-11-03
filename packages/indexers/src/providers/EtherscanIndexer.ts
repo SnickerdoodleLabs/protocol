@@ -3,8 +3,9 @@ import {
   ILogUtilsType,
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
-import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
   AjaxError,
@@ -36,6 +37,8 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
 import {
+  TEVMTransactionFactoryType,
+  TEVMTransactionFactory,
   IEVMIndexer,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
@@ -114,7 +117,7 @@ export class EtherscanIndexer implements IEVMIndexer {
     });
   }
 
-  public name(): string {
+  public name(): EDataProvider {
     return EDataProvider.Etherscan;
   }
 
@@ -334,7 +337,6 @@ export class EtherscanIndexer implements IEVMIndexer {
             }
 
             const txs = response.result.map((tx) => {
-              // etherscan uses "" instead of null
               return new EVMTransaction(
                 getChainInfoByChain(chain).chainId,
                 EVMTransactionHash(tx.hash),
@@ -458,7 +460,7 @@ export class EtherscanIndexer implements IEVMIndexer {
   }
 }
 
-interface IEtherscanTransactionResponse {
+export interface IEtherscanTransactionResponse {
   status: string;
   message: string;
   result: {

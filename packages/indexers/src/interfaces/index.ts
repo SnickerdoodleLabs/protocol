@@ -11,3 +11,4 @@ export * from "@indexers/interfaces/ISolanaIndexer.js";
 export * from "@indexers/interfaces/ISolanaNFTRepository.js";
 export * from "@indexers/interfaces/ISolanaTransactionRepository.js";
 export * from "@indexers/interfaces/ISuiIndexer.js";
+export * from "@indexers/interfaces/TEVMTransactionBuilder.js";

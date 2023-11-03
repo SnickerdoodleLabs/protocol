@@ -90,7 +90,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     });
   }
 
-  public name(): string {
+  public name(): EDataProvider {
     return EDataProvider.Moralis;
   }
 

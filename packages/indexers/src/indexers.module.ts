@@ -19,6 +19,8 @@ import {
   ISimulatorEVMTransactionRepositoryType,
   ISolanaIndexer,
   ISolanaIndexerType,
+  TEVMTransactionFactory,
+  TEVMTransactionFactoryType,
 } from "@indexers/interfaces/index.js";
 import { MasterIndexer } from "@indexers/MasterIndexer.js";
 import {
@@ -36,6 +38,7 @@ import {
   SimulatorEVMTransactionRepository,
   SolanaIndexer,
 } from "@indexers/providers/index.js";
+import { EVMTransactionFactory } from "@indexers/utils/index.js";
 
 export const indexersModule = new ContainerModule(
   (
@@ -94,6 +97,10 @@ export const indexersModule = new ContainerModule(
     /* Sui Indexers */
     bind<ISuiIndexer>(IBlockvisionIndexerType)
       .to(BlockvisionIndexer)
+      .inSingletonScope();
+
+    bind<TEVMTransactionFactory>(TEVMTransactionFactoryType)
+      .to(EVMTransactionFactory)
       .inSingletonScope();
   },
 );

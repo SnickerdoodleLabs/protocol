@@ -20,6 +20,10 @@ import {
   LinkedAccount,
   ETimePeriods,
   UnixTimestamp,
+  EChainTechnology,
+  SolanaTransaction,
+  SuiTransaction,
+  getChainInfoByChainId,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
@@ -176,14 +180,14 @@ export class TransactionHistoryRepository
   ): ResultAsync<Map<EChain, TransactionFlowInsight>, PersistenceError> {
     return ResultUtils.combine([
       this.persistence
-        .getCursor<EVMTransaction>(
+        .getCursor<ChainTransaction>(
           ERecordKey.TRANSACTIONS,
           "to",
           account.sourceAccountAddress,
         )
         .andThen((cursor) => cursor.allValues().map((evm) => evm || [])),
       this.persistence
-        .getCursor<EVMTransaction>(
+        .getCursor<ChainTransaction>(
           ERecordKey.TRANSACTIONS,
           "from",
           account.sourceAccountAddress,
@@ -199,13 +203,20 @@ export class TransactionHistoryRepository
   }
 
   protected generateTransactionFlows(
-    incomingTransactions: EVMTransaction[],
-    outgoingTransactions: EVMTransaction[],
+    incomingTransactions: ChainTransaction[],
+    outgoingTransactions: ChainTransaction[],
     benchmarkTimestamp?: UnixTimestamp,
   ): Map<EChain, TransactionFlowInsight> {
     const transactionFlowInsights = new Map<EChain, TransactionFlowInsight>();
+    //Sui and solana are not processed for now
+    const evmIncomingTransactions = this.classifyTransactions(
+      incomingTransactions,
+    ).get(EChainTechnology.EVM) as EVMTransaction[];
+    const evmOutgoingTransactions = this.classifyTransactions(
+      outgoingTransactions,
+    ).get(EChainTechnology.EVM) as EVMTransaction[];
 
-    incomingTransactions.forEach((tx) =>
+    evmIncomingTransactions.forEach((tx) =>
       this.categorizeTransaction(
         tx,
         true,
@@ -213,7 +224,7 @@ export class TransactionHistoryRepository
         benchmarkTimestamp,
       ),
     );
-    outgoingTransactions.forEach((tx) =>
+    evmOutgoingTransactions.forEach((tx) =>
       this.categorizeTransaction(
         tx,
         false,
@@ -223,6 +234,26 @@ export class TransactionHistoryRepository
     );
 
     return transactionFlowInsights;
+  }
+  protected classifyTransactions(
+    transactions: ChainTransaction[],
+  ): Map<EChainTechnology, ChainTransaction[]> {
+    const classifiedTransactions = new Map<
+      EChainTechnology,
+      ChainTransaction[]
+    >();
+
+    transactions.forEach((tx) => {
+      const classification = getChainInfoByChainId(
+        ChainId(tx.chain),
+      ).chainTechnology;
+      if (classifiedTransactions[classification] != null) {
+        classifiedTransactions[classification] = [];
+      }
+      classifiedTransactions[classification].push(tx);
+    });
+
+    return classifiedTransactions;
   }
 
   protected categorizeTransaction(
