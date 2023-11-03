@@ -1,9 +1,9 @@
 import { Box, Typography, Dialog, Button } from "@material-ui/core";
-import React, { useMemo, useState } from "react";
+import React from "react";
 import Browser from "webextension-polyfill";
 
-import LinkCard from "@synamint-extension-sdk/content/components/LinkCard/index";
-import { useStyles } from "@synamint-extension-sdk/content/components/Screens/ShoppingDataDone/ShoppingDataDone.style";
+import { LinkCard } from "@synamint-extension-sdk/content/components/LinkCard/LinkCard";
+import { useStyles } from "@synamint-extension-sdk/content/components/screens/ShoppingDataDone/ShoppingDataDone.style";
 import {
   PRIVACY_POLICY_URL,
   SPA_PATHS,
@@ -33,7 +33,7 @@ const SOCIAL_LINKS = [
   },
 ];
 
-const ShoppingDataDone: React.FC<IShoppingDataDoneProps> = ({
+export const ShoppingDataDone: React.FC<IShoppingDataDoneProps> = ({
   coreGateway,
 }: IShoppingDataDoneProps) => {
   const classes = useStyles();
@@ -63,14 +63,14 @@ const ShoppingDataDone: React.FC<IShoppingDataDoneProps> = ({
         </Box>
         <Box mt={1}>
           <LinkCard
-            navigateTo={SPA_PATHS.rewardsMarketplace}
-            icon={Browser.runtime.getURL("assets/icons/rewards.svg")}
-            title="Rewards Marketplace"
+            navigateTo={SPA_PATHS.dataPermissions}
+            icon={Browser.runtime.getURL("assets/icons/permissions.svg")}
+            title="Data Permmissions"
             coreGateway={coreGateway}
           />
           <LinkCard
             navigateTo={SPA_PATHS.dashboard}
-            icon={Browser.runtime.getURL("assets/icons/portfolio.svg")}
+            icon={Browser.runtime.getURL("assets/icons/dashboard.svg")}
             title="My Data Dashboard"
             coreGateway={coreGateway}
           />
@@ -159,5 +159,3 @@ const ShoppingDataDone: React.FC<IShoppingDataDoneProps> = ({
     </Box>
   );
 };
-
-export default ShoppingDataDone;

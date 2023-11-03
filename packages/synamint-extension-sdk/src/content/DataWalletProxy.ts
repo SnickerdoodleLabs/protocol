@@ -67,7 +67,6 @@ import {
   IProxyPurchaseMethods,
   ChainTransaction,
   TransactionFilter,
-  IProxyAccountMethods,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";

@@ -13,6 +13,6 @@ export const useStyles = makeStyles((theme) => ({
     fontWeight: 400,
     fontSize: "16px",
     lineHeight: "20px",
-    color: "#232039",
+    color: "#FFF",
   },
 }));

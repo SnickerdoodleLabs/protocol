@@ -3,7 +3,6 @@ import React from "react";
 import Browser from "webextension-polyfill";
 
 import { useStyles } from "@synamint-extension-sdk/content/components/LinkCard/LinkCard.style";
-import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 
 interface ILinkCardProps {
   navigateTo: string;
@@ -11,7 +10,12 @@ interface ILinkCardProps {
   title: string;
   coreGateway;
 }
-const LinkCard = ({ navigateTo, icon, title, coreGateway }: ILinkCardProps) => {
+export const LinkCard = ({
+  navigateTo,
+  icon,
+  title,
+  coreGateway,
+}: ILinkCardProps) => {
   const classes = useStyles();
   const navigate = () => {
     console.log(coreGateway);
@@ -26,18 +30,13 @@ const LinkCard = ({ navigateTo, icon, title, coreGateway }: ILinkCardProps) => {
       mt={2}
       display="flex"
       alignItems="center"
+      bgcolor="#2E2946"
       className={classes.container}
     >
       <Box mx={2}>
         <img src={icon} />
       </Box>
-
       <Typography className={classes.linkTitle}>{title}</Typography>
-      <Box mr={2} marginLeft="auto">
-        <img src={Browser.runtime.getURL("assets/icons/arrow.svg")} />
-      </Box>
     </Box>
   );
 };
-
-export default LinkCard;

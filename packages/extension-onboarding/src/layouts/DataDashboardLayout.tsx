@@ -80,6 +80,12 @@ const LINKS: ILink[] = [
     subtitle:
       "Share what kinds of Discord channels you are subscribed to. No one will ever know your discord handle.",
   },
+  {
+    path: EPaths.SHOPPING_DATA,
+    title: "Shopping Data",
+    /* subtitle:
+      "Share what kinds of Discord channels you are subscribed to. No one will ever know your discord handle.", */
+  },
 ];
 
 const DataDashboardLayout = () => {

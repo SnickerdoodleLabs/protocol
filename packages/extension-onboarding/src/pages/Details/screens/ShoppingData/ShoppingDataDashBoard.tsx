@@ -3,9 +3,9 @@ import React from "react";
 
 import { Amazon } from "./Platforms";
 
-import UnauthScreen from "@extension-onboarding/components/UnauthScreen/UnauthScreen";
+import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen";
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
-import { EShoppingDataType } from "@extension-onboarding/objects/enums/EShoppingDataType";
+import { EShoppingDataType } from "@extension-onboarding/objects";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/ShoppingData/ShoppingDataDashBoard.style";
 
 interface IShoppingDataProps {

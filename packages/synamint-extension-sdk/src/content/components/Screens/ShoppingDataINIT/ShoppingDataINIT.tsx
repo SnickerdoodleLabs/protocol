@@ -1,8 +1,8 @@
 import { Box, Typography, Dialog, Button } from "@material-ui/core";
-import React, { useMemo, useState } from "react";
+import React from "react";
 import Browser from "webextension-polyfill";
 
-import { useStyles } from "@synamint-extension-sdk/content/components/Screens/ShoppingDataINIT/ShoppingDataINIT.style";
+import { useStyles } from "@synamint-extension-sdk/content/components/screens/ShoppingDataINIT/ShoppingDataINIT.style";
 import {
   PRIVACY_POLICY_URL,
   WEBSITE_URL,
@@ -31,7 +31,7 @@ const SOCIAL_LINKS = [
   },
 ];
 
-const ShoppingDataINIT: React.FC<IShoppingDataINITProps> = ({
+export const ShoppingDataINIT: React.FC<IShoppingDataINITProps> = ({
   setShoppingDataScrapeStart,
 }: IShoppingDataINITProps) => {
   const classes = useStyles();
@@ -140,5 +140,3 @@ const ShoppingDataINIT: React.FC<IShoppingDataINITProps> = ({
     </Box>
   );
 };
-
-export default ShoppingDataINIT;

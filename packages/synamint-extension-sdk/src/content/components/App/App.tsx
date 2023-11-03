@@ -18,7 +18,6 @@ import {
   IOldUserAgreement,
   IUserAgreement,
   Invitation,
-  LinkedAccount,
   Signature,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -28,9 +27,6 @@ import {
   ModalContainer,
   PermissionSelectionWidget,
   createDefaultTheme,
-  ShoppingDataINIT,
-  ShoppingDataDone,
-  ShoppingDataProcess,
 } from "@snickerdoodlelabs/shared-components";
 import endOfStream from "end-of-stream";
 import PortStream from "extension-port-stream";
@@ -50,6 +46,11 @@ import React, {
 import { parse } from "tldts";
 import Browser from "webextension-polyfill";
 
+import {
+  ShoppingDataDone,
+  ShoppingDataINIT,
+  ShoppingDataProcess,
+} from "@synamint-extension-sdk/content/components/screens";
 import { EAppState } from "@synamint-extension-sdk/content/constants";
 import usePath from "@synamint-extension-sdk/content/hooks/usePath";
 import DataWalletProxyInjectionUtils from "@synamint-extension-sdk/content/utils/DataWalletProxyInjectionUtils";
@@ -417,7 +418,7 @@ const App = () => {
   }, [shoppingDataScrapeStart]);
 
   const exitScraper = () => {
-    setAppState(EAppState.INIT);
+    setAppState(EAppState.SHOPPINGDATA_INIT);
   };
 
   const checkURLAMAZON = () => {
@@ -465,9 +466,6 @@ const App = () => {
   // #endregion
 
   const renderComponent = useMemo(() => {
-    if (!currentInvitation) return null;
-    // delay showing popup until user link an account
-    if (awaitAccountLinking && accounts.length === 0) return null;
     switch (true) {
       case appState === EAppState.SHOPPINGDATA_INIT:
         return (
@@ -479,6 +477,11 @@ const App = () => {
         return <ShoppingDataProcess onCloseClick={exitScraper} />;
       case appState === EAppState.SHOPPINGDATA_SCRAPE_DONE:
         return <ShoppingDataDone coreGateway={coreGateway} />;
+    }
+    if (!currentInvitation) return null;
+    // delay showing popup until user link an account
+    if (awaitAccountLinking && accounts.length === 0) return null;
+    switch (true) {
       case appState === EAppState.AUDIENCE_PREVIEW:
         return (
           <DescriptionWidget

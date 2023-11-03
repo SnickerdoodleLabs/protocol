@@ -3,10 +3,10 @@ import {
   FormControl,
   FormControlLabel,
   Grid,
+  Radio,
   RadioGroup,
 } from "@material-ui/core";
 import { PurchasedProduct } from "@snickerdoodlelabs/objects";
-import { Radio } from "@snickerdoodlelabs/shared-components/src/components/Radio/Radio";
 import React, { FC, memo, useEffect, useState } from "react";
 
 import { IShoppingDataPlatformProps } from "../types";

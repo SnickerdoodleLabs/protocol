@@ -8,14 +8,13 @@ import {
 import CloseIcon from "@material-ui/icons/Close";
 import React from "react";
 
-import ProgressBar from "@synamint-extension-sdk/content/components/Progress-Bar/index";
-import { useStyles } from "@synamint-extension-sdk/content/components/Screens/ShoppingDataProcess/ShoppingDataProcess.style";
+import { useStyles } from "@synamint-extension-sdk/content/components/screens/ShoppingDataProcess/ShoppingDataProcess.style";
 
 interface IShoppingDataProcessProps {
   onCloseClick: () => void;
 }
 
-const ShoppingDataProcess: React.FC<IShoppingDataProcessProps> = ({
+export const ShoppingDataProcess: React.FC<IShoppingDataProcessProps> = ({
   onCloseClick,
 }: IShoppingDataProcessProps) => {
   const classes = useStyles();
@@ -47,7 +46,6 @@ const ShoppingDataProcess: React.FC<IShoppingDataProcessProps> = ({
         alignItems="center"
         justifyContent="center"
       >
-        {/* <ProgressBar /> */}
         <CircularProgress />
       </Box>
       <Box mt={1.5}>
@@ -58,5 +56,3 @@ const ShoppingDataProcess: React.FC<IShoppingDataProcessProps> = ({
     </Box>
   );
 };
-
-export default ShoppingDataProcess;
