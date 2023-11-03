@@ -5,7 +5,7 @@ export const useStyles = makeStyles((theme) => ({
     cursor: "pointer",
   },
   link: {
-    fontFamily: "'Inter'  !important",
+    fontFamily: "Roboto !important",
     fontStyle: "normal",
     fontWeight: 500,
     fontSize: "12px !important",
@@ -15,7 +15,7 @@ export const useStyles = makeStyles((theme) => ({
     cursor: "pointer",
   },
   url: {
-    fontFamily: "'Inter' !important",
+    fontFamily: "Roboto !important",
     fontStyle: "normal !important",
     fontWeight: 500,
     fontSize: "12px !important",

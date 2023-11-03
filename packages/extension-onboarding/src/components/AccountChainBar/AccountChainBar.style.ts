@@ -8,11 +8,12 @@ export const useStyles = makeStyles((theme) => ({
     fontWeight: 500,
   },
   selectAccount: {
-    width: 260,
+    width: "100%",
     height: 55,
     borderRadius: 8,
     fontSize: 14,
     fontWeight: 500,
+    background: "white",
     color: "#929292",
     "& .MuiSelect-select:focus": {
       background: "none",
@@ -36,10 +37,6 @@ export const useStyles = makeStyles((theme) => ({
     color: "#5D5A74",
   },
   switchNetwork: {
-    fontFamily: "Roboto",
-    fontWeight: 500,
-    fontSize: 12,
-    color: "#232039",
     cursor: "pointer",
   },
   buttonText: {

@@ -10,10 +10,11 @@ import {
   MarketplaceListing,
   AccountAddress,
   IConsentCapacity,
-  PossibleReward,
   PagingRequest,
   MarketplaceTag,
   PagedResponse,
+  EarnedReward,
+  IUserAgreement,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -26,6 +27,10 @@ export interface IInvitationRepository {
   checkInvitationStatus(
     invitation: Invitation,
   ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError>;
+  updateAgreementPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataPermissions: DataPermissions,
+  ): ResultAsync<void, SnickerDoodleCoreError>;
   acceptInvitation(
     invitation: Invitation,
     dataPermissions: DataPermissions | null,
@@ -42,15 +47,14 @@ export interface IInvitationRepository {
   >;
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement, SnickerDoodleCoreError>;
+  ): ResultAsync<IOldUserAgreement | IUserAgreement, SnickerDoodleCoreError>;
   getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError>;
-  getPossibleRewards(
+  getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
-    timeoutMs?: number,
   ): ResultAsync<
-    Map<EVMContractAddress, PossibleReward[]>,
+    Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
     SnickerDoodleCoreError
   >;
   getAgreementFlags(

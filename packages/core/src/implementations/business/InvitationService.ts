@@ -36,6 +36,7 @@ import {
   BlockchainCommonErrors,
   InvalidArgumentError,
   OptInInfo,
+  IUserAgreement,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -710,7 +711,7 @@ export class InvitationService implements IInvitationService {
 
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement, IPFSError> {
+  ): ResultAsync<IOldUserAgreement | IUserAgreement, IPFSError> {
     return this.invitationRepo.getInvitationMetadataByCID(ipfsCID);
   }
 
@@ -763,9 +764,9 @@ export class InvitationService implements IInvitationService {
 
       // The baseUri is an IPFS CID
       return this.invitationRepo
-        .getInvitationDomainByCID(ipfsCID, domain)
-        .andThen((invitationDomain) => {
-          if (invitationDomain == null) {
+        .getInvitationMetadataByCID(ipfsCID)
+        .andThen((invitationMetadata) => {
+          if (invitationMetadata == null) {
             return errAsync(
               new IPFSError(
                 `No invitation details could be found at IPFS CID ${ipfsCID}`,
@@ -783,7 +784,7 @@ export class InvitationService implements IInvitationService {
                     domain,
                     null, // getInvitationsByDomain() is only for public invitations, so will never have a business signature
                   ),
-                  invitationDomain,
+                  invitationMetadata,
                 );
               });
             }),

@@ -19,6 +19,8 @@ import {
   PagingRequest,
   MarketplaceTag,
   PagedResponse,
+  EarnedReward,
+  IUserAgreement,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -36,6 +38,18 @@ export class InvitationRepository implements IInvitationRepository {
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
+
+  public updateAgreementPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataPermissions: DataPermissions,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.core.invitation
+      .updateDataPermissions(consentContractAddress, dataPermissions)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
+  }
 
   public getMarketplaceListingsByTag(
     pagingReq: PagingRequest,
@@ -99,15 +113,14 @@ export class InvitationRepository implements IInvitationRepository {
         return new SnickerDoodleCoreError((error as Error).message, error);
       });
   }
-  public getPossibleRewards(
+  public getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
-    timeoutMs?: number | undefined,
   ): ResultAsync<
-    Map<EVMContractAddress, PossibleReward[]>,
+    Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
     SnickerDoodleCoreError
   > {
     return this.core.marketplace
-      .getPossibleRewards(contractAddresses, timeoutMs)
+      .getEarnedRewardsByContractAddress(contractAddresses)
       .mapErr((error) => {
         this.errorUtils.emit(error);
         return new SnickerDoodleCoreError((error as Error).message, error);
@@ -115,7 +128,7 @@ export class InvitationRepository implements IInvitationRepository {
   }
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement, SnickerDoodleCoreError> {
+  ): ResultAsync<IOldUserAgreement | IUserAgreement, SnickerDoodleCoreError> {
     return this.core.invitation
       .getInvitationMetadataByCID(ipfsCID)
       .mapErr((error) => {

@@ -8,18 +8,8 @@ import {
   BigNumberString,
   ISnickerdoodleCoreType,
   ISnickerdoodleCore,
+  DataPermissions,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
-import { inject, injectable } from "inversify";
-import {
-  AsyncJsonRpcEngineNextCallback,
-  JsonRpcRequest,
-  PendingJsonRpcResponse,
-} from "json-rpc-engine";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-import { parse } from "tldts";
-import { Runtime } from "webextension-polyfill";
-
 import { IRpcCallHandler } from "@synamint-extension-sdk/core/interfaces/api";
 import {
   IAccountService,
@@ -46,8 +36,8 @@ import {
   IConfigProviderType,
   IContextProvider,
   IContextProviderType,
-  IDataPermissionsUtils,
-  IDataPermissionsUtilsType,
+  IErrorUtils,
+  IErrorUtilsType,
 } from "@synamint-extension-sdk/core/interfaces/utilities";
 import { ExtensionUtils } from "@synamint-extension-sdk/extensionShared";
 import {
@@ -62,13 +52,9 @@ import {
   SetLocationParams,
   SetEmailParams,
   GetInvitationWithDomainParams,
-  AcceptInvitationByUUIDParams,
-  RejectInvitationByUUIDParams,
   LeaveCohortParams,
   GetInvitationMetadataByCIDParams,
   GetAgreementPermissionsParams,
-  SetDefaultPermissionsWithDataTypesParams,
-  SetApplyDefaultPermissionsParams,
   UnlinkAccountParams,
   AcceptInvitationParams,
   GetConsentContractCIDParams,
@@ -93,9 +79,6 @@ import {
   GetSiteVisitsParams,
   GetSiteVisitsMapParams,
   GetAcceptedInvitationsCIDParams,
-  GetDefaultPermissionsParams,
-  SetDefaultPermissionsToAllParams,
-  GetApplyDefaultPermissionsOptionParams,
   CloseTabParams,
   GetStateParams,
   GetInternalStateParams,
@@ -110,7 +93,7 @@ import {
   GetMarketplaceListingsByTagParams,
   GetListingsTotalByTagParams,
   GetConsentCapacityParams,
-  GetPossibleRewardsParams,
+  GetPossibleRewardsParams as GetEarnedRewardsByContractAddressParams,
   DEFAULT_SUBDOMAIN,
   TwitterGetRequestTokenParams,
   TwitterLinkProfileParams,
@@ -136,7 +119,20 @@ import {
   AddAccountWithExternalSignatureParams,
   AddAccountWithExternalTypedDataSignatureParams,
   ERequestChannel,
+  UpdateAgreementPermissionsParams,
+  SnickerDoodleCoreError,
+  GetConsentContractURLsParams,
 } from "@synamint-extension-sdk/shared";
+import { BigNumber } from "ethers";
+import { inject, injectable } from "inversify";
+import {
+  AsyncJsonRpcEngineNextCallback,
+  JsonRpcRequest,
+  PendingJsonRpcResponse,
+} from "json-rpc-engine";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { parse } from "tldts";
+import { Runtime } from "webextension-polyfill";
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
@@ -399,6 +395,18 @@ export class RpcCallHandler implements IRpcCallHandler {
         );
       },
     ),
+
+    new CoreActionHandler<GetConsentContractURLsParams>(
+      GetConsentContractURLsParams.getCoreAction(),
+      (params) => {
+        return this.core
+          .getConsentContractURLs(params.contractAddress)
+          .mapErr((error) => {
+            this.errorUtils.emit(error);
+            return new SnickerDoodleCoreError((error as Error).message, error);
+          });
+      },
+    ),
     new CoreActionHandler<GetConsentContractCIDParams>(
       GetConsentContractCIDParams.getCoreAction(),
       (params) => {
@@ -444,16 +452,7 @@ export class RpcCallHandler implements IRpcCallHandler {
               return incomingUrl.replace(/\/$/, "") === params.path;
             });
             if (pageInvitation) {
-              const invitationUUID = this.contextProvider.addInvitation(
-                pageInvitation.invitation,
-              );
-              return okAsync(
-                Object.assign(pageInvitation.domainDetails, {
-                  id: invitationUUID,
-                  consentAddress:
-                    pageInvitation.invitation.consentContractAddress,
-                }),
-              );
+              return okAsync(ObjectUtils.serialize(pageInvitation));
             } else {
               return okAsync(null);
             }
@@ -468,89 +467,45 @@ export class RpcCallHandler implements IRpcCallHandler {
         );
       },
     ),
-    new CoreActionHandler<GetDefaultPermissionsParams>(
-      GetDefaultPermissionsParams.getCoreAction(),
-      (_params) => {
-        return this.dataPermissionsUtils.defaultFlags.andThen((flags) =>
-          this.dataPermissionsUtils.getDataTypesFromFlagsString(flags),
-        );
-      },
-    ),
-    new CoreActionHandler<SetDefaultPermissionsWithDataTypesParams>(
-      SetDefaultPermissionsWithDataTypesParams.getCoreAction(),
+    new CoreActionHandler<UpdateAgreementPermissionsParams>(
+      UpdateAgreementPermissionsParams.getCoreAction(),
       (params) => {
-        return this.dataPermissionsUtils.setDefaultFlagsWithDataTypes(
-          params.dataTypes,
-        );
-      },
-    ),
-    new CoreActionHandler<SetDefaultPermissionsToAllParams>(
-      SetDefaultPermissionsToAllParams.getCoreAction(),
-      (_params) => {
-        return this.dataPermissionsUtils.setDefaultFlagsToAll();
-      },
-    ),
-    new CoreActionHandler<GetApplyDefaultPermissionsOptionParams>(
-      GetApplyDefaultPermissionsOptionParams.getCoreAction(),
-      (_params) => {
-        return this.dataPermissionsUtils.applyDefaultPermissionsOption;
-      },
-    ),
-    new CoreActionHandler<SetApplyDefaultPermissionsParams>(
-      SetApplyDefaultPermissionsParams.getCoreAction(),
-      (params) => {
-        return this.dataPermissionsUtils.setApplyDefaultPermissionsOption(
-          params.option,
-        );
-      },
-    ),
-    new CoreActionHandler<AcceptInvitationByUUIDParams>(
-      AcceptInvitationByUUIDParams.getCoreAction(),
-      (params) => {
-        const invitation = this.contextProvider.getInvitation(
-          params.id,
-        ) as Invitation;
-        return this.invitationService.acceptInvitation(
-          invitation,
+        return this.invitationService.updateAgreementPermissions(
+          params.consentContractAddress,
           params.dataTypes,
         );
       },
     ),
     new CoreActionHandler<AcceptInvitationParams>(
       AcceptInvitationParams.getCoreAction(),
-      (params) => {
-        return this.invitationService.acceptInvitation(
-          new Invitation(
-            params.consentContractAddress,
-            this.toTokenId(params.tokenId),
-            null,
-            params.businessSignature ?? null,
-          ),
-          params.dataTypes,
-        );
-      },
-    ),
-    new CoreActionHandler<RejectInvitationByUUIDParams>(
-      RejectInvitationByUUIDParams.getCoreAction(),
-      (params) => {
-        const invitation = this.contextProvider.getInvitation(
-          params.id,
-        ) as Invitation;
-        return this.invitationService.rejectInvitation(invitation);
+      (params, _sender, sourceDomain) => {
+        return this.core.invitation
+          .acceptInvitation(
+            ObjectUtils.deserialize(params.invitation),
+            params.dataTypes
+              ? DataPermissions.createWithPermissions(params.dataTypes)
+              : null,
+            sourceDomain,
+          )
+          .mapErr((error) => {
+            this.errorUtils.emit(error);
+            return new SnickerDoodleCoreError((error as Error).message, error);
+          });
       },
     ),
     new CoreActionHandler<RejectInvitationParams>(
       RejectInvitationParams.getCoreAction(),
-      (params) => {
-        return this.invitationService.rejectInvitation(
-          new Invitation(
-            params.consentContractAddress,
-            this.toTokenId(params.tokenId),
-            null,
-            params.businessSignature ?? null,
-          ),
-          params.rejectUntil,
-        );
+      (params, _sender, sourceDomain) => {
+        return this.core.invitation
+          .rejectInvitation(
+            ObjectUtils.deserialize(params.invitation),
+            params.rejectUntil,
+            sourceDomain,
+          )
+          .mapErr((error) => {
+            this.errorUtils.emit(error);
+            return new SnickerDoodleCoreError((error as Error).message, error);
+          });
       },
     ),
     new CoreActionHandler<CloseTabParams>(
@@ -687,11 +642,11 @@ export class RpcCallHandler implements IRpcCallHandler {
         );
       },
     ),
-    new CoreActionHandler<GetPossibleRewardsParams>(
-      GetPossibleRewardsParams.getCoreAction(),
+    new CoreActionHandler<GetEarnedRewardsByContractAddressParams>(
+      GetEarnedRewardsByContractAddressParams.getCoreAction(),
       (params) => {
         return this.invitationService
-          .getPossibleRewards(params.contractAddresses, params.timeoutMs)
+          .getEarnedRewardsByContractAddress(params.contractAddresses)
           .map((res) => {
             return ObjectUtils.serialize(res);
           });
@@ -836,8 +791,6 @@ export class RpcCallHandler implements IRpcCallHandler {
     @inject(IPIIServiceType) protected piiService: IPIIService,
     @inject(IInvitationServiceType)
     protected invitationService: IInvitationService,
-    @inject(IDataPermissionsUtilsType)
-    protected dataPermissionsUtils: IDataPermissionsUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IUserSiteInteractionServiceType)
     protected userSiteInteractionService: IUserSiteInteractionService,
@@ -851,6 +804,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     @inject(IIntegrationServiceType)
     protected integrationService: IIntegrationService,
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
+    @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
 
   public async handleRpcCall(

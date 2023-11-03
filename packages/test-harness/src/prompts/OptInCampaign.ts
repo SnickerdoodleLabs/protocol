@@ -59,7 +59,7 @@ export class OptInCampaign extends Prompt {
           const invitation = answers.optInCampaign as PageInvitation;
 
           // Show the invitation details, like the popup would
-          console.log("Invitation details:", invitation.domainDetails);
+          console.log("Invitation details:", invitation.invitationMetadata);
           return inquiryWrapper([
             {
               type: "list",

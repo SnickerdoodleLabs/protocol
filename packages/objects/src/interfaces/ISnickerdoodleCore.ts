@@ -2,8 +2,6 @@ import {
   TypedDataDomain,
   TypedDataField,
 } from "@ethersproject/abstract-signer";
-import { ResultAsync } from "neverthrow";
-
 import {
   AdSignature,
   ChainTransaction,
@@ -79,6 +77,7 @@ import {
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
+import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
 import {
   AccountAddress,
   AdKey,
@@ -112,7 +111,7 @@ import {
   BlockNumber,
   RefreshToken,
 } from "@objects/primitives/index.js";
-
+import { ResultAsync } from "neverthrow";
 /**
  ************************ MAINTENANCE HAZARD ***********************************************
  Whenever you add or change a method in this class, you also need to look at and probably update
@@ -259,17 +258,16 @@ export interface ICoreMarketplaceMethods {
 
   /**
    * This method will accept a list of consent contract addresses and returns
-   * all possible rewards with their dependencies.
-   * i.e. Join this campaign, share your age; and get a discount
+   * earned rewards with respect to queryCIDs
    * @param contractAddresses List of consent contract addresses (of campaigns)
    * @param timeoutMs Timeout for fetching the queries from Ipfs, in case form
    * factor wants to tune the marketplace loading time.
    */
-  getPossibleRewards(
+  getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
   ): ResultAsync<
-    Map<EVMContractAddress, PossibleReward[]>,
+    Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
     | AjaxError
     | EvaluationError
     | QueryFormatError
@@ -618,7 +616,10 @@ export interface IInvitationMethods {
 
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement, IPFSError | UnauthorizedError>;
+  ): ResultAsync<
+    IOldUserAgreement | IUserAgreement,
+    IPFSError | UnauthorizedError
+  >;
 
   updateDataPermissions(
     consentContractAddress: EVMContractAddress,
@@ -681,6 +682,16 @@ export interface ISnickerdoodleCore {
   ): ResultAsync<
     void,
     PersistenceError | UninitializedError | BlockchainProviderError | AjaxError
+  >;
+
+  getConsentContractURLs(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    URLString[],
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentContractError
+    | BlockchainCommonErrors
   >;
 
   getConsentCapacity(
