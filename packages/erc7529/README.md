@@ -65,7 +65,7 @@ const chainId = ChainId(43113);
 const results = await staticUtils.getContractsFromDomain(domainName,chainId);
 
 if (results.isOk()) }{
-  console.log("Contracts: ", results.ok);
+  console.log("Contracts: ", results.value);
 }
 ```
 
@@ -112,7 +112,7 @@ await myERC7529Contract.removeDomain("example.com");
 // read domains from a contract if it supports the interface
 const result = await myERC7529Contract.getDomains();
 if (result.isOk()) {
-  console.log("Contract Domains: ", result.ok);
+  console.log("Contract Domains: ", result.value);
 }
 ```
 
@@ -140,12 +140,12 @@ const chainId = ChainId(43113);
 const contractAddresses = await staticUtils.getContractsFromDomain(domainName,chainId);
 
 // get an object handle on your contract
-const myContractAddress = contractAddresses.ok[0];
+const myContractAddress = contractAddresses.value[0];
 const myERC7529Contract = new ERC7529Contract(myEthersProvider, myContractAddress);
 
 // verify that the contracts at those addresses on Fuji testnet point back to snickerdoodle.com 
 const isVerified = await staticUtils.verifyContractForDomain(myERC7529Contract, domainName, chainId);
-console.log(isVerified.ok);
+console.log(isVerified.value);
 ```
 
 ## Security Considerations
