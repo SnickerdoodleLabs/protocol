@@ -19,7 +19,7 @@ export class EVMTransactionNormalizer implements IEVMTransactionNormalizer {
 
   protected normalizeBlockHeight(transaction: EVMTransaction): void {
     if (typeof transaction.blockHeight === "string") {
-      transaction.blockHeight = Number(transaction.blockHeight);
+      transaction.blockHeight = this.stringToNumber(transaction.blockHeight);
     }
   }
 
@@ -37,14 +37,12 @@ export class EVMTransactionNormalizer implements IEVMTransactionNormalizer {
 
   protected normalizeStringTimestamp(transaction: EVMTransaction): void {
     if (typeof transaction.timestamp === "string") {
-      const transformedTransaction = this.stringToUnixTimestamp(
-        transaction.timestamp,
-      );
+      const transformedTransaction = this.stringToNumber(transaction.timestamp);
       transaction.timestamp = transformedTransaction;
     }
   }
 
-  protected stringToUnixTimestamp(value: string): UnixTimestamp {
+  protected stringToNumber(value: string): UnixTimestamp {
     if (ValidationUtils.isNonNegativeNumberString(value)) {
       try {
         const timestamp = parseInt(value, 10);
