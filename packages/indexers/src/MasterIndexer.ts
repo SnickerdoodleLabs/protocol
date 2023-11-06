@@ -72,6 +72,8 @@ export class MasterIndexer implements IMasterIndexer {
     this.alchemy,
     this.etherscan,
     this.nftscan,
+    this.covalent,
+    this.moralis,
     this.sim,
     // TODO- enable these indexers as well
     // this.moralis,
