@@ -241,7 +241,7 @@ export class TransactionHistoryRepository
     const classifiedTransactions = new Map<
       EChainTechnology,
       ChainTransaction[]
-    >();
+    >([[EChainTechnology.EVM, []]]);
 
     transactions.forEach((tx) => {
       const classification = getChainInfoByChainId(

@@ -1,16 +1,23 @@
-import { ValidationUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  IBigNumberUtils,
+  IBigNumberUtilsType,
+  ValidationUtils,
+} from "@snickerdoodlelabs/common-utils";
 import {
   BigNumberString,
   EVMAccountAddress,
   EVMTransaction,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 
 import { IEVMTransactionNormalizer } from "@indexers/interfaces";
 
 @injectable()
 export class EVMTransactionNormalizer implements IEVMTransactionNormalizer {
+  constructor(
+    @inject(IBigNumberUtilsType) protected bigNumberUtils: IBigNumberUtils,
+  ) {}
   public normalize(transaction: EVMTransaction): void {
     this.normalizeAccountAddress(transaction, "to");
     this.normalizeAccountAddress(transaction, "from");
@@ -36,6 +43,11 @@ export class EVMTransactionNormalizer implements IEVMTransactionNormalizer {
       //@ts-ignore
       const txVal: string = transaction.value.toString();
       transaction.value = BigNumberString(txVal);
+    } else if (
+      typeof transaction.value === "string" &&
+      !this.bigNumberUtils.validateBNS(transaction.value)
+    ) {
+      transaction.value = BigNumberString("0");
     }
   }
 
