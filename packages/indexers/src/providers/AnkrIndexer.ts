@@ -42,8 +42,6 @@ import {
   IIndexerConfigProviderType,
   IIndexerContextProvider,
   IIndexerContextProviderType,
-  TEVMTransactionFactory,
-  TEVMTransactionFactoryType,
 } from "@indexers/interfaces/index.js";
 import { MasterIndexer } from "@indexers/MasterIndexer.js";
 
@@ -117,8 +115,6 @@ export class AnkrIndexer implements IEVMIndexer {
     protected contextProvider: IIndexerContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
-    @inject(TEVMTransactionFactoryType)
-    protected evmTransactionFactory: TEVMTransactionFactory,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -305,7 +301,7 @@ export class AnkrIndexer implements IEVMIndexer {
         },
         id: 1,
       };
-      const chainId = getChainInfoByChain(chain).chainId;
+
       context.privateEvents.onApiAccessed.next(EExternalApi.Ankr);
       return this.ajaxUtils
         .post<IAnkrTransactionReponse>(new URL(url), requestParams, {
@@ -315,18 +311,24 @@ export class AnkrIndexer implements IEVMIndexer {
           },
         })
         .map((response) => {
-          const result: EVMTransaction[] = [];
-          response.result.transactions.forEach((item) => {
-            const transaction = this.evmTransactionFactory.build(
-              item,
-              this.name(),
-              chainId,
+          return response.result.transactions.map((item) => {
+            return new EVMTransaction(
+              getChainInfoByChain(chain).chainId,
+              EVMTransactionHash(item.hash),
+              UnixTimestamp(item.timestamp),
+              item.blockNumber,
+              EVMAccountAddress(item.to.toLowerCase()),
+              EVMAccountAddress(item.from.toLowerCase()),
+              BigNumberString(item.value),
+              BigNumberString(item.gasPrice),
+              null,
+              item.input,
+              item.type,
+              null,
+              null,
+              this.timeUtils.getUnixNow(),
             );
-            if (transaction != null) {
-              result.push(transaction);
-            }
           });
-          return result;
         })
         .mapErr((error) => {
           return error;
@@ -403,7 +405,7 @@ interface IAnkrTransactionReponse {
   nextPageToken: string;
 }
 
-export interface IAnkrTransaction {
+interface IAnkrTransaction {
   v: string;
   r: string;
   s: string;

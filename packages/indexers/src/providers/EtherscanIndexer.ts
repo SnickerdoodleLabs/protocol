@@ -37,8 +37,6 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
 import {
-  TEVMTransactionFactoryType,
-  TEVMTransactionFactory,
   IEVMIndexer,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,

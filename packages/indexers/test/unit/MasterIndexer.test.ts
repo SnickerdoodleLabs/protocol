@@ -31,6 +31,7 @@ import * as td from "testdouble";
 
 import {
   IEVMIndexer,
+  IEVMTransactionValidator,
   IIndexerConfigProvider,
   IIndexerContextProvider,
   ISolanaIndexer,
@@ -147,6 +148,7 @@ class MasterIndexerMocks {
   public tokenPriceRepo: ITokenPriceRepository;
   public logUtils: ILogUtils;
   public bigNumberUtils: IBigNumberUtils;
+  public evmTransactionValidator: IEVMTransactionValidator;
 
   public constructor() {
     this.context = new ContextProviderMock();
@@ -208,6 +210,7 @@ class MasterIndexerMocks {
     this.ajaxUtils = td.object<IAxiosAjaxUtils>();
     this.tokenPriceRepo = td.object<ITokenPriceRepository>();
     this.logUtils = td.object<ILogUtils>();
+    this.evmTransactionValidator = td.object<IEVMTransactionValidator>();
 
     // Solidity Repositories -----------------------------------------------------
     td.when(this.sol.initialize()).thenReturn(okAsync(undefined));
@@ -217,6 +220,14 @@ class MasterIndexerMocks {
     td.when(this.sol.getSupportedChains()).thenReturn(
       new Map<EChain, IndexerSupportSummary>(),
     );
+
+    td.when(
+      this.evmTransactionValidator.validate(
+        td.matchers.anything(),
+        td.matchers.anything(),
+        td.matchers.anything(),
+      ),
+    ).thenReturn(true);
   }
 
   public factory(): MasterIndexer {
@@ -238,6 +249,7 @@ class MasterIndexerMocks {
       this.sol,
       this.logUtils,
       this.bigNumberUtils,
+      this.evmTransactionValidator,
     );
   }
 

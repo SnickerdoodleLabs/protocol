@@ -297,11 +297,6 @@ export class TransactionHistoryRepository
     transactionFlowInsights.set(tx.chain, chainInsight);
   }
 
-  protected isHexadecimal(value: number | string): boolean {
-    const hexString = typeof value === "number" ? value.toString(16) : value;
-    return /^(0x)?[0-9a-fA-F]+$/.test(hexString);
-  }
-
   public determineTimePeriod(
     transactionTime: number,
     benchmarkTimestamp?: UnixTimestamp,
@@ -310,16 +305,7 @@ export class TransactionHistoryRepository
       ? benchmarkTimestamp * 1000
       : this.timeUtils.getMillisecondNow();
 
-    let transactionTimeInMs: number;
-    if (
-      typeof transactionTime === "string" &&
-      this.isHexadecimal(transactionTime)
-    ) {
-      transactionTimeInMs = parseInt(transactionTime, 16) * 1000;
-    } else {
-      //Unixtimestamp or hex32
-      transactionTimeInMs = transactionTime * 1000;
-    }
+    const transactionTimeInMs = transactionTime * 1000;
     const dayInMs = 24 * 60 * 60 * 1000;
     const weekInMs = 7 * dayInMs;
     const monthInMs = 30 * dayInMs;

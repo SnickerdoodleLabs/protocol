@@ -1,4 +1,5 @@
 export * from "@indexers/interfaces/IEVMIndexer.js";
+export * from "@indexers/interfaces/IEVMTransactionValidator.js";
 export * from "@indexers/interfaces/IIndexer.js";
 export * from "@indexers/interfaces/IIndexerConfig.js";
 export * from "@indexers/interfaces/IIndexerConfigProvider.js";
@@ -11,4 +12,3 @@ export * from "@indexers/interfaces/ISolanaIndexer.js";
 export * from "@indexers/interfaces/ISolanaNFTRepository.js";
 export * from "@indexers/interfaces/ISolanaTransactionRepository.js";
 export * from "@indexers/interfaces/ISuiIndexer.js";
-export * from "@indexers/interfaces/TEVMTransactionBuilder.js";
