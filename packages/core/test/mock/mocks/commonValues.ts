@@ -96,9 +96,7 @@ const testDiscordConfig = {
   clientId: "1089994449830027344",
   clientSecret: TokenSecret("uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ"),
   oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
-  oauthRedirectUrl: URLString(
-    "https://localhost:9005/data-dashboard/social-media-data",
-  ),
+  oauthRedirectUrl: URLString("https://localhost:9005/settings"),
   accessTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
   refreshTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
   dataAPIUrl: URLString("https://discord.com/api"),
@@ -436,6 +434,7 @@ export const avalanche1AstInstance = new AST(
   insightsMap,
   compensationParameters,
   compensationsMap,
+  UnixTimestamp(1),
 );
 
 export const siteVisits: SiteVisit[] = [

@@ -4,6 +4,7 @@ import {
   ILogUtils,
   ILogUtilsType,
   ObjectUtils,
+  ValidationUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountAddress,
@@ -56,6 +57,10 @@ import {
   ISimulatorEVMTransactionRepositoryType,
   ISolanaIndexerType,
   ISolanaIndexer,
+  IEVMTransactionValidator,
+  IEVMTransactionValidatorType,
+  IEVMTransactionNormalizer,
+  IEVMTransactionNormalizerType,
 } from "@indexers/interfaces/index.js";
 
 @injectable()
@@ -67,6 +72,8 @@ export class MasterIndexer implements IMasterIndexer {
     this.alchemy,
     this.etherscan,
     this.nftscan,
+    this.covalent,
+    this.moralis,
     this.sim,
     // TODO- enable these indexers as well
     // this.moralis,
@@ -94,6 +101,10 @@ export class MasterIndexer implements IMasterIndexer {
     @inject(ISolanaIndexerType) protected sol: ISolanaIndexer,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(IBigNumberUtilsType) protected bigNumberUtils: IBigNumberUtils,
+    @inject(IEVMTransactionValidatorType)
+    protected evmTransactionValidator: IEVMTransactionValidator,
+    @inject(IEVMTransactionNormalizerType)
+    protected evmTransactionNormalizer: IEVMTransactionNormalizer,
   ) {}
 
   // call this from elsewhere
@@ -400,6 +411,16 @@ export class MasterIndexer implements IMasterIndexer {
             e,
           );
           return e;
+        })
+        .map((transactions) => {
+          return transactions.filter((transaction) => {
+            this.evmTransactionNormalizer.normalize(transaction);
+            return this.evmTransactionValidator.validate(
+              transaction,
+              indexer.name(),
+              chain,
+            );
+          });
         });
     }, indexers).orElse((e) => {
       return okAsync([]);

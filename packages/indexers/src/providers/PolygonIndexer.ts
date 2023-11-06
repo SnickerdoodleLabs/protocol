@@ -3,6 +3,8 @@ import {
   ILogUtils,
   IAxiosAjaxUtilsType,
   IAxiosAjaxUtils,
+  ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
@@ -28,6 +30,7 @@ import {
   IndexerSupportSummary,
   EDataProvider,
   EExternalApi,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -41,7 +44,6 @@ import {
   IIndexerContextProviderType,
   IEVMIndexer,
 } from "@indexers/interfaces/index.js";
-
 @injectable()
 export class PolygonIndexer implements IEVMIndexer {
   protected health: Map<EChain, EComponentStatus> = new Map<
@@ -64,6 +66,7 @@ export class PolygonIndexer implements IEVMIndexer {
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -78,7 +81,7 @@ export class PolygonIndexer implements IEVMIndexer {
     });
   }
 
-  public name(): string {
+  public name(): EDataProvider {
     return EDataProvider.Polygon;
   }
 
@@ -261,6 +264,7 @@ export class PolygonIndexer implements IEVMIndexer {
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               tx.tokenID == "" ? null : tx.tokenID!,
               type,
+              this.timeUtils.getUnixNow(),
             );
           });
         });
@@ -316,6 +320,7 @@ export class PolygonIndexer implements IEVMIndexer {
               : EVMContractAddress(tx.contractAddress),
             null,
             EPolygonTransactionType.ERC20,
+            this.timeUtils.getUnixNow(),
           );
         });
       });

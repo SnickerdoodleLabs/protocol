@@ -1,6 +1,11 @@
 import { readFile } from "node:fs/promises";
 import path from "path";
 
+import {
+  ITimeUtils,
+  ITimeUtilsType,
+  TimeUtils,
+} from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
@@ -36,6 +41,7 @@ import {
   BlockchainProviderError,
   PersistenceError,
   UninitializedError,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { injectable } from "inversify";
@@ -57,12 +63,13 @@ export class DataWalletProfile {
   private _profilePathInfo = this.defaultPathInfo;
 
   private _destroyed = false;
-
+  protected timeUtils: ITimeUtils;
   private coreSubscriptions = new Array<Subscription>();
   public acceptedInvitations = new Array<PageInvitation>();
 
   public constructor(readonly mocks: TestHarnessMocks) {
     this.core = this.createCore(mocks);
+    this.timeUtils = new TimeUtils();
   }
 
   public get name(): string {
@@ -147,9 +154,7 @@ export class DataWalletProfile {
       clientId: "1089994449830027344",
       clientSecret: TokenSecret("uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ"),
       oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
-      oauthRedirectUrl: URLString(
-        "https://localhost:9005/data-dashboard/social-media-data",
-      ),
+      oauthRedirectUrl: URLString("https://localhost:9005/settings"),
       accessTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
       refreshTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
       dataAPIUrl: URLString("https://discord.com/api"),
@@ -358,6 +363,7 @@ export class DataWalletProfile {
               evmT.methodId ?? null,
               evmT.functionName ?? null,
               evmT.events,
+              this.timeUtils.getUnixNow(),
             ),
         );
 

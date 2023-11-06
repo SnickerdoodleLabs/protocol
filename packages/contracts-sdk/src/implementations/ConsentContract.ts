@@ -1,3 +1,4 @@
+import { ERC7529Contract } from "@contracts-sdk/implementations/ERC7529Contract.js";
 import { ICryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   ConsentContractError,
@@ -18,14 +19,12 @@ import {
   DataPermissions,
   BigNumberString,
   BlockchainCommonErrors,
-  BlockchainErrorMapper,
 } from "@snickerdoodlelabs/objects";
 import { ethers, EventFilter, Event, BigNumber } from "ethers";
 import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract.js";
 import {
   WrappedTransactionResponse,
@@ -34,9 +33,10 @@ import {
   ContractOverrides,
   ContractsAbis,
 } from "@contracts-sdk/interfaces/objects/index.js";
+
 @injectable()
 export class ConsentContract
-  extends BaseContract<ConsentContractError>
+  extends ERC7529Contract<ConsentContractError>
   implements IConsentContract
 {
   constructor(

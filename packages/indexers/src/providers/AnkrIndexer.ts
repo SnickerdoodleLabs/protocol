@@ -4,6 +4,8 @@ import {
   ILogUtils,
   ILogUtilsType,
   ObjectUtils,
+  ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   EChainTechnology,
@@ -28,6 +30,7 @@ import {
   URLString,
   DecimalString,
   EVMTransactionHash,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -73,14 +76,8 @@ export class AnkrIndexer implements IEVMIndexer {
       EChain.Arbitrum,
       new IndexerSupportSummary(EChain.Arbitrum, true, true, true),
     ],
-    [
-      EChain.Fuji, 
-      new IndexerSupportSummary(EChain.Fuji, true, true, true),
-    ],
-    [
-      EChain.Mumbai,
-      new IndexerSupportSummary(EChain.Mumbai, true, true, true),
-    ],
+    [EChain.Fuji, new IndexerSupportSummary(EChain.Fuji, true, true, true)],
+    [EChain.Mumbai, new IndexerSupportSummary(EChain.Mumbai, true, true, true)],
     // [
     //   EChain.BinanceTestnet,
     //   new IndexerSupportSummary(EChain.BinanceTestnet, true, false, false),
@@ -117,6 +114,7 @@ export class AnkrIndexer implements IEVMIndexer {
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -134,7 +132,7 @@ export class AnkrIndexer implements IEVMIndexer {
     });
   }
 
-  public name(): string {
+  public name(): EDataProvider {
     return EDataProvider.Ankr;
   }
 
@@ -319,8 +317,8 @@ export class AnkrIndexer implements IEVMIndexer {
               EVMTransactionHash(item.hash),
               UnixTimestamp(item.timestamp),
               item.blockNumber,
-              EVMAccountAddress(item.to.toLowerCase()),
-              EVMAccountAddress(item.from.toLowerCase()),
+              EVMAccountAddress(item.to),
+              EVMAccountAddress(item.from),
               BigNumberString(item.value),
               BigNumberString(item.gasPrice),
               null,
@@ -328,6 +326,7 @@ export class AnkrIndexer implements IEVMIndexer {
               item.type,
               null,
               null,
+              this.timeUtils.getUnixNow(),
             );
           });
         })

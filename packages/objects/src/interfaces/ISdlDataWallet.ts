@@ -1,6 +1,3 @@
-import { ResultAsync } from "neverthrow";
-import { FunctionKeys } from "utility-types";
-
 import {
   EarnedReward,
   MarketplaceListing,
@@ -16,7 +13,7 @@ import {
   QueryStatus,
   TransactionFilter,
   ChainTransaction,
-  TransactionPaymentCounter,
+  TransactionFlowInsight,
 } from "@objects/businessObjects/index.js";
 import {
   ECoreProxyType,
@@ -35,6 +32,7 @@ import {
   IStorageMethods,
 } from "@objects/interfaces/ISnickerdoodleCore.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
+import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
 import {
   AccountAddress,
   Age,
@@ -55,6 +53,8 @@ import {
   URLString,
 } from "@objects/primitives/index.js";
 import { GetResultAsyncValueType, PopTuple } from "@objects/types.js";
+import { ResultAsync } from "neverthrow";
+import { FunctionKeys } from "utility-types";
 
 export type IProxyAccountMethods = {
   [key in FunctionKeys<IAccountMethods>]: (
@@ -232,13 +232,13 @@ export interface ISdlDataWallet {
   getAccountBalances(): ResultAsync<TokenBalance[], ProxyError>;
   getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError>;
 
+  getTransactionValueByChain(): ResultAsync<
+    TransactionFlowInsight[],
+    ProxyError
+  >;
   getTransactions(
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], ProxyError>;
-  getTransactionValueByChain(): ResultAsync<
-    TransactionPaymentCounter[],
-    ProxyError
-  >;
 
   closeTab(): ResultAsync<void, ProxyError>;
   getAcceptedInvitationsCID(): ResultAsync<
@@ -251,31 +251,14 @@ export interface ISdlDataWallet {
   >;
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement, ProxyError>;
+  ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError>;
+  updateAgreementPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataTypes: EWalletDataType[],
+  ): ResultAsync<void, ProxyError>;
   getAgreementPermissions(
     consentContractAddres: EVMContractAddress,
   ): ResultAsync<EWalletDataType[], ProxyError>;
-  getApplyDefaultPermissionsOption(): ResultAsync<boolean, ProxyError>;
-  setApplyDefaultPermissionsOption(
-    option: boolean,
-  ): ResultAsync<void, ProxyError>;
-  getDefaultPermissions(): ResultAsync<EWalletDataType[], ProxyError>;
-  setDefaultPermissions(
-    dataTypes: EWalletDataType[],
-  ): ResultAsync<void, ProxyError>;
-  setDefaultPermissionsToAll(): ResultAsync<void, ProxyError>;
-  acceptInvitation(
-    dataTypes: EWalletDataType[] | null,
-    consentContractAddress: EVMContractAddress,
-    tokenId?: BigNumberString,
-    businessSignature?: Signature,
-  ): ResultAsync<void, ProxyError>;
-  rejectInvitation(
-    consentContractAddress: EVMContractAddress,
-    tokenId?: BigNumberString,
-    businessSignature?: Signature,
-    rejectUntil?: UnixTimestamp,
-  );
   leaveCohort(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, ProxyError>;
@@ -326,14 +309,21 @@ export interface ISdlDataWallet {
     contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, ProxyError>;
 
+  getConsentContractURLs(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<URLString[], ProxyError>;
+
   getConsentCapacity(
     contractAddress: EVMContractAddress,
   ): ResultAsync<IConsentCapacity, ProxyError>;
 
-  getPossibleRewards(
+  getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
-  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, ProxyError>;
+  ): ResultAsync<
+    Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
+    ProxyError
+  >;
 
   switchToTab(tabId: number): ResultAsync<void, ProxyError>;
 

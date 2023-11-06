@@ -40,8 +40,9 @@ export class SuiTransaction extends ChainTransaction {
     public methodId: string | null,
     public functionName: string | null,
     events: EVMEvent[] | null,
+    public measurementDate: UnixTimestamp,
   ) {
-    super(chain, hash, timestamp);
+    super(chain, hash, timestamp, measurementDate);
     let addrs = new Set<SuiAccountAddress>();
     if (this.to) {
       addrs.add(this.to);

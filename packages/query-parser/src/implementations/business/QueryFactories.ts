@@ -4,6 +4,7 @@ import {
   QueryFormatError,
   SDQLQuery,
   SDQLString,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
@@ -60,7 +61,13 @@ export class QueryFactories implements IQueryFactories {
   public makeAstEvaluator(
     cid: IpfsCID,
     dataPermissions: DataPermissions,
+    queryTimestamp: UnixTimestamp,
   ): AST_Evaluator {
-    return new AST_Evaluator(cid, this.queryRepository, dataPermissions);
+    return new AST_Evaluator(
+      cid,
+      this.queryRepository,
+      dataPermissions,
+      queryTimestamp,
+    );
   }
 }

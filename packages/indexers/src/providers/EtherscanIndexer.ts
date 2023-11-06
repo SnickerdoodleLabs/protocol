@@ -3,6 +3,8 @@ import {
   ILogUtilsType,
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
@@ -27,6 +29,7 @@ import {
   IndexerSupportSummary,
   EExternalApi,
   EDataProvider,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -91,6 +94,7 @@ export class EtherscanIndexer implements IEVMIndexer {
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -111,7 +115,7 @@ export class EtherscanIndexer implements IEVMIndexer {
     });
   }
 
-  public name(): string {
+  public name(): EDataProvider {
     return EDataProvider.Etherscan;
   }
 
@@ -331,14 +335,13 @@ export class EtherscanIndexer implements IEVMIndexer {
             }
 
             const txs = response.result.map((tx) => {
-              // etherscan uses "" instead of null
               return new EVMTransaction(
                 getChainInfoByChain(chain).chainId,
                 EVMTransactionHash(tx.hash),
                 UnixTimestamp(Number.parseInt(tx.timeStamp)),
                 tx.blockNumber == "" ? null : Number.parseInt(tx.blockNumber),
-                tx.to == "" ? null : EVMAccountAddress(tx.to.toLowerCase()),
-                tx.from == "" ? null : EVMAccountAddress(tx.from.toLowerCase()),
+                tx.to == "" ? null : EVMAccountAddress(tx.to),
+                tx.from == "" ? null : EVMAccountAddress(tx.from),
                 tx.value == "" ? null : BigNumberString(tx.value),
                 tx.gasPrice == "" ? null : BigNumberString(tx.gasPrice),
                 tx.contractAddress == ""
@@ -348,6 +351,7 @@ export class EtherscanIndexer implements IEVMIndexer {
                 tx.methodId == "" ? null : tx.methodId,
                 tx.functionName == "" ? null : tx.functionName,
                 null,
+                this.timeUtils.getUnixNow(),
               );
             });
 
@@ -454,7 +458,7 @@ export class EtherscanIndexer implements IEVMIndexer {
   }
 }
 
-interface IEtherscanTransactionResponse {
+export interface IEtherscanTransactionResponse {
   status: string;
   message: string;
   result: {

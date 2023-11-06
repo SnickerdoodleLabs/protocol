@@ -1,3 +1,4 @@
+import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
   AjaxError,
@@ -17,6 +18,7 @@ import {
   EChain,
   IndexerSupportSummary,
   EDataProvider,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -43,6 +45,7 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -59,7 +62,7 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
     });
   }
 
-  public name(): string {
+  public name(): EDataProvider {
     return EDataProvider.Sim;
   }
 
@@ -147,6 +150,7 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
         null,
         null,
         null,
+        this.timeUtils.getUnixNow(),
       );
     }
     return okAsync(result);

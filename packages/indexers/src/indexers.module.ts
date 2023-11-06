@@ -19,8 +19,13 @@ import {
   ISimulatorEVMTransactionRepositoryType,
   ISolanaIndexer,
   ISolanaIndexerType,
+  IEVMTransactionValidator,
+  IEVMTransactionValidatorType,
+  IEVMTransactionNormalizer,
+  IEVMTransactionNormalizerType,
 } from "@indexers/interfaces/index.js";
 import { MasterIndexer } from "@indexers/MasterIndexer.js";
+import { EVMTransactionNormalizer } from "@indexers/normalizers/index.js";
 import {
   AnkrIndexer,
   AlchemyIndexer,
@@ -36,6 +41,7 @@ import {
   SimulatorEVMTransactionRepository,
   SolanaIndexer,
 } from "@indexers/providers/index.js";
+import { EVMTransactionValidator } from "@indexers/validators/index.js";
 
 export const indexersModule = new ContainerModule(
   (
@@ -94,6 +100,14 @@ export const indexersModule = new ContainerModule(
     /* Sui Indexers */
     bind<ISuiIndexer>(IBlockvisionIndexerType)
       .to(BlockvisionIndexer)
+      .inSingletonScope();
+
+    bind<IEVMTransactionValidator>(IEVMTransactionValidatorType)
+      .to(EVMTransactionValidator)
+      .inSingletonScope();
+
+    bind<IEVMTransactionNormalizer>(IEVMTransactionNormalizerType)
+      .to(EVMTransactionNormalizer)
       .inSingletonScope();
   },
 );

@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import { TimeUtils } from "@snickerdoodlelabs/common-utils";
+import { ITimeUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   Age,
   ChainId,
@@ -16,11 +16,10 @@ import {
   SDQLString,
   SDQL_Return,
   SubQueryKey,
-  TransactionPaymentCounter,
   DataPermissions,
   QueryExpiredError,
   EWalletDataType,
-  PublicEvents,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
   IQueryObjectFactory,
@@ -81,6 +80,9 @@ const allPermissions = HexString32(
 const noPermissions = HexString32(
   "0x0000000000000000000000000000000000000000000000000000000000000000",
 );
+
+const now = UnixTimestamp(2);
+
 const chainIds = undefined;
 class QueryParsingMocks {
   public transactionRepo = td.object<ITransactionHistoryRepository>();
@@ -89,6 +91,7 @@ class QueryParsingMocks {
   public browsingDataRepo = td.object<IBrowsingDataRepository>();
   public adDataRepo = td.object<AdDataRepository>();
   public socialRepo = td.object<ISocialRepository>();
+  public timeUtils: ITimeUtils = td.object<ITimeUtils>();
   public contextProvider: ContextProviderMock = new ContextProviderMock();
 
   public blockchainTransactionQueryEvaluator =
@@ -120,7 +123,7 @@ class QueryParsingMocks {
   public constructor() {
     this.queryObjectFactory = new QueryObjectFactory();
     this.queryWrapperFactory = new SDQLQueryWrapperFactory(new TimeUtils());
-
+    td.when(this.timeUtils.getUnixNow()).thenReturn(now as never);
     const expectedCompensationsMap = new Map<
       CompensationKey,
       ISDQLCompensations
@@ -150,9 +153,10 @@ class QueryParsingMocks {
     td.when(
       this.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
-    td.when(this.transactionRepo.getTransactionByChain()).thenReturn(
-      okAsync(new Array<TransactionPaymentCounter>()),
-    );
+
+    td.when(
+      this.transactionRepo.getTransactionByChain(td.matchers.anything()),
+    ).thenReturn(okAsync([]));
     td.when(this.balanceRepo.getAccountBalances()).thenReturn(okAsync([]));
     td.when(this.balanceRepo.getAccountNFTs(chainIds)).thenReturn(okAsync([]));
 

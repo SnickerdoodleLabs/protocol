@@ -1,0 +1,146 @@
+Transaction History Data Overview
+The transaction history data offers insights derived from the aggregated transactions associated with a DW user. 
+Transaction Components:
+Each transaction consists of the following key components:
+1. To: This represents the destination or receiving address of the transaction. It could be:
+    * A user's public MetaMask account.
+    * A deployed contract address.
+2. From: This indicates the sender's address for the transaction, which could either be:
+    * A user's address.
+    * A contract address.
+3. Chain: Represented by a number, this denotes the network on which the transaction took place. For instance, 43113 corresponds to the Avalanche Fuji testnet.
+4. Value: Typically in hex32 format, this reflects the amount of the native token involved in the transaction, such as Ether (for Ethereum) or AVAX (for Avalanche).
+5. Timestamp: This marks the precise moment the transaction occurred. Although we don't display this value to our business users on the grounds of data privacy, it's instrumental in our time period calculations.
+Sample Transaction:
+{
+    "chain": 43113,
+    "hash": "0x93f729b92188d24aa3805781959e597afac7af69ef48866ac457ada918917cd0",
+    "timestamp": "0x62dfa65a",
+    "measurementDate": 1698162939,
+    "blockHeight": "0xb654fb",
+    "to": "0x75df5924dfe605dbbe4eef3e80ec070a4b397754",
+    "from": "0xeeafbc6271834926f016c08318d28258ca63b931",
+    "value": "0x0",
+    "gasPrice": "0x66720b300",
+    "contractAddress": null,
+    "input": "0xd3fc9864000000000000000000000000eeafbc6271834926f016c08318d28258ca63b9310000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000077572696172617200000000000000000000000000000000000000000000000000",
+    "methodId": "0x2",
+    "functionName": null,
+    "functionSignature": null,
+    "accountAddresses": [
+        "0x75df5924dfe605dbbe4eef3e80ec070a4b397754",
+        "0xeeafbc6271834926f016c08318d28258ca63b931"
+    ]
+}
+Aggregation and Categorization:
+When aggregating data, we initially segment transactions based on their respective chains, such as Avalanche Fuji (43113) or Ethereum (1) or Polygon(137).
+Transactions are then categorized as either:
+* Incoming: If our DW user's address matches the `to` field of the transaction.
+* Outgoing: If our DW user's address corresponds with the `from` field.
+Time Period Calculation:
+For each transaction, we determine its associated time period. Transactions can belong to one of four categories: day, week, month, or year. This categorization is based on the elapsed time since the deployment of the query.
+For example, consider a query deployed on January 3rd, 2020 and a  transaction dated January 1st, 2020, would have an elapsed time of two days and would thus be categorized under the week time period.
+Our primary intent is to preserve user privacy by not revealing exact transaction timestamps. Instead, we provide business users with a general timeframe that aids their analytical efforts. Notably, we exclude from our aggregation any transactions occurring post the query deployment.
+Data Synthesis:
+After categorizing transactions into time periods, we compute the total count and cumulative value for both incoming and outgoing transactions. For instance, in a given period, there might be 7 incoming and 145 outgoing transactions with cumulative values of 22 for incoming transactions and 1.5999999999999999 outgoing transaction, respectively. This would result on 
+[Period] : {
+    "incomingNativeValue": 22,
+    "incomingCount": 7,
+    "outgoingNativeValue": 1.5999999999999999,
+    "outgoingCount": 145
+}
+Measurement Time:
+Another piece of data we retrieve from our DW user is the "measurement time." Unlike other fields derived directly from transactional data, the measurement time is sourced from the most recent transaction stored in our DW. Its primary purpose is to indicate the freshness or staleness of the data, providing our business users with an understanding of the latest data recording time.
+Sample Aggregated Transaction Insight That A DW User Sends:
+[
+    {
+        "chainId": 43113,
+        "day": {
+            "incomingNativeValue": 0,
+            "incomingCount": 0,
+            "outgoingNativeValue": 0,
+            "outgoingCount": 0
+        },
+        "week": {
+            "incomingNativeValue": 0,
+            "incomingCount": 0,
+            "outgoingNativeValue": 0,
+            "outgoingCount": 0
+        },
+        "month": {
+            "incomingNativeValue": 0,
+            "incomingCount": 0,
+            "outgoingNativeValue": 0,
+            "outgoingCount": 0
+        },
+        "year": {
+            "incomingNativeValue": 22,
+            "incomingCount": 7,
+            "outgoingNativeValue": 1.5999999999999999,
+            "outgoingCount": 145
+        },
+        "measurementTime": 1698162939
+    },
+    {
+        "chainId": 1,
+        "day": {
+            "incomingNativeValue": 0,
+            "incomingCount": 0,
+            "outgoingNativeValue": 0,
+            "outgoingCount": 0
+        },
+        "week": {
+            "incomingNativeValue": 0,
+            "incomingCount": 0,
+            "outgoingNativeValue": 0,
+            "outgoingCount": 0
+        },
+        "month": {
+            "incomingNativeValue": 0,
+            "incomingCount": 0,
+            "outgoingNativeValue": 0,
+            "outgoingCount": 0
+        },
+        "year": {
+            "incomingNativeValue": 0.017982,
+            "incomingCount": 1,
+            "outgoingNativeValue": 0,
+            "outgoingCount": 0
+        },
+        "measurementTime": 1698162939
+    }
+]
+Our Aggregation Data Format That We Use On Protocol:
+Class TransactionFlowInsight {
+  constructor(
+    public chainId: EChain,
+    public day: TransactionMetrics,
+    public week: TransactionMetrics,
+    public month: TransactionMetrics,
+    public year: TransactionMetrics,
+    public measurementTime: UnixTimestamp,
+  ) {}
+--------------------------------------- 
+Class TransactionMetrics {
+  constructor(
+    public incomingNativeValue: number,
+    public incomingCount: number,
+    public outgoingNativeValue: number,
+    public outgoingCount: number,
+  ) {}
+}
+Response Time:
+Response Time is a metric created by our Marketing Platforms' Backend, serving as a timestamp for each response.
+Our Data Storing Format:model InsightEntity {
+  id                Bytes    @id @db.Binary(16)
+  query_cid         String   @db.VarChar(64)
+  data_index        Int
+  data              String   @db.Text
+  response_id       String   @db.VarChar(36)
+  created_timestamp DateTime @default(now())
+  updated_timestamp DateTime @updatedAt
+  deleted           Boolean  @default(false)
+  @@map("insight_t")
+}
+The inclusion of the Response Time metric allows our business users to sort and filter responses according to specific date ranges or moments of interest, optimizing their analytical endeavors. An example would be:`2023-08-02 11:03:03.791` which would mean 11:03 AM , 3.791 seconds on August 2nd, 2023
+Both the "Response Time" and "Measurement Time" are designed to enable business users to filter responses based on their specific requirements. Meanwhile, the time periods (day, week, month , year )offer rough estimates for the actual transaction times.

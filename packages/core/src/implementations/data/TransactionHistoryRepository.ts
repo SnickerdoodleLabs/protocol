@@ -1,6 +1,10 @@
-import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
-  TransactionPaymentCounter,
+  ILogUtils,
+  ILogUtilsType,
+  ITimeUtilsType,
+  ITimeUtils,
+} from "@snickerdoodlelabs/common-utils";
+import {
   PersistenceError,
   ChainId,
   AccountAddress,
@@ -11,7 +15,15 @@ import {
   ERecordKey,
   getChainInfoByChain,
   EChain,
+  TransactionFlowInsight,
+  TransactionMetrics,
   LinkedAccount,
+  ETimePeriods,
+  UnixTimestamp,
+  EChainTechnology,
+  SolanaTransaction,
+  SuiTransaction,
+  getChainInfoByChainId,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
@@ -26,6 +38,8 @@ import { ResultUtils } from "neverthrow-result-utils";
 import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
+  ILinkedAccountRepository,
+  ILinkedAccountRepositoryType,
   ITransactionHistoryRepository,
 } from "@core/interfaces/data/index.js";
 import {
@@ -43,83 +57,30 @@ export class TransactionHistoryRepository
     protected configProvider: IPersistenceConfigProvider,
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
+    @inject(ILinkedAccountRepositoryType)
+    protected accountRepo: ILinkedAccountRepository,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
-  public getTransactionByChain(): ResultAsync<
-    TransactionPaymentCounter[],
-    PersistenceError
-  > {
-    return this.persistence
-      .getAll<LinkedAccount>(ERecordKey.ACCOUNT)
-      .andThen((accounts) => {
-        this.logUtils.debug(
-          `In getTransactionByChain, active accounts: `,
-          accounts,
-        );
-        return ResultUtils.combine(
-          accounts.map((account) => {
-            return ResultUtils.combine([
-              this.persistence
-                .getCursor<EVMTransaction>(
-                  ERecordKey.TRANSACTIONS,
-                  "to",
-                  account.sourceAccountAddress.toLowerCase(),
-                )
-                .andThen((cursor) =>
-                  cursor.allValues().map((evm) => {
-                    this.logUtils.debug(
-                      `In getTransactionByChain on account ${account}, all values for "to" transactions:`,
-                      evm,
-                    );
-                    return evm || [];
-                  }),
-                ),
-              this.persistence
-                .getCursor<EVMTransaction>(
-                  ERecordKey.TRANSACTIONS,
-                  "from",
-                  account.sourceAccountAddress.toLowerCase(),
-                )
-                .andThen((cursor) =>
-                  cursor.allValues().map((evm) => {
-                    this.logUtils.debug(
-                      `In getTransactionByChain on account ${account}, all values for "from" transactions:`,
-                      evm,
-                    );
-                    return evm || [];
-                  }),
-                ),
-            ]).map(([toTransactions, fromTransactions]) => {
-              const counters = [
-                ...toTransactions.map((tx) => {
-                  return new TransactionPaymentCounter(
-                    tx.chain,
-                    this._getTxValue(tx),
-                    1,
-                    0,
-                    0,
-                  );
-                }),
-                ...fromTransactions.map((tx) => {
-                  return new TransactionPaymentCounter(
-                    tx.chain,
-                    0,
-                    0,
-                    this._getTxValue(tx),
-                    1,
-                  );
-                }),
-              ];
-              return counters;
-            });
-          }),
-        ).map((transactionsArray) => {
-          return this.compoundTransactionPaymentCounters(
-            transactionsArray.flat(1),
-          );
-        });
+  public getTransactionByChain(
+    benchmarkTimestamp?: UnixTimestamp,
+  ): ResultAsync<TransactionFlowInsight[], PersistenceError> {
+    return this.accountRepo.getAccounts().andThen((accounts) => {
+      this.logUtils.debug(
+        `In getTransactionByChain, active accounts: `,
+        accounts,
+        ` Using benchmark :`,
+        benchmarkTimestamp ? benchmarkTimestamp : ` current date `,
+      );
+      return ResultUtils.combine(
+        accounts.map((account) => {
+          return this.getTransactionFlowsByAccount(account, benchmarkTimestamp);
+        }),
+      ).map((arrayOfTransactionFlowMap) => {
+        return this.aggregateTransactionFlowsArrays(arrayOfTransactionFlowMap);
       });
+    });
   }
 
   public addTransactions(
@@ -190,32 +151,190 @@ export class TransactionHistoryRepository
     });
   }
 
+  protected aggregateTransactionFlowsArrays(
+    arrayOfTransactionFlowMaps: Map<EChain, TransactionFlowInsight>[],
+  ): TransactionFlowInsight[] {
+    const aggregatedMap = new Map<EChain, TransactionFlowInsight>();
+    arrayOfTransactionFlowMaps.forEach((transactionFlowMap) => {
+      transactionFlowMap.forEach((flow, chainId) => {
+        const existingFlow = aggregatedMap.get(chainId);
+        if (!existingFlow) {
+          aggregatedMap.set(chainId, flow);
+        } else {
+          TransactionFlowInsight.additionOfMetrics(existingFlow, flow);
+
+          if (flow.measurementTime > existingFlow.measurementTime) {
+            existingFlow.measurementTime = flow.measurementTime;
+          }
+          aggregatedMap.set(chainId, existingFlow);
+        }
+      });
+    });
+
+    return [...aggregatedMap.values()];
+  }
+
+  protected getTransactionFlowsByAccount(
+    account: LinkedAccount,
+    benchmarkTimestamp?: UnixTimestamp,
+  ): ResultAsync<Map<EChain, TransactionFlowInsight>, PersistenceError> {
+    return ResultUtils.combine([
+      this.persistence
+        .getCursor<ChainTransaction>(
+          ERecordKey.TRANSACTIONS,
+          "to",
+          account.sourceAccountAddress,
+        )
+        .andThen((cursor) => cursor.allValues().map((evm) => evm || [])),
+      this.persistence
+        .getCursor<ChainTransaction>(
+          ERecordKey.TRANSACTIONS,
+          "from",
+          account.sourceAccountAddress,
+        )
+        .andThen((cursor) => cursor.allValues().map((evm) => evm || [])),
+    ]).map(([toTransactions, fromTransactions]) => {
+      return this.generateTransactionFlows(
+        toTransactions,
+        fromTransactions,
+        benchmarkTimestamp,
+      );
+    });
+  }
+
+  protected generateTransactionFlows(
+    incomingTransactions: ChainTransaction[],
+    outgoingTransactions: ChainTransaction[],
+    benchmarkTimestamp?: UnixTimestamp,
+  ): Map<EChain, TransactionFlowInsight> {
+    const transactionFlowInsights = new Map<EChain, TransactionFlowInsight>();
+    //Sui and solana are not processed for now
+    const evmIncomingTransactions = this.classifyTransactions(
+      incomingTransactions,
+    ).get(EChainTechnology.EVM) as EVMTransaction[];
+    const evmOutgoingTransactions = this.classifyTransactions(
+      outgoingTransactions,
+    ).get(EChainTechnology.EVM) as EVMTransaction[];
+
+    evmIncomingTransactions.forEach((tx) =>
+      this.categorizeTransaction(
+        tx,
+        true,
+        transactionFlowInsights,
+        benchmarkTimestamp,
+      ),
+    );
+    evmOutgoingTransactions.forEach((tx) =>
+      this.categorizeTransaction(
+        tx,
+        false,
+        transactionFlowInsights,
+        benchmarkTimestamp,
+      ),
+    );
+
+    return transactionFlowInsights;
+  }
+  protected classifyTransactions(
+    transactions: ChainTransaction[],
+  ): Map<EChainTechnology, ChainTransaction[]> {
+    const classifiedTransactions = new Map<
+      EChainTechnology,
+      ChainTransaction[]
+    >();
+
+    transactions.forEach((tx) => {
+      const classification = getChainInfoByChainId(
+        ChainId(tx.chain),
+      ).chainTechnology;
+
+      const chainMap = classifiedTransactions.get(classification);
+      if (chainMap != null) {
+        chainMap.push(tx);
+      } else {
+        classifiedTransactions.set(classification, [tx]);
+      }
+    });
+
+    return classifiedTransactions;
+  }
+
+  protected categorizeTransaction(
+    tx: EVMTransaction,
+    isIncoming: boolean,
+    transactionFlowInsights: Map<EChain, TransactionFlowInsight>,
+    benchmarkTimestamp?: UnixTimestamp,
+  ): void {
+    const chainInsight =
+      transactionFlowInsights.get(tx.chain) ||
+      new TransactionFlowInsight(
+        tx.chain,
+        new TransactionMetrics(0, 0, 0, 0),
+        new TransactionMetrics(0, 0, 0, 0),
+        new TransactionMetrics(0, 0, 0, 0),
+        new TransactionMetrics(0, 0, 0, 0),
+        tx.measurementDate,
+      );
+    const period = this.determineTimePeriod(tx.timestamp, benchmarkTimestamp);
+
+    if (period === null) {
+      return;
+    }
+    let newMetric: TransactionMetrics;
+    if (isIncoming) {
+      newMetric = new TransactionMetrics(this._getTxValue(tx), 1, 0, 0);
+    } else {
+      newMetric = new TransactionMetrics(0, 0, this._getTxValue(tx), 1);
+    }
+
+    TransactionFlowInsight.addNewTransactionMetrics(
+      chainInsight,
+      period,
+      newMetric,
+    );
+
+    if (tx.measurementDate > chainInsight.measurementTime) {
+      chainInsight.measurementTime = tx.measurementDate;
+    }
+
+    transactionFlowInsights.set(tx.chain, chainInsight);
+  }
+
+  public determineTimePeriod(
+    transactionTime: number,
+    benchmarkTimestamp?: UnixTimestamp,
+  ): ETimePeriods | null {
+    const currentTime = benchmarkTimestamp
+      ? benchmarkTimestamp * 1000
+      : this.timeUtils.getMillisecondNow();
+
+    const transactionTimeInMs = transactionTime * 1000;
+    const dayInMs = 24 * 60 * 60 * 1000;
+    const weekInMs = 7 * dayInMs;
+    const monthInMs = 30 * dayInMs;
+
+    const elapsedTime = currentTime - transactionTimeInMs;
+
+    if (elapsedTime < 0) {
+      return null;
+    }
+
+    if (elapsedTime < dayInMs) {
+      return ETimePeriods.Day;
+    } else if (elapsedTime < weekInMs) {
+      return ETimePeriods.Week;
+    } else if (elapsedTime < monthInMs) {
+      return ETimePeriods.Month;
+    } else {
+      return ETimePeriods.Year;
+    }
+  }
+
   protected _getTxValue(tx: EVMTransaction): number {
     const decimals = getChainInfoByChain(tx.chain).nativeCurrency.decimals;
     return Number.parseFloat(
       ethers.utils.formatUnits(tx.value || "0", decimals).toString(),
     );
-  }
-
-  protected compoundTransactionPaymentCounters(
-    chainTransactions: TransactionPaymentCounter[],
-  ): TransactionPaymentCounter[] {
-    const flowMap = new Map<EChain, TransactionPaymentCounter>();
-    chainTransactions.forEach((chainTransaction) => {
-      const existingTPC = flowMap.get(chainTransaction.chainId);
-      if (existingTPC == null) {
-        flowMap.set(chainTransaction.chainId, chainTransaction);
-      } else {
-        // Just need to increment the existing TPC
-        existingTPC.incomingValue += chainTransaction.incomingValue;
-        existingTPC.incomingCount += chainTransaction.incomingCount;
-        existingTPC.outgoingValue += chainTransaction.outgoingValue;
-        existingTPC.outgoingCount += chainTransaction.outgoingCount;
-      }
-    });
-
-    // Convert back to an array
-    return [...flowMap.values()];
   }
 
   private _getNextMatchingTx(
