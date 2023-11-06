@@ -1,6 +1,7 @@
 import "reflect-metadata";
 
 import {
+  BigNumberString,
   EChain,
   EDataProvider,
   EVMAccountAddress,
@@ -49,6 +50,13 @@ describe("EVMNormalizer", () => {
       evmTransactionNormalizer.normalize(validTx);
       expect(validTx.to).toBe(expectedLowerCaseAddress);
       expect(validTx.from).toBe(expectedLowerCaseAddress);
+    });
+  });
+
+  describe("normalize value field ", () => {
+    test("should convert number to string", () => {
+      evmTransactionNormalizer.normalize(invalidEVMTransactions[3]);
+      expect(validTx.value).toBe(BigNumberString("0"));
     });
   });
 });

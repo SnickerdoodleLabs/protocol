@@ -16,11 +16,17 @@ export class ValidationUtils {
   }
 
   static isNonNegativeNumberString(value: string): boolean {
-    return /^\d+$/.test(value);
+    if (typeof value === "string") {
+      return /^\d+$/.test(value);
+    }
+    return false;
   }
 
   static isHexString(value: string): boolean {
-    const hexRegex = /^0x[0-9a-fA-F]+$/;
-    return hexRegex.test(value);
+    if (typeof value === "string") {
+      const hexRegex = /^0x[0-9a-fA-F]+$/;
+      return hexRegex.test(value);
+    }
+    return false;
   }
 }

@@ -1,5 +1,6 @@
 import { ValidationUtils } from "@snickerdoodlelabs/common-utils";
 import {
+  BigNumberString,
   EVMAccountAddress,
   EVMTransaction,
   UnixTimestamp,
@@ -15,6 +16,7 @@ export class EVMTransactionNormalizer implements IEVMTransactionNormalizer {
     this.normalizeAccountAddress(transaction, "from");
     this.normalizeBlockHeight(transaction);
     this.normalizeStringTimestamp(transaction);
+    this.normalizeValue(transaction);
   }
 
   protected normalizeBlockHeight(transaction: EVMTransaction): void {
@@ -25,6 +27,15 @@ export class EVMTransactionNormalizer implements IEVMTransactionNormalizer {
       if (transformedBlockHeight != null) {
         transaction.blockHeight = transformedBlockHeight;
       }
+    }
+  }
+
+  protected normalizeValue(transaction: EVMTransaction): void {
+    if (typeof transaction.value === "number") {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //@ts-ignore
+      const txVal: string = transaction.value.toString();
+      transaction.value = BigNumberString(txVal);
     }
   }
 

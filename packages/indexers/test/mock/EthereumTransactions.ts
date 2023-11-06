@@ -91,6 +91,7 @@ const invalidBlockHeightTx = Object.assign({}, validFullTransaction);
 const invalidAccountAddressTx = Object.assign({}, validFullTransaction);
 const invalidBigNumberTx = Object.assign({}, validFullTransaction);
 const invalidStringsTx = Object.assign({}, validFullTransaction);
+const invalidValueTx = Object.assign({}, validFullTransaction);
 
 //
 invalidHashTx.hash = EVMTransactionHash(`0`);
@@ -105,6 +106,11 @@ invalidNumberStringTimestampTx.timestamp = "1659609391";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 invalidBlockHeightTx.blockHeight = "1";
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+invalidValueTx.value = 0;
+
 invalidAccountAddressTx.to = EVMAccountAddress("0");
 invalidBigNumberTx.value = BigNumberString("-1");
 
@@ -115,6 +121,7 @@ export const invalidEVMTransactions = [
   invalidHexStringTimestampTx,
   invalidNumberStringTimestampTx,
   invalidBlockHeightTx,
+  invalidValueTx,
   invalidHashTx,
   invalidAccountAddressTx,
   invalidBigNumberTx,
