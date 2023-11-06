@@ -369,6 +369,7 @@ export class MasterIndexer implements IMasterIndexer {
     | MethodSupportError
     | InvalidParametersError
   > {
+    console.log(`latest transaction call`);
     const chainInfo = getChainInfoByChain(chain);
     if (chainInfo.chainTechnology == EChainTechnology.Solana) {
       return this.sol.getSolanaTransactions(
@@ -413,8 +414,11 @@ export class MasterIndexer implements IMasterIndexer {
           return e;
         })
         .map((transactions) => {
+          console.log(transactions);
           return transactions.filter((transaction) => {
+            console.log(`before`, transaction);
             this.evmTransactionNormalizer.normalize(transaction);
+            console.log(`after`, transaction);
             return this.evmTransactionValidator.validate(
               transaction,
               indexer.name(),

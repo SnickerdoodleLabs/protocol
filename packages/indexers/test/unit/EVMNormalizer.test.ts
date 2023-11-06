@@ -1,5 +1,6 @@
 import "reflect-metadata";
 
+import { IBigNumberUtils } from "@snickerdoodlelabs/common-utils";
 import {
   BigNumberString,
   EChain,
@@ -17,7 +18,7 @@ import {
 
 describe("EVMNormalizer", () => {
   let evmTransactionNormalizer: IEVMTransactionNormalizer;
-
+  const bigNumberUtils = td.object<IBigNumberUtils>();
   const convertableTimestampTxs = invalidEVMTransactions.slice(0, 2);
   const validTx = validEVMTransactions[0];
   const expectedLowerCaseAddress = validTx.from;
@@ -25,7 +26,7 @@ describe("EVMNormalizer", () => {
   validTx.from = EVMAccountAddress(validTx.from!.toUpperCase());
   beforeEach(() => {
     // Arrange
-    evmTransactionNormalizer = new EVMTransactionNormalizer();
+    evmTransactionNormalizer = new EVMTransactionNormalizer(bigNumberUtils);
   });
 
   describe("normalize timestamps", () => {
