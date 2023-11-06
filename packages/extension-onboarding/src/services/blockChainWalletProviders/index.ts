@@ -35,13 +35,6 @@ export const getProviderList = (): IProvider[] => {
       key: EWalletProviderKeys.PHANTOM,
       installationUrl: "https://phantom.app/download",
     },
-    // {
-    //   provider: new WalletConnectProvider(),
-    //   icon: WalleConnectIcon,
-    //   name: "Wallet Connect",
-    //   key: EWalletProviderKeys.WALLET_CONNECT,
-    //   installationUrl: "",
-    // },
     {
       provider: new CoinbaseWalletProvider(),
       icon: "https://storage.googleapis.com/dw-assets/spa/icons/coinbase.png",

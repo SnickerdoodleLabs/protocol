@@ -49,7 +49,12 @@ const AccountItem: FC<IAccountItemProps> = ({
       />
       <Box ml={1.5} />
       <Box width={{ xs: undefined, sm: undefined, md: 402 }}>
-        <SDTypography variant="bodyLg" fontWeight="medium" color="textHeading">
+        <SDTypography
+          variant="bodyLg"
+          fontWeight="medium"
+          color="textHeading"
+          hideOverflow
+        >
           {["xs", "sm"].includes(currentBreakPoint)
             ? abbreviateString(
                 account.sourceAccountAddress,

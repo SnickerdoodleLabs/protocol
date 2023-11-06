@@ -1,7 +1,6 @@
 import LoadingSpinner from "@extension-onboarding/components/LoadingSpinner";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import PhantomLinkingSteps from "@extension-onboarding/components/Modals/PhantomLinkingSteps";
-import RewardDetailModal from "@extension-onboarding/components/Modals/RewardDetailModal";
 import SuiLinkingSteps from "@extension-onboarding/components/Modals/SuiLinkingSteps";
 import AirdropDetailModal, {
   IAirdropDetailModal,
@@ -22,11 +21,8 @@ import React, {
   useMemo,
   useEffect,
 } from "react";
-// under construction
+
 type ModalSelectorTypeMap = {
-  [EModalSelectors.SUI_LINKING_STEPS]: any;
-  [EModalSelectors.PHANTOM_LINKING_STEPS]: any;
-  [EModalSelectors.REWARD_DETAIL_MODAL]: any;
   [EModalSelectors.AIRDROP_DETAIL_MODAL]: IAirdropDetailModal;
   [EModalSelectors.CONFIRMATION_MODAL]: IConfirmationModal;
   [EModalSelectors.OTP_MODAL]: IOTPModal;
@@ -81,18 +77,12 @@ export const LayoutProvider: FC = ({ children }) => {
   );
   const modalComponent = useMemo(() => {
     switch (true) {
-      case modalState.modalSelector === EModalSelectors.PHANTOM_LINKING_STEPS:
-        return <PhantomLinkingSteps />;
-      case modalState.modalSelector === EModalSelectors.SUI_LINKING_STEPS:
-        return <SuiLinkingSteps />;
       case modalState.modalSelector === EModalSelectors.CONFIRMATION_MODAL:
         return <ConfirmationModal />;
       case modalState.modalSelector === EModalSelectors.AIRDROP_DETAIL_MODAL:
         return <AirdropDetailModal />;
       case modalState.modalSelector === EModalSelectors.LEAVE_AUDIENCE_MODAL:
         return <LeaveAudienceModal />;
-      case modalState.modalSelector === EModalSelectors.REWARD_DETAIL_MODAL:
-        return <RewardDetailModal />;
       case modalState.modalSelector === EModalSelectors.OTP_MODAL:
         return <OTPModal />;
       default:
