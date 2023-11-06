@@ -27,6 +27,7 @@ NPM:
 ```sh
 npm install @snickerdoodlelabs/erc7529 --save
 npm install @snickerdoodlelabs/objects --save
+npm install @snickerdoodlelabs/contracts-sdk --save
 ```
 
 Yarn:
@@ -34,6 +35,7 @@ Yarn:
 ```sh
 yarn add @snickerdoodlelabs/erc7529
 yarn add @snickerdoodlelabs/objects
+yarn add @snickerdoodlelabs/contracts-sdk
 ```
 
 ## Contract Pointers in TXT Records 
