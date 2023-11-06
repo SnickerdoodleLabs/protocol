@@ -19,7 +19,12 @@ export class EVMTransactionNormalizer implements IEVMTransactionNormalizer {
 
   protected normalizeBlockHeight(transaction: EVMTransaction): void {
     if (typeof transaction.blockHeight === "string") {
-      transaction.blockHeight = this.stringToNumber(transaction.blockHeight);
+      const transformedBlockHeight = this.stringToNumber(
+        transaction.blockHeight,
+      );
+      if (transformedBlockHeight != null) {
+        transaction.blockHeight = transformedBlockHeight;
+      }
     }
   }
 
@@ -28,7 +33,7 @@ export class EVMTransactionNormalizer implements IEVMTransactionNormalizer {
     propertyName: "to" | "from",
   ): void {
     const propertyValue = transaction[propertyName];
-    if (propertyValue !== null && typeof propertyValue === "string") {
+    if (propertyValue != null && typeof propertyValue === "string") {
       transaction[propertyName] = EVMAccountAddress(
         propertyValue.toLowerCase(),
       );
@@ -38,27 +43,29 @@ export class EVMTransactionNormalizer implements IEVMTransactionNormalizer {
   protected normalizeStringTimestamp(transaction: EVMTransaction): void {
     if (typeof transaction.timestamp === "string") {
       const transformedTransaction = this.stringToNumber(transaction.timestamp);
-      transaction.timestamp = transformedTransaction;
+      if (transformedTransaction != null) {
+        transaction.timestamp = UnixTimestamp(transformedTransaction);
+      }
     }
   }
 
-  protected stringToNumber(value: string): UnixTimestamp {
+  protected stringToNumber(value: string): number | null {
     if (ValidationUtils.isNonNegativeNumberString(value)) {
       try {
         const timestamp = parseInt(value, 10);
-        return timestamp >= 0 ? UnixTimestamp(timestamp) : UnixTimestamp(-1);
+        return timestamp >= 0 ? timestamp : null;
       } catch (error) {
-        return UnixTimestamp(-1);
+        return null;
       }
     } else if (ValidationUtils.isHexString(value)) {
       try {
         const timestamp = parseInt(value, 16);
-        return UnixTimestamp(timestamp);
+        return timestamp;
       } catch (error) {
-        return UnixTimestamp(-1);
+        return null;
       }
     } else {
-      return UnixTimestamp(-1);
+      return null;
     }
   }
 }
