@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/erc7529",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A library for interacting with ERC-7529 compliant contracts and domains for EVM based chains.",
   "license": "MIT",
   "repository": {
@@ -10,12 +10,15 @@
   "bugs": {
     "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
   },
-  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/erc7529#readme",
+  "homepage": "https://www.npmjs.com/package/@snickerdoodlelabs/erc7529",
   "author": "Charlie Sibbach <charlie@snickerdoodlelabs.io>",
   "keywords": [
     "Snickerdoodle",
     "Crypto",
-    "EIP-7529"
+    "EIP-7529",
+    "DNS-over-HTTPs",
+    "Smart Contracts",
+    "EVM"
   ],
   "main": "dist/index.js",
   "module": "./dist/index.js",

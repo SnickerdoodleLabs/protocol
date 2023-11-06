@@ -20,6 +20,22 @@ A user visits merchant.com who accepts payments via paymentprocessor.com. The bu
 
 A user visits nftmarketplace.io to buy a limited release NFT from theirfavoritebrand.com. The marketplace app can leverage this ERC to allow the user to search by domain name and also indicate to the user that an NFT of interest is indeed an authentic asset associated with theirfavoritebrand.com. 
 
+## Installation
+
+NPM:
+
+```sh
+npm install @snickerdoodlelabs/erc7529 --save
+npm install @snickerdoodlelabs/objects --save
+```
+
+Yarn:
+
+```sh
+yarn add @snickerdoodlelabs/erc7529
+yarn add @snickerdoodlelabs/objects
+```
+
 ## Contract Pointers in TXT Records 
 
 The owner of a domain name must create a TXT record in their DNS settings that serves as a pointer to all relevant smart contracts they wish to associate with their domain. 
