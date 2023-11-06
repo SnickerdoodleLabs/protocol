@@ -1,9 +1,7 @@
-import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
   BlockchainCommonErrors,
   DomainName,
   EVMContractAddress,
-  ERC7529ContractError,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -54,18 +52,5 @@ export abstract class ERC7529Contract<T>
         return this.generateError(e, "Unable to call getDomains()");
       },
     );
-  }
-}
-
-export class StaticERC7529Contract
-  extends ERC7529Contract<ERC7529ContractError>
-  implements IERC7529Contract<ERC7529ContractError>
-{
-  protected generateContractSpecificError(
-    msg: string,
-    reason: string | undefined,
-    err: unknown,
-  ): ERC7529ContractError {
-    return new ERC7529ContractError(msg, reason, err);
   }
 }
