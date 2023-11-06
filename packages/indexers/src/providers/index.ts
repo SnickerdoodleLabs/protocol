@@ -10,4 +10,5 @@ export * from "@indexers/providers/OklinkIndexer.js";
 export * from "@indexers/providers/PoapIndexer.js";
 export * from "@indexers/providers/PolygonIndexer.js";
 export * from "@indexers/providers/SimulatorIndexer.js";
+export * from "@indexers/providers/SpaceAndTimeIndexer.js";
 export * from "@indexers/providers/SolanaIndexer.js";
