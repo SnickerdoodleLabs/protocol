@@ -2,13 +2,13 @@
 
 # EIP-7529
 
-The introduction of DNS-over-HTTPS (DoH) in [RFC 8484](https://www.rfc-editor.org/rfc/rfc8484) has enabled tamper-resistant client-side queries of DNS records directly from the browser context. [ERC-7529](./eip-7529.md) describes a simple standard leveraging DoH to fetch TXT records which are used for discovering and verifying the association of a smart contract with a common DNS domain.
+The introduction of DNS-over-HTTPS (DoH) in [RFC 8484](https://www.rfc-editor.org/rfc/rfc8484) has enabled tamper-resistant client-side queries of DNS records directly from a web application context using standard browser APIs. [ERC-7529](./eip-7529.md) describes a simple standard leveraging DoH to fetch TXT records which are used for discovering and verifying the association of a smart contract with a common DNS domain.
 
 This package is a library for interacting with and verifying EIP-7529 compliant contracts. It manages DoH as well as smart contract manipulation and interaction via the [Ethers](https://github.com/ethers-io/ethers.js) library. It should work on any [EVM-compatible](https://ethereum.org/en/developers/docs/evm) chain.
 
 ## Motivation
 
-As mainstream businesses begin to adopt public blockchain and digital asset technologies more rapidly, there is a growing need for a discovery/search mechanism (compatible with conventional browser resources) of smart contracts associated with a known business domain as well as reasonable assurance that the smart contract does indeed belong to the business owner of the DNS domain. The relatively recent introduction and widespread support of DoH means it is possible to make direct queries of DNS records straight from the browser context and thus leverage a simple TXT record as a pointer to an on-chain smart contract. 
+As mainstream businesses begin to adopt public blockchain and digital asset technologies more rapidly, there is a growing need for a discovery/search mechanism (compatible with conventional browser resources) of smart contracts associated with a known business domain as well as reasonable assurance that the smart contract does indeed belong to the business owner of the DNS domain. The relatively recent introduction and widespread support of DoH means it is possible to make direct queries of DNS records straight from a web application and thus leverage a simple TXT record as a pointer to an on-chain smart contract. 
 
 A TXT pointer coupled with an appropriate smart contract interface (described in this ERC) yields a simple, yet flexible and robust mechanism for the client-side detection and reasonably secure verification of on-chain logic and digital assets associated with a the owner of a domain name. For example, a stablecoin issuer might leverage this standard to provide a method for an end user or web-based end user client to ensure that the asset their wallet is interacting with is indeed the contract issued or controlled by the owner or administrator of a well known DNS domain.
 
