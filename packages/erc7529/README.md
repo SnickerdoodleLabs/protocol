@@ -87,7 +87,7 @@ Use `@snickerdoodlelabs/contracts-sdk` to interact with this interface on any co
 
 ```typescript
 import { ethers } from "ethers";
-import { ERC7529Contract } from "@snickerdoodlelabs/contracts-sdk";
+import { ERC7529ContractProxy } from "@snickerdoodlelabs/contracts-sdk";
 import {
   ChainId,
   DomainName,
@@ -103,7 +103,7 @@ const myEthersSigner = myEthersProvider.getSigner();
 
 // get an object handle on your contract
 const myContractAddress = EVMContractAddress("0x...");
-const myERC7529Contract = new ERC7529Contract(myEthersSigner, myContractAddress);
+const myERC7529Contract = new ERC7529ContractProxy(myEthersSigner, myContractAddress);
 
 // write domains to a contract if you have write permissions
 await myERC7529Contract.addDomain("example.com");
@@ -123,7 +123,7 @@ The user client must verify that the eTLD+1 of the TXT record matches an entry i
 ```typescript
 import { ethers } from "ethers";
 import { staticUtils } from "@snickerdoodlelabs/erc7529";
-import { ERC7529Contract } from "@snickerdoodlelabs/contracts-sdk";
+import { ERC7529ContractProxy } from "@snickerdoodlelabs/contracts-sdk";
 import {
   ChainId,
   DomainName,
@@ -141,7 +141,7 @@ const contractAddresses = await staticUtils.getContractsFromDomain(domainName,ch
 
 // get an object handle on your contract
 const myContractAddress = contractAddresses.value[0];
-const myERC7529Contract = new ERC7529Contract(myEthersProvider, myContractAddress);
+const myERC7529Contract = new ERC7529ContractProxy(myEthersProvider, myContractAddress);
 
 // verify that the contracts at those addresses on Fuji testnet point back to snickerdoodle.com 
 const isVerified = await staticUtils.verifyContractForDomain(myERC7529Contract, domainName, chainId);
