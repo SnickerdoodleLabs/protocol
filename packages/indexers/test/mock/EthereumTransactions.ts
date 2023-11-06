@@ -8,7 +8,7 @@ import {
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 
-const fujiChain = EChain.Fuji;
+const fujiChain = EChain.EthereumMainnet;
 const validHash = EVMTransactionHash(
   "0x9510a7c27e9be68cf1b8d585501321a7937258b6b9329fc79899368033ca075e",
 );
@@ -84,27 +84,38 @@ export const validEVMTransactions = [
 ];
 
 //
-const invalidHashTx = validFullTransaction;
-const invalidTimestampTx = validFullTransaction;
-const invalidBlockHeightTx = validFullTransaction;
-const invalidAccountAddressTx = validFullTransaction;
-const invalidBigNumberTx = validFullTransaction;
-const invalidStringsTx = validFullTransaction;
+const invalidHashTx = Object.assign({}, validFullTransaction);
+const invalidHexStringTimestampTx = Object.assign({}, validFullTransaction);
+const invalidNumberStringTimestampTx = Object.assign({}, validFullTransaction);
+const invalidBlockHeightTx = Object.assign({}, validFullTransaction);
+const invalidAccountAddressTx = Object.assign({}, validFullTransaction);
+const invalidBigNumberTx = Object.assign({}, validFullTransaction);
+const invalidStringsTx = Object.assign({}, validFullTransaction);
 
 //
 invalidHashTx.hash = EVMTransactionHash(`0`);
-invalidTimestampTx.timestamp = UnixTimestamp(1);
-invalidBlockHeightTx.blockHeight = -1;
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+invalidHexStringTimestampTx.timestamp = UnixTimestamp("0x62eba12f");
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+invalidNumberStringTimestampTx.timestamp = "1659609391";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+invalidBlockHeightTx.blockHeight = "1";
 invalidAccountAddressTx.to = EVMAccountAddress("0");
 invalidBigNumberTx.value = BigNumberString("-1");
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 invalidStringsTx.input = 11;
-export const invalidTransactions = [
-  invalidHashTx,
-  invalidTimestampTx,
+export const invalidEVMTransactions = [
+  invalidHexStringTimestampTx,
+  invalidNumberStringTimestampTx,
   invalidBlockHeightTx,
+  invalidHashTx,
   invalidAccountAddressTx,
   invalidBigNumberTx,
   invalidStringsTx,

@@ -21,8 +21,11 @@ import {
   ISolanaIndexerType,
   IEVMTransactionValidator,
   IEVMTransactionValidatorType,
+  IEVMTransactionNormalizer,
+  IEVMTransactionNormalizerType,
 } from "@indexers/interfaces/index.js";
 import { MasterIndexer } from "@indexers/MasterIndexer.js";
+import { EVMTransactionNormalizer } from "@indexers/normalizers/index.js";
 import {
   AnkrIndexer,
   AlchemyIndexer,
@@ -101,6 +104,10 @@ export const indexersModule = new ContainerModule(
 
     bind<IEVMTransactionValidator>(IEVMTransactionValidatorType)
       .to(EVMTransactionValidator)
+      .inSingletonScope();
+
+    bind<IEVMTransactionNormalizer>(IEVMTransactionNormalizerType)
+      .to(EVMTransactionNormalizer)
       .inSingletonScope();
   },
 );

@@ -247,10 +247,13 @@ export class TransactionHistoryRepository
       const classification = getChainInfoByChainId(
         ChainId(tx.chain),
       ).chainTechnology;
-      if (classifiedTransactions[classification] != null) {
-        classifiedTransactions[classification] = [];
+
+      const chainMap = classifiedTransactions.get(classification);
+      if (chainMap != null) {
+        chainMap.push(tx);
+      } else {
+        classifiedTransactions.set(classification, [tx]);
       }
-      classifiedTransactions[classification].push(tx);
     });
 
     return classifiedTransactions;

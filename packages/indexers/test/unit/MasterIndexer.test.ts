@@ -31,6 +31,7 @@ import * as td from "testdouble";
 
 import {
   IEVMIndexer,
+  IEVMTransactionNormalizer,
   IEVMTransactionValidator,
   IIndexerConfigProvider,
   IIndexerContextProvider,
@@ -149,6 +150,7 @@ class MasterIndexerMocks {
   public logUtils: ILogUtils;
   public bigNumberUtils: IBigNumberUtils;
   public evmTransactionValidator: IEVMTransactionValidator;
+  public evmTransactionNormalizer: IEVMTransactionNormalizer;
 
   public constructor() {
     this.context = new ContextProviderMock();
@@ -211,6 +213,7 @@ class MasterIndexerMocks {
     this.tokenPriceRepo = td.object<ITokenPriceRepository>();
     this.logUtils = td.object<ILogUtils>();
     this.evmTransactionValidator = td.object<IEVMTransactionValidator>();
+    this.evmTransactionNormalizer = td.object<IEVMTransactionNormalizer>();
 
     // Solidity Repositories -----------------------------------------------------
     td.when(this.sol.initialize()).thenReturn(okAsync(undefined));
@@ -250,6 +253,7 @@ class MasterIndexerMocks {
       this.logUtils,
       this.bigNumberUtils,
       this.evmTransactionValidator,
+      this.evmTransactionNormalizer,
     );
   }
 
