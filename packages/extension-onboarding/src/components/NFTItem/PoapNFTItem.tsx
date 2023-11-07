@@ -19,25 +19,22 @@ export const PoapNFTItem: FC<IPoapNFTItemProps> = ({
   const classes = useStyles();
   const navigate = useNavigate();
   const [metadata, setMetadata] = useState<POAPMetadata>();
-  const parsedNFTMetaData = useMemo(
-    () => NftMetadataParseUtils.getParsedNFT(JSON.stringify(item.metadata)),
-    [item],
-  );
+
+  const nftData = useMemo(() => {
+    if (item.metadata) {
+      return NftMetadataParseUtils.getParsedNFT(JSON.stringify(item.metadata));
+    }
+    return undefined;
+  }, [item]);
+
+  const name = useMemo(() => {
+    const _name = nftData?.name ?? item?.name ?? "_";
+    return _name ? _name : "_";
+  }, [nftData]);
   useEffect(() => {
     getMetadata();
   }, []);
 
-  const getMetadata = () => {
-    fetch(
-      `https://api.poap.tech/metadata/${parsedNFTMetaData.event?.id}/${item.tokenId}/`,
-    )
-      .then((res) => {
-        res.json().then((data) => {
-          setMetadata(data as POAPMetadata);
-        });
-      })
-      .catch(() => {});
-  };
   const isVirtualEvent = useMemo(() => {
     if (metadata) {
       const virtualEventInfo = metadata.attributes.find(
@@ -50,6 +47,17 @@ export const PoapNFTItem: FC<IPoapNFTItemProps> = ({
     return undefined;
   }, [metadata]);
 
+  const getMetadata = () => {
+    fetch(
+      `https://api.poap.tech/metadata/${nftData?.event?.id}/${item.tokenId}/`,
+    )
+      .then((res) => {
+        res.json().then((data) => {
+          setMetadata(data as POAPMetadata);
+        });
+      })
+      .catch(() => {});
+  };
   return (
     <Box
       border="1px solid"
@@ -73,9 +81,7 @@ export const PoapNFTItem: FC<IPoapNFTItemProps> = ({
       }
     >
       <Box display="flex" justifyContent="center" mb={1.5}>
-        <MediaRenderer
-          metadataString={item.metadata ? JSON.stringify(item.metadata) : null}
-        />
+        <MediaRenderer nftData={nftData} />
       </Box>
       <SDTypography
         variant="bodyLg"
@@ -83,7 +89,7 @@ export const PoapNFTItem: FC<IPoapNFTItemProps> = ({
         color="textHeading"
         className={classes.name}
       >
-        {item?.name || "_"}
+        {name}
       </SDTypography>
       <Box mt={1} />
       <Grid container spacing={1}>
@@ -93,7 +99,7 @@ export const PoapNFTItem: FC<IPoapNFTItemProps> = ({
           </SDTypography>
         </Grid>
         <Grid item xs={6}>
-          <SDTypography variant="bodyMd">{`${parsedNFTMetaData.event?.startDate}`}</SDTypography>
+          <SDTypography variant="bodyMd">{`${nftData?.event?.startDate}`}</SDTypography>
         </Grid>
         <Grid item xs={6}>
           <SDTypography variant="bodyMd" fontWeight="medium">
@@ -116,7 +122,7 @@ export const PoapNFTItem: FC<IPoapNFTItemProps> = ({
           <SDTypography variant="bodyMd">
             {(isVirtualEvent ?? "") != "" && isVirtualEvent
               ? "Online"
-              : `${parsedNFTMetaData.event?.country}`}
+              : `${nftData?.event?.country}`}
           </SDTypography>
         </Grid>
       </Grid>

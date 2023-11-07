@@ -3,4 +3,5 @@ export enum EModalSelectors {
   OTP_MODAL,
   CONFIRMATION_MODAL,
   AIRDROP_DETAIL_MODAL,
+  NFT_DETAIL_MODAL,
 }

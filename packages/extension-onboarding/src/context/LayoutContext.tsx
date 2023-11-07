@@ -1,7 +1,5 @@
 import LoadingSpinner from "@extension-onboarding/components/LoadingSpinner";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
-import PhantomLinkingSteps from "@extension-onboarding/components/Modals/PhantomLinkingSteps";
-import SuiLinkingSteps from "@extension-onboarding/components/Modals/SuiLinkingSteps";
 import AirdropDetailModal, {
   IAirdropDetailModal,
 } from "@extension-onboarding/components/Modals/V2/AirdropDetailModal";
@@ -9,6 +7,9 @@ import ConfirmationModal, {
   IConfirmationModal,
 } from "@extension-onboarding/components/Modals/V2/ConfirmationModal";
 import LeaveAudienceModal from "@extension-onboarding/components/Modals/V2/LeaveAudienceModal";
+import NFTDetailModal, {
+  INFTDetailModal,
+} from "@extension-onboarding/components/Modals/V2/NFTDetailModal";
 import OTPModal, {
   IOTPModal,
 } from "@extension-onboarding/components/Modals/V2/OTPModal";
@@ -26,6 +27,7 @@ type ModalSelectorTypeMap = {
   [EModalSelectors.AIRDROP_DETAIL_MODAL]: IAirdropDetailModal;
   [EModalSelectors.CONFIRMATION_MODAL]: IConfirmationModal;
   [EModalSelectors.OTP_MODAL]: IOTPModal;
+  [EModalSelectors.NFT_DETAIL_MODAL]: INFTDetailModal;
   [EModalSelectors.LEAVE_AUDIENCE_MODAL]: undefined;
 };
 
@@ -85,6 +87,8 @@ export const LayoutProvider: FC = ({ children }) => {
         return <LeaveAudienceModal />;
       case modalState.modalSelector === EModalSelectors.OTP_MODAL:
         return <OTPModal />;
+      case modalState.modalSelector === EModalSelectors.NFT_DETAIL_MODAL:
+        return <NFTDetailModal />;
       default:
         return null;
     }
@@ -107,7 +111,6 @@ export const LayoutProvider: FC = ({ children }) => {
     } else {
       setLoaderInfo(loadingInfo ?? { type: ELoadingIndicatorType.DEFAULT });
     }
-    // setIsLoading(loadingStatus);
   };
 
   const closeModal = () => {
