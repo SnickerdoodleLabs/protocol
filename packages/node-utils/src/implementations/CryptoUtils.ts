@@ -4,7 +4,9 @@ import {
   TypedDataDomain,
   TypedDataField,
 } from "@ethersproject/abstract-signer";
+import { parseSerializedSignature } from "@mysten/sui.js/cryptography";
 import { verifyPersonalMessage } from "@mysten/sui.js/verify";
+import { parseZkLoginSignature } from "@mysten/sui.js/zklogin";
 import {
   AESEncryptedString,
   AESKey,
@@ -272,25 +274,86 @@ export class CryptoUtils implements ICryptoUtils {
     signature: Signature,
     accountAddress: SuiAccountAddress,
   ): ResultAsync<boolean, never> {
+    const parsedSignature = parseSerializedSignature(signature);
+    switch (parsedSignature.signatureScheme) {
+      case "ED25519":
+        return this.verifyED25519(message, signature, accountAddress);
+      case "ZkLogin":
+        return this.verifyZkLogin(message, signature, accountAddress);
+      default:
+        console.error(
+          `Signature type ${parsedSignature.signature} is not covered.`,
+        );
+        return okAsync(false);
+    }
+  }
+
+  private verifyED25519(
+    message: string,
+    signature: Signature,
+    accountAddress: SuiAccountAddress,
+  ): ResultAsync<boolean, never> {
+    console.log("Sui Message: " + message);
+    console.log("Sui signature: " + signature);
+    console.log("Sui accountAddress: " + accountAddress);
     return ResultAsync.fromPromise(
       verifyPersonalMessage(Buffer.from(message, "utf-8"), signature),
-      (e) => {
-        return e as Error;
+      () => {
+        console.log("verifyPersonalMessage error: ");
       },
     )
       .map((publicKey) => {
+        // console.log("Sui publicKey: ");
+        // console.log("Sui publicKey: " + publicKey);
         const recoveredAccountAddress = SuiAccountAddress(
           publicKey.toSuiAddress(),
         );
+        console.log("Sui recoveredAccountAddress: " + recoveredAccountAddress);
         return (
           recoveredAccountAddress.toLowerCase() == accountAddress.toLowerCase()
         );
       })
-      .orElse((e) => {
+      .orElse(() => {
+        console.log("Sui OR ELSE triggered: ");
+
+        // const parsedSignature = ResultAsync.fromPromise(
+        //   parseZkLoginSignature("BQNNMTY4NjAxMzAyO...."),
+        //   (e) => {
+        //     console.log("verifyPersonalMessage error: " + e);
+        //     return e as Error;
+        //   },
+        // );
+
         // The signature is almost certainly invalid; verifyPersonalMessage returns an error if the crypto fails
         // in the verification step
         return okAsync(false);
       });
+  }
+
+  private verifyZkLogin(
+    message: string,
+    signature: Signature,
+    accountAddress: SuiAccountAddress,
+  ): ResultAsync<boolean, never> {
+    console.log("Sui Message: " + message);
+    console.log("Sui signature: " + signature);
+    console.log("Sui accountAddress: " + accountAddress);
+    /* 
+      1. The wallet creates an ephemeral KeyPair.
+      2. The wallet prompts the user to complete an OAuth login flow with the nonce corresponding to the ephemeral public key.
+      3. After receiving the JWT token, the wallet obtains a zero-knowledge proof.
+      4. The wallet obtains a unique user salt based on a JWT token. The OAuth subject identifier and salt can be used to compute the zkLogin Sui address.
+      5. The wallet signs transactions with the ephemeral private key.
+      6. The wallet submits the transaction with the ephemeral signature and the zero-knowledge proof.
+    */
+
+    const parsedSignature = parseSerializedSignature(signature);
+
+    // only covering google auth for now
+    const googleAuthUrl =
+      "https://accounts.google.com/o/oauth2/v2/auth?client_id=$CLIENT_ID&response_type=id_token&redirect_uri=$REDIRECT_URL&scope=openid&nonce=$NONCE";
+
+    return okAsync(true);
   }
 
   public verifySolanaSignature(

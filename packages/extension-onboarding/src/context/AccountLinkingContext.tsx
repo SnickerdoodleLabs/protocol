@@ -1,23 +1,3 @@
-import AccountLinkingIndicator from "@extension-onboarding/components/loadingIndicators/AccountLinking";
-import { EModalSelectors } from "@extension-onboarding/components/Modals/";
-import LinkAccountModal from "@extension-onboarding/components/Modals/V2/LinkAccountModal";
-import { EWalletProviderKeys } from "@extension-onboarding/constants";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import {
-  ELoadingIndicatorType,
-  useLayoutContext,
-} from "@extension-onboarding/context/LayoutContext";
-import useIsMobile from "@extension-onboarding/hooks/useIsMobile";
-import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
-import {
-  DiscordProvider,
-  TwitterProvider,
-} from "@extension-onboarding/services/socialMediaProviders/implementations";
-import {
-  IDiscordProvider,
-  ITwitterProvider,
-} from "@extension-onboarding/services/socialMediaProviders/interfaces";
 import {
   defaultLanguageCode,
   EChain,
@@ -39,6 +19,27 @@ import React, {
   useState,
 } from "react";
 import { useAccount, useDisconnect, useSignMessage, useConnect } from "wagmi";
+
+import AccountLinkingIndicator from "@extension-onboarding/components/loadingIndicators/AccountLinking";
+import { EModalSelectors } from "@extension-onboarding/components/Modals/";
+import LinkAccountModal from "@extension-onboarding/components/Modals/V2/LinkAccountModal";
+import { EWalletProviderKeys } from "@extension-onboarding/constants";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import {
+  ELoadingIndicatorType,
+  useLayoutContext,
+} from "@extension-onboarding/context/LayoutContext";
+import useIsMobile from "@extension-onboarding/hooks/useIsMobile";
+import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
+import {
+  DiscordProvider,
+  TwitterProvider,
+} from "@extension-onboarding/services/socialMediaProviders/implementations";
+import {
+  IDiscordProvider,
+  ITwitterProvider,
+} from "@extension-onboarding/services/socialMediaProviders/interfaces";
 
 export enum EWalletProviderKit {
   SUI = "SUI",
@@ -248,22 +249,20 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
             if (
               !linkedAccounts?.find(
                 (linkedAccount) =>
-                  linkedAccount.sourceAccountAddress ===
-                  (suiWallet.account?.address || ""),
+                  linkedAccount.sourceAccountAddress.toLowerCase() ===
+                  (suiWallet.account?.address.toLowerCase() || ""),
               )
             ) {
+              console.log(
+                "suiWallet.account?.address.toLowerCase(): " +
+                  suiWallet.account?.address.toLowerCase(),
+              );
+              console.log("linkedAccounts: " + linkedAccounts);
+
               setLoadingStatus(true, {
                 type: ELoadingIndicatorType.COMPONENT,
                 component: <AccountLinkingIndicator />,
               });
-              const addr = (suiWallet.account?.address || "") as AccountAddress;
-              const sig = signature.signature as Signature;
-              const publicKey = suiWallet.account?.publicKey;
-              const suiReg: ISuiCredentials = {
-                messageBytes: signature.messageBytes,
-                publicKey: suiWallet.account?.publicKey,
-              };
-
               return (
                 // okAsync(undefined)
                 // @TODO use that function with correct params

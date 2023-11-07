@@ -93,6 +93,12 @@ export class AccountService implements IAccountService {
     languageCode: LanguageCode,
     sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError> {
+    console.log("accountAddress: " + account);
+    console.log("signature: " + signature);
+    console.log("chain: " + chain);
+    console.log("languageCode: " + languageCode);
+    console.log("sourceDomain: " + sourceDomain);
+
     return this.accountRepository.addAccount(
       account,
       signature,

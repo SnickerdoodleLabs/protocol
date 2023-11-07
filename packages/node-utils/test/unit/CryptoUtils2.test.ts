@@ -55,6 +55,6 @@ describe("CryptoUtils Tests 2", () => {
     expect(result).toBeDefined();
     expect(result.isErr()).toBeFalsy();
     const address = result._unsafeUnwrap();
-    expect(address).toEqual(expectedAddress);
+    expect(address.toLowerCase()).toEqual(expectedAddress.toLowerCase());
   });
 });

@@ -40,6 +40,10 @@ export class AccountService implements IAccountService {
     languageCode: LanguageCode,
     chain: EChain,
   ): ResultAsync<void, SnickerDoodleCoreError> {
+    console.log("accountAddress: " + account);
+    console.log("signature: " + signature);
+    console.log("chain: " + chain);
+    console.log("languageCode: " + languageCode);
     return this.core.account
       .addAccount(account, signature, languageCode, chain)
       .mapErr((error) => {

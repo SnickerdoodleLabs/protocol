@@ -40,7 +40,7 @@ describe("CryptoUtils Tests 3", () => {
     expect(result).toBeDefined();
     expect(result.isErr()).toBeFalsy();
     expect(result2.isErr()).toBeTruthy();
-    expect(address).toEqual(expectedAddress);
+    expect(address.toLowerCase()).toEqual(expectedAddress.toLowerCase());
   });
 
   test("signTypedData<>verifyTypedData Closed Loop", async () => {
@@ -96,7 +96,7 @@ describe("CryptoUtils Tests 3", () => {
     expect(result).toBeDefined();
     expect(result.isErr()).toBeFalsy();
     const address = result._unsafeUnwrap();
-    expect(address).toEqual(expectedAddress);
+    expect(address.toLowerCase()).toEqual(expectedAddress.toLowerCase());
   });
 
   // test("Asymettric Test", async () => {

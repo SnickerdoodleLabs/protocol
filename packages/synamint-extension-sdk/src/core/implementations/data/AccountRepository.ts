@@ -123,6 +123,12 @@ export class AccountRepository implements IAccountRepository {
     languageCode: LanguageCode,
     sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError> {
+    console.log("accountAddress: " + account);
+    console.log("signature: " + signature);
+    console.log("chain: " + chain);
+    console.log("languageCode: " + languageCode);
+    console.log("sourceDomain: " + sourceDomain);
+
     return this.core.account
       .addAccount(account, signature, languageCode, chain, sourceDomain)
       .mapErr((error) => {

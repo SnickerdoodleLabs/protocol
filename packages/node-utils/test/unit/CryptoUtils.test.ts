@@ -526,6 +526,31 @@ describe("CryptoUtils tests", () => {
     expect(verified).toBeTruthy();
   });
 
+  test("verifySuiSignature() works 2", async () => {
+    // Arrange
+    const mocks = new CryptoUtilsMocks();
+    const utils = mocks.factoryCryptoUtils();
+    // This signature was generated from an account with this public key
+    const message = "Login to your Snickerdoodle data wallet";
+    const signature = Signature(
+      "AGCDOOLal8ZejRXfhip5mEoOoElMWd1MacHddfUFIyRccognoDyn3f59/t0RdOZWhy8lwT8pUZAjUOGnwFW5wgs72m7ls1stD7EvAaQn1xlIFUxjxEAUIK8Qa94YHeTsfw==",
+    );
+    const suiAddress = SuiAccountAddress(
+      "0x8e57702fd50b946b951333f996dab16fc04c1df05ab781a0370f836e7f7988d0",
+    );
+    const suiBoolean = await utils.verifySuiSignature(
+      message,
+      signature,
+      suiAddress,
+    );
+
+    // Assert
+    expect(suiBoolean).toBeDefined();
+    expect(suiBoolean.isErr()).toBeFalsy();
+    const verified = suiBoolean._unsafeUnwrap();
+    expect(verified).toBeTruthy();
+  });
+
   test("verifySuiSignature() wrong message", async () => {
     // Arrange
     const mocks = new CryptoUtilsMocks();
