@@ -1,8 +1,8 @@
 import { IConfigOverrides, URLString } from "@snickerdoodlelabs/objects";
 
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import { IWebIntegrationConfigProvider } from "@extension-onboarding/services/interfaces/utilities";
 import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
+import { IWebIntegrationConfigProvider } from "@extension-onboarding/services/interfaces/utilities";
 
 declare const __PRIMARY_INFURA_KEY__: string;
 declare const __IFRAME_URL__: string;
@@ -54,7 +54,11 @@ export class WebIntegrationConfigProvider
       ankrApiKey:
         "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
       bluezApiKey: "aed4aab2cbc573bbf8e7c6b448c916e5",
-      spaceAndTimeKey: "",
+
+      // passing the bearer token as the key
+      spaceAndTimeKey:
+        "eyJ0eXBlIjoiYWNjZXNzIiwia2lkIjoiZTUxNDVkYmQtZGNmYi00ZjI4LTg3NzItZjVmNjNlMzcwM2JlIiwiYWxnIjoiRVMyNTYifQ.eyJpYXQiOjE2OTkzNzIzOTIsIm5iZiI6MTY5OTM3MjM5MiwiZXhwIjoxNjk5MzczODkyLCJ0eXBlIjoiYWNjZXNzIiwidXNlciI6ImFuZHJld0Bzbmlja2VyZG9vZGxlbGFicy5pbyIsInNlc3Npb24iOiIzNjFkZDgwYzVkZjI3YzQ5ZjBhOTI2MTciLCJzc25fZXhwIjoxNjk5NDU4NzkyNDQxLCJpdGVyYXRpb24iOiJmOTE5M2Q0YTAyNzU0NWQ0ODJjYmZhMDIiLCJ0cmlhbCI6dHJ1ZX0.sciVPEWLH5Z3h6CK-3Zgnnh0VrtSwBa9z5b6zQi2FR0A50YAWYnN9gdzeC46mfNwNXrGp6mcIbEBImRmgFYtnQ",
+
       blockvisionKey: "2WaEih5fqe8NUavbvaR2PSuVSSp",
 
       nftScanApiKey: "lusr87vNmTtHGMmktlFyi4Nt",

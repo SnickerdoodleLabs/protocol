@@ -1,3 +1,4 @@
+import { EChain, EIndexerMethod } from "@objects/enum/index.js";
 import {
   ILogUtils,
   ILogUtilsType,
@@ -24,13 +25,14 @@ import {
   EVMNFT,
   MethodSupportError,
   getChainInfoByChain,
-  EChain,
   EComponentStatus,
   IndexerSupportSummary,
   EExternalApi,
   EDataProvider,
   ISO8601DateString,
+  BlockNumber,
 } from "@snickerdoodlelabs/objects";
+import { application } from "express";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -76,13 +78,16 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     ],
   ]);
 
-  protected nonNativeSupportCheck = new Map<EChain, boolean>([
-    [EChain.EthereumMainnet, true],
-    [EChain.Polygon, false],
-    [EChain.Avalanche, false],
-    [EChain.Binance, false],
-    [EChain.Sui, false],
-    [EChain.Mumbai, false],
+  protected SchemaTitles = new Map<EChain, SxTSchemaSupport>([
+    [
+      EChain.EthereumMainnet,
+      new SxTSchemaSupport(EChain.EthereumMainnet, "", "", ""),
+    ],
+    [EChain.Polygon, new SxTSchemaSupport(EChain.Polygon, "", "", "")],
+    [EChain.Avalanche, new SxTSchemaSupport(EChain.Avalanche, "", "", "")],
+    [EChain.Binance, new SxTSchemaSupport(EChain.Binance, "", "", "")],
+    [EChain.Sui, new SxTSchemaSupport(EChain.Sui, "", "", "")],
+    [EChain.Mumbai, new SxTSchemaSupport(EChain.Mumbai, "", "", "")],
   ]);
 
   public constructor(
@@ -115,6 +120,14 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     });
   }
 
+  private retrieveSchemaName(): string {
+    return "ETHEREUM";
+  }
+
+  private retrieveTableName(): string {
+    return "BLOCKS";
+  }
+
   public name(): string {
     return EDataProvider.SpaceAndTime;
   }
@@ -123,16 +136,17 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    return ResultUtils.combine([
-      this.getNonNativeBalance(chain, accountAddress),
-      this.getNativeBalance(chain, accountAddress),
-    ]).map(([nonNativeBalance, nativeBalance]) => {
-      if (nonNativeBalance.length == 0) {
-        return [nativeBalance];
-      }
-      return [nativeBalance, ...nonNativeBalance];
-    });
+    if ((chain = EChain.Sui)) {
+      return this.getSuiBalance(chain, accountAddress);
+    }
+
+    return this.getEVMBalances(chain, accountAddress);
   }
+
+  private getEVMBalances(
+    chain: EChain,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {}
 
   public getTokensForAccount(
     chain: EChain,
@@ -141,15 +155,11 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     EVMNFT[],
     AccountIndexingError | AjaxError | MethodSupportError
   > {
-    // throw new Error("Method not implemented.");
-    // return okAsync([]);
+    if ((chain = EChain.Sui)) {
+      return this.getSuiNFTs(chain, accountAddress);
+    }
 
-    return errAsync(
-      new MethodSupportError(
-        "getTokensForAccount not supported for Etherscan Indexer",
-        400,
-      ),
-    );
+    return this.getEVMNFTs(chain, accountAddress);
   }
 
   public getEVMTransactions(
@@ -161,14 +171,48 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     EVMTransaction[],
     AccountIndexingError | AjaxError | MethodSupportError
   > {
-    // throw new Error("Method not implemented.");
-    // return okAsync([]);
-    return errAsync(
-      new MethodSupportError(
-        "getTokensForAccount not supported for Etherscan Indexer",
-        400,
-      ),
-    );
+    return ResultUtils.combine([
+      this.contextProvider.getContext(),
+      this._getApiKey(chain),
+    ])
+      .andThen(([context, apiKey]) => {
+        const url = new URL("https://api.spaceandtime.app/v1/sql/dql");
+        const sqlText = `{"sqlText":"SELECT *
+        FROM ${this.SchemaTitles.get(chain)?.transactions}
+        WHERE FROM_ADDRESS = "${accountAddress}" 
+        OR TO_ADDRESS = "${accountAddress}""}`;
+
+        console.log("sqlText: " + sqlText);
+        context.privateEvents.onApiAccessed.next(EExternalApi.SpaceAndTime);
+        return this.ajaxUtils.post<ISxTTransaction[]>(new URL(url), sqlText, {
+          headers: {
+            Accept: `application/json;`,
+            authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+        });
+      })
+      .map((response) => {
+        console.log("response: " + response);
+        return response.map((transaction) => {
+          return new EVMTransaction(
+            getChainInfoByChain(chain).chainId,
+            transaction.TRANSACTION_HASH,
+            transaction.TIME_STAMP,
+            transaction.BLOCK_NUMBER,
+            transaction.TO_ADDRESS,
+            transaction.FROM_ADDRESS,
+            transaction.VALUE_,
+            BigNumberString(transaction.GAS),
+            null,
+            null,
+            null,
+            null,
+            null,
+            this.timeUtils.getUnixNow(),
+          );
+        });
+      });
   }
 
   public healthStatus(): Map<EChain, EComponentStatus> {
@@ -184,22 +228,26 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance, AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
-      this._getEtherscanApiKey(chain),
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+      this._getApiKey(chain),
       getEtherscanBaseURLForChain(chain),
     ])
-      .andThen(([apiKey, baseURL]) => {
-        const url = new URL(
-          urlJoinP(baseURL, ["api"], {
-            module: "account",
-            action: "balance",
-            address: accountAddress,
-            tag: "latest",
-            apikey: apiKey,
-          }),
-        );
-        return this.ajaxUtils.get<IEtherscanNativeBalanceResponse>(url);
+      .andThen(([config, context, apiKey, baseURL]) => {
+        const url = new URL("https://api.spaceandtime.app/v1/sql/dql");
+        const sqlText = `{"sqlText":"SELECT * FROM ${schema}.${table} LIMIT 1"}`;
+
+        context.privateEvents.onApiAccessed.next(EExternalApi.SpaceAndTime);
+        return this.ajaxUtils.post<unknown>(new URL(url), sqlText, {
+          headers: {
+            Accept: `application/json;`,
+            authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+        });
       })
       .map((response) => {
+        console.log("response: " + response);
         const nativeBalance = new TokenBalance(
           EChainTechnology.EVM,
           TickerSymbol(getChainInfoByChain(chain).nativeCurrency.symbol),
@@ -213,191 +261,7 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
       });
   }
 
-  private getNonNativeBalance(
-    chain: EChain,
-    accountAddress: EVMAccountAddress,
-  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    if (this.nonNativeSupportCheck.get(chain) == false) {
-      return okAsync([]);
-    }
-
-    return ResultUtils.combine([
-      this._getEtherscanApiKey(chain),
-      getEtherscanBaseURLForChain(chain),
-    ])
-      .andThen(([apiKey, baseURL]) => {
-        const url = new URL(
-          urlJoinP(baseURL, ["api"], {
-            module: "account",
-            action: "addresstokenbalance",
-            address: accountAddress,
-            page: 1,
-            offset: 1000,
-            apikey: apiKey,
-          }),
-        );
-        return this.ajaxUtils.get<IEtherscanTokenBalanceResponse>(url);
-      })
-      .andThen((response) => {
-        if (response.status != "1") {
-          this.logUtils.warning(
-            "error fetching erc20 balances from etherscan",
-            response.message,
-            "usually indicates that the address has no tokens",
-          );
-          return okAsync([]);
-        }
-
-        return ResultUtils.combine(
-          response.result.map((item) => {
-            if (
-              this.tokenPriceRepo.getTokenInfoFromList(item.TokenAddress) ==
-              undefined
-            ) {
-              return okAsync(undefined);
-            }
-
-            return okAsync(
-              new TokenBalance(
-                EChainTechnology.EVM,
-                TickerSymbol(item.TokenSymbol),
-                getChainInfoByChain(chain).chainId,
-                EVMContractAddress(item.TokenAddress),
-                accountAddress,
-                BigNumberString(item.TokenQuantity),
-                Number.parseInt(item.TokenDivisor),
-              ),
-            );
-          }),
-        );
-      })
-
-      .andThen((balances) => {
-        return okAsync(
-          balances.filter((x) => x != undefined) as TokenBalance[],
-        );
-      });
-  }
-
-  protected _paginateTransactions(
-    chain: EChain,
-    params: IEtherscanRequestParameters,
-    maxRecords: number,
-  ): ResultAsync<EVMTransaction[], AccountIndexingError> {
-    return getEtherscanBaseURLForChain(chain)
-      .map((baseUrl) => {
-        const offset = params.offset;
-        const page = params.page;
-        if (offset * page > maxRecords) {
-          return undefined;
-        }
-
-        return new URL(urlJoinP(baseUrl, ["api"], params));
-      })
-      .andThen((url) => {
-        if (url == undefined) {
-          return okAsync([]);
-        }
-
-        return this.ajaxUtils
-          .get<IEtherscanTransactionResponse>(url)
-          .andThen((response) => {
-            if (
-              response.status != "1" ||
-              response.message == "No transactions found"
-            ) {
-              if (response.result != null) {
-                return okAsync([]);
-              }
-
-              return errAsync(
-                new AccountIndexingError(
-                  "error fetching transactions from etherscan",
-                  response.message,
-                ),
-              );
-            }
-
-            const txs = response.result.map((tx) => {
-              // etherscan uses "" instead of null
-              return new EVMTransaction(
-                getChainInfoByChain(chain).chainId,
-                EVMTransactionHash(tx.hash),
-                UnixTimestamp(Number.parseInt(tx.timeStamp)),
-                tx.blockNumber == "" ? null : Number.parseInt(tx.blockNumber),
-                tx.to == "" ? null : EVMAccountAddress(tx.to.toLowerCase()),
-                tx.from == "" ? null : EVMAccountAddress(tx.from.toLowerCase()),
-                tx.value == "" ? null : BigNumberString(tx.value),
-                tx.gasPrice == "" ? null : BigNumberString(tx.gasPrice),
-                tx.contractAddress == ""
-                  ? null
-                  : EVMContractAddress(tx.contractAddress),
-                tx.input == "" ? null : tx.input,
-                tx.methodId == "" ? null : tx.methodId,
-                tx.functionName == "" ? null : tx.functionName,
-                null,
-                this.timeUtils.getUnixNow(),
-              );
-            });
-
-            params.page += 1;
-            return this._paginateTransactions(
-              getChainInfoByChain(chain).chainId,
-              params,
-              maxRecords,
-            ).map((otherTxs) => {
-              return [...txs, ...otherTxs];
-            });
-          })
-          .mapErr((e) => {
-            return new AccountIndexingError("error fetching transactions", e);
-          });
-      });
-  }
-
-  private _getBlockNumber(
-    chain: EChain,
-    timestamp: Date | undefined,
-  ): ResultAsync<number, AccountIndexingError> {
-    if (timestamp == undefined) {
-      return okAsync(-1);
-    }
-
-    return ResultUtils.combine([
-      getEtherscanBaseURLForChain(chain),
-      this._getEtherscanApiKey(chain),
-    ]).andThen(([baseUrl, apiKey]) => {
-      const url = new URL(
-        urlJoinP(baseUrl, ["api"], {
-          module: "block",
-          action: "getblocknobytime",
-          timestamp: (timestamp.getTime() / 1000).toFixed(0),
-          closest: "before",
-          apikey: apiKey,
-        }),
-      );
-
-      return this.ajaxUtils
-        .get<IEtherscanBlockNumberResponse>(url)
-        .andThen((resp) => {
-          if (resp.status != "1") {
-            // this is a bit noisy
-            // this.logUtils.warning(
-            //   "error fetching block number for timestamp from etherscan",
-            //   resp.status,
-            //   resp.message,
-            // );
-            return okAsync(0);
-          }
-          return okAsync(Number.parseInt(resp.result));
-        })
-        .mapErr(
-          (e) => new AccountIndexingError("error loading block number", e),
-        );
-    });
-  }
-
-  protected _getEtherscanApiKey(
+  protected _getApiKey(
     chain: EChain,
   ): ResultAsync<string, AccountIndexingError> {
     return ResultUtils.combine([
@@ -407,40 +271,33 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
       const chainInfo = getChainInfoByChain(chain);
       const key = chainInfo.name;
       if (
-        config.apiKeys.etherscanApiKeys[key] == "" ||
-        config.apiKeys.etherscanApiKeys[key] == undefined
+        config.apiKeys.spaceAndTimeKey == "" ||
+        config.apiKeys.spaceAndTimeKey == undefined
       ) {
-        this.logUtils.error("Error inside _getEtherscanApiKey");
+        this.logUtils.error("Error inside _getApiKey");
         return errAsync(
-          new AccountIndexingError("no etherscan api key for chain", chain),
+          new AccountIndexingError("no space and time api key available"),
         );
       }
-
-      // Have to switch based on the chain in order to map to external API
-      let api = EExternalApi.Unknown;
-      switch (chainInfo.chain) {
-        case EChain.EthereumMainnet:
-          api = EExternalApi.EtherscanEthereum;
-          break;
-        case EChain.Binance:
-          api = EExternalApi.EtherscanBinance;
-          break;
-        case EChain.Polygon:
-          api = EExternalApi.EtherscanPolygon;
-          break;
-        case EChain.Avalanche:
-          api = EExternalApi.EtherscanAvalanche;
-          break;
-        case EChain.Moonbeam:
-          api = EExternalApi.EtherscanMoonbeam;
-          break;
-      }
-      context.privateEvents.onApiAccessed.next(api);
+      context.privateEvents.onApiAccessed.next(EExternalApi.SpaceAndTime);
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return okAsync(config.apiKeys.etherscanApiKeys[key]!);
+      return okAsync(config.apiKeys.spaceAndTimeKey!);
     });
   }
+}
+
+interface ISxTTransaction {
+  TRANSACTION_HASH: EVMTransactionHash;
+  BLOCK_NUMBER: BlockNumber;
+  FROM_ADDRESS: EVMAccountAddress;
+  TO_ADDRESS: EVMAccountAddress;
+  VALUE_: BigNumberString;
+  GAS: string;
+  TRANSACTION_FEE: BigNumberString;
+  RECEIPT_CUMULATIVE_GAS_USED: number;
+  TIME_STAMP: UnixTimestamp;
+  RECEIPT_STATUS: number;
 }
 
 interface IEtherscanTransactionResponse {
@@ -471,7 +328,7 @@ interface IEtherscanTransactionResponse {
   }[];
 }
 
-interface IEtherscanTokenBalanceResponse {
+interface ISxTNativeBalanceResponse {
   status: string;
   message: string;
   result: {
@@ -483,23 +340,26 @@ interface IEtherscanTokenBalanceResponse {
   }[];
 }
 
-interface IEtherscanNativeBalanceResponse {
-  status: string;
-  message: string;
-  result: string;
-}
+export class SxTSchemaSupport {
+  public constructor(
+    public chain: EChain,
+    public balances: string,
+    public nfts: string,
+    public transactions: string,
+  ) {}
 
-interface IEtherscanRequestParameters {
-  module: string;
-  action: string;
-  address: EVMAccountAddress;
-  page: number;
-  offset: number;
-  apikey: string;
-}
-
-interface IEtherscanBlockNumberResponse {
-  status: string;
-  message: string;
-  result: BigNumberString;
+  // Static methods are safer on business objects, because they survive serialization.
+  public static isMethodSupported(
+    supportSummary: SxTSchemaSupport,
+    method: EIndexerMethod,
+  ): boolean {
+    if (method == EIndexerMethod.Balances) {
+      return supportSummary.balances;
+    } else if (method == EIndexerMethod.Transactions) {
+      return supportSummary.transactions;
+    } else if (method == EIndexerMethod.NFTs) {
+      return supportSummary.nfts;
+    }
+    return false;
+  }
 }

@@ -23,6 +23,7 @@ export enum EExternalApi {
   POAP = "POAP",
   Polygon = "Polygon",
   Solana = "Solana",
+  SpaceAndTime = "SpaceAndTime",
   Sui = "Sui",
   Dropbox = "Dropbox",
   Unknown = "Unknown",

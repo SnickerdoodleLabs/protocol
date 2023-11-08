@@ -54,7 +54,8 @@ export const coreConfig = {
   ankrApiKey:
     "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
   bluezApiKey: "aed4aab2cbc573bbf8e7c6b448c916e5",
-  spaceAndTimeKey: "",
+  spaceAndTimeKey:
+    "eyJ0eXBlIjoiYWNjZXNzIiwia2lkIjoiZTUxNDVkYmQtZGNmYi00ZjI4LTg3NzItZjVmNjNlMzcwM2JlIiwiYWxnIjoiRVMyNTYifQ.eyJpYXQiOjE2OTkzNzIzOTIsIm5iZiI6MTY5OTM3MjM5MiwiZXhwIjoxNjk5MzczODkyLCJ0eXBlIjoiYWNjZXNzIiwidXNlciI6ImFuZHJld0Bzbmlja2VyZG9vZGxlbGFicy5pbyIsInNlc3Npb24iOiIzNjFkZDgwYzVkZjI3YzQ5ZjBhOTI2MTciLCJzc25fZXhwIjoxNjk5NDU4NzkyNDQxLCJpdGVyYXRpb24iOiJmOTE5M2Q0YTAyNzU0NWQ0ODJjYmZhMDIiLCJ0cmlhbCI6dHJ1ZX0.sciVPEWLH5Z3h6CK-3Zgnnh0VrtSwBa9z5b6zQi2FR0A50YAWYnN9gdzeC46mfNwNXrGp6mcIbEBImRmgFYtnQ",
   blockvisionKey: "2WaEih5fqe8NUavbvaR2PSuVSSp",
   primaryInfuraKey: "7ac88985c1ed458dbd464b2c5245a6e1",
   secondaryInfuraKey: "",
