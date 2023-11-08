@@ -19,6 +19,7 @@ import {
   SolanaNFT,
   EChainTechnology,
   SuiNFT,
+  getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
 import React, { useMemo, useState } from "react";
 
@@ -66,6 +67,28 @@ export default () => {
     accountTestnetNFTs,
   ]);
 
+  const { chains, accounts } = useMemo(() => {
+    return [
+      ...(accountNFTs || ([] as WalletNFT[])),
+      ...(accountTestnetNFTs || ([] as WalletNFT[])),
+    ].reduce(
+      (acc, nft) => {
+        if (!acc.accounts.includes(nft.owner)) {
+          acc.accounts.push(nft.owner);
+        }
+        const nftChainId = getChainInfoByChain(nft.chain).chainId;
+        if (!acc.chains.includes(nftChainId)) {
+          acc.chains.push(nftChainId);
+        }
+        return acc;
+      },
+      {
+        accounts: [] as AccountAddress[],
+        chains: [] as ChainId[],
+      },
+    );
+  }, [accountNFTs, accountTestnetNFTs]);
+
   if (!(linkedAccounts.length > 0)) {
     return <UnauthScreen />;
   }
@@ -73,6 +96,8 @@ export default () => {
   return (
     <Box>
       <AccountChainBar
+        accountAdressesToRender={accounts}
+        chainIdsToRender={chains}
         accountSelect={accountSelect}
         displayMode={displayMode}
         setDisplayMode={setDisplayMode}

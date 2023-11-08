@@ -105,7 +105,7 @@ const useStyles = makeStyles((theme) => ({
 
 const columns = [
   {
-    label: "Start Time",
+    label: "Last Visit",
     render: (value: IndividualVisit) => (
       <SDTypography variant="bodyLg" fontWeight="medium" color="textHeading">
         {formatDateTimeToDdMmYyHhMmAmPm(new Date(value.startTime * 1000))}
