@@ -13,6 +13,7 @@ import {
   EChain,
   EChainTechnology,
   EChainType,
+  EVMAccountAddress,
   EVMTransaction,
   LinkedAccount,
   chainConfig,
@@ -204,24 +205,38 @@ const Transactions = () => {
         );
   }, [transactions, displayMode, selectedAccount, selectedChain]);
 
-  // filter only evm accounts and evm technology chains
+  // filter accounts and chains to render on account chain bar
   const { accounts, chains } = useMemo(() => {
-    const supportedChains = Array.from(chainConfig.values()).reduce(
-      (acc, chain) => {
-        if (chain.chainTechnology === EChainTechnology.EVM) {
-          acc.push(chain.chainId);
+    const accountAdresses = (linkedAccounts || ([] as LinkedAccount[])).map(
+      (account) => account.sourceAccountAddress,
+    );
+    return (transactions || ([] as EVMTransaction[])).reduce(
+      (acc, txn) => {
+        if (
+          accountAdresses.includes(txn.from || ("" as EVMAccountAddress)) &&
+          !acc.accounts.includes(txn.from || ("" as EVMAccountAddress))
+        ) {
+          acc.accounts.push(txn.from || ("" as EVMAccountAddress));
         }
+        if (
+          accountAdresses.includes(txn.to || ("" as EVMAccountAddress)) &&
+          !acc.accounts.includes(txn.to || ("" as EVMAccountAddress))
+        ) {
+          acc.accounts.push(txn.to || ("" as EVMAccountAddress));
+        }
+        const txnChainId = getChainInfoByChain(txn.chain).chainId;
+        if (!acc.chains.includes(txnChainId)) {
+          acc.chains.push(txnChainId);
+        }
+
         return acc;
       },
-      [] as ChainId[],
+      {
+        accounts: [] as AccountAddress[],
+        chains: [] as ChainId[],
+      },
     );
-    return {
-      chains: supportedChains,
-      accounts: (linkedAccounts || ([] as LinkedAccount[]))
-        .filter((account) => account.sourceChain === EChain.EthereumMainnet)
-        .map((account) => account.sourceAccountAddress),
-    };
-  }, [linkedAccounts]);
+  }, [transactions, linkedAccounts]);
 
   if (!(linkedAccounts.length > 0)) {
     return <UnauthScreen />;
