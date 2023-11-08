@@ -229,7 +229,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   );
 
   const rejectInvitation = useCallback(
-    (withTimestamp?: boolean) => {
+    (withTimestamp: boolean) => {
       if (!currentInvitation) return;
       // reject until 12 hours from the current time.
       const rejectUntil = withTimestamp
@@ -290,7 +290,9 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
         case EAPP_STATE.INVITATION_PREVIEW:
           return (
             <DescriptionWidget
-              onRejectClick={rejectInvitation}
+              onRejectClick={() => {
+                rejectInvitation(false);
+              }}
               onRejectWithTimestampClick={() => {
                 rejectInvitation(true);
               }}

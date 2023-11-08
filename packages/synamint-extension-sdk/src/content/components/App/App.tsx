@@ -314,7 +314,7 @@ const App = () => {
   );
 
   const rejectInvitation = useCallback(
-    (withTimestamp?: boolean) => {
+    (withTimestamp: boolean) => {
       if (!currentInvitation) return;
       // reject until 12 hours from the current time.
       const rejectUntil = withTimestamp
@@ -400,7 +400,9 @@ const App = () => {
           <DescriptionWidget
             invitationData={currentInvitation.data.metadata}
             redirectRequired={!(accounts.length > 0)}
-            onRejectClick={rejectInvitation}
+            onRejectClick={() => {
+              rejectInvitation(false);
+            }}
             onRejectWithTimestampClick={() => {
               rejectInvitation(true);
             }}
