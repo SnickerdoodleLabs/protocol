@@ -2,13 +2,13 @@
 
 # EIP-7529
 
-The introduction of DNS-over-HTTPS (DoH) in [RFC 8484](https://www.rfc-editor.org/rfc/rfc8484) has enabled tamper-resistant client-side queries of DNS records directly from the browser context. [ERC-7529](./eip-7529.md) describes a simple standard leveraging DoH to fetch TXT records which are used for discovering and verifying the association of a smart contract with a common DNS domain.
+The introduction of DNS-over-HTTPS (DoH) in [RFC 8484](https://www.rfc-editor.org/rfc/rfc8484) has enabled tamper-resistant client-side queries of DNS records directly from a web application context using standard browser APIs. [ERC-7529](./eip-7529.md) describes a simple standard leveraging DoH to fetch TXT records which are used for discovering and verifying the association of a smart contract with a common DNS domain.
 
 This package is a library for interacting with and verifying EIP-7529 compliant contracts. It manages DoH as well as smart contract manipulation and interaction via the [Ethers](https://github.com/ethers-io/ethers.js) library. It should work on any [EVM-compatible](https://ethereum.org/en/developers/docs/evm) chain.
 
 ## Motivation
 
-As mainstream businesses begin to adopt public blockchain and digital asset technologies more rapidly, there is a growing need for a discovery/search mechanism (compatible with conventional browser resources) of smart contracts associated with a known business domain as well as reasonable assurance that the smart contract does indeed belong to the business owner of the DNS domain. The relatively recent introduction and widespread support of DoH means it is possible to make direct queries of DNS records straight from the browser context and thus leverage a simple TXT record as a pointer to an on-chain smart contract. 
+As mainstream businesses begin to adopt public blockchain and digital asset technologies more rapidly, there is a growing need for a discovery/search mechanism (compatible with conventional browser resources) of smart contracts associated with a known business domain as well as reasonable assurance that the smart contract does indeed belong to the business owner of the DNS domain. The relatively recent introduction and widespread support of DoH means it is possible to make direct queries of DNS records straight from a web application and thus leverage a simple TXT record as a pointer to an on-chain smart contract. 
 
 A TXT pointer coupled with an appropriate smart contract interface (described in this ERC) yields a simple, yet flexible and robust mechanism for the client-side detection and reasonably secure verification of on-chain logic and digital assets associated with a the owner of a domain name. For example, a stablecoin issuer might leverage this standard to provide a method for an end user or web-based end user client to ensure that the asset their wallet is interacting with is indeed the contract issued or controlled by the owner or administrator of a well known DNS domain.
 
@@ -19,6 +19,24 @@ A user visits merchant.com who accepts payments via paymentprocessor.com. The bu
 **Example 2**:
 
 A user visits nftmarketplace.io to buy a limited release NFT from theirfavoritebrand.com. The marketplace app can leverage this ERC to allow the user to search by domain name and also indicate to the user that an NFT of interest is indeed an authentic asset associated with theirfavoritebrand.com. 
+
+## Installation
+
+NPM:
+
+```sh
+npm install @snickerdoodlelabs/erc7529 --save
+npm install @snickerdoodlelabs/objects --save
+npm install @snickerdoodlelabs/contracts-sdk --save
+```
+
+Yarn:
+
+```sh
+yarn add @snickerdoodlelabs/erc7529
+yarn add @snickerdoodlelabs/objects
+yarn add @snickerdoodlelabs/contracts-sdk
+```
 
 ## Contract Pointers in TXT Records 
 
@@ -47,7 +65,7 @@ const chainId = ChainId(43113);
 const results = await staticUtils.getContractsFromDomain(domainName,chainId);
 
 if (results.isOk()) }{
-  console.log("Contracts: ", results.ok);
+  console.log("Contracts: ", results.value);
 }
 ```
 
@@ -69,7 +87,7 @@ Use `@snickerdoodlelabs/contracts-sdk` to interact with this interface on any co
 
 ```typescript
 import { ethers } from "ethers";
-import { ERC7529Contract } from "@snickerdoodlelabs/contracts-sdk";
+import { ERC7529ContractProxy } from "@snickerdoodlelabs/contracts-sdk";
 import {
   ChainId,
   DomainName,
@@ -85,7 +103,7 @@ const myEthersSigner = myEthersProvider.getSigner();
 
 // get an object handle on your contract
 const myContractAddress = EVMContractAddress("0x...");
-const myERC7529Contract = new ERC7529Contract(myEthersSigner, myContractAddress);
+const myERC7529Contract = new ERC7529ContractProxy(myEthersSigner, myContractAddress);
 
 // write domains to a contract if you have write permissions
 await myERC7529Contract.addDomain("example.com");
@@ -94,7 +112,7 @@ await myERC7529Contract.removeDomain("example.com");
 // read domains from a contract if it supports the interface
 const result = await myERC7529Contract.getDomains();
 if (result.isOk()) {
-  console.log("Contract Domains: ", result.ok);
+  console.log("Contract Domains: ", result.value);
 }
 ```
 
@@ -105,7 +123,7 @@ The user client must verify that the eTLD+1 of the TXT record matches an entry i
 ```typescript
 import { ethers } from "ethers";
 import { staticUtils } from "@snickerdoodlelabs/erc7529";
-import { ERC7529Contract } from "@snickerdoodlelabs/contracts-sdk";
+import { ERC7529ContractProxy } from "@snickerdoodlelabs/contracts-sdk";
 import {
   ChainId,
   DomainName,
@@ -122,12 +140,12 @@ const chainId = ChainId(43113);
 const contractAddresses = await staticUtils.getContractsFromDomain(domainName,chainId);
 
 // get an object handle on your contract
-const myContractAddress = contractAddresses.ok[0];
-const myERC7529Contract = new ERC7529Contract(myEthersProvider, myContractAddress);
+const myContractAddress = contractAddresses.value[0];
+const myERC7529Contract = new ERC7529ContractProxy(myEthersProvider, myContractAddress);
 
 // verify that the contracts at those addresses on Fuji testnet point back to snickerdoodle.com 
 const isVerified = await staticUtils.verifyContractForDomain(myERC7529Contract, domainName, chainId);
-console.log(isVerified.ok);
+console.log(isVerified.value);
 ```
 
 ## Security Considerations
