@@ -1,13 +1,13 @@
+import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import MediaRenderer from "@extension-onboarding/components/NFTItem/MediaRenderer";
 import { useStyles } from "@extension-onboarding/components/NFTItem/NFTItem.style";
-import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { POAPMetadata } from "@extension-onboarding/objects";
 import { NftMetadataParseUtils } from "@extension-onboarding/utils";
 import { Box, Grid } from "@material-ui/core";
 import { EVMNFT } from "@snickerdoodlelabs/objects";
 import { SDTypography } from "@snickerdoodlelabs/shared-components";
 import React, { FC, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router";
 
 export interface IPoapNFTItemProps {
   item: EVMNFT;
@@ -17,8 +17,9 @@ export const PoapNFTItem: FC<IPoapNFTItemProps> = ({
   item,
 }: IPoapNFTItemProps) => {
   const classes = useStyles();
-  const navigate = useNavigate();
   const [metadata, setMetadata] = useState<POAPMetadata>();
+
+  const { setModal } = useLayoutContext();
 
   const nftData = useMemo(() => {
     if (item.metadata) {
@@ -58,6 +59,7 @@ export const PoapNFTItem: FC<IPoapNFTItemProps> = ({
       })
       .catch(() => {});
   };
+
   return (
     <Box
       border="1px solid"
@@ -68,17 +70,13 @@ export const PoapNFTItem: FC<IPoapNFTItemProps> = ({
       borderRadius={12}
       p={1}
       style={{ cursor: "pointer" }}
-      onClick={() =>
-        navigate(EPaths.NFT_DETAIL, {
-          state: {
-            item,
-            poapMetadata: metadata,
-            metadataString: item.metadata
-              ? JSON.stringify(item.metadata)
-              : null,
-          },
-        })
-      }
+      onClick={() => {
+        setModal({
+          modalSelector: EModalSelectors.NFT_DETAIL_MODAL,
+          onPrimaryButtonClick: () => {},
+          customProps: { item, nftData, poapMetadata: metadata },
+        });
+      }}
     >
       <Box display="flex" justifyContent="center" mb={1.5}>
         <MediaRenderer nftData={nftData} />

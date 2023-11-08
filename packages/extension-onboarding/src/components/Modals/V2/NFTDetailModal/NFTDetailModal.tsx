@@ -4,7 +4,6 @@ import Container from "@extension-onboarding/components/v2/Container";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { INFT, POAPMetadata } from "@extension-onboarding/objects";
 import {
-  AppBar,
   Box,
   Dialog,
   Grid,
@@ -124,7 +123,7 @@ const NFTDetailModal: FC = () => {
   const classes = useStyles();
   const theme = useTheme();
   const { modalState, closeModal } = useLayoutContext();
-  const { onPrimaryButtonClick, customProps } = modalState;
+  const { customProps } = modalState;
   const { item, nftData, poapMetadata } = customProps as INFTDetailModal;
 
   const handleCloseModal = () => {
@@ -354,6 +353,24 @@ const NFTDetailModal: FC = () => {
                 borderColor="borderColor"
                 borderRadius={12}
               >
+                {nftData?.event?.eventUrl && (
+                  <InfoItem
+                    label="Event URL"
+                    renderValue={() => (
+                      <SDTypography
+                        className={classes.pointer}
+                        variant="bodyLg"
+                        color="textInfo"
+                        fontWeight="medium"
+                        onClick={() => {
+                          window.open(nftData?.event?.eventUrl, "_blank");
+                        }}
+                      >
+                        {abbreviateString(nftData?.event?.eventUrl ?? "")}
+                      </SDTypography>
+                    )}
+                  />
+                )}
                 <InfoItem
                   label="Chain"
                   value={chainConfig.get(item.chain)?.name || ""}

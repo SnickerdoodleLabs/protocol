@@ -6,7 +6,6 @@ export enum EPathsV2 {
   TOKENS = "/data-dashboard/tokens",
   NFTS = "/data-dashboard/nfts",
   AIRDROPS = "/data-dashboard/airdrops",
-  NFT_DETAIL = "/data-dashboard/nfts/detail",
   POAP_NFTS = "/data-dashboard/poap-nfts",
   BROWSER_ACTIVITY = "/data-dashboard/browser-activity",
   SOCIAL_MEDIA_DATA = "/data-dashboard/social-media-data",
