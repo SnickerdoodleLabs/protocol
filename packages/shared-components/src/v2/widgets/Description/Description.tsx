@@ -16,6 +16,7 @@ interface IDescriptionProps {
   onContinueClick: () => void;
   onSetPermissions: () => void;
   onRejectClick: () => void;
+  onRejectWithTimestampClick?: () => void;
   primaryButtonText?: string;
   redirectRequired?: boolean;
 }
@@ -62,6 +63,7 @@ export const DescriptionWidget: FC<IDescriptionProps> = ({
   onContinueClick,
   primaryButtonText = "Continue",
   onRejectClick,
+  onRejectWithTimestampClick,
   redirectRequired = false,
 }) => {
   const media = useMedia();
@@ -187,7 +189,14 @@ export const DescriptionWidget: FC<IDescriptionProps> = ({
           <SDButton variant="text" onClick={onRejectClick}>
             Don’t show me this again
           </SDButton>
-          <SDButton variant="text" onClick={cancelWithAnimation}>
+          <SDButton
+            variant="text"
+            onClick={
+              onRejectWithTimestampClick
+                ? onRejectWithTimestampClick
+                : cancelWithAnimation
+            }
+          >
             Remind me later
           </SDButton>
         </Box>
