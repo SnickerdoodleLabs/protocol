@@ -1,10 +1,10 @@
-import { Box, Fade, Hidden, Theme, makeStyles } from "@material-ui/core";
+import { Box, Fade, Theme, makeStyles } from "@material-ui/core";
+import { AssignmentTurnedInOutlined } from "@material-ui/icons";
 import { LinkedAccount } from "@snickerdoodlelabs/objects/src/businessObjects";
 import {
   useMedia,
   AccountIdentIcon,
   SDTypography,
-  getAccountAddressText,
   abbreviateString,
 } from "@snickerdoodlelabs/shared-components";
 import React, { FC, useEffect } from "react";
@@ -21,8 +21,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     top: 0,
     zIndex: 1,
     left: 0,
-    strokeDasharray: 50,
-    transition: "all 300ms ease-in-out",
   },
 }));
 
@@ -49,7 +47,12 @@ const AccountItem: FC<IAccountItemProps> = ({
       />
       <Box ml={1.5} />
       <Box width={{ xs: undefined, sm: undefined, md: 402 }}>
-        <SDTypography variant="bodyLg" fontWeight="medium" color="textHeading">
+        <SDTypography
+          variant="bodyLg"
+          fontWeight="medium"
+          color="textHeading"
+          hideOverflow
+        >
           {["xs", "sm"].includes(currentBreakPoint)
             ? abbreviateString(
                 account.sourceAccountAddress,
@@ -81,19 +84,7 @@ const AccountItem: FC<IAccountItemProps> = ({
           />
         </Fade>
         <Fade in={isCopied}>
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className={classes.checkIcon}
-          >
-            <path d="M13.25 4.75L6 12L2.75 8.75" />
-          </svg>
+          <AssignmentTurnedInOutlined className={classes.checkIcon} />
         </Fade>
       </Box>
     </Box>

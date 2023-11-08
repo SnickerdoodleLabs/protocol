@@ -18,4 +18,6 @@ export enum EChain {
   Shibuya = 81,
   BinanceTestnet = 97,
   Sui = 101,
+  ZkSyncEra = 324,
+  Base = 8453,
 }
