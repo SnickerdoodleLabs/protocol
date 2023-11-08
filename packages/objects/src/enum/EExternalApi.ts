@@ -2,7 +2,7 @@ export enum EExternalApi {
   PrimaryControl = "Primary Control Chain",
   SecondaryControl = "Secondary Control Chain",
   AlchemyArbitrum = "Alchemy Arbitrum",
-  AlchemyAstar = "Alechemy Astar",
+  AlchemyAstar = "Alchemy Astar",
   AlchemyMumbai = "Alchemy Mumbai",
   AlchemyOptimism = "Alchemy Optimism",
   AlchemyPolygon = "Alchemy Polygon",

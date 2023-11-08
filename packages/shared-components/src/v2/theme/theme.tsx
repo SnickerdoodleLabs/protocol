@@ -209,6 +209,7 @@ export const colors = {
   GREY800: "#424242", // BODY
   GREY700: "#616161", // SUBTITLE
   GREY500: "#9E9E9E", // LIGHT
+  GREY400: "#BDBDBD",
   GREY300: "#E0E0E0", // BORDER
   GREY50: "#fafafa", // BG
 };
