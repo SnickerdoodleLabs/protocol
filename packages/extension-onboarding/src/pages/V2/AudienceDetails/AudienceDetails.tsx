@@ -192,8 +192,6 @@ const AudienceDetails = () => {
     );
   }, [contractEarnedRewards]);
 
-  console.log({ directRewards }, { lazyRewards }, { web2Rewards });
-
   useEffect(() => {
     if (
       location.state &&

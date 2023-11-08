@@ -1,13 +1,13 @@
+import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import MediaRenderer from "@extension-onboarding/components/NFTItem/MediaRenderer";
 import { useStyles } from "@extension-onboarding/components/NFTItem/NFTItem.style";
-import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { useAppContext } from "@extension-onboarding/context/App";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { NftMetadataParseUtils } from "@extension-onboarding/utils";
 import { Box } from "@material-ui/core";
 import { SolanaNFT } from "@snickerdoodlelabs/objects";
 import { SDTypography } from "@snickerdoodlelabs/shared-components";
-import React, { FC, useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-
+import React, { FC, useEffect, useMemo, useState } from "react";
 export interface ISolanaNFTItemProps {
   item: SolanaNFT;
 }
@@ -19,7 +19,6 @@ export const SolanaNFTItem: FC<ISolanaNFTItemProps> = ({
   const { apiGateway } = useAppContext();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [metadata, setMetadata] = useState<any>();
-  const navigate = useNavigate();
 
   useEffect(() => {
     getMetadata();
@@ -47,6 +46,20 @@ export const SolanaNFTItem: FC<ISolanaNFTItemProps> = ({
     }
   }, [JSON.stringify(metadata)]);
 
+  const nftData = useMemo(() => {
+    if (metadata) {
+      return NftMetadataParseUtils.getParsedNFT(JSON.stringify(metadata));
+    }
+    return undefined;
+  }, [metadata]);
+
+  const { setModal } = useLayoutContext();
+
+  const name = useMemo(() => {
+    const _name = nftData?.name ?? item?.name ?? "_";
+    return _name ? _name : "_";
+  }, [nftData]);
+
   return (
     <Box
       border="1px solid"
@@ -57,21 +70,16 @@ export const SolanaNFTItem: FC<ISolanaNFTItemProps> = ({
       borderRadius={12}
       p={1}
       style={{ cursor: "pointer" }}
-      onClick={() =>
-        navigate(EPaths.NFT_DETAIL, {
-          state: {
-            item,
-            metadataString: metadata ? JSON.stringify(metadata) : null,
-          },
-        })
-      }
+      onClick={() => {
+        setModal({
+          modalSelector: EModalSelectors.NFT_DETAIL_MODAL,
+          onPrimaryButtonClick: () => {},
+          customProps: { item, nftData },
+        });
+      }}
     >
       <Box display="flex" justifyContent="center" mb={1.5}>
-        {!isLoading && (
-          <MediaRenderer
-            metadataString={metadata ? JSON.stringify(metadata) : null}
-          />
-        )}
+        <MediaRenderer renderLoading={isLoading} nftData={nftData} />
       </Box>
       <Box my={2}>
         <SDTypography
@@ -79,7 +87,7 @@ export const SolanaNFTItem: FC<ISolanaNFTItemProps> = ({
           fontWeight="medium"
           className={classes.name}
         >
-          {item?.name || "_"}
+          {name}
         </SDTypography>
       </Box>
     </Box>

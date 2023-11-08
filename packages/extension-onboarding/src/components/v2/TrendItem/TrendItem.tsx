@@ -33,11 +33,15 @@ const TrendItem: FC<ITrendItemProps> = ({ item }) => {
     if (item.tokenInfo?.id) {
       fetch(
         `https://api.coingecko.com/api/v3/coins/${item.tokenInfo?.id}/market_chart?days=1&vs_currency=usd`,
-      ).then((res) => {
-        res.json().then((data) => {
-          setPriceHistory(data);
+      )
+        .then((res) => {
+          res.json().then((data) => {
+            setPriceHistory(data);
+          });
+        })
+        .catch((err) => {
+          console.log(err);
         });
-      });
     }
   }, []);
   return (

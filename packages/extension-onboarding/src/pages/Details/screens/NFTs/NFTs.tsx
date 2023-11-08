@@ -1,7 +1,17 @@
+import AccountChainBar from "@extension-onboarding/components/AccountChainBar";
+import {
+  EVMNFTItem,
+  SolanaNFTItem,
+  SuiNFTItem,
+} from "@extension-onboarding/components/NFTItem";
+import Card from "@extension-onboarding/components/v2/Card";
+import CustomSizeGrid from "@extension-onboarding/components/v2/CustomSizeGrid";
+import EmptyItem from "@extension-onboarding/components/v2/EmptyItem";
+import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
 import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
 import {
-  chainConfig,
-  EChainType,
   ChainId,
   WalletNFT,
   AccountAddress,
@@ -9,23 +19,9 @@ import {
   SolanaNFT,
   EChainTechnology,
   SuiNFT,
+  getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
-import React, { useEffect, useMemo, useState } from "react";
-
-import emptyNfts from "@extension-onboarding/assets/images/empty-nfts.svg";
-import AccountChainBar from "@extension-onboarding/components/AccountChainBar";
-import {
-  EVMNFTItem,
-  SolanaNFTItem,
-  SuiNFTItem,
-} from "@extension-onboarding/components/NFTItem";
-import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen";
-import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
-import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/NFTs/NFTs.style";
-import Card from "@extension-onboarding/components/v2/Card";
-import CustomSizeGrid from "@extension-onboarding/components/v2/CustomSizeGrid";
-import EmptyItem from "@extension-onboarding/components/v2/EmptyItem";
+import React, { useMemo, useState } from "react";
 
 export enum EDisplayMode {
   MAINNET,
@@ -33,7 +29,6 @@ export enum EDisplayMode {
 }
 
 export default () => {
-  const classes = useStyles();
   const { accountNFTs, accountTestnetNFTs, isNFTsLoading } =
     useDashboardContext();
   const [accountSelect, setAccountSelect] = useState<AccountAddress>();
@@ -72,6 +67,28 @@ export default () => {
     accountTestnetNFTs,
   ]);
 
+  const { chains, accounts } = useMemo(() => {
+    return [
+      ...(accountNFTs || ([] as WalletNFT[])),
+      ...(accountTestnetNFTs || ([] as WalletNFT[])),
+    ].reduce(
+      (acc, nft) => {
+        if (!acc.accounts.includes(nft.owner)) {
+          acc.accounts.push(nft.owner);
+        }
+        const nftChainId = getChainInfoByChain(nft.chain).chainId;
+        if (!acc.chains.includes(nftChainId)) {
+          acc.chains.push(nftChainId);
+        }
+        return acc;
+      },
+      {
+        accounts: [] as AccountAddress[],
+        chains: [] as ChainId[],
+      },
+    );
+  }, [accountNFTs, accountTestnetNFTs]);
+
   if (!(linkedAccounts.length > 0)) {
     return <UnauthScreen />;
   }
@@ -79,6 +96,8 @@ export default () => {
   return (
     <Box>
       <AccountChainBar
+        accountAdressesToRender={accounts}
+        chainIdsToRender={chains}
         accountSelect={accountSelect}
         displayMode={displayMode}
         setDisplayMode={setDisplayMode}

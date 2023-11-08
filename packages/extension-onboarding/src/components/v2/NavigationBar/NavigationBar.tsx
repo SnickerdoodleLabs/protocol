@@ -11,7 +11,6 @@ import {
   AppBar,
   Box,
   Hidden,
-  IconButton,
   Menu,
   MenuItem,
   Theme,
