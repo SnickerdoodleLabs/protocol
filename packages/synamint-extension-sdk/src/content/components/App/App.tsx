@@ -12,6 +12,7 @@ import {
   Invitation,
   LinkedAccount,
   Signature,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
   DescriptionWidget,
@@ -312,18 +313,29 @@ const App = () => {
     [currentInvitation],
   );
 
-  const rejectInvitation = useCallback(() => {
-    if (!currentInvitation) return;
-    coreGateway
-      .rejectInvitation(currentInvitation.data.invitation)
-      .map(() => {
-        emptyReward();
-      })
-      .mapErr(() => {
-        emptyReward();
-        console.warn(" Data Wallet:  Unable to reject invitation:", err);
-      });
-  }, [currentInvitation]);
+  const rejectInvitation = useCallback(
+    (withTimestamp: boolean) => {
+      if (!currentInvitation) return;
+      // reject until 36 hours from the current time.
+      const rejectUntil = withTimestamp
+        ? UnixTimestamp(
+            Math.floor(
+              new Date(Date.now() + 36 * 60 * 60 * 1000).getTime() / 1000,
+            ),
+          )
+        : undefined;
+      coreGateway
+        .rejectInvitation(currentInvitation.data.invitation, rejectUntil)
+        .map(() => {
+          emptyReward();
+        })
+        .mapErr(() => {
+          emptyReward();
+          console.warn(" Data Wallet:  Unable to reject invitation:", err);
+        });
+    },
+    [currentInvitation],
+  );
 
   // #endregion
 
@@ -388,7 +400,12 @@ const App = () => {
           <DescriptionWidget
             invitationData={currentInvitation.data.metadata}
             redirectRequired={!(accounts.length > 0)}
-            onRejectClick={rejectInvitation}
+            onRejectClick={() => {
+              rejectInvitation(false);
+            }}
+            onRejectWithTimestampClick={() => {
+              rejectInvitation(true);
+            }}
             primaryButtonText={
               accounts.length > 0 ? "Continue" : "Connect and Continue"
             }
