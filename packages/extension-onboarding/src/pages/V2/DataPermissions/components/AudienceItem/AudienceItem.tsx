@@ -4,10 +4,10 @@ import CustomSDSwitch from "@extension-onboarding/components/v2/Switch/";
 import { PERMS } from "@extension-onboarding/constants/permissionsV2";
 import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
 import { generateRouteUrl } from "@extension-onboarding/containers/Router/utils";
-import { useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import { useAccordionStyles } from "@extension-onboarding/styles/accordion.style";
 import {
   Accordion,
   AccordionDetails,
@@ -15,7 +15,6 @@ import {
   Box,
   Divider,
   Hidden,
-  makeStyles,
 } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Skeleton } from "@material-ui/lab";
@@ -44,64 +43,6 @@ import React, {
 } from "react";
 import { useNavigate } from "react-router-dom";
 
-const useStyles = makeStyles((theme) => ({
-  accordionRoot: {
-    border: `1px solid ${theme.palette.borderColor}`,
-    transition: "border 0.2s ease-in-out",
-    borderRadius: "8px !important",
-    "&:before": {
-      display: "none",
-    },
-  },
-  accordion: {
-    "& .MuiPaper-rounded": {
-      boxShadow: "none",
-    },
-    "& .MuiAccordionDetails-root": {
-      padding: 0,
-      paddingLeft: 32,
-      paddingRight: 32,
-    },
-    "& .MuiAccordionSummary-root": {
-      flexDirection: "row-reverse",
-      padding: 0,
-      paddingLeft: 32,
-      paddingRight: 32,
-      [theme.breakpoints.down("xs")]: {
-        flexDirection: "row",
-        alignItems: "flex-start",
-        paddingLeft: 24,
-        paddingRight: 24,
-      },
-    },
-    "& .MuiIconButton-edgeEnd": {
-      margin: 0,
-      padding: 0,
-      marginRight: 24,
-      [theme.breakpoints.down("xs")]: {
-        position: "absolute",
-        right: 24,
-        top: 12,
-        marginRight: 0,
-        marginLeft: 0,
-      },
-      "& .Mui-expanded": {
-        marginRight: 24,
-        margin: 0,
-        padding: 0,
-      },
-    },
-    "& .MuiAccordionSummary-content": {
-      alignItems: "center",
-      marginRight: 0,
-      "& .Mui-expanded": {
-        margin: 0,
-        marginRight: 0,
-      },
-    },
-  },
-}));
-
 interface IContractInfo {
   metadata: IOldUserAgreement | IUserAgreement;
   urls: URLString[];
@@ -114,7 +55,7 @@ const AudienceItem: FC<IAudienceItemProps> = ({
   ipfsCID,
   contractAddress,
 }: IAudienceItemProps) => {
-  const classes = useStyles();
+  const classes = useAccordionStyles();
   const { sdlDataWallet } = useDataWalletContext();
   const lastSetPermissions = useRef<EWalletDataType[]>();
   const [contractInfo, setContractInfo] = useState<IContractInfo>();

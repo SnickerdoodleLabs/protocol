@@ -134,7 +134,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       4000,
       new NativeCurrencyInformation("AVAX", 18, "AVAX", "avalanche-2"),
       EChainType.Mainnet,
-      "https=//snowtrace.io/block/",
+      "https://snowtrace.io/tx/",
       getExplorerUrl,
       URLString("https://api.snowtrace.io/"),
     ),
