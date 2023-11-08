@@ -27,6 +27,7 @@ export class PolygonTransaction extends EVMTransaction {
     public contractAddress: EVMContractAddress | null,
     public tokenId: BigNumberString | null,
     public type: EPolygonTransactionType,
+    public measurementDate: UnixTimestamp,
   ) {
     super(
       chainId,
@@ -42,6 +43,7 @@ export class PolygonTransaction extends EVMTransaction {
       null,
       null,
       null,
+      measurementDate,
     );
   }
 }

@@ -1,5 +1,5 @@
 import { Box, Grid, Typography } from "@material-ui/core";
-import { Button } from "@snickerdoodlelabs/shared-components";
+import {  SDButton } from "@snickerdoodlelabs/shared-components";
 import React, { useEffect, useState } from "react";
 
 import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
@@ -53,14 +53,14 @@ const InstallationRequired = () => {
                   brands you love
                 </Typography>
               </Box>
-              <Button
+              <SDButton
                 style={{ width: 187 }}
                 onClick={() => {
                   window.open(DOWNLOAD_URL, "_blank");
                 }}
               >
                 Get Extension
-              </Button>
+              </SDButton>
             </Box>
           </Grid>
 

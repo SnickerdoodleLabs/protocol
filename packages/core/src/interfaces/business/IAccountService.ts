@@ -29,6 +29,7 @@ import {
   UnauthorizedError,
   AccountIndexingError,
   SiteVisitsMap,
+  TransactionFlowInsight,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -103,7 +104,7 @@ export interface IAccountService {
   ): ResultAsync<ChainTransaction[], PersistenceError>;
 
   getTransactionValueByChain(): ResultAsync<
-    TransactionPaymentCounter[],
+    TransactionFlowInsight[],
     PersistenceError
   >;
 

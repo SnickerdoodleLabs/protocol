@@ -1,6 +1,7 @@
 export enum EDataProvider {
   Etherscan = "Etherscan",
   Ankr = "Ankr",
+  Blockvision = "Blockvision",
   Bluez = "Bluez",
   Poap = "Poap",
   EtherscanNative = "EtherscanNative",
@@ -8,6 +9,7 @@ export enum EDataProvider {
   Alchemy = "Alchemy",
   Oklink = "Oklink",
   Solana = "Solana",
+  Sui = "Sui",
   NftScan = "NftScan",
   Moralis = "Moralis",
   Matic = "Matic",

@@ -20,6 +20,8 @@ process.env.__POAP_API_KEY__ = "";
 process.env.__OKLINK_API_KEY__ = "";
 process.env.__ANKR_API_KEY__ = "";
 process.env.__BLUEZ_API_KEY__ = "";
+process.env.__SPACEANDTIME_API_KEY__ = "";
+process.env.__BLOCKVISION_API_KEY__ = "";
 
 process.env.__ALCHEMY_ARBITRUM_API_KEY__ = "";
 process.env.__ALCHEMY_ASTAR_API_KEY__ = "";

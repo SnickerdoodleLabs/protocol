@@ -4,6 +4,7 @@ import {
   TypedDataDomain,
   TypedDataField,
 } from "@ethersproject/abstract-signer";
+import { verifyPersonalMessage } from "@mysten/sui.js/verify";
 import {
   AESEncryptedString,
   AESKey,
@@ -28,6 +29,7 @@ import {
   URLString,
   UUID,
   OAuth1Config,
+  SuiAccountAddress,
 } from "@snickerdoodlelabs/objects";
 // import argon2 from "argon2";
 import { BigNumber, ethers } from "ethers";
@@ -256,6 +258,39 @@ export class CryptoUtils implements ICryptoUtils {
       ethers.utils.verifyMessage(message, signature),
     );
     return okAsync(address);
+  }
+
+  /**
+   * Sui signatures are documented here: https://docs.sui.io/learn/cryptography/sui-signatures
+   * @param message
+   * @param signature
+   * @param accountAddress
+   * @returns a boolean representing if the message was signed by the provided account address
+   */
+  public verifySuiSignature(
+    message: string,
+    signature: Signature,
+    accountAddress: SuiAccountAddress,
+  ): ResultAsync<boolean, never> {
+    return ResultAsync.fromPromise(
+      verifyPersonalMessage(Buffer.from(message, "utf-8"), signature),
+      (e) => {
+        return e as Error;
+      },
+    )
+      .map((publicKey) => {
+        const recoveredAccountAddress = SuiAccountAddress(
+          publicKey.toSuiAddress(),
+        );
+        return (
+          recoveredAccountAddress.toLowerCase() == accountAddress.toLowerCase()
+        );
+      })
+      .orElse((e) => {
+        // The signature is almost certainly invalid; verifyPersonalMessage returns an error if the crypto fails
+        // in the verification step
+        return okAsync(false);
+      });
   }
 
   public verifySolanaSignature(

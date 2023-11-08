@@ -14,9 +14,10 @@ import {
   QueryStatus,
   EVMContractAddress,
   BlockNumber,
-  DomainName,
   ChainTransaction,
   TransactionFilter,
+  TransactionFlowInsight,
+  DomainName,
   TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -38,6 +39,7 @@ export class AccountRepository implements IAccountRepository {
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
   ) {}
+
   getQueryStatusByQueryCID(
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, SnickerDoodleCoreError> {
@@ -98,7 +100,7 @@ export class AccountRepository implements IAccountRepository {
   }
   public getTransactionValueByChain(
     sourceDomain?: DomainName,
-  ): ResultAsync<TransactionPaymentCounter[], SnickerDoodleCoreError> {
+  ): ResultAsync<TransactionFlowInsight[], SnickerDoodleCoreError> {
     return this.core
       .getTransactionValueByChain(sourceDomain)
       .mapErr((error) => {

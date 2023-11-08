@@ -8,11 +8,10 @@ export const useStyles = makeStyles((theme) => ({
     cursor: "pointer",
   },
   linkTitle: {
-    fontFamily: "Space Grotesk",
-    fontStyle: "normal",
-    fontWeight: 400,
+    fontFamily: "Roboto",
+    fontWeight: 500,
     fontSize: "16px",
     lineHeight: "20px",
-    color: "#232039",
+    color: "#FFF",
   },
 }));

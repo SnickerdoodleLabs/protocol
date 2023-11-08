@@ -3,6 +3,7 @@ import {
   IpfsCID,
   PersistenceError,
   SDQL_Return,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_SubQuery,
@@ -27,9 +28,10 @@ export class QueryRepository implements IQueryRepository {
     cid: IpfsCID,
     q: AST_SubQuery,
     dataPermissions: DataPermissions,
+    queryTimestamp: UnixTimestamp,
   ): ResultAsync<SDQL_Return, PersistenceError> {
     return this.isSubQueryPermitted(q, dataPermissions)
-      ? this.queryValuator.eval(q, cid)
+      ? this.queryValuator.eval(q, cid, queryTimestamp)
       : okAsync(SDQL_Return(null));
   }
 

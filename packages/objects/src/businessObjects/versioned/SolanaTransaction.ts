@@ -13,7 +13,8 @@ export class SolanaTransaction extends ChainTransaction {
     public slot: number,
     public err: object | null,
     public memo: string | null,
+    public measurementDate: UnixTimestamp,
   ) {
-    super(chainId, hash, timestamp);
+    super(chainId, hash, timestamp, measurementDate);
   }
 }

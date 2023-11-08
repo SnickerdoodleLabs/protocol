@@ -45,6 +45,7 @@ const errorCodes = {
   InvalidAddressError: "ERR_INVALID_ADDRESS",
   ExecutionRevertedError: "ERR_EXECUTION_REVERTED",
   ProofError: "ERR_PROOF",
+  SingerUnavailableError: "ERR_SIGNER_UNAVAILABLE",
   //SDQL errors
   OperandTypeError: "ER_SDQL_OPERAND_TYPE",
   ConditionOperandTypeError: "ERR_SDQL_CONDITION_OPERAND_TYPE",

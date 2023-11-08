@@ -1,8 +1,8 @@
 import {
   EVMContractAddress,
   IOldUserAgreement,
+  IUserAgreement,
   Invitation,
-  InvitationDomain,
 } from "@snickerdoodlelabs/objects";
 import { Subject } from "rxjs";
 
@@ -14,7 +14,7 @@ export enum EInvitationSourceType {
 
 export interface IInvitationDisplayRequestData {
   invitation: Invitation;
-  metadata: IOldUserAgreement | InvitationDomain;
+  metadata: IOldUserAgreement | IUserAgreement;
 }
 
 export interface IInvitationDisplayRequest {

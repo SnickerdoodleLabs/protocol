@@ -6,9 +6,11 @@ import {
   IAlchemyIndexerType,
   IAnkrIndexerType,
   IBluezIndexerType,
+  IBlockvisionIndexerType,
   ICovalentEVMTransactionRepositoryType,
   IEtherscanIndexerType,
   IEVMIndexer,
+  ISuiIndexer,
   IMoralisEVMPortfolioRepositoryType,
   INftScanEVMPortfolioRepositoryType,
   IOklinkIndexerType,
@@ -23,6 +25,7 @@ import {
   AnkrIndexer,
   AlchemyIndexer,
   BluezIndexer,
+  BlockvisionIndexer,
   CovalentEVMTransactionRepository,
   EtherscanIndexer,
   MoralisEVMPortfolioRepository,
@@ -48,6 +51,7 @@ export const indexersModule = new ContainerModule(
     /* EVM compatible Indexers */
     bind<IEVMIndexer>(IAnkrIndexerType).to(AnkrIndexer).inSingletonScope();
     bind<IEVMIndexer>(IBluezIndexerType).to(BluezIndexer).inSingletonScope();
+
     bind<IEVMIndexer>(IAlchemyIndexerType)
       .to(AlchemyIndexer)
       .inSingletonScope();
@@ -85,6 +89,11 @@ export const indexersModule = new ContainerModule(
     /* Solana Indexers */
     bind<ISolanaIndexer>(ISolanaIndexerType)
       .to(SolanaIndexer)
+      .inSingletonScope();
+
+    /* Sui Indexers */
+    bind<ISuiIndexer>(IBlockvisionIndexerType)
+      .to(BlockvisionIndexer)
       .inSingletonScope();
   },
 );

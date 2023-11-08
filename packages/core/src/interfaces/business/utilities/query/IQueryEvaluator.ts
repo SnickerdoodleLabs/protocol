@@ -3,6 +3,7 @@ import {
   PersistenceError,
   PublicEvents,
   SDQL_Return,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_PropertyQuery,
@@ -14,6 +15,7 @@ export interface IQueryEvaluator {
   eval(
     query: AST_SubQuery,
     queryCID: IpfsCID,
+    queryTimestamp: UnixTimestamp,
   ): ResultAsync<SDQL_Return, PersistenceError>;
   evalPropertyQuery(
     q: AST_PropertyQuery,

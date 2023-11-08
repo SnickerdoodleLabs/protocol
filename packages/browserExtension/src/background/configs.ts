@@ -39,6 +39,8 @@ declare const __POAP_API_KEY__: string;
 declare const __OKLINK_API_KEY__: string;
 declare const __ANKR_API_KEY__: string;
 declare const __BLUEZ_API_KEY__: string;
+declare const __SPACEANDTIME_API_KEY__: string;
+declare const __BLOCKVISION_API_KEY__: string;
 declare const __PRIMARY_INFURA_KEY__: string;
 declare const __SECONDARY_INFURA_KEY__: string;
 
@@ -67,12 +69,8 @@ const ONE_MINUTE_MS = 60000;
 const _buildDiscordConfig = (): Partial<DiscordConfig> => {
   const oauthRedirectUrl =
     typeof __ONBOARDING_URL__ !== "undefined" && !!__ONBOARDING_URL__
-      ? URLString(
-          urlJoin(__ONBOARDING_URL__, "/data-dashboard/social-media-data"),
-        )
-      : URLString(
-          "https://datawallet.snickerdoodle.com/data-dashboard/social-media-data",
-        );
+      ? URLString(urlJoin(__ONBOARDING_URL__, "/settings"))
+      : URLString("https://datawallet.snickerdoodle.com/settings");
 
   const discordConfig = {
     oauthRedirectUrl,
@@ -100,12 +98,8 @@ const _buildDiscordConfig = (): Partial<DiscordConfig> => {
 const _buildTwitterConfig = (): Partial<TwitterConfig> => {
   const oauthRedirectUrl =
     typeof __ONBOARDING_URL__ !== "undefined" && !!__ONBOARDING_URL__
-      ? URLString(
-          urlJoin(__ONBOARDING_URL__, "/data-dashboard/social-media-data"),
-        )
-      : URLString(
-          "https://datawallet.snickerdoodle.com/data-dashboard/social-media-data",
-        );
+      ? URLString(urlJoin(__ONBOARDING_URL__, "/settings"))
+      : URLString("https://datawallet.snickerdoodle.com/settings");
 
   const twitterConfig = {
     oAuthCallbackUrl: URLString(oauthRedirectUrl),
@@ -281,7 +275,16 @@ export const configs: IExtensionConfigOverrides = {
       typeof __BLUEZ_API_KEY__ !== "undefined" && !!__BLUEZ_API_KEY__
         ? __BLUEZ_API_KEY__
         : undefined,
-
+    spaceAndTimeKey:
+      typeof __SPACEANDTIME_API_KEY__ !== "undefined" &&
+      !!__SPACEANDTIME_API_KEY__
+        ? __SPACEANDTIME_API_KEY__
+        : undefined,
+    blockvisionKey:
+      typeof __BLOCKVISION_API_KEY__ !== "undefined" &&
+      !!__BLOCKVISION_API_KEY__
+        ? __BLOCKVISION_API_KEY__
+        : undefined,
     primaryInfuraKey:
       typeof __PRIMARY_INFURA_KEY__ !== "undefined" && !!__PRIMARY_INFURA_KEY__
         ? __PRIMARY_INFURA_KEY__

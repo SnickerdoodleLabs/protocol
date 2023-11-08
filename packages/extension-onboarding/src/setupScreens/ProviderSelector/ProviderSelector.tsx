@@ -1,13 +1,11 @@
-import { Box } from "@material-ui/core";
-import { Radio } from "@snickerdoodlelabs/shared-components";
-import React, { FC, useMemo } from "react";
-
 import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
-import Typography from "@extension-onboarding/components/Typography/Typography";
 import {
   ISdlDataWalletProxy,
   IWindowWithSdlDataWallet,
 } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import { Box } from "@material-ui/core";
+import { SDTypography } from "@snickerdoodlelabs/shared-components";
+import React, { FC, useMemo } from "react";
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -27,13 +25,15 @@ const ProviderSelector: FC<IProviderSelectorProps> = ({ onProviderSelect }) => {
       <Box>
         <img src={snickerDoodleLogo} />
         <Box mt={1} mb={1}>
-          <Typography variant="pageTitle">Welcome to Snickerdoodle</Typography>
+          <SDTypography variant="titleXl">
+            Welcome to Snickerdoodle
+          </SDTypography>
         </Box>
-        <Typography variant="pageDescription">
+        <SDTypography variant="titleSm">
           Multiple extensions installed in your browser are using snickerdoodle
           protocol.
           <br /> Please select a provider you want to continue with.
-        </Typography>
+        </SDTypography>
         <Box mt={2}>
           {providerList.map((provider) => (
             <Box
@@ -50,15 +50,9 @@ const ProviderSelector: FC<IProviderSelectorProps> = ({ onProviderSelect }) => {
                 onProviderSelect(provider);
               }}
             >
-              <Typography variant="pageDescription">{provider.name}</Typography>
+              <SDTypography variant="bodyLg">{provider.name}</SDTypography>
             </Box>
           ))}
-        </Box>
-        <Box display="flex" alignItems="center">
-          <Radio />
-          <Box>
-            <Typography>Remember my choice.</Typography>
-          </Box>
         </Box>
       </Box>
     </Box>

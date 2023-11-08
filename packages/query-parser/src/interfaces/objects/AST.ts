@@ -1,6 +1,7 @@
 import {
   ISDQLCompensationParameters,
   SDQL_Name,
+  UnixTimestamp,
   Version,
 } from "@snickerdoodlelabs/objects";
 
@@ -21,5 +22,6 @@ export class AST {
     readonly insights: Map<SDQL_Name, AST_Insight>,
     readonly compensationParameters: ISDQLCompensationParameters | null,
     readonly compensations: Map<SDQL_Name, AST_Compensation>,
+    readonly queryTimestamp: UnixTimestamp,
   ) {}
 }

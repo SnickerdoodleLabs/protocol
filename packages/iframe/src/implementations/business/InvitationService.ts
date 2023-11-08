@@ -145,7 +145,7 @@ export class InvitationService implements IInvitationService {
                       events.onInvitationDisplayRequested.next({
                         data: {
                           invitation: pageInvitaiton.invitation,
-                          metadata: pageInvitaiton.domainDetails,
+                          metadata: pageInvitaiton.invitationMetadata,
                         },
                         type: EInvitationSourceType.DOMAIN,
                       });

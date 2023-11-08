@@ -1,10 +1,9 @@
 import {
-  DomainName,
   EVMContractAddress,
-  InvitationDomain,
   IOldUserAgreement,
   IpfsCID,
   IPFSError,
+  IUserAgreement,
   OptInInfo,
   PersistenceError,
   UnixTimestamp,
@@ -35,13 +34,9 @@ export interface IInvitationRepository {
     addressesToRemove: EVMContractAddress[],
   ): ResultAsync<void, PersistenceError>;
 
-  getInvitationDomainByCID(
-    cid: IpfsCID,
-    domain: DomainName,
-  ): ResultAsync<InvitationDomain | null, IPFSError>;
   getInvitationMetadataByCID(
     cid: IpfsCID,
-  ): ResultAsync<IOldUserAgreement, IPFSError>;
+  ): ResultAsync<IOldUserAgreement | IUserAgreement, IPFSError>;
 
   /**
    * Returns a list of consent contract addresses that the user has rejected

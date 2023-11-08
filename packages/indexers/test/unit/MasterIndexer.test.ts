@@ -23,6 +23,7 @@ import {
   UnixTimestamp,
   EVMTransactionHash,
   EIndexerMethod,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import * as td from "testdouble";
@@ -32,6 +33,7 @@ import {
   IIndexerConfigProvider,
   IIndexerContextProvider,
   ISolanaIndexer,
+  ISuiIndexer,
 } from "@indexers/interfaces/index.js";
 import { MasterIndexer } from "@indexers/MasterIndexer.js";
 import { ContextProviderMock } from "@indexers-test/mock/ContextProviderMock";
@@ -45,7 +47,7 @@ const tokenDecimals = 18;
 const tokenId = BigNumberString("1");
 const timestamp = UnixTimestamp(12345);
 const evmTransactionHash1 = EVMTransactionHash("hash1");
-
+const iso = UnixTimestamp(11);
 class EVMIndexerMock implements IEVMIndexer {
   public constructor(
     public _name: string,
@@ -129,6 +131,7 @@ class MasterIndexerMocks {
   public alchemy: EVMIndexerMock;
   public ankr: EVMIndexerMock;
   public bluez: EVMIndexerMock;
+  public blockvision: ISuiIndexer;
   public covalent: EVMIndexerMock;
   public etherscan: EVMIndexerMock;
   public moralis: EVMIndexerMock;
@@ -197,6 +200,7 @@ class MasterIndexerMocks {
       new Map<EChain, IndexerSupportSummary>(),
     );
     this.sol = td.object<ISolanaIndexer>();
+    this.blockvision = td.object<ISuiIndexer>();
     this.bigNumberUtils = td.object<IBigNumberUtils>();
 
     this.configProvider = td.object<IIndexerConfigProvider>();
@@ -220,6 +224,7 @@ class MasterIndexerMocks {
       this.context,
       this.alchemy,
       this.ankr,
+      this.blockvision,
       this.bluez,
       this.covalent,
       this.etherscan,
@@ -278,6 +283,7 @@ class MasterIndexerMocks {
       null,
       null,
       null,
+      iso,
     );
   }
 }

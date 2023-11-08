@@ -87,7 +87,6 @@ export const DataWalletContextProvider: FC = ({ children }) => {
   }, [sdlDataWallet]);
 
   const render = useMemo(() => {
-    if (isMobile) return <MobileScreen />;
     switch (setupStatus) {
       case ESetupStatus.WAITING:
         return <Loading />;
@@ -106,7 +105,7 @@ export const DataWalletContextProvider: FC = ({ children }) => {
       default:
         return <>DEFAULT</>;
     }
-  }, [setupStatus, isMobile]);
+  }, [setupStatus]);
 
   return (
     <DataWalletContext.Provider value={{ sdlDataWallet }}>

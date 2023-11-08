@@ -1,8 +1,14 @@
+import { ITimeUtilsType, ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   EVMAccountAddress,
   TransactionFilter,
   PersistenceError,
   SDQL_Return,
+  UnixTimestamp,
+  ISO8601DateString,
+  BlockchainInteractionInsight,
+  ETimePeriods,
+  ChainTransaction,
   PublicEvents,
   QueryPerformanceEvent,
   EQueryEvents,
@@ -37,22 +43,11 @@ export class BlockchainTransactionQueryEvaluator
   public eval(
     query: AST_BlockchainTransactionQuery,
     queryCID: IpfsCID,
+    queryTimestamp: UnixTimestamp,
   ): ResultAsync<SDQL_Return, PersistenceError> {
     return this.contextProvider.getContext().andThen((context) => {
-      const chainId = query.contract.networkId;
-      const address = query.contract.address as EVMAccountAddress;
-      const startTime = query.contract.timestampRange.start;
-      const endTime = query.contract.timestampRange.end;
-
-      const filter = new TransactionFilter(
-        [chainId],
-        [address],
-        undefined,
-        startTime,
-        endTime,
-      );
-
-      if (query.returnType == "object") {
+      // Aggregate Transactions
+      if (query.type === "chain_transactions") {
         context.publicEvents.queryPerformance.next(
           new QueryPerformanceEvent(
             EQueryEvents.ChainTransactionDataAccess,
@@ -62,109 +57,7 @@ export class BlockchainTransactionQueryEvaluator
           ),
         );
         return this.transactionHistoryRepo
-          .getTransactions(filter)
-          .andThen((transactions) => {
-            context.publicEvents.queryPerformance.next(
-              new QueryPerformanceEvent(
-                EQueryEvents.ChainTransactionDataAccess,
-                EStatus.End,
-                queryCID,
-                query.name,
-              ),
-            );
-            if (transactions == null) {
-              return okAsync(
-                SDQL_Return({
-                  networkId: chainId,
-                  address: address,
-                  return: false,
-                }),
-              );
-            }
-            if (transactions.length == 0) {
-              return okAsync(
-                SDQL_Return({
-                  networkId: chainId,
-                  address: address,
-                  return: false,
-                }),
-              );
-            }
-
-            return okAsync(
-              SDQL_Return({
-                networkId: chainId,
-                address: address,
-                return: true,
-              }),
-            );
-          })
-          .mapErr((err) => {
-            context.publicEvents.queryPerformance.next(
-              new QueryPerformanceEvent(
-                EQueryEvents.ChainTransactionDataAccess,
-                EStatus.End,
-                queryCID,
-                query.name,
-                err,
-              ),
-            );
-            return err;
-          });
-      } else if (query.returnType == "boolean") {
-        context.publicEvents.queryPerformance.next(
-          new QueryPerformanceEvent(
-            EQueryEvents.ChainTransactionDataAccess,
-            EStatus.Start,
-            queryCID,
-            query.name,
-          ),
-        );
-        return this.transactionHistoryRepo
-          .getTransactions(filter)
-          .andThen((transactions) => {
-            context.publicEvents.queryPerformance.next(
-              new QueryPerformanceEvent(
-                EQueryEvents.ChainTransactionDataAccess,
-                EStatus.End,
-                queryCID,
-                query.name,
-              ),
-            );
-            if (transactions == null) {
-              return okAsync(SDQL_Return(false));
-            }
-            if (transactions.length == 0) {
-              return okAsync(SDQL_Return(false));
-            }
-
-            return okAsync(SDQL_Return(true));
-          })
-          .mapErr((err) => {
-            context.publicEvents.queryPerformance.next(
-              new QueryPerformanceEvent(
-                EQueryEvents.ChainTransactionDataAccess,
-                EStatus.End,
-                queryCID,
-                query.name,
-                err,
-              ),
-            );
-            return err;
-          });
-      }
-
-      if (query.name == "chain_transactions") {
-        context.publicEvents.queryPerformance.next(
-          new QueryPerformanceEvent(
-            EQueryEvents.ChainTransactionDataAccess,
-            EStatus.Start,
-            queryCID,
-            query.name,
-          ),
-        );
-        return this.transactionHistoryRepo
-          .getTransactionByChain()
+          .getTransactionByChain(queryTimestamp)
           .andThen((transactionsArray) => {
             context.publicEvents.queryPerformance.next(
               new QueryPerformanceEvent(
@@ -190,7 +83,99 @@ export class BlockchainTransactionQueryEvaluator
           });
       }
 
+      // Transactions related to a specific address, e.g. Dapp Query
+      if (query.contract != null && query.chain != null) {
+        const chainId = query.contract.networkId;
+        const address = EVMAccountAddress(query.contract.address);
+        const startTime = query.contract.timestampRange.start;
+        const endTime = query.contract.timestampRange.end;
+        const filter = new TransactionFilter(
+          [chainId],
+          [address],
+          undefined,
+          startTime,
+          endTime,
+        );
+        context.publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.TransactionDataAccess,
+            EStatus.Start,
+            queryCID,
+            query.name,
+          ),
+        );
+        return this.transactionHistoryRepo
+          .getTransactions(filter)
+          .map((transactions) => {
+            context.publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.TransactionDataAccess,
+                EStatus.End,
+                queryCID,
+                query.name,
+              ),
+            );
+            if (query.returnType == "object") {
+              if (transactions === null || transactions.length === 0) {
+                return SDQL_Return(
+                  new BlockchainInteractionInsight(chainId, address, false),
+                );
+              }
+              const latestTransaction = this.getLatestTransaction(transactions);
+              const timePeriod =
+                this.transactionHistoryRepo.determineTimePeriod(
+                  latestTransaction.timestamp,
+                  queryTimestamp,
+                );
+              if (timePeriod === null) {
+                return SDQL_Return(
+                  new BlockchainInteractionInsight(chainId, address, false),
+                );
+              }
+              return SDQL_Return(
+                new BlockchainInteractionInsight(
+                  chainId,
+                  address,
+                  true,
+                  timePeriod,
+                  latestTransaction.measurementDate,
+                ),
+              );
+            } else if (query.returnType == "boolean") {
+              if (transactions === null || transactions.length === 0) {
+                return SDQL_Return(false);
+              }
+              return SDQL_Return(true);
+            }
+            return SDQL_Return(false);
+          })
+          .mapErr((err) => {
+            context.publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.TransactionDataAccess,
+                EStatus.End,
+                queryCID,
+                query.name,
+                err,
+              ),
+            );
+            return err;
+          });
+      }
       return okAsync(SDQL_Return(false));
     });
+  }
+
+  protected getLatestTransaction(
+    transactions: ChainTransaction[],
+  ): ChainTransaction {
+    return transactions.reduce((latest, current) => {
+      return current.timestamp > latest.timestamp ? current : latest;
+    });
+  }
+
+  protected isHexadecimal(value: number | string): boolean {
+    const hexString = typeof value === "number" ? value.toString(16) : value;
+    return /^(0x)?[0-9a-fA-F]+$/.test(hexString);
   }
 }

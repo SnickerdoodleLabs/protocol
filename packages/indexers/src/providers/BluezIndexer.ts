@@ -4,6 +4,8 @@ import {
   ILogUtils,
   ILogUtilsType,
   ObjectUtils,
+  ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   EChainTechnology,

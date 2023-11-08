@@ -34,6 +34,7 @@ import {
   ITokenPriceRepository,
   AccountIndexingError,
   SiteVisitsMap,
+  TransactionFlowInsight,
   getChainInfoByChain,
   EChainTechnology,
 } from "@snickerdoodlelabs/objects";
@@ -283,7 +284,6 @@ export class AccountService implements IAccountService {
             ),
           );
         }
-
         // Check if the account is already linked
         return this.accountRepo
           .getLinkedAccount(accountAddress, chain)
@@ -418,15 +418,14 @@ export class AccountService implements IAccountService {
         return this.accountRepo
           .removeAccount(accountAddress)
           .andThen(() => {
-            // We need to post a backup immediately upon adding an account, so that we don't lose access
-            return this.dataWalletPersistence.postBackups();
-          })
-          .map(() => {
             // Notify the outside world of what we did
             context.publicEvents.onAccountRemoved.next(
               new LinkedAccount(chain, accountAddress),
             );
-          });
+            // We need to post a backup immediately upon adding an account, so that we don't lose access
+            return this.dataWalletPersistence.postBackups();
+          })
+          .map(() => {});
       });
   }
 
@@ -470,7 +469,7 @@ export class AccountService implements IAccountService {
   }
 
   public getTransactionValueByChain(): ResultAsync<
-    TransactionPaymentCounter[],
+    TransactionFlowInsight[],
     PersistenceError
   > {
     return this.transactionRepo.getTransactionByChain();

@@ -32,4 +32,6 @@ export interface IApiKeys {
   oklinkApiKey: string | null;
   ankrApiKey: string | null;
   bluezApiKey: string | null;
+  spaceAndTimeKey: string | null;
+  blockvisionKey: string | null;
 }

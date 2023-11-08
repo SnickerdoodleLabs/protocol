@@ -155,15 +155,21 @@ module.exports = {
       url: urlOverride || "http://127.0.0.1:8549",
     },
     optimism: {
-      // optimism mainnet - OP
+      // optimism mainnet
       accounts: accounts,
       chainId: 10,
       url: urlOverride || "http://127.0.0.1:8549",
     },
     astar: {
-      // optimism mainnet - OP
+      // astar mainnet
       accounts: accounts,
       chainId: 592,
+      url: urlOverride || "http://127.0.0.1:8549",
+    },
+    sui: {
+      // sui mainnet
+      accounts: accounts,
+      chainId: 101,
       url: urlOverride || "http://127.0.0.1:8549",
     },
   },

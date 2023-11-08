@@ -10,8 +10,7 @@ const envVars = {
 
   __DROPBOX_APP_KEY__: "w69949reoalc9xg",
   __DROPBOX_APP_SECRET__: "78jch5z5o800dyw",
-  __DROPBOX_REDIRECT_URI__:
-    "https://datawallet.snickerdoodle.com/settings/storage",
+  __DROPBOX_REDIRECT_URI__: "https://datawallet.snickerdoodle.com/settings",
 
   /* Alchemy Keys */
   __ALCHEMY_ARBITRUM_API_KEY__: "_G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF",
@@ -44,6 +43,8 @@ const envVars = {
   __ANKR_API_KEY__:
     "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
   __BLUEZ_API_KEY__: "aed4aab2cbc573bbf8e7c6b448c916e5",
+  __SPACEANDTIME_API_KEY__: "",
+  __BLOCKVISION_API_KEY__: "2WaEih5fqe8NUavbvaR2PSuVSSp",
 
   __PRIMARY_INFURA_KEY__: "a6271a49218848a7ad939ee62d225914",
   __SECONDARY_INFURA_KEY__: "",

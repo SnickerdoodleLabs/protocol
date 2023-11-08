@@ -60,6 +60,7 @@ export class QueryObjectFactory implements IQueryObjectFactory {
     schema: ISDQLQueryClause,
   ): AST_NftQuery | AST_BlockchainTransactionQuery | AST_BalanceQuery {
     switch (type) {
+      case "chain_transactions":
       case "network":
         return this.toBlockchainTransactionQuery(name, schema);
       case "nft":

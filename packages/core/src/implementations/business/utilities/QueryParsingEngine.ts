@@ -282,6 +282,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     const astEvaluator = this.queryFactories.makeAstEvaluator(
       cid,
       dataPermissions,
+      ast.queryTimestamp,
     );
 
     const insightProm = this.gatherDeliveryInsights(ast, astEvaluator);
@@ -406,7 +407,14 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     | MissingASTError
   > {
     return sdqlParser.buildAST().map((ast: AST) => {
-      return [ast, this.queryFactories.makeAstEvaluator(cid, dataPermissions)];
+      return [
+        ast,
+        this.queryFactories.makeAstEvaluator(
+          cid,
+          dataPermissions,
+          ast.queryTimestamp,
+        ),
+      ];
     });
   }
 

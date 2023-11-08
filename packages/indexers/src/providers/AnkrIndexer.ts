@@ -5,6 +5,7 @@ import {
   ILogUtilsType,
   ObjectUtils,
 } from "@snickerdoodlelabs/common-utils";
+import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   EChainTechnology,
   TickerSymbol,
@@ -28,6 +29,7 @@ import {
   URLString,
   DecimalString,
   EVMTransactionHash,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -117,6 +119,7 @@ export class AnkrIndexer implements IEVMIndexer {
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -328,6 +331,7 @@ export class AnkrIndexer implements IEVMIndexer {
               item.type,
               null,
               null,
+              this.timeUtils.getUnixNow(),
             );
           });
         })

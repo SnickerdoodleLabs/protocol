@@ -2,6 +2,7 @@ import { IConfigOverrides, URLString } from "@snickerdoodlelabs/objects";
 
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { IWebIntegrationConfigProvider } from "@extension-onboarding/services/interfaces/utilities";
+import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
 
 declare const __PRIMARY_INFURA_KEY__: string;
 declare const __IFRAME_URL__: string;
@@ -18,11 +19,11 @@ export class WebIntegrationConfigProvider
       defaultGoogleCloudBucket: __GOOGLE_CLOUD_BUCKET__,
       discordOverrides: {
         oauthRedirectUrl: URLString(
-          `${window.location.origin}${EPaths.SOCIAL_MEDIA_DATA}`,
+          `${window.location.origin}${EPathsV2.SETTINGS}`,
         ),
       },
       dropboxRedirectUri: URLString(
-        `${window.location.origin}${EPaths.STORAGE_SETTINGS}`,
+        `${window.location.origin}${EPathsV2.SETTINGS}`,
       ),
       // @TODO move those env vars
       alchemyApiKeys: {
@@ -53,6 +54,9 @@ export class WebIntegrationConfigProvider
       ankrApiKey:
         "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
       bluezApiKey: "aed4aab2cbc573bbf8e7c6b448c916e5",
+      spaceAndTimeKey: "",
+      blockvisionKey: "2WaEih5fqe8NUavbvaR2PSuVSSp",
+
       nftScanApiKey: "lusr87vNmTtHGMmktlFyi4Nt",
       oklinkApiKey: "700c2f71-a4e2-4a85-b87f-58c8a341d1bf",
     };

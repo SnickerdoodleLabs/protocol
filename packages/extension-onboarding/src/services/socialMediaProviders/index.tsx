@@ -21,13 +21,13 @@ export const getProviderList = (
   {
     provider: new DiscordProvider(sdlDataWallet),
     icon: DiscordIcon,
-    name: "Discord Data",
+    name: "Discord",
     key: ESocialType.DISCORD,
   },
-  {
-    provider: new TwitterProvider(sdlDataWallet),
-    icon: TwitterIcon,
-    name: "Twitter Data",
-    key: ESocialType.TWITTER,
-  },
+  // {
+  //   provider: new TwitterProvider(sdlDataWallet),
+  //   icon: TwitterIcon,
+  //   name: "Twitter Data",
+  //   key: ESocialType.TWITTER,
+  // },
 ];

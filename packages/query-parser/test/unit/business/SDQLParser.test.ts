@@ -52,15 +52,17 @@ describe("SDQLParser on avalanche", () => {
       expect(q1).toBeInstanceOf(AST_BlockchainTransactionQuery);
       expect(q1.returnType).toBe("boolean");
       expect(q1.chain).toBe("AVAX");
-      expect(q1.contract.networkId).toBe(43114);
-      expect(q1.contract.address).toBe(
+
+      //Contract object should be defined
+      expect(q1.contract!.networkId).toBe(43114);
+      expect(q1.contract!.address).toBe(
         "0x9366d30feba284e62900f6295bc28c9906f33172",
       );
-      expect(q1.contract.func).toBe("Transfer");
-      expect(q1.contract.direction).toBe("from");
-      expect(q1.contract.token).toBe("ERC20");
-      expect(q1.contract.timestampRange.start).toBe(13001519);
-      expect(q1.contract.timestampRange.end).toBe(14910334);
+      expect(q1.contract!.func).toBe("Transfer");
+      expect(q1.contract!.direction).toBe("from");
+      expect(q1.contract!.token).toBe("ERC20");
+      expect(q1.contract!.timestampRange.start).toBe(13001519);
+      expect(q1.contract!.timestampRange.end).toBe(14910334);
     });
 
     test("q2 is an age query", () => {

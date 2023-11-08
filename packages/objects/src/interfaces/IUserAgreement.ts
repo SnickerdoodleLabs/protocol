@@ -6,7 +6,8 @@ import {
 
 export type UserAgreementAttributes =
   | IUserAgreementVersionTrait
-  | IUserAgreementColorModeTrait;
+  | IUserAgreementColorModeTrait
+  | IUserAgreementTitleTrait;
 
 export interface IUserAgreementVersionTrait extends IERC721Attribute {
   trait_type: "version";
@@ -16,6 +17,11 @@ export interface IUserAgreementVersionTrait extends IERC721Attribute {
 export interface IUserAgreementColorModeTrait extends IERC721Attribute {
   trait_type: "color mode";
   value: EColorMode;
+}
+
+export interface IUserAgreementTitleTrait extends IERC721Attribute {
+  trait_type: "title";
+  value: string;
 }
 
 export interface IUserAgreement extends IERC721Metadata {

@@ -5,6 +5,7 @@ import {
   IpfsCID,
   PersistenceError,
   SDQL_Return,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -37,6 +38,7 @@ export class AST_Evaluator {
     readonly cid: IpfsCID,
     readonly queryRepository: IQueryRepository,
     readonly dataPermissions: DataPermissions,
+    readonly queryTimestamp: UnixTimestamp,
   ) {
     this.operatorMap.set(ConditionAnd, this.evalAnd);
     this.operatorMap.set(ConditionOr, this.evalOr);
@@ -141,7 +143,12 @@ export class AST_Evaluator {
   public evalSubQuery(
     q: AST_SubQuery,
   ): ResultAsync<SDQL_Return, PersistenceError> {
-    return this.queryRepository.get(this.cid, q, this.dataPermissions);
+    return this.queryRepository.get(
+      this.cid,
+      q,
+      this.dataPermissions,
+      this.queryTimestamp,
+    );
   }
 
   /***

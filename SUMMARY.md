@@ -23,6 +23,7 @@
         * [DoodleToken.sol](/packages/contracts/docs/token/DoodleToken.md)
         * [WDoodleToken.sol](/packages/contracts/docs/token/Vester.md)
         * [Vester](/packages/contracts/docs/token/WDoodleToken.md)
+* [ERC-7529](/packages/erc7529/README.md)
 * [SDQL](/documentation/sdql/README.md)
     * [Execution Diagrams](/documentation/sdql/QUERYENGINE.md)
     * [SDQL Examples](/documentation/sdql/EXAMPLES.md)
