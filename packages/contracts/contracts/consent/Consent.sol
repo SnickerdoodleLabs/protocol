@@ -52,10 +52,7 @@ contract Consent is
     /// @dev Flag of whether open opt in is disabled or not
     bool public openOptInDisabled;
 
-    /// @dev Trusted forwarder address for meta-transactions
-    address public trustedForwarder;
-
-    /// @dev Array of trusted domains
+    /// @dev Array of trusted domains for prompting user optins
     string[] domains;
 
     /// @dev Oldest block that should be scanned for requestForData events
@@ -67,9 +64,21 @@ contract Consent is
     /// @dev the maximum number of consent tokens that can be issued
     uint public maxCapacity;
 
+    /// @dev updateable name for the consent registry used in data wallet UI
+    string private registryName;
+
+    /// @dev updatable description for the consent registry used in data wallet UI
+    string private registryDesc;
+
+    /// @dev updateable image URL for this consent registry used in data wallet UI
+    string private registryImg;
+
+    /// @dev Mapping owner address to a token id
+    mapping(address => uint256) private ownership;
+
     /* MODIFIERS */
 
-    /// Checks if open opt in is current disabled
+    /// Checks if open opt in is current disabled (i.e. invite-only opt ins)
     modifier whenNotDisabled() {
         require(
             !openOptInDisabled,
@@ -80,16 +89,18 @@ contract Consent is
 
     /// @notice Initializes the contract
     /// @dev Uses the initializer modifier to to ensure the contract is only initialized once
-    /// @param _trustedForwarder Address of EIP2771-compatible meta-tx forwarding contract
     /// @param _consentOwner Address of the owner of this contract
     /// @param baseURI_ The base uri
     /// @param _name Name of the Consent Contract
+    /// @param _domains array of trusted domain URIs/URLs for triggering optin prompts
+    /// @param _maxCapacity integer used for maximuim number of allowed optins 
     /// @param _contractFactoryAddress address of the originating consent factory
     function initialize(
-        address _trustedForwarder,
         address _consentOwner,
         string memory baseURI_,
         string memory _name,
+        string[] memory _domains, 
+        uint256 _maxCapacity, 
         address _contractFactoryAddress
     ) public initializer {
         __ERC721_init(_name, "CONSENT");
@@ -101,17 +112,19 @@ contract Consent is
         consentFactoryInstance = IConsentFactory(_contractFactoryAddress);
         maxTags = consentFactoryInstance.maxTagsPerListing(); // it's assumed maxTags will only be increased in the future
 
-        // set trusted forwarder for meta-txs
-        trustedForwarder = _trustedForwarder;
-
         // set the queryHorizon to be the current block number;
         queryHorizon = block.number;
 
         // set the initial maximum capacity (we set to a relatively large number)
-        maxCapacity = 100000;
+        maxCapacity = _maxCapacity;
 
-        // set the base uri so the consent contract has content to display in the marketplace
+        // set the base uri so the consent contract has content to display to users during optin flow
         baseURI = baseURI_;
+
+        // set trusted domain array
+        for (uint256 i; i < _domains.length; ) {
+            domains.push(_domains[i]);
+        }
 
         // use user to bypass the call back to the ConsentFactory to update the user's roles array mapping
         super._grantRole(DEFAULT_ADMIN_ROLE, _consentOwner);
@@ -122,6 +135,45 @@ contract Consent is
     }
 
     /* CORE FUNCTIONS */
+
+    /// @notice Get all details for a consent registry in one rpc call
+    /// @dev also takes an address as an input so the data wallet can determin membership info
+    /// @param audienceMember address of the consent key used by the calling data wallet client. 
+    function getRegistryDetails(address audienceMember) external view returns(RegistryDetails memory) {
+        // if memberTokenId is 0, then the address is not an audience member
+        address memberTokenId = ownership(audienceMember);
+        RegistryDetails memory deets = RegistryDetails(
+            registryName,
+            registryDesc,
+            registryImg,
+            baseURI,
+            maxCapacity,
+            totalSupply,
+            openOptInDisabled,
+            queryHorizon,
+            domains,
+            tags,
+            memberTokenId
+        );
+        return deets; 
+    }
+
+    /// @notice Adds a new tag to the global namespace and stakes it for this consent contract
+    /// @dev  passing an empty string will leave the attribute unchanged after the transaction completes
+    /// @param _name Human readable string used as the display name for the rewards marketplace
+    /// @param _desc Human readable description used in the rewards marketplace for user context
+    /// @param _img URL pointing to thumbnail image for use in rewards marketplace UI
+    function updateConsentRegistryDetails(string calldata _name, string calldata _desc, string calldata _img) external {
+        if (bytes(_name).length > 0) {
+            registryName = _name;
+        }
+        if (bytes(_desc).length > 0) {
+            registryDesc = _desc;
+        }
+        if (bytes(_img).length > 0) {
+            registryImg = _img;
+        }
+    }
 
     /// @notice Get the number of tags staked by this contract
     function getNumberOfStakedTags() external view returns (uint256) {
@@ -215,7 +267,50 @@ contract Consent is
         consentFactoryInstance.insertDownstream(tag, _existingSlot, _newSlot);
     }
 
-    /// @notice Replaces an existing listing that has expired (works for head and tail listings)
+    /// @notice Move an existing listing from its current slot to upstream of a new existing slot 
+    /// @dev This function assumes that tag is not the only member in the global list (i.e. getTagTotal(tag) > 1)
+    /// @dev This function also assumes that the listing is not expired
+    /// @param tag Human readable string denoting the target tag to stake
+    /// @param _newSlot The new slot to move the listing to
+    /// @param _existingSlot The neighboring listing to _newSlow
+    function moveExistingListingUpstream(
+        string memory tag,
+        uint256 _newSlot,
+        uint256 _existingSlot
+    ) external onlyRole(STAKER_ROLE) {
+        // check
+        require(
+            tagIndices[tag] > 0,
+            "Consent Contract: This tag has not been staked"
+        );
+
+        // effects
+        uint256 removalSlot  = tags[tagIndices[tag] - 1].slot;
+        tags[tagIndices[tag] - 1].slot = _newSlot;
+
+        // interaction
+        // remove from current slot, reverts if the listing was replaced after expiration
+        consentFactoryInstance.removeListing(tag, removalSlot);
+        // add to the new slot, reverts if _existingSlot has no current listing
+        consentFactoryInstance.insertUpstream(tag, _newSlot, _existingSlot);
+    }
+
+    /// @notice Restakes a listing from this registry that has expired (works for head and tail listings)
+    /// @param tag Human readable string denoting the target tag to stake
+    function restakeExpiredListing(
+        string memory tag
+    ) external onlyRole(STAKER_ROLE) {
+        // check
+        require(
+            tagIndices[tag] > 0,
+            "Consent Contract: This tag has not been staked"
+        );
+
+        // interaction
+        consentFactoryInstance.replaceExpiredListing(tag, tags[tagIndices[tag] - 1].slot);
+    }
+
+    /// @notice Replaces an existing listing from another registry that has expired (works for head and tail listings)
     /// @param tag Human readable string denoting the target tag to stake
     /// @param _slot The expired slot to replace with a new listing
     function replaceExpiredListing(
@@ -276,87 +371,109 @@ contract Consent is
     }
 
     /// @notice Allows any user to opt in to sharing their data
-    /// @dev Mints user a Consent token
+    /// @dev Mints a consent token to an EOA (the EOA should idealy have no tx-history, but this is not enforced)
     /// @param tokenId User's Consent token id to mint against
     /// @param agreementFlags A bytes32 array of the user's consent token flag indicating their data permissioning settings
+    /// @param identityCommitment A bytes32 array of the user's identity commitment used in generating zk proof of consent
+    /// @param stealthSignature ECDSA signature from user's stealth address (no tx history), the stealth address will own the consent token
     function optIn(
         uint256 tokenId,
-        bytes32 agreementFlags
+        bytes32 agreementFlags,
+        bytes32 identityCommitment,
+        bytes memory stealthSignature
     ) external whenNotPaused whenNotDisabled {
-        /// if user has opted in before, revert
-        require(
-            balanceOf(_msgSender()) == 0,
-            "Consent: User has already opted in"
+
+        bytes32 optinHash = ECDSAUpgradeable.toEthSignedMessageHash(
+            keccak256(abi.encodePacked(address(this), tokenId, agreementFlags, identityCommitment))
         );
+
+        /// calculate the recipient address, if user has opted in before, revert
+        address recipient = _isValidOptInSignature(optinHash, stealthSignature);
 
         /// if consent cohort is at capacity, revert
         require(!_atCapacity(), "Consent: cohort is at capacity");
 
         /// mint the consent token and set its agreement uri
-        _safeMint(_msgSender(), tokenId);
+        _safeMint(recipient, tokenId);
 
         _updateCounterAndTokenFlags(tokenId, agreementFlags);
 
-        /// increase total supply count, this is 20,0000 gas
+        /// increase total supply count, this is 20,000 gas
         totalSupply++;
+
+        /// create reverse mapping
+        ownership[_msgSender()] = tokenId;
     }
 
     /// @notice Allows specific users to opt in to sharing their data
-    /// @dev For restricted opt ins, the owner will first sign a digital signature on-chain
-    /// @dev The function is called with the signature from SIGNER_ROLE
+    /// @dev Mints a consent token to an EOA (the EOA should idealy have no tx-history, but this is not enforced)
+    /// @dev The function must be called with the signature from SIGNER_ROLE
     /// @dev If the message signature is valid, the user calling this function is minted a Consent token
     /// @param tokenId User's Consent token id to mint against (also serves as a nonce)
     /// @param agreementFlags A bytes32 array of the user's consent token flag indicating their data permissioning settings (this param is not included in the sig hash)
-    /// @param signature Signature to be recovered from the hash of the target contract address, target recipient address, and token id to be redeemeed
+    /// @param identityCommitment A bytes32 array of the user's identity commitment used in generating zk proof of consent
+    /// @param stealthSignature ECDSA signature from user's stealth address (no tx history), the stealth address will own the consent token
+    /// @param inviteSignature Signature to be recovered from the hash of the target contract address, target recipient address, and token id to be redeemeed
     function restrictedOptIn(
         uint256 tokenId,
         bytes32 agreementFlags,
-        bytes memory signature
+        bytes32 identityCommitment,
+        bytes memory stealthSignature,
+        bytes memory inviteSignature
     ) external whenNotPaused {
-        /// if user has opted in before, revert
-        require(
-            balanceOf(_msgSender()) == 0,
-            "Consent: User has already opted in"
+        bytes32 optinHash = ECDSAUpgradeable.toEthSignedMessageHash(
+            keccak256(abi.encodePacked(address(this), tokenId, agreementFlags, identityCommitment))
         );
+
+        /// calculate the recipient address, if user has opted in before, revert
+        address recipient = _isValidOptInSignature(optinHash, stealthSignature);
 
         /// if consent cohort is at capacity, revert
         require(!_atCapacity(), "Consent: cohort is at capacity");
 
-        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(
+        bytes32 inviteHash = ECDSAUpgradeable.toEthSignedMessageHash(
             keccak256(abi.encodePacked(address(this), _msgSender(), tokenId))
         );
 
         /// check the signature against the payload
         require(
-            _isValidSignature(hash, signature),
+            _isValidSignerSignature(inviteHash, inviteSignature),
             "Consent: Contract owner did not sign this message"
         );
 
         /// mint the consent token and set its uri
-        _safeMint(_msgSender(), tokenId);
+        _safeMint(recipient, tokenId);
         _updateCounterAndTokenFlags(tokenId, agreementFlags);
 
         /// increase total supply count
         totalSupply++;
+
+        /// create reverse mapping
+        ownership[_msgSender()] = tokenId;
     }
 
     /// @notice Allows Signature Issuer to send anonymous invitation link to end user to opt in
-    /// @dev For restricted opt ins, the owner will first sign a digital signature on-chain
-    /// @dev The function is called with the a signature from SIGNER_ROLE
+    /// @dev Mints a consent token to an EOA (the EOA should idealy have no tx-history, but this is not enforced)
+    /// @dev The function must be called with the signature from SIGNER_ROLE
     /// @dev If the message signature is valid, the user calling this function is minted a Consent token
     /// @param tokenId User's Consent token id to mint against (also serves as a nonce)
     /// @param agreementFlags A bytes32 array of the user's consent token flag indicating their data permissioning settings (this param is not included in the sig hash)
-    /// @param signature Signature to be recovered from the hash of the target contract address and token id to be redeemeed
+    /// @param identityCommitment A bytes32 array of the user's identity commitment used in generating zk proof of consent
+    /// @param stealthSignature ECDSA signature from user's stealth address (no tx history), the stealth address will own the consent token
+    /// @param inviteSignature Signature to be recovered from the hash of the target contract address, target recipient address, and token id to be redeemeed
     function anonymousRestrictedOptIn(
         uint256 tokenId,
         bytes32 agreementFlags,
-        bytes memory signature
+        bytes32 identityCommitment,
+        bytes memory stealthSignature,
+        bytes memory inviteSignature
     ) external whenNotPaused {
-        /// if user has opted in before, revert
-        require(
-            balanceOf(_msgSender()) == 0,
-            "Consent: User has already opted in"
+        bytes32 optinHash = ECDSAUpgradeable.toEthSignedMessageHash(
+            keccak256(abi.encodePacked(address(this), tokenId, agreementFlags, identityCommitment))
         );
+
+        /// calculate the recipient address, if user has opted in before, revert
+        address recipient = _isValidOptInSignature(optinHash, stealthSignature);
 
         /// if consent cohort is at capacity, revert
         require(!_atCapacity(), "Consent: cohort is at capacity");
@@ -364,19 +481,23 @@ contract Consent is
         bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(
             keccak256(abi.encodePacked(address(this), tokenId))
         );
+
         /// check the signature against the payload
         /// Any account possessing the signature and payload can call this method
         require(
-            _isValidSignature(hash, signature),
+            _isValidSignerSignature(hash, inviteSignature),
             "Consent: Contract owner did not sign this message"
         );
 
         /// mint the consent token and set its uri
-        _safeMint(_msgSender(), tokenId);
+        _safeMint(recipient, tokenId);
         _updateCounterAndTokenFlags(tokenId, agreementFlags);
 
         /// increase total supply count before interaction
         totalSupply++;
+
+        /// create reverse mapping
+        ownership[_msgSender()] = tokenId;
     }
 
     /// @notice Allows users to opt out of sharing their data
@@ -442,11 +563,6 @@ contract Consent is
             "New horizon must be strictly later than current horizon."
         );
         queryHorizon = queryHorizon_;
-    }
-
-    /// @notice update the trusted forwarder address based on factory settings
-    function updateTrustedForwarder() external onlyRole(DEFAULT_ADMIN_ROLE) {
-        trustedForwarder = consentFactoryInstance.trustedForwarder();
     }
 
     /// @notice Admin endpoint to change the maximum number of tags a consent contract can stake against
@@ -542,15 +658,6 @@ contract Consent is
 
     /* GETTER */
 
-    /// @dev Inherited from ERC2771ContextUpgradeable to embed its features directly in this contract
-    /// @dev This is a workaround as ERC2771ContextUpgradeable does not have an _init() function
-    /// @dev Allows the factory to deploy a BeaconProxy that initiates a Consent contract without a constructor
-    function isTrustedForwarder(
-        address forwarder
-    ) public view virtual returns (bool) {
-        return forwarder == trustedForwarder;
-    }
-
     /// @notice Convenient function for asking contract if there is room left in the campaign in one function call
     function _atCapacity() internal view virtual returns (bool atCapacity) {
         return (totalSupply == maxCapacity);
@@ -611,7 +718,7 @@ contract Consent is
     /// @param hash Hashed message containing user address (if restricted opt in), token id and agreementFlags
     /// @param signature Signature of approved user's message hash
     /// @return Boolean of whether signature is valid
-    function _isValidSignature(
+    function _isValidSignerSignature(
         bytes32 hash,
         bytes memory signature
     ) internal view returns (bool) {
@@ -622,6 +729,27 @@ contract Consent is
 
         // check if the recovered signature has the SIGNER_ROLE
         return hasRole(SIGNER_ROLE, signer);
+    }
+
+    /// @notice Verify that a signature is valid
+    /// @param hash Hashed message containing user address (if restricted opt in), token id and agreementFlags
+    /// @param signature Signature of approved user's message hash
+    /// @return Boolean of whether signature is valid
+    function _isValidOptInSignature(
+        bytes32 hash,
+        bytes memory signature
+    ) internal view returns (address) {
+        // retrieve the signature's signer
+        address signer = ECDSAUpgradeable.recover(hash, signature);
+
+        require(signer != address(0), "Consent: Signer cannot be 0 address.");
+
+        // check if the recovered signature has a nonzero balance
+        require(
+            balanceOf(signer) == 0,
+            "Consent: User has already opted in"
+        );
+        return signer;
     }
 
     /* OVERRIDES */
@@ -667,6 +795,9 @@ contract Consent is
         /// decrease total supply count
         totalSupply--;
 
+        /// create reverse mapping
+        delete ownership[_msgSender()];
+
         _updateCounterAndTokenFlags(tokenId, agreementFlagsArray[tokenId]);
 
         super._burn(tokenId);
@@ -687,36 +818,5 @@ contract Consent is
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
-    }
-
-    function _msgSender()
-        internal
-        view
-        virtual
-        override(ContextUpgradeable)
-        returns (address sender)
-    {
-        if (isTrustedForwarder(msg.sender)) {
-            // The assembly code is more direct than the Solidity version using `abi.decode`.
-            assembly {
-                sender := shr(96, calldataload(sub(calldatasize(), 20)))
-            }
-        } else {
-            return super._msgSender();
-        }
-    }
-
-    function _msgData()
-        internal
-        view
-        virtual
-        override(ContextUpgradeable)
-        returns (bytes calldata)
-    {
-        if (isTrustedForwarder(msg.sender)) {
-            return msg.data[:msg.data.length - 20];
-        } else {
-            return super._msgData();
-        }
     }
 }
