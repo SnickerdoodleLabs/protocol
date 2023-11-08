@@ -1,5 +1,5 @@
 import { makeStyles } from "@material-ui/core";
-import {} from "@snickerdoodlelabs/shared-components";
+import { colors } from "@snickerdoodlelabs/shared-components";
 export const useAccordionStyles = makeStyles((theme) => ({
   accordionRoot: {
     border: `1px solid ${theme.palette.borderColor}`,
