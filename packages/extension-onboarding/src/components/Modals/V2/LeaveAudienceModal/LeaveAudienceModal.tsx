@@ -1,18 +1,18 @@
 import { useModalStyles } from "@extension-onboarding/components/Modals/Modal.style";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { Box, Dialog } from "@material-ui/core";
+import { Box, Dialog, Grid } from "@material-ui/core";
 import {
   CloseButton,
   SDButton,
   SDTypography,
+  useMedia,
 } from "@snickerdoodlelabs/shared-components";
 import React, { FC } from "react";
-
 
 const LeaveAudienceModal: FC = () => {
   const { modalState, closeModal } = useLayoutContext();
   const { onPrimaryButtonClick } = modalState;
-
+  const currentBreakpoint = useMedia();
   const modalClasses = useModalStyles();
   return (
     <Dialog open={true} fullWidth className={modalClasses.container}>
@@ -38,26 +38,32 @@ const LeaveAudienceModal: FC = () => {
           </SDTypography>
         </Box>
         <Box display="flex" justifyContent="flex-end">
-          <Box mr={2}>
-            <SDButton
-              variant="outlined"
-              color="danger"
-              onClick={() => {
-                closeModal();
-              }}
-            >
-              Cancel
-            </SDButton>
-          </Box>
-          <SDButton
-            color="danger"
-            onClick={() => {
-              onPrimaryButtonClick();
-              closeModal();
-            }}
-          >
-            Unsubscribe
-          </SDButton>
+          <Grid container spacing={2} justifyContent="flex-end">
+            <Grid item className={modalClasses.buttonWrapper50}>
+              <SDButton
+                variant="outlined"
+                color="danger"
+                fullWidth
+                onClick={() => {
+                  closeModal();
+                }}
+              >
+                Cancel
+              </SDButton>
+            </Grid>
+            <Grid item className={modalClasses.buttonWrapper50}>
+              <SDButton
+                color="danger"
+                fullWidth
+                onClick={() => {
+                  onPrimaryButtonClick();
+                  closeModal();
+                }}
+              >
+                Unsubscribe
+              </SDButton>
+            </Grid>
+          </Grid>
         </Box>
       </Box>
     </Dialog>

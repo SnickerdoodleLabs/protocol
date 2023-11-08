@@ -18,6 +18,7 @@ import {
   ChainId,
   EChainType,
   formatValue,
+  getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
 import { SDTypography } from "@snickerdoodlelabs/shared-components";
 import {
@@ -116,6 +117,28 @@ export default () => {
       initializeBalances();
     }
   }, [linkedAccounts.length]);
+
+  const { chains, accounts } = useMemo(() => {
+    return [
+      ...(accountBalances || ([] as IBalanceItem[])),
+      ...(accountTestnetBalances || ([] as IBalanceItem[])),
+    ].reduce(
+      (acc, balance) => {
+        if (!acc.accounts.includes(balance.accountAddress)) {
+          acc.accounts.push(balance.accountAddress);
+        }
+        const nftChainId = getChainInfoByChain(balance.chainId).chainId;
+        if (!acc.chains.includes(nftChainId)) {
+          acc.chains.push(nftChainId);
+        }
+        return acc;
+      },
+      {
+        accounts: [] as AccountAddress[],
+        chains: [] as ChainId[],
+      },
+    );
+  }, [accountBalances, accountTestnetBalances]);
 
   const initializeBalances = () => {
     sdlDataWallet
@@ -390,6 +413,8 @@ export default () => {
     <>
       <Box mb={3}>
         <AccountChainBar
+          chainIdsToRender={chains}
+          accountAdressesToRender={accounts}
           accountSelect={accountSelect}
           displayMode={displayMode}
           setDisplayMode={setDisplayMode}

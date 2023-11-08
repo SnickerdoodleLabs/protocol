@@ -1,23 +1,3 @@
-import AccountLinkingIndicator from "@extension-onboarding/components/loadingIndicators/AccountLinking";
-import { EModalSelectors } from "@extension-onboarding/components/Modals/";
-import LinkAccountModal from "@extension-onboarding/components/Modals/V2/LinkAccountModal";
-import { EWalletProviderKeys } from "@extension-onboarding/constants";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import {
-  ELoadingIndicatorType,
-  useLayoutContext,
-} from "@extension-onboarding/context/LayoutContext";
-import useIsMobile from "@extension-onboarding/hooks/useIsMobile";
-import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
-import {
-  DiscordProvider,
-  TwitterProvider,
-} from "@extension-onboarding/services/socialMediaProviders/implementations";
-import {
-  IDiscordProvider,
-  ITwitterProvider,
-} from "@extension-onboarding/services/socialMediaProviders/interfaces";
 import {
   defaultLanguageCode,
   EChain,
@@ -39,6 +19,27 @@ import React, {
   useState,
 } from "react";
 import { useAccount, useDisconnect, useSignMessage, useConnect } from "wagmi";
+
+import AccountLinkingIndicator from "@extension-onboarding/components/loadingIndicators/AccountLinking";
+import { EModalSelectors } from "@extension-onboarding/components/Modals/";
+import LinkAccountModal from "@extension-onboarding/components/Modals/V2/LinkAccountModal";
+import { EWalletProviderKeys } from "@extension-onboarding/constants";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import {
+  ELoadingIndicatorType,
+  useLayoutContext,
+} from "@extension-onboarding/context/LayoutContext";
+import useIsMobile from "@extension-onboarding/hooks/useIsMobile";
+import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
+import {
+  DiscordProvider,
+  TwitterProvider,
+} from "@extension-onboarding/services/socialMediaProviders/implementations";
+import {
+  IDiscordProvider,
+  ITwitterProvider,
+} from "@extension-onboarding/services/socialMediaProviders/interfaces";
 
 export enum EWalletProviderKit {
   SUI = "SUI",
@@ -71,7 +72,6 @@ interface IAccountLinkingContext {
   detectedProviders: IProvider[];
   unDetectedProviders: IProvider[];
   walletKits: IWalletProviderKit[];
-  walletConnect: IProvider | null;
   discordProvider: IDiscordProvider;
   twitterProvider: ITwitterProvider;
   onProviderConnectClick: (
@@ -138,6 +138,19 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
     }
   }, [isError]);
 
+  const openWarningModal = () => {
+    setModal({
+      modalSelector: EModalSelectors.CONFIRMATION_MODAL,
+      onPrimaryButtonClick: () => {},
+      customProps: {
+        title: "You’ve Already Linked This Account",
+        description: `If you want to link different account go to the wallet app you desired, switch to the wallet account you want to link and try linking your switched account by pressing "Link Account" button again.`,
+        actionText: "Got it!",
+        showCancelButton: false,
+      },
+    });
+  };
+
   useEffect(() => {
     if (address) {
       if (
@@ -147,11 +160,7 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
         )
       ) {
         disconnect();
-        return setModal({
-          modalSelector: EModalSelectors.PHANTOM_LINKING_STEPS,
-          onPrimaryButtonClick: () => {},
-          customProps: { accountAddress: address || "" },
-        });
+        return openWarningModal();
       }
 
       sdlDataWallet.account
@@ -171,37 +180,32 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
     }
   }, [suiWallet.connected]);
 
-  const { detectedProviders, unDetectedProviders, walletConnect } =
-    useMemo(() => {
-      if (isMobile) {
-        return {
-          detectedProviders: [],
-          unDetectedProviders: [],
-          walletConnect: null,
-        };
-      }
-      return providerList.reduce(
-        (acc, provider) => {
-          if (provider.key === EWalletProviderKeys.WALLET_CONNECT) {
-            acc.walletConnect = provider;
-          } else if (provider.provider.isInstalled) {
-            acc.detectedProviders = [...acc.detectedProviders, provider];
-          } else {
-            acc.unDetectedProviders = [...acc.unDetectedProviders, provider];
-          }
-          return acc;
-        },
-        {
-          detectedProviders: [],
-          unDetectedProviders: [],
-          walletConnect: null,
-        } as {
-          detectedProviders: IProvider[];
-          unDetectedProviders: IProvider[];
-          walletConnect: IProvider | null;
-        },
-      );
-    }, [providerList.length, isMobile]);
+  const { detectedProviders, unDetectedProviders } = useMemo(() => {
+    if (isMobile) {
+      return {
+        detectedProviders: [],
+        unDetectedProviders: [],
+        walletConnect: null,
+      };
+    }
+    return providerList.reduce(
+      (acc, provider) => {
+        if (provider.provider.isInstalled) {
+          acc.detectedProviders = [...acc.detectedProviders, provider];
+        } else {
+          acc.unDetectedProviders = [...acc.unDetectedProviders, provider];
+        }
+        return acc;
+      },
+      {
+        detectedProviders: [],
+        unDetectedProviders: [],
+      } as {
+        detectedProviders: IProvider[];
+        unDetectedProviders: IProvider[];
+      },
+    );
+  }, [providerList.length, isMobile]);
 
   const walletKits = useMemo(() => {
     if (isMobile) {
@@ -236,6 +240,17 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
 
   const handleSuiWalletConnect = useCallback(() => {
     if (suiWallet.connected) {
+      if (
+        linkedAccounts?.find(
+          (linkedAccount) =>
+            linkedAccount.sourceAccountAddress ===
+            (suiWallet.account?.address || ""),
+        )
+      ) {
+        setIsSuiOpen(false);
+        suiWallet.disconnect();
+        return openWarningModal();
+      }
       return sdlDataWallet.account
         .getLinkAccountMessage(defaultLanguageCode)
         .andThen((message) => {
@@ -245,47 +260,25 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
             }),
             () => new Error("Error signing message"),
           ).andThen((signature) => {
-            if (
-              !linkedAccounts?.find(
-                (linkedAccount) =>
-                  linkedAccount.sourceAccountAddress ===
-                  (suiWallet.account?.address || ""),
-              )
-            ) {
-              setLoadingStatus(true, {
-                type: ELoadingIndicatorType.COMPONENT,
-                component: <AccountLinkingIndicator />,
-              });
-              const addr = (suiWallet.account?.address || "") as AccountAddress;
-              const sig = signature.signature as Signature;
-
-              return (
-                // okAsync(undefined)
-                // @TODO use that function with correct params
-                sdlDataWallet.account
-                  .addAccount(
-                    (suiWallet.account?.address || "") as AccountAddress,
-                    signature.signature as Signature,
-                    defaultLanguageCode,
-                    EChain.Sui,
-                  )
-                  .mapErr((e) => {
-                    console.error(e);
-                    setLoadingStatus(false);
-                  })
-                  .map(() => {
-                    setIsSuiOpen(false);
-                    setLoadingStatus(false);
-                  })
-              );
-            }
-            // The new account is already linked
-            setModal({
-              modalSelector: EModalSelectors.PHANTOM_LINKING_STEPS,
-              onPrimaryButtonClick: () => {},
-              customProps: { accountAddress: suiWallet.account?.address || "" },
+            setLoadingStatus(true, {
+              type: ELoadingIndicatorType.COMPONENT,
+              component: <AccountLinkingIndicator />,
             });
-            return okAsync(undefined);
+            return sdlDataWallet.account
+              .addAccount(
+                (suiWallet.account?.address || "") as AccountAddress,
+                signature.signature as Signature,
+                defaultLanguageCode,
+                EChain.Sui,
+              )
+              .mapErr((e) => {
+                console.error(e);
+                setLoadingStatus(false);
+              })
+              .map(() => {
+                setIsSuiOpen(false);
+                setLoadingStatus(false);
+              });
           });
         })
         .mapErr(() => {
@@ -301,44 +294,37 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
 
   const onProviderConnectClick = useCallback(
     (providerObj: IProvider) => {
-      // setSelectedProviderKey(providerObj.key);
       return ResultUtils.combine([
         providerObj.provider.connect(),
         sdlDataWallet.account.getLinkAccountMessage(defaultLanguageCode),
       ]).andThen(([account, message]) => {
+        const chain = getChain(providerObj.key);
+        if (
+          linkedAccounts?.find(
+            (linkedAccount) =>
+              linkedAccount.sourceAccountAddress ===
+              (chain === EChain.EthereumMainnet
+                ? account.toLowerCase()
+                : account),
+          )
+        ) {
+          openWarningModal();
+          return okAsync(undefined);
+        }
+
         return providerObj.provider
           .getSignature(message)
           .andThen((signature) => {
-            // If the new chosen account is not already linked
-            const chain = getChain(providerObj.key);
-            if (
-              !linkedAccounts?.find(
-                (linkedAccount) =>
-                  linkedAccount.sourceAccountAddress ===
-                  (chain === EChain.EthereumMainnet
-                    ? account.toLowerCase()
-                    : account),
-              )
-            ) {
-              setLoadingStatus(true, {
-                type: ELoadingIndicatorType.COMPONENT,
-                component: <AccountLinkingIndicator />,
-              });
-              return sdlDataWallet.account
-                .addAccount(account, signature, defaultLanguageCode, chain)
-                .mapErr((e) => {
-                  console.error(e);
-                  setLoadingStatus(false);
-                });
-            }
-
-            // The new account is already linked
-            setModal({
-              modalSelector: EModalSelectors.PHANTOM_LINKING_STEPS,
-              onPrimaryButtonClick: () => {},
-              customProps: { accountAddress: account },
+            setLoadingStatus(true, {
+              type: ELoadingIndicatorType.COMPONENT,
+              component: <AccountLinkingIndicator />,
             });
-            return okAsync(undefined);
+            return sdlDataWallet.account
+              .addAccount(account, signature, defaultLanguageCode, chain)
+              .mapErr((e) => {
+                console.error(e);
+                setLoadingStatus(false);
+              });
           });
       });
     },
@@ -359,7 +345,6 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
       value={{
         detectedProviders,
         unDetectedProviders,
-        walletConnect,
         discordProvider,
         twitterProvider,
         onProviderConnectClick,
