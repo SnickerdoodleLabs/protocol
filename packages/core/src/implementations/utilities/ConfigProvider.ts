@@ -33,7 +33,7 @@ import { IConfigProvider } from "@core/interfaces/utilities/index.js";
  * The built-in config values should always be appropriate for working in the test-harness package;
  * ie, they should be appropriate for local dev. All config values should be able to be changed via
  * ConfigOverrides, and anywhere that is NOT the test harness should be required to provide a basically
- * full set of ConfigOverrides when creating a new SnickercoodleCore. There is only one place in
+ * full set of ConfigOverrides when creating a new SnickerdoodleCore. There is only one place in
  * this repo that does that, in the browserExtension, so it's easy to find.
  */
 
