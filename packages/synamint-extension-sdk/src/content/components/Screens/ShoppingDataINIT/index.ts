@@ -1,1 +1,1 @@
-export * from "@synamint-extension-sdk/content/components/screens/ShoppingDataINIT/ShoppingDataINIT";
+export * from "@synamint-extension-sdk/content/components/Screens/ShoppingDataINIT/ShoppingDataINIT";

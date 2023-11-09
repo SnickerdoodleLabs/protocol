@@ -51,7 +51,7 @@ import {
   ShoppingDataDone,
   ShoppingDataINIT,
   ShoppingDataProcess,
-} from "@synamint-extension-sdk/content/components/screens";
+} from "@synamint-extension-sdk/content/components/Screens";
 import {
   EAppState,
   EShoppingDataState,

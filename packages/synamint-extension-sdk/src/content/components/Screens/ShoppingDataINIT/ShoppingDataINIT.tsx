@@ -2,7 +2,7 @@ import { Box, Typography, Dialog, Button } from "@material-ui/core";
 import React from "react";
 import Browser from "webextension-polyfill";
 
-import { useStyles } from "@synamint-extension-sdk/content/components/screens/ShoppingDataINIT/ShoppingDataINIT.style";
+import { useStyles } from "@synamint-extension-sdk/content/components/Screens/ShoppingDataINIT/ShoppingDataINIT.style";
 import {
   PRIVACY_POLICY_URL,
   WEBSITE_URL,

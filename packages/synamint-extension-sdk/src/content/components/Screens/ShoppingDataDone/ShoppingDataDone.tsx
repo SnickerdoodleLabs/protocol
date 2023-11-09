@@ -3,7 +3,7 @@ import React from "react";
 import Browser from "webextension-polyfill";
 
 import { LinkCard } from "@synamint-extension-sdk/content/components/LinkCard/LinkCard";
-import { useStyles } from "@synamint-extension-sdk/content/components/screens/ShoppingDataDone/ShoppingDataDone.style";
+import { useStyles } from "@synamint-extension-sdk/content/components/Screens/ShoppingDataDone/ShoppingDataDone.style";
 import {
   PRIVACY_POLICY_URL,
   SPA_PATHS,
@@ -14,7 +14,7 @@ interface IShoppingDataDoneProps {
   coreGateway;
 }
 
-const SOCIAL_LINKS = [
+export const SOCIAL_LINKS = [
   {
     iconSrc: Browser.runtime.getURL("assets/icons/twitter.svg"),
     url: "https://twitter.com/yosnickerdoodle",

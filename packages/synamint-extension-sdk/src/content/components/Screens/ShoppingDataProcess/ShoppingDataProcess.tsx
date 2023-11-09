@@ -8,7 +8,7 @@ import {
 import CloseIcon from "@material-ui/icons/Close";
 import React from "react";
 
-import { useStyles } from "@synamint-extension-sdk/content/components/screens/ShoppingDataProcess/ShoppingDataProcess.style";
+import { useStyles } from "@synamint-extension-sdk/content/components/Screens/ShoppingDataProcess/ShoppingDataProcess.style";
 
 interface IShoppingDataProcessProps {
   onCloseClick: () => void;
