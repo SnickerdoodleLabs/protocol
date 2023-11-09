@@ -187,7 +187,7 @@ export class SnickerdoodleWebIntegration
     logUtils: ILogUtils,
     blockchainProvider: IBlockchainProviderRepository,
     configProvider: IConfigProvider,
-  ): ResultAsync<void, ProxyError | PersistenceError | ProviderRpcError> {
+  ): ResultAsync<void, never> {
     const config = configProvider.getConfig();
 
     // If we were not given a signer, we can't possibly add an account automatically
@@ -202,43 +202,51 @@ export class SnickerdoodleWebIntegration
       proxy.account.getAccounts(),
       blockchainProvider.getCurrentAccount(),
       blockchainProvider.getCurrentChain(),
-    ]).andThen(([linkedAccounts, accountAddress, chainInfo]) => {
-      // If we can't get stuff from the blockchain provider, we can't possibly add
-      // an account
-      if (accountAddress == null || chainInfo == null) {
-        return okAsync(undefined);
-      }
+    ])
+      .andThen(([linkedAccounts, accountAddress, chainInfo]) => {
+        // If we can't get stuff from the blockchain provider, we can't possibly add
+        // an account
+        if (accountAddress == null || chainInfo == null) {
+          return okAsync(undefined);
+        }
 
-      // Check if the account that is linked to the page is linked to the data wallet
-      const existingAccount = linkedAccounts.find((linkedAccount) => {
-        return linkedAccount.sourceAccountAddress == accountAddress;
-      });
-
-      // Account is already linked, no need to do anything
-      if (existingAccount != null) {
-        return okAsync(undefined);
-      }
-
-      // The account the DApp is using is not linked to the
-      // data wallet. We should add that account.
-      logUtils.log(
-        `Detected unlinked account ${accountAddress} being used on the DApp, adding to Snickerdoodle Data Wallet`,
-      );
-
-      return proxy.account
-        .getLinkAccountMessage(config.languageCode)
-        .andThen((unlockMessage) => {
-          return blockchainProvider.getSignature(unlockMessage);
-        })
-        .andThen((signature) => {
-          return proxy.account.addAccount(
-            accountAddress,
-            signature,
-            config.languageCode,
-            chainInfo.chain,
+        // Check if the account that is linked to the page is linked to the data wallet
+        const existingAccount = linkedAccounts.find((linkedAccount) => {
+          return (
+            linkedAccount.sourceAccountAddress == accountAddress.toLowerCase()
           );
         });
-    });
+
+        // Account is already linked, no need to do anything
+        if (existingAccount != null) {
+          return okAsync(undefined);
+        }
+
+        // The account the DApp is using is not linked to the
+        // data wallet. We should add that account.
+        logUtils.log(
+          `Detected unlinked account ${accountAddress} being used on the DApp, adding to Snickerdoodle Data Wallet`,
+        );
+
+        return proxy.account
+          .getLinkAccountMessage(config.languageCode)
+          .andThen((unlockMessage) => {
+            return blockchainProvider.getSignature(unlockMessage);
+          })
+          .andThen((signature) => {
+            return proxy.account.addAccount(
+              accountAddress,
+              signature,
+              config.languageCode,
+              chainInfo.chain,
+            );
+          });
+      })
+      .orElse((error) => {
+        // Check for an error, but don't do anything with it
+        console.log("Error checking for additional account.Skipping ", error);
+        return okAsync(undefined);
+      });
   }
 }
 
