@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import {
   IWebIntegrationConfigOverrides,
+  LanguageCode,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { SnickerdoodleWebIntegration } from "@snickerdoodlelabs/web-integration";
@@ -9,7 +10,6 @@ import { ResultAsync, okAsync } from "neverthrow";
 
 import { WalletProvider } from "@static-web-integration/WalletProvider";
 import { WCProvider } from "@static-web-integration/WCProvider";
-
 declare const __LOGO_PATH__: URLString;
 
 export function integrateSnickerdoodle(
@@ -55,7 +55,6 @@ function startIntegration(coreConfig: IWebIntegrationConfigOverrides) {
         coreConfig,
         signerResult,
       );
-
       return webIntegration.initialize().andThen((dataWallet) => {
         console.log("Snickerdoodle Data Wallet Initialized");
         return okAsync(undefined);
@@ -80,12 +79,12 @@ function getSigner(
     });
   }
 
-  const newWalletProvider = new WCProvider();
-  return newWalletProvider
-    .init(coreConfig.walletConnect?.projectId as string)
-    .andThen(() => {
-      return newWalletProvider.getSigner();
-    });
+  const walletConnectProvider = new WCProvider(
+    coreConfig.walletConnect?.projectId,
+  );
+  walletConnectProvider.startWalletConnect();
+
+  return walletConnectProvider.getSigner();
 }
 
 function checkConnections(
@@ -99,6 +98,6 @@ function checkConnections(
     });
   }
 
-  const newWalletProvider = new WCProvider();
-  return newWalletProvider.checkConnection(coreConfig.walletConnect?.projectId);
+  const newWalletProvider = new WCProvider(coreConfig.walletConnect?.projectId);
+  return newWalletProvider.checkConnection();
 }
