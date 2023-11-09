@@ -102,7 +102,12 @@ export class IndexedDB {
     });
 
     this._initialized = ResultAsync.fromPromise(promise, (e) => {
-      return new PersistenceError("error initializing object store", e);
+      // Adding an explicit error here, because the source error gets hidden in the logs
+      const errorMessage = `Unable to initialize the indexDB: ${
+        (e as Error).message
+      }`;
+      this.logUtils.error(errorMessage, e);
+      return new PersistenceError(errorMessage, e);
     }).andThen((db) => {
       return this.persist().andThen((persisted) => {
         this.logUtils.debug("IndexDB Persist success: " + persisted);
