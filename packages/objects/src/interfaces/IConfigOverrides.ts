@@ -45,7 +45,7 @@ export interface IConfigOverrides {
   dnsServerAddress?: URLString;
   dataWalletBackupIntervalMS?: number;
   backupChunkSizeTarget?: number;
-  requestForDataCheckingFrequency?: number;
+  requestForDataPollingIntervalMS?: number;
   domainFilter?: string;
   defaultGoogleCloudBucket?: string;
 

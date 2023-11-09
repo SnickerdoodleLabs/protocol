@@ -21,7 +21,7 @@ const defaultConfigs: IExtensionConfig = {
   portfolioPollingIntervalMS: ONE_MINUTE_MS,
   transactionPollingIntervalMS: ONE_MINUTE_MS,
   backupPollingIntervalMS: ONE_MINUTE_MS,
-  requestForDataCheckingFrequency: 4000,
+  requestForDataPollingIntervalMS: 4000,
   providerKey: "snickerdoodle",
 };
 @injectable()
@@ -80,9 +80,9 @@ export class ConfigProvider implements IConfigProvider {
 
     this.config.dnsServerAddress =
       configOverrides.dnsServerAddress ?? this.config.dnsServerAddress;
-    this.config.requestForDataCheckingFrequency =
-      configOverrides.requestForDataCheckingFrequency ??
-      this.config.requestForDataCheckingFrequency;
+    this.config.requestForDataPollingIntervalMS =
+      configOverrides.requestForDataPollingIntervalMS ??
+      this.config.requestForDataPollingIntervalMS;
     this.config.enableBackupEncryption =
       configOverrides.enableBackupEncryption ??
       this.config.enableBackupEncryption;

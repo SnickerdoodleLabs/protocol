@@ -18,6 +18,7 @@ import { VolatileTableIndex } from "@persistence/volatile/VolatileTableIndex.js"
 export class IndexedDB {
   private _initialized?: ResultAsync<IDBDatabase, PersistenceError>;
   private _keyPaths: Map<string, string | string[]>;
+  private timeoutMS = 5000;
 
   public constructor(
     public name: string,
@@ -38,8 +39,12 @@ export class IndexedDB {
 
     const promise = new Promise<IDBDatabase>((resolve, reject) => {
       const timeout = setTimeout(() => {
-        reject(new PersistenceError("timeout"));
-      }, 1000);
+        reject(
+          new PersistenceError(
+            `The IndexDB initialization took longer than ${this.timeoutMS} milliseconds; aborting initialization`,
+          ),
+        );
+      }, this.timeoutMS);
 
       try {
         const request = this.dbFactory.open(this.name);
@@ -47,10 +52,16 @@ export class IndexedDB {
         request.onsuccess = (_ev) => {
           resolve(request.result);
         };
-        request.onerror = (_ev: Event) => {
-          reject(new PersistenceError("error loading db"));
+        request.onerror = (evt: Event) => {
+          reject(
+            new PersistenceError(
+              "Error occurred while opening IndexDB during initialization. onerror event generated",
+              evt,
+            ),
+          );
         };
         request.onupgradeneeded = (event: Event) => {
+          this.logUtils.debug("IndexDB requires an upgrade", event);
           const db = request.result;
           this.schema.forEach((volatileTableIndex) => {
             let keyPath: string | string[];
@@ -97,12 +108,20 @@ export class IndexedDB {
       } catch (e) {
         this.logUtils.error(e);
         clearTimeout(timeout);
-        reject(e);
+        reject(
+          new PersistenceError(
+            `Error occurred while opening IndexDB during initialization. Exception thrown: ${
+              (e as Error).message
+            })}`,
+            e,
+          ),
+        );
       }
     });
 
     this._initialized = ResultAsync.fromPromise(promise, (e) => {
-      return new PersistenceError("error initializing object store", e);
+      // We know that the promise rejects with a PersistenceError
+      return e as PersistenceError;
     }).andThen((db) => {
       return this.persist().andThen((persisted) => {
         this.logUtils.debug("IndexDB Persist success: " + persisted);
@@ -181,13 +200,14 @@ export class IndexedDB {
               resolve(undefined);
             };
             request.onerror = (event) => {
-              this.logUtils.error("Error in IndexDB.putObject");
-              this.logUtils.error(event);
-              // console.log("Error in IndexDB.putObject");
-              // console.log(event);
+              this.logUtils.error(
+                `Error occurred in IndexDB in putObject for table ${name}`,
+                event,
+              );
               reject(
                 new PersistenceError(
-                  "error updating object store: " + event.target,
+                  `Error occurred in IndexDB in putObject for table ${name}`,
+                  event,
                 ),
               );
             };
@@ -198,9 +218,8 @@ export class IndexedDB {
         });
 
         return ResultAsync.fromPromise(promise, (e) => {
-          // console.log("error placing object");
-          // console.log(e);
-          return new PersistenceError("error placing object", e);
+          // Error coming from the promise is already a PersistenceError
+          return e as PersistenceError;
         });
       })
       .map(() => {});
@@ -219,8 +238,12 @@ export class IndexedDB {
         return this.getTransaction(name, "readwrite").andThen((tx) => {
           const promise = new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
-              reject(new PersistenceError("timeout"));
-            }, 1000);
+              reject(
+                new PersistenceError(
+                  `Unable to remove an object from IndexDB table ${name} with key ${key} within ${"timeout"} milliseconds`,
+                ),
+              );
+            }, this.timeoutMS);
 
             try {
               const store = tx.objectStore(name);
@@ -231,19 +254,29 @@ export class IndexedDB {
               };
               request.onerror = (event) => {
                 clearTimeout(timeout);
-                reject(new PersistenceError("error updating object store"));
+                reject(
+                  new PersistenceError(
+                    `Unable to remove an object from IndexDB table ${name} with key ${key}. Error event returned.`,
+                    event,
+                  ),
+                );
               };
             } catch (e) {
               clearTimeout(timeout);
               tx.abort();
-              reject(new PersistenceError("error removing object", e));
+              reject(
+                new PersistenceError(
+                  `Unable to remove an object from IndexDB table ${name} with key ${key}. Exception thrown.`,
+                  e,
+                ),
+              );
             }
           });
 
-          return ResultAsync.fromPromise(
-            promise,
-            (e) => new PersistenceError("error removing object", e),
-          ).andThen(() => okAsync(found));
+          return ResultAsync.fromPromise(promise, (e) => {
+            // No need to wrap the error, the promise rejects with a PersistenceError
+            return e as PersistenceError;
+          }).andThen(() => okAsync(found));
         });
       });
     });
@@ -270,7 +303,8 @@ export class IndexedDB {
         });
 
         return ResultAsync.fromPromise(promise, (e) => {
-          return new PersistenceError("error getting object", e);
+          // The promise is rejecting with a PersistenceError
+          return e as PersistenceError;
         }).map((result) => {
           const obj = result as VolatileStorageMetadata<T>;
           if (
@@ -398,26 +432,32 @@ export class IndexedDB {
           if (index == undefined) {
             const indexObj: IDBIndex = store.index("deleted");
             request = indexObj.getAllKeys(EBoolean.FALSE, count);
+
+            request.onsuccess = (event) => {
+              resolve(request.result);
+            };
+            request.onerror = (event) => {
+              reject(
+                new PersistenceError(
+                  `An error occurred while getting all keys from the IndexDB for table ${name}. onerror event generated.`,
+                  event,
+                ),
+              );
+            };
           } else {
-            throw new PersistenceError(
-              "getting keys by index query no longer supported",
+            reject(
+              new PersistenceError(
+                "In IndexDB, getting keys by index query no longer supported",
+              ),
             );
             // const indexObj: IDBIndex = store.index(this._getIndexName(index));
             // request = indexObj.getAllKeys(query, count);
           }
-
-          request.onsuccess = (event) => {
-            resolve(request.result);
-          };
-          request.onerror = (event) => {
-            reject(new PersistenceError("error reading from object store"));
-          };
         });
 
-        return ResultAsync.fromPromise(
-          promise,
-          (e) => e as PersistenceError,
-        ).andThen((keys) => {
+        return ResultAsync.fromPromise(promise, (e) => {
+          return e as PersistenceError;
+        }).andThen((keys) => {
           return okAsync(keys as T[]);
         });
       });
@@ -432,7 +472,12 @@ export class IndexedDB {
     const keyPath = this._keyPaths.get(tableName);
 
     if (keyPath == undefined) {
-      return errAsync(new PersistenceError("invalid table name"));
+      return errAsync(
+        new PersistenceError(
+          `An error occurred in IndexDB on table ${tableName}. The keypath for the object is invalid`,
+          obj,
+        ),
+      );
     }
 
     // I can't for the life of me figure out what's going on here.
@@ -453,7 +498,10 @@ export class IndexedDB {
       }
     } catch (e) {
       return errAsync(
-        new PersistenceError("error extracting key from object", e),
+        new PersistenceError(
+          `An error occurred in IndexDB on table ${tableName} while getting the key from object. Exception thrown.`,
+          e,
+        ),
       );
     }
   }
@@ -467,10 +515,10 @@ export class IndexedDB {
       const timeout = setTimeout(() => {
         reject(
           new PersistenceError(
-            `Timeout occured while clearing object store ${name}`,
+            `Timeout occurred while clearing object store ${name}. Unable to complete operation within ${this.timeoutMS} milliseconds.`,
           ),
         );
-      }, 1000);
+      }, this.timeoutMS);
 
       try {
         const store = tx.objectStore(name);
@@ -481,11 +529,21 @@ export class IndexedDB {
         };
         req.onerror = function (evt) {
           clearTimeout(timeout);
-          reject(new PersistenceError(`Error clearing object store ${name}`));
+          reject(
+            new PersistenceError(
+              `Error clearing object store ${name}. onError event generated.`,
+              evt,
+            ),
+          );
         };
       } catch (e) {
         clearTimeout(timeout);
-        reject(new PersistenceError(`Error clearing object store ${name}`, e));
+        reject(
+          new PersistenceError(
+            `Error clearing object store ${name}. Exception thrown.`,
+            e,
+          ),
+        );
       }
     });
 
