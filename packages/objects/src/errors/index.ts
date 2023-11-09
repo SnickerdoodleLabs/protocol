@@ -15,6 +15,7 @@ export * from "@objects/errors/CrumbsContractError.js";
 export * from "@objects/errors/DataWalletLockedError.js";
 export * from "@objects/errors/DiscordError.js";
 export * from "@objects/errors/ERC721RewardContractError.js";
+export * from "@objects/errors/ERC7529ContractError.js";
 export * from "@objects/errors/GasPriceError.js";
 export * from "@objects/errors/IBlockchainError.js";
 export * from "@objects/errors/InvalidParametersError.js";

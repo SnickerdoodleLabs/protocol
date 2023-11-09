@@ -1,6 +1,6 @@
 import { useModalStyles } from "@extension-onboarding/components/Modals/Modal.style";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { Box, Dialog } from "@material-ui/core";
+import { Box, Dialog, Grid } from "@material-ui/core";
 import {
   CloseButton,
   SDButton,
@@ -12,6 +12,7 @@ export interface IConfirmationModal {
   title: string;
   description: string;
   actionText?: string;
+  showCancelButton?: boolean;
 }
 
 const ConfirmationModal: FC = () => {
@@ -20,7 +21,8 @@ const ConfirmationModal: FC = () => {
   const {
     title,
     description,
-    actionText = "Confirn",
+    actionText = "Confirm",
+    showCancelButton = true,
   } = customProps as IConfirmationModal;
 
   const modalClasses = useModalStyles();
@@ -41,21 +43,41 @@ const ConfirmationModal: FC = () => {
         <Box mt={2} display="flex" justifyContent="flex-start">
           <SDTypography variant="bodyLg">{description}</SDTypography>
         </Box>
-        <Box display="flex" marginLeft="auto" mt={3} justifyContent="flex-end">
-          <SDButton onClick={closeModal} variant="outlined" color="danger">
-            Cancel
-          </SDButton>
-          <Box ml={2} />
-          <SDButton
-            variant="contained"
-            color="danger"
-            onClick={() => {
-              onPrimaryButtonClick();
-              closeModal();
-            }}
-          >
-            {actionText}
-          </SDButton>
+        <Box display="flex" mt={3} justifyContent="flex-end">
+          <Grid container spacing={2} justifyContent="flex-end">
+            {showCancelButton && (
+              <Grid item className={modalClasses.buttonWrapper50}>
+                <SDButton
+                  fullWidth
+                  onClick={closeModal}
+                  variant="outlined"
+                  color="danger"
+                >
+                  Cancel
+                </SDButton>
+              </Grid>
+            )}
+            <Grid
+              item
+              className={
+                showCancelButton
+                  ? modalClasses.buttonWrapper50
+                  : modalClasses.buttonWrapperFullWidth
+              }
+            >
+              <SDButton
+                variant="contained"
+                fullWidth
+                color="danger"
+                onClick={() => {
+                  onPrimaryButtonClick();
+                  closeModal();
+                }}
+              >
+                {actionText}
+              </SDButton>
+            </Grid>
+          </Grid>
         </Box>
       </Box>
     </Dialog>

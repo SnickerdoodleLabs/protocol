@@ -2,7 +2,7 @@ import { AxiosAjaxUtils, LogUtils } from "@snickerdoodlelabs/common-utils";
 import { URLString } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { ERC7529Config } from "@erc7529/ERC7529Config";
+import { ERC7529Config } from "@erc7529/ERC7529Config.js";
 import { ERC7529Utils } from "@erc7529/ERC7529Utils.js";
 import { IERC7529ConfigProvider } from "@erc7529/IERC7529ConfigProvider.js";
 

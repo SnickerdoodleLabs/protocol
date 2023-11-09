@@ -18,6 +18,7 @@ import {
   IUserAgreement,
   Invitation,
   LinkedAccount,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
   DescriptionWidget,
@@ -227,18 +228,28 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     [currentInvitation],
   );
 
-  const rejectInvitation = useCallback(() => {
-    if (currentInvitation) {
+  const rejectInvitation = useCallback(
+    (withTimestamp: boolean) => {
+      if (!currentInvitation) return;
+      // reject until 36 hours from the current time.
+      const rejectUntil = withTimestamp
+        ? UnixTimestamp(
+            Math.floor(
+              new Date(Date.now() + 36 * 60 * 60 * 1000).getTime() / 1000,
+            ),
+          )
+        : undefined;
       core.invitation
-        .rejectInvitation(currentInvitation.data.invitation)
+        .rejectInvitation(currentInvitation.data.invitation, rejectUntil)
         .map(() => {
           clearInvitation();
         })
         .mapErr(() => {
           clearInvitation();
         });
-    }
-  }, [currentInvitation]);
+    },
+    [currentInvitation],
+  );
 
   const clearInvitation = useCallback(() => {
     if (currentInvitation) {
@@ -279,7 +290,12 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
         case EAPP_STATE.INVITATION_PREVIEW:
           return (
             <DescriptionWidget
-              onRejectClick={rejectInvitation}
+              onRejectClick={() => {
+                rejectInvitation(false);
+              }}
+              onRejectWithTimestampClick={() => {
+                rejectInvitation(true);
+              }}
               invitationData={currentInvitation.data.metadata}
               onCancelClick={clearInvitation}
               onContinueClick={() => {
