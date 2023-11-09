@@ -141,6 +141,7 @@ class MasterIndexerMocks {
   public matic: EVMIndexerMock;
   public sim: EVMIndexerMock;
   public sol: ISolanaIndexer;
+  public sxt: EVMIndexerMock;
   public configProvider: IIndexerConfigProvider;
   public ajaxUtils: IAxiosAjaxUtils;
   public tokenPriceRepo: ITokenPriceRepository;
@@ -199,6 +200,10 @@ class MasterIndexerMocks {
       "Sim",
       new Map<EChain, IndexerSupportSummary>(),
     );
+    this.sxt = new EVMIndexerMock(
+      "SxT",
+      new Map<EChain, IndexerSupportSummary>(),
+    );
     this.sol = td.object<ISolanaIndexer>();
     this.blockvision = td.object<ISuiIndexer>();
     this.bigNumberUtils = td.object<IBigNumberUtils>();
@@ -235,6 +240,7 @@ class MasterIndexerMocks {
       this.matic,
       this.sim,
       this.sol,
+      this.sxt,
       this.logUtils,
       this.bigNumberUtils,
     );

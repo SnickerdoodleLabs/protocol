@@ -19,6 +19,7 @@ import {
   ISimulatorEVMTransactionRepositoryType,
   ISolanaIndexer,
   ISolanaIndexerType,
+  ISpaceAndTimeIndexerType,
 } from "@indexers/interfaces/index.js";
 import { MasterIndexer } from "@indexers/MasterIndexer.js";
 import {
@@ -35,6 +36,7 @@ import {
   PolygonIndexer,
   SimulatorEVMTransactionRepository,
   SolanaIndexer,
+  SpaceAndTimeIndexer,
 } from "@indexers/providers/index.js";
 
 export const indexersModule = new ContainerModule(
@@ -84,6 +86,10 @@ export const indexersModule = new ContainerModule(
 
     bind<IEVMIndexer>(ISimulatorEVMTransactionRepositoryType)
       .to(SimulatorEVMTransactionRepository)
+      .inSingletonScope();
+
+    bind<IEVMIndexer>(ISpaceAndTimeIndexerType)
+      .to(SpaceAndTimeIndexer)
       .inSingletonScope();
 
     /* Solana Indexers */

@@ -56,11 +56,13 @@ import {
   ISimulatorEVMTransactionRepositoryType,
   ISolanaIndexerType,
   ISolanaIndexer,
+  ISpaceAndTimeIndexerType,
 } from "@indexers/interfaces/index.js";
 
 @injectable()
 export class MasterIndexer implements IMasterIndexer {
   protected evmIndexerWeights = [
+    this.sxt,
     this.bluez,
     this.poapRepo,
     this.ankr,
@@ -94,6 +96,8 @@ export class MasterIndexer implements IMasterIndexer {
     @inject(IPolygonIndexerType) protected matic: IEVMIndexer,
     @inject(ISimulatorEVMTransactionRepositoryType) protected sim: IEVMIndexer,
     @inject(ISolanaIndexerType) protected sol: ISolanaIndexer,
+    @inject(ISpaceAndTimeIndexerType) protected sxt: IEVMIndexer,
+
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(IBigNumberUtilsType) protected bigNumberUtils: IBigNumberUtils,
   ) {}
@@ -114,6 +118,7 @@ export class MasterIndexer implements IMasterIndexer {
       this.poapRepo.initialize(),
       this.sim.initialize(),
       this.sol.initialize(),
+      this.sxt.initialize(),
     ])
       .andThen(() => {
         return this.getSupportedChains();

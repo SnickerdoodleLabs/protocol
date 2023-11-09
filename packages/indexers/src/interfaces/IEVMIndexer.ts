@@ -69,4 +69,6 @@ export const ISimulatorEVMTransactionRepositoryType = Symbol.for(
   "ISimulatorEVMTransactionRepository",
 );
 
+export const ISpaceAndTimeIndexerType = Symbol.for("ISpaceAndTimeIndexer");
+
 export const ISolanaIndexerType = Symbol.for("ISolanaIndexer");
