@@ -19,6 +19,7 @@ import {
   IUserAgreement,
   Invitation,
   Signature,
+  ProxyError,
 } from "@snickerdoodlelabs/objects";
 import {
   DescriptionWidget,
@@ -32,7 +33,7 @@ import endOfStream from "end-of-stream";
 import PortStream from "extension-port-stream";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import { err, okAsync } from "neverthrow";
+import { ResultAsync, err, errAsync, ok, okAsync } from "neverthrow";
 import ObjectMultiplex from "obj-multiplex";
 import LocalMessageStream from "post-message-stream";
 import pump from "pump";
@@ -51,7 +52,10 @@ import {
   ShoppingDataINIT,
   ShoppingDataProcess,
 } from "@synamint-extension-sdk/content/components/screens";
-import { EAppState } from "@synamint-extension-sdk/content/constants";
+import {
+  EAppState,
+  EShoppingDataState,
+} from "@synamint-extension-sdk/content/constants";
 import usePath from "@synamint-extension-sdk/content/hooks/usePath";
 import DataWalletProxyInjectionUtils from "@synamint-extension-sdk/content/utils/DataWalletProxyInjectionUtils";
 import { VersionUtils } from "@synamint-extension-sdk/extensionShared";
@@ -183,14 +187,13 @@ const awaitAccountLinking = SDL_ORIGIN_LIST.includes(origin);
 
 const App = () => {
   const [appState, setAppState] = useState<EAppState>(EAppState.IDLE);
+  const [shoppingDataState, setShoppingDataState] =
+    useState<EShoppingDataState>(EShoppingDataState.SHOPPINGDATA_IDLE);
   const [accounts, setAccounts] = useState<LinkedAccount[]>([]);
   const _path = usePath();
   const [isHidden, setIsHidden] = useState<boolean>(false);
   const [shoppingDataScrapeStart, setShoppingDataScrapeStart] =
     useState<boolean>(false);
-
-  const [years, setYears] = useState<Year[]>([]);
-  const [urls, setUrls] = useState<URLString[]>([]);
 
   // #region new flow
   const [deepLinkInvitation, setDeepLinkInvitation] =
@@ -382,73 +385,92 @@ const App = () => {
     };
   }, []);
 
-  /*  useEffect(() => {
-    scrapeAmazon();
-  }, []);
-
-  const scrapeAmazon = () => {
-    const url = window.location.href;
+  const getAmazonURLS = () => {
     const html = document.documentElement.outerHTML;
+    let openWindowCount = 0;
+    return coreGateway.scraperNavigation
+      .getYears(HTMLString(html))
+      .map((years) => {
+        for (const year of years) {
+          for (let i = 1; i <= 5; i++) {
+            coreGateway.scraperNavigation
+              .getOrderHistoryPageByYear(ELanguageCode.English, year, PageNo(i))
+              .map(async (url) => {
+                const width = 100;
+                const height = 100;
 
-    if (
-      (url.includes("order-history") || url.includes("your-orders")) &&
-      url.includes("amazon")
-    ) {
-      coreGateway.scraperNavigation.getYears(HTMLString(html)).map((year) => {
-        return setYears(year);
+                const left = (window.screen.width - width) / 2;
+                const top = (window.screen.height - height) / 2;
+
+                const windowFeatures =
+                  "width=" +
+                  width +
+                  ",height=" +
+                  height +
+                  ",left=" +
+                  left +
+                  ",top=" +
+                  top;
+                const newWindow = window.open(url, "_blank", windowFeatures);
+                if (newWindow) {
+                  openWindowCount++;
+                  await new Promise((resolve) => {
+                    newWindow.onload = resolve;
+                  });
+
+                  const windowHTML =
+                    newWindow.document.documentElement.outerHTML;
+
+                  console.log("windowhtml", windowHTML);
+                  coreGateway.scraper
+                    .classifyURL(URLString(url), ELanguageCode.English)
+                    .andThen((DomainTask) => {
+                      console.log("DOMAINTASKSKKK", DomainTask);
+                      return coreGateway.scraper
+                        .scrape(
+                          URLString(url),
+                          HTMLString(windowHTML),
+                          DomainTask,
+                        )
+                        .map((result) => console.log(result))
+                        .mapErr((err) => console.log("iç", err));
+                    });
+
+                  newWindow.close();
+                  openWindowCount--;
+                  if (openWindowCount === 0) {
+                    setShoppingDataState(
+                      EShoppingDataState.SHOPPINGDATA_SCRAPE_DONE,
+                    );
+                  }
+                }
+              });
+          }
+        }
       });
-      console.log("yearsss", years);
-      for (let i = 5; i > 0; i--) {
-        years.reverse().map((year) => {
-          coreGateway.scraperNavigation
-            .getOrderHistoryPageByYear(ELanguageCode.English, year, PageNo(i))
-            .map((result) => {
-              return setUrls([result]);
-            });
-
-          console.log(year, "year", i, "page");
-        });
-      }
-      console.log(urls, "urls");
-    }
-  }; */
+  };
 
   useEffect(() => {
     checkURLAMAZON();
   }, [shoppingDataScrapeStart]);
 
-  const exitScraper = () => {
-    setAppState(EAppState.SHOPPINGDATA_INIT);
-  };
-
   const checkURLAMAZON = () => {
     const url = window.location.href;
     console.log(url, "URLLL");
-    const html = document.documentElement.outerHTML;
 
-    if (
-      (url.includes("order-history") || url.includes("your-orders")) &&
-      url.includes("amazon")
-    ) {
-      setAppState(EAppState.SHOPPINGDATA_INIT);
+    if (url.includes("ShoppingDataSDL") && url.includes("amazon")) {
+      setShoppingDataState(EShoppingDataState.SHOPPINGDATA_INIT);
       if (shoppingDataScrapeStart) {
-        setAppState(EAppState.SHOPPINGDATA_SCRAPE_PROCESS);
+        setShoppingDataState(EShoppingDataState.SHOPPINGDATA_SCRAPE_PROCESS);
         console.log("TEST1");
-        /*  scrapeAmazon(); */
-        console.log(urls, "urls");
-        coreGateway.scraper
-          .classifyURL(URLString(url), ELanguageCode.English)
-          .andThen((DomainTask) => {
-            console.log("DOMAINTASKSKKK", DomainTask);
-            return coreGateway.scraper
-              .scrape(URLString(url), HTMLString(html), DomainTask)
-              .map((result) => setAppState(EAppState.SHOPPINGDATA_SCRAPE_DONE))
-              .mapErr((err) => console.log("iç", err));
-          })
-          .mapErr((err) => console.log("broooo", err));
+        getAmazonURLS();
       }
       console.log("TEST2");
     }
+  };
+
+  const exitScraper = () => {
+    setShoppingDataState(EShoppingDataState.SHOPPINGDATA_INIT);
   };
 
   const getAccounts = () => {
@@ -465,19 +487,24 @@ const App = () => {
 
   // #endregion
 
-  const renderComponent = useMemo(() => {
+  const renderShoppingDataComponent = useMemo(() => {
     switch (true) {
-      case appState === EAppState.SHOPPINGDATA_INIT:
+      case shoppingDataState === EShoppingDataState.SHOPPINGDATA_INIT:
         return (
           <ShoppingDataINIT
             setShoppingDataScrapeStart={setShoppingDataScrapeStart}
           />
         );
-      case appState === EAppState.SHOPPINGDATA_SCRAPE_PROCESS:
+      case shoppingDataState === EShoppingDataState.SHOPPINGDATA_SCRAPE_PROCESS:
         return <ShoppingDataProcess onCloseClick={exitScraper} />;
-      case appState === EAppState.SHOPPINGDATA_SCRAPE_DONE:
+      case shoppingDataState === EShoppingDataState.SHOPPINGDATA_SCRAPE_DONE:
         return <ShoppingDataDone coreGateway={coreGateway} />;
+      default:
+        return null;
     }
+  }, [shoppingDataState]);
+
+  const renderComponent = useMemo(() => {
     if (!currentInvitation) return null;
     // delay showing popup until user link an account
     if (awaitAccountLinking && accounts.length === 0) return null;
@@ -527,6 +554,9 @@ const App = () => {
     <ThemeProvider theme={createDefaultTheme(EColorMode.LIGHT)}>
       <>
         {renderComponent && <ModalContainer>{renderComponent}</ModalContainer>}
+        {renderShoppingDataComponent && (
+          <ModalContainer>{renderShoppingDataComponent}</ModalContainer>
+        )}
       </>
     </ThemeProvider>
   );

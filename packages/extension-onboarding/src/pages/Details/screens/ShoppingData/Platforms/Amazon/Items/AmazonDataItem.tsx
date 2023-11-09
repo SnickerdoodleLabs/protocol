@@ -1,14 +1,10 @@
-import { Box, Button, Grid, Typography } from "@material-ui/core";
-import { PieChart } from "@material-ui/icons";
+import { Box, Grid, Typography } from "@material-ui/core";
 import { PurchasedProduct } from "@snickerdoodlelabs/objects";
-import { ChartData, ChartOptions } from "chart.js";
+import { ChartData } from "chart.js";
 import React, { FC, memo } from "react";
-import { Bar, Pie } from "react-chartjs-2";
+import { Pie } from "react-chartjs-2";
 
-import { useStyles } from "../Amazon.style";
-
-import csvIcon from "@extension-onboarding/assets/icons/csv-ıcon.png";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/ShoppingData/Platforms/Amazon/Amazon.style";
 
 interface IAmazonDataItemProps {
   product: PurchasedProduct[];
@@ -34,7 +30,7 @@ export const AmazonDataItem: FC<IAmazonDataItemProps> = memo(
         );
       };
 
-      const clothesTotalPrice = getCategoryTotalPrice("Clothes", products);
+      const clothesTotalPrice = getCategoryTotalPrice("Clothing", products);
       const electronicsTotalPrice = getCategoryTotalPrice(
         "Electronics",
         products,
@@ -44,7 +40,7 @@ export const AmazonDataItem: FC<IAmazonDataItemProps> = memo(
       const otherProducts = products.filter(
         (product) =>
           !(
-            product.category === "Clothes" ||
+            product.category === "Clothing" ||
             product.category === "Electronics" ||
             product.category === "Game"
           ),

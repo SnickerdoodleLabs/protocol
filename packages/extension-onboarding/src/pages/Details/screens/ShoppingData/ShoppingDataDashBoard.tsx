@@ -1,11 +1,10 @@
 import { Box } from "@material-ui/core";
 import React from "react";
 
-import { Amazon } from "./Platforms";
-
 import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen";
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { EShoppingDataType } from "@extension-onboarding/objects";
+import { Amazon } from "@extension-onboarding/pages/Details/screens/ShoppingData/Platforms/Amazon/Amazon";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/ShoppingData/ShoppingDataDashBoard.style";
 
 interface IShoppingDataProps {

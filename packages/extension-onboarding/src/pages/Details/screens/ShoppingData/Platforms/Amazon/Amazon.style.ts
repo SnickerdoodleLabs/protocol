@@ -24,7 +24,7 @@ export const useStyles = makeStyles((theme) => ({
     fontWeight: 500,
     fontSize: "15px",
     lineHeight: "26px",
-    color: "#8079B4",
+    color: "#FFFFFF",
   },
   SyncDataButton: {
     border: "1px solid #B9B6D3",

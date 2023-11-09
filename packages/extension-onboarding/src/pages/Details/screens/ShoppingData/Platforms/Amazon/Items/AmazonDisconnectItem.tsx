@@ -2,10 +2,8 @@ import { Box, Button, Typography } from "@material-ui/core";
 import { PurchasedProduct } from "@snickerdoodlelabs/objects";
 import React, { FC, memo } from "react";
 
-import { useStyles } from "../Amazon.style";
-
 import ConnectionCheckIcon from "@extension-onboarding/assets/icons/shoppingdata-connectdone.png";
-import SyncDataIcon from "@extension-onboarding/assets/icons/syncdataicon.png";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/ShoppingData/Platforms/Amazon/Amazon.style";
 
 interface IAmazonDisConnectItemProps {
   icon: string;

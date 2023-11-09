@@ -1,7 +1,7 @@
 import { Box, Button, Typography } from "@material-ui/core";
 import React, { FC, memo } from "react";
 
-import { useStyles } from "../Amazon.style";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/ShoppingData/Platforms/Amazon/Amazon.style";
 
 interface IAmazonConnectionItemProps {
   icon: string;
