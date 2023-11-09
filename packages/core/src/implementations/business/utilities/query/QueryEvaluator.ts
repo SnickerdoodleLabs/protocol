@@ -21,6 +21,7 @@ import {
   AST_NftQuery,
   AST_PropertyQuery,
   AST_SubQuery,
+  AST_Web3AccountSizeQuery,
   BinaryCondition,
   ConditionE,
   ConditionG,
@@ -42,6 +43,8 @@ import {
   IBalanceQueryEvaluator,
   IBalanceQueryEvaluatorType,
   IQueryEvaluator,
+  IWeb3AccountQueryEvaluator,
+  IWeb3AccountQueryEvaluatorType,
 } from "@core/interfaces/business/utilities/query/index.js";
 import {
   IBrowsingDataRepository,
@@ -77,6 +80,8 @@ export class QueryEvaluator implements IQueryEvaluator {
     protected socialRepo: ISocialRepository,
     @inject(IContextProviderType)
     protected contextProvider: IContextProvider,
+    @inject(IWeb3AccountQueryEvaluatorType)
+    protected web3AccountQueryEvaluator: IWeb3AccountQueryEvaluator,
   ) {}
 
   protected age: Age = Age(0);
@@ -178,6 +183,40 @@ export class QueryEvaluator implements IQueryEvaluator {
             context.publicEvents.queryPerformance.next(
               new QueryPerformanceEvent(
                 EQueryEvents.NftDataEvaluation,
+                EStatus.End,
+                queryCID,
+                query.name,
+                err,
+              ),
+            );
+            return err;
+          });
+      } else if (query instanceof AST_Web3AccountSizeQuery) {
+        context.publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.Web3AccountEvaluation,
+            EStatus.Start,
+            queryCID,
+            query.name,
+          ),
+        );
+        return this.web3AccountQueryEvaluator
+          .eval(query, queryCID)
+          .map((result) => {
+            context.publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.Web3AccountEvaluation,
+                EStatus.End,
+                queryCID,
+                query.name,
+              ),
+            );
+            return result;
+          })
+          .mapErr((err) => {
+            context.publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.Web3AccountEvaluation,
                 EStatus.End,
                 queryCID,
                 query.name,

@@ -43,4 +43,6 @@ export enum EQueryEvents {
   NftDataAccess = "NftDataAccess",
   DiscordDataAccess = "DiscordDataAccess",
   DappEvaluation = "DappEvaluation",
+  Web3AccountDataAccess = "Web3AccountDataAccess",
+  Web3AccountEvaluation = "Web3AccountEvaluation",
 }
