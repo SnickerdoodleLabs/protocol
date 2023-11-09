@@ -1,5 +1,6 @@
 import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import { ECoreProxyType } from "@snickerdoodlelabs/objects";
 import { SDTypography } from "@snickerdoodlelabs/shared-components";
 import React from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
@@ -8,6 +9,7 @@ import Container from "@extension-onboarding/components/v2/Container";
 import DashboardTitle from "@extension-onboarding/components/v2/DashboardTitle";
 import { EPathsV2 as EPaths } from "@extension-onboarding/containers/Router/Router.pathsV2";
 import { DashboardContextProvider } from "@extension-onboarding/context/DashboardContext";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 
 const useStyles = makeStyles((theme) => ({
   link: {
@@ -92,6 +94,9 @@ const DataDashboardLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const classes = useStyles();
+  const { sdlDataWallet } = useDataWalletContext();
+
+  sdlDataWallet.proxyType === ECoreProxyType.IFRAME_INJECTED;
 
   const navContainerRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -111,43 +116,49 @@ const DataDashboardLayout = () => {
     <Box style={{ background: "#FAFAFA" }}>
       <Box>
         <div className={classes.linkItemsWrapper} ref={navContainerRef}>
-          {LINKS.map((link) => (
-            <Box
-              mt={4}
-              mb={3}
-              className={classes.linkWrapper}
-              key={link.path}
-              data-path={link.path}
-              onClick={() => {
-                navigate(link.path);
-              }}
-            >
-              <Box px={4} mb={1}>
-                <SDTypography
-                  variant="titleSm"
-                  fontWeight={
-                    location.pathname === link.path ? "bold" : "medium"
-                  }
-                  color={
-                    location.pathname === link.path ? "textHeading" : "textBody"
-                  }
+          {LINKS.map(
+            (link) =>
+              (sdlDataWallet.proxyType !== ECoreProxyType.IFRAME_INJECTED ||
+                link.path !== EPaths.SHOPPING_DATA) && (
+                <Box
+                  mt={4}
+                  mb={3}
+                  className={classes.linkWrapper}
+                  key={link.path}
+                  data-path={link.path}
+                  onClick={() => {
+                    navigate(link.path);
+                  }}
                 >
-                  {link.title}
-                </SDTypography>
-              </Box>
-              <Box
-                display="flex"
-                width="80%"
-                margin="auto"
-                height="1px"
-                bgcolor={
-                  location.pathname === link.path
-                    ? "textHeading"
-                    : "transparent"
-                }
-              />
-            </Box>
-          ))}
+                  <Box px={4} mb={1}>
+                    <SDTypography
+                      variant="titleSm"
+                      fontWeight={
+                        location.pathname === link.path ? "bold" : "medium"
+                      }
+                      color={
+                        location.pathname === link.path
+                          ? "textHeading"
+                          : "textBody"
+                      }
+                    >
+                      {link.title}
+                    </SDTypography>
+                  </Box>
+                  <Box
+                    display="flex"
+                    width="80%"
+                    margin="auto"
+                    height="1px"
+                    bgcolor={
+                      location.pathname === link.path
+                        ? "textHeading"
+                        : "transparent"
+                    }
+                  />
+                </Box>
+              ),
+          )}
         </div>
       </Box>
       <Container>
