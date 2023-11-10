@@ -4,7 +4,6 @@ import {
   ILogUtils,
   ILogUtilsType,
   ObjectUtils,
-  ValidationUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountAddress,
@@ -19,6 +18,7 @@ import {
   EIndexerMethod,
   EVMAccountAddress,
   EVMContractAddress,
+  EVMTransaction,
   getChainInfoByChain,
   IndexerSupportSummary,
   InvalidParametersError,
@@ -57,10 +57,8 @@ import {
   ISimulatorEVMTransactionRepositoryType,
   ISolanaIndexerType,
   ISolanaIndexer,
-  IEVMTransactionValidator,
-  IEVMTransactionValidatorType,
-  IEVMTransactionNormalizer,
-  IEVMTransactionNormalizerType,
+  IEVMTransactionSanitizer,
+  IEVMTransactionSanitizerType,
 } from "@indexers/interfaces/index.js";
 
 @injectable()
@@ -101,10 +99,8 @@ export class MasterIndexer implements IMasterIndexer {
     @inject(ISolanaIndexerType) protected sol: ISolanaIndexer,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(IBigNumberUtilsType) protected bigNumberUtils: IBigNumberUtils,
-    @inject(IEVMTransactionValidatorType)
-    protected evmTransactionValidator: IEVMTransactionValidator,
-    @inject(IEVMTransactionNormalizerType)
-    protected evmTransactionNormalizer: IEVMTransactionNormalizer,
+    @inject(IEVMTransactionSanitizerType)
+    protected evmTransactionSanitizer: IEVMTransactionSanitizer,
   ) {}
 
   // call this from elsewhere
@@ -413,14 +409,20 @@ export class MasterIndexer implements IMasterIndexer {
           return e;
         })
         .map((transactions) => {
-          return transactions.filter((transaction) => {
-            this.evmTransactionNormalizer.normalize(transaction);
-            return this.evmTransactionValidator.validate(
-              transaction,
+          const sanitizedTransactions: EVMTransaction[] = [];
+
+          transactions.forEach((tx) => {
+            const sanitizedTransaction = this.evmTransactionSanitizer.sanitize(
+              tx,
               indexer.name(),
               chain,
             );
+            if (sanitizedTransaction != null) {
+              sanitizedTransactions.push(sanitizedTransaction);
+            }
           });
+
+          return sanitizedTransactions;
         });
     }, indexers).orElse((e) => {
       return okAsync([]);

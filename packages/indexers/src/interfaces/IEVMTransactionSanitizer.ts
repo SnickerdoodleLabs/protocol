@@ -4,14 +4,14 @@ import {
   EVMTransaction,
 } from "@snickerdoodlelabs/objects";
 
-export interface IEVMTransactionValidator {
-  validate(
+export interface IEVMTransactionSanitizer {
+  sanitize(
     transaction: EVMTransaction,
     indexerName: EDataProvider,
     chain: EChain,
-  ): boolean;
+  ): EVMTransaction | null;
 }
 
-export const IEVMTransactionValidatorType = Symbol.for(
-  "IEVMTransactionValidator",
+export const IEVMTransactionSanitizerType = Symbol.for(
+  "IEVMTransactionSanitizer",
 );

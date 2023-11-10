@@ -31,8 +31,7 @@ import * as td from "testdouble";
 
 import {
   IEVMIndexer,
-  IEVMTransactionNormalizer,
-  IEVMTransactionValidator,
+  IEVMTransactionSanitizer,
   IIndexerConfigProvider,
   IIndexerContextProvider,
   ISolanaIndexer,
@@ -149,8 +148,7 @@ class MasterIndexerMocks {
   public tokenPriceRepo: ITokenPriceRepository;
   public logUtils: ILogUtils;
   public bigNumberUtils: IBigNumberUtils;
-  public evmTransactionValidator: IEVMTransactionValidator;
-  public evmTransactionNormalizer: IEVMTransactionNormalizer;
+  public evmTransactionSanitizer: IEVMTransactionSanitizer;
 
   public constructor() {
     this.context = new ContextProviderMock();
@@ -212,8 +210,7 @@ class MasterIndexerMocks {
     this.ajaxUtils = td.object<IAxiosAjaxUtils>();
     this.tokenPriceRepo = td.object<ITokenPriceRepository>();
     this.logUtils = td.object<ILogUtils>();
-    this.evmTransactionValidator = td.object<IEVMTransactionValidator>();
-    this.evmTransactionNormalizer = td.object<IEVMTransactionNormalizer>();
+    this.evmTransactionSanitizer = td.object<IEVMTransactionSanitizer>();
 
     // Solidity Repositories -----------------------------------------------------
     td.when(this.sol.initialize()).thenReturn(okAsync(undefined));
@@ -225,12 +222,18 @@ class MasterIndexerMocks {
     );
 
     td.when(
-      this.evmTransactionValidator.validate(
+      this.evmTransactionSanitizer.sanitize(
         td.matchers.anything(),
         td.matchers.anything(),
         td.matchers.anything(),
       ),
-    ).thenReturn(true);
+    ).thenDo(
+      (
+        transaction: EVMTransaction,
+        _indexerName: EDataProvider,
+        _chain: EChain,
+      ) => transaction,
+    );
   }
 
   public factory(): MasterIndexer {
@@ -252,8 +255,7 @@ class MasterIndexerMocks {
       this.sol,
       this.logUtils,
       this.bigNumberUtils,
-      this.evmTransactionValidator,
-      this.evmTransactionNormalizer,
+      this.evmTransactionSanitizer,
     );
   }
 

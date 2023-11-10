@@ -458,7 +458,7 @@ export class EtherscanIndexer implements IEVMIndexer {
   }
 }
 
-export interface IEtherscanTransactionResponse {
+interface IEtherscanTransactionResponse {
   status: string;
   message: string;
   result: {

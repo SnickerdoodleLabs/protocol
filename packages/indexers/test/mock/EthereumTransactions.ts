@@ -27,6 +27,9 @@ const validMethodId = "0x2f2ff15d";
 const validGasPrice = BigNumberString("25000000000");
 const validFunctionName = "grantRole(bytes32 role, address account)";
 
+export const validMixedCaseAddress = EVMAccountAddress(
+  "0x1f9090aaE28b8a3dCeaDf281B0F12828e676c326",
+);
 const validFullTransaction = new EVMTransaction(
   fujiChain,
   validHash,
@@ -83,33 +86,22 @@ export const validEVMTransactions = [
   validNulledTransaction,
 ];
 
-//
+const upperCaseTx = Object.assign({}, validFullTransaction);
+
+upperCaseTx.to = validMixedCaseAddress;
+upperCaseTx.from = validMixedCaseAddress;
+
+export const validUpperCaseEVMTransactions = [upperCaseTx];
+
 const invalidHashTx = Object.assign({}, validFullTransaction);
-const invalidHexStringTimestampTx = Object.assign({}, validFullTransaction);
-const invalidNumberStringTimestampTx = Object.assign({}, validFullTransaction);
-const invalidBlockHeightTx = Object.assign({}, validFullTransaction);
+
 const invalidAccountAddressTx = Object.assign({}, validFullTransaction);
 const invalidBigNumberTx = Object.assign({}, validFullTransaction);
+
 const invalidStringsTx = Object.assign({}, validFullTransaction);
-const invalidValueTx = Object.assign({}, validFullTransaction);
 
 //
 invalidHashTx.hash = EVMTransactionHash(`0`);
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
-invalidHexStringTimestampTx.timestamp = UnixTimestamp("0x62eba12f");
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
-invalidNumberStringTimestampTx.timestamp = "1659609391";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
-invalidBlockHeightTx.blockHeight = "1";
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
-invalidValueTx.value = 0;
 
 invalidAccountAddressTx.to = EVMAccountAddress("0");
 invalidBigNumberTx.value = BigNumberString("-1");
@@ -118,12 +110,32 @@ invalidBigNumberTx.value = BigNumberString("-1");
 //@ts-ignore
 invalidStringsTx.input = 11;
 export const invalidEVMTransactions = [
-  invalidHexStringTimestampTx,
-  invalidNumberStringTimestampTx,
-  invalidBlockHeightTx,
-  invalidValueTx,
   invalidHashTx,
   invalidAccountAddressTx,
   invalidBigNumberTx,
   invalidStringsTx,
+];
+
+const invalidHexStringTimestampTx = Object.assign({}, validFullTransaction); //1
+const invalidNumberStringTimestampTx = Object.assign({}, validFullTransaction); //1
+const invalidValueTx = Object.assign({}, validFullTransaction); //1
+const invalidBlockHeightTx = Object.assign({}, validFullTransaction); //1
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+invalidHexStringTimestampTx.timestamp = UnixTimestamp("0x62eba12f");
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+invalidNumberStringTimestampTx.timestamp = "1659609391";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+invalidValueTx.value = 0;
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+invalidBlockHeightTx.blockHeight = "1";
+export const invalidButCanBeNormalizedTransactions = [
+  invalidHexStringTimestampTx,
+  invalidNumberStringTimestampTx,
+  invalidBlockHeightTx,
+  invalidValueTx,
 ];
