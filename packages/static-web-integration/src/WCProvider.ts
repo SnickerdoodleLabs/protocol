@@ -53,7 +53,7 @@ export class WCProvider {
       await new Promise<void>((resolve, reject) => {
         this.ethereumClient.watchAccount((accounts) => {
           if (accounts.address) {
-            resolve(); // Resolve the Promise when the event occurs
+            resolve();
           }
         });
       });
@@ -61,8 +61,6 @@ export class WCProvider {
       const client = await getWalletClient();
       const signer_ = await this.getEthersSigner();
       const signature = await this.sign(signer_, message);
-
-      // Now you can use the 'signature' value here
       return signer_;
     } catch (error) {
       return new Error(`Error getting signature: ${(error as Error).message}`);

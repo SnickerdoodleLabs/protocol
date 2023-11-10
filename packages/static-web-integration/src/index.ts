@@ -32,9 +32,9 @@ export class integrateSnickerdoodle {
       })
       .andThen((message) => {
         return ResultAsync.fromPromise(
-          this.WCProvider!.startWalletConnect(message).then((result) => {
+          this.WCProvider.startWalletConnect(message).then((result) => {
             if (result instanceof Error) {
-              throw result;
+              throw new Error(result.message);
             }
             return result;
           }),
