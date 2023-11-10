@@ -316,11 +316,11 @@ const App = () => {
   const rejectInvitation = useCallback(
     (withTimestamp: boolean) => {
       if (!currentInvitation) return;
-      // reject until 12 hours from the current time.
+      // reject until 36 hours from the current time.
       const rejectUntil = withTimestamp
         ? UnixTimestamp(
             Math.floor(
-              new Date(Date.now() + 12 * 60 * 60 * 1000).getTime() / 1000,
+              new Date(Date.now() + 36 * 60 * 60 * 1000).getTime() / 1000,
             ),
           )
         : undefined;
