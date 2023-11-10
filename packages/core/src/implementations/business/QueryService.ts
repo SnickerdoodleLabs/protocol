@@ -161,7 +161,7 @@ export class QueryService implements IQueryService {
     /**
      * TODO
      * This method, for Ads Flow, will no longer process insights immediately. It will process the
-     * query to do Demographic Targetting for any included ads, and add those ads to the list
+     * query to do Demographic Targeting for any included ads, and add those ads to the list
      * of EligibleAds. It will create a QueryStatus object and persist that as well, to track the
      * progress of the query.
      *
@@ -197,8 +197,8 @@ export class QueryService implements IQueryService {
           requestForData.requestedCID,
         ),
       );
-      // Now we will record the query as having been recieved; it is now at the start of the processing pipeline
-      // This is just a prototype, we probably need to do the parsing before this becuase QueryStatus
+      // Now we will record the query as having been received; it is now at the start of the processing pipeline
+      // This is just a prototype, we probably need to do the parsing before this because QueryStatus
       // should grow significantly
       return this.createQueryStatusWithConsent(requestForData, queryWrapper)
         .andThen(() => {
@@ -243,28 +243,6 @@ export class QueryService implements IQueryService {
     });
   }
 
-  public createQueryStatusWithConsent(
-    requestForData: RequestForData,
-    queryWrapper: SDQLQueryWrapper,
-  ): ResultAsync<void, PersistenceError> {
-    const queryStatus = new QueryStatus(
-      requestForData.consentContractAddress,
-      requestForData.requestedCID,
-      requestForData.blockNumber,
-      EQueryProcessingStatus.Received,
-      queryWrapper.expiry,
-      null,
-    );
-    return this.sdqlQueryRepo
-      .upsertQueryStatus([queryStatus])
-      .andThen(() => {
-        return this.contextProvider.getContext();
-      })
-      .map((context) => {
-        context.publicEvents.onQueryStatusUpdated.next(queryStatus);
-      });
-  }
-
   public getQueryStatusByQueryCID(
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, PersistenceError> {
@@ -299,7 +277,7 @@ export class QueryService implements IQueryService {
   }
 
   /**
-   * This method assums that the ads are completed if there is any.
+   * This method assumes that the ads are completed if there is any.
    * @param consentContractAddress
    * @param query
    * @param rewardParameters
@@ -327,7 +305,7 @@ export class QueryService implements IQueryService {
         // Make sure the query is actually one we have a record of
         if (queryStatus == null) {
           this.logUtils.warning(
-            `No record of having recieved query ${query.cid}, but processing it anyway`,
+            `No record of having received query ${query.cid}, but processing it anyway`,
           );
           const newQueryStatus = new QueryStatus(
             consentContractAddress,
@@ -546,7 +524,7 @@ export class QueryService implements IQueryService {
                     this.accountRepo.addEarnedRewards(earnedRewards),
                     this.sdqlQueryRepo.upsertQueryStatus([queryStatus]),
                   ]);
-                  /* TODO: Currenlty just adding direct rewards and will ignore the others for now */
+                  /* TODO: Currently just adding direct rewards and will ignore the others for now */
                   /* Show Lazy Rewards in rewards tab? */
                   /* Web2 rewards are also EarnedRewards, TBD */
                 })
@@ -605,7 +583,29 @@ export class QueryService implements IQueryService {
       });
   }
 
-  public createQueryStatusWithNoConsent(
+  protected createQueryStatusWithConsent(
+    requestForData: RequestForData,
+    queryWrapper: SDQLQueryWrapper,
+  ): ResultAsync<void, PersistenceError> {
+    const queryStatus = new QueryStatus(
+      requestForData.consentContractAddress,
+      requestForData.requestedCID,
+      requestForData.blockNumber,
+      EQueryProcessingStatus.Received,
+      queryWrapper.expiry,
+      null,
+    );
+    return this.sdqlQueryRepo
+      .upsertQueryStatus([queryStatus])
+      .andThen(() => {
+        return this.contextProvider.getContext();
+      })
+      .map((context) => {
+        context.publicEvents.onQueryStatusUpdated.next(queryStatus);
+      });
+  }
+
+  protected createQueryStatusWithNoConsent(
     requestForData: RequestForData,
     queryWrapper: SDQLQueryWrapper,
   ): ResultAsync<void, EvaluationError | PersistenceError> {

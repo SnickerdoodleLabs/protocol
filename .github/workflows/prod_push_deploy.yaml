@@ -98,6 +98,7 @@ jobs:
         docker build \
           --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-iframe:$GITHUB_SHA" \
           --build-arg DEFAULT_INSIGHT_PLATFORM_BASE_URL="https://insight-api.snickerdoodle.com/v0/" \
+          --build-arg REQUEST_FOR_DATA_POLLING_INTERVAL=300000 \
           --build-arg CONTROL_CHAIN_ID=43113 \
           --build-arg IPFS_FETCH_BASE_URL=https://ipfs-gateway.snickerdoodle.com/ipfs/ \
           --build-arg BASE_TAG="$GITHUB_SHA" \

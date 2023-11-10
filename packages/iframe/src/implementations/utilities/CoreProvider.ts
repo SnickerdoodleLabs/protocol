@@ -50,7 +50,7 @@ export class CoreProvider implements ICoreProvider {
     config.accountIndexingPollingIntervalMS =
       immutableConfig.transactionPollingIntervalMS;
     config.dataWalletBackupIntervalMS = immutableConfig.backupPollingIntervalMS;
-    config.requestForDataCheckingFrequency =
+    config.requestForDataPollingIntervalMS =
       immutableConfig.requestForDataPollingIntervalMS;
 
     // This probably needs to go away entirely

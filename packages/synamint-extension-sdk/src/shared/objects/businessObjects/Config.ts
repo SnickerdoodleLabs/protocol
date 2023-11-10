@@ -50,7 +50,7 @@ export class ExtensionConfig {
       blockvisionKey?: string;
     },
     public dnsServerAddress?: URLString,
-    public requestForDataCheckingFrequency?: number,
+    public requestForDataPollingIntervalMS?: number,
     public domainFilter?: string,
     public defaultGoogleCloudBucket?: string,
 
