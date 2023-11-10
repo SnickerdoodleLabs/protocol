@@ -6,7 +6,7 @@ import {
 } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 
-import { useStyles } from "@synamint-extension-sdk/content/components/Progress-Bar/ProgressBar.style";
+import { useStyles } from "@synamint-extension-sdk/content/components/ShoppingDataService/components/Progress-Bar/ProgressBar.style";
 
 const LinearProgressBar = (props: LinearProgressProps & { value: number }) => {
   const classes = useStyles();

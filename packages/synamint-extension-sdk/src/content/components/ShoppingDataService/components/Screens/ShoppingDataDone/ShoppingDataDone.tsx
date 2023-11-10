@@ -2,17 +2,19 @@ import { Box, Typography, Dialog, Button } from "@material-ui/core";
 import React from "react";
 import Browser from "webextension-polyfill";
 
-import { useStyles } from "@synamint-extension-sdk/content/components/Screens/ShoppingDataINIT/ShoppingDataINIT.style";
+import { LinkCard } from "@synamint-extension-sdk/content/components/ShoppingDataService/components/LinkCard/LinkCard";
+import { useStyles } from "@synamint-extension-sdk/content/components/ShoppingDataService/components/Screens/ShoppingDataDone/ShoppingDataDone.style";
 import {
   PRIVACY_POLICY_URL,
+  SPA_PATHS,
   WEBSITE_URL,
-} from "@synamint-extension-sdk/content/constants";
+} from "@synamint-extension-sdk/content/components/ShoppingDataService/constants";
 
-interface IShoppingDataINITProps {
-  setShoppingDataScrapeStart;
+interface IShoppingDataDoneProps {
+  coreGateway;
 }
 
-const SOCIAL_LINKS = [
+export const SOCIAL_LINKS = [
   {
     iconSrc: Browser.runtime.getURL("assets/icons/twitter.svg"),
     url: "https://twitter.com/yosnickerdoodle",
@@ -31,11 +33,17 @@ const SOCIAL_LINKS = [
   },
 ];
 
-export const ShoppingDataINIT: React.FC<IShoppingDataINITProps> = ({
-  setShoppingDataScrapeStart,
-}: IShoppingDataINITProps) => {
+export const ShoppingDataDone: React.FC<IShoppingDataDoneProps> = ({
+  coreGateway,
+}: IShoppingDataDoneProps) => {
   const classes = useStyles();
-
+  const navigateShoppingData = () => {
+    console.log(coreGateway);
+    coreGateway.getConfig().map((config) => {
+      console.log(config);
+      window.open(`${config.onboardingUrl}${SPA_PATHS.shoppingData}`, "_blank");
+    });
+  };
   return (
     <Box width={445} bgcolor="#FFFFFF" className={classes.container}>
       <Box pl={4} py={3}>
@@ -44,32 +52,42 @@ export const ShoppingDataINIT: React.FC<IShoppingDataINITProps> = ({
           src="https://storage.googleapis.com/dw-assets/extension/sdl-horizontal-logo.svg"
         />
       </Box>
-      <Box py={4} px={3}>
-        <Box>
-          <Typography className={classes.title}>
-            Add Your Amazon Data to Your Profile
+      <Box px={3}>
+        <Box mt={2}>
+          <Typography className={classes.title}>Congratulations!</Typography>
+        </Box>
+        <Box mt={3} width={396}>
+          <Typography className={classes.subText}>
+            Your Amazon data successfully added to your Data Wallet.
           </Typography>
         </Box>
-        <Box mt={3}>
-          <Box>
-            <Typography className={classes.bodyText}>
-              Your data is anonymized, so you cannot be identified.
-            </Typography>
-          </Box>
-          <Box mt={1.5}>
-            <Typography className={classes.bodyText}>
-              The more data you consent to lease, the more rewards you'll earn.
-              It's always your choice.
-            </Typography>
-          </Box>
+        <Box mt={1}>
+          <LinkCard
+            navigateTo={SPA_PATHS.dataPermissions}
+            icon={Browser.runtime.getURL("assets/icons/permissions.svg")}
+            title="Data Permmissions"
+            coreGateway={coreGateway}
+          />
+          <LinkCard
+            navigateTo={SPA_PATHS.dashboard}
+            icon={Browser.runtime.getURL("assets/icons/dashboard.svg")}
+            title="My Data Dashboard"
+            coreGateway={coreGateway}
+          />
+          <LinkCard
+            navigateTo={SPA_PATHS.settings}
+            icon={Browser.runtime.getURL("assets/icons/settings.svg")}
+            title="Settings"
+            coreGateway={coreGateway}
+          />
         </Box>
         <Box mt={3}>
           <Button
-            className={classes.button}
+            onClick={navigateShoppingData}
             fullWidth
-            onClick={() => setShoppingDataScrapeStart(true)}
+            className={classes.button}
           >
-            Get Started
+            Go to Shopping Data
           </Button>
         </Box>
       </Box>
@@ -81,6 +99,7 @@ export const ShoppingDataINIT: React.FC<IShoppingDataINITProps> = ({
         px={4}
         pt={3}
         pb={1.5}
+        mt={2}
       >
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography

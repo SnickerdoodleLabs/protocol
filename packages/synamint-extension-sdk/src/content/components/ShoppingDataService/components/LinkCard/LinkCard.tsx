@@ -2,7 +2,7 @@ import { Box, Typography } from "@material-ui/core";
 import React from "react";
 import Browser from "webextension-polyfill";
 
-import { useStyles } from "@synamint-extension-sdk/content/components/LinkCard/LinkCard.style";
+import { useStyles } from "@synamint-extension-sdk/content/components/ShoppingDataService/components/LinkCard/LinkCard.style";
 
 interface ILinkCardProps {
   navigateTo: string;
