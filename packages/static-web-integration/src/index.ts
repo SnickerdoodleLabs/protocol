@@ -2,102 +2,73 @@ import "reflect-metadata";
 import {
   IWebIntegrationConfigOverrides,
   LanguageCode,
-  URLString,
+  ProviderRpcError,
 } from "@snickerdoodlelabs/objects";
 import { SnickerdoodleWebIntegration } from "@snickerdoodlelabs/web-integration";
 import { Signer } from "ethers";
-import { ResultAsync, okAsync } from "neverthrow";
-
-import { WalletProvider } from "@static-web-integration/WalletProvider";
-import { WCProvider } from "@static-web-integration/WCProvider";
-declare const __LOGO_PATH__: URLString;
-
-export function integrateSnickerdoodle(
-  coreConfig: IWebIntegrationConfigOverrides,
-): void {
-  checkConnections(coreConfig)
-    .map((connected) => {
-      if (connected) {
-        startIntegration(coreConfig).mapErr((e) => {
-          console.error("Error starting integration:", e);
-        });
-      } else {
-        // Create a floating div with the snickerdoodle logo
-        const fixie = document.createElement("img");
-        fixie.src = __LOGO_PATH__;
-        fixie.id = "snickerdoodle-fixie";
-        fixie.style.position = "fixed";
-        fixie.style.top = "calc(100vh - 130px)";
-        fixie.style.right = "30px";
-        fixie.style.width = "100px";
-        fixie.style.height = "100px";
-        fixie.onclick = () => {
-          startIntegration(coreConfig)
-            .map(() => {
-              fixie?.style.setProperty("display", "none");
-            })
-            .mapErr((e) => {
-              console.error("Error starting integration:", e);
-            });
-        };
-        document.body.appendChild(fixie);
-      }
-    })
-    .mapErr((e) => {
-      console.error("CheckConnection Error:", e);
-    });
-}
-
-function startIntegration(coreConfig: IWebIntegrationConfigOverrides) {
-  return getSigner(coreConfig)
-    .andThen((signerResult) => {
-      const webIntegration = new SnickerdoodleWebIntegration(
-        coreConfig,
-        signerResult,
-      );
-      return webIntegration.initialize().andThen((dataWallet) => {
-        console.log("Snickerdoodle Data Wallet Initialized");
-        return okAsync(undefined);
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
+import { WCProvider } from "./WCProvider";
+export class integrateSnickerdoodle {
+  coreConfig: IWebIntegrationConfigOverrides;
+  webIntegration: SnickerdoodleWebIntegration | undefined;
+  WCProvider: WCProvider;
+  constructor(coreConfig) {
+    this.coreConfig = coreConfig;
+    this.WCProvider = new WCProvider(coreConfig.walletConnect.projectId);
+  }
+  async startSessionIntegration() {
+    const signer = await this.WCProvider?.getEthersSigner();
+    this.webIntegration = new SnickerdoodleWebIntegration(
+      this.coreConfig,
+      signer,
+    );
+    this.webIntegration.initialize();
+  }
+  startIntegration() {
+    return new SnickerdoodleWebIntegration(this.coreConfig)
+      .initialize()
+      .andThen((sdl) => {
+        return sdl.account.getLinkAccountMessage(LanguageCode("en"));
+      })
+      .andThen((message) => {
+        return ResultAsync.fromPromise(
+          this.WCProvider!.startWalletConnect(message).then((result) => {
+            if (result instanceof Error) {
+              throw result;
+            }
+            return result;
+          }),
+          (error) => {
+            return new ProviderRpcError("WalletConnect start failed", error);
+          },
+        );
+      })
+      .andThen((signer) => {
+        if (signer instanceof Signer) {
+          this.webIntegration = new SnickerdoodleWebIntegration(
+            this.coreConfig,
+            signer,
+          );
+          return ResultAsync.fromSafePromise(
+            Promise.resolve("Integration successful"),
+          );
+        } else {
+          return errAsync(new TypeError("Signer validation failed"));
+        }
+      })
+      .mapErr((error) => {
+        console.error("Integration failed:", error);
+        return error;
       });
-    })
-    .mapErr((e) => {
-      console.error("An error occurred:", e);
-    });
-}
-
-function getSigner(
-  coreConfig: IWebIntegrationConfigOverrides,
-): ResultAsync<Signer, Error> {
-  if (!coreConfig.walletConnect?.projectId) {
-    const walletProvider = new WalletProvider();
-
-    return ResultAsync.fromPromise(
-      walletProvider.connect(),
-      (e) => new Error(`Failed to connect wallet: ${(e as Error).message}`),
-    ).map(() => {
-      return walletProvider.signer;
-    });
   }
-
-  const walletConnectProvider = new WCProvider(
-    coreConfig.walletConnect?.projectId,
-  );
-  walletConnectProvider.startWalletConnect();
-
-  return walletConnectProvider.getSigner();
-}
-
-function checkConnections(
-  coreConfig: IWebIntegrationConfigOverrides,
-): ResultAsync<boolean, unknown> {
-  if (!coreConfig.walletConnect?.projectId) {
-    const walletProvider = new WalletProvider();
-
-    return walletProvider.checkConnection().map((connection) => {
-      return connection;
-    });
+  start() {
+    if (this.isConnected()) {
+      this.startSessionIntegration();
+    } else {
+      this.startIntegration();
+    }
   }
-
-  const newWalletProvider = new WCProvider(coreConfig.walletConnect?.projectId);
-  return newWalletProvider.checkConnection();
+  isConnected() {
+    return this.WCProvider.checkConnection();
+  }
 }

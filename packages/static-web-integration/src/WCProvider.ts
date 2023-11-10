@@ -1,6 +1,5 @@
-import EthereumProvider from "@walletconnect/ethereum-provider";
 import { Signer, ethers, providers } from "ethers";
-import { ResultAsync, okAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import {
   configureChains,
   createConfig,
@@ -19,7 +18,6 @@ import {
 import { Web3Modal } from "@web3modal/html";
 import { HttpTransport } from "viem";
 export class WCProvider {
-  protected ethereumProvider?: EthereumProvider;
   protected ethereumClient: EthereumClient;
   protected web3Modal: Web3Modal;
   constructor(projectId: string) {
@@ -45,26 +43,30 @@ export class WCProvider {
 
     // ethereumClient.getAccount().connector?.connect();
   }
-  startWalletConnect() {
+  async startWalletConnect(message: string) {
     this.web3Modal.openModal();
-    this.setupEventListeners();
+    return await this.setupEventListeners(message);
   }
 
-  setupEventListeners() {
-    this.ethereumClient.watchAccount((accounts) => {
-      if (accounts.address) {
-        getWalletClient().then((client) => {
-          console.log("client", client);
-          client
-            ?.signMessage({
-              message: "Login to your Snickerdoodle data wallet",
-            })
-            .then((signature) => {
-              this.getEthersSigner().then((signer_) => {});
-            });
+  async setupEventListeners(message: string) {
+    try {
+      await new Promise<void>((resolve, reject) => {
+        this.ethereumClient.watchAccount((accounts) => {
+          if (accounts.address) {
+            resolve(); // Resolve the Promise when the event occurs
+          }
         });
-      }
-    });
+      });
+
+      const client = await getWalletClient();
+      const signer_ = await this.getEthersSigner();
+      const signature = await this.sign(signer_, message);
+
+      // Now you can use the 'signature' value here
+      return signer_;
+    } catch (error) {
+      return new Error(`Error getting signature: ${(error as Error).message}`);
+    }
   }
 
   public getSigner() {
@@ -76,30 +78,12 @@ export class WCProvider {
     });
   }
 
-  public connectWithQR(projectId: string) {
-    return ResultAsync.fromPromise(
-      EthereumProvider.init({
-        projectId,
-        showQrModal: true,
-        chains: [1],
-        methods: ["eth_sendTransaction", "personal_sign"],
-      }),
-      (e) => {
-        return new Error(`User cancelled: ${(e as Error).message}`);
-      },
-    ).mapErr((e) => {
-      console.log("WalletConnect Init Error", e);
-      return new Error(`Initialization error: ${e.message}`);
-    });
-  }
-
-  public checkConnection(): ResultAsync<boolean, never> {
-    console.log("address", getAccount().address);
-    if (getAccount().address) {
-      console.log("var");
-      return okAsync(true);
+  public checkConnection() {
+    const address = getAccount().address;
+    if (address) {
+      return true;
     } else {
-      return okAsync(false);
+      return false;
     }
   }
 
@@ -140,5 +124,8 @@ export class WCProvider {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     const walletClient = await getWalletClient({ chainId: chainId || 1 });
     return this.walletClientToSigner(walletClient!) as ethers.Signer;
+  }
+  public async sign(signer: Signer, message: string) {
+    return await signer.signMessage(message);
   }
 }
