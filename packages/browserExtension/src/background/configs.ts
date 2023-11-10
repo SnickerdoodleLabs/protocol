@@ -39,7 +39,9 @@ declare const __POAP_API_KEY__: string;
 declare const __OKLINK_API_KEY__: string;
 declare const __ANKR_API_KEY__: string;
 declare const __BLUEZ_API_KEY__: string;
-declare const __SPACEANDTIME_API_KEY__: string;
+declare const __SPACEANDTIME_API_PUBLICKEY__: string;
+declare const __SPACEANDTIME_API_PRIVATEKEY__: string;
+
 declare const __BLOCKVISION_API_KEY__: string;
 declare const __PRIMARY_INFURA_KEY__: string;
 declare const __SECONDARY_INFURA_KEY__: string;
@@ -247,6 +249,19 @@ export const configs: IExtensionConfigOverrides = {
           ? __ETHERSCAN_FUJI_API_KEY__
           : "",
     },
+    spaceAndTimeKeys: {
+      PublicKey:
+        typeof __SPACEANDTIME_API_PUBLICKEY__ !== "undefined" &&
+        !!__SPACEANDTIME_API_PUBLICKEY__
+          ? __SPACEANDTIME_API_PUBLICKEY__
+          : "",
+      PrivateKey:
+        typeof __SPACEANDTIME_API_PRIVATEKEY__ !== "undefined" &&
+        !!__SPACEANDTIME_API_PRIVATEKEY__
+          ? __SPACEANDTIME_API_PRIVATEKEY__
+          : "",
+    },
+
     covalentApiKey:
       typeof __COVALENT_API_KEY__ !== "undefined" && !!__COVALENT_API_KEY__
         ? __COVALENT_API_KEY__
@@ -275,11 +290,7 @@ export const configs: IExtensionConfigOverrides = {
       typeof __BLUEZ_API_KEY__ !== "undefined" && !!__BLUEZ_API_KEY__
         ? __BLUEZ_API_KEY__
         : undefined,
-    spaceAndTimeKey:
-      typeof __SPACEANDTIME_API_KEY__ !== "undefined" &&
-      !!__SPACEANDTIME_API_KEY__
-        ? __SPACEANDTIME_API_KEY__
-        : undefined,
+
     blockvisionKey:
       typeof __BLOCKVISION_API_KEY__ !== "undefined" &&
       !!__BLOCKVISION_API_KEY__

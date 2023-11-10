@@ -57,7 +57,8 @@ export class ConfigProvider implements IConfigProvider {
       configOverrides.apiKeys.alchemyApiKeys ?? this.config.alchemyApiKeys;
     this.config.etherscanApiKeys =
       configOverrides.apiKeys.etherscanApiKeys ?? this.config.etherscanApiKeys;
-
+    this.config.spaceAndTimeKeys =
+      configOverrides.apiKeys.spaceAndTimeKeys ?? this.config.spaceAndTimeKeys;
     this.config.covalentApiKey =
       configOverrides.apiKeys.covalentApiKey ?? this.config.covalentApiKey;
     this.config.moralisApiKey =
@@ -70,14 +71,10 @@ export class ConfigProvider implements IConfigProvider {
       configOverrides.apiKeys.oklinkApiKey ?? this.config.oklinkApiKey;
     this.config.ankrApiKey =
       configOverrides.apiKeys.ankrApiKey ?? this.config.ankrApiKey;
-
     this.config.bluezApiKey =
       configOverrides.apiKeys.bluezApiKey ?? this.config.bluezApiKey;
     this.config.blockvisionKey =
       configOverrides.apiKeys.blockvisionKey ?? this.config.blockvisionKey;
-    this.config.spaceAndTimeKey =
-      configOverrides.apiKeys.spaceAndTimeKey ?? this.config.spaceAndTimeKey;
-
     this.config.dnsServerAddress =
       configOverrides.dnsServerAddress ?? this.config.dnsServerAddress;
     this.config.requestForDataCheckingFrequency =

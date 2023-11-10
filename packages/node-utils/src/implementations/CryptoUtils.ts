@@ -254,6 +254,7 @@ export class CryptoUtils implements ICryptoUtils {
     message: string | Uint8Array,
     signature: Signature,
   ): ResultAsync<EVMAccountAddress, never> {
+    console.log("EVM signature: " + signature);
     const address = EVMAccountAddress(
       ethers.utils.verifyMessage(message, signature),
     );

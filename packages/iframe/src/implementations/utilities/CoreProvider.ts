@@ -125,6 +125,14 @@ export class CoreProvider implements ICoreProvider {
       config.etherscanApiKeys.Fuji ??
       immutableConfig.defaultKeys.etherscanApiKeys.Fuji;
 
+    // Space And Time
+    config.spaceAndTimeKeys.PublicKey =
+      config.spaceAndTimeKeys.PublicKey ??
+      immutableConfig.defaultKeys.spaceAndTimeKeys.PublicKey;
+    config.spaceAndTimeKeys.PrivateKey =
+      config.spaceAndTimeKeys.PrivateKey ??
+      immutableConfig.defaultKeys.spaceAndTimeKeys.PrivateKey;
+
     // Other Indexers
     config.covalentApiKey =
       config.covalentApiKey ?? immutableConfig.defaultKeys.covalentApiKey;
@@ -140,8 +148,6 @@ export class CoreProvider implements ICoreProvider {
       config.ankrApiKey ?? immutableConfig.defaultKeys.ankrApiKey;
     config.bluezApiKey =
       config.bluezApiKey ?? immutableConfig.defaultKeys.bluezApiKey;
-    config.spaceAndTimeKey =
-      config.spaceAndTimeKey ?? immutableConfig.defaultKeys.spaceAndTimeKey;
     config.blockvisionKey =
       config.blockvisionKey ?? immutableConfig.defaultKeys.blockvisionKey;
     // Now we can create the actual snickerdoodle core instance

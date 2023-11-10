@@ -39,6 +39,10 @@ export class ExtensionConfig {
         Gnosis: string;
         Fuji: string;
       };
+      spaceAndTimeKeys?: {
+        PublicKey: string;
+        PrivateKey: string;
+      };
       covalentApiKey?: string;
       moralisApiKey?: string;
       nftScanApiKey?: string;
@@ -46,7 +50,6 @@ export class ExtensionConfig {
       oklinkApiKey?: string;
       ankrApiKey?: string;
       bluezApiKey?: string;
-      spaceAndTimeKey?: string;
       blockvisionKey?: string;
     },
     public dnsServerAddress?: URLString,

@@ -190,6 +190,11 @@ export class DataWalletProfile {
           Gnosis: "J7G8U27J1Y9F88E1E56CNNG2K3H98GF4XE",
           Fuji: "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1",
         },
+        spaceAndTimeKeys: {
+          PublicKey: "C4ci88fgOy8NuK0xonhFJkJr6tKXKK7gKSFMkV1Hekk=",
+          PrivateKey: "a35JJjDhLqFuHWqnbxseTHEU99BFAa3CApIFjbWBQ3E=",
+        },
+
         covalentApiKey: "ckey_ee277e2a0e9542838cf30325665",
         moralisApiKey:
           "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag",
@@ -198,8 +203,7 @@ export class DataWalletProfile {
         ankrApiKey:
           "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
         bluezApiKey: "aed4aab2cbc573bbf8e7c6b448c916e5",
-        spaceAndTimeKey:
-          "eyJ0eXBlIjoiYWNjZXNzIiwia2lkIjoiZTUxNDVkYmQtZGNmYi00ZjI4LTg3NzItZjVmNjNlMzcwM2JlIiwiYWxnIjoiRVMyNTYifQ.eyJpYXQiOjE2OTk0ODcyOTksIm5iZiI6MTY5OTQ4NzI5OSwiZXhwIjoxNjk5NDg4Nzk5LCJ0eXBlIjoiYWNjZXNzIiwidXNlciI6ImFuZHJld0Bzbmlja2VyZG9vZGxlbGFicy5pbyIsInNlc3Npb24iOiI0NjVlMWFkMDNhZjA3MGFmMzRmNTVlMzkiLCJzc25fZXhwIjoxNjk5NTczNjk5MDIyLCJpdGVyYXRpb24iOiIyOWRkZGMzN2VlODgzM2RkZDEzM2UwMjgiLCJ0cmlhbCI6dHJ1ZX0.UmR0z4EXYZtO4j76jqHR8jSzJLlAoDP8iNFPX2Uep-k559Vc-Z1Qa7P8VVMND6Z4dN6r79qCqVi5zKoQ47NnvQ",
+
         blockvisionKey: "2WaEih5fqe8NUavbvaR2PSuVSSp",
         nftScanApiKey: "lusr87vNmTtHGMmktlFyi4Nt",
         oklinkApiKey: "700c2f71-a4e2-4a85-b87f-58c8a341d1bf",

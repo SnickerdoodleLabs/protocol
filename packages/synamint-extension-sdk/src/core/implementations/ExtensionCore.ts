@@ -60,6 +60,7 @@ export class ExtensionCore {
       defaultInsightPlatformBaseUrl: config.defaultInsightPlatformBaseUrl,
       alchemyApiKeys: config.alchemyApiKeys,
       etherscanApiKeys: config.etherscanApiKeys,
+      spaceAndTimeKeys: config.spaceAndTimeKeys,
       covalentApiKey: config.covalentApiKey,
       moralisApiKey: config.moralisApiKey,
       nftScanApiKey: config.nftScanApiKey,
@@ -67,7 +68,6 @@ export class ExtensionCore {
       oklinkApiKey: config.oklinkApiKey,
       ankrApiKey: config.ankrApiKey,
       bluezApiKey: config.bluezApiKey,
-      spaceAndTimeKey: config.spaceAndTimeKey,
       blockvisionKey: config.blockvisionKey,
 
       dnsServerAddress: config.dnsServerAddress,

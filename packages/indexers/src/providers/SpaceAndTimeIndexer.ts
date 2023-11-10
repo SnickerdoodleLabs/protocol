@@ -36,6 +36,7 @@ import {
   RefreshToken,
   AuthenticatedStorageSettings,
   EVMPrivateKey,
+  OAuth2RefreshToken,
 } from "@snickerdoodlelabs/objects";
 import { application } from "express";
 import { inject, injectable } from "inversify";
@@ -131,8 +132,8 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
         (value: IndexerSupportSummary, chain: EChain) => {
           const chainInfo = getChainInfoByChain(chain);
           if (
-            config.apiKeys.spaceAndTimeKey == "" ||
-            config.apiKeys.spaceAndTimeKey == null
+            config.apiKeys.spaceAndTimeKeys.PublicKey == "" ||
+            config.apiKeys.spaceAndTimeKeys.PublicKey == null
           ) {
             this.health.set(chain, EComponentStatus.NoKeyProvided);
           } else {
@@ -141,6 +142,16 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
         },
       );
     });
+  }
+
+  private returnPrivateKey(): string {
+    const USER_PRIVATE_KEY = "zGxvZ/W2Bi0OOlP4ENwsNah9Xh8Irt9D0ZyVM0THeiM=";
+    return USER_PRIVATE_KEY;
+  }
+
+  private returnPublicKey(): string {
+    const USER_PUBLIC_KEY = "k1E91ZroXuRsTJ6+Kwau0MT8Uc9N0yoiTWjmDsv4PTE=";
+    return USER_PUBLIC_KEY;
   }
 
   protected getAccessToken(): ResultAsync<AccessToken, AccountIndexingError> {
@@ -165,6 +176,43 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     });
   }
 
+  protected getNewAuthCode(
+    refreshToken: RefreshToken,
+  ): ResultAsync<AccessToken, AccountIndexingError> {
+    // Do the work of trading the refresh token for a new access token
+    return ResultUtils.combine([
+      this.contextProvider.getContext(),
+      this.getUserID(),
+    ]).andThen(([context, userID]) => {
+      const requestParams = {
+        userId: userID,
+      };
+
+      context.privateEvents.onApiAccessed.next(EExternalApi.SpaceAndTime);
+      return this.ajaxUtils
+        .post<{ access_token: AccessToken }>(
+          new URL("https://api.spaceandtime.app/v1/auth/code/"),
+          requestParams,
+          {
+            headers: {
+              accept: `application/json;`,
+              "Content-Type": `application/json;`,
+            },
+          },
+        )
+        .map((token) => {
+          return token.access_token;
+        })
+        .mapErr((e) => {
+          return new AccountIndexingError("Refresh Token Url failed", e);
+        });
+    });
+  }
+
+  private getUserID(): ResultAsync<string, never> {
+    return okAsync("snickerdoodledev");
+  }
+
   protected getNewAuthToken(
     refreshToken: RefreshToken,
   ): ResultAsync<AccessToken, AccountIndexingError> {
@@ -172,12 +220,19 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),
-    ]).andThen(([config, context]) => {
+      this.getUserID(),
+      this.getNewAuthCode(OAuth2RefreshToken("")),
+    ]).andThen(([config, context, userID, auth_code]) => {
+      const PrivateKey = config.apiKeys.spaceAndTimeKeys.PrivateKey;
+      // const signature = this.sign(PrivateKey);
+      const signature = "signature";
+
       const requestParams = {
-        userId: userID,
-        signature: signature,
-        authCode: auth,
-        key: apiKey,
+        userId: "snickerdoodledev", // userID
+        signature: signature, // signature - created from signing with private key
+        authCode: auth_code, // authCode - returned from ajax call
+        key: config.apiKeys.spaceAndTimeKeys.PublicKey, // publicKey
+        scheme: "ed25519",
       };
 
       context.privateEvents.onApiAccessed.next(EExternalApi.SpaceAndTime);
@@ -249,9 +304,9 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
   > {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
-      this._getApiKey(chain),
+      this.getAccessToken(),
     ])
-      .andThen(([context, apiKey]) => {
+      .andThen(([context, accessToken]) => {
         const url = new URL("https://api.spaceandtime.app/v1/sql/dql");
         const sqlText = `{"sqlText":"SELECT *
         FROM ${this.queries.get(chain)?.transactions}
@@ -263,7 +318,7 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
         return this.ajaxUtils.post<ISxTTransaction[]>(new URL(url), sqlText, {
           headers: {
             Accept: `application/json;`,
-            authorization: `Bearer ${apiKey}`,
+            authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
         });
@@ -306,10 +361,10 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),
-      this._getApiKey(chain),
+      this.getAccessToken(),
       getEtherscanBaseURLForChain(chain),
     ])
-      .andThen(([config, context, apiKey, baseURL]) => {
+      .andThen(([config, context, accessToken, baseURL]) => {
         const url = new URL("https://api.spaceandtime.app/v1/sql/dql");
         const sqlText = `{"sqlText":"SELECT * FROM ${
           this.queries.get(chain)?.transactions
@@ -319,7 +374,7 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
         return this.ajaxUtils.post<unknown>(new URL(url), sqlText, {
           headers: {
             Accept: `application/json;`,
-            authorization: `Bearer ${apiKey}`,
+            authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
         });
@@ -344,31 +399,6 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     never
   > {
     return ResultAsync.fromSafePromise(this._settingsPromise);
-  }
-
-  protected _getApiKey(
-    chain: EChain,
-  ): ResultAsync<string, AccountIndexingError> {
-    return ResultUtils.combine([
-      this.configProvider.getConfig(),
-      this.contextProvider.getContext(),
-    ]).andThen(([config, context]) => {
-      const chainInfo = getChainInfoByChain(chain);
-      const key = chainInfo.name;
-      if (
-        config.apiKeys.spaceAndTimeKey == "" ||
-        config.apiKeys.spaceAndTimeKey == undefined
-      ) {
-        this.logUtils.error("Error inside _getApiKey");
-        return errAsync(
-          new AccountIndexingError("no space and time api key available"),
-        );
-      }
-      context.privateEvents.onApiAccessed.next(EExternalApi.SpaceAndTime);
-
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return okAsync(config.apiKeys.spaceAndTimeKey!);
-    });
   }
 
   private getEVMNFTs(

@@ -25,6 +25,10 @@ export interface IApiKeys {
     Gnosis: string | null;
     Fuji: string | null;
   };
+  spaceAndTimeKeys: {
+    PublicKey: string | null;
+    PrivateKey: string | null;
+  };
   covalentApiKey: string | null;
   moralisApiKey: string | null;
   nftScanApiKey: string | null;
@@ -32,6 +36,5 @@ export interface IApiKeys {
   oklinkApiKey: string | null;
   ankrApiKey: string | null;
   bluezApiKey: string | null;
-  spaceAndTimeKey: string | null;
   blockvisionKey: string | null;
 }

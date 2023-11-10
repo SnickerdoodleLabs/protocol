@@ -32,6 +32,10 @@ export interface IConfigOverrides {
     Gnosis?: string | null;
     Fuji?: string | null;
   };
+  spaceAndTimeKeys?: {
+    PublicKey?: string | null;
+    PrivateKey?: string | null;
+  };
   covalentApiKey?: string | null;
   moralisApiKey?: string | null;
   nftScanApiKey?: string | null;
@@ -39,7 +43,6 @@ export interface IConfigOverrides {
   oklinkApiKey?: string | null;
   ankrApiKey?: string | null;
   bluezApiKey?: string | null;
-  spaceAndTimeKey?: string | null;
   blockvisionKey?: string | null;
 
   dnsServerAddress?: URLString;
@@ -69,5 +72,5 @@ export interface IConfigOverrides {
     projectId: string;
   };
 
-  queryPerformanceMetricsLimit ? : number
+  queryPerformanceMetricsLimit?: number;
 }

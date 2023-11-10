@@ -123,6 +123,10 @@ export class ConfigProvider
           Gnosis: null,
           Fuji: null,
         },
+        spaceAndTimeKeys: {
+          PublicKey: null,
+          PrivateKey: null,
+        },
         covalentApiKey: null, // "ckey_ee277e2a0e9542838cf30325665", // covalent api key
         moralisApiKey: null,
         // "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
@@ -133,7 +137,6 @@ export class ConfigProvider
         oklinkApiKey: null, // "700c2f71-a4e2-4a85-b87f-58c8a341d1bf", // oklinkApiKeys
         ankrApiKey: null, // ankrApiKey
         bluezApiKey: null, // bluezApiKey
-        spaceAndTimeKey: null, // spaceAndTimeKey
         blockvisionKey: null, // blockvisionKey
         primaryInfuraKey: null, // primary Infura Key
         primaryRPCProviderURL: null,
@@ -309,6 +312,14 @@ export class ConfigProvider
       overrides.etherscanApiKeys?.Polygon ??
       this.config.apiKeys.etherscanApiKeys.Polygon;
 
+    // Space And Time Keys
+    this.config.apiKeys.spaceAndTimeKeys.PublicKey =
+      overrides.spaceAndTimeKeys?.PublicKey ??
+      this.config.apiKeys.spaceAndTimeKeys.PublicKey;
+    this.config.apiKeys.spaceAndTimeKeys.PrivateKey =
+      overrides.spaceAndTimeKeys?.PrivateKey ??
+      this.config.apiKeys.spaceAndTimeKeys.PrivateKey;
+
     // Miscellaneous Indexers and APIs
     this.config.apiKeys.covalentApiKey =
       overrides.covalentApiKey ?? this.config.apiKeys.covalentApiKey;
@@ -325,8 +336,6 @@ export class ConfigProvider
     this.config.apiKeys.bluezApiKey =
       overrides.bluezApiKey ?? this.config.apiKeys.bluezApiKey;
 
-    this.config.apiKeys.spaceAndTimeKey =
-      overrides.spaceAndTimeKey ?? this.config.apiKeys.spaceAndTimeKey;
     this.config.apiKeys.blockvisionKey =
       overrides.blockvisionKey ?? this.config.apiKeys.blockvisionKey;
 

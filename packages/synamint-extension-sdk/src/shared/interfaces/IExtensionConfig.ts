@@ -39,6 +39,10 @@ export interface IExtensionConfig extends IExtensionConfigDefaults {
     Gnosis: string;
     Fuji: string;
   };
+  spaceAndTimeKeys?: {
+    PublicKey: string;
+    PrivateKey: string;
+  };
   covalentApiKey?: string;
   moralisApiKey?: string;
   nftScanApiKey?: string;
@@ -46,7 +50,6 @@ export interface IExtensionConfig extends IExtensionConfigDefaults {
   oklinkApiKey?: string;
   ankrApiKey?: string;
   bluezApiKey?: string;
-  spaceAndTimeKey?: string;
   blockvisionKey?: string;
   dnsServerAddress?: URLString;
   defaultGoogleCloudBucket?: string;
@@ -92,6 +95,10 @@ export interface IExtensionConfigOverrides {
       Gnosis: string;
       Fuji: string;
     };
+    spaceAndTimeKeys?: {
+      PublicKey: string;
+      PrivateKey: string;
+    };
     covalentApiKey?: string;
     moralisApiKey?: string;
     nftScanApiKey?: string;
@@ -99,7 +106,6 @@ export interface IExtensionConfigOverrides {
     oklinkApiKey?: string;
     ankrApiKey?: string;
     bluezApiKey?: string;
-    spaceAndTimeKey?: string;
     blockvisionKey?: string;
     primaryInfuraKey?: string;
     secondaryInfuraKey?: string;

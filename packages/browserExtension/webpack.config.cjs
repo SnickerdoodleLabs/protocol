@@ -211,8 +211,11 @@ var options = {
       __OKLINK_API_KEY__: JSON.stringify(process.env.__OKLINK_API_KEY__),
       __ANKR_API_KEY__: JSON.stringify(process.env.__ANKR_API_KEY__),
       __BLUEZ_API_KEY__: JSON.stringify(process.env.__BLUEZ_API_KEY__),
-      __SPACEANDTIME_API_KEY__: JSON.stringify(
-        process.env.__SPACEANDTIME_API_KEY__,
+      __SPACEANDTIME_API_PUBLICKEY__: JSON.stringify(
+        process.env.__SPACEANDTIME_API_PUBLICKEY__,
+      ),
+      __SPACEANDTIME_API_PRIVATEKEY__: JSON.stringify(
+        process.env.__SPACEANDTIME_API_PRIVATEKEY__,
       ),
       __BLOCKVISION_API_KEY__: JSON.stringify(
         process.env.__BLOCKVISION_API_KEY__,
