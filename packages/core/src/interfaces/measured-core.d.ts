@@ -74,7 +74,7 @@ declare module "measured-core" {
     constructor(properties?: MeterProperties);
 
     /**
-     * Register n events as having just occured. Defaults to 1.
+     * Register n events as having just occurred. Defaults to 1.
      * @param n
      */
     public mark(n: number): void;
