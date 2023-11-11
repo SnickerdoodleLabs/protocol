@@ -9,11 +9,11 @@ import { ok, Result } from "neverthrow";
 
 import { AST_Web3Query } from "@query-parser/interfaces/objects/AST_Web3Query.js";
 
-export class AST_Web3AccountSizeQuery extends AST_Web3Query {
+export class AST_Web3AccountQuery extends AST_Web3Query {
   constructor(
     readonly name: SDQL_Name,
     readonly returnType: ESDQLQueryReturn.Object,
-    readonly type: "web3_account_size",
+    readonly type: "web3_account",
     public readonly schema: ISDQLQueryClause,
   ) {
     super(name, returnType, type);

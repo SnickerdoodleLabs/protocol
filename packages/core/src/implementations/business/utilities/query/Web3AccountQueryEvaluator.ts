@@ -7,7 +7,7 @@ import {
   EStatus,
   Web3AccountInsight,
 } from "@snickerdoodlelabs/objects";
-import { AST_Web3AccountSizeQuery } from "@snickerdoodlelabs/query-parser";
+import { AST_Web3AccountQuery } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
@@ -30,7 +30,7 @@ export class Web3AccountQueryEvaluator implements IWeb3AccountQueryEvaluator {
     protected contextProvider: IContextProvider,
   ) {}
   eval(
-    query: AST_Web3AccountSizeQuery,
+    query: AST_Web3AccountQuery,
     queryCID: IpfsCID,
   ): ResultAsync<SDQL_Return, PersistenceError> {
     return this.contextProvider.getContext().andThen((context) => {

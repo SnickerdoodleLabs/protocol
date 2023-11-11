@@ -21,7 +21,7 @@ import {
   AST_NftQuery,
   AST_PropertyQuery,
   AST_SubQuery,
-  AST_Web3AccountSizeQuery,
+  AST_Web3AccountQuery,
   BinaryCondition,
   ConditionE,
   ConditionG,
@@ -191,7 +191,7 @@ export class QueryEvaluator implements IQueryEvaluator {
             );
             return err;
           });
-      } else if (query instanceof AST_Web3AccountSizeQuery) {
+      } else if (query instanceof AST_Web3AccountQuery) {
         context.publicEvents.queryPerformance.next(
           new QueryPerformanceEvent(
             EQueryEvents.Web3AccountEvaluation,

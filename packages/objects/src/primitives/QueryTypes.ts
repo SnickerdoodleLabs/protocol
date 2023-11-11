@@ -17,7 +17,7 @@ export const web3QueryTypes = [
   "network",
   "balance",
   "chain_transactions",
-  "web3_account_size",
+  "web3_account",
 ] as const;
 export type Web3QueryTypes = (typeof web3QueryTypes)[number];
 

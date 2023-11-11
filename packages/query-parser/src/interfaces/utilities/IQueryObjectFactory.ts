@@ -10,7 +10,7 @@ import {
   AST_BlockchainTransactionQuery,
   AST_NftQuery,
   AST_PropertyQuery,
-  AST_Web3AccountSizeQuery,
+  AST_Web3AccountQuery,
   AST_Web3Query,
 } from "@query-parser/interfaces/objects";
 import { Condition } from "@query-parser/interfaces/objects/condition/index.js";
@@ -29,9 +29,9 @@ export interface IQueryObjectFactory {
   toNftQuery(name: SDQL_Name, schema: ISDQLQueryClause): AST_NftQuery;
   toPropertyQuery(name: SDQL_Name, schema: ISDQLQueryClause): AST_PropertyQuery;
   toBalanceQuery(name: SDQL_Name, schema: ISDQLQueryClause): AST_BalanceQuery;
-  toWeb3AccountSizeQuery(
+  toWeb3AccountQuery(
     name: SDQL_Name,
     schema: ISDQLQueryClause,
-  ): AST_Web3AccountSizeQuery;
+  ): AST_Web3AccountQuery;
 }
 export const IQueryObjectFactoryType = Symbol.for("IQueryObjectFactory");
