@@ -6,6 +6,7 @@ import {
   ITimeUtils,
   ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
+import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   AccountIndexingError,
   AjaxError,
@@ -37,7 +38,10 @@ import {
   AuthenticatedStorageSettings,
   EVMPrivateKey,
   OAuth2RefreshToken,
+  AuthCode,
+  Signature,
 } from "@snickerdoodlelabs/objects";
+import { TRUNCATED_RESPONSE } from "dns-packet";
 import { application } from "express";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -72,10 +76,10 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     EComponentStatus
   >();
 
-  protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
+  protected supportedChains = new Map<EChain, IndexerSupportSummary>([
     [
       EChain.EthereumMainnet,
-      new IndexerSupportSummary(EChain.EthereumMainnet, true, false, false),
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, true, true),
     ],
     [
       EChain.Polygon,
@@ -115,6 +119,7 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
+    @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
   ) {
     this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this._resolveUnlock = resolve;
@@ -128,19 +133,19 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
 
   public initialize(): ResultAsync<void, never> {
     return this.configProvider.getConfig().map((config) => {
-      this.indexerSupport.forEach(
-        (value: IndexerSupportSummary, chain: EChain) => {
-          const chainInfo = getChainInfoByChain(chain);
-          if (
-            config.apiKeys.spaceAndTimeKeys.PublicKey == "" ||
-            config.apiKeys.spaceAndTimeKeys.PublicKey == null
-          ) {
-            this.health.set(chain, EComponentStatus.NoKeyProvided);
-          } else {
-            this.health.set(chain, EComponentStatus.Available);
-          }
-        },
+      console.log(
+        "Initialize sxt status: " + config.apiKeys.spaceAndTimeKeys.PublicKey,
       );
+      if (
+        config.apiKeys.spaceAndTimeKeys.PublicKey == "" ||
+        config.apiKeys.spaceAndTimeKeys.PublicKey == null
+      ) {
+        console.log("status is bad!");
+        this.health.set(EChain.EthereumMainnet, EComponentStatus.NoKeyProvided);
+      } else {
+        console.log("status is good!");
+        this.health.set(EChain.EthereumMainnet, EComponentStatus.Available);
+      }
     });
   }
 
@@ -176,9 +181,7 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     });
   }
 
-  protected getNewAuthCode(
-    refreshToken: RefreshToken,
-  ): ResultAsync<AccessToken, AccountIndexingError> {
+  protected getNewAuthCode(): ResultAsync<AuthCode, AccountIndexingError> {
     // Do the work of trading the refresh token for a new access token
     return ResultUtils.combine([
       this.contextProvider.getContext(),
@@ -188,9 +191,10 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
         userId: userID,
       };
 
+      console.log("get auth code: " + requestParams);
       context.privateEvents.onApiAccessed.next(EExternalApi.SpaceAndTime);
       return this.ajaxUtils
-        .post<{ access_token: AccessToken }>(
+        .post<{ authCode: AuthCode }>(
           new URL("https://api.spaceandtime.app/v1/auth/code/"),
           requestParams,
           {
@@ -201,7 +205,8 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
           },
         )
         .map((token) => {
-          return token.access_token;
+          console.log("token: " + token);
+          return token.authCode;
         })
         .mapErr((e) => {
           return new AccountIndexingError("Refresh Token Url failed", e);
@@ -213,6 +218,16 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     return okAsync("snickerdoodledev");
   }
 
+  protected getSignature(): ResultAsync<Signature, never> {
+    return this.configProvider.getConfig().andThen((config) => {
+      return this.cryptoUtils.signMessage(
+        "hello world!",
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        EVMPrivateKey(config.apiKeys.spaceAndTimeKeys.PrivateKey!),
+      );
+    });
+  }
+
   protected getNewAuthToken(
     refreshToken: RefreshToken,
   ): ResultAsync<AccessToken, AccountIndexingError> {
@@ -221,19 +236,21 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),
       this.getUserID(),
-      this.getNewAuthCode(OAuth2RefreshToken("")),
-    ]).andThen(([config, context, userID, auth_code]) => {
+      this.getNewAuthCode(),
+      this.getSignature(),
+    ]).andThen(([config, context, userID, auth_code, signature]) => {
       const PrivateKey = config.apiKeys.spaceAndTimeKeys.PrivateKey;
       // const signature = this.sign(PrivateKey);
-      const signature = "signature";
 
       const requestParams = {
-        userId: "snickerdoodledev", // userID
+        userId: userID, // userID
         signature: signature, // signature - created from signing with private key
         authCode: auth_code, // authCode - returned from ajax call
         key: config.apiKeys.spaceAndTimeKeys.PublicKey, // publicKey
         scheme: "ed25519",
       };
+
+      console.log("requestParams: " + JSON.stringify(requestParams));
 
       context.privateEvents.onApiAccessed.next(EExternalApi.SpaceAndTime);
       return this.ajaxUtils
@@ -276,7 +293,47 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    return okAsync([]);
+    return ResultUtils.combine([
+      this.contextProvider.getContext(),
+      this.getAccessToken(),
+    ]).andThen(([context, accessToken]) => {
+      const url = new URL("https://api.spaceandtime.app/v1/sql/dql");
+      const sqlText = `SELECT * 
+        FROM ${this.queries.get(chain)?.balances} 
+        WHERE WALLET_ADDRESS = "${accountAddress}"
+        ORDER BY BLOCK_NUMBER DESC
+        "}`;
+
+      console.log("sqlText: " + sqlText);
+      context.privateEvents.onApiAccessed.next(EExternalApi.SpaceAndTime);
+      return this.ajaxUtils
+        .post<ISxTBalance[]>(new URL(url), sqlText, {
+          headers: {
+            Accept: `application/json;`,
+            authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        })
+        .map((response) => {
+          console.log("response: " + response);
+          return response.map((balance) => {
+            console.log("balance: " + JSON.stringify(balance));
+            return new TokenBalance(
+              EChainTechnology.EVM,
+              TickerSymbol("ETH"),
+              EChain.EthereumMainnet,
+              MasterIndexer.nativeAddress,
+              accountAddress,
+              balance.BALANCE,
+              18,
+            );
+          });
+        })
+        .mapErr((error) => {
+          console.log("error: " + error);
+          return error;
+        });
+    });
   }
 
   public getTokensForAccount(
@@ -351,7 +408,7 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
   }
 
   public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
-    return this.indexerSupport;
+    return this.supportedChains;
   }
 
   private getNativeBalance(
@@ -418,6 +475,13 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
   private retrieveTableName(): string {
     return "BLOCKS";
   }
+}
+
+interface ISxTBalance {
+  TIME_STAMP: UnixTimestamp;
+  BLOCK_NUMBER: BlockNumber;
+  WALLET_ADDRESS: EVMAccountAddress;
+  BALANCE: BigNumberString;
 }
 
 interface ISxTTransaction {

@@ -404,7 +404,9 @@ export class CryptoUtils implements ICryptoUtils {
     message: string,
     privateKey: EVMPrivateKey,
   ): ResultAsync<Signature, never> {
+    console.log("wallet privateKey: " + privateKey);
     const wallet = new ethers.Wallet(privateKey);
+    console.log("wallet sign: " + wallet);
 
     return ResultAsync.fromSafePromise<string, never>(
       wallet.signMessage(message),

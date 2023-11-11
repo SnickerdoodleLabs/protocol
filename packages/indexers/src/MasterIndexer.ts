@@ -139,6 +139,7 @@ export class MasterIndexer implements IMasterIndexer {
       // if the method is provided, we need to limit the list of supported chains to those that support the method
       if (method != null) {
         const indexers = [
+          this.sxt,
           this.bluez,
           this.blockvision,
           this.alchemy,
@@ -387,12 +388,16 @@ export class MasterIndexer implements IMasterIndexer {
       EIndexerMethod.Transactions,
     );
 
+    console.log("GET TRANSACTIONS! ");
+    console.log("chain: " + chain);
+
     // If there are no healthy indexers return
     if (indexers.length == 0) {
       return okAsync([]);
     }
 
     return ObjectUtils.progressiveFallback((indexer: IEVMIndexer) => {
+      console.log("indexer: " + indexer.name);
       return indexer
         .getEVMTransactions(
           chain,
@@ -456,8 +461,10 @@ export class MasterIndexer implements IMasterIndexer {
         continue;
       }
 
+      console.log("indexerMethod: " + indexer.name);
       // Get the health status
       const status = indexer.healthStatus().get(chain);
+      console.log("indexerMethod status: " + status);
 
       if (status == null) {
         continue;
@@ -497,6 +504,7 @@ export class MasterIndexer implements IMasterIndexer {
   > {
     return this.indexerContext.getContext().map((context) => {
       const indexers = [
+        this.sxt,
         this.alchemy,
         this.ankr,
         this.covalent,
@@ -516,6 +524,7 @@ export class MasterIndexer implements IMasterIndexer {
       });
 
       const [
+        sxtHealth,
         alchemyHealth,
         ankrHealth,
         covalentHealth,
@@ -531,6 +540,7 @@ export class MasterIndexer implements IMasterIndexer {
       ] = healthchecks;
 
       const indexerStatuses = context.components;
+      indexerStatuses.sxtIndexer = sxtHealth;
       indexerStatuses.alchemyIndexer = alchemyHealth;
       indexerStatuses.ankrIndexer = ankrHealth;
       indexerStatuses.covalentIndexer = covalentHealth;
