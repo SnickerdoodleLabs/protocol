@@ -104,7 +104,7 @@ export class BlockchainListener implements IBlockchainListener {
           this.logUtils.error(e);
           return e;
         });
-      }, config.requestForDataCheckingFrequency);
+      }, config.requestForDataPollingIntervalMS);
 
       // Subscribe to the opt-in event, and immediately do a poll
       context.publicEvents.onCohortJoined.subscribe(() => {
