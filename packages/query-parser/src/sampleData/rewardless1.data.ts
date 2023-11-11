@@ -23,7 +23,7 @@ export const rewardless1SchemaStr = JSON.stringify({
       return: "string",
     },
     q3: {
-      name: "web3_account_size",
+      name: "web3_account",
       return: "object",
     },
   },
