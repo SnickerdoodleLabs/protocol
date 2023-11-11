@@ -409,20 +409,21 @@ export class MasterIndexer implements IMasterIndexer {
           return e;
         })
         .map((transactions) => {
-          const sanitizedTransactions: EVMTransaction[] = [];
-
-          transactions.forEach((tx) => {
-            const sanitizedTransaction = this.evmTransactionSanitizer.sanitize(
-              tx,
-              indexer.name(),
-              chain,
-            );
-            if (sanitizedTransaction != null) {
-              sanitizedTransactions.push(sanitizedTransaction);
-            }
-          });
-
-          return sanitizedTransactions;
+          return transactions.reduce<EVMTransaction[]>(
+            (sanitizedTransactions, tx) => {
+              const sanitizedTransaction =
+                this.evmTransactionSanitizer.sanitize(
+                  tx,
+                  indexer.name(),
+                  chain,
+                );
+              if (sanitizedTransaction != null) {
+                sanitizedTransactions.push(sanitizedTransaction);
+              }
+              return sanitizedTransactions;
+            },
+            [],
+          );
         });
     }, indexers).orElse((e) => {
       return okAsync([]);

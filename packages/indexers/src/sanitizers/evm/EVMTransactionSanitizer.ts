@@ -216,12 +216,16 @@ export class EVMTransactionSanitizer implements IEVMTransactionSanitizer {
     if (ValidationUtils.isString(value)) {
       const numberVal = ValidationUtils.hexOrNumberStringToNumber(value);
       if (numberVal === 0) {
-        this.logUtils.log("Genesis block number encountered, most impressive");
+        this.logUtils.debug(
+          "Genesis block number encountered, most impressive",
+        );
       }
       return numberVal;
     } else if (ValidationUtils.isNumber(value)) {
       if (value === 0) {
-        this.logUtils.log("Genesis block number encountered, most impressive");
+        this.logUtils.debug(
+          "Genesis block number encountered, most impressive",
+        );
       }
       return value >= 0 ? value : null;
     }
@@ -237,7 +241,7 @@ export class EVMTransactionSanitizer implements IEVMTransactionSanitizer {
           : value,
       );
       if (transformedTransaction === 0) {
-        this.logUtils.log("Genesis block time encountered, most impressive");
+        this.logUtils.debug("Genesis block time encountered, most impressive");
       }
       return transformedTransaction !== null
         ? UnixTimestamp(transformedTransaction)
