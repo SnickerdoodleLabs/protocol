@@ -118,4 +118,26 @@ describe("EVMTransactionSanitizer", () => {
       }
     });
   });
+
+  describe("Timestamp conversion", () => {
+    test("should return null for invalid transaction", () => {
+      // Arrange
+      const mocks = new EVMTransactionSanitizerMocks();
+      const service = mocks.factory();
+      const invalidTxs = invalidButCanBeNormalizedTransactions.slice(0, 2);
+
+      for (const invalidTransaction of invalidTxs) {
+        // Act
+        const result = service.sanitize(
+          invalidTransaction,
+          EDataProvider.Alchemy,
+          EChain.EthereumMainnet,
+        );
+        // Assert
+        expect(result).not.toBeNull();
+        expect(result).toBeInstanceOf(EVMTransaction);
+        expect(result?.timestamp).toBe(1659609391);
+      }
+    });
+  });
 });

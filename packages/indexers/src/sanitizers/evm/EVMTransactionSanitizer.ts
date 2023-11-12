@@ -192,7 +192,7 @@ export class EVMTransactionSanitizer implements IEVMTransactionSanitizer {
       if (!this.bigNumberUtils.validateBNS(value)) {
         return BigNumberString("0");
       }
-      if (!ValidationUtils.isNonNegativeNumberString(value)) {
+      if (!ValidationUtils.isNonNegativeHexOrNumberString(value)) {
         return null;
       }
       return BigNumberString(value);
