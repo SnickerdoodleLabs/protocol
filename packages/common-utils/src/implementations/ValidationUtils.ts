@@ -15,7 +15,14 @@ export class ValidationUtils {
     return false;
   }
 
-  static isNonNegativeNumberString(value: unknown): value is string {
+  static isNonNegativeNumber(value: unknown): boolean {
+    if (ValidationUtils.isString(value)) {
+      return /^\d+$/.test(value);
+    }
+    return false;
+  }
+
+  static isNonNegativeHexOrNumberString(value: unknown): boolean {
     if (ValidationUtils.isString(value)) {
       return /^\d+$/.test(value) || ValidationUtils.isValidHex(value);
     }
@@ -47,8 +54,9 @@ export class ValidationUtils {
       : /^0x[0-9a-fA-F]+$/;
     return typeof value === "string" && hexRegex.test(value);
   }
+  //
   static hexOrNumberStringToNumber(value: string): number | null {
-    if (ValidationUtils.isNonNegativeNumberString(value)) {
+    if (ValidationUtils.isNonNegativeNumber(value)) {
       try {
         const timestamp = parseInt(value, 10);
         return timestamp >= 0 ? timestamp : null;
