@@ -55,9 +55,5 @@
     "react-jss": "^10.10.0",
     "rxjs": "^7.5.5",
     "tldts": "^5.7.89"
-  },
-  "devDependencies": {
-    "webpack": "^5.89.0",
-    "webpack-cli": "^5.1.4"
   }
 }

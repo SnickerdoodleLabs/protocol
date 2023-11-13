@@ -2,73 +2,72 @@ import "reflect-metadata";
 import {
   IWebIntegrationConfigOverrides,
   LanguageCode,
+  PersistenceError,
   ProviderRpcError,
+  ProxyError,
 } from "@snickerdoodlelabs/objects";
 import { SnickerdoodleWebIntegration } from "@snickerdoodlelabs/web-integration";
-import { Signer } from "ethers";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { WCProvider } from "./WCProvider";
-export class integrateSnickerdoodle {
+
+export class SnickerdoodleIntegration {
   coreConfig: IWebIntegrationConfigOverrides;
   webIntegration: SnickerdoodleWebIntegration | undefined;
   WCProvider: WCProvider;
+
   constructor(coreConfig) {
     this.coreConfig = coreConfig;
     this.WCProvider = new WCProvider(coreConfig.walletConnect.projectId);
   }
-  async startSessionIntegration() {
-    const signer = await this.WCProvider?.getEthersSigner();
-    this.webIntegration = new SnickerdoodleWebIntegration(
-      this.coreConfig,
-      signer,
-    );
-    this.webIntegration.initialize();
+
+  protected startSessionIntegration(): ResultAsync<void, Error> {
+    return this.WCProvider.getEthersSigner().map((signer) => {
+      this.webIntegration = new SnickerdoodleWebIntegration(
+        this.coreConfig,
+        signer,
+      );
+      this.webIntegration.initialize();
+    });
   }
-  startIntegration() {
-    return new SnickerdoodleWebIntegration(this.coreConfig)
+
+  protected startIntegration(): ResultAsync<
+    void,
+    ProxyError | PersistenceError | ProviderRpcError
+  > {
+    const webIntegration = new SnickerdoodleWebIntegration(this.coreConfig);
+    return webIntegration
       .initialize()
-      .andThen((sdl) => {
-        return sdl.account.getLinkAccountMessage(LanguageCode("en"));
-      })
-      .andThen((message) => {
-        return ResultAsync.fromPromise(
-          this.WCProvider.startWalletConnect(message).then((result) => {
-            if (result instanceof Error) {
-              throw new Error(result.message);
-            }
-            return result;
-          }),
-          (error) => {
-            return new ProviderRpcError("WalletConnect start failed", error);
-          },
+      .andThen(() => {
+        return webIntegration.core.account.getLinkAccountMessage(
+          LanguageCode("en"),
         );
       })
-      .andThen((signer) => {
-        if (signer instanceof Signer) {
-          this.webIntegration = new SnickerdoodleWebIntegration(
-            this.coreConfig,
-            signer,
-          );
-          return ResultAsync.fromSafePromise(
-            Promise.resolve("Integration successful"),
-          );
-        } else {
-          return errAsync(new TypeError("Signer validation failed"));
-        }
+      .andThen((message) => {
+        return this.WCProvider.startWalletConnect(message).mapErr((error) => {
+          return new ProviderRpcError("WalletConnect start failed", error);
+        });
+      })
+      .map((signer) => {
+        this.webIntegration = new SnickerdoodleWebIntegration(
+          this.coreConfig,
+          signer,
+        );
       })
       .mapErr((error) => {
         console.error("Integration failed:", error);
         return error;
       });
   }
-  start() {
+
+  public start(): ResultAsync<void, Error> {
     if (this.isConnected()) {
-      this.startSessionIntegration();
+      return this.startSessionIntegration();
     } else {
-      this.startIntegration();
+      return this.startIntegration();
     }
   }
-  isConnected() {
+
+  public isConnected(): boolean {
     return this.WCProvider.checkConnection();
   }
 }

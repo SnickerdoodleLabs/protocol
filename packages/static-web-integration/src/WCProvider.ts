@@ -1,5 +1,5 @@
 import { Signer, ethers, providers } from "ethers";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import {
   configureChains,
   createConfig,
@@ -40,43 +40,44 @@ export class WCProvider {
     this.ethereumClient = new EthereumClient(wagmiConfig, chains);
 
     this.web3Modal = new Web3Modal(web3ModalConfig, this.ethereumClient);
-
-    // ethereumClient.getAccount().connector?.connect();
   }
-  async startWalletConnect(message: string) {
+  public startWalletConnect(
+    message: string,
+  ): ResultAsync<ethers.providers.JsonRpcSigner, Error> {
     this.web3Modal.openModal();
-    return await this.setupEventListeners(message);
+    return this.setupEventListeners(message);
   }
 
-  async setupEventListeners(message: string) {
-    try {
-      await new Promise<void>((resolve, reject) => {
+  public setupEventListeners(
+    message: string,
+  ): ResultAsync<ethers.providers.JsonRpcSigner, Error> {
+    return ResultAsync.fromPromise(
+      new Promise<void>((resolve, reject) => {
         this.ethereumClient.watchAccount((accounts) => {
           if (accounts.address) {
             resolve();
           }
         });
+      }),
+      (error) => new Error(`Error in setupEventListeners: ${error}`),
+    )
+      .andThen(() => {
+        return ResultAsync.fromPromise(
+          getWalletClient(),
+          (error) => new Error(`Error getting wallet client: ${error}`),
+        );
+      })
+      .andThen(() => {
+        return this.getEthersSigner();
+      })
+      .andThen((signer) => {
+        return this.sign(signer, message).andThen((signature) => {
+          return okAsync(signer);
+        });
       });
-
-      const client = await getWalletClient();
-      const signer_ = await this.getEthersSigner();
-      const signature = await this.sign(signer_, message);
-      return signer_;
-    } catch (error) {
-      return new Error(`Error getting signature: ${(error as Error).message}`);
-    }
   }
 
-  public getSigner() {
-    return ResultAsync.fromPromise(this.getEthersSigner(), (e) => {
-      return new Error(`Error getting signer: ${(e as Error).message}`);
-    }).map((signer) => {
-      console.log("adsad", signer);
-      return signer;
-    });
-  }
-
-  public checkConnection() {
+  public checkConnection(): boolean {
     const address = getAccount().address;
     if (address) {
       return true;
@@ -85,11 +86,15 @@ export class WCProvider {
     }
   }
 
-  public getEthersProvider({ chainId }: { chainId?: number } = {}) {
+  protected getEthersProvider({ chainId }: { chainId?: number } = {}):
+    | ethers.providers.JsonRpcProvider
+    | ethers.providers.FallbackProvider {
     const publicClient = getPublicClient({ chainId });
     return this.publicClientToProvider(publicClient);
   }
-  public publicClientToProvider(publicClient: PublicClient) {
+  protected publicClientToProvider(
+    publicClient: PublicClient,
+  ): ethers.providers.FallbackProvider | ethers.providers.JsonRpcProvider {
     const { chain, transport } = publicClient;
     const network = {
       chainId: chain.id,
@@ -106,7 +111,9 @@ export class WCProvider {
     return new providers.JsonRpcProvider(transport.url, network);
   }
 
-  public walletClientToSigner(walletClient: WalletClient) {
+  protected walletClientToSigner(
+    walletClient: WalletClient,
+  ): ethers.providers.JsonRpcSigner {
     const { account, chain, transport } = walletClient;
     const network = {
       chainId: chain.id,
@@ -118,12 +125,28 @@ export class WCProvider {
     return signer;
   }
 
-  public async getEthersSigner({ chainId }: { chainId?: number } = {}) {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    const walletClient = await getWalletClient({ chainId: chainId || 1 });
-    return this.walletClientToSigner(walletClient!) as ethers.Signer;
+  public getEthersSigner({ chainId }: { chainId?: number } = {}): ResultAsync<
+    ethers.providers.JsonRpcSigner,
+    Error
+  > {
+    return ResultAsync.fromPromise(
+      new Promise((resolve) => setTimeout(resolve, 1000)),
+      () => new Error("Timeout error"),
+    )
+      .andThen(() => {
+        return ResultAsync.fromPromise(
+          getWalletClient({ chainId: chainId || 1 }),
+          (error) => new Error(`Error getting wallet client: ${error}`),
+        );
+      })
+      .map((walletClient) => {
+        return this.walletClientToSigner(walletClient!);
+      });
   }
-  public async sign(signer: Signer, message: string) {
-    return await signer.signMessage(message);
+  protected sign(signer: Signer, message: string): ResultAsync<string, Error> {
+    return ResultAsync.fromPromise(
+      signer.signMessage(message),
+      (error) => new Error(`Error during signMessage: ${error}`),
+    );
   }
 }
