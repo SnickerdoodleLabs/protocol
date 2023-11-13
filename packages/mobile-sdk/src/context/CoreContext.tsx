@@ -65,9 +65,14 @@ const CoreProvider: React.FC<ICoreProviderProps> = ({ children, configs }) => {
   };
 
   React.useEffect(() => {
-    snickerdoodleCore.initialize().map(() => {
-      setIsInitialized(true);
-    });
+    snickerdoodleCore
+      .initialize()
+      .map(() => {
+        setIsInitialized(true);
+      })
+      .mapErr((error) => {
+        console.log("Error initializing core", error);
+      });
   }, []);
 
   return (
