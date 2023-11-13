@@ -84,6 +84,10 @@ export class DataPermissions {
     return this.getFlag(EWalletDataType.Twitter);
   }
   public get AccountSize(): boolean {
+    console.log(
+      `Account Size Called`,
+      this.getFlag(EWalletDataType.AccountSize),
+    );
     return this.getFlag(EWalletDataType.AccountSize);
   }
 
