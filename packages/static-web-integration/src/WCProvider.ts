@@ -135,18 +135,12 @@ export class WCProvider {
     Error
   > {
     return ResultAsync.fromPromise(
-      new Promise((resolve) => setTimeout(resolve, 2000)),
-      () => new Error("Timeout error"),
+      getWalletClient({ chainId: chainId || 1 }),
+      (error) => new Error(`Error getting wallet client: ${error}`),
     )
-      .andThen(() => {
-        return ResultAsync.fromPromise(
-          getWalletClient({ chainId: chainId || 1 }),
-          (error) => new Error(`Error getting wallet client: ${error}`),
-        );
-      })
-      .map((walletClient) => {
-        return this.walletClientToSigner(walletClient!);
-      });
+    .map((walletClient) => {
+      return this.walletClientToSigner(walletClient!);
+    });
   }
   protected sign(signer: Signer, message: string): ResultAsync<string, Error> {
     return ResultAsync.fromPromise(

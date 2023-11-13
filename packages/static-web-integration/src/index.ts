@@ -23,7 +23,6 @@ export class SnickerdoodleIntegration {
   protected startSessionIntegration() {
     return this.WCProvider.getEthersSigner()
       .map((signer) => {
-        console.log("signer", signer);
         return (this.webIntegration = new SnickerdoodleWebIntegration(
           this.coreConfig,
           signer,
@@ -42,16 +41,20 @@ export class SnickerdoodleIntegration {
   }
 
   protected startIntegration() {
-    console.log('startIntegration')
-    return this.WCProvider.startWalletConnect().andThen((signer) => {
-      this.webIntegration = new SnickerdoodleWebIntegration(
-        this.coreConfig,
-        signer,
-      );
-      return this.webIntegration.initialize().andThen(() => {
-        return okAsync(undefined);
+    return this.WCProvider.startWalletConnect()
+      .andThen((signer) => {
+        this.webIntegration = new SnickerdoodleWebIntegration(
+          this.coreConfig,
+          signer,
+        );
+        return this.webIntegration.initialize().andThen(() => {
+          return okAsync(undefined);
+        });
+      })
+      .mapErr((error) => {
+        console.error("Integration failed:", error);
+        return error;
       });
-    });
   }
 
   public start(): ResultAsync<void, Error> {
