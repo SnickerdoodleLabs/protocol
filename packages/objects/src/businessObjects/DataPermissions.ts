@@ -83,6 +83,9 @@ export class DataPermissions {
   public get Twitter(): boolean {
     return this.getFlag(EWalletDataType.Twitter);
   }
+  public get AccountSize(): boolean {
+    return this.getFlag(EWalletDataType.AccountSize);
+  }
 
   public getFlag(flagNumber: number): boolean {
     // Convert the flags hex string to a Uint8Array

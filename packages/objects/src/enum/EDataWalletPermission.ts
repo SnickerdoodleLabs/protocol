@@ -7,4 +7,5 @@ export enum EDataWalletPermission {
   UpdateDemographicData = 6,
   AddLinkedAccount = 7,
   OptInToConsentContract = 8,
+  ShareLinkedAccountCount = 9,
 }
