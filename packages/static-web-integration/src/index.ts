@@ -1,11 +1,5 @@
 import "reflect-metadata";
-import {
-  IWebIntegrationConfigOverrides,
-  LanguageCode,
-  PersistenceError,
-  ProviderRpcError,
-  ProxyError,
-} from "@snickerdoodlelabs/objects";
+import { IWebIntegrationConfigOverrides } from "@snickerdoodlelabs/objects";
 import { SnickerdoodleWebIntegration } from "@snickerdoodlelabs/web-integration";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { WCProvider } from "@static-web-integration/WCProvider";

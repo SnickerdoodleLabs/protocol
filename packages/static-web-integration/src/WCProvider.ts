@@ -1,5 +1,5 @@
 import { Signer, ethers, providers } from "ethers";
-import { ResultAsync, errAsync, okAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import {
   configureChains,
   createConfig,
@@ -137,8 +137,7 @@ export class WCProvider {
     return ResultAsync.fromPromise(
       getWalletClient({ chainId: chainId || 1 }),
       (error) => new Error(`Error getting wallet client: ${error}`),
-    )
-    .map((walletClient) => {
+    ).map((walletClient) => {
       return this.walletClientToSigner(walletClient!);
     });
   }
