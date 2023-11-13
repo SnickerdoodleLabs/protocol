@@ -8,7 +8,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { SnickerdoodleWebIntegration } from "@snickerdoodlelabs/web-integration";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
-import { WCProvider } from "./WCProvider";
+import { WCProvider } from "@static-web-integration/WCProvider";
 
 export class SnickerdoodleIntegration {
   coreConfig: IWebIntegrationConfigOverrides;
