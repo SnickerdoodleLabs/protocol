@@ -60,7 +60,7 @@ export class WCProvider {
     return this.setupEventListeners();
   }
 
-  public setupEventListeners(): ResultAsync<Signer, Error> {
+  protected setupEventListeners(): ResultAsync<Signer, Error> {
     return ResultAsync.fromPromise(
       new Promise<void>((resolve, reject) => {
         this.ethereumClient.watchAccount((accounts) => {
@@ -91,13 +91,13 @@ export class WCProvider {
     }
   }
 
-  public getEthersProvider({ chainId }: { chainId?: number } = {}):
+  protected getEthersProvider({ chainId }: { chainId?: number } = {}):
     | ethers.providers.JsonRpcProvider
     | ethers.providers.FallbackProvider {
     const publicClient = getPublicClient({ chainId });
     return this.publicClientToProvider(publicClient);
   }
-  public publicClientToProvider(
+  protected publicClientToProvider(
     publicClient: PublicClient,
   ): ethers.providers.FallbackProvider | ethers.providers.JsonRpcProvider {
     const { chain, transport } = publicClient;
