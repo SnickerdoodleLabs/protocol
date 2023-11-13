@@ -38,7 +38,7 @@
           // Add consent contract here
         ); */
         console.log("snickerdoodle", snickerdoodle);
-        window.snickerdoodle = new snickerdoodle.integrateSnickerdoodle({
+        window.snickerdoodle = new snickerdoodle.SnickerdoodleIntegration({
           primaryInfuraKey: "a8ae124ed6aa44bb97a7166cda30f1bc",
           iframeURL: "https://iframe.snickerdoodle.com",
           walletConnect: {
@@ -50,7 +50,6 @@
   </head>
 
   <body>
-    <button onclick="window.snickerdoodle.start()">This is my button</button>
     <div>This is a completely static webpage!</div>
   </body>
 </html>
