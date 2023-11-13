@@ -1,5 +1,5 @@
 {
-  "name": "@snickerdoodlelabs/static-web-integration",
+  "name": "@snickerdoodlelabs/static-integration-test",
   "version": "1.0.0",
   "description": "Packages up a javascript file for use on static websites to add Snickerdoodle Data Wallet functionality. Builds to an NGINX docker file to host",
   "main": "dist/index.js",
