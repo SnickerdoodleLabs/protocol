@@ -9,7 +9,14 @@ import {
   PublicClient,
   WalletClient,
 } from "@wagmi/core";
-import { arbitrum, avalanche, mainnet, polygon } from "@wagmi/core/chains";
+import {
+  arbitrum,
+  avalanche,
+  mainnet,
+  polygon,
+  avalancheFuji,
+  optimism,
+} from "@wagmi/core/chains";
 import {
   EthereumClient,
   w3mConnectors,
@@ -27,13 +34,20 @@ export class WCProvider {
         safe: "https://pbs.twimg.com/profile_images/1566773491764023297/IvmCdGnM_400x400.jpg",
       },
     };
-    const chains = [mainnet, polygon, avalanche, arbitrum];
+    const chains = [
+      mainnet,
+      avalanche,
+      avalancheFuji,
+      arbitrum,
+      optimism,
+      polygon,
+    ];
 
     const { publicClient } = configureChains(chains, [
       w3mProvider({ projectId }),
     ]);
     const wagmiConfig = createConfig({
-      autoConnect: true,
+      autoConnect: false,
       connectors: w3mConnectors({ chains, projectId }),
       publicClient,
     });
@@ -41,16 +55,12 @@ export class WCProvider {
 
     this.web3Modal = new Web3Modal(web3ModalConfig, this.ethereumClient);
   }
-  public startWalletConnect(
-    message: string,
-  ): ResultAsync<ethers.providers.JsonRpcSigner, Error> {
+  public startWalletConnect(): ResultAsync<Signer, Error> {
     this.web3Modal.openModal();
-    return this.setupEventListeners(message);
+    return this.setupEventListeners();
   }
 
-  public setupEventListeners(
-    message: string,
-  ): ResultAsync<ethers.providers.JsonRpcSigner, Error> {
+  public setupEventListeners(): ResultAsync<Signer, Error> {
     return ResultAsync.fromPromise(
       new Promise<void>((resolve, reject) => {
         this.ethereumClient.watchAccount((accounts) => {
@@ -69,11 +79,6 @@ export class WCProvider {
       })
       .andThen(() => {
         return this.getEthersSigner();
-      })
-      .andThen((signer) => {
-        return this.sign(signer, message).andThen((signature) => {
-          return okAsync(signer);
-        });
       });
   }
 
@@ -86,13 +91,13 @@ export class WCProvider {
     }
   }
 
-  protected getEthersProvider({ chainId }: { chainId?: number } = {}):
+  public getEthersProvider({ chainId }: { chainId?: number } = {}):
     | ethers.providers.JsonRpcProvider
     | ethers.providers.FallbackProvider {
     const publicClient = getPublicClient({ chainId });
     return this.publicClientToProvider(publicClient);
   }
-  protected publicClientToProvider(
+  public publicClientToProvider(
     publicClient: PublicClient,
   ): ethers.providers.FallbackProvider | ethers.providers.JsonRpcProvider {
     const { chain, transport } = publicClient;
@@ -126,11 +131,11 @@ export class WCProvider {
   }
 
   public getEthersSigner({ chainId }: { chainId?: number } = {}): ResultAsync<
-    ethers.providers.JsonRpcSigner,
+    Signer,
     Error
   > {
     return ResultAsync.fromPromise(
-      new Promise((resolve) => setTimeout(resolve, 1000)),
+      new Promise((resolve) => setTimeout(resolve, 2000)),
       () => new Error("Timeout error"),
     )
       .andThen(() => {

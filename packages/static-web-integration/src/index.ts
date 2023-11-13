@@ -20,43 +20,38 @@ export class SnickerdoodleIntegration {
     this.WCProvider = new WCProvider(coreConfig.walletConnect.projectId);
   }
 
-  protected startSessionIntegration(): ResultAsync<void, Error> {
-    return this.WCProvider.getEthersSigner().map((signer) => {
-      this.webIntegration = new SnickerdoodleWebIntegration(
-        this.coreConfig,
-        signer,
-      );
-      this.webIntegration.initialize();
-    });
-  }
-
-  protected startIntegration(): ResultAsync<
-    void,
-    ProxyError | PersistenceError | ProviderRpcError
-  > {
-    const webIntegration = new SnickerdoodleWebIntegration(this.coreConfig);
-    return webIntegration
-      .initialize()
-      .andThen(() => {
-        return webIntegration.core.account.getLinkAccountMessage(
-          LanguageCode("en"),
-        );
-      })
-      .andThen((message) => {
-        return this.WCProvider.startWalletConnect(message).mapErr((error) => {
-          return new ProviderRpcError("WalletConnect start failed", error);
-        });
-      })
+  protected startSessionIntegration() {
+    return this.WCProvider.getEthersSigner()
       .map((signer) => {
-        this.webIntegration = new SnickerdoodleWebIntegration(
+        console.log("signer", signer);
+        return (this.webIntegration = new SnickerdoodleWebIntegration(
           this.coreConfig,
           signer,
-        );
+        ));
+      })
+      .andThen((integration) => {
+        return integration.initialize();
+      })
+      .andThen(() => {
+        return okAsync(undefined);
       })
       .mapErr((error) => {
         console.error("Integration failed:", error);
         return error;
       });
+  }
+
+  protected startIntegration() {
+    console.log('startIntegration')
+    return this.WCProvider.startWalletConnect().andThen((signer) => {
+      this.webIntegration = new SnickerdoodleWebIntegration(
+        this.coreConfig,
+        signer,
+      );
+      return this.webIntegration.initialize().andThen(() => {
+        return okAsync(undefined);
+      });
+    });
   }
 
   public start(): ResultAsync<void, Error> {
