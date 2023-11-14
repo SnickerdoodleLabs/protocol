@@ -1,8 +1,3 @@
-// We require the Hardhat Runtime Environment explicitly here. This is optional
-// but useful for running the script in a standalone fashion through `node <script>`.
-//
-// When running the script with `npx hardhat run <script>` you'll find the Hardhat
-// Runtime Environment's members available in the global scope.
 const { ethers, upgrades } = require("hardhat");
 
 const { logTXDetails, REWARD } = require("../tasks/constants.js");
@@ -12,26 +7,6 @@ let accounts;
 let owner;
 let user;
 let rewardContractAddress;
-
-const fs = require("fs");
-const path = require("path");
-
-/* const getRewardABI = () => {
-  try {
-    const dir = path.resolve(
-      __dirname,
-      "../artifacts/contracts/testing/Reward.sol/Reward.json",
-    );
-    const file = fs.readFileSync(dir, "utf8");
-    const json = JSON.parse(file);
-    const abi = json.abi;
-    console.log(`abi`, abi);
-
-    return abi;
-  } catch (e) {
-    console.log(`e`, e);
-  }
-}; */
 
 async function setLocalAccounts() {
   accounts = await ethers.getSigners();
@@ -52,8 +27,9 @@ async function deployRewards() {
   rewardContractAddress = reward.address;
 }
 
-// Funciont that creates rewards and mints some tokens on it
+// Function that creates rewards and mints some tokens on it
 async function premintReward() {
+  // Setup account variables
   await setLocalAccounts();
 
   console.log("");
@@ -63,6 +39,8 @@ async function premintReward() {
   console.log("");
   console.log(`Deploy a rewards contract from ${owner.address}...`);
   console.log("");
+
+  // Deploy rewards contract
   await deployRewards();
 
   const rewardContract = new ethers.Contract(
@@ -85,7 +63,6 @@ async function premintReward() {
   console.log(
     `Pre-minted token ids ${tokenIds} to ${user.address} on reward contract address ${rewardContractAddress} by owner ${owner.address}.`,
   );
-  console.log("");
 }
 
 // We recommend this pattern to be able to use async/await everywhere
