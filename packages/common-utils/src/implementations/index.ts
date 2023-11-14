@@ -4,3 +4,4 @@ export * from "@common-utils/implementations/JsonUtils.js";
 export * from "@common-utils/implementations/LogUtils.js";
 export * from "@common-utils/implementations/ObjectUtils.js";
 export * from "@common-utils/implementations/TimeUtils.js";
+export * from "@common-utils/implementations/ValidationUtils.js";

@@ -3,8 +3,9 @@ import {
   ILogUtils,
   IAxiosAjaxUtilsType,
   IAxiosAjaxUtils,
+  ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
-import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
   AjaxError,
@@ -80,7 +81,7 @@ export class PolygonIndexer implements IEVMIndexer {
     });
   }
 
-  public name(): string {
+  public name(): EDataProvider {
     return EDataProvider.Polygon;
   }
 

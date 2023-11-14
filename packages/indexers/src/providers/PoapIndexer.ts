@@ -65,7 +65,7 @@ export class PoapRepository implements IEVMIndexer {
     return this.setHealth();
   }
 
-  public name(): string {
+  public name(): EDataProvider {
     return EDataProvider.Poap;
   }
 

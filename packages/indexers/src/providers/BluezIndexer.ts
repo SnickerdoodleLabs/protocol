@@ -85,7 +85,7 @@ export class BluezIndexer implements IEVMIndexer {
     });
   }
 
-  public name(): string {
+  public name(): EDataProvider {
     return EDataProvider.Bluez;
   }
 
