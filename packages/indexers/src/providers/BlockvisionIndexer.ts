@@ -89,7 +89,7 @@ export class BlockvisionIndexer implements ISuiIndexer {
     });
   }
 
-  public name(): string {
+  public name(): EDataProvider {
     return EDataProvider.Blockvision;
   }
 

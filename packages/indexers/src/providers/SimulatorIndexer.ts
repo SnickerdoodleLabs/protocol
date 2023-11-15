@@ -1,3 +1,4 @@
+import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
   AjaxError,
@@ -27,7 +28,6 @@ import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/interfaces/index.js";
-import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 
 @injectable()
 export class SimulatorEVMTransactionRepository implements IEVMIndexer {
@@ -62,7 +62,7 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
     });
   }
 
-  public name(): string {
+  public name(): EDataProvider {
     return EDataProvider.Sim;
   }
 
