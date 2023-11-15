@@ -214,59 +214,60 @@ export class BlockvisionIndexer implements ISuiIndexer {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),
-      this.getTxDigests(accountAddress),
     ])
-      .andThen(([config, context, digests]) => {
+      .andThen(([config, context]) => {
         const url =
-          "https://sui-mainnet.blockvision.org/v1/" +
-          config.apiKeys.blockvisionKey;
+          "https://api.blockvision.org/v2/sui/account/activities?address=" +
+          accountAddress;
 
-        digests = digests.filter(
-          (item, index) => digests.indexOf(item) === index,
-        );
-        const requestParams = {
-          jsonrpc: "2.0",
-          id: 1,
-          method: "sui_multiGetTransactionBlocks",
-          params: [
-            digests,
-            {
-              showInput: false,
-              showRawInput: false,
-              showEffects: false,
-              showEvents: false,
-              showObjectChanges: true,
-              showBalanceChanges: true,
-            },
-          ],
+        let apiKey = config.apiKeys.blockvisionKey;
+        if (apiKey == null) {
+          apiKey = "";
+        }
+
+        const requestParams: IRequestConfig = {
+          method: "get",
+          url: url,
+          headers: {
+            accept: "application/json",
+            "X-API-Key": apiKey,
+          },
         };
 
         context.privateEvents.onApiAccessed.next(EExternalApi.Blockvision);
-        return this.ajaxUtils.post<IBlockvisionEventsResponse>(
+        return this.ajaxUtils.get<IBlockvisionDigestReponse>(
           new URL(url),
           requestParams,
-          {
-            headers: {
-              "Content-Type": `application/json;`,
-            },
-          },
         );
       })
       .map((response) => {
-        return response.result
-          .map((value) => {
-            const balanceUpdates = this.retrieveBalanceChanges(
-              value.digest,
-              accountAddress,
-              value.balanceChanges,
-            );
-            const objectUpdates = this.retrieveObjectChanges(
-              value.objectChanges,
-            );
-            const updates = [...balanceUpdates, ...objectUpdates];
-            return updates;
-          })
-          .flat();
+        if (response.result.data == null) {
+          return [];
+        }
+        console.log(
+          "response.result.data: " + JSON.stringify(response.result.data),
+        );
+        return [];
+        // return response.result.data
+        //   .map((value) => {
+        //     return new SuiTransaction(
+        //       EChain.Sui,
+        //       SuiTransactionHash(value.   .toString()),
+        //       UnixTimestamp(value.timestampMs),
+        //       null,
+        //       SuiAccountAddress(value.sender),
+        //       SuiAccountAddress(value.),
+        //       BigNumberString(value.coinChanges.amount),
+        //       BigNumberString(value.gasFee),
+        //       null,
+        //       null,
+        //       null,
+        //       "balance",
+        //       null,
+        //       this.timeUtils.getUnixNow(),
+        //     );
+        //   })
+        //   .flat();
       })
       .mapErr((e) => {
         console.log(e);
@@ -332,47 +333,47 @@ export class BlockvisionIndexer implements ISuiIndexer {
     });
   }
 
-  private getTxDigests(
-    accountAddress: SuiAccountAddress,
-  ): ResultAsync<string[], AjaxError> {
-    return ResultUtils.combine([
-      this.configProvider.getConfig(),
-      this.contextProvider.getContext(),
-    ])
-      .andThen(([config, context]) => {
-        const url =
-          "https://api.blockvision.org/v2/sui/account/activities?address=" +
-          accountAddress;
+  // private getTxDigests(
+  //   accountAddress: SuiAccountAddress,
+  // ): ResultAsync<string[], AjaxError> {
+  //   return ResultUtils.combine([
+  //     this.configProvider.getConfig(),
+  //     this.contextProvider.getContext(),
+  //   ])
+  //     .andThen(([config, context]) => {
+  //       const url =
+  //         "https://api.blockvision.org/v2/sui/account/activities?address=" +
+  //         accountAddress;
 
-        let apiKey = config.apiKeys.blockvisionKey;
-        if (apiKey == null) {
-          apiKey = "";
-        }
+  //       let apiKey = config.apiKeys.blockvisionKey;
+  //       if (apiKey == null) {
+  //         apiKey = "";
+  //       }
 
-        const requestParams: IRequestConfig = {
-          method: "get",
-          url: url,
-          headers: {
-            accept: "application/json",
-            "X-API-Key": apiKey,
-          },
-        };
+  //       const requestParams: IRequestConfig = {
+  //         method: "get",
+  //         url: url,
+  //         headers: {
+  //           accept: "application/json",
+  //           "X-API-Key": apiKey,
+  //         },
+  //       };
 
-        context.privateEvents.onApiAccessed.next(EExternalApi.Blockvision);
-        return this.ajaxUtils.get<IBlockvisionDigestReponse>(
-          new URL(url),
-          requestParams,
-        );
-      })
-      .map((response) => {
-        if (response.result.data == null) {
-          return [];
-        }
-        return response.result.data.map((item) => {
-          return item.txDigest;
-        });
-      });
-  }
+  //       context.privateEvents.onApiAccessed.next(EExternalApi.Blockvision);
+  //       return this.ajaxUtils.get<IBlockvisionDigestReponse>(
+  //         new URL(url),
+  //         requestParams,
+  //       );
+  //     })
+  //     .map((response) => {
+  //       if (response.result.data == null) {
+  //         return [];
+  //       }
+  //       return response.result.data.map((item) => {
+  //         return item.txDigest;
+  //       });
+  //     });
+  // }
 
   public healthStatus(): Map<EChain, EComponentStatus> {
     return this.health;
@@ -481,17 +482,40 @@ interface IBlockvisionNftReponse {
 }
 
 interface IBlockvisionDigest {
-  txDigest: string;
-  package: string;
+  digest: string;
   timestampMs: number;
-  projectName: string;
-  icon: string;
-  projectURL: string;
-  activityType: string;
-  moduleName: string;
-  functionName: string;
-  nftMetadata: IBlockvisionNftMetadata | null;
+  type: string;
+  coinChanges: {
+    amount: string;
+    coinAddress: string;
+    symbol: string;
+    decimal: string;
+    logo: string;
+  }[];
+  nftChanges: null;
+  interactAddresses: {
+    address: string;
+    type: string;
+    name: string;
+    logo: string;
+  }[];
+  gasFee: string;
+  status: string;
+  sender: string;
 }
+
+// interface IBlockvisionDigest {
+//   txDigest: string;
+//   package: string;
+//   timestampMs: number;
+//   projectName: string;
+//   icon: string;
+//   projectURL: string;
+//   activityType: string;
+//   moduleName: string;
+//   functionName: string;
+//   nftMetadata: IBlockvisionNftMetadata | null;
+// }
 
 interface IBlockvisionNftMetadata {
   objectId: SuiTokenAddress;
