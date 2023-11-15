@@ -13,6 +13,7 @@ COPY packages/common-utils/package.json /build/packages/common-utils/package.jso
 COPY packages/contracts/package.json /build/packages/contracts/package.json
 COPY packages/contracts-sdk/package.json /build/packages/contracts-sdk/package.json
 COPY packages/core/package.json /build/packages/core/package.json
+COPY packages/erc7529/package.json /build/packages/erc7529/package.json
 COPY packages/extension-onboarding/package.json /build/packages/extension-onboarding/package.json
 COPY packages/iframe/package.json /build/packages/iframe/package.json
 COPY packages/indexers/package.json /build/packages/indexers/package.json
