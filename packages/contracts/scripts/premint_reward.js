@@ -15,15 +15,14 @@ async function setLocalAccounts() {
 }
 
 async function deployRewards() {
-  console.log("");
-  console.log("Deploying another Test Reward contract for pre-minting...");
-
   const Reward = await ethers.getContractFactory("Reward");
 
   const reward = await Reward.deploy("TestReward", "TR", "www.test-reward.com");
   const reward_receipt = await reward.deployTransaction.wait();
 
-  console.log(`Reward deployed to contract address: ${owner.address}...`);
+  console.log(
+    `\u2592 Reward deployed to contract address: ${reward.address} by owner ${owner.address}...\n`,
+  );
   rewardContractAddress = reward.address;
 }
 
@@ -32,13 +31,13 @@ async function premintReward() {
   // Setup account variables
   await setLocalAccounts();
 
-  console.log("");
-  console.log("Setting up scenario of pre-minted NFTs...");
-  console.log("");
-  console.log(`Creating a user, ${user.address} that has pre-minted NFTs...`);
-  console.log("");
-  console.log(`Deploy a rewards contract from ${owner.address}...`);
-  console.log("");
+  console.log(`Setting up scenario of pre-minted NFTs...\n`);
+  console.log(
+    `\u2592 Creating a user, ${user.address} who will have pre-minted NFTs...\n`,
+  );
+  console.log(
+    `\u2592 Deploying a rewards contract from owner ${owner.address}...\n`,
+  );
 
   // Deploy rewards contract
   await deployRewards();
@@ -49,19 +48,19 @@ async function premintReward() {
     user,
   );
 
-  console.log(`Minting a few NFTs to ${user.address}...`);
+  console.log(`\u2592 Minting a few NFTs to ${user.address}...\n`);
 
   let tokenIds = [];
 
   for (let i = 0; i < 5; i++) {
     await rewardContract.connect(owner).safeMint(user.address);
     tokenIds.push(i);
-    console.log(`Minted token id ${i}...`);
+    console.log(`\u2592 Minted token id ${i}...`);
   }
 
   await console.log("");
   console.log(
-    `Pre-minted token ids ${tokenIds} to ${user.address} on reward contract address ${rewardContractAddress} by owner ${owner.address}.`,
+    `Success! Pre-minted token ids ${tokenIds} to ${user.address} on reward contract address ${rewardContractAddress} by owner ${owner.address}.`,
   );
 }
 
