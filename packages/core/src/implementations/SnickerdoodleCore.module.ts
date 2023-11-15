@@ -113,6 +113,7 @@ import {
   NftQueryEvaluator,
   QueryEvaluator,
   QueryRepository,
+  Web3AccountQueryEvaluator,
 } from "@core/implementations/business/utilities/query/index.js";
 import {
   AdContentRepository,
@@ -198,6 +199,8 @@ import {
   IQueryEvaluatorType,
   IQueryParsingEngine,
   IQueryParsingEngineType,
+  IWeb3AccountQueryEvaluator,
+  IWeb3AccountQueryEvaluatorType,
 } from "@core/interfaces/business/utilities/index.js";
 import {
   IAdContentRepository,
@@ -477,6 +480,10 @@ export const snickerdoodleCoreModule = new ContainerModule(
 
     bind<IBalanceQueryEvaluator>(IBalanceQueryEvaluatorType)
       .to(BalanceQueryEvaluator)
+      .inSingletonScope();
+
+    bind<IWeb3AccountQueryEvaluator>(IWeb3AccountQueryEvaluatorType)
+      .to(Web3AccountQueryEvaluator)
       .inSingletonScope();
 
     bind<IQueryRepository>(IQueryRepositoryType)

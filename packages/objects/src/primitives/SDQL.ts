@@ -4,6 +4,7 @@ import {
   SiteVisitsData,
   ChainTransaction,
   NftHolding,
+  Web3AccountInsight,
 } from "@objects/businessObjects/index.js";
 import { ChainId } from "@objects/primitives/ChainId.js";
 import { TokenBalanceInsight } from "@objects/primitives/TokenBalanceInsight.js";
@@ -24,6 +25,7 @@ export type SDQL_Return = Brand<
   | TokenBalanceInsight[]
   | ChainTransaction[]
   | NftHolding[]
+  | Web3AccountInsight
   | Object
   | null,
   "SDQL_Return"

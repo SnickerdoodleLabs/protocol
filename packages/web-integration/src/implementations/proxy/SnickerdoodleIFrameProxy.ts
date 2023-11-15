@@ -80,7 +80,6 @@ import {
   IProxyAccountMethods,
   ChainTransaction,
   TransactionFilter,
-  TransactionPaymentCounter,
   IUserAgreement,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
