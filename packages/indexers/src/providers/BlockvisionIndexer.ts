@@ -16,20 +16,13 @@ import {
   TokenBalance,
   BigNumberString,
   EVMAccountAddress,
-  EVMContractAddress,
   EChain,
-  EVMNFT,
   TokenUri,
-  EVMTransaction,
   UnixTimestamp,
   EComponentStatus,
   IndexerSupportSummary,
-  MethodSupportError,
   EDataProvider,
   EExternalApi,
-  URLString,
-  DecimalString,
-  EVMTransactionHash,
   SuiTransactionHash,
   SuiAccountAddress,
   SuiNFT,
@@ -37,6 +30,7 @@ import {
   getChainInfoByChain,
   SuiTokenAddress,
   SuiCollection,
+  SuiContractAddress,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
@@ -44,7 +38,6 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import {
-  IEVMIndexer,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
   IIndexerContextProvider,
@@ -110,10 +103,7 @@ export class BlockvisionIndexer implements ISuiIndexer {
           jsonrpc: "2.0",
           id: 1,
           method: "suix_getBalance",
-          params: [
-            accountAddress, // "0x316a0693b0d900bb34711438b6974ead2c9a93716fd41f8a8377fa3dc5997abd",
-            "0x2::sui::SUI",
-          ],
+          params: [accountAddress, "0x2::sui::SUI"],
         };
         context.privateEvents.onApiAccessed.next(EExternalApi.Blockvision);
         return this.ajaxUtils.post<IBlockvisionBalancesReponse>(
@@ -142,7 +132,6 @@ export class BlockvisionIndexer implements ISuiIndexer {
       });
   }
 
-  // TODO: BLOCKVISION ENTERPRISE ACCESS REQUIRED
   public getTokensForAccount(
     chain: EChain,
     accountAddress: SuiAccountAddress,
@@ -244,30 +233,9 @@ export class BlockvisionIndexer implements ISuiIndexer {
         if (response.result.data == null) {
           return [];
         }
-        console.log(
-          "response.result.data: " + JSON.stringify(response.result.data),
-        );
-        return [];
-        // return response.result.data
-        //   .map((value) => {
-        //     return new SuiTransaction(
-        //       EChain.Sui,
-        //       SuiTransactionHash(value.   .toString()),
-        //       UnixTimestamp(value.timestampMs),
-        //       null,
-        //       SuiAccountAddress(value.sender),
-        //       SuiAccountAddress(value.),
-        //       BigNumberString(value.coinChanges.amount),
-        //       BigNumberString(value.gasFee),
-        //       null,
-        //       null,
-        //       null,
-        //       "balance",
-        //       null,
-        //       this.timeUtils.getUnixNow(),
-        //     );
-        //   })
-        //   .flat();
+        return this.parseBalances(response)
+          .concat(this.parseNfts(response))
+          .concat(this.parseAddresses(response));
       })
       .mapErr((e) => {
         console.log(e);
@@ -275,105 +243,98 @@ export class BlockvisionIndexer implements ISuiIndexer {
       });
   }
 
-  private retrieveBalanceChanges(
-    digest: string,
-    accountAddress: SuiAccountAddress,
-    param: IBalanceChanges[],
+  private parseBalances(
+    digestResponse: IBlockvisionDigestReponse,
   ): SuiTransaction[] {
-    let timestamp = 0;
-    return param.map((item) => {
-      timestamp++;
-      let from = item.owner.AddressOwner;
-      let to = accountAddress;
-      let amount = item.amount;
-
-      if (amount < 0) {
-        from = accountAddress;
-        to = this.nativeSuiAddress;
-        amount = amount * -1;
-      }
-      amount = amount * 10 ** 9;
-      return new SuiTransaction(
-        EChain.Sui,
-        SuiTransactionHash(timestamp.toString()),
-        UnixTimestamp(timestamp),
-        null,
-        from,
-        to,
-        BigNumberString(amount.toString()),
-        null,
-        null,
-        null,
-        null,
-        "balance",
-        null,
-        this.timeUtils.getUnixNow(),
-      );
-    });
+    return digestResponse.result.data
+      .map((digest) => {
+        if (digest.coinChanges == null) {
+          return [];
+        }
+        const balances = digest.coinChanges.map((balanceChange) => {
+          return new SuiTransaction(
+            EChain.Sui,
+            SuiTransactionHash(digest.digest),
+            UnixTimestamp(digest.timestampMs),
+            null,
+            SuiAccountAddress(digest.gasFee),
+            SuiAccountAddress(digest.sender),
+            BigNumberString(balanceChange.amount),
+            BigNumberString(digest.gasFee),
+            SuiContractAddress(balanceChange.coinAddress),
+            null,
+            null,
+            null,
+            null,
+            this.timeUtils.getUnixNow(),
+          );
+        });
+        return balances;
+      })
+      .flat();
   }
 
-  private retrieveObjectChanges(param: IObjectChanges[]): SuiTransaction[] {
-    return param.map((item) => {
-      return new SuiTransaction(
-        EChain.Sui,
-        SuiTransactionHash(item.digest),
-        UnixTimestamp(item.version),
-        null,
-        SuiAccountAddress(item.sender),
-        SuiAccountAddress(item.owner.ObjectOwner),
-        null,
-        null,
-        null,
-        null,
-        null,
-        "object",
-        null,
-        this.timeUtils.getUnixNow(),
-      );
-    });
+  private parseNfts(
+    digestResponse: IBlockvisionDigestReponse,
+  ): SuiTransaction[] {
+    return digestResponse.result.data
+      .map((digest) => {
+        if (digest.nftChanges == null) {
+          return [];
+        }
+        const nfts = digest.nftChanges.map((nftChange) => {
+          return new SuiTransaction(
+            EChain.Sui,
+            SuiTransactionHash(digest.digest),
+            UnixTimestamp(digest.timestampMs),
+            null,
+            SuiAccountAddress(digest.gasFee),
+            SuiAccountAddress(digest.sender),
+            BigNumberString(nftChange.amount),
+            BigNumberString(digest.gasFee),
+            SuiContractAddress(nftChange.packageId),
+            null,
+            null,
+            null,
+            null,
+            this.timeUtils.getUnixNow(),
+          );
+        });
+        return nfts;
+      })
+      .flat();
   }
 
-  // private getTxDigests(
-  //   accountAddress: SuiAccountAddress,
-  // ): ResultAsync<string[], AjaxError> {
-  //   return ResultUtils.combine([
-  //     this.configProvider.getConfig(),
-  //     this.contextProvider.getContext(),
-  //   ])
-  //     .andThen(([config, context]) => {
-  //       const url =
-  //         "https://api.blockvision.org/v2/sui/account/activities?address=" +
-  //         accountAddress;
-
-  //       let apiKey = config.apiKeys.blockvisionKey;
-  //       if (apiKey == null) {
-  //         apiKey = "";
-  //       }
-
-  //       const requestParams: IRequestConfig = {
-  //         method: "get",
-  //         url: url,
-  //         headers: {
-  //           accept: "application/json",
-  //           "X-API-Key": apiKey,
-  //         },
-  //       };
-
-  //       context.privateEvents.onApiAccessed.next(EExternalApi.Blockvision);
-  //       return this.ajaxUtils.get<IBlockvisionDigestReponse>(
-  //         new URL(url),
-  //         requestParams,
-  //       );
-  //     })
-  //     .map((response) => {
-  //       if (response.result.data == null) {
-  //         return [];
-  //       }
-  //       return response.result.data.map((item) => {
-  //         return item.txDigest;
-  //       });
-  //     });
-  // }
+  private parseAddresses(
+    digestResponse: IBlockvisionDigestReponse,
+  ): SuiTransaction[] {
+    return digestResponse.result.data
+      .map((digest) => {
+        if (digest.interactAddresses == null) {
+          return [];
+        }
+        const balances = digest.interactAddresses.map((addressChange) => {
+          return new SuiTransaction(
+            EChain.Sui,
+            SuiTransactionHash(digest.digest),
+            UnixTimestamp(digest.timestampMs),
+            null,
+            SuiAccountAddress(digest.gasFee),
+            SuiAccountAddress(digest.sender),
+            null,
+            BigNumberString(digest.gasFee),
+            SuiContractAddress(addressChange.address),
+            null,
+            null,
+            null,
+            null,
+            this.timeUtils.getUnixNow(),
+          );
+        });
+        return balances;
+      })
+      .flat();
+  }
 
   public healthStatus(): Map<EChain, EComponentStatus> {
     return this.health;
@@ -393,12 +354,6 @@ interface IBlockvisionBalancesReponse {
     totalBalance: BigNumberString;
     lockedBalance: {};
   };
-}
-
-interface IBlockvisionEventsResponse {
-  jsonrpc: string;
-  result: IBlockvisionChanges[];
-  id: number;
 }
 
 interface IObjectChanges {
@@ -428,30 +383,6 @@ interface IBlockvisionChanges {
   balanceChanges: IBalanceChanges[];
   timestampMs: string;
   checkpoint: string;
-}
-
-interface IBlockvisionEvent {
-  id: {
-    txDigest: string;
-    eventSeq: number;
-  };
-  packageId: string;
-  transactionModule: string;
-  sender: string;
-  type: string;
-  parsedJson: {
-    buyer: EVMAccountAddress;
-    buyer_kiosk: string;
-    ft_type: string;
-    nft: string;
-    nft_type: string;
-    orderbook: string;
-    price: string;
-    seller: string;
-    seller_kiosk: string;
-    trade_intermediate: null;
-  };
-  bcs: string;
 }
 
 interface IBlockvisionDigestReponse {
@@ -485,49 +416,36 @@ interface IBlockvisionDigest {
   digest: string;
   timestampMs: number;
   type: string;
-  coinChanges: {
-    amount: string;
-    coinAddress: string;
-    symbol: string;
-    decimal: string;
-    logo: string;
-  }[];
-  nftChanges: null;
-  interactAddresses: {
-    address: string;
-    type: string;
-    name: string;
-    logo: string;
-  }[];
+  coinChanges:
+    | {
+        amount: string;
+        coinAddress: string;
+        symbol: string;
+        decimal: string;
+        logo: string;
+      }[]
+    | null;
+  nftChanges:
+    | {
+        objectId: string;
+        objectType: string;
+        marketPlace: string;
+        imageURL: string;
+        name: string;
+        packageId: string;
+        amount: string;
+        price: string;
+      }[]
+    | null;
+  interactAddresses:
+    | {
+        address: string;
+        type: string;
+        name: string;
+        logo: string;
+      }[]
+    | null;
   gasFee: string;
   status: string;
   sender: string;
-}
-
-// interface IBlockvisionDigest {
-//   txDigest: string;
-//   package: string;
-//   timestampMs: number;
-//   projectName: string;
-//   icon: string;
-//   projectURL: string;
-//   activityType: string;
-//   moduleName: string;
-//   functionName: string;
-//   nftMetadata: IBlockvisionNftMetadata | null;
-// }
-
-interface IBlockvisionNftMetadata {
-  objectId: SuiTokenAddress;
-  objectType: string;
-  eventType: string;
-  eventFunc: string;
-  marketPlace: string;
-  description: string;
-  projectURL: string;
-  imageURL: string;
-  name: string;
-  price: number;
-  from: SuiAccountAddress;
-  to: SuiAccountAddress;
 }
