@@ -1,11 +1,13 @@
 import { Box } from "@material-ui/core";
+import { ECoreProxyType } from "@snickerdoodlelabs/objects";
 import React from "react";
 
 import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen";
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { EShoppingDataType } from "@extension-onboarding/objects";
+import IFrameComponent from "@extension-onboarding/pages/Details/screens/ShoppingData/Components";
 import { Amazon } from "@extension-onboarding/pages/Details/screens/ShoppingData/Platforms/Amazon/Amazon";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/ShoppingData/ShoppingDataDashBoard.style";
 
 interface IShoppingDataProps {
   name: string;
@@ -14,8 +16,9 @@ interface IShoppingDataProps {
 }
 
 export default () => {
-  const classes = useStyles();
   const { shoppingDataProviderList, appMode } = useAppContext();
+
+  const { sdlDataWallet } = useDataWalletContext();
 
   const getShoppingDataComponentGivenProps = ({
     name,
@@ -37,11 +40,15 @@ export default () => {
 
   return (
     <Box>
-      {shoppingDataProviderList.map(({ icon, name, key }) => (
-        <Box key={key} padding={3}>
-          {getShoppingDataComponentGivenProps({ icon, name, key })}
-        </Box>
-      ))}
+      {sdlDataWallet.proxyType === ECoreProxyType.IFRAME_INJECTED ? (
+        <IFrameComponent />
+      ) : (
+        shoppingDataProviderList.map(({ icon, name, key }) => (
+          <Box key={key} padding={3}>
+            {getShoppingDataComponentGivenProps({ icon, name, key })}
+          </Box>
+        ))
+      )}
     </Box>
   );
 };

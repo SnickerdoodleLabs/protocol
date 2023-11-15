@@ -94,9 +94,8 @@ const DataDashboardLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const classes = useStyles();
-  const { sdlDataWallet } = useDataWalletContext();
 
-  sdlDataWallet.proxyType === ECoreProxyType.IFRAME_INJECTED;
+  const { sdlDataWallet } = useDataWalletContext();
 
   const navContainerRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -116,61 +115,60 @@ const DataDashboardLayout = () => {
     <Box style={{ background: "#FAFAFA" }}>
       <Box>
         <div className={classes.linkItemsWrapper} ref={navContainerRef}>
-          {LINKS.map(
-            (link) =>
-              (sdlDataWallet.proxyType !== ECoreProxyType.IFRAME_INJECTED ||
-                link.path !== EPaths.SHOPPING_DATA) && (
-                <Box
-                  mt={4}
-                  mb={3}
-                  className={classes.linkWrapper}
-                  key={link.path}
-                  data-path={link.path}
-                  onClick={() => {
-                    navigate(link.path);
-                  }}
+          {LINKS.map((link) => (
+            <Box
+              mt={4}
+              mb={3}
+              className={classes.linkWrapper}
+              key={link.path}
+              data-path={link.path}
+              onClick={() => {
+                navigate(link.path);
+              }}
+            >
+              <Box px={4} mb={1}>
+                <SDTypography
+                  variant="titleSm"
+                  fontWeight={
+                    location.pathname === link.path ? "bold" : "medium"
+                  }
+                  color={
+                    location.pathname === link.path ? "textHeading" : "textBody"
+                  }
                 >
-                  <Box px={4} mb={1}>
-                    <SDTypography
-                      variant="titleSm"
-                      fontWeight={
-                        location.pathname === link.path ? "bold" : "medium"
-                      }
-                      color={
-                        location.pathname === link.path
-                          ? "textHeading"
-                          : "textBody"
-                      }
-                    >
-                      {link.title}
-                    </SDTypography>
-                  </Box>
-                  <Box
-                    display="flex"
-                    width="80%"
-                    margin="auto"
-                    height="1px"
-                    bgcolor={
-                      location.pathname === link.path
-                        ? "textHeading"
-                        : "transparent"
-                    }
-                  />
-                </Box>
-              ),
-          )}
+                  {link.title}
+                </SDTypography>
+              </Box>
+              <Box
+                display="flex"
+                width="80%"
+                margin="auto"
+                height="1px"
+                bgcolor={
+                  location.pathname === link.path
+                    ? "textHeading"
+                    : "transparent"
+                }
+              />
+            </Box>
+          ))}
         </div>
       </Box>
       <Container>
-        <DashboardTitle
-          title={
-            LINKS.find((link) => link.path === location.pathname)?.title ?? ""
-          }
-          description={
-            LINKS.find((link) => link.path === location.pathname)?.subtitle ??
-            ""
-          }
-        />
+        {!(
+          sdlDataWallet.proxyType === ECoreProxyType.IFRAME_INJECTED &&
+          location.pathname === EPaths.SHOPPING_DATA
+        ) && (
+          <DashboardTitle
+            title={
+              LINKS.find((link) => link.path === location.pathname)?.title ?? ""
+            }
+            description={
+              LINKS.find((link) => link.path === location.pathname)?.subtitle ??
+              ""
+            }
+          />
+        )}
         <DashboardContextProvider>
           <Outlet />
         </DashboardContextProvider>
