@@ -414,7 +414,7 @@ const App = () => {
                 acceptInvitation(FF_SUPPORTED_ALL_PERMISSIONS);
               } else {
                 window.open(
-                  `${extensionConfig.onboardingUrl}?consentAddress=${currentInvitation.data.invitation.consentContractAddress}`,
+                  `${extensionConfig.onboardingURL}?consentAddress=${currentInvitation.data.invitation.consentContractAddress}`,
                   "_blank",
                 );
               }

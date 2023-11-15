@@ -3,16 +3,13 @@ import {
   AjaxError,
   BlockchainProviderError,
   IConfigOverrides,
+  IExtensionConfigOverrides,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
   PersistenceError,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { ChromeStorageUtils } from "@snickerdoodlelabs/utils";
-import { Container } from "inversify";
-import { ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
-
 import { extensionCoreModule } from "@synamint-extension-sdk/core/implementations/ExtensionCore.module";
 import {
   IBrowserTabListener,
@@ -28,7 +25,9 @@ import {
   IConfigProvider,
   IConfigProviderType,
 } from "@synamint-extension-sdk/core/interfaces/utilities";
-import { IExtensionConfigOverrides } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
+import { Container } from "inversify";
+import { ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 export class ExtensionCore {
   protected iocContainer: Container;
@@ -36,7 +35,10 @@ export class ExtensionCore {
   // snickerdooldle Core
   protected core: ISnickerdoodleCore;
 
-  constructor(configOverrides: IExtensionConfigOverrides) {
+  constructor(
+    extensionConfigOverrides: IExtensionConfigOverrides,
+    coreConfigOverrides: IConfigOverrides,
+  ) {
     this.iocContainer = new Container();
 
     // Elaborate syntax to demonstrate that we can use multiple modules
@@ -45,50 +47,10 @@ export class ExtensionCore {
     const configProvider =
       this.iocContainer.get<IConfigProvider>(IConfigProviderType);
     // override configs
-    configProvider.setConfigOverrides(configOverrides);
+    configProvider.setExtensionConfigOverrides(extensionConfigOverrides);
+    configProvider.setCoreConfigOverrides(coreConfigOverrides);
 
-    const config = configProvider.getConfig();
-
-    const SIX_HOURS_MS = 21600000;
-
-    // These values are the defaults in the config provider
-    const UNREALISTIC_BUT_WORKING_POLL_INTERVAL = 5000;
-    const UNREALISTIC_BUT_WORKING_BACKUP_INTERVAL = 10000;
-    const coreConfig = {
-      controlChainId: config.controlChainId,
-      ipfsFetchBaseUrl: config.ipfsFetchBaseUrl,
-      defaultInsightPlatformBaseUrl: config.defaultInsightPlatformBaseUrl,
-      alchemyApiKeys: config.alchemyApiKeys,
-      etherscanApiKeys: config.etherscanApiKeys,
-      covalentApiKey: config.covalentApiKey,
-      moralisApiKey: config.moralisApiKey,
-      nftScanApiKey: config.nftScanApiKey,
-      poapApiKey: config.poapApiKey,
-      oklinkApiKey: config.oklinkApiKey,
-      ankrApiKey: config.ankrApiKey,
-      bluezApiKey: config.bluezApiKey,
-      spaceAndTimeKey: config.spaceAndTimeKey,
-      blockvisionKey: config.blockvisionKey,
-
-      dnsServerAddress: config.dnsServerAddress,
-      accountBalancePollingIntervalMS: config.portfolioPollingIntervalMS,
-      accountIndexingPollingIntervalMS: config.transactionPollingIntervalMS,
-      accountNFTPollingIntervalMS: config.portfolioPollingIntervalMS,
-      dataWalletBackupIntervalMS: config.backupPollingIntervalMS,
-      requestForDataPollingIntervalMS: config.requestForDataPollingIntervalMS,
-      domainFilter: config.domainFilter,
-      defaultGoogleCloudBucket: config.defaultGoogleCloudBucket,
-      enableBackupEncryption: config.enableBackupEncryption,
-      discordOverrides: config.discordOverrides,
-      twitterOverrides: config.twitterOverrides,
-      primaryInfuraKey: config.primaryInfuraKey,
-      secondaryInfuraKey: config.secondaryInfuraKey,
-      devChainProviderURL: config.devChainProviderURL,
-
-      dropboxAppKey: config.dropboxAppKey,
-      dropboxAppSecret: config.dropboxAppSecret,
-      dropboxRedirectUri: config.dropboxRedirectUri,
-    } as IConfigOverrides;
+    const coreConfig = configProvider.getCoreConfig();
 
     this.core = new SnickerdoodleCore(
       coreConfig,
@@ -101,7 +63,7 @@ export class ExtensionCore {
   }
 
   public initialize(): ResultAsync<
-    void,
+    ISnickerdoodleCore,
     PersistenceError | UninitializedError | BlockchainProviderError | AjaxError
   > {
     return this.core
@@ -125,6 +87,8 @@ export class ExtensionCore {
           portConnectionListener.initialize(),
         ]);
       })
-      .map(() => {});
+      .map(() => {
+        return this.core;
+      });
   }
 }

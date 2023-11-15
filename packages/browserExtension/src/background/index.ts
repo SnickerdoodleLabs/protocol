@@ -2,12 +2,15 @@ import { initializeSDKCore } from "@snickerdoodlelabs/synamint-extension-sdk/cor
 import { ExtensionUtils } from "@snickerdoodlelabs/synamint-extension-sdk/extensionShared";
 import Browser, { Runtime } from "webextension-polyfill";
 
-import { configs } from "@browser-extension/background/configs";
+import {
+  extensionConfig,
+  coreConfig,
+} from "@browser-extension/background/configs";
 
 //#region first installation
 Browser.runtime.onInstalled.addListener((details) => {
   details.reason === "install" &&
-    ExtensionUtils.switchToUrlTab(configs.onboardingUrl ?? "", true);
+    ExtensionUtils.switchToUrlTab(extensionConfig.onboardingURL ?? "", true);
 });
 // #endregion
 
@@ -39,7 +42,7 @@ createOffscreen();
 //#endregion
 
 //#region core initialization
-initializeSDKCore(configs).map(() => {
+initializeSDKCore(extensionConfig, coreConfig).map(() => {
   console.log("core initialized");
 });
 

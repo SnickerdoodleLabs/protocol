@@ -1,10 +1,16 @@
 import {
-  IExtensionConfig,
+  IConfigOverrides,
   IExtensionConfigOverrides,
-} from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
+} from "@snickerdoodlelabs/objects";
+import { IExtensionConfig } from "@synamint-extension-sdk/shared";
+
 export interface IConfigProvider {
-  getConfig: () => IExtensionConfig;
-  setConfigOverrides: (configOverrides: IExtensionConfigOverrides) => void;
+  getCoreConfig: () => IConfigOverrides;
+  setCoreConfigOverrides: (configOverrides: IConfigOverrides) => void;
+  getExtensionConfig: () => IExtensionConfig;
+  setExtensionConfigOverrides: (
+    configOverrides: IExtensionConfigOverrides,
+  ) => void;
 }
 
 export const IConfigProviderType = Symbol.for("IConfigProvider");
