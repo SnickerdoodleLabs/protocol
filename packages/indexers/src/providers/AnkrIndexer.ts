@@ -126,7 +126,9 @@ export class AnkrIndexer implements IEVMIndexer {
         ) {
           this.health.set(chain, EComponentStatus.NoKeyProvided);
         } else {
+          console.log("this.health: " + JSON.stringify(this.health));
           this.health.set(chain, EComponentStatus.Available);
+          console.log("this.health: " + JSON.stringify(this.health));
         }
       });
     });

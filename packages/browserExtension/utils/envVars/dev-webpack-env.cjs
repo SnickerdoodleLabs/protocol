@@ -40,8 +40,8 @@ const envVars = {
     "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm",
   __OKLINK_API_KEY__: "700c2f71-a4e2-4a85-b87f-58c8a341d1bf",
 
-  __ANKR_API_KEY__:
-    "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
+  __ANKR_API_KEY__: "",
+  // "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
   __BLUEZ_API_KEY__: "aed4aab2cbc573bbf8e7c6b448c916e5",
   __SPACEANDTIME_API_PUBLICKEY__:
     "C4ci88fgOy8NuK0xonhFJkJr6tKXKK7gKSFMkV1Hekk=",

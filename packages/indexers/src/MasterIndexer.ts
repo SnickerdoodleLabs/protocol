@@ -105,6 +105,7 @@ export class MasterIndexer implements IMasterIndexer {
   // call this from elsewhere
   public initialize(): ResultAsync<void, AjaxError> {
     return ResultUtils.combine([
+      this.sxt.initialize(),
       this.alchemy.initialize(),
       this.ankr.initialize(),
       this.bluez.initialize(),
@@ -118,7 +119,6 @@ export class MasterIndexer implements IMasterIndexer {
       this.poapRepo.initialize(),
       this.sim.initialize(),
       this.sol.initialize(),
-      this.sxt.initialize(),
     ])
       .andThen(() => {
         return this.getSupportedChains();
@@ -267,6 +267,10 @@ export class MasterIndexer implements IMasterIndexer {
     if (indexers.length == 0) {
       return okAsync([]);
     }
+
+    indexers.forEach((indexer) => {
+      console.log("indexer name: " + indexer.name());
+    });
 
     return ObjectUtils.progressiveFallback((indexer: IEVMIndexer) => {
       return indexer
@@ -553,6 +557,10 @@ export class MasterIndexer implements IMasterIndexer {
       indexerStatuses.simulatorIndexer = simHealth;
       indexerStatuses.solanaIndexer = solHealth;
       indexerStatuses.blockvisionIndexer = blockvisionHealth;
+
+      console.log("indexer statuses: " + indexerStatuses);
+      console.log("indexer statuses: " + JSON.stringify(indexerStatuses));
+      console.log("sxtIndexer: " + JSON.stringify(indexerStatuses.sxtIndexer));
 
       // The status of each indexer is known, and the chains that those indexers support is known.
       // We need to consolidate the component status for each chain via a group-by.

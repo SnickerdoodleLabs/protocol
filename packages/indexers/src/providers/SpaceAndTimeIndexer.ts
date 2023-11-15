@@ -143,8 +143,13 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
         console.log("status is bad!");
         this.health.set(EChain.EthereumMainnet, EComponentStatus.NoKeyProvided);
       } else {
+        console.log("this.health: " + JSON.stringify(this.health));
         console.log("status is good!");
-        this.health.set(EChain.EthereumMainnet, EComponentStatus.Available);
+        this.health = this.health.set(
+          EChain.EthereumMainnet,
+          EComponentStatus.Available,
+        );
+        console.log("this.health: " + JSON.stringify(this.health));
       }
     });
   }
