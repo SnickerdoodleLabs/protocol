@@ -182,7 +182,8 @@ export interface IERC721RewardContract extends IBaseContract {
   ): ResultAsync<boolean, ERC721RewardContractError | BlockchainCommonErrors>;
 
   /**
-   * Allows the caller to approve addressToApprove to transfer all their tokens
+   * Allows the token owner to approve the escrow wallet to transfer all token ids he owns on this rewards contract
+   * NOTE: To support this, the user would need to connect their external wallet that owns the NFTs to sign the approval txs
    */
   setApproveForAll(
     addressToApprove: EVMAccountAddress,
@@ -194,7 +195,7 @@ export interface IERC721RewardContract extends IBaseContract {
   >;
 
   /**
-   * Allows the escrow wallet to call
+   * Allows the escrow wallet to transfer NFTs to reward receiver after they have been approvedForAll by the token owner
    */
   safeTransferFrom(
     from: EVMAccountAddress,
