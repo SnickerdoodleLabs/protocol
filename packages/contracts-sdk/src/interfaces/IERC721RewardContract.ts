@@ -172,6 +172,39 @@ export interface IERC721RewardContract extends IBaseContract {
   >;
 
   filters: IERC721Filters;
+
+  /**
+   * Returns if operatorToApprove is approved to transfer tokens that belong to tokenOwnerAddress
+   */
+  isApprovedForAll(
+    tokenOwnerAddress: EVMAccountAddress,
+    operatorToApprove: EVMAccountAddress,
+  ): ResultAsync<boolean, ERC721RewardContractError | BlockchainCommonErrors>;
+
+  /**
+   * Allows the caller to approve addressToApprove to transfer all their tokens
+   */
+  setApproveForAll(
+    addressToApprove: EVMAccountAddress,
+    approved: boolean,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  >;
+
+  /**
+   * Allows the escrow wallet to call
+   */
+  safeTransferFrom(
+    from: EVMAccountAddress,
+    to: EVMAccountAddress,
+    tokenId: TokenId,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  >;
 }
 
 export interface IERC721Filters {
