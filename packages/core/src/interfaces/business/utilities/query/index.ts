@@ -4,3 +4,4 @@ export * from "@core/interfaces/business/utilities/query/IQueryEvaluator.js";
 export * from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator.js";
 export * from "@core/interfaces/business/utilities/query/IBlockchainTransactionQueryEvaluator.js";
 export * from "@core/interfaces/business/utilities/query/INftQueryEvaluator.js";
+export * from "@core/interfaces/business/utilities/query/IWeb3AccountQueryEvaluator.js";
