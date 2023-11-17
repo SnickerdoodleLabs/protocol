@@ -381,6 +381,23 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       URLString("https://api.basescan.org/api"),
     ),
   ],
+  [
+    EChain.Chiliz,
+    new ChainInformation(
+      "Chiliz",
+      ChainId(EChain.Chiliz),
+      EChain.Chiliz,
+      EChainTechnology.EVM,
+      true,
+      "chiliz",
+      10000, // average block mining time
+      new NativeCurrencyInformation("CHZ", 18, "CHZ", "chiliz"),
+      EChainType.Mainnet,
+      "https://scan.chiliz.com/tx/",
+      getExplorerUrl,
+      URLString("https://scan.chiliz.com/api/eth-rpc"),
+    ),
+  ],
 ]);
 
 export function getChainInfoByChain(chain: EChain): ChainInformation {
