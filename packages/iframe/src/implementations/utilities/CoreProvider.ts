@@ -140,6 +140,8 @@ export class CoreProvider implements ICoreProvider {
       config.ankrApiKey ?? immutableConfig.defaultKeys.ankrApiKey;
     config.bluezApiKey =
       config.bluezApiKey ?? immutableConfig.defaultKeys.bluezApiKey;
+    config.raribleApiKey =
+      config.raribleApiKey ?? immutableConfig.defaultKeys.raribleApiKey;
     config.spaceAndTimeKey =
       config.spaceAndTimeKey ?? immutableConfig.defaultKeys.spaceAndTimeKey;
     config.blockvisionKey =
