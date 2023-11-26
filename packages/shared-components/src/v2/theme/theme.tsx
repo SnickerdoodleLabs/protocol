@@ -585,6 +585,11 @@ export const createDefaultTheme = (
         },
         checked: {},
       },
+      MuiDivider: {
+        root: {
+          backgroundColor: palette.border,
+        },
+      },
     },
     breakpoints,
     props,

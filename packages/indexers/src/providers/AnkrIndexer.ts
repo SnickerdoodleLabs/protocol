@@ -134,7 +134,7 @@ export class AnkrIndexer implements IEVMIndexer {
     });
   }
 
-  public name(): string {
+  public name(): EDataProvider {
     return EDataProvider.Ankr;
   }
 
@@ -319,8 +319,8 @@ export class AnkrIndexer implements IEVMIndexer {
               EVMTransactionHash(item.hash),
               UnixTimestamp(item.timestamp),
               item.blockNumber,
-              EVMAccountAddress(item.to.toLowerCase()),
-              EVMAccountAddress(item.from.toLowerCase()),
+              EVMAccountAddress(item.to),
+              EVMAccountAddress(item.from),
               BigNumberString(item.value),
               BigNumberString(item.gasPrice),
               null,

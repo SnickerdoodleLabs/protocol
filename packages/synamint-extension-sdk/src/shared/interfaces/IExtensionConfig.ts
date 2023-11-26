@@ -15,7 +15,7 @@ export interface IExtensionConfigDefaults {
   portfolioPollingIntervalMS: number;
   transactionPollingIntervalMS: number;
   backupPollingIntervalMS: number;
-  requestForDataCheckingFrequency: number;
+  requestForDataPollingIntervalMS: number;
 }
 
 export interface IExtensionConfig extends IExtensionConfigDefaults {
@@ -112,7 +112,7 @@ export interface IExtensionConfigOverrides {
   };
 
   dnsServerAddress?: URLString;
-  requestForDataCheckingFrequency?: number;
+  requestForDataPollingIntervalMS?: number;
   defaultGoogleCloudBucket?: string;
   dropboxAppKey?: string;
   dropboxAppSecret?: string;

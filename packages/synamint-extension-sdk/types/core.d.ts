@@ -92,7 +92,7 @@ declare interface IExtensionConfigOverrides {
     secondaryInfuraKey?: string;
   };
   dnsServerAddress?: string;
-  requestForDataCheckingFrequency?: number;
+  requestForDataPollingIntervalMS?: number;
   defaultGoogleCloudBucket?: string;
   enableBackupEncryption?: boolean;
   discordOverrides?: Partial<DiscordConfig>;

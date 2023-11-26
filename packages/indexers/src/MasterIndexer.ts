@@ -18,6 +18,7 @@ import {
   EIndexerMethod,
   EVMAccountAddress,
   EVMContractAddress,
+  EVMTransaction,
   getChainInfoByChain,
   IndexerSupportSummary,
   InvalidParametersError,
@@ -57,6 +58,8 @@ import {
   ISolanaIndexerType,
   ISolanaIndexer,
   ISpaceAndTimeIndexerType,
+  IEVMTransactionSanitizer,
+  IEVMTransactionSanitizerType,
 } from "@indexers/interfaces/index.js";
 
 @injectable()
@@ -100,6 +103,8 @@ export class MasterIndexer implements IMasterIndexer {
 
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(IBigNumberUtilsType) protected bigNumberUtils: IBigNumberUtils,
+    @inject(IEVMTransactionSanitizerType)
+    protected evmTransactionSanitizer: IEVMTransactionSanitizer,
   ) {}
 
   // call this from elsewhere
@@ -416,6 +421,23 @@ export class MasterIndexer implements IMasterIndexer {
             e,
           );
           return e;
+        })
+        .map((transactions) => {
+          return transactions.reduce<EVMTransaction[]>(
+            (sanitizedTransactions, tx) => {
+              const sanitizedTransaction =
+                this.evmTransactionSanitizer.sanitize(
+                  tx,
+                  indexer.name(),
+                  chain,
+                );
+              if (sanitizedTransaction != null) {
+                sanitizedTransactions.push(sanitizedTransaction);
+              }
+              return sanitizedTransactions;
+            },
+            [],
+          );
         });
     }, indexers).orElse((e) => {
       return okAsync([]);

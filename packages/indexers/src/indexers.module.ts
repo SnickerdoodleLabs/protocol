@@ -20,6 +20,8 @@ import {
   ISolanaIndexer,
   ISolanaIndexerType,
   ISpaceAndTimeIndexerType,
+  IEVMTransactionSanitizer,
+  IEVMTransactionSanitizerType,
 } from "@indexers/interfaces/index.js";
 import { MasterIndexer } from "@indexers/MasterIndexer.js";
 import {
@@ -38,6 +40,7 @@ import {
   SolanaIndexer,
   SpaceAndTimeIndexer,
 } from "@indexers/providers/index.js";
+import { EVMTransactionSanitizer } from "@indexers/sanitizers/index.js";
 
 export const indexersModule = new ContainerModule(
   (
@@ -101,5 +104,11 @@ export const indexersModule = new ContainerModule(
     bind<ISuiIndexer>(IBlockvisionIndexerType)
       .to(BlockvisionIndexer)
       .inSingletonScope();
+
+    bind<IEVMTransactionSanitizer>(IEVMTransactionSanitizerType)
+      .to(EVMTransactionSanitizer)
+      .inSingletonScope();
+
+
   },
 );

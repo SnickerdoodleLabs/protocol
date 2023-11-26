@@ -24,12 +24,14 @@ import {
   EVMTransactionHash,
   EIndexerMethod,
   ISO8601DateString,
+  EDataProvider,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import * as td from "testdouble";
 
 import {
   IEVMIndexer,
+  IEVMTransactionSanitizer,
   IIndexerConfigProvider,
   IIndexerContextProvider,
   ISolanaIndexer,
@@ -50,7 +52,7 @@ const evmTransactionHash1 = EVMTransactionHash("hash1");
 const iso = UnixTimestamp(11);
 class EVMIndexerMock implements IEVMIndexer {
   public constructor(
-    public _name: string,
+    public _name: EDataProvider,
     public _indexerSupport: Map<EChain, IndexerSupportSummary>,
     public _getBalancesForAccountResult: ResultAsync<
       TokenBalance[],
@@ -70,7 +72,7 @@ class EVMIndexerMock implements IEVMIndexer {
     return okAsync(undefined);
   }
 
-  public name(): string {
+  public name(): EDataProvider {
     return this._name;
   }
 
@@ -147,57 +149,58 @@ class MasterIndexerMocks {
   public tokenPriceRepo: ITokenPriceRepository;
   public logUtils: ILogUtils;
   public bigNumberUtils: IBigNumberUtils;
+  public evmTransactionSanitizer: IEVMTransactionSanitizer;
 
   public constructor() {
     this.context = new ContextProviderMock();
     this.alchemy = new EVMIndexerMock(
-      "Alchemy",
+      EDataProvider.Alchemy,
       new Map<EChain, IndexerSupportSummary>([
         [chain, new IndexerSupportSummary(chain, true, true, true)],
       ]),
     );
     this.ankr = new EVMIndexerMock(
-      "Ankr",
+      EDataProvider.Ankr,
       new Map<EChain, IndexerSupportSummary>([
         [chain, new IndexerSupportSummary(chain, true, true, true)],
       ]),
     );
     this.bluez = new EVMIndexerMock(
-      "Bluez",
+      EDataProvider.Bluez,
       new Map<EChain, IndexerSupportSummary>([
         [chain, new IndexerSupportSummary(chain, false, false, true)],
       ]),
     );
     this.covalent = new EVMIndexerMock(
-      "Covalent",
+      EDataProvider.Covalent,
       new Map<EChain, IndexerSupportSummary>(),
     );
     this.etherscan = new EVMIndexerMock(
-      "Etherscan",
+      EDataProvider.Etherscan,
       new Map<EChain, IndexerSupportSummary>(),
     );
     this.moralis = new EVMIndexerMock(
-      "Moralis",
+      EDataProvider.Moralis,
       new Map<EChain, IndexerSupportSummary>(),
     );
     this.nftscan = new EVMIndexerMock(
-      "NFTScan",
+      EDataProvider.NftScan,
       new Map<EChain, IndexerSupportSummary>(),
     );
     this.oklink = new EVMIndexerMock(
-      "OKLink",
+      EDataProvider.Oklink,
       new Map<EChain, IndexerSupportSummary>(),
     );
     this.poapRepo = new EVMIndexerMock(
-      "POAP",
+      EDataProvider.Poap,
       new Map<EChain, IndexerSupportSummary>(),
     );
     this.matic = new EVMIndexerMock(
-      "Matic",
+      EDataProvider.Matic,
       new Map<EChain, IndexerSupportSummary>(),
     );
     this.sim = new EVMIndexerMock(
-      "Sim",
+      EDataProvider.Sim,
       new Map<EChain, IndexerSupportSummary>(),
     );
     this.sxt = new EVMIndexerMock(
@@ -212,6 +215,7 @@ class MasterIndexerMocks {
     this.ajaxUtils = td.object<IAxiosAjaxUtils>();
     this.tokenPriceRepo = td.object<ITokenPriceRepository>();
     this.logUtils = td.object<ILogUtils>();
+    this.evmTransactionSanitizer = td.object<IEVMTransactionSanitizer>();
 
     // Solidity Repositories -----------------------------------------------------
     td.when(this.sol.initialize()).thenReturn(okAsync(undefined));
@@ -220,6 +224,20 @@ class MasterIndexerMocks {
     );
     td.when(this.sol.getSupportedChains()).thenReturn(
       new Map<EChain, IndexerSupportSummary>(),
+    );
+
+    td.when(
+      this.evmTransactionSanitizer.sanitize(
+        td.matchers.anything(),
+        td.matchers.anything(),
+        td.matchers.anything(),
+      ),
+    ).thenDo(
+      (
+        transaction: EVMTransaction,
+        _indexerName: EDataProvider,
+        _chain: EChain,
+      ) => transaction,
     );
   }
 
@@ -243,6 +261,7 @@ class MasterIndexerMocks {
       this.sxt,
       this.logUtils,
       this.bigNumberUtils,
+      this.evmTransactionSanitizer,
     );
   }
 
@@ -346,13 +365,13 @@ describe("MasterIndexer tests", () => {
     const mocks = new MasterIndexerMocks();
 
     mocks.alchemy = new EVMIndexerMock(
-      "Alchemy",
+      EDataProvider.Alchemy,
       new Map<EChain, IndexerSupportSummary>([
         [chain, new IndexerSupportSummary(chain, false, true, true)],
       ]),
     );
     mocks.ankr = new EVMIndexerMock(
-      "Ankr",
+      EDataProvider.Ankr,
       new Map<EChain, IndexerSupportSummary>([
         [chain, new IndexerSupportSummary(chain, false, true, true)],
       ]),
@@ -391,7 +410,7 @@ describe("MasterIndexer tests", () => {
     const tokenBalanceInvalid = mocks.getTokenBalance(invalidBalance);
 
     mocks.ankr = new EVMIndexerMock(
-      "Ankr",
+      EDataProvider.Ankr,
       new Map<EChain, IndexerSupportSummary>([
         [chain, new IndexerSupportSummary(chain, true, true, true)],
       ]),
@@ -419,14 +438,14 @@ describe("MasterIndexer tests", () => {
     const tokenBalance = mocks.getTokenBalance(validBalance);
 
     mocks.ankr = new EVMIndexerMock(
-      "Ankr",
+      EDataProvider.Ankr,
       new Map<EChain, IndexerSupportSummary>([
         [chain, new IndexerSupportSummary(chain, true, true, true)],
       ]),
       errAsync(new AccountIndexingError("Ankr error")),
     );
     mocks.alchemy = new EVMIndexerMock(
-      "Alchemy",
+      EDataProvider.Alchemy,
       new Map<EChain, IndexerSupportSummary>([
         [chain, new IndexerSupportSummary(chain, true, true, true)],
       ]),
@@ -467,7 +486,7 @@ describe("MasterIndexer tests", () => {
     const evmNFTInvalid = mocks.getEVMNFT(invalidBalance);
 
     mocks.ankr = new EVMIndexerMock(
-      "Ankr",
+      EDataProvider.Ankr,
       new Map<EChain, IndexerSupportSummary>([
         [chain, new IndexerSupportSummary(chain, true, true, true)],
       ]),
@@ -496,7 +515,7 @@ describe("MasterIndexer tests", () => {
     const evmNFT = mocks.getEVMNFT(validBalance);
 
     mocks.ankr = new EVMIndexerMock(
-      "Ankr",
+      EDataProvider.Ankr,
       new Map<EChain, IndexerSupportSummary>([
         [chain, new IndexerSupportSummary(chain, true, true, true)],
       ]),
@@ -504,7 +523,7 @@ describe("MasterIndexer tests", () => {
       errAsync(new AccountIndexingError("Ankr error")),
     );
     mocks.alchemy = new EVMIndexerMock(
-      "Alchemy",
+      EDataProvider.Alchemy,
       new Map<EChain, IndexerSupportSummary>([
         [chain, new IndexerSupportSummary(chain, true, true, true)],
       ]),
@@ -550,7 +569,7 @@ describe("MasterIndexer tests", () => {
     const transaction = mocks.getEVMTransaction(validBalance);
 
     mocks.ankr = new EVMIndexerMock(
-      "Ankr",
+      EDataProvider.Ankr,
       new Map<EChain, IndexerSupportSummary>([
         [chain, new IndexerSupportSummary(chain, true, true, true)],
       ]),
@@ -559,7 +578,7 @@ describe("MasterIndexer tests", () => {
       errAsync(new AccountIndexingError("Ankr error")),
     );
     mocks.alchemy = new EVMIndexerMock(
-      "Alchemy",
+      EDataProvider.Alchemy,
       new Map<EChain, IndexerSupportSummary>([
         [chain, new IndexerSupportSummary(chain, true, true, true)],
       ]),

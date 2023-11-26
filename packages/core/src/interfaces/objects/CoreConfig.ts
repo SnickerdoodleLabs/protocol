@@ -35,7 +35,7 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public dnsServerAddress: URLString,
     public quoteCurrency: ECurrencyCode,
     public etherscanTransactionsBatchSize: number,
-    public requestForDataCheckingFrequency: number,
+    public requestForDataPollingIntervalMS: number,
     public alchemyEndpoints: Map<EChain, URLString>,
     public restoreTimeoutMS: number,
     public domainFilter: string,
