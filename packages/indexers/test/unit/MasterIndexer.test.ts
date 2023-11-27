@@ -141,6 +141,7 @@ class MasterIndexerMocks {
   public oklink: EVMIndexerMock;
   public poapRepo: EVMIndexerMock;
   public matic: EVMIndexerMock;
+  public rarible: EVMIndexerMock;
   public sim: EVMIndexerMock;
   public sol: ISolanaIndexer;
   public configProvider: IIndexerConfigProvider;
@@ -198,6 +199,10 @@ class MasterIndexerMocks {
       EDataProvider.Matic,
       new Map<EChain, IndexerSupportSummary>(),
     );
+    this.rarible = new EVMIndexerMock(
+      EDataProvider.Rarible,
+      new Map<EChain, IndexerSupportSummary>(),
+    );
     this.sim = new EVMIndexerMock(
       EDataProvider.Sim,
       new Map<EChain, IndexerSupportSummary>(),
@@ -251,6 +256,7 @@ class MasterIndexerMocks {
       this.oklink,
       this.poapRepo,
       this.matic,
+      this.rarible,
       this.sim,
       this.sol,
       this.logUtils,

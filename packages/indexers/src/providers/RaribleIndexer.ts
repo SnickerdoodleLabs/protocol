@@ -6,6 +6,7 @@ import {
   ObjectUtils,
   ITimeUtils,
   ITimeUtilsType,
+  IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
 import {
   EChainTechnology,
@@ -131,27 +132,32 @@ export class RaribleIndexer implements IEVMIndexer {
           "%3A" +
           accountAddress,
       );
+      // if (config.apiKeys.raribleApiKey == null) {
+      //   return okAsync(undefined);
+      // }
+      const requestConfig: IRequestConfig = {
+        headers: {
+          accept: "application/json",
+          "X-API-Key": config.apiKeys.raribleApiKey!,
+        },
+      };
 
       context.privateEvents.onApiAccessed.next(EExternalApi.Rarible);
       return this.ajaxUtils
-        .get<IRaribleNftReponse>(url, {
-          headers: {
-            Accept: `application/json;`,
-            "X-API-KEY": config.apiKeys.raribleApiKey,
-          },
-        })
+        .get<IRaribleNftReponse>(url, requestConfig)
         .map((response) => {
+          console.log("response: " + response);
           return response.items.map((item) => {
             return new EVMNFT(
-              item.contractAddress,
+              EVMContractAddress(item.contract),
               BigNumberString(item.tokenId),
-              item.tokenType,
+              item.tokenId,
               accountAddress,
-              TokenUri(item.image),
+              TokenUri(item.tokenId),
               { raw: ObjectUtils.serialize(item) },
               BigNumberString("1"),
-              item.name,
-              EChain.Astar,
+              item.lazySupply,
+              chain,
               undefined,
               undefined,
             );

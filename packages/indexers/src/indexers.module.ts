@@ -1,5 +1,7 @@
 import { ContainerModule, interfaces } from "inversify";
 
+import { RaribleIndexer } from "./providers/RaribleIndexer";
+
 import {
   IMasterIndexer,
   IMasterIndexerType,
@@ -21,6 +23,7 @@ import {
   ISolanaIndexerType,
   IEVMTransactionSanitizer,
   IEVMTransactionSanitizerType,
+  IRaribleIndexerType,
 } from "@indexers/interfaces/index.js";
 import { MasterIndexer } from "@indexers/MasterIndexer.js";
 import {
@@ -85,6 +88,10 @@ export const indexersModule = new ContainerModule(
       .to(PolygonIndexer)
       .inSingletonScope();
 
+    bind<IEVMIndexer>(IRaribleIndexerType)
+      .to(RaribleIndexer)
+      .inSingletonScope();
+
     bind<IEVMIndexer>(ISimulatorEVMTransactionRepositoryType)
       .to(SimulatorEVMTransactionRepository)
       .inSingletonScope();
@@ -102,7 +109,5 @@ export const indexersModule = new ContainerModule(
     bind<IEVMTransactionSanitizer>(IEVMTransactionSanitizerType)
       .to(EVMTransactionSanitizer)
       .inSingletonScope();
-
-
   },
 );
