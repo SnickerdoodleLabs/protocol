@@ -54,7 +54,7 @@ export class WebIntegrationConfigProvider
       ankrApiKey:
         "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
       bluezApiKey: "aed4aab2cbc573bbf8e7c6b448c916e5",
-      raribleApiKey: "",
+      raribleApiKey: "", // Fill in Rarible Key
       spaceAndTimeKey: "",
       blockvisionKey: "2WaEih5fqe8NUavbvaR2PSuVSSp",
 

@@ -55,7 +55,27 @@ export class RaribleIndexer implements IEVMIndexer {
     EComponentStatus
   >();
   protected supportedChains = new Map<EChain, IndexerSupportSummary>([
-    [EChain.Astar, new IndexerSupportSummary(EChain.Astar, false, false, true)],
+    [
+      EChain.EthereumMainnet,
+      new IndexerSupportSummary(EChain.Astar, false, false, true),
+    ],
+    [
+      EChain.Polygon,
+      new IndexerSupportSummary(EChain.Astar, false, false, true),
+    ],
+    [
+      EChain.Solana,
+      new IndexerSupportSummary(EChain.Astar, false, false, true),
+    ],
+    [
+      EChain.Arbitrum,
+      new IndexerSupportSummary(EChain.Astar, false, false, true),
+    ],
+    [
+      EChain.ZkSyncEra,
+      new IndexerSupportSummary(EChain.Astar, false, false, true),
+    ],
+    [EChain.Base, new IndexerSupportSummary(EChain.Astar, false, false, true)],
   ]);
 
   protected supportedRaribleChains = new Map<EChain, string>([
@@ -87,6 +107,7 @@ export class RaribleIndexer implements IEVMIndexer {
   public initialize(): ResultAsync<void, never> {
     return this.configProvider.getConfig().map((config) => {
       this.supportedRaribleChains.forEach((indexerSupportSummary, chain) => {
+        console.log("supported chains: " + chain);
         if (
           config.apiKeys.raribleApiKey == "" ||
           config.apiKeys.raribleApiKey == undefined
@@ -132,6 +153,7 @@ export class RaribleIndexer implements IEVMIndexer {
           "%3A" +
           accountAddress,
       );
+      console.log("Rarible url: " + url);
       // if (config.apiKeys.raribleApiKey == null) {
       //   return okAsync(undefined);
       // }

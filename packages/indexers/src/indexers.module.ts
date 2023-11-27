@@ -1,7 +1,5 @@
 import { ContainerModule, interfaces } from "inversify";
 
-import { RaribleIndexer } from "./providers/RaribleIndexer";
-
 import {
   IMasterIndexer,
   IMasterIndexerType,
@@ -38,6 +36,7 @@ import {
   OklinkIndexer,
   PoapRepository,
   PolygonIndexer,
+  RaribleIndexer,
   SimulatorEVMTransactionRepository,
   SolanaIndexer,
 } from "@indexers/providers/index.js";
