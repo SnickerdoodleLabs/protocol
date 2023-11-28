@@ -237,8 +237,6 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
       const PrivateKey = config.apiKeys.spaceAndTimeKeys.PrivateKey;
       // let signature = this.sign(PrivateKey);
 
-      ("a35JJjDhLqFuHWqnbxseTHEU99BFAa3CApIFjbWBQ3E=");
-
       const requestParams = {
         userId: userID, // userID: snickerdoodledev
         signature: signature, // signature - created from signing with private key
