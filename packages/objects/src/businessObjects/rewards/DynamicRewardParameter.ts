@@ -6,7 +6,9 @@ export interface ITypeAndValue {
 }
 
 export interface IDynamicRewardParameter {
+  // required fields
   compensationKey: ITypeAndValue;
   recipientAddress: ITypeAndValue;
+  // allow for optional fields
   [index: string]: ITypeAndValue | undefined;
 }
