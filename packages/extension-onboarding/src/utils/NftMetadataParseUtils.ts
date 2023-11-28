@@ -1,3 +1,5 @@
+import { MetatransactionSignatureRequest } from "@snickerdoodlelabs/objects";
+
 import {
   EContentType,
   INFT,
@@ -25,12 +27,14 @@ export class NftMetadataParseUtils {
     try {
       const obj = JSON.parse(metadataString);
       metadataObj = obj.raw ? JSON.parse(obj.raw) : obj;
+      console.log("metadataObj: " + metadataObj);
     } catch (e) {
       metadataObj = null;
     }
     if (!metadataObj) {
       return emptytNft;
     }
+    console.log("metadatastring: " + metadataString);
     return {
       name: this.getName(metadataObj),
       description: this.getDescription(metadataObj),
@@ -45,6 +49,7 @@ export class NftMetadataParseUtils {
   };
 
   private static getImageUrl(metadataString: string) {
+    console.log("get image url: " + metadataString);
     let nftImages: string[];
     try {
       const regexpImage = /(\"image.*?\":.*?\"(.*?)\\?\")/;

@@ -150,17 +150,25 @@ export class RaribleIndexer implements IEVMIndexer {
       const url = new URL(
         "https://api.rarible.org/v0.1/items/byOwner?blockchains=" +
           nftSupportChain +
+          "&owner=" +
+          nftSupportChain +
           "%3A" +
           accountAddress,
       );
+
       console.log("Rarible url: " + url);
-      // if (config.apiKeys.raribleApiKey == null) {
-      //   return okAsync(undefined);
-      // }
+      console.log(
+        "config.apiKeys.raribleApiKey: " + config.apiKeys.raribleApiKey,
+      );
+
+      if (config.apiKeys.raribleApiKey == null) {
+        return okAsync([]);
+      }
+
       const requestConfig: IRequestConfig = {
         headers: {
+          "X-API-Key": config.apiKeys.raribleApiKey,
           accept: "application/json",
-          "X-API-Key": config.apiKeys.raribleApiKey!,
         },
       };
 
@@ -168,24 +176,26 @@ export class RaribleIndexer implements IEVMIndexer {
       return this.ajaxUtils
         .get<IRaribleNftReponse>(url, requestConfig)
         .map((response) => {
-          console.log("response: " + response);
+          console.log("response: " + JSON.stringify(response));
           return response.items.map((item) => {
+            console.log("item: " + JSON.stringify(item));
             return new EVMNFT(
-              EVMContractAddress(item.contract),
+              EVMContractAddress(item.contract.split(":")[1]),
               BigNumberString(item.tokenId),
-              item.tokenId,
+              item.tokenId, // look into
               accountAddress,
-              TokenUri(item.tokenId),
-              { raw: ObjectUtils.serialize(item) },
-              BigNumberString("1"),
-              item.lazySupply,
+              TokenUri(item.meta.content[0].url),
+              { raw: ObjectUtils.serialize(item.meta) },
+              BigNumberString(item.supply),
+              item.meta.name,
               chain,
               undefined,
-              undefined,
+              undefined, //item.lastSale.date,
             );
           });
         })
         .mapErr((error) => {
+          console.log("error: " + error);
           return error;
         });
     });
@@ -275,6 +285,16 @@ interface IRaribleNftReponse {
     }[];
     totalStock: string;
     sellers: number;
+    lastSale: {
+      date: UnixTimestamp;
+      seller: string;
+      buyer: string;
+      value: string;
+      currency: {
+        "@type": string;
+        blockchain: string;
+      };
+    } | null;
     suspicious: boolean;
   }[];
 }
