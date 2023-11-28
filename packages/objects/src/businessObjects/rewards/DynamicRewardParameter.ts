@@ -8,5 +8,5 @@ export interface ITypeAndValue {
 export interface IDynamicRewardParameter {
   compensationKey: ITypeAndValue;
   recipientAddress: ITypeAndValue;
-  [index: string]: ITypeAndValue;
+  [index: string]: ITypeAndValue | undefined;
 }
