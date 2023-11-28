@@ -1,6 +1,5 @@
-import { MetatransactionSignatureRequest } from "@snickerdoodlelabs/objects";
-
 import {
+  AttributesEntity,
   EContentType,
   INFT,
   INFTEventField,
@@ -34,11 +33,10 @@ export class NftMetadataParseUtils {
     if (!metadataObj) {
       return emptytNft;
     }
-    console.log("metadatastring: " + metadataString);
     return {
       name: this.getName(metadataObj),
       description: this.getDescription(metadataObj),
-      imageUrl: this.getImageUrl(metadataString),
+      imageUrl: this.getImageUrl(metadataString, metadataObj),
       animationUrl: this.getAnimationUrl(metadataObj),
       externalUrl: this.getExternalUrl(metadataObj),
       contentType: this.getContentType(metadataObj),
@@ -48,7 +46,7 @@ export class NftMetadataParseUtils {
     } as INFT;
   };
 
-  private static getImageUrl(metadataString: string) {
+  private static getImageUrl(metadataString: string, metadataObj) {
     console.log("get image url: " + metadataString);
     let nftImages: string[];
     try {
@@ -70,7 +68,12 @@ export class NftMetadataParseUtils {
     }
     return nftImages?.[0]
       ? NftMetadataParseUtils.normalizeUrl(nftImages[0])
-      : null;
+      : this.getImageFromContent(metadataObj);
+  }
+
+  private static getImageFromContent(metadataObj) {
+    const image = metadataObj?.meta?.[0]?.content?.[0]?.url ?? null;
+    return image ? NftMetadataParseUtils.normalizeUrl(image as string) : null;
   }
 
   private static getContentType(metadataObj) {
@@ -93,8 +96,17 @@ export class NftMetadataParseUtils {
     return null;
   }
 
-  private static getAttributes(metadataObj) {
-    return metadataObj.attributes ?? metadataObj.traits ?? null;
+  private static getAttributes(metadataObj): AttributesEntity[] | null {
+    const attributes = metadataObj.attributes ?? metadataObj.traits ?? null;
+    if (!attributes) {
+      return null;
+    }
+    return attributes.map((attribute) => {
+      return {
+        trait_type: attribute.trait_type ?? attribute.key ?? attribute.name,
+        value: attribute.value,
+      };
+    });
   }
 
   private static getName(metadataObj) {
