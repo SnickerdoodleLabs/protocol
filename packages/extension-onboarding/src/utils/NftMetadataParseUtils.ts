@@ -26,7 +26,6 @@ export class NftMetadataParseUtils {
     try {
       const obj = JSON.parse(metadataString);
       metadataObj = obj.raw ? JSON.parse(obj.raw) : obj;
-      console.log("metadataObj: " + metadataObj);
     } catch (e) {
       metadataObj = null;
     }
@@ -47,7 +46,6 @@ export class NftMetadataParseUtils {
   };
 
   private static getImageUrl(metadataString: string, metadataObj) {
-    console.log("get image url: " + metadataString);
     let nftImages: string[];
     try {
       const regexpImage = /(\"image.*?\":.*?\"(.*?)\\?\")/;
@@ -68,11 +66,11 @@ export class NftMetadataParseUtils {
     }
     return nftImages?.[0]
       ? NftMetadataParseUtils.normalizeUrl(nftImages[0])
-      : this.getImageFromContent(metadataObj);
+      : NftMetadataParseUtils.getImageFromContent(metadataObj);
   }
 
   private static getImageFromContent(metadataObj) {
-    const image = metadataObj?.meta?.content?.[0]?.url ?? null;
+    const image = metadataObj?.content?.[0]?.url ?? null;
     return image ? NftMetadataParseUtils.normalizeUrl(image as string) : null;
   }
 
@@ -97,11 +95,11 @@ export class NftMetadataParseUtils {
   }
 
   private static getAttributes(metadataObj): AttributesEntity[] | null {
-    const attributes = metadataObj.attributes ?? metadataObj.traits ?? null;
-    if (!attributes) {
+    const _attributes = metadataObj.attributes ?? metadataObj.traits ?? null;
+    if (!_attributes) {
       return null;
     }
-    return attributes.map((attribute) => {
+    return _attributes.map((attribute) => {
       return {
         trait_type: attribute.trait_type ?? attribute.key ?? attribute.name,
         value: attribute.value,
