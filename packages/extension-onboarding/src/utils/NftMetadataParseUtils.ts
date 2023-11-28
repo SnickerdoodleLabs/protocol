@@ -72,7 +72,7 @@ export class NftMetadataParseUtils {
   }
 
   private static getImageFromContent(metadataObj) {
-    const image = metadataObj?.meta?.[0]?.content?.[0]?.url ?? null;
+    const image = metadataObj?.meta?.content?.[0]?.url ?? null;
     return image ? NftMetadataParseUtils.normalizeUrl(image as string) : null;
   }
 
