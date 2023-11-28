@@ -66,15 +66,18 @@ import {
 export class MasterIndexer implements IMasterIndexer {
   protected evmIndexerWeights = [
     this.sxt,
-    this.bluez,
-    this.poapRepo,
-    this.ankr,
-    this.alchemy,
-    this.etherscan,
-    this.nftscan,
-    this.covalent,
-    this.moralis,
-    this.sim,
+
+    // for testing purposes
+    // this.bluez,
+    // this.poapRepo,
+    // this.ankr,
+    // this.alchemy,
+    // this.etherscan,
+    // this.nftscan,
+    // this.covalent,
+    // this.moralis,
+    // this.sim,
+
     // TODO- enable these indexers as well
     // this.moralis,
     // this.oklink,
@@ -397,16 +400,13 @@ export class MasterIndexer implements IMasterIndexer {
       EIndexerMethod.Transactions,
     );
 
-    console.log("GET TRANSACTIONS! ");
-    console.log("chain: " + chain);
-
     // If there are no healthy indexers return
     if (indexers.length == 0) {
       return okAsync([]);
     }
 
     return ObjectUtils.progressiveFallback((indexer: IEVMIndexer) => {
-      console.log("indexer: " + indexer.name);
+      console.log("indexer: " + indexer.name());
       return indexer
         .getEVMTransactions(
           chain,
@@ -579,10 +579,6 @@ export class MasterIndexer implements IMasterIndexer {
       indexerStatuses.simulatorIndexer = simHealth;
       indexerStatuses.solanaIndexer = solHealth;
       indexerStatuses.blockvisionIndexer = blockvisionHealth;
-
-      console.log("indexer statuses: " + indexerStatuses);
-      console.log("indexer statuses: " + JSON.stringify(indexerStatuses));
-      console.log("sxtIndexer: " + JSON.stringify(indexerStatuses.sxtIndexer));
 
       // The status of each indexer is known, and the chains that those indexers support is known.
       // We need to consolidate the component status for each chain via a group-by.

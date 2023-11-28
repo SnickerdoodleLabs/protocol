@@ -108,7 +108,5 @@ export const indexersModule = new ContainerModule(
     bind<IEVMTransactionSanitizer>(IEVMTransactionSanitizerType)
       .to(EVMTransactionSanitizer)
       .inSingletonScope();
-
-
   },
 );

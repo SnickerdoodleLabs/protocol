@@ -154,29 +154,20 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     });
   }
 
-  private returnPrivateKey(): string {
-    const USER_PRIVATE_KEY = "zGxvZ/W2Bi0OOlP4ENwsNah9Xh8Irt9D0ZyVM0THeiM=";
-    return USER_PRIVATE_KEY;
-  }
-
-  private returnPublicKey(): string {
-    const USER_PUBLIC_KEY = "k1E91ZroXuRsTJ6+Kwau0MT8Uc9N0yoiTWjmDsv4PTE=";
-    return USER_PUBLIC_KEY;
-  }
-
   protected getAccessToken(): ResultAsync<AccessToken, AccountIndexingError> {
+    console.log("Get EVM Access Token: ");
     return this.waitForSettings().andThen((settings) => {
       // Check if the lastAuthTokenTimestamp is null, we need to get a new token immediately
       const now = this.timeUtils.getUnixNow();
       // console.log("settings.refreshToken: " + settings.refreshToken);
-      const refreshToken = settings["refresh_token"];
+      // const refreshToken = settings["refresh_token"];
       if (
         this.lastAuthTokenTimestamp == null ||
         this.currentAccessToken == null ||
         now - this.lastAuthTokenTimestamp > this.refreshSeconds
       ) {
         // Need to get a new access token
-        return this.getNewAuthToken(refreshToken).map((accessToken) => {
+        return this.getNewAuthToken().map((accessToken) => {
           this.lastAuthTokenTimestamp = now;
           this.currentAccessToken = accessToken;
           return this.currentAccessToken;
@@ -220,6 +211,7 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
   }
 
   private getUserID(): ResultAsync<string, never> {
+    // passing in another user id;
     return okAsync("snickerdoodledev");
   }
 
@@ -233,9 +225,7 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     });
   }
 
-  protected getNewAuthToken(
-    refreshToken: RefreshToken,
-  ): ResultAsync<AccessToken, AccountIndexingError> {
+  protected getNewAuthToken(): ResultAsync<AccessToken, AccountIndexingError> {
     // Do the work of trading the refresh token for a new access token
     return ResultUtils.combine([
       this.configProvider.getConfig(),
@@ -245,15 +235,22 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
       this.getSignature(),
     ]).andThen(([config, context, userID, auth_code, signature]) => {
       const PrivateKey = config.apiKeys.spaceAndTimeKeys.PrivateKey;
-      // const signature = this.sign(PrivateKey);
+      // let signature = this.sign(PrivateKey);
+
+      ("a35JJjDhLqFuHWqnbxseTHEU99BFAa3CApIFjbWBQ3E=");
 
       const requestParams = {
-        userId: userID, // userID
+        userId: userID, // userID: snickerdoodledev
         signature: signature, // signature - created from signing with private key
-        authCode: auth_code, // authCode - returned from ajax call
-        key: config.apiKeys.spaceAndTimeKeys.PublicKey, // publicKey
+        authCode: auth_code, // authCode: 4d44cf29498f4edee8315fff
+        key: config.apiKeys.spaceAndTimeKeys.PublicKey, // publicKey: C4ci88fgOy8NuK0xonhFJkJr6tKXKK7gKSFMkV1Hekk=
         scheme: "ed25519",
       };
+
+      //   __SPACEANDTIME_API_PUBLICKEY__:
+      //   "C4ci88fgOy8NuK0xonhFJkJr6tKXKK7gKSFMkV1Hekk=",
+      // __SPACEANDTIME_API_PRIVATEKEY__:
+      //   "a35JJjDhLqFuHWqnbxseTHEU99BFAa3CApIFjbWBQ3E=",
 
       console.log("requestParams: " + JSON.stringify(requestParams));
 
@@ -272,7 +269,7 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     });
   }
 
-  public name(): string {
+  public name(): EDataProvider {
     return EDataProvider.SpaceAndTime;
   }
 
@@ -364,6 +361,7 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     EVMTransaction[],
     AccountIndexingError | AjaxError | MethodSupportError
   > {
+    console.log("Space and Time EVM Transactions");
     return ResultUtils.combine([
       this.contextProvider.getContext(),
       this.getAccessToken(),

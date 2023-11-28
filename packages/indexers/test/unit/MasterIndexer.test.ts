@@ -204,7 +204,7 @@ class MasterIndexerMocks {
       new Map<EChain, IndexerSupportSummary>(),
     );
     this.sxt = new EVMIndexerMock(
-      "SxT",
+      EDataProvider.SpaceAndTime,
       new Map<EChain, IndexerSupportSummary>(),
     );
     this.sol = td.object<ISolanaIndexer>();
