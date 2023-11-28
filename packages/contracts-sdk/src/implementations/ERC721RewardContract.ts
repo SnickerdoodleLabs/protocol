@@ -298,7 +298,7 @@ export class ERC721RewardContract
     );
   }
 
-  // ===== Start: Functions to support pre-mint NFTs =====
+  // ===== Start: Functions to support testing pre-mint NFTs =====
 
   // ERC1155 contracts also have the same setApproveForAll function
   public isApprovedForAll(
