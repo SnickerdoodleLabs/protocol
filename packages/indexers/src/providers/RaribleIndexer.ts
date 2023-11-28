@@ -57,41 +57,33 @@ export class RaribleIndexer implements IEVMIndexer {
   protected supportedChains = new Map<EChain, IndexerSupportSummary>([
     [
       EChain.EthereumMainnet,
-      new IndexerSupportSummary(EChain.Astar, false, false, true),
+      new IndexerSupportSummary(EChain.EthereumMainnet, false, false, true),
     ],
     [
       EChain.Polygon,
-      new IndexerSupportSummary(EChain.Astar, false, false, true),
+      new IndexerSupportSummary(EChain.Polygon, false, false, true),
     ],
     [
       EChain.Solana,
-      new IndexerSupportSummary(EChain.Astar, false, false, true),
+      new IndexerSupportSummary(EChain.Solana, false, false, true),
     ],
     [
       EChain.Arbitrum,
-      new IndexerSupportSummary(EChain.Astar, false, false, true),
+      new IndexerSupportSummary(EChain.Arbitrum, false, false, true),
     ],
     [
       EChain.ZkSyncEra,
-      new IndexerSupportSummary(EChain.Astar, false, false, true),
+      new IndexerSupportSummary(EChain.ZkSyncEra, false, false, true),
     ],
-    [EChain.Base, new IndexerSupportSummary(EChain.Astar, false, false, true)],
+    [EChain.Base, new IndexerSupportSummary(EChain.Base, false, false, true)],
   ]);
 
   protected supportedRaribleChains = new Map<EChain, string>([
     [EChain.EthereumMainnet, "ETHEREUM"],
     [EChain.Polygon, "POLYGON"],
-    // [EChain.Flow, "FLOW"],
-    // [EChain.Tezos, "TEZOS"],
     [EChain.Solana, "SOLANA"],
-    // [EChain.Immutable, "IMMUTABLEX"],
-    // [EChain.Mantle, "MANTLE"],
     [EChain.Arbitrum, "ARBITRUM"],
-    // [EChain.Chiliz, "CHILIZ"],
-    // [EChain.Lightlink, "LIGHTLINK"],
     [EChain.ZkSyncEra, "ZKSYNC"],
-    // [EChain.Astar, "ASTAR"],
-    // [EChain.Astar, "ZKEVM"],
     [EChain.Base, "BASE"],
   ]);
 
@@ -107,7 +99,6 @@ export class RaribleIndexer implements IEVMIndexer {
   public initialize(): ResultAsync<void, never> {
     return this.configProvider.getConfig().map((config) => {
       this.supportedRaribleChains.forEach((indexerSupportSummary, chain) => {
-        console.log("supported chains: " + chain);
         if (
           config.apiKeys.raribleApiKey == "" ||
           config.apiKeys.raribleApiKey == undefined
@@ -143,7 +134,10 @@ export class RaribleIndexer implements IEVMIndexer {
       this.contextProvider.getContext(),
     ]).andThen(([config, context]) => {
       const nftSupportChain = this.supportedRaribleChains.get(chain);
-      if (nftSupportChain == undefined) {
+      if (
+        nftSupportChain == undefined ||
+        config.apiKeys.raribleApiKey == null
+      ) {
         return okAsync([]);
       }
 
@@ -156,15 +150,6 @@ export class RaribleIndexer implements IEVMIndexer {
           accountAddress,
       );
 
-      console.log("Rarible url: " + url);
-      console.log(
-        "config.apiKeys.raribleApiKey: " + config.apiKeys.raribleApiKey,
-      );
-
-      if (config.apiKeys.raribleApiKey == null) {
-        return okAsync([]);
-      }
-
       const requestConfig: IRequestConfig = {
         headers: {
           "X-API-Key": config.apiKeys.raribleApiKey,
@@ -176,9 +161,7 @@ export class RaribleIndexer implements IEVMIndexer {
       return this.ajaxUtils
         .get<IRaribleNftReponse>(url, requestConfig)
         .map((response) => {
-          console.log("response: " + JSON.stringify(response));
           return response.items.map((item) => {
-            console.log("item: " + JSON.stringify(item));
             return new EVMNFT(
               EVMContractAddress(item.contract.split(":")[1]),
               BigNumberString(item.tokenId),
@@ -195,7 +178,6 @@ export class RaribleIndexer implements IEVMIndexer {
           });
         })
         .mapErr((error) => {
-          console.log("error: " + error);
           return error;
         });
     });
