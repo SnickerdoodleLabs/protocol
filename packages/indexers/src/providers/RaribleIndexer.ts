@@ -4,13 +4,9 @@ import {
   ILogUtils,
   ILogUtilsType,
   ObjectUtils,
-  ITimeUtils,
-  ITimeUtilsType,
   IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  EChainTechnology,
-  TickerSymbol,
   AccountIndexingError,
   AjaxError,
   TokenBalance,
@@ -19,20 +15,13 @@ import {
   EVMContractAddress,
   EChain,
   EVMNFT,
-  TokenUri,
   EVMTransaction,
   UnixTimestamp,
   EComponentStatus,
   IndexerSupportSummary,
-  getChainInfoByChain,
   MethodSupportError,
   EDataProvider,
   EExternalApi,
-  URLString,
-  DecimalString,
-  EVMTransactionHash,
-  ChainId,
-  TokenId,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -46,7 +35,6 @@ import {
   IIndexerContextProvider,
   IIndexerContextProviderType,
 } from "@indexers/interfaces/index.js";
-import { MasterIndexer } from "@indexers/MasterIndexer.js";
 
 @injectable()
 export class RaribleIndexer implements IEVMIndexer {
@@ -71,11 +59,12 @@ export class RaribleIndexer implements IEVMIndexer {
       EChain.Arbitrum,
       new IndexerSupportSummary(EChain.Arbitrum, false, false, true),
     ],
-    [
-      EChain.ZkSyncEra,
-      new IndexerSupportSummary(EChain.ZkSyncEra, false, false, true),
-    ],
-    [EChain.Base, new IndexerSupportSummary(EChain.Base, false, false, true)],
+    // TODO: will support functionality once we have balances/nfts to test
+    // [
+    //   EChain.ZkSyncEra,
+    //   new IndexerSupportSummary(EChain.ZkSyncEra, false, false, true),
+    // ],
+    // [EChain.Base, new IndexerSupportSummary(EChain.Base, false, false, true)],
   ]);
 
   protected supportedRaribleChains = new Map<EChain, string>([
@@ -140,11 +129,17 @@ export class RaribleIndexer implements IEVMIndexer {
       ) {
         return okAsync([]);
       }
+      let chainName = "ETHEREUM";
+      if (chain == EChain.Solana) {
+        chainName = "SOLANA";
+      }
 
       const url = new URL(
         "https://api.rarible.org/v0.1/items/byOwner?blockchains=" +
           nftSupportChain +
-          "&owner=ETHEREUM%3A" +
+          "&owner=" +
+          chainName +
+          "%3A" +
           accountAddress,
       );
 
@@ -159,16 +154,23 @@ export class RaribleIndexer implements IEVMIndexer {
       return this.ajaxUtils
         .get<IRaribleNftReponse>(url, requestConfig)
         .map((response) => {
+          if (response == undefined) {
+            return [];
+          }
           return response.items.map((item) => {
+            let name = "";
+            if (item.meta != undefined) {
+              name = item.meta.name;
+            }
             return new EVMNFT(
               EVMContractAddress(item.contract.split(":")[1]),
               BigNumberString(item.tokenId),
               item.tokenId, // look into
               accountAddress,
-              TokenUri(item.meta.content[0].url),
+              undefined, //TokenUri(item.meta.content[0].url),
               { raw: ObjectUtils.serialize(item.meta) },
               BigNumberString(item.supply),
-              item.meta.name,
+              name,
               chain,
               undefined,
               undefined, //item.lastSale.date,
@@ -225,12 +227,14 @@ interface IRaribleNftReponse {
       tags: string[];
       genres: string[];
       originalMetaUri: string;
-      attributes: {
-        key: string;
-        value: string;
-        type: string;
-        format: string;
-      }[];
+      attributes:
+        | {
+            key: string;
+            value: string;
+            type: string;
+            format: string;
+          }[]
+        | undefined;
       content: [
         {
           "@type": string;

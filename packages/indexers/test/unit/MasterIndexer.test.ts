@@ -25,6 +25,8 @@ import {
   EIndexerMethod,
   ISO8601DateString,
   EDataProvider,
+  SolanaNFT,
+  SolanaAccountAddress,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import * as td from "testdouble";
