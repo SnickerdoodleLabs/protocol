@@ -108,6 +108,7 @@ export interface ICryptoUtils {
   signMessage(
     message: string,
     privateKey: EVMPrivateKey,
+    token?: string | undefined,
   ): ResultAsync<Signature, never>;
 
   signMessageSolana(

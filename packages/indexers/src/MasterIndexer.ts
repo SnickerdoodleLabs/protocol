@@ -276,9 +276,9 @@ export class MasterIndexer implements IMasterIndexer {
       return okAsync([]);
     }
 
-    indexers.forEach((indexer) => {
-      console.log("indexer name: " + indexer.name());
-    });
+    // indexers.forEach((indexer) => {
+    //   console.log("indexer name: " + indexer.name());
+    // });
 
     return ObjectUtils.progressiveFallback((indexer: IEVMIndexer) => {
       return indexer
@@ -487,10 +487,10 @@ export class MasterIndexer implements IMasterIndexer {
         continue;
       }
 
-      console.log("indexerMethod: " + indexer.name);
+      // console.log("indexerMethod: " + indexer.name);
       // Get the health status
       const status = indexer.healthStatus().get(chain);
-      console.log("indexerMethod status: " + status);
+      // console.log("indexerMethod status: " + status);
 
       if (status == null) {
         continue;

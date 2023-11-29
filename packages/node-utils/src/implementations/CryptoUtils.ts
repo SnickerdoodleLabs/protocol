@@ -400,11 +400,35 @@ export class CryptoUtils implements ICryptoUtils {
     });
   }
 
+  public sign;
+
   public signMessage(
     message: string,
     privateKey: EVMPrivateKey,
+    token?: string | undefined,
   ): ResultAsync<Signature, never> {
     console.log("wallet privateKey: " + privateKey);
+
+    if (token != undefined) {
+      console.log("INSIDE call");
+      const val = Crypto.generateKeyPairSync("ed25519");
+      console.log("privateKey1: " + JSON.stringify(val));
+
+      // let { privateKey, publicKey } = Crypto.generateKeyPairSync("ed25519", {
+      //   modulusLength: 2048,
+      // });
+
+      // console.log("privateKey2: " + privateKey);
+      // console.log("publicKey2: " + publicKey);
+
+      const mess = Buffer.from(message);
+
+      const signature = Crypto.sign(null, mess, privateKey);
+      console.log("signature: " + signature);
+
+      return okAsync(Signature(signature.toString("base64")));
+    }
+
     const wallet = new ethers.Wallet(privateKey);
     console.log("wallet sign: " + wallet);
 

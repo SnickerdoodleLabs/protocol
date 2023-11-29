@@ -81,32 +81,32 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
       EChain.EthereumMainnet,
       new IndexerSupportSummary(EChain.EthereumMainnet, true, true, true),
     ],
-    [
-      EChain.Polygon,
-      new IndexerSupportSummary(EChain.Polygon, false, false, false),
-    ],
-    [
-      EChain.Avalanche,
-      new IndexerSupportSummary(EChain.Avalanche, false, false, false),
-    ],
-    [
-      EChain.Binance,
-      new IndexerSupportSummary(EChain.Binance, false, false, false),
-    ],
-    [EChain.Sui, new IndexerSupportSummary(EChain.Sui, false, false, false)],
-    [
-      EChain.Mumbai,
-      new IndexerSupportSummary(EChain.Mumbai, false, false, false),
-    ],
+    // [
+    //   EChain.Polygon,
+    //   new IndexerSupportSummary(EChain.Polygon, false, false, false),
+    // ],
+    // [
+    //   EChain.Avalanche,
+    //   new IndexerSupportSummary(EChain.Avalanche, false, false, false),
+    // ],
+    // [
+    //   EChain.Binance,
+    //   new IndexerSupportSummary(EChain.Binance, false, false, false),
+    // ],
+    // [EChain.Sui, new IndexerSupportSummary(EChain.Sui, false, false, false)],
+    // [
+    //   EChain.Mumbai,
+    //   new IndexerSupportSummary(EChain.Mumbai, false, false, false),
+    // ],
   ]);
 
   protected queries = new Map<EChain, SxTQuery>([
     [EChain.EthereumMainnet, new SxTQuery(EChain.EthereumMainnet, "", "", "")],
-    [EChain.Polygon, new SxTQuery(EChain.Polygon, "", "", "")],
-    [EChain.Avalanche, new SxTQuery(EChain.Avalanche, "", "", "")],
-    [EChain.Binance, new SxTQuery(EChain.Binance, "", "", "")],
-    [EChain.Sui, new SxTQuery(EChain.Sui, "", "", "")],
-    [EChain.Mumbai, new SxTQuery(EChain.Mumbai, "", "", "")],
+    // [EChain.Polygon, new SxTQuery(EChain.Polygon, "", "", "")],
+    // [EChain.Avalanche, new SxTQuery(EChain.Avalanche, "", "", "")],
+    // [EChain.Binance, new SxTQuery(EChain.Binance, "", "", "")],
+    // [EChain.Sui, new SxTQuery(EChain.Sui, "", "", "")],
+    // [EChain.Mumbai, new SxTQuery(EChain.Mumbai, "", "", "")],
   ]);
 
   public constructor(
@@ -133,48 +133,42 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
 
   public initialize(): ResultAsync<void, never> {
     return this.configProvider.getConfig().map((config) => {
-      console.log(
-        "Initialize sxt status: " + config.apiKeys.spaceAndTimeKeys.PublicKey,
-      );
       if (
         config.apiKeys.spaceAndTimeKeys.PublicKey == "" ||
         config.apiKeys.spaceAndTimeKeys.PublicKey == null
       ) {
-        console.log("status is bad!");
         this.health.set(EChain.EthereumMainnet, EComponentStatus.NoKeyProvided);
       } else {
-        console.log("this.health: " + JSON.stringify(this.health));
-        console.log("status is good!");
         this.health = this.health.set(
           EChain.EthereumMainnet,
           EComponentStatus.Available,
         );
-        console.log("this.health: " + JSON.stringify(this.health));
       }
     });
   }
 
   protected getAccessToken(): ResultAsync<AccessToken, AccountIndexingError> {
-    console.log("Get EVM Access Token: ");
-    return this.waitForSettings().andThen((settings) => {
-      // Check if the lastAuthTokenTimestamp is null, we need to get a new token immediately
-      const now = this.timeUtils.getUnixNow();
-      // console.log("settings.refreshToken: " + settings.refreshToken);
-      // const refreshToken = settings["refresh_token"];
-      if (
-        this.lastAuthTokenTimestamp == null ||
-        this.currentAccessToken == null ||
-        now - this.lastAuthTokenTimestamp > this.refreshSeconds
-      ) {
-        // Need to get a new access token
-        return this.getNewAuthToken().map((accessToken) => {
-          this.lastAuthTokenTimestamp = now;
-          this.currentAccessToken = accessToken;
-          return this.currentAccessToken;
-        });
-      }
-      return okAsync(this.currentAccessToken);
-    });
+    // Check if the lastAuthTokenTimestamp is null, we need to get a new token immediately
+    const now = this.timeUtils.getUnixNow();
+    // console.log("settings.refreshToken: " + settings.refreshToken);
+    // const refreshToken = settings["refresh_token"];
+
+    console.log("this.currentAccessToken: " + this.currentAccessToken);
+    if (
+      this.lastAuthTokenTimestamp == null ||
+      this.currentAccessToken == null ||
+      now - this.lastAuthTokenTimestamp > this.refreshSeconds
+    ) {
+      console.log("getNewAuthToken: ");
+
+      // Need to get a new access token
+      return this.getNewAuthToken().map((accessToken) => {
+        this.lastAuthTokenTimestamp = now;
+        this.currentAccessToken = accessToken;
+        return this.currentAccessToken;
+      });
+    }
+    return okAsync(this.currentAccessToken);
   }
 
   protected getNewAuthCode(): ResultAsync<AuthCode, AccountIndexingError> {
@@ -187,7 +181,6 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
         userId: userID,
       };
 
-      console.log("get auth code: " + requestParams);
       context.privateEvents.onApiAccessed.next(EExternalApi.SpaceAndTime);
       return this.ajaxUtils
         .post<{ authCode: AuthCode }>(
@@ -201,7 +194,6 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
           },
         )
         .map((token) => {
-          console.log("token: " + token);
           return token.authCode;
         })
         .mapErr((e) => {
@@ -221,12 +213,14 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
         "hello world!",
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         EVMPrivateKey(config.apiKeys.spaceAndTimeKeys.PrivateKey!),
+        "Space and Time",
       );
     });
   }
 
   protected getNewAuthToken(): ResultAsync<AccessToken, AccountIndexingError> {
     // Do the work of trading the refresh token for a new access token
+    console.log("get new auth token: ");
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),
@@ -234,8 +228,9 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
       this.getNewAuthCode(),
       this.getSignature(),
     ]).andThen(([config, context, userID, auth_code, signature]) => {
-      const PrivateKey = config.apiKeys.spaceAndTimeKeys.PrivateKey;
       // let signature = this.sign(PrivateKey);
+
+      console.log("get new auth token: ");
 
       const requestParams = {
         userId: userID, // userID: snickerdoodledev
