@@ -144,9 +144,7 @@ export class RaribleIndexer implements IEVMIndexer {
       const url = new URL(
         "https://api.rarible.org/v0.1/items/byOwner?blockchains=" +
           nftSupportChain +
-          "&owner=" +
-          nftSupportChain +
-          "%3A" +
+          "&owner=ETHEREUM%3A" +
           accountAddress,
       );
 
