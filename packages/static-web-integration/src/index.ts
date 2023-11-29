@@ -16,18 +16,14 @@ export class SnickerdoodleIntegration {
 
   protected startSessionIntegration() {
     return this.WCProvider.getEthersSigner()
-      .map((signer) => {
-        return (this.webIntegration = new SnickerdoodleWebIntegration(
+      .andThen((signer) => {
+        this.webIntegration = new SnickerdoodleWebIntegration(
           this.coreConfig,
           signer,
-        ));
+        );
+        return this.webIntegration.initialize();
       })
-      .andThen((integration) => {
-        return integration.initialize();
-      })
-      .andThen(() => {
-        return okAsync(undefined);
-      })
+      .map(() => {})
       .mapErr((error) => {
         console.error("Integration failed:", error);
         return error;
@@ -41,9 +37,7 @@ export class SnickerdoodleIntegration {
           this.coreConfig,
           signer,
         );
-        return this.webIntegration.initialize().andThen(() => {
-          return okAsync(undefined);
-        });
+        return this.webIntegration.initialize().map(() => {});
       })
       .mapErr((error) => {
         console.error("Integration failed:", error);
@@ -58,7 +52,13 @@ export class SnickerdoodleIntegration {
       return this.startIntegration();
     }
   }
-
+  public integrateSnickerdoodle(): ResultAsync<void, Error> {
+    if (this.isConnected()) {
+      return this.startSessionIntegration();
+    } else {
+      return this.startIntegration();
+    }
+  }
   public isConnected(): boolean {
     return this.WCProvider.checkConnection();
   }

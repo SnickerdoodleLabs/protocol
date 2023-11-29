@@ -27,17 +27,6 @@
     <script src="https:/localhost:9005/snickerdoodle.js"></script>
     <script>
       window.onload = function () {
-        /*  snickerdoodle.integrateSnickerdoodle(
-          {
-            primaryInfuraKey: "a8ae124ed6aa44bb97a7166cda30f1bc",
-            iframeURL: "https://iframe.snickerdoodle.com",
-            walletConnect: {
-              projectId: "7b43f10fd3404bb16a3c0947b0ff3436",
-            },
-          },
-          // Add consent contract here
-        ); */
-        console.log("snickerdoodle", snickerdoodle);
         window.snickerdoodle = new snickerdoodle.SnickerdoodleIntegration({
           primaryInfuraKey: "a8ae124ed6aa44bb97a7166cda30f1bc",
           iframeURL: "https://iframe.snickerdoodle.com",
@@ -51,6 +40,6 @@
 
   <body>
     <div>This is a completely static webpage!</div>
-    <button onclick="window.snickerdoodle.start()" >My Button</button>
+    <button onclick="window.snickerdoodle.start()">My Button</button>
   </body>
 </html>

@@ -91,9 +91,9 @@ export class WCProvider {
     }
   }
 
-  protected getEthersProvider({ chainId }: { chainId?: number } = {}):
-    | ethers.providers.JsonRpcProvider
-    | ethers.providers.FallbackProvider {
+  protected getEthersProvider(
+    chainId?: number,
+  ): ethers.providers.JsonRpcProvider | ethers.providers.FallbackProvider {
     const publicClient = getPublicClient({ chainId });
     return this.publicClientToProvider(publicClient);
   }
@@ -130,10 +130,7 @@ export class WCProvider {
     return signer;
   }
 
-  public getEthersSigner({ chainId }: { chainId?: number } = {}): ResultAsync<
-    Signer,
-    Error
-  > {
+  public getEthersSigner(chainId?: number): ResultAsync<Signer, Error> {
     return ResultAsync.fromPromise(
       getWalletClient({ chainId: chainId || 1 }),
       (error) => new Error(`Error getting wallet client: ${error}`),
