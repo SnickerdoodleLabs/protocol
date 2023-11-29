@@ -23,6 +23,11 @@ const useStyles = makeStyles((theme: Theme) => {
     ...genareteFontFamiles(),
     ...fontWeights,
     ...generateDynamicTypographyColorClasses(theme),
+    ellipsis: {
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
+    },
   };
 });
 
@@ -31,6 +36,7 @@ interface ITypographyProps extends Omit<TypographyProps, "variant" | "color"> {
   fontWeight?: `${EFontWeight}`;
   fontFamily?: `${EFontFamily}`;
   color?: `${ETypographyColorOverrides}`;
+  hideOverflow?: boolean;
 }
 
 export const SDTypography = ({
@@ -39,6 +45,7 @@ export const SDTypography = ({
   fontWeight,
   fontFamily,
   color,
+  hideOverflow,
   ...rest
 }: ITypographyProps) => {
   const classes = useStyles();
@@ -50,6 +57,7 @@ export const SDTypography = ({
         fontWeight && classes[fontWeight],
         fontFamily && classes[fontFamily],
         color && classes[color],
+        hideOverflow && classes.ellipsis,
         className,
       )}
     />

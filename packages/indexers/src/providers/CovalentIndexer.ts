@@ -2,8 +2,9 @@ import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
   IRequestConfig,
+  ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
-import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
   AjaxError,
@@ -51,15 +52,19 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [
       EChain.EthereumMainnet,
-      new IndexerSupportSummary(EChain.Arbitrum, true, true, false),
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, true, false),
     ],
     [
       EChain.Polygon,
-      new IndexerSupportSummary(EChain.Arbitrum, true, true, false),
+      new IndexerSupportSummary(EChain.Polygon, true, true, false),
     ],
     [
       EChain.Binance,
-      new IndexerSupportSummary(EChain.Arbitrum, true, true, false),
+      new IndexerSupportSummary(EChain.Binance, true, true, true),
+    ],
+    [
+      EChain.BinanceTestnet,
+      new IndexerSupportSummary(EChain.BinanceTestnet, true, false, true),
     ],
   ]);
 
@@ -87,7 +92,7 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
     });
   }
 
-  public name(): string {
+  public name(): EDataProvider {
     return EDataProvider.Covalent;
   }
 
@@ -248,12 +253,8 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
       EVMTransactionHash(tx.tx_hash),
       UnixTimestamp(Math.floor(Date.parse(tx.block_signed_at) / 1000)),
       tx.block_height,
-      tx.to_address != null
-        ? EVMAccountAddress(tx.to_address.toLowerCase())
-        : null,
-      tx.from_address != null
-        ? EVMAccountAddress(tx.from_address.toLowerCase())
-        : null,
+      tx.to_address != null ? EVMAccountAddress(tx.to_address) : null,
+      tx.from_address != null ? EVMAccountAddress(tx.from_address) : null,
       tx.value != null ? BigNumberString(tx.value.toString()) : null,
       tx.gas_price != null ? BigNumberString(tx.gas_price.toString()) : null,
       null,
@@ -277,7 +278,7 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
             );
           })
         : null,
-        this.timeUtils.getUnixNow(),
+      this.timeUtils.getUnixNow(),
     );
     return busObj;
   }
@@ -335,6 +336,8 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
       EChain.Optimism,
       EChain.Polygon,
       EChain.Solana,
+      EChain.Binance,
+      EChain.BinanceTestnet,
     ];
     return supportedChains;
   }

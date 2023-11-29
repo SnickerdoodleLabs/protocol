@@ -1,7 +1,7 @@
 import ExclamationIcon from "@extension-onboarding/assets/icons/exclamationIcon.svg";
 import { useModalStyles } from "@extension-onboarding/components/Modals/Modal.style";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { Box, Dialog, makeStyles } from "@material-ui/core";
+import { Box, Dialog, Grid, makeStyles } from "@material-ui/core";
 import {
   CloseButton,
   SDTypography,
@@ -238,22 +238,33 @@ const OTPModal: FC = () => {
             )}
           </Box>
         </Box>
-        <Box display="flex" marginLeft="auto" mt={3} justifyContent="flex-end">
-          <SDButton onClick={closeModal} variant="outlined" color="danger">
-            Cancel
-          </SDButton>
-          <Box ml={2} />
-          <SDButton
-            variant="contained"
-            color="danger"
-            disabled={!isSuccess}
-            onClick={() => {
-              onPrimaryButtonClick();
-              closeModal();
-            }}
-          >
-            {actionText}
-          </SDButton>
+        <Box display="flex" mt={3} justifyContent="flex-end">
+          <Grid container spacing={2} justifyContent="flex-end">
+            <Grid item className={modalClasses.buttonWrapper50}>
+              <SDButton
+                fullWidth
+                onClick={closeModal}
+                variant="outlined"
+                color="danger"
+              >
+                Cancel
+              </SDButton>
+            </Grid>
+            <Grid item className={modalClasses.buttonWrapper50}>
+              <SDButton
+                variant="contained"
+                color="danger"
+                fullWidth
+                disabled={!isSuccess}
+                onClick={() => {
+                  onPrimaryButtonClick();
+                  closeModal();
+                }}
+              >
+                {actionText}
+              </SDButton>
+            </Grid>
+          </Grid>
         </Box>
       </Box>
     </Dialog>

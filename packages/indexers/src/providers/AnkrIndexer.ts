@@ -4,8 +4,9 @@ import {
   ILogUtils,
   ILogUtilsType,
   ObjectUtils,
+  ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
-import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   EChainTechnology,
   TickerSymbol,
@@ -75,14 +76,8 @@ export class AnkrIndexer implements IEVMIndexer {
       EChain.Arbitrum,
       new IndexerSupportSummary(EChain.Arbitrum, true, true, true),
     ],
-    [
-      EChain.Fuji, 
-      new IndexerSupportSummary(EChain.Fuji, true, true, true),
-    ],
-    [
-      EChain.Mumbai,
-      new IndexerSupportSummary(EChain.Mumbai, true, true, true),
-    ],
+    [EChain.Fuji, new IndexerSupportSummary(EChain.Fuji, true, true, true)],
+    [EChain.Mumbai, new IndexerSupportSummary(EChain.Mumbai, true, true, true)],
     // [
     //   EChain.BinanceTestnet,
     //   new IndexerSupportSummary(EChain.BinanceTestnet, true, false, false),
@@ -137,7 +132,7 @@ export class AnkrIndexer implements IEVMIndexer {
     });
   }
 
-  public name(): string {
+  public name(): EDataProvider {
     return EDataProvider.Ankr;
   }
 
@@ -322,8 +317,8 @@ export class AnkrIndexer implements IEVMIndexer {
               EVMTransactionHash(item.hash),
               UnixTimestamp(item.timestamp),
               item.blockNumber,
-              EVMAccountAddress(item.to.toLowerCase()),
-              EVMAccountAddress(item.from.toLowerCase()),
+              EVMAccountAddress(item.to),
+              EVMAccountAddress(item.from),
               BigNumberString(item.value),
               BigNumberString(item.gasPrice),
               null,

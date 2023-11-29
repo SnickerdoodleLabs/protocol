@@ -1,4 +1,9 @@
-import { Box, Grid, MenuItem, Select, Typography } from "@material-ui/core";
+import { useStyles } from "@extension-onboarding/components/AccountChainBar/AccountChainBar.style";
+import Switch from "@extension-onboarding/components/v2/Switch";
+import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { Box, Grid, MenuItem, Select } from "@material-ui/core";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import {
   AccountAddress,
   chainConfig,
@@ -8,45 +13,41 @@ import {
 import {
   AccountIdentIcon,
   SDTypography,
-  getAccountAddressText,
+  abbreviateString,
 } from "@snickerdoodlelabs/shared-components";
 import clsx from "clsx";
 import React, { FC, useEffect, useMemo } from "react";
-
-import { useStyles } from "@extension-onboarding/components/AccountChainBar/AccountChainBar.style";
-import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
-import { useAppContext } from "@extension-onboarding/context/App";
-import Switch from "@extension-onboarding/components/v2/Switch";
 
 export enum EDisplayMode {
   MAINNET,
   TESTNET,
 }
 
-const { mainnetSupportedChainIds, testnetSupportedChainIds } = Array.from(
-  chainConfig.values(),
-).reduce(
-  (acc, chainInfo) => {
-    if (chainInfo.type === EChainType.Mainnet) {
-      acc.mainnetSupportedChainIds = [
-        ...acc.mainnetSupportedChainIds,
-        chainInfo.chainId,
-      ];
-    } else if (chainInfo.type === EChainType.Testnet) {
-      acc.testnetSupportedChainIds = [
-        ...acc.testnetSupportedChainIds,
-        chainInfo.chainId,
-      ];
-    }
-    return acc;
-  },
-  { mainnetSupportedChainIds: [], testnetSupportedChainIds: [] } as {
-    mainnetSupportedChainIds: ChainId[];
-    testnetSupportedChainIds: ChainId[];
-  },
-);
+export const { mainnetSupportedChainIds, testnetSupportedChainIds } =
+  Array.from(chainConfig.values()).reduce(
+    (acc, chainInfo) => {
+      if (chainInfo.type === EChainType.Mainnet) {
+        acc.mainnetSupportedChainIds = [
+          ...acc.mainnetSupportedChainIds,
+          chainInfo.chainId,
+        ];
+      } else if (chainInfo.type === EChainType.Testnet) {
+        acc.testnetSupportedChainIds = [
+          ...acc.testnetSupportedChainIds,
+          chainInfo.chainId,
+        ];
+      }
+      return acc;
+    },
+    { mainnetSupportedChainIds: [], testnetSupportedChainIds: [] } as {
+      mainnetSupportedChainIds: ChainId[];
+      testnetSupportedChainIds: ChainId[];
+    },
+  );
 
 interface IAccountChainBarProps {
+  accountAdressesToRender?: AccountAddress[];
+  chainIdsToRender?: ChainId[];
   displayMode: EDisplayMode;
   accountSelect: AccountAddress | undefined;
   chainSelect: ChainId | undefined;
@@ -61,6 +62,8 @@ const AccountChainBar: FC<IAccountChainBarProps> = ({
   setAccountSelect,
   setChainSelect,
   chainSelect,
+  accountAdressesToRender,
+  chainIdsToRender,
 }: IAccountChainBarProps) => {
   useEffect(() => {
     setChainSelect(undefined);
@@ -91,12 +94,30 @@ const AccountChainBar: FC<IAccountChainBarProps> = ({
     setChainSelect(value);
   };
 
-  const chainIdsToRender = useMemo(() => {
+  const _chainIdsToRender = useMemo(() => {
     if (EDisplayMode.MAINNET === displayMode) {
+      if (chainIdsToRender && chainIdsToRender?.length > 0) {
+        return chainIdsToRender?.filter((chainId) =>
+          mainnetSupportedChainIds.includes(chainId),
+        );
+      }
+
       return mainnetSupportedChainIds;
     }
+    if (chainIdsToRender && chainIdsToRender?.length > 0) {
+      return chainIdsToRender?.filter((chainId) =>
+        testnetSupportedChainIds.includes(chainId),
+      );
+    }
     return testnetSupportedChainIds;
-  }, [displayMode]);
+  }, [displayMode, chainIdsToRender]);
+
+  const accountsToRender = useMemo(() => {
+    if (accountAdressesToRender) {
+      return accountAdressesToRender;
+    }
+    return linkedAccounts?.map((account) => account.sourceAccountAddress);
+  }, [linkedAccounts, accountAdressesToRender]);
 
   return (
     <Box>
@@ -152,30 +173,49 @@ const AccountChainBar: FC<IAccountChainBarProps> = ({
 
           <Box mt={0.5} display="flex" justifyContent="space-between">
             <Select
-              className={classes.selectAccount}
+              className={classes.select}
               fullWidth
+              IconComponent={ExpandMoreIcon}
               variant="outlined"
               name="accounts"
               value={accountSelect ?? "all"}
+              inputProps={{
+                classes: {
+                  icon: classes.selectIcon,
+                },
+              }}
               placeholder="All"
               onChange={handleAccountChange}
             >
-              <MenuItem value="all">All</MenuItem>
-              {linkedAccounts?.map((account) => {
+              <MenuItem
+                classes={{
+                  root: classes.menuItem,
+                  selected: classes.menuSelected,
+                }}
+                value="all"
+              >
+                All
+              </MenuItem>
+              {accountsToRender?.map((account) => {
                 return (
                   <MenuItem
-                    key={account.sourceAccountAddress}
-                    value={account.sourceAccountAddress}
+                    classes={{
+                      root: classes.menuItem,
+                      selected: classes.menuSelected,
+                    }}
+                    key={account}
+                    value={account}
                   >
                     <Box display="flex" alignItems="center">
-                      <Box>
-                        <AccountIdentIcon
-                          accountAddress={account.sourceAccountAddress}
-                        />
-                      </Box>
-                      <Typography className={classes.accountAddressText}>
-                        {getAccountAddressText(account.sourceAccountAddress)}
-                      </Typography>
+                      <AccountIdentIcon size={32} accountAddress={account} />
+                      <Box ml={1} />
+                      <SDTypography
+                        variant="bodyLg"
+                        fontWeight="medium"
+                        color="textHeading"
+                      >
+                        {abbreviateString(account, 8, 3, 6)}
+                      </SDTypography>
                     </Box>
                   </MenuItem>
                 );
@@ -190,30 +230,53 @@ const AccountChainBar: FC<IAccountChainBarProps> = ({
 
           <Box mt={0.5} display="flex" justifyContent="space-between">
             <Select
-              className={classes.selectAccount}
+              className={classes.select}
               fullWidth
+              IconComponent={ExpandMoreIcon}
               variant="outlined"
               name="chains"
+              inputProps={{
+                classes: {
+                  icon: classes.selectIcon,
+                },
+              }}
               value={chainSelect ?? "all"}
               placeholder="All"
               onChange={handleChainChange}
             >
-              <MenuItem value="all">All</MenuItem>
-              {chainIdsToRender.map((chainId) => {
+              <MenuItem
+                classes={{
+                  root: classes.menuItem,
+                  selected: classes.menuSelected,
+                }}
+                value="all"
+              >
+                All
+              </MenuItem>
+              {_chainIdsToRender.map((chainId) => {
                 const iconSrc =
                   tokenInfoObj[
                     chainConfig.get(chainId)?.nativeCurrency?.symbol ?? ""
                   ]?.iconSrc;
                 return (
-                  <MenuItem key={chainId} value={chainId}>
+                  <MenuItem
+                    classes={{
+                      root: classes.menuItem,
+                      selected: classes.menuSelected,
+                    }}
+                    key={chainId}
+                    value={chainId}
+                  >
                     <Box display="flex" alignItems="center">
-                      <img
-                        src={iconSrc}
-                        style={{ width: 24, height: 24, marginRight: 8 }}
-                      />
-                      <Typography className={classes.accountAddressText}>
+                      <img src={iconSrc} style={{ width: 24, height: 24 }} />
+                      <Box ml={1} />
+                      <SDTypography
+                        variant="bodyLg"
+                        fontWeight="medium"
+                        color="textHeading"
+                      >
                         {chainConfig.get(chainId)?.name}
-                      </Typography>
+                      </SDTypography>
                     </Box>
                   </MenuItem>
                 );

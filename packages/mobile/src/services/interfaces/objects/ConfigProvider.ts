@@ -219,9 +219,9 @@ export class ConfigProvider
       overrides.backupChunkSizeTarget ?? this.config.backupChunkSizeTarget;
     this.config.ceramicNodeURL =
       overrides.ceramicNodeURL ?? this.config.ceramicNodeURL;
-    this.config.requestForDataCheckingFrequency =
-      overrides.requestForDataCheckingFrequency ??
-      this.config.requestForDataCheckingFrequency;
+    this.config.requestForDataPollingIntervalMS =
+      overrides.requestForDataPollingIntervalMS ??
+      this.config.requestForDataPollingIntervalMS;
     this.config.domainFilter =
       overrides.domainFilter ?? this.config.domainFilter;
     this.config.enableBackupEncryption =

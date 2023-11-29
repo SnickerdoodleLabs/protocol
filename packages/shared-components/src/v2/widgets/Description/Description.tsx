@@ -16,6 +16,7 @@ interface IDescriptionProps {
   onContinueClick: () => void;
   onSetPermissions: () => void;
   onRejectClick: () => void;
+  onRejectWithTimestampClick?: () => void;
   primaryButtonText?: string;
   redirectRequired?: boolean;
 }
@@ -62,6 +63,7 @@ export const DescriptionWidget: FC<IDescriptionProps> = ({
   onContinueClick,
   primaryButtonText = "Continue",
   onRejectClick,
+  onRejectWithTimestampClick,
   redirectRequired = false,
 }) => {
   const media = useMedia();
@@ -123,6 +125,7 @@ export const DescriptionWidget: FC<IDescriptionProps> = ({
       m="auto"
       p={{ xs: 3, sm: 4 }}
       pt={{ xs: 3, sm: 8 }}
+      minWidth={{ xs: "none", sm: "none", md: "680px" }}
       width={{ xs: "calc(95% - 48px)", sm: "70%", md: "40%" }}
       borderRadius={{ xs: 12, sm: 4 }}
       justifyContent="center"
@@ -139,13 +142,19 @@ export const DescriptionWidget: FC<IDescriptionProps> = ({
           justifyContent="space-between"
           alignItems="flex-start"
         >
-          <SDTypography variant="displaySm">
+          <SDTypography variant="titleSm" fontWeight="bold">
             {title || "Your Data, Your Choice."}
           </SDTypography>
           {isMobile && <CloseButton onClick={cancelWithAnimation} />}
         </Box>
-        <Box mb={0.5} />
-        {description}
+        <Box
+          mb={0.75}
+          display="flex"
+          maxHeight={{ xs: "none", sm: "none", md: "50vh" }}
+          overflow={{ xs: "none", sm: "none", md: "auto" }}
+        >
+          {description}
+        </Box>
         <Box mb={4} />
         <Grid
           container
@@ -187,7 +196,14 @@ export const DescriptionWidget: FC<IDescriptionProps> = ({
           <SDButton variant="text" onClick={onRejectClick}>
             Don’t show me this again
           </SDButton>
-          <SDButton variant="text" onClick={cancelWithAnimation}>
+          <SDButton
+            variant="text"
+            onClick={
+              onRejectWithTimestampClick
+                ? onRejectWithTimestampClick
+                : cancelWithAnimation
+            }
+          >
             Remind me later
           </SDButton>
         </Box>

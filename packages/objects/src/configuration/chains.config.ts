@@ -134,7 +134,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       4000,
       new NativeCurrencyInformation("AVAX", 18, "AVAX", "avalanche-2"),
       EChainType.Mainnet,
-      "https=//snowtrace.io/block/",
+      "https://snowtrace.io/tx/",
       getExplorerUrl,
       URLString("https://api.snowtrace.io/"),
     ),
@@ -179,7 +179,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
   [
     EChain.SolanaTestnet,
     new ChainInformation(
-      "Solana Testnet",
+      "Solana",
       ChainId(EChain.SolanaTestnet),
       EChain.SolanaTestnet,
       EChainTechnology.Solana,
@@ -231,7 +231,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
   [
     EChain.BinanceTestnet,
     new ChainInformation(
-      "BinanceTestnet",
+      "Binance",
       ChainId(EChain.BinanceTestnet),
       EChain.BinanceTestnet,
       EChainTechnology.EVM,
@@ -272,7 +272,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       true,
       "arbitrum",
       10000, // average block mining time
-      new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
+      new NativeCurrencyInformation("ETH", 18, "ARB", "ethereum"),
       EChainType.Mainnet,
       "https://arbiscan.io/tx/",
       getExplorerUrl,
@@ -289,7 +289,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       true,
       "optimism",
       10000, // average block mining time
-      new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
+      new NativeCurrencyInformation("ETH", 18, "OP", "ethereum"),
       EChainType.Mainnet,
       "https://optimistic.etherscan.io/tx/",
       getExplorerUrl,
@@ -340,11 +340,62 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       true,
       "shibuya",
       10000, // average block mining time
-      new NativeCurrencyInformation("SBY", 18, "SBY", "shibuya"),
+      new NativeCurrencyInformation("SBY", 18, "ASTR", "shibuya"),
       EChainType.Testnet,
       "https://shibuya.subscan.io/extrinsic/",
       getExplorerUrl,
-      URLString("https://shibya.subscan.io/"),
+      URLString("https://shibuya.subscan.io/"),
+    ),
+  ],
+  [
+    EChain.ZkSyncEra,
+    new ChainInformation(
+      "zkSync Era",
+      ChainId(EChain.ZkSyncEra),
+      EChain.ZkSyncEra,
+      EChainTechnology.EVM,
+      true,
+      "zksync-era",
+      10000, // average block mining time
+      new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
+      EChainType.Mainnet,
+      "https://explorer.zksync.io/tx/",
+      getExplorerUrl,
+      URLString("https://block-explorer-api.mainnet.zksync.io/"),
+    ),
+  ],
+  [
+    EChain.Base,
+    new ChainInformation(
+      "Base",
+      ChainId(EChain.Base),
+      EChain.Base,
+      EChainTechnology.EVM,
+      true,
+      "base",
+      10000, // average block mining time
+      new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
+      EChainType.Mainnet,
+      "https://basescan.org/tx/",
+      getExplorerUrl,
+      URLString("https://api.basescan.org/api"),
+    ),
+  ],
+  [
+    EChain.Chiliz,
+    new ChainInformation(
+      "Chiliz",
+      ChainId(EChain.Chiliz),
+      EChain.Chiliz,
+      EChainTechnology.EVM,
+      true,
+      "chiliz",
+      10000, // average block mining time
+      new NativeCurrencyInformation("CHZ", 18, "CHZ", "chiliz"),
+      EChainType.Mainnet,
+      "https://scan.chiliz.com/tx/",
+      getExplorerUrl,
+      URLString("https://scan.chiliz.com/api/eth-rpc"),
     ),
   ],
 ]);

@@ -63,6 +63,14 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
       EChain.Gnosis,
       new IndexerSupportSummary(EChain.Gnosis, true, false, false),
     ],
+    [
+      EChain.BinanceTestnet,
+      new IndexerSupportSummary(EChain.BinanceTestnet, true, false, true),
+    ],
+    [
+      EChain.Sepolia,
+      new IndexerSupportSummary(EChain.Sepolia, true, false, true),
+    ],
   ]);
 
   protected moralisKey: string | null = null;
@@ -90,7 +98,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     });
   }
 
-  public name(): string {
+  public name(): EDataProvider {
     return EDataProvider.Moralis;
   }
 
