@@ -75,6 +75,7 @@ import {
   IUserAgreement,
   PageInvitation,
   Invitation,
+  ShoppingDataConnectionStatus,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -167,6 +168,8 @@ import {
   GetTransactionValueByChainParams,
   UpdateAgreementPermissionsParams,
   GetConsentContractURLsParams,
+  PurchaseGetShoppingDataConnectionStatusParams,
+  PurchaseSetShoppingDataConnectionStatusParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -408,6 +411,23 @@ export class ExternalCoreGateway {
       ): ResultAsync<PurchasedProduct[], ProxyError> => {
         return this._handler.call(
           new PurchaseGetByMarketPlaceAndDateParams(marketPlace, datePurchased),
+        );
+      },
+      getShoppingDataConnectionStatus: (): ResultAsync<
+        ShoppingDataConnectionStatus[],
+        ProxyError
+      > => {
+        return this._handler.call(
+          new PurchaseGetShoppingDataConnectionStatusParams(),
+        );
+      },
+      setShoppingDataConnectionStatus: (
+        ShoppingDataConnectionStatus: ShoppingDataConnectionStatus,
+      ): ResultAsync<void, ProxyError> => {
+        return this._handler.call(
+          new PurchaseSetShoppingDataConnectionStatusParams(
+            ShoppingDataConnectionStatus,
+          ),
         );
       },
     };

@@ -3,6 +3,8 @@ import {
   DomainName,
   ERecordKey,
   UnixTimestamp,
+  EFieldKey,
+  ShoppingDataConnectionStatus,
 } from "@snickerdoodlelabs/objects";
 import {
   IPurchaseRepository,
@@ -68,6 +70,25 @@ export class PurchaseRepository implements IPurchaseRepository {
       ERecordKey.PURCHASED_PRODUCT,
       ["marketPlace", "datePurchased"],
       [marketPlace, datePurchased],
+    );
+  }
+  public getShoppingDataConnectionStatus(): ResultAsync<
+    ShoppingDataConnectionStatus[],
+    PersistenceError
+  > {
+    return this.persistence.getAll<ShoppingDataConnectionStatus>(
+      ERecordKey.SHOPPING_DATA_CONNECTION_STATUS,
+    );
+  }
+
+  public setShoppingDataConnectionStatus(
+    ShoppingDataConnectionStatus: ShoppingDataConnectionStatus,
+  ): ResultAsync<void, PersistenceError> {
+    console.log("purca", ShoppingDataConnectionStatus);
+    // Save the private key
+    return this.persistence.updateRecord<ShoppingDataConnectionStatus>(
+      ERecordKey.SHOPPING_DATA_CONNECTION_STATUS,
+      ShoppingDataConnectionStatus,
     );
   }
 }

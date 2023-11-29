@@ -13,12 +13,7 @@ const IFrameComponent = () => {
       </Box>
       <Box display="flex" justifyContent="center" mt={2}>
         <Box width={319}>
-          <SDTypography
-            variant="bodyLg"
-            fontWeight="regular"
-            color="textBody"
-            style={{ textAlign: "center" }}
-          >
+          <SDTypography variant="bodyLg" align="center">
             For this feature, you will need a SnickerDoodle Data Wallet
             extension.
           </SDTypography>

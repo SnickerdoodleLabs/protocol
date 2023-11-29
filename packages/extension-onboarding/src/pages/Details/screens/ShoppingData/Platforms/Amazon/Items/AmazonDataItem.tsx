@@ -113,7 +113,7 @@ export const AmazonDataItem: FC<IAmazonDataItemProps> = memo(
         </Box> */}
 
         <Grid container>
-          <Grid item xs={6}>
+          <Grid item xs={12} sm={12} md={6} lg={6}>
             <Box className={classes.productDataContainer}>
               <Box className={classes.dataContainer}>
                 <Box>
@@ -143,7 +143,7 @@ export const AmazonDataItem: FC<IAmazonDataItemProps> = memo(
               </Box>
             </Box>
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={12} sm={12} md={6} lg={6}>
             <Box className={classes.categoryCircleContainer}>
               <Box className={classes.dataContainer}>
                 <Box>

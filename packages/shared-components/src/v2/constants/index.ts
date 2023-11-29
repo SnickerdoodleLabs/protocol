@@ -1,4 +1,8 @@
-import { EWalletDataType } from "@snickerdoodlelabs/objects";
+import {
+  EKnownDomains,
+  EWalletDataType,
+  URLString,
+} from "@snickerdoodlelabs/objects";
 
 export const FF_SUPPORTED_PERMISSIONS: {
   description: string;
@@ -53,3 +57,16 @@ export const FF_SUPPORTED_PERMISSIONS: {
 
 export const FF_SUPPORTED_ALL_PERMISSIONS: EWalletDataType[] =
   FF_SUPPORTED_PERMISSIONS.map((item) => item.key).flat();
+
+export const SCRAPING_URLS: { key: EKnownDomains; url: URLString }[] = [
+  {
+    key: EKnownDomains.Amazon,
+    url: URLString(
+      "https://www.amazon.com/gp/css/order-history?ie=UTF8&ref_=nav_AccountFlyout_orders",
+    ),
+  },
+];
+
+export const SCRAPING_INDEX: Map<EKnownDomains, string> = new Map([
+  [EKnownDomains.Amazon, "AmazonShoppingdataSDL"],
+]);

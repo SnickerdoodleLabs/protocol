@@ -90,6 +90,7 @@ import {
   ChainTransaction,
   TransactionFilter,
   IUserAgreement,
+  ShoppingDataConnectionStatus,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -795,6 +796,19 @@ export class SnickerdoodleIFrameProxy
       return this._createCall("purchase.getByMarketplaceAndDate", {
         marketPlace,
         datePurchased,
+      });
+    },
+    getShoppingDataConnectionStatus: (): ResultAsync<
+      ShoppingDataConnectionStatus[],
+      ProxyError
+    > => {
+      return this._createCall("purchase.getShoppingDataConnectionStatus", {});
+    },
+    setShoppingDataConnectionStatus: (
+      ShoppingDataConnectionStatus: ShoppingDataConnectionStatus,
+    ): ResultAsync<void, ProxyError> => {
+      return this._createCall("purchase.setShoppingDataConnectionStatus", {
+        ShoppingDataConnectionStatus,
       });
     },
   };

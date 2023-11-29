@@ -1,6 +1,7 @@
 import {
   DomainName,
   PersistenceError,
+  ShoppingDataConnectionStatus,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -12,7 +13,6 @@ import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 import { IPurchaseService } from "@core/interfaces/business/IPurchaseService";
-
 @injectable()
 export class PurchaseService implements IPurchaseService {
   public constructor(
@@ -33,6 +33,19 @@ export class PurchaseService implements IPurchaseService {
     return this.purchaseRepo.getByMarketplaceAndDate(
       marketPlace,
       datePurchased,
+    );
+  }
+  getShoppingDataConnectionStatus(): ResultAsync<
+    ShoppingDataConnectionStatus[],
+    PersistenceError
+  > {
+    return this.purchaseRepo.getShoppingDataConnectionStatus();
+  }
+  setShoppingDataConnectionStatus(
+    ShoppingDataConnectionStatus: ShoppingDataConnectionStatus,
+  ): ResultAsync<void, PersistenceError> {
+    return this.purchaseRepo.setShoppingDataConnectionStatus(
+      ShoppingDataConnectionStatus,
     );
   }
 }

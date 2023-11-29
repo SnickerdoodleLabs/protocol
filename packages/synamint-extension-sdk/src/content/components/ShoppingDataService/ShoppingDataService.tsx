@@ -1,10 +1,16 @@
 import {
+  Amazon,
+  EKnownDomains,
   ELanguageCode,
   HTMLString,
   PageNo,
+  ShoppingDataConnectionStatus,
   URLString,
 } from "@snickerdoodlelabs/objects";
-import { ModalContainer } from "@snickerdoodlelabs/shared-components";
+import {
+  ModalContainer,
+  SCRAPING_INDEX,
+} from "@snickerdoodlelabs/shared-components";
 import React, { useEffect, useMemo, useState } from "react";
 
 import {
@@ -26,6 +32,10 @@ export const ShoppingDataService: React.FC<IShoppingDataProcessProps> = ({
     useState<boolean>(false);
   const [shoppingDataState, setShoppingDataState] =
     useState<EShoppingDataState>(EShoppingDataState.SHOPPINGDATA_IDLE);
+
+  const AMAZONINDEX: string | undefined = SCRAPING_INDEX.get(
+    EKnownDomains.Amazon,
+  );
 
   useEffect(() => {
     checkURLAMAZON();
@@ -87,6 +97,11 @@ export const ShoppingDataService: React.FC<IShoppingDataProcessProps> = ({
                     setShoppingDataState(
                       EShoppingDataState.SHOPPINGDATA_SCRAPE_DONE,
                     );
+                    const amazonConnectionStatus: ShoppingDataConnectionStatus =
+                      new Amazon(true);
+                    coreGateway.purchase.setShoppingDataConnectionStatus(
+                      amazonConnectionStatus,
+                    );
                   }
                 }
               });
@@ -96,9 +111,9 @@ export const ShoppingDataService: React.FC<IShoppingDataProcessProps> = ({
   };
 
   const checkURLAMAZON = () => {
-    const url = window.location.href;
-
-    if (url.includes("ShoppingDataSDL") && url.includes("amazon")) {
+    const searchParams = new URLSearchParams(window.location.search);
+    const SDLStep = searchParams.get("SDLStep");
+    if (AMAZONINDEX !== undefined && SDLStep && SDLStep === AMAZONINDEX) {
       setShoppingDataState(EShoppingDataState.SHOPPINGDATA_INIT);
       if (shoppingDataScrapeStart) {
         setShoppingDataState(EShoppingDataState.SHOPPINGDATA_SCRAPE_PROCESS);

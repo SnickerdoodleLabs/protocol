@@ -14,7 +14,7 @@ export const AmazonConnectItem: FC<IAmazonConnectionItemProps> = memo(
     const classes = useStyles();
     return (
       <>
-        <Box className={classes.logoProviderNameContainer}>
+        <Box className={classes.logoProviderNameContainer} display="flex">
           <Box>
             <img className={classes.LogoImage} src={icon} />
           </Box>

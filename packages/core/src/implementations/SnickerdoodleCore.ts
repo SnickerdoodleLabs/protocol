@@ -113,6 +113,7 @@ import {
   IPurchaseMethods,
   TransactionFlowInsight,
   URLString,
+  ShoppingDataConnectionStatus,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -750,6 +751,23 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return purchaseService.getByMarketplaceAndDate(
           marketPlace,
           datePurchased,
+        );
+      },
+      getShoppingDataConnectionStatus: (): ResultAsync<
+        ShoppingDataConnectionStatus[],
+        PersistenceError
+      > => {
+        const purchaseService =
+          this.iocContainer.get<IPurchaseService>(IPurchaseServiceType);
+        return purchaseService.getShoppingDataConnectionStatus();
+      },
+      setShoppingDataConnectionStatus: (
+        ShoppingDataConnectionStatus: ShoppingDataConnectionStatus,
+      ): ResultAsync<void, PersistenceError> => {
+        const purchaseService =
+          this.iocContainer.get<IPurchaseService>(IPurchaseServiceType);
+        return purchaseService.setShoppingDataConnectionStatus(
+          ShoppingDataConnectionStatus,
         );
       },
     };

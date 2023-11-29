@@ -67,6 +67,7 @@ import {
   IProxyPurchaseMethods,
   ChainTransaction,
   TransactionFilter,
+  ShoppingDataConnectionStatus,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -383,6 +384,16 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
         return coreGateway.purchase.getByMarketplaceAndDate(
           marketPlace,
           datePurchased,
+        );
+      },
+      getShoppingDataConnectionStatus: () => {
+        return coreGateway.purchase.getShoppingDataConnectionStatus();
+      },
+      setShoppingDataConnectionStatus: (
+        ShoppingDataConnectionStatus: ShoppingDataConnectionStatus,
+      ) => {
+        return coreGateway.purchase.setShoppingDataConnectionStatus(
+          ShoppingDataConnectionStatus,
         );
       },
     };

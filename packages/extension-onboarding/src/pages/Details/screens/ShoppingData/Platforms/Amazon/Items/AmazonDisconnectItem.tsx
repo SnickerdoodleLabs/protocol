@@ -42,7 +42,7 @@ export const AmazonDisConnectItem: FC<IAmazonDisConnectItemProps> = memo(
 
     return (
       <>
-        <Box className={classes.logoProviderNameContainer}>
+        <Box className={classes.logoProviderNameContainer} display="flex">
           <Box>
             <img className={classes.LogoImage} src={icon} />
           </Box>
@@ -52,7 +52,10 @@ export const AmazonDisConnectItem: FC<IAmazonDisConnectItemProps> = memo(
             </Typography>
           </Box>
         </Box>
-        <Box className={classes.logoProviderNameContainer}>
+        <Box
+          display={{ xs: "none", sm: "flex" }}
+          className={classes.logoProviderNameContainer}
+        >
           <img
             className={classes.connectionCheckIcon}
             src={ConnectionCheckIcon}
@@ -61,7 +64,7 @@ export const AmazonDisConnectItem: FC<IAmazonDisConnectItemProps> = memo(
             <Typography className={classes.connected}>Connected</Typography>
           </Box>
         </Box>
-        <Box>
+        <Box display={{ xs: "none", sm: "block" }}>
           <Typography className={classes.lastUpdated}>
             Last Updated on {lastUpdate}
           </Typography>

@@ -137,7 +137,6 @@ import {
 import {
   IPurchaseRepository,
   IPurchaseRepositoryType,
-  Purchase,
 } from "@snickerdoodlelabs/shopping-data";
 import { ContainerModule, interfaces } from "inversify";
 
@@ -598,7 +597,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
       IConfigProviderType,
     );
     // endregion
-
     // region purchase
     bind<IPurchaseService>(IPurchaseServiceType)
       .to(PurchaseService)

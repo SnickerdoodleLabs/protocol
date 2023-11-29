@@ -19,6 +19,10 @@ export const AmazonTable = ({
 
   const [rowsPerPage, setRowsPerPage] = useState(defaultItemsPerPage as number);
   const [page, setPage] = useState(0);
+  const [sortOrderByPrice, setSortOrderByPrice] = useState<"asc" | "desc">(
+    "desc",
+  );
+  const [sortBy, setSortBy] = useState<"date" | "price">("date");
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -31,10 +35,23 @@ export const AmazonTable = ({
     setPage(0);
   };
 
+  const handleSortBy = (sortField: "date" | "price") => {
+    setSortBy(sortField);
+    {
+      sortField === "price" &&
+        setSortOrderByPrice(sortOrderByPrice === "asc" ? "desc" : "asc");
+    }
+  };
+
   const sortedData = product.sort((a, b) => {
-    const dateA = new Date(a.datePurchased).getTime();
-    const dateB = new Date(b.datePurchased).getTime();
-    return dateB - dateA;
+    if (sortBy === "date") {
+      const dateA = new Date(a.datePurchased).getTime();
+      const dateB = new Date(b.datePurchased).getTime();
+      return /* sortOrderByPrice === "asc" ? dateA - dateB : */ dateB - dateA;
+    } else if (sortBy === "price") {
+      return sortOrderByPrice === "asc" ? a.price - b.price : b.price - a.price;
+    }
+    return 0;
   });
 
   const slicedData = sortedData.slice(
@@ -57,11 +74,28 @@ export const AmazonTable = ({
         justifyContent="space-between"
         bgcolor="#FFFFFF"
       >
-        <Typography className={classes.tableTitle}>Product Name</Typography>
-        <Typography className={classes.tableTitle}>Brand</Typography>
-        <Typography className={classes.tableTitle}>Category</Typography>
-        <Box mr={2}>
-          <Typography className={classes.tableTitle}>Price</Typography>
+        <Typography
+          className={classes.tableTitle}
+          onClick={() => handleSortBy("date")}
+        >
+          Product Name
+        </Typography>
+        <Typography
+          className={classes.tableTitle}
+          onClick={() => handleSortBy("date")}
+        >
+          Brand
+        </Typography>
+        <Typography
+          className={classes.tableTitle}
+          onClick={() => handleSortBy("date")}
+        >
+          Category
+        </Typography>
+        <Box mr={2} onClick={() => handleSortBy("price")}>
+          <Typography className={classes.tableTitle}>
+            Price {sortOrderByPrice === "asc" ? "▲" : "▼"}
+          </Typography>
         </Box>
       </Box>
       <Box>
@@ -78,7 +112,7 @@ export const AmazonTable = ({
             >
               <Typography
                 className={classes.paginationText}
-                style={{ width: "30%" }}
+                style={{ flex: 1.78 }}
               >
                 {prod.name.length > 20
                   ? prod.name.slice(0, 20) + "..."
@@ -86,20 +120,20 @@ export const AmazonTable = ({
               </Typography>
               <Typography
                 className={classes.paginationText}
-                style={{ width: "25%" }}
+                style={{ flex: 1.6 }}
               >
                 {!prod.brand && "NaN"}
                 {prod.brand}
               </Typography>
               <Typography
                 className={classes.paginationText}
-                style={{ width: "17%" }}
+                style={{ flex: 0.9 }}
               >
                 {prod.category}
               </Typography>
               <Typography
                 className={classes.paginationText}
-                style={{ width: "15%", textAlign: "end" }}
+                style={{ flex: 1, textAlign: "end" }}
               >
                 ${prod.price}
               </Typography>

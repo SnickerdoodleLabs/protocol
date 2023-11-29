@@ -2,8 +2,7 @@ import { Box } from "@material-ui/core";
 import { ECoreProxyType } from "@snickerdoodlelabs/objects";
 import React from "react";
 
-import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen";
-import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
+import { useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { EShoppingDataType } from "@extension-onboarding/objects";
 import IFrameComponent from "@extension-onboarding/pages/Details/screens/ShoppingData/Components";
@@ -16,7 +15,7 @@ interface IShoppingDataProps {
 }
 
 export default () => {
-  const { shoppingDataProviderList, appMode } = useAppContext();
+  const { shoppingDataProviderList } = useAppContext();
 
   const { sdlDataWallet } = useDataWalletContext();
 
@@ -33,10 +32,6 @@ export default () => {
         return null;
     }
   };
-
-  if (appMode != EAppModes.AUTH_USER) {
-    return <UnauthScreen />;
-  }
 
   return (
     <Box>

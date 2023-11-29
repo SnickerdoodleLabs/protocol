@@ -1,5 +1,25 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
+import {
+  BigNumberString,
+  DataWalletAddress,
+  EarnedReward,
+  EVMContractAddress,
+  IpfsCID,
+  LinkedAccount,
+  Signature,
+  URLString,
+} from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow";
+import React, {
+  createContext,
+  FC,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { Subscription } from "rxjs";
+
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import {
   ALERT_MESSAGES,
@@ -21,25 +41,6 @@ import {
   getProviderList as getSocialMediaProviderList,
   ISocialMediaWrapper,
 } from "@extension-onboarding/services/socialMediaProviders";
-import {
-  BigNumberString,
-  DataWalletAddress,
-  EarnedReward,
-  EVMContractAddress,
-  IpfsCID,
-  LinkedAccount,
-  Signature,
-  URLString,
-} from "@snickerdoodlelabs/objects";
-import { ResultAsync } from "neverthrow";
-import React, {
-  createContext,
-  FC,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import { Subscription } from "rxjs";
 
 export interface IInvitationInfo {
   consentAddress: EVMContractAddress | undefined;
@@ -250,7 +251,6 @@ export const AppContextProvider: FC = ({ children }) => {
     setLinkedAccounts((prev) => [...prev, account]);
   };
 
-
   return (
     <AppContext.Provider
       value={{
@@ -260,7 +260,7 @@ export const AppContextProvider: FC = ({ children }) => {
         dataWalletGateway: new DataWalletGateway(sdlDataWallet),
         providerList: chainProviderList,
         socialMediaProviderList: getSocialMediaProviderList(sdlDataWallet),
-        shoppingDataProviderList: getShoppingDataProviderList(sdlDataWallet),
+        shoppingDataProviderList: getShoppingDataProviderList(),
         linkedAccounts,
         getUserAccounts,
         appMode,

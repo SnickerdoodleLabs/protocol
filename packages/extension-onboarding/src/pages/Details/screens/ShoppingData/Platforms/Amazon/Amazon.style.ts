@@ -57,7 +57,6 @@ export const useStyles = makeStyles((theme) => ({
     marginLeft: "16px",
   },
   logoProviderNameContainer: {
-    display: "flex",
     alignItems: "center",
   },
   connectionCheckIcon: {
@@ -212,5 +211,6 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: "12px",
     lineHeight: "18px",
     color: "#212121",
+    cursor: "pointer",
   },
 }));

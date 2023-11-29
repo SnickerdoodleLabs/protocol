@@ -67,6 +67,7 @@ import {
   ChainTransaction,
   TransactionFilter,
   IUserAgreement,
+  ShoppingDataConnectionStatus,
 } from "@snickerdoodlelabs/objects";
 
 import { IExtensionConfig } from "./IExtensionConfig";
@@ -963,7 +964,7 @@ export class PurchaseGetByMarketPlaceParams extends CoreActionParams<
   PurchasedProduct[]
 > {
   public constructor(public marketPlace: DomainName) {
-    super(PurchaseGetParams.getCoreAction());
+    super(PurchaseGetByMarketPlaceParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.PURCHASE_GET_BY_MARKET_PLACE;
@@ -977,10 +978,31 @@ export class PurchaseGetByMarketPlaceAndDateParams extends CoreActionParams<
     public marketPlace: DomainName,
     public datePurchased: UnixTimestamp,
   ) {
-    super(PurchaseGetParams.getCoreAction());
+    super(PurchaseGetByMarketPlaceAndDateParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.PURCHASE_GET_BY_MARKET_PLACE_AND_DATE;
+  }
+}
+
+export class PurchaseGetShoppingDataConnectionStatusParams extends CoreActionParams<
+  ShoppingDataConnectionStatus[]
+> {
+  public constructor() {
+    super(PurchaseGetShoppingDataConnectionStatusParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.PURCHASE_GET_SHOPPINGDATA_CONNECTION_STATUS;
+  }
+}
+export class PurchaseSetShoppingDataConnectionStatusParams extends CoreActionParams<void> {
+  public constructor(
+    public ShoppingDataConnectionStatus: ShoppingDataConnectionStatus,
+  ) {
+    super(PurchaseSetShoppingDataConnectionStatusParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.PURCHASE_SET_SHOPPINGDATA_CONNECTION_STATUS;
   }
 }
 // #endregion

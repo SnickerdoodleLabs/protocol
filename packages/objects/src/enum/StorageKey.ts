@@ -20,6 +20,7 @@ export enum ERecordKey {
   DOMAIN_CREDENTIALS = "SD_DomainCredentials",
   REJECTED_INVITATIONS = "SD_RejectedInvitations",
   PURCHASED_PRODUCT = "SD_PurchasedProduct",
+  SHOPPING_DATA_CONNECTION_STATUS = "SD_ShoppingDataConnectionStatus",
 }
 
 export enum EFieldKey {

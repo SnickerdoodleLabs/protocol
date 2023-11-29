@@ -1,3 +1,6 @@
+import { ResultAsync } from "neverthrow";
+import { FunctionKeys } from "utility-types";
+
 import {
   EarnedReward,
   MarketplaceListing,
@@ -55,8 +58,6 @@ import {
   URLString,
 } from "@objects/primitives/index.js";
 import { GetResultAsyncValueType, PopTuple } from "@objects/types.js";
-import { ResultAsync } from "neverthrow";
-import { FunctionKeys } from "utility-types";
 
 export type IProxyAccountMethods = {
   [key in FunctionKeys<IAccountMethods>]: (

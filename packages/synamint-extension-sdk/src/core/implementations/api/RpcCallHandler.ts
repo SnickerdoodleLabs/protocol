@@ -155,6 +155,8 @@ import {
   UpdateAgreementPermissionsParams,
   SnickerDoodleCoreError,
   GetConsentContractURLsParams,
+  PurchaseGetShoppingDataConnectionStatusParams,
+  PurchaseSetShoppingDataConnectionStatusParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -899,6 +901,20 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this.purchaseService.getByMarketplaceAndDate(
           params.marketPlace,
           params.datePurchased,
+        );
+      },
+    ),
+    new CoreActionHandler<PurchaseGetShoppingDataConnectionStatusParams>(
+      PurchaseGetShoppingDataConnectionStatusParams.getCoreAction(),
+      (_params) => {
+        return this.purchaseService.getShoppingDataConnectionStatus();
+      },
+    ),
+    new CoreActionHandler<PurchaseSetShoppingDataConnectionStatusParams>(
+      PurchaseSetShoppingDataConnectionStatusParams.getCoreAction(),
+      (params) => {
+        return this.purchaseService.setShoppingDataConnectionStatus(
+          params.ShoppingDataConnectionStatus,
         );
       },
     ),
