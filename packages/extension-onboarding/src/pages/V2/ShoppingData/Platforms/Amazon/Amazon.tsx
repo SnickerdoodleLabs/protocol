@@ -19,14 +19,13 @@ import {
 import React, { FC, memo, useEffect, useState } from "react";
 
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/ShoppingData/Platforms/Amazon/Amazon.style";
 import {
   AmazonDisConnectItem,
   AmazonTable,
   AmazonConnectItem,
   AmazonDataItem,
-} from "@extension-onboarding/pages/Details/screens/ShoppingData/Platforms/Amazon/Items";
-import { IShoppingDataPlatformProps } from "@extension-onboarding/pages/Details/screens/ShoppingData/Platforms/types";
+} from "@extension-onboarding/pages/V2/ShoppingData/Platforms/Amazon/Items";
+import { IShoppingDataPlatformProps } from "@extension-onboarding/pages/V2/ShoppingData/Platforms/types";
 
 export const Amazon: FC<IShoppingDataPlatformProps> = memo(
   ({ name, icon }: IShoppingDataPlatformProps) => {
@@ -86,11 +85,20 @@ export const Amazon: FC<IShoppingDataPlatformProps> = memo(
       );
       window.location.reload();
     };
-    const classes = useStyles();
 
     return (
       <>
-        <Box pt={3} className={classes.container}>
+        <Box
+          pt={3}
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          border="1px solid"
+          borderColor="#ECECEC"
+          borderRadius="12px"
+          mt={3}
+          p={3}
+        >
           {isConnected ? (
             <AmazonDisConnectItem
               icon={icon}
@@ -124,12 +132,12 @@ export const Amazon: FC<IShoppingDataPlatformProps> = memo(
                   </RadioGroup>
                 </FormControl>
               </Grid> */}
-            <Grid className={classes.containers}>
+            <Box mt={3}>
               <AmazonDataItem product={product} />
-            </Grid>
-            <Grid className={classes.containers}>
+            </Box>
+            <Box mt={3}>
               <AmazonTable product={product} />
-            </Grid>
+            </Box>
           </>
         )}
       </>

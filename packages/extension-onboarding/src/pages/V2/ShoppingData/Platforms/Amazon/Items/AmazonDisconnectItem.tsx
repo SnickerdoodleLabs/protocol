@@ -1,10 +1,9 @@
 import { Box, Button, Typography } from "@material-ui/core";
 import { PurchasedProduct } from "@snickerdoodlelabs/objects";
+import { SDButton, SDTypography } from "@snickerdoodlelabs/shared-components";
 import React, { FC, memo } from "react";
 
 import ConnectionCheckIcon from "@extension-onboarding/assets/icons/shoppingdata-connectdone.png";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/ShoppingData/Platforms/Amazon/Amazon.style";
-
 interface IAmazonDisConnectItemProps {
   icon: string;
   providerName: string;
@@ -19,7 +18,6 @@ export const AmazonDisConnectItem: FC<IAmazonDisConnectItemProps> = memo(
     handleDisconnectClick,
     product,
   }: IAmazonDisConnectItemProps) => {
-    const classes = useStyles();
     const dateCreatedArray = product.map((product) => {
       const unixTimestamp = product.dateCreated;
       const date = new Date(unixTimestamp * 1000);
@@ -42,32 +40,38 @@ export const AmazonDisConnectItem: FC<IAmazonDisConnectItemProps> = memo(
 
     return (
       <>
-        <Box className={classes.logoProviderNameContainer} display="flex">
+        <Box display="flex" alignItems="center">
           <Box>
-            <img className={classes.LogoImage} src={icon} />
+            <img width={47} height={41} src={icon} />
           </Box>
-          <Box>
-            <Typography className={classes.providerName}>
+          <Box ml={2}>
+            <SDTypography fontWeight="bold" variant="titleLg">
               {providerName}
-            </Typography>
+            </SDTypography>
           </Box>
         </Box>
-        <Box
-          display={{ xs: "none", sm: "flex" }}
-          className={classes.logoProviderNameContainer}
-        >
-          <img
-            className={classes.connectionCheckIcon}
-            src={ConnectionCheckIcon}
-          />
-          <Box>
-            <Typography className={classes.connected}>Connected</Typography>
+        <Box display={{ xs: "none", sm: "flex" }} alignItems="center">
+          <img width={17} height={13} src={ConnectionCheckIcon} />
+          <Box ml={1}>
+            <SDTypography
+              fontWeight="medium"
+              variant="bodyLg"
+              fontFamily="roboto"
+              color="textSuccess"
+            >
+              Connected
+            </SDTypography>
           </Box>
         </Box>
         <Box display={{ xs: "none", sm: "block" }}>
-          <Typography className={classes.lastUpdated}>
+          <SDTypography
+            fontWeight="regular"
+            variant="bodySm"
+            fontFamily="publicSans"
+            color="textBody"
+          >
             Last Updated on {lastUpdate}
-          </Typography>
+          </SDTypography>
         </Box>
         <Box>
           {/*  <Button
@@ -78,9 +82,7 @@ export const AmazonDisConnectItem: FC<IAmazonDisConnectItemProps> = memo(
           >
             Sync Data
           </Button> */}
-          <Button className={classes.Button} onClick={handleDisconnectClick}>
-            Disconnect
-          </Button>
+          <SDButton onClick={handleDisconnectClick}>Disconnect</SDButton>
         </Box>
       </>
     );

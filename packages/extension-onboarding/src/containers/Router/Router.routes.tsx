@@ -7,13 +7,13 @@ import DataDashBoardLayout from "@extension-onboarding/layouts/DataDashboardLayo
 import BrowserActivity from "@extension-onboarding/pages/Details/screens/BrowserActivity";
 import NFTs from "@extension-onboarding/pages/Details/screens/NFTs";
 import PoapNFTs from "@extension-onboarding/pages/Details/screens/PoapNFTs";
-import ShoppingData from "@extension-onboarding/pages/Details/screens/ShoppingData";
 import Tokens from "@extension-onboarding/pages/Details/screens/Tokens";
 // v2 pages
 import Airdrops from "@extension-onboarding/pages/V2/Airdrops";
 import AudienceDetails from "@extension-onboarding/pages/V2/AudienceDetails";
 import DataPermissions from "@extension-onboarding/pages/V2/DataPermissions";
 import Settings from "@extension-onboarding/pages/V2/Settings";
+import ShoppingData from "@extension-onboarding/pages/V2/ShoppingData";
 import SocialMediaInfo from "@extension-onboarding/pages/V2/SocialMediaInfo";
 import Transactions from "@extension-onboarding/pages/V2/Transactions";
 export const AuthFlowRoutes = (

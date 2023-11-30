@@ -84,8 +84,6 @@ export class PurchaseRepository implements IPurchaseRepository {
   public setShoppingDataConnectionStatus(
     ShoppingDataConnectionStatus: ShoppingDataConnectionStatus,
   ): ResultAsync<void, PersistenceError> {
-    console.log("purca", ShoppingDataConnectionStatus);
-    // Save the private key
     return this.persistence.updateRecord<ShoppingDataConnectionStatus>(
       ERecordKey.SHOPPING_DATA_CONNECTION_STATUS,
       ShoppingDataConnectionStatus,

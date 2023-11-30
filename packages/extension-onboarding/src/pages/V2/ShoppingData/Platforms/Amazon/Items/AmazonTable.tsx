@@ -1,10 +1,7 @@
 import { Box, TablePagination, Typography } from "@material-ui/core";
 import { PurchasedProduct } from "@snickerdoodlelabs/objects";
-import { useMedia } from "@snickerdoodlelabs/shared-components";
+import { SDTypography, useMedia } from "@snickerdoodlelabs/shared-components";
 import React, { useState } from "react";
-
-import { useStyles } from "@extension-onboarding/pages/Details/screens/ShoppingData/Platforms/Amazon/Amazon.style";
-
 interface IAmazonTableProps {
   product: PurchasedProduct[];
   defaultItemsPerPage?: 5 | 10 | 25;
@@ -14,7 +11,6 @@ export const AmazonTable = ({
   product,
   defaultItemsPerPage = 5,
 }: IAmazonTableProps) => {
-  const classes = useStyles();
   const currentBreakPoint = useMedia();
 
   const [rowsPerPage, setRowsPerPage] = useState(defaultItemsPerPage as number);
@@ -74,28 +70,42 @@ export const AmazonTable = ({
         justifyContent="space-between"
         bgcolor="#FFFFFF"
       >
-        <Typography
-          className={classes.tableTitle}
+        <SDTypography
+          fontWeight="medium"
+          variant="bodySm"
+          color="textHeading"
+          style={{ cursor: "pointer" }}
           onClick={() => handleSortBy("date")}
         >
           Product Name
-        </Typography>
-        <Typography
-          className={classes.tableTitle}
+        </SDTypography>
+        <SDTypography
+          fontWeight="medium"
+          variant="bodySm"
+          color="textHeading"
+          style={{ cursor: "pointer" }}
           onClick={() => handleSortBy("date")}
         >
           Brand
-        </Typography>
-        <Typography
-          className={classes.tableTitle}
+        </SDTypography>
+        <SDTypography
+          fontWeight="medium"
+          variant="bodySm"
+          color="textHeading"
+          style={{ cursor: "pointer" }}
           onClick={() => handleSortBy("date")}
         >
           Category
-        </Typography>
+        </SDTypography>
         <Box mr={2} onClick={() => handleSortBy("price")}>
-          <Typography className={classes.tableTitle}>
+          <SDTypography
+            fontWeight="medium"
+            variant="bodySm"
+            color="textHeading"
+            style={{ cursor: "pointer" }}
+          >
             Price {sortOrderByPrice === "asc" ? "▲" : "▼"}
-          </Typography>
+          </SDTypography>
         </Box>
       </Box>
       <Box>
@@ -110,33 +120,45 @@ export const AmazonTable = ({
               px={3}
               bgcolor={index % 2 === 0 ? "#F1EFF680" : "#FFFFFF"}
             >
-              <Typography
-                className={classes.paginationText}
+              <SDTypography
+                fontWeight="medium"
+                fontFamily="roboto"
+                variant="bodyLg"
+                color="textBody"
                 style={{ flex: 1.78 }}
               >
                 {prod.name.length > 20
                   ? prod.name.slice(0, 20) + "..."
                   : prod.name}
-              </Typography>
-              <Typography
-                className={classes.paginationText}
+              </SDTypography>
+              <SDTypography
+                fontWeight="medium"
+                fontFamily="roboto"
+                variant="bodyLg"
+                color="textBody"
                 style={{ flex: 1.6 }}
               >
                 {!prod.brand && "NaN"}
                 {prod.brand}
-              </Typography>
-              <Typography
-                className={classes.paginationText}
+              </SDTypography>
+              <SDTypography
+                fontWeight="medium"
+                fontFamily="roboto"
+                variant="bodyLg"
+                color="textBody"
                 style={{ flex: 0.9 }}
               >
                 {prod.category}
-              </Typography>
-              <Typography
-                className={classes.paginationText}
+              </SDTypography>
+              <SDTypography
+                fontWeight="medium"
+                fontFamily="roboto"
+                variant="bodyLg"
+                color="textBody"
                 style={{ flex: 1, textAlign: "end" }}
               >
                 ${prod.price}
-              </Typography>
+              </SDTypography>
             </Box>
           </Box>
         ))}

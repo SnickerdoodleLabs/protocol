@@ -16,3 +16,12 @@ export const PRIVACY_POLICY_URL =
   "https://policy.snickerdoodle.com/snickerdoodle-labs-data-privacy-policy";
 
 export const WEBSITE_URL = "https://www.snickerdoodle.com/";
+
+const width = 100;
+const height = 100;
+
+const left = (window.screen.width - width) / 2;
+const top = (window.screen.height - height) / 2;
+
+export const windowFeatures =
+  "width=" + width + ",height=" + height + ",left=" + left + ",top=" + top;

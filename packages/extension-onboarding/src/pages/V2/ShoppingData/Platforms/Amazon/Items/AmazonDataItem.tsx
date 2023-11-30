@@ -1,10 +1,9 @@
 import { Box, Grid, Typography } from "@material-ui/core";
 import { PurchasedProduct } from "@snickerdoodlelabs/objects";
+import { SDTypography } from "@snickerdoodlelabs/shared-components";
 import { ChartData } from "chart.js";
 import React, { FC, memo } from "react";
 import { Pie } from "react-chartjs-2";
-
-import { useStyles } from "@extension-onboarding/pages/Details/screens/ShoppingData/Platforms/Amazon/Amazon.style";
 
 interface IAmazonDataItemProps {
   product: PurchasedProduct[];
@@ -97,7 +96,6 @@ export const AmazonDataItem: FC<IAmazonDataItemProps> = memo(
         },
       },
     };
-    const classes = useStyles();
 
     return (
       <>
@@ -114,55 +112,110 @@ export const AmazonDataItem: FC<IAmazonDataItemProps> = memo(
 
         <Grid container>
           <Grid item xs={12} sm={12} md={6} lg={6}>
-            <Box className={classes.productDataContainer}>
-              <Box className={classes.dataContainer}>
+            <Box
+              bgcolor="#F1EFF6"
+              borderRadius={8}
+              height={143}
+              mt={3}
+              border="1px solid #FFFFFF"
+            >
+              <Box p={3}>
                 <Box>
-                  <Typography className={classes.dataTitle}>
+                  <SDTypography
+                    fontWeight="medium"
+                    fontFamily="roboto"
+                    variant="titleSm"
+                    color="textHeading"
+                  >
                     Total Spending
-                  </Typography>
+                  </SDTypography>
                 </Box>
-                <Box className={classes.dataTitleSubTitleBox}>
-                  <Typography className={classes.dataSubTitle}>
+                <Box mt={1.5}>
+                  <SDTypography
+                    fontWeight="bold"
+                    fontFamily="roboto"
+                    color="textHeading"
+                    variant="headlineSm"
+                  >
                     ${calculateTotalPrices(product).totalPrice}
-                  </Typography>
+                  </SDTypography>
                 </Box>
               </Box>
             </Box>
-            <Box className={classes.productDataContainer}>
-              <Box className={classes.dataContainer}>
+            <Box
+              bgcolor="#F1EFF6"
+              borderRadius={8}
+              height={143}
+              mt={3}
+              border="1px solid #FFFFFF"
+            >
+              <Box p={3}>
                 <Box>
-                  <Typography className={classes.dataTitle}>
+                  <SDTypography
+                    fontWeight="medium"
+                    fontFamily="roboto"
+                    variant="titleSm"
+                    color="textHeading"
+                  >
                     Number Of Purchased Product
-                  </Typography>
+                  </SDTypography>
                 </Box>
-                <Box className={classes.dataTitleSubTitleBox}>
-                  <Typography className={classes.dataSubTitle}>
+                <Box mt={1.5}>
+                  <SDTypography
+                    fontWeight="bold"
+                    fontFamily="roboto"
+                    color="textHeading"
+                    variant="headlineSm"
+                  >
                     {product.length}
-                  </Typography>
+                  </SDTypography>
                 </Box>
               </Box>
             </Box>
           </Grid>
           <Grid item xs={12} sm={12} md={6} lg={6}>
-            <Box className={classes.categoryCircleContainer}>
-              <Box className={classes.dataContainer}>
+            <Box
+              borderRadius={8}
+              height={311}
+              mt={3}
+              ml={0.5}
+              border="1px solid #EAECF0"
+              bgcolor="#FFFFFF"
+            >
+              <Box p={3}>
                 <Box>
-                  <Typography className={classes.dataTitle}>
+                  <SDTypography
+                    fontWeight="medium"
+                    fontFamily="roboto"
+                    variant="titleSm"
+                    color="textHeading"
+                  >
                     Most Selected Categories Breakdown
-                  </Typography>
+                  </SDTypography>
                 </Box>
-                <Box className={classes.categoryPieChartDataContainer}>
-                  <Box className={classes.pieChartContainer}>
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  mt={1.5}
+                  px={5}
+                >
+                  <Box height={190} width={190} py={2}>
                     <Pie data={pieChartData} options={pieChartOptions} />
                   </Box>
-                  <Box className={classes.categoryData}>
+                  <Box display="table-column-group">
                     {pieChartData.labels?.map((label, index) => (
                       <Box
                         key={index}
-                        className={classes.categoryDataContainer}
+                        display="flex"
+                        alignItems="center"
+                        mt={1.5}
                       >
                         <Box
-                          className={classes.dot}
+                          width={8}
+                          height={8}
+                          borderRadius="100%"
+                          display="flex"
+                          mr={2}
                           style={{
                             backgroundColor:
                               pieChartData?.datasets[0]?.backgroundColor?.[
@@ -171,12 +224,22 @@ export const AmazonDataItem: FC<IAmazonDataItemProps> = memo(
                           }}
                         />
                         <Box>
-                          <Typography className={classes.dataTypeLabel}>
+                          <SDTypography
+                            fontWeight="medium"
+                            fontFamily="roboto"
+                            variant="titleSm"
+                            color="textBody"
+                          >
                             {label}
-                          </Typography>
-                          <Typography className={classes.dataTypeValue}>
+                          </SDTypography>
+                          <SDTypography
+                            fontWeight="medium"
+                            variant="titleSm"
+                            fontFamily="roboto"
+                            color="textHeading"
+                          >
                             {pieChartData.datasets[0].data[index]}
-                          </Typography>
+                          </SDTypography>
                         </Box>
                       </Box>
                     ))}

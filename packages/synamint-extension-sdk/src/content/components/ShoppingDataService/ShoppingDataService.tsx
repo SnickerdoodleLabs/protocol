@@ -18,7 +18,10 @@ import {
   ShoppingDataINIT,
   ShoppingDataProcess,
 } from "@synamint-extension-sdk/content/components/ShoppingDataService/components/Screens";
-import { EShoppingDataState } from "@synamint-extension-sdk/content/components/ShoppingDataService/constants";
+import {
+  EShoppingDataState,
+  windowFeatures,
+} from "@synamint-extension-sdk/content/components/ShoppingDataService/constants";
 import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 
 interface IShoppingDataProcessProps {
@@ -52,21 +55,6 @@ export const ShoppingDataService: React.FC<IShoppingDataProcessProps> = ({
             coreGateway.scraperNavigation
               .getOrderHistoryPageByYear(ELanguageCode.English, year, PageNo(i))
               .map(async (url) => {
-                const width = 100;
-                const height = 100;
-
-                const left = (window.screen.width - width) / 2;
-                const top = (window.screen.height - height) / 2;
-
-                const windowFeatures =
-                  "width=" +
-                  width +
-                  ",height=" +
-                  height +
-                  ",left=" +
-                  left +
-                  ",top=" +
-                  top;
                 const newWindow = window.open(url, "_blank", windowFeatures);
                 if (newWindow) {
                   openWindowCount++;
@@ -76,11 +64,9 @@ export const ShoppingDataService: React.FC<IShoppingDataProcessProps> = ({
 
                   const windowHTML =
                     newWindow.document.documentElement.outerHTML;
-                  console.log("windowhtml", windowHTML);
                   coreGateway.scraper
                     .classifyURL(URLString(url), ELanguageCode.English)
                     .andThen((DomainTask) => {
-                      console.log("DOMAINTASKSKKK", DomainTask);
                       return coreGateway.scraper
                         .scrape(
                           URLString(url),
