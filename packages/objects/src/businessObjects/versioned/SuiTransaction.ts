@@ -28,7 +28,7 @@ export class SuiTransaction extends ChainTransaction {
 
   public constructor(
     public chain: EChain,
-    public digest: SuiTransactionDigest,
+    public hash: SuiTransactionDigest,
     public timestamp: UnixTimestamp,
     public to: SuiAccountAddress | null,
     public from: SuiAccountAddress | null,
@@ -41,7 +41,7 @@ export class SuiTransaction extends ChainTransaction {
     events: EVMEvent[] | null,
     public measurementDate: UnixTimestamp,
   ) {
-    super(chain, digest, timestamp, measurementDate);
+    super(chain, hash, timestamp, measurementDate);
     let addrs = new Set<SuiAccountAddress>();
     if (this.to) {
       addrs.add(this.to);
