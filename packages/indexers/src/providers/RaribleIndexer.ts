@@ -162,18 +162,22 @@ export class RaribleIndexer implements IEVMIndexer {
             if (item.meta != undefined) {
               name = item.meta.name;
             }
+            let contractType = "ERC721";
+            if (item.supply !== "1") {
+              contractType = "ERC1155";
+            }
             return new EVMNFT(
               EVMContractAddress(item.contract.split(":")[1]),
               BigNumberString(item.tokenId),
-              item.tokenId, // look into
+              contractType,
               accountAddress,
-              undefined, //TokenUri(item.meta.content[0].url),
+              undefined,
               { raw: ObjectUtils.serialize(item.meta) },
               BigNumberString(item.supply),
               name,
               chain,
               undefined,
-              undefined, //item.lastSale.date,
+              undefined,
             );
           });
         })
