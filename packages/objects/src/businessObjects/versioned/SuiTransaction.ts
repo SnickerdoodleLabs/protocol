@@ -12,7 +12,7 @@ import {
   BigNumberString,
   UnixTimestamp,
   EVMAccountAddressRegex,
-  SuiTransactionHash,
+  SuiTransactionDigest,
   SuiContractAddress,
 } from "@objects/primitives/index.js";
 
@@ -28,9 +28,8 @@ export class SuiTransaction extends ChainTransaction {
 
   public constructor(
     public chain: EChain,
-    public hash: SuiTransactionHash,
+    public digest: SuiTransactionDigest,
     public timestamp: UnixTimestamp,
-    public blockHeight: number | null,
     public to: SuiAccountAddress | null,
     public from: SuiAccountAddress | null,
     public value: BigNumberString | null,
@@ -42,7 +41,7 @@ export class SuiTransaction extends ChainTransaction {
     events: EVMEvent[] | null,
     public measurementDate: UnixTimestamp,
   ) {
-    super(chain, hash, timestamp, measurementDate);
+    super(chain, digest, timestamp, measurementDate);
     let addrs = new Set<SuiAccountAddress>();
     if (this.to) {
       addrs.add(this.to);

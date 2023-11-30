@@ -23,7 +23,7 @@ import {
   IndexerSupportSummary,
   EDataProvider,
   EExternalApi,
-  SuiTransactionHash,
+  SuiTransactionDigest,
   SuiAccountAddress,
   SuiNFT,
   SuiTransaction,
@@ -233,9 +233,9 @@ export class BlockvisionIndexer implements ISuiIndexer {
         if (response.result.data == null) {
           return [];
         }
-        return this.parseBalances(response)
-          .concat(this.parseNfts(response))
-          .concat(this.parseAddresses(response));
+        return this.parseBalances(response, accountAddress)
+          .concat(this.parseNfts(response, accountAddress))
+          .concat(this.parseAddresses(response, accountAddress));
       })
       .mapErr((e) => {
         console.log(e);
@@ -245,6 +245,7 @@ export class BlockvisionIndexer implements ISuiIndexer {
 
   private parseBalances(
     digestResponse: IBlockvisionDigestReponse,
+    accountAddress: SuiAccountAddress,
   ): SuiTransaction[] {
     return digestResponse.result.data
       .map((digest) => {
@@ -252,15 +253,28 @@ export class BlockvisionIndexer implements ISuiIndexer {
           return [];
         }
         const balances = digest.coinChanges.map((balanceChange) => {
+          let to = accountAddress;
+          let from = accountAddress;
+          let gasFee = digest.gasFee;
+          if (digest.type.toLowerCase() == "receive") {
+            to = accountAddress;
+            from = SuiAccountAddress(digest.sender);
+          }
+          if (digest.type.toLowerCase() == "take") {
+            to = SuiAccountAddress(digest.sender);
+            from = accountAddress;
+          }
+          if (gasFee < 0) {
+            gasFee = gasFee * -1;
+          }
           return new SuiTransaction(
             EChain.Sui,
-            SuiTransactionHash(digest.digest),
+            SuiTransactionDigest(digest.digest),
             UnixTimestamp(digest.timestampMs),
-            null,
-            SuiAccountAddress(digest.gasFee),
-            SuiAccountAddress(digest.sender),
+            to,
+            from,
             BigNumberString(balanceChange.amount),
-            BigNumberString(digest.gasFee),
+            BigNumberString(gasFee.toString()),
             SuiContractAddress(balanceChange.coinAddress),
             null,
             null,
@@ -276,6 +290,7 @@ export class BlockvisionIndexer implements ISuiIndexer {
 
   private parseNfts(
     digestResponse: IBlockvisionDigestReponse,
+    accountAddress: SuiAccountAddress,
   ): SuiTransaction[] {
     return digestResponse.result.data
       .map((digest) => {
@@ -283,15 +298,28 @@ export class BlockvisionIndexer implements ISuiIndexer {
           return [];
         }
         const nfts = digest.nftChanges.map((nftChange) => {
+          let to = accountAddress;
+          let from = accountAddress;
+          let gasFee = digest.gasFee;
+          if (digest.type.toLowerCase() == "receive") {
+            to = accountAddress;
+            from = SuiAccountAddress(digest.sender);
+          }
+          if (digest.type.toLowerCase() == "take") {
+            to = SuiAccountAddress(digest.sender);
+            from = accountAddress;
+          }
+          if (gasFee < 0) {
+            gasFee = gasFee * -1;
+          }
           return new SuiTransaction(
             EChain.Sui,
-            SuiTransactionHash(digest.digest),
+            SuiTransactionDigest(digest.digest),
             UnixTimestamp(digest.timestampMs),
-            null,
-            SuiAccountAddress(digest.gasFee),
-            SuiAccountAddress(digest.sender),
+            to,
+            from,
             BigNumberString(nftChange.amount),
-            BigNumberString(digest.gasFee),
+            BigNumberString(gasFee.toString()),
             SuiContractAddress(nftChange.packageId),
             null,
             null,
@@ -307,6 +335,7 @@ export class BlockvisionIndexer implements ISuiIndexer {
 
   private parseAddresses(
     digestResponse: IBlockvisionDigestReponse,
+    accountAddress: SuiAccountAddress,
   ): SuiTransaction[] {
     return digestResponse.result.data
       .map((digest) => {
@@ -314,15 +343,28 @@ export class BlockvisionIndexer implements ISuiIndexer {
           return [];
         }
         const balances = digest.interactAddresses.map((addressChange) => {
+          let to = accountAddress;
+          let from = accountAddress;
+          let gasFee = digest.gasFee;
+          if (digest.type.toLowerCase() == "receive") {
+            to = accountAddress;
+            from = SuiAccountAddress(digest.sender);
+          }
+          if (digest.type.toLowerCase() == "take") {
+            to = SuiAccountAddress(digest.sender);
+            from = accountAddress;
+          }
+          if (gasFee < 0) {
+            gasFee = gasFee * -1;
+          }
           return new SuiTransaction(
             EChain.Sui,
-            SuiTransactionHash(digest.digest),
+            SuiTransactionDigest(digest.digest),
             UnixTimestamp(digest.timestampMs),
+            to,
+            from,
             null,
-            SuiAccountAddress(digest.gasFee),
-            SuiAccountAddress(digest.sender),
-            null,
-            BigNumberString(digest.gasFee),
+            BigNumberString(gasFee.toString()),
             SuiContractAddress(addressChange.address),
             null,
             null,
@@ -445,7 +487,7 @@ interface IBlockvisionDigest {
         logo: string;
       }[]
     | null;
-  gasFee: string;
+  gasFee: number;
   status: string;
   sender: string;
 }
