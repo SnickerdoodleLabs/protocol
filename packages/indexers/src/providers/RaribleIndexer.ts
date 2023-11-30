@@ -52,10 +52,6 @@ export class RaribleIndexer implements IEVMIndexer {
       new IndexerSupportSummary(EChain.Polygon, false, false, true),
     ],
     [
-      EChain.Solana,
-      new IndexerSupportSummary(EChain.Solana, false, false, true),
-    ],
-    [
       EChain.Arbitrum,
       new IndexerSupportSummary(EChain.Arbitrum, false, false, true),
     ],
@@ -65,15 +61,20 @@ export class RaribleIndexer implements IEVMIndexer {
     //   new IndexerSupportSummary(EChain.ZkSyncEra, false, false, true),
     // ],
     // [EChain.Base, new IndexerSupportSummary(EChain.Base, false, false, true)],
+    // [
+    //   EChain.Solana,
+    //   new IndexerSupportSummary(EChain.Solana, false, false, true),
+    // ],
   ]);
 
   protected supportedRaribleChains = new Map<EChain, string>([
     [EChain.EthereumMainnet, "ETHEREUM"],
     [EChain.Polygon, "POLYGON"],
-    [EChain.Solana, "SOLANA"],
     [EChain.Arbitrum, "ARBITRUM"],
-    [EChain.ZkSyncEra, "ZKSYNC"],
-    [EChain.Base, "BASE"],
+    // TODO: will support functionality once we have balances/nfts to test
+    // [EChain.ZkSyncEra, "ZKSYNC"],
+    // [EChain.Base, "BASE"],
+    // [EChain.Solana, "SOLANA"],
   ]);
 
   public constructor(
@@ -129,17 +130,10 @@ export class RaribleIndexer implements IEVMIndexer {
       ) {
         return okAsync([]);
       }
-      let chainName = "ETHEREUM";
-      if (chain == EChain.Solana) {
-        chainName = "SOLANA";
-      }
-
       const url = new URL(
         "https://api.rarible.org/v0.1/items/byOwner?blockchains=" +
           nftSupportChain +
-          "&owner=" +
-          chainName +
-          "%3A" +
+          "&owner=ETHEREUM%3A" +
           accountAddress,
       );
 
