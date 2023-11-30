@@ -218,3 +218,31 @@ Checked! URL www.new.com is NOT VERIFIED.
 
 */
 ```
+
+## Reward Contract Tasks (to test pre-mint NFTs)
+
+Testing pre-mint feature tasks. 
+
+- Check if operator is approvedForAll by owner
+
+```
+npx hardhat isApprovedForAll --owner 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 --operator 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --rewardaddress 0x809d550fca64d94Bd9F66E60752A544199cfAC3D --network localhost
+```
+
+- Set approved for all 
+
+```
+npx hardhat setApprovalForAll --accountnumber 1 --rewardaddress 0x809d550fca64d94Bd9F66E60752A544199cfAC3D --operator 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --approved true --network localhost
+```
+
+- Mint more tokens
+
+```
+npx hardhat safeMint --accountnumber 0 --rewardaddress 0x809d550fca64d94Bd9F66E60752A544199cfAC3D --to 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --network localhost
+```
+
+- Transfer from 
+
+```
+npx hardhat safeTransferFrom --accountnumber 0 --rewardaddress 0x809d550fca64d94Bd9F66E60752A544199cfAC3D --from 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 --to 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --tokenid 1 --network localhost
+```

@@ -58,9 +58,15 @@ async function premintReward() {
     console.log(`\u2592 Minted token id ${i}...`);
   }
 
-  await console.log("");
   console.log(
-    `Success! Pre-minted token ids ${tokenIds} to ${user.address} on reward contract address ${rewardContractAddress} by owner ${owner.address}.`,
+    `\nSuccess! Pre-minted token ids ${tokenIds} to ${user.address} on reward contract address ${rewardContractAddress} by owner ${owner.address}.\n`,
+  );
+
+  console.log(
+    `\u2592 Note: ${owner.address} is account number 0 in the Hardhat's Configured HD wallet...`,
+  );
+  console.log(
+    `\u2592 Note: ${user.address} is account number 1 in the Hardhat's Configured HD wallet...\n`,
   );
 }
 
