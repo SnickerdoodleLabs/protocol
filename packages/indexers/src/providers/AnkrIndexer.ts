@@ -163,8 +163,6 @@ export class AnkrIndexer implements IEVMIndexer {
         },
         id: 1,
       };
-      // console.log("requestParams: " + JSON.stringify(requestParams));
-
       context.privateEvents.onApiAccessed.next(EExternalApi.Ankr);
       return this.ajaxUtils
         .post<IAnkrBalancesReponse>(new URL(url), requestParams, {
@@ -242,10 +240,7 @@ export class AnkrIndexer implements IEVMIndexer {
           },
         })
         .map((response) => {
-          // return ResultUtils.combine(
-          // console.log("chain: " + chain);
           return response.result.assets.map((item) => {
-            // console.log("item: " + JSON.stringify(item));
             return new EVMNFT(
               item.contractAddress,
               BigNumberString(item.tokenId),

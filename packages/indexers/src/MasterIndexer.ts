@@ -325,7 +325,6 @@ export class MasterIndexer implements IMasterIndexer {
       );
     }
 
-    console.log("chain: " + chain + " wants nfts!");
     const indexers = this.getPreferredEVMIndexers(chain, EIndexerMethod.NFTs);
     // If there are no indexers, just return an empty array
     if (indexers.length == 0) {
@@ -333,7 +332,6 @@ export class MasterIndexer implements IMasterIndexer {
     }
 
     return ObjectUtils.progressiveFallback((indexer: IEVMIndexer) => {
-      console.log("gets indexer : " + indexer.name);
       return indexer
         .getTokensForAccount(chain, EVMAccountAddress(accountAddress))
         .map((nfts) => {
@@ -467,7 +465,6 @@ export class MasterIndexer implements IMasterIndexer {
         indexerMethod === EIndexerMethod.Balances &&
         !indexerSupportSummary.balances
       ) {
-        console.log("");
         continue;
       } else if (
         indexerMethod === EIndexerMethod.Transactions &&
