@@ -117,7 +117,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       10000,
       new NativeCurrencyInformation("MATIC", 18, "MATIC", "matic-network"),
       EChainType.Mainnet,
-      "https=//polygonscan.com/tx/",
+      "https://polygonscan.com/tx/",
       getExplorerUrl,
       URLString("https://api.polygonscan.com/"),
     ),
