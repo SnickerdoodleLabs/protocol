@@ -22,6 +22,7 @@ export enum EExternalApi {
   Oklink = "Oklink",
   POAP = "POAP",
   Polygon = "Polygon",
+  Rarible = "Rarible",
   Solana = "Solana",
   Sui = "Sui",
   Dropbox = "Dropbox",

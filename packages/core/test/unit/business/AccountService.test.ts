@@ -140,6 +140,7 @@ class AccountServiceMocks {
           new Map<EChain, EComponentStatus>(),
           new Map<EChain, EComponentStatus>(),
           new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
         ), // components
       ),
     );

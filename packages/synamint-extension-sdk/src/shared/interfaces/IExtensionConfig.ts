@@ -46,6 +46,7 @@ export interface IExtensionConfig extends IExtensionConfigDefaults {
   oklinkApiKey?: string;
   ankrApiKey?: string;
   bluezApiKey?: string;
+  raribleApiKey?: string;
   spaceAndTimeKey?: string;
   blockvisionKey?: string;
   dnsServerAddress?: URLString;
@@ -99,6 +100,7 @@ export interface IExtensionConfigOverrides {
     oklinkApiKey?: string;
     ankrApiKey?: string;
     bluezApiKey?: string;
+    raribleApiKey?: string;
     spaceAndTimeKey?: string;
     blockvisionKey?: string;
     primaryInfuraKey?: string;
