@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/query-parser",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Utilities for parsing and understanding SDQL Queries",
   "license": "MIT",
   "repository": {
