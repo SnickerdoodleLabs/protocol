@@ -16,7 +16,7 @@ import {
   useMedia,
 } from "@snickerdoodlelabs/shared-components";
 import clsx from "clsx";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 export interface IColumn<T> {
   label: string;
@@ -66,6 +66,10 @@ const Table = <T extends IDefault>({
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
+
+  useEffect(() => {
+    setPage(0);
+  }, [data.length]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
