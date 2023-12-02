@@ -1,5 +1,4 @@
 import placeholder from "@extension-onboarding/assets/images/image-placeholder.png";
-import Card from "@extension-onboarding/components/v2/Card";
 import Container from "@extension-onboarding/components/v2/Container";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { INFT, POAPMetadata } from "@extension-onboarding/objects";
@@ -22,6 +21,7 @@ import {
   EChainTechnology,
 } from "@snickerdoodlelabs/objects";
 import {
+  Card,
   CloseButton,
   SDTypography,
   abbreviateString,

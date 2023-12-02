@@ -979,6 +979,18 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.invitationService.handleURL(data.data.url);
         }, data.callId);
       },
+      // display requests
+      requestDisplayConsentPermissions: (
+        data: IIFrameCallData<Record<string, never>>,
+      ) => {
+        this.returnForModel(() => {
+          return okAsync(
+            this.contextProvider
+              .getEvents()
+              .onDisplayConsentPermissionsRequested.next(),
+          );
+        }, data.callId);
+      },
     });
   }
 

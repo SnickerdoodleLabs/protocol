@@ -1,14 +1,14 @@
 import AccountItem from "@extension-onboarding/components/v2/AccountItem";
 import AccountRemoveItem from "@extension-onboarding/components/v2/AccountRemoveItem";
-import Card from "@extension-onboarding/components/v2/Card";
-import CardTitle from "@extension-onboarding/components/v2/CardTitle";
-
 import Table, { IColumn } from "@extension-onboarding/components/v2/Table";
 import { useAppContext } from "@extension-onboarding/context/App";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { Box } from "@material-ui/core";
 import { LinkedAccount } from "@snickerdoodlelabs/objects";
-import { getChainImageSrc } from "@snickerdoodlelabs/shared-components";
+import {
+  Card,
+  CardTitle,
+  getChainImageSrc,
+} from "@snickerdoodlelabs/shared-components";
 import React from "react";
 
 const columns: IColumn<LinkedAccount>[] = [
@@ -34,7 +34,6 @@ const columns: IColumn<LinkedAccount>[] = [
 ];
 
 const LinkedCryptoAccounts = () => {
-  const { sdlDataWallet } = useDataWalletContext();
   const { linkedAccounts } = useAppContext();
 
   return (

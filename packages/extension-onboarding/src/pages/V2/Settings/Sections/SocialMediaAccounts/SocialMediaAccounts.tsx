@@ -1,7 +1,5 @@
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
-import Card from "@extension-onboarding/components/v2/Card";
-import CardTitle from "@extension-onboarding/components/v2/CardTitle";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
@@ -13,6 +11,8 @@ import {
   OAuthURLState,
 } from "@snickerdoodlelabs/objects";
 import {
+  Card,
+  CardTitle,
   SDButton,
   SDTypography,
   useMedia,

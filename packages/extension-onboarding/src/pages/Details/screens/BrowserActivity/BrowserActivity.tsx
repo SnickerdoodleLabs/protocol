@@ -1,6 +1,5 @@
 import Table from "@extension-onboarding/components/v2/Table";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { useAccordionStyles } from "@extension-onboarding/styles/accordion.style";
 import {
   Accordion,
   AccordionDetails,
@@ -15,7 +14,11 @@ import {
   UnixTimestamp,
   URLString,
 } from "@snickerdoodlelabs/objects";
-import { SDTypography, colors } from "@snickerdoodlelabs/shared-components";
+import {
+  SDTypography,
+  colors,
+  useAccordionStyles,
+} from "@snickerdoodlelabs/shared-components";
 import clsx from "clsx";
 import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
 

@@ -1,8 +1,7 @@
-import Card from "@extension-onboarding/components/v2/Card";
-import CardTitle from "@extension-onboarding/components/v2/CardTitle";
 import ProviderItem from "@extension-onboarding/components/v2/WalletProviderItem";
 import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
 import { Box, Grid } from "@material-ui/core";
+import { CardTitle, Card } from "@snickerdoodlelabs/shared-components";
 import React from "react";
 
 const Wallets = () => {

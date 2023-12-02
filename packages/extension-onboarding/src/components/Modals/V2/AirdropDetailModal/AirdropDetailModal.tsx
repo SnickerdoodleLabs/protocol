@@ -1,5 +1,4 @@
 import { useModalStyles } from "@extension-onboarding/components/Modals/Modal.style";
-import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { Box, Dialog } from "@material-ui/core";
@@ -12,8 +11,8 @@ import {
 } from "@snickerdoodlelabs/objects";
 import {
   CloseButton,
-  SDButton,
   SDTypography,
+  tokenInfoObj,
 } from "@snickerdoodlelabs/shared-components";
 import React, { FC } from "react";
 

@@ -4,13 +4,11 @@ import {
   SolanaNFTItem,
   SuiNFTItem,
 } from "@extension-onboarding/components/NFTItem";
-import Card from "@extension-onboarding/components/v2/Card";
-import CustomSizeGrid from "@extension-onboarding/components/v2/CustomSizeGrid";
 import EmptyItem from "@extension-onboarding/components/v2/EmptyItem";
 import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
-import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
+import { Box, CircularProgress } from "@material-ui/core";
 import {
   ChainId,
   WalletNFT,
@@ -21,6 +19,7 @@ import {
   SuiNFT,
   getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
+import { Card, CustomSizeGrid } from "@snickerdoodlelabs/shared-components";
 import React, { useMemo, useState } from "react";
 
 export enum EDisplayMode {

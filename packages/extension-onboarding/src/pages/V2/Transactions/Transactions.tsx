@@ -1,7 +1,6 @@
 import AccountChainBar, {
   EDisplayMode,
 } from "@extension-onboarding/components/AccountChainBar";
-import Card from "@extension-onboarding/components/v2/Card";
 import Table from "@extension-onboarding/components/v2/Table";
 import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen";
 import { useAppContext } from "@extension-onboarding/context/App";
@@ -23,6 +22,7 @@ import {
   getCalculatedAge,
   abbreviateString,
   SDTypography,
+  Card,
 } from "@snickerdoodlelabs/shared-components";
 import { ethers } from "ethers";
 import React, { useEffect, useMemo, useState } from "react";

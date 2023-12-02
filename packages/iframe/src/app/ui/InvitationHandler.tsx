@@ -1,19 +1,13 @@
 import {
-  IFrameConfig,
-  IFrameControlConfig,
-} from "@core-iframe/interfaces/objects";
-import {
   EInvitationSourceType,
   IFrameEvents,
   IInvitationDisplayRequest,
 } from "@core-iframe/interfaces/objects/IFrameEvents";
-import { Theme, ThemeProvider } from "@material-ui/core";
 import {
   DataPermissions,
   EVMContractAddress,
   EWalletDataType,
   IOldUserAgreement,
-  IPaletteOverrides,
   ISnickerdoodleCore,
   IUserAgreement,
   Invitation,
@@ -25,7 +19,6 @@ import {
   FF_SUPPORTED_ALL_PERMISSIONS,
   ModalContainer,
   PermissionSelectionWidget,
-  createThemeWithOverrides,
 } from "@snickerdoodlelabs/shared-components";
 import React, {
   useMemo,
@@ -42,11 +35,10 @@ interface IInvitationHandlerProps {
   hide: () => void;
   show: () => void;
   events: IFrameEvents;
-  config: IFrameControlConfig;
-  coreConfig: IFrameConfig;
+  awaitRender: boolean;
 }
 
-export enum EAPP_STATE {
+enum EAPP_STATE {
   IDLE,
   INVITATION_PREVIEW,
   PERMISSION_SELECTION,
@@ -62,39 +54,13 @@ interface ICurrentInvitation {
   type: EInvitationSourceType;
 }
 
-export const defaultLightPalette: IPaletteOverrides = {
-  primary: "#000",
-  primaryContrast: "#FFF",
-  button: "#000",
-  buttonContrast: "#FFF",
-  text: "#212121",
-  linkText: "#2795BD",
-  background: "#FFF",
-  border: "#BDBDBD",
-};
-
-export const defaultDarkPalette: IPaletteOverrides = {
-  primary: `#FFF`,
-  primaryContrast: "#212121",
-  button: "#FFF",
-  buttonContrast: "#212121",
-  text: "#FFF",
-  linkText: "#FFF",
-  background: "#212121",
-  border: "#BDBDBD",
-};
-
 export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   core,
   hide,
   show,
   events,
-  config,
-  coreConfig,
+  awaitRender,
 }) => {
-  const [theme, setTheme] = useState<Theme>(
-    createThemeWithOverrides(config.palette ?? defaultLightPalette),
-  );
   const [appState, setAppState] = useState<EAPP_STATE>(EAPP_STATE.IDLE);
   const [accounts, setAccounts] = useState<LinkedAccount[]>([]);
   const accountAddedSubscription = useRef<Subscription | null>(null);
@@ -116,6 +82,9 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     if (accounts.length === 0) {
       return null;
     }
+    if (awaitRender) {
+      return null;
+    }
     if (deepLinkInvitation) {
       return { data: deepLinkInvitation, type: EInvitationSourceType.DEEPLINK };
     }
@@ -134,6 +103,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     domainInvitation,
     consentInvitation,
     accounts.length,
+    awaitRender,
   ]);
 
   // length of this could be used for bagde
@@ -325,9 +295,5 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     return null;
   }
 
-  return (
-    <ThemeProvider theme={theme}>
-      <>{component && <ModalContainer>{component}</ModalContainer>}</>
-    </ThemeProvider>
-  );
+  return <>{component && <ModalContainer>{component}</ModalContainer>}</>;
 };

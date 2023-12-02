@@ -1,6 +1,4 @@
 import { useStyles } from "@extension-onboarding/components/AccountChainBar/AccountChainBar.style";
-import Switch from "@extension-onboarding/components/v2/Switch";
-import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { Box, Grid, MenuItem, Select } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
@@ -13,7 +11,10 @@ import {
 import {
   AccountIdentIcon,
   SDTypography,
+  SDSwitch,
+  colors,
   abbreviateString,
+  tokenInfoObj,
 } from "@snickerdoodlelabs/shared-components";
 import clsx from "clsx";
 import React, { FC, useEffect, useMemo } from "react";
@@ -138,7 +139,8 @@ const AccountChainBar: FC<IAccountChainBarProps> = ({
               >
                 Testnet
               </SDTypography>
-              <Switch
+              <SDSwitch
+                bgColor={colors.MAINPURPLE900}
                 checked={displayMode === EDisplayMode.MAINNET}
                 value={displayMode === EDisplayMode.MAINNET}
                 onChange={(e) => {

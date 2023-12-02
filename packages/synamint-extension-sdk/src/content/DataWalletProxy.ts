@@ -606,7 +606,9 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       new GetConsentCapacityParams(contractAddress),
     );
   }
-
+  public requestDisplayConsentPermissions(): ResultAsync<void, ProxyError> {
+    return coreGateway.requestDisplayConsentPermissions();
+  }
   public getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
   ): ResultAsync<

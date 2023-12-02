@@ -3,7 +3,9 @@ import { colors } from "@shared-components/v2/theme/theme";
 import clsx from "clsx";
 import React, { FC } from "react";
 
-interface SwitchV2Props extends SwitchProps {}
+interface SwitchV2Props extends SwitchProps {
+  bgColor?: string;
+}
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -32,15 +34,16 @@ const useStyles = makeStyles((theme: Theme) => ({
     backgroundColor: colors.WHITE,
   },
   track: {
-    backgroundColor: theme.palette.borderColor,
+    background: (props: { bgColor?: string }) =>
+      props.bgColor ? `${props.bgColor} !important` : theme.palette.borderColor,
     borderRadius: 12,
   },
   checked: {},
   focusVisible: {},
 }));
 
-export const SDSwitch: FC<SwitchV2Props> = ({ classes, ...rest }) => {
-  const _classes = useStyles();
+export const SDSwitch: FC<SwitchV2Props> = ({ bgColor, classes, ...rest }) => {
+  const _classes = useStyles({ bgColor });
   return (
     <Switch
       classes={{

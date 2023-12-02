@@ -2,8 +2,6 @@ import BackButton from "@extension-onboarding/components/BackButton";
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import AccountItem from "@extension-onboarding/components/v2/AccountItem";
-import Card from "@extension-onboarding/components/v2/Card";
-import CardTitle from "@extension-onboarding/components/v2/CardTitle";
 import Container from "@extension-onboarding/components/v2/Container";
 import Table, { IColumn } from "@extension-onboarding/components/v2/Table";
 import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
@@ -11,11 +9,9 @@ import { useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import AirdropsSection from "@extension-onboarding/pages/V2/AudienceDetails/AirdropsSection";
 import {
   Box,
   Divider,
-  Hidden,
   Container as MuiContainer,
   Radio,
   Tooltip,
@@ -37,7 +33,11 @@ import {
   Web2Reward,
 } from "@snickerdoodlelabs/objects";
 import {
+  Card,
+  CardTitle,
   SDButton,
+  AudienceDetailsAirdropsSection,
+  AudienceDetailsHeaderSection,
   SDTypography,
   getChainImageSrc,
 } from "@snickerdoodlelabs/shared-components";
@@ -399,63 +399,13 @@ const AudienceDetails = () => {
         </Box>
 
         <MuiContainer maxWidth="lg">
-          <Hidden smUp>
-            <Box mt={3} />
-          </Hidden>
-          <Hidden xsDown>
-            <Box width="100%" display="flex" pr={{ sm: 0, md: 4 }}>
-              {userOptedIn === EOptedInStatus.OPTED_IN ? (
-                <Box ml="auto">
-                  <SDButton
-                    onClick={() => {
-                      handleLeaveAudience();
-                    }}
-                    color="danger"
-                    variant="outlined"
-                  >
-                    Unsubscribe
-                  </SDButton>
-                </Box>
-              ) : (
-                <Box mt={3.5} />
-              )}
-            </Box>
-          </Hidden>
-          <Box display="flex" alignItems="center" width="100%">
-            <Box
-              mr={3}
-              width={{ xs: 80, sm: 90, md: 100, lg: 140 }}
-              height={{ xs: 80, sm: 90, md: 100, lg: 140 }}
-            >
-              {image}
-            </Box>
-            <Box>
-              <SDTypography
-                variant="headlineSm"
-                color="textHeading"
-                fontWeight="medium"
-              >
-                {title}
-              </SDTypography>
-            </Box>
-          </Box>
-          <Hidden smUp>
-            {userOptedIn === EOptedInStatus.OPTED_IN && (
-              <>
-                <Box mt={3} />
-                <SDButton
-                  fullWidth
-                  onClick={() => {
-                    handleLeaveAudience();
-                  }}
-                  color="danger"
-                  variant="outlined"
-                >
-                  Unsubscribe
-                </SDButton>
-              </>
-            )}
-          </Hidden>
+          <AudienceDetailsHeaderSection
+            ipfsFetchBaseUrl={apiGateway.config.ipfsFetchBaseUrl}
+            metadata={contractInfo?.metadata}
+            urls={contractInfo?.urls}
+            userOptedIn= {userOptedIn === EOptedInStatus.OPTED_IN}
+            onOptOutClick={handleLeaveAudience}
+          />
         </MuiContainer>
       </Box>
       <Container>
@@ -463,9 +413,19 @@ const AudienceDetails = () => {
           {contractInfo && directRewards?.length > 0 && (
             <>
               <Box mt={3} />
-              <AirdropsSection
-                urlString={urlString}
+              <AudienceDetailsAirdropsSection
+                urls={contractInfo?.urls}
                 rewardItems={directRewards}
+                ipfsFetchBaseUrl={apiGateway.config.ipfsFetchBaseUrl}
+                onItemClick={(item: DirectReward) => {
+                  setModal({
+                    modalSelector: EModalSelectors.AIRDROP_DETAIL_MODAL,
+                    onPrimaryButtonClick: () => {},
+                    customProps: {
+                      item,
+                    },
+                  });
+                }}
               />
             </>
           )}

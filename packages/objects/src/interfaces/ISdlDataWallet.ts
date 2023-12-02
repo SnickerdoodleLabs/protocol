@@ -325,6 +325,8 @@ export interface ISdlDataWallet {
     ProxyError
   >;
 
+  requestDisplayConsentPermissions(): ResultAsync<void, ProxyError>;
+
   switchToTab(tabId: number): ResultAsync<void, ProxyError>;
 
   proxyType: ECoreProxyType;

@@ -15,7 +15,6 @@ import { WebIntegrationConfigProvider } from "@extension-onboarding/services/imp
 import { ISdlDataWalletProxy } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import InstallationRequired from "@extension-onboarding/setupScreens/InstallationRequired";
 import Loading from "@extension-onboarding/setupScreens/Loading";
-import MobileScreen from "@extension-onboarding/setupScreens/MobileScreen/MobileScreen";
 import ProviderSelector from "@extension-onboarding/setupScreens/ProviderSelector";
 
 interface IDataWalletContext {

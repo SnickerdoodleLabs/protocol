@@ -1,7 +1,5 @@
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import { EModalSelectors } from "@extension-onboarding/components/Modals/Modal.constants";
-import Card from "@extension-onboarding/components/v2/Card";
-import CardTitle from "@extension-onboarding/components/v2/CardTitle";
 import FileExplorer from "@extension-onboarding/components/v2/FileExplorer";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
@@ -18,6 +16,8 @@ import {
   SDButton,
   SDTypography,
   useMedia,
+  Card,
+  CardTitle,
 } from "@snickerdoodlelabs/shared-components";
 import { Dropbox } from "dropbox";
 import { ResultAsync, errAsync } from "neverthrow";

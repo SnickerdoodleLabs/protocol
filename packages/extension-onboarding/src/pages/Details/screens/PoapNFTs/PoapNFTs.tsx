@@ -1,12 +1,11 @@
 import { PoapNFTItem } from "@extension-onboarding/components/NFTItem";
-import Card from "@extension-onboarding/components/v2/Card";
-import CustomSizeGrid from "@extension-onboarding/components/v2/CustomSizeGrid";
 import EmptyItem from "@extension-onboarding/components/v2/EmptyItem";
 import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen";
-import { useAppContext, EAppModes } from "@extension-onboarding/context/App";
+import { useAppContext } from "@extension-onboarding/context/App";
 import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/PoapNFTs/PoapNFTs.style";
-import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
+import { Box, CircularProgress } from "@material-ui/core";
+import { Card, CustomSizeGrid } from "@snickerdoodlelabs/shared-components";
 import React from "react";
 
 export default () => {

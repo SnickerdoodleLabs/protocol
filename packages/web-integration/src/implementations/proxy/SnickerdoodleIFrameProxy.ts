@@ -406,6 +406,10 @@ export class SnickerdoodleIFrameProxy
     return this._createCall("getAvailableInvitationsCID", null);
   }
 
+  public requestDisplayConsentPermissions(): ResultAsync<void, ProxyError> {
+    return this._createCall("requestDisplayConsentPermissions", null);
+  }
+
   public getConsentContractURLs(
     contractAddress: EVMContractAddress,
   ): ResultAsync<URLString[], ProxyError> {

@@ -1,11 +1,10 @@
-import Card from "@extension-onboarding/components/v2/Card";
 import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
 import { ISocialMediaPlatformProps } from "@extension-onboarding/pages/V2/SocialMediaInfo/Platforms";
 import { DiscordAccountItem } from "@extension-onboarding/pages/V2/SocialMediaInfo/Platforms/Discord/Items/DiscordAccountItem";
 import { ILinkedDiscordAccount } from "@extension-onboarding/pages/V2/SocialMediaInfo/Platforms/Discord/types";
 import { Box } from "@material-ui/core";
 import { DiscordProfile } from "@snickerdoodlelabs/objects";
-import { SDTypography } from "@snickerdoodlelabs/shared-components";
+import { SDTypography, Card } from "@snickerdoodlelabs/shared-components";
 import React, { FC, memo, useEffect, useState } from "react";
 export const DiscordInfo: FC<ISocialMediaPlatformProps> = memo(
   ({ name, icon }: ISocialMediaPlatformProps) => {

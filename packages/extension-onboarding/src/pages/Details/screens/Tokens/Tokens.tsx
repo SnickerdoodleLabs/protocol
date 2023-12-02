@@ -1,11 +1,9 @@
 import defaultToken from "@extension-onboarding/assets/icons/default-token.png";
 import AccountChainBar from "@extension-onboarding/components/AccountChainBar";
-import Card from "@extension-onboarding/components/v2/Card";
 import EmptyItem from "@extension-onboarding/components/v2/EmptyItem";
 import Table from "@extension-onboarding/components/v2/Table";
 import TrendItem from "@extension-onboarding/components/v2/TrendItem";
 import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen/UnauthScreen";
-import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { IBalanceItem } from "@extension-onboarding/objects";
@@ -20,7 +18,7 @@ import {
   formatValue,
   getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
-import { SDTypography } from "@snickerdoodlelabs/shared-components";
+import { Card, SDTypography, tokenInfoObj } from "@snickerdoodlelabs/shared-components";
 import {
   Chart as ChartJS,
   CategoryScale,

@@ -1,25 +1,17 @@
-import AccountChainBar, {
-  EDisplayMode,
-} from "@extension-onboarding/components/AccountChainBar";
-import AirdropsComponent from "@extension-onboarding/components/v2/Airdrops";
-import Card from "@extension-onboarding/components/v2/Card";
-import CardTitle from "@extension-onboarding/components/v2/CardTitle";
+import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import EmptyItem from "@extension-onboarding/components/v2/EmptyItem";
 import { useAppContext } from "@extension-onboarding/context/App";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { Box } from "@material-ui/core";
-import {
-  AccountAddress,
-  ChainId,
-  DirectReward,
-  ERewardType,
-} from "@snickerdoodlelabs/objects";
-import { SDTypography } from "@snickerdoodlelabs/shared-components";
-import React, { FC, useEffect, useMemo, useState } from "react";
+import { DirectReward, ERewardType } from "@snickerdoodlelabs/objects";
+import {Airdrops as AirdropsComponent, Card, CardTitle } from "@snickerdoodlelabs/shared-components";
+import React, { FC, useMemo } from "react";
 
 interface IProps {}
 
 const Airdrops: FC<IProps> = () => {
-  const { earnedRewards } = useAppContext();
+  const { earnedRewards, apiGateway } = useAppContext();
+  const { setModal } = useLayoutContext();
 
   const rewardsToRender = useMemo(() => {
     if (!earnedRewards) return undefined;
@@ -42,7 +34,19 @@ const Airdrops: FC<IProps> = () => {
               subtitle="See the airdrops you received from our partners."
             />
             <Box mt={3} />
-            <AirdropsComponent rewardItems={rewardsToRender} />
+            <AirdropsComponent
+              rewardItems={rewardsToRender}
+              ipfsFetchBaseUrl={apiGateway.config.ipfsFetchBaseUrl}
+              onItemClick={(item: DirectReward) => {
+                setModal({
+                  modalSelector: EModalSelectors.AIRDROP_DETAIL_MODAL,
+                  onPrimaryButtonClick: () => {},
+                  customProps: {
+                    item,
+                  },
+                });
+              }}
+            />
           </>
         ) : (
           <EmptyItem />

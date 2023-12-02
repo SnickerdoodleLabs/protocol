@@ -66,7 +66,7 @@ import {
   Invitation,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
 
 import CoreHandler from "@synamint-extension-sdk/gateways/handler/CoreHandler";
 import {
@@ -596,6 +596,10 @@ export class ExternalCoreGateway {
 
   public getCurrentCloudStorage(): ResultAsync<ECloudStorageType, ProxyError> {
     return this._handler.call(new GetCurrentCloudStorageParams());
+  }
+
+  public requestDisplayConsentPermissions(): ResultAsync<void, ProxyError> {
+    return okAsync(undefined);
   }
 
   public getAvailableCloudStorageOptions(): ResultAsync<

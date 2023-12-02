@@ -1,6 +1,4 @@
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import Card from "@extension-onboarding/components/v2/Card";
-import CardTitle from "@extension-onboarding/components/v2/CardTitle";
 import YearSelector from "@extension-onboarding/components/v2/YearSelector";
 import { countries } from "@extension-onboarding/constants/countries";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
@@ -10,7 +8,12 @@ import CreateIcon from "@material-ui/icons/Create";
 import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
 import TodayIcon from "@material-ui/icons/Today";
 import { CountryCode, Gender, UnixTimestamp } from "@snickerdoodlelabs/objects";
-import { SDButton, SDTypography } from "@snickerdoodlelabs/shared-components";
+import {
+  Card,
+  CardTitle,
+  SDButton,
+  SDTypography,
+} from "@snickerdoodlelabs/shared-components";
 import { okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import React, { useCallback, useEffect, useRef } from "react";
