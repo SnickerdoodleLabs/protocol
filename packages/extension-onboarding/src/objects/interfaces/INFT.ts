@@ -19,7 +19,7 @@ export interface INFT {
   externalUrl: string | null;
   contentType: EContentType | null;
   contentUrls: Record<EContentType, string>[] | null;
-  attributes: Record<string, string>[] | null;
+  attributes: AttributesEntity[] | null;
   event: null | INFTEventField;
 }
 

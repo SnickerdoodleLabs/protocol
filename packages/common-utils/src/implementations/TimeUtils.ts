@@ -33,4 +33,15 @@ export class TimeUtils implements ITimeUtils {
     const date = new Date(unixTimestamp * 1000);
     return ISO8601DateString(date.toISOString());
   }
+
+  getUnixTodayStart(): UnixTimestamp {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    return UnixTimestamp(Math.floor(date.getTime() / 1000));
+  }
+  getUnixTodayEnd(): UnixTimestamp {
+    const date = new Date();
+    date.setHours(23, 59, 59, 999);
+    return UnixTimestamp(Math.floor(date.getTime() / 1000));
+  }
 }
