@@ -74,19 +74,19 @@ export class SnickerdoodleIntegration {
     if (coreConfig.walletConnect && coreConfig.walletConnect.buttonId) {
       const button = document.getElementById(coreConfig.walletConnect.buttonId);
       if (button) {
-        const buttonText = button?.innerHTML;
+        const buttonText = button?.textContent;
         button.onclick = () => {
           this.start();
         };
         if (this.isConnected()) {
-          button.innerHTML = "Disconnect";
+          button.textContent = "Disconnect";
           setTimeout(() => {
             // setTimeout needed to make sure the session is connected and have WalletClient
             this.startSessionIntegration();
           }, 1000);
           button.onclick = () => {
             disconnect().then(() => {
-              button.innerHTML = buttonText;
+              button.textContent = buttonText;
               button.onclick = () => {
                 this.start();
               };
