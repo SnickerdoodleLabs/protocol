@@ -25,11 +25,10 @@ export class SnickerdoodleIntegration {
             signer,
           );
         }
+
         return this.webIntegration.initialize();
       })
-      .map(() => {
-        this.handleHookIntegration(this.coreConfig);
-      })
+      .map(() => {})
       .mapErr((error) => {
         console.error("Integration failed:", error);
         return error;
@@ -69,7 +68,9 @@ export class SnickerdoodleIntegration {
   public getConnectedAddress(): string | undefined {
     return getAccount().address;
   }
-  private handleHookIntegration(coreConfig: IWebIntegrationConfigOverrides) {
+  private async handleHookIntegration(
+    coreConfig: IWebIntegrationConfigOverrides,
+  ) {
     if (coreConfig.walletConnect && coreConfig.walletConnect.buttonId) {
       const button = document.getElementById(coreConfig.walletConnect.buttonId);
       if (button) {
@@ -78,6 +79,10 @@ export class SnickerdoodleIntegration {
         };
         if (this.isConnected()) {
           button.innerHTML = "Disconnect";
+          setTimeout(() => {
+            // setTimeout needed to make sure the session is connected and have WalletClient
+            this.startSessionIntegration();
+          }, 1000);
           button.onclick = () => {
             disconnect().then(() => {
               button.innerHTML = "Connect Wallet";
