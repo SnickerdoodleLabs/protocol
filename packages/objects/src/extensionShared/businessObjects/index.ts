@@ -7,5 +7,6 @@ export * from "@objects/extensionShared/businessObjects/CloudProviderActivatedNo
 
 export * from "@objects/extensionShared/businessObjects/EarnedRewardsAddedNotification";
 export * from "@objects/extensionShared/businessObjects/CohortJoinedNotification";
+export * from "@objects/extensionShared/businessObjects/CohortLeftNotification";
 export * from "@objects/extensionShared/businessObjects/ProfileFieldChangedNotification";
 export * from "@objects/extensionShared/businessObjects/SocialProfileLinkedNotification";
