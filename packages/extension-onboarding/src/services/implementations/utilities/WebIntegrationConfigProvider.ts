@@ -1,8 +1,8 @@
 import { IConfigOverrides, URLString } from "@snickerdoodlelabs/objects";
 
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import { IWebIntegrationConfigProvider } from "@extension-onboarding/services/interfaces/utilities";
 import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
+import { IWebIntegrationConfigProvider } from "@extension-onboarding/services/interfaces/utilities";
 
 declare const __PRIMARY_INFURA_KEY__: string;
 declare const __IFRAME_URL__: string;
@@ -54,6 +54,7 @@ export class WebIntegrationConfigProvider
       ankrApiKey:
         "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
       bluezApiKey: "aed4aab2cbc573bbf8e7c6b448c916e5",
+      raribleApiKey: "c5855db8-08ef-409f-9947-e46c141af1b4",
       spaceAndTimeKey: "",
       blockvisionKey: "2WaEih5fqe8NUavbvaR2PSuVSSp",
 

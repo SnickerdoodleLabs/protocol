@@ -70,7 +70,7 @@ export const defaultLightPalette: IPaletteOverrides = {
   text: "#212121",
   linkText: "#2795BD",
   background: "#FFF",
-  border: "rgba(236, 236, 236, 0.30)",
+  border: "#BDBDBD",
 };
 
 export const defaultDarkPalette: IPaletteOverrides = {
@@ -81,7 +81,7 @@ export const defaultDarkPalette: IPaletteOverrides = {
   text: "#FFF",
   linkText: "#FFF",
   background: "#212121",
-  border: "rgba(236, 236, 236, 0.30)",
+  border: "#BDBDBD",
 };
 
 export const InvitationHandler: FC<IInvitationHandlerProps> = ({

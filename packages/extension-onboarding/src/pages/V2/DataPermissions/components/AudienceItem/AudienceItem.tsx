@@ -1,13 +1,4 @@
 // @TODO move EAlertSeverity to objects
-import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import CustomSDSwitch from "@extension-onboarding/components/v2/Switch/";
-import { PERMS } from "@extension-onboarding/constants/permissionsV2";
-import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
-import { generateRouteUrl } from "@extension-onboarding/containers/Router/utils";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import { useAccordionStyles } from "@extension-onboarding/styles/accordion.style";
 import {
   Accordion,
   AccordionDetails,
@@ -42,6 +33,16 @@ import React, {
   useMemo,
 } from "react";
 import { useNavigate } from "react-router-dom";
+
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import CustomSDSwitch from "@extension-onboarding/components/v2/Switch/";
+import { PERMS } from "@extension-onboarding/constants/permissionsV2";
+import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
+import { generateRouteUrl } from "@extension-onboarding/containers/Router/utils";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import { useAccordionStyles } from "@extension-onboarding/styles/accordion.style";
 
 interface IContractInfo {
   metadata: IOldUserAgreement | IUserAgreement;

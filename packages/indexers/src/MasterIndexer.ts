@@ -18,6 +18,7 @@ import {
   EIndexerMethod,
   EVMAccountAddress,
   EVMContractAddress,
+  EVMTransaction,
   getChainInfoByChain,
   IndexerSupportSummary,
   InvalidParametersError,
@@ -56,11 +57,15 @@ import {
   ISimulatorEVMTransactionRepositoryType,
   ISolanaIndexerType,
   ISolanaIndexer,
+  IEVMTransactionSanitizer,
+  IEVMTransactionSanitizerType,
+  IRaribleIndexerType,
 } from "@indexers/interfaces/index.js";
 
 @injectable()
 export class MasterIndexer implements IMasterIndexer {
   protected evmIndexerWeights = [
+    this.rarible,
     this.bluez,
     this.poapRepo,
     this.ankr,
@@ -92,10 +97,13 @@ export class MasterIndexer implements IMasterIndexer {
     @inject(IOklinkIndexerType) protected oklink: IEVMIndexer,
     @inject(IPoapRepositoryType) protected poapRepo: IEVMIndexer,
     @inject(IPolygonIndexerType) protected matic: IEVMIndexer,
+    @inject(IRaribleIndexerType) protected rarible: IEVMIndexer,
     @inject(ISimulatorEVMTransactionRepositoryType) protected sim: IEVMIndexer,
     @inject(ISolanaIndexerType) protected sol: ISolanaIndexer,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(IBigNumberUtilsType) protected bigNumberUtils: IBigNumberUtils,
+    @inject(IEVMTransactionSanitizerType)
+    protected evmTransactionSanitizer: IEVMTransactionSanitizer,
   ) {}
 
   // call this from elsewhere
@@ -112,6 +120,7 @@ export class MasterIndexer implements IMasterIndexer {
       this.nftscan.initialize(),
       this.oklink.initialize(),
       this.poapRepo.initialize(),
+      this.rarible.initialize(),
       this.sim.initialize(),
       this.sol.initialize(),
     ])
@@ -145,6 +154,7 @@ export class MasterIndexer implements IMasterIndexer {
           this.nftscan,
           this.oklink,
           this.poapRepo,
+          this.rarible,
           this.sim,
           this.sol,
         ];
@@ -402,6 +412,23 @@ export class MasterIndexer implements IMasterIndexer {
             e,
           );
           return e;
+        })
+        .map((transactions) => {
+          return transactions.reduce<EVMTransaction[]>(
+            (sanitizedTransactions, tx) => {
+              const sanitizedTransaction =
+                this.evmTransactionSanitizer.sanitize(
+                  tx,
+                  indexer.name(),
+                  chain,
+                );
+              if (sanitizedTransaction != null) {
+                sanitizedTransactions.push(sanitizedTransaction);
+              }
+              return sanitizedTransactions;
+            },
+            [],
+          );
         });
     }, indexers).orElse((e) => {
       return okAsync([]);
@@ -501,6 +528,7 @@ export class MasterIndexer implements IMasterIndexer {
         this.nftscan,
         this.oklink,
         this.poapRepo,
+        this.rarible,
         this.sim,
         this.sol,
         this.blockvision,
@@ -520,6 +548,7 @@ export class MasterIndexer implements IMasterIndexer {
         nftscanHealth,
         oklinkHealth,
         poapHealth,
+        raribleHealth,
         simHealth,
         solHealth,
         blockvisionHealth,
@@ -538,6 +567,7 @@ export class MasterIndexer implements IMasterIndexer {
       indexerStatuses.simulatorIndexer = simHealth;
       indexerStatuses.solanaIndexer = solHealth;
       indexerStatuses.blockvisionIndexer = blockvisionHealth;
+      indexerStatuses.raribleIndexer = raribleHealth;
 
       // The status of each indexer is known, and the chains that those indexers support is known.
       // We need to consolidate the component status for each chain via a group-by.

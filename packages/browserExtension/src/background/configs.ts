@@ -41,6 +41,7 @@ declare const __POAP_API_KEY__: string;
 declare const __OKLINK_API_KEY__: string;
 declare const __ANKR_API_KEY__: string;
 declare const __BLUEZ_API_KEY__: string;
+declare const __RARIBILE_API_KEY__: string;
 declare const __SPACEANDTIME_API_KEY__: string;
 declare const __BLOCKVISION_API_KEY__: string;
 declare const __PRIMARY_INFURA_KEY__: string;
@@ -278,6 +279,10 @@ export const coreConfig: IConfigOverrides = {
   ankrApiKey:
     typeof __ANKR_API_KEY__ !== "undefined" && !!__ANKR_API_KEY__
       ? __ANKR_API_KEY__
+      : undefined,
+  raribleApiKey:
+    typeof __RARIBILE_API_KEY__ !== "undefined" && !!__RARIBILE_API_KEY__
+      ? __RARIBILE_API_KEY__
       : undefined,
   bluezApiKey:
     typeof __BLUEZ_API_KEY__ !== "undefined" && !!__BLUEZ_API_KEY__

@@ -5,6 +5,7 @@ import {
   BlockchainProviderError,
   IExtensionConfigOverrides,
   ISnickerdoodleCore,
+  IConfigOverrides,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 export declare const initializeSDKCore: (
