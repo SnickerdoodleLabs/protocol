@@ -74,6 +74,7 @@ export class SnickerdoodleIntegration {
     if (coreConfig.walletConnect && coreConfig.walletConnect.buttonId) {
       const button = document.getElementById(coreConfig.walletConnect.buttonId);
       if (button) {
+        const buttonText = button?.innerHTML;
         button.onclick = () => {
           this.start();
         };
@@ -85,7 +86,7 @@ export class SnickerdoodleIntegration {
           }, 1000);
           button.onclick = () => {
             disconnect().then(() => {
-              button.innerHTML = "Connect Wallet";
+              button.innerHTML = buttonText;
               button.onclick = () => {
                 this.start();
               };
