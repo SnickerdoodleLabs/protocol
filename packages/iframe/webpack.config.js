@@ -29,11 +29,7 @@ module.exports = {
     },
     historyApiFallback: true,
     liveReload: true,
-    compress: true,
     port: 9005,
-    devMiddleware: {
-      writeToDisk: true,
-    },
   },
   module: {
     rules: [
@@ -42,7 +38,8 @@ module.exports = {
         loader: "ts-loader",
         exclude: /node_modules/,
         options: {
-          projectReferences: true,
+          transpileOnly: process.env.__BUILD_ENV__ === "dev",
+          projectReferences: !(process.env.__BUILD_ENV__ === "dev"),
           configFile: configFilePath,
           compilerOptions: {
             noUnusedLocals: false,
@@ -54,21 +51,6 @@ module.exports = {
         enforce: "pre",
         test: /\.html$/,
         loader: "html-loader",
-      },
-      {
-        test: /\.(s[ac]ss|css)$/i,
-        use: [
-          "style-loader",
-          "css-loader",
-          {
-            loader: "sass-loader",
-            options: {
-              sassOptions: {
-                includePaths: [path.resolve(__dirname, "node_modules")],
-              },
-            },
-          },
-        ],
       },
       {
         test: /\.(png|svg|jpg|jpeg|gif|eot|woff|woff2)$/i,
@@ -84,8 +66,7 @@ module.exports = {
     extensions: [".tsx", ".ts", ".js", ".html"],
     plugins: [new TsconfigPathsPlugin({ configFile: configFilePath })],
   },
-  devtool:
-    process.env.__BUILD_ENV__ === "dev" ? "eval-source-map" : "source-map",
+  devtool: process.env.__BUILD_ENV__ === "dev" ? "eval" : "source-map",
   plugins: [
     new NodePolyfillPlugin(),
     new HtmlWebpackPlugin({
