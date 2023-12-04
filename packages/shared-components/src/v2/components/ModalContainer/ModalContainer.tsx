@@ -3,6 +3,7 @@ import React, { FC } from "react";
 
 interface IModalContainerProps {
   children: NonNullable<React.ReactNode>;
+  onClose?: () => void;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -16,11 +17,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const ModalContainer: FC<IModalContainerProps> = ({ children }) => {
+export const ModalContainer: FC<IModalContainerProps> = ({
+  children,
+  onClose,
+}) => {
   const classes = useStyles();
   return (
     <Box
       display="flex"
+      onClick={onClose && onClose}
       position="fixed"
       overflow="auto"
       top={0}

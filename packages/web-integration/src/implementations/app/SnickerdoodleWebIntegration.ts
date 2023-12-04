@@ -14,6 +14,7 @@ import {
   UninitializedError,
   MillisecondTimestamp,
   IWebIntegrationConfigOverrides,
+  ECoreProxyType,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { Container } from "inversify";
@@ -71,6 +72,8 @@ export class SnickerdoodleWebIntegration
 
     this.timeUtils = this.iocContainer.get<ITimeUtils>(ITimeUtilsType);
     this.startTimestamp = this.timeUtils.getMillisecondNow();
+
+    this.subscribeToKeyDownEvent();
   }
 
   public get core(): ISdlDataWallet {
@@ -247,6 +250,38 @@ export class SnickerdoodleWebIntegration
         console.log("Error checking for additional account.Skipping ", error);
         return okAsync(undefined);
       });
+  }
+
+  // user consent settings display
+  public requestDisplayConsentPermissions(): void {
+    try {
+      if (this.core.proxyType === ECoreProxyType.IFRAME_INJECTED) {
+        this.core.requestDisplayConsentPermissions();
+      }
+    } catch (e) {
+      console.log("Unable to display iframe", e);
+    }
+  }
+
+  protected subscribeToKeyDownEvent() {
+    document.addEventListener("keydown", this.handleKeyDown.bind(this));
+  }
+
+  protected handleKeyDown(event: KeyboardEvent) {
+    if (event.key === "F9") {
+      try {
+        if (this.core.proxyType === ECoreProxyType.IFRAME_INJECTED) {
+          this.core.requestDisplayConsentPermissions();
+        } else {
+          document.removeEventListener(
+            "keydown",
+            this.handleKeyDown.bind(this),
+          );
+        }
+      } catch (e) {
+        console.log("Unable to display iframe", e);
+      }
+    }
   }
 }
 

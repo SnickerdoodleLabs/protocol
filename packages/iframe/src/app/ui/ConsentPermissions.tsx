@@ -1,5 +1,9 @@
+import {
+  LoadingIndicator,
+  ModalContentWrapper,
+} from "@core-iframe/app/ui/components";
 import { IFrameConfig, IFrameEvents } from "@core-iframe/interfaces/objects";
-import { Box, CircularProgress } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import {
   DataPermissions,
   DirectReward,
@@ -17,7 +21,6 @@ import {
   AudienceDetailsAirdropsSection,
   AudienceDetailsHeaderSection,
   AudienceList,
-  CloseButton,
   ModalContainer,
 } from "@snickerdoodlelabs/shared-components";
 import { ResultAsync } from "neverthrow";
@@ -179,34 +182,8 @@ export const ConsentPermissions: FC<IConsentPermissionsProps> = ({
     switch (appState) {
       case EAPP_STATE.CONSENT_LIST:
         return optedInContracts ? (
-          <Box
-            p={3}
-            bgcolor="cardBgColor"
-            maxHeight="90vh"
-            height="50vh"
-            overflow="auto"
-            position="relative"
-          >
-            <Box mb={2} display="flex" justifyContent="center">
-              <Box mr="auto" />
-              <CloseButton onClick={close} />
-            </Box>
-            {updateInProgress && (
-              <Box
-                position="fixed"
-                zIndex={1}
-                width="100%"
-                height="100%"
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                bgcolor="#00000022"
-                top={0}
-                left={0}
-              >
-                <CircularProgress />
-              </Box>
-            )}
+          <ModalContentWrapper title="Data Permissions" onCloseClick={close}>
+            {updateInProgress && <LoadingIndicator />}
             <AudienceList
               optedInContracts={optedInContracts}
               getDetails={function (
@@ -256,38 +233,12 @@ export const ConsentPermissions: FC<IConsentPermissionsProps> = ({
                   });
               }}
             />
-          </Box>
+          </ModalContentWrapper>
         ) : null;
       case EAPP_STATE.CONSENT_DETAIL:
         return selectedDetailItem ? (
-          <Box
-            p={3}
-            bgcolor="cardBgColor"
-            maxHeight="90vh"
-            height="50vh"
-            overflow="auto"
-            position="relative"
-          >
-            <Box mb={2} display="flex" justifyContent="center">
-              <Box mr="auto" />
-              <CloseButton onClick={handleDetailClose} />
-            </Box>
-            {updateInProgress && (
-              <Box
-                position="fixed"
-                zIndex={1}
-                width="100%"
-                height="100%"
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                bgcolor="#00000022"
-                top={0}
-                left={0}
-              >
-                <CircularProgress />
-              </Box>
-            )}
+          <ModalContentWrapper onCloseClick={handleDetailClose}>
+            {updateInProgress && <LoadingIndicator />}
             <AudienceDetailsHeaderSection
               metadata={selectedDetailItem.metadata}
               urls={selectedDetailItem.urls}
@@ -299,21 +250,19 @@ export const ConsentPermissions: FC<IConsentPermissionsProps> = ({
             />
             {selectedDetailItemRewards && (
               <>
-              <Box mt={3} />
-              <AudienceDetailsAirdropsSection
-                rewardItems={
-                  selectedDetailItemRewards.filter((reward) => {
-                    return reward.type === ERewardType.Direct;
-                  }) as DirectReward[]
-                }
-                ipfsFetchBaseUrl={coreConfig.ipfsFetchBaseUrl}
-                onItemClick={function (item: DirectReward): void {
-                  throw new Error("Function not implemented.");
-                }}
-              />
+                <Box mt={3} />
+                <AudienceDetailsAirdropsSection
+                  rewardItems={
+                    selectedDetailItemRewards.filter((reward) => {
+                      return reward.type === ERewardType.Direct;
+                    }) as DirectReward[]
+                  }
+                  ipfsFetchBaseUrl={coreConfig.ipfsFetchBaseUrl}
+                  onItemClick={function (item: DirectReward): void {}}
+                />
               </>
             )}
-          </Box>
+          </ModalContentWrapper>
         ) : null;
       default:
         return null;
@@ -327,5 +276,11 @@ export const ConsentPermissions: FC<IConsentPermissionsProps> = ({
     userOptedIn,
   ]);
 
-  return <>{component && <ModalContainer>{component}</ModalContainer>} </>;
+  return (
+    <>
+      {component && (
+        <ModalContainer onClose={close}>{component}</ModalContainer>
+      )}{" "}
+    </>
+  );
 };
