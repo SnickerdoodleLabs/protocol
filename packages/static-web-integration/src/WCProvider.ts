@@ -47,12 +47,11 @@ export class WCProvider {
       w3mProvider({ projectId }),
     ]);
     const wagmiConfig = createConfig({
-      autoConnect: false,
+      autoConnect: true,
       connectors: w3mConnectors({ chains, projectId }),
       publicClient,
     });
     this.ethereumClient = new EthereumClient(wagmiConfig, chains);
-
     this.web3Modal = new Web3Modal(web3ModalConfig, this.ethereumClient);
   }
   public startWalletConnect(): ResultAsync<Signer, Error> {

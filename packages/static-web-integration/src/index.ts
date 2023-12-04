@@ -3,6 +3,7 @@ import { IWebIntegrationConfigOverrides } from "@snickerdoodlelabs/objects";
 import { SnickerdoodleWebIntegration } from "@snickerdoodlelabs/web-integration";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { WCProvider } from "@static-web-integration/WCProvider";
+import { getAccount, disconnect } from "@wagmi/core";
 
 export class SnickerdoodleIntegration {
   coreConfig: IWebIntegrationConfigOverrides;
@@ -12,18 +13,23 @@ export class SnickerdoodleIntegration {
   constructor(coreConfig) {
     this.coreConfig = coreConfig;
     this.WCProvider = new WCProvider(coreConfig.walletConnect.projectId);
+    this.handleHookIntegration(coreConfig);
   }
 
   protected startSessionIntegration() {
     return this.WCProvider.getEthersSigner()
       .andThen((signer) => {
-        this.webIntegration = new SnickerdoodleWebIntegration(
-          this.coreConfig,
-          signer,
-        );
+        if (!this.webIntegration) {
+          this.webIntegration = new SnickerdoodleWebIntegration(
+            this.coreConfig,
+            signer,
+          );
+        }
         return this.webIntegration.initialize();
       })
-      .map(() => {})
+      .map(() => {
+        this.handleHookIntegration(this.coreConfig);
+      })
       .mapErr((error) => {
         console.error("Integration failed:", error);
         return error;
@@ -33,11 +39,15 @@ export class SnickerdoodleIntegration {
   protected startIntegration() {
     return this.WCProvider.startWalletConnect()
       .andThen((signer) => {
-        this.webIntegration = new SnickerdoodleWebIntegration(
-          this.coreConfig,
-          signer,
-        );
-        return this.webIntegration.initialize().map(() => {});
+        if (!this.webIntegration) {
+          this.webIntegration = new SnickerdoodleWebIntegration(
+            this.coreConfig,
+            signer,
+          );
+        }
+        return this.webIntegration.initialize().map(() => {
+          this.handleHookIntegration(this.coreConfig);
+        });
       })
       .mapErr((error) => {
         console.error("Integration failed:", error);
@@ -52,14 +62,32 @@ export class SnickerdoodleIntegration {
       return this.startIntegration();
     }
   }
-  public integrateSnickerdoodle(): ResultAsync<void, Error> {
-    if (this.isConnected()) {
-      return this.startSessionIntegration();
-    } else {
-      return this.startIntegration();
-    }
-  }
+
   public isConnected(): boolean {
     return this.WCProvider.checkConnection();
+  }
+  public getConnectedAddress(): string | undefined {
+    return getAccount().address;
+  }
+  private handleHookIntegration(coreConfig: IWebIntegrationConfigOverrides) {
+    if (coreConfig.walletConnect && coreConfig.walletConnect.buttonId) {
+      const button = document.getElementById(coreConfig.walletConnect.buttonId);
+      if (button) {
+        button.onclick = () => {
+          this.start();
+        };
+        if (this.isConnected()) {
+          button.innerHTML = "Disconnect";
+          button.onclick = () => {
+            disconnect().then(() => {
+              button.innerHTML = "Connect Wallet";
+              button.onclick = () => {
+                this.start();
+              };
+            });
+          };
+        }
+      }
+    }
   }
 }
