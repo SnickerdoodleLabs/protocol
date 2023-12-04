@@ -67,6 +67,7 @@ export class ExtensionCore {
       oklinkApiKey: config.oklinkApiKey,
       ankrApiKey: config.ankrApiKey,
       bluezApiKey: config.bluezApiKey,
+      raribleApiKey: config.raribleApiKey,
       spaceAndTimeKey: config.spaceAndTimeKey,
       blockvisionKey: config.blockvisionKey,
 
