@@ -37,6 +37,8 @@ import {
   TransactionFlowInsight,
   getChainInfoByChain,
   EChainTechnology,
+  WalletNFTHistory,
+  WalletNftWithHistory,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -57,6 +59,8 @@ import {
   ILinkedAccountRepositoryType,
   IPortfolioBalanceRepository,
   IPortfolioBalanceRepositoryType,
+  INftRepository,
+  INftRepositoryType,
   ITransactionHistoryRepository,
   ITransactionHistoryRepositoryType,
   IAuthenticatedStorageRepository,
@@ -94,7 +98,26 @@ export class AccountService implements IAccountService {
     protected browsingDataRepo: IBrowsingDataRepository,
     @inject(IPortfolioBalanceRepositoryType)
     protected balanceRepo: IPortfolioBalanceRepository,
+    @inject(INftRepositoryType)
+    protected nftRepository: INftRepository,
   ) {}
+
+  getPersistenceNFTs(): ResultAsync<WalletNFT[], PersistenceError> {
+    return this.nftRepository.getPersistenceNFTs();
+  }
+  getNFTsHistory(): ResultAsync<WalletNFTHistory[], PersistenceError> {
+    return this.nftRepository.getNFTsHistory();
+  }
+  getCachedNftsWithHistory(): ResultAsync<
+    WalletNftWithHistory[],
+    PersistenceError
+  > {
+    return this.nftRepository.getCachedNftsWithHistory();
+  }
+
+  public getCachedNFTs(): ResultAsync<WalletNFT[], PersistenceError> {
+    return this.nftRepository.getCachedNFTs();
+  }
 
   public getTokenPrice(
     chainId: ChainId,
@@ -448,10 +471,6 @@ export class AccountService implements IAccountService {
     return this.balanceRepo.getAccountBalances();
   }
 
-  public getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError> {
-    return this.balanceRepo.getAccountNFTs();
-  }
-
   public getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
     return this.accountRepo.getEarnedRewards();
   }
@@ -462,7 +481,7 @@ export class AccountService implements IAccountService {
     return this.accountRepo.addEarnedRewards(rewards);
   }
 
-  public getTranactions(
+  public getTransctions(
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], PersistenceError> {
     return this.transactionRepo.getTransactions(filter);

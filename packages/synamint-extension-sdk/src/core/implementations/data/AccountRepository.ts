@@ -19,6 +19,8 @@ import {
   TransactionFlowInsight,
   DomainName,
   TransactionPaymentCounter,
+  WalletNFTHistory,
+  WalletNftWithHistory,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -109,8 +111,38 @@ export class AccountRepository implements IAccountRepository {
       });
   }
 
-  public getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
-    return this.core.getAccountNFTs().mapErr((error) => {
+  public getCachedNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
+    return this.core.nft.getCachedNFTs().mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
+  }
+
+  public getPersistenceNFTs(): ResultAsync<
+    WalletNFT[],
+    SnickerDoodleCoreError
+  > {
+    return this.core.nft.getPersistenceNFTs().mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
+  }
+
+  public getNFTsHistory(): ResultAsync<
+    WalletNFTHistory[],
+    SnickerDoodleCoreError
+  > {
+    return this.core.nft.getNFTsHistory().mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
+  }
+
+  public getCachedNftsWithHistory(): ResultAsync<
+    WalletNftWithHistory[],
+    SnickerDoodleCoreError
+  > {
+    return this.core.nft.getCachedNftsWithHistory().mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });

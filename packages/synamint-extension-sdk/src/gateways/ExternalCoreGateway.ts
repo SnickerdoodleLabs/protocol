@@ -106,7 +106,7 @@ import {
   GetGivenNameParams,
   GetFamilyNameParams,
   GetAgeParams,
-  GetAccountNFTsParams,
+  GetAccountCachedNFTsParams,
   GetAccountBalancesParams,
   GetAccountsParams,
   GetAcceptedInvitationsCIDParams,
@@ -407,7 +407,7 @@ export class ExternalCoreGateway {
     return this._handler.call(params);
   }
   public getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError> {
-    return this._handler.call(new GetAccountNFTsParams());
+    return this._handler.call(new GetAccountCachedNFTsParams());
   }
 
   public getTransactionValueByChain(): ResultAsync<

@@ -2,6 +2,8 @@ import {
   TypedDataDomain,
   TypedDataField,
 } from "@ethersproject/abstract-signer";
+import { ResultAsync } from "neverthrow";
+
 import {
   AdSignature,
   ChainTransaction,
@@ -36,6 +38,8 @@ import {
   SiteVisitsMap,
   TransactionFlowInsight,
   OptInInfo,
+  WalletNFTHistory,
+  WalletNftWithHistory,
   // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
@@ -112,7 +116,6 @@ import {
   BlockNumber,
   RefreshToken,
 } from "@objects/primitives/index.js";
-import { ResultAsync } from "neverthrow";
 /**
  ************************ MAINTENANCE HAZARD ***********************************************
  Whenever you add or change a method in this class, you also need to look at and probably update
@@ -660,6 +663,21 @@ export interface IMetricsMethods {
   ): ResultAsync<RuntimeMetrics, never>;
 }
 
+export interface INftMethods {
+  getCachedNFTs(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<WalletNFT[], PersistenceError>;
+  getPersistenceNFTs(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<WalletNFT[], PersistenceError>;
+  getNFTsHistory(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<WalletNFTHistory[], PersistenceError>;
+  getCachedNftsWithHistory(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<WalletNftWithHistory[], PersistenceError>;
+}
+
 export interface IStorageMethods {
   setAuthenticatedStorage(
     type: ECloudStorageType,
@@ -884,9 +902,7 @@ export interface ISnickerdoodleCore {
   getAccountBalances(
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<TokenBalance[], PersistenceError | UnauthorizedError>;
-  getAccountNFTs(
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<WalletNFT[], PersistenceError | UnauthorizedError>;
+
   getTransactionValueByChain(
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<
@@ -939,6 +955,7 @@ export interface ISnickerdoodleCore {
   twitter: ICoreTwitterMethods;
   metrics: IMetricsMethods;
   storage: IStorageMethods;
+  nft: INftMethods;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

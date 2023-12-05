@@ -30,6 +30,8 @@ import {
   AccountIndexingError,
   SiteVisitsMap,
   TransactionFlowInsight,
+  WalletNftWithHistory,
+  WalletNFTHistory,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -98,8 +100,15 @@ export interface IAccountService {
 
   getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError>;
 
-  getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError>;
-  getTranactions(
+  getCachedNFTs(): ResultAsync<WalletNFT[], PersistenceError>;
+
+  getPersistenceNFTs(): ResultAsync<WalletNFT[], PersistenceError>;
+  getNFTsHistory(): ResultAsync<WalletNFTHistory[], PersistenceError>;
+  getCachedNftsWithHistory(): ResultAsync<
+    WalletNftWithHistory[],
+    PersistenceError
+  >;
+  getTransctions(
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], PersistenceError>;
 

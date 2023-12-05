@@ -22,6 +22,8 @@ import {
   DomainName,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
+  WalletNFTHistory,
+  WalletNftWithHistory,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -82,8 +84,27 @@ export class AccountService implements IAccountService {
     return this.accountRepository.getAccountBalances();
   }
 
-  public getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
-    return this.accountRepository.getAccountNFTs();
+  public getCachedNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
+    return this.accountRepository.getCachedNFTs();
+  }
+
+  public getPersistenceNFTs(): ResultAsync<
+    WalletNFT[],
+    SnickerDoodleCoreError
+  > {
+    return this.accountRepository.getPersistenceNFTs();
+  }
+  public getNFTsHistory(): ResultAsync<
+    WalletNFTHistory[],
+    SnickerDoodleCoreError
+  > {
+    return this.accountRepository.getNFTsHistory();
+  }
+  public getCachedNftsWithHistory(): ResultAsync<
+    WalletNftWithHistory[],
+    SnickerDoodleCoreError
+  > {
+    return this.accountRepository.getCachedNftsWithHistory();
   }
 
   public addAccount(

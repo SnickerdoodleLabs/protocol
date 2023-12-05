@@ -37,6 +37,7 @@ import {
   IEntropyRepository,
   ILinkedAccountRepository,
   IPortfolioBalanceRepository,
+  INftRepository,
   ITransactionHistoryRepository,
 } from "@core/interfaces/data/index.js";
 import { CoreContext, PrivateEvents } from "@core/interfaces/objects/index.js";
@@ -101,6 +102,7 @@ class AccountServiceMocks {
   public transactionRepo: ITransactionHistoryRepository;
   public balanceRepo: IPortfolioBalanceRepository;
   public browsingDataRepo: IBrowsingDataRepository;
+  public nftRepository: INftRepository;
 
   public constructor(initializeInProgress = false, unlocked = false) {
     this.authenticatedStorageRepo =
@@ -113,6 +115,7 @@ class AccountServiceMocks {
     this.transactionRepo = td.object<ITransactionHistoryRepository>();
     this.balanceRepo = td.object<IPortfolioBalanceRepository>();
     this.browsingDataRepo = td.object<IBrowsingDataRepository>();
+    this.nftRepository = td.object<INftRepository>();
 
     // Setup the context an locked, none in progress
     this.contextProvider = new ContextProviderMock(
@@ -127,6 +130,7 @@ class AccountServiceMocks {
         new ComponentStatus(
           EComponentStatus.TemporarilyDisabled,
           EComponentStatus.TemporarilyDisabled,
+          new Map<EChain, EComponentStatus>(),
           new Map<EChain, EComponentStatus>(),
           new Map<EChain, EComponentStatus>(),
           new Map<EChain, EComponentStatus>(),
@@ -266,6 +270,7 @@ class AccountServiceMocks {
       this.transactionRepo,
       this.browsingDataRepo,
       this.balanceRepo,
+      this.nftRepository,
     );
   }
 }

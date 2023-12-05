@@ -61,14 +61,17 @@ import {
   ChainTransaction,
   TransactionFilter,
   IUserAgreement,
+  WalletNFTHistory,
+  WalletNftWithHistory,
 } from "@snickerdoodlelabs/objects";
+
+import { IExtensionConfig } from "./IExtensionConfig";
+
 import {
   ECoreActions,
   IExternalState,
   IInternalState,
 } from "@synamint-extension-sdk/shared";
-
-import { IExtensionConfig } from "./IExtensionConfig";
 
 export abstract class CoreActionParams<TReturn> {
   public constructor(public method: ECoreActions) {}
@@ -528,15 +531,43 @@ export class GetAgeParams extends CoreActionParams<Age | null> {
   }
 }
 
-export class GetAccountNFTsParams extends CoreActionParams<WalletNFT[]> {
+export class GetAccountCachedNFTsParams extends CoreActionParams<WalletNFT[]> {
   public constructor() {
-    super(GetAccountNFTsParams.getCoreAction());
+    super(GetAccountCachedNFTsParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
-    return ECoreActions.GET_ACCOUNT_NFTS;
+    return ECoreActions.GET_ACCOUNT_CACHED_NFTS;
   }
 }
 
+export class GetPersistenceNFTsParams extends CoreActionParams<WalletNFT[]> {
+  public constructor() {
+    super(GetPersistenceNFTsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_ACCOUNT_PERSISTENCE_NFTS;
+  }
+}
+export class GetAccountNFTHistoryParams extends CoreActionParams<
+  WalletNFTHistory[]
+> {
+  public constructor() {
+    super(GetAccountNFTHistoryParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_ACCOUNT_NFT_HISTORY;
+  }
+}
+export class GetAccountCachedNFTsWithHistoryParams extends CoreActionParams<
+  WalletNftWithHistory[]
+> {
+  public constructor() {
+    super(GetAccountCachedNFTsWithHistoryParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_ACCOUNT_CACHED_NFTS_WITH_HISTORY;
+  }
+}
 export class GetAccountBalancesParams extends CoreActionParams<TokenBalance[]> {
   public constructor() {
     super(GetAccountBalancesParams.getCoreAction());

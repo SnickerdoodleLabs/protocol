@@ -392,10 +392,36 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      getAccountNFTs: (data: IIFrameCallData<Record<string, never>>) => {
+      getCachedNFTs: (data: IIFrameCallData<Record<string, never>>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.getAccountNFTs(this.sourceDomain);
+            return core.nft.getCachedNFTs(this.sourceDomain);
+          });
+        }, data.callId);
+      },
+
+      getPersistenceNFTs: (data: IIFrameCallData<Record<string, never>>) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.nft.getPersistenceNFTs(this.sourceDomain);
+          });
+        }, data.callId);
+      },
+
+      getNFTsHistory: (data: IIFrameCallData<Record<string, never>>) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.nft.getNFTsHistory(this.sourceDomain);
+          });
+        }, data.callId);
+      },
+
+      getCachedNftsWithHistory: (
+        data: IIFrameCallData<Record<string, never>>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.nft.getCachedNftsWithHistory(this.sourceDomain);
           });
         }, data.callId);
       },
