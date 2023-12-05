@@ -3,14 +3,12 @@ import {
   AjaxError,
   UninitializedError,
   BlockchainProviderError,
-  IExtensionConfigOverrides,
+  IExtensionSdkConfigOverrides,
   ISnickerdoodleCore,
-  IConfigOverrides,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 export declare const initializeSDKCore: (
-  extensionConfigOverrides: IExtensionConfigOverrides,
-  coreConfigOverrides: IConfigOverrides,
+  config: IExtensionSdkConfigOverrides,
 ) => ResultAsync<
   ISnickerdoodleCore,
   PersistenceError | AjaxError | UninitializedError | BlockchainProviderError

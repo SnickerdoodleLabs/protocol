@@ -8,6 +8,7 @@ import {
   EVMContractAddress,
   EWalletDataType,
   IOldUserAgreement,
+  IPaletteOverrides,
   IUserAgreement,
   Invitation,
   LinkedAccount,
@@ -21,6 +22,7 @@ import {
   ModalContainer,
   PermissionSelectionWidget,
   createDefaultTheme,
+  createThemeWithOverrides,
 } from "@snickerdoodlelabs/shared-components";
 import { EAppState } from "@synamint-extension-sdk/content/constants";
 import usePath from "@synamint-extension-sdk/content/hooks/usePath";
@@ -55,6 +57,7 @@ import React, {
   useState,
   useCallback,
   useRef,
+  FC,
 } from "react";
 import { parse } from "tldts";
 import Browser from "webextension-polyfill";
@@ -169,7 +172,11 @@ const origin = window.location.origin;
 
 const awaitAccountLinking = SDL_ORIGIN_LIST.includes(origin);
 
-const App = () => {
+interface IAppProps {
+  paletteOverrides?: IPaletteOverrides;
+}
+
+const App: FC<IAppProps> = ({ paletteOverrides }) => {
   const [appState, setAppState] = useState<EAppState>(EAppState.IDLE);
   const [accounts, setAccounts] = useState<LinkedAccount[]>([]);
   const _path = usePath();
@@ -442,7 +449,13 @@ const App = () => {
   }
 
   return (
-    <ThemeProvider theme={createDefaultTheme(EColorMode.LIGHT)}>
+    <ThemeProvider
+      theme={
+        paletteOverrides
+          ? createThemeWithOverrides(paletteOverrides)
+          : createDefaultTheme(EColorMode.LIGHT)
+      }
+    >
       <>
         {renderComponent && <ModalContainer>{renderComponent}</ModalContainer>}
       </>

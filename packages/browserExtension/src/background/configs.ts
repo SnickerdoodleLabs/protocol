@@ -3,6 +3,7 @@ import {
   DiscordConfig,
   IConfigOverrides,
   IExtensionConfigOverrides,
+  IExtensionSdkConfigOverrides,
   ProviderUrl,
   TwitterConfig,
   URLString,
@@ -136,14 +137,14 @@ const portfolioPollingIntervalMS =
     ? Number.parseInt(__PORTFOLIO_POLLING_INTERVAL__)
     : ONE_MINUTE_MS;
 
-export const extensionConfig: IExtensionConfigOverrides = {
+export const config: IExtensionSdkConfigOverrides = {
+  //#region  extension config
+  providerKey: "snickerdoodle",
   onboardingURL:
     typeof __ONBOARDING_URL__ !== "undefined" && !!__ONBOARDING_URL__
       ? URLString(__ONBOARDING_URL__)
       : URLString("https://datawallet.snickerdoodle.com/"),
-};
-
-export const coreConfig: IConfigOverrides = {
+  //#endregion
   controlChainId:
     typeof __CONTROL_CHAIN_ID__ !== "undefined" && !!__CONTROL_CHAIN_ID__
       ? ChainId(Number.parseInt(__CONTROL_CHAIN_ID__))

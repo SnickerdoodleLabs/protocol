@@ -4,6 +4,7 @@ import {
   BlockchainProviderError,
   IConfigOverrides,
   IExtensionConfigOverrides,
+  IExtensionSdkConfigOverrides,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
   PersistenceError,
@@ -35,10 +36,7 @@ export class ExtensionCore {
   // snickerdooldle Core
   protected core: ISnickerdoodleCore;
 
-  constructor(
-    extensionConfigOverrides: IExtensionConfigOverrides,
-    coreConfigOverrides: IConfigOverrides,
-  ) {
+  constructor(config: IExtensionSdkConfigOverrides) {
     this.iocContainer = new Container();
 
     // Elaborate syntax to demonstrate that we can use multiple modules
@@ -47,9 +45,7 @@ export class ExtensionCore {
     const configProvider =
       this.iocContainer.get<IConfigProvider>(IConfigProviderType);
     // override configs
-    configProvider.setExtensionConfigOverrides(extensionConfigOverrides);
-    configProvider.setCoreConfigOverrides(coreConfigOverrides);
-
+    configProvider.setConfigOverrides(config);
     const coreConfig = configProvider.getCoreConfig();
 
     this.core = new SnickerdoodleCore(
