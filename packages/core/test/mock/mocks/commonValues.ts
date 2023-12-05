@@ -32,6 +32,10 @@ import {
   SiteVisitsMap,
   SiteVisitsData,
   ISO8601DateString,
+  EVMNFT,
+  BigNumberString,
+  TokenUri,
+  LinkedAccount,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_ConditionExpr,
@@ -496,4 +500,157 @@ export const siteVisitsMap: SiteVisitsMap = new Map([
   ],
 ]);
 
+const tokenAddress1 = EVMContractAddress(
+  "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
+);
+const tokenAddress2 = EVMContractAddress(
+  "0x2222222222222222222222222222222222222222",
+);
+const tokenId = BigNumberString("0");
+const contractType = "ERC721";
+const owner = EVMAccountAddress("0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc");
+export const linkedAccounts: LinkedAccount[] = [
+  new LinkedAccount(EChain.Avalanche, owner),
+];
+const tokenUri = TokenUri("");
+const metadata = undefined;
+const amount = BigNumberString("1");
+const name = "";
+const chain = 43113;
+
+export const Nfts = [
+  new EVMNFT(
+    tokenAddress1,
+    tokenId,
+    contractType,
+    owner,
+    tokenUri,
+    metadata,
+    amount,
+    name,
+    chain,
+  ),
+  new EVMNFT(
+    tokenAddress2,
+    tokenId,
+    contractType,
+    owner,
+    tokenUri,
+    metadata,
+    amount,
+    name,
+    chain,
+  ),
+];
+export const cachedNfts = [
+  {
+    amount: "1",
+    blockNumber: undefined,
+    chain: 43113,
+    contractType: "ERC721",
+    id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0",
+    lastOwnerTimeStamp: undefined,
+    metadata: undefined,
+    name: "",
+    owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
+    token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
+    tokenId: "0",
+    tokenUri: "",
+    type: 0,
+  },
+  {
+    amount: "1",
+    blockNumber: undefined,
+    chain: 43113,
+    contractType: "ERC721",
+    id: "0x2222222222222222222222222222222222222222|#|0",
+    lastOwnerTimeStamp: undefined,
+    metadata: undefined,
+    name: "",
+    owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
+    token: "0x2222222222222222222222222222222222222222",
+    tokenId: "0",
+    tokenUri: "",
+    type: 0,
+  },
+];
+
+export const indexedNfts = [
+  {
+    type: 0,
+    chain: 43113,
+    owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
+    token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
+    name: "",
+    id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0",
+    tokenId: "0",
+    contractType: "ERC721",
+    tokenUri: "",
+    metadata: undefined,
+    amount: "1",
+    blockNumber: undefined,
+    lastOwnerTimeStamp: undefined,
+  },
+  {
+    type: 0,
+    chain: 43113,
+    owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
+    token: "0x2222222222222222222222222222222222222222",
+    name: "",
+    id: "0x2222222222222222222222222222222222222222|#|0",
+    tokenId: "0",
+    contractType: "ERC721",
+    tokenUri: "",
+    metadata: undefined,
+    amount: "1",
+    blockNumber: undefined,
+    lastOwnerTimeStamp: undefined,
+  },
+];
+
+export const indexedNftHistory = [
+  {
+    id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0{-}1701779730",
+    event: 1,
+  },
+  {
+    id: "0x2222222222222222222222222222222222222222|#|0{-}1701779730",
+    event: 1,
+  },
+];
+
+export const walletNftWithHistory = [
+  {
+    type: 0,
+    chain: 43113,
+    owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
+    token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
+    name: "",
+    id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0",
+    tokenId: "0",
+    contractType: "ERC721",
+    tokenUri: "",
+    metadata: undefined,
+    amount: "1",
+    blockNumber: undefined,
+    lastOwnerTimeStamp: undefined,
+    history: [{ measurementDate: 1701779730, event: 1 }],
+  },
+  {
+    type: 0,
+    chain: 43113,
+    owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
+    token: "0x2222222222222222222222222222222222222222",
+    name: "",
+    id: "0x2222222222222222222222222222222222222222|#|0",
+    tokenId: "0",
+    contractType: "ERC721",
+    tokenUri: "",
+    metadata: undefined,
+    amount: "1",
+    blockNumber: undefined,
+    lastOwnerTimeStamp: undefined,
+    history: [{ measurementDate: 1701779730, event: 1 }],
+  },
+];
 // #endregion

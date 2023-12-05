@@ -152,7 +152,6 @@ export class NftRepository implements INftRepository {
                 if (!isAccountValidForChain(chain, linkedAccount)) {
                   return okAsync([]);
                 }
-
                 return this.retrieveCache(
                   chain,
                   linkedAccount.sourceAccountAddress,
@@ -230,7 +229,6 @@ export class NftRepository implements INftRepository {
       if (cacheResult != null) {
         return okAsync(cacheResult);
       }
-
       return this.resetNftCache(chain, accountAddress, supportedChains, cache);
     });
   }
@@ -258,7 +256,6 @@ export class NftRepository implements INftRepository {
           return nfts;
         });
       }
-
       return this.getIndexerNftsAndUpdateIndexedDb(chain, accountAddress).map(
         (nfts) => {
           context.publicEvents.onNftBalanceUpdate.next(
@@ -269,7 +266,6 @@ export class NftRepository implements INftRepository {
               nfts,
             ),
           );
-
           cache.set(nfts, chain, accountAddress);
           return nfts;
         },
@@ -326,7 +322,15 @@ export class NftRepository implements INftRepository {
     walletNftHistories: WalletNftWithHistory[],
   ): WalletNftWithHistory[] {
     return walletNftHistories.filter((walletNftWithHistory) => {
-      const latestMeasurementDate = walletNftWithHistory.history.reduce(
+      const validHistoryItems = walletNftWithHistory.history.filter(
+        (historyItem) => historyItem.event !== EIndexedDbOp.Removed,
+      );
+
+      if (validHistoryItems.length === 0) {
+        return false;
+      }
+
+      const latestMeasurementDate = validHistoryItems.reduce(
         (maxDate, historyItem) => {
           return historyItem.measurementDate > maxDate
             ? historyItem.measurementDate
@@ -338,6 +342,7 @@ export class NftRepository implements INftRepository {
       return latestMeasurementDate <= benchmark;
     });
   }
+
   protected mergeWalletNFTs(
     nfts: WalletNFT[],
     priorityNfts: WalletNFT[],
