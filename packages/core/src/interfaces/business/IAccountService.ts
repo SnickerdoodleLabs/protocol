@@ -108,6 +108,10 @@ export interface IAccountService {
     WalletNftWithHistory[],
     PersistenceError
   >;
+  getNftsWithHistoryUsingBenchmark(
+    benchmark: UnixTimestamp,
+  ): ResultAsync<WalletNftWithHistory[], PersistenceError>;
+
   getTransctions(
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], PersistenceError>;

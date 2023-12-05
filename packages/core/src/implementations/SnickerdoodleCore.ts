@@ -696,6 +696,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           this.iocContainer.get<IAccountService>(IAccountServiceType);
         return accountService.getCachedNftsWithHistory();
       },
+      getNftsWithHistoryUsingBenchmark: (
+        benchmark: UnixTimestamp,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+        return accountService.getNftsWithHistoryUsingBenchmark(benchmark);
+      },
     };
   }
 

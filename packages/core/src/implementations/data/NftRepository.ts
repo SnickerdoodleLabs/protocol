@@ -86,6 +86,36 @@ export class NftRepository implements INftRepository {
     });
   }
 
+  /**
+   * Retrieves WalletNftWithHistory objects with a benchmark timestamp filter.
+   * This method uses both the indexed db and cache nfts
+   *
+   * @param benchmark The Unix timestamp to filter WalletNftWithHistory objects by.
+   * @param chains (Optional) An array of EChain values to filter WalletNftWithHistory objects by chain.
+   * @param accounts (Optional) An array of LinkedAccount objects to filter WalletNftWithHistory objects by account.
+   * @returns  An array of filtered WalletNftWithHistory objects
+   */
+  public getNftsWithHistoryUsingBenchmark(
+    benchmark: UnixTimestamp,
+    chains?: EChain[] | undefined,
+    accounts?: LinkedAccount[] | undefined,
+  ): ResultAsync<WalletNftWithHistory[], PersistenceError> {
+    //Should update the cache first if needed
+    return this.getCachedNFTs(chains, accounts).andThen((cachedNfts) => {
+      return ResultUtils.combine([
+        this.getNFTsHistory(),
+        this.getPersistenceNFTs(),
+      ]).map(([walletNftHistories, indexedDbNfts]) => {
+        const mergedNfts = this.mergeWalletNFTs(indexedDbNfts, cachedNfts);
+        const nftsWithHistory = this.addHistoriesToWalletNfts(
+          mergedNfts,
+          walletNftHistories,
+        );
+        return this.filterNftHistoriesByTimestamp(benchmark, nftsWithHistory);
+      });
+    });
+  }
+
   public getPersistenceNFTs(): ResultAsync<WalletNFT[], PersistenceError> {
     return this.persistence.getAll<WalletNFT>(ERecordKey.NFTS);
   }
@@ -289,6 +319,40 @@ export class NftRepository implements INftRepository {
         return indexerResponse;
       });
     });
+  }
+
+  protected filterNftHistoriesByTimestamp(
+    benchmark: UnixTimestamp,
+    walletNftHistories: WalletNftWithHistory[],
+  ): WalletNftWithHistory[] {
+    return walletNftHistories.filter((walletNftWithHistory) => {
+      const latestMeasurementDate = walletNftWithHistory.history.reduce(
+        (maxDate, historyItem) => {
+          return historyItem.measurementDate > maxDate
+            ? historyItem.measurementDate
+            : maxDate;
+        },
+        0,
+      );
+
+      return latestMeasurementDate <= benchmark;
+    });
+  }
+  protected mergeWalletNFTs(
+    nfts: WalletNFT[],
+    priorityNfts: WalletNFT[],
+  ): WalletNFT[] {
+    const mergedMap: Map<NftTokenAddressWithTokenId, WalletNFT> = new Map();
+
+    nfts.forEach((item) => {
+      mergedMap.set(item.id, item);
+    });
+
+    priorityNfts.forEach((item) => {
+      mergedMap.set(item.id, item);
+    });
+
+    return [...mergedMap.values()];
   }
 
   protected getNftsFromIndexers(

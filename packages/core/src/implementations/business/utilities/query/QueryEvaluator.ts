@@ -167,7 +167,7 @@ export class QueryEvaluator implements IQueryEvaluator {
           ),
         );
         return this.nftQueryEvaluator
-          .eval(query, queryCID)
+          .eval(query, queryCID, queryTimestamp)
           .map((result) => {
             context.publicEvents.queryPerformance.next(
               new QueryPerformanceEvent(

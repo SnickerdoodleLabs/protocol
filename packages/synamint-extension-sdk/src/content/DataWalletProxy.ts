@@ -62,7 +62,15 @@ import {
   RefreshToken,
   TransactionFilter,
   IProxyAccountMethods,
+  INftProxyMethods,
 } from "@snickerdoodlelabs/objects";
+import { JsonRpcEngine } from "json-rpc-engine";
+import { createStreamMiddleware } from "json-rpc-middleware-stream";
+import { ResultAsync } from "neverthrow";
+import ObjectMultiplex from "obj-multiplex";
+import LocalMessageStream from "post-message-stream";
+import pump from "pump";
+
 import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 import {
   CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
@@ -99,12 +107,6 @@ import {
   UpdateAgreementPermissionsParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
-import { JsonRpcEngine } from "json-rpc-engine";
-import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import { ResultAsync } from "neverthrow";
-import ObjectMultiplex from "obj-multiplex";
-import LocalMessageStream from "post-message-stream";
-import pump from "pump";
 
 let coreGateway: ExternalCoreGateway;
 let eventEmitter: UpdatableEventEmitterWrapper;
@@ -158,6 +160,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public metrics: IProxyMetricsMethods;
   public twitter: IProxyTwitterMethods;
   public storage: IProxyStorageMethods;
+  public nft: INftProxyMethods;
   public events: PublicEvents;
 
   public proxyType: ECoreProxyType = ECoreProxyType.EXTENSION_INJECTED;
@@ -331,6 +334,24 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     this.metrics = {
       getMetrics: () => {
         return coreGateway.metrics.getMetrics();
+      },
+    };
+
+    this.nft = {
+      getCachedNFTs: () => {
+        return coreGateway.nft.getCachedNFTs();
+      },
+      getPersistenceNFTs: () => {
+        return coreGateway.nft.getPersistenceNFTs();
+      },
+      getNFTsHistory: () => {
+        return coreGateway.nft.getNFTsHistory();
+      },
+      getCachedNftsWithHistory: () => {
+        return coreGateway.nft.getCachedNftsWithHistory();
+      },
+      getNftsWithHistoryUsingBenchmark: (benchmark: UnixTimestamp) => {
+        return coreGateway.nft.getNftsWithHistoryUsingBenchmark(benchmark);
       },
     };
 
@@ -511,9 +532,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public getAccountBalances() {
     return coreGateway.getAccountBalances();
   }
-  public getAccountNFTs() {
-    return coreGateway.getAccountNFTs();
-  }
+
   public getFamilyName() {
     return coreGateway.getFamilyName();
   }

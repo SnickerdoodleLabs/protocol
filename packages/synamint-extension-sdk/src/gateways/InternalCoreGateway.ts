@@ -44,7 +44,7 @@ export class InternalCoreGateway {
   public getAccountBalances(): ResultAsync<TokenBalance[], ProxyError> {
     return this._handler.call(new GetAccountBalancesParams());
   }
-  public getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError> {
+  public getAccountCachedNFTs(): ResultAsync<WalletNFT[], ProxyError> {
     return this._handler.call(new GetAccountCachedNFTsParams());
   }
   public isDataWalletAddressInitialized(): ResultAsync<boolean, ProxyError> {

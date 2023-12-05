@@ -137,6 +137,7 @@ import {
   GetPersistenceNFTsParams,
   GetAccountNFTHistoryParams,
   GetAccountCachedNFTsWithHistoryParams,
+  GetAccountNftsWithHistoryUsingBenchmarkParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -259,6 +260,15 @@ export class RpcCallHandler implements IRpcCallHandler {
       GetAccountCachedNFTsWithHistoryParams.getCoreAction(),
       (_params) => {
         return this.accountService.getCachedNftsWithHistory();
+      },
+    ),
+
+    new CoreActionHandler<GetAccountNftsWithHistoryUsingBenchmarkParams>(
+      GetAccountNftsWithHistoryUsingBenchmarkParams.getCoreAction(),
+      (_params) => {
+        return this.accountService.getNftsWithHistoryUsingBenchmark(
+          _params.benchmark,
+        );
       },
     ),
 
