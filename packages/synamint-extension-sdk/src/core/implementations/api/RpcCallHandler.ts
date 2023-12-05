@@ -10,6 +10,17 @@ import {
   ISnickerdoodleCore,
   DataPermissions,
 } from "@snickerdoodlelabs/objects";
+import { BigNumber } from "ethers";
+import { inject, injectable } from "inversify";
+import {
+  AsyncJsonRpcEngineNextCallback,
+  JsonRpcRequest,
+  PendingJsonRpcResponse,
+} from "json-rpc-engine";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { parse } from "tldts";
+import { Runtime } from "webextension-polyfill";
+
 import { IRpcCallHandler } from "@synamint-extension-sdk/core/interfaces/api";
 import {
   IAccountService,
@@ -68,7 +79,7 @@ import {
   GetEarnedRewardsParams,
   GetAccountsParams,
   GetAccountBalancesParams,
-  GetAccountNFTsParams,
+  GetAccountCachedNFTsParams,
   GetAgeParams,
   GetGivenNameParams,
   GetEmailParams,
@@ -123,17 +134,10 @@ import {
   UpdateAgreementPermissionsParams,
   SnickerDoodleCoreError,
   GetConsentContractURLsParams,
+  GetPersistenceNFTsParams,
+  GetAccountNFTHistoryParams,
+  GetAccountCachedNFTsWithHistoryParams,
 } from "@synamint-extension-sdk/shared";
-import { BigNumber } from "ethers";
-import { inject, injectable } from "inversify";
-import {
-  AsyncJsonRpcEngineNextCallback,
-  JsonRpcRequest,
-  PendingJsonRpcResponse,
-} from "json-rpc-engine";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-import { parse } from "tldts";
-import { Runtime } from "webextension-polyfill";
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
@@ -229,10 +233,32 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this.accountService.getAccountBalances();
       },
     ),
-    new CoreActionHandler<GetAccountNFTsParams>(
-      GetAccountNFTsParams.getCoreAction(),
+
+    new CoreActionHandler<GetAccountCachedNFTsParams>(
+      GetAccountCachedNFTsParams.getCoreAction(),
       (_params) => {
-        return this.accountService.getAccountNFTs();
+        return this.accountService.getCachedNFTs();
+      },
+    ),
+
+    new CoreActionHandler<GetPersistenceNFTsParams>(
+      GetPersistenceNFTsParams.getCoreAction(),
+      (_params) => {
+        return this.accountService.getPersistenceNFTs();
+      },
+    ),
+
+    new CoreActionHandler<GetAccountNFTHistoryParams>(
+      GetAccountNFTHistoryParams.getCoreAction(),
+      (_params) => {
+        return this.accountService.getNFTsHistory();
+      },
+    ),
+
+    new CoreActionHandler<GetAccountCachedNFTsWithHistoryParams>(
+      GetAccountCachedNFTsWithHistoryParams.getCoreAction(),
+      (_params) => {
+        return this.accountService.getCachedNftsWithHistory();
       },
     ),
 

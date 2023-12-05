@@ -54,10 +54,8 @@ import {
   ICloudStorageManager,
   ICloudStorageManagerType,
   ICloudStorage,
-  GoogleCloudStorage,
   DropboxCloudStorage,
   IDropboxCloudStorageType,
-  IGDriveCloudStorageType,
   IPersistenceContextProvider,
   IPersistenceContextProviderType,
   NullCloudStorage,
@@ -140,6 +138,7 @@ import {
   TransactionHistoryRepository,
   TwitterRepository,
   AuthenticatedStorageRepository,
+  NftRepository,
 } from "@core/implementations/data/index.js";
 import { ContractFactory } from "@core/implementations/utilities/factory/index.js";
 import {
@@ -235,6 +234,8 @@ import {
   IPermissionRepositoryType,
   IPortfolioBalanceRepository,
   IPortfolioBalanceRepositoryType,
+  INftRepository,
+  INftRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
   ISocialRepository,
@@ -388,6 +389,11 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IPortfolioBalanceRepository>(IPortfolioBalanceRepositoryType)
       .to(PortfolioBalanceRepository)
       .inSingletonScope();
+
+    bind<INftRepository>(INftRepositoryType)
+      .to(NftRepository)
+      .inSingletonScope();
+
     bind<ITransactionHistoryRepository>(ITransactionHistoryRepositoryType)
       .to(TransactionHistoryRepository)
       .inSingletonScope();

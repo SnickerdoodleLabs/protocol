@@ -60,6 +60,8 @@ export * from "@objects/primitives/JsonWebToken.js";
 export * from "@objects/primitives/LanguageCode.js";
 export * from "@objects/primitives/MarketplaceTag.js";
 export * from "@objects/primitives/MillisecondTimestamp.js";
+export * from "@objects/primitives/NftIdWithMeasurementDate.js";
+export * from "@objects/primitives/NftTokenAddressWithTokenId.js";
 export * from "@objects/primitives/OAuthAuthorizationCode.js";
 export * from "@objects/primitives/OAuthRelatedTypes.js";
 export * from "@objects/primitives/PasswordString.js";

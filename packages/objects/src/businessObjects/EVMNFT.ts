@@ -1,4 +1,4 @@
-import { WalletNFT } from "@objects/businessObjects/WalletNFT.js";
+import { WalletNFT } from "@objects/businessObjects/versioned/WalletNFT.js";
 import { EChain, EChainTechnology } from "@objects/enum/index.js";
 import {
   EVMContractAddress,
@@ -7,6 +7,7 @@ import {
   BigNumberString,
   BlockNumber,
   UnixTimestamp,
+  NftTokenAddressWithTokenId,
 } from "@objects/primitives/index.js";
 
 export class EVMNFT extends WalletNFT {
@@ -23,6 +24,13 @@ export class EVMNFT extends WalletNFT {
     public blockNumber?: BlockNumber,
     public lastOwnerTimeStamp?: UnixTimestamp,
   ) {
-    super(EChainTechnology.EVM, chain, owner, token, name);
+    super(
+      EChainTechnology.EVM,
+      chain,
+      owner,
+      token,
+      name,
+      NftTokenAddressWithTokenId(token, tokenId),
+    );
   }
 }

@@ -19,6 +19,7 @@ export * from "@objects/enum/EDataWalletPermission.js";
 export * from "@objects/enum/EExtensionEvent.js";
 export * from "@objects/enum/EExternalApi.js";
 export * from "@objects/enum/EHashAlgorithm.js";
+export * from "@objects/enum/EIndexedDbOp.js";
 export * from "@objects/enum/ESolidityAbiParameterType.js";
 export * from "@objects/enum/EIndexer.js";
 export * from "@objects/enum/EIndexerMethod.js";
