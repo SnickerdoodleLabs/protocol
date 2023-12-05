@@ -322,24 +322,28 @@ export class NftRepository implements INftRepository {
     walletNftHistories: WalletNftWithHistory[],
   ): WalletNftWithHistory[] {
     return walletNftHistories.filter((walletNftWithHistory) => {
-      const validHistoryItems = walletNftWithHistory.history.filter(
-        (historyItem) => historyItem.event !== EIndexedDbOp.Removed,
-      );
+      const validHistoryItems = walletNftWithHistory.history;
 
       if (validHistoryItems.length === 0) {
         return false;
       }
 
-      const latestMeasurementDate = validHistoryItems.reduce(
-        (maxDate, historyItem) => {
-          return historyItem.measurementDate > maxDate
-            ? historyItem.measurementDate
-            : maxDate;
-        },
-        0,
+      validHistoryItems.sort((a, b) => a.measurementDate - b.measurementDate);
+
+      const insertIndex = validHistoryItems.findIndex(
+        (historyItem) => historyItem.measurementDate >= benchmark,
       );
 
-      return latestMeasurementDate <= benchmark;
+      if (insertIndex === -1) {
+        return false;
+      }
+
+      if (insertIndex > 0) {
+        const latestValidEvent = validHistoryItems[insertIndex - 1];
+        return latestValidEvent.event !== EIndexedDbOp.Removed;
+      }
+
+      return false;
     });
   }
 
