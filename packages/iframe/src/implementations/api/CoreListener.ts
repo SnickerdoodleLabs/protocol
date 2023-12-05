@@ -392,7 +392,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      getCachedNFTs: (data: IIFrameCallData<Record<string, never>>) => {
+      "nft.getCachedNFTs": (data: IIFrameCallData<Record<string, never>>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
             return core.nft.getCachedNFTs(this.sourceDomain);
@@ -400,7 +400,9 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      getPersistenceNFTs: (data: IIFrameCallData<Record<string, never>>) => {
+      "nft.getPersistenceNFTs": (
+        data: IIFrameCallData<Record<string, never>>,
+      ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
             return core.nft.getPersistenceNFTs(this.sourceDomain);
@@ -408,7 +410,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      getNFTsHistory: (data: IIFrameCallData<Record<string, never>>) => {
+      "nft.getNFTsHistory": (data: IIFrameCallData<Record<string, never>>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
             return core.nft.getNFTsHistory(this.sourceDomain);
@@ -416,7 +418,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      getCachedNftsWithHistory: (
+      "nft.getCachedNftsWithHistory": (
         data: IIFrameCallData<Record<string, never>>,
       ) => {
         this.returnForModel(() => {
@@ -426,7 +428,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      getNftsWithHistoryUsingBenchmark: (
+      "nft.getNftsWithHistoryUsingBenchmark": (
         data: IIFrameCallData<{
           benchmark: UnixTimestamp;
         }>,
