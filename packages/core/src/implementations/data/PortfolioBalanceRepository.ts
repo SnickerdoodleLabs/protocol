@@ -14,7 +14,6 @@ import {
   LinkedAccount,
   TokenBalance,
   PersistenceError,
-  WalletNFT,
   AccountIndexingError,
   AjaxError,
   chainConfig,
@@ -26,7 +25,6 @@ import {
   EChain,
   ERewardType,
   DirectReward,
-  EVMNFT,
   BigNumberString,
   URLString,
   InvalidParametersError,
@@ -57,7 +55,6 @@ import {
 @injectable()
 export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
   private _balanceCache?: ResultAsync<TimedCache<TokenBalance[]>, never>;
-  private _nftCache?: ResultAsync<TimedCache<WalletNFT[]>, never>;
 
   public constructor(
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
@@ -72,13 +69,13 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
-    // reset portfolio cache on account addition and removal
+    // reset balance cache on account addition and removal
     this.contextProvider.getContext().map((context) => {
       context.publicEvents.onAccountAdded.subscribe((account) =>
-        this._clearPortfolioCaches(account),
+        this._clearBalanceCache(account),
       );
       context.publicEvents.onAccountRemoved.subscribe((account) =>
-        this._clearPortfolioCaches(account),
+        this._clearBalanceCache(account),
       );
     });
   }
@@ -117,38 +114,6 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
         });
       })
       .mapErr((e) => new PersistenceError("error aggregating balances", e));
-  }
-
-  public getAccountNFTs(
-    chains?: EChain[],
-    accounts?: LinkedAccount[],
-  ): ResultAsync<WalletNFT[], PersistenceError> {
-    return ResultUtils.combine([
-      this.accountRepo.getAccounts(),
-      this.masterIndexer.getSupportedChains(EIndexerMethod.NFTs),
-    ])
-      .andThen(([linkedAccounts, supportedChains]) => {
-        return ResultUtils.combine(
-          (accounts ?? linkedAccounts).map((linkedAccount) => {
-            return ResultUtils.combine(
-              (chains ?? supportedChains).map((chain) => {
-                if (!isAccountValidForChain(chain, linkedAccount)) {
-                  return okAsync([]);
-                }
-
-                return this.getCachedNFTs(
-                  chain,
-                  linkedAccount.sourceAccountAddress,
-                );
-              }),
-            );
-          }),
-        );
-      })
-      .map((nftArr) => {
-        return nftArr.flat(2);
-      })
-      .mapErr((e) => new PersistenceError("error aggregating nfts", e));
   }
 
   private getCachedBalances(
@@ -190,148 +155,12 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
     });
   }
 
-  private getCachedNFTs(
-    chain: EChain,
-    accountAddress: AccountAddress,
-  ): ResultAsync<
-    WalletNFT[],
-    | PersistenceError
-    | AjaxError
-    | AccountIndexingError
-    | MethodSupportError
-    | InvalidParametersError
-  > {
-    return this._getNftCache().andThen((cache) => {
-      const cacheResult = cache.get(chain, accountAddress);
-
-      if (cacheResult != null) {
-        return okAsync(cacheResult);
-      }
-
-      // getSupportedChains() is not exactly expensive but we don't need to do it if we have a cache hit
-      return ResultUtils.combine([
-        this.contextProvider.getContext(),
-        this.masterIndexer.getSupportedChains(EIndexerMethod.NFTs),
-      ]).andThen(([context, supportedChains]) => {
-        // For some chains, we don't have a way to index NFTs yet.
-        // For these chains, we'll just return the earned rewards as NFTs.
-        // chain == EChain.Astar || chain == EChain.Shibuya
-        if (!supportedChains.includes(chain)) {
-          return this.earnedRewardsToNFTs(chain).map((nfts) => {
-            cache.set(nfts, chain, accountAddress);
-            return nfts;
-          });
-        }
-
-        return this.getNonCachedNfts(chain, accountAddress).map((nfts) => {
-          context.publicEvents.onNftBalanceUpdate.next(
-            new PortfolioUpdate(
-              accountAddress,
-              chain,
-              new Date().getTime(),
-              nfts,
-            ),
-          );
-
-          cache.set(nfts, chain, accountAddress);
-          return nfts;
-        });
-      });
-    });
-  }
-
-  private getNonCachedNfts(
-    chain: EChain,
-    accountAddress: AccountAddress,
-  ): ResultAsync<
-    WalletNFT[],
-    | PersistenceError
-    | AccountIndexingError
-    | AjaxError
-    | MethodSupportError
-    | InvalidParametersError
-  > {
-    return ResultUtils.combine([
-      this.getNftsFromIndexers(chain, accountAddress),
-      this.getNftsFromIndexedDb(),
-    ]).andThen(([indexerResponse, indexedDbNfts]) => {
-      const [missingInIndexer, missingInIndexedDb] =
-        this.checkForChangesInNftOwnership(indexerResponse, indexedDbNfts);
-
-      return ResultUtils.combine([
-        this.upsertNftsToIndexedDb(missingInIndexedDb),
-        this.addNftHistoryToIndexedDb(missingInIndexer, missingInIndexedDb),
-      ]).map(() => {
-        return indexerResponse;
-      });
-    });
-  }
-
-  private getNftsFromIndexers(
-    chain: EChain,
-    accountAddress: AccountAddress,
-  ): ResultAsync<
-    WalletNFT[],
-    | PersistenceError
-    | AccountIndexingError
-    | AjaxError
-    | MethodSupportError
-    | InvalidParametersError
-  > {
-    return this.masterIndexer.getLatestNFTs(chain, accountAddress);
-  }
-
-  private addNftHistoryToIndexedDb(
-    nftsThatWereTransferred: WalletNFT[],
-    nftsThatWereReceived: WalletNFT[],
-  ): ResultAsync<void, PersistenceError> {
-    return ResultUtils.combine([
-      ...nftsThatWereTransferred.map((nft) => {
-        return this.persistence.updateRecord(ERecordKey.NFTS_HISTORY, nft);
-      }),
-      ...nftsThatWereReceived.map((nft) => {
-        return this.persistence.updateRecord(ERecordKey.NFTS_HISTORY, nft);
-      }),
-    ]).map(() => {});
-  }
-
-  private upsertNftsToIndexedDb(
-    nfts: WalletNFT[],
-  ): ResultAsync<void[], PersistenceError> {
-    return ResultUtils.combine(
-      nfts.map((nft) => {
-        return this.persistence.updateRecord(ERecordKey.NFTS, nft);
-      }),
-    );
-  }
-
-  private checkForChangesInNftOwnership(
-    indexerResponse: WalletNFT[],
-    indexedDbNfts: WalletNFT[],
-  ): [missingInIndexer: WalletNFT[], missingInIndexedDb: WalletNFT[]] {
-    const missingInIndexer = indexedDbNfts.filter(
-      (dbNft) => !indexerResponse.some((nft) => nft.id === dbNft.id),
-    );
-    const missingInIndexedDb = indexerResponse.filter(
-      (nft) => !indexedDbNfts.some((dbNft) => dbNft.id === nft.id),
-    );
-
-    return [missingInIndexer, missingInIndexedDb];
-  }
-
-  private getNftsFromIndexedDb(): ResultAsync<WalletNFT[], PersistenceError> {
-    return this.persistence.getAll<WalletNFT>(ERecordKey.NFTS);
-  }
-
-  private _clearPortfolioCaches(
-    account: LinkedAccount,
-  ): ResultAsync<void, never> {
-    return ResultUtils.combine([this._getBalanceCache(), this._getNftCache()])
-      .map(([balanceCache, nftCache]) => {
+  private _clearBalanceCache(account: LinkedAccount): ResultAsync<void, never> {
+    return this._getBalanceCache()
+      .map((balanceCache) => {
         chainConfig.forEach((_, chainId) => {
           if (isAccountValidForChain(chainId, account)) {
             balanceCache.clear(chainId, account.sourceAccountAddress);
-            nftCache.clear(chainId, account.sourceAccountAddress);
           }
         });
       })
@@ -349,54 +178,5 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
     }
 
     return this._balanceCache;
-  }
-
-  protected _getNftCache(): ResultAsync<TimedCache<WalletNFT[]>, never> {
-    if (this._nftCache == null) {
-      this._nftCache = this.configProvider.getConfig().map((config) => {
-        return new TimedCache<WalletNFT[]>(
-          Math.floor(config.accountNFTPollingIntervalMS / 1000),
-          this.timeUtils,
-        );
-      });
-    }
-
-    return this._nftCache;
-  }
-
-  protected earnedRewardsToNFTs(chain: EChain) {
-    return ResultUtils.combine([
-      this.accountRepo.getEarnedRewards(),
-      this.configProvider.getConfig(),
-    ]).map(([rewards, config]) => {
-      return (
-        rewards.filter((reward) => {
-          return (
-            reward.type == ERewardType.Direct &&
-            (reward as DirectReward).chainId == chain
-          );
-        }) as DirectReward[]
-      ).map((reward) => {
-        return new EVMNFT(
-          reward.contractAddress,
-          BigNumberString("1"),
-          reward.type,
-          reward.recipientAddress,
-          undefined,
-          {
-            // Add image URL to the raw data
-            raw: ObjectUtils.serialize({
-              ...reward,
-              image: URLString(urlJoin(config.ipfsFetchBaseUrl, reward.image)),
-            }),
-          }, // metadata
-          BigNumberString("1"),
-          reward.name,
-          chain,
-          undefined,
-          undefined,
-        );
-      });
-    });
   }
 }

@@ -98,11 +98,11 @@ export class NftRepository implements INftRepository {
     chains?: EChain[] | undefined,
     accounts?: LinkedAccount[] | undefined,
   ): ResultAsync<WalletNftWithHistory[], PersistenceError> {
-    return ResultUtils.combine([
-      this.getCachedNFTs(chains, accounts),
-      this.getNFTsHistory(),
-    ]).map(([cachedNfts, nftHistories]) => {
-      return this.addHistoriesToWalletNfts(cachedNfts, nftHistories);
+    //Should update the cache first if needed
+    return this.getCachedNFTs(chains, accounts).andThen((cachedNfts) => {
+      return this.getNFTsHistory().map((nftHistories) => {
+        return this.addHistoriesToWalletNfts(cachedNfts, nftHistories);
+      });
     });
   }
 
@@ -229,7 +229,7 @@ export class NftRepository implements INftRepository {
         });
       }
 
-      return this.getNonCachedNftsAndUpdateIndexedDb(chain, accountAddress).map(
+      return this.getIndexerNftsAndUpdateIndexedDb(chain, accountAddress).map(
         (nfts) => {
           context.publicEvents.onNftBalanceUpdate.next(
             new PortfolioUpdate(
@@ -264,7 +264,7 @@ export class NftRepository implements INftRepository {
    * @param accountAddress The user's account address.
    * @returns NFTs from the indexers.
    */
-  protected getNonCachedNftsAndUpdateIndexedDb(
+  protected getIndexerNftsAndUpdateIndexedDb(
     chain: EChain,
     accountAddress: AccountAddress,
   ): ResultAsync<
