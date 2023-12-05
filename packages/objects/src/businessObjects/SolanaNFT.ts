@@ -18,8 +18,7 @@ export class SolanaNFT extends WalletNFT {
   public constructor(
     public chain: EChain,
     public owner: SolanaAccountAddress,
-    public mint: SolanaTokenAddress, //seems like token id
-    // should have mint.address?
+    public mint: SolanaTokenAddress,
     public collection: SolanaCollection | null,
     public metadataUri: string,
     public isMutable: boolean,
@@ -30,14 +29,13 @@ export class SolanaNFT extends WalletNFT {
     public symbol: TickerSymbol,
     public name: string,
   ) {
-    //!!!!
     super(
       EChainTechnology.Solana,
       chain,
       owner,
       mint,
       name,
-      NftTokenAddressWithTokenId(mint, mint),
+      NftTokenAddressWithTokenId(updateAuthority, mint),
     );
   }
 }
