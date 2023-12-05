@@ -33,7 +33,7 @@ Choose one of the following options to set up the Snickerdoodle extension SDK in
 node node_modules/@snickerdoodlelabs/synamint-extension-sdk/shim.js
 ```
 
-or you can add this `node_modules/@snickerdoodlelabs/synamint-extension-sdk/shim.js` the end of your build script in package.json
+or you can add `node_modules/@snickerdoodlelabs/synamint-extension-sdk/shim.js` at the end of your build script in package.json
 
 ```json
 {
