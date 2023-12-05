@@ -24,6 +24,7 @@ import {
   ISnickerdoodleCoreType,
   WalletNFTHistory,
   WalletNftWithHistory,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -84,27 +85,36 @@ export class AccountService implements IAccountService {
     return this.accountRepository.getAccountBalances();
   }
 
-  public getCachedNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
-    return this.accountRepository.getCachedNFTs();
+  public getCachedNFTs(
+    sourceDomain?: DomainName,
+  ): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
+    return this.accountRepository.getCachedNFTs(sourceDomain);
   }
 
-  public getPersistenceNFTs(): ResultAsync<
-    WalletNFT[],
-    SnickerDoodleCoreError
-  > {
-    return this.accountRepository.getPersistenceNFTs();
+  public getPersistenceNFTs(
+    sourceDomain?: DomainName,
+  ): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
+    return this.accountRepository.getPersistenceNFTs(sourceDomain);
   }
-  public getNFTsHistory(): ResultAsync<
-    WalletNFTHistory[],
-    SnickerDoodleCoreError
-  > {
-    return this.accountRepository.getNFTsHistory();
+  public getNFTsHistory(
+    sourceDomain?: DomainName,
+  ): ResultAsync<WalletNFTHistory[], SnickerDoodleCoreError> {
+    return this.accountRepository.getNFTsHistory(sourceDomain);
   }
-  public getCachedNftsWithHistory(): ResultAsync<
-    WalletNftWithHistory[],
-    SnickerDoodleCoreError
-  > {
-    return this.accountRepository.getCachedNftsWithHistory();
+  public getCachedNftsWithHistory(
+    sourceDomain?: DomainName,
+  ): ResultAsync<WalletNftWithHistory[], SnickerDoodleCoreError> {
+    return this.accountRepository.getCachedNftsWithHistory(sourceDomain);
+  }
+
+  getNftsWithHistoryUsingBenchmark(
+    benchmark: UnixTimestamp,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<WalletNftWithHistory[], SnickerDoodleCoreError> {
+    return this.accountRepository.getNftsWithHistoryUsingBenchmark(
+      benchmark,
+      sourceDomain,
+    );
   }
 
   public addAccount(

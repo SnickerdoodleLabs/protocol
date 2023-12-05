@@ -69,8 +69,8 @@ export const DashboardContextProvider: FC = ({ children }) => {
   }, [linkedAccounts.length, appMode]);
 
   const initializeNfts = () => {
-    sdlDataWallet
-      .getAccountNFTs()
+    sdlDataWallet.nft
+      .getCachedNFTs()
       .mapErr((e) => {
         setIsNFTsLoading(false);
       })

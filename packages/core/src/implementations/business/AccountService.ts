@@ -119,6 +119,12 @@ export class AccountService implements IAccountService {
     return this.nftRepository.getCachedNFTs();
   }
 
+  getNftsWithHistoryUsingBenchmark(
+    benchmark: UnixTimestamp,
+  ): ResultAsync<WalletNftWithHistory[], PersistenceError> {
+    return this.nftRepository.getNftsWithHistoryUsingBenchmark(benchmark);
+  }
+
   public getTokenPrice(
     chainId: ChainId,
     address: TokenAddress,

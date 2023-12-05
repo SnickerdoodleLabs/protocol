@@ -426,6 +426,21 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
+      getNftsWithHistoryUsingBenchmark: (
+        data: IIFrameCallData<{
+          benchmark: UnixTimestamp;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.nft.getNftsWithHistoryUsingBenchmark(
+              data.data.benchmark,
+              this.sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
       getTransactions: (
         data: IIFrameCallData<{
           filter?: TransactionFilter;

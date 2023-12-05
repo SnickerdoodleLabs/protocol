@@ -22,6 +22,7 @@ import {
   DomainName,
   WalletNFTHistory,
   WalletNftWithHistory,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -68,6 +69,10 @@ export interface IAccountService {
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<WalletNFTHistory[], SnickerDoodleCoreError>;
   getCachedNftsWithHistory(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<WalletNftWithHistory[], SnickerDoodleCoreError>;
+  getNftsWithHistoryUsingBenchmark(
+    benchmark: UnixTimestamp,
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<WalletNftWithHistory[], SnickerDoodleCoreError>;
 

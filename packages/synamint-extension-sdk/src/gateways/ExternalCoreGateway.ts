@@ -64,6 +64,7 @@ import {
   IUserAgreement,
   PageInvitation,
   Invitation,
+  INftProxyMethods,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -146,6 +147,10 @@ import {
   AddAccountWithExternalTypedDataSignatureParams,
   UpdateAgreementPermissionsParams,
   GetConsentContractURLsParams,
+  GetPersistenceNFTsParams,
+  GetAccountNFTHistoryParams,
+  GetAccountCachedNFTsWithHistoryParams,
+  GetAccountNftsWithHistoryUsingBenchmarkParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -155,6 +160,7 @@ export class ExternalCoreGateway {
   public integration: IProxyIntegrationMethods;
   public metrics: IProxyMetricsMethods;
   public twitter: IProxyTwitterMethods;
+  public nft: INftProxyMethods;
   protected _handler: CoreHandler;
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
@@ -245,6 +251,26 @@ export class ExternalCoreGateway {
       unlink: (discordProfileId: DiscordID) => {
         return this._handler.call(
           new UnlinkDiscordAccountParams(discordProfileId),
+        );
+      },
+    };
+
+    this.nft = {
+      getCachedNFTs: () => {
+        return this._handler.call(new GetAccountCachedNFTsParams());
+      },
+      getPersistenceNFTs: () => {
+        return this._handler.call(new GetPersistenceNFTsParams());
+      },
+      getNFTsHistory: () => {
+        return this._handler.call(new GetAccountNFTHistoryParams());
+      },
+      getCachedNftsWithHistory: () => {
+        return this._handler.call(new GetAccountCachedNFTsWithHistoryParams());
+      },
+      getNftsWithHistoryUsingBenchmark: (benchmark: UnixTimestamp) => {
+        return this._handler.call(
+          new GetAccountNftsWithHistoryUsingBenchmarkParams(benchmark),
         );
       },
     };
@@ -405,9 +431,6 @@ export class ExternalCoreGateway {
     params: GetTokenInfoParams,
   ): ResultAsync<TokenInfo | null, ProxyError> {
     return this._handler.call(params);
-  }
-  public getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError> {
-    return this._handler.call(new GetAccountCachedNFTsParams());
   }
 
   public getTransactionValueByChain(): ResultAsync<

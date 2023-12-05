@@ -81,6 +81,9 @@ import {
   ChainTransaction,
   TransactionFilter,
   IUserAgreement,
+  INftProxyMethods,
+  WalletNFTHistory,
+  WalletNftWithHistory,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -368,10 +371,6 @@ export class SnickerdoodleIFrameProxy
 
   public getAccountBalances(): ResultAsync<TokenBalance[], ProxyError> {
     return this._createCall("getAccountBalances", null);
-  }
-
-  public getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError> {
-    return this._createCall("getAccountNFTs", null);
   }
 
   public getTransactionValueByChain(): ResultAsync<
@@ -662,6 +661,33 @@ export class SnickerdoodleIFrameProxy
     },
     unlink: (discordProfileId: DiscordID): ResultAsync<void, ProxyError> => {
       return this._createCall("discord.unlink", { discordProfileId });
+    },
+  };
+
+  public nft: INftProxyMethods = {
+    getCachedNFTs: (): ResultAsync<WalletNFT[], ProxyError> => {
+      return this._createCall("nft.getCachedNFTs", null);
+    },
+
+    getPersistenceNFTs: (): ResultAsync<WalletNFT[], ProxyError> => {
+      return this._createCall("nft.getPersistenceNFTs", null);
+    },
+
+    getNFTsHistory: (): ResultAsync<WalletNFTHistory[], ProxyError> => {
+      return this._createCall("nft.getNFTsHistory", null);
+    },
+    getCachedNftsWithHistory: (): ResultAsync<
+      WalletNftWithHistory[],
+      ProxyError
+    > => {
+      return this._createCall("nft.getCachedNftsWithHistory", null);
+    },
+    getNftsWithHistoryUsingBenchmark: (
+      benchmark: UnixTimestamp,
+    ): ResultAsync<WalletNftWithHistory[], ProxyError> => {
+      return this._createCall("nft.getNftsWithHistoryUsingBenchmark", {
+        benchmark,
+      });
     },
   };
 

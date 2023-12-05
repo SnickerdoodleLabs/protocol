@@ -665,16 +665,20 @@ export interface IMetricsMethods {
 
 export interface INftMethods {
   getCachedNFTs(
-    sourceDomain?: DomainName | undefined,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<WalletNFT[], PersistenceError>;
   getPersistenceNFTs(
-    sourceDomain?: DomainName | undefined,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<WalletNFT[], PersistenceError>;
   getNFTsHistory(
-    sourceDomain?: DomainName | undefined,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<WalletNFTHistory[], PersistenceError>;
   getCachedNftsWithHistory(
-    sourceDomain?: DomainName | undefined,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<WalletNftWithHistory[], PersistenceError>;
+  getNftsWithHistoryUsingBenchmark(
+    benchmark: UnixTimestamp,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<WalletNftWithHistory[], PersistenceError>;
 }
 

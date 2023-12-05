@@ -15,7 +15,6 @@ import {
   IpfsCID,
   EStatus,
   WalletNftWithHistory,
-  EWalletDataType,
   EChainTechnology,
   EIndexedDbOp,
 } from "@snickerdoodlelabs/objects";
@@ -45,6 +44,7 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
   public eval(
     query: AST_NftQuery,
     queryCID: IpfsCID,
+    queryTimestamp: UnixTimestamp,
   ): ResultAsync<SDQL_Return, PersistenceError> {
     return this.contextProvider.getContext().andThen((context) => {
       const networkId = query.schema.networkid;
@@ -67,7 +67,7 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
         ),
       );
       return this.nftRepository
-        .getCachedNftsWithHistory(chainIds)
+        .getNftsWithHistoryUsingBenchmark(queryTimestamp, chainIds)
         .map((walletNftWithHistory) => {
           context.publicEvents.queryPerformance.next(
             new QueryPerformanceEvent(
@@ -159,14 +159,15 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
   private getLatestMeasurementDate(
     walletNftWithHistory: WalletNftWithHistory,
   ): UnixTimestamp {
-    const historyEntries = walletNftWithHistory.history;
-    let latestMeasurementDate = historyEntries[0].measurementDate;
-    for (const entry of historyEntries) {
-      if (entry.measurementDate > latestMeasurementDate) {
-        latestMeasurementDate = entry.measurementDate;
-      }
-    }
-    return latestMeasurementDate;
+    const latestMeasurementDate = walletNftWithHistory.history.reduce(
+      (maxDate, historyItem) => {
+        return historyItem.measurementDate > maxDate
+          ? historyItem.measurementDate
+          : maxDate;
+      },
+      0,
+    );
+    return UnixTimestamp(latestMeasurementDate);
   }
 
   //Type guard https://www.typescriptlang.org/docs/handbook/2/narrowing.html#typeof-type-guards, needed for narrowing

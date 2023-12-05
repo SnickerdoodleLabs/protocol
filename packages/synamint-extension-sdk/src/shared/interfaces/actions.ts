@@ -568,6 +568,18 @@ export class GetAccountCachedNFTsWithHistoryParams extends CoreActionParams<
     return ECoreActions.GET_ACCOUNT_CACHED_NFTS_WITH_HISTORY;
   }
 }
+
+export class GetAccountNftsWithHistoryUsingBenchmarkParams extends CoreActionParams<
+  WalletNftWithHistory[]
+> {
+  public constructor(public benchmark: UnixTimestamp) {
+    super(GetAccountNftsWithHistoryUsingBenchmarkParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_ACCOUNT_NFTS_WITH_HISTORY_USING_BENCHMARK;
+  }
+}
+
 export class GetAccountBalancesParams extends CoreActionParams<TokenBalance[]> {
   public constructor() {
     super(GetAccountBalancesParams.getCoreAction());

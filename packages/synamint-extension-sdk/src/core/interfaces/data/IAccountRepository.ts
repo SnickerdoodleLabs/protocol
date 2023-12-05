@@ -18,6 +18,7 @@ import {
   DomainName,
   WalletNftWithHistory,
   WalletNFTHistory,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -40,13 +41,23 @@ export interface IAccountRepository {
   ): ResultAsync<LinkedAccount[], SnickerDoodleCoreError>;
   getAccountBalances(): ResultAsync<TokenBalance[], SnickerDoodleCoreError>;
 
-  getCachedNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError>;
-  getPersistenceNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError>;
-  getNFTsHistory(): ResultAsync<WalletNFTHistory[], SnickerDoodleCoreError>;
-  getCachedNftsWithHistory(): ResultAsync<
-    WalletNftWithHistory[],
-    SnickerDoodleCoreError
-  >;
+  getCachedNFTs(
+    sourceDomain?: DomainName,
+  ): ResultAsync<WalletNFT[], SnickerDoodleCoreError>;
+  getPersistenceNFTs(
+    sourceDomain?: DomainName,
+  ): ResultAsync<WalletNFT[], SnickerDoodleCoreError>;
+  getNFTsHistory(
+    sourceDomain?: DomainName,
+  ): ResultAsync<WalletNFTHistory[], SnickerDoodleCoreError>;
+  getCachedNftsWithHistory(
+    sourceDomain?: DomainName,
+  ): ResultAsync<WalletNftWithHistory[], SnickerDoodleCoreError>;
+  getNftsWithHistoryUsingBenchmark(
+    benchmark: UnixTimestamp,
+    sourceDomain?: DomainName,
+  ): ResultAsync<WalletNftWithHistory[], SnickerDoodleCoreError>;
+
   isDataWalletAddressInitialized(): ResultAsync<boolean, UnauthorizedError>;
   unlinkAccount(
     account: AccountAddress,

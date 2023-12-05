@@ -21,6 +21,7 @@ import {
   TransactionPaymentCounter,
   WalletNFTHistory,
   WalletNftWithHistory,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -111,41 +112,54 @@ export class AccountRepository implements IAccountRepository {
       });
   }
 
-  public getCachedNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
-    return this.core.nft.getCachedNFTs().mapErr((error) => {
+  public getCachedNFTs(
+    sourceDomain?: DomainName,
+  ): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
+    return this.core.nft.getCachedNFTs(sourceDomain).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
 
-  public getPersistenceNFTs(): ResultAsync<
-    WalletNFT[],
-    SnickerDoodleCoreError
-  > {
-    return this.core.nft.getPersistenceNFTs().mapErr((error) => {
+  public getPersistenceNFTs(
+    sourceDomain?: DomainName,
+  ): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
+    return this.core.nft.getPersistenceNFTs(sourceDomain).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
 
-  public getNFTsHistory(): ResultAsync<
-    WalletNFTHistory[],
-    SnickerDoodleCoreError
-  > {
-    return this.core.nft.getNFTsHistory().mapErr((error) => {
+  public getNFTsHistory(
+    sourceDomain?: DomainName,
+  ): ResultAsync<WalletNFTHistory[], SnickerDoodleCoreError> {
+    return this.core.nft.getNFTsHistory(sourceDomain).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
 
-  public getCachedNftsWithHistory(): ResultAsync<
-    WalletNftWithHistory[],
-    SnickerDoodleCoreError
-  > {
-    return this.core.nft.getCachedNftsWithHistory().mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
+  public getCachedNftsWithHistory(
+    sourceDomain?: DomainName,
+  ): ResultAsync<WalletNftWithHistory[], SnickerDoodleCoreError> {
+    return this.core.nft
+      .getCachedNftsWithHistory(sourceDomain)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
+  }
+
+  public getNftsWithHistoryUsingBenchmark(
+    benchmark: UnixTimestamp,
+    sourceDomain?: DomainName,
+  ): ResultAsync<WalletNftWithHistory[], SnickerDoodleCoreError> {
+    return this.core.nft
+      .getNftsWithHistoryUsingBenchmark(benchmark, sourceDomain)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
 
   public addAccount(
