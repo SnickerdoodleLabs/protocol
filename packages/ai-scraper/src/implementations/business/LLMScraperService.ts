@@ -37,8 +37,8 @@ import {
   IHTMLPreProcessorType,
   ILLMProductMetaUtils,
   ILLMProductMetaUtilsType,
-  ILLMProvider,
-  ILLMProviderType,
+  ILLMRepository,
+  ILLMRepositoryType,
   ILLMPurchaseHistoryUtils,
   ILLMPurchaseHistoryUtilsType,
   IPromptDirector,
@@ -55,8 +55,8 @@ export class LLMScraperService implements IScraperService {
     private logUtils: ILogUtils,
     @inject(IHTMLPreProcessorType)
     private htmlPreProcessor: IHTMLPreProcessor,
-    @inject(ILLMProviderType)
-    private llmProvider: ILLMProvider,
+    @inject(ILLMRepositoryType)
+    private llmProvider: ILLMRepository,
     @inject(IPromptDirectorType)
     private promptDirector: IPromptDirector,
     @inject(IWebpageClassifierType)

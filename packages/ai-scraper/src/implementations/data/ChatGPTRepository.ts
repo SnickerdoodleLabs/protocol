@@ -16,7 +16,7 @@ import {
 } from "openai/resources/chat";
 
 import {
-  ILLMProvider,
+  ILLMRepository,
   IOpenAIUtils,
   IOpenAIUtilsType,
   IScraperConfigProvider,
@@ -24,7 +24,7 @@ import {
 } from "@ai-scraper/interfaces/index.js";
 
 @injectable()
-export class ChatGPTProvider implements ILLMProvider {
+export class ChatGPTRepository implements ILLMRepository {
   private chatModel: TiktokenModel = "gpt-3.5-turbo";
   private temperature: number;
   private chatEncoder: Tiktoken;

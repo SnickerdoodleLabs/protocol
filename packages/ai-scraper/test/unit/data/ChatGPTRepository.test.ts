@@ -5,7 +5,7 @@ import { LLMError, LLMResponse, Prompt } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 import {
-  ChatGPTProvider,
+  ChatGPTRepository,
   LLMProductMetaUtilsChatGPT,
   LLMPurchaseHistoryUtilsChatGPT,
   OpenAIUtils,
@@ -43,15 +43,15 @@ class Mocks {
     this.productMetaLLMUtils,
   );
 
-  public factoryWithMockedClient(): ChatGPTProvider {
-    return new ChatGPTProvider(
+  public factoryWithMockedClient(): ChatGPTRepository {
+    return new ChatGPTRepository(
       this.configProvider,
       this.logUtils,
       this.mockOpenAiUtils,
     );
   }
-  public factoryWithRealClient(): ChatGPTProvider {
-    return new ChatGPTProvider(
+  public factoryWithRealClient(): ChatGPTRepository {
+    return new ChatGPTRepository(
       this.configProvider,
       this.logUtils,
       this.openAIUtils,
@@ -59,7 +59,7 @@ class Mocks {
   }
 }
 
-describe("ChatGPTProvider with Mock OpenAI api", () => {
+describe("ChatGPTRepository with Mock OpenAI api", () => {
   test("executePrompt: Hello world", async () => {
     // Arrange
     const mocks = new Mocks();
@@ -78,7 +78,7 @@ describe("ChatGPTProvider with Mock OpenAI api", () => {
   });
 });
 
-describe("ChatGPTProvider with Real OpenAI api", () => {
+describe("ChatGPTRepository with Real OpenAI api", () => {
   test.skip(
     "executePrompt: ",
     async () => {

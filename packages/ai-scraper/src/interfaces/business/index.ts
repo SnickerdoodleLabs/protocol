@@ -1,5 +1,4 @@
 export * from "@ai-scraper/interfaces/business/IHTMLPreProcessor.js";
-export * from "@ai-scraper/interfaces/business/ILLMProvider.js";
 export * from "@ai-scraper/interfaces/business/ILLMResponseProcessor.js";
 export * from "@ai-scraper/interfaces/business/ILLMScraper.js";
 export * from "@ai-scraper/interfaces/business/IPromptDirector.js";

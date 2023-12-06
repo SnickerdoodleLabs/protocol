@@ -3,7 +3,7 @@ import { ContainerModule, interfaces } from "inversify";
 import {
   OpenAIUtils,
   LLMScraperService,
-  ChatGPTProvider,
+  ChatGPTRepository,
   HTMLPreProcessor,
   PromptDirector,
   LLMPurchaseHistoryUtilsChatGPT,
@@ -22,8 +22,8 @@ import {
   IOpenAIUtilsType,
   IScraperService,
   IScraperServiceType,
-  ILLMProvider,
-  ILLMProviderType,
+  ILLMRepository,
+  ILLMRepositoryType,
   IHTMLPreProcessor,
   IHTMLPreProcessorType,
   IPromptDirector,
@@ -61,7 +61,9 @@ export const scraperModule = new ContainerModule(
     bind<IScraperService>(IScraperServiceType)
       .to(LLMScraperService)
       .inSingletonScope();
-    bind<ILLMProvider>(ILLMProviderType).to(ChatGPTProvider).inSingletonScope();
+    bind<ILLMRepository>(ILLMRepositoryType)
+      .to(ChatGPTRepository)
+      .inSingletonScope();
     bind<IHTMLPreProcessor>(IHTMLPreProcessorType)
       .to(HTMLPreProcessor)
       .inSingletonScope();
