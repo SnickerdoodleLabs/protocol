@@ -1,15 +1,3 @@
-import AccountChainBar from "@extension-onboarding/components/AccountChainBar";
-import {
-  EVMNFTItem,
-  SolanaNFTItem,
-  SuiNFTItem,
-} from "@extension-onboarding/components/NFTItem";
-import Card from "@extension-onboarding/components/v2/Card";
-import CustomSizeGrid from "@extension-onboarding/components/v2/CustomSizeGrid";
-import EmptyItem from "@extension-onboarding/components/v2/EmptyItem";
-import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
 import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
 import {
   ChainId,
@@ -22,6 +10,19 @@ import {
   getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
 import React, { useMemo, useState } from "react";
+
+import AccountChainBar from "@extension-onboarding/components/AccountChainBar";
+import {
+  EVMNFTItem,
+  SolanaNFTItem,
+  SuiNFTItem,
+} from "@extension-onboarding/components/NFTItem";
+import Card from "@extension-onboarding/components/v2/Card";
+import CustomSizeGrid from "@extension-onboarding/components/v2/CustomSizeGrid";
+import EmptyItem from "@extension-onboarding/components/v2/EmptyItem";
+import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
 
 export enum EDisplayMode {
   MAINNET,
