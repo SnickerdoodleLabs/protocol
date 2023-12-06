@@ -74,7 +74,7 @@ export class LLMScraperService implements IScraperService {
   ) {}
 
   public poll(): ResultAsync<void, ScraperError> {
-    throw new Error("Method not implemented.");
+    return errAsync(new ScraperError("poll not implemented"));
   }
 
   public classifyURL(
