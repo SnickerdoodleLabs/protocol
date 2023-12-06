@@ -25,7 +25,6 @@
     "!dist/test",
     "!dist/tsconfig.tsbuildinfo",
     "!test",
-    "!src",
     "!tsconfig.json"
   ],
   "scripts": {
