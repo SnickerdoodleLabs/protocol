@@ -1,7 +1,6 @@
 import "reflect-metadata";
-import { HTMLString } from "@snickerdoodlelabs/objects";
 
-import { HTMLPreProcessor } from "@ai-scraper/implementations/business/HTMLPreProcessor";
+import { HTMLPreProcessor } from "@ai-scraper/implementations/utils/HTMLPreProcessor";
 import { IHTMLPreProcessor } from "@ai-scraper/interfaces";
 import {
   fullHtml,
