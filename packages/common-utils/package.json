@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/common-utils",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Common utils classes used in snickerdoodlelabs projects",
   "license": "MIT",
   "repository": {
@@ -21,6 +21,7 @@
   "module": "./dist/index.js",
   "files": [
     "dist",
+    "src",
     "!dist/test",
     "!dist/tsconfig.tsbuildinfo",
     "!test",
