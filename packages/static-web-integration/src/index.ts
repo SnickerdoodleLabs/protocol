@@ -74,19 +74,22 @@ export class SnickerdoodleIntegration {
     if (coreConfig.walletConnect && coreConfig.walletConnect.buttonId) {
       const button = document.getElementById(coreConfig.walletConnect.buttonId);
       if (button) {
-        const buttonText = button?.textContent;
+        const buttonHtml = button.innerHTML;
         button.onclick = () => {
           this.start();
         };
         if (this.isConnected()) {
-          button.textContent = "Disconnect";
+          this.changeButtonText(
+            coreConfig.walletConnect.buttonId,
+            "Disconnect",
+          );
           setTimeout(() => {
             // setTimeout needed to make sure the session is connected and have WalletClient
             this.startSessionIntegration();
           }, 1000);
           button.onclick = () => {
             disconnect().then(() => {
-              button.textContent = buttonText;
+              button.innerHTML = buttonHtml;
               button.onclick = () => {
                 this.start();
               };
@@ -94,6 +97,27 @@ export class SnickerdoodleIntegration {
           };
         }
       }
+    }
+  }
+  private changeButtonText(buttonId: string, newText: string): void {
+    const button = document.getElementById(buttonId);
+    if (button && newText.trim() !== "") {
+      const textNodes: Text[] = [];
+      const walk = document.createTreeWalker(
+        button,
+        NodeFilter.SHOW_TEXT,
+        null,
+      );
+      while (walk.nextNode()) {
+        textNodes.push(walk.currentNode as Text);
+      }
+
+      // Update the text content of each text node
+      textNodes.forEach((node) => {
+        if (node.textContent && node.textContent?.trim().length > 0) {
+          node.textContent = newText;
+        }
+      });
     }
   }
 }
