@@ -131,8 +131,6 @@ import {
   IStorageUtilsType,
   LocalStorageUtils,
 } from "@snickerdoodlelabs/utils";
-import { query } from "express";
-import number from "inquirer/lib/prompts/number";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -730,10 +728,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     };
 
     this.purchase = {
-      get: (): ResultAsync<PurchasedProduct[], PersistenceError> => {
+      getPurchasedProducts: (): ResultAsync<
+        PurchasedProduct[],
+        PersistenceError
+      > => {
         const purchaseService =
           this.iocContainer.get<IPurchaseService>(IPurchaseServiceType);
-        return purchaseService.get();
+        return purchaseService.getPurchasedProducts();
       },
       getByMarketplace: (
         marketPlace: DomainName,

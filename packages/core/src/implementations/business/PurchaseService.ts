@@ -18,8 +18,8 @@ export class PurchaseService implements IPurchaseService {
   public constructor(
     @inject(IPurchaseRepositoryType) public purchaseRepo: IPurchaseRepository,
   ) {}
-  get(): ResultAsync<PurchasedProduct[], PersistenceError> {
-    return this.purchaseRepo.get();
+  getPurchasedProducts(): ResultAsync<PurchasedProduct[], PersistenceError> {
+    return this.purchaseRepo.getPurchasedProducts();
   }
   getByMarketplace(
     marketPlace: DomainName,

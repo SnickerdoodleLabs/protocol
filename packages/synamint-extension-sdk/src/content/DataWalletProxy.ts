@@ -167,7 +167,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public storage: IProxyStorageMethods;
   public events: PublicEvents;
   public purchase: IProxyPurchaseMethods;
-  public scrapernavigation: IProxyScraperNavigationMethods;
 
   public proxyType: ECoreProxyType = ECoreProxyType.EXTENSION_INJECTED;
 
@@ -364,15 +363,9 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       },
     };
 
-    this.scrapernavigation = {
-      getOrderHistoryPage: (lang: ELanguageCode, page: PageNo) => {
-        return coreGateway.scraperNavigation.getOrderHistoryPage(lang, page);
-      },
-    };
-
     this.purchase = {
-      get: () => {
-        return coreGateway.purchase.get();
+      getPurchasedProducts: () => {
+        return coreGateway.purchase.getPurchasedProducts();
       },
       getByMarketplace: (marketPlace: DomainName) => {
         return coreGateway.purchase.getByMarketplace(marketPlace);

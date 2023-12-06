@@ -1,20 +1,11 @@
-import { Brand, make } from "ts-brand";
-
 import {
   VersionedObject,
   VersionedObjectMigrator,
 } from "@objects/businessObjects/versioned/VersionedObject.js";
 import { ELanguageCode } from "@objects/enum";
 import { DomainName, UnixTimestamp, URLString } from "@objects/primitives";
-
-export type ProductKeyword = Brand<string, "ProductKeyword">;
-export const ProductKeyword = make<ProductKeyword>();
-
-export type ProductId = Brand<number, "ProductId">;
-export const ProductId = make<ProductId>();
-
-export type PurchaseId = Brand<string, "PurchaseId">;
-export const PurchaseId = make<PurchaseId>();
+import { ProductKeyword } from "@objects/primitives/ProductKeyword";
+import { PurchaseId } from "@objects/primitives/PurchaseId";
 
 /**
  * We will use this class for now to reduce development complexity and also store this in the persistence for now. Later we will decompose this into a Product and a Purchase

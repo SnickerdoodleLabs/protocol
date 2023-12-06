@@ -914,7 +914,7 @@ export class ScraperGetOrderHistoryPageParams extends CoreActionParams<URLString
     super(ScraperGetOrderHistoryPageParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
-    return ECoreActions.SCRAPER_NAVIGATION_AMAZON_GET_ORDER_HISTORY_PAGE_PARAMS;
+    return ECoreActions.SCRAPER_NAVIGATION_GET_ORDER_HISTORY_PAGE_PARAMS;
   }
 }
 
@@ -923,7 +923,7 @@ export class ScraperGetYearsParams extends CoreActionParams<Year[]> {
     super(ScraperGetYearsParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
-    return ECoreActions.SCRAPER_NAVIGATION_AMAZON_GET_YEARS_PARAMS;
+    return ECoreActions.SCRAPER_NAVIGATION_GET_YEARS_PARAMS;
   }
 }
 
@@ -936,7 +936,7 @@ export class ScraperGetOrderHistoryPageByYearParams extends CoreActionParams<URL
     super(ScraperGetOrderHistoryPageByYearParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
-    return ECoreActions.SCRAPER_NAVIGATION_AMAZON_GET_ORDER_HISTORY_PAGE_BY_YEAR_PARAMS;
+    return ECoreActions.SCRAPER_NAVIGATION_GET_ORDER_HISTORY_PAGE_BY_YEAR_PARAMS;
   }
 }
 export class ScraperGetPageCountParams extends CoreActionParams<number> {
@@ -944,19 +944,21 @@ export class ScraperGetPageCountParams extends CoreActionParams<number> {
     super(ScraperGetPageCountParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
-    return ECoreActions.SCRAPER_NAVIGATION_AMAZON_GET_PAGE_COUNT_PARAMS;
+    return ECoreActions.SCRAPER_NAVIGATION_GET_PAGE_COUNT_PARAMS;
   }
 }
 
 // #endregion
 
 // #region Purchase
-export class PurchaseGetParams extends CoreActionParams<PurchasedProduct[]> {
+export class PurchaseGetPurchasedProductsParams extends CoreActionParams<
+  PurchasedProduct[]
+> {
   public constructor() {
-    super(PurchaseGetParams.getCoreAction());
+    super(PurchaseGetPurchasedProductsParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
-    return ECoreActions.PURCHASE_GET_PARAMS;
+    return ECoreActions.PURCHASE_GET_PURCHASED_PRODUCTS_PARAMS;
   }
 }
 

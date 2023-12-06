@@ -99,17 +99,6 @@ export const AmazonDataItem: FC<IAmazonDataItemProps> = memo(
 
     return (
       <>
-        {/*  <Box className={classes.csvContainer}>
-          <Box>
-            <Button
-              className={classes.csvButton}
-              endIcon={<img className={classes.syncDataIcon} src={csvIcon} />}
-            >
-              Download as CSV
-            </Button>
-          </Box>
-        </Box> */}
-
         <Grid container>
           <Grid item xs={12} sm={12} md={6} lg={6}>
             <Box

@@ -147,7 +147,6 @@ import {
   AddAccountWithExternalSignatureParams,
   AddAccountWithExternalTypedDataSignatureParams,
   ERequestChannel,
-  PurchaseGetParams,
   PurchaseGetByMarketPlaceParams,
   PurchaseGetByMarketPlaceAndDateParams,
   GetTransactionValueByChainParams,
@@ -157,6 +156,7 @@ import {
   GetConsentContractURLsParams,
   PurchaseGetShoppingDataConnectionStatusParams,
   PurchaseSetShoppingDataConnectionStatusParams,
+  PurchaseGetPurchasedProductsParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -883,10 +883,10 @@ export class RpcCallHandler implements IRpcCallHandler {
     // #endregion
 
     // #region Purchase
-    new CoreActionHandler<PurchaseGetParams>(
-      PurchaseGetParams.getCoreAction(),
+    new CoreActionHandler<PurchaseGetPurchasedProductsParams>(
+      PurchaseGetPurchasedProductsParams.getCoreAction(),
       (_params) => {
-        return this.purchaseService.get();
+        return this.purchaseService.getPurchasedProducts();
       },
     ),
     new CoreActionHandler<PurchaseGetByMarketPlaceParams>(

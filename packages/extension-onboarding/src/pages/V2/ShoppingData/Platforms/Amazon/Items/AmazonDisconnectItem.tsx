@@ -74,14 +74,6 @@ export const AmazonDisConnectItem: FC<IAmazonDisConnectItemProps> = memo(
           </SDTypography>
         </Box>
         <Box>
-          {/*  <Button
-            className={classes.SyncDataButton}
-            endIcon={
-              <img className={classes.syncDataIcon} src={SyncDataIcon} />
-            }
-          >
-            Sync Data
-          </Button> */}
           <SDButton onClick={handleDisconnectClick}>Disconnect</SDButton>
         </Box>
       </>

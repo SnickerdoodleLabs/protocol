@@ -1,17 +1,16 @@
 import { Box } from "@material-ui/core";
-import { ECoreProxyType } from "@snickerdoodlelabs/objects";
+import { ECoreProxyType, EKnownDomains } from "@snickerdoodlelabs/objects";
 import React from "react";
 
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { EShoppingDataType } from "@extension-onboarding/objects";
 import IFrameComponent from "@extension-onboarding/pages/V2/ShoppingData/Components";
 import { Amazon } from "@extension-onboarding/pages/V2/ShoppingData/Platforms/Amazon/Amazon";
 
 interface IShoppingDataProps {
   name: string;
   icon: string;
-  key: EShoppingDataType;
+  key: EKnownDomains;
 }
 
 export default () => {
@@ -25,7 +24,7 @@ export default () => {
     key,
   }: IShoppingDataProps) => {
     switch (key) {
-      case EShoppingDataType.AMAZON:
+      case EKnownDomains.Amazon:
         return <Amazon name={name} icon={icon} />;
 
       default:

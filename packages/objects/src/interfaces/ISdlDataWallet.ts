@@ -175,7 +175,10 @@ export type IProxyStorageMethods = {
 export type IProxyScraperNavigationMethods = {
   [key in Exclude<
     FunctionKeys<IScraperNavigationMethods["amazon"]>,
-    "getYears" | "getPageCount" | "getOrderHistoryPageByYear"
+    | "getYears"
+    | "getPageCount"
+    | "getOrderHistoryPageByYear"
+    | "getOrderHistoryPage"
   >]: (
     ...args: [...Parameters<IScraperNavigationMethods["amazon"][key]>]
   ) => ResultAsync<
@@ -360,7 +363,6 @@ export interface ISdlDataWallet {
   storage: IProxyStorageMethods;
   events: ISnickerdoodleCoreEvents;
   purchase: IProxyPurchaseMethods;
-  scrapernavigation: IProxyScraperNavigationMethods;
 }
 
 export const defaultLanguageCode = LanguageCode("en");

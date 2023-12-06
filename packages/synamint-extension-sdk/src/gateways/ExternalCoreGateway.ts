@@ -161,7 +161,6 @@ import {
   ScraperGetPageCountParams,
   AddAccountWithExternalSignatureParams,
   AddAccountWithExternalTypedDataSignatureParams,
-  PurchaseGetParams,
   PurchaseGetByMarketPlaceParams,
   PurchaseGetByMarketPlaceAndDateParams,
   GetTransactionsParams,
@@ -170,6 +169,7 @@ import {
   GetConsentContractURLsParams,
   PurchaseGetShoppingDataConnectionStatusParams,
   PurchaseSetShoppingDataConnectionStatusParams,
+  PurchaseGetPurchasedProductsParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -395,8 +395,8 @@ export class ExternalCoreGateway {
     };
 
     this.purchase = {
-      get: (): ResultAsync<PurchasedProduct[], ProxyError> => {
-        return this._handler.call(new PurchaseGetParams());
+      getPurchasedProducts: (): ResultAsync<PurchasedProduct[], ProxyError> => {
+        return this._handler.call(new PurchaseGetPurchasedProductsParams());
       },
       getByMarketplace: (
         marketPlace: DomainName,

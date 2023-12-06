@@ -781,8 +781,8 @@ export class SnickerdoodleIFrameProxy
   };
 
   public purchase: IProxyPurchaseMethods = {
-    get: (): ResultAsync<PurchasedProduct[], ProxyError> => {
-      return this._createCall("purchase.get", {});
+    getPurchasedProducts: (): ResultAsync<PurchasedProduct[], ProxyError> => {
+      return this._createCall("purchase.getPurchasedProducts", {});
     },
     getByMarketplace: (
       marketPlace: DomainName,

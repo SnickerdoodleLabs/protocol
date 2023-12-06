@@ -1,27 +1,20 @@
-import {
-  Box,
-  FormControl,
-  FormControlLabel,
-  Grid,
-  Radio,
-  RadioGroup,
-} from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import {
   EKnownDomains,
   PurchasedProduct,
   ShoppingDataConnectionStatus,
-  UUID,
 } from "@snickerdoodlelabs/objects";
 import {
   SCRAPING_INDEX,
   SCRAPING_URLS,
+  SDTypography,
 } from "@snickerdoodlelabs/shared-components";
 import React, { FC, memo, useEffect, useState } from "react";
 
+import Table, { IColumn } from "@extension-onboarding/components/v2/Table";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import {
   AmazonDisConnectItem,
-  AmazonTable,
   AmazonConnectItem,
   AmazonDataItem,
 } from "@extension-onboarding/pages/V2/ShoppingData/Platforms/Amazon/Items";
@@ -47,7 +40,7 @@ export const Amazon: FC<IShoppingDataPlatformProps> = memo(
     }, [product.length]);
 
     const getProducts = () => {
-      return sdlDataWallet.purchase.get().map((products) => {
+      return sdlDataWallet.purchase.getPurchasedProducts().map((products) => {
         setProduct(products);
       });
     };
@@ -86,6 +79,65 @@ export const Amazon: FC<IShoppingDataPlatformProps> = memo(
       window.location.reload();
     };
 
+    const columns: IColumn<PurchasedProduct>[] = [
+      {
+        sortKey: "datePurchased",
+        label: "Product Name",
+        render: (row: PurchasedProduct) => (
+          <SDTypography
+            fontWeight="medium"
+            fontFamily="roboto"
+            variant="bodyLg"
+            color="textBody"
+          >
+            {row.name.length > 20 ? row.name.slice(0, 20) + "..." : row.name}
+          </SDTypography>
+        ),
+      },
+      {
+        label: "Brand",
+        render: (row: PurchasedProduct) => (
+          <SDTypography
+            fontWeight="medium"
+            fontFamily="roboto"
+            variant="bodyLg"
+            color="textBody"
+          >
+            {!row.brand && "NaN"}
+            {row.brand}
+          </SDTypography>
+        ),
+      },
+      {
+        label: "Category",
+        render: (row: PurchasedProduct) => (
+          <SDTypography
+            fontWeight="medium"
+            fontFamily="roboto"
+            variant="bodyLg"
+            color="textBody"
+          >
+            {row.category}
+          </SDTypography>
+        ),
+      },
+      {
+        sortKey: "price",
+        label: "Price",
+        render: (row: PurchasedProduct) => (
+          <SDTypography
+            fontWeight="medium"
+            fontFamily="roboto"
+            variant="bodyLg"
+            color="textBody"
+          >
+            ${row.price}
+          </SDTypography>
+        ),
+        align: "right" as const,
+      },
+    ];
+
     return (
       <>
         <Box
@@ -116,27 +168,11 @@ export const Amazon: FC<IShoppingDataPlatformProps> = memo(
         </Box>
         {isConnected && (
           <>
-            {/*  <Grid className={classes.containers}>
-                <FormControl>
-                  <RadioGroup defaultValue="everytime">
-                    <FormControlLabel
-                      value="everytime"
-                      control={<Radio />}
-                      label="Ask every time i make a purchase on Amazon."
-                    />
-                    <FormControlLabel
-                      value="automatically"
-                      control={<Radio />}
-                      label="Sync automatically."
-                    />
-                  </RadioGroup>
-                </FormControl>
-              </Grid> */}
             <Box mt={3}>
               <AmazonDataItem product={product} />
             </Box>
             <Box mt={3}>
-              <AmazonTable product={product} />
+              <Table columns={columns} data={product} />
             </Box>
           </>
         )}

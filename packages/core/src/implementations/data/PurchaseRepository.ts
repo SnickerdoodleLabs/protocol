@@ -47,7 +47,10 @@ export class PurchaseRepository implements IPurchaseRepository {
     });
   }
 
-  public get(): ResultAsync<PurchasedProduct[], PersistenceError> {
+  public getPurchasedProducts(): ResultAsync<
+    PurchasedProduct[],
+    PersistenceError
+  > {
     return this.persistence.getAll<PurchasedProduct>(
       ERecordKey.PURCHASED_PRODUCT,
     );

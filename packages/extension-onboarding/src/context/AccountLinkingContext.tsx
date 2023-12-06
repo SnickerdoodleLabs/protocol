@@ -31,7 +31,6 @@ import {
   useLayoutContext,
 } from "@extension-onboarding/context/LayoutContext";
 import useIsMobile from "@extension-onboarding/hooks/useIsMobile";
-import { EShoppingDataType } from "@extension-onboarding/objects";
 import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
 import {
   DiscordProvider,

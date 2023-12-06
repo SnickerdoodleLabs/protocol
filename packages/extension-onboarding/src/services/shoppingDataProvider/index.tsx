@@ -1,15 +1,16 @@
+import { EKnownDomains } from "@snickerdoodlelabs/objects";
+
 import AmazonIcon from "@extension-onboarding/assets/images/amazon-logo.png";
-import { EShoppingDataType } from "@extension-onboarding/objects/enums/EShoppingDataType";
 export interface IShoppingDataWrapper {
-  icon: any;
+  icon: string;
   name: string;
-  key: EShoppingDataType;
+  key: EKnownDomains;
 }
 
 export const getProviderList = (): IShoppingDataWrapper[] => [
   {
     icon: AmazonIcon,
     name: "Amazon",
-    key: EShoppingDataType.AMAZON,
+    key: EKnownDomains.Amazon,
   },
 ];

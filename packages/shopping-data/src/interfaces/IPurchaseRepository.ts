@@ -10,7 +10,7 @@ import { PurchasedProduct } from "@shopping-data/objects/index.js";
 
 export interface IPurchaseRepository {
   add(purchase: PurchasedProduct): ResultAsync<void, PersistenceError>;
-  get(): ResultAsync<PurchasedProduct[], PersistenceError>;
+  getPurchasedProducts(): ResultAsync<PurchasedProduct[], PersistenceError>;
   getByMarketplace(
     marketPlace: DomainName,
   ): ResultAsync<PurchasedProduct[], PersistenceError>;

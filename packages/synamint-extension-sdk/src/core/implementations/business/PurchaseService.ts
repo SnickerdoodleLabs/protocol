@@ -22,8 +22,8 @@ export class PurchaseService implements IPurchaseService {
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
-  get(): ResultAsync<PurchasedProduct[], PersistenceError> {
-    return this.core.purchase.get().mapErr((error) => {
+  getPurchasedProducts(): ResultAsync<PurchasedProduct[], PersistenceError> {
+    return this.core.purchase.getPurchasedProducts().mapErr((error) => {
       this.errorUtils.emit(error);
       return new PersistenceError((error as Error).message, error);
     });

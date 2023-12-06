@@ -717,7 +717,7 @@ export interface IScraperNavigationMethods {
 }
 
 export interface IPurchaseMethods {
-  get(): ResultAsync<PurchasedProduct[], PersistenceError>;
+  getPurchasedProducts(): ResultAsync<PurchasedProduct[], PersistenceError>;
   getByMarketplace(
     marketPlace: DomainName,
   ): ResultAsync<PurchasedProduct[], PersistenceError>;
