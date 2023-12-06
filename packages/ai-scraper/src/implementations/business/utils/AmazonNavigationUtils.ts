@@ -35,11 +35,8 @@ export class AmazonNavigationUtils implements IAmazonNavigationUtils {
     return years;
   }
   public getPageCount(html: HTMLString, year: Year): number {
-    return 5; // TODO
-    const amazonPagination = {
-      baseElements: { selectors: [".a-pagination"] },
-    };
-    // return number of elements in this format: [.*]
+    // TODO, parse the page and get number of pages.
+    return 5; 
   }
 
   public getOrderHistoryPageByYear(

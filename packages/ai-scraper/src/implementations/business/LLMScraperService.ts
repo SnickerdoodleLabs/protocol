@@ -56,7 +56,7 @@ export class LLMScraperService implements IScraperService {
     @inject(IHTMLPreProcessorType)
     private htmlPreProcessor: IHTMLPreProcessor,
     @inject(ILLMRepositoryType)
-    private llmProvider: ILLMRepository,
+    private llmRepository: ILLMRepository,
     @inject(IPromptDirectorType)
     private promptDirector: IPromptDirector,
     @inject(IWebpageClassifierType)
@@ -86,7 +86,7 @@ export class LLMScraperService implements IScraperService {
     });
   }
   /**
-   * Now we will scrape it immmediately and assume the task is . In future it's done by a job executor with a rate limiter
+   * Now we will scrape it immmediately and assume the task is a Amazon Purchase History Taks. In future it's done by a job executor with a rate limiter
    */
   public scrape(
     url: URLString,
@@ -118,7 +118,7 @@ export class LLMScraperService implements IScraperService {
     return this.htmlPreProcessor.getLanguage(html).andThen((language) => {
       return this.buildPrompt(url, html, suggestedDomainTask)
         .andThen((prompt) => {
-          return this.llmProvider
+          return this.llmRepository
             .executePrompt(prompt)
             .andThen((llmResponse) => {
               return this.processLLMPurchaseResponse(
@@ -148,7 +148,7 @@ export class LLMScraperService implements IScraperService {
       return this.htmlPreProcessor
         .htmlToText(html, preprocessingOptions)
         .andThen((text) => {
-          text = text.substring(0, this.llmProvider.defaultMaxTokens() - 1000);
+          text = text.substring(0, this.llmRepository.defaultMaxTokens() - 1000);
           return this.promptDirector.makePurchaseHistoryPrompt(LLMData(text));
         });
     }
@@ -217,7 +217,7 @@ export class LLMScraperService implements IScraperService {
     return this.promptDirector
       .makeProductMetaPrompt(llmData)
       .andThen((prompt) => {
-        return this.llmProvider.executePrompt(prompt).andThen((llmResponse) => {
+        return this.llmRepository.executePrompt(prompt).andThen((llmResponse) => {
           const productMetas = this.productMetaUtils.parseMeta(
             domainTask.domain,
             language,

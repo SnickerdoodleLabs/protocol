@@ -33,7 +33,7 @@ export class PromptDirector implements IPromptDirector {
   ) {}
 
   /**
-   * @description this method does not need to be result async as it does not depend on any external resources and O(1)
+   * @description 
    */
   public makePurchaseHistoryPrompt(
     data: LLMData,
