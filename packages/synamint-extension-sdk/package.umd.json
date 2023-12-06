@@ -14,7 +14,7 @@
     "!package.umd.json"
   ],
   "dependencies": {
-    "@snickerdoodlelabs/objects": "latest",
+    "@snickerdoodlelabs/objects": "^1.1.11",
     "neverthrow": "5.1.0",
     "ethers": "5.6.6"
   },

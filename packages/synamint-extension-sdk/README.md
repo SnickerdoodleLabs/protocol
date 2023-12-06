@@ -93,7 +93,7 @@ Make sure to add the required permissions and include the injected bundle as a w
 // background.ts
 
 // Import the initializeSDKCore function and IExtensionSdkConfigOverrides from the SDK
-import { initializeSDKCore } from "@snickerdoodlelabs/synamint-extension-sdk/core";
+import { initializeSDKCore } from "@snickerdoodlelabs/synamint-extension-sdk";
 import { IExtensionSdkConfigOverrides } from "@snickerdoodlelabs/objects";
 
 // Customize the SDK configuration
