@@ -163,6 +163,7 @@ export const testCoreConfig = new CoreConfig(
     oklinkApiKey: "oklink api key",
     ankrApiKey: "ankr api key",
     bluezApiKey: "bluez api key",
+    raribleApiKey: "rarible api key",
     blockvisionKey: "blockvision api key",
     primaryInfuraKey: "primary infura key",
     primaryRPCProviderURL: ProviderUrl("Primary RPC Provider URL"),

@@ -22,6 +22,7 @@ import {
   ISpaceAndTimeIndexerType,
   IEVMTransactionSanitizer,
   IEVMTransactionSanitizerType,
+  IRaribleIndexerType,
 } from "@indexers/interfaces/index.js";
 import { MasterIndexer } from "@indexers/MasterIndexer.js";
 import {
@@ -36,6 +37,7 @@ import {
   OklinkIndexer,
   PoapRepository,
   PolygonIndexer,
+  RaribleIndexer,
   SimulatorEVMTransactionRepository,
   SolanaIndexer,
   SpaceAndTimeIndexer,
@@ -85,6 +87,10 @@ export const indexersModule = new ContainerModule(
 
     bind<IEVMIndexer>(IPolygonIndexerType)
       .to(PolygonIndexer)
+      .inSingletonScope();
+
+    bind<IEVMIndexer>(IRaribleIndexerType)
+      .to(RaribleIndexer)
       .inSingletonScope();
 
     bind<IEVMIndexer>(ISimulatorEVMTransactionRepositoryType)

@@ -20,4 +20,5 @@ export enum EChain {
   Sui = 101,
   ZkSyncEra = 324,
   Base = 8453,
+  Chiliz = 88888,
 }

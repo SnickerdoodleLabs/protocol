@@ -18,6 +18,7 @@ export class ComponentStatus {
     public solanaIndexer: Map<EChain, EComponentStatus>,
     public blockvisionIndexer: Map<EChain, EComponentStatus>,
     public sxtIndexer: Map<EChain, EComponentStatus>,
+    public raribleIndexer: Map<EChain, EComponentStatus>,
   ) {}
 }
 

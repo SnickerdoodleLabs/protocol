@@ -137,6 +137,7 @@ export class ConfigProvider
         oklinkApiKey: null, // "700c2f71-a4e2-4a85-b87f-58c8a341d1bf", // oklinkApiKeys
         ankrApiKey: null, // ankrApiKey
         bluezApiKey: null, // bluezApiKey
+        raribleApiKey: null, // raribleApiKey
         blockvisionKey: null, // blockvisionKey
         primaryInfuraKey: null, // primary Infura Key
         primaryRPCProviderURL: null,
@@ -336,6 +337,8 @@ export class ConfigProvider
     this.config.apiKeys.bluezApiKey =
       overrides.bluezApiKey ?? this.config.apiKeys.bluezApiKey;
 
+    this.config.apiKeys.raribleApiKey =
+      overrides.raribleApiKey ?? this.config.apiKeys.raribleApiKey;
     this.config.apiKeys.blockvisionKey =
       overrides.blockvisionKey ?? this.config.apiKeys.blockvisionKey;
 

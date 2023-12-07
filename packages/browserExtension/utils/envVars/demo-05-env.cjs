@@ -49,6 +49,7 @@ const envVars = {
     "C4ci88fgOy8NuK0xonhFJkJr6tKXKK7gKSFMkV1Hekk=",
   __SPACEANDTIME_API_PRIVATEKEY__:
     "a35JJjDhLqFuHWqnbxseTHEU99BFAa3CApIFjbWBQ3E=",
+  __RARIBILE_API_KEY__: "c5855db8-08ef-409f-9947-e46c141af1b4",
   __BLOCKVISION_API_KEY__: "2WaEih5fqe8NUavbvaR2PSuVSSp",
 
   __PRIMARY_INFURA_KEY__: "a8ae124ed6aa44bb97a7166cda30f1bc",

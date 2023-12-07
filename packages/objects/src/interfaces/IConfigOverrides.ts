@@ -43,6 +43,8 @@ export interface IConfigOverrides {
   oklinkApiKey?: string | null;
   ankrApiKey?: string | null;
   bluezApiKey?: string | null;
+  raribleApiKey?: string | null;
+  spaceAndTimeKey?: string | null;
   blockvisionKey?: string | null;
 
   dnsServerAddress?: URLString;

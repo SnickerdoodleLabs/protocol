@@ -50,6 +50,8 @@ export class ExtensionConfig {
       oklinkApiKey?: string;
       ankrApiKey?: string;
       bluezApiKey?: string;
+      raribleApiKey?: string;
+      spaceAndTimeKey?: string;
       blockvisionKey?: string;
     },
     public dnsServerAddress?: URLString,

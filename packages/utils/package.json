@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/utils",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Utilities for general consumption within the Snickerdoodle Protocol",
   "license": "ISC",
   "repository": {
@@ -21,6 +21,7 @@
   "module": "./dist/index.js",
   "files": [
     "dist",
+    "src",
     "!dist/test",
     "!dist/tsconfig.tsbuildinfo"
   ],

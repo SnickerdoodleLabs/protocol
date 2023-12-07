@@ -65,6 +65,8 @@ export const IPoapRepositoryType = Symbol.for("IPoapRepository");
 
 export const IPolygonIndexerType = Symbol.for("IPolygonIndexer");
 
+export const IRaribleIndexerType = Symbol.for("IRaribleIndexer");
+
 export const ISimulatorEVMTransactionRepositoryType = Symbol.for(
   "ISimulatorEVMTransactionRepository",
 );

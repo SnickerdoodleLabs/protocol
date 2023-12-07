@@ -150,6 +150,8 @@ export class CoreProvider implements ICoreProvider {
       config.ankrApiKey ?? immutableConfig.defaultKeys.ankrApiKey;
     config.bluezApiKey =
       config.bluezApiKey ?? immutableConfig.defaultKeys.bluezApiKey;
+    config.raribleApiKey =
+      config.raribleApiKey ?? immutableConfig.defaultKeys.raribleApiKey;
     config.blockvisionKey =
       config.blockvisionKey ?? immutableConfig.defaultKeys.blockvisionKey;
     // Now we can create the actual snickerdoodle core instance
