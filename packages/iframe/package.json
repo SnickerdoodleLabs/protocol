@@ -43,6 +43,7 @@
     "@snickerdoodlelabs/objects": "workspace:^",
     "@snickerdoodlelabs/shared-components": "workspace:^",
     "@snickerdoodlelabs/utils": "workspace:^",
+    "@snickedoodlelabs/extension-onboarding": "workspace:^",
     "html-react-parser": "^4.2.2",
     "inversify": "^6.0.2",
     "jss": "^10.9.0",

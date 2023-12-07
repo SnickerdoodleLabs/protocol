@@ -761,6 +761,9 @@ export class SnickerdoodleIFrameProxy
   public events: PublicEvents;
 
   private _displayCoreIFrame(): void {
+    // Disable scrolling on the body
+    document.body.style.overflow = "hidden";
+
     // Show core iframe
     if (this.child != null) {
       this.child.frame.style.display = "block";
@@ -773,6 +776,9 @@ export class SnickerdoodleIFrameProxy
   }
 
   private _closeCoreIFrame(): void {
+    // Enable scrolling on the body
+    document.body.style.overflow = "auto";
+
     // Hide core iframe
     if (this.child != null) {
       this.child.frame.style.display = "none";

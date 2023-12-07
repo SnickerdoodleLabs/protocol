@@ -525,6 +525,13 @@ export const createDefaultTheme = (
       fontSize: 14,
     },
     overrides: {
+      MuiCssBaseline: {
+        "@global": {
+          body: {
+            backgroundColor: "transparent",
+          },
+        },
+      },
       MuiTypography: {
         root: {
           color: palette.textBody,

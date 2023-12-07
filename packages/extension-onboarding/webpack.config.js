@@ -10,7 +10,7 @@ const configFilePath = require.resolve("./tsconfig.json");
 module.exports = {
   context: __dirname,
   mode: process.env.__BUILD_ENV__ === "dev" ? "development" : "production",
-  entry: path.join(__dirname, "src/index.tsx"),
+  entry: path.join(__dirname, "src/Render.tsx"),
   output: {
     filename: "index.js",
     path: path.join(__dirname, "/dist/bundle"),

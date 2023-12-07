@@ -59,7 +59,6 @@ export interface IAppContext {
   updateOptedInContracts: () => void;
   optedInContracts: Map<EVMContractAddress, IpfsCID> | undefined;
   socialMediaProviderList: ISocialMediaWrapper[];
-  getUserAccounts(): ResultAsync<void, unknown>;
   addAccount(account: LinkedAccount): void;
   appMode: EAppModes | undefined;
   invitationInfo: IInvitationInfo;
@@ -256,7 +255,6 @@ export const AppContextProvider: FC = ({ children }) => {
         providerList: chainProviderList,
         socialMediaProviderList: getSocialMediaProviderList(sdlDataWallet),
         linkedAccounts,
-        getUserAccounts,
         appMode,
         earnedRewards,
         addAccount,

@@ -42,6 +42,7 @@ module.exports = {
         loader: "ts-loader",
         exclude: /node_modules/,
         options: {
+          transpileOnly: true,
           projectReferences: true,
           configFile: configFilePath,
           compilerOptions: {
@@ -62,11 +63,11 @@ module.exports = {
           "css-loader",
           {
             loader: "sass-loader",
-            options: {
-              sassOptions: {
-                includePaths: [path.resolve(__dirname, "node_modules")],
-              },
-            },
+            // options: {
+            //   sassOptions: {
+            //     includePaths: [path.resolve(__dirname, "node_modules")],
+            //   },
+            // },
           },
         ],
       },
@@ -84,8 +85,7 @@ module.exports = {
     extensions: [".tsx", ".ts", ".js", ".html"],
     plugins: [new TsconfigPathsPlugin({ configFile: configFilePath })],
   },
-  devtool:
-    process.env.__BUILD_ENV__ === "dev" ? "eval-source-map" : "source-map",
+  devtool: process.env.__BUILD_ENV__ === "dev" ? "eval" : "source-map",
   plugins: [
     new NodePolyfillPlugin(),
     new HtmlWebpackPlugin({

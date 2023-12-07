@@ -35,14 +35,22 @@
     },
     {
       "path": "../utils"
+    },
+    {
+      "path": "../extension-onboarding"
     }
   ],
-  "include": ["./src/**/*.ts",
-  "./src/**/*.tsx",
-  "./src/**/*.json",
-  "index.d.ts"],
-  "exclude": ["node_modules"],
+  "include": [
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
+    "./src/**/*.json",
+    "index.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
   "files": [
-    "./postmate-custom.d.ts"
+    "./postmate-custom.d.ts",
+    "./assets.d.ts"
   ]
 }

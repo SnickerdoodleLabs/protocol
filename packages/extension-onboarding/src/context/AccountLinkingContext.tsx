@@ -37,6 +37,7 @@ import React, {
   useEffect,
   useMemo,
   useState,
+  memo,
 } from "react";
 import { useAccount, useDisconnect, useSignMessage, useConnect } from "wagmi";
 
@@ -83,7 +84,7 @@ const AccountLinkingContext = createContext<IAccountLinkingContext>(
   {} as IAccountLinkingContext,
 );
 
-export const AccountLinkingContextProvider: FC = ({ children }) => {
+export const AccountLinkingContextProvider: FC = memo(({ children }) => {
   const { sdlDataWallet } = useDataWalletContext();
   const {
     providerList,
@@ -364,7 +365,7 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
       {children}
     </AccountLinkingContext.Provider>
   );
-};
+});
 
 export const useAccountLinkingContext = () => useContext(AccountLinkingContext);
 

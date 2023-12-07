@@ -1,6 +1,11 @@
 import MainContainer from "@extension-onboarding/containers/MainContainer";
-import React from "react";
+import { ISdlDataWallet } from "@snickerdoodlelabs/objects";
+import React, { FC, memo } from "react";
 
-const App = () => <MainContainer />;
+interface IAppProps {
+  proxy?: ISdlDataWallet;
+}
 
-export default App;
+const App: FC<IAppProps> = ({ proxy }) => <MainContainer proxy={proxy} />;
+
+export default memo(App);
