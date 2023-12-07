@@ -979,6 +979,15 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.invitationService.handleURL(data.data.url);
         }, data.callId);
       },
+
+      // dashboard view request
+      requestDashboardView: (data: IIFrameCallData<Record<string, never>>) => {
+        this.returnForModel(() => {
+          return okAsync(
+            this.contextProvider.getEvents().onDashboardViewRequested.next(),
+          );
+        }, data.callId);
+      },
     });
   }
 

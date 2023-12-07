@@ -1,23 +1,23 @@
-import {
-  ISdlDataWallet,
-  ISnickerdoodleCore,
-  LanguageCode,
-} from "@snickerdoodlelabs/objects";
-import SPA from "@snickerdoodlelabs/extension-onboarding";
-import { ChildAPI } from "postmate";
-import React, { FC, useEffect } from "react";
-
-import { InvitationHandler } from "@core-iframe/app/ui";
+import { InvitationHandler, SPAModal } from "@core-iframe/app/ui";
 import {
   IFrameConfig,
   IFrameControlConfig,
   IFrameEvents,
 } from "@core-iframe/interfaces/objects";
 import { Box } from "@material-ui/core";
+import SPA from "@snickerdoodlelabs/extension-onboarding";
+import { ISdlDataWallet, ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
 import {
   CloseButton,
   ModalContainer,
 } from "@snickerdoodlelabs/shared-components";
+import { ChildAPI } from "postmate";
+import React, { FC, useCallback, useState } from "react";
+
+enum EComponentKey {
+  INVITATION_HANDLER = "INVITATION_HANDLER",
+  SPA = "SPA",
+}
 
 interface IAppProps {
   core: ISnickerdoodleCore;
@@ -36,52 +36,41 @@ const App: FC<IAppProps> = ({
   coreConfig,
   proxy,
 }) => {
-  const hide = () => childApi.emit("onIframeHideRequested");
-  const show = () => childApi.emit("onIframeDisplayRequested");
-  setTimeout(() => {
-    show();
-  }, 5000);
-  console.log(document, "document");
+  const [visibleComponent, setVisibleComponent] =
+    useState<EComponentKey | null>(null);
+  const hide = useCallback(() => {
+    setVisibleComponent(null);
+    childApi.emit("onIframeHideRequested");
+  }, []);
+  const show = useCallback((componentKey: EComponentKey) => {
+    setVisibleComponent(componentKey);
+    childApi.emit("onIframeDisplayRequested");
+  }, []);
   return (
     <>
-      <ModalContainer>
-        <Box
-          boxShadow="rgb(38, 57, 77) 0px 20px 30px -10px"
-          borderRadius={12}
-          overflow="auto"
-          margin="auto"
-          width="100%"
-          maxHeight="90vh"
-          position="relative"
-        >
-          <Box
-            width={40}
-            height={40}
-            bgcolor={"#00000066"}
-            borderRadius={10}
-            display="flex"
-            pl={-3}
-            alignContent="ceter"
-            justifyContent="center"
-            position="absolute"
-            mx="auto"
-            top={5}
-            left={120}
-            zIndex={1}
-          >
-            <Box ml={-3}>
-              <CloseButton color="#fff" size={36} onClick={hide} />
-            </Box>
-          </Box>
-          <SPA proxy={proxy} />
-        </Box>
-      </ModalContainer>
+      <SPAModal
+        proxy={proxy}
+        hide={hide}
+        events={events}
+        show={() => {
+          show(EComponentKey.SPA);
+        }}
+        awaitRender={
+          !!visibleComponent && visibleComponent != EComponentKey.SPA
+        }
+      />
       <InvitationHandler
         core={core}
         events={events}
         hide={hide}
-        show={show}
+        show={() => {
+          show(EComponentKey.INVITATION_HANDLER);
+        }}
         config={config}
+        awaitRender={
+          !!visibleComponent &&
+          visibleComponent != EComponentKey.INVITATION_HANDLER
+        }
         coreConfig={coreConfig}
       />
     </>

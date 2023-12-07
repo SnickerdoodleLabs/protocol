@@ -264,6 +264,10 @@ export class SnickerdoodleIFrameProxy
       });
   }
 
+  public requestDashboardView(): ResultAsync<void, ProxyError> {
+    return this._createCall("requestDashboardView", null);
+  }
+
   public initialize(): ResultAsync<void, ProxyError> {
     return this._createCall("initialize", null);
   }

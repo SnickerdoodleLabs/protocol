@@ -14,6 +14,7 @@ import {
   UninitializedError,
   MillisecondTimestamp,
   IWebIntegrationConfigOverrides,
+  ECoreProxyType,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { Container } from "inversify";
@@ -29,6 +30,7 @@ import {
 import {
   IIFrameProxyFactory,
   IIFrameProxyFactoryType,
+  ISnickerdoodleIFrameProxy,
 } from "@web-integration/interfaces/proxy/index.js";
 import {
   IConfigProvider,
@@ -149,6 +151,7 @@ export class SnickerdoodleWebIntegration
             // initialize the URL change observer
             new URLChangeObserver(proxy.checkURLForInvitation.bind(proxy));
             // Assign the iframe proxy to the internal reference and the window object
+            this.subscribeToKeyDownEvent();
             this._core = proxy;
             window.sdlDataWallet = this.core;
             return proxy;
@@ -247,6 +250,35 @@ export class SnickerdoodleWebIntegration
         console.log("Error checking for additional account.Skipping ", error);
         return okAsync(undefined);
       });
+  }
+
+  public requestDashboardView(): void {
+    return this._requestDashboardView();
+  }
+
+  protected subscribeToKeyDownEvent() {
+    document.addEventListener("keydown", this.handleKeyDown.bind(this));
+  }
+
+  protected handleKeyDown(event: KeyboardEvent) {
+    if (event.key === "F9") {
+      this._requestDashboardView();
+    }
+  }
+
+  protected _requestDashboardView(): void {
+    try {
+      if (this.core.proxyType === ECoreProxyType.IFRAME_INJECTED) {
+        (this.core as ISnickerdoodleIFrameProxy).requestDashboardView();
+      } else {
+        document.removeEventListener("keydown", this.handleKeyDown.bind(this));
+        throw new Error(
+          "This method is not supported for sdlDataWallet injected by Snickerdoodle Extension",
+        );
+      }
+    } catch (e) {
+      console.log("Unable to display dashboard! e:", e);
+    }
   }
 }
 
