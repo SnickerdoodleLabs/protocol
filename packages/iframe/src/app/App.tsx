@@ -4,13 +4,7 @@ import {
   IFrameControlConfig,
   IFrameEvents,
 } from "@core-iframe/interfaces/objects";
-import { Box } from "@material-ui/core";
-import SPA from "@snickerdoodlelabs/extension-onboarding";
 import { ISdlDataWallet, ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
-import {
-  CloseButton,
-  ModalContainer,
-} from "@snickerdoodlelabs/shared-components";
 import { ChildAPI } from "postmate";
 import React, { FC, useCallback, useState } from "react";
 
