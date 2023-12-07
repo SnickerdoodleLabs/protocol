@@ -9275,7 +9275,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snickerdoodlelabs/extension-onboarding@workspace:packages/extension-onboarding":
+"@snickerdoodlelabs/extension-onboarding@workspace:^, @snickerdoodlelabs/extension-onboarding@workspace:packages/extension-onboarding":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/extension-onboarding@workspace:packages/extension-onboarding"
   dependencies:
@@ -9339,6 +9339,7 @@ __metadata:
   dependencies:
     "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/core": "workspace:^"
+    "@snickerdoodlelabs/extension-onboarding": "workspace:^"
     "@snickerdoodlelabs/node-utils": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
     "@snickerdoodlelabs/shared-components": "workspace:^"
