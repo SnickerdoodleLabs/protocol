@@ -43,6 +43,7 @@ const envVars = {
   __ANKR_API_KEY__: "",
   // "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
   __BLUEZ_API_KEY__: "aed4aab2cbc573bbf8e7c6b448c916e5",
+  __SPACEANDTIME_API_USERID__: "snickerdoodledev",
   __SPACEANDTIME_API_PUBLICKEY__:
     "C4ci88fgOy8NuK0xonhFJkJr6tKXKK7gKSFMkV1Hekk=",
   __SPACEANDTIME_API_PRIVATEKEY__:

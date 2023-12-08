@@ -126,14 +126,18 @@ export class CoreProvider implements ICoreProvider {
       immutableConfig.defaultKeys.etherscanApiKeys.Fuji;
 
     // Space And Time
-    config.spaceAndTimeKeys =
-      config.spaceAndTimeKeys ?? immutableConfig.defaultKeys.spaceAndTimeKeys;
-    config.spaceAndTimeKeys.PublicKey =
-      config.spaceAndTimeKeys?.PublicKey ??
-      immutableConfig.defaultKeys.spaceAndTimeKeys.PublicKey;
-    config.spaceAndTimeKeys.PrivateKey =
-      config.spaceAndTimeKeys?.PrivateKey ??
-      immutableConfig.defaultKeys.spaceAndTimeKeys.PrivateKey;
+    config.spaceAndTimeCredentials =
+      config.spaceAndTimeCredentials ??
+      immutableConfig.defaultKeys.spaceAndTimeCredentials;
+    config.spaceAndTimeCredentials.UserId =
+      config.spaceAndTimeCredentials?.UserId ??
+      immutableConfig.defaultKeys.spaceAndTimeCredentials.UserId;
+    config.spaceAndTimeCredentials.PublicKey =
+      config.spaceAndTimeCredentials?.PublicKey ??
+      immutableConfig.defaultKeys.spaceAndTimeCredentials.PublicKey;
+    config.spaceAndTimeCredentials.PrivateKey =
+      config.spaceAndTimeCredentials?.PrivateKey ??
+      immutableConfig.defaultKeys.spaceAndTimeCredentials.PrivateKey;
 
     // Other Indexers
     config.covalentApiKey =

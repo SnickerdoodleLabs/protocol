@@ -152,7 +152,8 @@ export const testCoreConfig = new CoreConfig(
       Gnosis: null,
       Fuji: null,
     },
-    spaceAndTimeKeys: {
+    spaceAndTimeCredentials: {
+      UserId: null,
       PublicKey: null,
       PrivateKey: null,
     },

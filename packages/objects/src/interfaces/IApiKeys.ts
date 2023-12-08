@@ -25,7 +25,8 @@ export interface IApiKeys {
     Gnosis: string | null;
     Fuji: string | null;
   };
-  spaceAndTimeKeys: {
+  spaceAndTimeCredentials: {
+    UserId: string | null;
     PublicKey: string | null;
     PrivateKey: string | null;
   };

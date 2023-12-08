@@ -39,7 +39,8 @@ export class ExtensionConfig {
         Gnosis: string;
         Fuji: string;
       };
-      spaceAndTimeKeys?: {
+      spaceAndTimeCredentials?: {
+        UserId: string;
         PublicKey: string;
         PrivateKey: string;
       };

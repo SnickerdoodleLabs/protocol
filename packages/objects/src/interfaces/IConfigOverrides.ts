@@ -32,7 +32,8 @@ export interface IConfigOverrides {
     Gnosis?: string | null;
     Fuji?: string | null;
   };
-  spaceAndTimeKeys?: {
+  spaceAndTimeCredentials?: {
+    UserId?: string | null;
     PublicKey?: string | null;
     PrivateKey?: string | null;
   };

@@ -123,7 +123,8 @@ export class ConfigProvider
           Gnosis: null,
           Fuji: null,
         },
-        spaceAndTimeKeys: {
+        spaceAndTimeCredentials: {
+          UserId: null,
           PublicKey: null,
           PrivateKey: null,
         },
@@ -314,12 +315,15 @@ export class ConfigProvider
       this.config.apiKeys.etherscanApiKeys.Polygon;
 
     // Space And Time Keys
-    this.config.apiKeys.spaceAndTimeKeys.PublicKey =
-      overrides.spaceAndTimeKeys?.PublicKey ??
-      this.config.apiKeys.spaceAndTimeKeys.PublicKey;
-    this.config.apiKeys.spaceAndTimeKeys.PrivateKey =
-      overrides.spaceAndTimeKeys?.PrivateKey ??
-      this.config.apiKeys.spaceAndTimeKeys.PrivateKey;
+    this.config.apiKeys.spaceAndTimeCredentials.UserId =
+      overrides.spaceAndTimeCredentials?.UserId ??
+      this.config.apiKeys.spaceAndTimeCredentials.UserId;
+    this.config.apiKeys.spaceAndTimeCredentials.PublicKey =
+      overrides.spaceAndTimeCredentials?.PublicKey ??
+      this.config.apiKeys.spaceAndTimeCredentials.PublicKey;
+    this.config.apiKeys.spaceAndTimeCredentials.PrivateKey =
+      overrides.spaceAndTimeCredentials?.PrivateKey ??
+      this.config.apiKeys.spaceAndTimeCredentials.PrivateKey;
 
     // Miscellaneous Indexers and APIs
     this.config.apiKeys.covalentApiKey =

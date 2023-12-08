@@ -44,10 +44,11 @@ const envVars = {
     "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
 
   __BLUEZ_API_KEY__: "aed4aab2cbc573bbf8e7c6b448c916e5",
+  __SPACEANDTIME_API_USERID__: "snickerdoodledev",
   __SPACEANDTIME_API_PUBLICKEY__:
-    "C4ci88fgOy8NuK0xonhFJkJr6tKXKK7gKSFMkV1Hekk=",
+    "XSR7MtiRo10HxB5WT0eTcYdydoSchyPmp3FKMnIO/c0=",
   __SPACEANDTIME_API_PRIVATEKEY__:
-    "a35JJjDhLqFuHWqnbxseTHEU99BFAa3CApIFjbWBQ3E=",
+    "8EwsbZAFudVxbb4ri2d9wh41U+lcfCv/oWF9YwR3IrA=",
   __RARIBILE_API_KEY__: "c5855db8-08ef-409f-9947-e46c141af1b4",
   __BLOCKVISION_API_KEY__: "2WaEih5fqe8NUavbvaR2PSuVSSp",
 

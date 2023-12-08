@@ -45,7 +45,8 @@ export const coreConfig = {
     Gnosis: "J7G8U27J1Y9F88E1E56CNNG2K3H98GF4XE",
     Fuji: "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1",
   },
-  spaceAndTimeKeys: {
+  spaceAndTimeCredentials: {
+    UserId: "snickerdoodledev",
     PublicKey: "C4ci88fgOy8NuK0xonhFJkJr6tKXKK7gKSFMkV1Hekk=",
     PrivateKey: "a35JJjDhLqFuHWqnbxseTHEU99BFAa3CApIFjbWBQ3E=",
   },

@@ -47,7 +47,8 @@ export class WebIntegrationConfigProvider
         Fuji: "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1",
       },
       // Space And Time Keys
-      spaceAndTimeKeys: {
+      spaceAndTimeCredentials: {
+        UserId: "snickerdoodledev",
         PublicKey: "C4ci88fgOy8NuK0xonhFJkJr6tKXKK7gKSFMkV1Hekk=",
         PrivateKey: "a35JJjDhLqFuHWqnbxseTHEU99BFAa3CApIFjbWBQ3E=",
       },

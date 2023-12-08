@@ -63,7 +63,8 @@ const defaultCoreConfigs: IConfigOverrides = {
     Gnosis: "J7G8U27J1Y9F88E1E56CNNG2K3H98GF4XE",
     Fuji: "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1",
   },
-  spaceAndTimeKeys: {
+  spaceAndTimeCredentials: {
+    UserId: "",
     PublicKey: "",
     PrivateKey: "",
   },

@@ -59,6 +59,90 @@ export class CryptoUtils implements ICryptoUtils {
     return okAsync(baseString);
   }
 
+  /* From Space and Time SDK.js file */
+  public isBase64(str: string): boolean {
+    const base64Regex =
+      /^(?:[A-Za-z0-9+/]{4})*?(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
+
+    if (!base64Regex.test(str)) {
+      throw new Error("String is not base64 encoded");
+    }
+
+    return true;
+  }
+
+  /* CODE BLOCK FROM Space and Time SDK.js file */
+  public base64ToUint8(
+    base64PrivateKey: string,
+    base64PublicKey: string,
+  ): Uint8Array {
+    this.isBase64(base64PrivateKey);
+    this.isBase64(base64PublicKey);
+
+    const privateKeyBuffer = Buffer.from(base64PrivateKey, "base64");
+    const publicKeyBuffer = Buffer.from(base64PublicKey, "base64");
+
+    // eslint-disable-next-line prefer-const
+    let privateKeyUint8 = new Uint8Array(
+      privateKeyBuffer.buffer,
+      privateKeyBuffer.byteOffset,
+      privateKeyBuffer.byteLength,
+    );
+    // eslint-disable-next-line prefer-const
+    let publicKeyUint8 = new Uint8Array(
+      publicKeyBuffer.buffer,
+      publicKeyBuffer.byteOffset,
+      publicKeyBuffer.byteLength,
+    );
+
+    if (privateKeyUint8.length === publicKeyUint8.length) {
+      // eslint-disable-next-line prefer-const
+      let temporaryPrivateKey: number[] = [];
+
+      for (let idx = 0; idx < privateKeyUint8.length; idx++) {
+        temporaryPrivateKey[idx] = privateKeyUint8[idx];
+      }
+
+      for (let idx = 0; idx < publicKeyUint8.length; idx++) {
+        temporaryPrivateKey[privateKeyUint8.length + idx] = publicKeyUint8[idx];
+      }
+
+      privateKeyUint8 = new Uint8Array(temporaryPrivateKey);
+    }
+
+    const PrivateKeyUint8Array = new Uint8Array(privateKeyUint8.length);
+    for (let i = 0; i < privateKeyUint8.length; i++) {
+      PrivateKeyUint8Array[i] = privateKeyUint8[i];
+    }
+
+    return PrivateKeyUint8Array;
+  }
+
+  public checkStringFormat(userString: string) {
+    if (userString.length === 0) {
+      throw new Error("Empty String provided.");
+    } else if (typeof userString !== "string") {
+      throw new Error(`Expected a String but got ${typeof userString} `);
+    }
+  }
+
+  public generateSignature(
+    message: string,
+    privateKeyUint: Uint8Array,
+  ): string {
+    // Utils.checkStringFormat(message);
+    const authCode = new TextEncoder().encode(message);
+    // The NACL Binding for signature generation uses "only" ED25519
+    const signatureArray = nacl.sign(authCode, privateKeyUint);
+    let signature = Buffer.from(
+      signatureArray.buffer,
+      signatureArray.byteOffset,
+      signatureArray.byteLength,
+    ).toString("hex");
+    signature = signature.slice(0, 128);
+    return signature;
+  }
+
   public getTokenId(): ResultAsync<TokenId, never> {
     const buf = Crypto.randomBytes(4);
     const hex = buf.toString("hex");
@@ -254,7 +338,6 @@ export class CryptoUtils implements ICryptoUtils {
     message: string | Uint8Array,
     signature: Signature,
   ): ResultAsync<EVMAccountAddress, never> {
-    console.log("EVM signature: " + signature);
     const address = EVMAccountAddress(
       ethers.utils.verifyMessage(message, signature),
     );
@@ -400,38 +483,19 @@ export class CryptoUtils implements ICryptoUtils {
     });
   }
 
-  public sign;
-
   public signMessage(
     message: string,
     privateKey: EVMPrivateKey,
     token?: string | undefined,
   ): ResultAsync<Signature, never> {
-    console.log("wallet privateKey: " + privateKey);
-
     if (token != undefined) {
-      console.log("INSIDE call");
       const val = Crypto.generateKeyPairSync("ed25519");
-      console.log("privateKey1: " + JSON.stringify(val));
-
-      // let { privateKey, publicKey } = Crypto.generateKeyPairSync("ed25519", {
-      //   modulusLength: 2048,
-      // });
-
-      // console.log("privateKey2: " + privateKey);
-      // console.log("publicKey2: " + publicKey);
-
       const mess = Buffer.from(message);
-
       const signature = Crypto.sign(null, mess, privateKey);
-      console.log("signature: " + signature);
-
       return okAsync(Signature(signature.toString("base64")));
     }
 
     const wallet = new ethers.Wallet(privateKey);
-    console.log("wallet sign: " + wallet);
-
     return ResultAsync.fromSafePromise<string, never>(
       wallet.signMessage(message),
     ).map((signature) => {

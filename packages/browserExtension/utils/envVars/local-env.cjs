@@ -36,6 +36,7 @@ const envVars = {
   __OKLINK_API_KEY__: "",
   __ANKR_API_KEY__: "",
   __BLUEZ_API_KEY__: "",
+  __SPACEANDTIME_API_USERID__: "",
   __SPACEANDTIME_API_PUBLICKEY__: "",
   __SPACEANDTIME_API_PRIVATEKEY__: "",
   __RARIBILE_API_KEY__: "",

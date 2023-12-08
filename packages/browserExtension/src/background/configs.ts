@@ -42,6 +42,7 @@ declare const __OKLINK_API_KEY__: string;
 declare const __ANKR_API_KEY__: string;
 declare const __BLUEZ_API_KEY__: string;
 declare const __RARIBILE_API_KEY__: string;
+declare const __SPACEANDTIME_API_USERID__: string;
 declare const __SPACEANDTIME_API_PUBLICKEY__: string;
 declare const __SPACEANDTIME_API_PRIVATEKEY__: string;
 declare const __BLOCKVISION_API_KEY__: string;
@@ -256,7 +257,12 @@ export const config: IExtensionSdkConfigOverrides = {
         ? __ETHERSCAN_FUJI_API_KEY__
         : "",
   },
-  spaceAndTimeKeys: {
+  spaceAndTimeCredentials: {
+    UserId:
+      typeof __SPACEANDTIME_API_USERID__ !== "undefined" &&
+      !!__SPACEANDTIME_API_USERID__
+        ? __SPACEANDTIME_API_USERID__
+        : "",
     PublicKey:
       typeof __SPACEANDTIME_API_PUBLICKEY__ !== "undefined" &&
       !!__SPACEANDTIME_API_PUBLICKEY__
