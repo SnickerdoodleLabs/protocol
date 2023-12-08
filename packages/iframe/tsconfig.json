@@ -5,7 +5,7 @@
     "rootDir": "./src",
     "jsx": "react",
     "target": "es6",
-    "module": "commonjs",
+    "module": "ESNext",
     "lib": [
       "es5",
       "es6",

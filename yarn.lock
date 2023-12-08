@@ -9304,6 +9304,7 @@ __metadata:
     ethers: ^5.6.6
     formik: 2.2.9
     formik-material-ui: 3.0.1
+    framer-motion: ^6.0.0
     gapi-script: ^1.2.0
     html-react-parser: ^4.2.2
     neverthrow: ^5.1.0
@@ -9668,7 +9669,6 @@ __metadata:
     date-fns: ^2.29.1
     formik: 2.2.9
     formik-material-ui: 3.0.1
-    framer-motion: ^6.0.0
     yup: 0.32.9
   peerDependencies:
     "@material-ui/core": 4.12.3

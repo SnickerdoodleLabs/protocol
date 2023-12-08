@@ -26,6 +26,11 @@ var server = new WebpackDevServer(
     devMiddleware: {
       writeToDisk: false,
     },
+    client: {
+      overlay: {
+        warnings: false,
+      },
+    },
   },
   compiler,
 );
