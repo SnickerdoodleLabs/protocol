@@ -599,6 +599,23 @@ export const createDefaultTheme = (
       },
     },
     breakpoints,
-    props,
+    props: {
+      MuiMenu: {
+        disableAutoFocusItem: true,
+        disablePortal: true,
+        disableEnforceFocus: true,
+      },
+      MuiDialog: {
+        disableAutoFocus: true,
+        disableEnforceFocus: true,
+        disablePortal: true,
+      },
+      MuiTooltip: {
+        PopperProps: {
+          disablePortal: true,
+        },
+      },
+      ...props,
+    },
   });
 };

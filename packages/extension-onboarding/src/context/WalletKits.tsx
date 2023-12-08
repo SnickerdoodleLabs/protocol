@@ -56,6 +56,9 @@ const WalletKits: FC<IProps> = ({ children }) => {
     publicClient,
   });
   createWeb3Modal({
+    themeVariables: {
+      "--w3m-z-index": 2001,
+    },
     wagmiConfig,
     projectId,
     chains,
