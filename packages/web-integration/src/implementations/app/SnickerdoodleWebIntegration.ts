@@ -90,7 +90,7 @@ export class SnickerdoodleWebIntegration
     } else if (window.sdlDataWalletInitializeAttempted) {
       return errAsync(
         new ProxyError(
-          "Snickedoodle Web Integration initialize() has already been called via another instance",
+          "Snickerdoodle Web Integration initialize() has already been called via another instance",
         ),
       );
     } else {
