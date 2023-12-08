@@ -1,104 +1,123 @@
 import "reflect-metadata";
-import {
-  IWebIntegrationConfigOverrides,
-  URLString,
-} from "@snickerdoodlelabs/objects";
+import { IWebIntegrationConfigOverrides } from "@snickerdoodlelabs/objects";
 import { SnickerdoodleWebIntegration } from "@snickerdoodlelabs/web-integration";
-import { Signer } from "ethers";
-import { ResultAsync, okAsync } from "neverthrow";
-
-import { WalletProvider } from "@static-web-integration/WalletProvider";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { WCProvider } from "@static-web-integration/WCProvider";
+import { getAccount, disconnect } from "@wagmi/core";
 
-declare const __LOGO_PATH__: URLString;
+export class SnickerdoodleIntegration {
+  coreConfig: IWebIntegrationConfigOverrides;
+  webIntegration: SnickerdoodleWebIntegration | undefined;
+  WCProvider: WCProvider;
 
-export function integrateSnickerdoodle(
-  coreConfig: IWebIntegrationConfigOverrides,
-): void {
-  checkConnections(coreConfig)
-    .map((connected) => {
-      if (connected) {
-        startIntegration(coreConfig).mapErr((e) => {
-          console.error("Error starting integration:", e);
-        });
-      } else {
-        // Create a floating div with the snickerdoodle logo
-        const fixie = document.createElement("img");
-        fixie.src = __LOGO_PATH__;
-        fixie.id = "snickerdoodle-fixie";
-        fixie.style.position = "fixed";
-        fixie.style.top = "calc(100vh - 130px)";
-        fixie.style.right = "30px";
-        fixie.style.width = "100px";
-        fixie.style.height = "100px";
-        fixie.onclick = () => {
-          startIntegration(coreConfig)
-            .map(() => {
-              fixie?.style.setProperty("display", "none");
-            })
-            .mapErr((e) => {
-              console.error("Error starting integration:", e);
-            });
-        };
-        document.body.appendChild(fixie);
-      }
-    })
-    .mapErr((e) => {
-      console.error("CheckConnection Error:", e);
-    });
-}
+  constructor(coreConfig) {
+    this.coreConfig = coreConfig;
+    this.WCProvider = new WCProvider(coreConfig.walletConnect.projectId);
+    this.handleHookIntegration(coreConfig);
+  }
 
-function startIntegration(coreConfig: IWebIntegrationConfigOverrides) {
-  return getSigner(coreConfig)
-    .andThen((signerResult) => {
-      const webIntegration = new SnickerdoodleWebIntegration(
-        coreConfig,
-        signerResult,
-      );
+  protected startSessionIntegration() {
+    return this.WCProvider.getEthersSigner()
+      .andThen((signer) => {
+        if (!this.webIntegration) {
+          this.webIntegration = new SnickerdoodleWebIntegration(
+            this.coreConfig,
+            signer,
+          );
+        }
 
-      return webIntegration.initialize().andThen((dataWallet) => {
-        console.log("Snickerdoodle Data Wallet Initialized");
-        return okAsync(undefined);
+        return this.webIntegration.initialize();
+      })
+      .map(() => {})
+      .mapErr((error) => {
+        console.error("Integration failed:", error);
+        return error;
       });
-    })
-    .mapErr((e) => {
-      console.error("An error occurred:", e);
-    });
-}
-
-function getSigner(
-  coreConfig: IWebIntegrationConfigOverrides,
-): ResultAsync<Signer, Error> {
-  if (!coreConfig.walletConnect?.projectId) {
-    const walletProvider = new WalletProvider();
-
-    return ResultAsync.fromPromise(
-      walletProvider.connect(),
-      (e) => new Error(`Failed to connect wallet: ${(e as Error).message}`),
-    ).map(() => {
-      return walletProvider.signer;
-    });
   }
 
-  const newWalletProvider = new WCProvider();
-  return newWalletProvider
-    .init(coreConfig.walletConnect?.projectId as string)
-    .andThen(() => {
-      return newWalletProvider.getSigner();
-    });
-}
-
-function checkConnections(
-  coreConfig: IWebIntegrationConfigOverrides,
-): ResultAsync<boolean, unknown> {
-  if (!coreConfig.walletConnect?.projectId) {
-    const walletProvider = new WalletProvider();
-
-    return walletProvider.checkConnection().map((connection) => {
-      return connection;
-    });
+  protected startIntegration() {
+    return this.WCProvider.startWalletConnect()
+      .andThen((signer) => {
+        if (!this.webIntegration) {
+          this.webIntegration = new SnickerdoodleWebIntegration(
+            this.coreConfig,
+            signer,
+          );
+        }
+        return this.webIntegration.initialize().map(() => {
+          this.handleHookIntegration(this.coreConfig);
+        });
+      })
+      .mapErr((error) => {
+        console.error("Integration failed:", error);
+        return error;
+      });
   }
 
-  const newWalletProvider = new WCProvider();
-  return newWalletProvider.checkConnection(coreConfig.walletConnect?.projectId);
+  public start(): ResultAsync<void, Error> {
+    if (this.isConnected()) {
+      return this.startSessionIntegration();
+    } else {
+      return this.startIntegration();
+    }
+  }
+
+  public isConnected(): boolean {
+    return this.WCProvider.checkConnection();
+  }
+  public getConnectedAddress(): string | undefined {
+    return getAccount().address;
+  }
+  private async handleHookIntegration(
+    coreConfig: IWebIntegrationConfigOverrides,
+  ) {
+    if (coreConfig.walletConnect && coreConfig.walletConnect.buttonId) {
+      const button = document.getElementById(coreConfig.walletConnect.buttonId);
+      if (button) {
+        const buttonHtml = button.innerHTML;
+        button.onclick = () => {
+          this.start();
+        };
+        if (this.isConnected()) {
+          this.changeButtonText(
+            coreConfig.walletConnect.buttonId,
+            "Disconnect",
+          );
+          setTimeout(() => {
+            // setTimeout needed to make sure the session is connected and have WalletClient
+            this.startSessionIntegration();
+          }, 1000);
+          button.onclick = () => {
+            disconnect().then(() => {
+              button.innerHTML = buttonHtml;
+              button.onclick = () => {
+                this.start();
+              };
+            });
+          };
+        }
+      }
+    }
+  }
+  private changeButtonText(buttonId: string, newText: string): void {
+    const button = document.getElementById(buttonId);
+    if (button && newText.trim() !== "") {
+      const textNodes: Text[] = [];
+      const walk = document.createTreeWalker(
+        button,
+        NodeFilter.SHOW_TEXT,
+        null,
+      );
+      while (walk.nextNode()) {
+        textNodes.push(walk.currentNode as Text);
+      }
+
+      // Update the text content of each text node
+      textNodes.forEach((node) => {
+        if (node.textContent && node.textContent?.trim().length > 0) {
+          node.textContent = newText;
+        }
+      });
+    }
+  }
 }
