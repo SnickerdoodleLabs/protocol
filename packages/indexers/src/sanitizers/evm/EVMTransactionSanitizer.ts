@@ -45,13 +45,17 @@ export class EVMTransactionSanitizer implements IEVMTransactionSanitizer {
       irregularData,
       false,
     );
-    const timestamp = this.checkProperty(
-      transaction.timestamp,
-      "timestamp",
-      this.sanitizeEthereumTimestamp,
-      irregularData,
-      false,
-    );
+    console.log("irregularData: " + irregularData);
+    const timestamp = transaction.timestamp;
+    // const timestamp = this.checkProperty(
+    //   transaction.timestamp,
+    //   "timestamp",
+    //   this.sanitizeEthereumTimestamp,
+    //   irregularData,
+    //   false,
+    // );
+    console.log("irregularData: " + irregularData);
+
     //Can be null, but if exists should match our format
     const blockHeight = this.checkProperty(
       transaction.blockHeight,
@@ -234,15 +238,20 @@ export class EVMTransactionSanitizer implements IEVMTransactionSanitizer {
   protected sanitizeEthereumTimestamp(
     value: UnixTimestamp,
   ): UnixTimestamp | null {
+    console.log("value: " + value);
     if (ValidationUtils.isString(value) || ValidationUtils.isNumber(value)) {
       const transformedTransaction = ValidationUtils.checkValidEVMTimestamp(
         typeof value === "string"
           ? ValidationUtils.hexOrNumberStringToNumber(value)
           : value,
       );
+      console.log("transformedTransaction: " + transformedTransaction);
+
       if (transformedTransaction === 0) {
         this.logUtils.debug("Genesis block time encountered, most impressive");
       }
+      console.log("transformedTransaction: " + transformedTransaction);
+
       return transformedTransaction !== null
         ? UnixTimestamp(transformedTransaction)
         : null;

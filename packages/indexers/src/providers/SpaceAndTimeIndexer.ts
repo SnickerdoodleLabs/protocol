@@ -219,10 +219,12 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     // Do the work of trading the refresh token for a new access token
     return ResultUtils.combine([
       this.contextProvider.getContext(),
-      this.getUserID(),
-    ]).andThen(([context, userID]) => {
+      this.configProvider.getConfig(),
+    ]).andThen(([context, config]) => {
       const requestParams = {
-        userId: userID,
+        userId: config.apiKeys.spaceAndTimeCredentials.UserId
+          ? config.apiKeys.spaceAndTimeCredentials.UserId
+          : "",
       };
 
       context.privateEvents.onApiAccessed.next(EExternalApi.SpaceAndTime);
@@ -238,6 +240,7 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
           },
         )
         .map((token) => {
+          console.log("token.authCode: " + token.authCode);
           return token.authCode;
         })
         .mapErr((e) => {
@@ -409,12 +412,12 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     ])
       .andThen(([context, accessToken]) => {
         const url = new URL("https://api.spaceandtime.app/v1/sql/dql");
-        const sqlText = `{"sqlText":"SELECT *
-        FROM ${this.queries.get(chain)?.transactions}
-        WHERE FROM_ADDRESS = "${accountAddress}" 
-        OR TO_ADDRESS = "${accountAddress}""}`;
+        const sqlText = {
+          sqlText: `SELECT * FROM ETHEREUM.TRANSACTIONS LIMIT 1`,
+        };
 
-        console.log("getEVMTransactions sqlText: " + sqlText);
+        console.log("getEVMTransactions sqlText: " + JSON.stringify(sqlText));
+
         context.privateEvents.onApiAccessed.next(EExternalApi.SpaceAndTime);
         return this.ajaxUtils.post<ISxTTransaction[]>(new URL(url), sqlText, {
           headers: {
@@ -425,12 +428,23 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
         });
       })
       .map((response) => {
-        console.log("getEVMTransactions response: " + response);
+        console.log("getEVMTransactions response: " + JSON.stringify(response));
         return response.map((transaction) => {
+          console.log("transaction: " + JSON.stringify(transaction));
+          console.log("transaction.TIME_STAMP: " + transaction.TIME_STAMP);
+          console.log(
+            "transaction.TIME_STAMP: " +
+              Number.parseInt(transaction.TIME_STAMP),
+          );
+          console.log(
+            "UnixTimestamp transaction.TIME_STAMP: " +
+              UnixTimestamp(Number.parseInt(transaction.TIME_STAMP)),
+          );
+
           return new EVMTransaction(
             getChainInfoByChain(chain).chainId,
             transaction.TRANSACTION_HASH,
-            transaction.TIME_STAMP,
+            UnixTimestamp(13001519),
             transaction.BLOCK_NUMBER,
             transaction.TO_ADDRESS,
             transaction.FROM_ADDRESS,
@@ -526,7 +540,7 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
 }
 
 interface ISxTBalance {
-  TIME_STAMP: UnixTimestamp;
+  TIME_STAMP: string;
   BLOCK_NUMBER: BlockNumber;
   WALLET_ADDRESS: EVMAccountAddress;
   BALANCE: BigNumberString;
@@ -541,7 +555,7 @@ interface ISxTTransaction {
   GAS: string;
   TRANSACTION_FEE: BigNumberString;
   RECEIPT_CUMULATIVE_GAS_USED: number;
-  TIME_STAMP: UnixTimestamp;
+  TIME_STAMP: string;
   RECEIPT_STATUS: number;
 }
 

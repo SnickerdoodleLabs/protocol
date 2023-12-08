@@ -66,11 +66,11 @@ import {
 @injectable()
 export class MasterIndexer implements IMasterIndexer {
   protected evmIndexerWeights = [
+    // this.ankr,
     this.sxt,
     // this.rarible,
     // this.bluez,
     // this.poapRepo,
-    // this.ankr,
     // this.alchemy,
     // this.etherscan,
     // this.nftscan,
