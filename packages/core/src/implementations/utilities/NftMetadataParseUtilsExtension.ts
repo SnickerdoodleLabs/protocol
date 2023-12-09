@@ -1,35 +1,9 @@
-import { okAsync, ResultAsync } from "neverthrow";
-
-export enum EContentType {
-  UNKNOWN,
-  AUDIO,
-  VIDEO,
-  TEXT,
-  HTML,
-}
-
-export interface INFTEventField {
-  id: string;
-  eventUrl?: string;
-  country?: string;
-  city?: string;
-  year?: string;
-  startDate?: string;
-  endDate?: string;
-  expiryDate?: string;
-  supply?: string;
-}
-export interface INFT {
-  name: string | null;
-  description: string | null;
-  imageUrl: string | null;
-  animationUrl: string | null;
-  externalUrl: string | null;
-  contentType: EContentType | null;
-  contentUrls: Record<EContentType, string>[] | null;
-  attributes: Record<string, string>[] | null;
-  event: null | INFTEventField;
-}
+import {
+  AttributesEntity,
+  EContentType,
+  INFT,
+  INFTEventField,
+} from "@extension-onboarding/objects"; 
 
 const emptytNft: INFT = {
   name: null,
@@ -43,7 +17,7 @@ const emptytNft: INFT = {
   event: null,
 };
 
-export class NftMetadataParseUtils {
+export class NftMetadataParseUtilsExtension {
   public static getParsedNFT = (metadataString: string): INFT => {
     if (!metadataString) {
       return emptytNft;
@@ -61,7 +35,7 @@ export class NftMetadataParseUtils {
     return {
       name: this.getName(metadataObj),
       description: this.getDescription(metadataObj),
-      imageUrl: this.getImageUrl(metadataString),
+      imageUrl: this.getImageUrl(metadataString, metadataObj),
       animationUrl: this.getAnimationUrl(metadataObj),
       externalUrl: this.getExternalUrl(metadataObj),
       contentType: this.getContentType(metadataObj),
@@ -71,7 +45,7 @@ export class NftMetadataParseUtils {
     } as INFT;
   };
 
-  private static getImageUrl(metadataString: string) {
+  private static getImageUrl(metadataString: string, metadataObj) {
     let nftImages: string[];
     try {
       const regexpImage = /(\"image.*?\":.*?\"(.*?)\\?\")/;
@@ -91,7 +65,14 @@ export class NftMetadataParseUtils {
       nftImages = [];
     }
     return nftImages?.[0]
-      ? NftMetadataParseUtils.normalizeUrl(nftImages[0])
+      ? NftMetadataParseUtilsExtension.normalizeUrl(nftImages[0])
+      : NftMetadataParseUtilsExtension.getImageFromContent(metadataObj);
+  }
+
+  private static getImageFromContent(metadataObj) {
+    const image = metadataObj?.content?.[0]?.url ?? null;
+    return image
+      ? NftMetadataParseUtilsExtension.normalizeUrl(image as string)
       : null;
   }
 
@@ -101,13 +82,13 @@ export class NftMetadataParseUtils {
 
   private static getAnimationUrl(metadataObj) {
     return metadataObj.animation_url
-      ? NftMetadataParseUtils.normalizeUrl(metadataObj.animation_url)
+      ? NftMetadataParseUtilsExtension.normalizeUrl(metadataObj.animation_url)
       : null;
   }
 
   private static getExternalUrl(metadataObj) {
     return metadataObj.external_url
-      ? NftMetadataParseUtils.normalizeUrl(metadataObj.external_url)
+      ? NftMetadataParseUtilsExtension.normalizeUrl(metadataObj.external_url)
       : null;
   }
 
@@ -115,8 +96,17 @@ export class NftMetadataParseUtils {
     return null;
   }
 
-  private static getAttributes(metadataObj) {
-    return metadataObj.attributes ?? null;
+  private static getAttributes(metadataObj): AttributesEntity[] | null {
+    const _attributes = metadataObj.attributes ?? metadataObj.traits ?? null;
+    if (!_attributes) {
+      return null;
+    }
+    return _attributes.map((attribute) => {
+      return {
+        trait_type: attribute.trait_type ?? attribute.key ?? attribute.name,
+        value: attribute.value,
+      };
+    });
   }
 
   private static getName(metadataObj) {

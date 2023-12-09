@@ -1,4 +1,4 @@
-import { EContentType } from "@extension-onboarding/objects/enums";
+import { EContentType } from "@snickerdoodlelabs/objects";
 
 export interface INFTEventField {
   id: string;

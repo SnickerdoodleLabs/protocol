@@ -1,5 +1,6 @@
 export * from "@objects/enum/EAdContentType.js";
 export * from "@objects/enum/EAdDisplayType.js";
+export * from "@objects/enum/EAttributeDisplayMode.js";
 export * from "@objects/enum/EBackupPriority.js";
 export * from "@objects/enum/EBoolean.js";
 export * from "@objects/enum/EChain.js";
@@ -7,6 +8,7 @@ export * from "@objects/enum/EChainTechnology.js";
 export * from "@objects/enum/EChainType.js";
 export * from "@objects/enum/ECloudStorageType.js";
 export * from "@objects/enum/EColorMode.js";
+export * from "@objects/enum/EContentType.js";
 export * from "@objects/enum/EComponentStatus.js";
 export * from "@objects/enum/ECoreProxyType.js";
 export * from "@objects/enum/ECreatedRewardType.js";
