@@ -5,6 +5,7 @@ import CardTitle from "@extension-onboarding/components/v2/CardTitle";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import { getResponsivePopupProperties } from "@extension-onboarding/utils";
 import { Box } from "@material-ui/core";
 import {
   DiscordProfile,
@@ -132,10 +133,11 @@ const SocialMediaAccounts = () => {
       .installationUrl(undefined, undefined)
       .map((url) => {
         if (sdlDataWallet.proxyType === ECoreProxyType.IFRAME_BRIDGE) {
+          const windowPropeperies = getResponsivePopupProperties();
           connectionWindowRef.current = window.open(
             url,
             "Connect Discord",
-            "width=500,height=800",
+            windowPropeperies,
           );
           return;
         }

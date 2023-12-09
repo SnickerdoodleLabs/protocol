@@ -1,3 +1,4 @@
+import { Box } from "@material-ui/core";
 import {
   EOAuthRequestSource,
   ISdlDataWallet,
@@ -31,7 +32,15 @@ const App: FC<IAppProps> = ({ proxy }) => {
       }
     }
     return (
-      <Suspense fallback={null}>
+      <Suspense
+        fallback={
+          <Box
+            width="fill-available"
+            height="fill-available"
+            bgcolor="rgb(250, 250, 250)"
+          />
+        }
+      >
         <MainContainer proxy={proxy} />;
       </Suspense>
     );

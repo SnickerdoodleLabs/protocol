@@ -6,6 +6,7 @@ import FileExplorer from "@extension-onboarding/components/v2/FileExplorer";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import { getResponsivePopupProperties } from "@extension-onboarding/utils";
 import { Box } from "@material-ui/core";
 import {
   ECloudStorageType,
@@ -270,10 +271,11 @@ const StorageSettings: FC = () => {
           .getDropboxAuth(undefined)
           .map((url) => {
             if (sdlDataWallet.proxyType === ECoreProxyType.IFRAME_BRIDGE) {
+              const windowPropeperies = getResponsivePopupProperties();
               connectionWindowRef.current = window.open(
                 url,
                 "Connect Dropbox",
-                "width=500,height=800",
+                windowPropeperies,
               );
               return;
             }
