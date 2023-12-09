@@ -5,6 +5,7 @@ import {
   DiscordID,
   DiscordProfile,
   EOAuthProvider,
+  EOAuthRequestSource,
   ESocialType,
   OAuth2AccessToken,
   OAuth2RefreshToken,
@@ -49,6 +50,7 @@ export class DiscordService implements IDiscordService {
 
   public installationUrl(
     redirectTabId?: number,
+    requestSource?: EOAuthRequestSource,
   ): ResultAsync<URLString, OAuthError> {
     return this.getAPIConfig().map((apiConfig) => {
       const url = `https://discord.com/oauth2/authorize?client_id=${
@@ -58,6 +60,7 @@ export class DiscordService implements IDiscordService {
       )}&response_type=code&scope=identify%20guilds&prompt=consent&state=${new OAuthURLState(
         EOAuthProvider.DISCORD,
         redirectTabId,
+        requestSource,
       ).getEncodedState()}`; // TODO we can parameterize scope, too.
       return URLString(url);
     });

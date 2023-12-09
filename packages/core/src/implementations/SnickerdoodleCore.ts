@@ -96,6 +96,7 @@ import {
   SiteVisitsMap,
   TransactionFlowInsight,
   URLString,
+  EOAuthRequestSource,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -574,10 +575,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return discordService.initializeUserWithAuthorizationCode(code);
       },
 
-      installationUrl: (redirectTabId?: number) => {
+      installationUrl: (
+        redirectTabId?: number,
+        requestSource?: EOAuthRequestSource,
+      ) => {
         const discordService =
           this.iocContainer.get<IDiscordService>(IDiscordServiceType);
-        return discordService.installationUrl(redirectTabId);
+        return discordService.installationUrl(redirectTabId, requestSource);
       },
 
       getUserProfiles: () => {
@@ -634,12 +638,15 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
         return cloudStorageManager.getAvailableCloudStorageOptions();
       },
-      getDropboxAuth: (sourceDomain: DomainName | undefined) => {
+      getDropboxAuth: (
+        reuestSource?: EOAuthRequestSource,
+        sourceDomain?: DomainName,
+      ) => {
         const cloudStorageManager = this.iocContainer.get<ICloudStorageManager>(
           ICloudStorageManagerType,
         );
 
-        return cloudStorageManager.getDropboxAuth();
+        return cloudStorageManager.getDropboxAuth(reuestSource);
       },
       authenticateDropbox: (
         code: string,

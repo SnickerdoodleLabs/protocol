@@ -291,7 +291,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
         return coreGateway.discord.initializeUserWithAuthorizationCode(code);
       },
       installationUrl: (redirectTabId: number | undefined) => {
-        return coreGateway.discord.installationUrl(redirectTabId);
+        return coreGateway.discord.installationUrl(redirectTabId, undefined);
       },
       getUserProfiles: () => {
         return coreGateway.discord.getUserProfiles();

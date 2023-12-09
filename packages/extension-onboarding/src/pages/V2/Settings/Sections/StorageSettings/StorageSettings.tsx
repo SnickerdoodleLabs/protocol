@@ -9,6 +9,7 @@ import { useNotificationContext } from "@extension-onboarding/context/Notificati
 import { Box } from "@material-ui/core";
 import {
   ECloudStorageType,
+  ECoreProxyType,
   EOAuthProvider,
   OAuth2AccessToken,
   OAuth2RefreshToken,
@@ -68,6 +69,7 @@ const StorageSettings: FC = () => {
   const { setModal, setLoadingStatus } = useLayoutContext();
   const [searchParams] = useSearchParams();
   const currentBreakPoint = useMedia();
+  const connectionWindowRef = React.useRef<Window | null>(null);
 
   const dropbox = useMemo(() => {
     if (accessToken && Dropbox) {
@@ -89,6 +91,22 @@ const StorageSettings: FC = () => {
 
   useEffect(() => {
     getInitialStorageOption();
+    const receiveMessage = (event: MessageEvent) => {
+      if (event.source && event.source === connectionWindowRef.current) {
+        const { provider, code } = event.data as {
+          provider: EOAuthProvider;
+          code: string;
+        };
+        if (provider === EOAuthProvider.DROPBOX && code) {
+          connectionWindowRef.current?.close();
+          handleCode(code);
+        }
+      }
+    };
+    window.addEventListener("message", receiveMessage);
+    return () => {
+      window.removeEventListener("message", receiveMessage);
+    };
   }, []);
 
   useEffect(() => {
@@ -249,9 +267,17 @@ const StorageSettings: FC = () => {
       }
       case ECloudStorageType.Dropbox: {
         return sdlDataWallet.storage
-          .getDropboxAuth()
+          .getDropboxAuth(undefined)
           .map((url) => {
-            window.open(url, "_self");
+            if (sdlDataWallet.proxyType === ECoreProxyType.IFRAME_BRIDGE) {
+              connectionWindowRef.current = window.open(
+                url,
+                "Connect Dropbox",
+                "width=500,height=800",
+              );
+              return;
+            }
+            return window.open(url, "_self");
           })
           .mapErr((e) => {
             console.log(e);

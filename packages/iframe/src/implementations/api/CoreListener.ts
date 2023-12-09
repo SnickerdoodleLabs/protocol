@@ -769,6 +769,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.coreProvider.getCore().andThen((core) => {
             return core.discord.installationUrl(
               data.data.redirectTabId,
+              undefined,
               this.sourceDomain,
             );
           });
@@ -960,7 +961,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       "storage.getDropboxAuth": (data: IIFrameCallData<object>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.storage.getDropboxAuth(this.sourceDomain);
+            return core.storage.getDropboxAuth(undefined, this.sourceDomain);
           });
         }, data.callId);
       },

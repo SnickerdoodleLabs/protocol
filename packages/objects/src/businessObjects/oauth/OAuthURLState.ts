@@ -1,9 +1,10 @@
-import { EOAuthProvider } from "@objects/enum/index.js";
+import { EOAuthProvider, EOAuthRequestSource } from "@objects/enum/index.js";
 
 export class OAuthURLState {
   constructor(
     public provider: EOAuthProvider,
     public redirectTabId: number | undefined = undefined,
+    public requestSource: EOAuthRequestSource = EOAuthRequestSource.WEBSITE,
   ) {}
 
   public getEncodedState(): string {
@@ -11,6 +12,7 @@ export class OAuthURLState {
       JSON.stringify({
         provider: this.provider,
         redirectTabId: this.redirectTabId,
+        requestSource: this.requestSource,
       }),
     );
   }
@@ -23,6 +25,7 @@ export class OAuthURLState {
         ...stateObj,
         provider: this.provider,
         redirectTabId: this.redirectTabId,
+        requestSource: this.requestSource,
       };
       urlObj.searchParams.set(
         "state",
@@ -36,7 +39,9 @@ export class OAuthURLState {
   }
 
   static getParsedState(state: string): OAuthURLState {
-    const { provider, redirectTabId } = JSON.parse(decodeURIComponent(state));
-    return new OAuthURLState(provider, redirectTabId);
+    const { provider, redirectTabId, requestSource } = JSON.parse(
+      decodeURIComponent(state),
+    );
+    return new OAuthURLState(provider, redirectTabId, requestSource);
   }
 }

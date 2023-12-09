@@ -3,6 +3,7 @@ import {
   DiscordID,
   DiscordProfile,
   DomainName,
+  EOAuthRequestSource,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
   OAuthAuthorizationCode,
@@ -38,10 +39,11 @@ export class DiscordService implements IDiscordService {
   }
   public installationUrl(
     redirectTabId?: number,
+    requestSource?: EOAuthRequestSource,
     sourceDomain?: DomainName,
   ): ResultAsync<URLString, SnickerDoodleCoreError> {
     return this.core.discord
-      .installationUrl(redirectTabId, sourceDomain)
+      .installationUrl(redirectTabId, requestSource, sourceDomain)
       .mapErr((error) => {
         this.errorUtils.emit(error);
         return new SnickerDoodleCoreError((error as Error).message, error);
