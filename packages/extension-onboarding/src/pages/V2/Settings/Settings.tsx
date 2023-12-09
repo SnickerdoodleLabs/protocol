@@ -1,24 +1,40 @@
 import Container from "@extension-onboarding/components/v2/Container";
 import PageTitle from "@extension-onboarding/components/v2/PageTitle";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import LinkedCryptoAccounts from "@extension-onboarding/pages/V2/Settings/Sections/LinkedCryptoAccounts";
 import PersonalInfo from "@extension-onboarding/pages/V2/Settings/Sections/PersonalInfo";
-import SocialMediaAccounts from "@extension-onboarding/pages/V2/Settings/Sections/SocialMediaAccounts";
-import StorageSetting from "@extension-onboarding/pages/V2/Settings/Sections/StorageSettings";
+const SocialMediaAccounts = lazy(
+  () =>
+    import(
+      "@extension-onboarding/pages/V2/Settings/Sections/SocialMediaAccounts"
+    ),
+);
+const StorageSetting = lazy(
+  () =>
+    import("@extension-onboarding/pages/V2/Settings/Sections/StorageSettings"),
+);
 import Wallets from "@extension-onboarding/pages/V2/Settings/Sections/Wallets";
-import React from "react";
-import Transactions from "../Transactions";
+import { ECoreProxyType } from "@snickerdoodlelabs/objects";
+import React, { lazy, Suspense } from "react";
 
 const Settings = () => {
-  //@TODO we need to handle code here and pass it to storage settings and social media accounts
-
+  const { sdlDataWallet } = useDataWalletContext();
   return (
     <Container>
       <PageTitle title="Settings" />
       <Wallets />
       <LinkedCryptoAccounts />
       <PersonalInfo />
-      <SocialMediaAccounts />
-      <StorageSetting />
+      {sdlDataWallet.proxyType != ECoreProxyType.IFRAME_BRIDGE && (
+        <>
+          <Suspense fallback={null}>
+            <SocialMediaAccounts />
+          </Suspense>
+          <Suspense fallback={null}>
+            <StorageSetting />
+          </Suspense>
+        </>
+      )}
     </Container>
   );
 };

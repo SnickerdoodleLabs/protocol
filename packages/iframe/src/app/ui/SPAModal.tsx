@@ -1,10 +1,8 @@
 import { IFrameEvents } from "@core-iframe/interfaces/objects";
 import { Box } from "@material-ui/core";
+import CloseIcon from "@material-ui/icons/Close";
 import { ISdlDataWallet } from "@snickerdoodlelabs/objects";
-import {
-  CloseButton,
-  ModalContainer,
-} from "@snickerdoodlelabs/shared-components";
+import { ModalContainer } from "@snickerdoodlelabs/shared-components";
 import React, {
   useState,
   useMemo,
@@ -65,39 +63,42 @@ export const SPAModal: FC<ISPAModalProps> = ({
         <Box
           boxShadow="rgb(38, 57, 77) 0px 20px 30px -10px"
           borderRadius={12}
-          overflow="auto"
           margin="auto"
           width="100%"
-          maxHeight="90vh"
+          height="90vh"
           position="relative"
         >
-          <Box
-            width={40}
-            height={40}
-            bgcolor={"#00000066"}
-            borderRadius={10}
-            display="flex"
-            pl={-3}
-            alignContent="ceter"
-            justifyContent="center"
-            position="absolute"
-            mx="auto"
-            top={5}
-            left={120}
-            zIndex={1}
-          >
-            <Box ml={-3}>
-              <CloseButton color="#fff" size={36} onClick={onClose} />
-            </Box>
+          <Box position="absolute" mx="auto" top={-20} right={-20} zIndex={1}>
+            <CloseIcon
+              onClick={() => {
+                onClose();
+              }}
+              fontSize="large"
+              style={{ cursor: "pointer", color: "#000" }}
+            />
           </Box>
-          <Suspense fallback={<div>Loading...</div>}>
-            <LazySPA proxy={proxy} />
-          </Suspense>
+          <Box width="100%" height="100%" overflow="auto">
+            <Suspense
+              fallback={
+                <Box
+                  width="fill-available"
+                  height="fill-available"
+                  bgcolor="rgb(250, 250, 250)"
+                />
+              }
+            >
+              <LazySPA proxy={proxy} />
+            </Suspense>
+          </Box>
         </Box>
       );
     }
     return null;
   }, [awaitRender, appState]);
 
-  return <>{component && <ModalContainer>{component}</ModalContainer>}</>;
+  return (
+    <>
+      {component && <ModalContainer allowOverflow>{component}</ModalContainer>}
+    </>
+  );
 };
