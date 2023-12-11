@@ -1,13 +1,13 @@
+import { Box, Grid } from "@material-ui/core";
+import { EVMNFT, POAPMetadata } from "@snickerdoodlelabs/objects";
+import { SDTypography } from "@snickerdoodlelabs/shared-components";
+import React, { FC, useEffect, useMemo, useState } from "react";
+
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import MediaRenderer from "@extension-onboarding/components/NFTItem/MediaRenderer";
 import { useStyles } from "@extension-onboarding/components/NFTItem/NFTItem.style";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { POAPMetadata } from "@extension-onboarding/objects";
 import { NftMetadataParseUtils } from "@extension-onboarding/utils";
-import { Box, Grid } from "@material-ui/core";
-import { EVMNFT } from "@snickerdoodlelabs/objects";
-import { SDTypography } from "@snickerdoodlelabs/shared-components";
-import React, { FC, useEffect, useMemo, useState } from "react";
 
 export interface IPoapNFTItemProps {
   item: EVMNFT;

@@ -1,7 +1,8 @@
-import placeholder from "@extension-onboarding/assets/images/image-placeholder.png";
-import { INFT } from "@extension-onboarding/objects";
 import { Skeleton } from "@material-ui/lab";
+import { INFT } from "@snickerdoodlelabs/objects/src/interfaces";
 import React, { useState, FC } from "react";
+
+import placeholder from "@extension-onboarding/assets/images/image-placeholder.png";
 
 interface IMediaRendererProps {
   nftData?: INFT;

@@ -1,3 +1,9 @@
+import {
+  AttributesEntity,
+  EContentType,
+  INFT,
+  INFTEventField,
+} from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import {

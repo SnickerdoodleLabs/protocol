@@ -1,12 +1,13 @@
+import { Box } from "@material-ui/core";
+import { NftMetadataParseUtilsExtension } from "@snickerdoodlelabs/core";
+import { SuiNFT } from "@snickerdoodlelabs/objects";
+import { SDTypography } from "@snickerdoodlelabs/shared-components";
+import React, { FC, useMemo } from "react";
+
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import MediaRenderer from "@extension-onboarding/components/NFTItem/MediaRenderer";
 import { useStyles } from "@extension-onboarding/components/NFTItem/NFTItem.style";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { NftMetadataParseUtils } from "@extension-onboarding/utils";
-import { Box } from "@material-ui/core";
-import { SuiNFT } from "@snickerdoodlelabs/objects";
-import { SDTypography } from "@snickerdoodlelabs/shared-components";
-import React, { FC, useMemo } from "react";
 
 export interface ISuiNFTItemProps {
   item: SuiNFT;
@@ -21,7 +22,9 @@ export const SuiNFTItem: FC<ISuiNFTItemProps> = ({
 
   const nftData = useMemo(() => {
     if (item.metadata) {
-      return NftMetadataParseUtils.getParsedNFT(JSON.stringify(item.metadata));
+      return NftMetadataParseUtilsExtension.getParsedNFT(
+        JSON.stringify(item.metadata),
+      );
     }
     return undefined;
   }, [item]);
