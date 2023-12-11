@@ -9,7 +9,9 @@ import {
   DataWalletBackupID,
   DiscordError,
   EIndexerMethod,
+  InvalidParametersError,
   isAccountValidForChain,
+  MethodSupportError,
   PersistenceError,
   SiteVisit,
   TwitterError,
@@ -33,6 +35,8 @@ import {
   IDataWalletPersistenceType,
   ILinkedAccountRepository,
   ILinkedAccountRepositoryType,
+  INftRepository,
+  INftRepositoryType,
   ITransactionHistoryRepository,
   ITransactionHistoryRepositoryType,
 } from "@core/interfaces/data/index.js";
@@ -63,6 +67,8 @@ export class MonitoringService implements IMonitoringService {
     protected discordService: IDiscordService,
     @inject(ITwitterServiceType)
     protected twitterService: ITwitterService,
+    @inject(INftRepositoryType)
+    protected nftRepository: INftRepository,
   ) {}
 
   public pollTransactions(): ResultAsync<
@@ -125,6 +131,20 @@ export class MonitoringService implements IMonitoringService {
         const transactions = transactionsArr.flat(2);
         return this.transactionRepo.addTransactions(transactions);
       });
+  }
+
+  public pollNfts(): ResultAsync<void, unknown> {
+    return this.nftRepository
+      .getIndexerNftsAndUpdateIndexedDb()
+      .orElse((e) => {
+        this.logUtils.error(
+          `In pollNfts(), received an error fetching nfts`,
+          e,
+        );
+
+        return okAsync([]);
+      })
+      .map(() => {});
   }
 
   public siteVisited(

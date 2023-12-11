@@ -3,6 +3,7 @@ import { VersionedObject } from "./VersionedObject";
 import { WalletNFT } from "@objects/businessObjects/versioned/WalletNFT.js";
 import { EIndexedDbOp } from "@objects/enum/index.js";
 import {
+  BigNumberString,
   NftIdWithMeasurementDate,
   UnixTimestamp,
 } from "@objects/primitives/index.js";
@@ -13,6 +14,7 @@ export class WalletNFTHistory extends VersionedObject {
   public constructor(
     public id: NftIdWithMeasurementDate,
     public event: EIndexedDbOp,
+    public amount: BigNumberString,
   ) {
     super();
   }
@@ -23,5 +25,10 @@ export class WalletNFTHistory extends VersionedObject {
 }
 
 export type WalletNftWithHistory = Omit<WalletNFT, "getVersion"> & {
-  history: { measurementDate: UnixTimestamp; event: EIndexedDbOp }[];
+  history: {
+    measurementDate: UnixTimestamp;
+    event: EIndexedDbOp;
+    amount: BigNumberString;
+  }[];
+  totalAmount: BigNumberString;
 };

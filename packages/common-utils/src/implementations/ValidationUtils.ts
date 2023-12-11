@@ -1,4 +1,4 @@
-import { UnixTimestamp } from "@snickerdoodlelabs/objects";
+import { EContractStandard, UnixTimestamp } from "@snickerdoodlelabs/objects";
 
 export class ValidationUtils {
   static isString(value: unknown): value is string {
@@ -73,5 +73,18 @@ export class ValidationUtils {
     } else {
       return null;
     }
+  }
+
+  static stringToTokenStandard(value: string): EContractStandard | "Unknown" {
+    const standards: [RegExp, EContractStandard][] = [
+      [/^ERC[\s-_]*721$/i, EContractStandard.Erc721],
+      [/^ERC[\s-_]*1155$/i, EContractStandard.Erc1155],
+    ];
+    for (const [standardRegex, standard] of standards) {
+      if (standardRegex.test(value)) {
+        return standard;
+      }
+    }
+    return "Unknown";
   }
 }

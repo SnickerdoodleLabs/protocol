@@ -1,5 +1,9 @@
 import {
+  AccountIndexingError,
+  AjaxError,
+  InvalidParametersError,
   IpfsCID,
+  MethodSupportError,
   PersistenceError,
   SDQL_Return,
   UnixTimestamp,
@@ -12,7 +16,14 @@ export interface INftQueryEvaluator {
     query: AST_NftQuery,
     queryCID: IpfsCID,
     queryTimestamp: UnixTimestamp,
-  ): ResultAsync<SDQL_Return, PersistenceError>;
+  ): ResultAsync<
+    SDQL_Return,
+    | PersistenceError
+    | AccountIndexingError
+    | AjaxError
+    | MethodSupportError
+    | InvalidParametersError
+  >;
 }
 
 export const INftQueryEvaluatorType = Symbol.for("INftQueryEvaluator");

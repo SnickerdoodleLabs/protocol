@@ -136,8 +136,7 @@ import {
   GetConsentContractURLsParams,
   GetPersistenceNFTsParams,
   GetAccountNFTHistoryParams,
-  GetAccountCachedNFTsWithHistoryParams,
-  GetAccountNftsWithHistoryUsingBenchmarkParams,
+  GetAccountNftCacheParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -235,17 +234,19 @@ export class RpcCallHandler implements IRpcCallHandler {
       },
     ),
 
-    new CoreActionHandler<GetAccountCachedNFTsParams>(
-      GetAccountCachedNFTsParams.getCoreAction(),
-      (_params) => {
-        return this.accountService.getCachedNFTs();
-      },
-    ),
-
     new CoreActionHandler<GetPersistenceNFTsParams>(
       GetPersistenceNFTsParams.getCoreAction(),
       (_params) => {
         return this.accountService.getPersistenceNFTs();
+      },
+    ),
+
+    new CoreActionHandler<GetAccountNftCacheParams>(
+      GetAccountNftCacheParams.getCoreAction(),
+      (_params) => {
+        return this.accountService.getNftCache().map((map) => {
+          return ObjectUtils.serialize(map);
+        });
       },
     ),
 
@@ -256,18 +257,13 @@ export class RpcCallHandler implements IRpcCallHandler {
       },
     ),
 
-    new CoreActionHandler<GetAccountCachedNFTsWithHistoryParams>(
-      GetAccountCachedNFTsWithHistoryParams.getCoreAction(),
+    new CoreActionHandler<GetAccountCachedNFTsParams>(
+      GetAccountCachedNFTsParams.getCoreAction(),
       (_params) => {
-        return this.accountService.getCachedNftsWithHistory();
-      },
-    ),
-
-    new CoreActionHandler<GetAccountNftsWithHistoryUsingBenchmarkParams>(
-      GetAccountNftsWithHistoryUsingBenchmarkParams.getCoreAction(),
-      (_params) => {
-        return this.accountService.getNftsWithHistoryUsingBenchmark(
+        return this.accountService.getCachedNFTs(
           _params.benchmark,
+          _params.chains,
+          _params.accounts,
         );
       },
     ),

@@ -8,6 +8,7 @@ export * from "@objects/enum/EChainType.js";
 export * from "@objects/enum/ECloudStorageType.js";
 export * from "@objects/enum/EColorMode.js";
 export * from "@objects/enum/EComponentStatus.js";
+export * from "@objects/enum/EContractStandard.js";
 export * from "@objects/enum/ECoreProxyType.js";
 export * from "@objects/enum/ECreatedRewardType.js";
 export * from "@objects/enum/ECredentialType.js";

@@ -1,5 +1,7 @@
 import {
+  AccountIndexingError,
   Age,
+  AjaxError,
   CountryCode,
   DiscordGuildProfile,
   EQueryEvents,
@@ -7,7 +9,9 @@ import {
   EStatus,
   EvalNotImplementedError,
   Gender,
+  InvalidParametersError,
   IpfsCID,
+  MethodSupportError,
   PersistenceError,
   PublicEvents,
   QueryPerformanceEvent,
@@ -91,7 +95,14 @@ export class QueryEvaluator implements IQueryEvaluator {
     query: T,
     queryCID: IpfsCID,
     queryTimestamp: UnixTimestamp,
-  ): ResultAsync<SDQL_Return, PersistenceError> {
+  ): ResultAsync<
+    SDQL_Return,
+    | PersistenceError
+    | AccountIndexingError
+    | AjaxError
+    | MethodSupportError
+    | InvalidParametersError
+  > {
     return this.contextProvider.getContext().andThen((context) => {
       if (query instanceof AST_BlockchainTransactionQuery) {
         context.publicEvents.queryPerformance.next(

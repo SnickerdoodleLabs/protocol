@@ -17,6 +17,11 @@ import {
   WalletNftWithHistory,
   EChainTechnology,
   EIndexedDbOp,
+  BigNumberString,
+  AccountIndexingError,
+  AjaxError,
+  InvalidParametersError,
+  MethodSupportError,
 } from "@snickerdoodlelabs/objects";
 import { AST_NftQuery } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
@@ -45,7 +50,14 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
     query: AST_NftQuery,
     queryCID: IpfsCID,
     queryTimestamp: UnixTimestamp,
-  ): ResultAsync<SDQL_Return, PersistenceError> {
+  ): ResultAsync<
+    SDQL_Return,
+    | PersistenceError
+    | AccountIndexingError
+    | AjaxError
+    | MethodSupportError
+    | InvalidParametersError
+  > {
     return this.contextProvider.getContext().andThen((context) => {
       const networkId = query.schema.networkid;
       const address = query.schema.address;
@@ -67,7 +79,7 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
         ),
       );
       return this.nftRepository
-        .getNftsWithHistoryUsingBenchmark(queryTimestamp, chainIds)
+        .getCachedNFTs(queryTimestamp, chainIds)
         .map((walletNftWithHistory) => {
           context.publicEvents.queryPerformance.next(
             new QueryPerformanceEvent(
@@ -231,7 +243,12 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
   private isEVMWithHistory(
     walletNftWithHistory: WalletNftWithHistory,
   ): walletNftWithHistory is EVMNFT & {
-    history: { measurementDate: UnixTimestamp; event: EIndexedDbOp }[];
+    history: {
+      measurementDate: UnixTimestamp;
+      event: EIndexedDbOp;
+      amount: BigNumberString;
+    }[];
+    totalAmount: BigNumberString;
   } {
     return walletNftWithHistory.type === EChainTechnology.EVM;
   }

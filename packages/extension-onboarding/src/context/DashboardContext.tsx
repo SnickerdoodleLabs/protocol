@@ -20,8 +20,8 @@ import { useDataWalletContext } from "@extension-onboarding/context/DataWalletCo
 import { NftMetadataParseUtils } from "@extension-onboarding/utils";
 
 interface IDashboardContext {
-  accountNFTs?: WalletNFT[];
-  accountTestnetNFTs?: WalletNFT[];
+  accountNFTs?: Omit<WalletNFT, "getVersion">[];
+  accountTestnetNFTs?: Omit<WalletNFT, "getVersion">[];
   poapNFTs?: EVMNFT[];
   isNFTsLoading: boolean;
 }
@@ -54,9 +54,11 @@ const { mainnetSupportedChainIds, testnetSupportedChainIds } = Array.from(
 );
 
 export const DashboardContextProvider: FC = ({ children }) => {
-  const [accountNFTs, setAccountNFTs] = useState<WalletNFT[]>();
+  const [accountNFTs, setAccountNFTs] =
+    useState<Omit<WalletNFT, "getVersion">[]>();
   const [poapNFTs, setPoapNFTs] = useState<EVMNFT[]>();
-  const [accountTestnetNFTs, setAccountTestnetNFTs] = useState<WalletNFT[]>();
+  const [accountTestnetNFTs, setAccountTestnetNFTs] =
+    useState<Omit<WalletNFT, "getVersion">[]>();
   const [isNFTsLoading, setIsNFTsLoading] = useState(true);
   const { sdlDataWallet } = useDataWalletContext();
   const { linkedAccounts, appMode } = useAppContext();
@@ -70,7 +72,7 @@ export const DashboardContextProvider: FC = ({ children }) => {
 
   const initializeNfts = () => {
     sdlDataWallet.nft
-      .getCachedNFTs()
+      .getCachedNFTs(undefined, undefined, undefined)
       .mapErr((e) => {
         setIsNFTsLoading(false);
       })
@@ -80,27 +82,33 @@ export const DashboardContextProvider: FC = ({ children }) => {
             const isMainnetItem = mainnetSupportedChainIds.includes(
               ChainId(item.chain),
             );
-            const isPopap =
-              item.chain === EChain.Gnosis ||
-              (item.type === EChainTechnology.EVM &&
-                !!NftMetadataParseUtils.getParsedNFT(
-                  JSON.stringify((item as EVMNFT).metadata) || "",
-                ).event);
 
-            if (isPopap) {
-              acc.poapNfts = [...acc.poapNfts, item as EVMNFT];
-              return acc;
+            if (NftMetadataParseUtils.isEVMWithHistory(item)) {
+              const evmNft = item as EVMNFT;
+              if (
+                evmNft.chain === EChain.Gnosis ||
+                !!NftMetadataParseUtils.getParsedNFT(
+                  JSON.stringify(evmNft.metadata) || "",
+                ).event
+              ) {
+                acc.poapNfts = [...acc.poapNfts, evmNft];
+                return acc;
+              }
             }
+
             if (isMainnetItem) {
-              acc.mainnetNfts = [...acc.mainnetNfts, item];
+              acc.mainnetNfts = [
+                ...acc.mainnetNfts,
+                item as Omit<WalletNFT, "getVersion">,
+              ];
               return acc;
             }
             acc.testnetNfts = [...acc.testnetNfts, item];
             return acc;
           },
           { mainnetNfts: [], testnetNfts: [], poapNfts: [] } as {
-            mainnetNfts: WalletNFT[];
-            testnetNfts: WalletNFT[];
+            mainnetNfts: Omit<WalletNFT, "getVersion">[];
+            testnetNfts: Omit<WalletNFT, "getVersion">[];
             poapNfts: EVMNFT[];
           },
         );

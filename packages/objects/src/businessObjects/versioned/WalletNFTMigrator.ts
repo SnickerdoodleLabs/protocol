@@ -13,7 +13,7 @@ export class WalletNFTMigrator extends VersionedObjectMigrator<WalletNFT> {
   protected factory<T extends WalletNFT>(
     data: Record<string, unknown> | T,
   ): WalletNFT {
-    if (this.isEVM(data)) {
+    if (isEVMNft(data)) {
       return new EVMNFT(
         data.token,
         data.tokenId,
@@ -21,14 +21,14 @@ export class WalletNFTMigrator extends VersionedObjectMigrator<WalletNFT> {
         data.owner,
         data.tokenUri,
         data.metadata,
-        data.amount,
         data.name,
         data.chain,
+        data.amount,
         data.blockNumber,
         data.lastOwnerTimeStamp,
       );
     }
-    if (this.isSui(data)) {
+    if (isSuiNft(data)) {
       return new SuiNFT(
         data.token,
         data.tokenId,
@@ -43,7 +43,7 @@ export class WalletNFTMigrator extends VersionedObjectMigrator<WalletNFT> {
         data.lastOwnerTimeStamp,
       );
     }
-    if (this.isSolana(data)) {
+    if (isSolanaNft(data)) {
       return new SolanaNFT(
         data.chain,
         data.owner,
@@ -64,24 +64,37 @@ export class WalletNFTMigrator extends VersionedObjectMigrator<WalletNFT> {
     );
   }
 
-  protected isEVM(nft: Record<string, unknown> | WalletNFT): nft is EVMNFT {
-    return nft.type === EChainTechnology.EVM;
-  }
-
-  protected isSolana(
-    nft: Record<string, unknown> | WalletNFT,
-  ): nft is SolanaNFT {
-    return nft.type === EChainTechnology.Solana;
-  }
-
-  protected isSui(nft: Record<string, unknown> | WalletNFT): nft is SuiNFT {
-    return nft.type === EChainTechnology.Sui;
-  }
-
   protected getUpgradeFunctions(): Map<
     number,
     (data: Record<string, unknown>, version: number) => Record<string, unknown>
   > {
     return new Map();
   }
+}
+
+/**
+ * Only checks the type field !
+ */
+export function isEVMNft(
+  nft: Record<string, unknown> | WalletNFT,
+): nft is EVMNFT {
+  return nft.type === EChainTechnology.EVM;
+}
+
+/**
+ * Only checks the type field !
+ */
+export function isSolanaNft(
+  nft: Record<string, unknown> | WalletNFT,
+): nft is SolanaNFT {
+  return nft.type === EChainTechnology.Solana;
+}
+
+/**
+ * Only checks the type field !
+ */
+export function isSuiNft(
+  nft: Record<string, unknown> | WalletNFT,
+): nft is SuiNFT {
+  return nft.type === EChainTechnology.Sui;
 }

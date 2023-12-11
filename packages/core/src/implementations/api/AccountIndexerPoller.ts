@@ -47,6 +47,13 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
         });
       }, config.accountIndexingPollingIntervalMS);
 
+      // Set up polling for nfts
+      setInterval(() => {
+        this.monitoringService.pollNfts().mapErr((e) => {
+          this.logUtils.error(e);
+        });
+      }, config.accountIndexingPollingIntervalMS);
+
       // Poll transactions after an account is added.
       context.publicEvents.onAccountAdded.subscribe(() => {
         this.monitoringService.pollTransactions().mapErr((e) => {

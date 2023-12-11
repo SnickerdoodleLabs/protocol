@@ -47,6 +47,7 @@ import {
   PageInvitation,
   IWebIntegrationConfigOverrides,
   TransactionFilter,
+  LinkedAccount,
 } from "@snickerdoodlelabs/objects";
 import {
   IIFrameCallData,
@@ -392,10 +393,29 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      "nft.getCachedNFTs": (data: IIFrameCallData<Record<string, never>>) => {
+      "nft.getCachedNFTs": (
+        data: IIFrameCallData<{
+          benchmark?: UnixTimestamp;
+          chains?: EChain[];
+          accounts?: LinkedAccount[];
+        }>,
+      ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.nft.getCachedNFTs(this.sourceDomain);
+            return core.nft.getCachedNFTs(
+              data.data.benchmark,
+              data.data.chains,
+              data.data.accounts,
+              this.sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
+      "nft.getNFTsHistory": (data: IIFrameCallData<Record<string, never>>) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.nft.getNFTsHistory(this.sourceDomain);
           });
         }, data.callId);
       },
@@ -410,35 +430,10 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      "nft.getNFTsHistory": (data: IIFrameCallData<Record<string, never>>) => {
+      "nft.getCache": (data: IIFrameCallData<Record<string, never>>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.nft.getNFTsHistory(this.sourceDomain);
-          });
-        }, data.callId);
-      },
-
-      "nft.getCachedNftsWithHistory": (
-        data: IIFrameCallData<Record<string, never>>,
-      ) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.nft.getCachedNftsWithHistory(this.sourceDomain);
-          });
-        }, data.callId);
-      },
-
-      "nft.getNftsWithHistoryUsingBenchmark": (
-        data: IIFrameCallData<{
-          benchmark: UnixTimestamp;
-        }>,
-      ) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.nft.getNftsWithHistoryUsingBenchmark(
-              data.data.benchmark,
-              this.sourceDomain,
-            );
+            return core.nft.getCache(this.sourceDomain);
           });
         }, data.callId);
       },

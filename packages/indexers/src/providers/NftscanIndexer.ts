@@ -2,6 +2,7 @@ import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
   IRequestConfig,
+  ValidationUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
@@ -187,16 +188,19 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
     }
     const items = response.data.map((token) => {
       const assets = token.assets.map((asset) => {
+        const tokenStandard = ValidationUtils.stringToTokenStandard(
+          asset.erc_type,
+        );
         return new EVMNFT(
           EVMContractAddress(asset.contract_address),
           BigNumberString(asset.token_id),
-          asset.erc_type,
+          tokenStandard,
           EVMAccountAddress(asset.owner),
           TokenUri(asset.token_uri),
           { raw: asset.metadata_json },
-          BigNumberString(asset.amount),
           asset.name,
           chain,
+          BigNumberString(asset.amount),
           undefined,
           UnixTimestamp(Number(asset.own_timestamp)),
         );

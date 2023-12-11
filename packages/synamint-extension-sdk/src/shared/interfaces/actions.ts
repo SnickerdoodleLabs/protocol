@@ -63,6 +63,7 @@ import {
   IUserAgreement,
   WalletNFTHistory,
   WalletNftWithHistory,
+  NftRepositoryCache,
 } from "@snickerdoodlelabs/objects";
 
 import { IExtensionConfig } from "./IExtensionConfig";
@@ -531,8 +532,14 @@ export class GetAgeParams extends CoreActionParams<Age | null> {
   }
 }
 
-export class GetAccountCachedNFTsParams extends CoreActionParams<WalletNFT[]> {
-  public constructor() {
+export class GetAccountCachedNFTsParams extends CoreActionParams<
+  WalletNftWithHistory[]
+> {
+  public constructor(
+    public benchmark?: UnixTimestamp,
+    public chains?: EChain[],
+    public accounts?: LinkedAccount[],
+  ) {
     super(GetAccountCachedNFTsParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
@@ -558,25 +565,13 @@ export class GetAccountNFTHistoryParams extends CoreActionParams<
     return ECoreActions.GET_ACCOUNT_NFT_HISTORY;
   }
 }
-export class GetAccountCachedNFTsWithHistoryParams extends CoreActionParams<
-  WalletNftWithHistory[]
-> {
-  public constructor() {
-    super(GetAccountCachedNFTsWithHistoryParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.GET_ACCOUNT_CACHED_NFTS_WITH_HISTORY;
-  }
-}
 
-export class GetAccountNftsWithHistoryUsingBenchmarkParams extends CoreActionParams<
-  WalletNftWithHistory[]
-> {
-  public constructor(public benchmark: UnixTimestamp) {
-    super(GetAccountNftsWithHistoryUsingBenchmarkParams.getCoreAction());
+export class GetAccountNftCacheParams extends CoreActionParams<JSONString> {
+  public constructor() {
+    super(GetAccountNftCacheParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
-    return ECoreActions.GET_ACCOUNT_NFTS_WITH_HISTORY_USING_BENCHMARK;
+    return ECoreActions.GET_ACCOUNT_NFT_CACHE;
   }
 }
 

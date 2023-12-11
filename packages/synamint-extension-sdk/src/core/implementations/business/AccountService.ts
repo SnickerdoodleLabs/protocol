@@ -25,6 +25,7 @@ import {
   WalletNFTHistory,
   WalletNftWithHistory,
   UnixTimestamp,
+  NftRepositoryCache,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -85,10 +86,24 @@ export class AccountService implements IAccountService {
     return this.accountRepository.getAccountBalances();
   }
 
-  public getCachedNFTs(
+  public getNftCache(
     sourceDomain?: DomainName,
-  ): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
-    return this.accountRepository.getCachedNFTs(sourceDomain);
+  ): ResultAsync<NftRepositoryCache, SnickerDoodleCoreError> {
+    return this.accountRepository.getCache(sourceDomain);
+  }
+
+  public getCachedNFTs(
+    benchmark?: UnixTimestamp,
+    chains?: EChain[],
+    accounts?: LinkedAccount[],
+    sourceDomain?: DomainName,
+  ): ResultAsync<WalletNftWithHistory[], SnickerDoodleCoreError> {
+    return this.accountRepository.getCachedNFTs(
+      benchmark,
+      chains,
+      accounts,
+      sourceDomain,
+    );
   }
 
   public getPersistenceNFTs(
@@ -100,21 +115,6 @@ export class AccountService implements IAccountService {
     sourceDomain?: DomainName,
   ): ResultAsync<WalletNFTHistory[], SnickerDoodleCoreError> {
     return this.accountRepository.getNFTsHistory(sourceDomain);
-  }
-  public getCachedNftsWithHistory(
-    sourceDomain?: DomainName,
-  ): ResultAsync<WalletNftWithHistory[], SnickerDoodleCoreError> {
-    return this.accountRepository.getCachedNftsWithHistory(sourceDomain);
-  }
-
-  getNftsWithHistoryUsingBenchmark(
-    benchmark: UnixTimestamp,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<WalletNftWithHistory[], SnickerDoodleCoreError> {
-    return this.accountRepository.getNftsWithHistoryUsingBenchmark(
-      benchmark,
-      sourceDomain,
-    );
   }
 
   public addAccount(
