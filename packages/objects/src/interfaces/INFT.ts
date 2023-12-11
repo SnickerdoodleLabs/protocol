@@ -20,6 +20,8 @@ export interface INFT {
   contentType: EContentType | null;
   contentUrls: Record<EContentType, string>[] | null;
   attributes: AttributesEntity[] | null;
+  // FOR MOBILE, you instead have:
+  // attributes: Record<string, string>[] | null;
   event: null | INFTEventField;
 }
 

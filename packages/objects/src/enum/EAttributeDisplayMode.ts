@@ -1,7 +1,5 @@
-export enum EContentType {
-  UNKNOWN,
-  AUDIO,
-  VIDEO,
-  TEXT,
-  HTML,
+export enum EAttributeDisplayMode {
+  STRING,
+  NUMBER,
+  PERCENTAGE,
 }

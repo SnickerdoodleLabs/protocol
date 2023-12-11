@@ -1,6 +1,6 @@
 import { INFT } from "@snickerdoodlelabs/objects";
 
-export interface INftMetadataParseUtilsExtension {
+export interface INftMetadataParseUtils {
   getParsedNFT(metadataString: string): INFT;
 }
 

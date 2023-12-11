@@ -1,35 +1,9 @@
 import { okAsync, ResultAsync } from "neverthrow";
 
-export enum EContentType {
-  UNKNOWN,
-  AUDIO,
-  VIDEO,
-  TEXT,
-  HTML,
-}
-
-export interface INFTEventField {
-  id: string;
-  eventUrl?: string;
-  country?: string;
-  city?: string;
-  year?: string;
-  startDate?: string;
-  endDate?: string;
-  expiryDate?: string;
-  supply?: string;
-}
-export interface INFT {
-  name: string | null;
-  description: string | null;
-  imageUrl: string | null;
-  animationUrl: string | null;
-  externalUrl: string | null;
-  contentType: EContentType | null;
-  contentUrls: Record<EContentType, string>[] | null;
-  attributes: Record<string, string>[] | null;
-  event: null | INFTEventField;
-}
+import {
+  INftMetadataParseUtils,
+  INftMetadataParseUtilsType,
+} from "@core/interfaces/utilities/INftMetadataParseUtils.js";
 
 const emptytNft: INFT = {
   name: null,
@@ -43,8 +17,8 @@ const emptytNft: INFT = {
   event: null,
 };
 
-export class NftMetadataParseUtilsMobile {
-  public static getParsedNFT = (metadataString: string): INFT => {
+export class NftMetadataParseUtilsMobile implements INftMetadataParseUtils {
+  public getParsedNFT(metadataString: string): INFT {
     if (!metadataString) {
       return emptytNft;
     }
@@ -59,17 +33,17 @@ export class NftMetadataParseUtilsMobile {
       return emptytNft;
     }
     return {
-      name: this.getName(metadataObj),
-      description: this.getDescription(metadataObj),
-      imageUrl: this.getImageUrl(metadataString),
-      animationUrl: this.getAnimationUrl(metadataObj),
-      externalUrl: this.getExternalUrl(metadataObj),
-      contentType: this.getContentType(metadataObj),
-      contentUrls: this.getContentUrls(metadataObj),
-      attributes: this.getAttributes(metadataObj),
-      event: this.getEventInfo(metadataObj),
+      name: NftMetadataParseUtilsMobile.getName(metadataObj),
+      description: NftMetadataParseUtilsMobile.getDescription(metadataObj),
+      imageUrl: NftMetadataParseUtilsMobile.getImageUrl(metadataString),
+      animationUrl: NftMetadataParseUtilsMobile.getAnimationUrl(metadataObj),
+      externalUrl: NftMetadataParseUtilsMobile.getExternalUrl(metadataObj),
+      contentType: NftMetadataParseUtilsMobile.getContentType(metadataObj),
+      contentUrls: NftMetadataParseUtilsMobile.getContentUrls(metadataObj),
+      attributes: NftMetadataParseUtilsMobile.getAttributes(metadataObj),
+      event: NftMetadataParseUtilsMobile.getEventInfo(metadataObj),
     } as INFT;
-  };
+  }
 
   private static getImageUrl(metadataString: string) {
     let nftImages: string[];
@@ -91,7 +65,7 @@ export class NftMetadataParseUtilsMobile {
       nftImages = [];
     }
     return nftImages?.[0]
-      ? NftMetadataParseUtils.normalizeUrl(nftImages[0])
+      ? NftMetadataParseUtilsMobile.normalizeUrl(nftImages[0])
       : null;
   }
 
@@ -101,13 +75,13 @@ export class NftMetadataParseUtilsMobile {
 
   private static getAnimationUrl(metadataObj) {
     return metadataObj.animation_url
-      ? NftMetadataParseUtils.normalizeUrl(metadataObj.animation_url)
+      ? NftMetadataParseUtilsMobile.normalizeUrl(metadataObj.animation_url)
       : null;
   }
 
   private static getExternalUrl(metadataObj) {
     return metadataObj.external_url
-      ? NftMetadataParseUtils.normalizeUrl(metadataObj.external_url)
+      ? NftMetadataParseUtilsMobile.normalizeUrl(metadataObj.external_url)
       : null;
   }
 

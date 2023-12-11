@@ -3,7 +3,12 @@ import {
   EContentType,
   INFT,
   INFTEventField,
-} from "@extension-onboarding/objects"; 
+} from "@snickerdoodlelabs/objects";
+
+import {
+  INftMetadataParseUtilsType,
+  INftMetadataParseUtils,
+} from "@core/interfaces/utilities/INftMetadataParseUtils";
 
 const emptytNft: INFT = {
   name: null,
@@ -17,8 +22,10 @@ const emptytNft: INFT = {
   event: null,
 };
 
-export class NftMetadataParseUtilsExtension {
-  public static getParsedNFT = (metadataString: string): INFT => {
+export class NftMetadataParseUtilsExtension implements INftMetadataParseUtils {
+  constructor() {}
+
+  public getParsedNFT(metadataString: string): INFT {
     if (!metadataString) {
       return emptytNft;
     }
@@ -33,19 +40,25 @@ export class NftMetadataParseUtilsExtension {
       return emptytNft;
     }
     return {
-      name: this.getName(metadataObj),
-      description: this.getDescription(metadataObj),
-      imageUrl: this.getImageUrl(metadataString, metadataObj),
-      animationUrl: this.getAnimationUrl(metadataObj),
-      externalUrl: this.getExternalUrl(metadataObj),
-      contentType: this.getContentType(metadataObj),
-      contentUrls: this.getContentUrls(metadataObj),
-      attributes: this.getAttributes(metadataObj),
-      event: this.getEventInfo(metadataObj),
+      name: NftMetadataParseUtilsExtension.getName(metadataObj),
+      description: NftMetadataParseUtilsExtension.getDescription(metadataObj),
+      imageUrl: NftMetadataParseUtilsExtension.getImageUrl(
+        metadataString,
+        metadataObj,
+      ),
+      animationUrl: NftMetadataParseUtilsExtension.getAnimationUrl(metadataObj),
+      externalUrl: NftMetadataParseUtilsExtension.getExternalUrl(metadataObj),
+      contentType: NftMetadataParseUtilsExtension.getContentType(metadataObj),
+      contentUrls: NftMetadataParseUtilsExtension.getContentUrls(metadataObj),
+      attributes: NftMetadataParseUtilsExtension.getAttributes(metadataObj),
+      event: NftMetadataParseUtilsExtension.getEventInfo(metadataObj),
     } as INFT;
-  };
+  }
 
-  private static getImageUrl(metadataString: string, metadataObj) {
+  private static getImageUrl(
+    metadataString: string,
+    metadataObj,
+  ): string | null {
     let nftImages: string[];
     try {
       const regexpImage = /(\"image.*?\":.*?\"(.*?)\\?\")/;
@@ -109,9 +122,10 @@ export class NftMetadataParseUtilsExtension {
     });
   }
 
-  private static getName(metadataObj) {
+  private static getName(metadataObj): string | null {
     return metadataObj.name ?? null;
   }
+
   private static getDescription(metadataObj) {
     return metadataObj.description ?? null;
   }
