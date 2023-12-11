@@ -158,7 +158,7 @@ export class SnickerdoodleWebIntegration
           .map((proxy) => {
             // initialize the URL change observer
             new URLChangeObserver(proxy.checkURLForInvitation.bind(proxy));
-            // Subscribe to the keydown event for displaying the dashboard
+            // Subscribe to the keydown event for displaying the dashboard only for the iframe proxy
             this.subscribeToKeyDownEvent();
             // Assign the iframe proxy to the internal reference and the window object
             this._core = proxy;
