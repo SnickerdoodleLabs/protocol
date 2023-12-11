@@ -22,6 +22,7 @@ import {
   WalletNFTHistory,
   WalletNftWithHistory,
   UnixTimestamp,
+  NftRepositoryCache,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -113,9 +114,23 @@ export class AccountRepository implements IAccountRepository {
   }
 
   public getCachedNFTs(
+    benchmark?: UnixTimestamp,
+    chains?: EChain[],
+    accounts?: LinkedAccount[],
     sourceDomain?: DomainName,
-  ): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
-    return this.core.nft.getCachedNFTs(sourceDomain).mapErr((error) => {
+  ): ResultAsync<WalletNftWithHistory[], SnickerDoodleCoreError> {
+    return this.core.nft
+      .getCachedNFTs(benchmark, chains, accounts, sourceDomain)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
+  }
+
+  getCache(
+    sourceDomain?: DomainName,
+  ): ResultAsync<NftRepositoryCache, SnickerDoodleCoreError> {
+    return this.core.nft.getCache(sourceDomain).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
@@ -137,29 +152,6 @@ export class AccountRepository implements IAccountRepository {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
-  }
-
-  public getCachedNftsWithHistory(
-    sourceDomain?: DomainName,
-  ): ResultAsync<WalletNftWithHistory[], SnickerDoodleCoreError> {
-    return this.core.nft
-      .getCachedNftsWithHistory(sourceDomain)
-      .mapErr((error) => {
-        this.errorUtils.emit(error);
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      });
-  }
-
-  public getNftsWithHistoryUsingBenchmark(
-    benchmark: UnixTimestamp,
-    sourceDomain?: DomainName,
-  ): ResultAsync<WalletNftWithHistory[], SnickerDoodleCoreError> {
-    return this.core.nft
-      .getNftsWithHistoryUsingBenchmark(benchmark, sourceDomain)
-      .mapErr((error) => {
-        this.errorUtils.emit(error);
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      });
   }
 
   public addAccount(

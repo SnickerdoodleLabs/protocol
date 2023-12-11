@@ -44,6 +44,7 @@ const persistenceMap = new Map<
   ERecordKey,
   Map<string, Record<string, unknown>>
 >();
+let index = 1;
 class NftRepositoryMocks {
   public contextProvider: ContextProviderMock;
   public configProvider: IPersistenceConfigProvider;
@@ -62,7 +63,13 @@ class NftRepositoryMocks {
     this.masterIndexer = td.object<IMasterIndexer>();
     this.timeUtils = td.object<ITimeUtils>();
 
-    td.when(this.timeUtils.getUnixNow()).thenReturn(UnixTimestamp(1701779730));
+    td.when(this.timeUtils.getUnixNow()).thenDo(() => {
+      if (index < 2) {
+        index++;
+        return UnixTimestamp(1701779730);
+      }
+      return UnixTimestamp(1701779734);
+    });
 
     td.when(this.accountRepo.getAccounts()).thenReturn(okAsync(linkedAccounts));
     td.when(
@@ -115,7 +122,11 @@ class NftRepositoryMocks {
   }
 }
 
-describe("getCachedNFTs", () => {
+describe("NftRepository", () => {
+  beforeEach(() => {
+    index = 1;
+    persistenceMap.clear();
+  });
   test("should return cached NFTs", async () => {
     // Arrange
     const mocks = new NftRepositoryMocks();
@@ -136,16 +147,25 @@ describe("getCachedNFTs", () => {
     });
   });
 
-  test("should return cached NFTs", async () => {
+  test("should return both NFTs that are measured before the benchmark", async () => {
     // Arrange
     const mocks = new NftRepositoryMocks();
     const service = mocks.factory();
 
     //Act
-    await service
-      .getNftsWithHistoryUsingBenchmark(UnixTimestamp(1701779731))
-      .map((result) => {
-        expect(result).toEqual(walletNftWithHistory);
-      });
+    await service.getCachedNFTs(UnixTimestamp(1701779735)).map((result) => {
+      expect(result).toEqual(walletNftWithHistory);
+    });
+  });
+
+  test("should return only the first cached NFT that is measured before the benchmark", async () => {
+    // Arrange
+    const mocks = new NftRepositoryMocks();
+    const service = mocks.factory();
+    const [validNftWithHistory] = walletNftWithHistory;
+    //Act
+    await service.getCachedNFTs(UnixTimestamp(1701779733)).map((result) => {
+      expect(result).toEqual([validNftWithHistory]);
+    });
   });
 });

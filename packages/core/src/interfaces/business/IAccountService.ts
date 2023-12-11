@@ -32,6 +32,9 @@ import {
   TransactionFlowInsight,
   WalletNftWithHistory,
   WalletNFTHistory,
+  AjaxError,
+  MethodSupportError,
+  NftRepositoryCache,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -100,17 +103,23 @@ export interface IAccountService {
 
   getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError>;
 
-  getCachedNFTs(): ResultAsync<WalletNFT[], PersistenceError>;
+  getCache(): ResultAsync<NftRepositoryCache, PersistenceError>;
+
+  getCachedNFTs(
+    benchmark?: UnixTimestamp,
+    chains?: EChain[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<
+    WalletNftWithHistory[],
+    | PersistenceError
+    | AccountIndexingError
+    | AjaxError
+    | MethodSupportError
+    | InvalidParametersError
+  >;
 
   getPersistenceNFTs(): ResultAsync<WalletNFT[], PersistenceError>;
   getNFTsHistory(): ResultAsync<WalletNFTHistory[], PersistenceError>;
-  getCachedNftsWithHistory(): ResultAsync<
-    WalletNftWithHistory[],
-    PersistenceError
-  >;
-  getNftsWithHistoryUsingBenchmark(
-    benchmark: UnixTimestamp,
-  ): ResultAsync<WalletNftWithHistory[], PersistenceError>;
 
   getTransctions(
     filter?: TransactionFilter,

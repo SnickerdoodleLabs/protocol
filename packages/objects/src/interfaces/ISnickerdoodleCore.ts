@@ -40,6 +40,7 @@ import {
   OptInInfo,
   WalletNFTHistory,
   WalletNftWithHistory,
+  NftRepositoryCache,
   // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
@@ -78,6 +79,7 @@ import {
   DuplicateIdInSchema,
   MissingWalletDataTypeError,
   ParserError,
+  MethodSupportError,
 } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
@@ -664,22 +666,30 @@ export interface IMetricsMethods {
 }
 
 export interface INftMethods {
-  getCachedNFTs(
+  getCache(
     sourceDomain: DomainName | undefined,
-  ): ResultAsync<WalletNFT[], PersistenceError>;
+  ): ResultAsync<NftRepositoryCache, PersistenceError>;
+
+  getCachedNFTs(
+    benchmark: UnixTimestamp | undefined,
+    chains: EChain[] | undefined,
+    accounts: LinkedAccount[] | undefined,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    WalletNftWithHistory[],
+    | PersistenceError
+    | AccountIndexingError
+    | AjaxError
+    | MethodSupportError
+    | InvalidParametersError
+  >;
+
   getPersistenceNFTs(
     sourceDomain: DomainName | undefined,
   ): ResultAsync<WalletNFT[], PersistenceError>;
   getNFTsHistory(
     sourceDomain: DomainName | undefined,
   ): ResultAsync<WalletNFTHistory[], PersistenceError>;
-  getCachedNftsWithHistory(
-    sourceDomain: DomainName | undefined,
-  ): ResultAsync<WalletNftWithHistory[], PersistenceError>;
-  getNftsWithHistoryUsingBenchmark(
-    benchmark: UnixTimestamp,
-    sourceDomain: DomainName | undefined,
-  ): ResultAsync<WalletNftWithHistory[], PersistenceError>;
 }
 
 export interface IStorageMethods {

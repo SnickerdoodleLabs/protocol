@@ -672,11 +672,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     };
     // Nft Methods ---------------------------------------------------------------------------
     this.nft = {
-      getCachedNFTs: (sourceDomain: DomainName | undefined = undefined) => {
-        const accountService =
-          this.iocContainer.get<IAccountService>(IAccountServiceType);
-        return accountService.getCachedNFTs();
-      },
       getPersistenceNFTs: (
         sourceDomain: DomainName | undefined = undefined,
       ) => {
@@ -689,20 +684,22 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           this.iocContainer.get<IAccountService>(IAccountServiceType);
         return accountService.getNFTsHistory();
       },
-      getCachedNftsWithHistory: (
+
+      getCachedNFTs: (
+        benchmark?: UnixTimestamp,
+        chains?: EChain[],
+        accounts?: LinkedAccount[],
         sourceDomain: DomainName | undefined = undefined,
       ) => {
         const accountService =
           this.iocContainer.get<IAccountService>(IAccountServiceType);
-        return accountService.getCachedNftsWithHistory();
+        return accountService.getCachedNFTs(benchmark, chains, accounts);
       },
-      getNftsWithHistoryUsingBenchmark: (
-        benchmark: UnixTimestamp,
-        sourceDomain: DomainName | undefined = undefined,
-      ) => {
+
+      getCache: (sourceDomain: DomainName | undefined = undefined) => {
         const accountService =
           this.iocContainer.get<IAccountService>(IAccountServiceType);
-        return accountService.getNftsWithHistoryUsingBenchmark(benchmark);
+        return accountService.getCache();
       },
     };
   }

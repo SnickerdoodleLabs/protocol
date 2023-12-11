@@ -1,5 +1,10 @@
 import { WalletNFT } from "@objects/businessObjects/versioned/WalletNFT.js";
-import { EChain, EChainTechnology } from "@objects/enum/index.js";
+import {
+  EChain,
+  EChainTechnology,
+  EContractStandard,
+  ERewardType,
+} from "@objects/enum/index.js";
 import {
   EVMContractAddress,
   EVMAccountAddress,
@@ -14,13 +19,13 @@ export class EVMNFT extends WalletNFT {
   public constructor(
     public token: EVMContractAddress,
     public tokenId: BigNumberString,
-    public contractType: string,
+    public contractType: EContractStandard | ERewardType | "Unknown",
     public owner: EVMAccountAddress,
     public tokenUri: TokenUri | undefined,
     public metadata: object | undefined,
-    public amount: BigNumberString,
     public name: string,
     public chain: EChain,
+    public amount?: BigNumberString,
     public blockNumber?: BlockNumber,
     public lastOwnerTimeStamp?: UnixTimestamp,
   ) {

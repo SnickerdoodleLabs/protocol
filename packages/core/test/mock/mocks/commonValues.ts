@@ -36,6 +36,7 @@ import {
   BigNumberString,
   TokenUri,
   LinkedAccount,
+  EContractStandard,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_ConditionExpr,
@@ -507,7 +508,7 @@ const tokenAddress2 = EVMContractAddress(
   "0x2222222222222222222222222222222222222222",
 );
 const tokenId = BigNumberString("0");
-const contractType = "ERC721";
+const contractType = EContractStandard.Erc721;
 const owner = EVMAccountAddress("0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc");
 export const linkedAccounts: LinkedAccount[] = [
   new LinkedAccount(EChain.Avalanche, owner),
@@ -526,9 +527,9 @@ export const Nfts = [
     owner,
     tokenUri,
     metadata,
-    amount,
     name,
     chain,
+    amount,
   ),
   new EVMNFT(
     tokenAddress2,
@@ -538,8 +539,8 @@ export const Nfts = [
     tokenUri,
     metadata,
     amount,
-    name,
     chain,
+    amount,
   ),
 ];
 export const cachedNfts = [
@@ -614,7 +615,7 @@ export const indexedNftHistory = [
     event: 1,
   },
   {
-    id: "0x2222222222222222222222222222222222222222|#|0{-}1701779730",
+    id: "0x2222222222222222222222222222222222222222|#|0{-}1701779734",
     event: 1,
   },
 ];
@@ -650,7 +651,7 @@ export const walletNftWithHistory = [
     amount: "1",
     blockNumber: undefined,
     lastOwnerTimeStamp: undefined,
-    history: [{ measurementDate: 1701779730, event: 1 }],
+    history: [{ measurementDate: 1701779734, event: 1 }],
   },
 ];
 // #endregion

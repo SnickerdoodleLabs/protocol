@@ -6,6 +6,7 @@ import {
   ObjectUtils,
   ITimeUtils,
   ITimeUtilsType,
+  ValidationUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   EChainTechnology,
@@ -136,16 +137,19 @@ export class BluezIndexer implements IEVMIndexer {
         })
         .map((response) => {
           return response.items.map((item) => {
+            const tokenStandard = ValidationUtils.stringToTokenStandard(
+              item.tokenType,
+            );
             return new EVMNFT(
               item.contractAddress,
               BigNumberString(item.tokenId),
-              item.tokenType,
+              tokenStandard,
               accountAddress,
               TokenUri(item.image),
               { raw: ObjectUtils.serialize(item) },
-              BigNumberString("1"),
               item.name,
               EChain.Astar,
+              BigNumberString("1"),
               undefined,
               undefined,
             );

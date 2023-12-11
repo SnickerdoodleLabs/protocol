@@ -2,6 +2,7 @@ import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
   IRequestConfig,
+  ValidationUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
@@ -230,16 +231,19 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     }
 
     const items: EVMNFT[] = response.result.map((token) => {
+      const tokenStandard = ValidationUtils.stringToTokenStandard(
+        token.contract_type,
+      );
       return new EVMNFT(
         EVMContractAddress(token.token_address),
         BigNumberString(token.token_id),
-        token.contract_type,
+        tokenStandard,
         EVMAccountAddress(token.owner_of),
         TokenUri(token.token_uri),
         { raw: token.metadata },
-        BigNumberString(token.amount),
         token.name,
         chain,
+        BigNumberString(token.amount),
         BlockNumber(Number(token.block_number)),
         undefined,
       );

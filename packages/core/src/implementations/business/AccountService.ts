@@ -39,6 +39,9 @@ import {
   EChainTechnology,
   WalletNFTHistory,
   WalletNftWithHistory,
+  AjaxError,
+  MethodSupportError,
+  NftRepositoryCache,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -101,29 +104,6 @@ export class AccountService implements IAccountService {
     @inject(INftRepositoryType)
     protected nftRepository: INftRepository,
   ) {}
-
-  getPersistenceNFTs(): ResultAsync<WalletNFT[], PersistenceError> {
-    return this.nftRepository.getPersistenceNFTs();
-  }
-  getNFTsHistory(): ResultAsync<WalletNFTHistory[], PersistenceError> {
-    return this.nftRepository.getNFTsHistory();
-  }
-  getCachedNftsWithHistory(): ResultAsync<
-    WalletNftWithHistory[],
-    PersistenceError
-  > {
-    return this.nftRepository.getCachedNftsWithHistory();
-  }
-
-  public getCachedNFTs(): ResultAsync<WalletNFT[], PersistenceError> {
-    return this.nftRepository.getCachedNFTs();
-  }
-
-  getNftsWithHistoryUsingBenchmark(
-    benchmark: UnixTimestamp,
-  ): ResultAsync<WalletNftWithHistory[], PersistenceError> {
-    return this.nftRepository.getNftsWithHistoryUsingBenchmark(benchmark);
-  }
 
   public getTokenPrice(
     chainId: ChainId,
@@ -211,6 +191,30 @@ export class AccountService implements IAccountService {
             return errAsync(e);
           });
       });
+  }
+
+  getCache(): ResultAsync<NftRepositoryCache, PersistenceError> {
+    return this.nftRepository.getCache();
+  }
+  getCachedNFTs(
+    benchmark?: UnixTimestamp | undefined,
+    chains?: EChain[] | undefined,
+    accounts?: LinkedAccount[] | undefined,
+  ): ResultAsync<
+    WalletNftWithHistory[],
+    | PersistenceError
+    | InvalidParametersError
+    | AccountIndexingError
+    | AjaxError
+    | MethodSupportError
+  > {
+    return this.nftRepository.getCachedNFTs(benchmark, chains, accounts);
+  }
+  getPersistenceNFTs(): ResultAsync<WalletNFT[], PersistenceError> {
+    return this.nftRepository.getPersistenceNFTs();
+  }
+  getNFTsHistory(): ResultAsync<WalletNFTHistory[], PersistenceError> {
+    return this.nftRepository.getNFTsHistory();
   }
 
   public addAccount(

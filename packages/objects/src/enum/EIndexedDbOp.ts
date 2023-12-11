@@ -1,4 +1,4 @@
 export enum EIndexedDbOp {
   Added = 1,
-  Removed = 2,
+  Removed = -1,
 }

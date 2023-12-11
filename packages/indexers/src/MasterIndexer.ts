@@ -339,7 +339,7 @@ export class MasterIndexer implements IMasterIndexer {
           // BigNumber (blank or null), so we'll just correct any possible issue
           // here.
           return nfts.map((nft) => {
-            if (!this.bigNumberUtils.validateBNS(nft.amount)) {
+            if (nft.amount && !this.bigNumberUtils.validateBNS(nft.amount)) {
               nft.amount = BigNumberString("0");
             }
             return nft;

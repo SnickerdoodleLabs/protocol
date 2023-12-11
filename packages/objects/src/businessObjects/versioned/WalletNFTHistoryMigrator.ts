@@ -10,7 +10,7 @@ export class WalletNFTHistoryMigrator extends VersionedObjectMigrator<WalletNFTH
     data: Record<string, unknown> | WalletNFTHistory,
   ): WalletNFTHistory {
     if (this.isNftHistory(data)) {
-      return new WalletNFTHistory(data.id, data.event);
+      return new WalletNFTHistory(data.id, data.event, data.amount);
     }
     throw new Error(
       "Encountered malformed nft history while creating it from indexed db data",
@@ -20,7 +20,7 @@ export class WalletNFTHistoryMigrator extends VersionedObjectMigrator<WalletNFTH
   protected isNftHistory(
     nftHistory: Record<string, unknown> | WalletNFTHistory,
   ): nftHistory is WalletNFTHistory {
-    return nftHistory.id != null && nftHistory.event != null;
+    return nftHistory.id != null;
   }
 
   protected getUpgradeFunctions(): Map<

@@ -149,8 +149,7 @@ import {
   GetConsentContractURLsParams,
   GetPersistenceNFTsParams,
   GetAccountNFTHistoryParams,
-  GetAccountCachedNFTsWithHistoryParams,
-  GetAccountNftsWithHistoryUsingBenchmarkParams,
+  GetAccountNftCacheParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -256,8 +255,14 @@ export class ExternalCoreGateway {
     };
 
     this.nft = {
-      getCachedNFTs: () => {
-        return this._handler.call(new GetAccountCachedNFTsParams());
+      getCachedNFTs: (
+        benchmark?: UnixTimestamp,
+        chains?: EChain[],
+        accounts?: LinkedAccount[],
+      ) => {
+        return this._handler.call(
+          new GetAccountCachedNFTsParams(benchmark, chains, accounts),
+        );
       },
       getPersistenceNFTs: () => {
         return this._handler.call(new GetPersistenceNFTsParams());
@@ -265,13 +270,12 @@ export class ExternalCoreGateway {
       getNFTsHistory: () => {
         return this._handler.call(new GetAccountNFTHistoryParams());
       },
-      getCachedNftsWithHistory: () => {
-        return this._handler.call(new GetAccountCachedNFTsWithHistoryParams());
-      },
-      getNftsWithHistoryUsingBenchmark: (benchmark: UnixTimestamp) => {
-        return this._handler.call(
-          new GetAccountNftsWithHistoryUsingBenchmarkParams(benchmark),
-        );
+      getCache: () => {
+        return this._handler
+          .call(new GetAccountNftCacheParams())
+          .map((jsonString) => {
+            return ObjectUtils.deserialize(jsonString);
+          });
       },
     };
 

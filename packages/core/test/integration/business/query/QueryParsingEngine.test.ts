@@ -184,9 +184,7 @@ class QueryParsingMocks {
       this.transactionRepo.getTransactionByChain(td.matchers.anything()),
     ).thenReturn(okAsync([]));
     td.when(this.balanceRepo.getAccountBalances()).thenReturn(okAsync([]));
-    td.when(this.nftRepo.getCachedNftsWithHistory(chainIds)).thenReturn(
-      okAsync([]),
-    );
+    td.when(this.nftRepo.getCachedNFTs(chainIds)).thenReturn(okAsync([]));
     td.when(this.accountRepo.getAccounts()).thenReturn(okAsync(linkedAccounts));
     this.queryEvaluator = new QueryEvaluator(
       this.balanceQueryEvaluator,

@@ -84,6 +84,7 @@ import {
   INftProxyMethods,
   WalletNFTHistory,
   WalletNftWithHistory,
+  NftRepositoryCache,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -665,10 +666,6 @@ export class SnickerdoodleIFrameProxy
   };
 
   public nft: INftProxyMethods = {
-    getCachedNFTs: (): ResultAsync<WalletNFT[], ProxyError> => {
-      return this._createCall("nft.getCachedNFTs", null);
-    },
-
     getPersistenceNFTs: (): ResultAsync<WalletNFT[], ProxyError> => {
       return this._createCall("nft.getPersistenceNFTs", null);
     },
@@ -676,18 +673,21 @@ export class SnickerdoodleIFrameProxy
     getNFTsHistory: (): ResultAsync<WalletNFTHistory[], ProxyError> => {
       return this._createCall("nft.getNFTsHistory", null);
     },
-    getCachedNftsWithHistory: (): ResultAsync<
-      WalletNftWithHistory[],
-      ProxyError
-    > => {
-      return this._createCall("nft.getCachedNftsWithHistory", null);
-    },
-    getNftsWithHistoryUsingBenchmark: (
-      benchmark: UnixTimestamp,
-    ): ResultAsync<WalletNftWithHistory[], ProxyError> => {
-      return this._createCall("nft.getNftsWithHistoryUsingBenchmark", {
+
+    getCachedNFTs: (
+      benchmark?: UnixTimestamp,
+      chains?: EChain[],
+      accounts?: LinkedAccount[],
+    ) => {
+      return this._createCall("nft.getCachedNFTs", {
         benchmark,
+        chains,
+        accounts,
       });
+    },
+
+    getCache: (): ResultAsync<NftRepositoryCache, ProxyError> => {
+      return this._createCall("nft.getCache", null);
     },
   };
 

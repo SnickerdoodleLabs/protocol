@@ -19,6 +19,7 @@ import {
   IndexerSupportSummary,
   EDataProvider,
   EExternalApi,
+  EContractStandard,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -180,13 +181,13 @@ export class PoapRepository implements IEVMIndexer {
       return new EVMNFT(
         EVMContractAddress(poapContractAddress),
         BigNumberString(token.tokenId),
-        "erc-721",
+        EContractStandard.Erc721,
         EVMAccountAddress(token.owner),
         TokenUri(token.event.image_url),
         { raw: JSON.stringify(token.event) },
-        BigNumberString(token.event.supply),
         token.event.name,
         chain,
+        BigNumberString(token.event.supply),
       );
     });
     return items;

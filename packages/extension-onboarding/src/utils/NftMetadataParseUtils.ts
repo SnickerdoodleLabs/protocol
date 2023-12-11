@@ -1,4 +1,13 @@
 import {
+  WalletNftWithHistory,
+  EVMNFT,
+  UnixTimestamp,
+  EIndexedDbOp,
+  BigNumberString,
+  EChainTechnology,
+} from "@snickerdoodlelabs/objects";
+
+import {
   AttributesEntity,
   EContentType,
   INFT,
@@ -18,6 +27,18 @@ const emptytNft: INFT = {
 };
 
 export class NftMetadataParseUtils {
+  static isEVMWithHistory(
+    walletNftWithHistory: WalletNftWithHistory,
+  ): walletNftWithHistory is EVMNFT & {
+    history: {
+      measurementDate: UnixTimestamp;
+      event: EIndexedDbOp;
+      amount: BigNumberString;
+    }[];
+    totalAmount: BigNumberString;
+  } {
+    return walletNftWithHistory.type === EChainTechnology.EVM;
+  }
   public static getParsedNFT = (metadataString: string): INFT => {
     if (!metadataString) {
       return emptytNft;
