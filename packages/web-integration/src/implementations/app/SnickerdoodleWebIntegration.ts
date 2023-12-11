@@ -23,6 +23,7 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import { URLChangeObserver } from "@web-integration/implementations/utilities/index.js";
 import { ISnickerdoodleWebIntegration } from "@web-integration/interfaces/app/index.js";
+import { WebIntegrationEvents } from "@web-integration/interfaces/objects/index.js";
 import {
   IBlockchainProviderRepository,
   IBlockchainProviderRepositoryType,
@@ -54,6 +55,8 @@ export class SnickerdoodleWebIntegration
     ProxyError | PersistenceError | ProviderRpcError
   > | null = null;
 
+  protected _events: WebIntegrationEvents;
+
   constructor(
     protected config: IWebIntegrationConfigOverrides,
     protected signer?: ethers.Signer | null,
@@ -62,6 +65,7 @@ export class SnickerdoodleWebIntegration
     this.debug = config.debug || this.debug;
 
     this.iocContainer = new Container();
+    this._events = new WebIntegrationEvents();
 
     // Elaborate syntax to demonstrate that we can use multiple modules
     this.iocContainer.load(...[webIntegrationModule]);
@@ -80,6 +84,10 @@ export class SnickerdoodleWebIntegration
       throw new UninitializedError("Must call initialize() first");
     }
     return this._core;
+  }
+
+  public get events() {
+    return this._events;
   }
 
   // wait for the core to be intialized
@@ -150,8 +158,9 @@ export class SnickerdoodleWebIntegration
           .map((proxy) => {
             // initialize the URL change observer
             new URLChangeObserver(proxy.checkURLForInvitation.bind(proxy));
-            // Assign the iframe proxy to the internal reference and the window object
+            // Subscribe to the keydown event for displaying the dashboard
             this.subscribeToKeyDownEvent();
+            // Assign the iframe proxy to the internal reference and the window object
             this._core = proxy;
             window.sdlDataWallet = this.core;
             return proxy;
@@ -172,6 +181,8 @@ export class SnickerdoodleWebIntegration
               startupCompleteTime - this.startTimestamp
             }ms`,
           );
+          // notify the outside world that the proxy has been initialized
+          this._events.onInitialized.next(proxy.proxyType);
           return proxy;
         });
       })
@@ -271,7 +282,6 @@ export class SnickerdoodleWebIntegration
       if (this.core.proxyType === ECoreProxyType.IFRAME_INJECTED) {
         (this.core as ISnickerdoodleIFrameProxy).requestDashboardView();
       } else {
-        document.removeEventListener("keydown", this.handleKeyDown.bind(this));
         throw new Error(
           "This method is not supported for sdlDataWallet injected by Snickerdoodle Extension",
         );
