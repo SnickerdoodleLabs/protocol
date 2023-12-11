@@ -204,6 +204,13 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     );
 
     this.on(
+      ENotificationTypes.COHORT_LEFT,
+      (notification: { data: EVMContractAddress }) => {
+        this.events.onCohortLeft.next(notification.data);
+      },
+    );
+
+    this.on(
       ENotificationTypes.SOCIAL_PROFILE_LINKED,
       (notification: { data: SocialProfileLinkedEvent }) => {
         this.events.onSocialProfileLinked.next(notification.data);

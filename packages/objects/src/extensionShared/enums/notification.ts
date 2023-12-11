@@ -6,6 +6,7 @@ export enum ENotificationTypes {
   EARNED_REWARDS_ADDED = "onEarnedRewardsAdded",
   SOCIAL_PROFILE_LINKED = "onSocialProfileLinked",
   COHORT_JOINED = "onCohortJoined",
+  COHORT_LEFT = "onCohortLeft",
   PROFILE_FIELD_CHANGED = "onProfileFieldChanged",
   CLOUD_STORAGE_ACTIVATED = "onCloudStorageActivated",
   CLOUD_STORAGE_DEACTIVATED = "onCloudStorageDeactivated",
