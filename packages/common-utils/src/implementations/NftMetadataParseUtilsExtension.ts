@@ -4,12 +4,8 @@ import {
   INFT,
   INFTEventField,
 } from "@snickerdoodlelabs/objects";
-import { okAsync, ResultAsync } from "neverthrow";
 
-import {
-  INftMetadataParseUtils,
-  INftMetadataParseUtilsType,
-} from "@core/interfaces/utilities/INftMetadataParseUtils.js";
+import { INftMetadataParseUtils, INftMetadataParseUtilsType } from "..";
 
 const emptytNft: INFT = {
   name: null,
@@ -23,7 +19,9 @@ const emptytNft: INFT = {
   event: null,
 };
 
-export class NftMetadataParseUtilsMobile implements INftMetadataParseUtils {
+export class NftMetadataParseUtilsExtension implements INftMetadataParseUtils {
+  constructor() {}
+
   public getParsedNFT(metadataString: string): INFT {
     if (!metadataString) {
       return emptytNft;
@@ -39,19 +37,25 @@ export class NftMetadataParseUtilsMobile implements INftMetadataParseUtils {
       return emptytNft;
     }
     return {
-      name: NftMetadataParseUtilsMobile.getName(metadataObj),
-      description: NftMetadataParseUtilsMobile.getDescription(metadataObj),
-      imageUrl: NftMetadataParseUtilsMobile.getImageUrl(metadataString),
-      animationUrl: NftMetadataParseUtilsMobile.getAnimationUrl(metadataObj),
-      externalUrl: NftMetadataParseUtilsMobile.getExternalUrl(metadataObj),
-      contentType: NftMetadataParseUtilsMobile.getContentType(metadataObj),
-      contentUrls: NftMetadataParseUtilsMobile.getContentUrls(metadataObj),
-      attributes: NftMetadataParseUtilsMobile.getAttributes(metadataObj),
-      event: NftMetadataParseUtilsMobile.getEventInfo(metadataObj),
+      name: NftMetadataParseUtilsExtension.getName(metadataObj),
+      description: NftMetadataParseUtilsExtension.getDescription(metadataObj),
+      imageUrl: NftMetadataParseUtilsExtension.getImageUrl(
+        metadataString,
+        metadataObj,
+      ),
+      animationUrl: NftMetadataParseUtilsExtension.getAnimationUrl(metadataObj),
+      externalUrl: NftMetadataParseUtilsExtension.getExternalUrl(metadataObj),
+      contentType: NftMetadataParseUtilsExtension.getContentType(metadataObj),
+      contentUrls: NftMetadataParseUtilsExtension.getContentUrls(metadataObj),
+      attributes: NftMetadataParseUtilsExtension.getAttributes(metadataObj),
+      event: NftMetadataParseUtilsExtension.getEventInfo(metadataObj),
     } as INFT;
   }
 
-  private static getImageUrl(metadataString: string) {
+  private static getImageUrl(
+    metadataString: string,
+    metadataObj,
+  ): string | null {
     let nftImages: string[];
     try {
       const regexpImage = /(\"image.*?\":.*?\"(.*?)\\?\")/;
@@ -71,7 +75,14 @@ export class NftMetadataParseUtilsMobile implements INftMetadataParseUtils {
       nftImages = [];
     }
     return nftImages?.[0]
-      ? NftMetadataParseUtilsMobile.normalizeUrl(nftImages[0])
+      ? NftMetadataParseUtilsExtension.normalizeUrl(nftImages[0])
+      : NftMetadataParseUtilsExtension.getImageFromContent(metadataObj);
+  }
+
+  private static getImageFromContent(metadataObj) {
+    const image = metadataObj?.content?.[0]?.url ?? null;
+    return image
+      ? NftMetadataParseUtilsExtension.normalizeUrl(image as string)
       : null;
   }
 
@@ -81,13 +92,13 @@ export class NftMetadataParseUtilsMobile implements INftMetadataParseUtils {
 
   private static getAnimationUrl(metadataObj) {
     return metadataObj.animation_url
-      ? NftMetadataParseUtilsMobile.normalizeUrl(metadataObj.animation_url)
+      ? NftMetadataParseUtilsExtension.normalizeUrl(metadataObj.animation_url)
       : null;
   }
 
   private static getExternalUrl(metadataObj) {
     return metadataObj.external_url
-      ? NftMetadataParseUtilsMobile.normalizeUrl(metadataObj.external_url)
+      ? NftMetadataParseUtilsExtension.normalizeUrl(metadataObj.external_url)
       : null;
   }
 
@@ -95,13 +106,23 @@ export class NftMetadataParseUtilsMobile implements INftMetadataParseUtils {
     return null;
   }
 
-  private static getAttributes(metadataObj) {
-    return metadataObj.attributes ?? null;
+  private static getAttributes(metadataObj): AttributesEntity[] | null {
+    const _attributes = metadataObj.attributes ?? metadataObj.traits ?? null;
+    if (!_attributes) {
+      return null;
+    }
+    return _attributes.map((attribute) => {
+      return {
+        trait_type: attribute.trait_type ?? attribute.key ?? attribute.name,
+        value: attribute.value,
+      };
+    });
   }
 
-  private static getName(metadataObj) {
+  private static getName(metadataObj): string | null {
     return metadataObj.name ?? null;
   }
+
   private static getDescription(metadataObj) {
     return metadataObj.description ?? null;
   }

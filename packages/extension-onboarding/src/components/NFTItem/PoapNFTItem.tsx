@@ -7,7 +7,6 @@ import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import MediaRenderer from "@extension-onboarding/components/NFTItem/MediaRenderer";
 import { useStyles } from "@extension-onboarding/components/NFTItem/NFTItem.style";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { NftMetadataParseUtils } from "@extension-onboarding/utils";
 
 export interface IPoapNFTItemProps {
   item: EVMNFT;
@@ -23,7 +22,9 @@ export const PoapNFTItem: FC<IPoapNFTItemProps> = ({
 
   const nftData = useMemo(() => {
     if (item.metadata) {
-      return NftMetadataParseUtils.getParsedNFT(JSON.stringify(item.metadata));
+      return NftMetadataParseUtilsExtension.getParsedNFT(
+        JSON.stringify(item.metadata),
+      );
     }
     return undefined;
   }, [item]);

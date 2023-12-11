@@ -1,4 +1,3 @@
-// import { EContentType } from "@snickerdoodlelabs/objects";
 import { EContentType } from "@snickerdoodlelabs/objects/src/enum/EContentType.js";
 
 export interface INFTEventField {
