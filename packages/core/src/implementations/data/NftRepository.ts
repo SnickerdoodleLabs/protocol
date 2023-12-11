@@ -9,15 +9,12 @@ import {
   IMasterIndexer,
   IMasterIndexerType,
 } from "@snickerdoodlelabs/indexers";
-import { TimedCache } from "@snickerdoodlelabs/node-utils";
 import {
   LinkedAccount,
   PersistenceError,
   WalletNFT,
   AccountIndexingError,
   AjaxError,
-  chainConfig,
-  isAccountValidForChain,
   AccountAddress,
   PortfolioUpdate,
   MethodSupportError,
@@ -39,11 +36,10 @@ import {
   multiplyBigNumberString,
   addBigNumberString,
   isEVMNft,
-  isSolanaNft,
-  isSuiNft,
-  ChainId,
   EContractStandard,
   NftRepositoryCache,
+  isAccountValidForChain,
+  EarnedReward,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
@@ -92,6 +88,46 @@ export class NftRepository implements INftRepository {
       );
     });
   }
+
+  public getPersistenceNFTs(): ResultAsync<WalletNFT[], PersistenceError> {
+    return this.persistence.getAll<WalletNFT>(ERecordKey.NFTS);
+  }
+
+  public getNFTsHistory(): ResultAsync<WalletNFTHistory[], PersistenceError> {
+    return this.persistence.getAll<WalletNFTHistory>(ERecordKey.NFTS_HISTORY);
+  }
+
+  public getCache(): ResultAsync<NftRepositoryCache, PersistenceError> {
+    return this.getNftCache();
+  }
+
+  public getIndexerNftsAndUpdateIndexedDb(
+    accounts?: LinkedAccount[],
+    chains?: EChain[],
+  ): ResultAsync<
+    WalletNFT[],
+    | PersistenceError
+    | AccountIndexingError
+    | AjaxError
+    | MethodSupportError
+    | InvalidParametersError
+  > {
+    if (chains && accounts) {
+      return this.getIndexerNftsAndUpdateIndexedDbTasks(accounts, chains);
+    } else {
+      return ResultUtils.combine([
+        chains
+          ? okAsync(chains)
+          : this.masterIndexer.getSupportedChains(EIndexerMethod.NFTs),
+        accounts ? okAsync(accounts) : this.accountRepo.getAccounts(),
+      ]).andThen(([selectedChains, selectedAccounts]) => {
+        return this.getIndexerNftsAndUpdateIndexedDbTasks(
+          selectedAccounts,
+          selectedChains,
+        );
+      });
+    }
+  }
   public getCachedNFTs(
     benchmark?: UnixTimestamp,
     chains?: EChain[],
@@ -134,13 +170,26 @@ export class NftRepository implements INftRepository {
     | MethodSupportError
     | InvalidParametersError
   > {
-    return ResultUtils.combine([this.getCache()]).andThen(([nftCache]) => {
+    return ResultUtils.combine([
+      this.getCache(),
+      this.earnedRewardsToNFTs(),
+    ]).andThen(([nftCache, shibuyaPotentialNfts]) => {
       const chainsThatNeedsUpdating: EChain[] = [];
       const cachedNfts: WalletNftWithHistory[] = [];
 
+      if (chains.includes(EChain.Shibuya)) {
+        //Should be removed long term
+        cachedNfts.push(...shibuyaPotentialNfts);
+      }
+
       for (const selectedChain of chains) {
         const selectedChainNftCache = nftCache.get(selectedChain);
-        if (benchmark != null && selectedChainNftCache != null) {
+
+        if (
+          benchmark != null &&
+          selectedChainNftCache != null &&
+          selectedChain !== EChain.Shibuya
+        ) {
           if (selectedChainNftCache.lastUpdateTime < benchmark) {
             chainsThatNeedsUpdating.push(selectedChain);
           }
@@ -175,6 +224,7 @@ export class NftRepository implements INftRepository {
             this.filterNftHistoriesByTimestamp(benchmark, cachedNfts),
           );
         }
+
         return okAsync(cachedNfts);
       }
     });
@@ -209,20 +259,26 @@ export class NftRepository implements INftRepository {
   ): WalletNftWithHistory[] {
     return walletNftHistories.reduce<WalletNftWithHistory[]>(
       (filteredNftHistory, walletNftWithHistory) => {
-        const historyItems = walletNftWithHistory.history;
-
-        if (historyItems.length === 0) {
+        if (walletNftWithHistory.history.length === 0) {
           return filteredNftHistory;
         }
 
-        historyItems.sort((a, b) => a.measurementDate - b.measurementDate);
+        const historyWithTotalAmount = {
+          data: walletNftWithHistory.history,
+          totalAmount: walletNftWithHistory.totalAmount,
+        };
 
-        const validHistory = this.findSubarrayByValue(historyItems, benchmark);
-        if (validHistory.length === 0) {
+        const validHistory = this.findSubarrayByValue(
+          historyWithTotalAmount,
+          benchmark,
+        );
+        if (validHistory.data.length === 0) {
           return filteredNftHistory;
         }
 
-        walletNftWithHistory.history = validHistory;
+        walletNftWithHistory.history = validHistory.data;
+        walletNftWithHistory.totalAmount = validHistory.totalAmount;
+
         filteredNftHistory.push(walletNftWithHistory);
 
         return filteredNftHistory;
@@ -230,58 +286,36 @@ export class NftRepository implements INftRepository {
       [],
     );
   }
-  protected findSubarrayByValue<T extends { measurementDate: number }>(
-    sortedArray: T[],
-    targetValue: number,
-  ): T[] {
-    const result: T[] = [];
-    for (const item of sortedArray) {
-      if (item.measurementDate <= targetValue) {
-        result.push(item);
-      } else {
-        break;
-      }
+
+  protected findSubarrayByValue<
+    T extends {
+      data: {
+        measurementDate: UnixTimestamp;
+        event: EIndexedDbOp;
+        amount: BigNumberString;
+      }[];
+      totalAmount: BigNumberString;
+    },
+  >(data: T, targetValue: UnixTimestamp): T {
+    let currentTotal = BigNumber.from(data.totalAmount);
+    let index = data.data.length - 1;
+
+    while (index >= 0 && data.data[index].measurementDate > targetValue) {
+      const item = data.data[index];
+      const amountChange = BigNumber.from(item.amount).mul(item.event);
+      currentTotal = currentTotal.sub(amountChange);
+      index--;
     }
+
+    const resultData = data.data.slice(0, index + 1);
+
+    const result: T = {
+      ...data,
+      data: resultData,
+      totalAmount: currentTotal.toString(),
+    };
+
     return result;
-  }
-  public getPersistenceNFTs(): ResultAsync<WalletNFT[], PersistenceError> {
-    return this.persistence.getAll<WalletNFT>(ERecordKey.NFTS);
-  }
-
-  public getNFTsHistory(): ResultAsync<WalletNFTHistory[], PersistenceError> {
-    return this.persistence.getAll<WalletNFTHistory>(ERecordKey.NFTS_HISTORY);
-  }
-
-  public getCache(): ResultAsync<NftRepositoryCache, PersistenceError> {
-    return this.getNftCache();
-  }
-
-  public getIndexerNftsAndUpdateIndexedDb(
-    accounts?: LinkedAccount[],
-    chains?: EChain[],
-  ): ResultAsync<
-    WalletNFT[],
-    | PersistenceError
-    | AccountIndexingError
-    | AjaxError
-    | MethodSupportError
-    | InvalidParametersError
-  > {
-    if (chains && accounts) {
-      return this.getIndexerNftsAndUpdateIndexedDbTasks(accounts, chains);
-    } else {
-      return ResultUtils.combine([
-        chains
-          ? okAsync(chains)
-          : this.masterIndexer.getSupportedChains(EIndexerMethod.NFTs),
-        accounts ? okAsync(accounts) : this.accountRepo.getAccounts(),
-      ]).andThen(([selectedChains, selectedAccounts]) => {
-        return this.getIndexerNftsAndUpdateIndexedDbTasks(
-          selectedAccounts,
-          selectedChains,
-        );
-      });
-    }
   }
 
   protected getIndexerNftsAndUpdateIndexedDbTasks(
@@ -303,20 +337,25 @@ export class NftRepository implements INftRepository {
       | MethodSupportError
       | InvalidParametersError
     >[] = [];
+
     for (const selectedChain of chains) {
       for (const selectedAccount of accounts) {
-        tasks.push(
-          this.performNftsUpdate(
-            selectedAccount.sourceAccountAddress,
-            selectedChain,
-          ),
-        );
+        if (isAccountValidForChain(selectedChain, selectedAccount)) {
+          tasks.push(
+            this.performNftsUpdate(
+              selectedAccount.sourceAccountAddress,
+              selectedChain,
+            ),
+          );
+        }
       }
     }
+
     return ResultUtils.combine(tasks).map((indexerResponses) => {
       return indexerResponses.flat(2);
     });
   }
+
   protected performNftsUpdate(
     accountAddress: AccountAddress,
     chain: EChain,
@@ -348,7 +387,9 @@ export class NftRepository implements INftRepository {
             indexerResponse,
           ),
         );
-        this._nftCache = updatedCache;
+
+        this.mergeCache(this._nftCache!, updatedCache);
+
         return indexerResponse;
       });
     });
@@ -405,6 +446,42 @@ export class NftRepository implements INftRepository {
     return [newlyAddedNftHistories, newlyAddedNfts, updatedCache];
   }
 
+  protected mergeCache(
+    existingCache: NftRepositoryCache,
+    newCacheData: NftRepositoryCache,
+  ): NftRepositoryCache {
+    // Iterate over newCacheData and merge with existingCache
+    newCacheData.forEach((newChainData, chainKey) => {
+      const existingChainData = existingCache.get(chainKey);
+      if (existingChainData) {
+        // Merge the data for the existing chain
+        newChainData.data.forEach((newAccountData, accountKey) => {
+          const existingAccountData = existingChainData.data.get(accountKey);
+          if (existingAccountData) {
+            // Merge the data for the existing account
+            newAccountData.forEach((newNftData, nftKey) => {
+              existingAccountData.set(nftKey, newNftData); // This assumes you want to replace the NFT data entirely
+            });
+          } else {
+            // Add new account data if it doesn't exist
+            existingChainData.data.set(accountKey, newAccountData);
+          }
+        });
+        // Update the last update time if the new data is more recent
+        existingChainData.lastUpdateTime = UnixTimestamp(
+          Math.max(
+            existingChainData.lastUpdateTime,
+            newChainData.lastUpdateTime,
+          ),
+        );
+      } else {
+        // Add new chain data if it doesn't exist
+        existingCache.set(chainKey, newChainData);
+      }
+    });
+
+    return existingCache;
+  }
   protected createRecordsForNftsThatExistOnBothDbAndIndexers(
     indexerNfts: Map<NftTokenAddressWithTokenId, WalletNFT>,
     storedChainNftData: Map<
@@ -483,6 +560,7 @@ export class NftRepository implements INftRepository {
             }
           } else {
             //User could transferred and then got the nft back
+
             if (dbNft.totalAmount === BigNumberString("0")) {
               const measurementDate = this.timeUtils.getUnixNow();
               const nftHistory = this.createNftHistory(
@@ -858,6 +936,21 @@ export class NftRepository implements INftRepository {
     return okAsync(this._nftCache);
   }
 
+  protected getShibuyaRewards(rewards: EarnedReward[]): DirectReward[] {
+    return rewards.reduce<DirectReward[]>((shibuyaRewards, reward) => {
+      if (this.isDirectReward(reward) && reward.chainId === EChain.Shibuya) {
+        shibuyaRewards.push(reward);
+      }
+
+      return shibuyaRewards;
+    }, []);
+  }
+
+  protected isDirectReward(reward: EarnedReward): reward is DirectReward {
+    return reward.type == ERewardType.Direct;
+  }
+
+  //Should not exist long term, wrong in many ways
   protected earnedRewardsToNFTs(): ResultAsync<
     WalletNftWithHistory[],
     PersistenceError
@@ -866,44 +959,44 @@ export class NftRepository implements INftRepository {
       this.accountRepo.getEarnedRewards(),
       this.configProvider.getConfig(),
     ]).map(([rewards, config]) => {
-      return (
-        rewards.filter((reward) => {
-          return reward.type == ERewardType.Direct;
-        }) as DirectReward[]
-      ).map<WalletNftWithHistory>((reward) => {
-        const nft = new EVMNFT(
-          reward.contractAddress,
-          BigNumberString("1"),
-          reward.type,
-          reward.recipientAddress,
-          undefined,
-          {
-            // Add image URL to the raw data
-            raw: ObjectUtils.serialize({
-              ...reward,
-              image: URLString(urlJoin(config.ipfsFetchBaseUrl, reward.image)),
-            }),
-          }, // metadata
-          reward.name,
-          reward.chainId as EChain,
-          BigNumberString("1"),
-          undefined,
-          undefined,
-        );
-
-        const nftsWithHistory: WalletNftWithHistory = {
-          ...nft,
-          history: [
+      return this.getShibuyaRewards(rewards).map<WalletNftWithHistory>(
+        (reward) => {
+          const nft = new EVMNFT(
+            reward.contractAddress,
+            BigNumberString("1"),
+            reward.type,
+            reward.recipientAddress,
+            undefined,
             {
-              measurementDate: UnixTimestamp(0),
-              amount: BigNumberString("1"),
-              event: EIndexedDbOp.Added,
-            },
-          ],
-          totalAmount: BigNumberString("1"),
-        };
-        return nftsWithHistory;
-      });
+              // Add image URL to the raw data
+              raw: ObjectUtils.serialize({
+                ...reward,
+                image: URLString(
+                  urlJoin(config.ipfsFetchBaseUrl, reward.image),
+                ),
+              }),
+            }, // metadata
+            reward.name,
+            reward.chainId as EChain,
+            BigNumberString("1"),
+            undefined,
+            undefined,
+          );
+
+          const nftsWithHistory: WalletNftWithHistory = {
+            ...nft,
+            history: [
+              {
+                measurementDate: UnixTimestamp(0),
+                amount: BigNumberString("1"),
+                event: EIndexedDbOp.Added,
+              },
+            ],
+            totalAmount: BigNumberString("1"),
+          };
+          return nftsWithHistory;
+        },
+      );
     });
   }
 

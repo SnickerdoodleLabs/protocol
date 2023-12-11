@@ -25,7 +25,7 @@ export * from "@objects/businessObjects/Invitation.js";
 export * from "@objects/businessObjects/MarketplaceListing.js";
 export * from "@objects/businessObjects/MetatransactionSignatureRequest.js";
 export * from "@objects/businessObjects/NftHoldings.js";
-export * from "@objects/businessObjects/NftRepoCache.js";
+export * from "@objects/businessObjects/NftRepositoryCache.js";
 export * from "@objects/businessObjects/OAuth2Tokens.js";
 export * from "@objects/businessObjects/OptInInfo.js";
 export * from "@objects/businessObjects/PagedResponse.js";
