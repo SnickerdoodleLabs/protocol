@@ -19,7 +19,7 @@ const emptytNft: INFT = {
 };
 
 export class NftMetadataParseUtilsMobile {
-  static getParsedNFT(metadataString: string): INFT {
+  public static getParsedNFT(metadataString: string): INFT {
     if (!metadataString) {
       return emptytNft;
     }
