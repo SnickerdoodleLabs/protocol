@@ -1,5 +1,10 @@
 import { IStemmerServiceType, IStemmerService } from "@snickerdoodlelabs/nlp";
-import { DomainName, UnixTimestamp } from "@snickerdoodlelabs/objects";
+import {
+  DomainName,
+  UnixTimestamp,
+  PurchasedProduct,
+  UnknownProductCategory,
+} from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
@@ -8,10 +13,6 @@ import {
   IProductUtilsType,
   IPurchaseUtils,
 } from "@shopping-data/interfaces/index.js";
-import {
-  PurchasedProduct,
-  UnknownProductCategory,
-} from "@shopping-data/objects/index.js";
 
 @injectable()
 export class PurchaseUtils implements IPurchaseUtils {

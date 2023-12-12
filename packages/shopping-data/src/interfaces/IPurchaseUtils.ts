@@ -1,7 +1,9 @@
-import { ELanguageCode, NLPError } from "@snickerdoodlelabs/objects";
+import {
+  ELanguageCode,
+  NLPError,
+  PurchasedProduct,
+} from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { PurchasedProduct } from "@shopping-data/objects/PurchasedProduct.js";
 
 export interface IPurchaseUtils {
   /**

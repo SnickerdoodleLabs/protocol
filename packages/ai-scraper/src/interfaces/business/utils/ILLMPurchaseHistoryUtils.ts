@@ -6,8 +6,8 @@ import {
   LLMQuestion,
   LLMResponse,
   LLMRole,
+  PurchasedProduct,
 } from "@snickerdoodlelabs/objects";
-import { PurchasedProduct } from "@snickerdoodlelabs/shopping-data";
 import { ResultAsync } from "neverthrow";
 
 export interface ILLMPurchaseHistoryUtils {

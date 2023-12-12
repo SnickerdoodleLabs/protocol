@@ -16,15 +16,15 @@ import {
   LLMResponse,
   Prompt,
   EKnownDomains,
+  ProductCategories,
+  PurchasedProduct,
+  UnknownProductCategory,
 } from "@snickerdoodlelabs/objects";
 import {
   IPurchaseRepository,
   IPurchaseRepositoryType,
   IPurchaseUtils,
   IPurchaseUtilsType,
-  ProductCategories,
-  PurchasedProduct,
-  UnknownProductCategory,
 } from "@snickerdoodlelabs/shopping-data";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, ok, okAsync } from "neverthrow";
@@ -148,7 +148,10 @@ export class LLMScraperService implements IScraperService {
       return this.htmlPreProcessor
         .htmlToText(html, preprocessingOptions)
         .andThen((text) => {
-          text = text.substring(0, this.llmRepository.defaultMaxTokens() - 1000);
+          text = text.substring(
+            0,
+            this.llmRepository.defaultMaxTokens() - 1000,
+          );
           return this.promptDirector.makePurchaseHistoryPrompt(LLMData(text));
         });
     }
@@ -217,24 +220,27 @@ export class LLMScraperService implements IScraperService {
     return this.promptDirector
       .makeProductMetaPrompt(llmData)
       .andThen((prompt) => {
-        return this.llmRepository.executePrompt(prompt).andThen((llmResponse) => {
-          const productMetas = this.productMetaUtils.parseMeta(
-            domainTask.domain,
-            language,
-            llmResponse,
-          );
-          // TODO
-          return productMetas.andThen((metas) => {
-            const purchasesToUpdate = metas.map((meta) => {
-              const purchase = nullCategoryPurchases[parseInt(meta.productId)]; // this indexing is not correct
-              purchase.category = meta.category ?? UnknownProductCategory; // TODO convert to enum
-              purchase.keywords = meta.keywords;
-              return purchase;
-            });
+        return this.llmRepository
+          .executePrompt(prompt)
+          .andThen((llmResponse) => {
+            const productMetas = this.productMetaUtils.parseMeta(
+              domainTask.domain,
+              language,
+              llmResponse,
+            );
+            // TODO
+            return productMetas.andThen((metas) => {
+              const purchasesToUpdate = metas.map((meta) => {
+                const purchase =
+                  nullCategoryPurchases[parseInt(meta.productId)]; // this indexing is not correct
+                purchase.category = meta.category ?? UnknownProductCategory; // TODO convert to enum
+                purchase.keywords = meta.keywords;
+                return purchase;
+              });
 
-            return this.savePurchases(purchasesToUpdate);
+              return this.savePurchases(purchasesToUpdate);
+            });
           });
-        });
       })
       .mapErr((err) => {
         return new ScraperError(err.message, err);

@@ -19,8 +19,8 @@ import {
   SocialGroupProfileMigrator,
   RejectedInvitationMigrator,
   ShoppingDataConnectionStatusMigrator,
+  PurchasedProductMigrator,
 } from "@snickerdoodlelabs/objects";
-import { PurchasedProductMigrator } from "@snickerdoodlelabs/shopping-data";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 

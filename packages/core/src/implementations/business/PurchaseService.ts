@@ -3,11 +3,11 @@ import {
   PersistenceError,
   ShoppingDataConnectionStatus,
   UnixTimestamp,
+  PurchasedProduct,
 } from "@snickerdoodlelabs/objects";
 import {
   IPurchaseRepository,
   IPurchaseRepositoryType,
-  PurchasedProduct,
 } from "@snickerdoodlelabs/shopping-data";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";

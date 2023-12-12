@@ -114,6 +114,7 @@ import {
   TransactionFlowInsight,
   URLString,
   ShoppingDataConnectionStatus,
+  PurchasedProduct,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -122,10 +123,7 @@ import {
   ICloudStorageManager,
   ICloudStorageManagerType,
 } from "@snickerdoodlelabs/persistence";
-import {
-  PurchasedProduct,
-  shoppingDataModule,
-} from "@snickerdoodlelabs/shopping-data";
+import { shoppingDataModule } from "@snickerdoodlelabs/shopping-data";
 import {
   IStorageUtils,
   IStorageUtilsType,

@@ -3,10 +3,9 @@ import {
   PersistenceError,
   ShoppingDataConnectionStatus,
   UnixTimestamp,
+  PurchasedProduct,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { PurchasedProduct } from "@shopping-data/objects/index.js";
 
 export interface IPurchaseRepository {
   add(purchase: PurchasedProduct): ResultAsync<void, PersistenceError>;

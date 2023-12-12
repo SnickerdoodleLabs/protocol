@@ -13,15 +13,13 @@ import {
   LLMResponse,
   LLMRole,
   UnixTimestamp,
-} from "@snickerdoodlelabs/objects";
-import {
   ProductKeyword,
   PurchaseId,
   PurchasedProduct,
   ProductCategories,
   ProductMeta,
   ProductId,
-} from "@snickerdoodlelabs/shopping-data";
+} from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 

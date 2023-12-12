@@ -3,14 +3,13 @@ import {
   DomainName,
   ERecordKey,
   UnixTimestamp,
-  EFieldKey,
   ShoppingDataConnectionStatus,
+  PurchasedProduct,
 } from "@snickerdoodlelabs/objects";
 import {
   IPurchaseRepository,
   IPurchaseUtils,
   IPurchaseUtilsType,
-  PurchasedProduct,
 } from "@snickerdoodlelabs/shopping-data";
 import { inject, injectable } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";

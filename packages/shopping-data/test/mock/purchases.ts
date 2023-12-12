@@ -1,12 +1,12 @@
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
-import { DomainName, ELanguageCode } from "@snickerdoodlelabs/objects";
-
 import {
+  DomainName,
+  ELanguageCode,
   ProductKeyword,
   PurchaseId,
   PurchasedProduct,
   UnknownProductCategory,
-} from "@shopping-data/objects";
+} from "@snickerdoodlelabs/objects";
 
 const timeUtils = new TimeUtils();
 export const janDate = timeUtils.parseToSDTimestamp("2021-01-01");

@@ -6,8 +6,8 @@ import {
   LLMQuestion,
   LLMResponse,
   LLMRole,
+  ProductMeta,
 } from "@snickerdoodlelabs/objects";
-import { ProductMeta } from "@snickerdoodlelabs/shopping-data";
 import { ResultAsync } from "neverthrow";
 
 export interface ILLMProductMetaUtils {
