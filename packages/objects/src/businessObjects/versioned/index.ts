@@ -21,4 +21,3 @@ export * from "@objects/businessObjects/versioned/SuiTransaction.js";
 
 export * from "@objects/businessObjects/versioned/TokenInfo.js";
 export * from "@objects/businessObjects/versioned/VersionedObject.js";
-export * from "@objects/businessObjects/versioned/PurchasedProduct.js";
