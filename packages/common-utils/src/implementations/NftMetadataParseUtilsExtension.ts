@@ -19,7 +19,7 @@ const emptytNft: INFT = {
 };
 
 export class NftMetadataParseUtilsExtension {
-  public static getParsedNFT(metadataString: string): INFT {
+  public static getParsedNFT(metadataString: string) {
     if (!metadataString) {
       return emptytNft;
     }
@@ -49,10 +49,7 @@ export class NftMetadataParseUtilsExtension {
     } as INFT;
   }
 
-  private static getImageUrl(
-    metadataString: string,
-    metadataObj,
-  ): string | null {
+  private static getImageUrl(metadataString: string, metadataObj) {
     let nftImages: string[];
     try {
       const regexpImage = /(\"image.*?\":.*?\"(.*?)\\?\")/;
@@ -71,6 +68,7 @@ export class NftMetadataParseUtilsExtension {
     } catch (e) {
       nftImages = [];
     }
+
     return nftImages?.[0]
       ? NftMetadataParseUtilsExtension.normalizeUrl(nftImages[0])
       : NftMetadataParseUtilsExtension.getImageFromContent(metadataObj);
@@ -103,7 +101,7 @@ export class NftMetadataParseUtilsExtension {
     return null;
   }
 
-  private static getAttributes(metadataObj): AttributesEntity[] | null {
+  private static getAttributes(metadataObj) {
     const _attributes = metadataObj.attributes ?? metadataObj.traits ?? null;
     if (!_attributes) {
       return null;
@@ -116,7 +114,7 @@ export class NftMetadataParseUtilsExtension {
     });
   }
 
-  private static getName(metadataObj): string | null {
+  private static getName(metadataObj) {
     return metadataObj.name ?? null;
   }
 
@@ -144,7 +142,7 @@ export class NftMetadataParseUtilsExtension {
     return null;
   }
 
-  private static normalizeUrl(url: string): string {
+  private static normalizeUrl(url: string) {
     let res = url;
     if (res.includes("ipfs://ipfs/")) {
       res = res.replace("ipfs://ipfs/", "https://ipfs.io/ipfs/");

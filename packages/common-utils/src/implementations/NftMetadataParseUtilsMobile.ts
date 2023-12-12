@@ -19,7 +19,7 @@ const emptytNft: INFT = {
 };
 
 export class NftMetadataParseUtilsMobile {
-  public static getParsedNFT(metadataString: string): INFT {
+  public static getParsedNFT(metadataString: string) {
     if (!metadataString) {
       return emptytNft;
     }
@@ -121,7 +121,7 @@ export class NftMetadataParseUtilsMobile {
     return null;
   }
 
-  private static normalizeUrl(url: string): string {
+  private static normalizeUrl(url: string) {
     let res = url;
     if (res.includes("ipfs://ipfs/")) {
       res = res.replace("ipfs://ipfs/", "https://ipfs.io/ipfs/");
