@@ -1,28 +1,23 @@
 import "reflect-metadata";
 
-import { LogUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
+import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import { DomainName, ELanguageCode } from "@snickerdoodlelabs/objects";
 
 import { LLMProductMetaUtilsChatGPT } from "@ai-scraper/implementations/";
 import {
   MockLogUtils,
+  MockTimeUtils,
   chatGPTProductMetaResponse,
   chatGPTProductMetaResponseMissingCategory,
   chatGPTProductMetaResponseMissingProductId,
-  chatGPTPurchaseHistoryResponse,
-  chatGPTPurchaseHistoryResponseFirstMissingDate,
-  chatGPTPurchaseHistoryResponseMissingPrice,
   emptyProductMetaResponse,
   emptyProductMetaResponseNonJSON,
-  emptyPurchaseHistoryList,
-  emptyPurchaseHistoryNonJSON,
   firstProductMeta,
-  firstPurchase,
   secondProductMeta,
 } from "@ai-scraper-test/mocks/index.js";
 
 class Mocks {
-  public timeUtils = new TimeUtils();
+  public timeUtils = new MockTimeUtils();
   public logUtils = new MockLogUtils();
   public factory() {
     return new LLMProductMetaUtilsChatGPT(this.timeUtils, this.logUtils);
@@ -130,9 +125,6 @@ describe("LLMProductMetaUtilsChatGPT", () => {
     );
 
     // Assert
-    expect(result.isOk()).toBeTruthy();
-
-    const metas = result._unsafeUnwrap();
-    expect(metas.length).toBe(0);
+    expect(result.isErr()).toBeTruthy();
   });
 });

@@ -82,7 +82,7 @@ export class LLMProductMetaUtilsChatGPT implements ILLMProductMetaUtils {
       metas = JSON.parse(llmResponse);
     } catch (e) {
       // this.logUtils.warning(`No product meta. LLMRReponse: ${llmResponse}`);
-      console.log(`No product meta. LLMRReponse: ${llmResponse}`);
+      // console.log(`No product meta. LLMRReponse: ${llmResponse}`);
       return errAsync(
         new LLMError(`No product meta. LLMRReponse: ${llmResponse}`, e),
       );
@@ -91,9 +91,9 @@ export class LLMProductMetaUtilsChatGPT implements ILLMProductMetaUtils {
     const validMetas = metas.reduce((accumulator, meta) => {
       if (meta.product_id == null) {
         this.logUtils.debug(`Invalid product id ${meta.product_id} in ${meta}`);
-        console.log(`Invalid product id ${meta.product_id} in ${meta}`);
+        // console.log(`Invalid product id ${meta.product_id} in ${meta}`);
       } else {
-        console.log(`got valid meta ${meta}`);
+        // console.log(`got valid meta ${meta}`);
         accumulator.push(
           new ProductMeta(
             ProductId(meta.product_id.toString()),
