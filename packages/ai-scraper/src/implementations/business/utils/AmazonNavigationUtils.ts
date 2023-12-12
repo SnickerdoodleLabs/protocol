@@ -2,7 +2,7 @@ import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   ELanguageCode,
   HTMLString,
-  PageNo,
+  PageNumber,
   URLString,
   Year,
 } from "@snickerdoodlelabs/objects";
@@ -22,7 +22,7 @@ export class AmazonNavigationUtils implements IAmazonNavigationUtils {
     @inject(IHTMLPreProcessorType)
     protected readonly htmlPreProcessor: IHTMLPreProcessor,
   ) {}
-  public getOrderHistoryPage(lang: ELanguageCode, page: PageNo): URLString {
+  public getOrderHistoryPage(lang: ELanguageCode, page: PageNumber): URLString {
     return URLString("https://www.amazon.com/your-orders/orders?startIndex=0");
   }
 
@@ -36,13 +36,13 @@ export class AmazonNavigationUtils implements IAmazonNavigationUtils {
   }
   public getPageCount(html: HTMLString, year: Year): number {
     // TODO, parse the page and get number of pages.
-    return 5; 
+    return 5;
   }
 
   public getOrderHistoryPageByYear(
     lang: ELanguageCode,
     year: Year,
-    page: PageNo,
+    page: PageNumber,
   ): URLString {
     // TODO: this URL structure may break very easily. We should find a better way to do this.
     const startIndex = (page - 1) * 10;
