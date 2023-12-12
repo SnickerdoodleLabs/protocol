@@ -43,7 +43,7 @@
     }
   ],
   "include": [
-    "./src/**/*.ts", "./src/**/*.json", "../common-utils/src/implementations/NftMetadataParseUtilsExtension.ts"],
+    "./src/**/*.ts", "./src/**/*.json"],
   "exclude": [
     "node_modules"
   ]

@@ -6,8 +6,6 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { INftMetadataParseUtils, INftMetadataParseUtilsType } from "..";
-
 const emptytNft: INFT = {
   name: null,
   description: null,
