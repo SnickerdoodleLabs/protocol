@@ -3,6 +3,7 @@ import {
   EContentType,
   INFT,
   INFTEventField,
+  AjaxError,
 } from "@snickerdoodlelabs/objects";
 
 import { INftMetadataParseUtils, INftMetadataParseUtilsType } from "..";
@@ -19,10 +20,19 @@ const emptytNft: INFT = {
   event: null,
 };
 
-export class NftMetadataParseUtilsExtension implements INftMetadataParseUtils {
-  constructor() {}
+// import { ResultAsync } from "neverthrow";
+// import { INFTMetadataService } from "@extension-onboarding/services/interfaces/business/INFTMetadataService";
+// import { INFTMetadataRepository } from "@extension-onboarding/services/interfaces/data/INFTMetadataRepository";
 
-  public getParsedNFT(metadataString: string): INFT {
+// export class NFTMetadataService implements INFTMetadataService {
+//   constructor(protected nftMetadataRepository: INFTMetadataRepository) {}
+//   public fetchNFTMetadata(url: URL): ResultAsync<any, AjaxError> {
+//     return this.nftMetadataRepository.fetchNFTMetadata(url);
+//   }
+// }
+
+export class NftMetadataParseUtilsExtension {
+  static getParsedNFT(metadataString: string): INFT {
     if (!metadataString) {
       return emptytNft;
     }

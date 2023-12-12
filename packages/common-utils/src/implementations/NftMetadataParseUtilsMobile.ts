@@ -20,8 +20,8 @@ const emptytNft: INFT = {
   event: null,
 };
 
-export class NftMetadataParseUtilsMobile implements INftMetadataParseUtils {
-  public getParsedNFT(metadataString: string): INFT {
+export class NftMetadataParseUtilsMobile {
+  static getParsedNFT(metadataString: string): INFT {
     if (!metadataString) {
       return emptytNft;
     }

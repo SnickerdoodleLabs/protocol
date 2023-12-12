@@ -1,13 +1,14 @@
+import { Box } from "@material-ui/core";
+import { NftMetadataParseUtilsExtension } from "@snickerdoodlelabs/common-utils/src/implementations/NftMetadataParseUtilsExtension";
+import { SolanaNFT } from "@snickerdoodlelabs/objects";
+import { SDTypography } from "@snickerdoodlelabs/shared-components";
+import React, { FC, useEffect, useMemo, useState } from "react";
+
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import MediaRenderer from "@extension-onboarding/components/NFTItem/MediaRenderer";
 import { useStyles } from "@extension-onboarding/components/NFTItem/NFTItem.style";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { NftMetadataParseUtils } from "@extension-onboarding/utils";
-import { Box } from "@material-ui/core";
-import { SolanaNFT } from "@snickerdoodlelabs/objects";
-import { SDTypography } from "@snickerdoodlelabs/shared-components";
-import React, { FC, useEffect, useMemo, useState } from "react";
 export interface ISolanaNFTItemProps {
   item: SolanaNFT;
 }
@@ -48,7 +49,9 @@ export const SolanaNFTItem: FC<ISolanaNFTItemProps> = ({
 
   const nftData = useMemo(() => {
     if (metadata) {
-      return NftMetadataParseUtils.getParsedNFT(JSON.stringify(metadata));
+      return NftMetadataParseUtilsExtension.getParsedNFT(
+        JSON.stringify(metadata),
+      );
     }
     return undefined;
   }, [metadata]);

@@ -1,4 +1,5 @@
 import { Box } from "@material-ui/core";
+import { NftMetadataParseUtilsExtension } from "@snickerdoodlelabs/common-utils";
 import { SuiNFT } from "@snickerdoodlelabs/objects";
 import { SDTypography } from "@snickerdoodlelabs/shared-components";
 import React, { FC, useMemo } from "react";
