@@ -34,15 +34,15 @@ export class NftMetadataParseUtilsMobile {
       return emptytNft;
     }
     return {
-      name: NftMetadataParseUtilsMobile.getName(metadataObj),
-      description: NftMetadataParseUtilsMobile.getDescription(metadataObj),
-      imageUrl: NftMetadataParseUtilsMobile.getImageUrl(metadataString),
-      animationUrl: NftMetadataParseUtilsMobile.getAnimationUrl(metadataObj),
-      externalUrl: NftMetadataParseUtilsMobile.getExternalUrl(metadataObj),
-      contentType: NftMetadataParseUtilsMobile.getContentType(metadataObj),
-      contentUrls: NftMetadataParseUtilsMobile.getContentUrls(metadataObj),
-      attributes: NftMetadataParseUtilsMobile.getAttributes(metadataObj),
-      event: NftMetadataParseUtilsMobile.getEventInfo(metadataObj),
+      name: this.getName(metadataObj),
+      description: this.getDescription(metadataObj),
+      imageUrl: this.getImageUrl(metadataString),
+      animationUrl: this.getAnimationUrl(metadataObj),
+      externalUrl: this.getExternalUrl(metadataObj),
+      contentType: this.getContentType(metadataObj),
+      contentUrls: this.getContentUrls(metadataObj),
+      attributes: this.getAttributes(metadataObj),
+      event: this.getEventInfo(metadataObj),
     } as INFT;
   }
 
