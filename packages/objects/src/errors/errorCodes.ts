@@ -13,6 +13,7 @@ const errorCodes = {
   DataWalletLockedError: "ERR_DATA_WALLET_LOCKED",
   InvalidParametersError: "INVALID_PARAMETERS_ERROR",
   InvalidSignatureError: "ERR_INVALID_SIGNATURE",
+  InvalidURLError: "ERR_INVALID_URL",
   IPFSError: "ERR_IPFS",
   KeyGenerationError: "ERR_CRYPTO_KEY_GENERATION",
   MinimalForwarderContractError: "ERR_MINIMAL_FORWARDER_CONTRACT",

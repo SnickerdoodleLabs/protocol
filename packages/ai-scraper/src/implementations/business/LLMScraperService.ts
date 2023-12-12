@@ -19,6 +19,7 @@ import {
   ProductCategories,
   PurchasedProduct,
   UnknownProductCategory,
+  InvalidURLError,
 } from "@snickerdoodlelabs/objects";
 import {
   IPurchaseRepository,
@@ -80,10 +81,8 @@ export class LLMScraperService implements IScraperService {
   public classifyURL(
     url: URLString,
     language: ELanguageCode,
-  ): ResultAsync<DomainTask, ScraperError> {
-    return this.webpageClassifier.classify(url, language).mapErr((err) => {
-      return new ScraperError(err.message, err);
-    });
+  ): ResultAsync<DomainTask, InvalidURLError> {
+    return this.webpageClassifier.classify(url, language);
   }
   /**
    * Now we will scrape it immmediately and assume the task is a Amazon Purchase History Taks. In future it's done by a job executor with a rate limiter
@@ -92,7 +91,7 @@ export class LLMScraperService implements IScraperService {
     url: URLString,
     html: HTMLString,
     suggestedDomainTask: DomainTask,
-  ): ResultAsync<void, ScraperError> {
+  ): ResultAsync<void, ScraperError | LLMError | PersistenceError> {
     if (suggestedDomainTask.taskType == ETask.PurchaseHistory) {
       return this.scrapePurchaseHistory(url, html, suggestedDomainTask);
     }
@@ -103,7 +102,7 @@ export class LLMScraperService implements IScraperService {
     url: URLString,
     html: HTMLString,
     suggestedDomainTask: DomainTask,
-  ): ResultAsync<void, ScraperError> {
+  ): ResultAsync<void, ScraperError | LLMError | PersistenceError> {
     /*
     This is a two step process.
     Step 1: get purchase information from LLM
@@ -115,23 +114,22 @@ export class LLMScraperService implements IScraperService {
     // 3. parse response for information
     // 4. persist information
 
-    return this.htmlPreProcessor.getLanguage(html).andThen((language) => {
-      return this.buildPrompt(url, html, suggestedDomainTask)
-        .andThen((prompt) => {
-          return this.llmRepository
-            .executePrompt(prompt)
-            .andThen((llmResponse) => {
-              return this.processLLMPurchaseResponse(
-                suggestedDomainTask,
-                language,
-                llmResponse,
-              );
-            });
-        })
-        .mapErr((err) => {
-          return new ScraperError(err.message, err);
-        });
-    });
+    const languageResult = this.htmlPreProcessor.getLanguage(html);
+    const promptResult = this.buildPrompt(url, html, suggestedDomainTask);
+
+    return ResultUtils.combine([languageResult, promptResult]).andThen(
+      ([language, prompt]) => {
+        return this.llmRepository
+          .executePrompt(prompt)
+          .andThen((llmResponse) => {
+            return this.processLLMPurchaseResponse(
+              suggestedDomainTask,
+              language,
+              llmResponse,
+            );
+          });
+      },
+    );
   }
 
   private buildPrompt(

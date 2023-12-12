@@ -7,6 +7,7 @@ import {
   EKnownDomains,
   ETask,
   Keyword,
+  InvalidURLError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { Result, ResultAsync, err, errAsync, ok, okAsync } from "neverthrow";
@@ -33,15 +34,15 @@ export class URLUtils implements IURLUtils {
       return false;
     }
   }
-  public getHostname(url: URLString): ResultAsync<HostName, TypeError> {
+  public getHostname(url: URLString): ResultAsync<HostName, InvalidURLError> {
     try {
       return okAsync(HostName(new URL(url).hostname));
     } catch (error) {
-      return errAsync(new TypeError((error as Error).message));
+      return errAsync(new InvalidURLError((error as Error).message));
     }
   }
 
-  public getDomain(url: URLString): ResultAsync<DomainName, TypeError> {
+  public getDomain(url: URLString): ResultAsync<DomainName, InvalidURLError> {
     return this.getHostname(url).map((hostname) => {
       if (hostname.includes(EKnownDomains.Amazon)) {
         return DomainName(EKnownDomains.Amazon);
@@ -54,7 +55,7 @@ export class URLUtils implements IURLUtils {
   public getKeywords(
     url: URLString,
     language: ELanguageCode,
-  ): ResultAsync<Set<Keyword>, TypeError> {
+  ): ResultAsync<Set<Keyword>, InvalidURLError> {
     // keywords are in the path or in search params
     const uniqueKeywords = new Set<Keyword>();
 
@@ -75,14 +76,14 @@ export class URLUtils implements IURLUtils {
   public getHash(
     url: URLString,
     language: ELanguageCode,
-  ): ResultAsync<HexString, TypeError> {
+  ): ResultAsync<HexString, InvalidURLError> {
     throw new Error("Method not implemented.");
   }
 
   public getTask(
     url: URLString,
     language: ELanguageCode,
-  ): ResultAsync<ETask, TypeError> {
+  ): ResultAsync<ETask, InvalidURLError> {
     // 1. get domain
     // 2. get urlKeywords
     // 3. get task

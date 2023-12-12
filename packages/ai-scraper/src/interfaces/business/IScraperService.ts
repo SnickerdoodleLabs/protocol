@@ -4,6 +4,9 @@ import {
   ScraperError,
   ELanguageCode,
   DomainTask,
+  PersistenceError,
+  LLMError,
+  InvalidURLError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -18,7 +21,7 @@ export interface IScraperService {
     url: URLString,
     html: HTMLString,
     suggestedDomainTask: DomainTask,
-  ): ResultAsync<void, ScraperError>;
+  ): ResultAsync<void, ScraperError | LLMError | PersistenceError>;
 
   /**
    *
@@ -29,7 +32,7 @@ export interface IScraperService {
   classifyURL(
     url: URLString,
     language: ELanguageCode,
-  ): ResultAsync<DomainTask, ScraperError>;
+  ): ResultAsync<DomainTask, InvalidURLError>;
 
   poll(): ResultAsync<void, ScraperError>;
 }

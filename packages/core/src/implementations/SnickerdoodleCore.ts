@@ -115,6 +115,8 @@ import {
   URLString,
   ShoppingDataConnectionStatus,
   PurchasedProduct,
+  InvalidURLError,
+  LLMError,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -710,7 +712,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         url: URLString,
         html: HTMLString,
         suggestedDomainTask: DomainTask,
-      ): ResultAsync<void, ScraperError> => {
+      ): ResultAsync<void, ScraperError | LLMError | PersistenceError> => {
         const scraperService =
           this.iocContainer.get<IScraperService>(IScraperServiceType);
         return scraperService.scrape(url, html, suggestedDomainTask);
@@ -718,7 +720,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       classifyURL: (
         url: URLString,
         language: ELanguageCode,
-      ): ResultAsync<DomainTask, ScraperError> => {
+      ): ResultAsync<DomainTask, InvalidURLError> => {
         const scraperService =
           this.iocContainer.get<IScraperService>(IScraperServiceType);
         return scraperService.classifyURL(url, language);

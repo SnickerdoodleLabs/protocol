@@ -81,6 +81,8 @@ import {
   MissingWalletDataTypeError,
   ParserError,
   ScraperError,
+  InvalidURLError,
+  LLMError,
 } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
@@ -696,11 +698,11 @@ export interface IScraperMethods {
     url: URLString,
     html: HTMLString,
     suggestedDomainTask: DomainTask,
-  ): ResultAsync<void, ScraperError>;
+  ): ResultAsync<void, ScraperError | LLMError | PersistenceError>;
   classifyURL(
     url: URLString,
     language: ELanguageCode,
-  ): ResultAsync<DomainTask, ScraperError>;
+  ): ResultAsync<DomainTask, InvalidURLError>;
 }
 
 export interface IScraperNavigationMethods {

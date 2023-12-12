@@ -1,6 +1,7 @@
 import {
   DomainTask,
   ELanguageCode,
+  InvalidURLError,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -25,7 +26,7 @@ export class WebpageClassifier implements IWebpageClassifier {
   public classify(
     url: URLString,
     language: ELanguageCode,
-  ): ResultAsync<DomainTask, TypeError> {
+  ): ResultAsync<DomainTask, InvalidURLError> {
     // Simplest version
     return this.urlUtils.getDomain(url).andThen((domain) => {
       return this.urlUtils.getTask(url, language).andThen((task) => {
