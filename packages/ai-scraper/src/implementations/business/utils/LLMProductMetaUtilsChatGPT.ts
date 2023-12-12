@@ -81,9 +81,10 @@ export class LLMProductMetaUtilsChatGPT implements ILLMProductMetaUtils {
     try {
       const metas: IProductMetaBlock[] = JSON.parse(llmResponse);
     } catch (e) {
-      // return errAsync(new LLMError((e as Error).message, e));
-      this.logUtils.warning(`No product meta. LLMRReponse: ${llmResponse}`);
-      return okAsync([]); // TODO do something else
+      // this.logUtils.warning(`No product meta. LLMRReponse: ${llmResponse}`);
+      return errAsync(
+        new LLMError(`No product meta. LLMRReponse: ${llmResponse}`, e),
+      );
     }
 
     const validMetas = metas.reduce((accumulator, meta) => {
