@@ -60,12 +60,8 @@ import {
   ECoreProxyType,
   BlockNumber,
   RefreshToken,
-  ELanguageCode,
-  IProxyScraperNavigationMethods,
-  PageNo,
   IProxyAccountMethods,
   IProxyPurchaseMethods,
-  ChainTransaction,
   TransactionFilter,
   ShoppingDataConnectionStatus,
 } from "@snickerdoodlelabs/objects";

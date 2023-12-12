@@ -5,6 +5,7 @@ import {
   JSONString,
   InvalidParametersError,
   BaseError,
+  PageNumber,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -120,7 +121,7 @@ export class ObjectUtils {
     pageSize = 25,
   ): ResultAsync<void, TError | TError2> {
     // Create the initial paging request
-    const pagingRequest = new PagingRequest(pageNumber, pageSize);
+    const pagingRequest = new PagingRequest(PageNumber(pageNumber), pageSize);
 
     // Read the page
     return readFunc(pagingRequest).andThen((objectPage) => {

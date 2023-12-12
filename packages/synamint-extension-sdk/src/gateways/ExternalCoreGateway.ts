@@ -57,7 +57,7 @@ import {
   DomainTask,
   HTMLString,
   ELanguageCode,
-  PageNo,
+  PageNumber,
   Year,
   TransactionFlowInsight,
   TransactionFilter,
@@ -368,7 +368,7 @@ export class ExternalCoreGateway {
     this.scraperNavigation = {
       getOrderHistoryPage: (
         lang: ELanguageCode,
-        page: PageNo,
+        page: PageNumber,
       ): ResultAsync<URLString, ProxyError> => {
         return this._handler.call(
           new ScraperGetOrderHistoryPageParams(lang, page),
@@ -380,7 +380,7 @@ export class ExternalCoreGateway {
       getOrderHistoryPageByYear: (
         lang: ELanguageCode,
         year: Year,
-        page: PageNo,
+        page: PageNumber,
       ): ResultAsync<URLString, ProxyError> => {
         return this._handler.call(
           new ScraperGetOrderHistoryPageByYearParams(lang, year, page),

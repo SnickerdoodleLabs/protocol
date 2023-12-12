@@ -80,7 +80,7 @@ import {
   HTMLString,
   ScraperError,
   IProxyScraperNavigationMethods,
-  PageNo,
+  PageNumber,
   Year,
   TransactionFlowInsight,
   IProxyAccountMethods,
@@ -771,7 +771,7 @@ export class SnickerdoodleIFrameProxy
   public scrapernavigation: IProxyScraperNavigationMethods = {
     getOrderHistoryPage: (
       lang: ELanguageCode,
-      page: PageNo,
+      page: PageNumber,
     ): ResultAsync<URLString, ProxyError> => {
       return this._createCall("scrapernavigation.amazon.getOrderHistoryPage", {
         lang,

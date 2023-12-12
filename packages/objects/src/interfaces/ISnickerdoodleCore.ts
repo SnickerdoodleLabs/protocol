@@ -119,7 +119,7 @@ import {
   BlockNumber,
   RefreshToken,
   HTMLString,
-  PageNo,
+  PageNumber,
   Year,
 } from "@objects/primitives/index.js";
 /**
@@ -705,12 +705,12 @@ export interface IScraperMethods {
 
 export interface IScraperNavigationMethods {
   amazon: {
-    getOrderHistoryPage(lang: ELanguageCode, page: PageNo): URLString;
+    getOrderHistoryPage(lang: ELanguageCode, page: PageNumber): URLString;
     getYears(html: HTMLString): Year[];
     getOrderHistoryPageByYear(
       lang: ELanguageCode,
       year: Year,
-      page: PageNo,
+      page: PageNumber,
     ): URLString;
     getPageCount(html: HTMLString, year: Year): number;
   };

@@ -108,7 +108,7 @@ import {
   HTMLString,
   ScraperError,
   IScraperNavigationMethods,
-  PageNo,
+  PageNumber,
   Year,
   IPurchaseMethods,
   TransactionFlowInsight,
@@ -773,7 +773,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
     this.scraperNavigation = {
       amazon: {
-        getOrderHistoryPage: (lang: ELanguageCode, page: PageNo): URLString => {
+        getOrderHistoryPage: (
+          lang: ELanguageCode,
+          page: PageNumber,
+        ): URLString => {
           const amazonNavigationUtils =
             this.iocContainer.get<IAmazonNavigationUtils>(
               IAmazonNavigationUtilsType,
@@ -790,7 +793,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         getOrderHistoryPageByYear: (
           lang: ELanguageCode,
           year: Year,
-          page: PageNo,
+          page: PageNumber,
         ): URLString => {
           const amazonNavigationUtils =
             this.iocContainer.get<IAmazonNavigationUtils>(

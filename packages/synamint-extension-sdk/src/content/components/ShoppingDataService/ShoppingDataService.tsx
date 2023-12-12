@@ -3,7 +3,7 @@ import {
   EKnownDomains,
   ELanguageCode,
   HTMLString,
-  PageNo,
+  PageNumber,
   ShoppingDataConnectionStatus,
   URLString,
 } from "@snickerdoodlelabs/objects";
@@ -53,7 +53,11 @@ export const ShoppingDataService: React.FC<IShoppingDataProcessProps> = ({
         for (const year of years) {
           for (let i = 1; i <= 5; i++) {
             coreGateway.scraperNavigation
-              .getOrderHistoryPageByYear(ELanguageCode.English, year, PageNo(i))
+              .getOrderHistoryPageByYear(
+                ELanguageCode.English,
+                year,
+                PageNumber(i),
+              )
               .map(async (url) => {
                 const newWindow = window.open(url, "_blank", windowFeatures);
                 if (newWindow) {

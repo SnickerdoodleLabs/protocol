@@ -1,21 +1,13 @@
 import {
-  DiscordGuildProfile,
-  DiscordID,
-  DiscordProfile,
-  DomainName,
-  DomainTask,
   ELanguageCode,
   HTMLString,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
-  OAuthAuthorizationCode,
-  PageNo,
-  ScraperError,
+  PageNumber,
   URLString,
   Year,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
 
 import { IScraperNavigationService } from "@synamint-extension-sdk/core/interfaces/business/IScraperNavigationService";
 import {
@@ -29,7 +21,7 @@ export class ScraperNavigationService implements IScraperNavigationService {
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
-  getOrderHistoryPage(lang: ELanguageCode, page: PageNo): URLString {
+  getOrderHistoryPage(lang: ELanguageCode, page: PageNumber): URLString {
     return this.core.scraperNavigation.amazon.getOrderHistoryPage(lang, page);
   }
   getYears(html: HTMLString): Year[] {
@@ -38,7 +30,7 @@ export class ScraperNavigationService implements IScraperNavigationService {
   getOrderHistoryPageByYear(
     lang: ELanguageCode,
     year: Year,
-    page: PageNo,
+    page: PageNumber,
   ): URLString {
     return this.core.scraperNavigation.amazon.getOrderHistoryPageByYear(
       lang,

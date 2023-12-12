@@ -60,7 +60,7 @@ import {
   HTMLString,
   DomainTask,
   ELanguageCode,
-  PageNo,
+  PageNumber,
   Year,
   PurchasedProduct,
   TransactionFlowInsight,
@@ -910,7 +910,7 @@ export class ScraperClassifyUrlParams extends CoreActionParams<DomainTask> {
 // #region Scraper Navigation
 
 export class ScraperGetOrderHistoryPageParams extends CoreActionParams<URLString> {
-  public constructor(public lang: ELanguageCode, public page: PageNo) {
+  public constructor(public lang: ELanguageCode, public page: PageNumber) {
     super(ScraperGetOrderHistoryPageParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
@@ -931,7 +931,7 @@ export class ScraperGetOrderHistoryPageByYearParams extends CoreActionParams<URL
   public constructor(
     public lang: ELanguageCode,
     public year: Year,
-    public page: PageNo,
+    public page: PageNumber,
   ) {
     super(ScraperGetOrderHistoryPageByYearParams.getCoreAction());
   }
