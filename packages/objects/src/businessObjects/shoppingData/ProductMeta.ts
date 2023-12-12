@@ -1,7 +1,4 @@
-import {
-  ProductId,
-  ProductKeyword,
-} from "@shopping-data/objects/primitives/index.js";
+import { ProductId, ProductKeyword } from "@objects/primitives/index.js";
 
 export class ProductMeta {
   constructor(

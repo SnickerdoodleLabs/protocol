@@ -1,11 +1,9 @@
+import { VersionedObject } from "@objects/businessObjects/versioned/VersionedObject.js";
 import {
   URLString,
   UnixTimestamp,
-  VersionedObject,
-} from "@snickerdoodlelabs/objects";
-
-import { ProductKeyword } from "@shopping-data/objects/primitives/index.js";
-
+  ProductKeyword,
+} from "@objects/primitives/index.js";
 export class Product extends VersionedObject {
   public static CURRENT_VERSION = 1;
   /**

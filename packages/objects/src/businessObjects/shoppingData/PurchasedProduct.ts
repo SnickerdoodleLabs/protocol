@@ -1,16 +1,15 @@
 import {
-  DomainName,
-  ELanguageCode,
-  URLString,
-  UnixTimestamp,
   VersionedObject,
   VersionedObjectMigrator,
-} from "@snickerdoodlelabs/objects";
-
+} from "@objects/businessObjects/versioned/VersionedObject.js";
+import { ELanguageCode } from "@objects/enum/ELanguageCode.js";
 import {
+  DomainName,
+  URLString,
+  UnixTimestamp,
   PurchaseId,
   ProductKeyword,
-} from "@shopping-data/objects/primitives/index.js";
+} from "@objects/primitives/index.js";
 
 /**
  * We will use this class for now to reduce development complexity and also store this in the persistence for now. Later we will decompose this into a Product and a Purchase
