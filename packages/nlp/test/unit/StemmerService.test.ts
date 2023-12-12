@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { ELanguageCode } from "@snickerdoodlelabs/objects";
 
 import { StemmerService } from "@nlp/implementations";
