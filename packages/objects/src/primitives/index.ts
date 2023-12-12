@@ -111,3 +111,4 @@ export * from "@objects/primitives/WebPageText.js";
 export * from "@objects/primitives/Year.js";
 
 export * from "@objects/primitives/scraper/index.js";
+export * from "@objects/primitives/shoppingData/index.js";
