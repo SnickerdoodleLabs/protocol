@@ -77,32 +77,30 @@ export class LLMProductMetaUtilsChatGPT implements ILLMProductMetaUtils {
     language: ELanguageCode,
     llmResponse: LLMResponse,
   ): ResultAsync<ProductMeta[], LLMError> {
+    const metas: IProductMetaBlock[] = [];
     try {
       const metas: IProductMetaBlock[] = JSON.parse(llmResponse);
-      // worst possible parser
-      const productMetas = metas.map((meta) => {
-        if (meta.product_id == null) {
-          this.logUtils.debug(
-            `Invalid product id ${meta.product_id} in ${meta}`,
-          );
-          return null;
-        }
-
-        return new ProductMeta(
-          ProductId(meta.product_id.toString()),
-          meta.category,
-          (meta.keywords ?? []) as ProductKeyword[],
-        );
-      });
-      const validMetas = productMetas.filter(
-        (meta) => meta != null,
-      ) as ProductMeta[];
-
-      return okAsync(validMetas);
     } catch (e) {
       // return errAsync(new LLMError((e as Error).message, e));
       this.logUtils.warning(`No product meta. LLMRReponse: ${llmResponse}`);
       return okAsync([]); // TODO do something else
     }
+
+    const validMetas = metas.reduce((accumulator, meta) => {
+      if (meta.product_id == null) {
+        this.logUtils.debug(`Invalid product id ${meta.product_id} in ${meta}`);
+      } else {
+        accumulator.push(
+          new ProductMeta(
+            ProductId(meta.product_id.toString()),
+            meta.category,
+            (meta.keywords ?? []) as ProductKeyword[],
+          ),
+        );
+      }
+      return accumulator;
+    }, [] as ProductMeta[]);
+
+    return okAsync(validMetas);
   }
 }
