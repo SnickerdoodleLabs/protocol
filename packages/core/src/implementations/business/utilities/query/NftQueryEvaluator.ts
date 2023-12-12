@@ -153,7 +153,7 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
       return new NftHolding(
         chain,
         walletNftWithHistory.token,
-        Number(walletNftWithHistory.amount),
+        Number(walletNftWithHistory.totalAmount),
         walletNftWithHistory.name,
         latestMeasurementDate,
       );

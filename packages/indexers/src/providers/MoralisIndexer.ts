@@ -25,6 +25,7 @@ import {
   EDataProvider,
   EExternalApi,
   getChainInfoByChain,
+  EVMIndexerNft,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -168,7 +169,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
   public getTokensForAccount(
     chain: EChain,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMNFT[], AccountIndexingError> {
+  ): ResultAsync<EVMIndexerNft[], AccountIndexingError> {
     if (this.moralisKey == null) {
       return okAsync([]);
     }
@@ -225,16 +226,17 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     chain: EChain,
     accountAddress: EVMAccountAddress,
     response: IMoralisNFTResponse,
-  ): ResultAsync<EVMNFT[], AjaxError> {
+  ): ResultAsync<EVMIndexerNft[], AjaxError> {
     if (this.moralisKey == null) {
       return okAsync([]);
     }
 
-    const items: EVMNFT[] = response.result.map((token) => {
+    const items: EVMIndexerNft[] = response.result.map((token) => {
       const tokenStandard = ValidationUtils.stringToTokenStandard(
         token.contract_type,
       );
-      return new EVMNFT(
+      return new EVMIndexerNft(
+        true,
         EVMContractAddress(token.token_address),
         BigNumberString(token.token_id),
         tokenStandard,

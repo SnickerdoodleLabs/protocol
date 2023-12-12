@@ -37,6 +37,9 @@ import {
   TokenUri,
   LinkedAccount,
   EContractStandard,
+  EarnedReward,
+  DirectReward,
+  EVMIndexerNft,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_ConditionExpr,
@@ -511,34 +514,49 @@ const tokenId = BigNumberString("0");
 const contractType = EContractStandard.Erc721;
 const owner = EVMAccountAddress("0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc");
 export const linkedAccounts: LinkedAccount[] = [
-  new LinkedAccount(EChain.Avalanche, owner),
+  new LinkedAccount(EChain.Fuji, owner),
 ];
+
+export const earnedRewards: DirectReward[] = [
+  new DirectReward(
+    queryCID,
+    "Name",
+    null,
+    "",
+    ChainId(81),
+    tokenAddress1,
+    externalAccountAddress1,
+  ),
+];
+
 const tokenUri = TokenUri("");
 const metadata = undefined;
 const amount = BigNumberString("1");
-const name = "";
+
 const chain = 43113;
 
 export const Nfts = [
-  new EVMNFT(
+  new EVMIndexerNft(
+    true,
     tokenAddress1,
     tokenId,
     contractType,
     owner,
     tokenUri,
     metadata,
-    name,
+    "1",
     chain,
     amount,
   ),
-  new EVMNFT(
+  new EVMIndexerNft(
+    true,
     tokenAddress2,
     tokenId,
     contractType,
     owner,
     tokenUri,
     metadata,
-    amount,
+    "2",
     chain,
     amount,
   ),
@@ -548,7 +566,7 @@ export const cachedNfts = [
     amount: "1",
     blockNumber: undefined,
     chain: 43113,
-    contractType: "ERC721",
+    contractType: "Erc721",
     id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0",
     lastOwnerTimeStamp: undefined,
     metadata: undefined,
@@ -563,7 +581,7 @@ export const cachedNfts = [
     amount: "1",
     blockNumber: undefined,
     chain: 43113,
-    contractType: "ERC721",
+    contractType: "Erc721",
     id: "0x2222222222222222222222222222222222222222|#|0",
     lastOwnerTimeStamp: undefined,
     metadata: undefined,
@@ -582,13 +600,12 @@ export const indexedNfts = [
     chain: 43113,
     owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
     token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
-    name: "",
+    name: "1",
     id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0",
     tokenId: "0",
-    contractType: "ERC721",
+    contractType: "Erc721",
     tokenUri: "",
     metadata: undefined,
-    amount: "1",
     blockNumber: undefined,
     lastOwnerTimeStamp: undefined,
   },
@@ -597,13 +614,12 @@ export const indexedNfts = [
     chain: 43113,
     owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
     token: "0x2222222222222222222222222222222222222222",
-    name: "",
+    name: "2",
     id: "0x2222222222222222222222222222222222222222|#|0",
     tokenId: "0",
-    contractType: "ERC721",
+    contractType: "Erc721",
     tokenUri: "",
     metadata: undefined,
-    amount: "1",
     blockNumber: undefined,
     lastOwnerTimeStamp: undefined,
   },
@@ -613,45 +629,105 @@ export const indexedNftHistory = [
   {
     id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0{-}1701779730",
     event: 1,
+    amount: "1",
   },
   {
-    id: "0x2222222222222222222222222222222222222222|#|0{-}1701779734",
+    id: "0x2222222222222222222222222222222222222222|#|0{-}1701779730",
     event: 1,
+    amount: "1",
+  },
+  {
+    id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0{-}1701779734",
+    event: -1,
+    amount: "1",
   },
 ];
 
 export const walletNftWithHistory = [
   {
     type: 0,
+    chain: 81,
+    owner: "ExternalAccountAddress1",
+    token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
+    name: "Name",
+    id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|1",
+    tokenId: "1",
+    contractType: "Direct",
+    tokenUri: undefined,
+    metadata: {
+      raw: '{"queryCID":"queryCID","name":"Name","image":"http://ipfstest.com/whatever","description":"","type":"Direct","chainId":81,"contractAddress":"0x0a281d992a7e454d9dcf611b6bf0201393e27438","recipientAddress":"ExternalAccountAddress1"}',
+    },
+    blockNumber: undefined,
+    lastOwnerTimeStamp: undefined,
+    history: [{ measurementDate: 0, amount: "1", event: 1 }],
+    totalAmount: "1",
+  },
+  {
+    type: 0,
     chain: 43113,
     owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
     token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
-    name: "",
+    name: "1",
     id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0",
     tokenId: "0",
-    contractType: "ERC721",
+    contractType: "Erc721",
     tokenUri: "",
     metadata: undefined,
-    amount: "1",
     blockNumber: undefined,
     lastOwnerTimeStamp: undefined,
-    history: [{ measurementDate: 1701779730, event: 1 }],
+    indexerResponse: true,
+    history: [{ measurementDate: 1701779730, amount: "1", event: 1 }],
+    totalAmount: "1",
+    amount: "1",
   },
   {
     type: 0,
     chain: 43113,
     owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
     token: "0x2222222222222222222222222222222222222222",
-    name: "",
+    name: "2",
     id: "0x2222222222222222222222222222222222222222|#|0",
     tokenId: "0",
-    contractType: "ERC721",
+    contractType: "Erc721",
     tokenUri: "",
     metadata: undefined,
-    amount: "1",
     blockNumber: undefined,
     lastOwnerTimeStamp: undefined,
-    history: [{ measurementDate: 1701779734, event: 1 }],
+    indexerResponse: true,
+    history: [{ measurementDate: 1701779730, amount: "1", event: 1 }],
+    totalAmount: "1",
+    amount: "1",
   },
 ];
+
+export const walletNftThatGotTransferredAndGotBack = {
+  type: 0,
+  chain: 43113,
+  owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
+  token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
+  name: "1",
+  id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0",
+  tokenId: "0",
+  contractType: "Erc721",
+  tokenUri: "",
+  metadata: undefined,
+  blockNumber: undefined,
+  lastOwnerTimeStamp: undefined,
+  indexerResponse: true,
+  history: [
+    { measurementDate: 1701779730, amount: "1", event: 1 },
+    {
+      amount: "1",
+      event: -1,
+      measurementDate: 1701779734,
+    },
+    {
+      amount: "1",
+      event: 1,
+      measurementDate: 1701779738,
+    },
+  ],
+  totalAmount: "1",
+  amount: "1",
+};
 // #endregion

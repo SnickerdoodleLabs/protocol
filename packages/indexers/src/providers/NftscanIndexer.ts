@@ -22,6 +22,7 @@ import {
   IndexerSupportSummary,
   EDataProvider,
   EExternalApi,
+  EVMIndexerNft,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -115,7 +116,7 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
   public getTokensForAccount(
     chain: EChain,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMNFT[], AccountIndexingError> {
+  ): ResultAsync<EVMIndexerNft[], AccountIndexingError> {
     if (this.nftScanApiKey == null) {
       return okAsync([]);
     }
@@ -180,7 +181,7 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
   private getPages(
     chain: EChain,
     response: INftScanResponse,
-  ): ResultAsync<EVMNFT[], AccountIndexingError> {
+  ): ResultAsync<EVMIndexerNft[], AccountIndexingError> {
     if (response.code >= 500) {
       return errAsync(
         new AccountIndexingError("NftScan server error was located!", 500),
@@ -191,7 +192,8 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
         const tokenStandard = ValidationUtils.stringToTokenStandard(
           asset.erc_type,
         );
-        return new EVMNFT(
+        return new EVMIndexerNft(
+          true,
           EVMContractAddress(asset.contract_address),
           BigNumberString(asset.token_id),
           tokenStandard,

@@ -18,6 +18,31 @@ import { ResultAsync } from "neverthrow";
 export interface INftRepository {
   getCache(): ResultAsync<NftRepositoryCache, PersistenceError>;
 
+  /**
+   * Retrieves NFT data from the cache, updating the cache as necessary based on the provided benchmark.
+   *
+   * This method is designed to return NFT records up to a specified point in time, defined by the benchmark.
+   * It ensures that the cache contains the most recent data by updating it if the last known measurement
+   * date for any chain is earlier than the provided benchmark. This update involves fetching the latest data
+   * from the indexers, updating the cache, and then using the updated cache
+   *
+   * Key Points:
+   * - Primarily operates on cached NFT data rather than directly querying indexers.
+   * - If the cache's last measurement date for a chain is before the benchmark, the cache is updated to include
+   *   the latest data up to the benchmark date.
+   * - The method returns NFTs with their historical data, providing a snapshot of NFT holdings up to the benchmark.
+   *
+   * Usage:
+   * - Can be used for debugging
+   * - Can be used to respond to queries
+   *
+   * @param benchmark Optional UnixTimestamp representing the point in time up to which records are needed.
+   *                  If not provided, current data in the cache is used. Queries will use this with benchmark
+   * @param chains Optional array of `EChain`.  Optional array of `EChain`. If not provided, all supported chains will be used.
+   * @param accounts  Optional array of `LinkedAccount`. If not provided, all the linked accounts will be used.
+
+   * @returns WalletNftWithHistory array
+   */
   getCachedNFTs(
     benchmark?: UnixTimestamp,
     chains?: EChain[],
@@ -35,34 +60,31 @@ export interface INftRepository {
   getNFTsHistory(): ResultAsync<WalletNFTHistory[], PersistenceError>;
 
   /**
-   * Retrieves NFT data from indexers and updates the IndexedDB and cache accordingly.
-   * The Data from db is gathered through the cache, in essence cache is the aggregated wallet nfts with their histories
-   * It will also updated cache itself rather than recrate it, after succcessfully creating the new
-   * Index db records
+   * Updates the IndexedDB and cache with NFT data retrieved from indexers.
    *
-   * This method is called in 2 cases, either the poller wants to update the data
-   * Or a query that is later than the our latest measurement date needs to be processed, as such we update our records
+   * This method serves two primary purposes:
+   * 1. To regularly update data based on polling.
+   * 2. To process queries that require recent data, ensuring records are up-to-date.
    *
-   * Key Points:
-   * - The primary data source is the indexers. The IndexedDB (nft, nftHistory) is updated along with the cache (which holds the latest merged data of sorted NFTs with NFT history).
-   * - Indexers respond for specific blockchain chains, and any chain not included in the response won't be updated.
+   * Overview:
+   * - Utilizes data from indexers as the primary source for NFT information.
+   * - Updates both the IndexedDB (storing individual NFT and NFT history records) and an in-memory cache
+   *   (aggregating the latest comprehensive NFT data with their historical records).
+   * - Handles data for specified blockchain chains; chains not in the indexer's response are not updated.
    *
-   * For chains in the indexer response:
+   * Processing Logic:
+   * - New NFT records not present in the database are added to IndexedDB and cache, along with their history.
+   * - NFT records present in the database but missing from the indexer's response are added with "Removed" to history.
+   * - For each NFT found in both sources:
+   *   - For ERC1155 NFTs, differences in amounts are identified, and history records are updated accordingly.
+   *   - For ERC721 NFTs, if the last recorded amount is 0, an "Added" history record is created.(User transferred the nft, then got it back again)
    *
-   * - If the IndexedDB has records that are not included in our database, they are added along with their history.
-   * - If the IndexedDB has records that the indexer does not have, "Removed" history is added with the current amount.
+   * The method ensures an accurate snapshot of user NFT holdings is maintained for querying purposes,
+   * while indexer data is used to trigger events.
    *
-   * If a record exists in both:
-   *
-   * - For ERC1155 NFTs, it checks for differences in amounts and adds appropriate history.
-   * - For ERC721 NFTs, it checks if the last recorded amount is 0. In that case, it adds "Added" history (indicating the user had the NFT, transferred it, and got it back).
-   *
-   * These are made so that we can have a snapshot of a users nft holdings which we use on our queries, indexer nfts are used on our events
-   *
-   *
-   * @param chain The blockchain chain (e.g., Ethereum, Solana), If not given supported chains will be used
-   * @param accountAddress The user's account address, if not given linked account addressess will be used
-   * @returns indexer response nfts
+   * @param accounts Optional array of `LinkedAccount`. If not provided, all the linked accounts will be used.
+   * @param chain Optional array of `EChain`. If not provided, all supported chains will be used.
+   * @returns indexer nft responses, used for events
    */
   getIndexerNftsAndUpdateIndexedDb(
     accounts?: LinkedAccount[],

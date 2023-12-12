@@ -23,6 +23,7 @@ import {
   EDataProvider,
   EExternalApi,
   EContractStandard,
+  EVMIndexerNft,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -119,7 +120,7 @@ export class RaribleIndexer implements IEVMIndexer {
   public getTokensForAccount(
     chain: EChain,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMNFT[], AccountIndexingError | AjaxError> {
+  ): ResultAsync<EVMIndexerNft[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),
@@ -158,7 +159,8 @@ export class RaribleIndexer implements IEVMIndexer {
             if (item.supply !== "1") {
               contractType = EContractStandard.Erc1155;
             }
-            return new EVMNFT(
+            return new EVMIndexerNft(
+              true,
               EVMContractAddress(item.contract.split(":")[1]),
               BigNumberString(item.tokenId),
               contractType,

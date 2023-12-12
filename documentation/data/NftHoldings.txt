@@ -12,7 +12,8 @@ Each Nft consists of the following key components:
      the value is "not registered." will be returned for this field
 
     2.Token Address: This represents the unique address of the NFT contract
-     where the tokens are held. For solana this would be the program address
+     where the tokens are held. For solana this would be the program address,
+     For Ethereum smart contract address
 
     3.Amount: This numeric value represents the quantity of NFTs held at the 
     given token address. It provides insights into the size of the users NFT collection.
@@ -20,14 +21,16 @@ Each Nft consists of the following key components:
     4.Name: A  string that may indicate the name or label associated with the 
     NFT collection. It offers additional context about the holdings.
 
+    5.MeasurementDate: The date the nft was measured on our data wallet. More detail below
+
 While there are other components of NFTs that differ based on different chains,
  the above-mentioned fields are of primary interest for answering queries.
 
-Sample Nft
+Sample Nft On Our Cache
 {
     "type": 0,
     "chain": 43113,
-    "owner": "0xeeafbc6271834926f016c08318d28258ca63b931",
+    "owner": "0xeasdefqasa7e454d9dcf611b6bf0201393e27438",
     "token": "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
     "name": "",
     "id": "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0",
@@ -37,11 +40,12 @@ Sample Nft
     "metadata": {
         "raw": "{\"blockchain\":\"avalanche_fuji\",\"name\":\"\",\"tokenId\":\"0\",\"tokenUrl\":\"https://ipfs.io/ipfs/QmXbJ8rMMRLEF6quPDTzoFGPpMDrJDdqJUKURVyX5gyv7c?0\",\"imageUrl\":\"\",\"collectionName\":\"test\",\"symbol\":\"test\",\"contractType\":\"ERC721\",\"contractAddress\":\"0x0a281d992a7e454d9dcf611b6bf0201393e27438\"}"
     },
-    "amount": "1",
+    "totalAmount": "1",
     "history": [
         {
             "measurementDate": 1701779730,
             "event": 1
+            "amount": 1
         }
     ]
 }
@@ -58,20 +62,23 @@ In order overcome this and give a metric for our data staleness we use
 measurementDate, this date essentially allows us to build snapshots of nfts 
 associated with our users. We store the date of measurement with the event (added:1 removed:2 )
    
-    "amount": "1",
+    "totalAmount": "1",
     "history": [
         {
             "measurementDate": 1701779730,
             "event": 1
+            "amount": 1
         }
     ]
 
-and when answering queries we get the latest valid one. 
+and when answering queries we get the valid ones ( the ones that are measured before query launch date ),
+if our latest measurementDate is before the query launch time we do another check and then answer with latest date
 
 
 Aggregation of Nft Data
-We aggregate the nft data based in the blockchain networks and organizes it for analysis.
-We add the latest measurementTime to the aggregated nfts 
+
+NFT data is aggregated based on blockchain networks and organized for analysis.
+We include the latest measurementTime in the aggregated data, which is then used for marketing analytics and query responses.
 class NftHolding {
   public constructor(
     public chain: keyof typeof EChain | "not registered",

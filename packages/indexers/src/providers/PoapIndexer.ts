@@ -20,6 +20,7 @@ import {
   EDataProvider,
   EExternalApi,
   EContractStandard,
+  EVMIndexerNft,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -88,7 +89,7 @@ export class PoapRepository implements IEVMIndexer {
   public getTokensForAccount(
     chain: EChain,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMNFT[], AccountIndexingError> {
+  ): ResultAsync<EVMIndexerNft[], AccountIndexingError> {
     if (this.poapApiKey == null) {
       return okAsync([]);
     }
@@ -176,9 +177,10 @@ export class PoapRepository implements IEVMIndexer {
     });
   }
 
-  private getPages(chain: EChain, response: IPoapResponse[]): EVMNFT[] {
-    const items: EVMNFT[] = response.map((token) => {
-      return new EVMNFT(
+  private getPages(chain: EChain, response: IPoapResponse[]): EVMIndexerNft[] {
+    const items: EVMIndexerNft[] = response.map((token) => {
+      return new EVMIndexerNft(
+        true,
         EVMContractAddress(poapContractAddress),
         BigNumberString(token.tokenId),
         EContractStandard.Erc721,

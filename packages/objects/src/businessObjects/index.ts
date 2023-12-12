@@ -14,6 +14,7 @@ export * from "@objects/businessObjects/DataWalletBackup.js";
 export * from "@objects/businessObjects/DataWalletBackupHeader.js";
 export * from "@objects/businessObjects/EVMEvent.js";
 export * from "@objects/businessObjects/EVMFunctionSignature.js";
+export * from "@objects/businessObjects/EVMIndexerNft.js";
 export * from "@objects/businessObjects/EVMNFT.js";
 export * from "@objects/businessObjects/EVMTimestampRange.js";
 export * from "@objects/businessObjects/ExternallyOwnedAccount.js";

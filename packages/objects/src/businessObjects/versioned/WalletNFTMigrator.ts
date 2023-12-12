@@ -1,3 +1,4 @@
+import { EVMIndexerNft } from "@objects/businessObjects/EVMIndexerNft.js";
 import { EVMNFT } from "@objects/businessObjects/EVMNFT.js";
 import { SolanaNFT } from "@objects/businessObjects/SolanaNFT.js";
 import { SuiNFT } from "@objects/businessObjects/SuiNFT.js";
@@ -23,7 +24,6 @@ export class WalletNFTMigrator extends VersionedObjectMigrator<WalletNFT> {
         data.metadata,
         data.name,
         data.chain,
-        data.amount,
         data.blockNumber,
         data.lastOwnerTimeStamp,
       );
@@ -79,6 +79,20 @@ export function isEVMNft(
   nft: Record<string, unknown> | WalletNFT,
 ): nft is EVMNFT {
   return nft.type === EChainTechnology.EVM;
+}
+
+/**
+ * Only checks the type and indexer  response field !
+ */
+export function isEVMIndexerNft(
+  nft: WalletNFT | EVMIndexerNft | Record<string, unknown>,
+): nft is EVMIndexerNft {
+  return (
+    "indexerResponse" in nft &&
+    nft.indexerResponse === true &&
+    "type" in nft &&
+    nft.type === EChainTechnology.EVM
+  );
 }
 
 /**

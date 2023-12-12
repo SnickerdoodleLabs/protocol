@@ -1,10 +1,5 @@
-import { WalletNFT } from "@objects/businessObjects/versioned/WalletNFT.js";
-import {
-  EChain,
-  EChainTechnology,
-  EContractStandard,
-  ERewardType,
-} from "@objects/enum/index.js";
+import { EVMNFT } from "@objects/businessObjects/EVMNFT.js";
+import { EChain, EContractStandard, ERewardType } from "@objects/enum/index.js";
 import {
   EVMContractAddress,
   EVMAccountAddress,
@@ -12,11 +7,11 @@ import {
   BigNumberString,
   BlockNumber,
   UnixTimestamp,
-  NftTokenAddressWithTokenId,
 } from "@objects/primitives/index.js";
 
-export class EVMNFT extends WalletNFT {
+export class EVMIndexerNft extends EVMNFT {
   public constructor(
+    public indexerResponse: boolean = true,
     public token: EVMContractAddress,
     public tokenId: BigNumberString,
     public contractType: EContractStandard | ERewardType | "Unknown",
@@ -25,16 +20,21 @@ export class EVMNFT extends WalletNFT {
     public metadata: object | undefined,
     public name: string,
     public chain: EChain,
+    public amount?: BigNumberString,
     public blockNumber?: BlockNumber,
     public lastOwnerTimeStamp?: UnixTimestamp,
   ) {
     super(
-      EChainTechnology.EVM,
-      chain,
-      owner,
       token,
+      tokenId,
+      contractType,
+      owner,
+      tokenUri,
+      metadata,
       name,
-      NftTokenAddressWithTokenId(token, tokenId),
+      chain,
+      blockNumber,
+      lastOwnerTimeStamp,
     );
   }
 }

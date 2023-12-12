@@ -33,6 +33,7 @@ import {
   EVMTransactionHash,
   ChainId,
   TokenId,
+  EVMIndexerNft,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -103,7 +104,7 @@ export class BluezIndexer implements IEVMIndexer {
   public getTokensForAccount(
     chain: EChain,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMNFT[], AccountIndexingError | AjaxError> {
+  ): ResultAsync<EVMIndexerNft[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),
@@ -140,7 +141,8 @@ export class BluezIndexer implements IEVMIndexer {
             const tokenStandard = ValidationUtils.stringToTokenStandard(
               item.tokenType,
             );
-            return new EVMNFT(
+            return new EVMIndexerNft(
+              true,
               item.contractAddress,
               BigNumberString(item.tokenId),
               tokenStandard,
