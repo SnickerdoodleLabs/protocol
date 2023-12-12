@@ -41,7 +41,7 @@ const App: FC<IAppProps> = ({ proxy }) => {
           />
         }
       >
-        <MainContainer proxy={proxy} />;
+        <MainContainer proxy={proxy} />
       </Suspense>
     );
   }, []);
