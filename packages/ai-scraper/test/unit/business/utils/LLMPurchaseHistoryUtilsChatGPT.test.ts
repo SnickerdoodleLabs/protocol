@@ -64,9 +64,7 @@ describe("LLMPurchaseHistoryUtilsChatGPT", () => {
     );
 
     // Assert
-    expect(result.isOk()).toBeTruthy();
-    const purchases = result._unsafeUnwrap();
-    expect(purchases.length).toBe(0);
+    expect(result.isErr()).toBeTruthy();
   });
 
   test("empty purchase history", async () => {

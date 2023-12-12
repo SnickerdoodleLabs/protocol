@@ -82,50 +82,50 @@ export class LLMPurchaseHistoryUtilsChatGPT
     language: ELanguageCode,
     llmResponse: LLMResponse,
   ): ResultAsync<PurchasedProduct[], LLMError> {
+    let purchases: IPurchaseBlock[] = [];
     try {
-      const purchases: IPurchaseBlock[] = JSON.parse(llmResponse);
-      // worst possible parser
-      const purchasedProducts = purchases.map((purchase) => {
-        const timestampPurchased = this.timeUtils.parseToSDTimestamp(
-          purchase.date,
-        );
-
-        if (timestampPurchased == null) {
-          this.logUtils.debug(
-            `Invalid purchase date ${purchase.date} for ${purchase.name}`,
-          );
-          // throw new LLMError(`Invalid purchase date for ${purchase.name}`);
-          return null;
-        }
-
-        const category = purchase.classification ?? UnknownProductCategory;
-        return new PurchasedProduct(
-          domain,
-          language,
-          this.makePurchaseId(purchase, timestampPurchased),
-          purchase.name,
-          purchase.brand,
-          this.parsePrice(purchase.price),
-          timestampPurchased,
-          this.timeUtils.getUnixNow(),
-          null,
-          null,
-          null,
-          category,
-          purchase.keywords as ProductKeyword[],
-        );
-      });
-
-      const validPurchases = purchasedProducts.filter(
-        (purchase) => purchase != null,
-      ) as PurchasedProduct[];
-
-      return okAsync(validPurchases);
+      purchases = JSON.parse(llmResponse);
     } catch (e) {
       // return errAsync(new LLMError((e as Error).message, e));
-      this.logUtils.warning(`No product history. LLMRReponse: ${llmResponse}`);
-      return okAsync([]); // TODO do something else
+      // this.logUtils.warning(`No product history. LLMRReponse: ${llmResponse}`);
+      return errAsync(
+        new LLMError(`No product history. LLMRReponse: ${llmResponse}`, e),
+      );
     }
+    // worst possible parser
+    const purchasedProducts = purchases.reduce((accumulator, purchase) => {
+      const timestampPurchased = this.timeUtils.parseToSDTimestamp(
+        purchase.date,
+      );
+
+      if (timestampPurchased == null) {
+        this.logUtils.debug(
+          `Invalid purchase date ${purchase.date} for ${purchase.name}`,
+        );
+      } else {
+        const category = purchase.classification ?? UnknownProductCategory;
+        accumulator.push(
+          new PurchasedProduct(
+            domain,
+            language,
+            this.makePurchaseId(purchase, timestampPurchased),
+            purchase.name,
+            purchase.brand,
+            this.parsePrice(purchase.price),
+            timestampPurchased,
+            this.timeUtils.getUnixNow(),
+            null,
+            null,
+            null,
+            category,
+            purchase.keywords as ProductKeyword[],
+          ),
+        );
+      }
+      return accumulator;
+    }, [] as PurchasedProduct[]);
+
+    return okAsync(purchasedProducts);
   }
 
   public parsePrice(priceStr: string | number): number {
