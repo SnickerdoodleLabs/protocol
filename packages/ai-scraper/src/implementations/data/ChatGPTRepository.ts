@@ -92,10 +92,8 @@ export class ChatGPTRepository implements ILLMRepository {
         messages: messages,
         temperature: this.temperature,
       };
-      const completionResult =
-        this.openAIUtils.createChatCompletionNonStreaming(openai, params);
 
-      return this.openAIUtils.parseCompletionResult(completionResult);
+      return this.openAIUtils.getLLMResponseNonStreaming(openai, params);
     });
   }
 }

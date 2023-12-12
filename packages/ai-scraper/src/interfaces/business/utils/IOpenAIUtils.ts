@@ -1,18 +1,12 @@
 import { LLMError, LLMResponse } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 import OpenAI from "openai";
-import {
-  ChatCompletion,
-  CompletionCreateParamsNonStreaming,
-} from "openai/resources/chat";
+import { ChatCompletionCreateParamsNonStreaming } from "openai/resources/chat";
 
 export interface IOpenAIUtils {
-  createChatCompletionNonStreaming(
+  getLLMResponseNonStreaming(
     client: OpenAI,
-    params: CompletionCreateParamsNonStreaming,
-  ): ResultAsync<ChatCompletion, LLMError>;
-  parseCompletionResult(
-    completionResult: ResultAsync<ChatCompletion, LLMError>,
+    params: ChatCompletionCreateParamsNonStreaming,
   ): ResultAsync<LLMResponse, LLMError>;
 }
 export const IOpenAIUtilsType = Symbol.for("IOpenAIUtils");

@@ -1,6 +1,8 @@
 import "reflect-metadata";
 import OpenAI from "openai";
 import {
+  ChatCompletionCreateParamsNonStreaming,
+  ChatCompletionMessageParam,
   CompletionCreateParamsNonStreaming,
   CreateChatCompletionRequestMessage,
 } from "openai/resources/chat/completions";
@@ -26,7 +28,7 @@ describe("OpenAIUtils", () => {
     const utils = new OpenAIUtils();
     const client = makeClient();
 
-    const message: CreateChatCompletionRequestMessage[] = [
+    const message: ChatCompletionMessageParam[] = [
       { role: "system", content: "You are an helpful assistant." },
       {
         role: "user",
@@ -34,7 +36,7 @@ describe("OpenAIUtils", () => {
           "How many months there are in an year? Respond with a number only.",
       },
     ];
-    const params: CompletionCreateParamsNonStreaming = {
+    const params: ChatCompletionCreateParamsNonStreaming = {
       model: "gpt-3.5-turbo",
       messages: message,
       temperature: 0.1,
@@ -42,11 +44,7 @@ describe("OpenAIUtils", () => {
 
     // Act
 
-    const completionResult = utils.createChatCompletionNonStreaming(
-      client,
-      params,
-    );
-    const completion = await utils.parseCompletionResult(completionResult);
+    const completion = await utils.getLLMResponseNonStreaming(client, params);
 
     // Assert
     expect(completion.isOk()).toBe(true);

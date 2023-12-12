@@ -4,26 +4,19 @@ import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import OpenAI from "openai";
 import {
   ChatCompletion,
-  CompletionCreateParamsNonStreaming,
+  ChatCompletionCreateParamsNonStreaming,
 } from "openai/resources/chat";
 
 @injectable()
 export class OpenAIUtils {
-  public createChatCompletionNonStreaming(
+  public getLLMResponseNonStreaming(
     client: OpenAI,
-    params: CompletionCreateParamsNonStreaming,
-  ): ResultAsync<ChatCompletion, LLMError> {
+    params: ChatCompletionCreateParamsNonStreaming,
+  ): ResultAsync<LLMResponse, LLMError> {
     const completionResult = ResultAsync.fromPromise(
       client.chat.completions.create(params),
       (e) => new LLMError((e as Error).message, e),
     );
-
-    return completionResult;
-  }
-
-  public parseCompletionResult(
-    completionResult: ResultAsync<ChatCompletion, LLMError>,
-  ): ResultAsync<LLMResponse, LLMError> {
     return completionResult.andThen((completion) => {
       const content = completion.choices[0].message.content;
       if (content == null) {
