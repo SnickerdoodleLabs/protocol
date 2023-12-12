@@ -17,43 +17,43 @@ export class ProductMetaPromptBuilder
    */
   public setExemplars(exemplars: Exemplar[]): void {}
   public getPrompt(): ResultAsync<Prompt, LLMError> {
-    const error = this.validateBeforeBuild();
-    if (error != null) {
-      return errAsync(error);
-    }
+    return this.assureValid().map(() => {
+      let orderedInstructions: (string | null)[] = [];
+      // 1. role
+      if (this.role != null) {
+        orderedInstructions = [this.role, ...orderedInstructions];
+      }
 
-    let orderedInstructions: (string | null)[] = [];
-    // 1. role
-    if (this.role != null) {
-      orderedInstructions = [this.role, ...orderedInstructions];
-    }
+      orderedInstructions = [
+        ...orderedInstructions,
+        this.answerStructure,
+        this.question,
+        "\n\n",
+        this.data,
+      ];
 
-    orderedInstructions = [
-      ...orderedInstructions,
-      this.answerStructure,
-      this.question,
-      "\n\n",
-      this.data,
-    ];
-
-    return okAsync(Prompt(orderedInstructions.join(" ")));
+      return Prompt(orderedInstructions.join(" "));
+    });
   }
 
-  private validateBeforeBuild(): LLMError | null {
+  private assureValid(): ResultAsync<void, LLMError> {
     if (this.question == null) {
-      return new LLMError(
-        "Missing question for purchase history prompts",
-        this,
+      return errAsync(
+        new LLMError("Missing question for purchase history prompts", this),
       );
     } else if (this.answerStructure == null) {
-      return new LLMError(
-        "Missing answerStructure for purchase history prompts",
-        this,
+      return errAsync(
+        new LLMError(
+          "Missing answerStructure for purchase history prompts",
+          this,
+        ),
       );
     } else if (this.data == null) {
-      return new LLMError("Missing data for purchase history prompts", this);
+      return errAsync(
+        new LLMError("Missing data for purchase history prompts", this),
+      );
     }
 
-    return null;
+    return okAsync(undefined);
   }
 }
