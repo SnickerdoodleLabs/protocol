@@ -1,4 +1,4 @@
-import { LLMError } from "@snickerdoodlelabs/objects";
+import { LLMError, LLMResponse } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import OpenAI from "openai";
@@ -7,22 +7,15 @@ import {
   CompletionCreateParamsNonStreaming,
 } from "openai/resources/chat";
 
-import { OpenAIUtils } from "@ai-scraper/implementations/index.js";
+import { IOpenAIUtils } from "@ai-scraper/interfaces";
 import { chatCompletion } from "@ai-scraper-test/mocks/testValues.js";
 // import { chatCompletion } from "@ai-scraper-test/mocks/testValues.js";
 
-export class MockOpenAIUtils extends OpenAIUtils {
-  public createChatCompletionNonStreaming(
+export class MockOpenAIUtils implements IOpenAIUtils {
+  public getLLMResponseNonStreaming(
     client: OpenAI,
-    params: CompletionCreateParamsNonStreaming,
-  ): ResultAsync<ChatCompletion, LLMError> {
-    const chatCompletion2: ChatCompletion = {
-      id: chatCompletion.id,
-      object: chatCompletion.object,
-      created: chatCompletion.created,
-      model: params.model,
-      choices: chatCompletion.choices,
-    };
-    return okAsync(chatCompletion2);
+    params: OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming,
+  ): ResultAsync<LLMResponse, LLMError> {
+    return okAsync(LLMResponse(chatCompletion.choices[0].message.content!));
   }
 }

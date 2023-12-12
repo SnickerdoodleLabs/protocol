@@ -11,6 +11,7 @@ import { inject, injectable } from "inversify";
 import {
   IAmazonNavigationUtils,
   IHTMLPreProcessor,
+  IHTMLPreProcessorOptions,
   IHTMLPreProcessorType,
 } from "@ai-scraper/interfaces/index.js";
 
@@ -51,7 +52,7 @@ export class AmazonNavigationUtils implements IAmazonNavigationUtils {
     );
   }
 
-  public getPurchaseHistoryPagePreprocessingOptions(): unknown {
+  public getPurchaseHistoryPagePreprocessingOptions(): IHTMLPreProcessorOptions {
     const options = {
       baseElements: { selectors: [".your-orders-content-container"] },
       selectors: [
@@ -59,6 +60,6 @@ export class AmazonNavigationUtils implements IAmazonNavigationUtils {
         { selector: "img", format: "skip" },
       ],
     };
-    return options;
+    return options as IHTMLPreProcessorOptions;
   }
 }

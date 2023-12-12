@@ -6,6 +6,8 @@ import {
   Year,
 } from "@snickerdoodlelabs/objects";
 
+import { IHTMLPreProcessorOptions } from "@ai-scraper/interfaces/utils/IHTMLPreProcessorOptions.js";
+
 export interface IAmazonNavigationUtils {
   getOrderHistoryPage(lang: ELanguageCode, page: PageNumber): URLString;
   getYears(html: HTMLString): Year[];
@@ -15,6 +17,6 @@ export interface IAmazonNavigationUtils {
     page: PageNumber,
   ): URLString;
   getPageCount(html: HTMLString, year: Year): number;
-  getPurchaseHistoryPagePreprocessingOptions(): unknown;
+  getPurchaseHistoryPagePreprocessingOptions(): IHTMLPreProcessorOptions;
 }
 export const IAmazonNavigationUtilsType = Symbol.for("IAmazonNavigationUtils");

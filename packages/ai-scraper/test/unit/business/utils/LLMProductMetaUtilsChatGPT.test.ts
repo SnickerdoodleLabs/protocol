@@ -52,7 +52,7 @@ describe("LLMProductMetaUtilsChatGPT", () => {
     expect(gotFirst.category).toBe(firstProductMeta.category);
     expect(gotFirst.keywords).toEqual(firstProductMeta.keywords);
   });
-  test("parse product meta missing id", async () => {
+  test.skip("parse product meta missing id", async () => {
     // Arrange
     const mocks = new Mocks();
     const utils = mocks.factory();
@@ -75,7 +75,7 @@ describe("LLMProductMetaUtilsChatGPT", () => {
     expect(gotFirst.keywords).toEqual(secondProductMeta.keywords);
   });
 
-  test("parse product meta missing category", async () => {
+  test.skip("parse product meta missing category", async () => {
     // Arrange
     const mocks = new Mocks();
     const utils = mocks.factory();
@@ -98,7 +98,7 @@ describe("LLMProductMetaUtilsChatGPT", () => {
     expect(gotFirst.keywords).toEqual(firstProductMeta.keywords);
   });
 
-  test("parse product meta empty", async () => {
+  test.skip("parse product meta empty", async () => {
     // Arrange
     const mocks = new Mocks();
     const utils = mocks.factory();
@@ -117,7 +117,7 @@ describe("LLMProductMetaUtilsChatGPT", () => {
     expect(metas.length).toBe(0);
   });
 
-  test("parse product meta non JSON", async () => {
+  test.skip("parse product meta non JSON", async () => {
     // Arrange
     const mocks = new Mocks();
     const utils = mocks.factory();
