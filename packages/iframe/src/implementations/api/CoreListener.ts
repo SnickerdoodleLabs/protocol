@@ -761,16 +761,11 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       },
 
       "discord.installationUrl": (
-        data: IIFrameCallData<{
-          redirectTabId?: number;
-        }>,
+        data: IIFrameCallData<Record<string, never>>,
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.discord.installationUrl(
-              data.data.redirectTabId,
-              this.sourceDomain,
-            );
+            return core.discord.installationUrl(this.sourceDomain);
           });
         }, data.callId);
       },
@@ -977,6 +972,15 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       checkURLForInvitation: (data: IIFrameCallData<{ url: URLString }>) => {
         this.returnForModel(() => {
           return this.invitationService.handleURL(data.data.url);
+        }, data.callId);
+      },
+
+      // dashboard view request
+      requestDashboardView: (data: IIFrameCallData<Record<string, never>>) => {
+        this.returnForModel(() => {
+          return okAsync(
+            this.contextProvider.getEvents().onDashboardViewRequested.next(),
+          );
         }, data.callId);
       },
     });

@@ -15,7 +15,13 @@ const LeaveAudienceModal: FC = () => {
   const currentBreakpoint = useMedia();
   const modalClasses = useModalStyles();
   return (
-    <Dialog open={true} fullWidth className={modalClasses.container}>
+    <Dialog
+      open={true}
+      disablePortal={true}
+      disableEnforceFocus={true}
+      fullWidth
+      className={modalClasses.container}
+    >
       <Box p={3}>
         <Box display="flex" alignItems="center" justifyContent="space-between">
           <SDTypography variant="titleLg" fontWeight="bold" color="textHeading">

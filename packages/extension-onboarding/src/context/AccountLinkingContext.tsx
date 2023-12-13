@@ -24,6 +24,7 @@ import {
   ESocialType,
   AccountAddress,
   Signature,
+  ECoreProxyType,
 } from "@snickerdoodlelabs/objects";
 import { ConnectModal, useWallet } from "@suiet/wallet-kit";
 import { useWeb3Modal } from "@web3modal/wagmi/react";
@@ -37,6 +38,7 @@ import React, {
   useEffect,
   useMemo,
   useState,
+  memo,
 } from "react";
 import { useAccount, useDisconnect, useSignMessage, useConnect } from "wagmi";
 
@@ -50,6 +52,7 @@ interface IWalletProviderKit {
   label: string;
   icon: string;
   mobileVisible: boolean;
+  iframeVisible: boolean;
 }
 
 const WalletKitProviderList: IWalletProviderKit[] = [
@@ -57,11 +60,13 @@ const WalletKitProviderList: IWalletProviderKit[] = [
     key: EWalletProviderKit.WEB3_MODAL,
     label: "Wallet Connect",
     mobileVisible: true,
+    iframeVisible: true,
     icon: "https://seeklogo.com/images/W/walletconnect-logo-EE83B50C97-seeklogo.com.png",
   },
   {
     key: EWalletProviderKit.SUI,
     label: "Suiet Kit",
+    iframeVisible: false,
     icon: "https://framerusercontent.com/images/eDZRos3xvCrlWxmLFr72sFtiyQ.png?scale-down-to=512",
     mobileVisible: false,
   },
@@ -83,7 +88,7 @@ const AccountLinkingContext = createContext<IAccountLinkingContext>(
   {} as IAccountLinkingContext,
 );
 
-export const AccountLinkingContextProvider: FC = ({ children }) => {
+export const AccountLinkingContextProvider: FC = memo(({ children }) => {
   const { sdlDataWallet } = useDataWalletContext();
   const {
     providerList,
@@ -95,7 +100,8 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
   const { setModal, setLoadingStatus } = useLayoutContext();
   const [isSuiOpen, setIsSuiOpen] = useState(false);
   const suiWallet = useWallet();
-  const { open, close } = useWeb3Modal();
+
+  const { open } = useWeb3Modal();
 
   const { address } = useAccount();
   const { disconnect } = useDisconnect();
@@ -187,7 +193,13 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
         walletConnect: null,
       };
     }
-    return providerList.reduce(
+    return (
+      sdlDataWallet.proxyType === ECoreProxyType.IFRAME_BRIDGE
+        ? providerList.filter(
+            (provider) => provider.key != EWalletProviderKeys.PHANTOM,
+          )
+        : providerList
+    ).reduce(
       (acc, provider) => {
         if (provider.provider.isInstalled) {
           acc.detectedProviders = [...acc.detectedProviders, provider];
@@ -204,16 +216,21 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
         unDetectedProviders: IProvider[];
       },
     );
-  }, [providerList.length, isMobile]);
+  }, [providerList.length, sdlDataWallet.proxyType, isMobile]);
 
   const walletKits = useMemo(() => {
+    if (sdlDataWallet.proxyType === ECoreProxyType.IFRAME_BRIDGE) {
+      return WalletKitProviderList.filter(
+        (walletKit) => walletKit.iframeVisible,
+      );
+    }
     if (isMobile) {
       return WalletKitProviderList.filter(
         (walletKit) => walletKit.mobileVisible,
       );
     }
     return WalletKitProviderList;
-  }, [isMobile]);
+  }, [sdlDataWallet.proxyType, isMobile]);
 
   const discordProvider = useMemo(() => {
     return (socialMediaProviderList.find((provider) => {
@@ -364,7 +381,7 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
       {children}
     </AccountLinkingContext.Provider>
   );
-};
+});
 
 export const useAccountLinkingContext = () => useContext(AccountLinkingContext);
 

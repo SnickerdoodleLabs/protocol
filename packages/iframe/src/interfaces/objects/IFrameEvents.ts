@@ -25,8 +25,10 @@ export interface IInvitationDisplayRequest {
 export class IFrameEvents {
   public onInvitationDisplayRequested: Subject<IInvitationDisplayRequest>;
   public onConsentAddressFound: Subject<EVMContractAddress>;
+  public onDashboardViewRequested: Subject<void>;
   public constructor() {
     this.onInvitationDisplayRequested = new Subject();
     this.onConsentAddressFound = new Subject();
+    this.onDashboardViewRequested = new Subject();
   }
 }
