@@ -12,6 +12,7 @@ require("./tasks/consent.js");
 require("./tasks/crumbs.js");
 require("./tasks/utils.js");
 require("./tasks/sift.js");
+require("./tasks/reward.js");
 
 require("dotenv").config();
 
