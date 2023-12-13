@@ -90,7 +90,6 @@ import {
   GetListingsTotalByTagParams,
   GetConsentCapacityParams,
   GetPossibleRewardsParams,
-  SwitchToTabParams,
   GetQueryStatusByCidParams,
   AuthenticateDropboxParams,
   SetAuthenticatedStorageParams,
@@ -298,8 +297,8 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       initializeUserWithAuthorizationCode: (code: OAuthAuthorizationCode) => {
         return coreGateway.discord.initializeUserWithAuthorizationCode(code);
       },
-      installationUrl: (redirectTabId: number | undefined) => {
-        return coreGateway.discord.installationUrl(redirectTabId);
+      installationUrl: () => {
+        return coreGateway.discord.installationUrl();
       },
       getUserProfiles: () => {
         return coreGateway.discord.getUserProfiles();
@@ -393,10 +392,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     eventEmitter.on(PORT_NOTIFICATION, (resp: BaseNotification) => {
       _this.emit(resp.type, resp);
     });
-  }
-
-  public switchToTab(tabId: number): ResultAsync<void, ProxyError> {
-    return coreGateway.switchToTab(new SwitchToTabParams(tabId));
   }
 
   public setDefaultReceivingAddress(
@@ -593,9 +588,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     return coreGateway.leaveCohort(
       new LeaveCohortParams(consentContractAddress),
     );
-  }
-  public closeTab() {
-    return coreGateway.closeTab();
   }
   public getDataWalletAddress() {
     return coreGateway.getDataWalletAddress();

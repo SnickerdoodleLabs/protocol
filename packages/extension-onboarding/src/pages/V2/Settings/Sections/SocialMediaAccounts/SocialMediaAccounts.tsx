@@ -9,19 +9,16 @@ import { getResponsivePopupProperties } from "@extension-onboarding/utils";
 import { Box } from "@material-ui/core";
 import {
   DiscordProfile,
-  ECoreProxyType,
   EOAuthProvider,
   OAuthAuthorizationCode,
-  OAuthURLState,
 } from "@snickerdoodlelabs/objects";
 import {
   SDButton,
   SDTypography,
   useMedia,
 } from "@snickerdoodlelabs/shared-components";
-import { errAsync, okAsync } from "neverthrow";
+import { errAsync } from "neverthrow";
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 
 const discordImageUrl = "https://cdn.discordapp.com";
 
@@ -41,7 +38,6 @@ const SocialMediaAccounts = () => {
   const { setModal } = useLayoutContext();
   const { setAlert } = useNotificationContext();
   const [profiles, setProfiles] = useState<DiscordProfile[]>();
-  const [searchParams] = useSearchParams();
   const currentBreakPoint = useMedia();
   const connectionWindowRef = React.useRef<Window | null>(null);
 
@@ -71,38 +67,6 @@ const SocialMediaAccounts = () => {
     };
   }, []);
 
-  useEffect(() => {
-    onSearchParamChange();
-  }, [searchParams]);
-
-  const onSearchParamChange = () => {
-    const code = searchParams.get("code");
-    const state = searchParams.get("state");
-    if (!code || !state) {
-      return null;
-    }
-    const { provider, redirectTabId } = OAuthURLState.getParsedState(state);
-    if (provider !== EOAuthProvider.DISCORD) {
-      return;
-    }
-    return handleCode(code)
-      .map(() => {
-        getProfiles();
-        if (redirectTabId) {
-          return (
-            sdlDataWallet?.switchToTab?.(redirectTabId) ??
-            sdlDataWallet.closeTab()
-          ).mapErr((err) => {
-            console.log(err);
-          });
-        }
-        return window.history.replaceState(null, "", window.location.pathname);
-      })
-      .mapErr((err) => {
-        console.log(err);
-      });
-  };
-
   const handleCode = (code: string) => {
     if (!code) {
       return errAsync(new Error("No code provided"));
@@ -130,7 +94,7 @@ const SocialMediaAccounts = () => {
 
   const handleLinkAccountClick = () => {
     sdlDataWallet.discord
-      .installationUrl(undefined)
+      .installationUrl()
       .map((url) => {
         const windowPropeperies = getResponsivePopupProperties();
         connectionWindowRef.current = window.open(

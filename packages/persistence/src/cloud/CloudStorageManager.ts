@@ -79,7 +79,6 @@ export class CloudStorageManager implements ICloudStorageManager {
             config.dropboxRedirectUri +
             `&state=${new OAuthURLState(
               EOAuthProvider.DROPBOX,
-              undefined,
             ).getEncodedState()}`,
         ),
       );

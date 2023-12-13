@@ -10,11 +10,9 @@ import { getResponsivePopupProperties } from "@extension-onboarding/utils";
 import { Box } from "@material-ui/core";
 import {
   ECloudStorageType,
-  ECoreProxyType,
   EOAuthProvider,
   OAuth2AccessToken,
   OAuth2RefreshToken,
-  OAuthURLState,
 } from "@snickerdoodlelabs/objects";
 import {
   SDButton,
@@ -24,7 +22,6 @@ import {
 import { Dropbox } from "dropbox";
 import { ResultAsync, errAsync } from "neverthrow";
 import React, { FC, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 
 interface DropboxFolder {
   ".tag": string;
@@ -68,7 +65,6 @@ const StorageSettings: FC = () => {
   const { setAlert } = useNotificationContext();
   const [folders, setFolders] = useState<NestedFolder[]>();
   const { setModal, setLoadingStatus } = useLayoutContext();
-  const [searchParams] = useSearchParams();
   const currentBreakPoint = useMedia();
   const connectionWindowRef = React.useRef<Window | null>(null);
 
@@ -111,10 +107,6 @@ const StorageSettings: FC = () => {
   }, []);
 
   useEffect(() => {
-    onSearchParamChange();
-  }, [searchParams]);
-
-  useEffect(() => {
     if (!dropbox) {
       return;
     }
@@ -127,20 +119,6 @@ const StorageSettings: FC = () => {
         setLoadingStatus(false);
       });
   }, [JSON.stringify(dropbox)]);
-
-  const onSearchParamChange = () => {
-    const code = searchParams.get("code");
-    const state = searchParams.get("state");
-    if (!code || !state) {
-      return null;
-    }
-    const { provider } = OAuthURLState.getParsedState(state);
-    if (provider !== EOAuthProvider.DROPBOX) {
-      return;
-    }
-    window.history.replaceState(null, "", window.location.pathname);
-    return handleCode(code);
-  };
 
   const getInitialStorageOption = () => {
     getStorageOption().map((option) => {

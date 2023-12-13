@@ -392,10 +392,6 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
-  public closeTab(): ResultAsync<void, ProxyError> {
-    return okAsync(undefined);
-  }
-
   public getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     ProxyError
@@ -572,10 +568,6 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
-  public switchToTab(tabId: number): ResultAsync<void, ProxyError> {
-    throw new Error("Method not implemented.");
-  }
-
   public account: IProxyAccountMethods = {
     addAccount: (
       accountAddress: AccountAddress,
@@ -650,12 +642,8 @@ export class SnickerdoodleIFrameProxy
       });
     },
 
-    installationUrl: (
-      redirectTabId?: number,
-    ): ResultAsync<URLString, ProxyError> => {
-      return this._createCall("discord.installationUrl", {
-        redirectTabId: redirectTabId,
-      });
+    installationUrl: (): ResultAsync<URLString, ProxyError> => {
+      return this._createCall("discord.installationUrl", null);
     },
 
     getUserProfiles: (): ResultAsync<DiscordProfile[], ProxyError> => {

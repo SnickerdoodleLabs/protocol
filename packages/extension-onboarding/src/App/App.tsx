@@ -21,11 +21,9 @@ const App: FC<IAppProps> = ({ proxy }) => {
     const code = urlSearchParams.get("code");
     const state = urlSearchParams.get("state");
     if (code && state) {
-      const { provider, redirectTabId } = OAuthURLState.getParsedState(state);
-      if (typeof redirectTabId == "undefined") {
-        window?.opener?.postMessage({ code, provider }, "*");
-        return <div>All set! You can close this page now.</div>;
-      }
+      const { provider } = OAuthURLState.getParsedState(state);
+      window?.opener?.postMessage({ code, provider }, "*");
+      return <div>All set! You can close this page now.</div>;
     }
     return (
       <Suspense

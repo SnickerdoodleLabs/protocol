@@ -151,12 +151,8 @@ export class ProxyBridge implements ISdlDataWallet {
           ),
         );
       },
-      installationUrl: (
-        redirectTabId: number | undefined,
-      ): ResultAsync<URLString, ProxyError> => {
-        return this.call(
-          this.core.discord.installationUrl(redirectTabId, this.sourceDomain),
-        );
+      installationUrl: (): ResultAsync<URLString, ProxyError> => {
+        return this.call(this.core.discord.installationUrl(this.sourceDomain));
       },
       getUserProfiles: (): ResultAsync<DiscordProfile[], ProxyError> => {
         return this.call(this.core.discord.getUserProfiles(this.sourceDomain));
@@ -486,11 +482,4 @@ export class ProxyBridge implements ISdlDataWallet {
     return this.call(this.core.getTransactions(filter, this.sourceDomain));
   }
 
-  closeTab(): ResultAsync<void, ProxyError> {
-    return this.call(okAsync(undefined));
-  }
-
-  switchToTab(tabId: number): ResultAsync<void, ProxyError> {
-    return this.call(okAsync(undefined));
-  }
 }
