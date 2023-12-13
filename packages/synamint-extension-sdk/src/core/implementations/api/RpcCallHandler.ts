@@ -730,7 +730,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<GetConfigParams>(
       GetConfigParams.getCoreAction(),
       (_params) => {
-        return okAsync(this.configProvider.getConfig());
+        return okAsync(this.configProvider.getExtensionConfig());
       },
     ),
 

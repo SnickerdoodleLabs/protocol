@@ -2,10 +2,9 @@
   "name": "@snickerdoodlelabs/synamint-extension-sdk",
   "version": "1.0.0",
   "description": "",
-  "license": "MIT",
-  "author": "okan@snickerdoodlelabs.io",
   "keywords": [],
-  "main": "dist/core/index.js",
+  "author": "okan@snickerdoodlelabs.io",
+  "license": "MIT",
   "files": [
     "dist",
     "!types",
@@ -24,9 +23,9 @@
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
     "clean:build": "npx rimraf build",
     "compile": "npx tsc --build && cd ../.. && yarn alias",
-    "pack:sdk": "yarn bundle:sdk && node scripts/generatePackageJson.mjs --umd && npm pack && node scripts/generatePackageJson.mjs",
+    "pack:sdk": "yarn compile &&  yarn bundle:sdk && node scripts/generatePackageJson.mjs --umd && npm pack && node scripts/generatePackageJson.mjs",
     "prebuild": "node scripts/precompile",
-    "publish:sdk": "yarn bundle:sdk && node scripts/generatePackageJson.mjs --umd && npm publish --access public && node scripts/generatePackageJson.mjs"
+    "publish:sdk": "yarn compile && yarn bundle:sdk && node scripts/generatePackageJson.mjs --umd && npm publish --access public && node scripts/generatePackageJson.mjs"
   },
   "exports": {
     ".": "./dist/core/index.js",
@@ -74,6 +73,7 @@
     "@snickerdoodlelabs/persistence": "workspace:^",
     "@snickerdoodlelabs/shared-components": "workspace:^",
     "@webcomponents/custom-elements": "^1.5.0",
+    "deepmerge": "^4.3.1",
     "end-of-stream": "^1.4.4",
     "ethers": "^5.6.6",
     "extension-port-stream": "^2.0.1",
