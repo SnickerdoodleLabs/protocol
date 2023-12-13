@@ -74,6 +74,7 @@ export class ProxyBridge implements ISdlDataWallet {
   public storage: IProxyStorageMethods;
   public twitter: IProxyTwitterMethods = {} as IProxyTwitterMethods;
   private sourceDomain = undefined;
+  public requestDashboardView = undefined;
 
   constructor(
     private core: ISnickerdoodleCore,

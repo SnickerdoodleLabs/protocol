@@ -279,8 +279,8 @@ export class SnickerdoodleWebIntegration
 
   protected _requestDashboardView(): void {
     try {
-      if (this.core.proxyType === ECoreProxyType.IFRAME_INJECTED) {
-        (this.core as ISnickerdoodleIFrameProxy).requestDashboardView();
+      if (this._core?.requestDashboardView) {
+        this._core.requestDashboardView();
       } else {
         throw new Error(
           "This method is not supported for sdlDataWallet injected by Snickerdoodle Extension",

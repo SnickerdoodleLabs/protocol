@@ -11,7 +11,6 @@ import { Observable } from "rxjs";
 export interface ISnickerdoodleIFrameProxy extends ISdlDataWallet {
   activate(): ResultAsync<void, ProxyError>;
   checkURLForInvitation(url: URLString): ResultAsync<void, ProxyError>;
-  requestDashboardView(): ResultAsync<void, ProxyError>;
   getInvitationByDomain(
     domain: DomainName,
     path: string,

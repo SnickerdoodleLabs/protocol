@@ -159,6 +159,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public twitter: IProxyTwitterMethods;
   public storage: IProxyStorageMethods;
   public events: PublicEvents;
+  public requestDashboardView = undefined;
 
   public proxyType: ECoreProxyType = ECoreProxyType.EXTENSION_INJECTED;
 
@@ -624,6 +625,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       new GetPossibleRewardsParams(contractAddresses),
     );
   }
+ 
 }
 
 // export const DataWalletProxy = new _DataWalletProxy();

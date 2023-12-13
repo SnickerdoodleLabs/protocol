@@ -327,6 +327,8 @@ export interface ISdlDataWallet {
 
   switchToTab(tabId: number): ResultAsync<void, ProxyError>;
 
+  requestDashboardView: undefined | (() => ResultAsync<void, ProxyError>);
+
   proxyType: ECoreProxyType;
   account: IProxyAccountMethods;
   discord: IProxyDiscordMethods;
