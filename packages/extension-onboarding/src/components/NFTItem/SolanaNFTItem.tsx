@@ -1,5 +1,5 @@
 import { Box } from "@material-ui/core";
-import { NftMetadataParseUtilsExtension } from "@snickerdoodlelabs/common-utils";
+import { NftMetadataParseUtils } from "@snickerdoodlelabs/common-utils";
 import { SolanaNFT } from "@snickerdoodlelabs/objects";
 import { SDTypography } from "@snickerdoodlelabs/shared-components";
 import React, { FC, useEffect, useMemo, useState } from "react";
@@ -49,9 +49,7 @@ export const SolanaNFTItem: FC<ISolanaNFTItemProps> = ({
 
   const nftData = useMemo(() => {
     if (metadata) {
-      return NftMetadataParseUtilsExtension.getParsedNFT(
-        JSON.stringify(metadata),
-      );
+      return NftMetadataParseUtils.getParsedNFT(JSON.stringify(metadata));
     }
     return undefined;
   }, [metadata]);

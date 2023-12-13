@@ -1,5 +1,5 @@
 import { Box, Grid } from "@material-ui/core";
-import { NftMetadataParseUtilsExtension } from "@snickerdoodlelabs/common-utils";
+import { NftMetadataParseUtils } from "@snickerdoodlelabs/common-utils";
 import { EVMNFT, POAPMetadata } from "@snickerdoodlelabs/objects";
 import { SDTypography } from "@snickerdoodlelabs/shared-components";
 import React, { FC, useEffect, useMemo, useState } from "react";
@@ -23,9 +23,7 @@ export const PoapNFTItem: FC<IPoapNFTItemProps> = ({
 
   const nftData = useMemo(() => {
     if (item.metadata) {
-      return NftMetadataParseUtilsExtension.getParsedNFT(
-        JSON.stringify(item.metadata),
-      );
+      return NftMetadataParseUtils.getParsedNFT(JSON.stringify(item.metadata));
     }
     return undefined;
   }, [item]);

@@ -1,5 +1,5 @@
 import { Box } from "@material-ui/core";
-import { NftMetadataParseUtilsExtension } from "@snickerdoodlelabs/common-utils";
+import { NftMetadataParseUtils } from "@snickerdoodlelabs/common-utils";
 import { SuiNFT } from "@snickerdoodlelabs/objects";
 import { SDTypography } from "@snickerdoodlelabs/shared-components";
 import React, { FC, useMemo } from "react";
@@ -22,9 +22,7 @@ export const SuiNFTItem: FC<ISuiNFTItemProps> = ({
 
   const nftData = useMemo(() => {
     if (item.metadata) {
-      return NftMetadataParseUtilsExtension.getParsedNFT(
-        JSON.stringify(item.metadata),
-      );
+      return NftMetadataParseUtils.getParsedNFT(JSON.stringify(item.metadata));
     }
     return undefined;
   }, [item]);

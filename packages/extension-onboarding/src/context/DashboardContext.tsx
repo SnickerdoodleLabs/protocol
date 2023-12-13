@@ -1,4 +1,4 @@
-import { NftMetadataParseUtilsExtension } from "@snickerdoodlelabs/common-utils";
+import { NftMetadataParseUtils } from "@snickerdoodlelabs/common-utils";
 import {
   chainConfig,
   EChainType,
@@ -83,7 +83,7 @@ export const DashboardContextProvider: FC = ({ children }) => {
             const isPopap =
               item.chain === EChain.Gnosis ||
               (item.type === EChainTechnology.EVM &&
-                !!NftMetadataParseUtilsExtension.getParsedNFT(
+                !!NftMetadataParseUtils.getParsedNFT(
                   JSON.stringify((item as EVMNFT).metadata) || "",
                 ).event);
 

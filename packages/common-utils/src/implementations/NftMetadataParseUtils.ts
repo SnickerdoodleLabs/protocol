@@ -18,7 +18,7 @@ const emptytNft: INFT = {
   event: null,
 };
 
-export class NftMetadataParseUtilsExtension {
+export class NftMetadataParseUtils {
   public static getParsedNFT(metadataString: string): INFT {
     if (!metadataString) {
       return emptytNft;
@@ -67,15 +67,13 @@ export class NftMetadataParseUtilsExtension {
     }
 
     return nftImages?.[0]
-      ? NftMetadataParseUtilsExtension.normalizeUrl(nftImages[0])
-      : NftMetadataParseUtilsExtension.getImageFromContent(metadataObj);
+      ? NftMetadataParseUtils.normalizeUrl(nftImages[0])
+      : NftMetadataParseUtils.getImageFromContent(metadataObj);
   }
 
   private static getImageFromContent(metadataObj) {
     const image = metadataObj?.content?.[0]?.url ?? null;
-    return image
-      ? NftMetadataParseUtilsExtension.normalizeUrl(image as string)
-      : null;
+    return image ? NftMetadataParseUtils.normalizeUrl(image as string) : null;
   }
 
   private static getContentType(metadataObj) {
@@ -84,13 +82,13 @@ export class NftMetadataParseUtilsExtension {
 
   private static getAnimationUrl(metadataObj) {
     return metadataObj.animation_url
-      ? NftMetadataParseUtilsExtension.normalizeUrl(metadataObj.animation_url)
+      ? NftMetadataParseUtils.normalizeUrl(metadataObj.animation_url)
       : null;
   }
 
   private static getExternalUrl(metadataObj) {
     return metadataObj.external_url
-      ? NftMetadataParseUtilsExtension.normalizeUrl(metadataObj.external_url)
+      ? NftMetadataParseUtils.normalizeUrl(metadataObj.external_url)
       : null;
   }
 
