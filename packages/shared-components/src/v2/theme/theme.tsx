@@ -525,6 +525,13 @@ export const createDefaultTheme = (
       fontSize: 14,
     },
     overrides: {
+      MuiCssBaseline: {
+        "@global": {
+          body: {
+            backgroundColor: "transparent",
+          },
+        },
+      },
       MuiTypography: {
         root: {
           color: palette.textBody,
@@ -592,6 +599,23 @@ export const createDefaultTheme = (
       },
     },
     breakpoints,
-    props,
+    props: {
+      MuiMenu: {
+        disableAutoFocusItem: true,
+        disablePortal: true,
+        disableEnforceFocus: true,
+      },
+      MuiDialog: {
+        disableAutoFocus: true,
+        disableEnforceFocus: true,
+        disablePortal: true,
+      },
+      MuiTooltip: {
+        PopperProps: {
+          disablePortal: true,
+        },
+      },
+      ...props,
+    },
   });
 };

@@ -574,10 +574,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return discordService.initializeUserWithAuthorizationCode(code);
       },
 
-      installationUrl: (redirectTabId?: number) => {
+      installationUrl: () => {
         const discordService =
           this.iocContainer.get<IDiscordService>(IDiscordServiceType);
-        return discordService.installationUrl(redirectTabId);
+        return discordService.installationUrl();
       },
 
       getUserProfiles: () => {
@@ -634,7 +634,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
         return cloudStorageManager.getAvailableCloudStorageOptions();
       },
-      getDropboxAuth: (sourceDomain: DomainName | undefined) => {
+      getDropboxAuth: (sourceDomain?: DomainName) => {
         const cloudStorageManager = this.iocContainer.get<ICloudStorageManager>(
           ICloudStorageManagerType,
         );

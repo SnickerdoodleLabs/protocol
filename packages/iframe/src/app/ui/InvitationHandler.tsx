@@ -44,6 +44,7 @@ interface IInvitationHandlerProps {
   events: IFrameEvents;
   config: IFrameControlConfig;
   coreConfig: IFrameConfig;
+  awaitRender: boolean;
 }
 
 export enum EAPP_STATE {
@@ -90,6 +91,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   show,
   events,
   config,
+  awaitRender,
   coreConfig,
 }) => {
   const [theme, setTheme] = useState<Theme>(
@@ -116,6 +118,9 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     if (accounts.length === 0) {
       return null;
     }
+    if (awaitRender) {
+      return null;
+    }
     if (deepLinkInvitation) {
       return { data: deepLinkInvitation, type: EInvitationSourceType.DEEPLINK };
     }
@@ -134,6 +139,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     domainInvitation,
     consentInvitation,
     accounts.length,
+    awaitRender,
   ]);
 
   // length of this could be used for bagde
