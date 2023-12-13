@@ -299,7 +299,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
         return coreGateway.discord.initializeUserWithAuthorizationCode(code);
       },
       installationUrl: (redirectTabId: number | undefined) => {
-        return coreGateway.discord.installationUrl(redirectTabId, undefined);
+        return coreGateway.discord.installationUrl(redirectTabId);
       },
       getUserProfiles: () => {
         return coreGateway.discord.getUserProfiles();
@@ -625,7 +625,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       new GetPossibleRewardsParams(contractAddresses),
     );
   }
- 
 }
 
 // export const DataWalletProxy = new _DataWalletProxy();

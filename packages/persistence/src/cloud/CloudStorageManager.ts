@@ -11,7 +11,6 @@ import {
   PersistenceError,
   OAuthURLState,
   EOAuthProvider,
-  EOAuthRequestSource,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -70,9 +69,7 @@ export class CloudStorageManager implements ICloudStorageManager {
     return this.activated;
   }
 
-  public getDropboxAuth(
-    requestSource?: EOAuthRequestSource,
-  ): ResultAsync<URLString, never> {
+  public getDropboxAuth(): ResultAsync<URLString, never> {
     return this.configProvider.getConfig().andThen((config) => {
       return okAsync(
         URLString(
@@ -83,7 +80,6 @@ export class CloudStorageManager implements ICloudStorageManager {
             `&state=${new OAuthURLState(
               EOAuthProvider.DROPBOX,
               undefined,
-              requestSource,
             ).getEncodedState()}`,
         ),
       );

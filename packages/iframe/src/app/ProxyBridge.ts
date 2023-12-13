@@ -16,7 +16,6 @@ import {
   ECoreProxyType,
   EDataWalletPermission,
   EInvitationStatus,
-  EOAuthRequestSource,
   EVMContractAddress,
   EWalletDataType,
   EarnedReward,
@@ -156,11 +155,7 @@ export class ProxyBridge implements ISdlDataWallet {
         redirectTabId: number | undefined,
       ): ResultAsync<URLString, ProxyError> => {
         return this.call(
-          this.core.discord.installationUrl(
-            redirectTabId,
-            EOAuthRequestSource.IFRAME,
-            this.sourceDomain,
-          ),
+          this.core.discord.installationUrl(redirectTabId, this.sourceDomain),
         );
       },
       getUserProfiles: (): ResultAsync<DiscordProfile[], ProxyError> => {
@@ -215,12 +210,7 @@ export class ProxyBridge implements ISdlDataWallet {
         );
       },
       getDropboxAuth: (): ResultAsync<URLString, ProxyError> => {
-        return this.call(
-          this.core.storage.getDropboxAuth(
-            EOAuthRequestSource.IFRAME,
-            this.sourceDomain,
-          ),
-        );
+        return this.call(this.core.storage.getDropboxAuth(this.sourceDomain));
       },
     };
 

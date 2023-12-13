@@ -5,7 +5,6 @@ import {
   DiscordID,
   URLString,
   DomainName,
-  EOAuthRequestSource,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -17,7 +16,6 @@ export interface IDiscordService {
   ): ResultAsync<void, SnickerDoodleCoreError>;
   installationUrl(
     redirectTabId?: number,
-    requestSource?: EOAuthRequestSource,
     sourceDomain?: DomainName,
   ): ResultAsync<URLString, SnickerDoodleCoreError>;
   getUserProfiles(

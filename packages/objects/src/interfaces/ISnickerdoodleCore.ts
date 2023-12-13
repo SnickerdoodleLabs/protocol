@@ -43,7 +43,6 @@ import {
   ECloudStorageType,
   EDataWalletPermission,
   EInvitationStatus,
-  EOAuthRequestSource,
 } from "@objects/enum/index.js";
 import {
   AccountIndexingError,
@@ -308,7 +307,6 @@ export interface ICoreDiscordMethods {
    */
   installationUrl(
     redirectTabId: number | undefined,
-    requestSource: EOAuthRequestSource | undefined,
     sourceDomain: DomainName | undefined,
   ): ResultAsync<URLString, OAuthError>;
 
@@ -680,7 +678,6 @@ export interface IStorageMethods {
     sourceDomain: DomainName | undefined,
   ): ResultAsync<Set<ECloudStorageType>, never>;
   getDropboxAuth(
-    requestSource: EOAuthRequestSource | undefined,
     sourceDomain: DomainName | undefined,
   ): ResultAsync<URLString, never>;
 }

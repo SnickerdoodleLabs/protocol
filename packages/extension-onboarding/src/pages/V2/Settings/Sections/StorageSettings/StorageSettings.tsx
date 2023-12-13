@@ -268,18 +268,15 @@ const StorageSettings: FC = () => {
       }
       case ECloudStorageType.Dropbox: {
         return sdlDataWallet.storage
-          .getDropboxAuth(undefined)
+          .getDropboxAuth()
           .map((url) => {
-            if (sdlDataWallet.proxyType === ECoreProxyType.IFRAME_BRIDGE) {
-              const windowPropeperies = getResponsivePopupProperties();
-              connectionWindowRef.current = window.open(
-                url,
-                "Connect Dropbox",
-                windowPropeperies,
-              );
-              return;
-            }
-            return window.open(url, "_self");
+            const windowPropeperies = getResponsivePopupProperties();
+            connectionWindowRef.current = window.open(
+              url,
+              "Connect Dropbox",
+              windowPropeperies,
+            );
+            return;
           })
           .mapErr((e) => {
             console.log(e);

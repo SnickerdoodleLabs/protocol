@@ -599,16 +599,11 @@ export class RpcCallHandler implements IRpcCallHandler {
         if (params.redirectTabId != null && sender?.tab?.id != null) {
           return this.discordService.installationUrl(
             sender.tab.id,
-            undefined,
             sourceDomain,
           );
         }
 
-        return this.discordService.installationUrl(
-          undefined,
-          undefined,
-          sourceDomain,
-        );
+        return this.discordService.installationUrl(undefined, sourceDomain);
       },
     ),
     new CoreActionHandler<GetDiscordGuildProfilesParams>(
@@ -760,7 +755,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<GetDropBoxAuthUrlParams>(
       GetDropBoxAuthUrlParams.getCoreAction(),
       (_params, _sender, sourceDomain) => {
-        return this.core.storage.getDropboxAuth(undefined, sourceDomain);
+        return this.core.storage.getDropboxAuth(sourceDomain);
       },
     ),
 

@@ -1,9 +1,5 @@
 import { Box } from "@material-ui/core";
-import {
-  EOAuthRequestSource,
-  ISdlDataWallet,
-  OAuthURLState,
-} from "@snickerdoodlelabs/objects";
+import { ISdlDataWallet, OAuthURLState } from "@snickerdoodlelabs/objects";
 import React, { FC, useMemo, memo, lazy, Suspense } from "react";
 const MainContainer = lazy(
   () => import("@extension-onboarding/containers/MainContainer"),
@@ -25,8 +21,8 @@ const App: FC<IAppProps> = ({ proxy }) => {
     const code = urlSearchParams.get("code");
     const state = urlSearchParams.get("state");
     if (code && state) {
-      const { provider, requestSource } = OAuthURLState.getParsedState(state);
-      if (requestSource === EOAuthRequestSource.IFRAME) {
+      const { provider, redirectTabId } = OAuthURLState.getParsedState(state);
+      if (typeof redirectTabId == "undefined") {
         window?.opener?.postMessage({ code, provider }, "*");
         return <div>All set! You can close this page now.</div>;
       }

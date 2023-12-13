@@ -130,18 +130,14 @@ const SocialMediaAccounts = () => {
 
   const handleLinkAccountClick = () => {
     sdlDataWallet.discord
-      .installationUrl(undefined, undefined)
+      .installationUrl(undefined)
       .map((url) => {
-        if (sdlDataWallet.proxyType === ECoreProxyType.IFRAME_BRIDGE) {
-          const windowPropeperies = getResponsivePopupProperties();
-          connectionWindowRef.current = window.open(
-            url,
-            "Connect Discord",
-            windowPropeperies,
-          );
-          return;
-        }
-        return window.open(url, "_self");
+        const windowPropeperies = getResponsivePopupProperties();
+        connectionWindowRef.current = window.open(
+          url,
+          "Connect Discord",
+          windowPropeperies,
+        );
       })
       .mapErr((err) => {
         console.log(err);
