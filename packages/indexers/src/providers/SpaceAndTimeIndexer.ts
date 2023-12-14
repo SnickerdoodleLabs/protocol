@@ -72,7 +72,7 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
   protected supportedChains = new Map<EChain, IndexerSupportSummary>([
     [
       EChain.EthereumMainnet,
-      new IndexerSupportSummary(EChain.EthereumMainnet, true, true, true),
+      new IndexerSupportSummary(EChain.EthereumMainnet, false, true, false),
     ],
     // [
     //   EChain.Polygon,
@@ -162,22 +162,11 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     // Check if the lastAuthTokenTimestamp is null, we need to get a new token immediately
     const now = this.timeUtils.getUnixNow();
 
-    // console.log("this.currentAccessToken: " + this.currentAccessToken);
     if (
       this.lastAuthTokenTimestamp == null ||
       this.currentAccessToken == null ||
       now - this.lastAuthTokenTimestamp >= this.refreshSeconds
     ) {
-      console.log("now: ", now);
-      console.log(
-        "this.lastAuthTokenTimestamp: ",
-        this.lastAuthTokenTimestamp!,
-      );
-      console.log(
-        "now - this.lastAuthTokenTimestamp: ",
-        now - this.lastAuthTokenTimestamp!,
-      );
-      console.log("this.refreshSeconds: ", this.refreshSeconds);
       // Need to get a new access token
       return this.getNewAuthToken().map((accessToken) => {
         this.lastAuthTokenTimestamp = now;
@@ -213,7 +202,6 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
           },
         )
         .map((token) => {
-          console.log("token.authCode: " + token.authCode);
           return token.authCode;
         })
         .mapErr((e) => {
@@ -227,7 +215,6 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
 
   protected getNewAuthToken(): ResultAsync<AccessToken, AccountIndexingError> {
     // Do the work of trading the refresh token for a new access token
-    console.log("get new auth token: ");
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),
@@ -318,7 +305,6 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
         ORDER BY BLOCK_NUMBER DESC
         "}`;
 
-      console.log("getEVMBalances sqlText: " + sqlText);
       context.privateEvents.onApiAccessed.next(EExternalApi.SpaceAndTime);
       return this.ajaxUtils
         .post<ISxTBalance[]>(new URL(url), sqlText, {
@@ -329,9 +315,7 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
           },
         })
         .map((response) => {
-          console.log("getEVMBalances response: " + response);
           return response.map((balance) => {
-            console.log("balance: " + JSON.stringify(balance));
             return new TokenBalance(
               EChainTechnology.EVM,
               TickerSymbol("ETH"),
@@ -344,7 +328,6 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
           });
         })
         .mapErr((error) => {
-          console.log("getEVMBalances error: " + error);
           return error;
         });
     });
@@ -373,60 +356,36 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     EVMTransaction[],
     AccountIndexingError | AjaxError | MethodSupportError
   > {
-    console.log("Space and Time EVM Transactions");
     return ResultUtils.combine([
       this.contextProvider.getContext(),
       this.getAccessToken(),
     ])
       .andThen(([context, accessToken]) => {
         const url = new URL("https://api.spaceandtime.app/v1/sql/dql");
-        // const sqlTextFrom = {
-        //   sqlText: `SELECT TRANSACTION_HASH, BLOCK_NUMBER, TO_ADDRESS, FROM_ADDRESS, VALUE_, GAS, TRANSACTION_FEE, TIME_STAMP FROM ETHEREUM.TRANSACTIONS  WHERE lower(FROM_ADDRESS) = lower(\"${accountAddress}\")`,
-        // };
-
-        const sqlTextFrom = {
+        const sqlText = {
           resources: ["SNICKERDOODLE.User_Transaction_History"],
-          sqlText: `SELECT TRANSACTION_HASH, BLOCK_NUMBER, TO_ADDRESS, FROM_ADDRESS, VALUE_, GAS, TRANSACTION_FEE, TIME_STAMP FROM SNICKERDOODLE.User_Transaction_History WHERE lower(FROM_ADDRESS) = lower(\"${accountAddress}\")`,
+          sqlText: `SELECT TRANSACTION_HASH, BLOCK_NUMBER, TO_ADDRESS, FROM_ADDRESS, VALUE_, GAS, TRANSACTION_FEE, TIME_STAMP FROM SNICKERDOODLE.User_Transaction_History WHERE lower(FROM_ADDRESS) = lower(\"${accountAddress}\") OR lower(TO_ADDRESS) = lower(\"${accountAddress}\")`,
           biscuits: [
             "EpABCiYKDnN4dDpjYXBhYmlsaXR5CgEqGAMiDwoNCIAIEgMYgQgSAxiBCBIkCAASIIogmGsWsrgfbJvdMMKdTcZA5rXaqsguEUIBl1_m718TGkBUoA3ppUV78Hiscs2jY6VULsBYGwxZdQRV5mhrIghl5uSGLpwGQbnQPLWe79LZ1uKotiZoOrdM-NrHuQO63XQOIiIKIH7IR-53EtE5ruyIAs2gjp_3TAMMjkqYzR0FjeQP5JNH",
           ],
         };
-
-        console.log(
-          "getEVMTransactions sqlText: " + JSON.stringify(sqlTextFrom),
-        );
-
         context.privateEvents.onApiAccessed.next(EExternalApi.SpaceAndTime);
-        return this.ajaxUtils.post<ISxTTransaction[]>(
-          new URL(url),
-          sqlTextFrom,
-          {
-            headers: {
-              Accept: `application/json;`,
-              authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-            },
+        return this.ajaxUtils.post<ISxTTransaction[]>(new URL(url), sqlText, {
+          headers: {
+            Accept: `application/json;`,
+            authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
           },
-        );
+        });
       })
       .map((response) => {
-        console.log("getEVMTransactions response: " + JSON.stringify(response));
         return response.map((transaction) => {
-          console.log("transaction: " + JSON.stringify(transaction));
-          console.log("transaction.TIME_STAMP: " + transaction.TIME_STAMP);
-          console.log(
-            "transaction.TIME_STAMP: " +
-              Number.parseInt(transaction.TIME_STAMP),
-          );
-          console.log(
-            "UnixTimestamp transaction.TIME_STAMP: " +
-              UnixTimestamp(Number.parseInt(transaction.TIME_STAMP)),
-          );
-
           return new EVMTransaction(
             getChainInfoByChain(chain).chainId,
             transaction.TRANSACTION_HASH,
-            UnixTimestamp(13001519),
+            UnixTimestamp(
+              Math.floor(new Date(transaction.TIME_STAMP).getTime() / 1000.0),
+            ),
             transaction.BLOCK_NUMBER,
             transaction.TO_ADDRESS,
             transaction.FROM_ADDRESS,
@@ -434,7 +393,7 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
             BigNumberString(transaction.GAS),
             null,
             null,
-            null,
+            "Transfer Funds",
             null,
             null,
             this.timeUtils.getUnixNow(),
@@ -442,7 +401,6 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
         });
       })
       .mapErr((error) => {
-        console.log("getEVMTransactions error " + error);
         return error;
       });
   }
@@ -481,7 +439,6 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
         });
       })
       .map((response) => {
-        console.log("response: " + response);
         const nativeBalance = new TokenBalance(
           EChainTechnology.EVM,
           TickerSymbol(getChainInfoByChain(chain).nativeCurrency.symbol),
