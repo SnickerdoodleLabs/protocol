@@ -380,8 +380,16 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     ])
       .andThen(([context, accessToken]) => {
         const url = new URL("https://api.spaceandtime.app/v1/sql/dql");
+        // const sqlTextFrom = {
+        //   sqlText: `SELECT TRANSACTION_HASH, BLOCK_NUMBER, TO_ADDRESS, FROM_ADDRESS, VALUE_, GAS, TRANSACTION_FEE, TIME_STAMP FROM ETHEREUM.TRANSACTIONS  WHERE lower(FROM_ADDRESS) = lower(\"${accountAddress}\")`,
+        // };
+
         const sqlTextFrom = {
-          sqlText: `SELECT TRANSACTION_HASH, BLOCK_NUMBER, TO_ADDRESS, FROM_ADDRESS, VALUE_, GAS, TRANSACTION_FEE, TIME_STAMP FROM ETHEREUM.TRANSACTIONS  WHERE lower(FROM_ADDRESS) = lower(\"${accountAddress}\")`,
+          resources: ["SNICKERDOODLE.User_Transaction_History"],
+          sqlText: `SELECT TRANSACTION_HASH, BLOCK_NUMBER, TO_ADDRESS, FROM_ADDRESS, VALUE_, GAS, TRANSACTION_FEE, TIME_STAMP FROM SNICKERDOODLE.User_Transaction_History WHERE lower(FROM_ADDRESS) = lower(\"${accountAddress}\")`,
+          biscuits: [
+            "EpABCiYKDnN4dDpjYXBhYmlsaXR5CgEqGAMiDwoNCIAIEgMYgQgSAxiBCBIkCAASIIogmGsWsrgfbJvdMMKdTcZA5rXaqsguEUIBl1_m718TGkBUoA3ppUV78Hiscs2jY6VULsBYGwxZdQRV5mhrIghl5uSGLpwGQbnQPLWe79LZ1uKotiZoOrdM-NrHuQO63XQOIiIKIH7IR-53EtE5ruyIAs2gjp_3TAMMjkqYzR0FjeQP5JNH",
+          ],
         };
 
         console.log(
