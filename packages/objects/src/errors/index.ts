@@ -54,4 +54,4 @@ export * from "@objects/errors/UnsupportedLanguageError.js";
 export * from "@objects/errors/UnknownBlockchainError.js";
 export * from "@objects/errors/UnexpectedArgumentError.js";
 
-export * from "@objects/errors/sdqlErrors";
+export * from "@objects/errors/sdqlErrors/index.js";
