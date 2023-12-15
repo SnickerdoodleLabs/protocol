@@ -6,7 +6,7 @@
     "baseUrl": "./src",
     "jsx": "react",
     "target": "es5",
-    "module": "commonjs",
+    "module": "ESNext",
     "lib": [
       "es5",
       "es6",

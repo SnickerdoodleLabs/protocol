@@ -14,6 +14,7 @@ import React, {
   useContext,
   useEffect,
   useState,
+  memo,
 } from "react";
 
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
@@ -53,7 +54,7 @@ const { mainnetSupportedChainIds, testnetSupportedChainIds } = Array.from(
   },
 );
 
-export const DashboardContextProvider: FC = ({ children }) => {
+export const DashboardContextProvider: FC = memo(({ children }) => {
   const [accountNFTs, setAccountNFTs] = useState<WalletNFT[]>();
   const [poapNFTs, setPoapNFTs] = useState<EVMNFT[]>();
   const [accountTestnetNFTs, setAccountTestnetNFTs] = useState<WalletNFT[]>();
@@ -118,6 +119,6 @@ export const DashboardContextProvider: FC = ({ children }) => {
       {children}
     </DashboardContext.Provider>
   );
-};
+});
 
 export const useDashboardContext = () => useContext(DashboardContext);

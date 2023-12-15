@@ -31,6 +31,7 @@ import React, {
   FC,
   useCallback,
   useMemo,
+  memo,
 } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -66,7 +67,7 @@ const AudienceItem: FC<IAudienceItemProps> = ({
     useState<Map<URLString, boolean>>();
   const { setAlert } = useNotificationContext();
   const { setLoadingStatus } = useLayoutContext();
-  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  // const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -204,10 +205,11 @@ const AudienceItem: FC<IAudienceItemProps> = ({
 
   return (
     <Accordion
-      expanded={isExpanded}
-      onChange={() => {
-        setIsExpanded(!isExpanded);
-      }}
+      // expanded={isExpanded}
+      // onChange={() => {
+      //   setIsExpanded(!isExpanded);
+      // }}
+      TransitionProps={{ timeout: 0 }}
       classes={{
         root: clsx(classes.accordionRoot),
       }}
@@ -317,4 +319,4 @@ const AudienceItem: FC<IAudienceItemProps> = ({
   );
 };
 
-export default AudienceItem;
+export default memo(AudienceItem);

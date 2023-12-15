@@ -36,6 +36,7 @@ const errorCodes = {
   UnsupportedLanguageError: "ERR_UNSUPPORTED_LANGUAGE",
   GasPriceError: "ERR_GAS_PRICE",
   InsufficientFundsError: "ERR_INSUFFICIENT_FUNDS",
+  InvalidNonceError: "ERR_INVALID_NONCE",
   NetworkUnreachableError: "ERR_NETWORK_UNREACHABLE",
   InvalidArgumentError: "ERR_INVALID_ARGUMENT",
   MissingArgumentError: "ERR_MISSING_ARGUMENT",

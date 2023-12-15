@@ -39,6 +39,7 @@
   "dependencies": {
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/core": "workspace:^",
+    "@snickerdoodlelabs/extension-onboarding": "workspace:^",
     "@snickerdoodlelabs/node-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
     "@snickerdoodlelabs/shared-components": "workspace:^",

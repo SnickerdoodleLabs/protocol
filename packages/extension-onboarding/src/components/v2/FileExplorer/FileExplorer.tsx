@@ -1,7 +1,9 @@
-import backIcon from "@extension-onboarding/assets/icons/back.svg";
-import folderIcon from "@extension-onboarding/assets/icons/folder.svg";
-import forwardIcon from "@extension-onboarding/assets/icons/forward.svg";
-import newFolderIcon from "@extension-onboarding/assets/icons/new-folder.svg";
+import {
+  BackIcon,
+  FolderIcon,
+  NewFolderIcon,
+  ForwardIcon,
+} from "@extension-onboarding/assets";
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
@@ -212,7 +214,7 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
               className={classes.pointer}
               onClick={() => setTargetPath(backRoute)}
             >
-              <img src={backIcon} />
+              <BackIcon />
             </Box>
           )}
           <SDTypography variant="bodyMd" fontWeight="regular">
@@ -229,7 +231,7 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
           alignItems="center"
           display="flex"
         >
-          <img src={newFolderIcon} />
+          <NewFolderIcon />
           <Box ml={2}>
             <SDTypography variant="bodyMd" fontWeight="regular">
               New Folder
@@ -247,14 +249,14 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
                 className={classes.nonSelectable}
                 bgcolor={folder.path === selected ? "#D8D5E8" : "transparent"}
               >
-                <img src={folderIcon} />
+                <FolderIcon />
                 <Box ml={2}>
                   <SDTypography variant="bodyMd" fontWeight="regular">
                     {folder.name}
                   </SDTypography>
                 </Box>
                 <Box display="flex" marginLeft="auto">
-                  <img src={forwardIcon} />
+                  <ForwardIcon />
                 </Box>
               </Box>
             </Box>

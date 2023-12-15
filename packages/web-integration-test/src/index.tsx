@@ -32,6 +32,11 @@ async function start() {
               iframeURL: URLString("http://localhost:9010"),
               debug: true,
               palette: { background: "red" },
+              discordOverrides: {
+                oauthRedirectUrl: URLString(
+                  `${window.location.origin}/settings`,
+                ),
+              },
             },
             provider.signer,
           );
