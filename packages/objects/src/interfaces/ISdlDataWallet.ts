@@ -240,7 +240,6 @@ export interface ISdlDataWallet {
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], ProxyError>;
 
-  closeTab(): ResultAsync<void, ProxyError>;
   getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     ProxyError
@@ -325,7 +324,7 @@ export interface ISdlDataWallet {
     ProxyError
   >;
 
-  switchToTab(tabId: number): ResultAsync<void, ProxyError>;
+  requestDashboardView: undefined | (() => ResultAsync<void, ProxyError>);
 
   proxyType: ECoreProxyType;
   account: IProxyAccountMethods;

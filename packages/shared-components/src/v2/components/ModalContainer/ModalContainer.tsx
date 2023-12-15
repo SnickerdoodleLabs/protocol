@@ -1,6 +1,6 @@
 import { Box, Container, makeStyles } from "@material-ui/core";
+import clsx from "clsx";
 import React, { FC } from "react";
-
 interface IModalContainerProps {
   children: NonNullable<React.ReactNode>;
 }
@@ -12,15 +12,27 @@ const useStyles = makeStyles((theme) => ({
   modalContentWrapper: {
     margin: "auto",
     maxHeight: "98%",
+  },
+  disableOverflow: {
     overflowY: "auto",
   },
 }));
 
-export const ModalContainer: FC<IModalContainerProps> = ({ children }) => {
+interface IModalContainerProps {
+  onOutsideClick?: () => void;
+  allowOverflow?: boolean;
+}
+
+export const ModalContainer: FC<IModalContainerProps> = ({
+  children,
+  onOutsideClick,
+  allowOverflow,
+}) => {
   const classes = useStyles();
   return (
     <Box
       display="flex"
+      {...(onOutsideClick && { onClick: onOutsideClick })}
       position="fixed"
       overflow="auto"
       top={0}
@@ -32,7 +44,13 @@ export const ModalContainer: FC<IModalContainerProps> = ({ children }) => {
       bgcolor="rgba(0, 0, 0, 0.1)"
       zIndex={2000}
     >
-      <Container maxWidth="lg" className={classes.modalContentWrapper}>
+      <Container
+        maxWidth="lg"
+        className={clsx(
+          classes.modalContentWrapper,
+          !allowOverflow && classes.disableOverflow,
+        )}
+      >
         {children}
       </Container>
     </Box>

@@ -41,6 +41,8 @@ const ConfirmationModal: FC = () => {
       open={true}
       onClose={closeModal}
       fullWidth
+      disablePortal={true}
+      disableEnforceFocus={true}
       className={modalClasses.container}
     >
       <Box p={3}>

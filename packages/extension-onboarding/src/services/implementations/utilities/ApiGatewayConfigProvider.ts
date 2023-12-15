@@ -8,8 +8,10 @@ export class ApiGatewayConfigProvider implements IApiGatewayConfigProvider {
   protected config: ApiGatewayConfig;
   constructor() {
     this.config = new ApiGatewayConfig(
-      __GAPI_CLIENT_ID__,
-      __IPFS_FETCH_BASE_URL__,
+      typeof __GAPI_CLIENT_ID__ === "undefined" ? "" : __GAPI_CLIENT_ID__,
+      typeof __IPFS_FETCH_BASE_URL__ === "undefined"
+        ? "https://ipfs-gateway.snickerdoodle.com/ipfs/"
+        : __IPFS_FETCH_BASE_URL__,
     );
   }
   getConfig(): ApiGatewayConfig {

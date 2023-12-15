@@ -34,3 +34,4 @@ export * from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 export * from "@objects/interfaces/IUserAgreement.js";
 export * from "@objects/interfaces/ITokenPriceRepository.js";
 export * from "@objects/interfaces/IWebIntegrationConfigOverrides.js";
+export * from "@objects/interfaces/IStaticIntegrationConfigOverrides.js";
