@@ -306,11 +306,11 @@ export class AnkrIndexer implements IEVMIndexer {
           },
         })
         .map((response) => {
+          console.log("response: " + JSON.stringify(response));
+
           return response.result.transactions.map((item) => {
-            console.log("(item.timestamp)" + item.timestamp);
-            console.log(
-              "UnixTimestamp(item.timestamp)" + UnixTimestamp(item.timestamp),
-            );
+            console.log("item: " + JSON.stringify(item));
+
             return new EVMTransaction(
               getChainInfoByChain(chain).chainId,
               EVMTransactionHash(item.hash),

@@ -390,7 +390,7 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
             transaction.TO_ADDRESS,
             transaction.FROM_ADDRESS,
             transaction.VALUE_,
-            BigNumberString(transaction.GAS),
+            BigNumberString(transaction.TRANSACTION_FEE.toString()),
             null,
             null,
             "Transfer Funds",
@@ -491,7 +491,7 @@ interface ISxTTransaction {
   FROM_ADDRESS: EVMAccountAddress;
   TO_ADDRESS: EVMAccountAddress;
   VALUE_: BigNumberString;
-  GAS: string;
+  GAS: number;
   TRANSACTION_FEE: BigNumberString;
   RECEIPT_CUMULATIVE_GAS_USED: number;
   TIME_STAMP: string;
