@@ -65,11 +65,6 @@ export interface IConfigOverrides {
   devChainProviderURL?: ProviderUrl;
   iframeURL?: URLString;
   debug?: boolean;
-
-  walletConnect?: {
-    projectId: string;
-  };
-
   queryPerformanceMetricsLimit?: number;
   scraper?: {
     OPENAI_API_KEY: string;

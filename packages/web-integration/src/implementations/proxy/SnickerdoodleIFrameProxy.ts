@@ -274,6 +274,10 @@ export class SnickerdoodleIFrameProxy
       });
   }
 
+  public requestDashboardView(): ResultAsync<void, ProxyError> {
+    return this._createCall("requestDashboardView", null);
+  }
+
   public initialize(): ResultAsync<void, ProxyError> {
     return this._createCall("initialize", null);
   }
@@ -396,10 +400,6 @@ export class SnickerdoodleIFrameProxy
     return this._createCall("getTransactions", {
       filter,
     });
-  }
-
-  public closeTab(): ResultAsync<void, ProxyError> {
-    return okAsync(undefined);
   }
 
   public getAcceptedInvitationsCID(): ResultAsync<
@@ -578,10 +578,6 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
-  public switchToTab(tabId: number): ResultAsync<void, ProxyError> {
-    throw new Error("Method not implemented.");
-  }
-
   public account: IProxyAccountMethods = {
     addAccount: (
       accountAddress: AccountAddress,
@@ -656,12 +652,8 @@ export class SnickerdoodleIFrameProxy
       });
     },
 
-    installationUrl: (
-      redirectTabId?: number,
-    ): ResultAsync<URLString, ProxyError> => {
-      return this._createCall("discord.installationUrl", {
-        redirectTabId: redirectTabId,
-      });
+    installationUrl: (): ResultAsync<URLString, ProxyError> => {
+      return this._createCall("discord.installationUrl", null);
     },
 
     getUserProfiles: (): ResultAsync<DiscordProfile[], ProxyError> => {
@@ -816,6 +808,9 @@ export class SnickerdoodleIFrameProxy
   public events: PublicEvents;
 
   private _displayCoreIFrame(): void {
+    // Disable scrolling on the body
+    document.body.style.overflow = "hidden";
+
     // Show core iframe
     if (this.child != null) {
       this.child.frame.style.display = "block";
@@ -828,6 +823,9 @@ export class SnickerdoodleIFrameProxy
   }
 
   private _closeCoreIFrame(): void {
+    // Enable scrolling on the body
+    document.body.style.overflow = "auto";
+
     // Hide core iframe
     if (this.child != null) {
       this.child.frame.style.display = "none";

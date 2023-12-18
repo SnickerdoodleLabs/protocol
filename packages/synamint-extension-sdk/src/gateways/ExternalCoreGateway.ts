@@ -110,7 +110,6 @@ import {
   GetSiteVisitsParams,
   GetEarnedRewardsParams,
   GetDataWalletAddressParams,
-  CloseTabParams,
   IsDataWalletAddressInitializedParams,
   GetLocationParams,
   GetGenderParams,
@@ -139,7 +138,6 @@ import {
   TwitterGetRequestTokenParams,
   TwitterGetLinkedProfilesParams,
   GetConfigParams,
-  SwitchToTabParams,
   GetMetricsParams,
   RequestPermissionsParams,
   GetPermissionsParams,
@@ -275,12 +273,8 @@ export class ExternalCoreGateway {
       ): ResultAsync<void, ProxyError> => {
         return this._handler.call(new InitializeDiscordUserParams(code));
       },
-      installationUrl: (
-        redirectTabId: number | undefined = undefined,
-      ): ResultAsync<URLString, ProxyError> => {
-        return this._handler.call(
-          new GetDiscordInstallationUrlParams(redirectTabId),
-        );
+      installationUrl: (): ResultAsync<URLString, ProxyError> => {
+        return this._handler.call(new GetDiscordInstallationUrlParams());
       },
       getUserProfiles: (): ResultAsync<DiscordProfile[], ProxyError> => {
         return this._handler.call(new GetDiscordUserProfilesParams());
@@ -600,9 +594,6 @@ export class ExternalCoreGateway {
   public isDataWalletAddressInitialized(): ResultAsync<boolean, ProxyError> {
     return this._handler.call(new IsDataWalletAddressInitializedParams());
   }
-  public closeTab(): ResultAsync<void, ProxyError> {
-    return this._handler.call(new CloseTabParams());
-  }
   public getDataWalletAddress(): ResultAsync<
     DataWalletAddress | null,
     ProxyError
@@ -704,9 +695,6 @@ export class ExternalCoreGateway {
   }
   public getConfig(): ResultAsync<IExtensionConfig, ProxyError> {
     return this._handler.call(new GetConfigParams());
-  }
-  public switchToTab(params: SwitchToTabParams): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
   }
 
   public getDropboxAuth(): ResultAsync<URLString, ProxyError> {

@@ -9,6 +9,7 @@ import {
   EWalletDataType,
   LinkedAccount,
   IOldUserAgreement,
+  IPaletteOverrides,
   IUserAgreement,
   Invitation,
   Signature,
@@ -21,6 +22,7 @@ import {
   ModalContainer,
   PermissionSelectionWidget,
   createDefaultTheme,
+  createThemeWithOverrides,
 } from "@snickerdoodlelabs/shared-components";
 import endOfStream from "end-of-stream";
 import PortStream from "extension-port-stream";
@@ -30,7 +32,14 @@ import { err, okAsync } from "neverthrow";
 import ObjectMultiplex from "obj-multiplex";
 import LocalMessageStream from "post-message-stream";
 import pump from "pump";
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+  useRef,
+  FC,
+} from "react";
 import { parse } from "tldts";
 import Browser from "webextension-polyfill";
 
@@ -165,7 +174,11 @@ const origin = window.location.origin;
 
 const awaitAccountLinking = SDL_ORIGIN_LIST.includes(origin);
 
-const App = () => {
+interface IAppProps {
+  paletteOverrides?: IPaletteOverrides;
+}
+
+const App: FC<IAppProps> = ({ paletteOverrides }) => {
   const [appState, setAppState] = useState<EAppState>(EAppState.IDLE);
   const [accounts, setAccounts] = useState<LinkedAccount[]>([]);
   const _path = usePath();
@@ -410,7 +423,7 @@ const App = () => {
                 acceptInvitation(FF_SUPPORTED_ALL_PERMISSIONS);
               } else {
                 window.open(
-                  `${extensionConfig.onboardingUrl}?consentAddress=${currentInvitation.data.invitation.consentContractAddress}`,
+                  `${extensionConfig.onboardingURL}?consentAddress=${currentInvitation.data.invitation.consentContractAddress}`,
                   "_blank",
                 );
               }
@@ -438,7 +451,13 @@ const App = () => {
   }
 
   return (
-    <ThemeProvider theme={createDefaultTheme(EColorMode.LIGHT)}>
+    <ThemeProvider
+      theme={
+        paletteOverrides
+          ? createThemeWithOverrides(paletteOverrides)
+          : createDefaultTheme(EColorMode.LIGHT)
+      }
+    >
       <>
         {renderComponent && <ModalContainer>{renderComponent}</ModalContainer>}
         <ShoppingDataService coreGateway={coreGateway} />

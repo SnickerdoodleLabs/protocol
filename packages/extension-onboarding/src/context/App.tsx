@@ -61,11 +61,9 @@ export interface IAppContext {
   linkedAccounts: LinkedAccount[];
   providerList: IProvider[];
   earnedRewards: EarnedReward[] | undefined;
-  updateOptedInContracts: () => void;
   optedInContracts: Map<EVMContractAddress, IpfsCID> | undefined;
   socialMediaProviderList: ISocialMediaWrapper[];
   shoppingDataProviderList: IShoppingDataWrapper[];
-  getUserAccounts(): ResultAsync<void, unknown>;
   addAccount(account: LinkedAccount): void;
   appMode: EAppModes | undefined;
   invitationInfo: IInvitationInfo;
@@ -151,6 +149,7 @@ export const AppContextProvider: FC = ({ children }) => {
   let accountRemovedSubscription: Subscription | null = null;
   let earnedRewardsAddedSubscription: Subscription | null = null;
   let cohortJoinedSubscription: Subscription | null = null;
+  let cohortLeftSubscription: Subscription | null = null;
 
   // register events
   useEffect(() => {
@@ -172,8 +171,12 @@ export const AppContextProvider: FC = ({ children }) => {
         sdlDataWallet.events.onEarnedRewardsAdded.subscribe(
           onEarnedRewardAdded,
         );
-      cohortJoinedSubscription =
-        sdlDataWallet.events.onCohortJoined.subscribe(onCohortJoined);
+      cohortJoinedSubscription = sdlDataWallet.events.onCohortJoined.subscribe(
+        onCohortStatusChanged,
+      );
+      cohortLeftSubscription = sdlDataWallet.events.onCohortLeft.subscribe(
+        onCohortStatusChanged,
+      );
     }
     return () => {
       initializedSubscription?.unsubscribe();
@@ -181,6 +184,7 @@ export const AppContextProvider: FC = ({ children }) => {
       accountRemovedSubscription?.unsubscribe();
       earnedRewardsAddedSubscription?.unsubscribe();
       cohortJoinedSubscription?.unsubscribe();
+      cohortLeftSubscription?.unsubscribe();
     };
   }, [appMode]);
 
@@ -213,7 +217,9 @@ export const AppContextProvider: FC = ({ children }) => {
     getUserAccounts();
   };
 
-  const onCohortJoined = (consentContractAddress: EVMContractAddress) => {
+  const onCohortStatusChanged = (
+    consentContractAddress: EVMContractAddress,
+  ) => {
     getOptedInContracts();
   };
 
@@ -254,7 +260,6 @@ export const AppContextProvider: FC = ({ children }) => {
   return (
     <AppContext.Provider
       value={{
-        updateOptedInContracts,
         optedInContracts,
         apiGateway: new ApiGateway(),
         dataWalletGateway: new DataWalletGateway(sdlDataWallet),
@@ -262,7 +267,6 @@ export const AppContextProvider: FC = ({ children }) => {
         socialMediaProviderList: getSocialMediaProviderList(sdlDataWallet),
         shoppingDataProviderList: getShoppingDataProviderList(),
         linkedAccounts,
-        getUserAccounts,
         appMode,
         earnedRewards,
         addAccount,
