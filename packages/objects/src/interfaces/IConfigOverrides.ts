@@ -65,10 +65,5 @@ export interface IConfigOverrides {
   devChainProviderURL?: ProviderUrl;
   iframeURL?: URLString;
   debug?: boolean;
-
-  walletConnect?: {
-    projectId: string;
-  };
-
   queryPerformanceMetricsLimit?: number;
 }
