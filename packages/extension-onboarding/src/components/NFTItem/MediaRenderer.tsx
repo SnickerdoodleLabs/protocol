@@ -1,4 +1,3 @@
-import placeholder from "@extension-onboarding/assets/images/image-placeholder.png";
 import { Skeleton } from "@material-ui/lab";
 import { INFT } from "@snickerdoodlelabs/objects";
 import React, { useState, FC } from "react";

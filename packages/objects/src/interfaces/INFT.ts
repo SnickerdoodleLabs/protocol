@@ -1,4 +1,4 @@
-import { EContentType } from "@snickerdoodlelabs/objects/src/enum/EContentType.js";
+import { EContentType } from "@objects/enum/index.js";
 
 export interface INFTEventField {
   id: string;
