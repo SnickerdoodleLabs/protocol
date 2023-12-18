@@ -32,7 +32,6 @@ import {
   DecimalString,
   EVMTransactionHash,
   ISO8601DateString,
-  EVMIndexerNft,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -208,7 +207,7 @@ export class AnkrIndexer implements IEVMIndexer {
   public getTokensForAccount(
     chain: EChain,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMIndexerNft[], AccountIndexingError | AjaxError> {
+  ): ResultAsync<EVMNFT[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),
@@ -246,8 +245,7 @@ export class AnkrIndexer implements IEVMIndexer {
             const tokenStandard = ValidationUtils.stringToTokenStandard(
               item.contractType,
             );
-            return new EVMIndexerNft(
-              true,
+            return new EVMNFT(
               item.contractAddress,
               BigNumberString(item.tokenId),
               tokenStandard,
@@ -259,6 +257,7 @@ export class AnkrIndexer implements IEVMIndexer {
                 this.supportedNfts.get(item.blockchain)!,
               ).chainId, // chainId
               BigNumberString("1"),
+              this.timeUtils.getUnixNow(),
               undefined,
               undefined,
             );

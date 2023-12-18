@@ -85,6 +85,7 @@ import {
   WalletNFTHistory,
   WalletNftWithHistory,
   NftRepositoryCache,
+  WalletNFTData,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -666,28 +667,16 @@ export class SnickerdoodleIFrameProxy
   };
 
   public nft: INftProxyMethods = {
-    getPersistenceNFTs: (): ResultAsync<WalletNFT[], ProxyError> => {
-      return this._createCall("nft.getPersistenceNFTs", null);
-    },
-
-    getNFTsHistory: (): ResultAsync<WalletNFTHistory[], ProxyError> => {
-      return this._createCall("nft.getNFTsHistory", null);
-    },
-
-    getCachedNFTs: (
+    getNfts: (
       benchmark?: UnixTimestamp,
       chains?: EChain[],
       accounts?: LinkedAccount[],
     ) => {
-      return this._createCall("nft.getCachedNFTs", {
+      return this._createCall("nft.getNfts", {
         benchmark,
         chains,
         accounts,
       });
-    },
-
-    getCache: (): ResultAsync<NftRepositoryCache, ProxyError> => {
-      return this._createCall("nft.getCache", null);
     },
   };
 
@@ -727,6 +716,17 @@ export class SnickerdoodleIFrameProxy
   public metrics: IProxyMetricsMethods = {
     getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
       return this._createCall("metrics.getMetrics", null);
+    },
+    getPersistenceNFTs: (): ResultAsync<WalletNFTData[], ProxyError> => {
+      return this._createCall("metrics.getPersistenceNFTs", null);
+    },
+
+    getNFTsHistory: (): ResultAsync<WalletNFTHistory[], ProxyError> => {
+      return this._createCall("metrics.getNFTsHistory", null);
+    },
+
+    getNFTCache: (): ResultAsync<NftRepositoryCache, ProxyError> => {
+      return this._createCall("metrics.getCache", null);
     },
   };
 

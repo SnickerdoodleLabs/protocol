@@ -2,6 +2,8 @@ import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
   IRequestConfig,
+  ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
@@ -20,7 +22,6 @@ import {
   EDataProvider,
   EExternalApi,
   EContractStandard,
-  EVMIndexerNft,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -61,6 +62,7 @@ export class PoapRepository implements IEVMIndexer {
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -89,7 +91,7 @@ export class PoapRepository implements IEVMIndexer {
   public getTokensForAccount(
     chain: EChain,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMIndexerNft[], AccountIndexingError> {
+  ): ResultAsync<EVMNFT[], AccountIndexingError> {
     if (this.poapApiKey == null) {
       return okAsync([]);
     }
@@ -177,10 +179,9 @@ export class PoapRepository implements IEVMIndexer {
     });
   }
 
-  private getPages(chain: EChain, response: IPoapResponse[]): EVMIndexerNft[] {
-    const items: EVMIndexerNft[] = response.map((token) => {
-      return new EVMIndexerNft(
-        true,
+  private getPages(chain: EChain, response: IPoapResponse[]): EVMNFT[] {
+    const items: EVMNFT[] = response.map((token) => {
+      return new EVMNFT(
         EVMContractAddress(poapContractAddress),
         BigNumberString(token.tokenId),
         EContractStandard.Erc721,
@@ -190,6 +191,7 @@ export class PoapRepository implements IEVMIndexer {
         token.event.name,
         chain,
         BigNumberString(token.event.supply),
+        this.timeUtils.getUnixNow(),
       );
     });
     return items;

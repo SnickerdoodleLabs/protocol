@@ -27,7 +27,6 @@ import {
   EComponentStatus,
   IndexerSupportSummary,
   EDataProvider,
-  EVMIndexerNft,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
@@ -142,7 +141,7 @@ export class AlchemyIndexer implements IEVMIndexer {
     chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
-    EVMIndexerNft[],
+    EVMNFT[],
     AccountIndexingError | AjaxError | MethodSupportError
   > {
     return errAsync(

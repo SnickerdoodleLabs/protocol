@@ -1,25 +1,19 @@
 import {
   LinkedAccount,
   PersistenceError,
-  WalletNFT,
   EChain,
-  WalletNFTHistory,
-  WalletNftWithHistory,
   UnixTimestamp,
-  AccountAddress,
   AccountIndexingError,
   AjaxError,
   InvalidParametersError,
   MethodSupportError,
-  NftRepositoryCache,
+  WalletNFT,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface INftRepository {
-  getCache(): ResultAsync<NftRepositoryCache, PersistenceError>;
-
   /**
-   * Retrieves NFT data from the cache, updating the cache as necessary based on the provided benchmark.
+   * Retrieves latest nft data, if provided with benchmark, could also make new requests to indexers.
    *
    * This method is designed to return NFT records up to a specified point in time, defined by the benchmark.
    * It ensures that the cache contains the most recent data by updating it if the last known measurement
@@ -41,54 +35,12 @@ export interface INftRepository {
    * @param chains Optional array of `EChain`.  Optional array of `EChain`. If not provided, all supported chains will be used.
    * @param accounts  Optional array of `LinkedAccount`. If not provided, all the linked accounts will be used.
 
-   * @returns WalletNftWithHistory array
+   * @returns Nft array
    */
-  getCachedNFTs(
+  getNfts(
     benchmark?: UnixTimestamp,
     chains?: EChain[],
     accounts?: LinkedAccount[],
-  ): ResultAsync<
-    WalletNftWithHistory[],
-    | PersistenceError
-    | AccountIndexingError
-    | AjaxError
-    | MethodSupportError
-    | InvalidParametersError
-  >;
-
-  getPersistenceNFTs(): ResultAsync<WalletNFT[], PersistenceError>;
-  getNFTsHistory(): ResultAsync<WalletNFTHistory[], PersistenceError>;
-
-  /**
-   * Updates the IndexedDB and cache with NFT data retrieved from indexers.
-   *
-   * This method serves two primary purposes:
-   * 1. To regularly update data based on polling.
-   * 2. To process queries that require recent data, ensuring records are up-to-date.
-   *
-   * Overview:
-   * - Utilizes data from indexers as the primary source for NFT information.
-   * - Updates both the IndexedDB (storing individual NFT and NFT history records) and an in-memory cache
-   *   (aggregating the latest comprehensive NFT data with their historical records).
-   * - Handles data for specified blockchain chains; chains not in the indexer's response are not updated.
-   *
-   * Processing Logic:
-   * - New NFT records not present in the database are added to IndexedDB and cache, along with their history.
-   * - NFT records present in the database but missing from the indexer's response are added with "Removed" to history.
-   * - For each NFT found in both sources:
-   *   - For ERC1155 NFTs, differences in amounts are identified, and history records are updated accordingly.
-   *   - For ERC721 NFTs, if the last recorded amount is 0, an "Added" history record is created.(User transferred the nft, then got it back again)
-   *
-   * The method ensures an accurate snapshot of user NFT holdings is maintained for querying purposes,
-   * while indexer data is used to trigger events.
-   *
-   * @param accounts Optional array of `LinkedAccount`. If not provided, all the linked accounts will be used.
-   * @param chain Optional array of `EChain`. If not provided, all supported chains will be used.
-   * @returns indexer nft responses, used for events
-   */
-  getIndexerNftsAndUpdateIndexedDb(
-    accounts?: LinkedAccount[],
-    chain?: EChain[],
   ): ResultAsync<
     WalletNFT[],
     | PersistenceError

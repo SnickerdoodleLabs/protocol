@@ -1,23 +1,11 @@
 import "reflect-metadata";
 
-import {
-  ILogUtils,
-  IBigNumberUtils,
-  TimeUtils,
-  ITimeUtilsType,
-  ITimeUtils,
-} from "@snickerdoodlelabs/common-utils";
+import { ILogUtils, ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import { IMasterIndexer } from "@snickerdoodlelabs/indexers";
 import {
-  EDataProvider,
-  EChain,
-  EVMTransaction,
   ERecordKey,
   UnixTimestamp,
   EIndexerMethod,
-  EFieldKey,
-  WalletNFTHistory,
-  NftIdWithMeasurementDate,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
 import { okAsync } from "neverthrow";
@@ -27,6 +15,7 @@ import { NftRepository } from "@core/implementations/data";
 import {
   IDataWalletPersistence,
   ILinkedAccountRepository,
+  INFTRepositoryWithDebug,
   INftRepository,
 } from "@core/interfaces/data";
 import {
@@ -36,8 +25,8 @@ import {
   indexedNfts,
   linkedAccounts,
   Nfts,
-  walletNftThatGotTransferredAndGotBack,
-  walletNftWithHistory,
+  nfts,
+  nftThatGotTransferredAndGotBack,
 } from "@core-tests/mock/mocks/commonValues";
 import { ContextProviderMock } from "@core-tests/mock/utilities/ContextProviderMock";
 import { ConfigProviderMock } from "@core-tests/mock/utilities/index.js";
@@ -68,12 +57,6 @@ class NftRepositoryMocks {
 
     td.when(this.timeUtils.getUnixNow()).thenDo(() => {
       if (indexTime < 2) {
-        indexTime++;
-        //First 2, initial nft addition
-        return UnixTimestamp(1701779730);
-      }
-      if (indexTime < 3) {
-        //Transferred 1 nft
         indexTime++;
         return UnixTimestamp(1701779734);
       }
@@ -107,7 +90,7 @@ class NftRepositoryMocks {
         return okAsync(Nfts.slice(1));
       }
       //User got the nft back
-      return okAsync(Nfts);
+      return okAsync([nftThatGotTransferredAndGotBack, Nfts[1]]);
     });
 
     td.when(this.persistence.getAll(td.matchers.anything())).thenDo(
@@ -136,7 +119,7 @@ class NftRepositoryMocks {
     });
   }
 
-  public factory(): INftRepository {
+  public factory(): INFTRepositoryWithDebug {
     return new NftRepository(
       this.contextProvider,
       this.configProvider,
@@ -161,10 +144,17 @@ describe("NftRepository", () => {
     const service = mocks.factory();
 
     //Act
-    await service.getCachedNFTs().map((result) => {
-      const shibuyaResult = walletNftWithHistory.slice(0, 1);
-      expect(result).toEqual(shibuyaResult);
-    });
+    await service
+      .getNfts()
+      .andThen((result) => {
+        const shibuyaResult = nfts.slice(0, 1);
+        expect(result).toEqual(shibuyaResult);
+        return okAsync(undefined);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        expect(1).toBe(2);
+      });
   });
 
   test("benchmark given, since cache does not exist will trigger indexers but the dates are later than the benchmark, will not return the new data", async () => {
@@ -174,14 +164,21 @@ describe("NftRepository", () => {
 
     //Act
     // Will trigger data, but the query is not qualified, only shibuya will return
-    await service.getCachedNFTs(UnixTimestamp(1701779729)).andThen((result) => {
-      const shibuyaResult = walletNftWithHistory.slice(0, 1);
-      expect(result).toEqual(shibuyaResult);
-      return service.getCache().map((cache) => {
-        // Timestamp from indexer
-        expect(cache.get(43113)?.lastUpdateTime).toEqual(1701779730);
+    await service
+      .getNfts(UnixTimestamp(1701779729))
+      .andThen((result) => {
+        const shibuyaResult = nfts.slice(0, 1);
+        expect(result).toEqual(shibuyaResult);
+        return service.getNFTCache().andThen((cache) => {
+          // Timestamp from indexer
+          expect(cache.get(43113)?.lastUpdateTime).toEqual(1701779730);
+          return okAsync(undefined);
+        });
+      })
+      .mapErr((e) => {
+        console.log(e);
+        expect(1).toBe(2);
       });
-    });
   });
 
   test("benchmark given should get nfts from cache and return all wallet nfts with history", async () => {
@@ -190,12 +187,19 @@ describe("NftRepository", () => {
     const service = mocks.factory();
 
     //Act
-    await service.getCachedNFTs(UnixTimestamp(1701779734)).andThen((result) => {
-      expect(result).toEqual(walletNftWithHistory);
-      return service.getCache().map((cache) => {
-        expect(cache.get(43113)?.lastUpdateTime).toEqual(1701779734);
+    await service
+      .getNfts(UnixTimestamp(1701779734))
+      .andThen((result) => {
+        expect(result).toEqual(nfts);
+        return service.getNFTCache().andThen((cache) => {
+          expect(cache.get(43113)?.lastUpdateTime).toEqual(1701779734);
+          return okAsync(undefined);
+        });
+      })
+      .mapErr((e) => {
+        console.log(e);
+        expect(1).toBe(2);
       });
-    });
   });
 
   test("2 nft should be on the nft table, 2 nft history should be recorded ", async () => {
@@ -204,16 +208,30 @@ describe("NftRepository", () => {
     const service = mocks.factory();
 
     // Will trigger data, but the query is not qualified, only shibuya will return
-    await service.getCachedNFTs(UnixTimestamp(1701779729));
+    await service.getNfts(UnixTimestamp(1701779729));
 
     //Act
-    await service.getNFTsHistory().map((nftHistories) => {
-      expect(nftHistories).toEqual(indexedNftHistory.slice(0, 2));
-    });
+    await service
+      .getNFTsHistory()
+      .andThen((nftHistories) => {
+        expect(nftHistories).toEqual(indexedNftHistory.slice(0, 2));
+        return okAsync(undefined);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        expect(1).toBe(2);
+      });
 
-    await service.getPersistenceNFTs().map((nfts) => {
-      expect(nfts).toEqual(indexedNfts);
-    });
+    await service
+      .getPersistenceNFTs()
+      .andThen((nfts) => {
+        expect(nfts).toEqual(indexedNfts);
+        return okAsync(undefined);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        expect(1).toBe(2);
+      });
   });
 
   test("returns all nfts first, receive remove event, return single nft ", async () => {
@@ -223,28 +241,38 @@ describe("NftRepository", () => {
 
     //Act
     //Trigger first call, should get all cache is set to 1701779734
-    await service.getCachedNFTs(UnixTimestamp(1701779734)).andThen((result) => {
-      expect(result).toEqual(walletNftWithHistory);
-      return service.getCache().map((cache) => {
-        expect(cache.get(43113)?.lastUpdateTime).toEqual(1701779734);
+    await service
+      .getNfts(UnixTimestamp(1701779734))
+      .andThen((result) => {
+        expect(result).toEqual(nfts);
+        return service.getNFTCache().andThen((cache) => {
+          expect(cache.get(43113)?.lastUpdateTime).toEqual(1701779734);
+          return okAsync(undefined);
+        });
+      })
+      .mapErr((e) => {
+        console.log(e);
+        expect(1).toBe(2);
       });
-    });
 
     // 2. call, same nfts returned no change
-    await service.getCachedNFTs(UnixTimestamp(1701779736));
+    await service.getNfts(UnixTimestamp(1701779736));
     //Act
     //3. call, 1 nft is missing (user transferred), will create a record for nft transfer
-    await service.getCachedNFTs(UnixTimestamp(1701779737)).andThen((result) => {
-      expect(result).toEqual([
-        walletNftWithHistory[0],
-        walletNftWithHistory[2],
-      ]);
-      return service.getCache().map((cache) => {
-        //Cache updated
-
-        expect(cache.get(43113)?.lastUpdateTime).toEqual(1701779737);
+    await service
+      .getNfts(UnixTimestamp(1701779737))
+      .andThen((result) => {
+        expect(result).toEqual([nfts[0], nfts[2]]);
+        return service.getNFTCache().andThen((cache) => {
+          //Cache updated
+          expect(cache.get(43113)?.lastUpdateTime).toEqual(1701779737);
+          return okAsync(undefined);
+        });
+      })
+      .mapErr((e) => {
+        console.log(e);
+        expect(1).toBe(2);
       });
-    });
   });
 
   test("2 nft should be on the nft table, 3 nft history should be recorded ", async () => {
@@ -253,17 +281,31 @@ describe("NftRepository", () => {
     const service = mocks.factory();
 
     //Act
-    await service.getCachedNFTs(UnixTimestamp(1701779734));
-    await service.getCachedNFTs(UnixTimestamp(1701779736));
-    await service.getCachedNFTs(UnixTimestamp(1701779737));
+    await service.getNfts(UnixTimestamp(1701779734));
+    await service.getNfts(UnixTimestamp(1701779736));
+    await service.getNfts(UnixTimestamp(1701779737));
     //Act
-    await service.getNFTsHistory().map((nftHistories) => {
-      expect(nftHistories).toEqual(indexedNftHistory);
-    });
+    await service
+      .getNFTsHistory()
+      .andThen((nftHistories) => {
+        expect(nftHistories).toEqual(indexedNftHistory);
+        return okAsync(undefined);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        expect(1).toBe(2);
+      });
 
-    await service.getPersistenceNFTs().map((nfts) => {
-      expect(nfts).toEqual(indexedNfts);
-    });
+    await service
+      .getPersistenceNFTs()
+      .andThen((nfts) => {
+        expect(nfts).toEqual(indexedNfts);
+        return okAsync(undefined);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        expect(1).toBe(2);
+      });
   });
 
   test("User transfers an existing nft, then gets it back, final result should reflect it ", async () => {
@@ -273,49 +315,74 @@ describe("NftRepository", () => {
 
     //Act
     // initial call adds 2 nfts with 2 nft history with added record
-    await service.getCachedNFTs(UnixTimestamp(1701779734));
+    await service.getNfts(UnixTimestamp(1701779734));
     // 2. call, same nfts returned no change
-    await service.getCachedNFTs(UnixTimestamp(1701779736)); //
+    await service.getNfts(UnixTimestamp(1701779736));
 
     // 3. call, 1 nft is missing (user transferred), will create a record for nft transfer
-    await service.getCachedNFTs(UnixTimestamp(1701779737)).andThen((result) => {
-      expect(result).toEqual([
-        walletNftWithHistory[0],
-        walletNftWithHistory[2],
-      ]);
-      return service.getCache().map((cache) => {
-        //Cache updated
-        expect(cache.get(43113)?.lastUpdateTime).toEqual(1701779737);
+    await service
+      .getNfts(UnixTimestamp(1701779737))
+      .andThen((result) => {
+        expect(result).toEqual([nfts[0], nfts[2]]);
+        return service.getNFTCache().andThen((cache) => {
+          //Cache updated
+          expect(cache.get(43113)?.lastUpdateTime).toEqual(1701779737);
+          return okAsync(undefined);
+        });
+      })
+      .mapErr((e) => {
+        console.log(e);
+        expect(1).toBe(2);
       });
-    });
 
-    await service.getNFTsHistory().map((nftHistories) => {
-      expect(nftHistories).toEqual(indexedNftHistory);
-    });
+    await service
+      .getNFTsHistory()
+      .andThen((nftHistories) => {
+        expect(nftHistories).toEqual(indexedNftHistory);
+        return okAsync(undefined);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        expect(1).toBe(2);
+      });
 
     // Final call, got the nft back
-    await service.getCachedNFTs(UnixTimestamp(1701779738)).andThen((result) => {
-      expect(result).toEqual([
-        walletNftWithHistory[0],
-        walletNftThatGotTransferredAndGotBack,
-        walletNftWithHistory[2],
-      ]);
-      return service.getCache().map((cache) => {
-        //Cache updated
-        expect(cache.get(43113)?.lastUpdateTime).toEqual(1701779738);
+    await service
+      .getNfts(UnixTimestamp(1701779738))
+      .andThen((result) => {
+        expect(result).toEqual([
+          nfts[0],
+          nftThatGotTransferredAndGotBack,
+          nfts[2],
+        ]);
+        return service.getNFTCache().andThen((cache) => {
+          //Cache updated
+          expect(cache.get(43113)?.lastUpdateTime).toEqual(1701779738);
+          return okAsync(undefined);
+        });
+      })
+      .mapErr((e) => {
+        console.log(e);
+        expect(1).toBe(2);
       });
-    });
 
-    await service.getNFTsHistory().map((nftHistories) => {
-      expect(nftHistories).toEqual([
-        ...indexedNftHistory,
-        {
-          id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0{-}1701779738",
-          event: 1,
-          amount: "1",
-        },
-      ]);
-    });
+    await service
+      .getNFTsHistory()
+      .andThen((nftHistories) => {
+        expect(nftHistories).toEqual([
+          ...indexedNftHistory,
+          {
+            id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0{-}1701779738",
+            event: 1,
+            amount: "1",
+          },
+        ]);
+        return okAsync(undefined);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        expect(1).toBe(2);
+      });
   });
 
   test("Latest cache holds 1 nft , 1 transferred but benchmark transfer date should get all the nfts  ", async () => {
@@ -325,29 +392,40 @@ describe("NftRepository", () => {
 
     //Act
     // initial call adds 2 nfts with 2 nft history with added record
-    await service.getCachedNFTs(UnixTimestamp(1701779734));
+    await service.getNfts(UnixTimestamp(1701779734));
     // 2. call, same nfts returned no change
-    await service.getCachedNFTs(UnixTimestamp(1701779736)); //
+    await service.getNfts(UnixTimestamp(1701779736)); //
 
     // 3. call, 1 nft is missing (user transferred), will create a record for nft transfer
-    await service.getCachedNFTs(UnixTimestamp(1701779737)).andThen((result) => {
-      expect(result).toEqual([
-        walletNftWithHistory[0],
-        walletNftWithHistory[2],
-      ]);
-      return service.getCache().map((cache) => {
-        //Cache updated
-        expect(cache.get(43113)?.lastUpdateTime).toEqual(1701779737);
+    await service
+      .getNfts(UnixTimestamp(1701779737))
+      .andThen((result) => {
+        expect(result).toEqual([nfts[0], nfts[2]]);
+        return service.getNFTCache().andThen((cache) => {
+          //Cache updated
+          expect(cache.get(43113)?.lastUpdateTime).toEqual(1701779737);
+          return okAsync(undefined);
+        });
+      })
+      .mapErr((e) => {
+        console.log(e);
+        expect(1).toBe(2);
       });
-    });
 
-    await service.getCachedNFTs(UnixTimestamp(1701779732)).andThen((result) => {
-      // Latest data returns 2 nft but this will return an earlier snapshot where all 3 where valid
-      expect(result).toEqual(walletNftWithHistory);
-      return service.getCache().map((cache) => {
-        //Cache updated
-        expect(cache.get(43113)?.lastUpdateTime).toEqual(1701779737);
+    await service
+      .getNfts(UnixTimestamp(1701779732))
+      .andThen((result) => {
+        // Latest data returns 2 nft but this will return an earlier snapshot where all 3 where valid
+        expect(result).toEqual(nfts);
+        return service.getNFTCache().andThen((cache) => {
+          //Cache updated
+          expect(cache.get(43113)?.lastUpdateTime).toEqual(1701779737);
+          return okAsync(undefined);
+        });
+      })
+      .mapErr((e) => {
+        console.log(e);
+        expect(1).toBe(2);
       });
-    });
   });
 });

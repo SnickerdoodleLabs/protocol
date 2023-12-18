@@ -1,4 +1,9 @@
-import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import {
+  ILogUtils,
+  ILogUtilsType,
+  ITimeUtilsType,
+  ITimeUtils,
+} from "@snickerdoodlelabs/common-utils";
 import {
   IMasterIndexer,
   IMasterIndexerType,
@@ -69,7 +74,17 @@ export class MonitoringService implements IMonitoringService {
     protected twitterService: ITwitterService,
     @inject(INftRepositoryType)
     protected nftRepository: INftRepository,
-  ) {}
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
+  ) {
+    this.contextProvider.getContext().map((context) => {
+      context.publicEvents.onAccountAdded.subscribe((_account) =>
+        this.nftRepository.getNfts(this.timeUtils.getUnixNow()),
+      );
+      context.publicEvents.onAccountRemoved.subscribe((_account) =>
+        this.nftRepository.getNfts(this.timeUtils.getUnixNow()),
+      );
+    });
+  }
 
   public pollTransactions(): ResultAsync<
     void,
@@ -135,7 +150,7 @@ export class MonitoringService implements IMonitoringService {
 
   public pollNfts(): ResultAsync<void, unknown> {
     return this.nftRepository
-      .getIndexerNftsAndUpdateIndexedDb()
+      .getNfts(this.timeUtils.getUnixNow())
       .orElse((e) => {
         this.logUtils.error(
           `In pollNfts(), received an error fetching nfts`,

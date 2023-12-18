@@ -42,21 +42,12 @@ export interface IAccountRepository {
   ): ResultAsync<LinkedAccount[], SnickerDoodleCoreError>;
   getAccountBalances(): ResultAsync<TokenBalance[], SnickerDoodleCoreError>;
 
-  getCachedNFTs(
+  getNfts(
     benchmark?: UnixTimestamp,
     chains?: EChain[],
     accounts?: LinkedAccount[],
     sourceDomain?: DomainName,
-  ): ResultAsync<WalletNftWithHistory[], SnickerDoodleCoreError>;
-  getPersistenceNFTs(
-    sourceDomain?: DomainName,
   ): ResultAsync<WalletNFT[], SnickerDoodleCoreError>;
-  getCache(
-    sourceDomain?: DomainName,
-  ): ResultAsync<NftRepositoryCache, SnickerDoodleCoreError>;
-  getNFTsHistory(
-    sourceDomain?: DomainName,
-  ): ResultAsync<WalletNFTHistory[], SnickerDoodleCoreError>;
 
   isDataWalletAddressInitialized(): ResultAsync<boolean, UnauthorizedError>;
   unlinkAccount(

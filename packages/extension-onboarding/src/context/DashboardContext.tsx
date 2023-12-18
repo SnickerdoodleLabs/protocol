@@ -72,7 +72,7 @@ export const DashboardContextProvider: FC = ({ children }) => {
 
   const initializeNfts = () => {
     sdlDataWallet.nft
-      .getCachedNFTs(undefined, undefined, undefined)
+      .getNfts(undefined, undefined, undefined)
       .mapErr((e) => {
         setIsNFTsLoading(false);
       })
@@ -83,7 +83,7 @@ export const DashboardContextProvider: FC = ({ children }) => {
               ChainId(item.chain),
             );
 
-            if (NftMetadataParseUtils.isEVMWithHistory(item)) {
+            if (NftMetadataParseUtils.isEVMNFT(item)) {
               const evmNft = item as EVMNFT;
               if (
                 evmNft.chain === EChain.Gnosis ||

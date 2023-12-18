@@ -86,35 +86,18 @@ export class AccountService implements IAccountService {
     return this.accountRepository.getAccountBalances();
   }
 
-  public getNftCache(
-    sourceDomain?: DomainName,
-  ): ResultAsync<NftRepositoryCache, SnickerDoodleCoreError> {
-    return this.accountRepository.getCache(sourceDomain);
-  }
-
-  public getCachedNFTs(
+  public getNfts(
     benchmark?: UnixTimestamp,
     chains?: EChain[],
     accounts?: LinkedAccount[],
     sourceDomain?: DomainName,
-  ): ResultAsync<WalletNftWithHistory[], SnickerDoodleCoreError> {
-    return this.accountRepository.getCachedNFTs(
+  ): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
+    return this.accountRepository.getNfts(
       benchmark,
       chains,
       accounts,
       sourceDomain,
     );
-  }
-
-  public getPersistenceNFTs(
-    sourceDomain?: DomainName,
-  ): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
-    return this.accountRepository.getPersistenceNFTs(sourceDomain);
-  }
-  public getNFTsHistory(
-    sourceDomain?: DomainName,
-  ): ResultAsync<WalletNFTHistory[], SnickerDoodleCoreError> {
-    return this.accountRepository.getNFTsHistory(sourceDomain);
   }
 
   public addAccount(

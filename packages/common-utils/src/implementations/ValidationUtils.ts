@@ -75,7 +75,7 @@ export class ValidationUtils {
     }
   }
 
-  static stringToTokenStandard(value: string): EContractStandard | "Unknown" {
+  static stringToTokenStandard(value: string): EContractStandard {
     const standards: [RegExp, EContractStandard][] = [
       [/^ERC[\s-_]*721$/i, EContractStandard.Erc721],
       [/^ERC[\s-_]*1155$/i, EContractStandard.Erc1155],
@@ -85,6 +85,6 @@ export class ValidationUtils {
         return standard;
       }
     }
-    return "Unknown";
+    return EContractStandard.Unknown;
   }
 }

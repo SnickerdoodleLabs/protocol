@@ -107,7 +107,7 @@ import {
   GetGivenNameParams,
   GetFamilyNameParams,
   GetAgeParams,
-  GetAccountCachedNFTsParams,
+  GetAccountNFTsParams,
   GetAccountBalancesParams,
   GetAccountsParams,
   GetAcceptedInvitationsCIDParams,
@@ -255,27 +255,14 @@ export class ExternalCoreGateway {
     };
 
     this.nft = {
-      getCachedNFTs: (
+      getNfts: (
         benchmark?: UnixTimestamp,
         chains?: EChain[],
         accounts?: LinkedAccount[],
       ) => {
         return this._handler.call(
-          new GetAccountCachedNFTsParams(benchmark, chains, accounts),
+          new GetAccountNFTsParams(benchmark, chains, accounts),
         );
-      },
-      getPersistenceNFTs: () => {
-        return this._handler.call(new GetPersistenceNFTsParams());
-      },
-      getNFTsHistory: () => {
-        return this._handler.call(new GetAccountNFTHistoryParams());
-      },
-      getCache: () => {
-        return this._handler
-          .call(new GetAccountNftCacheParams())
-          .map((jsonString) => {
-            return ObjectUtils.deserialize(jsonString);
-          });
       },
     };
 
@@ -308,6 +295,19 @@ export class ExternalCoreGateway {
     this.metrics = {
       getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
         return this._handler.call(new GetMetricsParams());
+      },
+      getPersistenceNFTs: () => {
+        return this._handler.call(new GetPersistenceNFTsParams());
+      },
+      getNFTsHistory: () => {
+        return this._handler.call(new GetAccountNFTHistoryParams());
+      },
+      getNFTCache: () => {
+        return this._handler
+          .call(new GetAccountNftCacheParams())
+          .map((jsonString) => {
+            return ObjectUtils.deserialize(jsonString);
+          });
       },
     };
 

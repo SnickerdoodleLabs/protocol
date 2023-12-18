@@ -79,7 +79,7 @@ import {
   GetEarnedRewardsParams,
   GetAccountsParams,
   GetAccountBalancesParams,
-  GetAccountCachedNFTsParams,
+  GetAccountNFTsParams,
   GetAgeParams,
   GetGivenNameParams,
   GetEmailParams,
@@ -234,33 +234,10 @@ export class RpcCallHandler implements IRpcCallHandler {
       },
     ),
 
-    new CoreActionHandler<GetPersistenceNFTsParams>(
-      GetPersistenceNFTsParams.getCoreAction(),
+    new CoreActionHandler<GetAccountNFTsParams>(
+      GetAccountNFTsParams.getCoreAction(),
       (_params) => {
-        return this.accountService.getPersistenceNFTs();
-      },
-    ),
-
-    new CoreActionHandler<GetAccountNftCacheParams>(
-      GetAccountNftCacheParams.getCoreAction(),
-      (_params) => {
-        return this.accountService.getNftCache().map((map) => {
-          return ObjectUtils.serialize(map);
-        });
-      },
-    ),
-
-    new CoreActionHandler<GetAccountNFTHistoryParams>(
-      GetAccountNFTHistoryParams.getCoreAction(),
-      (_params) => {
-        return this.accountService.getNFTsHistory();
-      },
-    ),
-
-    new CoreActionHandler<GetAccountCachedNFTsParams>(
-      GetAccountCachedNFTsParams.getCoreAction(),
-      (_params) => {
-        return this.accountService.getCachedNFTs(
+        return this.accountService.getNfts(
           _params.benchmark,
           _params.chains,
           _params.accounts,
@@ -741,6 +718,30 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this.metricsService.getMetrics(sourceDomain);
       },
     ),
+
+    new CoreActionHandler<GetPersistenceNFTsParams>(
+      GetPersistenceNFTsParams.getCoreAction(),
+      (_params) => {
+        return this.metricsService.getPersistenceNFTs();
+      },
+    ),
+
+    new CoreActionHandler<GetAccountNftCacheParams>(
+      GetAccountNftCacheParams.getCoreAction(),
+      (_params) => {
+        return this.metricsService.getNFTCache().map((map) => {
+          return ObjectUtils.serialize(map);
+        });
+      },
+    ),
+
+    new CoreActionHandler<GetAccountNFTHistoryParams>(
+      GetAccountNFTHistoryParams.getCoreAction(),
+      (_params) => {
+        return this.metricsService.getNFTsHistory();
+      },
+    ),
+
     // #endregion
     // #region Integration
 

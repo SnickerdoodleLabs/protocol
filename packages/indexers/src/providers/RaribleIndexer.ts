@@ -5,6 +5,8 @@ import {
   ILogUtilsType,
   ObjectUtils,
   IRequestConfig,
+  ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
@@ -23,7 +25,6 @@ import {
   EDataProvider,
   EExternalApi,
   EContractStandard,
-  EVMIndexerNft,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -86,6 +87,7 @@ export class RaribleIndexer implements IEVMIndexer {
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -120,7 +122,7 @@ export class RaribleIndexer implements IEVMIndexer {
   public getTokensForAccount(
     chain: EChain,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMIndexerNft[], AccountIndexingError | AjaxError> {
+  ): ResultAsync<EVMNFT[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),
@@ -159,8 +161,7 @@ export class RaribleIndexer implements IEVMIndexer {
             if (item.supply !== "1") {
               contractType = EContractStandard.Erc1155;
             }
-            return new EVMIndexerNft(
-              true,
+            return new EVMNFT(
               EVMContractAddress(item.contract.split(":")[1]),
               BigNumberString(item.tokenId),
               contractType,
@@ -170,6 +171,7 @@ export class RaribleIndexer implements IEVMIndexer {
               name,
               chain,
               BigNumberString(item.supply),
+              this.timeUtils.getUnixNow(),
               undefined,
               undefined,
             );

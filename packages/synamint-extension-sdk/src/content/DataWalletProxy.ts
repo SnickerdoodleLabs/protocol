@@ -335,24 +335,24 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       getMetrics: () => {
         return coreGateway.metrics.getMetrics();
       },
+      getNFTCache: () => {
+        return coreGateway.metrics.getNFTCache();
+      },
+      getPersistenceNFTs: () => {
+        return coreGateway.metrics.getPersistenceNFTs();
+      },
+      getNFTsHistory: () => {
+        return coreGateway.metrics.getNFTsHistory();
+      },
     };
 
     this.nft = {
-      getCache: () => {
-        return coreGateway.nft.getCache();
-      },
-      getPersistenceNFTs: () => {
-        return coreGateway.nft.getPersistenceNFTs();
-      },
-      getNFTsHistory: () => {
-        return coreGateway.nft.getNFTsHistory();
-      },
-      getCachedNFTs: (
+      getNfts: (
         benchmark: UnixTimestamp | undefined,
         chains: EChain[] | undefined,
         accounts: LinkedAccount[] | undefined,
       ) => {
-        return coreGateway.nft.getCachedNFTs(benchmark, chains, accounts);
+        return coreGateway.nft.getNfts(benchmark, chains, accounts);
       },
     };
 

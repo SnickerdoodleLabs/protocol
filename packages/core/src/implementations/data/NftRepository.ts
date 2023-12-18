@@ -2,8 +2,8 @@ import {
   ILogUtilsType,
   ILogUtils,
   ObjectUtils,
-  ITimeUtilsType,
   ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   IMasterIndexer,
@@ -35,13 +35,16 @@ import {
   UnixTimestamp,
   multiplyBigNumberString,
   addBigNumberString,
-  isEVMNft,
   EContractStandard,
   NftRepositoryCache,
   isAccountValidForChain,
   EarnedReward,
-  isEVMIndexerNft,
-  EVMAccountAddress,
+  SolanaTokenAddress,
+  TokenAddress,
+  EChainTechnology,
+  SolanaNFT,
+  WalletNFTData,
+  SuiNFT,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
@@ -59,6 +62,7 @@ import {
   ILinkedAccountRepository,
   ILinkedAccountRepositoryType,
   INftRepository,
+  INFTRepositoryWithDebug,
 } from "@core/interfaces/data/index.js";
 import {
   IContextProviderType,
@@ -66,7 +70,7 @@ import {
 } from "@core/interfaces/utilities/index.js";
 
 @injectable()
-export class NftRepository implements INftRepository {
+export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
   private _nftCache?: NftRepositoryCache;
   public constructor(
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
@@ -80,30 +84,48 @@ export class NftRepository implements INftRepository {
     protected masterIndexer: IMasterIndexer,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
-  ) {
-    this.contextProvider.getContext().map((context) => {
-      context.publicEvents.onAccountAdded.subscribe((account) =>
-        this.getIndexerNftsAndUpdateIndexedDb([account]),
-      );
-      context.publicEvents.onAccountRemoved.subscribe((_account) =>
-        this.getIndexerNftsAndUpdateIndexedDb(),
-      );
-    });
-  }
+  ) {}
 
-  public getPersistenceNFTs(): ResultAsync<WalletNFT[], PersistenceError> {
-    return this.persistence.getAll<WalletNFT>(ERecordKey.NFTS);
+  public getPersistenceNFTs(): ResultAsync<WalletNFTData[], PersistenceError> {
+    return this.persistence.getAll<WalletNFTData>(ERecordKey.NFTS);
   }
 
   public getNFTsHistory(): ResultAsync<WalletNFTHistory[], PersistenceError> {
     return this.persistence.getAll<WalletNFTHistory>(ERecordKey.NFTS_HISTORY);
   }
 
-  public getCache(): ResultAsync<NftRepositoryCache, PersistenceError> {
+  public getNFTCache(): ResultAsync<NftRepositoryCache, PersistenceError> {
     return this.getNftCache();
   }
 
-  public getIndexerNftsAndUpdateIndexedDb(
+  /**
+   * Updates the IndexedDB and cache with NFT data retrieved from indexers.
+   *
+   * This method serves two primary purposes:
+   * 1. To regularly update data based on polling.
+   * 2. To process queries that require recent data, ensuring records are up-to-date.
+   *
+   * Overview:
+   * - Utilizes data from indexers as the primary source for NFT information.
+   * - Updates both the IndexedDB (storing individual NFT and NFT history records) and an in-memory cache
+   *   (aggregating the latest comprehensive NFT data with their historical records).
+   * - Handles data for specified blockchain chains; chains not in the indexer's response are not updated.
+   *
+   * Processing Logic:
+   * - New NFT records not present in the database are added to IndexedDB and cache, along with their history.
+   * - NFT records present in the database but missing from the indexer's response are added with "Removed" to history.
+   * - For each NFT found in both sources:
+   *   - For ERC1155 NFTs, differences in amounts are identified, and history records are updated accordingly.
+   *   - For ERC721 NFTs, if the last recorded amount is 0, an "Added" history record is created.(User transferred the nft, then got it back again)
+   *
+   * The method ensures an accurate snapshot of user NFT holdings is maintained for querying purposes,
+   * while indexer data is used to trigger events.
+   *
+   * @param accounts Optional array of `LinkedAccount`. If not provided, all the linked accounts will be used.
+   * @param chain Optional array of `EChain`. If not provided, all supported chains will be used.
+   * @returns indexer nft responses, used for events
+   */
+  protected getIndexerNftsAndUpdateIndexedDb(
     accounts?: LinkedAccount[],
     chains?: EChain[],
   ): ResultAsync<
@@ -114,7 +136,7 @@ export class NftRepository implements INftRepository {
     | MethodSupportError
     | InvalidParametersError
   > {
-    if (chains && accounts) {
+    if (chains != null && accounts != null) {
       return this.getIndexerNftsAndUpdateIndexedDbTasks(accounts, chains);
     } else {
       return ResultUtils.combine([
@@ -130,12 +152,12 @@ export class NftRepository implements INftRepository {
       });
     }
   }
-  public getCachedNFTs(
+  public getNfts(
     benchmark?: UnixTimestamp,
     chains?: EChain[],
     accounts?: LinkedAccount[],
   ): ResultAsync<
-    WalletNftWithHistory[],
+    WalletNFT[],
     | PersistenceError
     | AccountIndexingError
     | AjaxError
@@ -143,7 +165,21 @@ export class NftRepository implements INftRepository {
     | InvalidParametersError
   > {
     if (chains && accounts) {
-      return this.getCachedNFTsTasks(chains, accounts, benchmark);
+      return this.getCachedNFTsTasks(chains, accounts, benchmark).andThen(
+        (walletNftWithHistories) => {
+          if (chains.includes(EChain.Shibuya)) {
+            //Should be removed long term
+            return this.earnedRewardsToNFTs().map((shibuyaPotentialNfts) => {
+              const nfts = [
+                ...shibuyaPotentialNfts,
+                ...this.convertToWalletNfts(walletNftWithHistories),
+              ];
+              return nfts;
+            });
+          }
+          return okAsync(this.convertToWalletNfts(walletNftWithHistories));
+        },
+      );
     } else {
       return ResultUtils.combine([
         chains
@@ -152,12 +188,88 @@ export class NftRepository implements INftRepository {
         accounts ? okAsync(accounts) : this.accountRepo.getAccounts(),
       ]).andThen(([selectedChains, selectedAccounts]) => {
         return this.getCachedNFTsTasks(
-          chains ? selectedChains : [EChain.Shibuya, ...selectedChains],
+          selectedChains,
           selectedAccounts,
           benchmark,
-        );
+        ).andThen((walletNftWithHistories) => {
+          if (
+            (chains != null && chains.includes(EChain.Shibuya)) ||
+            chains == null
+          ) {
+            return this.earnedRewardsToNFTs().map((shibuyaPotentialNfts) => {
+              const nfts = [
+                ...shibuyaPotentialNfts,
+                ...this.convertToWalletNfts(walletNftWithHistories),
+              ];
+              return nfts;
+            });
+          }
+          return okAsync(this.convertToWalletNfts(walletNftWithHistories));
+        });
       });
     }
+  }
+
+  protected convertToWalletNfts(
+    walletNftWithHistories: WalletNftWithHistory[],
+  ): WalletNFT[] {
+    return walletNftWithHistories.map<WalletNFT>((walletNftWithHistory) => {
+      const nft = walletNftWithHistory.nft;
+      const measurementDate =
+        walletNftWithHistory.history[walletNftWithHistory.history.length - 1]
+          .measurementDate;
+      const amount = walletNftWithHistory.totalAmount;
+
+      if (this.isEVMNft(nft)) {
+        return new EVMNFT(
+          nft.token,
+          nft.tokenId,
+          nft.contractType,
+          nft.owner,
+          nft.tokenUri,
+          nft.metadata,
+          nft.name,
+          nft.chain,
+          amount,
+          measurementDate,
+          nft.blockNumber,
+          nft.lastOwnerTimeStamp,
+        );
+      } else if (this.isSolanaNft(nft)) {
+        return new SolanaNFT(
+          nft.chain,
+          nft.owner,
+          nft.mint,
+          nft.collection,
+          nft.metadataUri,
+          nft.isMutable,
+          nft.primarySaleHappened,
+          nft.sellerFeeBasisPoints,
+          nft.updateAuthority,
+          nft.tokenStandard,
+          nft.symbol,
+          nft.name,
+          amount,
+          measurementDate,
+        );
+      } else {
+        const suiNft = nft as SuiNFT;
+        return new SuiNFT(
+          suiNft.token,
+          suiNft.tokenId,
+          suiNft.contractType,
+          suiNft.owner,
+          suiNft.tokenUri,
+          suiNft.metadata,
+          amount,
+          suiNft.name,
+          suiNft.chain,
+          measurementDate,
+          suiNft.blockNumber,
+          suiNft.lastOwnerTimeStamp,
+        );
+      }
+    });
   }
 
   protected getCachedNFTsTasks(
@@ -172,22 +284,14 @@ export class NftRepository implements INftRepository {
     | MethodSupportError
     | InvalidParametersError
   > {
-    return ResultUtils.combine([
-      this.getCache(),
-      this.earnedRewardsToNFTs(),
-    ]).andThen(([nftCache, shibuyaPotentialNfts]) => {
+    return this.getNftCache().andThen((nftCache) => {
       const chainsThatNeedsUpdating: EChain[] = [];
       const cachedNfts: WalletNftWithHistory[] = [];
-
-      if (chains.includes(EChain.Shibuya)) {
-        //Should be removed long term
-        cachedNfts.push(...shibuyaPotentialNfts);
-      }
 
       for (const selectedChain of chains) {
         const selectedChainNftCache = nftCache.get(selectedChain);
 
-        if (benchmark != null && selectedChain !== EChain.Shibuya) {
+        if (benchmark != null) {
           if (selectedChainNftCache != null) {
             if (selectedChainNftCache.lastUpdateTime < benchmark) {
               chainsThatNeedsUpdating.push(selectedChain);
@@ -202,7 +306,7 @@ export class NftRepository implements INftRepository {
           undefined,
           chainsThatNeedsUpdating,
         ).andThen(() => {
-          return this.getCache().map((updatedCache) => {
+          return this.getNftCache().map((updatedCache) => {
             this.getValidAccountNftsFromCache(
               chains,
               accounts,
@@ -393,7 +497,7 @@ export class NftRepository implements INftRepository {
       const [newlyAddedNftHistories, newlyAddedNfts, updatedCache] =
         this.checkForChangesInNftOwnership(indexerResponse, nftCache);
       return ResultUtils.combine([
-        this.addNftsToIndexedDb(newlyAddedNfts),
+        this.addNftDatasToIndexedDb(newlyAddedNfts),
         this.addNftHistoryToIndexedDb(newlyAddedNftHistories),
       ]).map(() => {
         context.publicEvents.onNftBalanceUpdate.next(
@@ -439,6 +543,7 @@ export class NftRepository implements INftRepository {
           storedChainNftData,
           newlyAddedNftHistories,
           updatedCacheNfts,
+          indexerResponse,
         );
 
         this.createRecordsForNftsThatExistOnBothDbAndIndexers(
@@ -519,17 +624,16 @@ export class NftRepository implements INftRepository {
           );
         } else {
           if (
-            isEVMIndexerNft(indexerNft) &&
+            this.isEVMNft(indexerNft) &&
             indexerNft.amount &&
             indexerNft.contractType === EContractStandard.Erc1155
           ) {
             if (dbNft.totalAmount === BigNumberString("0")) {
-              const measurementDate = this.timeUtils.getUnixNow();
               const nftHistory = this.createNftHistory(
                 indexerNft.amount,
                 id,
                 EIndexedDbOp.Added,
-                measurementDate,
+                indexerNft.measurementDate,
               );
 
               newlyAddedNftHistories.push(nftHistory);
@@ -539,7 +643,7 @@ export class NftRepository implements INftRepository {
                 nftHistory,
                 id,
                 indexerNft.owner,
-                measurementDate,
+                indexerNft.measurementDate,
               );
             } else {
               const dbAmount = BigNumber.from(dbNft.totalAmount);
@@ -551,12 +655,11 @@ export class NftRepository implements INftRepository {
                   ? EIndexedDbOp.Removed
                   : EIndexedDbOp.Added;
 
-                const measurementDate = this.timeUtils.getUnixNow();
                 const nftHistory = this.createNftHistory(
                   BigNumberString(amountDifference.abs().toString()),
                   id,
                   op,
-                  measurementDate,
+                  indexerNft.measurementDate,
                 );
 
                 newlyAddedNftHistories.push(nftHistory);
@@ -567,19 +670,18 @@ export class NftRepository implements INftRepository {
                   nftHistory,
                   id,
                   indexerNft.owner,
-                  measurementDate,
+                  indexerNft.measurementDate,
                 );
               }
             }
           } else {
             //User could transferred and then got the nft back
             if (dbNft.totalAmount === BigNumberString("0")) {
-              const measurementDate = this.timeUtils.getUnixNow();
               const nftHistory = this.createNftHistory(
                 BigNumberString("1"),
                 id,
                 EIndexedDbOp.Added,
-                measurementDate,
+                indexerNft.measurementDate,
               );
 
               newlyAddedNftHistories.push(nftHistory);
@@ -589,7 +691,7 @@ export class NftRepository implements INftRepository {
                 nftHistory,
                 id,
                 indexerNft.owner,
-                measurementDate,
+                indexerNft.measurementDate,
               );
             }
           }
@@ -612,6 +714,7 @@ export class NftRepository implements INftRepository {
       >;
       lastUpdateTime: UnixTimestamp;
     },
+    indexerResponse: WalletNFT[],
   ): void {
     storedChainNftData.forEach((nftData, owner) => {
       nftData.forEach((dbNft, id) => {
@@ -670,7 +773,7 @@ export class NftRepository implements INftRepository {
     updatedCache: NftRepositoryCache,
     chain: EChain,
   ) {
-    const measurementDate = this.timeUtils.getUnixNow();
+    const measurementDate = indexerNft.measurementDate;
     const nftHistory = this.addOrRemoveWalletNftRecordInDb(
       indexerNft,
       EIndexedDbOp.Added,
@@ -679,7 +782,6 @@ export class NftRepository implements INftRepository {
     const walletNftWithHistory = this.createWalletNftWithHistory(
       indexerNft,
       nftHistory,
-      measurementDate,
     );
 
     newlyAddedNfts.push(indexerNft);
@@ -766,10 +868,10 @@ export class NftRepository implements INftRepository {
   protected createWalletNftWithHistory(
     walletNft: WalletNFT,
     nftHistory: WalletNFTHistory,
-    measurementDate: UnixTimestamp,
   ): WalletNftWithHistory {
+    const { amount, measurementDate, ...rest } = walletNft;
     return {
-      ...walletNft,
+      nft: rest,
       history: [
         {
           measurementDate,
@@ -778,15 +880,20 @@ export class NftRepository implements INftRepository {
         },
       ],
       totalAmount: nftHistory.amount,
+      owner: walletNft.owner,
+      id: this.createIdFromWalletNft(walletNft),
     };
   }
 
   protected getWalletNftsWithHistoryMap(
-    walletNfts: WalletNFT[],
+    walletNftDatas: WalletNFTData[],
     nftHistories: WalletNFTHistory[],
   ): NftRepositoryCache {
     const nftHistoriesMap = this.getNftIdToWalletHistoryMap(nftHistories);
-    const chainToWalletNftMap = this.getChainToWalletNftMap(walletNfts);
+
+    const chainToWalletNftMap = this.walletDataToChainNftMap(walletNftDatas);
+
+    Map<EChain, Map<NftTokenAddressWithTokenId, WalletNFT>>;
 
     const walletNftWithHistoryMap: NftRepositoryCache = new Map();
 
@@ -801,10 +908,12 @@ export class NftRepository implements INftRepository {
         (walletNftWithHistoryAndLastUpdateTime, [id, walletNft]) => {
           const nftHistory = nftHistoriesMap.get(id)?.history;
           const nftHistoryTotalAmount = nftHistoriesMap.get(id)?.totalAmount;
-          const nftWithHistory = {
-            ...walletNft,
+          const nftWithHistory: WalletNftWithHistory = {
+            nft: walletNft,
             history: nftHistory ?? [],
             totalAmount: nftHistoryTotalAmount ?? BigNumberString("0"),
+            owner: walletNft.owner,
+            id: this.createIdFromWalletNft(walletNft),
           };
 
           const accountNfts = walletNftWithHistoryAndLastUpdateTime.data.get(
@@ -814,10 +923,10 @@ export class NftRepository implements INftRepository {
           if (accountNfts == null) {
             walletNftWithHistoryAndLastUpdateTime.data.set(
               walletNft.owner,
-              new Map([[walletNft.id, nftWithHistory]]),
+              new Map([[nftWithHistory.id, nftWithHistory]]),
             );
           } else {
-            accountNfts.set(walletNft.id, nftWithHistory);
+            accountNfts.set(nftWithHistory.id, nftWithHistory);
           }
 
           walletNftWithHistoryAndLastUpdateTime.lastUpdateTime = nftHistory
@@ -833,6 +942,27 @@ export class NftRepository implements INftRepository {
     return walletNftWithHistoryMap;
   }
 
+  protected walletDataToChainNftMap(
+    walletNftDatas: WalletNFTData[],
+  ): Map<EChain, Map<NftTokenAddressWithTokenId, WalletNFT>> {
+    return walletNftDatas.reduce<
+      Map<EChain, Map<NftTokenAddressWithTokenId, WalletNFT>>
+    >((map, walletNftData) => {
+      const nft = walletNftData.nft;
+      if (this.isWalletNft(nft)) {
+        const chain = nft.chain;
+        const chainMap = map.get(chain);
+        if (chainMap == null) {
+          map.set(chain, new Map([[walletNftData.id, nft]]));
+        } else {
+          chainMap.set(walletNftData.id, nft);
+        }
+        return map;
+      }
+      return map;
+    }, new Map());
+  }
+
   protected getChainToWalletNftMap(
     walletNfts: WalletNFT[],
   ): Map<EChain, Map<NftTokenAddressWithTokenId, WalletNFT>> {
@@ -841,10 +971,11 @@ export class NftRepository implements INftRepository {
     >((chainToWalletNftMap, walletNft) => {
       const chain = walletNft.chain;
       const chainMap = chainToWalletNftMap.get(chain);
+      const nftId = this.createIdFromWalletNft(walletNft);
       if (chainMap == null) {
-        chainToWalletNftMap.set(chain, new Map([[walletNft.id, walletNft]]));
+        chainToWalletNftMap.set(chain, new Map([[nftId, walletNft]]));
       } else {
-        chainMap.set(walletNft.id, walletNft);
+        chainMap.set(nftId, walletNft);
       }
       return chainToWalletNftMap;
     }, new Map());
@@ -921,29 +1052,15 @@ export class NftRepository implements INftRepository {
     );
   }
 
-  protected addNftsToIndexedDb(
+  protected addNftDatasToIndexedDb(
     nfts: WalletNFT[],
   ): ResultAsync<void[], PersistenceError> {
     return ResultUtils.combine(
       nfts.map((nft) => {
-        if (isEVMIndexerNft(nft)) {
-          //Amount is not recorded
-          const evmNft = new EVMNFT(
-            nft.token,
-            nft.tokenId,
-            nft.contractType,
-            nft.owner,
-            nft.tokenUri,
-            nft.metadata,
-            nft.name,
-            nft.chain,
-            nft.blockNumber,
-            nft.lastOwnerTimeStamp,
-          );
-          return this.persistence.updateRecord(ERecordKey.NFTS, evmNft);
-        } else {
-          return this.persistence.updateRecord(ERecordKey.NFTS, nft);
-        }
+        const id = this.createIdFromWalletNft(nft);
+        const { amount, measurementDate, ...rest } = nft;
+        const data = new WalletNFTData(id, rest);
+        return this.persistence.updateRecord(ERecordKey.NFTS, data);
       }),
     );
   }
@@ -981,51 +1098,34 @@ export class NftRepository implements INftRepository {
   }
 
   //Should not exist long term, wrong in many ways
-  protected earnedRewardsToNFTs(): ResultAsync<
-    WalletNftWithHistory[],
-    PersistenceError
-  > {
+  protected earnedRewardsToNFTs(): ResultAsync<EVMNFT[], PersistenceError> {
     return ResultUtils.combine([
       this.accountRepo.getEarnedRewards(),
       this.configProvider.getConfig(),
     ]).map(([rewards, config]) => {
-      return this.getShibuyaRewards(rewards).map<WalletNftWithHistory>(
-        (reward) => {
-          const nft = new EVMNFT(
-            reward.contractAddress,
-            BigNumberString("1"),
-            reward.type,
-            reward.recipientAddress,
-            undefined,
-            {
-              // Add image URL to the raw data
-              raw: ObjectUtils.serialize({
-                ...reward,
-                image: URLString(
-                  urlJoin(config.ipfsFetchBaseUrl, reward.image),
-                ),
-              }),
-            }, // metadata
-            reward.name,
-            reward.chainId as EChain,
-            undefined,
-            undefined,
-          );
-
-          const nftsWithHistory: WalletNftWithHistory = {
-            ...nft,
-            history: [
-              {
-                measurementDate: UnixTimestamp(0),
-                amount: BigNumberString("1"),
-                event: EIndexedDbOp.Added,
-              },
-            ],
-            totalAmount: BigNumberString("1"),
-          };
-          return nftsWithHistory;
-        },
-      );
+      return this.getShibuyaRewards(rewards).map<EVMNFT>((reward) => {
+        const nft = new EVMNFT(
+          reward.contractAddress,
+          BigNumberString("1"),
+          EContractStandard.Unknown,
+          reward.recipientAddress,
+          undefined,
+          {
+            // Add image URL to the raw data
+            raw: ObjectUtils.serialize({
+              ...reward,
+              image: URLString(urlJoin(config.ipfsFetchBaseUrl, reward.image)),
+            }),
+          }, // metadata
+          reward.name,
+          reward.chainId as EChain,
+          BigNumberString("1"),
+          UnixTimestamp(0),
+          undefined,
+          undefined,
+        );
+        return nft;
+      });
     });
   }
 
@@ -1036,12 +1136,16 @@ export class NftRepository implements INftRepository {
   ): WalletNFTHistory {
     let amount = BigNumberString("1");
     if (
-      isEVMIndexerNft(indexerNft) &&
+      this.isEVMNft(indexerNft) &&
       indexerNft.contractType === EContractStandard.Erc1155
     ) {
       if (indexerNft.amount) {
         amount = indexerNft.amount;
       }
+    }
+    if (this.isWalletNft(indexerNft)) {
+      const id = this.createIdFromWalletNft(indexerNft);
+      return this.createNftHistory(amount, id, op, measurementDate);
     }
     return this.createNftHistory(amount, indexerNft.id, op, measurementDate);
   }
@@ -1052,7 +1156,7 @@ export class NftRepository implements INftRepository {
     op: EIndexedDbOp,
     measurementDate: UnixTimestamp,
   ): WalletNFTHistory {
-    const id = NftIdWithMeasurementDate(nftId, measurementDate);
+    const id = this.getNftIdWithMeasurementDate(nftId, measurementDate);
     return new WalletNFTHistory(id, op, amount);
   }
 
@@ -1098,5 +1202,66 @@ export class NftRepository implements INftRepository {
     });
 
     return nftCacheClone;
+  }
+
+  protected createIdFromWalletNft(nft: WalletNFT): NftTokenAddressWithTokenId {
+    let id: NftTokenAddressWithTokenId;
+    if (this.isEVMNft(nft)) {
+      id = this.getNftTokenAddressWithTokenId(nft.token, nft.tokenId);
+    } else if (this.isSolanaNft(nft)) {
+      id = this.getNftTokenAddressWithTokenId(nft.updateAuthority, nft.mint);
+    } else {
+      const suiNft = nft as SuiNFT;
+      id = this.getNftTokenAddressWithTokenId(suiNft.token, suiNft.tokenId);
+    }
+    return id;
+  }
+
+  protected getNftTokenAddressWithTokenId(
+    tokenAddress: TokenAddress,
+    tokenId: BigNumberString | SolanaTokenAddress,
+  ): NftTokenAddressWithTokenId {
+    const id = `${tokenAddress}|#|${tokenId.toString()}`;
+    return NftTokenAddressWithTokenId(id);
+  }
+
+  protected getNftIdWithMeasurementDate(
+    tokenAddress: NftTokenAddressWithTokenId,
+    measurementDate: UnixTimestamp,
+  ): NftIdWithMeasurementDate {
+    const id = `${tokenAddress}{-}${measurementDate.toString()}`;
+    return NftIdWithMeasurementDate(id);
+  }
+
+  /**
+   * Only checks the type field !
+   */
+  protected isEVMNft(nft: Record<string, unknown> | WalletNFT): nft is EVMNFT {
+    return nft.type === EChainTechnology.EVM;
+  }
+
+  /**
+   * Only checks the type field !
+   */
+  protected isSolanaNft(
+    nft: Record<string, unknown> | WalletNFT,
+  ): nft is SolanaNFT {
+    return nft.type === EChainTechnology.Solana;
+  }
+
+  /**
+   * Only checks the type field !
+   */
+  protected isSuiNft(nft: Record<string, unknown> | WalletNFT): nft is SuiNFT {
+    return nft.type === EChainTechnology.Sui;
+  }
+
+  /**
+   * Only checks the type field !
+   */
+  protected isWalletNft(
+    nft: Record<string, unknown> | WalletNFT,
+  ): nft is WalletNFT {
+    return nft.type != null;
   }
 }

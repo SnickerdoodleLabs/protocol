@@ -20,7 +20,6 @@ import {
   EDataProvider,
   ISO8601DateString,
   EContractStandard,
-  EVMIndexerNft,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -97,12 +96,11 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
   public getTokensForAccount(
     chain: EChain,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMIndexerNft[], AccountIndexingError> {
+  ): ResultAsync<EVMNFT[], AccountIndexingError> {
     const num = Math.floor(Math.random() * 10) + 1;
-    const result: EVMIndexerNft[] = [];
+    const result: EVMNFT[] = [];
     for (let i = 0; i < num; i++) {
-      const item = new EVMIndexerNft(
-        true,
+      const item = new EVMNFT(
         EVMContractAddress("EVMContractAddress#"),
         BigNumberString(`${Math.floor(Math.random() * 1000)}`),
         EContractStandard.Erc721,
@@ -112,6 +110,7 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
         "Fake Token #" + i,
         chain,
         BigNumberString(Math.floor(Math.random() * 1000) + ""),
+        UnixTimestamp(Date.now() - i * (Date.now() % 86400)),
         BlockNumber(i),
         //86400 => day
         UnixTimestamp(Date.now() - i * (Date.now() % 86400)),

@@ -24,7 +24,6 @@ import {
   EDataProvider,
   EExternalApi,
   getChainInfoByChain,
-  EVMIndexerNft,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
@@ -154,7 +153,7 @@ export class OklinkIndexer implements IEVMIndexer {
     chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
-    EVMIndexerNft[],
+    EVMNFT[],
     AccountIndexingError | AjaxError | MethodSupportError
   > {
     return errAsync(

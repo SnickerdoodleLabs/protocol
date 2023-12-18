@@ -2,6 +2,8 @@ import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
   IRequestConfig,
+  ITimeUtils,
+  ITimeUtilsType,
   ValidationUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
@@ -22,7 +24,6 @@ import {
   IndexerSupportSummary,
   EDataProvider,
   EExternalApi,
-  EVMIndexerNft,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -74,6 +75,7 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -116,7 +118,7 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
   public getTokensForAccount(
     chain: EChain,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMIndexerNft[], AccountIndexingError> {
+  ): ResultAsync<EVMNFT[], AccountIndexingError> {
     if (this.nftScanApiKey == null) {
       return okAsync([]);
     }
@@ -181,7 +183,7 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
   private getPages(
     chain: EChain,
     response: INftScanResponse,
-  ): ResultAsync<EVMIndexerNft[], AccountIndexingError> {
+  ): ResultAsync<EVMNFT[], AccountIndexingError> {
     if (response.code >= 500) {
       return errAsync(
         new AccountIndexingError("NftScan server error was located!", 500),
@@ -192,8 +194,7 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
         const tokenStandard = ValidationUtils.stringToTokenStandard(
           asset.erc_type,
         );
-        return new EVMIndexerNft(
-          true,
+        return new EVMNFT(
           EVMContractAddress(asset.contract_address),
           BigNumberString(asset.token_id),
           tokenStandard,
@@ -203,6 +204,7 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
           asset.name,
           chain,
           BigNumberString(asset.amount),
+          this.timeUtils.getUnixNow(),
           undefined,
           UnixTimestamp(Number(asset.own_timestamp)),
         );

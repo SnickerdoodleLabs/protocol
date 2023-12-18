@@ -14,7 +14,6 @@ export * from "@objects/businessObjects/DataWalletBackup.js";
 export * from "@objects/businessObjects/DataWalletBackupHeader.js";
 export * from "@objects/businessObjects/EVMEvent.js";
 export * from "@objects/businessObjects/EVMFunctionSignature.js";
-export * from "@objects/businessObjects/EVMIndexerNft.js";
 export * from "@objects/businessObjects/EVMNFT.js";
 export * from "@objects/businessObjects/EVMTimestampRange.js";
 export * from "@objects/businessObjects/ExternallyOwnedAccount.js";
@@ -58,6 +57,7 @@ export * from "@objects/businessObjects/TransactionFilter.js";
 export * from "@objects/businessObjects/TransactionPaymentCounter.js";
 export * from "@objects/businessObjects/VolatileDataUpdate.js";
 export * from "@objects/businessObjects/VolatileStorageMetadata.js";
+export * from "@objects/businessObjects/WalletNFT.js";
 
 export * from "@objects/businessObjects/events/index.js";
 export * from "@objects/businessObjects/rewards/index.js";

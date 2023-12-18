@@ -28,7 +28,6 @@ import {
   SolanaNFT,
   SolanaAccountAddress,
   EContractStandard,
-  EVMIndexerNft,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import * as td from "testdouble";
@@ -63,7 +62,7 @@ class EVMIndexerMock implements IEVMIndexer {
       AccountIndexingError | AjaxError | MethodSupportError
     > = okAsync([]),
     public _getTokensForAccountResult: ResultAsync<
-      EVMIndexerNft[],
+      EVMNFT[],
       AccountIndexingError | AjaxError | MethodSupportError
     > = okAsync([]),
     public _getEVMTransactionsResult: ResultAsync<
@@ -112,7 +111,7 @@ class EVMIndexerMock implements IEVMIndexer {
     chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
-    EVMIndexerNft[],
+    EVMNFT[],
     AccountIndexingError | AjaxError | MethodSupportError
   > {
     return this._getTokensForAccountResult;
@@ -281,9 +280,8 @@ class MasterIndexerMocks {
     );
   }
 
-  public getEVMNFT(balance: BigNumberString): EVMIndexerNft {
-    return new EVMIndexerNft(
-      true,
+  public getEVMNFT(balance: BigNumberString): EVMNFT {
+    return new EVMNFT(
       tokenAddress,
       tokenId,
       EContractStandard.Erc721,
@@ -293,6 +291,7 @@ class MasterIndexerMocks {
       "name",
       chain,
       invalidBalance,
+      UnixTimestamp(0),
       undefined,
       undefined,
     );
@@ -507,7 +506,7 @@ describe("MasterIndexer tests", () => {
     // Assert
     expect(result).toBeDefined();
     expect(result.isErr()).toBeFalsy();
-    const latestNFTs = result._unsafeUnwrap() as EVMIndexerNft[];
+    const latestNFTs = result._unsafeUnwrap() as EVMNFT[];
     expect(latestNFTs.length).toBe(1);
     expect(latestNFTs[0]).toBe(evmNFTInvalid);
     expect(latestNFTs[0].amount).toBe("0");

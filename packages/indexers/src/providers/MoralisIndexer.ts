@@ -2,6 +2,8 @@ import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
   IRequestConfig,
+  ITimeUtils,
+  ITimeUtilsType,
   ValidationUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
@@ -25,7 +27,6 @@ import {
   EDataProvider,
   EExternalApi,
   getChainInfoByChain,
-  EVMIndexerNft,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -83,6 +84,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -169,7 +171,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
   public getTokensForAccount(
     chain: EChain,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMIndexerNft[], AccountIndexingError> {
+  ): ResultAsync<EVMNFT[], AccountIndexingError> {
     if (this.moralisKey == null) {
       return okAsync([]);
     }
@@ -226,17 +228,16 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     chain: EChain,
     accountAddress: EVMAccountAddress,
     response: IMoralisNFTResponse,
-  ): ResultAsync<EVMIndexerNft[], AjaxError> {
+  ): ResultAsync<EVMNFT[], AjaxError> {
     if (this.moralisKey == null) {
       return okAsync([]);
     }
 
-    const items: EVMIndexerNft[] = response.result.map((token) => {
+    const items: EVMNFT[] = response.result.map((token) => {
       const tokenStandard = ValidationUtils.stringToTokenStandard(
         token.contract_type,
       );
-      return new EVMIndexerNft(
-        true,
+      return new EVMNFT(
         EVMContractAddress(token.token_address),
         BigNumberString(token.token_id),
         tokenStandard,
@@ -246,6 +247,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
         token.name,
         chain,
         BigNumberString(token.amount),
+        this.timeUtils.getUnixNow(),
         BlockNumber(Number(token.block_number)),
         undefined,
       );

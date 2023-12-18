@@ -393,7 +393,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      "nft.getCachedNFTs": (
+      "nft.getNfts": (
         data: IIFrameCallData<{
           benchmark?: UnixTimestamp;
           chains?: EChain[];
@@ -402,38 +402,12 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.nft.getCachedNFTs(
+            return core.nft.getNfts(
               data.data.benchmark,
               data.data.chains,
               data.data.accounts,
               this.sourceDomain,
             );
-          });
-        }, data.callId);
-      },
-
-      "nft.getNFTsHistory": (data: IIFrameCallData<Record<string, never>>) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.nft.getNFTsHistory(this.sourceDomain);
-          });
-        }, data.callId);
-      },
-
-      "nft.getPersistenceNFTs": (
-        data: IIFrameCallData<Record<string, never>>,
-      ) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.nft.getPersistenceNFTs(this.sourceDomain);
-          });
-        }, data.callId);
-      },
-
-      "nft.getCache": (data: IIFrameCallData<Record<string, never>>) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.nft.getCache(this.sourceDomain);
           });
         }, data.callId);
       },
@@ -912,6 +886,34 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
             return core.metrics.getMetrics(this.sourceDomain);
+          });
+        }, data.callId);
+      },
+
+      "metrics.getNFTsHistory": (
+        data: IIFrameCallData<Record<string, never>>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.metrics.getNFTsHistory(this.sourceDomain);
+          });
+        }, data.callId);
+      },
+
+      "metrics.getPersistenceNFTs": (
+        data: IIFrameCallData<Record<string, never>>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.metrics.getPersistenceNFTs(this.sourceDomain);
+          });
+        }, data.callId);
+      },
+
+      "metrics.getNFTCache": (data: IIFrameCallData<Record<string, never>>) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.metrics.getNFTCache(this.sourceDomain);
           });
         }, data.callId);
       },

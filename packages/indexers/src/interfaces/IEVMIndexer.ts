@@ -4,7 +4,7 @@ import {
   AccountIndexingError,
   AjaxError,
   MethodSupportError,
-  EVMIndexerNft,
+  EVMNFT,
   EVMTransaction,
   TokenBalance,
 } from "@snickerdoodlelabs/objects";
@@ -24,7 +24,7 @@ export interface IEVMIndexer extends IIndexer {
     chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
-    EVMIndexerNft[],
+    EVMNFT[],
     AccountIndexingError | AjaxError | MethodSupportError
   >;
   getEVMTransactions(

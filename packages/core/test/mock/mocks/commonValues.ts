@@ -32,14 +32,12 @@ import {
   SiteVisitsMap,
   SiteVisitsData,
   ISO8601DateString,
-  EVMNFT,
   BigNumberString,
   TokenUri,
   LinkedAccount,
   EContractStandard,
-  EarnedReward,
   DirectReward,
-  EVMIndexerNft,
+  EVMNFT,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_ConditionExpr,
@@ -536,8 +534,7 @@ const amount = BigNumberString("1");
 const chain = 43113;
 
 export const Nfts = [
-  new EVMIndexerNft(
-    true,
+  new EVMNFT(
     tokenAddress1,
     tokenId,
     contractType,
@@ -547,9 +544,9 @@ export const Nfts = [
     "1",
     chain,
     amount,
+    UnixTimestamp(1701779730),
   ),
-  new EVMIndexerNft(
-    true,
+  new EVMNFT(
     tokenAddress2,
     tokenId,
     contractType,
@@ -559,6 +556,7 @@ export const Nfts = [
     "2",
     chain,
     amount,
+    UnixTimestamp(1701779730),
   ),
 ];
 export const cachedNfts = [
@@ -596,32 +594,36 @@ export const cachedNfts = [
 
 export const indexedNfts = [
   {
-    type: 0,
-    chain: 43113,
-    owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
-    token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
-    name: "1",
     id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0",
-    tokenId: "0",
-    contractType: "Erc721",
-    tokenUri: "",
-    metadata: undefined,
-    blockNumber: undefined,
-    lastOwnerTimeStamp: undefined,
+    nft: {
+      type: 0,
+      chain: 43113,
+      owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
+      token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
+      name: "1",
+      tokenId: "0",
+      contractType: "Erc721",
+      tokenUri: "",
+      metadata: undefined,
+      blockNumber: undefined,
+      lastOwnerTimeStamp: undefined,
+    },
   },
   {
-    type: 0,
-    chain: 43113,
-    owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
-    token: "0x2222222222222222222222222222222222222222",
-    name: "2",
     id: "0x2222222222222222222222222222222222222222|#|0",
-    tokenId: "0",
-    contractType: "Erc721",
-    tokenUri: "",
-    metadata: undefined,
-    blockNumber: undefined,
-    lastOwnerTimeStamp: undefined,
+    nft: {
+      type: 0,
+      chain: 43113,
+      owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
+      token: "0x2222222222222222222222222222222222222222",
+      name: "2",
+      tokenId: "0",
+      contractType: "Erc721",
+      tokenUri: "",
+      metadata: undefined,
+      blockNumber: undefined,
+      lastOwnerTimeStamp: undefined,
+    },
   },
 ];
 
@@ -643,24 +645,23 @@ export const indexedNftHistory = [
   },
 ];
 
-export const walletNftWithHistory = [
+export const nfts = [
   {
     type: 0,
     chain: 81,
     owner: "ExternalAccountAddress1",
     token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
     name: "Name",
-    id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|1",
     tokenId: "1",
-    contractType: "Direct",
+    contractType: "Unknown",
     tokenUri: undefined,
     metadata: {
       raw: '{"queryCID":"queryCID","name":"Name","image":"http://ipfstest.com/whatever","description":"","type":"Direct","chainId":81,"contractAddress":"0x0a281d992a7e454d9dcf611b6bf0201393e27438","recipientAddress":"ExternalAccountAddress1"}',
     },
     blockNumber: undefined,
     lastOwnerTimeStamp: undefined,
-    history: [{ measurementDate: 0, amount: "1", event: 1 }],
-    totalAmount: "1",
+    amount: "1",
+    measurementDate: 0,
   },
   {
     type: 0,
@@ -668,16 +669,13 @@ export const walletNftWithHistory = [
     owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
     token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
     name: "1",
-    id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0",
     tokenId: "0",
     contractType: "Erc721",
     tokenUri: "",
     metadata: undefined,
     blockNumber: undefined,
     lastOwnerTimeStamp: undefined,
-    indexerResponse: true,
-    history: [{ measurementDate: 1701779730, amount: "1", event: 1 }],
-    totalAmount: "1",
+    measurementDate: 1701779730,
     amount: "1",
   },
   {
@@ -686,34 +684,41 @@ export const walletNftWithHistory = [
     owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
     token: "0x2222222222222222222222222222222222222222",
     name: "2",
-    id: "0x2222222222222222222222222222222222222222|#|0",
     tokenId: "0",
     contractType: "Erc721",
     tokenUri: "",
     metadata: undefined,
     blockNumber: undefined,
     lastOwnerTimeStamp: undefined,
-    indexerResponse: true,
-    history: [{ measurementDate: 1701779730, amount: "1", event: 1 }],
-    totalAmount: "1",
+    measurementDate: 1701779730,
     amount: "1",
   },
 ];
 
-export const walletNftThatGotTransferredAndGotBack = {
+export const nftThatGotTransferredAndGotBack = {
   type: 0,
   chain: 43113,
   owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
   token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
   name: "1",
-  id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0",
   tokenId: "0",
   contractType: "Erc721",
   tokenUri: "",
   metadata: undefined,
   blockNumber: undefined,
   lastOwnerTimeStamp: undefined,
-  indexerResponse: true,
+  measurementDate: 1701779738,
+  amount: "1",
+};
+
+const {
+  amount: evmAmount,
+  measurementDate,
+  ...rest
+} = nftThatGotTransferredAndGotBack;
+export const walletNftThatGotTransferredAndGotBack = {
+  id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0",
+  ...rest,
   history: [
     { measurementDate: 1701779730, amount: "1", event: 1 },
     {
@@ -728,6 +733,5 @@ export const walletNftThatGotTransferredAndGotBack = {
     },
   ],
   totalAmount: "1",
-  amount: "1",
 };
 // #endregion

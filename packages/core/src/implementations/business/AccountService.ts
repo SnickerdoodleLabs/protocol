@@ -193,28 +193,19 @@ export class AccountService implements IAccountService {
       });
   }
 
-  getCache(): ResultAsync<NftRepositoryCache, PersistenceError> {
-    return this.nftRepository.getCache();
-  }
-  getCachedNFTs(
-    benchmark?: UnixTimestamp | undefined,
-    chains?: EChain[] | undefined,
-    accounts?: LinkedAccount[] | undefined,
+  getNfts(
+    benchmark?: UnixTimestamp,
+    chains?: EChain[],
+    accounts?: LinkedAccount[],
   ): ResultAsync<
-    WalletNftWithHistory[],
+    WalletNFT[],
     | PersistenceError
     | InvalidParametersError
     | AccountIndexingError
     | AjaxError
     | MethodSupportError
   > {
-    return this.nftRepository.getCachedNFTs(benchmark, chains, accounts);
-  }
-  getPersistenceNFTs(): ResultAsync<WalletNFT[], PersistenceError> {
-    return this.nftRepository.getPersistenceNFTs();
-  }
-  getNFTsHistory(): ResultAsync<WalletNFTHistory[], PersistenceError> {
-    return this.nftRepository.getNFTsHistory();
+    return this.nftRepository.getNfts(benchmark, chains, accounts);
   }
 
   public addAccount(
@@ -491,7 +482,7 @@ export class AccountService implements IAccountService {
     return this.accountRepo.addEarnedRewards(rewards);
   }
 
-  public getTransctions(
+  public getTransactions(
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], PersistenceError> {
     return this.transactionRepo.getTransactions(filter);

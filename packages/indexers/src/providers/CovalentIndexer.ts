@@ -26,8 +26,6 @@ import {
   IndexerSupportSummary,
   EExternalApi,
   EDataProvider,
-  ISO8601DateString,
-  EVMIndexerNft,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -137,7 +135,7 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
     chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
-    EVMIndexerNft[],
+    EVMNFT[],
     AccountIndexingError | AjaxError | MethodSupportError
   > {
     return errAsync(
