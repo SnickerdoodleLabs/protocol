@@ -10,6 +10,7 @@ import {
 import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
+import { Provider, ContractFactory, Wallet } from "zksync-web3";
 
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { GasUtils } from "@contracts-sdk/implementations/GasUtils";
@@ -22,35 +23,32 @@ import {
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects/index.js";
 
-@injectable()
-export class RewardsContractFactory
+@injectable() //SEANCHARLIE : do we want a specific zksync factory error?
+export class ZkSyncRewardsContractFactory
   extends BaseContract<RewardsFactoryError>
   implements IRewardsContractFactory
 {
-  protected contractFactory: ethers.ContractFactory;
+  protected contractFactory: ContractFactory;
   protected rewardTypeToDeploy: ECreatedRewardType;
   constructor(
-    protected providerOrSigner:
-      | ethers.providers.Provider
-      | ethers.providers.JsonRpcSigner
-      | ethers.Wallet,
+    protected providerOrSigner: Provider | Wallet, //SEANCHARLIE : needs to use ZkSync provider and wallet
     protected rewardType: ECreatedRewardType,
   ) {
     super(
       providerOrSigner,
       EVMContractAddress(ethers.constants.AddressZero), // The rewards contract factory deploys a new contract, hence doesn't have a contract address
-      ContractsAbis.ERC721Reward.abi,
+      ContractsAbis.ZkSyncERC721RewardAbi.abi,
     );
     // Set the correct contract factory based on rewardTypeToDeploy
-    this.contractFactory = new ethers.ContractFactory(
-      ContractsAbis.ERC721Reward.abi,
-      ContractsAbis.ERC721Reward.bytecode,
-      providerOrSigner as ethers.Wallet,
+    this.contractFactory = new ContractFactory(
+      ContractsAbis.ZkSyncERC721RewardAbi.abi,
+      ContractsAbis.ZkSyncERC721RewardAbi.bytecode,
+      providerOrSigner as Wallet,
     );
     this.rewardTypeToDeploy = rewardType;
   }
 
-  // function to deploy a new ERC721 reward contract
+  // function to deploy a new ERC721 reward contract on ZkSyncEra
   public deployERC721Reward(
     name: string,
     symbol: string,
@@ -125,15 +123,15 @@ export class RewardsContractFactory
       },
     ).map((transactionResponse) => {
       // If we are deploying a contract, the deploy() call returns an ethers.Contract object and the txresponse is under the deployTransaction property
-      return RewardsContractFactory.buildWrappedTransactionResponse(
+      return ZkSyncRewardsContractFactory.buildWrappedTransactionResponse(
         isDeployingContract == true
           ? (transactionResponse as ethers.Contract).deployTransaction
           : (transactionResponse as ethers.providers.TransactionResponse),
         EVMContractAddress(""),
-        EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
+        EVMAccountAddress((this.providerOrSigner as Wallet)?.address),
         functionName,
         functionParams,
-        ContractsAbis.ConsentFactoryAbi.abi,
+        ContractsAbis.ZkSyncERC721RewardAbi.abi,
       );
     });
   }

@@ -173,6 +173,12 @@ module.exports = {
       chainId: 101,
       url: urlOverride || "http://127.0.0.1:8549",
     },
+    zkSyncEraTestnet: {
+      // zksync mainnet testnet
+      accounts: accounts,
+      chainId: 300,
+      url: urlOverride || "https://sepolia.era.zksync.dev",
+    },
   },
   gasReporter: {
     enabled: true,
