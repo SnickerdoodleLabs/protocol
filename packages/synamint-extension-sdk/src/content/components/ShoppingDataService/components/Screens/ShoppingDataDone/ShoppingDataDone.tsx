@@ -9,9 +9,10 @@ import {
   SPA_PATHS,
   WEBSITE_URL,
 } from "@synamint-extension-sdk/content/components/ShoppingDataService/constants";
+import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 
 interface IShoppingDataDoneProps {
-  coreGateway;
+  coreGateway: ExternalCoreGateway;
 }
 
 export const SOCIAL_LINKS = [
@@ -41,7 +42,7 @@ export const ShoppingDataDone: React.FC<IShoppingDataDoneProps> = ({
     console.log(coreGateway);
     coreGateway.getConfig().map((config) => {
       console.log(config);
-      window.open(`${config.onboardingUrl}${SPA_PATHS.shoppingData}`, "_blank");
+      window.open(`${config.onboardingURL}${SPA_PATHS.shoppingData}`, "_blank");
     });
   };
   return (

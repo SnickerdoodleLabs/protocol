@@ -39,7 +39,6 @@ export const ShoppingDataService: React.FC<IShoppingDataProcessProps> = ({
   const AMAZONINDEX: string | undefined = SCRAPING_INDEX.get(
     EKnownDomains.Amazon,
   );
-
   useEffect(() => {
     checkURLAMAZON();
   }, [shoppingDataScrapeStart]);

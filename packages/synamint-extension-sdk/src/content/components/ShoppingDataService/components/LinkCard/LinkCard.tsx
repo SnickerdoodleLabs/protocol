@@ -3,12 +3,13 @@ import React from "react";
 import Browser from "webextension-polyfill";
 
 import { useStyles } from "@synamint-extension-sdk/content/components/ShoppingDataService/components/LinkCard/LinkCard.style";
+import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 
 interface ILinkCardProps {
   navigateTo: string;
   icon: string;
   title: string;
-  coreGateway;
+  coreGateway: ExternalCoreGateway;
 }
 export const LinkCard = ({
   navigateTo,
@@ -21,7 +22,7 @@ export const LinkCard = ({
     console.log(coreGateway);
     coreGateway.getConfig().map((config) => {
       console.log(config);
-      window.open(`${config.onboardingUrl}${navigateTo}`, "_blank");
+      window.open(`${config.onboardingURL}${navigateTo}`, "_blank");
     });
   };
   return (
