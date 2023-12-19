@@ -3,7 +3,6 @@ import { PurchasedProduct } from "@snickerdoodlelabs/objects";
 import { SDButton, SDTypography } from "@snickerdoodlelabs/shared-components";
 import React, { FC, memo } from "react";
 
-import ConnectionCheckIcon from "@extension-onboarding/assets/icons/shoppingdata-connectdone.png";
 interface IAmazonDisConnectItemProps {
   icon: string;
   providerName: string;
@@ -51,7 +50,13 @@ export const AmazonDisConnectItem: FC<IAmazonDisConnectItemProps> = memo(
           </Box>
         </Box>
         <Box display={{ xs: "none", sm: "flex" }} alignItems="center">
-          <img width={17} height={13} src={ConnectionCheckIcon} />
+          <img
+            width={17}
+            height={13}
+            src={
+              "https://storage.googleapis.com/dw-assets/spa/icons/shoppingdata-connectdone.png"
+            }
+          />
           <Box ml={1}>
             <SDTypography
               fontWeight="medium"

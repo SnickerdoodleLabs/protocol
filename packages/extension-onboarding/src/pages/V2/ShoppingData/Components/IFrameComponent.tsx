@@ -2,17 +2,22 @@ import { Box } from "@material-ui/core";
 import { SDButton, SDTypography } from "@snickerdoodlelabs/shared-components";
 import React from "react";
 
-import Empty from "@extension-onboarding/assets/images/nft.png";
 import { DOWNLOAD_URL } from "@extension-onboarding/constants";
 import useIsMobile from "@extension-onboarding/hooks/useIsMobile";
 
-const IFrameComponent = () => {
+export const IFrameComponent = () => {
   const isMobile = useIsMobile();
 
   return (
     <Box mt={8}>
       <Box display="flex" justifyContent="center">
-        <img width={334} height={196} src={Empty} />
+        <img
+          width={334}
+          height={196}
+          src={
+            "https://storage.googleapis.com/dw-assets/spa/images/iframeshoppingdata.png"
+          }
+        />
       </Box>
       <Box display="flex" justifyContent="center" mt={2}>
         <Box width={319}>
@@ -37,5 +42,3 @@ const IFrameComponent = () => {
     </Box>
   );
 };
-
-export default IFrameComponent;

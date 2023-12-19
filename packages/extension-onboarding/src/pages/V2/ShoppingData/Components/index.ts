@@ -1,1 +1,1 @@
-export { default } from "@extension-onboarding/pages/V2/ShoppingData/Components/IFrameComponent";
+export * from "@extension-onboarding/pages/V2/ShoppingData/Components/IFrameComponent";

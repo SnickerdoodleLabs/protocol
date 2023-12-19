@@ -4,7 +4,7 @@ import React from "react";
 
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import IFrameComponent from "@extension-onboarding/pages/V2/ShoppingData/Components";
+import { IFrameComponent } from "@extension-onboarding/pages/V2/ShoppingData/Components";
 import { Amazon } from "@extension-onboarding/pages/V2/ShoppingData/Platforms/Amazon/Amazon";
 
 interface IShoppingDataProps {

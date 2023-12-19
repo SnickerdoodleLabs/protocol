@@ -1,6 +1,5 @@
 import { EKnownDomains } from "@snickerdoodlelabs/objects";
 
-import AmazonIcon from "@extension-onboarding/assets/images/amazon-logo.png";
 export interface IShoppingDataWrapper {
   icon: string;
   name: string;
@@ -9,7 +8,7 @@ export interface IShoppingDataWrapper {
 
 export const getProviderList = (): IShoppingDataWrapper[] => [
   {
-    icon: AmazonIcon,
+    icon: "https://storage.googleapis.com/dw-assets/spa/images/amazon-logo.png",
     name: "Amazon",
     key: EKnownDomains.Amazon,
   },
