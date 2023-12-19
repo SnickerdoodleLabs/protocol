@@ -29,6 +29,7 @@ import {
   IProxyDiscordMethods,
   IProxyIntegrationMethods,
   IProxyMetricsMethods,
+  IProxyPurchaseMethods,
   IProxyStorageMethods,
   IProxyTwitterMethods,
   ISdlDataWallet,
@@ -48,8 +49,10 @@ import {
   PagedResponse,
   PagingRequest,
   ProxyError,
+  PurchasedProduct,
   QueryStatus,
   RuntimeMetrics,
+  ShoppingDataConnectionStatus,
   Signature,
   SiteVisit,
   TokenAddress,
@@ -70,6 +73,7 @@ export class ProxyBridge implements ISdlDataWallet {
   public discord: IProxyDiscordMethods;
   public integration: IProxyIntegrationMethods;
   public metrics: IProxyMetricsMethods;
+  public purchase: IProxyPurchaseMethods;
   public storage: IProxyStorageMethods;
   public twitter: IProxyTwitterMethods = {} as IProxyTwitterMethods;
   private sourceDomain = undefined;
@@ -163,6 +167,43 @@ export class ProxyBridge implements ISdlDataWallet {
       unlink: (discordProfileId: DiscordID): ResultAsync<void, ProxyError> => {
         return this.call(
           this.core.discord.unlink(discordProfileId, this.sourceDomain),
+        );
+      },
+    };
+
+    this.purchase = {
+      getPurchasedProducts: (): ResultAsync<PurchasedProduct[], ProxyError> => {
+        return this.call(this.core.purchase.getPurchasedProducts());
+      },
+      getByMarketplace: (
+        marketPlace: DomainName,
+      ): ResultAsync<PurchasedProduct[], ProxyError> => {
+        return this.call(this.core.purchase.getByMarketplace(marketPlace));
+      },
+      getByMarketplaceAndDate: (
+        marketPlace: DomainName,
+        datePurchased: UnixTimestamp,
+      ): ResultAsync<PurchasedProduct[], ProxyError> => {
+        return this.call(
+          this.core.purchase.getByMarketplaceAndDate(
+            marketPlace,
+            datePurchased,
+          ),
+        );
+      },
+      getShoppingDataConnectionStatus: (): ResultAsync<
+        ShoppingDataConnectionStatus[],
+        ProxyError
+      > => {
+        return this.call(this.core.purchase.getShoppingDataConnectionStatus());
+      },
+      setShoppingDataConnectionStatus: (
+        ShoppingDataConnectionStatus: ShoppingDataConnectionStatus,
+      ): ResultAsync<void, ProxyError> => {
+        return this.call(
+          this.core.purchase.setShoppingDataConnectionStatus(
+            ShoppingDataConnectionStatus,
+          ),
         );
       },
     };
@@ -481,5 +522,4 @@ export class ProxyBridge implements ISdlDataWallet {
   ): ResultAsync<ChainTransaction[], ProxyError> {
     return this.call(this.core.getTransactions(filter, this.sourceDomain));
   }
-
 }
