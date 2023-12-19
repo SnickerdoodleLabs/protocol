@@ -259,7 +259,7 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
           payload,
         )
         .map((token) => {
-          console.log("Success: " + JSON.stringify(token));
+          // console.log("Success: " + JSON.stringify(token));
           return token.accessToken;
         })
         .mapErr((e) => {

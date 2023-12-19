@@ -278,10 +278,6 @@ export class MasterIndexer implements IMasterIndexer {
       return okAsync([]);
     }
 
-    // indexers.forEach((indexer) => {
-    //   console.log("indexer name: " + indexer.name());
-    // });
-
     return ObjectUtils.progressiveFallback((indexer: IEVMIndexer) => {
       return indexer
         .getBalancesForAccount(chain, EVMAccountAddress(accountAddress))
@@ -408,7 +404,6 @@ export class MasterIndexer implements IMasterIndexer {
     }
 
     return ObjectUtils.progressiveFallback((indexer: IEVMIndexer) => {
-      console.log("indexer: " + indexer.name());
       return indexer
         .getEVMTransactions(
           chain,
@@ -489,11 +484,8 @@ export class MasterIndexer implements IMasterIndexer {
         continue;
       }
 
-      // console.log("indexerMethod: " + indexer.name);
       // Get the health status
       const status = indexer.healthStatus().get(chain);
-      // console.log("indexerMethod status: " + status);
-
       if (status == null) {
         continue;
       }
