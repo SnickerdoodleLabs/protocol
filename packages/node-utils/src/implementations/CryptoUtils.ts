@@ -6,6 +6,11 @@ import {
 } from "@ethersproject/abstract-signer";
 import { verifyPersonalMessage } from "@mysten/sui.js/verify";
 import {
+  verifyPersonalMessage,
+  generateNonce,
+  generateRandomness,
+} from "@mysten/zklogin";
+import {
   AESEncryptedString,
   AESKey,
   Base64String,
@@ -30,6 +35,7 @@ import {
   UUID,
   OAuth1Config,
   SuiAccountAddress,
+  EOAuthProvider,
 } from "@snickerdoodlelabs/objects";
 // import argon2 from "argon2";
 import { BigNumber, ethers } from "ethers";
@@ -271,7 +277,40 @@ export class CryptoUtils implements ICryptoUtils {
     message: string,
     signature: Signature,
     accountAddress: SuiAccountAddress,
+    sourceFlag?: EOAuthProvider,
   ): ResultAsync<boolean, never> {
+    console.log("message: " + message);
+    console.log("signature: " + signature);
+
+    if (sourceFlag == EOAuthProvider.GOOGLE) {
+      const REDIRECT_URI = "<YOUR_SITE_URL>";
+      const params = new URLSearchParams({
+        // See below for how to configure client ID and redirect URL
+        client_id: CLIENT_ID,
+        redirect_uri: REDIRECT_URL,
+        response_type: "id_token",
+        scope: "openid",
+        // See below for details about generation of the nonce
+        nonce: nonce,
+      });
+
+      const loginURL = `https://accounts.google.com/o/oauth2/v2/auth?${params}`;
+
+      const FULLNODE_URL = "https://fullnode.devnet.sui.io"; // replace with the RPC URL you want to use
+      const suiClient = new SuiClient({ url: FULLNODE_URL });
+      const { epoch, epochDurationMs, epochStartTimestampMs } =
+        await suiClient.getLatestSuiSystemState();
+
+      const maxEpoch = Number(epoch) + 2; // this means the ephemeral key will be active for 2 epochs from now.
+      const ephemeralKeyPair = new Ed25519Keypair();
+      const randomness = generateRandomness();
+      const nonce = generateNonce(
+        ephemeralKeyPair.getPublicKey(),
+        maxEpoch,
+        randomness,
+      );
+    }
+
     return ResultAsync.fromPromise(
       verifyPersonalMessage(Buffer.from(message, "utf-8"), signature),
       (e) => {
