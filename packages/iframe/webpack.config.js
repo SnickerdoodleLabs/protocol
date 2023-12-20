@@ -6,14 +6,11 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const webpack = require("webpack");
 const configFilePath = require.resolve("./tsconfig.json");
-// const argon2 = require("argon2");
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 
 /** @type import('webpack').Configuration */
 module.exports = {
-  externals: {
-    // argon2: argon2,
-  },
+  externals: {},
   context: __dirname,
   mode: process.env.__BUILD_ENV__ === "dev" ? "development" : "production",
   entry: path.join(__dirname, "src/index.tsx"),
@@ -22,6 +19,7 @@ module.exports = {
     path: path.join(__dirname, "/dist/bundle"),
     publicPath: "/",
   },
+  ignoreWarnings: [/reexported/, /possible exports/],
   devServer: {
     https: true,
     static: {
@@ -42,6 +40,7 @@ module.exports = {
         loader: "ts-loader",
         exclude: /node_modules/,
         options: {
+          transpileOnly: true,
           projectReferences: true,
           configFile: configFilePath,
           compilerOptions: {
@@ -62,11 +61,6 @@ module.exports = {
           "css-loader",
           {
             loader: "sass-loader",
-            options: {
-              sassOptions: {
-                includePaths: [path.resolve(__dirname, "node_modules")],
-              },
-            },
           },
         ],
       },
@@ -84,8 +78,7 @@ module.exports = {
     extensions: [".tsx", ".ts", ".js", ".html"],
     plugins: [new TsconfigPathsPlugin({ configFile: configFilePath })],
   },
-  devtool:
-    process.env.__BUILD_ENV__ === "dev" ? "eval-source-map" : "source-map",
+  devtool: process.env.__BUILD_ENV__ === "dev" ? "eval" : "source-map",
   plugins: [
     new NodePolyfillPlugin(),
     new HtmlWebpackPlugin({
@@ -182,6 +175,7 @@ module.exports = {
       __OKLINK_API_KEY__: JSON.stringify(process.env.__OKLINK_API_KEY__),
       __ANKR_API_KEY__: JSON.stringify(process.env.__ANKR_API_KEY__),
       __BLUEZ_API_KEY__: JSON.stringify(process.env.__BLUEZ_API_KEY__),
+      __RARIBILE_API_KEY__: JSON.stringify(process.env.__RARIBILE_API_KEY__),
       __SPACEANDTIME_API_KEY__: JSON.stringify(
         process.env.__SPACEANDTIME_API_KEY__,
       ),

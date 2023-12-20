@@ -59,11 +59,13 @@ import {
   ISolanaIndexer,
   IEVMTransactionSanitizer,
   IEVMTransactionSanitizerType,
+  IRaribleIndexerType,
 } from "@indexers/interfaces/index.js";
 
 @injectable()
 export class MasterIndexer implements IMasterIndexer {
   protected evmIndexerWeights = [
+    this.rarible,
     this.bluez,
     this.poapRepo,
     this.ankr,
@@ -95,6 +97,7 @@ export class MasterIndexer implements IMasterIndexer {
     @inject(IOklinkIndexerType) protected oklink: IEVMIndexer,
     @inject(IPoapRepositoryType) protected poapRepo: IEVMIndexer,
     @inject(IPolygonIndexerType) protected matic: IEVMIndexer,
+    @inject(IRaribleIndexerType) protected rarible: IEVMIndexer,
     @inject(ISimulatorEVMTransactionRepositoryType) protected sim: IEVMIndexer,
     @inject(ISolanaIndexerType) protected sol: ISolanaIndexer,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
@@ -117,6 +120,7 @@ export class MasterIndexer implements IMasterIndexer {
       this.nftscan.initialize(),
       this.oklink.initialize(),
       this.poapRepo.initialize(),
+      this.rarible.initialize(),
       this.sim.initialize(),
       this.sol.initialize(),
     ])
@@ -150,6 +154,7 @@ export class MasterIndexer implements IMasterIndexer {
           this.nftscan,
           this.oklink,
           this.poapRepo,
+          this.rarible,
           this.sim,
           this.sol,
         ];
@@ -523,6 +528,7 @@ export class MasterIndexer implements IMasterIndexer {
         this.nftscan,
         this.oklink,
         this.poapRepo,
+        this.rarible,
         this.sim,
         this.sol,
         this.blockvision,
@@ -542,6 +548,7 @@ export class MasterIndexer implements IMasterIndexer {
         nftscanHealth,
         oklinkHealth,
         poapHealth,
+        raribleHealth,
         simHealth,
         solHealth,
         blockvisionHealth,
@@ -560,6 +567,7 @@ export class MasterIndexer implements IMasterIndexer {
       indexerStatuses.simulatorIndexer = simHealth;
       indexerStatuses.solanaIndexer = solHealth;
       indexerStatuses.blockvisionIndexer = blockvisionHealth;
+      indexerStatuses.raribleIndexer = raribleHealth;
 
       // The status of each indexer is known, and the chains that those indexers support is known.
       // We need to consolidate the component status for each chain via a group-by.
