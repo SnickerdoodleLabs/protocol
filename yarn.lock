@@ -9399,6 +9399,7 @@ __metadata:
     react-chartjs-2: ^4.3.1
     react-dom: ^17.0.2
     react-ga: ^3.3.1
+    react-google-charts: ^4.0.1
     react-google-login: ^5.2.2
     react-hotjar: ^5.2.0
     react-intersection-observer: ^9.4.3
@@ -39541,6 +39542,16 @@ __metadata:
     prop-types: ^15.6.0
     react: ^15.6.2 || ^16.0 || ^17 || ^18
   checksum: 3026976d0249fbf80e7b5dad7707964198064d7ac460f3397de40524e76dd6c29dead0900f850e2bd3135a86a9b083af8cda9cfa087f195852bf8d2b17c1fcfb
+  languageName: node
+  linkType: hard
+
+"react-google-charts@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "react-google-charts@npm:4.0.1"
+  peerDependencies:
+    react: ">=16.3.0"
+    react-dom: ">=16.3.0"
+  checksum: 874a552b07cc67d6b830718dd5e71055c46fbd0c7a12bca14078c0744111d8fead833e36a16bd0b0ea5c26f6cff0eb84b4b6de62845c945b3c47c6cc75233f9d
   languageName: node
   linkType: hard
 

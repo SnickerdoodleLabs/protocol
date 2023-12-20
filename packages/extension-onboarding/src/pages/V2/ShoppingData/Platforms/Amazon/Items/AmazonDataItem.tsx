@@ -3,7 +3,7 @@ import { PurchasedProduct } from "@snickerdoodlelabs/objects";
 import { SDTypography } from "@snickerdoodlelabs/shared-components";
 import { ChartData } from "chart.js";
 import React, { FC, memo, useMemo } from "react";
-import { Pie } from "react-chartjs-2";
+import { Chart } from "react-google-charts";
 
 interface IAmazonDataItemProps {
   product: PurchasedProduct[];
@@ -76,25 +76,19 @@ export const AmazonDataItem: FC<IAmazonDataItemProps> = memo(
       ],
     };
 
-    const pieChartOptions: any = {
-      plugins: {
-        legend: {
-          display: false,
-        },
-      },
-      tooltips: {
-        callbacks: {
-          label: (tooltipItem, data) => {
-            if (data && data.datasets) {
-              const dataset = data.datasets[tooltipItem.datasetIndex || 0];
-              const label = dataset.label || "";
-              const value = dataset.data![tooltipItem.index || 0] || 0;
-              return `${label}: ${value}`;
-            }
-            return "";
-          },
-        },
-      },
+    const chartData = [
+      ["Categories", "Price"],
+      ["Clothes", calculateTotalPrices(product).clothesTotalPrice],
+      ["Electronic", calculateTotalPrices(product).electronicsTotalPrice],
+      ["Game", calculateTotalPrices(product).gameTotalPrice],
+      ["Other", calculateTotalPrices(product).otherTotalPrice],
+    ];
+
+    const options = {
+      legend: "none",
+      pieSliceText: "label",
+      pieStartAngle: 100,
+      colors: ["#292648", "#6E62A6", "#D2CEE3", "#AFAADB"],
     };
 
     const chartComponent = useMemo(() => {
@@ -189,8 +183,27 @@ export const AmazonDataItem: FC<IAmazonDataItemProps> = memo(
                     mt={1.5}
                     px={5}
                   >
-                    <Box height={190} width={190} py={2}>
-                      <Pie data={pieChartData} options={pieChartOptions} />
+                    <Box
+                      height={190}
+                      width={190}
+                      py={2}
+                      display="flex"
+                      alignItems={"center"}
+                      justifyContent={{
+                        xs: "flex-end",
+                        sm: "flex-end",
+                        md: "flex-end",
+                        lg: "center",
+                      }}
+                      mt={3}
+                    >
+                      <Chart
+                        chartType="PieChart"
+                        data={chartData}
+                        options={options}
+                        width={265}
+                        height={265}
+                      />
                     </Box>
                     <Box display="table-column-group">
                       {pieChartData.labels?.map((label, index) => (
