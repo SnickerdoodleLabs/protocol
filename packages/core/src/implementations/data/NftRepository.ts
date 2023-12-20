@@ -52,7 +52,7 @@ import {
 } from "@snickerdoodlelabs/persistence";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ok, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoin } from "url-join-ts";
 
@@ -84,7 +84,16 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
     protected masterIndexer: IMasterIndexer,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
-  ) {}
+  ) {
+    this.contextProvider.getContext().map((context) => {
+      context.publicEvents.onAccountAdded.subscribe((account) =>
+        this.linkAccount(account),
+      );
+      context.publicEvents.onAccountRemoved.subscribe((account) =>
+        this.unlinkAccount(account),
+      );
+    });
+  }
 
   public getPersistenceNFTs(): ResultAsync<WalletNFTData[], PersistenceError> {
     return this.persistence.getAll<WalletNFTData>(ERecordKey.NFTS);
@@ -98,60 +107,6 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
     return this.getNftCache();
   }
 
-  /**
-   * Updates the IndexedDB and cache with NFT data retrieved from indexers.
-   *
-   * This method serves two primary purposes:
-   * 1. To regularly update data based on polling.
-   * 2. To process queries that require recent data, ensuring records are up-to-date.
-   *
-   * Overview:
-   * - Utilizes data from indexers as the primary source for NFT information.
-   * - Updates both the IndexedDB (storing individual NFT and NFT history records) and an in-memory cache
-   *   (aggregating the latest comprehensive NFT data with their historical records).
-   * - Handles data for specified blockchain chains; chains not in the indexer's response are not updated.
-   *
-   * Processing Logic:
-   * - New NFT records not present in the database are added to IndexedDB and cache, along with their history.
-   * - NFT records present in the database but missing from the indexer's response are added with "Removed" to history.
-   * - For each NFT found in both sources:
-   *   - For ERC1155 NFTs, differences in amounts are identified, and history records are updated accordingly.
-   *   - For ERC721 NFTs, if the last recorded amount is 0, an "Added" history record is created.(User transferred the nft, then got it back again)
-   *
-   * The method ensures an accurate snapshot of user NFT holdings is maintained for querying purposes,
-   * while indexer data is used to trigger events.
-   *
-   * @param accounts Optional array of `LinkedAccount`. If not provided, all the linked accounts will be used.
-   * @param chain Optional array of `EChain`. If not provided, all supported chains will be used.
-   * @returns indexer nft responses, used for events
-   */
-  protected getIndexerNftsAndUpdateIndexedDb(
-    accounts?: LinkedAccount[],
-    chains?: EChain[],
-  ): ResultAsync<
-    WalletNFT[],
-    | PersistenceError
-    | AccountIndexingError
-    | AjaxError
-    | MethodSupportError
-    | InvalidParametersError
-  > {
-    if (chains != null && accounts != null) {
-      return this.getIndexerNftsAndUpdateIndexedDbTasks(accounts, chains);
-    } else {
-      return ResultUtils.combine([
-        chains
-          ? okAsync(chains)
-          : this.masterIndexer.getSupportedChains(EIndexerMethod.NFTs),
-        accounts ? okAsync(accounts) : this.accountRepo.getAccounts(),
-      ]).andThen(([selectedChains, selectedAccounts]) => {
-        return this.getIndexerNftsAndUpdateIndexedDbTasks(
-          selectedAccounts,
-          selectedChains,
-        );
-      });
-    }
-  }
   public getNfts(
     benchmark?: UnixTimestamp,
     chains?: EChain[],
@@ -164,7 +119,7 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
     | MethodSupportError
     | InvalidParametersError
   > {
-    if (chains && accounts) {
+    if (chains != null && accounts != null) {
       return this.getCachedNFTsTasks(chains, accounts, benchmark).andThen(
         (walletNftWithHistories) => {
           if (chains.includes(EChain.Shibuya)) {
@@ -206,6 +161,181 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
           }
           return okAsync(this.convertToWalletNfts(walletNftWithHistories));
         });
+      });
+    }
+  }
+
+  protected linkAccount(
+    linkedAccount: LinkedAccount,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | AccountIndexingError
+    | AjaxError
+    | MethodSupportError
+    | InvalidParametersError
+  > {
+    if (this._nftCache == null) {
+      // cache is built with respect to linked accounts, simply we ask for new nfts
+      return this.getNfts(this.timeUtils.getUnixNow(), undefined, [
+        linkedAccount,
+      ]).map(() => {});
+    } else {
+      // If the account was previously linked and then removed records still exist on db
+      // They will be removed on cache, we will populate cache and then ask for new nfts
+      return ResultUtils.combine([
+        this.getPersistenceNFTs(),
+        this.getNFTsHistory(),
+        this.getNftCache(),
+      ])
+        .andThen(([dnNfts, nftHistories, cache]) => {
+          const cacheCreatedFromIndexDb = this.getWalletNftsWithHistoryMap(
+            dnNfts,
+            nftHistories,
+            [linkedAccount.sourceAccountAddress],
+          );
+          this.updateExistingCacheForReLinkedAccountRecords(
+            cache,
+            cacheCreatedFromIndexDb,
+            linkedAccount.sourceAccountAddress,
+          );
+          return this.getNfts(this.timeUtils.getUnixNow(), undefined, [
+            linkedAccount,
+          ]).map(() => {});
+        })
+        .orElse((e) => {
+          this.logUtils.error(
+            `In link account, received an error while retrieving history records for account address ${linkedAccount.sourceAccountAddress}.\n
+             Suggests problem on persistance layer for old records of address ${linkedAccount.sourceAccountAddress}
+          `,
+            e,
+          );
+          return okAsync(undefined);
+        });
+    }
+  }
+
+  protected updateExistingCacheForReLinkedAccountRecords(
+    existingCache: NftRepositoryCache,
+    updatedCache: NftRepositoryCache,
+    accountAddress: AccountAddress,
+  ): void {
+    updatedCache.forEach((chainData, chain) => {
+      const existingChainData = existingCache.get(chain);
+      if (existingChainData != null) {
+        const accountDataThatWasRemovedOnAnUnlink =
+          chainData.data.get(accountAddress);
+
+        if (accountDataThatWasRemovedOnAnUnlink != null) {
+          const deepCopyAccountData = ObjectUtils.toGenericObject(
+            accountDataThatWasRemovedOnAnUnlink,
+          ) as unknown as Map<NftTokenAddressWithTokenId, WalletNftWithHistory>;
+          existingChainData.data.set(accountAddress, deepCopyAccountData);
+        }
+      } else {
+        const deepCopyChain = ObjectUtils.toGenericObject(
+          chainData,
+        ) as unknown as {
+          data: Map<
+            AccountAddress,
+            Map<NftTokenAddressWithTokenId, WalletNftWithHistory>
+          >;
+          lastUpdateTime: UnixTimestamp;
+        };
+        existingCache.set(chain, deepCopyChain);
+      }
+    });
+  }
+
+  protected unlinkAccount({
+    sourceAccountAddress,
+  }: LinkedAccount): ResultAsync<void, PersistenceError> {
+    return this.getNftCache().andThen((cache) => {
+      const removedHistories: WalletNFTHistory[] = [];
+      const effectedChains: EChain[] = [];
+      cache.forEach((chainData, chain) => {
+        const unlinkedAccountData = chainData.data.get(sourceAccountAddress);
+        if (unlinkedAccountData != null) {
+          unlinkedAccountData.forEach((walletnftWithHistory) => {
+            const nftHistory = this.addOrRemoveWalletNftRecordInDb(
+              walletnftWithHistory,
+              EIndexedDbOp.Removed,
+              this.timeUtils.getUnixNow(),
+            );
+            removedHistories.push(nftHistory);
+          });
+          effectedChains.push(chain);
+        }
+      });
+      return this.addNftHistoryToIndexedDb(removedHistories)
+        .map(() => {
+          effectedChains.forEach((chain) => {
+            cache.get(chain)?.data.delete(sourceAccountAddress);
+          });
+        })
+        .orElse((e) => {
+          this.logUtils.error(
+            `In unlinkAccount, received an error while adding removed history records for account address ${sourceAccountAddress}.\n
+             Records still exists!
+            `,
+            e,
+          );
+          return okAsync(undefined);
+        });
+    });
+  }
+
+  /**
+   * Updates the IndexedDB and cache with NFT data retrieved from indexers.
+   *
+   * This method serves two primary purposes:
+   * 1. To regularly update data based on polling.
+   * 2. To process queries that require recent data, ensuring records are up-to-date.
+   *
+   * Overview:
+   * - Utilizes data from indexers as the primary source for NFT information.
+   * - Updates both the IndexedDB (storing individual NFT and NFT history records) and an in-memory cache
+   *   (aggregating the latest comprehensive NFT data with their historical records).
+   * - Handles data for specified blockchain chains; chains not in the indexer's response are not updated.
+   *
+   * Processing Logic:
+   * - New NFT records not present in the database are added to IndexedDB and cache, along with their history.
+   * - NFT records present in the database but missing from the indexer's response are added with "Removed" to history.
+   * - For each NFT found in both sources:
+   *   - For ERC1155 NFTs, differences in amounts are identified, and history records are updated accordingly.
+   *   - For ERC721 NFTs, if the last recorded amount is 0, an "Added" history record is created.(User transferred the nft, then got it back again)
+   *
+   * The method ensures an accurate snapshot of user NFT holdings is maintained for querying purposes,
+   * while indexer data is used to trigger events.
+   *
+   * @param accounts Optional array of `LinkedAccount`. If not provided, all the linked accounts will be used.
+   * @param chain Optional array of `EChain`. If not provided, all supported chains will be used.
+   * @returns void
+   */
+  protected getIndexerNftsAndUpdateIndexedDb(
+    accounts?: LinkedAccount[],
+    chains?: EChain[],
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | AccountIndexingError
+    | AjaxError
+    | MethodSupportError
+    | InvalidParametersError
+  > {
+    if (chains != null && accounts != null) {
+      return this.getIndexerNftsAndUpdateIndexedDbTasks(accounts, chains);
+    } else {
+      return ResultUtils.combine([
+        chains
+          ? okAsync(chains)
+          : this.masterIndexer.getSupportedChains(EIndexerMethod.NFTs),
+        accounts ? okAsync(accounts) : this.accountRepo.getAccounts(),
+      ]).andThen(([selectedChains, selectedAccounts]) => {
+        return this.getIndexerNftsAndUpdateIndexedDbTasks(
+          selectedAccounts,
+          selectedChains,
+        );
       });
     }
   }
@@ -288,48 +418,35 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
       const chainsThatNeedsUpdating: EChain[] = [];
       const cachedNfts: WalletNftWithHistory[] = [];
 
-      for (const selectedChain of chains) {
-        const selectedChainNftCache = nftCache.get(selectedChain);
-
-        if (benchmark != null) {
-          if (selectedChainNftCache != null) {
-            if (selectedChainNftCache.lastUpdateTime < benchmark) {
-              chainsThatNeedsUpdating.push(selectedChain);
-            }
-          } else {
-            chainsThatNeedsUpdating.push(selectedChain);
-          }
-        }
-      }
+      this.populateChainsThatNeedToBeUpdated(
+        chains,
+        nftCache,
+        benchmark,
+        chainsThatNeedsUpdating,
+      );
       if (chainsThatNeedsUpdating.length > 0 && benchmark != null) {
         return this.getIndexerNftsAndUpdateIndexedDb(
           undefined,
           chainsThatNeedsUpdating,
         ).andThen(() => {
           return this.getNftCache().map((updatedCache) => {
-            this.getValidAccountNftsFromCache(
+            this.populateResponseWithAccountSpecificNftsFromCache(
               chains,
               accounts,
               updatedCache,
               cachedNfts,
             );
 
-            for (const chainsThatNeedsUpdate of chainsThatNeedsUpdating) {
-              const possibleUpdatedChain = updatedCache.get(
-                chainsThatNeedsUpdate,
-              );
-              if (possibleUpdatedChain != null) {
-                if (possibleUpdatedChain.lastUpdateTime < benchmark) {
-                  //No new nft found for the user
-                  possibleUpdatedChain.lastUpdateTime = benchmark;
-                }
-              }
-            }
+            this.updateCacheTimes(
+              chainsThatNeedsUpdating,
+              updatedCache,
+              benchmark,
+            );
             return this.filterNftHistoriesByTimestamp(benchmark, cachedNfts);
           });
         });
       } else {
-        this.getValidAccountNftsFromCache(
+        this.populateResponseWithAccountSpecificNftsFromCache(
           chains,
           accounts,
           nftCache,
@@ -347,12 +464,47 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
     });
   }
 
-  protected getValidAccountNftsFromCache(
+  protected populateChainsThatNeedToBeUpdated(
+    chains: EChain[],
+    nftCache: NftRepositoryCache,
+    benchmark: UnixTimestamp | undefined,
+    chainsThatNeedsUpdating: EChain[],
+  ): void {
+    for (const selectedChain of chains) {
+      const selectedChainNftCache = nftCache.get(selectedChain);
+      if (benchmark != null) {
+        if (selectedChainNftCache != null) {
+          if (selectedChainNftCache.lastUpdateTime < benchmark) {
+            chainsThatNeedsUpdating.push(selectedChain);
+          }
+        } else {
+          chainsThatNeedsUpdating.push(selectedChain);
+        }
+      }
+    }
+  }
+
+  protected updateCacheTimes(
+    chainsThatNeedsUpdating: EChain[],
+    updatedCache: NftRepositoryCache,
+    benchmark: UnixTimestamp,
+  ): void {
+    for (const chainsThatNeedsUpdate of chainsThatNeedsUpdating) {
+      const possibleUpdatedChain = updatedCache.get(chainsThatNeedsUpdate);
+      if (possibleUpdatedChain != null) {
+        if (possibleUpdatedChain.lastUpdateTime < benchmark) {
+          //No new nft found for the user, but we did checked for nfts
+          possibleUpdatedChain.lastUpdateTime = benchmark;
+        }
+      }
+    }
+  }
+  protected populateResponseWithAccountSpecificNftsFromCache(
     chains: EChain[],
     accounts: LinkedAccount[],
     cache: NftRepositoryCache,
     cachedNfts: WalletNftWithHistory[],
-  ) {
+  ): void {
     for (const selectedChain of chains) {
       for (const selectedAccount of accounts) {
         const chainData = cache.get(selectedChain);
@@ -444,7 +596,7 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
     accounts: LinkedAccount[],
     chains: EChain[],
   ): ResultAsync<
-    WalletNFT[],
+    void,
     | PersistenceError
     | AccountIndexingError
     | AjaxError
@@ -452,12 +604,8 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
     | InvalidParametersError
   > {
     const tasks: ResultAsync<
-      WalletNFT[],
-      | PersistenceError
-      | AccountIndexingError
-      | AjaxError
-      | MethodSupportError
-      | InvalidParametersError
+      [WalletNFTHistory[], WalletNFTData[], EChain, AccountAddress],
+      never
     >[] = [];
 
     for (const selectedChain of chains) {
@@ -473,47 +621,252 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
       }
     }
 
-    return ResultUtils.combine(tasks).map((indexerResponses) => {
-      return indexerResponses.flat(2);
+    return ResultUtils.combine(tasks).andThen((combinedUpdated) => {
+      return this.getNftCache().map((cache) => {
+        combinedUpdated.forEach(
+          ([
+            newlyAddedNftHistories,
+            newlyAddedNftDatas,
+            chain,
+            accountAddress,
+          ]) => {
+            this.upsertCache(
+              newlyAddedNftHistories,
+              newlyAddedNftDatas,
+              chain,
+              accountAddress,
+              cache,
+            );
+          },
+        );
+      });
     });
+  }
+
+  protected upsertCache(
+    newlyAddedNftHistories: WalletNFTHistory[],
+    newlyAddedNftDatas: WalletNFTData[],
+    chain: EChain,
+    accountAddress: AccountAddress,
+    cache: NftRepositoryCache,
+  ): void {
+    if (newlyAddedNftHistories.length < 1 && newlyAddedNftDatas.length < 1) {
+      return;
+    }
+    const nftHistoriesMap = this.getNftIdToWalletHistoryMap(
+      newlyAddedNftHistories,
+    );
+    const currentChain = cache.get(chain);
+    if (currentChain != null) {
+      const currentAccount = currentChain.data.get(accountAddress);
+      if (currentAccount != null) {
+        this.addNewHistoriesToExistingRecordsOnCache(
+          nftHistoriesMap,
+          currentAccount,
+          currentChain,
+        );
+        this.upsertNewAccountToExistingChainOnCache(
+          newlyAddedNftDatas,
+          chain,
+          nftHistoriesMap,
+          currentChain,
+          accountAddress,
+          currentAccount,
+        );
+      } else {
+        this.upsertNewAccountToExistingChainOnCache(
+          newlyAddedNftDatas,
+          chain,
+          nftHistoriesMap,
+          currentChain,
+          accountAddress,
+        );
+      }
+    } else {
+      this.addNewChainToCache(
+        cache,
+        newlyAddedNftDatas,
+        nftHistoriesMap,
+        chain,
+        accountAddress,
+      );
+    }
+  }
+
+  protected addNewHistoriesToExistingRecordsOnCache(
+    nftHistoriesMap: Map<
+      NftTokenAddressWithTokenId,
+      Pick<WalletNftWithHistory, "history" | "totalAmount">
+    >,
+    currentAccount: Map<NftTokenAddressWithTokenId, WalletNftWithHistory>,
+    currentChain: {
+      data: Map<
+        AccountAddress,
+        Map<NftTokenAddressWithTokenId, WalletNftWithHistory>
+      >;
+      lastUpdateTime: UnixTimestamp;
+    },
+  ): void {
+    nftHistoriesMap.forEach((totalHistory, id) => {
+      const currentDbNft = currentAccount.get(id);
+      if (currentDbNft == null) {
+        return;
+      }
+
+      const newHistory = totalHistory.history[totalHistory.history.length - 1];
+
+      const changeAmount = BigNumber.from(newHistory.amount);
+      const newAmount =
+        newHistory.event === EIndexedDbOp.Added
+          ? BigNumber.from(currentDbNft.totalAmount).add(changeAmount)
+          : BigNumber.from(currentDbNft.totalAmount).sub(changeAmount);
+      currentDbNft.totalAmount = BigNumberString(newAmount.toString());
+      currentDbNft.history.push({
+        measurementDate: newHistory.measurementDate,
+        amount: newHistory.amount,
+        event: newHistory.event,
+      });
+
+      if (currentChain.lastUpdateTime < newHistory.measurementDate) {
+        currentChain.lastUpdateTime = newHistory.measurementDate;
+      }
+    });
+  }
+
+  protected upsertNewAccountToExistingChainOnCache(
+    newlyAddedNftDatas: WalletNFTData[],
+    chain: EChain,
+    nftHistoriesMap: Map<
+      NftTokenAddressWithTokenId,
+      Pick<WalletNftWithHistory, "history" | "totalAmount">
+    >,
+    currentChain: {
+      data: Map<
+        AccountAddress,
+        Map<NftTokenAddressWithTokenId, WalletNftWithHistory>
+      >;
+      lastUpdateTime: UnixTimestamp;
+    },
+    accountAddress: AccountAddress,
+    currentAccount?: Map<NftTokenAddressWithTokenId, WalletNftWithHistory>,
+  ): void {
+    const accountNftsMap =
+      this.walletDataToChainNftMap(newlyAddedNftDatas).get(chain);
+
+    if (accountNftsMap == null) {
+      return;
+    }
+
+    const accountWithWalletHistories = this.getAccountsWithWalletHistoriesData(
+      accountNftsMap,
+      nftHistoriesMap,
+      [accountAddress],
+    );
+
+    const newUpdateTime = accountWithWalletHistories.lastUpdateTime;
+    const newAccountData = accountWithWalletHistories.data.get(accountAddress);
+    if (newAccountData == null) {
+      return;
+    }
+
+    if (currentChain.lastUpdateTime < newUpdateTime) {
+      currentChain.lastUpdateTime = newUpdateTime;
+    }
+
+    if (currentAccount != null) {
+      newAccountData.forEach((walletNftWithHistory, id) => {
+        currentAccount.set(id, {
+          nft: {
+            ...walletNftWithHistory.nft,
+          },
+          history: [...walletNftWithHistory.history],
+          totalAmount: walletNftWithHistory.totalAmount,
+          owner: walletNftWithHistory.owner,
+          id: walletNftWithHistory.id,
+        });
+      });
+    } else {
+      currentChain.data.set(accountAddress, newAccountData);
+    }
+  }
+  protected addNewChainToCache(
+    cache: NftRepositoryCache,
+    newlyAddedNftDatas: WalletNFTData[],
+    nftHistoriesMap: Map<
+      NftTokenAddressWithTokenId,
+      Pick<WalletNftWithHistory, "history" | "totalAmount">
+    >,
+    chain: EChain,
+    accountAddress: AccountAddress,
+  ): void {
+    const accountNftsMap =
+      this.walletDataToChainNftMap(newlyAddedNftDatas).get(chain);
+    if (accountNftsMap == null) {
+      return;
+    }
+
+    const newAccountData = this.getAccountsWithWalletHistoriesData(
+      accountNftsMap,
+      nftHistoriesMap,
+      [accountAddress],
+    );
+
+    cache.set(chain, newAccountData);
   }
 
   protected performNftsUpdate(
     accountAddress: AccountAddress,
     chain: EChain,
   ): ResultAsync<
-    WalletNFT[],
-    | PersistenceError
-    | AccountIndexingError
-    | AjaxError
-    | MethodSupportError
-    | InvalidParametersError
+    [WalletNFTHistory[], WalletNFTData[], EChain, AccountAddress],
+    never
   > {
     return ResultUtils.combine([
       this.masterIndexer.getLatestNFTs(chain, accountAddress),
       this.getNftCache(),
       this.contextProvider.getContext(),
-    ]).andThen(([indexerResponse, nftCache, context]) => {
-      const [newlyAddedNftHistories, newlyAddedNfts, updatedCache] =
-        this.checkForChangesInNftOwnership(indexerResponse, nftCache);
-      return ResultUtils.combine([
-        this.addNftDatasToIndexedDb(newlyAddedNfts),
-        this.addNftHistoryToIndexedDb(newlyAddedNftHistories),
-      ]).map(() => {
-        context.publicEvents.onNftBalanceUpdate.next(
-          new PortfolioUpdate(
-            accountAddress,
-            chain,
-            new Date().getTime(),
+    ])
+      .andThen(([indexerResponse, nftCache, context]) => {
+        const [newlyAddedNftHistories, newlyAddedNftDatas] =
+          this.checkForChangesInNftOwnership(
             indexerResponse,
-          ),
+            nftCache,
+            chain,
+            accountAddress,
+          );
+        return ResultUtils.combine([
+          this.addNftDatasToIndexedDb(newlyAddedNftDatas),
+          this.addNftHistoryToIndexedDb(newlyAddedNftHistories),
+        ]).map(() => {
+          context.publicEvents.onNftBalanceUpdate.next(
+            new PortfolioUpdate(
+              accountAddress,
+              chain,
+              new Date().getTime(),
+              indexerResponse,
+            ),
+          );
+
+          return [
+            newlyAddedNftHistories,
+            newlyAddedNftDatas,
+            chain,
+            accountAddress,
+          ] as [WalletNFTHistory[], WalletNFTData[], EChain, AccountAddress];
+        });
+      })
+      .orElse((e) => {
+        this.logUtils.error(
+          `In performNftsUpdates, received an error while updating nfts for chain ${chain} for account address ${accountAddress}.`,
+          e,
         );
-
-        this.mergeCache(this._nftCache!, updatedCache);
-
-        return indexerResponse;
+        return okAsync([[], [], chain, accountAddress] as [
+          WalletNFTHistory[],
+          WalletNFTData[],
+          EChain,
+          AccountAddress,
+        ]);
       });
-    });
   }
 
   /**
@@ -523,346 +876,148 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
   protected checkForChangesInNftOwnership(
     indexerResponse: WalletNFT[],
     nftCache: NftRepositoryCache,
-  ): [WalletNFTHistory[], WalletNFT[], NftRepositoryCache] {
+    chain: EChain,
+    accountAddress: AccountAddress,
+  ): [WalletNFTHistory[], WalletNFTData[]] {
     const newlyAddedNftHistories: WalletNFTHistory[] = [];
-    const newlyAddedNfts: WalletNFT[] = [];
+    const newlyAddedNfts: WalletNFTData[] = [];
 
-    const updatedCache = this.deepCopyNftCache(nftCache);
-
-    const chainToindexerNftMap = this.getChainToWalletNftMap(indexerResponse);
-
-    chainToindexerNftMap.forEach((indexerNfts, chain) => {
-      const storedChainNfts = nftCache.get(chain);
-      const updatedCacheNfts = updatedCache.get(chain);
-
-      if (storedChainNfts != null && updatedCacheNfts != null) {
-        const storedChainNftData = storedChainNfts.data;
-
-        this.createdNftHistoryForMissingNftsOnIndexerReponse(
-          indexerNfts,
-          storedChainNftData,
-          newlyAddedNftHistories,
-          updatedCacheNfts,
-          indexerResponse,
-        );
-
+    const storedChainNfts = nftCache.get(chain);
+    if (storedChainNfts != null) {
+      const storedAccountsChainNfts = storedChainNfts.data.get(accountAddress);
+      if (storedAccountsChainNfts != null) {
+        const indexerWalletIdToNft = this.getWalletIdToNftMap(indexerResponse);
         this.createRecordsForNftsThatExistOnBothDbAndIndexers(
-          indexerNfts,
-          storedChainNftData,
+          indexerWalletIdToNft,
+          storedAccountsChainNfts,
           newlyAddedNftHistories,
           newlyAddedNfts,
-          updatedCache,
-          chain,
+        );
+
+        this.createRecordsForNftsThatAreTransferred(
+          indexerWalletIdToNft,
+          storedAccountsChainNfts,
+          newlyAddedNftHistories,
         );
       } else {
-        this.createRecordsAndUpdateCacheForNonExistingChainNftsOnDb(
-          indexerNfts,
+        //Newly added account
+        this.createRecordsForNonExistingRecordsOnDb(
+          indexerResponse,
           newlyAddedNftHistories,
           newlyAddedNfts,
-          updatedCache,
-          chain,
         );
-      }
-    });
-
-    return [newlyAddedNftHistories, newlyAddedNfts, updatedCache];
-  }
-
-  protected mergeCache(
-    existingCache: NftRepositoryCache,
-    newCacheData: NftRepositoryCache,
-  ): NftRepositoryCache {
-    newCacheData.forEach((newChainData, chainKey) => {
-      const existingChainData = existingCache.get(chainKey);
-      if (existingChainData) {
-        newChainData.data.forEach((newAccountData, accountKey) => {
-          const existingAccountData = existingChainData.data.get(accountKey);
-          if (existingAccountData) {
-            newAccountData.forEach((newNftData, nftKey) => {
-              existingAccountData.set(nftKey, newNftData);
-            });
-          } else {
-            existingChainData.data.set(accountKey, newAccountData);
-          }
-        });
-
-        existingChainData.lastUpdateTime = UnixTimestamp(
-          Math.max(
-            existingChainData.lastUpdateTime,
-            newChainData.lastUpdateTime,
-          ),
-        );
-      } else {
-        existingCache.set(chainKey, newChainData);
-      }
-    });
-
-    return existingCache;
-  }
-  protected createRecordsForNftsThatExistOnBothDbAndIndexers(
-    indexerNfts: Map<NftTokenAddressWithTokenId, WalletNFT>,
-    storedChainNftData: Map<
-      AccountAddress,
-      Map<NftTokenAddressWithTokenId, WalletNftWithHistory>
-    >,
-    newlyAddedNftHistories: WalletNFTHistory[],
-    newlyAddedNfts: WalletNFT[],
-    updatedCache: NftRepositoryCache,
-    chain: EChain,
-  ) {
-    indexerNfts.forEach((indexerNft, id) => {
-      const dbAccountRecords = storedChainNftData.get(indexerNft.owner);
-      if (dbAccountRecords != null) {
-        const dbNft = dbAccountRecords.get(id);
-        if (dbNft == null) {
-          this.addRecordsForNewlyAddedNftFromIndexersAndUpdateCache(
-            indexerNft,
-            newlyAddedNftHistories,
-            newlyAddedNfts,
-            updatedCache,
-            chain,
-          );
-        } else {
-          if (
-            this.isEVMNft(indexerNft) &&
-            indexerNft.amount &&
-            indexerNft.contractType === EContractStandard.Erc1155
-          ) {
-            if (dbNft.totalAmount === BigNumberString("0")) {
-              const nftHistory = this.createNftHistory(
-                indexerNft.amount,
-                id,
-                EIndexedDbOp.Added,
-                indexerNft.measurementDate,
-              );
-
-              newlyAddedNftHistories.push(nftHistory);
-              this.addNftHistoryOfAnExistingNftToCache(
-                chain,
-                updatedCache,
-                nftHistory,
-                id,
-                indexerNft.owner,
-                indexerNft.measurementDate,
-              );
-            } else {
-              const dbAmount = BigNumber.from(dbNft.totalAmount);
-              const indexerAmount = BigNumber.from(indexerNft.amount);
-              const amountDifference = indexerAmount.sub(dbAmount);
-
-              if (!amountDifference.isZero()) {
-                const op = amountDifference.isNegative()
-                  ? EIndexedDbOp.Removed
-                  : EIndexedDbOp.Added;
-
-                const nftHistory = this.createNftHistory(
-                  BigNumberString(amountDifference.abs().toString()),
-                  id,
-                  op,
-                  indexerNft.measurementDate,
-                );
-
-                newlyAddedNftHistories.push(nftHistory);
-
-                this.addNftHistoryOfAnExistingNftToCache(
-                  chain,
-                  updatedCache,
-                  nftHistory,
-                  id,
-                  indexerNft.owner,
-                  indexerNft.measurementDate,
-                );
-              }
-            }
-          } else {
-            //User could transferred and then got the nft back
-            if (dbNft.totalAmount === BigNumberString("0")) {
-              const nftHistory = this.createNftHistory(
-                BigNumberString("1"),
-                id,
-                EIndexedDbOp.Added,
-                indexerNft.measurementDate,
-              );
-
-              newlyAddedNftHistories.push(nftHistory);
-              this.addNftHistoryOfAnExistingNftToCache(
-                chain,
-                updatedCache,
-                nftHistory,
-                id,
-                indexerNft.owner,
-                indexerNft.measurementDate,
-              );
-            }
-          }
-        }
-      }
-    });
-  }
-
-  protected createdNftHistoryForMissingNftsOnIndexerReponse(
-    indexerNfts: Map<NftTokenAddressWithTokenId, WalletNFT>,
-    storedChainNftData: Map<
-      AccountAddress,
-      Map<NftTokenAddressWithTokenId, WalletNftWithHistory>
-    >,
-    newlyAddedNftHistories: WalletNFTHistory[],
-    updatedCache: {
-      data: Map<
-        AccountAddress,
-        Map<NftTokenAddressWithTokenId, WalletNftWithHistory>
-      >;
-      lastUpdateTime: UnixTimestamp;
-    },
-    indexerResponse: WalletNFT[],
-  ): void {
-    storedChainNftData.forEach((nftData, owner) => {
-      nftData.forEach((dbNft, id) => {
-        if (!indexerNfts.has(id)) {
-          const measurementDate = this.timeUtils.getUnixNow();
-          const nftHistory = this.addOrRemoveWalletNftRecordInDb(
-            dbNft,
-            EIndexedDbOp.Removed,
-            measurementDate,
-          );
-          newlyAddedNftHistories.push(nftHistory);
-
-          const existingRecord = updatedCache.data.get(owner);
-          if (existingRecord != null) {
-            const existingNftHistory = existingRecord.get(id);
-            if (existingNftHistory) {
-              existingNftHistory.history.push({
-                measurementDate,
-                event: EIndexedDbOp.Removed,
-                amount: nftHistory.amount,
-              });
-
-              existingNftHistory.totalAmount = BigNumberString("0");
-
-              if (measurementDate > updatedCache.lastUpdateTime) {
-                updatedCache.lastUpdateTime = measurementDate;
-              }
-            }
-          }
-        }
-      });
-    });
-  }
-  protected createRecordsAndUpdateCacheForNonExistingChainNftsOnDb(
-    indexerNfts: Map<NftTokenAddressWithTokenId, WalletNFT>,
-    newlyAddedNftHistories: WalletNFTHistory[],
-    newlyAddedNfts: WalletNFT[],
-    updatedCache: NftRepositoryCache,
-    chain: EChain,
-  ): void {
-    indexerNfts.forEach((indexerNft) => {
-      this.addRecordsForNewlyAddedNftFromIndexersAndUpdateCache(
-        indexerNft,
-        newlyAddedNftHistories,
-        newlyAddedNfts,
-        updatedCache,
-        chain,
-      );
-    });
-  }
-
-  protected addRecordsForNewlyAddedNftFromIndexersAndUpdateCache(
-    indexerNft: WalletNFT,
-    newlyAddedNftHistories: WalletNFTHistory[],
-    newlyAddedNfts: WalletNFT[],
-    updatedCache: NftRepositoryCache,
-    chain: EChain,
-  ) {
-    const measurementDate = indexerNft.measurementDate;
-    const nftHistory = this.addOrRemoveWalletNftRecordInDb(
-      indexerNft,
-      EIndexedDbOp.Added,
-      measurementDate,
-    );
-    const walletNftWithHistory = this.createWalletNftWithHistory(
-      indexerNft,
-      nftHistory,
-    );
-
-    newlyAddedNfts.push(indexerNft);
-    newlyAddedNftHistories.push(nftHistory);
-
-    this.addNewNftWithHistoryToCache(
-      chain,
-      updatedCache,
-      walletNftWithHistory,
-      measurementDate,
-    );
-  }
-  protected addNewNftWithHistoryToCache(
-    chain: EChain,
-    updatedCache: NftRepositoryCache,
-    walletNftWithHistory: WalletNftWithHistory,
-    measurementDate: UnixTimestamp,
-  ) {
-    const updatedCacheChainData = updatedCache.get(chain);
-    if (updatedCacheChainData != null) {
-      const updatedAccountData = updatedCacheChainData.data.get(
-        walletNftWithHistory.owner,
-      );
-
-      if (updatedAccountData != null) {
-        updatedAccountData.set(walletNftWithHistory.id, walletNftWithHistory);
-      } else {
-        updatedCacheChainData.data.set(
-          walletNftWithHistory.owner,
-          new Map([[walletNftWithHistory.id, walletNftWithHistory]]),
-        );
-      }
-
-      if (measurementDate > updatedCacheChainData.lastUpdateTime) {
-        updatedCacheChainData.lastUpdateTime = measurementDate;
       }
     } else {
-      updatedCache.set(chain, {
-        data: new Map([
-          [
-            walletNftWithHistory.owner,
-            new Map([[walletNftWithHistory.id, walletNftWithHistory]]),
-          ],
-        ]),
-        lastUpdateTime: measurementDate,
-      });
+      //Newly added chain
+      this.createRecordsForNonExistingRecordsOnDb(
+        indexerResponse,
+        newlyAddedNftHistories,
+        newlyAddedNfts,
+      );
     }
+    return [newlyAddedNftHistories, newlyAddedNfts];
   }
 
-  protected addNftHistoryOfAnExistingNftToCache(
-    chain: EChain,
-    updatedCache: NftRepositoryCache,
-    walletNftHistory: WalletNFTHistory,
-    walletId: NftTokenAddressWithTokenId,
-    owner: AccountAddress,
-    measurementDate: UnixTimestamp,
-  ) {
-    const updatedCacheChainData = updatedCache.get(chain);
-    if (updatedCacheChainData != null) {
-      const ownerNfts = updatedCacheChainData.data.get(owner);
-      if (ownerNfts != null) {
-        const nft = ownerNfts.get(walletId);
-        if (nft != null) {
-          const changeAmount = BigNumber.from(walletNftHistory.amount);
-          const newAmount =
-            walletNftHistory.event === EIndexedDbOp.Added
-              ? BigNumber.from(nft.totalAmount).add(changeAmount)
-              : BigNumber.from(nft.totalAmount).sub(changeAmount);
-          nft.totalAmount = BigNumberString(newAmount.toString());
-          nft.history.push({
-            measurementDate,
-            event: walletNftHistory.event,
-            amount: walletNftHistory.amount,
-          });
+  protected createRecordsForNftsThatAreTransferred(
+    indexerNfts: Map<NftTokenAddressWithTokenId, WalletNFT>,
+    storedAccountsChainNfts: Map<
+      NftTokenAddressWithTokenId,
+      WalletNftWithHistory
+    >,
+    newlyAddedNftHistories: WalletNFTHistory[],
+  ): void {
+    storedAccountsChainNfts.forEach((dbNft, id) => {
+      const indexerNft = indexerNfts.get(id);
+      if (indexerNft == null) {
+        const nftHistory = this.addOrRemoveWalletNftRecordInDb(
+          dbNft,
+          EIndexedDbOp.Removed,
+          this.timeUtils.getUnixNow(),
+        );
+        newlyAddedNftHistories.push(nftHistory);
+      }
+    });
+  }
 
-          if (updatedCacheChainData.lastUpdateTime < measurementDate) {
-            updatedCacheChainData.lastUpdateTime = measurementDate;
+  protected createRecordsForNftsThatExistOnBothDbAndIndexers(
+    indexerNfts: Map<NftTokenAddressWithTokenId, WalletNFT>,
+    storedAccountsChainNfts: Map<
+      NftTokenAddressWithTokenId,
+      WalletNftWithHistory
+    >,
+    newlyAddedNftHistories: WalletNFTHistory[],
+    newlyAddedNfts: WalletNFTData[],
+  ) {
+    indexerNfts.forEach((indexerNft, id) => {
+      const dbNft = storedAccountsChainNfts.get(id);
+      if (dbNft == null) {
+        //new nft added
+        const [nftHistory, nftData] = this.getHistoryAndDataFromNewNft(
+          indexerNft,
+          EIndexedDbOp.Added,
+        );
+        newlyAddedNftHistories.push(nftHistory);
+        newlyAddedNfts.push(nftData);
+      } else {
+        if (dbNft.totalAmount === BigNumberString("0")) {
+          // User transferred the nft at some point, now got it back
+          const [nftHistory] = this.getHistoryAndDataFromNewNft(
+            indexerNft,
+            EIndexedDbOp.Added,
+          );
+          newlyAddedNftHistories.push(nftHistory);
+        } else {
+          const dbAmount = BigNumber.from(dbNft.totalAmount);
+          const indexerAmount = BigNumber.from(indexerNft.amount);
+          const amountDifference = indexerAmount.sub(dbAmount);
+          // if amount diffirence is zero, no change occured
+          if (!amountDifference.isZero()) {
+            // This is possible for erc1155, not for erc721 since its amount can only be 1
+            const op = amountDifference.isNegative()
+              ? EIndexedDbOp.Removed
+              : EIndexedDbOp.Added;
+
+            const nftHistory = this.createNftHistory(
+              BigNumberString(amountDifference.abs().toString()),
+              id,
+              op,
+              indexerNft.measurementDate,
+            );
+
+            newlyAddedNftHistories.push(nftHistory);
           }
         }
       }
-    }
+    });
+  }
+
+  protected createRecordsForNonExistingRecordsOnDb(
+    indexerResponse: WalletNFT[],
+    newlyAddedNftHistories: WalletNFTHistory[],
+    newlyAddedNfts: WalletNFTData[],
+  ): void {
+    indexerResponse.forEach((newNft) => {
+      const [nftHistory, walletNftData] = this.getHistoryAndDataFromNewNft(
+        newNft,
+        EIndexedDbOp.Added,
+      );
+      newlyAddedNftHistories.push(nftHistory);
+      newlyAddedNfts.push(walletNftData);
+    });
+  }
+
+  protected getHistoryAndDataFromNewNft(
+    newNft: WalletNFT,
+    op: EIndexedDbOp,
+  ): [WalletNFTHistory, WalletNFTData] {
+    const measurementDate = newNft.measurementDate;
+    const nftHistory = this.addOrRemoveWalletNftRecordInDb(
+      newNft,
+      op,
+      measurementDate,
+    );
+    const walletNftData = this.getNftDataFromWalletNFT(newNft);
+    return [nftHistory, walletNftData];
   }
 
   protected createWalletNftWithHistory(
@@ -888,6 +1043,7 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
   protected getWalletNftsWithHistoryMap(
     walletNftDatas: WalletNFTData[],
     nftHistories: WalletNFTHistory[],
+    storedAccounts: AccountAddress[],
   ): NftRepositoryCache {
     const nftHistoriesMap = this.getNftIdToWalletHistoryMap(nftHistories);
 
@@ -898,43 +1054,10 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
     const walletNftWithHistoryMap: NftRepositoryCache = new Map();
 
     chainToWalletNftMap.forEach((walletNfts, chain) => {
-      const cachedData = Array.from(walletNfts.entries()).reduce<{
-        data: Map<
-          AccountAddress,
-          Map<NftTokenAddressWithTokenId, WalletNftWithHistory>
-        >;
-        lastUpdateTime: UnixTimestamp;
-      }>(
-        (walletNftWithHistoryAndLastUpdateTime, [id, walletNft]) => {
-          const nftHistory = nftHistoriesMap.get(id)?.history;
-          const nftHistoryTotalAmount = nftHistoriesMap.get(id)?.totalAmount;
-          const nftWithHistory: WalletNftWithHistory = {
-            nft: walletNft,
-            history: nftHistory ?? [],
-            totalAmount: nftHistoryTotalAmount ?? BigNumberString("0"),
-            owner: walletNft.owner,
-            id: this.createIdFromWalletNft(walletNft),
-          };
-
-          const accountNfts = walletNftWithHistoryAndLastUpdateTime.data.get(
-            walletNft.owner,
-          );
-
-          if (accountNfts == null) {
-            walletNftWithHistoryAndLastUpdateTime.data.set(
-              walletNft.owner,
-              new Map([[nftWithHistory.id, nftWithHistory]]),
-            );
-          } else {
-            accountNfts.set(nftWithHistory.id, nftWithHistory);
-          }
-
-          walletNftWithHistoryAndLastUpdateTime.lastUpdateTime = nftHistory
-            ? nftHistory[nftHistory.length - 1].measurementDate
-            : UnixTimestamp(0);
-          return walletNftWithHistoryAndLastUpdateTime;
-        },
-        { data: new Map(), lastUpdateTime: UnixTimestamp(0) },
+      const cachedData = this.getAccountsWithWalletHistoriesData(
+        walletNfts,
+        nftHistoriesMap,
+        storedAccounts,
       );
       walletNftWithHistoryMap.set(chain, cachedData);
     });
@@ -942,44 +1065,94 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
     return walletNftWithHistoryMap;
   }
 
+  protected getAccountsWithWalletHistoriesData(
+    walletNfts: Map<NftTokenAddressWithTokenId, WalletNFTData>,
+    nftHistoriesMap: Map<
+      NftTokenAddressWithTokenId,
+      Pick<WalletNftWithHistory, "history" | "totalAmount">
+    >,
+    storedAccounts: AccountAddress[],
+  ): {
+    data: Map<
+      AccountAddress,
+      Map<NftTokenAddressWithTokenId, WalletNftWithHistory>
+    >;
+    lastUpdateTime: UnixTimestamp;
+  } {
+    return Array.from(walletNfts.entries()).reduce<{
+      data: Map<
+        AccountAddress,
+        Map<NftTokenAddressWithTokenId, WalletNftWithHistory>
+      >;
+      lastUpdateTime: UnixTimestamp;
+    }>(
+      (walletNftWithHistoryAndLastUpdateTime, [id, walletNft]) => {
+        if (!storedAccounts.includes(walletNft.nft.owner)) {
+          //old records of an unlinked address
+          return walletNftWithHistoryAndLastUpdateTime;
+        }
+        const nftHistory = nftHistoriesMap.get(id)?.history;
+        const nftHistoryTotalAmount = nftHistoriesMap.get(id)?.totalAmount;
+        const nftWithHistory: WalletNftWithHistory = {
+          nft: walletNft.nft,
+          history: nftHistory ?? [],
+          totalAmount: nftHistoryTotalAmount ?? BigNumberString("0"),
+          owner: walletNft.nft.owner,
+          id: walletNft.id,
+        };
+
+        const accountNfts = walletNftWithHistoryAndLastUpdateTime.data.get(
+          walletNft.nft.owner,
+        );
+
+        if (accountNfts == null) {
+          walletNftWithHistoryAndLastUpdateTime.data.set(
+            walletNft.nft.owner,
+            new Map([[nftWithHistory.id, nftWithHistory]]),
+          );
+        } else {
+          accountNfts.set(nftWithHistory.id, nftWithHistory);
+        }
+
+        walletNftWithHistoryAndLastUpdateTime.lastUpdateTime = nftHistory
+          ? nftHistory[nftHistory.length - 1].measurementDate
+          : UnixTimestamp(0);
+        return walletNftWithHistoryAndLastUpdateTime;
+      },
+      { data: new Map(), lastUpdateTime: UnixTimestamp(0) },
+    );
+  }
+
   protected walletDataToChainNftMap(
     walletNftDatas: WalletNFTData[],
-  ): Map<EChain, Map<NftTokenAddressWithTokenId, WalletNFT>> {
+  ): Map<EChain, Map<NftTokenAddressWithTokenId, WalletNFTData>> {
     return walletNftDatas.reduce<
-      Map<EChain, Map<NftTokenAddressWithTokenId, WalletNFT>>
+      Map<EChain, Map<NftTokenAddressWithTokenId, WalletNFTData>>
     >((map, walletNftData) => {
-      const nft = walletNftData.nft;
-      if (this.isWalletNft(nft)) {
-        const chain = nft.chain;
-        const chainMap = map.get(chain);
-        if (chainMap == null) {
-          map.set(chain, new Map([[walletNftData.id, nft]]));
-        } else {
-          chainMap.set(walletNftData.id, nft);
-        }
-        return map;
+      const chain = walletNftData.nft.chain;
+      const chainMap = map.get(chain);
+      if (chainMap == null) {
+        map.set(chain, new Map([[walletNftData.id, walletNftData]]));
+      } else {
+        chainMap.set(walletNftData.id, walletNftData);
       }
       return map;
     }, new Map());
   }
 
-  protected getChainToWalletNftMap(
+  protected getWalletIdToNftMap(
     walletNfts: WalletNFT[],
-  ): Map<EChain, Map<NftTokenAddressWithTokenId, WalletNFT>> {
-    return walletNfts.reduce<
-      Map<EChain, Map<NftTokenAddressWithTokenId, WalletNFT>>
-    >((chainToWalletNftMap, walletNft) => {
-      const chain = walletNft.chain;
-      const chainMap = chainToWalletNftMap.get(chain);
-      const nftId = this.createIdFromWalletNft(walletNft);
-      if (chainMap == null) {
-        chainToWalletNftMap.set(chain, new Map([[nftId, walletNft]]));
-      } else {
-        chainMap.set(nftId, walletNft);
-      }
-      return chainToWalletNftMap;
-    }, new Map());
+  ): Map<NftTokenAddressWithTokenId, WalletNFT> {
+    return walletNfts.reduce<Map<NftTokenAddressWithTokenId, WalletNFT>>(
+      (walletNftMap, walletNft) => {
+        const nftId = this.createIdFromWalletNft(walletNft);
+        walletNftMap.set(nftId, walletNft);
+        return walletNftMap;
+      },
+      new Map(),
+    );
   }
+
   protected sortWalletNftHistories(nftHistories: WalletNFTHistory[]) {
     nftHistories.sort((a, b) => {
       const measurementDateA = UnixTimestamp(parseInt(a.id.split("{-}")[1]));
@@ -1053,16 +1226,19 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
   }
 
   protected addNftDatasToIndexedDb(
-    nfts: WalletNFT[],
+    nftDatas: WalletNFTData[],
   ): ResultAsync<void[], PersistenceError> {
     return ResultUtils.combine(
-      nfts.map((nft) => {
-        const id = this.createIdFromWalletNft(nft);
-        const { amount, measurementDate, ...rest } = nft;
-        const data = new WalletNFTData(id, rest);
-        return this.persistence.updateRecord(ERecordKey.NFTS, data);
+      nftDatas.map((nftData) => {
+        return this.persistence.updateRecord(ERecordKey.NFTS, nftData);
       }),
     );
+  }
+
+  protected getNftDataFromWalletNFT(nft: WalletNFT): WalletNFTData {
+    const id = this.createIdFromWalletNft(nft);
+    const { amount, measurementDate, ...rest } = nft;
+    return new WalletNFTData(id, rest);
   }
 
   protected getNftCache(): ResultAsync<NftRepositoryCache, PersistenceError> {
@@ -1070,10 +1246,14 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
       return ResultUtils.combine([
         this.getPersistenceNFTs(),
         this.getNFTsHistory(),
-      ]).map(([dnNfts, nftHistories]) => {
+        this.accountRepo.getAccounts(),
+      ]).map(([dnNfts, nftHistories, linkedAccounts]) => {
         const cacheCreatedFromIndexDb = this.getWalletNftsWithHistoryMap(
           dnNfts,
           nftHistories,
+          linkedAccounts.map(
+            (linkedAccount) => linkedAccount.sourceAccountAddress,
+          ),
         );
         this._nftCache = cacheCreatedFromIndexDb;
         return this._nftCache;
@@ -1134,20 +1314,16 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
     op: EIndexedDbOp,
     measurementDate: UnixTimestamp,
   ): WalletNFTHistory {
-    let amount = BigNumberString("1");
-    if (
-      this.isEVMNft(indexerNft) &&
-      indexerNft.contractType === EContractStandard.Erc1155
-    ) {
-      if (indexerNft.amount) {
-        amount = indexerNft.amount;
-      }
-    }
     if (this.isWalletNft(indexerNft)) {
       const id = this.createIdFromWalletNft(indexerNft);
-      return this.createNftHistory(amount, id, op, measurementDate);
+      return this.createNftHistory(indexerNft.amount, id, op, measurementDate);
     }
-    return this.createNftHistory(amount, indexerNft.id, op, measurementDate);
+    return this.createNftHistory(
+      indexerNft.totalAmount,
+      indexerNft.id,
+      EIndexedDbOp.Removed,
+      measurementDate,
+    );
   }
 
   protected createNftHistory(
@@ -1158,50 +1334,6 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
   ): WalletNFTHistory {
     const id = this.getNftIdWithMeasurementDate(nftId, measurementDate);
     return new WalletNFTHistory(id, op, amount);
-  }
-
-  protected deepCopyNftCache(nftCache: NftRepositoryCache): NftRepositoryCache {
-    const nftCacheClone = new Map<
-      EChain,
-      {
-        data: Map<
-          AccountAddress,
-          Map<NftTokenAddressWithTokenId, WalletNftWithHistory>
-        >;
-        lastUpdateTime: UnixTimestamp;
-      }
-    >();
-
-    nftCache.forEach((chainData, chainKey) => {
-      const clonedData = new Map<
-        AccountAddress,
-        Map<NftTokenAddressWithTokenId, WalletNftWithHistory>
-      >();
-
-      chainData.data.forEach((accountData, accountKey) => {
-        const clonedAccountData = new Map<
-          NftTokenAddressWithTokenId,
-          WalletNftWithHistory
-        >();
-
-        accountData.forEach((walletNftWithHistory, innerKey) => {
-          const copiedWalletNftWithHistory: WalletNftWithHistory = {
-            ...walletNftWithHistory,
-            history: walletNftWithHistory.history.map((h) => ({ ...h })),
-          };
-          clonedAccountData.set(innerKey, copiedWalletNftWithHistory);
-        });
-
-        clonedData.set(accountKey, clonedAccountData);
-      });
-
-      nftCacheClone.set(chainKey, {
-        data: clonedData,
-        lastUpdateTime: chainData.lastUpdateTime,
-      });
-    });
-
-    return nftCacheClone;
   }
 
   protected createIdFromWalletNft(nft: WalletNFT): NftTokenAddressWithTokenId {

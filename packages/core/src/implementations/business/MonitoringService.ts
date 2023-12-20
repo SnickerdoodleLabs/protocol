@@ -75,16 +75,7 @@ export class MonitoringService implements IMonitoringService {
     @inject(INftRepositoryType)
     protected nftRepository: INftRepository,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
-  ) {
-    this.contextProvider.getContext().map((context) => {
-      context.publicEvents.onAccountAdded.subscribe((_account) =>
-        this.nftRepository.getNfts(this.timeUtils.getUnixNow()),
-      );
-      context.publicEvents.onAccountRemoved.subscribe((_account) =>
-        this.nftRepository.getNfts(this.timeUtils.getUnixNow()),
-      );
-    });
-  }
+  ) {}
 
   public pollTransactions(): ResultAsync<
     void,

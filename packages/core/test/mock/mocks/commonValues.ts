@@ -508,11 +508,23 @@ const tokenAddress1 = EVMContractAddress(
 const tokenAddress2 = EVMContractAddress(
   "0x2222222222222222222222222222222222222222",
 );
+
+const tokenAddress3 = EVMContractAddress(
+  "0x2222222222222222222222222233333333333333",
+);
+
+const tokenAddress4 = EVMContractAddress(
+  "0x2222222222222222222222222244444444444444",
+);
 const tokenId = BigNumberString("0");
 const contractType = EContractStandard.Erc721;
 const owner = EVMAccountAddress("0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc");
+const polygonOwner = EVMAccountAddress(
+  "0xacfbc62a183d926f0c6c0c3c8d2aaaaaaaaaaaa",
+);
 export const linkedAccounts: LinkedAccount[] = [
   new LinkedAccount(EChain.Fuji, owner),
+  new LinkedAccount(EChain.Polygon, polygonOwner),
 ];
 
 export const earnedRewards: DirectReward[] = [
@@ -533,7 +545,7 @@ const amount = BigNumberString("1");
 
 const chain = 43113;
 
-export const Nfts = [
+export const fujiNfts = [
   new EVMNFT(
     tokenAddress1,
     tokenId,
@@ -559,38 +571,50 @@ export const Nfts = [
     UnixTimestamp(1701779730),
   ),
 ];
-export const cachedNfts = [
-  {
-    amount: "1",
-    blockNumber: undefined,
-    chain: 43113,
-    contractType: "Erc721",
-    id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0",
-    lastOwnerTimeStamp: undefined,
-    metadata: undefined,
-    name: "",
-    owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
-    token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
-    tokenId: "0",
-    tokenUri: "",
-    type: 0,
-  },
-  {
-    amount: "1",
-    blockNumber: undefined,
-    chain: 43113,
-    contractType: "Erc721",
-    id: "0x2222222222222222222222222222222222222222|#|0",
-    lastOwnerTimeStamp: undefined,
-    metadata: undefined,
-    name: "",
-    owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
-    token: "0x2222222222222222222222222222222222222222",
-    tokenId: "0",
-    tokenUri: "",
-    type: 0,
-  },
+
+export const polygonNfts = [
+  new EVMNFT(
+    tokenAddress3,
+    tokenId,
+    contractType,
+    polygonOwner,
+    tokenUri,
+    metadata,
+    "3",
+    137,
+    amount,
+    UnixTimestamp(1701779730),
+  ),
+  new EVMNFT(
+    tokenAddress4,
+    tokenId,
+    contractType,
+    polygonOwner,
+    tokenUri,
+    metadata,
+    "4",
+    137,
+    amount,
+    UnixTimestamp(1701779730),
+  ),
 ];
+
+export const indexerNft = (chain: number, address: string, index: number) => {
+  //In the test, 2 accounts and 2 chains is recorded for record checking, so each call will trigger 4 calls to here
+  if (chain === 43113 && address === owner) {
+    if (index < 8) {
+      return fujiNfts;
+    }
+    if (index < 12) {
+      return [...fujiNfts.slice(1)];
+    }
+    return [nftThatGotTransferredAndGotBack, fujiNfts[1]];
+  }
+  if (chain === 137 && address === polygonOwner) {
+    return polygonNfts;
+  }
+  return [];
+};
 
 export const indexedNfts = [
   {
@@ -598,7 +622,7 @@ export const indexedNfts = [
     nft: {
       type: 0,
       chain: 43113,
-      owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
+      owner,
       token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
       name: "1",
       tokenId: "0",
@@ -614,7 +638,7 @@ export const indexedNfts = [
     nft: {
       type: 0,
       chain: 43113,
-      owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
+      owner,
       token: "0x2222222222222222222222222222222222222222",
       name: "2",
       tokenId: "0",
@@ -625,9 +649,41 @@ export const indexedNfts = [
       lastOwnerTimeStamp: undefined,
     },
   },
+  {
+    id: "0x2222222222222222222222222233333333333333|#|0",
+    nft: {
+      type: 0,
+      chain: 137,
+      owner: polygonOwner,
+      token: "0x2222222222222222222222222233333333333333",
+      name: "3",
+      tokenId: "0",
+      contractType: "Erc721",
+      tokenUri: "",
+      metadata: undefined,
+      blockNumber: undefined,
+      lastOwnerTimeStamp: undefined,
+    },
+  },
+  {
+    id: "0x2222222222222222222222222244444444444444|#|0",
+    nft: {
+      type: 0,
+      chain: 137,
+      owner: polygonOwner,
+      token: "0x2222222222222222222222222244444444444444",
+      name: "4",
+      tokenId: "0",
+      contractType: "Erc721",
+      tokenUri: "",
+      metadata: undefined,
+      blockNumber: undefined,
+      lastOwnerTimeStamp: undefined,
+    },
+  },
 ];
 
-export const indexedNftHistory = [
+export const indexedNftInitialHistory = [
   {
     id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0{-}1701779730",
     event: 1,
@@ -639,13 +695,64 @@ export const indexedNftHistory = [
     amount: "1",
   },
   {
-    id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0{-}1701779734",
-    event: -1,
+    id: "0x2222222222222222222222222233333333333333|#|0{-}1701779730",
+    event: 1,
+    amount: "1",
+  },
+  {
+    id: "0x2222222222222222222222222244444444444444|#|0{-}1701779730",
+    event: 1,
     amount: "1",
   },
 ];
 
-export const nfts = [
+export const indexedNftTransferlHistory = [
+  {
+    id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0{-}1701779734",
+    event: -1,
+    amount: "1",
+  },
+  {
+    id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0{-}1701779738",
+    event: 1,
+    amount: "1",
+  },
+];
+
+export const expectedFujiNfts = [
+  {
+    type: 0,
+    chain: 43113,
+    owner,
+    token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
+    name: "1",
+    tokenId: "0",
+    contractType: "Erc721",
+    tokenUri: "",
+    metadata: undefined,
+    blockNumber: undefined,
+    lastOwnerTimeStamp: undefined,
+    measurementDate: 1701779730,
+    amount: "1",
+  },
+  {
+    type: 0,
+    chain: 43113,
+    owner,
+    token: "0x2222222222222222222222222222222222222222",
+    name: "2",
+    tokenId: "0",
+    contractType: "Erc721",
+    tokenUri: "",
+    metadata: undefined,
+    blockNumber: undefined,
+    lastOwnerTimeStamp: undefined,
+    measurementDate: 1701779730,
+    amount: "1",
+  },
+];
+
+export const expectedShibuya = [
   {
     type: 0,
     chain: 81,
@@ -663,36 +770,44 @@ export const nfts = [
     amount: "1",
     measurementDate: 0,
   },
+];
+
+export const expectedPolygon = [
   {
     type: 0,
-    chain: 43113,
-    owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
-    token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
-    name: "1",
+    chain: 137,
+    owner: polygonOwner,
+    token: "0x2222222222222222222222222233333333333333",
+    name: "3",
+    amount: "1",
+    measurementDate: 1701779730,
     tokenId: "0",
     contractType: "Erc721",
     tokenUri: "",
     metadata: undefined,
     blockNumber: undefined,
     lastOwnerTimeStamp: undefined,
-    measurementDate: 1701779730,
-    amount: "1",
   },
   {
     type: 0,
-    chain: 43113,
-    owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
-    token: "0x2222222222222222222222222222222222222222",
-    name: "2",
+    chain: 137,
+    owner: polygonOwner,
+    token: "0x2222222222222222222222222244444444444444",
+    name: "4",
+    amount: "1",
+    measurementDate: 1701779730,
     tokenId: "0",
     contractType: "Erc721",
     tokenUri: "",
     metadata: undefined,
     blockNumber: undefined,
     lastOwnerTimeStamp: undefined,
-    measurementDate: 1701779730,
-    amount: "1",
   },
+];
+export const expectedNfts = [
+  ...expectedShibuya,
+  ...expectedFujiNfts,
+  ...expectedPolygon,
 ];
 
 export const nftThatGotTransferredAndGotBack = {
