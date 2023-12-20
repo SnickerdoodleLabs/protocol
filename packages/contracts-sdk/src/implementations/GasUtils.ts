@@ -5,6 +5,7 @@ import {
 import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
+import { Wallet } from "zksync-web3";
 
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/index.js";
 
@@ -14,7 +15,8 @@ export class GasUtils {
     providerOrSigner:
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
-      | ethers.Wallet,
+      | ethers.Wallet
+      | Wallet,
   ): ResultAsync<ContractOverrides, BlockchainCommonErrors> {
     return ResultAsync.fromPromise(providerOrSigner.getFeeData(), (e) => {
       return BlockchainErrorMapper.buildBlockchainError(e);
@@ -27,7 +29,8 @@ export class GasUtils {
     providerOrSigner:
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
-      | ethers.Wallet,
+      | ethers.Wallet
+      | Wallet,
   ): ResultAsync<ContractOverrides, BlockchainCommonErrors> {
     return ResultAsync.fromPromise(providerOrSigner.getFeeData(), (e) => {
       return BlockchainErrorMapper.buildBlockchainError(e);
