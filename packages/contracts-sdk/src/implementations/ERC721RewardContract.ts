@@ -171,6 +171,7 @@ export class ERC721RewardContract
     });
   }
 
+  // NOTE: If a given token id does not exist, the read transaction will revert.
   public ownerOf(
     tokenId: TokenId,
   ): ResultAsync<
@@ -296,6 +297,62 @@ export class ERC721RewardContract
       },
     );
   }
+
+  // ===== Start: Functions to support testing pre-mint NFTs =====
+
+  // ERC1155 contracts also have the same setApproveForAll function
+  public isApprovedForAll(
+    tokenOwnerAddress: EVMAccountAddress,
+    operatorToApprove: EVMAccountAddress,
+  ): ResultAsync<boolean, ERC721RewardContractError | BlockchainCommonErrors> {
+    return ResultAsync.fromPromise(
+      this.contract.isApprovedForAll(
+        tokenOwnerAddress,
+        operatorToApprove,
+      ) as Promise<boolean>,
+      (e) => {
+        return this.generateError(e, "Unable to call isApprovedForAll()");
+      },
+    );
+  }
+
+  // NOTE: To support this, the user would need to connect their external wallet that owns the NFTs to sign the approval txs
+  public setApproveForAll(
+    addressToApprove: EVMAccountAddress,
+    approved: boolean,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  > {
+    return this.writeToContract(
+      "setApproveForAll",
+      [addressToApprove, approved],
+      overrides,
+    );
+  }
+
+  // Function that the escrow wallet will call to transfer NFTs from ERC721 rewards after they are approved
+  // Note: Unlike setApproveForAll, ERC721's ABI for safeTransferFrom only supports ERC721 as ERC1155's safeTransferFrom function takes additional parameters, refer to:
+  // ERC721 : https://docs.openzeppelin.com/contracts/5.x/api/token/erc721#IERC721-safeTransferFrom-address-address-uint256-
+  // ERC1155 : https://docs.openzeppelin.com/contracts/5.x/api/token/erc1155#IERC1155-safeTransferFrom-address-address-uint256-uint256-bytes-
+  public safeTransferFrom(
+    from: EVMAccountAddress,
+    to: EVMAccountAddress,
+    tokenId: TokenId,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  > {
+    return this.writeToContract(
+      "safeTransferFrom",
+      [from, to, tokenId],
+      overrides,
+    );
+  }
+
+  // ===== End: Functions to support pre-mint NFTs =====
 
   protected generateContractSpecificError(
     msg: string,
