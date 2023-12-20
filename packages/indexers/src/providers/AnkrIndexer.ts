@@ -78,10 +78,6 @@ export class AnkrIndexer implements IEVMIndexer {
     ],
     [EChain.Fuji, new IndexerSupportSummary(EChain.Fuji, true, true, true)],
     [EChain.Mumbai, new IndexerSupportSummary(EChain.Mumbai, true, true, true)],
-    [
-      EChain.ZkSyncEra,
-      new IndexerSupportSummary(EChain.ZkSyncEra, true, false, false),
-    ],
     [EChain.Base, new IndexerSupportSummary(EChain.Base, true, false, false)],
     [
       EChain.Chiliz,
