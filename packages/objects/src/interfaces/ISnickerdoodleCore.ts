@@ -311,7 +311,6 @@ export interface ICoreDiscordMethods {
    * to initialize the user
    */
   installationUrl(
-    redirectTabId: number | undefined,
     sourceDomain: DomainName | undefined,
   ): ResultAsync<URLString, OAuthError>;
 

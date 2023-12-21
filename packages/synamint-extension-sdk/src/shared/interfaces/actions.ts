@@ -452,15 +452,6 @@ export class GetDataWalletAddressParams extends CoreActionParams<DataWalletAddre
   }
 }
 
-export class CloseTabParams extends CoreActionParams<void> {
-  public constructor() {
-    super(CloseTabParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.CLOSE_TAB;
-  }
-}
-
 export class IsDataWalletAddressInitializedParams extends CoreActionParams<boolean> {
   public constructor() {
     super(IsDataWalletAddressInitializedParams.getCoreAction());
@@ -691,7 +682,7 @@ export class GetQueryStatusesParams extends CoreActionParams<QueryStatus[]> {
 }
 
 export class GetDiscordInstallationUrlParams extends CoreActionParams<URLString> {
-  public constructor(public redirectTabId?: number) {
+  public constructor() {
     super(GetDiscordInstallationUrlParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
@@ -792,16 +783,6 @@ export class GetConfigParams extends CoreActionParams<IExtensionConfig> {
 
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_CONFIG;
-  }
-}
-
-export class SwitchToTabParams extends CoreActionParams<void> {
-  public constructor(public tabId: number) {
-    super(SwitchToTabParams.getCoreAction());
-  }
-
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.SWITCH_TO_TAB;
   }
 }
 

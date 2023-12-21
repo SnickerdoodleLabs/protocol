@@ -47,9 +47,7 @@ export class DiscordService implements IDiscordService {
     throw new Error("Method not implemented.");
   }
 
-  public installationUrl(
-    redirectTabId?: number,
-  ): ResultAsync<URLString, OAuthError> {
+  public installationUrl(): ResultAsync<URLString, OAuthError> {
     return this.getAPIConfig().map((apiConfig) => {
       const url = `https://discord.com/oauth2/authorize?client_id=${
         apiConfig.clientId
@@ -57,7 +55,6 @@ export class DiscordService implements IDiscordService {
         apiConfig.oauthRedirectUrl,
       )}&response_type=code&scope=identify%20guilds&prompt=consent&state=${new OAuthURLState(
         EOAuthProvider.DISCORD,
-        redirectTabId,
       ).getEncodedState()}`; // TODO we can parameterize scope, too.
       return URLString(url);
     });
