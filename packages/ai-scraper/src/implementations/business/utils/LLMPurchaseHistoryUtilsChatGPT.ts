@@ -49,7 +49,13 @@ export class LLMPurchaseHistoryUtilsChatGPT
     //   "Can you get the product names from the following text? I also need the product brand, price, classification, keywords, and date purchased. Give response in a JSON array in the preceding format.",
     // );
     return LLMQuestion(
-      "I need the purchase history from the following content. A purchase history must have a product name, price, and date of purchase. It can also have brand, classification, keywords which are optional. The purchase date and price cannot be null. Do not include a purchase information in the output if the purchase date or price is missing. Give response in a JSON array in the preceding format.",
+      `I need the purchase history from the following content. You need to follow theses rules:
+      A purchase history must have a product name, price, and date of purchase. It can also have brand, classification, keywords which are optional. 
+      Classification denotes the category of the product and keywords describe the products using a few key words. 
+      The purchase date and price cannot be null. 
+      Do not include a purchase information in the output if the purchase date or price is missing. 
+      Do not push yourself hard and do not generate imaginary purchases.
+      Give response in a JSON array in the preceding format.`,
     );
   }
 

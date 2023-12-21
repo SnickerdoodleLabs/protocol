@@ -25,7 +25,7 @@ import {
 
 @injectable()
 export class ChatGPTRepository implements ILLMRepository {
-  private chatModel: TiktokenModel = "gpt-3.5-turbo-16k";
+  private chatModel: TiktokenModel = "gpt-3.5-turbo"; // back to 4k
   private temperature: number;
   private chatEncoder: Tiktoken;
   // private timeout = 5 * 60 * 1000; // 5 minutes
@@ -50,6 +50,8 @@ export class ChatGPTRepository implements ILLMRepository {
     switch (model) {
       case "gpt-3.5-turbo":
         return 4096;
+      case "gpt-3.5-turbo-16k":
+        return 4096 * 4;
       case "gpt-4":
         return 8192;
     }
