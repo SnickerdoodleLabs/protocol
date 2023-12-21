@@ -241,27 +241,31 @@ export class ProxyBridge implements ISdlDataWallet {
     };
 
     this.metrics = {
-      getMetrics: function (): ResultAsync<RuntimeMetrics, ProxyError> {
-        throw new Error("Function not implemented.");
+      getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
+        return this.call(this.core.metrics.getMetrics(this.sourceDomain));
       },
-      getNFTCache(): ResultAsync<NftRepositoryCache, ProxyError> {
-        throw new Error("Function not implemented.");
+      getNFTCache: (): ResultAsync<NftRepositoryCache, ProxyError> => {
+        return this.call(this.core.metrics.getNFTCache(this.sourceDomain));
       },
-      getPersistenceNFTs(): ResultAsync<WalletNFTData[], ProxyError> {
-        throw new Error("Function not implemented.");
+      getPersistenceNFTs: (): ResultAsync<WalletNFTData[], ProxyError> => {
+        return this.call(
+          this.core.metrics.getPersistenceNFTs(this.sourceDomain),
+        );
       },
-      getNFTsHistory(): ResultAsync<WalletNFTHistory[], ProxyError> {
-        throw new Error("Function not implemented.");
+      getNFTsHistory: (): ResultAsync<WalletNFTHistory[], ProxyError> => {
+        return this.call(this.core.metrics.getNFTsHistory(this.sourceDomain));
       },
     };
 
     this.nft = {
-      getNfts(
+      getNfts: (
         benchmark: UnixTimestamp | undefined,
         chains: EChain[] | undefined,
         accounts: LinkedAccount[] | undefined,
-      ): ResultAsync<WalletNFT[], ProxyError> {
-        throw new Error("Function not implemented.");
+      ): ResultAsync<WalletNFT[], ProxyError> => {
+        return this.call(
+          this.core.nft.getNfts(benchmark, chains, accounts, this.sourceDomain),
+        );
       },
     };
   }

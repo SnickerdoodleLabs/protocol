@@ -134,7 +134,7 @@ export const testCoreConfig = new CoreConfig(
   "https://datawallet.snickerdoodle.com/data-dashboard/auth", // dropboxRedirectUri
   5000, // polling interval indexing,
   5000, // polling interval balance
-  5000, // polling interval NFT
+  30000, // polling interval NFT
   1000, // dataWalletBackupIntervalMS
   100000, // backupChunkSizeTarget
   {
