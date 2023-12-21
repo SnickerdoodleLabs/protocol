@@ -48,10 +48,6 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
       }, config.accountIndexingPollingIntervalMS);
 
       // Set up polling for nfts
-      console.log(
-        `config.accountNFTPollingIntervalMS`,
-        config.accountNFTPollingIntervalMS,
-      );
       setInterval(() => {
         this.monitoringService.pollNfts().mapErr((e) => {
           this.logUtils.error(e);
