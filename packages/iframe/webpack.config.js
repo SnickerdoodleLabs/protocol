@@ -106,6 +106,9 @@ module.exports = {
       __PORTFOLIO_POLLING_INTERVAL__: JSON.stringify(
         process.env.__PORTFOLIO_POLLING_INTERVAL__,
       ),
+      __NFT_POLLING_INTERVAL__: JSON.stringify(
+        process.env.__NFT_POLLING_INTERVAL__,
+      ),
       __TRANSACTION_POLLING_INTERVAL__: JSON.stringify(
         process.env.__TRANSACTION_POLLING_INTERVAL__,
       ),

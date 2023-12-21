@@ -5,11 +5,12 @@ import {
   IExtensionConfigOverrides,
   IExtensionSdkConfigOverrides,
 } from "@snickerdoodlelabs/objects";
+import deepmerge from "deepmerge";
+import { injectable } from "inversify";
+
 import { IConfigProvider } from "@synamint-extension-sdk/core/interfaces/utilities";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared";
 import { extractObject } from "@synamint-extension-sdk/utils";
-import deepmerge from "deepmerge";
-import { injectable } from "inversify";
 
 const ONE_MINUTE_MS = 60000;
 
@@ -36,7 +37,7 @@ const defaultCoreConfigs: IConfigOverrides = {
   domainFilter: "(localhost|chrome://)",
   accountIndexingPollingIntervalMS: ONE_MINUTE_MS,
   accountBalancePollingIntervalMS: ONE_MINUTE_MS,
-  accountNFTPollingIntervalMS: ONE_MINUTE_MS,
+  accountNFTPollingIntervalMS: 5 * ONE_MINUTE_MS,
   dataWalletBackupIntervalMS: ONE_MINUTE_MS,
   requestForDataPollingIntervalMS: 4000,
 

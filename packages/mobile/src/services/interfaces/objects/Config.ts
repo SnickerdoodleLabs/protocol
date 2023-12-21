@@ -22,7 +22,7 @@ export const coreConfig = {
   requestForDataPollingIntervalMS: 60000,
   accountIndexingPollingIntervalMS: 60000,
   accountBalancePollingIntervalMS: 60000,
-  accountNFTPollingIntervalMS: 60000,
+  accountNFTPollingIntervalMS: 300000,
   dataWalletBackupIntervalMS: 60000,
   heartbeatIntervalMS: 60000,
   alchemyApiKeys: {
