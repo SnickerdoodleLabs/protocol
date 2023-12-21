@@ -56,15 +56,24 @@ export class RewardsContractFactory
     symbol: string,
     baseURI: BaseURI,
     overrides: ContractOverrides,
+    omitGasFee = false,
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | RewardsFactoryError
   > {
     return GasUtils.getGasFee(this.providerOrSigner).andThen((gasFee) => {
-      const contractOverrides = {
+      let contractOverrides = {
         ...gasFee,
         ...overrides,
       };
+
+      // If the chain does not support EIP-1559, remove the gas fee override and only maintain the override passed in from the chain service
+      if (omitGasFee == true) {
+        contractOverrides = {
+          ...overrides,
+        };
+      }
+
       return this.writeToContractFactory(
         "deploy",
         [name, symbol, baseURI],
@@ -133,7 +142,7 @@ export class RewardsContractFactory
         EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
         functionName,
         functionParams,
-        ContractsAbis.ConsentFactoryAbi.abi,
+        ContractsAbis.ERC721Reward.abi,
       );
     });
   }

@@ -17,6 +17,7 @@ export interface IRewardsContractFactory {
     symbol: string,
     baseURI: BaseURI,
     overrides?: ContractOverrides,
+    omitGasFee?: boolean,
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | RewardsFactoryError

@@ -1,0 +1,138 @@
+import {
+  EVMContractAddress,
+  EVMAccountAddress,
+  BaseURI,
+  RewardsFactoryError,
+  ECreatedRewardType,
+  BlockchainErrorMapper,
+  BlockchainCommonErrors,
+} from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
+import { injectable } from "inversify";
+import { ResultAsync } from "neverthrow";
+import { Provider, ContractFactory, Wallet } from "zksync-web3";
+
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
+import { GasUtils } from "@contracts-sdk/implementations/GasUtils";
+import {
+  ContractOverrides,
+  IRewardsContractFactory,
+} from "@contracts-sdk/interfaces/index.js";
+import {
+  ContractsAbis,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects/index.js";
+
+@injectable() //SEANCHARLIE : do we want a specific zksync factory error?
+export class ZkSyncRewardsContractFactory
+  extends BaseContract<RewardsFactoryError>
+  implements IRewardsContractFactory
+{
+  protected contractFactory: ContractFactory;
+  protected rewardTypeToDeploy: ECreatedRewardType;
+  constructor(
+    protected providerOrSigner: Provider | Wallet, //SEANCHARLIE : needs to use ZkSync provider and wallet
+    protected rewardType: ECreatedRewardType,
+  ) {
+    super(
+      providerOrSigner,
+      EVMContractAddress(ethers.constants.AddressZero), // The rewards contract factory deploys a new contract, hence doesn't have a contract address
+      ContractsAbis.ZkSyncERC721RewardAbi.abi,
+    );
+    // Set the correct contract factory based on rewardTypeToDeploy
+    this.contractFactory = new ContractFactory(
+      ContractsAbis.ZkSyncERC721RewardAbi.abi,
+      ContractsAbis.ZkSyncERC721RewardAbi.bytecode,
+      providerOrSigner as Wallet,
+    );
+    this.rewardTypeToDeploy = rewardType;
+  }
+
+  // function to deploy a new ERC721 reward contract on ZkSyncEra
+  public deployERC721Reward(
+    name: string,
+    symbol: string,
+    baseURI: BaseURI,
+    overrides: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | RewardsFactoryError
+  > {
+    return GasUtils.getGasFee(this.providerOrSigner).andThen((gasFee) => {
+      const contractOverrides = {
+        ...gasFee,
+        ...overrides,
+      };
+      return this.writeToContractFactory(
+        "deploy",
+        [name, symbol, baseURI],
+        contractOverrides,
+        true,
+      );
+    });
+  }
+
+  public estimateGasToDeployERC721Contract(
+    name: string,
+    symbol: string,
+    baseURI: BaseURI,
+  ): ResultAsync<
+    ethers.BigNumber,
+    RewardsFactoryError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.providerOrSigner.estimateGas(
+        this.contractFactory.getDeployTransaction(name, symbol, baseURI),
+      ),
+      (e) => {
+        return this.generateError(
+          e,
+          "Failed to wait() for contract deployment",
+        );
+      },
+    ).map((estimatedGas) => {
+      // Increase estimated gas buffer by 20%
+      return estimatedGas.mul(120).div(100);
+    });
+  }
+
+  protected generateContractSpecificError(
+    msg: string,
+    reason: string | undefined,
+    e: unknown,
+  ): RewardsFactoryError {
+    return new RewardsFactoryError(msg, reason, e);
+  }
+
+  // Takes the factory's deploy function name and params, submits the transaction and returns a WrappedTransactionResponse
+  protected writeToContractFactory(
+    functionName: string,
+    functionParams: any[],
+    overrides?: ContractOverrides,
+    isDeployingContract?: boolean,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | RewardsFactoryError
+  > {
+    return ResultAsync.fromPromise(
+      this.contractFactory[functionName](...functionParams, {
+        ...overrides,
+      }) as Promise<ethers.providers.TransactionResponse | ethers.Contract>,
+      (e) => {
+        return this.generateError(e, `Unable to call ${functionName}()`);
+      },
+    ).map((transactionResponse) => {
+      // If we are deploying a contract, the deploy() call returns an ethers.Contract object and the txresponse is under the deployTransaction property
+      return ZkSyncRewardsContractFactory.buildWrappedTransactionResponse(
+        isDeployingContract == true
+          ? (transactionResponse as ethers.Contract).deployTransaction
+          : (transactionResponse as ethers.providers.TransactionResponse),
+        EVMContractAddress(""),
+        EVMAccountAddress((this.providerOrSigner as Wallet)?.address),
+        functionName,
+        functionParams,
+        ContractsAbis.ZkSyncERC721RewardAbi.abi,
+      );
+    });
+  }
+}
