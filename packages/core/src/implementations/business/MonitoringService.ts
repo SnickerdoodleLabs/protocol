@@ -142,14 +142,6 @@ export class MonitoringService implements IMonitoringService {
   public pollNfts(): ResultAsync<void, unknown> {
     return this.nftRepository
       .getNfts(this.timeUtils.getUnixNow())
-      .orElse((e) => {
-        this.logUtils.error(
-          `In pollNfts(), received an error fetching nfts`,
-          e,
-        );
-
-        return okAsync([]);
-      })
       .map(() => {});
   }
 

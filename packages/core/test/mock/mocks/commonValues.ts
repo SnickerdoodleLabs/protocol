@@ -601,6 +601,7 @@ export const polygonNfts = [
 
 export const indexerNft = (chain: number, address: string, index: number) => {
   //In the test, 2 accounts and 2 chains is recorded for record checking, so each call will trigger 4 calls to here
+
   if (chain === 43113 && address === owner) {
     if (index < 8) {
       return fujiNfts;

@@ -1,6 +1,10 @@
 import "reflect-metadata";
 
-import { ILogUtils, ITimeUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  IBigNumberUtils,
+  ILogUtils,
+  ITimeUtils,
+} from "@snickerdoodlelabs/common-utils";
 import { ConsentRoles } from "@snickerdoodlelabs/contracts-sdk";
 import { IMasterIndexer } from "@snickerdoodlelabs/indexers";
 import {
@@ -9,8 +13,10 @@ import {
   EIndexerMethod,
   LinkedAccount,
   EVMAccountAddress,
+  BigNumberString,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
+import { BigNumber } from "ethers";
 import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 
@@ -42,46 +48,51 @@ import { ConfigProviderMock } from "@core-tests/mock/utilities/index.js";
 const persistenceMap = new Map<
   ERecordKey,
   Map<string, Record<string, unknown>>
->();
+>([]);
 let indexTime = 0;
 let indexIndexer = 0;
 class NftRepositoryMocks {
   public contextProvider: ContextProviderMock;
   public configProvider: IPersistenceConfigProvider;
   public timeUtils: ITimeUtils;
-  public accountRepo: ILinkedAccountRepository;
   public persistence: IDataWalletPersistence;
   public logUtils: ILogUtils;
   public masterIndexer: IMasterIndexer;
+  public bigNumberUtils: IBigNumberUtils;
 
   public constructor() {
     this.contextProvider = new ContextProviderMock();
     this.configProvider = new ConfigProviderMock();
     this.logUtils = td.object<ILogUtils>();
-    this.accountRepo = td.object<ILinkedAccountRepository>();
     this.persistence = td.object<IDataWalletPersistence>();
     this.masterIndexer = td.object<IMasterIndexer>();
     this.timeUtils = td.object<ITimeUtils>();
+    this.bigNumberUtils = td.object<IBigNumberUtils>();
 
     td.when(this.timeUtils.getUnixNow()).thenDo(() => {
       indexTime++;
-      if (indexTime < 2) {
+      if (indexTime < 10) {
         return UnixTimestamp(1701779734);
       }
       //User got the nft back
       return UnixTimestamp(1701779738);
     });
 
-    td.when(this.accountRepo.getEarnedRewards()).thenReturn(
-      okAsync(earnedRewards),
-    );
-
-    td.when(this.accountRepo.getAccounts()).thenDo(() => {
-      return okAsync([...linkedAccounts]);
-    });
     td.when(
       this.masterIndexer.getSupportedChains(EIndexerMethod.NFTs),
     ).thenReturn(okAsync([43113, 137]));
+
+    td.when(this.bigNumberUtils.BNSToBN(td.matchers.anything())).thenDo(
+      (bigNumberString: BigNumberString) => {
+        return BigNumber.from(bigNumberString);
+      },
+    );
+
+    td.when(this.bigNumberUtils.BNToBNS(td.matchers.anything())).thenDo(
+      (bigNumber: BigNumber) => {
+        return BigNumberString(BigNumber.from(bigNumber).toString());
+      },
+    );
 
     td.when(
       this.masterIndexer.getLatestNFTs(
@@ -93,8 +104,18 @@ class NftRepositoryMocks {
       return okAsync(indexerNft(chain, accountAddress, indexIndexer));
     });
 
+    td.when(
+      this.persistence.getAll(td.matchers.anything(), td.matchers.anything()),
+    ).thenDo(() => {
+      return okAsync(earnedRewards);
+    });
+
     td.when(this.persistence.getAll(td.matchers.anything())).thenDo(
       (key: ERecordKey) => {
+        if (key === ERecordKey.ACCOUNT) {
+          return okAsync(linkedAccounts);
+        }
+
         const innerMap = persistenceMap.get(key);
         const innerValues = innerMap ? [...innerMap.values()] : [];
         return okAsync(innerValues);
@@ -123,11 +144,11 @@ class NftRepositoryMocks {
     return new NftRepository(
       this.contextProvider,
       this.configProvider,
-      this.accountRepo,
       this.persistence,
       this.masterIndexer,
       this.timeUtils,
       this.logUtils,
+      this.bigNumberUtils,
     );
   }
 }
@@ -270,10 +291,12 @@ describe("NftRepository", () => {
           ]);
           return service.getNFTCache().andThen((cache) => {
             //Cache updated
+
             expect(cache.get(43113)?.lastUpdateTime).toEqual(1701779737);
             expect(cache.get(137)?.lastUpdateTime).toEqual(1701779737);
             return okAsync(undefined);
           });
+
           //
         })
         .mapErr((e) => {

@@ -110,7 +110,7 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
         "Fake Token #" + i,
         chain,
         BigNumberString(Math.floor(Math.random() * 1000) + ""),
-        UnixTimestamp(Date.now() - i * (Date.now() % 86400)),
+        this.timeUtils.getUnixNow(),
         BlockNumber(i),
         //86400 => day
         UnixTimestamp(Date.now() - i * (Date.now() % 86400)),
