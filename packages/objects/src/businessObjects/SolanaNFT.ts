@@ -1,10 +1,11 @@
-import { WalletNFT } from "@objects/businessObjects/versioned/WalletNFT.js";
+import { WalletNFT } from "@objects/businessObjects/WalletNFT.js";
 import { EChain, EChainTechnology } from "@objects/enum/index.js";
 import {
-  NftTokenAddressWithTokenId,
+  BigNumberString,
   SolanaAccountAddress,
   SolanaTokenAddress,
   TickerSymbol,
+  UnixTimestamp,
 } from "@objects/primitives/index.js";
 
 export class SolanaCollection {
@@ -28,6 +29,8 @@ export class SolanaNFT extends WalletNFT {
     public tokenStandard: number | null,
     public symbol: TickerSymbol,
     public name: string,
+    public amount: BigNumberString,
+    public measurementDate: UnixTimestamp,
   ) {
     super(
       EChainTechnology.Solana,
@@ -35,7 +38,8 @@ export class SolanaNFT extends WalletNFT {
       owner,
       mint,
       name,
-      NftTokenAddressWithTokenId(updateAuthority, mint),
+      amount,
+      measurementDate,
     );
   }
 }

@@ -3,25 +3,22 @@ import {
   SDQL_Return,
   ChainId,
   EChain,
-  WalletNFT,
   TokenAddress,
   EVMNFT,
   UnixTimestamp,
   ISDQLTimestampRange,
   NftHolding,
-  PublicEvents,
   QueryPerformanceEvent,
   EQueryEvents,
   IpfsCID,
   EStatus,
-  WalletNftWithHistory,
   EChainTechnology,
-  EIndexedDbOp,
   BigNumberString,
   AccountIndexingError,
   AjaxError,
   InvalidParametersError,
   MethodSupportError,
+  WalletNFT,
 } from "@snickerdoodlelabs/objects";
 import { AST_NftQuery } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
@@ -79,8 +76,8 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
         ),
       );
       return this.nftRepository
-        .getCachedNFTs(queryTimestamp, chainIds)
-        .map((walletNftWithHistory) => {
+        .getNfts(queryTimestamp, chainIds)
+        .map((nfts) => {
           context.publicEvents.queryPerformance.next(
             new QueryPerformanceEvent(
               EQueryEvents.NftDataAccess,
@@ -90,7 +87,7 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
             ),
           );
           return SDQL_Return(
-            this.getNftHoldings(walletNftWithHistory, address, timestampRange),
+            this.getNftHoldings(nfts, address, timestampRange),
           );
         })
         .mapErr((err) => {
@@ -109,19 +106,17 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
   }
 
   private getNftHoldings(
-    walletNftWithHistory: WalletNftWithHistory[],
+    nfts: WalletNFT[],
     address: string | string[] | undefined,
     timestampRange: ISDQLTimestampRange | undefined,
   ): NftHoldings {
-    return this.walletNftsToNftHoldings(
-      this.filterNfts(walletNftWithHistory, address, timestampRange),
+    return this.nftsToNftHoldings(
+      this.filterNfts(nfts, address, timestampRange),
     );
   }
 
-  private walletNftsToNftHoldings(
-    walletNftWithHistory: WalletNftWithHistory[],
-  ): NftHoldings {
-    return walletNftWithHistory.reduce<NftHoldings>((nftholdings, nft) => {
+  private nftsToNftHoldings(nfts: WalletNFT[]): NftHoldings {
+    return nfts.reduce<NftHoldings>((nftholdings, nft) => {
       const chain = this.chainGuard(nft.chain);
       const currentNft = this.walletNftToNftHolding(chain, nft);
       const index = nftholdings.findIndex(
@@ -145,41 +140,15 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
 
   private walletNftToNftHolding(
     chain: keyof typeof EChain | "not registered",
-    walletNftWithHistory: WalletNftWithHistory,
+    nft: WalletNFT,
   ): NftHolding {
-    const latestMeasurementDate =
-      this.getLatestMeasurementDate(walletNftWithHistory);
-    if (this.isEVMWithHistory(walletNftWithHistory)) {
-      return new NftHolding(
-        chain,
-        walletNftWithHistory.token,
-        Number(walletNftWithHistory.amount),
-        walletNftWithHistory.name,
-        latestMeasurementDate,
-      );
-    } else {
-      return new NftHolding(
-        chain,
-        walletNftWithHistory.token,
-        1,
-        walletNftWithHistory.name,
-        latestMeasurementDate,
-      );
-    }
-  }
-
-  private getLatestMeasurementDate(
-    walletNftWithHistory: WalletNftWithHistory,
-  ): UnixTimestamp {
-    const latestMeasurementDate = walletNftWithHistory.history.reduce(
-      (maxDate, historyItem) => {
-        return historyItem.measurementDate > maxDate
-          ? historyItem.measurementDate
-          : maxDate;
-      },
-      0,
+    return new NftHolding(
+      chain,
+      nft.token,
+      Number(nft.amount),
+      nft.name,
+      nft.measurementDate,
     );
-    return UnixTimestamp(latestMeasurementDate);
   }
 
   //Type guard https://www.typescriptlang.org/docs/handbook/2/narrowing.html#typeof-type-guards, needed for narrowing
@@ -197,11 +166,11 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
   }
 
   private filterNfts(
-    walletNftWithHistory: WalletNftWithHistory[],
+    nfts: WalletNFT[],
     address: string | string[] | undefined,
     timestampRange: ISDQLTimestampRange | undefined,
-  ): WalletNftWithHistory[] {
-    return walletNftWithHistory.reduce<WalletNftWithHistory[]>((array, nft) => {
+  ): WalletNFT[] {
+    return nfts.reduce<WalletNFT[]>((array, nft) => {
       if (this.validNft(nft, address, timestampRange)) {
         array.push(nft);
       }
@@ -210,28 +179,22 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
   }
 
   private validNft(
-    walletNftWithHistory: WalletNftWithHistory,
+    nft: WalletNFT,
     address: string | undefined | string[],
     timestampRange: undefined | ISDQLTimestampRange,
   ): boolean {
     if (address && address !== "*") {
-      if (this.checkInvalidAddress(walletNftWithHistory.token, address)) {
+      if (this.checkInvalidAddress(nft.token, address)) {
         return false;
       }
     }
-    if (
-      this.isEVMWithHistory(walletNftWithHistory) &&
-      walletNftWithHistory.lastOwnerTimeStamp
-    ) {
+    if (this.isEVMWithHistory(nft) && nft.lastOwnerTimeStamp) {
       if (
         timestampRange &&
         !(timestampRange.end === "*" && timestampRange.start === "*")
       ) {
         if (
-          this.checkInvalidTimestamp(
-            walletNftWithHistory.lastOwnerTimeStamp,
-            timestampRange,
-          )
+          this.checkInvalidTimestamp(nft.lastOwnerTimeStamp, timestampRange)
         ) {
           return false;
         }
@@ -240,17 +203,11 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
     return true;
   }
 
-  private isEVMWithHistory(
-    walletNftWithHistory: WalletNftWithHistory,
-  ): walletNftWithHistory is EVMNFT & {
-    history: {
-      measurementDate: UnixTimestamp;
-      event: EIndexedDbOp;
-      amount: BigNumberString;
-    }[];
+  private isEVMWithHistory(nft: WalletNFT): nft is EVMNFT & {
     totalAmount: BigNumberString;
+    measurementDate: UnixTimestamp;
   } {
-    return walletNftWithHistory.type === EChainTechnology.EVM;
+    return nft.type === EChainTechnology.EVM;
   }
 
   private checkInvalidAddress(

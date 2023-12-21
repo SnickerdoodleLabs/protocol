@@ -21,7 +21,7 @@ import {
   LinkedAccount,
   QueryStatus,
 } from "@objects/businessObjects/versioned/index.js";
-import { WalletNFT } from "@objects/businessObjects/versioned/WalletNFT.js";
+import { WalletNFT } from "@objects/businessObjects/WalletNFT.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/index.js";
 import {
   CountryCode,

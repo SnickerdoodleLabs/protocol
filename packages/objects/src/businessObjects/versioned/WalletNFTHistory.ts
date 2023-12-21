@@ -1,8 +1,8 @@
-import { VersionedObject } from "./VersionedObject";
-
-import { WalletNFT } from "@objects/businessObjects/versioned/WalletNFT.js";
+import { VersionedObject } from "@objects/businessObjects/versioned/VersionedObject.js";
+import { WalletNFTData } from "@objects/businessObjects/versioned/WalletNFTData.js";
 import { EIndexedDbOp } from "@objects/enum/index.js";
 import {
+  AccountAddress,
   BigNumberString,
   NftIdWithMeasurementDate,
   UnixTimestamp,
@@ -24,11 +24,12 @@ export class WalletNFTHistory extends VersionedObject {
   }
 }
 
-export type WalletNftWithHistory = Omit<WalletNFT, "getVersion"> & {
+export type WalletNftWithHistory = Omit<WalletNFTData, "getVersion"> & {
   history: {
     measurementDate: UnixTimestamp;
     event: EIndexedDbOp;
     amount: BigNumberString;
   }[];
+  owner: AccountAddress;
   totalAmount: BigNumberString;
 };

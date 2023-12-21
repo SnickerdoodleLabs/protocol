@@ -5,6 +5,8 @@ import {
   ILogUtilsType,
   ObjectUtils,
   IRequestConfig,
+  ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
@@ -56,11 +58,11 @@ export class RaribleIndexer implements IEVMIndexer {
       EChain.Arbitrum,
       new IndexerSupportSummary(EChain.Arbitrum, false, false, true),
     ],
+    [
+      EChain.Chiliz,
+      new IndexerSupportSummary(EChain.Chiliz, false, false, true),
+    ],
     // TODO: will support functionality once we have balances/nfts to test
-    // [
-    //   EChain.ZkSyncEra,
-    //   new IndexerSupportSummary(EChain.ZkSyncEra, false, false, true),
-    // ],
     // [EChain.Base, new IndexerSupportSummary(EChain.Base, false, false, true)],
     // [
     //   EChain.Solana,
@@ -72,6 +74,7 @@ export class RaribleIndexer implements IEVMIndexer {
     [EChain.EthereumMainnet, "ETHEREUM"],
     [EChain.Polygon, "POLYGON"],
     [EChain.Arbitrum, "ARBITRUM"],
+    [EChain.Chiliz, "CHILIZ"],
     // TODO: will support functionality once we have balances/nfts to test
     // [EChain.ZkSyncEra, "ZKSYNC"],
     // [EChain.Base, "BASE"],
@@ -85,6 +88,7 @@ export class RaribleIndexer implements IEVMIndexer {
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -168,6 +172,7 @@ export class RaribleIndexer implements IEVMIndexer {
               name,
               chain,
               BigNumberString(item.supply),
+              this.timeUtils.getUnixNow(),
               undefined,
               undefined,
             );

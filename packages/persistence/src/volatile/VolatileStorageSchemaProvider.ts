@@ -18,7 +18,8 @@ import {
   SocialProfileMigrator,
   SocialGroupProfileMigrator,
   RejectedInvitationMigrator,
-  WalletNFTMigrator,
+  WalletNFTDataMigrator,
+  WalletNFTHistoryMigrator,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -274,7 +275,7 @@ export class VolatileStorageSchemaProvider
             ERecordKey.NFTS,
             "id",
             false,
-            new WalletNFTMigrator(),
+            new WalletNFTDataMigrator(),
             EBackupPriority.DISABLED,
             config.dataWalletBackupIntervalMS,
             config.backupChunkSizeTarget,
@@ -286,7 +287,7 @@ export class VolatileStorageSchemaProvider
             ERecordKey.NFTS_HISTORY,
             "id",
             false,
-            new WalletNFTMigrator(),
+            new WalletNFTHistoryMigrator(),
             EBackupPriority.DISABLED,
             config.dataWalletBackupIntervalMS,
             config.backupChunkSizeTarget,

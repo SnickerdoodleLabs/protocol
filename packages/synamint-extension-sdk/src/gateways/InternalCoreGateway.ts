@@ -14,7 +14,7 @@ import { ResultAsync } from "neverthrow";
 import CoreHandler from "@synamint-extension-sdk/gateways/handler/CoreHandler";
 import {
   GetAccountBalancesParams,
-  GetAccountCachedNFTsParams,
+  GetAccountNFTsParams,
   GetAccountsParams,
   GetConfigParams,
   GetEmailParams,
@@ -45,11 +45,8 @@ export class InternalCoreGateway {
   public getAccountBalances(): ResultAsync<TokenBalance[], ProxyError> {
     return this._handler.call(new GetAccountBalancesParams());
   }
-  public getAccountCachedNFTs(): ResultAsync<
-    WalletNftWithHistory[],
-    ProxyError
-  > {
-    return this._handler.call(new GetAccountCachedNFTsParams());
+  public getAccountCachedNFTs(): ResultAsync<WalletNFT[], ProxyError> {
+    return this._handler.call(new GetAccountNFTsParams());
   }
   public isDataWalletAddressInitialized(): ResultAsync<boolean, ProxyError> {
     return this._handler.call(new IsDataWalletAddressInitializedParams());

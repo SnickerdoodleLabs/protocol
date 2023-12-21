@@ -69,6 +69,7 @@ export class BluezIndexer implements IEVMIndexer {
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -150,6 +151,7 @@ export class BluezIndexer implements IEVMIndexer {
               item.name,
               EChain.Astar,
               BigNumberString("1"),
+              this.timeUtils.getUnixNow(),
               undefined,
               undefined,
             );

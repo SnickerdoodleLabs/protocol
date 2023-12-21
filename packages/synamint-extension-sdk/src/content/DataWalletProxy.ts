@@ -98,7 +98,6 @@ import {
   GetListingsTotalByTagParams,
   GetConsentCapacityParams,
   GetPossibleRewardsParams,
-  SwitchToTabParams,
   GetQueryStatusByCidParams,
   AuthenticateDropboxParams,
   SetAuthenticatedStorageParams,
@@ -162,6 +161,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public storage: IProxyStorageMethods;
   public nft: INftProxyMethods;
   public events: PublicEvents;
+  public requestDashboardView = undefined;
 
   public proxyType: ECoreProxyType = ECoreProxyType.EXTENSION_INJECTED;
 
@@ -203,6 +203,13 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       ENotificationTypes.COHORT_JOINED,
       (notification: { data: EVMContractAddress }) => {
         this.events.onCohortJoined.next(notification.data);
+      },
+    );
+
+    this.on(
+      ENotificationTypes.COHORT_LEFT,
+      (notification: { data: EVMContractAddress }) => {
+        this.events.onCohortLeft.next(notification.data);
       },
     );
 
@@ -293,8 +300,8 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       initializeUserWithAuthorizationCode: (code: OAuthAuthorizationCode) => {
         return coreGateway.discord.initializeUserWithAuthorizationCode(code);
       },
-      installationUrl: (redirectTabId: number | undefined) => {
-        return coreGateway.discord.installationUrl(redirectTabId);
+      installationUrl: () => {
+        return coreGateway.discord.installationUrl();
       },
       getUserProfiles: () => {
         return coreGateway.discord.getUserProfiles();
@@ -335,24 +342,24 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       getMetrics: () => {
         return coreGateway.metrics.getMetrics();
       },
+      getNFTCache: () => {
+        return coreGateway.metrics.getNFTCache();
+      },
+      getPersistenceNFTs: () => {
+        return coreGateway.metrics.getPersistenceNFTs();
+      },
+      getNFTsHistory: () => {
+        return coreGateway.metrics.getNFTsHistory();
+      },
     };
 
     this.nft = {
-      getCache: () => {
-        return coreGateway.nft.getCache();
-      },
-      getPersistenceNFTs: () => {
-        return coreGateway.nft.getPersistenceNFTs();
-      },
-      getNFTsHistory: () => {
-        return coreGateway.nft.getNFTsHistory();
-      },
-      getCachedNFTs: (
+      getNfts: (
         benchmark: UnixTimestamp | undefined,
         chains: EChain[] | undefined,
         accounts: LinkedAccount[] | undefined,
       ) => {
-        return coreGateway.nft.getCachedNFTs(benchmark, chains, accounts);
+        return coreGateway.nft.getNfts(benchmark, chains, accounts);
       },
     };
 
@@ -407,10 +414,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     eventEmitter.on(PORT_NOTIFICATION, (resp: BaseNotification) => {
       _this.emit(resp.type, resp);
     });
-  }
-
-  public switchToTab(tabId: number): ResultAsync<void, ProxyError> {
-    return coreGateway.switchToTab(new SwitchToTabParams(tabId));
   }
 
   public setDefaultReceivingAddress(
@@ -605,9 +608,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     return coreGateway.leaveCohort(
       new LeaveCohortParams(consentContractAddress),
     );
-  }
-  public closeTab() {
-    return coreGateway.closeTab();
   }
   public getDataWalletAddress() {
     return coreGateway.getDataWalletAddress();

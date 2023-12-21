@@ -1,9 +1,8 @@
-import { Box, Typography } from "@material-ui/core";
-import React from "react";
-import Browser from "webextension-polyfill";
-
 import { useAppContext } from "@browser-extension/popup/context";
 import { useStyles } from "@browser-extension/popup/pages/Home/components/LinkCard/LinkCard.style";
+import { Box, Typography } from "@material-ui/core";
+import React from "react";
+
 interface ILinkCardProps {
   navigateTo: string;
   icon: string;
@@ -14,7 +13,7 @@ const LinkCard = ({ navigateTo, icon, title }: ILinkCardProps) => {
   const classes = useStyles();
   const navigate = () => {
     coreGateway.getConfig().map((config) => {
-      window.open(`${config.onboardingUrl}${navigateTo}`, "_blank");
+      window.open(`${config.onboardingURL}${navigateTo}`, "_blank");
     });
   };
   return (

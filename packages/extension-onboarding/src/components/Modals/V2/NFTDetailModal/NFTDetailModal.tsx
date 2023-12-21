@@ -1,4 +1,3 @@
-import placeholder from "@extension-onboarding/assets/images/image-placeholder.png";
 import Card from "@extension-onboarding/components/v2/Card";
 import Container from "@extension-onboarding/components/v2/Container";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
@@ -255,7 +254,9 @@ const NFTDetailModal: FC = () => {
       disablePortal={true}
       disableEnforceFocus={true}
       PaperProps={{
-        style: { backgroundColor: theme.palette.background.default },
+        style: {
+          backgroundColor: theme.palette.background.default,
+        },
       }}
     >
       <Toolbar className={classes.toolbar}>
@@ -274,7 +275,10 @@ const NFTDetailModal: FC = () => {
           <Grid item xs={12} sm={6}>
             <Box width="100%" className={classes.imageWrapper}>
               <img
-                src={nftData?.imageUrl ?? placeholder}
+                src={
+                  nftData?.imageUrl ??
+                  "https://storage.googleapis.com/dw-assets/spa/images/placeholder.svg"
+                }
                 className={classes.image}
               />
             </Box>

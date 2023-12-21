@@ -20,7 +20,7 @@ export * from "@objects/businessObjects/versioned/SuiTransaction.js";
 
 export * from "@objects/businessObjects/versioned/TokenInfo.js";
 export * from "@objects/businessObjects/versioned/VersionedObject.js";
-export * from "@objects/businessObjects/versioned/WalletNFT.js";
+export * from "@objects/businessObjects/versioned/WalletNFTData.js";
 export * from "@objects/businessObjects/versioned/WalletNFTHistory.js";
 export * from "@objects/businessObjects/versioned/WalletNFTHistoryMigrator.js";
-export * from "@objects/businessObjects/versioned/WalletNFTMigrator.js";
+export * from "@objects/businessObjects/versioned/WalletNFTDataMigrator.js";

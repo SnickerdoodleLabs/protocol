@@ -2,6 +2,8 @@ import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
   IRequestConfig,
+  ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
@@ -60,6 +62,7 @@ export class PoapRepository implements IEVMIndexer {
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -188,6 +191,7 @@ export class PoapRepository implements IEVMIndexer {
         token.event.name,
         chain,
         BigNumberString(token.event.supply),
+        this.timeUtils.getUnixNow(),
       );
     });
     return items;

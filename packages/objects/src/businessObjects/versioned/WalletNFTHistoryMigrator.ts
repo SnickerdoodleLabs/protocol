@@ -9,18 +9,13 @@ export class WalletNFTHistoryMigrator extends VersionedObjectMigrator<WalletNFTH
   protected factory(
     data: Record<string, unknown> | WalletNFTHistory,
   ): WalletNFTHistory {
-    if (this.isNftHistory(data)) {
-      return new WalletNFTHistory(data.id, data.event, data.amount);
-    }
-    throw new Error(
-      "Encountered malformed nft history while creating it from indexed db data",
-    );
-  }
+    const walletData = data as WalletNFTHistory;
 
-  protected isNftHistory(
-    nftHistory: Record<string, unknown> | WalletNFTHistory,
-  ): nftHistory is WalletNFTHistory {
-    return nftHistory.id != null;
+    return new WalletNFTHistory(
+      walletData.id,
+      walletData.event,
+      walletData.amount,
+    );
   }
 
   protected getUpgradeFunctions(): Map<

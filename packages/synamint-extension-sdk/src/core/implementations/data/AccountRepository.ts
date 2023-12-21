@@ -113,45 +113,18 @@ export class AccountRepository implements IAccountRepository {
       });
   }
 
-  public getCachedNFTs(
+  public getNfts(
     benchmark?: UnixTimestamp,
     chains?: EChain[],
     accounts?: LinkedAccount[],
     sourceDomain?: DomainName,
-  ): ResultAsync<WalletNftWithHistory[], SnickerDoodleCoreError> {
+  ): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
     return this.core.nft
-      .getCachedNFTs(benchmark, chains, accounts, sourceDomain)
+      .getNfts(benchmark, chains, accounts, sourceDomain)
       .mapErr((error) => {
         this.errorUtils.emit(error);
         return new SnickerDoodleCoreError((error as Error).message, error);
       });
-  }
-
-  getCache(
-    sourceDomain?: DomainName,
-  ): ResultAsync<NftRepositoryCache, SnickerDoodleCoreError> {
-    return this.core.nft.getCache(sourceDomain).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
-  }
-
-  public getPersistenceNFTs(
-    sourceDomain?: DomainName,
-  ): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
-    return this.core.nft.getPersistenceNFTs(sourceDomain).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
-  }
-
-  public getNFTsHistory(
-    sourceDomain?: DomainName,
-  ): ResultAsync<WalletNFTHistory[], SnickerDoodleCoreError> {
-    return this.core.nft.getNFTsHistory(sourceDomain).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
   }
 
   public addAccount(

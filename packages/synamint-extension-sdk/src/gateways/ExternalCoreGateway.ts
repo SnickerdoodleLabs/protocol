@@ -98,7 +98,6 @@ import {
   GetSiteVisitsParams,
   GetEarnedRewardsParams,
   GetDataWalletAddressParams,
-  CloseTabParams,
   IsDataWalletAddressInitializedParams,
   GetLocationParams,
   GetGenderParams,
@@ -107,7 +106,7 @@ import {
   GetGivenNameParams,
   GetFamilyNameParams,
   GetAgeParams,
-  GetAccountCachedNFTsParams,
+  GetAccountNFTsParams,
   GetAccountBalancesParams,
   GetAccountsParams,
   GetAcceptedInvitationsCIDParams,
@@ -127,7 +126,6 @@ import {
   TwitterGetRequestTokenParams,
   TwitterGetLinkedProfilesParams,
   GetConfigParams,
-  SwitchToTabParams,
   GetMetricsParams,
   RequestPermissionsParams,
   GetPermissionsParams,
@@ -234,12 +232,8 @@ export class ExternalCoreGateway {
       ): ResultAsync<void, ProxyError> => {
         return this._handler.call(new InitializeDiscordUserParams(code));
       },
-      installationUrl: (
-        redirectTabId: number | undefined = undefined,
-      ): ResultAsync<URLString, ProxyError> => {
-        return this._handler.call(
-          new GetDiscordInstallationUrlParams(redirectTabId),
-        );
+      installationUrl: (): ResultAsync<URLString, ProxyError> => {
+        return this._handler.call(new GetDiscordInstallationUrlParams());
       },
       getUserProfiles: (): ResultAsync<DiscordProfile[], ProxyError> => {
         return this._handler.call(new GetDiscordUserProfilesParams());
@@ -255,27 +249,14 @@ export class ExternalCoreGateway {
     };
 
     this.nft = {
-      getCachedNFTs: (
+      getNfts: (
         benchmark?: UnixTimestamp,
         chains?: EChain[],
         accounts?: LinkedAccount[],
       ) => {
         return this._handler.call(
-          new GetAccountCachedNFTsParams(benchmark, chains, accounts),
+          new GetAccountNFTsParams(benchmark, chains, accounts),
         );
-      },
-      getPersistenceNFTs: () => {
-        return this._handler.call(new GetPersistenceNFTsParams());
-      },
-      getNFTsHistory: () => {
-        return this._handler.call(new GetAccountNFTHistoryParams());
-      },
-      getCache: () => {
-        return this._handler
-          .call(new GetAccountNftCacheParams())
-          .map((jsonString) => {
-            return ObjectUtils.deserialize(jsonString);
-          });
       },
     };
 
@@ -308,6 +289,19 @@ export class ExternalCoreGateway {
     this.metrics = {
       getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
         return this._handler.call(new GetMetricsParams());
+      },
+      getPersistenceNFTs: () => {
+        return this._handler.call(new GetPersistenceNFTsParams());
+      },
+      getNFTsHistory: () => {
+        return this._handler.call(new GetAccountNFTHistoryParams());
+      },
+      getNFTCache: () => {
+        return this._handler
+          .call(new GetAccountNftCacheParams())
+          .map((jsonString) => {
+            return ObjectUtils.deserialize(jsonString);
+          });
       },
     };
 
@@ -496,9 +490,6 @@ export class ExternalCoreGateway {
   public isDataWalletAddressInitialized(): ResultAsync<boolean, ProxyError> {
     return this._handler.call(new IsDataWalletAddressInitializedParams());
   }
-  public closeTab(): ResultAsync<void, ProxyError> {
-    return this._handler.call(new CloseTabParams());
-  }
   public getDataWalletAddress(): ResultAsync<
     DataWalletAddress | null,
     ProxyError
@@ -600,9 +591,6 @@ export class ExternalCoreGateway {
   }
   public getConfig(): ResultAsync<IExtensionConfig, ProxyError> {
     return this._handler.call(new GetConfigParams());
-  }
-  public switchToTab(params: SwitchToTabParams): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
   }
 
   public getDropboxAuth(): ResultAsync<URLString, ProxyError> {

@@ -2,6 +2,8 @@ import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
   IRequestConfig,
+  ITimeUtils,
+  ITimeUtilsType,
   ValidationUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
@@ -73,6 +75,7 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -201,6 +204,7 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
           asset.name,
           chain,
           BigNumberString(asset.amount),
+          this.timeUtils.getUnixNow(),
           undefined,
           UnixTimestamp(Number(asset.own_timestamp)),
         );

@@ -2,6 +2,8 @@ import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
   IRequestConfig,
+  ITimeUtils,
+  ITimeUtilsType,
   ValidationUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
@@ -82,6 +84,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -244,6 +247,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
         token.name,
         chain,
         BigNumberString(token.amount),
+        this.timeUtils.getUnixNow(),
         BlockNumber(Number(token.block_number)),
         undefined,
       );

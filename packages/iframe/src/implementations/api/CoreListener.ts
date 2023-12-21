@@ -393,7 +393,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      "nft.getCachedNFTs": (
+      "nft.getNfts": (
         data: IIFrameCallData<{
           benchmark?: UnixTimestamp;
           chains?: EChain[];
@@ -402,38 +402,12 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.nft.getCachedNFTs(
+            return core.nft.getNfts(
               data.data.benchmark,
               data.data.chains,
               data.data.accounts,
               this.sourceDomain,
             );
-          });
-        }, data.callId);
-      },
-
-      "nft.getNFTsHistory": (data: IIFrameCallData<Record<string, never>>) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.nft.getNFTsHistory(this.sourceDomain);
-          });
-        }, data.callId);
-      },
-
-      "nft.getPersistenceNFTs": (
-        data: IIFrameCallData<Record<string, never>>,
-      ) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.nft.getPersistenceNFTs(this.sourceDomain);
-          });
-        }, data.callId);
-      },
-
-      "nft.getCache": (data: IIFrameCallData<Record<string, never>>) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.nft.getCache(this.sourceDomain);
           });
         }, data.callId);
       },
@@ -799,16 +773,11 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       },
 
       "discord.installationUrl": (
-        data: IIFrameCallData<{
-          redirectTabId?: number;
-        }>,
+        data: IIFrameCallData<Record<string, never>>,
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.discord.installationUrl(
-              data.data.redirectTabId,
-              this.sourceDomain,
-            );
+            return core.discord.installationUrl(this.sourceDomain);
           });
         }, data.callId);
       },
@@ -916,6 +885,34 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
+      "metrics.getNFTsHistory": (
+        data: IIFrameCallData<Record<string, never>>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.metrics.getNFTsHistory(this.sourceDomain);
+          });
+        }, data.callId);
+      },
+
+      "metrics.getPersistenceNFTs": (
+        data: IIFrameCallData<Record<string, never>>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.metrics.getPersistenceNFTs(this.sourceDomain);
+          });
+        }, data.callId);
+      },
+
+      "metrics.getNFTCache": (data: IIFrameCallData<Record<string, never>>) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.metrics.getNFTCache(this.sourceDomain);
+          });
+        }, data.callId);
+      },
+
       "twitter.getOAuth1aRequestToken": (
         data: IIFrameCallData<Record<string, never>>,
       ) => {
@@ -1015,6 +1012,15 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       checkURLForInvitation: (data: IIFrameCallData<{ url: URLString }>) => {
         this.returnForModel(() => {
           return this.invitationService.handleURL(data.data.url);
+        }, data.callId);
+      },
+
+      // dashboard view request
+      requestDashboardView: (data: IIFrameCallData<Record<string, never>>) => {
+        this.returnForModel(() => {
+          return okAsync(
+            this.contextProvider.getEvents().onDashboardViewRequested.next(),
+          );
         }, data.callId);
       },
     });

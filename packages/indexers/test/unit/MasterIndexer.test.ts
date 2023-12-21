@@ -291,6 +291,7 @@ class MasterIndexerMocks {
       "name",
       chain,
       invalidBalance,
+      UnixTimestamp(0),
       undefined,
       undefined,
     );

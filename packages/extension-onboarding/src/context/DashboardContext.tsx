@@ -13,6 +13,7 @@ import React, {
   useContext,
   useEffect,
   useState,
+  memo,
 } from "react";
 
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
@@ -53,12 +54,10 @@ const { mainnetSupportedChainIds, testnetSupportedChainIds } = Array.from(
   },
 );
 
-export const DashboardContextProvider: FC = ({ children }) => {
-  const [accountNFTs, setAccountNFTs] =
-    useState<Omit<WalletNFT, "getVersion">[]>();
+export const DashboardContextProvider: FC = memo(({ children }) => {
+  const [accountNFTs, setAccountNFTs] = useState<WalletNFT[]>();
   const [poapNFTs, setPoapNFTs] = useState<EVMNFT[]>();
-  const [accountTestnetNFTs, setAccountTestnetNFTs] =
-    useState<Omit<WalletNFT, "getVersion">[]>();
+  const [accountTestnetNFTs, setAccountTestnetNFTs] = useState<WalletNFT[]>();
   const [isNFTsLoading, setIsNFTsLoading] = useState(true);
   const { sdlDataWallet } = useDataWalletContext();
   const { linkedAccounts, appMode } = useAppContext();
@@ -72,7 +71,7 @@ export const DashboardContextProvider: FC = ({ children }) => {
 
   const initializeNfts = () => {
     sdlDataWallet.nft
-      .getCachedNFTs(undefined, undefined, undefined)
+      .getNfts(undefined, undefined, undefined)
       .mapErr((e) => {
         setIsNFTsLoading(false);
       })
@@ -83,7 +82,7 @@ export const DashboardContextProvider: FC = ({ children }) => {
               ChainId(item.chain),
             );
 
-            if (NftMetadataParseUtils.isEVMWithHistory(item)) {
+            if (NftMetadataParseUtils.isEVMNFT(item)) {
               const evmNft = item as EVMNFT;
               if (
                 evmNft.chain === EChain.Gnosis ||
@@ -107,8 +106,8 @@ export const DashboardContextProvider: FC = ({ children }) => {
             return acc;
           },
           { mainnetNfts: [], testnetNfts: [], poapNfts: [] } as {
-            mainnetNfts: Omit<WalletNFT, "getVersion">[];
-            testnetNfts: Omit<WalletNFT, "getVersion">[];
+            mainnetNfts: WalletNFT[];
+            testnetNfts: WalletNFT[];
             poapNfts: EVMNFT[];
           },
         );
@@ -126,6 +125,6 @@ export const DashboardContextProvider: FC = ({ children }) => {
       {children}
     </DashboardContext.Provider>
   );
-};
+});
 
 export const useDashboardContext = () => useContext(DashboardContext);

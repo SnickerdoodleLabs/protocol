@@ -40,7 +40,7 @@ const envVars = {
 
   __SPACEANDTIME_API_KEY__: "",
   __BLOCKVISION_API_KEY__: "",
-
+  __NFT_POLLING_INTERVAL: "",
   __PRIMARY_INFURA_KEY__: "a8ae124ed6aa44bb97a7166cda30f1bc",
   __SECONDARY_INFURA_KEY__: "",
   __DNS_SERVER_ADDRESS__: "",

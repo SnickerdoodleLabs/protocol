@@ -1,5 +1,5 @@
 import {
-  WalletNftWithHistory,
+  WalletNFT,
   EVMNFT,
   UnixTimestamp,
   EIndexedDbOp,
@@ -27,17 +27,8 @@ const emptytNft: INFT = {
 };
 
 export class NftMetadataParseUtils {
-  static isEVMWithHistory(
-    walletNftWithHistory: WalletNftWithHistory,
-  ): walletNftWithHistory is EVMNFT & {
-    history: {
-      measurementDate: UnixTimestamp;
-      event: EIndexedDbOp;
-      amount: BigNumberString;
-    }[];
-    totalAmount: BigNumberString;
-  } {
-    return walletNftWithHistory.type === EChainTechnology.EVM;
+  static isEVMNFT(walletNFT: WalletNFT): walletNFT is EVMNFT {
+    return walletNFT.type === EChainTechnology.EVM;
   }
   public static getParsedNFT = (metadataString: string): INFT => {
     if (!metadataString) {

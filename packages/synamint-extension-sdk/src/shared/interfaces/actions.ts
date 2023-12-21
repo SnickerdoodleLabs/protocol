@@ -64,6 +64,7 @@ import {
   WalletNFTHistory,
   WalletNftWithHistory,
   NftRepositoryCache,
+  WalletNFTData,
 } from "@snickerdoodlelabs/objects";
 
 import { IExtensionConfig } from "./IExtensionConfig";
@@ -451,15 +452,6 @@ export class GetDataWalletAddressParams extends CoreActionParams<DataWalletAddre
   }
 }
 
-export class CloseTabParams extends CoreActionParams<void> {
-  public constructor() {
-    super(CloseTabParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.CLOSE_TAB;
-  }
-}
-
 export class IsDataWalletAddressInitializedParams extends CoreActionParams<boolean> {
   public constructor() {
     super(IsDataWalletAddressInitializedParams.getCoreAction());
@@ -532,22 +524,22 @@ export class GetAgeParams extends CoreActionParams<Age | null> {
   }
 }
 
-export class GetAccountCachedNFTsParams extends CoreActionParams<
-  WalletNftWithHistory[]
-> {
+export class GetAccountNFTsParams extends CoreActionParams<WalletNFT[]> {
   public constructor(
     public benchmark?: UnixTimestamp,
     public chains?: EChain[],
     public accounts?: LinkedAccount[],
   ) {
-    super(GetAccountCachedNFTsParams.getCoreAction());
+    super(GetAccountNFTsParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
-    return ECoreActions.GET_ACCOUNT_CACHED_NFTS;
+    return ECoreActions.GET_ACCOUNT_NFTS;
   }
 }
 
-export class GetPersistenceNFTsParams extends CoreActionParams<WalletNFT[]> {
+export class GetPersistenceNFTsParams extends CoreActionParams<
+  WalletNFTData[]
+> {
   public constructor() {
     super(GetPersistenceNFTsParams.getCoreAction());
   }
@@ -690,7 +682,7 @@ export class GetQueryStatusesParams extends CoreActionParams<QueryStatus[]> {
 }
 
 export class GetDiscordInstallationUrlParams extends CoreActionParams<URLString> {
-  public constructor(public redirectTabId?: number) {
+  public constructor() {
     super(GetDiscordInstallationUrlParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
@@ -791,16 +783,6 @@ export class GetConfigParams extends CoreActionParams<IExtensionConfig> {
 
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_CONFIG;
-  }
-}
-
-export class SwitchToTabParams extends CoreActionParams<void> {
-  public constructor(public tabId: number) {
-    super(SwitchToTabParams.getCoreAction());
-  }
-
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.SWITCH_TO_TAB;
   }
 }
 
