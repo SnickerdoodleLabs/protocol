@@ -718,7 +718,7 @@ export class SnickerdoodleIFrameProxy
     },
 
     getNFTCache: (): ResultAsync<NftRepositoryCache, ProxyError> => {
-      return this._createCall("metrics.getCache", null);
+      return this._createCall("metrics.getNFTCache", null);
     },
   };
 
