@@ -103,7 +103,7 @@ export const Amazon: FC<IShoppingDataPlatformProps> = memo(
             variant="bodyLg"
             color="textBody"
           >
-            {!row.brand && "NaN"}
+            {!row.brand && "N/A"}
             {row.brand}
           </SDTypography>
         ),
@@ -117,6 +117,7 @@ export const Amazon: FC<IShoppingDataPlatformProps> = memo(
             variant="bodyLg"
             color="textBody"
           >
+            {!row.category && "N/A"}
             {row.category}
           </SDTypography>
         ),
