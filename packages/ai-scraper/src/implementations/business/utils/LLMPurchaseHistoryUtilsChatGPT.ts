@@ -103,10 +103,18 @@ export class LLMPurchaseHistoryUtilsChatGPT
       const timestampPurchased = this.timeUtils.parseToSDTimestamp(
         purchase.date,
       );
+      const price = this.parsePrice(purchase.price);
 
-      if (timestampPurchased == null) {
+      if (
+        timestampPurchased == null ||
+        timestampPurchased > this.timeUtils.getUnixNow()
+      ) {
         this.logUtils.debug(
           `Invalid purchase date ${purchase.date} for ${purchase.name}`,
+        );
+      } else if (price == 0) {
+        this.logUtils.debug(
+          `Invalid price ${purchase.price} for ${purchase.name}`,
         );
       } else {
         const category = purchase.classification ?? UnknownProductCategory;
@@ -117,7 +125,7 @@ export class LLMPurchaseHistoryUtilsChatGPT
             this.makePurchaseId(purchase, timestampPurchased),
             purchase.name,
             purchase.brand,
-            this.parsePrice(purchase.price),
+            price,
             timestampPurchased,
             this.timeUtils.getUnixNow(),
             null,
