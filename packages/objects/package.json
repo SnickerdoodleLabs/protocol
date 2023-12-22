@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/objects",
-  "version": "1.1.12",
+  "version": "1.1.17",
   "description": "Objects and types shared by the Snickerdoodle Protocol",
   "license": "MIT",
   "repository": {
@@ -19,7 +19,6 @@
   "main": "dist/index.js",
   "files": [
     "dist",
-    "src",
     "!dist/test",
     "!dist/tsconfig.tsbuildinfo",
     "!test",

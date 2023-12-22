@@ -14,9 +14,17 @@ export class WebIntegrationConfigProvider
   protected config: IConfigOverrides;
   constructor() {
     this.config = {
-      primaryInfuraKey: __PRIMARY_INFURA_KEY__,
-      iframeURL: URLString(__IFRAME_URL__),
-      defaultGoogleCloudBucket: __GOOGLE_CLOUD_BUCKET__,
+      primaryInfuraKey:
+        typeof __PRIMARY_INFURA_KEY__ === "undefined"
+          ? ""
+          : __PRIMARY_INFURA_KEY__,
+      iframeURL: URLString(
+        typeof __IFRAME_URL__ === "undefined" ? "" : __IFRAME_URL__,
+      ),
+      defaultGoogleCloudBucket:
+        typeof __GOOGLE_CLOUD_BUCKET__ === "undefined"
+          ? ""
+          : __GOOGLE_CLOUD_BUCKET__,
       discordOverrides: {
         oauthRedirectUrl: URLString(
           `${window.location.origin}${EPathsV2.SETTINGS}`,
