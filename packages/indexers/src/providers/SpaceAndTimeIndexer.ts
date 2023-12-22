@@ -157,9 +157,11 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
             EComponentStatus.NoKeyProvided,
           );
         } else {
-          // derive public key from private key
           this.privateKey = config.apiKeys.spaceAndTimeCredentials.PrivateKey
             ? config.apiKeys.spaceAndTimeCredentials.PrivateKey
+            : "";
+          this.userId = config.apiKeys.spaceAndTimeCredentials.UserId
+            ? config.apiKeys.spaceAndTimeCredentials.UserId
             : "";
           this.health = this.health.set(
             EChain.EthereumMainnet,
@@ -168,6 +170,7 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
         }
       })
       .andThen(() => {
+        // derive public key from private key
         const privateKeyBuffer = Buffer.from(this.privateKey, "base64");
         const privateKeyUint8 = new Uint8Array(
           privateKeyBuffer.buffer,
@@ -223,9 +226,7 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
       this.configProvider.getConfig(),
     ]).andThen(([context, config]) => {
       const requestParams = {
-        userId: config.apiKeys.spaceAndTimeCredentials.UserId
-          ? config.apiKeys.spaceAndTimeCredentials.UserId
-          : "",
+        userId: this.userId,
       };
 
       context.privateEvents.onApiAccessed.next(EExternalApi.SpaceAndTime);
@@ -500,9 +501,6 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     base64PrivateKey: string,
     base64PublicKey: string,
   ): Uint8Array {
-    this.isBase64(base64PrivateKey);
-    this.isBase64(base64PublicKey);
-
     const privateKeyBuffer = Buffer.from(base64PrivateKey, "base64");
     const publicKeyBuffer = Buffer.from(base64PublicKey, "base64");
 
@@ -556,18 +554,6 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     ).toString("hex");
     signature = signature.slice(0, 128);
     return okAsync(ED25519Signature(signature));
-  }
-
-  /* From Space and Time SDK.js file */
-  private isBase64(str: string): boolean {
-    const base64Regex =
-      /^(?:[A-Za-z0-9+/]{4})*?(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
-
-    if (!base64Regex.test(str)) {
-      throw new Error("String is not base64 encoded");
-    }
-
-    return true;
   }
 }
 
