@@ -158,11 +158,9 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
           );
         } else {
           // derive public key from private key
-          const privateKey = config.apiKeys.spaceAndTimeCredentials.PrivateKey
+          this.privateKey = config.apiKeys.spaceAndTimeCredentials.PrivateKey
             ? config.apiKeys.spaceAndTimeCredentials.PrivateKey
             : "";
-          this.privateKey = privateKey;
-
           this.health = this.health.set(
             EChain.EthereumMainnet,
             EComponentStatus.Available,
