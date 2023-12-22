@@ -142,10 +142,6 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
         this._resolveSettings = resolve;
       },
     );
-
-    // this.initialize();
-    // privateKey;
-    // userId;
   }
 
   public initialize(): ResultAsync<void, never> {
@@ -174,32 +170,22 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
         }
       })
       .andThen(() => {
-        console.log("hello there!");
-        const privKey = ed.utils.randomPrivateKey();
-
-        console.log("privKey: " + privKey);
-        console.log("privKey string: " + new TextDecoder().decode(privKey));
-
-        const keyArray = new TextEncoder().encode(this.privateKey);
-        console.log("keyArray: " + keyArray);
-
-        console.log("this.privateKey: " + this.privateKey);
-
-        return ResultAsync.fromSafePromise(ed.getPublicKey(keyArray)).map(
-          (response: Uint8Array) => {
-            console.log("response: " + response);
-            const stringKey = new TextDecoder().decode(response);
-            console.log("stringKey: " + stringKey);
-            this.publicKey = stringKey;
-          },
+        const privateKeyBuffer = Buffer.from(this.privateKey, "base64");
+        const privateKeyUint8 = new Uint8Array(
+          privateKeyBuffer.buffer,
+          privateKeyBuffer.byteOffset,
+          privateKeyBuffer.byteLength,
         );
-
-        // return this.cryptoUtils
-        //   .deriveAESKeyFromEVMPrivateKey(this.privateKey)
-        //   .map((aesKey) => {
-        //     console.log("aesKey: " + aesKey);
-        //     this.publicKey = aesKey;
-        //   });
+        return ResultAsync.fromSafePromise(
+          ed.getPublicKey(privateKeyUint8),
+        ).map((response: Uint8Array) => {
+          const output = Buffer.from(
+            response.buffer,
+            response.byteOffset,
+            response.byteLength,
+          ).toString("base64");
+          this.publicKey = output;
+        });
       });
   }
 
@@ -217,8 +203,6 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
   protected getAccessToken(): ResultAsync<AccessToken, AccountIndexingError> {
     // Check if the lastAuthTokenTimestamp is null, we need to get a new token immediately
     const now = this.timeUtils.getUnixNow();
-    console.log("this.privateKey: " + this.privateKey);
-
     if (
       this.lastAuthTokenTimestamp == null ||
       this.currentAccessToken == null ||
@@ -396,15 +380,11 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     EVMTransaction[],
     AccountIndexingError | AjaxError | MethodSupportError
   > {
-    console.log("this.privateKey: " + this.privateKey);
-
     return ResultUtils.combine([
       this.contextProvider.getContext(),
       this.getAccessToken(),
     ])
       .andThen(([context, accessToken]) => {
-        console.log("this.privateKey: " + this.privateKey);
-
         const url = new URL("https://api.spaceandtime.app/v1/sql/dql");
         const sqlText = {
           resources: ["SNICKERDOODLE.User_Transaction_History"],

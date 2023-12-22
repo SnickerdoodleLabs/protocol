@@ -66,16 +66,16 @@ import {
 @injectable()
 export class MasterIndexer implements IMasterIndexer {
   protected evmIndexerWeights = [
-    // this.ankr,
-    // this.rarible,
-    // this.bluez,
-    // this.poapRepo,
-    // this.alchemy,
-    // this.etherscan,
-    // this.nftscan,
-    // this.covalent,
-    // this.moralis,
-    // this.sim,
+    this.ankr,
+    this.rarible,
+    this.bluez,
+    this.poapRepo,
+    this.alchemy,
+    this.etherscan,
+    this.nftscan,
+    this.covalent,
+    this.moralis,
+    this.sim,
     this.sxt,
     // TODO- enable these indexers as well
     // this.moralis,
