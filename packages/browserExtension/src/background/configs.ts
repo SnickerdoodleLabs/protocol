@@ -263,11 +263,6 @@ export const config: IExtensionSdkConfigOverrides = {
       !!__SPACEANDTIME_API_USERID__
         ? __SPACEANDTIME_API_USERID__
         : "",
-    PublicKey:
-      typeof __SPACEANDTIME_API_PUBLICKEY__ !== "undefined" &&
-      !!__SPACEANDTIME_API_PUBLICKEY__
-        ? __SPACEANDTIME_API_PUBLICKEY__
-        : "",
     PrivateKey:
       typeof __SPACEANDTIME_API_PRIVATEKEY__ !== "undefined" &&
       !!__SPACEANDTIME_API_PRIVATEKEY__

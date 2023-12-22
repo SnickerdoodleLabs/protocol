@@ -67,7 +67,6 @@ import {
 export class MasterIndexer implements IMasterIndexer {
   protected evmIndexerWeights = [
     // this.ankr,
-    this.sxt,
     // this.rarible,
     // this.bluez,
     // this.poapRepo,
@@ -77,6 +76,7 @@ export class MasterIndexer implements IMasterIndexer {
     // this.covalent,
     // this.moralis,
     // this.sim,
+    this.sxt,
     // TODO- enable these indexers as well
     // this.moralis,
     // this.oklink,

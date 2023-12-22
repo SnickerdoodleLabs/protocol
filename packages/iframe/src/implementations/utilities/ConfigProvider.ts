@@ -168,10 +168,6 @@ export class ConfigProvider implements IConfigProvider {
             __SPACEANDTIME_API_USERID__ == ""
               ? null
               : __SPACEANDTIME_API_USERID__,
-          PublicKey:
-            __SPACEANDTIME_API_PUBLICKEY__ == ""
-              ? null
-              : __SPACEANDTIME_API_PUBLICKEY__,
           PrivateKey:
             __SPACEANDTIME_API_PRIVATEKEY__ == ""
               ? null

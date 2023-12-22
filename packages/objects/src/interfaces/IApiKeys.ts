@@ -1,3 +1,5 @@
+import { SpaceAndTimeConfig } from "..";
+
 import { ProviderUrl } from "@objects/primitives/index.js";
 
 export interface IApiKeys {
@@ -25,11 +27,7 @@ export interface IApiKeys {
     Gnosis: string | null;
     Fuji: string | null;
   };
-  spaceAndTimeCredentials: {
-    UserId: string | null;
-    PublicKey: string | null;
-    PrivateKey: string | null;
-  };
+  spaceAndTimeCredentials: SpaceAndTimeConfig;
   covalentApiKey: string | null;
   moralisApiKey: string | null;
   nftScanApiKey: string | null;

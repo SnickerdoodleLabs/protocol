@@ -1,3 +1,4 @@
-import { OAuth2AccessToken } from "@objects/primitives/OAuthRelatedTypes.js";
+import { Brand, make } from "ts-brand";
 
-export type AuthCode = OAuth2AccessToken;
+export type AuthCode = Brand<string, "AuthCode">;
+export const AuthCode = make<AuthCode>();

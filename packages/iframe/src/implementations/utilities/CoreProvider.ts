@@ -132,9 +132,6 @@ export class CoreProvider implements ICoreProvider {
     config.spaceAndTimeCredentials.UserId =
       config.spaceAndTimeCredentials?.UserId ??
       immutableConfig.defaultKeys.spaceAndTimeCredentials.UserId;
-    config.spaceAndTimeCredentials.PublicKey =
-      config.spaceAndTimeCredentials?.PublicKey ??
-      immutableConfig.defaultKeys.spaceAndTimeCredentials.PublicKey;
     config.spaceAndTimeCredentials.PrivateKey =
       config.spaceAndTimeCredentials?.PrivateKey ??
       immutableConfig.defaultKeys.spaceAndTimeCredentials.PrivateKey;

@@ -125,7 +125,6 @@ export class ConfigProvider
         },
         spaceAndTimeCredentials: {
           UserId: null,
-          PublicKey: null,
           PrivateKey: null,
         },
         covalentApiKey: null, // "ckey_ee277e2a0e9542838cf30325665", // covalent api key
@@ -318,9 +317,6 @@ export class ConfigProvider
     this.config.apiKeys.spaceAndTimeCredentials.UserId =
       overrides.spaceAndTimeCredentials?.UserId ??
       this.config.apiKeys.spaceAndTimeCredentials.UserId;
-    this.config.apiKeys.spaceAndTimeCredentials.PublicKey =
-      overrides.spaceAndTimeCredentials?.PublicKey ??
-      this.config.apiKeys.spaceAndTimeCredentials.PublicKey;
     this.config.apiKeys.spaceAndTimeCredentials.PrivateKey =
       overrides.spaceAndTimeCredentials?.PrivateKey ??
       this.config.apiKeys.spaceAndTimeCredentials.PrivateKey;

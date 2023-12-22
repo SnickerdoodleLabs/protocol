@@ -192,7 +192,6 @@ export class DataWalletProfile {
         },
         spaceAndTimeCredentials: {
           UserId: "andrew.strimaitis",
-          PublicKey: "BcVrc9Is8t4YQ7GrAyRVYPuabwGBTD7Dz0czaaeON7M=",
           PrivateKey: "RssUjdu9wHfo0fpCozf8ipSVspWJ4FhWP6Jrnrq65H0=",
         },
         covalentApiKey: "ckey_ee277e2a0e9542838cf30325665",

@@ -154,7 +154,6 @@ export const testCoreConfig = new CoreConfig(
     },
     spaceAndTimeCredentials: {
       UserId: null,
-      PublicKey: null,
       PrivateKey: null,
     },
     covalentApiKey: "covalent api key",

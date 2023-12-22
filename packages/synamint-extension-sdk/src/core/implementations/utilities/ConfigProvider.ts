@@ -65,7 +65,6 @@ const defaultCoreConfigs: IConfigOverrides = {
   },
   spaceAndTimeCredentials: {
     UserId: "",
-    PublicKey: "",
     PrivateKey: "",
   },
 

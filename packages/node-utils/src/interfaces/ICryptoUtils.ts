@@ -34,10 +34,6 @@ export interface ICryptoUtils {
   getTokenId(): ResultAsync<TokenId, never>;
   getTokenIds(quantity: number): ResultAsync<TokenId[], never>;
 
-  /* Space and Time .js functions */
-  isBase64(str: string): boolean;
-  base64ToUint8(base64PrivateKey: string, base64PublicKey: string): Uint8Array;
-  generateSignature(message: string, privateKeyUint: Uint8Array): string;
   /**
    * Creates a new 4096 bit RSA public/private keypair. There's no way to derive a valid RSA key
    * via PBKDF2. The resulting keys are PEM encoded but not encrypted
@@ -71,6 +67,7 @@ export interface ICryptoUtils {
   ): ResultAsync<Uint8Array, never>;
 
   createEthereumPrivateKey(): ResultAsync<EVMPrivateKey, never>;
+
   getEthereumAccountAddressFromPrivateKey(
     privateKey: EVMPrivateKey,
   ): EVMAccountAddress;
@@ -112,7 +109,6 @@ export interface ICryptoUtils {
   signMessage(
     message: string,
     privateKey: EVMPrivateKey,
-    token?: string | undefined,
   ): ResultAsync<Signature, never>;
 
   signMessageSolana(

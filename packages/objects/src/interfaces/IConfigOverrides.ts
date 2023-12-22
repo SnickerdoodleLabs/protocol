@@ -1,5 +1,6 @@
 import {
   DiscordConfig,
+  SpaceAndTimeConfig,
   TwitterConfig,
 } from "@objects/businessObjects/index.js";
 import { EChain } from "@objects/enum/index.js";
@@ -32,11 +33,7 @@ export interface IConfigOverrides {
     Gnosis?: string | null;
     Fuji?: string | null;
   };
-  spaceAndTimeCredentials?: {
-    UserId?: string | null;
-    PublicKey?: string | null;
-    PrivateKey?: string | null;
-  };
+  spaceAndTimeCredentials?: SpaceAndTimeConfig;
   covalentApiKey?: string | null;
   moralisApiKey?: string | null;
   nftScanApiKey?: string | null;

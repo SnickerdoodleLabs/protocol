@@ -41,7 +41,6 @@ export class ExtensionConfig {
       };
       spaceAndTimeCredentials?: {
         UserId: string;
-        PublicKey: string;
         PrivateKey: string;
       };
       covalentApiKey?: string;
