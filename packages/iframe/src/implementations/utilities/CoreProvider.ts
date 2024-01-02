@@ -130,12 +130,12 @@ export class CoreProvider implements ICoreProvider {
     config.spaceAndTimeCredentials =
       config.spaceAndTimeCredentials ??
       immutableConfig.defaultKeys.spaceAndTimeCredentials;
-    config.spaceAndTimeCredentials.UserId =
-      config.spaceAndTimeCredentials?.UserId ??
-      immutableConfig.defaultKeys.spaceAndTimeCredentials.UserId;
-    config.spaceAndTimeCredentials.PrivateKey =
-      config.spaceAndTimeCredentials?.PrivateKey ??
-      immutableConfig.defaultKeys.spaceAndTimeCredentials.PrivateKey;
+    config.spaceAndTimeCredentials.userId =
+      config.spaceAndTimeCredentials?.userId ??
+      immutableConfig.defaultKeys.spaceAndTimeCredentials.userId;
+    config.spaceAndTimeCredentials.privateKey =
+      config.spaceAndTimeCredentials?.privateKey ??
+      immutableConfig.defaultKeys.spaceAndTimeCredentials.privateKey;
 
     // Other Indexers
     config.covalentApiKey =

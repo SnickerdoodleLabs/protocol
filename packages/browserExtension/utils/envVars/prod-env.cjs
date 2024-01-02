@@ -44,8 +44,6 @@ const envVars = {
     "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
   __BLUEZ_API_KEY__: "aed4aab2cbc573bbf8e7c6b448c916e5",
   __SPACEANDTIME_API_USERID__: "andrew.strimaitis",
-  __SPACEANDTIME_API_PUBLICKEY__:
-    "BcVrc9Is8t4YQ7GrAyRVYPuabwGBTD7Dz0czaaeON7M=",
   __SPACEANDTIME_API_PRIVATEKEY__:
     "RssUjdu9wHfo0fpCozf8ipSVspWJ4FhWP6Jrnrq65H0=",
   __RARIBILE_API_KEY__: "c5855db8-08ef-409f-9947-e46c141af1b4",

@@ -124,8 +124,8 @@ export class ConfigProvider
           Fuji: null,
         },
         spaceAndTimeCredentials: {
-          UserId: null,
-          PrivateKey: null,
+          userId: null,
+          privateKey: null,
         },
         covalentApiKey: null, // "ckey_ee277e2a0e9542838cf30325665", // covalent api key
         moralisApiKey: null,
@@ -314,12 +314,12 @@ export class ConfigProvider
       this.config.apiKeys.etherscanApiKeys.Polygon;
 
     // Space And Time Keys
-    this.config.apiKeys.spaceAndTimeCredentials.UserId =
-      overrides.spaceAndTimeCredentials?.UserId ??
-      this.config.apiKeys.spaceAndTimeCredentials.UserId;
-    this.config.apiKeys.spaceAndTimeCredentials.PrivateKey =
-      overrides.spaceAndTimeCredentials?.PrivateKey ??
-      this.config.apiKeys.spaceAndTimeCredentials.PrivateKey;
+    this.config.apiKeys.spaceAndTimeCredentials.userId =
+      overrides.spaceAndTimeCredentials?.userId ??
+      this.config.apiKeys.spaceAndTimeCredentials.userId;
+    this.config.apiKeys.spaceAndTimeCredentials.privateKey =
+      overrides.spaceAndTimeCredentials?.privateKey ??
+      this.config.apiKeys.spaceAndTimeCredentials.privateKey;
 
     // Miscellaneous Indexers and APIs
     this.config.apiKeys.covalentApiKey =

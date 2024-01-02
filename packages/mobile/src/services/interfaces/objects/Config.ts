@@ -46,8 +46,8 @@ export const coreConfig = {
     Fuji: "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1",
   },
   spaceAndTimeCredentials: {
-    UserId: "andrew.strimaitis",
-    PrivateKey: "RssUjdu9wHfo0fpCozf8ipSVspWJ4FhWP6Jrnrq65H0=",
+    userId: "andrew.strimaitis",
+    privateKey: "RssUjdu9wHfo0fpCozf8ipSVspWJ4FhWP6Jrnrq65H0=",
   },
   covalentApiKey: "ckey_ee277e2a0e9542838cf30325665",
   moralisApiKey:

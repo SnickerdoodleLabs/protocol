@@ -153,8 +153,8 @@ export const testCoreConfig = new CoreConfig(
       Fuji: null,
     },
     spaceAndTimeCredentials: {
-      UserId: null,
-      PrivateKey: null,
+      userId: null,
+      privateKey: null,
     },
     covalentApiKey: "covalent api key",
     moralisApiKey: "moralis api key",

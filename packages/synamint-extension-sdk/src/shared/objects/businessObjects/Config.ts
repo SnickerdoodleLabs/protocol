@@ -40,8 +40,8 @@ export class ExtensionConfig {
         Fuji: string;
       };
       spaceAndTimeCredentials?: {
-        UserId: string;
-        PrivateKey: string;
+        userId: string;
+        privateKey: string;
       };
       covalentApiKey?: string;
       moralisApiKey?: string;

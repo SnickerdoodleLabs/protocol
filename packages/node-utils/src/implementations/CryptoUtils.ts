@@ -5,6 +5,7 @@ import {
   TypedDataField,
 } from "@ethersproject/abstract-signer";
 import { verifyPersonalMessage } from "@mysten/sui.js/verify";
+import * as ed from "@noble/ed25519";
 import {
   AESEncryptedString,
   AESKey,
@@ -93,6 +94,29 @@ export class CryptoUtils implements ICryptoUtils {
       });
     };
     return generateUniqueTokens();
+  }
+
+  public getEd25519PublicKeyFromPrivateKey(
+    privateKey: string,
+  ): ResultAsync<string, never> {
+    // derive public key from private key
+    const privateKeyBuffer = Buffer.from(privateKey, "base64");
+    const privateKeyUint8 = new Uint8Array(
+      privateKeyBuffer.buffer,
+      privateKeyBuffer.byteOffset,
+      privateKeyBuffer.byteLength,
+    );
+
+    return ResultAsync.fromSafePromise(ed.getPublicKey(privateKeyUint8)).map(
+      (response: Uint8Array) => {
+        const output = Buffer.from(
+          response.buffer,
+          response.byteOffset,
+          response.byteLength,
+        ).toString("base64");
+        return output;
+      },
+    );
   }
 
   public deriveAESKeyFromSignature(

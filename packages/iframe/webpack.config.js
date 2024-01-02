@@ -178,9 +178,6 @@ module.exports = {
       __SPACEANDTIME_API_USERID__: JSON.stringify(
         process.env.__SPACEANDTIME_API_USERID__,
       ),
-      __SPACEANDTIME_API_PUBLICKEY__: JSON.stringify(
-        process.env.__SPACEANDTIME_API_PUBLICKEY__,
-      ),
       __SPACEANDTIME_API_PRIVATEKEY__: JSON.stringify(
         process.env.__SPACEANDTIME_API_PRIVATEKEY__,
       ),

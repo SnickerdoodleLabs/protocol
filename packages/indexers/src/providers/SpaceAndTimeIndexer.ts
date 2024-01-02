@@ -44,7 +44,7 @@ import {
   AuthCode,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync, errAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import nacl from "tweetnacl";
 
@@ -70,9 +70,9 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
   protected lastAuthTokenTimestamp: UnixTimestamp | null = null;
   protected currentAccessToken: AccessToken | null = null;
   protected refreshSeconds = 60 * 25; // 25 minutes?
-  protected privateKey;
-  protected publicKey;
-  protected userId;
+  protected privateKey: string | null = null;
+  protected publicKey: string | null = null;
+  protected userId: string | null = null;
 
   protected health: Map<EChain, EComponentStatus> = new Map<
     EChain,
@@ -145,49 +145,33 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
   }
 
   public initialize(): ResultAsync<void, never> {
-    return this.configProvider
-      .getConfig()
-      .map((config) => {
-        if (
-          config.apiKeys.spaceAndTimeCredentials.PrivateKey == "" ||
-          config.apiKeys.spaceAndTimeCredentials.PrivateKey == null
-        ) {
-          this.health.set(
-            EChain.EthereumMainnet,
-            EComponentStatus.NoKeyProvided,
-          );
-        } else {
-          this.privateKey = config.apiKeys.spaceAndTimeCredentials.PrivateKey
-            ? config.apiKeys.spaceAndTimeCredentials.PrivateKey
-            : "";
-          this.userId = config.apiKeys.spaceAndTimeCredentials.UserId
-            ? config.apiKeys.spaceAndTimeCredentials.UserId
-            : "";
-          this.health = this.health.set(
-            EChain.EthereumMainnet,
-            EComponentStatus.Available,
-          );
-        }
-      })
-      .andThen(() => {
-        // derive public key from private key
-        const privateKeyBuffer = Buffer.from(this.privateKey, "base64");
-        const privateKeyUint8 = new Uint8Array(
-          privateKeyBuffer.buffer,
-          privateKeyBuffer.byteOffset,
-          privateKeyBuffer.byteLength,
-        );
-        return ResultAsync.fromSafePromise(
-          ed.getPublicKey(privateKeyUint8),
-        ).map((response: Uint8Array) => {
-          const output = Buffer.from(
-            response.buffer,
-            response.byteOffset,
-            response.byteLength,
-          ).toString("base64");
-          this.publicKey = output;
+    return this.configProvider.getConfig().andThen((config) => {
+      if (
+        config.apiKeys.spaceAndTimeCredentials.privateKey == "" ||
+        config.apiKeys.spaceAndTimeCredentials.privateKey == null
+      ) {
+        this.health.set(EChain.EthereumMainnet, EComponentStatus.NoKeyProvided);
+        return okAsync(undefined);
+      }
+
+      this.privateKey = config.apiKeys.spaceAndTimeCredentials.privateKey
+        ? config.apiKeys.spaceAndTimeCredentials.privateKey
+        : "";
+      this.userId = config.apiKeys.spaceAndTimeCredentials.userId
+        ? config.apiKeys.spaceAndTimeCredentials.userId
+        : "";
+      this.health = this.health.set(
+        EChain.EthereumMainnet,
+        EComponentStatus.Available,
+      );
+
+      // derive public key from private key
+      return this.cryptoUtils
+        .getEd25519PublicKeyFromPrivateKey(this.privateKey)
+        .map((publicKey) => {
+          this.publicKey = publicKey;
         });
-      });
+    });
   }
 
   /* Space and Time Logic */
@@ -195,8 +179,8 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     privateKey: string,
     publicKey: string,
     authCode: string,
-    userID: string,
-  ): ResultAsync<ED25519Signature, never> {
+    userId: string,
+  ): ED25519Signature {
     const privateKeyUint = this.base64ToUint8(privateKey, publicKey);
     return this.signWithED25519(authCode, privateKeyUint);
   }
@@ -260,6 +244,17 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
       this.contextProvider.getContext(),
       this.getNewAuthCode(),
     ]).andThen(([config, context, auth_code]) => {
+      if (
+        this.privateKey == null ||
+        this.publicKey == null ||
+        this.userId == null
+      ) {
+        return errAsync(
+          new AccountIndexingError(
+            "Error: Space and Time Private Key or User Id was not properly provided.",
+          ),
+        );
+      }
       const signature = this.authenticate(
         this.privateKey,
         this.publicKey,
@@ -543,7 +538,7 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
   private signWithED25519(
     message: string,
     privateKeyUint: Uint8Array,
-  ): ResultAsync<ED25519Signature, never> {
+  ): ED25519Signature {
     const authCode = new TextEncoder().encode(message);
     // The NACL Binding for signature generation uses "only" ED25519
     const signatureArray = nacl.sign(authCode, privateKeyUint);
@@ -553,7 +548,7 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
       signatureArray.byteLength,
     ).toString("hex");
     signature = signature.slice(0, 128);
-    return okAsync(ED25519Signature(signature));
+    return ED25519Signature(signature);
   }
 }
 

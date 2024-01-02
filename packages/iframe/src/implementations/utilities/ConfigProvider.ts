@@ -46,7 +46,6 @@ declare const __OKLINK_API_KEY__: string;
 declare const __ANKR_API_KEY__: string;
 declare const __BLUEZ_API_KEY__: string;
 declare const __SPACEANDTIME_API_USERID__: string;
-declare const __SPACEANDTIME_API_PUBLICKEY__: string;
 declare const __SPACEANDTIME_API_PRIVATEKEY__: string;
 declare const __RARIBILE_API_KEY__: string;
 declare const __BLOCKVISION_API_KEY__: string;
@@ -164,11 +163,11 @@ export class ConfigProvider implements IConfigProvider {
               : __ETHERSCAN_FUJI_API_KEY__,
         },
         spaceAndTimeCredentials: {
-          UserId:
+          userId:
             __SPACEANDTIME_API_USERID__ == ""
               ? null
               : __SPACEANDTIME_API_USERID__,
-          PrivateKey:
+          privateKey:
             __SPACEANDTIME_API_PRIVATEKEY__ == ""
               ? null
               : __SPACEANDTIME_API_PRIVATEKEY__,

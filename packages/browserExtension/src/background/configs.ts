@@ -43,7 +43,6 @@ declare const __ANKR_API_KEY__: string;
 declare const __BLUEZ_API_KEY__: string;
 declare const __RARIBILE_API_KEY__: string;
 declare const __SPACEANDTIME_API_USERID__: string;
-declare const __SPACEANDTIME_API_PUBLICKEY__: string;
 declare const __SPACEANDTIME_API_PRIVATEKEY__: string;
 declare const __BLOCKVISION_API_KEY__: string;
 declare const __PRIMARY_INFURA_KEY__: string;
@@ -258,12 +257,12 @@ export const config: IExtensionSdkConfigOverrides = {
         : "",
   },
   spaceAndTimeCredentials: {
-    UserId:
+    userId:
       typeof __SPACEANDTIME_API_USERID__ !== "undefined" &&
       !!__SPACEANDTIME_API_USERID__
         ? __SPACEANDTIME_API_USERID__
         : "",
-    PrivateKey:
+    privateKey:
       typeof __SPACEANDTIME_API_PRIVATEKEY__ !== "undefined" &&
       !!__SPACEANDTIME_API_PRIVATEKEY__
         ? __SPACEANDTIME_API_PRIVATEKEY__

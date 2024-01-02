@@ -1,4 +1,4 @@
 export interface SpaceAndTimeConfig {
-  UserId: string | null;
-  PrivateKey: string | null;
+  userId: string | null;
+  privateKey: string | null;
 }

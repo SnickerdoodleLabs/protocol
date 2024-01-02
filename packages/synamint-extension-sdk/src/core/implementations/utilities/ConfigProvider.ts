@@ -64,8 +64,8 @@ const defaultCoreConfigs: IConfigOverrides = {
     Fuji: "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1",
   },
   spaceAndTimeCredentials: {
-    UserId: "",
-    PrivateKey: "",
+    userId: "",
+    privateKey: "",
   },
 
   covalentApiKey: "ckey_ee277e2a0e9542838cf30325665",
