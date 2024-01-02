@@ -113,7 +113,6 @@ export class MasterIndexer implements IMasterIndexer {
   // call this from elsewhere
   public initialize(): ResultAsync<void, AjaxError> {
     return ResultUtils.combine([
-      this.sxt.initialize(),
       this.alchemy.initialize(),
       this.ankr.initialize(),
       this.bluez.initialize(),
@@ -128,6 +127,7 @@ export class MasterIndexer implements IMasterIndexer {
       this.rarible.initialize(),
       this.sim.initialize(),
       this.sol.initialize(),
+      this.sxt.initialize(),
     ])
       .andThen(() => {
         return this.getSupportedChains();

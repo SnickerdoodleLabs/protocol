@@ -42,6 +42,7 @@ import {
   BigNumberString,
   TokenUri,
   AuthCode,
+  PublicKey,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync, errAsync } from "neverthrow";

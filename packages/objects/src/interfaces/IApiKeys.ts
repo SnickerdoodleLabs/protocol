@@ -1,4 +1,4 @@
-import { SpaceAndTimeConfig } from "@objects/businessObjects";
+import { SpaceAndTimeConfig } from "@objects/businessObjects/index.js";
 import { ProviderUrl } from "@objects/primitives/index.js";
 
 export interface IApiKeys {

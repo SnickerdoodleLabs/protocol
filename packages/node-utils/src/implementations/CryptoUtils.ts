@@ -31,6 +31,7 @@ import {
   UUID,
   OAuth1Config,
   SuiAccountAddress,
+  PublicKey,
 } from "@snickerdoodlelabs/objects";
 // import argon2 from "argon2";
 import { BigNumber, ethers } from "ethers";
@@ -98,8 +99,14 @@ export class CryptoUtils implements ICryptoUtils {
 
   public getEd25519PublicKeyFromPrivateKey(
     privateKey: string,
-  ): ResultAsync<string, never> {
+  ): ResultAsync<string, KeyGenerationError> {
     // derive public key from private key
+    if (privateKey == "") {
+      return errAsync(
+        new KeyGenerationError("Ed25519 Private Key was not provided"),
+      );
+    }
+
     const privateKeyBuffer = Buffer.from(privateKey, "base64");
     const privateKeyUint8 = new Uint8Array(
       privateKeyBuffer.buffer,
@@ -107,16 +114,18 @@ export class CryptoUtils implements ICryptoUtils {
       privateKeyBuffer.byteLength,
     );
 
-    return ResultAsync.fromSafePromise(ed.getPublicKey(privateKeyUint8)).map(
-      (response: Uint8Array) => {
+    return ResultAsync.fromSafePromise(ed.getPublicKey(privateKeyUint8))
+      .map((response: Uint8Array) => {
         const output = Buffer.from(
           response.buffer,
           response.byteOffset,
           response.byteLength,
         ).toString("base64");
         return output;
-      },
-    );
+      })
+      .mapErr((e) => {
+        return new KeyGenerationError("Ed25519 Private Key was not provided");
+      });
   }
 
   public deriveAESKeyFromSignature(
