@@ -1,4 +1,3 @@
-import * as ed from "@noble/ed25519";
 import {
   ILogUtils,
   ILogUtilsType,
@@ -17,15 +16,11 @@ import {
   TokenBalance,
   TickerSymbol,
   EChainTechnology,
-  ITokenPriceRepositoryType,
-  ITokenPriceRepository,
   EVMTransactionHash,
   UnixTimestamp,
-  getEtherscanBaseURLForChain,
   EVMNFT,
   MethodSupportError,
   getChainInfoByChain,
-  getChainInfoByChainId,
   EComponentStatus,
   IndexerSupportSummary,
   EExternalApi,
@@ -34,15 +29,11 @@ import {
   EChain,
   AccessToken,
   RefreshToken,
-  AuthenticatedStorageSettings,
-  EVMPrivateKey,
-  Signature,
   ED25519Signature,
   EVMContractAddress,
   BigNumberString,
   TokenUri,
   AuthCode,
-  PublicKey,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync, errAsync } from "neverthrow";
@@ -61,19 +52,12 @@ import { MasterIndexer } from "@indexers/MasterIndexer.js";
 @injectable()
 export class SpaceAndTimeIndexer implements IEVMIndexer {
   protected _lastRestore = 0;
-  private _unlockPromise: Promise<EVMPrivateKey>;
-  private _settingsPromise: Promise<AuthenticatedStorageSettings>;
-  private _resolveUnlock: ((spaceAndTimeKey: EVMPrivateKey) => void) | null =
-    null;
-  private _resolveSettings:
-    | ((credentials: AuthenticatedStorageSettings) => void)
-    | null = null;
   protected lastAuthTokenTimestamp: UnixTimestamp | null = null;
   protected currentAccessToken: AccessToken | null = null;
   protected refreshSeconds = 60 * 25; // 25 minutes?
-  protected privateKey: string | null = null;
-  protected publicKey: string | null = null;
-  protected userId: string | null = null;
+  protected privateKey = "";
+  protected publicKey = "";
+  protected userId = "";
 
   protected health: Map<EChain, EComponentStatus> = new Map<
     EChain,
@@ -129,161 +113,47 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
-    @inject(ITokenPriceRepositoryType)
-    protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
-  ) {
-    this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
-      this._resolveUnlock = resolve;
-    });
-    this._settingsPromise = new Promise<AuthenticatedStorageSettings>(
-      (resolve) => {
-        this._resolveSettings = resolve;
-      },
-    );
-  }
+  ) {}
 
   public initialize(): ResultAsync<void, never> {
-    return this.configProvider.getConfig().andThen((config) => {
-      if (
-        config.apiKeys.spaceAndTimeCredentials.privateKey == "" ||
-        config.apiKeys.spaceAndTimeCredentials.privateKey == null
-      ) {
-        this.health.set(EChain.EthereumMainnet, EComponentStatus.NoKeyProvided);
-        return okAsync(undefined);
-      }
-
-      this.privateKey = config.apiKeys.spaceAndTimeCredentials.privateKey
-        ? config.apiKeys.spaceAndTimeCredentials.privateKey
-        : "";
-      this.userId = config.apiKeys.spaceAndTimeCredentials.userId
-        ? config.apiKeys.spaceAndTimeCredentials.userId
-        : "";
-      this.health = this.health.set(
-        EChain.EthereumMainnet,
-        EComponentStatus.Available,
-      );
-
-      // derive public key from private key
-      return this.cryptoUtils
-        .getEd25519PublicKeyFromPrivateKey(this.privateKey)
-        .map((publicKey) => {
-          this.publicKey = publicKey;
-        });
-    });
-  }
-
-  /* Space and Time Logic */
-  private authenticate(
-    privateKey: string,
-    publicKey: string,
-    authCode: string,
-    userId: string,
-  ): ED25519Signature {
-    const privateKeyUint = this.base64ToUint8(privateKey, publicKey);
-    return this.signWithED25519(authCode, privateKeyUint);
-  }
-
-  protected getAccessToken(): ResultAsync<AccessToken, AccountIndexingError> {
-    // Check if the lastAuthTokenTimestamp is null, we need to get a new token immediately
-    const now = this.timeUtils.getUnixNow();
-    if (
-      this.lastAuthTokenTimestamp == null ||
-      this.currentAccessToken == null ||
-      now - this.lastAuthTokenTimestamp >= this.refreshSeconds
-    ) {
-      // Need to get a new access token
-      return this.getNewAuthToken().map((accessToken) => {
-        this.lastAuthTokenTimestamp = now;
-        this.currentAccessToken = accessToken;
-        return this.currentAccessToken;
-      });
-    }
-    return okAsync(this.currentAccessToken);
-  }
-
-  protected getNewAuthCode(): ResultAsync<AuthCode, AccountIndexingError> {
-    // Do the work of trading the refresh token for a new access token
-    return ResultUtils.combine([
-      this.contextProvider.getContext(),
-      this.configProvider.getConfig(),
-    ]).andThen(([context, config]) => {
-      const requestParams = {
-        userId: this.userId,
-      };
-
-      context.privateEvents.onApiAccessed.next(EExternalApi.SpaceAndTime);
-      return this.ajaxUtils
-        .post<{ authCode: AuthCode }>(
-          new URL("https://api.spaceandtime.app/v1/auth/code/"),
-          requestParams,
-          {
-            headers: {
-              accept: `application/json;`,
-              "Content-Type": `application/json;`,
-            },
-          },
-        )
-        .map((token) => {
-          return token.authCode;
-        })
-        .mapErr((e) => {
-          return new AccountIndexingError(
-            "Space and Time Auth Code Url failed",
-            e,
+    return this.configProvider
+      .getConfig()
+      .andThen((config) => {
+        if (
+          config.apiKeys.spaceAndTimeCredentials.privateKey == "" ||
+          config.apiKeys.spaceAndTimeCredentials.privateKey == null
+        ) {
+          this.health.set(
+            EChain.EthereumMainnet,
+            EComponentStatus.NoKeyProvided,
           );
-        });
-    });
-  }
+          return okAsync(undefined);
+        }
 
-  protected getNewAuthToken(): ResultAsync<AccessToken, AccountIndexingError> {
-    // Do the work of trading the refresh token for a new access token
-    return ResultUtils.combine([
-      this.configProvider.getConfig(),
-      this.contextProvider.getContext(),
-      this.getNewAuthCode(),
-    ]).andThen(([config, context, auth_code]) => {
-      if (
-        this.privateKey == null ||
-        this.publicKey == null ||
-        this.userId == null
-      ) {
-        return errAsync(
-          new AccountIndexingError(
-            "Error: Space and Time Private Key or User Id was not properly provided.",
-          ),
+        this.privateKey = config.apiKeys.spaceAndTimeCredentials.privateKey
+          ? config.apiKeys.spaceAndTimeCredentials.privateKey
+          : "";
+        this.userId = config.apiKeys.spaceAndTimeCredentials.userId
+          ? config.apiKeys.spaceAndTimeCredentials.userId
+          : "";
+        this.health = this.health.set(
+          EChain.EthereumMainnet,
+          EComponentStatus.Available,
         );
-      }
-      const signature = this.authenticate(
-        this.privateKey,
-        this.publicKey,
-        auth_code,
-        this.userId,
-      );
 
-      const payload = {
-        userId: this.userId,
-        authCode: auth_code,
-        signature: signature,
-        key: this.publicKey,
-        scheme: "ed25519",
-      };
-
-      context.privateEvents.onApiAccessed.next(EExternalApi.SpaceAndTime);
-      return this.ajaxUtils
-        .post<{ accessToken: AccessToken; refreshToken: RefreshToken }>(
-          new URL("https://api.spaceandtime.app/v1/auth/token/"),
-          payload,
-        )
-        .map((token) => {
-          return token.accessToken;
-        })
-        .mapErr((e) => {
-          return new AccountIndexingError("Access Token Url failed", e);
-        });
-    });
+        // derive public key from private key
+        return this.cryptoUtils.getEd25519PublicKeyFromPrivateKey(
+          this.privateKey,
+        );
+      })
+      .map((publicKey) => {
+        if (publicKey !== undefined) {
+          this.publicKey = publicKey;
+        }
+      });
   }
 
   public name(): EDataProvider {
@@ -299,57 +169,6 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     }
 
     return this.getEVMBalances(chain, accountAddress);
-  }
-
-  private getSuiBalance(
-    chain: EChain,
-    accountAddress: EVMAccountAddress,
-  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    return okAsync([]);
-  }
-
-  private getEVMBalances(
-    chain: EChain,
-    accountAddress: EVMAccountAddress,
-  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    return ResultUtils.combine([
-      this.contextProvider.getContext(),
-      this.getAccessToken(),
-    ]).andThen(([context, accessToken]) => {
-      const url = new URL("https://api.spaceandtime.app/v1/sql/dql");
-      const sqlText = {
-        resources: [this.queries.get(chain)?.balances],
-        sqlText: `SELECT * FROM ${
-          this.queries.get(chain)?.balances
-        } WHERE lower(FROM_ADDRESS) = lower(\"${accountAddress}\") OR lower(TO_ADDRESS) = lower(\"${accountAddress}\")`,
-      };
-
-      context.privateEvents.onApiAccessed.next(EExternalApi.SpaceAndTime);
-      return this.ajaxUtils
-        .post<ISxTBalance[]>(new URL(url), sqlText, {
-          headers: {
-            Accept: `application/json;`,
-            authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-        })
-        .map((response) => {
-          return response.map((balance) => {
-            return new TokenBalance(
-              EChainTechnology.EVM,
-              TickerSymbol("ETH"),
-              EChain.EthereumMainnet,
-              MasterIndexer.nativeAddress,
-              accountAddress,
-              balance.BALANCE,
-              18,
-            );
-          });
-        })
-        .mapErr((error) => {
-          return error;
-        });
-    });
   }
 
   public getTokensForAccount(
@@ -434,11 +253,159 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     return this.supportedChains;
   }
 
-  protected waitForSettings(): ResultAsync<
-    AuthenticatedStorageSettings,
-    never
-  > {
-    return ResultAsync.fromSafePromise(this._settingsPromise);
+  /* Space and Time Logic */
+  private authenticate(
+    privateKey: string,
+    publicKey: string,
+    authCode: string,
+    userId: string,
+  ): ED25519Signature {
+    const privateKeyUint = this.base64ToUint8(privateKey, publicKey);
+    return this.signWithED25519(authCode, privateKeyUint);
+  }
+
+  protected getAccessToken(): ResultAsync<AccessToken, AccountIndexingError> {
+    // Check if the lastAuthTokenTimestamp is null, we need to get a new token immediately
+    const now = this.timeUtils.getUnixNow();
+    if (
+      this.lastAuthTokenTimestamp == null ||
+      this.currentAccessToken == null ||
+      now - this.lastAuthTokenTimestamp >= this.refreshSeconds
+    ) {
+      // Need to get a new access token
+      return this.getNewAuthToken().map((accessToken) => {
+        this.lastAuthTokenTimestamp = now;
+        this.currentAccessToken = accessToken;
+        return this.currentAccessToken;
+      });
+    }
+    return okAsync(this.currentAccessToken);
+  }
+
+  protected getNewAuthCode(): ResultAsync<AuthCode, AccountIndexingError> {
+    // Do the work of trading the refresh token for a new access token
+    return ResultUtils.combine([
+      this.contextProvider.getContext(),
+      this.configProvider.getConfig(),
+    ]).andThen(([context, config]) => {
+      const requestParams = {
+        userId: this.userId,
+      };
+
+      context.privateEvents.onApiAccessed.next(EExternalApi.SpaceAndTime);
+      return this.ajaxUtils
+        .post<{ authCode: AuthCode }>(
+          new URL("https://api.spaceandtime.app/v1/auth/code/"),
+          requestParams,
+          {
+            headers: {
+              accept: `application/json;`,
+              "Content-Type": `application/json;`,
+            },
+          },
+        )
+        .map((token) => {
+          return token.authCode;
+        })
+        .mapErr((e) => {
+          return new AccountIndexingError(
+            "Space and Time Auth Code Url failed",
+            e,
+          );
+        });
+    });
+  }
+
+  protected getNewAuthToken(): ResultAsync<AccessToken, AccountIndexingError> {
+    // Do the work of trading the refresh token for a new access token
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+      this.getNewAuthCode(),
+    ]).andThen(([config, context, auth_code]) => {
+      if (this.privateKey == "" || this.userId == "") {
+        return errAsync(
+          new AccountIndexingError(
+            "Error: Space and Time Private Key or User Id was not properly provided.",
+          ),
+        );
+      }
+      const signature = this.authenticate(
+        this.privateKey,
+        this.publicKey,
+        auth_code,
+        this.userId,
+      );
+
+      const payload = {
+        userId: this.userId,
+        authCode: auth_code,
+        signature: signature,
+        key: this.publicKey,
+        scheme: "ed25519",
+      };
+
+      context.privateEvents.onApiAccessed.next(EExternalApi.SpaceAndTime);
+      return this.ajaxUtils
+        .post<{ accessToken: AccessToken; refreshToken: RefreshToken }>(
+          new URL("https://api.spaceandtime.app/v1/auth/token/"),
+          payload,
+        )
+        .map((token) => {
+          return token.accessToken;
+        })
+        .mapErr((e) => {
+          return new AccountIndexingError("Access Token Url failed", e);
+        });
+    });
+  }
+
+  private getSuiBalance(
+    chain: EChain,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
+    return okAsync([]);
+  }
+
+  private getEVMBalances(
+    chain: EChain,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
+    return ResultUtils.combine([
+      this.contextProvider.getContext(),
+      this.getAccessToken(),
+    ]).andThen(([context, accessToken]) => {
+      const url = new URL("https://api.spaceandtime.app/v1/sql/dql");
+      const sqlText = {
+        resources: [this.queries.get(chain)?.balances],
+        sqlText: `SELECT * FROM ${
+          this.queries.get(chain)?.balances
+        } WHERE lower(FROM_ADDRESS) = lower(\"${accountAddress}\") OR lower(TO_ADDRESS) = lower(\"${accountAddress}\")`,
+      };
+
+      context.privateEvents.onApiAccessed.next(EExternalApi.SpaceAndTime);
+      return this.ajaxUtils
+        .post<ISxTBalance[]>(new URL(url), sqlText, {
+          headers: {
+            Accept: `application/json;`,
+            authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        })
+        .map((response) => {
+          return response.map((balance) => {
+            return new TokenBalance(
+              EChainTechnology.EVM,
+              TickerSymbol("ETH"),
+              EChain.EthereumMainnet,
+              MasterIndexer.nativeAddress,
+              accountAddress,
+              balance.BALANCE,
+              18,
+            );
+          });
+        });
+    });
   }
 
   private getEVMNFTs(
@@ -486,9 +453,6 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
             UnixTimestamp(nft.lastOwnerTimeStamp),
           );
         });
-      })
-      .mapErr((error) => {
-        return error;
       });
   }
 
