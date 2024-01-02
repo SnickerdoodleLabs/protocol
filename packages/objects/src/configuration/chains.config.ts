@@ -325,7 +325,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       10000, // average block mining time
       new NativeCurrencyInformation("SUI", 9, "SUI", "sui"),
       EChainType.Mainnet,
-      "https://suiexplorer.com/",
+      "https://suiexplorer.com/txblock/",
       getExplorerUrl,
       URLString("https://suiscan.xyz/"),
     ),
