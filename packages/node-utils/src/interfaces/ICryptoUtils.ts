@@ -71,7 +71,7 @@ export interface ICryptoUtils {
 
   getEd25519PublicKeyFromPrivateKey(
     privateKey: string,
-  ): ResultAsync<string, KeyGenerationError>;
+  ): ResultAsync<string, never>;
 
   getEthereumAccountAddressFromPrivateKey(
     privateKey: EVMPrivateKey,
