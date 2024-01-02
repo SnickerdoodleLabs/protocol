@@ -223,7 +223,7 @@ const NFTDetailModal: FC = () => {
             )}
           />
           {_item.tokenStandard != null && (
-            <InfoItem label="Token Standart" value={_item.tokenStandard} />
+            <InfoItem label="Token Standard" value={_item.tokenStandard} />
           )}
           <InfoItem label="Owner" value={abbreviateString(_item.owner)} />
           <InfoItem
