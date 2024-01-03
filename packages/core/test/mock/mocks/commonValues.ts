@@ -134,7 +134,7 @@ export const testCoreConfig = new CoreConfig(
   "https://datawallet.snickerdoodle.com/data-dashboard/auth", // dropboxRedirectUri
   5000, // polling interval indexing,
   5000, // polling interval balance
-  30000, // polling interval NFT
+  300000, // polling interval NFT
   1000, // dataWalletBackupIntervalMS
   100000, // backupChunkSizeTarget
   {
@@ -619,7 +619,7 @@ export const indexerNft = (chain: number, address: string, index: number) => {
 
 export const indexedNfts = [
   {
-    id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0",
+    id: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc|#|0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0",
     nft: {
       type: 0,
       chain: 43113,
@@ -635,7 +635,7 @@ export const indexedNfts = [
     },
   },
   {
-    id: "0x2222222222222222222222222222222222222222|#|0",
+    id: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc|#|0x2222222222222222222222222222222222222222|#|0",
     nft: {
       type: 0,
       chain: 43113,
@@ -651,7 +651,7 @@ export const indexedNfts = [
     },
   },
   {
-    id: "0x2222222222222222222222222233333333333333|#|0",
+    id: "0xacfbc62a183d926f0c6c0c3c8d2aaaaaaaaaaaa|#|0x2222222222222222222222222233333333333333|#|0",
     nft: {
       type: 0,
       chain: 137,
@@ -667,7 +667,7 @@ export const indexedNfts = [
     },
   },
   {
-    id: "0x2222222222222222222222222244444444444444|#|0",
+    id: "0xacfbc62a183d926f0c6c0c3c8d2aaaaaaaaaaaa|#|0x2222222222222222222222222244444444444444|#|0",
     nft: {
       type: 0,
       chain: 137,
@@ -686,22 +686,22 @@ export const indexedNfts = [
 
 export const indexedNftInitialHistory = [
   {
-    id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0{-}1701779730",
+    id: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc|#|0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0{-}1701779730",
     event: 1,
     amount: "1",
   },
   {
-    id: "0x2222222222222222222222222222222222222222|#|0{-}1701779730",
+    id: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc|#|0x2222222222222222222222222222222222222222|#|0{-}1701779730",
     event: 1,
     amount: "1",
   },
   {
-    id: "0x2222222222222222222222222233333333333333|#|0{-}1701779730",
+    id: "0xacfbc62a183d926f0c6c0c3c8d2aaaaaaaaaaaa|#|0x2222222222222222222222222233333333333333|#|0{-}1701779730",
     event: 1,
     amount: "1",
   },
   {
-    id: "0x2222222222222222222222222244444444444444|#|0{-}1701779730",
+    id: "0xacfbc62a183d926f0c6c0c3c8d2aaaaaaaaaaaa|#|0x2222222222222222222222222244444444444444|#|0{-}1701779730",
     event: 1,
     amount: "1",
   },
@@ -709,12 +709,12 @@ export const indexedNftInitialHistory = [
 
 export const indexedNftTransferlHistory = [
   {
-    id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0{-}1701779734",
+    id: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc|#|0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0{-}1701779734",
     event: -1,
     amount: "1",
   },
   {
-    id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0{-}1701779738",
+    id: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc|#|0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0{-}1701779738",
     event: 1,
     amount: "1",
   },
@@ -833,7 +833,7 @@ const {
   ...rest
 } = nftThatGotTransferredAndGotBack;
 export const walletNftThatGotTransferredAndGotBack = {
-  id: "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0",
+  id: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc|#|0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0",
   ...rest,
   history: [
     { measurementDate: 1701779730, amount: "1", event: 1 },

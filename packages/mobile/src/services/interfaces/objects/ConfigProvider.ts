@@ -87,7 +87,7 @@ export class ConfigProvider
       "ceramic-replacement-bucket",
       5000, // polling interval indexing,
       5000, // polling interval balance
-      30000, // polling interval nfts
+      300000, // polling interval nfts
       60000, // backup interval
       5, // backup chunk size target
       "ckey_ee277e2a0e9542838cf30325665", // covalent api key
