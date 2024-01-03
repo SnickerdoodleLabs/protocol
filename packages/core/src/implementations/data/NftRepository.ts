@@ -33,7 +33,7 @@ import {
   NftIdWithMeasurementDate,
   EIndexedDbOp,
   WalletNftWithHistory,
-  NftTokenAddressWithTokenId,
+  NftAddressesWithTokenId,
   UnixTimestamp,
   multiplyBigNumberString,
   addBigNumberString,
@@ -915,10 +915,7 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
 
   protected getRecordsForNftsThatAreTransferred(
     indexerNfts: WalletIdToWalletNftMap,
-    storedAccountsChainNfts: Map<
-      NftTokenAddressWithTokenId,
-      WalletNftWithHistory
-    >,
+    storedAccountsChainNfts: Map<NftAddressesWithTokenId, WalletNftWithHistory>,
   ): WalletNFTHistory[] {
     const newlyAddedNftHistories: WalletNFTHistory[] = [];
     storedAccountsChainNfts.forEach((dbNft, id) => {
@@ -937,10 +934,7 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
 
   protected getRecordsForExistingChainAndAccountData(
     indexerNfts: WalletIdToWalletNftMap,
-    storedAccountsChainNfts: Map<
-      NftTokenAddressWithTokenId,
-      WalletNftWithHistory
-    >,
+    storedAccountsChainNfts: Map<NftAddressesWithTokenId, WalletNftWithHistory>,
   ): [WalletNFTHistory[], WalletNFTData[]] {
     const newlyAddedNftHistories: WalletNFTHistory[] = [];
     const newlyAddedNfts: WalletNFTData[] = [];
@@ -1064,7 +1058,7 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
   }
 
   protected getAccountsWithWalletHistoriesData(
-    walletNfts: Map<NftTokenAddressWithTokenId, WalletNFTData>,
+    walletNfts: Map<NftAddressesWithTokenId, WalletNFTData>,
     nftHistoriesMap: NftIdToWalletHistoryMap,
     storedAccounts: AccountAddress[],
   ): AccountNftsWithUpdateObject {
@@ -1108,9 +1102,9 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
 
   protected walletDataToChainNftMap(
     walletNftDatas: WalletNFTData[],
-  ): Map<EChain, Map<NftTokenAddressWithTokenId, WalletNFTData>> {
+  ): Map<EChain, Map<NftAddressesWithTokenId, WalletNFTData>> {
     return walletNftDatas.reduce<
-      Map<EChain, Map<NftTokenAddressWithTokenId, WalletNFTData>>
+      Map<EChain, Map<NftAddressesWithTokenId, WalletNFTData>>
     >((map, walletNftData) => {
       const chain = walletNftData.nft.chain;
       const chainMap = map.get(chain);
@@ -1147,11 +1141,11 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
 
   protected getTimestampAndIdFromWalletNftHistoryId(
     nftHistory: WalletNFTHistory,
-  ): [NftTokenAddressWithTokenId, UnixTimestamp] {
+  ): [NftAddressesWithTokenId, UnixTimestamp] {
     const [nftIdString, measurementDateString] = nftHistory.id.split("{-}");
 
     return [
-      NftTokenAddressWithTokenId(nftIdString),
+      NftAddressesWithTokenId(nftIdString),
       UnixTimestamp(parseInt(measurementDateString)),
     ];
   }
@@ -1334,7 +1328,7 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
 
   protected createNftHistory(
     amount: BigNumberString,
-    nftId: NftTokenAddressWithTokenId,
+    nftId: NftAddressesWithTokenId,
     op: EIndexedDbOp,
     measurementDate: UnixTimestamp,
   ): WalletNFTHistory {
@@ -1342,21 +1336,21 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
     return new WalletNFTHistory(id, op, amount);
   }
 
-  protected createIdFromWalletNft(nft: WalletNFT): NftTokenAddressWithTokenId {
+  protected createIdFromWalletNft(nft: WalletNFT): NftAddressesWithTokenId {
     let id: string;
     if (this.isEVMNft(nft)) {
-      id = `${nft.token}|#|${nft.tokenId.toString()}`;
+      id = `${nft.owner}|#|${nft.token}|#|${nft.tokenId.toString()}`;
     } else if (this.isSolanaNft(nft)) {
-      id = `${nft.updateAuthority}|#|${nft.mint.toString()}`;
+      id = `${nft.owner}|#|${nft.updateAuthority}|#|${nft.mint.toString()}`;
     } else {
       const suiNft = nft as SuiNFT;
-      id = `${suiNft.token}|#|${suiNft.tokenId.toString()}`;
+      id = `${nft.owner}|#|${suiNft.token}|#|${suiNft.tokenId.toString()}`;
     }
-    return NftTokenAddressWithTokenId(id);
+    return NftAddressesWithTokenId(id);
   }
 
   protected getNftIdWithMeasurementDate(
-    tokenAddress: NftTokenAddressWithTokenId,
+    tokenAddress: NftAddressesWithTokenId,
     measurementDate: UnixTimestamp,
   ): NftIdWithMeasurementDate {
     const id = `${tokenAddress}{-}${measurementDate.toString()}`;
@@ -1396,13 +1390,13 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
   }
 }
 
-type NftIdToHistoryMap = Map<NftTokenAddressWithTokenId, WalletNftWithHistory>;
-type WalletIdToWalletNftMap = Map<NftTokenAddressWithTokenId, WalletNFT>;
+type NftIdToHistoryMap = Map<NftAddressesWithTokenId, WalletNftWithHistory>;
+type WalletIdToWalletNftMap = Map<NftAddressesWithTokenId, WalletNFT>;
 type AccountNftsWithUpdateObject = {
   data: Map<AccountAddress, NftIdToHistoryMap>;
   lastUpdateTime: UnixTimestamp;
 };
 type NftIdToWalletHistoryMap = Map<
-  NftTokenAddressWithTokenId,
+  NftAddressesWithTokenId,
   Pick<WalletNftWithHistory, "history" | "totalAmount">
 >;

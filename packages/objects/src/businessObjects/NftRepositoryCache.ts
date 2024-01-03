@@ -1,7 +1,7 @@
 import { WalletNftWithHistory } from "@objects/businessObjects/versioned/WalletNFTHistory.js";
 import { EChain } from "@objects/enum/index.js";
 import { AccountAddress } from "@objects/primitives/AccountAddress.js";
-import { NftTokenAddressWithTokenId } from "@objects/primitives/NftTokenAddressWithTokenId.js";
+import { NftAddressesWithTokenId } from "@objects/primitives/NftAddressesWithTokenId.js";
 import { UnixTimestamp } from "@objects/primitives/UnixTimestamp.js";
 
 export type NftRepositoryCache = Map<
@@ -9,7 +9,7 @@ export type NftRepositoryCache = Map<
   {
     data: Map<
       AccountAddress,
-      Map<NftTokenAddressWithTokenId, WalletNftWithHistory>
+      Map<NftAddressesWithTokenId, WalletNftWithHistory>
     >;
     lastUpdateTime: UnixTimestamp;
   }
