@@ -76,7 +76,9 @@ export class MasterIndexer implements IMasterIndexer {
     this.covalent,
     this.moralis,
     this.sim,
-    this.sxt,
+
+    // Space and Time compute time is too large
+    // this.sxt,
     // TODO- enable these indexers as well
     // this.moralis,
     // this.oklink,
@@ -127,7 +129,7 @@ export class MasterIndexer implements IMasterIndexer {
       this.rarible.initialize(),
       this.sim.initialize(),
       this.sol.initialize(),
-      this.sxt.initialize(),
+      // this.sxt.initialize(),
     ])
       .andThen(() => {
         return this.getSupportedChains();
@@ -148,7 +150,6 @@ export class MasterIndexer implements IMasterIndexer {
       // if the method is provided, we need to limit the list of supported chains to those that support the method
       if (method != null) {
         const indexers = [
-          this.sxt,
           this.bluez,
           this.blockvision,
           this.alchemy,
@@ -163,6 +164,7 @@ export class MasterIndexer implements IMasterIndexer {
           this.rarible,
           this.sim,
           this.sol,
+          // this.sxt,
         ];
 
         supportedChains = indexers
@@ -524,7 +526,6 @@ export class MasterIndexer implements IMasterIndexer {
   > {
     return this.indexerContext.getContext().map((context) => {
       const indexers = [
-        this.sxt,
         this.alchemy,
         this.ankr,
         this.covalent,
@@ -538,6 +539,7 @@ export class MasterIndexer implements IMasterIndexer {
         this.sim,
         this.sol,
         this.blockvision,
+        // this.sxt,
       ];
 
       const healthchecks = indexers.map((indexer) => {
