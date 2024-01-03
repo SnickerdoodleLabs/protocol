@@ -14,7 +14,6 @@ import {
   InvalidParametersError,
   KeyGenerationError,
   OAuth1Config,
-  PublicKey,
   RSAKeyPair,
   SHA256Hash,
   Signature,
