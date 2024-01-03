@@ -197,7 +197,7 @@ export class ExternalCoreGateway {
             accountAddress,
             domain,
             types,
-            value,
+            ObjectUtils.serialize(value),
             signature,
             chain,
           ),

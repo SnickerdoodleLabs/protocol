@@ -125,7 +125,7 @@ export class AddAccountWithExternalTypedDataSignatureParams extends CoreActionPa
     public accountAddress: AccountAddress,
     public domain: TypedDataDomain,
     public types: Record<string, Array<TypedDataField>>,
-    public value: Record<string, unknown>,
+    public value: JSONString,
     public signature: Signature,
     public chain: EChain,
   ) {
