@@ -152,6 +152,10 @@ export const testCoreConfig = new CoreConfig(
       Gnosis: null,
       Fuji: null,
     },
+    spaceAndTimeCredentials: {
+      userId: null,
+      privateKey: null,
+    },
     covalentApiKey: "covalent api key",
     moralisApiKey: "moralis api key",
     nftScanApiKey: "nftScan api key",
@@ -160,7 +164,6 @@ export const testCoreConfig = new CoreConfig(
     ankrApiKey: "ankr api key",
     bluezApiKey: "bluez api key",
     raribleApiKey: "rarible api key",
-    spaceAndTimeKey: "spaceAndTime api key",
     blockvisionKey: "blockvision api key",
     primaryInfuraKey: "primary infura key",
     primaryRPCProviderURL: ProviderUrl("Primary RPC Provider URL"),
