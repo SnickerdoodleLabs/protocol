@@ -1,3 +1,4 @@
+import { NftMetadataParseUtils } from "@snickerdoodlelabs/common-utils";
 import {
   chainConfig,
   EChainType,
@@ -18,7 +19,6 @@ import React, {
 
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { NftMetadataParseUtils } from "@extension-onboarding/utils";
 
 interface IDashboardContext {
   accountNFTs?: WalletNFT[];
