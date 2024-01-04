@@ -19,6 +19,10 @@ import {
   ISimulatorEVMTransactionRepositoryType,
   ISolanaIndexer,
   ISolanaIndexerType,
+  ISpaceAndTimeIndexerType,
+  IEVMTransactionSanitizer,
+  IEVMTransactionSanitizerType,
+  IRaribleIndexerType,
 } from "@indexers/interfaces/index.js";
 import { MasterIndexer } from "@indexers/MasterIndexer.js";
 import {
@@ -33,9 +37,12 @@ import {
   OklinkIndexer,
   PoapRepository,
   PolygonIndexer,
+  RaribleIndexer,
   SimulatorEVMTransactionRepository,
   SolanaIndexer,
+  SpaceAndTimeIndexer,
 } from "@indexers/providers/index.js";
+import { EVMTransactionSanitizer } from "@indexers/sanitizers/index.js";
 
 export const indexersModule = new ContainerModule(
   (
@@ -82,8 +89,16 @@ export const indexersModule = new ContainerModule(
       .to(PolygonIndexer)
       .inSingletonScope();
 
+    bind<IEVMIndexer>(IRaribleIndexerType)
+      .to(RaribleIndexer)
+      .inSingletonScope();
+
     bind<IEVMIndexer>(ISimulatorEVMTransactionRepositoryType)
       .to(SimulatorEVMTransactionRepository)
+      .inSingletonScope();
+
+    bind<IEVMIndexer>(ISpaceAndTimeIndexerType)
+      .to(SpaceAndTimeIndexer)
       .inSingletonScope();
 
     /* Solana Indexers */
@@ -94,6 +109,10 @@ export const indexersModule = new ContainerModule(
     /* Sui Indexers */
     bind<ISuiIndexer>(IBlockvisionIndexerType)
       .to(BlockvisionIndexer)
+      .inSingletonScope();
+
+    bind<IEVMTransactionSanitizer>(IEVMTransactionSanitizerType)
+      .to(EVMTransactionSanitizer)
       .inSingletonScope();
   },
 );

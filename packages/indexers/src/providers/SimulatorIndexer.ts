@@ -1,3 +1,4 @@
+import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
   AjaxError,
@@ -18,6 +19,7 @@ import {
   IndexerSupportSummary,
   EDataProvider,
   ISO8601DateString,
+  EContractStandard,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -27,7 +29,6 @@ import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/interfaces/index.js";
-import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 
 @injectable()
 export class SimulatorEVMTransactionRepository implements IEVMIndexer {
@@ -62,7 +63,7 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
     });
   }
 
-  public name(): string {
+  public name(): EDataProvider {
     return EDataProvider.Sim;
   }
 
@@ -102,13 +103,14 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
       const item = new EVMNFT(
         EVMContractAddress("EVMContractAddress#"),
         BigNumberString(`${Math.floor(Math.random() * 1000)}`),
-        "erc721",
+        EContractStandard.Erc721,
         accountAddress,
         TokenUri("tokenURI"),
         { raw: "metadata" },
-        BigNumberString(Math.floor(Math.random() * 1000) + ""),
         "Fake Token #" + i,
         chain,
+        BigNumberString(Math.floor(Math.random() * 1000) + ""),
+        this.timeUtils.getUnixNow(),
         BlockNumber(i),
         //86400 => day
         UnixTimestamp(Date.now() - i * (Date.now() % 86400)),

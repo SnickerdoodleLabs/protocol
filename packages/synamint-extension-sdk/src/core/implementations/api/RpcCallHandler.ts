@@ -10,6 +10,17 @@ import {
   ISnickerdoodleCore,
   DataPermissions,
 } from "@snickerdoodlelabs/objects";
+import { BigNumber } from "ethers";
+import { inject, injectable } from "inversify";
+import {
+  AsyncJsonRpcEngineNextCallback,
+  JsonRpcRequest,
+  PendingJsonRpcResponse,
+} from "json-rpc-engine";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { parse } from "tldts";
+import { Runtime } from "webextension-polyfill";
+
 import { IRpcCallHandler } from "@synamint-extension-sdk/core/interfaces/api";
 import {
   IAccountService,
@@ -80,7 +91,6 @@ import {
   GetSiteVisitsMapParams,
   GetAcceptedInvitationsCIDParams,
   GetAvailableInvitationsCIDParams,
-  CloseTabParams,
   GetStateParams,
   GetInternalStateParams,
   GetDataWalletAddressParams,
@@ -101,7 +111,6 @@ import {
   TwitterUnlinkProfileParams,
   TwitterGetLinkedProfilesParams,
   GetConfigParams,
-  SwitchToTabParams,
   GetMetricsParams,
   RequestPermissionsParams,
   GetPermissionsParams,
@@ -123,17 +132,10 @@ import {
   UpdateAgreementPermissionsParams,
   SnickerDoodleCoreError,
   GetConsentContractURLsParams,
+  GetPersistenceNFTsParams,
+  GetAccountNFTHistoryParams,
+  GetAccountNftCacheParams,
 } from "@synamint-extension-sdk/shared";
-import { BigNumber } from "ethers";
-import { inject, injectable } from "inversify";
-import {
-  AsyncJsonRpcEngineNextCallback,
-  JsonRpcRequest,
-  PendingJsonRpcResponse,
-} from "json-rpc-engine";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-import { parse } from "tldts";
-import { Runtime } from "webextension-polyfill";
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
@@ -229,10 +231,15 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this.accountService.getAccountBalances();
       },
     ),
+
     new CoreActionHandler<GetAccountNFTsParams>(
       GetAccountNFTsParams.getCoreAction(),
       (_params) => {
-        return this.accountService.getAccountNFTs();
+        return this.accountService.getNfts(
+          _params.benchmark,
+          _params.chains,
+          _params.accounts,
+        );
       },
     ),
 
@@ -519,13 +526,6 @@ export class RpcCallHandler implements IRpcCallHandler {
           });
       },
     ),
-    new CoreActionHandler<CloseTabParams>(
-      CloseTabParams.getCoreAction(),
-      (_params, sender) => {
-        sender?.tab?.id && ExtensionUtils.closeTab(sender.tab.id);
-        return okAsync(undefined);
-      },
-    ),
     new CoreActionHandler<GetStateParams>(
       GetStateParams.getCoreAction(),
       (_params) => {
@@ -565,18 +565,6 @@ export class RpcCallHandler implements IRpcCallHandler {
         );
       },
     ),
-    new CoreActionHandler<SwitchToTabParams>(
-      SwitchToTabParams.getCoreAction(),
-      (params, sender) => {
-        return (
-          sender?.tab?.id
-            ? ExtensionUtils.closeTab(sender.tab.id)
-            : okAsync(undefined)
-        ).andThen(() => {
-          return ExtensionUtils.switchToTab(params.tabId).map(() => {});
-        });
-      },
-    ),
     // #region Discord
     new CoreActionHandler<InitializeDiscordUserParams>(
       InitializeDiscordUserParams.getCoreAction(),
@@ -590,20 +578,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<GetDiscordInstallationUrlParams>(
       GetDiscordInstallationUrlParams.getCoreAction(),
       (params, sender, sourceDomain) => {
-        // This is a bit of a hack, but literally the ONLY place we can
-        // get a tab ID is from this message sender in the extension.
-        // But the URL must be formulated in the core itself, so we pass
-        // the tab ID directly to the core. So what we do is we'll pass
-        // any redirectTabId in the params, and overrride it with the
-        // sender.tab.id which will be accurate.
-        if (params.redirectTabId != null && sender?.tab?.id != null) {
-          return this.discordService.installationUrl(
-            sender.tab.id,
-            sourceDomain,
-          );
-        }
-
-        return this.discordService.installationUrl(undefined, sourceDomain);
+        return this.discordService.installationUrl(sourceDomain);
       },
     ),
     new CoreActionHandler<GetDiscordGuildProfilesParams>(
@@ -698,7 +673,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<GetConfigParams>(
       GetConfigParams.getCoreAction(),
       (_params) => {
-        return okAsync(this.configProvider.getConfig());
+        return okAsync(this.configProvider.getExtensionConfig());
       },
     ),
 
@@ -709,6 +684,30 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this.metricsService.getMetrics(sourceDomain);
       },
     ),
+
+    new CoreActionHandler<GetPersistenceNFTsParams>(
+      GetPersistenceNFTsParams.getCoreAction(),
+      (_params) => {
+        return this.metricsService.getPersistenceNFTs();
+      },
+    ),
+
+    new CoreActionHandler<GetAccountNftCacheParams>(
+      GetAccountNftCacheParams.getCoreAction(),
+      (_params) => {
+        return this.metricsService.getNFTCache().map((map) => {
+          return ObjectUtils.serialize(map);
+        });
+      },
+    ),
+
+    new CoreActionHandler<GetAccountNFTHistoryParams>(
+      GetAccountNFTHistoryParams.getCoreAction(),
+      (_params) => {
+        return this.metricsService.getNFTsHistory();
+      },
+    ),
+
     // #endregion
     // #region Integration
 
@@ -754,8 +753,8 @@ export class RpcCallHandler implements IRpcCallHandler {
 
     new CoreActionHandler<GetDropBoxAuthUrlParams>(
       GetDropBoxAuthUrlParams.getCoreAction(),
-      (_params) => {
-        return this.core.storage.getDropboxAuth(undefined);
+      (_params, _sender, sourceDomain) => {
+        return this.core.storage.getDropboxAuth(sourceDomain);
       },
     ),
 

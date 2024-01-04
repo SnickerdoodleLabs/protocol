@@ -1,8 +1,3 @@
-import placeholder from "@extension-onboarding/assets/images/image-placeholder.png";
-import Card from "@extension-onboarding/components/v2/Card";
-import Container from "@extension-onboarding/components/v2/Container";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { INFT, POAPMetadata } from "@extension-onboarding/objects";
 import {
   Box,
   Dialog,
@@ -20,6 +15,8 @@ import {
   EVMNFT,
   SolanaNFT,
   EChainTechnology,
+  INFT,
+  POAPMetadata,
 } from "@snickerdoodlelabs/objects";
 import {
   CloseButton,
@@ -28,6 +25,11 @@ import {
   colors,
 } from "@snickerdoodlelabs/shared-components";
 import React, { FC, useEffect, useMemo } from "react";
+
+import placeholder from "@extension-onboarding/assets/images/image-placeholder.png";
+import Card from "@extension-onboarding/components/v2/Card";
+import Container from "@extension-onboarding/components/v2/Container";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: {
@@ -255,7 +257,9 @@ const NFTDetailModal: FC = () => {
       disablePortal={true}
       disableEnforceFocus={true}
       PaperProps={{
-        style: { backgroundColor: theme.palette.background.default },
+        style: {
+          backgroundColor: theme.palette.background.default,
+        },
       }}
     >
       <Toolbar className={classes.toolbar}>
@@ -274,7 +278,10 @@ const NFTDetailModal: FC = () => {
           <Grid item xs={12} sm={6}>
             <Box width="100%" className={classes.imageWrapper}>
               <img
-                src={nftData?.imageUrl ?? placeholder}
+                src={
+                  nftData?.imageUrl ??
+                  "https://storage.googleapis.com/dw-assets/spa/images/placeholder.svg"
+                }
                 className={classes.image}
               />
             </Box>

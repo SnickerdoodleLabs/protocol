@@ -64,6 +64,7 @@ import {
   IUserAgreement,
   PageInvitation,
   Invitation,
+  INftProxyMethods,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -97,7 +98,6 @@ import {
   GetSiteVisitsParams,
   GetEarnedRewardsParams,
   GetDataWalletAddressParams,
-  CloseTabParams,
   IsDataWalletAddressInitializedParams,
   GetLocationParams,
   GetGenderParams,
@@ -126,7 +126,6 @@ import {
   TwitterGetRequestTokenParams,
   TwitterGetLinkedProfilesParams,
   GetConfigParams,
-  SwitchToTabParams,
   GetMetricsParams,
   RequestPermissionsParams,
   GetPermissionsParams,
@@ -146,6 +145,9 @@ import {
   AddAccountWithExternalTypedDataSignatureParams,
   UpdateAgreementPermissionsParams,
   GetConsentContractURLsParams,
+  GetPersistenceNFTsParams,
+  GetAccountNFTHistoryParams,
+  GetAccountNftCacheParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -155,6 +157,7 @@ export class ExternalCoreGateway {
   public integration: IProxyIntegrationMethods;
   public metrics: IProxyMetricsMethods;
   public twitter: IProxyTwitterMethods;
+  public nft: INftProxyMethods;
   protected _handler: CoreHandler;
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
@@ -229,12 +232,8 @@ export class ExternalCoreGateway {
       ): ResultAsync<void, ProxyError> => {
         return this._handler.call(new InitializeDiscordUserParams(code));
       },
-      installationUrl: (
-        redirectTabId: number | undefined = undefined,
-      ): ResultAsync<URLString, ProxyError> => {
-        return this._handler.call(
-          new GetDiscordInstallationUrlParams(redirectTabId),
-        );
+      installationUrl: (): ResultAsync<URLString, ProxyError> => {
+        return this._handler.call(new GetDiscordInstallationUrlParams());
       },
       getUserProfiles: (): ResultAsync<DiscordProfile[], ProxyError> => {
         return this._handler.call(new GetDiscordUserProfilesParams());
@@ -245,6 +244,18 @@ export class ExternalCoreGateway {
       unlink: (discordProfileId: DiscordID) => {
         return this._handler.call(
           new UnlinkDiscordAccountParams(discordProfileId),
+        );
+      },
+    };
+
+    this.nft = {
+      getNfts: (
+        benchmark?: UnixTimestamp,
+        chains?: EChain[],
+        accounts?: LinkedAccount[],
+      ) => {
+        return this._handler.call(
+          new GetAccountNFTsParams(benchmark, chains, accounts),
         );
       },
     };
@@ -278,6 +289,19 @@ export class ExternalCoreGateway {
     this.metrics = {
       getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
         return this._handler.call(new GetMetricsParams());
+      },
+      getPersistenceNFTs: () => {
+        return this._handler.call(new GetPersistenceNFTsParams());
+      },
+      getNFTsHistory: () => {
+        return this._handler.call(new GetAccountNFTHistoryParams());
+      },
+      getNFTCache: () => {
+        return this._handler
+          .call(new GetAccountNftCacheParams())
+          .map((jsonString) => {
+            return ObjectUtils.deserialize(jsonString);
+          });
       },
     };
 
@@ -406,9 +430,6 @@ export class ExternalCoreGateway {
   ): ResultAsync<TokenInfo | null, ProxyError> {
     return this._handler.call(params);
   }
-  public getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError> {
-    return this._handler.call(new GetAccountNFTsParams());
-  }
 
   public getTransactionValueByChain(): ResultAsync<
     TransactionFlowInsight[],
@@ -468,9 +489,6 @@ export class ExternalCoreGateway {
   }
   public isDataWalletAddressInitialized(): ResultAsync<boolean, ProxyError> {
     return this._handler.call(new IsDataWalletAddressInitializedParams());
-  }
-  public closeTab(): ResultAsync<void, ProxyError> {
-    return this._handler.call(new CloseTabParams());
   }
   public getDataWalletAddress(): ResultAsync<
     DataWalletAddress | null,
@@ -573,9 +591,6 @@ export class ExternalCoreGateway {
   }
   public getConfig(): ResultAsync<IExtensionConfig, ProxyError> {
     return this._handler.call(new GetConfigParams());
-  }
-  public switchToTab(params: SwitchToTabParams): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
   }
 
   public getDropboxAuth(): ResultAsync<URLString, ProxyError> {

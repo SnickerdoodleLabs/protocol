@@ -6,7 +6,6 @@ import {
   EarnedReward,
   InvalidSignatureError,
   TokenBalance,
-  WalletNFT,
   LanguageCode,
   PersistenceError,
   Signature,
@@ -14,7 +13,6 @@ import {
   UnsupportedLanguageError,
   TransactionFilter,
   ChainId,
-  URLString,
   SiteVisit,
   InvalidParametersError,
   ChainTransaction,
@@ -24,12 +22,14 @@ import {
   TokenAddress,
   UnixTimestamp,
   DataWalletBackupID,
-  TransactionPaymentCounter,
   DomainName,
   UnauthorizedError,
   AccountIndexingError,
   SiteVisitsMap,
   TransactionFlowInsight,
+  AjaxError,
+  MethodSupportError,
+  WalletNFT,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -98,8 +98,20 @@ export interface IAccountService {
 
   getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError>;
 
-  getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError>;
-  getTranactions(
+  getNfts(
+    benchmark?: UnixTimestamp,
+    chains?: EChain[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<
+    WalletNFT[],
+    | PersistenceError
+    | AccountIndexingError
+    | AjaxError
+    | MethodSupportError
+    | InvalidParametersError
+  >;
+
+  getTransactions(
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], PersistenceError>;
 

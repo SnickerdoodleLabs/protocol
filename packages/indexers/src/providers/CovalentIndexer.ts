@@ -2,8 +2,9 @@ import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
   IRequestConfig,
+  ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
-import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
   AjaxError,
@@ -25,7 +26,6 @@ import {
   IndexerSupportSummary,
   EExternalApi,
   EDataProvider,
-  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -91,7 +91,7 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
     });
   }
 
-  public name(): string {
+  public name(): EDataProvider {
     return EDataProvider.Covalent;
   }
 
@@ -252,12 +252,8 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
       EVMTransactionHash(tx.tx_hash),
       UnixTimestamp(Math.floor(Date.parse(tx.block_signed_at) / 1000)),
       tx.block_height,
-      tx.to_address != null
-        ? EVMAccountAddress(tx.to_address.toLowerCase())
-        : null,
-      tx.from_address != null
-        ? EVMAccountAddress(tx.from_address.toLowerCase())
-        : null,
+      tx.to_address != null ? EVMAccountAddress(tx.to_address) : null,
+      tx.from_address != null ? EVMAccountAddress(tx.from_address) : null,
       tx.value != null ? BigNumberString(tx.value.toString()) : null,
       tx.gas_price != null ? BigNumberString(tx.gas_price.toString()) : null,
       null,
@@ -281,7 +277,7 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
             );
           })
         : null,
-        this.timeUtils.getUnixNow(),
+      this.timeUtils.getUnixNow(),
     );
     return busObj;
   }

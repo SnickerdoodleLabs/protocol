@@ -1,5 +1,9 @@
 import {
+  AccountIndexingError,
+  AjaxError,
+  InvalidParametersError,
   IpfsCID,
+  MethodSupportError,
   PersistenceError,
   PublicEvents,
   SDQL_Return,
@@ -16,7 +20,14 @@ export interface IQueryEvaluator {
     query: AST_SubQuery,
     queryCID: IpfsCID,
     queryTimestamp: UnixTimestamp,
-  ): ResultAsync<SDQL_Return, PersistenceError>;
+  ): ResultAsync<
+    SDQL_Return,
+    | PersistenceError
+    | AccountIndexingError
+    | AjaxError
+    | MethodSupportError
+    | InvalidParametersError
+  >;
   evalPropertyQuery(
     q: AST_PropertyQuery,
     publicEvents: PublicEvents,

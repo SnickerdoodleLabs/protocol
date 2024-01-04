@@ -61,14 +61,19 @@ import {
   ChainTransaction,
   TransactionFilter,
   IUserAgreement,
+  WalletNFTHistory,
+  WalletNftWithHistory,
+  NftRepositoryCache,
+  WalletNFTData,
 } from "@snickerdoodlelabs/objects";
+
+import { IExtensionConfig } from "./IExtensionConfig";
+
 import {
   ECoreActions,
   IExternalState,
   IInternalState,
 } from "@synamint-extension-sdk/shared";
-
-import { IExtensionConfig } from "./IExtensionConfig";
 
 export abstract class CoreActionParams<TReturn> {
   public constructor(public method: ECoreActions) {}
@@ -447,15 +452,6 @@ export class GetDataWalletAddressParams extends CoreActionParams<DataWalletAddre
   }
 }
 
-export class CloseTabParams extends CoreActionParams<void> {
-  public constructor() {
-    super(CloseTabParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.CLOSE_TAB;
-  }
-}
-
 export class IsDataWalletAddressInitializedParams extends CoreActionParams<boolean> {
   public constructor() {
     super(IsDataWalletAddressInitializedParams.getCoreAction());
@@ -529,11 +525,45 @@ export class GetAgeParams extends CoreActionParams<Age | null> {
 }
 
 export class GetAccountNFTsParams extends CoreActionParams<WalletNFT[]> {
-  public constructor() {
+  public constructor(
+    public benchmark?: UnixTimestamp,
+    public chains?: EChain[],
+    public accounts?: LinkedAccount[],
+  ) {
     super(GetAccountNFTsParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_ACCOUNT_NFTS;
+  }
+}
+
+export class GetPersistenceNFTsParams extends CoreActionParams<
+  WalletNFTData[]
+> {
+  public constructor() {
+    super(GetPersistenceNFTsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_ACCOUNT_PERSISTENCE_NFTS;
+  }
+}
+export class GetAccountNFTHistoryParams extends CoreActionParams<
+  WalletNFTHistory[]
+> {
+  public constructor() {
+    super(GetAccountNFTHistoryParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_ACCOUNT_NFT_HISTORY;
+  }
+}
+
+export class GetAccountNftCacheParams extends CoreActionParams<JSONString> {
+  public constructor() {
+    super(GetAccountNftCacheParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_ACCOUNT_NFT_CACHE;
   }
 }
 
@@ -652,7 +682,7 @@ export class GetQueryStatusesParams extends CoreActionParams<QueryStatus[]> {
 }
 
 export class GetDiscordInstallationUrlParams extends CoreActionParams<URLString> {
-  public constructor(public redirectTabId?: number) {
+  public constructor() {
     super(GetDiscordInstallationUrlParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
@@ -753,16 +783,6 @@ export class GetConfigParams extends CoreActionParams<IExtensionConfig> {
 
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_CONFIG;
-  }
-}
-
-export class SwitchToTabParams extends CoreActionParams<void> {
-  public constructor(public tabId: number) {
-    super(SwitchToTabParams.getCoreAction());
-  }
-
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.SWITCH_TO_TAB;
   }
 }
 

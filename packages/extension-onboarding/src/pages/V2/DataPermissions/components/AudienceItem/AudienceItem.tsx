@@ -1,13 +1,4 @@
 // @TODO move EAlertSeverity to objects
-import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import CustomSDSwitch from "@extension-onboarding/components/v2/Switch/";
-import { PERMS } from "@extension-onboarding/constants/permissionsV2";
-import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
-import { generateRouteUrl } from "@extension-onboarding/containers/Router/utils";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import { useAccordionStyles } from "@extension-onboarding/styles/accordion.style";
 import {
   Accordion,
   AccordionDetails,
@@ -40,8 +31,19 @@ import React, {
   FC,
   useCallback,
   useMemo,
+  memo,
 } from "react";
 import { useNavigate } from "react-router-dom";
+
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import CustomSDSwitch from "@extension-onboarding/components/v2/Switch/";
+import { PERMS } from "@extension-onboarding/constants/permissionsV2";
+import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
+import { generateRouteUrl } from "@extension-onboarding/containers/Router/utils";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import { useAccordionStyles } from "@extension-onboarding/styles/accordion.style";
 
 interface IContractInfo {
   metadata: IOldUserAgreement | IUserAgreement;
@@ -65,7 +67,7 @@ const AudienceItem: FC<IAudienceItemProps> = ({
     useState<Map<URLString, boolean>>();
   const { setAlert } = useNotificationContext();
   const { setLoadingStatus } = useLayoutContext();
-  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  // const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -203,10 +205,11 @@ const AudienceItem: FC<IAudienceItemProps> = ({
 
   return (
     <Accordion
-      expanded={isExpanded}
-      onChange={() => {
-        setIsExpanded(!isExpanded);
-      }}
+      // expanded={isExpanded}
+      // onChange={() => {
+      //   setIsExpanded(!isExpanded);
+      // }}
+      TransitionProps={{ timeout: 0 }}
       classes={{
         root: clsx(classes.accordionRoot),
       }}
@@ -316,4 +319,4 @@ const AudienceItem: FC<IAudienceItemProps> = ({
   );
 };
 
-export default AudienceItem;
+export default memo(AudienceItem);

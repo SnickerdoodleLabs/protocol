@@ -117,7 +117,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       10000,
       new NativeCurrencyInformation("MATIC", 18, "MATIC", "matic-network"),
       EChainType.Mainnet,
-      "https=//polygonscan.com/tx/",
+      "https://polygonscan.com/tx/",
       getExplorerUrl,
       URLString("https://api.polygonscan.com/"),
     ),
@@ -379,6 +379,23 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       "https://basescan.org/tx/",
       getExplorerUrl,
       URLString("https://api.basescan.org/api"),
+    ),
+  ],
+  [
+    EChain.Chiliz,
+    new ChainInformation(
+      "Chiliz",
+      ChainId(EChain.Chiliz),
+      EChain.Chiliz,
+      EChainTechnology.EVM,
+      true,
+      "chiliz",
+      10000, // average block mining time
+      new NativeCurrencyInformation("CHZ", 18, "CHZ", "chiliz"),
+      EChainType.Mainnet,
+      "https://scan.chiliz.com/tx/",
+      getExplorerUrl,
+      URLString("https://scan.chiliz.com/api/eth-rpc"),
     ),
   ],
 ]);

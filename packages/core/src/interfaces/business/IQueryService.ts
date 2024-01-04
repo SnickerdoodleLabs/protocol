@@ -1,4 +1,5 @@
 import {
+  AccountIndexingError,
   AjaxError,
   BlockchainCommonErrors,
   BlockchainProviderError,
@@ -13,8 +14,10 @@ import {
   EVMContractAddress,
   EVMPrivateKey,
   IDynamicRewardParameter,
+  InvalidParametersError,
   IpfsCID,
   IPFSError,
+  MethodSupportError,
   MissingASTError,
   MissingTokenConstructorError,
   ParserError,
@@ -60,6 +63,9 @@ export interface IQueryService {
     | EvalNotImplementedError
     | MissingASTError
     | BlockchainCommonErrors
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   >;
 
   approveQuery(
@@ -109,6 +115,9 @@ export interface IQueryService {
     | DuplicateIdInSchema
     | PersistenceError
     | EvalNotImplementedError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
     | MissingASTError
   >;
 

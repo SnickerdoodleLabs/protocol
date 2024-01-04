@@ -6,6 +6,7 @@ import {
   ObjectUtils,
   ITimeUtils,
   ITimeUtilsType,
+  ValidationUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   EChainTechnology,
@@ -68,6 +69,7 @@ export class BluezIndexer implements IEVMIndexer {
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -85,7 +87,7 @@ export class BluezIndexer implements IEVMIndexer {
     });
   }
 
-  public name(): string {
+  public name(): EDataProvider {
     return EDataProvider.Bluez;
   }
 
@@ -136,16 +138,20 @@ export class BluezIndexer implements IEVMIndexer {
         })
         .map((response) => {
           return response.items.map((item) => {
+            const tokenStandard = ValidationUtils.stringToTokenStandard(
+              item.tokenType,
+            );
             return new EVMNFT(
               item.contractAddress,
               BigNumberString(item.tokenId),
-              item.tokenType,
+              tokenStandard,
               accountAddress,
               TokenUri(item.image),
               { raw: ObjectUtils.serialize(item) },
-              BigNumberString("1"),
               item.name,
               EChain.Astar,
+              BigNumberString("1"),
+              this.timeUtils.getUnixNow(),
               undefined,
               undefined,
             );

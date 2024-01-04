@@ -16,6 +16,10 @@ import {
   TransactionFilter,
   ChainTransaction,
   DomainName,
+  WalletNftWithHistory,
+  WalletNFTHistory,
+  UnixTimestamp,
+  NftRepositoryCache,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -37,7 +41,14 @@ export interface IAccountRepository {
     sourceDomain?: DomainName,
   ): ResultAsync<LinkedAccount[], SnickerDoodleCoreError>;
   getAccountBalances(): ResultAsync<TokenBalance[], SnickerDoodleCoreError>;
-  getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError>;
+
+  getNfts(
+    benchmark?: UnixTimestamp,
+    chains?: EChain[],
+    accounts?: LinkedAccount[],
+    sourceDomain?: DomainName,
+  ): ResultAsync<WalletNFT[], SnickerDoodleCoreError>;
+
   isDataWalletAddressInitialized(): ResultAsync<boolean, UnauthorizedError>;
   unlinkAccount(
     account: AccountAddress,

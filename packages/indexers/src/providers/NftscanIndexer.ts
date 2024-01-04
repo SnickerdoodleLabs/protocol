@@ -2,6 +2,9 @@ import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
   IRequestConfig,
+  ITimeUtils,
+  ITimeUtilsType,
+  ValidationUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
@@ -72,6 +75,7 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -92,7 +96,7 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
     });
   }
 
-  public name(): string {
+  public name(): EDataProvider {
     return EDataProvider.NftScan;
   }
 
@@ -187,16 +191,20 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
     }
     const items = response.data.map((token) => {
       const assets = token.assets.map((asset) => {
+        const tokenStandard = ValidationUtils.stringToTokenStandard(
+          asset.erc_type,
+        );
         return new EVMNFT(
           EVMContractAddress(asset.contract_address),
           BigNumberString(asset.token_id),
-          asset.erc_type,
+          tokenStandard,
           EVMAccountAddress(asset.owner),
           TokenUri(asset.token_uri),
           { raw: asset.metadata_json },
-          BigNumberString(asset.amount),
           asset.name,
           chain,
+          BigNumberString(asset.amount),
+          this.timeUtils.getUnixNow(),
           undefined,
           UnixTimestamp(Number(asset.own_timestamp)),
         );

@@ -5,6 +5,7 @@ import React, {
   useState,
   useMemo,
   useCallback,
+  memo,
 } from "react";
 
 import CustomizedAlert, {
@@ -31,7 +32,7 @@ const NotificationContext = createContext<INotificationContext>(
   {} as INotificationContext,
 );
 
-export const NotificationContextProvider: FC = ({ children }) => {
+export const NotificationContextProvider: FC = memo(({ children }) => {
   const [alert, _setAlert] = useState<IAlert>(initialAlertState);
   const [visualAlert, _setVisualAlert] = useState<IVisualAlert>();
 
@@ -67,6 +68,6 @@ export const NotificationContextProvider: FC = ({ children }) => {
       {children}
     </NotificationContext.Provider>
   );
-};
+});
 
 export const useNotificationContext = () => useContext(NotificationContext);
