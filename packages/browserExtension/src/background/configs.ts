@@ -42,7 +42,8 @@ declare const __OKLINK_API_KEY__: string;
 declare const __ANKR_API_KEY__: string;
 declare const __BLUEZ_API_KEY__: string;
 declare const __RARIBILE_API_KEY__: string;
-declare const __SPACEANDTIME_API_KEY__: string;
+declare const __SPACEANDTIME_API_USERID__: string;
+declare const __SPACEANDTIME_API_PRIVATEKEY__: string;
 declare const __BLOCKVISION_API_KEY__: string;
 declare const __PRIMARY_INFURA_KEY__: string;
 declare const __SECONDARY_INFURA_KEY__: string;
@@ -176,7 +177,6 @@ export const config: IExtensionSdkConfigOverrides = {
       : URLString("https://insight-api.snickerdoodle.com/v0/"),
 
   /* API KEYS */
-
   alchemyApiKeys: {
     Arbitrum:
       typeof __ALCHEMY_ARBITRUM_API_KEY__ !== "undefined" &&
@@ -261,6 +261,18 @@ export const config: IExtensionSdkConfigOverrides = {
         ? __ETHERSCAN_FUJI_API_KEY__
         : "",
   },
+  spaceAndTimeCredentials: {
+    userId:
+      typeof __SPACEANDTIME_API_USERID__ !== "undefined" &&
+      !!__SPACEANDTIME_API_USERID__
+        ? __SPACEANDTIME_API_USERID__
+        : "",
+    privateKey:
+      typeof __SPACEANDTIME_API_PRIVATEKEY__ !== "undefined" &&
+      !!__SPACEANDTIME_API_PRIVATEKEY__
+        ? __SPACEANDTIME_API_PRIVATEKEY__
+        : "",
+  },
   covalentApiKey:
     typeof __COVALENT_API_KEY__ !== "undefined" && !!__COVALENT_API_KEY__
       ? __COVALENT_API_KEY__
@@ -292,11 +304,6 @@ export const config: IExtensionSdkConfigOverrides = {
   bluezApiKey:
     typeof __BLUEZ_API_KEY__ !== "undefined" && !!__BLUEZ_API_KEY__
       ? __BLUEZ_API_KEY__
-      : undefined,
-  spaceAndTimeKey:
-    typeof __SPACEANDTIME_API_KEY__ !== "undefined" &&
-    !!__SPACEANDTIME_API_KEY__
-      ? __SPACEANDTIME_API_KEY__
       : undefined,
   blockvisionKey:
     typeof __BLOCKVISION_API_KEY__ !== "undefined" && !!__BLOCKVISION_API_KEY__

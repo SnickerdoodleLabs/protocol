@@ -1,35 +1,16 @@
-import { okAsync, ResultAsync } from "neverthrow";
-
-export enum EContentType {
-  UNKNOWN,
-  AUDIO,
-  VIDEO,
-  TEXT,
-  HTML,
-}
-
-export interface INFTEventField {
-  id: string;
-  eventUrl?: string;
-  country?: string;
-  city?: string;
-  year?: string;
-  startDate?: string;
-  endDate?: string;
-  expiryDate?: string;
-  supply?: string;
-}
-export interface INFT {
-  name: string | null;
-  description: string | null;
-  imageUrl: string | null;
-  animationUrl: string | null;
-  externalUrl: string | null;
-  contentType: EContentType | null;
-  contentUrls: Record<EContentType, string>[] | null;
-  attributes: Record<string, string>[] | null;
-  event: null | INFTEventField;
-}
+import {
+  WalletNFT,
+  EVMNFT,
+  UnixTimestamp,
+  EIndexedDbOp,
+  BigNumberString,
+  EChainTechnology,
+  AttributesEntity,
+  EContentType,
+  INFT,
+  INFTEventField,
+  AjaxError,
+} from "@snickerdoodlelabs/objects";
 
 const emptytNft: INFT = {
   name: null,
@@ -44,7 +25,10 @@ const emptytNft: INFT = {
 };
 
 export class NftMetadataParseUtils {
-  public static getParsedNFT = (metadataString: string): INFT => {
+  static isEVMNFT(walletNFT: WalletNFT): walletNFT is EVMNFT {
+    return walletNFT.type === EChainTechnology.EVM;
+  }
+  public static getParsedNFT(metadataString: string): INFT {
     if (!metadataString) {
       return emptytNft;
     }
@@ -61,7 +45,7 @@ export class NftMetadataParseUtils {
     return {
       name: this.getName(metadataObj),
       description: this.getDescription(metadataObj),
-      imageUrl: this.getImageUrl(metadataString),
+      imageUrl: this.getImageUrl(metadataString, metadataObj),
       animationUrl: this.getAnimationUrl(metadataObj),
       externalUrl: this.getExternalUrl(metadataObj),
       contentType: this.getContentType(metadataObj),
@@ -69,9 +53,12 @@ export class NftMetadataParseUtils {
       attributes: this.getAttributes(metadataObj),
       event: this.getEventInfo(metadataObj),
     } as INFT;
-  };
+  }
 
-  private static getImageUrl(metadataString: string) {
+  private static getImageUrl(
+    metadataString: string,
+    metadataObj,
+  ): string | null {
     let nftImages: string[];
     try {
       const regexpImage = /(\"image.*?\":.*?\"(.*?)\\?\")/;
@@ -90,43 +77,59 @@ export class NftMetadataParseUtils {
     } catch (e) {
       nftImages = [];
     }
+
     return nftImages?.[0]
       ? NftMetadataParseUtils.normalizeUrl(nftImages[0])
-      : null;
+      : NftMetadataParseUtils.getImageFromContent(metadataObj);
   }
 
-  private static getContentType(metadataObj) {
+  private static getImageFromContent(metadataObj): string | null {
+    const image = metadataObj?.content?.[0]?.url ?? null;
+    return image ? NftMetadataParseUtils.normalizeUrl(image as string) : null;
+  }
+
+  private static getContentType(metadataObj): EContentType {
     return EContentType.UNKNOWN;
   }
 
-  private static getAnimationUrl(metadataObj) {
+  private static getAnimationUrl(metadataObj): string | null {
     return metadataObj.animation_url
       ? NftMetadataParseUtils.normalizeUrl(metadataObj.animation_url)
       : null;
   }
 
-  private static getExternalUrl(metadataObj) {
+  private static getExternalUrl(metadataObj): string | null {
     return metadataObj.external_url
       ? NftMetadataParseUtils.normalizeUrl(metadataObj.external_url)
       : null;
   }
 
-  private static getContentUrls(metadataObj) {
+  private static getContentUrls(metadataObj): string | null {
     return null;
   }
 
-  private static getAttributes(metadataObj) {
-    return metadataObj.attributes ?? null;
+  private static getAttributes(metadataObj): AttributesEntity[] | null {
+    const _attributes = metadataObj.attributes ?? metadataObj.traits ?? null;
+    if (!_attributes) {
+      return null;
+    }
+    return _attributes.map((attribute) => {
+      return {
+        trait_type: attribute.trait_type ?? attribute.key ?? attribute.name,
+        value: attribute.value,
+      };
+    });
   }
 
-  private static getName(metadataObj) {
+  private static getName(metadataObj): string | null {
     return metadataObj.name ?? null;
   }
-  private static getDescription(metadataObj) {
+
+  private static getDescription(metadataObj): string | null {
     return metadataObj.description ?? null;
   }
 
-  private static getEventInfo(metadataObj) {
+  private static getEventInfo(metadataObj): INFTEventField | null {
     if (
       metadataObj.hasOwnProperty("start_date") &&
       metadataObj.hasOwnProperty("end_date")

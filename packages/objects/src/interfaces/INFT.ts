@@ -1,4 +1,4 @@
-import { EContentType } from "@extension-onboarding/objects/enums";
+import { EContentType } from "@objects/enum/index.js";
 
 export interface INFTEventField {
   id: string;
