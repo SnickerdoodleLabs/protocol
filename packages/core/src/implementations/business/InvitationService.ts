@@ -149,7 +149,10 @@ export class InvitationService implements IInvitationService {
               .getLatestConsentTokenId(invitation.consentContractAddress)
               .andThen((tokenIdOrNull) => {
                 if (tokenIdOrNull == null) {
-                  return errAsync(new ConsentContractError("No token ID"));
+                  // TODO: This is probably the wrong type of error
+                  return errAsync(
+                    new ConsentContractError("No token ID", null, null),
+                  );
                 }
                 return this.invitationRepo
                   .addAcceptedInvitations([

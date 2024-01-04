@@ -11,6 +11,7 @@ import {
   UnixTimestamp,
   ConsentContractError,
   BlockchainCommonErrors,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -88,13 +89,13 @@ export class MarketplaceRepository implements IMarketplaceRepository {
     | UninitializedError
     | ConsentContractError
     | BlockchainCommonErrors
+    | InvalidParametersError
   > {
     // Check if listing has a consent contract attached
     if (listing.consentContract == null) {
       return errAsync(
-        new ConsentContractError(
-          "Failed to get recommendations for requested listing",
-          "Listing does not have a consent contract",
+        new InvalidParametersError(
+          "Failed to get recommendations for requested listing. Listing does not have a consent contract.",
         ),
       );
     }

@@ -260,6 +260,7 @@ export interface ICoreMarketplaceMethods {
     | UninitializedError
     | ConsentContractError
     | BlockchainCommonErrors
+    | InvalidParametersError
   >;
 
   /**
