@@ -19,6 +19,7 @@ import {
   ISimulatorEVMTransactionRepositoryType,
   ISolanaIndexer,
   ISolanaIndexerType,
+  ISpaceAndTimeIndexerType,
   IEVMTransactionSanitizer,
   IEVMTransactionSanitizerType,
   IRaribleIndexerType,
@@ -39,6 +40,7 @@ import {
   RaribleIndexer,
   SimulatorEVMTransactionRepository,
   SolanaIndexer,
+  SpaceAndTimeIndexer,
 } from "@indexers/providers/index.js";
 import { EVMTransactionSanitizer } from "@indexers/sanitizers/index.js";
 
@@ -93,6 +95,10 @@ export const indexersModule = new ContainerModule(
 
     bind<IEVMIndexer>(ISimulatorEVMTransactionRepositoryType)
       .to(SimulatorEVMTransactionRepository)
+      .inSingletonScope();
+
+    bind<IEVMIndexer>(ISpaceAndTimeIndexerType)
+      .to(SpaceAndTimeIndexer)
       .inSingletonScope();
 
     /* Solana Indexers */

@@ -3,7 +3,8 @@ import {
   EContentType,
   INFT,
   INFTEventField,
-} from "@extension-onboarding/objects";
+  AjaxError,
+} from "@snickerdoodlelabs/objects";
 
 const emptytNft: INFT = {
   name: null,
@@ -18,7 +19,7 @@ const emptytNft: INFT = {
 };
 
 export class NftMetadataParseUtils {
-  public static getParsedNFT = (metadataString: string): INFT => {
+  public static getParsedNFT(metadataString: string): INFT {
     if (!metadataString) {
       return emptytNft;
     }
@@ -43,9 +44,12 @@ export class NftMetadataParseUtils {
       attributes: this.getAttributes(metadataObj),
       event: this.getEventInfo(metadataObj),
     } as INFT;
-  };
+  }
 
-  private static getImageUrl(metadataString: string, metadataObj) {
+  private static getImageUrl(
+    metadataString: string,
+    metadataObj,
+  ): string | null {
     let nftImages: string[];
     try {
       const regexpImage = /(\"image.*?\":.*?\"(.*?)\\?\")/;
@@ -64,33 +68,34 @@ export class NftMetadataParseUtils {
     } catch (e) {
       nftImages = [];
     }
+
     return nftImages?.[0]
       ? NftMetadataParseUtils.normalizeUrl(nftImages[0])
       : NftMetadataParseUtils.getImageFromContent(metadataObj);
   }
 
-  private static getImageFromContent(metadataObj) {
+  private static getImageFromContent(metadataObj): string | null {
     const image = metadataObj?.content?.[0]?.url ?? null;
     return image ? NftMetadataParseUtils.normalizeUrl(image as string) : null;
   }
 
-  private static getContentType(metadataObj) {
+  private static getContentType(metadataObj): EContentType {
     return EContentType.UNKNOWN;
   }
 
-  private static getAnimationUrl(metadataObj) {
+  private static getAnimationUrl(metadataObj): string | null {
     return metadataObj.animation_url
       ? NftMetadataParseUtils.normalizeUrl(metadataObj.animation_url)
       : null;
   }
 
-  private static getExternalUrl(metadataObj) {
+  private static getExternalUrl(metadataObj): string | null {
     return metadataObj.external_url
       ? NftMetadataParseUtils.normalizeUrl(metadataObj.external_url)
       : null;
   }
 
-  private static getContentUrls(metadataObj) {
+  private static getContentUrls(metadataObj): string | null {
     return null;
   }
 
@@ -107,14 +112,15 @@ export class NftMetadataParseUtils {
     });
   }
 
-  private static getName(metadataObj) {
+  private static getName(metadataObj): string | null {
     return metadataObj.name ?? null;
   }
-  private static getDescription(metadataObj) {
+
+  private static getDescription(metadataObj): string | null {
     return metadataObj.description ?? null;
   }
 
-  private static getEventInfo(metadataObj) {
+  private static getEventInfo(metadataObj): INFTEventField | null {
     if (
       metadataObj.hasOwnProperty("start_date") &&
       metadataObj.hasOwnProperty("end_date")

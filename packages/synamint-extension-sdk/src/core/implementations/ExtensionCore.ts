@@ -11,6 +11,10 @@ import {
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { ChromeStorageUtils } from "@snickerdoodlelabs/utils";
+import { Container } from "inversify";
+import { ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+
 import { extensionCoreModule } from "@synamint-extension-sdk/core/implementations/ExtensionCore.module";
 import {
   IBrowserTabListener,
@@ -26,9 +30,6 @@ import {
   IConfigProvider,
   IConfigProviderType,
 } from "@synamint-extension-sdk/core/interfaces/utilities";
-import { Container } from "inversify";
-import { ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 export class ExtensionCore {
   protected iocContainer: Container;

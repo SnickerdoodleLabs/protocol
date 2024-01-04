@@ -190,6 +190,10 @@ export class DataWalletProfile {
           Gnosis: "J7G8U27J1Y9F88E1E56CNNG2K3H98GF4XE",
           Fuji: "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1",
         },
+        spaceAndTimeCredentials: {
+          userId: "andrew.strimaitis",
+          privateKey: "RssUjdu9wHfo0fpCozf8ipSVspWJ4FhWP6Jrnrq65H0=",
+        },
         covalentApiKey: "ckey_ee277e2a0e9542838cf30325665",
         moralisApiKey:
           "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag",
@@ -199,7 +203,6 @@ export class DataWalletProfile {
           "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
         bluezApiKey: "aed4aab2cbc573bbf8e7c6b448c916e5",
         raribleApiKey: "c5855db8-08ef-409f-9947-e46c141af1b4",
-        spaceAndTimeKey: "",
         blockvisionKey: "2WaEih5fqe8NUavbvaR2PSuVSSp",
         nftScanApiKey: "lusr87vNmTtHGMmktlFyi4Nt",
         oklinkApiKey: "700c2f71-a4e2-4a85-b87f-58c8a341d1bf",
