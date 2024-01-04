@@ -3,17 +3,22 @@ import {
   SDQL_Return,
   ChainId,
   EChain,
-  WalletNFT,
   TokenAddress,
   EVMNFT,
   UnixTimestamp,
   ISDQLTimestampRange,
   NftHolding,
-  PublicEvents,
   QueryPerformanceEvent,
   EQueryEvents,
   IpfsCID,
   EStatus,
+  EChainTechnology,
+  BigNumberString,
+  AccountIndexingError,
+  AjaxError,
+  InvalidParametersError,
+  MethodSupportError,
+  WalletNFT,
 } from "@snickerdoodlelabs/objects";
 import { AST_NftQuery } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
@@ -21,8 +26,8 @@ import { ResultAsync } from "neverthrow";
 
 import { INftQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
 import {
-  IPortfolioBalanceRepository,
-  IPortfolioBalanceRepositoryType,
+  INftRepositoryType,
+  INftRepository,
 } from "@core/interfaces/data/index.js";
 import {
   IContextProviderType,
@@ -32,8 +37,8 @@ import {
 @injectable()
 export class NftQueryEvaluator implements INftQueryEvaluator {
   constructor(
-    @inject(IPortfolioBalanceRepositoryType)
-    protected portfolioBalanceRepository: IPortfolioBalanceRepository,
+    @inject(INftRepositoryType)
+    protected nftRepository: INftRepository,
     @inject(IContextProviderType)
     protected contextProvider: IContextProvider,
   ) {}
@@ -41,7 +46,15 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
   public eval(
     query: AST_NftQuery,
     queryCID: IpfsCID,
-  ): ResultAsync<SDQL_Return, PersistenceError> {
+    queryTimestamp: UnixTimestamp,
+  ): ResultAsync<
+    SDQL_Return,
+    | PersistenceError
+    | AccountIndexingError
+    | AjaxError
+    | MethodSupportError
+    | InvalidParametersError
+  > {
     return this.contextProvider.getContext().andThen((context) => {
       const networkId = query.schema.networkid;
       const address = query.schema.address;
@@ -62,9 +75,9 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
           query.name,
         ),
       );
-      return this.portfolioBalanceRepository
-        .getAccountNFTs(chainIds)
-        .map((walletNfts) => {
+      return this.nftRepository
+        .getNfts(queryTimestamp, chainIds)
+        .map((nfts) => {
           context.publicEvents.queryPerformance.next(
             new QueryPerformanceEvent(
               EQueryEvents.NftDataAccess,
@@ -74,7 +87,7 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
             ),
           );
           return SDQL_Return(
-            this.getNftHoldings(walletNfts, address, timestampRange),
+            this.getNftHoldings(nfts, address, timestampRange),
           );
         })
         .mapErr((err) => {
@@ -93,17 +106,17 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
   }
 
   private getNftHoldings(
-    walletNfts: WalletNFT[],
+    nfts: WalletNFT[],
     address: string | string[] | undefined,
     timestampRange: ISDQLTimestampRange | undefined,
   ): NftHoldings {
-    return this.walletNftsToNftHoldings(
-      this.filterNfts(walletNfts, address, timestampRange),
+    return this.nftsToNftHoldings(
+      this.filterNfts(nfts, address, timestampRange),
     );
   }
 
-  private walletNftsToNftHoldings(walletNfts: WalletNFT[]): NftHoldings {
-    return walletNfts.reduce<NftHoldings>((nftholdings, nft) => {
+  private nftsToNftHoldings(nfts: WalletNFT[]): NftHoldings {
+    return nfts.reduce<NftHoldings>((nftholdings, nft) => {
       const chain = this.chainGuard(nft.chain);
       const currentNft = this.walletNftToNftHolding(chain, nft);
       const index = nftholdings.findIndex(
@@ -113,6 +126,10 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
 
       if (index !== undefined && index > -1) {
         nftholdings[index].amount += currentNft.amount;
+
+        if (nftholdings[index].measurementTime < currentNft.measurementTime) {
+          nftholdings[index].measurementTime = currentNft.measurementTime;
+        }
       } else {
         nftholdings.push(currentNft);
       }
@@ -125,11 +142,13 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
     chain: keyof typeof EChain | "not registered",
     nft: WalletNFT,
   ): NftHolding {
-    if (nft instanceof EVMNFT) {
-      return new NftHolding(chain, nft.token, Number(nft.amount), nft.name);
-    } else {
-      return new NftHolding(chain, nft.token, 1, nft.name);
-    }
+    return new NftHolding(
+      chain,
+      nft.token,
+      Number(nft.amount),
+      nft.name,
+      nft.measurementDate,
+    );
   }
 
   //Type guard https://www.typescriptlang.org/docs/handbook/2/narrowing.html#typeof-type-guards, needed for narrowing
@@ -147,11 +166,11 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
   }
 
   private filterNfts(
-    walletNfts: WalletNFT[],
+    nfts: WalletNFT[],
     address: string | string[] | undefined,
     timestampRange: ISDQLTimestampRange | undefined,
   ): WalletNFT[] {
-    return walletNfts.reduce<WalletNFT[]>((array, nft) => {
+    return nfts.reduce<WalletNFT[]>((array, nft) => {
       if (this.validNft(nft, address, timestampRange)) {
         array.push(nft);
       }
@@ -160,31 +179,35 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
   }
 
   private validNft(
-    walletNFT: WalletNFT,
+    nft: WalletNFT,
     address: string | undefined | string[],
     timestampRange: undefined | ISDQLTimestampRange,
   ): boolean {
     if (address && address !== "*") {
-      if (this.checkInvalidAddress(walletNFT.token, address)) {
+      if (this.checkInvalidAddress(nft.token, address)) {
         return false;
       }
     }
-    if (walletNFT instanceof EVMNFT && walletNFT.lastOwnerTimeStamp) {
+    if (this.isEVMWithHistory(nft) && nft.lastOwnerTimeStamp) {
       if (
         timestampRange &&
         !(timestampRange.end === "*" && timestampRange.start === "*")
       ) {
         if (
-          this.checkInvalidTimestamp(
-            walletNFT.lastOwnerTimeStamp,
-            timestampRange,
-          )
+          this.checkInvalidTimestamp(nft.lastOwnerTimeStamp, timestampRange)
         ) {
           return false;
         }
       }
     }
     return true;
+  }
+
+  private isEVMWithHistory(nft: WalletNFT): nft is EVMNFT & {
+    totalAmount: BigNumberString;
+    measurementDate: UnixTimestamp;
+  } {
+    return nft.type === EChainTechnology.EVM;
   }
 
   private checkInvalidAddress(

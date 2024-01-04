@@ -99,7 +99,7 @@ export class ConfigProvider
       "", // dropboxRedirectUri
       5000, // polling interval indexing,
       5000, // polling interval balance
-      5000, // polling interval nfts
+      300000, // polling interval nfts
       60000, // backup interval
       5, // backupChunkSizeTarget
       {

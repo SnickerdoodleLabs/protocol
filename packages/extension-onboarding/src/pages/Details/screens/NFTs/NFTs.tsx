@@ -40,7 +40,7 @@ export default () => {
 
   const { linkedAccounts } = useAppContext();
 
-  const nftsToRender: WalletNFT[] | null = useMemo(() => {
+  const nftsToRender: Omit<WalletNFT, "getVersion">[] | null = useMemo(() => {
     if (accountNFTs && accountTestnetNFTs) {
       const nftArr =
         EDisplayMode.MAINNET === displayMode ? accountNFTs : accountTestnetNFTs;

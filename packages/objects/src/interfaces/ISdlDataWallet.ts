@@ -1,3 +1,6 @@
+import { ResultAsync } from "neverthrow";
+import { FunctionKeys } from "utility-types";
+
 import {
   EarnedReward,
   MarketplaceListing,
@@ -30,6 +33,7 @@ import {
   ICoreTwitterMethods,
   IMetricsMethods,
   IStorageMethods,
+  INftMethods,
 } from "@objects/interfaces/ISnickerdoodleCore.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
@@ -53,8 +57,6 @@ import {
   URLString,
 } from "@objects/primitives/index.js";
 import { GetResultAsyncValueType, PopTuple } from "@objects/types.js";
-import { ResultAsync } from "neverthrow";
-import { FunctionKeys } from "utility-types";
 
 export type IProxyAccountMethods = {
   [key in FunctionKeys<IAccountMethods>]: (
@@ -101,6 +103,15 @@ export type IProxyDiscordMethods = {
     ...args: [...PopTuple<Parameters<ICoreDiscordMethods[key]>>]
   ) => ResultAsync<
     GetResultAsyncValueType<ReturnType<ICoreDiscordMethods[key]>>,
+    ProxyError
+  >;
+};
+
+export type INftProxyMethods = {
+  [key in FunctionKeys<INftMethods>]: (
+    ...args: [...PopTuple<Parameters<INftMethods[key]>>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<INftMethods[key]>>,
     ProxyError
   >;
 };
@@ -230,7 +241,6 @@ export interface ISdlDataWallet {
     contractAddress: TokenAddress | null,
   ): ResultAsync<TokenInfo | null, ProxyError>;
   getAccountBalances(): ResultAsync<TokenBalance[], ProxyError>;
-  getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError>;
 
   getTransactionValueByChain(): ResultAsync<
     TransactionFlowInsight[],
@@ -333,6 +343,7 @@ export interface ISdlDataWallet {
   twitter: IProxyTwitterMethods;
   metrics: IProxyMetricsMethods;
   storage: IProxyStorageMethods;
+  nft: INftProxyMethods;
   events: ISnickerdoodleCoreEvents;
 }
 

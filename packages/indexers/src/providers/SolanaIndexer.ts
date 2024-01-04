@@ -4,6 +4,8 @@ import {
   ILogUtilsType,
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
@@ -76,6 +78,7 @@ export class SolanaIndexer implements ISolanaIndexer {
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -170,6 +173,8 @@ export class SolanaIndexer implements ISolanaIndexer {
               nft.tokenStandard,
               TickerSymbol(nft.symbol),
               nft.name,
+              BigNumberString("1"),
+              this.timeUtils.getUnixNow(),
             );
           })
           .filter((val, i, arr) => {
