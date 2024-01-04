@@ -637,7 +637,7 @@ export class ConsentContract
     WrappedTransactionResponse,
     BlockchainCommonErrors | ConsentContractError
   > {
-    return this.writeToContract("grantRole", [role], overrides);
+    return this.writeToContract("grantRole", [role, address], overrides);
   }
 
   public revokeRole(
