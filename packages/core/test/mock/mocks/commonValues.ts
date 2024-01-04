@@ -32,6 +32,12 @@ import {
   SiteVisitsMap,
   SiteVisitsData,
   ISO8601DateString,
+  BigNumberString,
+  TokenUri,
+  LinkedAccount,
+  EContractStandard,
+  DirectReward,
+  EVMNFT,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_ConditionExpr,
@@ -128,7 +134,7 @@ export const testCoreConfig = new CoreConfig(
   "https://datawallet.snickerdoodle.com/data-dashboard/auth", // dropboxRedirectUri
   5000, // polling interval indexing,
   5000, // polling interval balance
-  5000, // polling interval NFT
+  300000, // polling interval NFT
   1000, // dataWalletBackupIntervalMS
   100000, // backupChunkSizeTarget
   {
@@ -499,4 +505,352 @@ export const siteVisitsMap: SiteVisitsMap = new Map([
   ],
 ]);
 
+const tokenAddress1 = EVMContractAddress(
+  "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
+);
+const tokenAddress2 = EVMContractAddress(
+  "0x2222222222222222222222222222222222222222",
+);
+
+const tokenAddress3 = EVMContractAddress(
+  "0x2222222222222222222222222233333333333333",
+);
+
+const tokenAddress4 = EVMContractAddress(
+  "0x2222222222222222222222222244444444444444",
+);
+const tokenId = BigNumberString("0");
+const contractType = EContractStandard.Erc721;
+const owner = EVMAccountAddress("0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc");
+const polygonOwner = EVMAccountAddress(
+  "0xacfbc62a183d926f0c6c0c3c8d2aaaaaaaaaaaa",
+);
+export const linkedAccounts: LinkedAccount[] = [
+  new LinkedAccount(EChain.Fuji, owner),
+  new LinkedAccount(EChain.Polygon, polygonOwner),
+];
+
+export const earnedRewards: DirectReward[] = [
+  new DirectReward(
+    queryCID,
+    "Name",
+    null,
+    "",
+    ChainId(81),
+    tokenAddress1,
+    externalAccountAddress1,
+  ),
+];
+
+const tokenUri = TokenUri("");
+const metadata = undefined;
+const amount = BigNumberString("1");
+
+const chain = 43113;
+
+export const fujiNfts = [
+  new EVMNFT(
+    tokenAddress1,
+    tokenId,
+    contractType,
+    owner,
+    tokenUri,
+    metadata,
+    "1",
+    chain,
+    amount,
+    UnixTimestamp(1701779730),
+  ),
+  new EVMNFT(
+    tokenAddress2,
+    tokenId,
+    contractType,
+    owner,
+    tokenUri,
+    metadata,
+    "2",
+    chain,
+    amount,
+    UnixTimestamp(1701779730),
+  ),
+];
+
+export const polygonNfts = [
+  new EVMNFT(
+    tokenAddress3,
+    tokenId,
+    contractType,
+    polygonOwner,
+    tokenUri,
+    metadata,
+    "3",
+    137,
+    amount,
+    UnixTimestamp(1701779730),
+  ),
+  new EVMNFT(
+    tokenAddress4,
+    tokenId,
+    contractType,
+    polygonOwner,
+    tokenUri,
+    metadata,
+    "4",
+    137,
+    amount,
+    UnixTimestamp(1701779730),
+  ),
+];
+
+export const indexerNft = (chain: number, address: string, index: number) => {
+  //In the test, 2 accounts and 2 chains is recorded for record checking, so each call will trigger 4 calls to here
+
+  if (chain === 43113 && address === owner) {
+    if (index < 8) {
+      return fujiNfts;
+    }
+    if (index < 12) {
+      return [...fujiNfts.slice(1)];
+    }
+    return [nftThatGotTransferredAndGotBack, fujiNfts[1]];
+  }
+  if (chain === 137 && address === polygonOwner) {
+    return polygonNfts;
+  }
+  return [];
+};
+
+export const indexedNfts = [
+  {
+    id: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc|#|0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0",
+    nft: {
+      type: 0,
+      chain: 43113,
+      owner,
+      token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
+      name: "1",
+      tokenId: "0",
+      contractType: "Erc721",
+      tokenUri: "",
+      metadata: undefined,
+      blockNumber: undefined,
+      lastOwnerTimeStamp: undefined,
+    },
+  },
+  {
+    id: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc|#|0x2222222222222222222222222222222222222222|#|0",
+    nft: {
+      type: 0,
+      chain: 43113,
+      owner,
+      token: "0x2222222222222222222222222222222222222222",
+      name: "2",
+      tokenId: "0",
+      contractType: "Erc721",
+      tokenUri: "",
+      metadata: undefined,
+      blockNumber: undefined,
+      lastOwnerTimeStamp: undefined,
+    },
+  },
+  {
+    id: "0xacfbc62a183d926f0c6c0c3c8d2aaaaaaaaaaaa|#|0x2222222222222222222222222233333333333333|#|0",
+    nft: {
+      type: 0,
+      chain: 137,
+      owner: polygonOwner,
+      token: "0x2222222222222222222222222233333333333333",
+      name: "3",
+      tokenId: "0",
+      contractType: "Erc721",
+      tokenUri: "",
+      metadata: undefined,
+      blockNumber: undefined,
+      lastOwnerTimeStamp: undefined,
+    },
+  },
+  {
+    id: "0xacfbc62a183d926f0c6c0c3c8d2aaaaaaaaaaaa|#|0x2222222222222222222222222244444444444444|#|0",
+    nft: {
+      type: 0,
+      chain: 137,
+      owner: polygonOwner,
+      token: "0x2222222222222222222222222244444444444444",
+      name: "4",
+      tokenId: "0",
+      contractType: "Erc721",
+      tokenUri: "",
+      metadata: undefined,
+      blockNumber: undefined,
+      lastOwnerTimeStamp: undefined,
+    },
+  },
+];
+
+export const indexedNftInitialHistory = [
+  {
+    id: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc|#|0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0{-}1701779730",
+    event: 1,
+    amount: "1",
+  },
+  {
+    id: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc|#|0x2222222222222222222222222222222222222222|#|0{-}1701779730",
+    event: 1,
+    amount: "1",
+  },
+  {
+    id: "0xacfbc62a183d926f0c6c0c3c8d2aaaaaaaaaaaa|#|0x2222222222222222222222222233333333333333|#|0{-}1701779730",
+    event: 1,
+    amount: "1",
+  },
+  {
+    id: "0xacfbc62a183d926f0c6c0c3c8d2aaaaaaaaaaaa|#|0x2222222222222222222222222244444444444444|#|0{-}1701779730",
+    event: 1,
+    amount: "1",
+  },
+];
+
+export const indexedNftTransferlHistory = [
+  {
+    id: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc|#|0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0{-}1701779734",
+    event: -1,
+    amount: "1",
+  },
+  {
+    id: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc|#|0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0{-}1701779738",
+    event: 1,
+    amount: "1",
+  },
+];
+
+export const expectedFujiNfts = [
+  {
+    type: 0,
+    chain: 43113,
+    owner,
+    token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
+    name: "1",
+    tokenId: "0",
+    contractType: "Erc721",
+    tokenUri: "",
+    metadata: undefined,
+    blockNumber: undefined,
+    lastOwnerTimeStamp: undefined,
+    measurementDate: 1701779730,
+    amount: "1",
+  },
+  {
+    type: 0,
+    chain: 43113,
+    owner,
+    token: "0x2222222222222222222222222222222222222222",
+    name: "2",
+    tokenId: "0",
+    contractType: "Erc721",
+    tokenUri: "",
+    metadata: undefined,
+    blockNumber: undefined,
+    lastOwnerTimeStamp: undefined,
+    measurementDate: 1701779730,
+    amount: "1",
+  },
+];
+
+export const expectedShibuya = [
+  {
+    type: 0,
+    chain: 81,
+    owner: "ExternalAccountAddress1",
+    token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
+    name: "Name",
+    tokenId: "1",
+    contractType: "Unknown",
+    tokenUri: undefined,
+    metadata: {
+      raw: '{"queryCID":"queryCID","name":"Name","image":"http://ipfstest.com/whatever","description":"","type":"Direct","chainId":81,"contractAddress":"0x0a281d992a7e454d9dcf611b6bf0201393e27438","recipientAddress":"ExternalAccountAddress1"}',
+    },
+    blockNumber: undefined,
+    lastOwnerTimeStamp: undefined,
+    amount: "1",
+    measurementDate: 0,
+  },
+];
+
+export const expectedPolygon = [
+  {
+    type: 0,
+    chain: 137,
+    owner: polygonOwner,
+    token: "0x2222222222222222222222222233333333333333",
+    name: "3",
+    amount: "1",
+    measurementDate: 1701779730,
+    tokenId: "0",
+    contractType: "Erc721",
+    tokenUri: "",
+    metadata: undefined,
+    blockNumber: undefined,
+    lastOwnerTimeStamp: undefined,
+  },
+  {
+    type: 0,
+    chain: 137,
+    owner: polygonOwner,
+    token: "0x2222222222222222222222222244444444444444",
+    name: "4",
+    amount: "1",
+    measurementDate: 1701779730,
+    tokenId: "0",
+    contractType: "Erc721",
+    tokenUri: "",
+    metadata: undefined,
+    blockNumber: undefined,
+    lastOwnerTimeStamp: undefined,
+  },
+];
+export const expectedNfts = [
+  ...expectedShibuya,
+  ...expectedFujiNfts,
+  ...expectedPolygon,
+];
+
+export const nftThatGotTransferredAndGotBack = {
+  type: 0,
+  chain: 43113,
+  owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
+  token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
+  name: "1",
+  tokenId: "0",
+  contractType: "Erc721",
+  tokenUri: "",
+  metadata: undefined,
+  blockNumber: undefined,
+  lastOwnerTimeStamp: undefined,
+  measurementDate: 1701779738,
+  amount: "1",
+};
+
+const {
+  amount: evmAmount,
+  measurementDate,
+  ...rest
+} = nftThatGotTransferredAndGotBack;
+export const walletNftThatGotTransferredAndGotBack = {
+  id: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc|#|0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0",
+  ...rest,
+  history: [
+    { measurementDate: 1701779730, amount: "1", event: 1 },
+    {
+      amount: "1",
+      event: -1,
+      measurementDate: 1701779734,
+    },
+    {
+      amount: "1",
+      event: 1,
+      measurementDate: 1701779738,
+    },
+  ],
+  totalAmount: "1",
+};
 // #endregion

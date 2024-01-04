@@ -21,8 +21,8 @@ import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 
 interface IDashboardContext {
-  accountNFTs?: WalletNFT[];
-  accountTestnetNFTs?: WalletNFT[];
+  accountNFTs?: Omit<WalletNFT, "getVersion">[];
+  accountTestnetNFTs?: Omit<WalletNFT, "getVersion">[];
   poapNFTs?: EVMNFT[];
   isNFTsLoading: boolean;
 }
@@ -70,8 +70,8 @@ export const DashboardContextProvider: FC = memo(({ children }) => {
   }, [linkedAccounts.length, appMode]);
 
   const initializeNfts = () => {
-    sdlDataWallet
-      .getAccountNFTs()
+    sdlDataWallet.nft
+      .getNfts(undefined, undefined, undefined)
       .mapErr((e) => {
         setIsNFTsLoading(false);
       })
@@ -81,19 +81,25 @@ export const DashboardContextProvider: FC = memo(({ children }) => {
             const isMainnetItem = mainnetSupportedChainIds.includes(
               ChainId(item.chain),
             );
-            const isPopap =
-              item.chain === EChain.Gnosis ||
-              (item.type === EChainTechnology.EVM &&
-                !!NftMetadataParseUtils.getParsedNFT(
-                  JSON.stringify((item as EVMNFT).metadata) || "",
-                ).event);
 
-            if (isPopap) {
-              acc.poapNfts = [...acc.poapNfts, item as EVMNFT];
-              return acc;
+            if (NftMetadataParseUtils.isEVMNFT(item)) {
+              const evmNft = item as EVMNFT;
+              if (
+                evmNft.chain === EChain.Gnosis ||
+                !!NftMetadataParseUtils.getParsedNFT(
+                  JSON.stringify(evmNft.metadata) || "",
+                ).event
+              ) {
+                acc.poapNfts = [...acc.poapNfts, evmNft];
+                return acc;
+              }
             }
+
             if (isMainnetItem) {
-              acc.mainnetNfts = [...acc.mainnetNfts, item];
+              acc.mainnetNfts = [
+                ...acc.mainnetNfts,
+                item as Omit<WalletNFT, "getVersion">,
+              ];
               return acc;
             }
             acc.testnetNfts = [...acc.testnetNfts, item];

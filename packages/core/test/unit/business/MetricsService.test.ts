@@ -15,7 +15,10 @@ import * as td from "testdouble";
 
 import { MetricsService } from "@core/implementations/business/index.js";
 import { IMetricsService } from "@core/interfaces/business/index.js";
-import { IMetricsRepository } from "@core/interfaces/data/index.js";
+import {
+  IMetricsRepository,
+  INFTRepositoryWithDebug,
+} from "@core/interfaces/data/index.js";
 import { IConfigProvider } from "@core/interfaces/utilities/index.js";
 import {
   ConfigProviderMock,
@@ -57,12 +60,14 @@ class MetricsServiceMocks {
   public configProvider: IConfigProvider;
   public contextProvider: ContextProviderMock;
   public timeUtils: ITimeUtils;
+  public nftRepo: INFTRepositoryWithDebug;
 
   public constructor() {
     this.metricsRepo = td.object<IMetricsRepository>();
     this.configProvider = new ConfigProviderMock();
     this.contextProvider = new ContextProviderMock();
     this.timeUtils = td.object<ITimeUtils>();
+    this.nftRepo = td.object<INFTRepositoryWithDebug>();
 
     td.when(this.timeUtils.getUnixNow()).thenReturn(now as never);
 
@@ -109,6 +114,7 @@ class MetricsServiceMocks {
       this.contextProvider,
       this.configProvider,
       this.timeUtils,
+      this.nftRepo,
     );
   }
 }

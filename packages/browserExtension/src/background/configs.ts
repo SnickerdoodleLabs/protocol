@@ -53,6 +53,7 @@ declare const __REQUEST_FOR_DATA_EVENT_FREQ__: string;
 declare const __DOMAIN_FILTER__: string;
 declare const __GOOGLE_CLOUD_BUCKET__: string;
 declare const __PORTFOLIO_POLLING_INTERVAL__: string;
+declare const __NFT_POLLING_INTERVAL__: string;
 declare const __TRANSACTION_POLLING_INTERVAL__: string;
 declare const __BACKUP_POLLING_INTERVAL__: string;
 declare const __ENABLE_BACKUP_ENCRYPTION__: string;
@@ -154,7 +155,11 @@ export const config: IExtensionSdkConfigOverrides = {
       ? __DOMAIN_FILTER__
       : "(localhost|chrome://)",
   accountBalancePollingIntervalMS: portfolioPollingIntervalMS,
-  accountNFTPollingIntervalMS: portfolioPollingIntervalMS,
+  accountNFTPollingIntervalMS:
+    typeof __NFT_POLLING_INTERVAL__ !== "undefined" &&
+    !!__NFT_POLLING_INTERVAL__
+      ? Number.parseInt(__NFT_POLLING_INTERVAL__)
+      : 5 * ONE_MINUTE_MS,
   accountIndexingPollingIntervalMS:
     typeof __TRANSACTION_POLLING_INTERVAL__ !== "undefined" &&
     !!__TRANSACTION_POLLING_INTERVAL__

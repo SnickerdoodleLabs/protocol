@@ -47,6 +47,7 @@ import {
   PageInvitation,
   IWebIntegrationConfigOverrides,
   TransactionFilter,
+  LinkedAccount,
 } from "@snickerdoodlelabs/objects";
 import {
   IIFrameCallData,
@@ -392,10 +393,21 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      getAccountNFTs: (data: IIFrameCallData<Record<string, never>>) => {
+      "nft.getNfts": (
+        data: IIFrameCallData<{
+          benchmark?: UnixTimestamp;
+          chains?: EChain[];
+          accounts?: LinkedAccount[];
+        }>,
+      ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.getAccountNFTs(this.sourceDomain);
+            return core.nft.getNfts(
+              data.data.benchmark,
+              data.data.chains,
+              data.data.accounts,
+              this.sourceDomain,
+            );
           });
         }, data.callId);
       },
@@ -869,6 +881,34 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
             return core.metrics.getMetrics(this.sourceDomain);
+          });
+        }, data.callId);
+      },
+
+      "metrics.getNFTsHistory": (
+        data: IIFrameCallData<Record<string, never>>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.metrics.getNFTsHistory(this.sourceDomain);
+          });
+        }, data.callId);
+      },
+
+      "metrics.getPersistenceNFTs": (
+        data: IIFrameCallData<Record<string, never>>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.metrics.getPersistenceNFTs(this.sourceDomain);
+          });
+        }, data.callId);
+      },
+
+      "metrics.getNFTCache": (data: IIFrameCallData<Record<string, never>>) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.metrics.getNFTCache(this.sourceDomain);
           });
         }, data.callId);
       },

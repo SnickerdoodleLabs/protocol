@@ -1,0 +1,92 @@
+NftHolding Data Overview
+
+The NftHolding data provides insights derived from aggregated information 
+related to the holdings of NFTs associated with a user. 
+
+Nft Components
+Each Nft consists of the following key components:
+    1.Chain: Represented as a string, this indicates the blockchain network
+     on which the NFT holding exists. It could be any supported chain, such as Ethereum, 
+     Solana, or others. 
+     If the NFT holding is not associated with any registered chain, 
+     the value is "not registered." will be returned for this field
+
+    2.Token Address: This represents the unique address of the NFT contract
+     where the tokens are held. For solana this would be the program address,
+     For Ethereum smart contract address
+
+    3.Amount: This numeric value represents the quantity of NFTs held at the 
+    given token address. It provides insights into the size of the users NFT collection.
+
+    4.Name: A  string that may indicate the name or label associated with the 
+    NFT collection. It offers additional context about the holdings.
+
+    5.MeasurementDate: The date the nft was measured on our data wallet. More detail below
+
+While there are other components of NFTs that differ based on different chains,
+ the above-mentioned fields are of primary interest for answering queries.
+
+Sample Nft On Our Cache
+{
+    "type": 0,
+    "chain": 43113,
+    "owner": "0xeasdefqasa7e454d9dcf611b6bf0201393e27438",
+    "token": "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
+    "name": "",
+    "id": "0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0",
+    "tokenId": "0",
+    "contractType": "ERC721",
+    "tokenUri": "",
+    "metadata": {
+        "raw": "{\"blockchain\":\"avalanche_fuji\",\"name\":\"\",\"tokenId\":\"0\",\"tokenUrl\":\"https://ipfs.io/ipfs/QmXbJ8rMMRLEF6quPDTzoFGPpMDrJDdqJUKURVyX5gyv7c?0\",\"imageUrl\":\"\",\"collectionName\":\"test\",\"symbol\":\"test\",\"contractType\":\"ERC721\",\"contractAddress\":\"0x0a281d992a7e454d9dcf611b6bf0201393e27438\"}"
+    },
+    "totalAmount": "1",
+    "history": [
+        {
+            "measurementDate": 1701779730,
+            "event": 1
+            "amount": 1
+        }
+    ]
+}
+
+MeasurementDate in NFT Data
+
+When answering queries, we establish a benchmark based on the query launch date.
+Any event or change that occurs after this benchmark date is not considered in 
+our query responses. This creates an issue regarding NFTs,
+since NFTs are designed for transferability,a user may have diffirent assets
+given a spesific time.
+
+In order overcome this and give a metric for our data staleness we use
+measurementDate, this date essentially allows us to build snapshots of nfts 
+associated with our users. We store the date of measurement with the event (added:1 removed:2 )
+   
+    "totalAmount": "1",
+    "history": [
+        {
+            "measurementDate": 1701779730,
+            "event": 1
+            "amount": 1
+        }
+    ]
+
+and when answering queries we get the valid ones ( the ones that are measured before query launch date ),
+if our latest measurementDate is before the query launch time we do another check and then answer with latest date
+
+
+Aggregation of Nft Data
+
+NFT data is aggregated based on blockchain networks and organized for analysis.
+We include the latest measurementTime in the aggregated data, which is then used for marketing analytics and query responses.
+class NftHolding {
+  public constructor(
+    public chain: keyof typeof EChain | "not registered",
+    public tokenAddress: TokenAddress,
+    public amount: number,
+    public name: string,
+    public measurementTime: UnixTimestamp,
+  ) {}
+}
+
+and send it as response to the marketing platform.

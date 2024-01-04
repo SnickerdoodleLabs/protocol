@@ -37,7 +37,7 @@ const defaultCoreConfigs: IConfigOverrides = {
   domainFilter: "(localhost|chrome://)",
   accountIndexingPollingIntervalMS: ONE_MINUTE_MS,
   accountBalancePollingIntervalMS: ONE_MINUTE_MS,
-  accountNFTPollingIntervalMS: ONE_MINUTE_MS,
+  accountNFTPollingIntervalMS: 5 * ONE_MINUTE_MS,
   dataWalletBackupIntervalMS: ONE_MINUTE_MS,
   requestForDataPollingIntervalMS: 4000,
 

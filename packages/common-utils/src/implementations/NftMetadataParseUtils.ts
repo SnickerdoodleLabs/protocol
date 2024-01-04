@@ -1,4 +1,10 @@
 import {
+  WalletNFT,
+  EVMNFT,
+  UnixTimestamp,
+  EIndexedDbOp,
+  BigNumberString,
+  EChainTechnology,
   AttributesEntity,
   EContentType,
   INFT,
@@ -19,6 +25,9 @@ const emptytNft: INFT = {
 };
 
 export class NftMetadataParseUtils {
+  static isEVMNFT(walletNFT: WalletNFT): walletNFT is EVMNFT {
+    return walletNFT.type === EChainTechnology.EVM;
+  }
   public static getParsedNFT(metadataString: string): INFT {
     if (!metadataString) {
       return emptytNft;

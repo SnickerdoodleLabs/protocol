@@ -15,6 +15,7 @@ declare const __IPFS_FETCH_BASE_URL__: URLString;
 declare const __DEFAULT_INSIGHT_PLATFORM_BASE_URL__: URLString;
 declare const __DEV_CHAIN_PROVIDER_URL__: ProviderUrl;
 declare const __PORTFOLIO_POLLING_INTERVAL__: string;
+declare const __NFT_POLLING_INTERVAL__: string;
 declare const __TRANSACTION_POLLING_INTERVAL__: string;
 declare const __BACKUP_POLLING_INTERVAL__: string;
 declare const __REQUEST_FOR_DATA_POLLING_INTERVAL__: string;
@@ -71,6 +72,10 @@ export class ConfigProvider implements IConfigProvider {
       !!__PORTFOLIO_POLLING_INTERVAL__
         ? Number.parseInt(__PORTFOLIO_POLLING_INTERVAL__)
         : ONE_MINUTE_MS, // portfolioPollingIntervalMS
+      typeof __NFT_POLLING_INTERVAL__ !== "undefined" &&
+      !!__NFT_POLLING_INTERVAL__
+        ? Number.parseInt(__NFT_POLLING_INTERVAL__)
+        : 5 * ONE_MINUTE_MS,
       typeof __TRANSACTION_POLLING_INTERVAL__ !== "undefined" &&
       !!__TRANSACTION_POLLING_INTERVAL__
         ? Number.parseInt(__TRANSACTION_POLLING_INTERVAL__)
