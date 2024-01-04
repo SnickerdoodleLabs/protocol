@@ -58,6 +58,7 @@ export class VolatileStorageSchemaProvider
     Map<ERecordKey, VolatileTableIndex<VersionedObject>>,
     never
   > {
+    
     return this.configProvider.getConfig().map((config) => {
       return new Map<ERecordKey, VolatileTableIndex<VersionedObject>>([
         [
