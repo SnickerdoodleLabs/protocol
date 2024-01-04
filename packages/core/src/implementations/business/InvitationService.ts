@@ -37,6 +37,7 @@ import {
   InvalidArgumentError,
   OptInInfo,
   IUserAgreement,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -283,6 +284,7 @@ export class InvitationService implements IInvitationService {
     | BlockchainProviderError
     | MinimalForwarderContractError
     | ConsentError
+    | InvalidParametersError
     | BlockchainCommonErrors
   > {
     // This will actually create a metatransaction, since the invitation is issued
@@ -304,7 +306,7 @@ export class InvitationService implements IInvitationService {
           invitation.tokenId == null
         ) {
           return errAsync(
-            new InvalidArgumentError(
+            new InvalidParametersError(
               "tokenId is required for signed invitations",
             ),
           );
@@ -1054,8 +1056,8 @@ export class InvitationService implements IInvitationService {
             return okAsync(linkedAccount.sourceAccountAddress);
           }
 
-          // This check removes the receiving address from the contract and replaces 
-          // it with the default 
+          // This check removes the receiving address from the contract and replaces
+          // it with the default
           return this.accountRepo
             .setReceivingAddress(contractAddress, null)
             .andThen(() => {
@@ -1066,7 +1068,7 @@ export class InvitationService implements IInvitationService {
   }
 
   protected isValidSignatureForInvitation(
-    consentContractAddres: EVMContractAddress,
+    consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
     businessSignature: Signature,
   ): ResultAsync<
@@ -1077,14 +1079,14 @@ export class InvitationService implements IInvitationService {
     | BlockchainCommonErrors
   > {
     return this.consentRepo
-      .getSignerRoleMembers(consentContractAddres)
+      .getSignerRoleMembers(consentContractAddress)
       .andThen((signersAccountAddresses) => {
         return ResultUtils.combine(
           signersAccountAddresses.map((signerAccountAddress) => {
             const types = ["address", "uint256"];
             const msgHash = ethers.utils.solidityKeccak256(
               [...types],
-              [consentContractAddres, BigNumber.from(tokenId)],
+              [consentContractAddress, BigNumber.from(tokenId)],
             );
             return this.cryptoUtils
               .verifyEVMSignature(

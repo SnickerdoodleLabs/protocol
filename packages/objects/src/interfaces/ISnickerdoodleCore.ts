@@ -2,6 +2,8 @@ import {
   TypedDataDomain,
   TypedDataField,
 } from "@ethersproject/abstract-signer";
+import { ResultAsync } from "neverthrow";
+
 import {
   AdSignature,
   ChainTransaction,
@@ -112,7 +114,6 @@ import {
   BlockNumber,
   RefreshToken,
 } from "@objects/primitives/index.js";
-import { ResultAsync } from "neverthrow";
 /**
  ************************ MAINTENANCE HAZARD ***********************************************
  Whenever you add or change a method in this class, you also need to look at and probably update
@@ -515,6 +516,7 @@ export interface IInvitationMethods {
     | MinimalForwarderContractError
     | ConsentError
     | UnauthorizedError
+    | InvalidParametersError
     | BlockchainCommonErrors
   >;
 
