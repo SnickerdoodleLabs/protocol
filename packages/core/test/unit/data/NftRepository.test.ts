@@ -71,7 +71,7 @@ class NftRepositoryMocks {
 
     td.when(this.timeUtils.getUnixNow()).thenDo(() => {
       indexTime++;
-      if (indexTime < 10) {
+      if (indexTime < 12) {
         return UnixTimestamp(1701779734);
       }
       //User got the nft back

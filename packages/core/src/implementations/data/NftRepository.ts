@@ -652,13 +652,19 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
     accountAddress: AccountAddress,
     cache: NftRepositoryCache,
   ): void {
+    const currentChain = cache.get(chain);
     if (newlyAddedNftHistories.length < 1 && newlyAddedNftDatas.length < 1) {
+      if (currentChain == null) {
+        cache.set(chain, {
+          data: new Map(),
+          lastUpdateTime: this.timeUtils.getUnixNow(),
+        });
+      }
       return;
     }
     const nftHistoriesMap = this.getNftIdToWalletHistoryMap(
       newlyAddedNftHistories,
     );
-    const currentChain = cache.get(chain);
 
     if (currentChain == null) {
       this.addNewChainToCache(
