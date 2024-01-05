@@ -16,6 +16,7 @@ export class IFrameConfig {
     public sourceDomain: DomainName,
     public languageCode: LanguageCode,
     public portfolioPollingIntervalMS: number,
+    public nftPollingIntervalMS: number,
     public transactionPollingIntervalMS: number,
     public backupPollingIntervalMS: number,
     public requestForDataPollingIntervalMS: number,

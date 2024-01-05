@@ -1,4 +1,5 @@
 export * from "@indexers/interfaces/IEVMIndexer.js";
+export * from "@indexers/interfaces/IEVMTransactionSanitizer.js";
 export * from "@indexers/interfaces/IIndexer.js";
 export * from "@indexers/interfaces/IIndexerConfig.js";
 export * from "@indexers/interfaces/IIndexerConfigProvider.js";

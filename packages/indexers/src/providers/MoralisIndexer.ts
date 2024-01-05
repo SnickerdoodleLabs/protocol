@@ -2,6 +2,9 @@ import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
   IRequestConfig,
+  ITimeUtils,
+  ITimeUtilsType,
+  ValidationUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
@@ -81,6 +84,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -98,7 +102,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     });
   }
 
-  public name(): string {
+  public name(): EDataProvider {
     return EDataProvider.Moralis;
   }
 
@@ -230,16 +234,20 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     }
 
     const items: EVMNFT[] = response.result.map((token) => {
+      const tokenStandard = ValidationUtils.stringToTokenStandard(
+        token.contract_type,
+      );
       return new EVMNFT(
         EVMContractAddress(token.token_address),
         BigNumberString(token.token_id),
-        token.contract_type,
+        tokenStandard,
         EVMAccountAddress(token.owner_of),
         TokenUri(token.token_uri),
         { raw: token.metadata },
-        BigNumberString(token.amount),
         token.name,
         chain,
+        BigNumberString(token.amount),
+        this.timeUtils.getUnixNow(),
         BlockNumber(Number(token.block_number)),
         undefined,
       );

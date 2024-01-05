@@ -29,7 +29,8 @@ const LinkAccountModal: FC<ILinkAccountModalProps> = ({
         style: { zIndex: 9999999999 },
         square: true,
       }}
-      disablePortal
+      disablePortal={true}
+      disableEnforceFocus={true}
       maxWidth="sm"
       className={modalClasses.container}
     >

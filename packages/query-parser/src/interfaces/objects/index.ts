@@ -12,6 +12,7 @@ export * from "@query-parser/interfaces/objects/AST_NftQuery.js";
 export * from "@query-parser/interfaces/objects/AST_PropertyQuery.js";
 export * from "@query-parser/interfaces/objects/AST_RequireExpr.js";
 export * from "@query-parser/interfaces/objects/AST_SubQuery.js";
+export * from "@query-parser/interfaces/objects/AST_Web3AccountSizeQuery.js";
 export * from "@query-parser/interfaces/objects/AST_Web3Query.js";
 export * from "@query-parser/interfaces/objects/Command.js";
 export * from "@query-parser/interfaces/objects/Command_IF.js";

@@ -3,8 +3,7 @@ import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import { SDTypography, colors } from "@snickerdoodlelabs/shared-components";
 import clsx from "clsx";
-import { motion, useMotionValue, useTransform, animate } from "framer-motion";
-import React, { FC, useRef } from "react";
+import React, { FC, useRef, useState } from "react";
 
 interface IYearSelectorProps {
   onSelect: (year: number) => void;
@@ -20,142 +19,121 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: colors.MAINPURPLE50,
     },
   },
+  slideTransition: {
+    transition: "transform 0.3s ease-in-out",
+  },
 }));
 
 const currentYear = new Date().getFullYear();
+const yearsPerPage = 10;
+const totalPages = 10;
+const itemPercentage = 100 / yearsPerPage;
 
 const YearSelector: FC<IYearSelectorProps> = ({ onSelect }) => {
-  // 12 pages and 10 years per page
   const years = useRef<number[][]>(
-    [...Array(12).keys()]
+    [...Array(totalPages).keys()]
       .reverse()
       .map((i) =>
-        [...Array(10).keys()].reverse().map((j) => currentYear - (i * 10 + j)),
+        [...Array(yearsPerPage).keys()]
+          .reverse()
+          .map((j) => currentYear - (i * yearsPerPage + j)),
       ),
   );
   const classes = useStyles();
-  const [currentRangeIndex, setCurrentRangeIndex] = React.useState(9);
-  const [rangeSelectOpen, setRangeSelectOpen] = React.useState(false);
-
-  const indexValue = useMotionValue(9);
-  const translateX = useTransform(indexValue, [0, 11], ["0%", "-1100%"]);
-  const handleRangeSelect = (index: number) => {
-    rangeSelectOpen && setRangeSelectOpen(false);
-    indexValue.set(index);
-    setCurrentRangeIndex(index);
-  };
+  const [currentPage, setCurrentPage] = useState(totalPages - 2);
+  const [rangeSelectOpen, setRangeSelectOpen] = useState(false);
 
   return (
     <Box bgcolor="white" width={300} position="relative" borderRadius={8} p={2}>
       {rangeSelectOpen && (
         <Box
+          className={clsx(classes.slideTransition, "fade-in")}
+          onClick={() => {
+            setRangeSelectOpen(false);
+          }}
           position="absolute"
           bgcolor="white"
           zIndex={1}
           width="100%"
           height="100%"
           overflow="auto"
+          display="flex"
+          flexDirection="column-reverse"
           top={0}
           left={0}
           py={3}
         >
-          <motion.div
-            onClick={(e) => {
-              e.stopPropagation();
-              setRangeSelectOpen(false);
-            }}
-            initial={{
-              opacity: 0.5,
-            }}
-            animate={{
-              opacity: 1,
-              transition: {
-                ease: "easeOut",
-                duration: 0.3,
-              },
-            }}
-          >
-            {[...years.current].reverse().map((dateRange, index) => (
-              <Box
-                key={index}
-                display="flex"
-                justifyContent="center"
-                mb={1}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleRangeSelect(11 - index);
-                }}
-              >
-                <SDTypography
-                  color="textHeading"
-                  variant="bodyLg"
-                  fontWeight="regular"
-                  className={classes.pointer}
-                >{`${dateRange[0]}-${dateRange[9]}`}</SDTypography>
-              </Box>
-            ))}
-          </motion.div>
+          {years.current.map((dateRange, index) => (
+            <Box
+              key={index}
+              display="flex"
+              justifyContent="center"
+              mb={1}
+              onClick={(e) => {
+                e.stopPropagation();
+                setCurrentPage(index);
+                setRangeSelectOpen(false);
+              }}
+            >
+              <SDTypography
+                color="textHeading"
+                variant="bodyLg"
+                fontWeight="regular"
+                className={classes.pointer}
+              >{`${dateRange[0]}-${dateRange[yearsPerPage - 1]}`}</SDTypography>
+            </Box>
+          ))}
         </Box>
       )}
+
       <Box mb={0.5} display="flex" boxSizing="border-box" alignItems="center">
-        <Box
-          onClick={() => {
-            setRangeSelectOpen(true);
-          }}
+        <SDTypography
+          color="textHeading"
+          variant="bodyLg"
+          fontWeight="medium"
+          onClick={() => setRangeSelectOpen(true)}
+          className={classes.pointer}
         >
-          <SDTypography
-            color="textHeading"
-            variant="bodyLg"
-            fontWeight="medium"
-            className={classes.pointer}
-          >
-            {years.current[currentRangeIndex][0]}-
-            {years.current[currentRangeIndex][9]}
-          </SDTypography>
-        </Box>
+          {years.current[currentPage][0]}-
+          {years.current[currentPage][yearsPerPage - 1]}
+        </SDTypography>
         <Box ml="auto">
           <IconButton
-            disabled={currentRangeIndex === 0}
-            onClick={() => {
-              animate(indexValue, currentRangeIndex - 1, {
-                duration: 0.3,
-                onComplete: () => {
-                  setCurrentRangeIndex(currentRangeIndex - 1);
-                },
-              });
-            }}
+            disabled={currentPage === 0}
+            onClick={() =>
+              setCurrentPage((currentPage + totalPages - 1) % totalPages)
+            }
           >
             <ChevronLeftIcon />
           </IconButton>
           <IconButton
-            disabled={currentRangeIndex === 11}
-            onClick={() => {
-              animate(indexValue, currentRangeIndex + 1, {
-                duration: 0.3,
-                onComplete: () => {
-                  setCurrentRangeIndex(currentRangeIndex + 1);
-                },
-              });
-            }}
+            disabled={currentPage === totalPages - 1}
+            onClick={() => setCurrentPage((currentPage + 1) % totalPages)}
           >
             <ChevronRightIcon />
           </IconButton>
         </Box>
       </Box>
+
       <div style={{ overflow: "hidden", position: "relative" }}>
-        <motion.div
+        <div
+          className={clsx(classes.slideTransition)}
           style={{
+            transform: `translateX(-${currentPage * itemPercentage}%)`,
             display: "flex",
-            x: translateX,
+            width: `${totalPages * 100}%`,
           }}
         >
           {years.current.map((dateRange, index) => (
             <Box
               key={index}
               display="flex"
-              width="100%"
               boxSizing="border-box"
-              style={{ flexBasis: "100%", maxWidth: "100%", flexShrink: 0 }}
+              style={{
+                flexBasis: `${itemPercentage}%`,
+                maxWidth: `${itemPercentage}%`,
+                flexShrink: 0,
+              }}
             >
               <Grid key={index} container spacing={1}>
                 {dateRange.map((year, subIndex) => (
@@ -164,9 +142,7 @@ const YearSelector: FC<IYearSelectorProps> = ({ onSelect }) => {
                       py={0.5}
                       px={1.5}
                       borderRadius={40}
-                      onClick={() => {
-                        onSelect(year);
-                      }}
+                      onClick={() => onSelect(year)}
                       display="flex"
                       className={clsx(classes.pointer, classes.selectable)}
                       justifyContent="center"
@@ -184,7 +160,7 @@ const YearSelector: FC<IYearSelectorProps> = ({ onSelect }) => {
               </Grid>
             </Box>
           ))}
-        </motion.div>
+        </div>
       </div>
     </Box>
   );

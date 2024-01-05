@@ -1,16 +1,9 @@
-//@ts-ignore
 import { ESocialType, ISdlDataWallet } from "@snickerdoodlelabs/objects";
-
-import DiscordIcon from "@extension-onboarding/assets/icons/discord.svg";
-import TwitterIcon from "@extension-onboarding/assets/icons/twitter.svg";
-import {
-  DiscordProvider,
-  TwitterProvider,
-} from "@extension-onboarding/services/socialMediaProviders/implementations";
-import { ISocialMediaProvider } from "@extension-onboarding/services/socialMediaProviders/interfaces";
+import { DiscordProvider } from "@extension-onboarding/services/socialMediaProviders/implementations";
+import { ISocialMediaProvider } from "@extension-onboarding/services/socialMediaProviders/interfaces"
 export interface ISocialMediaWrapper {
   provider: ISocialMediaProvider;
-  icon: any;
+  icon: string;
   name: string;
   key: ESocialType;
 }
@@ -20,14 +13,8 @@ export const getProviderList = (
 ): ISocialMediaWrapper[] => [
   {
     provider: new DiscordProvider(sdlDataWallet),
-    icon: DiscordIcon,
+    icon: "https://storage.googleapis.com/dw-assets/shared/icons/discord-link.png",
     name: "Discord",
     key: ESocialType.DISCORD,
   },
-  // {
-  //   provider: new TwitterProvider(sdlDataWallet),
-  //   icon: TwitterIcon,
-  //   name: "Twitter Data",
-  //   key: ESocialType.TWITTER,
-  // },
 ];

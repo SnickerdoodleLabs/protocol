@@ -36,6 +36,7 @@ import {
   IBalanceQueryEvaluator,
   IBlockchainTransactionQueryEvaluator,
   INftQueryEvaluator,
+  IWeb3AccountQueryEvaluator,
 } from "@core/interfaces/business/utilities/query/index.js";
 import {
   IBrowsingDataRepository,
@@ -76,6 +77,7 @@ class QueryEvaluatorMocks {
   public blockchainTransactionQueryEvaluator =
     td.object<IBlockchainTransactionQueryEvaluator>();
   public nftQueryEvaluator = td.object<INftQueryEvaluator>();
+  public web3AccountQueryEvaluator = td.object<IWeb3AccountQueryEvaluator>();
   public demoDataRepo = td.object<IDemographicDataRepository>();
   public browsingDataRepo = td.object<IBrowsingDataRepository>();
   public transactionRepo = td.object<ITransactionHistoryRepository>();
@@ -218,6 +220,7 @@ class QueryEvaluatorMocks {
       this.transactionRepo,
       this.socialRepo,
       this.contextProvider,
+      this.web3AccountQueryEvaluator,
     );
     // td.when(this.dataWalletPersistence.getTransactionsMap())
     // .thenReturn(

@@ -11,7 +11,6 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   EVMTransactionHash,
-  ISO8601DateString,
   SolanaTransactionSignature,
   UnixTimestamp,
 } from "@objects/primitives/index.js";
@@ -55,19 +54,18 @@ export class ChainTransactionMigrator extends VersionedObjectMigrator<ChainTrans
     }
   }
 
-
   protected getUpgradeFunctions(): Map<
-  number,
-  (data: Record<string, unknown>, version: number) => Record<string, unknown>
-> {
-  return new Map([
-    [
-      1,
-      (data, version) => {
-        data["measurementDate"] = Math.floor(Date.now() / 1000);
-        return data;
-      },
-    ],
-  ]);
-}
+    number,
+    (data: Record<string, unknown>, version: number) => Record<string, unknown>
+  > {
+    return new Map([
+      [
+        1,
+        (data, version) => {
+          data["measurementDate"] = Math.floor(Date.now() / 1000);
+          return data;
+        },
+      ],
+    ]);
+  }
 }

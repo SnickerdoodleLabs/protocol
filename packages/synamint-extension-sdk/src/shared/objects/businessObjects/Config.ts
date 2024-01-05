@@ -39,6 +39,10 @@ export class ExtensionConfig {
         Gnosis: string;
         Fuji: string;
       };
+      spaceAndTimeCredentials?: {
+        userId: string;
+        privateKey: string;
+      };
       covalentApiKey?: string;
       moralisApiKey?: string;
       nftScanApiKey?: string;
@@ -46,6 +50,7 @@ export class ExtensionConfig {
       oklinkApiKey?: string;
       ankrApiKey?: string;
       bluezApiKey?: string;
+      raribleApiKey?: string;
       spaceAndTimeKey?: string;
       blockvisionKey?: string;
     },

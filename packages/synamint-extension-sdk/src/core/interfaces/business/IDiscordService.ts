@@ -15,7 +15,6 @@ export interface IDiscordService {
     sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   installationUrl(
-    redirectTabId?: number,
     sourceDomain?: DomainName,
   ): ResultAsync<URLString, SnickerDoodleCoreError>;
   getUserProfiles(

@@ -9,6 +9,7 @@ export const UI_SUPPORTED_PERMISSIONS = [
   EWalletDataType.AccountBalances,
   EWalletDataType.AccountNFTs,
   EWalletDataType.Discord,
+  EWalletDataType.AccountSize,
 ];
 
 export const PERMISSION_NAMES = {
@@ -20,6 +21,7 @@ export const PERMISSION_NAMES = {
   [EWalletDataType.AccountBalances]: "Token Balances",
   [EWalletDataType.AccountNFTs]: "NFTs",
   [EWalletDataType.Discord]: "Discord",
+  [EWalletDataType.AccountSize]: "Linked Accounts",
   // [EWalletDataType.LatestBlockNumber]: "Latest Block Number",
 };
 
@@ -77,5 +79,11 @@ export const PERMS: IPermissionItem[] = [
     name: "Discord",
     description:
       "Share what kinds of Discord channels you are subscribed to. No one will ever know your discord handle.",
+  },
+  {
+    key: EWalletDataType.AccountSize,
+    name: "Linked Accounts",
+    description:
+      "Share the number of the accounts you linked. No one will ever know your account addresses.",
   },
 ];

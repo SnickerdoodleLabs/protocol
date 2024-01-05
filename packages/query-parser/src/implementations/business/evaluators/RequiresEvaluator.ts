@@ -8,6 +8,10 @@ import {
   PersistenceError,
   EvalNotImplementedError,
   UnixTimestamp,
+  AccountIndexingError,
+  AjaxError,
+  InvalidParametersError,
+  MethodSupportError,
 } from "@snickerdoodlelabs/objects";
 import { utils } from "ethers";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -36,7 +40,13 @@ export class RequiresEvaluator extends AST_Evaluator {
     expr: unknown,
   ): ResultAsync<
     SDQL_Return,
-    EvaluationError | PersistenceError | EvalNotImplementedError
+    | EvaluationError
+    | PersistenceError
+    | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     if (expr === undefined) {
       return errAsync(new EvaluationError("undefined expression"));
@@ -57,7 +67,13 @@ export class RequiresEvaluator extends AST_Evaluator {
     ast: AST_RequireExpr,
   ): ResultAsync<
     SDQL_Return,
-    EvaluationError | PersistenceError | EvalNotImplementedError
+    | EvaluationError
+    | PersistenceError
+    | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     if (TypeChecker.isOperator(ast.source)) {
       return this.evalOperator(ast.source as Operator);

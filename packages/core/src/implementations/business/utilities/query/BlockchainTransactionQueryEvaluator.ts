@@ -173,9 +173,4 @@ export class BlockchainTransactionQueryEvaluator
       return current.timestamp > latest.timestamp ? current : latest;
     });
   }
-
-  protected isHexadecimal(value: number | string): boolean {
-    const hexString = typeof value === "number" ? value.toString(16) : value;
-    return /^(0x)?[0-9a-fA-F]+$/.test(hexString);
-  }
 }

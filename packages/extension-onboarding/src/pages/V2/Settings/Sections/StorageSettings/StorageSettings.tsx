@@ -6,13 +6,13 @@ import FileExplorer from "@extension-onboarding/components/v2/FileExplorer";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import { getResponsivePopupProperties } from "@extension-onboarding/utils";
 import { Box } from "@material-ui/core";
 import {
   ECloudStorageType,
   EOAuthProvider,
   OAuth2AccessToken,
   OAuth2RefreshToken,
-  OAuthURLState,
 } from "@snickerdoodlelabs/objects";
 import {
   SDButton,
@@ -22,7 +22,6 @@ import {
 import { Dropbox } from "dropbox";
 import { ResultAsync, errAsync } from "neverthrow";
 import React, { FC, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 
 interface DropboxFolder {
   ".tag": string;
@@ -66,8 +65,8 @@ const StorageSettings: FC = () => {
   const { setAlert } = useNotificationContext();
   const [folders, setFolders] = useState<NestedFolder[]>();
   const { setModal, setLoadingStatus } = useLayoutContext();
-  const [searchParams] = useSearchParams();
   const currentBreakPoint = useMedia();
+  const connectionWindowRef = React.useRef<Window | null>(null);
 
   const dropbox = useMemo(() => {
     if (accessToken && Dropbox) {
@@ -89,11 +88,23 @@ const StorageSettings: FC = () => {
 
   useEffect(() => {
     getInitialStorageOption();
+    const receiveMessage = (event: MessageEvent) => {
+      if (event.source && event.source === connectionWindowRef.current) {
+        const { provider, code } = event.data as {
+          provider: EOAuthProvider;
+          code: string;
+        };
+        if (provider === EOAuthProvider.DROPBOX && code) {
+          connectionWindowRef.current?.close();
+          handleCode(code);
+        }
+      }
+    };
+    window.addEventListener("message", receiveMessage);
+    return () => {
+      window.removeEventListener("message", receiveMessage);
+    };
   }, []);
-
-  useEffect(() => {
-    onSearchParamChange();
-  }, [searchParams]);
 
   useEffect(() => {
     if (!dropbox) {
@@ -108,20 +119,6 @@ const StorageSettings: FC = () => {
         setLoadingStatus(false);
       });
   }, [JSON.stringify(dropbox)]);
-
-  const onSearchParamChange = () => {
-    const code = searchParams.get("code");
-    const state = searchParams.get("state");
-    if (!code || !state) {
-      return null;
-    }
-    const { provider } = OAuthURLState.getParsedState(state);
-    if (provider !== EOAuthProvider.DROPBOX) {
-      return;
-    }
-    window.history.replaceState(null, "", window.location.pathname);
-    return handleCode(code);
-  };
 
   const getInitialStorageOption = () => {
     getStorageOption().map((option) => {
@@ -251,7 +248,13 @@ const StorageSettings: FC = () => {
         return sdlDataWallet.storage
           .getDropboxAuth()
           .map((url) => {
-            window.open(url, "_self");
+            const windowPropeperies = getResponsivePopupProperties();
+            connectionWindowRef.current = window.open(
+              url,
+              "Connect Dropbox",
+              windowPropeperies,
+            );
+            return;
           })
           .mapErr((e) => {
             console.log(e);

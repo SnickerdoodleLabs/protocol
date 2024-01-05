@@ -12,10 +12,6 @@ export interface IPortfolioBalanceRepository {
     chains?: EChain[],
     accounts?: LinkedAccount[],
   ): ResultAsync<TokenBalance[], PersistenceError>;
-  getAccountNFTs(
-    chains?: EChain[],
-    accounts?: LinkedAccount[],
-  ): ResultAsync<WalletNFT[], PersistenceError>;
 }
 
 export const IPortfolioBalanceRepositoryType = Symbol.for(

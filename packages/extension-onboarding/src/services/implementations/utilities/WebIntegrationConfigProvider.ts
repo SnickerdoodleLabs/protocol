@@ -1,8 +1,8 @@
 import { IConfigOverrides, URLString } from "@snickerdoodlelabs/objects";
 
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import { IWebIntegrationConfigProvider } from "@extension-onboarding/services/interfaces/utilities";
 import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
+import { IWebIntegrationConfigProvider } from "@extension-onboarding/services/interfaces/utilities";
 
 declare const __PRIMARY_INFURA_KEY__: string;
 declare const __IFRAME_URL__: string;
@@ -14,9 +14,17 @@ export class WebIntegrationConfigProvider
   protected config: IConfigOverrides;
   constructor() {
     this.config = {
-      primaryInfuraKey: __PRIMARY_INFURA_KEY__,
-      iframeURL: URLString(__IFRAME_URL__),
-      defaultGoogleCloudBucket: __GOOGLE_CLOUD_BUCKET__,
+      primaryInfuraKey:
+        typeof __PRIMARY_INFURA_KEY__ === "undefined"
+          ? ""
+          : __PRIMARY_INFURA_KEY__,
+      iframeURL: URLString(
+        typeof __IFRAME_URL__ === "undefined" ? "" : __IFRAME_URL__,
+      ),
+      defaultGoogleCloudBucket:
+        typeof __GOOGLE_CLOUD_BUCKET__ === "undefined"
+          ? ""
+          : __GOOGLE_CLOUD_BUCKET__,
       discordOverrides: {
         oauthRedirectUrl: URLString(
           `${window.location.origin}${EPathsV2.SETTINGS}`,
@@ -46,6 +54,11 @@ export class WebIntegrationConfigProvider
         Gnosis: "J7G8U27J1Y9F88E1E56CNNG2K3H98GF4XE",
         Fuji: "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1",
       },
+      // Space And Time Keys
+      spaceAndTimeCredentials: {
+        userId: "andrew.strimaitis",
+        privateKey: "RssUjdu9wHfo0fpCozf8ipSVspWJ4FhWP6Jrnrq65H0=",
+      },
       covalentApiKey: "ckey_ee277e2a0e9542838cf30325665",
       moralisApiKey:
         "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag",
@@ -54,9 +67,8 @@ export class WebIntegrationConfigProvider
       ankrApiKey:
         "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
       bluezApiKey: "aed4aab2cbc573bbf8e7c6b448c916e5",
-      spaceAndTimeKey: "",
+      raribleApiKey: "c5855db8-08ef-409f-9947-e46c141af1b4",
       blockvisionKey: "2WaEih5fqe8NUavbvaR2PSuVSSp",
-
       nftScanApiKey: "lusr87vNmTtHGMmktlFyi4Nt",
       oklinkApiKey: "700c2f71-a4e2-4a85-b87f-58c8a341d1bf",
     };

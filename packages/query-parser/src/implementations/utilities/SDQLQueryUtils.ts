@@ -25,6 +25,10 @@ import {
   PersistenceError,
   EvalNotImplementedError,
   EvaluationError,
+  AjaxError,
+  AccountIndexingError,
+  InvalidParametersError,
+  MethodSupportError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -77,10 +81,14 @@ export class SDQLQueryUtils implements ISDQLQueryUtils {
     | QueryFormatError
     | MissingTokenConstructorError
     | QueryExpiredError
-    | PersistenceError
-    | EvalNotImplementedError
     | MissingASTError
     | EvaluationError
+    | PersistenceError
+    | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return this.parserFactory
       .makeParser(IpfsCID(""), schemaString)

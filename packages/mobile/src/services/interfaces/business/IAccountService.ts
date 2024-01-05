@@ -26,7 +26,7 @@ export interface IAccountService {
   ): ResultAsync<string, SnickerDoodleCoreError>;
   getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError>;
   getAccountBalances(): ResultAsync<TokenBalance[], SnickerDoodleCoreError>;
-  getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError>;
+
   isDataWalletAddressInitialized(): ResultAsync<boolean, UnauthorizedError>;
   unlinkAccount(
     account: AccountAddress,

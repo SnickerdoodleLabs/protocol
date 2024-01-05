@@ -16,4 +16,6 @@ export enum EDataProvider {
   Sim = "Sim",
   Polygon = "Polygon",
   DummySolana = "DummySolana",
+  SpaceAndTime = "SpaceAndTime",
+  Rarible = "Rarible",
 }

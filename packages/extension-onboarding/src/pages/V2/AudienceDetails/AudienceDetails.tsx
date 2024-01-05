@@ -69,7 +69,6 @@ const AudienceDetails = () => {
     optedInContracts,
     linkedAccounts,
     earnedRewards,
-    updateOptedInContracts,
     apiGateway,
   } = useAppContext();
   const { sdlDataWallet } = useDataWalletContext();
@@ -246,7 +245,6 @@ const AudienceDetails = () => {
           .leaveCohort(consentAddress)
           .map(() => {
             setLoadingStatus(false);
-            updateOptedInContracts();
             setAlert({
               severity: EAlertSeverity.SUCCESS,
               message: "Unsubscribed successfully.",

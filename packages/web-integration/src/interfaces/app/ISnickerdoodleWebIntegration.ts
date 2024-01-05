@@ -9,4 +9,5 @@ export interface ISnickerdoodleWebIntegration {
    * even if a proxy was injected.
    */
   initialize(): ResultAsync<ISdlDataWallet, Error>;
+  requestDashboardView(): void;
 }

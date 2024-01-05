@@ -21,6 +21,7 @@ import React, {
   useState,
   useMemo,
   useEffect,
+  memo,
 } from "react";
 
 type ModalSelectorTypeMap = {
@@ -71,7 +72,7 @@ const initialModalState: IModal<keyof ModalSelectorTypeMap | null> = {
 
 const LayoutContext = createContext<ILayout>({} as ILayout);
 
-export const LayoutProvider: FC = ({ children }) => {
+export const LayoutProvider: FC = memo(({ children }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loaderInfo, setLoaderInfo] = useState<ILoaderInfo>();
   const [modalState, setModalState] = useState<IModal<ModalSelector>>(
@@ -139,6 +140,6 @@ export const LayoutProvider: FC = ({ children }) => {
       {children}
     </LayoutContext.Provider>
   );
-};
+});
 
 export const useLayoutContext = () => useContext(LayoutContext);

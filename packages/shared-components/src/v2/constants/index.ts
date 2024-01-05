@@ -43,6 +43,12 @@ export const FF_SUPPORTED_PERMISSIONS: {
       "Discord Server Name, Joining/creation date, Server Icon, Ownership information",
     key: EWalletDataType.Discord,
   },
+  {
+    name: "Account Count",
+    description:
+      "The total count of blockchain accounts that have been successfully linked to your Data Wallet",
+    key: EWalletDataType.AccountSize,
+  },
 ];
 
 export const FF_SUPPORTED_ALL_PERMISSIONS: EWalletDataType[] =

@@ -1,5 +1,6 @@
 import {
   EVMContractAddress,
+  SolanaAccountAddress,
   SolanaTokenAddress,
   SuiTokenAddress,
 } from "@objects/primitives/index.js";
@@ -7,4 +8,5 @@ import {
 export type TokenAddress =
   | EVMContractAddress
   | SolanaTokenAddress
+  | SolanaAccountAddress
   | SuiTokenAddress;

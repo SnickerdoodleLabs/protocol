@@ -1,4 +1,4 @@
-import ExclamationIcon from "@extension-onboarding/assets/icons/exclamationIcon.svg";
+import { ExclamationIcon } from "@extension-onboarding/assets";
 import { useModalStyles } from "@extension-onboarding/components/Modals/Modal.style";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { Box, Dialog, Grid, makeStyles } from "@material-ui/core";
@@ -181,7 +181,7 @@ const OTPModal: FC = () => {
         </Box>
 
         <Box display="flex" justifyContent="center">
-          <img width={42} height={42} src={ExclamationIcon} />
+          <ExclamationIcon width={42} height={42} />
         </Box>
         <Box mt={3} display="flex" justifyContent="center">
           <SDTypography variant="titleMd" fontWeight="bold" color="textHeading">

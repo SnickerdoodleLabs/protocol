@@ -12,7 +12,7 @@ import {
   BigNumberString,
   UnixTimestamp,
   EVMAccountAddressRegex,
-  SuiTransactionHash,
+  SuiTransactionDigest,
   SuiContractAddress,
 } from "@objects/primitives/index.js";
 
@@ -28,9 +28,8 @@ export class SuiTransaction extends ChainTransaction {
 
   public constructor(
     public chain: EChain,
-    public hash: SuiTransactionHash,
+    public hash: SuiTransactionDigest,
     public timestamp: UnixTimestamp,
-    public blockHeight: number | null,
     public to: SuiAccountAddress | null,
     public from: SuiAccountAddress | null,
     public value: BigNumberString | null,

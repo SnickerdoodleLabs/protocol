@@ -1,5 +1,3 @@
-import compactIcon from "@extension-onboarding/assets/icons/compact-toggle.png";
-import cozyIcon from "@extension-onboarding/assets/icons/cozy-toggle.png";
 import { Box } from "@material-ui/core";
 import React, { FC } from "react";
 
@@ -14,8 +12,14 @@ interface IDisplayModeToogleProps {
 }
 
 const items = [
-  { icon: cozyIcon, mode: EDISPLAY_MODE.COZY },
-  { icon: compactIcon, mode: EDISPLAY_MODE.COMPACT },
+  {
+    icon: "https://storage.googleapis.com/dw-assets/shared/icons/cozy-toggle.png",
+    mode: EDISPLAY_MODE.COZY,
+  },
+  {
+    icon: "https://storage.googleapis.com/dw-assets/shared/icons/compact-toggle.png",
+    mode: EDISPLAY_MODE.COMPACT,
+  },
 ];
 
 const DisplayModeToggle: FC<IDisplayModeToogleProps> = ({

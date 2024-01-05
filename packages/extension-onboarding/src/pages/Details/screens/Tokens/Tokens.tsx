@@ -1,4 +1,3 @@
-import defaultToken from "@extension-onboarding/assets/icons/default-token.png";
 import AccountChainBar from "@extension-onboarding/components/AccountChainBar";
 import Card from "@extension-onboarding/components/v2/Card";
 import EmptyItem from "@extension-onboarding/components/v2/EmptyItem";
@@ -346,7 +345,8 @@ export default () => {
               src={
                 item.marketaData?.image
                   ? item.marketaData?.image
-                  : tokenInfoObj[item.ticker]?.iconSrc ?? defaultToken
+                  : tokenInfoObj[item.ticker]?.iconSrc ??
+                    "https://storage.googleapis.com/dw-assets/spa/icons/default-token.png"
               }
             />
             <Box ml={1}>

@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/web-integration",
-  "version": "1.2.1",
+  "version": "1.2.3",
   "description": "Utilities for general consumption within the Snickerdoodle Protocol",
   "license": "ISC",
   "repository": {
@@ -21,6 +21,7 @@
   "module": "./dist/index.js",
   "files": [
     "dist",
+    "src",
     "!dist/test",
     "!dist/tsconfig.tsbuildinfo"
   ],

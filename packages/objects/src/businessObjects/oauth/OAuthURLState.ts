@@ -1,16 +1,11 @@
 import { EOAuthProvider } from "@objects/enum/index.js";
 
 export class OAuthURLState {
-  constructor(
-    public provider: EOAuthProvider,
-    public redirectTabId: number | undefined = undefined,
-  ) {}
-
+  constructor(public provider: EOAuthProvider) {}
   public getEncodedState(): string {
     return encodeURIComponent(
       JSON.stringify({
         provider: this.provider,
-        redirectTabId: this.redirectTabId,
       }),
     );
   }
@@ -22,7 +17,6 @@ export class OAuthURLState {
       const overridedStateObj = {
         ...stateObj,
         provider: this.provider,
-        redirectTabId: this.redirectTabId,
       };
       urlObj.searchParams.set(
         "state",
@@ -36,7 +30,7 @@ export class OAuthURLState {
   }
 
   static getParsedState(state: string): OAuthURLState {
-    const { provider, redirectTabId } = JSON.parse(decodeURIComponent(state));
-    return new OAuthURLState(provider, redirectTabId);
+    const { provider } = JSON.parse(decodeURIComponent(state));
+    return new OAuthURLState(provider);
   }
 }

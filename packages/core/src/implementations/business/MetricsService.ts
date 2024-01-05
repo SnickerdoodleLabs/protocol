@@ -4,17 +4,24 @@ import {
   EQueryEvents,
   EStatus,
   IpfsCID,
+  NftRepositoryCache,
+  PersistenceError,
   RuntimeMetrics,
+  WalletNFTData,
+  WalletNFTHistory,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { QueryPerformanceEvent } from "packages/objects/src/businessObjects/events/query/index.js";
 
+import { DoublyLinkedList } from "@core/implementations/data/utilities/index.js";
 import { IMetricsService } from "@core/interfaces/business/index.js";
 import {
   IMetricsRepository,
   IMetricsRepositoryType,
+  INFTRepositoryWithDebug,
+  INFTRepositoryWithDebugType,
 } from "@core/interfaces/data/index.js";
 import { CoreContext } from "@core/interfaces/objects";
 import {
@@ -23,7 +30,6 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
-import { DoublyLinkedList } from "@core/implementations/data/utilities/index.js";
 
 @injectable()
 export class MetricsService implements IMetricsService {
@@ -32,6 +38,8 @@ export class MetricsService implements IMetricsService {
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
+    @inject(INFTRepositoryWithDebugType)
+    protected nftRepoWithDebug: INFTRepositoryWithDebug,
   ) {}
 
   protected queryEventsElapsedStartTimes: Record<EQueryEvents, number[]> | {} =
@@ -135,6 +143,18 @@ export class MetricsService implements IMetricsService {
         );
       },
     );
+  }
+
+  public getNFTCache(): ResultAsync<NftRepositoryCache, PersistenceError> {
+    return this.nftRepoWithDebug.getNFTCache();
+  }
+
+  public getPersistenceNFTs(): ResultAsync<WalletNFTData[], PersistenceError> {
+    return this.nftRepoWithDebug.getPersistenceNFTs();
+  }
+
+  public getNFTsHistory(): ResultAsync<WalletNFTHistory[], PersistenceError> {
+    return this.nftRepoWithDebug.getNFTsHistory();
   }
 
   private attachEventListenersToQueryPerformanceEvents(

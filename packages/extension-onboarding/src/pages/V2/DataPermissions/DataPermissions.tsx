@@ -1,4 +1,3 @@
-import emptyAudience from "@extension-onboarding/assets/images/empty-audience.svg";
 import Container from "@extension-onboarding/components/v2/Container";
 import PageTitle from "@extension-onboarding/components/v2/PageTitle";
 import { useAppContext } from "@extension-onboarding/context/App";
@@ -42,7 +41,10 @@ const DataPermissions = () => {
             mr="auto"
             mt={6}
           >
-            <img width="100%" src={emptyAudience} />
+            <img
+              width="100%"
+              src="https://storage.googleapis.com/dw-assets/shared/images/empty-audience.svg"
+            />
             <Box mt={1} />
             <SDTypography variant="bodyLg" align="center">
               You are not subscribed to any

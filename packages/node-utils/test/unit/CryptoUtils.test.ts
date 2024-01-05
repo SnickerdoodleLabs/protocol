@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import {
+  EVMPrivateKey,
   HexString,
   Signature,
   SolanaAccountAddress,

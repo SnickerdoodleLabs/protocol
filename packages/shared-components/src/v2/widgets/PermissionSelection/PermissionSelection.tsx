@@ -40,7 +40,7 @@ export const PermissionSelectionWidget: FC<IPermissionSelectionProps> = ({
       bgcolor="cardBgColor"
       m="auto"
       p={{ xs: 3, sm: 4 }}
-      pt={{ xs: 3, sm: 8 }}
+      minWidth={{ xs: "none", sm: "none", md: "680px" }}
       width={{ xs: "calc(95% - 48px)", sm: "70%", md: "40%" }}
       borderRadius={{ xs: 12, sm: 4 }}
       justifyContent="center"
@@ -50,12 +50,15 @@ export const PermissionSelectionWidget: FC<IPermissionSelectionProps> = ({
         justifyContent="space-between"
         alignItems="flex-start"
       >
-        <SDTypography variant={isMobile ? "displaySm" : "titleXl"}>
+        <SDTypography
+          variant={isMobile ? "displaySm" : "titleSm"}
+          fontWeight="bold"
+        >
           Data Permissions
         </SDTypography>
         {isMobile && <CloseButton onClick={onCancelClick} />}
       </Box>
-      <Box mt={isMobile ? 3 : 0.5} mb={3}>
+      <Box mt={isMobile ? 3 : 0.75} mb={3}>
         <SDTypography variant="bodyMd">
           Share anonymous data and use your on-chain information to generate
           rewards.
@@ -72,6 +75,8 @@ export const PermissionSelectionWidget: FC<IPermissionSelectionProps> = ({
         px={{ xs: 0, sm: 1.5 }}
         border={{ xs: "none", sm: "1px solid" }}
         borderColor={{ sm: "borderColor" }}
+        maxHeight={{ xs: "none", sm: "none", md: "40vh" }}
+        overflow={{ xs: "none", sm: "none", md: "auto" }}
       >
         {FF_SUPPORTED_PERMISSIONS.map((item, index) => {
           return (

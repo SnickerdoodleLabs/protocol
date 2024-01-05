@@ -1,6 +1,6 @@
 import { Box } from "@material-ui/core";
 import { SDTypography } from "@snickerdoodlelabs/shared-components";
-import React, { FC } from "react";
+import React, { FC, memo } from "react";
 
 interface IPageTitleProps {
   title: string;
@@ -15,4 +15,4 @@ const PageTitle: FC<IPageTitleProps> = ({ title }) => {
   );
 };
 
-export default PageTitle;
+export default memo(PageTitle);

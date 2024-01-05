@@ -1,4 +1,4 @@
-import { CssBaseline, Theme, ThemeProvider } from "@material-ui/core";
+import { Box, CssBaseline, Theme, ThemeProvider } from "@material-ui/core";
 import {
   EColorMode,
   createDefaultTheme,
@@ -23,7 +23,9 @@ export const ThemeContextProvider: FC = ({ children }) => {
     <ThemeContext.Provider value={{ setTheme }}>
       <ThemeProvider theme={_theme}>
         <CssBaseline />
-        {children}
+        <Box bgcolor="background.default" position="relative">
+          {children}
+        </Box>
       </ThemeProvider>
     </ThemeContext.Provider>
   );

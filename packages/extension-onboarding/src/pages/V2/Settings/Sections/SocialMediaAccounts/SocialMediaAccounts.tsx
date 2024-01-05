@@ -5,20 +5,20 @@ import CardTitle from "@extension-onboarding/components/v2/CardTitle";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import { getResponsivePopupProperties } from "@extension-onboarding/utils";
 import { Box } from "@material-ui/core";
 import {
   DiscordProfile,
   EOAuthProvider,
   OAuthAuthorizationCode,
-  OAuthURLState,
 } from "@snickerdoodlelabs/objects";
 import {
   SDButton,
   SDTypography,
   useMedia,
 } from "@snickerdoodlelabs/shared-components";
+import { errAsync } from "neverthrow";
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 
 const discordImageUrl = "https://cdn.discordapp.com";
 
@@ -38,26 +38,38 @@ const SocialMediaAccounts = () => {
   const { setModal } = useLayoutContext();
   const { setAlert } = useNotificationContext();
   const [profiles, setProfiles] = useState<DiscordProfile[]>();
-  const [searchParams] = useSearchParams();
   const currentBreakPoint = useMedia();
+  const connectionWindowRef = React.useRef<Window | null>(null);
 
   useEffect(() => {
     getProfiles();
+    const receiveMessage = (event: MessageEvent) => {
+      if (event.source && event.source === connectionWindowRef.current) {
+        const { provider, code } = event.data as {
+          provider: EOAuthProvider;
+          code: string;
+        };
+        if (provider === EOAuthProvider.DISCORD && code) {
+          connectionWindowRef.current?.close();
+          handleCode(code)
+            .map(() => {
+              getProfiles();
+            })
+            .mapErr((err) => {
+              console.log(err);
+            });
+        }
+      }
+    };
+    window.addEventListener("message", receiveMessage);
+    return () => {
+      window.removeEventListener("message", receiveMessage);
+    };
   }, []);
 
-  useEffect(() => {
-    onSearchParamChange();
-  }, [searchParams]);
-
-  const onSearchParamChange = () => {
-    const code = searchParams.get("code");
-    const state = searchParams.get("state");
-    if (!code || !state) {
-      return null;
-    }
-    const { provider, redirectTabId } = OAuthURLState.getParsedState(state);
-    if (provider !== EOAuthProvider.DISCORD) {
-      return;
+  const handleCode = (code: string) => {
+    if (!code) {
+      return errAsync(new Error("No code provided"));
     }
     return sdlDataWallet.discord
       .initializeUserWithAuthorizationCode(OAuthAuthorizationCode(code))
@@ -66,19 +78,6 @@ const SocialMediaAccounts = () => {
           severity: EAlertSeverity.SUCCESS,
           message: "Your account has successfully been linked. ",
         });
-        getProfiles();
-        if (redirectTabId) {
-          return (
-            sdlDataWallet?.switchToTab?.(redirectTabId) ??
-            sdlDataWallet.closeTab()
-          ).mapErr((err) => {
-            console.log(err);
-          });
-        }
-        return window.history.replaceState(null, "", window.location.pathname);
-      })
-      .mapErr((err) => {
-        console.log(err);
       });
   };
 
@@ -95,9 +94,14 @@ const SocialMediaAccounts = () => {
 
   const handleLinkAccountClick = () => {
     sdlDataWallet.discord
-      .installationUrl(undefined)
+      .installationUrl()
       .map((url) => {
-        window.open(url, "_self");
+        const windowPropeperies = getResponsivePopupProperties();
+        connectionWindowRef.current = window.open(
+          url,
+          "Connect Discord",
+          windowPropeperies,
+        );
       })
       .mapErr((err) => {
         console.log(err);

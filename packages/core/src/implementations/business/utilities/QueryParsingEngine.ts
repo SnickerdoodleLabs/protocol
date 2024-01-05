@@ -29,6 +29,10 @@ import {
   EQueryEvents,
   QueryPerformanceEvent,
   EStatus,
+  AccountIndexingError,
+  AjaxError,
+  InvalidParametersError,
+  MethodSupportError,
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
@@ -80,18 +84,19 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     dataPermissions: DataPermissions,
   ): ResultAsync<
     IQueryDeliveryItems,
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
     | ParserError
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | MissingTokenConstructorError
     | DuplicateIdInSchema
+    | QueryFormatError
+    | MissingTokenConstructorError
+    | QueryExpiredError
+    | MissingASTError
+    | EvaluationError
     | PersistenceError
     | EvalNotImplementedError
-    | MissingASTError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return this.contextProvider.getContext().andThen((context) => {
       context.publicEvents.queryPerformance.next(
@@ -207,18 +212,19 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     query: SDQLQuery,
   ): ResultAsync<
     IQueryDeliveryItems,
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
     | ParserError
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | MissingTokenConstructorError
     | DuplicateIdInSchema
+    | QueryFormatError
+    | MissingTokenConstructorError
+    | QueryExpiredError
+    | MissingASTError
+    | EvaluationError
     | PersistenceError
     | EvalNotImplementedError
-    | MissingASTError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return this.handleQuery(query, DataPermissions.createWithAllPermissions());
   }
@@ -272,12 +278,19 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     dataPermissions: DataPermissions,
   ): ResultAsync<
     IQueryDeliveryItems,
-    | EvaluationError
+    | ParserError
+    | DuplicateIdInSchema
     | QueryFormatError
-    | QueryExpiredError
     | MissingTokenConstructorError
+    | QueryExpiredError
+    | MissingASTError
+    | EvaluationError
     | PersistenceError
     | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     const astEvaluator = this.queryFactories.makeAstEvaluator(
       cid,
@@ -302,12 +315,19 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     astEvaluator: AST_Evaluator,
   ): ResultAsync<
     IQueryDeliveryInsights,
-    | EvaluationError
+    | ParserError
+    | DuplicateIdInSchema
     | QueryFormatError
-    | QueryExpiredError
     | MissingTokenConstructorError
+    | QueryExpiredError
+    | MissingASTError
+    | EvaluationError
     | PersistenceError
     | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     const astInsightArray = Array.from(ast.insights);
     const insightMapResult = astInsightArray.map(([_qName, astInsight]) => {

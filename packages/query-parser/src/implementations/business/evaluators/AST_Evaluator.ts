@@ -1,8 +1,12 @@
 import {
+  AccountIndexingError,
+  AjaxError,
   DataPermissions,
   EvalNotImplementedError,
   EvaluationError,
+  InvalidParametersError,
   IpfsCID,
+  MethodSupportError,
   PersistenceError,
   SDQL_Return,
   UnixTimestamp,
@@ -57,7 +61,13 @@ export class AST_Evaluator {
     expr: any,
   ): ResultAsync<
     SDQL_Return,
-    EvaluationError | PersistenceError | EvalNotImplementedError
+    | EvaluationError
+    | PersistenceError
+    | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     if (expr === undefined) {
       return errAsync(new EvaluationError("undefined expression"));
@@ -91,7 +101,16 @@ export class AST_Evaluator {
 
   public evalConditionExpr(
     expr: AST_ConditionExpr,
-  ): ResultAsync<SDQL_Return, EvaluationError | PersistenceError> {
+  ): ResultAsync<
+    SDQL_Return,
+    | EvaluationError
+    | PersistenceError
+    | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
+  > {
     if (TypeChecker.isSubQuery(expr.source)) {
       return this.evalSubQuery(expr.source as AST_SubQuery);
     } else if (TypeChecker.isOperator(expr.source)) {
@@ -120,7 +139,13 @@ export class AST_Evaluator {
     eef: Command_IF,
   ): ResultAsync<
     SDQL_Return,
-    EvaluationError | PersistenceError | EvalNotImplementedError
+    | EvaluationError
+    | PersistenceError
+    | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return this.evalAny(eef.conditionExpr).andThen((val) => {
       if (val == true) {
@@ -142,7 +167,14 @@ export class AST_Evaluator {
 
   public evalSubQuery(
     q: AST_SubQuery,
-  ): ResultAsync<SDQL_Return, PersistenceError> {
+  ): ResultAsync<
+    SDQL_Return,
+    | PersistenceError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
+  > {
     return this.queryRepository.get(
       this.cid,
       q,
@@ -158,7 +190,13 @@ export class AST_Evaluator {
     vals: (ConditionOperandTypes | null)[],
   ): ResultAsync<
     SDQL_Return[],
-    EvaluationError | PersistenceError | EvalNotImplementedError
+    | EvaluationError
+    | PersistenceError
+    | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return ResultUtils.combine(
       vals.map((val) => {
@@ -175,9 +213,12 @@ export class AST_Evaluator {
   ): ResultAsync<
     SDQL_Return[],
     | EvaluationError
-    | EvaluationError
     | PersistenceError
     | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return ResultUtils.combine(
       vals.map((val) => {
@@ -201,7 +242,13 @@ export class AST_Evaluator {
     ast: AST_Insight,
   ): ResultAsync<
     SDQL_Return,
-    EvaluationError | PersistenceError | EvalNotImplementedError
+    | EvaluationError
+    | PersistenceError
+    | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return this.evalAny(ast.target).andThen((targetFulfilled) => {
       if (targetFulfilled) {
@@ -215,7 +262,13 @@ export class AST_Evaluator {
     cond: ConditionAnd,
   ): ResultAsync<
     SDQL_Return,
-    EvaluationError | PersistenceError | EvalNotImplementedError
+    | EvaluationError
+    | PersistenceError
+    | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return this.evalLogicalOperands([cond.lval, cond.rval]).map(
       ([lval, rval]) => {
@@ -227,7 +280,13 @@ export class AST_Evaluator {
     cond: ConditionOr,
   ): ResultAsync<
     SDQL_Return,
-    EvaluationError | PersistenceError | EvalNotImplementedError
+    | EvaluationError
+    | PersistenceError
+    | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return this.evalLogicalOperands([cond.lval, cond.rval]).map(
       ([lval, rval]) => {
@@ -239,7 +298,13 @@ export class AST_Evaluator {
     cond: ConditionE,
   ): ResultAsync<
     SDQL_Return,
-    EvaluationError | PersistenceError | EvalNotImplementedError
+    | EvaluationError
+    | PersistenceError
+    | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return this.evalComparisonOperands([cond.lval, cond.rval]).map(
       ([lval, rval]) => {
@@ -251,7 +316,13 @@ export class AST_Evaluator {
     cond: ConditionG,
   ): ResultAsync<
     SDQL_Return,
-    EvaluationError | PersistenceError | EvalNotImplementedError
+    | EvaluationError
+    | PersistenceError
+    | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return this.evalComparisonOperands([cond.lval, cond.rval]).map(
       ([lval, rval]) => {
@@ -263,7 +334,13 @@ export class AST_Evaluator {
     cond: ConditionGE,
   ): ResultAsync<
     SDQL_Return,
-    EvaluationError | PersistenceError | EvalNotImplementedError
+    | EvaluationError
+    | PersistenceError
+    | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return this.evalComparisonOperands([cond.lval, cond.rval]).map(
       ([lval, rval]) => {
@@ -275,7 +352,13 @@ export class AST_Evaluator {
     cond: ConditionL,
   ): ResultAsync<
     SDQL_Return,
-    EvaluationError | PersistenceError | EvalNotImplementedError
+    | EvaluationError
+    | PersistenceError
+    | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return this.evalComparisonOperands([cond.lval, cond.rval]).map(
       ([lval, rval]) => {
@@ -287,7 +370,13 @@ export class AST_Evaluator {
     cond: ConditionLE,
   ): ResultAsync<
     SDQL_Return,
-    EvaluationError | PersistenceError | EvalNotImplementedError
+    | EvaluationError
+    | PersistenceError
+    | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return this.evalComparisonOperands([cond.lval, cond.rval]).map(
       ([lval, rval]) => {
@@ -299,7 +388,13 @@ export class AST_Evaluator {
     cond: ConditionIn,
   ): ResultAsync<
     SDQL_Return,
-    EvaluationError | PersistenceError | EvalNotImplementedError
+    | EvaluationError
+    | PersistenceError
+    | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return this.evalComparisonOperands([cond.lval, cond.rval]).map(
       ([lval, rval]) => {

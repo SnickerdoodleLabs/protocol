@@ -1,5 +1,6 @@
 import {
   DiscordConfig,
+  SpaceAndTimeConfig,
   TwitterConfig,
 } from "@objects/businessObjects/index.js";
 import { EChain } from "@objects/enum/index.js";
@@ -32,6 +33,7 @@ export interface IConfigOverrides {
     Gnosis?: string | null;
     Fuji?: string | null;
   };
+  spaceAndTimeCredentials?: SpaceAndTimeConfig;
   covalentApiKey?: string | null;
   moralisApiKey?: string | null;
   nftScanApiKey?: string | null;
@@ -39,6 +41,7 @@ export interface IConfigOverrides {
   oklinkApiKey?: string | null;
   ankrApiKey?: string | null;
   bluezApiKey?: string | null;
+  raribleApiKey?: string | null;
   spaceAndTimeKey?: string | null;
   blockvisionKey?: string | null;
 
@@ -64,10 +67,5 @@ export interface IConfigOverrides {
   devChainProviderURL?: ProviderUrl;
   iframeURL?: URLString;
   debug?: boolean;
-
-  walletConnect?: {
-    projectId: string;
-  };
-
-  queryPerformanceMetricsLimit ? : number
+  queryPerformanceMetricsLimit?: number;
 }

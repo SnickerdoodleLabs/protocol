@@ -1,4 +1,4 @@
-import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
+import { SDLogoCircle } from "@extension-onboarding/assets";
 import {
   ISdlDataWalletProxy,
   IWindowWithSdlDataWallet,
@@ -23,7 +23,7 @@ const ProviderSelector: FC<IProviderSelectorProps> = ({ onProviderSelect }) => {
   return (
     <Box display="flex" height="100vh">
       <Box>
-        <img src={snickerDoodleLogo} />
+        <SDLogoCircle />
         <Box mt={1} mb={1}>
           <SDTypography variant="titleXl">
             Welcome to Snickerdoodle

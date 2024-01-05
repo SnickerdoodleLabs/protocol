@@ -5,6 +5,7 @@ import {
   TypedDataField,
 } from "@ethersproject/abstract-signer";
 import { verifyPersonalMessage } from "@mysten/sui.js/verify";
+import * as ed from "@noble/ed25519";
 import {
   AESEncryptedString,
   AESKey,
@@ -30,6 +31,7 @@ import {
   UUID,
   OAuth1Config,
   SuiAccountAddress,
+  PublicKey,
 } from "@snickerdoodlelabs/objects";
 // import argon2 from "argon2";
 import { BigNumber, ethers } from "ethers";
@@ -93,6 +95,35 @@ export class CryptoUtils implements ICryptoUtils {
       });
     };
     return generateUniqueTokens();
+  }
+
+  public getEd25519PublicKeyFromPrivateKey(
+    privateKey: string,
+  ): ResultAsync<string, never> {
+    // derive public key from private key
+    // if (privateKey == "") {
+    //   return errAsync(
+    //     new KeyGenerationError("Ed25519 Private Key was not provided"),
+    //   );
+    // }
+
+    const privateKeyBuffer = Buffer.from(privateKey, "base64");
+    const privateKeyUint8 = new Uint8Array(
+      privateKeyBuffer.buffer,
+      privateKeyBuffer.byteOffset,
+      privateKeyBuffer.byteLength,
+    );
+
+    return ResultAsync.fromSafePromise(ed.getPublicKey(privateKeyUint8)).map(
+      (response: Uint8Array) => {
+        const output = Buffer.from(
+          response.buffer,
+          response.byteOffset,
+          response.byteLength,
+        ).toString("base64");
+        return output;
+      },
+    );
   }
 
   public deriveAESKeyFromSignature(
@@ -404,7 +435,6 @@ export class CryptoUtils implements ICryptoUtils {
     privateKey: EVMPrivateKey,
   ): ResultAsync<Signature, never> {
     const wallet = new ethers.Wallet(privateKey);
-
     return ResultAsync.fromSafePromise<string, never>(
       wallet.signMessage(message),
     ).map((signature) => {

@@ -14,6 +14,7 @@ import {
   UninitializedError,
   MillisecondTimestamp,
   IWebIntegrationConfigOverrides,
+  ECoreProxyType,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { Container } from "inversify";
@@ -22,6 +23,7 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import { URLChangeObserver } from "@web-integration/implementations/utilities/index.js";
 import { ISnickerdoodleWebIntegration } from "@web-integration/interfaces/app/index.js";
+import { WebIntegrationEvents } from "@web-integration/interfaces/objects/index.js";
 import {
   IBlockchainProviderRepository,
   IBlockchainProviderRepositoryType,
@@ -29,6 +31,7 @@ import {
 import {
   IIFrameProxyFactory,
   IIFrameProxyFactoryType,
+  ISnickerdoodleIFrameProxy,
 } from "@web-integration/interfaces/proxy/index.js";
 import {
   IConfigProvider,
@@ -52,6 +55,8 @@ export class SnickerdoodleWebIntegration
     ProxyError | PersistenceError | ProviderRpcError
   > | null = null;
 
+  protected _events: WebIntegrationEvents;
+
   constructor(
     protected config: IWebIntegrationConfigOverrides,
     protected signer?: ethers.Signer | null,
@@ -60,6 +65,7 @@ export class SnickerdoodleWebIntegration
     this.debug = config.debug || this.debug;
 
     this.iocContainer = new Container();
+    this._events = new WebIntegrationEvents();
 
     // Elaborate syntax to demonstrate that we can use multiple modules
     this.iocContainer.load(...[webIntegrationModule]);
@@ -80,6 +86,10 @@ export class SnickerdoodleWebIntegration
     return this._core;
   }
 
+  public get events() {
+    return this._events;
+  }
+
   // wait for the core to be intialized
   public initialize(): ResultAsync<
     ISdlDataWallet,
@@ -90,7 +100,7 @@ export class SnickerdoodleWebIntegration
     } else if (window.sdlDataWalletInitializeAttempted) {
       return errAsync(
         new ProxyError(
-          "Snickedoodle Web Integration initialize() has already been called via another instance",
+          "Snickerdoodle Web Integration initialize() has already been called via another instance",
         ),
       );
     } else {
@@ -148,6 +158,8 @@ export class SnickerdoodleWebIntegration
           .map((proxy) => {
             // initialize the URL change observer
             new URLChangeObserver(proxy.checkURLForInvitation.bind(proxy));
+            // Subscribe to the keydown event for displaying the dashboard only for the iframe proxy
+            this.subscribeToKeyDownEvent();
             // Assign the iframe proxy to the internal reference and the window object
             this._core = proxy;
             window.sdlDataWallet = this.core;
@@ -169,6 +181,8 @@ export class SnickerdoodleWebIntegration
               startupCompleteTime - this.startTimestamp
             }ms`,
           );
+          // notify the outside world that the proxy has been initialized
+          this._events.onInitialized.next(proxy.proxyType);
           return proxy;
         });
       })
@@ -247,6 +261,34 @@ export class SnickerdoodleWebIntegration
         console.log("Error checking for additional account.Skipping ", error);
         return okAsync(undefined);
       });
+  }
+
+  public requestDashboardView(): void {
+    return this._requestDashboardView();
+  }
+
+  protected subscribeToKeyDownEvent() {
+    document.addEventListener("keydown", this.handleKeyDown.bind(this));
+  }
+
+  protected handleKeyDown(event: KeyboardEvent) {
+    if (event.key === "F9") {
+      this._requestDashboardView();
+    }
+  }
+
+  protected _requestDashboardView(): void {
+    try {
+      if (this._core?.requestDashboardView) {
+        this._core.requestDashboardView();
+      } else {
+        throw new Error(
+          "This method is not supported for sdlDataWallet injected by Snickerdoodle Extension",
+        );
+      }
+    } catch (e) {
+      console.log("Unable to display dashboard! e:", e);
+    }
   }
 }
 

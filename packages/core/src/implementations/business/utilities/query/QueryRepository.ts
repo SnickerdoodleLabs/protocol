@@ -1,6 +1,10 @@
 import {
+  AccountIndexingError,
+  AjaxError,
   DataPermissions,
+  InvalidParametersError,
   IpfsCID,
+  MethodSupportError,
   PersistenceError,
   SDQL_Return,
   UnixTimestamp,
@@ -29,7 +33,14 @@ export class QueryRepository implements IQueryRepository {
     q: AST_SubQuery,
     dataPermissions: DataPermissions,
     queryTimestamp: UnixTimestamp,
-  ): ResultAsync<SDQL_Return, PersistenceError> {
+  ): ResultAsync<
+    SDQL_Return,
+    | PersistenceError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
+  > {
     return this.isSubQueryPermitted(q, dataPermissions)
       ? this.queryValuator.eval(q, cid, queryTimestamp)
       : okAsync(SDQL_Return(null));

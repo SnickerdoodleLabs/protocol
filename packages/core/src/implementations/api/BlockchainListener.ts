@@ -21,6 +21,9 @@ import {
   MissingASTError,
   MissingWalletDataTypeError,
   BlockchainCommonErrors,
+  AccountIndexingError,
+  InvalidParametersError,
+  MethodSupportError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -139,6 +142,9 @@ export class BlockchainListener implements IBlockchainListener {
     | MissingASTError
     | MissingWalletDataTypeError
     | EvalNotImplementedError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return this.blockchainProvider
       .getLatestBlock(config.controlChainId)
@@ -172,6 +178,9 @@ export class BlockchainListener implements IBlockchainListener {
     | MissingASTError
     | MissingWalletDataTypeError
     | EvalNotImplementedError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return this.invitationRepo
       .getAcceptedInvitations()

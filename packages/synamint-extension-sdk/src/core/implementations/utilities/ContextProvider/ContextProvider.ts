@@ -17,6 +17,7 @@ import {
   CloudProviderActivatedNotification,
   ProfileFieldUpdate,
   CohortJoinedNotification,
+  CohortLeftNotification,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { Subject } from "rxjs";
@@ -128,6 +129,12 @@ export class ContextProvider implements IContextProvider {
   public onCohortJoined(consentAddress: EVMContractAddress): void {
     this.appContext.notifyAllConnections(
       new CohortJoinedNotification(consentAddress),
+    );
+  }
+
+  public onCohortLeft(consentAddress: EVMContractAddress): void {
+    this.appContext.notifyAllConnections(
+      new CohortLeftNotification(consentAddress),
     );
   }
 

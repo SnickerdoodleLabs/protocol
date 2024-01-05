@@ -57,6 +57,8 @@ export class CoreListener implements ICoreListener {
 
       events.onCohortJoined.subscribe(this.onChohortJoined.bind(this));
 
+      events.onCohortLeft.subscribe(this.onCohortLeft.bind(this));
+
       // Add a listener for cloud storage being switched out
 
       // rename, event emitted from api listeners. keyed and activated by initialize function
@@ -110,6 +112,11 @@ export class CoreListener implements ICoreListener {
   private onChohortJoined(consentAddress: EVMContractAddress): void {
     this.contextProvider.onCohortJoined(consentAddress);
     console.log(`Extension: cohort ${consentAddress} joined`);
+  }
+
+  private onCohortLeft(consentAddress: EVMContractAddress): void {
+    this.contextProvider.onCohortLeft(consentAddress);
+    console.log(`Extension: cohort ${consentAddress} left`);
   }
 
   private onQueryPosted(request: SDQLQueryRequest): void {
