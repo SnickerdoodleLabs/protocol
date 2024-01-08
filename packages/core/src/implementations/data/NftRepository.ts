@@ -547,10 +547,12 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
           return filteredNftHistory;
         }
 
-        walletNftWithHistory.history = validHistory.data;
-        walletNftWithHistory.totalAmount = validHistory.totalAmount;
-
-        filteredNftHistory.push(walletNftWithHistory);
+        const filteredWalletNft = {
+          ...walletNftWithHistory,
+          history: validHistory.data,
+          totalAmount: validHistory.totalAmount,
+        };
+        filteredNftHistory.push(filteredWalletNft);
 
         return filteredNftHistory;
       },
