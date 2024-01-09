@@ -6,6 +6,6 @@ export * from "@contracts-sdk/interfaces/IERC7529Contract";
 export * from "@contracts-sdk/interfaces/IMinimalForwarderContract";
 export * from "@contracts-sdk/interfaces/ISiftContract";
 export * from "@contracts-sdk/interfaces/IERC721RewardContract";
-export * from "@contracts-sdk/interfaces/IRewardsContractFactory";
 export * from "@contracts-sdk/interfaces/objects";
 export * from "@contracts-sdk/interfaces/enums";
+export * from "@contracts-sdk/interfaces/factory";
