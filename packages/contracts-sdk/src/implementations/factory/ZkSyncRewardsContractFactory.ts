@@ -4,7 +4,6 @@ import {
   BaseURI,
   RewardsFactoryError,
   ECreatedRewardType,
-  BlockchainErrorMapper,
   BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
@@ -13,6 +12,7 @@ import { ResultAsync } from "neverthrow";
 import { Provider, ContractFactory, Wallet } from "zksync-web3";
 
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
+import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
 import { GasUtils } from "@contracts-sdk/implementations/GasUtils";
 import {
   ContractOverrides,
@@ -23,7 +23,7 @@ import {
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects/index.js";
 
-@injectable() //SEANCHARLIE : do we want a specific zksync factory error?
+@injectable()
 export class ZkSyncRewardsContractFactory
   extends BaseContract<RewardsFactoryError>
   implements IRewardsContractFactory
@@ -31,7 +31,7 @@ export class ZkSyncRewardsContractFactory
   protected contractFactory: ContractFactory;
   protected rewardTypeToDeploy: ECreatedRewardType;
   constructor(
-    protected providerOrSigner: Provider | Wallet, //SEANCHARLIE : needs to use ZkSync provider and wallet
+    protected providerOrSigner: Provider | Wallet, // needs to use ZkSync provider and wallet
     protected rewardType: ECreatedRewardType,
   ) {
     super(
@@ -98,10 +98,10 @@ export class ZkSyncRewardsContractFactory
 
   protected generateContractSpecificError(
     msg: string,
-    reason: string | undefined,
-    e: unknown,
+    e: IEthersContractError,
+    transaction: ethers.Transaction | null,
   ): RewardsFactoryError {
-    return new RewardsFactoryError(msg, reason, e);
+    return new RewardsFactoryError(msg, e, transaction);
   }
 
   // Takes the factory's deploy function name and params, submits the transaction and returns a WrappedTransactionResponse
