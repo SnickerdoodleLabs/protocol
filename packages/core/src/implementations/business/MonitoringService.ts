@@ -1,4 +1,9 @@
-import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import {
+  ILogUtils,
+  ILogUtilsType,
+  ITimeUtilsType,
+  ITimeUtils,
+} from "@snickerdoodlelabs/common-utils";
 import {
   IMasterIndexer,
   IMasterIndexerType,
@@ -9,7 +14,9 @@ import {
   DataWalletBackupID,
   DiscordError,
   EIndexerMethod,
+  InvalidParametersError,
   isAccountValidForChain,
+  MethodSupportError,
   PersistenceError,
   SiteVisit,
   TwitterError,
@@ -33,6 +40,8 @@ import {
   IDataWalletPersistenceType,
   ILinkedAccountRepository,
   ILinkedAccountRepositoryType,
+  INftRepository,
+  INftRepositoryType,
   ITransactionHistoryRepository,
   ITransactionHistoryRepositoryType,
 } from "@core/interfaces/data/index.js";
@@ -63,6 +72,9 @@ export class MonitoringService implements IMonitoringService {
     protected discordService: IDiscordService,
     @inject(ITwitterServiceType)
     protected twitterService: ITwitterService,
+    @inject(INftRepositoryType)
+    protected nftRepository: INftRepository,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public pollTransactions(): ResultAsync<
@@ -125,6 +137,12 @@ export class MonitoringService implements IMonitoringService {
         const transactions = transactionsArr.flat(2);
         return this.transactionRepo.addTransactions(transactions);
       });
+  }
+
+  public pollNfts(): ResultAsync<void, unknown> {
+    return this.nftRepository
+      .getNfts(this.timeUtils.getUnixNow())
+      .map(() => {});
   }
 
   public siteVisited(

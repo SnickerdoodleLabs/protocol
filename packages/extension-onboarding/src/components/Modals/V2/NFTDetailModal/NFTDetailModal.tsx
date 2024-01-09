@@ -1,7 +1,3 @@
-import Card from "@extension-onboarding/components/v2/Card";
-import Container from "@extension-onboarding/components/v2/Container";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { INFT, POAPMetadata } from "@extension-onboarding/objects";
 import {
   Box,
   Dialog,
@@ -19,6 +15,8 @@ import {
   EVMNFT,
   SolanaNFT,
   EChainTechnology,
+  INFT,
+  POAPMetadata,
 } from "@snickerdoodlelabs/objects";
 import {
   CloseButton,
@@ -27,6 +25,11 @@ import {
   colors,
 } from "@snickerdoodlelabs/shared-components";
 import React, { FC, useEffect, useMemo } from "react";
+
+import placeholder from "@extension-onboarding/assets/images/image-placeholder.png";
+import Card from "@extension-onboarding/components/v2/Card";
+import Container from "@extension-onboarding/components/v2/Container";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: {

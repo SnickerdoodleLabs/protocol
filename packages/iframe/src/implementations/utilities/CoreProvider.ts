@@ -126,6 +126,17 @@ export class CoreProvider implements ICoreProvider {
       config.etherscanApiKeys.Fuji ??
       immutableConfig.defaultKeys.etherscanApiKeys.Fuji;
 
+    // Space And Time
+    config.spaceAndTimeCredentials =
+      config.spaceAndTimeCredentials ??
+      immutableConfig.defaultKeys.spaceAndTimeCredentials;
+    config.spaceAndTimeCredentials.userId =
+      config.spaceAndTimeCredentials?.userId ??
+      immutableConfig.defaultKeys.spaceAndTimeCredentials.userId;
+    config.spaceAndTimeCredentials.privateKey =
+      config.spaceAndTimeCredentials?.privateKey ??
+      immutableConfig.defaultKeys.spaceAndTimeCredentials.privateKey;
+
     // Other Indexers
     config.covalentApiKey =
       config.covalentApiKey ?? immutableConfig.defaultKeys.covalentApiKey;
@@ -143,8 +154,6 @@ export class CoreProvider implements ICoreProvider {
       config.bluezApiKey ?? immutableConfig.defaultKeys.bluezApiKey;
     config.raribleApiKey =
       config.raribleApiKey ?? immutableConfig.defaultKeys.raribleApiKey;
-    config.spaceAndTimeKey =
-      config.spaceAndTimeKey ?? immutableConfig.defaultKeys.spaceAndTimeKey;
     config.blockvisionKey =
       config.blockvisionKey ?? immutableConfig.defaultKeys.blockvisionKey;
 

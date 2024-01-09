@@ -47,6 +47,9 @@ import {
   EQueryEvents,
   QueryPerformanceEvent,
   EStatus,
+  AccountIndexingError,
+  InvalidParametersError,
+  MethodSupportError,
 } from "@snickerdoodlelabs/objects";
 import {
   SDQLQueryWrapper,
@@ -157,6 +160,9 @@ export class QueryService implements IQueryService {
     | EvalNotImplementedError
     | MissingASTError
     | BlockchainCommonErrors
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     /**
      * TODO
@@ -560,9 +566,9 @@ export class QueryService implements IQueryService {
     | QueryFormatError
     | QueryExpiredError
     | ParserError
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
     | MissingTokenConstructorError
     | DuplicateIdInSchema
     | PersistenceError
@@ -652,6 +658,9 @@ export class QueryService implements IQueryService {
     | PersistenceError
     | EvalNotImplementedError
     | MissingASTError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return this.getPossibleRewards(
       consentToken,

@@ -184,6 +184,7 @@ export class BlockvisionIndexer implements ISuiIndexer {
             BigNumberString(item.quantity.toString()),
             item.name,
             EChain.Sui,
+            this.timeUtils.getUnixNow(),
             undefined,
             undefined,
           );

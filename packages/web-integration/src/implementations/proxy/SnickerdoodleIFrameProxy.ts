@@ -81,6 +81,11 @@ import {
   ChainTransaction,
   TransactionFilter,
   IUserAgreement,
+  INftProxyMethods,
+  WalletNFTHistory,
+  WalletNftWithHistory,
+  NftRepositoryCache,
+  WalletNFTData,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -374,10 +379,6 @@ export class SnickerdoodleIFrameProxy
     return this._createCall("getAccountBalances", null);
   }
 
-  public getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError> {
-    return this._createCall("getAccountNFTs", null);
-  }
-
   public getTransactionValueByChain(): ResultAsync<
     TransactionFlowInsight[],
     ProxyError
@@ -657,6 +658,20 @@ export class SnickerdoodleIFrameProxy
     },
   };
 
+  public nft: INftProxyMethods = {
+    getNfts: (
+      benchmark?: UnixTimestamp,
+      chains?: EChain[],
+      accounts?: LinkedAccount[],
+    ) => {
+      return this._createCall("nft.getNfts", {
+        benchmark,
+        chains,
+        accounts,
+      });
+    },
+  };
+
   public integration: IProxyIntegrationMethods = {
     requestPermissions: (
       permissions: EDataWalletPermission[],
@@ -693,6 +708,17 @@ export class SnickerdoodleIFrameProxy
   public metrics: IProxyMetricsMethods = {
     getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
       return this._createCall("metrics.getMetrics", null);
+    },
+    getPersistenceNFTs: (): ResultAsync<WalletNFTData[], ProxyError> => {
+      return this._createCall("metrics.getPersistenceNFTs", null);
+    },
+
+    getNFTsHistory: (): ResultAsync<WalletNFTHistory[], ProxyError> => {
+      return this._createCall("metrics.getNFTsHistory", null);
+    },
+
+    getNFTCache: (): ResultAsync<NftRepositoryCache, ProxyError> => {
+      return this._createCall("metrics.getNFTCache", null);
     },
   };
 
