@@ -13,7 +13,7 @@ import { Provider, ContractFactory, Wallet } from "zksync-web3";
 
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
-import { GasUtils } from "@contracts-sdk/implementations/GasUtils";
+import { GasUtils } from "@contracts-sdk/implementations/GasUtils.js";
 import {
   ContractOverrides,
   IRewardsContractFactory,
