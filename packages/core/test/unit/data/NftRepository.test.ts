@@ -5,13 +5,11 @@ import {
   ILogUtils,
   ITimeUtils,
 } from "@snickerdoodlelabs/common-utils";
-import { ConsentRoles } from "@snickerdoodlelabs/contracts-sdk";
 import { IMasterIndexer } from "@snickerdoodlelabs/indexers";
 import {
   ERecordKey,
   UnixTimestamp,
   EIndexerMethod,
-  LinkedAccount,
   EVMAccountAddress,
   BigNumberString,
 } from "@snickerdoodlelabs/objects";
@@ -23,21 +21,17 @@ import * as td from "testdouble";
 import { NftRepository } from "@core/implementations/data";
 import {
   IDataWalletPersistence,
-  ILinkedAccountRepository,
   INFTRepositoryWithDebug,
-  INftRepository,
 } from "@core/interfaces/data";
 import {
   earnedRewards,
   indexedNftInitialHistory,
   indexedNfts,
   linkedAccounts,
-  fujiNfts,
   expectedNfts,
   nftThatGotTransferredAndGotBack,
   indexerNft,
   expectedShibuya,
-  polygonNfts,
   expectedFujiNfts,
   expectedPolygon,
   indexedNftTransferlHistory,

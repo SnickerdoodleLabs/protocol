@@ -4,7 +4,6 @@ import {
   BaseURI,
   RewardsFactoryError,
   ECreatedRewardType,
-  BlockchainErrorMapper,
   BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
@@ -12,7 +11,8 @@ import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
-import { GasUtils } from "@contracts-sdk/implementations/GasUtils";
+import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
+import { GasUtils } from "@contracts-sdk/implementations/GasUtils.js";
 import {
   ContractOverrides,
   IRewardsContractFactory,
@@ -109,10 +109,10 @@ export class RewardsContractFactory
 
   protected generateContractSpecificError(
     msg: string,
-    reason: string | undefined,
-    e: unknown,
+    e: IEthersContractError,
+    transaction: ethers.Transaction | null,
   ): RewardsFactoryError {
-    return new RewardsFactoryError(msg, reason, e);
+    return new RewardsFactoryError(msg, e, transaction);
   }
 
   // Takes the factory's deploy function name and params, submits the transaction and returns a WrappedTransactionResponse

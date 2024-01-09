@@ -8,6 +8,7 @@ import {
   PagedResponse,
   ConsentContractError,
   BlockchainCommonErrors,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -43,6 +44,7 @@ export interface IMarketplaceRepository {
     | UninitializedError
     | ConsentContractError
     | BlockchainCommonErrors
+    | InvalidParametersError
   >;
 }
 

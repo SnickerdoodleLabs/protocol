@@ -6,13 +6,13 @@ import {
   CrumbsContractError,
   HexString,
   BlockchainCommonErrors,
-  BlockchainErrorMapper,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { injectable } from "inversify";
 import { okAsync, errAsync, ResultAsync } from "neverthrow";
 
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
+import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper";
 import { ICrumbsContract } from "@contracts-sdk/interfaces/ICrumbsContract.js";
 import {
   ContractsAbis,
@@ -135,9 +135,9 @@ export class CrumbsContract
 
   protected generateContractSpecificError(
     msg: string,
-    reason: string | undefined,
-    e: unknown,
+    e: IEthersContractError,
+    transaction: ethers.Transaction | null,
   ): CrumbsContractError {
-    return new CrumbsContractError(msg, reason, e);
+    return new CrumbsContractError(msg, e, transaction);
   }
 }
