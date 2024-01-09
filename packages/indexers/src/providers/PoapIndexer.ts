@@ -2,6 +2,8 @@ import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
   IRequestConfig,
+  ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
@@ -19,6 +21,7 @@ import {
   IndexerSupportSummary,
   EDataProvider,
   EExternalApi,
+  EContractStandard,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -59,6 +62,7 @@ export class PoapRepository implements IEVMIndexer {
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -180,13 +184,14 @@ export class PoapRepository implements IEVMIndexer {
       return new EVMNFT(
         EVMContractAddress(poapContractAddress),
         BigNumberString(token.tokenId),
-        "erc-721",
+        EContractStandard.Erc721,
         EVMAccountAddress(token.owner),
         TokenUri(token.event.image_url),
         { raw: JSON.stringify(token.event) },
-        BigNumberString(token.event.supply),
         token.event.name,
         chain,
+        BigNumberString(token.event.supply),
+        this.timeUtils.getUnixNow(),
       );
     });
     return items;

@@ -8,9 +8,13 @@ export class AnalyticsConfigProvider {
   private analyticsConfig: AnalyticsConfig;
   constructor() {
     this.analyticsConfig = new AnalyticsConfig(
-      __GA_TRACKING_ID__,
-      Number(__HOTJAR_ID__),
-      Number(__HOTJAR_SNIPPET_VERSION__),
+      typeof __GA_TRACKING_ID__ === "undefined" ? "" : __GA_TRACKING_ID__,
+      Number(typeof __HOTJAR_ID__ === "undefined" ? "" : __HOTJAR_ID__),
+      Number(
+        typeof __HOTJAR_SNIPPET_VERSION__ === "undefined"
+          ? ""
+          : __HOTJAR_SNIPPET_VERSION__,
+      ),
     );
   }
   public get config(): AnalyticsConfig {

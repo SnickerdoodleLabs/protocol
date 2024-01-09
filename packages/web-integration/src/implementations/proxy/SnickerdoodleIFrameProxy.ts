@@ -81,6 +81,11 @@ import {
   ChainTransaction,
   TransactionFilter,
   IUserAgreement,
+  INftProxyMethods,
+  WalletNFTHistory,
+  WalletNftWithHistory,
+  NftRepositoryCache,
+  WalletNFTData,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -264,6 +269,10 @@ export class SnickerdoodleIFrameProxy
       });
   }
 
+  public requestDashboardView(): ResultAsync<void, ProxyError> {
+    return this._createCall("requestDashboardView", null);
+  }
+
   public initialize(): ResultAsync<void, ProxyError> {
     return this._createCall("initialize", null);
   }
@@ -370,10 +379,6 @@ export class SnickerdoodleIFrameProxy
     return this._createCall("getAccountBalances", null);
   }
 
-  public getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError> {
-    return this._createCall("getAccountNFTs", null);
-  }
-
   public getTransactionValueByChain(): ResultAsync<
     TransactionFlowInsight[],
     ProxyError
@@ -386,10 +391,6 @@ export class SnickerdoodleIFrameProxy
     return this._createCall("getTransactions", {
       filter,
     });
-  }
-
-  public closeTab(): ResultAsync<void, ProxyError> {
-    return okAsync(undefined);
   }
 
   public getAcceptedInvitationsCID(): ResultAsync<
@@ -568,10 +569,6 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
-  public switchToTab(tabId: number): ResultAsync<void, ProxyError> {
-    throw new Error("Method not implemented.");
-  }
-
   public account: IProxyAccountMethods = {
     addAccount: (
       accountAddress: AccountAddress,
@@ -646,12 +643,8 @@ export class SnickerdoodleIFrameProxy
       });
     },
 
-    installationUrl: (
-      redirectTabId?: number,
-    ): ResultAsync<URLString, ProxyError> => {
-      return this._createCall("discord.installationUrl", {
-        redirectTabId: redirectTabId,
-      });
+    installationUrl: (): ResultAsync<URLString, ProxyError> => {
+      return this._createCall("discord.installationUrl", null);
     },
 
     getUserProfiles: (): ResultAsync<DiscordProfile[], ProxyError> => {
@@ -662,6 +655,20 @@ export class SnickerdoodleIFrameProxy
     },
     unlink: (discordProfileId: DiscordID): ResultAsync<void, ProxyError> => {
       return this._createCall("discord.unlink", { discordProfileId });
+    },
+  };
+
+  public nft: INftProxyMethods = {
+    getNfts: (
+      benchmark?: UnixTimestamp,
+      chains?: EChain[],
+      accounts?: LinkedAccount[],
+    ) => {
+      return this._createCall("nft.getNfts", {
+        benchmark,
+        chains,
+        accounts,
+      });
     },
   };
 
@@ -701,6 +708,17 @@ export class SnickerdoodleIFrameProxy
   public metrics: IProxyMetricsMethods = {
     getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
       return this._createCall("metrics.getMetrics", null);
+    },
+    getPersistenceNFTs: (): ResultAsync<WalletNFTData[], ProxyError> => {
+      return this._createCall("metrics.getPersistenceNFTs", null);
+    },
+
+    getNFTsHistory: (): ResultAsync<WalletNFTHistory[], ProxyError> => {
+      return this._createCall("metrics.getNFTsHistory", null);
+    },
+
+    getNFTCache: (): ResultAsync<NftRepositoryCache, ProxyError> => {
+      return this._createCall("metrics.getNFTCache", null);
     },
   };
 
@@ -761,6 +779,9 @@ export class SnickerdoodleIFrameProxy
   public events: PublicEvents;
 
   private _displayCoreIFrame(): void {
+    // Disable scrolling on the body
+    document.body.style.overflow = "hidden";
+
     // Show core iframe
     if (this.child != null) {
       this.child.frame.style.display = "block";
@@ -773,6 +794,9 @@ export class SnickerdoodleIFrameProxy
   }
 
   private _closeCoreIFrame(): void {
+    // Enable scrolling on the body
+    document.body.style.overflow = "auto";
+
     // Hide core iframe
     if (this.child != null) {
       this.child.frame.style.display = "none";

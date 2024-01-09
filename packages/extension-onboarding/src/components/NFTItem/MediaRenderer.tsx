@@ -1,6 +1,5 @@
-import placeholder from "@extension-onboarding/assets/images/image-placeholder.png";
-import { INFT } from "@extension-onboarding/objects";
 import { Skeleton } from "@material-ui/lab";
+import { INFT } from "@snickerdoodlelabs/objects";
 import React, { useState, FC } from "react";
 
 interface IMediaRendererProps {
@@ -31,7 +30,9 @@ const MediaRenderer: FC<IMediaRendererProps> = ({ nftData, renderLoading }) => {
       <img
         width="100%"
         style={{ borderRadius: 4, aspectRatio: "1.2", objectFit: "cover" }}
-        src={placeholder}
+        src={
+          "https://storage.googleapis.com/dw-assets/spa/images/placeholder.svg"
+        }
       />
     );
   }
@@ -59,7 +60,10 @@ const MediaRenderer: FC<IMediaRendererProps> = ({ nftData, renderLoading }) => {
               objectFit: "cover",
               display: isLoading ? "none" : "block",
             }}
-            src={nftData.imageUrl || placeholder}
+            src={
+              nftData.imageUrl ||
+              "https://storage.googleapis.com/dw-assets/spa/images/placeholder.svg"
+            }
             onError={() => setIsError(true)}
             onLoad={() => setIsLoading(false)}
           />

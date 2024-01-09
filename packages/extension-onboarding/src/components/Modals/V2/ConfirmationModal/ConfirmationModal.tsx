@@ -27,7 +27,13 @@ const ConfirmationModal: FC = () => {
 
   const modalClasses = useModalStyles();
   return (
-    <Dialog open={true} fullWidth className={modalClasses.container}>
+    <Dialog
+      open={true}
+      disablePortal={true}
+      disableEnforceFocus={true}
+      fullWidth
+      className={modalClasses.container}
+    >
       <Box p={3}>
         <Box
           display="flex"

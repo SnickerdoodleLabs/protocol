@@ -3,6 +3,8 @@ import {
   AjaxError,
   DataWalletBackupID,
   DiscordError,
+  InvalidParametersError,
+  MethodSupportError,
   PersistenceError,
   SiteVisit,
   TwitterError,
@@ -19,6 +21,7 @@ export interface IMonitoringService {
     void,
     PersistenceError | AccountIndexingError | AjaxError
   >;
+  pollNfts(): ResultAsync<void, unknown>;
   pollBackups(): ResultAsync<void, PersistenceError>;
   postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
   siteVisited(siteVisit: SiteVisit): ResultAsync<void, PersistenceError>;

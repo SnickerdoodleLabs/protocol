@@ -13,6 +13,7 @@ import {
   HexString,
   InvalidParametersError,
   KeyGenerationError,
+  OAuth1Config,
   RSAKeyPair,
   SHA256Hash,
   Signature,
@@ -24,7 +25,6 @@ import {
   URLString,
   UUID,
 } from "@snickerdoodlelabs/objects";
-import { OAuth1Config } from "@snickerdoodlelabs/objects/src/businessObjects/oauth/OAuth1Config.js";
 import { BigNumber, ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
@@ -67,6 +67,11 @@ export interface ICryptoUtils {
   ): ResultAsync<Uint8Array, never>;
 
   createEthereumPrivateKey(): ResultAsync<EVMPrivateKey, never>;
+
+  getEd25519PublicKeyFromPrivateKey(
+    privateKey: string,
+  ): ResultAsync<string, never>;
+
   getEthereumAccountAddressFromPrivateKey(
     privateKey: EVMPrivateKey,
   ): EVMAccountAddress;

@@ -99,7 +99,7 @@ export class ConfigProvider
       "", // dropboxRedirectUri
       5000, // polling interval indexing,
       5000, // polling interval balance
-      5000, // polling interval nfts
+      300000, // polling interval nfts
       60000, // backup interval
       5, // backupChunkSizeTarget
       {
@@ -123,6 +123,10 @@ export class ConfigProvider
           Gnosis: null,
           Fuji: null,
         },
+        spaceAndTimeCredentials: {
+          userId: null,
+          privateKey: null,
+        },
         covalentApiKey: null, // "ckey_ee277e2a0e9542838cf30325665", // covalent api key
         moralisApiKey: null,
         // "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
@@ -133,7 +137,7 @@ export class ConfigProvider
         oklinkApiKey: null, // "700c2f71-a4e2-4a85-b87f-58c8a341d1bf", // oklinkApiKeys
         ankrApiKey: null, // ankrApiKey
         bluezApiKey: null, // bluezApiKey
-        spaceAndTimeKey: null, // spaceAndTimeKey
+        raribleApiKey: null, // raribleApiKey
         blockvisionKey: null, // blockvisionKey
         primaryInfuraKey: null, // primary Infura Key
         primaryRPCProviderURL: null,
@@ -309,6 +313,14 @@ export class ConfigProvider
       overrides.etherscanApiKeys?.Polygon ??
       this.config.apiKeys.etherscanApiKeys.Polygon;
 
+    // Space And Time Keys
+    this.config.apiKeys.spaceAndTimeCredentials.userId =
+      overrides.spaceAndTimeCredentials?.userId ??
+      this.config.apiKeys.spaceAndTimeCredentials.userId;
+    this.config.apiKeys.spaceAndTimeCredentials.privateKey =
+      overrides.spaceAndTimeCredentials?.privateKey ??
+      this.config.apiKeys.spaceAndTimeCredentials.privateKey;
+
     // Miscellaneous Indexers and APIs
     this.config.apiKeys.covalentApiKey =
       overrides.covalentApiKey ?? this.config.apiKeys.covalentApiKey;
@@ -325,8 +337,8 @@ export class ConfigProvider
     this.config.apiKeys.bluezApiKey =
       overrides.bluezApiKey ?? this.config.apiKeys.bluezApiKey;
 
-    this.config.apiKeys.spaceAndTimeKey =
-      overrides.spaceAndTimeKey ?? this.config.apiKeys.spaceAndTimeKey;
+    this.config.apiKeys.raribleApiKey =
+      overrides.raribleApiKey ?? this.config.apiKeys.raribleApiKey;
     this.config.apiKeys.blockvisionKey =
       overrides.blockvisionKey ?? this.config.apiKeys.blockvisionKey;
 
