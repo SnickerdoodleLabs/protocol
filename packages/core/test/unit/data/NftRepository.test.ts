@@ -38,6 +38,8 @@ import {
   fujiOwner,
   polygonOwner,
   fujiIndexerResponseAfterRegainingTheNft,
+  fujiNfts,
+  polygonNfts,
 } from "@core-tests/mock/mocks/commonValues";
 import { ContextProviderMock } from "@core-tests/mock/utilities/ContextProviderMock";
 import { ConfigProviderMock } from "@core-tests/mock/utilities/index.js";
