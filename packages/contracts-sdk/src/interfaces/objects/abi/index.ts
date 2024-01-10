@@ -2,8 +2,8 @@ import MinimalForwarderAbi from "@contracts-sdk//interfaces/objects/abi/MinimalF
 import ConsentAbi from "@contracts-sdk/interfaces/objects/abi/ConsentAbi.js";
 import ConsentFactoryAbi from "@contracts-sdk/interfaces/objects/abi/ConsentFactoryAbi.js";
 import CrumbsAbi from "@contracts-sdk/interfaces/objects/abi/CrumbsAbi.js";
-import ERC7529Abi from "@contracts-sdk/interfaces/objects/abi/ERC7529Abi.js";
 import ERC721RewardAbi from "@contracts-sdk/interfaces/objects/abi/ERC721RewardAbi.js";
+import ERC7529Abi from "@contracts-sdk/interfaces/objects/abi/ERC7529Abi.js";
 import SiftAbi from "@contracts-sdk/interfaces/objects/abi/SiftAbi.js";
 
 export const ContractsAbis = {

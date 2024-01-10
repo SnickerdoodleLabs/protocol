@@ -1,6 +1,6 @@
 import { ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
-  ConsentRoles,
+  EConsentRoles,
   ContractOverrides,
   IConsentFactoryContract,
   WrappedTransactionResponse,
@@ -118,7 +118,7 @@ export class ConsentFactoryContractWrapper
   }
   public getUserRoleAddressesCount(
     ownerAddress: EVMAccountAddress,
-    role: ConsentRoles,
+    role: EConsentRoles,
   ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors> {
     return this.fallback(
       () => this.primary.getUserRoleAddressesCount(ownerAddress, role),
@@ -127,7 +127,7 @@ export class ConsentFactoryContractWrapper
   }
   public getUserRoleAddressesCountByIndex(
     ownerAddress: EVMAccountAddress,
-    role: ConsentRoles,
+    role: EConsentRoles,
     startingIndex: number,
     endingIndex: number,
   ): ResultAsync<
