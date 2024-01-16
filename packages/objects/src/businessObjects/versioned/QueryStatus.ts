@@ -24,7 +24,7 @@ import {
  * @param expirationDate Technically retrievable from IPFS, we'll cache it here. We need to process the query before this date, so periodically we need to look for queries that are about to expire.
  */
 export class QueryStatus extends VersionedObject {
-  public static CURRENT_VERSION = 2;
+  public static CURRENT_VERSION = 1;
   public constructor(
     public consentContractAddress: EVMContractAddress,
     public queryCID: IpfsCID,
@@ -61,16 +61,6 @@ export class QueryStatusMigrator extends VersionedObjectMigrator<QueryStatus> {
     number,
     (data: Record<string, unknown>, version: number) => Record<string, unknown>
   > {
-    return new Map([
-      [
-        1,
-        (data, version) => {
-          // The only rewards parameter we care about is the recieving address. That will be added
-          // on by deliverInsights() if it's missing
-          data["rewardsParameters"] = null;
-          return data;
-        },
-      ],
-    ]);
+    return new Map();
   }
 }

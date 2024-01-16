@@ -21,20 +21,12 @@ export class LinkedAccountMigrator extends VersionedObjectMigrator<LinkedAccount
     number,
     (data: Record<string, unknown>, version: number) => Record<string, unknown>
   > {
-    return new Map([
-      // [
-      //   1,
-      //   (data, version) => {
-      //     data["foo"] = 0;
-      //     return data;
-      //   },
-      // ],
-    ]);
+    return new Map();
   }
 }
 
 export class LinkedAccount extends VersionedObject {
-  public static CURRENT_VERSION = 2;
+  public static CURRENT_VERSION = 1;
 
   public constructor(
     public sourceChain: EChain,

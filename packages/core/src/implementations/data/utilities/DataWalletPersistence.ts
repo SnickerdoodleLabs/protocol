@@ -625,7 +625,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   ): ResultAsync<void, PersistenceError> {
     return backupManager.addRecord(
       recordKey,
-      new VolatileStorageMetadata<T>(value, this.timeUtils.getUnixNow()),
+      new VolatileStorageMetadata<T>(
+        value,
+        this.timeUtils.getUnixNow(),
+        value.getVersion(),
+      ),
     );
   }
 

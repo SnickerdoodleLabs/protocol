@@ -296,7 +296,10 @@ describe("BackupManager Tests", () => {
 
     // Act
     const result = await backupManager
-      .addRecord(recordKey, new VolatileStorageMetadata(testRecord, now)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
+      .addRecord(
+        recordKey,
+        new VolatileStorageMetadata(testRecord, now, testRecord.getVersion()),
+      ) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
       .andThen(() => {
         return backupManager.getRendered();
       });
@@ -328,7 +331,7 @@ describe("BackupManager Tests", () => {
 
     // Act
     const result = await backupManager
-      .addRecord(recordKey, new VolatileStorageMetadata(testRecord, now)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
+      .addRecord(recordKey, new VolatileStorageMetadata(testRecord, now, 1)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
       .andThen(() => {
         return backupManager.getRendered();
       });
@@ -385,7 +388,7 @@ describe("BackupManager Tests", () => {
 
     // Act
     const result = await backupManager
-      .addRecord(recordKey, new VolatileStorageMetadata(testRecord, now)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
+      .addRecord(recordKey, new VolatileStorageMetadata(testRecord, now, 1)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
       .andThen(() => {
         return backupManager.getRendered();
       });
@@ -554,7 +557,7 @@ describe("BackupManager Tests", () => {
 
     // Act
     const result = await backupManager
-      .addRecord(recordKey, new VolatileStorageMetadata(testRecord, now)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
+      .addRecord(recordKey, new VolatileStorageMetadata(testRecord, now, 1)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
       .andThen(() => {
         return backupManager.markRenderedChunkAsRestored(recordBackupId);
       })
