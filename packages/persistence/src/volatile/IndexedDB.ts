@@ -796,8 +796,13 @@ export class IndexedDB {
     storeNames: string | Iterable<string>,
     mode: IDBTransactionMode,
   ): ResultAsync<IDBTransaction, PersistenceError> {
-    return this.initialize().map((db) => {
-      return db.transaction(storeNames, mode);
+    return this.initialize().andThen((db) => {
+      try {
+        const tx = db.transaction(storeNames, mode);
+        return okAsync(tx);
+      } catch (error) {
+        return errAsync(new PersistenceError("Object store does not exist ! "));
+      }
     });
   }
 

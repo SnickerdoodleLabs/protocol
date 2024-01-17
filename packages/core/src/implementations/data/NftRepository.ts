@@ -112,11 +112,19 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
   }
 
   public getPersistenceNFTs(): ResultAsync<WalletNFTData[], PersistenceError> {
-    return this.persistence.getAll<WalletNFTData>(ERecordKey.NFTS);
+    return this.persistence
+      .getAll<WalletNFTData>(ERecordKey.NFTS)
+      .orElse((_e) => {
+        return okAsync([]);
+      });
   }
 
   public getNFTsHistory(): ResultAsync<WalletNFTHistory[], PersistenceError> {
-    return this.persistence.getAll<WalletNFTHistory>(ERecordKey.NFTS_HISTORY);
+    return this.persistence
+      .getAll<WalletNFTHistory>(ERecordKey.NFTS_HISTORY)
+      .orElse((_e) => {
+        return okAsync([]);
+      });
   }
 
   public getNFTCache(): ResultAsync<NftRepositoryCache, PersistenceError> {
@@ -1204,10 +1212,11 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
   ): ResultAsync<void[], PersistenceError> {
     return ResultUtils.combine(
       nftHistories.map((nftHistory) => {
-        return this.persistence.updateRecord(
-          ERecordKey.NFTS_HISTORY,
-          nftHistory,
-        );
+        return this.persistence
+          .updateRecord(ERecordKey.NFTS_HISTORY, nftHistory)
+          .orElse((_e) => {
+            return okAsync(undefined);
+          });
       }),
     );
   }
@@ -1217,7 +1226,11 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
   ): ResultAsync<void[], PersistenceError> {
     return ResultUtils.combine(
       nftDatas.map((nftData) => {
-        return this.persistence.updateRecord(ERecordKey.NFTS, nftData);
+        return this.persistence
+          .updateRecord(ERecordKey.NFTS, nftData)
+          .orElse((_e) => {
+            return okAsync(undefined);
+          });
       }),
     );
   }
