@@ -1,4 +1,9 @@
-import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import {
+  ILogUtils,
+  ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import {
   ERecordKey,
   PersistenceError,
@@ -25,6 +30,7 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
     @inject(IVolatileStorageSchemaProviderType)
     protected schemaProvider: IVolatileStorageSchemaProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   private _getIDB(): ResultAsync<IndexedDB, never> {
@@ -40,6 +46,7 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
           Array.from(schema.values()),
           indexedDB, // This is magical; it's a global variable IDBFactory
           this.logUtils,
+          this.timeUtils,
         );
       });
     return this.indexedDB;

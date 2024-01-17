@@ -1,4 +1,4 @@
-import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import { ILogUtils, ILogUtilsType, ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   PersistenceError,
   VersionedObject,
@@ -25,6 +25,7 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
     @inject(IVolatileStorageSchemaProviderType)
     protected schemaProvider: IVolatileStorageSchemaProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   private _getIDB(): ResultAsync<IndexedDB, never> {
@@ -41,6 +42,7 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
             Array.from(schema.values()),
             fakeIndexedDB,
             this.logUtils,
+            this.timeUtils,
           ),
       );
     return this.indexedDB;

@@ -1,4 +1,4 @@
-import { ILogUtils } from "@snickerdoodlelabs/common-utils";
+import { ILogUtils, ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   EBoolean,
   ERecordKey,
@@ -22,8 +22,6 @@ export class IndexedDB {
   private timeoutMS = 5000;
 
   // @TODOS:
-  // fix indexes (detect removed, added, modified indexes)
-  // put waitForStore() in the getTransaction() method
   // check tests - DataWalletPersistence.test.ts - BackupManager.test.ts
   // add stress tests
 
@@ -47,6 +45,7 @@ export class IndexedDB {
     private schema: VolatileTableIndex<VersionedObject>[],
     private dbFactory: IDBFactory,
     protected logUtils: ILogUtils,
+    protected timeUtils: ITimeUtils,
   ) {
     this._keyPaths = new Map();
     this.schema.forEach((x) => {
@@ -95,7 +94,7 @@ export class IndexedDB {
    */
   private lookUpStoredVersion(
     objectStore: IDBObjectStore,
-  ): ResultAsync<number | number[] | undefined, PersistenceError> {
+  ): ResultAsync<number | number[] | null, PersistenceError> {
     return ResultAsync.fromPromise(
       new Promise((resolve, reject) => {
         const index = objectStore.index("version");
@@ -117,7 +116,7 @@ export class IndexedDB {
                   : Array.from(uniqueVersions),
               );
             } else {
-              resolve(undefined);
+              resolve(null);
             }
           }
         };
@@ -139,10 +138,11 @@ export class IndexedDB {
    * @param {IDBDatabase} db - The IDBDatabase instance to migrate.
    */
   private migrateDB(db: IDBDatabase) {
-    this.logUtils.debug(
-      `Proccessing migrations on ${this.objectStoresMightNeedMigration}`,
-    );
-    this.objectStoresMightNeedMigration.forEach((storeName) => {
+    const stores =
+      this.objectStoresMightNeedMigration.length > 0
+        ? this.objectStoresMightNeedMigration
+        : this.schema.map((x) => x.name);
+    stores.forEach((storeName) => {
       this.migrateStore(storeName, db);
     });
   }
@@ -164,11 +164,11 @@ export class IndexedDB {
     }
     const tx = db.transaction(storeName, "readwrite");
     const store = tx.objectStore(storeName);
-    const startingTime = Date.now();
+    const startingTime = this.timeUtils.getMillisecondNow();
     tx.oncomplete = (_event) => {
       this.logUtils.debug(
         `Migration function took ${
-          (Date.now() - startingTime) / 1000
+          (this.timeUtils.getMillisecondNow() - startingTime) / 1000
         } seconds for store ${storeName}`,
       );
       this.unlockStore(storeName);
@@ -251,9 +251,7 @@ export class IndexedDB {
         request.onsuccess = (_ev) => {
           // If there are object stores that potentially need migration, initiate the migration process in the background.
           // This allows the database to be resolved while the migration is concurrently handled to avoid blocking the main thread.
-          if (this.objectStoresMightNeedMigration.length > 0) {
-            this.migrateDB(request.result);
-          }
+          this.migrateDB(request.result);
           resolve(request.result);
         };
         request.onerror = (evt: Event) => {
@@ -270,6 +268,9 @@ export class IndexedDB {
           const transaction = (event.target as IDBOpenDBRequest).transaction;
           const existingObjectStores = Array.from(db.objectStoreNames);
           this.schema.forEach((volatileTableIndex) => {
+            const createIndexParamsArray = this._getCreateIndexParamsArray(
+              volatileTableIndex.indexBy,
+            );
             // If the object store doesn't exist, create it
             if (!existingObjectStores.includes(volatileTableIndex.name)) {
               let keyPath: string | string[];
@@ -290,27 +291,10 @@ export class IndexedDB {
                 keyPathObj,
               );
 
-              VolatileStorageMetadataIndexes.forEach(([name, unique]) => {
-                objectStore.createIndex(name, name, { unique: unique });
+              // Create indexes
+              createIndexParamsArray.forEach((params) => {
+                objectStore.createIndex(...params);
               });
-
-              if (volatileTableIndex.indexBy) {
-                volatileTableIndex.indexBy.forEach(([name, unique]) => {
-                  if (Array.isArray(name)) {
-                    const paths = name.map((x) => this._getFieldPath(x));
-                    objectStore.createIndex(
-                      this._getCompoundIndexName(paths),
-                      paths,
-                      {
-                        unique: unique,
-                      },
-                    );
-                  } else {
-                    const path = this._getFieldPath(name);
-                    objectStore.createIndex(path, path, { unique: unique });
-                  }
-                });
-              }
             } // If the object store exists, check for index changes
             else {
               if (transaction) {
@@ -318,17 +302,38 @@ export class IndexedDB {
                   volatileTableIndex.name,
                 );
                 const oldIndexes = Array.from(objectStore.indexNames);
-                // @TODO compare indexes and update if needed
 
-                // @TODO implement actuall logic
-                if (!oldIndexes.includes("version")) {
-                  objectStore.createIndex("version", "version", {
-                    unique: false,
-                  });
-                }
+                const addedIndexesParams = createIndexParamsArray.filter(
+                  ([name]) => !oldIndexes.includes(name),
+                );
 
-                // this logic gonna work only if the user has old data in the store
+                const removedIndexNames = oldIndexes.filter(
+                  (name) =>
+                    !createIndexParamsArray.some(
+                      ([currentIndex]) => currentIndex === name,
+                    ),
+                );
+
+                this.logUtils.debug(
+                  `found ${addedIndexesParams.length} index additions for store ${volatileTableIndex.name}`,
+                );
+
+                this.logUtils.debug(
+                  `found ${removedIndexNames.length} index deletions for store ${volatileTableIndex.name}`,
+                );
+
+                // Handle added indexes
+                addedIndexesParams.forEach((params) => {
+                  objectStore.createIndex(...params);
+                });
+
+                // Handle removed indexes
+                removedIndexNames.forEach((name) => {
+                  objectStore.deleteIndex(name);
+                });
                 if (volatileTableIndex.migrator.getCurrentVersion() == 1) {
+                  // For version 1, check if the "version" index exists for old clients
+                  // If it doesn't exist, we need to migrate the data
                   if (!oldIndexes.includes("version")) {
                     this.objectStoresMightNeedMigration = [
                       ...this.objectStoresMightNeedMigration,
@@ -797,13 +802,64 @@ export class IndexedDB {
     mode: IDBTransactionMode,
   ): ResultAsync<IDBTransaction, PersistenceError> {
     return this.initialize().andThen((db) => {
-      try {
-        const tx = db.transaction(storeNames, mode);
-        return okAsync(tx);
-      } catch (error) {
-        return errAsync(new PersistenceError("Object store does not exist ! "));
+      return ResultUtils.combine(
+        typeof storeNames == "string"
+          ? [this.waitForStore(storeNames as ERecordKey)]
+          : Array.from(storeNames).map((storeName) =>
+              this.waitForStore(storeName as ERecordKey),
+            ),
+      ).andThen(() => {
+        try {
+          const tx = db.transaction(storeNames, mode);
+          return okAsync(tx);
+        } catch (error) {
+          return errAsync(
+            new PersistenceError("Object store does not exist ! "),
+          );
+        }
+      });
+    });
+  }
+
+  /**
+   * Converts an array of index definitions into an array of parameters suitable for createIndex method.
+   * Each index definition is represented as a tuple [name, unique] or [name[], unique].
+   * The resulting array contains tuples [name, keyPath, options] ready to be passed to createIndex method.
+   *
+   * @param {Array<[string | Iterable<string>, boolean]>} dataIndexes - An array of index definitions.
+   * @returns {Array<[string, string | Iterable<string>, IDBIndexParameters]>} - An array of parameters for createIndex method.
+   * @TODO Remove this method on the next iteration.
+   */
+  protected _getCreateIndexParamsArray(
+    dataIndexes: [string | Iterable<string>, boolean][] = [],
+  ): [string, string | Iterable<string>, IDBIndexParameters][] {
+    const dataIndexesParamsArray: [
+      string,
+      string | Iterable<string>,
+      IDBIndexParameters,
+    ][] = dataIndexes.map(([name, unique]) => {
+      if (Array.isArray(name)) {
+        const paths = name.map((x) => this._getFieldPath(x));
+
+        return [
+          this._getCompoundIndexName(paths),
+          paths,
+          {
+            unique,
+          },
+        ];
+      } else {
+        const path = this._getFieldPath(name as VolatileStorageKey);
+        return [path, path, { unique }];
       }
     });
+    const metadataIndexes: [string, string, IDBIndexParameters][] =
+      VolatileStorageMetadataIndexes.map(([name, unique]) => [
+        name,
+        name,
+        { unique },
+      ]);
+    return [...dataIndexesParamsArray, ...metadataIndexes];
   }
 
   protected _getRecursiveKey(obj: object, path: string): string | number {
