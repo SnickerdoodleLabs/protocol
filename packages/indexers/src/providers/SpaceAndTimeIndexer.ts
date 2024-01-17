@@ -6,6 +6,7 @@ import {
   ITimeUtils,
   ITimeUtilsType,
   ObjectUtils,
+  ValidationUtils,
 } from "@snickerdoodlelabs/common-utils";
 import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
@@ -442,13 +443,14 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
           return new EVMNFT(
             EVMContractAddress(nft.token),
             BigNumberString(nft.tokenId),
-            nft.contractType,
+            ValidationUtils.stringToTokenStandard(nft.contractType),
             EVMAccountAddress(nft.owner),
             TokenUri(nft.tokenUri),
             { raw: ObjectUtils.serialize(nft) },
-            BigNumberString(nft.amount),
             nft.name,
             chain,
+            BigNumberString(nft.amount),
+            this.timeUtils.getUnixNow(),
             BlockNumber(nft.blocknumber),
             UnixTimestamp(nft.lastOwnerTimeStamp),
           );

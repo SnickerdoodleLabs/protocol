@@ -27,6 +27,7 @@ import {
   EDataProvider,
   SolanaNFT,
   SolanaAccountAddress,
+  EContractStandard,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import * as td from "testdouble";
@@ -289,13 +290,14 @@ class MasterIndexerMocks {
     return new EVMNFT(
       tokenAddress,
       tokenId,
-      "contractType",
+      EContractStandard.Erc721,
       accountAddress,
       undefined,
       undefined,
-      invalidBalance,
       "name",
       chain,
+      invalidBalance,
+      UnixTimestamp(0),
       undefined,
       undefined,
     );

@@ -382,8 +382,8 @@ export class InsightPlatformSimulator {
           return ResultAsync.fromPromise(tx.wait(), (e) => {
             return new MinimalForwarderContractError(
               "Wait for createCrumb() failed",
-              "Unknown",
               e,
+              null,
             );
           });
         })

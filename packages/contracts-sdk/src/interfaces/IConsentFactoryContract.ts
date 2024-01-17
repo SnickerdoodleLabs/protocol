@@ -13,10 +13,10 @@ import {
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
+import { EConsentRoles } from "@contracts-sdk/interfaces/enums/index.js";
 import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
 import {
   WrappedTransactionResponse,
-  ConsentRoles,
   ContractOverrides,
 } from "@contracts-sdk/interfaces/objects/index.js";
 
@@ -94,7 +94,7 @@ export interface IConsentFactoryContract extends IBaseContract {
    */
   getUserRoleAddressesCount(
     ownerAddress: EVMAccountAddress,
-    role: ConsentRoles,
+    role: EConsentRoles,
   ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors>;
 
   /**
@@ -106,7 +106,7 @@ export interface IConsentFactoryContract extends IBaseContract {
    */
   getUserRoleAddressesCountByIndex(
     ownerAddress: EVMAccountAddress,
-    role: ConsentRoles,
+    role: EConsentRoles,
     startingIndex: number,
     endingIndex: number,
   ): ResultAsync<

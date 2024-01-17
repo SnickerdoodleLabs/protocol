@@ -1,6 +1,10 @@
 import {
+  AccountIndexingError,
+  AjaxError,
   DataPermissions,
+  InvalidParametersError,
   IpfsCID,
+  MethodSupportError,
   PersistenceError,
   SDQL_Return,
   UnixTimestamp,
@@ -15,7 +19,14 @@ export interface IQueryRepository {
     q: AST_SubQuery,
     dataPermissions: DataPermissions,
     queryTimestamp: UnixTimestamp,
-  ): ResultAsync<SDQL_Return, PersistenceError>;
+  ): ResultAsync<
+    SDQL_Return,
+    | PersistenceError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
+  >;
 }
 
 export const IQueryRepositoryType = Symbol.for("IQueryRepository");

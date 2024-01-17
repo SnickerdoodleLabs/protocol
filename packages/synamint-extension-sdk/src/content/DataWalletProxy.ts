@@ -62,7 +62,15 @@ import {
   RefreshToken,
   TransactionFilter,
   IProxyAccountMethods,
+  INftProxyMethods,
 } from "@snickerdoodlelabs/objects";
+import { JsonRpcEngine } from "json-rpc-engine";
+import { createStreamMiddleware } from "json-rpc-middleware-stream";
+import { ResultAsync } from "neverthrow";
+import ObjectMultiplex from "obj-multiplex";
+import LocalMessageStream from "post-message-stream";
+import pump from "pump";
+
 import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 import {
   CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
@@ -98,12 +106,6 @@ import {
   UpdateAgreementPermissionsParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
-import { JsonRpcEngine } from "json-rpc-engine";
-import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import { ResultAsync } from "neverthrow";
-import ObjectMultiplex from "obj-multiplex";
-import LocalMessageStream from "post-message-stream";
-import pump from "pump";
 
 let coreGateway: ExternalCoreGateway;
 let eventEmitter: UpdatableEventEmitterWrapper;
@@ -157,6 +159,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public metrics: IProxyMetricsMethods;
   public twitter: IProxyTwitterMethods;
   public storage: IProxyStorageMethods;
+  public nft: INftProxyMethods;
   public events: PublicEvents;
   public requestDashboardView = undefined;
 
@@ -339,6 +342,25 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       getMetrics: () => {
         return coreGateway.metrics.getMetrics();
       },
+      getNFTCache: () => {
+        return coreGateway.metrics.getNFTCache();
+      },
+      getPersistenceNFTs: () => {
+        return coreGateway.metrics.getPersistenceNFTs();
+      },
+      getNFTsHistory: () => {
+        return coreGateway.metrics.getNFTsHistory();
+      },
+    };
+
+    this.nft = {
+      getNfts: (
+        benchmark: UnixTimestamp | undefined,
+        chains: EChain[] | undefined,
+        accounts: LinkedAccount[] | undefined,
+      ) => {
+        return coreGateway.nft.getNfts(benchmark, chains, accounts);
+      },
     };
 
     this.twitter = {
@@ -514,9 +536,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public getAccountBalances() {
     return coreGateway.getAccountBalances();
   }
-  public getAccountNFTs() {
-    return coreGateway.getAccountNFTs();
-  }
+
   public getFamilyName() {
     return coreGateway.getFamilyName();
   }
