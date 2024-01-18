@@ -14,10 +14,9 @@ import {
   KeywordRepository,
   KeywordUtils,
   LLMProductMetaUtilsChatGPT,
+  LLMPurchaseValidator,
 } from "@ai-scraper/implementations/index.js";
 import {
-  IScraperConfigProvider,
-  IScraperConfigProviderType,
   IOpenAIUtils,
   IOpenAIUtilsType,
   IScraperService,
@@ -44,6 +43,8 @@ import {
   IKeywordUtilsType,
   ILLMProductMetaUtils,
   ILLMProductMetaUtilsType,
+  ILLMPurchaseValidatorType,
+  ILLMPurchaseValidator,
 } from "@ai-scraper/interfaces/index.js";
 
 export const scraperModule = new ContainerModule(
@@ -80,6 +81,10 @@ export const scraperModule = new ContainerModule(
       .inSingletonScope();
     bind<ILLMProductMetaUtils>(ILLMProductMetaUtilsType)
       .to(LLMProductMetaUtilsChatGPT)
+      .inSingletonScope();
+
+    bind<ILLMPurchaseValidator>(ILLMPurchaseValidatorType)
+      .to(LLMPurchaseValidator)
       .inSingletonScope();
 
     bind<IWebpageClassifier>(IWebpageClassifierType)

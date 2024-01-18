@@ -1,4 +1,13 @@
-import { LLMData, LLMResponse } from "@snickerdoodlelabs/objects";
+import {
+  DomainName,
+  ELanguageCode,
+  LLMData,
+  LLMResponse,
+  Prompt,
+  PurchaseId,
+  PurchasedProduct,
+  UnixTimestamp,
+} from "@snickerdoodlelabs/objects";
 
 export const chatGPTPurchaseHistoryResponse = LLMResponse(
   '[\n    {\n        "name": "VANMASS Universal Car Phone Mount",\n        "brand": "VANMASS",\n        "price": 23.8,\n        "classification": "Electronics",\n        "keywords": ["car phone mount", "handsfree stand", "phone holder", "dashboard", "windshield", "compatible", "iPhone", "Samsung", "Android", "pickup truck"],\n        "date": "July 12, 2023"\n    },\n    {\n        "name": "Genie 7155-TKV Smart Garage Door Opener",\n        "brand": "Genie",\n        "price": 246.8,\n        "classification": "Home Improvement",\n        "keywords": ["garage door opener", "smart", "WiFi", "battery backup", "Alexa", "Google Home"],\n        "date": "July 12, 2023"\n    },\n    {\n        "name": "Flexzilla Garden Hose",\n        "brand": "Flexzilla",\n        "price": 57.99,\n        "classification": "Patio, Lawn & Garden",\n        "keywords": ["garden hose", "heavy duty", "lightweight", "drinking water safe", "ZillaGreen"],\n        "date": "July 11, 2023"\n    },\n    {\n        "name": "Homall L Shaped Gaming Desk",\n        "brand": "Homall",\n        "price": 64.94,\n        "classification": "Office Products",\n        "keywords": ["gaming desk", "computer corner desk", "PC gaming desk", "monitor riser stand", "home office", "writing workstation"],\n        "date": "July 9, 2023"\n    },\n    {\n        "name": "ASURION 3 Year Furniture Protection Plan",\n        "brand": "ASURION",\n        "price": 15.14,\n        "classification": "Home & Kitchen",\n        "keywords": ["furniture protection plan"],\n        "date": "July 9, 2023"\n    },\n    {\n        "name": "Rust-Oleum 261845 EpoxyShield Garage Floor Coating",\n        "brand": "Rust-Oleum",\n        "price": 200.25,\n        "classification": "Tools & Home Improvement",\n        "keywords": ["garage floor coating", "2 gal", "gray"],\n        "date": "July 3, 2023"\n    },\n    {\n        "name": "Bonnlo 3 Burner Outdoor Portable Propane Stove Gas Cooker",\n        "brand": "Bonnlo",\n        "price": 115.92,\n        "classification": "Sports & Outdoors",\n        "keywords": ["outdoor portable propane stove", "gas cooker", "heavy duty", "iron cast", "patio burner", "camp cooking"],\n        "date": "July 1, 2023"\n    },\n    {\n        "name": "Purrfectzone Bidet Sprayer for Toilet",\n        "brand": "Purrfectzone",\n        "price": 0,\n        "classification": "Tools & Home Improvement",\n        "keywords": ["bidet sprayer", "handheld sprayer kit", "cloth diaper sprayer set"],\n        "date": "June 27, 2023"\n    },\n    {\n        "name": "Mielle Organics Rosemary Mint Scalp & Hair Strengthening Oil",\n        "brand": "Mielle Organics",\n        "price": 9.78,\n        "classification": "Beauty & Personal Care",\n        "keywords": ["hair strengthening oil", "biotin", "essential oils", "nourishing treatment", "split ends", "dry scalp"],\n        "date": "June 26, 2023"\n    },\n    {\n        "name": "Cantu Coconut Curling Cream with Shea Butter",\n        "brand": "Cantu",\n        "price": 25.64,\n        "classification": "Beauty & Personal Care",\n        "keywords": ["coconut curling cream", "shea butter", "natural hair"],\n        "date": "June 26, 2023"\n    },\n    {\n        "name": "Amazon Brand - Mama Bear Organic Kids Vitamin D3 25 mcg (1000 IU) Gummies",\n        "brand": "Amazon Brand - Mama Bear",\n        "price": 25.64,\n        "classification": "Health & Household",\n        "keywords": ["organic kids vitamin D3", "bone health", "immune health", "strawberry"],\n        "date": "June 26, 2023"\n    },\n    {\n        "name": "Garnier Fructis Sleek & Shine Moroccan Sleek Smoothing Oil",\n        "brand": "Garnier Fructis",\n        "price": 25.64,\n        "classification": "Beauty & Personal Care",\n        "keywords": ["sleek & shine oil", "frizzy hair", "dry hair", "argan oil"],\n        "date": "June 26, 2023"\n    }\n]',
@@ -34,6 +43,37 @@ export const firstPurchase = {
   ],
   date: "July 12, 2023",
 };
+
+export const nonHalucinatedPurchase = new PurchasedProduct(
+  DomainName("Amazon"),
+  ELanguageCode.English,
+  PurchaseId("114-1517274-7393830"),
+  "VANMASS Universal Car Phone Mount",
+  "VANMASS",
+  23.8,
+  UnixTimestamp(1689145200),
+  UnixTimestamp(1689145200),
+  null,
+  null,
+  null,
+  "Electronics",
+  null,
+);
+export const halucinatedPurchase = new PurchasedProduct(
+  DomainName("Amazon"),
+  ELanguageCode.English,
+  PurchaseId("114-1517274-7393830"),
+  "My Product",
+  null,
+  100,
+  UnixTimestamp(0),
+  UnixTimestamp(0),
+  null,
+  null,
+  null,
+  "Beauty",
+  null,
+);
 
 export const multiplePurchasesInOneOrder = [
   {
@@ -347,3 +387,172 @@ export const purchaseHistoryData = LLMData(
    
    `,
 );
+
+export const purchaseHistoryPromptWithNoPurchases =
+  Prompt(`You are an expert in understanding e-commerce. I need to extract purchase information. I need all the output for each purchase in this format:
+\n\nJSON format: \n
+    {
+        name: string,
+        brand: string,
+        price: number,
+        classification: string,
+        keywords: string[],
+        date: string
+    }
+    I need the purchase history from the following content. You need to follow theses rules:
+    A purchase history must have a product name, price, and date of purchase. It can also have brand, classification, keywords which are optional. 
+    Classification denotes the category of the product and keywords describe the products using a few key words. 
+    The purchase date and price cannot be null. 
+    Do not include a purchase information in the output if the purchase date or price is missing. 
+    Do not push yourself hard and do not generate imaginary purchases.
+    Give response in a JSON array in the preceding format. :\n\n
+    
+ Your Orders
+ Skip to main content
+ .us
+ 
+ All
+ Select the department you want to search in All Departments Arts & Crafts
+ Automotive Baby Beauty & Personal Care Books Boys' Fashion Computers Deals
+ Digital Music Electronics Girls' Fashion Health & Household Home & Kitchen
+ Industrial & Scientific Kindle Store Luggage Men's Fashion Movies & TV Music,
+ CDs & Vinyl Pet Supplies Prime Video Software Sports & Outdoors Tools & Home
+ Improvement Toys & Games Video Games Women's Fashion
+ Search Amazon
+ 
+ 
+ EN
+ Hello, Orhun
+ Account & Lists Not Orhun? Sign Out Returns & Orders
+ 1
+ Cart
+ 
+ 
+ All
+ Today's Deals Buy Again Customer Service Gift Cards Orhun's Amazon.com Browsing
+ History Sell Registry Disability Customer Support
+ 
+ 
+ 
+  * Your Account
+  * ›
+  * Your Orders
+ 
+ THERE'S A PROBLEM DISPLAYING SOME OF YOUR ORDERS RIGHT NOW.
+ 
+ If you don't see the order you're looking for, try refreshing this page, or
+ click "View order details" for that order.
+ 
+ 
+ YOUR ORDERS
+ 
+ Search Your Orders:
+ 
+ Search Orders
+  * 
+  * Orders
+  * Buy Again
+  * Not Yet Shipped
+  * Digital Orders
+  * Local Store Orders
+  * Cancelled Orders
+ 
+ 0 orders placed in
+ last 30 days past 3 months 2023 2022 2021 2020 2023 Go
+ You have not placed any orders in 2023. View orders in 2022
+ 
+ YOUR ATTENTION IS REQUIRED TO CONTINUE PROCESSING ONE OR MORE ORDERS ON THIS
+ PAGE.
+ 
+ Please see below to address the issue.
+ 
+ YOU HAVE AT LEAST ONE ORDER PENDING APPROVAL
+ 
+ Unapproved orders expire after 48 hours
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ Your recently viewed items and featured recommendations
+ ›
+ View or edit your browsing history
+ After viewing product detail pages, look here to find an easy way to navigate
+ back to pages you are interested in.
+ Your recently viewed items and featured recommendations
+ ›
+ View or edit your browsing history
+ After viewing product detail pages, look here to find an easy way to navigate
+ back to pages you are interested in.
+ 
+ Back to top
+ Get to Know Us
+  * Careers
+  * Blog
+  * About Amazon
+  * Investor Relations
+  * Amazon Devices
+  * Amazon Science
+ 
+ 
+ Make Money with Us
+  * Sell products on Amazon
+  * Sell on Amazon Business
+  * Sell apps on Amazon
+  * Become an Affiliate
+  * Advertise Your Products
+  * Self-Publish with Us
+  * Host an Amazon Hub
+  * ›See More Make Money with Us
+ 
+ 
+ Amazon Payment Products
+  * Amazon Business Card
+  * Shop with Points
+  * Reload Your Balance
+  * Amazon Currency Converter
+ 
+ 
+ Let Us Help You
+  * Amazon and COVID-19
+  * Your Account
+  * Your Orders
+  * Shipping Rates & Policies
+  * Returns & Replacements
+  * Manage Your Content and Devices
+  * Amazon Assistant
+  * Help
+ 
+ 
+ 
+ English TRYTurkish Lira United States
+ 
+ Amazon Music
+ Stream millions
+ of songs Amazon Ads
+ Reach customers
+ wherever they
+ spend their time 6pm
+ Score deals
+ on fashion brands AbeBooks
+ Books, art
+ & collectibles ACX
+ Audiobook Publishing
+ Made Easy Sell on Amazon
+ Start a Selling Account Amazon Business
+ Everything For
+ Your Business   AmazonGlobal
+ Ship Orders
+ Internationally Home Services
+ Experienced Pros
+ Happiness Guarantee Amazon Web Services
+ Scalable Cloud
+ Computing Services Audible
+ Listen to Books & Original
+ Audio Performances Box Office Mojo
+ Find Movie
+ Box Office Data Goodreads
+ Book revi
+    `);

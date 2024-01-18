@@ -47,6 +47,8 @@ import {
   IScraperService,
   IWebpageClassifier,
   IWebpageClassifierType,
+  ILLMPurchaseValidatorType,
+  ILLMPurchaseValidator,
 } from "@ai-scraper/interfaces/index.js";
 
 @injectable()
@@ -72,6 +74,8 @@ export class LLMScraperService implements IScraperService {
     private productMetaUtils: ILLMProductMetaUtils,
     @inject(IAmazonNavigationUtilsType)
     private amazonNavigationUtils: IAmazonNavigationUtils,
+    @inject(ILLMPurchaseValidatorType)
+    private llmPurchaseValidator: ILLMPurchaseValidator,
   ) {}
 
   public poll(): ResultAsync<void, ScraperError> {
@@ -123,6 +127,7 @@ export class LLMScraperService implements IScraperService {
           .executePrompt(prompt)
           .andThen((llmResponse) => {
             return this.processLLMPurchaseResponse(
+              prompt,
               suggestedDomainTask,
               language,
               llmResponse,
@@ -157,6 +162,7 @@ export class LLMScraperService implements IScraperService {
   }
 
   private processLLMPurchaseResponse(
+    prompt: Prompt,
     domainTask: DomainTask,
     language: ELanguageCode,
     llmResponse: LLMResponse,
@@ -167,9 +173,17 @@ export class LLMScraperService implements IScraperService {
         .andThen((purchases) => {
           // Find a better way to refactor it
           // return this.savePurchases(purchases);
-          return this.savePurchases(purchases).andThen(() => {
-            return this.scrapeProductMeta(domainTask, language, purchases);
-          });
+          return this.llmPurchaseValidator
+            .trimHalucinatedPurchases(prompt, purchases)
+            .andThen((validPurchases) => {
+              return this.savePurchases(validPurchases).andThen(() => {
+                return this.scrapeProductMeta(
+                  domainTask,
+                  language,
+                  validPurchases,
+                );
+              });
+            });
         });
     }
     return errAsync(new LLMError("Task type not supported."));
