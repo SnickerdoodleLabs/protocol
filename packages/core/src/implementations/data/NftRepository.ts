@@ -455,9 +455,9 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
         }
       })
       .map((cachedNfts) => {
-        if (benchmark != null) {
-          return this.filterNftHistoriesByTimestamp(benchmark, cachedNfts);
-        }
+        // if (benchmark != null) {
+        //   return this.filterNftHistoriesByTimestamp(benchmark, cachedNfts);
+        // }
 
         return cachedNfts;
       });
