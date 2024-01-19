@@ -421,10 +421,8 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
           nftCache,
           benchmark,
         );
-        if (
-          (chainsThatNeedsUpdating.length > 0 && benchmark != null) ||
-          nftCache.size === 0
-        ) {
+
+        if (chainsThatNeedsUpdating.length > 0 && benchmark != null) {
           return this.getIndexerNftsAndUpdateIndexedDb(
             undefined,
             chainsThatNeedsUpdating,
@@ -439,7 +437,7 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
               this.updateCacheTimes(
                 chainsThatNeedsUpdating,
                 updatedCache,
-                benchmark ?? this.timeUtils.getUnixNow(),
+                benchmark,
               );
               return cachedNfts;
             });
@@ -469,15 +467,12 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
     benchmark: UnixTimestamp | undefined,
   ): EChain[] {
     const chainsThatNeedsUpdating: EChain[] = [];
-    if (benchmark != null || nftCache.size === 0) {
+    if (benchmark != null) {
       for (const selectedChain of chains) {
         const selectedChainNftCache = nftCache.get(selectedChain);
+
         if (selectedChainNftCache != null) {
-          if (
-            (benchmark != null &&
-              selectedChainNftCache.lastUpdateTime < benchmark) ||
-            nftCache.size === 0
-          ) {
+          if (selectedChainNftCache.lastUpdateTime < benchmark) {
             chainsThatNeedsUpdating.push(selectedChain);
           }
         } else {
@@ -624,6 +619,7 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
       [WalletNFTHistory[], WalletNFTData[], EChain, AccountAddress],
       never
     >[] = [];
+
     for (const selectedChain of chains) {
       for (const selectedAccount of accounts) {
         if (isAccountValidForChain(selectedChain, selectedAccount)) {
