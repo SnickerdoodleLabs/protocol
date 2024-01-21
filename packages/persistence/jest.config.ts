@@ -3,7 +3,7 @@ import type { Config } from "@jest/types";
 const config: Config.InitialOptions = {
   testEnvironment: "node",
   testMatch: ["<rootDir>/dist/test/**/*.test.js"],
-
+  setupFiles: ["fake-indexeddb/auto"],
   // This does not seem to support blacklisting any folder which means we can't enable parent directory and disable child
   // We should be using peer directories for coverage and non-coverage tests.
   collectCoverageFrom: [

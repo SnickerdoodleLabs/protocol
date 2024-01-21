@@ -46,5 +46,8 @@
     "inversify": "^6.0.2",
     "neverthrow": "^5.1.0",
     "neverthrow-result-utils": "^2.0.2"
+  },
+  "devDependencies": {
+    "fake-indexeddb": "^5.0.2"
   }
 }
