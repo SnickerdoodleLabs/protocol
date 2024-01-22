@@ -7,9 +7,9 @@ export class WalletNFTHistoryMigrator extends VersionedObjectMigrator<WalletNFTH
   }
 
   protected factory(
-    data: Record<string, unknown> | WalletNFTHistory,
+    data: Record<string, unknown> | { data: WalletNFTHistory },
   ): WalletNFTHistory {
-    const walletData = data as WalletNFTHistory;
+    const walletData = data.data as WalletNFTHistory;
 
     return new WalletNFTHistory(
       walletData.id,

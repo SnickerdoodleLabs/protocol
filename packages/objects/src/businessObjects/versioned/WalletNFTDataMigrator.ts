@@ -6,10 +6,10 @@ export class WalletNFTDataMigrator extends VersionedObjectMigrator<WalletNFTData
     return WalletNFTData.CURRENT_VERSION;
   }
 
-  protected factory<T extends WalletNFTData>(
-    data: Record<string, unknown> | T,
+  protected factory(
+    data: Record<string, unknown> | { data: WalletNFTData },
   ): WalletNFTData {
-    const walletNftData = data as WalletNFTData;
+    const walletNftData = data.data as WalletNFTData;
     return new WalletNFTData(walletNftData.id, walletNftData.nft);
   }
 

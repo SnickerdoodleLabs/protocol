@@ -1,5 +1,11 @@
-import { ILogUtils, ILogUtilsType, ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
+  ILogUtils,
+  ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+import {
+  DatabaseVersion,
   PersistenceError,
   VersionedObject,
   VolatileStorageKey,
@@ -19,6 +25,7 @@ import {
 
 @injectable()
 export class FakeDBVolatileStorage implements IVolatileStorage {
+  //@TODO update here
   protected indexedDB: ResultAsync<IndexedDB, never> | null = null;
 
   public constructor(
@@ -43,6 +50,7 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
             fakeIndexedDB,
             this.logUtils,
             this.timeUtils,
+            DatabaseVersion,
           ),
       );
     return this.indexedDB;
@@ -98,12 +106,21 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
   public getCursor<T extends VersionedObject>(
     name: string,
     indexName?: string,
-    query?: string | number,
+    _query?: string | number,
     direction?: IDBCursorDirection | undefined,
     mode?: IDBTransactionMode,
   ): ResultAsync<IVolatileCursor<T>, PersistenceError> {
     return this._getIDB().andThen((db) =>
-      db.getCursor<T>(name, indexName, query, direction, mode),
+      db.getCursor<T>(
+        name,
+        indexName,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        direction,
+        mode,
+      ),
     );
   }
 

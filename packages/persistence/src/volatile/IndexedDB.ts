@@ -1,5 +1,6 @@
 import { ILogUtils, ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
+  DatabaseVersion,
   EBoolean,
   ERecordKey,
   PersistenceError,
@@ -17,7 +18,7 @@ import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
 import { VolatileTableIndex } from "@persistence/volatile/VolatileTableIndex.js";
 
 export class IndexedDB {
-  private _initialized?: ResultAsync<IDBDatabase, PersistenceError>;
+  private _databaseConnection?: IDBDatabase;
   private _keyPaths: Map<string, string | string[]>;
   private timeoutMS = 5000;
 
@@ -46,6 +47,7 @@ export class IndexedDB {
     private dbFactory: IDBFactory,
     protected logUtils: ILogUtils,
     protected timeUtils: ITimeUtils,
+    protected databaseVersion: number,
   ) {
     this._keyPaths = new Map();
     this.schema.forEach((x) => {
@@ -187,7 +189,11 @@ export class IndexedDB {
         return ResultAsync.fromPromise(
           new Promise((resolve, reject) => {
             this.logUtils.debug(`Migrating store ${storeName}`);
-            const getCursor = store.openCursor();
+
+            const versionIndex = store.index("version");
+            const range = IDBKeyRange.upperBound(this.databaseVersion);
+            const getCursor = versionIndex.openCursor(range);
+
             getCursor.onsuccess = (_event) => {
               const cursor = getCursor.result;
               if (cursor) {
@@ -232,8 +238,8 @@ export class IndexedDB {
   // #endregion migration logic
 
   public initialize(): ResultAsync<IDBDatabase, PersistenceError> {
-    if (this._initialized) {
-      return this._initialized;
+    if (this._databaseConnection) {
+      return okAsync(this._databaseConnection);
     }
 
     const promise = new Promise<IDBDatabase>((resolve, reject) => {
@@ -246,15 +252,17 @@ export class IndexedDB {
       }, this.timeoutMS);
 
       try {
-        const request = this.dbFactory.open(this.name, 2);
+        const request = this.dbFactory.open(this.name, this.databaseVersion);
 
         request.onsuccess = (_ev) => {
           // If there are object stores that potentially need migration, initiate the migration process in the background.
           // This allows the database to be resolved while the migration is concurrently handled to avoid blocking the main thread.
+          clearTimeout(timeout);
           this.migrateDB(request.result);
           resolve(request.result);
         };
         request.onerror = (evt: Event) => {
+          clearTimeout(timeout);
           reject(
             new PersistenceError(
               "Error occurred while opening IndexDB during initialization. onerror event generated",
@@ -349,6 +357,18 @@ export class IndexedDB {
               }
             }
           });
+          existingObjectStores.forEach((storeName) => {
+            if (
+              !this.schema.find(
+                (tableDetails) => tableDetails.name === storeName,
+              )
+            ) {
+              this.logUtils.debug(
+                `Deleting removed object store: ${storeName}`,
+              );
+              db.deleteObjectStore(storeName);
+            }
+          });
         };
       } catch (e) {
         this.logUtils.error(e);
@@ -364,19 +384,32 @@ export class IndexedDB {
       }
     });
 
-    this._initialized = ResultAsync.fromPromise(promise, (e) => {
+    return ResultAsync.fromPromise(promise, (e) => {
       // We know that the promise rejects with a PersistenceError
       return e as PersistenceError;
     }).andThen((db) => {
       return this.persist().andThen((persisted) => {
         this.logUtils.debug("IndexDB Persist success: " + persisted);
-        return okAsync(db);
+        this._databaseConnection = db;
+        return okAsync(this._databaseConnection);
       });
     });
-
-    return this._initialized;
   }
 
+  public close(): ResultAsync<void, never> {
+    if (this._databaseConnection != null) {
+      //So typescript can be happy
+      const dbInstance = this._databaseConnection;
+      return ResultAsync.fromSafePromise(
+        new Promise<void>((resolve) => {
+          dbInstance.close();
+          this._databaseConnection = undefined;
+          resolve();
+        }),
+      );
+    }
+    return okAsync(undefined);
+  }
   public persist(): ResultAsync<boolean, PersistenceError> {
     if (
       typeof navigator === "undefined" ||
@@ -568,58 +601,87 @@ export class IndexedDB {
   public getCursor<T extends VersionedObject>(
     name: string,
     index?: VolatileStorageKey,
-    query?: string | number,
-    direction?: IDBCursorDirection | undefined,
-    mode?: IDBTransactionMode,
+    lowerBound?: IDBValidKey,
+    upperBound?: IDBValidKey,
+    excludeLowerBound = false,
+    excludeUpperBound = false,
+    direction?: IDBCursorDirection,
+    mode: IDBTransactionMode = "readonly",
   ): ResultAsync<IVolatileCursor<T>, PersistenceError> {
-    return this.initialize().andThen((db) => {
-      const indexString = Array.isArray(query);
+    return this.getTransaction(name, mode).andThen((tx) => {
+      const store = tx.objectStore(name);
+      let query: IDBKeyRange | undefined;
 
-      return this.getTransaction(name, mode ?? "readonly").andThen((tx) => {
-        const store = tx.objectStore(name);
-        let request: IDBRequest<IDBCursorWithValue | null>;
-        if (index == undefined) {
-          request = store.openCursor(query, direction);
-        } else {
-          const indexObj = store.index(this._getIndexName(index));
-          request = indexObj.openCursor(query, direction);
-        }
+      if (lowerBound !== undefined && upperBound !== undefined) {
+        query = IDBKeyRange.bound(
+          lowerBound,
+          upperBound,
+          excludeLowerBound,
+          excludeUpperBound,
+        );
+      } else if (lowerBound !== undefined) {
+        query = IDBKeyRange.lowerBound(lowerBound, excludeLowerBound);
+      } else if (upperBound !== undefined) {
+        query = IDBKeyRange.upperBound(upperBound, excludeUpperBound);
+      }
 
-        return okAsync(new IndexedDBCursor<T>(request));
-      });
+      const request: IDBRequest<IDBCursorWithValue | null> =
+        index === undefined
+          ? store.openCursor(query, direction)
+          : store.index(this._getIndexName(index)).openCursor(query, direction);
+
+      return ResultAsync.fromPromise<IVolatileCursor<T>, PersistenceError>(
+        new Promise((resolve, reject) => {
+          request.onsuccess = () => resolve(new IndexedDBCursor<T>(request));
+          request.onerror = () =>
+            reject(new PersistenceError("Error in opening cursor"));
+        }),
+        (e) => e as PersistenceError,
+      );
     });
   }
 
   public getAll<T extends VersionedObject>(
-    storeName: string,
+    name: string,
+    index?: VolatileStorageKey,
+    lowerBound?: IDBValidKey,
+    upperBound?: IDBValidKey,
+    excludeLowerBound = false,
+    excludeUpperBound = false,
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
-    return this.initialize().andThen(() => {
-      return this.getTransaction(storeName, "readonly").andThen((tx) => {
-        const promise = new Promise<VolatileStorageMetadata<T>[]>(
-          (resolve, reject) => {
-            const store = tx.objectStore(storeName);
-            const indexObj: IDBIndex = store.index("deleted");
-            const request = indexObj.getAll(EBoolean.FALSE);
+    return this.getTransaction(name, "readonly").andThen((tx) => {
+      const store = tx.objectStore(name);
 
-            request.onsuccess = (event) => {
-              resolve(request.result);
-            };
-            request.onerror = (event) => {
-              reject(
-                new PersistenceError(
-                  `In IndexedDB, error received in getAll() for schema ${storeName}`,
-                ),
-              );
-            };
-          },
+      let query: IDBKeyRange | undefined;
+      if (lowerBound !== undefined && upperBound !== undefined) {
+        query = IDBKeyRange.bound(
+          lowerBound,
+          upperBound,
+          excludeLowerBound,
+          excludeUpperBound,
         );
+      } else if (lowerBound !== undefined) {
+        query = IDBKeyRange.lowerBound(lowerBound, excludeLowerBound);
+      } else if (upperBound !== undefined) {
+        query = IDBKeyRange.upperBound(upperBound, excludeUpperBound);
+      }
 
-        return ResultAsync.fromPromise(promise, (e) => {
-          // This is OK here, since we know what the promise above is returning
-          // error-wise, no need to re-wrap the error
-          return e as PersistenceError;
-        });
-      });
+      const request: IDBRequest<VolatileStorageMetadata<T>[]> =
+        index === undefined
+          ? store.getAll(query)
+          : store.index(this._getIndexName(index)).getAll(query);
+
+      return ResultAsync.fromPromise<
+        VolatileStorageMetadata<T>[],
+        PersistenceError
+      >(
+        new Promise((resolve, reject) => {
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () =>
+            reject(new PersistenceError("Error in fetching results"));
+        }),
+        (e) => e as PersistenceError,
+      );
     });
   }
 

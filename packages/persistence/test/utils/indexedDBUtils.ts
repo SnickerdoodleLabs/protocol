@@ -1,3 +1,12 @@
+import { LogUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  ERecordKey,
+  VersionedObject,
+  DatabaseVersion,
+} from "@snickerdoodlelabs/objects";
+
+import { VolatileTableIndex, IndexedDB } from "@persistence/volatile";
+
 export const openDatabase = (
   dbName: string,
   version?: number,
@@ -21,3 +30,16 @@ export const getObjectStore = (
   const objectStore = transaction.objectStore(storeName);
   return objectStore;
 };
+
+export const getIndexDBInstance = (
+  objectStore: Map<ERecordKey, VolatileTableIndex<VersionedObject>>,
+  version?: number,
+) =>
+  new IndexedDB(
+    "SD_Wallet",
+    Array.from(objectStore.values()),
+    indexedDB,
+    new LogUtils(),
+    new TimeUtils(),
+    version ?? DatabaseVersion,
+  );
