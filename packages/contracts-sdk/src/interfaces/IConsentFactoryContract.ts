@@ -9,6 +9,7 @@ import {
   MarketplaceTag,
   BlockchainCommonErrors,
   TransactionResponseError,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -207,4 +208,11 @@ export interface IConsentFactoryContract extends IBaseContract {
   getAddressOfConsentCreated(
     txRes: WrappedTransactionResponse,
   ): ResultAsync<EVMContractAddress, TransactionResponseError>;
+
+  // #region Questionnaires
+  getQuestionnaires(): ResultAsync<
+    IpfsCID[],
+    ConsentFactoryContractError | BlockchainCommonErrors
+  >;
+  // #endregion Questionnaires
 }

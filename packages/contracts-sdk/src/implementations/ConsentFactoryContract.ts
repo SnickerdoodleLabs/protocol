@@ -476,6 +476,13 @@ export class ConsentFactoryContract
     });
   }
 
+  public getQuestionnaires(): ResultAsync<
+    IpfsCID[],
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    throw new Error("Method not implemented.");
+  }
+
   protected generateContractSpecificError(
     msg: string,
     e: IEthersContractError,

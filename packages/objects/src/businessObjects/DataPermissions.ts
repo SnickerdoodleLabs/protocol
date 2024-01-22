@@ -3,6 +3,8 @@ import { utils } from "ethers";
 import { EWalletDataType } from "@objects/enum/index.js";
 import { HexString32 } from "@objects/primitives/index.js";
 
+export const MAX_QUESTIONNAIRES = 64;
+
 /**
  * DataPermissions represent the rules to follow when processing queries for a particular
  * cohort. They are basically auto-reject rules to follow that are baked into the consent
@@ -17,6 +19,8 @@ export class DataPermissions {
       );
     }
   }
+
+  static readonly baseQuestionnaireBit = 128;
 
   public getFlags(): HexString32 {
     return this.agreementFlags;
@@ -85,6 +89,23 @@ export class DataPermissions {
   }
   public get AccountSize(): boolean {
     return this.getFlag(EWalletDataType.AccountSize);
+  }
+
+  /**
+   * Questionnaires are assigned to a set of bits starting at 128. The questionnaireNumber
+   * is 0 indexed. If you request a questionnaireNumber that is out of range, this will
+   * return false.
+   */
+  public Questionnaire(questionnaireNumber: number): boolean {
+    if (
+      questionnaireNumber < 0 ||
+      questionnaireNumber > MAX_QUESTIONNAIRES - 1
+    ) {
+      return false;
+    }
+    return this.getFlag(
+      DataPermissions.baseQuestionnaireBit + questionnaireNumber,
+    );
   }
 
   public getFlag(flagNumber: number): boolean {

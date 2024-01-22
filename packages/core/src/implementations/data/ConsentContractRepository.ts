@@ -12,7 +12,6 @@ import {
   EVMContractAddress,
   HexString,
   IpfsCID,
-  OptInInfo,
   Signature,
   TokenId,
   TokenUri,
@@ -71,6 +70,19 @@ export class ConsentContractRepository implements IConsentContractRepository {
           return URLString(domain);
         });
       });
+  }
+
+  public getQuestionnaires(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    Map<number, IpfsCID>,
+    UninitializedError | ConsentContractError | BlockchainCommonErrors
+  > {
+    return this.getConsentContract(consentContractAddress).andThen(
+      (contract) => {
+        return contract.getQuestionnaires();
+      },
+    );
   }
 
   public getConsentCapacity(
@@ -336,6 +348,22 @@ export class ConsentContractRepository implements IConsentContractRepository {
         return consentFactoryContract.getDeployedConsents();
       });
   }
+
+  // #region Questionnaires
+  public getDefaultQuestionnaires(): ResultAsync<
+    IpfsCID[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
+  > {
+    return this.consentContractFactory
+      .factoryConsentFactoryContract()
+      .andThen((consentFactoryContract) => {
+        return consentFactoryContract.getQuestionnaires();
+      });
+  }
+  // #endregion Questionnaires
 
   public isOpenOptInDisabled(
     consentContractAddress: EVMContractAddress,

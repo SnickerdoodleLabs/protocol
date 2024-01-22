@@ -67,6 +67,9 @@ contract Consent is
     /// @dev the maximum number of consent tokens that can be issued
     uint public maxCapacity;
 
+    /// @dev allowed questionnaires. Stores the IPFS CID
+    string[] public questionnaires;
+
     /* MODIFIERS */
 
     /// Checks if open opt in is current disabled
@@ -518,6 +521,31 @@ contract Consent is
             }
         }
         require(flag > 0, "Consent : Domain is not in the list");
+    }
+
+    /// @notice Gets the array of questionnaires
+    /// @return questionnaireArr Array of registered questionnaires
+    function getQuestionnaires() external view returns (string[] memory questionnaireArr) {
+        return questionnaires;
+    }
+
+    function setQuestionnaire(
+        uint8 index,
+        string memory ipfsCid
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(index >= 0 && index <= 63, "Consent: Questionnaire index out of bounds");
+
+        questionnaires[index] = ipfsCid;
+    }
+
+    /// @notice Removes a questionnaire from the questionnaires array
+    /// @param index Index of questionnaire to remove
+    function removeDomain(
+        unit8 index
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(index >= 0 && index <= 63, "Consent: Questionnaire index out of bounds");
+
+        questionnaires[index] = "";
     }
 
     /// @notice Allows address with PAUSER_ROLE to pause the contract

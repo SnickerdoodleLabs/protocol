@@ -518,6 +518,58 @@ export class ConsentContract
     );
   }
 
+  // #region Questionnaires
+  public getQuestionnaires(): ResultAsync<
+    Map<number, IpfsCID>,
+    ConsentContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.getQuestionnaires() as Promise<IpfsCID[]>,
+      (e) => {
+        return this.generateError(e, "Unable to call getQuestionnaires()");
+      },
+    ).map((questionnaires) => {
+      // Convert to a map
+      const questionnaireMap = new Map<number, IpfsCID>();
+      for (let index = 0; index < 64; index++) {
+        // Get the questionnaire at index i
+        const questionnaire = questionnaires[index];
+
+        // Only add non-empty indexes to the return map.
+        if (questionnaire != "") {
+          questionnaireMap.set(index, questionnaire);
+        }
+      }
+      return questionnaireMap;
+    });
+  }
+
+  public setQuestionnaire(
+    index: number,
+    ipfsCid: IpfsCID,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract(
+      "setQuestionnaire",
+      [index, ipfsCid],
+      overrides,
+    );
+  }
+
+  public removeQuestionnaire(
+    index: number,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract("removeQuestionnaire", [index], overrides);
+  }
+  // #endregion Questionnaires
+
   public getRequestForDataListByRequesterAddress(
     requesterAddress: EVMAccountAddress,
     fromBlock?: BlockNumber,

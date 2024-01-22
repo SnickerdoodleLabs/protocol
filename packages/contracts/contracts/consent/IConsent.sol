@@ -90,6 +90,17 @@ interface IConsent {
 
     function removeDomain(string memory domain) external;
 
+    function getQuestionnaires() external view returns (string[] memory questionnaireArr);
+    
+    function setQuestionnaire(
+        uint8 index,
+        string memory ipfsCid
+    ) external;
+
+    function removeDomain(
+        uint8 index
+    ) external;
+
     function pause() external;
 
     function unpause() external;
