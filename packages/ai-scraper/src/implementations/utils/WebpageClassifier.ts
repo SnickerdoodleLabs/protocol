@@ -28,6 +28,7 @@ export class WebpageClassifier implements IWebpageClassifier {
     language: ELanguageCode,
   ): ResultAsync<DomainTask, InvalidURLError> {
     // Simplest version
+    console.log("WebpageClassifier:classify");
     return this.urlUtils.getDomain(url).andThen((domain) => {
       console.log("WebpageClassifier:domain", domain);
       return this.urlUtils.getTask(url, language).andThen((task) => {

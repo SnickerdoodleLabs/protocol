@@ -721,8 +721,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         url: URLString,
         language: ELanguageCode,
       ): ResultAsync<DomainTask, InvalidURLError> => {
+        console.log("core.scrape.classifyURL");
         const scraperService =
           this.iocContainer.get<IScraperService>(IScraperServiceType);
+        console.log("core.scraperSErvice", scraperService);
         return scraperService.classifyURL(url, language);
       },
     };
