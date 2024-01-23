@@ -173,9 +173,11 @@ export class LLMScraperService implements IScraperService {
         .andThen((purchases) => {
           // Find a better way to refactor it
           // return this.savePurchases(purchases);
+          this.logUtils.info("raw purchases", purchases);
           return this.llmPurchaseValidator
             .trimHalucinatedPurchases(prompt, purchases)
             .andThen((validPurchases) => {
+              this.logUtils.info("valid purchases", validPurchases);
               return this.savePurchases(validPurchases).andThen(() => {
                 return this.scrapeProductMeta(
                   domainTask,

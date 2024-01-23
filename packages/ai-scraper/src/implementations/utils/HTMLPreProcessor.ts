@@ -20,6 +20,7 @@ export class HTMLPreProcessor implements IHTMLPreProcessor {
 
   public constructor() {
     const options = {
+      wordwrap: false,
       selectors: [
         { selector: "a", options: { ignoreHref: true } },
         { selector: "img", format: "skip" },
@@ -28,6 +29,7 @@ export class HTMLPreProcessor implements IHTMLPreProcessor {
     this.converter = compile(options);
 
     const optionsImages = {
+      wordwrap: false,
       baseElements: { selectors: ["body"] },
       selectors: [{ selector: "a", options: { ignoreHref: true } }],
     };
@@ -35,12 +37,14 @@ export class HTMLPreProcessor implements IHTMLPreProcessor {
     this.converterWithImages = compile(optionsImages);
 
     const optionsLinks = {
+      wordwrap: false,
       baseElements: { selectors: ["body"] },
       selectors: [{ selector: "img", format: "skip" }],
     };
     this.converterWithLinks = compile(optionsLinks);
 
     const headOptions = {
+      wordwrap: false,
       baseElements: { selectors: ["head"] },
     };
     this.headConverter = compile(headOptions);
