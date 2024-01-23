@@ -178,6 +178,13 @@ export class LLMScraperService implements IScraperService {
             .trimHalucinatedPurchases(prompt, purchases)
             .andThen((validPurchases) => {
               this.logUtils.info("valid purchases", validPurchases);
+              if (validPurchases.length < purchases.length) {
+                this.logUtils.info(
+                  `Removed ${
+                    purchases.length - validPurchases.length
+                  } fake purchases.`,
+                );
+              }
               return this.savePurchases(validPurchases).andThen(() => {
                 return this.scrapeProductMeta(
                   domainTask,
