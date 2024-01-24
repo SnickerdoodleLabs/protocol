@@ -1,4 +1,4 @@
-import { PurchasedProduct } from "@snickerdoodlelabs/objects";
+import { LLMResponse, PurchasedProduct } from "@snickerdoodlelabs/objects";
 import { ResultAsync, okAsync } from "neverthrow";
 
 import { ILLMPurchaseValidator } from "@ai-scraper/interfaces/utils/ILLMPurchaseValidator.js";
@@ -20,4 +20,26 @@ export class LLMPurchaseValidator implements ILLMPurchaseValidator {
 
     return okAsync(validPurchases);
   }
+
+  
+  fixMalformedJSONArrayResponse(
+    llmResponse: LLMResponse
+  ): ResultAsync<LLMResponse, never> {
+    
+    // There can be two issues
+    // 1. The reponse has a valid JSON, but with extra text or characters around the array
+    // 2. LLM can forget to add the array brackets around the response
+
+    // First, we try to find the maximal array in the response
+    const arrayExpression = /\[.*\]/gs; // s to match newlines with .
+    const arrayMatch = llmResponse.match(arrayExpression);
+    if (arrayMatch) {
+      const array = arrayMatch[0];
+      return okAsync(LLMResponse(array));
+    }
+
+    // IF we fail, we try to wrap the response in array brackets
+    return okAsync(LLMResponse(""));
+  }
+
 }

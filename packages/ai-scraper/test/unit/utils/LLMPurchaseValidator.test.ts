@@ -45,3 +45,24 @@ describe("LLMPurchaseValidator: trimHalucinatedPurchases", () => {
     expect(got[0].name).toEqual(nonHalucinatedPurchase.name);
   });
 });
+
+
+
+describe("LLMPurchaseValidator: fixMalformedJSONArrayResponse", () => {
+  test("all fake in an empty history", async () => {
+    const llmResponses = [
+      "[]",
+      'The quick [brown [fox] jumps over the] lazy dog. It barked.',
+      '[\n    {\n  "product_id": 1,\n   "category": "Beauty & Health",\n  "keywords": []\n    },\n    {\n  "product_id": 2,\n   ,\n  "category": "Outdoors",\n  "keywords": ["A", "B"]\n    }, \n]',
+      'Bad bad[\n    {\n  "product_id": 1,\n   "category": "Beauty & Health",\n  "keywords": []\n    },\n    {\n  "product_id": 2,\n   ,\n  "category": "Outdoors",\n  "keywords": ["A", "B"]\n    }, \n] \n This is a explanation',
+      "I have not JSON",
+      '{a: "I have a doc"}'
+    ]
+    const arrayExpression = /\[.*\]/gs; // s to match newlines with .
+
+    for (const llmResponse of llmResponses) {
+      const arrayMatch = llmResponse.match(arrayExpression);
+      expect(arrayMatch).toBeTruthy();
+    }
+  })});
+
