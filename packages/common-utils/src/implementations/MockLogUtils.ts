@@ -1,4 +1,4 @@
-import { ILogUtils } from "@snickerdoodlelabs/common-utils";
+import { ILogUtils } from "@common-utils/interfaces/index.js";
 import { pino } from "pino";
 
 export class MockLogUtils implements ILogUtils {

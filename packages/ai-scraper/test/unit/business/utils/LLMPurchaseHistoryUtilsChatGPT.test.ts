@@ -1,10 +1,9 @@
 import "reflect-metadata";
-import { LogUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
+import { MockLogUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
 import { DomainName, ELanguageCode } from "@snickerdoodlelabs/objects";
 
 import { LLMPurchaseHistoryUtilsChatGPT } from "@ai-scraper/implementations";
 import {
-  MockLogUtils,
   chatGPTPurchaseHistoryResponse,
   chatGPTPurchaseHistoryResponseFirstMissingDate,
   chatGPTPurchaseHistoryResponseMissingPrice,

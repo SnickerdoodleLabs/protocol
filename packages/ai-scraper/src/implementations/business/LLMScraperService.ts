@@ -126,12 +126,14 @@ export class LLMScraperService implements IScraperService {
         return this.llmRepository
           .executePrompt(prompt)
           .andThen((llmResponse) => {
-            return this.processLLMPurchaseResponse(
-              prompt,
-              suggestedDomainTask,
-              language,
-              llmResponse,
-            );
+            return this.llmPurchaseValidator.fixMalformedJSONArrayResponse(llmResponse).andThen((sanitizedLLMResponse) => {
+              return this.processLLMPurchaseResponse(
+                prompt,
+                suggestedDomainTask,
+                language,
+                sanitizedLLMResponse,
+              );
+            });
           });
       },
     );
@@ -158,18 +160,18 @@ export class LLMScraperService implements IScraperService {
           return this.promptDirector.makePurchaseHistoryPrompt(LLMData(text));
         });
     }
-    return errAsync(new LLMError("Task type not supported."));
+    return errAsync(new LLMError("Task type or domain not supported."));
   }
 
   private processLLMPurchaseResponse(
     prompt: Prompt,
     domainTask: DomainTask,
     language: ELanguageCode,
-    llmResponse: LLMResponse,
+    sanitizedLLMResponse: LLMResponse,
   ): ResultAsync<void, ScraperError | PersistenceError | LLMError> {
     if (domainTask.taskType == ETask.PurchaseHistory) {
       return this.purchaseHistoryLLMUtils
-        .parsePurchases(domainTask.domain, language, llmResponse)
+        .parsePurchases(domainTask.domain, language, sanitizedLLMResponse)
         .andThen((purchases) => {
           // Find a better way to refactor it
           // return this.savePurchases(purchases);

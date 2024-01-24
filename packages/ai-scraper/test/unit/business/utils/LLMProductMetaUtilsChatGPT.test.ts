@@ -1,11 +1,10 @@
 import "reflect-metadata";
 
-import { TimeUtils } from "@snickerdoodlelabs/common-utils";
+import { TimeUtils, MockLogUtils } from "@snickerdoodlelabs/common-utils";
 import { DomainName, ELanguageCode } from "@snickerdoodlelabs/objects";
 
 import { LLMProductMetaUtilsChatGPT } from "@ai-scraper/implementations/";
 import {
-  MockLogUtils,
   MockTimeUtils,
   chatGPTProductMetaResponse,
   chatGPTProductMetaResponseMissingCategory,
