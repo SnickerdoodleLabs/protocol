@@ -174,6 +174,9 @@ var options = {
       __ALCHEMY_SOLANA_TESTNET_API_KEY__: JSON.stringify(
         process.env.__ALCHEMY_SOLANA_TESTNET_API_KEY__,
       ),
+      __ALCHEMY_BASE_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_BASE_API_KEY__,
+      ),
 
       /* ETHERSCAN KEYS PASSED IN */
       __ETHERSCAN_ETHEREUM_API_KEY__: JSON.stringify(

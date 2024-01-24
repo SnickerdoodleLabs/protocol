@@ -13,6 +13,7 @@ export interface IApiKeys {
     Polygon: string | null;
     Solana: string | null;
     SolanaTestnet: string | null;
+    Base: string | null;
   };
   etherscanApiKeys: {
     Ethereum: string | null;

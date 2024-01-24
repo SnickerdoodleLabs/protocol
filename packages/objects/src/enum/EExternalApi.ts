@@ -7,6 +7,7 @@ export enum EExternalApi {
   AlchemyOptimism = "Alchemy Optimism",
   AlchemyPolygon = "Alchemy Polygon",
   AlchemySolana = "Alchemy Solana",
+  AlchemyBase = "Alchemy Base",
   Ankr = "Ankr",
   Blockvision = "Blockvision",
   Bluez = "Bluez",
