@@ -246,22 +246,27 @@ export class LLMScraperService implements IScraperService {
         return this.llmRepository
           .executePrompt(prompt)
           .andThen((llmResponse) => {
-            const productMetas = this.productMetaUtils.parseMeta(
-              domainTask.domain,
-              language,
-              llmResponse,
-            );
-            // TODO
-            return productMetas.andThen((metas) => {
-              const purchasesToUpdate = metas.map((meta) => {
-                const purchase =
-                  nullCategoryPurchases[parseInt(meta.productId)]; // this indexing is not correct
-                purchase.category = meta.category ?? UnknownProductCategory; // TODO convert to enum
-                purchase.keywords = meta.keywords;
-                return purchase;
+
+            return this.llmPurchaseValidator.fixMalformedJSONArrayResponse(llmResponse).andThen((sanitizedLLMResponse) => {
+
+              const productMetas = this.productMetaUtils.parseMeta(
+                domainTask.domain,
+                language,
+                sanitizedLLMResponse,
+              );
+              // TODO
+              return productMetas.andThen((metas) => {
+                const purchasesToUpdate = metas.map((meta) => {
+                  const purchase =
+                    nullCategoryPurchases[parseInt(meta.productId)]; // this indexing is not correct
+                  purchase.category = meta.category ?? UnknownProductCategory; // TODO convert to enum
+                  purchase.keywords = meta.keywords;
+                  return purchase;
+                });
+  
+                return this.savePurchases(purchasesToUpdate);
               });
 
-              return this.savePurchases(purchasesToUpdate);
             });
           });
       })

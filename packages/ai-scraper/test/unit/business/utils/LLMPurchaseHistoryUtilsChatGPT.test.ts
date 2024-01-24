@@ -21,7 +21,7 @@ class Mocks {
 }
 
 describe("LLMPurchaseHistoryUtilsChatGPT", () => {
-  test("Parse purchase history", async () => {
+  test("Parse purchase history of twelve products with one have 0 price", async () => {
     // Arrange
     const mocks = new Mocks();
     const utils = mocks.factory();
@@ -37,7 +37,7 @@ describe("LLMPurchaseHistoryUtilsChatGPT", () => {
     expect(result.isOk()).toBeTruthy();
 
     const purchases = result._unsafeUnwrap();
-    expect(purchases.length).toBe(12);
+    expect(purchases.length).toBe(11); // one of the 12 has price 0
 
     const gotFirst = purchases[0];
     expect(gotFirst.name).toBe(firstPurchase.name);
@@ -83,7 +83,7 @@ describe("LLMPurchaseHistoryUtilsChatGPT", () => {
     const purchases = result._unsafeUnwrap();
     expect(purchases.length).toBe(0);
   });
-  test("Parse purchase history VANMASS missing date", async () => {
+  test("Parse purchase history VANMASS missing date and Purrfectzone price 0", async () => {
     // Arrange
     const mocks = new Mocks();
     const utils = mocks.factory();
@@ -99,13 +99,13 @@ describe("LLMPurchaseHistoryUtilsChatGPT", () => {
     expect(result.isOk()).toBeTruthy();
 
     const purchases = result._unsafeUnwrap();
-    expect(purchases.length).toBe(11);
+    expect(purchases.length).toBe(10);
 
     const gotFirst = purchases[0];
     expect(gotFirst.name).not.toBe(firstPurchase.name);
   });
 
-  test("Parse purchase history VANMASS missing price", async () => {
+  test("Parse purchase history VANMASS missing price and Purrfectzone price 0", async () => {
     // Arrange
     const mocks = new Mocks();
     const utils = mocks.factory();
@@ -121,15 +121,8 @@ describe("LLMPurchaseHistoryUtilsChatGPT", () => {
     expect(result.isOk()).toBeTruthy();
 
     const purchases = result._unsafeUnwrap();
-    expect(purchases.length).toBe(12);
+    expect(purchases.length).toBe(10);
     const gotFirst = purchases[0];
-    expect(gotFirst.name).toBe(firstPurchase.name);
-    expect(gotFirst.brand).toBe(firstPurchase.brand);
-    expect(gotFirst.price).toEqual(0.0);
-    expect(gotFirst.category).toBe(firstPurchase.classification);
-    expect(gotFirst.keywords).toEqual(firstPurchase.keywords);
-    expect(gotFirst.datePurchased).toBe(
-      mocks.timeUtils.parseToSDTimestamp(firstPurchase.date),
-    );
+    expect(gotFirst.name).not.toBe(firstPurchase.name);
   });
 });
