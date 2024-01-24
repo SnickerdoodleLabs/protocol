@@ -59,6 +59,10 @@ export class RaribleIndexer implements IEVMIndexer {
       EChain.Chiliz,
       new IndexerSupportSummary(EChain.Chiliz, false, false, true),
     ],
+    [
+      EChain.ZkSyncEra,
+      new IndexerSupportSummary(EChain.ZkSyncEra, false, false, true),
+    ],
     // TODO: will support functionality once we have balances/nfts to test
     // [EChain.Base, new IndexerSupportSummary(EChain.Base, false, false, true)],
     // [
@@ -72,8 +76,8 @@ export class RaribleIndexer implements IEVMIndexer {
     [EChain.Polygon, "POLYGON"],
     [EChain.Arbitrum, "ARBITRUM"],
     [EChain.Chiliz, "CHILIZ"],
+    [EChain.ZkSyncEra, "ZKSYNC"],
     // TODO: will support functionality once we have balances/nfts to test
-    // [EChain.ZkSyncEra, "ZKSYNC"],
     // [EChain.Base, "BASE"],
     // [EChain.Solana, "SOLANA"],
   ]);

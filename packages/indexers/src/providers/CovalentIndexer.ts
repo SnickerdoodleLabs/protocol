@@ -60,11 +60,15 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
     ],
     [
       EChain.Binance,
-      new IndexerSupportSummary(EChain.Binance, true, true, true),
+      new IndexerSupportSummary(EChain.Binance, true, true, false),
     ],
     [
       EChain.BinanceTestnet,
-      new IndexerSupportSummary(EChain.BinanceTestnet, true, false, true),
+      new IndexerSupportSummary(EChain.BinanceTestnet, true, false, false),
+    ],
+    [
+      EChain.ZkSyncEra,
+      new IndexerSupportSummary(EChain.BinanceTestnet, true, true, false),
     ],
   ]);
 
@@ -338,6 +342,7 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
       EChain.Solana,
       EChain.Binance,
       EChain.BinanceTestnet,
+      EChain.ZkSyncEra,
     ];
     return supportedChains;
   }
