@@ -3,6 +3,8 @@ import { ResultAsync, okAsync } from "neverthrow";
 
 import { ILLMPurchaseValidator } from "@ai-scraper/interfaces/utils/ILLMPurchaseValidator.js";
 
+import { injectable } from "inversify";
+@injectable()
 export class LLMPurchaseValidator implements ILLMPurchaseValidator {
   public trimHalucinatedPurchases(
     promptText: string,
