@@ -1,4 +1,3 @@
-import { ERC7529Contract } from "@contracts-sdk/implementations/ERC7529Contract.js";
 import { ICryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   ConsentContractError,
@@ -25,14 +24,16 @@ import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
+import { ERC7529Contract } from "@contracts-sdk/implementations/ERC7529Contract.js";
 import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract.js";
 import {
   WrappedTransactionResponse,
-  ConsentRoles,
+  EConsentRoles,
   Tag,
   ContractOverrides,
   ContractsAbis,
-} from "@contracts-sdk/interfaces/objects/index.js";
+} from "@contracts-sdk/interfaces/index.js";
 
 @injectable()
 export class ConsentContract
@@ -231,7 +232,7 @@ export class ConsentContract
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMember(
-        ConsentRoles.DEFAULT_ADMIN_ROLE,
+        EConsentRoles.DEFAULT_ADMIN_ROLE,
         0,
       ) as Promise<EVMAccountAddress>,
       (e) => {
@@ -248,7 +249,7 @@ export class ConsentContract
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
-        ConsentRoles.DEFAULT_ADMIN_ROLE,
+        EConsentRoles.DEFAULT_ADMIN_ROLE,
       ) as Promise<BigNumber>,
       (e) => {
         return this.generateError(
@@ -269,7 +270,7 @@ export class ConsentContract
         memberIndexArray.map((index) => {
           return ResultAsync.fromPromise(
             this.contract.getRoleMember(
-              ConsentRoles.DEFAULT_ADMIN_ROLE,
+              EConsentRoles.DEFAULT_ADMIN_ROLE,
               index,
             ) as Promise<EVMAccountAddress>,
             (e) => {
@@ -287,7 +288,7 @@ export class ConsentContract
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
-        ConsentRoles.SIGNER_ROLE,
+        EConsentRoles.SIGNER_ROLE,
       ) as Promise<BigNumber>,
       (e) => {
         return this.generateError(e, "Unable to call getSignerRoleMembers()");
@@ -305,7 +306,7 @@ export class ConsentContract
         memberIndexArray.map((index) => {
           return ResultAsync.fromPromise(
             this.contract.getRoleMember(
-              ConsentRoles.PAUSER_ROLE,
+              EConsentRoles.PAUSER_ROLE,
               index,
             ) as Promise<EVMAccountAddress>,
             (e) => {
@@ -326,7 +327,7 @@ export class ConsentContract
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
-        ConsentRoles.PAUSER_ROLE,
+        EConsentRoles.PAUSER_ROLE,
       ) as Promise<BigNumber>,
       (e) => {
         return this.generateError(e, "Unable to call getPauserRoleMembers()");
@@ -344,7 +345,7 @@ export class ConsentContract
         memberIndexArray.map((index) => {
           return ResultAsync.fromPromise(
             this.contract.getRoleMember(
-              ConsentRoles.PAUSER_ROLE,
+              EConsentRoles.PAUSER_ROLE,
               index,
             ) as Promise<EVMAccountAddress>,
             (e) => {
@@ -365,7 +366,7 @@ export class ConsentContract
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
-        ConsentRoles.REQUESTER_ROLE,
+        EConsentRoles.REQUESTER_ROLE,
       ) as Promise<BigNumber>,
       (e) => {
         return this.generateError(
@@ -386,7 +387,7 @@ export class ConsentContract
         memberIndexArray.map((index) => {
           return ResultAsync.fromPromise(
             this.contract.getRoleMember(
-              ConsentRoles.REQUESTER_ROLE,
+              EConsentRoles.REQUESTER_ROLE,
               index,
             ) as Promise<EVMAccountAddress>,
             (e) => {
@@ -617,11 +618,11 @@ export class ConsentContract
   }
 
   public hasRole(
-    role: keyof typeof ConsentRoles,
+    role: EConsentRoles,
     address: EVMAccountAddress,
   ): ResultAsync<boolean, ConsentContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contract.hasRole(ConsentRoles[role], address) as Promise<boolean>,
+      this.contract.hasRole(EConsentRoles[role], address) as Promise<boolean>,
       (e) => {
         return this.generateError(e, "Unable to call hasRole()");
       },
@@ -629,7 +630,7 @@ export class ConsentContract
   }
 
   public grantRole(
-    role: keyof typeof ConsentRoles,
+    role: EConsentRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -640,7 +641,7 @@ export class ConsentContract
   }
 
   public revokeRole(
-    role: keyof typeof ConsentRoles,
+    role: EConsentRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -651,7 +652,7 @@ export class ConsentContract
   }
 
   public renounceRole(
-    role: keyof typeof ConsentRoles,
+    role: EConsentRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -875,10 +876,10 @@ export class ConsentContract
 
   protected generateContractSpecificError(
     msg: string,
-    reason: string | undefined,
-    err: unknown,
+    e: IEthersContractError,
+    transaction: ethers.Transaction | null,
   ): ConsentContractError {
-    return new ConsentContractError(msg, reason, err);
+    return new ConsentContractError(msg, e, transaction);
   }
 }
 

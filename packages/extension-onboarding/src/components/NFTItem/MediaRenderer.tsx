@@ -1,5 +1,5 @@
-import { INFT } from "@extension-onboarding/objects";
 import { Skeleton } from "@material-ui/lab";
+import { INFT } from "@snickerdoodlelabs/objects";
 import React, { useState, FC } from "react";
 
 interface IMediaRendererProps {

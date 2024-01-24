@@ -1,10 +1,9 @@
 export * from "@objects/primitives/AESKey.js";
 
 // Auth Tokens
-export * from "@objects/primitives/AccessCode.js";
 export * from "@objects/primitives/AccessToken.js";
+export * from "@objects/primitives/AuthCode.js";
 export * from "@objects/primitives/RefreshToken.js";
-
 export * from "@objects/primitives/AccountAddress.js";
 export * from "@objects/primitives/AdKey.js";
 export * from "@objects/primitives/AdSurfaceId.js";
@@ -28,6 +27,7 @@ export * from "@objects/primitives/DataWalletAddress.js";
 export * from "@objects/primitives/DataWalletBackupID.js";
 export * from "@objects/primitives/DecimalString.js";
 export * from "@objects/primitives/DomainName.js";
+export * from "@objects/primitives/ED25519Signature.js";
 export * from "@objects/primitives/EmailAddressString.js";
 export * from "@objects/primitives/EncryptedString.js";
 export * from "@objects/primitives/EVMAccountAddress.js";
@@ -60,6 +60,8 @@ export * from "@objects/primitives/JsonWebToken.js";
 export * from "@objects/primitives/LanguageCode.js";
 export * from "@objects/primitives/MarketplaceTag.js";
 export * from "@objects/primitives/MillisecondTimestamp.js";
+export * from "@objects/primitives/NftAddressesWithTokenId.js";
+export * from "@objects/primitives/NftIdWithMeasurementDate.js";
 export * from "@objects/primitives/OAuthAuthorizationCode.js";
 export * from "@objects/primitives/OAuthRelatedTypes.js";
 export * from "@objects/primitives/PasswordString.js";

@@ -6,6 +6,7 @@ import {
   ObjectUtils,
   ITimeUtils,
   ITimeUtilsType,
+  ValidationUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   EChainTechnology,
@@ -243,18 +244,22 @@ export class AnkrIndexer implements IEVMIndexer {
         })
         .map((response) => {
           return response.result.assets.map((item) => {
+            const tokenStandard = ValidationUtils.stringToTokenStandard(
+              item.contractType,
+            );
             return new EVMNFT(
               item.contractAddress,
               BigNumberString(item.tokenId),
-              item.contractType,
+              tokenStandard,
               accountAddress,
               TokenUri(item.imageUrl),
               { raw: ObjectUtils.serialize(item) },
-              BigNumberString("1"),
               item.name,
               getChainInfoByChain(
                 this.supportedNfts.get(item.blockchain)!,
               ).chainId, // chainId
+              BigNumberString("1"),
+              this.timeUtils.getUnixNow(),
               undefined,
               undefined,
             );

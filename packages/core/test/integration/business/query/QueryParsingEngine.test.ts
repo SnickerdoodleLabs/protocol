@@ -59,6 +59,7 @@ import {
   IBrowsingDataRepository,
   IDemographicDataRepository,
   ILinkedAccountRepository,
+  INftRepository,
   IPortfolioBalanceRepository,
   ISocialRepository,
   ITransactionHistoryRepository,
@@ -104,6 +105,7 @@ const now = UnixTimestamp(2);
 const chainIds = undefined;
 class QueryParsingMocks {
   public transactionRepo = td.object<ITransactionHistoryRepository>();
+  public nftRepo = td.object<INftRepository>();
   public balanceRepo = td.object<IPortfolioBalanceRepository>();
   public demoDataRepo = td.object<IDemographicDataRepository>();
   public browsingDataRepo = td.object<IBrowsingDataRepository>();
@@ -120,7 +122,7 @@ class QueryParsingMocks {
     );
 
   public nftQueryEvaluator = new NftQueryEvaluator(
-    this.balanceRepo,
+    this.nftRepo,
     this.contextProvider,
   );
 
@@ -182,7 +184,7 @@ class QueryParsingMocks {
       this.transactionRepo.getTransactionByChain(td.matchers.anything()),
     ).thenReturn(okAsync([]));
     td.when(this.balanceRepo.getAccountBalances()).thenReturn(okAsync([]));
-    td.when(this.balanceRepo.getAccountNFTs(chainIds)).thenReturn(okAsync([]));
+    td.when(this.nftRepo.getNfts(chainIds)).thenReturn(okAsync([]));
     td.when(this.accountRepo.getAccounts()).thenReturn(okAsync(linkedAccounts));
     this.queryEvaluator = new QueryEvaluator(
       this.balanceQueryEvaluator,

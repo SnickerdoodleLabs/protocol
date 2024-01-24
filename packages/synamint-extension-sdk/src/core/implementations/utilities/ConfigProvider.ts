@@ -5,11 +5,12 @@ import {
   IExtensionConfigOverrides,
   IExtensionSdkConfigOverrides,
 } from "@snickerdoodlelabs/objects";
+import deepmerge from "deepmerge";
+import { injectable } from "inversify";
+
 import { IConfigProvider } from "@synamint-extension-sdk/core/interfaces/utilities";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared";
 import { extractObject } from "@synamint-extension-sdk/utils";
-import deepmerge from "deepmerge";
-import { injectable } from "inversify";
 
 const ONE_MINUTE_MS = 60000;
 
@@ -36,7 +37,7 @@ const defaultCoreConfigs: IConfigOverrides = {
   domainFilter: "(localhost|chrome://)",
   accountIndexingPollingIntervalMS: ONE_MINUTE_MS,
   accountBalancePollingIntervalMS: ONE_MINUTE_MS,
-  accountNFTPollingIntervalMS: ONE_MINUTE_MS,
+  accountNFTPollingIntervalMS: 5 * ONE_MINUTE_MS,
   dataWalletBackupIntervalMS: ONE_MINUTE_MS,
   requestForDataPollingIntervalMS: 4000,
 
@@ -63,6 +64,11 @@ const defaultCoreConfigs: IConfigOverrides = {
     Gnosis: "J7G8U27J1Y9F88E1E56CNNG2K3H98GF4XE",
     Fuji: "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1",
   },
+  spaceAndTimeCredentials: {
+    userId: "",
+    privateKey: "",
+  },
+
   covalentApiKey: "ckey_ee277e2a0e9542838cf30325665",
   moralisApiKey:
     "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag",
@@ -72,7 +78,6 @@ const defaultCoreConfigs: IConfigOverrides = {
     "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
   bluezApiKey: "aed4aab2cbc573bbf8e7c6b448c916e5",
   raribleApiKey: "c5855db8-08ef-409f-9947-e46c141af1b4",
-  spaceAndTimeKey: "",
   blockvisionKey: "2WaEih5fqe8NUavbvaR2PSuVSSp",
 
   nftScanApiKey: "lusr87vNmTtHGMmktlFyi4Nt",

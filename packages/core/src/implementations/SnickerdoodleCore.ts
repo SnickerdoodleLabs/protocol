@@ -96,6 +96,10 @@ import {
   SiteVisitsMap,
   TransactionFlowInsight,
   URLString,
+  INftMethods,
+  NftRepositoryCache,
+  WalletNFTData,
+  WalletNFTHistory,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -156,6 +160,10 @@ import {
   IDataWalletPersistenceType,
   IConsentContractRepository,
   IConsentContractRepositoryType,
+  INFTRepositoryWithDebug,
+  INFTRepositoryWithDebugType,
+  INftRepository,
+  INftRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IBlockchainProvider,
@@ -178,6 +186,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public ads: IAdMethods;
   public metrics: IMetricsMethods;
   public storage: IStorageMethods;
+  public nft: INftMethods;
 
   public constructor(
     configOverrides?: IConfigOverrides,
@@ -219,6 +228,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
       configProvider.setConfigOverrides(configOverrides);
     }
+
+    /* Binding of Modules With Extra Capabilities */
+    const nftRepoWithDebug = this.iocContainer.get<INFTRepositoryWithDebug>(
+      INFTRepositoryWithDebugType,
+    );
+    this.iocContainer
+      .bind<INftRepository>(INftRepositoryType)
+      .toConstantValue(nftRepoWithDebug);
 
     // Account Methods -------------------------------------------------------------------------------
     this.account = {
@@ -539,6 +556,26 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
         return metricsService.getMetrics();
       },
+      getPersistenceNFTs: () => {
+        const metricsService =
+          this.iocContainer.get<IMetricsService>(IMetricsServiceType);
+
+        return metricsService.getPersistenceNFTs();
+      },
+
+      getNFTsHistory: () => {
+        const metricsService =
+          this.iocContainer.get<IMetricsService>(IMetricsServiceType);
+
+        return metricsService.getNFTsHistory();
+      },
+
+      getNFTCache: () => {
+        const metricsService =
+          this.iocContainer.get<IMetricsService>(IMetricsServiceType);
+
+        return metricsService.getNFTCache();
+      },
     };
 
     // Social Media Methods ----------------------------------------------------------
@@ -666,6 +703,19 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return cloudStorageService.setAuthenticatedStorage(
           new AuthenticatedStorageSettings(type, path, refreshToken),
         );
+      },
+    };
+    // Nft Methods ---------------------------------------------------------------------------
+    this.nft = {
+      getNfts: (
+        benchmark?: UnixTimestamp,
+        chains?: EChain[],
+        accounts?: LinkedAccount[],
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+        return accountService.getNfts(benchmark, chains, accounts);
       },
     };
   }
@@ -965,7 +1015,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   ): ResultAsync<ChainTransaction[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.getTranactions(filter);
+    return accountService.getTransactions(filter);
   }
 
   public getAccountBalances(
@@ -974,14 +1024,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getAccountBalances();
-  }
-
-  public getAccountNFTs(
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<WalletNFT[], PersistenceError> {
-    const accountService =
-      this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.getAccountNFTs();
   }
 
   public getTransactionValueByChain(

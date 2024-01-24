@@ -67,6 +67,11 @@ export interface ICryptoUtils {
   ): ResultAsync<Uint8Array, never>;
 
   createEthereumPrivateKey(): ResultAsync<EVMPrivateKey, never>;
+
+  getEd25519PublicKeyFromPrivateKey(
+    privateKey: string,
+  ): ResultAsync<string, never>;
+
   getEthereumAccountAddressFromPrivateKey(
     privateKey: EVMPrivateKey,
   ): EVMAccountAddress;

@@ -24,6 +24,7 @@ import {
   Gender,
   GivenName,
   IConsentCapacity,
+  INftProxyMethods,
   IOldUserAgreement,
   IProxyAccountMethods,
   IProxyDiscordMethods,
@@ -41,12 +42,14 @@ import {
   LinkedAccount,
   MarketplaceListing,
   MarketplaceTag,
+  NftRepositoryCache,
   OAuth2RefreshToken,
   OAuth2Tokens,
   OAuthAuthorizationCode,
   PEMEncodedRSAPublicKey,
   PagedResponse,
   PagingRequest,
+  PersistenceError,
   ProxyError,
   QueryStatus,
   RuntimeMetrics,
@@ -61,6 +64,8 @@ import {
   URLString,
   UnixTimestamp,
   WalletNFT,
+  WalletNFTData,
+  WalletNFTHistory,
 } from "@snickerdoodlelabs/objects";
 import { TypedDataDomain, TypedDataField } from "ethers";
 import { ResultAsync, okAsync } from "neverthrow";
@@ -72,6 +77,7 @@ export class ProxyBridge implements ISdlDataWallet {
   public metrics: IProxyMetricsMethods;
   public storage: IProxyStorageMethods;
   public twitter: IProxyTwitterMethods = {} as IProxyTwitterMethods;
+  public nft: INftProxyMethods;
   private sourceDomain = undefined;
   public requestDashboardView = undefined;
 
@@ -235,8 +241,31 @@ export class ProxyBridge implements ISdlDataWallet {
     };
 
     this.metrics = {
-      getMetrics: function (): ResultAsync<RuntimeMetrics, ProxyError> {
-        throw new Error("Function not implemented.");
+      getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
+        return this.call(this.core.metrics.getMetrics(this.sourceDomain));
+      },
+      getNFTCache: (): ResultAsync<NftRepositoryCache, ProxyError> => {
+        return this.call(this.core.metrics.getNFTCache(this.sourceDomain));
+      },
+      getPersistenceNFTs: (): ResultAsync<WalletNFTData[], ProxyError> => {
+        return this.call(
+          this.core.metrics.getPersistenceNFTs(this.sourceDomain),
+        );
+      },
+      getNFTsHistory: (): ResultAsync<WalletNFTHistory[], ProxyError> => {
+        return this.call(this.core.metrics.getNFTsHistory(this.sourceDomain));
+      },
+    };
+
+    this.nft = {
+      getNfts: (
+        benchmark: UnixTimestamp | undefined,
+        chains: EChain[] | undefined,
+        accounts: LinkedAccount[] | undefined,
+      ): ResultAsync<WalletNFT[], ProxyError> => {
+        return this.call(
+          this.core.nft.getNfts(benchmark, chains, accounts, this.sourceDomain),
+        );
       },
     };
   }
@@ -465,10 +494,6 @@ export class ProxyBridge implements ISdlDataWallet {
     return this.call(this.core.getAccountBalances(this.sourceDomain));
   }
 
-  getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError> {
-    return this.call(this.core.getAccountNFTs(this.sourceDomain));
-  }
-
   getTransactionValueByChain(): ResultAsync<
     TransactionFlowInsight[],
     ProxyError
@@ -481,5 +506,4 @@ export class ProxyBridge implements ISdlDataWallet {
   ): ResultAsync<ChainTransaction[], ProxyError> {
     return this.call(this.core.getTransactions(filter, this.sourceDomain));
   }
-
 }
