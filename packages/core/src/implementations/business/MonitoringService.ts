@@ -104,7 +104,6 @@ export class MonitoringService implements IMonitoringService {
                     linkedAccount.sourceAccountAddress,
                   )
                   .andThen((tx) => {
-                    console.log(`result txd`, tx);
                     let startTime = UnixTimestamp(0);
                     if (tx != null && tx.timestamp != null) {
                       startTime = tx.timestamp;
