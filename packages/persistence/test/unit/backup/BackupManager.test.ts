@@ -138,8 +138,8 @@ class BackupManagerMocks {
         okAsync(
           new VolatileStorageMetadata(
             new TestVersionedObject(keyValue, 0),
-
             UnixTimestamp(0),
+            TestVersionedObject.CURRENT_VERSION,
             EBoolean.FALSE,
           ),
         ),
@@ -196,8 +196,8 @@ class BackupManagerMocks {
         td.matchers.contains(
           new VolatileStorageMetadata(
             new RestoredBackup(recordBackupId, recordKey),
-
             now,
+            RestoredBackup.CURRENT_VERSION,
             EBoolean.FALSE,
           ),
         ),
@@ -330,7 +330,10 @@ describe("BackupManager Tests", () => {
 
     // Act
     const result = await backupManager
-      .addRecord(recordKey, new VolatileStorageMetadata(testRecord, now, 1)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
+      .addRecord(
+        recordKey,
+        new VolatileStorageMetadata(testRecord, now, testRecord.getVersion()),
+      ) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
       .andThen(() => {
         return backupManager.getRendered();
       });
@@ -387,7 +390,10 @@ describe("BackupManager Tests", () => {
 
     // Act
     const result = await backupManager
-      .addRecord(recordKey, new VolatileStorageMetadata(testRecord, now, 1)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
+      .addRecord(
+        recordKey,
+        new VolatileStorageMetadata(testRecord, now, testRecord.getVersion()),
+      ) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
       .andThen(() => {
         return backupManager.getRendered();
       });
@@ -519,8 +525,8 @@ describe("BackupManager Tests", () => {
       okAsync(
         new VolatileStorageMetadata(
           restoredBackup,
-
           now,
+          RestoredBackup.CURRENT_VERSION,
           EBoolean.FALSE,
         ),
       ),
@@ -556,7 +562,10 @@ describe("BackupManager Tests", () => {
 
     // Act
     const result = await backupManager
-      .addRecord(recordKey, new VolatileStorageMetadata(testRecord, now, 1)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
+      .addRecord(
+        recordKey,
+        new VolatileStorageMetadata(testRecord, now, testRecord.getVersion()),
+      ) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
       .andThen(() => {
         return backupManager.markRenderedChunkAsRestored(recordBackupId);
       })
@@ -581,8 +590,18 @@ describe("BackupManager Tests", () => {
       mocks.volatileStorage.getAll<RestoredBackup>(ERecordKey.RESTORED_BACKUPS),
     ).thenReturn(
       okAsync([
-        new VolatileStorageMetadata(restoredBackup, now, EBoolean.FALSE),
-        new VolatileStorageMetadata(restoredBackup, now, EBoolean.FALSE),
+        new VolatileStorageMetadata(
+          restoredBackup,
+          now,
+          RestoredBackup.CURRENT_VERSION,
+          EBoolean.FALSE,
+        ),
+        new VolatileStorageMetadata(
+          restoredBackup,
+          now,
+          RestoredBackup.CURRENT_VERSION,
+          EBoolean.FALSE,
+        ),
       ]),
     );
 

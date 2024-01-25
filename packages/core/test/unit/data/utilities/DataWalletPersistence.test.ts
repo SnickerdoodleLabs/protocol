@@ -57,12 +57,14 @@ const versionedObject = new TestVersionedObject(volatileStorageKey, 13);
 const volatileStorageMetadata = new VolatileStorageMetadata(
   versionedObject,
   now,
+  versionedObject.getVersion(),
   EBoolean.FALSE,
 );
 
 const volatileStorageMetadata0 = new VolatileStorageMetadata(
   versionedObject,
   UnixTimestamp(0),
+  versionedObject.getVersion(),
   EBoolean.FALSE,
 );
 
@@ -233,7 +235,6 @@ class DataWalletPersistenceMocks {
       this.volatileStorage.putObject(
         ERecordKey.ACCOUNT,
         td.matchers.contains(
-          // @TODO
           new VolatileStorageMetadata(
             versionedObject,
             UnixTimestamp(0),

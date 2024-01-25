@@ -424,7 +424,6 @@ export class BackupManager implements IBackupManager {
           backup.header.dataType,
         ),
         this.timeUtils.getUnixNow(),
-        // @TODO
         RestoredBackup.CURRENT_VERSION,
       ),
     );
