@@ -106,21 +106,12 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
   public getCursor<T extends VersionedObject>(
     name: string,
     indexName?: string,
-    _query?: string | number,
+    query?: string | number,
     direction?: IDBCursorDirection | undefined,
     mode?: IDBTransactionMode,
   ): ResultAsync<IVolatileCursor<T>, PersistenceError> {
     return this._getIDB().andThen((db) =>
-      db.getCursor<T>(
-        name,
-        indexName,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        direction,
-        mode,
-      ),
+      db.getCursor<T>(name, indexName, query, direction, mode),
     );
   }
 

@@ -1,7 +1,6 @@
 import {
   AdSignatureMigrator,
   ChainTransactionMigrator,
-  ClickDataMigrator,
   EarnedRewardMigrator,
   EBackupPriority,
   EligibleAdMigrator,
@@ -81,23 +80,6 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
       ),
     ],
     [
-      ERecordKey.CLICKS,
-      new VolatileTableIndex(
-        ERecordKey.CLICKS,
-        "TODO",
-        true,
-        new ClickDataMigrator(),
-        EBackupPriority.NORMAL,
-        config?.dataWalletBackupIntervalMS ?? testTimeValue,
-        config?.backupChunkSizeTarget ?? testTimeValue,
-        [
-          ["url", false],
-          ["timestamp", false],
-          ["element", false],
-        ],
-      ),
-    ],
-    [
       ERecordKey.REJECTED_INVITATIONS,
       new VolatileTableIndex(
         ERecordKey.REJECTED_INVITATIONS,
@@ -110,10 +92,10 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
       ),
     ],
     [
-      ERecordKey.EARNED_REWARDS,
+      ERecordKey.EARNED_REWARDS, //Name Change
       new VolatileTableIndex(
         ERecordKey.EARNED_REWARDS,
-        ["queryCID", "name", "contractAddress", "chainId"],
+        ["queryCID", "name", "type"],
         false,
         new EarnedRewardMigrator(),
         EBackupPriority.NORMAL,

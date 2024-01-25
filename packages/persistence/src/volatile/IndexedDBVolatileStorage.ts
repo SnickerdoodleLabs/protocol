@@ -109,21 +109,12 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
   public getCursor<T extends VersionedObject>(
     schemaKey: ERecordKey,
     indexName?: string,
-    _query?: string | number,
+    query?: string | number,
     direction?: IDBCursorDirection | undefined,
     mode?: IDBTransactionMode,
   ): ResultAsync<IVolatileCursor<T>, PersistenceError> {
     return this._getIDB().andThen((db) =>
-      db.getCursor<T>(
-        schemaKey,
-        indexName,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        direction,
-        mode,
-      ),
+      db.getCursor<T>(schemaKey, indexName, query, direction, mode),
     );
   }
 

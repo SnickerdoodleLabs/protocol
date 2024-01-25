@@ -357,6 +357,7 @@ export class TransactionHistoryRepository
     cursor: IVolatileCursor<ChainTransaction>,
     filter: TransactionFilter,
   ): ResultAsync<ChainTransaction | null, PersistenceError> {
+    console.log(filter, cursor["value"]);
     return cursor.nextValue().andThen((val) => {
       if (!val || filter.matches(val)) {
         return okAsync(val);
