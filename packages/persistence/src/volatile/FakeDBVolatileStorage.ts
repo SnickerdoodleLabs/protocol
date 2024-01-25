@@ -59,7 +59,7 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
   public getKey(
     tableName: string,
     obj: VersionedObject,
-  ): ResultAsync<VolatileStorageKey, PersistenceError> {
+  ): ResultAsync<VolatileStorageKey | null, PersistenceError> {
     return this._getIDB().andThen((db) => db.getKey(tableName, obj));
   }
 

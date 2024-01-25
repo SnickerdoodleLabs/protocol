@@ -7,6 +7,7 @@ export const VolatileStorageDataKey = "data";
 export const VolatileStorageMetadataIndexes: [string, boolean][] = [
   ["deleted", false],
   ["version", false],
+  ["lastUpdate", false],
 ];
 
 export class VolatileStorageMetadata<T extends VersionedObject> {

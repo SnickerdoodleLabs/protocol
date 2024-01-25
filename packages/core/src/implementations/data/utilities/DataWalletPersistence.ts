@@ -623,14 +623,24 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     value: T,
     backupManager: IBackupManager,
   ): ResultAsync<void, PersistenceError> {
-    return backupManager.addRecord(
-      recordKey,
-      new VolatileStorageMetadata<T>(
-        value,
-        this.timeUtils.getUnixNow(),
-        value.getVersion(),
-      ),
-    );
+    // TODO: since this function takes param T which is VersionedObject, we should be able to call getVersion on it directly
+    // just needed to be sure that the object passed in is actually a VersionedObject
+    return this.volatileSchemaProvider
+      .getCurrentVersionForTable(recordKey)
+      .andThen((currentVersion) => {
+        if (!value.getVersion) {
+          // catch T not being a VersionedObject
+          this.logUtils.debug(`${recordKey} does not have a getVersion method`);
+        }
+        return backupManager.addRecord(
+          recordKey,
+          new VolatileStorageMetadata<T>(
+            value,
+            this.timeUtils.getUnixNow(),
+            currentVersion,
+          ),
+        );
+      });
   }
 
   protected restoreBackupInternal(

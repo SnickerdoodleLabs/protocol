@@ -57,8 +57,7 @@ const versionNumber = 1;
 
 const testVolatileTableIndex = new VolatileTableIndex<VersionedObject>(
   recordKey,
-  keyPath, // keyPath
-  false, // autoincrement
+  [keyPath, false],
   new TestMigrator(),
   EBackupPriority.NORMAL,
   backupInterval,

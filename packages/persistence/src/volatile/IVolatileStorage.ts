@@ -55,7 +55,7 @@ export interface IVolatileStorage {
   getKey(
     recordKey: ERecordKey,
     obj: VersionedObject,
-  ): ResultAsync<VolatileStorageKey, PersistenceError>;
+  ): ResultAsync<VolatileStorageKey | null, PersistenceError>;
 }
 
 export const IVolatileStorageType = Symbol.for("IVolatileStorage");
