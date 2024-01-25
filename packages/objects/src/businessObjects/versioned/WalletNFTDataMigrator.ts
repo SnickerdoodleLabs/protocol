@@ -1,16 +1,13 @@
 import { VersionedObjectMigrator } from "@objects/businessObjects/versioned/VersionedObject.js";
 import { WalletNFTData } from "@objects/businessObjects/versioned/WalletNFTData.js";
-
+import { PropertiesOf } from "@objects/utilities/index.js";
 export class WalletNFTDataMigrator extends VersionedObjectMigrator<WalletNFTData> {
   public getCurrentVersion(): number {
     return WalletNFTData.CURRENT_VERSION;
   }
-  // TODO: @Ozan
-  protected factory(
-    data: Record<string, unknown> | { data: WalletNFTData },
-  ): WalletNFTData {
-    const walletNftData = data.data as WalletNFTData;
-    return new WalletNFTData(walletNftData.id, walletNftData.nft);
+
+  protected factory(data: PropertiesOf<WalletNFTData>): WalletNFTData {
+    return new WalletNFTData(data.id, data.nft);
   }
 
   protected getUpgradeFunctions(): Map<
