@@ -1,10 +1,8 @@
 import { EarnedReward } from "@objects/businessObjects/rewards/EarnedReward.js";
 import { Web2Reward } from "@objects/businessObjects/rewards/Web2Reward.js";
-import {
-  VersionedObjectMigrator,
-  PropertiesOf,
-} from "@objects/businessObjects/versioned/VersionedObject.js";
+import { VersionedObjectMigrator } from "@objects/businessObjects/versioned/VersionedObject.js";
 import { ERewardType } from "@objects/enum/ERewardType.js";
+import { PropertiesOf } from "@objects/utilities/index.js";
 
 export class EarnedRewardMigrator extends VersionedObjectMigrator<EarnedReward> {
   public getCurrentVersion(): number {
