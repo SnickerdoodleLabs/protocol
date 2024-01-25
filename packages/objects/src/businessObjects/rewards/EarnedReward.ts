@@ -1,4 +1,4 @@
-import { VersionedObject } from "@objects/businessObjects/versioned/index.js";
+import { VersionedObject } from "@objects/businessObjects/versioned/VersionedObject.js";
 import { ERewardType } from "@objects/enum/index.js";
 import { IpfsCID } from "@objects/primitives/index.js";
 
