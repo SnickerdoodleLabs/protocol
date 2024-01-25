@@ -3,6 +3,7 @@ export * from "@objects/businessObjects/versioned/ChainTransaction.js";
 export * from "@objects/businessObjects/versioned/ChainTransactionMigrator.js";
 export * from "@objects/businessObjects/versioned/ClickData.js";
 export * from "@objects/businessObjects/versioned/DomainCredential.js";
+export * from "@objects/businessObjects/versioned/EarnedRewardMigrator.js";
 export * from "@objects/businessObjects/versioned/EligibleAd.js";
 export * from "@objects/businessObjects/versioned/EVMTransaction.js";
 export * from "@objects/businessObjects/versioned/LinkedAccount.js";

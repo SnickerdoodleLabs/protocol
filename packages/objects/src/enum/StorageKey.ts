@@ -1,6 +1,7 @@
 export enum ERecordKey {
   ACCOUNT = "SD_Accounts",
-  SITE_VISITS = "SD_SiteVisits",
+  // Field name change required deleting the old object store and creating a new one with a corrected keypath.
+  SITE_VISITS = "SD_SiteVisits_V2",
   TRANSACTIONS = "SD_Transactions",
   BALANCES = "SD_Balances",
   BALANCES_LAST_UPDATE = "SD_Balances_lastUpdate",
@@ -8,7 +9,8 @@ export enum ERecordKey {
   NFTS_HISTORY = "SD_NFTS_HISTORY",
   URLs = "SD_URLs",
   CLICKS = "SD_CLICKS",
-  EARNED_REWARDS = "SD_EarnedRewards",
+  // Field name change required deleting the old object store and creating a new one with a corrected keypath.
+  EARNED_REWARDS = "SD_EarnedRewards_V2",
   COIN_INFO = "SD_CoinInfo",
   RESTORED_BACKUPS = "SD_RestoredBackups",
   ELIGIBLE_ADS = "SD_EligibleAds",

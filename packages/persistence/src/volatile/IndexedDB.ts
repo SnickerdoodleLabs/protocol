@@ -1,5 +1,6 @@
 import { ILogUtils, ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
+  DatabaseVersion,
   EBoolean,
   ERecordKey,
   PersistenceError,
@@ -17,13 +18,14 @@ import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
 import { VolatileTableIndex } from "@persistence/volatile/VolatileTableIndex.js";
 
 export class IndexedDB {
-  private _initialized?: ResultAsync<IDBDatabase, PersistenceError>;
+  private _databaseConnection?: IDBDatabase;
   private _keyPaths: Map<string, string | string[]>;
   private timeoutMS = 5000;
 
   // @TODOS:
   // check tests - DataWalletPersistence.test.ts - BackupManager.test.ts
   // add stress tests
+  // Update cursor methods, get all .e.g
 
   // #region promises
 
@@ -46,6 +48,7 @@ export class IndexedDB {
     private dbFactory: IDBFactory,
     protected logUtils: ILogUtils,
     protected timeUtils: ITimeUtils,
+    protected databaseVersion: number,
   ) {
     this._keyPaths = new Map();
     this.schema.forEach((x) => {
@@ -155,15 +158,15 @@ export class IndexedDB {
   private migrateStore(storeName: ERecordKey, db: IDBDatabase) {
     this.lockStore(storeName);
     // Get the current version from the schema definition
-    const currentVersion: number =
-      this.schema
-        .find((st) => st.name == storeName)
-        ?.migrator.getCurrentVersion() ?? -1;
-    if (currentVersion == -1) {
+    const currentMigrator = this.schema.find(
+      (st) => st.name == storeName,
+    )?.migrator;
+    if (currentMigrator == undefined) {
       return this.unlockStore(storeName);
     }
     const tx = db.transaction(storeName, "readwrite");
     const store = tx.objectStore(storeName);
+
     const startingTime = this.timeUtils.getMillisecondNow();
     tx.oncomplete = (_event) => {
       this.logUtils.debug(
@@ -183,26 +186,29 @@ export class IndexedDB {
       this.unlockStore(storeName);
     };
     return this.lookUpStoredVersion(store).andThen((version) => {
-      if (Array.isArray(version) || version != currentVersion) {
+      if (
+        Array.isArray(version) ||
+        version != currentMigrator.getCurrentVersion()
+      ) {
         return ResultAsync.fromPromise(
           new Promise((resolve, reject) => {
             this.logUtils.debug(`Migrating store ${storeName}`);
+
             const getCursor = store.openCursor();
+
             getCursor.onsuccess = (_event) => {
               const cursor = getCursor.result;
               if (cursor) {
                 const data = cursor.value[VolatileStorageDataKey];
                 const version = (cursor.value.version ?? 1) as number;
-                const versionedData = this.schema
-                  .find((st) => st.name == storeName)
-                  // The migrator is currently designed as a synchronous function. Consider adapting it to an asynchronous design
-                  // if more complex migration scenarios require asynchronous operations during the migration process.
-                  ?.migrator.getCurrent(data, version);
+
+                const versionedData: VersionedObject =
+                  currentMigrator.getCurrent(data, version);
                 if (versionedData) {
                   cursor.update({
                     ...cursor.value,
                     [VolatileStorageDataKey]: versionedData,
-                    version: currentVersion,
+                    version: currentMigrator.getCurrentVersion(),
                   });
                 }
                 cursor.continue();
@@ -232,8 +238,8 @@ export class IndexedDB {
   // #endregion migration logic
 
   public initialize(): ResultAsync<IDBDatabase, PersistenceError> {
-    if (this._initialized) {
-      return this._initialized;
+    if (this._databaseConnection) {
+      return okAsync(this._databaseConnection);
     }
 
     const promise = new Promise<IDBDatabase>((resolve, reject) => {
@@ -246,15 +252,17 @@ export class IndexedDB {
       }, this.timeoutMS);
 
       try {
-        const request = this.dbFactory.open(this.name, 2);
+        const request = this.dbFactory.open(this.name, this.databaseVersion);
 
         request.onsuccess = (_ev) => {
           // If there are object stores that potentially need migration, initiate the migration process in the background.
           // This allows the database to be resolved while the migration is concurrently handled to avoid blocking the main thread.
+          clearTimeout(timeout);
           this.migrateDB(request.result);
           resolve(request.result);
         };
         request.onerror = (evt: Event) => {
+          clearTimeout(timeout);
           reject(
             new PersistenceError(
               "Error occurred while opening IndexDB during initialization. onerror event generated",
@@ -284,7 +292,7 @@ export class IndexedDB {
 
               const keyPathObj: IDBObjectStoreParameters = {
                 autoIncrement: volatileTableIndex.autoIncrement ?? false,
-                keyPath: keyPath,
+                keyPath: volatileTableIndex.autoIncrement ? undefined : keyPath,
               };
               const objectStore = db.createObjectStore(
                 volatileTableIndex.name,
@@ -301,8 +309,11 @@ export class IndexedDB {
                 const objectStore = transaction.objectStore(
                   volatileTableIndex.name,
                 );
+
                 const oldIndexes = Array.from(objectStore.indexNames);
 
+                //zaten auto increment varsa , ucur tabloyu yeniden yarat.
+                // accepted invitations
                 const addedIndexesParams = createIndexParamsArray.filter(
                   ([name]) => !oldIndexes.includes(name),
                 );
@@ -349,6 +360,18 @@ export class IndexedDB {
               }
             }
           });
+          existingObjectStores.forEach((storeName) => {
+            if (
+              !this.schema.find(
+                (tableDetails) => tableDetails.name === storeName,
+              )
+            ) {
+              this.logUtils.debug(
+                `Deleting removed object store: ${storeName}`,
+              );
+              db.deleteObjectStore(storeName);
+            }
+          });
         };
       } catch (e) {
         this.logUtils.error(e);
@@ -364,19 +387,32 @@ export class IndexedDB {
       }
     });
 
-    this._initialized = ResultAsync.fromPromise(promise, (e) => {
+    return ResultAsync.fromPromise(promise, (e) => {
       // We know that the promise rejects with a PersistenceError
       return e as PersistenceError;
     }).andThen((db) => {
       return this.persist().andThen((persisted) => {
         this.logUtils.debug("IndexDB Persist success: " + persisted);
-        return okAsync(db);
+        this._databaseConnection = db;
+        return okAsync(this._databaseConnection);
       });
     });
-
-    return this._initialized;
   }
 
+  public close(): ResultAsync<void, never> {
+    if (this._databaseConnection != null) {
+      //So typescript can be happy
+      const dbInstance = this._databaseConnection;
+      return ResultAsync.fromSafePromise(
+        new Promise<void>((resolve) => {
+          dbInstance.close();
+          this._databaseConnection = undefined;
+          resolve();
+        }),
+      );
+    }
+    return okAsync(undefined);
+  }
   public persist(): ResultAsync<boolean, PersistenceError> {
     if (
       typeof navigator === "undefined" ||
@@ -431,7 +467,6 @@ export class IndexedDB {
       this.logUtils.warning("null object placed in volatile store");
       return okAsync(undefined);
     }
-
     return this.initialize()
       .andThen((db) => {
         return this.getTransaction(name, "readwrite");
@@ -440,7 +475,9 @@ export class IndexedDB {
         const promise = new Promise((resolve, reject) => {
           try {
             const store = tx.objectStore(name);
+
             const request = store.put(obj);
+
             request.onsuccess = (event) => {
               resolve(undefined);
             };
@@ -590,6 +627,27 @@ export class IndexedDB {
     });
   }
 
+  public deleteDatabase(database: string): ResultAsync<void, PersistenceError> {
+    return ResultAsync.fromPromise<void, PersistenceError>(
+      new Promise((resolve, reject) => {
+        const request = indexedDB.deleteDatabase(database);
+
+        request.onsuccess = () => {
+          resolve();
+        };
+
+        request.onerror = () => {
+          reject(new PersistenceError("Error deleting database"));
+        };
+
+        request.onblocked = () => {
+          reject(new PersistenceError("Database deletion is blocked"));
+        };
+      }),
+      (e) => e as PersistenceError,
+    );
+  }
+
   public getAll<T extends VersionedObject>(
     storeName: string,
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
@@ -599,6 +657,7 @@ export class IndexedDB {
           (resolve, reject) => {
             const store = tx.objectStore(storeName);
             const indexObj: IDBIndex = store.index("deleted");
+
             const request = indexObj.getAll(EBoolean.FALSE);
 
             request.onsuccess = (event) => {
@@ -886,5 +945,25 @@ export class IndexedDB {
       return this._getCompoundIndexName(paths);
     }
     return this._getFieldPath(index);
+  }
+
+  private _determineIndexName(
+    store: IDBObjectStore,
+    index?: string,
+  ): string | undefined {
+    if (index === undefined) {
+      return undefined;
+    }
+
+    const isMetadataIndex = VolatileStorageMetadataIndexes.some(
+      ([metaIndex]) => metaIndex === index,
+    );
+    if (isMetadataIndex) {
+      return index;
+    } else if (store.indexNames.contains(this._getIndexName(index))) {
+      return this._getIndexName(index);
+    }
+
+    return undefined;
   }
 }

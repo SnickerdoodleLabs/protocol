@@ -1,5 +1,11 @@
-import { ILogUtils, ILogUtilsType, ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
+  ILogUtils,
+  ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+import {
+  DatabaseVersion,
   PersistenceError,
   VersionedObject,
   VolatileStorageKey,
@@ -19,6 +25,7 @@ import {
 
 @injectable()
 export class FakeDBVolatileStorage implements IVolatileStorage {
+  //@TODO update here
   protected indexedDB: ResultAsync<IndexedDB, never> | null = null;
 
   public constructor(
@@ -43,6 +50,7 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
             fakeIndexedDB,
             this.logUtils,
             this.timeUtils,
+            DatabaseVersion,
           ),
       );
     return this.indexedDB;
