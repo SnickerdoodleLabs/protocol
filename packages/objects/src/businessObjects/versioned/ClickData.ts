@@ -3,6 +3,7 @@ import {
   VersionedObjectMigrator,
 } from "@objects/businessObjects/versioned/VersionedObject.js";
 import { URLString, UnixTimestamp } from "@objects/primitives/index.js";
+import { PropertiesOf } from "@objects/utilities/index.js";
 
 /**
  * I honestly don't know what we need to collect for clicks. I'm not a data guy. Presumeably,
@@ -36,14 +37,13 @@ export class ClickDataMigrator extends VersionedObjectMigrator<ClickData> {
     return ClickData.CURRENT_VERSION;
   }
 
-  protected factory(data: Record<string, unknown> | ClickData): ClickData {
-    const clickData = data as ClickData;
+  protected factory(data: PropertiesOf<ClickData>): ClickData {
     return new ClickData(
-      clickData.url,
-      clickData.timestamp,
-      clickData.element,
-      clickData.version2Element,
-      clickData.version3Element,
+      data.url,
+      data.timestamp,
+      data.element,
+      data.version2Element,
+      data.version3Element,
     );
   }
 

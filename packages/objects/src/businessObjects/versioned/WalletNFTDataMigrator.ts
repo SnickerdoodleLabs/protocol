@@ -5,7 +5,7 @@ export class WalletNFTDataMigrator extends VersionedObjectMigrator<WalletNFTData
   public getCurrentVersion(): number {
     return WalletNFTData.CURRENT_VERSION;
   }
-
+  // TODO: @Ozan
   protected factory(
     data: Record<string, unknown> | { data: WalletNFTData },
   ): WalletNFTData {

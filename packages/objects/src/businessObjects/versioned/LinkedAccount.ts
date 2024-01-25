@@ -4,17 +4,15 @@ import {
 } from "@objects/businessObjects/versioned/VersionedObject.js";
 import { EChain } from "@objects/enum/index.js";
 import { AccountAddress } from "@objects/primitives/index.js";
+import { PropertiesOf } from "@objects/utilities/index.js";
 
 export class LinkedAccountMigrator extends VersionedObjectMigrator<LinkedAccount> {
   public getCurrentVersion(): number {
     return LinkedAccount.CURRENT_VERSION;
   }
 
-  protected factory(data: Record<string, unknown>): LinkedAccount {
-    return new LinkedAccount(
-      data["sourceChain"] as EChain,
-      data["sourceAccountAddress"] as AccountAddress,
-    );
+  protected factory(data: PropertiesOf<LinkedAccount>): LinkedAccount {
+    return new LinkedAccount(data.sourceChain, data.sourceAccountAddress);
   }
 
   protected getUpgradeFunctions(): Map<
