@@ -10,6 +10,7 @@ import {
   JSONString,
   UnixTimestamp,
 } from "@objects/primitives/index.js";
+import { PropertiesOf } from "@objects/utilities/index.js";
 
 /**
  * This object stores the state of processing for a recieved SDQL Query. Once we hear about a query
@@ -46,14 +47,14 @@ export class QueryStatusMigrator extends VersionedObjectMigrator<QueryStatus> {
     return QueryStatus.CURRENT_VERSION;
   }
 
-  protected factory(data: Record<string, unknown>): QueryStatus {
+  protected factory(data: PropertiesOf<QueryStatus>): QueryStatus {
     return new QueryStatus(
-      data["consentContractAddress"] as EVMContractAddress,
-      data["queryCID"] as IpfsCID,
-      data["receivedBlock"] as BlockNumber,
-      data["status"] as EQueryProcessingStatus,
-      data["expirationDate"] as UnixTimestamp,
-      data["rewardsParameters"] as JSONString,
+      data.consentContractAddress,
+      data.queryCID,
+      data.receivedBlock,
+      data.status,
+      data.expirationDate,
+      data.rewardsParameters,
     );
   }
 

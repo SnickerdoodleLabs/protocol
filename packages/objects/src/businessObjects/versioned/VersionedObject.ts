@@ -1,9 +1,8 @@
+import { PropertiesOf } from "@objects/utilities/index.js";
+
 export abstract class VersionedObject {
   public abstract getVersion(): number;
 }
-export type PropertiesOf<T> = {
-  [K in keyof T]: T[K] extends Function ? never : T[K];
-};
 export abstract class VersionedObjectMigrator<T> {
   public abstract getCurrentVersion(): number;
   protected abstract factory(data: PropertiesOf<T>): T;

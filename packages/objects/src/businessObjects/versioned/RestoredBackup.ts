@@ -4,6 +4,7 @@ import {
 } from "@objects/businessObjects/versioned/VersionedObject.js";
 import { StorageKey } from "@objects/enum/index.js";
 import { DataWalletBackupID } from "@objects/primitives/index.js";
+import { PropertiesOf } from "@objects/utilities/index.js";
 
 export class RestoredBackup extends VersionedObject {
   public static CURRENT_VERSION = 1;
@@ -15,7 +16,7 @@ export class RestoredBackup extends VersionedObject {
   }
 
   public getVersion(): number {
-    return 1;
+    return RestoredBackup.CURRENT_VERSION;
   }
 }
 
@@ -24,11 +25,8 @@ export class RestoredBackupMigrator extends VersionedObjectMigrator<RestoredBack
     return RestoredBackup.CURRENT_VERSION;
   }
 
-  protected factory(data: Record<string, unknown>): RestoredBackup {
-    return new RestoredBackup(
-      data["id"] as DataWalletBackupID,
-      data["storageKey"] as StorageKey,
-    );
+  protected factory(data: PropertiesOf<RestoredBackup>): RestoredBackup {
+    return new RestoredBackup(data.id, data.storageKey);
   }
 
   protected getUpgradeFunctions(): Map<
