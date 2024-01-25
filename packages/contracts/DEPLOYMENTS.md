@@ -13,6 +13,7 @@ Local blockchain created by running the `snickerdoodlelabs/devchain` docker imag
 - Crumbs: `0x610178dA211FEF7D417bC0e6FeD39F05609AD788`
 - Sift: `0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e`
 - Test Rewards NFT: `0x9A676e781A523b5d0C0e43731313A708CB607508`
+- Test Rewards NFT for pre-minting: `0x0B306BF915C4d645ff596e518fAf3F9669b97016`
 
 ## Fuji Network
 

@@ -4,6 +4,7 @@
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 const { ethers, upgrades } = require("hardhat");
+
 const { logTXDetails } = require("../tasks/constants.js");
 
 // declare variables that need to be referenced by other functions
@@ -33,7 +34,10 @@ async function deployMinimalForwarder() {
   );
 
   // the MinimalForwarder does not require any arguments on deployment
-  const upgradeableMinimalForwarder = await upgrades.deployProxy(MinimalForwarder, []);
+  const upgradeableMinimalForwarder = await upgrades.deployProxy(
+    MinimalForwarder,
+    [],
+  );
   await upgradeableMinimalForwarder.deployed();
 
   trustedForwarderAddress = upgradeableMinimalForwarder.address;
@@ -64,7 +68,10 @@ async function deployConsentFactory() {
 
   // the Consent Factory contract requires one argument on deployment:
   // the address of the trusted forwarder who will pay for the meta tx fees
-  const upgradeableConsentFactory = await upgrades.deployProxy(ConsentFactory, [trustedForwarderAddress, consentAddress])
+  const upgradeableConsentFactory = await upgrades.deployProxy(ConsentFactory, [
+    trustedForwarderAddress,
+    consentAddress,
+  ]);
   await upgradeableConsentFactory.deployed();
 
   console.log("ConsentFactory deployed to:", upgradeableConsentFactory.address);
@@ -139,7 +146,10 @@ async function deployCrumbs() {
   // the Crumbs contract requires 2 arguments on deployment:
   // the address of the trusted forwarder address
   // the base uri
-  const crumbs = await upgrades.deployProxy(Crumbs, [trustedForwarderAddress, "www.crumbs.com/"])
+  const crumbs = await upgrades.deployProxy(Crumbs, [
+    trustedForwarderAddress,
+    "www.crumbs.com/",
+  ]);
   await crumbs.deployed();
 
   console.log("Crumbs deployed to:", crumbs.address);
@@ -186,7 +196,7 @@ async function deployRewards() {
   const Reward = await ethers.getContractFactory("Reward");
 
   // the MinimalForwarder does not require any arguments on deployment
-  const reward = await Reward.deploy();
+  const reward = await Reward.deploy("TestReward", "TR", "www.test-reward.com");
   const reward_receipt = await reward.deployTransaction.wait();
 
   console.log("Reward deployed to:", reward.address);

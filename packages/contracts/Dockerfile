@@ -4,6 +4,11 @@ FROM node:18-slim
 RUN apt update -y \
   && apt install -y vim tmux curl git
 
+# fixes installation when done on Macs
+RUN apt-get install -y \
+    python3 \
+    build-essential
+
 WORKDIR /root
 
 # copy the contracts package into the working directory
