@@ -19,7 +19,7 @@ import { VolatileTableIndex } from "@persistence/volatile/VolatileTableIndex.js"
 
 export class IndexedDB {
   private _databaseConnection?: IDBDatabase;
-  private _keyPaths: Map<string, string | string[]>;
+  private _keyPaths: Map<string, string | string[] | null>;
   private timeoutMS = 5000;
 
   // @TODOS:
@@ -52,7 +52,7 @@ export class IndexedDB {
   ) {
     this._keyPaths = new Map();
     this.schema.forEach((x) => {
-      this._keyPaths.set(x.name, x.keyPath);
+      this._keyPaths.set(x.name, x.primayKey[0]);
     });
   }
 
@@ -281,22 +281,27 @@ export class IndexedDB {
             );
             // If the object store doesn't exist, create it
             if (!existingObjectStores.includes(volatileTableIndex.name)) {
-              let keyPath: string | string[];
-              if (Array.isArray(volatileTableIndex.keyPath)) {
-                keyPath = volatileTableIndex.keyPath.map((x) => {
-                  return this._getFieldPath(x);
-                });
+              let objectStoreParams: IDBObjectStoreParameters;
+              const [keyPathField, autoIncrement] =
+                volatileTableIndex.primayKey;
+              if (autoIncrement) {
+                objectStoreParams = {
+                  autoIncrement: true,
+                };
               } else {
-                keyPath = this._getFieldPath(volatileTableIndex.keyPath);
+                objectStoreParams = {
+                  keyPath: Array.isArray(keyPathField)
+                    ? keyPathField.map((x) => {
+                        return this._getFieldPath(x);
+                      })
+                    : this._getFieldPath(keyPathField),
+                  autoIncrement: false,
+                };
               }
 
-              const keyPathObj: IDBObjectStoreParameters = {
-                autoIncrement: volatileTableIndex.autoIncrement ?? false,
-                keyPath: volatileTableIndex.autoIncrement ? undefined : keyPath,
-              };
               const objectStore = db.createObjectStore(
                 volatileTableIndex.name,
-                keyPathObj,
+                objectStoreParams,
               );
 
               // Create indexes
@@ -771,24 +776,13 @@ export class IndexedDB {
   public getKey(
     tableName: string,
     obj: VersionedObject,
-  ): ResultAsync<VolatileStorageKey, PersistenceError> {
+  ): ResultAsync<VolatileStorageKey | null, PersistenceError> {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const keyPath = this._keyPaths.get(tableName);
-
+    // that means the object store has a primary key which is auto-incremented
     if (keyPath == undefined) {
-      return errAsync(
-        new PersistenceError(
-          `An error occurred in IndexDB on table ${tableName}. The keypath for the object is invalid`,
-          obj,
-        ),
-      );
+      return okAsync(null);
     }
-
-    // I can't for the life of me figure out what's going on here.
-    // if (keyPath == VolatileTableIndex.DEFAULT_KEY) {
-    //   return okAsync(null);
-    // }
-
     try {
       if (Array.isArray(keyPath)) {
         const ret: VolatileStorageKey[] = [];

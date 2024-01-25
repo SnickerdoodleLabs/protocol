@@ -122,8 +122,7 @@ export const dummyClickData = [
 export const dummyIndex = ERecordKey.CLICKS;
 export const dummyTable = new VolatileTableIndex(
   ERecordKey.CLICKS,
-  ["url", "timestamp"],
-  false,
+  [["url", "timestamp"], false],
   new ClickDataMigrator(),
   EBackupPriority.NORMAL,
   10000,

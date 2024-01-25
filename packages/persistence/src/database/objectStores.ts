@@ -33,8 +33,7 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
       ERecordKey.ACCOUNT,
       new VolatileTableIndex(
         ERecordKey.ACCOUNT,
-        "sourceAccountAddress",
-        false,
+        ["sourceAccountAddress", false],
         new LinkedAccountMigrator(),
         EBackupPriority.HIGH,
         config?.dataWalletBackupIntervalMS ?? testTimeValue,
@@ -46,8 +45,7 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
       ERecordKey.TRANSACTIONS,
       new VolatileTableIndex(
         ERecordKey.TRANSACTIONS,
-        "hash",
-        false,
+        ["hash", false],
         new ChainTransactionMigrator(),
         EBackupPriority.DISABLED,
         config?.dataWalletBackupIntervalMS ?? testTimeValue,
@@ -66,8 +64,7 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
       ERecordKey.SITE_VISITS,
       new VolatileTableIndex(
         ERecordKey.SITE_VISITS,
-        "id", // This was previously the "DEFAULT_KEY" (which was "id"), but that's not a valid key.
-        true,
+        [null, true],
         new SiteVisitMigrator(),
         EBackupPriority.NORMAL,
         config?.dataWalletBackupIntervalMS ?? testTimeValue,
@@ -83,8 +80,7 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
       ERecordKey.REJECTED_INVITATIONS,
       new VolatileTableIndex(
         ERecordKey.REJECTED_INVITATIONS,
-        "consentContractAddress",
-        false,
+        ["consentContractAddress", false],
         new RejectedInvitationMigrator(),
         EBackupPriority.NORMAL,
         config?.dataWalletBackupIntervalMS ?? testTimeValue,
@@ -92,11 +88,10 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
       ),
     ],
     [
-      ERecordKey.EARNED_REWARDS, //Name Change
+      ERecordKey.EARNED_REWARDS,
       new VolatileTableIndex(
         ERecordKey.EARNED_REWARDS,
-        ["queryCID", "name", "type"],
-        false,
+        [["queryCID", "name", "type"], false],
         new EarnedRewardMigrator(),
         EBackupPriority.NORMAL,
         0, // instant push
@@ -108,8 +103,7 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
       ERecordKey.ELIGIBLE_ADS,
       new VolatileTableIndex(
         ERecordKey.ELIGIBLE_ADS,
-        ["queryCID", "key"],
-        false,
+        [["queryCID", "key"], false],
         new EligibleAdMigrator(),
         EBackupPriority.NORMAL,
         config?.dataWalletBackupIntervalMS ?? testTimeValue,
@@ -121,8 +115,7 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
       ERecordKey.AD_SIGNATURES,
       new VolatileTableIndex(
         ERecordKey.AD_SIGNATURES,
-        ["queryCID", "adKey"],
-        false,
+        [["queryCID", "adKey"], false],
         new AdSignatureMigrator(),
         EBackupPriority.NORMAL,
         config?.dataWalletBackupIntervalMS ?? testTimeValue,
@@ -134,8 +127,7 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
       ERecordKey.COIN_INFO,
       new VolatileTableIndex(
         ERecordKey.COIN_INFO,
-        ["chain", "address"],
-        false,
+        [["chain", "address"], false],
         new TokenInfoMigrator(),
         EBackupPriority.DISABLED,
         config?.dataWalletBackupIntervalMS ?? testTimeValue,
@@ -147,8 +139,7 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
       ERecordKey.RESTORED_BACKUPS,
       new VolatileTableIndex(
         ERecordKey.RESTORED_BACKUPS,
-        "id",
-        false,
+        ["id", false],
         new RestoredBackupMigrator(),
         EBackupPriority.DISABLED,
         config?.dataWalletBackupIntervalMS ?? testTimeValue,
@@ -160,8 +151,7 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
       ERecordKey.RECEIVING_ADDRESSES,
       new VolatileTableIndex(
         ERecordKey.RECEIVING_ADDRESSES,
-        "contractAddress",
-        false,
+        ["contractAddress", false],
         new ReceivingAccountMigrator(),
         EBackupPriority.NORMAL,
         config?.dataWalletBackupIntervalMS ?? testTimeValue,
@@ -172,8 +162,7 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
       ERecordKey.QUERY_STATUS,
       new VolatileTableIndex(
         ERecordKey.QUERY_STATUS,
-        "queryCID",
-        false,
+        ["queryCID", false],
         new QueryStatusMigrator(),
         EBackupPriority.HIGH,
         config?.dataWalletBackupIntervalMS ?? testTimeValue,
@@ -184,8 +173,7 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
       ERecordKey.DOMAIN_CREDENTIALS,
       new VolatileTableIndex(
         ERecordKey.DOMAIN_CREDENTIALS,
-        "domain",
-        false,
+        ["domain", false],
         new DomainCredentialMigrator(),
         EBackupPriority.NORMAL,
         config?.dataWalletBackupIntervalMS ?? testTimeValue,
@@ -196,8 +184,7 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
       ERecordKey.SOCIAL_PROFILE,
       new VolatileTableIndex(
         ERecordKey.SOCIAL_PROFILE,
-        "pKey",
-        false,
+        ["pKey", false],
         new SocialProfileMigrator(),
         EBackupPriority.NORMAL,
         0,
@@ -209,8 +196,7 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
       ERecordKey.SOCIAL_GROUP,
       new VolatileTableIndex(
         ERecordKey.SOCIAL_GROUP,
-        "pKey",
-        false,
+        ["pKey", false],
         new SocialGroupProfileMigrator(),
         EBackupPriority.NORMAL,
         config?.dataWalletBackupIntervalMS ?? testTimeValue,
@@ -225,8 +211,7 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
       ERecordKey.NFTS,
       new VolatileTableIndex(
         ERecordKey.NFTS,
-        "id",
-        false,
+        ["id", false],
         new WalletNFTDataMigrator(),
         EBackupPriority.DISABLED,
         config?.dataWalletBackupIntervalMS ?? testTimeValue,
@@ -237,8 +222,7 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
       ERecordKey.NFTS_HISTORY,
       new VolatileTableIndex(
         ERecordKey.NFTS_HISTORY,
-        "id",
-        false,
+        ["id", false],
         new WalletNFTHistoryMigrator(),
         EBackupPriority.DISABLED,
         config?.dataWalletBackupIntervalMS ?? testTimeValue,
