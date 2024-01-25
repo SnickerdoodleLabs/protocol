@@ -65,7 +65,7 @@
   "lint-staged": {
     "*.format:pkg": "prettier --write"
   },
-  "packageManager": "yarn@4.0.2",
+  "packageManager": "yarn@3.2.1",
   "resolutions": {
     "@types/react": "^17.0.38",
     "ethereumjs-abi": "^0.6.8"
