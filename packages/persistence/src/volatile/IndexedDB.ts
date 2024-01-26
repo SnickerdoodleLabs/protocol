@@ -141,10 +141,22 @@ export class IndexedDB {
    * @param {IDBDatabase} db - The IDBDatabase instance to migrate.
    */
   private migrateDB(db: IDBDatabase) {
+    const validObjectStores = db.objectStoreNames;
     const stores =
       this.objectStoresMightNeedMigration.length > 0
         ? this.objectStoresMightNeedMigration
-        : this.schema.map((x) => x.name);
+        : this.schema
+            .map((def) => def.name)
+            .filter((storeName) => {
+              const isValid = validObjectStores.contains(storeName);
+              if (!isValid) {
+                // This check is added for developers: If this log is triggered, it suggests a potential issue with database versioning.
+                this.logUtils.warning(
+                  `Skipping migration for store ${storeName} as it does not exist in the database. This indicates the db version is out of sync with the schema. If you see this warning in the console, please ensure that the database version is updated correctly in sync with the schema.`,
+                );
+              }
+              return isValid;
+            });
     stores.forEach((storeName) => {
       this.migrateStore(storeName, db);
     });
@@ -759,8 +771,6 @@ export class IndexedDB {
                 "In IndexDB, getting keys by index query no longer supported",
               ),
             );
-            // const indexObj: IDBIndex = store.index(this._getIndexName(index));
-            // request = indexObj.getAllKeys(query, count);
           }
         });
 
