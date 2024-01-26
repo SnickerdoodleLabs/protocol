@@ -1,4 +1,5 @@
 import { Box } from "@material-ui/core";
+import { NftMetadataParseUtils } from "@snickerdoodlelabs/common-utils";
 import { EVMNFT } from "@snickerdoodlelabs/objects";
 import { SDTypography } from "@snickerdoodlelabs/shared-components";
 import React, { FC, useMemo } from "react";
@@ -7,7 +8,6 @@ import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import MediaRenderer from "@extension-onboarding/components/NFTItem/MediaRenderer";
 import { useStyles } from "@extension-onboarding/components/NFTItem/NFTItem.style";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { NftMetadataParseUtils } from "@extension-onboarding/utils";
 
 export interface IEVMNFTItemProps {
   item: EVMNFT;

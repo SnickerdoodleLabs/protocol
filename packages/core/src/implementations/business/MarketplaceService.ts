@@ -31,6 +31,7 @@ import {
   MissingWalletDataTypeError,
   BlockchainCommonErrors,
   EarnedReward,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -130,6 +131,7 @@ export class MarketplaceService implements IMarketplaceService {
     | BlockchainProviderError
     | ConsentContractError
     | BlockchainCommonErrors
+    | InvalidParametersError
   > {
     return this.marketplaceRepo.getRecommendationsByListing(listing);
   }

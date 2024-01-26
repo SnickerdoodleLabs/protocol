@@ -211,10 +211,13 @@ var options = {
       __OKLINK_API_KEY__: JSON.stringify(process.env.__OKLINK_API_KEY__),
       __ANKR_API_KEY__: JSON.stringify(process.env.__ANKR_API_KEY__),
       __BLUEZ_API_KEY__: JSON.stringify(process.env.__BLUEZ_API_KEY__),
-      __RARIBILE_API_KEY__: JSON.stringify(process.env.__RARIBILE_API_KEY__),
-      __SPACEANDTIME_API_KEY__: JSON.stringify(
-        process.env.__SPACEANDTIME_API_KEY__,
+      __SPACEANDTIME_API_USERID__: JSON.stringify(
+        process.env.__SPACEANDTIME_API_USERID__,
       ),
+      __SPACEANDTIME_API_PRIVATEKEY__: JSON.stringify(
+        process.env.__SPACEANDTIME_API_PRIVATEKEY__,
+      ),
+      __RARIBILE_API_KEY__: JSON.stringify(process.env.__RARIBILE_API_KEY__),
       __BLOCKVISION_API_KEY__: JSON.stringify(
         process.env.__BLOCKVISION_API_KEY__,
       ),
@@ -233,6 +236,9 @@ var options = {
       __DOMAIN_FILTER__: JSON.stringify(process.env.__DOMAIN_FILTER__),
       __PORTFOLIO_POLLING_INTERVAL__: JSON.stringify(
         process.env.__PORTFOLIO_POLLING_INTERVAL__,
+      ),
+      __NFT_POLLING_INTERVAL__: JSON.stringify(
+        process.env.__NFT_POLLING_INTERVAL__,
       ),
       __TRANSACTION_POLLING_INTERVAL__: JSON.stringify(
         process.env.__TRANSACTION_POLLING_INTERVAL__,

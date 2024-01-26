@@ -1,7 +1,7 @@
 {
   "editor.formatOnSave": false,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": "explicit"
   },
   "typescript.tsdk": "node_modules/typescript/lib",
   "cSpell.words": [
@@ -20,6 +20,7 @@
     "Ipfs",
     "ISDQL",
     "ITXT",
+    "Keccak",
     "Metatransaction",
     "moralis",
     "mysten",
@@ -27,6 +28,7 @@
     "oklink",
     "poap",
     "Postmate",
+    "retryable",
     "sdql",
     "Sibbach",
     "Snickerdoodle",

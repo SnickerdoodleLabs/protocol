@@ -5,7 +5,7 @@ export enum ERecordKey {
   BALANCES = "SD_Balances",
   BALANCES_LAST_UPDATE = "SD_Balances_lastUpdate",
   NFTS = "SD_NFTs",
-  NFTS_LAST_UPDATE = "SD_NFTs_lastUpdate",
+  NFTS_HISTORY = "SD_NFTS_HISTORY",
   URLs = "SD_URLs",
   CLICKS = "SD_CLICKS",
   EARNED_REWARDS = "SD_EarnedRewards",

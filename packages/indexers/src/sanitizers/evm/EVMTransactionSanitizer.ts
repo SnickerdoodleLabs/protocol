@@ -45,6 +45,7 @@ export class EVMTransactionSanitizer implements IEVMTransactionSanitizer {
       irregularData,
       false,
     );
+
     const timestamp = this.checkProperty(
       transaction.timestamp,
       "timestamp",
@@ -52,6 +53,7 @@ export class EVMTransactionSanitizer implements IEVMTransactionSanitizer {
       irregularData,
       false,
     );
+
     //Can be null, but if exists should match our format
     const blockHeight = this.checkProperty(
       transaction.blockHeight,

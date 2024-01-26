@@ -62,8 +62,8 @@ import {
   RefreshToken,
   IProxyAccountMethods,
   IProxyPurchaseMethods,
-  TransactionFilter,
   ShoppingDataConnectionStatus,
+  INftProxyMethods,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -160,6 +160,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public metrics: IProxyMetricsMethods;
   public twitter: IProxyTwitterMethods;
   public storage: IProxyStorageMethods;
+  public nft: INftProxyMethods;
   public events: PublicEvents;
   public purchase: IProxyPurchaseMethods;
   public requestDashboardView = undefined;
@@ -342,6 +343,25 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     this.metrics = {
       getMetrics: () => {
         return coreGateway.metrics.getMetrics();
+      },
+      getNFTCache: () => {
+        return coreGateway.metrics.getNFTCache();
+      },
+      getPersistenceNFTs: () => {
+        return coreGateway.metrics.getPersistenceNFTs();
+      },
+      getNFTsHistory: () => {
+        return coreGateway.metrics.getNFTsHistory();
+      },
+    };
+
+    this.nft = {
+      getNfts: (
+        benchmark: UnixTimestamp | undefined,
+        chains: EChain[] | undefined,
+        accounts: LinkedAccount[] | undefined,
+      ) => {
+        return coreGateway.nft.getNfts(benchmark, chains, accounts);
       },
     };
 
@@ -546,9 +566,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public getAccountBalances() {
     return coreGateway.getAccountBalances();
   }
-  public getAccountNFTs() {
-    return coreGateway.getAccountNFTs();
-  }
+
   public getFamilyName() {
     return coreGateway.getFamilyName();
   }

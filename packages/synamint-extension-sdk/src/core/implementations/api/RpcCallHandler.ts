@@ -155,6 +155,9 @@ import {
   PurchaseGetShoppingDataConnectionStatusParams,
   PurchaseSetShoppingDataConnectionStatusParams,
   PurchaseGetPurchasedProductsParams,
+  GetPersistenceNFTsParams,
+  GetAccountNFTHistoryParams,
+  GetAccountNftCacheParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -251,10 +254,15 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this.accountService.getAccountBalances();
       },
     ),
+
     new CoreActionHandler<GetAccountNFTsParams>(
       GetAccountNFTsParams.getCoreAction(),
       (_params) => {
-        return this.accountService.getAccountNFTs();
+        return this.accountService.getNfts(
+          _params.benchmark,
+          _params.chains,
+          _params.accounts,
+        );
       },
     ),
 
@@ -699,6 +707,30 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this.metricsService.getMetrics(sourceDomain);
       },
     ),
+
+    new CoreActionHandler<GetPersistenceNFTsParams>(
+      GetPersistenceNFTsParams.getCoreAction(),
+      (_params) => {
+        return this.metricsService.getPersistenceNFTs();
+      },
+    ),
+
+    new CoreActionHandler<GetAccountNftCacheParams>(
+      GetAccountNftCacheParams.getCoreAction(),
+      (_params) => {
+        return this.metricsService.getNFTCache().map((map) => {
+          return ObjectUtils.serialize(map);
+        });
+      },
+    ),
+
+    new CoreActionHandler<GetAccountNFTHistoryParams>(
+      GetAccountNFTHistoryParams.getCoreAction(),
+      (_params) => {
+        return this.metricsService.getNFTsHistory();
+      },
+    ),
+
     // #endregion
     // #region Integration
 

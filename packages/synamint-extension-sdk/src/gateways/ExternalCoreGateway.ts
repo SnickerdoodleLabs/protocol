@@ -76,6 +76,7 @@ import {
   PageInvitation,
   Invitation,
   ShoppingDataConnectionStatus,
+  INftProxyMethods,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -168,6 +169,9 @@ import {
   PurchaseGetShoppingDataConnectionStatusParams,
   PurchaseSetShoppingDataConnectionStatusParams,
   PurchaseGetPurchasedProductsParams,
+  GetPersistenceNFTsParams,
+  GetAccountNFTHistoryParams,
+  GetAccountNftCacheParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -199,6 +203,7 @@ export class ExternalCoreGateway {
   public purchase: IProxyPurchaseMethods;
   public scraper: IGatewayScraperMethods;
   public scraperNavigation: IGatewayScraperNavigationMethods;
+  public nft: INftProxyMethods;
   protected _handler: CoreHandler;
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
@@ -289,6 +294,18 @@ export class ExternalCoreGateway {
       },
     };
 
+    this.nft = {
+      getNfts: (
+        benchmark?: UnixTimestamp,
+        chains?: EChain[],
+        accounts?: LinkedAccount[],
+      ) => {
+        return this._handler.call(
+          new GetAccountNFTsParams(benchmark, chains, accounts),
+        );
+      },
+    };
+
     this.integration = {
       requestPermissions: (
         permissions: EDataWalletPermission[],
@@ -318,6 +335,19 @@ export class ExternalCoreGateway {
     this.metrics = {
       getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
         return this._handler.call(new GetMetricsParams());
+      },
+      getPersistenceNFTs: () => {
+        return this._handler.call(new GetPersistenceNFTsParams());
+      },
+      getNFTsHistory: () => {
+        return this._handler.call(new GetAccountNFTHistoryParams());
+      },
+      getNFTCache: () => {
+        return this._handler
+          .call(new GetAccountNftCacheParams())
+          .map((jsonString) => {
+            return ObjectUtils.deserialize(jsonString);
+          });
       },
     };
 
@@ -530,9 +560,6 @@ export class ExternalCoreGateway {
     params: GetTokenInfoParams,
   ): ResultAsync<TokenInfo | null, ProxyError> {
     return this._handler.call(params);
-  }
-  public getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError> {
-    return this._handler.call(new GetAccountNFTsParams());
   }
 
   public getTransactionValueByChain(): ResultAsync<

@@ -41,6 +41,9 @@ import {
   DomainTask,
   PurchasedProduct,
   ShoppingDataConnectionStatus,
+  NftRepositoryCache,
+  WalletNFTData,
+  WalletNFTHistory,
   // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
@@ -83,6 +86,7 @@ import {
   ScraperError,
   InvalidURLError,
   LLMError,
+  MethodSupportError,
 } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
@@ -266,6 +270,7 @@ export interface ICoreMarketplaceMethods {
     | UninitializedError
     | ConsentContractError
     | BlockchainCommonErrors
+    | InvalidParametersError
   >;
 
   /**
@@ -526,6 +531,7 @@ export interface IInvitationMethods {
     | MinimalForwarderContractError
     | ConsentError
     | UnauthorizedError
+    | InvalidParametersError
     | BlockchainCommonErrors
   >;
 
@@ -668,6 +674,32 @@ export interface IMetricsMethods {
   getMetrics(
     sourceDomain: DomainName | undefined,
   ): ResultAsync<RuntimeMetrics, never>;
+
+  getNFTCache(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<NftRepositoryCache, PersistenceError>;
+  getPersistenceNFTs(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<WalletNFTData[], PersistenceError>;
+  getNFTsHistory(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<WalletNFTHistory[], PersistenceError>;
+}
+
+export interface INftMethods {
+  getNfts(
+    benchmark: UnixTimestamp | undefined,
+    chains: EChain[] | undefined,
+    accounts: LinkedAccount[] | undefined,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    WalletNFT[],
+    | PersistenceError
+    | AccountIndexingError
+    | AjaxError
+    | MethodSupportError
+    | InvalidParametersError
+  >;
 }
 
 export interface IStorageMethods {
@@ -937,9 +969,7 @@ export interface ISnickerdoodleCore {
   getAccountBalances(
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<TokenBalance[], PersistenceError | UnauthorizedError>;
-  getAccountNFTs(
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<WalletNFT[], PersistenceError | UnauthorizedError>;
+
   getTransactionValueByChain(
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<
@@ -995,6 +1025,7 @@ export interface ISnickerdoodleCore {
   purchase: IPurchaseMethods;
   scraper: IScraperMethods;
   scraperNavigation: IScraperNavigationMethods;
+  nft: INftMethods;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

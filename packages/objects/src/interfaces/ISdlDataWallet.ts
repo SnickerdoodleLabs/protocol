@@ -35,6 +35,7 @@ import {
   IPurchaseMethods,
   IScraperNavigationMethods,
   IStorageMethods,
+  INftMethods,
 } from "@objects/interfaces/ISnickerdoodleCore.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
@@ -104,6 +105,15 @@ export type IProxyDiscordMethods = {
     ...args: [...PopTuple<Parameters<ICoreDiscordMethods[key]>>]
   ) => ResultAsync<
     GetResultAsyncValueType<ReturnType<ICoreDiscordMethods[key]>>,
+    ProxyError
+  >;
+};
+
+export type INftProxyMethods = {
+  [key in FunctionKeys<INftMethods>]: (
+    ...args: [...PopTuple<Parameters<INftMethods[key]>>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<INftMethods[key]>>,
     ProxyError
   >;
 };
@@ -257,7 +267,6 @@ export interface ISdlDataWallet {
     contractAddress: TokenAddress | null,
   ): ResultAsync<TokenInfo | null, ProxyError>;
   getAccountBalances(): ResultAsync<TokenBalance[], ProxyError>;
-  getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError>;
 
   getTransactionValueByChain(): ResultAsync<
     TransactionFlowInsight[],
@@ -360,6 +369,7 @@ export interface ISdlDataWallet {
   twitter: IProxyTwitterMethods;
   metrics: IProxyMetricsMethods;
   storage: IProxyStorageMethods;
+  nft: INftProxyMethods;
   events: ISnickerdoodleCoreEvents;
   purchase: IProxyPurchaseMethods;
 }

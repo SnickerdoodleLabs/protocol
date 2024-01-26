@@ -27,6 +27,7 @@ import {
   EDataProvider,
   SolanaNFT,
   SolanaAccountAddress,
+  EContractStandard,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import * as td from "testdouble";
@@ -146,6 +147,7 @@ class MasterIndexerMocks {
   public rarible: EVMIndexerMock;
   public sim: EVMIndexerMock;
   public sol: ISolanaIndexer;
+  public sxt: EVMIndexerMock;
   public configProvider: IIndexerConfigProvider;
   public ajaxUtils: IAxiosAjaxUtils;
   public tokenPriceRepo: ITokenPriceRepository;
@@ -209,6 +211,10 @@ class MasterIndexerMocks {
       EDataProvider.Sim,
       new Map<EChain, IndexerSupportSummary>(),
     );
+    this.sxt = new EVMIndexerMock(
+      EDataProvider.SpaceAndTime,
+      new Map<EChain, IndexerSupportSummary>(),
+    );
     this.sol = td.object<ISolanaIndexer>();
     this.blockvision = td.object<ISuiIndexer>();
     this.bigNumberUtils = td.object<IBigNumberUtils>();
@@ -261,6 +267,7 @@ class MasterIndexerMocks {
       this.rarible,
       this.sim,
       this.sol,
+      this.sxt,
       this.logUtils,
       this.bigNumberUtils,
       this.evmTransactionSanitizer,
@@ -283,13 +290,14 @@ class MasterIndexerMocks {
     return new EVMNFT(
       tokenAddress,
       tokenId,
-      "contractType",
+      EContractStandard.Erc721,
       accountAddress,
       undefined,
       undefined,
-      invalidBalance,
       "name",
       chain,
+      invalidBalance,
+      UnixTimestamp(0),
       undefined,
       undefined,
     );
