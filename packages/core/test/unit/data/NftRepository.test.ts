@@ -178,14 +178,14 @@ describe("NftRepository", () => {
   });
 
   describe("storing and  transferring nfts ", () => {
-    test("no benchmark given should only shibuya nft since db is not populated", async () => {
+    test("no benchmark given but accounts are linked and the cache is empty, will get all the nfts", async () => {
       // Arrange
       const mocks = new NftRepositoryMocks();
       const service = mocks.factory();
 
       //Act
       const result = await getOk(service.getNfts());
-      expect(result).toEqual(expectedShibuya);
+      expect(result).toEqual(expectedNfts);
     });
 
     test("benchmark given, since cache does not exist will trigger indexers but the dates are later than the benchmark, will not return the new data", async () => {
