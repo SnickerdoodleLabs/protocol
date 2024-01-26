@@ -18,7 +18,7 @@ import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
 import { VolatileTableIndex } from "@persistence/volatile/VolatileTableIndex.js";
 
 export class IndexedDB {
-  private _databaseConnection?: IDBDatabase;
+  private _initialized?: ResultAsync<IDBDatabase, PersistenceError>;
   private _keyPaths: Map<string, string | string[] | null>;
   private timeoutMS = 5000;
 
@@ -250,8 +250,8 @@ export class IndexedDB {
   // #endregion migration logic
 
   public initialize(): ResultAsync<IDBDatabase, PersistenceError> {
-    if (this._databaseConnection) {
-      return okAsync(this._databaseConnection);
+    if (this._initialized) {
+      return this._initialized;
     }
 
     const promise = new Promise<IDBDatabase>((resolve, reject) => {
@@ -404,29 +404,30 @@ export class IndexedDB {
       }
     });
 
-    return ResultAsync.fromPromise(promise, (e) => {
+    this._initialized = ResultAsync.fromPromise(promise, (e) => {
       // We know that the promise rejects with a PersistenceError
       return e as PersistenceError;
     }).andThen((db) => {
       return this.persist().andThen((persisted) => {
         this.logUtils.debug("IndexDB Persist success: " + persisted);
-        this._databaseConnection = db;
-        return okAsync(this._databaseConnection);
+        return okAsync(db);
       });
     });
+
+    return this._initialized;
   }
 
-  public close(): ResultAsync<void, never> {
-    if (this._databaseConnection != null) {
-      //So typescript can be happy
-      const dbInstance = this._databaseConnection;
-      return ResultAsync.fromSafePromise(
-        new Promise<void>((resolve) => {
-          dbInstance.close();
-          this._databaseConnection = undefined;
-          resolve();
-        }),
-      );
+  public close(): ResultAsync<void, PersistenceError> {
+    if (this._initialized != null) {
+      return this.initialize().andThen((db) => {
+        return ResultAsync.fromSafePromise(
+          new Promise<void>((resolve) => {
+            db.close();
+            this._initialized = undefined;
+            resolve();
+          }),
+        );
+      });
     }
     return okAsync(undefined);
   }

@@ -23,8 +23,6 @@
     "resolveJsonModule": true,
     "jsx": "react",
     "composite": true,
-    "strictPropertyInitialization": true,
-    "strictFunctionTypes": true,
   },
   "tsc-alias": {
     "verbose": false,
