@@ -62,6 +62,7 @@ import {
   RefreshToken,
   IProxyAccountMethods,
   IProxyPurchaseMethods,
+  TransactionFilter,
   ShoppingDataConnectionStatus,
   INftProxyMethods,
 } from "@snickerdoodlelabs/objects";

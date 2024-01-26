@@ -19,6 +19,7 @@ export * from "@objects/errors/LLMError.js";
 export * from "@objects/errors/MethodSupportError.js";
 export * from "@objects/errors/MissingASTError.js";
 export * from "@objects/errors/MissingWalletDataTypeError.js";
+export * from "@objects/errors/NLPError.js";
 export * from "@objects/errors/OAuthError.js";
 export * from "@objects/errors/ParserTypeNotImplementedError.js";
 export * from "@objects/errors/PermissionError.js";
