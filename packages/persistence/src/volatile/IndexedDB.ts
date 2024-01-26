@@ -418,19 +418,17 @@ export class IndexedDB {
   }
 
   public close(): ResultAsync<void, PersistenceError> {
-    if (this._initialized != null) {
-      return this.initialize().andThen((db) => {
-        return ResultAsync.fromSafePromise(
-          new Promise<void>((resolve) => {
-            db.close();
-            this._initialized = undefined;
-            resolve();
-          }),
-        );
-      });
-    }
-    return okAsync(undefined);
+    return this.initialize().andThen((db) => {
+      return ResultAsync.fromSafePromise(
+        new Promise<void>((resolve) => {
+          db.close();
+          this._initialized = undefined;
+          resolve();
+        }),
+      );
+    });
   }
+
   public persist(): ResultAsync<boolean, PersistenceError> {
     if (
       typeof navigator === "undefined" ||
