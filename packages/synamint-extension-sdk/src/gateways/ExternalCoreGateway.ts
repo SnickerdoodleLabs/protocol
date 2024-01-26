@@ -355,7 +355,6 @@ export class ExternalCoreGateway {
         url: URLString,
         language: ELanguageCode,
       ): ResultAsync<DomainTask, ProxyError> => {
-        console.log("externalgateway");
         return this._handler.call(new ScraperClassifyUrlParams(url, language));
       },
     };

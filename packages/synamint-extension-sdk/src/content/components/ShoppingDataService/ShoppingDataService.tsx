@@ -67,21 +67,25 @@ export const ShoppingDataService: React.FC<IShoppingDataProcessProps> = ({
 
                   const windowHTML =
                     newWindow.document.documentElement.outerHTML;
-                  console.log("test22");
                   coreGateway.scraper
                     .classifyURL(URLString(url), ELanguageCode.English)
                     .andThen((DomainTask) => {
-                      console.log("domainTask", DomainTask);
                       return coreGateway.scraper
                         .scrape(
                           URLString(url),
                           HTMLString(windowHTML),
                           DomainTask,
                         )
-                        .map((result) => console.log("scrape function", result))
-                        .mapErr((err) => console.log("iç", err));
+                        .map((result) =>
+                          console.log("scrape function result", result),
+                        )
+                        .mapErr((err) =>
+                          console.log("scrape function error", err),
+                        );
                     })
-                    .mapErr((err) => console.log("clasifyerror", err));
+                    .mapErr((err) =>
+                      console.log("clasifyUrl function error", err),
+                    );
 
                   newWindow.close();
                   openWindowCount--;
@@ -109,7 +113,6 @@ export const ShoppingDataService: React.FC<IShoppingDataProcessProps> = ({
       setShoppingDataState(EShoppingDataState.SHOPPINGDATA_INIT);
       if (shoppingDataScrapeStart) {
         setShoppingDataState(EShoppingDataState.SHOPPINGDATA_SCRAPE_PROCESS);
-        console.log("test1");
         getAmazonUrlsAndScrape();
       }
     }

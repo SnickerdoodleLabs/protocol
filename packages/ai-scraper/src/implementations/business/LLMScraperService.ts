@@ -126,14 +126,16 @@ export class LLMScraperService implements IScraperService {
         return this.llmRepository
           .executePrompt(prompt)
           .andThen((llmResponse) => {
-            return this.llmPurchaseValidator.fixMalformedJSONArrayResponse(llmResponse).andThen((sanitizedLLMResponse) => {
-              return this.processLLMPurchaseResponse(
-                prompt,
-                suggestedDomainTask,
-                language,
-                sanitizedLLMResponse,
-              );
-            });
+            return this.llmPurchaseValidator
+              .fixMalformedJSONArrayResponse(llmResponse)
+              .andThen((sanitizedLLMResponse) => {
+                return this.processLLMPurchaseResponse(
+                  prompt,
+                  suggestedDomainTask,
+                  language,
+                  sanitizedLLMResponse,
+                );
+              });
           });
       },
     );
@@ -175,17 +177,10 @@ export class LLMScraperService implements IScraperService {
         .andThen((purchases) => {
           // Find a better way to refactor it
           // return this.savePurchases(purchases);
-          this.logUtils.info("raw purchases", purchases);
           return this.llmPurchaseValidator
             .trimHalucinatedPurchases(prompt, purchases)
             .andThen((validPurchases) => {
-              this.logUtils.info("valid purchases", validPurchases);
               if (validPurchases.length < purchases.length) {
-                this.logUtils.info(
-                  `Removed ${
-                    purchases.length - validPurchases.length
-                  } fake purchases.`,
-                );
               }
               return this.savePurchases(validPurchases).andThen(() => {
                 return this.scrapeProductMeta(
@@ -246,28 +241,27 @@ export class LLMScraperService implements IScraperService {
         return this.llmRepository
           .executePrompt(prompt)
           .andThen((llmResponse) => {
+            return this.llmPurchaseValidator
+              .fixMalformedJSONArrayResponse(llmResponse)
+              .andThen((sanitizedLLMResponse) => {
+                const productMetas = this.productMetaUtils.parseMeta(
+                  domainTask.domain,
+                  language,
+                  sanitizedLLMResponse,
+                );
+                // TODO
+                return productMetas.andThen((metas) => {
+                  const purchasesToUpdate = metas.map((meta) => {
+                    const purchase =
+                      nullCategoryPurchases[parseInt(meta.productId)]; // this indexing is not correct
+                    purchase.category = meta.category ?? UnknownProductCategory; // TODO convert to enum
+                    purchase.keywords = meta.keywords;
+                    return purchase;
+                  });
 
-            return this.llmPurchaseValidator.fixMalformedJSONArrayResponse(llmResponse).andThen((sanitizedLLMResponse) => {
-
-              const productMetas = this.productMetaUtils.parseMeta(
-                domainTask.domain,
-                language,
-                sanitizedLLMResponse,
-              );
-              // TODO
-              return productMetas.andThen((metas) => {
-                const purchasesToUpdate = metas.map((meta) => {
-                  const purchase =
-                    nullCategoryPurchases[parseInt(meta.productId)]; // this indexing is not correct
-                  purchase.category = meta.category ?? UnknownProductCategory; // TODO convert to enum
-                  purchase.keywords = meta.keywords;
-                  return purchase;
+                  return this.savePurchases(purchasesToUpdate);
                 });
-  
-                return this.savePurchases(purchasesToUpdate);
               });
-
-            });
           });
       })
       .mapErr((err) => {
