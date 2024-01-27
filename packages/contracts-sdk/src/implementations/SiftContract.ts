@@ -24,8 +24,8 @@ export class SiftContract
 {
   constructor(
     protected providerOrSigner:
-      | ethers.providers.Provider
-      | ethers.providers.JsonRpcSigner
+      | ethers.Provider
+      | ethers.JsonRpcSigner
       | ethers.Wallet,
     protected contractAddress: EVMContractAddress,
   ) {

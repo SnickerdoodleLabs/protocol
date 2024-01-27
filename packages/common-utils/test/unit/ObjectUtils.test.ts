@@ -5,7 +5,6 @@ import {
   PagingRequest,
   BigNumberString,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import { ObjectUtils } from "@common-utils/implementations/ObjectUtils.js";
@@ -70,7 +69,7 @@ describe("ObjectUtils tests", () => {
         ["foo1", "bar1"],
       ]),
       set: new Set([1, 2, 3, 3]),
-      bigNumber: BigNumber.from(69),
+      bigNumber: BigInt(69),
       bigInt: BigInt(13),
     };
 
@@ -93,7 +92,7 @@ describe("ObjectUtils tests", () => {
         ["foo1", "bar1"],
       ]),
       set: new Set([1, 2, 3, 3]),
-      bigNumber: BigNumber.from(69),
+      bigNumber: BigInt(69),
       bigInt: BigInt(13),
     };
 
@@ -124,14 +123,14 @@ describe("ObjectUtils tests", () => {
 
   test("BigNumber test", () => {
     // Arrange
-    const bn = BigNumber.from(1);
+    const bn = BigInt(1);
 
     // Act
     const bns = BigNumberString(bn.toString());
 
     // Assert
     expect(bns).toBe("1");
-    expect(bn).toBeInstanceOf(BigNumber);
+    expect(typeof bn).toBe("bigint");
   });
 
   test("iteratePages() runs over all data", async () => {

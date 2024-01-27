@@ -8,7 +8,7 @@ import {
   BlockchainCommonErrors,
   DomainName,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber, ethers, EventFilter } from "ethers";
+import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -30,8 +30,8 @@ export class ERC721RewardContract
 {
   constructor(
     protected providerOrSigner:
-      | ethers.providers.Provider
-      | ethers.providers.JsonRpcSigner
+      | ethers.Provider
+      | ethers.JsonRpcSigner
       | ethers.Wallet,
     protected contractAddress: EVMContractAddress,
   ) {
@@ -66,7 +66,7 @@ export class ERC721RewardContract
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
         ERewardRoles.DEFAULT_ADMIN_ROLE,
-      ) as Promise<BigNumber>,
+      ) as Promise<bigint>,
       (e) => {
         return this.generateError(
           e,
@@ -75,9 +75,9 @@ export class ERC721RewardContract
       },
     ).andThen((memberCount) => {
       // First get an array of index values so that it can be used with ResultUtils.combine
-      const memberIndexArray: number[] = [];
+      const memberIndexArray: bigint[] = [];
 
-      for (let i = 0; i < memberCount.toNumber(); i++) {
+      for (let i = 0n; i < memberCount; i++) {
         memberIndexArray.push(i);
       }
 
@@ -105,15 +105,15 @@ export class ERC721RewardContract
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
         ERewardRoles.MINTER_ROLE,
-      ) as Promise<BigNumber>,
+      ) as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call getSignerRoleMembers()");
       },
     ).andThen((memberCount) => {
       // First get an array of index values so that it can be used with ResultUtils.combine
-      const memberIndexArray: number[] = [];
+      const memberIndexArray: bigint[] = [];
 
-      for (let i = 0; i < memberCount.toNumber(); i++) {
+      for (let i = 0n; i < memberCount; i++) {
         memberIndexArray.push(i);
       }
 
@@ -163,12 +163,13 @@ export class ERC721RewardContract
     address: EVMAccountAddress,
   ): ResultAsync<number, ERC721RewardContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contract.balanceOf(address) as Promise<BigNumber>,
+      this.contract.balanceOf(address) as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call balanceOf()");
       },
     ).map((numberOfTokens) => {
-      return numberOfTokens.toNumber();
+      // TODO: Not sure if we can always be sure that numberOfTokens is a valid number, but seems reasonable
+      return Number(numberOfTokens);
     });
   }
 
@@ -367,7 +368,7 @@ export class ERC721RewardContract
     Transfer: (
       fromAddress: EVMAccountAddress | null,
       toAddress: EVMAccountAddress | null,
-    ): EventFilter => {
+    ): ethers.DeferredTopicFilter => {
       return this.contract.filters.Transfer(fromAddress, toAddress);
     },
   };

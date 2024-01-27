@@ -1,5 +1,6 @@
 import "reflect-metadata";
 
+import { IBigNumberUtils } from "@snickerdoodlelabs/common-utils";
 import {
   TokenBalance,
   ChainId,
@@ -50,11 +51,13 @@ const conditionsE = [new ConditionE(SDQL_OperatorName("e"), null, 29)];
 
 const conditionsIn = [new ConditionIn(SDQL_OperatorName("e"), null, ["29"])];
 const queryCID = IpfsCID("mockCID");
+
 class BalanceQueryEvaluatorMocks {
   public balanceRepo = td.object<IPortfolioBalanceRepository>();
   public demoRepo = td.object<IDemographicDataRepository>();
   public browsingRepo = td.object<IBrowsingDataRepository>();
   public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
+  public bigNumberUtils = td.object<IBigNumberUtils>();
   public contextProvider: ContextProviderMock;
 
   public URLmap: SiteVisitsMap = new Map<URLString, SiteVisitsData>([
@@ -78,7 +81,11 @@ class BalanceQueryEvaluatorMocks {
   }
 
   public factory() {
-    return new BalanceQueryEvaluator(this.balanceRepo, this.contextProvider);
+    return new BalanceQueryEvaluator(
+      this.balanceRepo,
+      this.bigNumberUtils,
+      this.contextProvider,
+    );
   }
 }
 

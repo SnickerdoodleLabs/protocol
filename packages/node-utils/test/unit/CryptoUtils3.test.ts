@@ -1,10 +1,6 @@
 import "reflect-metadata";
-import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
 import { EVMAccountAddress, HexString } from "@snickerdoodlelabs/objects";
-import { BigNumber, ethers } from "ethers";
+import { TypedDataDomain, TypedDataField, ethers } from "ethers";
 
 import { CryptoUtilsMocks } from "../mocks/CryptoUtilsMocks";
 
@@ -13,7 +9,7 @@ describe("CryptoUtils Tests 3", () => {
     // Arrange
     const mocks = new CryptoUtilsMocks();
     const utils = mocks.factoryCryptoUtils();
-    const testBigInt = BigNumber.from(69);
+    const testBigInt = BigInt(69);
     const types = ["address", "uint256"];
     const testAddress = EVMAccountAddress(
       "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -24,16 +20,13 @@ describe("CryptoUtils Tests 3", () => {
     const privateKey = privateKeyResult._unsafeUnwrap();
     const wallet = new ethers.Wallet(privateKey);
     const values = [testAddress, testBigInt];
-    const msgHash = ethers.utils.solidityKeccak256([...types], [...values]);
+    const msgHash = ethers.solidityPackedKeccak256([...types], [...values]);
 
     const expectedAddress =
       utils.getEthereumAccountAddressFromPrivateKey(privateKey);
     const result = await utils.getSignature(wallet, types, values);
     const signature = result._unsafeUnwrap();
-    const address = ethers.utils.verifyMessage(
-      ethers.utils.arrayify(msgHash),
-      signature,
-    );
+    const address = ethers.verifyMessage(ethers.getBytes(msgHash), signature);
     const result2 = await utils.getSignature(wallet, [], values);
 
     // Assert
@@ -77,7 +70,7 @@ describe("CryptoUtils Tests 3", () => {
         "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       ),
       testString: "Phoebe is cute",
-      testBigInt: BigNumber.from(69),
+      testBigInt: BigInt(69),
       testBytes: HexString("0x0123456789ABCDEF"),
     };
 

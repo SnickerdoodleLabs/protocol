@@ -30,7 +30,7 @@ import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 export class BlockchainStuff {
   public serverSigner: ethers.Wallet;
   public businessSigner: ethers.Wallet;
-  public provider: ethers.providers.JsonRpcProvider;
+  public provider: ethers.JsonRpcProvider;
   public consentFactoryContract: ConsentFactoryContract;
   public crumbsContract: CrumbsContract;
   public minimalForwarder: MinimalForwarderContract;
@@ -42,10 +42,7 @@ export class BlockchainStuff {
 
   public constructor(public accountWallets: TestWallet[]) {
     // Initialize a connection to the local blockchain
-    this.provider = new ethers.providers.JsonRpcProvider(
-      "http://127.0.0.1:8545",
-      31337,
-    );
+    this.provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545", 31337);
     // We'll use account 0
     this.serverSigner = new ethers.Wallet(
       this.serverAccount.privateKey,

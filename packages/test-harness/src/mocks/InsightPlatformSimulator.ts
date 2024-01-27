@@ -47,7 +47,6 @@ import {
   signedUrlTypes,
 } from "@snickerdoodlelabs/signature-verification";
 import cors from "cors";
-import { BigNumber } from "ethers";
 import express from "express";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -364,9 +363,9 @@ export class InsightPlatformSimulator {
           const forwarderRequest = {
             to: contractAddress, // Contract address for the metatransaction
             from: accountAddress, // EOA to run the transaction as
-            value: BigNumber.from(value), // The amount of doodle token to pay. Should be 0.
-            gas: BigNumber.from(gas), // The amount of gas to pay.
-            nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+            value: BigInt(value), // The amount of doodle token to pay. Should be 0.
+            gas: BigInt(gas), // The amount of gas to pay.
+            nonce: BigInt(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
             data: data, // The actual bytes of the request, encoded as a hex string
           } as IMinimalForwarderRequest;
 

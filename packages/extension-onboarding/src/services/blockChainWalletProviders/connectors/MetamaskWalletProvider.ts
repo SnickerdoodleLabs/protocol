@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Web3Provider } from "@ethersproject/providers";
-import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
 import { AccountAddress, Signature } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
 
+import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
+
 export class MetamaskWalletProvider implements IWalletProvider {
   protected _provider;
-  protected _web3Provider: Web3Provider | null = null;
+  protected _web3Provider: ethers.BrowserProvider | null = null;
 
   constructor() {
     this._provider = this.provider;
@@ -46,19 +46,22 @@ export class MetamaskWalletProvider implements IWalletProvider {
       })
       .andThen((accounts) => {
         const account = accounts?.[0];
-        this._web3Provider = new ethers.providers.Web3Provider(this._provider);
+        this._web3Provider = new ethers.BrowserProvider(this._provider);
         return okAsync(account as AccountAddress);
       });
   }
 
   public getSignature(message: string): ResultAsync<Signature, unknown> {
-    if (!this._web3Provider) {
+    if (this._web3Provider == null) {
       return errAsync("Should call connect() first.");
     }
-    const signer = this._web3Provider.getSigner();
-    return ResultAsync.fromPromise(signer.signMessage(message), (e) => {}).map(
-      (signature) => Signature(signature),
-    );
+    return ResultAsync.fromPromise(this._web3Provider.getSigner(), (e) => {
+      return e;
+    })
+      .andThen((signer) => {
+        return ResultAsync.fromPromise(signer.signMessage(message), (e) => {});
+      })
+      .map((signature) => Signature(signature));
   }
 }
 

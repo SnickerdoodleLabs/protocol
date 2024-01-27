@@ -15,7 +15,6 @@ import {
   WalletNFT,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
-import { BigNumber } from "ethers";
 import { Result, ResultAsync, okAsync } from "neverthrow";
 import * as td from "testdouble";
 
@@ -81,13 +80,13 @@ class NftRepositoryMocks {
 
     td.when(this.bigNumberUtils.BNSToBN(td.matchers.anything())).thenDo(
       (bigNumberString: BigNumberString) => {
-        return BigNumber.from(bigNumberString);
+        return BigInt(bigNumberString);
       },
     );
 
     td.when(this.bigNumberUtils.BNToBNS(td.matchers.anything())).thenDo(
-      (bigNumber: BigNumber) => {
-        return BigNumberString(BigNumber.from(bigNumber).toString());
+      (bigNumber: bigint) => {
+        return BigNumberString(BigInt(bigNumber).toString());
       },
     );
 

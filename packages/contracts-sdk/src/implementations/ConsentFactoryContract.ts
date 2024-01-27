@@ -12,7 +12,7 @@ import {
   TransactionResponseError,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
-import { ethers, BigNumber } from "ethers";
+import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -34,8 +34,8 @@ export class ConsentFactoryContract
 {
   constructor(
     protected providerOrSigner:
-      | ethers.providers.Provider
-      | ethers.providers.JsonRpcSigner
+      | ethers.Provider
+      | ethers.JsonRpcSigner
       | ethers.Wallet,
     protected contractAddress: EVMContractAddress,
   ) {
@@ -70,19 +70,20 @@ export class ConsentFactoryContract
     ownerAddress: EVMAccountAddress,
     baseUri: BaseURI,
     name: ConsentName,
-  ): ResultAsync<
-    ethers.BigNumber,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
+  ): ResultAsync<bigint, ConsentFactoryContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contract.estimateGas["createConsent"](ownerAddress, baseUri, name),
+      this.contract.estimateGas["createConsent"](
+        ownerAddress,
+        baseUri,
+        name,
+      ) as Promise<bigint>,
       (e) => {
         return this.generateError(e, `Failed to estimate gas with error: ${e}`);
       },
     ).map((estimatedGas) => {
       // TODO: confirm buffer value
       // Increase estimated gas buffer by 10%
-      return estimatedGas.mul(110).div(100);
+      return (estimatedGas * 110n) / 100n;
     });
   }
 
@@ -93,7 +94,7 @@ export class ConsentFactoryContract
     return ResultAsync.fromPromise(
       this.contract.getUserDeployedConsentsCount(
         ownerAddress,
-      ) as Promise<BigNumber>,
+      ) as Promise<bigint>,
       (e) => {
         return this.generateError(
           e,
@@ -101,7 +102,7 @@ export class ConsentFactoryContract
         );
       },
     ).map((count) => {
-      return count.toNumber();
+      return Number(count);
     });
   }
 
@@ -152,7 +153,7 @@ export class ConsentFactoryContract
       this.contract.getUserConsentAddressesCount(
         ownerAddress,
         role,
-      ) as Promise<BigNumber>,
+      ) as Promise<bigint>,
       (e) => {
         return this.generateError(
           e,
@@ -160,7 +161,7 @@ export class ConsentFactoryContract
         );
       },
     ).map((count) => {
-      return count.toNumber();
+      return Number(count);
     });
   }
 
@@ -208,8 +209,10 @@ export class ConsentFactoryContract
     ).map((events) => {
       const consents: EVMContractAddress[] = [];
       events.forEach((event) => {
-        if (event?.args?.consentAddress) {
-          consents.push(EVMContractAddress(event.args.consentAddress));
+        if (event instanceof ethers.EventLog) {
+          if (event.args.consentAddress != null) {
+            consents.push(EVMContractAddress(event.args.consentAddress));
+          }
         }
       });
       return consents;
@@ -222,12 +225,12 @@ export class ConsentFactoryContract
     ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.maxTagsPerListing() as Promise<BigNumber>,
+      this.contract.maxTagsPerListing() as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call getMaxTagsPerListing()");
       },
     ).map((num) => {
-      return num.toNumber();
+      return Number(num);
     });
   }
 
@@ -236,12 +239,12 @@ export class ConsentFactoryContract
     ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.getListingDuration() as Promise<BigNumber>,
+      this.contract.getListingDuration() as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call getListingDuration()");
       },
     ).map((num) => {
-      return num.toNumber();
+      return Number(num);
     });
   }
 
@@ -305,7 +308,7 @@ export class ConsentFactoryContract
         BigNumberString(listing.previous.toString()),
         BigNumberString(listing.next.toString()),
         listing.consentContract,
-        UnixTimestamp(listing.timeExpiring?.toNumber()),
+        UnixTimestamp(Number(listing.timeExpiring)),
         IpfsCID(""), // TODO: Update contract to also return its CID for getListing (only does this with getListingsForward/backward atm)
         slot,
         tag,
@@ -339,9 +342,9 @@ export class ConsentFactoryContract
             BigNumberString(listing.previous.toString()),
             BigNumberString(listing.next.toString()),
             listing.consentContract,
-            UnixTimestamp(listing.timeExpiring.toNumber()),
+            UnixTimestamp(Number(listing.timeExpiring)),
             IpfsCID(cids[index]),
-            listings[index + 1] != null && listing.next.isZero() === false
+            listings[index + 1] != null && listing.next != 0n
               ? BigNumberString(listings[index + 1].previous.toString())
               : listings[index - 1] != null
               ? BigNumberString(listings[index - 1].next.toString())
@@ -382,10 +385,9 @@ export class ConsentFactoryContract
             BigNumberString(listing.previous.toString()),
             BigNumberString(listing.next.toString()),
             listing.consentContract,
-            UnixTimestamp(listing.timeExpiring?.toNumber()),
+            UnixTimestamp(Number(listing.timeExpiring)),
             IpfsCID(cids[index]),
-            listings[index + 1] != null &&
-            listing.previous.eq(ethers.constants.MaxUint256) === false
+            listings[index + 1] != null && listing.previous != ethers.MaxUint256
               ? BigNumberString(listings[index + 1].next.toString())
               : listings[index - 1] != null
               ? BigNumberString(listings[index - 1].previous.toString())
@@ -404,12 +406,12 @@ export class ConsentFactoryContract
     tag: MarketplaceTag,
   ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contract.getTagTotal(tag) as Promise<BigNumber>,
+      this.contract.getTagTotal(tag) as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call getTagTotal()");
       },
     ).map((count) => {
-      return count.toNumber();
+      return Number(count);
     });
   }
 
@@ -424,10 +426,7 @@ export class ConsentFactoryContract
     // And if we query the 2^256 - 1 slot by calling getListingDetail(), its previous member variable will point to the highest ranked listing for that tag
     return ResultUtils.combine([
       this.getTagTotal(tag),
-      this.getListingDetail(
-        tag,
-        BigNumberString(ethers.constants.MaxUint256.toString()),
-      ),
+      this.getListingDetail(tag, BigNumberString(ethers.MaxUint256.toString())),
     ]).andThen(([tagTotal, listingDetail]) => {
       // The max slot's next points to the highest slot
       const highestRankListingSlot = listingDetail.next;
@@ -448,7 +447,7 @@ export class ConsentFactoryContract
     return txRes.wait().map((receipt) => {
       // Get the hash of the event
       const event = "ConsentDeployed(address,address)";
-      const eventHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(event));
+      const eventHash = ethers.keccak256(ethers.toUtf8Bytes(event));
 
       // Filter out for the ConsentDeployed event from the receipt's logs
       // returns an array
@@ -461,8 +460,7 @@ export class ConsentFactoryContract
       const topics = consentDeployedLog[0].topics;
 
       // Declare a new interface
-      const Interface = ethers.utils.Interface;
-      const iface = new Interface([
+      const iface = new ethers.Interface([
         "event ConsentDeployed(address indexed owner, address indexed consentAddress)",
       ]);
 
@@ -492,10 +490,10 @@ export class ConsentFactoryContract
   }
 }
 interface IListingStruct {
-  previous: BigNumber;
-  next: BigNumber;
+  previous: bigint;
+  next: bigint;
   consentContract: EVMContractAddress;
-  timeExpiring: BigNumber;
+  timeExpiring: bigint;
 }
 
 // I listingStruct { at the place where we're using it, and don't have to export here

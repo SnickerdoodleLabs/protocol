@@ -23,17 +23,18 @@ export abstract class BaseContract<TContractSpecificError>
   implements IBaseContract
 {
   protected contract: ethers.Contract;
-  protected contractAbi: ethers.ContractInterface;
+  protected contractAbi: ethers.InterfaceAbi;
   protected hasSigner = false;
 
   constructor(
-    protected providerOrSigner: ethers.providers.Provider | ethers.Signer,
+    protected providerOrSigner: ethers.Provider | ethers.Signer,
     protected contractAddress: EVMContractAddress,
-    protected abi: ethers.ContractInterface,
+    protected abi: ethers.InterfaceAbi,
   ) {
     this.contract = new ethers.Contract(contractAddress, abi, providerOrSigner);
     this.contractAbi = abi;
-    this.hasSigner = ethers.Signer.isSigner(providerOrSigner);
+    // There used to be a method Signer.isSigner() that would do this, but it disappeared entirely in Ethers V6
+    this.hasSigner = providerOrSigner.hasOwnProperty("signMessage");
   }
 
   public getContractAddress(): EVMContractAddress {
@@ -81,7 +82,7 @@ export abstract class BaseContract<TContractSpecificError>
     return ResultAsync.fromPromise(
       this.contract[functionName](...functionParams, {
         ...overrides,
-      }) as Promise<ethers.providers.TransactionResponse>,
+      }) as Promise<ethers.TransactionResponse>,
       (e) => {
         return e as IEthersContractError;
       },
@@ -89,7 +90,7 @@ export abstract class BaseContract<TContractSpecificError>
       .map((transactionResponse) => {
         return BaseContract.buildWrappedTransactionResponse(
           transactionResponse,
-          EVMContractAddress(this.contract.address),
+          this.contractAddress,
           EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
           functionName,
           functionParams,
@@ -105,7 +106,7 @@ export abstract class BaseContract<TContractSpecificError>
 
   // Function to return the correct error type based on mapping of error message
   static buildWrappedTransactionResponse(
-    transactionResponse: ethers.providers.TransactionResponse,
+    transactionResponse: ethers.TransactionResponse,
     contractAddress: EVMContractAddress,
     signerAddress: EVMAccountAddress,
     functionName: string,

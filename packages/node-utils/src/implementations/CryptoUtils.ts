@@ -1,9 +1,5 @@
 import Crypto from "crypto";
 
-import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
 import { verifyPersonalMessage } from "@mysten/sui.js/verify";
 import * as ed from "@noble/ed25519";
 import {
@@ -31,11 +27,16 @@ import {
   UUID,
   OAuth1Config,
   SuiAccountAddress,
-  PublicKey,
 } from "@snickerdoodlelabs/objects";
 // import argon2 from "argon2";
-import { BigNumber, ethers } from "ethers";
-import { base58 } from "ethers/lib/utils.js";
+import {
+  TypedDataDomain,
+  TypedDataField,
+  decodeBase58,
+  ethers,
+  getBytes,
+  toBeHex,
+} from "ethers";
 import { injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -285,9 +286,7 @@ export class CryptoUtils implements ICryptoUtils {
     message: string | Uint8Array,
     signature: Signature,
   ): ResultAsync<EVMAccountAddress, never> {
-    const address = EVMAccountAddress(
-      ethers.utils.verifyMessage(message, signature),
-    );
+    const address = EVMAccountAddress(ethers.verifyMessage(message, signature));
     return okAsync(address);
   }
 
@@ -333,7 +332,7 @@ export class CryptoUtils implements ICryptoUtils {
       nacl.sign.detached.verify(
         Buffer.from(message, "utf-8"),
         Buffer.from(signature, "hex"),
-        base58.decode(accountAddress),
+        getBytes(toBeHex(decodeBase58(accountAddress))),
       ),
     );
   }
@@ -351,7 +350,7 @@ export class CryptoUtils implements ICryptoUtils {
 
     return okAsync(
       EVMAccountAddress(
-        ethers.utils.verifyTypedData(domain, types, value, signature),
+        ethers.verifyTypedData(domain, types, value, signature),
       ),
     );
   }
@@ -408,10 +407,10 @@ export class CryptoUtils implements ICryptoUtils {
   }
 
   public getSignature(
-    owner: ethers.providers.JsonRpcSigner | ethers.Wallet,
+    owner: ethers.JsonRpcSigner | ethers.Wallet,
     types: Array<string>,
     values: Array<
-      BigNumber | string | HexString | EVMContractAddress | EVMAccountAddress
+      bigint | string | HexString | EVMContractAddress | EVMAccountAddress
     >,
   ): ResultAsync<Signature, InvalidParametersError> {
     if (types.length !== values.length) {
@@ -421,10 +420,10 @@ export class CryptoUtils implements ICryptoUtils {
         ),
       );
     }
-    const msgHash = ethers.utils.solidityKeccak256([...types], [...values]);
+    const msgHash = ethers.solidityPackedKeccak256([...types], [...values]);
 
     return ResultAsync.fromSafePromise<string, never>(
-      owner.signMessage(ethers.utils.arrayify(msgHash)),
+      owner.signMessage(ethers.getBytes(msgHash)),
     ).map((signature) => {
       return Signature(signature);
     });
@@ -451,7 +450,7 @@ export class CryptoUtils implements ICryptoUtils {
         Buffer.from(
           nacl.sign.detached(
             Buffer.from(message, "utf8"),
-            base58.decode(privateKey),
+            getBytes(toBeHex(decodeBase58(privateKey))),
           ),
         ).toString("hex"),
       ),
@@ -472,7 +471,7 @@ export class CryptoUtils implements ICryptoUtils {
     delete types.EIP712Domain;
 
     return ResultAsync.fromSafePromise<string, never>(
-      wallet._signTypedData(domain, types, value),
+      wallet.signTypedData(domain, types, value),
     ).map((signature) => {
       return Signature(signature);
     });
@@ -599,15 +598,15 @@ export class CryptoUtils implements ICryptoUtils {
   ): Buffer {
     // HexStrings have a nasty habit of SOMETIMES having a 0x prefix but not always.
     // We will correct that
-    if (!ethers.utils.isHexString(hex)) {
+    if (!ethers.isHexString(hex)) {
       const prefixedHex = `0x${hex}`;
 
       // If it's still not a valid hex string, then it's exception time.
-      if (!ethers.utils.isHexString(prefixedHex)) {
+      if (!ethers.isHexString(prefixedHex)) {
         throw new Error(`Invalid hex string ${hex}`);
       }
-      return Buffer.from(ethers.utils.arrayify(prefixedHex));
+      return Buffer.from(ethers.getBytes(prefixedHex));
     }
-    return Buffer.from(ethers.utils.arrayify(hex));
+    return Buffer.from(ethers.getBytes(hex));
   }
 }
