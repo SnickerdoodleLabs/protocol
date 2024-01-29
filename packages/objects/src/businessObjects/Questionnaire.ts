@@ -2,6 +2,7 @@ import {
   IpfsCID,
   MarketplaceTag,
   QuestionnaireAnswerId,
+  UnixTimestamp,
 } from "@objects/primitives/index.js";
 
 export enum EQuestionnaireStatus {
@@ -57,6 +58,7 @@ export class NewQuestionnaireAnswer {
     public readonly questionnaireId: IpfsCID,
     public readonly questionIndex: number,
     public readonly choice: number,
+    public readonly measurementDate: UnixTimestamp,
   ) {}
 }
 export class QuestionnaireAnswer extends NewQuestionnaireAnswer {
@@ -65,7 +67,8 @@ export class QuestionnaireAnswer extends NewQuestionnaireAnswer {
     public readonly questionnaireId: IpfsCID,
     public readonly questionIndex: number,
     public readonly choice: number,
+    public readonly measurementDate: UnixTimestamp,
   ) {
-    super(questionnaireId, questionIndex, choice);
+    super(questionnaireId, questionIndex, choice, measurementDate);
   }
 }
