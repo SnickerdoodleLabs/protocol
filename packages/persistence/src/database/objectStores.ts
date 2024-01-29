@@ -18,6 +18,7 @@ import {
   RejectedInvitationMigrator,
   WalletNFTDataMigrator,
   WalletNFTHistoryMigrator,
+  InvitationForStorageMigrator,
 } from "@snickerdoodlelabs/objects";
 
 import { IPersistenceConfig } from "@persistence/IPersistenceConfig";
@@ -227,6 +228,17 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
         EBackupPriority.DISABLED,
         config?.dataWalletBackupIntervalMS ?? testTimeValue,
         config?.backupChunkSizeTarget ?? testTimeValue,
+      ),
+    ],
+    [
+      ERecordKey.OPTED_IN_INVITATIONS,
+      new VolatileTableIndex(
+        ERecordKey.OPTED_IN_INVITATIONS,
+        ["consentContractAddress", false],
+        new InvitationForStorageMigrator(),
+        EBackupPriority.HIGH,
+        config?.dataWalletBackupIntervalMS ?? testTimeValue,
+        0, // auto push
       ),
     ],
   ]);

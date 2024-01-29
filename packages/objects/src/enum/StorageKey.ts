@@ -21,6 +21,7 @@ export enum ERecordKey {
   QUERY_STATUS = "SD_QueryStatus",
   DOMAIN_CREDENTIALS = "SD_DomainCredentials",
   REJECTED_INVITATIONS = "SD_RejectedInvitations",
+  OPTED_IN_INVITATIONS = "SD_OptedInInvitations",
 }
 
 export enum EFieldKey {
@@ -33,9 +34,6 @@ export enum EFieldKey {
   EMAIL = "SD_Email",
   LOCATION = "SD_Location",
   DEFAULT_RECEIVING_ADDRESS = "SD_DefaultReceivingAddress",
-  // TODO: move these to records
-  ACCEPTED_INVITATIONS = "SD_OptedInAccounts",
-  REJECTED_COHORTS = "SD_RejectedCohorts",
   DOMAIN_PERMISSIONS = "SD_DomainPermissions",
 }
 
