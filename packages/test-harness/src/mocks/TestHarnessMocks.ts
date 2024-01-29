@@ -1,9 +1,6 @@
-import {
-  CryptoUtils,
-  LogUtils,
-  TimeUtils,
-} from "@snickerdoodlelabs/common-utils";
+import { LogUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
 import { ConfigProvider } from "@snickerdoodlelabs/core";
+import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   DomainName,
   EChain,

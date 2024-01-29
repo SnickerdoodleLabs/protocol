@@ -1,127 +1,113 @@
-import React from "react";
-import { Route } from "react-router-dom";
-
-import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
 import AuthFlowLayout from "@extension-onboarding/layouts/AutFlowLayout";
 import DataDashBoardLayout from "@extension-onboarding/layouts/DataDashboardLayout";
-import OnboardingLayout from "@extension-onboarding/layouts/OnboardingLayout";
-import ProductTourLayout from "@extension-onboarding/layouts/ProductTourLayout";
-import BrowserActivity from "@extension-onboarding/pages/Details/screens/BrowserActivity";
-import CampaignSettings from "@extension-onboarding/pages/Details/screens/CampaignSettings";
-import DataDashboarPersonalInfo from "@extension-onboarding/pages/Details/screens/DataDashboarPersonalInfo";
-import DataPermissionsSettings from "@extension-onboarding/pages/Details/screens/DataPermissionsSettings";
-import Marketplace from "@extension-onboarding/pages/Details/screens/Marketplace";
-import CategoryDetail from "@extension-onboarding/pages/Details/screens/Marketplace/CategoryDetail";
-import NFTDetails from "@extension-onboarding/pages/Details/screens/NFTDetails";
-import NFTs from "@extension-onboarding/pages/Details/screens/NFTs";
-import OnChainIfo from "@extension-onboarding/pages/Details/screens/OnChainIfo";
-import PersonalInfo from "@extension-onboarding/pages/Details/screens/PersonalInfo";
-import PoapNFTs from "@extension-onboarding/pages/Details/screens/PoapNFTs";
-import RewardDetail from "@extension-onboarding/pages/Details/screens/RewardDetail";
-import RewardProgramDetails from "@extension-onboarding/pages/Details/screens/RewardProgramDetails";
-import ScamFilterSettings from "@extension-onboarding/pages/Details/screens/ScamFilterSettings";
-import SocialMediaInfo from "@extension-onboarding/pages/Details/screens/SocialMediaInfo";
-import Tokens from "@extension-onboarding/pages/Details/screens/Tokens";
-import AccountLinking from "@extension-onboarding/pages/Onboarding/AccountLinking";
-import CategorySelection from "@extension-onboarding/pages/Onboarding/CategorySelection";
-import PermissionSelection from "@extension-onboarding/pages/Onboarding/PermissionSelection";
-import StorageSettings from "@extension-onboarding/pages/Details/screens/StorageSettings/StorageSettings";
-import ProfileCreation from "@extension-onboarding/pages/Onboarding/ProfileCreation";
-
-export const OnboardingRoutes = (
-  <Route>
-    {/* <Route path={EPaths.ONBOARDING_WELCOME} element={<OnboardingWelcome />} /> */}
-    <Route element={<OnboardingLayout />}>
-      <Route
-        path={EPaths.ONBOARDING_LINK_ACCOUNT}
-        element={<AccountLinking />}
-      />
-      <Route
-        path={EPaths.ONBOARDING_BUILD_PROFILE}
-        element={<ProfileCreation />}
-      />
-      {/* <Route
-        path={EPaths.ONBOARDING_PERMISSION_SELECTION}
-        element={<PermissionSelection />}
-      /> */}
-      <Route
-        path={EPaths.ONBOARDING_TAG_SELECTION}
-        element={<CategorySelection />}
-      />
-    </Route>
-    {/* <Route path={EPaths.ONBOARDING_OPT_IN} element={<OptIn />} /> */}
-  </Route>
+import DataPermissions from "@extension-onboarding/pages/V2/DataPermissions";
+import React, { lazy, Suspense } from "react";
+import { Route } from "react-router-dom";
+const LazyAudienceDetails = lazy(
+  () => import("@extension-onboarding/pages/V2/AudienceDetails"),
+);
+const LazyTransactions = lazy(
+  () => import("@extension-onboarding/pages/V2/Transactions"),
+);
+const LazyAirdrops = lazy(
+  () => import("@extension-onboarding/pages/V2/Airdrops"),
+);
+const LazyTokens = lazy(
+  () => import("@extension-onboarding/pages/Details/screens/Tokens"),
+);
+const LazyNFTs = lazy(
+  () => import("@extension-onboarding/pages/Details/screens/NFTs"),
+);
+const LazyPoapNFTs = lazy(
+  () => import("@extension-onboarding/pages/Details/screens/PoapNFTs"),
+);
+const LazyBrowserActivity = lazy(
+  () => import("@extension-onboarding/pages/Details/screens/BrowserActivity"),
+);
+const LazySocialMediaInfo = lazy(
+  () => import("@extension-onboarding/pages/V2/SocialMediaInfo"),
+);
+const LazySettings = lazy(
+  () => import("@extension-onboarding/pages/V2/Settings"),
 );
 
 export const AuthFlowRoutes = (
-  <Route element={<ProductTourLayout />}>
-    <Route element={<AuthFlowLayout />}>
-      <Route element={<DataDashBoardLayout />}>
-        <Route path={EPaths.TOKENS} element={<Tokens />} />
-        <Route path={EPaths.NFTS} element={<NFTs />} />
-        <Route path={EPaths.POAP_NFTS} element={<PoapNFTs />} />
-        <Route path={EPaths.BROWSER_ACTIVITY} element={<BrowserActivity />} />
-        <Route path={EPaths.SOCIAL_MEDIA_DATA} element={<SocialMediaInfo />} />
-        {/* <Route
-          path={EPaths.PERSONAL_INFO}
-          element={<DataDashboarPersonalInfo />}
-        /> */}
-      </Route>
-      <Route path={EPaths.MARKETPLACE} element={<Marketplace />} />
-      <Route path={EPaths.NFT_DETAIL} element={<NFTDetails />} />
-      {/* <Route path={EPaths.MY_REWARDS} element={<MarketplaceRewardsTemp />} />
-      <Route path={EPaths.MARKETPLACE_REWARD} element={<RewardReview />} />
+  <Route element={<AuthFlowLayout />}>
+    <Route path={EPathsV2.DATA_PERMISSIONS} element={<DataPermissions />} />
+    <Route
+      path={EPathsV2.SETTINGS}
+      element={
+        <Suspense fallback={null}>
+          <LazySettings />
+        </Suspense>
+      }
+    />
+    <Route
+      path={EPathsV2.DATA_PERMISSIONS_AUDIENCE}
+      element={
+        <Suspense fallback={null}>
+          <LazyAudienceDetails />
+        </Suspense>
+      }
+    />
+    <Route element={<DataDashBoardLayout />}>
       <Route
-        path={EPaths.MARKETPLACE_COLLECTION}
-        element={<MarketPlaceCollection />}
-      /> */}
-      {/* <Route path={EPaths.MY_CAMPAIGNS} element={<CampaignsInfo />} />
-      <Route
-        path={EPaths.MARKETPLACE_CAMPAIGNS}
-        element={<MarketPlaceCampaigns />}
-      /> */}
-      <Route path={EPaths.WEB3_SETTINGS} element={<OnChainIfo />} />
-      <Route path={EPaths.WEB2_SETTINGS} element={<PersonalInfo />} />
-      <Route path={EPaths.STORAGE_SETTINGS} element={<StorageSettings />} />
-      <Route
-        path={EPaths.REWARDS_SUBSCRIPTIONS}
-        element={<CampaignSettings />}
-      />
-      {/* <Route
-        path={EPaths.DATA_PERMISSIONS_SETTING}
-        element={<DataPermissionsSettings />}
-      /> */}
-      <Route
-        path={EPaths.SCAM_FILTER_SETTINGS}
-        element={<ScamFilterSettings />}
+        path={EPathsV2.TRANSACTION_HISTORY}
+        element={
+          <Suspense fallback={null}>
+            <LazyTransactions />
+          </Suspense>
+        }
       />
       <Route
-        path={EPaths.REWARDS_SUBSCRIPTION_DETAIL}
-        element={<RewardProgramDetails />}
+        path={EPathsV2.AIRDROPS}
+        element={
+          <Suspense fallback={null}>
+            <LazyAirdrops />
+          </Suspense>
+        }
       />
       <Route
-        path={EPaths.MARKETPLACE_CAMPAIGN_DETAIL}
-        element={<RewardProgramDetails />}
+        path={EPathsV2.TOKENS}
+        element={
+          <Suspense fallback={null}>
+            <LazyTokens />
+          </Suspense>
+        }
       />
       <Route
-        path={EPaths.MARKETPLACE_REWARD_DETAIL}
-        element={<RewardDetail />}
+        path={EPathsV2.NFTS}
+        element={
+          <Suspense fallback={null}>
+            <LazyNFTs />
+          </Suspense>
+        }
       />
       <Route
-        path={EPaths.MARKETPLACE_REWARD_DETAIL_WITH_TAG}
-        element={<RewardDetail />}
+        path={EPathsV2.POAP_NFTS}
+        element={
+          <Suspense fallback={null}>
+            <LazyPoapNFTs />
+          </Suspense>
+        }
       />
       <Route
-        path={EPaths.REWARDS_SUBSCRIPTION_REWARD_DETAIL}
-        element={<RewardDetail />}
+        path={EPathsV2.BROWSER_ACTIVITY}
+        element={
+          <Suspense fallback={null}>
+            <LazyBrowserActivity />
+          </Suspense>
+        }
       />
+
       <Route
-        path={EPaths.MARKETPLACE_TAG_DETAIL}
-        element={<CategoryDetail />}
-      />
-      <Route
-        path={EPaths.MARKETPLACE_CAMPAIGN_DETAIL_WITH_TAG}
-        element={<RewardProgramDetails />}
+        path={EPathsV2.SOCIAL_MEDIA_DATA}
+        element={
+          <Suspense fallback={null}>
+            <LazySocialMediaInfo />
+          </Suspense>
+        }
       />
     </Route>
   </Route>

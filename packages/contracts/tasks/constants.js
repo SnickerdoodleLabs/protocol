@@ -8,7 +8,8 @@ const logTXDetails = (txrct) => {
 };
 
 const BEACON = function () {
-  const artifactPath = "./artifacts/\@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol/UpgradeableBeacon.json";
+  const artifactPath =
+    "./artifacts/@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol/UpgradeableBeacon.json";
   if (fs.existsSync(artifactPath)) {
     return require("../" + artifactPath);
   } else {
@@ -109,6 +110,8 @@ const consentBeacon = function () {
     return "";
   } else if (hre.hardhatArguments.network == "astar") {
     return "";
+  } else if (hre.hardhatArguments.network == "sui") {
+    return "";
   } else {
     return "";
   }
@@ -151,6 +154,8 @@ const consentFactory = function () {
     return "";
   } else if (hre.hardhatArguments.network == "astar") {
     return "";
+  } else if (hre.hardhatArguments.network == "sui") {
+    return "";
   } else {
     return "";
   }
@@ -190,6 +195,8 @@ const crumbsContract = function () {
   } else if (hre.hardhatArguments.network == "optimism") {
     return "";
   } else if (hre.hardhatArguments.network == "astar") {
+    return "";
+  } else if (hre.hardhatArguments.network == "sui") {
     return "";
   } else {
     return "";
@@ -231,6 +238,8 @@ const siftContract = function () {
   } else if (hre.hardhatArguments.network == "optimism") {
     return "";
   } else if (hre.hardhatArguments.network == "astar") {
+    return "";
+  } else if (hre.hardhatArguments.network == "sui") {
     return "";
   } else {
     return "";

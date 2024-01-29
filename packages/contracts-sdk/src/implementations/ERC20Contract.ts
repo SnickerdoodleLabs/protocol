@@ -1,10 +1,3 @@
-import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
-import {
-  ContractOverrides,
-  IERC20Contract,
-  WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/index.js";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
 import {
   EVMAccountAddress,
   EVMContractAddress,
@@ -15,6 +8,15 @@ import {
 import { BigNumber, ethers, EventFilter } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
+
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
+import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
+import {
+  ContractOverrides,
+  IERC20Contract,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/index.js";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
 
 @injectable()
 export class ERC20Contract
@@ -151,10 +153,10 @@ export class ERC20Contract
 
   protected generateContractSpecificError(
     msg: string,
-    reason: string | undefined,
-    e: unknown,
+    e: IEthersContractError,
+    transaction: ethers.Transaction | null,
   ): ERC20ContractError {
-    return new ERC20ContractError(msg, reason, e);
+    return new ERC20ContractError(msg, e, transaction);
   }
 
   public filters = {

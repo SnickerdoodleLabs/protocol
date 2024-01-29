@@ -2,15 +2,14 @@ import {
   CloudStorageActivatedEvent,
   DataWalletAddress,
   EarnedReward,
-  ECloudStorageType,
   EProfileFieldType,
   ESolidityAbiParameterType,
+  EVMContractAddress,
   IDynamicRewardParameter,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
   ISnickerdoodleCoreType,
   LinkedAccount,
-  ProfileFieldUpdate,
   SDQLQueryRequest,
   SDQLString,
   SocialProfileLinkedEvent,
@@ -55,6 +54,10 @@ export class CoreListener implements ICoreListener {
       events.onSocialProfileUnlinked.subscribe(
         this.onSocialProfileUnlinked.bind(this),
       );
+
+      events.onCohortJoined.subscribe(this.onChohortJoined.bind(this));
+
+      events.onCohortLeft.subscribe(this.onCohortLeft.bind(this));
 
       // Add a listener for cloud storage being switched out
 
@@ -104,6 +107,16 @@ export class CoreListener implements ICoreListener {
   private onAccountAdded(account: LinkedAccount): void {
     this.contextProvider.onAccountAdded(account);
     console.log(`Extension: account ${account.sourceAccountAddress} added`);
+  }
+
+  private onChohortJoined(consentAddress: EVMContractAddress): void {
+    this.contextProvider.onCohortJoined(consentAddress);
+    console.log(`Extension: cohort ${consentAddress} joined`);
+  }
+
+  private onCohortLeft(consentAddress: EVMContractAddress): void {
+    this.contextProvider.onCohortLeft(consentAddress);
+    console.log(`Extension: cohort ${consentAddress} left`);
   }
 
   private onQueryPosted(request: SDQLQueryRequest): void {

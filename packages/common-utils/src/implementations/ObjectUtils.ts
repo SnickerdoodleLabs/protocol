@@ -3,15 +3,17 @@ import {
   PagedResponse,
   PagingRequest,
   JSONString,
+  InvalidParametersError,
+  BaseError,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 export class ObjectUtils {
   // Taken from https://stackoverflow.com/questions/27936772/how-to-deep-merge-instead-of-shallow-merge
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static mergeDeep<T>(...objects: any[]): unknown {
+  static mergeDeep<T = unknown>(...objects: any[]): T {
     const isObject = (obj) => obj && typeof obj === "object";
 
     return objects.reduce((prev, obj) => {
@@ -213,5 +215,28 @@ export class ObjectUtils {
       return true;
     }
     return array.filter(notEmpty);
+  }
+
+  static progressiveFallback<TReturn, TProvider, TError>(
+    method: (TProvider) => ResultAsync<TReturn, TError>,
+    provider: TProvider[],
+  ): ResultAsync<TReturn, TError | InvalidParametersError> {
+    if (provider.length == 0) {
+      return errAsync(
+        new InvalidParametersError(
+          "No providers provided to progressiveFallback()",
+        ),
+      );
+    }
+
+    return method(provider[0]).orElse((err) => {
+      // If we're on the last provider, just return the error
+      if (provider.length == 1) {
+        return errAsync(err);
+      }
+
+      // Otherwise, try the next provider
+      return ObjectUtils.progressiveFallback(method, provider.slice(1));
+    });
   }
 }

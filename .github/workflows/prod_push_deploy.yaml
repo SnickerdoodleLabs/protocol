@@ -56,7 +56,7 @@ jobs:
           -f ./packages/docker/Dockerfile \
           .
 
-    - name: Build protocol
+    - name: Build Protocol SPA
       run: |-
         docker build \
           --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA" \
@@ -73,7 +73,7 @@ jobs:
           -f ./packages/extension-onboarding/Dockerfile \
           .
 
-    - name: Publish protocol
+    - name: Publish Protocol SPA
       run: |-
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA"
 
@@ -91,20 +91,33 @@ jobs:
       run: |-
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-static-web-integration:$GITHUB_SHA"
 
-    - name: Build protocol Iframe
+    - name: Build Protocol Iframe
       run: |-
         JIRA_TICKET=$(echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})" | grep -Eo '[A-Za-z0-9]*-[0-9]*' | awk '{print tolower($0)}')
       
         docker build \
           --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-iframe:$GITHUB_SHA" \
           --build-arg DEFAULT_INSIGHT_PLATFORM_BASE_URL="https://insight-api.snickerdoodle.com/v0/" \
+          --build-arg REQUEST_FOR_DATA_POLLING_INTERVAL=300000 \
           --build-arg CONTROL_CHAIN_ID=43113 \
           --build-arg IPFS_FETCH_BASE_URL=https://ipfs-gateway.snickerdoodle.com/ipfs/ \
-          --build-arg SUPPORTED_CHAINS="1,43113,43114,137,-1,100,56,1284,42161,592" \
           --build-arg BASE_TAG="$GITHUB_SHA" \
+          --build-arg PRIMARY_INFURA_KEY=8497d7f3186c4edcaaff8838478c634d \
+          --build-arg ANKR_API_KEY=f50d7a208124e6a6df731477fdc9ef420ce59769ced1e9339318a383365cb6a1 \
+          --build-arg BLUEZ_API_KEY=aed4aab2cbc573bbf8e7c6b448c916e5 \
+          --build-arg RARIBILE_API_KEY=c5855db8-08ef-409f-9947-e46c141af1b4 \
+          --build-arg COVALENT_API_KEY=cqt_wFfHg4vmGKyMxGvPPxdHm8VCDPCY \
+          --build-arg POAP_API_KEY=wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm \
+          --build-arg ALCHEMY_ARBITRUM_API_KEY=_G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF \
+          --build-arg ALCHEMY_ASTAR_API_KEY=Tk2NcwnHwrmRvzZCkqgSr6fOYIgH7xh7 \
+          --build-arg ALCHEMY_MUMBAI_API_KEY=UA7tIJ6CdCE1351h24CQUE-MNCIV3DSf \
+          --build-arg ALCHEMY_OPTIMISM_API_KEY=f3mMgv03KKiX8h-pgOc9ZZyu7F9ECcHG \
+          --build-arg ALCHEMY_POLYGON_API_KEY=el_YkQK0DMQqqGlgXPO5gm8g6WmpdNfX \
+          --build-arg ALCHEMY_SOLANA_API_KEY=pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg \
+          --build-arg ALCHEMY_SOLANA_TESTNET_API_KEY=K1r7FB6hBm0QyXy4qyUa0xHun1Dmkc05 \
           -f ./packages/iframe/Dockerfile \
           .
-    - name: Publish protocol Iframe
+    - name: Publish Protocol Iframe
       run: |-
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-iframe:$GITHUB_SHA"
 

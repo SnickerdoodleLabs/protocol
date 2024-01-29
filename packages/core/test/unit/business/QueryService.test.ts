@@ -1,10 +1,10 @@
 import {
-  ICryptoUtils,
   ILogUtils,
   ITimeUtils,
   ObjectUtils,
 } from "@snickerdoodlelabs/common-utils";
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
+import { ICryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   BlockNumber,
   ConsentToken,
@@ -15,11 +15,8 @@ import {
   EVMContractAddress,
   EVMPrivateKey,
   EarnedReward,
-  EligibleReward,
-  HexString32,
   IDynamicRewardParameter,
   IPFSError,
-  InsightString,
   IpfsCID,
   ESolidityAbiParameterType,
   PersistenceError,
@@ -331,7 +328,9 @@ describe("QueryService.approveQuery() tests", () => {
     // Assert
     expect(result).toBeDefined();
     expect(result.isErr()).toBeFalsy();
-    mocks.contextProvider.assertEventCounts({});
+    mocks.contextProvider.assertEventCounts({
+      onQueryStatusUpdated: 1,
+    });
   });
 
   test("no query status found but works", async () => {
@@ -369,7 +368,9 @@ describe("QueryService.approveQuery() tests", () => {
     // Assert
     expect(result).toBeDefined();
     expect(result.isErr()).toBeFalsy();
-    mocks.contextProvider.assertEventCounts({});
+    mocks.contextProvider.assertEventCounts({
+      onQueryStatusUpdated: 1,
+    });
 
     // const res = result._unsafeUnwrap();
     // expect(err).toBeInstanceOf(AjaxError);
@@ -441,7 +442,7 @@ describe("QueryService.returnQueries() tests", () => {
     // Assert
     expect(result).toBeDefined();
     expect(result.isErr()).toBeFalsy();
-    mocks.contextProvider.assertEventCounts({});
+    mocks.contextProvider.assertEventCounts({ onQueryStatusUpdated: 1 });
   });
 
   test("No stored reward parameters", async () => {
@@ -485,7 +486,10 @@ describe("QueryService.returnQueries() tests", () => {
     // Assert
     expect(result).toBeDefined();
     expect(result.isErr()).toBeFalsy();
-    mocks.contextProvider.assertEventCounts({ onQueryParametersRequired: 1 });
+    mocks.contextProvider.assertEventCounts({
+      onQueryParametersRequired: 1,
+      onQueryStatusUpdated: 1,
+    });
   });
 });
 

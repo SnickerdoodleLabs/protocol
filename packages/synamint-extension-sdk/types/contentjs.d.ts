@@ -1,1 +1,5 @@
-export declare const initWebComponent: () => void;
+import { IPaletteOverrides } from "@snickerdoodlelabs/objects";
+
+export declare const initWebComponent: (
+  paletteOverrides?: IPaletteOverrides,
+) => void;

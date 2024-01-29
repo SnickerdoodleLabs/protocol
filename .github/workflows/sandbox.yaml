@@ -71,12 +71,9 @@ jobs:
           .
 
     # Push the Docker image to Google Artifact Registry
-    - name: Publish protocol
+    - name: Publish Onboarding SPA
       run: |-
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA"
-
-
-
 
 
     - name: Build Static Web Integration
@@ -93,25 +90,23 @@ jobs:
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-static-web-integration:$GITHUB_SHA"
 
 
-    - name: Build protocol Iframe
+    - name: Build Protocol Iframe
       run: |-
         JIRA_TICKET=$(echo $GITHUB_REF | grep -Eo '[A-Za-z0-9]+-[0-9]+' | awk '{print tolower($0)}')
       
         docker build \
           --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-iframe:$GITHUB_SHA" \
           --build-arg DEFAULT_INSIGHT_PLATFORM_BASE_URL="https://insight-api.$JIRA_TICKET.snickerdoodle.dev/v0/" \
+          --build-arg REQUEST_FOR_DATA_POLLING_INTERVAL=5000 \
           --build-arg CONTROL_CHAIN_ID=31337 \
           --build-arg DEV_CHAIN_PROVIDER_URL="https://doodlechain.$JIRA_TICKET.snickerdoodle.dev" \
-          --build-arg IPFS_FETCH_BASE_URL=https://ipfs-gateway.snickerdoodle.dev/ipfs/ \
-          --build-arg SUPPORTED_CHAINS="1,43113,43114,137,-1,100,56,1284,42161,592,31337" \
+          --build-arg IPFS_FETCH_BASE_URL=https://ipfs-gateway.snickerdoodle.com/ipfs/ \
           --build-arg BASE_TAG="$GITHUB_SHA" \
           -f ./packages/iframe/Dockerfile \
           .
-    - name: Publish protocol Iframe
+    - name: Publish Protocol Iframe
       run: |-
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-iframe:$GITHUB_SHA"
-
-
 
     - name: 'Set up Cloud SDK'
       uses: 'google-github-actions/setup-gcloud@v1'
@@ -128,4 +123,5 @@ jobs:
         ./get_helm.sh
         cd infra/
         helm install --set ENV=$JIRA_TICKET -n $JIRA_TICKET  insight-platform-protocol ./insight-platform-protocol || true
-        helm upgrade -f ./insight-platform-protocol/values.yaml --reuse-values --set ProtocolIframe.Image.Tag=$GITHUB_SHA --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA -n $JIRA_TICKET  insight-platform-protocol ./insight-platform-protocol 
+        helm upgrade -f ./insight-platform-protocol/values.yaml --reuse-values --set ProtocolStaticWebIntegration.Image.Tag=$GITHUB_SHA --set ProtocolIframe.Image.Tag=$GITHUB_SHA --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA -n $JIRA_TICKET  insight-platform-protocol ./insight-platform-protocol 
+        

@@ -28,6 +28,16 @@ import {
   Version,
   EVMAccountAddress,
   EVMChainCode,
+  SiteVisit,
+  SiteVisitsMap,
+  SiteVisitsData,
+  ISO8601DateString,
+  BigNumberString,
+  TokenUri,
+  LinkedAccount,
+  EContractStandard,
+  DirectReward,
+  EVMNFT,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_ConditionExpr,
@@ -69,9 +79,9 @@ export const consentContractAddress2 = EVMContractAddress(
 
 export const queryCID = IpfsCID("queryCID");
 
-export const qureyString = SDQLString("qurey");
+export const queryString = SDQLString("queryString");
 
-export const SDQuery = new SDQLQuery(queryCID, qureyString);
+export const SDQuery = new SDQLQuery(queryCID, queryString);
 
 // #region for config provider mock
 
@@ -92,9 +102,7 @@ const testDiscordConfig = {
   clientId: "1089994449830027344",
   clientSecret: TokenSecret("uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ"),
   oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
-  oauthRedirectUrl: URLString(
-    "https://localhost:9005/data-dashboard/social-media-data",
-  ),
+  oauthRedirectUrl: URLString("https://localhost:9005/settings"),
   accessTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
   refreshTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
   dataAPIUrl: URLString("https://discord.com/api"),
@@ -117,8 +125,6 @@ const testTwitterConfig = {
 
 export const testCoreConfig = new CoreConfig(
   controlChainId,
-  [], //TODO: supported chains
-  chainConfig,
   controlChainInformation,
   URLString("http://ipfstest.com/whatever"),
   defaultInsightPlatformBaseUrl, // defaultInsightPlatformBaseUrl
@@ -128,38 +134,47 @@ export const testCoreConfig = new CoreConfig(
   "https://datawallet.snickerdoodle.com/data-dashboard/auth", // dropboxRedirectUri
   5000, // polling interval indexing,
   5000, // polling interval balance
-  5000, // polling interval NFT
+  300000, // polling interval NFT
   1000, // dataWalletBackupIntervalMS
   100000, // backupChunkSizeTarget
   {
     alchemyApiKeys: {
-      Arbitrum: "",
-      Astar: "",
-      Mumbai: "",
-      Optimism: "",
-      Polygon: "",
-      Solana: "",
-      SolanaTestnet: "",
+      Arbitrum: null,
+      Astar: null,
+      Mumbai: null,
+      Optimism: null,
+      Polygon: null,
+      Solana: null,
+      SolanaTestnet: null,
     },
     etherscanApiKeys: {
-      Ethereum: "",
-      Polygon: "",
-      Avalanche: "",
-      Binance: "",
-      Moonbeam: "",
-      Optimism: "",
-      Arbitrum: "",
-      Gnosis: "",
-      Fuji: "",
+      Ethereum: null,
+      Polygon: null,
+      Avalanche: null,
+      Binance: null,
+      Moonbeam: null,
+      Optimism: null,
+      Arbitrum: null,
+      Gnosis: null,
+      Fuji: null,
+    },
+    spaceAndTimeCredentials: {
+      userId: null,
+      privateKey: null,
     },
     covalentApiKey: "covalent api key",
     moralisApiKey: "moralis api key",
     nftScanApiKey: "nftScan api key",
     poapApiKey: "poap api key",
     oklinkApiKey: "oklink api key",
-    primaryInfuraKey: "",
     ankrApiKey: "ankr api key",
+    bluezApiKey: "bluez api key",
+    raribleApiKey: "rarible api key",
+    blockvisionKey: "blockvision api key",
+    primaryInfuraKey: "primary infura key",
+    primaryRPCProviderURL: ProviderUrl("Primary RPC Provider URL"),
     secondaryInfuraKey: "",
+    secondaryRPCProviderURL: ProviderUrl("Secondary RPC Provider URL"),
   },
   URLString("http://dnsServerAddress"),
   ECurrencyCode.USD,
@@ -167,13 +182,13 @@ export const testCoreConfig = new CoreConfig(
   5000,
   new Map<EChain, URLString>([
     // alchemy endpoints
-    [EChain.Solana, URLString("")],
-    [EChain.SolanaTestnet, URLString("")],
-    [EChain.Polygon, URLString("")],
-    [EChain.Mumbai, URLString("")],
-    [EChain.Arbitrum, URLString("")],
-    [EChain.Optimism, URLString("")],
-    [EChain.Astar, URLString("")],
+    [EChain.Solana, URLString("AlchemySolanaEndpoint")],
+    [EChain.SolanaTestnet, URLString("AlchemySolanaTestnetEndpoint")],
+    [EChain.Polygon, URLString("AlchemyPolygonEndpoint")],
+    [EChain.Mumbai, URLString("AlchemyMumbaiEndpoint")],
+    [EChain.Arbitrum, URLString("AlchemyArbitrumEndpoint")],
+    [EChain.Optimism, URLString("AlchemyOptimismEndpoint")],
+    [EChain.Astar, URLString("AlchemyAstroEndpoint")],
   ]),
   10000,
   "(localhost|chrome://)",
@@ -190,9 +205,10 @@ export const testCoreConfig = new CoreConfig(
     10000000, // optOutGas
     10000000, // updateAgreementFlagsGas
   ), // metatransactionGasAmounts
-  ProviderUrl(""), // devChainProviderUrl
+  ProviderUrl("devChainProviderURL"), // devChainProviderURL
   60, // maxStatsRetentionSeconds
   LanguageCode("en-pw"), // passwordLanguageCode
+  100,
 );
 
 const adContent1: AdContent = new AdContent(
@@ -428,6 +444,410 @@ export const avalanche1AstInstance = new AST(
   insightsMap,
   compensationParameters,
   compensationsMap,
+  UnixTimestamp(1),
 );
 
+export const siteVisits: SiteVisit[] = [
+  new SiteVisit(
+    URLString("http://google.com"),
+    UnixTimestamp(100),
+    UnixTimestamp(400),
+  ),
+  new SiteVisit(
+    URLString("http://google.com"),
+    UnixTimestamp(100),
+    UnixTimestamp(400),
+  ),
+  new SiteVisit(
+    URLString("http://google.com"),
+    UnixTimestamp(100),
+    UnixTimestamp(400),
+  ),
+  new SiteVisit(
+    URLString("http://gog.com"),
+    UnixTimestamp(200),
+    UnixTimestamp(400),
+  ),
+  new SiteVisit(
+    URLString("http://discord.com"),
+    UnixTimestamp(300),
+    UnixTimestamp(400),
+  ),
+];
+
+export const siteVisitsMap: SiteVisitsMap = new Map([
+  [
+    URLString("google.com"),
+    new SiteVisitsData(
+      3,
+      300,
+      UnixTimestamp(900),
+      ISO8601DateString("1970-01-01T00:06:40.000Z"),
+    ),
+  ],
+  [
+    URLString("gog.com"),
+    new SiteVisitsData(
+      1,
+      200,
+      UnixTimestamp(200),
+      ISO8601DateString("1970-01-01T00:06:40.000Z"),
+    ),
+  ],
+  [
+    URLString("discord.com"),
+    new SiteVisitsData(
+      1,
+      100,
+      UnixTimestamp(100),
+      ISO8601DateString("1970-01-01T00:06:40.000Z"),
+    ),
+  ],
+]);
+
+const tokenAddress1 = EVMContractAddress(
+  "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
+);
+const tokenAddress2 = EVMContractAddress(
+  "0x2222222222222222222222222222222222222222",
+);
+
+const tokenAddress3 = EVMContractAddress(
+  "0x2222222222222222222222222233333333333333",
+);
+
+const tokenAddress4 = EVMContractAddress(
+  "0x2222222222222222222222222244444444444444",
+);
+const tokenId = BigNumberString("0");
+const contractType = EContractStandard.Erc721;
+export const fujiOwner = EVMAccountAddress(
+  "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
+);
+export const polygonOwner = EVMAccountAddress(
+  "0xacfbc62a183d926f0c6c0c3c8d2aaaaaaaaaaaa",
+);
+export const linkedAccounts: LinkedAccount[] = [
+  new LinkedAccount(EChain.Fuji, fujiOwner),
+  new LinkedAccount(EChain.Polygon, polygonOwner),
+];
+
+export const earnedRewards: DirectReward[] = [
+  new DirectReward(
+    queryCID,
+    "Name",
+    null,
+    "",
+    ChainId(81),
+    tokenAddress1,
+    externalAccountAddress1,
+  ),
+];
+
+const tokenUri = TokenUri("");
+const metadata = undefined;
+const amount = BigNumberString("1");
+
+const chain = 43113;
+
+export const fujiNfts = [
+  new EVMNFT(
+    tokenAddress1,
+    tokenId,
+    contractType,
+    fujiOwner,
+    tokenUri,
+    metadata,
+    "1",
+    chain,
+    amount,
+    UnixTimestamp(1701779730),
+  ),
+  new EVMNFT(
+    tokenAddress2,
+    tokenId,
+    contractType,
+    fujiOwner,
+    tokenUri,
+    metadata,
+    "2",
+    chain,
+    amount,
+    UnixTimestamp(1701779730),
+  ),
+];
+
+export const fujiIndexerResponseAfterRegainingTheNft = new EVMNFT(
+  tokenAddress1,
+  tokenId,
+  contractType,
+  fujiOwner,
+  tokenUri,
+  metadata,
+  "1",
+  chain,
+  amount,
+  UnixTimestamp(1701779738),
+);
+
+export const polygonNfts = [
+  new EVMNFT(
+    tokenAddress3,
+    tokenId,
+    contractType,
+    polygonOwner,
+    tokenUri,
+    metadata,
+    "3",
+    137,
+    amount,
+    UnixTimestamp(1701779730),
+  ),
+  new EVMNFT(
+    tokenAddress4,
+    tokenId,
+    contractType,
+    polygonOwner,
+    tokenUri,
+    metadata,
+    "4",
+    137,
+    amount,
+    UnixTimestamp(1701779730),
+  ),
+];
+
+export const indexedNfts = [
+  {
+    id: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc|#|0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0",
+    nft: {
+      type: 0,
+      chain: 43113,
+      owner: fujiOwner,
+      token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
+      name: "1",
+      tokenId: "0",
+      contractType: "Erc721",
+      tokenUri: "",
+      metadata: undefined,
+      blockNumber: undefined,
+      lastOwnerTimeStamp: undefined,
+    },
+  },
+  {
+    id: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc|#|0x2222222222222222222222222222222222222222|#|0",
+    nft: {
+      type: 0,
+      chain: 43113,
+      owner: fujiOwner,
+      token: "0x2222222222222222222222222222222222222222",
+      name: "2",
+      tokenId: "0",
+      contractType: "Erc721",
+      tokenUri: "",
+      metadata: undefined,
+      blockNumber: undefined,
+      lastOwnerTimeStamp: undefined,
+    },
+  },
+  {
+    id: "0xacfbc62a183d926f0c6c0c3c8d2aaaaaaaaaaaa|#|0x2222222222222222222222222233333333333333|#|0",
+    nft: {
+      type: 0,
+      chain: 137,
+      owner: polygonOwner,
+      token: "0x2222222222222222222222222233333333333333",
+      name: "3",
+      tokenId: "0",
+      contractType: "Erc721",
+      tokenUri: "",
+      metadata: undefined,
+      blockNumber: undefined,
+      lastOwnerTimeStamp: undefined,
+    },
+  },
+  {
+    id: "0xacfbc62a183d926f0c6c0c3c8d2aaaaaaaaaaaa|#|0x2222222222222222222222222244444444444444|#|0",
+    nft: {
+      type: 0,
+      chain: 137,
+      owner: polygonOwner,
+      token: "0x2222222222222222222222222244444444444444",
+      name: "4",
+      tokenId: "0",
+      contractType: "Erc721",
+      tokenUri: "",
+      metadata: undefined,
+      blockNumber: undefined,
+      lastOwnerTimeStamp: undefined,
+    },
+  },
+];
+
+export const indexedNftInitialHistory = [
+  {
+    id: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc|#|0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0{-}1701779730",
+    event: 1,
+    amount: "1",
+  },
+  {
+    id: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc|#|0x2222222222222222222222222222222222222222|#|0{-}1701779730",
+    event: 1,
+    amount: "1",
+  },
+  {
+    id: "0xacfbc62a183d926f0c6c0c3c8d2aaaaaaaaaaaa|#|0x2222222222222222222222222233333333333333|#|0{-}1701779730",
+    event: 1,
+    amount: "1",
+  },
+  {
+    id: "0xacfbc62a183d926f0c6c0c3c8d2aaaaaaaaaaaa|#|0x2222222222222222222222222244444444444444|#|0{-}1701779730",
+    event: 1,
+    amount: "1",
+  },
+];
+
+export const indexedNftTransferlHistory = [
+  {
+    id: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc|#|0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0{-}1701779734",
+    event: -1,
+    amount: "1",
+  },
+  {
+    id: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc|#|0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0{-}1701779738",
+    event: 1,
+    amount: "1",
+  },
+];
+
+export const expectedFujiNfts = [
+  {
+    type: 0,
+    chain: 43113,
+    owner: fujiOwner,
+    token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
+    name: "1",
+    tokenId: "0",
+    contractType: "Erc721",
+    tokenUri: "",
+    metadata: undefined,
+    blockNumber: undefined,
+    lastOwnerTimeStamp: undefined,
+    measurementDate: 1701779730,
+    amount: "1",
+  },
+  {
+    type: 0,
+    chain: 43113,
+    owner: fujiOwner,
+    token: "0x2222222222222222222222222222222222222222",
+    name: "2",
+    tokenId: "0",
+    contractType: "Erc721",
+    tokenUri: "",
+    metadata: undefined,
+    blockNumber: undefined,
+    lastOwnerTimeStamp: undefined,
+    measurementDate: 1701779730,
+    amount: "1",
+  },
+];
+
+export const expectedShibuya = [
+  {
+    type: 0,
+    chain: 81,
+    owner: "ExternalAccountAddress1",
+    token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
+    name: "Name",
+    tokenId: "1",
+    contractType: "Unknown",
+    tokenUri: undefined,
+    metadata: {
+      raw: '{"queryCID":"queryCID","name":"Name","image":"http://ipfstest.com/whatever","description":"","type":"Direct","chainId":81,"contractAddress":"0x0a281d992a7e454d9dcf611b6bf0201393e27438","recipientAddress":"ExternalAccountAddress1"}',
+    },
+    blockNumber: undefined,
+    lastOwnerTimeStamp: undefined,
+    amount: "1",
+    measurementDate: 0,
+  },
+];
+
+export const expectedPolygon = [
+  {
+    type: 0,
+    chain: 137,
+    owner: polygonOwner,
+    token: "0x2222222222222222222222222233333333333333",
+    name: "3",
+    amount: "1",
+    measurementDate: 1701779730,
+    tokenId: "0",
+    contractType: "Erc721",
+    tokenUri: "",
+    metadata: undefined,
+    blockNumber: undefined,
+    lastOwnerTimeStamp: undefined,
+  },
+  {
+    type: 0,
+    chain: 137,
+    owner: polygonOwner,
+    token: "0x2222222222222222222222222244444444444444",
+    name: "4",
+    amount: "1",
+    measurementDate: 1701779730,
+    tokenId: "0",
+    contractType: "Erc721",
+    tokenUri: "",
+    metadata: undefined,
+    blockNumber: undefined,
+    lastOwnerTimeStamp: undefined,
+  },
+];
+export const expectedNfts = [
+  ...expectedShibuya,
+  ...expectedFujiNfts,
+  ...expectedPolygon,
+];
+
+export const nftThatGotTransferredAndGotBack = {
+  type: 0,
+  chain: 43113,
+  owner: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
+  token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
+  name: "1",
+  tokenId: "0",
+  contractType: "Erc721",
+  tokenUri: "",
+  metadata: undefined,
+  blockNumber: undefined,
+  lastOwnerTimeStamp: undefined,
+  measurementDate: 1701779738,
+  amount: "1",
+};
+
+const {
+  amount: evmAmount,
+  measurementDate,
+  ...rest
+} = nftThatGotTransferredAndGotBack;
+export const walletNftThatGotTransferredAndGotBack = {
+  id: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc|#|0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0",
+  ...rest,
+  history: [
+    { measurementDate: 1701779730, amount: "1", event: 1 },
+    {
+      amount: "1",
+      event: -1,
+      measurementDate: 1701779734,
+    },
+    {
+      amount: "1",
+      event: 1,
+      measurementDate: 1701779738,
+    },
+  ],
+  totalAmount: "1",
+};
 // #endregion

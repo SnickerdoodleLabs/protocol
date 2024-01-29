@@ -1,12 +1,22 @@
-import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import {
+  ILogUtils,
+  ILogUtilsType,
+  ITimeUtilsType,
+  ITimeUtils,
+} from "@snickerdoodlelabs/common-utils";
+import {
+  IMasterIndexer,
+  IMasterIndexerType,
+} from "@snickerdoodlelabs/indexers";
 import {
   AccountIndexingError,
   AjaxError,
   DataWalletBackupID,
   DiscordError,
-  IMasterIndexer,
-  IMasterIndexerType,
+  EIndexerMethod,
+  InvalidParametersError,
   isAccountValidForChain,
+  MethodSupportError,
   PersistenceError,
   SiteVisit,
   TwitterError,
@@ -30,6 +40,8 @@ import {
   IDataWalletPersistenceType,
   ILinkedAccountRepository,
   ILinkedAccountRepositoryType,
+  INftRepository,
+  INftRepositoryType,
   ITransactionHistoryRepository,
   ITransactionHistoryRepositoryType,
 } from "@core/interfaces/data/index.js";
@@ -60,6 +72,9 @@ export class MonitoringService implements IMonitoringService {
     protected discordService: IDiscordService,
     @inject(ITwitterServiceType)
     protected twitterService: ITwitterService,
+    @inject(INftRepositoryType)
+    protected nftRepository: INftRepository,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public pollTransactions(): ResultAsync<
@@ -69,42 +84,45 @@ export class MonitoringService implements IMonitoringService {
     // Grab the linked accounts and the config
     return ResultUtils.combine([
       this.accountRepo.getAccounts(),
-      this.configProvider.getConfig(),
+      // Only get the supported chains for transactions!
+      this.masterIndexer.getSupportedChains(EIndexerMethod.Transactions),
     ])
-      .andThen(([linkedAccounts, config]) => {
+      .andThen(([linkedAccounts, supportedChains]) => {
         // Loop over all the linked accounts in the data wallet, and get the last transaction for each supported chain
         // config.chainInformation is the list of supported chains,
         return ResultUtils.combine(
           linkedAccounts.map((linkedAccount) => {
             return ResultUtils.combine(
-              config.supportedChains.map((chainId) => {
-                if (!isAccountValidForChain(chainId, linkedAccount)) {
+              supportedChains.map((chain) => {
+                if (!isAccountValidForChain(chain, linkedAccount)) {
                   return okAsync([]);
                 }
 
                 return this.transactionRepo
                   .getLatestTransactionForAccount(
-                    chainId,
+                    chain,
                     linkedAccount.sourceAccountAddress,
                   )
                   .andThen((tx) => {
-                    // TODO: Determine cold start timestamp
                     let startTime = UnixTimestamp(0);
                     if (tx != null && tx.timestamp != null) {
                       startTime = tx.timestamp;
+                    }
+                    if (startTime == 0) {
+                      this.logUtils.debug(
+                        `For chain ${chain}, we are either cold-starting the transaction history for ${linkedAccount.sourceAccountAddress} or there are actually no transactions for this account yet. Fetching all transactions for this account.`,
+                      );
                     }
 
                     return this.masterIndexer
                       .getLatestTransactions(
                         linkedAccount.sourceAccountAddress,
                         startTime,
-                        chainId,
+                        chain,
                       )
                       .orElse((e) => {
                         this.logUtils.error(
-                          "error fetching transactions",
-                          chainId,
-                          linkedAccount.sourceAccountAddress,
+                          `In pollTransactions(), received an error fetching transactions on chain ${chain} for account address ${linkedAccount.sourceAccountAddress}.`,
                           e,
                         );
                         return okAsync([]);
@@ -119,6 +137,12 @@ export class MonitoringService implements IMonitoringService {
         const transactions = transactionsArr.flat(2);
         return this.transactionRepo.addTransactions(transactions);
       });
+  }
+
+  public pollNfts(): ResultAsync<void, unknown> {
+    return this.nftRepository
+      .getNfts(this.timeUtils.getUnixNow())
+      .map(() => {});
   }
 
   public siteVisited(

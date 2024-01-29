@@ -12,6 +12,11 @@ import {
   PersistenceError,
   MissingASTError,
   PossibleReward,
+  PublicEvents,
+  AccountIndexingError,
+  AjaxError,
+  InvalidParametersError,
+  MethodSupportError,
 } from "@snickerdoodlelabs/objects";
 import { AST } from "@snickerdoodlelabs/query-parser";
 import { ResultAsync } from "neverthrow";
@@ -22,18 +27,19 @@ export interface IQueryParsingEngine {
     dataPermissions: DataPermissions,
   ): ResultAsync<
     IQueryDeliveryItems,
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
     | ParserError
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | MissingTokenConstructorError
     | DuplicateIdInSchema
+    | QueryFormatError
+    | MissingTokenConstructorError
+    | QueryExpiredError
+    | MissingASTError
+    | EvaluationError
     | PersistenceError
     | EvalNotImplementedError
-    | MissingASTError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   >;
   parseQuery(
     query: SDQLQuery,
@@ -71,18 +77,19 @@ export interface IQueryParsingEngine {
     query: SDQLQuery,
   ): ResultAsync<
     IQueryDeliveryItems,
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
     | ParserError
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | MissingTokenConstructorError
     | DuplicateIdInSchema
+    | QueryFormatError
+    | MissingTokenConstructorError
+    | QueryExpiredError
+    | MissingASTError
+    | EvaluationError
     | PersistenceError
     | EvalNotImplementedError
-    | MissingASTError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   >;
 }
 

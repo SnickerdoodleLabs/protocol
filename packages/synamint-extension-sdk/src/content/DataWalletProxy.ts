@@ -1,6 +1,10 @@
 import { EventEmitter } from "events";
 
 import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
+import {
   AccountAddress,
   OAuth1RequstToken,
   BigNumberString,
@@ -26,7 +30,6 @@ import {
   OAuthAuthorizationCode,
   PagedResponse,
   PagingRequest,
-  PossibleReward,
   Signature,
   SiteVisit,
   DiscordID,
@@ -51,11 +54,15 @@ import {
   PEMEncodedRSAPublicKey,
   JsonWebToken,
   QueryStatus,
-  AccessToken,
   ECloudStorageType,
   SocialProfileLinkedEvent,
   IProxyStorageMethods,
   ECoreProxyType,
+  BlockNumber,
+  RefreshToken,
+  TransactionFilter,
+  IProxyAccountMethods,
+  INftProxyMethods,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -70,23 +77,15 @@ import {
   ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
   ONBOARDING_PROVIDER_SUBSTREAM,
   PORT_NOTIFICATION,
-  AddAccountParams,
-  UnlockParams,
-  UnlinkAccountParams,
   SetBirthdayParams,
   SetGivenNameParams,
   SetFamilyNameParams,
-  GetUnlockMessageParams,
-  SetApplyDefaultPermissionsParams,
   SetEmailParams,
   SetLocationParams,
   SetGenderParams,
-  AcceptInvitationParams,
   GetAgreementPermissionsParams,
-  SetDefaultPermissionsWithDataTypesParams,
   LeaveCohortParams,
   GetInvitationMetadataByCIDParams,
-  ScamFilterSettingsParams,
   GetConsentContractCIDParams,
   CheckInvitationStatusParams,
   GetTokenPriceParams,
@@ -99,11 +98,12 @@ import {
   GetListingsTotalByTagParams,
   GetConsentCapacityParams,
   GetPossibleRewardsParams,
-  SwitchToTabParams,
   GetQueryStatusByCidParams,
   AuthenticateDropboxParams,
   SetAuthenticatedStorageParams,
-  RejectInvitationParams,
+  GetQueryStatusesParams,
+  GetTransactionsParams,
+  UpdateAgreementPermissionsParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
@@ -153,12 +153,15 @@ const initConnection = () => {
 };
 
 export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
+  public account: IProxyAccountMethods;
   public discord: IProxyDiscordMethods;
   public integration: IProxyIntegrationMethods;
   public metrics: IProxyMetricsMethods;
   public twitter: IProxyTwitterMethods;
   public storage: IProxyStorageMethods;
+  public nft: INftProxyMethods;
   public events: PublicEvents;
+  public requestDashboardView = undefined;
 
   public proxyType: ECoreProxyType = ECoreProxyType.EXTENSION_INJECTED;
 
@@ -204,6 +207,13 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     );
 
     this.on(
+      ENotificationTypes.COHORT_LEFT,
+      (notification: { data: EVMContractAddress }) => {
+        this.events.onCohortLeft.next(notification.data);
+      },
+    );
+
+    this.on(
       ENotificationTypes.SOCIAL_PROFILE_LINKED,
       (notification: { data: SocialProfileLinkedEvent }) => {
         this.events.onSocialProfileLinked.next(notification.data);
@@ -229,12 +239,69 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       },
     );
 
+    this.account = {
+      addAccount: (
+        accountAddress: AccountAddress,
+        signature: Signature,
+        languageCode: LanguageCode,
+        chain: EChain,
+      ) => {
+        return coreGateway.account.addAccount(
+          accountAddress,
+          signature,
+          languageCode,
+          chain,
+        );
+      },
+      addAccountWithExternalSignature: (
+        accountAddress: AccountAddress,
+        message: string,
+        signature: Signature,
+        chain: EChain,
+      ) => {
+        return coreGateway.account.addAccountWithExternalSignature(
+          accountAddress,
+          message,
+          signature,
+          chain,
+        );
+      },
+      addAccountWithExternalTypedDataSignature: (
+        accountAddress: AccountAddress,
+        domain: TypedDataDomain,
+        types: Record<string, Array<TypedDataField>>,
+        value: Record<string, unknown>,
+        signature: Signature,
+        chain: EChain,
+      ) => {
+        return coreGateway.account.addAccountWithExternalTypedDataSignature(
+          accountAddress,
+          domain,
+          types,
+          value,
+          signature,
+          chain,
+        );
+      },
+      unlinkAccount: (accountAddress: AccountAddress, chain: EChain) => {
+        return coreGateway.account.unlinkAccount(accountAddress, chain);
+      },
+      getLinkAccountMessage: (
+        languageCode: LanguageCode = LanguageCode("en"),
+      ) => {
+        return coreGateway.account.getLinkAccountMessage(languageCode);
+      },
+      getAccounts: () => {
+        return coreGateway.account.getAccounts();
+      },
+    };
+
     this.discord = {
       initializeUserWithAuthorizationCode: (code: OAuthAuthorizationCode) => {
         return coreGateway.discord.initializeUserWithAuthorizationCode(code);
       },
-      installationUrl: (redirectTabId: number | undefined) => {
-        return coreGateway.discord.installationUrl(redirectTabId);
+      installationUrl: () => {
+        return coreGateway.discord.installationUrl();
       },
       getUserProfiles: () => {
         return coreGateway.discord.getUserProfiles();
@@ -275,6 +342,25 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       getMetrics: () => {
         return coreGateway.metrics.getMetrics();
       },
+      getNFTCache: () => {
+        return coreGateway.metrics.getNFTCache();
+      },
+      getPersistenceNFTs: () => {
+        return coreGateway.metrics.getPersistenceNFTs();
+      },
+      getNFTsHistory: () => {
+        return coreGateway.metrics.getNFTsHistory();
+      },
+    };
+
+    this.nft = {
+      getNfts: (
+        benchmark: UnixTimestamp | undefined,
+        chains: EChain[] | undefined,
+        accounts: LinkedAccount[] | undefined,
+      ) => {
+        return coreGateway.nft.getNfts(benchmark, chains, accounts);
+      },
     };
 
     this.twitter = {
@@ -311,10 +397,10 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       setAuthenticatedStorage: (
         storageType: ECloudStorageType,
         path: string,
-        accessToken: AccessToken,
+        refreshToken: RefreshToken,
       ) => {
         return coreGateway.setAuthenticatedStorage(
-          new SetAuthenticatedStorageParams(storageType, path, accessToken),
+          new SetAuthenticatedStorageParams(storageType, path, refreshToken),
         );
       },
       getCurrentCloudStorage: () => {
@@ -328,10 +414,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     eventEmitter.on(PORT_NOTIFICATION, (resp: BaseNotification) => {
       _this.emit(resp.type, resp);
     });
-  }
-
-  public switchToTab(tabId: number): ResultAsync<void, ProxyError> {
-    return coreGateway.switchToTab(new SwitchToTabParams(tabId));
   }
 
   public setDefaultReceivingAddress(
@@ -408,6 +490,22 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       new GetQueryStatusByCidParams(queryCID),
     );
   }
+
+  public getQueryStatuses(
+    contractAddress: EVMContractAddress,
+    blockNumber?: BlockNumber,
+  ): ResultAsync<QueryStatus[], ProxyError> {
+    return coreGateway.getQueryStatuses(
+      new GetQueryStatusesParams(contractAddress, blockNumber),
+    );
+  }
+
+  public getConsentContractURLs(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<URLString[], ProxyError> {
+    return coreGateway.getConsentContractURLs(contractAddress);
+  }
+
   public checkInvitationStatus(
     consentAddress: EVMContractAddress,
     signature?: Signature,
@@ -428,42 +526,17 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     return coreGateway.getState();
   }
 
-  public addAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode: LanguageCode = LanguageCode("en"),
-  ) {
-    return coreGateway.addAccount(
-      new AddAccountParams(accountAddress, signature, chain, languageCode),
-    );
+  public getTransactionValueByChain() {
+    return coreGateway.getTransactionValueByChain();
   }
-  public unlinkAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode: LanguageCode = LanguageCode("en"),
-  ) {
-    return coreGateway.unlinkAccount(
-      new UnlinkAccountParams(accountAddress, signature, chain, languageCode),
-    );
+  public getTransactions(filter?: TransactionFilter) {
+    return coreGateway.getTransactions(new GetTransactionsParams(filter));
   }
-  public getLinkAccountMessage(
-    languageCode: LanguageCode = LanguageCode("en"),
-  ) {
-    return coreGateway.getLinkAccountMessage(
-      new GetUnlockMessageParams(languageCode),
-    );
-  }
-  public getAccounts() {
-    return coreGateway.getAccounts();
-  }
+
   public getAccountBalances() {
     return coreGateway.getAccountBalances();
   }
-  public getAccountNFTs() {
-    return coreGateway.getAccountNFTs();
-  }
+
   public getFamilyName() {
     return coreGateway.getFamilyName();
   }
@@ -511,20 +584,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     return coreGateway.getAvailableInvitationsCID();
   }
 
-  public getDefaultPermissions() {
-    return coreGateway.getDefaultPermissions();
-  }
-
-  public setDefaultPermissions(dataTypes: EWalletDataType[]) {
-    return coreGateway.setDefaultPermissionsWithDataTypes(
-      new SetDefaultPermissionsWithDataTypesParams(dataTypes),
-    );
-  }
-
-  public setDefaultPermissionsToAll() {
-    return coreGateway.setDefaultPermissionsToAll();
-  }
-
   public getInvitationMetadataByCID(ipfsCID: IpfsCID) {
     return coreGateway.getInvitationMetadataByCID(
       new GetInvitationMetadataByCIDParams(ipfsCID),
@@ -536,27 +595,12 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       new GetAgreementPermissionsParams(consentContractAddress),
     );
   }
-  public getApplyDefaultPermissionsOption() {
-    return coreGateway.getApplyDefaultPermissionsOption();
-  }
-  public setApplyDefaultPermissionsOption(option: boolean) {
-    return coreGateway.setApplyDefaultPermissionsOption(
-      new SetApplyDefaultPermissionsParams(option),
-    );
-  }
-  public acceptInvitation(
-    dataTypes: EWalletDataType[],
+  public updateAgreementPermissions(
     consentContractAddress: EVMContractAddress,
-    tokenId?: BigNumberString,
-    businessSignature?: Signature,
-  ) {
-    return coreGateway.acceptInvitation(
-      new AcceptInvitationParams(
-        dataTypes,
-        consentContractAddress,
-        tokenId,
-        businessSignature,
-      ),
+    dataTypes: EWalletDataType[],
+  ): ResultAsync<void, ProxyError> {
+    return coreGateway.updateAgreementPermissions(
+      new UpdateAgreementPermissionsParams(consentContractAddress, dataTypes),
     );
   }
 
@@ -565,44 +609,14 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       new LeaveCohortParams(consentContractAddress),
     );
   }
-  public closeTab() {
-    return coreGateway.closeTab();
-  }
   public getDataWalletAddress() {
     return coreGateway.getDataWalletAddress();
-  }
-  public getScamFilterSettings() {
-    return coreGateway.getScamFilterSettings();
-  }
-  public setScamFilterSettings(
-    isScamFilterActive: boolean,
-    showMessageEveryTime: boolean,
-  ) {
-    return coreGateway.setScamFilterSettings(
-      new ScamFilterSettingsParams(isScamFilterActive, showMessageEveryTime),
-    );
   }
   public getSiteVisits(): ResultAsync<SiteVisit[], ProxyError> {
     return coreGateway.getSiteVisits();
   }
   public getSiteVisitsMap(): ResultAsync<Map<URLString, number>, ProxyError> {
     return coreGateway.getSiteVisitsMap();
-  }
-
-  public rejectInvitation(
-    consentContractAddress: EVMContractAddress,
-    tokenId?: BigNumberString,
-    businessSignature?: Signature,
-    rejectUntil?: UnixTimestamp,
-  ) {
-    return coreGateway.rejectInvitation(
-      new RejectInvitationParams(
-        consentContractAddress,
-        tokenId,
-        businessSignature,
-        rejectUntil,
-      ),
-    );
   }
 
   public getConsentCapacity(
@@ -613,12 +627,14 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     );
   }
 
-  public getPossibleRewards(
+  public getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
-    timeoutMs?: number,
-  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, ProxyError> {
-    return coreGateway.getPossibleRewards(
-      new GetPossibleRewardsParams(contractAddresses, timeoutMs),
+  ): ResultAsync<
+    Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
+    ProxyError
+  > {
+    return coreGateway.getEarnedRewardsByContractAddress(
+      new GetPossibleRewardsParams(contractAddresses),
     );
   }
 }

@@ -14,12 +14,13 @@ import {
   UninitializedError,
   PageInvitation,
   IPFSError,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   ConsentFactoryContractError,
   IpfsCID,
   HexString32,
   AccountAddress,
   IConsentCapacity,
+  IUserAgreement,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -123,7 +124,7 @@ export interface IInvitationService {
 
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, IPFSError>;
+  ): ResultAsync<IOldUserAgreement | IUserAgreement, IPFSError>;
 
   getAgreementFlags(
     consentContractAddress: EVMContractAddress,

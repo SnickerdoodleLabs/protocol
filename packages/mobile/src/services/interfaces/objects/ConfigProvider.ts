@@ -1,5 +1,4 @@
-import { CoreConfig } from "@snickerdoodlelabs/core/dist/interfaces/objects";
-import { IConfigProvider } from "@snickerdoodlelabs/core/dist/interfaces/utilities";
+import { CoreConfig, IConfigProvider } from "@snickerdoodlelabs/core";
 import { IIndexerConfigProvider } from "@snickerdoodlelabs/indexers";
 import {
   chainConfig,
@@ -12,7 +11,6 @@ import {
   IConfigOverrides,
   ProviderUrl,
   TokenSecret,
-  TwitterConfig,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
@@ -83,15 +81,13 @@ export class ConfigProvider
     // All the default config below is for testing on local, using the test-harness package
     this.config = new CoreConfig(
       controlChainId,
-      [ChainId(EChain.DevDoodle)], // supported chains (local hardhat only for the test harness, we can index other chains here though)
-      chainConfig,
       controlChainInformation,
       URLString("http://127.0.0.1:8080/ipfs"), // ipfsFetchBaseUrl
       URLString("http://localhost:3006"), // defaultInsightPlatformBaseUrl
       "ceramic-replacement-bucket",
       5000, // polling interval indexing,
       5000, // polling interval balance
-      5000, // polling interval nfts
+      300000, // polling interval nfts
       60000, // backup interval
       5, // backup chunk size target
       "ckey_ee277e2a0e9542838cf30325665", // covalent api key
@@ -191,8 +187,6 @@ export class ConfigProvider
     }
 
     // The rest of the config is easier
-    this.config.supportedChains =
-      overrides.supportedChains ?? this.config.supportedChains;
     this.config.ipfsFetchBaseUrl =
       overrides.ipfsFetchBaseUrl ?? this.config.ipfsFetchBaseUrl;
     this.config.defaultInsightPlatformBaseUrl =
@@ -225,9 +219,9 @@ export class ConfigProvider
       overrides.backupChunkSizeTarget ?? this.config.backupChunkSizeTarget;
     this.config.ceramicNodeURL =
       overrides.ceramicNodeURL ?? this.config.ceramicNodeURL;
-    this.config.requestForDataCheckingFrequency =
-      overrides.requestForDataCheckingFrequency ??
-      this.config.requestForDataCheckingFrequency;
+    this.config.requestForDataPollingIntervalMS =
+      overrides.requestForDataPollingIntervalMS ??
+      this.config.requestForDataPollingIntervalMS;
     this.config.domainFilter =
       overrides.domainFilter ?? this.config.domainFilter;
     this.config.enableBackupEncryption =

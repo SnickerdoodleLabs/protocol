@@ -15,5 +15,12 @@ export * from "@objects/businessObjects/versioned/SiteVisit.js";
 export * from "@objects/businessObjects/versioned/SocialGroupProfile.js";
 export * from "@objects/businessObjects/versioned/SocialProfile.js";
 export * from "@objects/businessObjects/versioned/SolanaTransaction.js";
+
+export * from "@objects/businessObjects/versioned/SuiTransaction.js";
+
 export * from "@objects/businessObjects/versioned/TokenInfo.js";
 export * from "@objects/businessObjects/versioned/VersionedObject.js";
+export * from "@objects/businessObjects/versioned/WalletNFTData.js";
+export * from "@objects/businessObjects/versioned/WalletNFTHistory.js";
+export * from "@objects/businessObjects/versioned/WalletNFTHistoryMigrator.js";
+export * from "@objects/businessObjects/versioned/WalletNFTDataMigrator.js";

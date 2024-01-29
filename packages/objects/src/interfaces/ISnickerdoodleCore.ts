@@ -1,3 +1,7 @@
+import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
 import { ResultAsync } from "neverthrow";
 
 import {
@@ -30,6 +34,13 @@ import {
   WalletNFT,
   RuntimeMetrics,
   QueryStatus,
+  OAuth2Tokens,
+  SiteVisitsMap,
+  TransactionFlowInsight,
+  OptInInfo,
+  NftRepositoryCache,
+  WalletNFTData,
+  WalletNFTHistory,
   // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
@@ -37,7 +48,6 @@ import {
   ECloudStorageType,
   EDataWalletPermission,
   EInvitationStatus,
-  EScamFilterStatus,
 } from "@objects/enum/index.js";
 import {
   AccountIndexingError,
@@ -61,7 +71,6 @@ import {
   PersistenceError,
   QueryExpiredError,
   QueryFormatError,
-  SiftContractError,
   BlockchainCommonErrors,
   TwitterError,
   UnauthorizedError,
@@ -70,10 +79,12 @@ import {
   DuplicateIdInSchema,
   MissingWalletDataTypeError,
   ParserError,
+  MethodSupportError,
 } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
-import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata.js";
+import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
+import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
 import {
   AccountAddress,
   AdKey,
@@ -104,10 +115,9 @@ import {
   TwitterID,
   UnixTimestamp,
   URLString,
-  PasswordString,
-  AccessToken,
+  BlockNumber,
+  RefreshToken,
 } from "@objects/primitives/index.js";
-
 /**
  ************************ MAINTENANCE HAZARD ***********************************************
  Whenever you add or change a method in this class, you also need to look at and probably update
@@ -138,7 +148,7 @@ export interface IAccountMethods {
    */
   getLinkAccountMessage(
     languageCode: LanguageCode,
-    sourceDomain?: DomainName | undefined,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<string, UnsupportedLanguageError | UnauthorizedError>;
 
   /**
@@ -157,7 +167,39 @@ export interface IAccountMethods {
     signature: Signature,
     languageCode: LanguageCode,
     chain: EChain,
-    sourceDomain?: DomainName | undefined,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | InvalidParametersError
+  >;
+
+  addAccountWithExternalSignature(
+    accountAddress: AccountAddress,
+    message: string,
+    signature: Signature,
+    chain: EChain,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | InvalidParametersError
+  >;
+
+  addAccountWithExternalTypedDataSignature(
+    accountAddress: AccountAddress,
+    domain: TypedDataDomain,
+    types: Record<string, Array<TypedDataField>>,
+    value: Record<string, unknown>,
+    signature: Signature,
+    chain: EChain,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<
     void,
     | PersistenceError
@@ -176,11 +218,15 @@ export interface IAccountMethods {
   unlinkAccount(
     accountAddress: AccountAddress,
     chain: EChain,
-    sourceDomain?: DomainName | undefined,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<
     void,
     PersistenceError | UninitializedError | InvalidParametersError
   >;
+
+  getAccounts(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<LinkedAccount[], PersistenceError | UnauthorizedError>;
 }
 
 export interface ICoreMarketplaceMethods {
@@ -214,21 +260,21 @@ export interface ICoreMarketplaceMethods {
     | UninitializedError
     | ConsentContractError
     | BlockchainCommonErrors
+    | InvalidParametersError
   >;
 
   /**
    * This method will accept a list of consent contract addresses and returns
-   * all possible rewards with their dependencies.
-   * i.e. Join this campaign, share your age; and get a discount
+   * earned rewards with respect to queryCIDs
    * @param contractAddresses List of consent contract addresses (of campaigns)
    * @param timeoutMs Timeout for fetching the queries from Ipfs, in case form
    * factor wants to tune the marketplace loading time.
    */
-  getPossibleRewards(
+  getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
   ): ResultAsync<
-    Map<EVMContractAddress, PossibleReward[]>,
+    Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
     | AjaxError
     | EvaluationError
     | QueryFormatError
@@ -266,7 +312,6 @@ export interface ICoreDiscordMethods {
    * to initialize the user
    */
   installationUrl(
-    redirectTabId: number | undefined,
     sourceDomain: DomainName | undefined,
   ): ResultAsync<URLString, OAuthError>;
 
@@ -476,6 +521,7 @@ export interface IInvitationMethods {
     | MinimalForwarderContractError
     | ConsentError
     | UnauthorizedError
+    | InvalidParametersError
     | BlockchainCommonErrors
   >;
 
@@ -529,7 +575,7 @@ export interface IInvitationMethods {
 
   getAcceptedInvitations(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<Invitation[], PersistenceError | UnauthorizedError>;
+  ): ResultAsync<OptInInfo[], PersistenceError | UnauthorizedError>;
 
   getInvitationsByDomain(
     domain: DomainName,
@@ -589,7 +635,10 @@ export interface IInvitationMethods {
 
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, IPFSError | UnauthorizedError>;
+  ): ResultAsync<
+    IOldUserAgreement | IUserAgreement,
+    IPFSError | UnauthorizedError
+  >;
 
   updateDataPermissions(
     consentContractAddress: EVMContractAddress,
@@ -615,19 +664,45 @@ export interface IMetricsMethods {
   getMetrics(
     sourceDomain: DomainName | undefined,
   ): ResultAsync<RuntimeMetrics, never>;
+
+  getNFTCache(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<NftRepositoryCache, PersistenceError>;
+  getPersistenceNFTs(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<WalletNFTData[], PersistenceError>;
+  getNFTsHistory(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<WalletNFTHistory[], PersistenceError>;
+}
+
+export interface INftMethods {
+  getNfts(
+    benchmark: UnixTimestamp | undefined,
+    chains: EChain[] | undefined,
+    accounts: LinkedAccount[] | undefined,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    WalletNFT[],
+    | PersistenceError
+    | AccountIndexingError
+    | AjaxError
+    | MethodSupportError
+    | InvalidParametersError
+  >;
 }
 
 export interface IStorageMethods {
   setAuthenticatedStorage(
     type: ECloudStorageType,
     path: string,
-    accessToken: AccessToken,
+    refreshToken: RefreshToken,
     sourceDomain: DomainName | undefined,
   ): ResultAsync<void, PersistenceError>;
   authenticateDropbox(
     code: string,
     sourceDomain: DomainName | undefined,
-  ): ResultAsync<AccessToken, AjaxError>;
+  ): ResultAsync<OAuth2Tokens, AjaxError>;
   getCurrentCloudStorage(
     sourceDomain: DomainName | undefined,
   ): ResultAsync<ECloudStorageType, never>;
@@ -654,6 +729,16 @@ export interface ISnickerdoodleCore {
     PersistenceError | UninitializedError | BlockchainProviderError | AjaxError
   >;
 
+  getConsentContractURLs(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    URLString[],
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentContractError
+    | BlockchainCommonErrors
+  >;
+
   getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
@@ -671,18 +756,6 @@ export interface ISnickerdoodleCore {
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | UnauthorizedError
-    | BlockchainCommonErrors
-  >;
-
-  checkURL(
-    domain: DomainName,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    EScamFilterStatus,
-    | BlockchainProviderError
-    | UninitializedError
-    | SiftContractError
     | UnauthorizedError
     | BlockchainCommonErrors
   >;
@@ -710,6 +783,18 @@ export interface ISnickerdoodleCore {
   getQueryStatusByQueryCID(
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, PersistenceError>;
+
+  getQueryStatuses(
+    contractAddress: EVMContractAddress,
+    blockNumber?: BlockNumber,
+  ): ResultAsync<
+    QueryStatus[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | PersistenceError
+  >;
 
   /**
    * Restores a backup directly. Should only be called for testing purposes.
@@ -826,21 +911,16 @@ export interface ISnickerdoodleCore {
   ): ResultAsync<SiteVisit[], PersistenceError | UnauthorizedError>;
   getSiteVisitsMap(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<Map<URLString, number>, PersistenceError | UnauthorizedError>;
+  ): ResultAsync<SiteVisitsMap, PersistenceError | UnauthorizedError>;
 
-  getAccounts(
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<LinkedAccount[], PersistenceError | UnauthorizedError>;
   getAccountBalances(
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<TokenBalance[], PersistenceError | UnauthorizedError>;
-  getAccountNFTs(
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<WalletNFT[], PersistenceError | UnauthorizedError>;
+
   getTransactionValueByChain(
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<
-    TransactionPaymentCounter[],
+    TransactionFlowInsight[],
     PersistenceError | UnauthorizedError
   >;
 
@@ -889,6 +969,7 @@ export interface ISnickerdoodleCore {
   twitter: ICoreTwitterMethods;
   metrics: IMetricsMethods;
   storage: IStorageMethods;
+  nft: INftMethods;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

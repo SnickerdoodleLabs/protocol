@@ -1,12 +1,15 @@
-import {
-  Box,
-  CircularProgress,
-  IconButton,
-  Grid,
-  Typography,
-} from "@material-ui/core";
-import KeyboardArrowLeft from "@material-ui/icons/KeyboardArrowLeft";
-import KeyboardArrowRight from "@material-ui/icons/KeyboardArrowRight";
+import AccountChainBar from "@extension-onboarding/components/AccountChainBar";
+import Card from "@extension-onboarding/components/v2/Card";
+import EmptyItem from "@extension-onboarding/components/v2/EmptyItem";
+import Table from "@extension-onboarding/components/v2/Table";
+import TrendItem from "@extension-onboarding/components/v2/TrendItem";
+import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen/UnauthScreen";
+import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { IBalanceItem } from "@extension-onboarding/objects";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/Tokens/Tokens.style";
+import { Box, CircularProgress, Grid } from "@material-ui/core";
 import {
   AccountAddress,
   BigNumberString,
@@ -14,7 +17,9 @@ import {
   ChainId,
   EChainType,
   formatValue,
+  getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
+import { SDTypography } from "@snickerdoodlelabs/shared-components";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -31,15 +36,6 @@ import { ResultUtils } from "neverthrow-result-utils";
 import React, { useEffect, useMemo, useState } from "react";
 import { Pie } from "react-chartjs-2";
 
-import emptyTokens from "@extension-onboarding/assets/images/empty-tokens.svg";
-import AccountChainBar from "@extension-onboarding/components/AccountChainBar";
-import TokenItem from "@extension-onboarding/components/TokenItem";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { IBalanceItem } from "@extension-onboarding/objects";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/Tokens/Tokens.style";
-import UnauthScreen from "@extension-onboarding/components/UnauthScreen/UnauthScreen";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -53,14 +49,6 @@ ChartJS.register(
 export enum EDisplayMode {
   MAINNET,
   TESTNET,
-}
-
-const PAGINATION_RANGE = 5;
-
-interface IPagination {
-  currentIndex: number;
-  numberOfPages: number;
-  totalItems: number;
 }
 
 const chartOptions = {
@@ -79,18 +67,6 @@ const chartOptions = {
   },
 };
 
-const getPaginationObject = (itemCount): IPagination | undefined => {
-  if (itemCount <= PAGINATION_RANGE) {
-    return undefined;
-  }
-  return {
-    currentIndex: 1,
-    numberOfPages:
-      ((itemCount / PAGINATION_RANGE) | 0) +
-      (itemCount % PAGINATION_RANGE != 0 ? 1 : 0),
-    totalItems: itemCount,
-  };
-};
 const colorGenarator = chroma.scale(["#5A5292", "#B9B6D3"]).mode("lab");
 
 const { mainnetSupportedChainIds, testnetSupportedChainIds } = Array.from(
@@ -134,7 +110,6 @@ export default () => {
   const [accountTestnetBalances, setAccountTestnetBalances] =
     useState<IBalanceItem[]>();
   const [isBalancesLoading, setIsBalancesLoading] = useState(true);
-  const [tokensPagination, setTokensPagination] = useState<IPagination>();
   useEffect(() => {
     if (linkedAccounts.length) {
       setIsBalancesLoading(true);
@@ -142,17 +117,46 @@ export default () => {
     }
   }, [linkedAccounts.length]);
 
+  const { chains, accounts } = useMemo(() => {
+    return [
+      ...(accountBalances || ([] as IBalanceItem[])),
+      ...(accountTestnetBalances || ([] as IBalanceItem[])),
+    ].reduce(
+      (acc, balance) => {
+        if (!acc.accounts.includes(balance.accountAddress)) {
+          acc.accounts.push(balance.accountAddress);
+        }
+        const nftChainId = getChainInfoByChain(balance.chainId).chainId;
+        if (!acc.chains.includes(nftChainId)) {
+          acc.chains.push(nftChainId);
+        }
+        return acc;
+      },
+      {
+        accounts: [] as AccountAddress[],
+        chains: [] as ChainId[],
+      },
+    );
+  }, [accountBalances, accountTestnetBalances]);
+
   const initializeBalances = () => {
     sdlDataWallet
       .getAccountBalances()
       .map((balances) =>
-        balances.map((b) => ({ ...b, balance: formatValue(b) })),
+        // TODO: Fix this. This is really bad- The balance is a BNS, and should be formatted at the point of display
+        balances.map((b) => ({
+          ...b,
+          balance: BigNumberString(formatValue(b)),
+        })),
       )
       .andThen((balanceResults) => {
         return ResultUtils.combine(
           balanceResults.map((balanceItem) =>
             sdlDataWallet
-              .getTokenInfo(balanceItem.chainId, balanceItem.tokenAddress)
+              .getTokenInfo(
+                ChainId(balanceItem.chainId),
+                balanceItem.tokenAddress,
+              )
               .orElse((e) => okAsync(null)),
           ),
         ).map((tokenInfo) => {
@@ -202,7 +206,7 @@ export default () => {
             const structeredBalances = combinedBalances.reduce(
               (acc, item) => {
                 const isMainnetItem = mainnetSupportedChainIds.includes(
-                  item.chainId,
+                  ChainId(item.chainId),
                 );
                 if (isMainnetItem) {
                   acc.mainnetBalances = [...acc.mainnetBalances, item];
@@ -324,255 +328,267 @@ export default () => {
     return options;
   }, [tokensToRender, totalBalance]);
 
-  useEffect(() => {
-    if (tokensToRender) {
-      setTokensPagination(getPaginationObject(tokensToRender.length));
-    }
-  }, [tokensToRender]);
-
   if (!(linkedAccounts.length > 0)) {
     return <UnauthScreen />;
   }
 
+  const columns = [
+    {
+      label: "Name",
+      render: (item: IBalanceItem) => {
+        return (
+          <Box display="flex">
+            <img
+              width={24}
+              height={24}
+              style={{ borderRadius: 18 }}
+              src={
+                item.marketaData?.image
+                  ? item.marketaData?.image
+                  : tokenInfoObj[item.ticker]?.iconSrc ??
+                    "https://storage.googleapis.com/dw-assets/spa/icons/default-token.png"
+              }
+            />
+            <Box ml={1}>
+              <Box>
+                <SDTypography
+                  variant="bodyLg"
+                  fontWeight="medium"
+                  color="textHeading"
+                >
+                  {tokenInfoObj[item.ticker]?.displayName ?? item?.ticker}
+                </SDTypography>
+              </Box>
+              <Box>
+                <SDTypography
+                  variant="bodySm"
+                  fontWeight="medium"
+                  color="textLight"
+                >
+                  {`${item.balance || "0"} ${item.ticker}`}
+                </SDTypography>
+              </Box>
+            </Box>
+          </Box>
+        );
+      },
+    },
+    {
+      label: "Trend",
+      hideOn: ["xs" as const],
+      render: (item: IBalanceItem) => {
+        return <TrendItem item={item} />;
+      },
+    },
+    {
+      label: "Value",
+      align: "right" as const,
+      render: (item: IBalanceItem) => {
+        return (
+          <Box>
+            <SDTypography variant="bodyLg">
+              ${item.quoteBalance.toFixed(4)}
+            </SDTypography>
+            {item.marketaData?.priceChangePercentage24h != null && (
+              <SDTypography
+                variant="bodySm"
+                color={
+                  (item.marketaData?.priceChangePercentage24h || 0) > 0
+                    ? "textSuccess"
+                    : "textError"
+                }
+              >
+                {`${item.marketaData?.priceChangePercentage24h.toFixed(2)}% ($${
+                  item.marketaData.currentPrice
+                })`}
+              </SDTypography>
+            )}
+          </Box>
+        );
+      },
+    },
+  ];
+
   return (
     <>
-      <AccountChainBar
-        accountSelect={accountSelect}
-        displayMode={displayMode}
-        setDisplayMode={setDisplayMode}
-        setAccountSelect={setAccountSelect}
-        setChainSelect={setChainSelect}
-        chainSelect={chainSelect}
-      />
-      <Grid container spacing={3}>
-        <Grid item xs={6}>
-          <Box
-            p={3}
-            pb={6}
-            bgcolor="#F2F2F8"
-            border="1px solid rgba(234, 236, 240, 0.6)"
-            borderRadius={8}
-            mb={3}
-          >
-            <Box mb={1.5}>
-              <Typography className={classes.infoCardLabel}>
-                Total Token Value
-              </Typography>
-            </Box>
-            <Typography className={classes.infoCardValue}>
-              ${(totalBalance || 0).toFixed(2)}
-            </Typography>
-          </Box>
-          <Box
-            p={3}
-            pb={6}
-            bgcolor="#F2F2F8"
-            border="1px solid rgba(234, 236, 240, 0.6)"
-            borderRadius={8}
-          >
-            <Box mb={1.5}>
-              <Typography className={classes.infoCardLabel}>
-                Number of Tokens
-              </Typography>
-            </Box>
-            <Typography className={classes.infoCardValue}>
-              {totalItems || 0}
-            </Typography>
-          </Box>
-        </Grid>
-        <Grid item xs={6}>
-          <Box border="1px solid #EAECF0" borderRadius={8} p={3}>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                fontWeight: 500,
-                fontSize: 16,
-                lineHeight: "24px",
-                color: "#101828",
-              }}
-            >
-              Token Value Breakdown
-            </Typography>
-            <Box display="flex" justifyContent="center" mt={4}>
-              {(charItemsToRender?.data?.length || 0) > 0 && (
-                <Box maxWidth="190px" mr={5}>
-                  {totalBalance == 0 ? (
-                    <Box
-                      width={190}
-                      height={190}
-                      borderRadius={125}
-                      bgcolor="#f0f0f0"
-                    />
-                  ) : (
-                    <Pie
-                      options={chartOptions}
-                      data={{
-                        labels: charItemsToRender?.labels,
-                        datasets: [
-                          {
-                            data: charItemsToRender?.data,
-                            backgroundColor:
-                              charItemsToRender?.data?.reduce(
-                                (acc, _, index) => {
-                                  acc = [
-                                    ...acc,
-                                    colorGenarator(
-                                      index *
-                                        (1 /
-                                          (charItemsToRender.data.length - 1 ||
-                                            1)),
-                                    ).hex(),
-                                  ];
-                                  return acc;
-                                },
-                                [] as string[],
-                              ) ?? "#7F79B0",
-                            borderWidth: 0,
-                          },
-                        ],
-                      }}
-                    />
-                  )}
-                </Box>
-              )}
-              {(charItemsToRender?.data?.length || 0) > 0 && (
-                <Box mt={2} maxHeight={245} overflow="auto">
-                  {charItemsToRender?.data?.map((item, index) => {
-                    return (
-                      <Box mb={0.5}>
-                        <Box display="flex" alignItems="center">
-                          <Box
-                            mr={2}
-                            width={8}
-                            height={8}
-                            borderRadius={4}
-                            bgcolor={colorGenarator(
-                              index *
-                                (1 / (charItemsToRender.data.length - 1 || 1)),
-                            ).hex()}
-                          />
-                          <Typography className={classes.metricTitle}>
-                            {charItemsToRender.labels[index]}
-                          </Typography>
-                        </Box>
-                        <Box ml={2.5} mt={0.5}>
-                          <Typography className={classes.metricValue}>
-                            {((100 * item) / (totalBalance || 1)).toFixed(2)}%
-                          </Typography>
-                        </Box>
-                      </Box>
-                    );
-                  })}
-                </Box>
-              )}
-            </Box>
-          </Box>
-        </Grid>
-      </Grid>
-      <Box mt={4} mb={3}>
-        <Box mb={0.5}>
-          <Typography className={classes.title}>Tokens</Typography>
-        </Box>
+      <Box mb={3}>
+        <AccountChainBar
+          chainIdsToRender={chains}
+          accountAdressesToRender={accounts}
+          accountSelect={accountSelect}
+          displayMode={displayMode}
+          setDisplayMode={setDisplayMode}
+          setAccountSelect={setAccountSelect}
+          setChainSelect={setChainSelect}
+          chainSelect={chainSelect}
+        />
       </Box>
+
       {isBalancesLoading ? (
         <Box display="flex" alignItems="center" justifyContent="center" mt={10}>
           <CircularProgress />
         </Box>
       ) : (
-        <Box
-          display="flex"
-          border="1px solid #FAFAFA"
-          borderRadius={12}
-          minHeight={440}
-          flexDirection="column"
-        >
+        <Card>
           {tokensToRender?.length ? (
             <>
-              <Box display="flex" py={2} px={3} justifyContent="space-between">
-                <Typography className={classes.tableTitle}>Name</Typography>
-                <Typography className={classes.tableTitle}>Trend</Typography>
-                <Typography className={classes.tableTitle}>Value</Typography>
-              </Box>
-              {(tokensPagination
-                ? tokensToRender.slice(
-                    (tokensPagination?.currentIndex - 1) * PAGINATION_RANGE,
-                    tokensPagination?.currentIndex * PAGINATION_RANGE,
-                  )
-                : tokensToRender
-              ).map((token, index) => {
-                return (
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={6}>
                   <Box
-                    key={JSON.stringify(token)}
-                    {...(index % 2 === 0 && {
-                      bgcolor: "rgba(245, 244, 245, 0.52)",
-                    })}
+                    p={3}
+                    pb={6}
+                    bgcolor="#F2F2F8"
+                    border="1px solid rgba(234, 236, 240, 0.6)"
+                    borderRadius={8}
+                    mb={3}
                   >
-                    <TokenItem item={token} />
+                    <Box mb={1.5}>
+                      <SDTypography
+                        variant="titleSm"
+                        color="textHeading"
+                        fontWeight="medium"
+                      >
+                        Total Token Value
+                      </SDTypography>
+                    </Box>
+                    <SDTypography
+                      variant="headlineSm"
+                      color="textHeading"
+                      fontWeight="bold"
+                    >
+                      ${(totalBalance || 0).toFixed(2)}
+                    </SDTypography>
                   </Box>
-                );
-              })}
-              {tokensPagination && (
-                <Box
-                  display="flex"
-                  marginTop="auto"
-                  alignItems="center"
-                  py={0.5}
-                  justifyContent="flex-end"
-                >
-                  <Typography className={classes.paginationText}>
-                    {`${
-                      (tokensPagination.currentIndex - 1) * PAGINATION_RANGE + 1
-                    } - ${
-                      tokensPagination.currentIndex * PAGINATION_RANGE <
-                      tokensPagination.totalItems
-                        ? tokensPagination.currentIndex * PAGINATION_RANGE
-                        : tokensPagination.totalItems
-                    } of ${tokensPagination.totalItems}`}
-                  </Typography>
-                  <IconButton
-                    size="small"
-                    onClick={() => {
-                      setTokensPagination({
-                        ...tokensPagination,
-                        currentIndex: tokensPagination.currentIndex - 1,
-                      });
-                    }}
-                    disabled={tokensPagination.currentIndex === 1}
+                  <Box
+                    p={3}
+                    pb={6}
+                    bgcolor="#F2F2F8"
+                    border="1px solid rgba(234, 236, 240, 0.6)"
+                    borderRadius={8}
                   >
-                    <KeyboardArrowLeft />
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    disabled={
-                      tokensPagination.currentIndex ===
-                      tokensPagination.numberOfPages
-                    }
-                    onClick={() => {
-                      setTokensPagination({
-                        ...tokensPagination,
-                        currentIndex: tokensPagination.currentIndex + 1,
-                      });
-                    }}
-                  >
-                    <KeyboardArrowRight />
-                  </IconButton>
-                </Box>
-              )}
+                    <Box mb={1.5}>
+                      <SDTypography
+                        variant="titleSm"
+                        color="textHeading"
+                        fontWeight="medium"
+                      >
+                        Number of Tokens
+                      </SDTypography>
+                    </Box>
+                    <SDTypography
+                      variant="headlineSm"
+                      color="textHeading"
+                      fontWeight="bold"
+                    >
+                      {totalItems || 0}
+                    </SDTypography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Box border="1px solid #EAECF0" borderRadius={8} p={3}>
+                    <SDTypography
+                      variant="titleSm"
+                      color="textHeading"
+                      fontWeight="medium"
+                    >
+                      Token Value Breakdown
+                    </SDTypography>
+                    <Box display="flex" justifyContent="center" mt={4}>
+                      {(charItemsToRender?.data?.length || 0) > 0 && (
+                        <Box maxWidth="190px" mr={5}>
+                          {totalBalance == 0 ? (
+                            <Box
+                              width={190}
+                              height={190}
+                              borderRadius={125}
+                              bgcolor="#f0f0f0"
+                            />
+                          ) : (
+                            <Pie
+                              options={chartOptions}
+                              data={{
+                                labels: charItemsToRender?.labels,
+                                datasets: [
+                                  {
+                                    data: charItemsToRender?.data,
+                                    backgroundColor:
+                                      charItemsToRender?.data?.reduce(
+                                        (acc, _, index) => {
+                                          acc = [
+                                            ...acc,
+                                            colorGenarator(
+                                              index *
+                                                (1 /
+                                                  (charItemsToRender.data
+                                                    .length - 1 || 1)),
+                                            ).hex(),
+                                          ];
+                                          return acc;
+                                        },
+                                        [] as string[],
+                                      ) ?? "#7F79B0",
+                                    borderWidth: 0,
+                                  },
+                                ],
+                              }}
+                            />
+                          )}
+                        </Box>
+                      )}
+                      {(charItemsToRender?.data?.length || 0) > 0 && (
+                        <Box mt={2} maxHeight={245} overflow="auto">
+                          {charItemsToRender?.data?.map((item, index) => {
+                            return (
+                              <Box mb={0.5}>
+                                <Box display="flex" alignItems="center">
+                                  <Box
+                                    mr={2}
+                                    width={8}
+                                    height={8}
+                                    borderRadius={4}
+                                    bgcolor={colorGenarator(
+                                      index *
+                                        (1 /
+                                          (charItemsToRender.data.length - 1 ||
+                                            1)),
+                                    ).hex()}
+                                  />
+                                  <SDTypography
+                                    variant="bodyLg"
+                                    fontWeight="medium"
+                                  >
+                                    {charItemsToRender.labels[index]}
+                                  </SDTypography>
+                                </Box>
+                                <Box ml={2.5} mt={0.5}>
+                                  <SDTypography
+                                    variant="bodyLg"
+                                    fontWeight="medium"
+                                    color="textHeading"
+                                  >
+                                    {(
+                                      (100 * item) /
+                                      (totalBalance || 1)
+                                    ).toFixed(2)}
+                                    %
+                                  </SDTypography>
+                                </Box>
+                              </Box>
+                            );
+                          })}
+                        </Box>
+                      )}
+                    </Box>
+                  </Box>
+                </Grid>
+              </Grid>
+              <Box mb={3} />
+              <Table data={tokensToRender} columns={columns} />
             </>
           ) : (
-            <Box width="100%" display="flex">
-              <Box
-                justifyContent="center"
-                alignItems="center"
-                width="100%"
-                display="flex"
-                pt={8}
-              >
-                <img style={{ width: 255, height: "auto" }} src={emptyTokens} />
-              </Box>
-            </Box>
+            <EmptyItem />
           )}
-        </Box>
+        </Card>
       )}
     </>
   );

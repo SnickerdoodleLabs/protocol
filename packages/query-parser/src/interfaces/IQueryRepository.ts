@@ -1,8 +1,13 @@
 import {
+  AccountIndexingError,
+  AjaxError,
   DataPermissions,
+  InvalidParametersError,
   IpfsCID,
+  MethodSupportError,
   PersistenceError,
   SDQL_Return,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -13,7 +18,15 @@ export interface IQueryRepository {
     cid: IpfsCID,
     q: AST_SubQuery,
     dataPermissions: DataPermissions,
-  ): ResultAsync<SDQL_Return, PersistenceError>;
+    queryTimestamp: UnixTimestamp,
+  ): ResultAsync<
+    SDQL_Return,
+    | PersistenceError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
+  >;
 }
 
 export const IQueryRepositoryType = Symbol.for("IQueryRepository");

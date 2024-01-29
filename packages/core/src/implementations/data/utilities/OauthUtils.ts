@@ -1,13 +1,13 @@
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
-  ICryptoUtils,
-  ICryptoUtilsType,
 } from "@snickerdoodlelabs/common-utils";
+import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   AjaxError,
   BearerToken,
   OAuth1RequstToken,
+  OAuth1Config,
   OAuthError,
   TokenAndSecret,
   TokenSecret,
@@ -15,7 +15,6 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
-import { OAuth1Config } from "packages/objects/src/businessObjects/oauth/OAuth1Config.js";
 
 import { IOauthUtils } from "@core/interfaces/data";
 import { EHttpMethods } from "@core/interfaces/enums/index.js";

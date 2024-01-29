@@ -62,4 +62,18 @@ export class BigNumberUtils implements IBigNumberUtils {
     return DecimalString(utils.formatUnits(valueBigNumber, decimals || 18));
   }
   /* End region of big number string conversions */
+
+  /**
+   * This method returns true if the bigNumberString is a
+   * @param bigNumberString
+   * @returns true if bigNumberString is a valid BigNumber
+   */
+  public validateBNS(bigNumberString: string): boolean {
+    try {
+      BigNumber.from(bigNumberString);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 }

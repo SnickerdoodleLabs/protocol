@@ -2,6 +2,8 @@ import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
   IRequestConfig,
+  ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
@@ -17,7 +19,6 @@ import {
   EVMTransactionHash,
   TokenBalance,
   EChainTechnology,
-  IEVMIndexer,
   EVMNFT,
   MethodSupportError,
   EComponentStatus,
@@ -32,6 +33,7 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP, urlJoin } from "url-join-ts";
 
 import {
+  IEVMIndexer,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
   IIndexerContextProvider,
@@ -49,15 +51,19 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [
       EChain.EthereumMainnet,
-      new IndexerSupportSummary(EChain.Arbitrum, true, true, false),
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, true, false),
     ],
     [
       EChain.Polygon,
-      new IndexerSupportSummary(EChain.Arbitrum, true, true, false),
+      new IndexerSupportSummary(EChain.Polygon, true, true, false),
     ],
     [
       EChain.Binance,
-      new IndexerSupportSummary(EChain.Arbitrum, true, true, false),
+      new IndexerSupportSummary(EChain.Binance, true, true, true),
+    ],
+    [
+      EChain.BinanceTestnet,
+      new IndexerSupportSummary(EChain.BinanceTestnet, true, false, true),
     ],
   ]);
 
@@ -67,18 +73,34 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
-  public name(): string {
+  public initialize(): ResultAsync<void, never> {
+    return this.configProvider.getConfig().map((config) => {
+      const keys = this.indexerSupport.keys();
+      this.indexerSupport.forEach(
+        (value: IndexerSupportSummary, key: EChain) => {
+          if (config.apiKeys.covalentApiKey == null) {
+            this.health.set(key, EComponentStatus.NoKeyProvided);
+          } else {
+            this.health.set(key, EComponentStatus.Available);
+          }
+        },
+      );
+    });
+  }
+
+  public name(): EDataProvider {
     return EDataProvider.Covalent;
   }
 
   public getBalancesForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError> {
     return this.generateQueryConfig(
-      chainId,
+      chain,
       this.ENDPOINT_BALANCES,
       accountAddress,
     )
@@ -94,7 +116,7 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
               return new TokenBalance(
                 EChainTechnology.EVM,
                 TickerSymbol(tokenInfo.contract_ticker_symbol),
-                chainId,
+                chain,
                 EVMContractAddress(tokenInfo.contract_address),
                 accountAddress,
                 BigNumberString(tokenInfo.balance),
@@ -110,7 +132,7 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
   }
 
   public getTokensForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
     EVMNFT[],
@@ -125,37 +147,18 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
   }
 
   public getEVMTransactions(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
     startTime: Date,
     endTime?: Date | undefined,
   ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
     return this.generatePrimer(startTime, endTime).andThen((primer) => {
       return this.fetchPages(
-        chainId,
+        chain,
         this.ENDPOINT_TRANSACTIONS,
         accountAddress,
         primer,
       );
-    });
-  }
-
-  public getHealthCheck(): ResultAsync<
-    Map<EChain, EComponentStatus>,
-    AjaxError
-  > {
-    return this.configProvider.getConfig().andThen((config) => {
-      const keys = this.indexerSupport.keys();
-      this.indexerSupport.forEach(
-        (value: IndexerSupportSummary, key: EChain) => {
-          if (config.apiKeys.covalentApiKey == "") {
-            this.health.set(key, EComponentStatus.NoKeyProvided);
-          } else {
-            this.health.set(key, EComponentStatus.Available);
-          }
-        },
-      );
-      return okAsync(this.health);
     });
   }
 
@@ -198,14 +201,14 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
   }
 
   private fetchPages(
-    chainId: ChainId,
+    chain: EChain,
     endpoint: string,
     accountAddress: EVMAccountAddress,
     primer?: string,
     pageNumber?: number,
   ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
     return this.generateQueryConfig(
-      chainId,
+      chain,
       endpoint,
       accountAddress,
       primer,
@@ -242,10 +245,10 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
 
   private mapTransaction(
     tx: ICovalentEVMTransactionResponseItem,
-    chainId: ChainId,
+    chain: EChain,
   ): EVMTransaction {
     const busObj = new EVMTransaction(
-      chainId,
+      chain,
       EVMTransactionHash(tx.tx_hash),
       UnixTimestamp(Math.floor(Date.parse(tx.block_signed_at) / 1000)),
       tx.block_height,
@@ -274,12 +277,13 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
             );
           })
         : null,
+      this.timeUtils.getUnixNow(),
     );
     return busObj;
   }
 
   private generateQueryConfig(
-    chainId: ChainId,
+    chain: EChain,
     endpoint: string,
     accountAddress: EVMAccountAddress,
     primer?: string,
@@ -305,7 +309,7 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
       const url = urlJoin(
         "https://api.covalenthq.com",
         "v1",
-        chainId.toString(),
+        chain.toString(),
         "address",
         accountAddress,
         endpoint,
@@ -331,6 +335,8 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
       EChain.Optimism,
       EChain.Polygon,
       EChain.Solana,
+      EChain.Binance,
+      EChain.BinanceTestnet,
     ];
     return supportedChains;
   }

@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import { TimeUtils } from "@snickerdoodlelabs/common-utils";
+import { ITimeUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   Age,
   ChainId,
@@ -16,10 +16,13 @@ import {
   SDQLString,
   SDQL_Return,
   SubQueryKey,
-  TransactionPaymentCounter,
   DataPermissions,
   QueryExpiredError,
   EWalletDataType,
+  UnixTimestamp,
+  LinkedAccount,
+  EChain,
+  EVMAccountAddress,
 } from "@snickerdoodlelabs/objects";
 import {
   IQueryObjectFactory,
@@ -33,6 +36,7 @@ import {
   avalanche4SchemaStr,
   IQueryFactories,
   QueryFactories,
+  rewardless1SchemaStr,
 } from "@snickerdoodlelabs/query-parser";
 import { okAsync } from "neverthrow";
 import * as td from "testdouble";
@@ -45,6 +49,7 @@ import {
   NftQueryEvaluator,
   QueryEvaluator,
   QueryRepository,
+  Web3AccountQueryEvaluator,
 } from "@core/implementations/business/utilities/query/index.js";
 import {
   AdContentRepository,
@@ -53,6 +58,8 @@ import {
 import {
   IBrowsingDataRepository,
   IDemographicDataRepository,
+  ILinkedAccountRepository,
+  INftRepository,
   IPortfolioBalanceRepository,
   ISocialRepository,
   ITransactionHistoryRepository,
@@ -61,6 +68,7 @@ import { avalanche1AstInstance } from "@core-tests/mock/mocks/commonValues.js";
 import {
   AjaxUtilsMock,
   ConfigProviderMock,
+  ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
 
 const queryCID = IpfsCID("Beep");
@@ -72,6 +80,19 @@ const sdqlQuery = new SDQLQuery(queryCID, SDQLString(avalanche1SchemaStr));
 const sdqlQuery2 = new SDQLQuery(queryCID, SDQLString(avalanche2SchemaStr));
 const sdqlQuery4 = new SDQLQuery(queryCID, SDQLString(avalanche4SchemaStr));
 
+const sdqlQuery5 = new SDQLQuery(queryCID, SDQLString(rewardless1SchemaStr));
+
+const linkedAccounts: LinkedAccount[] = [
+  new LinkedAccount(
+    EChain.Avalanche,
+    EVMAccountAddress("0x10E0271ec47d55511a047516f2a7301801d55eaB"),
+  ),
+  new LinkedAccount(
+    EChain.EthereumMainnet,
+    EVMAccountAddress("0x7939F22785BD4cd6FB05ae2A96BC8cC984Ab5683"),
+  ),
+];
+
 const country = CountryCode("1");
 const allPermissions = HexString32(
   "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
@@ -79,21 +100,41 @@ const allPermissions = HexString32(
 const noPermissions = HexString32(
   "0x0000000000000000000000000000000000000000000000000000000000000000",
 );
+
+const now = UnixTimestamp(2);
 const chainIds = undefined;
 class QueryParsingMocks {
   public transactionRepo = td.object<ITransactionHistoryRepository>();
+  public nftRepo = td.object<INftRepository>();
   public balanceRepo = td.object<IPortfolioBalanceRepository>();
   public demoDataRepo = td.object<IDemographicDataRepository>();
   public browsingDataRepo = td.object<IBrowsingDataRepository>();
   public adDataRepo = td.object<AdDataRepository>();
   public socialRepo = td.object<ISocialRepository>();
+  public accountRepo = td.object<ILinkedAccountRepository>();
+  public timeUtils: ITimeUtils = td.object<ITimeUtils>();
+  public contextProvider: ContextProviderMock = new ContextProviderMock();
 
   public blockchainTransactionQueryEvaluator =
-    new BlockchainTransactionQueryEvaluator(this.transactionRepo);
+    new BlockchainTransactionQueryEvaluator(
+      this.transactionRepo,
+      this.contextProvider,
+    );
 
-  public nftQueryEvaluator = new NftQueryEvaluator(this.balanceRepo);
+  public nftQueryEvaluator = new NftQueryEvaluator(
+    this.nftRepo,
+    this.contextProvider,
+  );
 
-  public balanceQueryEvaluator = new BalanceQueryEvaluator(this.balanceRepo);
+  public balanceQueryEvaluator = new BalanceQueryEvaluator(
+    this.balanceRepo,
+    this.contextProvider,
+  );
+
+  public web3AccountQueryEvaluator = new Web3AccountQueryEvaluator(
+    this.accountRepo,
+    this.contextProvider,
+  );
 
   public queryUtils = td.object<ISDQLQueryUtils>();
 
@@ -108,7 +149,7 @@ class QueryParsingMocks {
   public constructor() {
     this.queryObjectFactory = new QueryObjectFactory();
     this.queryWrapperFactory = new SDQLQueryWrapperFactory(new TimeUtils());
-
+    td.when(this.timeUtils.getUnixNow()).thenReturn(now as never);
     const expectedCompensationsMap = new Map<
       CompensationKey,
       ISDQLCompensations
@@ -138,12 +179,13 @@ class QueryParsingMocks {
     td.when(
       this.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
-    td.when(this.transactionRepo.getTransactionByChain()).thenReturn(
-      okAsync(new Array<TransactionPaymentCounter>()),
-    );
-    td.when(this.balanceRepo.getAccountBalances()).thenReturn(okAsync([]));
-    td.when(this.balanceRepo.getAccountNFTs(chainIds)).thenReturn(okAsync([]));
 
+    td.when(
+      this.transactionRepo.getTransactionByChain(td.matchers.anything()),
+    ).thenReturn(okAsync([]));
+    td.when(this.balanceRepo.getAccountBalances()).thenReturn(okAsync([]));
+    td.when(this.nftRepo.getNfts(chainIds)).thenReturn(okAsync([]));
+    td.when(this.accountRepo.getAccounts()).thenReturn(okAsync(linkedAccounts));
     this.queryEvaluator = new QueryEvaluator(
       this.balanceQueryEvaluator,
       this.blockchainTransactionQueryEvaluator,
@@ -152,6 +194,8 @@ class QueryParsingMocks {
       this.browsingDataRepo,
       this.transactionRepo,
       this.socialRepo,
+      this.contextProvider,
+      this.web3AccountQueryEvaluator,
     );
     this.queryRepository = new QueryRepository(this.queryEvaluator);
 
@@ -173,6 +217,7 @@ class QueryParsingMocks {
       this.queryUtils,
       this.adContentRepository,
       this.adDataRepo,
+      this.contextProvider,
     );
   }
 
@@ -335,7 +380,6 @@ describe("Tests with data permissions", () => {
     await engine
       .handleQuery(sdqlQuery2, givenPermissions)
       .andThen((deliveredInsights) => {
-        console.log("walach : ", deliveredInsights);
         expect(deliveredInsights.insights!["i2"] !== null).toBeTruthy();
         return okAsync(undefined);
       })
@@ -408,11 +452,40 @@ describe("Testing avalanche 4", () => {
       .handleQuery(sdqlQuery4, new DataPermissions(allPermissions))
       .andThen((deliveredInsights) => {
         expect(deliveredInsights).toMatchObject(expectedInsights);
-
         expect(
           Object.values(deliveredInsights.insights!).length > 0,
         ).toBeTruthy();
 
+        return okAsync(undefined);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        fail(e.message);
+      });
+  });
+});
+
+describe("Testing rewardless 1 ", () => {
+  test("rewardless 1 insights", async () => {
+    const mocks = new QueryParsingMocks();
+    const engine = mocks.factory();
+
+    const expectedInsights = {
+      insights: {
+        i1: { insight: "true", proof: "" },
+        i2: { insight: "1", proof: "" },
+        i3: { insight: '{"size":2}', proof: "" },
+      },
+      ads: {},
+    };
+
+    await engine
+      .handleQuery(sdqlQuery5, new DataPermissions(allPermissions))
+      .andThen((deliveredInsights) => {
+        expect(deliveredInsights).toMatchObject(expectedInsights);
+        expect(
+          Object.values(deliveredInsights.insights!).length > 0,
+        ).toBeTruthy();
         return okAsync(undefined);
       })
       .mapErr((e) => {

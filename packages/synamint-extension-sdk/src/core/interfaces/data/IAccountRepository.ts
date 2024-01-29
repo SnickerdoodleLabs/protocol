@@ -10,6 +10,16 @@ import {
   UnauthorizedError,
   IpfsCID,
   QueryStatus,
+  EVMContractAddress,
+  BlockNumber,
+  TransactionFlowInsight,
+  TransactionFilter,
+  ChainTransaction,
+  DomainName,
+  WalletNftWithHistory,
+  WalletNFTHistory,
+  UnixTimestamp,
+  NftRepositoryCache,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -21,22 +31,45 @@ export interface IAccountRepository {
     signature: Signature,
     chain: EChain,
     languageCode: LanguageCode,
+    sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   getLinkAccountMessage(
     languageCode: LanguageCode,
+    sourceDomain?: DomainName,
   ): ResultAsync<string, SnickerDoodleCoreError>;
-  getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError>;
+  getAccounts(
+    sourceDomain?: DomainName,
+  ): ResultAsync<LinkedAccount[], SnickerDoodleCoreError>;
   getAccountBalances(): ResultAsync<TokenBalance[], SnickerDoodleCoreError>;
-  getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError>;
+
+  getNfts(
+    benchmark?: UnixTimestamp,
+    chains?: EChain[],
+    accounts?: LinkedAccount[],
+    sourceDomain?: DomainName,
+  ): ResultAsync<WalletNFT[], SnickerDoodleCoreError>;
+
   isDataWalletAddressInitialized(): ResultAsync<boolean, UnauthorizedError>;
   unlinkAccount(
     account: AccountAddress,
     chain: EChain,
+    sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   getEarnedRewards(): ResultAsync<EarnedReward[], SnickerDoodleCoreError>;
   getQueryStatusByQueryCID(
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, SnickerDoodleCoreError>;
+  getQueryStatuses(
+    contractAddress: EVMContractAddress,
+    blockNumber?: BlockNumber,
+  ): ResultAsync<QueryStatus[], SnickerDoodleCoreError>;
+  getTransactions(
+    filter?: TransactionFilter,
+    sourceDomain?: DomainName,
+  ): ResultAsync<ChainTransaction[], SnickerDoodleCoreError>;
+  getTransactionValueByChain(
+    sourceDomain?: DomainName,
+  ): ResultAsync<TransactionFlowInsight[], SnickerDoodleCoreError>;
 }
 
 export const IAccountRepositoryType = Symbol.for("IAccountRepository");

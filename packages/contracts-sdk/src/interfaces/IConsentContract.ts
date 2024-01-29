@@ -1,10 +1,3 @@
-import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
-import {
-  ConsentRoles,
-  ContractOverrides,
-  Tag,
-  WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/objects";
 import {
   ConsentContractError,
   EVMAccountAddress,
@@ -26,6 +19,14 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event, BigNumber } from "ethers";
 import { ResultAsync } from "neverthrow";
+
+import { EConsentRoles } from "@contracts-sdk/interfaces/enums/index.js";
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import {
+  ContractOverrides,
+  Tag,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects";
 
 export interface IConsentContract extends IBaseContract {
   /**
@@ -306,10 +307,7 @@ export interface IConsentContract extends IBaseContract {
    */
   getLatestTokenIdByOptInAddress(
     optInAddress: EVMAccountAddress,
-  ): ResultAsync<
-    TokenId | null,
-    ConsentContractError | BlockchainCommonErrors
-  >;
+  ): ResultAsync<TokenId | null, ConsentContractError | BlockchainCommonErrors>;
 
   /**
    * Disables open opt ins on the contract
@@ -355,21 +353,21 @@ export interface IConsentContract extends IBaseContract {
 
   /**
    * Checks if an address has a specific role in the Consent contract
-   * @param role string that is a key defined in ConsentRoles enum
+   * @param role string that is a key defined in EConsentRoles enum
    * @param address Address to use
    */
   hasRole(
-    role: keyof typeof ConsentRoles,
+    role: EConsentRoles,
     address: EVMAccountAddress,
   ): ResultAsync<boolean, ConsentContractError | BlockchainCommonErrors>;
 
   /**
    * Grants a role to an address
-   * @param role string that is a key defined in ConsentRoles enum
+   * @param role string that is a key defined in EConsentRoles enum
    * @param address Address to use
    */
   grantRole(
-    role: keyof typeof ConsentRoles,
+    role: EConsentRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -379,11 +377,11 @@ export interface IConsentContract extends IBaseContract {
 
   /**
    * Revokes a role of an address
-   * @param role string that is a key defined in ConsentRoles enum
+   * @param role string that is a key defined in EConsentRoles enum
    * @param address Address to use
    */
   revokeRole(
-    role: keyof typeof ConsentRoles,
+    role: EConsentRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -393,11 +391,11 @@ export interface IConsentContract extends IBaseContract {
 
   /**
    * Allows an address to renounce its role
-   * @param role string that is a key defined in ConsentRoles enum
+   * @param role string that is a key defined in EConsentRoles enum
    * @param address Address to use
    */
   renounceRole(
-    role: keyof typeof ConsentRoles,
+    role: EConsentRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -425,6 +423,14 @@ export interface IConsentContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  >;
+
+  estimateGasLimitForSetQueryHorizon(
+    blockNumber: BlockNumber,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    BigNumberString,
     BlockchainCommonErrors | ConsentContractError
   >;
 

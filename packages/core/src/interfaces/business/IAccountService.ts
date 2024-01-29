@@ -1,8 +1,11 @@
 import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
+import {
   EarnedReward,
   InvalidSignatureError,
   TokenBalance,
-  WalletNFT,
   LanguageCode,
   PersistenceError,
   Signature,
@@ -10,7 +13,6 @@ import {
   UnsupportedLanguageError,
   TransactionFilter,
   ChainId,
-  URLString,
   SiteVisit,
   InvalidParametersError,
   ChainTransaction,
@@ -20,10 +22,14 @@ import {
   TokenAddress,
   UnixTimestamp,
   DataWalletBackupID,
-  TransactionPaymentCounter,
   DomainName,
   UnauthorizedError,
   AccountIndexingError,
+  SiteVisitsMap,
+  TransactionFlowInsight,
+  AjaxError,
+  MethodSupportError,
+  WalletNFT,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -48,6 +54,36 @@ export interface IAccountService {
     | InvalidParametersError
   >;
 
+  addAccountWithExternalSignature(
+    accountAddress: AccountAddress,
+    message: string,
+    signature: Signature,
+    chain: EChain,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | InvalidParametersError
+  >;
+
+  addAccountWithExternalTypedDataSignature(
+    accountAddress: AccountAddress,
+    domain: TypedDataDomain,
+    types: Record<string, Array<TypedDataField>>,
+    value: Record<string, unknown>,
+    signature: Signature,
+    chain: EChain,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | InvalidSignatureError
+    | InvalidParametersError
+  >;
+
   unlinkAccount(
     accountAddress: AccountAddress,
     chain: EChain,
@@ -62,17 +98,29 @@ export interface IAccountService {
 
   getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError>;
 
-  getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError>;
-  getTranactions(
+  getNfts(
+    benchmark?: UnixTimestamp,
+    chains?: EChain[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<
+    WalletNFT[],
+    | PersistenceError
+    | AccountIndexingError
+    | AjaxError
+    | MethodSupportError
+    | InvalidParametersError
+  >;
+
+  getTransactions(
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], PersistenceError>;
 
   getTransactionValueByChain(): ResultAsync<
-    TransactionPaymentCounter[],
+    TransactionFlowInsight[],
     PersistenceError
   >;
 
-  getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
+  getSiteVisitsMap(): ResultAsync<SiteVisitsMap, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
   addTransactions(

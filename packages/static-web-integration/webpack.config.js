@@ -4,21 +4,20 @@ const path = require("path");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const webpack = require("webpack");
 const configFilePath = require.resolve("./tsconfig.json");
-const argon2 = require("argon2");
+// const argon2 = require("argon2");
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
-
 /** @type import('webpack').Configuration */
 module.exports = {
   externals: {
-    argon2: argon2,
+    // argon2: argon2,
   },
   context: __dirname,
   mode: process.env.__BUILD_ENV__ === "dev" ? "development" : "production",
   entry: path.join(__dirname, "src/index.ts"),
   output: {
     filename: "snickerdoodle.js",
+    chunkFilename: "[id].snickerdoodle.js",
     path: path.join(__dirname, "/dist/bundle"),
-    publicPath: "/",
     libraryTarget: "var",
     library: "snickerdoodle",
   },

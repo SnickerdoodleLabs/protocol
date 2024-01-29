@@ -8,14 +8,13 @@ import React, {
   useEffect,
   useState,
   useMemo,
+  useCallback,
 } from "react";
 
-import useIsMobile from "@extension-onboarding/hooks/useIsMobile";
 import { WebIntegrationConfigProvider } from "@extension-onboarding/services/implementations/utilities";
 import { ISdlDataWalletProxy } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import InstallationRequired from "@extension-onboarding/setupScreens/InstallationRequired";
 import Loading from "@extension-onboarding/setupScreens/Loading";
-import MobileScreen from "@extension-onboarding/setupScreens/MobileScreen/MobileScreen";
 import ProviderSelector from "@extension-onboarding/setupScreens/ProviderSelector";
 
 interface IDataWalletContext {
@@ -33,8 +32,14 @@ const DataWalletContext = createContext<IDataWalletContext>(
   {} as IDataWalletContext,
 );
 
-export const DataWalletContextProvider: FC = ({ children }) => {
-  const isMobile = useIsMobile();
+interface IDataWalletContextProviderProps {
+  proxy?: ISdlDataWallet;
+}
+
+export const DataWalletContextProvider: FC<IDataWalletContextProviderProps> = ({
+  children,
+  proxy,
+}) => {
   const [sdlDataWallet, setSdlDataWallet] = React.useState<ISdlDataWallet>(
     undefined as unknown as ISdlDataWallet,
   );
@@ -46,7 +51,10 @@ export const DataWalletContextProvider: FC = ({ children }) => {
     initialize();
   }, []);
 
-  const initialize = () => {
+  const initialize = useCallback(() => {
+    if (proxy) {
+      return setSdlDataWallet(proxy);
+    }
     const webIntegrationConfig = new WebIntegrationConfigProvider().getConfig();
     const webIntegration = new SnickerdoodleWebIntegration(
       webIntegrationConfig,
@@ -63,7 +71,7 @@ export const DataWalletContextProvider: FC = ({ children }) => {
       .mapErr((err) => {
         return setSetupStatus(ESetupStatus.FAILED);
       });
-  };
+  }, [proxy]);
 
   const waitAndInitializeExtensionInjectedProxy = (
     proxy: ISdlDataWalletProxy,
@@ -87,7 +95,6 @@ export const DataWalletContextProvider: FC = ({ children }) => {
   }, [sdlDataWallet]);
 
   const render = useMemo(() => {
-    if (isMobile) return <MobileScreen />;
     switch (setupStatus) {
       case ESetupStatus.WAITING:
         return <Loading />;
@@ -106,7 +113,7 @@ export const DataWalletContextProvider: FC = ({ children }) => {
       default:
         return <>DEFAULT</>;
     }
-  }, [setupStatus, isMobile]);
+  }, [setupStatus]);
 
   return (
     <DataWalletContext.Provider value={{ sdlDataWallet }}>

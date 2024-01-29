@@ -1,6 +1,3 @@
-import * as http from "http";
-import { Readable } from "stream";
-
 import { AjaxError, JsonWebToken } from "@snickerdoodlelabs/objects";
 import axios, { AxiosAdapter, AxiosInstance, AxiosResponse } from "axios";
 import { injectable } from "inversify";
@@ -38,9 +35,10 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
           return new AjaxError(
             `Error returned from GET ${url}, ${err.message}`,
             err.response.status,
+            err,
           );
         }
-        return new AjaxError(`Unable to GET ${url}, ${err.message}`, 500);
+        return new AjaxError(`Unable to GET ${url}, ${err.message}`, 500, err);
       },
     ).map((response: AxiosResponse<T>) => {
       return response.data;
@@ -54,7 +52,6 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
       | Record<string, unknown>
       | ArrayBuffer
       | ArrayBufferView
-      | Readable
       | URLSearchParams,
     config?: IRequestConfig,
   ): ResultAsync<T, AjaxError> {
@@ -66,9 +63,10 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
           return new AjaxError(
             `Error returned from POST ${url}, ${err.message}`,
             err.response.status,
+            err,
           );
         }
-        return new AjaxError(`Unable to POST ${url}, ${err.message}`, 500);
+        return new AjaxError(`Unable to POST ${url}, ${err.message}`, 500, err);
       },
     ).map((response: AxiosResponse<T>) => {
       return response.data;
@@ -82,7 +80,6 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
       | Record<string, unknown>
       | ArrayBuffer
       | ArrayBufferView
-      | Readable
       | URLSearchParams,
     config?: IRequestConfig,
   ): ResultAsync<T, AjaxError> {
@@ -94,9 +91,10 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
           return new AjaxError(
             `Error returned from PUT ${url}, ${err.message}`,
             err.response.status,
+            err,
           );
         }
-        return new AjaxError(`Unable to PUT ${url}, ${err.message}`, 500);
+        return new AjaxError(`Unable to PUT ${url}, ${err.message}`, 500, err);
       },
     ).map((response: AxiosResponse<T>) => {
       return response.data;
@@ -115,9 +113,14 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
           return new AjaxError(
             `Error returned from DELETE ${url}, ${err.message}`,
             err.response.status,
+            err,
           );
         }
-        return new AjaxError(`Unable to DELETE ${url}, ${err.message}`, 500);
+        return new AjaxError(
+          `Unable to DELETE ${url}, ${err.message}`,
+          500,
+          err,
+        );
       },
     ).map((response: AxiosResponse<T>) => {
       return response.data;

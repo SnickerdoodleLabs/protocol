@@ -1,6 +1,11 @@
 import { readFile } from "node:fs/promises";
 import path from "path";
 
+import {
+  ITimeUtils,
+  ITimeUtilsType,
+  TimeUtils,
+} from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
@@ -36,6 +41,7 @@ import {
   BlockchainProviderError,
   PersistenceError,
   UninitializedError,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { injectable } from "inversify";
@@ -57,12 +63,13 @@ export class DataWalletProfile {
   private _profilePathInfo = this.defaultPathInfo;
 
   private _destroyed = false;
-
+  protected timeUtils: ITimeUtils;
   private coreSubscriptions = new Array<Subscription>();
   public acceptedInvitations = new Array<PageInvitation>();
 
   public constructor(readonly mocks: TestHarnessMocks) {
     this.core = this.createCore(mocks);
+    this.timeUtils = new TimeUtils();
   }
 
   public get name(): string {
@@ -147,9 +154,7 @@ export class DataWalletProfile {
       clientId: "1089994449830027344",
       clientSecret: TokenSecret("uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ"),
       oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
-      oauthRedirectUrl: URLString(
-        "https://localhost:9005/data-dashboard/social-media-data",
-      ),
+      oauthRedirectUrl: URLString("https://localhost:9005/settings"),
       accessTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
       refreshTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
       dataAPIUrl: URLString("https://discord.com/api"),
@@ -157,12 +162,50 @@ export class DataWalletProfile {
       pollInterval: 2 * 1000, // days * hours * seconds * milliseconds
     };
 
+    // Create the SnickerdoodleCore. All of these indexer keys should be just for dev purposes
     const core = new SnickerdoodleCore(
       {
         defaultInsightPlatformBaseUrl: "http://localhost:3006",
         dnsServerAddress: "http://localhost:3006/dns",
+        devChainProviderURL: "http://127.0.0.1:8545",
         discordOverrides: discordConfig,
         heartbeatIntervalMS: 5000, // Set the heartbeat to 5 seconds
+        alchemyApiKeys: {
+          Arbitrum: "_G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF",
+          Astar: "Tk2NcwnHwrmRvzZCkqgSr6fOYIgH7xh7",
+          Mumbai: "UA7tIJ6CdCE1351h24CQUE-MNCIV3DSf",
+          Optimism: "f3mMgv03KKiX8h-pgOc9ZZyu7F9ECcHG",
+          Polygon: "el_YkQK0DMQqqGlgXPO5gm8g6WmpdNfX",
+          Solana: "pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
+          SolanaTestnet: "Fko-iHgKEnUKTkM1SvnFMFMw1AvTVAtg",
+        },
+        etherscanApiKeys: {
+          Ethereum: "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7",
+          Polygon: "G4XTF3MERFUKFNGANGVY6DTMX1WKAD6V4G",
+          Avalanche: "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1",
+          Binance: "KRWYKPQ3CDD81RXUM5H5UMWVXPJP4C29AY",
+          Moonbeam: "EE9QD4D9TE7S7D6C8WVJW592BGMA4HYH71",
+          Optimism: "XX9XPVXCBA9VCIQ3YBIZHET5U3BR1DG8B3",
+          Arbitrum: "CTJ33WVF49E4UG6EYN6P4KSFC749JPYAFV",
+          Gnosis: "J7G8U27J1Y9F88E1E56CNNG2K3H98GF4XE",
+          Fuji: "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1",
+        },
+        spaceAndTimeCredentials: {
+          userId: "andrew.strimaitis",
+          privateKey: "RssUjdu9wHfo0fpCozf8ipSVspWJ4FhWP6Jrnrq65H0=",
+        },
+        covalentApiKey: "ckey_ee277e2a0e9542838cf30325665",
+        moralisApiKey:
+          "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag",
+        poapApiKey:
+          "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm",
+        ankrApiKey:
+          "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
+        bluezApiKey: "aed4aab2cbc573bbf8e7c6b448c916e5",
+        raribleApiKey: "c5855db8-08ef-409f-9947-e46c141af1b4",
+        blockvisionKey: "2WaEih5fqe8NUavbvaR2PSuVSSp",
+        nftScanApiKey: "lusr87vNmTtHGMmktlFyi4Nt",
+        oklinkApiKey: "700c2f71-a4e2-4a85-b87f-58c8a341d1bf",
       } as IConfigOverrides,
       undefined,
       mocks.fakeDBVolatileStorage,
@@ -313,8 +356,8 @@ export class DataWalletProfile {
               evmT.hash,
               evmT.timestamp,
               evmT.blockHeight,
-              EVMAccountAddress(evmT.to),
-              EVMAccountAddress(evmT.from),
+              EVMAccountAddress(evmT.to.toLowerCase()),
+              EVMAccountAddress(evmT.from.toLowerCase()),
               evmT.value ? BigNumberString(evmT.value) : null,
               evmT.gasPrice ? BigNumberString(evmT.gasPrice) : null,
               evmT.contractAddress
@@ -324,6 +367,7 @@ export class DataWalletProfile {
               evmT.methodId ?? null,
               evmT.functionName ?? null,
               evmT.events,
+              this.timeUtils.getUnixNow(),
             ),
         );
 
@@ -455,7 +499,7 @@ export class DataWalletProfile {
     wallet: TestWallet,
   ): ResultAsync<Signature, UnsupportedLanguageError | UnauthorizedError> {
     return this.core.account
-      .getLinkAccountMessage(this.mocks.languageCode)
+      .getLinkAccountMessage(this.mocks.languageCode, undefined)
       .andThen((message) => {
         return wallet.signMessage(message);
       });

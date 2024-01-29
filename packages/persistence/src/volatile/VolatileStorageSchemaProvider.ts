@@ -18,6 +18,8 @@ import {
   SocialProfileMigrator,
   SocialGroupProfileMigrator,
   RejectedInvitationMigrator,
+  WalletNFTDataMigrator,
+  WalletNFTHistoryMigrator,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -87,6 +89,7 @@ export class VolatileStorageSchemaProvider
               ["value", false],
               ["to", false],
               ["from", false],
+              ["measurementDate", false],
             ],
           ),
         ],
@@ -264,6 +267,30 @@ export class VolatileStorageSchemaProvider
               ["type", false],
               ["ownerId", false],
             ],
+          ),
+        ],
+        [
+          ERecordKey.NFTS,
+          new VolatileTableIndex(
+            ERecordKey.NFTS,
+            "id",
+            false,
+            new WalletNFTDataMigrator(),
+            EBackupPriority.DISABLED,
+            config.dataWalletBackupIntervalMS,
+            config.backupChunkSizeTarget,
+          ),
+        ],
+        [
+          ERecordKey.NFTS_HISTORY,
+          new VolatileTableIndex(
+            ERecordKey.NFTS_HISTORY,
+            "id",
+            false,
+            new WalletNFTHistoryMigrator(),
+            EBackupPriority.DISABLED,
+            config.dataWalletBackupIntervalMS,
+            config.backupChunkSizeTarget,
           ),
         ],
       ]);

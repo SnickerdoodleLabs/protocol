@@ -2,20 +2,20 @@ import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
   IRequestConfig,
+  ITimeUtils,
+  ITimeUtilsType,
+  ValidationUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
   AjaxError,
   BigNumberString,
   BlockNumber,
-  ChainId,
   EChainTechnology,
   EVMAccountAddress,
   EVMContractAddress,
   EVMNFT,
   EVMTransaction,
-  getChainInfoByChainId,
-  IEVMIndexer,
   TickerSymbol,
   TokenBalance,
   TokenUri,
@@ -26,20 +26,21 @@ import {
   IndexerSupportSummary,
   EDataProvider,
   EExternalApi,
+  getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
-import { MasterIndexer } from "@indexers/MasterIndexer.js";
-
 import {
+  IEVMIndexer,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
   IIndexerContextProvider,
   IIndexerContextProviderType,
 } from "@indexers/interfaces/index.js";
+import { MasterIndexer } from "@indexers/MasterIndexer.js";
 
 @injectable()
 export class MoralisEVMPortfolioRepository implements IEVMIndexer {
@@ -65,7 +66,17 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
       EChain.Gnosis,
       new IndexerSupportSummary(EChain.Gnosis, true, false, false),
     ],
+    [
+      EChain.BinanceTestnet,
+      new IndexerSupportSummary(EChain.BinanceTestnet, true, false, true),
+    ],
+    [
+      EChain.Sepolia,
+      new IndexerSupportSummary(EChain.Sepolia, true, false, true),
+    ],
   ]);
+
+  protected moralisKey: string | null = null;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -73,21 +84,48 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
-  public name(): string {
+  public initialize(): ResultAsync<void, never> {
+    return this.configProvider.getConfig().map((config) => {
+      this.indexerSupport.forEach(
+        (value: IndexerSupportSummary, key: EChain) => {
+          if (config.apiKeys.moralisApiKey == null) {
+            this.health.set(key, EComponentStatus.NoKeyProvided);
+          } else {
+            this.health.set(key, EComponentStatus.Available);
+            this.moralisKey = config.apiKeys.moralisApiKey;
+          }
+        },
+      );
+    });
+  }
+
+  public name(): EDataProvider {
     return EDataProvider.Moralis;
   }
 
   public getBalancesForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AjaxError | AccountIndexingError> {
-    return ResultUtils.combine([
-      this.generateQueryConfig(chainId, accountAddress, "erc20"),
-      this.generateQueryConfig(chainId, accountAddress, "balance"),
-      this.contextProvider.getContext(),
-    ]).andThen(([tokenRequest, balanceRequest, context]) => {
+    if (this.moralisKey == null) {
+      return okAsync([]);
+    }
+    const tokenRequest = this.generateQueryConfig(
+      chain,
+      accountAddress,
+      "erc20",
+      this.moralisKey,
+    );
+    const balanceRequest = this.generateQueryConfig(
+      chain,
+      accountAddress,
+      "balance",
+      this.moralisKey,
+    );
+    return this.contextProvider.getContext().andThen((context) => {
       context.privateEvents.onApiAccessed.next(EExternalApi.Moralis);
       context.privateEvents.onApiAccessed.next(EExternalApi.Moralis);
       return ResultUtils.combine([
@@ -106,19 +144,19 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
           return new TokenBalance(
             EChainTechnology.EVM,
             item.symbol,
-            chainId,
+            chain,
             item.token_address,
             accountAddress,
             item.balance,
             item.decimals,
           );
         });
-        const chainInfo = getChainInfoByChainId(chainId);
+        const chainInfo = getChainInfoByChain(chain);
         tokenBalances.push(
           new TokenBalance(
             EChainTechnology.EVM,
             TickerSymbol(chainInfo.nativeCurrency.symbol),
-            chainId,
+            chain,
             MasterIndexer.nativeAddress,
             accountAddress,
             balanceResponse.balance,
@@ -131,14 +169,21 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
   }
 
   public getTokensForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
-    return ResultUtils.combine([
-      this.generateQueryConfig(chainId, accountAddress, "nft"),
-      this.contextProvider.getContext(),
-    ])
-      .andThen(([requestConfig, context]) => {
+    if (this.moralisKey == null) {
+      return okAsync([]);
+    }
+    const requestConfig = this.generateQueryConfig(
+      chain,
+      accountAddress,
+      "nft",
+      this.moralisKey,
+    );
+    return this.contextProvider
+      .getContext()
+      .andThen((context) => {
         context.privateEvents.onApiAccessed.next(EExternalApi.Moralis);
         return this.ajaxUtils.get<IMoralisNFTResponse>(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -147,7 +192,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
         );
       })
       .andThen((result) => {
-        return this.getPages(chainId, accountAddress, result);
+        return this.getPages(chain, accountAddress, result);
       })
       .mapErr(
         (e) => new AccountIndexingError("error fetching nfts from moralis", e),
@@ -155,7 +200,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
   }
 
   public getEVMTransactions(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
     startTime: Date,
     endTime?: Date | undefined,
@@ -171,24 +216,6 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     );
   }
 
-  public getHealthCheck(): ResultAsync<
-    Map<EChain, EComponentStatus>,
-    AjaxError
-  > {
-    return this.configProvider.getConfig().andThen((config) => {
-      this.indexerSupport.forEach(
-        (value: IndexerSupportSummary, key: EChain) => {
-          if (config.apiKeys.moralisApiKey == "") {
-            this.health.set(key, EComponentStatus.NoKeyProvided);
-          } else {
-            this.health.set(key, EComponentStatus.Available);
-          }
-        },
-      );
-      return okAsync(this.health);
-    });
-  }
-
   public healthStatus(): Map<EChain, EComponentStatus> {
     return this.health;
   }
@@ -198,21 +225,29 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
   }
 
   private getPages(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
     response: IMoralisNFTResponse,
   ): ResultAsync<EVMNFT[], AjaxError> {
+    if (this.moralisKey == null) {
+      return okAsync([]);
+    }
+
     const items: EVMNFT[] = response.result.map((token) => {
+      const tokenStandard = ValidationUtils.stringToTokenStandard(
+        token.contract_type,
+      );
       return new EVMNFT(
         EVMContractAddress(token.token_address),
         BigNumberString(token.token_id),
-        token.contract_type,
+        tokenStandard,
         EVMAccountAddress(token.owner_of),
         TokenUri(token.token_uri),
         { raw: token.metadata },
-        BigNumberString(token.amount),
         token.name,
-        chainId,
+        chain,
+        BigNumberString(token.amount),
+        this.timeUtils.getUnixNow(),
         BlockNumber(Number(token.block_number)),
         undefined,
       );
@@ -222,17 +257,22 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
       return okAsync(items);
     }
 
-    return ResultUtils.combine([
-      this.generateQueryConfig(chainId, accountAddress, "nft", response.cursor),
-      this.contextProvider.getContext(),
-    ]).andThen(([requestConfig, context]) => {
+    const requestConfig = this.generateQueryConfig(
+      chain,
+      accountAddress,
+      "nft",
+      this.moralisKey,
+      response.cursor,
+    );
+
+    return this.contextProvider.getContext().andThen((context) => {
       context.privateEvents.onApiAccessed.next(EExternalApi.Moralis);
       return (
         this.ajaxUtils
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           .get<IMoralisNFTResponse>(new URL(requestConfig.url!), requestConfig)
           .andThen((next) => {
-            return this.getPages(chainId, accountAddress, next).andThen(
+            return this.getPages(chain, accountAddress, next).andThen(
               (nftArr) => {
                 return okAsync(nftArr.concat(items));
               },
@@ -243,15 +283,16 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
   }
 
   private generateQueryConfig(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
     endpoint: string,
+    moralisApiKey: string,
     cursor?: string,
     contracts?: EVMContractAddress[],
-  ): ResultAsync<IRequestConfig, never> {
+  ): IRequestConfig {
     const params = {
       format: "decimal",
-      chain: `0x${chainId.toString(16)}`,
+      chain: `0x${chain.toString(16)}`,
     };
     if (contracts != undefined) {
       params["token_addresses"] = contracts.toString();
@@ -265,17 +306,15 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
       ["api", "v2", accountAddress.toString(), endpoint],
       params,
     );
-    return this.configProvider.getConfig().map((config) => {
-      const result: IRequestConfig = {
-        method: "get",
-        url: url,
-        headers: {
-          accept: "application/json",
-          "X-API-Key": config.apiKeys.moralisApiKey,
-        },
-      };
-      return result;
-    });
+    const result: IRequestConfig = {
+      method: "get",
+      url: url,
+      headers: {
+        accept: "application/json",
+        "X-API-Key": moralisApiKey,
+      },
+    };
+    return result;
   }
 }
 

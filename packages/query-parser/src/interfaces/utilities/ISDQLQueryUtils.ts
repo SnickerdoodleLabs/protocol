@@ -1,12 +1,16 @@
 import {
+  AccountIndexingError,
   AdKey,
+  AjaxError,
   CompensationKey,
   DuplicateIdInSchema,
   EvalNotImplementedError,
   EvaluationError,
   InsightKey,
+  InvalidParametersError,
   IpfsCID,
   IQueryDeliveryItems,
+  MethodSupportError,
   MissingASTError,
   MissingTokenConstructorError,
   ParserError,
@@ -29,10 +33,14 @@ export interface ISDQLQueryUtils {
     | QueryFormatError
     | MissingTokenConstructorError
     | QueryExpiredError
-    | PersistenceError
-    | EvalNotImplementedError
     | MissingASTError
     | EvaluationError
+    | PersistenceError
+    | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   >;
 
   filterCompensationsForPreviews(

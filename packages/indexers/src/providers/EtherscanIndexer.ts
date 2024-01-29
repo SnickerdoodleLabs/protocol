@@ -1,13 +1,14 @@
 import {
-  IAxiosAjaxUtils,
-  IAxiosAjaxUtilsType,
   ILogUtils,
   ILogUtilsType,
+  IAxiosAjaxUtils,
+  IAxiosAjaxUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
   AjaxError,
-  ChainId,
   EVMAccountAddress,
   EVMTransaction,
   TokenBalance,
@@ -20,7 +21,6 @@ import {
   EVMTransactionHash,
   UnixTimestamp,
   getEtherscanBaseURLForChain,
-  IEVMIndexer,
   EVMNFT,
   MethodSupportError,
   getChainInfoByChain,
@@ -29,6 +29,7 @@ import {
   IndexerSupportSummary,
   EExternalApi,
   EDataProvider,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -36,6 +37,7 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
 import {
+  IEVMIndexer,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
   IIndexerContextProvider,
@@ -53,25 +55,25 @@ export class EtherscanIndexer implements IEVMIndexer {
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [
       EChain.EthereumMainnet,
-      new IndexerSupportSummary(EChain.EthereumMainnet, true, true, true),
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, true, false),
     ],
     [
       EChain.Binance,
-      new IndexerSupportSummary(EChain.Binance, true, true, true),
+      new IndexerSupportSummary(EChain.Binance, true, true, false),
     ],
     [
       EChain.Avalanche,
-      new IndexerSupportSummary(EChain.Avalanche, true, true, true),
+      new IndexerSupportSummary(EChain.Avalanche, true, true, false),
     ],
     [
       EChain.Moonbeam,
-      new IndexerSupportSummary(EChain.Moonbeam, true, true, true),
+      new IndexerSupportSummary(EChain.Moonbeam, true, true, false),
     ],
     [
       EChain.Gnosis,
       new IndexerSupportSummary(EChain.Gnosis, true, true, false),
     ],
-    [EChain.Fuji, new IndexerSupportSummary(EChain.Fuji, true, true, true)],
+    [EChain.Fuji, new IndexerSupportSummary(EChain.Fuji, true, true, false)],
   ]);
 
   protected nonNativeSupportCheck = new Map<EChain, boolean>([
@@ -92,9 +94,28 @@ export class EtherscanIndexer implements IEVMIndexer {
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
-  public name(): string {
+  public initialize(): ResultAsync<void, never> {
+    return this.configProvider.getConfig().map((config) => {
+      this.indexerSupport.forEach(
+        (value: IndexerSupportSummary, chain: EChain) => {
+          const chainInfo = getChainInfoByChain(chain);
+          if (
+            config.apiKeys.etherscanApiKeys[chainInfo.name] == "" ||
+            config.apiKeys.etherscanApiKeys[chainInfo.name] == null
+          ) {
+            this.health.set(chain, EComponentStatus.NoKeyProvided);
+          } else {
+            this.health.set(chain, EComponentStatus.Available);
+          }
+        },
+      );
+    });
+  }
+
+  public name(): EDataProvider {
     return EDataProvider.Etherscan;
   }
 
@@ -114,7 +135,7 @@ export class EtherscanIndexer implements IEVMIndexer {
   }
 
   public getTokensForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
     EVMNFT[],
@@ -132,16 +153,16 @@ export class EtherscanIndexer implements IEVMIndexer {
   }
 
   public getEVMTransactions(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
     startTime: Date,
     endTime?: Date | undefined,
   ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
-      this._getEtherscanApiKey(chainId),
-      this._getBlockNumber(chainId, startTime),
-      this._getBlockNumber(chainId, endTime),
+      this._getEtherscanApiKey(chain),
+      this._getBlockNumber(chain, startTime),
+      this._getBlockNumber(chain, endTime),
     ]).andThen(([config, apiKey, fromBlock, toBlock]) => {
       const params = {
         module: "account",
@@ -159,33 +180,10 @@ export class EtherscanIndexer implements IEVMIndexer {
       }
 
       return this._paginateTransactions(
-        chainId,
+        chain,
         params,
         config.etherscanTransactionsBatchSize,
       );
-    });
-  }
-
-  public getHealthCheck(): ResultAsync<
-    Map<EChain, EComponentStatus>,
-    AjaxError
-  > {
-    return this.configProvider.getConfig().andThen((config) => {
-      this.indexerSupport.forEach(
-        (value: IndexerSupportSummary, key: EChain) => {
-          if (
-            config.apiKeys.etherscanApiKeys[getChainInfoByChain(key).name] ==
-              "" ||
-            config.apiKeys.etherscanApiKeys[getChainInfoByChain(key).name] ==
-              undefined
-          ) {
-            this.health.set(key, EComponentStatus.NoKeyProvided);
-          } else {
-            this.health.set(key, EComponentStatus.Available);
-          }
-        },
-      );
-      return okAsync(this.health);
     });
   }
 
@@ -337,7 +335,6 @@ export class EtherscanIndexer implements IEVMIndexer {
             }
 
             const txs = response.result.map((tx) => {
-              // etherscan uses "" instead of null
               return new EVMTransaction(
                 getChainInfoByChain(chain).chainId,
                 EVMTransactionHash(tx.hash),
@@ -354,6 +351,7 @@ export class EtherscanIndexer implements IEVMIndexer {
                 tx.methodId == "" ? null : tx.methodId,
                 tx.functionName == "" ? null : tx.functionName,
                 null,
+                this.timeUtils.getUnixNow(),
               );
             });
 

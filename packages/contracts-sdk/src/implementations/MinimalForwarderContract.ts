@@ -5,13 +5,13 @@ import {
   BigNumberString,
   Signature,
   BlockchainCommonErrors,
-  BlockchainErrorMapper,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
+import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper";
 import {
   ContractOverrides,
   IMinimalForwarderContract,
@@ -87,9 +87,9 @@ export class MinimalForwarderContract
 
   protected generateContractSpecificError(
     msg: string,
-    reason: string | undefined,
-    e: unknown,
+    e: IEthersContractError,
+    transaction: ethers.Transaction | null,
   ): MinimalForwarderContractError {
-    return new MinimalForwarderContractError(msg, reason, e);
+    return new MinimalForwarderContractError(msg, e, transaction);
   }
 }

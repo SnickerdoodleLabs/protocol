@@ -23,10 +23,16 @@ import {
   EvalNotImplementedError,
   MissingASTError,
   PossibleReward,
-  SDQLString,
   CompensationKey,
   InsightKey,
-  QueryDeliveryItems,
+  PublicEvents,
+  EQueryEvents,
+  QueryPerformanceEvent,
+  EStatus,
+  AccountIndexingError,
+  AjaxError,
+  InvalidParametersError,
+  MethodSupportError,
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
@@ -35,14 +41,12 @@ import {
   IQueryFactoriesType,
   IQueryRepository,
   IQueryRepositoryType,
-  ISDQLParserFactory,
-  ISDQLParserFactoryType,
   ISDQLQueryUtils,
   ISDQLQueryUtilsType,
   SDQLParser,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { BaseOf } from "ts-brand";
 
@@ -53,6 +57,11 @@ import {
   IAdDataRepositoryType,
   IAdRepositoryType,
 } from "@core/interfaces/data/index.js";
+import {
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/index.js";
+
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {
   public constructor(
@@ -66,6 +75,8 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected adContentRepository: IAdContentRepository,
     @inject(IAdDataRepositoryType)
     protected adDataRepository: IAdDataRepository,
+    @inject(IContextProviderType)
+    protected contextProvider: IContextProvider,
   ) {}
 
   public handleQuery(
@@ -73,21 +84,78 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     dataPermissions: DataPermissions,
   ): ResultAsync<
     IQueryDeliveryItems,
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
     | ParserError
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | MissingTokenConstructorError
     | DuplicateIdInSchema
+    | QueryFormatError
+    | MissingTokenConstructorError
+    | QueryExpiredError
+    | MissingASTError
+    | EvaluationError
     | PersistenceError
     | EvalNotImplementedError
-    | MissingASTError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
-    return this.parseQuery(query).andThen((ast) => {
-      return this.gatherDeliveryItems(ast, query.cid, dataPermissions);
+    return this.contextProvider.getContext().andThen((context) => {
+      context.publicEvents.queryPerformance.next(
+        new QueryPerformanceEvent(
+          EQueryEvents.QueryEvaluation,
+          EStatus.Start,
+          query.cid,
+        ),
+      );
+      context.publicEvents.queryPerformance.next(
+        new QueryPerformanceEvent(
+          EQueryEvents.QueryParsing,
+          EStatus.Start,
+          query.cid,
+        ),
+      );
+      return this.parseQuery(query)
+        .andThen((ast) => {
+          context.publicEvents.queryPerformance.next(
+            new QueryPerformanceEvent(
+              EQueryEvents.QueryParsing,
+              EStatus.End,
+              query.cid,
+            ),
+          );
+          return this.gatherDeliveryItems(ast, query.cid, dataPermissions).map(
+            (result) => {
+              context.publicEvents.queryPerformance.next(
+                new QueryPerformanceEvent(
+                  EQueryEvents.QueryEvaluation,
+                  EStatus.End,
+                  query.cid,
+                ),
+              );
+              return result;
+            },
+          );
+        })
+        .mapErr((err) => {
+          context.publicEvents.queryPerformance.next(
+            new QueryPerformanceEvent(
+              EQueryEvents.QueryEvaluation,
+              EStatus.End,
+              query.cid,
+              undefined,
+              err,
+            ),
+          );
+          context.publicEvents.queryPerformance.next(
+            new QueryPerformanceEvent(
+              EQueryEvents.QueryParsing,
+              EStatus.End,
+              query.cid,
+              undefined,
+              err,
+            ),
+          );
+          return err;
+        });
     });
   }
 
@@ -144,18 +212,19 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     query: SDQLQuery,
   ): ResultAsync<
     IQueryDeliveryItems,
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
     | ParserError
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | MissingTokenConstructorError
     | DuplicateIdInSchema
+    | QueryFormatError
+    | MissingTokenConstructorError
+    | QueryExpiredError
+    | MissingASTError
+    | EvaluationError
     | PersistenceError
     | EvalNotImplementedError
-    | MissingASTError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return this.handleQuery(query, DataPermissions.createWithAllPermissions());
   }
@@ -209,16 +278,24 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     dataPermissions: DataPermissions,
   ): ResultAsync<
     IQueryDeliveryItems,
-    | EvaluationError
+    | ParserError
+    | DuplicateIdInSchema
     | QueryFormatError
-    | QueryExpiredError
     | MissingTokenConstructorError
+    | QueryExpiredError
+    | MissingASTError
+    | EvaluationError
     | PersistenceError
     | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     const astEvaluator = this.queryFactories.makeAstEvaluator(
       cid,
       dataPermissions,
+      ast.queryTimestamp,
     );
 
     const insightProm = this.gatherDeliveryInsights(ast, astEvaluator);
@@ -238,12 +315,19 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     astEvaluator: AST_Evaluator,
   ): ResultAsync<
     IQueryDeliveryInsights,
-    | EvaluationError
+    | ParserError
+    | DuplicateIdInSchema
     | QueryFormatError
-    | QueryExpiredError
     | MissingTokenConstructorError
+    | QueryExpiredError
+    | MissingASTError
+    | EvaluationError
     | PersistenceError
     | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     const astInsightArray = Array.from(ast.insights);
     const insightMapResult = astInsightArray.map(([_qName, astInsight]) => {
@@ -343,7 +427,14 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     | MissingASTError
   > {
     return sdqlParser.buildAST().map((ast: AST) => {
-      return [ast, this.queryFactories.makeAstEvaluator(cid, dataPermissions)];
+      return [
+        ast,
+        this.queryFactories.makeAstEvaluator(
+          cid,
+          dataPermissions,
+          ast.queryTimestamp,
+        ),
+      ];
     });
   }
 

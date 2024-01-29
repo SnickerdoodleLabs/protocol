@@ -6,7 +6,7 @@ import {
   BaseURI,
   ERC721RewardContractError,
   BlockchainCommonErrors,
-  BlockchainErrorMapper,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers, EventFilter } from "ethers";
 import { injectable } from "inversify";
@@ -14,6 +14,7 @@ import { ResultAsync, okAsync, errAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
+import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
 import { ERewardRoles } from "@contracts-sdk/interfaces/enums/ERewardRoles.js";
 import {
   ContractOverrides,
@@ -21,6 +22,7 @@ import {
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/index.js";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
+
 @injectable()
 export class ERC721RewardContract
   extends BaseContract<ERC721RewardContractError>
@@ -263,12 +265,45 @@ export class ERC721RewardContract
     );
   }
 
+  public addDomain(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  > {
+    return this.writeToContract("addDomain", [domain], overrides);
+  }
+
+  public removeDomain(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  > {
+    return this.writeToContract("removeDomain", [domain], overrides);
+  }
+
+  public getDomains(): ResultAsync<
+    DomainName[],
+    BlockchainCommonErrors | ERC721RewardContractError
+  > {
+    return ResultAsync.fromPromise(
+      // returns array of domains
+      this.contract.getDomains() as Promise<DomainName[]>,
+      (e) => {
+        return this.generateError(e, "Unable to call getDomains()");
+      },
+    );
+  }
+
   protected generateContractSpecificError(
     msg: string,
-    reason: string | undefined,
-    e: unknown,
+    e: IEthersContractError,
+    transaction: ethers.Transaction | null,
   ): ERC721RewardContractError {
-    return new ERC721RewardContractError(msg, reason, e);
+    return new ERC721RewardContractError(msg, e, transaction);
   }
 
   public filters = {

@@ -6,8 +6,17 @@ import {
   Invitation,
   Signature,
   TokenId,
+  EWalletDataType,
+  IOldUserAgreement,
+  MarketplaceListing,
+  PossibleReward,
+  QueryTypePermissionMap,
+  QueryTypes,
+  IConsentCapacity,
 } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   FlatList,
   Image,
@@ -20,22 +29,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useMemo, useState } from "react";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
-import { useLayoutContext } from "../../context/LayoutContext";
-import {
-  EWalletDataType,
-  IOpenSeaMetadata,
-  MarketplaceListing,
-  PossibleReward,
-  QueryTypePermissionMap,
-  QueryTypes,
-  IConsentCapacity,
-} from "@snickerdoodlelabs/objects";
-import { useAppContext } from "../../context/AppContextProvider";
 import Icon from "react-native-vector-icons/Ionicons";
-import { ResultUtils } from "neverthrow-result-utils";
+
+import { useAppContext } from "../../context/AppContextProvider";
+import { useLayoutContext } from "../../context/LayoutContext";
 import { useTheme } from "../../context/ThemeContext";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 interface ICardDetailsProps {
   image: any;
@@ -52,7 +51,7 @@ export interface IInvitationParams {
 }
 
 interface ICardDetailsProps {
-  metaData: IOpenSeaMetadata;
+  metaData: IOldUserAgreement;
   marketplaceListing: MarketplaceListing;
 }
 

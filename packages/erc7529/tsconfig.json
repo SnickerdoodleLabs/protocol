@@ -1,0 +1,33 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "module": "ES2022",
+    "paths": {
+      "@erc7529/*": [
+        "./packages/erc7529/src/*"
+      ],
+      "@erc7529-test/*": [
+        "./packages/erc7529/test/*"
+      ],
+    }
+  },
+  "include": [
+    "./src/**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
+  "references": [
+    {
+      "path": "../common-utils"
+    },
+    {
+      "path": "../contracts-sdk"
+    },
+    {
+      "path": "../objects"
+    }
+  ],
+}

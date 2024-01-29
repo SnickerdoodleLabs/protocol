@@ -12,11 +12,13 @@ COPY packages/common-utils/package.json /build/packages/common-utils/package.jso
 COPY packages/contracts/package.json /build/packages/contracts/package.json
 COPY packages/contracts-sdk/package.json /build/packages/contracts-sdk/package.json
 COPY packages/core/package.json /build/packages/core/package.json
+COPY packages/erc7529/package.json /build/packages/erc7529/package.json
 COPY packages/extension-onboarding/package.json /build/packages/extension-onboarding/package.json
 COPY packages/iframe/package.json /build/packages/iframe/package.json
 COPY packages/indexers/package.json /build/packages/indexers/package.json
 COPY packages/insight-platform-api/package.json /build/packages/insight-platform-api/package.json
 COPY packages/mobile/package.json /build/packages/mobile/package.json
+COPY packages/node-utils/package.json /build/packages/node-utils/package.json
 COPY packages/objects/package.json /build/packages/objects/package.json
 COPY packages/persistence/package.json /build/packages/persistence/package.json
 COPY packages/query-parser/package.json /build/packages/query-parser/package.json

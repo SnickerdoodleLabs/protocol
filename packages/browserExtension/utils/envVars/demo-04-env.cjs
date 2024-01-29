@@ -4,15 +4,14 @@ const envVars = {
   __CONTROL_CHAIN_ID__: 31337,
   __ONBOARDING_URL__: "https://datawallet.demo-04.snickerdoodle.dev/",
   __ACCOUNT_COOKIE_URL__: "https://snickerdoodlelabs.io/",
-  __SUPPORTED_CHAINS__: "80001,43113,1,137,43114,-1,100,56,1284,42161,592",
-  __IPFS_FETCH_BASE_URL__: "https://ipfs-gateway.snickerdoodle.dev/ipfs/",
+  __IPFS_FETCH_BASE_URL__: "https://ipfs-gateway.snickerdoodle.com/ipfs/",
   __DEFAULT_INSIGHT_PLATFORM_BASE_URL__:
     "https://insight-api.demo-04.snickerdoodle.dev/v0/",
 
   __DROPBOX_APP_KEY__: "w69949reoalc9xg",
   __DROPBOX_APP_SECRET__: "78jch5z5o800dyw",
   __DROPBOX_REDIRECT_URI__:
-    "https://datawallet.demo-04.snickerdoodle.dev/settings/storage",
+    "https://datawallet.demo-04.snickerdoodle.dev/settings",
 
   /* Alchemy Keys */
   __ALCHEMY_ARBITRUM_API_KEY__: "_G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF",
@@ -44,9 +43,16 @@ const envVars = {
 
   __ANKR_API_KEY__:
     "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
+  __BLUEZ_API_KEY__: "aed4aab2cbc573bbf8e7c6b448c916e5",
+  __SPACEANDTIME_API_USERID__: "andrew.strimaitis",
+  __SPACEANDTIME_API_PRIVATEKEY__:
+    "RssUjdu9wHfo0fpCozf8ipSVspWJ4FhWP6Jrnrq65H0=",
+  __RARIBILE_API_KEY__: "c5855db8-08ef-409f-9947-e46c141af1b4",
+  __BLOCKVISION_API_KEY__: "2WaEih5fqe8NUavbvaR2PSuVSSp",
+
   __PRIMARY_INFURA_KEY__: "a8ae124ed6aa44bb97a7166cda30f1bc",
   __SECONDARY_INFURA_KEY__: "",
-
+  __NFT_POLLING_INTERVAL__: "",
   __PORTFOLIO_POLLING_INTERVAL__: "",
   __TRANSACTION_POLLING_INTERVAL__: "",
   __BACKUP_POLLING_INTERVAL__: "",

@@ -9,8 +9,8 @@ import {
   File,
   GetFilesCallback,
 } from "@google-cloud/storage";
-import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
+import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   BigNumberString,
   ConsentContractError,
@@ -382,8 +382,8 @@ export class InsightPlatformSimulator {
           return ResultAsync.fromPromise(tx.wait(), (e) => {
             return new MinimalForwarderContractError(
               "Wait for createCrumb() failed",
-              "Unknown",
               e,
+              null,
             );
           });
         })

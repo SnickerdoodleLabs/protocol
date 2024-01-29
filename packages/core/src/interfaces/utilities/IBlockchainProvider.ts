@@ -1,5 +1,5 @@
 import { JsonRpcProvider } from "@ethersproject/providers";
-import { BlockchainProviderError, ChainId } from "@snickerdoodlelabs/objects";
+import { BlockchainProviderError, EChain } from "@snickerdoodlelabs/objects";
 import { ethers, Wallet } from "ethers";
 import { ResultAsync } from "neverthrow";
 
@@ -18,7 +18,7 @@ export interface IBlockchainProvider {
   >;
 
   getLatestBlock(
-    chainId?: ChainId,
+    chain?: EChain,
   ): ResultAsync<ethers.providers.Block, BlockchainProviderError>;
 }
 

@@ -16,4 +16,9 @@ export enum EChain {
   Optimism = 10,
   Astar = 592,
   Shibuya = 81,
+  BinanceTestnet = 97,
+  Sui = 101,
+  ZkSyncEra = 324,
+  Base = 8453,
+  Chiliz = 88888,
 }

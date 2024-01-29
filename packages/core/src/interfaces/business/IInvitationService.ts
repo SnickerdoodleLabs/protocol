@@ -14,7 +14,7 @@ import {
   UninitializedError,
   PageInvitation,
   IPFSError,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   ConsentFactoryContractError,
   IpfsCID,
   HexString32,
@@ -22,6 +22,9 @@ import {
   IConsentCapacity,
   UnixTimestamp,
   BlockchainCommonErrors,
+  OptInInfo,
+  IUserAgreement,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -50,6 +53,7 @@ export interface IInvitationService {
     | AjaxError
     | MinimalForwarderContractError
     | ConsentError
+    | InvalidParametersError
     | BlockchainCommonErrors
   >;
 
@@ -93,7 +97,7 @@ export interface IInvitationService {
     contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, PersistenceError>;
 
-  getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError>;
+  getAcceptedInvitations(): ResultAsync<OptInInfo[], PersistenceError>;
 
   getConsentContractCID(
     consentAddress: EVMContractAddress,
@@ -139,7 +143,7 @@ export interface IInvitationService {
 
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, IPFSError>;
+  ): ResultAsync<IOldUserAgreement | IUserAgreement, IPFSError>;
 
   getAgreementFlags(
     consentContractAddress: EVMContractAddress,

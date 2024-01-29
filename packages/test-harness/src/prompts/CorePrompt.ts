@@ -11,6 +11,7 @@ import {
   EVMTransactionHash,
   Gender,
   IpfsCID,
+  ISO8601DateString,
   SiteVisit,
   UnixTimestamp,
   URLString,
@@ -51,9 +52,7 @@ export class CorePrompt extends DataWalletPrompt {
   public start(): ResultAsync<void, Error> {
     const choicesWhenUnlocked = [
       { name: "Add Account", value: "addAccount" },
-      { name: "Add Password", value: "addPassword" },
       { name: "Remove Account", value: "removeAccount" },
-      { name: "Remove Password", value: "removePassword" },
       { name: "Check Account", value: "checkAccount" },
       new inquirer.Separator(),
       {
@@ -174,9 +173,11 @@ export class CorePrompt extends DataWalletPrompt {
         case "getTransactions":
           return this.core.getTransactions().map(console.log);
         case "getAccounts":
-          return this.core.getAccounts().map(console.log);
+          return this.core.account.getAccounts(undefined).map(console.log);
         case "getNFTs":
-          return this.core.getAccountNFTs().map(console.log);
+          return this.core.nft
+            .getNfts(undefined, undefined, undefined, undefined)
+            .map(console.log);
         case "getBalances":
           return this.core.getAccountBalances().map(console.log);
         case "getSiteVisitMap":
@@ -209,6 +210,7 @@ export class CorePrompt extends DataWalletPrompt {
             null,
             null,
             null,
+            this.timeUtils.getUnixNow(),
           );
           transactions[1] = new EVMTransaction(
             ChainId(43113),
@@ -224,6 +226,7 @@ export class CorePrompt extends DataWalletPrompt {
             null,
             null,
             null,
+            this.timeUtils.getUnixNow(),
           );
           transactions[2] = new EVMTransaction(
             ChainId(43113),
@@ -239,6 +242,7 @@ export class CorePrompt extends DataWalletPrompt {
             null,
             null,
             null,
+            this.timeUtils.getUnixNow(),
           );
           transactions[3] = new EVMTransaction(
             ChainId(43113),
@@ -254,6 +258,7 @@ export class CorePrompt extends DataWalletPrompt {
             null,
             null,
             null,
+            this.timeUtils.getUnixNow(),
           );
           console.log(
             `adding ${transactions.length} transactions for chain 43113`,
@@ -274,6 +279,7 @@ export class CorePrompt extends DataWalletPrompt {
             null,
             null,
             null,
+            this.timeUtils.getUnixNow(),
           );
           return this.core.addTransactions(transactions).map(console.log);
         case "addSiteVisit - google":

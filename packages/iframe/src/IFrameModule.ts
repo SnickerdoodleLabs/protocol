@@ -1,7 +1,4 @@
 import {
-  CryptoUtils,
-  ICryptoUtils,
-  ICryptoUtilsType,
   ILogUtils,
   ILogUtilsType,
   ITimeUtils,
@@ -10,6 +7,11 @@ import {
   TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
+  CryptoUtils,
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/node-utils";
+import {
   IStorageUtils,
   IStorageUtilsType,
   LocalStorageUtils,
@@ -17,10 +19,14 @@ import {
 import { ContainerModule, interfaces } from "inversify";
 
 import { CoreListener } from "@core-iframe/implementations/api/index";
-import { AccountService } from "@core-iframe/implementations/business/index";
+import {
+  AccountService,
+  InvitationService,
+} from "@core-iframe/implementations/business/index";
 import {
   ConfigProvider,
   CoreProvider,
+  IFrameContextProvider,
 } from "@core-iframe/implementations/utilities/index";
 import {
   ICoreListener,
@@ -29,12 +35,16 @@ import {
 import {
   IAccountService,
   IAccountServiceType,
+  IInvitationService,
+  IInvitationServiceType,
 } from "@core-iframe/interfaces/business/index";
 import {
   IConfigProvider,
   IConfigProviderType,
   ICoreProvider,
   ICoreProviderType,
+  IIFrameContextProvider,
+  IIFrameContextProviderType,
 } from "@core-iframe/interfaces/utilities/index";
 
 export const iframeModule = new ContainerModule(
@@ -52,6 +62,9 @@ export const iframeModule = new ContainerModule(
     bind<IAccountService>(IAccountServiceType)
       .to(AccountService)
       .inSingletonScope();
+    bind<IInvitationService>(IInvitationServiceType)
+      .to(InvitationService)
+      .inSingletonScope();
     // #endregion
 
     // #region Data
@@ -60,6 +73,9 @@ export const iframeModule = new ContainerModule(
     // #region Utilities
     bind<IStorageUtils>(IStorageUtilsType)
       .to(LocalStorageUtils)
+      .inSingletonScope();
+    bind<IIFrameContextProvider>(IIFrameContextProviderType)
+      .to(IFrameContextProvider)
       .inSingletonScope();
     bind<IConfigProvider>(IConfigProviderType)
       .to(ConfigProvider)

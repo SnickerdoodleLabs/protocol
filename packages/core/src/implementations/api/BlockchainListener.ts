@@ -21,6 +21,9 @@ import {
   MissingASTError,
   MissingWalletDataTypeError,
   BlockchainCommonErrors,
+  AccountIndexingError,
+  InvalidParametersError,
+  MethodSupportError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -104,7 +107,7 @@ export class BlockchainListener implements IBlockchainListener {
           this.logUtils.error(e);
           return e;
         });
-      }, config.requestForDataCheckingFrequency);
+      }, config.requestForDataPollingIntervalMS);
 
       // Subscribe to the opt-in event, and immediately do a poll
       context.publicEvents.onCohortJoined.subscribe(() => {
@@ -139,6 +142,9 @@ export class BlockchainListener implements IBlockchainListener {
     | MissingASTError
     | MissingWalletDataTypeError
     | EvalNotImplementedError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return this.blockchainProvider
       .getLatestBlock(config.controlChainId)
@@ -172,6 +178,9 @@ export class BlockchainListener implements IBlockchainListener {
     | MissingASTError
     | MissingWalletDataTypeError
     | EvalNotImplementedError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return this.invitationRepo
       .getAcceptedInvitations()

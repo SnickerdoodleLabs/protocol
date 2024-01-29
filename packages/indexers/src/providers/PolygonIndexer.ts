@@ -1,8 +1,10 @@
 import {
-  IAxiosAjaxUtilsType,
-  IAxiosAjaxUtils,
   ILogUtilsType,
   ILogUtils,
+  IAxiosAjaxUtilsType,
+  IAxiosAjaxUtils,
+  ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
@@ -21,7 +23,6 @@ import {
   getEtherscanBaseURLForChain,
   PolygonTransaction,
   EPolygonTransactionType,
-  IEVMIndexer,
   EVMNFT,
   MethodSupportError,
   getChainInfoByChain,
@@ -29,6 +30,7 @@ import {
   IndexerSupportSummary,
   EDataProvider,
   EExternalApi,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -40,8 +42,8 @@ import {
   IIndexerConfigProvider,
   IIndexerContextProvider,
   IIndexerContextProviderType,
+  IEVMIndexer,
 } from "@indexers/interfaces/index.js";
-
 @injectable()
 export class PolygonIndexer implements IEVMIndexer {
   protected health: Map<EChain, EComponentStatus> = new Map<
@@ -51,7 +53,7 @@ export class PolygonIndexer implements IEVMIndexer {
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [
       EChain.Polygon,
-      new IndexerSupportSummary(EChain.Polygon, true, true, true),
+      new IndexerSupportSummary(EChain.Polygon, false, true, false),
     ],
   ]);
 
@@ -64,9 +66,22 @@ export class PolygonIndexer implements IEVMIndexer {
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
-  public name(): string {
+  public initialize(): ResultAsync<void, never> {
+    return this.configProvider.getConfig().map((config) => {
+      this.indexerSupport.forEach((indexerSupportSummary, chain) => {
+        if (config.apiKeys.etherscanApiKeys[chain] == undefined) {
+          this.health.set(chain, EComponentStatus.NoKeyProvided);
+        } else {
+          this.health.set(chain, EComponentStatus.Available);
+        }
+      });
+    });
+  }
+
+  public name(): EDataProvider {
     return EDataProvider.Polygon;
   }
 
@@ -191,25 +206,6 @@ export class PolygonIndexer implements IEVMIndexer {
     });
   }
 
-  public getHealthCheck(): ResultAsync<
-    Map<EChain, EComponentStatus>,
-    AjaxError
-  > {
-    return this.configProvider.getConfig().andThen((config) => {
-      const keys = this.indexerSupport.keys();
-      this.indexerSupport.forEach(
-        (value: IndexerSupportSummary, key: EChain) => {
-          if (config.apiKeys.etherscanApiKeys[key] == undefined) {
-            this.health.set(key, EComponentStatus.NoKeyProvided);
-          } else {
-            this.health.set(key, EComponentStatus.Available);
-          }
-        },
-      );
-      return okAsync(this.health);
-    });
-  }
-
   public healthStatus(): Map<EChain, EComponentStatus> {
     return this.health;
   }
@@ -268,6 +264,7 @@ export class PolygonIndexer implements IEVMIndexer {
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               tx.tokenID == "" ? null : tx.tokenID!,
               type,
+              this.timeUtils.getUnixNow(),
             );
           });
         });
@@ -323,6 +320,7 @@ export class PolygonIndexer implements IEVMIndexer {
               : EVMContractAddress(tx.contractAddress),
             null,
             EPolygonTransactionType.ERC20,
+            this.timeUtils.getUnixNow(),
           );
         });
       });
@@ -431,13 +429,13 @@ export class PolygonIndexer implements IEVMIndexer {
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
       const chainId = getChainInfoByChain(chain).chainId;
-      if (!config.apiKeys.etherscanApiKeys[chainId] == undefined) {
+      if (config.apiKeys.etherscanApiKeys[chainId] == null) {
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain", chain),
         );
       }
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return okAsync(config.apiKeys.etherscanApiKeys[chainId]!);
+      return okAsync(config.apiKeys.etherscanApiKeys[chainId]);
     });
   }
 }

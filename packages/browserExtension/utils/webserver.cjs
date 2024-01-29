@@ -6,7 +6,6 @@ process.env.ASSET_PATH = "/";
 process.env.__ONBOARDING_URL__ = "https://localhost:9005/";
 process.env.__ACCOUNT_COOKIE_URL__ = "https://snickerdoodlelabs.io/";
 process.env.__CONTROL_CHAIN_ID__ = "31337";
-process.env.__SUPPORTED_CHAINS__ = "42,43113";
 process.env.__IPFS_FETCH_BASE_URL__ = "http://localhost:8080/ipfs";
 process.env.__DEFAULT_INSIGHT_PLATFORM_BASE_URL__ = "http://localhost:3006";
 
@@ -20,6 +19,11 @@ process.env.__NFTSCAN_API_KEY__ = "";
 process.env.__POAP_API_KEY__ = "";
 process.env.__OKLINK_API_KEY__ = "";
 process.env.__ANKR_API_KEY__ = "";
+process.env.__BLUEZ_API_KEY__ = "";
+process.env.__SPACEANDTIME_API_USERID__ = "";
+process.env.__SPACEANDTIME_API_PRIVATEKEY__ = "";
+process.env.____RARIBILE_API_KEY__ = "";
+process.env.__BLOCKVISION_API_KEY__ = "";
 
 process.env.__ALCHEMY_ARBITRUM_API_KEY__ = "";
 process.env.__ALCHEMY_ASTAR_API_KEY__ = "";
@@ -46,6 +50,7 @@ process.env.__REQUEST_FOR_DATA_EVENT_FREQ__ = "4000";
 process.env.__DOMAIN_FILTER__ = "(localhost|chrome://)";
 process.env.__GOOGLE_CLOUD_BUCKET__ = "ceramic-replacement-bucket";
 process.env.__PORTFOLIO_POLLING_INTERVAL__ = "";
+process.env.__NFT_POLLING_INTERVAL = "";
 process.env.__TRANSACTION_POLLING_INTERVAL__ = "";
 process.env.__BACKUP_POLLING_INTERVAL__ = "";
 process.env.__ENABLE_BACKUP_ENCRYPTION__ = "";

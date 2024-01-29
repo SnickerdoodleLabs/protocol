@@ -1,12 +1,9 @@
-process.env.__BUILD_ENV__ = "prod";
+process.env.__BUILD_ENV__ = "dev";
 process.env.__CONTROL_CHAIN_ID__ = "43113";
 process.env.__DEFAULT_INSIGHT_PLATFORM_BASE_URL__ =
   "https://insight-api.snickerdoodle.com/v0/";
 process.env.__IPFS_FETCH_BASE_URL__ =
   "https://ipfs-gateway.snickerdoodle.com/ipfs/";
-
-process.env.__SUPPORTED_CHAINS__ =
-  "1,43113,43114,137,-1,100,56,1284,42161,592,31337";
 
 process.env.__DEV_CHAIN_PROVIDER_URL__ = "";
 var WebpackDevServer = require("webpack-dev-server"),
@@ -28,6 +25,11 @@ var server = new WebpackDevServer(
     port: 9010,
     devMiddleware: {
       writeToDisk: false,
+    },
+    client: {
+      overlay: {
+        warnings: false,
+      },
     },
   },
   compiler,

@@ -6,15 +6,18 @@ import {
   ILogUtils,
   ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
+import { MasterIndexer } from "@snickerdoodlelabs/indexers";
 import {
   AccountIndexingError,
   AjaxError,
   chainConfig,
   ChainId,
+  EChain,
   ECurrencyCode,
   EExternalApi,
   ERecordKey,
   EVMContractAddress,
+  getChainInfoByChain,
   getChainInfoByChainId,
   ITokenPriceRepository,
   PersistenceError,
@@ -24,7 +27,6 @@ import {
   TokenMarketData,
   UnixTimestamp,
   URLString,
-  VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -43,7 +45,6 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
-import { MasterIndexer } from "@snickerdoodlelabs/indexers";
 
 @injectable()
 export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
@@ -371,49 +372,53 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
       return this._assetPlatforms;
     }
 
-    this._assetPlatforms = ResultUtils.combine([
-      this.configProvider.getConfig(),
-      this.contextProvider.getContext(),
-    ]).andThen(([config, context]) => {
-      context.privateEvents.onApiAccessed.next(EExternalApi.CoinGecko);
-      return this.ajaxUtils
-        .get<
-          {
-            id: string;
-            chain_identifier: number | null;
-            name: string;
-            shortname: string;
-          }[]
-        >(new URL("https://api.coingecko.com/api/v3/asset_platforms"))
-        .andThen((items) => {
-          const mapping: AssetPlatformMapping = {
-            forward: {},
-            backward: {},
-          };
-          items.forEach((item) => {
-            if (
-              item.chain_identifier &&
-              config.supportedChains.includes(ChainId(item.chain_identifier))
-            ) {
-              mapping.forward[item.id] = ChainId(item.chain_identifier);
-              mapping.backward[ChainId(item.chain_identifier)] = item.id;
-            }
-          });
-
-          config.supportedChains.forEach((chainId) => {
-            const info = getChainInfoByChainId(chainId);
-            if (info.coinGeckoSlug) {
-              mapping.forward[info.coinGeckoSlug] = info.chainId;
-              mapping.backward[info.chainId] = info.coinGeckoSlug;
-            }
-          });
-
-          return okAsync(mapping);
-        })
-        .mapErr(
-          (e) => new AccountIndexingError("error fetching asset platforms", e),
-        );
+    // The supported chains are anything in our chain.config
+    const supportedChains = new Array<EChain>();
+    chainConfig.forEach((chainInformation) => {
+      supportedChains.push(chainInformation.chain);
     });
+
+    this._assetPlatforms = this.contextProvider
+      .getContext()
+      .andThen((context) => {
+        context.privateEvents.onApiAccessed.next(EExternalApi.CoinGecko);
+        return this.ajaxUtils
+          .get<IAssetPlatformResponseItem[]>(
+            new URL("https://api.coingecko.com/api/v3/asset_platforms"),
+          )
+          .andThen((assetPlatforms) => {
+            const mapping: AssetPlatformMapping = {
+              forward: {},
+              backward: {},
+            };
+            assetPlatforms.forEach((assetPlatform) => {
+              if (
+                assetPlatform.chain_identifier &&
+                supportedChains.includes(
+                  ChainId(assetPlatform.chain_identifier),
+                )
+              ) {
+                const chainId = ChainId(assetPlatform.chain_identifier);
+                mapping.forward[assetPlatform.id] = chainId;
+                mapping.backward[chainId] = assetPlatform.id;
+              }
+            });
+
+            supportedChains.forEach((chain) => {
+              const info = getChainInfoByChain(chain);
+              if (info.coinGeckoSlug) {
+                mapping.forward[info.coinGeckoSlug] = info.chainId;
+                mapping.backward[info.chainId] = info.coinGeckoSlug;
+              }
+            });
+
+            return okAsync(mapping);
+          })
+          .mapErr(
+            (e) =>
+              new AccountIndexingError("error fetching asset platforms", e),
+          );
+      });
 
     return this._assetPlatforms;
   }
@@ -549,4 +554,11 @@ interface CoinGeckoRateLimit {
     error_code: number;
     error_message: string;
   };
+}
+
+interface IAssetPlatformResponseItem {
+  id: string;
+  chain_identifier: number | null;
+  name: string;
+  shortname: string;
 }

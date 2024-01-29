@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 
-import { normalizeWidth } from "../../themes/Metrics";
 import { useTheme } from "../../context/ThemeContext";
+import { normalizeWidth } from "../../themes/Metrics";
 
 type DropdownItem = {
   label: string;
@@ -37,10 +37,10 @@ const Dropdown: React.FC<DropdownProps> = ({
 
   const handleSelect = (item: DropdownItem) => {
     setSelectedItem(
-      `${item.label?.slice(0, 10)}...........................${item.label?.slice(
-        30,
-        42,
-      )}`,
+      `${item.label?.slice(
+        0,
+        10,
+      )}...........................${item.label?.slice(30, 42)}`,
     );
     setIsOpen(false);
     onSelect(item);
@@ -114,7 +114,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                 index + 1 != items.length && { borderBottomWidth: 0.2 },
               ]}
             >
-              <Text style={{color:theme?.colors.title}}>
+              <Text style={{ color: theme?.colors.title }}>
                 {item.label?.slice(0, 12)}...........................
                 {item.label?.slice(30, 42)}
               </Text>

@@ -1,7 +1,5 @@
 import { IIndexerConfig } from "@snickerdoodlelabs/indexers";
 import {
-  ChainId,
-  ChainInformation,
   ControlChainInformation,
   DiscordConfig,
   ECurrencyCode,
@@ -10,14 +8,15 @@ import {
   EChain,
   ProviderUrl,
   LanguageCode,
+  IApiKeys,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
 
+import { MetatransactionGasAmounts } from "@core/interfaces/objects/MetatransactionGasAmounts.js";
+
 export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
   public constructor(
-    public controlChainId: ChainId,
-    public supportedChains: ChainId[],
-    public chainInformation: Map<ChainId, ChainInformation>,
+    public controlChainId: EChain,
     public controlChainInformation: ControlChainInformation,
     public ipfsFetchBaseUrl: URLString,
     public defaultInsightPlatformBaseUrl: URLString,
@@ -32,40 +31,11 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public accountNFTPollingIntervalMS: number,
     public dataWalletBackupIntervalMS: number,
     public backupChunkSizeTarget: number,
-    public apiKeys: {
-      alchemyApiKeys: {
-        Arbitrum: string;
-        Astar: string;
-        Mumbai: string;
-        Optimism: string;
-        Polygon: string;
-        Solana: string;
-        SolanaTestnet: string;
-      };
-      etherscanApiKeys: {
-        Ethereum: string;
-        Polygon: string;
-        Avalanche: string;
-        Binance: string;
-        Moonbeam: string;
-        Optimism: string;
-        Arbitrum: string;
-        Gnosis: string;
-        Fuji: string;
-      };
-      covalentApiKey: string;
-      moralisApiKey: string;
-      nftScanApiKey: string;
-      poapApiKey: string;
-      oklinkApiKey: string;
-      primaryInfuraKey: string;
-      secondaryInfuraKey: string;
-      ankrApiKey: string;
-    },
+    public apiKeys: IApiKeys,
     public dnsServerAddress: URLString,
     public quoteCurrency: ECurrencyCode,
     public etherscanTransactionsBatchSize: number,
-    public requestForDataCheckingFrequency: number,
+    public requestForDataPollingIntervalMS: number,
     public alchemyEndpoints: Map<EChain, URLString>,
     public restoreTimeoutMS: number,
     public domainFilter: string,
@@ -76,18 +46,9 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public twitter: TwitterConfig,
     public heartbeatIntervalMS: number,
     public gasAmounts: MetatransactionGasAmounts,
-    public devChainProviderURL: ProviderUrl,
+    public devChainProviderURL: ProviderUrl | null,
     public maxStatsRetentionSeconds: number,
     public passwordLanguageCode: LanguageCode,
-  ) {}
-}
-
-export class MetatransactionGasAmounts {
-  public constructor(
-    public createCrumbGas: number,
-    public removeCrumbGas: number,
-    public optInGas: number,
-    public optOutGas: number,
-    public updateAgreementFlagsGas: number,
+    public queryPerformanceMetricsLimit: number,
   ) {}
 }

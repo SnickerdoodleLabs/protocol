@@ -1,4 +1,8 @@
 import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
+import {
   AccountAddress,
   Age,
   BackupCreatedEvent,
@@ -24,9 +28,8 @@ import {
   GivenName,
   IConfigOverrides,
   IConsentCapacity,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   IProxyMetricsMethods,
-  IScamFilterPreferences,
   IProxyDiscordMethods,
   IProxyTwitterMethods,
   IpfsCID,
@@ -43,7 +46,6 @@ import {
   PermissionsGrantedEvent,
   PermissionsRequestedEvent,
   PortfolioUpdate,
-  PossibleReward,
   ProxyError,
   PublicEvents,
   RuntimeMetrics,
@@ -67,11 +69,23 @@ import {
   JsonWebToken,
   IProxyIntegrationMethods,
   QueryStatus,
-  AccessToken,
   ECloudStorageType,
   IProxyStorageMethods,
   ECoreProxyType,
   PageInvitation,
+  BlockNumber,
+  RefreshToken,
+  OAuth2Tokens,
+  TransactionFlowInsight,
+  IProxyAccountMethods,
+  ChainTransaction,
+  TransactionFilter,
+  IUserAgreement,
+  INftProxyMethods,
+  WalletNFTHistory,
+  WalletNftWithHistory,
+  NftRepositoryCache,
+  WalletNFTData,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -95,6 +109,7 @@ export class SnickerdoodleIFrameProxy
     this.events = new PublicEvents();
     this.onIframeDisplayRequested = new Subject<void>();
   }
+
   public proxyType: ECoreProxyType = ECoreProxyType.IFRAME_INJECTED;
 
   public onIframeDisplayRequested: Subject<void>;
@@ -236,7 +251,11 @@ export class SnickerdoodleIFrameProxy
         });
 
         this.child.on("onIframeDisplayRequested", () => {
-          this.onIframeDisplayRequested.next();
+          this._displayCoreIFrame();
+        });
+
+        this.child.on("onIframeHideRequested", () => {
+          this._closeCoreIFrame();
         });
 
         /* Now, we need to pass the config over to the iframe */
@@ -250,30 +269,16 @@ export class SnickerdoodleIFrameProxy
       });
   }
 
+  public requestDashboardView(): ResultAsync<void, ProxyError> {
+    return this._createCall("requestDashboardView", null);
+  }
+
   public initialize(): ResultAsync<void, ProxyError> {
     return this._createCall("initialize", null);
   }
 
-  public addAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode: LanguageCode = LanguageCode("en"),
-  ): ResultAsync<void, ProxyError> {
-    return this._createCall("addAccount", {
-      accountAddress,
-      signature,
-      chain,
-      languageCode,
-    });
-  }
-
-  public getLinkAccountMessage(
-    languageCode: LanguageCode = LanguageCode("en"),
-  ): ResultAsync<string, ProxyError> {
-    return this._createCall("getLinkAccountMessage", {
-      languageCode,
-    });
+  public checkURLForInvitation(url: URLString): ResultAsync<void, ProxyError> {
+    return this._createCall("checkURLForInvitation", { url });
   }
 
   public getAge(): ResultAsync<Age | null, ProxyError> {
@@ -340,10 +345,6 @@ export class SnickerdoodleIFrameProxy
     return this._createCall("getLocation", null);
   }
 
-  public getAccounts(): ResultAsync<LinkedAccount[], ProxyError> {
-    return this._createCall("getAccounts", null);
-  }
-
   public getTokenPrice(
     chainId: ChainId,
     address: TokenAddress | null,
@@ -378,12 +379,18 @@ export class SnickerdoodleIFrameProxy
     return this._createCall("getAccountBalances", null);
   }
 
-  public getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError> {
-    return this._createCall("getAccountNFTs", null);
+  public getTransactionValueByChain(): ResultAsync<
+    TransactionFlowInsight[],
+    ProxyError
+  > {
+    return this._createCall("getTransactionValueByChain", null);
   }
-
-  public closeTab(): ResultAsync<void, ProxyError> {
-    return okAsync(undefined);
+  public getTransactions(
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], ProxyError> {
+    return this._createCall("getTransactions", {
+      filter,
+    });
   }
 
   public getAcceptedInvitationsCID(): ResultAsync<
@@ -400,65 +407,34 @@ export class SnickerdoodleIFrameProxy
     return this._createCall("getAvailableInvitationsCID", null);
   }
 
+  public getConsentContractURLs(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<URLString[], ProxyError> {
+    return this._createCall("getConsentContractURLs", { contractAddress });
+  }
+
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, ProxyError> {
+  ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError> {
     return this._createCall("getInvitationMetadataByCID", {
       ipfsCID,
     });
   }
-
+  public updateAgreementPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataTypes: EWalletDataType[],
+  ): ResultAsync<void, ProxyError> {
+    return this._createCall("updateAgreementPermissions", {
+      consentContractAddress,
+      dataTypes,
+    });
+  }
   public getAgreementPermissions(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<EWalletDataType[], ProxyError> {
     return this._createCall("getAgreementPermissions", {
       consentContractAddress,
     });
-  }
-
-  public getApplyDefaultPermissionsOption(): ResultAsync<boolean, ProxyError> {
-    return this._createCall("getApplyDefaultPermissionsOption", null);
-  }
-
-  public setApplyDefaultPermissionsOption(
-    option: boolean,
-  ): ResultAsync<void, ProxyError> {
-    return this._createCall("setApplyDefaultPermissionsOption", {
-      option,
-    });
-  }
-
-  public getDefaultPermissions(): ResultAsync<EWalletDataType[], ProxyError> {
-    return this._createCall("getDefaultPermissions", null);
-  }
-
-  public setDefaultPermissions(
-    dataTypes: EWalletDataType[],
-  ): ResultAsync<void, ProxyError> {
-    return this._createCall("setDefaultPermissions", {
-      dataTypes,
-    });
-  }
-
-  public getScamFilterSettings(): ResultAsync<
-    IScamFilterPreferences,
-    ProxyError
-  > {
-    return this._createCall("getScamFilterSettings", null);
-  }
-
-  public setScamFilterSettings(
-    isScamFilterActive: boolean,
-    showMessageEveryTime: boolean,
-  ): ResultAsync<void, ProxyError> {
-    return this._createCall("setScamFilterSettings", {
-      isScamFilterActive,
-      showMessageEveryTime,
-    });
-  }
-
-  public setDefaultPermissionsToAll(): ResultAsync<void, ProxyError> {
-    return this._createCall("setDefaultPermissionsToAll", null);
   }
 
   public getInvitationByDomain(
@@ -468,53 +444,11 @@ export class SnickerdoodleIFrameProxy
     return this._createCall("getInvitationByDomain", { domain, path });
   }
 
-  public acceptInvitation(
-    dataTypes: EWalletDataType[] | null,
-    consentContractAddress: EVMContractAddress,
-    tokenId?: BigNumberString,
-    businessSignature?: Signature,
-  ): ResultAsync<void, ProxyError> {
-    return this._createCall("acceptInvitation", {
-      dataTypes,
-      consentContractAddress,
-      tokenId,
-      businessSignature,
-    });
-  }
-
-  public rejectInvitation(
-    consentContractAddress: EVMContractAddress,
-    tokenId?: BigNumberString,
-    businessSignature?: Signature,
-    rejectUntil?: UnixTimestamp,
-  ) {
-    return this._createCall("rejectInvitation", {
-      consentContractAddress,
-      tokenId,
-      businessSignature,
-      rejectUntil,
-    });
-  }
-
   public leaveCohort(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, ProxyError> {
     return this._createCall("leaveCohort", {
       consentContractAddress,
-    });
-  }
-
-  public unlinkAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode?: LanguageCode,
-  ): ResultAsync<void, ProxyError> {
-    return this._createCall("unlinkAccount", {
-      accountAddress,
-      signature,
-      chain,
-      languageCode,
     });
   }
 
@@ -604,10 +538,13 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
-  public getPossibleRewards(
+  public getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
-  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, ProxyError> {
+  ): ResultAsync<
+    Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
+    ProxyError
+  > {
     return this._createCall("getPossibleRewards", {
       contractAddresses,
       timeoutMs,
@@ -622,9 +559,80 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
-  public switchToTab(tabId: number): ResultAsync<void, ProxyError> {
-    throw new Error("Method not implemented.");
+  public getQueryStatuses(
+    contractAddress: EVMContractAddress,
+    blockNumber?: BlockNumber,
+  ): ResultAsync<QueryStatus[], ProxyError> {
+    return this._createCall("getQueryStatuses", {
+      contractAddress,
+      blockNumber,
+    });
   }
+
+  public account: IProxyAccountMethods = {
+    addAccount: (
+      accountAddress: AccountAddress,
+      signature: Signature,
+      languageCode: LanguageCode,
+      chain: EChain,
+    ): ResultAsync<void, ProxyError> => {
+      return this._createCall("addAccount", {
+        accountAddress,
+        signature,
+        chain,
+        languageCode,
+      });
+    },
+    addAccountWithExternalSignature: (
+      accountAddress: AccountAddress,
+      message: string,
+      signature: Signature,
+      chain: EChain,
+    ): ResultAsync<void, ProxyError> => {
+      return this._createCall("addAccountWithExternalSignature", {
+        accountAddress,
+        message,
+        signature,
+        chain,
+      });
+    },
+    addAccountWithExternalTypedDataSignature: (
+      accountAddress: AccountAddress,
+      domain: TypedDataDomain,
+      types: Record<string, Array<TypedDataField>>,
+      value: Record<string, unknown>,
+      signature: Signature,
+      chain: EChain,
+    ): ResultAsync<void, ProxyError> => {
+      return this._createCall("addAccountWithExternalTypedDataSignature", {
+        accountAddress,
+        domain,
+        types,
+        value,
+        signature,
+        chain,
+      });
+    },
+    getLinkAccountMessage: (
+      languageCode: LanguageCode,
+    ): ResultAsync<string, ProxyError> => {
+      return this._createCall("getLinkAccountMessage", {
+        languageCode,
+      });
+    },
+    getAccounts: (): ResultAsync<LinkedAccount[], ProxyError> => {
+      return this._createCall("getAccounts", null);
+    },
+    unlinkAccount: (
+      accountAddress: AccountAddress,
+      chain: EChain,
+    ): ResultAsync<void, ProxyError> => {
+      return this._createCall("unlinkAccount", {
+        accountAddress,
+        chain,
+      });
+    },
+  };
 
   public discord: IProxyDiscordMethods = {
     initializeUserWithAuthorizationCode: (
@@ -635,12 +643,8 @@ export class SnickerdoodleIFrameProxy
       });
     },
 
-    installationUrl: (
-      redirectTabId?: number,
-    ): ResultAsync<URLString, ProxyError> => {
-      return this._createCall("discord.installationUrl", {
-        redirectTabId: redirectTabId,
-      });
+    installationUrl: (): ResultAsync<URLString, ProxyError> => {
+      return this._createCall("discord.installationUrl", null);
     },
 
     getUserProfiles: (): ResultAsync<DiscordProfile[], ProxyError> => {
@@ -651,6 +655,20 @@ export class SnickerdoodleIFrameProxy
     },
     unlink: (discordProfileId: DiscordID): ResultAsync<void, ProxyError> => {
       return this._createCall("discord.unlink", { discordProfileId });
+    },
+  };
+
+  public nft: INftProxyMethods = {
+    getNfts: (
+      benchmark?: UnixTimestamp,
+      chains?: EChain[],
+      accounts?: LinkedAccount[],
+    ) => {
+      return this._createCall("nft.getNfts", {
+        benchmark,
+        chains,
+        accounts,
+      });
     },
   };
 
@@ -691,6 +709,17 @@ export class SnickerdoodleIFrameProxy
     getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
       return this._createCall("metrics.getMetrics", null);
     },
+    getPersistenceNFTs: (): ResultAsync<WalletNFTData[], ProxyError> => {
+      return this._createCall("metrics.getPersistenceNFTs", null);
+    },
+
+    getNFTsHistory: (): ResultAsync<WalletNFTHistory[], ProxyError> => {
+      return this._createCall("metrics.getNFTsHistory", null);
+    },
+
+    getNFTCache: (): ResultAsync<NftRepositoryCache, ProxyError> => {
+      return this._createCall("metrics.getNFTCache", null);
+    },
   };
 
   public twitter: IProxyTwitterMethods = {
@@ -718,17 +747,17 @@ export class SnickerdoodleIFrameProxy
     setAuthenticatedStorage: (
       storageType: ECloudStorageType,
       path: string,
-      accessToken: AccessToken,
+      refreshToken: RefreshToken,
     ): ResultAsync<void, ProxyError> => {
       return this._createCall("storage.setAuthenticatedStorage", {
         storageType,
         path,
-        accessToken,
+        refreshToken,
       });
     },
     authenticateDropbox: (
       code: string,
-    ): ResultAsync<AccessToken, ProxyError> => {
+    ): ResultAsync<OAuth2Tokens, ProxyError> => {
       return this._createCall("storage.authenticateDropbox", {
         code,
       });
@@ -750,6 +779,9 @@ export class SnickerdoodleIFrameProxy
   public events: PublicEvents;
 
   private _displayCoreIFrame(): void {
+    // Disable scrolling on the body
+    document.body.style.overflow = "hidden";
+
     // Show core iframe
     if (this.child != null) {
       this.child.frame.style.display = "block";
@@ -762,6 +794,9 @@ export class SnickerdoodleIFrameProxy
   }
 
   private _closeCoreIFrame(): void {
+    // Enable scrolling on the body
+    document.body.style.overflow = "auto";
+
     // Hide core iframe
     if (this.child != null) {
       this.child.frame.style.display = "none";

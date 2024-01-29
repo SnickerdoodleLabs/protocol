@@ -126,20 +126,22 @@ export class ConsentContractRepository implements IConsentContractRepository {
   }
 
   public getConsentToken(
-    optInInfo: OptInInfo,
+    consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
   ): ResultAsync<
     ConsentToken | null,
     UninitializedError | BlockchainProviderError
   > {
-    return this.getConsentContract(optInInfo.consentContractAddress)
+    return this.getConsentContract(consentContractAddress)
       .andThen((consentContract) => {
-        return consentContract.getConsentToken(
-          optInInfo.tokenId,
-        ) as ResultAsync<ConsentToken | null, ConsentContractError>;
+        return consentContract.getConsentToken(tokenId) as ResultAsync<
+          ConsentToken | null,
+          ConsentContractError
+        >;
       })
       .orElse((e) => {
         this.logUtils.warning(
-          `Cannot get consent token for token ID ${optInInfo.tokenId} on consent contract ${optInInfo.consentContractAddress}. Error returned from either ownerOf() or agreementFlags(). Assuming the consent token does not exist!`,
+          `Cannot get consent token for token ID ${tokenId} on consent contract ${consentContractAddress}. Error returned from either ownerOf() or agreementFlags(). Assuming the consent token does not exist!`,
           e,
         );
         return okAsync(null);
@@ -178,7 +180,17 @@ export class ConsentContractRepository implements IConsentContractRepository {
         ]);
       })
       .andThen(([consentContract, derivedAddress]) => {
-        return consentContract.balanceOf(derivedAddress);
+        return consentContract.balanceOf(derivedAddress).mapErr((e) => {
+          // Almost always, you get an error, "Unable to call "balanceOf", which is
+          // correct but not helpful; our goal here is to figure out if the address
+          // is opted in or not- the method we use to check that, "balanceOf", is not
+          // super relevant. Adding a specific error log to help understand what's going
+          // on.
+          this.logUtils.error(
+            `While checking if derived address ${derivedAddress} is opted in to consent contract ${consentContractAddress}, got an error from balanceOf(), which usually means the control chain cannot be reached or that the consent contract does not exist. Most commony this is a result of the doodlechain being reset.`,
+          );
+          return e;
+        });
       })
       .map((numberOfTokens) => {
         return numberOfTokens > 0;

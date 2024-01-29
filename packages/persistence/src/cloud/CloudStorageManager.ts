@@ -1,18 +1,16 @@
 import {
-  CryptoUtils,
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
-  ICryptoUtilsType,
 } from "@snickerdoodlelabs/common-utils";
+import { CryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   AuthenticatedStorageSettings,
   ECloudStorageType,
   CloudStorageActivatedEvent,
-  CloudStorageError,
   URLString,
-  AccessToken,
-  EVMPrivateKey,
   PersistenceError,
+  OAuthURLState,
+  EOAuthProvider,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -20,9 +18,7 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import {
   ICloudStorage,
-  ICloudStorageType,
   IDropboxCloudStorageType,
-  IGDriveCloudStorageType,
   INullCloudStorageType,
 } from "@persistence/cloud/ICloudStorage.js";
 import { ICloudStorageManager } from "@persistence/cloud/ICloudStorageManager.js";
@@ -79,8 +75,11 @@ export class CloudStorageManager implements ICloudStorageManager {
         URLString(
           "https://www.dropbox.com/oauth2/authorize?client_id=" +
             config.dropboxAppKey +
-            "&response_type=code&redirect_uri=" +
-            config.dropboxRedirectUri,
+            "&token_access_type=offline&response_type=code&redirect_uri=" +
+            config.dropboxRedirectUri +
+            `&state=${new OAuthURLState(
+              EOAuthProvider.DROPBOX,
+            ).getEncodedState()}`,
         ),
       );
     });

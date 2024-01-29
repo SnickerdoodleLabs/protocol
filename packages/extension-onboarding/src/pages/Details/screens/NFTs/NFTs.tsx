@@ -1,26 +1,28 @@
 import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
 import {
-  chainConfig,
-  EChainType,
   ChainId,
   WalletNFT,
   AccountAddress,
   EVMNFT,
   SolanaNFT,
   EChainTechnology,
+  SuiNFT,
+  getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 
-import emptyNfts from "@extension-onboarding/assets/images/empty-nfts.svg";
 import AccountChainBar from "@extension-onboarding/components/AccountChainBar";
 import {
   EVMNFTItem,
   SolanaNFTItem,
+  SuiNFTItem,
 } from "@extension-onboarding/components/NFTItem";
-import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/NFTs/NFTs.style";
+import Card from "@extension-onboarding/components/v2/Card";
+import CustomSizeGrid from "@extension-onboarding/components/v2/CustomSizeGrid";
+import EmptyItem from "@extension-onboarding/components/v2/EmptyItem";
+import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen";
+import { useAppContext } from "@extension-onboarding/context/App";
 import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
-import UnauthScreen from "@extension-onboarding/components/UnauthScreen";
 
 export enum EDisplayMode {
   MAINNET,
@@ -28,7 +30,6 @@ export enum EDisplayMode {
 }
 
 export default () => {
-  const classes = useStyles();
   const { accountNFTs, accountTestnetNFTs, isNFTsLoading } =
     useDashboardContext();
   const [accountSelect, setAccountSelect] = useState<AccountAddress>();
@@ -39,7 +40,7 @@ export default () => {
 
   const { linkedAccounts } = useAppContext();
 
-  const nftsToRender: WalletNFT[] | null = useMemo(() => {
+  const nftsToRender: Omit<WalletNFT, "getVersion">[] | null = useMemo(() => {
     if (accountNFTs && accountTestnetNFTs) {
       const nftArr =
         EDisplayMode.MAINNET === displayMode ? accountNFTs : accountTestnetNFTs;
@@ -67,6 +68,28 @@ export default () => {
     accountTestnetNFTs,
   ]);
 
+  const { chains, accounts } = useMemo(() => {
+    return [
+      ...(accountNFTs || ([] as WalletNFT[])),
+      ...(accountTestnetNFTs || ([] as WalletNFT[])),
+    ].reduce(
+      (acc, nft) => {
+        if (!acc.accounts.includes(nft.owner)) {
+          acc.accounts.push(nft.owner);
+        }
+        const nftChainId = getChainInfoByChain(nft.chain).chainId;
+        if (!acc.chains.includes(nftChainId)) {
+          acc.chains.push(nftChainId);
+        }
+        return acc;
+      },
+      {
+        accounts: [] as AccountAddress[],
+        chains: [] as ChainId[],
+      },
+    );
+  }, [accountNFTs, accountTestnetNFTs]);
+
   if (!(linkedAccounts.length > 0)) {
     return <UnauthScreen />;
   }
@@ -74,6 +97,8 @@ export default () => {
   return (
     <Box>
       <AccountChainBar
+        accountAdressesToRender={accounts}
+        chainIdsToRender={chains}
         accountSelect={accountSelect}
         displayMode={displayMode}
         setDisplayMode={setDisplayMode}
@@ -81,51 +106,52 @@ export default () => {
         setChainSelect={setChainSelect}
         chainSelect={chainSelect}
       />
-      {isNFTsLoading ? (
-        <Box display="flex" alignItems="center" justifyContent="center" mt={10}>
-          <CircularProgress />
-        </Box>
-      ) : (
-        <Grid container spacing={3}>
-          {nftsToRender?.length ? (
-            nftsToRender.map((nftItem) => {
-              if (nftItem.type === EChainTechnology.EVM) {
-                return (
-                  <EVMNFTItem
-                    key={JSON.stringify(nftItem)}
-                    item={nftItem as EVMNFT}
-                  />
-                );
-              } else {
-                return (
-                  <SolanaNFTItem
-                    key={JSON.stringify(nftItem)}
-                    item={nftItem as SolanaNFT}
-                  />
-                );
-              }
-            })
-          ) : (
-            <Box width="100%" display="flex">
-              <Box
-                justifyContent="center"
-                alignItems="center"
-                width="100%"
-                display="flex"
-                flexDirection="column"
-                pt={8}
-              >
-                <img style={{ width: 255, height: "auto" }} src={emptyNfts} />
-                <Box mt={2}>
-                  <Typography className={classes.description}>
-                    You don't have any NFTs.
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-          )}
-        </Grid>
-      )}
+      <Box mt={3} />
+      <Card>
+        {isNFTsLoading ? (
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            my={10}
+          >
+            <CircularProgress />
+          </Box>
+        ) : (
+          <>
+            {nftsToRender?.length ? (
+              <CustomSizeGrid
+                items={nftsToRender.map((nftItem) => {
+                  if (nftItem.type === EChainTechnology.EVM) {
+                    return (
+                      <EVMNFTItem
+                        key={JSON.stringify(nftItem)}
+                        item={nftItem as EVMNFT}
+                      />
+                    );
+                  } else if (nftItem.type === EChainTechnology.Sui) {
+                    return (
+                      <SuiNFTItem
+                        key={JSON.stringify(nftItem)}
+                        item={nftItem as SuiNFT}
+                      />
+                    );
+                  } else {
+                    return (
+                      <SolanaNFTItem
+                        key={JSON.stringify(nftItem)}
+                        item={nftItem as SolanaNFT}
+                      />
+                    );
+                  }
+                })}
+              />
+            ) : (
+              <EmptyItem />
+            )}
+          </>
+        )}
+      </Card>
     </Box>
   );
 };

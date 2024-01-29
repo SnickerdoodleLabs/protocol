@@ -1,9 +1,9 @@
+import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
   AjaxError,
   BigNumberString,
   BlockNumber,
-  ChainId,
   EChainTechnology,
   EComponentStatus,
   EVMAccountAddress,
@@ -11,7 +11,6 @@ import {
   EVMNFT,
   EVMTransaction,
   EVMTransactionHash,
-  IEVMIndexer,
   TickerSymbol,
   TokenBalance,
   TokenUri,
@@ -19,9 +18,17 @@ import {
   EChain,
   IndexerSupportSummary,
   EDataProvider,
+  ISO8601DateString,
+  EContractStandard,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+
+import {
+  IEVMIndexer,
+  IIndexerConfigProvider,
+  IIndexerConfigProviderType,
+} from "@indexers/interfaces/index.js";
 
 @injectable()
 export class SimulatorEVMTransactionRepository implements IEVMIndexer {
@@ -31,29 +38,37 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
   >();
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [
-      EChain.EthereumMainnet,
-      new IndexerSupportSummary(EChain.EthereumMainnet, true, false, false),
-    ],
-    [
-      EChain.Moonbeam,
-      new IndexerSupportSummary(EChain.Moonbeam, true, false, false),
-    ],
-    [
-      EChain.Binance,
-      new IndexerSupportSummary(EChain.Binance, true, false, false),
-    ],
-    [
-      EChain.Gnosis,
-      new IndexerSupportSummary(EChain.Gnosis, true, false, false),
+      EChain.DevDoodle,
+      new IndexerSupportSummary(EChain.DevDoodle, true, false, false),
     ],
   ]);
 
-  public name(): string {
+  public constructor(
+    @inject(IIndexerConfigProviderType)
+    protected configProvider: IIndexerConfigProvider,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
+  ) {}
+
+  public initialize(): ResultAsync<void, never> {
+    return this.configProvider.getConfig().map((config) => {
+      // The Simulator Indexer is available if you've provided a dev chain URL
+      // This is actually important now, because the supported chains is based on the health
+      // status of the indexers. The doodlechain is available if we have a provider URL for it;
+      // make sure prod does not have one.
+      if (config.devChainProviderURL == null) {
+        this.health.set(EChain.DevDoodle, EComponentStatus.NoKeyProvided);
+      } else {
+        this.health.set(EChain.DevDoodle, EComponentStatus.Available);
+      }
+    });
+  }
+
+  public name(): EDataProvider {
     return EDataProvider.Sim;
   }
 
   public getBalancesForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError> {
     const num = Math.floor(Math.random() * 10);
@@ -62,7 +77,7 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
       const item = new TokenBalance(
         EChainTechnology.EVM,
         TickerSymbol((Math.random() + 1).toString(36).substring(5)),
-        chainId,
+        chain,
         EVMContractAddress(
           Math.floor(Math.random() * 4) +
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".charAt(
@@ -79,7 +94,7 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
   }
 
   public getTokensForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
     const num = Math.floor(Math.random() * 10) + 1;
@@ -88,13 +103,14 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
       const item = new EVMNFT(
         EVMContractAddress("EVMContractAddress#"),
         BigNumberString(`${Math.floor(Math.random() * 1000)}`),
-        "erc721",
+        EContractStandard.Erc721,
         accountAddress,
         TokenUri("tokenURI"),
         { raw: "metadata" },
-        BigNumberString(Math.floor(Math.random() * 1000) + ""),
         "Fake Token #" + i,
-        chainId,
+        chain,
+        BigNumberString(Math.floor(Math.random() * 1000) + ""),
+        this.timeUtils.getUnixNow(),
         BlockNumber(i),
         //86400 => day
         UnixTimestamp(Date.now() - i * (Date.now() % 86400)),
@@ -105,7 +121,7 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
   }
 
   public getEVMTransactions(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
     startTime: Date,
     endTime?: Date | undefined,
@@ -123,11 +139,11 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
                 ),
             );
       const item = new EVMTransaction(
-        chainId,
+        chain,
         EVMTransactionHash("hash"),
         UnixTimestamp(timestamp.getTime() / 1000),
         null,
-        accountAddress,
+        EVMAccountAddress(accountAddress.toLowerCase()),
         null,
         BigNumberString(Math.floor(Math.random() * 1000) + ""),
         null,
@@ -136,33 +152,10 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
         null,
         null,
         null,
+        this.timeUtils.getUnixNow(),
       );
     }
     return okAsync(result);
-  }
-
-  public getHealthCheck(): ResultAsync<
-    Map<EChain, EComponentStatus>,
-    AjaxError
-  > {
-    this.health.set(EChain.EthereumMainnet, EComponentStatus.Available);
-    return okAsync(this.health);
-    // return this.configProvider.getConfig().andThen((config) => {
-    //   console.log(
-    //     "Alchemy Keys: " + JSON.stringify(config.apiKeys.alchemyApiKeys),
-    //   );
-
-    //   const keys = this.indexerSupport.keys();
-    //   this.indexerSupport.forEach(
-    //     (value: IndexerSupportSummary, key: EChain) => {
-    //       if (config.apiKeys.alchemyApiKeys[key] == undefined) {
-    //         this.health.set(key, EComponentStatus.NoKeyProvided);
-    //       }
-    //       this.health.set(key, EComponentStatus.Available);
-    //     },
-    //   );
-    //   return okAsync(this.health);
-    // });
   }
 
   public healthStatus(): Map<EChain, EComponentStatus> {

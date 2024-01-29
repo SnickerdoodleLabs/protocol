@@ -35,10 +35,7 @@ export interface ICrumbsContract extends IBaseContract {
   tokenURI(
     tokenId: TokenId,
     contractOverrides?: ContractOverrides,
-  ): ResultAsync<
-    TokenUri | null,
-    CrumbsContractError | BlockchainCommonErrors
-  >;
+  ): ResultAsync<TokenUri | null, CrumbsContractError | BlockchainCommonErrors>;
 
   /**
    * Creates a crumb id for the address calling the contract

@@ -3,7 +3,6 @@ import { FunctionKeys } from "utility-types";
 
 import {
   EarnedReward,
-  LinkedAccount,
   MarketplaceListing,
   PagedResponse,
   PagingRequest,
@@ -15,29 +14,34 @@ import {
   TokenMarketData,
   WalletNFT,
   QueryStatus,
+  TransactionFilter,
+  ChainTransaction,
+  TransactionFlowInsight,
 } from "@objects/businessObjects/index.js";
 import {
-  EChain,
   ECoreProxyType,
   EInvitationStatus,
   EWalletDataType,
 } from "@objects/enum/index.js";
 import { ProxyError } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
-import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata.js";
-import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences.js";
+import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
 import {
+  IAccountMethods,
   ICoreDiscordMethods,
   ICoreIntegrationMethods,
   ICoreTwitterMethods,
   IMetricsMethods,
   IStorageMethods,
+  INftMethods,
 } from "@objects/interfaces/ISnickerdoodleCore.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
+import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
 import {
   AccountAddress,
   Age,
   BigNumberString,
+  BlockNumber,
   ChainId,
   CountryCode,
   EmailAddressString,
@@ -54,18 +58,18 @@ import {
 } from "@objects/primitives/index.js";
 import { GetResultAsyncValueType, PopTuple } from "@objects/types.js";
 
-// export type IProxyAccountMethods = {
-//   [key in FunctionKeys<IAccountMethods>]: (
-//     ...args: [...Exclude<Parameters<IAccountMethods[key]>, "sourceDomain">]
-//   ) => ResultAsync<
-//     GetResultAsyncValueType<ReturnType<IAccountMethods[key]>>,
-//     ProxyError
-//   >;
-// };
+export type IProxyAccountMethods = {
+  [key in FunctionKeys<IAccountMethods>]: (
+    ...args: [...PopTuple<Parameters<IAccountMethods[key]>>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<IAccountMethods[key]>>,
+    ProxyError
+  >;
+};
 
 // export type IProxyInvitationMethods = {
 //   [key in FunctionKeys<IInvitationMethods>]: (
-//     ...args: [...Exclude<Parameters<IInvitationMethods[key]>, "sourceDomain">]
+//     ...args: [...PopTuple<Parameters<IInvitationMethods[key]>>]
 //   ) => ResultAsync<
 //     GetResultAsyncValueType<ReturnType<IInvitationMethods[key]>>,
 //     ProxyError
@@ -99,6 +103,15 @@ export type IProxyDiscordMethods = {
     ...args: [...PopTuple<Parameters<ICoreDiscordMethods[key]>>]
   ) => ResultAsync<
     GetResultAsyncValueType<ReturnType<ICoreDiscordMethods[key]>>,
+    ProxyError
+  >;
+};
+
+export type INftProxyMethods = {
+  [key in FunctionKeys<INftMethods>]: (
+    ...args: [...PopTuple<Parameters<INftMethods[key]>>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<INftMethods[key]>>,
     ProxyError
   >;
 };
@@ -203,26 +216,6 @@ export type IProxyStorageMethods = {
 // };
 
 export interface ISdlDataWallet {
-  // TODO: These account methods should 1. be moved into their own
-  // sub object accounts, but 2, I think they need to be re-thought
-  // for the data proxy period. As is, they encourage collecting
-  // signatures on the DApp/client side. This works for the SPA
-  // since it's a "controlled" environment. But it doesn't work
-  // for some generic dapp.com. These methods should only be callable
-  // if you are adjacent to the core (IE, in the extension or in the
-  // iframe).
-  // #region Account Methods
-  addAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode?: LanguageCode,
-  ): ResultAsync<void, ProxyError>;
-  getLinkAccountMessage(
-    languageCode?: LanguageCode,
-  ): ResultAsync<string, ProxyError>;
-  // #endregion
-
   getAge(): ResultAsync<Age | null, ProxyError>;
   setGivenName(givenName: GivenName): ResultAsync<void, ProxyError>;
   getGivenName(): ResultAsync<GivenName | null, ProxyError>;
@@ -236,7 +229,6 @@ export interface ISdlDataWallet {
   getEmail(): ResultAsync<EmailAddressString | null, ProxyError>;
   setLocation(location: CountryCode): ResultAsync<void, ProxyError>;
   getLocation(): ResultAsync<CountryCode | null, ProxyError>;
-  getAccounts(): ResultAsync<LinkedAccount[], ProxyError>;
   getTokenPrice(
     chainId: ChainId,
     address: TokenAddress | null,
@@ -249,8 +241,15 @@ export interface ISdlDataWallet {
     contractAddress: TokenAddress | null,
   ): ResultAsync<TokenInfo | null, ProxyError>;
   getAccountBalances(): ResultAsync<TokenBalance[], ProxyError>;
-  getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError>;
-  closeTab(): ResultAsync<void, ProxyError>;
+
+  getTransactionValueByChain(): ResultAsync<
+    TransactionFlowInsight[],
+    ProxyError
+  >;
+  getTransactions(
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], ProxyError>;
+
   getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     ProxyError
@@ -261,44 +260,16 @@ export interface ISdlDataWallet {
   >;
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, ProxyError>;
+  ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError>;
+  updateAgreementPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataTypes: EWalletDataType[],
+  ): ResultAsync<void, ProxyError>;
   getAgreementPermissions(
     consentContractAddres: EVMContractAddress,
   ): ResultAsync<EWalletDataType[], ProxyError>;
-  getApplyDefaultPermissionsOption(): ResultAsync<boolean, ProxyError>;
-  setApplyDefaultPermissionsOption(
-    option: boolean,
-  ): ResultAsync<void, ProxyError>;
-  getDefaultPermissions(): ResultAsync<EWalletDataType[], ProxyError>;
-  setDefaultPermissions(
-    dataTypes: EWalletDataType[],
-  ): ResultAsync<void, ProxyError>;
-  getScamFilterSettings(): ResultAsync<IScamFilterPreferences, ProxyError>;
-  setScamFilterSettings(
-    isScamFilterActive: boolean,
-    showMessageEveryTime: boolean,
-  ): ResultAsync<void, ProxyError>;
-  setDefaultPermissionsToAll(): ResultAsync<void, ProxyError>;
-  acceptInvitation(
-    dataTypes: EWalletDataType[] | null,
-    consentContractAddress: EVMContractAddress,
-    tokenId?: BigNumberString,
-    businessSignature?: Signature,
-  ): ResultAsync<void, ProxyError>;
-  rejectInvitation(
-    consentContractAddress: EVMContractAddress,
-    tokenId?: BigNumberString,
-    businessSignature?: Signature,
-    rejectUntil?: UnixTimestamp,
-  );
   leaveCohort(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<void, ProxyError>;
-  unlinkAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode?: LanguageCode,
   ): ResultAsync<void, ProxyError>;
 
   checkInvitationStatus(
@@ -316,6 +287,11 @@ export interface ISdlDataWallet {
   getQueryStatusByQueryCID(
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, ProxyError>;
+
+  getQueryStatuses(
+    contractAddress: EVMContractAddress,
+    blockNumber?: BlockNumber,
+  ): ResultAsync<QueryStatus[], ProxyError>;
 
   getSiteVisits(): ResultAsync<SiteVisit[], ProxyError>;
 
@@ -342,22 +318,33 @@ export interface ISdlDataWallet {
     contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, ProxyError>;
 
+  getConsentContractURLs(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<URLString[], ProxyError>;
+
   getConsentCapacity(
     contractAddress: EVMContractAddress,
   ): ResultAsync<IConsentCapacity, ProxyError>;
 
-  getPossibleRewards(
+  getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
-  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, ProxyError>;
+  ): ResultAsync<
+    Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
+    ProxyError
+  >;
 
-  switchToTab(tabId: number): ResultAsync<void, ProxyError>;
+  requestDashboardView: undefined | (() => ResultAsync<void, ProxyError>);
 
   proxyType: ECoreProxyType;
+  account: IProxyAccountMethods;
   discord: IProxyDiscordMethods;
   integration: IProxyIntegrationMethods;
   twitter: IProxyTwitterMethods;
   metrics: IProxyMetricsMethods;
   storage: IProxyStorageMethods;
+  nft: INftProxyMethods;
   events: ISnickerdoodleCoreEvents;
 }
+
+export const defaultLanguageCode = LanguageCode("en");

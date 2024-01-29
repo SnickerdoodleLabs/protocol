@@ -1,11 +1,10 @@
 import {
-  DomainName,
   EVMContractAddress,
-  Invitation,
-  InvitationDomain,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   IpfsCID,
   IPFSError,
+  IUserAgreement,
+  OptInInfo,
   PersistenceError,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
@@ -15,7 +14,7 @@ export interface IInvitationRepository {
   /**
    * Returns the list of consent contracts that the user has opted in to.
    */
-  getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError>;
+  getAcceptedInvitations(): ResultAsync<OptInInfo[], PersistenceError>;
 
   /**
    * Adds a list of addresses from the list of addresses the user has opted in to.
@@ -23,7 +22,7 @@ export interface IInvitationRepository {
    * @param addressesToAdd
    */
   addAcceptedInvitations(
-    infoToAdd: Invitation[],
+    acceptedInvitations: OptInInfo[],
   ): ResultAsync<void, PersistenceError>;
 
   /**
@@ -35,13 +34,9 @@ export interface IInvitationRepository {
     addressesToRemove: EVMContractAddress[],
   ): ResultAsync<void, PersistenceError>;
 
-  getInvitationDomainByCID(
-    cid: IpfsCID,
-    domain: DomainName,
-  ): ResultAsync<InvitationDomain | null, IPFSError>;
   getInvitationMetadataByCID(
     cid: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, IPFSError>;
+  ): ResultAsync<IOldUserAgreement | IUserAgreement, IPFSError>;
 
   /**
    * Returns a list of consent contract addresses that the user has rejected

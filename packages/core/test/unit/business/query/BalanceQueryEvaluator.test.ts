@@ -3,17 +3,17 @@ import "reflect-metadata";
 import {
   TokenBalance,
   ChainId,
-  EVMAccountAddress,
-  EVMContractAddress,
   Gender,
   SDQL_Name,
   SDQL_OperatorName,
   URLString,
-  TickerSymbol,
-  BigNumberString,
-  EChainTechnology,
   ESDQLQueryReturn,
   Age,
+  IpfsCID,
+  SiteVisitsMap,
+  UnixTimestamp,
+  SiteVisitsData,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -34,6 +34,7 @@ import {
   IDemographicDataRepository,
   IPortfolioBalanceRepository,
 } from "@core/interfaces/data/index.js";
+import { ContextProviderMock } from "@core-tests/mock/utilities/ContextProviderMock";
 
 const conditionsGEandL = [
   new ConditionGE(SDQL_OperatorName("ge"), null, 0),
@@ -48,18 +49,27 @@ const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 10)];
 const conditionsE = [new ConditionE(SDQL_OperatorName("e"), null, 29)];
 
 const conditionsIn = [new ConditionIn(SDQL_OperatorName("e"), null, ["29"])];
-
+const queryCID = IpfsCID("mockCID");
 class BalanceQueryEvaluatorMocks {
   public balanceRepo = td.object<IPortfolioBalanceRepository>();
   public demoRepo = td.object<IDemographicDataRepository>();
   public browsingRepo = td.object<IBrowsingDataRepository>();
   public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
+  public contextProvider: ContextProviderMock;
 
-  public URLmap = new Map<URLString, number>([
-    [URLString("www.snickerdoodlelabs.io"), 10],
+  public URLmap: SiteVisitsMap = new Map<URLString, SiteVisitsData>([
+    [
+      URLString("www.snickerdoodlelabs.io"),
+      new SiteVisitsData(
+        10,
+        3,
+        UnixTimestamp(12),
+        ISO8601DateString("2022-09-15T18:45:30.123Z"),
+      ),
+    ],
   ]);
-
   public constructor() {
+    this.contextProvider = new ContextProviderMock();
     td.when(this.demoRepo.getAge()).thenReturn(okAsync(Age(25)));
     td.when(this.demoRepo.getGender()).thenReturn(okAsync(Gender("male")));
     td.when(this.browsingRepo.getSiteVisitsMap()).thenReturn(
@@ -68,7 +78,7 @@ class BalanceQueryEvaluatorMocks {
   }
 
   public factory() {
-    return new BalanceQueryEvaluator(this.balanceRepo);
+    return new BalanceQueryEvaluator(this.balanceRepo, this.contextProvider);
   }
 }
 
@@ -139,7 +149,7 @@ describe("BalanceQueryEvaluator", () => {
     );
     const repo = mocks.factory();
 
-    const result = await repo.eval(balanceQuery);
+    const result = await repo.eval(balanceQuery, queryCID);
     console.log("result: ", result);
     expect(result["value"].length).toEqual(6);
 
@@ -231,7 +241,7 @@ describe("BalanceQueryEvaluator", () => {
     );
     const repo = mocks.factory();
 
-    const result = await repo.eval(balanceQuery);
+    const result = await repo.eval(balanceQuery, queryCID);
     console.log("result: ", result);
 
     expect(result["value"].length).toEqual(2);
@@ -311,7 +321,7 @@ describe("BalanceQueryEvaluator", () => {
     );
     const repo = mocks.factory();
 
-    const result = await repo.eval(balanceQuery);
+    const result = await repo.eval(balanceQuery, queryCID);
     expect(result["value"].length).toEqual(0);
   });
 
@@ -381,7 +391,7 @@ describe("BalanceQueryEvaluator", () => {
     );
     const repo = mocks.factory();
 
-    const result = await repo.eval(balanceQuery);
+    const result = await repo.eval(balanceQuery, queryCID);
     console.log("result: ", result);
 
     expect(result["value"].length).toEqual(2);
@@ -462,7 +472,7 @@ describe("BalanceQueryEvaluator", () => {
       ),
     );
 
-    const result = await repo.eval(balanceQuery);
+    const result = await repo.eval(balanceQuery, queryCID);
     console.log("result: ", result);
 
     expect(result["value"].length).toEqual(4);

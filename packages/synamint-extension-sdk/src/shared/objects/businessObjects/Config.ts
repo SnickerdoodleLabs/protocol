@@ -16,7 +16,6 @@ export class ExtensionConfig {
     public manifestVersion: EManifestVersion,
     public platform: EPlatform,
     public controlChainId: ChainId,
-    public supportedChains: ChainId[],
     public ipfsFetchBaseUrl: URLString,
     public defaultInsightPlatformBaseUrl: URLString,
     public apiKeys: {
@@ -40,15 +39,23 @@ export class ExtensionConfig {
         Gnosis: string;
         Fuji: string;
       };
+      spaceAndTimeCredentials?: {
+        userId: string;
+        privateKey: string;
+      };
       covalentApiKey?: string;
       moralisApiKey?: string;
       nftScanApiKey?: string;
       poapApiKey?: string;
       oklinkApiKey?: string;
       ankrApiKey?: string;
+      bluezApiKey?: string;
+      raribleApiKey?: string;
+      spaceAndTimeKey?: string;
+      blockvisionKey?: string;
     },
     public dnsServerAddress?: URLString,
-    public requestForDataCheckingFrequency?: number,
+    public requestForDataPollingIntervalMS?: number,
     public domainFilter?: string,
     public defaultGoogleCloudBucket?: string,
 

@@ -1,3 +1,18 @@
+import LoadingSpinner from "@extension-onboarding/components/LoadingSpinner";
+import { EModalSelectors } from "@extension-onboarding/components/Modals";
+import AirdropDetailModal, {
+  IAirdropDetailModal,
+} from "@extension-onboarding/components/Modals/V2/AirdropDetailModal";
+import ConfirmationModal, {
+  IConfirmationModal,
+} from "@extension-onboarding/components/Modals/V2/ConfirmationModal";
+import LeaveAudienceModal from "@extension-onboarding/components/Modals/V2/LeaveAudienceModal";
+import NFTDetailModal, {
+  INFTDetailModal,
+} from "@extension-onboarding/components/Modals/V2/NFTDetailModal";
+import OTPModal, {
+  IOTPModal,
+} from "@extension-onboarding/components/Modals/V2/OTPModal";
 import React, {
   ReactNode,
   FC,
@@ -6,26 +21,25 @@ import React, {
   useState,
   useMemo,
   useEffect,
+  memo,
 } from "react";
 
-import LoadingSpinner from "@extension-onboarding/components/LoadingSpinner";
-import { EModalSelectors } from "@extension-onboarding/components/Modals";
-import AccountUnlinkingModal from "@extension-onboarding/components/Modals/AccountUnlinkingModal";
-import ConfirmationModal from "@extension-onboarding/components/Modals/ConfirmationModal";
-import CustomizableModal from "@extension-onboarding/components/Modals/CustomizableModal";
-import DataPermissionsModal from "@extension-onboarding/components/Modals/DataPermissionsModal";
-import LeaveCohortModal from "@extension-onboarding/components/Modals/LeaveCohortModal";
-import PermissionSelectionModal from "@extension-onboarding/components/Modals/PermissionSelectionModal";
-import PhantomLinkingSteps from "@extension-onboarding/components/Modals/PhantomLinkingSteps";
-import RewardDetailModal from "@extension-onboarding/components/Modals/RewardDetailModal";
-import SubscriptionConfirmationModal from "@extension-onboarding/components/Modals/SubscriptionConfirmationModal";
-import SubscriptionSuccessModal from "@extension-onboarding/components/Modals/SubscriptionSuccessModal";
-import ViewDetailsModal from "@extension-onboarding/components/Modals/ViewDetailsModal";
+type ModalSelectorTypeMap = {
+  [EModalSelectors.AIRDROP_DETAIL_MODAL]: IAirdropDetailModal;
+  [EModalSelectors.CONFIRMATION_MODAL]: IConfirmationModal;
+  [EModalSelectors.OTP_MODAL]: IOTPModal;
+  [EModalSelectors.NFT_DETAIL_MODAL]: INFTDetailModal;
+  [EModalSelectors.LEAVE_AUDIENCE_MODAL]: undefined;
+};
 
-export interface IModal {
-  modalSelector: EModalSelectors | null;
+type ModalSelector = keyof ModalSelectorTypeMap;
+
+export interface IModal<T extends keyof ModalSelectorTypeMap | null> {
+  modalSelector: T;
   onPrimaryButtonClick: (params?: any) => void;
-  customProps?: any;
+  customProps?: T extends keyof ModalSelectorTypeMap
+    ? ModalSelectorTypeMap[T]
+    : null;
 }
 
 export enum ELoadingIndicatorType {
@@ -42,57 +56,40 @@ export interface ILoaderInfo {
 interface ILayout {
   setLoadingStatus: (loadingStatus: boolean, loadingInfo?: ILoaderInfo) => void;
   closeModal: () => void;
-  setModal: (modalProps: IModal) => void;
-  modalState: IModal;
+  setModal: <T extends ModalSelector | null = null>(
+    modalProps: IModal<T>,
+  ) => void;
+  modalState: IModal<ModalSelector>;
   loading: boolean;
   loaderInfo: ILoaderInfo | undefined;
 }
 
-const initialModalState: IModal = {
+const initialModalState: IModal<keyof ModalSelectorTypeMap | null> = {
   modalSelector: null,
   onPrimaryButtonClick: () => {},
   customProps: null,
-};
+} as IModal<keyof ModalSelectorTypeMap | null>;
 
 const LayoutContext = createContext<ILayout>({} as ILayout);
 
-export const LayoutProvider: FC = ({ children }) => {
+export const LayoutProvider: FC = memo(({ children }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loaderInfo, setLoaderInfo] = useState<ILoaderInfo>();
-  const [modalState, setModalState] = useState<IModal>(initialModalState);
+  const [modalState, setModalState] = useState<IModal<ModalSelector>>(
+    initialModalState as IModal<keyof ModalSelectorTypeMap>,
+  );
   const modalComponent = useMemo(() => {
     switch (true) {
-      case modalState.modalSelector === EModalSelectors.ACCOUNT_UNLINKED:
-        return <AccountUnlinkingModal />;
-      case modalState.modalSelector === EModalSelectors.PHANTOM_LINKING_STEPS:
-        return <PhantomLinkingSteps />;
-      case modalState.modalSelector === EModalSelectors.VIEW_ACCOUNT_DETAILS:
-        return <ViewDetailsModal />;
-      case modalState.modalSelector === EModalSelectors.MANAGE_PERMISSIONS:
-        return <DataPermissionsModal />;
       case modalState.modalSelector === EModalSelectors.CONFIRMATION_MODAL:
         return <ConfirmationModal />;
-      case modalState.modalSelector === EModalSelectors.LEAVE_COHORT_MODAL:
-        return <LeaveCohortModal />;
-      case modalState.modalSelector ===
-        EModalSelectors.SUBSCRIPTION_SUCCESS_MODAL:
-        return <SubscriptionSuccessModal />;
-      case modalState.modalSelector ===
-        EModalSelectors.SUBSCRIPTION_CONFIRMATION_MODAL:
-        return <SubscriptionConfirmationModal />;
-      case modalState.modalSelector === EModalSelectors.REWARD_DETAIL_MODAL:
-        return <RewardDetailModal />;
-      case modalState.modalSelector === EModalSelectors.CUSTOMIZABLE_MODAL:
-        return (
-          <CustomizableModal
-            title={modalState?.customProps?.title}
-            message={modalState?.customProps?.message}
-            primaryButtonText={modalState?.customProps?.primaryButtonText}
-            secondaryButtonText={modalState?.customProps?.secondaryButtonText}
-          />
-        );
-      case modalState.modalSelector === EModalSelectors.PERMISSION_SELECTION:
-        return <PermissionSelectionModal />;
+      case modalState.modalSelector === EModalSelectors.AIRDROP_DETAIL_MODAL:
+        return <AirdropDetailModal />;
+      case modalState.modalSelector === EModalSelectors.LEAVE_AUDIENCE_MODAL:
+        return <LeaveAudienceModal />;
+      case modalState.modalSelector === EModalSelectors.OTP_MODAL:
+        return <OTPModal />;
+      case modalState.modalSelector === EModalSelectors.NFT_DETAIL_MODAL:
+        return <NFTDetailModal />;
       default:
         return null;
     }
@@ -115,15 +112,16 @@ export const LayoutProvider: FC = ({ children }) => {
     } else {
       setLoaderInfo(loadingInfo ?? { type: ELoadingIndicatorType.DEFAULT });
     }
-    // setIsLoading(loadingStatus);
   };
 
   const closeModal = () => {
-    setModalState(initialModalState);
+    setModalState(initialModalState as IModal<keyof ModalSelectorTypeMap>);
   };
 
-  const setModal = (modalProps: IModal) => {
-    setModalState(modalProps);
+  const setModal = <T extends ModalSelector | null = null>(
+    modalProps: IModal<T>,
+  ) => {
+    setModalState(modalProps as IModal<ModalSelector>);
   };
 
   return (
@@ -142,6 +140,6 @@ export const LayoutProvider: FC = ({ children }) => {
       {children}
     </LayoutContext.Provider>
   );
-};
+});
 
 export const useLayoutContext = () => useContext(LayoutContext);

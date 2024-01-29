@@ -1,29 +1,27 @@
 {
   "name": "@snickerdoodlelabs/shared-components",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Shared components for extension and SPA projects",
-  "main": "dist/index.js",
   "author": "okan@snickerdoodlelabs.io",
+  "main": "dist/index.js",
   "scripts": {
     "alias": "tsc-alias",
     "build": "yarn clean && yarn compile",
     "clean": "rimraf dist tsconfig.tsbuildinfo",
     "compile": "tsc --build && cd ../.. && yarn alias",
     "prepublish": "yarn build",
+    "start": "node scripts/webserver.js",
     "test": "echo \"No tests specified yet\" && exit 0"
   },
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@date-io/date-fns": "1.3.9",
     "@download/blockies": "^1.0.3",
     "@material-ui/lab": "4.0.0-alpha.60",
-    "@material-ui/pickers": "3.2.4",
     "@snickerdoodlelabs/objects": "workspace:^",
+    "chroma-js": "^2.4.2",
     "clsx": "^1.2.1",
-    "date-fns": "^2.29.1",
     "formik": "2.2.9",
     "formik-material-ui": "3.0.1",
-    "framer-motion": "^6.0.0",
     "yup": "0.32.9"
   },
   "peerDependencies": {

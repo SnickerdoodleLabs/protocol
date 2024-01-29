@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/persistence",
-  "version": "0.0.4",
+  "version": "1.1.2",
   "description": "Data persistence implementations to be used by different form factors.",
   "license": "ISC",
   "repository": {
@@ -26,7 +26,7 @@
   "scripts": {
     "alias": "tsc-alias && tsc-alias -p test/tsconfig.json",
     "build": "yarn clean && yarn compile",
-    "clean": "rimraf dist tsconfig.tsbuildinfo",
+    "clean": "npx rimraf dist tsconfig.tsbuildinfo",
     "compile": "npx tsc --build && cd ../.. && yarn alias",
     "prepare": "yarn build",
     "prepublish": "yarn build",
@@ -39,10 +39,11 @@
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.17.11",
     "@snickerdoodlelabs/common-utils": "workspace:^",
+    "@snickerdoodlelabs/node-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
     "@snickerdoodlelabs/utils": "workspace:^",
     "ethers": "^5.6.6",
-    "inversify": "^6.0.1",
+    "inversify": "^6.0.2",
     "neverthrow": "^5.1.0",
     "neverthrow-result-utils": "^2.0.2"
   }

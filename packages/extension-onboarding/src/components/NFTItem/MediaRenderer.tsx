@@ -1,36 +1,38 @@
-import React, { useEffect, useState, FC } from "react";
-import { useNavigate } from "react-router";
-
-import placeholder from "@extension-onboarding/assets/images/image-placeholder.png";
-import { INFT } from "@extension-onboarding/objects";
-import { NftMetadataParseUtils } from "@extension-onboarding/utils";
+import { Skeleton } from "@material-ui/lab";
+import { INFT } from "@snickerdoodlelabs/objects";
+import React, { useState, FC } from "react";
 
 interface IMediaRendererProps {
-  metadataString: string | null;
+  nftData?: INFT;
+  renderLoading?: boolean;
 }
 
-const MediaRenderer: FC<IMediaRendererProps> = ({ metadataString }) => {
-  const [nftData, setNftData] = useState<null | INFT>();
-  useEffect(() => {
-    getNftData();
-  }, []);
+const MediaRenderer: FC<IMediaRendererProps> = ({ nftData, renderLoading }) => {
+  const [isError, setIsError] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  useEffect(() => {}, []);
+  if (renderLoading) {
+    return (
+      <Skeleton
+        variant="rect"
+        width="100%"
+        style={{
+          aspectRatio: "1.2",
+          height: "auto",
+          borderRadius: 4,
+        }}
+      />
+    );
+  }
 
-  const getNftData = () => {
-    if (!metadataString) {
-      setNftData(null);
-    }
-    setNftData(NftMetadataParseUtils.getParsedNFT(metadataString!));
-  };
-
-  if (!metadataString) {
+  if (!nftData || isError) {
     return (
       <img
-        width={160}
-        height={160}
-        style={{ borderRadius: 80, objectFit: "cover" }}
-        src={placeholder}
+        width="100%"
+        style={{ borderRadius: 4, aspectRatio: "1.2", objectFit: "cover" }}
+        src={
+          "https://storage.googleapis.com/dw-assets/spa/images/placeholder.svg"
+        }
       />
     );
   }
@@ -38,12 +40,34 @@ const MediaRenderer: FC<IMediaRendererProps> = ({ metadataString }) => {
   return (
     <>
       {nftData && (
-        <img
-          width={160}
-          height={160}
-          style={{ borderRadius: 80, objectFit: "cover" }}
-          src={nftData.imageUrl || placeholder}
-        />
+        <>
+          {isLoading && (
+            <Skeleton
+              variant="rect"
+              width="100%"
+              style={{
+                aspectRatio: "1.2",
+                height: "auto",
+                borderRadius: 4,
+              }}
+            />
+          )}
+          <img
+            width="100%"
+            style={{
+              borderRadius: 4,
+              aspectRatio: "1.2",
+              objectFit: "cover",
+              display: isLoading ? "none" : "block",
+            }}
+            src={
+              nftData.imageUrl ||
+              "https://storage.googleapis.com/dw-assets/spa/images/placeholder.svg"
+            }
+            onError={() => setIsError(true)}
+            onLoad={() => setIsLoading(false)}
+          />
+        </>
       )}
     </>
   );

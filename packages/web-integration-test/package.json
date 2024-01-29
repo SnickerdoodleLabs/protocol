@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/web-integration-test",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "SPA that demonstrates the web integration package. It creates a docker container that runs on port 9011.",
   "main": "dist/index.js",
   "scripts": {

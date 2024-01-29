@@ -30,6 +30,8 @@ import {
   MissingASTError,
   MissingWalletDataTypeError,
   BlockchainCommonErrors,
+  EarnedReward,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -53,8 +55,9 @@ import {
   IConsentContractRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
+  ILinkedAccountRepository,
+  ILinkedAccountRepositoryType,
 } from "@core/interfaces/data/index.js";
-import { CoreConfig } from "@core/interfaces/objects/index.js";
 import {
   IConfigProviderType,
   IConfigProvider,
@@ -86,6 +89,8 @@ export class MarketplaceService implements IMarketplaceService {
     protected dataWalletUtils: IDataWalletUtils,
     @inject(IQueryParsingEngineType)
     protected queryParsingEngine: IQueryParsingEngine,
+    @inject(ILinkedAccountRepositoryType)
+    protected accountRepo: ILinkedAccountRepository,
   ) {}
 
   public getMarketplaceListingsByTag(
@@ -126,15 +131,15 @@ export class MarketplaceService implements IMarketplaceService {
     | BlockchainProviderError
     | ConsentContractError
     | BlockchainCommonErrors
+    | InvalidParametersError
   > {
     return this.marketplaceRepo.getRecommendationsByListing(listing);
   }
 
-  public getPossibleRewards(
+  public getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
-    timeoutMs: number,
   ): ResultAsync<
-    Map<EVMContractAddress, PossibleReward[]>,
+    Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
     | AjaxError
     | EvaluationError
     | QueryFormatError
@@ -156,30 +161,61 @@ export class MarketplaceService implements IMarketplaceService {
     if (!contractAddresses) {
       return okAsync(new Map());
     }
-
-    return ResultUtils.combine(
-      contractAddresses.map((address) => {
-        return this._getPublishedQueries(address).andThen((queries) => {
-          return this._getPossibleRewards(queries, timeoutMs).map(
-            (rewards) =>
-              [address, rewards] as [EVMContractAddress, PossibleReward[]],
-          );
-        });
-      }),
-    ).map(this._filterEmptyRewards);
+    return this.accountRepo
+      .getEarnedRewards()
+      .andThen((earnedRewards) => {
+        if (earnedRewards.length === 0) {
+          return okAsync([]);
+        }
+        return ResultUtils.combine(
+          contractAddresses.map((address) => {
+            return this.getPublishedQueries(address).map((queries) => {
+              return new Map([
+                [
+                  address,
+                  this.matchEarnedRewardsToQueries(earnedRewards, queries),
+                ],
+              ]) as Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>;
+            });
+          }),
+        );
+      })
+      .map((arrayofMaps) => {
+        if (arrayofMaps.length === 0) {
+          return new Map();
+        }
+        return this.mergeArrayOfMapsOfMaps(arrayofMaps);
+      });
   }
 
-  private _filterEmptyRewards(
-    contractToRewardsTuples: [EVMContractAddress, PossibleReward[]][],
-  ): Map<EVMContractAddress, PossibleReward[]> {
-    return new Map(
-      contractToRewardsTuples.filter(
-        (tuple) => tuple.length == 2 && tuple[1].length > 0,
-      ),
+  private matchEarnedRewardsToQueries(
+    earnedRewards: EarnedReward[],
+    queries: IpfsCID[],
+  ): Map<IpfsCID, EarnedReward[]> {
+    return new Map<IpfsCID, EarnedReward[]>(
+      queries.map((cid) => {
+        const matchingRewards = earnedRewards.filter(
+          (reward) => reward.queryCID === cid,
+        );
+        return [cid, matchingRewards];
+      }),
     );
   }
 
-  private _getPublishedQueries(
+  //Assumes Unique L
+  private mergeArrayOfMapsOfMaps<K, L, M>(
+    arrayofMaps: Map<K, Map<L, M>>[],
+  ): Map<K, Map<L, M>> {
+    const flattenedMap = new Map<K, Map<L, M>>();
+    arrayofMaps.forEach((mapArray) => {
+      for (const [key, value] of mapArray) {
+        flattenedMap.set(key, value);
+      }
+    });
+    return flattenedMap;
+  }
+
+  private getPublishedQueries(
     contractAddress: EVMContractAddress,
   ): ResultAsync<
     IpfsCID[],
@@ -188,9 +224,9 @@ export class MarketplaceService implements IMarketplaceService {
     | ConsentFactoryContractError
     | ConsentContractError
   > {
-    return this._getConsentContract(contractAddress)
+    return this.getConsentContract(contractAddress)
       .andThen((contract) => {
-        return this._getPublishedQueriesPerContract(contract);
+        return this.getPublishedQueriesPerContract(contract);
       })
       .orElse((e) => {
         this.logUtils.warning(
@@ -201,7 +237,7 @@ export class MarketplaceService implements IMarketplaceService {
       });
   }
 
-  private _getConsentContract(
+  private getConsentContract(
     contractAddress: EVMContractAddress,
   ): ResultAsync<
     IConsentContract,
@@ -215,7 +251,7 @@ export class MarketplaceService implements IMarketplaceService {
       .map((consentContractsMap) => consentContractsMap.get(contractAddress)!);
   }
 
-  private _getPublishedQueriesPerContract(
+  private getPublishedQueriesPerContract(
     consentContract: IConsentContract,
   ): ResultAsync<IpfsCID[], ConsentContractError | BlockchainCommonErrors> {
     return this._getRequestForDataList(consentContract).map((r4dList) =>
@@ -234,71 +270,5 @@ export class MarketplaceService implements IMarketplaceService {
         consentOwner,
       );
     });
-  }
-
-  private _getPossibleRewards(
-    queryCids: IpfsCID[],
-    timeoutMs: number,
-  ): ResultAsync<
-    PossibleReward[],
-    | AjaxError
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | ParserError
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | MissingTokenConstructorError
-    | DuplicateIdInSchema
-    | PersistenceError
-    | EvalNotImplementedError
-    | UninitializedError
-    | BlockchainProviderError
-    | ConsentContractError
-    | ConsentError
-    | MissingASTError
-    | BlockchainCommonErrors
-  > {
-    if (!queryCids || queryCids.length == 0) {
-      return okAsync([]);
-    }
-
-    return ResultUtils.combine(
-      queryCids.map((cid) => this._getPossibleRewardsPerQuery(cid, timeoutMs)),
-    ).map((rewardsOfAllQueries) =>
-      Array.from(new Set(rewardsOfAllQueries.flat())),
-    );
-  }
-
-  private _getPossibleRewardsPerQuery(
-    queryCid: IpfsCID,
-    timeoutMs: number,
-  ): ResultAsync<
-    PossibleReward[],
-    | AjaxError
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | ParserError
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | MissingTokenConstructorError
-    | DuplicateIdInSchema
-    | PersistenceError
-    | EvalNotImplementedError
-    | MissingASTError
-  > {
-    return this.sdqlQueryRepo
-      .getSDQLQueryByCID(queryCid, timeoutMs)
-      .andThen((sdqlQuery) => {
-        if (sdqlQuery == null) {
-          return okAsync([]);
-        }
-        return this.queryParsingEngine.constructAllTheRewardsFromQuery(
-          sdqlQuery,
-        );
-      });
   }
 }

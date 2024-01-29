@@ -6,6 +6,7 @@ import { CloudStorageActivatedEvent } from "@objects/businessObjects/events/Clou
 import { DataPermissionsUpdatedEvent } from "@objects/businessObjects/events/DataPermissionsUpdatedEvent.js";
 import { PermissionsGrantedEvent } from "@objects/businessObjects/events/PermissionsGrantedEvent.js";
 import { PermissionsRequestedEvent } from "@objects/businessObjects/events/PermissionsRequestedEvent.js";
+import { QueryPerformanceEvent } from "@objects/businessObjects/events/query/index.js";
 import {
   SocialProfileLinkedEvent,
   SocialProfileUnlinkedEvent,
@@ -18,6 +19,7 @@ import { TokenBalance } from "@objects/businessObjects/TokenBalance.js";
 import {
   EVMTransaction,
   LinkedAccount,
+  QueryStatus,
 } from "@objects/businessObjects/versioned/index.js";
 import { WalletNFT } from "@objects/businessObjects/WalletNFT.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/index.js";
@@ -35,6 +37,7 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onInitialized: Subject<DataWalletAddress>;
   public onQueryPosted: Subject<SDQLQueryRequest>;
   public onQueryParametersRequired: Subject<IpfsCID>;
+  public onQueryStatusUpdated: Subject<QueryStatus>;
   public onAccountAdded: Subject<LinkedAccount>;
   public onPasswordAdded: Subject<void>;
   public onAccountRemoved: Subject<LinkedAccount>;
@@ -59,11 +62,13 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onLocationUpdated: Subject<CountryCode>;
   public onCloudStorageActivated: Subject<CloudStorageActivatedEvent>;
   public onCloudStorageDeactivated: Subject<CloudStorageActivatedEvent>;
+  public queryPerformance: Subject<QueryPerformanceEvent>;
 
   public constructor() {
     this.onInitialized = new Subject();
     this.onQueryPosted = new Subject();
     this.onQueryParametersRequired = new Subject();
+    this.onQueryStatusUpdated = new Subject();
     this.onAccountAdded = new Subject();
     this.onPasswordAdded = new Subject();
     this.onAccountRemoved = new Subject();
@@ -88,5 +93,6 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onBirthdayUpdated = new Subject();
     this.onGenderUpdated = new Subject();
     this.onLocationUpdated = new Subject();
+    this.queryPerformance = new Subject();
   }
 }

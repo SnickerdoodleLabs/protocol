@@ -1,8 +1,5 @@
-import {
-  ICryptoUtils,
-  ICryptoUtilsType,
-} from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
+import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   BigNumberString,
   BlockchainProviderError,
@@ -12,6 +9,7 @@ import {
   Signature,
   BlockchainCommonErrors,
   UninitializedError,
+  ChainId,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
@@ -90,7 +88,7 @@ export class MetatransactionForwarderRepository
     return this.configProvider.getConfig().andThen((config) => {
       return this.cryptoUtils.signTypedData(
         getMinimalForwarderSigningDomain(
-          config.controlChainId,
+          ChainId(config.controlChainId),
           config.controlChainInformation.metatransactionForwarderAddress,
         ),
         forwardRequestTypes,

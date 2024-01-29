@@ -1,22 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {
-  BigNumberString,
-  DataWalletAddress,
-  EarnedReward,
-  EVMContractAddress,
-  LinkedAccount,
-  Signature,
-  URLString,
-} from "@snickerdoodlelabs/objects";
-import { ResultAsync } from "neverthrow";
-import React, {
-  createContext,
-  FC,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import { Subscription } from "rxjs";
 
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import {
@@ -35,6 +17,25 @@ import {
   getProviderList as getSocialMediaProviderList,
   ISocialMediaWrapper,
 } from "@extension-onboarding/services/socialMediaProviders";
+import {
+  BigNumberString,
+  DataWalletAddress,
+  EarnedReward,
+  EVMContractAddress,
+  IpfsCID,
+  LinkedAccount,
+  Signature,
+  URLString,
+} from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow";
+import React, {
+  createContext,
+  FC,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { Subscription } from "rxjs";
 
 export interface IInvitationInfo {
   consentAddress: EVMContractAddress | undefined;
@@ -54,22 +55,16 @@ export interface IAppContext {
   dataWalletGateway: DataWalletGateway;
   linkedAccounts: LinkedAccount[];
   providerList: IProvider[];
-  earnedRewards: EarnedReward[];
-  updateOptedInContracts: () => void;
-  optedInContracts: EVMContractAddress[];
+  earnedRewards: EarnedReward[] | undefined;
+  optedInContracts: Map<EVMContractAddress, IpfsCID> | undefined;
   socialMediaProviderList: ISocialMediaWrapper[];
-  getUserAccounts(): ResultAsync<void, unknown>;
   addAccount(account: LinkedAccount): void;
   appMode: EAppModes | undefined;
   invitationInfo: IInvitationInfo;
   setInvitationInfo: (invitationInfo: IInvitationInfo) => void;
-  isProductTourCompleted: boolean;
-  completeProductTour: () => void;
   setLinkerModalOpen: () => void;
   setLinkerModalClose: () => void;
   isLinkerModalOpen: boolean;
-  disablePopups: () => void;
-  popupsDisabled: boolean;
 }
 
 const INITIAL_INVITATION_INFO: IInvitationInfo = {
@@ -90,26 +85,17 @@ export const AppContextProvider: FC = ({ children }) => {
   const [invitationInfo, setInvitationInfo] = useState<IInvitationInfo>(
     INITIAL_INVITATION_INFO,
   );
-  const [earnedRewards, setEarnedRewards] = useState<EarnedReward[]>([]);
-  const [optedInContracts, setUptedInContracts] = useState<
-    EVMContractAddress[]
-  >([]);
-  const [isProductTourCompleted, setIsProductTourCompleted] = useState<boolean>(
-    localStorage.getItem("SDL_UserCompletedIntro") === "COMPLETED",
-  );
+  const [earnedRewards, setEarnedRewards] = useState<EarnedReward[]>();
+  const [optedInContracts, setOptedInContracts] =
+    useState<Map<EVMContractAddress, IpfsCID>>();
   const [isLinkerModalOpen, setIsLinkerModalOpen] =
     React.useState<boolean>(false);
-  const [popupsDisabled, setPopupsDisabled] = useState<boolean>(false);
+  const initialAccountsFetchRef = React.useRef<boolean>(false);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
-    if (
-      localStorage.getItem(LOCAL_STORAGE_SDL_INVITATION_KEY) &&
-      !queryParams.get("consentAddress")
-    ) {
-      return setInvitationInfo(
-        JSON.parse(localStorage.getItem(LOCAL_STORAGE_SDL_INVITATION_KEY)!),
-      );
+    if (!queryParams.has("consentAddress")) {
+      return;
     }
     return setInvitationInfo({
       consentAddress: queryParams.get("consentAddress")
@@ -128,13 +114,14 @@ export const AppContextProvider: FC = ({ children }) => {
   }, [JSON.stringify(window.location.search)]);
 
   useEffect(() => {
-    if (invitationInfo.consentAddress) {
-      localStorage.setItem(
-        LOCAL_STORAGE_SDL_INVITATION_KEY,
-        JSON.stringify(invitationInfo),
-      );
+    if (
+      invitationInfo.consentAddress &&
+      linkedAccounts.length === 0 &&
+      initialAccountsFetchRef.current
+    ) {
+      setIsLinkerModalOpen(true);
     }
-  }, [JSON.stringify(invitationInfo)]);
+  }, [JSON.stringify(invitationInfo), linkedAccounts]);
 
   const updateInvitationInfo = (invitationInfo: IInvitationInfo) => {
     setInvitationInfo(invitationInfo);
@@ -156,6 +143,7 @@ export const AppContextProvider: FC = ({ children }) => {
   let accountRemovedSubscription: Subscription | null = null;
   let earnedRewardsAddedSubscription: Subscription | null = null;
   let cohortJoinedSubscription: Subscription | null = null;
+  let cohortLeftSubscription: Subscription | null = null;
 
   // register events
   useEffect(() => {
@@ -177,8 +165,12 @@ export const AppContextProvider: FC = ({ children }) => {
         sdlDataWallet.events.onEarnedRewardsAdded.subscribe(
           onEarnedRewardAdded,
         );
-      cohortJoinedSubscription =
-        sdlDataWallet.events.onCohortJoined.subscribe(onCohortJoined);
+      cohortJoinedSubscription = sdlDataWallet.events.onCohortJoined.subscribe(
+        onCohortStatusChanged,
+      );
+      cohortLeftSubscription = sdlDataWallet.events.onCohortLeft.subscribe(
+        onCohortStatusChanged,
+      );
     }
     return () => {
       initializedSubscription?.unsubscribe();
@@ -186,6 +178,7 @@ export const AppContextProvider: FC = ({ children }) => {
       accountRemovedSubscription?.unsubscribe();
       earnedRewardsAddedSubscription?.unsubscribe();
       cohortJoinedSubscription?.unsubscribe();
+      cohortLeftSubscription?.unsubscribe();
     };
   }, [appMode]);
 
@@ -218,7 +211,9 @@ export const AppContextProvider: FC = ({ children }) => {
     getUserAccounts();
   };
 
-  const onCohortJoined = (consentContractAddress: EVMContractAddress) => {
+  const onCohortStatusChanged = (
+    consentContractAddress: EVMContractAddress,
+  ) => {
     getOptedInContracts();
   };
 
@@ -229,12 +224,15 @@ export const AppContextProvider: FC = ({ children }) => {
 
   const getOptedInContracts = () => {
     sdlDataWallet.getAcceptedInvitationsCID().map((res) => {
-      setUptedInContracts(Array.from(res.keys()) as EVMContractAddress[]);
+      setOptedInContracts(res);
     });
   };
 
   const getUserAccounts = () => {
-    return sdlDataWallet.getAccounts().map((accounts) => {
+    if (!initialAccountsFetchRef.current) {
+      initialAccountsFetchRef.current = true;
+    }
+    return sdlDataWallet.account.getAccounts().map((accounts) => {
       setLinkedAccounts((prev) =>
         [...new Set(accounts.map((o) => JSON.stringify(o)))].map((s) =>
           JSON.parse(s),
@@ -253,33 +251,23 @@ export const AppContextProvider: FC = ({ children }) => {
     setLinkedAccounts((prev) => [...prev, account]);
   };
 
-  const completeProductTour = () => {
-    setIsProductTourCompleted(true);
-  };
-
   return (
     <AppContext.Provider
       value={{
-        updateOptedInContracts,
         optedInContracts,
         apiGateway: new ApiGateway(),
         dataWalletGateway: new DataWalletGateway(sdlDataWallet),
         providerList: chainProviderList,
         socialMediaProviderList: getSocialMediaProviderList(sdlDataWallet),
         linkedAccounts,
-        getUserAccounts,
         appMode,
         earnedRewards,
         addAccount,
         invitationInfo,
         setInvitationInfo: updateInvitationInfo,
-        isProductTourCompleted,
-        completeProductTour,
         setLinkerModalOpen: () => setIsLinkerModalOpen(true),
         setLinkerModalClose: () => setIsLinkerModalOpen(false),
         isLinkerModalOpen,
-        popupsDisabled,
-        disablePopups: () => setPopupsDisabled(true),
       }}
     >
       {children}

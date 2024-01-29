@@ -1,8 +1,6 @@
-import { BaseContractWrapper } from "@core/implementations/utilities/factory/BaseContractWrapper.js";
-import { IContextProvider } from "@core/interfaces/utilities/index.js";
 import { ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
-  ConsentRoles,
+  EConsentRoles,
   ContractOverrides,
   IConsentFactoryContract,
   WrappedTransactionResponse,
@@ -21,6 +19,9 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
+
+import { BaseContractWrapper } from "@core/implementations/utilities/factory/BaseContractWrapper.js";
+import { IContextProvider } from "@core/interfaces/utilities/index.js";
 
 /**
  * This wrapper implements some metrics utilities and well as reliability (by implementing fallbacks to a secondary provider)
@@ -61,7 +62,10 @@ export class ConsentFactoryContractWrapper
     ownerAddress: EVMAccountAddress,
     baseUri: BaseURI,
     name: ConsentName,
-  ): ResultAsync<ethers.BigNumber, ConsentFactoryContractError | BlockchainCommonErrors> {
+  ): ResultAsync<
+    ethers.BigNumber,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
     return this.fallback(
       () =>
         this.primary.estimateGasToCreateConsent(ownerAddress, baseUri, name),
@@ -72,10 +76,7 @@ export class ConsentFactoryContractWrapper
 
   public getUserDeployedConsentsCount(
     ownerAddress: EVMAccountAddress,
-  ): ResultAsync<
-    number,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
+  ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors> {
     return this.fallback(
       () => this.primary.getUserDeployedConsentsCount(ownerAddress),
       () => this.secondary?.getUserDeployedConsentsCount(ownerAddress),
@@ -117,11 +118,8 @@ export class ConsentFactoryContractWrapper
   }
   public getUserRoleAddressesCount(
     ownerAddress: EVMAccountAddress,
-    role: ConsentRoles,
-  ): ResultAsync<
-    number,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
+    role: EConsentRoles,
+  ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors> {
     return this.fallback(
       () => this.primary.getUserRoleAddressesCount(ownerAddress, role),
       () => this.secondary?.getUserRoleAddressesCount(ownerAddress, role),
@@ -129,7 +127,7 @@ export class ConsentFactoryContractWrapper
   }
   public getUserRoleAddressesCountByIndex(
     ownerAddress: EVMAccountAddress,
-    role: ConsentRoles,
+    role: EConsentRoles,
     startingIndex: number,
     endingIndex: number,
   ): ResultAsync<
@@ -280,10 +278,7 @@ export class ConsentFactoryContractWrapper
   }
   public getTagTotal(
     tag: MarketplaceTag,
-  ): ResultAsync<
-    number,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
+  ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors> {
     return this.fallback(
       () => this.primary.getTagTotal(tag),
       () => this.secondary?.getTagTotal(tag),

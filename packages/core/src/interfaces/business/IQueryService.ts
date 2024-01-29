@@ -1,9 +1,12 @@
 import {
+  AccountIndexingError,
   AjaxError,
   BlockchainCommonErrors,
   BlockchainProviderError,
+  BlockNumber,
   ConsentContractError,
   ConsentError,
+  ConsentFactoryContractError,
   ConsentToken,
   DuplicateIdInSchema,
   EvalNotImplementedError,
@@ -11,8 +14,10 @@ import {
   EVMContractAddress,
   EVMPrivateKey,
   IDynamicRewardParameter,
+  InvalidParametersError,
   IpfsCID,
   IPFSError,
+  MethodSupportError,
   MissingASTError,
   MissingTokenConstructorError,
   ParserError,
@@ -28,7 +33,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { CoreConfig } from "../objects";
+import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
 
 export interface IQueryService {
   initialize(): ResultAsync<void, never>;
@@ -58,6 +63,9 @@ export interface IQueryService {
     | EvalNotImplementedError
     | MissingASTError
     | BlockchainCommonErrors
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   >;
 
   approveQuery(
@@ -107,12 +115,27 @@ export interface IQueryService {
     | DuplicateIdInSchema
     | PersistenceError
     | EvalNotImplementedError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
     | MissingASTError
   >;
 
   getQueryStatusByQueryCID(
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, PersistenceError>;
+
+  getQueryStatuses(
+    contractAddress: EVMContractAddress,
+    blockNumber?: BlockNumber,
+  ): ResultAsync<
+    QueryStatus[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | PersistenceError
+  >;
 }
 
 export const IQueryServiceType = Symbol.for("IQueryService");

@@ -73,12 +73,6 @@ export class AccountService implements IAccountService {
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
-  public getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
-    return this.core.getAccountNFTs().mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
-  }
 
   public isDataWalletAddressInitialized(): ResultAsync<
     boolean,

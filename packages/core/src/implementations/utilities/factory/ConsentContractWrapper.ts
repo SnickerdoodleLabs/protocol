@@ -1,6 +1,7 @@
 import { ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ContractOverrides,
+  EConsentRoles,
   IConsentContract,
   IConsentContractFilters,
   Tag,
@@ -440,11 +441,7 @@ export class ConsentContractWrapper
   }
 
   public hasRole(
-    role:
-      | "DEFAULT_ADMIN_ROLE"
-      | "PAUSER_ROLE"
-      | "REQUESTER_ROLE"
-      | "SIGNER_ROLE",
+    role: EConsentRoles,
     address: EVMAccountAddress,
   ): ResultAsync<boolean, ConsentContractError | BlockchainCommonErrors> {
     return this.fallback(
@@ -454,11 +451,7 @@ export class ConsentContractWrapper
   }
 
   public grantRole(
-    role:
-      | "DEFAULT_ADMIN_ROLE"
-      | "PAUSER_ROLE"
-      | "REQUESTER_ROLE"
-      | "SIGNER_ROLE",
+    role: EConsentRoles,
     address: EVMAccountAddress,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -471,11 +464,7 @@ export class ConsentContractWrapper
   }
 
   public revokeRole(
-    role:
-      | "DEFAULT_ADMIN_ROLE"
-      | "PAUSER_ROLE"
-      | "REQUESTER_ROLE"
-      | "SIGNER_ROLE",
+    role: EConsentRoles,
     address: EVMAccountAddress,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -488,11 +477,7 @@ export class ConsentContractWrapper
   }
 
   public renounceRole(
-    role:
-      | "DEFAULT_ADMIN_ROLE"
-      | "PAUSER_ROLE"
-      | "REQUESTER_ROLE"
-      | "SIGNER_ROLE",
+    role: EConsentRoles,
     address: EVMAccountAddress,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -523,6 +508,18 @@ export class ConsentContractWrapper
     return this.fallback(
       () => this.primary.setQueryHorizon(blockNumber),
       () => this.secondary?.setQueryHorizon(blockNumber),
+    );
+  }
+
+  public estimateGasLimitForSetQueryHorizon(
+    blockNumber: BlockNumber,
+  ): ResultAsync<
+    BigNumberString,
+    ConsentContractError | BlockchainCommonErrors
+  > {
+    return this.fallback(
+      () => this.primary.estimateGasLimitForSetQueryHorizon(blockNumber),
+      () => this.secondary?.estimateGasLimitForSetQueryHorizon(blockNumber),
     );
   }
 

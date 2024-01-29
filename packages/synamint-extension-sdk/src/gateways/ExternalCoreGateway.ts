@@ -1,4 +1,8 @@
 import "reflect-metadata";
+import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
 import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
   AccountAddress,
@@ -11,7 +15,7 @@ import {
   FamilyName,
   Gender,
   GivenName,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   IpfsCID,
   LinkedAccount,
   DataWalletAddress,
@@ -47,8 +51,20 @@ import {
   PEMEncodedRSAPublicKey,
   JsonWebToken,
   QueryStatus,
-  AccessToken,
   ECloudStorageType,
+  OAuth2Tokens,
+  TransactionFlowInsight,
+  TransactionFilter,
+  ChainTransaction,
+  IProxyAccountMethods,
+  LanguageCode,
+  EChain,
+  Signature,
+  TransactionPaymentCounter,
+  IUserAgreement,
+  PageInvitation,
+  Invitation,
+  INftProxyMethods,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -59,7 +75,6 @@ import {
   GetInvitationMetadataByCIDParams,
   GetInvitationWithDomainParams,
   GetUnlockMessageParams,
-  IInvitationDomainWithUUID,
   LeaveCohortParams,
   SetBirthdayParams,
   SetEmailParams,
@@ -67,12 +82,7 @@ import {
   SetGenderParams,
   SetGivenNameParams,
   SetLocationParams,
-  CheckURLParams,
-  AcceptInvitationByUUIDParams,
   GetAgreementPermissionsParams,
-  SetDefaultPermissionsWithDataTypesParams,
-  SetApplyDefaultPermissionsParams,
-  ScamFilterSettingsParams,
   GetConsentContractCIDParams,
   CheckInvitationStatusParams,
   GetTokenPriceParams,
@@ -81,16 +91,13 @@ import {
   SetDefaultReceivingAddressParams,
   SetReceivingAddressParams,
   GetReceivingAddressParams,
-  IScamFilterPreferences,
   IExternalState,
-  UnlockParams,
   AddAccountParams,
   UnlinkAccountParams,
   GetSiteVisitsMapParams,
   GetSiteVisitsParams,
   GetEarnedRewardsParams,
   GetDataWalletAddressParams,
-  CloseTabParams,
   IsDataWalletAddressInitializedParams,
   GetLocationParams,
   GetGenderParams,
@@ -102,11 +109,7 @@ import {
   GetAccountNFTsParams,
   GetAccountBalancesParams,
   GetAccountsParams,
-  GetApplyDefaultPermissionsOptionParams,
   GetAcceptedInvitationsCIDParams,
-  GetScamFilterSettingsParams,
-  SetDefaultPermissionsToAllParams,
-  GetDefaultPermissionsParams,
   GetAvailableInvitationsCIDParams,
   GetStateParams,
   InitializeDiscordUserParams,
@@ -123,7 +126,6 @@ import {
   TwitterGetRequestTokenParams,
   TwitterGetLinkedProfilesParams,
   GetConfigParams,
-  SwitchToTabParams,
   GetMetricsParams,
   RequestPermissionsParams,
   GetPermissionsParams,
@@ -136,18 +138,93 @@ import {
   GetAvailableCloudStorageOptionsParams,
   GetCurrentCloudStorageParams,
   RejectInvitationParams,
-  RejectInvitationByUUIDParams,
+  GetQueryStatusesParams,
+  GetTransactionValueByChainParams,
+  GetTransactionsParams,
+  AddAccountWithExternalSignatureParams,
+  AddAccountWithExternalTypedDataSignatureParams,
+  UpdateAgreementPermissionsParams,
+  GetConsentContractURLsParams,
+  GetPersistenceNFTsParams,
+  GetAccountNFTHistoryParams,
+  GetAccountNftCacheParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
 export class ExternalCoreGateway {
+  public account: IProxyAccountMethods;
   public discord: IProxyDiscordMethods;
   public integration: IProxyIntegrationMethods;
   public metrics: IProxyMetricsMethods;
   public twitter: IProxyTwitterMethods;
+  public nft: INftProxyMethods;
   protected _handler: CoreHandler;
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
+
+    this.account = {
+      addAccount: (
+        accountAddress: AccountAddress,
+        signature: Signature,
+        languageCode: LanguageCode,
+        chain: EChain,
+      ): ResultAsync<void, ProxyError> => {
+        return this._handler.call(
+          new AddAccountParams(accountAddress, signature, chain, languageCode),
+        );
+      },
+
+      addAccountWithExternalSignature: (
+        accountAddress: AccountAddress,
+        message: string,
+        signature: Signature,
+        chain: EChain,
+      ): ResultAsync<void, ProxyError> => {
+        return this._handler.call(
+          new AddAccountWithExternalSignatureParams(
+            accountAddress,
+            message,
+            signature,
+            chain,
+          ),
+        );
+      },
+      addAccountWithExternalTypedDataSignature: (
+        accountAddress: AccountAddress,
+        domain: TypedDataDomain,
+        types: Record<string, Array<TypedDataField>>,
+        value: Record<string, unknown>,
+        signature: Signature,
+        chain: EChain,
+      ): ResultAsync<void, ProxyError> => {
+        return this._handler.call(
+          new AddAccountWithExternalTypedDataSignatureParams(
+            accountAddress,
+            domain,
+            types,
+            value,
+            signature,
+            chain,
+          ),
+        );
+      },
+      unlinkAccount: (
+        accountAddress: AccountAddress,
+        chain: EChain,
+      ): ResultAsync<void, ProxyError> => {
+        return this._handler.call(
+          new UnlinkAccountParams(accountAddress, chain),
+        );
+      },
+      getLinkAccountMessage: (
+        languageCode: LanguageCode,
+      ): ResultAsync<string, ProxyError> => {
+        return this._handler.call(new GetUnlockMessageParams(languageCode));
+      },
+      getAccounts: (): ResultAsync<LinkedAccount[], ProxyError> => {
+        return this._handler.call(new GetAccountsParams());
+      },
+    };
 
     this.discord = {
       initializeUserWithAuthorizationCode: (
@@ -155,12 +232,8 @@ export class ExternalCoreGateway {
       ): ResultAsync<void, ProxyError> => {
         return this._handler.call(new InitializeDiscordUserParams(code));
       },
-      installationUrl: (
-        redirectTabId: number | undefined = undefined,
-      ): ResultAsync<URLString, ProxyError> => {
-        return this._handler.call(
-          new GetDiscordInstallationUrlParams(redirectTabId),
-        );
+      installationUrl: (): ResultAsync<URLString, ProxyError> => {
+        return this._handler.call(new GetDiscordInstallationUrlParams());
       },
       getUserProfiles: (): ResultAsync<DiscordProfile[], ProxyError> => {
         return this._handler.call(new GetDiscordUserProfilesParams());
@@ -171,6 +244,18 @@ export class ExternalCoreGateway {
       unlink: (discordProfileId: DiscordID) => {
         return this._handler.call(
           new UnlinkDiscordAccountParams(discordProfileId),
+        );
+      },
+    };
+
+    this.nft = {
+      getNfts: (
+        benchmark?: UnixTimestamp,
+        chains?: EChain[],
+        accounts?: LinkedAccount[],
+      ) => {
+        return this._handler.call(
+          new GetAccountNFTsParams(benchmark, chains, accounts),
         );
       },
     };
@@ -205,6 +290,19 @@ export class ExternalCoreGateway {
       getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
         return this._handler.call(new GetMetricsParams());
       },
+      getPersistenceNFTs: () => {
+        return this._handler.call(new GetPersistenceNFTsParams());
+      },
+      getNFTsHistory: () => {
+        return this._handler.call(new GetAccountNFTHistoryParams());
+      },
+      getNFTCache: () => {
+        return this._handler
+          .call(new GetAccountNftCacheParams())
+          .map((jsonString) => {
+            return ObjectUtils.deserialize(jsonString);
+          });
+      },
     };
 
     this.twitter = {
@@ -238,14 +336,13 @@ export class ExternalCoreGateway {
 
   public getInvitationsByDomain(
     params: GetInvitationWithDomainParams,
-  ): ResultAsync<IInvitationDomainWithUUID | null, ProxyError> {
-    return this._handler.call(params);
-  }
-
-  public acceptInvitationByUUID(
-    params: AcceptInvitationByUUIDParams,
-  ): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
+  ): ResultAsync<PageInvitation | null, ProxyError> {
+    return this._handler.call(params).map((jsonString) => {
+      if (jsonString) {
+        return ObjectUtils.deserialize(jsonString);
+      }
+      return null;
+    });
   }
 
   public getAvailableInvitationsCID(): ResultAsync<
@@ -260,7 +357,16 @@ export class ExternalCoreGateway {
   }
 
   public acceptInvitation(
-    params: AcceptInvitationParams,
+    invitation: Invitation,
+    dataTypes: EWalletDataType[] | null,
+  ): ResultAsync<void, ProxyError> {
+    return this._handler.call(
+      new AcceptInvitationParams(ObjectUtils.serialize(invitation), dataTypes),
+    );
+  }
+
+  public updateAgreementPermissions(
+    params: UpdateAgreementPermissionsParams,
   ): ResultAsync<void, ProxyError> {
     return this._handler.call(params);
   }
@@ -271,43 +377,16 @@ export class ExternalCoreGateway {
     return this._handler.call(params);
   }
 
-  public getDefaultPermissions(): ResultAsync<EWalletDataType[], ProxyError> {
-    return this._handler.call(new GetDefaultPermissionsParams());
-  }
-
-  public setDefaultPermissionsWithDataTypes(
-    params: SetDefaultPermissionsWithDataTypesParams,
-  ): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
-  }
-
-  public setDefaultPermissionsToAll(): ResultAsync<void, ProxyError> {
-    return this._handler.call(new SetDefaultPermissionsToAllParams());
-  }
-
-  public getScamFilterSettings(): ResultAsync<
-    IScamFilterPreferences,
-    ProxyError
-  > {
-    return this._handler.call(new GetScamFilterSettingsParams());
-  }
-
-  public setScamFilterSettings(
-    params: ScamFilterSettingsParams,
-  ): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
-  }
-
-  public rejectInvitationByUUID(
-    params: RejectInvitationByUUIDParams,
-  ): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
-  }
-
   public rejectInvitation(
-    params: RejectInvitationParams,
+    invitation: Invitation,
+    rejectUntil?: UnixTimestamp,
   ): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
+    return this._handler.call(
+      new RejectInvitationParams(
+        ObjectUtils.serialize(invitation),
+        rejectUntil,
+      ),
+    );
   }
 
   public getAcceptedInvitationsCID(): ResultAsync<
@@ -323,7 +402,7 @@ export class ExternalCoreGateway {
 
   public getInvitationMetadataByCID(
     params: GetInvitationMetadataByCIDParams,
-  ): ResultAsync<IOpenSeaMetadata, ProxyError> {
+  ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError> {
     return this._handler.call(params);
   }
 
@@ -331,31 +410,6 @@ export class ExternalCoreGateway {
     return this._handler.call(params);
   }
 
-  public addAccount(params: AddAccountParams): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
-  }
-
-  public unlinkAccount(
-    params: UnlinkAccountParams,
-  ): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
-  }
-  public getLinkAccountMessage(
-    params: GetUnlockMessageParams,
-  ): ResultAsync<string, ProxyError> {
-    return this._handler.call(params);
-  }
-  public getApplyDefaultPermissionsOption(): ResultAsync<boolean, ProxyError> {
-    return this._handler.call(new GetApplyDefaultPermissionsOptionParams());
-  }
-  public setApplyDefaultPermissionsOption(
-    params: SetApplyDefaultPermissionsParams,
-  ): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
-  }
-  public getAccounts(): ResultAsync<LinkedAccount[], ProxyError> {
-    return this._handler.call(new GetAccountsParams());
-  }
   public getAccountBalances(): ResultAsync<TokenBalance[], ProxyError> {
     return this._handler.call(new GetAccountBalancesParams());
   }
@@ -376,8 +430,17 @@ export class ExternalCoreGateway {
   ): ResultAsync<TokenInfo | null, ProxyError> {
     return this._handler.call(params);
   }
-  public getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError> {
-    return this._handler.call(new GetAccountNFTsParams());
+
+  public getTransactionValueByChain(): ResultAsync<
+    TransactionFlowInsight[],
+    ProxyError
+  > {
+    return this._handler.call(new GetTransactionValueByChainParams());
+  }
+  public getTransactions(
+    params: GetTransactionsParams,
+  ): ResultAsync<ChainTransaction[], ProxyError> {
+    return this._handler.call(params);
   }
 
   public setFamilyName(
@@ -427,17 +490,11 @@ export class ExternalCoreGateway {
   public isDataWalletAddressInitialized(): ResultAsync<boolean, ProxyError> {
     return this._handler.call(new IsDataWalletAddressInitializedParams());
   }
-  public closeTab(): ResultAsync<void, ProxyError> {
-    return this._handler.call(new CloseTabParams());
-  }
   public getDataWalletAddress(): ResultAsync<
     DataWalletAddress | null,
     ProxyError
   > {
     return this._handler.call(new GetDataWalletAddressParams());
-  }
-  public checkURL(params: CheckURLParams): ResultAsync<string, ProxyError> {
-    return this._handler.call(params);
   }
 
   public checkInvitationStatus(
@@ -459,6 +516,12 @@ export class ExternalCoreGateway {
   public getQueryStatusByQueryCID(
     params: GetQueryStatusByCidParams,
   ): ResultAsync<QueryStatus | null, ProxyError> {
+    return this._handler.call(params);
+  }
+
+  public getQueryStatuses(
+    params: GetQueryStatusesParams,
+  ): ResultAsync<QueryStatus[], ProxyError> {
     return this._handler.call(params);
   }
 
@@ -510,18 +573,24 @@ export class ExternalCoreGateway {
     return this._handler.call(params);
   }
 
-  public getPossibleRewards(
+  public getConsentContractURLs(
+    contractAdress: EVMContractAddress,
+  ): ResultAsync<URLString[], ProxyError> {
+    return this._handler.call(new GetConsentContractURLsParams(contractAdress));
+  }
+
+  public getEarnedRewardsByContractAddress(
     params: GetPossibleRewardsParams,
-  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, ProxyError> {
+  ): ResultAsync<
+    Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
+    ProxyError
+  > {
     return this._handler.call(params).map((jsonString) => {
       return ObjectUtils.deserialize(jsonString);
     });
   }
   public getConfig(): ResultAsync<IExtensionConfig, ProxyError> {
     return this._handler.call(new GetConfigParams());
-  }
-  public switchToTab(params: SwitchToTabParams): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
   }
 
   public getDropboxAuth(): ResultAsync<URLString, ProxyError> {
@@ -530,7 +599,7 @@ export class ExternalCoreGateway {
 
   public authenticateDropbox(
     params: AuthenticateDropboxParams,
-  ): ResultAsync<AccessToken, ProxyError> {
+  ): ResultAsync<OAuth2Tokens, ProxyError> {
     return this._handler.call(params);
   }
 

@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
-  ICryptoUtils,
-  ICryptoUtilsType,
   ILogUtils,
   ILogUtilsType,
   ITimeUtils,
@@ -12,6 +10,7 @@ import {
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
 } from "@snickerdoodlelabs/insight-platform-api";
+import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   AjaxError,
   BlockNumber,
@@ -45,7 +44,12 @@ import {
   MissingASTError,
   BlockchainCommonErrors,
   JSONString,
-  EarnedReward,
+  EQueryEvents,
+  QueryPerformanceEvent,
+  EStatus,
+  AccountIndexingError,
+  InvalidParametersError,
+  MethodSupportError,
 } from "@snickerdoodlelabs/objects";
 import {
   SDQLQueryWrapper,
@@ -118,6 +122,15 @@ export class QueryService implements IQueryService {
           this.logUtils.error(e);
         });
       });
+
+      // If the query status is updated to AdsCompleted, we'll immediately returnQueries()
+      context.publicEvents.onQueryStatusUpdated.subscribe((queryStatus) => {
+        if (queryStatus.status == EQueryProcessingStatus.AdsCompleted) {
+          this.returnQueries().mapErr((e) => {
+            this.logUtils.error(e);
+          });
+        }
+      });
     });
   }
 
@@ -147,11 +160,14 @@ export class QueryService implements IQueryService {
     | EvalNotImplementedError
     | MissingASTError
     | BlockchainCommonErrors
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     /**
      * TODO
      * This method, for Ads Flow, will no longer process insights immediately. It will process the
-     * query to do Demographic Targetting for any included ads, and add those ads to the list
+     * query to do Demographic Targeting for any included ads, and add those ads to the list
      * of EligibleAds. It will create a QueryStatus object and persist that as well, to track the
      * progress of the query.
      *
@@ -180,48 +196,57 @@ export class QueryService implements IQueryService {
           queryWrapper,
         );
       }
-
-      // Now we will record the query as having been recieved; it is now at the start of the processing pipeline
-      // This is just a prototype, we probably need to do the parsing before this becuase QueryStatus
+      context.publicEvents.queryPerformance.next(
+        new QueryPerformanceEvent(
+          EQueryEvents.OnQueryPostedEvaluationProcesses,
+          EStatus.Start,
+          requestForData.requestedCID,
+        ),
+      );
+      // Now we will record the query as having been received; it is now at the start of the processing pipeline
+      // This is just a prototype, we probably need to do the parsing before this because QueryStatus
       // should grow significantly
-      return this.createQueryStatusWithConsent(
-        requestForData,
-        queryWrapper,
-      ).andThen(() => {
-        return this.dataWalletUtils
-          .deriveOptInPrivateKey(
-            requestForData.consentContractAddress,
-            context.dataWalletKey!,
-          )
-          .andThen((optInKey) => {
-            return this.constructAndPublishSDQLQueryRequest(
-              consentToken,
-              optInKey,
+      return this.createQueryStatusWithConsent(requestForData, queryWrapper)
+        .andThen(() => {
+          return this.dataWalletUtils
+            .deriveOptInPrivateKey(
               requestForData.consentContractAddress,
-              queryWrapper.sdqlQuery,
-              accounts,
-              context,
-              config,
-            );
-          });
-      });
+              context.dataWalletKey!,
+            )
+            .andThen((optInKey) => {
+              return this.constructAndPublishSDQLQueryRequest(
+                consentToken,
+                optInKey,
+                requestForData.consentContractAddress,
+                queryWrapper.sdqlQuery,
+                accounts,
+                context,
+                config,
+              );
+            })
+            .map(() => {
+              context.publicEvents.queryPerformance.next(
+                new QueryPerformanceEvent(
+                  EQueryEvents.OnQueryPostedEvaluationProcesses,
+                  EStatus.End,
+                  requestForData.requestedCID,
+                ),
+              );
+            });
+        })
+        .mapErr((err) => {
+          context.publicEvents.queryPerformance.next(
+            new QueryPerformanceEvent(
+              EQueryEvents.OnQueryPostedEvaluationProcesses,
+              EStatus.End,
+              requestForData.requestedCID,
+              undefined,
+              err,
+            ),
+          );
+          return err;
+        });
     });
-  }
-
-  public createQueryStatusWithConsent(
-    requestForData: RequestForData,
-    queryWrapper: SDQLQueryWrapper,
-  ): ResultAsync<void, PersistenceError> {
-    return this.sdqlQueryRepo.upsertQueryStatus([
-      new QueryStatus(
-        requestForData.consentContractAddress,
-        requestForData.requestedCID,
-        requestForData.blockNumber,
-        EQueryProcessingStatus.Received,
-        queryWrapper.expiry,
-        null,
-      ),
-    ]);
   }
 
   public getQueryStatusByQueryCID(
@@ -230,8 +255,35 @@ export class QueryService implements IQueryService {
     return this.sdqlQueryRepo.getQueryStatusByQueryCID(queryCID);
   }
 
+  public getQueryStatuses(
+    contractAddress: EVMContractAddress,
+    blockNumber?: BlockNumber,
+  ): ResultAsync<
+    QueryStatus[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | PersistenceError
+  > {
+    if (blockNumber) {
+      return this.sdqlQueryRepo.getQueryStatusByConsentContract(
+        contractAddress,
+        blockNumber,
+      );
+    }
+    return this.consentContractRepository
+      .getQueryHorizon(contractAddress)
+      .andThen((queryHorizon) => {
+        return this.sdqlQueryRepo.getQueryStatusByConsentContract(
+          contractAddress,
+          queryHorizon,
+        );
+      });
+  }
+
   /**
-   * This method assums that the ads are completed if there is any.
+   * This method assumes that the ads are completed if there is any.
    * @param consentContractAddress
    * @param query
    * @param rewardParameters
@@ -259,18 +311,21 @@ export class QueryService implements IQueryService {
         // Make sure the query is actually one we have a record of
         if (queryStatus == null) {
           this.logUtils.warning(
-            `No record of having recieved query ${query.cid}, but processing it anyway`,
+            `No record of having received query ${query.cid}, but processing it anyway`,
           );
-          return this.sdqlQueryRepo.upsertQueryStatus([
-            new QueryStatus(
-              consentContractAddress,
-              query.cid,
-              BlockNumber(1),
-              EQueryProcessingStatus.AdsCompleted,
-              this.timeUtils.getUnixNow(),
-              ObjectUtils.serialize(rewardParameters),
-            ),
-          ]);
+          const newQueryStatus = new QueryStatus(
+            consentContractAddress,
+            query.cid,
+            BlockNumber(1),
+            EQueryProcessingStatus.AdsCompleted,
+            this.timeUtils.getUnixNow(),
+            ObjectUtils.serialize(rewardParameters),
+          );
+          return this.sdqlQueryRepo
+            .upsertQueryStatus([newQueryStatus])
+            .map(() => {
+              return newQueryStatus;
+            });
         }
 
         // Update the query status and store the reward parameters
@@ -278,7 +333,14 @@ export class QueryService implements IQueryService {
         // the query for ads here.
         queryStatus.status = EQueryProcessingStatus.AdsCompleted;
         queryStatus.rewardsParameters = ObjectUtils.serialize(rewardParameters);
-        return this.sdqlQueryRepo.upsertQueryStatus([queryStatus]);
+        return this.sdqlQueryRepo.upsertQueryStatus([queryStatus]).map(() => {
+          return queryStatus;
+        });
+      })
+      .andThen((queryStatus) => {
+        return this.contextProvider.getContext().map((context) => {
+          context.publicEvents.onQueryStatusUpdated.next(queryStatus);
+        });
       });
   }
 
@@ -319,13 +381,19 @@ export class QueryService implements IQueryService {
           this.logUtils.debug("No queries to process and return");
           return okAsync(undefined);
         }
-
         // For each query, we'll do some basic checks- make sure consent is still
         // valid, that the context is sane, etc.
         return ResultUtils.combine(
           queryStatii.map((queryStatus) => {
             this.logUtils.debug(
               `Attempting to process and return query ${queryStatus.queryCID}`,
+            );
+            context.publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.ProcessesBeforeReturningQueryEvaluation,
+                EStatus.Start,
+                queryStatus.queryCID,
+              ),
             );
 
             // The rewards parameters need to be deserialized, or at least the basics provided.
@@ -339,6 +407,18 @@ export class QueryService implements IQueryService {
                   context.publicEvents.onQueryParametersRequired.next(
                     queryStatus.queryCID,
                   );
+                  context.publicEvents.queryPerformance.next(
+                    new QueryPerformanceEvent(
+                      EQueryEvents.ProcessesBeforeReturningQueryEvaluation,
+                      EStatus.End,
+                      queryStatus.queryCID,
+                      undefined,
+                      new Error(
+                        `Cannot return data for query ${queryStatus.queryCID} because it lacks defined rewards parameters.`,
+                      ),
+                    ),
+                  );
+                  context.publicEvents.onQueryStatusUpdated.next(queryStatus);
                   this.logUtils.warning(
                     `Cannot return data for query ${queryStatus.queryCID} because it lacks defined rewards parameters.`,
                   );
@@ -368,6 +448,13 @@ export class QueryService implements IQueryService {
                 .andThen(() => {
                   // After sanity checking, we process the query into insights for a
                   // (hopefully) final time, and get our opt-in key
+                  context.publicEvents.queryPerformance.next(
+                    new QueryPerformanceEvent(
+                      EQueryEvents.ProcessesBeforeReturningQueryEvaluation,
+                      EStatus.End,
+                      query.cid,
+                    ),
+                  );
                   this.logUtils.debug(
                     `Starting queryParsingEngine for query ${query.cid}`,
                   );
@@ -385,6 +472,17 @@ export class QueryService implements IQueryService {
                       context.dataWalletKey!,
                     ),
                   ]);
+                })
+                .mapErr((err) => {
+                  context.publicEvents.queryPerformance.next(
+                    new QueryPerformanceEvent(
+                      EQueryEvents.ProcessesBeforeReturningQueryEvaluation,
+                      EStatus.End,
+                      query.cid,
+                      undefined,
+                      err,
+                    ),
+                  );
                 })
                 .andThen(([insights, optInKey]) => {
                   // Deliver the insights to the backend
@@ -407,6 +505,9 @@ export class QueryService implements IQueryService {
                       return this.sdqlQueryRepo
                         .upsertQueryStatus([queryStatus])
                         .map(() => {
+                          context.publicEvents.onQueryStatusUpdated.next(
+                            queryStatus,
+                          );
                           return [];
                         });
                     }
@@ -429,11 +530,13 @@ export class QueryService implements IQueryService {
                     this.accountRepo.addEarnedRewards(earnedRewards),
                     this.sdqlQueryRepo.upsertQueryStatus([queryStatus]),
                   ]);
-                  /* TODO: Currenlty just adding direct rewards and will ignore the others for now */
+                  /* TODO: Currently just adding direct rewards and will ignore the others for now */
                   /* Show Lazy Rewards in rewards tab? */
                   /* Web2 rewards are also EarnedRewards, TBD */
                 })
-                .map(() => {})
+                .map(() => {
+                  context.publicEvents.onQueryStatusUpdated.next(queryStatus);
+                })
                 .orElse((err) => {
                   // We are going to consume errors from adding earned rewards or updating the
                   // query status, or a continuing error from posting, and just say it's successful
@@ -463,9 +566,9 @@ export class QueryService implements IQueryService {
     | QueryFormatError
     | QueryExpiredError
     | ParserError
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
     | MissingTokenConstructorError
     | DuplicateIdInSchema
     | PersistenceError
@@ -486,22 +589,47 @@ export class QueryService implements IQueryService {
       });
   }
 
-  public createQueryStatusWithNoConsent(
+  protected createQueryStatusWithConsent(
+    requestForData: RequestForData,
+    queryWrapper: SDQLQueryWrapper,
+  ): ResultAsync<void, PersistenceError> {
+    const queryStatus = new QueryStatus(
+      requestForData.consentContractAddress,
+      requestForData.requestedCID,
+      requestForData.blockNumber,
+      EQueryProcessingStatus.Received,
+      queryWrapper.expiry,
+      null,
+    );
+    return this.sdqlQueryRepo
+      .upsertQueryStatus([queryStatus])
+      .andThen(() => {
+        return this.contextProvider.getContext();
+      })
+      .map((context) => {
+        context.publicEvents.onQueryStatusUpdated.next(queryStatus);
+      });
+  }
+
+  protected createQueryStatusWithNoConsent(
     requestForData: RequestForData,
     queryWrapper: SDQLQueryWrapper,
   ): ResultAsync<void, EvaluationError | PersistenceError> {
+    const queryStatus = new QueryStatus(
+      requestForData.consentContractAddress,
+      requestForData.requestedCID,
+      requestForData.blockNumber,
+      EQueryProcessingStatus.NoConsentToken,
+      queryWrapper.expiry,
+      null,
+    );
     return this.sdqlQueryRepo
-      .upsertQueryStatus([
-        new QueryStatus(
-          requestForData.consentContractAddress,
-          requestForData.requestedCID,
-          requestForData.blockNumber,
-          EQueryProcessingStatus.NoConsentToken,
-          queryWrapper.expiry,
-          null,
-        ),
-      ])
+      .upsertQueryStatus([queryStatus])
       .andThen(() => {
+        return this.contextProvider.getContext();
+      })
+      .andThen((context) => {
+        context.publicEvents.onQueryStatusUpdated.next(queryStatus);
         return errAsync(new EvaluationError(`Consent token not found!`));
       });
   }
@@ -530,6 +658,9 @@ export class QueryService implements IQueryService {
     | PersistenceError
     | EvalNotImplementedError
     | MissingASTError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return this.getPossibleRewards(
       consentToken,

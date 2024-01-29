@@ -48,12 +48,13 @@ class IFrameCall<CallDataType, ResultType, ErrorType> {
 
 @injectable()
 export abstract class ParentProxy {
-  protected handshake: Postmate;
+  protected handshake: Postmate | undefined;
   protected child: Postmate.ParentAPI | null;
   protected callId = 0;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected calls: IFrameCall<any, any, any>[] = [];
   protected active: boolean;
+  protected activationTimeoutMS = 5000;
 
   constructor(
     @unmanaged() protected element: HTMLElement | null,
@@ -65,16 +66,10 @@ export abstract class ParentProxy {
     this.active = false;
 
     if (element == null) {
-      element = document.body;
+      this.element = document.body;
     }
 
     Postmate.debug = debug;
-    this.handshake = new Postmate({
-      container: element,
-      url: iframeUrl,
-      name: iframeName,
-      classListArray: ["snickerdoodle-core-iframe-style"], // Classes to add to the iframe
-    });
   }
 
   protected activateResult: ResultAsync<void, ProxyError> | undefined;
@@ -86,64 +81,118 @@ export abstract class ParentProxy {
     this.activateResult = ResultAsync.fromPromise(
       new Promise<Postmate.ParentAPI>((resolve, reject) => {
         const timeoutId = setTimeout(() => {
-          reject(new Error("Handshake timed out"));
-        }, 5000);
+          reject(
+            new ProxyError(
+              `Performing a handshake with the child iframe ${this.iframeUrl} timed out, took longer than ${this.activationTimeoutMS}ms`,
+            ),
+          );
+        }, this.activationTimeoutMS);
 
-        this.handshake
-          .then((result) => {
-            clearTimeout(timeoutId);
-            resolve(result);
-          })
-          .catch((error) => {
-            clearTimeout(timeoutId);
-            reject(error);
+        // Create the iframe proxy
+        try {
+          this.handshake = new Postmate({
+            container: this.element,
+            url: this.iframeUrl,
+            name: this.iframeName,
+            classListArray: ["snickerdoodle-core-iframe-style"], // Classes to add to the iframe
           });
+
+          // handshake is a promise, but we've wrapped all this in a second
+          // promise. This pattern where a Postmate object is a promise
+          // is very strange, and requires us to use the manual .then()/.catch()
+          // syntax instead of async/await
+          this.handshake
+            .then((child) => {
+              // Stash the child here; we need it for the
+              this.child = child;
+
+              // Do the rest of the processing inside normal neverthrow land
+              clearTimeout(timeoutId);
+              resolve(child);
+            })
+            .catch((error) => {
+              clearTimeout(timeoutId);
+              reject(
+                new ProxyError(
+                  `An error occurred while performing a handshake with a child iframe ${this.iframeUrl}`,
+                  error,
+                ),
+              );
+            });
+        } catch (err) {
+          clearTimeout(timeoutId);
+          reject(
+            new ProxyError(
+              `An error occurred while creating the child iframe proxy ${this.iframeUrl}`,
+              err,
+            ),
+          );
+        }
       }),
-      (e) => new ProxyError("Proxy handshake failed in parent", e),
-    ).map((child) => {
-      // Stash the API for future calls
-      this.child = child;
+      (e) => {
+        return e as ProxyError;
+      },
+    )
+      .map((child) => {
+        child.on("callSuccess", (data: IIFrameCallData<unknown>) => {
+          // Get the matching calls
+          const matchingCalls = this.calls.filter((val) => {
+            return val.callData.callId == data.callId;
+          });
 
-      child.on("callSuccess", (data: IIFrameCallData<unknown>) => {
-        // Get the matching calls
-        const matchingCalls = this.calls.filter((val) => {
-          return val.callData.callId == data.callId;
+          // Remove the matching calls from the source array
+          this.calls = this.calls.filter((val) => {
+            return val.callData.callId != data.callId;
+          });
+
+          // Resolve the calls - should only ever be 1
+          for (const call of matchingCalls) {
+            call.resolve(data.data);
+          }
         });
 
-        // Remove the matching calls from the source array
-        this.calls = this.calls.filter((val) => {
-          return val.callData.callId != data.callId;
+        child.on("callError", (data: IIFrameCallData<unknown>) => {
+          // Get the matching calls
+          const matchingCalls = this.calls.filter((val) => {
+            return val.callData.callId == data.callId;
+          });
+
+          // Remove the matching calls from the source array
+          this.calls = this.calls.filter((val) => {
+            return val.callData.callId != data.callId;
+          });
+
+          // Reject the calls - should only ever be 1
+          for (const call of matchingCalls) {
+            call.reject(data.data);
+          }
         });
 
-        // Resolve the calls - should only ever be 1
-        for (const call of matchingCalls) {
-          call.resolve(data.data);
-        }
+        this.active = true;
+
+        console.log("Handshake with iframe complete");
+      })
+      .mapErr((e) => {
+        // If we failed to activate, we need to reset the activateResult
+        this.activateResult = undefined;
+
+        // Let the world know
+        console.error(
+          `Unable to create iframe proxy with ${this.iframeUrl}`,
+          e,
+        );
+
+        // And enable debugging for the next attempt
+        Postmate.debug = true;
+
+        return e;
       });
 
-      child.on("callError", (data: IIFrameCallData<unknown>) => {
-        // Get the matching calls
-        const matchingCalls = this.calls.filter((val) => {
-          return val.callData.callId == data.callId;
-        });
-
-        // Remove the matching calls from the source array
-        this.calls = this.calls.filter((val) => {
-          return val.callData.callId != data.callId;
-        });
-
-        // Reject the calls - should only ever be 1
-        for (const call of matchingCalls) {
-          call.reject(data.data);
-        }
-      });
-
-      this.active = true;
-
-      console.log("Handshake with iframe complete");
-    });
-
-    return this.activateResult;
+    // We just assigned this.activateResult above, this is not
+    // null now. activateResult can be cleared, but that is after
+    // we return it here.
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return this.activateResult!;
   }
 
   public destroy(): void {

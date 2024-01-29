@@ -31,6 +31,12 @@ async function start() {
               primaryInfuraKey: "a8ae124ed6aa44bb97a7166cda30f1bc",
               iframeURL: URLString("http://localhost:9010"),
               debug: true,
+              palette: { background: "red" },
+              discordOverrides: {
+                oauthRedirectUrl: URLString(
+                  `${window.location.origin}/settings`,
+                ),
+              },
             },
             provider.signer,
           );

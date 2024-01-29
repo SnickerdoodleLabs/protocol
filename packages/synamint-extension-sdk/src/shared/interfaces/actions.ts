@@ -1,4 +1,8 @@
 import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
+import {
   BigNumberString,
   ChainId,
   CountryCode,
@@ -18,7 +22,7 @@ import {
   EWalletDataType,
   AccountAddress,
   TokenAddress,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   LinkedAccount,
   TokenBalance,
   TokenMarketData,
@@ -38,7 +42,6 @@ import {
   DiscordGuildProfile,
   PagedResponse,
   IConsentCapacity,
-  PossibleReward,
   OAuth1RequstToken,
   OAuthVerifier,
   TwitterID,
@@ -50,8 +53,18 @@ import {
   JsonWebToken,
   JSONString,
   QueryStatus,
-  AccessToken,
   ECloudStorageType,
+  BlockNumber,
+  RefreshToken,
+  OAuth2Tokens,
+  TransactionFlowInsight,
+  ChainTransaction,
+  TransactionFilter,
+  IUserAgreement,
+  WalletNFTHistory,
+  WalletNftWithHistory,
+  NftRepositoryCache,
+  WalletNFTData,
 } from "@snickerdoodlelabs/objects";
 
 import { IExtensionConfig } from "./IExtensionConfig";
@@ -60,8 +73,6 @@ import {
   ECoreActions,
   IExternalState,
   IInternalState,
-  IInvitationDomainWithUUID,
-  IScamFilterPreferences,
 } from "@synamint-extension-sdk/shared";
 
 export abstract class CoreActionParams<TReturn> {
@@ -100,12 +111,40 @@ export class AddAccountParams extends CoreActionParams<void> {
   }
 }
 
+export class AddAccountWithExternalSignatureParams extends CoreActionParams<void> {
+  public constructor(
+    public accountAddress: AccountAddress,
+    public message: string,
+    public signature: Signature,
+    public chain: EChain,
+  ) {
+    super(AddAccountWithExternalSignatureParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.ADD_ACCOUNT_WITH_EXTERNAL_SIGNATURE;
+  }
+}
+
+export class AddAccountWithExternalTypedDataSignatureParams extends CoreActionParams<void> {
+  public constructor(
+    public accountAddress: AccountAddress,
+    public domain: TypedDataDomain,
+    public types: Record<string, Array<TypedDataField>>,
+    public value: Record<string, unknown>,
+    public signature: Signature,
+    public chain: EChain,
+  ) {
+    super(AddAccountWithExternalTypedDataSignatureParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.ADD_ACCOUNT_WITH_EXTERNAL_TYPED_DATA_SIGNATURE;
+  }
+}
+
 export class UnlinkAccountParams extends CoreActionParams<void> {
   public constructor(
     public accountAddress: AccountAddress,
-    public signature: Signature,
     public chain: EChain,
-    public languageCode: LanguageCode,
   ) {
     super(UnlinkAccountParams.getCoreAction());
   }
@@ -177,16 +216,7 @@ export class SetLocationParams extends CoreActionParams<void> {
   }
 }
 
-export class SetApplyDefaultPermissionsParams extends CoreActionParams<void> {
-  public constructor(public option: boolean) {
-    super(SetApplyDefaultPermissionsParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.SET_APPLY_DEFAULT_PERMISSIONS_OPTION;
-  }
-}
-
-export class GetInvitationWithDomainParams extends CoreActionParams<IInvitationDomainWithUUID | null> {
+export class GetInvitationWithDomainParams extends CoreActionParams<JSONString | null> {
   public constructor(public domain: DomainName, public path: string) {
     super(GetInvitationWithDomainParams.getCoreAction());
   }
@@ -195,21 +225,22 @@ export class GetInvitationWithDomainParams extends CoreActionParams<IInvitationD
   }
 }
 
-export class AcceptInvitationByUUIDParams extends CoreActionParams<void> {
-  public constructor(public dataTypes: EWalletDataType[], public id: UUID) {
-    super(AcceptInvitationByUUIDParams.getCoreAction());
+export class UpdateAgreementPermissionsParams extends CoreActionParams<void> {
+  public constructor(
+    public consentContractAddress: EVMContractAddress,
+    public dataTypes: EWalletDataType[],
+  ) {
+    super(UpdateAgreementPermissionsParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
-    return ECoreActions.ACCEPT_INVITATION_BY_UUID;
+    return ECoreActions.UPDATE_AGREEMENT_PERMISSIONS;
   }
 }
 
 export class AcceptInvitationParams extends CoreActionParams<void> {
   public constructor(
-    public dataTypes: EWalletDataType[],
-    public consentContractAddress: EVMContractAddress,
-    public tokenId?: BigNumberString,
-    public businessSignature?: Signature,
+    public invitation: JSONString,
+    public dataTypes: EWalletDataType[] | null,
   ) {
     super(AcceptInvitationParams.getCoreAction());
   }
@@ -220,9 +251,7 @@ export class AcceptInvitationParams extends CoreActionParams<void> {
 
 export class RejectInvitationParams extends CoreActionParams<void> {
   public constructor(
-    public consentContractAddress: EVMContractAddress,
-    public tokenId?: BigNumberString,
-    public businessSignature?: Signature,
+    public invitation: JSONString,
     public rejectUntil?: UnixTimestamp,
   ) {
     super(RejectInvitationParams.getCoreAction());
@@ -243,24 +272,6 @@ export class GetAgreementPermissionsParams extends CoreActionParams<
   }
 }
 
-export class SetDefaultPermissionsWithDataTypesParams extends CoreActionParams<void> {
-  public constructor(public dataTypes: EWalletDataType[]) {
-    super(SetDefaultPermissionsWithDataTypesParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.SET_DEFAULT_PERMISSIONS;
-  }
-}
-
-export class RejectInvitationByUUIDParams extends CoreActionParams<void> {
-  public constructor(public id: UUID) {
-    super(RejectInvitationByUUIDParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.REJECT_INVITATION_BY_UUID;
-  }
-}
-
 export class LeaveCohortParams extends CoreActionParams<void> {
   public constructor(public consentContractAddress: EVMContractAddress) {
     super(LeaveCohortParams.getCoreAction());
@@ -270,21 +281,14 @@ export class LeaveCohortParams extends CoreActionParams<void> {
   }
 }
 
-export class GetInvitationMetadataByCIDParams extends CoreActionParams<IOpenSeaMetadata> {
+export class GetInvitationMetadataByCIDParams extends CoreActionParams<
+  IOldUserAgreement | IUserAgreement
+> {
   public constructor(public ipfsCID: IpfsCID) {
     super(GetInvitationMetadataByCIDParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_INVITATION_METADATA_BY_CID;
-  }
-}
-
-export class CheckURLParams extends CoreActionParams<string> {
-  public constructor(public domain: DomainName) {
-    super(CheckURLParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.CHECK_URL;
   }
 }
 
@@ -310,18 +314,6 @@ export class GetListingsTotalByTagParams extends CoreActionParams<number> {
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_LISTING_TOTAL_BY_TAG;
-  }
-}
-
-export class ScamFilterSettingsParams extends CoreActionParams<void> {
-  public constructor(
-    public isScamFilterActive: boolean,
-    public showMessageEveryTime: boolean,
-  ) {
-    super(ScamFilterSettingsParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.SET_SCAM_FILTER_SETTINGS;
   }
 }
 
@@ -360,6 +352,27 @@ export class GetTokenPriceParams extends CoreActionParams<number> {
   }
 }
 
+export class GetTransactionsParams extends CoreActionParams<
+  ChainTransaction[]
+> {
+  public constructor(public filter?: TransactionFilter) {
+    super(GetTransactionsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_TRANSACTIONS;
+  }
+}
+
+export class GetTransactionValueByChainParams extends CoreActionParams<
+  TransactionFlowInsight[]
+> {
+  public constructor() {
+    super(GetTransactionValueByChainParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_TRANSACTION_VALUE_BY_CHAIN;
+  }
+}
 export class GetConsentCapacityParams extends CoreActionParams<IConsentCapacity> {
   public constructor(public contractAddress: EVMContractAddress) {
     super(GetConsentCapacityParams.getCoreAction());
@@ -371,15 +384,12 @@ export class GetConsentCapacityParams extends CoreActionParams<IConsentCapacity>
 }
 
 export class GetPossibleRewardsParams extends CoreActionParams<JSONString> {
-  public constructor(
-    public contractAddresses: EVMContractAddress[],
-    public timeoutMs?: number,
-  ) {
+  public constructor(public contractAddresses: EVMContractAddress[]) {
     super(GetPossibleRewardsParams.getCoreAction());
   }
 
   static getCoreAction(): ECoreActions {
-    return ECoreActions.GET_POSSIBLE_REWARDS;
+    return ECoreActions.GET_EARNED_REWARDS_BY_CONTRACT_ADDRESS;
   }
 }
 
@@ -439,15 +449,6 @@ export class GetDataWalletAddressParams extends CoreActionParams<DataWalletAddre
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_DATA_WALLET_ADDRESS;
-  }
-}
-
-export class CloseTabParams extends CoreActionParams<void> {
-  public constructor() {
-    super(CloseTabParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.CLOSE_TAB;
   }
 }
 
@@ -524,11 +525,45 @@ export class GetAgeParams extends CoreActionParams<Age | null> {
 }
 
 export class GetAccountNFTsParams extends CoreActionParams<WalletNFT[]> {
-  public constructor() {
+  public constructor(
+    public benchmark?: UnixTimestamp,
+    public chains?: EChain[],
+    public accounts?: LinkedAccount[],
+  ) {
     super(GetAccountNFTsParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_ACCOUNT_NFTS;
+  }
+}
+
+export class GetPersistenceNFTsParams extends CoreActionParams<
+  WalletNFTData[]
+> {
+  public constructor() {
+    super(GetPersistenceNFTsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_ACCOUNT_PERSISTENCE_NFTS;
+  }
+}
+export class GetAccountNFTHistoryParams extends CoreActionParams<
+  WalletNFTHistory[]
+> {
+  public constructor() {
+    super(GetAccountNFTHistoryParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_ACCOUNT_NFT_HISTORY;
+  }
+}
+
+export class GetAccountNftCacheParams extends CoreActionParams<JSONString> {
+  public constructor() {
+    super(GetAccountNftCacheParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_ACCOUNT_NFT_CACHE;
   }
 }
 
@@ -550,50 +585,12 @@ export class GetAccountsParams extends CoreActionParams<LinkedAccount[]> {
   }
 }
 
-export class GetApplyDefaultPermissionsOptionParams extends CoreActionParams<boolean> {
-  public constructor() {
-    super(GetApplyDefaultPermissionsOptionParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.GET_APPLY_DEFAULT_PERMISSIONS_OPTION;
-  }
-}
-
 export class GetAcceptedInvitationsCIDParams extends CoreActionParams<JSONString> {
   public constructor() {
     super(GetAcceptedInvitationsCIDParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_ACCEPTED_INVITATIONS_CID;
-  }
-}
-
-export class GetScamFilterSettingsParams extends CoreActionParams<IScamFilterPreferences> {
-  public constructor() {
-    super(GetScamFilterSettingsParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.GET_SCAM_FILTER_SETTINGS;
-  }
-}
-
-export class SetDefaultPermissionsToAllParams extends CoreActionParams<void> {
-  public constructor() {
-    super(SetDefaultPermissionsToAllParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.SET_DEFAULT_PERMISSIONS_TO_ALL;
-  }
-}
-
-export class GetDefaultPermissionsParams extends CoreActionParams<
-  EWalletDataType[]
-> {
-  public constructor() {
-    super(GetDefaultPermissionsParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.GET_DEFAULT_PERMISSIONS;
   }
 }
 
@@ -672,8 +669,20 @@ export class GetQueryStatusByCidParams extends CoreActionParams<QueryStatus | nu
   }
 }
 
+export class GetQueryStatusesParams extends CoreActionParams<QueryStatus[]> {
+  public constructor(
+    public contractAddress: EVMContractAddress,
+    public blockNumber?: BlockNumber,
+  ) {
+    super(GetQueryStatusesParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_QUERY_STATUSES;
+  }
+}
+
 export class GetDiscordInstallationUrlParams extends CoreActionParams<URLString> {
-  public constructor(public redirectTabId?: number) {
+  public constructor() {
     super(GetDiscordInstallationUrlParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
@@ -777,13 +786,15 @@ export class GetConfigParams extends CoreActionParams<IExtensionConfig> {
   }
 }
 
-export class SwitchToTabParams extends CoreActionParams<void> {
-  public constructor(public tabId: number) {
-    super(SwitchToTabParams.getCoreAction());
+export class GetConsentContractURLsParams extends CoreActionParams<
+  URLString[]
+> {
+  public constructor(public contractAddress: EVMContractAddress) {
+    super(GetConsentContractURLsParams.getCoreAction());
   }
 
   static getCoreAction(): ECoreActions {
-    return ECoreActions.SWITCH_TO_TAB;
+    return ECoreActions.GET_CONSENT_CONTRACT_URLS;
   }
 }
 
@@ -844,7 +855,7 @@ export class SetAuthenticatedStorageParams extends CoreActionParams<void> {
   public constructor(
     public storageType: ECloudStorageType,
     public path: string,
-    public accessToken: AccessToken,
+    public refreshToken: RefreshToken,
   ) {
     super(SetAuthenticatedStorageParams.getCoreAction());
   }
@@ -853,7 +864,7 @@ export class SetAuthenticatedStorageParams extends CoreActionParams<void> {
   }
 }
 
-export class AuthenticateDropboxParams extends CoreActionParams<AccessToken> {
+export class AuthenticateDropboxParams extends CoreActionParams<OAuth2Tokens> {
   public constructor(public code: string) {
     super(AuthenticateDropboxParams.getCoreAction());
   }
