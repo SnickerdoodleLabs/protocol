@@ -286,7 +286,9 @@ export class CryptoUtils implements ICryptoUtils {
     message: string | Uint8Array,
     signature: Signature,
   ): ResultAsync<EVMAccountAddress, never> {
-    const address = EVMAccountAddress(ethers.verifyMessage(message, signature));
+    const address = EVMAccountAddress(
+      ethers.verifyMessage(message, signature).toLowerCase(),
+    );
     return okAsync(address);
   }
 
@@ -350,7 +352,7 @@ export class CryptoUtils implements ICryptoUtils {
 
     return okAsync(
       EVMAccountAddress(
-        ethers.verifyTypedData(domain, types, value, signature),
+        ethers.verifyTypedData(domain, types, value, signature).toLowerCase(),
       ),
     );
   }

@@ -5,7 +5,6 @@ import {
   JSONString,
   InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
-import { ethers } from "ethers";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
@@ -56,19 +55,6 @@ export class ObjectUtils {
             dataType: "bigint",
             value: BigInt(value).toString(),
           };
-        } else if (
-          typeof value == "object" &&
-          value != null &&
-          value.hasOwnProperty != null &&
-          value.hasOwnProperty("type") &&
-          value.hasOwnProperty("hex") &&
-          value.type == "BigNumber" &&
-          value.hex != null
-        ) {
-          return {
-            dataType: "BigNumber",
-            value: value.hex,
-          };
         } else {
           return value;
         }
@@ -86,8 +72,6 @@ export class ObjectUtils {
         } else if (value.dataType === "BigInt") {
           return BigInt(value.value);
         } else if (value.dataType === "bigint") {
-          return BigInt(value.value);
-        } else if (value.dataType === "BigNumber") {
           return BigInt(value.value);
         }
       }

@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import { IBigNumberUtils } from "@snickerdoodlelabs/common-utils";
+import { BigNumberUtils } from "@snickerdoodlelabs/common-utils";
 import {
   TokenBalance,
   ChainId,
@@ -57,7 +57,7 @@ class BalanceQueryEvaluatorMocks {
   public demoRepo = td.object<IDemographicDataRepository>();
   public browsingRepo = td.object<IBrowsingDataRepository>();
   public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
-  public bigNumberUtils = td.object<IBigNumberUtils>();
+  public bigNumberUtils = new BigNumberUtils();
   public contextProvider: ContextProviderMock;
 
   public URLmap: SiteVisitsMap = new Map<URLString, SiteVisitsData>([

@@ -59,7 +59,7 @@ describe("ObjectUtils tests", () => {
     expect(batch3).toBeTruthy();
   });
 
-  test("serialize supports BigNumber, BigInt, Map and Set", () => {
+  test("serialize supports BigInt, Map and Set", () => {
     // Arrange
     const serializeData = {
       foo: "1",
@@ -69,7 +69,6 @@ describe("ObjectUtils tests", () => {
         ["foo1", "bar1"],
       ]),
       set: new Set([1, 2, 3, 3]),
-      bigNumber: BigInt(69),
       bigInt: BigInt(13),
     };
 
@@ -78,7 +77,7 @@ describe("ObjectUtils tests", () => {
 
     // Assert
     expect(result).toBe(
-      '{"foo":"1","bar":1,"map":{"dataType":"Map","value":[["foo","bar"],["foo1","bar1"]]},"set":{"dataType":"Set","value":[1,2,3]},"bigNumber":{"dataType":"BigNumber","value":"0x45"},"bigInt":{"dataType":"bigint","value":"13"}}',
+      '{"foo":"1","bar":1,"map":{"dataType":"Map","value":[["foo","bar"],["foo1","bar1"]]},"set":{"dataType":"Set","value":[1,2,3]},"bigInt":{"dataType":"bigint","value":"13"}}',
     );
   });
 

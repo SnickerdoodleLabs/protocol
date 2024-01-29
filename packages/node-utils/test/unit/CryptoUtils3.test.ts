@@ -26,7 +26,9 @@ describe("CryptoUtils Tests 3", () => {
       utils.getEthereumAccountAddressFromPrivateKey(privateKey);
     const result = await utils.getSignature(wallet, types, values);
     const signature = result._unsafeUnwrap();
-    const address = ethers.verifyMessage(ethers.getBytes(msgHash), signature);
+    const address = ethers
+      .verifyMessage(ethers.getBytes(msgHash), signature)
+      .toLowerCase();
     const result2 = await utils.getSignature(wallet, [], values);
 
     // Assert
