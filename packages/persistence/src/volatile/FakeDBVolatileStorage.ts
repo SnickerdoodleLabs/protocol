@@ -1,5 +1,11 @@
-import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
+  ILogUtils,
+  ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+import {
+  DatabaseVersion,
   PersistenceError,
   VersionedObject,
   VolatileStorageKey,
@@ -19,12 +25,14 @@ import {
 
 @injectable()
 export class FakeDBVolatileStorage implements IVolatileStorage {
+  //@TODO update here
   protected indexedDB: ResultAsync<IndexedDB, never> | null = null;
 
   public constructor(
     @inject(IVolatileStorageSchemaProviderType)
     protected schemaProvider: IVolatileStorageSchemaProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   private _getIDB(): ResultAsync<IndexedDB, never> {
@@ -41,6 +49,8 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
             Array.from(schema.values()),
             fakeIndexedDB,
             this.logUtils,
+            this.timeUtils,
+            DatabaseVersion,
           ),
       );
     return this.indexedDB;
@@ -49,7 +59,7 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
   public getKey(
     tableName: string,
     obj: VersionedObject,
-  ): ResultAsync<VolatileStorageKey, PersistenceError> {
+  ): ResultAsync<VolatileStorageKey | null, PersistenceError> {
     return this._getIDB().andThen((db) => db.getKey(tableName, obj));
   }
 
