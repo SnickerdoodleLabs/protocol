@@ -112,11 +112,19 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
   }
 
   public getPersistenceNFTs(): ResultAsync<WalletNFTData[], PersistenceError> {
-    return this.persistence.getAll<WalletNFTData>(ERecordKey.NFTS);
+    return this.persistence
+      .getAll<WalletNFTData>(ERecordKey.NFTS)
+      .orElse((_e) => {
+        return okAsync([]);
+      });
   }
 
   public getNFTsHistory(): ResultAsync<WalletNFTHistory[], PersistenceError> {
-    return this.persistence.getAll<WalletNFTHistory>(ERecordKey.NFTS_HISTORY);
+    return this.persistence
+      .getAll<WalletNFTHistory>(ERecordKey.NFTS_HISTORY)
+      .orElse((_e) => {
+        return okAsync([]);
+      });
   }
 
   public getNFTCache(): ResultAsync<NftRepositoryCache, PersistenceError> {
@@ -413,8 +421,10 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
           nftCache,
           benchmark,
         );
-
-        if (chainsThatNeedsUpdating.length > 0 && benchmark != null) {
+        if (
+          (chainsThatNeedsUpdating.length > 0 && benchmark != null) ||
+          nftCache.size === 0
+        ) {
           return this.getIndexerNftsAndUpdateIndexedDb(
             undefined,
             chainsThatNeedsUpdating,
@@ -429,7 +439,7 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
               this.updateCacheTimes(
                 chainsThatNeedsUpdating,
                 updatedCache,
-                benchmark,
+                benchmark ?? this.timeUtils.getUnixNow(),
               );
               return cachedNfts;
             });
@@ -445,9 +455,9 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
         }
       })
       .map((cachedNfts) => {
-        if (benchmark != null) {
-          return this.filterNftHistoriesByTimestamp(benchmark, cachedNfts);
-        }
+        // if (benchmark != null) {
+        //   return this.filterNftHistoriesByTimestamp(benchmark, cachedNfts);
+        // }
 
         return cachedNfts;
       });
@@ -459,12 +469,15 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
     benchmark: UnixTimestamp | undefined,
   ): EChain[] {
     const chainsThatNeedsUpdating: EChain[] = [];
-    if (benchmark != null) {
+    if (benchmark != null || nftCache.size === 0) {
       for (const selectedChain of chains) {
         const selectedChainNftCache = nftCache.get(selectedChain);
-
         if (selectedChainNftCache != null) {
-          if (selectedChainNftCache.lastUpdateTime < benchmark) {
+          if (
+            (benchmark != null &&
+              selectedChainNftCache.lastUpdateTime < benchmark) ||
+            nftCache.size === 0
+          ) {
             chainsThatNeedsUpdating.push(selectedChain);
           }
         } else {
@@ -547,10 +560,12 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
           return filteredNftHistory;
         }
 
-        walletNftWithHistory.history = validHistory.data;
-        walletNftWithHistory.totalAmount = validHistory.totalAmount;
-
-        filteredNftHistory.push(walletNftWithHistory);
+        const filteredWalletNft = {
+          ...walletNftWithHistory,
+          history: validHistory.data,
+          totalAmount: validHistory.totalAmount,
+        };
+        filteredNftHistory.push(filteredWalletNft);
 
         return filteredNftHistory;
       },
@@ -609,7 +624,6 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
       [WalletNFTHistory[], WalletNFTData[], EChain, AccountAddress],
       never
     >[] = [];
-
     for (const selectedChain of chains) {
       for (const selectedAccount of accounts) {
         if (isAccountValidForChain(selectedChain, selectedAccount)) {
@@ -652,13 +666,19 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
     accountAddress: AccountAddress,
     cache: NftRepositoryCache,
   ): void {
+    const currentChain = cache.get(chain);
     if (newlyAddedNftHistories.length < 1 && newlyAddedNftDatas.length < 1) {
+      if (currentChain == null) {
+        cache.set(chain, {
+          data: new Map(),
+          lastUpdateTime: this.timeUtils.getUnixNow(),
+        });
+      }
       return;
     }
     const nftHistoriesMap = this.getNftIdToWalletHistoryMap(
       newlyAddedNftHistories,
     );
-    const currentChain = cache.get(chain);
 
     if (currentChain == null) {
       this.addNewChainToCache(
@@ -1196,10 +1216,11 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
   ): ResultAsync<void[], PersistenceError> {
     return ResultUtils.combine(
       nftHistories.map((nftHistory) => {
-        return this.persistence.updateRecord(
-          ERecordKey.NFTS_HISTORY,
-          nftHistory,
-        );
+        return this.persistence
+          .updateRecord(ERecordKey.NFTS_HISTORY, nftHistory)
+          .orElse((_e) => {
+            return okAsync(undefined);
+          });
       }),
     );
   }
@@ -1209,7 +1230,11 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
   ): ResultAsync<void[], PersistenceError> {
     return ResultUtils.combine(
       nftDatas.map((nftData) => {
-        return this.persistence.updateRecord(ERecordKey.NFTS, nftData);
+        return this.persistence
+          .updateRecord(ERecordKey.NFTS, nftData)
+          .orElse((_e) => {
+            return okAsync(undefined);
+          });
       }),
     );
   }

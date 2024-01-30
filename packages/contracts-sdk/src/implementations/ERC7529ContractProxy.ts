@@ -1,5 +1,7 @@
 import { ERC7529ContractError } from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
 
+import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
 import { ERC7529Contract } from "@contracts-sdk/implementations/ERC7529Contract.js";
 import { IERC7529Contract } from "@contracts-sdk/interfaces/index.js";
 
@@ -9,9 +11,9 @@ export class ERC7529ContractProxy
 {
   protected generateContractSpecificError(
     msg: string,
-    reason: string | undefined,
-    err: unknown,
+    e: IEthersContractError,
+    transaction: ethers.Transaction | null,
   ): ERC7529ContractError {
-    return new ERC7529ContractError(msg, reason, err);
+    return new ERC7529ContractError(msg, e, transaction);
   }
 }

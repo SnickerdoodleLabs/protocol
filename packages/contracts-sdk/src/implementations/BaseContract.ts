@@ -1,14 +1,17 @@
 import {
   EVMContractAddress,
   EVMAccountAddress,
-  BlockchainErrorMapper,
-  BlockchainCommonErrors,
   SignerUnavailableError,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { errAsync, ResultAsync } from "neverthrow";
 
+import {
+  BlockchainErrorMapper,
+  IEthersContractError,
+} from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
 import {
   IBaseContract,
   WrappedTransactionResponse,
@@ -42,20 +45,20 @@ export abstract class BaseContract<TContractSpecificError>
   }
 
   protected generateError(
-    error,
+    error: unknown,
     errorMessage: string,
   ): TContractSpecificError | BlockchainCommonErrors {
     return BlockchainErrorMapper.buildBlockchainError(
-      error,
-      (msg, reason, err) =>
-        this.generateContractSpecificError(errorMessage || msg, reason, err),
+      error as IEthersContractError,
+      (msg, err, transaction) =>
+        this.generateContractSpecificError(msg, err, transaction || null),
     );
   }
 
   protected abstract generateContractSpecificError(
     msg: string,
-    reason: string | undefined,
-    e: unknown,
+    e: IEthersContractError,
+    transaction: ethers.Transaction | null,
   ): TContractSpecificError;
 
   // Takes the contract's function name and params, submits the transaction and returns a WrappedTransactionResponse
@@ -80,7 +83,7 @@ export abstract class BaseContract<TContractSpecificError>
         ...overrides,
       }) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
-        return e;
+        return e as IEthersContractError;
       },
     )
       .map((transactionResponse) => {
@@ -95,7 +98,7 @@ export abstract class BaseContract<TContractSpecificError>
       })
       .mapErr((e) => {
         return BlockchainErrorMapper.buildBlockchainError(e, (msg, reason, e) =>
-          this.generateContractSpecificError(msg, reason, e),
+          this.generateContractSpecificError(msg, reason, e || null),
         );
       });
   }

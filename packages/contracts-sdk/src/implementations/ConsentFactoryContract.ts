@@ -1,7 +1,6 @@
 import {
   BaseURI,
   BigNumberString,
-  BlockchainErrorMapper,
   ConsentFactoryContractError,
   ConsentName,
   EVMAccountAddress,
@@ -19,13 +18,14 @@ import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
+import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
 import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract.js";
 import {
-  ConsentRoles,
+  EConsentRoles,
   ContractOverrides,
   WrappedTransactionResponse,
   ContractsAbis,
-} from "@contracts-sdk/interfaces/objects/index.js";
+} from "@contracts-sdk/interfaces/index.js";
 
 @injectable()
 export class ConsentFactoryContract
@@ -146,7 +146,7 @@ export class ConsentFactoryContract
   // Gets the count of Consent addresses user has specific roles for
   public getUserRoleAddressesCount(
     ownerAddress: EVMAccountAddress,
-    role: ConsentRoles,
+    role: EConsentRoles,
   ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       this.contract.getUserConsentAddressesCount(
@@ -169,7 +169,7 @@ export class ConsentFactoryContract
   // eg. If user has [0x123, 0xabc, 0x456] Consent contracts, query with startingIndex 0 and endingIndex 2 to get full list
   public getUserRoleAddressesCountByIndex(
     ownerAddress: EVMAccountAddress,
-    role: ConsentRoles,
+    role: EConsentRoles,
     startingIndex: number,
     endingIndex: number,
   ): ResultAsync<
@@ -478,10 +478,10 @@ export class ConsentFactoryContract
 
   protected generateContractSpecificError(
     msg: string,
-    reason: string | undefined,
-    e: unknown,
+    e: IEthersContractError,
+    transaction: ethers.Transaction | null,
   ): ConsentFactoryContractError {
-    return new ConsentFactoryContractError(msg, reason, e);
+    return new ConsentFactoryContractError(msg, e, transaction);
   }
 }
 interface IListingStruct {

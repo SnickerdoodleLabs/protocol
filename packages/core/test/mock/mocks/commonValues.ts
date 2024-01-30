@@ -521,12 +521,14 @@ const tokenAddress4 = EVMContractAddress(
 );
 const tokenId = BigNumberString("0");
 const contractType = EContractStandard.Erc721;
-const owner = EVMAccountAddress("0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc");
-const polygonOwner = EVMAccountAddress(
+export const fujiOwner = EVMAccountAddress(
+  "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc",
+);
+export const polygonOwner = EVMAccountAddress(
   "0xacfbc62a183d926f0c6c0c3c8d2aaaaaaaaaaaa",
 );
 export const linkedAccounts: LinkedAccount[] = [
-  new LinkedAccount(EChain.Fuji, owner),
+  new LinkedAccount(EChain.Fuji, fujiOwner),
   new LinkedAccount(EChain.Polygon, polygonOwner),
 ];
 
@@ -553,7 +555,7 @@ export const fujiNfts = [
     tokenAddress1,
     tokenId,
     contractType,
-    owner,
+    fujiOwner,
     tokenUri,
     metadata,
     "1",
@@ -565,7 +567,7 @@ export const fujiNfts = [
     tokenAddress2,
     tokenId,
     contractType,
-    owner,
+    fujiOwner,
     tokenUri,
     metadata,
     "2",
@@ -574,6 +576,19 @@ export const fujiNfts = [
     UnixTimestamp(1701779730),
   ),
 ];
+
+export const fujiIndexerResponseAfterRegainingTheNft = new EVMNFT(
+  tokenAddress1,
+  tokenId,
+  contractType,
+  fujiOwner,
+  tokenUri,
+  metadata,
+  "1",
+  chain,
+  amount,
+  UnixTimestamp(1701779738),
+);
 
 export const polygonNfts = [
   new EVMNFT(
@@ -602,31 +617,13 @@ export const polygonNfts = [
   ),
 ];
 
-export const indexerNft = (chain: number, address: string, index: number) => {
-  //In the test, 2 accounts and 2 chains is recorded for record checking, so each call will trigger 4 calls to here
-
-  if (chain === 43113 && address === owner) {
-    if (index < 8) {
-      return fujiNfts;
-    }
-    if (index < 12) {
-      return [...fujiNfts.slice(1)];
-    }
-    return [nftThatGotTransferredAndGotBack, fujiNfts[1]];
-  }
-  if (chain === 137 && address === polygonOwner) {
-    return polygonNfts;
-  }
-  return [];
-};
-
 export const indexedNfts = [
   {
     id: "0xacfbc62a183d926f0c6c0c3c8d2cccccccccccc|#|0x0a281d992a7e454d9dcf611b6bf0201393e27438|#|0",
     nft: {
       type: 0,
       chain: 43113,
-      owner,
+      owner: fujiOwner,
       token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
       name: "1",
       tokenId: "0",
@@ -642,7 +639,7 @@ export const indexedNfts = [
     nft: {
       type: 0,
       chain: 43113,
-      owner,
+      owner: fujiOwner,
       token: "0x2222222222222222222222222222222222222222",
       name: "2",
       tokenId: "0",
@@ -727,7 +724,7 @@ export const expectedFujiNfts = [
   {
     type: 0,
     chain: 43113,
-    owner,
+    owner: fujiOwner,
     token: "0x0a281d992a7e454d9dcf611b6bf0201393e27438",
     name: "1",
     tokenId: "0",
@@ -742,7 +739,7 @@ export const expectedFujiNfts = [
   {
     type: 0,
     chain: 43113,
-    owner,
+    owner: fujiOwner,
     token: "0x2222222222222222222222222222222222222222",
     name: "2",
     tokenId: "0",

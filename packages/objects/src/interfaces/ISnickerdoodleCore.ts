@@ -260,6 +260,7 @@ export interface ICoreMarketplaceMethods {
     | UninitializedError
     | ConsentContractError
     | BlockchainCommonErrors
+    | InvalidParametersError
   >;
 
   /**
@@ -520,6 +521,7 @@ export interface IInvitationMethods {
     | MinimalForwarderContractError
     | ConsentError
     | UnauthorizedError
+    | InvalidParametersError
     | BlockchainCommonErrors
   >;
 
