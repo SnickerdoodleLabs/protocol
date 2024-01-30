@@ -22,11 +22,6 @@ export class IndexedDB {
   private _keyPaths: Map<string, string | string[] | null>;
   private timeoutMS = 5000;
 
-  // @TODOS:
-  // check tests - DataWalletPersistence.test.ts - BackupManager.test.ts
-  // add stress tests
-  // Update cursor methods, get all .e.g
-
   // #region promises
 
   // this map is used to keep track of promises that are used to indicate that a store is being migrated
@@ -55,199 +50,6 @@ export class IndexedDB {
       this._keyPaths.set(x.name, x.primayKey[0]);
     });
   }
-
-  // #region migration logic
-
-  // Set flag to indicate that a specific object store is being migrated
-  private lockStore(storeName: ERecordKey): void {
-    const promise = new Promise<undefined>((resolve) => {
-      this.logUtils.debug("Locking store", storeName);
-      this.storePromiseResolvers.set(storeName, resolve);
-    });
-
-    this.storePromises.set(storeName, promise);
-  }
-  // Unlock a store after migration is complete
-  private unlockStore(storeName: ERecordKey): ResultAsync<void, never> {
-    const resolver = this.storePromiseResolvers.get(storeName);
-    if (resolver) {
-      this.logUtils.debug("Unlocking store", storeName);
-      resolver(undefined);
-    }
-    return okAsync(undefined);
-  }
-
-  // This function allows us to check if the store has any ongoing operations that could potentially corrupt the data.
-  private waitForStore(storeName: ERecordKey): ResultAsync<void, never> {
-    return ResultAsync.fromSafePromise(
-      this.storePromises.get(storeName) ?? Promise.resolve(),
-    );
-  }
-
-  /**
-   * This function acts as a kind of migration table.
-   * If it returns multiple versions, it means the store has some data partially migrated.
-   * If it returns a single version, it means the store is either not migrated yet or migrated successfully.
-   * If it returns undefined, it means the store is empty or the data was stored before the migration logic was implemented.
-   * The reason for not using a migration table is that a migration table can also be corrupted during the app's lifetime,
-   * or the user can close the app during migration, which would leave the migration table in a corrupted state.
-   *
-   * @param {IDBObjectStore} objectStore - The IDBObjectStore to check for stored versions.
-   * @returns {ResultAsync<number | number[] | undefined, PersistenceError>} - The result containing the stored version(s) or undefined.
-   */
-  private lookUpStoredVersion(
-    objectStore: IDBObjectStore,
-  ): ResultAsync<number | number[] | null, PersistenceError> {
-    return ResultAsync.fromPromise(
-      new Promise((resolve, reject) => {
-        const index = objectStore.index("version");
-        const uniqueVersions = new Set<number>();
-        // To optimize performance, we use openKeyCursor() to exclusively check the index without retrieving the actual data.
-        // inspecting the index alone is faster than fetching the complete data.
-        const request = index.openKeyCursor();
-        request.onsuccess = (event) => {
-          const cursor = (event.target as IDBRequest<IDBCursor>).result;
-          if (cursor) {
-            // Add the version to the set
-            uniqueVersions.add(cursor.key as number);
-            cursor.continue();
-          } else {
-            if (uniqueVersions.size > 0) {
-              resolve(
-                uniqueVersions.size === 1
-                  ? uniqueVersions.values().next().value
-                  : Array.from(uniqueVersions),
-              );
-            } else {
-              resolve(null);
-            }
-          }
-        };
-        request.onerror = (event) => {
-          reject(
-            new PersistenceError(
-              "Could not read version index from object store",
-              event,
-            ),
-          );
-        };
-      }),
-      (e) => new PersistenceError((e as Error).message),
-    );
-  }
-
-  /**
-   * Initiates migration for object stores that might need it.
-   * @param {IDBDatabase} db - The IDBDatabase instance to migrate.
-   */
-  private migrateDB(db: IDBDatabase) {
-    const validObjectStores = db.objectStoreNames;
-    const stores =
-      this.objectStoresMightNeedMigration.length > 0
-        ? this.objectStoresMightNeedMigration
-        : this.schema
-            .map((def) => def.name)
-            .filter((storeName) => {
-              const isValid = validObjectStores.contains(storeName);
-              if (!isValid) {
-                // This check is added for developers: If this log is triggered, it suggests a potential issue with database versioning.
-                this.logUtils.warning(
-                  `Skipping migration for store ${storeName} as it does not exist in the database. This indicates the db version is out of sync with the schema. If you see this warning in the console, please ensure that the database version is updated correctly in sync with the schema.`,
-                );
-              }
-              return isValid;
-            });
-    stores.forEach((storeName) => {
-      this.migrateStore(storeName, db);
-    });
-  }
-  /**
-   * Migrates a specific object store in the database.
-   * @param {ERecordKey} storeName - The name of the object store to migrate.
-   * @param {IDBDatabase} db - The IDBDatabase instance.
-   */
-
-  private migrateStore(storeName: ERecordKey, db: IDBDatabase) {
-    this.lockStore(storeName);
-    // Get the current version from the schema definition
-    const currentMigrator = this.schema.find(
-      (st) => st.name == storeName,
-    )?.migrator;
-    if (currentMigrator == undefined) {
-      return this.unlockStore(storeName);
-    }
-    const tx = db.transaction(storeName, "readwrite");
-    const store = tx.objectStore(storeName);
-
-    const startingTime = this.timeUtils.getMillisecondNow();
-    tx.oncomplete = (_event) => {
-      this.logUtils.debug(
-        `Migration function took ${
-          (this.timeUtils.getMillisecondNow() - startingTime) / 1000
-        } seconds for store ${storeName}`,
-      );
-      this.unlockStore(storeName);
-    };
-    tx.onerror = (event) => {
-      this.logUtils.error(
-        `Error occurred while migrating store ${storeName}`,
-        event,
-      );
-      // We choose not to call tx.abort() here, as having partially migrated data is acceptable.
-      // The recovery of partially migrated data is possible through the same migration logic.
-      this.unlockStore(storeName);
-    };
-    return this.lookUpStoredVersion(store).andThen((version) => {
-      if (
-        Array.isArray(version) ||
-        version != currentMigrator.getCurrentVersion()
-      ) {
-        return ResultAsync.fromPromise(
-          new Promise((resolve, reject) => {
-            this.logUtils.debug(`Migrating store ${storeName}`);
-
-            const getCursor = store.openCursor();
-
-            getCursor.onsuccess = (_event) => {
-              const cursor = getCursor.result;
-              if (cursor) {
-                const data = cursor.value[VolatileStorageDataKey];
-                const version = (cursor.value.version ?? 1) as number;
-
-                const versionedData: VersionedObject =
-                  currentMigrator.getCurrent(data, version);
-                if (versionedData) {
-                  cursor.update({
-                    ...cursor.value,
-                    [VolatileStorageDataKey]: versionedData,
-                    version: currentMigrator.getCurrentVersion(),
-                  });
-                }
-                cursor.continue();
-              } else {
-                resolve(undefined);
-              }
-            };
-            getCursor.onerror = (event) => {
-              // Handle error while iterating through records
-              resolve(undefined);
-              this.logUtils.error(
-                `Error iterating through records during migration for store ${storeName}`,
-                event,
-              );
-            };
-          }),
-          (e) => e,
-        );
-      }
-      this.logUtils.debug(
-        `The store ${storeName} is up to date, no migration needed. Unlocking the store`,
-      );
-      return okAsync(undefined);
-    });
-  }
-
-  // #endregion migration logic
 
   public initialize(): ResultAsync<IDBDatabase, PersistenceError> {
     if (this._initialized) {
@@ -329,8 +131,6 @@ export class IndexedDB {
 
                 const oldIndexes = Array.from(objectStore.indexNames);
 
-                //zaten auto increment varsa , ucur tabloyu yeniden yarat.
-                // accepted invitations
                 const addedIndexesParams = createIndexParamsArray.filter(
                   ([name]) => !oldIndexes.includes(name),
                 );
@@ -950,23 +750,194 @@ export class IndexedDB {
     return this._getFieldPath(index);
   }
 
-  private _determineIndexName(
-    store: IDBObjectStore,
-    index?: string,
-  ): string | undefined {
-    if (index === undefined) {
-      return undefined;
-    }
+  // #region migration logic
 
-    const isMetadataIndex = VolatileStorageMetadataIndexes.some(
-      ([metaIndex]) => metaIndex === index,
-    );
-    if (isMetadataIndex) {
-      return index;
-    } else if (store.indexNames.contains(this._getIndexName(index))) {
-      return this._getIndexName(index);
-    }
+  // Set flag to indicate that a specific object store is being migrated
+  private lockStore(storeName: ERecordKey): void {
+    const promise = new Promise<undefined>((resolve) => {
+      this.storePromiseResolvers.set(storeName, resolve);
+    });
 
-    return undefined;
+    this.storePromises.set(storeName, promise);
   }
+  // Unlock a store after migration is complete
+  private unlockStore(storeName: ERecordKey): ResultAsync<void, never> {
+    const resolver = this.storePromiseResolvers.get(storeName);
+    if (resolver) {
+      resolver(undefined);
+    }
+    return okAsync(undefined);
+  }
+
+  // This function allows us to check if the store has any ongoing operations that could potentially corrupt the data.
+  private waitForStore(storeName: ERecordKey): ResultAsync<void, never> {
+    return ResultAsync.fromSafePromise(
+      this.storePromises.get(storeName) ?? Promise.resolve(),
+    );
+  }
+
+  /**
+   * This function acts as a kind of migration table.
+   * If it returns multiple versions, it means the store has some data partially migrated.
+   * If it returns a single version, it means the store is either not migrated yet or migrated successfully.
+   * If it returns undefined, it means the store is empty or the data was stored before the migration logic was implemented.
+   * The reason for not using a migration table is that a migration table can also be corrupted during the app's lifetime,
+   * or the user can close the app during migration, which would leave the migration table in a corrupted state.
+   *
+   * @param {IDBObjectStore} objectStore - The IDBObjectStore to check for stored versions.
+   * @returns {ResultAsync<number | number[] | undefined, PersistenceError>} - The result containing the stored version(s) or undefined.
+   */
+  private lookUpStoredVersion(
+    objectStore: IDBObjectStore,
+  ): ResultAsync<number | number[] | null, PersistenceError> {
+    return ResultAsync.fromPromise(
+      new Promise((resolve, reject) => {
+        const index = objectStore.index("version");
+        const uniqueVersions = new Set<number>();
+        // To optimize performance, we use openKeyCursor() to exclusively check the index without retrieving the actual data.
+        // inspecting the index alone is faster than fetching the complete data.
+        const request = index.openKeyCursor();
+        request.onsuccess = (event) => {
+          const cursor = (event.target as IDBRequest<IDBCursor>).result;
+          if (cursor) {
+            // Add the version to the set
+            uniqueVersions.add(cursor.key as number);
+            cursor.continue();
+          } else {
+            if (uniqueVersions.size > 0) {
+              resolve(
+                uniqueVersions.size === 1
+                  ? uniqueVersions.values().next().value
+                  : Array.from(uniqueVersions),
+              );
+            } else {
+              resolve(null);
+            }
+          }
+        };
+        request.onerror = (event) => {
+          reject(
+            new PersistenceError(
+              "Could not read version index from object store",
+              event,
+            ),
+          );
+        };
+      }),
+      (e) => e as PersistenceError,
+    );
+  }
+
+  /**
+   * Initiates migration for object stores that might need it.
+   * @param {IDBDatabase} db - The IDBDatabase instance to migrate.
+   */
+  private migrateDB(db: IDBDatabase) {
+    const validObjectStores = db.objectStoreNames;
+    const stores =
+      this.objectStoresMightNeedMigration.length > 0
+        ? this.objectStoresMightNeedMigration
+        : this.schema
+            .map((def) => def.name)
+            .filter((storeName) => {
+              const isValid = validObjectStores.contains(storeName);
+              if (!isValid) {
+                // This check is added for developers: If this log is triggered, it suggests a potential issue with database versioning.
+                this.logUtils.warning(
+                  `Skipping migration for store ${storeName} as it does not exist in the database. This indicates the db version is out of sync with the schema. If you see this warning in the console, please ensure that the database version is updated correctly in sync with the schema.`,
+                );
+              }
+              return isValid;
+            });
+    stores.forEach((storeName) => {
+      this.migrateStore(storeName, db);
+    });
+  }
+  /**
+   * Migrates a specific object store in the database.
+   * @param {ERecordKey} storeName - The name of the object store to migrate.
+   * @param {IDBDatabase} db - The IDBDatabase instance.
+   */
+
+  private migrateStore(storeName: ERecordKey, db: IDBDatabase) {
+    this.lockStore(storeName);
+    // Get the current version from the schema definition
+    const currentMigrator = this.schema.find(
+      (st) => st.name == storeName,
+    )?.migrator;
+    if (currentMigrator == undefined) {
+      return this.unlockStore(storeName);
+    }
+    const tx = db.transaction(storeName, "readwrite");
+    const store = tx.objectStore(storeName);
+    let migrationNeeded = false;
+
+    const startingTime = this.timeUtils.getMillisecondNow();
+    tx.oncomplete = (_event) => {
+      if (migrationNeeded) {
+        this.logUtils.debug(
+          `Migration function took ${
+            (this.timeUtils.getMillisecondNow() - startingTime) / 1000
+          } seconds for store ${storeName}`,
+        );
+      }
+      this.unlockStore(storeName);
+    };
+    tx.onerror = (event) => {
+      this.logUtils.warning(
+        `Error occurred while migrating store ${storeName}`,
+        event,
+      );
+      // We choose not to call tx.abort() here, as having partially migrated data is acceptable.
+      // The recovery of partially migrated data is possible through the same migration logic.
+      this.unlockStore(storeName);
+    };
+    return this.lookUpStoredVersion(store).andThen((version) => {
+      if (
+        Array.isArray(version) ||
+        version != currentMigrator.getCurrentVersion()
+      ) {
+        return ResultAsync.fromPromise(
+          new Promise((resolve, reject) => {
+            const getCursor = store.openCursor();
+            getCursor.onsuccess = (_event) => {
+              const cursor = getCursor.result;
+              if (cursor) {
+                if (!migrationNeeded) {
+                  migrationNeeded = true;
+                }
+                const data = cursor.value[VolatileStorageDataKey];
+                const version = (cursor.value.version ?? 1) as number;
+
+                const versionedData: VersionedObject =
+                  currentMigrator.getCurrent(data, version);
+                if (versionedData) {
+                  cursor.update({
+                    ...cursor.value,
+                    [VolatileStorageDataKey]: versionedData,
+                    version: currentMigrator.getCurrentVersion(),
+                  });
+                }
+                cursor.continue();
+              } else {
+                resolve(undefined);
+              }
+            };
+            getCursor.onerror = (event) => {
+              // Handle error while iterating through records
+              resolve(undefined);
+              this.logUtils.error(
+                `Error iterating through records during migration for store ${storeName}`,
+                event,
+              );
+            };
+          }),
+          (e) => e,
+        );
+      }
+      return okAsync(undefined);
+    });
+  }
+
+  // #endregion migration logic
 }
