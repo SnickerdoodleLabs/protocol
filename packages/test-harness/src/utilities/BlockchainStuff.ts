@@ -28,8 +28,8 @@ import { localChainAccounts } from "@test-harness/mocks/LocalChainAccounts.js";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 
 export class BlockchainStuff {
-  public serverSigner: ethers.Wallet;
-  public businessSigner: ethers.Wallet;
+  public serverSigner: ethers.NonceManager;
+  public businessSigner: ethers.NonceManager;
   public provider: ethers.JsonRpcProvider;
   public consentFactoryContract: ConsentFactoryContract;
   public crumbsContract: CrumbsContract;
@@ -44,14 +44,12 @@ export class BlockchainStuff {
     // Initialize a connection to the local blockchain
     this.provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545", 31337);
     // We'll use account 0
-    this.serverSigner = new ethers.Wallet(
-      this.serverAccount.privateKey,
-      this.provider,
+    this.serverSigner = new ethers.NonceManager(
+      new ethers.Wallet(this.serverAccount.privateKey, this.provider),
     );
 
-    this.businessSigner = new ethers.Wallet(
-      this.businessAccount.privateKey,
-      this.provider,
+    this.businessSigner = new ethers.NonceManager(
+      new ethers.Wallet(this.businessAccount.privateKey, this.provider),
     );
 
     const doodleChain = chainConfig.get(

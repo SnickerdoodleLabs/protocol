@@ -30,10 +30,7 @@ export class RewardsContractFactory
   protected contractFactory: ethers.ContractFactory;
   protected rewardTypeToDeploy: ECreatedRewardType;
   constructor(
-    protected providerOrSigner:
-      | ethers.Provider
-      | ethers.JsonRpcSigner
-      | ethers.Wallet,
+    protected providerOrSigner: ethers.Provider | ethers.Signer,
     protected rewardType: ECreatedRewardType,
   ) {
     super(

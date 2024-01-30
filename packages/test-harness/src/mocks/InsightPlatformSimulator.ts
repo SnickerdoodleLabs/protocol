@@ -444,6 +444,7 @@ export class InsightPlatformSimulator {
     EVMContractAddress,
     ConsentFactoryContractError | ConsentContractError | Error
   > {
+    console.log("Posting Audience Metadata to IPFS");
     return this.ipfs
       .postToIPFS(
         JSON.stringify({
@@ -469,14 +470,19 @@ export class InsightPlatformSimulator {
               this.blockchain.getConsentContract(contractAddress);
 
             console.log(
-              `Created consent contract address ${contractAddress} for business account adddress ${this.blockchain.businessAccount.accountAddress}, owned by ${this.blockchain.serverAccount.accountAddress}`,
+              `Created consent contract address ${contractAddress} for business account address ${this.blockchain.businessAccount.accountAddress}, owned by ${this.blockchain.serverAccount.accountAddress}`,
             );
             this.consentContracts.push(contractAddress);
 
             // Add a few URLs
             // We need to do this
             return ResultUtils.executeSerially(
-              domains.map((domain) => () => consentContract.addDomain(domain)),
+              domains.map((domain) => () => {
+                console.log(
+                  `Adding domain ${domain} to consent contract ${contractAddress}`,
+                );
+                return consentContract.addDomain(domain);
+              }),
             ).map(() => {
               console.log(
                 `Added domains to consent contract address ${contractAddress}`,

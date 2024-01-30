@@ -13,7 +13,7 @@ import { ContractOverrides } from "@contracts-sdk/interfaces/objects/index.js";
 @injectable()
 export class GasUtils {
   static getGasFee(
-    providerOrSigner: ethers.Provider | ethers.JsonRpcSigner | ethers.Wallet,
+    providerOrSigner: ethers.Provider | ethers.Signer,
   ): ResultAsync<ContractOverrides, BlockchainCommonErrors> {
     return GasUtils.getProvider(providerOrSigner)
       .andThen((provider) => {
@@ -47,7 +47,7 @@ export class GasUtils {
   }
 
   private static getProvider(
-    providerOrSigner: ethers.Provider | ethers.JsonRpcSigner | ethers.Wallet,
+    providerOrSigner: ethers.Provider | ethers.Signer,
   ): ResultAsync<ethers.Provider, BlockchainProviderError> {
     const provider = providerOrSigner.provider;
     if (provider == null) {

@@ -34,7 +34,7 @@ export abstract class BaseContract<TContractSpecificError>
     this.contract = new ethers.Contract(contractAddress, abi, providerOrSigner);
     this.contractAbi = abi;
     // There used to be a method Signer.isSigner() that would do this, but it disappeared entirely in Ethers V6
-    this.hasSigner = providerOrSigner.hasOwnProperty("signMessage");
+    this.hasSigner = providerOrSigner["signMessage"] != null;
   }
 
   public getContractAddress(): EVMContractAddress {

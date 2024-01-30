@@ -26,10 +26,7 @@ export class MinimalForwarderContract
   implements IMinimalForwarderContract
 {
   constructor(
-    protected providerOrSigner:
-      | ethers.Provider
-      | ethers.JsonRpcSigner
-      | ethers.Wallet,
+    protected providerOrSigner: ethers.Provider | ethers.Signer,
     protected contractAddress: EVMContractAddress,
   ) {
     super(

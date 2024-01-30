@@ -29,10 +29,7 @@ export class ERC721RewardContract
   implements IERC721RewardContract
 {
   constructor(
-    protected providerOrSigner:
-      | ethers.Provider
-      | ethers.JsonRpcSigner
-      | ethers.Wallet,
+    protected providerOrSigner: ethers.Provider | ethers.Signer,
     protected contractAddress: EVMContractAddress,
   ) {
     super(providerOrSigner, contractAddress, ContractsAbis.ERC721Reward.abi);

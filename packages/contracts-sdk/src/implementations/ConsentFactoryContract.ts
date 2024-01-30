@@ -33,10 +33,7 @@ export class ConsentFactoryContract
   implements IConsentFactoryContract
 {
   constructor(
-    protected providerOrSigner:
-      | ethers.Provider
-      | ethers.JsonRpcSigner
-      | ethers.Wallet,
+    protected providerOrSigner: ethers.Provider | ethers.Signer,
     protected contractAddress: EVMContractAddress,
   ) {
     super(

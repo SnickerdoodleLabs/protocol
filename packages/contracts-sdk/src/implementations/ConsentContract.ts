@@ -41,10 +41,7 @@ export class ConsentContract
   implements IConsentContract
 {
   constructor(
-    protected providerOrSigner:
-      | ethers.Provider
-      | ethers.JsonRpcSigner
-      | ethers.Wallet,
+    protected providerOrSigner: ethers.Provider | ethers.Signer,
     protected contractAddress: EVMContractAddress,
     protected cryptoUtils: ICryptoUtils,
   ) {
