@@ -8,7 +8,7 @@ import {
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { ICachingService } from "@core/interfaces/business/index.js";
@@ -41,6 +41,9 @@ export class CachingService implements ICachingService {
     | BlockchainCommonErrors
     | ConsentContractError
   > {
+    // TODO: Remove this once the contracts are updated
+    return okAsync(undefined);
+
     return ResultUtils.combine([
       this.questionnaireRepo.getCachedQuestionnaireIds(),
       this.invitationRepo.getAcceptedInvitations(),

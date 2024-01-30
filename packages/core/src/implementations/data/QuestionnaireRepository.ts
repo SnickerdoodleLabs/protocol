@@ -10,10 +10,12 @@ import {
   PagingRequest,
   PagedResponse,
 } from "@snickerdoodlelabs/objects";
-import { ResultAsync } from "neverthrow";
+import { injectable } from "inversify";
+import { ResultAsync, okAsync } from "neverthrow";
 
 import { IQuestionnaireRepository } from "@core/interfaces/data/index.js";
 
+@injectable()
 export class QuestionnaireRepository implements IQuestionnaireRepository {
   getUnanswered(
     pagingRequest: PagingRequest,
@@ -35,7 +37,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     throw new Error("Method not implemented.");
   }
   getCachedQuestionnaireIds(): ResultAsync<IpfsCID[], PersistenceError> {
-    throw new Error("Method not implemented.");
+    return okAsync([]);
   }
   add(questionnaireCids: IpfsCID[]): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
