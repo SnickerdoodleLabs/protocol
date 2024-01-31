@@ -66,6 +66,8 @@ const errorCodes = {
   ParsingError: "ERR_SDQL_PARSING",
   InvalidRegularExpression: "ERR_SDQL_INVALID_REGULAR_EXPRESSION",
   AuthenticationError: "ERR_AUTHENTICATION",
+  ERC721RewardContractError: "ERR_ERC721_REWARD_CONTRACT",
+  ERC20ContractError: "ERR_ERC20_CONTRACT",
 };
 
 export default errorCodes;

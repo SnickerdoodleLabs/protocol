@@ -33,6 +33,7 @@ declare const __ALCHEMY_OPTIMISM_API_KEY__: string;
 declare const __ALCHEMY_POLYGON_API_KEY__: string;
 declare const __ALCHEMY_SOLANA_API_KEY__: string;
 declare const __ALCHEMY_SOLANA_TESTNET_API_KEY__: string;
+declare const __ALCHEMY_BASE_API_KEY__: string;
 
 declare const __COVALENT_API_KEY__: string;
 declare const __MORALIS_API_KEY__: string;
@@ -212,6 +213,11 @@ export const config: IExtensionSdkConfigOverrides = {
       typeof __ALCHEMY_SOLANA_TESTNET_API_KEY__ !== "undefined" &&
       !!__ALCHEMY_SOLANA_TESTNET_API_KEY__
         ? __ALCHEMY_SOLANA_TESTNET_API_KEY__
+        : "",
+    Base:
+      typeof __ALCHEMY_BASE_API_KEY__ !== "undefined" &&
+      !!__ALCHEMY_BASE_API_KEY__
+        ? __ALCHEMY_BASE_API_KEY__
         : "",
   },
   etherscanApiKeys: {

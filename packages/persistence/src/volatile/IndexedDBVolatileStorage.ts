@@ -1,5 +1,11 @@
-import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
+  ILogUtils,
+  ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+import {
+  DatabaseVersion,
   ERecordKey,
   PersistenceError,
   VersionedObject,
@@ -25,6 +31,7 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
     @inject(IVolatileStorageSchemaProviderType)
     protected schemaProvider: IVolatileStorageSchemaProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   private _getIDB(): ResultAsync<IndexedDB, never> {
@@ -40,6 +47,8 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
           Array.from(schema.values()),
           indexedDB, // This is magical; it's a global variable IDBFactory
           this.logUtils,
+          this.timeUtils,
+          DatabaseVersion,
         );
       });
     return this.indexedDB;
@@ -48,7 +57,7 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
   public getKey(
     recordKey: ERecordKey,
     obj: VersionedObject,
-  ): ResultAsync<VolatileStorageKey, PersistenceError> {
+  ): ResultAsync<VolatileStorageKey | null, PersistenceError> {
     return this._getIDB().andThen((db) => {
       return db.getKey(recordKey, obj);
     });
@@ -96,6 +105,7 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
     );
   }
 
+  //@TODO update here, though no use case actually exist for now
   public getCursor<T extends VersionedObject>(
     schemaKey: ERecordKey,
     indexName?: string,
