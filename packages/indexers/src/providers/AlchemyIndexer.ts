@@ -71,6 +71,12 @@ export class AlchemyIndexer implements IEVMIndexer {
       EChain.Mumbai,
       new IndexerSupportSummary(EChain.Mumbai, true, false, false),
     ],
+    [
+      EChain.Base,
+      new IndexerSupportSummary(EChain.Base, false, false, false),
+      // alchemy supports balances and nfts for base. We will keep them false until we have the valid api keys.
+      // To Do: Also and we need to make necassary changes in getTokensForAccount to get alchemy supported NFTs
+    ],
   ]);
 
   protected chainToApiMap = new Map<EChain, EExternalApi>([
@@ -80,6 +86,7 @@ export class AlchemyIndexer implements IEVMIndexer {
     [EChain.Optimism, EExternalApi.AlchemyOptimism],
     [EChain.Solana, EExternalApi.AlchemySolana],
     [EChain.Polygon, EExternalApi.AlchemyPolygon],
+    [EChain.Base, EExternalApi.AlchemyBase],
   ]);
 
   public constructor(
@@ -99,6 +106,7 @@ export class AlchemyIndexer implements IEVMIndexer {
       [EChain.Optimism, true],
       [EChain.Solana, true],
       [EChain.Polygon, true],
+      [EChain.Base, true],
     ]) as Map<EChain, boolean>;
   }
 
@@ -226,6 +234,17 @@ export class AlchemyIndexer implements IEVMIndexer {
           }),
           TickerSymbol("ASTR"),
           EChain.Astar,
+        ];
+      case EChain.Base:
+        return [
+          JSON.stringify({
+            id: 1,
+            jsonrpc: "2.0",
+            params: [accountAddress, "latest"],
+            method: "eth_getBalance",
+          }),
+          TickerSymbol("BASE"),
+          EChain.Base,
         ];
       default:
         return [

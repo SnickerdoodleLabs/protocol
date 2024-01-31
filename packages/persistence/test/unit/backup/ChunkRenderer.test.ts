@@ -44,8 +44,7 @@ const dataWalletBackupId = DataWalletBackupID("Data Wallet Backup ID");
 
 const volatileTableIndex = new VolatileTableIndex<VersionedObject>(
   recordKey,
-  keyPath, // keyPath
-  false, // autoincrement
+  [keyPath, false],
   new TestMigrator(),
   EBackupPriority.NORMAL,
   dataWalletBackupIntervalMS,
@@ -54,8 +53,7 @@ const volatileTableIndex = new VolatileTableIndex<VersionedObject>(
 );
 const volatileTableIndexImmediate = new VolatileTableIndex<VersionedObject>(
   recordKey,
-  keyPath, // keyPath
-  false, // autoincrement
+  [keyPath, false],
   new TestMigrator(),
   EBackupPriority.NORMAL,
   0,

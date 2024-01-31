@@ -57,12 +57,14 @@ const versionedObject = new TestVersionedObject(volatileStorageKey, 13);
 const volatileStorageMetadata = new VolatileStorageMetadata(
   versionedObject,
   now,
+  versionedObject.getVersion(),
   EBoolean.FALSE,
 );
 
 const volatileStorageMetadata0 = new VolatileStorageMetadata(
   versionedObject,
   UnixTimestamp(0),
+  versionedObject.getVersion(),
   EBoolean.FALSE,
 );
 
@@ -148,14 +150,26 @@ class DataWalletPersistenceMocks {
     td.when(
       this.backupManager.addRecord(
         recordKey,
-        td.matchers.contains(new VolatileStorageMetadata(versionedObject, now)),
+        td.matchers.contains(
+          new VolatileStorageMetadata(
+            versionedObject,
+            now,
+            versionedObject.getVersion(),
+          ),
+        ),
       ),
     ).thenReturn(okAsync(undefined));
 
     td.when(
       this.backupManager.addRecord(
         ERecordKey.ACCOUNT,
-        td.matchers.contains(new VolatileStorageMetadata(versionedObject, now)),
+        td.matchers.contains(
+          new VolatileStorageMetadata(
+            versionedObject,
+            now,
+            versionedObject.getVersion(),
+          ),
+        ),
       ),
     ).thenReturn(okAsync(undefined));
 
@@ -221,7 +235,11 @@ class DataWalletPersistenceMocks {
       this.volatileStorage.putObject(
         ERecordKey.ACCOUNT,
         td.matchers.contains(
-          new VolatileStorageMetadata(versionedObject, UnixTimestamp(0)),
+          new VolatileStorageMetadata(
+            versionedObject,
+            UnixTimestamp(0),
+            versionedObject.getVersion(),
+          ),
         ),
       ),
     ).thenReturn(okAsync(undefined));

@@ -51,6 +51,7 @@ const defaultCoreConfigs: IConfigOverrides = {
     Polygon: "el_YkQK0DMQqqGlgXPO5gm8g6WmpdNfX",
     Solana: "pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
     SolanaTestnet: "Fko-iHgKEnUKTkM1SvnFMFMw1AvTVAtg",
+    Base: "A6Bl1N0M3LKdJEdpqANywIfTEkg5P24X",
   },
   etherscanApiKeys: {
     Ethereum: "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7",
