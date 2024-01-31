@@ -30,7 +30,7 @@ export class GasUtils {
   }
 
   static getGasPrice(
-    providerOrSigner: ethers.Provider | ethers.JsonRpcSigner | ethers.Wallet,
+    providerOrSigner: ethers.Provider | ethers.Signer,
   ): ResultAsync<ContractOverrides, BlockchainCommonErrors> {
     return GasUtils.getProvider(providerOrSigner)
       .andThen((provider) => {

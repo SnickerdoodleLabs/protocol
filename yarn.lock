@@ -8831,7 +8831,7 @@ __metadata:
     inversify: ^6.0.2
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
-    zksync-web3: ^0.17.1
+    zksync-ethers: ^6.1.0
   languageName: unknown
   linkType: soft
 
@@ -22913,7 +22913,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethers@npm:^5.0.1, ethers@npm:^5.0.2, ethers@npm:^5.5.1, ethers@npm:^5.5.2, ethers@npm:^5.6.1, ethers@npm:^5.7.1, ethers@npm:^5.7.2, ethers@npm:~5.7.0":
+"ethers@npm:^5.0.1, ethers@npm:^5.0.2, ethers@npm:^5.5.1, ethers@npm:^5.5.2, ethers@npm:^5.6.1, ethers@npm:^5.7.1, ethers@npm:^5.7.2":
   version: 5.7.2
   resolution: "ethers@npm:5.7.2"
   dependencies:
@@ -49703,14 +49703,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zksync-web3@npm:^0.17.1":
-  version: 0.17.1
-  resolution: "zksync-web3@npm:0.17.1"
-  dependencies:
-    ethers: ~5.7.0
+"zksync-ethers@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "zksync-ethers@npm:6.1.0"
   peerDependencies:
-    ethers: ~5.7.0
-  checksum: bb3dae1f7848d2e46956f8238285164f434ecce379e9489aa4ff5dcaf58d73c767dd32f982d44e8b7ca60a63e3673fa8580ab854e4764049fc508517b48eb914
+    ethers: ^6.7.1
+  checksum: 44fa9629a4b569168586820ba91bb99359a6613c76dc17e2c6816eea1e849a1d8e5b0163b16c19a8925dfe5fc70f0401c9564104f629ffb549467c30f543bb34
   languageName: node
   linkType: hard
 

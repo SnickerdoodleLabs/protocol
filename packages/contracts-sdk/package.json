@@ -48,6 +48,6 @@
     "inversify": "^6.0.2",
     "neverthrow": "^5.1.0",
     "neverthrow-result-utils": "^2.0.2",
-    "zksync-web3": "^0.17.1"
+    "zksync-ethers": "^6.1.0"
   }
 }
