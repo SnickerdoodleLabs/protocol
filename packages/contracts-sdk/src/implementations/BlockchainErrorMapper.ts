@@ -121,6 +121,20 @@ export class BlockchainErrorMapper {
         ),
     ],
     [
+      "contract creation code storage out of gas",
+      (
+        message: string,
+        transaction: ethers.Transaction | undefined,
+        srcErr: unknown | null,
+      ) => {
+        return new GasTooLowError(
+          `Insufficient gas provided to function call: ${message}`,
+          srcErr,
+          transaction!,
+        );
+      },
+    ],
+    [
       "invalid address",
       (
         message: string,
