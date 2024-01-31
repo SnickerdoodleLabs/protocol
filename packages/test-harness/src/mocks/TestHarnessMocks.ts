@@ -30,6 +30,7 @@ export class TestHarnessMocks {
   public fakeDBVolatileStorage = new FakeDBVolatileStorage(
     this.schemaProvider,
     this.logUtils,
+    this.timeUtils,
   );
 
   public devAccountKeys = [

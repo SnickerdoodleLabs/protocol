@@ -2,6 +2,7 @@ import { BlockchainCommonErrors, EChain } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
+import { Wallet } from "zksync-web3";
 
 import { BlockchainErrorMapper } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/index.js";
@@ -12,7 +13,8 @@ export class GasUtils {
     providerOrSigner:
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
-      | ethers.Wallet,
+      | ethers.Wallet
+      | Wallet,
   ): ResultAsync<ContractOverrides, BlockchainCommonErrors> {
     return ResultAsync.fromPromise(providerOrSigner.getFeeData(), (e) => {
       return BlockchainErrorMapper.buildErrorFromProviderError(
@@ -28,7 +30,8 @@ export class GasUtils {
     providerOrSigner:
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
-      | ethers.Wallet,
+      | ethers.Wallet
+      | Wallet,
   ): ResultAsync<ContractOverrides, BlockchainCommonErrors> {
     return ResultAsync.fromPromise(providerOrSigner.getFeeData(), (e) => {
       return BlockchainErrorMapper.buildErrorFromProviderError(
