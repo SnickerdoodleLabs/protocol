@@ -12,6 +12,7 @@ import {
   Username,
   TwitterID,
 } from "@objects/primitives/index.js";
+import { PropertiesOf } from "@objects/utilities";
 
 export abstract class SocialProfile extends VersionedObject {
   public static CURRENT_VERSION = 1;
@@ -47,12 +48,16 @@ export class SocialProfileMigrator extends VersionedObjectMigrator<SocialProfile
     this.twitterMigrator = new TwitterProfileMigrator();
   }
 
-  protected factory(data: Record<string, unknown>): SocialProfile {
-    switch (data["type"]) {
+  protected factory(data: PropertiesOf<SocialProfile>): SocialProfile {
+    switch (data.type) {
       case ESocialType.DISCORD:
-        return this.discordMigrator.factory(data);
+        return this.discordMigrator.factory(
+          data as PropertiesOf<DiscordProfile>,
+        );
       case ESocialType.TWITTER:
-        return this.twitterMigrator.factory(data);
+        return this.twitterMigrator.factory(
+          data as PropertiesOf<TwitterProfile>,
+        );
     }
     return new InvalidSocialProfile( // Cannot return null
       SocialPrimaryKey(data["pKey"] as string),
@@ -87,15 +92,19 @@ export class DiscordProfile extends SocialProfile {
 }
 
 export class DiscordProfileMigrator {
-  public factory(data: Record<string, unknown>): DiscordProfile {
+  public factory(data: PropertiesOf<DiscordProfile>): DiscordProfile {
     return new DiscordProfile(
-      DiscordID(data["id"] as string),
-      Username(data["username"] as string),
-      data["displayName"] as string,
-      data["discriminator"] as string,
-      data["avatar"] as string,
-      Integer(data["flags"] as number),
-      data["oauth2Tokens"] as OAuth2Tokens,
+      data.id,
+      data.username,
+      data.displayName,
+      data.discriminator,
+      data.avatar,
+      data.flags,
+      new OAuth2Tokens(
+        data.oauth2Tokens.accessToken,
+        data.oauth2Tokens.refreshToken,
+        data.oauth2Tokens.expiry,
+      ),
     );
   }
 }
@@ -130,13 +139,15 @@ export class TwitterProfile extends SocialProfile {
 }
 
 export class TwitterProfileMigrator {
-  public factory(data: Record<string, unknown>): TwitterProfile {
+  public factory(data: PropertiesOf<TwitterProfile>): TwitterProfile {
     return new TwitterProfile(
-      data["userObject"] as TwitterUserObject,
-      data["oAuth1a"] as TokenAndSecret,
-      data["followData"]
-        ? (data["followData"] as TwitterFollowData)
-        : undefined,
+      new TwitterUserObject(
+        data.userObject.id,
+        data.userObject.username,
+        data.userObject.name,
+      ),
+      data.oAuth1a,
+      data.followData,
     );
   }
 }

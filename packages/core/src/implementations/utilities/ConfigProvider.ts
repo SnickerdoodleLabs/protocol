@@ -111,6 +111,7 @@ export class ConfigProvider
           Polygon: null,
           Solana: null,
           SolanaTestnet: null,
+          Base: null,
         },
         etherscanApiKeys: {
           Ethereum: null,
@@ -162,6 +163,7 @@ export class ConfigProvider
         [EChain.Arbitrum, URLString("https://arb-mainnet.g.alchemy.com/v2/")],
         [EChain.Optimism, URLString("https://opt-mainnet.g.alchemy.com/v2/")],
         [EChain.Astar, URLString("https://astar-mainnet.g.alchemy.com/v2/")],
+        [EChain.Base, URLString("https://base-mainnet.g.alchemy.com/v2/")],
       ]),
       10000,
       "(localhost|chrome://)",
@@ -283,6 +285,9 @@ export class ConfigProvider
     this.config.apiKeys.alchemyApiKeys.SolanaTestnet =
       overrides.alchemyApiKeys?.SolanaTestnet ??
       this.config.apiKeys.alchemyApiKeys.SolanaTestnet;
+    this.config.apiKeys.alchemyApiKeys.Base =
+      overrides.alchemyApiKeys?.Base ??
+      this.config.apiKeys.alchemyApiKeys.Base;
 
     // Etherscan
     this.config.apiKeys.etherscanApiKeys.Arbitrum =

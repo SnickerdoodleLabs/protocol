@@ -9665,6 +9665,7 @@ __metadata:
     "@snickerdoodlelabs/objects": "workspace:^"
     "@snickerdoodlelabs/utils": "workspace:^"
     ethers: ^5.6.6
+    fake-indexeddb: ^5.0.2
     inversify: ^6.0.2
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
@@ -23837,6 +23838,13 @@ __metadata:
   dependencies:
     realistic-structured-clone: ^3.0.0
   checksum: ad257e5cc6273d9ea667b4129d8b0798830d56a68c7c77ddba752b3fd0088cb33e34b9569b218d16dfc8a78733d360d325f89c2ce352b70a0587c1f46f6f881d
+  languageName: node
+  linkType: hard
+
+"fake-indexeddb@npm:^5.0.2":
+  version: 5.0.2
+  resolution: "fake-indexeddb@npm:5.0.2"
+  checksum: df4dc15c2f2b1a04429461fdc4da02bf25e9b84e2bbfa2ffcf4bb87764f75eef772bb36b245547538796f372c5190eb06cdaa391c7c5f5662b19667f949106cb
   languageName: node
   linkType: hard
 

@@ -30,6 +30,7 @@ declare const __ALCHEMY_OPTIMISM_API_KEY__: string;
 declare const __ALCHEMY_POLYGON_API_KEY__: string;
 declare const __ALCHEMY_SOLANA_API_KEY__: string;
 declare const __ALCHEMY_SOLANA_TESTNET_API_KEY__: string;
+declare const __ALCHEMY_BASE_API_KEY__: string;
 declare const __ETHERSCAN_ETHEREUM_API_KEY__: string;
 declare const __ETHERSCAN_POLYGON_API_KEY__: string;
 declare const __ETHERSCAN_AVALANCHE_API_KEY__: string;
@@ -128,6 +129,10 @@ export class ConfigProvider implements IConfigProvider {
             __ALCHEMY_SOLANA_TESTNET_API_KEY__ == ""
               ? null
               : __ALCHEMY_SOLANA_TESTNET_API_KEY__,
+          Base:
+            __ALCHEMY_BASE_API_KEY__ == ""
+              ? null
+              : __ALCHEMY_BASE_API_KEY__,         
         },
         etherscanApiKeys: {
           Ethereum:

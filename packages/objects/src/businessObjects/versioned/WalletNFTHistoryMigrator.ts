@@ -1,21 +1,14 @@
 import { VersionedObjectMigrator } from "@objects/businessObjects/versioned/VersionedObject.js";
 import { WalletNFTHistory } from "@objects/businessObjects/versioned/WalletNFTHistory.js";
+import { PropertiesOf } from "@objects/utilities/index.js";
 
 export class WalletNFTHistoryMigrator extends VersionedObjectMigrator<WalletNFTHistory> {
   public getCurrentVersion(): number {
     return WalletNFTHistory.CURRENT_VERSION;
   }
 
-  protected factory(
-    data: Record<string, unknown> | WalletNFTHistory,
-  ): WalletNFTHistory {
-    const walletData = data as WalletNFTHistory;
-
-    return new WalletNFTHistory(
-      walletData.id,
-      walletData.event,
-      walletData.amount,
-    );
+  protected factory(data: PropertiesOf<WalletNFTHistory>): WalletNFTHistory {
+    return new WalletNFTHistory(data.id, data.event, data.amount);
   }
 
   protected getUpgradeFunctions(): Map<
