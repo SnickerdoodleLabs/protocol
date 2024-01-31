@@ -146,6 +146,7 @@ export const testCoreConfig = new CoreConfig(
       Polygon: null,
       Solana: null,
       SolanaTestnet: null,
+      Base: null,
     },
     etherscanApiKeys: {
       Ethereum: null,
