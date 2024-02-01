@@ -1,3 +1,4 @@
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
   EVMContractAddress,
   EVMAccountAddress,
@@ -118,7 +119,7 @@ export abstract class BaseContract<TContractSpecificError>
       contractAddress,
       signerAddress,
       functionName,
-      JSON.stringify(functionParams || []),
+      ObjectUtils.serialize(functionParams || []),
       BaseContract.extractFunctionAbi(functionName, contractAbi),
     );
   }
