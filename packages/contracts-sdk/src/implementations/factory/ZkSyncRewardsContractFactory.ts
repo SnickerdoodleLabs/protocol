@@ -96,6 +96,52 @@ export class ZkSyncRewardsContractFactory
     });
   }
 
+  // function to deploy a new ERC721 reward contract on ZkSyncEra
+  public deployERC20Reward(
+    name: string,
+    symbol: string,
+    overrides: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | RewardsFactoryError
+  > {
+    return GasUtils.getGasFee(this.providerOrSigner).andThen((gasFee) => {
+      const contractOverrides = {
+        ...gasFee,
+        ...overrides,
+      };
+      return this.writeToContractFactory(
+        "deploy",
+        [name, symbol],
+        contractOverrides,
+        true,
+      );
+    });
+  }
+
+  public estimateGasToDeployERC20Contract(
+    name: string,
+    symbol: string,
+  ): ResultAsync<
+    ethers.BigNumber,
+    RewardsFactoryError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.providerOrSigner.estimateGas(
+        this.contractFactory.getDeployTransaction(name, symbol),
+      ),
+      (e) => {
+        return this.generateError(
+          e,
+          "Failed to wait() for contract deployment",
+        );
+      },
+    ).map((estimatedGas) => {
+      // Increase estimated gas buffer by 20%
+      return estimatedGas.mul(120).div(100);
+    });
+  }
+
   protected generateContractSpecificError(
     msg: string,
     e: IEthersContractError,

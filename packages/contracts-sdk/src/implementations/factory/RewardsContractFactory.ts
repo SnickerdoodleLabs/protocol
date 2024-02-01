@@ -43,20 +43,19 @@ export class RewardsContractFactory
     );
 
     // Set the correct contract factory based on rewardTypeToDeploy
-    if (rewardType == ECreatedRewardType.ERC721) {
-      this.contractFactory = new ethers.ContractFactory(
-        ContractsAbis.ERC721Reward.abi,
-        ContractsAbis.ERC721Reward.bytecode,
-        providerOrSigner as ethers.Wallet,
-      );
-    }
+    this.contractFactory = new ethers.ContractFactory(
+      ContractsAbis.ERC721Reward.abi,
+      ContractsAbis.ERC721Reward.bytecode,
+      providerOrSigner as ethers.Wallet,
+    );
 
-    if (rewardType == ECreatedRewardType.ERC20)
+    if (rewardType == ECreatedRewardType.ERC20) {
       this.contractFactory = new ethers.ContractFactory(
         ContractsAbis.ERC20Reward.abi,
         ContractsAbis.ERC20Reward.bytecode,
         providerOrSigner as ethers.Wallet,
       );
+    }
 
     this.rewardTypeToDeploy = rewardType;
   }
