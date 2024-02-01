@@ -41,12 +41,23 @@ export class RewardsContractFactory
       EVMContractAddress(ethers.constants.AddressZero), // The rewards contract factory deploys a new contract, hence doesn't have a contract address
       ContractsAbis.ERC721Reward.abi,
     );
+
     // Set the correct contract factory based on rewardTypeToDeploy
-    this.contractFactory = new ethers.ContractFactory(
-      ContractsAbis.ERC721Reward.abi,
-      ContractsAbis.ERC721Reward.bytecode,
-      providerOrSigner as ethers.Wallet,
-    );
+    if (rewardType == ECreatedRewardType.ERC721) {
+      this.contractFactory = new ethers.ContractFactory(
+        ContractsAbis.ERC721Reward.abi,
+        ContractsAbis.ERC721Reward.bytecode,
+        providerOrSigner as ethers.Wallet,
+      );
+    }
+
+    if (rewardType == ECreatedRewardType.ERC20)
+      this.contractFactory = new ethers.ContractFactory(
+        ContractsAbis.ERC20Reward.abi,
+        ContractsAbis.ERC20Reward.bytecode,
+        providerOrSigner as ethers.Wallet,
+      );
+
     this.rewardTypeToDeploy = rewardType;
   }
 
@@ -94,6 +105,61 @@ export class RewardsContractFactory
     return ResultAsync.fromPromise(
       this.providerOrSigner.estimateGas(
         this.contractFactory.getDeployTransaction(name, symbol, baseURI),
+      ),
+      (e) => {
+        return this.generateError(
+          e,
+          "Failed to wait() for contract deployment",
+        );
+      },
+    ).map((estimatedGas) => {
+      // Increase estimated gas buffer by 20%
+      return estimatedGas.mul(120).div(100);
+    });
+  }
+
+  // function to deploy a new ERC721 reward contract
+  public deployERC20Reward(
+    name: string,
+    symbol: string,
+    overrides: ContractOverrides,
+    omitGasFee = false,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | RewardsFactoryError
+  > {
+    return GasUtils.getGasFee(this.providerOrSigner).andThen((gasFee) => {
+      let contractOverrides = {
+        ...gasFee,
+        ...overrides,
+      };
+
+      // If the chain does not support EIP-1559, remove the gas fee override and only maintain the override passed in from the chain service
+      if (omitGasFee == true) {
+        contractOverrides = {
+          ...overrides,
+        };
+      }
+
+      return this.writeToContractFactory(
+        "deploy",
+        [name, symbol],
+        contractOverrides,
+        true,
+      );
+    });
+  }
+
+  public estimateGasToDeployERC20Contract(
+    name: string,
+    symbol: string,
+  ): ResultAsync<
+    ethers.BigNumber,
+    RewardsFactoryError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.providerOrSigner.estimateGas(
+        this.contractFactory.getDeployTransaction(name, symbol),
       ),
       (e) => {
         return this.generateError(

@@ -31,6 +31,24 @@ export interface IRewardsContractFactory {
     ethers.BigNumber,
     RewardsFactoryError | BlockchainCommonErrors
   >;
+
+  deployERC20Reward(
+    name: string,
+    symbol: string,
+    overrides?: ContractOverrides,
+    omitGasFee?: boolean,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | RewardsFactoryError
+  >;
+
+  estimateGasToDeployERC20Contract(
+    name: string,
+    symbol: string,
+  ): ResultAsync<
+    ethers.BigNumber,
+    RewardsFactoryError | BlockchainCommonErrors
+  >;
 }
 
 export const IRewardsContractFactoryType = Symbol.for(
