@@ -59,4 +59,7 @@ export const SDQL_Callback = make<SDQL_Callback>();
 
 export type SDQL_Returns = Brand<Array<string>, "SDQL_Returns">;
 export const SDQL_Returns = make<SDQL_Returns>();
+
+export type SDQL_Questionnaires = Brand<Array<string>, "SDQL_Questionnaires">;
+export const SDQL_Questionnaires = make<SDQL_Questionnaires>();
 //#endregion

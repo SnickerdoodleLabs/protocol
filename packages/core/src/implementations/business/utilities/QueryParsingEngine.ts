@@ -247,10 +247,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     return [compensationKeys, [...insightKeys, ...adKeys]];
   }
 
-  protected getQuestionairreAnswers() {
-    
-  }
-
   protected getInsightAndAdKeys({
     ads,
     insights,
@@ -454,6 +450,21 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   protected SDQLReturnToInsight(
     sdqlR: SDQL_Return | null,
   ): InsightString | null {
+    const actualTypeData = sdqlR as BaseOf<SDQL_Return>;
+
+    if (actualTypeData == null) {
+      return null;
+    } else if (typeof actualTypeData == "string") {
+      return InsightString(actualTypeData);
+    } else {
+      return InsightString(JSON.stringify(actualTypeData));
+    }
+  }
+
+  protected getQuestionairreAnswers(
+    sdqlR: SDQL_Return | null,
+  ): InsightString | null {
+
     const actualTypeData = sdqlR as BaseOf<SDQL_Return>;
 
     if (actualTypeData == null) {
