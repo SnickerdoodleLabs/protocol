@@ -247,6 +247,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     return [compensationKeys, [...insightKeys, ...adKeys]];
   }
 
+  protected getQuestionairreAnswers() {
+    
+  }
+
   protected getInsightAndAdKeys({
     ads,
     insights,
