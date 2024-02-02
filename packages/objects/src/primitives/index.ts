@@ -91,6 +91,7 @@ export * from "@objects/primitives/SuiPrivateKey.js";
 export * from "@objects/primitives/SuiTokenAddress.js";
 export * from "@objects/primitives/SuiTransactionDigest.js";
 export * from "@objects/primitives/TIckerSymbol.js";
+export * from "@objects/primitives/TokenAmount.js";
 export * from "@objects/primitives/TokenBalanceInsight.js";
 export * from "@objects/primitives/TokenId.js";
 export * from "@objects/primitives/TokenSecret.js";
