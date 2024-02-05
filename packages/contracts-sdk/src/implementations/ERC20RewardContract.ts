@@ -12,7 +12,7 @@ import { ResultAsync } from "neverthrow";
 
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
-import { ERewardRoles } from "@contracts-sdk/interfaces/enums";
+import { ERewardRoles } from "@contracts-sdk/interfaces/enums/index.js";
 import {
   ContractOverrides,
   IERC20RewardContract,
