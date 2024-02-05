@@ -1,19 +1,22 @@
-import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
-import {
-  ContractOverrides,
-  WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/objects";
 import {
   EVMAccountAddress,
   BlockchainCommonErrors,
   ERC20ContractError,
   EVMContractAddress,
   TokenAmount,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { EventFilter } from "ethers";
 import { ResultAsync } from "neverthrow";
 
-export interface IERC20Contract extends IBaseContract {
+import { ERewardRoles } from "@contracts-sdk/interfaces/enums";
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import {
+  ContractOverrides,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects";
+
+export interface IERC20RewardContract extends IBaseContract {
   /**
    * Returns the name of the ERC20 token
    */
@@ -96,6 +99,54 @@ export interface IERC20Contract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC20ContractError
+  >;
+
+  grantRole(
+    role: keyof typeof ERewardRoles,
+    address: EVMAccountAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC20ContractError
+  >;
+
+  revokeRole(
+    role: keyof typeof ERewardRoles,
+    address: EVMAccountAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC20ContractError
+  >;
+
+  renounceRole(
+    role: keyof typeof ERewardRoles,
+    address: EVMAccountAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC20ContractError
+  >;
+
+  addDomain(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC20ContractError
+  >;
+
+  removeDomain(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC20ContractError
+  >;
+
+  getDomains(): ResultAsync<
+    DomainName[],
     BlockchainCommonErrors | ERC20ContractError
   >;
 
