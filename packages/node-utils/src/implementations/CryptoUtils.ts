@@ -352,7 +352,7 @@ export class CryptoUtils implements ICryptoUtils {
     return okAsync(
       EVMAccountAddress(
         ethers.utils.verifyTypedData(domain, types, value, signature),
-      ),
+      )
     );
   }
 

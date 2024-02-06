@@ -125,6 +125,13 @@ export class SDQLParser {
     schema: SDQLQueryWrapper,
     cid: IpfsCID,
   ): ResultAsync<void, QueryFormatError | QueryExpiredError> {
+    console.log("schema: " + JSON.stringify(schema));
+    console.log("cid: " + cid);
+    console.log("schema.expiry: " + (schema.expiry));
+    console.log("schema.isExpired: " + (schema.isExpired()));
+
+
+
     if (schema.timestamp == null) {
       return errAsync(new QueryFormatError("schema missing timestamp"));
     } else if (isNaN(schema.timestamp)) {

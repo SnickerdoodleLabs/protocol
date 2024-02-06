@@ -177,7 +177,7 @@ export class InsightPlatformSimulator {
               return errAsync(err);
             }
 
-            if (consentToken.ownerAddress != verificationAddress) {
+            if (consentToken.ownerAddress.toLowerCase() != verificationAddress.toLowerCase()) {
               const err = new Error(
                 `Consent token ${tokenId} is not owned by the verification address ${verificationAddress}`,
               );
@@ -237,7 +237,10 @@ export class InsightPlatformSimulator {
               return errAsync(err);
             }
 
-            if (consentToken.ownerAddress != verificationAddress) {
+            console.log("consentToken.ownerAddress: " + consentToken.ownerAddress);
+            console.log("verificationAddress: " + verificationAddress);
+
+            if (consentToken.ownerAddress.toLowerCase() != verificationAddress.toLowerCase()) {
               const err = new Error(
                 `Consent token ${tokenId} is not owned by the verification address ${verificationAddress}`,
               );
@@ -342,6 +345,9 @@ export class InsightPlatformSimulator {
       } as Record<string, unknown>;
 
       // Verify the signature
+      console.log(
+        `LOOK FOR SIGNINGDATA: ${signingData} but is for account ${accountAddress}`,
+      );
       this.cryptoUtils
         .verifyTypedData(
           snickerdoodleSigningDomain,
