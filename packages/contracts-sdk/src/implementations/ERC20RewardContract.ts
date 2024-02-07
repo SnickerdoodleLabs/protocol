@@ -64,13 +64,11 @@ export class ERC20RewardContract
     ERC20ContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.decimals() as Promise<BigNumber>,
+      this.contract.decimals() as Promise<number>,
       (e) => {
         return this.generateError(e, "Unable to call decimals()");
       },
-    ).map((decimalsBN) => {
-      return decimalsBN.toNumber();
-    });
+    );
   }
 
   public totalSupply(): ResultAsync<
