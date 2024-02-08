@@ -60,7 +60,7 @@ import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IQueryService } from "@core/interfaces/business/index.js";
+import { IQueryService, IQuestionnaireServiceType } from "@core/interfaces/business/index.js";
 import {
   IConsentTokenUtils,
   IConsentTokenUtilsType,
