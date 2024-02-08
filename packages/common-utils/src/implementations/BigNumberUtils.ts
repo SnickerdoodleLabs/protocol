@@ -6,26 +6,35 @@ import { IBigNumberUtils } from "@common-utils/interfaces/index.js";
 
 @injectable()
 export class BigNumberUtils implements IBigNumberUtils {
-  protected oneBN: BigNumber = utils.parseUnits("1", 18);
   constructor() {}
 
-  public multiply(bn: BigNumber | BigNumberString, number: number): BigNumber {
+  public multiply(
+    bn: BigNumber | string,
+    number: number,
+    decimals = 18,
+  ): BigNumber {
     const bnForSure = BigNumber.from(bn);
-    const numberBN = utils.parseUnits(number.toString(), 18);
+    const multiplierBN = utils.parseUnits(number.toString(), decimals);
+    const oneBN = utils.parseUnits("1", decimals);
 
-    return bnForSure.mul(numberBN).div(this.oneBN);
+    return bnForSure.mul(multiplierBN).div(oneBN);
   }
 
-  public divide(bn: BigNumber | BigNumberString, number: number): BigNumber {
+  public divide(
+    bn: BigNumber | string,
+    number: number,
+    decimals = 18,
+  ): BigNumber {
     const bnForSure = BigNumber.from(bn);
-    const numberBN = utils.parseUnits(number.toString(), 18);
+    const divisorBN = utils.parseUnits(number.toString(), decimals);
+    const oneBN = utils.parseUnits("1", decimals);
 
-    return bnForSure.mul(this.oneBN).div(numberBN);
+    return bnForSure.mul(oneBN).div(divisorBN);
   }
 
   /* Conversion from decimal string to big number and big number string */
-  public DSToBN(decimalString: DecimalString, decimals?: number): BigNumber {
-    return utils.parseUnits(decimalString, decimals || 18);
+  public DSToBN(decimalString: DecimalString, decimals = 18): BigNumber {
+    return utils.parseUnits(decimalString, decimals);
   }
 
   public DSToBNS(
@@ -33,7 +42,7 @@ export class BigNumberUtils implements IBigNumberUtils {
     decimals?: number,
   ): BigNumberString {
     return BigNumberString(
-      utils.parseUnits(decimalString, decimals || 18).toString(),
+      utils.parseUnits(decimalString, decimals).toString(),
     );
   }
   /* End region of decimal string conversions */
@@ -43,7 +52,7 @@ export class BigNumberUtils implements IBigNumberUtils {
     return BigNumberString(BigNumber.from(bigNumber).toString());
   }
 
-  public BNToDS(bigNumber: BigNumber, decimals?: number): DecimalString {
+  public BNToDS(bigNumber: BigNumber, decimals = 18): DecimalString {
     return DecimalString(utils.formatUnits(bigNumber, decimals || 18));
   }
   /* End region of big number conversions */
@@ -55,7 +64,7 @@ export class BigNumberUtils implements IBigNumberUtils {
 
   public BNSToDS(
     bigNumberString: BigNumberString,
-    decimals?: number,
+    decimals = 18,
   ): DecimalString {
     const valueBigNumber = BigNumber.from(bigNumberString);
 
