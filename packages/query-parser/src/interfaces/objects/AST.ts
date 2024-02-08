@@ -9,6 +9,7 @@ import {
   AST_Ad,
   AST_Compensation,
   AST_Insight,
+  AST_Question,
 } from "@query-parser/interfaces/index.js";
 import { AST_SubQuery } from "@query-parser/interfaces/objects/AST_SubQuery.js";
 
@@ -22,6 +23,7 @@ export class AST {
     readonly insights: Map<SDQL_Name, AST_Insight>,
     readonly compensationParameters: ISDQLCompensationParameters | null,
     readonly compensations: Map<SDQL_Name, AST_Compensation>,
+    readonly questions: Map<SDQL_Name, AST_Question>,
     readonly queryTimestamp: UnixTimestamp,
   ) {}
 }

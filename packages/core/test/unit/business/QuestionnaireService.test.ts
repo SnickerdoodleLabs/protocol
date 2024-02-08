@@ -122,7 +122,7 @@ import {
   
   const earnedRewards = [earnedReward];
   
-  class QuestionnaireServiceMocks {
+  class QueryServiceMocks {
     public consentTokenUtils: IConsentTokenUtils;
     public dataWalletUtils: IDataWalletUtils;
     public queryParsingEngine: IQueryParsingEngine;

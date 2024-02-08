@@ -38,6 +38,7 @@ import {
   EContractStandard,
   DirectReward,
   EVMNFT,
+  EQuestionType,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_ConditionExpr,
@@ -53,6 +54,9 @@ import {
   AST_Contract,
   AST,
   AST_SubQuery,
+  AST_Question,
+  AST_TextQuestion,
+  AST_MCQuestion,
 } from "@snickerdoodlelabs/query-parser";
 
 import {
@@ -420,12 +424,26 @@ const compensation3: AST_Compensation = new AST_Compensation(
   [],
   IpfsCID("GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8"),
 );
+const question1: AST_Question = new AST_TextQuestion(
+  SDQL_Name(""),
+  EQuestionType.text,
+  new Set,
+);
+const question2: AST_Question = new AST_MCQuestion(
+  SDQL_Name(""),
+  EQuestionType.multipleChoice,
+  new Set,
+);
 
 // Create compensations map
 const compensationsMap: Map<SDQL_Name, AST_Compensation> = new Map();
 compensationsMap.set(SDQL_Name("c1"), compensation1);
 compensationsMap.set(SDQL_Name("c2"), compensation2);
 compensationsMap.set(SDQL_Name("c3"), compensation3);
+
+const questionsMap: Map<SDQL_Name, AST_Question> = new Map();
+questionsMap.set(SDQL_Name("1"), question1);
+questionsMap.set(SDQL_Name("2"), question2);
 
 const compensationParameters = {
   recipientAddress: { type: EVMAccountAddress("address"), required: true },
@@ -446,6 +464,7 @@ export const avalanche1AstInstance = new AST(
   insightsMap,
   compensationParameters,
   compensationsMap,
+  questionsMap,
   UnixTimestamp(1),
 );
 

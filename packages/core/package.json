@@ -24,6 +24,7 @@
   ],
   "scripts": {
     "alias": "tsc-alias && tsc-alias -p test/tsconfig.json",
+    "back": "cd ../.. && yarn compile && cd packages/core && npm test --t 'QueryParsingEngine'",
     "build": "yarn clean && yarn compile",
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
     "compile": "npx tsc --build && cd ../.. && yarn alias",

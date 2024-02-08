@@ -11,16 +11,17 @@ import {
   ISDQLConditionString,
   ISDQLInsightBlock,
   ISDQLInsightsBlock,
+  ISDQLQuestionBlock,
   ISDQLQuestionsBlock,
-  ISDQLQuestions,
   ISDQLQueryClause,
   ISDQLQueryObject,
   ISO8601DateString,
   SDQLQuery,
   UnixTimestamp,
+  ISDQLQuestions,
 } from "@snickerdoodlelabs/objects";
 
-export class SDQLQueryWrapper {
+export class SDQLQuestionnaireWrapper {
   /**
    * A object created from string
    */
@@ -34,31 +35,13 @@ export class SDQLQueryWrapper {
     this.preProcessAds();
     this.preProcessInsights();
     this.preProcessCompensations();
-    this.preProcessQuestions();
   }
 
-  public get version(): string | undefined {
-    if (!this.internalObj.version) {
+  public get name(): string | undefined {
+    if (!this.internalObj.name) {
       return undefined;
     }
-    return `${this.internalObj.version}`;
-  }
-
-  public preProcessQuestions() {
-    const questionSchema = this.getQuestionSchema();
-    console.log("questionSchema: " + questionSchema);
-    if (questionSchema == null) {
-      this.internalObj.questions = {}
-      return;
-    }
-
-    this.getQuestionEntries().forEach((question, num) => {
-      console.log("questionSchema: " + questionSchema);
-      // if (!question || question.requires.trim().length == 0) {
-      //   question.requires = ISDQLConditionString("true");
-      // }
-      this.internalObj.questions[num] = question;
-    });
+    return `${this.internalObj.name}`;
   }
 
   public preProcessAds() {
@@ -144,13 +127,6 @@ export class SDQLQueryWrapper {
     return isoDate;
   }
 
-  public get name(): string | undefined {
-    if (!this.internalObj.name) {
-      return undefined;
-    }
-    return `${this.internalObj.name}`;
-  }
-
   public get timestamp(): UnixTimestamp | null {
     if (this.internalObj.timestamp == null) {
       return null;
@@ -203,17 +179,9 @@ export class SDQLQueryWrapper {
     );
   }
 
-  public getQuestionEntries(): Map<number, ISDQLQuestions> {
-    const questions = this.getQuestionSchema();
-    return new Map(
-      this._getEntries<number, ISDQLQuestions>(questions),
-    );
-  }
-
   public getQuerySchema(): {
     [queryId: string]: ISDQLQueryClause;
   } {
-    console.log("this.internalObj.queries: " + JSON.stringify(this.internalObj.queries));
     return this.internalObj.queries;
   }
 
@@ -229,10 +197,15 @@ export class SDQLQueryWrapper {
     return this.internalObj.insights;
   }
 
+  public getQuestionEntries(): Map<number, ISDQLQuestions> {
+    const questions = this.getQuestionSchema();
+    return new Map(
+      this._getEntries<number, ISDQLQuestions>(questions),
+    );
+  }
+
   public getQuestionSchema(): ISDQLQuestionsBlock {
     console.log("this internalobj schema: " + JSON.stringify(this.internalObj));
-    console.log("this internalobj questions: " + JSON.stringify(this.internalObj.questions));
-
     return this.internalObj.questions;
   }
 

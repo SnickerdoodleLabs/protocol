@@ -79,6 +79,91 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected contextProvider: IContextProvider,
   ) {}
 
+  public handleQuestionnaire(
+    questionnaire: SDQLQuery,     
+    dataPermissions: DataPermissions,
+    ): ResultAsync<
+    IQueryDeliveryItems,
+    | ParserError
+    | DuplicateIdInSchema
+    | QueryFormatError
+    | MissingTokenConstructorError
+    | QueryExpiredError
+    | MissingASTError
+    | EvaluationError
+    | PersistenceError
+    | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
+  > {
+  return this.contextProvider.getContext().andThen((context) => {
+    context.publicEvents.queryPerformance.next(
+      new QueryPerformanceEvent(
+        EQueryEvents.QueryEvaluation,
+        EStatus.Start,
+        questionnaire.cid,
+      ),
+    );
+    context.publicEvents.queryPerformance.next(
+      new QueryPerformanceEvent(
+        EQueryEvents.QueryParsing,
+        EStatus.Start,
+        questionnaire.cid,
+      ),
+    );
+    console.log("questionnaire is: " + JSON.stringify(questionnaire));
+    return this.parseQuestionnaire(questionnaire)
+      .andThen((ast) => {
+        console.log("ast is: " + JSON.stringify(ast));
+
+        context.publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.QueryParsing,
+            EStatus.End,
+            questionnaire.cid,
+          ),
+        );
+        return this.gatherDeliveryItems(ast, questionnaire.cid, dataPermissions).map(
+          (result) => {
+            context.publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.QueryEvaluation,
+                EStatus.End,
+                questionnaire.cid,
+              ),
+            );
+            console.log("delivery items are: " + result);
+            return result;
+          },
+        );
+      })
+      .mapErr((err) => {
+        context.publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.QueryEvaluation,
+            EStatus.End,
+            questionnaire.cid,
+            undefined,
+            err,
+          ),
+        );
+        context.publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.QueryParsing,
+            EStatus.End,
+            questionnaire.cid,
+            undefined,
+            err,
+          ),
+        );
+        return err;
+      });
+  });
+
+}
+
   public handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
@@ -158,6 +243,26 @@ export class QueryParsingEngine implements IQueryParsingEngine {
         });
     });
   }
+
+  public parseQuestionnaire(
+    query: SDQLQuery,
+  ): ResultAsync<
+  AST,
+  | EvaluationError
+  | QueryFormatError
+  | QueryExpiredError
+  | ParserError
+  | EvaluationError
+  | QueryFormatError
+  | QueryExpiredError
+  | MissingTokenConstructorError
+  | DuplicateIdInSchema
+  | MissingASTError
+> {
+    return this.queryFactories
+      .makeParserAsync(query.cid, query.query)
+      .andThen((sdqlParser) => sdqlParser.buildQuestionnaireAST());
+}
 
   public parseQuery(
     query: SDQLQuery,
@@ -450,21 +555,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   protected SDQLReturnToInsight(
     sdqlR: SDQL_Return | null,
   ): InsightString | null {
-    const actualTypeData = sdqlR as BaseOf<SDQL_Return>;
-
-    if (actualTypeData == null) {
-      return null;
-    } else if (typeof actualTypeData == "string") {
-      return InsightString(actualTypeData);
-    } else {
-      return InsightString(JSON.stringify(actualTypeData));
-    }
-  }
-
-  protected getQuestionairreAnswers(
-    sdqlR: SDQL_Return | null,
-  ): InsightString | null {
-
     const actualTypeData = sdqlR as BaseOf<SDQL_Return>;
 
     if (actualTypeData == null) {

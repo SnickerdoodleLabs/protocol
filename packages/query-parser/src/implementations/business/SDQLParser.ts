@@ -10,7 +10,9 @@ import {
   ISDQLAd,
   ISDQLCompensationParameters,
   ISDQLCompensations,
+  ISDQLQuestions,
   ISDQLInsightBlock,
+  ISDQLQuestionParameters,
   MissingASTError,
   MissingTokenConstructorError,
   ParserError,
@@ -19,6 +21,7 @@ import {
   SDQL_Name,
   URLString,
   Version,
+  EQuestionType,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -35,6 +38,7 @@ import {
   AST_Expr,
   AST_Insight,
   AST_PropertyQuery,
+  AST_Question,
   AST_RequireExpr,
   AST_SubQuery,
   AST_Web3Query,
@@ -42,6 +46,8 @@ import {
   IQueryObjectFactory,
   ParserContextDataTypes,
   SDQLQueryWrapper,
+  AST_MCQuestion, 
+  AST_TextQuestion, 
 } from "@query-parser/interfaces/index.js";
 
 export class SDQLParser {
@@ -55,6 +61,10 @@ export class SDQLParser {
   public compensations = new Map<SDQL_Name, AST_Compensation>();
   public compensationParameters: ISDQLCompensationParameters | null = null;
 
+  public questions = new Map<SDQL_Name, AST_Question>();
+  public questionParameters: ISDQLQuestionParameters | null = null;
+
+
   constructor(
     readonly cid: IpfsCID,
     readonly schema: SDQLQueryWrapper,
@@ -62,6 +72,40 @@ export class SDQLParser {
   ) {
     this.exprParser = new ExprParser(this.context);
     this.dependencyParser = new DependencyParser();
+  }
+
+  public buildQuestionnaireAST(): 
+  ResultAsync<
+    AST,
+    | ParserError
+    | DuplicateIdInSchema
+    | QueryFormatError
+    | MissingTokenConstructorError
+    | QueryExpiredError
+    | MissingASTError
+  > {
+    console.log("inside build ast");
+    return this.validateQuestionnaireSchema(this.schema, this.cid).andThen(() => {
+      return this.parse().map(() => {
+        console.log("this.schema: " + JSON.stringify(this.schema));
+        console.log("this.cid: " + this.cid);
+        console.log("this.questions: " + JSON.stringify(this.questions));
+        const ast = new AST(
+          Version(this.schema.version!),
+          this.schema.description!,
+          this.schema.business!,
+          this.ads!,
+          this.queries!,
+          this.insights,
+          this.compensationParameters,
+          this.compensations,
+          this.questions,
+          this.schema.timestamp!,
+        );
+        console.log("ast: " + JSON.stringify(ast));
+        return ast;
+      });
+    });
   }
 
   public buildAST(): ResultAsync<
@@ -73,8 +117,12 @@ export class SDQLParser {
     | QueryExpiredError
     | MissingASTError
   > {
+    console.log("inside build ast");
     return this.validateSchema(this.schema, this.cid).andThen(() => {
       return this.parse().map(() => {
+        console.log("this.schema: " + JSON.stringify(this.schema));
+        console.log("this.cid: " + this.cid);
+
         return new AST(
           Version(this.schema.version!),
           this.schema.description,
@@ -84,11 +132,40 @@ export class SDQLParser {
           this.insights,
           this.compensationParameters,
           this.compensations,
+          this.questions,
           this.schema.timestamp!,
         );
       });
     });
   }
+
+  public validateQuestionnaireSchema(
+    schema: SDQLQueryWrapper,
+    cid: IpfsCID,
+  ): ResultAsync<void, QueryFormatError | QueryExpiredError> {
+    return ResultUtils.combine([
+      // this.validateMeta(schema),
+      // this.validateTimestampExpiry(schema, cid),
+      this.validateQuestions()
+    ])
+      .mapErr((e) => e)
+      .map(() => {});
+  }
+
+  private validateQuestions(): ResultAsync<void, QueryFormatError | QueryExpiredError> {
+    const questionsToValidate: ResultAsync<void, QueryFormatError>[] = [];
+    this.schema
+      .getCompensationEntries()
+      .forEach((compensation, compensationKey) => {
+        if (compensationKey == "parameters") {
+          return questionsToValidate.push(okAsync(undefined));
+        }
+        return this.validateCompensation(compensationKey, compensation);
+      });
+
+    return ResultUtils.combine(questionsToValidate).map(() => {});
+  }
+
 
   // #region schema validation
   public validateSchema(
@@ -250,6 +327,7 @@ export class SDQLParser {
       return ResultUtils.combine([
         this.parseAds(),
         this.parseInsights(),
+        this.parseQuestions(),
       ]).andThen(() => {
         return this.parseCompensations();
       });
@@ -435,6 +513,42 @@ export class SDQLParser {
       });
   }
 
+    private parseQuestions(): ResultAsync<
+    void,
+    DuplicateIdInSchema | QueryFormatError | MissingASTError
+  > {
+
+    try {
+      const questionnaireSchema = this.schema.getQuestionSchema();
+      console.log("questionnaireSchema: " + JSON.stringify(questionnaireSchema));
+      const questions = new Array<
+        AST_MCQuestion | AST_TextQuestion 
+      >();
+      for (const qName in questionnaireSchema) {
+        const questionName = SDQL_Name(qName);
+        console.log("questionName: " + questionName);
+        const schema = questionnaireSchema[qName];
+        const questionType = schema.questionType;
+        const questionQ = schema.question;
+        const questionOptions = schema.options;
+        if (questionType != EQuestionType.multipleChoice) {
+          questions.push(AST_TextQuestion.fromSchema(questionName, schema));
+        } else {
+          questions.push(AST_MCQuestion.fromSchema(questionName, schema));
+        }
+      }
+      console.log("questions: " + questions);
+      for (const question of questions) {
+        this.saveInContext(question.name, question);
+        this.questions.set(question.name, question);
+      }
+      console.log("this.questions: " + JSON.stringify(this.questions));
+      return okAsync(undefined);
+    } catch (err) {
+      return errAsync(this.transformError(err as Error));
+    }
+  }
+
   private saveInContext(name: string, val: ParserContextDataTypes): void {
     if (this.context.has(name)) {
       throw new DuplicateIdInSchema(name);
@@ -479,7 +593,6 @@ export class SDQLParser {
       );
     });
   }
-  // #endregion
 
   private transformError(
     err: Error,

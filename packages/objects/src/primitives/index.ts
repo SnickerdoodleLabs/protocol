@@ -73,6 +73,8 @@ export * from "@objects/primitives/PublicKey.js";
 export * from "@objects/primitives/QueryTypePermissionMap.js";
 export * from "@objects/primitives/QueryTypes.js";
 export * from "@objects/primitives/QuestionnaireAnswerId.js";
+export * from "@objects/primitives/QuestionnaireQuestionTypes.js";
+
 export * from "@objects/primitives/RewardFunctionParam.js";
 export * from "@objects/primitives/SDQL.js";
 export * from "@objects/primitives/SDQLString.js";
