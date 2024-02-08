@@ -6,6 +6,7 @@ export * from "@contracts-sdk/interfaces/IERC7529Contract.js";
 export * from "@contracts-sdk/interfaces/IMinimalForwarderContract.js";
 export * from "@contracts-sdk/interfaces/ISiftContract.js";
 export * from "@contracts-sdk/interfaces/IERC721RewardContract.js";
+export * from "@contracts-sdk/interfaces/IERC20Contract.js";
 
 export * from "@contracts-sdk/interfaces/objects/index.js";
 export * from "@contracts-sdk/interfaces/enums/index.js";
