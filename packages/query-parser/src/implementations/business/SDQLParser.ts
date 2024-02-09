@@ -10,7 +10,6 @@ import {
   ISDQLAd,
   ISDQLCompensationParameters,
   ISDQLCompensations,
-  ISDQLQuestions,
   ISDQLInsightBlock,
   ISDQLQuestionParameters,
   MissingASTError,
@@ -22,6 +21,7 @@ import {
   URLString,
   Version,
   EQuestionType,
+  ISDQLQuestion,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -54,16 +54,13 @@ export class SDQLParser {
   public context = new Map<string, ParserContextDataTypes>();
   public exprParser: ExprParser;
   public dependencyParser: DependencyParser;
-
   public queries = new Map<SDQL_Name, AST_SubQuery>();
   public ads = new Map<SDQL_Name, AST_Ad>();
   public insights = new Map<SDQL_Name, AST_Insight>();
   public compensations = new Map<SDQL_Name, AST_Compensation>();
   public compensationParameters: ISDQLCompensationParameters | null = null;
-
-  public questions = new Map<SDQL_Name, AST_Question>();
+  public questions: AST_Question[] = [];
   public questionParameters: ISDQLQuestionParameters | null = null;
-
 
   constructor(
     readonly cid: IpfsCID,
@@ -84,12 +81,8 @@ export class SDQLParser {
     | QueryExpiredError
     | MissingASTError
   > {
-    console.log("inside build ast");
     return this.validateQuestionnaireSchema(this.schema, this.cid).andThen(() => {
       return this.parse().map(() => {
-        console.log("this.schema: " + JSON.stringify(this.schema));
-        console.log("this.cid: " + this.cid);
-        console.log("this.questions: " + JSON.stringify(this.questions));
         const ast = new AST(
           Version(this.schema.version!),
           this.schema.description!,
@@ -102,7 +95,6 @@ export class SDQLParser {
           this.questions,
           this.schema.timestamp!,
         );
-        console.log("ast: " + JSON.stringify(ast));
         return ast;
       });
     });
@@ -117,12 +109,8 @@ export class SDQLParser {
     | QueryExpiredError
     | MissingASTError
   > {
-    console.log("inside build ast");
     return this.validateSchema(this.schema, this.cid).andThen(() => {
       return this.parse().map(() => {
-        console.log("this.schema: " + JSON.stringify(this.schema));
-        console.log("this.cid: " + this.cid);
-
         return new AST(
           Version(this.schema.version!),
           this.schema.description,
@@ -143,29 +131,42 @@ export class SDQLParser {
     schema: SDQLQueryWrapper,
     cid: IpfsCID,
   ): ResultAsync<void, QueryFormatError | QueryExpiredError> {
-    return ResultUtils.combine([
-      // this.validateMeta(schema),
-      // this.validateTimestampExpiry(schema, cid),
-      this.validateQuestions()
-    ])
+    return this.validateQuestions()
       .mapErr((e) => e)
       .map(() => {});
   }
 
-  private validateQuestions(): ResultAsync<void, QueryFormatError | QueryExpiredError> {
-    const questionsToValidate: ResultAsync<void, QueryFormatError>[] = [];
-    this.schema
-      .getCompensationEntries()
-      .forEach((compensation, compensationKey) => {
-        if (compensationKey == "parameters") {
-          return questionsToValidate.push(okAsync(undefined));
-        }
-        return this.validateCompensation(compensationKey, compensation);
-      });
+  // return ResultUtils.combine(
+  //   this.schema.getInsightEntries().map(([iKey, insight]) => {
+  //     return this.validateInsight(iKey, insight);
+  //   }),
+  // )
+  //   .mapErr((e) => e)
+  //   .map(() => {});
 
-    return ResultUtils.combine(questionsToValidate).map(() => {});
+  private validateQuestions(): ResultAsync<void, QueryFormatError | QueryExpiredError> {
+    return ResultUtils.combine(
+      this.schema.getQuestionEntries().map(([qKey, question]) => {
+        return this.validateQuestion(question);
+      }),
+    )
+      .mapErr((e) => e)
+      .map(() => {});
   }
 
+  private validateQuestion(question: ISDQLQuestion): ResultAsync<void, QueryFormatError | QueryExpiredError> {
+      if (
+        question.question == null ||
+        question.questionType == null
+      ) {
+        return errAsync(
+          new QueryFormatError(
+            `Query CID:${this.cid} Corrupted Question: ${question}`,
+          ),
+        );
+      }
+      return okAsync(undefined);
+  }
 
   // #region schema validation
   public validateSchema(
@@ -202,13 +203,6 @@ export class SDQLParser {
     schema: SDQLQueryWrapper,
     cid: IpfsCID,
   ): ResultAsync<void, QueryFormatError | QueryExpiredError> {
-    console.log("schema: " + JSON.stringify(schema));
-    console.log("cid: " + cid);
-    console.log("schema.expiry: " + (schema.expiry));
-    console.log("schema.isExpired: " + (schema.isExpired()));
-
-
-
     if (schema.timestamp == null) {
       return errAsync(new QueryFormatError("schema missing timestamp"));
     } else if (isNaN(schema.timestamp)) {
@@ -517,32 +511,23 @@ export class SDQLParser {
     void,
     DuplicateIdInSchema | QueryFormatError | MissingASTError
   > {
-
     try {
       const questionnaireSchema = this.schema.getQuestionSchema();
-      console.log("questionnaireSchema: " + JSON.stringify(questionnaireSchema));
-      const questions = new Array<
-        AST_MCQuestion | AST_TextQuestion 
-      >();
+      const questions = new Array<AST_MCQuestion | AST_TextQuestion>();
       for (const qName in questionnaireSchema) {
         const questionName = SDQL_Name(qName);
-        console.log("questionName: " + questionName);
         const schema = questionnaireSchema[qName];
         const questionType = schema.questionType;
-        const questionQ = schema.question;
-        const questionOptions = schema.options;
-        if (questionType != EQuestionType.multipleChoice) {
-          questions.push(AST_TextQuestion.fromSchema(questionName, schema));
-        } else {
+        if (questionType == EQuestionType.multipleChoice) {
           questions.push(AST_MCQuestion.fromSchema(questionName, schema));
+        } else {
+          questions.push(AST_TextQuestion.fromSchema(questionName, schema));
         }
       }
-      console.log("questions: " + questions);
       for (const question of questions) {
         this.saveInContext(question.name, question);
-        this.questions.set(question.name, question);
+        this.questions.push(question);
       }
-      console.log("this.questions: " + JSON.stringify(this.questions));
       return okAsync(undefined);
     } catch (err) {
       return errAsync(this.transformError(err as Error));

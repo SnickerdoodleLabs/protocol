@@ -8,16 +8,8 @@ import {
   ISDQLConditionString,
 } from "@objects/primitives/index.js";
 
-export interface ISDQLQuestions {
-  // name: string;
-  // image: IpfsCID | URLString | null;
-  // description: string;
-  // requires?: ISDQLConditionString;
-  // chainId: ChainId;
-  // callback: ISDQLCallback;
-  // alternatives?: CompensationKey[];
-
+export interface ISDQLQuestion {
   questionType: EQuestionType;
   question: string;
-  options: Set<string>; // use index as key
+  options: string[]; 
 }

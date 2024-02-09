@@ -23,6 +23,9 @@ export enum EQueryEvents {
    */
   ProcessesBeforeReturningQueryEvaluation = "ProcessesBeforeQueryEvaluation",
 
+
+  QuestionnaireParsing = "QueryParsing",
+  QuestionnaireEvaluation = "QuestionnaireEvaluation",
   QueryParsing = "QueryParsing",
   QueryEvaluation = "QueryEvaluation",
   AgeEvaluation = "AgeEvaluation",

@@ -63,6 +63,7 @@ import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
+import { IQuestionnaireService } from "@core/interfaces/business";
 
 const now = UnixTimestamp(12345);
 const then = UnixTimestamp(2345);
@@ -130,6 +131,7 @@ class QueryServiceMocks {
   public consentTokenUtils: IConsentTokenUtils;
   public dataWalletUtils: IDataWalletUtils;
   public queryParsingEngine: IQueryParsingEngine;
+  public questionnaireService: IQuestionnaireService;
   public sdqlQueryRepo: ISDQLQueryRepository;
   public insightPlatformRepo: IInsightPlatformRepository;
   public consentContractRepo: IConsentContractRepository;
@@ -152,6 +154,7 @@ class QueryServiceMocks {
     this.consentTokenUtils = td.object<IConsentTokenUtils>();
     this.dataWalletUtils = td.object<IDataWalletUtils>();
     this.queryParsingEngine = td.object<IQueryParsingEngine>();
+    this.questionnaireService = td.object<IQuestionnaireService>();
     this.sdqlQueryRepo = td.object<ISDQLQueryRepository>();
     this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
     this.consentContractRepo = td.object<IConsentContractRepository>();
@@ -296,6 +299,7 @@ class QueryServiceMocks {
       this.consentTokenUtils,
       this.dataWalletUtils,
       this.queryParsingEngine,
+      this.questionnaireService,
       this.sdqlQueryRepo,
       this.insightPlatformRepo,
       this.consentContractRepo,

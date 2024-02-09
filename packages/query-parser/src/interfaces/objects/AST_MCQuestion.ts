@@ -2,6 +2,8 @@ import {
     SDQL_Name,
     ISDQLQuestionBlock,
     EQuestionType,
+    StorageKey,
+    EQuestionnaireQuestionType,
   } from "@snickerdoodlelabs/objects";
 
 import { AST_Question } from "@query-parser/interfaces/objects/AST_Question.js";
@@ -9,14 +11,14 @@ import { AST_Question } from "@query-parser/interfaces/objects/AST_Question.js";
   export class AST_MCQuestion extends AST_Question {
     constructor(
         readonly name: SDQL_Name,
-        readonly questionType: EQuestionType.multipleChoice,
-        readonly possibleResponse: Set<string>,
+        readonly questionType: EQuestionnaireQuestionType.MultipleChoice,
+        readonly possibleResponses: string[],
       ) {
-        super(name, questionType, possibleResponse);
+        super(name, questionType, possibleResponses);
       }
   
     static fromSchema(name: SDQL_Name, schema: ISDQLQuestionBlock): AST_MCQuestion {
-        return new AST_MCQuestion(name, EQuestionType.multipleChoice, schema.options);
+        return new AST_MCQuestion(name, EQuestionnaireQuestionType.MultipleChoice, schema.options);
     }
   
     // getPermission(): Result<EWalletDataType, MissingWalletDataTypeError> {

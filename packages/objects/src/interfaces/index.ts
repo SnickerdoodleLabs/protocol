@@ -30,8 +30,8 @@ export * from "@objects/interfaces/ISDQLQuestionsBlock.js";
 export * from "@objects/interfaces/ISDQLQuestionParameters.js";
 
 export * from "@objects/interfaces/ISDQLQuestionsBlock.js";
-export * from "@objects/interfaces/ISDQLQuestions.js";
-
+export * from "@objects/interfaces/ISDQLQuestion.js";
+export * from "@objects/interfaces/IQuestionnaireDeliveryItems.js";
 
 export * from "@objects/interfaces/ISDQLQueryClause.js";
 export * from "@objects/interfaces/ISDQLQueryConditions.js";

@@ -13,6 +13,7 @@ export enum EQuestionnaireStatus {
 export enum EQuestionnaireQuestionType {
   MultipleChoice,
   Location,
+  Text,
 }
 
 export class Questionnaire {

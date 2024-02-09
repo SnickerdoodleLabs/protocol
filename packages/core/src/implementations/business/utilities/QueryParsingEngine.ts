@@ -28,11 +28,17 @@ import {
   PublicEvents,
   EQueryEvents,
   QueryPerformanceEvent,
+  QuestionnairePerformanceEvent,
   EStatus,
   AccountIndexingError,
   AjaxError,
   InvalidParametersError,
   MethodSupportError,
+  Questionnaire,
+  QuestionnaireQuestion,
+  EQuestionnaireQuestionType,
+  EQuestionnaireStatus,
+  MarketplaceTag,
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
@@ -46,7 +52,7 @@ import {
   SDQLParser,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { BaseOf } from "ts-brand";
 
@@ -56,6 +62,8 @@ import {
   IAdDataRepository,
   IAdDataRepositoryType,
   IAdRepositoryType,
+  IQuestionnaireRepository,
+  IQuestionnaireRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IContextProvider,
@@ -75,6 +83,8 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected adContentRepository: IAdContentRepository,
     @inject(IAdDataRepositoryType)
     protected adDataRepository: IAdDataRepository,
+    @inject(IQuestionnaireRepositoryType)
+    protected questionnaireRepository: IQuestionnaireRepository,
     @inject(IContextProviderType)
     protected contextProvider: IContextProvider,
   ) {}
@@ -83,7 +93,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     questionnaire: SDQLQuery,     
     dataPermissions: DataPermissions,
     ): ResultAsync<
-    IQueryDeliveryItems,
+    Questionnaire,
     | ParserError
     | DuplicateIdInSchema
     | QueryFormatError
@@ -100,49 +110,39 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   > {
   return this.contextProvider.getContext().andThen((context) => {
     context.publicEvents.queryPerformance.next(
-      new QueryPerformanceEvent(
-        EQueryEvents.QueryEvaluation,
+      new QuestionnairePerformanceEvent(
+        EQueryEvents.QuestionnaireEvaluation,
         EStatus.Start,
         questionnaire.cid,
       ),
     );
     context.publicEvents.queryPerformance.next(
-      new QueryPerformanceEvent(
-        EQueryEvents.QueryParsing,
+      new QuestionnairePerformanceEvent(
+        EQueryEvents.QuestionnaireParsing,
         EStatus.Start,
         questionnaire.cid,
       ),
     );
-    console.log("questionnaire is: " + JSON.stringify(questionnaire));
     return this.parseQuestionnaire(questionnaire)
       .andThen((ast) => {
-        console.log("ast is: " + JSON.stringify(ast));
-
-        context.publicEvents.queryPerformance.next(
-          new QueryPerformanceEvent(
-            EQueryEvents.QueryParsing,
-            EStatus.End,
-            questionnaire.cid,
-          ),
-        );
-        return this.gatherDeliveryItems(ast, questionnaire.cid, dataPermissions).map(
-          (result) => {
-            context.publicEvents.queryPerformance.next(
-              new QueryPerformanceEvent(
-                EQueryEvents.QueryEvaluation,
-                EStatus.End,
-                questionnaire.cid,
-              ),
-            );
-            console.log("delivery items are: " + result);
-            return result;
-          },
-        );
-      })
+        return ResultUtils.combine(
+          ast.questions.map((astQuestion, index) => {
+            return okAsync(new QuestionnaireQuestion(index, astQuestion.questionType, astQuestion.name, astQuestion.possibleResponses));
+          }),
+        ).map((questionnaireQuestions) => {
+          context.publicEvents.queryPerformance.next(
+            new QuestionnairePerformanceEvent(
+              EQueryEvents.QuestionnaireParsing,
+              EStatus.End,
+              questionnaire.cid,
+            ),
+          );
+          return (new Questionnaire(questionnaire.cid, MarketplaceTag("TODO"), EQuestionnaireStatus.Available, questionnaireQuestions));
+        })
       .mapErr((err) => {
         context.publicEvents.queryPerformance.next(
-          new QueryPerformanceEvent(
-            EQueryEvents.QueryEvaluation,
+          new QuestionnairePerformanceEvent(
+            EQueryEvents.QuestionnaireEvaluation,
             EStatus.End,
             questionnaire.cid,
             undefined,
@@ -150,8 +150,8 @@ export class QueryParsingEngine implements IQueryParsingEngine {
           ),
         );
         context.publicEvents.queryPerformance.next(
-          new QueryPerformanceEvent(
-            EQueryEvents.QueryParsing,
+          new QuestionnairePerformanceEvent(
+            EQueryEvents.QuestionnaireParsing,
             EStatus.End,
             questionnaire.cid,
             undefined,
@@ -161,7 +161,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
         return err;
       });
   });
-
+})
 }
 
   public handleQuery(
@@ -198,6 +198,9 @@ export class QueryParsingEngine implements IQueryParsingEngine {
           query.cid,
         ),
       );
+      console.log("query.query: " + query.query);
+      console.log("JSON.stringify(query.query): " + JSON.stringify(query.query));
+
       return this.parseQuery(query)
         .andThen((ast) => {
           context.publicEvents.queryPerformance.next(
@@ -261,7 +264,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
 > {
     return this.queryFactories
       .makeParserAsync(query.cid, query.query)
-      .andThen((sdqlParser) => sdqlParser.buildQuestionnaireAST());
+      .andThen((sdqlParser) => {
+        return sdqlParser.buildQuestionnaireAST();
+      })
+      .mapErr((error) => error);
 }
 
   public parseQuery(

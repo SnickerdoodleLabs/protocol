@@ -730,6 +730,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
             IQuestionnaireServiceType,
           );
 
+          console.log("Get Questionnaires: HELLO")
         return questionnaireService.getQuestionnaires(
           pagingRequest,
           sourceDomain,

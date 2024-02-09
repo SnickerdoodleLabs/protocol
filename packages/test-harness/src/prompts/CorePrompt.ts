@@ -55,6 +55,10 @@ export class CorePrompt extends DataWalletPrompt {
       { name: "Remove Account", value: "removeAccount" },
       { name: "Check Account", value: "checkAccount" },
       new inquirer.Separator(),
+      // {
+      //   name: "Receive Questionnaire",
+      //   value: "getQuestionnaire",
+      // },
       {
         name: "Opt In to Campaign",
         value: "optInCampaign",
@@ -152,6 +156,8 @@ export class CorePrompt extends DataWalletPrompt {
           return this.addAccount.start();
         case "removeAccount":
           return this.removeAccount.start();
+        // case "getQuestionnaire":
+        //   return this.getQuestionnaire.start();
         case "optInCampaign":
           return this.optInCampaign.start();
         case "optOutCampaign":

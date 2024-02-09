@@ -121,9 +121,11 @@ export class OptInCampaign extends Prompt {
                 });
             }
 
+            console.log("Chose to Accept!");
             return this.core.invitation
               .checkInvitationStatus(invitation.invitation)
               .andThen((invitationStatus) => {
+                console.log("invitationStatus is: " + invitationStatus);
                 if (invitationStatus != EInvitationStatus.New) {
                   return errAsync(
                     new Error(
@@ -131,6 +133,8 @@ export class OptInCampaign extends Prompt {
                     ),
                   );
                 }
+                console.log("invitationStatus accepted with no conditions: ");
+
                 // Accept with no conditions
                 return this.core.invitation.acceptInvitation(
                   invitation.invitation,

@@ -8,3 +8,5 @@ export * from "@objects/businessObjects/events/PublicEvents.js";
 
 export * from "@objects/businessObjects/events/social/index.js";
 export * from "@objects/businessObjects/events/query/index.js";
+export * from "@objects/businessObjects/events/questionnaire/index.js";
+

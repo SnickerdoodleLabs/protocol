@@ -55,6 +55,7 @@ import {
 import {
   AdContentRepository,
   AdDataRepository,
+  QuestionnaireRepository,
 } from "@core/implementations/data/index.js";
 import {
   IBrowsingDataRepository,
@@ -112,6 +113,7 @@ class QueryParsingMocks {
   public demoDataRepo = td.object<IDemographicDataRepository>();
   public browsingDataRepo = td.object<IBrowsingDataRepository>();
   public adDataRepo = td.object<AdDataRepository>();
+  public questionnaireRepo = td.object<QuestionnaireRepository>();
   public socialRepo = td.object<ISocialRepository>();
   public accountRepo = td.object<ILinkedAccountRepository>();
   public timeUtils: ITimeUtils = td.object<ITimeUtils>();
@@ -219,6 +221,7 @@ class QueryParsingMocks {
       this.queryUtils,
       this.adContentRepository,
       this.adDataRepo,
+      this.questionnaireRepo,
       this.contextProvider,
     );
   }
@@ -431,41 +434,41 @@ class QueryParsingMocks {
 //   });
 // });
 
-// describe("Testing avalanche 4", () => {
-//   test("avalanche 4 insights", async () => {
-//     const mocks = new QueryParsingMocks();
-//     const engine = mocks.factory();
+describe("Testing avalanche 4", () => {
+  test("avalanche 4 insights", async () => {
+    const mocks = new QueryParsingMocks();
+    const engine = mocks.factory();
 
-//     const expectedInsights = {
-//       insights: {
-//         i1: null,
-//         i2: { insight: "tasty", proof: "" },
-//         i3: { insight: "1", proof: "" },
-//         i4: { insight: "female", proof: "" },
-//         i5: { insight: "{}", proof: "" },
-//         i6: { insight: "[]", proof: "" },
-//         i7: { insight: "[]", proof: "" },
-//         i8: { insight: "[]", proof: "" },
-//       },
-//       ads: {},
-//     };
+    const expectedInsights = {
+      insights: {
+        i1: null,
+        i2: { insight: "tasty", proof: "" },
+        i3: { insight: "1", proof: "" },
+        i4: { insight: "female", proof: "" },
+        i5: { insight: "{}", proof: "" },
+        i6: { insight: "[]", proof: "" },
+        i7: { insight: "[]", proof: "" },
+        i8: { insight: "[]", proof: "" },
+      },
+      ads: {},
+    };
 
-//     await engine
-//       .handleQuery(sdqlQuery4, new DataPermissions(allPermissions))
-//       .andThen((deliveredInsights) => {
-//         expect(deliveredInsights).toMatchObject(expectedInsights);
-//         expect(
-//           Object.values(deliveredInsights.insights!).length > 0,
-//         ).toBeTruthy();
+    await engine
+      .handleQuery(sdqlQuery4, new DataPermissions(allPermissions))
+      .andThen((deliveredInsights) => {
+        expect(deliveredInsights).toMatchObject(expectedInsights);
+        expect(
+          Object.values(deliveredInsights.insights!).length > 0,
+        ).toBeTruthy();
 
-//         return okAsync(undefined);
-//       })
-//       .mapErr((e) => {
-//         console.log(e);
-//         fail(e.message);
-//       });
-//   });
-// });
+        return okAsync(undefined);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        fail(e.message);
+      });
+  });
+});
 
 // describe("Testing rewardless 1 ", () => {
 //   test("rewardless 1 insights", async () => {
@@ -518,7 +521,7 @@ class QueryParsingMocks {
 // });
 
 describe("Handle Questionnaire", () => {
-  test("Should handle query with no ads", async () => {
+  test("Should handle questionnaire with no ads", async () => {
     const mocks = new QueryParsingMocks();
     const engine = mocks.factory();
 

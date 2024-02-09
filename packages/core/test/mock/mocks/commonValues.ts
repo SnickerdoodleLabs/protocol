@@ -39,6 +39,7 @@ import {
   DirectReward,
   EVMNFT,
   EQuestionType,
+  EQuestionnaireQuestionType,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_ConditionExpr,
@@ -426,13 +427,13 @@ const compensation3: AST_Compensation = new AST_Compensation(
 );
 const question1: AST_Question = new AST_TextQuestion(
   SDQL_Name(""),
-  EQuestionType.text,
-  new Set,
+  EQuestionnaireQuestionType.Text,
+  [],
 );
 const question2: AST_Question = new AST_MCQuestion(
   SDQL_Name(""),
-  EQuestionType.multipleChoice,
-  new Set,
+  EQuestionnaireQuestionType.MultipleChoice,
+  [],
 );
 
 // Create compensations map
@@ -441,9 +442,9 @@ compensationsMap.set(SDQL_Name("c1"), compensation1);
 compensationsMap.set(SDQL_Name("c2"), compensation2);
 compensationsMap.set(SDQL_Name("c3"), compensation3);
 
-const questionsMap: Map<SDQL_Name, AST_Question> = new Map();
-questionsMap.set(SDQL_Name("1"), question1);
-questionsMap.set(SDQL_Name("2"), question2);
+const questions: AST_Question[] = [];
+questions.push(question1);
+questions.push(question2);
 
 const compensationParameters = {
   recipientAddress: { type: EVMAccountAddress("address"), required: true },
@@ -464,7 +465,7 @@ export const avalanche1AstInstance = new AST(
   insightsMap,
   compensationParameters,
   compensationsMap,
-  questionsMap,
+  questions,
   UnixTimestamp(1),
 );
 

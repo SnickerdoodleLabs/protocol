@@ -18,7 +18,7 @@ import {
   ISO8601DateString,
   SDQLQuery,
   UnixTimestamp,
-  ISDQLQuestions,
+  ISDQLQuestion,
 } from "@snickerdoodlelabs/objects";
 
 export class SDQLQuestionnaireWrapper {
@@ -197,14 +197,14 @@ export class SDQLQuestionnaireWrapper {
     return this.internalObj.insights;
   }
 
-  public getQuestionEntries(): Map<number, ISDQLQuestions> {
+  public getQuestionEntries(): Map<number, ISDQLQuestion> {
     const questions = this.getQuestionSchema();
     return new Map(
-      this._getEntries<number, ISDQLQuestions>(questions),
+      this._getEntries<number, ISDQLQuestion>(questions),
     );
   }
 
-  public getQuestionSchema(): ISDQLQuestionsBlock {
+  public getQuestionSchema(): ISDQLQuestionBlock[] {
     console.log("this internalobj schema: " + JSON.stringify(this.internalObj));
     return this.internalObj.questions;
   }
