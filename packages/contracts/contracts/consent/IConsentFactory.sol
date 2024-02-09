@@ -55,4 +55,14 @@ interface IConsentFactory {
     function addUserRole(address user, bytes32 role) external;
 
     function removeUserRole(address user, bytes32 role) external;
+
+    function getQuestionnaires() external view returns (string[] memory questionnaireArr);
+    
+    function addQuestionnaire(
+        string memory ipfsCid
+    ) external;
+
+    function removeQuestionnaire(
+        uint8 index
+    ) external;
 }

@@ -16,6 +16,7 @@ import {
   MarketplaceTag,
   TransactionResponseError,
   BlockchainCommonErrors,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -303,6 +304,42 @@ export class ConsentFactoryContractWrapper
     return this.fallback(
       () => this.primary.getAddressOfConsentCreated(txRes),
       () => this.secondary?.getAddressOfConsentCreated(txRes),
+    );
+  }
+
+  public getQuestionnaires(): ResultAsync<
+    IpfsCID[],
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
+    return this.fallback(
+      () => this.primary.getQuestionnaires(),
+      () => this.secondary?.getQuestionnaires(),
+    );
+  }
+
+  public addQuestionnaire(
+    ipfsCid: IpfsCID,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.fallback(
+      () => this.primary.addQuestionnaire(ipfsCid, overrides),
+      () => this.secondary?.addQuestionnaire(ipfsCid, overrides),
+    );
+  }
+
+  public removeQuestionnaire(
+    index: number,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.fallback(
+      () => this.primary.removeQuestionnaire(index, overrides),
+      () => this.secondary?.removeQuestionnaire(index, overrides),
     );
   }
 }
