@@ -447,6 +447,8 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     function addQuestionnaire(
         string memory ipfsCid
     ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(questionnaires.length < 128, "Consent Factory: Maximum number of questionnaires reached");
+       
         questionnaires.push(ipfsCid);
     }
 
@@ -457,7 +459,8 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(index >= 0 && index <= questionnaires.length, "Consent: Questionnaire index out of bounds");
 
-        questionnaires[index] = questionnaires[questionnaires.length - 1]; 
+        questionnaires[index] = questionnaires[questionnaires.length - 1];
+        questionnaires.pop();
     }
 
     /// @notice Internal function to help query an array of Consent addresses by indexes
