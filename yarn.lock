@@ -8885,7 +8885,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snickerdoodlelabs/core@^1.1.1, @snickerdoodlelabs/core@workspace:^, @snickerdoodlelabs/core@workspace:packages/core":
+"@snickerdoodlelabs/core@workspace:^, @snickerdoodlelabs/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/core@workspace:packages/core"
   dependencies:
@@ -9044,7 +9044,7 @@ __metadata:
   resolution: "@snickerdoodlelabs/mobile-integration@workspace:packages/mobile-sdk"
   dependencies:
     "@react-native-async-storage/async-storage": 1.18.2
-    "@snickerdoodlelabs/core": ^1.1.1
+    "@snickerdoodlelabs/core": "workspace:^"
     "@testing-library/react-native": ^12.3.0
     "@types/node": ^16.11.15
     "@types/react": ^17.0.39
