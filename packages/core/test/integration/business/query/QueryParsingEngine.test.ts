@@ -1,6 +1,10 @@
 import "reflect-metadata";
 
-import { ITimeUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  IBigNumberUtils,
+  ITimeUtils,
+  TimeUtils,
+} from "@snickerdoodlelabs/common-utils";
 import {
   Age,
   ChainId,
@@ -117,6 +121,7 @@ class QueryParsingMocks {
   public socialRepo = td.object<ISocialRepository>();
   public accountRepo = td.object<ILinkedAccountRepository>();
   public timeUtils: ITimeUtils = td.object<ITimeUtils>();
+  public bigNumberUtils = td.object<IBigNumberUtils>();
   public contextProvider: ContextProviderMock = new ContextProviderMock();
 
   public blockchainTransactionQueryEvaluator =
@@ -132,6 +137,7 @@ class QueryParsingMocks {
 
   public balanceQueryEvaluator = new BalanceQueryEvaluator(
     this.balanceRepo,
+    this.bigNumberUtils,
     this.contextProvider,
   );
 

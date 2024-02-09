@@ -1,3 +1,7 @@
+import {
+  IBigNumberUtils,
+  IBigNumberUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import { MasterIndexer } from "@snickerdoodlelabs/indexers";
 import {
   BigNumberString,
@@ -22,7 +26,7 @@ import {
   ConditionL,
   ConditionLE,
 } from "@snickerdoodlelabs/query-parser";
-import { BigNumber, ethers } from "ethers";
+import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
@@ -41,6 +45,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
   constructor(
     @inject(IPortfolioBalanceRepositoryType)
     protected balanceRepo: IPortfolioBalanceRepository,
+    @inject(IBigNumberUtilsType) protected bigNumberUtils: IBigNumberUtils,
     @inject(IContextProviderType)
     protected contextProvider: IContextProvider,
   ) {}
@@ -108,41 +113,42 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
     balanceArray: TokenBalance[],
   ): ResultAsync<TokenBalance[], never> {
     for (const condition of query.conditions) {
-      let val: BigNumber = BigNumber.from(0);
+      let val = BigInt(0);
 
+      // TODO: the casts here for the conditions are just horrible!
       switch (condition.constructor) {
         case ConditionGE:
-          val = BigNumber.from((condition as ConditionGE).rval);
-          balanceArray = balanceArray.filter((balance) =>
-            BigNumber.from(balance.balance).gte(val),
+          val = BigInt((condition as ConditionGE).rval as number);
+          balanceArray = balanceArray.filter(
+            (balance) => this.bigNumberUtils.BNSToBN(balance.balance) >= val,
           );
           break;
 
         case ConditionG:
-          val = BigNumber.from((condition as ConditionG).rval);
-          balanceArray = balanceArray.filter((balance) =>
-            BigNumber.from(balance.balance).gt(val),
+          val = BigInt((condition as ConditionG).rval as number);
+          balanceArray = balanceArray.filter(
+            (balance) => this.bigNumberUtils.BNSToBN(balance.balance) > val,
           );
           break;
 
         case ConditionL:
-          val = BigNumber.from((condition as ConditionL).rval);
-          balanceArray = balanceArray.filter((balance) =>
-            BigNumber.from(balance.balance).lt(val),
+          val = BigInt((condition as ConditionL).rval as number);
+          balanceArray = balanceArray.filter(
+            (balance) => this.bigNumberUtils.BNSToBN(balance.balance) < val,
           );
           break;
 
         case ConditionE:
-          val = BigNumber.from((condition as ConditionE).rval);
-          balanceArray = balanceArray.filter((balance) =>
-            BigNumber.from(balance.balance).eq(val),
+          val = BigInt((condition as ConditionE).rval as number);
+          balanceArray = balanceArray.filter(
+            (balance) => this.bigNumberUtils.BNSToBN(balance.balance) == val,
           );
           break;
 
         case ConditionLE:
-          val = BigNumber.from((condition as ConditionLE).rval);
-          balanceArray = balanceArray.filter((balance) =>
-            BigNumber.from(balance.balance).lte(val),
+          val = BigInt((condition as ConditionLE).rval as number);
+          balanceArray = balanceArray.filter(
+            (balance) => this.bigNumberUtils.BNSToBN(balance.balance) <= val,
           );
           break;
 
@@ -163,8 +169,8 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
     const balanceMap = new Map<`${ChainId}-${TokenAddress}`, TokenBalance>();
 
     const nonZeroBalanceArray = balanceArray.filter((item) => {
-      const ethValue = ethers.BigNumber.from(item.balance);
-      return !ethValue.eq(0);
+      const ethValue = this.bigNumberUtils.BNSToBN(item.balance);
+      return ethValue != 0n;
     });
 
     nonZeroBalanceArray.forEach((d) => {
@@ -182,10 +188,9 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
             getObject.chainId,
             getObject.tokenAddress || MasterIndexer.nativeAddress,
             getObject.accountAddress,
-            BigNumberString(
-              BigNumber.from(getObject.balance)
-                .add(BigNumber.from(d.balance))
-                .toString(),
+            this.bigNumberUtils.BNToBNS(
+              this.bigNumberUtils.BNSToBN(getObject.balance) +
+                this.bigNumberUtils.BNSToBN(d.balance),
             ),
             getObject.decimals,
           ),

@@ -19,7 +19,7 @@ import {
   BigNumberString,
   BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
-import { ethers, EventFilter, Event, BigNumber } from "ethers";
+import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -41,10 +41,7 @@ export class ConsentContract
   implements IConsentContract
 {
   constructor(
-    protected providerOrSigner:
-      | ethers.providers.Provider
-      | ethers.providers.JsonRpcSigner
-      | ethers.Wallet,
+    protected providerOrSigner: ethers.Provider | ethers.Signer,
     protected contractAddress: EVMContractAddress,
     protected cryptoUtils: ICryptoUtils,
   ) {
@@ -168,12 +165,12 @@ export class ConsentContract
     ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.maxCapacity() as Promise<BigNumber>,
+      this.contract.maxCapacity() as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call maxCapacity()");
       },
     ).map((bigCapacity) => {
-      return bigCapacity.toNumber();
+      return Number(bigCapacity);
     });
   }
 
@@ -250,7 +247,7 @@ export class ConsentContract
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
         EConsentRoles.DEFAULT_ADMIN_ROLE,
-      ) as Promise<BigNumber>,
+      ) as Promise<bigint>,
       (e) => {
         return this.generateError(
           e,
@@ -261,7 +258,7 @@ export class ConsentContract
       // First get an array of index values so that it can be used with ResultUtils.combine
       const memberIndexArray: number[] = [];
 
-      for (let i = 0; i < memberCount.toNumber(); i++) {
+      for (let i = 0; i < Number(memberCount); i++) {
         memberIndexArray.push(i);
       }
 
@@ -289,7 +286,7 @@ export class ConsentContract
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
         EConsentRoles.SIGNER_ROLE,
-      ) as Promise<BigNumber>,
+      ) as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call getSignerRoleMembers()");
       },
@@ -297,7 +294,7 @@ export class ConsentContract
       // First get an array of index values so that it can be used with ResultUtils.combine
       const memberIndexArray: number[] = [];
 
-      for (let i = 0; i < memberCount.toNumber(); i++) {
+      for (let i = 0; i < Number(memberCount); i++) {
         memberIndexArray.push(i);
       }
 
@@ -328,7 +325,7 @@ export class ConsentContract
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
         EConsentRoles.PAUSER_ROLE,
-      ) as Promise<BigNumber>,
+      ) as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call getPauserRoleMembers()");
       },
@@ -336,7 +333,7 @@ export class ConsentContract
       // First get an array of index values so that it can be used with ResultUtils.combine
       const memberIndexArray: number[] = [];
 
-      for (let i = 0; i < memberCount.toNumber(); i++) {
+      for (let i = 0; i < Number(memberCount); i++) {
         memberIndexArray.push(i);
       }
 
@@ -367,7 +364,7 @@ export class ConsentContract
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
         EConsentRoles.REQUESTER_ROLE,
-      ) as Promise<BigNumber>,
+      ) as Promise<bigint>,
       (e) => {
         return this.generateError(
           e,
@@ -378,7 +375,7 @@ export class ConsentContract
       // First get an array of index values so that it can be used with ResultUtils.combine
       const memberIndexArray: number[] = [];
 
-      for (let i = 0; i < memberCount.toNumber(); i++) {
+      for (let i = 0; i < Number(memberCount); i++) {
         memberIndexArray.push(i);
       }
 
@@ -406,12 +403,12 @@ export class ConsentContract
     address: EVMAccountAddress,
   ): ResultAsync<number, ConsentContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contract.balanceOf(address) as Promise<BigNumber>,
+      this.contract.balanceOf(address) as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call balanceOf()");
       },
     ).map((numberOfTokens) => {
-      return numberOfTokens.toNumber();
+      return Number(numberOfTokens);
     });
   }
 
@@ -452,13 +449,16 @@ export class ConsentContract
   }
 
   public queryFilter(
-    eventFilter: EventFilter,
+    eventFilter: ethers.ContractEventName,
     fromBlock?: BlockNumber,
     toBlock?: BlockNumber,
-  ): ResultAsync<Event[], ConsentContractError | BlockchainCommonErrors> {
+  ): ResultAsync<
+    (ethers.EventLog | ethers.Log)[],
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       this.contract.queryFilter(eventFilter, fromBlock, toBlock) as Promise<
-        Event[]
+        (ethers.EventLog | ethers.Log)[]
       >,
       (e) => {
         return this.generateError(e, "Unable to call queryFilter()");
@@ -518,58 +518,6 @@ export class ConsentContract
     );
   }
 
-  // #region Questionnaires
-  public getQuestionnaires(): ResultAsync<
-    Map<number, IpfsCID>,
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return ResultAsync.fromPromise(
-      this.contract.getQuestionnaires() as Promise<IpfsCID[]>,
-      (e) => {
-        return this.generateError(e, "Unable to call getQuestionnaires()");
-      },
-    ).map((questionnaires) => {
-      // Convert to a map
-      const questionnaireMap = new Map<number, IpfsCID>();
-      for (let index = 0; index < 64; index++) {
-        // Get the questionnaire at index i
-        const questionnaire = questionnaires[index];
-
-        // Only add non-empty indexes to the return map.
-        if (questionnaire != "") {
-          questionnaireMap.set(index, questionnaire);
-        }
-      }
-      return questionnaireMap;
-    });
-  }
-
-  public setQuestionnaire(
-    index: number,
-    ipfsCid: IpfsCID,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ConsentContractError
-  > {
-    return this.writeToContract(
-      "setQuestionnaire",
-      [index, ipfsCid],
-      overrides,
-    );
-  }
-
-  public removeQuestionnaire(
-    index: number,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ConsentContractError
-  > {
-    return this.writeToContract("removeQuestionnaire", [index], overrides);
-  }
-  // #endregion Questionnaires
-
   public getRequestForDataListByRequesterAddress(
     requesterAddress: EVMAccountAddress,
     fromBlock?: BlockNumber,
@@ -582,19 +530,20 @@ export class ConsentContract
       this.filters.RequestForData(requesterAddress),
       fromBlock,
       toBlock,
-    ).andThen((logsEvents) => {
-      return ResultUtils.combine(
-        logsEvents.map((logEvent) => {
-          return okAsync(
+    ).map((logsEvents) => {
+      return logsEvents.reduce((acc, logEvent) => {
+        if (logEvent instanceof ethers.EventLog) {
+          acc.push(
             new RequestForData(
               this.getContractAddress(),
-              logEvent.args?.requester,
-              logEvent.args?.ipfsCID,
+              logEvent.args.requester,
+              logEvent.args.ipfsCID,
               BlockNumber(logEvent.blockNumber),
             ),
           );
-        }),
-      );
+        }
+        return acc;
+      }, new Array<RequestForData>());
     });
   }
 
@@ -621,8 +570,10 @@ export class ConsentContract
         logsEvents[0],
       );
 
-      if (latestOptinEvent.args && latestOptinEvent.args.tokenId) {
-        return TokenId(latestOptinEvent.args.tokenId);
+      if (latestOptinEvent instanceof ethers.EventLog) {
+        if (latestOptinEvent.args.tokenId != null) {
+          return TokenId(latestOptinEvent.args.tokenId);
+        }
       }
 
       return null;
@@ -719,11 +670,11 @@ export class ConsentContract
     ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.queryHorizon() as Promise<BigNumber>,
+      this.contract.queryHorizon() as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call queryHorizon()");
       },
-    ).map((queryHorizon) => BlockNumber(queryHorizon.toNumber()));
+    ).map((queryHorizon) => BlockNumber(Number(queryHorizon)));
   }
 
   public setQueryHorizon(
@@ -744,7 +695,9 @@ export class ConsentContract
     BlockchainCommonErrors | ConsentContractError
   > {
     return ResultAsync.fromPromise(
-      this.contract.estimateGas["setQueryHorizon"](blockNumber, { overrides }),
+      this.contract.estimateGas["setQueryHorizon"](blockNumber, {
+        overrides,
+      }) as Promise<bigint>,
       (e) => this.generateError(e, `Failed to estimate gas with error: ${e}`),
     ).map((bnGas) => {
       return BigNumberString(bnGas.toString());
@@ -757,11 +710,11 @@ export class ConsentContract
     ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.totalSupply() as Promise<BigNumber>,
+      this.contract.totalSupply() as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call totalSupply()");
       },
-    ).map((totalSupply) => totalSupply.toNumber());
+    ).map((totalSupply) => Number(totalSupply));
   }
 
   public openOptInDisabled(): ResultAsync<
@@ -782,12 +735,12 @@ export class ConsentContract
     ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.maxTags() as Promise<BigNumber>,
+      this.contract.maxTags() as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call maxTags()");
       },
     ).map((num) => {
-      return num.toNumber();
+      return Number(num);
     });
   }
 
@@ -796,12 +749,12 @@ export class ConsentContract
     ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.getNumberOfStakedTags() as Promise<BigNumber>,
+      this.contract.getNumberOfStakedTags() as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call getNumberOfStakedTags()");
       },
     ).map((num) => {
-      return num.toNumber();
+      return Number(num);
     });
   }
 
@@ -901,10 +854,12 @@ export class ConsentContract
     Transfer: (
       fromAddress: EVMAccountAddress | null,
       toAddress: EVMAccountAddress | null,
-    ): EventFilter => {
+    ): ethers.DeferredTopicFilter => {
       return this.contract.filters.Transfer(fromAddress, toAddress);
     },
-    RequestForData: (ownerAddress: EVMAccountAddress): EventFilter => {
+    RequestForData: (
+      ownerAddress: EVMAccountAddress,
+    ): ethers.DeferredTopicFilter => {
       return this.contract.filters.RequestForData(ownerAddress);
     },
   };
@@ -913,14 +868,14 @@ export class ConsentContract
     values: (
       | string
       | EVMAccountAddress
-      | ethers.BigNumber
+      | bigint
       | HexString
       | EVMContractAddress
     )[],
   ): ResultAsync<Signature, InvalidParametersError> {
     const types = ["address", "uint256"];
     return this.cryptoUtils.getSignature(
-      this.providerOrSigner as ethers.providers.JsonRpcSigner,
+      this.providerOrSigner as ethers.JsonRpcSigner,
       types,
       values,
     );
@@ -936,7 +891,7 @@ export class ConsentContract
 }
 
 interface ITagStruct {
-  slot: BigNumber | null;
+  slot: bigint | null;
   tag: string | null;
   staker: EVMAccountAddress | null;
 }

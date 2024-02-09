@@ -17,7 +17,7 @@ import {
   BigNumberString,
   BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
-import { EventFilter, Event, BigNumber } from "ethers";
+import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 import { EConsentRoles } from "@contracts-sdk/interfaces/enums/index.js";
@@ -236,10 +236,13 @@ export interface IConsentContract extends IBaseContract {
    * @param toBlock optional parameter of ending block to query
    */
   queryFilter(
-    eventFilter: EventFilter,
+    eventFilter: ethers.ContractEventName,
     fromBlock?: BlockNumber,
     toBlock?: BlockNumber,
-  ): ResultAsync<Event[], ConsentContractError | BlockchainCommonErrors>;
+  ): ResultAsync<
+    (ethers.EventLog | ethers.Log)[],
+    ConsentContractError | BlockchainCommonErrors
+  >;
 
   /**
    * Returns a consent token by the token ID
@@ -284,46 +287,6 @@ export interface IConsentContract extends IBaseContract {
     DomainName[],
     ConsentContractError | BlockchainCommonErrors
   >;
-
-  // #region Questionnaires
-  /**
-   * Returns a list of all questionnaires
-   */
-  getQuestionnaires(): ResultAsync<
-    Map<number, IpfsCID>,
-    ConsentContractError | BlockchainCommonErrors
-  >;
-
-  /**
-   * Adds a questionnaire to the contract storage. Only 64 questionnaires can be added
-   * Only callable by address with DEFAULT_ADMIN_ROLE
-   * If domain already exists, reverts with error message "Consent : Questionnaire already added"
-   * @param index Index of the questionnaire. This must be a value between 0 and 63 inclusive, otherwise it reverts
-   * @param ipfsCid Domain name
-   */
-  setQuestionnaire(
-    index: number,
-    ipfsCid: IpfsCID,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ConsentContractError
-  >;
-
-  /**
-   * Removes a questionnaire from the contract storage at the index position
-   * Only callable by address with DEFAULT_ADMIN_ROLE
-   * If the index is out of range, this reverts with error message "Consent : Questionnaire index out of range"
-   * @param index Index of the questionnaire. This must be a value between 0 and 63 inclusive, otherwise it reverts
-   */
-  removeQuestionnaire(
-    index: number,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ConsentContractError
-  >;
-  // #endregion Questionnaires
 
   /**
    * Returns a list of RequestForData events between two block numbers
@@ -492,7 +455,7 @@ export interface IConsentContract extends IBaseContract {
 
   getSignature(
     values: Array<
-      BigNumber | string | HexString | EVMContractAddress | EVMAccountAddress
+      bigint | string | HexString | EVMContractAddress | EVMAccountAddress
     >,
   ): ResultAsync<Signature, InvalidParametersError>;
 
@@ -567,9 +530,9 @@ export interface IConsentContractFilters {
   Transfer(
     fromAddress: EVMAccountAddress | null,
     toAddress: EVMAccountAddress | null,
-  ): EventFilter;
+  ): ethers.DeferredTopicFilter;
 
-  RequestForData(ownerAddress: EVMAccountAddress): EventFilter;
+  RequestForData(ownerAddress: EVMAccountAddress): ethers.DeferredTopicFilter;
 }
 
 export const IConsentContractType = Symbol.for("IConsentContract");

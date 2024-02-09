@@ -89,8 +89,8 @@ describe("DataWalletUtils tests", () => {
     expect(result2.isErr()).toBeFalsy();
     const newAccount1 = result1._unsafeUnwrap();
     const newAccount2 = result2._unsafeUnwrap();
-    expect(newAccount1).toBe("0x417643fBD5D41dB241d29C684Ba9bf46499FA21e");
-    expect(newAccount2).toBe("0x67b7a6dD90a0d0eE405646771141a07F451B1256");
+    expect(newAccount1).toBe("0x417643fbd5d41db241d29c684ba9bf46499fa21e");
+    expect(newAccount2).toBe("0x67b7a6dd90a0d0ee405646771141a07f451b1256");
   });
 
   test("deriveEncryptionKeyFromPassword works", async () => {
@@ -136,13 +136,13 @@ describe("DataWalletUtils tests", () => {
       "05312b78360d124ad808575b6f2e96d9c611b19ae58f61eb5b6981319f336eef",
     );
     expect(eoa1.accountAddress).toBe(
-      "0x8eD53fb062a2285CB9726c4961a6BBDC6aA6FCA9",
+      "0x8ed53fb062a2285cb9726c4961a6bbdc6aa6fca9",
     );
     expect(eoa2.privateKey).toBe(
       "f3ae4787d9545528065d0a63c82159581ac8ef073c5aba177a9c82299a586511",
     );
     expect(eoa2.accountAddress).toBe(
-      "0xb717C7DC8a1576c77C05703885584c23f2d45440",
+      "0xb717c7dc8a1576c77c05703885584c23f2d45440",
     );
   });
 });

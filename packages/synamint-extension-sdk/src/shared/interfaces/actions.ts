@@ -1,8 +1,4 @@
 import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
-import {
   BigNumberString,
   ChainId,
   CountryCode,
@@ -16,7 +12,6 @@ import {
   LanguageCode,
   Signature,
   UnixTimestamp,
-  UUID,
   IpfsCID,
   EChain,
   EWalletDataType,
@@ -62,10 +57,9 @@ import {
   TransactionFilter,
   IUserAgreement,
   WalletNFTHistory,
-  WalletNftWithHistory,
-  NftRepositoryCache,
   WalletNFTData,
 } from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
 
 import { IExtensionConfig } from "./IExtensionConfig";
 
@@ -128,8 +122,8 @@ export class AddAccountWithExternalSignatureParams extends CoreActionParams<void
 export class AddAccountWithExternalTypedDataSignatureParams extends CoreActionParams<void> {
   public constructor(
     public accountAddress: AccountAddress,
-    public domain: TypedDataDomain,
-    public types: Record<string, Array<TypedDataField>>,
+    public domain: ethers.TypedDataDomain,
+    public types: Record<string, Array<ethers.TypedDataField>>,
     public value: Record<string, unknown>,
     public signature: Signature,
     public chain: EChain,

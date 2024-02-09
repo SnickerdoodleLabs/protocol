@@ -349,7 +349,7 @@ export class TransactionHistoryRepository
   protected _getTxValue(tx: EVMTransaction): number {
     const decimals = getChainInfoByChain(tx.chain).nativeCurrency.decimals;
     return Number.parseFloat(
-      ethers.utils.formatUnits(tx.value || "0", decimals).toString(),
+      ethers.formatUnits(tx.value || "0", decimals).toString(),
     );
   }
 

@@ -1,7 +1,4 @@
-import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
+import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 import {
@@ -198,8 +195,8 @@ export interface IAccountMethods {
 
   addAccountWithExternalTypedDataSignature(
     accountAddress: AccountAddress,
-    domain: TypedDataDomain,
-    types: Record<string, Array<TypedDataField>>,
+    domain: ethers.TypedDataDomain,
+    types: Record<string, Array<ethers.TypedDataField>>,
     value: Record<string, unknown>,
     signature: Signature,
     chain: EChain,

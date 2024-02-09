@@ -1,10 +1,6 @@
 import { EventEmitter } from "events";
 
 import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
-import {
   AccountAddress,
   OAuth1RequstToken,
   BigNumberString,
@@ -64,6 +60,7 @@ import {
   IProxyAccountMethods,
   INftProxyMethods,
 } from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
 import { ResultAsync } from "neverthrow";
@@ -268,8 +265,8 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       },
       addAccountWithExternalTypedDataSignature: (
         accountAddress: AccountAddress,
-        domain: TypedDataDomain,
-        types: Record<string, Array<TypedDataField>>,
+        domain: ethers.TypedDataDomain,
+        types: Record<string, Array<ethers.TypedDataField>>,
         value: Record<string, unknown>,
         signature: Signature,
         chain: EChain,

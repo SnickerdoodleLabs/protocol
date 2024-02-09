@@ -5,10 +5,6 @@
  * of SnickerdoodleCore.
  */
 import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
-import {
   IMasterIndexer,
   IMasterIndexerType,
   indexersModule,
@@ -110,6 +106,7 @@ import {
   IStorageUtilsType,
   LocalStorageUtils,
 } from "@snickerdoodlelabs/utils";
+import { ethers } from "ethers";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -293,8 +290,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
       addAccountWithExternalTypedDataSignature: (
         accountAddress: AccountAddress,
-        domain: TypedDataDomain,
-        types: Record<string, Array<TypedDataField>>,
+        domain: ethers.TypedDataDomain,
+        types: Record<string, Array<ethers.TypedDataField>>,
         value: Record<string, unknown>,
         signature: Signature,
         chain: EChain,

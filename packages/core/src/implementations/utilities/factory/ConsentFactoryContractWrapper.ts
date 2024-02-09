@@ -18,7 +18,6 @@ import {
   BlockchainCommonErrors,
   IpfsCID,
 } from "@snickerdoodlelabs/objects";
-import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 import { BaseContractWrapper } from "@core/implementations/utilities/factory/BaseContractWrapper.js";
@@ -63,10 +62,7 @@ export class ConsentFactoryContractWrapper
     ownerAddress: EVMAccountAddress,
     baseUri: BaseURI,
     name: ConsentName,
-  ): ResultAsync<
-    ethers.BigNumber,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
+  ): ResultAsync<bigint, ConsentFactoryContractError | BlockchainCommonErrors> {
     return this.fallback(
       () =>
         this.primary.estimateGasToCreateConsent(ownerAddress, baseUri, name),
@@ -314,6 +310,32 @@ export class ConsentFactoryContractWrapper
     return this.fallback(
       () => this.primary.getQuestionnaires(),
       () => this.secondary?.getQuestionnaires(),
+    );
+  }
+
+  public addQuestionnaire(
+    ipfsCid: IpfsCID,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.fallback(
+      () => this.primary.addQuestionnaire(ipfsCid, overrides),
+      () => this.secondary?.addQuestionnaire(ipfsCid, overrides),
+    );
+  }
+
+  public removeQuestionnaire(
+    index: number,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.fallback(
+      () => this.primary.removeQuestionnaire(index, overrides),
+      () => this.secondary?.removeQuestionnaire(index, overrides),
     );
   }
 }

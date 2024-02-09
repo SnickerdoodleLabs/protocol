@@ -4,9 +4,7 @@ import {
   PagingRequest,
   JSONString,
   InvalidParametersError,
-  BaseError,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
@@ -50,25 +48,12 @@ export class ObjectUtils {
         } else if (value instanceof BigInt) {
           return {
             dataType: "BigInt",
-            value: BigNumber.from(value).toString(),
+            value: value.toString(),
           };
         } else if (typeof value == "bigint") {
           return {
             dataType: "bigint",
-            value: BigNumber.from(value).toString(),
-          };
-        } else if (
-          typeof value == "object" &&
-          value != null &&
-          value.hasOwnProperty != null &&
-          value.hasOwnProperty("type") &&
-          value.hasOwnProperty("hex") &&
-          value.type == "BigNumber" &&
-          value.hex != null
-        ) {
-          return {
-            dataType: "BigNumber",
-            value: value.hex,
+            value: BigInt(value).toString(),
           };
         } else {
           return value;
@@ -85,11 +70,9 @@ export class ObjectUtils {
         } else if (value.dataType === "Set") {
           return new Set(value.value);
         } else if (value.dataType === "BigInt") {
-          return BigNumber.from(value.value).toBigInt();
+          return BigInt(value.value);
         } else if (value.dataType === "bigint") {
-          return BigNumber.from(value.value).toBigInt();
-        } else if (value.dataType === "BigNumber") {
-          return BigNumber.from(value.value);
+          return BigInt(value.value);
         }
       }
       return value;
