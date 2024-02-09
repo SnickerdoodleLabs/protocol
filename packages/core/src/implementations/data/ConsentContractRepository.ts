@@ -75,14 +75,21 @@ export class ConsentContractRepository implements IConsentContractRepository {
   public getQuestionnaires(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
-    Map<number, IpfsCID>,
+    IpfsCID[],
     UninitializedError | ConsentContractError | BlockchainCommonErrors
   > {
-    return this.getConsentContract(consentContractAddress).andThen(
-      (contract) => {
-        return contract.getQuestionnaires();
-      },
-    );
+    /** 
+     * This method now works on a different principle- the consent contract does not maintain a list
+     * of questionnaires it's interested in. Instead, we use the marketplace data and do a reverse lookup-
+     * we get the list of all the questionnaires that this consent contract has staked, and use the amount
+     * of the stake to establish the order.
+     */
+    // return this.getConsentContract(consentContractAddress).andThen(
+    //   (contract) => {
+    //     return contract.getQuestionnaires();
+    //   },
+    // );
+    throw new Error("Method not implemented.");
   }
 
   public getConsentCapacity(

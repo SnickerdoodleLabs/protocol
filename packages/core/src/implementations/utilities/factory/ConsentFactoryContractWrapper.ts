@@ -312,4 +312,30 @@ export class ConsentFactoryContractWrapper
       () => this.secondary?.getQuestionnaires(),
     );
   }
+
+  public addQuestionnaire(
+    ipfsCid: IpfsCID,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.fallback(
+      () => this.primary.addQuestionnaire(ipfsCid, overrides),
+      () => this.secondary?.addQuestionnaire(ipfsCid, overrides),
+    );
+  }
+
+  public removeQuestionnaire(
+    index: number,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.fallback(
+      () => this.primary.removeQuestionnaire(index, overrides),
+      () => this.secondary?.removeQuestionnaire(index, overrides),
+    );
+  }
 }

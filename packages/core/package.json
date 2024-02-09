@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/core",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "Snickerdoodle Labs Core. Core encapsulates the data wallet and query processor functions of the Protocol",
   "license": "ISC",
   "repository": {
