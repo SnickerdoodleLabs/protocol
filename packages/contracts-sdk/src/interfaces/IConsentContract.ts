@@ -17,7 +17,7 @@ import {
   BigNumberString,
   BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
-import { EventFilter, Event, BigNumber } from "ethers";
+import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 import { EConsentRoles } from "@contracts-sdk/interfaces/enums/index.js";
@@ -236,10 +236,13 @@ export interface IConsentContract extends IBaseContract {
    * @param toBlock optional parameter of ending block to query
    */
   queryFilter(
-    eventFilter: EventFilter,
+    eventFilter: ethers.ContractEventName,
     fromBlock?: BlockNumber,
     toBlock?: BlockNumber,
-  ): ResultAsync<Event[], ConsentContractError | BlockchainCommonErrors>;
+  ): ResultAsync<
+    (ethers.EventLog | ethers.Log)[],
+    ConsentContractError | BlockchainCommonErrors
+  >;
 
   /**
    * Returns a consent token by the token ID
@@ -452,7 +455,7 @@ export interface IConsentContract extends IBaseContract {
 
   getSignature(
     values: Array<
-      BigNumber | string | HexString | EVMContractAddress | EVMAccountAddress
+      bigint | string | HexString | EVMContractAddress | EVMAccountAddress
     >,
   ): ResultAsync<Signature, InvalidParametersError>;
 
@@ -527,9 +530,9 @@ export interface IConsentContractFilters {
   Transfer(
     fromAddress: EVMAccountAddress | null,
     toAddress: EVMAccountAddress | null,
-  ): EventFilter;
+  ): ethers.DeferredTopicFilter;
 
-  RequestForData(ownerAddress: EVMAccountAddress): EventFilter;
+  RequestForData(ownerAddress: EVMAccountAddress): ethers.DeferredTopicFilter;
 }
 
 export const IConsentContractType = Symbol.for("IConsentContract");

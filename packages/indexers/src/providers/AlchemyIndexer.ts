@@ -28,7 +28,6 @@ import {
   IndexerSupportSummary,
   EDataProvider,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -296,9 +295,7 @@ export class AlchemyIndexer implements IEVMIndexer {
         })
         .andThen((response) => {
           // TODO: Really, really need to replace this with an ethers equivalent
-          const weiValue = BigNumberString(
-            BigNumber.from(response.result).toString(),
-          );
+          const weiValue = BigNumberString(BigInt(response.result).toString());
           const balance = new TokenBalance(
             EChainTechnology.EVM,
             nativeTickerSymbol,
@@ -346,7 +343,7 @@ export class AlchemyIndexer implements IEVMIndexer {
             response.result.tokenBalances.map((entry) => {
               // TODO: Really, really need to replace this with an ethers equivalent
               const weiValue = BigNumberString(
-                BigNumber.from(entry.tokenBalance).toString(),
+                BigInt(entry.tokenBalance).toString(),
               );
               return this.tokenPriceRepo
                 .getTokenInfo(chain, entry.contractAddress)

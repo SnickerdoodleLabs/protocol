@@ -1,8 +1,4 @@
 import "reflect-metadata";
-import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
 import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
   AccountAddress,
@@ -20,7 +16,6 @@ import {
   LinkedAccount,
   DataWalletAddress,
   EInvitationStatus,
-  WalletNFT,
   TokenBalance,
   EarnedReward,
   TokenInfo,
@@ -31,7 +26,6 @@ import {
   URLString,
   MarketplaceListing,
   IConsentCapacity,
-  PossibleReward,
   PagedResponse,
   IProxyDiscordMethods,
   DiscordProfile,
@@ -54,18 +48,17 @@ import {
   ECloudStorageType,
   OAuth2Tokens,
   TransactionFlowInsight,
-  TransactionFilter,
   ChainTransaction,
   IProxyAccountMethods,
   LanguageCode,
   EChain,
   Signature,
-  TransactionPaymentCounter,
   IUserAgreement,
   PageInvitation,
   Invitation,
   INftProxyMethods,
 } from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
 
@@ -191,8 +184,8 @@ export class ExternalCoreGateway {
       },
       addAccountWithExternalTypedDataSignature: (
         accountAddress: AccountAddress,
-        domain: TypedDataDomain,
-        types: Record<string, Array<TypedDataField>>,
+        domain: ethers.TypedDataDomain,
+        types: Record<string, Array<ethers.TypedDataField>>,
         value: Record<string, unknown>,
         signature: Signature,
         chain: EChain,

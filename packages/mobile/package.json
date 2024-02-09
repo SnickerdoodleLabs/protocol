@@ -147,7 +147,7 @@
     "domain-browser": "^1.2.0",
     "ethereumjs-util": "^7.1.5",
     "ethereumjs-wallet": "^1.0.2",
-    "ethers": "5.4",
+    "ethers": "^6.10.0",
     "events": "^1.1.1",
     "fake-indexeddb": "^4.0.0",
     "fast-base64-decode": "^2.0.0",

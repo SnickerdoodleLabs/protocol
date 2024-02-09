@@ -1,8 +1,3 @@
-import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
-import {
-  ContractOverrides,
-  WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/objects";
 import {
   EVMAccountAddress,
   BlockchainCommonErrors,
@@ -10,8 +5,14 @@ import {
   EVMContractAddress,
   TokenAmount,
 } from "@snickerdoodlelabs/objects";
-import { EventFilter } from "ethers";
+import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
+
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import {
+  ContractOverrides,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects";
 
 export interface IERC20Contract extends IBaseContract {
   /**
@@ -106,7 +107,7 @@ export interface IERC20Filters {
   Transfer(
     fromAddress: EVMAccountAddress | null,
     toAddress: EVMAccountAddress | null,
-  ): EventFilter;
+  ): ethers.DeferredTopicFilter;
 }
 
 export const IERC20ContractType = Symbol.for("IERC20Contract");

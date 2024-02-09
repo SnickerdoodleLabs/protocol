@@ -1,8 +1,4 @@
 import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
-import {
   ILogUtils,
   ILogUtilsType,
   ITimeUtils,
@@ -25,7 +21,6 @@ import {
   FamilyName,
   Gender,
   GivenName,
-  IConfigOverrides,
   Invitation,
   IpfsCID,
   LanguageCode,
@@ -43,8 +38,6 @@ import {
   BlockNumber,
   RefreshToken,
   URLString,
-  EInvitationStatus,
-  PageInvitation,
   IWebIntegrationConfigOverrides,
   TransactionFilter,
   LinkedAccount,
@@ -55,11 +48,10 @@ import {
   IStorageUtilsType,
   IStorageUtils,
 } from "@snickerdoodlelabs/utils";
+import { ethers } from "ethers";
 import { injectable, inject } from "inversify";
-import { ResultAsync, okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
+import { okAsync } from "neverthrow";
 import Postmate from "postmate";
-import { parse } from "tldts";
 
 import { ICoreListener } from "@core-iframe/interfaces/api/index";
 import {
@@ -68,7 +60,6 @@ import {
   IInvitationService,
   IInvitationServiceType,
 } from "@core-iframe/interfaces/business/index";
-import { EInvitationSourceType } from "@core-iframe/interfaces/objects";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -77,6 +68,7 @@ import {
   IIFrameContextProvider,
   IIFrameContextProviderType,
 } from "@core-iframe/interfaces/utilities/index";
+
 @injectable()
 export class CoreListener extends ChildProxy implements ICoreListener {
   constructor(
@@ -160,8 +152,8 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       addAccountWithExternalTypedDataSignature: (
         data: IIFrameCallData<{
           accountAddress: AccountAddress;
-          domain: TypedDataDomain;
-          types: Record<string, Array<TypedDataField>>;
+          domain: ethers.TypedDataDomain;
+          types: Record<string, Array<ethers.TypedDataField>>;
           value: Record<string, unknown>;
           signature: Signature;
           chain: EChain;

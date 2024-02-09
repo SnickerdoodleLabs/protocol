@@ -25,7 +25,6 @@ import {
   EExternalApi,
   getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -140,7 +139,7 @@ export class OklinkIndexer implements IEVMIndexer {
               chain,
               token.tokenContractAddress,
               accountAddress,
-              BigNumberString(BigNumber.from(token.holdingAmount).toString()),
+              BigNumberString(BigInt(token.holdingAmount).toString()),
               18,
             );
           });

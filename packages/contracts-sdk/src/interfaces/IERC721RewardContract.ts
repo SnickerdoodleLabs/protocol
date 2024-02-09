@@ -7,7 +7,7 @@ import {
   BlockchainCommonErrors,
   DomainName,
 } from "@snickerdoodlelabs/objects";
-import { EventFilter } from "ethers";
+import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 import { ERewardRoles } from "@contracts-sdk/interfaces/enums";
@@ -212,7 +212,7 @@ export interface IERC721Filters {
   Transfer(
     fromAddress: EVMAccountAddress | null,
     toAddress: EVMAccountAddress | null,
-  ): EventFilter;
+  ): ethers.DeferredTopicFilter;
 }
 
 export const IERC721RewardContractType = Symbol.for("IERC721RewardContract");

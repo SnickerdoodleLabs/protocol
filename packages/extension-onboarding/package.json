@@ -38,7 +38,7 @@
     "chroma-js": "^2.4.2",
     "clsx": "^1.2.1",
     "dropbox": "^10.34.0",
-    "ethers": "^5.6.6",
+    "ethers": "^6.10.0",
     "formik": "2.2.9",
     "formik-material-ui": "3.0.1",
     "gapi-script": "^1.2.0",

@@ -11,7 +11,6 @@ import {
   TransactionResponseError,
   IpfsCID,
 } from "@snickerdoodlelabs/objects";
-import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 import { EConsentRoles } from "@contracts-sdk/interfaces/enums/index.js";
@@ -49,10 +48,7 @@ export interface IConsentFactoryContract extends IBaseContract {
     ownerAddress: EVMAccountAddress,
     baseUri: BaseURI,
     name: ConsentName,
-  ): ResultAsync<
-    ethers.BigNumber,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  >;
+  ): ResultAsync<bigint, ConsentFactoryContractError | BlockchainCommonErrors>;
 
   /**
    *  Return the number Consent addresses that user has deployed

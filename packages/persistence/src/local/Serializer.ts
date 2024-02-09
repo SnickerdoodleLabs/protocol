@@ -4,7 +4,6 @@ import {
   PersistenceError,
   SerializedObject,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
 import { err, ok, Result } from "neverthrow";
 
 export class Serializer {
@@ -26,7 +25,7 @@ export class Serializer {
       case "string":
         return ok(new SerializedObject(type, obj as unknown as string));
       case "bigint":
-        return ok(new SerializedObject(type, BigNumber.from(obj).toString()));
+        return ok(new SerializedObject(type, BigInt(obj as string).toString()));
       default:
         return err(
           new PersistenceError("unsupported data type for serialization", type),
@@ -48,9 +47,7 @@ export class Serializer {
         case "string":
           return ok(serializedObj.data as unknown as T);
         case "bigint":
-          return ok(
-            BigNumber.from(serializedObj.data).toBigInt() as unknown as T,
-          );
+          return ok(BigInt(serializedObj.data) as unknown as T);
         default:
           return err(
             new PersistenceError(
