@@ -56,10 +56,8 @@ export interface IQuestionnaireRepository {
    * @param questionnaireCID The CID of the specific questionnaire.
    * @param benchmark Optional benchmark timestamp to retrieve the questionnaire's state at a specific point in time.
    */
-  getByCID(
-    questionnaireCID: IpfsCID,
-    benchmark?: UnixTimestamp,
-  ): ResultAsync<Questionnaire | QuestionnaireWithAnswers | null, AjaxError>;
+  getByCID(questionnaireCID: IpfsCID, benchmark?: UnixTimestamp): ResultAsync<Questionnaire, InvalidParametersError | AjaxError>;
+
 
   /**
    * This method is provided as an optimization for the polling process. It returns a list of

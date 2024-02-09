@@ -2,14 +2,12 @@ import {
     SDQL_Name,
     QuestionnaireQuestionTypes,
     questionnaireQuestionTypes,
-    ISDQLQuestionBlock,
-    StorageKey,
     EQuestionnaireQuestionType,
   } from "@snickerdoodlelabs/objects";
     
   export abstract class AST_Question {
     constructor(
-      readonly name: SDQL_Name,
+      readonly question: SDQL_Name,
       readonly questionType: EQuestionnaireQuestionType,
       readonly possibleResponses: string[],
     ) {

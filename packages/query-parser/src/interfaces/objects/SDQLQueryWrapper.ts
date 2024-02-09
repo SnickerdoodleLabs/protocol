@@ -20,6 +20,7 @@ import {
   UnixTimestamp,
   ISDQLQuestionBlock,
 } from "@snickerdoodlelabs/objects";
+import { ResultAsync, okAsync } from "neverthrow";
 
 export class SDQLQueryWrapper {
   /**
@@ -54,8 +55,7 @@ export class SDQLQueryWrapper {
     }
 
     this.getQuestionEntries().forEach(([num, question]) => {
-      console.log("questionSchema: " + questionSchema);
-      this.internalObj.questions.push(question);
+      this.internalObj.questions[num] = question;
     });
   }
 
@@ -205,11 +205,7 @@ export class SDQLQueryWrapper {
 
   public getQuestionEntries(): [number, ISDQLQuestion][] {
     const questions = this.getQuestionSchema();
-    return this._getEntries<number, ISDQLQuestion>(questions);
-
-    // return new Map(
-    //   this._getEntries<number, ISDQLQuestion>(questions),
-    // );
+    return (this._getEntries<number, ISDQLQuestion>(questions));
   }
 
   public getQuerySchema(): {

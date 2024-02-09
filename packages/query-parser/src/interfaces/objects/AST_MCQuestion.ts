@@ -1,7 +1,6 @@
 import {
     SDQL_Name,
     ISDQLQuestionBlock,
-    EQuestionType,
     StorageKey,
     EQuestionnaireQuestionType,
   } from "@snickerdoodlelabs/objects";
@@ -10,11 +9,11 @@ import { AST_Question } from "@query-parser/interfaces/objects/AST_Question.js";
 
   export class AST_MCQuestion extends AST_Question {
     constructor(
-        readonly name: SDQL_Name,
+        readonly question: SDQL_Name,
         readonly questionType: EQuestionnaireQuestionType.MultipleChoice,
         readonly possibleResponses: string[],
       ) {
-        super(name, questionType, possibleResponses);
+        super(question, questionType, possibleResponses);
       }
   
     static fromSchema(name: SDQL_Name, schema: ISDQLQuestionBlock): AST_MCQuestion {

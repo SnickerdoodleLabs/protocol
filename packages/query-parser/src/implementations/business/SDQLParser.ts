@@ -20,8 +20,8 @@ import {
   SDQL_Name,
   URLString,
   Version,
-  EQuestionType,
   ISDQLQuestion,
+  EQuestionnaireQuestionType,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -83,6 +83,7 @@ export class SDQLParser {
   > {
     return this.validateQuestionnaireSchema(this.schema, this.cid).andThen(() => {
       return this.parse().map(() => {
+        console.log("this.questions: " + JSON.stringify(this.questions))
         const ast = new AST(
           Version(this.schema.version!),
           this.schema.description!,
@@ -145,13 +146,14 @@ export class SDQLParser {
   //   .map(() => {});
 
   private validateQuestions(): ResultAsync<void, QueryFormatError | QueryExpiredError> {
-    return ResultUtils.combine(
-      this.schema.getQuestionEntries().map(([qKey, question]) => {
-        return this.validateQuestion(question);
-      }),
-    )
-      .mapErr((e) => e)
-      .map(() => {});
+    return okAsync(undefined);
+    // return ResultUtils.combine(
+    //   this.schema.getQuestionEntries().map(([qKey, question]) => {
+    //     return this.validateQuestion(question);
+    //   }),
+    // )
+    //   .mapErr((e) => e)
+    //   .map(() => {});
   }
 
   private validateQuestion(question: ISDQLQuestion): ResultAsync<void, QueryFormatError | QueryExpiredError> {
@@ -511,30 +513,47 @@ export class SDQLParser {
     void,
     DuplicateIdInSchema | QueryFormatError | MissingASTError
   > {
-    try {
-      const questionnaireSchema = this.schema.getQuestionSchema();
-      const questions = new Array<AST_MCQuestion | AST_TextQuestion>();
-      for (const qName in questionnaireSchema) {
-        const questionName = SDQL_Name(qName);
-        const schema = questionnaireSchema[qName];
-        const questionType = schema.questionType;
-        if (questionType == EQuestionType.multipleChoice) {
-          questions.push(AST_MCQuestion.fromSchema(questionName, schema));
+    return ResultUtils.combine(
+      this.schema.getQuestionEntries().map(([index, questionBlock]) => {
+        if (questionBlock.questionType == EQuestionnaireQuestionType.MultipleChoice) {
+          const mcQuestion = AST_MCQuestion.fromSchema(SDQL_Name(questionBlock.question), questionBlock);
+          this.saveInContext(SDQL_Name(questionBlock.question), mcQuestion);
+          return okAsync(mcQuestion);
         } else {
-          questions.push(AST_TextQuestion.fromSchema(questionName, schema));
+          const textQuestion = AST_TextQuestion.fromSchema(SDQL_Name(questionBlock.question), questionBlock);
+          this.saveInContext(SDQL_Name(questionBlock.question), textQuestion);
+          return okAsync(textQuestion);
         }
-      }
-      for (const question of questions) {
-        this.saveInContext(question.name, question);
-        this.questions.push(question);
-      }
-      return okAsync(undefined);
-    } catch (err) {
-      return errAsync(this.transformError(err as Error));
-    }
+      })
+    ).map((questions) => {
+      this.questions = questions;
+    });
+
+    // console.log("Inside parseQuestions");
+    // try {
+    //   const questionnaireSchema = this.schema.getQuestionSchema();
+    //   const questions = new Array<AST_MCQuestion | AST_TextQuestion>();
+    //   for (const qName in questionnaireSchema) {
+    //     const schema = questionnaireSchema[qName];        
+    //     const questionType = schema.questionType;
+    //     if (questionType == EQuestionnaireQuestionType.MultipleChoice) {
+    //       questions.push(AST_MCQuestion.fromSchema(SDQL_Name(schema.question), schema));
+    //     } else {
+    //       questions.push(AST_TextQuestion.fromSchema(SDQL_Name(schema.question), schema));
+    //     }
+    //   }
+    //   for (const question of questions) {
+    //     this.saveInContext(SDQL_Name(question.question), question);
+    //     this.questions.push(question);
+    //   }
+    //   return okAsync(undefined);
+    // } catch (err) {
+    //   return errAsync(this.transformError(err as Error));
+    // }
   }
 
   private saveInContext(name: string, val: ParserContextDataTypes): void {
+    console.log("saveInContext: " + name);
     if (this.context.has(name)) {
       throw new DuplicateIdInSchema(name);
     }

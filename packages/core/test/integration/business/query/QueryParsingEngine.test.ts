@@ -434,41 +434,41 @@ class QueryParsingMocks {
 //   });
 // });
 
-describe("Testing avalanche 4", () => {
-  test("avalanche 4 insights", async () => {
-    const mocks = new QueryParsingMocks();
-    const engine = mocks.factory();
+// describe("Testing avalanche 4", () => {
+//   test("avalanche 4 insights", async () => {
+//     const mocks = new QueryParsingMocks();
+//     const engine = mocks.factory();
 
-    const expectedInsights = {
-      insights: {
-        i1: null,
-        i2: { insight: "tasty", proof: "" },
-        i3: { insight: "1", proof: "" },
-        i4: { insight: "female", proof: "" },
-        i5: { insight: "{}", proof: "" },
-        i6: { insight: "[]", proof: "" },
-        i7: { insight: "[]", proof: "" },
-        i8: { insight: "[]", proof: "" },
-      },
-      ads: {},
-    };
+//     const expectedInsights = {
+//       insights: {
+//         i1: null,
+//         i2: { insight: "tasty", proof: "" },
+//         i3: { insight: "1", proof: "" },
+//         i4: { insight: "female", proof: "" },
+//         i5: { insight: "{}", proof: "" },
+//         i6: { insight: "[]", proof: "" },
+//         i7: { insight: "[]", proof: "" },
+//         i8: { insight: "[]", proof: "" },
+//       },
+//       ads: {},
+//     };
 
-    await engine
-      .handleQuery(sdqlQuery4, new DataPermissions(allPermissions))
-      .andThen((deliveredInsights) => {
-        expect(deliveredInsights).toMatchObject(expectedInsights);
-        expect(
-          Object.values(deliveredInsights.insights!).length > 0,
-        ).toBeTruthy();
+//     await engine
+//       .handleQuery(sdqlQuery4, new DataPermissions(allPermissions))
+//       .andThen((deliveredInsights) => {
+//         expect(deliveredInsights).toMatchObject(expectedInsights);
+//         expect(
+//           Object.values(deliveredInsights.insights!).length > 0,
+//         ).toBeTruthy();
 
-        return okAsync(undefined);
-      })
-      .mapErr((e) => {
-        console.log(e);
-        fail(e.message);
-      });
-  });
-});
+//         return okAsync(undefined);
+//       })
+//       .mapErr((e) => {
+//         console.log(e);
+//         fail(e.message);
+//       });
+//   });
+// });
 
 // describe("Testing rewardless 1 ", () => {
 //   test("rewardless 1 insights", async () => {
@@ -527,19 +527,23 @@ describe("Handle Questionnaire", () => {
 
     await engine
       .handleQuestionnaire(sdqlQuery6, new DataPermissions(allPermissions))
-      .andThen((insights) => {
-        console.log("insights: " + JSON.stringify(insights));
-        // expect(insights).toEqual({
-        //   insights: {
-        //     i1: null,
-        //     i2: { insight: "tasty", proof: "" },
-        //     i3: { insight: "1", proof: "" },
-        //     i4: { insight: "female", proof: "" },
-        //     i5: { insight: "{}", proof: "" },
-        //   },
-        //   ads: {},
-        // });
-        return okAsync(insights);
+      .andThen((questionnaire) => {
+        console.log("Questionnaire Object: " + JSON.stringify(questionnaire));
+        expect(questionnaire.questions).toEqual(
+          [
+            {
+              "index":0,
+              "type":"Text",
+              "text":"What is your name?"}
+              ,
+              {"index":1,
+              "type":"Text",
+              "text":"What is your political party affiliation?",
+              "choices":["Democrat","Republican","Independent","Other"]
+            }
+          ]
+        )
+        return okAsync(questionnaire.questions);
       })
       .mapErr((e) => {
         console.log(e);

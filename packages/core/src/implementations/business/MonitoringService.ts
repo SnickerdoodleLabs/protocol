@@ -92,15 +92,11 @@ export class MonitoringService implements IMonitoringService {
         // config.chainInformation is the list of supported chains,
         return ResultUtils.combine(
           linkedAccounts.map((linkedAccount) => {
-            console.log("linkedAccount: " + linkedAccount);
-
-            return ResultUtils.combine(
+          return ResultUtils.combine(
               supportedChains.map((chain) => {
                 if (!isAccountValidForChain(chain, linkedAccount)) {
                   return okAsync([]);
                 }
-
-                console.log("chain: " + chain);
 
                 return this.transactionRepo
                   .getLatestTransactionForAccount(

@@ -1,12 +1,10 @@
+import { 
+ EQuestionnaireQuestionType
+ } from "@objects/businessObjects";
+
 export interface ISDQLQuestionBlock { 
-  questionType: EQuestionType;
+  questionType: EQuestionnaireQuestionType;
   question: string;
   options: string[]; // use index as key
-}
-
-export enum EQuestionType {
-    multipleChoice = "multiple choice",
-    text = "text",
-    country = "country"
 }
 

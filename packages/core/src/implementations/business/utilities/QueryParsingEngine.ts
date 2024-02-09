@@ -127,9 +127,16 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       .andThen((ast) => {
         return ResultUtils.combine(
           ast.questions.map((astQuestion, index) => {
-            return okAsync(new QuestionnaireQuestion(index, astQuestion.questionType, astQuestion.name, astQuestion.possibleResponses));
+            return okAsync(new QuestionnaireQuestion(index, astQuestion.questionType, astQuestion.question, astQuestion.possibleResponses));
           }),
         ).map((questionnaireQuestions) => {
+          context.publicEvents.queryPerformance.next(
+            new QuestionnairePerformanceEvent(
+              EQueryEvents.QuestionnaireEvaluation,
+              EStatus.End,
+              questionnaire.cid,
+            ),
+          );
           context.publicEvents.queryPerformance.next(
             new QuestionnairePerformanceEvent(
               EQueryEvents.QuestionnaireParsing,
@@ -198,9 +205,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
           query.cid,
         ),
       );
-      console.log("query.query: " + query.query);
-      console.log("JSON.stringify(query.query): " + JSON.stringify(query.query));
-
       return this.parseQuery(query)
         .andThen((ast) => {
           context.publicEvents.queryPerformance.next(

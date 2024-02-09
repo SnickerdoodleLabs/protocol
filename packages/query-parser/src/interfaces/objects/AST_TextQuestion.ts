@@ -1,11 +1,6 @@
 import {
-    EWalletDataType,
-    ISDQLQueryClause,
-    ESDQLQueryReturn,
     SDQL_Name,
-    MissingWalletDataTypeError,
     ISDQLQuestionBlock,
-    EQuestionType,
     EQuestionnaireQuestionType,
   } from "@snickerdoodlelabs/objects";
   import { AST_Question } from "@query-parser/interfaces/objects/AST_Question.js";
@@ -14,18 +9,14 @@ import {
   
   export class AST_TextQuestion extends AST_Question {
     constructor(
-        readonly name: SDQL_Name,
+        readonly question: SDQL_Name,
         readonly questionType: EQuestionnaireQuestionType,
         readonly possibleResponses: string[],
       ) {
-        super(name, questionType, possibleResponses);
+        super(question, questionType, possibleResponses);
       }
     
       static fromSchema(name: SDQL_Name, schema: ISDQLQuestionBlock): AST_TextQuestion {
-        return new AST_TextQuestion(name, EQuestionnaireQuestionType.MultipleChoice, schema.options);
+        return new AST_TextQuestion(name, EQuestionnaireQuestionType.Text, schema.options);
       }
-  
-    // getPermission(): Result<EWalletDataType, MissingWalletDataTypeError> {
-    //   return ok(EWalletDataType.AccountNFTs);
-    // }
   }

@@ -9,14 +9,25 @@ import {
   QuestionnaireWithAnswers,
   PagingRequest,
   PagedResponse,
+  SDQLString,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
-import { injectable } from "inversify";
-import { ResultAsync, okAsync } from "neverthrow";
+import { inject, injectable } from "inversify";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
 import { IQuestionnaireRepository } from "@core/interfaces/data/index.js";
+import { IConfigProvider, IConfigProviderType } from "@core/interfaces/utilities";
+import { urlJoin } from "url-join-ts";
+import { IAxiosAjaxUtils, IAxiosAjaxUtilsType } from "@snickerdoodlelabs/common-utils";
 
 @injectable()
 export class QuestionnaireRepository implements IQuestionnaireRepository {
+  public constructor(
+    // @inject(IConfigProviderType)
+    // protected configProvider: IConfigProvider,
+    // @inject(IAxiosAjaxUtilsType)
+    // protected ajaxUtils: IAxiosAjaxUtils,
+  ) {}
   /**
    * Returns a list of Questionnaires that the user has not yet provided answers for.
    * If the consentContractId is provided, only Questionnaires that are associated with
@@ -54,10 +65,12 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
    * @param questionnaireCID The CID of the specific questionnaire.
    * @param benchmark Optional benchmark timestamp to retrieve the questionnaire's state at a specific point in time.
    */
-  getByCID(
-    questionnaireCID: IpfsCID,
-  ): ResultAsync<Questionnaire | QuestionnaireWithAnswers, AjaxError> {
-    throw new Error("Method not implemented.");
+  public getByCID(questionnaireCID: IpfsCID, benchmark?: UnixTimestamp): ResultAsync<Questionnaire, InvalidParametersError | AjaxError> {
+    return errAsync(new InvalidParametersError(""))
+    // return this.configProvider.getConfig().andThen((config) => {
+    //   const url = new URL(urlJoin(config.ipfsFetchBaseUrl, questionnaireCID));
+    //   return this.ajaxUtils.get<Questionnaire>(url);
+    // }).map((questionnaire) => questionnaire);
   }
 
     /**
@@ -74,10 +87,10 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
    * It should be called from a polling process that periodically checks for new questionnaires.
    * @param questionnaireCids the list of questionnaires to add to the cache
    */
-  add(questionnaireCids: IpfsCID[]): ResultAsync<void, PersistenceError> {
-    for (const cid in questionnaireCids) {
-      cid;
-    }
+  public add(questionnaireCids: IpfsCID[]): ResultAsync<void, PersistenceError> {
+    // for (const cid in questionnaireCids) {
+    //   this.getByCID(IpfsCID(cid)).
+    // }
     throw new Error("Method not implemented.");
   }
 
@@ -88,6 +101,11 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
   upsertAnswers(
     answers: QuestionnaireAnswer[],
   ): ResultAsync<void, PersistenceError | AjaxError | InvalidParametersError> {
+    // for (const answer of answers) {
+    //   const ipfsCID = answer.questionnaireId;
+
+    //   if (answer.questionnaireId )
+    // }
     throw new Error("Method not implemented.");
   }
 }

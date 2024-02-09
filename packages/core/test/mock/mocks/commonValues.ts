@@ -38,7 +38,6 @@ import {
   EContractStandard,
   DirectReward,
   EVMNFT,
-  EQuestionType,
   EQuestionnaireQuestionType,
 } from "@snickerdoodlelabs/objects";
 import {

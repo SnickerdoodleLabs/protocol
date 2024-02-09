@@ -729,8 +729,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           this.iocContainer.get<IQuestionnaireService>(
             IQuestionnaireServiceType,
           );
-
-          console.log("Get Questionnaires: HELLO")
         return questionnaireService.getQuestionnaires(
           pagingRequest,
           sourceDomain,
