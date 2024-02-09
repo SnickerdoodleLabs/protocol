@@ -655,41 +655,4 @@ export class ConsentContractWrapper
       () => this.secondary?.removeListing(tag),
     );
   }
-
-  public getQuestionnaires(): ResultAsync<
-    Map<number, IpfsCID>,
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return this.fallback(
-      () => this.primary.getQuestionnaires(),
-      () => this.secondary?.getQuestionnaires(),
-    );
-  }
-
-  public setQuestionnaire(
-    index: number,
-    ipfsCid: IpfsCID,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ConsentContractError
-  > {
-    return this.fallback(
-      () => this.primary.setQuestionnaire(index, ipfsCid, overrides),
-      () => this.secondary?.setQuestionnaire(index, ipfsCid, overrides),
-    );
-  }
-
-  public removeQuestionnaire(
-    index: number,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ConsentContractError
-  > {
-    return this.fallback(
-      () => this.primary.removeQuestionnaire(index, overrides),
-      () => this.secondary?.removeQuestionnaire(index, overrides),
-    );
-  }
 }

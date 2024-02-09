@@ -285,46 +285,6 @@ export interface IConsentContract extends IBaseContract {
     ConsentContractError | BlockchainCommonErrors
   >;
 
-  // #region Questionnaires
-  /**
-   * Returns a list of all questionnaires
-   */
-  getQuestionnaires(): ResultAsync<
-    Map<number, IpfsCID>,
-    ConsentContractError | BlockchainCommonErrors
-  >;
-
-  /**
-   * Adds a questionnaire to the contract storage. Only 64 questionnaires can be added
-   * Only callable by address with DEFAULT_ADMIN_ROLE
-   * If domain already exists, reverts with error message "Consent : Questionnaire already added"
-   * @param index Index of the questionnaire. This must be a value between 0 and 63 inclusive, otherwise it reverts
-   * @param ipfsCid Domain name
-   */
-  setQuestionnaire(
-    index: number,
-    ipfsCid: IpfsCID,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ConsentContractError
-  >;
-
-  /**
-   * Removes a questionnaire from the contract storage at the index position
-   * Only callable by address with DEFAULT_ADMIN_ROLE
-   * If the index is out of range, this reverts with error message "Consent : Questionnaire index out of range"
-   * @param index Index of the questionnaire. This must be a value between 0 and 63 inclusive, otherwise it reverts
-   */
-  removeQuestionnaire(
-    index: number,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ConsentContractError
-  >;
-  // #endregion Questionnaires
-
   /**
    * Returns a list of RequestForData events between two block numbers
    * @param requesterAddress owner address of the request

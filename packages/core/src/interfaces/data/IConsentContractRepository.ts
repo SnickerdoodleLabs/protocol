@@ -40,7 +40,7 @@ export interface IConsentContractRepository {
   getQuestionnaires(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
-    Map<number, IpfsCID>,
+    IpfsCID[],
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
