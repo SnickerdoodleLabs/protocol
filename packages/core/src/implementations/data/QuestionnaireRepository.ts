@@ -120,6 +120,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
   public getAnswered(
     pagingRequest: PagingRequest,
     benchmark?: UnixTimestamp,
+    consentContractId?: EVMContractAddress | undefined,
   ): ResultAsync<
     PagedResponse<QuestionnaireWithAnswers>,
     PersistenceError | AjaxError
@@ -149,12 +150,16 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     ]).andThen(([questionnaireDatas, totalCount]) => {
       return ResultUtils.combine(
         questionnaireDatas.map((questionnaireData) =>
-          this.getByCID(questionnaireData.id, benchmark),
+          this.getByCID(questionnaireData.id, benchmark, true),
         ),
       ).map((questionnaireWithAnswers) => {
-        const result = questionnaireWithAnswers as QuestionnaireWithAnswers[];
+        const result =
+          questionnaireWithAnswers as (QuestionnaireWithAnswers | null)[];
+        const filteredResult = result.filter<QuestionnaireWithAnswers>(
+          (data): data is QuestionnaireWithAnswers => data !== null,
+        );
         return new PagedResponse(
-          result,
+          filteredResult,
           pagingRequest.page,
           pagingRequest.pageSize,
           totalCount,
@@ -165,11 +170,15 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
   public getByCID(
     questionnaireCID: IpfsCID,
     benchmark?: UnixTimestamp,
+    shouldHaveAnswer?: boolean,
   ): ResultAsync<
     Questionnaire | QuestionnaireWithAnswers | null,
     AjaxError | PersistenceError
   > {
-    const query = this.constructTimeQuery(benchmark, questionnaireCID);
+    const query = IDBKeyRange.bound(
+      [0, questionnaireCID, benchmark ?? 0],
+      [0, questionnaireCID, this.timeUtils.getUnixNow()],
+    );
 
     return ResultUtils.combine([
       this.persistence.get<QuestionnaireData>(ERecordKey.QUESTIONNAIRES, {
@@ -220,6 +229,9 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
             answers,
           );
         } else {
+          if (shouldHaveAnswer) {
+            return null;
+          }
           return new Questionnaire(
             questionnaireData.id,
             MarketplaceTag("!!!!"),
@@ -230,6 +242,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
       }
     });
   }
+
   public getQuestionnaireIds(): ResultAsync<IpfsCID[], PersistenceError> {
     return this.persistence
       .getKeys(ERecordKey.QUESTIONNAIRES, {
@@ -356,15 +369,5 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
       return true;
     }
     return false;
-  }
-
-  private constructTimeQuery(
-    benchmark: UnixTimestamp | undefined,
-    questionnaireCID: IpfsCID,
-  ): IDBKeyRange {
-    return IDBKeyRange.bound(
-      [0, questionnaireCID, benchmark ?? 0],
-      [0, questionnaireCID, this.timeUtils.getUnixNow()],
-    );
   }
 }
