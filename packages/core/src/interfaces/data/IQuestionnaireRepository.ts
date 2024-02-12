@@ -16,13 +16,13 @@ import { ResultAsync } from "neverthrow";
 
 /**
  * The QuestionnaireRepository is responsible for storing and retrieving Questionnaires and their
- * associated answers. Questionnaires are stored on IPFS, but should be cached locally for
+ * associated answers. Questionnaires are stored on IPFS, but should be stored locally for
  * performance reasons. Answers are always stored locally in indexDB. A separate polling process
- * should periodically check for new Questionnaires and update the local cache.
+ * should periodically check for new Questionnaires and update the local storage.
  */
 export interface IQuestionnaireRepository {
   /**
-   * Returns a list of Questionnaires that the user has not yet provided answers for.
+   * Returns a list of Questionnaires that the user has not yet provided answ1ers for.
    * If the consentContractId is provided, only Questionnaires that are associated with
    * that consent contract are returned. If it is not provided, only
    * questionnaires from the ConsentContractFactory are returned. Questionnaires are always
@@ -59,27 +59,33 @@ export interface IQuestionnaireRepository {
   getByCID(
     questionnaireCID: IpfsCID,
     benchmark?: UnixTimestamp,
-  ): ResultAsync<Questionnaire | QuestionnaireWithAnswers | null, AjaxError>;
+  ): ResultAsync<
+    Questionnaire | QuestionnaireWithAnswers | null,
+    AjaxError | PersistenceError
+  >;
 
   /**
    * This method is provided as an optimization for the polling process. It returns a list of
    * the QuestionnaireIds that are currently cached locally, without having to construct the
    * complete Questionnaire objects.
    */
-  getCachedQuestionnaireIds(): ResultAsync<IpfsCID[], PersistenceError>;
+  getQuestionnaireIds(): ResultAsync<IpfsCID[], PersistenceError>;
 
   /**
    * This method will add a list of questionnaires to the local cache via their IPFS CID.
    * It should be called from a polling process that periodically checks for new questionnaires.
    * @param questionnaireCids the list of questionnaires to add to the cache
    */
-  add(questionnaireCids: IpfsCID[]): ResultAsync<void, PersistenceError>;
+  add(
+    questionnaireCids: IpfsCID[],
+  ): ResultAsync<void, AjaxError | PersistenceError>;
 
   /**
    * Adds or updates answers to a questionnaire.
    * @param answers
    */
   upsertAnswers(
+    id: IpfsCID,
     answers: NewQuestionnaireAnswer[],
   ): ResultAsync<void, InvalidParametersError | PersistenceError | AjaxError>;
 }

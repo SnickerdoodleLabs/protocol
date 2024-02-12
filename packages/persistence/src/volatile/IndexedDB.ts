@@ -582,6 +582,254 @@ export class IndexedDB {
     });
   }
 
+  public get<T extends VersionedObject>(
+    name: string,
+    {
+      index,
+      query = null,
+      count,
+      id,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | null;
+      count?: number;
+      id?: IDBValidKey;
+    } = {},
+  ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
+    return this.initialize().andThen(() => {
+      return this.getTransaction(name, "readonly").andThen((tx) => {
+        const store = tx.objectStore(name);
+        let request: IDBRequest<VolatileStorageMetadata<T>[]>;
+
+        if (id != null) {
+          request = store.get(id);
+        } else if (index != null) {
+          const indexObj: IDBIndex = store.index(index);
+          request = indexObj.getAll(query, count);
+        } else {
+          request = store.getAll(query, count);
+        }
+
+        const promise = new Promise<VolatileStorageMetadata<T>[]>(
+          (resolve, reject) => {
+            request.onsuccess = (event) => {
+              let result: VolatileStorageMetadata<T>[] =
+                (event.target as IDBRequest<VolatileStorageMetadata<T>[]>)
+                  .result ?? [];
+              if (!Array.isArray(result)) {
+                result = [result];
+              }
+              resolve(result);
+            };
+
+            request.onerror = (event) => {
+              reject(
+                new PersistenceError(
+                  `An error occurred while getting records from the IndexedDB for table ${name}. \n
+                   params : ${{
+                     index,
+                     id,
+                     query,
+                     count,
+                   }}
+                  `,
+                  event,
+                ),
+              );
+            };
+          },
+        );
+
+        return ResultAsync.fromPromise(promise, (e) => {
+          return e as PersistenceError;
+        });
+      });
+    });
+  }
+
+  public getKeys(
+    name: string,
+    {
+      index,
+      query = null,
+      count,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | null;
+      count?: number;
+    } = {},
+  ): ResultAsync<IDBValidKey[], PersistenceError> {
+    return this.initialize().andThen(() => {
+      return this.getTransaction(name, "readonly").andThen((tx) => {
+        const store = tx.objectStore(name);
+        let request: IDBRequest<IDBValidKey[]>;
+
+        if (index != null) {
+          const indexObj: IDBIndex = store.index(index);
+          request = indexObj.getAllKeys(query, count);
+        } else {
+          request = store.getAllKeys(query, count);
+        }
+
+        const promise = new Promise<IDBValidKey[]>((resolve, reject) => {
+          request.onsuccess = (event) => {
+            const result: IDBValidKey[] =
+              (event.target as IDBRequest<IDBValidKey[]>).result ?? [];
+            resolve(result);
+          };
+
+          request.onerror = (event) => {
+            reject(
+              new PersistenceError(
+                `An error occurred while getting keys from the IndexedDB for table ${name}. \n
+                 params : ${{
+                   index,
+                   query,
+                   count,
+                 }}
+                `,
+                event,
+              ),
+            );
+          };
+        });
+
+        return ResultAsync.fromPromise(promise, (e) => {
+          return e as PersistenceError;
+        });
+      });
+    });
+  }
+
+  public getCursor2<T extends VersionedObject>(
+    name: string,
+    {
+      index,
+      query = null,
+      lowerCount,
+      upperCount,
+      latest = false,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | null;
+      lowerCount?: number;
+      upperCount?: number;
+      latest?: boolean;
+    } = {},
+  ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
+    return this.initialize().andThen(() => {
+      return this.getTransaction(name, "readonly").andThen((tx) => {
+        const store = tx.objectStore(name);
+        let request: IDBRequest<IDBCursorWithValue | null>;
+        const results: VolatileStorageMetadata<T>[] = [];
+        let count = 0;
+
+        if (index) {
+          const indexObj = store.index(index);
+          if (latest) {
+            request = indexObj.openCursor(query, "prev");
+          } else {
+            request = indexObj.openCursor(query);
+          }
+        } else {
+          request = store.openCursor(query);
+        }
+
+        const promise = new Promise<VolatileStorageMetadata<T>[]>(
+          (resolve, reject) => {
+            request.onsuccess = (event) => {
+              const cursor = (event.target as IDBRequest<IDBCursorWithValue>)
+                .result;
+              if (!cursor) {
+                resolve(results);
+                return;
+              }
+
+              if (latest) {
+                results.push(cursor.value);
+                resolve(results);
+              } else {
+                if (lowerCount && count === 0 && lowerCount > 0) {
+                  cursor.advance(lowerCount);
+                  count = lowerCount;
+                } else {
+                  results.push(cursor.value);
+                  count++;
+                  if (upperCount && count >= upperCount) {
+                    resolve(results);
+                  } else {
+                    cursor.continue();
+                  }
+                }
+              }
+            };
+
+            request.onerror = (event) => {
+              reject(
+                new PersistenceError(
+                  `An error occurred while iterating through records in the IndexedDB for table ${name}. \n
+                  params : ${{
+                    index,
+                    query,
+                    lowerCount,
+                    upperCount,
+                    latest,
+                  }}`,
+                  event,
+                ),
+              );
+            };
+          },
+        );
+
+        return ResultAsync.fromPromise(promise, (e) => {
+          return e as PersistenceError;
+        });
+      });
+    });
+  }
+
+  public countRecords(
+    name: string,
+    {
+      index,
+      query = undefined,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | undefined;
+    } = {},
+  ): ResultAsync<number, PersistenceError> {
+    return this.initialize().andThen(() => {
+      return this.getTransaction(name, "readonly").andThen((tx) => {
+        const store = tx.objectStore(name);
+        let countRequest: IDBRequest<number>;
+
+        if (index) {
+          const indexObj = store.index(index);
+          countRequest = indexObj.count(query);
+        } else {
+          countRequest = store.count(query);
+        }
+
+        const promise = new Promise<number>((resolve, reject) => {
+          countRequest.onsuccess = () => {
+            resolve(countRequest.result);
+          };
+          countRequest.onerror = (event) => {
+            reject(
+              new PersistenceError(
+                `An error occurred while counting records in the IndexedDB for table ${name}.`,
+                event,
+              ),
+            );
+          };
+        });
+
+        return ResultAsync.fromPromise(promise, (e) => e as PersistenceError);
+      });
+    });
+  }
+
   public getKey(
     tableName: string,
     obj: VersionedObject,
@@ -739,6 +987,15 @@ export class IndexedDB {
   }
 
   protected _getFieldPath(name: VolatileStorageKey): string {
+    if (
+      VolatileStorageMetadataIndexes.find(
+        ([metaDataIndex]) => metaDataIndex === name,
+      )
+    ) {
+      {
+        return name.toString();
+      }
+    }
     return [VolatileStorageDataKey, name.toString()].join(".");
   }
 

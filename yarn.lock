@@ -44038,7 +44038,7 @@ __metadata:
 "sync-promise@git+https://github.com/brettz9/sync-promise.git#full-sync-missing-promise-features":
   version: 1.0.1
   resolution: "sync-promise@https://github.com/brettz9/sync-promise.git#commit=25845a49a00aa2d2c985a5149b97c86a1fcdc75a"
-  checksum: 80f8808f2bbb8c4f809fae0b0283dbe663a23c88cd2bf6de6ce1facada5e29cc3800027dd5123f126d119bc3090c9a82da9dd2288ebb9526070280d4aab66e3c
+  checksum: 810fbb4a138b857d1c36afd0673a679270dd44e74e835e57aea321c27b8abce25c00f38467da28e3b14d54a529b9544e8bc0835888c7d9086e6c35cdf116e4b2
   languageName: node
   linkType: hard
 

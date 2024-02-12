@@ -19,6 +19,8 @@ import {
   WalletNFTDataMigrator,
   WalletNFTHistoryMigrator,
   InvitationForStorageMigrator,
+  QuestionnaireMigrator,
+  QuestionnaireHistoryMigrator,
 } from "@snickerdoodlelabs/objects";
 
 import { IPersistenceConfig } from "@persistence/IPersistenceConfig";
@@ -239,6 +241,30 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
         EBackupPriority.HIGH,
         config?.dataWalletBackupIntervalMS ?? testTimeValue,
         0, // auto push
+      ),
+    ],
+    [
+      ERecordKey.QUESTIONNAIRES,
+      new VolatileTableIndex(
+        ERecordKey.QUESTIONNAIRES,
+        [["deleted", "id"], false],
+        new QuestionnaireMigrator(),
+        EBackupPriority.NORMAL,
+        config?.dataWalletBackupIntervalMS ?? testTimeValue,
+        config?.backupChunkSizeTarget ?? testTimeValue,
+        [[["deleted", "status"], false]],
+      ),
+    ],
+    [
+      ERecordKey.QUESTIONNAIRES_HISTORY,
+      new VolatileTableIndex(
+        ERecordKey.QUESTIONNAIRES_HISTORY,
+        [["id", "measurementDate"], false],
+        new QuestionnaireHistoryMigrator(),
+        EBackupPriority.NORMAL,
+        config?.dataWalletBackupIntervalMS ?? testTimeValue,
+        config?.backupChunkSizeTarget ?? testTimeValue,
+        [[["deleted", "id", "measurementDate"], false]],
       ),
     ],
   ]);

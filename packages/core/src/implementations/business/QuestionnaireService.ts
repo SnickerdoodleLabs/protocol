@@ -83,7 +83,7 @@ export class QuestionnaireService implements IQuestionnaireService {
 
         // Validate that the answers are valid for the questionnaire
         // TODO;
-        return this.questionnaireRepo.upsertAnswers(answers);
+        return this.questionnaireRepo.upsertAnswers(questionnaireId, answers);
       });
   }
 

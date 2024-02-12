@@ -56,6 +56,96 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
     return this.indexedDB;
   }
 
+  public get<T extends VersionedObject>(
+    schemaKey: string,
+    {
+      index,
+      query = null,
+      count,
+      id,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | null;
+      count?: number;
+      id?: IDBValidKey;
+    } = {},
+  ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
+    return this._getIDB().andThen((db) =>
+      db.get<T>(schemaKey, {
+        index,
+        query,
+        count,
+        id,
+      }),
+    );
+  }
+
+  public countRecords(
+    schemaKey: string,
+    {
+      index,
+      query = undefined,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | undefined;
+    } = {},
+  ): ResultAsync<number, PersistenceError> {
+    return this._getIDB().andThen((db) =>
+      db.countRecords(schemaKey, {
+        index,
+        query,
+      }),
+    );
+  }
+
+  public getKeys(
+    schemaKey: string,
+    {
+      index,
+      query = null,
+      count,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | null;
+      count?: number;
+    } = {},
+  ): ResultAsync<IDBValidKey[], PersistenceError> {
+    return this._getIDB().andThen((db) =>
+      db.getKeys(schemaKey, {
+        index,
+        query,
+        count,
+      }),
+    );
+  }
+
+  public getCursor2<T extends VersionedObject>(
+    schemaKey: string,
+    {
+      index,
+      query = null,
+      lowerCount,
+      upperCount,
+      latest = false,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | null;
+      lowerCount?: number;
+      upperCount?: number;
+      latest?: boolean;
+    } = {},
+  ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
+    return this._getIDB().andThen((db) =>
+      db.getCursor2<T>(schemaKey, {
+        index,
+        query,
+        lowerCount,
+        upperCount,
+        latest,
+      }),
+    );
+  }
+
   public getKey(
     tableName: string,
     obj: VersionedObject,

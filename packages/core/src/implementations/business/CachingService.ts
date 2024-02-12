@@ -44,43 +44,43 @@ export class CachingService implements ICachingService {
     // TODO: Remove this once the contracts are updated
     return okAsync(undefined);
 
-    return ResultUtils.combine([
-      this.questionnaireRepo.getCachedQuestionnaireIds(),
-      this.invitationRepo.getAcceptedInvitations(),
-      this.consentContractRepo.getDefaultQuestionnaires(),
-    ]).andThen(
-      ([
-        cachedQuestionnaireIds,
-        acceptedInvitations,
-        defaultQuestionnaireIds,
-      ]) => {
-        // Loop over the accepted invitations and get the questionnaires from the consent contracts
-        return ResultUtils.combine(
-          acceptedInvitations.map((optInInfo) => {
-            return this.consentContractRepo.getQuestionnaires(
-              optInInfo.consentContractAddress,
-            );
-          }),
-        ).andThen((consentContractQuestionnaires) => {
-          // Build a set of all the IPFS CIDs that we are interested in.
-          // Start with the default list, and then add the ones from the consent contracts
-          const ipfsCIDs = new Set<IpfsCID>(defaultQuestionnaireIds);
-          for (const consentContractMap of consentContractQuestionnaires) {
-            for (const ipfsCID of consentContractMap.values()) {
-              ipfsCIDs.add(ipfsCID);
-            }
-          }
+    // return ResultUtils.combine([
+    //   this.questionnaireRepo.getQuestionnaireIds(),
+    //   this.invitationRepo.getAcceptedInvitations(),
+    //   this.consentContractRepo.getDefaultQuestionnaires(),
+    // ]).andThen(
+    //   ([
+    //     cachedQuestionnaireIds,
+    //     acceptedInvitations,
+    //     defaultQuestionnaireIds,
+    //   ]) => {
+    //     // Loop over the accepted invitations and get the questionnaires from the consent contracts
+    //     return ResultUtils.combine(
+    //       acceptedInvitations.map((optInInfo) => {
+    //         return this.consentContractRepo.getQuestionnaires(
+    //           optInInfo.consentContractAddress,
+    //         );
+    //       }),
+    //     ).andThen((consentContractQuestionnaires) => {
+    //       // Build a set of all the IPFS CIDs that we are interested in.
+    //       // Start with the default list, and then add the ones from the consent contracts
+    //       const ipfsCIDs = new Set<IpfsCID>(defaultQuestionnaireIds);
+    //       for (const consentContractMap of consentContractQuestionnaires) {
+    //         for (const ipfsCID of consentContractMap.values()) {
+    //           ipfsCIDs.add(ipfsCID);
+    //         }
+    //       }
 
-          // Get a diff of the CIDs that we have in the cache already and those that we need
-          const cidsToAdd = new Array<IpfsCID>();
-          for (const cid of ipfsCIDs.values()) {
-            if (!cachedQuestionnaireIds.includes(cid)) {
-              cidsToAdd.push(cid);
-            }
-          }
-          return this.questionnaireRepo.add(cidsToAdd);
-        });
-      },
-    );
+    //       // Get a diff of the CIDs that we have in the cache already and those that we need
+    //       const cidsToAdd = new Array<IpfsCID>();
+    //       for (const cid of ipfsCIDs.values()) {
+    //         if (!cachedQuestionnaireIds.includes(cid)) {
+    //           cidsToAdd.push(cid);
+    //         }
+    //       }
+    //       return this.questionnaireRepo.add(cidsToAdd);
+    //     });
+    //   },
+    // );
   }
 }
