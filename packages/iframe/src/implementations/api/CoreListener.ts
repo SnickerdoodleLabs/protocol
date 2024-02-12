@@ -41,6 +41,7 @@ import {
   IWebIntegrationConfigOverrides,
   TransactionFilter,
   LinkedAccount,
+  JSONString,
 } from "@snickerdoodlelabs/objects";
 import {
   IIFrameCallData,
@@ -999,6 +1000,26 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           });
         }, data.callId);
       },
+
+      // #region External localstorage calls
+
+      setUIState: (data: IIFrameCallData<{ state: JSONString }>) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.setUIState(data.data.state);
+          });
+        }, data.callId);
+      },
+
+      getUIState: (data: IIFrameCallData<Record<string, never>>) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.getUIState();
+          });
+        }, data.callId);
+      },
+
+      // #endregion
 
       // ivitations
       checkURLForInvitation: (data: IIFrameCallData<{ url: URLString }>) => {

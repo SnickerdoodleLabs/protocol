@@ -37,6 +37,7 @@ import {
   ISnickerdoodleCoreEvents,
   IUserAgreement,
   IpfsCID,
+  JSONString,
   JsonWebToken,
   LanguageCode,
   LinkedAccount,
@@ -505,5 +506,12 @@ export class ProxyBridge implements ISdlDataWallet {
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], ProxyError> {
     return this.call(this.core.getTransactions(filter, this.sourceDomain));
+  }
+
+  setUIState(state: JSONString): ResultAsync<void, ProxyError> {
+    return this.call(this.core.setUIState(state));
+  }
+  getUIState(): ResultAsync<JSONString | null, ProxyError> {
+    return this.call(this.core.getUIState());
   }
 }

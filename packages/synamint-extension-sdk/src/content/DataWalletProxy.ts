@@ -59,6 +59,7 @@ import {
   TransactionFilter,
   IProxyAccountMethods,
   INftProxyMethods,
+  JSONString,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { JsonRpcEngine } from "json-rpc-engine";
@@ -412,7 +413,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       _this.emit(resp.type, resp);
     });
   }
-
   public setDefaultReceivingAddress(
     receivingAddress: AccountAddress | null,
   ): ResultAsync<void, ProxyError> {
@@ -633,6 +633,13 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     return coreGateway.getEarnedRewardsByContractAddress(
       new GetPossibleRewardsParams(contractAddresses),
     );
+  }
+
+  public setUIState(state: JSONString): ResultAsync<void, ProxyError> {
+    return coreGateway.setUIState(state);
+  }
+  public getUIState(): ResultAsync<JSONString | null, ProxyError> {
+    return coreGateway.getUIState();
   }
 }
 

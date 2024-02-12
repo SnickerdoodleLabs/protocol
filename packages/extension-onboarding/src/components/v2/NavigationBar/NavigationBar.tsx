@@ -1,6 +1,7 @@
 import { SDLogoCircle, MobileMenuIcon } from "@extension-onboarding/assets";
 import HideOnScroll from "@extension-onboarding/components/v2/HideOnScroll";
 import {
+  CookieVaultIcon,
   DashboardIcon,
   DataPermissionIcon,
   SettingIcon,
@@ -31,29 +32,17 @@ const useStyles = makeStyles((theme: Theme) => ({
     boxShadow: shadows.sm,
   },
   toolbar: {
-    backgroundColor: colors.MAINPURPLE50,
+    backgroundColor: colors.DARKPURPLE500,
   },
   item: {
     cursor: "pointer",
     "&:hover": {
-      backgroundColor: colors.MAINPURPLE100,
+      backgroundColor: colors.MAINPURPLE900,
     },
     backgroundColor: "transparent",
-    "& svg": {
-      fill: colors.MAINPURPLE900,
-    },
-    "& p": {
-      color: colors.MAINPURPLE900,
-    },
   },
   itemActive: {
-    backgroundColor: colors.MAINPURPLE900,
-    "& svg": {
-      fill: colors.WHITE,
-    },
-    "& p": {
-      color: colors.WHITE,
-    },
+    backgroundColor: colors.MAINPURPLE800,
   },
   pointer: {
     cursor: "pointer",
@@ -64,7 +53,9 @@ const useStyles = makeStyles((theme: Theme) => ({
       left: "40% !important",
       width: "-webkit-fill-available !important",
     },
-    "& .MuiMenu-list": {},
+    "& .MuiMenu-list": {
+      backgroundColor: colors.MAINPURPLE900,
+    },
     "& .MuiListItem-gutters": {
       all: "unset",
     },
@@ -78,20 +69,25 @@ interface INavigationItem {
 }
 const navigationItems: INavigationItem[] = [
   {
+    displayName: "Cookie Vault",
+    path: EPathsV2.COOKIE_VAULT,
+    icon: <CookieVaultIcon color="inherit" />,
+  },
+  {
     displayName: "Data Permissions",
     path: EPathsV2.DATA_PERMISSIONS,
-    icon: <DataPermissionIcon />,
+    icon: <DataPermissionIcon color="inherit" />,
   },
   {
     displayName: "Settings",
     path: EPathsV2.SETTINGS,
-    icon: <SettingIcon />,
+    icon: <SettingIcon color="inherit" />,
   },
   {
     displayName: "My Data Dashboard",
-    path: "" as EPathsV2,
+    path: EPathsV2.DATA_DASHBOARD,
     initialSubroutePath: EPathsV2.TRANSACTION_HISTORY,
-    icon: <DashboardIcon />,
+    icon: <DashboardIcon color="inherit" />,
   },
 ];
 
@@ -100,7 +96,7 @@ const NavigationBar = () => {
   const { sdlDataWallet } = useDataWalletContext();
   const location = useLocation();
   const navigate = useNavigate();
-  const [activeIndex, setActiveIndex] = React.useState<number>(0);
+  const [activeIndex, setActiveIndex] = React.useState<number>();
 
   useEffect(() => {
     const index = navigationItems.findIndex((item) =>
@@ -134,11 +130,10 @@ const NavigationBar = () => {
     <>
       {sdlDataWallet?.proxyType === ECoreProxyType.IFRAME_BRIDGE ? (
         <Toolbar className={classes.toolbar}>
-          <SDLogoCircle
-            onClick={() => {
-              navigate(EPathsV2.DATA_PERMISSIONS);
-            }}
+          <img
+            onClick={() => navigate(EPathsV2.HOME)}
             className={classes.pointer}
+            src="https://storage.googleapis.com/dw-assets/spa/icons-v2/sdl-circle.svg"
           />
           <Box ml="auto" display="flex">
             <Hidden xsDown>
@@ -155,10 +150,18 @@ const NavigationBar = () => {
                       index === activeIndex ? classes.itemActive : classes.item
                     }
                   >
-                    <Box display="flex" alignItems="center">
+                    <Box
+                      color={colors.WHITE}
+                      display="flex"
+                      alignItems="center"
+                    >
                       {item.icon}
                       <Box mr={1.5} />
-                      <SDTypography variant="bodyMd" fontWeight="medium">
+                      <SDTypography
+                        color="inherit"
+                        variant="bodyMd"
+                        fontWeight="medium"
+                      >
                         {item.displayName}
                       </SDTypography>
                     </Box>
@@ -194,6 +197,7 @@ const NavigationBar = () => {
                       display="flex"
                       alignItems="center"
                       width="fill-available"
+                      color={colors.WHITE}
                       className={
                         index === activeIndex
                           ? classes.itemActive
@@ -202,7 +206,11 @@ const NavigationBar = () => {
                     >
                       {item.icon}
                       <Box mr={1.5} />
-                      <SDTypography variant="bodyMd" fontWeight="medium">
+                      <SDTypography
+                        color="inherit"
+                        variant="bodyMd"
+                        fontWeight="medium"
+                      >
                         {item.displayName}
                       </SDTypography>
                     </Box>
@@ -217,13 +225,11 @@ const NavigationBar = () => {
           <HideOnScroll>
             <AppBar className={classes.appbar}>
               <Toolbar className={classes.toolbar}>
-                <SDLogoCircle
-                  onClick={() => {
-                    navigate(EPathsV2.DATA_PERMISSIONS);
-                  }}
+                <img
+                  onClick={() => navigate(EPathsV2.HOME)}
                   className={classes.pointer}
+                  src="https://storage.googleapis.com/dw-assets/spa/icons-v2/sdl-circle.svg"
                 />
-
                 <Box ml="auto" display="flex">
                   <Hidden xsDown>
                     {navigationItems.map((item, index) => (
@@ -241,10 +247,18 @@ const NavigationBar = () => {
                               : classes.item
                           }
                         >
-                          <Box display="flex" alignItems="center">
+                          <Box
+                            color={colors.WHITE}
+                            display="flex"
+                            alignItems="center"
+                          >
                             {item.icon}
                             <Box mr={1.5} />
-                            <SDTypography variant="bodyMd" fontWeight="medium">
+                            <SDTypography
+                              color="inherit"
+                              variant="bodyMd"
+                              fontWeight="medium"
+                            >
                               {item.displayName}
                             </SDTypography>
                           </Box>
@@ -275,6 +289,7 @@ const NavigationBar = () => {
                             px={1.5}
                             py={0.75}
                             borderRadius={8}
+                            color={colors.WHITE}
                             mx={1}
                             my={0.75}
                             display="flex"
@@ -288,7 +303,11 @@ const NavigationBar = () => {
                           >
                             {item.icon}
                             <Box mr={1.5} />
-                            <SDTypography variant="bodyMd" fontWeight="medium">
+                            <SDTypography
+                              color="inherit"
+                              variant="bodyMd"
+                              fontWeight="medium"
+                            >
                               {item.displayName}
                             </SDTypography>
                           </Box>

@@ -79,9 +79,11 @@ export enum EFontWeight {
 export enum EFontFamily {
   ROBOTO = "roboto",
   PUBLIC_SANS = "publicSans",
+  SHRINKHAND = "shrikhand",
 }
 
 export enum ECustomTypographyVariant {
+  DISPLAYXL = "displayXl",
   DISPLAYLG = "displayLg",
   DISPLAYMD = "displayMd",
   DISPLAYSM = "displaySm",
@@ -317,6 +319,10 @@ export const generateDynamicTypographyColorClasses = (theme: Theme) => ({
 });
 
 export const typograpyVariants = {
+  displayXl: {
+    fontSize: "64px",
+    lineHeight: "72px",
+  },
   displayLg: {
     fontSize: "57px",
     lineHeight: "64px",
@@ -416,6 +422,9 @@ export const genareteFontFamiles = () => ({
   },
   [EFontFamily.PUBLIC_SANS]: {
     fontFamily: "Public Sans",
+  },
+  [EFontFamily.SHRINKHAND]: {
+    fontFamily: "Shrikhand",
   },
 });
 
@@ -535,6 +544,11 @@ export const createDefaultTheme = (
       MuiTypography: {
         root: {
           color: palette.textBody,
+        },
+      },
+      MuiCheckbox: {
+        root: {
+          color: colors.GREY400,
         },
       },
       MuiButton: {

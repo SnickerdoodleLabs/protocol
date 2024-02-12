@@ -56,6 +56,8 @@
     "react-intersection-observer": "^9.4.3",
     "react-lottie": "^1.2.3",
     "react-router-dom": "^6.3.0",
+    "react-spring": "^9.7.3",
+    "react-spring-carousel": "^2.0.19",
     "reflect-metadata": "^0.1.13",
     "url-join-ts": "^1.0.5",
     "viem": "^1.18.1",

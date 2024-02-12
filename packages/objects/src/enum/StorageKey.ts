@@ -37,4 +37,8 @@ export enum EFieldKey {
   DOMAIN_PERMISSIONS = "SD_DomainPermissions",
 }
 
+export enum EExternalFieldKey {
+  UI_STATE = "SD_UIState",
+}
+
 export type StorageKey = EFieldKey | ERecordKey;

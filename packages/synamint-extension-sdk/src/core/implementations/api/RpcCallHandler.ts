@@ -134,6 +134,8 @@ import {
   GetPersistenceNFTsParams,
   GetAccountNFTHistoryParams,
   GetAccountNftCacheParams,
+  GetUIStateParams,
+  SetUIStateParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -787,6 +789,27 @@ export class RpcCallHandler implements IRpcCallHandler {
       GetCurrentCloudStorageParams.getCoreAction(),
       (_params) => {
         return this.core.storage.getCurrentCloudStorage(undefined);
+      },
+    ),
+    // #endregion
+
+    // #region external local storage calls
+    new CoreActionHandler<GetUIStateParams>(
+      GetUIStateParams.getCoreAction(),
+      () => {
+        return this.core.getUIState().mapErr((error) => {
+          this.errorUtils.emit(error);
+          return new SnickerDoodleCoreError((error as Error).message, error);
+        });
+      },
+    ),
+    new CoreActionHandler<SetUIStateParams>(
+      SetUIStateParams.getCoreAction(),
+      (params) => {
+        return this.core.setUIState(params.state).mapErr((error) => {
+          this.errorUtils.emit(error);
+          return new SnickerDoodleCoreError((error as Error).message, error);
+        });
       },
     ),
     // #endregion

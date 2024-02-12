@@ -81,6 +81,7 @@ import {
   WalletNFTHistory,
   NftRepositoryCache,
   WalletNFTData,
+  JSONString,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ethers } from "ethers";
@@ -771,6 +772,13 @@ export class SnickerdoodleIFrameProxy
       return this._createCall("storage.getAvailableCloudStorageOptions", {});
     },
   };
+
+  public setUIState(state: JSONString): ResultAsync<void, ProxyError> {
+    return this._createCall("setUIState", state);
+  }
+  public getUIState(): ResultAsync<JSONString | null, ProxyError> {
+    return this._createCall("getUIState", null);
+  }
 
   public events: PublicEvents;
 

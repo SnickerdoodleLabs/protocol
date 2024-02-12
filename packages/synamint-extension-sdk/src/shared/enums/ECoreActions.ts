@@ -83,4 +83,8 @@ export enum ECoreActions {
   // TODO core proxy functions
   GET_AVAILABLE_CLOUD_STORAGE_OPTIONS = "GET_AVAILABLE_CLOUD_STORAGE_OPTIONS",
   GET_CURRENT_STORAGE_TYPE = "GET_CURRENT_STORAGE_TYPE",
+
+  // External local storage calls
+  SET_UI_STATE = "SET_UI_STATE",
+  GET_UI_STATE = "GET_UI_STATE",
 }

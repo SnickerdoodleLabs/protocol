@@ -887,3 +887,25 @@ export class GetCurrentCloudStorageParams extends CoreActionParams<ECloudStorage
   }
 }
 // #endregion
+
+// #region External local storage calls
+
+export class SetUIStateParams extends CoreActionParams<void> {
+  public constructor(public state: JSONString) {
+    super(SetUIStateParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SET_UI_STATE;
+  }
+}
+
+export class GetUIStateParams extends CoreActionParams<JSONString | null> {
+  public constructor() {
+    super(GetUIStateParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_UI_STATE;
+  }
+}
+
+// #endregion
