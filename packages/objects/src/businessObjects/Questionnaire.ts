@@ -2,6 +2,7 @@ import {
   IpfsCID,
   MarketplaceTag,
   QuestionnaireAnswerId,
+  URLString,
   UnixTimestamp,
 } from "@objects/primitives/index.js";
 
@@ -13,6 +14,7 @@ export enum EQuestionnaireStatus {
 export enum EQuestionnaireQuestionType {
   MultipleChoice,
   Location,
+  Text,
 }
 
 export class Questionnaire {
@@ -24,6 +26,9 @@ export class Questionnaire {
     public readonly id: IpfsCID, // the location of the questionnaire in IPFS
     public readonly marketplaceTag: MarketplaceTag, // The tag that
     public readonly status: EQuestionnaireStatus,
+    public readonly name: string,
+    public readonly description: string,
+    public readonly image: URLString,
     /// The questions are entirely part of the Questionnaire and not an independent object.
     public readonly questions: QuestionnaireQuestion[],
   ) {}
@@ -34,13 +39,16 @@ export class QuestionnaireWithAnswers extends Questionnaire {
     id: IpfsCID,
     marketplaceTag: MarketplaceTag,
     status: EQuestionnaireStatus,
+    name: string,
+    description: string,
+    image: URLString,
     questions: QuestionnaireQuestion[],
 
     // The answers are independent objects; they are included as part of the Questionnaire for
     // convenience, but they are not required to be included in the Questionnaire.
     public readonly answers: QuestionnaireAnswer[],
   ) {
-    super(id, marketplaceTag, status, questions);
+    super(id, marketplaceTag, status, name, description, image, questions);
   }
 }
 
