@@ -16,17 +16,17 @@ import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
 import { IQuestionnaireRepository } from "@core/interfaces/data/index.js";
-import { IConfigProvider, IConfigProviderType } from "@core/interfaces/utilities";
+import { IConfigProvider, IConfigProviderType } from "@core/interfaces/utilities/index.js";
 import { urlJoin } from "url-join-ts";
 import { IAxiosAjaxUtils, IAxiosAjaxUtilsType } from "@snickerdoodlelabs/common-utils";
 
 @injectable()
 export class QuestionnaireRepository implements IQuestionnaireRepository {
   public constructor(
-    // @inject(IConfigProviderType)
-    // protected configProvider: IConfigProvider,
-    // @inject(IAxiosAjaxUtilsType)
-    // protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(IConfigProviderType)
+    protected configProvider: IConfigProvider,
+    @inject(IAxiosAjaxUtilsType)
+    protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
   /**
    * Returns a list of Questionnaires that the user has not yet provided answers for.
@@ -51,7 +51,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
    * @param pagingRequest The paging request
    * @param benchmark Optional benchmark timestamp to consider when retrieving answered questionnaires.
    */
-  getAnswered(
+  public getAnswered(
     pagingRequest: PagingRequest,
   ): ResultAsync<
     PagedResponse<QuestionnaireWithAnswers>,
@@ -66,11 +66,18 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
    * @param benchmark Optional benchmark timestamp to retrieve the questionnaire's state at a specific point in time.
    */
   public getByCID(questionnaireCID: IpfsCID, benchmark?: UnixTimestamp): ResultAsync<Questionnaire, InvalidParametersError | AjaxError> {
-    return errAsync(new InvalidParametersError(""))
-    // return this.configProvider.getConfig().andThen((config) => {
-    //   const url = new URL(urlJoin(config.ipfsFetchBaseUrl, questionnaireCID));
-    //   return this.ajaxUtils.get<Questionnaire>(url);
-    // }).map((questionnaire) => questionnaire);
+    // return errAsync(new InvalidParametersError(""))
+    return this.configProvider.getConfig().andThen((config) => {
+      const url = new URL(urlJoin(config.ipfsFetchBaseUrl, questionnaireCID));
+      return this.ajaxUtils.get<Questionnaire>(url);
+    }).map((questionnaire) => questionnaire);
+  }
+
+  public postQuestionnaire(questionnaireCID: IpfsCID, questinnaire: Questionnaire): ResultAsync<void, InvalidParametersError | AjaxError> {
+    return this.configProvider.getConfig().andThen((config) => {
+      const url = new URL(urlJoin(config.ipfsFetchBaseUrl, questionnaireCID));
+      return this.ajaxUtils.post<void>(url);
+    });
   }
 
     /**
@@ -78,7 +85,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
    * the QuestionnaireIds that are currently cached locally, without having to construct the
    * complete Questionnaire objects.
    */
-  getCachedQuestionnaireIds(): ResultAsync<IpfsCID[], PersistenceError> {
+  public getCachedQuestionnaireIds(): ResultAsync<IpfsCID[], PersistenceError> {
     return okAsync([]);
   }
 

@@ -21,6 +21,9 @@ import { ResultAsync } from "neverthrow";
  * should periodically check for new Questionnaires and update the local cache.
  */
 export interface IQuestionnaireRepository {
+
+  postQuestionnaire(questionnaireCID: IpfsCID, questinnaire: Questionnaire): ResultAsync<void, InvalidParametersError | AjaxError>;
+
   /**
    * Returns a list of Questionnaires that the user has not yet provided answers for.
    * If the consentContractId is provided, only Questionnaires that are associated with

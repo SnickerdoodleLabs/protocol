@@ -10,21 +10,34 @@ import {
   NewQuestionnaireAnswer,
   InvalidParametersError,
   AjaxError,
+  SDQLQuery,
+  DataPermissions,
+  QuestionnairePerformanceEvent,
+  EQueryEvents,
+  EStatus,
+  QuestionnaireQuestion,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync, errAsync } from "neverthrow";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
 import { IQuestionnaireService } from "@core/interfaces/business/index.js";
 import {
   IQuestionnaireRepository,
   IQuestionnaireRepositoryType,
 } from "@core/interfaces/data/index.js";
+import { IQueryParsingEngine, IQueryParsingEngineType } from "@core/interfaces/business/utilities/index.js";
+import { IContextProvider, IContextProviderType } from "@core/interfaces/utilities/index.js";
+import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
 export class QuestionnaireService implements IQuestionnaireService {
   public constructor(
     @inject(IQuestionnaireRepositoryType)
     protected questionnaireRepo: IQuestionnaireRepository,
+    @inject(IQueryParsingEngineType)
+    protected queryParsingEngine: IQueryParsingEngine,
+    @inject(IContextProviderType)
+    protected contextProvider: IContextProvider,
   ) {}
 
   /**
@@ -37,7 +50,6 @@ export class QuestionnaireService implements IQuestionnaireService {
     pagingRequest: PagingRequest,
     sourceDomain: DomainName | undefined,
   ): ResultAsync<PagedResponse<Questionnaire>, PersistenceError | AjaxError> {
-    console.log("inside getQuestionnaires! ");
     return this.questionnaireRepo.getUnanswered(pagingRequest);
   }
 
@@ -48,10 +60,9 @@ export class QuestionnaireService implements IQuestionnaireService {
    * can be staked by a consent contract.
    * @param sourceDomain
    */
-  
-      public addQuestionnaires(questionnaireCids: IpfsCID[]): ResultAsync<void, PersistenceError> {
-        return this.questionnaireRepo.add(questionnaireCids)
-      }
+    public addQuestionnaires(questionnaireCids: IpfsCID[]): ResultAsync<void, PersistenceError> {
+      return this.questionnaireRepo.add(questionnaireCids)
+    }
 
     /**
    * Returns a list of questionnaires that the user can complete, which are requested by a particular
@@ -99,16 +110,6 @@ export class QuestionnaireService implements IQuestionnaireService {
     sourceDomain: DomainName | undefined,
   ): ResultAsync<void, PersistenceError | AjaxError | InvalidParametersError> {
     // Validate that the answers are for the same questionnaire
-    for (const answer of answers) {
-      if (answer.questionnaireId !== questionnaireId) {
-        return errAsync(
-          new InvalidParametersError(
-            "All answers must be for the same questionnaire",
-          ),
-        );
-      }
-    }
-
     // Get the questionnaire
     return this.questionnaireRepo
       .getByCID(questionnaireId)
@@ -119,8 +120,27 @@ export class QuestionnaireService implements IQuestionnaireService {
           );
         }
 
-        // Validate that the answers are valid for the questionnaire
-        // TODO;
+        for (const answer of answers) {
+          if (answer.questionnaireId !== questionnaireId) {
+            return errAsync(
+              new InvalidParametersError(
+                "All answers must be for the same questionnaire",
+              ),
+            );
+          }
+
+          const question = questionnaire.questions[answer.questionIndex];
+          if (question.choices != null) {
+            if ((answer.choice <= 0) || (answer.choice >= question.choices.length)) {
+              return errAsync(
+                new InvalidParametersError(
+                  "Choice does not exist on the Questionnaire",
+                ),
+              );
+            }
+          }
+        }
+
         return this.questionnaireRepo.upsertAnswers(answers);
       });
   }
