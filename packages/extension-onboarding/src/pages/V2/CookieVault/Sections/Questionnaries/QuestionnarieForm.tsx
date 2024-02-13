@@ -1,5 +1,5 @@
 import { countries } from "@extension-onboarding/constants/countries";
-import { Box, MenuItem, makeStyles } from "@material-ui/core";
+import { Box, MenuItem } from "@material-ui/core";
 import {
   EQuestionnaireQuestionType,
   NewQuestionnaireAnswer,
@@ -9,13 +9,14 @@ import {
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { SDTypography } from "@snickerdoodlelabs/shared-components";
-import { Form, Formik, Field } from "formik";
+import { Form, Formik, FastField } from "formik";
 import { TextField } from "formik-material-ui";
-import React, { FC, useMemo } from "react";
+import React, { FC, useEffect, useMemo } from "react";
 
 interface IQuestionnarieFormProps {
   questionnarie: Questionnaire | QuestionnaireWithAnswers;
   onSubmit: (answers: NewQuestionnaireAnswer[]) => void;
+  onDirtyStateChange?: (isDirty: boolean) => void;
   renderItem?: (
     text: React.ReactNode,
     question: React.ReactNode,
@@ -36,6 +37,10 @@ const defaultRenderItem = (
   </>
 );
 
+enum Mode {
+  UPDATE = "UPDATE",
+  CREATE = "CREATE",
+}
 interface IQuestionnarieFormValues extends QuestionnaireQuestion {
   choice: string | number;
 }
@@ -47,10 +52,91 @@ const validate = (value, isRequired) => {
   return undefined;
 };
 
+const getQuestionByType = (question: QuestionnaireQuestion, index) => {
+  switch (question.type) {
+    case EQuestionnaireQuestionType.Text:
+      return (
+        <FastField
+          name={`answers.${index}.choice`}
+          component={TextField}
+          variant="outlined"
+          placeholder="Enter your answer"
+          validate={(value) => {
+            return validate(value, question.required);
+          }}
+          fullWidth
+        />
+      );
+    case EQuestionnaireQuestionType.MultipleChoice:
+      return (
+        <FastField
+          name={`answers.${index}.choice`}
+          component={TextField}
+          select
+          variant="outlined"
+          validate={(value) => {
+            return validate(value, question.required);
+          }}
+          SelectProps={{
+            renderValue: (value) => {
+              return value ? (
+                value
+              ) : (
+                <SDTypography color="textLight" variant="bodyLg">
+                  Select an option
+                </SDTypography>
+              );
+            },
+          }}
+          fullWidth
+        >
+          {question.choices?.map((choice, choiceIndex) => (
+            <MenuItem key={choiceIndex} value={choice}>
+              {choice}
+            </MenuItem>
+          ))}
+        </FastField>
+      );
+    case EQuestionnaireQuestionType.Location:
+      return (
+        <FastField
+          name={`answers.${index}.choice`}
+          component={TextField}
+          select
+          variant="outlined"
+          SelectProps={{
+            renderValue: (value) => {
+              return value ? (
+                countries.find((country) => country.code == value)?.name
+              ) : (
+                <SDTypography color="textLight" variant="bodyLg">
+                  Select an option
+                </SDTypography>
+              );
+            },
+          }}
+          validate={(value) => {
+            return validate(value, question.required);
+          }}
+          fullWidth
+        >
+          {countries?.map((choice, choiceIndex) => (
+            <MenuItem key={choiceIndex} value={choice.code}>
+              {choice.name}
+            </MenuItem>
+          ))}
+        </FastField>
+      );
+    default:
+      return null;
+  }
+};
+
 const QuestionnarieForm: FC<IQuestionnarieFormProps> = ({
   questionnarie,
   onSubmit,
   renderItem = defaultRenderItem,
+  onDirtyStateChange,
 }) => {
   const initialValues: IQuestionnarieFormValues[] = useMemo(() => {
     return questionnarie.questions.map((question, index) => {
@@ -66,85 +152,18 @@ const QuestionnarieForm: FC<IQuestionnarieFormProps> = ({
     });
   }, [JSON.stringify(questionnarie)]);
 
-  const getQuestionByType = (question: QuestionnaireQuestion, index) => {
-    switch (question.type) {
-      case EQuestionnaireQuestionType.Text:
-        return (
-          <Field
-            name={`answers.${index}.choice`}
-            component={TextField}
-            variant="outlined"
-            placeholder="Enter your answer"
-            validate={(value) => {
-              return validate(value, question.required);
-            }}
-            fullWidth
-          />
-        );
-      case EQuestionnaireQuestionType.MultipleChoice:
-        return (
-          <Field
-            name={`answers.${index}.choice`}
-            component={TextField}
-            select
-            variant="outlined"
-            validate={(value) => {
-              return validate(value, question.required);
-            }}
-            SelectProps={{
-              renderValue: (value) => {
-                return value ? (
-                  value
-                ) : (
-                  <SDTypography color="textLight" variant="bodyLg">
-                    Select an option
-                  </SDTypography>
-                );
-              },
-            }}
-            fullWidth
-          >
-            {question.choices?.map((choice, choiceIndex) => (
-              <MenuItem key={choiceIndex} value={choice}>
-                {choice}
-              </MenuItem>
-            ))}
-          </Field>
-        );
-      case EQuestionnaireQuestionType.Location:
-        return (
-          <Field
-            name={`answers.${index}.choice`}
-            component={TextField}
-            select
-            variant="outlined"
-            SelectProps={{
-              renderValue: (value) => {
-                return value ? (
-                  countries.find((country) => country.code == value)?.name
-                ) : (
-                  <SDTypography color="textLight" variant="bodyLg">
-                    Select an option
-                  </SDTypography>
-                );
-              },
-            }}
-            validate={(value) => {
-              return validate(value, question.required);
-            }}
-            fullWidth
-          >
-            {countries?.map((choice, choiceIndex) => (
-              <MenuItem key={choiceIndex} value={choice.code}>
-                {choice.name}
-              </MenuItem>
-            ))}
-          </Field>
-        );
-      default:
-        return null;
-    }
-  };
+  const [isFormDirty, setIsFormDirty] = React.useState(false);
+
+  const mode = useMemo(() => {
+    return questionnarie instanceof QuestionnaireWithAnswers
+      ? Mode.UPDATE
+      : Mode.CREATE;
+  }, [JSON.stringify(questionnarie)]);
+
+  useEffect(() => {
+    onDirtyStateChange?.(isFormDirty);
+  }, [isFormDirty]);
+
   return (
     <>
       {initialValues && (
@@ -153,7 +172,17 @@ const QuestionnarieForm: FC<IQuestionnarieFormProps> = ({
           onSubmit={(values, actions) => {
             const answers: NewQuestionnaireAnswer[] = [];
             values.answers.forEach((answer) => {
-              if (answer.choice !== "") {
+              if (answer.choice != "") {
+                if (
+                  mode === Mode.UPDATE &&
+                  (questionnarie as QuestionnaireWithAnswers).answers.find(
+                    (a) =>
+                      a.questionIndex === answer.index &&
+                      a.choice === answer.choice,
+                  )
+                ) {
+                  return;
+                }
                 answers.push(
                   new NewQuestionnaireAnswer(
                     questionnarie.id,
@@ -164,11 +193,16 @@ const QuestionnarieForm: FC<IQuestionnarieFormProps> = ({
                 );
               }
             });
+
             onSubmit(answers);
           }}
           validateOnBlur
+          handleChange={console.log}
         >
-          {({ handleSubmit }) => {
+          {({ handleSubmit, dirty }) => {
+            setTimeout(() => {
+              setIsFormDirty(dirty);
+            }, 0);
             return (
               <Form noValidate id="questionnarie" onSubmit={handleSubmit}>
                 {initialValues.map((question, index) => (

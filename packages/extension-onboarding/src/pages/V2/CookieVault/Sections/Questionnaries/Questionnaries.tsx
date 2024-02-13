@@ -167,6 +167,7 @@ const Questionaries = () => {
     answers: NewQuestionnaireAnswer[],
     id: IpfsCID,
   ) => {
+    console.log(answers, "FORM");
     okAsync(undefined);
   };
 
@@ -188,7 +189,7 @@ const Questionaries = () => {
               <Box
                 className={classes.button}
                 onClick={() => {
-                  setQuestionnary(questionnarie);
+                  setQuestionnaryWithAnswers(questionarrieWithAnswersMock);
                 }}
                 display="flex"
                 justifyContent="space-between"
