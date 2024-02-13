@@ -743,11 +743,6 @@ export class IndexedDB {
               if (!cursor) {
                 resolve(results);
                 return;
-              }
-
-              if (latest) {
-                results.push(cursor.value);
-                resolve(results);
               } else {
                 if (lowerCount && count === 0 && lowerCount > 0) {
                   cursor.advance(lowerCount);

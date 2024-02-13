@@ -7,6 +7,8 @@ import {
   InvalidParametersError,
   PagedResponse,
   PagingRequest,
+  QuestionnaireHistory,
+  QuestionnaireWithAnswers,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
@@ -28,10 +30,11 @@ import {
   mockQuestionnaireCID2,
   mockQuestionnaireStoredInstance2,
   mockQuestionnaire2,
+  mockQuestionnaireHistoryNewer,
 } from "@core-tests/mock/mocks";
 import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
 import "fake-indexeddb/auto";
-const currentTime = UnixTimestamp(1701779734);
+const currentTime = UnixTimestamp(1701779736);
 const pagingRequest = new PagingRequest(1, 10);
 
 class QuestionnaireRepositoryMocks {
@@ -111,6 +114,9 @@ class QuestionnaireRepositoryMocks {
         if (query.query) {
           const lowerBound = query.query.lower;
           const upperBound = query.query.upper;
+          //QUESTIONNAIRES uses get cursor for getting non deleted, EQuestionnaireStatus calls
+          //QUESTIONNAIRES_HISTORY uses get cursor for doing bound time queries
+          //Current time is used for the upper limit in case no benchmark given
           if (storeName === ERecordKey.QUESTIONNAIRES) {
             if (
               lowerBound.includes(EQuestionnaireStatus.Complete) ||
@@ -126,12 +132,19 @@ class QuestionnaireRepositoryMocks {
             }
           }
           if (storeName === ERecordKey.QUESTIONNAIRES_HISTORY) {
-            if (
-              lowerBound.includes(EBoolean.FALSE) &&
-              lowerBound[1] === mockQuestionnaireCID
-            ) {
-              return okAsync([mockQuestionnaireHistory]);
+            const upperBoundID = upperBound[1] as string;
+            const upperBoundTime = upperBound[2] as number;
+            const resultArray: QuestionnaireHistory[] = [];
+            if (upperBoundID === mockQuestionnaireCID) {
+              if (upperBoundTime >= 1701779736) {
+                resultArray.push(mockQuestionnaireHistoryNewer);
+              }
+              if (upperBoundTime >= 1701779734) {
+                resultArray.push(mockQuestionnaireHistory);
+              }
             }
+
+            return okAsync(resultArray);
           }
         }
 
@@ -241,19 +254,6 @@ describe("QuestionnaireRepository tests", () => {
     const response = result._unsafeUnwrap();
 
     expect(response).toEqual([mockQuestionnaireCID, mockQuestionnaireCID2]);
-  });
-
-  test("getByCID , returns Questionnaire with answer", async () => {
-    const mocks = new QuestionnaireRepositoryMocks();
-    const repository = mocks.factory();
-
-    const result = await repository.getByCID(mockQuestionnaireCID);
-
-    expect(result).toBeDefined();
-    expect(result.isErr()).toBeFalsy();
-    const response = result._unsafeUnwrap();
-
-    expect(response).toEqual(mockQuestionnaireWithAnswer);
   });
 
   test("getByCID , returns Questionnaire without history", async () => {
@@ -445,5 +445,52 @@ describe("QuestionnaireRepository tests", () => {
     const response = result._unsafeUnwrap();
 
     expect(response).toEqual(expectedPagedResponse);
+  });
+
+  test("getByCID , returns Questionnaire with answer", async () => {
+    const mocks = new QuestionnaireRepositoryMocks();
+    const repository = mocks.factory();
+
+    const result = await repository.getByCID(mockQuestionnaireCID);
+
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const response = result._unsafeUnwrap();
+
+    expect(response).toEqual(mockQuestionnaireWithAnswer);
+  });
+
+  test("getByCID , will get an earlier Questionnaire history given benchmark", async () => {
+    const mocks = new QuestionnaireRepositoryMocks();
+    const repository = mocks.factory();
+
+    const result = await repository.getByCID(
+      mockQuestionnaireCID,
+      EQuestionnaireStatus.Complete,
+      UnixTimestamp(1701779735),
+    );
+
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const response = result._unsafeUnwrap() as QuestionnaireWithAnswers;
+
+    expect(response.measurementTime).toEqual(1701779734);
+  });
+
+  test("getByCID , will get null Questionnaire, no valid history for benchmark", async () => {
+    const mocks = new QuestionnaireRepositoryMocks();
+    const repository = mocks.factory();
+
+    const result = await repository.getByCID(
+      mockQuestionnaireCID,
+      EQuestionnaireStatus.Complete,
+      UnixTimestamp(1701779732),
+    );
+
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const response = result._unsafeUnwrap() as null;
+
+    expect(response).toEqual(null);
   });
 });

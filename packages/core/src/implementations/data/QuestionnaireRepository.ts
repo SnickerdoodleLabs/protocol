@@ -153,19 +153,18 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     }
     return ResultUtils.combine([
       this.fetchQuestionnaireDataById(questionnaireCID),
-      this.fetchLatestQuestionnaireHistoryById(questionnaireCID, benchmark),
-    ]).map(([questionnaireData, questionnaireHistory]) => {
-      console.log(`rar `, questionnaireData, questionnaireHistory);
+      this.fetchLatestQuestionnaireHistoriesById(questionnaireCID, benchmark),
+    ]).map(([questionnaireData, questionnaireHistories]) => {
       if (questionnaireData == null) {
         return null;
       }
 
-      const hasHistory = !!questionnaireHistory;
+      const hasHistory = questionnaireHistories.length > 0;
 
       if (hasHistory) {
         return this.constructQuestionnaireWithAnswers(
           questionnaireData,
-          questionnaireHistory,
+          questionnaireHistories,
         );
       }
 
@@ -349,24 +348,23 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
       );
   }
 
-  private fetchLatestQuestionnaireHistoryById(
+  private fetchLatestQuestionnaireHistoriesById(
     questionnaireCID: IpfsCID,
     benchmark?: UnixTimestamp,
-  ): ResultAsync<QuestionnaireHistory | null, AjaxError | PersistenceError> {
+  ): ResultAsync<QuestionnaireHistory[], AjaxError | PersistenceError> {
     const query = IDBKeyRange.bound(
-      [0, questionnaireCID, benchmark ?? 0],
-      [0, questionnaireCID, this.timeUtils.getUnixNow()],
+      [0, questionnaireCID, 0],
+      [0, questionnaireCID, benchmark ?? this.timeUtils.getUnixNow()],
     );
 
-    return this.persistence
-      .getCursor2<QuestionnaireHistory>(ERecordKey.QUESTIONNAIRES_HISTORY, {
+    return this.persistence.getCursor2<QuestionnaireHistory>(
+      ERecordKey.QUESTIONNAIRES_HISTORY,
+      {
         index: "deleted,data.id,data.measurementDate",
         query,
         latest: true,
-      })
-      .map((questionnaireHistories) =>
-        questionnaireHistories.length > 0 ? questionnaireHistories[0] : null,
-      );
+      },
+    );
   }
 
   private constructQuestionnaire(
@@ -395,7 +393,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
 
   private constructQuestionnaireWithAnswers(
     questionnaireData: QuestionnaireData,
-    questionnaireHistory: QuestionnaireHistory,
+    questionnaireHistories: QuestionnaireHistory[],
   ): QuestionnaireWithAnswers {
     const questions = questionnaireData.questions.map(
       (question) =>
@@ -407,13 +405,9 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
         ),
     );
 
-    const answers = questionnaireHistory.answers.map(
-      (answer) =>
-        new QuestionnaireAnswer(
-          answer.questionnaireId,
-          answer.questionIndex,
-          answer.choice,
-        ),
+    const [answers, measurementDate] = this.collectFullSetOfAnswers(
+      questionnaireData.questions.length,
+      questionnaireHistories,
     );
 
     return new QuestionnaireWithAnswers(
@@ -425,10 +419,43 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
       questionnaireData.description,
       questionnaireData.image ?? null,
       answers,
-      questionnaireHistory.measurementDate,
+      measurementDate,
     );
   }
 
+  private collectFullSetOfAnswers(
+    totalQuestions: number,
+    questionnaireHistories: QuestionnaireHistory[],
+  ): [QuestionnaireAnswer[], UnixTimestamp] {
+    const latestFullAnswers: PropertiesOf<QuestionnaireAnswer>[] = [];
+    const answerTracker = new Set<number>();
+    //questionnaireHistories are sorted
+    const measurementDate = questionnaireHistories[0].measurementDate;
+    for (const history of questionnaireHistories) {
+      for (const answer of history.answers) {
+        if (!answerTracker.has(answer.questionIndex)) {
+          latestFullAnswers.push(answer);
+          answerTracker.add(answer.questionIndex);
+        }
+      }
+
+      if (answerTracker.size === totalQuestions) {
+        break;
+      }
+    }
+
+    return [
+      latestFullAnswers.map(
+        (answer) =>
+          new QuestionnaireAnswer(
+            answer.questionnaireId,
+            answer.questionIndex,
+            answer.choice,
+          ),
+      ),
+      measurementDate,
+    ];
+  }
   private upsertQuestionnaireData(
     questionnaires: QuestionnaireData[],
   ): ResultAsync<void[], PersistenceError> {

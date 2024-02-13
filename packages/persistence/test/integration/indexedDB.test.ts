@@ -279,8 +279,40 @@ describe("IndexedDB tests", () => {
         PropertiesOf<QuestionnaireHistory>
       >[];
 
-      expect(result.length).toBe(1);
+      expect(result.length).toBe(2);
       expect(result[0].data.measurementDate).toBe(1706029230);
+    });
+
+    test("correctly uses bound and gets the previos history", async () => {
+      await instanceDB.initialize();
+
+      for (const dummyData of dummyQuestionnaireHistory) {
+        await instanceDB.putObject(
+          ERecordKey.QUESTIONNAIRES_HISTORY,
+          dummyData,
+        );
+      }
+
+      const query = IDBKeyRange.bound(
+        [0, "QmX5u2op8fZKSWX4vVDntxz5X7a7vFL41PgzECyEp4o6u2", 0],
+        [0, "QmX5u2op8fZKSWX4vVDntxz5X7a7vFL41PgzECyEp4o6u2", 1706029229],
+      );
+
+      const readData = await instanceDB.getCursor2(
+        ERecordKey.QUESTIONNAIRES_HISTORY,
+        {
+          index: "deleted,data.id,data.measurementDate",
+          query,
+          latest: true,
+        },
+      );
+      expect(readData.isErr()).toBeFalsy();
+      const result = readData._unsafeUnwrap() as VolatileStorageMetadata<
+        PropertiesOf<QuestionnaireHistory>
+      >[];
+
+      expect(result.length).toBe(1);
+      expect(result[0].data.measurementDate).toBe(1706029217);
     });
   });
 });

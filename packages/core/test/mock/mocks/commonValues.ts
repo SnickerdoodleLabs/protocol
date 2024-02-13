@@ -1032,8 +1032,8 @@ export const mockQuestionnaire2 = new Questionnaire(
 );
 
 export const mockQuestionnaireAnswer: QuestionnaireAnswer[] = [
+  new QuestionnaireAnswer(mockQuestionnaireCID, 1, "to get fresh air"),
   new QuestionnaireAnswer(mockQuestionnaireCID, 0, 0),
-  new QuestionnaireAnswer(mockQuestionnaireCID, 1, "to get in better shape"),
 ];
 
 export const mockQuestionnaireWithAnswer = new QuestionnaireWithAnswers(
@@ -1060,7 +1060,19 @@ export const mockQuestionnaireWithAnswer = new QuestionnaireWithAnswers(
   "Please answer the following questions about your exercise habits.",
   null,
   mockQuestionnaireAnswer,
-  UnixTimestamp(1701779734),
+  UnixTimestamp(1701779736),
+);
+
+export const mockQuestionnaireHistoryNewer = new QuestionnaireHistory(
+  mockQuestionnaireCID,
+  UnixTimestamp(1701779736),
+  [
+    {
+      questionIndex: 1,
+      questionnaireId: mockQuestionnaireCID,
+      choice: "to get fresh air",
+    },
+  ],
 );
 
 export const mockQuestionnaireHistory = new QuestionnaireHistory(
