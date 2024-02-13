@@ -4,7 +4,6 @@ import CardTitle from "@extension-onboarding/components/v2/CardTitle";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import QuestionnarieListItem from "@extension-onboarding/pages/V2/CookieVault/Sections/Questionnaries/QuestionnarieListItem";
 import { Box, Divider } from "@material-ui/core";
-
 import {
   EQuestionnaireQuestionType,
   EQuestionnaireStatus,
@@ -19,12 +18,6 @@ import {
   QuestionnaireWithAnswers,
   URLString,
 } from "@snickerdoodlelabs/objects";
-import {
-  CloseButton,
-  SDButton,
-  SDTypography,
-  colors,
-} from "@snickerdoodlelabs/shared-components";
 import { okAsync } from "neverthrow";
 import React, { Fragment, useEffect, useState } from "react";
 
@@ -169,11 +162,6 @@ const Questionnaries = () => {
       setAnsweredQuestionnaries(response);
     });
   };
-
-  const [questionnarie, setQuestionnary] = useState<Questionnaire>();
-
-  const [questionnarieWithAnswers, setQuestionnaryWithAnswers] =
-    useState<QuestionnaireWithAnswers>();
 
   const onQuestionnarieSubmit = (
     answers: NewQuestionnaireAnswer[],
