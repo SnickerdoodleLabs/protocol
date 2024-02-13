@@ -1,4 +1,6 @@
 import "@material-ui/core/styles/createPalette";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+
 export declare enum _EColorMode {
   LIGHT = "light",
   DARK = "dark",
@@ -541,6 +543,26 @@ export const createDefaultTheme = (
           },
         },
       },
+      MuiFormHelperText: {
+        contained: {
+          marginLeft: 0,
+        },
+      },
+      MuiInputBase: {
+        root: {},
+      },
+      MuiOutlinedInput: {
+        root: {
+          borderRadius: 8,
+        },
+        input: {
+          padding: "12px 8px",
+          "&::placeholder": {
+            color: colors.GREY500,
+            opacity: 1,
+          },
+        },
+      },
       MuiTypography: {
         root: {
           color: palette.textBody,
@@ -614,6 +636,10 @@ export const createDefaultTheme = (
     },
     breakpoints,
     props: {
+      MuiSelect: {
+        displayEmpty: true,
+        IconComponent: ExpandMoreIcon,
+      },
       MuiMenu: {
         disableAutoFocusItem: true,
         disablePortal: true,
