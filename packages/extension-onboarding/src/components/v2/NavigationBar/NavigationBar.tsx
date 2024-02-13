@@ -33,6 +33,10 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   toolbar: {
     backgroundColor: colors.DARKPURPLE500,
+    position: "sticky",
+    opacity: 1,
+    zIndex: 1000,
+    top: 0,
   },
   item: {
     cursor: "pointer",
@@ -128,200 +132,91 @@ const NavigationBar = () => {
 
   return (
     <>
-      {sdlDataWallet?.proxyType === ECoreProxyType.IFRAME_BRIDGE ? (
-        <Toolbar className={classes.toolbar}>
-          <img
-            onClick={() => navigate(EPathsV2.HOME)}
-            className={classes.pointer}
-            src="https://storage.googleapis.com/dw-assets/spa/icons-v2/sdl-circle.svg"
-          />
-          <Box ml="auto" display="flex">
-            <Hidden xsDown>
+      <Toolbar className={classes.toolbar}>
+        <img
+          onClick={() => navigate(EPathsV2.HOME)}
+          className={classes.pointer}
+          src="https://storage.googleapis.com/dw-assets/spa/icons-v2/sdl-circle.svg"
+        />
+        <Box ml="auto" display="flex">
+          <Hidden xsDown>
+            {navigationItems.map((item, index) => (
+              <Fragment key={index}>
+                <Box
+                  onClick={() => handleClick(item)}
+                  alignItems="center"
+                  display="flex"
+                  borderRadius={8}
+                  px={1.5}
+                  py={0.75}
+                  className={
+                    index === activeIndex ? classes.itemActive : classes.item
+                  }
+                >
+                  <Box color={colors.WHITE} display="flex" alignItems="center">
+                    {item.icon}
+                    <Box mr={1.5} />
+                    <SDTypography
+                      color="inherit"
+                      variant="bodyMd"
+                      fontWeight="medium"
+                    >
+                      {item.displayName}
+                    </SDTypography>
+                  </Box>
+                </Box>
+                <Box ml={3} />
+              </Fragment>
+            ))}
+          </Hidden>
+          <Hidden smUp>
+            <MobileMenuIcon
+              width={40}
+              onClick={(e) => {
+                onMobileMenuClick(e);
+              }}
+            />
+            <Menu
+              id="simple-menu"
+              anchorEl={anchorEl}
+              keepMounted
+              open={Boolean(anchorEl)}
+              onClose={handleClose}
+              className={classes.mobileMenu}
+            >
               {navigationItems.map((item, index) => (
-                <Fragment key={index}>
+                <MenuItem key={index} onClick={handleClose}>
                   <Box
                     onClick={() => handleClick(item)}
-                    alignItems="center"
-                    display="flex"
-                    borderRadius={8}
                     px={1.5}
                     py={0.75}
+                    borderRadius={8}
+                    mx={1}
+                    my={0.75}
+                    display="flex"
+                    alignItems="center"
+                    width="fill-available"
+                    color={colors.WHITE}
                     className={
                       index === activeIndex ? classes.itemActive : classes.item
                     }
                   >
-                    <Box
-                      color={colors.WHITE}
-                      display="flex"
-                      alignItems="center"
+                    {item.icon}
+                    <Box mr={1.5} />
+                    <SDTypography
+                      color="inherit"
+                      variant="bodyMd"
+                      fontWeight="medium"
                     >
-                      {item.icon}
-                      <Box mr={1.5} />
-                      <SDTypography
-                        color="inherit"
-                        variant="bodyMd"
-                        fontWeight="medium"
-                      >
-                        {item.displayName}
-                      </SDTypography>
-                    </Box>
+                      {item.displayName}
+                    </SDTypography>
                   </Box>
-                  <Box ml={3} />
-                </Fragment>
+                </MenuItem>
               ))}
-            </Hidden>
-            <Hidden smUp>
-              <MobileMenuIcon
-                width={40}
-                onClick={(e) => {
-                  onMobileMenuClick(e);
-                }}
-              />
-              <Menu
-                id="simple-menu"
-                anchorEl={anchorEl}
-                keepMounted
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-                className={classes.mobileMenu}
-              >
-                {navigationItems.map((item, index) => (
-                  <MenuItem key={index} onClick={handleClose}>
-                    <Box
-                      onClick={() => handleClick(item)}
-                      px={1.5}
-                      py={0.75}
-                      borderRadius={8}
-                      mx={1}
-                      my={0.75}
-                      display="flex"
-                      alignItems="center"
-                      width="fill-available"
-                      color={colors.WHITE}
-                      className={
-                        index === activeIndex
-                          ? classes.itemActive
-                          : classes.item
-                      }
-                    >
-                      {item.icon}
-                      <Box mr={1.5} />
-                      <SDTypography
-                        color="inherit"
-                        variant="bodyMd"
-                        fontWeight="medium"
-                      >
-                        {item.displayName}
-                      </SDTypography>
-                    </Box>
-                  </MenuItem>
-                ))}
-              </Menu>
-            </Hidden>
-          </Box>
-        </Toolbar>
-      ) : (
-        <>
-          <HideOnScroll>
-            <AppBar className={classes.appbar}>
-              <Toolbar className={classes.toolbar}>
-                <img
-                  onClick={() => navigate(EPathsV2.HOME)}
-                  className={classes.pointer}
-                  src="https://storage.googleapis.com/dw-assets/spa/icons-v2/sdl-circle.svg"
-                />
-                <Box ml="auto" display="flex">
-                  <Hidden xsDown>
-                    {navigationItems.map((item, index) => (
-                      <Fragment key={index}>
-                        <Box
-                          onClick={() => handleClick(item)}
-                          alignItems="center"
-                          display="flex"
-                          borderRadius={8}
-                          px={1.5}
-                          py={0.75}
-                          className={
-                            index === activeIndex
-                              ? classes.itemActive
-                              : classes.item
-                          }
-                        >
-                          <Box
-                            color={colors.WHITE}
-                            display="flex"
-                            alignItems="center"
-                          >
-                            {item.icon}
-                            <Box mr={1.5} />
-                            <SDTypography
-                              color="inherit"
-                              variant="bodyMd"
-                              fontWeight="medium"
-                            >
-                              {item.displayName}
-                            </SDTypography>
-                          </Box>
-                        </Box>
-                        <Box ml={3} />
-                      </Fragment>
-                    ))}
-                  </Hidden>
-                  <Hidden smUp>
-                    <MobileMenuIcon
-                      width={40}
-                      onClick={(e) => {
-                        onMobileMenuClick(e);
-                      }}
-                    />
-                    <Menu
-                      id="simple-menu"
-                      anchorEl={anchorEl}
-                      keepMounted
-                      open={Boolean(anchorEl)}
-                      onClose={handleClose}
-                      className={classes.mobileMenu}
-                    >
-                      {navigationItems.map((item, index) => (
-                        <MenuItem key={index} onClick={handleClose}>
-                          <Box
-                            onClick={() => handleClick(item)}
-                            px={1.5}
-                            py={0.75}
-                            borderRadius={8}
-                            color={colors.WHITE}
-                            mx={1}
-                            my={0.75}
-                            display="flex"
-                            alignItems="center"
-                            width="fill-available"
-                            className={
-                              index === activeIndex
-                                ? classes.itemActive
-                                : classes.item
-                            }
-                          >
-                            {item.icon}
-                            <Box mr={1.5} />
-                            <SDTypography
-                              color="inherit"
-                              variant="bodyMd"
-                              fontWeight="medium"
-                            >
-                              {item.displayName}
-                            </SDTypography>
-                          </Box>
-                        </MenuItem>
-                      ))}
-                    </Menu>
-                  </Hidden>
-                </Box>
-              </Toolbar>
-            </AppBar>
-          </HideOnScroll>
-          <Toolbar />
-        </>
-      )}
+            </Menu>
+          </Hidden>
+        </Box>
+      </Toolbar>
     </>
   );
 };

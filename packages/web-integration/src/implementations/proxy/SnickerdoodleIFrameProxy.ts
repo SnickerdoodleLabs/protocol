@@ -774,7 +774,7 @@ export class SnickerdoodleIFrameProxy
   };
 
   public setUIState(state: JSONString): ResultAsync<void, ProxyError> {
-    return this._createCall("setUIState", state);
+    return this._createCall("setUIState", { state });
   }
   public getUIState(): ResultAsync<JSONString | null, ProxyError> {
     return this._createCall("getUIState", null);

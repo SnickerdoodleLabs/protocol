@@ -81,7 +81,7 @@ const Profile: FC<IProfileProps> = ({ currentStep }) => {
         <img src="https://storage.googleapis.com/dw-assets/spa/icons-v2/sdl-circle.svg" />
       </Toolbar>
       <Container>
-        <Box mt={{ xs: 2, sm: 8 }} />
+        <Box pt={{ xs: 2, sm: 8 }} />
         <Grid container spacing={2}>
           <Grid item xs={12} sm={7}>
             <Box

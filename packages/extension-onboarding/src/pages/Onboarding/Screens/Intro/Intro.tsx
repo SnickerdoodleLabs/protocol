@@ -150,57 +150,11 @@ const Intro: FC = () => {
   const { uiStateUtils } = useAppContext();
   return (
     <>
-      {/* <Dialog
-        open={true}
-        disablePortal={true}
-        disableEnforceFocus={true}
-        fullWidth
-        className={classes.container}
-      >
-        <Box
-          py={4}
-          position="relative"
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-        >
-          <Box
-            position="absolute"
-            display="flex"
-            style={{ transform: "translateY(-55%)" }}
-            right={0}
-            top={0}
-            width="100%"
-            justifyContent="center"
-          >
-            <img
-              width="50%"
-              src="https://storage.googleapis.com/dw-assets/spa/images-v2/confeti.svg"
-            />
-          </Box>
-          <SDTypography
-            style={{ zIndex: 1 }}
-            variant="titleLg"
-            fontFamily="shrikhand"
-          >
-            New Achievement
-          </SDTypography>
-          <Box mt={6} />
-          <img
-            width="40%"
-            src="https://storage.googleapis.com/dw-assets/spa/images-v2/intro-1.svg"
-          />
-          <Box mt={4} />
-          <SDTypography>Snickerdoodle Cookie</SDTypography>
-          <SDTypography>for creating your Snickerdoodle account</SDTypography>
-          <SDButton variant="outlined">Continue</SDButton>
-        </Box>
-      </Dialog> */}
       <Toolbar className={classes.toolbar}>
         <img src="https://storage.googleapis.com/dw-assets/spa/icons-v2/sdl-horizontal.svg" />
       </Toolbar>
-      <Container fullHeight>
-        <Box mt={{ xs: 2, sm: 8 }} />
+      <Container>
+        <Box pt={{ xs: 2, sm: 8 }} />
         <Grid
           container
           {...(media == "xs" && {

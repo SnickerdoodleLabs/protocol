@@ -9,9 +9,9 @@ interface IContainerProps {
 
 const useStyles = makeStyles((theme) => ({
   container: {
-    minHeight: "calc(100vh - 128px)",
+    minHeight: "calc(100vh - 64px)",
     [theme.breakpoints.down("xs")]: {
-      minHeight: "calc(100vh - 112px)",
+      minHeight: "calc(100vh - 56px)",
     },
   },
   fullHeight: {

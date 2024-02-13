@@ -34,7 +34,8 @@ const useStyles = makeStyles((theme: Theme) => {
   };
 });
 
-interface ITypographyProps extends Omit<TypographyProps, "variant" | "color"> {
+export interface ITypographyProps
+  extends Omit<TypographyProps, "variant" | "color"> {
   variant?: `${ECustomTypographyVariant}`;
   fontWeight?: `${EFontWeight}`;
   fontFamily?: `${EFontFamily}`;

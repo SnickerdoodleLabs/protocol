@@ -1,3 +1,4 @@
+import LinkedAccountItem from "@extension-onboarding/components/v2/LinkedAccountItem";
 import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { Box, IconButton, Menu, MenuItem, makeStyles } from "@material-ui/core";
@@ -8,7 +9,7 @@ import {
   SDTypography,
   getChainImageSrc,
 } from "@snickerdoodlelabs/shared-components";
-import React, { FC, useEffect, useState, useRef } from "react";
+import React, { FC, useEffect, useState, useRef, Fragment } from "react";
 
 interface IAccountLinkingProps {
   onComplete: () => void;
@@ -74,7 +75,7 @@ const AccountLinking: FC<IAccountLinkingProps> = ({ onComplete }) => {
           {[detectedProviders, unDetectedProviders, walletKits]
             .flat()
             .map((item) => (
-              <img width={40} height={40} src={item.icon} />
+              <img key={item.key} width={40} height={40} src={item.icon} />
             ))}
         </Box>
       </Box>
@@ -150,65 +151,10 @@ const AccountLinking: FC<IAccountLinkingProps> = ({ onComplete }) => {
         <>
           <Box mt={3} />
           {linkedAccounts.map((account, index) => (
-            <Box
-              key={account.sourceAccountAddress}
-              display="flex"
-              borderColor="borderColor"
-              border="1px solid"
-              borderRadius={12}
-              alignItems="center"
-              p={3}
-              {...(linkedAccounts.length - 1 != index && { mb: 3 })}
-              gridGap={16}
-              position="relative"
-            >
-              <Box className={classes.accountItemAction} px={2}>
-                <IconButton
-                  id="account-action"
-                  onClick={(e) => {
-                    handleClick(e);
-                  }}
-                >
-                  <MoreVertIcon />
-                </IconButton>
-                <Menu
-                  elevation={0}
-                  getContentAnchorEl={null}
-                  anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "right",
-                  }}
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  anchorEl={anchorEl}
-                  open={anchorEl?.id === "account-action"}
-                  onClose={handleClose}
-                >
-                  <MenuItem>
-                    <Box
-                      display="flex"
-                      justifyContent="center"
-                      px={1}
-                      py={1}
-                      gridGap={8}
-                    >
-                      <DeleteForeverIcon color="error" />
-                      <SDTypography variant="bodyLg">Disconnect</SDTypography>
-                    </Box>
-                  </MenuItem>
-                </Menu>
-              </Box>
-              <img
-                src={getChainImageSrc(account.sourceChain)}
-                width={40}
-                height={40}
-              />
-              <SDTypography variant="bodyLg" fontWeight="bold">
-                {account.sourceAccountAddress}
-              </SDTypography>
-            </Box>
+            <Fragment key={index}>
+              <LinkedAccountItem account={account} key={index} />
+              {index !== linkedAccounts.length - 1 && <Box mt={3} />}
+            </Fragment>
           ))}
         </>
       )}

@@ -173,16 +173,16 @@ const QuestionnarieForm: FC<IQuestionnarieFormProps> = ({
             const answers: NewQuestionnaireAnswer[] = [];
             values.answers.forEach((answer) => {
               if (answer.choice != "") {
-                if (
-                  mode === Mode.UPDATE &&
-                  (questionnarie as QuestionnaireWithAnswers).answers.find(
-                    (a) =>
-                      a.questionIndex === answer.index &&
-                      a.choice === answer.choice,
-                  )
-                ) {
-                  return;
-                }
+                // if (
+                //   mode === Mode.UPDATE &&
+                //   (questionnarie as QuestionnaireWithAnswers).answers.find(
+                //     (a) =>
+                //       a.questionIndex === answer.index &&
+                //       a.choice === answer.choice,
+                //   )
+                // ) {
+                //   return;
+                // }
                 answers.push(
                   new NewQuestionnaireAnswer(
                     questionnarie.id,

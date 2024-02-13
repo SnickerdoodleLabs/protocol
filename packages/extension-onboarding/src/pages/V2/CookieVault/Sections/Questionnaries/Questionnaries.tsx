@@ -177,6 +177,8 @@ const Questionnaries = () => {
         <CardTitle
           title="Questionnaries"
           subtitle="Questionnaries secure your personal information and preferences"
+          titleVariant="headlineMd"
+          subtitleVariant="bodyLg"
         />
         <Box
           mt={4}

@@ -72,6 +72,7 @@ export class UIStateUtils {
     visibility: EInfoCardVisiblity,
   ) {
     this._changeInfoCardVisibility(key, visibility);
+    this._storeUIState(this.uiState);
   }
 
   public onAccountLinked() {
