@@ -194,8 +194,7 @@ describe("IndexedDB tests", () => {
       }
 
       const readData = await instanceDB.get(ERecordKey.QUESTIONNAIRES, {
-        index: "deleted",
-        id: [EBoolean.FALSE, "QmX5u2op8fZKSWX4vVDntxz5X7a7vFL41PgzECyEp4o6u3"],
+        id: ["QmX5u2op8fZKSWX4vVDntxz5X7a7vFL41PgzECyEp4o6u3", EBoolean.FALSE],
       });
       expect(readData.isErr()).toBeFalsy();
       const result = readData._unsafeUnwrap() as VolatileStorageMetadata<

@@ -10,12 +10,19 @@ import {
   NewQuestionnaireAnswer,
   InvalidParametersError,
   AjaxError,
+  EQuestionnaireStatus,
+  BlockchainCommonErrors,
+  ConsentContractError,
+  UninitializedError,
+  ConsentFactoryContractError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync } from "neverthrow";
 
 import { IQuestionnaireService } from "@core/interfaces/business/index.js";
 import {
+  IConsentContractRepository,
+  IConsentContractRepositoryType,
   IQuestionnaireRepository,
   IQuestionnaireRepositoryType,
 } from "@core/interfaces/data/index.js";
@@ -25,29 +32,75 @@ export class QuestionnaireService implements IQuestionnaireService {
   public constructor(
     @inject(IQuestionnaireRepositoryType)
     protected questionnaireRepo: IQuestionnaireRepository,
+    @inject(IConsentContractRepositoryType)
+    protected consentContractRepository: IConsentContractRepository,
   ) {}
 
   public getQuestionnaires(
     pagingRequest: PagingRequest,
-    sourceDomain: DomainName | undefined,
-  ): ResultAsync<PagedResponse<Questionnaire>, PersistenceError | AjaxError> {
-    return this.questionnaireRepo.getUnanswered(pagingRequest);
+    _sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    PagedResponse<Questionnaire>,
+    | UninitializedError
+    | BlockchainCommonErrors
+    | AjaxError
+    | PersistenceError
+    | ConsentFactoryContractError
+  > {
+    //getDefaultQuestionnaires ranking and tag, not sure about rank ?
+    return this.consentContractRepository
+      .getDefaultQuestionnaires()
+      .andThen((defaultCids) => {
+        return this.questionnaireRepo.add(defaultCids).andThen(() => {
+          return this.questionnaireRepo.getByCIDs(
+            defaultCids,
+            pagingRequest,
+            EQuestionnaireStatus.Available,
+          );
+        });
+      })
+      .map((pagedResponse) => pagedResponse as PagedResponse<Questionnaire>);
   }
 
   public getQuestionnairesForConsentContract(
     pagingRequest: PagingRequest,
     consentContractAddress: EVMContractAddress,
-    sourceDomain: DomainName | undefined,
-  ): ResultAsync<PagedResponse<Questionnaire>, PersistenceError | AjaxError> {
-    return this.questionnaireRepo.getUnanswered(
-      pagingRequest,
-      consentContractAddress,
-    );
+    _sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    PagedResponse<Questionnaire>,
+    | UninitializedError
+    | BlockchainCommonErrors
+    | AjaxError
+    | PersistenceError
+    | ConsentContractError
+  > {
+    return this.consentContractRepository
+      .getQuestionnaires(consentContractAddress)
+      .andThen((cids) => {
+        return this.questionnaireRepo.add(cids).andThen(() => {
+          return this.questionnaireRepo.getByCIDs(
+            cids,
+            pagingRequest,
+            EQuestionnaireStatus.Available,
+          );
+        });
+      })
+      .map((pagedResponse) => pagedResponse as PagedResponse<Questionnaire>);
   }
 
   public getAnsweredQuestionnaires(
     pagingRequest: PagingRequest,
-    sourceDomain: DomainName | undefined,
+    _sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    PagedResponse<QuestionnaireWithAnswers>,
+    PersistenceError | AjaxError
+  > {
+    return this.questionnaireRepo.getAnswered(pagingRequest);
+  }
+
+  public getAllQuestionnaires(
+    pagingRequest: PagingRequest,
+    _sourceDomain: DomainName | undefined,
   ): ResultAsync<
     PagedResponse<QuestionnaireWithAnswers>,
     PersistenceError | AjaxError
@@ -58,7 +111,7 @@ export class QuestionnaireService implements IQuestionnaireService {
   public answerQuestionnaire(
     questionnaireId: IpfsCID,
     answers: NewQuestionnaireAnswer[],
-    sourceDomain: DomainName | undefined,
+    _sourceDomain: DomainName | undefined,
   ): ResultAsync<void, PersistenceError | AjaxError | InvalidParametersError> {
     // Validate that the answers are for the same questionnaire
     for (const answer of answers) {
@@ -70,21 +123,9 @@ export class QuestionnaireService implements IQuestionnaireService {
         );
       }
     }
-
-    // Get the questionnaire
-    return this.questionnaireRepo
-      .getByCID(questionnaireId)
-      .andThen((questionnaire) => {
-        if (questionnaire == null) {
-          return errAsync(
-            new InvalidParametersError("The questionnaire could not be found"),
-          );
-        }
-
-        // Validate that the answers are valid for the questionnaire
-        // TODO;
-        return this.questionnaireRepo.upsertAnswers(questionnaireId, answers);
-      });
+    return this.questionnaireRepo.upsertAnswers(questionnaireId, answers);
+    // Validate that the answers are valid for the questionnaire
+    // TODO;
   }
 
   public getRecommendedConsentContracts(

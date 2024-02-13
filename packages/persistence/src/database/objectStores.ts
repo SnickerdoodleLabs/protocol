@@ -247,7 +247,7 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
       ERecordKey.QUESTIONNAIRES,
       new VolatileTableIndex(
         ERecordKey.QUESTIONNAIRES,
-        [["deleted", "id"], false],
+        [["id", "deleted"], false],
         new QuestionnaireMigrator(),
         EBackupPriority.NORMAL,
         config?.dataWalletBackupIntervalMS ?? testTimeValue,

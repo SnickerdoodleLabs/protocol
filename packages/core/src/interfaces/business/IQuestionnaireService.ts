@@ -27,7 +27,14 @@ export interface IQuestionnaireService {
   getQuestionnaires(
     pagingRequest: PagingRequest,
     sourceDomain: DomainName | undefined,
-  ): ResultAsync<PagedResponse<Questionnaire>, PersistenceError | AjaxError>;
+  ): ResultAsync<
+    PagedResponse<Questionnaire>,
+    | UninitializedError
+    | BlockchainCommonErrors
+    | AjaxError
+    | PersistenceError
+    | ConsentFactoryContractError
+  >;
 
   /**
    * Returns a list of questionnaires that the user can complete, which are requested by a particular
@@ -40,7 +47,14 @@ export interface IQuestionnaireService {
     pagingRequest: PagingRequest,
     consentContractAddress: EVMContractAddress,
     sourceDomain: DomainName | undefined,
-  ): ResultAsync<PagedResponse<Questionnaire>, PersistenceError | AjaxError>;
+  ): ResultAsync<
+    PagedResponse<Questionnaire>,
+    | UninitializedError
+    | BlockchainCommonErrors
+    | AjaxError
+    | PersistenceError
+    | ConsentContractError
+  >;
 
   /**
    * Gets all teh questionnaires that the user has already answered, along with the current answers
