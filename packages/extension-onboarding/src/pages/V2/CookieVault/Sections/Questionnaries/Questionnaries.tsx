@@ -1,9 +1,10 @@
 import { useModalStyles } from "@extension-onboarding/components/Modals/Modal.style";
 import Card from "@extension-onboarding/components/v2/Card";
 import CardTitle from "@extension-onboarding/components/v2/CardTitle";
-import QuestionnaryForm from "@extension-onboarding/pages/V2/CookieVault/Sections/Questionnaries/QuestionnarieForm";
+import QuestionnarieForm from "@extension-onboarding/pages/V2/CookieVault/Sections/Questionnaries/QuestionnarieForm";
+import QuestionnarieListItem from "@extension-onboarding/pages/V2/CookieVault/Sections/Questionnaries/QuestionnarieListItem";
 import { Box, Dialog, Divider, makeStyles } from "@material-ui/core";
-import CallMadeIcon from "@material-ui/icons/CallMade";
+
 import {
   EQuestionnaireQuestionType,
   EQuestionnaireStatus,
@@ -25,7 +26,7 @@ import {
   colors,
 } from "@snickerdoodlelabs/shared-components";
 import { okAsync } from "neverthrow";
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 
 const mockQuestionaries: PagedResponse<Questionnaire> =
   new PagedResponse<Questionnaire>(
@@ -130,6 +131,13 @@ const questionarrieWithAnswersMock: QuestionnaireWithAnswers =
     ],
   );
 
+const answeredQuestionnariesMocks = new PagedResponse<QuestionnaireWithAnswers>(
+  [questionarrieWithAnswersMock],
+  1,
+  20,
+  40,
+);
+
 const useStyles = makeStyles((theme) => ({
   button: {
     cursor: "pointer",
@@ -149,12 +157,24 @@ const Questionaries = () => {
   const modalClasses = useModalStyles();
   const [unAnsweredQuestionnaries, setUnAnsweredQuestionnaries] =
     React.useState<PagedResponse<Questionnaire>>();
+
+  const [answeredQuestionnaries, setAnsweredQuestionnaries] =
+    React.useState<PagedResponse<QuestionnaireWithAnswers>>();
+
   useEffect(() => {
-    getUnAnsweredQuestionaries();
+    getUnAnsweredQuestionnaries();
+    getAnsweredQuestionnaries();
   }, []);
-  const getUnAnsweredQuestionaries = () => {
+
+  const getUnAnsweredQuestionnaries = () => {
     okAsync(mockQuestionaries).map((response) => {
       setUnAnsweredQuestionnaries(response);
+    });
+  };
+
+  const getAnsweredQuestionnaries = () => {
+    okAsync(answeredQuestionnariesMocks).map((response) => {
+      setAnsweredQuestionnaries(response);
     });
   };
 
@@ -186,61 +206,34 @@ const Questionaries = () => {
         >
           {unAnsweredQuestionnaries?.response.map((questionnarie, index) => {
             return (
-              <Box
-                className={classes.button}
-                onClick={() => {
-                  setQuestionnaryWithAnswers(questionarrieWithAnswersMock);
-                }}
-                display="flex"
-                justifyContent="space-between"
-                p={1.5}
-                key={index}
-                {...(index != unAnsweredQuestionnaries.response.length - 1 && {
-                  style: { borderBottom: `1px solid ${colors.GREY300}` },
-                })}
-              >
-                <Box display="flex" gridGap={24} alignItems="center">
-                  <img
-                    width={72}
-                    height={72}
-                    style={{
-                      borderRadius: 8,
-                    }}
-                    src={questionnarie.image ?? ""}
-                    alt={questionnarie.title}
-                  />
-                  <Box>
-                    <SDTypography variant="titleMd" fontWeight="bold">
-                      {questionnarie.title}
-                    </SDTypography>
-                    <Box mt={0.5} />
-                    <SDTypography variant="titleSm">
-                      {questionnarie.description}
-                    </SDTypography>
-                  </Box>
-                </Box>
-                <Box
-                  height="fit-content"
-                  borderRadius={16}
-                  px={0.75}
-                  gridGap={8}
-                  display="flex"
-                  alignItems="center"
-                  py={0.5}
-                  bgcolor={colors.MINT50}
-                  color={colors.MINT500}
-                >
-                  <img src="https://storage.googleapis.com/dw-assets/spa/icons-v2/cookie.svg" />
-                  <SDTypography
-                    color="inherit"
-                    variant="titleSm"
-                    fontWeight="bold"
-                  >
-                    100
-                  </SDTypography>
-                  <CallMadeIcon color="inherit" className={classes.icon} />
-                </Box>
-              </Box>
+              <Fragment key={`uaq-${questionnarie.id}`}>
+                <QuestionnarieListItem
+                  questionnarie={questionnarie}
+                  onClick={() => {
+                    setQuestionnary(questionnarie);
+                  }}
+                />
+                {index !== unAnsweredQuestionnaries.response.length - 1 && (
+                  <Divider />
+                )}
+              </Fragment>
+            );
+          })}
+          {(answeredQuestionnaries?.response.length ?? 0) > 0 &&
+            (unAnsweredQuestionnaries?.response.length ?? 0) > 0 && <Divider />}
+          {answeredQuestionnaries?.response.map((questionnarie, index) => {
+            return (
+              <Fragment key={`aq-${questionnarie.id}`}>
+                <QuestionnarieListItem
+                  questionnarie={questionnarie}
+                  onClick={() => {
+                    setQuestionnaryWithAnswers(questionnarie);
+                  }}
+                />
+                {index !== answeredQuestionnaries.response.length - 1 && (
+                  <Divider />
+                )}
+              </Fragment>
             );
           })}
         </Box>
@@ -289,7 +282,7 @@ const Questionaries = () => {
             <Box mt={6} />
             <Box width="90%" margin="auto">
               <Card>
-                <QuestionnaryForm
+                <QuestionnarieForm
                   onSubmit={(answers) => {
                     onQuestionnarieSubmit(answers, questionnarie.id);
                   }}
@@ -359,7 +352,7 @@ const Questionaries = () => {
             </Box>
             <Box mt={6} />
 
-            <QuestionnaryForm
+            <QuestionnarieForm
               onSubmit={(answers) => {
                 onQuestionnarieSubmit(answers, questionnarieWithAnswers.id);
               }}
