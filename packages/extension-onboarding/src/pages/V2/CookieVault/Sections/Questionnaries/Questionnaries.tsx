@@ -1,9 +1,9 @@
-import { useModalStyles } from "@extension-onboarding/components/Modals/Modal.style";
+import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import Card from "@extension-onboarding/components/v2/Card";
 import CardTitle from "@extension-onboarding/components/v2/CardTitle";
-import QuestionnarieForm from "@extension-onboarding/pages/V2/CookieVault/Sections/Questionnaries/QuestionnarieForm";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import QuestionnarieListItem from "@extension-onboarding/pages/V2/CookieVault/Sections/Questionnaries/QuestionnarieListItem";
-import { Box, Dialog, Divider, makeStyles } from "@material-ui/core";
+import { Box, Divider } from "@material-ui/core";
 
 import {
   EQuestionnaireQuestionType,
@@ -35,7 +35,7 @@ const mockQuestionaries: PagedResponse<Questionnaire> =
         IpfsCID("123"),
         MarketplaceTag("test"),
         EQuestionnaireStatus.Available,
-        "About you",
+        "Unanswered Questionnarie Sample",
         "This is a test questionnaire",
         URLString("https://picsum.photos/200/300"),
         [
@@ -77,10 +77,10 @@ const mockQuestionaries: PagedResponse<Questionnaire> =
 
 const questionarrieWithAnswersMock: QuestionnaireWithAnswers =
   new QuestionnaireWithAnswers(
-    IpfsCID("123"),
+    IpfsCID("1235"),
     MarketplaceTag("test"),
     EQuestionnaireStatus.Complete,
-    "About you",
+    "Answered Questionnarie Sample",
     "This is a test questionnaire",
     URLString("https://picsum.photos/200/300"),
     [
@@ -117,6 +117,13 @@ const questionarrieWithAnswersMock: QuestionnaireWithAnswers =
       new QuestionnaireAnswer(
         QuestionnaireAnswerId("123"),
         IpfsCID("123"),
+        3,
+        "3-4",
+        undefined as any,
+      ),
+      new QuestionnaireAnswer(
+        QuestionnaireAnswerId("123"),
+        IpfsCID("123"),
         0,
         "John Doe",
         undefined as any,
@@ -138,28 +145,13 @@ const answeredQuestionnariesMocks = new PagedResponse<QuestionnaireWithAnswers>(
   40,
 );
 
-const useStyles = makeStyles((theme) => ({
-  button: {
-    cursor: "pointer",
-    "&:hover $icon": {
-      width: 18,
-    },
-  },
-  icon: {
-    fontSize: 18,
-    width: 0,
-    transition: "width 0.35s ease",
-  },
-}));
-
-const Questionaries = () => {
-  const classes = useStyles();
-  const modalClasses = useModalStyles();
+const Questionnaries = () => {
   const [unAnsweredQuestionnaries, setUnAnsweredQuestionnaries] =
     React.useState<PagedResponse<Questionnaire>>();
 
   const [answeredQuestionnaries, setAnsweredQuestionnaries] =
     React.useState<PagedResponse<QuestionnaireWithAnswers>>();
+  const { setModal } = useLayoutContext();
 
   useEffect(() => {
     getUnAnsweredQuestionnaries();
@@ -210,7 +202,18 @@ const Questionaries = () => {
                 <QuestionnarieListItem
                   questionnarie={questionnarie}
                   onClick={() => {
-                    setQuestionnary(questionnarie);
+                    setModal({
+                      modalSelector: EModalSelectors.QUESTIONNARIE_MODAL,
+                      onPrimaryButtonClick: () => {},
+                      customProps: {
+                        questionnarie,
+                        onSubmitClicked: (
+                          answers: NewQuestionnaireAnswer[],
+                        ) => {
+                          onQuestionnarieSubmit(answers, questionnarie.id);
+                        },
+                      },
+                    });
                   }}
                 />
                 {index !== unAnsweredQuestionnaries.response.length - 1 && (
@@ -227,7 +230,19 @@ const Questionaries = () => {
                 <QuestionnarieListItem
                   questionnarie={questionnarie}
                   onClick={() => {
-                    setQuestionnaryWithAnswers(questionnarie);
+                    setModal({
+                      modalSelector:
+                        EModalSelectors.ANSWERED_QUESTIONNARIE_MODAL,
+                      onPrimaryButtonClick: () => {},
+                      customProps: {
+                        questionnarie,
+                        onSubmitClicked: (
+                          answers: NewQuestionnaireAnswer[],
+                        ) => {
+                          onQuestionnarieSubmit(answers, questionnarie.id);
+                        },
+                      },
+                    });
                   }}
                 />
                 {index !== answeredQuestionnaries.response.length - 1 && (
@@ -238,138 +253,8 @@ const Questionaries = () => {
           })}
         </Box>
       </Card>
-      {questionnarie && (
-        <Dialog
-          open={!!questionnarie}
-          fullWidth
-          className={modalClasses.containerLg}
-          disablePortal
-        >
-          <Box
-            bgcolor="background.default"
-            display="flex"
-            flexDirection="column"
-          >
-            <Box
-              p={3}
-              bgcolor={colors.WHITE}
-              display="flex"
-              justifyContent="space-between"
-            >
-              <Box display="flex" gridGap={24} alignItems="center">
-                <img
-                  width={72}
-                  height={72}
-                  style={{
-                    borderRadius: 8,
-                  }}
-                  src={questionnarie.image ?? ""}
-                  alt={questionnarie.title}
-                />
-                <Box>
-                  <SDTypography variant="titleMd" fontWeight="bold">
-                    {questionnarie.title}
-                  </SDTypography>
-                  <Box mt={0.5} />
-                  <SDTypography variant="titleSm">
-                    {questionnarie.description}
-                  </SDTypography>
-                </Box>
-              </Box>
-              <CloseButton onClick={() => setQuestionnary(undefined)} />
-            </Box>
-            <Divider />
-            <Box mt={6} />
-            <Box width="90%" margin="auto">
-              <Card>
-                <QuestionnarieForm
-                  onSubmit={(answers) => {
-                    onQuestionnarieSubmit(answers, questionnarie.id);
-                  }}
-                  questionnarie={questionnarie}
-                  renderItem={(text, input, isLast) => (
-                    <>
-                      <Box py={4}>
-                        {text}
-                        <Box mt={2.5} />
-                        {input}
-                      </Box>
-                      {!isLast && <Divider />}
-                    </>
-                  )}
-                />
-              </Card>
-            </Box>
-            <Divider />
-            <Box display="flex" py={1.5} px={2.75} bgcolor={colors.WHITE}>
-              <Box marginLeft="auto">
-                <SDButton type="submit" form="questionnarie">
-                  Save to Vault
-                </SDButton>
-              </Box>
-            </Box>
-          </Box>
-        </Dialog>
-      )}
-
-      {questionnarieWithAnswers && (
-        <Dialog
-          open={!!questionnarieWithAnswers}
-          fullWidth
-          className={modalClasses.container}
-          disablePortal
-        >
-          <Box
-            p={3}
-            bgcolor="background.default"
-            display="flex"
-            flexDirection="column"
-          >
-            <Box display="flex" justifyContent="space-between">
-              <Box display="flex" gridGap={24} alignItems="center">
-                <img
-                  width={72}
-                  height={72}
-                  style={{
-                    borderRadius: 8,
-                  }}
-                  src={questionnarieWithAnswers.image ?? ""}
-                  alt={questionnarieWithAnswers.title}
-                />
-                <Box>
-                  <SDTypography variant="titleMd" fontWeight="bold">
-                    {questionnarieWithAnswers.title}
-                  </SDTypography>
-                  <Box mt={0.5} />
-                  <SDTypography variant="titleSm">
-                    {questionnarieWithAnswers.description}
-                  </SDTypography>
-                </Box>
-              </Box>
-              <CloseButton
-                onClick={() => setQuestionnaryWithAnswers(undefined)}
-              />
-            </Box>
-            <Box mt={6} />
-
-            <QuestionnarieForm
-              onSubmit={(answers) => {
-                onQuestionnarieSubmit(answers, questionnarieWithAnswers.id);
-              }}
-              questionnarie={questionnarieWithAnswers}
-            />
-            <Box display="flex">
-              <Box marginLeft="auto">
-                <SDButton variant="outlined" type="submit" form="questionnarie">
-                  Update Answers
-                </SDButton>
-              </Box>
-            </Box>
-          </Box>
-        </Dialog>
-      )}
     </>
   );
 };
 
-export default Questionaries;
+export default Questionnaries;

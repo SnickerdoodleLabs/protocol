@@ -139,13 +139,13 @@ const QuestionnarieForm: FC<IQuestionnarieFormProps> = ({
   onDirtyStateChange,
 }) => {
   const initialValues: IQuestionnarieFormValues[] = useMemo(() => {
-    return questionnarie.questions.map((question, index) => {
+    return questionnarie.questions.map((question) => {
       return {
         ...question,
         choice:
           questionnarie instanceof QuestionnaireWithAnswers
             ? questionnarie.answers.find(
-                (answer) => answer.questionIndex === index,
+                (answer) => answer.questionIndex === question.index,
               )?.choice ?? ""
             : "",
       };
