@@ -30,7 +30,7 @@ const mockQuestionaries: PagedResponse<Questionnaire> =
         EQuestionnaireStatus.Available,
         "Unanswered Questionnarie Sample",
         "This is a test questionnaire",
-        URLString("https://picsum.photos/200/300"),
+        URLString("https://picsum.photos/id/63/70/70"),
         [
           new QuestionnaireQuestion(
             0,
@@ -49,14 +49,14 @@ const mockQuestionaries: PagedResponse<Questionnaire> =
           new QuestionnaireQuestion(
             3,
             EQuestionnaireQuestionType.MultipleChoice,
-            "How often do you go to?",
+            "How often do you go to the gym in a week?",
             ["1-2", "3-4", "5-6", "7-8"],
             true,
           ),
           new QuestionnaireQuestion(
             2,
             EQuestionnaireQuestionType.Location,
-            "What was the country you visited last?",
+            "What was the last country you visited?",
             null,
             false,
           ),
@@ -74,8 +74,8 @@ const questionarrieWithAnswersMock: QuestionnaireWithAnswers =
     MarketplaceTag("test"),
     EQuestionnaireStatus.Complete,
     "Answered Questionnarie Sample",
-    "This is a test questionnaire",
-    URLString("https://picsum.photos/200/300"),
+    "This is a test questionnaire with answers",
+    URLString("https://picsum.photos/id/250/70/70"),
     [
       new QuestionnaireQuestion(
         0,
@@ -94,14 +94,14 @@ const questionarrieWithAnswersMock: QuestionnaireWithAnswers =
       new QuestionnaireQuestion(
         3,
         EQuestionnaireQuestionType.MultipleChoice,
-        "How often do you go to?",
+        "How often do you go to the gym in a week??",
         ["1-2", "3-4", "5-6", "7-8"],
         true,
       ),
       new QuestionnaireQuestion(
         2,
         EQuestionnaireQuestionType.Location,
-        "What was the country you visited last?",
+        "What was the last country you visited?",
         null,
         false,
       ),

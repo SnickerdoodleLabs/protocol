@@ -1,8 +1,9 @@
 import { useModalStyles } from "@extension-onboarding/components/Modals/Modal.style";
 import Card from "@extension-onboarding/components/v2/Card";
+import { DeleteIcon } from "@extension-onboarding/components/v2/Icons";
 import QuestionnarieForm from "@extension-onboarding/components/v2/QuestionnarieForm";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { Box, Dialog, Divider, Grid } from "@material-ui/core";
+import { Box, Dialog } from "@material-ui/core";
 import {
   NewQuestionnaireAnswer,
   QuestionnaireWithAnswers,
@@ -72,7 +73,10 @@ const AnsweredQuestionnarieModal: FC = () => {
           }}
           questionnarie={questionnarie}
         />
-        <Box display="flex">
+        <Box color={colors.GREY500} display="flex">
+          <SDButton startIcon={<DeleteIcon />} variant="text" color="inherit">
+            Delete Survey
+          </SDButton>
           <Box marginLeft="auto">
             <SDButton variant="outlined" type="submit" form="questionnarie">
               Update Answers
