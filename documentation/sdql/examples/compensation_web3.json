@@ -3,7 +3,7 @@
         "name": "CrazyApesClub NFT distro",
         "image": "QmSkbhgq7rEmo9mty6hYABdxhqznqUnfuCG8bxn69TrXNw",
         "description": "a free CrazyApesClub NFT",
-        "requires": "$i3",
+        "requires": "True",
         "chainId": 1,
         "callback": {
           "parameters": ["recipientAddress", "productId"],
