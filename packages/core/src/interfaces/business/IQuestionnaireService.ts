@@ -82,6 +82,38 @@ export interface IQuestionnaireService {
   ): ResultAsync<void, InvalidParametersError | PersistenceError | AjaxError>;
 
   /**
+   * Fetches all questionnaires in storage with pagination
+   * This method can return either basic questionnaires or questionnaires with their answers if available,
+   * */
+  getAllQuestionnaires(
+    pagingRequest: PagingRequest,
+    _sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    PagedResponse<Questionnaire | QuestionnaireWithAnswers>,
+    PersistenceError | AjaxError
+  >;
+
+  /**
+   * Retrieves consent contract addresses associated with a given Questionnaire IPFS CID.
+   *  This method is useful for finding out which consent contracts (brand) is interested in the the supplied Questionnaire
+   *
+   * @param ipfsCID The IPFS CID of the questionnaire
+   * @return An array of consent contract addresses
+   */
+  getConsentContractsByQuestionnaireCID(
+    ipfsCID: IpfsCID,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    EVMContractAddress[],
+    | PersistenceError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
+    | ConsentContractError
+    | AjaxError
+  >;
+
+  /**
    * This is a key marketing function. Based on the questionnaires that the user has answered,
    * this returns a list of consent contracts that are interested in that questionnaire. This is
    * where stake for rank comes in. Each questionnaire (regardless of if it's a default one or not),

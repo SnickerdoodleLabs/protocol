@@ -317,9 +317,12 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     const questions = data.questions.map<PropertiesOf<QuestionnaireQuestion>>(
       (question, questionIndex) => ({
         index: questionIndex,
-        type: question.questionType,
-        text: question.question,
-        choices: question.choices || null,
+        type: question.type,
+        text: question.text,
+        choices: question.choices ?? null,
+        minumum: question.minumum ?? null,
+        maximum: question.maximum ?? null,
+        multiSelect: question.multiSelect ?? false,
         required: question.required ?? false,
       }),
     );
@@ -377,6 +380,10 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
           question.type,
           question.text,
           question.choices,
+          question.minumum,
+          question.maximum,
+          question.multiSelect,
+          question.required,
         ),
     );
 
@@ -402,6 +409,10 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
           question.type,
           question.text,
           question.choices,
+          question.minumum,
+          question.maximum,
+          question.multiSelect,
+          question.required,
         ),
     );
 
@@ -414,10 +425,10 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
       questionnaireData.id,
       MarketplaceTag(`Questionnaire:${questionnaireData.id}`),
       questionnaireData.status,
-      questions,
       questionnaireData.title,
       questionnaireData.description,
       questionnaireData.image ?? null,
+      questions,
       answers,
       measurementDate,
     );

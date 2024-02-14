@@ -18,11 +18,14 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { IQuestionnaireService } from "@core/interfaces/business/index.js";
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
+  IInvitationRepository,
+  IInvitationRepositoryType,
   IQuestionnaireRepository,
   IQuestionnaireRepositoryType,
 } from "@core/interfaces/data/index.js";
@@ -34,6 +37,8 @@ export class QuestionnaireService implements IQuestionnaireService {
     protected questionnaireRepo: IQuestionnaireRepository,
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
+    @inject(IInvitationRepositoryType)
+    protected invitationRepo: IInvitationRepository,
   ) {}
 
   public getQuestionnaires(
@@ -47,7 +52,6 @@ export class QuestionnaireService implements IQuestionnaireService {
     | PersistenceError
     | ConsentFactoryContractError
   > {
-    //getDefaultQuestionnaires ranking and tag, not sure about rank ?
     return this.consentContractRepository
       .getDefaultQuestionnaires()
       .andThen((defaultCids) => {
@@ -102,10 +106,50 @@ export class QuestionnaireService implements IQuestionnaireService {
     pagingRequest: PagingRequest,
     _sourceDomain: DomainName | undefined,
   ): ResultAsync<
-    PagedResponse<QuestionnaireWithAnswers>,
+    PagedResponse<Questionnaire | QuestionnaireWithAnswers>,
     PersistenceError | AjaxError
   > {
-    return this.questionnaireRepo.getAnswered(pagingRequest);
+    return this.questionnaireRepo.getAll(pagingRequest);
+  }
+
+  public getConsentContractsByQuestionnaireCID(
+    ipfsCID: IpfsCID,
+    _sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    EVMContractAddress[],
+    | PersistenceError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
+    | ConsentContractError
+    | AjaxError
+  > {
+    return this.invitationRepo
+      .getAcceptedInvitations()
+      .andThen((acceptedInvitations) => {
+        return ResultUtils.combine(
+          acceptedInvitations.map((optInInfo) => {
+            return this.consentContractRepository
+              .getQuestionnaires(optInInfo.consentContractAddress)
+              .map((questionnaireCIDs) => {
+                return {
+                  consentContractAddress: optInInfo.consentContractAddress,
+                  hasSpecifiedCid: Array.from(
+                    questionnaireCIDs.values(),
+                  ).includes(ipfsCID),
+                };
+              });
+          }),
+        ).map((results) => {
+          const consentContractAddresses = new Set<EVMContractAddress>();
+          results.forEach((result) => {
+            if (result.hasSpecifiedCid) {
+              consentContractAddresses.add(result.consentContractAddress);
+            }
+          });
+          return Array.from(consentContractAddresses);
+        });
+      });
   }
 
   public answerQuestionnaire(

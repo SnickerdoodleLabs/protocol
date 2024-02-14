@@ -6,9 +6,12 @@ export interface IPFSQuestionnaire {
   description: string;
   image?: URLString;
   questions: {
-    questionType: EQuestionnaireQuestionType;
-    question: string;
-    choices?: string[];
+    type: EQuestionnaireQuestionType;
+    text: string;
+    choices?: string[] | number[];
+    minumum?: number;
+    maximum?: number;
+    multiSelect?: boolean;
     required?: boolean;
   }[];
 }

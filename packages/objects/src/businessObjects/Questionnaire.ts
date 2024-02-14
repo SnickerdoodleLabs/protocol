@@ -12,9 +12,10 @@ export enum EQuestionnaireStatus {
 }
 
 export enum EQuestionnaireQuestionType {
-  MultipleChoice,
-  Location,
-  Text,
+  MultipleChoice = "multipleChoice",
+  Location = "country",
+  Text = "text",
+  Numeric = "numeric",
 }
 
 export class Questionnaire {
@@ -24,7 +25,7 @@ export class Questionnaire {
      * questionnaires.
      */
     public readonly id: IpfsCID, // the location of the questionnaire in IPFS
-    public readonly marketplaceTag: MarketplaceTag, // The tag that => "Questionnaire:IPFSCID"
+    public readonly marketplaceTag: MarketplaceTag, // The tag that
     public readonly status: EQuestionnaireStatus,
     public readonly title: string,
     public readonly description: string,
@@ -39,10 +40,11 @@ export class QuestionnaireWithAnswers extends Questionnaire {
     id: IpfsCID,
     marketplaceTag: MarketplaceTag,
     status: EQuestionnaireStatus,
-    questions: QuestionnaireQuestion[],
     title: string,
     description: string,
     image: URLString | null,
+    questions: QuestionnaireQuestion[],
+
     // The answers are independent objects; they are included as part of the Questionnaire for
     // convenience, but they are not required to be included in the Questionnaire.
     public readonly answers: QuestionnaireAnswer[],
@@ -57,7 +59,10 @@ export class QuestionnaireQuestion {
     public readonly index: number,
     public readonly type: EQuestionnaireQuestionType,
     public readonly text: string,
-    public readonly choices: string[] | null,
+    public readonly choices: string[] | number[] | null,
+    public readonly minumum: number | null,
+    public readonly maximum: number | null,
+    public readonly multiSelect: boolean = false,
     public readonly required: boolean = false,
   ) {}
 }
@@ -66,14 +71,14 @@ export class NewQuestionnaireAnswer {
   public constructor(
     public readonly questionnaireId: IpfsCID,
     public readonly questionIndex: number,
-    public readonly choice: number | string,
+    public readonly choice: number | string | number[] | string[],
   ) {}
 }
 export class QuestionnaireAnswer extends NewQuestionnaireAnswer {
   public constructor(
     public readonly questionnaireId: IpfsCID,
     public readonly questionIndex: number,
-    public readonly choice: number | string,
+    public readonly choice: number | string | number[] | string[],
   ) {
     super(questionnaireId, questionIndex, choice);
   }
