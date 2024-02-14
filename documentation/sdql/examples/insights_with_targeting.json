@@ -1,0 +1,25 @@
+{
+    "queries": {
+        "q2": {
+            "name": "age",
+            "return": "number"
+        },
+        "q3": {
+            "name": "location",
+            "return": "string"
+        }
+    },
+    "insights": {
+        "i1": {
+            "name": "query_response",
+            "target": "($q2 > 30 and $q2 < 40) and $q3",
+            "query": "q1"
+        },
+        
+        "i2": {
+            "name": "callback",
+            "target": "$q3 == 'US'",
+            "returns": "'qualified'"
+        }
+    }
+}
