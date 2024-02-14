@@ -29,6 +29,8 @@ import {
     IQuestionnaireRepository,
   } from "@core/interfaces/data/index.js";
 import { QuestionnaireService } from "@core/implementations/business/QuestionnaireService";
+import { IQueryParsingEngine } from "@core/interfaces/business/utilities";
+import { IContextProvider } from "@core/interfaces/utilities";
   
   const now = UnixTimestamp(12345);
   const then = UnixTimestamp(2345);
@@ -65,14 +67,20 @@ import { QuestionnaireService } from "@core/implementations/business/Questionnai
   
   class QuestionnaireServiceMocks {
     public questionnaireRepo: IQuestionnaireRepository;
+    public queryParsingEngine: IQueryParsingEngine;
+    public contextProvider: IContextProvider;
   
     public constructor() {
       this.questionnaireRepo = td.object<IQuestionnaireRepository>();
+      this.queryParsingEngine = td.object<IQueryParsingEngine>();
+      this.contextProvider = td.object<IContextProvider>();
     }
     
     public factory(): QuestionnaireService {
       return new QuestionnaireService(
         this.questionnaireRepo,
+        this.queryParsingEngine,
+        this.contextProvider,
       );
     }
   }

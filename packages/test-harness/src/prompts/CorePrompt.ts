@@ -12,6 +12,7 @@ import {
   Gender,
   IpfsCID,
   ISO8601DateString,
+  NewQuestionnaireAnswer,
   SiteVisit,
   UnixTimestamp,
   URLString,
@@ -55,10 +56,7 @@ export class CorePrompt extends DataWalletPrompt {
       { name: "Remove Account", value: "removeAccount" },
       { name: "Check Account", value: "checkAccount" },
       new inquirer.Separator(),
-      // {
-      //   name: "Receive Questionnaire",
-      //   value: "getQuestionnaire",
-      // },
+      { name: "Answer Questionnaire", value: "answerQuestionnaire" },
       {
         name: "Opt In to Campaign",
         value: "optInCampaign",
@@ -156,8 +154,26 @@ export class CorePrompt extends DataWalletPrompt {
           return this.addAccount.start();
         case "removeAccount":
           return this.removeAccount.start();
-        // case "getQuestionnaire":
-        //   return this.getQuestionnaire.start();
+
+        case "answerQuestionnaire":
+          console.log("Answer Questionnaire");
+          const cid = IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR");
+          const questionnaireAnswers1 = new NewQuestionnaireAnswer(
+            cid, 
+            0, 
+            UnixTimestamp(this.timeUtils.getUnixNow()), 
+            null, 
+            "Andrew");
+          const questionnaireAnswers2 = new NewQuestionnaireAnswer(
+            cid, 
+            0, 
+            UnixTimestamp(this.timeUtils.getUnixNow()), 
+            0, 
+            null);
+          return this.core.questionnaire.answerQuestionnaire(cid, [
+            questionnaireAnswers1,
+            questionnaireAnswers2
+          ], undefined)
         case "optInCampaign":
           return this.optInCampaign.start();
         case "optOutCampaign":

@@ -24,6 +24,7 @@ export class AST {
     readonly compensationParameters: ISDQLCompensationParameters | null,
     readonly compensations: Map<SDQL_Name, AST_Compensation>,
     readonly questions: AST_Question[],
+    readonly questionsMap: Map<SDQL_Name, AST_Question>,
     readonly queryTimestamp: UnixTimestamp,
   ) {}
 }

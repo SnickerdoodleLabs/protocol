@@ -16,6 +16,7 @@ import {
   EQueryEvents,
   EStatus,
   QuestionnaireQuestion,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
@@ -62,6 +63,11 @@ export class QuestionnaireService implements IQuestionnaireService {
    */
     public addQuestionnaires(questionnaireCids: IpfsCID[]): ResultAsync<void, PersistenceError> {
       return this.questionnaireRepo.add(questionnaireCids)
+    }
+
+    public getQuestionnaire(questionnaireCID: IpfsCID, benchmark?: UnixTimestamp): ResultAsync<Questionnaire, InvalidParametersError | AjaxError> {
+      // return errAsync(new InvalidParametersError(""))
+      return this.questionnaireRepo.getByCID(questionnaireCID, benchmark);
     }
 
     /**
@@ -131,18 +137,24 @@ export class QuestionnaireService implements IQuestionnaireService {
 
           const question = questionnaire.questions[answer.questionIndex];
           if (question.choices != null) {
-            if ((answer.choice <= 0) || (answer.choice >= question.choices.length)) {
-              return errAsync(
-                new InvalidParametersError(
-                  "Choice does not exist on the Questionnaire",
-                ),
-              );
+            if (answer.choice != null) {
+              if ((answer.choice <= 0) || (answer.choice >= question.choices.length)) {
+                return errAsync(
+                  new InvalidParametersError(
+                    "Choice does not exist on the Questionnaire",
+                  ),
+                );
+              }
             }
           }
         }
 
         return this.questionnaireRepo.upsertAnswers(answers);
       });
+  }
+
+  public postQuestionnaire(questionnaireCID: IpfsCID, questionnaire: Questionnaire): ResultAsync<void, InvalidParametersError | AjaxError> {
+    return this.questionnaireRepo.postQuestionnaire(questionnaireCID, questionnaire);
   }
 
     /**

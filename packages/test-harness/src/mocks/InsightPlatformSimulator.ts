@@ -417,7 +417,7 @@ export class InsightPlatformSimulator {
 
       // Verify the signature
       console.log(
-        `LOOK FOR SIGNINGDATA: ${signingData} but is for account ${accountAddress}`,
+        `LOOK FOR SIGNINGDATA: ${JSON.stringify(signingData)} but is for account ${accountAddress}`,
       );
       this.cryptoUtils
         .verifyTypedData(

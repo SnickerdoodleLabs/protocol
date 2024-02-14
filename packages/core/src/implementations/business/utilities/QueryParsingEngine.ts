@@ -69,6 +69,7 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
+import { IQuestionnaireService, IQuestionnaireServiceType } from "@core/interfaces/business";
 
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {
@@ -77,6 +78,8 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected queryFactories: IQueryFactories,
     @inject(IQueryRepositoryType)
     protected queryRepository: IQueryRepository,
+    @inject(IQuestionnaireServiceType)
+    protected questionnaireService: IQuestionnaireService,
     @inject(ISDQLQueryUtilsType)
     protected queryUtils: ISDQLQueryUtils,
     @inject(IAdRepositoryType)
@@ -88,91 +91,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     @inject(IContextProviderType)
     protected contextProvider: IContextProvider,
   ) {}
-
-//   public handleQuestionnaire(
-//     questionnaire: SDQLQuery,     
-//     dataPermissions: DataPermissions,
-//     ): ResultAsync<
-//     Questionnaire,
-//     | ParserError
-//     | DuplicateIdInSchema
-//     | QueryFormatError
-//     | MissingTokenConstructorError
-//     | QueryExpiredError
-//     | MissingASTError
-//     | EvaluationError
-//     | PersistenceError
-//     | EvalNotImplementedError
-//     | AjaxError
-//     | AccountIndexingError
-//     | MethodSupportError
-//     | InvalidParametersError
-//   > {
-//   return this.contextProvider.getContext().andThen((context) => {
-//     context.publicEvents.queryPerformance.next(
-//       new QuestionnairePerformanceEvent(
-//         EQueryEvents.QuestionnaireEvaluation,
-//         EStatus.Start,
-//         questionnaire.cid,
-//       ),
-//     );
-//     context.publicEvents.queryPerformance.next(
-//       new QuestionnairePerformanceEvent(
-//         EQueryEvents.QuestionnaireParsing,
-//         EStatus.Start,
-//         questionnaire.cid,
-//       ),
-//     );
-//     return this.parseQuestionnaire(questionnaire)
-//       .andThen((ast) => {
-//         return ResultUtils.combine(
-//           ast.questions.map((astQuestion, index) => {
-//             return okAsync(new QuestionnaireQuestion(index, astQuestion.questionType, astQuestion.question, astQuestion.possibleResponses));
-//           }),
-//         ).map((questionnaireQuestions) => {
-//           context.publicEvents.queryPerformance.next(
-//             new QuestionnairePerformanceEvent(
-//               EQueryEvents.QuestionnaireEvaluation,
-//               EStatus.End,
-//               questionnaire.cid,
-//             ),
-//           );
-//           context.publicEvents.queryPerformance.next(
-//             new QuestionnairePerformanceEvent(
-//               EQueryEvents.QuestionnaireParsing,
-//               EStatus.End,
-//               questionnaire.cid,
-//             ),
-//           );
-//           return this.questionnaireRepository.postQuestionnaire(
-//             questionnaire.cid,
-//             new Questionnaire(questionnaire.cid, MarketplaceTag("TODO"), EQuestionnaireStatus.Available, questionnaireQuestions)
-//           );
-//         })
-//       .mapErr((err) => {
-//         context.publicEvents.queryPerformance.next(
-//           new QuestionnairePerformanceEvent(
-//             EQueryEvents.QuestionnaireEvaluation,
-//             EStatus.End,
-//             questionnaire.cid,
-//             undefined,
-//             err,
-//           ),
-//         );
-//         context.publicEvents.queryPerformance.next(
-//           new QuestionnairePerformanceEvent(
-//             EQueryEvents.QuestionnaireParsing,
-//             EStatus.End,
-//             questionnaire.cid,
-//             undefined,
-//             err,
-//           ),
-//         );
-//         return err;
-//       });
-//   });
-// })
-// }
 
   public handleQuery(
     query: SDQLQuery,
@@ -208,8 +126,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
           query.cid,
         ),
       );
+      console.log("query: " + JSON.stringify(query));
       return this.parseQuery(query)
         .andThen((ast) => {
+          console.log("ast: " + ast);
           context.publicEvents.queryPerformance.next(
             new QueryPerformanceEvent(
               EQueryEvents.QueryParsing,
@@ -254,29 +174,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     });
   }
 
-//   public parseQuestionnaire(
-//     query: SDQLQuery,
-//   ): ResultAsync<
-//   AST,
-//   | EvaluationError
-//   | QueryFormatError
-//   | QueryExpiredError
-//   | ParserError
-//   | EvaluationError
-//   | QueryFormatError
-//   | QueryExpiredError
-//   | MissingTokenConstructorError
-//   | DuplicateIdInSchema
-//   | MissingASTError
-// > {
-//     return this.queryFactories
-//       .makeParserAsync(query.cid, query.query)
-//       .andThen((sdqlParser) => {
-//         return sdqlParser.buildQuestionnaireAST();
-//       })
-//       .mapErr((error) => error);
-// }
-
   public parseQuery(
     query: SDQLQuery,
   ): ResultAsync<
@@ -292,10 +189,15 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     | DuplicateIdInSchema
     | MissingASTError
   > {
-    console.log("Inside query: " + query);
+    console.log("Inside query: " + JSON.stringify(query));
     return this.queryFactories
       .makeParserAsync(query.cid, query.query)
-      .andThen((sdqlParser) => sdqlParser.buildAST());
+      .andThen((sdqlParser) => {
+        if (sdqlParser.questions !== undefined) {
+          return sdqlParser.buildQuestionnaireAST();
+        }
+        return sdqlParser.buildAST();
+      });
   }
 
   /** Used for reward generation on the SPA. Purpose is to show all the rewards to the user
@@ -411,22 +313,75 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     | MethodSupportError
     | InvalidParametersError
   > {
+
     const astEvaluator = this.queryFactories.makeAstEvaluator(
       cid,
       dataPermissions,
       ast.queryTimestamp,
     );
 
-    const insightProm = this.gatherDeliveryInsights(ast, astEvaluator);
     //Will become async in the future
     const adSigProm = this.gatherDeliveryAds(ast, cid, dataPermissions);
 
+    if (ast.questions !== undefined) {
+      const insightProm = this.gatherQuestionnaireInsights(ast, cid, astEvaluator);
+      console.log("insightProm 1: " + JSON.stringify(insightProm));
+      return ResultUtils.combine([insightProm]).map(([insightWithProofs]) => {
+        return {
+          insights: insightWithProofs,
+          ads: adSigProm,
+        };
+      });
+    }
+
+    const insightProm = this.gatherDeliveryInsights(ast, astEvaluator);
+    console.log("insightProm 2: " + JSON.stringify(insightProm));
     return ResultUtils.combine([insightProm]).map(([insightWithProofs]) => {
       return {
         insights: insightWithProofs,
         ads: adSigProm,
       };
     });
+    
+  }
+
+  protected gatherQuestionnaireInsights(
+    ast: AST,
+    cid: IpfsCID,
+    astEvaluator: AST_Evaluator,
+  ): ResultAsync<
+    IQueryDeliveryInsights,
+    | ParserError
+    | DuplicateIdInSchema
+    | QueryFormatError
+    | MissingTokenConstructorError
+    | QueryExpiredError
+    | MissingASTError
+    | EvaluationError
+    | PersistenceError
+    | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
+  > {
+    const astQuestionArray = (ast.questions);
+    console.log("astQuestionArray: " + astQuestionArray);
+    return this.questionnaireService.getQuestionnaire(cid).andThen((questionnaire) => 
+      {
+        questionnaire.
+        let index = 0;
+        const questionMapResult = astQuestionArray.map((astQuestion) => {
+          console.log("astQuestion: " + astQuestion);
+          return astEvaluator.evalQuestion(astQuestion).map((insight) => {
+            return [SDQL_Name((index++).toString()), insight] as [SDQL_Name, SDQL_Return];
+          });
+        });
+        return ResultUtils.combine(questionMapResult).map((questionMap) => {
+          return this.createDeliveryInsightObject(questionMap);
+        });
+      }
+    ).mapErr((e) => e);
   }
 
   protected gatherDeliveryInsights(
@@ -448,7 +403,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     | MethodSupportError
     | InvalidParametersError
   > {
+    console.log("Inside gatherDeliveryInsights: ");
     const astInsightArray = Array.from(ast.insights);
+    console.log("astInsightArray: " + astInsightArray);
+
     const insightMapResult = astInsightArray.map(([_qName, astInsight]) => {
       return astEvaluator.evalInsight(astInsight).map((insight) => {
         return [_qName, insight] as [SDQL_Name, SDQL_Return];
@@ -457,6 +415,25 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     return ResultUtils.combine(insightMapResult).map((insightMap) => {
       return this.createDeliveryInsightObject(insightMap);
     });
+  }
+
+  protected createQuestionnaireDeliveryInsight(
+    insightMap: [SDQL_Name, SDQL_Return][],
+  ): IQueryDeliveryInsights {
+    return insightMap.reduce<IQueryDeliveryInsights>(
+      (deliveryInsights, [insightName, insight]) => {
+        if (insight !== null) {
+          deliveryInsights[insightName] = {
+            insight: this.SDQLReturnToInsight(insight),
+            proof: this.calculateInsightProof(insight),
+          };
+        } else {
+          deliveryInsights[insightName] = null;
+        }
+        return deliveryInsights;
+      },
+      {},
+    );
   }
 
   protected createDeliveryInsightObject(

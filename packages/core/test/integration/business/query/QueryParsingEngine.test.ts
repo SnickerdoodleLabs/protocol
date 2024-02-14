@@ -532,10 +532,10 @@ describe("Handle Questionnaire", () => {
     const engine = mocks.factory();
 
     await engine
-      .handleQuestionnaire(sdqlQuery6, new DataPermissions(allPermissions))
+      .handleQuery(sdqlQuery6, new DataPermissions(allPermissions))
       .andThen((questionnaire) => {
         console.log("Questionnaire Object: " + JSON.stringify(questionnaire));
-        expect(questionnaire.questions).toEqual(
+        expect(questionnaire.insights).toEqual(
           [
             {
               "index":0,
@@ -549,7 +549,7 @@ describe("Handle Questionnaire", () => {
             }
           ]
         )
-        return okAsync(questionnaire.questions);
+        return okAsync(questionnaire.insights);
       })
       .mapErr((e) => {
         console.log(e);

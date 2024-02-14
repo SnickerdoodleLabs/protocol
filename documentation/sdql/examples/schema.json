@@ -219,6 +219,19 @@
                         {
                             "properties": {
                                 "name": {
+                                    "const": "questionnaire"
+                                },
+                                "return": {
+                                    "const": "object"
+                                }
+                            },
+                            "required": [
+                                "cid"
+                            ]
+                        },
+                        {
+                            "properties": {
+                                "name": {
                                     "const": "gender"
                                 },
                                 "return": {

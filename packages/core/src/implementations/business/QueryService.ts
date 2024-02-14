@@ -190,6 +190,9 @@ export class QueryService implements IQueryService {
         requestForData.consentContractAddress,
       ),
     ]).andThen(([queryWrapper, context, config, accounts, consentToken]) => {
+
+      console.log("queryWrapper: " + JSON.stringify(queryWrapper));
+
       // Check and make sure a consent token exists
       if (consentToken == null) {
         // Record the query as having been received, but ignore it

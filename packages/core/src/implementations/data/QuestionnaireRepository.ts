@@ -73,10 +73,10 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     }).map((questionnaire) => questionnaire);
   }
 
-  public postQuestionnaire(questionnaireCID: IpfsCID, questinnaire: Questionnaire): ResultAsync<void, InvalidParametersError | AjaxError> {
+  public postQuestionnaire(questionnaireCID: IpfsCID, questionnaire: Questionnaire): ResultAsync<void, InvalidParametersError | AjaxError> {
     return this.configProvider.getConfig().andThen((config) => {
       const url = new URL(urlJoin(config.ipfsFetchBaseUrl, questionnaireCID));
-      return this.ajaxUtils.post<void>(url);
+      return this.ajaxUtils.post<void>(url, JSON.stringify(questionnaire));
     });
   }
 

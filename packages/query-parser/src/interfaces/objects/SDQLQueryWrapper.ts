@@ -47,14 +47,18 @@ export class SDQLQueryWrapper {
   }
 
   public preProcessQuestions() {
-    let i = 1;
     const questionSchema = this.getQuestionSchema();
-    console.log("questionSchema: " + questionSchema);
+    console.log("questionSchema: " + JSON.stringify(questionSchema));
     if (questionSchema == null) {
       return;
     }
 
-    this.getQuestionEntries().forEach(([num, question]) => {
+    const questionEntries = this.getQuestionEntries();
+    if (questionEntries == undefined) {
+      return;
+    }
+
+    questionEntries.forEach(([num, question]) => {
       this.internalObj.questions[num] = question;
     });
   }
@@ -203,9 +207,13 @@ export class SDQLQueryWrapper {
     );
   }
 
-  public getQuestionEntries(): [number, ISDQLQuestion][] {
+  public getQuestionEntries(): [number, ISDQLQuestion][] | undefined {
     const questions = this.getQuestionSchema();
-    return (this._getEntries<number, ISDQLQuestion>(questions));
+    if (questions == undefined) {
+      return undefined;
+    }
+    const entries = this._getEntries<number, ISDQLQuestion>(questions);
+    return entries;
   }
 
   public getQuerySchema(): {

@@ -1,7 +1,7 @@
 export * from "@query-parser/interfaces/objects/AST.js";
 export * from "@query-parser/interfaces/objects/AST_Ad.js";
 
-export * from "@query-parser/interfaces/objects/AST_Question.js";
+export * from "@query-parser/interfaces/objects/AST_QuestionnaireQuery.js";
 export * from "@query-parser/interfaces/objects/AST_MCQuestion.js";
 export * from "@query-parser/interfaces/objects/AST_TextQuestion.js";
 

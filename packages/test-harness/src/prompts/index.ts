@@ -10,5 +10,4 @@ export { RemoveAccount } from "@test-harness/prompts/RemoveAccount.js";
 export { ApproveQuery } from "@test-harness/prompts/ApproveQuery.js";
 export { CreateCampaign } from "@test-harness/prompts/CreateCampaign.js";
 export { PostQuery } from "@test-harness/prompts/PostQuery.js";
-export { PostQuestionnaire } from "@test-harness/prompts/PostQuestionnaire.js";
 export { SetMaxCapacity } from "@test-harness/prompts/SetMaxCapacity.js";

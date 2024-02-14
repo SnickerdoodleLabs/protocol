@@ -58,8 +58,8 @@ export class NewQuestionnaireAnswer {
   public constructor(
     public readonly questionnaireId: IpfsCID,
     public readonly questionIndex: number,
-    public readonly choice: number,
     public readonly measurementDate: UnixTimestamp,
+    public readonly choice: number | null,
     public readonly writtenResponse: string | null,
   ) {}
 }
@@ -68,10 +68,10 @@ export class QuestionnaireAnswer extends NewQuestionnaireAnswer {
     public readonly id: QuestionnaireAnswerId,
     public readonly questionnaireId: IpfsCID,
     public readonly questionIndex: number,
-    public readonly choice: number,
     public readonly measurementDate: UnixTimestamp,
+    public readonly choice: number | null,
     public readonly writtenResponse: string | null,
   ) {
-    super(questionnaireId, questionIndex, choice, measurementDate, writtenResponse);
+    super(questionnaireId, questionIndex, measurementDate, choice, writtenResponse);
   }
 }
