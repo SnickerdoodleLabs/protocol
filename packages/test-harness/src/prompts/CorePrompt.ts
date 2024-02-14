@@ -156,7 +156,7 @@ export class CorePrompt extends DataWalletPrompt {
           return this.removeAccount.start();
         case "answerQuestionnaire":
           console.log("Answer Questionnaire");
-          const cid = IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR");
+          const cid = IpfsCID("TestHarnessCID");
           const questionnaireAnswers1 = new NewQuestionnaireAnswer(
             cid, 
             0, 

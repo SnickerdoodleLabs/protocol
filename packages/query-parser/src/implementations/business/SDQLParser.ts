@@ -111,6 +111,7 @@ export class SDQLParser {
     | QueryExpiredError
     | MissingASTError
   > {
+    console.log("this.schema: " + JSON.stringify(this.schema));
     return this.validateSchema(this.schema, this.cid).andThen(() => {
       return this.parse().map(() => {
         return new AST(
@@ -331,6 +332,7 @@ export class SDQLParser {
   > {
     try {
       const querySchema = this.schema.getQuerySchema();
+      console.log("querySchema: " + querySchema);
       const queries = new Array<
         AST_Web3Query | AST_BalanceQuery | AST_PropertyQuery | AST_QuestionnaireQuery
       >();
@@ -357,6 +359,7 @@ export class SDQLParser {
         }
       }
       for (const query of queries) {
+        console.log("query: " + query);
         this.saveInContext(query.name, query);
         this.queries.set(query.name, query);
       }

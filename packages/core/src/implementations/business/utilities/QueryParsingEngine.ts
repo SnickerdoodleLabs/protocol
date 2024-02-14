@@ -184,6 +184,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     return this.queryFactories
       .makeParserAsync(query.cid, query.query)
       .andThen((sdqlParser) => {
+        console.log("query.cid: " + query.cid);
+        console.log("query.query: " + query.query);
+        console.log("sdqlParser: " + sdqlParser);
+
         return sdqlParser.buildAST();
 
         // return ResultUtils.combine(
