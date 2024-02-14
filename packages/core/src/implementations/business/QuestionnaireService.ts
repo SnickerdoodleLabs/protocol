@@ -10,12 +10,6 @@ import {
   NewQuestionnaireAnswer,
   InvalidParametersError,
   AjaxError,
-  SDQLQuery,
-  DataPermissions,
-  QuestionnairePerformanceEvent,
-  EQueryEvents,
-  EStatus,
-  QuestionnaireQuestion,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -26,17 +20,13 @@ import {
   IQuestionnaireRepository,
   IQuestionnaireRepositoryType,
 } from "@core/interfaces/data/index.js";
-import { IQueryParsingEngine, IQueryParsingEngineType } from "@core/interfaces/business/utilities/index.js";
 import { IContextProvider, IContextProviderType } from "@core/interfaces/utilities/index.js";
-import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
 export class QuestionnaireService implements IQuestionnaireService {
   public constructor(
     @inject(IQuestionnaireRepositoryType)
     protected questionnaireRepo: IQuestionnaireRepository,
-    @inject(IQueryParsingEngineType)
-    protected queryParsingEngine: IQueryParsingEngine,
     @inject(IContextProviderType)
     protected contextProvider: IContextProvider,
   ) {}

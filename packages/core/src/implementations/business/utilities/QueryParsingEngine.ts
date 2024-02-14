@@ -67,7 +67,7 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
-import { IQuestionnaireService, IQuestionnaireServiceType } from "@core/interfaces/business";
+import { IQuestionnaireService, IQuestionnaireServiceType } from "@core/interfaces/business/IQuestionnaireService.js";
 
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {

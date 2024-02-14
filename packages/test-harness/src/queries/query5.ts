@@ -1,16 +1,55 @@
-export const query5 = {
-    name: "Text Questionnaire",
-    description: "This Questionnaire is used for basic Web2 activity",
-    image: "www.google.com/fake-image.png",
-    questions: {
-        q1: {
-            questionType: "text",
-            question: "What is your name?"
-        },
-        q2: {
-            questionType: "multipleChoice",
-            question: "What is your political party affiliation?",
-            options: ["Democrat", "Republican", "Independent", "Other"]
-        }
+export const query5 = JSON.stringify({
+    version: 0.1,
+    timestamp: "2023-02-01T15:33:08.421Z",
+    expiry: "3022-09-13T19:19:42.000Z",
+    description: "Passing Questionnaire into our system",
+    business: "Google",
+    queries: {
+      q1: {
+        name: "questionnaire",
+        return: "object",
+        cid: "QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR",
+      },
     },
-}
+    insights: {
+      i1: {
+        name: "Questionnaire",
+        target: "$q1",
+        returns: "'qualified'",
+      },
+    },
+    compensations: {
+      parameters: {
+        recipientAddress: {
+          type: "address",
+          required: true,
+        },
+        productId: {
+          type: "string",
+          required: false,
+          values: ["https://product1", "https://product2"],
+        },
+        shippingAddress: {
+          type: "string",
+          required: false,
+        },
+      },
+      c1: {
+        name: "Sugar to your coffee",
+        image: "QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR",
+        description: "10% discount code for Starbucks",
+        requires: "$i1",
+        chainId: 1,
+        callback: {
+          parameters: ["recipientAddress"],
+          data: {
+            trackingId: "982JJDSLAcx",
+          },
+        },
+      },
+    },
+  });
+  
+      
+      
+     

@@ -20,8 +20,3 @@ export const questionnaireData = JSON.stringify(
         },
 }
 );
-
-
-    
-    
-   
