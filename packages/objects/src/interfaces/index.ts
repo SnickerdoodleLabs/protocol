@@ -26,10 +26,6 @@ export * from "@objects/interfaces/ISDQLInsightsBlock.js";
 export * from "@objects/interfaces/ISDQLObjectSchema.js";
 export * from "@objects/interfaces/ISDQLQueriesBlock.js";
 export * from "@objects/interfaces/ISDQLQuestionBlock.js";
-export * from "@objects/interfaces/ISDQLQuestionsBlock.js";
-export * from "@objects/interfaces/ISDQLQuestionParameters.js";
-
-export * from "@objects/interfaces/ISDQLQuestionsBlock.js";
 export * from "@objects/interfaces/ISDQLQuestion.js";
 export * from "@objects/interfaces/IQuestionnaireDeliveryItems.js";
 

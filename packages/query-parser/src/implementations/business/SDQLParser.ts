@@ -11,7 +11,6 @@ import {
   ISDQLCompensationParameters,
   ISDQLCompensations,
   ISDQLInsightBlock,
-  ISDQLQuestionParameters,
   MissingASTError,
   MissingTokenConstructorError,
   ParserError,
@@ -65,7 +64,6 @@ export class SDQLParser {
   public compensationParameters: ISDQLCompensationParameters | null = null;
   public questions: AST_Question[] = [];
   public questionsMap = new Map<SDQL_Name, AST_Question>();
-  public questionParameters: ISDQLQuestionParameters | null = null;
 
   constructor(
     readonly cid: IpfsCID,
