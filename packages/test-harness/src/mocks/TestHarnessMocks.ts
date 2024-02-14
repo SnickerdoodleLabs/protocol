@@ -14,7 +14,7 @@ import {
 } from "@snickerdoodlelabs/persistence";
 
 import { InsightPlatformSimulator } from "@test-harness/mocks/InsightPlatformSimulator.js";
-import { query1, query2, query3, query4 } from "@test-harness/queries/index.js";
+import { query1, query2, query3, query4, query5, } from "@test-harness/queries/index.js";
 import { BlockchainStuff, IPFSClient } from "@test-harness/utilities/index.js";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 
@@ -106,4 +106,5 @@ export class TestHarnessMocks {
   public query2 = query2;
   public query3 = query3;
   public query4 = query4;
+  public query5 = query5;
 }

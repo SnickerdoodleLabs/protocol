@@ -176,7 +176,7 @@ export class InsightPlatformSimulator {
               return errAsync(err);
             }
 
-            if (consentToken.ownerAddress != verificationAddress) {
+            if (consentToken.ownerAddress.toLowerCase() != verificationAddress.toLowerCase()) {
               const err = new Error(
                 `Consent token ${tokenId} is not owned by the verification address ${verificationAddress}`,
               );
@@ -236,7 +236,79 @@ export class InsightPlatformSimulator {
               return errAsync(err);
             }
 
-            if (consentToken.ownerAddress != verificationAddress) {
+            if (consentToken.ownerAddress.toLowerCase() != verificationAddress.toLowerCase()) {
+              const err = new Error(
+                `Consent token ${tokenId} is not owned by the verification address ${verificationAddress}`,
+              );
+              console.error(err);
+              return errAsync(err);
+            }
+
+            return okAsync(undefined);
+          });
+        })
+        .map(() => {
+          const earnedRewards: EarnedReward[] = [];
+          earnedRewards[0] = new EarnedReward(
+            queryCID,
+            "Sugar to your coffee",
+            IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
+            "dummy desc",
+            ERewardType.Direct,
+          );
+          res.send(earnedRewards);
+        })
+        .mapErr((e) => {
+          console.error(e);
+          res.send(e);
+        });
+    });
+
+    this.app.post("/questionnaires/responses", (req, res) => {
+      console.log("Recieved Questionnaires Response");
+
+      // console.log("Insights : ", req.body["insights"]["insights"]);
+      // console.log("Ads : ", req.body["insights"]["ads"]);
+      console.log("req.body: " + req.body);
+
+      const consentContractId = EVMContractAddress(req.body.consentContractId);
+      const queryCID = IpfsCID(req.body.queryCID);
+      const tokenId = TokenId(BigInt(req.body.tokenId));
+      const insights = JSON.stringify(req.body.insights);
+      const rewardParameters = JSON.stringify(req.body.rewardParameters);
+      const signature = Signature(req.body.signature);
+
+      const value = {
+        consentContractId,
+        queryCID,
+        tokenId,
+        insights,
+        rewardParameters,
+      };
+
+      this.logStream.write(JSON.stringify(req.body));
+      return this.cryptoUtils
+        .verifyTypedData(
+          snickerdoodleSigningDomain,
+          insightDeliveryTypes,
+          value,
+          signature,
+        )
+        .andThen((verificationAddress) => {
+          const contract =
+            this.blockchain.getConsentContract(consentContractId);
+
+          return contract.getConsentToken(tokenId).andThen((consentToken) => {
+            if (consentToken == null) {
+              const err = new Error(`No consent token found for id ${tokenId}`);
+              console.error(err);
+              return errAsync(err);
+            }
+
+            console.log("consentToken.ownerAddress: " + consentToken.ownerAddress);
+            console.log("verificationAddress: " + verificationAddress);
+
+            if (consentToken.ownerAddress.toLowerCase() != verificationAddress.toLowerCase()) {
               const err = new Error(
                 `Consent token ${tokenId} is not owned by the verification address ${verificationAddress}`,
               );
@@ -349,7 +421,7 @@ export class InsightPlatformSimulator {
           signature,
         )
         .andThen((verificationAddress) => {
-          if (verificationAddress != accountAddress) {
+          if (verificationAddress.toLowerCase() != accountAddress.toLowerCase()) {
             console.error(
               `Invalid signature. Metatransaction request is signed by ${verificationAddress} but is for account ${accountAddress}`,
             );
@@ -402,13 +474,42 @@ export class InsightPlatformSimulator {
     });
   }
 
+  public postQuestionnaire(
+    consentContractAddress: EVMContractAddress,
+    queryText: SDQLString,
+  ): ResultAsync<void, Error | ConsentContractError> {
+    // Posting a questionnaire involves two things- 
+    // 1. putting the query content into IPFS, and 
+    // 2. calling requestForData on the consent contract
+    const queryJson = JSON.parse(queryText) as ISDQLQueryObject;
+    queryJson.timestamp = ISO8601DateString(new Date().toISOString());
+    queryText = SDQLString(JSON.stringify(queryJson));
+
+    // Now we can post the query to IPFS
+    return this.ipfs
+      .postToIPFS(queryText)
+      .andThen((cid) => {
+        console.log(`Posted query content to ipfs CID ${cid}`);
+        // Need to call requestForData
+        const consentContract = this.blockchain.getConsentContract(
+          consentContractAddress,
+        );
+
+        return consentContract.requestForData(cid);
+      })
+      .map(() => {
+        console.log(
+          `Sent request for data to consent contract ${consentContractAddress}`,
+        );
+      });
+  }
+
   public postQuery(
     consentContractAddress: EVMContractAddress,
     queryText: SDQLString,
   ): ResultAsync<void, Error | ConsentContractError> {
     // Posting a query involves two things- 1. putting the query content into IPFS, and 2.
     // calling requestForData on the consent contract
-
     // The queryText needs to have the timestamp inserted
     const queryJson = JSON.parse(queryText) as ISDQLQueryObject;
     // queryJson.timestamp = UnixTimestamp(

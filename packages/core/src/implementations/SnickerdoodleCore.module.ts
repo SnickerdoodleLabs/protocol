@@ -101,6 +101,7 @@ import {
   MonitoringService,
   ProfileService,
   QueryService,
+  QuestionnaireService,
   TwitterService,
   CloudStorageService,
   CachingService,
@@ -318,6 +319,8 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IAdService>(IAdServiceType).to(AdService).inSingletonScope();
     bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
+    bind<IQuestionnaireService>(IQuestionnaireServiceType).to(QuestionnaireService).inSingletonScope();
+
     bind<IMetricsService>(IMetricsServiceType)
       .to(MetricsService)
       .inSingletonScope();

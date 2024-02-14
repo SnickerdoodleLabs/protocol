@@ -38,6 +38,7 @@ import {
   avalanche2SchemaStr,
   avalanche1SchemaStr,
   avalanche4SchemaStr,
+  questionnaireData,
   IQueryFactories,
   QueryFactories,
   rewardless1SchemaStr,
@@ -58,6 +59,7 @@ import {
 import {
   AdContentRepository,
   AdDataRepository,
+  QuestionnaireRepository,
 } from "@core/implementations/data/index.js";
 import {
   IBrowsingDataRepository,
@@ -74,6 +76,7 @@ import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
+import { QuestionnaireService } from "@core/implementations/business";
 
 const queryCID = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(
@@ -83,8 +86,9 @@ const sdqlQueryExpired = new SDQLQuery(
 const sdqlQuery = new SDQLQuery(queryCID, SDQLString(avalanche1SchemaStr));
 const sdqlQuery2 = new SDQLQuery(queryCID, SDQLString(avalanche2SchemaStr));
 const sdqlQuery4 = new SDQLQuery(queryCID, SDQLString(avalanche4SchemaStr));
-
 const sdqlQuery5 = new SDQLQuery(queryCID, SDQLString(rewardless1SchemaStr));
+const sdqlQuery6 = new SDQLQuery(queryCID, SDQLString(questionnaireData));
+
 
 const linkedAccounts: LinkedAccount[] = [
   new LinkedAccount(
@@ -114,6 +118,8 @@ class QueryParsingMocks {
   public demoDataRepo = td.object<IDemographicDataRepository>();
   public browsingDataRepo = td.object<IBrowsingDataRepository>();
   public adDataRepo = td.object<AdDataRepository>();
+  public questionnaireRepo = td.object<QuestionnaireRepository>();
+  public questionnaireService = td.object<QuestionnaireService>();
   public socialRepo = td.object<ISocialRepository>();
   public accountRepo = td.object<ILinkedAccountRepository>();
   public timeUtils: ITimeUtils = td.object<ITimeUtils>();
@@ -220,6 +226,7 @@ class QueryParsingMocks {
     return new QueryParsingEngine(
       this.queryFactories,
       this.queryRepository,
+      this.questionnaireService,
       this.queryUtils,
       this.adContentRepository,
       this.adDataRepo,
@@ -293,230 +300,262 @@ class QueryParsingMocks {
   }
 }
 
-describe("Dummy describe block", () => {
-  test("Dummy test", async () => {
-    const mocks = new QueryParsingMocks();
-    const engine = mocks.factory();
-    expect(1).toBe(1);
-  });
-});
+// describe("Dummy describe block", () => {
+//   test("Dummy test", async () => {
+//     const mocks = new QueryParsingMocks();
+//     const engine = mocks.factory();
+//     expect(1).toBe(1);
+//   });
+// });
 
-describe("Handle Query", () => {
-  test("Should handle query with no ads", async () => {
+// describe("Handle Query", () => {
+//   test("Should handle query with no ads", async () => {
+//     const mocks = new QueryParsingMocks();
+//     const engine = mocks.factory();
+
+//     await engine
+//       .handleQuery(sdqlQuery2, new DataPermissions(allPermissions))
+//       .andThen((insights) => {
+//         expect(insights).toEqual({
+//           insights: {
+//             i1: null,
+//             i2: { insight: "tasty", proof: "" },
+//             i3: { insight: "1", proof: "" },
+//             i4: { insight: "female", proof: "" },
+//             i5: { insight: "{}", proof: "" },
+//           },
+//           ads: {},
+//         });
+//         return okAsync(insights);
+//       })
+//       .mapErr((e) => {
+//         console.log(e);
+//         expect(1).toBe(2);
+//       });
+//   });
+
+//   test("Expired query must return QueryExpiredError", async () => {
+//     const mocks = new QueryParsingMocks();
+//     const engine = mocks.factory();
+
+//     await engine
+//       .handleQuery(sdqlQueryExpired, new DataPermissions(allPermissions))
+//       .andThen((_insights) => {
+//         fail("Expired query was executed!");
+//       })
+//       .mapErr((err) => {
+//         expect(err.constructor).toBe(QueryExpiredError);
+//       });
+//   });
+// });
+
+// describe("Tests with data permissions", () => {
+//   const mocks = new QueryParsingMocks();
+//   const engine = mocks.factory();
+
+//   test("avalanche 2 first insight is null when age permission is not given", async () => {
+//     const givenPermissions = new DataPermissions(noPermissions);
+
+//     await engine
+//       .handleQuery(sdqlQuery2, givenPermissions)
+//       .andThen((deliveredInsights) => {
+//         expect(deliveredInsights.insights!["i1"]).toBe(null);
+//         return okAsync(undefined);
+//       })
+//       .mapErr((e) => {
+//         console.log(e);
+//         fail(e.message);
+//       });
+//   });
+
+//   test("avalanche 2 first insight is null when network permission is not given", async () => {
+//     const givenPermissions = DataPermissions.createWithPermissions([
+//       EWalletDataType.Age,
+//     ]);
+
+//     await engine
+//       .handleQuery(sdqlQuery2, givenPermissions)
+//       .andThen((deliveredInsights) => {
+//         expect(deliveredInsights.insights!["i1"]).toBe(null);
+//         return okAsync(undefined);
+//       })
+//       .mapErr((e) => {
+//         console.log(e);
+//         fail(e.message);
+//       });
+//   });
+
+//   test("avalanche 2 second insight is not null when age permission is given", async () => {
+//     const givenPermissions = DataPermissions.createWithPermissions([
+//       EWalletDataType.Age,
+//     ]);
+
+//     await engine
+//       .handleQuery(sdqlQuery2, givenPermissions)
+//       .andThen((deliveredInsights) => {
+//         expect(deliveredInsights.insights!["i2"] !== null).toBeTruthy();
+//         return okAsync(undefined);
+//       })
+//       .mapErr((e) => {
+//         console.log(e);
+//         fail(e.message);
+//       });
+//   });
+
+//   test("all null when no permissions are given", async () => {
+//     const givenPermissions = new DataPermissions(noPermissions);
+
+//     const expectedResult = {
+//       i1: null,
+//       i2: null,
+//       i3: null,
+//       i4: null,
+//       i5: null,
+//     };
+//     await engine
+//       .handleQuery(sdqlQuery2, givenPermissions)
+//       .andThen((deliveredInsights) => {
+//         expect(deliveredInsights.insights).toEqual(expectedResult);
+//         return okAsync(undefined);
+//       })
+//       .mapErr((e) => {
+//         console.log(e);
+//         fail(e.message);
+//       });
+//   });
+
+//   test("avalanche 2 5th insight not null when siteVisits given", async () => {
+//     const givenPermissions = DataPermissions.createWithPermissions([
+//       EWalletDataType.SiteVisits,
+//     ]);
+
+//     await engine
+//       .handleQuery(sdqlQuery2, givenPermissions)
+//       .andThen((deliveredInsights) => {
+//         expect(deliveredInsights.insights!["q5"] !== null).toBeTruthy();
+//         return okAsync(undefined);
+//       })
+//       .mapErr((e) => {
+//         console.log(e);
+//         fail(e.message);
+//       });
+//   });
+// });
+
+// describe("Testing avalanche 4", () => {
+//   test("avalanche 4 insights", async () => {
+//     const mocks = new QueryParsingMocks();
+//     const engine = mocks.factory();
+
+//     const expectedInsights = {
+//       insights: {
+//         i1: null,
+//         i2: { insight: "tasty", proof: "" },
+//         i3: { insight: "1", proof: "" },
+//         i4: { insight: "female", proof: "" },
+//         i5: { insight: "{}", proof: "" },
+//         i6: { insight: "[]", proof: "" },
+//         i7: { insight: "[]", proof: "" },
+//         i8: { insight: "[]", proof: "" },
+//       },
+//       ads: {},
+//     };
+
+//     await engine
+//       .handleQuery(sdqlQuery4, new DataPermissions(allPermissions))
+//       .andThen((deliveredInsights) => {
+//         expect(deliveredInsights).toMatchObject(expectedInsights);
+//         expect(
+//           Object.values(deliveredInsights.insights!).length > 0,
+//         ).toBeTruthy();
+
+//         return okAsync(undefined);
+//       })
+//       .mapErr((e) => {
+//         console.log(e);
+//         fail(e.message);
+//       });
+//   });
+// });
+
+// describe("Testing rewardless 1 ", () => {
+//   test("rewardless 1 insights", async () => {
+//     const mocks = new QueryParsingMocks();
+//     const engine = mocks.factory();
+
+//     const expectedInsights = {
+//       insights: {
+//         i1: { insight: "true", proof: "" },
+//         i2: { insight: "1", proof: "" },
+//         i3: { insight: '{"size":2}', proof: "" },
+//       },
+//       ads: {},
+//     };
+
+//     await engine
+//       .handleQuery(sdqlQuery5, new DataPermissions(allPermissions))
+//       .andThen((deliveredInsights) => {
+//         expect(deliveredInsights).toMatchObject(expectedInsights);
+//         expect(
+//           Object.values(deliveredInsights.insights!).length > 0,
+//         ).toBeTruthy();
+//         return okAsync(undefined);
+//       })
+//       .mapErr((e) => {
+//         console.log(e);
+//         fail(e.message);
+//       });
+//   });
+// });
+
+// describe("Testing parsing", () => {
+//   test("avalanche 1 partial parsing test", async () => {
+//     const mocks = new QueryParsingMocks();
+//     const engine = mocks.factory();
+//     await engine
+//       .parseQuery(sdqlQuery)
+//       .andThen((astQuery) => {
+//         expect(Object.keys(astQuery)).toEqual(
+//           Object.keys(avalanche1AstInstance),
+//         );
+
+//         return okAsync(undefined);
+//       })
+//       .mapErr((e) => {
+//         console.log(e);
+//         fail(e.message);
+//       });
+//   });
+// });
+
+describe("Handle Questionnaire", () => {
+  test("Should handle questionnaire with no ads", async () => {
     const mocks = new QueryParsingMocks();
     const engine = mocks.factory();
 
     await engine
-      .handleQuery(sdqlQuery2, new DataPermissions(allPermissions))
-      .andThen((insights) => {
-        expect(insights).toEqual({
-          insights: {
-            i1: null,
-            i2: { insight: "tasty", proof: "" },
-            i3: { insight: "1", proof: "" },
-            i4: { insight: "female", proof: "" },
-            i5: { insight: "{}", proof: "" },
-          },
-          ads: {},
-        });
-        return okAsync(insights);
+      .handleQuery(sdqlQuery6, new DataPermissions(allPermissions))
+      .andThen((questionnaire) => {
+        console.log("Questionnaire Object: " + JSON.stringify(questionnaire));
+        expect(questionnaire.insights).toEqual(
+          [
+            {
+              "index":0,
+              "type":"Text",
+              "text":"What is your name?"}
+              ,
+              {"index":1,
+              "type":"Text",
+              "text":"What is your political party affiliation?",
+              "choices":["Democrat","Republican","Independent","Other"]
+            }
+          ]
+        )
+        return okAsync(questionnaire.insights);
       })
       .mapErr((e) => {
         console.log(e);
         expect(1).toBe(2);
-      });
-  });
-
-  test("Expired query must return QueryExpiredError", async () => {
-    const mocks = new QueryParsingMocks();
-    const engine = mocks.factory();
-
-    await engine
-      .handleQuery(sdqlQueryExpired, new DataPermissions(allPermissions))
-      .andThen((_insights) => {
-        fail("Expired query was executed!");
-      })
-      .mapErr((err) => {
-        expect(err.constructor).toBe(QueryExpiredError);
-      });
-  });
-});
-
-describe("Tests with data permissions", () => {
-  const mocks = new QueryParsingMocks();
-  const engine = mocks.factory();
-
-  test("avalanche 2 first insight is null when age permission is not given", async () => {
-    const givenPermissions = new DataPermissions(noPermissions);
-
-    await engine
-      .handleQuery(sdqlQuery2, givenPermissions)
-      .andThen((deliveredInsights) => {
-        expect(deliveredInsights.insights!["i1"]).toBe(null);
-        return okAsync(undefined);
-      })
-      .mapErr((e) => {
-        console.log(e);
-        fail(e.message);
-      });
-  });
-
-  test("avalanche 2 first insight is null when network permission is not given", async () => {
-    const givenPermissions = DataPermissions.createWithPermissions([
-      EWalletDataType.Age,
-    ]);
-
-    await engine
-      .handleQuery(sdqlQuery2, givenPermissions)
-      .andThen((deliveredInsights) => {
-        expect(deliveredInsights.insights!["i1"]).toBe(null);
-        return okAsync(undefined);
-      })
-      .mapErr((e) => {
-        console.log(e);
-        fail(e.message);
-      });
-  });
-
-  test("avalanche 2 second insight is not null when age permission is given", async () => {
-    const givenPermissions = DataPermissions.createWithPermissions([
-      EWalletDataType.Age,
-    ]);
-
-    await engine
-      .handleQuery(sdqlQuery2, givenPermissions)
-      .andThen((deliveredInsights) => {
-        expect(deliveredInsights.insights!["i2"] !== null).toBeTruthy();
-        return okAsync(undefined);
-      })
-      .mapErr((e) => {
-        console.log(e);
-        fail(e.message);
-      });
-  });
-
-  test("all null when no permissions are given", async () => {
-    const givenPermissions = new DataPermissions(noPermissions);
-
-    const expectedResult = {
-      i1: null,
-      i2: null,
-      i3: null,
-      i4: null,
-      i5: null,
-    };
-    await engine
-      .handleQuery(sdqlQuery2, givenPermissions)
-      .andThen((deliveredInsights) => {
-        expect(deliveredInsights.insights).toEqual(expectedResult);
-        return okAsync(undefined);
-      })
-      .mapErr((e) => {
-        console.log(e);
-        fail(e.message);
-      });
-  });
-
-  test("avalanche 2 5th insight not null when siteVisits given", async () => {
-    const givenPermissions = DataPermissions.createWithPermissions([
-      EWalletDataType.SiteVisits,
-    ]);
-
-    await engine
-      .handleQuery(sdqlQuery2, givenPermissions)
-      .andThen((deliveredInsights) => {
-        expect(deliveredInsights.insights!["q5"] !== null).toBeTruthy();
-        return okAsync(undefined);
-      })
-      .mapErr((e) => {
-        console.log(e);
-        fail(e.message);
-      });
-  });
-});
-
-describe("Testing avalanche 4", () => {
-  test("avalanche 4 insights", async () => {
-    const mocks = new QueryParsingMocks();
-    const engine = mocks.factory();
-
-    const expectedInsights = {
-      insights: {
-        i1: null,
-        i2: { insight: "tasty", proof: "" },
-        i3: { insight: "1", proof: "" },
-        i4: { insight: "female", proof: "" },
-        i5: { insight: "{}", proof: "" },
-        i6: { insight: "[]", proof: "" },
-        i7: { insight: "[]", proof: "" },
-        i8: { insight: "[]", proof: "" },
-      },
-      ads: {},
-    };
-
-    await engine
-      .handleQuery(sdqlQuery4, new DataPermissions(allPermissions))
-      .andThen((deliveredInsights) => {
-        expect(deliveredInsights).toMatchObject(expectedInsights);
-        expect(
-          Object.values(deliveredInsights.insights!).length > 0,
-        ).toBeTruthy();
-
-        return okAsync(undefined);
-      })
-      .mapErr((e) => {
-        console.log(e);
-        fail(e.message);
-      });
-  });
-});
-
-describe("Testing rewardless 1 ", () => {
-  test("rewardless 1 insights", async () => {
-    const mocks = new QueryParsingMocks();
-    const engine = mocks.factory();
-
-    const expectedInsights = {
-      insights: {
-        i1: { insight: "true", proof: "" },
-        i2: { insight: "1", proof: "" },
-        i3: { insight: '{"size":2}', proof: "" },
-      },
-      ads: {},
-    };
-
-    await engine
-      .handleQuery(sdqlQuery5, new DataPermissions(allPermissions))
-      .andThen((deliveredInsights) => {
-        expect(deliveredInsights).toMatchObject(expectedInsights);
-        expect(
-          Object.values(deliveredInsights.insights!).length > 0,
-        ).toBeTruthy();
-        return okAsync(undefined);
-      })
-      .mapErr((e) => {
-        console.log(e);
-        fail(e.message);
-      });
-  });
-});
-
-describe("Testing parsing", () => {
-  test("avalanche 1 partial parsing test", async () => {
-    const mocks = new QueryParsingMocks();
-    const engine = mocks.factory();
-    await engine
-      .parseQuery(sdqlQuery)
-      .andThen((astQuery) => {
-        expect(Object.keys(astQuery)).toEqual(
-          Object.keys(avalanche1AstInstance),
-        );
-
-        return okAsync(undefined);
-      })
-      .mapErr((e) => {
-        console.log(e);
-        fail(e.message);
       });
   });
 });

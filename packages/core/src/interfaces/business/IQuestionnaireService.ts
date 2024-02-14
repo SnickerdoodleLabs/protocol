@@ -14,6 +14,7 @@ import {
   Questionnaire,
   QuestionnaireWithAnswers,
   UninitializedError,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -124,6 +125,26 @@ export interface IQuestionnaireService {
     questionnaire: IpfsCID,
     sourceDomain?: DomainName,
   ): ResultAsync<EVMContractAddress[], PersistenceError | AjaxError>;
+
+  addQuestionnaires(questionnaireCids: IpfsCID[]): ResultAsync<void, PersistenceError>;
+
+  getQuestionnaire(questionnaireCID: IpfsCID, benchmark?: UnixTimestamp): ResultAsync<Questionnaire, InvalidParametersError | AjaxError>;
+
+  getQuestionnairesForConsentContract(
+    pagingRequest: PagingRequest,
+    consentContractAddress: EVMContractAddress,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<PagedResponse<Questionnaire>, PersistenceError | AjaxError>;
+
+  getAnsweredQuestionnaires(
+    pagingRequest: PagingRequest,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    PagedResponse<QuestionnaireWithAnswers>,
+    PersistenceError | AjaxError
+  >;
+
+  postQuestionnaire(questionnaireCID: IpfsCID, questionnaire: Questionnaire): ResultAsync<void, InvalidParametersError | AjaxError>;
 }
 
 export const IQuestionnaireServiceType = Symbol.for("IQuestionnaireService");

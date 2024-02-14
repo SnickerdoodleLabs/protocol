@@ -16,7 +16,10 @@ import {
   ISO8601DateString,
   SDQLQuery,
   UnixTimestamp,
+  ISDQLQuestionBlock,
+  SubQueryKey,
 } from "@snickerdoodlelabs/objects";
+import { ResultAsync, okAsync } from "neverthrow";
 
 export class SDQLQueryWrapper {
   /**
@@ -32,6 +35,7 @@ export class SDQLQueryWrapper {
     this.preProcessAds();
     this.preProcessInsights();
     this.preProcessCompensations();
+    this.preProcessQuestions();
   }
 
   public get version(): string | undefined {
@@ -39,6 +43,23 @@ export class SDQLQueryWrapper {
       return undefined;
     }
     return `${this.internalObj.version}`;
+  }
+
+  public preProcessQuestions() {
+    const questionSchema = this.getQuestionSchema();
+    console.log("questionSchema: " + JSON.stringify(questionSchema));
+    if (questionSchema == null) {
+      return;
+    }
+
+    const questionEntries = this.getQuestionEntries();
+    if (questionEntries == undefined) {
+      return;
+    }
+
+    questionEntries.forEach(([num, question]) => {
+      this.internalObj.questions[num] = question;
+    });
   }
 
   public preProcessAds() {
@@ -73,6 +94,8 @@ export class SDQLQueryWrapper {
 
   public preProcessCompensations() {
     const compSchema = this.getCompensationSchema();
+    console.log("compSchema: " + compSchema);
+
     if (compSchema == null) {
       this.internalObj.compensations = {
         parameters: {
@@ -124,6 +147,13 @@ export class SDQLQueryWrapper {
     return isoDate;
   }
 
+  public get name(): string | undefined {
+    if (!this.internalObj.name) {
+      return undefined;
+    }
+    return `${this.internalObj.name}`;
+  }
+
   public get timestamp(): UnixTimestamp | null {
     if (this.internalObj.timestamp == null) {
       return null;
@@ -159,6 +189,11 @@ export class SDQLQueryWrapper {
     return this.internalObj.business;
   }
 
+  public getQueryEntries(): [SubQueryKey, ISDQLInsightBlock][] {
+    const queries = this.getQuerySchema();
+    return this._getEntries<SubQueryKey, ISDQLInsightBlock>(queries);
+  }
+
   public getInsightEntries(): [InsightKey, ISDQLInsightBlock][] {
     const insights = this.getInsightSchema();
     return this._getEntries<InsightKey, ISDQLInsightBlock>(insights);
@@ -174,6 +209,15 @@ export class SDQLQueryWrapper {
     return new Map(
       this._getEntries<CompensationKey, ISDQLCompensations>(comps),
     );
+  }
+
+  public getQuestionEntries(): [number, ISDQLQuestionBlock][] | undefined {
+    const questions = this.getQuestionSchema();
+    if (questions == undefined) {
+      return undefined;
+    }
+    const entries = this._getEntries<number, ISDQLQuestionBlock>(questions);
+    return entries;
   }
 
   public getQuerySchema(): {
@@ -192,6 +236,10 @@ export class SDQLQueryWrapper {
 
   public getInsightSchema(): ISDQLInsightsBlock {
     return this.internalObj.insights;
+  }
+
+  public getQuestionSchema(): ISDQLQuestionBlock[] {
+    return this.internalObj.questions;
   }
 
   private _getEntries<K, V>(o: { [s: string]: any }): [K, V][] {

@@ -32,6 +32,7 @@ import {
 import {
   ISDQLQueryWrapperFactory,
   avalanche1SchemaStr,
+  questionnaireData,
 } from "@snickerdoodlelabs/query-parser";
 import { errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -62,15 +63,19 @@ import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
+import { IQuestionnaireService } from "@core/interfaces/business";
 
 const now = UnixTimestamp(12345);
 const then = UnixTimestamp(2345);
 const consentContractAddress = EVMContractAddress("Phoebe");
 const queryCID1 = IpfsCID("Beep");
 const queryCID2 = IpfsCID("Boop");
+const queryCID3 = IpfsCID("Womp");
+
 const derivedPrivateKey = EVMPrivateKey("derivedPrivateKey");
 const sdqlQuery = new SDQLQuery(queryCID1, SDQLString(avalanche1SchemaStr));
 const sdqlQuery2 = new SDQLQuery(queryCID2, SDQLString(avalanche1SchemaStr));
+const sdqlQuery3 = new SDQLQuery(queryCID3, SDQLString(questionnaireData));
 
 const queryDeliveryItems: IQueryDeliveryItems = {
   insights: {},
@@ -126,6 +131,7 @@ class QueryServiceMocks {
   public consentTokenUtils: IConsentTokenUtils;
   public dataWalletUtils: IDataWalletUtils;
   public queryParsingEngine: IQueryParsingEngine;
+  public questionnaireService: IQuestionnaireService;
   public sdqlQueryRepo: ISDQLQueryRepository;
   public insightPlatformRepo: IInsightPlatformRepository;
   public consentContractRepo: IConsentContractRepository;
@@ -148,6 +154,7 @@ class QueryServiceMocks {
     this.consentTokenUtils = td.object<IConsentTokenUtils>();
     this.dataWalletUtils = td.object<IDataWalletUtils>();
     this.queryParsingEngine = td.object<IQueryParsingEngine>();
+    this.questionnaireService = td.object<IQuestionnaireService>();
     this.sdqlQueryRepo = td.object<ISDQLQueryRepository>();
     this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
     this.consentContractRepo = td.object<IConsentContractRepository>();
@@ -189,6 +196,9 @@ class QueryServiceMocks {
     );
     td.when(this.sdqlQueryRepo.getSDQLQueryByCID(queryCID2)).thenReturn(
       okAsync(sdqlQuery2),
+    );
+    td.when(this.sdqlQueryRepo.getSDQLQueryByCID(queryCID3)).thenReturn(
+      okAsync(sdqlQuery3),
     );
     td.when(this.sdqlQueryRepo.getQueryStatusByQueryCID(queryCID1)).thenReturn(
       okAsync(receivedQueryStatus),
@@ -264,6 +274,13 @@ class QueryServiceMocks {
     td.when(
       this.queryParsingEngine.handleQuery(
         sdqlQuery2,
+        this.consentToken.dataPermissions,
+      ),
+    ).thenReturn(okAsync(queryDeliveryItems));
+
+    td.when(
+      this.queryParsingEngine.handleQuery(
+        sdqlQuery3,
         this.consentToken.dataPermissions,
       ),
     ).thenReturn(okAsync(queryDeliveryItems));

@@ -12,10 +12,16 @@ export enum EQuestionnaireStatus {
 }
 
 export enum EQuestionnaireQuestionType {
+<<<<<<< HEAD
   MultipleChoice = "multipleChoice",
   Location = "country",
   Text = "text",
   Numeric = "numeric",
+=======
+  MultipleChoice = "Multiple Choice",
+  Location = "Location",
+  Text = "Text",
+>>>>>>> Questionairre/SDQL
 }
 
 export class Questionnaire {

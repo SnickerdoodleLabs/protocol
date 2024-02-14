@@ -29,7 +29,7 @@ export class SimulatorPrompt extends Prompt {
         message: "Please select a course of action:",
         choices: [
           { name: "Create Campaign", value: "createCampaign" },
-          { name: "Post Query", value: "post" },
+          { name: "Post Query", value: "postQuery" },
           { name: "Set Max Capacity", value: "setMaxCapacity" },
           new inquirer.Separator(),
           { name: "Cancel", value: "cancel" },
@@ -39,7 +39,7 @@ export class SimulatorPrompt extends Prompt {
       switch (answers.simulator) {
         case "createCampaign":
           return this.createCampaign.start();
-        case "post":
+        case "postQuery":
           return this.postQuery.start();
         case "setMaxCapacity":
           return this.setMaxCapacity.start();

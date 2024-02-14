@@ -19,6 +19,10 @@ import {
   SDQL_Name,
   URLString,
   Version,
+  EQuestionnaireQuestionType,
+  ISDQLQuestionBlock,
+  ISDQLConditionString,
+  ISDQLExpressionString,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -38,22 +42,27 @@ import {
   AST_RequireExpr,
   AST_SubQuery,
   AST_Web3Query,
+  AST_Question,
   Condition,
   IQueryObjectFactory,
   ParserContextDataTypes,
   SDQLQueryWrapper,
+  AST_MCQuestion, 
+  AST_TextQuestion,
+  AST_QuestionnaireQuery, 
 } from "@query-parser/interfaces/index.js";
 
 export class SDQLParser {
   public context = new Map<string, ParserContextDataTypes>();
   public exprParser: ExprParser;
   public dependencyParser: DependencyParser;
-
   public queries = new Map<SDQL_Name, AST_SubQuery>();
   public ads = new Map<SDQL_Name, AST_Ad>();
   public insights = new Map<SDQL_Name, AST_Insight>();
   public compensations = new Map<SDQL_Name, AST_Compensation>();
   public compensationParameters: ISDQLCompensationParameters | null = null;
+  public questions: AST_Question[] = [];
+  public questionsMap = new Map<SDQL_Name, AST_Question>();
 
   constructor(
     readonly cid: IpfsCID,
@@ -62,6 +71,35 @@ export class SDQLParser {
   ) {
     this.exprParser = new ExprParser(this.context);
     this.dependencyParser = new DependencyParser();
+  }
+
+  public buildQuestionnaireAST(): 
+  ResultAsync<
+    AST,
+    | ParserError
+    | DuplicateIdInSchema
+    | QueryFormatError
+    | MissingTokenConstructorError
+    | QueryExpiredError
+    | MissingASTError
+  > {
+    return this.validateQuestionnaireSchema(this.schema, this.cid).andThen(() => {
+      return this.parse().map(() => {
+        const ast = new AST(
+          Version(this.schema.version!),
+          this.schema.description!,
+          this.schema.business!,
+          this.ads!,
+          this.queries!,
+          this.insights,
+          this.compensationParameters,
+          this.compensations,
+          this.questions,
+          this.schema.timestamp!,
+        );
+        return ast;
+      });
+    });
   }
 
   public buildAST(): ResultAsync<
@@ -73,6 +111,7 @@ export class SDQLParser {
     | QueryExpiredError
     | MissingASTError
   > {
+    console.log("this.schema: " + JSON.stringify(this.schema));
     return this.validateSchema(this.schema, this.cid).andThen(() => {
       return this.parse().map(() => {
         return new AST(
@@ -84,10 +123,45 @@ export class SDQLParser {
           this.insights,
           this.compensationParameters,
           this.compensations,
+          this.questions,
           this.schema.timestamp!,
         );
       });
     });
+  }
+
+  public validateQuestionnaireSchema(
+    schema: SDQLQueryWrapper,
+    cid: IpfsCID,
+  ): ResultAsync<void, QueryFormatError | QueryExpiredError> {
+    return this.validateQuestions()
+      .mapErr((e) => e)
+      .map(() => {});
+  }
+
+  private validateQuestions(): ResultAsync<void, QueryFormatError | QueryExpiredError> {
+    // return okAsync(undefined);
+    return ResultUtils.combine(
+      this.schema.getInsightEntries().map(([qKey, question]) => {
+        return this.validateInsight(qKey, question);
+      }),
+    )
+      .mapErr((e) => e)
+      .map(() => {});
+  }
+
+  private validateQuestion(question: ISDQLQuestionBlock): ResultAsync<void, QueryFormatError | QueryExpiredError> {
+      // if (
+      //   question.question == null ||
+      //   question.questionType == null
+      // ) {
+      //   return errAsync(
+      //     new QueryFormatError(
+      //       `Query CID:${this.cid} Corrupted Question: ${question}`,
+      //     ),
+      //   );
+      // }
+      return okAsync(undefined);
   }
 
   // #region schema validation
@@ -239,7 +313,9 @@ export class SDQLParser {
     | MissingTokenConstructorError
     | MissingASTError
   > {
-    return this.parseQueries().andThen(() => {
+    return ResultUtils.combine([
+      this.parseQueries(),
+    ]).andThen(() => {
       return ResultUtils.combine([
         this.parseAds(),
         this.parseInsights(),
@@ -256,8 +332,9 @@ export class SDQLParser {
   > {
     try {
       const querySchema = this.schema.getQuerySchema();
+      console.log("querySchema: " + querySchema);
       const queries = new Array<
-        AST_Web3Query | AST_BalanceQuery | AST_PropertyQuery
+        AST_Web3Query | AST_BalanceQuery | AST_PropertyQuery | AST_QuestionnaireQuery
       >();
       for (const qName in querySchema) {
         const queryName = SDQL_Name(qName);
@@ -275,11 +352,14 @@ export class SDQLParser {
               schema,
             ),
           );
+        } else if (schema.name == "questionnaire") {
+          queries.push(AST_QuestionnaireQuery.fromSchema(queryName, schema));
         } else {
           queries.push(AST_PropertyQuery.fromSchema(queryName, schema));
         }
       }
       for (const query of queries) {
+        console.log("query: " + query);
         this.saveInContext(query.name, query);
         this.queries.set(query.name, query);
       }
@@ -288,6 +368,43 @@ export class SDQLParser {
       return errAsync(this.transformError(err as Error));
     }
   }
+
+  private parseQuestions(): ResultAsync<
+  void,
+  DuplicateIdInSchema | QueryFormatError | MissingASTError
+  > {
+    const entries = this.schema.getQuestionEntries();
+    if (entries == undefined) {
+      return okAsync(undefined);
+    }
+    return ResultUtils.combine(
+      entries.map(([index, questionBlock]) => {
+        return this.parseQuestion(questionBlock, index);
+      })
+    ).map((questions) => {
+      this.questions = questions;
+    });
+  }
+
+private parseQuestion(
+  questionBlock: ISDQLQuestionBlock,
+  questionIndex: number,
+): ResultAsync<
+  AST_Question,
+  DuplicateIdInSchema | QueryFormatError | MissingASTError
+> {
+  if (questionBlock.questionType == EQuestionnaireQuestionType.MultipleChoice) {
+    const mcQuestion = AST_MCQuestion.fromSchema(this.cid, questionIndex, SDQL_Name(questionBlock.question), questionBlock);
+    this.saveInContext(SDQL_Name(questionBlock.question), mcQuestion);
+    // this.questionsMap.set(SDQL_Name("qa" + questionIndex), mcQuestion);
+    return okAsync(mcQuestion);
+  } else {
+    const textQuestion = AST_TextQuestion.fromSchema(this.cid, questionIndex, SDQL_Name(questionBlock.question), questionBlock);
+    this.saveInContext(SDQL_Name(questionBlock.question), textQuestion);
+    // this.questionsMap.set(SDQL_Name("qa" + questionIndex), textQuestion);
+    return okAsync(textQuestion);
+  }
+}
 
   private parseAds(): ResultAsync<
     void,
@@ -345,7 +462,9 @@ export class SDQLParser {
         this.insights.set(insight.name, insight);
         this.saveInContext(insight.name, insight);
       });
-    });
+    })
+
+    ;
   }
 
   private parseInsight(
@@ -472,7 +591,6 @@ export class SDQLParser {
       );
     });
   }
-  // #endregion
 
   private transformError(
     err: Error,

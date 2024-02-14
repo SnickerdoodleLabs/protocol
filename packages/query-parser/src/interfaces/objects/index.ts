@@ -1,5 +1,11 @@
 export * from "@query-parser/interfaces/objects/AST.js";
 export * from "@query-parser/interfaces/objects/AST_Ad.js";
+
+export * from "@query-parser/interfaces/objects/AST_QuestionnaireQuery.js";
+export * from "@query-parser/interfaces/objects/AST_MCQuestion.js";
+export * from "@query-parser/interfaces/objects/AST_TextQuestion.js";
+export * from "@query-parser/interfaces/objects/AST_Question.js";
+
 export * from "@query-parser/interfaces/objects/AST_BalanceQuery.js";
 export * from "@query-parser/interfaces/objects/AST_BlockchainTransactionQuery.js";
 export * from "@query-parser/interfaces/objects/AST_BoolExpr.js";
@@ -19,5 +25,4 @@ export * from "@query-parser/interfaces/objects/Command_IF.js";
 export * from "@query-parser/interfaces/objects/Operator.js";
 export * from "@query-parser/interfaces/objects/SDQLQueryWrapper.js";
 export * from "@query-parser/implementations/utilities/TypeChecker.js";
-
 export * from "@query-parser/interfaces/objects/condition/index.js";

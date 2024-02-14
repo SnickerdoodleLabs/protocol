@@ -10,6 +10,7 @@ import {
   NewQuestionnaireAnswer,
   InvalidParametersError,
   AjaxError,
+<<<<<<< HEAD
   EQuestionnaireStatus,
   BlockchainCommonErrors,
   ConsentContractError,
@@ -19,6 +20,12 @@ import {
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+=======
+  UnixTimestamp,
+} from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
+>>>>>>> Questionairre/SDQL
 
 import { IQuestionnaireService } from "@core/interfaces/business/index.js";
 import {
@@ -29,16 +36,22 @@ import {
   IQuestionnaireRepository,
   IQuestionnaireRepositoryType,
 } from "@core/interfaces/data/index.js";
+import { IContextProvider, IContextProviderType } from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class QuestionnaireService implements IQuestionnaireService {
   public constructor(
     @inject(IQuestionnaireRepositoryType)
     protected questionnaireRepo: IQuestionnaireRepository,
+<<<<<<< HEAD
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
     @inject(IInvitationRepositoryType)
     protected invitationRepo: IInvitationRepository,
+=======
+    @inject(IContextProviderType)
+    protected contextProvider: IContextProvider,
+>>>>>>> Questionairre/SDQL
   ) {}
 
   public getQuestionnaires(
@@ -64,6 +77,14 @@ export class QuestionnaireService implements IQuestionnaireService {
         });
       })
       .map((pagedResponse) => pagedResponse as PagedResponse<Questionnaire>);
+  }
+
+  public addQuestionnaires(questionnaireCids: IpfsCID[]): ResultAsync<void, PersistenceError> {
+    return this.questionnaireRepo.add(questionnaireCids)
+  }
+
+  public getQuestionnaire(questionnaireCID: IpfsCID, benchmark?: UnixTimestamp): ResultAsync<Questionnaire, InvalidParametersError | AjaxError> {
+    return this.questionnaireRepo.getByCID(questionnaireCID, benchmark);
   }
 
   public getQuestionnairesForConsentContract(
@@ -170,6 +191,10 @@ export class QuestionnaireService implements IQuestionnaireService {
     return this.questionnaireRepo.upsertAnswers(questionnaireId, answers);
     // Validate that the answers are valid for the questionnaire
     // TODO;
+  }
+
+  public postQuestionnaire(questionnaireCID: IpfsCID, questionnaire: Questionnaire): ResultAsync<void, InvalidParametersError | AjaxError> {
+    return this.questionnaireRepo.postQuestionnaire(questionnaireCID, questionnaire);
   }
 
   public getRecommendedConsentContracts(

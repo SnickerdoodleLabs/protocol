@@ -18,6 +18,8 @@ import {
   URLString,
   IQueryDeliveryItems,
   PossibleReward,
+  Questionnaire,
+  IQuestionnaireDeliveryItems,
 } from "@snickerdoodlelabs/objects";
 import {
   clearCloudBackupsTypes,
@@ -35,6 +37,7 @@ import { IInsightPlatformRepository } from "@insightPlatform/IInsightPlatformRep
 import {
   IClearCloudBackupsParams,
   IDeliverInsightsParams,
+  IDeliverQuestionnaireParams,
   IExecuteMetatransactionParams,
   IReceivePreviewsParams,
   ISignedUrlParams,
@@ -188,6 +191,50 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           rewardParameters: rewardParameters,
           signature: signature,
         } as IDeliverInsightsParams as unknown as Record<string, unknown>);
+      });
+  }
+
+  public deliverQuestionnaires(
+    consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
+    queryCID: IpfsCID,
+    questionnaires: IQuestionnaireDeliveryItems,
+    rewardParameters: IDynamicRewardParameter[],
+    signingKey: EVMPrivateKey,
+    insightPlatformBaseUrl: URLString,
+  ): ResultAsync<Questionnaire[], AjaxError> {
+    let parameters = JSON.stringify([]);
+    if (rewardParameters !== undefined) {
+      parameters = JSON.stringify(rewardParameters);
+    }
+
+    const signableData = {
+      consentContractId: consentContractAddress,
+      tokenId: tokenId,
+      queryCID: queryCID,
+      questionnaires: JSON.stringify(questionnaires),
+      rewardParameters: JSON.stringify(rewardParameters),
+    } as Record<string, unknown>;
+
+    return this.cryptoUtils
+      .signTypedData(
+        snickerdoodleSigningDomain,
+        insightDeliveryTypes,
+        signableData,
+        signingKey,
+      )
+      .andThen((signature) => {
+        const url = new URL(
+          urlJoin(insightPlatformBaseUrl, "questionnaires/responses"),
+        );
+        return this.ajaxUtils.post<Questionnaire[]>(url, {
+          consentContractId: consentContractAddress,
+          tokenId: tokenId.toString(),
+          queryCID: queryCID,
+          questionnaires: questionnaires,
+          rewardParameters: rewardParameters,
+          signature: signature,
+        } as IDeliverQuestionnaireParams as unknown as Record<string, unknown>);
       });
   }
 

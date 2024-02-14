@@ -28,11 +28,17 @@ import {
   PublicEvents,
   EQueryEvents,
   QueryPerformanceEvent,
+  QuestionnairePerformanceEvent,
   EStatus,
   AccountIndexingError,
   AjaxError,
   InvalidParametersError,
   MethodSupportError,
+  Questionnaire,
+  QuestionnaireQuestion,
+  EQuestionnaireQuestionType,
+  EQuestionnaireStatus,
+  MarketplaceTag,
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
@@ -44,9 +50,10 @@ import {
   ISDQLQueryUtils,
   ISDQLQueryUtilsType,
   SDQLParser,
+  TypeChecker,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { BaseOf } from "ts-brand";
 
@@ -61,6 +68,7 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
+import { IQuestionnaireService, IQuestionnaireServiceType } from "@core/interfaces/business/IQuestionnaireService.js";
 
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {
@@ -69,6 +77,8 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected queryFactories: IQueryFactories,
     @inject(IQueryRepositoryType)
     protected queryRepository: IQueryRepository,
+    @inject(IQuestionnaireServiceType)
+    protected questionnaireService: IQuestionnaireService,
     @inject(ISDQLQueryUtilsType)
     protected queryUtils: ISDQLQueryUtils,
     @inject(IAdRepositoryType)
@@ -164,10 +174,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   ): ResultAsync<
     AST,
     | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
     | ParserError
-    | EvaluationError
     | QueryFormatError
     | QueryExpiredError
     | MissingTokenConstructorError
@@ -176,7 +183,28 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   > {
     return this.queryFactories
       .makeParserAsync(query.cid, query.query)
-      .andThen((sdqlParser) => sdqlParser.buildAST());
+      .andThen((sdqlParser) => {
+        console.log("query.cid: " + query.cid);
+        console.log("query.query: " + query.query);
+        console.log("sdqlParser: " + sdqlParser);
+
+        return sdqlParser.buildAST();
+
+        // return ResultUtils.combine(
+        //   sdqlParser.schema.getQueryEntries().map(([query, key]) => {
+        //   if (TypeChecker.isQuestionnaireQuery(query)){
+        //     const cid = query.questionnaireIndex;
+        //     if (cid == undefined) {
+        //       return errAsync(new QueryFormatError(`No CID provided for ${key}`));
+        //     }
+        //     return this.questionnaireService.getQuestionnaire(cid);
+        // }})
+        // )}).andThen(() => )
+        
+        // .map(() => {
+        //   return sdqlParser.buildAST();
+        // }));
+    });
   }
 
   /** Used for reward generation on the SPA. Purpose is to show all the rewards to the user
@@ -292,22 +320,74 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     | MethodSupportError
     | InvalidParametersError
   > {
+
     const astEvaluator = this.queryFactories.makeAstEvaluator(
       cid,
       dataPermissions,
       ast.queryTimestamp,
     );
 
-    const insightProm = this.gatherDeliveryInsights(ast, astEvaluator);
     //Will become async in the future
     const adSigProm = this.gatherDeliveryAds(ast, cid, dataPermissions);
 
+    const [compensationKeys, insightAndAdKeys] = this.getTotalQueryKeys(ast);
+
+
+    if (ast.questions !== undefined) {
+      const insightProm = this.gatherQuestionnaireInsights(ast, cid, astEvaluator);
+      return ResultUtils.combine([insightProm]).map(([insightWithProofs]) => {
+        return {
+          insights: insightWithProofs,
+          ads: adSigProm,
+        };
+      });
+    }
+
+    const insightProm = this.gatherDeliveryInsights(ast, astEvaluator);
     return ResultUtils.combine([insightProm]).map(([insightWithProofs]) => {
       return {
         insights: insightWithProofs,
         ads: adSigProm,
       };
     });
+    
+  }
+
+  protected gatherQuestionnaireInsights(
+    ast: AST,
+    cid: IpfsCID,
+    astEvaluator: AST_Evaluator,
+  ): ResultAsync<
+    IQueryDeliveryInsights,
+    | ParserError
+    | DuplicateIdInSchema
+    | QueryFormatError
+    | MissingTokenConstructorError
+    | QueryExpiredError
+    | MissingASTError
+    | EvaluationError
+    | PersistenceError
+    | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
+  > {
+    const astQuestionArray = (ast.questions);
+    return this.questionnaireService.getQuestionnaire(cid).andThen((questionnaire) => 
+      {
+        // questionnaire.
+        let index = 0;
+        const questionMapResult = astQuestionArray.map((astQuestion) => {
+          return astEvaluator.evalQuestion(astQuestion).map((insight) => {
+            return [SDQL_Name((index++).toString()), insight] as [SDQL_Name, SDQL_Return];
+          });
+        });
+        return ResultUtils.combine(questionMapResult).map((questionMap) => {
+          return this.createDeliveryInsightObject(questionMap);
+        });
+      }
+    ).mapErr((e) => e);
   }
 
   protected gatherDeliveryInsights(
@@ -338,6 +418,25 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     return ResultUtils.combine(insightMapResult).map((insightMap) => {
       return this.createDeliveryInsightObject(insightMap);
     });
+  }
+
+  protected createQuestionnaireDeliveryInsight(
+    insightMap: [SDQL_Name, SDQL_Return][],
+  ): IQueryDeliveryInsights {
+    return insightMap.reduce<IQueryDeliveryInsights>(
+      (deliveryInsights, [insightName, insight]) => {
+        if (insight !== null) {
+          deliveryInsights[insightName] = {
+            insight: this.SDQLReturnToInsight(insight),
+            proof: this.calculateInsightProof(insight),
+          };
+        } else {
+          deliveryInsights[insightName] = null;
+        }
+        return deliveryInsights;
+      },
+      {},
+    );
   }
 
   protected createDeliveryInsightObject(

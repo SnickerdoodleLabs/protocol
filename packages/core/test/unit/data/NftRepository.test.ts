@@ -192,7 +192,7 @@ describe("NftRepository", () => {
       const mocks = new NftRepositoryMocks();
       const service = mocks.factory();
 
-      //Act
+      // Act
       // Will trigger data, but the query is not qualified, only shibuya will return
       const result = await getOk(service.getNfts(UnixTimestamp(1701779729)));
       expect(result).toEqual(expectedShibuya);
