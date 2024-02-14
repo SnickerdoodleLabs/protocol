@@ -278,6 +278,28 @@ describe("ObjectUtils tests", () => {
     const err = result._unsafeUnwrapErr();
     expect(err.message).toBe("Final Error");
   });
+
+  test("iterateThroughAllPages() runs over all data", async () => {
+    // Arrange
+    const readFunc = (pagingRequest: PagingRequest) => {
+      if (pagingRequest.page == 1 && pagingRequest.pageSize == 1) {
+        return okAsync(new PagedResponse([1], 1, 1, 9));
+      }
+      if (pagingRequest.page == 1 && pagingRequest.pageSize == 9) {
+        return okAsync(new PagedResponse([1, 2, 3, 4, 5, 6, 7, 8, 9], 1, 9, 9));
+      }
+      // If it asks for page 2
+      return errAsync(new Error("Asked for pages beyond totalResults!"));
+    };
+
+    // Act
+    const result = await ObjectUtils.iterateThroughAllPages(readFunc);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    expect(result._unsafeUnwrap()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  });
 });
 
 class TestProvider {

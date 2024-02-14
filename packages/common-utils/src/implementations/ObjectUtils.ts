@@ -4,6 +4,7 @@ import {
   PagingRequest,
   JSONString,
   InvalidParametersError,
+  BigNumberString,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -89,9 +90,16 @@ export class ObjectUtils {
     ) => ResultAsync<PagedResponse<T>, TError>,
     processFunc: (obj: T) => ResultAsync<void, TError2>,
     pageSize = 25,
+    serialize = false,
   ): ResultAsync<void, TError | TError2> {
     // This is a recursive method. We just start it off.
-    return ObjectUtils.fetchAndProcessPage(1, readFunc, processFunc, pageSize);
+    return ObjectUtils.fetchAndProcessPage(
+      1,
+      readFunc,
+      processFunc,
+      pageSize,
+      serialize,
+    );
   }
 
   private static fetchAndProcessPage<T, TError, TError2>(
@@ -101,6 +109,7 @@ export class ObjectUtils {
     ) => ResultAsync<PagedResponse<T>, TError>,
     processFunc: (obj: T) => ResultAsync<void, TError2>,
     pageSize = 25,
+    serialize = false,
   ): ResultAsync<void, TError | TError2> {
     // Create the initial paging request
     const pagingRequest = new PagingRequest(pageNumber, pageSize);
@@ -109,11 +118,23 @@ export class ObjectUtils {
     return readFunc(pagingRequest).andThen((objectPage) => {
       // Iterate over the objects and run through the processor
       // We'll wait for all the processFuncs to complete before getting the next page
-      return ResultUtils.combine(
-        objectPage.response.map((obj) => {
-          return processFunc(obj);
-        }),
-      ).andThen(() => {
+
+      let result: ResultAsync<void[], TError2>;
+      if (serialize) {
+        result = ResultUtils.executeSerially(
+          objectPage.response.map((obj) => () => {
+            return processFunc(obj);
+          }),
+        );
+      } else {
+        result = ResultUtils.combine(
+          objectPage.response.map((obj) => {
+            return processFunc(obj);
+          }),
+        );
+      }
+
+      return result.andThen(() => {
         // Done processing all of those results. Check if we need to recurse
         // See what result we're on and how it compares to the total results
         const maxResult = objectPage.page * objectPage.pageSize;
@@ -221,5 +242,41 @@ export class ObjectUtils {
       // Otherwise, try the next provider
       return ObjectUtils.progressiveFallback(method, provider.slice(1));
     });
+  }
+
+  static verifyBigNumber(
+    bigNumberString: BigNumberString,
+  ): ResultAsync<bigint, InvalidParametersError> {
+    try {
+      const bigNumber = BigInt(bigNumberString); // will fail if bigNumberString is a float
+      return okAsync(bigNumber);
+    } catch (e) {
+      return errAsync(
+        new InvalidParametersError(
+          `Can't convert BigNumberString ${bigNumberString} to BigInt. Received error ${e}`,
+        ),
+      );
+    }
+  }
+
+  static iterateThroughAllPages<T, TError>(
+    readFunc: (
+      pagingRequest: PagingRequest,
+    ) => ResultAsync<PagedResponse<T>, TError>,
+  ): ResultAsync<T[], TError> {
+    const data: T[] = [];
+
+    const processFunc = (model: T) => {
+      data.push(model);
+      return okAsync(undefined);
+    };
+
+    return readFunc(new PagingRequest(1, 1))
+      .andThen((firstPage) => {
+        const pageSize = firstPage.totalResults;
+
+        return ObjectUtils.iteratePages(readFunc, processFunc, pageSize);
+      })
+      .map(() => data);
   }
 }
