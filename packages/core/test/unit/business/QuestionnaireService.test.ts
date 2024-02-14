@@ -67,19 +67,16 @@ import { IContextProvider } from "@core/interfaces/utilities";
   
   class QuestionnaireServiceMocks {
     public questionnaireRepo: IQuestionnaireRepository;
-    public queryParsingEngine: IQueryParsingEngine;
     public contextProvider: IContextProvider;
   
     public constructor() {
       this.questionnaireRepo = td.object<IQuestionnaireRepository>();
-      this.queryParsingEngine = td.object<IQueryParsingEngine>();
       this.contextProvider = td.object<IContextProvider>();
     }
     
     public factory(): QuestionnaireService {
       return new QuestionnaireService(
         this.questionnaireRepo,
-        this.queryParsingEngine,
         this.contextProvider,
       );
     }

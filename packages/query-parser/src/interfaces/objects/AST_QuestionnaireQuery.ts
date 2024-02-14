@@ -13,7 +13,6 @@
     web2QueryTypes,
   } from "@snickerdoodlelabs/objects";
   import { Result, err, ok } from "neverthrow";
-  
   import { AST_SubQuery } from "@query-parser/interfaces/objects/AST_SubQuery.js";
   
   export class AST_QuestionnaireQuery extends AST_SubQuery
@@ -27,6 +26,7 @@
       readonly returnType: ESDQLQueryReturn.Object,
       readonly property: Web2QueryTypes,
       readonly questionnaireIndex?: IpfsCID,
+      readonly questionnaire?: Questionnaire,
     ) {
       super(name, returnType);
     }

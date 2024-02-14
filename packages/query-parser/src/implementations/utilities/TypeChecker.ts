@@ -1,4 +1,5 @@
 import {
+  AST_QuestionnaireQuery,
   AST_RequireExpr,
   AST_SubQuery,
   BinaryCondition,
@@ -32,6 +33,10 @@ export class TypeChecker {
       TypeChecker.isOperator(expr) ||
       TypeChecker.isCommand(expr)
     );
+  }
+
+  static isQuestionnaireQuery(expr: any): expr is AST_QuestionnaireQuery {
+    return expr instanceof AST_QuestionnaireQuery;
   }
 
   static isSubQuery(expr: any): expr is AST_SubQuery {

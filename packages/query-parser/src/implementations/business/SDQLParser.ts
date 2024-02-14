@@ -139,14 +139,14 @@ export class SDQLParser {
   }
 
   private validateQuestions(): ResultAsync<void, QueryFormatError | QueryExpiredError> {
-    return okAsync(undefined);
-    // return ResultUtils.combine(
-    //   this.schema.getQuestionEntries().map(([qKey, question]) => {
-    //     return this.validateQuestion(question);
-    //   }),
-    // )
-    //   .mapErr((e) => e)
-    //   .map(() => {});
+    // return okAsync(undefined);
+    return ResultUtils.combine(
+      this.schema.getInsightEntries().map(([qKey, question]) => {
+        return this.validateInsight(qKey, question);
+      }),
+    )
+      .mapErr((e) => e)
+      .map(() => {});
   }
 
   private validateQuestion(question: ISDQLQuestionBlock): ResultAsync<void, QueryFormatError | QueryExpiredError> {
@@ -380,18 +380,6 @@ export class SDQLParser {
       })
     ).map((questions) => {
       this.questions = questions;
-
-      // if (questions.length > 0) {
-      //   this.insights.set(
-      //     SDQL_Name("i1"), 
-      //     new AST_Insight(SDQL_Name("i1"), 
-      //     new AST_ConditionExpr(), 
-      //     ISDQLConditionString(), 
-      //     new AST_Expr(), 
-      //     ISDQLExpressionString()
-      //     )
-      //   )
-      // }
     });
   }
 
@@ -414,34 +402,6 @@ private parseQuestion(
     return okAsync(textQuestion);
   }
 }
-
-  // return ResultUtils.combine([
-  //   this.parseLogicExpString(schema.target!),
-  //   this.exprParser!.parse(schema.returns),
-  // ])
-  //   .mapErr((error) => {
-  //     return this.transformError(error);
-  //   })
-  //   .map(([targetAst, returnsAst]) => {
-  //     return new AST_Question(
-  //       name,
-  //       targetAst as AST_ConditionExpr,
-  //       schema.target!,
-  //       returnsAst as AST_Expr,
-  //       schema.returns,
-  //     );
-
-      // AST_INSIGHT
-      /*
-        name,
-        targetAst as AST_ConditionExpr,
-        schema.target!,
-        returnsAst as AST_Expr,
-        schema.returns,
-      */
-
-//     });
-// }
 
   private parseAds(): ResultAsync<
     void,

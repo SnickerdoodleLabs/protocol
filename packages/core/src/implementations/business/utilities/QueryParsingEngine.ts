@@ -50,9 +50,10 @@ import {
   ISDQLQueryUtils,
   ISDQLQueryUtilsType,
   SDQLParser,
+  TypeChecker,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
-import { ResultAsync, okAsync } from "neverthrow";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { BaseOf } from "ts-brand";
 
@@ -173,10 +174,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   ): ResultAsync<
     AST,
     | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
     | ParserError
-    | EvaluationError
     | QueryFormatError
     | QueryExpiredError
     | MissingTokenConstructorError
@@ -186,11 +184,23 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     return this.queryFactories
       .makeParserAsync(query.cid, query.query)
       .andThen((sdqlParser) => {
-        if (sdqlParser.questions !== undefined) {
-          return sdqlParser.buildQuestionnaireAST();
-        }
         return sdqlParser.buildAST();
-      });
+
+        // return ResultUtils.combine(
+        //   sdqlParser.schema.getQueryEntries().map(([query, key]) => {
+        //   if (TypeChecker.isQuestionnaireQuery(query)){
+        //     const cid = query.questionnaireIndex;
+        //     if (cid == undefined) {
+        //       return errAsync(new QueryFormatError(`No CID provided for ${key}`));
+        //     }
+        //     return this.questionnaireService.getQuestionnaire(cid);
+        // }})
+        // )}).andThen(() => )
+        
+        // .map(() => {
+        //   return sdqlParser.buildAST();
+        // }));
+    });
   }
 
   /** Used for reward generation on the SPA. Purpose is to show all the rewards to the user
@@ -315,6 +325,9 @@ export class QueryParsingEngine implements IQueryParsingEngine {
 
     //Will become async in the future
     const adSigProm = this.gatherDeliveryAds(ast, cid, dataPermissions);
+
+    const [compensationKeys, insightAndAdKeys] = this.getTotalQueryKeys(ast);
+
 
     if (ast.questions !== undefined) {
       const insightProm = this.gatherQuestionnaireInsights(ast, cid, astEvaluator);

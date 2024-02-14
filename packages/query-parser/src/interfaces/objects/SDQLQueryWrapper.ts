@@ -17,6 +17,7 @@ import {
   SDQLQuery,
   UnixTimestamp,
   ISDQLQuestionBlock,
+  SubQueryKey,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync, okAsync } from "neverthrow";
 
@@ -186,6 +187,11 @@ export class SDQLQueryWrapper {
 
   public get business(): string {
     return this.internalObj.business;
+  }
+
+  public getQueryEntries(): [SubQueryKey, ISDQLInsightBlock][] {
+    const queries = this.getQuerySchema();
+    return this._getEntries<SubQueryKey, ISDQLInsightBlock>(queries);
   }
 
   public getInsightEntries(): [InsightKey, ISDQLInsightBlock][] {
