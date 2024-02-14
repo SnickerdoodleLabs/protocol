@@ -48,6 +48,7 @@ export class QuestionnaireWithAnswers extends Questionnaire {
     // The answers are independent objects; they are included as part of the Questionnaire for
     // convenience, but they are not required to be included in the Questionnaire.
     public readonly answers: QuestionnaireAnswer[],
+    public measurementTime: UnixTimestamp,
   ) {
     super(id, marketplaceTag, status, title, description, image, questions);
   }
@@ -71,17 +72,14 @@ export class NewQuestionnaireAnswer {
     public readonly questionnaireId: IpfsCID,
     public readonly questionIndex: number,
     public readonly choice: number | string | number[] | string[],
-    public readonly measurementDate: UnixTimestamp,
   ) {}
 }
 export class QuestionnaireAnswer extends NewQuestionnaireAnswer {
   public constructor(
-    public readonly id: QuestionnaireAnswerId,
     public readonly questionnaireId: IpfsCID,
     public readonly questionIndex: number,
     public readonly choice: number | string | number[] | string[],
-    public readonly measurementDate: UnixTimestamp,
   ) {
-    super(questionnaireId, questionIndex, choice, measurementDate);
+    super(questionnaireId, questionIndex, choice);
   }
 }
