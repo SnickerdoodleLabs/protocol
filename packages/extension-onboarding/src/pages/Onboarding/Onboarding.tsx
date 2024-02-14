@@ -14,7 +14,7 @@ const Onboarding: FC = () => {
         return <Intro />;
       case EOnboardingState.CYRPTO_ACCOUNT_LINKING:
       case EOnboardingState.SOCIAL_ACCOUNT_LINKING:
-      case EOnboardingState.NEWSLETTER_SUBSCRIPTION:
+        // case EOnboardingState.NEWSLETTER_SUBSCRIPTION:
         return <Profile currentStep={onboardingState} />;
       case EOnboardingState.TOS_PP:
         return <TOS_PP />;

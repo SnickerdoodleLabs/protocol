@@ -12,9 +12,10 @@ export enum EQuestionnaireStatus {
 }
 
 export enum EQuestionnaireQuestionType {
-  MultipleChoice,
-  Location,
-  Text,
+  MultipleChoice = "multipleChoice",
+  Location = "country",
+  Text = "text",
+  Numeric = "numeric",
 }
 
 export class Questionnaire {
@@ -57,7 +58,10 @@ export class QuestionnaireQuestion {
     public readonly index: number,
     public readonly type: EQuestionnaireQuestionType,
     public readonly text: string,
-    public readonly choices: string[] | null,
+    public readonly choices: string[] | number[] | null,
+    public readonly minumum: number | null,
+    public readonly maximum: number | null,
+    public readonly multiSelect: boolean = false,
     public readonly required: boolean = false,
   ) {}
 }
@@ -66,7 +70,7 @@ export class NewQuestionnaireAnswer {
   public constructor(
     public readonly questionnaireId: IpfsCID,
     public readonly questionIndex: number,
-    public readonly choice: number | string,
+    public readonly choice: number | string | number[] | string[],
     public readonly measurementDate: UnixTimestamp,
   ) {}
 }
@@ -75,7 +79,7 @@ export class QuestionnaireAnswer extends NewQuestionnaireAnswer {
     public readonly id: QuestionnaireAnswerId,
     public readonly questionnaireId: IpfsCID,
     public readonly questionIndex: number,
-    public readonly choice: number | string,
+    public readonly choice: number | string | number[] | string[],
     public readonly measurementDate: UnixTimestamp,
   ) {
     super(questionnaireId, questionIndex, choice, measurementDate);

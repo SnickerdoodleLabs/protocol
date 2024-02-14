@@ -31,15 +31,15 @@ const ProfileSteps = {
     image:
       "https://storage.googleapis.com/dw-assets/spa/images-v2/link-social-account.svg",
   },
-  [EOnboardingState.NEWSLETTER_SUBSCRIPTION]: {
-    index: 2,
-    title: "Get Updates",
-    component: EMailForm,
-    description:
-      "Subscribe to our newsletter for the latest features and happenings at Snickerdoodle Labs.",
-    image:
-      "https://storage.googleapis.com/dw-assets/spa/images-v2/email-form.svg",
-  },
+  // [EOnboardingState.NEWSLETTER_SUBSCRIPTION]: {
+  //   index: 2,
+  //   title: "Get Updates",
+  //   component: EMailForm,
+  //   description:
+  //     "Subscribe to our newsletter for the latest features and happenings at Snickerdoodle Labs.",
+  //   image:
+  //     "https://storage.googleapis.com/dw-assets/spa/images-v2/email-form.svg",
+  // },
 };
 
 const Profile: FC<IProfileProps> = ({ currentStep }) => {
@@ -54,14 +54,13 @@ const Profile: FC<IProfileProps> = ({ currentStep }) => {
         );
         break;
       case EOnboardingState.SOCIAL_ACCOUNT_LINKING:
-        uiStateUtils.setOnboardingState(
-          EOnboardingState.NEWSLETTER_SUBSCRIPTION,
-        );
-        break;
-      case EOnboardingState.NEWSLETTER_SUBSCRIPTION:
         uiStateUtils.setOnboardingState(EOnboardingState.TOS_PP);
         break;
     }
+    //   case EOnboardingState.NEWSLETTER_SUBSCRIPTION:
+    //     uiStateUtils.setOnboardingState(EOnboardingState.TOS_PP);
+    //     break;
+    // }
   };
 
   const getComponent = useCallback(() => {

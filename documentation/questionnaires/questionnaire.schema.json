@@ -23,12 +23,25 @@
                 "properties": {
                     "questionType": {
                         "type": "string",
-                        "enum": ["multipleChoice", "country", "text"]
+                        "enum": ["multipleChoice", "country", "text", "numeric"]
+                    },
+                    "multiSelect": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Whether the question allows multiple answers to be selected"
                     },
                     "isRequired": {
                         "type": "boolean",
                         "default": false,
                         "description": "Whether the question is required to be answered"
+                    },
+                    "minumum": {
+                        "type": "number",
+                        "description": "Minumum value for numeric questions, or minimum number of answers for multiple choice questions, or minimum length for text questions"
+                    },
+                    "maximum": {
+                        "type": "number",
+                        "description": "Maximum value for numeric questions, or maximum number of answers for multiple choice questions, or maximum length for text questions"
                     },
                     "question": {
                         "type": "string",
