@@ -6,7 +6,6 @@ import {
   Questionnaire,
   QuestionnaireQuestion,
   QuestionnaireWithAnswers,
-  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { SDTypography } from "@snickerdoodlelabs/shared-components";
 import { Form, Formik, FastField } from "formik";
@@ -296,7 +295,6 @@ const QuestionnarieForm: FC<IQuestionnarieFormProps> = ({
                     questionnarie.id,
                     answer.index,
                     answer.choice,
-                    undefined as unknown as UnixTimestamp,
                   ),
                 );
               }

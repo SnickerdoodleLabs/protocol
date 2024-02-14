@@ -10,7 +10,6 @@ import {
   IpfsCID,
   MarketplaceTag,
   NewQuestionnaireAnswer,
-  QuestionnaireAnswerId,
   PagedResponse,
   Questionnaire,
   QuestionnaireAnswer,
@@ -161,28 +160,11 @@ const questionarrieWithAnswersMock: QuestionnaireWithAnswers =
       ),
     ],
     [
-      new QuestionnaireAnswer(
-        QuestionnaireAnswerId("123"),
-        IpfsCID("123"),
-        3,
-        "3-4",
-        undefined as any,
-      ),
-      new QuestionnaireAnswer(
-        QuestionnaireAnswerId("123"),
-        IpfsCID("123"),
-        0,
-        "John Doe",
-        undefined as any,
-      ),
-      new QuestionnaireAnswer(
-        QuestionnaireAnswerId("123"),
-        IpfsCID("123"),
-        1,
-        "7-8",
-        undefined as any,
-      ),
+      new QuestionnaireAnswer(IpfsCID("123"), 3, "3-4"),
+      new QuestionnaireAnswer(IpfsCID("123"), 0, "John Doe"),
+      new QuestionnaireAnswer(IpfsCID("123"), 1, "7-8"),
     ],
+    undefined as any,
   );
 
 const answeredQuestionnariesMocks = new PagedResponse<QuestionnaireWithAnswers>(
