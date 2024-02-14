@@ -337,7 +337,7 @@ export class SDQLParser {
     try {
       const querySchema = this.schema.getQuerySchema();
       const queries = new Array<
-        AST_Web3Query | AST_BalanceQuery | AST_PropertyQuery
+        AST_Web3Query | AST_BalanceQuery | AST_PropertyQuery | AST_QuestionnaireQuery
       >();
       for (const qName in querySchema) {
         const queryName = SDQL_Name(qName);
@@ -389,17 +389,17 @@ export class SDQLParser {
     ).map((questions) => {
       this.questions = questions;
 
-      if (questions.length > 0) {
-        this.insights.set(
-          SDQL_Name("i1"), 
-          new AST_Insight(SDQL_Name("i1"), 
-          new AST_ConditionExpr(), 
-          ISDQLConditionString(), 
-          new AST_Expr(), 
-          ISDQLExpressionString()
-          )
-        )
-      }
+      // if (questions.length > 0) {
+      //   this.insights.set(
+      //     SDQL_Name("i1"), 
+      //     new AST_Insight(SDQL_Name("i1"), 
+      //     new AST_ConditionExpr(), 
+      //     ISDQLConditionString(), 
+      //     new AST_Expr(), 
+      //     ISDQLExpressionString()
+      //     )
+      //   )
+      // }
     });
   }
 

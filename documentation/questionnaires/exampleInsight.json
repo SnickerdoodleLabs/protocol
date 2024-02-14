@@ -1,14 +1,14 @@
 [
     {
-      "questionID": 0,
+      "index": 0,
       "answer": 2
     },
     {
-      "questionID": 1,
+      "index": 1,
       "answer": "I like puppies and my bank account routing number is 123456789 and my PIN is 9999, the most secure number ever!"
     },
     {
-      "questionID": 2,
+      "index": 2,
       "answer": "380", // ISO-3166 code for Italy
     }
   ]

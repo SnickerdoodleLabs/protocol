@@ -288,10 +288,7 @@ export class AST_Evaluator {
     | InvalidParametersError
   > {
     return this.evalAny(ast.target).andThen((targetFulfilled) => {
-      console.log("targetFulfilled: " + targetFulfilled);
       if (targetFulfilled) {
-        console.log("ast.returns: " + ast.returns);
-        console.log("ast.returns.source: " + ast.returns.source);
         return this.evalAny(ast.returns.source);
       }
       return okAsync(SDQL_Return(null));

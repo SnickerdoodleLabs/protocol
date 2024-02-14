@@ -14,7 +14,6 @@ export class SDQLQueryWrapperFactory implements ISDQLQueryWrapperFactory {
 
   public makeWrapper(sdqlQuery: SDQLQuery): SDQLQueryWrapper {
     const queryObject = JSON.parse(sdqlQuery.query) as ISDQLQueryObject;
-    console.log("makeWrapper: " + JSON.stringify(queryObject));
     return new SDQLQueryWrapper(sdqlQuery, queryObject, this.timeUtils);
   }
 }

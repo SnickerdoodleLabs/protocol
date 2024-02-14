@@ -126,10 +126,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
           query.cid,
         ),
       );
-      console.log("query: " + JSON.stringify(query));
+      // console.log("query: " + JSON.stringify(query));
       return this.parseQuery(query)
         .andThen((ast) => {
-          console.log("ast: " + ast);
+          // console.log("ast: " + ast);
           context.publicEvents.queryPerformance.next(
             new QueryPerformanceEvent(
               EQueryEvents.QueryParsing,
@@ -189,7 +189,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     | DuplicateIdInSchema
     | MissingASTError
   > {
-    console.log("Inside query: " + JSON.stringify(query));
+    // console.log("Inside query: " + JSON.stringify(query));
     return this.queryFactories
       .makeParserAsync(query.cid, query.query)
       .andThen((sdqlParser) => {
@@ -325,7 +325,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
 
     if (ast.questions !== undefined) {
       const insightProm = this.gatherQuestionnaireInsights(ast, cid, astEvaluator);
-      console.log("insightProm 1: " + JSON.stringify(insightProm));
+      // console.log("insightProm 1: " + JSON.stringify(insightProm));
       return ResultUtils.combine([insightProm]).map(([insightWithProofs]) => {
         return {
           insights: insightWithProofs,
@@ -335,7 +335,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     }
 
     const insightProm = this.gatherDeliveryInsights(ast, astEvaluator);
-    console.log("insightProm 2: " + JSON.stringify(insightProm));
+    // console.log("insightProm 2: " + JSON.stringify(insightProm));
     return ResultUtils.combine([insightProm]).map(([insightWithProofs]) => {
       return {
         insights: insightWithProofs,
@@ -366,13 +366,13 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     | InvalidParametersError
   > {
     const astQuestionArray = (ast.questions);
-    console.log("astQuestionArray: " + astQuestionArray);
+    // console.log("astQuestionArray: " + astQuestionArray);
     return this.questionnaireService.getQuestionnaire(cid).andThen((questionnaire) => 
       {
-        questionnaire.
+        // questionnaire.
         let index = 0;
         const questionMapResult = astQuestionArray.map((astQuestion) => {
-          console.log("astQuestion: " + astQuestion);
+          // console.log("astQuestion: " + astQuestion);
           return astEvaluator.evalQuestion(astQuestion).map((insight) => {
             return [SDQL_Name((index++).toString()), insight] as [SDQL_Name, SDQL_Return];
           });
@@ -403,9 +403,9 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     | MethodSupportError
     | InvalidParametersError
   > {
-    console.log("Inside gatherDeliveryInsights: ");
+    // console.log("Inside gatherDeliveryInsights: ");
     const astInsightArray = Array.from(ast.insights);
-    console.log("astInsightArray: " + astInsightArray);
+    // console.log("astInsightArray: " + astInsightArray);
 
     const insightMapResult = astInsightArray.map(([_qName, astInsight]) => {
       return astEvaluator.evalInsight(astInsight).map((insight) => {
