@@ -1,27 +1,28 @@
-import { Web3Provider, ExternalProvider } from "@ethersproject/providers";
 import { AccountAddress, Signature } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync, errAsync } from "neverthrow";
 
 export class WalletProvider {
-  protected _web3Provider: Web3Provider | null = null;
+  protected _web3Provider: ethers.BrowserProvider | null = null;
 
   public get isInstalled(): boolean {
     return !!this.provider;
   }
 
-  public get provider(): ExternalProvider {
+  public get provider(): ethers.BrowserProvider {
     if (!this._web3Provider) {
       throw new Error("Should call connect() first.");
     }
     return this._web3Provider.provider;
   }
 
-  public get signer(): ethers.Signer {
+  public getSigner(): ResultAsync<ethers.Signer, unknown> {
     if (!this._web3Provider) {
       throw new Error("Should call connect() first.");
     }
-    return this._web3Provider.getSigner();
+    return ResultAsync.fromPromise(this._web3Provider.getSigner(), (e) => {
+      return e;
+    });
   }
 
   public connect(): ResultAsync<AccountAddress, unknown> {
@@ -29,7 +30,7 @@ export class WalletProvider {
       return errAsync(new Error("Metamask is not installed!"));
     }
 
-    this._web3Provider = new ethers.providers.Web3Provider(this.sourceProvider);
+    this._web3Provider = new ethers.BrowserProvider(this.sourceProvider);
 
     return ResultAsync.fromPromise(
       this._web3Provider.send("wallet_requestPermissions", [
@@ -57,13 +58,18 @@ export class WalletProvider {
     if (!this._web3Provider) {
       return errAsync("Should call connect() first.");
     }
-    const signer = this._web3Provider.getSigner();
-    return ResultAsync.fromPromise(signer.signMessage(message), (e) => {}).map(
-      (signature) => Signature(signature),
-    );
+    return ResultAsync.fromPromise(this._web3Provider.getSigner(), (e) => {
+      return e;
+    })
+      .andThen((signer) => {
+        return ResultAsync.fromPromise(signer.signMessage(message), (e) => {
+          return e;
+        });
+      })
+      .map((signature) => Signature(signature));
   }
 
-  private get sourceProvider(): ExternalProvider | null {
+  private get sourceProvider(): ethers.Eip1193Provider | null {
     if (window.ethereum == null) {
       return null;
     }

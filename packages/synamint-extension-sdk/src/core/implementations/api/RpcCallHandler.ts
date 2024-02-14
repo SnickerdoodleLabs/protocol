@@ -10,7 +10,6 @@ import {
   ISnickerdoodleCore,
   DataPermissions,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import {
   AsyncJsonRpcEngineNextCallback,
@@ -869,7 +868,7 @@ export class RpcCallHandler implements IRpcCallHandler {
   }
 
   private toTokenId(tokenId: BigNumberString | undefined): TokenId | null {
-    return tokenId != null ? TokenId(BigNumber.from(tokenId).toBigInt()) : null;
+    return tokenId != null ? TokenId(BigInt(tokenId)) : null;
   }
 }
 

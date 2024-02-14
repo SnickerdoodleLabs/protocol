@@ -136,6 +136,7 @@ export const testCoreConfig = new CoreConfig(
   5000, // polling interval balance
   300000, // polling interval NFT
   1000, // dataWalletBackupIntervalMS
+  3600000, // questionnairesCacheUpdateIntervalMS
   100000, // backupChunkSizeTarget
   {
     alchemyApiKeys: {

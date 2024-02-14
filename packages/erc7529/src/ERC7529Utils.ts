@@ -69,7 +69,7 @@ export class ERC7529Utils implements IERC7529Utils {
             try {
               addresses.push(
                 EVMContractAddress(
-                  ethers.utils
+                  ethers
                     .getAddress(potentialAddress.trim().toLowerCase())
                     .toLowerCase(),
                 ),

@@ -7,7 +7,7 @@ import {
   HexString,
   BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber, ethers } from "ethers";
+import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { okAsync, errAsync, ResultAsync } from "neverthrow";
 
@@ -26,10 +26,7 @@ export class CrumbsContract
   implements ICrumbsContract
 {
   constructor(
-    protected providerOrSigner:
-      | ethers.providers.Provider
-      | ethers.providers.JsonRpcSigner
-      | ethers.Wallet,
+    protected providerOrSigner: ethers.Provider | ethers.Signer,
     protected contractAddress: EVMContractAddress,
   ) {
     super(providerOrSigner, contractAddress, ContractsAbis.CrumbsAbi.abi);
@@ -43,17 +40,17 @@ export class CrumbsContract
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenId | null, CrumbsContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contract.addressToCrumbId(accountAddress) as Promise<BigNumber>,
+      this.contract.addressToCrumbId(accountAddress) as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call addressToCrumbId()");
       },
     ).map((tokenId) => {
       // The contract returns 0 for an address that does not have a Crumb Id
       // Handle by returning null
-      if (tokenId.eq(0)) {
+      if (tokenId == 0n) {
         return null;
       }
-      return TokenId(tokenId.toBigInt());
+      return TokenId(tokenId);
     });
   }
 

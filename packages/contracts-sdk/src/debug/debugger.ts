@@ -34,7 +34,7 @@ console.log("providerUrl", providerUrl);
 const cryptoUtils = new CryptoUtils();
 
 // provider and signer
-const provider = new ethers.providers.JsonRpcProvider(providerUrl);
+const provider = new ethers.JsonRpcProvider(providerUrl);
 const signer = new ethers.Wallet(privateKey, provider);
 
 const signer1 = new ethers.Wallet(privateKey1, provider);
@@ -317,7 +317,7 @@ const getListingDetail = async () => {
     //BigNumberString(ethers.constants.MaxUint256.toString())
     const tx = await contracts.factoryContract.getListingDetail(
       MarketplaceTag("tag2"),
-      BigNumberString(ethers.constants.MaxUint256.toString()),
+      BigNumberString(ethers.MaxUint256.toString()),
     );
 
     console.log("getListingDetail res: ", tx);
@@ -372,7 +372,7 @@ const sendFunds = async () => {
   const tx = {
     //to: "0xF0CE81C1832B8eb87179Ee578c360b528BcFB3E8",
     to: signer1.address,
-    value: ethers.utils.parseEther((100).toString()),
+    value: ethers.parseEther((100).toString()),
   };
   try {
     const transaction = await signer.sendTransaction(tx);

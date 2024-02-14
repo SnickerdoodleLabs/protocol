@@ -1,7 +1,3 @@
-import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
 import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   EVMPrivateKey,
@@ -21,7 +17,6 @@ import {
   SuiAccountAddress,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
-import { base58 } from "ethers/lib/utils.js";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -174,8 +169,8 @@ export class DataWalletUtils implements IDataWalletUtils {
 
   public verifyTypedDataSignature(
     accountAddress: AccountAddress,
-    domain: TypedDataDomain,
-    types: Record<string, Array<TypedDataField>>,
+    domain: ethers.TypedDataDomain,
+    types: Record<string, Array<ethers.TypedDataField>>,
     value: Record<string, unknown>,
     signature: Signature,
     chain: EChain,
@@ -234,19 +229,18 @@ export class DataWalletUtils implements IDataWalletUtils {
   }
 
   protected accountAddressToHex(accountAddress: AccountAddress): HexString {
-    if (ethers.utils.isHexString(accountAddress)) {
+    if (ethers.isHexString(accountAddress)) {
       return HexString(accountAddress);
     }
 
     // Doesn't decode as base58, maybe it's just missing the 0x
     const prefixedHex = `0x${accountAddress}`;
-    if (ethers.utils.isHexString(prefixedHex)) {
+    if (ethers.isHexString(prefixedHex)) {
       return HexString(prefixedHex);
     }
     // If it's not a hex string, it should be a base58 encoded account address
     // Decode to an array
-    const arr = base58.decode(accountAddress);
-    const buffer = Buffer.from(arr);
-    return HexString(`0x${buffer.toString("hex")}`);
+    const decodedAddr = ethers.decodeBase58(accountAddress);
+    return HexString(`0x${ethers.toBeHex(decodedAddr)}`);
   }
 }

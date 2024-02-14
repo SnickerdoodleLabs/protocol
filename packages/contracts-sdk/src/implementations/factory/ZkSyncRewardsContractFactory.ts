@@ -9,7 +9,7 @@ import {
 import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
-import { Provider, ContractFactory, Wallet } from "zksync-web3";
+import { Provider, ContractFactory, Wallet } from "zksync-ethers";
 
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
@@ -36,7 +36,7 @@ export class ZkSyncRewardsContractFactory
   ) {
     super(
       providerOrSigner,
-      EVMContractAddress(ethers.constants.AddressZero), // The rewards contract factory deploys a new contract, hence doesn't have a contract address
+      EVMContractAddress(ethers.ZeroAddress), // The rewards contract factory deploys a new contract, hence doesn't have a contract address
       ContractsAbis.ZkSyncERC721RewardAbi.abi,
     );
     // Set the correct contract factory based on rewardTypeToDeploy
@@ -76,24 +76,31 @@ export class ZkSyncRewardsContractFactory
     name: string,
     symbol: string,
     baseURI: BaseURI,
-  ): ResultAsync<
-    ethers.BigNumber,
-    RewardsFactoryError | BlockchainCommonErrors
-  > {
+  ): ResultAsync<bigint, RewardsFactoryError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.providerOrSigner.estimateGas(
-        this.contractFactory.getDeployTransaction(name, symbol, baseURI),
-      ),
+      this.contractFactory.getDeployTransaction(name, symbol, baseURI),
       (e) => {
         return this.generateError(
           e,
-          "Failed to wait() for contract deployment",
+          "Unable to get deploy transaction for contract deployment for ERC721 contract on ZKSyncRewardsContractFactory",
         );
       },
-    ).map((estimatedGas) => {
-      // Increase estimated gas buffer by 20%
-      return estimatedGas.mul(120).div(100);
-    });
+    )
+      .andThen((deployTransaction) => {
+        return ResultAsync.fromPromise(
+          this.providerOrSigner.estimateGas(deployTransaction),
+          (e) => {
+            return this.generateError(
+              e,
+              "Failed to wait() for contract deployment",
+            );
+          },
+        );
+      })
+      .map((estimatedGas) => {
+        // Increase estimated gas buffer by 20%
+        return (estimatedGas * 120n) / 100n;
+      });
   }
 
   protected generateContractSpecificError(
@@ -117,7 +124,7 @@ export class ZkSyncRewardsContractFactory
     return ResultAsync.fromPromise(
       this.contractFactory[functionName](...functionParams, {
         ...overrides,
-      }) as Promise<ethers.providers.TransactionResponse | ethers.Contract>,
+      }) as Promise<ethers.TransactionResponse | ethers.Contract>,
       (e) => {
         return this.generateError(e, `Unable to call ${functionName}()`);
       },
@@ -125,8 +132,8 @@ export class ZkSyncRewardsContractFactory
       // If we are deploying a contract, the deploy() call returns an ethers.Contract object and the txresponse is under the deployTransaction property
       return ZkSyncRewardsContractFactory.buildWrappedTransactionResponse(
         isDeployingContract == true
-          ? (transactionResponse as ethers.Contract).deployTransaction
-          : (transactionResponse as ethers.providers.TransactionResponse),
+          ? (transactionResponse as ethers.Contract).deploymentTransaction()!
+          : (transactionResponse as ethers.TransactionResponse),
         EVMContractAddress(""),
         EVMAccountAddress((this.providerOrSigner as Wallet)?.address),
         functionName,

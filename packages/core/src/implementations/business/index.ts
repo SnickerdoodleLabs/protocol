@@ -1,6 +1,6 @@
 export * from "@core/implementations/business/AccountService.js";
 export * from "@core/implementations/business/AdService.js";
-
+export * from "@core/implementations/business/CachingService.js";
 export * from "@core/implementations/business/CloudStorageService.js";
 export * from "@core/implementations/business/DiscordService.js";
 export * from "@core/implementations/business/IntegrationService.js";

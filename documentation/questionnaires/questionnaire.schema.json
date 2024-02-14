@@ -1,0 +1,45 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Asset Metadata",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "The name of the questionnaire for display purposes"
+        },
+        "description": {
+            "type": "string",
+            "description": "Description of the purpose of the questionnaire, also used for display purposes"
+        },
+        "image": {
+            "type": "string",
+            "description": "A URI pointing to a resource with mime type image/* representing the asset to be displayed with this questionnaire for display purposes. Optional."
+        },
+        "questions": {
+            "type:": "array",
+            "description": "The individual questions for the questionnaire.",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "questionType": {
+                        "type": "string",
+                        "enum": ["multipleChoice", "text", "country"]
+                    },
+                    "question": {
+                        "type": "string",
+                        "description": "The actual text of the question"
+                    },
+                    "options": {
+                        "type": "array",
+                        "description": "The options for the multiple choice question. The order they occur is their index for selection",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": ["questionType", "question"]
+            }
+        }
+    },
+    "required": ["name","questions"]
+}

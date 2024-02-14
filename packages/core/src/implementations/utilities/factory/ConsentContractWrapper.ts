@@ -26,7 +26,7 @@ import {
   BigNumberString,
   BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
-import { EventFilter, Event, BigNumber } from "ethers";
+import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 import { BaseContractWrapper } from "@core/implementations/utilities/factory/BaseContractWrapper.js";
@@ -309,10 +309,13 @@ export class ConsentContractWrapper
   }
 
   public queryFilter(
-    eventFilter: EventFilter,
+    eventFilter: ethers.ContractEventName,
     fromBlock?: BlockNumber | undefined,
     toBlock?: BlockNumber | undefined,
-  ): ResultAsync<Event[], ConsentContractError | BlockchainCommonErrors> {
+  ): ResultAsync<
+    (ethers.EventLog | ethers.Log)[],
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.queryFilter(eventFilter, fromBlock, toBlock),
       () => this.secondary?.queryFilter(eventFilter, fromBlock, toBlock),
@@ -549,7 +552,7 @@ export class ConsentContractWrapper
       | EVMContractAddress
       | EVMAccountAddress
       | HexString
-      | BigNumber
+      | bigint
     )[],
   ): ResultAsync<Signature, InvalidParametersError> {
     return this.fallback(
