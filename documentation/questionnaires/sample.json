@@ -3,18 +3,15 @@
     "description": "Questions about your favorite food",
     "questions": [
         {
-            // "questionID": 0,
             "questionType": "multipleChoice",
             "question": "Do you like tomatoes?",
             "choices": ["Yes", "No", "Hell no!"]
         },
         {
-            // "questionID": 1,
             "questionType": "text",
             "question": "Write a 500 word essay about your favorite food, include all your bank account numbers and PINs"
         },
         {
-            // "questionID": 2,
             "questionType": "country",
             "question": "What country did pizza originate from?"
         }

@@ -299,7 +299,6 @@ class QueryServiceMocks {
       this.consentTokenUtils,
       this.dataWalletUtils,
       this.queryParsingEngine,
-      this.questionnaireService,
       this.sdqlQueryRepo,
       this.insightPlatformRepo,
       this.consentContractRepo,

@@ -60,7 +60,7 @@ import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IQueryService, IQuestionnaireService, IQuestionnaireServiceType } from "@core/interfaces/business/index.js";
+import { IQueryService } from "@core/interfaces/business/index.js";
 import {
   IConsentTokenUtils,
   IConsentTokenUtilsType,
@@ -94,8 +94,6 @@ export class QueryService implements IQueryService {
     protected dataWalletUtils: IDataWalletUtils,
     @inject(IQueryParsingEngineType)
     protected queryParsingEngine: IQueryParsingEngine,
-    @inject(IQuestionnaireServiceType)
-    protected questionnaireService: IQuestionnaireService,
     @inject(ISDQLQueryRepositoryType)
     protected sdqlQueryRepo: ISDQLQueryRepository,
     @inject(IInsightPlatformRepositoryType)
