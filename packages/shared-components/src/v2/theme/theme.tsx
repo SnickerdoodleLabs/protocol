@@ -1,4 +1,6 @@
 import "@material-ui/core/styles/createPalette";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+
 export declare enum _EColorMode {
   LIGHT = "light",
   DARK = "dark",
@@ -79,9 +81,11 @@ export enum EFontWeight {
 export enum EFontFamily {
   ROBOTO = "roboto",
   PUBLIC_SANS = "publicSans",
+  SHRINKHAND = "shrikhand",
 }
 
 export enum ECustomTypographyVariant {
+  DISPLAYXL = "displayXl",
   DISPLAYLG = "displayLg",
   DISPLAYMD = "displayMd",
   DISPLAYSM = "displaySm",
@@ -317,6 +321,10 @@ export const generateDynamicTypographyColorClasses = (theme: Theme) => ({
 });
 
 export const typograpyVariants = {
+  displayXl: {
+    fontSize: "64px",
+    lineHeight: "72px",
+  },
   displayLg: {
     fontSize: "57px",
     lineHeight: "64px",
@@ -416,6 +424,9 @@ export const genareteFontFamiles = () => ({
   },
   [EFontFamily.PUBLIC_SANS]: {
     fontFamily: "Public Sans",
+  },
+  [EFontFamily.SHRINKHAND]: {
+    fontFamily: "Shrikhand",
   },
 });
 
@@ -532,9 +543,34 @@ export const createDefaultTheme = (
           },
         },
       },
+      MuiFormHelperText: {
+        contained: {
+          marginLeft: 0,
+        },
+      },
+      MuiInputBase: {
+        root: {},
+      },
+      MuiOutlinedInput: {
+        root: {
+          borderRadius: 8,
+        },
+        input: {
+          padding: "12px 8px",
+          "&::placeholder": {
+            color: colors.GREY500,
+            opacity: 1,
+          },
+        },
+      },
       MuiTypography: {
         root: {
           color: palette.textBody,
+        },
+      },
+      MuiCheckbox: {
+        root: {
+          color: colors.GREY400,
         },
       },
       MuiButton: {
@@ -600,6 +636,10 @@ export const createDefaultTheme = (
     },
     breakpoints,
     props: {
+      MuiSelect: {
+        displayEmpty: true,
+        IconComponent: ExpandMoreIcon,
+      },
       MuiMenu: {
         disableAutoFocusItem: true,
         disablePortal: true,

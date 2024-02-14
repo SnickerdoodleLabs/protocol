@@ -50,6 +50,7 @@ import {
   Gender,
   GivenName,
   IpfsCID,
+  JSONString,
   LanguageCode,
   MarketplaceTag,
   Signature,
@@ -335,6 +336,9 @@ export interface ISdlDataWallet {
   >;
 
   requestDashboardView: undefined | (() => ResultAsync<void, ProxyError>);
+
+  setUIState(state: JSONString): ResultAsync<void, ProxyError>;
+  getUIState(): ResultAsync<JSONString | null, ProxyError>;
 
   proxyType: ECoreProxyType;
   account: IProxyAccountMethods;

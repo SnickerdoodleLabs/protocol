@@ -16,6 +16,21 @@ export const useModalStyles = makeStyles((theme) => ({
       },
     },
   },
+  containerLg: {
+    "& .MuiDialog-paper": {
+      borderRadius: 12,
+      maxWidth: 960,
+      [theme.breakpoints.down("xs")]: {
+        margin: 8,
+      },
+    },
+    "& .MuiDialog-paperFullWidth": {
+      [theme.breakpoints.down("xs")]: {
+        width: "unset",
+        minWidth: "90%",
+      },
+    },
+  },
   buttonWrapper50: {
     [theme.breakpoints.down("xs")]: {
       width: "50%",

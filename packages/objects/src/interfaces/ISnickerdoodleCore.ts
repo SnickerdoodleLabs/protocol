@@ -118,6 +118,7 @@ import {
   URLString,
   BlockNumber,
   RefreshToken,
+  JSONString,
 } from "@objects/primitives/index.js";
 /**
  ************************ MAINTENANCE HAZARD ***********************************************
@@ -1070,6 +1071,10 @@ export interface ISnickerdoodleCore {
     transactions: ChainTransaction[],
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, PersistenceError | UnauthorizedError>;
+
+  // external calls to set local storage
+  setUIState(state: JSONString): ResultAsync<void, PersistenceError>;
+  getUIState(): ResultAsync<JSONString | null, PersistenceError>;
 
   account: IAccountMethods;
   invitation: IInvitationMethods;

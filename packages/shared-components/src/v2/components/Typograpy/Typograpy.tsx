@@ -28,15 +28,20 @@ const useStyles = makeStyles((theme: Theme) => {
       textOverflow: "ellipsis",
       whiteSpace: "nowrap",
     },
+    preWrap: {
+      whiteSpace: "pre-wrap",
+    },
   };
 });
 
-interface ITypographyProps extends Omit<TypographyProps, "variant" | "color"> {
+export interface ITypographyProps
+  extends Omit<TypographyProps, "variant" | "color"> {
   variant?: `${ECustomTypographyVariant}`;
   fontWeight?: `${EFontWeight}`;
   fontFamily?: `${EFontFamily}`;
-  color?: `${ETypographyColorOverrides}`;
+  color?: `${ETypographyColorOverrides}` | TypographyProps["color"];
   hideOverflow?: boolean;
+  preWrap?: boolean;
 }
 
 export const SDTypography = ({
@@ -46,18 +51,27 @@ export const SDTypography = ({
   fontFamily,
   color,
   hideOverflow,
+  preWrap = true,
   ...rest
 }: ITypographyProps) => {
   const classes = useStyles();
   return (
     <MuiTypography
       {...rest}
+      {...(!Object.values(ETypographyColorOverrides).includes(
+        color as ETypographyColorOverrides,
+      ) && { color: color as TypographyProps["color"] })}
       className={clsx(
         variant && classes[variant],
         fontWeight && classes[fontWeight],
         fontFamily && classes[fontFamily],
-        color && classes[color],
+        color &&
+          Object.values(ETypographyColorOverrides).includes(
+            color as ETypographyColorOverrides,
+          ) &&
+          classes[color],
         hideOverflow && classes.ellipsis,
+        preWrap && classes.preWrap,
         className,
       )}
     />

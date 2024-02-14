@@ -3,6 +3,9 @@ import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import AirdropDetailModal, {
   IAirdropDetailModal,
 } from "@extension-onboarding/components/Modals/V2/AirdropDetailModal";
+import AnsweredQuestionnarieModal, {
+  IAnsweredQuestionnarieModal,
+} from "@extension-onboarding/components/Modals/V2/AnsweredQuestionnarieModal";
 import ConfirmationModal, {
   IConfirmationModal,
 } from "@extension-onboarding/components/Modals/V2/ConfirmationModal";
@@ -13,6 +16,9 @@ import NFTDetailModal, {
 import OTPModal, {
   IOTPModal,
 } from "@extension-onboarding/components/Modals/V2/OTPModal";
+import QuestionnarieModal, {
+  IQuestionnarieModal,
+} from "@extension-onboarding/components/Modals/V2/QuestionnarieModal";
 import React, {
   ReactNode,
   FC,
@@ -30,6 +36,8 @@ type ModalSelectorTypeMap = {
   [EModalSelectors.OTP_MODAL]: IOTPModal;
   [EModalSelectors.NFT_DETAIL_MODAL]: INFTDetailModal;
   [EModalSelectors.LEAVE_AUDIENCE_MODAL]: undefined;
+  [EModalSelectors.QUESTIONNARIE_MODAL]: IQuestionnarieModal;
+  [EModalSelectors.ANSWERED_QUESTIONNARIE_MODAL]: IAnsweredQuestionnarieModal;
 };
 
 type ModalSelector = keyof ModalSelectorTypeMap;
@@ -90,6 +98,11 @@ export const LayoutProvider: FC = memo(({ children }) => {
         return <OTPModal />;
       case modalState.modalSelector === EModalSelectors.NFT_DETAIL_MODAL:
         return <NFTDetailModal />;
+      case modalState.modalSelector === EModalSelectors.QUESTIONNARIE_MODAL:
+        return <QuestionnarieModal />;
+      case modalState.modalSelector ===
+        EModalSelectors.ANSWERED_QUESTIONNARIE_MODAL:
+        return <AnsweredQuestionnarieModal />;
       default:
         return null;
     }
