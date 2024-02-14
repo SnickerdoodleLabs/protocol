@@ -716,6 +716,11 @@ export interface IStorageMethods {
 }
 
 export interface IQuestionnaireMethods {
+
+  addQuestionnaire(
+    questionnaireId: IpfsCID,
+  ): ResultAsync<void, AjaxError | PersistenceError>;
+
   /**
    * Returns a list of questionnaires that the user can complete (that do not already have answers),
    * without regard to any particular consent contract. They are returned in ranked order and should

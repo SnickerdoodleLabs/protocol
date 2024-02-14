@@ -160,19 +160,18 @@ export class CorePrompt extends DataWalletPrompt {
           const questionnaireAnswers1 = new NewQuestionnaireAnswer(
             cid, 
             0, 
-            UnixTimestamp(this.timeUtils.getUnixNow()), 
-            null, 
             "Andrew");
           const questionnaireAnswers2 = new NewQuestionnaireAnswer(
             cid, 
             0, 
-            UnixTimestamp(this.timeUtils.getUnixNow()), 
             0, 
-            null);
-          return this.core.questionnaire.answerQuestionnaire(cid, [
-            questionnaireAnswers1,
-            questionnaireAnswers2
-          ], undefined)
+            );
+          return this.core.questionnaire.addQuestionnaire(cid).andThen(() => {
+            return this.core.questionnaire.answerQuestionnaire(cid, [
+              questionnaireAnswers1,
+              questionnaireAnswers2
+            ], undefined)
+          })
         case "optInCampaign":
           return this.optInCampaign.start();
         case "optOutCampaign":

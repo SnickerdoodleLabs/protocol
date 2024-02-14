@@ -332,17 +332,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
 
     const [compensationKeys, insightAndAdKeys] = this.getTotalQueryKeys(ast);
 
-
-    if (ast.questions !== undefined) {
-      const insightProm = this.gatherQuestionnaireInsights(ast, cid, astEvaluator);
-      return ResultUtils.combine([insightProm]).map(([insightWithProofs]) => {
-        return {
-          insights: insightWithProofs,
-          ads: adSigProm,
-        };
-      });
-    }
-
     const insightProm = this.gatherDeliveryInsights(ast, astEvaluator);
     return ResultUtils.combine([insightProm]).map(([insightWithProofs]) => {
       return {
@@ -351,43 +340,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       };
     });
     
-  }
-
-  protected gatherQuestionnaireInsights(
-    ast: AST,
-    cid: IpfsCID,
-    astEvaluator: AST_Evaluator,
-  ): ResultAsync<
-    IQueryDeliveryInsights,
-    | ParserError
-    | DuplicateIdInSchema
-    | QueryFormatError
-    | MissingTokenConstructorError
-    | QueryExpiredError
-    | MissingASTError
-    | EvaluationError
-    | PersistenceError
-    | EvalNotImplementedError
-    | AjaxError
-    | AccountIndexingError
-    | MethodSupportError
-    | InvalidParametersError
-  > {
-    const astQuestionArray = (ast.questions);
-    return this.questionnaireService.getQuestionnaire(cid).andThen((questionnaire) => 
-      {
-        // questionnaire.
-        let index = 0;
-        const questionMapResult = astQuestionArray.map((astQuestion) => {
-          return astEvaluator.evalQuestion(astQuestion).map((insight) => {
-            return [SDQL_Name((index++).toString()), insight] as [SDQL_Name, SDQL_Return];
-          });
-        });
-        return ResultUtils.combine(questionMapResult).map((questionMap) => {
-          return this.createDeliveryInsightObject(questionMap);
-        });
-      }
-    ).mapErr((e) => e);
   }
 
   protected gatherDeliveryInsights(

@@ -138,9 +138,12 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     Questionnaire | QuestionnaireWithAnswers | null,
     AjaxError | PersistenceError
   > {
+    console.log("questionnaireCID: " + questionnaireCID);
     if (status === EQuestionnaireStatus.Available) {
       return this.fetchQuestionnaireDataById(questionnaireCID).map(
         (questionnaireData) => {
+          console.log("questionnaireData: " + questionnaireData);
+
           if (
             questionnaireData == null ||
             questionnaireData.status !== EQuestionnaireStatus.Available
@@ -155,6 +158,9 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
       this.fetchQuestionnaireDataById(questionnaireCID),
       this.fetchLatestQuestionnaireHistoriesById(questionnaireCID, benchmark),
     ]).map(([questionnaireData, questionnaireHistories]) => {
+      console.log("questionnaireData: " + questionnaireData);
+      console.log("questionnaireHistories: " + questionnaireHistories);
+
       if (questionnaireData == null) {
         return null;
       }
@@ -355,11 +361,12 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     questionnaireCID: IpfsCID,
     benchmark?: UnixTimestamp,
   ): ResultAsync<QuestionnaireHistory[], AjaxError | PersistenceError> {
+    console.log("questionnaireCID: " + questionnaireCID);
     const query = IDBKeyRange.bound(
       [0, questionnaireCID, 0],
       [0, questionnaireCID, benchmark ?? this.timeUtils.getUnixNow()],
     );
-
+    console.log("query: " + JSON.stringify(query));
     return this.persistence.getCursor2<QuestionnaireHistory>(
       ERecordKey.QUESTIONNAIRES_HISTORY,
       {
@@ -395,6 +402,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
       questionnaireData.description,
       questionnaireData.image ?? null,
       questions,
+      [],
     );
   }
 

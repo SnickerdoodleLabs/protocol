@@ -37,6 +37,10 @@ export interface IQuestionnaireService {
     | ConsentFactoryContractError
   >;
 
+  addQuestionnaire(
+    questionnaireId: IpfsCID,
+  ): ResultAsync<void, AjaxError | PersistenceError>;
+  
   /**
    * Returns a list of questionnaires that the user can complete, which are requested by a particular
    * consent contract. They are returned in ranked order and should be presented to the user in that order.
@@ -125,26 +129,6 @@ export interface IQuestionnaireService {
     questionnaire: IpfsCID,
     sourceDomain?: DomainName,
   ): ResultAsync<EVMContractAddress[], PersistenceError | AjaxError>;
-
-  addQuestionnaires(questionnaireCids: IpfsCID[]): ResultAsync<void, PersistenceError>;
-
-  getQuestionnaire(questionnaireCID: IpfsCID, benchmark?: UnixTimestamp): ResultAsync<Questionnaire, InvalidParametersError | AjaxError>;
-
-  getQuestionnairesForConsentContract(
-    pagingRequest: PagingRequest,
-    consentContractAddress: EVMContractAddress,
-    sourceDomain: DomainName | undefined,
-  ): ResultAsync<PagedResponse<Questionnaire>, PersistenceError | AjaxError>;
-
-  getAnsweredQuestionnaires(
-    pagingRequest: PagingRequest,
-    sourceDomain: DomainName | undefined,
-  ): ResultAsync<
-    PagedResponse<QuestionnaireWithAnswers>,
-    PersistenceError | AjaxError
-  >;
-
-  postQuestionnaire(questionnaireCID: IpfsCID, questionnaire: Questionnaire): ResultAsync<void, InvalidParametersError | AjaxError>;
 }
 
 export const IQuestionnaireServiceType = Symbol.for("IQuestionnaireService");

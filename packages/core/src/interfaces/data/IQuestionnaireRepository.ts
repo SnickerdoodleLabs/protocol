@@ -24,9 +24,6 @@ import { ResultAsync } from "neverthrow";
  * Ergo Ranking information comes from the service through the blockchain, so as tags but currently we are using the default tag naming (e.g., Questionnaire:{IpfsCID of the questionnaire}).
  */
 export interface IQuestionnaireRepository {
-
-  postQuestionnaire(questionnaireCID: IpfsCID, questinnaire: Questionnaire): ResultAsync<void, InvalidParametersError | AjaxError>;
-
   /**
    * Returns a list of Questionnaires. If answers exist, it returns QuestionnaireWithAnswers.
    * @param pagingRequest The paging request for pagination.

@@ -43,6 +43,7 @@ import {
   ITransactionHistoryRepository,
   IDemographicDataRepository,
   ISocialRepository,
+  IQuestionnaireRepository,
 } from "@core/interfaces/data/index.js";
 import { ContextProviderMock } from "@core-tests/mock/utilities";
 
@@ -78,6 +79,7 @@ class QueryEvaluatorMocks {
     td.object<IBlockchainTransactionQueryEvaluator>();
   public nftQueryEvaluator = td.object<INftQueryEvaluator>();
   public web3AccountQueryEvaluator = td.object<IWeb3AccountQueryEvaluator>();
+  public questionnaireRepository = td.object<IQuestionnaireRepository>();
   public demoDataRepo = td.object<IDemographicDataRepository>();
   public browsingDataRepo = td.object<IBrowsingDataRepository>();
   public transactionRepo = td.object<ITransactionHistoryRepository>();
@@ -221,6 +223,7 @@ class QueryEvaluatorMocks {
       this.socialRepo,
       this.contextProvider,
       this.web3AccountQueryEvaluator,
+      this.questionnaireRepository,
     );
     // td.when(this.dataWalletPersistence.getTransactionsMap())
     // .thenReturn(

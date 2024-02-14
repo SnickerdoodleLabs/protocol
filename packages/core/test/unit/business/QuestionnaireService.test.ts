@@ -26,6 +26,8 @@ import {
   import * as td from "testdouble";
   
   import {
+    IConsentContractRepository,
+    IInvitationRepository,
     IQuestionnaireRepository,
   } from "@core/interfaces/data/index.js";
 import { QuestionnaireService } from "@core/implementations/business/QuestionnaireService";
@@ -67,17 +69,20 @@ import { IContextProvider } from "@core/interfaces/utilities";
   
   class QuestionnaireServiceMocks {
     public questionnaireRepo: IQuestionnaireRepository;
-    public contextProvider: IContextProvider;
+    public consentContractRepo: IConsentContractRepository;
+    public invitationRepository: IInvitationRepository;
   
     public constructor() {
       this.questionnaireRepo = td.object<IQuestionnaireRepository>();
-      this.contextProvider = td.object<IContextProvider>();
+      this.consentContractRepo = td.object<IConsentContractRepository>();
+      this.invitationRepository = td.object<IInvitationRepository>();
     }
     
     public factory(): QuestionnaireService {
       return new QuestionnaireService(
         this.questionnaireRepo,
-        this.contextProvider,
+        this.consentContractRepo,
+        this.invitationRepository
       );
     }
   }

@@ -1049,6 +1049,7 @@ export const mockQuestionnaire = new Questionnaire(
       false,
     ),
   ],
+  [],
 );
 
 export const mockQuestionnaire2 = new Questionnaire(
@@ -1080,6 +1081,7 @@ export const mockQuestionnaire2 = new Questionnaire(
       false,
     ),
   ],
+  [],
 );
 
 export const mockQuestionnaireAnswer: QuestionnaireAnswer[] = [
