@@ -4,6 +4,7 @@ export * from "@query-parser/interfaces/objects/AST_Ad.js";
 export * from "@query-parser/interfaces/objects/AST_QuestionnaireQuery.js";
 export * from "@query-parser/interfaces/objects/AST_MCQuestion.js";
 export * from "@query-parser/interfaces/objects/AST_TextQuestion.js";
+export * from "@query-parser/interfaces/objects/AST_Question.js";
 
 export * from "@query-parser/interfaces/objects/AST_BalanceQuery.js";
 export * from "@query-parser/interfaces/objects/AST_BlockchainTransactionQuery.js";

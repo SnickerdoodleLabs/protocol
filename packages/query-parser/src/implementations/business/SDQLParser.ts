@@ -41,10 +41,10 @@ import {
   AST_Expr,
   AST_Insight,
   AST_PropertyQuery,
-  AST_,
   AST_RequireExpr,
   AST_SubQuery,
   AST_Web3Query,
+  AST_Question,
   Condition,
   IQueryObjectFactory,
   ParserContextDataTypes,
@@ -98,7 +98,6 @@ export class SDQLParser {
           this.compensationParameters,
           this.compensations,
           this.questions,
-          this.questionsMap,
           this.schema.timestamp!,
         );
         return ast;
@@ -127,7 +126,6 @@ export class SDQLParser {
           this.compensationParameters,
           this.compensations,
           this.questions,
-          this.questionsMap,
           this.schema.timestamp!,
         );
       });
@@ -347,9 +345,6 @@ export class SDQLParser {
         const web3QueryType = AST_Web3Query.getWeb3QueryTypeIfValidQueryType(
           schema.name,
         );
-        const questionnaireQueryType =  AST_QuestionnaireQuery.getWeb3QueryTypeIfValidQueryType(
-          schema.name,
-        );
         if (web3QueryType) {
           queries.push(
             this.queryObjectFactory.toWeb3Query(
@@ -413,12 +408,12 @@ private parseQuestion(
   if (questionBlock.questionType == EQuestionnaireQuestionType.MultipleChoice) {
     const mcQuestion = AST_MCQuestion.fromSchema(this.cid, questionIndex, SDQL_Name(questionBlock.question), questionBlock);
     this.saveInContext(SDQL_Name(questionBlock.question), mcQuestion);
-    this.questionsMap.set(SDQL_Name("qa" + questionIndex), mcQuestion);
+    // this.questionsMap.set(SDQL_Name("qa" + questionIndex), mcQuestion);
     return okAsync(mcQuestion);
   } else {
     const textQuestion = AST_TextQuestion.fromSchema(this.cid, questionIndex, SDQL_Name(questionBlock.question), questionBlock);
     this.saveInContext(SDQL_Name(questionBlock.question), textQuestion);
-    this.questionsMap.set(SDQL_Name("qa" + questionIndex), textQuestion);
+    // this.questionsMap.set(SDQL_Name("qa" + questionIndex), textQuestion);
     return okAsync(textQuestion);
   }
 }

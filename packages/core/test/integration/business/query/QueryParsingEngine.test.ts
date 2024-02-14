@@ -76,6 +76,7 @@ import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
+import { QuestionnaireService } from "@core/implementations/business";
 
 const queryCID = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(
@@ -118,6 +119,7 @@ class QueryParsingMocks {
   public browsingDataRepo = td.object<IBrowsingDataRepository>();
   public adDataRepo = td.object<AdDataRepository>();
   public questionnaireRepo = td.object<QuestionnaireRepository>();
+  public questionnaireService = td.object<QuestionnaireService>();
   public socialRepo = td.object<ISocialRepository>();
   public accountRepo = td.object<ILinkedAccountRepository>();
   public timeUtils: ITimeUtils = td.object<ITimeUtils>();
@@ -224,6 +226,7 @@ class QueryParsingMocks {
     return new QueryParsingEngine(
       this.queryFactories,
       this.queryRepository,
+      this.questionnaireService,
       this.queryUtils,
       this.adContentRepository,
       this.adDataRepo,

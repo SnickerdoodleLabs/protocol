@@ -15,14 +15,12 @@ export class AST_MCQuestion extends AST_Question {
     readonly possibleResponses: string[],
     readonly questionnaireIndex: IpfsCID,
     readonly questionIndex: number,
-    private answer: string | number | undefined,
+    readonly answer: string | number | undefined,
   ) {
     super(question, questionType, possibleResponses, questionnaireIndex, questionIndex, answer);
   }
 
   static fromSchema(questionnaireIndex: IpfsCID, questionIndex: number, name: SDQL_Name, schema: ISDQLQuestionBlock): AST_MCQuestion {
-
-    
     return new AST_MCQuestion(name, EQuestionnaireQuestionType.MultipleChoice, schema.options, questionnaireIndex, questionIndex, undefined);
   }
 

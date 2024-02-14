@@ -424,16 +424,16 @@ const compensation3: AST_Compensation = new AST_Compensation(
   [],
   IpfsCID("GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8"),
 );
-const question1: AST_Question = new AST_TextQuestion(
-  SDQL_Name(""),
-  EQuestionnaireQuestionType.Text,
-  [],
-);
-const question2: AST_Question = new AST_MCQuestion(
-  SDQL_Name(""),
-  EQuestionnaireQuestionType.MultipleChoice,
-  [],
-);
+// const question1: AST_Question = new AST_TextQuestion(
+//   SDQL_Name(""),
+//   EQuestionnaireQuestionType.Text,
+//   [],
+// );
+// const question2: AST_Question = new AST_MCQuestion(
+//   SDQL_Name(""),
+//   EQuestionnaireQuestionType.MultipleChoice,
+//   [],
+// );
 
 // Create compensations map
 const compensationsMap: Map<SDQL_Name, AST_Compensation> = new Map();
@@ -442,8 +442,8 @@ compensationsMap.set(SDQL_Name("c2"), compensation2);
 compensationsMap.set(SDQL_Name("c3"), compensation3);
 
 const questions: AST_Question[] = [];
-questions.push(question1);
-questions.push(question2);
+// questions.push(question1);
+// questions.push(question2);
 
 const compensationParameters = {
   recipientAddress: { type: EVMAccountAddress("address"), required: true },
