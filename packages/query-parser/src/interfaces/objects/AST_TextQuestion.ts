@@ -1,11 +1,10 @@
 import {
     SDQL_Name,
-    ISDQLQuestionBlock,
     EQuestionnaireQuestionType,
     IpfsCID,
 } from "@snickerdoodlelabs/objects";
-import { AST_QuestionnaireQuery } from "@query-parser/interfaces/objects/AST_QuestionnaireQuery.js";
 import { AST_Question } from "@query-parser/interfaces/objects/AST_Question.js";
+import { ISDQLQuestionBlock } from "packages/objects/src/interfaces/ISDQLQuestionBlock";
   
 export class AST_TextQuestion extends AST_Question {
   constructor(

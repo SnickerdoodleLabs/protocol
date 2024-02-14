@@ -236,9 +236,6 @@ export class InsightPlatformSimulator {
               return errAsync(err);
             }
 
-            console.log("consentToken.ownerAddress: " + consentToken.ownerAddress);
-            console.log("verificationAddress: " + verificationAddress);
-
             if (consentToken.ownerAddress.toLowerCase() != verificationAddress.toLowerCase()) {
               const err = new Error(
                 `Consent token ${tokenId} is not owned by the verification address ${verificationAddress}`,
@@ -416,9 +413,6 @@ export class InsightPlatformSimulator {
       } as Record<string, unknown>;
 
       // Verify the signature
-      console.log(
-        `LOOK FOR SIGNINGDATA: ${JSON.stringify(signingData)} but is for account ${accountAddress}`,
-      );
       this.cryptoUtils
         .verifyTypedData(
           snickerdoodleSigningDomain,
@@ -484,17 +478,11 @@ export class InsightPlatformSimulator {
     consentContractAddress: EVMContractAddress,
     queryText: SDQLString,
   ): ResultAsync<void, Error | ConsentContractError> {
- // Posting a query involves two things- 1. putting the query content into IPFS, and 2.
-    // calling requestForData on the consent contract
-    console.log("Inside Post Questionnaire!");
-    // The queryText needs to have the timestamp inserted
+    // Posting a questionnaire involves two things- 
+    // 1. putting the query content into IPFS, and 
+    // 2. calling requestForData on the consent contract
     const queryJson = JSON.parse(queryText) as ISDQLQueryObject;
-    // queryJson.timestamp = UnixTimestamp(
-    //   Math.floor(new Date().getTime() / 1000),
-    // );
     queryJson.timestamp = ISO8601DateString(new Date().toISOString());
-    // queryJson.expiry = new Date().toISOString();
-    // Convert query back to string
     queryText = SDQLString(JSON.stringify(queryJson));
 
     // Now we can post the query to IPFS
@@ -522,7 +510,6 @@ export class InsightPlatformSimulator {
   ): ResultAsync<void, Error | ConsentContractError> {
     // Posting a query involves two things- 1. putting the query content into IPFS, and 2.
     // calling requestForData on the consent contract
-    console.log("Inside Post Query!");
     // The queryText needs to have the timestamp inserted
     const queryJson = JSON.parse(queryText) as ISDQLQueryObject;
     // queryJson.timestamp = UnixTimestamp(

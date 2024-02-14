@@ -1,12 +1,11 @@
 import {
     SDQL_Name,
-    ISDQLQuestionBlock,
-    StorageKey,
     EQuestionnaireQuestionType,
     IpfsCID,
   } from "@snickerdoodlelabs/objects";
 
 import { AST_Question } from "@query-parser/interfaces/objects/AST_Question.js";
+import { ISDQLQuestionBlock } from "packages/objects/src/interfaces/ISDQLQuestionBlock";
 
 export class AST_MCQuestion extends AST_Question {
   constructor(

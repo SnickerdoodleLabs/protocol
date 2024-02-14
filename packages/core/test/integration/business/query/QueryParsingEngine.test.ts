@@ -230,7 +230,6 @@ class QueryParsingMocks {
       this.queryUtils,
       this.adContentRepository,
       this.adDataRepo,
-      this.questionnaireRepo,
       this.contextProvider,
     );
   }

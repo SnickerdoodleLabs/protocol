@@ -11,7 +11,6 @@ import {
   ISDQLConditionString,
   ISDQLInsightBlock,
   ISDQLInsightsBlock,
-  ISDQLQuestion,
   ISDQLQueryClause,
   ISDQLQueryObject,
   ISO8601DateString,
@@ -206,12 +205,12 @@ export class SDQLQueryWrapper {
     );
   }
 
-  public getQuestionEntries(): [number, ISDQLQuestion][] | undefined {
+  public getQuestionEntries(): [number, ISDQLQuestionBlock][] | undefined {
     const questions = this.getQuestionSchema();
     if (questions == undefined) {
       return undefined;
     }
-    const entries = this._getEntries<number, ISDQLQuestion>(questions);
+    const entries = this._getEntries<number, ISDQLQuestionBlock>(questions);
     return entries;
   }
 

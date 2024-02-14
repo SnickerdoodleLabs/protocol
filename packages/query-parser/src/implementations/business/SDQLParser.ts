@@ -19,7 +19,6 @@ import {
   SDQL_Name,
   URLString,
   Version,
-  ISDQLQuestion,
   EQuestionnaireQuestionType,
   ISDQLQuestionBlock,
   ISDQLConditionString,
@@ -150,7 +149,7 @@ export class SDQLParser {
     //   .map(() => {});
   }
 
-  private validateQuestion(question: ISDQLQuestion): ResultAsync<void, QueryFormatError | QueryExpiredError> {
+  private validateQuestion(question: ISDQLQuestionBlock): ResultAsync<void, QueryFormatError | QueryExpiredError> {
       // if (
       //   question.question == null ||
       //   question.questionType == null
