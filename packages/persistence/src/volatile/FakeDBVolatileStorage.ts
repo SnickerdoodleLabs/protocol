@@ -150,9 +150,9 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
     });
   }
 
-  public getKey(
+  public getKey<T extends VersionedObject>(
     tableName: string,
-    obj: VersionedObject,
+    obj: VolatileStorageMetadata<T>,
   ): ResultAsync<VolatileStorageKey | null, PersistenceError> {
     return this._getIDB().andThen((db) => db.getKey(tableName, obj));
   }
