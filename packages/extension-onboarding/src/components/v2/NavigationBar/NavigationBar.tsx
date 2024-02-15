@@ -77,16 +77,16 @@ const navigationItems: INavigationItem[] = [
     path: EPathsV2.COOKIE_VAULT,
     icon: <CookieVaultIcon color="inherit" />,
   },
-  {
-    displayName: "Data Permissions",
-    path: EPathsV2.DATA_PERMISSIONS,
-    icon: <DataPermissionIcon color="inherit" />,
-  },
-  {
-    displayName: "Settings",
-    path: EPathsV2.SETTINGS,
-    icon: <SettingIcon color="inherit" />,
-  },
+  // {
+  //   displayName: "Data Permissions",
+  //   path: EPathsV2.DATA_PERMISSIONS,
+  //   icon: <DataPermissionIcon color="inherit" />,
+  // },
+  // {
+  //   displayName: "Settings",
+  //   path: EPathsV2.SETTINGS,
+  //   icon: <SettingIcon color="inherit" />,
+  // },
   {
     displayName: "My Data Dashboard",
     path: EPathsV2.DATA_DASHBOARD,
@@ -97,7 +97,6 @@ const navigationItems: INavigationItem[] = [
 
 const NavigationBar = () => {
   const classes = useStyles();
-  const { sdlDataWallet } = useDataWalletContext();
   const location = useLocation();
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = React.useState<number>();
@@ -148,7 +147,7 @@ const NavigationBar = () => {
                   display="flex"
                   borderRadius={8}
                   px={1.5}
-                  py={0.75}
+                  py={1}
                   className={
                     index === activeIndex ? classes.itemActive : classes.item
                   }

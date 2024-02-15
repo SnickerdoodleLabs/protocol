@@ -18,7 +18,7 @@ import {
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, memo, useEffect, useState } from "react";
 
 const mockQuestionaries: PagedResponse<Questionnaire> =
   new PagedResponse<Questionnaire>(
@@ -283,4 +283,4 @@ const Questionnaries = () => {
   );
 };
 
-export default Questionnaries;
+export default memo(Questionnaries);

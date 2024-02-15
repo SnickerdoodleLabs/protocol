@@ -61,14 +61,18 @@ const InfoCard: FC = () => {
                 color={colors.WHITE}
               >
                 <SDTypography
-                  variant="titleXl"
+                  variant="headlineLg"
                   fontFamily="shrikhand"
                   color="inherit"
                 >
                   Welcome to the Cookie Vault
                 </SDTypography>
                 <Box mt={2} />
-                <SDTypography variant="bodyLg" color="inherit">
+                <SDTypography
+                  hexColor={colors.MAINPURPLE100}
+                  variant="bodyLg"
+                  color="inherit"
+                >
                   The Vault helps your privately capture your data and
                   information and gets it ready for rewards
                 </SDTypography>
