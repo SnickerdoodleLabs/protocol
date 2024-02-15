@@ -1,6 +1,7 @@
 import {
   ConsentContractError,
   EVMContractAddress,
+  IpfsCID,
   SDQLString,
 } from "@snickerdoodlelabs/objects";
 import inquirer from "inquirer";
@@ -11,11 +12,8 @@ import { Prompt } from "@test-harness/prompts/Prompt.js";
 import { ResultUtils } from "neverthrow-result-utils";
 
 export class PostQuery extends Prompt {
-  public start(): ResultAsync<void, Error | ConsentContractError> {
-    
-    return ResultUtils.combine([
-      this.mocks.insightSimulator.uploadQuestionnaire(),
-      inquiryWrapper([
+  public start(ipfscid?: string): ResultAsync<void, Error | ConsentContractError> {
+    return inquiryWrapper([
       {
         type: "list",
         name: "consentContract",
@@ -61,8 +59,7 @@ export class PostQuery extends Prompt {
         ],
       },
     ])
-  ])
-      .andThen(([ipfscid, answers]) => {
+      .andThen((answers) => {
         console.log("PROMPT ipfscid: " + ipfscid);
         const contractAddress = EVMContractAddress(answers.consentContract);
         const queryId = answers.queryId;
@@ -77,7 +74,9 @@ export class PostQuery extends Prompt {
           // } 
           // else 
           if (queryId === 2) {
-            this.mocks.query2.queries.q5.cid = ipfscid;
+            if (ipfscid !== undefined){
+              this.mocks.query2.queries.q5.cid = ipfscid;
+            }
             queryText = SDQLString(JSON.stringify(this.mocks.query2));
           } else if (queryId === 3) {
             queryText = SDQLString(JSON.stringify(this.mocks.query3));

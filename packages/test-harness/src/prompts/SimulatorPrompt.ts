@@ -7,6 +7,7 @@ import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
 import { PostQuery } from "@test-harness/prompts/PostQuery.js";
 import { Prompt } from "@test-harness/prompts/Prompt.js";
 import { SetMaxCapacity } from "@test-harness/prompts/SetMaxCapacity.js";
+import { IpfsCID, NewQuestionnaireAnswer } from "@snickerdoodlelabs/objects";
 
 export class SimulatorPrompt extends Prompt {
   private createCampaign: CreateCampaign;
@@ -29,6 +30,7 @@ export class SimulatorPrompt extends Prompt {
         message: "Please select a course of action:",
         choices: [
           { name: "Create Campaign", value: "createCampaign" },
+          { name: "Upload Questionnaire", value: "uploadQuestionnaire" },
           { name: "Post Query", value: "postQuery" },
           { name: "Set Max Capacity", value: "setMaxCapacity" },
           new inquirer.Separator(),
@@ -39,8 +41,17 @@ export class SimulatorPrompt extends Prompt {
       switch (answers.simulator) {
         case "createCampaign":
           return this.createCampaign.start();
+        case "uploadQuestionnaire":
+          return this.mocks.insightSimulator.uploadQuestionnaire().map((cid) => {
+            return this.env.core.questionnaire.answerQuestionnaire(cid, [
+              new NewQuestionnaireAnswer(cid, 0, 0)
+            ], undefined).map(() => {
+              this.env.ipfsCid = cid;
+              // console.log(`Questionnaire with cid ${cid} was successfully uploaded`);
+             })
+          }).map(() => {});
         case "postQuery":
-          return this.postQuery.start();
+          return this.postQuery.start(this.env.ipfsCid);
         case "setMaxCapacity":
           return this.setMaxCapacity.start();
       }
