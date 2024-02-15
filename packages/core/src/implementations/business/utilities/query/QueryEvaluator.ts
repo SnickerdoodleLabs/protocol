@@ -91,10 +91,8 @@ export class QueryEvaluator implements IQueryEvaluator {
     protected contextProvider: IContextProvider,
     @inject(IWeb3AccountQueryEvaluatorType)
     protected web3AccountQueryEvaluator: IWeb3AccountQueryEvaluator,
-    @inject(IQuestionnaireServiceType)
-    protected questionnaireService: IQuestionnaireService,
-    @inject(IQuestionnaireRepositoryType)
-    protected questionnaireRepo: IQuestionnaireRepository,
+    @inject(IQuestionnaireQueryEvaluatorType)
+    protected questionaireQueryEvaluator: IQuestionaireQueryEvaluator,
   ) {}
 
   protected age: Age = Age(0);
@@ -256,33 +254,8 @@ export class QueryEvaluator implements IQueryEvaluator {
             query.name,
           ),
         );
-        return this.questionnaireRepo.getByCID(query.questionnaireIndex!)
-          .map((questionnaire) => {
-            if (questionnaire == null) {
-              return SDQL_Return(null);
-            }
-
-            return this.questionnaireService
-            .eval(query, queryCID)
-            .map((result) => {
-              context.publicEvents.queryPerformance.next(
-                new QueryPerformanceEvent(
-                  EQueryEvents.BalanceEvaluation,
-                  EStatus.End,
-                  queryCID,
-                  query.name,
-                ),
-              );
-              return result;
-            })
-
-
-            const insights = questionnaire.answers.map((answer) => {
-              return {
-                "index": answer.questionIndex,
-                "answer": answer.choice,
-              }
-            })
+        return this.questionnaireRepo.eval(query, query);
+      
             context.publicEvents.queryPerformance.next(
               new QueryPerformanceEvent(
                 EQueryEvents.QuestionnaireEvaluation,

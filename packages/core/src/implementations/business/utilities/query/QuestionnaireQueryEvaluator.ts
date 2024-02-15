@@ -9,6 +9,8 @@ import {
     EQueryEvents,
     EStatus,
     EvalNotImplementedError,
+    ISDQLQuestionBlock,
+    InvalidParametersError,
     IpfsCID,
     PersistenceError,
     PublicEvents,
@@ -26,29 +28,35 @@ import {
     ConditionL,
     ConditionLE,
     AST_QuestionnaireQuery,
+    AST_Question,
   } from "@snickerdoodlelabs/query-parser";
   import { ethers } from "ethers";
   import { inject, injectable } from "inversify";
-  import { okAsync, ResultAsync } from "neverthrow";
+  import { errAsync, okAsync, ResultAsync } from "neverthrow";
   
   import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
   import {
     IPortfolioBalanceRepository,
     IPortfolioBalanceRepositoryType,
+    IQuestionnaireRepository,
+    IQuestionnaireRepositoryType,
   } from "@core/interfaces/data/index.js";
   import {
     IContextProviderType,
     IContextProvider,
   } from "@core/interfaces/utilities/index.js";
+import { ResultUtils } from "neverthrow-result-utils";
   
   @injectable()
-  export class QuestionnaireQueryEvaluator implements IBalanceQueryEvaluator {
+  export class QuestionnaireQueryEvaluator implements IQuestionnaireQueryEvaluator {
     constructor(
       @inject(IPortfolioBalanceRepositoryType)
       protected balanceRepo: IPortfolioBalanceRepository,
       @inject(IBigNumberUtilsType) protected bigNumberUtils: IBigNumberUtils,
       @inject(IContextProviderType)
       protected contextProvider: IContextProvider,
+      @inject(IQuestionnaireRepositoryType)
+      protected questionnaireRepo: IQuestionnaireRepository,
     ) {}
   
     public eval(
@@ -64,24 +72,27 @@ import {
             query.name,
           ),
         );
-        return this.balanceRepo
-          .getAccountBalances()
-          .andThen((balances) => {
+        return this.questionnaireRepo.getByCID(query.questionnaireIndex!)
+          .map((questionnaire) => {
             context.publicEvents.queryPerformance.next(
-              new QueryPerformanceEvent(
-                EQueryEvents.BalanceDataAccess,
-                EStatus.End,
-                queryCID,
-                query.name,
-              ),
-            );
-            if (query.networkId == null) {
-              return okAsync(balances);
+                new QueryPerformanceEvent(
+                  EQueryEvents.BalanceDataAccess,
+                  EStatus.End,
+                  queryCID,
+                  query.name,
+                ),
+              );
+            if (questionnaire == null) {
+              return SDQL_Return(null);
             }
-            const networkBalances = balances.filter(
-              (balance) => balance.chainId == query.networkId,
-            );
-            return okAsync(networkBalances);
+            const insights = questionnaire.answers.map((answer) => {
+                return {
+                  "index": answer.questionIndex,
+                  "answer": answer.choice,
+                }
+            })
+            return okAsync(SDQL_Return(insights));
+
           })
           .mapErr((err) => {
             context.publicEvents.queryPerformance.next(
@@ -95,206 +106,39 @@ import {
             );
             return err;
           })
-          .andThen((balanceArray) => {
-            return this.evalConditions(query, balanceArray);
-          })
-          .andThen((balanceArray) => {
-            return this.combineContractValues(query, balanceArray);
-          })
-          .map((balanceArray) => {
-            return SDQL_Return(
-              this.getAccountBalancesWithoutOwnerAddress(balanceArray),
-            );
-          });
       });
     }
-  
-    public evalConditions(
-      query: AST_BalanceQuery,
-      balanceArray: TokenBalance[],
-    ): ResultAsync<TokenBalance[], never> {
-      for (const condition of query.conditions) {
-        let val = BigInt(0);
-  
-        // TODO: the casts here for the conditions are just horrible!
-        switch (condition.constructor) {
-          case ConditionGE:
-            val = BigInt((condition as ConditionGE).rval as number);
-            balanceArray = balanceArray.filter(
-              (balance) => this.bigNumberUtils.BNSToBN(balance.balance) >= val,
-            );
-            break;
-  
-          case ConditionG:
-            val = BigInt((condition as ConditionG).rval as number);
-            balanceArray = balanceArray.filter(
-              (balance) => this.bigNumberUtils.BNSToBN(balance.balance) > val,
-            );
-            break;
-  
-          case ConditionL:
-            val = BigInt((condition as ConditionL).rval as number);
-            balanceArray = balanceArray.filter(
-              (balance) => this.bigNumberUtils.BNSToBN(balance.balance) < val,
-            );
-            break;
-  
-          case ConditionE:
-            val = BigInt((condition as ConditionE).rval as number);
-            balanceArray = balanceArray.filter(
-              (balance) => this.bigNumberUtils.BNSToBN(balance.balance) == val,
-            );
-            break;
-  
-          case ConditionLE:
-            val = BigInt((condition as ConditionLE).rval as number);
-            balanceArray = balanceArray.filter(
-              (balance) => this.bigNumberUtils.BNSToBN(balance.balance) <= val,
-            );
-            break;
-  
-          default:
-            console.error("EvalNotImplementedError");
-            throw new EvalNotImplementedError(
-              `${condition.constructor.name} not implemented`,
-            );
-        }
-      }
-      return okAsync(balanceArray);
-    }
-  
-    public combineContractValues(
-      query: AST_BalanceQuery,
-      balanceArray: TokenBalance[],
-    ): ResultAsync<TokenBalance[], PersistenceError> {
-      const balanceMap = new Map<`${ChainId}-${TokenAddress}`, TokenBalance>();
-  
-      const nonZeroBalanceArray = balanceArray.filter((item) => {
-        const ethValue = this.bigNumberUtils.BNSToBN(item.balance);
-        return ethValue != 0n;
-      });
-  
-      nonZeroBalanceArray.forEach((d) => {
-        const networkIdAndAddress: `${ChainId}-${TokenAddress}` = `${
-          d.chainId as ChainId
-        }-${d.tokenAddress}`;
-        const getObject = balanceMap.get(networkIdAndAddress);
-  
-        if (getObject) {
-          balanceMap.set(
-            networkIdAndAddress,
-            new TokenBalance(
-              getObject.type,
-              getObject.ticker,
-              getObject.chainId,
-              getObject.tokenAddress || MasterIndexer.nativeAddress,
-              getObject.accountAddress,
-              this.bigNumberUtils.BNToBNS(
-                this.bigNumberUtils.BNSToBN(getObject.balance) +
-                  this.bigNumberUtils.BNSToBN(d.balance),
-              ),
-              getObject.decimals,
+
+    private validateQuestion(question: ISDQLQuestionBlock): ResultAsync<void, InvalidParametersError> {
+        if (
+            question.question == null ||
+            question.questionType == null
+        ) {
+            return errAsync(
+            new InvalidParametersError(
+                `Corrupted Question: ${question.question}`,
             ),
-          );
-        } else {
-          balanceMap.set(networkIdAndAddress, d);
+            );
         }
-      });
-  
-      return okAsync(Array.from(balanceMap.values()));
+        return okAsync(undefined);
     }
-  
-    protected getAccountBalancesWithoutOwnerAddress(
-      tokenBalances: TokenBalance[],
-    ): TokenBalanceInsight[] {
-      return tokenBalances.map(
-        ({ accountAddress, ...restOfBalance }) => restOfBalance,
-      );
-    }
-  }
-  
-
-  public buildQuestionnaireAST(): 
-  ResultAsync<
-    AST,
-    | ParserError
-    | DuplicateIdInSchema
-    | QueryFormatError
-    | MissingTokenConstructorError
-    | QueryExpiredError
-    | MissingASTError
-  > {
-    return this.validateQuestionnaireSchema(this.schema, this.cid).andThen(() => {
-      return this.parse().map(() => {
-        const ast = new AST(
-          Version(this.schema.version!),
-          this.schema.description!,
-          this.schema.business!,
-          this.ads!,
-          this.queries!,
-          this.insights,
-          this.compensationParameters,
-          this.compensations,
-          this.questions,
-          this.schema.timestamp!,
-        );
-        return ast;
-      });
-    });
-  }
-
-  public validateQuestionnaireSchema(
-    schema: SDQLQueryWrapper,
-    cid: IpfsCID,
-  ): ResultAsync<void, QueryFormatError | QueryExpiredError> {
-    return this.validateQuestions()
-      .mapErr((e) => e)
-      .map(() => {});
-  }
-
-  private validateQuestions(): ResultAsync<void, QueryFormatError | QueryExpiredError> {
-    // return okAsync(undefined);
-    return ResultUtils.combine(
-      this.schema.getInsightEntries().map(([qKey, question]) => {
-        return this.validateInsight(qKey, question);
-      }),
-    )
-      .mapErr((e) => e)
-      .map(() => {});
-  }
-
-  private validateQuestion(question: ISDQLQuestionBlock): ResultAsync<void, QueryFormatError | QueryExpiredError> {
-    // if (
-    //   question.question == null ||
-    //   question.questionType == null
-    // ) {
-    //   return errAsync(
-    //     new QueryFormatError(
-    //       `Query CID:${this.cid} Corrupted Question: ${question}`,
-    //     ),
-    //   );
-    // }
-    return okAsync(undefined);
+    
+    // private parseQuestion(
+    //     questionBlock: ISDQLQuestionBlock,
+    //     questionIndex: number,
+    //   ): ResultAsync<
+    //     AST_Question,
+    //     DuplicateIdInSchema | QueryFormatError | MissingASTError
+    //   > {
+    //     if (questionBlock.questionType == EQuestionnaireQuestionType.MultipleChoice) {
+    //       const mcQuestion = AST_MCQuestion.fromSchema(this.cid, questionIndex, SDQL_Name(questionBlock.question), questionBlock);
+    //       this.saveInContext(SDQL_Name(questionBlock.question), mcQuestion);
+    //       // this.questionsMap.set(SDQL_Name("qa" + questionIndex), mcQuestion);
+    //       return okAsync(mcQuestion);
+    //     } else {
+    //       const textQuestion = AST_TextQuestion.fromSchema(this.cid, questionIndex, SDQL_Name(questionBlock.question), questionBlock);
+    //       this.saveInContext(SDQL_Name(questionBlock.question), textQuestion);
+    //       // this.questionsMap.set(SDQL_Name("qa" + questionIndex), textQuestion);
+    //       return okAsync(textQuestion);
+    //     }
 }
-
-
-
-private parseQuestion(
-    questionBlock: ISDQLQuestionBlock,
-    questionIndex: number,
-  ): ResultAsync<
-    AST_Question,
-    DuplicateIdInSchema | QueryFormatError | MissingASTError
-  > {
-    if (questionBlock.questionType == EQuestionnaireQuestionType.MultipleChoice) {
-      const mcQuestion = AST_MCQuestion.fromSchema(this.cid, questionIndex, SDQL_Name(questionBlock.question), questionBlock);
-      this.saveInContext(SDQL_Name(questionBlock.question), mcQuestion);
-      // this.questionsMap.set(SDQL_Name("qa" + questionIndex), mcQuestion);
-      return okAsync(mcQuestion);
-    } else {
-      const textQuestion = AST_TextQuestion.fromSchema(this.cid, questionIndex, SDQL_Name(questionBlock.question), questionBlock);
-      this.saveInContext(SDQL_Name(questionBlock.question), textQuestion);
-      // this.questionsMap.set(SDQL_Name("qa" + questionIndex), textQuestion);
-      return okAsync(textQuestion);
-    }
-  }
