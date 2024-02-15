@@ -54,9 +54,9 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
     return this.indexedDB;
   }
 
-  public getKey(
+  public getKey<T extends VersionedObject>(
     recordKey: ERecordKey,
-    obj: VersionedObject,
+    obj: VolatileStorageMetadata<T>,
   ): ResultAsync<VolatileStorageKey | null, PersistenceError> {
     return this._getIDB().andThen((db) => {
       return db.getKey(recordKey, obj);

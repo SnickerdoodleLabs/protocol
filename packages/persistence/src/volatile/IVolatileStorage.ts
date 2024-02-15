@@ -52,9 +52,9 @@ export interface IVolatileStorage {
     count?: number | undefined,
   ): ResultAsync<T[], PersistenceError>;
 
-  getKey(
+  getKey<T extends VersionedObject>(
     recordKey: ERecordKey,
-    obj: VersionedObject,
+    obj: VolatileStorageMetadata<T>,
   ): ResultAsync<VolatileStorageKey | null, PersistenceError>;
 
   get<T extends VersionedObject>(

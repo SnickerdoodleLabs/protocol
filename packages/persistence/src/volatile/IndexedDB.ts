@@ -825,9 +825,9 @@ export class IndexedDB {
     });
   }
 
-  public getKey(
+  public getKey<T extends VersionedObject>(
     tableName: string,
-    obj: VersionedObject,
+    obj: VolatileStorageMetadata<T>,
   ): ResultAsync<VolatileStorageKey | null, PersistenceError> {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const keyPath = this._keyPaths.get(tableName);
@@ -835,16 +835,31 @@ export class IndexedDB {
     if (keyPath == undefined) {
       return okAsync(null);
     }
+
+    const involvesMetadata = Array.isArray(keyPath)
+      ? keyPath.some((path) =>
+          VolatileStorageMetadataIndexes.some(([metadataField]) =>
+            path.includes(metadataField),
+          ),
+        )
+      : VolatileStorageMetadataIndexes.some(([metadataField]) =>
+          keyPath.includes(metadataField),
+        );
+
     try {
+      if (involvesMetadata) {
+        return okAsync(this.getKeyPathValueFromObject(obj, keyPath));
+      }
+
       if (Array.isArray(keyPath)) {
         const ret: VolatileStorageKey[] = [];
         keyPath.forEach((item) => {
-          ret.push(this._getRecursiveKey(obj, item));
+          ret.push(this._getRecursiveKey(obj.data, item));
         });
 
         return okAsync(ret);
       } else {
-        return okAsync(this._getRecursiveKey(obj, keyPath));
+        return okAsync(this._getRecursiveKey(obj.data, keyPath));
       }
     } catch (e) {
       return errAsync(
@@ -854,6 +869,32 @@ export class IndexedDB {
         ),
       );
     }
+  }
+
+  protected getKeyPathValueFromObject<T extends VersionedObject>(
+    obj: VolatileStorageMetadata<T>,
+    path: string | string[],
+  ): VolatileStorageKey[] {
+    const paths = Array.isArray(path) ? path : [path];
+    const keyValues: VolatileStorageKey[] = [];
+
+    paths.forEach((path) => {
+      const isMetadataField = VolatileStorageMetadataIndexes.some(
+        ([metadataField]) => path === metadataField,
+      );
+
+      if (isMetadataField && path in obj) {
+        keyValues.push(obj[path] as VolatileStorageKey);
+      } else {
+        if (obj.data && typeof obj.data === "object" && path in obj.data) {
+          keyValues.push(obj.data[path] as VolatileStorageKey);
+        } else {
+          throw new Error(`Property '${path}' not found in obj:${obj}`);
+        }
+      }
+    });
+
+    return keyValues;
   }
 
   protected _clearNamedObjectStore(
@@ -968,6 +1009,7 @@ export class IndexedDB {
   }
 
   protected _getRecursiveKey(obj: object, path: string): string | number {
+    console.log(obj, path);
     const items = path.split(".");
     let ret = obj;
     items.forEach((x) => {
