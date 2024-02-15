@@ -154,24 +154,6 @@ export class CorePrompt extends DataWalletPrompt {
           return this.addAccount.start();
         case "removeAccount":
           return this.removeAccount.start();
-        case "answerQuestionnaire":
-          console.log("Answer Questionnaire");
-          const cid = IpfsCID("TestHarnessCID");
-          const questionnaireAnswers1 = new NewQuestionnaireAnswer(
-            cid, 
-            0, 
-            "Andrew");
-          const questionnaireAnswers2 = new NewQuestionnaireAnswer(
-            cid, 
-            0, 
-            0, 
-            );
-          return this.core.questionnaire.addQuestionnaire(cid).andThen(() => {
-            return this.core.questionnaire.answerQuestionnaire(cid, [
-              questionnaireAnswers1,
-              questionnaireAnswers2
-            ], undefined)
-          })
         case "optInCampaign":
           return this.optInCampaign.start();
         case "optOutCampaign":

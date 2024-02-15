@@ -348,13 +348,15 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
   private fetchQuestionnaireDataById(
     questionnaireCID: IpfsCID,
   ): ResultAsync<QuestionnaireData | null, AjaxError | PersistenceError> {
+    console.log("fetchQuestionnaireDataById cid: " + questionnaireCID);
     return this.persistence
       .get<QuestionnaireData>(ERecordKey.QUESTIONNAIRES, {
         id: [questionnaireCID, EBoolean.FALSE],
       })
-      .map((questionnaireDatas) =>
-        questionnaireDatas.length > 0 ? questionnaireDatas[0] : null,
-      );
+      .map((questionnaireDatas) => {
+        console.log("questionnaireDatas: " + questionnaireDatas);
+        return questionnaireDatas.length > 0 ? questionnaireDatas[0] : null;
+      });
   }
 
   private fetchLatestQuestionnaireHistoriesById(
@@ -374,7 +376,10 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
         query,
         latest: true,
       },
-    );
+    ).map((val) => {
+      console.log("val: " + val);
+      return val;  
+    })
   }
 
   private constructQuestionnaire(

@@ -37,6 +37,7 @@ import {
   InvalidSignatureError,
   CompensationKey,
   PossibleReward,
+  Questionnaire,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -474,36 +475,6 @@ export class InsightPlatformSimulator {
     });
   }
 
-  public postQuestionnaire(
-    consentContractAddress: EVMContractAddress,
-    queryText: SDQLString,
-  ): ResultAsync<void, Error | ConsentContractError> {
-    // Posting a questionnaire involves two things- 
-    // 1. putting the query content into IPFS, and 
-    // 2. calling requestForData on the consent contract
-    const queryJson = JSON.parse(queryText) as ISDQLQueryObject;
-    queryJson.timestamp = ISO8601DateString(new Date().toISOString());
-    queryText = SDQLString(JSON.stringify(queryJson));
-
-    // Now we can post the query to IPFS
-    return this.ipfs
-      .postToIPFS(queryText)
-      .andThen((cid) => {
-        console.log(`Posted query content to ipfs CID ${cid}`);
-        // Need to call requestForData
-        const consentContract = this.blockchain.getConsentContract(
-          consentContractAddress,
-        );
-
-        return consentContract.requestForData(cid);
-      })
-      .map(() => {
-        console.log(
-          `Sent request for data to consent contract ${consentContractAddress}`,
-        );
-      });
-  }
-
   public postQuery(
     consentContractAddress: EVMContractAddress,
     queryText: SDQLString,
@@ -512,11 +483,7 @@ export class InsightPlatformSimulator {
     // calling requestForData on the consent contract
     // The queryText needs to have the timestamp inserted
     const queryJson = JSON.parse(queryText) as ISDQLQueryObject;
-    // queryJson.timestamp = UnixTimestamp(
-    //   Math.floor(new Date().getTime() / 1000),
-    // );
     queryJson.timestamp = ISO8601DateString(new Date().toISOString());
-    // queryJson.expiry = new Date().toISOString();
     // Convert query back to string
     queryText = SDQLString(JSON.stringify(queryJson));
 
@@ -538,6 +505,35 @@ export class InsightPlatformSimulator {
         );
       });
   }
+
+  public uploadQuestionnaire(): ResultAsync<
+    IpfsCID, Error
+  > {
+    const questionnaireData = JSON.stringify(
+      {
+              name: "Text Questionnaire",
+              description: "This Questionnaire is used for basic Web2 activity",
+              image: "www.google.com/fake-image.png",
+              questions: {
+                  q1: {
+                      questionType: "text",
+                      question: "What is your name?"
+                  },
+                  q2: {
+                      questionType: "multipleChoice",
+                      question: "What is your political party affiliation?",
+                      options: ["Democrat", "Republican", "Independent", "Other"]
+                  }
+              },
+      }
+      );
+      return this.ipfs.postToIPFS(questionnaireData).map((cid) => (cid))
+        .mapErr((e) => {
+          console.error(e);
+          return e;
+        });
+  }
+  
 
   public createCampaign(
     domains: DomainName[],

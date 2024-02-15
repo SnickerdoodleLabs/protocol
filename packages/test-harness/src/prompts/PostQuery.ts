@@ -8,10 +8,14 @@ import { okAsync, ResultAsync } from "neverthrow";
 
 import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
 import { Prompt } from "@test-harness/prompts/Prompt.js";
+import { ResultUtils } from "neverthrow-result-utils";
 
 export class PostQuery extends Prompt {
   public start(): ResultAsync<void, Error | ConsentContractError> {
-    return inquiryWrapper([
+    
+    return ResultUtils.combine([
+      this.mocks.insightSimulator.uploadQuestionnaire(),
+      inquiryWrapper([
       {
         type: "list",
         name: "consentContract",
@@ -32,10 +36,10 @@ export class PostQuery extends Prompt {
         name: "queryId",
         message: "Please select which query to post:",
         choices: [
-          {
-            name: `Query 1`,
-            value: 1,
-          },
+          // {
+          //   name: `Query 1`,
+          //   value: 1,
+          // },
           {
             name: `Query 2`,
             value: 2,
@@ -57,7 +61,9 @@ export class PostQuery extends Prompt {
         ],
       },
     ])
-      .andThen((answers) => {
+  ])
+      .andThen(([ipfscid, answers]) => {
+        console.log("PROMPT ipfscid: " + ipfscid);
         const contractAddress = EVMContractAddress(answers.consentContract);
         const queryId = answers.queryId;
         if (
@@ -66,19 +72,18 @@ export class PostQuery extends Prompt {
         ) {
           // They did not pick "cancel"
           let queryText = SDQLString("");
-          if (queryId === 1) {
-            queryText = SDQLString(JSON.stringify(this.mocks.query1));
-          } else if (queryId === 2) {
+          // if (queryId === 1) {
+          //   queryText = SDQLString(JSON.stringify(this.mocks.query1));
+          // } 
+          // else 
+          if (queryId === 2) {
+            this.mocks.query2.queries.q5.cid = ipfscid;
             queryText = SDQLString(JSON.stringify(this.mocks.query2));
           } else if (queryId === 3) {
             queryText = SDQLString(JSON.stringify(this.mocks.query3));
           } else if (queryId === 4) {
             queryText = SDQLString(JSON.stringify(this.mocks.query4));
           }
-          else if (queryId === 5) {
-            queryText = SDQLString(JSON.stringify(this.mocks.query5));
-          }
-
           return this.mocks.insightSimulator.postQuery(
             contractAddress,
             queryText,

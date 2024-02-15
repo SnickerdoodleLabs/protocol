@@ -1,7 +1,3 @@
-import { TimeUtils } from "@snickerdoodlelabs/common-utils";
-import { MillisecondTimestamp } from "@snickerdoodlelabs/objects";
-
-const timeUtils = new TimeUtils();
 export const questionnaireData = JSON.stringify(
 {
         name: "Text Questionnaire",
