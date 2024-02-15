@@ -213,3 +213,88 @@ import {
     }
   }
   
+
+  public buildQuestionnaireAST(): 
+  ResultAsync<
+    AST,
+    | ParserError
+    | DuplicateIdInSchema
+    | QueryFormatError
+    | MissingTokenConstructorError
+    | QueryExpiredError
+    | MissingASTError
+  > {
+    return this.validateQuestionnaireSchema(this.schema, this.cid).andThen(() => {
+      return this.parse().map(() => {
+        const ast = new AST(
+          Version(this.schema.version!),
+          this.schema.description!,
+          this.schema.business!,
+          this.ads!,
+          this.queries!,
+          this.insights,
+          this.compensationParameters,
+          this.compensations,
+          this.questions,
+          this.schema.timestamp!,
+        );
+        return ast;
+      });
+    });
+  }
+
+  public validateQuestionnaireSchema(
+    schema: SDQLQueryWrapper,
+    cid: IpfsCID,
+  ): ResultAsync<void, QueryFormatError | QueryExpiredError> {
+    return this.validateQuestions()
+      .mapErr((e) => e)
+      .map(() => {});
+  }
+
+  private validateQuestions(): ResultAsync<void, QueryFormatError | QueryExpiredError> {
+    // return okAsync(undefined);
+    return ResultUtils.combine(
+      this.schema.getInsightEntries().map(([qKey, question]) => {
+        return this.validateInsight(qKey, question);
+      }),
+    )
+      .mapErr((e) => e)
+      .map(() => {});
+  }
+
+  private validateQuestion(question: ISDQLQuestionBlock): ResultAsync<void, QueryFormatError | QueryExpiredError> {
+    // if (
+    //   question.question == null ||
+    //   question.questionType == null
+    // ) {
+    //   return errAsync(
+    //     new QueryFormatError(
+    //       `Query CID:${this.cid} Corrupted Question: ${question}`,
+    //     ),
+    //   );
+    // }
+    return okAsync(undefined);
+}
+
+
+
+private parseQuestion(
+    questionBlock: ISDQLQuestionBlock,
+    questionIndex: number,
+  ): ResultAsync<
+    AST_Question,
+    DuplicateIdInSchema | QueryFormatError | MissingASTError
+  > {
+    if (questionBlock.questionType == EQuestionnaireQuestionType.MultipleChoice) {
+      const mcQuestion = AST_MCQuestion.fromSchema(this.cid, questionIndex, SDQL_Name(questionBlock.question), questionBlock);
+      this.saveInContext(SDQL_Name(questionBlock.question), mcQuestion);
+      // this.questionsMap.set(SDQL_Name("qa" + questionIndex), mcQuestion);
+      return okAsync(mcQuestion);
+    } else {
+      const textQuestion = AST_TextQuestion.fromSchema(this.cid, questionIndex, SDQL_Name(questionBlock.question), questionBlock);
+      this.saveInContext(SDQL_Name(questionBlock.question), textQuestion);
+      // this.questionsMap.set(SDQL_Name("qa" + questionIndex), textQuestion);
+      return okAsync(textQuestion);
+    }
+  }
