@@ -26,6 +26,7 @@ import {
   SerializedObject,
   JSONString,
   BackupError,
+  VolatileStorageMetadataIndexes,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils } from "@snickerdoodlelabs/utils";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -77,7 +78,7 @@ export class BackupManager implements IBackupManager {
     recordKey: ERecordKey,
     value: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError> {
-    return this.volatileStorage.getKey(recordKey, value.data).andThen((key) => {
+    return this.volatileStorage.getKey(recordKey, value).andThen((key) => {
       return this._checkRecordUpdateRecency(
         recordKey,
         key,
