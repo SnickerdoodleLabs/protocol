@@ -63,7 +63,6 @@ export class PostQuery extends Prompt {
     ])
   ])
       .andThen(([ipfscid, answers]) => {
-        console.log("PROMPT ipfscid: " + ipfscid);
         const contractAddress = EVMContractAddress(answers.consentContract);
         const queryId = answers.queryId;
         if (

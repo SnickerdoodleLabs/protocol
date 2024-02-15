@@ -32,7 +32,7 @@ import {
   TypeChecker,
   IQueryRepository,
   AST_Insight,
-  AST_Question,
+  AST_QuestionnaireQuery,
 } from "@query-parser/interfaces/index.js";
 
 export class AST_Evaluator {
@@ -236,42 +236,6 @@ export class AST_Evaluator {
         }
         return val;
       });
-    });
-  }
-
-  public evalQuestion(
-    ast: AST_Question,
-  ): ResultAsync<
-    SDQL_Return,
-    | EvaluationError
-    | PersistenceError
-    | EvalNotImplementedError
-    | AjaxError
-    | AccountIndexingError
-    | MethodSupportError
-    | InvalidParametersError
-  > {
-    // is it answered?
-    return this.evalAny(ast.questionIndex).andThen((targetFulfilled) => {
-
-      // It is answered - now return the insight
-      if (targetFulfilled) {
-        console.log("evalAny target; " + targetFulfilled);
-        // return 
-        // {
-        //   "questionID": 0,
-        //   "answer": 2
-        // },
-        // {
-        //   "questionID": 1,
-        //   "answer": "I like puppies and my bank account routing number is 123456789 and my PIN is 9999, the most secure number ever!"
-        // },
-        // {
-        //   "questionID": 2,
-        //   "answer": "380", // ISO-3166 code for Italy
-        // }
-      }
-      return okAsync(SDQL_Return(null));
     });
   }
 

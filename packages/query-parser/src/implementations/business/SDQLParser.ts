@@ -369,23 +369,6 @@ export class SDQLParser {
     }
   }
 
-  private parseQuestions(): ResultAsync<
-  void,
-  DuplicateIdInSchema | QueryFormatError | MissingASTError
-  > {
-    const entries = this.schema.getQuestionEntries();
-    if (entries == undefined) {
-      return okAsync(undefined);
-    }
-    return ResultUtils.combine(
-      entries.map(([index, questionBlock]) => {
-        return this.parseQuestion(questionBlock, index);
-      })
-    ).map((questions) => {
-      this.questions = questions;
-    });
-  }
-
 private parseQuestion(
   questionBlock: ISDQLQuestionBlock,
   questionIndex: number,

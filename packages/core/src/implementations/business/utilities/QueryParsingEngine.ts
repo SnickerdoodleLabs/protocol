@@ -183,9 +183,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   > {
     return this.queryFactories
       .makeParserAsync(query.cid, query.query)
-      .andThen((sdqlParser) => {
-        return sdqlParser.buildAST();
-    });
+      .andThen((sdqlParser) => sdqlParser.buildAST());
   }
 
   /** Used for reward generation on the SPA. Purpose is to show all the rewards to the user

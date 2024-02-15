@@ -790,18 +790,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           sourceDomain,
         );
       },
-      addQuestionnaire: (
-        questionnaireCid: IpfsCID,
-      ) => {
-        const questionnaireService =
-          this.iocContainer.get<IQuestionnaireService>(
-            IQuestionnaireServiceType,
-          );
-  
-          return questionnaireService.addQuestionnaire(
-            questionnaireCid
-          );
-      },
       answerQuestionnaire: (
         questionnaireId: IpfsCID,
         answers: NewQuestionnaireAnswer[],

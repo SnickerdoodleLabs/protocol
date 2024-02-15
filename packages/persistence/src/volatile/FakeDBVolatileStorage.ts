@@ -147,9 +147,6 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
     return this._getIDB().andThen((db) =>
     {
-      console.log("db: " + db);
-      console.log("json db: " + JSON.stringify(db));
-      console.log("schemaKey: " + schemaKey);
       return db.getCursor2<T>(schemaKey, {
         index,
         query,

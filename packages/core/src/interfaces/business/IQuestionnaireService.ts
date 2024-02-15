@@ -36,10 +36,6 @@ export interface IQuestionnaireService {
     | PersistenceError
     | ConsentFactoryContractError
   >;
-
-  addQuestionnaire(
-    questionnaireId: IpfsCID,
-  ): ResultAsync<void, AjaxError | PersistenceError>;
   
   /**
    * Returns a list of questionnaires that the user can complete, which are requested by a particular
