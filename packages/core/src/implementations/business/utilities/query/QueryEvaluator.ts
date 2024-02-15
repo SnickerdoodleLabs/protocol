@@ -91,8 +91,10 @@ export class QueryEvaluator implements IQueryEvaluator {
     protected contextProvider: IContextProvider,
     @inject(IWeb3AccountQueryEvaluatorType)
     protected web3AccountQueryEvaluator: IWeb3AccountQueryEvaluator,
-    @inject(IQuestionnaireQueryEvaluatorType)
-    protected questionaireQueryEvaluator: IQuestionaireQueryEvaluator,
+    // @inject(IQuestionnaireQueryEvaluatorType)
+    // protected questionaireQueryEvaluator: IQuestionaireQueryEvaluator,
+    @inject (IQuestionnaireRepositoryType) 
+    protected questionnaireRepo: IQuestionnaireRepository,
   ) {}
 
   protected age: Age = Age(0);
@@ -254,18 +256,26 @@ export class QueryEvaluator implements IQueryEvaluator {
             query.name,
           ),
         );
-        return this.questionnaireRepo.eval(query, query);
-      
-            context.publicEvents.queryPerformance.next(
-              new QueryPerformanceEvent(
-                EQueryEvents.QuestionnaireEvaluation,
-                EStatus.End,
-                queryCID,
-                query.name,
-              ),
-            );
-            return SDQL_Return(insights);
+        return this.questionnaireRepo.getByCID(query.questionnaireIndex!).map((questionnaire) => {
+          if (questionnaire == null){
+            return SDQL_Return(null);
+          }
+          const insights = questionnaire?.answers.map((questionAnswer) => {
+            return {
+              index: questionAnswer.questionIndex,
+              answer: questionAnswer.choice,
+            }
           })
+          context.publicEvents.queryPerformance.next(
+            new QueryPerformanceEvent(
+              EQueryEvents.QuestionnaireEvaluation,
+              EStatus.End,
+              queryCID,
+              query.name,
+            ),
+          );
+          return SDQL_Return(insights);
+        })
           .mapErr((err) => {
             new QueryPerformanceEvent(
               EQueryEvents.QuestionnaireEvaluation,

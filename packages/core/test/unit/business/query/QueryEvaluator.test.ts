@@ -217,7 +217,6 @@ class QueryEvaluatorMocks {
       this.socialRepo,
       this.contextProvider,
       this.web3AccountQueryEvaluator,
-      this.questionnaireService,
       this.questionnaireRepository,
     );
   }

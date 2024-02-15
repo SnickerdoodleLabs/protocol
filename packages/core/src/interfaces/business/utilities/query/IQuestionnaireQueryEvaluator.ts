@@ -1,4 +1,5 @@
 import {
+  AjaxError,
     IpfsCID,
     PersistenceError,
     SDQL_Return,

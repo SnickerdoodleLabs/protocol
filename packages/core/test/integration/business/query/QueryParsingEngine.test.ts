@@ -209,7 +209,6 @@ class QueryParsingMocks {
       this.socialRepo,
       this.contextProvider,
       this.web3AccountQueryEvaluator,
-      this.questionnaireService,
       this.questionnaireRepo,
     );
     this.queryRepository = new QueryRepository(this.queryEvaluator);

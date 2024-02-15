@@ -194,23 +194,26 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     id: IpfsCID,
     answers: QuestionnaireAnswer[],
   ): ResultAsync<void, PersistenceError | AjaxError | InvalidParametersError> {
+    console.log("upsertAnswers answers: " + answers);
     if (answers.length === 0) {
       return okAsync(undefined);
     }
 
     return this.fetchQuestionnaireDataById(id).andThen((questionnaireData) => {
+      console.log("questionnaireData: " + questionnaireData);
       if (questionnaireData == null) {
         return errAsync(
           new InvalidParametersError(`While upserting answers to Questionnaire:${id} encountered error \n
            Questionnaire does not exist!`),
         );
       }
-
       const historyRecord = new QuestionnaireHistory(
         id,
         this.timeUtils.getUnixNow(),
         answers,
       );
+      console.log("historyRecord: " + historyRecord);
+
 
       if (questionnaireData.status !== EQuestionnaireStatus.Complete) {
         questionnaireData.status = EQuestionnaireStatus.Complete;
@@ -349,6 +352,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
         id: [questionnaireCID, EBoolean.FALSE],
       })
       .map((questionnaireDatas) => {
+        console.log("Persistence Data: " + questionnaireDatas);
         return questionnaireDatas.length > 0 ? questionnaireDatas[0] : null;
       });
   }

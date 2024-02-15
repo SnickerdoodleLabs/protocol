@@ -4,6 +4,7 @@ import {
   } from "@snickerdoodlelabs/common-utils";
   import { MasterIndexer } from "@snickerdoodlelabs/indexers";
   import {
+    AjaxError,
     BigNumberString,
     ChainId,
     EQueryEvents,
@@ -30,11 +31,10 @@ import {
     AST_QuestionnaireQuery,
     AST_Question,
   } from "@snickerdoodlelabs/query-parser";
-  import { ethers } from "ethers";
   import { inject, injectable } from "inversify";
   import { errAsync, okAsync, ResultAsync } from "neverthrow";
   
-  import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
+  import { IQuestionnaireQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
   import {
     IPortfolioBalanceRepository,
     IPortfolioBalanceRepositoryType,
@@ -57,8 +57,8 @@ import { ResultUtils } from "neverthrow-result-utils";
       protected contextProvider: IContextProvider,
       @inject(IQuestionnaireRepositoryType)
       protected questionnaireRepo: IQuestionnaireRepository,
-      @inject(IIPF)
-      protected ipfsClient: IIP
+      // @inject(IIPF)
+      // protected ipfsClient: IIP
     ) {}
   
     public eval(
@@ -68,7 +68,7 @@ import { ResultUtils } from "neverthrow-result-utils";
       return this.contextProvider.getContext().andThen((context) => {
         context.publicEvents.queryPerformance.next(
           new QueryPerformanceEvent(
-            EQueryEvents.Questionn,
+            EQueryEvents.QuestionnaireEvaluation,
             EStatus.Start,
             queryCID,
             query.name,
@@ -92,14 +92,17 @@ import { ResultUtils } from "neverthrow-result-utils";
                 //   return this.ipfsClient.get<IObject>(ipfsUrl).map(
                 //     (IQuestionnaireObject) => {
                 //      }).mapErr((e) => e)
+                return (SDQL_Return("options 1"));
             }
-
+            else
             // CASE 2: We did have the Questionnaire returned to us from the repo. 
             // Answers were not found
             if (questionnaire.answers == undefined) {
+              return (SDQL_Return("options 2"));
 
             }
-
+            else
+            {
             // CASE 3: We did have the Questionnaire returned to us from the repo. 
             // The answers are included
             const insights = questionnaire.answers.map((answer) => {
@@ -108,8 +111,8 @@ import { ResultUtils } from "neverthrow-result-utils";
                   "answer": answer.choice,
                 }
             })
-            return okAsync(SDQL_Return(insights));
-
+            return (SDQL_Return(insights));
+          }
           })
           .mapErr((err) => {
             context.publicEvents.queryPerformance.next(
@@ -121,7 +124,7 @@ import { ResultUtils } from "neverthrow-result-utils";
                 err,
               ),
             );
-            return err;
+            return new PersistenceError(err.message);
           })
       });
     }
