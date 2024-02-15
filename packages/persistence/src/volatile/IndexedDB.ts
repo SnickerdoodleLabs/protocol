@@ -547,9 +547,7 @@ export class IndexedDB {
     return this.initialize().andThen((db) => {
       return this.getTransaction(name, "readonly").andThen((tx) => {
         const promise = new Promise<T[]>((resolve, reject) => {
-          console.log("getAllKeys name: " + name);
           const store = tx.objectStore(name);
-          console.log("getAllKeys store: " + store);
           let request: IDBRequest<any[]>;
           if (index == undefined) {
             const indexObj: IDBIndex = store.index("deleted");
@@ -600,7 +598,6 @@ export class IndexedDB {
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
     return this.initialize().andThen(() => {
       return this.getTransaction(name, "readonly").andThen((tx) => {
-        console.log("Starting Get function");
         const store = tx.objectStore(name);
         let request: IDBRequest<VolatileStorageMetadata<T>[]>;
 
@@ -622,7 +619,6 @@ export class IndexedDB {
               if (!Array.isArray(result)) {
                 result = [result];
               }
-              console.log("Get function before resolve");
               resolve(result);
             };
 
@@ -644,7 +640,6 @@ export class IndexedDB {
           },
         );
 
-        console.log("Get function before ResultAsync.fromPromise");
         return ResultAsync.fromPromise(promise, (e) => {
           return e as PersistenceError;
         });
@@ -724,61 +719,39 @@ export class IndexedDB {
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
     return this.initialize().andThen(() => {
       return this.getTransaction(name, "readonly").andThen((tx) => {
-        console.log(`tx: ` + (tx));
-        console.log("name: " + name);
         const store = tx.objectStore(name);
-        console.log(`store: ` + (store));
 
         let request: IDBRequest<IDBCursorWithValue | null>;
         const results: VolatileStorageMetadata<T>[] = [];
         let count = 0;
 
-        console.log(`Query Object in db`, query);
         if (index) {
-          console.log("Inside index: ");
           const indexObj = store.index(index);
           if (latest) {
-            console.log("Inside latest: ");
-            console.log(`indexObj: ` + indexObj);
             request = indexObj.openCursor(query, "prev");
           } else {
-            console.log("Inside not latest: ");
-            console.log("indexObj: " + indexObj);
-            console.log("indexObj.name: " + indexObj.name);
-            console.log("query: " + query);
             request = indexObj.openCursor(query);
           }
         } else {
-          console.log("Inside else index: ");
           request = store.openCursor(query);
         }
-        console.log(`request: ` + request);
 
         const promise = new Promise<VolatileStorageMetadata<T>[]>(
           (resolve, reject) => {
             request.onsuccess = (event) => {
-              console.log(`event: ` + event);
-
               const cursor = (event.target as IDBRequest<IDBCursorWithValue>)
                 .result;
-              console.log(`cursor: ` + cursor);
-
               if (!cursor) {
-                console.log(`not cursor: `);
                 resolve(results);
                 return;
               } else {
-                console.log(`lowerCount: ` + lowerCount);
-
                 if (lowerCount && count === 0 && lowerCount > 0) {
                   cursor.advance(lowerCount);
                   count = lowerCount;
                 } else {
-                  console.log("results: " + results);
                   results.push(cursor.value);
                   count++;
                   if (upperCount && count >= upperCount) {
-                    console.log(`upperCount: ` + upperCount);
                     resolve(results);
                   } else {
                     cursor.continue();
@@ -786,9 +759,6 @@ export class IndexedDB {
                 }
               }
             };
-
-            console.log("promise: " + promise);
-
             request.onerror = (event) => {
               reject(
                 new PersistenceError(
@@ -806,8 +776,6 @@ export class IndexedDB {
             };
           },
         );
-
-        console.log("promise 2: " + promise);
 
         return ResultAsync.fromPromise(promise, (e) => {
           return e as PersistenceError;
