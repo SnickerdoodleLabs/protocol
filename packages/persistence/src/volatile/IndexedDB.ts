@@ -600,6 +600,7 @@ export class IndexedDB {
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
     return this.initialize().andThen(() => {
       return this.getTransaction(name, "readonly").andThen((tx) => {
+        console.log("Starting Get function");
         const store = tx.objectStore(name);
         let request: IDBRequest<VolatileStorageMetadata<T>[]>;
 
@@ -621,6 +622,7 @@ export class IndexedDB {
               if (!Array.isArray(result)) {
                 result = [result];
               }
+              console.log("Get function before resolve");
               resolve(result);
             };
 
@@ -642,6 +644,7 @@ export class IndexedDB {
           },
         );
 
+        console.log("Get function before ResultAsync.fromPromise");
         return ResultAsync.fromPromise(promise, (e) => {
           return e as PersistenceError;
         });
@@ -721,10 +724,10 @@ export class IndexedDB {
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
     return this.initialize().andThen(() => {
       return this.getTransaction(name, "readonly").andThen((tx) => {
-        console.log("tx: " + (tx));
+        console.log(`tx: ` + (tx));
         console.log("name: " + name);
         const store = tx.objectStore(name);
-        console.log("store: " + (store));
+        console.log(`store: ` + (store));
 
         let request: IDBRequest<IDBCursorWithValue | null>;
         const results: VolatileStorageMetadata<T>[] = [];
@@ -736,18 +739,7 @@ export class IndexedDB {
           const indexObj = store.index(index);
           if (latest) {
             console.log("Inside latest: ");
-            console.log("indexObj: " + indexObj);
-            console.log("indexObj.name: " + indexObj.name);
-            console.log("query: " + query);
-            console.log("query: " + query.);
-            // if (query !== null) {
-            //   console.log({
-            //     lower: query.lower,
-            //     upper: query.upper,
-            //     lowerOpen: query.lowerOpen,
-            //     upperOpen: query.upperOpen,
-            //   });
-            // }
+            console.log(`indexObj: ` + indexObj);
             request = indexObj.openCursor(query, "prev");
           } else {
             console.log("Inside not latest: ");
@@ -760,22 +752,23 @@ export class IndexedDB {
           console.log("Inside else index: ");
           request = store.openCursor(query);
         }
-        console.log("request: " + request);
+        console.log(`request: ` + request);
 
         const promise = new Promise<VolatileStorageMetadata<T>[]>(
           (resolve, reject) => {
             request.onsuccess = (event) => {
-              console.log("event: " + event);
+              console.log(`event: ` + event);
 
               const cursor = (event.target as IDBRequest<IDBCursorWithValue>)
                 .result;
-                console.log("cursor: " + cursor);
+              console.log(`cursor: ` + cursor);
 
               if (!cursor) {
+                console.log(`not cursor: `);
                 resolve(results);
                 return;
               } else {
-                console.log("lowerCount: " + lowerCount);
+                console.log(`lowerCount: ` + lowerCount);
 
                 if (lowerCount && count === 0 && lowerCount > 0) {
                   cursor.advance(lowerCount);
@@ -785,6 +778,7 @@ export class IndexedDB {
                   results.push(cursor.value);
                   count++;
                   if (upperCount && count >= upperCount) {
+                    console.log(`upperCount: ` + upperCount);
                     resolve(results);
                   } else {
                     cursor.continue();
