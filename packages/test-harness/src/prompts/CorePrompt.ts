@@ -12,7 +12,6 @@ import {
   Gender,
   IpfsCID,
   ISO8601DateString,
-  NewQuestionnaireAnswer,
   SiteVisit,
   UnixTimestamp,
   URLString,
@@ -56,7 +55,6 @@ export class CorePrompt extends DataWalletPrompt {
       { name: "Remove Account", value: "removeAccount" },
       { name: "Check Account", value: "checkAccount" },
       new inquirer.Separator(),
-      { name: "Answer Questionnaire", value: "answerQuestionnaire" },
       {
         name: "Opt In to Campaign",
         value: "optInCampaign",

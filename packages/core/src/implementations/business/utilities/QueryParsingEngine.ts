@@ -25,20 +25,13 @@ import {
   PossibleReward,
   CompensationKey,
   InsightKey,
-  PublicEvents,
   EQueryEvents,
   QueryPerformanceEvent,
-  QuestionnairePerformanceEvent,
   EStatus,
   AccountIndexingError,
   AjaxError,
   InvalidParametersError,
   MethodSupportError,
-  Questionnaire,
-  QuestionnaireQuestion,
-  EQuestionnaireQuestionType,
-  EQuestionnaireStatus,
-  MarketplaceTag,
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
@@ -50,7 +43,6 @@ import {
   ISDQLQueryUtils,
   ISDQLQueryUtilsType,
   SDQLParser,
-  TypeChecker,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";

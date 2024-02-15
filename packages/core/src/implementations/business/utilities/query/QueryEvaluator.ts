@@ -261,7 +261,22 @@ export class QueryEvaluator implements IQueryEvaluator {
             if (questionnaire == null) {
               return SDQL_Return(null);
             }
-            // this.questionnaireService.getAnsweredQuestionnaires();
+
+            return this.questionnaireService
+            .eval(query, queryCID)
+            .map((result) => {
+              context.publicEvents.queryPerformance.next(
+                new QueryPerformanceEvent(
+                  EQueryEvents.BalanceEvaluation,
+                  EStatus.End,
+                  queryCID,
+                  query.name,
+                ),
+              );
+              return result;
+            })
+
+
             const insights = questionnaire.answers.map((answer) => {
               return {
                 "index": answer.questionIndex,
