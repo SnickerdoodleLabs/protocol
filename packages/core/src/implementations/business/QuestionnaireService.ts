@@ -15,6 +15,7 @@ import {
   ConsentContractError,
   UninitializedError,
   ConsentFactoryContractError,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync } from "neverthrow";
@@ -111,6 +112,41 @@ export class QuestionnaireService implements IQuestionnaireService {
     PersistenceError | AjaxError
   > {
     return this.questionnaireRepo.getAll(pagingRequest);
+  }
+
+  public test(): ResultAsync<
+    PagedResponse<void>,
+    PersistenceError | AjaxError
+  > {
+    return this.questionnaireRepo
+      .add([IpfsCID("QmeFACA648aPXQp4sP5R6sgJon4wggUhatY61Ras2WWJLF")])
+      .andThen(() => {
+        console.log(`added to the db`);
+        return this.questionnaireRepo
+          .getByCID(IpfsCID("QmeFACA648aPXQp4sP5R6sgJon4wggUhatY61Ras2WWJLF"))
+          .andThen((res) => {
+            console.log(`res with no status `, res);
+
+            return this.questionnaireRepo
+              .getByCID(
+                IpfsCID("QmeFACA648aPXQp4sP5R6sgJon4wggUhatY61Ras2WWJLF"),
+                EQuestionnaireStatus.Complete,
+              )
+              .andThen((res2) => {
+                console.log(`res with  status `, res2);
+                return this.questionnaireRepo
+                  .getByCID(
+                    IpfsCID("QmeFACA648aPXQp4sP5R6sgJon4wggUhatY61Ras2WWJLF"),
+                    EQuestionnaireStatus.Complete,
+                    UnixTimestamp(1701779738),
+                  )
+                  .map((res3) => {
+                    console.log(`res with  status and time  `, res3);
+                    return {} as unknown as PagedResponse<void>;
+                  });
+              });
+          });
+      });
   }
 
   public getConsentContractsByQuestionnaireCID(

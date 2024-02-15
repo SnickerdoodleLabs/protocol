@@ -730,6 +730,7 @@ export class IndexedDB {
         const results: VolatileStorageMetadata<T>[] = [];
         let count = 0;
 
+        console.log(`Query Object in db`, query);
         if (index) {
           console.log("Inside index: ");
           const indexObj = store.index(index);

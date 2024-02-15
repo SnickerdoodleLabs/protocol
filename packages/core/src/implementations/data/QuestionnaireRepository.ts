@@ -26,6 +26,8 @@ import {
   QuestionnaireHistory,
   EBoolean,
   MarketplaceTag,
+  EQuestionnaireQuestionType,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProviderType,
@@ -299,6 +301,34 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     { data: Partial<IPFSQuestionnaire>; cid: IpfsCID },
     AjaxError
   > {
+    const IPFSQuestionnaireCID = IpfsCID(
+      "QmeFACA648aPXQp4sP5R6sgJon4wggUhatY61Ras2WWJLF",
+    );
+    const mockIPFSQuestionnaire: IPFSQuestionnaire = {
+      title: "Sample Questionnaire",
+      description: "This is a sample questionnaire for testing purposes",
+      image: URLString("https://example.com/sample-image.jpg"),
+      questions: [
+        {
+          type: EQuestionnaireQuestionType.MultipleChoice,
+          text: "What is your favorite color?",
+          choices: ["Red", "Blue", "Green"],
+          required: true,
+        },
+        {
+          type: EQuestionnaireQuestionType.Location,
+          text: "Where are you located?",
+          required: false,
+        },
+        {
+          type: EQuestionnaireQuestionType.Text,
+          text: "What is your feedback?",
+          required: false,
+        },
+      ],
+    };
+
+    return okAsync({ data: mockIPFSQuestionnaire, cid: IPFSQuestionnaireCID });
     const url = new URL(urlJoin(config.ipfsFetchBaseUrl, cid));
     return this.ajaxUtils
       .get<Partial<IPFSQuestionnaire>>(url)
