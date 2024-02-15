@@ -738,6 +738,15 @@ export class IndexedDB {
             console.log("indexObj: " + indexObj);
             console.log("indexObj.name: " + indexObj.name);
             console.log("query: " + query);
+            console.log("query: " + query.);
+            // if (query !== null) {
+            //   console.log({
+            //     lower: query.lower,
+            //     upper: query.upper,
+            //     lowerOpen: query.lowerOpen,
+            //     upperOpen: query.upperOpen,
+            //   });
+            // }
             request = indexObj.openCursor(query, "prev");
           } else {
             console.log("Inside not latest: ");
