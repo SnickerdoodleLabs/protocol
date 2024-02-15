@@ -140,12 +140,9 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     Questionnaire | QuestionnaireWithAnswers | null,
     AjaxError | PersistenceError
   > {
-    console.log("questionnaireCID: " + questionnaireCID);
     if (status === EQuestionnaireStatus.Available) {
       return this.fetchQuestionnaireDataById(questionnaireCID).map(
         (questionnaireData) => {
-          console.log("questionnaireData 1: " + questionnaireData);
-
           if (
             questionnaireData == null ||
             questionnaireData.status !== EQuestionnaireStatus.Available
@@ -160,9 +157,6 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
       this.fetchQuestionnaireDataById(questionnaireCID),
       this.fetchLatestQuestionnaireHistoriesById(questionnaireCID, benchmark),
     ]).map(([questionnaireData, questionnaireHistories]) => {
-      console.log("questionnaireData 2: " + questionnaireData);
-      console.log("questionnaireHistories: " + questionnaireHistories);
-
       if (questionnaireData == null) {
         return null;
       }
@@ -350,13 +344,11 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
   private fetchQuestionnaireDataById(
     questionnaireCID: IpfsCID,
   ): ResultAsync<QuestionnaireData | null, AjaxError | PersistenceError> {
-    console.log("fetchQuestionnaireDataById cid: " + questionnaireCID);
     return this.persistence
       .get<QuestionnaireData>(ERecordKey.QUESTIONNAIRES, {
         id: [questionnaireCID, EBoolean.FALSE],
       })
       .map((questionnaireDatas) => {
-        console.log("questionnaireDatas: " + questionnaireDatas);
         return questionnaireDatas.length > 0 ? questionnaireDatas[0] : null;
       });
   }
@@ -365,12 +357,10 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     questionnaireCID: IpfsCID,
     benchmark?: UnixTimestamp,
   ): ResultAsync<QuestionnaireHistory[], AjaxError | PersistenceError> {
-    console.log("questionnaireCID: " + questionnaireCID);
     const query = IDBKeyRange.bound(
       [0, questionnaireCID, 0],
       [0, questionnaireCID, benchmark ?? this.timeUtils.getUnixNow()],
     );
-    console.log("query: " + JSON.stringify(query));
     return this.persistence.getCursor2<QuestionnaireHistory>(
       ERecordKey.QUESTIONNAIRES_HISTORY,
       {
@@ -378,10 +368,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
         query,
         latest: true,
       },
-    ).map((val) => {
-      console.log("val: " + val);
-      return val;  
-    })
+    )
   }
 
   private constructQuestionnaire(

@@ -36,10 +36,6 @@ export interface IQuestionnaireService {
     | PersistenceError
     | ConsentFactoryContractError
   >;
-
-  addQuestionnaire(
-    questionnaireId: IpfsCID,
-  ): ResultAsync<void, AjaxError | PersistenceError>;
   
   /**
    * Returns a list of questionnaires that the user can complete, which are requested by a particular
@@ -72,8 +68,6 @@ export interface IQuestionnaireService {
     PagedResponse<QuestionnaireWithAnswers>,
     PersistenceError | AjaxError
   >;
-
-  test(): ResultAsync<PagedResponse<void>, PersistenceError | AjaxError>;
 
   /**
    * This method provides answers to a single questionnaire. The provided answers must all

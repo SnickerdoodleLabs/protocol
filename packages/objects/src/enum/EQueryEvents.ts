@@ -23,13 +23,6 @@ export enum EQueryEvents {
    */
   ProcessesBeforeReturningQueryEvaluation = "ProcessesBeforeQueryEvaluation",
 
-
-  /**
-   * Will emit on `onQueryPosted` in QueryService:
-   * Before creating a query record and requesting available rewards from MP,
-   * we process the query and utilize the outcome to inquire about possible rewards.
-   */
-  QuestionnaireParsing = "QueryParsing",
   QuestionnaireEvaluation = "QuestionnaireEvaluation",
   QueryParsing = "QueryParsing",
   QueryEvaluation = "QueryEvaluation",
