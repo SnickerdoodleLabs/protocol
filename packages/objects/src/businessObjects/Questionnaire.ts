@@ -18,6 +18,12 @@ export enum EQuestionnaireQuestionType {
   Numeric = "numeric",
 }
 
+export enum EQuestionnarieQuestionDisplayType {
+  Dropdown = "dropdown",
+  List = "list",
+  Scale = "scale",
+}
+
 export class Questionnaire {
   public constructor(
     /**
@@ -62,8 +68,11 @@ export class QuestionnaireQuestion {
     public readonly choices: string[] | number[] | null,
     public readonly minumum: number | null,
     public readonly maximum: number | null,
+    public readonly displayType: EQuestionnarieQuestionDisplayType | null,
     public readonly multiSelect: boolean = false,
     public readonly required: boolean = false,
+    public readonly lowerLabel: string | null = null,
+    public readonly upperLabel: string | null = null,
   ) {}
 }
 

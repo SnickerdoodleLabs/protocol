@@ -322,8 +322,11 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
         choices: question.choices ?? null,
         minumum: question.minumum ?? null,
         maximum: question.maximum ?? null,
+        displayType: question.displayType ?? null,
         multiSelect: question.multiSelect ?? false,
         required: question.required ?? false,
+        lowerLabel: question.lowerLabel ?? null,
+        upperLabel: question.upperLabel ?? null,
       }),
     );
 
@@ -382,8 +385,11 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
           question.choices,
           question.minumum,
           question.maximum,
+          question.displayType,
           question.multiSelect,
           question.required,
+          question.lowerLabel,
+          question.upperLabel,
         ),
     );
 
@@ -411,8 +417,11 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
           question.choices,
           question.minumum,
           question.maximum,
+          question.displayType,
           question.multiSelect,
           question.required,
+          question.lowerLabel,
+          question.upperLabel,
         ),
     );
 

@@ -25,6 +25,10 @@
                         "type": "string",
                         "enum": ["multipleChoice", "country", "text", "numeric"]
                     },
+                    "displayType": {
+                        "type": "string",
+                        "enum": ["dropdown", "list", "scale"]
+                    },
                     "multiSelect": {
                         "type": "boolean",
                         "default": false,
@@ -34,6 +38,14 @@
                         "type": "boolean",
                         "default": false,
                         "description": "Whether the question is required to be answered"
+                    },
+                    "lowerLabel": {
+                        "type": "string",
+                        "description": "The label for the lower end of the lineer scale"
+                    },
+                    "upperLabel": {
+                        "type": "string",
+                        "description": "The label for the upper end of the lineer scale"
                     },
                     "minumum": {
                         "type": "number",
@@ -51,7 +63,10 @@
                         "type": "array",
                         "description": "The options for the multiple choice question. The order they occur is their index for selection",
                         "items": {
-                            "type": "string"
+                            "oneOf": [
+                             { "type": "string"},
+                             { "type": "number"}
+                            ]
                         }
                     }
                 },
@@ -59,5 +74,5 @@
             }
         }
     },
-    "required": ["name","questions"]
+    "required": ["title", "questions"]
 }
