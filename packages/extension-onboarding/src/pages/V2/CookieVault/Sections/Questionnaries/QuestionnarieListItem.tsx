@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
       opacity: 1,
     },
     "&:hover $updateBtn": {
-      borderColor: colors.MAINPURPLE500,
+      // borderColor: colors.MAINPURPLE500,
     },
   },
   icon: {

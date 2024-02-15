@@ -1,7 +1,8 @@
 import Container from "@extension-onboarding/components/v2/Container";
 import PageBanners from "@extension-onboarding/components/v2/PageBanners";
-import CallMadeIcon from "@material-ui/icons/CallMade";
+import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
 import { Box, Grid } from "@material-ui/core";
+import CallMadeIcon from "@material-ui/icons/CallMade";
 import {
   SDTypography,
   useMedia,
@@ -9,7 +10,7 @@ import {
   SDButton,
 } from "@snickerdoodlelabs/shared-components";
 import React, { FC } from "react";
-import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
+import { useNavigate } from "react-router-dom";
 
 const navigatorCards = [
   {
@@ -43,16 +44,39 @@ const navigatorCards = [
 ];
 const Home: FC = () => {
   const media = useMedia();
+  const navigate = useNavigate();
   return (
     <>
       <PageBanners />
       <Container>
-        <Box
+        <img
+          src="https://storage.googleapis.com/dw-assets/spa/images-v2/home-banner.svg"
+          style={{
+            width: "calc(100% + 64px)",
+            marginLeft: "-32px",
+            marginBottom: (() => {
+              switch (media) {
+                case "xs":
+                  return -16;
+                case "sm":
+                  return -32;
+                case "md":
+                  return -56;
+                default:
+                  return -64;
+              }
+            })(),
+            marginTop: "28px",
+            height: "auto",
+          }}
+        />
+        {/* <Box
           mt={{ xs: 4, sm: 10 }}
           mb={{ xs: 6.75, sm: 10 }}
           display="flex"
           flexDirection="column"
           alignItems="center"
+          position="relative"
         >
           <SDTypography
             fontFamily="shrikhand"
@@ -68,7 +92,7 @@ const Home: FC = () => {
           >
             {`Your well on your way to taking ownership of your personal data`}
           </SDTypography>
-        </Box>
+        </Box> */}
         <Grid container spacing={3}>
           {navigatorCards.map((card, index) => (
             <Grid key={index} item xs={12} sm={4}>
@@ -117,6 +141,9 @@ const Home: FC = () => {
                       <SDButton
                         {...(index > 0 && { disabled: true })}
                         variant="outlined"
+                        onClick={() => {
+                          navigate(card.path);
+                        }}
                         color="inherit"
                         endIcon={<CallMadeIcon />}
                         {...(media === "xs" && { fullWidth: true })}

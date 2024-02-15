@@ -42,6 +42,7 @@ export interface ITypographyProps
   color?: `${ETypographyColorOverrides}` | TypographyProps["color"];
   hideOverflow?: boolean;
   preWrap?: boolean;
+  hexColor?: string;
 }
 
 export const SDTypography = ({
@@ -52,6 +53,7 @@ export const SDTypography = ({
   color,
   hideOverflow,
   preWrap = true,
+  hexColor,
   ...rest
 }: ITypographyProps) => {
   const classes = useStyles();
@@ -74,6 +76,7 @@ export const SDTypography = ({
         preWrap && classes.preWrap,
         className,
       )}
+      {...(hexColor && { style: { color: hexColor } })}
     />
   );
 };

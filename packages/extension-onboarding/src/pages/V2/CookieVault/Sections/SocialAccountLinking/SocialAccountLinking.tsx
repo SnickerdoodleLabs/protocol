@@ -3,8 +3,8 @@ import Card from "@extension-onboarding/components/v2/Card";
 import CardTitle from "@extension-onboarding/components/v2/CardTitle";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import { useCookieVaultContext } from "@extension-onboarding/pages/V2/CookieVault/CookieVault.context";
 import { getResponsivePopupProperties } from "@extension-onboarding/utils";
 import { Box, IconButton, Menu, MenuItem, makeStyles } from "@material-ui/core";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
@@ -14,11 +14,7 @@ import {
   EOAuthProvider,
   OAuthAuthorizationCode,
 } from "@snickerdoodlelabs/objects";
-import {
-  SDButton,
-  SDTypography,
-  useMedia,
-} from "@snickerdoodlelabs/shared-components";
+import { SDButton, SDTypography } from "@snickerdoodlelabs/shared-components";
 import { errAsync } from "neverthrow";
 import React, { FC, useEffect, useState, useRef } from "react";
 
@@ -63,11 +59,10 @@ const SocialAccountLinking: FC<ISocialAccountLinkingProps> = ({}) => {
   const { sdlDataWallet } = useDataWalletContext();
   const { uiStateUtils } = useAppContext();
   const { setAlert } = useNotificationContext();
-  const [profiles, setProfiles] = useState<DiscordProfile[]>([]);
   const connectionWindowRef = React.useRef<Window | null>(null);
+  const { discordAccounts, fetchDiscordAccounts } = useCookieVaultContext();
 
   useEffect(() => {
-    getProfiles();
     const receiveMessage = (event: MessageEvent) => {
       if (event.source && event.source === connectionWindowRef.current) {
         const { provider, code } = event.data as {
@@ -78,7 +73,7 @@ const SocialAccountLinking: FC<ISocialAccountLinkingProps> = ({}) => {
           connectionWindowRef.current?.close();
           handleCode(code)
             .map(() => {
-              getProfiles();
+              fetchDiscordAccounts();
             })
             .mapErr((err) => {
               console.log(err);
@@ -107,17 +102,6 @@ const SocialAccountLinking: FC<ISocialAccountLinkingProps> = ({}) => {
       });
   };
 
-  const getProfiles = () => {
-    sdlDataWallet.discord
-      .getUserProfiles()
-      .map((profiles) => {
-        setProfiles(profiles);
-      })
-      .mapErr((err) => {
-        console.log(err);
-      });
-  };
-
   const handleLinkAccountClick = () => {
     sdlDataWallet.discord
       .installationUrl()
@@ -140,7 +124,7 @@ const SocialAccountLinking: FC<ISocialAccountLinkingProps> = ({}) => {
         severity: EAlertSeverity.SUCCESS,
         message: "Your account has successfully been unlinked. ",
       });
-      getProfiles();
+      fetchDiscordAccounts();
     });
   };
 
@@ -154,10 +138,10 @@ const SocialAccountLinking: FC<ISocialAccountLinkingProps> = ({}) => {
           titleVariant="headlineMd"
           subtitleVariant="bodyLg"
         />
-        {profiles.length > 0 && (
+        {discordAccounts.length > 0 && (
           <>
             <Box mt={3} />
-            {profiles.map((account, index) => (
+            {discordAccounts.map((account, index) => (
               <Box
                 key={account.id}
                 display="flex"
@@ -166,7 +150,7 @@ const SocialAccountLinking: FC<ISocialAccountLinkingProps> = ({}) => {
                 borderRadius={12}
                 alignItems="center"
                 p={3}
-                {...(profiles.length - 1 != index && { mb: 3 })}
+                {...(discordAccounts.length - 1 != index && { mb: 3 })}
                 gridGap={16}
                 position="relative"
               >
