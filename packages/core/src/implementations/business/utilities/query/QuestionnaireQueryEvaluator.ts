@@ -57,6 +57,8 @@ import { ResultUtils } from "neverthrow-result-utils";
       protected contextProvider: IContextProvider,
       @inject(IQuestionnaireRepositoryType)
       protected questionnaireRepo: IQuestionnaireRepository,
+      @inject(IIPF)
+      protected ipfsClient: IIP
     ) {}
   
     public eval(
@@ -66,7 +68,7 @@ import { ResultUtils } from "neverthrow-result-utils";
       return this.contextProvider.getContext().andThen((context) => {
         context.publicEvents.queryPerformance.next(
           new QueryPerformanceEvent(
-            EQueryEvents.BalanceDataAccess,
+            EQueryEvents.Questionn,
             EStatus.Start,
             queryCID,
             query.name,
@@ -82,9 +84,24 @@ import { ResultUtils } from "neverthrow-result-utils";
                   query.name,
                 ),
               );
+        
+            // CASE 1: Questionnaire is not found on the questionnaire repo, perhaps it is
+            // on ipfs but not on the repo yet. 
             if (questionnaire == null) {
-              return SDQL_Return(null);
+                // make ipfs call to fetch the questionnaire object
+                //   return this.ipfsClient.get<IObject>(ipfsUrl).map(
+                //     (IQuestionnaireObject) => {
+                //      }).mapErr((e) => e)
             }
+
+            // CASE 2: We did have the Questionnaire returned to us from the repo. 
+            // Answers were not found
+            if (questionnaire.answers == undefined) {
+
+            }
+
+            // CASE 3: We did have the Questionnaire returned to us from the repo. 
+            // The answers are included
             const insights = questionnaire.answers.map((answer) => {
                 return {
                   "index": answer.questionIndex,
