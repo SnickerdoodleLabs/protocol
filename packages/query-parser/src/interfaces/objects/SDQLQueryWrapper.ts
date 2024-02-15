@@ -35,7 +35,6 @@ export class SDQLQueryWrapper {
     this.preProcessAds();
     this.preProcessInsights();
     this.preProcessCompensations();
-    this.preProcessQuestions();
   }
 
   public get version(): string | undefined {

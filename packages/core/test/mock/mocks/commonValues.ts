@@ -64,9 +64,6 @@ import {
   AST_Contract,
   AST,
   AST_SubQuery,
-  AST_Question,
-  AST_TextQuestion,
-  AST_MCQuestion,
 } from "@snickerdoodlelabs/query-parser";
 import { QuestionAnswer } from "inquirer";
 
@@ -435,26 +432,12 @@ const compensation3: AST_Compensation = new AST_Compensation(
   [],
   IpfsCID("GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8"),
 );
-// const question1: AST_Question = new AST_TextQuestion(
-//   SDQL_Name(""),
-//   EQuestionnaireQuestionType.Text,
-//   [],
-// );
-// const question2: AST_Question = new AST_MCQuestion(
-//   SDQL_Name(""),
-//   EQuestionnaireQuestionType.MultipleChoice,
-//   [],
-// );
 
 // Create compensations map
 const compensationsMap: Map<SDQL_Name, AST_Compensation> = new Map();
 compensationsMap.set(SDQL_Name("c1"), compensation1);
 compensationsMap.set(SDQL_Name("c2"), compensation2);
 compensationsMap.set(SDQL_Name("c3"), compensation3);
-
-const questions: AST_Question[] = [];
-// questions.push(question1);
-// questions.push(question2);
 
 const compensationParameters = {
   recipientAddress: { type: EVMAccountAddress("address"), required: true },
@@ -475,7 +458,7 @@ export const avalanche1AstInstance = new AST(
   insightsMap,
   compensationParameters,
   compensationsMap,
-  questions,
+  [],
   UnixTimestamp(1),
 );
 

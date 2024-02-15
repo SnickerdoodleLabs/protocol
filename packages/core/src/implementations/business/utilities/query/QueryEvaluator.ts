@@ -68,6 +68,7 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
+import { IQuestionnaireService, IQuestionnaireServiceType } from "@core/interfaces/business";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
@@ -90,6 +91,8 @@ export class QueryEvaluator implements IQueryEvaluator {
     protected contextProvider: IContextProvider,
     @inject(IWeb3AccountQueryEvaluatorType)
     protected web3AccountQueryEvaluator: IWeb3AccountQueryEvaluator,
+    @inject(IQuestionnaireServiceType)
+    protected questionnaireService: IQuestionnaireService,
     @inject(IQuestionnaireRepositoryType)
     protected questionnaireRepo: IQuestionnaireRepository,
   ) {}
@@ -258,6 +261,7 @@ export class QueryEvaluator implements IQueryEvaluator {
             if (questionnaire == null) {
               return SDQL_Return(null);
             }
+            // this.questionnaireService.getAnsweredQuestionnaires();
             const insights = questionnaire.answers.map((answer) => {
               return {
                 "index": answer.questionIndex,

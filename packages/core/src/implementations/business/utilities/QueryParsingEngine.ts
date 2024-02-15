@@ -184,26 +184,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     return this.queryFactories
       .makeParserAsync(query.cid, query.query)
       .andThen((sdqlParser) => {
-        console.log("query.cid: " + query.cid);
-        console.log("query.query: " + query.query);
-        console.log("sdqlParser: " + sdqlParser);
-
         return sdqlParser.buildAST();
-
-        // return ResultUtils.combine(
-        //   sdqlParser.schema.getQueryEntries().map(([query, key]) => {
-        //   if (TypeChecker.isQuestionnaireQuery(query)){
-        //     const cid = query.questionnaireIndex;
-        //     if (cid == undefined) {
-        //       return errAsync(new QueryFormatError(`No CID provided for ${key}`));
-        //     }
-        //     return this.questionnaireService.getQuestionnaire(cid);
-        // }})
-        // )}).andThen(() => )
-        
-        // .map(() => {
-        //   return sdqlParser.buildAST();
-        // }));
     });
   }
 
@@ -320,26 +301,21 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     | MethodSupportError
     | InvalidParametersError
   > {
-
     const astEvaluator = this.queryFactories.makeAstEvaluator(
       cid,
       dataPermissions,
       ast.queryTimestamp,
     );
-
+    const insightProm = this.gatherDeliveryInsights(ast, astEvaluator);
     //Will become async in the future
     const adSigProm = this.gatherDeliveryAds(ast, cid, dataPermissions);
 
-    const [compensationKeys, insightAndAdKeys] = this.getTotalQueryKeys(ast);
-
-    const insightProm = this.gatherDeliveryInsights(ast, astEvaluator);
     return ResultUtils.combine([insightProm]).map(([insightWithProofs]) => {
       return {
         insights: insightWithProofs,
         ads: adSigProm,
       };
     });
-    
   }
 
   protected gatherDeliveryInsights(
@@ -370,25 +346,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     return ResultUtils.combine(insightMapResult).map((insightMap) => {
       return this.createDeliveryInsightObject(insightMap);
     });
-  }
-
-  protected createQuestionnaireDeliveryInsight(
-    insightMap: [SDQL_Name, SDQL_Return][],
-  ): IQueryDeliveryInsights {
-    return insightMap.reduce<IQueryDeliveryInsights>(
-      (deliveryInsights, [insightName, insight]) => {
-        if (insight !== null) {
-          deliveryInsights[insightName] = {
-            insight: this.SDQLReturnToInsight(insight),
-            proof: this.calculateInsightProof(insight),
-          };
-        } else {
-          deliveryInsights[insightName] = null;
-        }
-        return deliveryInsights;
-      },
-      {},
-    );
   }
 
   protected createDeliveryInsightObject(

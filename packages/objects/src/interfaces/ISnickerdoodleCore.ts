@@ -796,7 +796,6 @@ export interface IQuestionnaireMethods {
     PersistenceError | AjaxError
   >;
 
-  test(): ResultAsync<PagedResponse<void>, PersistenceError | AjaxError>;
   /**
    * Retrieves consent contract addresses associated with a given Questionnaire IPFS CID.
    *  This method is useful for finding out which consent contracts (brand) is interested in the the supplied Questionnaire

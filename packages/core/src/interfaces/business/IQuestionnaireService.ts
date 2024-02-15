@@ -73,8 +73,6 @@ export interface IQuestionnaireService {
     PersistenceError | AjaxError
   >;
 
-  test(): ResultAsync<PagedResponse<void>, PersistenceError | AjaxError>;
-
   /**
    * This method provides answers to a single questionnaire. The provided answers must all
    * be for the same questionnaire. If the questionnaire is not found, or if the answers are

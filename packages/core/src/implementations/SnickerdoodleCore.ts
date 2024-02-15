@@ -732,14 +732,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           sourceDomain,
         );
       },
-      test: () => {
-        const questionnaireService =
-          this.iocContainer.get<IQuestionnaireService>(
-            IQuestionnaireServiceType,
-          );
-
-        return questionnaireService.test();
-      },
       getConsentContractsByQuestionnaireCID: (
         ipfsCID: IpfsCID,
         sourceDomain: DomainName | undefined,
@@ -840,8 +832,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           sourceDomain,
         );
       },
-      
-      
     };
   }
 
