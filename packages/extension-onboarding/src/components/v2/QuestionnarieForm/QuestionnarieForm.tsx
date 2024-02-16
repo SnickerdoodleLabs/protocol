@@ -1,15 +1,28 @@
 import { countries } from "@extension-onboarding/constants/countries";
-import { Box, Checkbox, MenuItem } from "@material-ui/core";
+import {
+  Box,
+  Checkbox,
+  FormControl,
+  FormControlLabel,
+  MenuItem,
+  Radio,
+} from "@material-ui/core";
 import {
   EQuestionnaireQuestionType,
+  EQuestionnaireQuestionDisplayType,
   NewQuestionnaireAnswer,
   Questionnaire,
   QuestionnaireQuestion,
   QuestionnaireWithAnswers,
 } from "@snickerdoodlelabs/objects";
 import { SDTypography } from "@snickerdoodlelabs/shared-components";
-import { Form, Formik, FastField } from "formik";
-import { TextField, Select } from "formik-material-ui";
+import { Form, Formik, FastField, ErrorMessage } from "formik";
+import {
+  TextField,
+  Select,
+  RadioGroup,
+  CheckboxWithLabel,
+} from "formik-material-ui";
 import React, { FC, useEffect, useMemo } from "react";
 
 interface IQuestionnarieFormProps {
@@ -121,6 +134,120 @@ const getQuestionByType = (question: QuestionnaireQuestion, index, values) => {
         />
       );
     case EQuestionnaireQuestionType.MultipleChoice:
+      if (question.displayType === EQuestionnaireQuestionDisplayType.List) {
+        if (question.multiSelect) {
+          return (
+            <>
+              <Box display={"flex"} gridGap={12}>
+                {question.choices?.map((choice, choiceIndex) => (
+                  <FormControlLabel
+                    label={choice}
+                    key={choiceIndex}
+                    control={
+                      <FastField
+                        name={`answers.${index}.choice`}
+                        component={CheckboxWithLabel}
+                        validate={(value) => {
+                          return (
+                            validateRequired(value, question.required) ||
+                            validateBoundaries(
+                              value,
+                              question.minumum,
+                              question.maximum,
+                            )
+                          );
+                        }}
+                        value={choice}
+                      />
+                    }
+                  />
+                ))}
+              </Box>
+              <ErrorMessage name={`answers.${index}.choice`}>
+                {(msg) => (
+                  <SDTypography color="error" variant="bodySm">
+                    {msg}
+                  </SDTypography>
+                )}
+              </ErrorMessage>
+            </>
+          );
+        }
+        return (
+          <>
+            <FastField
+              name={`answers.${index}.choice`}
+              component={RadioGroup}
+              variant="outlined"
+              validate={(value) => {
+                return (
+                  validateRequired(value, question.required) ||
+                  validateBoundaries(value, question.minumum, question.maximum)
+                );
+              }}
+            >
+              <Box display="flex" gridGap={12}>
+                {question.choices?.map((choice, choiceIndex) => (
+                  <FormControlLabel
+                    key={choiceIndex}
+                    value={choice}
+                    control={<Radio />}
+                    label={choice}
+                  />
+                ))}
+              </Box>
+            </FastField>
+            <ErrorMessage name={`answers.${index}.choice`}>
+              {(msg) => (
+                <SDTypography color="error" variant="bodySm">
+                  {msg}
+                </SDTypography>
+              )}
+            </ErrorMessage>
+          </>
+        );
+      }
+      if (question.displayType === EQuestionnaireQuestionDisplayType.Scale) {
+        const isLineer = question.lowerLabel && question.upperLabel;
+        return (
+          <>
+            <FastField
+              name={`answers.${index}.choice`}
+              component={RadioGroup}
+              variant="outlined"
+              validate={(value) => {
+                return (
+                  validateRequired(value, question.required) ||
+                  validateBoundaries(value, question.minumum, question.maximum)
+                );
+              }}
+            >
+              <Box display="flex" gridGap={12} alignItems="center">
+                {isLineer && <SDTypography>{question.lowerLabel}</SDTypography>}
+                <Box display="flex" gridGap={12}>
+                  {question.choices?.map((choice, choiceIndex) => (
+                    <FormControlLabel
+                      key={choiceIndex}
+                      value={choice}
+                      labelPlacement={isLineer ? "top" : "bottom"}
+                      control={<Radio />}
+                      label={choice}
+                    />
+                  ))}
+                </Box>
+                {isLineer && <SDTypography>{question.upperLabel}</SDTypography>}
+              </Box>
+            </FastField>
+            <ErrorMessage name={`answers.${index}.choice`}>
+              {(msg) => (
+                <SDTypography color="error" variant="bodySm">
+                  {msg}
+                </SDTypography>
+              )}
+            </ErrorMessage>
+          </>
+        );
+      }
       return (
         <FastField
           name={`answers.${index}.choice`}

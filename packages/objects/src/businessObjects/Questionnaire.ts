@@ -18,7 +18,7 @@ export enum EQuestionnaireQuestionType {
   Numeric = "numeric",
 }
 
-export enum EQuestionnarieQuestionDisplayType {
+export enum EQuestionnaireQuestionDisplayType {
   Dropdown = "dropdown",
   List = "list",
   Scale = "scale",
@@ -68,7 +68,7 @@ export class QuestionnaireQuestion {
     public readonly choices: string[] | number[] | null,
     public readonly minumum: number | null,
     public readonly maximum: number | null,
-    public readonly displayType: EQuestionnarieQuestionDisplayType | null,
+    public readonly displayType: EQuestionnaireQuestionDisplayType | null,
     public readonly multiSelect: boolean = false,
     public readonly required: boolean = false,
     public readonly lowerLabel: string | null = null,

@@ -1,6 +1,6 @@
 import {
   EQuestionnaireQuestionType,
-  EQuestionnarieQuestionDisplayType,
+  EQuestionnaireQuestionDisplayType,
 } from "@objects/businessObjects/Questionnaire.js";
 import { URLString } from "@objects/primitives/URLString.js";
 
@@ -16,7 +16,7 @@ export interface IPFSQuestionnaire {
     maximum?: number;
     multiSelect?: boolean;
     required?: boolean;
-    displayType?: EQuestionnarieQuestionDisplayType;
+    displayType?: EQuestionnaireQuestionDisplayType;
     lowerLabel?: string;
     upperLabel?: string;
   }[];
