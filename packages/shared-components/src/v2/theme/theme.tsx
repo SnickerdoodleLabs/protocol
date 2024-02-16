@@ -546,6 +546,8 @@ export const createDefaultTheme = (
       MuiFormHelperText: {
         contained: {
           marginLeft: 0,
+          marginTop: 16,
+          ...typograpyVariants.bodyMd,
         },
       },
       MuiInputBase: {

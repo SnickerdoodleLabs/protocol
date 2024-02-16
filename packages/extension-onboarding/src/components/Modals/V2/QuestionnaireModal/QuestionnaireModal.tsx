@@ -1,6 +1,6 @@
 import { useModalStyles } from "@extension-onboarding/components/Modals/Modal.style";
 import Card from "@extension-onboarding/components/v2/Card";
-import QuestionnarieForm from "@extension-onboarding/components/v2/QuestionnarieForm";
+import QuestionnaireForm from "@extension-onboarding/components/v2/QuestionnaireForm";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { Box, Dialog, Divider, Grid } from "@material-ui/core";
 import {
@@ -14,20 +14,20 @@ import {
   colors,
 } from "@snickerdoodlelabs/shared-components";
 import React, { FC } from "react";
-export interface IQuestionnarieModal {
-  questionnarie: Questionnaire;
+export interface IQuestionnaireModal {
+  questionnaire: Questionnaire;
   onSubmitClicked: (answers: NewQuestionnaireAnswer[]) => void;
 }
 
-const QuestionnarieModal: FC = () => {
+const QuestionnaireModal: FC = () => {
   const { modalState, closeModal } = useLayoutContext();
   const { onPrimaryButtonClick, customProps } = modalState;
-  const { questionnarie, onSubmitClicked } = customProps as IQuestionnarieModal;
+  const { questionnaire, onSubmitClicked } = customProps as IQuestionnaireModal;
   const modalClasses = useModalStyles();
 
   return (
     <Dialog
-      open={!!questionnarie}
+      open={!!questionnaire}
       fullWidth
       onClose={closeModal}
       className={modalClasses.containerLg}
@@ -47,16 +47,16 @@ const QuestionnarieModal: FC = () => {
               style={{
                 borderRadius: 8,
               }}
-              src={questionnarie.image ?? ""}
-              alt={questionnarie.title}
+              src={questionnaire.image ?? ""}
+              alt={questionnaire.title}
             />
             <Box>
               <SDTypography variant="titleMd" fontWeight="bold">
-                {questionnarie.title}
+                {questionnaire.title}
               </SDTypography>
               <Box mt={0.5} />
               <SDTypography variant="titleSm">
-                {questionnarie.description}
+                {questionnaire.description}
               </SDTypography>
             </Box>
           </Box>
@@ -66,12 +66,12 @@ const QuestionnarieModal: FC = () => {
         <Box mt={6} />
         <Box width="90%" margin="auto">
           <Card>
-            <QuestionnarieForm
+            <QuestionnaireForm
               onSubmit={(answers) => {
                 onSubmitClicked(answers);
                 closeModal();
               }}
-              questionnarie={questionnarie}
+              questionnaire={questionnaire}
               renderItem={(text, input, isLast) => (
                 <>
                   <Box py={4}>
@@ -98,4 +98,4 @@ const QuestionnarieModal: FC = () => {
   );
 };
 
-export default QuestionnarieModal;
+export default QuestionnaireModal;

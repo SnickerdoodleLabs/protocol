@@ -1,7 +1,6 @@
 import { useModalStyles } from "@extension-onboarding/components/Modals/Modal.style";
-import Card from "@extension-onboarding/components/v2/Card";
 import { DeleteIcon } from "@extension-onboarding/components/v2/Icons";
-import QuestionnarieForm from "@extension-onboarding/components/v2/QuestionnarieForm";
+import QuestionnaireForm from "@extension-onboarding/components/v2/QuestionnaireForm";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { Box, Dialog } from "@material-ui/core";
 import {
@@ -15,21 +14,21 @@ import {
   colors,
 } from "@snickerdoodlelabs/shared-components";
 import React, { FC } from "react";
-export interface IAnsweredQuestionnarieModal {
-  questionnarie: QuestionnaireWithAnswers;
+export interface IAnsweredQuestionnaireModal {
+  questionnaire: QuestionnaireWithAnswers;
   onSubmitClicked: (answers: NewQuestionnaireAnswer[]) => void;
 }
 
 const AnsweredQuestionnarieModal: FC = () => {
   const { modalState, closeModal } = useLayoutContext();
   const { onPrimaryButtonClick, customProps } = modalState;
-  const { questionnarie, onSubmitClicked } =
-    customProps as IAnsweredQuestionnarieModal;
+  const { questionnaire, onSubmitClicked } =
+    customProps as IAnsweredQuestionnaireModal;
   const modalClasses = useModalStyles();
 
   return (
     <Dialog
-      open={!!questionnarie}
+      open={!!questionnaire}
       fullWidth
       onClose={closeModal}
       className={modalClasses.container}
@@ -49,16 +48,16 @@ const AnsweredQuestionnarieModal: FC = () => {
               style={{
                 borderRadius: 8,
               }}
-              src={questionnarie.image ?? ""}
-              alt={questionnarie.title}
+              src={questionnaire.image ?? ""}
+              alt={questionnaire.title}
             />
             <Box>
               <SDTypography variant="titleMd" fontWeight="bold">
-                {questionnarie.title}
+                {questionnaire.title}
               </SDTypography>
               <Box mt={0.5} />
               <SDTypography variant="titleSm">
-                {questionnarie.description}
+                {questionnaire.description}
               </SDTypography>
             </Box>
           </Box>
@@ -66,12 +65,12 @@ const AnsweredQuestionnarieModal: FC = () => {
         </Box>
         <Box mt={6} />
 
-        <QuestionnarieForm
+        <QuestionnaireForm
           onSubmit={(answers) => {
             onSubmitClicked(answers);
             closeModal();
           }}
-          questionnarie={questionnarie}
+          questionnaire={questionnaire}
         />
         <Box color={colors.GREY500} display="flex">
           <SDButton startIcon={<DeleteIcon />} variant="text" color="inherit">

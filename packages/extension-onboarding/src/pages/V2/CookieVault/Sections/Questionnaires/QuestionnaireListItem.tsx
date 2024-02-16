@@ -38,14 +38,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface IQuestionnarieListItemProps {
-  questionnarie: Questionnaire | QuestionnaireWithAnswers;
+interface IQuestionnaireListItemProps {
+  questionnaire: Questionnaire | QuestionnaireWithAnswers;
   onClick: () => void;
 }
 
-const QuestionnarieListItem: React.FC<IQuestionnarieListItemProps> = ({
+const QuestionnaireListItem: React.FC<IQuestionnaireListItemProps> = ({
   onClick,
-  questionnarie,
+  questionnaire,
 }) => {
   const classes = useStyles();
   return (
@@ -63,20 +63,20 @@ const QuestionnarieListItem: React.FC<IQuestionnarieListItemProps> = ({
           style={{
             borderRadius: 8,
           }}
-          src={questionnarie.image ?? ""}
-          alt={questionnarie.title}
+          src={questionnaire.image ?? ""}
+          alt={questionnaire.title}
         />
         <Box>
           <SDTypography variant="titleMd" fontWeight="bold">
-            {questionnarie.title}
+            {questionnaire.title}
           </SDTypography>
           <Box mt={0.5} />
           <SDTypography variant="titleSm">
-            {questionnarie.description}
+            {questionnaire.description}
           </SDTypography>
         </Box>
       </Box>
-      {questionnarie.status === EQuestionnaireStatus.Available ? (
+      {questionnaire.status === EQuestionnaireStatus.Available ? (
         <Box
           height="fit-content"
           borderRadius={16}
@@ -116,4 +116,4 @@ const QuestionnarieListItem: React.FC<IQuestionnarieListItemProps> = ({
   );
 };
 
-export default QuestionnarieListItem;
+export default QuestionnaireListItem;

@@ -2,7 +2,7 @@ import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import Card from "@extension-onboarding/components/v2/Card";
 import CardTitle from "@extension-onboarding/components/v2/CardTitle";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import QuestionnarieListItem from "@extension-onboarding/pages/V2/CookieVault/Sections/Questionnaries/QuestionnarieListItem";
+import QuestionnaireListItem from "@extension-onboarding/pages/V2/CookieVault/Sections/Questionnaires/QuestionnaireListItem";
 import { Box, Divider } from "@material-ui/core";
 import {
   EQuestionnaireQuestionType,
@@ -21,7 +21,7 @@ import {
 import { okAsync } from "neverthrow";
 import React, { Fragment, memo, useEffect, useState } from "react";
 
-const mockQuestionaries: PagedResponse<Questionnaire> =
+const mockQuestionnaires: PagedResponse<Questionnaire> =
   new PagedResponse<Questionnaire>(
     [
       new Questionnaire(
@@ -77,10 +77,23 @@ const mockQuestionaries: PagedResponse<Questionnaire> =
             true,
           ),
           new QuestionnaireQuestion(
+            10,
+            EQuestionnaireQuestionType.MultipleChoice,
+            "How often do you go to the gym in a week?",
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 0],
+            null,
+            null,
+            EQuestionnaireQuestionDisplayType.List,
+            false,
+            true,
+            "lower Label",
+            "upper Label",
+          ),
+          new QuestionnaireQuestion(
             6,
             EQuestionnaireQuestionType.MultipleChoice,
             "How often do you go to the gym in a week?",
-            ["1-2", "3-4", "5-6", "7-8"],
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 0],
             null,
             null,
             EQuestionnaireQuestionDisplayType.Scale,
@@ -130,7 +143,7 @@ const mockQuestionaries: PagedResponse<Questionnaire> =
     40,
   );
 
-const questionarrieWithAnswersMock: QuestionnaireWithAnswers =
+const questionnaireWithAnswersMock: QuestionnaireWithAnswers =
   new QuestionnaireWithAnswers(
     IpfsCID("1235"),
     MarketplaceTag("test"),
@@ -193,34 +206,34 @@ const questionarrieWithAnswersMock: QuestionnaireWithAnswers =
   );
 
 const answeredQuestionnariesMocks = new PagedResponse<QuestionnaireWithAnswers>(
-  [questionarrieWithAnswersMock],
+  [questionnaireWithAnswersMock],
   1,
   20,
   40,
 );
 
 const Questionnaries = () => {
-  const [unAnsweredQuestionnaries, setUnAnsweredQuestionnaries] =
+  const [unAnsweredQuestionnaires, setUnAnsweredQuestionnaires] =
     React.useState<PagedResponse<Questionnaire>>();
 
-  const [answeredQuestionnaries, setAnsweredQuestionnaries] =
+  const [answeredQuestionnaires, setAnsweredQuestionnaires] =
     React.useState<PagedResponse<QuestionnaireWithAnswers>>();
   const { setModal } = useLayoutContext();
 
   useEffect(() => {
-    getUnAnsweredQuestionnaries();
+    getUnAnsweredQuestionnaires();
     getAnsweredQuestionnaries();
   }, []);
 
-  const getUnAnsweredQuestionnaries = () => {
-    okAsync(mockQuestionaries).map((response) => {
-      setUnAnsweredQuestionnaries(response);
+  const getUnAnsweredQuestionnaires = () => {
+    okAsync(mockQuestionnaires).map((response) => {
+      setUnAnsweredQuestionnaires(response);
     });
   };
 
   const getAnsweredQuestionnaries = () => {
     okAsync(answeredQuestionnariesMocks).map((response) => {
-      setAnsweredQuestionnaries(response);
+      setAnsweredQuestionnaires(response);
     });
   };
 
@@ -247,56 +260,56 @@ const Questionnaries = () => {
           borderRadius={16}
           borderColor="borderColor"
         >
-          {unAnsweredQuestionnaries?.response.map((questionnarie, index) => {
+          {unAnsweredQuestionnaires?.response.map((questionnaire, index) => {
             return (
-              <Fragment key={`uaq-${questionnarie.id}`}>
-                <QuestionnarieListItem
-                  questionnarie={questionnarie}
+              <Fragment key={`uaq-${questionnaire.id}`}>
+                <QuestionnaireListItem
+                  questionnaire={questionnaire}
                   onClick={() => {
                     setModal({
-                      modalSelector: EModalSelectors.QUESTIONNARIE_MODAL,
+                      modalSelector: EModalSelectors.QUESTIONNAIRE_MODAL,
                       onPrimaryButtonClick: () => {},
                       customProps: {
-                        questionnarie,
+                        questionnaire,
                         onSubmitClicked: (
                           answers: NewQuestionnaireAnswer[],
                         ) => {
-                          onQuestionnarieSubmit(answers, questionnarie.id);
+                          onQuestionnarieSubmit(answers, questionnaire.id);
                         },
                       },
                     });
                   }}
                 />
-                {index !== unAnsweredQuestionnaries.response.length - 1 && (
+                {index !== unAnsweredQuestionnaires.response.length - 1 && (
                   <Divider />
                 )}
               </Fragment>
             );
           })}
-          {(answeredQuestionnaries?.response.length ?? 0) > 0 &&
-            (unAnsweredQuestionnaries?.response.length ?? 0) > 0 && <Divider />}
-          {answeredQuestionnaries?.response.map((questionnarie, index) => {
+          {(answeredQuestionnaires?.response.length ?? 0) > 0 &&
+            (unAnsweredQuestionnaires?.response.length ?? 0) > 0 && <Divider />}
+          {answeredQuestionnaires?.response.map((questionnaire, index) => {
             return (
-              <Fragment key={`aq-${questionnarie.id}`}>
-                <QuestionnarieListItem
-                  questionnarie={questionnarie}
+              <Fragment key={`aq-${questionnaire.id}`}>
+                <QuestionnaireListItem
+                  questionnaire={questionnaire}
                   onClick={() => {
                     setModal({
                       modalSelector:
-                        EModalSelectors.ANSWERED_QUESTIONNARIE_MODAL,
+                        EModalSelectors.ANSWERED_QUESTIONNAIRE_MODAL,
                       onPrimaryButtonClick: () => {},
                       customProps: {
-                        questionnarie,
+                        questionnaire,
                         onSubmitClicked: (
                           answers: NewQuestionnaireAnswer[],
                         ) => {
-                          onQuestionnarieSubmit(answers, questionnarie.id);
+                          onQuestionnarieSubmit(answers, questionnaire.id);
                         },
                       },
                     });
                   }}
                 />
-                {index !== answeredQuestionnaries.response.length - 1 && (
+                {index !== answeredQuestionnaires.response.length - 1 && (
                   <Divider />
                 )}
               </Fragment>
