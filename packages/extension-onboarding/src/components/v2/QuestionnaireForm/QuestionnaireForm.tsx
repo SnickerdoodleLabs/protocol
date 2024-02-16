@@ -142,6 +142,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+// fomatting multiple choice answer to the expected type this is for checkbox and radio
 function formatMultipleChoiceAnswer(choice, choices) {
   const isExpectedTypeNumeric = typeof (choices ?? [""])?.[0] === "number";
   return isExpectedTypeNumeric
@@ -151,7 +152,7 @@ function formatMultipleChoiceAnswer(choice, choices) {
     : choice;
 }
 
-function shouldSkipAnswer(mode, questionnaire, answer, formattedAnswer) {
+const shouldSkipAnswer = (mode, questionnaire, answer, formattedAnswer) => {
   if (
     mode === Mode.UPDATE &&
     (questionnaire as QuestionnaireWithAnswers).answers.find(
@@ -163,7 +164,18 @@ function shouldSkipAnswer(mode, questionnaire, answer, formattedAnswer) {
     return true;
   }
   return false;
-}
+};
+
+// radio button and checkbox values are always strings
+const formatIncomingAnswer = (choice, choices: string[] | number[] | null) => {
+  if (choice == null) return choice;
+
+  const isExpectedTypeNumeric = typeof (choices ?? [""])?.[0] === "number";
+  if (isExpectedTypeNumeric) {
+    return Array.isArray(choice) ? choice.map((c) => `${c}`) : `${choice}`;
+  }
+  return choice;
+};
 
 const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
   questionnaire,
@@ -183,14 +195,22 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
       } else {
         defaultChoice = "";
       }
+      const unformattedChoice =
+        questionnaire instanceof QuestionnaireWithAnswers
+          ? questionnaire.answers.find(
+              (answer) => answer.questionIndex === question.index,
+            )?.choice ?? defaultChoice
+          : defaultChoice;
+      // format incoming answer for radio and checkbox
+      const formattedChoice =
+        question.type === EQuestionnaireQuestionType.MultipleChoice &&
+        (question.displayType === EQuestionnaireQuestionDisplayType.Scale ||
+          question.displayType === EQuestionnaireQuestionDisplayType.List)
+          ? formatIncomingAnswer(unformattedChoice, question.choices)
+          : unformattedChoice;
       return {
         ...question,
-        choice:
-          questionnaire instanceof QuestionnaireWithAnswers
-            ? questionnaire.answers.find(
-                (answer) => answer.questionIndex === question.index,
-              )?.choice ?? defaultChoice
-            : defaultChoice,
+        choice: formattedChoice,
       };
     });
   }, [JSON.stringify(questionnaire)]);
