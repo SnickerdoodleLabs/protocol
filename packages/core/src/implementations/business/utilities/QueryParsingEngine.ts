@@ -25,7 +25,6 @@ import {
   PossibleReward,
   CompensationKey,
   InsightKey,
-  PublicEvents,
   EQueryEvents,
   QueryPerformanceEvent,
   EStatus,
@@ -46,7 +45,7 @@ import {
   SDQLParser,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { BaseOf } from "ts-brand";
 
@@ -61,6 +60,7 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
+import { IQuestionnaireService, IQuestionnaireServiceType } from "@core/interfaces/business/IQuestionnaireService.js";
 
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {
@@ -69,6 +69,8 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected queryFactories: IQueryFactories,
     @inject(IQueryRepositoryType)
     protected queryRepository: IQueryRepository,
+    @inject(IQuestionnaireServiceType)
+    protected questionnaireService: IQuestionnaireService,
     @inject(ISDQLQueryUtilsType)
     protected queryUtils: ISDQLQueryUtils,
     @inject(IAdRepositoryType)
@@ -164,10 +166,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   ): ResultAsync<
     AST,
     | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
     | ParserError
-    | EvaluationError
     | QueryFormatError
     | QueryExpiredError
     | MissingTokenConstructorError
@@ -297,7 +296,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       dataPermissions,
       ast.queryTimestamp,
     );
-
     const insightProm = this.gatherDeliveryInsights(ast, astEvaluator);
     //Will become async in the future
     const adSigProm = this.gatherDeliveryAds(ast, cid, dataPermissions);

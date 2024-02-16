@@ -16,7 +16,10 @@ import {
   ISO8601DateString,
   SDQLQuery,
   UnixTimestamp,
+  ISDQLQuestionBlock,
+  SubQueryKey,
 } from "@snickerdoodlelabs/objects";
+import { ResultAsync, okAsync } from "neverthrow";
 
 export class SDQLQueryWrapper {
   /**
@@ -124,6 +127,13 @@ export class SDQLQueryWrapper {
     return isoDate;
   }
 
+  public get name(): string | undefined {
+    if (!this.internalObj.name) {
+      return undefined;
+    }
+    return `${this.internalObj.name}`;
+  }
+
   public get timestamp(): UnixTimestamp | null {
     if (this.internalObj.timestamp == null) {
       return null;
@@ -159,6 +169,11 @@ export class SDQLQueryWrapper {
     return this.internalObj.business;
   }
 
+  public getQueryEntries(): [SubQueryKey, ISDQLInsightBlock][] {
+    const queries = this.getQuerySchema();
+    return this._getEntries<SubQueryKey, ISDQLInsightBlock>(queries);
+  }
+
   public getInsightEntries(): [InsightKey, ISDQLInsightBlock][] {
     const insights = this.getInsightSchema();
     return this._getEntries<InsightKey, ISDQLInsightBlock>(insights);
@@ -192,6 +207,10 @@ export class SDQLQueryWrapper {
 
   public getInsightSchema(): ISDQLInsightsBlock {
     return this.internalObj.insights;
+  }
+
+  public getQuestionSchema(): ISDQLQuestionBlock[] {
+    return this.internalObj.questions;
   }
 
   private _getEntries<K, V>(o: { [s: string]: any }): [K, V][] {

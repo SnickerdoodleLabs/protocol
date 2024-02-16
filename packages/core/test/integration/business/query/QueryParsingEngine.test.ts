@@ -38,6 +38,7 @@ import {
   avalanche2SchemaStr,
   avalanche1SchemaStr,
   avalanche4SchemaStr,
+  questionnaireData,
   IQueryFactories,
   QueryFactories,
   rewardless1SchemaStr,
@@ -58,6 +59,7 @@ import {
 import {
   AdContentRepository,
   AdDataRepository,
+  QuestionnaireRepository,
 } from "@core/implementations/data/index.js";
 import {
   IBrowsingDataRepository,
@@ -74,6 +76,7 @@ import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
+import { QuestionnaireService } from "@core/implementations/business";
 
 const queryCID = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(
@@ -83,8 +86,10 @@ const sdqlQueryExpired = new SDQLQuery(
 const sdqlQuery = new SDQLQuery(queryCID, SDQLString(avalanche1SchemaStr));
 const sdqlQuery2 = new SDQLQuery(queryCID, SDQLString(avalanche2SchemaStr));
 const sdqlQuery4 = new SDQLQuery(queryCID, SDQLString(avalanche4SchemaStr));
-
 const sdqlQuery5 = new SDQLQuery(queryCID, SDQLString(rewardless1SchemaStr));
+const sdqlQuery6 = new SDQLQuery(queryCID, SDQLString(questionnaireData));
+const questionnaireQuery = new SDQLQuery(queryCID, SDQLString(questionnaireData));
+
 
 const linkedAccounts: LinkedAccount[] = [
   new LinkedAccount(
@@ -114,6 +119,8 @@ class QueryParsingMocks {
   public demoDataRepo = td.object<IDemographicDataRepository>();
   public browsingDataRepo = td.object<IBrowsingDataRepository>();
   public adDataRepo = td.object<AdDataRepository>();
+  public questionnaireRepo = td.object<QuestionnaireRepository>();
+  public questionnaireService = td.object<QuestionnaireService>();
   public socialRepo = td.object<ISocialRepository>();
   public accountRepo = td.object<ILinkedAccountRepository>();
   public timeUtils: ITimeUtils = td.object<ITimeUtils>();
@@ -202,6 +209,7 @@ class QueryParsingMocks {
       this.socialRepo,
       this.contextProvider,
       this.web3AccountQueryEvaluator,
+      this.questionnaireRepo,
     );
     this.queryRepository = new QueryRepository(this.queryEvaluator);
 
@@ -220,6 +228,7 @@ class QueryParsingMocks {
     return new QueryParsingEngine(
       this.queryFactories,
       this.queryRepository,
+      this.questionnaireService,
       this.queryUtils,
       this.adContentRepository,
       this.adDataRepo,
@@ -517,6 +526,37 @@ describe("Testing parsing", () => {
       .mapErr((e) => {
         console.log(e);
         fail(e.message);
+      });
+  });
+});
+
+describe("Handle Questionnaire", () => {
+  test("Should handle questionnaire with no ads", async () => {
+    const mocks = new QueryParsingMocks();
+    const engine = mocks.factory();
+    await engine
+      .handleQuery(sdqlQuery6, new DataPermissions(allPermissions))
+      .andThen((questionnaire) => {
+        console.log("Questionnaire Object: " + JSON.stringify(questionnaire));
+        expect(questionnaire.insights).toEqual(
+          [
+            {
+              "index":0,
+              "type":"Text",
+              "text":"What is your name?"}
+              ,
+              {"index":1,
+              "type":"Text",
+              "text":"What is your political party affiliation?",
+              "choices":["Democrat","Republican","Independent","Other"]
+            }
+          ]
+        )
+        return okAsync(questionnaire.insights);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        expect(1).toBe(2);
       });
   });
 });

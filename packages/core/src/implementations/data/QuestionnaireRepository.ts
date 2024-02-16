@@ -26,6 +26,8 @@ import {
   QuestionnaireHistory,
   EBoolean,
   MarketplaceTag,
+  EQuestionnaireQuestionType,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProviderType,
@@ -192,26 +194,30 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     id: IpfsCID,
     answers: QuestionnaireAnswer[],
   ): ResultAsync<void, PersistenceError | AjaxError | InvalidParametersError> {
+    console.log(`upsertAnswers answers: ` + JSON.stringify(answers));
     if (answers.length === 0) {
       return okAsync(undefined);
     }
 
     return this.fetchQuestionnaireDataById(id).andThen((questionnaireData) => {
+      console.log("questionnaireData: " + questionnaireData);
       if (questionnaireData == null) {
         return errAsync(
           new InvalidParametersError(`While upserting answers to Questionnaire:${id} encountered error \n
            Questionnaire does not exist!`),
         );
       }
-
       const historyRecord = new QuestionnaireHistory(
         id,
         this.timeUtils.getUnixNow(),
         answers,
       );
+      console.log("historyRecord: " + historyRecord);
+
 
       if (questionnaireData.status !== EQuestionnaireStatus.Complete) {
         questionnaireData.status = EQuestionnaireStatus.Complete;
+        console.log("historyRecord: " + historyRecord);
 
         return ResultUtils.combine([
           this.persistence.updateRecord(
@@ -237,6 +243,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
         if (newCids.length === 0) {
           return okAsync(undefined);
         }
+        console.log("adding CIDS: " + questionnaireCids);
         return this.configProvider
           .getConfig()
           .andThen((config) =>
@@ -247,6 +254,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
             ),
           )
           .andThen((results) => {
+            console.log("CIDS results: " + results);
             const questionnaires = results
               .map(({ data, cid }) =>
                 this.processIPFSQuestionnaireData(data, cid),
@@ -255,6 +263,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
                 (questionnaire): questionnaire is QuestionnaireData =>
                   questionnaire !== undefined,
               );
+            console.log("Questionnaire Data: " + questionnaires);
             return this.upsertQuestionnaireData(questionnaires).map(() => {});
           });
       },
@@ -294,16 +303,23 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     AjaxError
   > {
     const url = new URL(urlJoin(config.ipfsFetchBaseUrl, cid));
+    console.log("questionnaire repo config url: " + url);
     return this.ajaxUtils
       .get<Partial<IPFSQuestionnaire>>(url)
-      .map((data) => ({ data, cid }));
+      .map((data) => {
+        console.log("fetched Data: " + JSON.stringify(data));
+        return { data, cid };
+      });
   }
 
   private processIPFSQuestionnaireData(
     data: Partial<IPFSQuestionnaire>,
     cid: IpfsCID,
   ): QuestionnaireData | undefined {
+    console.log("cid: : " + cid);
+    console.log("data: " + JSON.stringify(data));
     const isValid = this.validateQuestionnaireData(data);
+    console.log("isValid: " + isValid);
     //TODO perhaps we can handle invalid IPFS cids later, not sure if it will benefit us
     if (!isValid) {
       this.logUtils.warning(
@@ -313,20 +329,27 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
       );
       return undefined;
     }
+    console.log("data.questions: " + data.questions);
+    console.log("data.questions: " + JSON.stringify(data.questions));
+
 
     const questions = data.questions.map<PropertiesOf<QuestionnaireQuestion>>(
-      (question, questionIndex) => ({
-        index: questionIndex,
-        type: question.type,
-        text: question.text,
-        choices: question.choices ?? null,
-        minumum: question.minumum ?? null,
-        maximum: question.maximum ?? null,
-        multiSelect: question.multiSelect ?? false,
-        required: question.required ?? false,
-      }),
-    );
+      (question, questionIndex) => {
+        console.log("questionIndex: " + questionIndex);
+        console.log("question: " + JSON.stringify(question));
+        return {
+          index: questionIndex,
+          type: question.type,
+          text: question.text,
+          choices: question.choices ?? null,
+          minumum: question.minumum ?? null,
+          maximum: question.maximum ?? null,
+          multiSelect: question.multiSelect ?? false,
+          required: question.required ?? false,
+        };
+    });
 
+    console.log("questions: " + questions);
     const newQuestionnaireData = new QuestionnaireData(
       cid,
       EQuestionnaireStatus.Available,
@@ -335,6 +358,8 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
       data.description,
       data.image,
     );
+    console.log("newQuestionnaireData: " + JSON.stringify(newQuestionnaireData));
+
 
     return newQuestionnaireData;
   }
@@ -346,9 +371,10 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
       .get<QuestionnaireData>(ERecordKey.QUESTIONNAIRES, {
         id: [questionnaireCID, EBoolean.FALSE],
       })
-      .map((questionnaireDatas) =>
-        questionnaireDatas.length > 0 ? questionnaireDatas[0] : null,
-      );
+      .map((questionnaireDatas) => {
+        console.log("Persistence Data: " + questionnaireDatas);
+        return questionnaireDatas.length > 0 ? questionnaireDatas[0] : null;
+      });
   }
 
   private fetchLatestQuestionnaireHistoriesById(
@@ -359,7 +385,6 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
       [0, questionnaireCID, 0],
       [0, questionnaireCID, benchmark ?? this.timeUtils.getUnixNow()],
     );
-
     return this.persistence.getCursor2<QuestionnaireHistory>(
       ERecordKey.QUESTIONNAIRES_HISTORY,
       {
@@ -367,7 +392,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
         query,
         latest: true,
       },
-    );
+    )
   }
 
   private constructQuestionnaire(
@@ -395,6 +420,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
       questionnaireData.description,
       questionnaireData.image ?? null,
       questions,
+      [],
     );
   }
 
@@ -470,6 +496,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
   private upsertQuestionnaireData(
     questionnaires: QuestionnaireData[],
   ): ResultAsync<void[], PersistenceError> {
+    console.log("upsertQuestionnaireData quest[]: " + questionnaires);
     return ResultUtils.combine(
       questionnaires.map((questionnaire) =>
         this.persistence.updateRecord(ERecordKey.QUESTIONNAIRES, questionnaire),
@@ -481,6 +508,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     data: Partial<IPFSQuestionnaire>,
   ): data is IPFSQuestionnaire {
     //TODO better validation
+    console.log("")
     if (
       data.title != null &&
       data.description != null &&
