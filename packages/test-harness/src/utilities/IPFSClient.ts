@@ -9,7 +9,7 @@ export class IPFSClient {
     this.ipfsClient = create({ url: "http://localhost:5001/api/v0" });
   }
 
-  public postToIPFS(text: string): ResultAsync<IpfsCID, Error> {
+  public postToIPFS(text: string): ResultAsync<IpfsCID, Error> {    
     return ResultAsync.fromPromise(
       this.ipfsClient.add(text, { pin: true }),
       (e) => {

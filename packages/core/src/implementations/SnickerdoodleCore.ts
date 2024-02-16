@@ -160,6 +160,8 @@ import {
   INFTRepositoryWithDebugType,
   INftRepository,
   INftRepositoryType,
+  IQuestionnaireRepository,
+  IQuestionnaireRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IBlockchainProvider,
@@ -718,6 +720,17 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
     // Questionnaire Methods --------------------------------------------------------------------
     this.questionnaire = {
+      add:(
+        questionnaireCids: IpfsCID[],
+        ) => {
+        const questionnaireRepository =
+          this.iocContainer.get<IQuestionnaireRepository>(
+            IQuestionnaireRepositoryType,
+          );
+        return questionnaireRepository.add(
+          questionnaireCids,
+        );
+      },
       getAllQuestionnaires: (
         pagingRequest: PagingRequest,
         sourceDomain: DomainName | undefined,

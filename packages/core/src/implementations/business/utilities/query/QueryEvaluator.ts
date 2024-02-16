@@ -248,6 +248,7 @@ export class QueryEvaluator implements IQueryEvaluator {
       } else if (query instanceof AST_PropertyQuery) {
         return this.evalPropertyQuery(query, context.publicEvents, queryCID);
       } else if (query instanceof AST_QuestionnaireQuery) {
+        console.log("Inside Query Eval");
         context.publicEvents.queryPerformance.next(
           new QueryPerformanceEvent(
             EQueryEvents.QuestionnaireEvaluation,
@@ -257,15 +258,19 @@ export class QueryEvaluator implements IQueryEvaluator {
           ),
         );
         return this.questionnaireRepo.getByCID(query.questionnaireIndex!).map((questionnaire) => {
+          console.log("questionnaire getbycid: " + questionnaire);
           if (questionnaire == null){
             return SDQL_Return(null);
           }
+
           const insights = questionnaire?.answers.map((questionAnswer) => {
             return {
               index: questionAnswer.questionIndex,
               answer: questionAnswer.choice,
             }
           })
+          console.log("insights: " + insights);
+
           context.publicEvents.queryPerformance.next(
             new QueryPerformanceEvent(
               EQueryEvents.QuestionnaireEvaluation,

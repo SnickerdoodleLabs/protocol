@@ -1,4 +1,6 @@
 import {
+  IAxiosAjaxUtils,
+  IAxiosAjaxUtilsType,
     IBigNumberUtils,
     IBigNumberUtilsType,
   } from "@snickerdoodlelabs/common-utils";
@@ -10,6 +12,7 @@ import {
     EQueryEvents,
     EStatus,
     EvalNotImplementedError,
+    IPFSQuestionnaire,
     ISDQLQuestionBlock,
     InvalidParametersError,
     IpfsCID,
@@ -44,8 +47,11 @@ import {
   import {
     IContextProviderType,
     IContextProvider,
+    IConfigProviderType,
+    IConfigProvider,
   } from "@core/interfaces/utilities/index.js";
 import { ResultUtils } from "neverthrow-result-utils";
+import { urlJoin } from "url-join-ts";
   
   @injectable()
   export class QuestionnaireQueryEvaluator implements IQuestionnaireQueryEvaluator {
@@ -57,6 +63,10 @@ import { ResultUtils } from "neverthrow-result-utils";
       protected contextProvider: IContextProvider,
       @inject(IQuestionnaireRepositoryType)
       protected questionnaireRepo: IQuestionnaireRepository,
+      @inject(IAxiosAjaxUtilsType)
+      protected ajaxUtils: IAxiosAjaxUtils,
+      @inject(IConfigProviderType)
+      protected configProvider: IConfigProvider,
       // @inject(IIPF)
       // protected ipfsClient: IIP
     ) {}
@@ -65,69 +75,87 @@ import { ResultUtils } from "neverthrow-result-utils";
       query: AST_QuestionnaireQuery,
       queryCID: IpfsCID,
     ): ResultAsync<SDQL_Return, PersistenceError> {
-      return this.contextProvider.getContext().andThen((context) => {
-        context.publicEvents.queryPerformance.next(
-          new QueryPerformanceEvent(
-            EQueryEvents.QuestionnaireEvaluation,
-            EStatus.Start,
-            queryCID,
-            query.name,
-          ),
-        );
-        return this.questionnaireRepo.getByCID(query.questionnaireIndex!)
-          .map((questionnaire) => {
-            context.publicEvents.queryPerformance.next(
-                new QueryPerformanceEvent(
-                  EQueryEvents.BalanceDataAccess,
-                  EStatus.End,
-                  queryCID,
-                  query.name,
-                ),
-              );
-        
-            // CASE 1: Questionnaire is not found on the questionnaire repo, perhaps it is
-            // on ipfs but not on the repo yet. 
-            if (questionnaire == null) {
-                // make ipfs call to fetch the questionnaire object
-                //   return this.ipfsClient.get<IObject>(ipfsUrl).map(
-                //     (IQuestionnaireObject) => {
-                //      }).mapErr((e) => e)
-                return (SDQL_Return("options 1"));
-            }
-            else
-            // CASE 2: We did have the Questionnaire returned to us from the repo. 
-            // Answers were not found
-            if (questionnaire.answers == undefined) {
-              return (SDQL_Return("options 2"));
+      return okAsync(SDQL_Return(""));
+      // return this.contextProvider.getContext().andThen((context) => {
+      //   context.publicEvents.queryPerformance.next(
+      //     new QueryPerformanceEvent(
+      //       EQueryEvents.QuestionnaireEvaluation,
+      //       EStatus.Start,
+      //       queryCID,
+      //       query.name,
+      //     ),
+      //   );
+      //   return this.questionnaireRepo.getByCID(query.questionnaireIndex!)
+      //     .map((questionnaire) => {
+      //       context.publicEvents.queryPerformance.next(
+      //         new QueryPerformanceEvent(
+      //           EQueryEvents.BalanceDataAccess,
+      //           EStatus.End,
+      //           queryCID,
+      //           query.name,
+      //         ),
+      //       );
+      //       return questionnaire
+      //     })
+      //     .mapErr((err) => {
+      //       context.publicEvents.queryPerformance.next(
+      //         new QueryPerformanceEvent(
+      //           EQueryEvents.BalanceDataAccess,
+      //           EStatus.End,
+      //           queryCID,
+      //           query.name,
+      //           err,
+      //         ),
+      //       );
+      //       return new PersistenceError(err.message);
+      //     });
+      // }).andThen((questionnaire) => {
+      //   console.log("questionnaire from the repo: " + questionnaire);
+      //   // // CASE 1: Questionnaire is not found on the questionnaire repo, perhaps it is
+      //   // // on ipfs but not on the repo yet. 
+      //   if (questionnaire == null) {
+      //     // return (SDQL_Return("options 1"));
+      //       return this.fetchQuestionnaireDataFromIPFS(queryCID).map((questionnaire) => {
+      //         console.log("questionnaire: " + questionnaire);
+      //         return (SDQL_Return("options 1"));
+      //       }).mapErr((e) => e);
+      //   }
+      //   else
+      //   // CASE 2: We did have the Questionnaire returned to us from the repo. 
+      //   // Answers were not found
+      //   if (questionnaire.answers == undefined) {
+      //     return (SDQL_Return("options 2"));
 
-            }
-            else
-            {
-            // CASE 3: We did have the Questionnaire returned to us from the repo. 
-            // The answers are included
-            const insights = questionnaire.answers.map((answer) => {
-                return {
-                  "index": answer.questionIndex,
-                  "answer": answer.choice,
-                }
-            })
-            return (SDQL_Return(insights));
-          }
-          })
-          .mapErr((err) => {
-            context.publicEvents.queryPerformance.next(
-              new QueryPerformanceEvent(
-                EQueryEvents.BalanceDataAccess,
-                EStatus.End,
-                queryCID,
-                query.name,
-                err,
-              ),
-            );
-            return new PersistenceError(err.message);
-          })
+      //   }
+
+      //   // CASE 3: We did have the Questionnaire returned to us from the repo. 
+      //   // The answers are included
+      //   const insights = questionnaire.answers.map((answer) => {
+      //       return {
+      //         "index": answer.questionIndex,
+      //         "answer": answer.choice,
+      //       }
+      //   })
+      //   return (SDQL_Return("insights"));
+      
+      // })    
+    }
+
+    private fetchQuestionnaireDataFromIPFS(
+      cid: IpfsCID,
+    ): ResultAsync<
+      Partial<IPFSQuestionnaire>,
+      AjaxError
+    > {
+      return this.configProvider.getConfig().andThen((config) => {
+        const url = new URL(urlJoin(config.ipfsFetchBaseUrl, cid));
+        return this.ajaxUtils
+          .get<Partial<IPFSQuestionnaire>>(url)
+          .map((data) => data)
+          .mapErr((e) => e);
       });
     }
+              
 
     private validateQuestion(question: ISDQLQuestionBlock): ResultAsync<void, InvalidParametersError> {
         if (
