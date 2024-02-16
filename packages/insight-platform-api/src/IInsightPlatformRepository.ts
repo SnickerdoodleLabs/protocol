@@ -13,8 +13,6 @@ import {
   URLString,
   IQueryDeliveryItems,
   PossibleReward,
-  Questionnaire,
-  IQuestionnaireDeliveryItems,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -48,16 +46,6 @@ export interface IInsightPlatformRepository {
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
   ): ResultAsync<EarnedReward[], AjaxError>;
-
-  deliverQuestionnaires(
-    consentContractAddress: EVMContractAddress,
-    tokenId: TokenId,
-    queryCID: IpfsCID,
-    questionnaires: IQuestionnaireDeliveryItems,
-    rewardParameters: IDynamicRewardParameter[],
-    signingKey: EVMPrivateKey,
-    insightPlatformBaseUrl: URLString,
-  ): ResultAsync<Questionnaire[], AjaxError>;
 
   executeMetatransaction(
     accountAddress: EVMAccountAddress,
