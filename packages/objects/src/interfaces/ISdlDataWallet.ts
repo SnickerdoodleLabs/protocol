@@ -34,6 +34,7 @@ import {
   IMetricsMethods,
   IStorageMethods,
   INftMethods,
+  IQuestionnaireMethods,
 } from "@objects/interfaces/ISnickerdoodleCore.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
@@ -113,6 +114,18 @@ export type INftProxyMethods = {
     ...args: [...PopTuple<Parameters<INftMethods[key]>>]
   ) => ResultAsync<
     GetResultAsyncValueType<ReturnType<INftMethods[key]>>,
+    ProxyError
+  >;
+};
+
+export type IProxyQuestionnaireMethods = {
+  [key in Exclude<
+    FunctionKeys<IQuestionnaireMethods>,
+    "getAnsweredQuestionnaires" | "getQuestionnaires"
+  >]: (
+    ...args: [...PopTuple<Parameters<IQuestionnaireMethods[key]>>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<IQuestionnaireMethods[key]>>,
     ProxyError
   >;
 };
@@ -349,6 +362,7 @@ export interface ISdlDataWallet {
   storage: IProxyStorageMethods;
   nft: INftProxyMethods;
   events: ISnickerdoodleCoreEvents;
+  questionnaire: IProxyQuestionnaireMethods;
 }
 
 export const defaultLanguageCode = LanguageCode("en");

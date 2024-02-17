@@ -821,7 +821,7 @@ export interface IQuestionnaireMethods {
    */
   getRecommendedConsentContracts(
     questionnaire: IpfsCID,
-    sourceDomain?: DomainName,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<EVMContractAddress[], PersistenceError | AjaxError>;
 }
 

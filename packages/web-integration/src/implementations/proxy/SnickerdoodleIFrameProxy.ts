@@ -82,6 +82,8 @@ import {
   NftRepositoryCache,
   WalletNFTData,
   JSONString,
+  IProxyQuestionnaireMethods,
+  NewQuestionnaireAnswer,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ethers } from "ethers";
@@ -770,6 +772,48 @@ export class SnickerdoodleIFrameProxy
       ProxyError
     > => {
       return this._createCall("storage.getAvailableCloudStorageOptions", {});
+    },
+  };
+
+  public questionnaire: IProxyQuestionnaireMethods = {
+    getAllQuestionnaires: (pagingRequest: PagingRequest) => {
+      return this._createCall("questionnaire.getAllQuestionnaires", {
+        pagingRequest,
+      });
+    },
+    answerQuestionnaire: (
+      questionnaireId: IpfsCID,
+      answers: NewQuestionnaireAnswer[],
+    ) => {
+      return this._createCall("questionnaire.answerQuestionnaire", {
+        questionnaireId,
+        answers,
+      });
+    },
+    getQuestionnairesForConsentContract: (
+      pagingRequest: PagingRequest,
+      consentContractAddress: EVMContractAddress,
+    ) => {
+      return this._createCall(
+        "questionnaire.getQuestionnairesForConsentContract",
+        {
+          pagingRequest,
+          consentContractAddress,
+        },
+      );
+    },
+    getConsentContractsByQuestionnaireCID: (questionnaireCID: IpfsCID) => {
+      return this._createCall(
+        "questionnaire.getConsentContractsByQuestionnaireCID",
+        {
+          questionnaireCID,
+        },
+      );
+    },
+    getRecommendedConsentContracts: (questionnaireCID: IpfsCID) => {
+      return this._createCall("questionnaire.getRecommendedConsentContracts", {
+        questionnaireCID,
+      });
     },
   };
 

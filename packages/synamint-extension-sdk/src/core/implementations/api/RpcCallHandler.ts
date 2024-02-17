@@ -136,6 +136,11 @@ import {
   GetAccountNftCacheParams,
   GetUIStateParams,
   SetUIStateParams,
+  GetAllQuestionnairesParams,
+  AnswerQuestionnaireParams,
+  GetQuestionnairesForConsentContractParams,
+  GetConsentContractsByQuestionnaireCIDParams,
+  GetRecommendedConsentContractsParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -813,6 +818,59 @@ export class RpcCallHandler implements IRpcCallHandler {
       },
     ),
     // #endregion
+
+    // #region questionnaires
+    new CoreActionHandler<GetAllQuestionnairesParams>(
+      GetAllQuestionnairesParams.getCoreAction(),
+      (params, _sender, sourceDomain) => {
+        return this.core.questionnaire.getAllQuestionnaires(
+          params.pagingRequest,
+          sourceDomain,
+        );
+      },
+    ),
+
+    new CoreActionHandler<AnswerQuestionnaireParams>(
+      AnswerQuestionnaireParams.getCoreAction(),
+      (params, _sender, sourceDomain) => {
+        return this.core.questionnaire.answerQuestionnaire(
+          params.questionnaireId,
+          params.answers,
+          sourceDomain,
+        );
+      },
+    ),
+
+    new CoreActionHandler<GetQuestionnairesForConsentContractParams>(
+      GetQuestionnairesForConsentContractParams.getCoreAction(),
+      (params, _sender, sourceDomain) => {
+        return this.core.questionnaire.getQuestionnairesForConsentContract(
+          params.pagingRequest,
+          params.consentContractAddress,
+          sourceDomain,
+        );
+      },
+    ),
+
+    new CoreActionHandler<GetConsentContractsByQuestionnaireCIDParams>(
+      GetConsentContractsByQuestionnaireCIDParams.getCoreAction(),
+      (params, _sender, sourceDomain) => {
+        return this.core.questionnaire.getConsentContractsByQuestionnaireCID(
+          params.questionnaireCID,
+          sourceDomain,
+        );
+      },
+    ),
+
+    new CoreActionHandler<GetRecommendedConsentContractsParams>(
+      GetRecommendedConsentContractsParams.getCoreAction(),
+      (params, _sender, sourceDomain) => {
+        return this.core.questionnaire.getRecommendedConsentContracts(
+          params.questionnaireCID,
+          sourceDomain,
+        );
+      },
+    ),
   ];
 
   constructor(

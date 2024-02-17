@@ -60,6 +60,8 @@ import {
   IProxyAccountMethods,
   INftProxyMethods,
   JSONString,
+  IProxyQuestionnaireMethods,
+  NewQuestionnaireAnswer,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { JsonRpcEngine } from "json-rpc-engine";
@@ -158,6 +160,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public twitter: IProxyTwitterMethods;
   public storage: IProxyStorageMethods;
   public nft: INftProxyMethods;
+  public questionnaire: IProxyQuestionnaireMethods;
   public events: PublicEvents;
   public requestDashboardView = undefined;
 
@@ -236,6 +239,40 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
         }
       },
     );
+
+    this.questionnaire = {
+      getAllQuestionnaires: (pagingRequest: PagingRequest) => {
+        return coreGateway.questionnaire.getAllQuestionnaires(pagingRequest);
+      },
+      answerQuestionnaire: (
+        questionnaireId: IpfsCID,
+        answers: NewQuestionnaireAnswer[],
+      ) => {
+        return coreGateway.questionnaire.answerQuestionnaire(
+          questionnaireId,
+          answers,
+        );
+      },
+      getQuestionnairesForConsentContract: (
+        pagingRequest: PagingRequest,
+        consentContractAddress: EVMContractAddress,
+      ) => {
+        return coreGateway.questionnaire.getQuestionnairesForConsentContract(
+          pagingRequest,
+          consentContractAddress,
+        );
+      },
+      getConsentContractsByQuestionnaireCID: (questionnaireCID: IpfsCID) => {
+        return coreGateway.questionnaire.getConsentContractsByQuestionnaireCID(
+          questionnaireCID,
+        );
+      },
+      getRecommendedConsentContracts: (questionnaireCID: IpfsCID) => {
+        return coreGateway.questionnaire.getRecommendedConsentContracts(
+          questionnaireCID,
+        );
+      },
+    };
 
     this.account = {
       addAccount: (
@@ -413,6 +450,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       _this.emit(resp.type, resp);
     });
   }
+
   public setDefaultReceivingAddress(
     receivingAddress: AccountAddress | null,
   ): ResultAsync<void, ProxyError> {
