@@ -9,33 +9,63 @@ import {
   useMedia,
 } from "@snickerdoodlelabs/shared-components";
 import clsx from "clsx";
-import React, { FC, useState, Fragment, useEffect } from "react";
+import React, { FC, useState, Fragment, useEffect, ReactNode } from "react";
 
 interface IStep {
-  title: string;
+  title: ReactNode;
   subtitle?: string;
-  description: string;
+  description: ReactNode;
   image: string;
 }
 
 const STEPS: IStep[] = [
   {
-    title: "Welcome to your \n Cookie Vault",
+    title: (
+      <span>
+        Welcome to your
+        <br />
+        Cookie Vault
+      </span>
+    ),
     subtitle: "powered by Snickerdoodle",
-    description:
-      "Your secure space to control your data and earn rewards for sharing\n insights - all on your terms.",
+    description: (
+      <span>
+        Your secure space to control your data and earn rewards for sharing
+        <br />
+        insights - all on your terms.
+      </span>
+    ),
     image: "https://storage.googleapis.com/dw-assets/spa/images-v2/intro-1.svg",
   },
   {
-    title: "Control your\ndata",
+    title: (
+      <span>
+        Control your
+        <br />
+        data
+      </span>
+    ),
     description:
-      "Store and manage your data securely on your device, your data is only\n shared when you say so. You are ALWAYS in control.",
+      "Store and manage your data securely on your device, your data is only<br/> shared when you say so. You are ALWAYS in control.",
     image: "https://storage.googleapis.com/dw-assets/spa/images-v2/intro-2.svg",
   },
   {
-    title: "Earn rewards\nfor sharing",
-    description:
-      "Share your anonymized data securely and help shape the future of\n products and services. In return, enjoy exclusive rewards from brands\n that value your insights.",
+    title: (
+      <span>
+        Earn rewards
+        <br />
+        for sharing
+      </span>
+    ),
+    description: (
+      <span>
+        Share your anonymized data securely and help shape the future of
+        <br />
+        products and services. In return, enjoy exclusive rewards from brands
+        <br />
+        that value your insights.
+      </span>
+    ),
     image: "https://storage.googleapis.com/dw-assets/spa/images-v2/intro-3.svg",
   },
 ];
@@ -173,28 +203,17 @@ const Intro: FC = () => {
                 activeColor="#292648"
               />
               <Box mt={{ xs: 2, sm: 4 }} />
-              <SDTypography
-                variant="displayXl"
-                style={{ whiteSpace: "pre-line" }}
-                fontFamily="shrikhand"
-              >
+              <SDTypography variant="displayXl" fontFamily="shrikhand">
                 {STEPS[step].title}
               </SDTypography>
               <Box mt={1} />
               {STEPS[step].subtitle && (
-                <SDTypography
-                  variant="headlineSm"
-                  style={{ whiteSpace: "pre-line" }}
-                  fontFamily="shrikhand"
-                >
+                <SDTypography variant="headlineSm" fontFamily="shrikhand">
                   {STEPS[step].subtitle}
                 </SDTypography>
               )}
               <Box mt={4} />
-              <SDTypography
-                style={{ whiteSpace: "pre-line" }}
-                variant="titleMd"
-              >
+              <SDTypography variant="titleMd">
                 {STEPS[step].description}
               </SDTypography>
               <Box mt={6} />

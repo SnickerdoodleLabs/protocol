@@ -21,6 +21,7 @@ export interface IAnsweredQuestionnaireModal {
 
 const AnsweredQuestionnarieModal: FC = () => {
   const { modalState, closeModal } = useLayoutContext();
+  const [isDirty, setIsDirty] = React.useState(false);
   const { onPrimaryButtonClick, customProps } = modalState;
   const { questionnaire, onSubmitClicked } =
     customProps as IAnsweredQuestionnaireModal;
@@ -66,6 +67,7 @@ const AnsweredQuestionnarieModal: FC = () => {
         <Box mt={6} />
 
         <QuestionnaireForm
+          onDirtyStateChange={setIsDirty}
           onSubmit={(answers) => {
             onSubmitClicked(answers);
             closeModal();
@@ -77,7 +79,12 @@ const AnsweredQuestionnarieModal: FC = () => {
             Delete Survey
           </SDButton>
           <Box marginLeft="auto">
-            <SDButton variant="outlined" type="submit" form="questionnarie">
+            <SDButton
+              disabled={!isDirty}
+              variant="outlined"
+              type="submit"
+              form="questionnarie"
+            >
               Update Answers
             </SDButton>
           </Box>

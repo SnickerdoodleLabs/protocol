@@ -1,13 +1,5 @@
 import { countries } from "@extension-onboarding/constants/countries";
-import {
-  Box,
-  Checkbox,
-  FormControlLabel,
-  Grid,
-  MenuItem,
-  Radio,
-  makeStyles,
-} from "@material-ui/core";
+import { Box, Checkbox, Grid, MenuItem, makeStyles } from "@material-ui/core";
 import {
   EQuestionnaireQuestionType,
   EQuestionnaireQuestionDisplayType,
@@ -16,13 +8,14 @@ import {
   QuestionnaireQuestion,
   QuestionnaireWithAnswers,
 } from "@snickerdoodlelabs/objects";
-import { SDTypography, colors } from "@snickerdoodlelabs/shared-components";
-import { Form, Formik, FastField, ErrorMessage } from "formik";
 import {
-  TextField,
-  RadioGroup,
-  Checkbox as FormikCheckbox,
-} from "formik-material-ui";
+  SDCheckbox,
+  SDRadio,
+  SDTypography,
+  colors,
+} from "@snickerdoodlelabs/shared-components";
+import { Form, Formik, FastField, ErrorMessage, FieldProps } from "formik";
+import { TextField } from "formik-material-ui";
 import React, { FC, useEffect, useMemo } from "react";
 
 interface IQuestionnaireFormProps {
@@ -111,46 +104,6 @@ const areAnswersSame = (
 };
 // #endregion
 
-const useStyles = makeStyles((theme) => ({
-  checkboxLabel: {
-    "&.MuiFormControlLabel-root": {
-      margin: 0,
-    },
-  },
-  inputCheckbox: {
-    width: 20,
-    height: 20,
-    padding: 0,
-    marginRight: 12,
-  },
-  radioWithLabel: {
-    width: 20,
-    height: 20,
-    padding: 0,
-    marginRight: 12,
-  },
-  radio: {
-    width: 20,
-    height: 20,
-    padding: 0,
-  },
-  radioControl: {
-    margin: 0,
-  },
-  radioRoot: {
-    color: colors.GREY500,
-  },
-}));
-
-// fomatting multiple choice answer to the expected type this is for checkbox and radio
-function formatMultipleChoiceAnswer(choice, choices) {
-  const isExpectedTypeNumeric = typeof (choices ?? [""])?.[0] === "number";
-  return isExpectedTypeNumeric
-    ? Array.isArray(choice)
-      ? choice.map(Number)
-      : Number(choice)
-    : choice;
-}
 
 const shouldSkipAnswer = (mode, questionnaire, answer, formattedAnswer) => {
   if (
@@ -164,17 +117,6 @@ const shouldSkipAnswer = (mode, questionnaire, answer, formattedAnswer) => {
     return true;
   }
   return false;
-};
-
-// radio button and checkbox values are always strings
-const formatIncomingAnswer = (choice, choices: string[] | number[] | null) => {
-  if (choice == null) return choice;
-
-  const isExpectedTypeNumeric = typeof (choices ?? [""])?.[0] === "number";
-  if (isExpectedTypeNumeric) {
-    return Array.isArray(choice) ? choice.map((c) => `${c}`) : `${choice}`;
-  }
-  return choice;
 };
 
 const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
@@ -195,28 +137,20 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
       } else {
         defaultChoice = "";
       }
-      const unformattedChoice =
+      const choice =
         questionnaire instanceof QuestionnaireWithAnswers
           ? questionnaire.answers.find(
               (answer) => answer.questionIndex === question.index,
             )?.choice ?? defaultChoice
           : defaultChoice;
-      // format incoming answer for radio and checkbox
-      const formattedChoice =
-        question.type === EQuestionnaireQuestionType.MultipleChoice &&
-        (question.displayType === EQuestionnaireQuestionDisplayType.Scale ||
-          question.displayType === EQuestionnaireQuestionDisplayType.List)
-          ? formatIncomingAnswer(unformattedChoice, question.choices)
-          : unformattedChoice;
       return {
         ...question,
-        choice: formattedChoice,
+        choice,
       };
     });
   }, [JSON.stringify(questionnaire)]);
 
   const [isFormDirty, setIsFormDirty] = React.useState(false);
-  const classes = useStyles();
 
   const getQuestionByType = (
     question: QuestionnaireQuestion,
@@ -252,28 +186,42 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
                 <Grid container spacing={2}>
                   {question.choices?.map((choice, choiceIndex) => (
                     <Grid item xs={12} sm={6} md={4} lg={3} key={choiceIndex}>
-                      <FormControlLabel
-                        label={choice}
-                        className={classes.checkboxLabel}
-                        control={
-                          <FastField
-                            className={classes.inputCheckbox}
-                            name={`answers.${index}.choice`}
-                            type="checkbox"
-                            component={FormikCheckbox}
-                            validate={(value) => {
-                              return (
-                                validateRequired(value, question.required) ||
-                                validateBoundaries(
-                                  value,
-                                  question.minumum,
-                                  question.maximum,
-                                )
-                              );
-                            }}
-                            value={`${choice}`}
-                          />
-                        }
+                      <FastField
+                        type="checkbox"
+                        name={`answers.${index}.choice`}
+                        value={choice}
+                        validate={(value) => {
+                          return (
+                            validateRequired(value, question.required) ||
+                            validateBoundaries(
+                              value,
+                              question.minumum,
+                              question.maximum,
+                            )
+                          );
+                        }}
+                        component={(props: FieldProps) => {
+                          const { field, form } = props;
+                          return (
+                            <SDCheckbox
+                              checked={field.checked}
+                              onChange={() => {
+                                form.setFieldValue(
+                                  `answers.${index}.choice`,
+                                  field.checked
+                                    ? form.values.answers[index].choice.filter(
+                                        (c) => c !== choice,
+                                      )
+                                    : [
+                                        ...form.values.answers[index].choice,
+                                        choice,
+                                      ],
+                                );
+                              }}
+                              label={choice}
+                            />
+                          );
+                        }}
                       />
                     </Grid>
                   ))}
@@ -295,8 +243,6 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
             <>
               <FastField
                 name={`answers.${index}.choice`}
-                component={RadioGroup}
-                variant="outlined"
                 validate={(value) => {
                   return (
                     validateRequired(value, question.required) ||
@@ -308,23 +254,40 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
                   );
                 }}
               >
-                <Grid container spacing={2}>
-                  {question.choices?.map((choice, choiceIndex) => (
-                    <Grid item xs={12} sm={6} md={4} lg={3} key={choiceIndex}>
-                      <FormControlLabel
-                        value={`${choice}`}
-                        className={classes.checkboxLabel}
-                        control={
-                          <Radio
-                            className={classes.radioWithLabel}
-                            classes={{ root: classes.radioRoot }}
-                          />
-                        }
-                        label={choice}
-                      />
-                    </Grid>
-                  ))}
-                </Grid>
+                {(props: FieldProps) => {
+                  const { field, form } = props;
+
+                  return (
+                    <>
+                      <Grid container spacing={2}>
+                        {question.choices?.map((choice, choiceIndex) => {
+                          return (
+                            <Grid
+                              item
+                              xs={12}
+                              sm={6}
+                              md={4}
+                              lg={3}
+                              key={choiceIndex}
+                            >
+                              <SDRadio
+                                key={choiceIndex}
+                                label={choice}
+                                checked={field.value === choice}
+                                onChange={() => {
+                                  form.setFieldValue(
+                                    `answers.${index}.choice`,
+                                    choice,
+                                  );
+                                }}
+                              />
+                            </Grid>
+                          );
+                        })}
+                      </Grid>
+                    </>
+                  );
+                }}
               </FastField>
               <ErrorMessage name={`answers.${index}.choice`}>
                 {(msg) => (
@@ -343,16 +306,14 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
           const isLineer = question.lowerLabel && question.upperLabel;
           return (
             <>
-              <Box display="flex" gridGap={24} alignItems="flex-end">
+              <Box
+                display="flex"
+                gridGap={{ xs: 4, sm: 24 }}
+                alignItems="flex-end"
+              >
                 {isLineer && <SDTypography>{question.lowerLabel}</SDTypography>}
                 <FastField
-                  style={{
-                    flex: 1,
-                    flexDirection: "row",
-                    justifyContent: isLineer ? "space-around" : "space-between",
-                  }}
                   name={`answers.${index}.choice`}
-                  component={RadioGroup}
                   variant="outlined"
                   validate={(value) => {
                     return (
@@ -365,23 +326,37 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
                     );
                   }}
                 >
-                  {question.choices?.map((choice, choiceIndex) => (
-                    <FormControlLabel
-                      key={choiceIndex}
-                      value={`${choice}`}
-                      className={classes.radioControl}
-                      labelPlacement={isLineer ? "top" : "bottom"}
-                      control={
-                        <Radio
-                          className={classes.radio}
-                          classes={{ root: classes.radioRoot }}
-                        />
-                      }
-                      label={choice}
-                    />
-                  ))}
-                </FastField>
+                  {(props: FieldProps) => {
+                    const { field, form } = props;
 
+                    return (
+                      <Box
+                        display="flex"
+                        justifyContent={
+                          isLineer ? "space-around" : "space-between"
+                        }
+                        flex={1}
+                      >
+                        {question.choices?.map((choice, choiceIndex) => {
+                          return (
+                            <SDRadio
+                              labelPosition={isLineer ? "top" : "bottom"}
+                              key={choiceIndex}
+                              label={choice}
+                              checked={field.value === choice}
+                              onChange={() => {
+                                form.setFieldValue(
+                                  `answers.${index}.choice`,
+                                  choice,
+                                );
+                              }}
+                            />
+                          );
+                        })}
+                      </Box>
+                    );
+                  }}
+                </FastField>
                 {isLineer && <SDTypography>{question.upperLabel}</SDTypography>}
               </Box>
               <ErrorMessage name={`answers.${index}.choice`}>
@@ -434,12 +409,14 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
           >
             {question.choices?.map((choice, choiceIndex) => (
               <MenuItem key={choiceIndex} value={choice}>
-                {question.multiSelect && (
-                  <Checkbox
+                {question.multiSelect ? (
+                  <SDCheckbox
+                    label={choice}
                     checked={values.answers[index].choice.indexOf(choice) > -1}
                   />
+                ) : (
+                  <SDTypography variant="bodyLg">{choice}</SDTypography>
                 )}
-                {choice}
               </MenuItem>
             ))}
           </FastField>
@@ -487,14 +464,16 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
           >
             {countries?.map((choice, choiceIndex) => (
               <MenuItem key={choiceIndex} value={choice.code}>
-                {question.multiSelect && (
-                  <Checkbox
+                {question.multiSelect ? (
+                  <SDCheckbox
+                    label={choice.name}
                     checked={
                       values.answers[index].choice.indexOf(choice.code) > -1
                     }
                   />
+                ) : (
+                  <SDTypography variant="bodyLg">{choice.name}</SDTypography>
                 )}
-                {choice.name}
               </MenuItem>
             ))}
           </FastField>
@@ -525,22 +504,9 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
               const { choice, index, type, choices } = answer;
               if (!choice || choice === "") return;
               if (Array.isArray(choice) && choice.length === 0) return;
-              let formattedAnswer = choice;
-              if (type === EQuestionnaireQuestionType.MultipleChoice) {
-                formattedAnswer = formatMultipleChoiceAnswer(choice, choices);
-              }
-
-              if (
-                shouldSkipAnswer(mode, questionnaire, answer, formattedAnswer)
-              )
-                return;
-
+              if (shouldSkipAnswer(mode, questionnaire, answer, choice)) return;
               processedAnswers.push(
-                new NewQuestionnaireAnswer(
-                  questionnaire.id,
-                  index,
-                  formattedAnswer,
-                ),
+                new NewQuestionnaireAnswer(questionnaire.id, index, choice),
               );
             });
 

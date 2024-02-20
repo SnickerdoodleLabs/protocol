@@ -5,9 +5,9 @@ import { Box, Grid } from "@material-ui/core";
 import CallMadeIcon from "@material-ui/icons/CallMade";
 import {
   SDTypography,
-  useMedia,
   colors,
   SDButton,
+  useResponsiveValue,
 } from "@snickerdoodlelabs/shared-components";
 import React, { FC } from "react";
 import { useNavigate } from "react-router-dom";
@@ -17,9 +17,19 @@ const navigatorCards = [
     icon: "https://storage.googleapis.com/dw-assets/spa/icons-v2/cookie-vault-card.svg",
     bgColor: colors.MAINPURPLE500,
     color: colors.WHITE,
-    title: "Store your Cookies,\nEarn Rewards",
-    description:
-      "The Cookie Vault lets you privately store\n your data so you can earn",
+    title: (
+      <span>
+        Store your Cookies,
+        <br />
+        Earn Rewards
+      </span>
+    ),
+    description: (
+      <span>
+        The Cookie Vault lets you privately store
+        <br /> your data so you can earn
+      </span>
+    ),
     buttonText: "Go to Cookie Vault",
     path: EPathsV2.COOKIE_VAULT,
   },
@@ -27,8 +37,20 @@ const navigatorCards = [
     icon: "https://storage.googleapis.com/dw-assets/spa/icons-v2/offers-card.svg",
     bgColor: "#EB5D5E",
     color: colors.WHITE,
-    title: "Unlock Opportunities\nwith Offers",
-    description: "Discover new brands and partners in our\nOffers marketplace ",
+    title: (
+      <span>
+        Unlock Opportunities
+        <br />
+        with Offers
+      </span>
+    ),
+    description: (
+      <span>
+        Discover new brands and partners in our
+        <br />
+        Offers marketplace
+      </span>
+    ),
     buttonText: "Coming Soon",
     path: "",
   },
@@ -36,14 +58,25 @@ const navigatorCards = [
     icon: "https://storage.googleapis.com/dw-assets/spa/icons-v2/trusted-brands-card.png",
     bgColor: colors.YELLOW500,
     color: colors.DARKPURPLE500,
-    title: "Manage Your\nShared Data",
-    description: "Track which data you have shared\n in Trusted Brands",
+    title: (
+      <span>
+        Manage Your
+        <br />
+        Shared Data
+      </span>
+    ),
+    description: (
+      <span>
+        Track which data you have shared
+        <br /> in Trusted Brands
+      </span>
+    ),
     buttonText: "Coming Soon",
     path: "",
   },
 ];
 const Home: FC = () => {
-  const media = useMedia();
+  const getResponsiveValue = useResponsiveValue();
   const navigate = useNavigate();
   return (
     <>
@@ -54,45 +87,16 @@ const Home: FC = () => {
           style={{
             width: "calc(100% + 64px)",
             marginLeft: "-32px",
-            marginBottom: (() => {
-              switch (media) {
-                case "xs":
-                  return -16;
-                case "sm":
-                  return -32;
-                case "md":
-                  return -56;
-                default:
-                  return -64;
-              }
-            })(),
+            marginBottom: getResponsiveValue({
+              xs: -16,
+              sm: -32,
+              md: -56,
+              lg: -64,
+            }),
             marginTop: "28px",
             height: "auto",
           }}
         />
-        {/* <Box
-          mt={{ xs: 4, sm: 10 }}
-          mb={{ xs: 6.75, sm: 10 }}
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          position="relative"
-        >
-          <SDTypography
-            fontFamily="shrikhand"
-            align="center"
-            variant="displaySm"
-          >
-            {`Welcome to Snickerdoodle!`}
-          </SDTypography>
-          <Box mt={2} />
-          <SDTypography
-            align="center"
-            variant={media === "xs" ? "titleXs" : "titleMd"}
-          >
-            {`Your well on your way to taking ownership of your personal data`}
-          </SDTypography>
-        </Box> */}
         <Grid container spacing={3}>
           {navigatorCards.map((card, index) => (
             <Grid key={index} item xs={12} sm={4}>
@@ -104,12 +108,15 @@ const Home: FC = () => {
               >
                 <Grid
                   container
-                  direction={media === "xs" ? "row-reverse" : "row"}
+                  direction={getResponsiveValue({
+                    xs: "row-reverse",
+                    sm: "row",
+                  })}
                 >
                   <Grid item xs={5} sm={12}>
                     <Box width="100%" display="flex" justifyContent="center">
                       <img
-                        width={media === "xs" ? "75%" : "55%"}
+                        width={getResponsiveValue({ xs: "75%", sm: "55%" })}
                         src={card.icon}
                       />
                     </Box>
@@ -118,11 +125,11 @@ const Home: FC = () => {
                     <Box
                       display="flex"
                       flexDirection="column"
-                      alignItems={media === "xs" ? "left" : "center"}
+                      alignItems={{ xs: "flex-start", sm: "center" }}
                     >
                       <Box mt={{ xs: 0, sm: 4 }} />
                       <SDTypography
-                        align={media === "xs" ? "left" : "center"}
+                        align={getResponsiveValue({ xs: "left", sm: "center" })}
                         fontWeight="bold"
                         color="inherit"
                         variant="headlineSm"
@@ -131,7 +138,7 @@ const Home: FC = () => {
                       </SDTypography>
                       <Box mt={2} />
                       <SDTypography
-                        align={media === "xs" ? "left" : "center"}
+                        align={getResponsiveValue({ xs: "left", sm: "center" })}
                         color="inherit"
                         variant="bodyLg"
                       >
@@ -146,7 +153,7 @@ const Home: FC = () => {
                         }}
                         color="inherit"
                         endIcon={<CallMadeIcon />}
-                        {...(media === "xs" && { fullWidth: true })}
+                        fullWidth={getResponsiveValue({ xs: true, sm: false })}
                       >
                         {card.buttonText}
                       </SDButton>

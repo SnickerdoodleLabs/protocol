@@ -3,7 +3,9 @@ import {
   Theme,
   TypographyProps,
 } from "@material-ui/core";
+import { styled } from "@material-ui/core/styles";
 import { makeStyles, useTheme } from "@material-ui/styles";
+import { compose, spacing } from "@material-ui/system";
 import {
   typograpyVariants,
   fontWeights,
@@ -23,14 +25,6 @@ const useStyles = makeStyles((theme: Theme) => {
     ...genareteFontFamiles(),
     ...fontWeights,
     ...generateDynamicTypographyColorClasses(theme),
-    ellipsis: {
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-      whiteSpace: "nowrap",
-    },
-    preWrap: {
-      whiteSpace: "pre-wrap",
-    },
   };
 });
 
@@ -45,38 +39,37 @@ export interface ITypographyProps
   hexColor?: string;
 }
 
-export const SDTypography = ({
-  className,
-  variant,
-  fontWeight,
-  fontFamily,
-  color,
-  hideOverflow,
-  preWrap = true,
-  hexColor,
-  ...rest
-}: ITypographyProps) => {
-  const classes = useStyles();
-  return (
-    <MuiTypography
-      {...rest}
-      {...(!Object.values(ETypographyColorOverrides).includes(
-        color as ETypographyColorOverrides,
-      ) && { color: color as TypographyProps["color"] })}
-      className={clsx(
-        variant && classes[variant],
-        fontWeight && classes[fontWeight],
-        fontFamily && classes[fontFamily],
-        color &&
-          Object.values(ETypographyColorOverrides).includes(
-            color as ETypographyColorOverrides,
-          ) &&
-          classes[color],
-        hideOverflow && classes.ellipsis,
-        preWrap && classes.preWrap,
-        className,
-      )}
-      {...(hexColor && { style: { color: hexColor } })}
-    />
-  );
-};
+export const SDTypography = styled(
+  ({
+    className,
+    variant,
+    fontWeight,
+    fontFamily,
+    color,
+    hideOverflow,
+    hexColor,
+    ...rest
+  }: ITypographyProps) => {
+    const classes = useStyles();
+    return (
+      <MuiTypography
+        {...rest}
+        {...(!Object.values(ETypographyColorOverrides).includes(
+          color as ETypographyColorOverrides,
+        ) && { color: color as TypographyProps["color"] })}
+        className={clsx(
+          variant && classes[variant],
+          fontWeight && classes[fontWeight],
+          fontFamily && classes[fontFamily],
+          color &&
+            Object.values(ETypographyColorOverrides).includes(
+              color as ETypographyColorOverrides,
+            ) &&
+            classes[color],
+          className,
+        )}
+        {...(hexColor && { style: { color: hexColor } })}
+      />
+    );
+  },
+)(compose(spacing));
