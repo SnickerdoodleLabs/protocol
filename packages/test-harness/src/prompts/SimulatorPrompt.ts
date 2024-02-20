@@ -43,14 +43,14 @@ export class SimulatorPrompt extends Prompt {
           return this.createCampaign.start();
         case "uploadQuestionnaire":
           return this.mocks.insightSimulator.uploadQuestionnaire().map((cid) => {
-            return this.env.core.questionnaire.add([cid]).andThen(() => {
-              return this.env.core.questionnaire.answerQuestionnaire(cid, [
-                new NewQuestionnaireAnswer(cid, 0, 0)
-              ], undefined).map(() => {
-                this.env.ipfsCid = cid;
-                console.log(`Questionnaire with cid ${cid} was successfully uploaded`);
-               })
-            })
+            return this.mocks.blockchain.consentFactoryContract.getQuestionnaires().map((questionnaire) => {
+                return this.env.core.questionnaire.answerQuestionnaire(cid, [
+                  new NewQuestionnaireAnswer(cid, 0, 0)
+                ], undefined).map(() => {
+                  this.env.ipfsCid = cid;
+                  console.log(`Questionnaire with cid ${cid} was successfully uploaded`);
+                 })
+              })
           }).map(() => {});
         case "postQuery":
           return this.postQuery.start(this.env.ipfsCid);
