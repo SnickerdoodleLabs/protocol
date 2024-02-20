@@ -27,7 +27,8 @@ export class RewardsContractFactory
   extends BaseContract<RewardsFactoryError>
   implements IRewardsContractFactory
 {
-  protected contractFactory: ethers.ContractFactory;
+  protected erc721ContractFactory: ethers.ContractFactory;
+  protected erc20ContractFactory: ethers.ContractFactory;
   protected rewardTypeToDeploy: ECreatedRewardType;
   constructor(
     protected providerOrSigner: ethers.Provider | ethers.Signer,
@@ -40,19 +41,17 @@ export class RewardsContractFactory
     );
 
     // Set the correct contract factory based on rewardTypeToDeploy
-    this.contractFactory = new ethers.ContractFactory(
+    this.erc721ContractFactory = new ethers.ContractFactory(
       ContractsAbis.ERC721Reward.abi,
       ContractsAbis.ERC721Reward.bytecode,
       providerOrSigner as ethers.Wallet,
     );
 
-    if (rewardType == ECreatedRewardType.ERC20) {
-      this.contractFactory = new ethers.ContractFactory(
-        ContractsAbis.ERC20Reward.abi,
-        ContractsAbis.ERC20Reward.bytecode,
-        providerOrSigner as ethers.Wallet,
-      );
-    }
+    this.erc20ContractFactory = new ethers.ContractFactory(
+      ContractsAbis.ERC20Reward.abi,
+      ContractsAbis.ERC20Reward.bytecode,
+      providerOrSigner as ethers.Wallet,
+    );
 
     this.rewardTypeToDeploy = rewardType;
   }
@@ -84,6 +83,7 @@ export class RewardsContractFactory
       return this.writeToContractFactory(
         "deploy",
         [name, symbol, baseURI],
+        ECreatedRewardType.ERC721,
         contractOverrides,
         true,
       );
@@ -96,7 +96,7 @@ export class RewardsContractFactory
     baseURI: BaseURI,
   ): ResultAsync<bigint, RewardsFactoryError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contractFactory.getDeployTransaction(name, symbol, baseURI),
+      this.erc721ContractFactory.getDeployTransaction(name, symbol, baseURI),
       (e) => {
         return this.generateError(
           e,
@@ -147,6 +147,7 @@ export class RewardsContractFactory
       return this.writeToContractFactory(
         "deploy",
         [name, symbol],
+        ECreatedRewardType.ERC20,
         contractOverrides,
         true,
       );
@@ -158,7 +159,7 @@ export class RewardsContractFactory
     symbol: string,
   ): ResultAsync<bigint, RewardsFactoryError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contractFactory.getDeployTransaction(name, symbol),
+      this.erc20ContractFactory.getDeployTransaction(name, symbol),
       (e) => {
         return this.generateError(
           e,
@@ -195,14 +196,23 @@ export class RewardsContractFactory
   protected writeToContractFactory(
     functionName: string,
     functionParams: any[],
+    rewardType: ECreatedRewardType,
     overrides?: ContractOverrides,
     isDeployingContract = false,
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | RewardsFactoryError
   > {
+    let contractFactory = this.erc721ContractFactory;
+    let abi = ContractsAbis.ERC721Reward.abi;
+
+    if (rewardType == ECreatedRewardType.ERC20) {
+      contractFactory = this.erc20ContractFactory;
+      abi = ContractsAbis.ERC20Reward.abi;
+    }
+
     return ResultAsync.fromPromise(
-      this.contractFactory[functionName](...functionParams, {
+      contractFactory[functionName](...functionParams, {
         ...overrides,
       }) as Promise<ethers.TransactionResponse | ethers.Contract>,
       (e) => {
@@ -218,7 +228,7 @@ export class RewardsContractFactory
         EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
         functionName,
         functionParams,
-        ContractsAbis.ERC721Reward.abi,
+        abi,
       );
     });
   }
