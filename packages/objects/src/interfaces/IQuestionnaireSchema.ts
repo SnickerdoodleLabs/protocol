@@ -1,7 +1,7 @@
 import { EQuestionnaireQuestionType } from "@objects/businessObjects/Questionnaire.js";
 import { URLString } from "@objects/primitives/URLString.js";
 
-export interface IPFSQuestionnaire {
+export interface IQuestionnaireSchema {
   title: string;
   description: string;
   image?: URLString;

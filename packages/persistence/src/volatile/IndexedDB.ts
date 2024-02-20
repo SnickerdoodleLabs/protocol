@@ -874,7 +874,7 @@ export class IndexedDB {
   protected getKeyPathValueFromObject<T extends VersionedObject>(
     obj: VolatileStorageMetadata<T>,
     path: string | string[],
-  ): VolatileStorageKey[] {
+  ): VolatileStorageKey[] | null {
     const paths = Array.isArray(path) ? path : [path];
     const keyValues: VolatileStorageKey[] = [];
 
@@ -1009,7 +1009,6 @@ export class IndexedDB {
   }
 
   protected _getRecursiveKey(obj: object, path: string): string | number {
-    console.log(obj, path);
     const items = path.split(".");
     let ret = obj;
     items.forEach((x) => {
