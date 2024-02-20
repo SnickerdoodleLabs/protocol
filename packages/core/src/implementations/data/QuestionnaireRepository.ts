@@ -20,7 +20,7 @@ import {
   QuestionnaireData,
   ERecordKey,
   EQuestionnaireStatus,
-  IPFSQuestionnaire,
+  IQuestionnaireSchema,
   QuestionnaireQuestion,
   UnixTimestamp,
   QuestionnaireHistory,
@@ -291,19 +291,17 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     cid: IpfsCID,
     config: IPersistenceConfig,
   ): ResultAsync<
-    { data: Partial<IPFSQuestionnaire>; cid: IpfsCID },
+    { data: Partial<IQuestionnaireSchema>; cid: IpfsCID },
     AjaxError
   > {
     const url = new URL(urlJoin(config.ipfsFetchBaseUrl, cid));
     return this.ajaxUtils
-      .get<Partial<IPFSQuestionnaire>>(url)
-      .map((data) => {
-        return { data, cid };
-      });
+      .get<Partial<IQuestionnaireSchema>>(url)
+      .map((data) => ({ data, cid }));
   }
 
   private processIPFSQuestionnaireData(
-    data: Partial<IPFSQuestionnaire>,
+    data: Partial<IQuestionnaireSchema>,
     cid: IpfsCID,
   ): QuestionnaireData | undefined {
     const isValid = this.validateQuestionnaireData(data);
@@ -482,8 +480,8 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
   }
 
   private validateQuestionnaireData(
-    data: Partial<IPFSQuestionnaire>,
-  ): data is IPFSQuestionnaire {
+    data: Partial<IQuestionnaireSchema>,
+  ): data is IQuestionnaireSchema {
     //TODO better validation
     if (
       data.title != null &&
