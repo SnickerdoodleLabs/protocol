@@ -6,7 +6,11 @@ import {
   Questionnaire,
   QuestionnaireWithAnswers,
 } from "@snickerdoodlelabs/objects";
-import { SDTypography, colors } from "@snickerdoodlelabs/shared-components";
+import {
+  SDButton,
+  SDTypography,
+  colors,
+} from "@snickerdoodlelabs/shared-components";
 import React from "react";
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -14,11 +18,18 @@ const useStyles = makeStyles((theme) => ({
     "&:hover $icon": {
       width: 18,
     },
-    "&:hover $updateIcon": {
+    "&:hover $fillOutBtn": {
       opacity: 1,
     },
     "&:hover $updateBtn": {
       // borderColor: colors.MAINPURPLE500,
+    },
+  },
+  fillOutBtn: {
+    opacity: 0,
+    transition: "opacity 0.35s ease",
+    [theme.breakpoints.down("xs")]: {
+      opacity: 1,
     },
   },
   icon: {
@@ -77,23 +88,13 @@ const QuestionnaireListItem: React.FC<IQuestionnaireListItemProps> = ({
         </Box>
       </Box>
       {questionnaire.status === EQuestionnaireStatus.Available ? (
-        <Box
-          height="fit-content"
-          borderRadius={16}
-          px={0.75}
-          gridGap={8}
-          display="flex"
-          alignItems="center"
-          py={0.5}
-          bgcolor={colors.MINT50}
-          color={colors.MINT500}
+        <SDButton
+          endIcon={<CallMadeIcon />}
+          variant="outlined"
+          className={classes.fillOutBtn}
         >
-          <img src="https://storage.googleapis.com/dw-assets/spa/icons-v2/cookie.svg" />
-          <SDTypography color="inherit" variant="titleSm" fontWeight="bold">
-            100
-          </SDTypography>
-          <CallMadeIcon color="inherit" className={classes.icon} />
-        </Box>
+          Fill Out
+        </SDButton>
       ) : (
         <Box
           display="flex"

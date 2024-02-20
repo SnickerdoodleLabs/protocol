@@ -17,14 +17,14 @@ const CookieVault: FC = () => {
         <InfoCard />
         <Grid container spacing={4}>
           <CookieVaultContextProvider>
-            <Grid item xs={12} sm={8}>
-              <Questionnaires />
+            <Grid item xs={12} sm={12}>
               <WalletLinking />
               <SocialAccountLinking />
+              <Questionnaires />
             </Grid>
-            <Grid item xs={12} sm={4}>
+            {/* <Grid item xs={12} sm={4}>
               <VaultStatus />
-            </Grid>
+            </Grid> */}
           </CookieVaultContextProvider>
         </Grid>
       </Container>

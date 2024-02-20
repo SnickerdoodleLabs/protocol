@@ -498,6 +498,10 @@ export const createDefaultTheme = (
   }
   return createTheme({
     palette: {
+      action: {
+        selected: colors.MAINPURPLE100,
+        hover: colors.MAINPURPLE50,
+      },
       background: { default: palette.bgColor },
       primary: { main: palette.primary },
       secondary: { main: palette.secondary },

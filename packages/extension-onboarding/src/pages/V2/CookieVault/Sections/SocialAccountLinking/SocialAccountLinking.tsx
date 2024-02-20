@@ -138,6 +138,30 @@ const SocialAccountLinking: FC<ISocialAccountLinkingProps> = ({}) => {
           titleVariant="headlineMd"
           subtitleVariant="bodyLg"
         />
+
+        <Box
+          mt={4}
+          className={classes.wrapper}
+          id="account-linking"
+          onClick={(e) => handleClick(e)}
+          borderRadius={12}
+          p={3}
+          borderColor="borderColor"
+          border="1px solid"
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <SDTypography variant="bodyLg" fontWeight="bold">
+            Connect Account
+          </SDTypography>
+          <img
+            src="https://storage.googleapis.com/dw-assets/shared/icons/discord-link.png"
+            width={40}
+            height={40}
+          />
+        </Box>
+
         {discordAccounts.length > 0 && (
           <>
             <Box mt={3} />
@@ -169,6 +193,14 @@ const SocialAccountLinking: FC<ISocialAccountLinkingProps> = ({}) => {
                     anchorEl={anchorEl}
                     open={anchorEl?.id === "account-action"}
                     onClose={handleClose}
+                    anchorOrigin={{
+                      vertical: "bottom",
+                      horizontal: "right",
+                    }}
+                    transformOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
                   >
                     <MenuItem
                       onClick={() => {
@@ -211,24 +243,43 @@ const SocialAccountLinking: FC<ISocialAccountLinkingProps> = ({}) => {
             ))}
           </>
         )}
-        <Box display="flex" mt={4}>
-          <SDButton
+        <Box display="flex">
+          {/* <SDButton
             variant="outlined"
             id="account-linking"
             onClick={(e) => handleClick(e)}
           >
             Connect Account
-          </SDButton>
+          </SDButton> */}
           <Menu
             elevation={0}
             getContentAnchorEl={null}
             anchorOrigin={{
-              vertical: "top",
-              horizontal: "right",
+              vertical: "bottom",
+              horizontal: "center",
             }}
             anchorEl={anchorEl}
             open={anchorEl?.id === "account-linking"}
             onClose={handleClose}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "center",
+            }}
+            PaperProps={{
+              style: {
+                borderRadius: 4,
+                boxShadow:
+                  "0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30)",
+              },
+            }}
+            MenuListProps={{
+              style: {
+                width: anchorEl?.offsetWidth ?? lastWidth.current,
+              },
+            }}
+            style={{
+              marginTop: 16,
+            }}
           >
             <MenuItem
               onClick={() => {
@@ -236,7 +287,7 @@ const SocialAccountLinking: FC<ISocialAccountLinkingProps> = ({}) => {
                 handleClose();
               }}
             >
-              <Box display="flex" gridGap={16} alignItems="center">
+              <Box display="flex" py={1} gridGap={12} alignItems="center">
                 <img
                   src="https://storage.googleapis.com/dw-assets/shared/icons/discord-link.png"
                   width={24}

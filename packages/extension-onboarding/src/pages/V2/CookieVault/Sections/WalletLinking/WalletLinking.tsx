@@ -45,6 +45,35 @@ const WalletLinking = () => {
         titleVariant="headlineMd"
         subtitleVariant="bodyLg"
       />
+      <Box
+        mt={4}
+        style={{ cursor: "pointer" }}
+        id="account-linking"
+        onClick={(e) => handleClick(e)}
+        borderRadius={12}
+        p={3}
+        borderColor="borderColor"
+        border="1px solid"
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+      >
+        <SDTypography variant="bodyLg" fontWeight="bold">
+          Connect Wallet
+        </SDTypography>
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          gridGap={10}
+        >
+          {[detectedProviders, unDetectedProviders, walletKits]
+            .flat()
+            .map((item) => (
+              <img key={item.key} width={40} height={40} src={item.icon} />
+            ))}
+        </Box>
+      </Box>
       {linkedAccounts.length > 0 && <Box mt={4} />}
       {linkedAccounts.map((account) => (
         <Fragment key={account.sourceAccountAddress}>
@@ -54,20 +83,39 @@ const WalletLinking = () => {
           )}
         </Fragment>
       ))}
-      <Box display="flex" mt={4}>
-        <SDButton id="account-linking" onClick={handleClick} variant="outlined">
+      <Box display="flex">
+        {/* <SDButton id="account-linking" onClick={handleClick} variant="outlined">
           Connect Wallet
-        </SDButton>
+        </SDButton> */}
         <Menu
           elevation={0}
           getContentAnchorEl={null}
           anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "center",
+          }}
+          transformOrigin={{
             vertical: "top",
-            horizontal: "right",
+            horizontal: "center",
           }}
           anchorEl={anchorEl}
           open={anchorEl?.id === "account-linking"}
           onClose={handleClose}
+          PaperProps={{
+            style: {
+              borderRadius: 4,
+              boxShadow:
+                "0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30)",
+            },
+          }}
+          MenuListProps={{
+            style: {
+              width: anchorEl?.offsetWidth ?? lastWidth.current,
+            },
+          }}
+          style={{
+            marginTop: 16,
+          }}
         >
           {detectedProviders.map((provider) => (
             <MenuItem
@@ -77,7 +125,7 @@ const WalletLinking = () => {
                 handleClose();
               }}
             >
-              <Box display="flex" gridGap={16} alignItems="center">
+              <Box display="flex" py={1} gridGap={12} alignItems="center">
                 <img src={provider.icon} width={24} height={24} />
                 <SDTypography variant="bodyLg" fontWeight="bold">
                   Connect {provider.name}
@@ -93,7 +141,7 @@ const WalletLinking = () => {
                 handleClose();
               }}
             >
-              <Box display="flex" gridGap={16} alignItems="center">
+              <Box display="flex" py={1} gridGap={12} alignItems="center">
                 <img src={provider.icon} width={24} height={24} />
                 <SDTypography variant="bodyLg" fontWeight="bold">
                   Install {provider.name}
@@ -109,7 +157,7 @@ const WalletLinking = () => {
                 handleClose();
               }}
             >
-              <Box display="flex" gridGap={16} alignItems="center">
+              <Box display="flex" py={1} gridGap={12} alignItems="center">
                 <img src={wallet.icon} width={24} height={24} />
                 <SDTypography variant="bodyLg" fontWeight="bold">
                   Connect {wallet.label}

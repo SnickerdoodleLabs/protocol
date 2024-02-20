@@ -205,6 +205,10 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
                             <SDCheckbox
                               checked={field.checked}
                               onChange={() => {
+                                form.setFieldTouched(
+                                  `answers.${index}.choice`,
+                                  true,
+                                );
                                 form.setFieldValue(
                                   `answers.${index}.choice`,
                                   field.checked
@@ -528,6 +532,7 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
                   <Box key={index}>
                     {renderItem(
                       <SDTypography variant="bodyLg" fontWeight="bold">
+                        {question.text}
                         {question.required && (
                           <span
                             style={{
@@ -537,7 +542,6 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
                             *
                           </span>
                         )}
-                        {question.text}
                       </SDTypography>,
                       getQuestionByType(question, index, values),
                       index === initialValues.length - 1,

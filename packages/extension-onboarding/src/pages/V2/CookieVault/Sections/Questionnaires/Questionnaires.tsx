@@ -60,7 +60,7 @@ const mockQuestionnaires: PagedResponse<Questionnaire> =
             EQuestionnaireQuestionType.MultipleChoice,
             "What is your age group?",
             ["10-17", "18-24", "25-40", "41-54", "55-70", "70+"],
-            1,
+            2,
             2,
             EQuestionnaireQuestionDisplayType.List,
             true,
