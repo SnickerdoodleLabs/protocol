@@ -34,12 +34,11 @@ import {
   UnixTimestamp,
   DataPermissionsUpdatedEvent,
   BlockchainCommonErrors,
-  InvalidArgumentError,
   OptInInfo,
   IUserAgreement,
   InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber, ethers } from "ethers";
+import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -401,9 +400,9 @@ export class InvitationService implements IInvitationService {
             const request = new MetatransactionRequest(
               invitation.consentContractAddress, // Contract address for the metatransaction
               optInAddress, // EOA to run the transaction as
-              BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-              BigNumber.from(config.gasAmounts.optInGas), // The amount of gas to pay.
-              BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+              BigInt(0), // The amount of doodle token to pay. Should be 0.
+              BigInt(config.gasAmounts.optInGas), // The amount of gas to pay.
+              BigInt(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
               callData, // The actual bytes of the request, encoded as a hex string
             );
 
@@ -416,10 +415,10 @@ export class InvitationService implements IInvitationService {
                 return this.insightPlatformRepo.executeMetatransaction(
                   optInAddress, // account address
                   invitation.consentContractAddress, // contract address
-                  BigNumberString(BigNumber.from(nonce).toString()),
-                  BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
+                  BigNumberString(BigInt(nonce).toString()),
+                  BigNumberString(BigInt(0).toString()), // The amount of doodle token to pay. Should be 0.
                   BigNumberString(
-                    BigNumber.from(config.gasAmounts.optInGas).toString(),
+                    BigInt(config.gasAmounts.optInGas).toString(),
                   ), // The amount of gas to pay.
                   callData,
                   metatransactionSignature,
@@ -577,9 +576,9 @@ export class InvitationService implements IInvitationService {
             const request = new MetatransactionRequest(
               consentContractAddress, // Contract address for the metatransaction
               optInAccountAddress, // EOA to run the transaction as
-              BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-              BigNumber.from(config.gasAmounts.optOutGas), // The amount of gas to pay.
-              BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+              BigInt(0), // The amount of doodle token to pay. Should be 0.
+              BigInt(config.gasAmounts.optOutGas), // The amount of gas to pay.
+              BigInt(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
               callData, // The actual bytes of the request, encoded as a hex string
             );
 
@@ -592,10 +591,10 @@ export class InvitationService implements IInvitationService {
                 return this.insightPlatformRepo.executeMetatransaction(
                   optInAccountAddress, // account address
                   consentContractAddress, // contract address
-                  BigNumberString(BigNumber.from(nonce).toString()),
-                  BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
+                  BigNumberString(BigInt(nonce).toString()),
+                  BigNumberString(BigInt(0).toString()), // The amount of doodle token to pay. Should be 0.
                   BigNumberString(
-                    BigNumber.from(config.gasAmounts.optOutGas).toString(),
+                    BigInt(config.gasAmounts.optOutGas).toString(),
                   ), // The amount of gas to pay.
                   callData,
                   metatransactionSignature,
@@ -873,9 +872,9 @@ export class InvitationService implements IInvitationService {
               const request = new MetatransactionRequest(
                 consentContractAddress, // Contract address for the metatransaction
                 optInAccountAddress, // EOA to run the transaction as
-                BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-                BigNumber.from(config.gasAmounts.updateAgreementFlagsGas), // The amount of gas to pay.
-                BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+                BigInt(0), // The amount of doodle token to pay. Should be 0.
+                BigInt(config.gasAmounts.updateAgreementFlagsGas), // The amount of gas to pay.
+                BigInt(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
                 callData, // The actual bytes of the request, encoded as a hex string
               );
 
@@ -888,10 +887,10 @@ export class InvitationService implements IInvitationService {
                   return this.insightPlatformRepo.executeMetatransaction(
                     optInAccountAddress, // account address
                     consentContractAddress, // contract address
-                    BigNumberString(BigNumber.from(nonce).toString()),
-                    BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
+                    BigNumberString(BigInt(nonce).toString()),
+                    BigNumberString(BigInt(0).toString()), // The amount of doodle token to pay. Should be 0.
                     BigNumberString(
-                      BigNumber.from(
+                      BigInt(
                         config.gasAmounts.updateAgreementFlagsGas,
                       ).toString(),
                     ), // The amount of gas to pay.
@@ -1087,15 +1086,12 @@ export class InvitationService implements IInvitationService {
         return ResultUtils.combine(
           signersAccountAddresses.map((signerAccountAddress) => {
             const types = ["address", "uint256"];
-            const msgHash = ethers.utils.solidityKeccak256(
+            const msgHash = ethers.solidityPackedKeccak256(
               [...types],
-              [consentContractAddress, BigNumber.from(tokenId)],
+              [consentContractAddress, BigInt(tokenId)],
             );
             return this.cryptoUtils
-              .verifyEVMSignature(
-                ethers.utils.arrayify(msgHash),
-                businessSignature,
-              )
+              .verifyEVMSignature(ethers.getBytes(msgHash), businessSignature)
               .map((accountAddress) => {
                 return accountAddress == signerAccountAddress;
               });

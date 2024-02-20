@@ -1,11 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "path";
 
-import {
-  ITimeUtils,
-  ITimeUtilsType,
-  TimeUtils,
-} from "@snickerdoodlelabs/common-utils";
+import { ITimeUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
@@ -41,9 +37,7 @@ import {
   BlockchainProviderError,
   PersistenceError,
   UninitializedError,
-  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
 import { injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -473,9 +467,9 @@ export class DataWalletProfile {
         const value = {
           to: request.contractAddress, // Contract address for the metatransaction
           from: request.accountAddress, // EOA to run the transaction as (linked account, not derived)
-          value: BigNumber.from(request.value), // The amount of doodle token to pay. Should be 0.
-          gas: BigNumber.from(request.gas), // The amount of gas to pay.
-          nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+          value: BigInt(request.value), // The amount of doodle token to pay. Should be 0.
+          gas: BigInt(request.gas), // The amount of gas to pay.
+          nonce: BigInt(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
           data: request.data, // The actual bytes of the request, encoded as a hex string
         } as IMinimalForwarderRequest;
 

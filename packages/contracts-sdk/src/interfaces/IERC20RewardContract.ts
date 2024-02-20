@@ -6,15 +6,15 @@ import {
   TokenAmount,
   DomainName,
 } from "@snickerdoodlelabs/objects";
-import { EventFilter } from "ethers";
+import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
-import { ERewardRoles } from "@contracts-sdk/interfaces/enums";
 import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
 import {
   ContractOverrides,
   WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/objects";
+  ERewardRoles,
+} from "@contracts-sdk/interfaces/index.js";
 
 export interface IERC20RewardContract extends IBaseContract {
   /**
@@ -157,7 +157,7 @@ export interface IERC20Filters {
   Transfer(
     fromAddress: EVMAccountAddress | null,
     toAddress: EVMAccountAddress | null,
-  ): EventFilter;
+  ): ethers.DeferredTopicFilter;
 }
 
 export const IERC20ContractType = Symbol.for("IERC20Contract");

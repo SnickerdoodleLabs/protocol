@@ -313,6 +313,9 @@ export class AnkrIndexer implements IEVMIndexer {
           },
         })
         .map((response) => {
+          if (response.result.transactions == null) {
+            return [];
+          }
           return response.result.transactions.map((item) => {
             return new EVMTransaction(
               getChainInfoByChain(chain).chainId,
@@ -402,7 +405,7 @@ interface IAnkrTransactionReponse {
   jsonrpc: string;
   id: number;
   result: {
-    transactions: IAnkrTransaction[];
+    transactions?: IAnkrTransaction[];
   };
   nextPageToken: string;
 }

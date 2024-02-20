@@ -101,6 +101,7 @@ export class ConfigProvider
       5000, // polling interval balance
       300000, // polling interval nfts
       60000, // backup interval
+      3600000, // questionnaireCacheUpdateIntervalMS
       5, // backupChunkSizeTarget
       {
         alchemyApiKeys: {

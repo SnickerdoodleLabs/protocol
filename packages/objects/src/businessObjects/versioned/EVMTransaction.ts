@@ -1,4 +1,4 @@
-import { Interface } from "ethers/lib/utils";
+import { Interface } from "ethers";
 
 import { EVMEvent } from "@objects/businessObjects/EVMEvent";
 import {
@@ -60,6 +60,12 @@ export class EVMTransaction extends ChainTransaction {
       try {
         const iface = new Interface([`function ${this.functionName}`]);
         const func = iface.getFunction(this.input.slice(0, 10));
+
+        if (func == null) {
+          throw new Error(
+            `While constructing EVMTransaction, function not found on interface ${this.functionName} for input ${this.input}`,
+          );
+        }
         const paramValues = iface.decodeFunctionData(func.name, this.input);
 
         // filter out unrecognized methodIDs

@@ -30,15 +30,12 @@ export class RewardsContractFactory
   protected contractFactory: ethers.ContractFactory;
   protected rewardTypeToDeploy: ECreatedRewardType;
   constructor(
-    protected providerOrSigner:
-      | ethers.providers.Provider
-      | ethers.providers.JsonRpcSigner
-      | ethers.Wallet,
+    protected providerOrSigner: ethers.Provider | ethers.Signer,
     protected rewardType: ECreatedRewardType,
   ) {
     super(
       providerOrSigner,
-      EVMContractAddress(ethers.constants.AddressZero), // The rewards contract factory deploys a new contract, hence doesn't have a contract address
+      EVMContractAddress(ethers.ZeroAddress), // The rewards contract factory deploys a new contract, hence doesn't have a contract address
       ContractsAbis.ERC721Reward.abi,
     );
 
@@ -97,24 +94,31 @@ export class RewardsContractFactory
     name: string,
     symbol: string,
     baseURI: BaseURI,
-  ): ResultAsync<
-    ethers.BigNumber,
-    RewardsFactoryError | BlockchainCommonErrors
-  > {
+  ): ResultAsync<bigint, RewardsFactoryError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.providerOrSigner.estimateGas(
-        this.contractFactory.getDeployTransaction(name, symbol, baseURI),
-      ),
+      this.contractFactory.getDeployTransaction(name, symbol, baseURI),
       (e) => {
         return this.generateError(
           e,
-          "Failed to wait() for contract deployment",
+          "Unable to get deploy transaction for contract deployment for ERC721 contract",
         );
       },
-    ).map((estimatedGas) => {
-      // Increase estimated gas buffer by 20%
-      return estimatedGas.mul(120).div(100);
-    });
+    )
+      .andThen((deployTransaction) => {
+        return ResultAsync.fromPromise(
+          this.providerOrSigner.estimateGas(deployTransaction),
+          (e) => {
+            return this.generateError(
+              e,
+              "Attempting to estimate gas for contract deployment",
+            );
+          },
+        );
+      })
+      .map((estimatedGas) => {
+        // Increase estimated gas buffer by 20%
+        return (estimatedGas * 120n) / 100n;
+      });
   }
 
   // function to deploy a new ERC721 reward contract
@@ -152,24 +156,31 @@ export class RewardsContractFactory
   public estimateGasToDeployERC20Contract(
     name: string,
     symbol: string,
-  ): ResultAsync<
-    ethers.BigNumber,
-    RewardsFactoryError | BlockchainCommonErrors
-  > {
+  ): ResultAsync<bigint, RewardsFactoryError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.providerOrSigner.estimateGas(
-        this.contractFactory.getDeployTransaction(name, symbol),
-      ),
+      this.contractFactory.getDeployTransaction(name, symbol),
       (e) => {
         return this.generateError(
           e,
-          "Failed to wait() for contract deployment",
+          "Unable to get deploy transaction for contract deployment for ERC20 contract",
         );
       },
-    ).map((estimatedGas) => {
-      // Increase estimated gas buffer by 20%
-      return estimatedGas.mul(120).div(100);
-    });
+    )
+      .andThen((deployTransaction) => {
+        return ResultAsync.fromPromise(
+          this.providerOrSigner.estimateGas(deployTransaction),
+          (e) => {
+            return this.generateError(
+              e,
+              "Attempting to estimate gas for contract deployment",
+            );
+          },
+        );
+      })
+      .map((estimatedGas) => {
+        // Increase estimated gas buffer by 20%
+        return (estimatedGas * 120n) / 100n;
+      });
   }
 
   protected generateContractSpecificError(
@@ -185,7 +196,7 @@ export class RewardsContractFactory
     functionName: string,
     functionParams: any[],
     overrides?: ContractOverrides,
-    isDeployingContract?: boolean,
+    isDeployingContract = false,
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | RewardsFactoryError
@@ -193,7 +204,7 @@ export class RewardsContractFactory
     return ResultAsync.fromPromise(
       this.contractFactory[functionName](...functionParams, {
         ...overrides,
-      }) as Promise<ethers.providers.TransactionResponse | ethers.Contract>,
+      }) as Promise<ethers.TransactionResponse | ethers.Contract>,
       (e) => {
         return this.generateError(e, `Unable to call ${functionName}()`);
       },
@@ -201,8 +212,8 @@ export class RewardsContractFactory
       // If we are deploying a contract, the deploy() call returns an ethers.Contract object and the txresponse is under the deployTransaction property
       return RewardsContractFactory.buildWrappedTransactionResponse(
         isDeployingContract == true
-          ? (transactionResponse as ethers.Contract).deployTransaction
-          : (transactionResponse as ethers.providers.TransactionResponse),
+          ? (transactionResponse as ethers.Contract).deploymentTransaction()!
+          : (transactionResponse as ethers.TransactionResponse),
         EVMContractAddress(""),
         EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
         functionName,

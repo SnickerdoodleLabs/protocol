@@ -6,7 +6,7 @@ import {
   TokenAmount,
   DomainName,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber, ethers, EventFilter } from "ethers";
+import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
@@ -26,10 +26,7 @@ export class ERC20RewardContract
   implements IERC20RewardContract
 {
   constructor(
-    protected providerOrSigner:
-      | ethers.providers.Provider
-      | ethers.providers.JsonRpcSigner
-      | ethers.Wallet,
+    protected providerOrSigner: ethers.Provider | ethers.Signer,
     protected contractAddress: EVMContractAddress,
   ) {
     super(providerOrSigner, contractAddress, ContractsAbis.ERC20.abi);
@@ -64,11 +61,13 @@ export class ERC20RewardContract
     ERC20ContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.decimals() as Promise<number>,
+      this.contract.decimals() as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call decimals()");
       },
-    );
+    ).map((decimalsBN) => {
+      return Number(decimalsBN);
+    });
   }
 
   public totalSupply(): ResultAsync<
@@ -76,26 +75,22 @@ export class ERC20RewardContract
     ERC20ContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.totalSupply() as Promise<BigNumber>,
+      this.contract.totalSupply() as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call totalSupply()");
       },
-    ).map((totalSupplyBN) => {
-      return BigInt(totalSupplyBN.toString());
-    });
+    );
   }
 
   public balanceOf(
     address: EVMAccountAddress | EVMContractAddress,
   ): ResultAsync<bigint, ERC20ContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contract.balanceOf(address) as Promise<BigNumber>,
+      this.contract.balanceOf(address) as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call balanceOf()");
       },
-    ).map((balanceBN) => {
-      return BigInt(balanceBN.toString());
-    });
+    );
   }
 
   public allowance(
@@ -103,13 +98,11 @@ export class ERC20RewardContract
     spender: EVMAccountAddress | EVMContractAddress,
   ): ResultAsync<bigint, ERC20ContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contract.allowance(owner, spender) as Promise<BigNumber>,
+      this.contract.allowance(owner, spender) as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call allowance()");
       },
-    ).map((allowanceBN) => {
-      return BigInt(allowanceBN.toString());
-    });
+    );
   }
 
   public approve(
@@ -241,7 +234,7 @@ export class ERC20RewardContract
     Transfer: (
       fromAddress: EVMAccountAddress | null,
       toAddress: EVMAccountAddress | null,
-    ): EventFilter => {
+    ): ethers.DeferredTopicFilter => {
       return this.contract.filters.Transfer(fromAddress, toAddress);
     },
   };

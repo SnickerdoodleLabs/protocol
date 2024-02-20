@@ -37,6 +37,16 @@ export interface IConsentContractRepository {
     | BlockchainCommonErrors
   >;
 
+  getQuestionnaires(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    IpfsCID[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+  >;
+
   /**
    * Returns the number of "slots" available to opt-in to the contract as availableOptInCount and maxCapacity as maxCapacity, which is just
    * maxCapacity - currentOptins.
@@ -106,6 +116,7 @@ export interface IConsentContractRepository {
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   >;
 
+  // #region Consent Contract Factory
   getDeployedConsentContractAddresses(): ResultAsync<
     EVMContractAddress[],
     | BlockchainProviderError
@@ -114,8 +125,17 @@ export interface IConsentContractRepository {
     | BlockchainCommonErrors
   >;
 
+  getDefaultQuestionnaires(): ResultAsync<
+    IpfsCID[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
+  >;
+  // #endregion Consent Contract Factory
+
   getSignerRoleMembers(
-    consentContractAddres: EVMContractAddress,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     EVMAccountAddress[],
     | BlockchainProviderError
@@ -125,7 +145,7 @@ export interface IConsentContractRepository {
   >;
 
   isOpenOptInDisabled(
-    consentContractAddres: EVMContractAddress,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     boolean,
     | BlockchainProviderError
@@ -135,7 +155,7 @@ export interface IConsentContractRepository {
   >;
 
   getTokenURI(
-    consentContractAddres: EVMContractAddress,
+    consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
   ): ResultAsync<
     TokenUri | null,

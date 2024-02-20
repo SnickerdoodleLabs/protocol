@@ -1,8 +1,4 @@
 import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
-import {
   AccountAddress,
   Age,
   BackupCreatedEvent,
@@ -83,12 +79,12 @@ import {
   IUserAgreement,
   INftProxyMethods,
   WalletNFTHistory,
-  WalletNftWithHistory,
   NftRepositoryCache,
   WalletNFTData,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ethers } from "ethers";
+import { ResultAsync } from "neverthrow";
 import { Subject } from "rxjs";
 
 import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/index.js";
@@ -598,8 +594,8 @@ export class SnickerdoodleIFrameProxy
     },
     addAccountWithExternalTypedDataSignature: (
       accountAddress: AccountAddress,
-      domain: TypedDataDomain,
-      types: Record<string, Array<TypedDataField>>,
+      domain: ethers.TypedDataDomain,
+      types: Record<string, Array<ethers.TypedDataField>>,
       value: Record<string, unknown>,
       signature: Signature,
       chain: EChain,

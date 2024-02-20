@@ -103,6 +103,7 @@ import {
   QueryService,
   TwitterService,
   CloudStorageService,
+  CachingService,
 } from "@core/implementations/business/index.js";
 import { PermissionUtils } from "@core/implementations/business/utilities/index.js";
 import {
@@ -139,6 +140,7 @@ import {
   TwitterRepository,
   AuthenticatedStorageRepository,
   NftRepository,
+  QuestionnaireRepository,
 } from "@core/implementations/data/index.js";
 import { ContractFactory } from "@core/implementations/utilities/factory/index.js";
 import {
@@ -162,6 +164,8 @@ import {
   IAccountServiceType,
   IAdService,
   IAdServiceType,
+  ICachingService,
+  ICachingServiceType,
   ICloudStorageService,
   ICloudStorageServiceType,
   IDiscordService,
@@ -234,8 +238,6 @@ import {
   IPermissionRepositoryType,
   IPortfolioBalanceRepository,
   IPortfolioBalanceRepositoryType,
-  INftRepository,
-  INftRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
   ISocialRepository,
@@ -252,6 +254,8 @@ import {
   IEntropyRepositoryType,
   INFTRepositoryWithDebug,
   INFTRepositoryWithDebugType,
+  IQuestionnaireRepository,
+  IQuestionnaireRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
@@ -290,6 +294,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
 
     bind<IAccountService>(IAccountServiceType)
       .to(AccountService)
+      .inSingletonScope();
+    bind<ICachingService>(ICachingServiceType)
+      .to(CachingService)
       .inSingletonScope();
     bind<ICloudStorageService>(ICloudStorageServiceType)
       .to(CloudStorageService)
@@ -390,6 +397,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IPortfolioBalanceRepository>(IPortfolioBalanceRepositoryType)
       .to(PortfolioBalanceRepository)
+      .inSingletonScope();
+    bind<IQuestionnaireRepository>(IQuestionnaireRepositoryType)
+      .to(QuestionnaireRepository)
       .inSingletonScope();
 
     bind<ITransactionHistoryRepository>(ITransactionHistoryRepositoryType)
