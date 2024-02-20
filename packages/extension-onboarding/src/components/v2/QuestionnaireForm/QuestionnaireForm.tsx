@@ -104,7 +104,6 @@ const areAnswersSame = (
 };
 // #endregion
 
-
 const shouldSkipAnswer = (mode, questionnaire, answer, formattedAnswer) => {
   if (
     mode === Mode.UPDATE &&
@@ -415,7 +414,9 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
                     checked={values.answers[index].choice.indexOf(choice) > -1}
                   />
                 ) : (
-                  <SDTypography variant="bodyLg">{choice}</SDTypography>
+                  <SDTypography fontWeight="bold" variant="bodyLg">
+                    {choice}
+                  </SDTypography>
                 )}
               </MenuItem>
             ))}
@@ -472,7 +473,9 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
                     }
                   />
                 ) : (
-                  <SDTypography variant="bodyLg">{choice.name}</SDTypography>
+                  <SDTypography fontWeight="bold" variant="bodyLg">
+                    {choice.name}
+                  </SDTypography>
                 )}
               </MenuItem>
             ))}

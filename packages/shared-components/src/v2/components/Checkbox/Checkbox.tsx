@@ -125,13 +125,9 @@ export const SDCheckbox: React.FC<CheckboxProps> = memo(
         </Box>
         {label != undefined ? (
           <Box {...{ [labelProp]: ["mt", "mb"].includes(labelProp) ? 2 : 1.5 }}>
-            {typeof label === "string" ? (
-              <SDTypography variant="bodyLg" hideOverflow fontWeight="bold">
-                <span className={classes.label}>{label}</span>
-              </SDTypography>
-            ) : (
-              label
-            )}
+            <SDTypography variant="bodyLg" hideOverflow fontWeight="bold">
+              <span className={classes.label}>{label}</span>
+            </SDTypography>
           </Box>
         ) : null}
       </Box>
