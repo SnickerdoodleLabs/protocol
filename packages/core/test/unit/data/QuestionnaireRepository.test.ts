@@ -31,6 +31,7 @@ import {
   mockQuestionnaireStoredInstance2,
   mockQuestionnaire2,
   mockQuestionnaireHistoryNewer,
+  InvalidIPFSQuestionnaireCID,
 } from "@core-tests/mock/mocks";
 import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
 import "fake-indexeddb/auto";
@@ -58,7 +59,10 @@ class QuestionnaireRepositoryMocks {
     td.when(this.timeUtils.getUnixNow()).thenReturn(currentTime);
 
     td.when(
-      this.persistence.getKeys(td.matchers.anything(), td.matchers.anything()),
+      this.persistence.getKeys(ERecordKey.QUESTIONNAIRES, {
+        index: "deleted",
+        query: EBoolean.FALSE,
+      }),
     ).thenReturn(
       okAsync([
         [mockQuestionnaireCID, EBoolean.FALSE],
@@ -67,7 +71,25 @@ class QuestionnaireRepositoryMocks {
     );
 
     td.when(
-      this.persistence.get(ERecordKey.QUESTIONNAIRES, td.matchers.anything()),
+      this.persistence.get(
+        ERecordKey.QUESTIONNAIRES,
+        td.matchers.argThat(
+          (arg: {
+            index?: string;
+            query?: IDBValidKey | IDBKeyRange | null;
+            count?: number;
+            id?: IDBValidKey;
+          }) => {
+            if (Array.isArray(arg.id)) {
+              return (
+                arg.id[0] === mockQuestionnaireCID ||
+                arg.id[1] === EBoolean.FALSE
+              );
+            }
+            return false;
+          },
+        ),
+      ),
     ).thenDo(
       (
         _storeName: string,
@@ -98,8 +120,32 @@ class QuestionnaireRepositoryMocks {
 
     td.when(
       this.persistence.getCursor2(
-        td.matchers.anything(),
-        td.matchers.anything(),
+        td.matchers.argThat(
+          (storeName: ERecordKey) =>
+            storeName === ERecordKey.QUESTIONNAIRES ||
+            storeName === ERecordKey.QUESTIONNAIRES_HISTORY,
+        ),
+        td.matchers.argThat(
+          (arg: {
+            index?: string;
+            query?: {
+              lower: IDBValidKey;
+              upper: IDBValidKey;
+              lowerOpen: boolean;
+              upperOpen: boolean;
+            };
+            count?: number;
+            id?: IDBValidKey;
+          }) => {
+            if (arg.query != null) {
+              return (
+                arg.query.lower[1] === mockQuestionnaireCID ||
+                arg.query.lower[0] === EBoolean.FALSE
+              );
+            }
+            return false;
+          },
+        ),
       ),
     ).thenDo(
       (
@@ -154,7 +200,11 @@ class QuestionnaireRepositoryMocks {
 
     td.when(
       this.persistence.updateRecord(
-        td.matchers.anything(),
+        td.matchers.argThat(
+          (storeName: ERecordKey) =>
+            storeName === ERecordKey.QUESTIONNAIRES ||
+            storeName === ERecordKey.QUESTIONNAIRES_HISTORY,
+        ),
         td.matchers.anything(),
       ),
     ).thenReturn(okAsync(undefined));
@@ -182,8 +232,8 @@ describe("QuestionnaireRepository tests", () => {
     expect(result.isErr()).toBeFalsy();
     td.verify(
       mocks.persistence.updateRecord(
-        td.matchers.anything(),
-        td.matchers.anything(),
+        ERecordKey.QUESTIONNAIRES_HISTORY,
+        mockQuestionnaireHistory,
       ),
       { times: 0 },
     );
@@ -211,7 +261,7 @@ describe("QuestionnaireRepository tests", () => {
     const repository = mocks.factory();
 
     const result = await repository.upsertAnswers(
-      IPFSQuestionnaireCID,
+      InvalidIPFSQuestionnaireCID,
       mockQuestionnaireAnswer,
     );
 
@@ -237,7 +287,9 @@ describe("QuestionnaireRepository tests", () => {
     td.verify(
       mocks.persistence.updateRecord(
         ERecordKey.QUESTIONNAIRES_HISTORY,
-        td.matchers.anything(),
+        td.matchers.argThat(
+          (obj: QuestionnaireHistory) => obj.id === mockQuestionnaireCID,
+        ),
       ),
       { times: 1 },
     );
