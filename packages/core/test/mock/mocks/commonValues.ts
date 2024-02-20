@@ -39,7 +39,7 @@ import {
   DirectReward,
   EVMNFT,
   EQuestionnaireQuestionType,
-  IPFSQuestionnaire,
+  IQuestionnaireSchema,
   EQuestionnaireStatus,
   PropertiesOf,
   QuestionnaireData,
@@ -65,7 +65,6 @@ import {
   AST,
   AST_SubQuery,
 } from "@snickerdoodlelabs/query-parser";
-import { QuestionAnswer } from "inquirer";
 
 import {
   CoreConfig,
@@ -867,10 +866,13 @@ export const walletNftThatGotTransferredAndGotBack = {
 // #endregion
 
 // #region for Questionnaire
+export const InvalidIPFSQuestionnaireCID = IpfsCID(
+  "QmeFACA648aPXQp4sP5R6sgJon4wggUhatY61Ras211111",
+);
 export const IPFSQuestionnaireCID = IpfsCID(
   "QmeFACA648aPXQp4sP5R6sgJon4wggUhatY61Ras2WWJLF",
 );
-export const mockIPFSQuestionnaire: IPFSQuestionnaire = {
+export const mockIPFSQuestionnaire: IQuestionnaireSchema = {
   title: "Sample Questionnaire",
   description: "This is a sample questionnaire for testing purposes",
   image: URLString("https://example.com/sample-image.jpg"),
