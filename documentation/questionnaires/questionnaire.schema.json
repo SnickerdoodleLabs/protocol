@@ -23,11 +23,11 @@
                 "properties": {
                     "questionType": {
                         "type": "string",
-                        "enum": ["multipleChoice", "country", "text", "numeric"]
+                        "enum": ["MultipleChoice", "Location", "Text", "Numeric"]
                     },
                     "displayType": {
                         "type": "string",
-                        "enum": ["dropdown", "list", "scale"]
+                        "enum": ["Dropdown", "List", "Scale"]
                     },
                     "multiSelect": {
                         "type": "boolean",

@@ -12,21 +12,21 @@ export enum EQuestionnaireStatus {
 }
 
 export enum EQuestionnaireQuestionType {
-  MultipleChoice = "multipleChoice",
-  Location = "country",
-  Text = "text",
-  Numeric = "numeric",
+  MultipleChoice = "MultipleChoice",
+  Location = "Location",
+  Text = "Text",
+  Numeric = "Numeric",
 }
 
 export enum EQuestionnaireQuestionDisplayType {
-  Dropdown = "dropdown",
-  List = "list",
-  Scale = "scale",
+  Dropdown = "Dropdown",
+  List = "List",
+  Scale = "Scale",
 }
 
 export class Questionnaire {
   public constructor(
-    /**
+    /**I
      * The questionnaire is uniquely identified by it's CID in IPFS. This is the primary key for
      * questionnaires.
      */
