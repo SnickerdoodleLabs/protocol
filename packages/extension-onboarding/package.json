@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/extension-onboarding",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "SPA for providing connection between wallet providers and snickerdoodlelabs data wallet browser extension",
   "main": "dist/index.js",
   "scripts": {
