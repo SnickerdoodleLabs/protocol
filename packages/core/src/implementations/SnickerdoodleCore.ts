@@ -718,6 +718,36 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
     // Questionnaire Methods --------------------------------------------------------------------
     this.questionnaire = {
+      getAllQuestionnaires: (
+        pagingRequest: PagingRequest,
+        sourceDomain: DomainName | undefined,
+      ) => {
+        const questionnaireService =
+          this.iocContainer.get<IQuestionnaireService>(
+            IQuestionnaireServiceType,
+          );
+
+        return questionnaireService.getAllQuestionnaires(
+          pagingRequest,
+          sourceDomain,
+        );
+      },
+
+      getConsentContractsByQuestionnaireCID: (
+        ipfsCID: IpfsCID,
+        sourceDomain: DomainName | undefined,
+      ) => {
+        const questionnaireService =
+          this.iocContainer.get<IQuestionnaireService>(
+            IQuestionnaireServiceType,
+          );
+
+        return questionnaireService.getConsentContractsByQuestionnaireCID(
+          ipfsCID,
+          sourceDomain,
+        );
+      },
+
       getQuestionnaires: (
         pagingRequest: PagingRequest,
         sourceDomain: DomainName | undefined,

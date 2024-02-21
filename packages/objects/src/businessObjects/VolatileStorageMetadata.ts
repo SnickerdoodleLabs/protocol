@@ -2,7 +2,7 @@ import { VersionedObject } from "@objects/businessObjects/versioned/index.js";
 import { EBoolean } from "@objects/enum/index.js";
 import { UnixTimestamp } from "@objects/primitives/index.js";
 
-export const DatabaseVersion = 2;
+export const DatabaseVersion = 3;
 export const VolatileStorageDataKey = "data";
 export const VolatileStorageMetadataIndexes: [string, boolean][] = [
   ["deleted", false],

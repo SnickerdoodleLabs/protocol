@@ -38,6 +38,17 @@ import {
   EContractStandard,
   DirectReward,
   EVMNFT,
+  EQuestionnaireQuestionType,
+  IQuestionnaireSchema,
+  EQuestionnaireStatus,
+  PropertiesOf,
+  QuestionnaireData,
+  QuestionnaireHistory,
+  Questionnaire,
+  QuestionnaireAnswer,
+  MarketplaceTag,
+  QuestionnaireQuestion,
+  QuestionnaireWithAnswers,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_ConditionExpr,
@@ -852,4 +863,274 @@ export const walletNftThatGotTransferredAndGotBack = {
   ],
   totalAmount: "1",
 };
+// #endregion
+
+// #region for Questionnaire
+export const InvalidIPFSQuestionnaireCID = IpfsCID(
+  "QmeFACA648aPXQp4sP5R6sgJon4wggUhatY61Ras211111",
+);
+export const IPFSQuestionnaireCID = IpfsCID(
+  "QmeFACA648aPXQp4sP5R6sgJon4wggUhatY61Ras2WWJLF",
+);
+export const mockIPFSQuestionnaire: IQuestionnaireSchema = {
+  title: "Sample Questionnaire",
+  description: "This is a sample questionnaire for testing purposes",
+  image: URLString("https://example.com/sample-image.jpg"),
+  questions: [
+    {
+      type: EQuestionnaireQuestionType.MultipleChoice,
+      text: "What is your favorite color?",
+      choices: ["Red", "Blue", "Green"],
+      required: true,
+    },
+    {
+      type: EQuestionnaireQuestionType.Location,
+      text: "Where are you located?",
+      required: false,
+    },
+    {
+      type: EQuestionnaireQuestionType.Text,
+      text: "What is your feedback?",
+      required: false,
+    },
+  ],
+};
+
+export const mockQuestionnaireIPFSInstance = new QuestionnaireData(
+  IPFSQuestionnaireCID,
+  EQuestionnaireStatus.Available,
+  [
+    {
+      index: 0,
+      type: EQuestionnaireQuestionType.MultipleChoice,
+      text: "What is your favorite color?",
+      choices: ["Red", "Blue", "Green"],
+      required: true,
+      minumum: null,
+      maximum: null,
+      multiSelect: false,
+    },
+    {
+      index: 1,
+      type: EQuestionnaireQuestionType.Location,
+      text: "Where are you located?",
+      choices: null,
+      required: false,
+      minumum: null,
+      maximum: null,
+      multiSelect: false,
+    },
+    {
+      index: 2,
+      type: EQuestionnaireQuestionType.Text,
+      text: "What is your feedback?",
+      choices: null,
+      required: false,
+      minumum: null,
+      maximum: null,
+      multiSelect: false,
+    },
+  ],
+  "Sample Questionnaire",
+  "This is a sample questionnaire for testing purposes",
+  URLString("https://example.com/sample-image.jpg"),
+);
+
+//
+
+export const mockQuestionnaireCID = IpfsCID(
+  "QmX5u2op8fZKSWX4vVDntxz5X7a7vFL41PgzECyEp4o6u2",
+);
+export const mockQuestionnaireCID2 = IpfsCID(
+  "QmX5u2op8fZKSWX4vVDntxz5X7a7vFL41PgzECyEp4o6u4",
+);
+export const mockQuestionnaireStoredInstance = new QuestionnaireData(
+  mockQuestionnaireCID,
+  EQuestionnaireStatus.Complete,
+  [
+    {
+      index: 0,
+      type: EQuestionnaireQuestionType.MultipleChoice,
+      text: "How often do you exercise?",
+      choices: ["Daily", "Weekly", "Monthly", "Rarely", "Never"],
+      required: false,
+      maximum: null,
+      minumum: null,
+      multiSelect: false,
+    },
+    {
+      index: 1,
+      type: EQuestionnaireQuestionType.Text,
+      text: "What is your main motivation for exercising?",
+      choices: null,
+      required: false,
+      maximum: null,
+      minumum: null,
+      multiSelect: false,
+    },
+  ],
+  "Sample Questionnaire 2",
+  "Please answer the following questions about your exercise habits.",
+  undefined,
+);
+
+export const mockQuestionnaireStoredInstance2 = new QuestionnaireData(
+  mockQuestionnaireCID2,
+  EQuestionnaireStatus.Available,
+  [
+    {
+      index: 0,
+      type: EQuestionnaireQuestionType.MultipleChoice,
+      text: "How often do you exercise?",
+      choices: ["Daily", "Weekly", "Monthly", "Rarely", "Never"],
+      required: false,
+      minumum: null,
+      maximum: null,
+      multiSelect: false,
+    },
+    {
+      index: 1,
+      type: EQuestionnaireQuestionType.Text,
+      text: "What is your main motivation for exercising?",
+      choices: null,
+      required: false,
+      minumum: null,
+      maximum: null,
+      multiSelect: false,
+    },
+  ],
+  "Sample Questionnaire 22",
+  "Please answer the following questions about your exercise habits.",
+  undefined,
+);
+
+export const mockQuestionnaire = new Questionnaire(
+  mockQuestionnaireCID,
+  MarketplaceTag(`Questionnaire:${mockQuestionnaireCID}`),
+  EQuestionnaireStatus.Complete,
+  "Sample Questionnaire 2",
+  "Please answer the following questions about your exercise habits.",
+  null,
+  [
+    new QuestionnaireQuestion(
+      0,
+      EQuestionnaireQuestionType.MultipleChoice,
+      "How often do you exercise?",
+      ["Daily", "Weekly", "Monthly", "Rarely", "Never"],
+      null,
+      null,
+      false,
+      false,
+    ),
+    new QuestionnaireQuestion(
+      1,
+      EQuestionnaireQuestionType.Text,
+      "What is your main motivation for exercising?",
+      null,
+      null,
+      null,
+      false,
+      false,
+    ),
+  ],
+);
+
+export const mockQuestionnaire2 = new Questionnaire(
+  mockQuestionnaireCID2,
+  MarketplaceTag(`Questionnaire:${mockQuestionnaireCID2}`),
+  EQuestionnaireStatus.Available,
+  "Sample Questionnaire 22",
+  "Please answer the following questions about your exercise habits.",
+  null,
+  [
+    new QuestionnaireQuestion(
+      0,
+      EQuestionnaireQuestionType.MultipleChoice,
+      "How often do you exercise?",
+      ["Daily", "Weekly", "Monthly", "Rarely", "Never"],
+      null,
+      null,
+      false,
+      false,
+    ),
+    new QuestionnaireQuestion(
+      1,
+      EQuestionnaireQuestionType.Text,
+      "What is your main motivation for exercising?",
+      null,
+      null,
+      null,
+      false,
+      false,
+    ),
+  ],
+);
+
+export const mockQuestionnaireAnswer: QuestionnaireAnswer[] = [
+  new QuestionnaireAnswer(mockQuestionnaireCID, 1, "to get fresh air"),
+  new QuestionnaireAnswer(mockQuestionnaireCID, 0, 0),
+];
+
+export const mockQuestionnaireWithAnswer = new QuestionnaireWithAnswers(
+  mockQuestionnaireCID,
+  MarketplaceTag(`Questionnaire:${mockQuestionnaireCID}`),
+  EQuestionnaireStatus.Complete,
+
+  "Sample Questionnaire 2",
+  "Please answer the following questions about your exercise habits.",
+  null,
+  [
+    new QuestionnaireQuestion(
+      0,
+      EQuestionnaireQuestionType.MultipleChoice,
+      "How often do you exercise?",
+      ["Daily", "Weekly", "Monthly", "Rarely", "Never"],
+      null,
+      null,
+      false,
+      false,
+    ),
+    new QuestionnaireQuestion(
+      1,
+      EQuestionnaireQuestionType.Text,
+      "What is your main motivation for exercising?",
+      null,
+      null,
+      null,
+      false,
+      false,
+    ),
+  ],
+  mockQuestionnaireAnswer,
+  UnixTimestamp(1701779736),
+);
+
+export const mockQuestionnaireHistoryNewer = new QuestionnaireHistory(
+  mockQuestionnaireCID,
+  UnixTimestamp(1701779736),
+  [
+    {
+      questionIndex: 1,
+      questionnaireId: mockQuestionnaireCID,
+      choice: "to get fresh air",
+    },
+  ],
+);
+
+export const mockQuestionnaireHistory = new QuestionnaireHistory(
+  mockQuestionnaireCID,
+  UnixTimestamp(1701779734),
+  [
+    {
+      questionIndex: 0,
+      questionnaireId: mockQuestionnaireCID,
+      choice: 0,
+    },
+    {
+      questionIndex: 1,
+      questionnaireId: mockQuestionnaireCID,
+      choice: "to get in better shape",
+    },
+  ],
+);
 // #endregion

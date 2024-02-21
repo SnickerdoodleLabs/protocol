@@ -22,6 +22,9 @@ export enum ERecordKey {
   DOMAIN_CREDENTIALS = "SD_DomainCredentials",
   REJECTED_INVITATIONS = "SD_RejectedInvitations",
   OPTED_IN_INVITATIONS = "SD_OptedInInvitations",
+
+  QUESTIONNAIRES = "SD_Questionnaires",
+  QUESTIONNAIRES_HISTORY = "SD_Questionnaires_history",
 }
 
 export enum EFieldKey {

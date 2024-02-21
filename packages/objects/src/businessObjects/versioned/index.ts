@@ -10,6 +10,8 @@ export * from "@objects/businessObjects/versioned/InvitationForStorage.js";
 export * from "@objects/businessObjects/versioned/LinkedAccount.js";
 export * from "@objects/businessObjects/versioned/PolygonTransaction.js";
 export * from "@objects/businessObjects/versioned/QueryStatus.js";
+export * from "@objects/businessObjects/versioned/QuestionnaireHistoryMigrator.js";
+export * from "@objects/businessObjects/versioned/QuestionnaireMigrator.js";
 export * from "@objects/businessObjects/versioned/ReceivingAccount.js";
 export * from "@objects/businessObjects/versioned/RejectedInvitation.js";
 export * from "@objects/businessObjects/versioned/RestoredBackup.js";
