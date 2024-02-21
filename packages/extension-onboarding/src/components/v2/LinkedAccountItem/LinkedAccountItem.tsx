@@ -1,29 +1,19 @@
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import {
   Box,
-  Fade,
   IconButton,
   Menu,
   MenuItem,
   Theme,
   makeStyles,
 } from "@material-ui/core";
-import { AssignmentTurnedInOutlined } from "@material-ui/icons";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
-import { LinkedAccount } from "@snickerdoodlelabs/objects/src/businessObjects";
-import {
-  useMedia,
-  AccountIdentIcon,
-  SDTypography,
-  abbreviateString,
-  getChainImageSrc,
-} from "@snickerdoodlelabs/shared-components";
-import React, { FC, useEffect, useState } from "react";
+import { SDTypography } from "@snickerdoodlelabs/shared-components";
+import React, { FC, useState, ReactNode } from "react";
 
 interface ILinkedAccountItemProps {
-  account: LinkedAccount;
-  abbreviationSize?: number;
+  render: ReactNode;
+  onClick: () => void;
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -45,12 +35,9 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 const LinkedAccountItem: FC<ILinkedAccountItemProps> = ({
-  account,
-  abbreviationSize = 6,
+  onClick,
+  render,
 }) => {
-  const currentBreakPoint = useMedia();
-  const [isCopied, setIsCopied] = React.useState(false);
-  const { sdlDataWallet } = useDataWalletContext();
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState<(EventTarget & HTMLElement) | null>(
     null,
@@ -61,13 +48,6 @@ const LinkedAccountItem: FC<ILinkedAccountItemProps> = ({
 
   const handleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
     setAnchorEl(event.currentTarget);
-  };
-
-  const handleDisconnect = () => {
-    sdlDataWallet.account.unlinkAccount(
-      account.sourceAccountAddress,
-      account.sourceChain,
-    );
   };
 
   return (
@@ -102,10 +82,10 @@ const LinkedAccountItem: FC<ILinkedAccountItemProps> = ({
             horizontal: "right",
           }}
           anchorEl={anchorEl}
-          open={anchorEl?.id === "account-action"}
+          open={Boolean(anchorEl)}
           onClose={handleClose}
         >
-          <MenuItem onClick={handleDisconnect}>
+          <MenuItem onClick={onClick}>
             <Box
               display="flex"
               justifyContent="center"
@@ -119,10 +99,7 @@ const LinkedAccountItem: FC<ILinkedAccountItemProps> = ({
           </MenuItem>
         </Menu>
       </Box>
-      <img src={getChainImageSrc(account.sourceChain)} width={40} height={40} />
-      <SDTypography variant="bodyLg" fontWeight="bold">
-        {account.sourceAccountAddress}
-      </SDTypography>
+      {render}
     </Box>
   );
 };

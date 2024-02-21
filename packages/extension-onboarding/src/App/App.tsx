@@ -20,10 +20,16 @@ const App: FC<IAppProps> = ({ proxy }) => {
     const urlSearchParams = new URLSearchParams(window.location.search);
     const code = urlSearchParams.get("code");
     const state = urlSearchParams.get("state");
-    if (code && state) {
+    const error = urlSearchParams.get("error");
+    if (state) {
       const { provider } = OAuthURLState.getParsedState(state);
-      window?.opener?.postMessage({ code, provider }, "*");
-      return <div>All set! You can close this page now.</div>;
+      if (code) {
+        window?.opener?.postMessage({ code, provider }, "*");
+        return <div>All set! You can close this page now.</div>;
+      }
+      if (error) {
+        return <div>Something went wrong, please try again.</div>;
+      }
     }
     return (
       <Suspense

@@ -1,1 +1,2 @@
-export { default } from "@extension-onboarding/components/v2/LinkedAccountItem/LinkedAccountItem";
+export * from "@extension-onboarding/components/v2/LinkedAccountItem/Wallet";
+export * from "@extension-onboarding/components/v2/LinkedAccountItem/Social";

@@ -237,6 +237,10 @@ export const AppContextProvider: FC = ({ children }) => {
 
   const onAccountRemoved = (linkedAccount: LinkedAccount) => {
     getUserAccounts();
+    setAlert({
+      message: ALERT_MESSAGES.ACCOUNT_REMOVED,
+      severity: EAlertSeverity.SUCCESS,
+    });
   };
 
   const onCohortStatusChanged = (

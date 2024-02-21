@@ -2,14 +2,14 @@ import Container from "@extension-onboarding/components/v2/Container";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useThemeContext } from "@extension-onboarding/context/ThemeContext";
 import { EOnboardingState } from "@extension-onboarding/objects/interfaces/IUState";
-import { Box, Dialog, Grid, Toolbar, makeStyles } from "@material-ui/core";
+import { Box, Grid, Toolbar, makeStyles } from "@material-ui/core";
 import {
   SDButton,
   SDTypography,
   useMedia,
 } from "@snickerdoodlelabs/shared-components";
 import clsx from "clsx";
-import React, { FC, useState, Fragment, useEffect, ReactNode } from "react";
+import React, { FC, useState, useEffect, ReactNode } from "react";
 
 interface IStep {
   title: ReactNode;
@@ -45,8 +45,12 @@ const STEPS: IStep[] = [
         data
       </span>
     ),
-    description:
-      "Store and manage your data securely on your device, your data is only<br/> shared when you say so. You are ALWAYS in control.",
+    description: (
+      <span>
+        Store and manage your data securely on your device, your data is only
+        <br /> shared when you say so. You are ALWAYS in control.
+      </span>
+    ),
     image: "https://storage.googleapis.com/dw-assets/spa/images-v2/intro-2.svg",
   },
   {
