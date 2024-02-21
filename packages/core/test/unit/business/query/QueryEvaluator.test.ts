@@ -54,7 +54,6 @@ import {
   IQuestionnaireRepository,
 } from "@core/interfaces/data/index.js";
 import { ContextProviderMock } from "@core-tests/mock/utilities";
-import { IQuestionnaireService } from "@core/interfaces/business/IQuestionnaireService.js";
 
 const iso = UnixTimestamp(11);
 const queryTimestamp = UnixTimestamp(1);
@@ -82,7 +81,6 @@ class QueryEvaluatorMocks {
   public nftQueryEvaluator = td.object<INftQueryEvaluator>();
   public web3AccountQueryEvaluator = td.object<IWeb3AccountQueryEvaluator>();
   public questionnaireRepository = td.object<IQuestionnaireRepository>();
-  public questionnaireService = td.object<IQuestionnaireService>();
   public demoDataRepo = td.object<IDemographicDataRepository>();
   public browsingDataRepo = td.object<IBrowsingDataRepository>();
   public transactionRepo = td.object<ITransactionHistoryRepository>();
