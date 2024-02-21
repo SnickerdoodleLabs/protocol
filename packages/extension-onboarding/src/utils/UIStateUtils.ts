@@ -9,7 +9,7 @@ import {
   IEvent,
   IUIState,
 } from "@extension-onboarding/objects/interfaces/IUState";
-import { AsyncQueue } from "@extension-onboarding/utils/AsyncQue";
+import { AsyncQueue } from "@extension-onboarding/utils/AsyncQueue";
 import { ObjectUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
 import { JSONString } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
