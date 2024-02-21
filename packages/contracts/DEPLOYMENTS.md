@@ -1,6 +1,6 @@
 # Contract Deployment Addresses
 
-## `snickerdoodlelabs/devchain:0.0.4`
+## `snickerdoodlelabs/devchain:0.0.6`
 
 Local blockchain created by running the `snickerdoodlelabs/devchain` docker image with the `dev` flag enabled.
 
