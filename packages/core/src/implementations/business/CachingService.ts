@@ -43,8 +43,6 @@ export class CachingService implements ICachingService {
     | ConsentContractError
     | AjaxError
   > {
-    // TODO: Remove this once the contracts are updated
-    return okAsync(undefined);
     return ResultUtils.combine([
       this.invitationRepo.getAcceptedInvitations(),
       this.consentContractRepo.getDefaultQuestionnaires(),
