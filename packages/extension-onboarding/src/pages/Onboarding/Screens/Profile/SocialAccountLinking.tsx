@@ -11,7 +11,10 @@ import {
   EOAuthProvider,
   OAuthAuthorizationCode,
 } from "@snickerdoodlelabs/objects";
-import { SDButton } from "@snickerdoodlelabs/shared-components";
+import {
+  SDButton,
+  useResponsiveValue,
+} from "@snickerdoodlelabs/shared-components";
 import { errAsync } from "neverthrow";
 import React, { FC, useEffect, useState } from "react";
 
@@ -25,6 +28,7 @@ const SocialAccountLinking: FC<ISocialAccountLinkingProps> = ({
   const { sdlDataWallet } = useDataWalletContext();
   const { uiStateUtils } = useAppContext();
   const { setAlert } = useNotificationContext();
+  const getResponsiveValue = useResponsiveValue();
   const [profiles, setProfiles] = useState<DiscordProfile[]>([]);
   const connectionWindowRef = React.useRef<Window | null>(null);
 
@@ -121,17 +125,19 @@ const SocialAccountLinking: FC<ISocialAccountLinkingProps> = ({
           ))}
         </>
       )}
-
-      <Box mt={6}>
-        <SDButton
-          variant={profiles.length > 0 ? "contained" : "outlined"}
-          color="primary"
-          onClick={() => {
-            onComplete();
-          }}
-        >
-          {profiles.length > 0 ? "Next" : "Skip"}
-        </SDButton>
+      <Box mt="auto">
+        <Box mt={{ xs: 3, sm: 6 }}>
+          <SDButton
+            variant={profiles.length > 0 ? "contained" : "outlined"}
+            fullWidth={getResponsiveValue({ xs: true, sm: false })}
+            color="primary"
+            onClick={() => {
+              onComplete();
+            }}
+          >
+            {profiles.length > 0 ? "Next" : "Skip"}
+          </SDButton>
+        </Box>
       </Box>
     </>
   );

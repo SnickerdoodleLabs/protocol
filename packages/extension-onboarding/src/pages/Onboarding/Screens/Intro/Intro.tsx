@@ -10,7 +10,7 @@ import {
   useResponsiveValue,
 } from "@snickerdoodlelabs/shared-components";
 import clsx from "clsx";
-import React, { FC, useState, useEffect, ReactNode } from "react";
+import React, { FC, useState, useEffect, ReactNode, useMemo } from "react";
 
 interface IStep {
   title: ReactNode;
@@ -120,14 +120,7 @@ const StepperIndicators: FC<{
   color: string;
   onClick: (index: number) => void;
 }> = ({ steps, activeStep, activeColor, color, onClick }) => {
-  const { setBackground } = useThemeContext();
   const classes = useStyles({ activeColor, color });
-  useEffect(() => {
-    setBackground("#FFF3DE");
-    return () => {
-      setBackground();
-    };
-  }, []);
 
   return (
     <Box display="flex" alignItems="center">
@@ -184,81 +177,156 @@ const Intro: FC = () => {
   const getResponsiveValue = useResponsiveValue();
   const classes = useIntroStyles();
   const { uiStateUtils } = useAppContext();
+  const { setBackground } = useThemeContext();
+  useEffect(() => {
+    setBackground("#FFF3DE");
+    return () => {
+      setBackground();
+    };
+  }, []);
+
+  const render = useMemo(() => {
+    if (media === "xs") {
+      return (
+        <Box
+          width="100%"
+          minHeight="calc(100vh - 56px)"
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          flexDirection="column"
+        >
+          <>
+            <Box pt={3} />
+            <img width="50%" height="auto" src={STEPS[step].image} />
+            <Box mt={3} />
+            <SDTypography
+              align="center"
+              variant="headlineLg"
+              fontFamily="shrikhand"
+            >
+              {STEPS[step].title}
+            </SDTypography>
+            {STEPS[step].subtitle && (
+              <SDTypography
+                mt={1.5}
+                align="center"
+                variant="titleLg"
+                fontFamily="shrikhand"
+              >
+                {STEPS[step].subtitle}
+              </SDTypography>
+            )}
+            <SDTypography mt={3} align="center" variant="titleMd">
+              {STEPS[step].description}
+            </SDTypography>
+          </>
+          <Box
+            mt="auto"
+            width="100%"
+            alignItems={"center"}
+            mb={1.5}
+            display="flex"
+            flexDirection="column"
+          >
+            <StepperIndicators
+              onClick={setStep}
+              steps={STEPS.length}
+              activeStep={step}
+              color="#ddd"
+              activeColor="#292648"
+            />
+            <Box mt={4} />
+            <SDButton
+              fullWidth
+              onClick={
+                step === STEPS.length - 1
+                  ? () => {
+                      uiStateUtils.setOnboardingState(
+                        EOnboardingState.CYRPTO_ACCOUNT_LINKING,
+                      );
+                    }
+                  : () => {
+                      setStep(step + 1);
+                    }
+              }
+              variant="contained"
+              color="primary"
+            >
+              {step == 0 ? "Start" : "Next"}
+            </SDButton>
+          </Box>
+        </Box>
+      );
+    } else {
+      return (
+        <>
+          <Box pt={8} />
+          <Grid container>
+            <Grid item xs={7}>
+              <Box mt={4}>
+                <StepperIndicators
+                  onClick={setStep}
+                  steps={STEPS.length}
+                  activeStep={step}
+                  color="#ddd"
+                  activeColor="#292648"
+                />
+                <Box mt={4} />
+                <SDTypography variant="displayLg" fontFamily="shrikhand">
+                  {STEPS[step].title}
+                </SDTypography>
+
+                {STEPS[step].subtitle && (
+                  <SDTypography
+                    mt={1}
+                    variant="headlineSm"
+                    fontFamily="shrikhand"
+                  >
+                    {STEPS[step].subtitle}
+                  </SDTypography>
+                )}
+                <Box mt={4} />
+                <SDTypography variant="titleMd">
+                  {STEPS[step].description}
+                </SDTypography>
+                <Box mt={6} />
+                <SDButton
+                  onClick={
+                    step === STEPS.length - 1
+                      ? () => {
+                          uiStateUtils.setOnboardingState(
+                            EOnboardingState.CYRPTO_ACCOUNT_LINKING,
+                          );
+                        }
+                      : () => {
+                          setStep(step + 1);
+                        }
+                  }
+                  variant="contained"
+                  color="primary"
+                >
+                  {step == 0 ? "Start" : "Next"}
+                </SDButton>
+              </Box>
+            </Grid>
+            <Grid item xs={5}>
+              <Box width="100%" display="flex" justifyContent="center">
+                <img width="100%" height="auto" src={STEPS[step].image} />
+              </Box>
+            </Grid>
+          </Grid>
+        </>
+      );
+    }
+  }, [media === "xs", step]);
+
   return (
     <>
       <Toolbar className={classes.toolbar}>
         <img src="https://storage.googleapis.com/dw-assets/spa/icons-v2/sdl-horizontal.svg" />
       </Toolbar>
-      <Container>
-        <Box pt={{ xs: 2, sm: 8 }} />
-        <Grid
-          container
-          {...(media == "xs" && {
-            style: {
-              flexDirection: "column-reverse",
-            },
-          })}
-        >
-          <Grid item xs={12} sm={7}>
-            <Box mt={{ xs: 0, sm: 4 }}>
-              <StepperIndicators
-                onClick={setStep}
-                steps={STEPS.length}
-                activeStep={step}
-                color="#ddd"
-                activeColor="#292648"
-              />
-              <Box mt={{ xs: 2, sm: 4 }} />
-              <SDTypography
-                variant={getResponsiveValue({
-                  xs: "headlineLg",
-                  sm: "displayXl",
-                })}
-                fontFamily="shrikhand"
-              >
-                {STEPS[step].title}
-              </SDTypography>
-              <Box mt={1} />
-              {STEPS[step].subtitle && (
-                <SDTypography variant="headlineSm" fontFamily="shrikhand">
-                  {STEPS[step].subtitle}
-                </SDTypography>
-              )}
-              <Box mt={4} />
-              <SDTypography variant="titleMd">
-                {STEPS[step].description}
-              </SDTypography>
-              <Box mt={6} />
-              <SDButton
-                onClick={
-                  step === STEPS.length - 1
-                    ? () => {
-                        uiStateUtils.setOnboardingState(
-                          EOnboardingState.CYRPTO_ACCOUNT_LINKING,
-                        );
-                      }
-                    : () => {
-                        setStep(step + 1);
-                      }
-                }
-                variant="contained"
-                color="primary"
-              >
-                {step == 0 ? "Start" : "Next"}
-              </SDButton>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={5}>
-            <Box width="100%" display="flex" justifyContent="center">
-              <img
-                width={media === "xs" ? "40%" : "100%"}
-                height="auto"
-                src={STEPS[step].image}
-              />
-            </Box>
-          </Grid>
-        </Grid>
-      </Container>
+      <Container>{render}</Container>
     </>
   );
 };
