@@ -160,8 +160,6 @@ import {
   INFTRepositoryWithDebugType,
   INftRepository,
   INftRepositoryType,
-  IQuestionnaireRepository,
-  IQuestionnaireRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IBlockchainProvider,
@@ -748,7 +746,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           sourceDomain,
         );
       },
-
       getQuestionnaires: (
         pagingRequest: PagingRequest,
         sourceDomain: DomainName | undefined,

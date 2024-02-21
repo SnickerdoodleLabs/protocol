@@ -15,7 +15,6 @@ import {
   ConsentContractError,
   UninitializedError,
   ConsentFactoryContractError,
-  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync } from "neverthrow";
@@ -30,7 +29,6 @@ import {
   IQuestionnaireRepository,
   IQuestionnaireRepositoryType,
 } from "@core/interfaces/data/index.js";
-import { IContextProvider, IContextProviderType } from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class QuestionnaireService implements IQuestionnaireService {

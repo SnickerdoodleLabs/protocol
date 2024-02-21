@@ -457,7 +457,6 @@ export const avalanche1AstInstance = new AST(
   insightsMap,
   compensationParameters,
   compensationsMap,
-  [],
   UnixTimestamp(1),
 );
 

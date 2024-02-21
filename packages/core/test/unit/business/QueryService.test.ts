@@ -32,7 +32,7 @@ import {
 import {
   ISDQLQueryWrapperFactory,
   avalanche1SchemaStr,
-  questionnaireData,
+  questionnaireQuery,
 } from "@snickerdoodlelabs/query-parser";
 import { errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -75,7 +75,7 @@ const queryCID3 = IpfsCID("Womp");
 const derivedPrivateKey = EVMPrivateKey("derivedPrivateKey");
 const sdqlQuery = new SDQLQuery(queryCID1, SDQLString(avalanche1SchemaStr));
 const sdqlQuery2 = new SDQLQuery(queryCID2, SDQLString(avalanche1SchemaStr));
-const sdqlQuery3 = new SDQLQuery(queryCID3, SDQLString(questionnaireData));
+const sdqlQuery3 = new SDQLQuery(queryCID3, SDQLString(questionnaireQuery));
 
 const queryDeliveryItems: IQueryDeliveryItems = {
   insights: {},

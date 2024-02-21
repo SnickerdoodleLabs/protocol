@@ -24,7 +24,6 @@
     constructor(
       readonly name: SDQL_Name,
       readonly returnType: ESDQLQueryReturn.Object,
-      readonly property: Web2QueryTypes,
       readonly questionnaireIndex?: IpfsCID,
       readonly questionnaire?: Questionnaire,
     ) {
@@ -38,7 +37,6 @@
       return new AST_QuestionnaireQuery(
         name,
         ESDQLQueryReturn.Object,
-        web2QueryTypes[10],
         schema.cid,
       );
     }

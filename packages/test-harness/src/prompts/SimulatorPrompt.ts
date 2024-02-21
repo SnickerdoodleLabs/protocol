@@ -7,7 +7,7 @@ import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
 import { PostQuery } from "@test-harness/prompts/PostQuery.js";
 import { Prompt } from "@test-harness/prompts/Prompt.js";
 import { SetMaxCapacity } from "@test-harness/prompts/SetMaxCapacity.js";
-import { IpfsCID, NewQuestionnaireAnswer } from "@snickerdoodlelabs/objects";
+import { NewQuestionnaireAnswer } from "@snickerdoodlelabs/objects";
 
 export class SimulatorPrompt extends Prompt {
   private createCampaign: CreateCampaign;
@@ -44,6 +44,7 @@ export class SimulatorPrompt extends Prompt {
         case "uploadQuestionnaire":
           return this.mocks.insightSimulator.uploadQuestionnaire().map((cid) => {
             return this.mocks.blockchain.consentFactoryContract.getQuestionnaires().map((questionnaire) => {
+              console.log("consent contract questionnaire: " + questionnaire);
                 return this.env.core.questionnaire.answerQuestionnaire(cid, [
                   new NewQuestionnaireAnswer(cid, 0, 0)
                 ], undefined).map(() => {

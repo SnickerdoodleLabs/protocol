@@ -5,7 +5,6 @@ import {
   AST_Compensation,
   AST_Expr,
   AST_Insight,
-  AST_Question,
   AST_SubQuery,
 } from "@query-parser/interfaces/index.js";
 
@@ -19,7 +18,6 @@ export type ParserContextDataTypes =
   | AST_Ad
   | AST_Expr
   | AST_Insight
-  | AST_Question;
 
 export type ConditionOperandTypes =
   | string

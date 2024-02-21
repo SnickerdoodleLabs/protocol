@@ -38,7 +38,7 @@ import {
   avalanche2SchemaStr,
   avalanche1SchemaStr,
   avalanche4SchemaStr,
-  questionnaireData,
+  questionnaireQuery,
   IQueryFactories,
   QueryFactories,
   rewardless1SchemaStr,
@@ -87,8 +87,7 @@ const sdqlQuery = new SDQLQuery(queryCID, SDQLString(avalanche1SchemaStr));
 const sdqlQuery2 = new SDQLQuery(queryCID, SDQLString(avalanche2SchemaStr));
 const sdqlQuery4 = new SDQLQuery(queryCID, SDQLString(avalanche4SchemaStr));
 const sdqlQuery5 = new SDQLQuery(queryCID, SDQLString(rewardless1SchemaStr));
-const sdqlQuery6 = new SDQLQuery(queryCID, SDQLString(questionnaireData));
-const questionnaireQuery = new SDQLQuery(queryCID, SDQLString(questionnaireData));
+const sdqlQuery6 = new SDQLQuery(queryCID, SDQLString(questionnaireQuery));
 
 
 const linkedAccounts: LinkedAccount[] = [
@@ -228,7 +227,6 @@ class QueryParsingMocks {
     return new QueryParsingEngine(
       this.queryFactories,
       this.queryRepository,
-      this.questionnaireService,
       this.queryUtils,
       this.adContentRepository,
       this.adDataRepo,

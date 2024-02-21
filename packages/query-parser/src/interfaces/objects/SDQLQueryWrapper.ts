@@ -209,10 +209,6 @@ export class SDQLQueryWrapper {
     return this.internalObj.insights;
   }
 
-  public getQuestionSchema(): ISDQLQuestionBlock[] {
-    return this.internalObj.questions;
-  }
-
   private _getEntries<K, V>(o: { [s: string]: any }): [K, V][] {
     return Array.from(Object.entries(o)).map(([k, v]) => [
       k as unknown as K,

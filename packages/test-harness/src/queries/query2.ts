@@ -1,6 +1,3 @@
-
-
-
 export const query2 = {
   version: 0.1,
   timestamp: "2021-11-13T20:20:39Z",

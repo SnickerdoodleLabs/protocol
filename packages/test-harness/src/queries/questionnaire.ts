@@ -1,4 +1,4 @@
-export const questionnaireData = JSON.stringify(
+export const questionnaire = JSON.stringify(
 {
         title: "Text Questionnaire",
         description: "This Questionnaire is used for basic Web2 activity",

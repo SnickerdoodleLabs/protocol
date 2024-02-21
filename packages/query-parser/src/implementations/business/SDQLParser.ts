@@ -42,13 +42,10 @@ import {
   AST_RequireExpr,
   AST_SubQuery,
   AST_Web3Query,
-  AST_Question,
   Condition,
   IQueryObjectFactory,
   ParserContextDataTypes,
   SDQLQueryWrapper,
-  AST_MCQuestion, 
-  AST_TextQuestion,
   AST_QuestionnaireQuery, 
 } from "@query-parser/interfaces/index.js";
 
@@ -61,8 +58,6 @@ export class SDQLParser {
   public insights = new Map<SDQL_Name, AST_Insight>();
   public compensations = new Map<SDQL_Name, AST_Compensation>();
   public compensationParameters: ISDQLCompensationParameters | null = null;
-  public questions: AST_Question[] = [];
-  public questionsMap = new Map<SDQL_Name, AST_Question>();
 
   constructor(
     readonly cid: IpfsCID,
@@ -93,7 +88,6 @@ export class SDQLParser {
           this.insights,
           this.compensationParameters,
           this.compensations,
-          this.questions,
           this.schema.timestamp!,
         );
       });

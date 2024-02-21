@@ -26,21 +26,6 @@ export const questionnaireQuery = JSON.stringify({
     },
   },
   compensations: {
-    parameters: {
-      recipientAddress: {
-        type: "address",
-        required: true,
-      },
-      productId: {
-        type: "string",
-        required: false,
-        values: ["https://product1", "https://product2"],
-      },
-      shippingAddress: {
-        type: "string",
-        required: false,
-      },
-    },
     c1: {
       name: "Sugar to your coffee",
       image: "QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR",

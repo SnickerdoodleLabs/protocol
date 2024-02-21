@@ -91,8 +91,6 @@ export class QueryEvaluator implements IQueryEvaluator {
     protected contextProvider: IContextProvider,
     @inject(IWeb3AccountQueryEvaluatorType)
     protected web3AccountQueryEvaluator: IWeb3AccountQueryEvaluator,
-    // @inject(IQuestionnaireQueryEvaluatorType)
-    // protected questionaireQueryEvaluator: IQuestionaireQueryEvaluator,
     @inject (IQuestionnaireRepositoryType) 
     protected questionnaireRepo: IQuestionnaireRepository,
   ) {}

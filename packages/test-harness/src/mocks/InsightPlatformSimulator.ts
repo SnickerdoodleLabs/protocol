@@ -37,7 +37,6 @@ import {
   InvalidSignatureError,
   CompensationKey,
   PossibleReward,
-  Questionnaire,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -47,6 +46,7 @@ import {
   clearCloudBackupsTypes,
   signedUrlTypes,
 } from "@snickerdoodlelabs/signature-verification";
+import { questionnaire } from "@test-harness/queries/index.js";
 import cors from "cors";
 import express from "express";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
@@ -509,25 +509,10 @@ export class InsightPlatformSimulator {
   public uploadQuestionnaire(): ResultAsync<
     IpfsCID, Error
   > {
-    const questionnaireData = JSON.stringify(
-      {
-              title: "Text Questionnaire",
-              description: "This Questionnaire is used for basic Web2 activity",
-              image: "www.google.com/fake-image.png",
-              questions: [
-                  {
-                      questionType: "text",
-                      question: "What is your name?"
-                  },
-                  {
-                      questionType: "multipleChoice",
-                      question: "What is your political party affiliation?",
-                      options: ["Democrat", "Republican", "Independent", "Other"]
-                  }
-              ],
-      }
-      );
-      return this.ipfs.postToIPFS(questionnaireData).map((cid) => (cid))
+      return this.ipfs.postToIPFS(questionnaire).map((cid) => {
+        console.log("cid: " + cid);
+        return cid;        
+      })
         .mapErr((e) => {
           console.error(e);
           return e;

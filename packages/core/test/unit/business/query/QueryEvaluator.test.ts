@@ -731,7 +731,6 @@ describe("Return Questionnaires Map", () => {
     const questionnaireQuery = new AST_QuestionnaireQuery(
       SDQL_Name("q8"),
       ESDQLQueryReturn.Object,
-      "questionnaire",
       IpfsCID("unit test cid"),
       undefined,
     );

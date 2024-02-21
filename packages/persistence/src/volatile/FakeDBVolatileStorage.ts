@@ -11,17 +11,7 @@ import {
   VolatileStorageKey,
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
-import { indexedDB as fakeIndexedDB, IDBCursor,
-   IDBCursorWithValue,
-   IDBDatabase,
-   IDBFactory,
-   IDBIndex,
-   IDBKeyRange,
-   IDBObjectStore,
-   IDBOpenDBRequest,
-   IDBRequest,
-   IDBTransaction,
-   IDBVersionChangeEvent, } from "fake-indexeddb";
+import { indexedDB as fakeIndexedDB } from "fake-indexeddb";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 

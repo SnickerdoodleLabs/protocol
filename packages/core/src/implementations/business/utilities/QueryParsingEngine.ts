@@ -45,7 +45,7 @@ import {
   SDQLParser,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
-import { ResultAsync, errAsync, okAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { BaseOf } from "ts-brand";
 
@@ -60,7 +60,6 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
-import { IQuestionnaireService, IQuestionnaireServiceType } from "@core/interfaces/business/IQuestionnaireService.js";
 
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {
@@ -69,8 +68,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected queryFactories: IQueryFactories,
     @inject(IQueryRepositoryType)
     protected queryRepository: IQueryRepository,
-    @inject(IQuestionnaireServiceType)
-    protected questionnaireService: IQuestionnaireService,
     @inject(ISDQLQueryUtilsType)
     protected queryUtils: ISDQLQueryUtils,
     @inject(IAdRepositoryType)
