@@ -75,9 +75,9 @@ const AnsweredQuestionnarieModal: FC = () => {
           questionnaire={questionnaire}
         />
         <Box color={colors.GREY500} display="flex">
-          <SDButton startIcon={<DeleteIcon />} variant="text" color="inherit">
+          {/* <SDButton startIcon={<DeleteIcon />} variant="text" color="inherit">
             Delete Survey
-          </SDButton>
+          </SDButton> */}
           <Box marginLeft="auto">
             <SDButton
               disabled={!isDirty}

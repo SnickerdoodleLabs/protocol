@@ -18,8 +18,6 @@ import {
   useMedia,
   DescriptionWidget,
   PermissionSelectionWidget,
-  SDRadio,
-  SDCheckbox,
 } from "@shared-components/v2";
 import { IOldUserAgreement } from "@snickerdoodlelabs/objects";
 import React from "react";
@@ -28,55 +26,9 @@ import ReactDOM from "react-dom";
 const App = () => {
   const [value, setValue] = React.useState(0);
   const media = useMedia();
-  const [checked, setChecked] = React.useState(false);
+
   return (
     <>
-      <SDRadio
-        label={"HEY"}
-        checked={checked}
-        onChange={() => {
-          setChecked(!checked);
-        }}
-      />
-      <SDCheckbox
-        label={"HEY"}
-        checked={checked}
-        onChange={() => {
-          setChecked(!checked);
-        }}
-      />
-       <SDCheckbox
-        label={"HEY"}
-        labelPosition="top"
-        checked={checked}
-        onChange={() => {
-          setChecked(!checked);
-        }}
-      />
-       <SDCheckbox
-        label={"HEY"}
-        labelPosition="bottom"
-        checked={checked}
-        onChange={() => {
-          setChecked(!checked);
-        }}
-      />
-       <SDCheckbox
-        label={"baya baya uzun bir label"}
-        labelPosition="bottom"
-        checked={checked}
-        onChange={() => {
-          setChecked(!checked);
-        }}
-      />
-      <SDCheckbox
-        label={"HEY"}
-        labelPosition="right"
-        checked={checked}
-        onChange={() => {
-          setChecked(!checked);
-        }}
-      />
       <SDTypography align="center" variant="displayLg" color="textSuccess">
         {media}
       </SDTypography>
