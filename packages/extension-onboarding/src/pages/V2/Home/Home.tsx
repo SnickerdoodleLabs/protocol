@@ -85,8 +85,8 @@ const Home: FC = () => {
         <img
           src="https://storage.googleapis.com/dw-assets/spa/images-v2/home-banner.svg"
           style={{
-            width: "calc(100% + 64px)",
-            marginLeft: "-32px",
+            width: getResponsiveValue({ xs: "100%", sm: "calc(100% + 64px)" }),
+            marginLeft: getResponsiveValue({ xs: 0, sm: -32 }),
             marginBottom: getResponsiveValue({
               xs: -16,
               sm: -32,

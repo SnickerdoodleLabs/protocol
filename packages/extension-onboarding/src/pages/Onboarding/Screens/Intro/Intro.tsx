@@ -7,6 +7,7 @@ import {
   SDButton,
   SDTypography,
   useMedia,
+  useResponsiveValue,
 } from "@snickerdoodlelabs/shared-components";
 import clsx from "clsx";
 import React, { FC, useState, useEffect, ReactNode } from "react";
@@ -180,6 +181,7 @@ const useIntroStyles = makeStyles((theme) => ({
 const Intro: FC = () => {
   const [step, setStep] = useState(0);
   const media = useMedia();
+  const getResponsiveValue = useResponsiveValue();
   const classes = useIntroStyles();
   const { uiStateUtils } = useAppContext();
   return (
@@ -207,7 +209,13 @@ const Intro: FC = () => {
                 activeColor="#292648"
               />
               <Box mt={{ xs: 2, sm: 4 }} />
-              <SDTypography variant="displayXl" fontFamily="shrikhand">
+              <SDTypography
+                variant={getResponsiveValue({
+                  xs: "headlineLg",
+                  sm: "displayXl",
+                })}
+                fontFamily="shrikhand"
+              >
                 {STEPS[step].title}
               </SDTypography>
               <Box mt={1} />

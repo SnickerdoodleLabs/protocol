@@ -1,4 +1,5 @@
 import Container from "@extension-onboarding/components/v2/Container";
+import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL } from "@extension-onboarding/constants";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { EOnboardingState } from "@extension-onboarding/objects/interfaces/IUState";
 import {
@@ -11,6 +12,7 @@ import {
 } from "@material-ui/core";
 import {
   SDButton,
+  SDCheckbox,
   SDTypography,
   colors,
 } from "@snickerdoodlelabs/shared-components";
@@ -37,24 +39,21 @@ export default () => {
               Your Cookie Vault is ready!
             </SDTypography>
             <Box mt={2} />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  disableRipple
-                  checked={checked}
-                  onChange={() => {
-                    setChecked(!checked);
-                  }}
-                />
-              }
+            <SDCheckbox
+              checked={checked}
+              align="flex-start"
+              onChange={() => {
+                setChecked(!checked);
+              }}
               label={
-                <SDTypography variant="bodyLg">
+                <SDTypography mt={-0.5} variant="bodyLg">
                   By checking this box I agree to the Snickerdoodle <br />
                   <span
                     style={{ cursor: "pointer", textDecoration: "underline" }}
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
+                      window.open(TERMS_OF_SERVICE_URL, "_blank");
                     }}
                   >
                     Terms of Service
@@ -65,6 +64,7 @@ export default () => {
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
+                      window.open(PRIVACY_POLICY_URL, "_blank");
                     }}
                   >
                     {` Privacy Policy.`}

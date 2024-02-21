@@ -5,6 +5,7 @@ import clsx from "clsx";
 import React, { useMemo, memo } from "react";
 interface CheckboxProps {
   label?: string | number | React.ReactNode;
+  align?: "center" | "flex-start" | "flex-end" | "baseline" | "stretch";
   checked: boolean | undefined;
   onChange?: () => void;
   size?: number;
@@ -14,7 +15,6 @@ interface CheckboxProps {
 const useStyles = makeStyles((theme) => ({
   checkbox: {
     display: "flex",
-    alignItems: "center",
     cursor: "pointer",
   },
   label: {
@@ -71,6 +71,7 @@ export const SDCheckbox: React.FC<CheckboxProps> = memo(
     checked,
     onChange = () => {},
     labelPosition = "right",
+    align = "center",
     size = 20,
   }) => {
     const classes = useStyles({ size });
@@ -95,7 +96,7 @@ export const SDCheckbox: React.FC<CheckboxProps> = memo(
         display="flex"
         width="fit-content"
         height="fit-content"
-        alignItems="center"
+        alignItems={align}
         flexDirection={flexDirection}
         onClick={onChange}
       >
