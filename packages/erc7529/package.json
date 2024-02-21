@@ -44,6 +44,7 @@
   "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
+    "@openzeppelin/contracts": "^5.0.1",
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/contracts-sdk": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
