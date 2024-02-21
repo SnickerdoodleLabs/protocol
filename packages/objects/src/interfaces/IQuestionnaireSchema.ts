@@ -4,20 +4,21 @@ import {
 } from "@objects/businessObjects/Questionnaire.js";
 import { URLString } from "@objects/primitives/URLString.js";
 
+// TODO version validation
 export interface IQuestionnaireSchema {
   title: string;
-  description: string;
+  description?: string;
   image?: URLString;
   questions: {
-    type: EQuestionnaireQuestionType;
-    text: string;
-    choices?: string[] | number[];
-    minumum?: number;
-    maximum?: number;
-    multiSelect?: boolean;
-    required?: boolean;
+    questionType: EQuestionnaireQuestionType;
+    question: string;
     displayType?: EQuestionnaireQuestionDisplayType;
+    multiSelect?: boolean;
+    isRequired?: boolean;
     lowerLabel?: string;
     upperLabel?: string;
+    minimum?: number;
+    maximum?: number;
+    options?: string[] | number[];
   }[];
 }

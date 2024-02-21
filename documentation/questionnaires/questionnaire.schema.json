@@ -2,6 +2,7 @@
     "$schema": "http://json-schema.org/draft-04/schema#",
     "title": "Asset Metadata",
     "type": "object",
+    "version": "1.0",
     "properties": {
         "title": {
             "type": "string",
@@ -47,9 +48,9 @@
                         "type": "string",
                         "description": "The label for the upper end of the lineer scale"
                     },
-                    "minumum": {
+                    "minimum": {
                         "type": "number",
-                        "description": "Minumum value for numeric questions, or minimum number of answers for multiple choice questions, or minimum length for text questions"
+                        "description": "Minimum value for numeric questions, or minimum number of answers for multiple choice questions, or minimum length for text questions"
                     },
                     "maximum": {
                         "type": "number",

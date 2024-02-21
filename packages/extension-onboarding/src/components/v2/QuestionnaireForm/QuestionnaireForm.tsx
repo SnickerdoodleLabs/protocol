@@ -1,4 +1,3 @@
-import { countries } from "@extension-onboarding/constants/countries";
 import { Box, Checkbox, Grid, MenuItem, makeStyles } from "@material-ui/core";
 import {
   EQuestionnaireQuestionType,
@@ -7,6 +6,7 @@ import {
   Questionnaire,
   QuestionnaireQuestion,
   QuestionnaireWithAnswers,
+  EQuestionnaireStatus,
 } from "@snickerdoodlelabs/objects";
 import {
   SDCheckbox,
@@ -17,6 +17,8 @@ import {
 import { Form, Formik, FastField, ErrorMessage, FieldProps } from "formik";
 import { TextField } from "formik-material-ui";
 import React, { FC, useEffect, useMemo } from "react";
+
+import { countries } from "@extension-onboarding/constants/countries";
 
 interface IQuestionnaireFormProps {
   questionnaire: Questionnaire | QuestionnaireWithAnswers;
@@ -137,8 +139,8 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
         defaultChoice = "";
       }
       const choice =
-        questionnaire instanceof QuestionnaireWithAnswers
-          ? questionnaire.answers.find(
+        questionnaire.status === EQuestionnaireStatus.Complete
+          ? (questionnaire as QuestionnaireWithAnswers).answers.find(
               (answer) => answer.questionIndex === question.index,
             )?.choice ?? defaultChoice
           : defaultChoice;
@@ -171,7 +173,7 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
             validate={(value) => {
               return (
                 validateRequired(value, question.required) ||
-                validateBoundaries(value, question.minumum, question.maximum)
+                validateBoundaries(value, question.minimum, question.maximum)
               );
             }}
             fullWidth
@@ -194,7 +196,7 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
                             validateRequired(value, question.required) ||
                             validateBoundaries(
                               value,
-                              question.minumum,
+                              question.minimum,
                               question.maximum,
                             )
                           );
@@ -251,7 +253,7 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
                     validateRequired(value, question.required) ||
                     validateBoundaries(
                       value,
-                      question.minumum,
+                      question.minimum,
                       question.maximum,
                     )
                   );
@@ -323,7 +325,7 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
                       validateRequired(value, question.required) ||
                       validateBoundaries(
                         value,
-                        question.minumum,
+                        question.minimum,
                         question.maximum,
                       )
                     );
@@ -384,7 +386,7 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
             validate={(value) => {
               return (
                 validateRequired(value, question.required) ||
-                validateBoundaries(value, question.minumum, question.maximum)
+                validateBoundaries(value, question.minimum, question.maximum)
               );
             }}
             SelectProps={{
@@ -462,7 +464,7 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
             validate={(value) => {
               return (
                 validateRequired(value, question.required) ||
-                validateBoundaries(value, question.minumum, question.maximum)
+                validateBoundaries(value, question.minimum, question.maximum)
               );
             }}
             fullWidth

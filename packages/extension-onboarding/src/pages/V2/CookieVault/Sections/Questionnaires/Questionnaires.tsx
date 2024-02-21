@@ -1,9 +1,3 @@
-import { EModalSelectors } from "@extension-onboarding/components/Modals";
-import Card from "@extension-onboarding/components/v2/Card";
-import CardTitle from "@extension-onboarding/components/v2/CardTitle";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import QuestionnaireListItem from "@extension-onboarding/pages/V2/CookieVault/Sections/Questionnaires/QuestionnaireListItem";
 import { Box, Divider } from "@material-ui/core";
 import {
   EQuestionnaireQuestionType,
@@ -23,6 +17,13 @@ import {
 import { useResponsiveValue } from "@snickerdoodlelabs/shared-components";
 import { okAsync } from "neverthrow";
 import React, { Fragment, memo, useEffect, useState } from "react";
+
+import { EModalSelectors } from "@extension-onboarding/components/Modals";
+import Card from "@extension-onboarding/components/v2/Card";
+import CardTitle from "@extension-onboarding/components/v2/CardTitle";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import QuestionnaireListItem from "@extension-onboarding/pages/V2/CookieVault/Sections/Questionnaires/QuestionnaireListItem";
 
 const Questionnaries = () => {
   const { sdlDataWallet } = useDataWalletContext();
@@ -76,7 +77,7 @@ const Questionnaries = () => {
                   questionnaire={questionnaire}
                   onClick={() => {
                     const hasAnswers =
-                      questionnaire instanceof QuestionnaireWithAnswers;
+                      questionnaire.status === EQuestionnaireStatus.Complete;
                     setModal({
                       modalSelector: hasAnswers
                         ? EModalSelectors.ANSWERED_QUESTIONNAIRE_MODAL
