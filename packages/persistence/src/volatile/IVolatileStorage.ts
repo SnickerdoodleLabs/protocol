@@ -92,7 +92,7 @@ export interface IVolatileStorage {
       query,
       lowerCount,
       upperCount,
-      latest = false,
+      latest,
     }: {
       index?: string;
       query?: IDBValidKey | IDBKeyRange | null;

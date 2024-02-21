@@ -732,7 +732,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           sourceDomain,
         );
       },
-
       getConsentContractsByQuestionnaireCID: (
         ipfsCID: IpfsCID,
         sourceDomain: DomainName | undefined,
@@ -747,7 +746,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           sourceDomain,
         );
       },
-
       getQuestionnaires: (
         pagingRequest: PagingRequest,
         sourceDomain: DomainName | undefined,
@@ -756,7 +754,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           this.iocContainer.get<IQuestionnaireService>(
             IQuestionnaireServiceType,
           );
-
         return questionnaireService.getQuestionnaires(
           pagingRequest,
           sourceDomain,

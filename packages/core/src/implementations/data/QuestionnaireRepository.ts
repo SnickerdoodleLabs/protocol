@@ -203,7 +203,6 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
            Questionnaire does not exist!`),
         );
       }
-
       const historyRecord = new QuestionnaireHistory(
         id,
         this.timeUtils.getUnixNow(),
@@ -315,17 +314,18 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     }
 
     const questions = data.questions.map<PropertiesOf<QuestionnaireQuestion>>(
-      (question, questionIndex) => ({
-        index: questionIndex,
-        type: question.type,
-        text: question.text,
-        choices: question.choices ?? null,
-        minumum: question.minumum ?? null,
-        maximum: question.maximum ?? null,
-        multiSelect: question.multiSelect ?? false,
-        required: question.required ?? false,
-      }),
-    );
+      (question, questionIndex) => {
+        return {
+          index: questionIndex,
+          type: question.type,
+          text: question.text,
+          choices: question.choices ?? null,
+          minumum: question.minumum ?? null,
+          maximum: question.maximum ?? null,
+          multiSelect: question.multiSelect ?? false,
+          required: question.required ?? false,
+        };
+    });
 
     const newQuestionnaireData = new QuestionnaireData(
       cid,
@@ -346,9 +346,9 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
       .get<QuestionnaireData>(ERecordKey.QUESTIONNAIRES, {
         id: [questionnaireCID, EBoolean.FALSE],
       })
-      .map((questionnaireDatas) =>
-        questionnaireDatas.length > 0 ? questionnaireDatas[0] : null,
-      );
+      .map((questionnaireDatas) => {
+        return questionnaireDatas.length > 0 ? questionnaireDatas[0] : null;
+      });
   }
 
   private fetchLatestQuestionnaireHistoriesById(
@@ -359,7 +359,6 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
       [0, questionnaireCID, 0],
       [0, questionnaireCID, benchmark ?? this.timeUtils.getUnixNow()],
     );
-
     return this.persistence.getCursor2<QuestionnaireHistory>(
       ERecordKey.QUESTIONNAIRES_HISTORY,
       {
@@ -367,7 +366,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
         query,
         latest: true,
       },
-    );
+    )
   }
 
   private constructQuestionnaire(

@@ -35,7 +35,7 @@ export interface IQuestionnaireService {
     | PersistenceError
     | ConsentFactoryContractError
   >;
-
+  
   /**
    * Returns a list of questionnaires that the user can complete, which are requested by a particular
    * consent contract. They are returned in ranked order and should be presented to the user in that order.

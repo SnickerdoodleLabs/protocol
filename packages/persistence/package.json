@@ -48,6 +48,6 @@
     "neverthrow-result-utils": "^2.0.2"
   },
   "devDependencies": {
-    "fake-indexeddb": "^5.0.2"
+    "fake-indexeddb": "^4.0.0"
   }
 }
