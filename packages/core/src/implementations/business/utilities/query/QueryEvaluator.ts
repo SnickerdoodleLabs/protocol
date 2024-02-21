@@ -15,6 +15,7 @@ import {
   PersistenceError,
   PublicEvents,
   QueryPerformanceEvent,
+  QuestionnaireWithAnswers,
   SDQL_Return,
   TwitterProfile,
   UnixTimestamp,
@@ -258,8 +259,11 @@ export class QueryEvaluator implements IQueryEvaluator {
           if (questionnaire == null){
             return SDQL_Return(null);
           }
-
-          const insights = questionnaire?.answers.map((questionAnswer) => {
+          const questionnaireWithAnswers = (questionnaire as QuestionnaireWithAnswers);
+          if (questionnaireWithAnswers.answers == undefined){
+            return SDQL_Return({});
+          }
+          const insights = questionnaireWithAnswers.answers.map((questionAnswer) => {
             return {
               index: questionAnswer.questionIndex,
               answer: questionAnswer.choice,

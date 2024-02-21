@@ -394,7 +394,6 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
       questionnaireData.description,
       questionnaireData.image ?? null,
       questions,
-      [],
     );
   }
 

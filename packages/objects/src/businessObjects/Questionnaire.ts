@@ -35,7 +35,6 @@ export class Questionnaire {
 
     // The answers are independent objects; they are included as part of the Questionnaire for
     // convenience, but they are not required to be included in the Questionnaire.
-    public readonly answers: QuestionnaireAnswer[],
   ) {}
 }
 
@@ -54,7 +53,7 @@ export class QuestionnaireWithAnswers extends Questionnaire {
     public readonly answers: QuestionnaireAnswer[],
     public measurementTime: UnixTimestamp,
   ) {
-    super(id, marketplaceTag, status, title, description, image, questions, answers);
+    super(id, marketplaceTag, status, title, description, image, questions);
   }
 }
 
