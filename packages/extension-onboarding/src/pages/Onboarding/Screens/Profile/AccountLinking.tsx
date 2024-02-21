@@ -2,7 +2,10 @@ import { Wallet } from "@extension-onboarding/components/v2/LinkedAccountItem";
 import { WalletMenu } from "@extension-onboarding/components/v2/LinkingAccountMenu";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { Box } from "@material-ui/core";
-import { SDButton } from "@snickerdoodlelabs/shared-components";
+import {
+  SDButton,
+  useResponsiveValue,
+} from "@snickerdoodlelabs/shared-components";
 import React, { FC, Fragment } from "react";
 
 interface IAccountLinkingProps {
@@ -11,6 +14,7 @@ interface IAccountLinkingProps {
 
 const AccountLinking: FC<IAccountLinkingProps> = ({ onComplete }) => {
   const { linkedAccounts } = useAppContext();
+  const getResponsiveValue = useResponsiveValue();
   return (
     <>
       <WalletMenu />
@@ -25,17 +29,19 @@ const AccountLinking: FC<IAccountLinkingProps> = ({ onComplete }) => {
           ))}
         </>
       )}
-
-      <Box mt={6}>
-        <SDButton
-          variant={linkedAccounts.length > 0 ? "contained" : "outlined"}
-          color="primary"
-          onClick={() => {
-            onComplete();
-          }}
-        >
-          {linkedAccounts.length > 0 ? "Next" : "Skip"}
-        </SDButton>
+      <Box mt="auto">
+        <Box mt={{ xs: 2, sm: 6 }}>
+          <SDButton
+            variant={linkedAccounts.length > 0 ? "contained" : "outlined"}
+            fullWidth={getResponsiveValue({ xs: true, sm: false })}
+            color="primary"
+            onClick={() => {
+              onComplete();
+            }}
+          >
+            {linkedAccounts.length > 0 ? "Next" : "Skip"}
+          </SDButton>
+        </Box>
       </Box>
     </>
   );
