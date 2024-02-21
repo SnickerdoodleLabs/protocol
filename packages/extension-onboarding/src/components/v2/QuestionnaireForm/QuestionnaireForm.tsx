@@ -1,4 +1,3 @@
-import { countries } from "@extension-onboarding/constants/countries";
 import { Box, Checkbox, Grid, MenuItem, makeStyles } from "@material-ui/core";
 import {
   EQuestionnaireQuestionType,
@@ -17,6 +16,8 @@ import {
 import { Form, Formik, FastField, ErrorMessage, FieldProps } from "formik";
 import { TextField } from "formik-material-ui";
 import React, { FC, useEffect, useMemo } from "react";
+
+import { countries } from "@extension-onboarding/constants/countries";
 
 interface IQuestionnaireFormProps {
   questionnaire: Questionnaire | QuestionnaireWithAnswers;
@@ -170,8 +171,8 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
             placeholder="Enter your answer"
             validate={(value) => {
               return (
-                validateRequired(value, question.required) ||
-                validateBoundaries(value, question.minumum, question.maximum)
+                validateRequired(value, question.isRequired) ||
+                validateBoundaries(value, question.minimum, question.maximum)
               );
             }}
             fullWidth
@@ -183,18 +184,18 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
             return (
               <>
                 <Grid container spacing={2}>
-                  {question.choices?.map((choice, choiceIndex) => (
-                    <Grid item xs={12} sm={6} md={4} lg={3} key={choiceIndex}>
+                  {question.options?.map((option, optionIndex) => (
+                    <Grid item xs={12} sm={6} md={4} lg={3} key={optionIndex}>
                       <FastField
                         type="checkbox"
                         name={`answers.${index}.choice`}
-                        value={choice}
+                        value={option}
                         validate={(value) => {
                           return (
-                            validateRequired(value, question.required) ||
+                            validateRequired(value, question.isRequired) ||
                             validateBoundaries(
                               value,
-                              question.minumum,
+                              question.minimum,
                               question.maximum,
                             )
                           );
@@ -213,15 +214,15 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
                                   `answers.${index}.choice`,
                                   field.checked
                                     ? form.values.answers[index].choice.filter(
-                                        (c) => c !== choice,
+                                        (c) => c !== option,
                                       )
                                     : [
                                         ...form.values.answers[index].choice,
-                                        choice,
+                                        option,
                                       ],
                                 );
                               }}
-                              label={choice}
+                              label={option}
                             />
                           );
                         }}
@@ -248,10 +249,10 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
                 name={`answers.${index}.choice`}
                 validate={(value) => {
                   return (
-                    validateRequired(value, question.required) ||
+                    validateRequired(value, question.isRequired) ||
                     validateBoundaries(
                       value,
-                      question.minumum,
+                      question.minimum,
                       question.maximum,
                     )
                   );
@@ -263,7 +264,7 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
                   return (
                     <>
                       <Grid container spacing={2}>
-                        {question.choices?.map((choice, choiceIndex) => {
+                        {question.options?.map((option, optionIndex) => {
                           return (
                             <Grid
                               item
@@ -271,16 +272,16 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
                               sm={6}
                               md={4}
                               lg={3}
-                              key={choiceIndex}
+                              key={optionIndex}
                             >
                               <SDRadio
-                                key={choiceIndex}
-                                label={choice}
-                                checked={field.value === choice}
+                                key={optionIndex}
+                                label={option}
+                                checked={field.value === option}
                                 onChange={() => {
                                   form.setFieldValue(
                                     `answers.${index}.choice`,
-                                    choice,
+                                    option,
                                   );
                                 }}
                               />
@@ -320,10 +321,10 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
                   variant="outlined"
                   validate={(value) => {
                     return (
-                      validateRequired(value, question.required) ||
+                      validateRequired(value, question.isRequired) ||
                       validateBoundaries(
                         value,
-                        question.minumum,
+                        question.minimum,
                         question.maximum,
                       )
                     );
@@ -340,17 +341,17 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
                         }
                         flex={1}
                       >
-                        {question.choices?.map((choice, choiceIndex) => {
+                        {question.options?.map((option, optionIndex) => {
                           return (
                             <SDRadio
                               labelPosition={isLineer ? "top" : "bottom"}
-                              key={choiceIndex}
-                              label={choice}
-                              checked={field.value === choice}
+                              key={optionIndex}
+                              label={option}
+                              checked={field.value === option}
                               onChange={() => {
                                 form.setFieldValue(
                                   `answers.${index}.choice`,
-                                  choice,
+                                  option,
                                 );
                               }}
                             />
@@ -383,8 +384,8 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
             variant="outlined"
             validate={(value) => {
               return (
-                validateRequired(value, question.required) ||
-                validateBoundaries(value, question.minumum, question.maximum)
+                validateRequired(value, question.isRequired) ||
+                validateBoundaries(value, question.minimum, question.maximum)
               );
             }}
             SelectProps={{
@@ -410,16 +411,16 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
             }}
             fullWidth
           >
-            {question.choices?.map((choice, choiceIndex) => (
-              <MenuItem key={choiceIndex} value={choice}>
+            {question.options?.map((option, optionIndex) => (
+              <MenuItem key={optionIndex} value={option}>
                 {question.multiSelect ? (
                   <SDCheckbox
-                    label={choice}
-                    checked={values.answers[index].choice.indexOf(choice) > -1}
+                    label={option}
+                    checked={values.answers[index].choice.indexOf(option) > -1}
                   />
                 ) : (
                   <SDTypography fontWeight="bold" variant="bodyLg">
-                    {choice}
+                    {option}
                   </SDTypography>
                 )}
               </MenuItem>
@@ -461,8 +462,8 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
             }}
             validate={(value) => {
               return (
-                validateRequired(value, question.required) ||
-                validateBoundaries(value, question.minumum, question.maximum)
+                validateRequired(value, question.isRequired) ||
+                validateBoundaries(value, question.minimum, question.maximum)
               );
             }}
             fullWidth
@@ -508,12 +509,12 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
           onSubmit={(values, actions) => {
             const processedAnswers: NewQuestionnaireAnswer[] = [];
             values.answers.forEach((answer) => {
-              const { choice, index, type, choices } = answer;
-              if (!choice || choice === "") return;
-              if (Array.isArray(choice) && choice.length === 0) return;
-              if (shouldSkipAnswer(mode, questionnaire, answer, choice)) return;
+              const { choice: option, index, type, options } = answer;
+              if (!option || option === "") return;
+              if (Array.isArray(option) && option.length === 0) return;
+              if (shouldSkipAnswer(mode, questionnaire, answer, option)) return;
               processedAnswers.push(
-                new NewQuestionnaireAnswer(questionnaire.id, index, choice),
+                new NewQuestionnaireAnswer(questionnaire.id, index, option),
               );
             });
 
@@ -532,8 +533,8 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
                   <Box key={index}>
                     {renderItem(
                       <SDTypography variant="bodyLg" fontWeight="bold">
-                        {question.text}
-                        {question.required && (
+                        {question.question}
+                        {question.isRequired && (
                           <span
                             style={{
                               color: colors.RED500,

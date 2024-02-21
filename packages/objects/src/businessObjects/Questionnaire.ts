@@ -1,3 +1,4 @@
+import { IQuestionnaireSchema } from "@objects/interfaces/index.js";
 import {
   IpfsCID,
   MarketplaceTag,
@@ -24,7 +25,7 @@ export enum EQuestionnaireQuestionDisplayType {
   Scale = "Scale",
 }
 
-export class Questionnaire {
+export class Questionnaire implements IQuestionnaireSchema {
   public constructor(
     /**I
      * The questionnaire is uniquely identified by it's CID in IPFS. This is the primary key for
@@ -64,13 +65,13 @@ export class QuestionnaireQuestion {
   public constructor(
     public readonly index: number,
     public readonly type: EQuestionnaireQuestionType,
-    public readonly text: string,
-    public readonly choices: string[] | number[] | null,
-    public readonly minumum: number | null,
+    public readonly question: string,
+    public readonly options: string[] | number[] | null,
+    public readonly minimum: number | null,
     public readonly maximum: number | null,
     public readonly displayType: EQuestionnaireQuestionDisplayType | null,
     public readonly multiSelect: boolean = false,
-    public readonly required: boolean = false,
+    public readonly isRequired: boolean = false,
     public readonly lowerLabel: string | null = null,
     public readonly upperLabel: string | null = null,
   ) {}

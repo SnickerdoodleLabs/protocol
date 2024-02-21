@@ -18,7 +18,7 @@ export class QuestionnaireData extends VersionedObject {
     public questions: PropertiesOf<QuestionnaireQuestion>[],
     public title: string,
     public description: string,
-    public image?: URLString,
+    public image?: URLString | null,
   ) {
     super();
   }

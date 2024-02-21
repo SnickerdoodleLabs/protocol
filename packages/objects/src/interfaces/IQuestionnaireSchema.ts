@@ -7,17 +7,17 @@ import { URLString } from "@objects/primitives/URLString.js";
 export interface IQuestionnaireSchema {
   title: string;
   description: string;
-  image?: URLString;
+  image?: URLString | null;
   questions: {
     type: EQuestionnaireQuestionType;
-    text: string;
-    choices?: string[] | number[];
-    minumum?: number;
-    maximum?: number;
+    question: string;
+    options?: string[] | number[] | null;
+    minimum?: number | null;
+    maximum?: number | null;
     multiSelect?: boolean;
-    required?: boolean;
-    displayType?: EQuestionnaireQuestionDisplayType;
-    lowerLabel?: string;
-    upperLabel?: string;
+    isRequired?: boolean | null;
+    displayType?: EQuestionnaireQuestionDisplayType | null;
+    lowerLabel?: string | null;
+    upperLabel?: string | null;
   }[];
 }

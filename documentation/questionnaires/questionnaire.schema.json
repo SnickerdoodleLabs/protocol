@@ -41,15 +41,15 @@
                     },
                     "lowerLabel": {
                         "type": "string",
-                        "description": "The label for the lower end of the lineer scale"
+                        "description": "The label for the lower end of the linear scale"
                     },
                     "upperLabel": {
                         "type": "string",
-                        "description": "The label for the upper end of the lineer scale"
+                        "description": "The label for the upper end of the linear scale"
                     },
-                    "minumum": {
+                    "minimum": {
                         "type": "number",
-                        "description": "Minumum value for numeric questions, or minimum number of answers for multiple choice questions, or minimum length for text questions"
+                        "description": "Minimum value for numeric questions, or minimum number of answers for multiple choice questions, or minimum length for text questions"
                     },
                     "maximum": {
                         "type": "number",
