@@ -15,7 +15,7 @@ import {
   OAuthAuthorizationCode,
 } from "@snickerdoodlelabs/objects";
 import { errAsync } from "neverthrow";
-import React, { FC, useEffect } from "react";
+import React, { FC, Fragment, useEffect } from "react";
 
 interface ISocialAccountLinkingProps {}
 
@@ -98,20 +98,22 @@ const SocialAccountLinking: FC<ISocialAccountLinkingProps> = ({}) => {
         <CardTitle
           title="Social Accounts"
           subtitle="Connect and share your social presence without divulging your full social account information"
-          titleVariant="headlineMd"
-          subtitleVariant="bodyLg"
         />
         <Box mt={4} />
         <SocialMenu onDiscordConnectClick={handleLinkAccountClick} />
         {discordAccounts.length > 0 && (
           <>
-            <Box mt={3} />
+            <Box mt={{ xs: 2.5, sm: 4 }} />
             {discordAccounts.map((account, index) => (
-              <Social
-                key={index}
-                account={account}
-                onClick={() => handleUnlinkAccountClick(account)}
-              />
+              <Fragment key={account.id}>
+                <Social
+                  account={account}
+                  onClick={() => handleUnlinkAccountClick(account)}
+                />
+                {index !== discordAccounts.length - 1 && (
+                  <Box mt={{ xs: 1.5, sm: 3 }} />
+                )}
+              </Fragment>
             ))}
           </>
         )}

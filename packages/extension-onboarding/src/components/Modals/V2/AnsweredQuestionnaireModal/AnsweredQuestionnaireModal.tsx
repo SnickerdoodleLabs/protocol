@@ -1,5 +1,6 @@
 import { useModalStyles } from "@extension-onboarding/components/Modals/Modal.style";
 import { DeleteIcon } from "@extension-onboarding/components/v2/Icons";
+import Image from "@extension-onboarding/components/v2/Image";
 import QuestionnaireForm from "@extension-onboarding/components/v2/QuestionnaireForm";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { Box, Dialog } from "@material-ui/core";
@@ -12,6 +13,7 @@ import {
   SDButton,
   SDTypography,
   colors,
+  useResponsiveValue,
 } from "@snickerdoodlelabs/shared-components";
 import React, { FC } from "react";
 export interface IAnsweredQuestionnaireModal {
@@ -26,6 +28,7 @@ const AnsweredQuestionnarieModal: FC = () => {
   const { questionnaire, onSubmitClicked } =
     customProps as IAnsweredQuestionnaireModal;
   const modalClasses = useModalStyles();
+  const getResponsiveValue = useResponsiveValue();
 
   return (
     <Dialog
@@ -43,9 +46,9 @@ const AnsweredQuestionnarieModal: FC = () => {
       >
         <Box display="flex" justifyContent="space-between">
           <Box display="flex" gridGap={24} alignItems="center">
-            <img
-              width={72}
-              height={72}
+            <Image
+              width={getResponsiveValue({ xs: 32, sm: 72 })}
+              height={getResponsiveValue({ xs: 32, sm: 72 })}
               style={{
                 borderRadius: 8,
               }}

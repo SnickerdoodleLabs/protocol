@@ -31,6 +31,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     "&:hover": {
       opacity: 1,
     },
+    [theme.breakpoints.down("xs")]: {
+      opacity: 1,
+    },
   },
 }));
 
@@ -57,7 +60,7 @@ const LinkedAccountItem: FC<ILinkedAccountItemProps> = ({
       border="1px solid"
       borderRadius={12}
       alignItems="center"
-      p={3}
+      p={{ xs: 2, sm: 3 }}
       gridGap={16}
       position="relative"
     >

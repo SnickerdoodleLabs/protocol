@@ -220,9 +220,7 @@ export const AppContextProvider: FC = ({ children }) => {
 
   const getUiState = () => {
     return sdlDataWallet.getUIState().map((uiState) => {
-      console.log("UI State", uiState, "coming from getUiState");
       const uiStateUtils = new UIStateUtils(uiState, (state: JSONString) => {
-        console.log("UI State", state, "coming from setUIState");
         return sdlDataWallet.setUIState(state);
       });
       setUiStateUtils(uiStateUtils);

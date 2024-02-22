@@ -20,11 +20,13 @@ const AccountLinking: FC<IAccountLinkingProps> = ({ onComplete }) => {
       <WalletMenu />
       {linkedAccounts.length > 0 && (
         <>
-          <Box mt={3} />
+          <Box mt={{ xs: 2.5, sm: 4 }} />
           {linkedAccounts.map((account, index) => (
             <Fragment key={index}>
               <Wallet account={account} key={index} />
-              {index !== linkedAccounts.length - 1 && <Box mt={3} />}
+              {index !== linkedAccounts.length - 1 && (
+                <Box mt={{ xs: 1.5, sm: 3 }} />
+              )}
             </Fragment>
           ))}
         </>
