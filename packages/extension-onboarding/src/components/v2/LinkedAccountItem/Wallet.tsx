@@ -4,6 +4,7 @@ import { LinkedAccount } from "@snickerdoodlelabs/objects";
 import {
   SDTypography,
   abbreviateString,
+  colors,
   getChainImageSrc,
   useResponsiveValue,
 } from "@snickerdoodlelabs/shared-components";
@@ -28,10 +29,14 @@ export const Wallet: FC<IWalletProps> = ({ account }) => {
         <>
           <img
             src={getChainImageSrc(account.sourceChain)}
-            width={40}
-            height={40}
+            width={getResponsiveValue({ xs: 22, sm: 40 })}
+            height={getResponsiveValue({ xs: 22, sm: 40 })}
           />
-          <SDTypography variant="bodyLg" fontWeight="bold">
+          <SDTypography
+            variant={getResponsiveValue({ xs: "titleSm", sm: "titleMd" })}
+            fontWeight="bold"
+            hexColor={colors.DARKPURPLE500}
+          >
             {abbreviateString(
               account.sourceAccountAddress,
               getResponsiveValue({ xs: 9, sm: 21 }),

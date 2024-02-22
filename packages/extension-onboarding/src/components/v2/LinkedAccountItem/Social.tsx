@@ -1,7 +1,11 @@
 import LinkedAccountItem from "@extension-onboarding/components/v2/LinkedAccountItem/LinkedAccountItem";
 import { Box } from "@material-ui/core";
 import { DiscordProfile } from "@snickerdoodlelabs/objects";
-import { SDTypography } from "@snickerdoodlelabs/shared-components";
+import {
+  SDTypography,
+  colors,
+  useResponsiveValue,
+} from "@snickerdoodlelabs/shared-components";
 import React, { FC } from "react";
 
 interface ISocialProps {
@@ -22,18 +26,27 @@ const getDiscordAvatar = ({
 };
 
 export const Social: FC<ISocialProps> = ({ account, onClick }) => {
+  const getResponsiveValue = useResponsiveValue();
   return (
     <LinkedAccountItem
       render={
         <>
-          <Box position="relative" width={40} height={40}>
-            <img src={getDiscordAvatar(account)} width={40} height={40} />
+          <Box
+            position="relative"
+            width={getResponsiveValue({ xs: 22, sm: 40 })}
+            height={getResponsiveValue({ xs: 22, sm: 40 })}
+          >
+            <img
+              src={getDiscordAvatar(account)}
+              width={getResponsiveValue({ xs: 22, sm: 40 })}
+              height={getResponsiveValue({ xs: 22, sm: 40 })}
+            />
             <Box
               position="absolute"
               bottom={0}
-              right={-6}
-              width={16}
-              height={16}
+              right={getResponsiveValue({ xs: -3, sm: -6 })}
+              width={getResponsiveValue({ xs: 10, sm: 16 })}
+              height={getResponsiveValue({ xs: 10, sm: 16 })}
             >
               <img
                 width="100%"
@@ -41,7 +54,11 @@ export const Social: FC<ISocialProps> = ({ account, onClick }) => {
               />
             </Box>
           </Box>
-          <SDTypography variant="bodyLg" fontWeight="bold">
+          <SDTypography
+            hexColor={colors.DARKPURPLE500}
+            variant="bodyLg"
+            fontWeight="bold"
+          >
             {`${account.username}#${account.discriminator}`}
           </SDTypography>
         </>

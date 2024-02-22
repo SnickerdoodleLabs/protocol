@@ -54,13 +54,17 @@ const PageBanners = () => {
               />
               <Box>
                 <SDTypography
+                  hexColor={colors.DARKPURPLE500}
                   fontWeight="bold"
                   variant={media === "xs" ? "titleLg" : "headlineSm"}
                 >
                   {PageBannerItems[pathname].name}
                 </SDTypography>
                 <Box mt={{ xs: 0.5, sm: 2 }} />
-                <SDTypography variant={media === "xs" ? "bodySm" : "titleSm"}>
+                <SDTypography
+                  hexColor={colors.GREY500}
+                  variant={media === "xs" ? "bodySm" : "titleSm"}
+                >
                   {PageBannerItems[pathname].description}
                 </SDTypography>
               </Box>

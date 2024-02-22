@@ -12,8 +12,6 @@ const WalletLinking = () => {
       <CardTitle
         title="Wallets"
         subtitle="Anonymize your wallets and share data sets including Token Balances, NFT Holdings, and dApp usage."
-        titleVariant="headlineMd"
-        subtitleVariant="bodyLg"
       />
       <Box mt={4} />
       <WalletMenu />

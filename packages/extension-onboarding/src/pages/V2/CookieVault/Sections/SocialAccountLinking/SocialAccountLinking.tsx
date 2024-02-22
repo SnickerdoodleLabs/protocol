@@ -98,8 +98,6 @@ const SocialAccountLinking: FC<ISocialAccountLinkingProps> = ({}) => {
         <CardTitle
           title="Social Accounts"
           subtitle="Connect and share your social presence without divulging your full social account information"
-          titleVariant="headlineMd"
-          subtitleVariant="bodyLg"
         />
         <Box mt={4} />
         <SocialMenu onDiscordConnectClick={handleLinkAccountClick} />
