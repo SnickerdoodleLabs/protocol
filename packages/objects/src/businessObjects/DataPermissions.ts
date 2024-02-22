@@ -1,7 +1,9 @@
-import { utils } from "ethers";
+import { ethers } from "ethers";
 
 import { EWalletDataType } from "@objects/enum/index.js";
 import { HexString32 } from "@objects/primitives/index.js";
+
+export const MAX_QUESTIONNAIRES = 64;
 
 /**
  * DataPermissions represent the rules to follow when processing queries for a particular
@@ -10,13 +12,15 @@ import { HexString32 } from "@objects/primitives/index.js";
  */
 export class DataPermissions {
   public constructor(protected readonly agreementFlags: HexString32) {
-    const flagLength = utils.arrayify(agreementFlags).length;
+    const flagLength = ethers.getBytes(agreementFlags).length;
     if (flagLength != 32) {
       throw new Error(
         `Invalid HexString32 passed to DataPermissions! Provided flags have ${flagLength} bytes and should have 32!`,
       );
     }
   }
+
+  static readonly baseQuestionnaireBit = 128;
 
   public getFlags(): HexString32 {
     return this.agreementFlags;
@@ -28,8 +32,8 @@ export class DataPermissions {
 
   public contains(other: DataPermissions): boolean {
     // convert each set of flags to a Uint8Array
-    const flagsArray = utils.arrayify(this.agreementFlags);
-    const otherFlagsArray = utils.arrayify(other.getFlags());
+    const flagsArray = ethers.getBytes(this.agreementFlags);
+    const otherFlagsArray = ethers.getBytes(other.getFlags());
 
     // Loop over each byte in our flags, AND it with the other flags,
     // and see if it's the same
@@ -91,9 +95,26 @@ export class DataPermissions {
     return this.getFlag(EWalletDataType.AccountSize);
   }
 
+  /**
+   * Questionnaires are assigned to a set of bits starting at 128. The questionnaireNumber
+   * is 0 indexed. If you request a questionnaireNumber that is out of range, this will
+   * return false.
+   */
+  public Questionnaire(questionnaireNumber: number): boolean {
+    if (
+      questionnaireNumber < 0 ||
+      questionnaireNumber > MAX_QUESTIONNAIRES - 1
+    ) {
+      return false;
+    }
+    return this.getFlag(
+      DataPermissions.baseQuestionnaireBit + questionnaireNumber,
+    );
+  }
+
   public getFlag(flagNumber: number): boolean {
     // Convert the flags hex string to a Uint8Array
-    const flagsArray = utils.arrayify(this.agreementFlags);
+    const flagsArray = ethers.getBytes(this.agreementFlags);
 
     // Figure out which byte the flag is in
     // This is a fancy trick to drop the decimal portion of the number
@@ -139,7 +160,7 @@ export class DataPermissions {
       flagsArray[byteNumber] |= 1 << bitNumber;
     });
 
-    return new DataPermissions(HexString32(utils.hexlify(flagsArray)));
+    return new DataPermissions(HexString32(ethers.hexlify(flagsArray)));
   }
 
   static getDataTypesFromFlags(agreementFlags: HexString32): EWalletDataType[] {

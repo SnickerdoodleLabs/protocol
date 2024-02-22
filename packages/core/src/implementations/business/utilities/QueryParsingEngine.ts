@@ -25,7 +25,6 @@ import {
   PossibleReward,
   CompensationKey,
   InsightKey,
-  PublicEvents,
   EQueryEvents,
   QueryPerformanceEvent,
   EStatus,
@@ -164,10 +163,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   ): ResultAsync<
     AST,
     | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
     | ParserError
-    | EvaluationError
     | QueryFormatError
     | QueryExpiredError
     | MissingTokenConstructorError
@@ -297,7 +293,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       dataPermissions,
       ast.queryTimestamp,
     );
-
     const insightProm = this.gatherDeliveryInsights(ast, astEvaluator);
     //Will become async in the future
     const adSigProm = this.gatherDeliveryAds(ast, cid, dataPermissions);

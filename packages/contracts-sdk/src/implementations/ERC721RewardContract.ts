@@ -6,15 +6,15 @@ import {
   BaseURI,
   ERC721RewardContractError,
   BlockchainCommonErrors,
-  BlockchainErrorMapper,
   DomainName,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber, ethers, EventFilter } from "ethers";
+import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
+import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
 import { ERewardRoles } from "@contracts-sdk/interfaces/enums/ERewardRoles.js";
 import {
   ContractOverrides,
@@ -22,16 +22,14 @@ import {
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/index.js";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
+
 @injectable()
 export class ERC721RewardContract
   extends BaseContract<ERC721RewardContractError>
   implements IERC721RewardContract
 {
   constructor(
-    protected providerOrSigner:
-      | ethers.providers.Provider
-      | ethers.providers.JsonRpcSigner
-      | ethers.Wallet,
+    protected providerOrSigner: ethers.Provider | ethers.Signer,
     protected contractAddress: EVMContractAddress,
   ) {
     super(providerOrSigner, contractAddress, ContractsAbis.ERC721Reward.abi);
@@ -65,7 +63,7 @@ export class ERC721RewardContract
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
         ERewardRoles.DEFAULT_ADMIN_ROLE,
-      ) as Promise<BigNumber>,
+      ) as Promise<bigint>,
       (e) => {
         return this.generateError(
           e,
@@ -74,9 +72,9 @@ export class ERC721RewardContract
       },
     ).andThen((memberCount) => {
       // First get an array of index values so that it can be used with ResultUtils.combine
-      const memberIndexArray: number[] = [];
+      const memberIndexArray: bigint[] = [];
 
-      for (let i = 0; i < memberCount.toNumber(); i++) {
+      for (let i = 0n; i < memberCount; i++) {
         memberIndexArray.push(i);
       }
 
@@ -104,15 +102,15 @@ export class ERC721RewardContract
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
         ERewardRoles.MINTER_ROLE,
-      ) as Promise<BigNumber>,
+      ) as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call getSignerRoleMembers()");
       },
     ).andThen((memberCount) => {
       // First get an array of index values so that it can be used with ResultUtils.combine
-      const memberIndexArray: number[] = [];
+      const memberIndexArray: bigint[] = [];
 
-      for (let i = 0; i < memberCount.toNumber(); i++) {
+      for (let i = 0n; i < memberCount; i++) {
         memberIndexArray.push(i);
       }
 
@@ -162,12 +160,13 @@ export class ERC721RewardContract
     address: EVMAccountAddress,
   ): ResultAsync<number, ERC721RewardContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contract.balanceOf(address) as Promise<BigNumber>,
+      this.contract.balanceOf(address) as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call balanceOf()");
       },
     ).map((numberOfTokens) => {
-      return numberOfTokens.toNumber();
+      // TODO: Not sure if we can always be sure that numberOfTokens is a valid number, but seems reasonable
+      return Number(numberOfTokens);
     });
   }
 
@@ -356,17 +355,17 @@ export class ERC721RewardContract
 
   protected generateContractSpecificError(
     msg: string,
-    reason: string | undefined,
-    e: unknown,
+    e: IEthersContractError,
+    transaction: ethers.Transaction | null,
   ): ERC721RewardContractError {
-    return new ERC721RewardContractError(msg, reason, e);
+    return new ERC721RewardContractError(msg, e, transaction);
   }
 
   public filters = {
     Transfer: (
       fromAddress: EVMAccountAddress | null,
       toAddress: EVMAccountAddress | null,
-    ): EventFilter => {
+    ): ethers.DeferredTopicFilter => {
       return this.contract.filters.Transfer(fromAddress, toAddress);
     },
   };

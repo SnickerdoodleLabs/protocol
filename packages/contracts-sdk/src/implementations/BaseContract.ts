@@ -1,14 +1,18 @@
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
   EVMContractAddress,
   EVMAccountAddress,
-  BlockchainErrorMapper,
-  BlockchainCommonErrors,
   SignerUnavailableError,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { errAsync, ResultAsync } from "neverthrow";
 
+import {
+  BlockchainErrorMapper,
+  IEthersContractError,
+} from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
 import {
   IBaseContract,
   WrappedTransactionResponse,
@@ -20,17 +24,18 @@ export abstract class BaseContract<TContractSpecificError>
   implements IBaseContract
 {
   protected contract: ethers.Contract;
-  protected contractAbi: ethers.ContractInterface;
+  protected contractAbi: ethers.InterfaceAbi;
   protected hasSigner = false;
 
   constructor(
-    protected providerOrSigner: ethers.providers.Provider | ethers.Signer,
+    protected providerOrSigner: ethers.Provider | ethers.Signer,
     protected contractAddress: EVMContractAddress,
-    protected abi: ethers.ContractInterface,
+    protected abi: ethers.InterfaceAbi,
   ) {
     this.contract = new ethers.Contract(contractAddress, abi, providerOrSigner);
     this.contractAbi = abi;
-    this.hasSigner = ethers.Signer.isSigner(providerOrSigner);
+    // There used to be a method Signer.isSigner() that would do this, but it disappeared entirely in Ethers V6
+    this.hasSigner = providerOrSigner["signMessage"] != null;
   }
 
   public getContractAddress(): EVMContractAddress {
@@ -42,20 +47,20 @@ export abstract class BaseContract<TContractSpecificError>
   }
 
   protected generateError(
-    error,
+    error: unknown,
     errorMessage: string,
   ): TContractSpecificError | BlockchainCommonErrors {
     return BlockchainErrorMapper.buildBlockchainError(
-      error,
-      (msg, reason, err) =>
-        this.generateContractSpecificError(errorMessage || msg, reason, err),
+      error as IEthersContractError,
+      (msg, err, transaction) =>
+        this.generateContractSpecificError(msg, err, transaction || null),
     );
   }
 
   protected abstract generateContractSpecificError(
     msg: string,
-    reason: string | undefined,
-    e: unknown,
+    e: IEthersContractError,
+    transaction: ethers.Transaction | null,
   ): TContractSpecificError;
 
   // Takes the contract's function name and params, submits the transaction and returns a WrappedTransactionResponse
@@ -78,15 +83,15 @@ export abstract class BaseContract<TContractSpecificError>
     return ResultAsync.fromPromise(
       this.contract[functionName](...functionParams, {
         ...overrides,
-      }) as Promise<ethers.providers.TransactionResponse>,
+      }) as Promise<ethers.TransactionResponse>,
       (e) => {
-        return e;
+        return e as IEthersContractError;
       },
     )
       .map((transactionResponse) => {
         return BaseContract.buildWrappedTransactionResponse(
           transactionResponse,
-          EVMContractAddress(this.contract.address),
+          this.contractAddress,
           EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
           functionName,
           functionParams,
@@ -95,14 +100,14 @@ export abstract class BaseContract<TContractSpecificError>
       })
       .mapErr((e) => {
         return BlockchainErrorMapper.buildBlockchainError(e, (msg, reason, e) =>
-          this.generateContractSpecificError(msg, reason, e),
+          this.generateContractSpecificError(msg, reason, e || null),
         );
       });
   }
 
   // Function to return the correct error type based on mapping of error message
   static buildWrappedTransactionResponse(
-    transactionResponse: ethers.providers.TransactionResponse,
+    transactionResponse: ethers.TransactionResponse,
     contractAddress: EVMContractAddress,
     signerAddress: EVMAccountAddress,
     functionName: string,
@@ -114,7 +119,7 @@ export abstract class BaseContract<TContractSpecificError>
       contractAddress,
       signerAddress,
       functionName,
-      JSON.stringify(functionParams || []),
+      ObjectUtils.serialize(functionParams || []),
       BaseContract.extractFunctionAbi(functionName, contractAbi),
     );
   }

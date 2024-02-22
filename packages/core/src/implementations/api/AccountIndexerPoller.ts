@@ -8,6 +8,8 @@ import { IAccountIndexerPoller } from "@core/interfaces/api/index.js";
 import {
   IMonitoringServiceType,
   IMonitoringService,
+  ICachingServiceType,
+  ICachingService,
 } from "@core/interfaces/business/index.js";
 import {
   IDataWalletPersistenceType,
@@ -27,6 +29,7 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
   public constructor(
     @inject(IMonitoringServiceType)
     protected monitoringService: IMonitoringService,
+    @inject(ICachingServiceType) protected cachingService: ICachingService,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(IContextProviderType)
@@ -53,6 +56,13 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
           this.logUtils.error(e);
         });
       }, config.accountNFTPollingIntervalMS);
+
+      // Set up a timer for cache updates
+      setInterval(() => {
+        this.cachingService.updateQuestionnaireCache().mapErr((e) => {
+          this.logUtils.error(e);
+        });
+      }, config.questionnaireCacheUpdateIntervalMS);
 
       // Poll transactions after an account is added.
       context.publicEvents.onAccountAdded.subscribe(() => {
@@ -107,8 +117,13 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
       });
 
       // poll once
-      this.logUtils.debug("Doing initial poll for transactions");
+      this.logUtils.debug(
+        "Doing initial poll for transactions and loading questionnaire cache",
+      );
       this.monitoringService.pollTransactions().mapErr((e) => {
+        this.logUtils.error(e);
+      });
+      this.cachingService.updateQuestionnaireCache().mapErr((e) => {
         this.logUtils.error(e);
       });
     });

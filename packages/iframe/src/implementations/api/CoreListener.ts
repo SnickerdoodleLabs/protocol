@@ -1,8 +1,4 @@
 import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
-import {
   ILogUtils,
   ILogUtilsType,
   ITimeUtils,
@@ -25,7 +21,6 @@ import {
   FamilyName,
   Gender,
   GivenName,
-  IConfigOverrides,
   Invitation,
   IpfsCID,
   LanguageCode,
@@ -43,11 +38,11 @@ import {
   BlockNumber,
   RefreshToken,
   URLString,
-  EInvitationStatus,
-  PageInvitation,
   IWebIntegrationConfigOverrides,
   TransactionFilter,
   LinkedAccount,
+  JSONString,
+  NewQuestionnaireAnswer,
 } from "@snickerdoodlelabs/objects";
 import {
   IIFrameCallData,
@@ -55,11 +50,10 @@ import {
   IStorageUtilsType,
   IStorageUtils,
 } from "@snickerdoodlelabs/utils";
+import { ethers } from "ethers";
 import { injectable, inject } from "inversify";
-import { ResultAsync, okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
+import { okAsync } from "neverthrow";
 import Postmate from "postmate";
-import { parse } from "tldts";
 
 import { ICoreListener } from "@core-iframe/interfaces/api/index";
 import {
@@ -68,7 +62,6 @@ import {
   IInvitationService,
   IInvitationServiceType,
 } from "@core-iframe/interfaces/business/index";
-import { EInvitationSourceType } from "@core-iframe/interfaces/objects";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -77,6 +70,7 @@ import {
   IIFrameContextProvider,
   IIFrameContextProviderType,
 } from "@core-iframe/interfaces/utilities/index";
+
 @injectable()
 export class CoreListener extends ChildProxy implements ICoreListener {
   constructor(
@@ -160,8 +154,8 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       addAccountWithExternalTypedDataSignature: (
         data: IIFrameCallData<{
           accountAddress: AccountAddress;
-          domain: TypedDataDomain;
-          types: Record<string, Array<TypedDataField>>;
+          domain: ethers.TypedDataDomain;
+          types: Record<string, Array<ethers.TypedDataField>>;
           value: Record<string, unknown>;
           signature: Signature;
           chain: EChain;
@@ -1007,6 +1001,106 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           });
         }, data.callId);
       },
+
+      // #region questionnaire
+      "questionnaire.getAllQuestionnaires": (
+        data: IIFrameCallData<{
+          pagingRequest: PagingRequest;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.questionnaire.getAllQuestionnaires(
+              data.data.pagingRequest,
+              this.sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
+      "questionnaire.answerQuestionnaire": (
+        data: IIFrameCallData<{
+          questionnaireId: IpfsCID;
+          answers: NewQuestionnaireAnswer[];
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.questionnaire.answerQuestionnaire(
+              data.data.questionnaireId,
+              data.data.answers,
+              this.sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
+      "questionnaire.getQuestionnairesForConsentContract": (
+        data: IIFrameCallData<{
+          pagingRequest: PagingRequest;
+          consentContractAddress: EVMContractAddress;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.questionnaire.getQuestionnairesForConsentContract(
+              data.data.pagingRequest,
+              data.data.consentContractAddress,
+              this.sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
+      "questionnaire.getConsentContractsByQuestionnaireCID": (
+        data: IIFrameCallData<{
+          questionnaireCID: IpfsCID;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.questionnaire.getConsentContractsByQuestionnaireCID(
+              data.data.questionnaireCID,
+              this.sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
+      "questionnaire.getRecommendedConsentContracts": (
+        data: IIFrameCallData<{
+          questionnaireCID: IpfsCID;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.questionnaire.getRecommendedConsentContracts(
+              data.data.questionnaireCID,
+              this.sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
+      // #region External localstorage calls
+
+      setUIState: (data: IIFrameCallData<{ state: JSONString }>) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.setUIState(data.data.state);
+          });
+        }, data.callId);
+      },
+
+      getUIState: (data: IIFrameCallData<Record<string, never>>) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.getUIState();
+          });
+        }, data.callId);
+      },
+
+      // #endregion
 
       // ivitations
       checkURLForInvitation: (data: IIFrameCallData<{ url: URLString }>) => {

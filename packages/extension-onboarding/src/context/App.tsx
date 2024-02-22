@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import {
-  ALERT_MESSAGES,
-  LOCAL_STORAGE_SDL_INVITATION_KEY,
-} from "@extension-onboarding/constants";
+import { ALERT_MESSAGES } from "@extension-onboarding/constants";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import {
+  EOnboardingState,
+  IUIState,
+} from "@extension-onboarding/objects/interfaces/IUState";
 import {
   getProviderList as getChainProviderList,
   IProvider,
@@ -19,23 +20,27 @@ import {
 } from "@extension-onboarding/services/socialMediaProviders";
 import {
   BigNumberString,
-  DataWalletAddress,
   EarnedReward,
   EVMContractAddress,
   IpfsCID,
+  JSONString,
   LinkedAccount,
   Signature,
   URLString,
 } from "@snickerdoodlelabs/objects";
-import { ResultAsync } from "neverthrow";
 import React, {
   createContext,
   FC,
   useContext,
   useEffect,
+  useMemo,
   useState,
+  useCallback,
 } from "react";
 import { Subscription } from "rxjs";
+import Loading from "@extension-onboarding/setupScreens/Loading";
+import { okAsync } from "neverthrow";
+import { UIStateUtils } from "@extension-onboarding/utils/UIStateUtils";
 
 export interface IInvitationInfo {
   consentAddress: EVMContractAddress | undefined;
@@ -43,11 +48,6 @@ export interface IInvitationInfo {
   signature: Signature | undefined;
   // temporary
   rewardImage: URLString | undefined;
-}
-
-export enum EAppModes {
-  AUTH_USER = "AUTH",
-  UNAUTH_USER = "UNAUTH",
 }
 
 export interface IAppContext {
@@ -59,12 +59,13 @@ export interface IAppContext {
   optedInContracts: Map<EVMContractAddress, IpfsCID> | undefined;
   socialMediaProviderList: ISocialMediaWrapper[];
   addAccount(account: LinkedAccount): void;
-  appMode: EAppModes | undefined;
   invitationInfo: IInvitationInfo;
   setInvitationInfo: (invitationInfo: IInvitationInfo) => void;
   setLinkerModalOpen: () => void;
   setLinkerModalClose: () => void;
   isLinkerModalOpen: boolean;
+  onboardingState: EOnboardingState | undefined;
+  uiStateUtils: UIStateUtils;
 }
 
 const INITIAL_INVITATION_INFO: IInvitationInfo = {
@@ -80,7 +81,6 @@ export const AppContextProvider: FC = ({ children }) => {
   const { sdlDataWallet } = useDataWalletContext();
   const [chainProviderList, setChainProviderList] = useState<IProvider[]>([]);
   const [linkedAccounts, setLinkedAccounts] = useState<LinkedAccount[]>([]);
-  const [appMode, setAppMode] = useState<EAppModes>();
   const { setAlert, setVisualAlert } = useNotificationContext();
   const [invitationInfo, setInvitationInfo] = useState<IInvitationInfo>(
     INITIAL_INVITATION_INFO,
@@ -91,6 +91,11 @@ export const AppContextProvider: FC = ({ children }) => {
   const [isLinkerModalOpen, setIsLinkerModalOpen] =
     React.useState<boolean>(false);
   const initialAccountsFetchRef = React.useRef<boolean>(false);
+  const onboardingStateEventSubscription = React.useRef<Subscription>();
+  const uiStateUtilsRef = React.useRef<UIStateUtils>();
+  const [appInitFlag, setAppInitFlag] = useState<boolean>(false);
+  const [uiStateUtils, setUiStateUtils] = useState<UIStateUtils>();
+  const [onboardingState, _setonboardingState] = useState<EOnboardingState>();
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
@@ -114,6 +119,17 @@ export const AppContextProvider: FC = ({ children }) => {
   }, [JSON.stringify(window.location.search)]);
 
   useEffect(() => {
+    if (uiStateUtils && !onboardingStateEventSubscription.current) {
+      uiStateUtilsRef.current = uiStateUtils;
+      onboardingStateEventSubscription.current =
+        uiStateUtils.onOnboardingStateUpdated.subscribe(setOnboardingState);
+    }
+    return () => {
+      onboardingStateEventSubscription.current?.unsubscribe();
+    };
+  }, [!!uiStateUtils]);
+
+  useEffect(() => {
     if (
       invitationInfo.consentAddress &&
       linkedAccounts.length === 0 &&
@@ -134,11 +150,20 @@ export const AppContextProvider: FC = ({ children }) => {
     }, 500);
   }, []);
 
-  const checkDataWalletAddressAndInitializeApp = () => {
-    setAppMode(EAppModes.AUTH_USER);
+  useEffect(() => {
+    if (initialAccountsFetchRef.current && !onboardingState) {
+      getUiState();
+    }
+  }, [linkedAccounts, onboardingState]);
+
+  const setOnboardingState = (onboardingState: EOnboardingState) => {
+    _setonboardingState(onboardingState);
   };
 
-  let initializedSubscription: Subscription | null = null;
+  const checkDataWalletAddressAndInitializeApp = () => {
+    setAppInitFlag(true);
+  };
+
   let accountAddedSubscription: Subscription | null = null;
   let accountRemovedSubscription: Subscription | null = null;
   let earnedRewardsAddedSubscription: Subscription | null = null;
@@ -147,16 +172,11 @@ export const AppContextProvider: FC = ({ children }) => {
 
   // register events
   useEffect(() => {
-    if (appMode === EAppModes.UNAUTH_USER) {
-      initializedSubscription =
-        sdlDataWallet.events.onInitialized.subscribe(onAccountInitialized);
-    }
-    if (appMode === EAppModes.AUTH_USER) {
+    if (appInitFlag) {
       getUserAccounts();
       getOptedInContracts();
       getEarnedRewards();
 
-      initializedSubscription?.unsubscribe();
       accountAddedSubscription =
         sdlDataWallet.events.onAccountAdded.subscribe(onAccountAdded);
       accountRemovedSubscription =
@@ -173,52 +193,59 @@ export const AppContextProvider: FC = ({ children }) => {
       );
     }
     return () => {
-      initializedSubscription?.unsubscribe();
       accountAddedSubscription?.unsubscribe();
       accountRemovedSubscription?.unsubscribe();
       earnedRewardsAddedSubscription?.unsubscribe();
       cohortJoinedSubscription?.unsubscribe();
       cohortLeftSubscription?.unsubscribe();
     };
-  }, [appMode]);
+  }, [appInitFlag]);
 
   // notification handlers
   const onEarnedRewardAdded = (earnedRewards: EarnedReward[]) => {
     getEarnedRewards();
   };
 
-  const onAccountInitialized = (dataWalletAddress: DataWalletAddress) => {
-    getUserAccounts().map(() => {
-      setVisualAlert(true);
+  const onAccountAdded = useCallback(
+    (linkedAccount: LinkedAccount) => {
+      addAccount(linkedAccount);
+      uiStateUtilsRef.current?.onAccountLinked();
       setAlert({
         message: ALERT_MESSAGES.ACCOUNT_ADDED,
         severity: EAlertSeverity.SUCCESS,
       });
-      setAppMode(EAppModes.AUTH_USER);
+    },
+    [uiStateUtils],
+  );
+
+  const getUiState = () => {
+    return sdlDataWallet.getUIState().map((uiState) => {
+      console.log("UI State", uiState, "coming from getUiState");
+      const uiStateUtils = new UIStateUtils(uiState, (state: JSONString) => {
+        console.log("UI State", state, "coming from setUIState");
+        return sdlDataWallet.setUIState(state);
+      });
+      setUiStateUtils(uiStateUtils);
+      setOnboardingState(uiStateUtils.getOnboardingState());
     });
   };
 
-  const onAccountAdded = (linkedAccount: LinkedAccount) => {
-    addAccount(linkedAccount);
-    setVisualAlert(true);
-    setAlert({
-      message: ALERT_MESSAGES.ACCOUNT_ADDED,
-      severity: EAlertSeverity.SUCCESS,
-    });
-  };
+  const uiStateReady = useMemo(
+    () => !!onboardingState && !!uiStateUtils,
+    [!!onboardingState, !!uiStateUtils],
+  );
 
   const onAccountRemoved = (linkedAccount: LinkedAccount) => {
     getUserAccounts();
+    setAlert({
+      message: ALERT_MESSAGES.ACCOUNT_REMOVED,
+      severity: EAlertSeverity.SUCCESS,
+    });
   };
 
   const onCohortStatusChanged = (
     consentContractAddress: EVMContractAddress,
   ) => {
-    getOptedInContracts();
-  };
-
-  // can be called after recovery
-  const updateOptedInContracts = () => {
     getOptedInContracts();
   };
 
@@ -254,13 +281,14 @@ export const AppContextProvider: FC = ({ children }) => {
   return (
     <AppContext.Provider
       value={{
+        onboardingState: onboardingState as EOnboardingState,
+        uiStateUtils: uiStateUtils as UIStateUtils,
         optedInContracts,
         apiGateway: new ApiGateway(),
         dataWalletGateway: new DataWalletGateway(sdlDataWallet),
         providerList: chainProviderList,
         socialMediaProviderList: getSocialMediaProviderList(sdlDataWallet),
         linkedAccounts,
-        appMode,
         earnedRewards,
         addAccount,
         invitationInfo,
@@ -270,7 +298,7 @@ export const AppContextProvider: FC = ({ children }) => {
         isLinkerModalOpen,
       }}
     >
-      {children}
+      {uiStateReady ? children : <Loading />}
     </AppContext.Provider>
   );
 };

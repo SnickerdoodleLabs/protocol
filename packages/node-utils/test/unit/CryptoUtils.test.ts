@@ -7,7 +7,8 @@ import {
   SolanaPrivateKey,
   SuiAccountAddress,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
+import { ethers } from "ethers";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { CryptoUtilsMocks } from "../mocks/CryptoUtilsMocks";
@@ -53,13 +54,13 @@ describe("CryptoUtils tests", () => {
     // Act
     const result = await utils.getTokenId();
     const tokenId = result._unsafeUnwrap();
-    const bigNumber = BigNumber.from(tokenId);
-    const tokenIdNumber = bigNumber.toNumber();
+    const bigNumber = BigInt(tokenId);
+    const tokenIdNumber = bigNumber;
 
     // Assert
     expect(result).toBeDefined();
     expect(result.isErr()).toBeFalsy();
-    expect(typeof tokenIdNumber).toBe("number");
+    expect(typeof tokenIdNumber).toBe("bigint");
     expect(tokenId).toBeGreaterThanOrEqual(0);
   });
 

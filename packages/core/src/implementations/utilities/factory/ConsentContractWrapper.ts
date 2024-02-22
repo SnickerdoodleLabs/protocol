@@ -1,6 +1,7 @@
 import { ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ContractOverrides,
+  EConsentRoles,
   IConsentContract,
   IConsentContractFilters,
   Tag,
@@ -25,7 +26,7 @@ import {
   BigNumberString,
   BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
-import { EventFilter, Event, BigNumber } from "ethers";
+import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 import { BaseContractWrapper } from "@core/implementations/utilities/factory/BaseContractWrapper.js";
@@ -308,10 +309,13 @@ export class ConsentContractWrapper
   }
 
   public queryFilter(
-    eventFilter: EventFilter,
+    eventFilter: ethers.ContractEventName,
     fromBlock?: BlockNumber | undefined,
     toBlock?: BlockNumber | undefined,
-  ): ResultAsync<Event[], ConsentContractError | BlockchainCommonErrors> {
+  ): ResultAsync<
+    (ethers.EventLog | ethers.Log)[],
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.queryFilter(eventFilter, fromBlock, toBlock),
       () => this.secondary?.queryFilter(eventFilter, fromBlock, toBlock),
@@ -440,11 +444,7 @@ export class ConsentContractWrapper
   }
 
   public hasRole(
-    role:
-      | "DEFAULT_ADMIN_ROLE"
-      | "PAUSER_ROLE"
-      | "REQUESTER_ROLE"
-      | "SIGNER_ROLE",
+    role: EConsentRoles,
     address: EVMAccountAddress,
   ): ResultAsync<boolean, ConsentContractError | BlockchainCommonErrors> {
     return this.fallback(
@@ -454,11 +454,7 @@ export class ConsentContractWrapper
   }
 
   public grantRole(
-    role:
-      | "DEFAULT_ADMIN_ROLE"
-      | "PAUSER_ROLE"
-      | "REQUESTER_ROLE"
-      | "SIGNER_ROLE",
+    role: EConsentRoles,
     address: EVMAccountAddress,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -471,11 +467,7 @@ export class ConsentContractWrapper
   }
 
   public revokeRole(
-    role:
-      | "DEFAULT_ADMIN_ROLE"
-      | "PAUSER_ROLE"
-      | "REQUESTER_ROLE"
-      | "SIGNER_ROLE",
+    role: EConsentRoles,
     address: EVMAccountAddress,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -488,11 +480,7 @@ export class ConsentContractWrapper
   }
 
   public renounceRole(
-    role:
-      | "DEFAULT_ADMIN_ROLE"
-      | "PAUSER_ROLE"
-      | "REQUESTER_ROLE"
-      | "SIGNER_ROLE",
+    role: EConsentRoles,
     address: EVMAccountAddress,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -564,7 +552,7 @@ export class ConsentContractWrapper
       | EVMContractAddress
       | EVMAccountAddress
       | HexString
-      | BigNumber
+      | bigint
     )[],
   ): ResultAsync<Signature, InvalidParametersError> {
     return this.fallback(

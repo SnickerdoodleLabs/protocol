@@ -144,6 +144,9 @@ module.exports = {
       __ALCHEMY_SOLANA_TESTNET_API_KEY__: JSON.stringify(
         process.env.__ALCHEMY_SOLANA_TESTNET_API_KEY__,
       ),
+      __ALCHEMY_BASE_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_BASE_API_KEY__,
+      ),
       __ETHERSCAN_ETHEREUM_API_KEY__: JSON.stringify(
         process.env.__ETHERSCAN_ETHEREUM_API_KEY__,
       ),

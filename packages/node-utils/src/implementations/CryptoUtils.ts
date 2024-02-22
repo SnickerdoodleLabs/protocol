@@ -1,9 +1,5 @@
 import Crypto from "crypto";
 
-import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
 import { verifyPersonalMessage } from "@mysten/sui.js/verify";
 import * as ed from "@noble/ed25519";
 import {
@@ -31,17 +27,16 @@ import {
   UUID,
   OAuth1Config,
   SuiAccountAddress,
-  PublicKey,
 } from "@snickerdoodlelabs/objects";
 // import argon2 from "argon2";
 import {
-  ConnectModal,
-  useWallet,
-  verifySignedMessage,
-  stringBytesToUint8Array,
-} from "@suiet/wallet-kit";
-import { BigNumber, ethers } from "ethers";
-import { base58 } from "ethers/lib/utils.js";
+  TypedDataDomain,
+  TypedDataField,
+  decodeBase58,
+  ethers,
+  getBytes,
+  toBeHex,
+} from "ethers";
 import { injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -292,11 +287,18 @@ export class CryptoUtils implements ICryptoUtils {
     signature: Signature,
   ): ResultAsync<EVMAccountAddress, never> {
     const address = EVMAccountAddress(
-      ethers.utils.verifyMessage(message, signature),
+      ethers.verifyMessage(message, signature).toLowerCase(),
     );
     return okAsync(address);
   }
 
+  /**
+   * Sui signatures are documented here: https://docs.sui.io/learn/cryptography/sui-signatures
+   * @param message
+   * @param signature
+   * @param accountAddress
+   * @returns a boolean representing if the message was signed by the provided account address
+   */
   public verifySuiSignature(
     message: string,
     signature: Signature,
@@ -328,19 +330,11 @@ export class CryptoUtils implements ICryptoUtils {
     signature: Signature,
     accountAddress: SolanaAccountAddress,
   ): ResultAsync<boolean, never> {
-    console.log("Inside Solana Signature");
-    console.log("message: " + message);
-    console.log("utf-8 message: " + Buffer.from(message, "utf-8"));
-    console.log("signature: " + signature);
-    console.log("hex signature: " + Buffer.from(signature, "hex"));
-    console.log("accountAddress: " + accountAddress);
-    console.log("accountAddress: " + base58.decode(accountAddress));
-
     return okAsync(
       nacl.sign.detached.verify(
         Buffer.from(message, "utf-8"),
         Buffer.from(signature, "hex"),
-        base58.decode(accountAddress),
+        getBytes(toBeHex(decodeBase58(accountAddress))),
       ),
     );
   }
@@ -351,9 +345,14 @@ export class CryptoUtils implements ICryptoUtils {
     value: Record<string, unknown>,
     signature: Signature,
   ): ResultAsync<EVMAccountAddress, never> {
+    // The types per the spec have a type, EIP712Domain, which is actually added by ethers.
+    // But if you're not using ethers, you may be providing the types yourself. Since ethers
+    // will re-add it, we'll remove it.
+    delete types.EIP712Domain;
+
     return okAsync(
       EVMAccountAddress(
-        ethers.utils.verifyTypedData(domain, types, value, signature),
+        ethers.verifyTypedData(domain, types, value, signature).toLowerCase(),
       ),
     );
   }
@@ -410,10 +409,10 @@ export class CryptoUtils implements ICryptoUtils {
   }
 
   public getSignature(
-    owner: ethers.providers.JsonRpcSigner | ethers.Wallet,
+    owner: ethers.JsonRpcSigner | ethers.Wallet,
     types: Array<string>,
     values: Array<
-      BigNumber | string | HexString | EVMContractAddress | EVMAccountAddress
+      bigint | string | HexString | EVMContractAddress | EVMAccountAddress
     >,
   ): ResultAsync<Signature, InvalidParametersError> {
     if (types.length !== values.length) {
@@ -423,10 +422,10 @@ export class CryptoUtils implements ICryptoUtils {
         ),
       );
     }
-    const msgHash = ethers.utils.solidityKeccak256([...types], [...values]);
+    const msgHash = ethers.solidityPackedKeccak256([...types], [...values]);
 
     return ResultAsync.fromSafePromise<string, never>(
-      owner.signMessage(ethers.utils.arrayify(msgHash)),
+      owner.signMessage(ethers.getBytes(msgHash)),
     ).map((signature) => {
       return Signature(signature);
     });
@@ -453,7 +452,7 @@ export class CryptoUtils implements ICryptoUtils {
         Buffer.from(
           nacl.sign.detached(
             Buffer.from(message, "utf8"),
-            base58.decode(privateKey),
+            getBytes(toBeHex(decodeBase58(privateKey))),
           ),
         ).toString("hex"),
       ),
@@ -468,8 +467,13 @@ export class CryptoUtils implements ICryptoUtils {
   ): ResultAsync<Signature, never> {
     const wallet = new ethers.Wallet(privateKey); // TODO, need to specify default provider (https://github.com/ethers-io/ethers.js/issues/2258)
 
+    // The types per the spec have a type, EIP712Domain, which is actually added by ethers.
+    // But if you're not using ethers, you may be providing the types yourself. Since ethers
+    // will re-add it, we'll remove it.
+    delete types.EIP712Domain;
+
     return ResultAsync.fromSafePromise<string, never>(
-      wallet._signTypedData(domain, types, value),
+      wallet.signTypedData(domain, types, value),
     ).map((signature) => {
       return Signature(signature);
     });
@@ -596,15 +600,15 @@ export class CryptoUtils implements ICryptoUtils {
   ): Buffer {
     // HexStrings have a nasty habit of SOMETIMES having a 0x prefix but not always.
     // We will correct that
-    if (!ethers.utils.isHexString(hex)) {
+    if (!ethers.isHexString(hex)) {
       const prefixedHex = `0x${hex}`;
 
       // If it's still not a valid hex string, then it's exception time.
-      if (!ethers.utils.isHexString(prefixedHex)) {
+      if (!ethers.isHexString(prefixedHex)) {
         throw new Error(`Invalid hex string ${hex}`);
       }
-      return Buffer.from(ethers.utils.arrayify(prefixedHex));
+      return Buffer.from(ethers.getBytes(prefixedHex));
     }
-    return Buffer.from(ethers.utils.arrayify(hex));
+    return Buffer.from(ethers.getBytes(hex));
   }
 }

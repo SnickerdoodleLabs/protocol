@@ -17,12 +17,12 @@ import {
   BigNumberString,
   BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
-import { EventFilter, Event, BigNumber } from "ethers";
+import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
+import { EConsentRoles } from "@contracts-sdk/interfaces/enums/index.js";
 import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
 import {
-  ConsentRoles,
   ContractOverrides,
   Tag,
   WrappedTransactionResponse,
@@ -236,10 +236,13 @@ export interface IConsentContract extends IBaseContract {
    * @param toBlock optional parameter of ending block to query
    */
   queryFilter(
-    eventFilter: EventFilter,
+    eventFilter: ethers.ContractEventName,
     fromBlock?: BlockNumber,
     toBlock?: BlockNumber,
-  ): ResultAsync<Event[], ConsentContractError | BlockchainCommonErrors>;
+  ): ResultAsync<
+    (ethers.EventLog | ethers.Log)[],
+    ConsentContractError | BlockchainCommonErrors
+  >;
 
   /**
    * Returns a consent token by the token ID
@@ -353,21 +356,21 @@ export interface IConsentContract extends IBaseContract {
 
   /**
    * Checks if an address has a specific role in the Consent contract
-   * @param role string that is a key defined in ConsentRoles enum
+   * @param role string that is a key defined in EConsentRoles enum
    * @param address Address to use
    */
   hasRole(
-    role: keyof typeof ConsentRoles,
+    role: EConsentRoles,
     address: EVMAccountAddress,
   ): ResultAsync<boolean, ConsentContractError | BlockchainCommonErrors>;
 
   /**
    * Grants a role to an address
-   * @param role string that is a key defined in ConsentRoles enum
+   * @param role string that is a key defined in EConsentRoles enum
    * @param address Address to use
    */
   grantRole(
-    role: keyof typeof ConsentRoles,
+    role: EConsentRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -377,11 +380,11 @@ export interface IConsentContract extends IBaseContract {
 
   /**
    * Revokes a role of an address
-   * @param role string that is a key defined in ConsentRoles enum
+   * @param role string that is a key defined in EConsentRoles enum
    * @param address Address to use
    */
   revokeRole(
-    role: keyof typeof ConsentRoles,
+    role: EConsentRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -391,11 +394,11 @@ export interface IConsentContract extends IBaseContract {
 
   /**
    * Allows an address to renounce its role
-   * @param role string that is a key defined in ConsentRoles enum
+   * @param role string that is a key defined in EConsentRoles enum
    * @param address Address to use
    */
   renounceRole(
-    role: keyof typeof ConsentRoles,
+    role: EConsentRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -452,7 +455,7 @@ export interface IConsentContract extends IBaseContract {
 
   getSignature(
     values: Array<
-      BigNumber | string | HexString | EVMContractAddress | EVMAccountAddress
+      bigint | string | HexString | EVMContractAddress | EVMAccountAddress
     >,
   ): ResultAsync<Signature, InvalidParametersError>;
 
@@ -527,9 +530,9 @@ export interface IConsentContractFilters {
   Transfer(
     fromAddress: EVMAccountAddress | null,
     toAddress: EVMAccountAddress | null,
-  ): EventFilter;
+  ): ethers.DeferredTopicFilter;
 
-  RequestForData(ownerAddress: EVMAccountAddress): EventFilter;
+  RequestForData(ownerAddress: EVMAccountAddress): ethers.DeferredTopicFilter;
 }
 
 export const IConsentContractType = Symbol.for("IConsentContract");

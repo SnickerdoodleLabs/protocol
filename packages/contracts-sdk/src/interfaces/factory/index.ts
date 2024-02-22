@@ -1,1 +1,1 @@
-export * from "@contracts-sdk/interfaces/factory/IRewardsContractFactory";
+export * from "@contracts-sdk/interfaces/factory/IRewardsContractFactory.js";

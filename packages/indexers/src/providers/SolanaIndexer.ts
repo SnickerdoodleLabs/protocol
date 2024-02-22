@@ -38,7 +38,6 @@ import {
   AccountInfo,
   ParsedAccountData,
 } from "@solana/web3.js";
-import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -225,7 +224,7 @@ export class SolanaIndexer implements ISolanaIndexer {
                   tokenInfo.address ?? MasterIndexer.nativeAddress,
                   accountAddress,
                   BigNumberString(
-                    BigNumber.from(
+                    BigInt(
                       account.data["parsed"]["info"]["tokenAmount"]["amount"],
                     ).toString(),
                   ),
@@ -254,7 +253,7 @@ export class SolanaIndexer implements ISolanaIndexer {
           chain,
           MasterIndexer.nativeAddress,
           accountAddress,
-          BigNumberString(BigNumber.from(0).toString()),
+          BigNumberString(BigInt(0).toString()),
           getChainInfoByChain(chain).nativeCurrency.decimals,
         ),
       );
@@ -281,7 +280,7 @@ export class SolanaIndexer implements ISolanaIndexer {
           chain,
           MasterIndexer.nativeAddress,
           accountAddress,
-          BigNumberString(BigNumber.from(balance).toString()),
+          BigNumberString(BigInt(balance).toString()),
           getChainInfoByChain(chain).nativeCurrency.decimals,
         );
         return nativeBalance;
