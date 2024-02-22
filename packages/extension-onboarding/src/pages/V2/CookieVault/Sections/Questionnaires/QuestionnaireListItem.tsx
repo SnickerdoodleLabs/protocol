@@ -1,3 +1,4 @@
+import Image from "@extension-onboarding/components/v2/Image";
 import { Box, Hidden, makeStyles } from "@material-ui/core";
 import CallMadeIcon from "@material-ui/icons/CallMade";
 
@@ -152,7 +153,7 @@ const QuestionnaireListItem: React.FC<IQuestionnaireListItemProps> = ({
           alignItems="flex-start"
           width={{ xs: "100%", sm: "fit-content" }}
         >
-          <img
+          <Image
             width={getResponsiveValue({ xs: 40, sm: 72 })}
             height={getResponsiveValue({ xs: 40, sm: 72 })}
             style={{
