@@ -31,6 +31,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     "&:hover": {
       opacity: 1,
     },
+    [theme.breakpoints.down("xs")]: {
+      opacity: 1,
+    },
   },
 }));
 
