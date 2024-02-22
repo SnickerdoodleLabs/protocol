@@ -20,12 +20,14 @@ import {
   QuestionnaireData,
   ERecordKey,
   EQuestionnaireStatus,
-  IQuestionnaireSchema,
   QuestionnaireQuestion,
   UnixTimestamp,
   QuestionnaireHistory,
   EBoolean,
   MarketplaceTag,
+  EQuestionnaireQuestionType,
+  URLString,
+  IQuestionnaireSchema,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProviderType,
@@ -295,7 +297,13 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     const url = new URL(urlJoin(config.ipfsFetchBaseUrl, cid));
     return this.ajaxUtils
       .get<Partial<IQuestionnaireSchema>>(url)
-      .map((data) => ({ data, cid }));
+      .map((data) => {
+        return {
+          // TODO better validation
+          data: typeof data === "string" ? JSON.parse(data) : data,
+          cid,
+        };
+      });
   }
 
   private processIPFSQuestionnaireData(
@@ -314,18 +322,20 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     }
 
     const questions = data.questions.map<PropertiesOf<QuestionnaireQuestion>>(
-      (question, questionIndex) => {
-        return {
-          index: questionIndex,
-          type: question.type,
-          text: question.text,
-          choices: question.choices ?? null,
-          minumum: question.minumum ?? null,
-          maximum: question.maximum ?? null,
-          multiSelect: question.multiSelect ?? false,
-          required: question.required ?? false,
-        };
-    });
+      (question, questionIndex) => ({
+        index: questionIndex,
+        type: question.questionType,
+        text: question.question,
+        choices: question.options ?? null,
+        minimum: question.minimum ?? null,
+        maximum: question.maximum ?? null,
+        displayType: question.displayType ?? null,
+        multiSelect: question.multiSelect ?? false,
+        required: question.isRequired ?? false,
+        lowerLabel: question.lowerLabel ?? null,
+        upperLabel: question.upperLabel ?? null,
+      }),
+    );
 
     const newQuestionnaireData = new QuestionnaireData(
       cid,
@@ -379,10 +389,13 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
           question.type,
           question.text,
           question.choices,
-          question.minumum,
+          question.minimum,
           question.maximum,
+          question.displayType,
           question.multiSelect,
           question.required,
+          question.lowerLabel,
+          question.upperLabel,
         ),
     );
 
@@ -391,7 +404,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
       MarketplaceTag(`Questionnaire:${questionnaireData.id}`),
       questionnaireData.status,
       questionnaireData.title,
-      questionnaireData.description,
+      questionnaireData.description ?? null,
       questionnaireData.image ?? null,
       questions,
     );
@@ -408,10 +421,13 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
           question.type,
           question.text,
           question.choices,
-          question.minumum,
+          question.minimum,
           question.maximum,
+          question.displayType,
           question.multiSelect,
           question.required,
+          question.lowerLabel,
+          question.upperLabel,
         ),
     );
 
@@ -425,7 +441,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
       MarketplaceTag(`Questionnaire:${questionnaireData.id}`),
       questionnaireData.status,
       questionnaireData.title,
-      questionnaireData.description,
+      questionnaireData.description ?? null,
       questionnaireData.image ?? null,
       questions,
       answers,
@@ -480,11 +496,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     data: Partial<IQuestionnaireSchema>,
   ): data is IQuestionnaireSchema {
     //TODO better validation
-    if (
-      data.title != null &&
-      data.description != null &&
-      data.questions != null
-    ) {
+    if (data.title != null && data.questions != null) {
       return true;
     }
     return false;

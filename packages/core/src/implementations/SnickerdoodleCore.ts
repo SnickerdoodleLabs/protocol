@@ -93,6 +93,8 @@ import {
   INftMethods,
   IQuestionnaireMethods,
   NewQuestionnaireAnswer,
+  JSONString,
+  EExternalFieldKey,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -1334,5 +1336,17 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       ITokenPriceRepositoryType,
     );
     return tokenPriceRepo.getTokenMarketData(ids);
+  }
+
+  public setUIState(state: JSONString): ResultAsync<void, PersistenceError> {
+    const storageUtils =
+      this.iocContainer.get<IStorageUtils>(IStorageUtilsType);
+    return storageUtils.write(EExternalFieldKey.UI_STATE, state);
+  }
+
+  public getUIState(): ResultAsync<JSONString | null, PersistenceError> {
+    const storageUtils =
+      this.iocContainer.get<IStorageUtils>(IStorageUtilsType);
+    return storageUtils.read(EExternalFieldKey.UI_STATE);
   }
 }

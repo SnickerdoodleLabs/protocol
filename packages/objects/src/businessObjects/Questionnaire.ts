@@ -12,15 +12,21 @@ export enum EQuestionnaireStatus {
 }
 
 export enum EQuestionnaireQuestionType {
-  MultipleChoice = "multipleChoice",
-  Location = "country",
-  Text = "text",
-  Numeric = "numeric",
+  MultipleChoice = "MultipleChoice",
+  Location = "Location",
+  Text = "Text",
+  Numeric = "Numeric",
+}
+
+export enum EQuestionnaireQuestionDisplayType {
+  Dropdown = "Dropdown",
+  List = "List",
+  Scale = "Scale",
 }
 
 export class Questionnaire {
   public constructor(
-    /**
+    /**I
      * The questionnaire is uniquely identified by it's CID in IPFS. This is the primary key for
      * questionnaires.
      */
@@ -28,7 +34,7 @@ export class Questionnaire {
     public readonly marketplaceTag: MarketplaceTag, // The tag that
     public readonly status: EQuestionnaireStatus,
     public readonly title: string,
-    public readonly description: string,
+    public readonly description: string | null,
     public readonly image: URLString | null,
     /// The questions are entirely part of the Questionnaire and not an independent object.
     public readonly questions: QuestionnaireQuestion[],
@@ -44,7 +50,7 @@ export class QuestionnaireWithAnswers extends Questionnaire {
     marketplaceTag: MarketplaceTag,
     status: EQuestionnaireStatus,
     title: string,
-    description: string,
+    description: string | null,
     image: URLString | null,
     questions: QuestionnaireQuestion[],
 
@@ -63,10 +69,13 @@ export class QuestionnaireQuestion {
     public readonly type: EQuestionnaireQuestionType,
     public readonly text: string,
     public readonly choices: string[] | number[] | null,
-    public readonly minumum: number | null,
+    public readonly minimum: number | null,
     public readonly maximum: number | null,
+    public readonly displayType: EQuestionnaireQuestionDisplayType | null,
     public readonly multiSelect: boolean = false,
     public readonly required: boolean = false,
+    public readonly lowerLabel: string | null = null,
+    public readonly upperLabel: string | null = null,
   ) {}
 }
 

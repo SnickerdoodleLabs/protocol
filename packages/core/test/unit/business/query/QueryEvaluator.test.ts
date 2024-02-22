@@ -77,7 +77,8 @@ const conditionsE2 = [new ConditionE(SDQL_OperatorName("e"), null, 26)];
 
 class QueryEvaluatorMocks {
   public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
-  public blockchainTransactionQueryEvaluator = td.object<IBlockchainTransactionQueryEvaluator>();
+  public blockchainTransactionQueryEvaluator =
+    td.object<IBlockchainTransactionQueryEvaluator>();
   public nftQueryEvaluator = td.object<INftQueryEvaluator>();
   public web3AccountQueryEvaluator = td.object<IWeb3AccountQueryEvaluator>();
   public questionnaireRepository = td.object<IQuestionnaireRepository>();
@@ -184,24 +185,33 @@ class QueryEvaluatorMocks {
       okAsync(this.transactionsFlow),
     );
 
-    td.when(this.questionnaireRepository.getByCID(td.matchers.anything())).thenReturn(
+    td.when(
+      this.questionnaireRepository.getByCID(td.matchers.anything()),
+    ).thenReturn(
       okAsync(
         new QuestionnaireWithAnswers(
-          queryCID, 
-          MarketplaceTag(queryCID + ": 0x123"), 
-          EQuestionnaireStatus.Available, 
-          "Questionnaire", 
-          "", 
+          queryCID,
+          MarketplaceTag(queryCID + ": 0x123"),
+          EQuestionnaireStatus.Available,
+          "Questionnaire",
+          "",
           null,
           [
-            new QuestionnaireQuestion(0, EQuestionnaireQuestionType.MultipleChoice, "To be or not to be?", ["a", "b"], null, null)
-          ], 
-          [
-            new QuestionnaireAnswer(queryCID, 0, 0)
-          ], 
+            new QuestionnaireQuestion(
+              0,
+              EQuestionnaireQuestionType.MultipleChoice,
+              "To be or not to be?",
+              ["a", "b"],
+              null,
+              null,
+              null,
+            ),
+          ],
+          [new QuestionnaireAnswer(queryCID, 0, 0)],
           UnixTimestamp(0),
-        )
-    ));
+        ),
+      ),
+    );
   }
 
   public factory() {
@@ -735,7 +745,11 @@ describe("Return Questionnaires Map", () => {
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
 
-    const result = await repo.eval(questionnaireQuery, queryCID, queryTimestamp);
+    const result = await repo.eval(
+      questionnaireQuery,
+      queryCID,
+      queryTimestamp,
+    );
     console.log("Questionnaire is : ", result["value"]);
     expect(result["value"]).toEqual({ index: 0, answer: 0 });
   });
