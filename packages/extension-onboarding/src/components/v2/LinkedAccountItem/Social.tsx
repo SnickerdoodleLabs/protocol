@@ -33,8 +33,8 @@ export const Social: FC<ISocialProps> = ({ account, onClick }) => {
         <>
           <Box
             position="relative"
-            width={getResponsiveValue({ xs: 22, sm: 40 })}
-            height={getResponsiveValue({ xs: 22, sm: 40 })}
+            width={{ xs: 22, sm: 40 }}
+            height={{ xs: 22, sm: 40 }}
           >
             <img
               src={getDiscordAvatar(account)}
@@ -44,9 +44,9 @@ export const Social: FC<ISocialProps> = ({ account, onClick }) => {
             <Box
               position="absolute"
               bottom={0}
-              right={getResponsiveValue({ xs: -3, sm: -6 })}
-              width={getResponsiveValue({ xs: 10, sm: 16 })}
-              height={getResponsiveValue({ xs: 10, sm: 16 })}
+              right={{ xs: -3, sm: -6 }}
+              width={{ xs: 10, sm: 16 }}
+              height={{ xs: 10, sm: 16 }}
             >
               <img
                 width="100%"

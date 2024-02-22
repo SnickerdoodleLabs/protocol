@@ -27,6 +27,7 @@ const useStyles = makeStyles((theme) => ({
     transition: "opacity 0.35s ease",
     [theme.breakpoints.down("xs")]: {
       opacity: 1,
+      height: 30,
     },
   },
   icon: {
@@ -63,6 +64,7 @@ const useStyles = makeStyles((theme) => ({
     },
     [theme.breakpoints.down("xs")]: {
       borderColor: colors.MAINPURPLE500,
+      height: 30,
     },
   },
 }));

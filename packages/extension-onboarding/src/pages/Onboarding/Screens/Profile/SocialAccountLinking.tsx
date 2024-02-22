@@ -16,7 +16,7 @@ import {
   useResponsiveValue,
 } from "@snickerdoodlelabs/shared-components";
 import { errAsync } from "neverthrow";
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, Fragment, useEffect, useState } from "react";
 
 interface ISocialAccountLinkingProps {
   onComplete: () => void;
@@ -115,13 +115,15 @@ const SocialAccountLinking: FC<ISocialAccountLinkingProps> = ({
       <SocialMenu onDiscordConnectClick={handleLinkAccountClick} />
       {profiles.length > 0 && (
         <>
-          <Box mt={3} />
+          <Box mt={{ xs: 2.5, sm: 4 }} />
           {profiles.map((account, index) => (
-            <Social
-              key={index}
-              account={account}
-              onClick={() => handleUnlinkAccountClick(account)}
-            />
+            <Fragment key={account.id}>
+              <Social
+                account={account}
+                onClick={() => handleUnlinkAccountClick(account)}
+              />
+              {index !== profiles.length - 1 && <Box mt={{ xs: 1.5, sm: 3 }} />}
+            </Fragment>
           ))}
         </>
       )}

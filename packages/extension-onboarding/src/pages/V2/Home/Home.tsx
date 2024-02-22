@@ -82,26 +82,35 @@ const Home: FC = () => {
     <>
       <PageBanners />
       <Container>
-        <img
-          src="https://storage.googleapis.com/dw-assets/spa/images-v2/home-banner.svg"
-          style={{
-            width: getResponsiveValue({ xs: "100%", sm: "calc(100% + 64px)" }),
-            marginLeft: getResponsiveValue({ xs: 0, sm: -32 }),
-            marginBottom: getResponsiveValue({
-              xs: -16,
-              sm: -32,
-              md: -56,
-              lg: -64,
-            }),
-            marginTop: "28px",
-            height: "auto",
-          }}
-        />
+        <Box width="100%" overflow={{ xs: "hidden", sm: "display" }}>
+          <img
+            src="https://storage.googleapis.com/dw-assets/spa/images-v2/home-banner.svg"
+            style={{
+              width: getResponsiveValue({
+                xs: "160%",
+                sm: "calc(100% + 64px)",
+              }),
+              transform: `translateX(${getResponsiveValue({
+                xs: "-20%",
+                sm: "0%",
+              })})`,
+              marginLeft: getResponsiveValue({ xs: 0, sm: -32 }),
+              marginBottom: getResponsiveValue({
+                xs: -16,
+                sm: -32,
+                md: -56,
+                lg: -64,
+              }),
+              marginTop: "28px",
+              height: "auto",
+            }}
+          />
+        </Box>
         <Grid container spacing={3}>
           {navigatorCards.map((card, index) => (
             <Grid key={index} item xs={12} sm={4}>
               <Box
-                p={4}
+                p={{ xs: 2, sm: 4 }}
                 color={card.color}
                 bgcolor={card.bgColor}
                 borderRadius={16}
@@ -132,7 +141,10 @@ const Home: FC = () => {
                         align={getResponsiveValue({ xs: "left", sm: "center" })}
                         fontWeight="bold"
                         color="inherit"
-                        variant="headlineSm"
+                        variant={getResponsiveValue({
+                          xs: "titleMd",
+                          sm: "headlineSm",
+                        })}
                       >
                         {card.title}
                       </SDTypography>
@@ -140,7 +152,10 @@ const Home: FC = () => {
                       <SDTypography
                         align={getResponsiveValue({ xs: "left", sm: "center" })}
                         color="inherit"
-                        variant="bodyLg"
+                        variant={getResponsiveValue({
+                          xs: "bodyMd",
+                          sm: "bodyLg",
+                        })}
                       >
                         {card.description}
                       </SDTypography>
