@@ -205,7 +205,6 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
            Questionnaire does not exist!`),
         );
       }
-
       const historyRecord = new QuestionnaireHistory(
         id,
         this.timeUtils.getUnixNow(),
@@ -357,9 +356,9 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
       .get<QuestionnaireData>(ERecordKey.QUESTIONNAIRES, {
         id: [questionnaireCID, EBoolean.FALSE],
       })
-      .map((questionnaireDatas) =>
-        questionnaireDatas.length > 0 ? questionnaireDatas[0] : null,
-      );
+      .map((questionnaireDatas) => {
+        return questionnaireDatas.length > 0 ? questionnaireDatas[0] : null;
+      });
   }
 
   private fetchLatestQuestionnaireHistoriesById(
@@ -370,7 +369,6 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
       [0, questionnaireCID, 0],
       [0, questionnaireCID, benchmark ?? this.timeUtils.getUnixNow()],
     );
-
     return this.persistence.getCursor2<QuestionnaireHistory>(
       ERecordKey.QUESTIONNAIRES_HISTORY,
       {
@@ -378,7 +376,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
         query,
         latest: true,
       },
-    );
+    )
   }
 
   private constructQuestionnaire(

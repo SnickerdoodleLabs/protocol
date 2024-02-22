@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import process from "node:process";
+import "fake-indexeddb/auto";
 
 import { PromptFactory } from "@test-harness/utilities/index.js";
 

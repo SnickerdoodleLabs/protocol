@@ -324,11 +324,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IMonitoringService>(IMonitoringServiceType)
       .to(MonitoringService)
       .inSingletonScope();
-
     bind<IQuestionnaireService>(IQuestionnaireServiceType)
-      .to(QuestionnaireService)
-      .inSingletonScope();
-
+    .to(QuestionnaireService)
+    .inSingletonScope();
     bind<IDiscordService>(IDiscordServiceType)
       .to(DiscordService)
       .inSingletonScope();

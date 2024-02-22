@@ -720,6 +720,7 @@ export class IndexedDB {
     return this.initialize().andThen(() => {
       return this.getTransaction(name, "readonly").andThen((tx) => {
         const store = tx.objectStore(name);
+
         let request: IDBRequest<IDBCursorWithValue | null>;
         const results: VolatileStorageMetadata<T>[] = [];
         let count = 0;
@@ -758,7 +759,6 @@ export class IndexedDB {
                 }
               }
             };
-
             request.onerror = (event) => {
               reject(
                 new PersistenceError(
