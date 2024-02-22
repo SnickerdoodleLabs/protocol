@@ -524,7 +524,6 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
           validateOnBlur
         >
           {({ handleSubmit, dirty, values }) => {
-            console.log(values);
             setTimeout(() => {
               setIsFormDirty(dirty);
             }, 0);
