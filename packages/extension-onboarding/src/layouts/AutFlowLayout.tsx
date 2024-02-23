@@ -16,7 +16,6 @@ const AutFlowLayout = () => {
     <>
       <NavigationBar />
       <Outlet />
-      <Footer />
     </>
   );
 };

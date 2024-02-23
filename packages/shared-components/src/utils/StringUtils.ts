@@ -4,7 +4,7 @@ export const abbreviateString = (
   suffixLength = 4,
   dotCount = 4,
 ): string => {
-  if (inputString.length < prefixLength + suffixLength) {
+  if (inputString.length <= prefixLength + suffixLength) {
     return inputString;
   }
 

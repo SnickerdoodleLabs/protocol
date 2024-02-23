@@ -1,6 +1,7 @@
 export const ALERT_MESSAGES = {
   ACCOUNT_ADDED:
     "You have successfully linked your account to your personal Data Wallet!",
+  ACCOUNT_REMOVED: "You have successfully unlinked your account.",
   PROFILE_FILLED_WITH_GOOGLE_DATA:
     "Your profile info has been auto-filled with your Google profile info.",
 };

@@ -1,4 +1,4 @@
-import { TypedDataDomain } from "@ethersproject/abstract-signer";
+import { TypedDataDomain } from "ethers";
 import { CoreConfig } from "@snickerdoodlelabs/core/dist/interfaces/objects";
 import {
   ChainId,
