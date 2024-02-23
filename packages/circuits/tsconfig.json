@@ -1,0 +1,28 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "module": "ES2022",
+    "paths": {
+      "@circuits/*": [
+        "./packages/circuit/src/*"
+      ],
+      "@circuits-test/*": [
+        "./packages/circuits/test/*"
+      ],
+    }
+  },
+  "include": [
+    "./src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
+  "references": [
+    {
+      "path": "../objects"
+    }
+  ],
+}

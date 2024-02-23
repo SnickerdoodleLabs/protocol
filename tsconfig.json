@@ -12,6 +12,12 @@
       "path": "packages/browserExtension"
     },
     {
+      "path": "packages/circuits"
+    },
+    {
+      "path": "packages/circuits/test"
+    },
+    {
       "path": "packages/common-utils"
     },
     {

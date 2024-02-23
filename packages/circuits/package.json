@@ -1,7 +1,7 @@
 {
-  "name": "@snickerdoodlelabs/contracts-sdk",
-  "version": "3.0.1",
-  "description": "SDK for snickerdoodlelabs protocol smart contracts",
+  "name": "@snickerdoodlelabs/circuits",
+  "version": "0.0.1",
+  "description": "ZK-Snickerdoodle circuits for Snickerdoodle Protocol",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -10,27 +10,27 @@
   "bugs": {
     "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
   },
-  "homepage": "https://protocol-docs.snickerdoodle.com/snickerdoodle-protocol/readme",
-  "author": "Muhammed Altinci <muhammed@snickerdoodlelabs.io>",
+  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/circuits#readme",
+  "author": "Todd Chapman <todd@snickerdoodlelabs.io>",
   "keywords": [
-    "Blockchain",
+    "ZK-Snarks",
     "Snickerdoodle",
-    "Web3"
+    "Crypto"
   ],
   "main": "dist/index.js",
+  "module": "./dist/index.js",
   "files": [
     "dist",
+    "src",
     "!dist/test",
     "!dist/tsconfig.tsbuildinfo",
     "!test",
-    "!src",
     "!tsconfig.json"
   ],
   "scripts": {
     "alias": "tsc-alias && tsc-alias -p test/tsconfig.json",
     "alias-with-copyfiles": "yarn copy-files && tsc-alias",
     "build": "yarn clean && yarn compile",
-    "debug": "yarn build && node dist/debug/debugger.js",
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
     "compile": "npx tsc --build && cd ../.. && yarn alias",
     "copy-files": "copyfiles -u 1 src/**/*.d.ts dist/",
@@ -41,13 +41,13 @@
   "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@snickerdoodlelabs/common-utils": "workspace:^",
-    "@snickerdoodlelabs/node-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
     "ethers": "^6.10.0",
     "inversify": "^6.0.2",
     "neverthrow": "^5.1.0",
     "neverthrow-result-utils": "^2.0.2",
-    "zksync-ethers": "^6.1.0"
+    "pino": "^8.1.0",
+    "tweetnacl": "^1.0.3",
+    "uuid": "^8.3.0"
   }
 }
