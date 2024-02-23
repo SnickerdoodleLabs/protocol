@@ -46,6 +46,7 @@
     "inversify": "^6.0.2",
     "neverthrow": "^5.1.0",
     "neverthrow-result-utils": "^2.0.2",
+    "o1js": "^0.16.2",
     "pino": "^8.1.0",
     "tweetnacl": "^1.0.3",
     "uuid": "^8.3.0"
