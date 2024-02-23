@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/erc7529",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A library for interacting with ERC-7529 compliant contracts and domains for EVM based chains.",
   "license": "MIT",
   "repository": {
@@ -44,6 +44,7 @@
   "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
+    "@openzeppelin/contracts": "^5.0.1",
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/contracts-sdk": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
