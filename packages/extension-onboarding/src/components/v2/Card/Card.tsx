@@ -9,7 +9,8 @@ const Card: FC<ICardProps> = ({ children }) => {
   return (
     <Box
       mb={3}
-      p={3}
+      p={{ xs: 2, sm: 4 }}
+      pt={{ xs: 3, sm: 4 }}
       bgcolor={"cardBgColor"}
       borderRadius={8}
       borderColor="borderColor"

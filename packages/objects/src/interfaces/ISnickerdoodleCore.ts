@@ -118,6 +118,7 @@ import {
   URLString,
   BlockNumber,
   RefreshToken,
+  JSONString,
 } from "@objects/primitives/index.js";
 /**
  ************************ MAINTENANCE HAZARD ***********************************************
@@ -715,7 +716,7 @@ export interface IStorageMethods {
   ): ResultAsync<URLString, never>;
 }
 
-export interface IQuestionnaireMethods {
+export interface IQuestionnaireMethods {  
   /**
    * Returns a list of questionnaires that the user can complete (that do not already have answers),
    * without regard to any particular consent contract. They are returned in ranked order and should
@@ -725,7 +726,14 @@ export interface IQuestionnaireMethods {
   getQuestionnaires(
     pagingRequest: PagingRequest,
     sourceDomain: DomainName | undefined,
-  ): ResultAsync<PagedResponse<Questionnaire>, PersistenceError | AjaxError>;
+  ): ResultAsync<
+    PagedResponse<Questionnaire>,
+    | UninitializedError
+    | BlockchainCommonErrors
+    | AjaxError
+    | PersistenceError
+    | ConsentFactoryContractError
+  >;
 
   /**
    * Returns a list of questionnaires that the user can complete, which are requested by a particular
@@ -738,7 +746,14 @@ export interface IQuestionnaireMethods {
     pagingRequest: PagingRequest,
     consentContractAddress: EVMContractAddress,
     sourceDomain: DomainName | undefined,
-  ): ResultAsync<PagedResponse<Questionnaire>, PersistenceError | AjaxError>;
+  ): ResultAsync<
+    PagedResponse<Questionnaire>,
+    | UninitializedError
+    | BlockchainCommonErrors
+    | AjaxError
+    | PersistenceError
+    | ConsentContractError
+  >;
 
   /**
    * Gets all teh questionnaires that the user has already answered, along with the current answers
@@ -766,6 +781,38 @@ export interface IQuestionnaireMethods {
   ): ResultAsync<void, InvalidParametersError | PersistenceError | AjaxError>;
 
   /**
+   * Fetches all questionnaires in storage with pagination
+   * This method can return either basic questionnaires or questionnaires with their answers if available,
+   * */
+  getAllQuestionnaires(
+    pagingRequest: PagingRequest,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    PagedResponse<Questionnaire | QuestionnaireWithAnswers>,
+    PersistenceError | AjaxError
+  >;
+
+  /**
+   * Retrieves consent contract addresses associated with a given Questionnaire IPFS CID.
+   *  This method is useful for finding out which consent contracts (brand) is interested in the the supplied Questionnaire
+   *
+   * @param ipfsCID The IPFS CID of the questionnaire
+   * @return An array of consent contract addresses
+   */
+  getConsentContractsByQuestionnaireCID(
+    ipfsCID: IpfsCID,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    EVMContractAddress[],
+    | PersistenceError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
+    | ConsentContractError
+    | AjaxError
+  >;
+
+  /**
    * This is a key marketing function. Based on the questionnaires that the user has answered,
    * this returns a list of consent contracts that are interested in that questionnaire. This is
    * where stake for rank comes in. Each questionnaire (regardless of if it's a default one or not),
@@ -774,7 +821,7 @@ export interface IQuestionnaireMethods {
    */
   getRecommendedConsentContracts(
     questionnaire: IpfsCID,
-    sourceDomain?: DomainName,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<EVMContractAddress[], PersistenceError | AjaxError>;
 }
 
@@ -1024,6 +1071,10 @@ export interface ISnickerdoodleCore {
     transactions: ChainTransaction[],
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, PersistenceError | UnauthorizedError>;
+
+  // external calls to set local storage
+  setUIState(state: JSONString): ResultAsync<void, PersistenceError>;
+  getUIState(): ResultAsync<JSONString | null, PersistenceError>;
 
   account: IAccountMethods;
   invitation: IInvitationMethods;

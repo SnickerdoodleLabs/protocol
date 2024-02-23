@@ -1,4 +1,5 @@
 import {
+  AjaxError,
   BlockchainCommonErrors,
   ConsentContractError,
   ConsentFactoryContractError,
@@ -20,6 +21,7 @@ export interface ICachingService {
     | ConsentFactoryContractError
     | BlockchainCommonErrors
     | ConsentContractError
+    | AjaxError
   >;
 }
 
