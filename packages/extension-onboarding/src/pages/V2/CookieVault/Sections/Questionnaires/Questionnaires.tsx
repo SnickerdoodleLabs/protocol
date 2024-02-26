@@ -59,10 +59,8 @@ const Questionnaries = () => {
     <>
       <Card>
         <CardTitle
-          title="Questionnaries"
-          subtitle="Questionnaries secure your personal information and preferences"
-          titleVariant="headlineMd"
-          subtitleVariant="bodyLg"
+          title="Questionnaires"
+          subtitle="Questionnaires secure your personal information and preferences"
         />
         <Box
           mt={4}

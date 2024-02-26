@@ -1,5 +1,9 @@
 import { Box, Menu, MenuItem } from "@material-ui/core";
-import { SDTypography } from "@snickerdoodlelabs/shared-components";
+import {
+  SDTypography,
+  colors,
+  useResponsiveValue,
+} from "@snickerdoodlelabs/shared-components";
 import React, { FC, useEffect, useRef, useState } from "react";
 interface ILinkingAccountMenuProps {
   title: string;
@@ -13,6 +17,7 @@ const LinkingAccountMenu: FC<ILinkingAccountMenuProps> = ({
   menuItems,
 }) => {
   const lastWidth = useRef<number>();
+  const getResponsiveValue = useResponsiveValue();
 
   const [anchorEl, setAnchorEl] = useState<(EventTarget & HTMLElement) | null>(
     null,
@@ -41,14 +46,18 @@ const LinkingAccountMenu: FC<ILinkingAccountMenuProps> = ({
         id="account-linking"
         onClick={(e) => handleClick(e)}
         borderRadius={12}
-        p={3}
+        p={{ xs: 2, sm: 3 }}
         borderColor="borderColor"
         border="1px solid"
         display="flex"
         justifyContent="space-between"
         alignItems="center"
       >
-        <SDTypography variant="bodyLg" fontWeight="bold">
+        <SDTypography
+          variant={getResponsiveValue({ xs: "titleXs", sm: "titleMd" })}
+          fontWeight="bold"
+          hexColor={colors.DARKPURPLE500}
+        >
           {title}
         </SDTypography>
         {leftRender}
