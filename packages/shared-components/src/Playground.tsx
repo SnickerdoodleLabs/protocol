@@ -26,6 +26,7 @@ import ReactDOM from "react-dom";
 const App = () => {
   const [value, setValue] = React.useState(0);
   const media = useMedia();
+
   return (
     <>
       <SDTypography align="center" variant="displayLg" color="textSuccess">

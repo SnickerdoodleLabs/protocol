@@ -1,7 +1,7 @@
 export const query2 = {
   version: 0.1,
   timestamp: "2021-11-13T20:20:39Z",
-  expiry: "2023-11-13T20:20:39Z",
+  expiry: "2024-11-13T20:20:39Z",
   description: "///This should dynamically populate",
   business: "/////This should dynamically populate",
   queries: {
@@ -76,6 +76,11 @@ export const query2 = {
         end: "50",
       },
     },
+    q5: {
+      name: "questionnaire",
+      return: "object",
+      cid: "TestHarnessCID",
+    },
   },
   insights: {
     i1: {
@@ -97,6 +102,11 @@ export const query2 = {
       name: "callback",
       target: "true",
       returns: "$q4",
+    },
+    i5: {
+      name: "callback",
+      target: "true",
+      returns: "$q5",
     },
   },
   compensations: {

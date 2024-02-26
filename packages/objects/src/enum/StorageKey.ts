@@ -22,6 +22,9 @@ export enum ERecordKey {
   DOMAIN_CREDENTIALS = "SD_DomainCredentials",
   REJECTED_INVITATIONS = "SD_RejectedInvitations",
   OPTED_IN_INVITATIONS = "SD_OptedInInvitations",
+
+  QUESTIONNAIRES = "SD_Questionnaires",
+  QUESTIONNAIRES_HISTORY = "SD_Questionnaires_history",
 }
 
 export enum EFieldKey {
@@ -35,6 +38,10 @@ export enum EFieldKey {
   LOCATION = "SD_Location",
   DEFAULT_RECEIVING_ADDRESS = "SD_DefaultReceivingAddress",
   DOMAIN_PERMISSIONS = "SD_DomainPermissions",
+}
+
+export enum EExternalFieldKey {
+  UI_STATE = "SD_UIState",
 }
 
 export type StorageKey = EFieldKey | ERecordKey;

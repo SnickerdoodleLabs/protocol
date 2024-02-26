@@ -58,6 +58,9 @@ import {
   IUserAgreement,
   WalletNFTHistory,
   WalletNFTData,
+  Questionnaire,
+  QuestionnaireWithAnswers,
+  NewQuestionnaireAnswer,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 
@@ -887,3 +890,85 @@ export class GetCurrentCloudStorageParams extends CoreActionParams<ECloudStorage
   }
 }
 // #endregion
+
+// #region External local storage calls
+
+export class SetUIStateParams extends CoreActionParams<void> {
+  public constructor(public state: JSONString) {
+    super(SetUIStateParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SET_UI_STATE;
+  }
+}
+
+export class GetUIStateParams extends CoreActionParams<JSONString | null> {
+  public constructor() {
+    super(GetUIStateParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_UI_STATE;
+  }
+}
+
+// #endregion
+
+// #region Questionnaire
+export class GetAllQuestionnairesParams extends CoreActionParams<
+  PagedResponse<Questionnaire | QuestionnaireWithAnswers>
+> {
+  public constructor(public pagingRequest: PagingRequest) {
+    super(GetAllQuestionnairesParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_ALL_QUESTIONNAIRES;
+  }
+}
+
+export class AnswerQuestionnaireParams extends CoreActionParams<void> {
+  public constructor(
+    public questionnaireId: IpfsCID,
+    public answers: NewQuestionnaireAnswer[],
+  ) {
+    super(AnswerQuestionnaireParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.ANSWER_QUESTIONNAIRE;
+  }
+}
+
+export class GetQuestionnairesForConsentContractParams extends CoreActionParams<
+  PagedResponse<Questionnaire>
+> {
+  public constructor(
+    public pagingRequest: PagingRequest,
+    public consentContractAddress: EVMContractAddress,
+  ) {
+    super(GetQuestionnairesForConsentContractParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_QUESTIONNAIRES_FOR_CONSENT_CONTRACT;
+  }
+}
+
+export class GetConsentContractsByQuestionnaireCIDParams extends CoreActionParams<
+  EVMContractAddress[]
+> {
+  public constructor(public questionnaireCID: IpfsCID) {
+    super(GetConsentContractsByQuestionnaireCIDParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_CONSENT_CONTRACTS_BY_QUESTIONNAIRE_CID;
+  }
+}
+
+export class GetRecommendedConsentContractsParams extends CoreActionParams<
+  EVMContractAddress[]
+> {
+  public constructor(public questionnaireCID: IpfsCID) {
+    super(GetRecommendedConsentContractsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_RECOMMENDED_CONSENT_CONTRACTS;
+  }
+}

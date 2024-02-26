@@ -64,8 +64,6 @@ describe("Expressions to Postfix", () => {
       new Token(TokenType.query, "$q3", 11),
     ];
 
-    // console.log("tokens", tokens);
-
     expect(tokens).toEqual(expectedTokens);
 
     const context: Map<string, ParserContextDataTypes> = new Map();
@@ -120,8 +118,6 @@ describe("Expressions to Postfix", () => {
       new Token(TokenType.query, "$q3", 12),
       new Token(TokenType.parenthesisClose, ")", 15),
     ];
-
-    // console.log("tokens", tokens);
 
     expect(tokens).toEqual(expectedTokens);
 

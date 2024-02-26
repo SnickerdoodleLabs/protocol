@@ -2,8 +2,9 @@
     "$schema": "http://json-schema.org/draft-04/schema#",
     "title": "Asset Metadata",
     "type": "object",
+    "version": "1.0",
     "properties": {
-        "name": {
+        "title": {
             "type": "string",
             "description": "The name of the questionnaire for display purposes"
         },
@@ -23,7 +24,37 @@
                 "properties": {
                     "questionType": {
                         "type": "string",
-                        "enum": ["multipleChoice", "text", "country"]
+                        "enum": ["MultipleChoice", "Location", "Text", "Numeric"]
+                    },
+                    "displayType": {
+                        "type": "string",
+                        "enum": ["Dropdown", "List", "Scale"]
+                    },
+                    "multiSelect": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Whether the question allows multiple answers to be selected"
+                    },
+                    "isRequired": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Whether the question is required to be answered"
+                    },
+                    "lowerLabel": {
+                        "type": "string",
+                        "description": "The label for the lower end of the lineer scale"
+                    },
+                    "upperLabel": {
+                        "type": "string",
+                        "description": "The label for the upper end of the lineer scale"
+                    },
+                    "minimum": {
+                        "type": "number",
+                        "description": "Minimum value for numeric questions, or minimum number of answers for multiple choice questions, or minimum length for text questions"
+                    },
+                    "maximum": {
+                        "type": "number",
+                        "description": "Maximum value for numeric questions, or maximum number of answers for multiple choice questions, or maximum length for text questions"
                     },
                     "question": {
                         "type": "string",
@@ -33,7 +64,10 @@
                         "type": "array",
                         "description": "The options for the multiple choice question. The order they occur is their index for selection",
                         "items": {
-                            "type": "string"
+                            "oneOf": [
+                             { "type": "string"},
+                             { "type": "number"}
+                            ]
                         }
                     }
                 },
@@ -41,5 +75,5 @@
             }
         }
     },
-    "required": ["name","questions"]
+    "required": ["title", "questions"]
 }
