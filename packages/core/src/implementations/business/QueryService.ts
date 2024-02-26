@@ -463,7 +463,7 @@ export class QueryService implements IQueryService {
                     this.queryParsingEngine
                       .handleQuery(
                         query,
-                        DataPermissions.createWithAllPermissions(),
+                        DataPermissions.createWithAllPermissions(), // We're enabling all permissions for now instead of using consentToken!.dataPermissions till the permissions are properly refactored.
                       )
                       .map((insights) => {
                         this.logUtils.debug(
