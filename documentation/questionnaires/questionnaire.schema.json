@@ -17,7 +17,7 @@
             "description": "A URI pointing to a resource with mime type image/* representing the asset to be displayed with this questionnaire for display purposes. Optional."
         },
         "questions": {
-            "type:": "array",
+            "type": "array",
             "description": "The individual questions for the questionnaire.",
             "items": {
                 "type": "object",
