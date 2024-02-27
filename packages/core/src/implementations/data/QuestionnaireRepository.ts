@@ -5,6 +5,7 @@ import {
   ILogUtilsType,
   ITimeUtils,
   ITimeUtilsType,
+  ObjectUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   Questionnaire,
@@ -25,9 +26,8 @@ import {
   QuestionnaireHistory,
   EBoolean,
   MarketplaceTag,
-  EQuestionnaireQuestionType,
-  URLString,
   IQuestionnaireSchema,
+  QuestionnaireSchema,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProviderType,
@@ -35,6 +35,7 @@ import {
   IPersistenceConfig,
 } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
+import { validate } from "jsonschema";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoin } from "url-join-ts";
@@ -310,14 +311,9 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     data: Partial<IQuestionnaireSchema>,
     cid: IpfsCID,
   ): QuestionnaireData | undefined {
-    const isValid = this.validateQuestionnaireData(data);
+    const isValid = this.validateQuestionnaireData(data, cid);
     //TODO perhaps we can handle invalid IPFS cids later, not sure if it will benefit us
     if (!isValid) {
-      this.logUtils.warning(
-        `In processQuestionnaireData, received a malformed questionnaire, cid:${cid}.\n
-         Data:${data}
-        `,
-      );
       return undefined;
     }
 
@@ -376,7 +372,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
         query,
         latest: true,
       },
-    )
+    );
   }
 
   private constructQuestionnaire(
@@ -494,11 +490,27 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
 
   private validateQuestionnaireData(
     data: Partial<IQuestionnaireSchema>,
+    cid: IpfsCID,
   ): data is IQuestionnaireSchema {
-    //TODO better validation
-    if (data.title != null && data.questions != null) {
+    const validationResult = validate(data, QuestionnaireSchema);
+    if (validationResult.valid) {
       return true;
     }
+
+    const errorMessages = validationResult.errors.reduce<string>((acc, err) => {
+      const pathString = ObjectUtils.serialize(err.path);
+      const messageString = ObjectUtils.serialize(err.message);
+      const errorMessage = `Problematic path: ${pathString}, Error message: ${messageString}\n`;
+      return acc + errorMessage;
+    }, "");
+
+    this.logUtils.warning(
+      `In processQuestionnaireData, received a malformed questionnaire, cid:${cid}.\n
+      Error messages;
+      ${errorMessages},
+      Data: ${JSON.stringify(data)}\n`,
+    );
+
     return false;
   }
 }
