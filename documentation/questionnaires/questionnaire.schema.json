@@ -42,11 +42,11 @@
                     },
                     "lowerLabel": {
                         "type": "string",
-                        "description": "The label for the lower end of the lineer scale"
+                        "description": "The label for the lower end of the linear scale"
                     },
                     "upperLabel": {
                         "type": "string",
-                        "description": "The label for the upper end of the lineer scale"
+                        "description": "The label for the upper end of the linear scale"
                     },
                     "minimum": {
                         "type": "number",
