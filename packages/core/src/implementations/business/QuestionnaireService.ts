@@ -107,9 +107,19 @@ export class QuestionnaireService implements IQuestionnaireService {
     _sourceDomain: DomainName | undefined,
   ): ResultAsync<
     PagedResponse<Questionnaire | QuestionnaireWithAnswers>,
-    PersistenceError | AjaxError
+    | UninitializedError
+    | BlockchainCommonErrors
+    | AjaxError
+    | PersistenceError
+    | ConsentFactoryContractError
   > {
-    return this.questionnaireRepo.getAll(pagingRequest);
+    return this.consentContractRepository
+      .getDefaultQuestionnaires()
+      .andThen((defaultCids) => {
+        return this.questionnaireRepo.add(defaultCids).andThen(() => {
+          return this.questionnaireRepo.getByCIDs(defaultCids, pagingRequest);
+        });
+      });
   }
 
   public getConsentContractsByQuestionnaireCID(
