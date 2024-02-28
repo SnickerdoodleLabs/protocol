@@ -116,8 +116,9 @@ export class QuestionnaireService implements IQuestionnaireService {
     return this.consentContractRepository
       .getDefaultQuestionnaires()
       .andThen((defaultCids) => {
-        return this.questionnaireRepo.add(defaultCids).andThen(() => {
-          return this.questionnaireRepo.getByCIDs(defaultCids, pagingRequest);
+        const uniqueCids = Array.from(new Set(defaultCids));
+        return this.questionnaireRepo.add(uniqueCids).andThen(() => {
+          return this.questionnaireRepo.getByCIDs(uniqueCids, pagingRequest);
         });
       });
   }
