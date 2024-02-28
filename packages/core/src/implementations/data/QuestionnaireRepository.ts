@@ -493,24 +493,28 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     cid: IpfsCID,
   ): data is IQuestionnaireSchema {
     const validationResult = validate(data, QuestionnaireSchema);
-    if (validationResult.valid) {
-      return true;
-    }
+    if (!validationResult.valid) {
+      const errorMessages = validationResult.errors.reduce<string>(
+        (acc, err) => {
+          const pathString = ObjectUtils.serialize(err.path);
+          const messageString = ObjectUtils.serialize(err.message);
+          const errorMessage = `Problematic path: ${pathString}, Error message: ${messageString}\n`;
+          return acc + errorMessage;
+        },
+        "",
+      );
 
-    const errorMessages = validationResult.errors.reduce<string>((acc, err) => {
-      const pathString = ObjectUtils.serialize(err.path);
-      const messageString = ObjectUtils.serialize(err.message);
-      const errorMessage = `Problematic path: ${pathString}, Error message: ${messageString}\n`;
-      return acc + errorMessage;
-    }, "");
-
-    this.logUtils.warning(
-      `In processQuestionnaireData, received a malformed questionnaire, cid:${cid}.\n
+      this.logUtils.warning(
+        `In processQuestionnaireData, received a malformed questionnaire, cid:${cid}.\n
       Error messages;
       ${errorMessages},
       Data: ${JSON.stringify(data)}\n`,
-    );
+      );
+    }
 
+    if (data.title != null && data.questions != null) {
+      return true;
+    }
     return false;
   }
 }
