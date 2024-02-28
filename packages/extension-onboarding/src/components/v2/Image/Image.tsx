@@ -1,5 +1,5 @@
 import { Skeleton } from "@material-ui/lab";
-import React, { FC, useState } from "react";
+import React, { FC, useMemo, useState } from "react";
 
 interface IImageProps {
   src: string;
@@ -12,6 +12,13 @@ interface IImageProps {
 const Image: FC<IImageProps> = ({ src, alt, width, height, style }) => {
   const [isError, setIsError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const formattedUrl = useMemo(() => {
+    return src.replace(
+      "ipfs://",
+      "https://ipfs-gateway.snickerdoodle.com/ipfs/",
+    );
+  }, []);
 
   if (isError) {
     return (
@@ -31,7 +38,7 @@ const Image: FC<IImageProps> = ({ src, alt, width, height, style }) => {
     <>
       {isLoading && <Skeleton variant="rect" width={width} height={height} />}
       <img
-        src={src}
+        src={formattedUrl}
         alt={alt}
         width={width}
         height={height}
