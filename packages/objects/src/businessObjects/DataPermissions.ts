@@ -45,6 +45,9 @@ export class DataPermissions {
     return true;
   }
 
+  public get Questionnaires(): boolean {
+    return this.getFlag(EWalletDataType.Questionnaires);
+  }
   public get Age(): boolean {
     return this.getFlag(EWalletDataType.Age);
   }

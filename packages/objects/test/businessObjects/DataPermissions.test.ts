@@ -83,6 +83,7 @@ describe("DataPermissions bitwise operation tests", () => {
     expect(dp.AccountBalances).toBeTruthy();
     expect(dp.AccountNFTs).toBeTruthy();
     expect(dp.LatestBlockNumber).toBeTruthy();
+    expect(dp.Questionnaires).toBeTruthy();
   });
 
   test("CreateWithPermissions with no permissions", () => {
@@ -104,6 +105,7 @@ describe("DataPermissions bitwise operation tests", () => {
     expect(dp.AccountBalances).toBeFalsy();
     expect(dp.AccountNFTs).toBeFalsy();
     expect(dp.LatestBlockNumber).toBeFalsy();
+    expect(dp.Questionnaires).toBeTruthy();
   });
 
   test("CreateWithPermissions across multiple bytes", () => {
@@ -128,5 +130,6 @@ describe("DataPermissions bitwise operation tests", () => {
     expect(dp.AccountBalances).toBeFalsy();
     expect(dp.AccountNFTs).toBeFalsy();
     expect(dp.LatestBlockNumber).toBeTruthy();
+    expect(dp.Questionnaires).toBeTruthy();
   });
 });

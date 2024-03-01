@@ -78,6 +78,8 @@ export class AST_PropertyQuery extends AST_SubQuery {
         return ok(EWalletDataType.Discord);
       case "social_twitter":
         return ok(EWalletDataType.Twitter);
+      case "questionnaire":
+        return ok(EWalletDataType.Questionnaires);
       default:
         const missingWalletType = new MissingWalletDataTypeError(
           `no wallet data type defined for ${this.property}`,
