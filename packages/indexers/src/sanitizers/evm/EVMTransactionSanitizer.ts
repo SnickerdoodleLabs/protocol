@@ -261,7 +261,7 @@ export class EVMTransactionSanitizer implements IEVMTransactionSanitizer {
         return EVMContractAddress("");
       }
       try {
-        ethers.utils.getAddress(value);
+        ethers.getAddress(value);
         return EVMContractAddress(value.toLowerCase());
       } catch (error) {
         return null;

@@ -19,7 +19,6 @@ import {
   TokenId,
   URLString,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
 import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 
@@ -222,7 +221,7 @@ class InvitationServiceMocks {
         metatransactionNonce,
         metatransactionValue,
         BigNumberString(
-          BigNumber.from(
+          BigInt(
             this.configProvider.config.gasAmounts.updateAgreementFlagsGas,
           ).toString(),
         ),

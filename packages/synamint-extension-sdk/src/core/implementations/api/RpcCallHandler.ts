@@ -10,7 +10,6 @@ import {
   ISnickerdoodleCore,
   DataPermissions,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import {
   AsyncJsonRpcEngineNextCallback,
@@ -158,6 +157,13 @@ import {
   GetPersistenceNFTsParams,
   GetAccountNFTHistoryParams,
   GetAccountNftCacheParams,
+  GetUIStateParams,
+  SetUIStateParams,
+  GetAllQuestionnairesParams,
+  AnswerQuestionnaireParams,
+  GetQuestionnairesForConsentContractParams,
+  GetConsentContractsByQuestionnaireCIDParams,
+  GetRecommendedConsentContractsParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -833,6 +839,27 @@ export class RpcCallHandler implements IRpcCallHandler {
       },
     ),
     // #endregion
+    
+    // #region external local storage calls
+    new CoreActionHandler<GetUIStateParams>(
+      GetUIStateParams.getCoreAction(),
+      () => {
+        return this.core.getUIState().mapErr((error) => {
+          this.errorUtils.emit(error);
+          return new SnickerDoodleCoreError((error as Error).message, error);
+        });
+      },
+    ),
+    new CoreActionHandler<SetUIStateParams>(
+      SetUIStateParams.getCoreAction(),
+      (params) => {
+        return this.core.setUIState(params.state).mapErr((error) => {
+          this.errorUtils.emit(error);
+          return new SnickerDoodleCoreError((error as Error).message, error);
+        });
+      },
+    ),
+    // #endregion
 
     // #region Scraper Navigation
 
@@ -917,6 +944,58 @@ export class RpcCallHandler implements IRpcCallHandler {
       },
     ),
     // #endregion
+    // #region questionnaires
+    new CoreActionHandler<GetAllQuestionnairesParams>(
+      GetAllQuestionnairesParams.getCoreAction(),
+      (params, _sender, sourceDomain) => {
+        return this.core.questionnaire.getAllQuestionnaires(
+          params.pagingRequest,
+          sourceDomain,
+        );
+      },
+    ),
+
+    new CoreActionHandler<AnswerQuestionnaireParams>(
+      AnswerQuestionnaireParams.getCoreAction(),
+      (params, _sender, sourceDomain) => {
+        return this.core.questionnaire.answerQuestionnaire(
+          params.questionnaireId,
+          params.answers,
+          sourceDomain,
+        );
+      },
+    ),
+
+    new CoreActionHandler<GetQuestionnairesForConsentContractParams>(
+      GetQuestionnairesForConsentContractParams.getCoreAction(),
+      (params, _sender, sourceDomain) => {
+        return this.core.questionnaire.getQuestionnairesForConsentContract(
+          params.pagingRequest,
+          params.consentContractAddress,
+          sourceDomain,
+        );
+      },
+    ),
+
+    new CoreActionHandler<GetConsentContractsByQuestionnaireCIDParams>(
+      GetConsentContractsByQuestionnaireCIDParams.getCoreAction(),
+      (params, _sender, sourceDomain) => {
+        return this.core.questionnaire.getConsentContractsByQuestionnaireCID(
+          params.questionnaireCID,
+          sourceDomain,
+        );
+      },
+    ),
+
+    new CoreActionHandler<GetRecommendedConsentContractsParams>(
+      GetRecommendedConsentContractsParams.getCoreAction(),
+      (params, _sender, sourceDomain) => {
+        return this.core.questionnaire.getRecommendedConsentContracts(
+          params.questionnaireCID,
+          sourceDomain,
+        );
+      },
+    ),
   ];
 
   constructor(
@@ -1001,7 +1080,7 @@ export class RpcCallHandler implements IRpcCallHandler {
   }
 
   private toTokenId(tokenId: BigNumberString | undefined): TokenId | null {
-    return tokenId != null ? TokenId(BigNumber.from(tokenId).toBigInt()) : null;
+    return tokenId != null ? TokenId(BigInt(tokenId)) : null;
   }
 }
 

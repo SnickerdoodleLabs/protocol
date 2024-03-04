@@ -8,7 +8,7 @@ import {
   BlockchainCommonErrors,
   DomainName,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber, ethers, EventFilter } from "ethers";
+import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -29,10 +29,7 @@ export class ERC721RewardContract
   implements IERC721RewardContract
 {
   constructor(
-    protected providerOrSigner:
-      | ethers.providers.Provider
-      | ethers.providers.JsonRpcSigner
-      | ethers.Wallet,
+    protected providerOrSigner: ethers.Provider | ethers.Signer,
     protected contractAddress: EVMContractAddress,
   ) {
     super(providerOrSigner, contractAddress, ContractsAbis.ERC721Reward.abi);
@@ -66,7 +63,7 @@ export class ERC721RewardContract
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
         ERewardRoles.DEFAULT_ADMIN_ROLE,
-      ) as Promise<BigNumber>,
+      ) as Promise<bigint>,
       (e) => {
         return this.generateError(
           e,
@@ -75,9 +72,9 @@ export class ERC721RewardContract
       },
     ).andThen((memberCount) => {
       // First get an array of index values so that it can be used with ResultUtils.combine
-      const memberIndexArray: number[] = [];
+      const memberIndexArray: bigint[] = [];
 
-      for (let i = 0; i < memberCount.toNumber(); i++) {
+      for (let i = 0n; i < memberCount; i++) {
         memberIndexArray.push(i);
       }
 
@@ -105,15 +102,15 @@ export class ERC721RewardContract
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
         ERewardRoles.MINTER_ROLE,
-      ) as Promise<BigNumber>,
+      ) as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call getSignerRoleMembers()");
       },
     ).andThen((memberCount) => {
       // First get an array of index values so that it can be used with ResultUtils.combine
-      const memberIndexArray: number[] = [];
+      const memberIndexArray: bigint[] = [];
 
-      for (let i = 0; i < memberCount.toNumber(); i++) {
+      for (let i = 0n; i < memberCount; i++) {
         memberIndexArray.push(i);
       }
 
@@ -163,15 +160,17 @@ export class ERC721RewardContract
     address: EVMAccountAddress,
   ): ResultAsync<number, ERC721RewardContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contract.balanceOf(address) as Promise<BigNumber>,
+      this.contract.balanceOf(address) as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call balanceOf()");
       },
     ).map((numberOfTokens) => {
-      return numberOfTokens.toNumber();
+      // TODO: Not sure if we can always be sure that numberOfTokens is a valid number, but seems reasonable
+      return Number(numberOfTokens);
     });
   }
 
+  // NOTE: If a given token id does not exist, the read transaction will revert.
   public ownerOf(
     tokenId: TokenId,
   ): ResultAsync<
@@ -298,6 +297,62 @@ export class ERC721RewardContract
     );
   }
 
+  // ===== Start: Functions to support testing pre-mint NFTs =====
+
+  // ERC1155 contracts also have the same setApproveForAll function
+  public isApprovedForAll(
+    tokenOwnerAddress: EVMAccountAddress,
+    operatorToApprove: EVMAccountAddress,
+  ): ResultAsync<boolean, ERC721RewardContractError | BlockchainCommonErrors> {
+    return ResultAsync.fromPromise(
+      this.contract.isApprovedForAll(
+        tokenOwnerAddress,
+        operatorToApprove,
+      ) as Promise<boolean>,
+      (e) => {
+        return this.generateError(e, "Unable to call isApprovedForAll()");
+      },
+    );
+  }
+
+  // NOTE: To support this, the user would need to connect their external wallet that owns the NFTs to sign the approval txs
+  public setApproveForAll(
+    addressToApprove: EVMAccountAddress,
+    approved: boolean,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  > {
+    return this.writeToContract(
+      "setApproveForAll",
+      [addressToApprove, approved],
+      overrides,
+    );
+  }
+
+  // Function that the escrow wallet will call to transfer NFTs from ERC721 rewards after they are approved
+  // Note: Unlike setApproveForAll, ERC721's ABI for safeTransferFrom only supports ERC721 as ERC1155's safeTransferFrom function takes additional parameters, refer to:
+  // ERC721 : https://docs.openzeppelin.com/contracts/5.x/api/token/erc721#IERC721-safeTransferFrom-address-address-uint256-
+  // ERC1155 : https://docs.openzeppelin.com/contracts/5.x/api/token/erc1155#IERC1155-safeTransferFrom-address-address-uint256-uint256-bytes-
+  public safeTransferFrom(
+    from: EVMAccountAddress,
+    to: EVMAccountAddress,
+    tokenId: TokenId,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  > {
+    return this.writeToContract(
+      "safeTransferFrom",
+      [from, to, tokenId],
+      overrides,
+    );
+  }
+
+  // ===== End: Functions to support pre-mint NFTs =====
+
   protected generateContractSpecificError(
     msg: string,
     e: IEthersContractError,
@@ -310,7 +365,7 @@ export class ERC721RewardContract
     Transfer: (
       fromAddress: EVMAccountAddress | null,
       toAddress: EVMAccountAddress | null,
-    ): EventFilter => {
+    ): ethers.DeferredTopicFilter => {
       return this.contract.filters.Transfer(fromAddress, toAddress);
     },
   };

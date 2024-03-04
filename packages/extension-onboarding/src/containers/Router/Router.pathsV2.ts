@@ -1,8 +1,12 @@
 export enum EPathsV2 {
+  HOME = "/",
+  COOKIE_VAULT = "/cookie-vault",
+  ONBOARDING = "/onboarding",
   SETTINGS = "/settings",
   DATA_PERMISSIONS = "/data-permissions",
   DATA_PERMISSIONS_AUDIENCE = "/data-permissions/audience/:consentAddress",
   DATA_PERMISSIONS_REWARD_DETAIL = "/data-permissions/audience/:consentAddress/reward-detail",
+  DATA_DASHBOARD = "/data-dashboard",
   TOKENS = "/data-dashboard/tokens",
   NFTS = "/data-dashboard/nfts",
   AIRDROPS = "/data-dashboard/airdrops",

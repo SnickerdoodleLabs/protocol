@@ -4,10 +4,9 @@ import {
   PagingRequest,
   JSONString,
   InvalidParametersError,
-  BaseError,
   PageNumber,
+  BigNumberString,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
@@ -51,25 +50,12 @@ export class ObjectUtils {
         } else if (value instanceof BigInt) {
           return {
             dataType: "BigInt",
-            value: BigNumber.from(value).toString(),
+            value: value.toString(),
           };
         } else if (typeof value == "bigint") {
           return {
             dataType: "bigint",
-            value: BigNumber.from(value).toString(),
-          };
-        } else if (
-          typeof value == "object" &&
-          value != null &&
-          value.hasOwnProperty != null &&
-          value.hasOwnProperty("type") &&
-          value.hasOwnProperty("hex") &&
-          value.type == "BigNumber" &&
-          value.hex != null
-        ) {
-          return {
-            dataType: "BigNumber",
-            value: value.hex,
+            value: BigInt(value).toString(),
           };
         } else {
           return value;
@@ -86,11 +72,9 @@ export class ObjectUtils {
         } else if (value.dataType === "Set") {
           return new Set(value.value);
         } else if (value.dataType === "BigInt") {
-          return BigNumber.from(value.value).toBigInt();
+          return BigInt(value.value);
         } else if (value.dataType === "bigint") {
-          return BigNumber.from(value.value).toBigInt();
-        } else if (value.dataType === "BigNumber") {
-          return BigNumber.from(value.value);
+          return BigInt(value.value);
         }
       }
       return value;
@@ -107,9 +91,16 @@ export class ObjectUtils {
     ) => ResultAsync<PagedResponse<T>, TError>,
     processFunc: (obj: T) => ResultAsync<void, TError2>,
     pageSize = 25,
+    serialize = false,
   ): ResultAsync<void, TError | TError2> {
     // This is a recursive method. We just start it off.
-    return ObjectUtils.fetchAndProcessPage(1, readFunc, processFunc, pageSize);
+    return ObjectUtils.fetchAndProcessPage(
+      1,
+      readFunc,
+      processFunc,
+      pageSize,
+      serialize,
+    );
   }
 
   private static fetchAndProcessPage<T, TError, TError2>(
@@ -119,6 +110,7 @@ export class ObjectUtils {
     ) => ResultAsync<PagedResponse<T>, TError>,
     processFunc: (obj: T) => ResultAsync<void, TError2>,
     pageSize = 25,
+    serialize = false,
   ): ResultAsync<void, TError | TError2> {
     // Create the initial paging request
     const pagingRequest = new PagingRequest(PageNumber(pageNumber), pageSize);
@@ -127,11 +119,23 @@ export class ObjectUtils {
     return readFunc(pagingRequest).andThen((objectPage) => {
       // Iterate over the objects and run through the processor
       // We'll wait for all the processFuncs to complete before getting the next page
-      return ResultUtils.combine(
-        objectPage.response.map((obj) => {
-          return processFunc(obj);
-        }),
-      ).andThen(() => {
+
+      let result: ResultAsync<void[], TError2>;
+      if (serialize) {
+        result = ResultUtils.executeSerially(
+          objectPage.response.map((obj) => () => {
+            return processFunc(obj);
+          }),
+        );
+      } else {
+        result = ResultUtils.combine(
+          objectPage.response.map((obj) => {
+            return processFunc(obj);
+          }),
+        );
+      }
+
+      return result.andThen(() => {
         // Done processing all of those results. Check if we need to recurse
         // See what result we're on and how it compares to the total results
         const maxResult = objectPage.page * objectPage.pageSize;
@@ -239,5 +243,41 @@ export class ObjectUtils {
       // Otherwise, try the next provider
       return ObjectUtils.progressiveFallback(method, provider.slice(1));
     });
+  }
+
+  static verifyBigNumber(
+    bigNumberString: BigNumberString,
+  ): ResultAsync<bigint, InvalidParametersError> {
+    try {
+      const bigNumber = BigInt(bigNumberString); // will fail if bigNumberString is a float
+      return okAsync(bigNumber);
+    } catch (e) {
+      return errAsync(
+        new InvalidParametersError(
+          `Can't convert BigNumberString ${bigNumberString} to BigInt. Received error ${e}`,
+        ),
+      );
+    }
+  }
+
+  static iterateThroughAllPages<T, TError>(
+    readFunc: (
+      pagingRequest: PagingRequest,
+    ) => ResultAsync<PagedResponse<T>, TError>,
+  ): ResultAsync<T[], TError> {
+    const data: T[] = [];
+
+    const processFunc = (model: T) => {
+      data.push(model);
+      return okAsync(undefined);
+    };
+
+    return readFunc(new PagingRequest(1, 1))
+      .andThen((firstPage) => {
+        const pageSize = firstPage.totalResults;
+
+        return ObjectUtils.iteratePages(readFunc, processFunc, pageSize);
+      })
+      .map(() => data);
   }
 }

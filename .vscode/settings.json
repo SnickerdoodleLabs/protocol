@@ -10,8 +10,11 @@
     "Astar",
     "blockvision",
     "bluez",
+    "Cids",
     "domaincontracts",
+    "endregion",
     "ethersproject",
+    "hexlify",
     "IDNS",
     "IEIP",
     "IERC",
@@ -36,6 +39,7 @@
     "Solana",
     "Statii",
     "tldts",
-    "tsbuildinfo"
+    "tsbuildinfo",
+    "zksync"
   ]
 }

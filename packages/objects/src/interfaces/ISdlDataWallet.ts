@@ -6,13 +6,11 @@ import {
   MarketplaceListing,
   PagedResponse,
   PagingRequest,
-  PossibleReward,
   SiteVisit,
   TokenAddress,
   TokenBalance,
   TokenInfo,
   TokenMarketData,
-  WalletNFT,
   QueryStatus,
   TransactionFilter,
   ChainTransaction,
@@ -36,6 +34,7 @@ import {
   IScraperNavigationMethods,
   IStorageMethods,
   INftMethods,
+  IQuestionnaireMethods,
 } from "@objects/interfaces/ISnickerdoodleCore.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
@@ -52,6 +51,7 @@ import {
   Gender,
   GivenName,
   IpfsCID,
+  JSONString,
   LanguageCode,
   MarketplaceTag,
   Signature,
@@ -114,6 +114,18 @@ export type INftProxyMethods = {
     ...args: [...PopTuple<Parameters<INftMethods[key]>>]
   ) => ResultAsync<
     GetResultAsyncValueType<ReturnType<INftMethods[key]>>,
+    ProxyError
+  >;
+};
+
+export type IProxyQuestionnaireMethods = {
+  [key in Exclude<
+    FunctionKeys<IQuestionnaireMethods>,
+    "getAnsweredQuestionnaires" | "getQuestionnaires"
+  >]: (
+    ...args: [...PopTuple<Parameters<IQuestionnaireMethods[key]>>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<IQuestionnaireMethods[key]>>,
     ProxyError
   >;
 };
@@ -362,6 +374,9 @@ export interface ISdlDataWallet {
 
   requestDashboardView: undefined | (() => ResultAsync<void, ProxyError>);
 
+  setUIState(state: JSONString): ResultAsync<void, ProxyError>;
+  getUIState(): ResultAsync<JSONString | null, ProxyError>;
+
   proxyType: ECoreProxyType;
   account: IProxyAccountMethods;
   discord: IProxyDiscordMethods;
@@ -372,6 +387,7 @@ export interface ISdlDataWallet {
   nft: INftProxyMethods;
   events: ISnickerdoodleCoreEvents;
   purchase: IProxyPurchaseMethods;
+  questionnaire: IProxyQuestionnaireMethods;
 }
 
 export const defaultLanguageCode = LanguageCode("en");

@@ -6,7 +6,7 @@ import {
   Signature,
   BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber, ethers } from "ethers";
+import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
@@ -26,10 +26,7 @@ export class MinimalForwarderContract
   implements IMinimalForwarderContract
 {
   constructor(
-    protected providerOrSigner:
-      | ethers.providers.Provider
-      | ethers.providers.JsonRpcSigner
-      | ethers.Wallet,
+    protected providerOrSigner: ethers.Provider | ethers.Signer,
     protected contractAddress: EVMContractAddress,
   ) {
     super(
@@ -50,7 +47,7 @@ export class MinimalForwarderContract
     MinimalForwarderContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.getNonce(from) as Promise<BigNumber>,
+      this.contract.getNonce(from) as Promise<bigint>,
       (e) => {
         return this.generateError(e, `Unable to call getNonce(${from})`);
       },

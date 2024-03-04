@@ -33,6 +33,7 @@ export class CoreConfig
     public accountBalancePollingIntervalMS: number,
     public accountNFTPollingIntervalMS: number,
     public dataWalletBackupIntervalMS: number,
+    public questionnaireCacheUpdateIntervalMS: number,
     public backupChunkSizeTarget: number,
     public apiKeys: IApiKeys,
     public dnsServerAddress: URLString,

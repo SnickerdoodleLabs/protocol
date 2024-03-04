@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/core",
-  "version": "1.2.4",
+  "version": "2.0.2",
   "description": "Snickerdoodle Labs Core. Core encapsulates the data wallet and query processor functions of the Protocol",
   "license": "ISC",
   "repository": {
@@ -49,7 +49,7 @@
     "@snickerdoodlelabs/query-parser": "workspace:^",
     "@snickerdoodlelabs/shopping-data": "workspace:^",
     "@snickerdoodlelabs/signature-verification": "workspace:^",
-    "ethers": "^5.6.6",
+    "ethers": "^6.10.0",
     "inversify": "^6.0.2",
     "jsonwebtoken": "^9.0.0",
     "measured-core": "^2.0.0",

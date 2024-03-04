@@ -12,6 +12,7 @@ import {
   URLString,
   Username,
 } from "@objects/primitives/index.js";
+import { PropertiesOf } from "@objects/utilities/index.js";
 
 export abstract class SocialGroupProfile extends VersionedObject {
   public static CURRENT_VERSION = 1;
@@ -49,15 +50,21 @@ export class SocialGroupProfileMigrator extends VersionedObjectMigrator<SocialGr
     super();
   }
 
-  protected factory(data: Record<string, unknown>): SocialGroupProfile {
-    switch (data["type"]) {
+  protected factory(
+    data: PropertiesOf<SocialGroupProfile>,
+  ): SocialGroupProfile {
+    switch (data.type) {
       case ESocialType.DISCORD:
-        return this.discordMigrator.factory(data);
+        return this.discordMigrator.factory(
+          data as PropertiesOf<DiscordGuildProfile>,
+        );
     }
+    const invalidSocialGroupProfile =
+      data as PropertiesOf<InvalidSocialGroupProfile>;
     return new InvalidSocialGroupProfile( // Cannot return null
-      SocialPrimaryKey(data["pKey"] as string),
-      ESocialType[data["type"] as string],
-      SocialPrimaryKey(data["ownerId"] as string),
+      invalidSocialGroupProfile.pKey,
+      invalidSocialGroupProfile.type,
+      invalidSocialGroupProfile.ownerId,
     );
   }
 
@@ -116,15 +123,15 @@ export interface DiscordGuildMembershipAPIResponse {
   };
 }
 export class DiscordGuildProfileMigrator {
-  public factory(data: Record<string, unknown>): DiscordGuildProfile {
+  public factory(data: PropertiesOf<DiscordGuildProfile>): DiscordGuildProfile {
     return new DiscordGuildProfile(
-      DiscordID(data["id"] as string),
-      DiscordID(data["discordUserProfileId"] as string),
-      Username(data["name"] as string),
-      data["isOwner"] as boolean,
-      Integer(data["permissions"] as number),
-      data["icon"] as URLString,
-      UnixTimestamp(data["joinedAt"] as number),
+      data.id,
+      data.discordUserProfileId,
+      data.name,
+      data.isOwner,
+      data.permissions,
+      data.icon,
+      data.joinedAt,
     );
   }
 }

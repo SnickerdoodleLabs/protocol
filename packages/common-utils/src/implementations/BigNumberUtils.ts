@@ -1,31 +1,40 @@
 import { BigNumberString, DecimalString } from "@snickerdoodlelabs/objects";
-import { BigNumber, utils } from "ethers";
+import { ethers } from "ethers";
 import { injectable } from "inversify";
 
 import { IBigNumberUtils } from "@common-utils/interfaces/index.js";
 
 @injectable()
 export class BigNumberUtils implements IBigNumberUtils {
-  protected oneBN: BigNumber = utils.parseUnits("1", 18);
   constructor() {}
 
-  public multiply(bn: BigNumber | BigNumberString, number: number): BigNumber {
-    const bnForSure = BigNumber.from(bn);
-    const numberBN = utils.parseUnits(number.toString(), 18);
+  public multiply(
+    bn: bigint | BigNumberString,
+    number: number,
+    decimals = 18,
+  ): bigint {
+    const bnForSure = BigInt(bn);
+    const multiplierBN = ethers.parseUnits(number.toString(), decimals);
+    const oneBN = ethers.parseUnits("1", decimals);
 
-    return bnForSure.mul(numberBN).div(this.oneBN);
+    return (bnForSure * multiplierBN) / oneBN;
   }
 
-  public divide(bn: BigNumber | BigNumberString, number: number): BigNumber {
-    const bnForSure = BigNumber.from(bn);
-    const numberBN = utils.parseUnits(number.toString(), 18);
+  public divide(
+    bn: bigint | BigNumberString,
+    number: number,
+    decimals = 18,
+  ): bigint {
+    const bnForSure = BigInt(bn);
+    const divisorBN = ethers.parseUnits(number.toString(), decimals);
+    const oneBN = ethers.parseUnits("1", decimals);
 
-    return bnForSure.mul(this.oneBN).div(numberBN);
+    return (bnForSure * oneBN) / divisorBN;
   }
 
   /* Conversion from decimal string to big number and big number string */
-  public DSToBN(decimalString: DecimalString, decimals?: number): BigNumber {
-    return utils.parseUnits(decimalString, decimals || 18);
+  public DSToBN(decimalString: DecimalString, decimals = 18): bigint {
+    return ethers.parseUnits(decimalString, decimals);
   }
 
   public DSToBNS(
@@ -33,44 +42,44 @@ export class BigNumberUtils implements IBigNumberUtils {
     decimals?: number,
   ): BigNumberString {
     return BigNumberString(
-      utils.parseUnits(decimalString, decimals || 18).toString(),
+      ethers.parseUnits(decimalString, decimals).toString(),
     );
   }
   /* End region of decimal string conversions */
 
   /* Conversion from big number to big number string and decimal string */
-  public BNToBNS(bigNumber: BigNumber): BigNumberString {
-    return BigNumberString(BigNumber.from(bigNumber).toString());
+  public BNToBNS(bigint: bigint): BigNumberString {
+    return BigNumberString(BigInt(bigint).toString());
   }
 
-  public BNToDS(bigNumber: BigNumber, decimals?: number): DecimalString {
-    return DecimalString(utils.formatUnits(bigNumber, decimals || 18));
+  public BNToDS(bigNumber: bigint, decimals = 18): DecimalString {
+    return DecimalString(ethers.formatUnits(bigNumber, decimals || 18));
   }
   /* End region of big number conversions */
 
   /* Conversion from big number string to big number and decimal string */
-  public BNSToBN(bigNumberString: BigNumberString): BigNumber {
-    return BigNumber.from(bigNumberString);
+  public BNSToBN(bigNumberString: BigNumberString): bigint {
+    return BigInt(bigNumberString);
   }
 
   public BNSToDS(
     bigNumberString: BigNumberString,
-    decimals?: number,
+    decimals = 18,
   ): DecimalString {
-    const valueBigNumber = BigNumber.from(bigNumberString);
+    const valueBigNumber = BigInt(bigNumberString);
 
-    return DecimalString(utils.formatUnits(valueBigNumber, decimals || 18));
+    return DecimalString(ethers.formatUnits(valueBigNumber, decimals || 18));
   }
   /* End region of big number string conversions */
 
   /**
    * This method returns true if the bigNumberString is a
    * @param bigNumberString
-   * @returns true if bigNumberString is a valid BigNumber
+   * @returns true if bigNumberString is a valid bigint
    */
   public validateBNS(bigNumberString: string): boolean {
     try {
-      BigNumber.from(bigNumberString);
+      BigInt(bigNumberString);
       return true;
     } catch (e) {
       return false;
