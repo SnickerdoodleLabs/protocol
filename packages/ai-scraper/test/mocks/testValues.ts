@@ -26,14 +26,16 @@ export const scraperConfig: IScraperConfig = {
 
 export const chatCompletion: ChatCompletion = {
   id: "cmpl-3QJ8Z5jX9J5X3",
-  object: "text_completion",
+  // object: "text_completion",
+  object: 'chat.completion',
   created: 1627770949,
   model: "gpt-3.5-turbo",
   choices: [
     {
       finish_reason: "stop",
+      logprobs: null,
       index: 0,
-      message: { content: "chatCompletion test content", role: "user" },
+      message: { content: "chatCompletion test content", role: "assistant" },
     },
   ],
 };
