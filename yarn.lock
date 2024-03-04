@@ -8973,6 +8973,7 @@ __metadata:
     "@openzeppelin/contracts": 4.8.0
     "@openzeppelin/contracts-upgradeable": 4.8.0
     "@openzeppelin/hardhat-upgrades": ^1.21.0
+    "@snickerdoodlelabs/erc7529": "workspace:^"
     chai: ^4.3.6
     dotenv: ^16.0.1
     ethereum-waffle: ^3.4.4
@@ -9041,7 +9042,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snickerdoodlelabs/erc7529@workspace:packages/erc7529":
+"@snickerdoodlelabs/erc7529@workspace:^, @snickerdoodlelabs/erc7529@workspace:packages/erc7529":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/erc7529@workspace:packages/erc7529"
   dependencies:
