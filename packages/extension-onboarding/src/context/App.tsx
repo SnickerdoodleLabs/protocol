@@ -1,23 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-
-import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import { ALERT_MESSAGES } from "@extension-onboarding/constants";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import {
   EOnboardingState,
-  IUIState,
 } from "@extension-onboarding/objects/interfaces/IUState";
-import {
-  getProviderList as getChainProviderList,
-  IProvider,
-} from "@extension-onboarding/services/blockChainWalletProviders";
-import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
-import { DataWalletGateway } from "@extension-onboarding/services/implementations/DataWalletGateway";
-import {
-  getProviderList as getSocialMediaProviderList,
-  ISocialMediaWrapper,
-} from "@extension-onboarding/services/socialMediaProviders";
 import {
   BigNumberString,
   EarnedReward,
@@ -39,13 +23,11 @@ import React, {
 } from "react";
 import { Subscription } from "rxjs";
 import Loading from "@extension-onboarding/setupScreens/Loading";
-import { okAsync } from "neverthrow";
 import { UIStateUtils } from "@extension-onboarding/utils/UIStateUtils";
 
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import {
   ALERT_MESSAGES,
-  LOCAL_STORAGE_SDL_INVITATION_KEY,
 } from "@extension-onboarding/constants";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";

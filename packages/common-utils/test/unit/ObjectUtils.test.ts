@@ -284,10 +284,10 @@ describe("ObjectUtils tests", () => {
     // Arrange
     const readFunc = (pagingRequest: PagingRequest) => {
       if (pagingRequest.page == 1 && pagingRequest.pageSize == 1) {
-        return okAsync(new PagedResponse([1], 1, 1, 9));
+        return okAsync(new PagedResponse([1], PageNumber(1), 1, 9));
       }
       if (pagingRequest.page == 1 && pagingRequest.pageSize == 9) {
-        return okAsync(new PagedResponse([1, 2, 3, 4, 5, 6, 7, 8, 9], 1, 9, 9));
+        return okAsync(new PagedResponse([1, 2, 3, 4, 5, 6, 7, 8, 9], PageNumber(1), 9, 9));
       }
       // If it asks for page 2
       return errAsync(new Error("Asked for pages beyond totalResults!"));

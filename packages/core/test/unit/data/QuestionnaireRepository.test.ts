@@ -5,6 +5,7 @@ import {
   EQuestionnaireStatus,
   ERecordKey,
   InvalidParametersError,
+  PageNumber,
   PagedResponse,
   PagingRequest,
   QuestionnaireHistory,
@@ -36,7 +37,7 @@ import {
 import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
 import "fake-indexeddb/auto";
 const currentTime = UnixTimestamp(1701779736);
-const pagingRequest = new PagingRequest(1, 10);
+const pagingRequest = new PagingRequest(PageNumber(1), 10);
 
 class QuestionnaireRepositoryMocks {
   public persistence: IDataWalletPersistence;
@@ -380,7 +381,7 @@ describe("QuestionnaireRepository tests", () => {
 
     const expectedPagedResponse = new PagedResponse(
       [mockQuestionnaireWithAnswer, mockQuestionnaire2],
-      1,
+      PageNumber(1),
       10,
       2,
     );
@@ -403,7 +404,7 @@ describe("QuestionnaireRepository tests", () => {
 
     const expectedPagedResponse = new PagedResponse(
       [mockQuestionnaire2, mockQuestionnaireWithAnswer],
-      1,
+      PageNumber(1),
       10,
       2,
     );
@@ -427,7 +428,7 @@ describe("QuestionnaireRepository tests", () => {
 
     const expectedPagedResponse = new PagedResponse(
       [mockQuestionnaire2],
-      1,
+      PageNumber(1),
       10,
       1,
     );
@@ -447,7 +448,7 @@ describe("QuestionnaireRepository tests", () => {
 
     const expectedPagedResponse = new PagedResponse(
       [mockQuestionnaire2],
-      1,
+      PageNumber(1),
       10,
       1,
     );
@@ -467,7 +468,7 @@ describe("QuestionnaireRepository tests", () => {
 
     const expectedPagedResponse = new PagedResponse(
       [mockQuestionnaireWithAnswer],
-      1,
+      PageNumber(1),
       10,
       1,
     );
@@ -487,7 +488,7 @@ describe("QuestionnaireRepository tests", () => {
 
     const expectedPagedResponse = new PagedResponse(
       [mockQuestionnaireWithAnswer, mockQuestionnaire2],
-      1,
+      PageNumber(1),
       10,
       2,
     );

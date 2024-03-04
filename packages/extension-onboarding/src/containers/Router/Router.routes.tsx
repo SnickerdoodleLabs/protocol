@@ -1,6 +1,3 @@
-import React, { lazy, Suspense } from "react";
-import { Route } from "react-router-dom";
-
 import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
 import AuthFlowLayout from "@extension-onboarding/layouts/AutFlowLayout";
 import DataDashBoardLayout from "@extension-onboarding/layouts/DataDashboardLayout";
@@ -128,14 +125,22 @@ export const AuthFlowRoutes = (
             </Suspense>
           }
         />
-        <Route
-          path={EPathsV2.SHOPPING_DATA}
-          element={
-            <Suspense fallback={null}>
-              <LazyShoppingData />
-            </Suspense>
-          }
-        />
+      <Route
+        path={EPathsV2.SHOPPING_DATA}
+        element={
+          <Suspense fallback={null}>
+            <LazyShoppingData />
+          </Suspense>
+        }
+      />
+      <Route
+        path={EPathsV2.SHOPPING_DATA}
+        element={
+          <Suspense fallback={null}>
+            <LazyShoppingData />
+          </Suspense>
+        }
+      />
       </Route>
     </Route>
     <Route path="*" element={<Navigate replace to={EPathsV2.HOME} />} />

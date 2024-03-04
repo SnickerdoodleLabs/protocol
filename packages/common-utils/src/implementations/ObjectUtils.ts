@@ -272,7 +272,7 @@ export class ObjectUtils {
       return okAsync(undefined);
     };
 
-    return readFunc(new PagingRequest(1, 1))
+    return readFunc(new PagingRequest(PageNumber(1), 1))
       .andThen((firstPage) => {
         const pageSize = firstPage.totalResults;
 
