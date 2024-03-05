@@ -54,9 +54,9 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
     return this.indexedDB;
   }
 
-  public getKey(
+  public getKey<T extends VersionedObject>(
     recordKey: ERecordKey,
-    obj: VersionedObject,
+    obj: VolatileStorageMetadata<T>,
   ): ResultAsync<VolatileStorageKey | null, PersistenceError> {
     return this._getIDB().andThen((db) => {
       return db.getKey(recordKey, obj);
@@ -102,6 +102,96 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
   ): ResultAsync<VolatileStorageMetadata<T> | null, PersistenceError> {
     return this._getIDB().andThen((db) =>
       db.getObject<T>(schemaKey, key, _includeDeleted),
+    );
+  }
+
+  public getCursor2<T extends VersionedObject>(
+    schemaKey: ERecordKey,
+    {
+      index,
+      query = null,
+      lowerCount,
+      upperCount,
+      latest = false,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | null;
+      lowerCount?: number;
+      upperCount?: number;
+      latest?: boolean;
+    } = {},
+  ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
+    return this._getIDB().andThen((db) =>
+      db.getCursor2<T>(schemaKey, {
+        index,
+        query,
+        lowerCount,
+        upperCount,
+        latest,
+      }),
+    );
+  }
+
+  public countRecords(
+    schemaKey: ERecordKey,
+    {
+      index,
+      query = undefined,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | undefined;
+    } = {},
+  ): ResultAsync<number, PersistenceError> {
+    return this._getIDB().andThen((db) =>
+      db.countRecords(schemaKey, {
+        index,
+        query,
+      }),
+    );
+  }
+
+  public get<T extends VersionedObject>(
+    schemaKey: ERecordKey,
+    {
+      index,
+      query = null,
+      count,
+      id,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | null;
+      count?: number;
+      id?: IDBValidKey;
+    } = {},
+  ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
+    return this._getIDB().andThen((db) =>
+      db.get<T>(schemaKey, {
+        index,
+        query,
+        count,
+        id,
+      }),
+    );
+  }
+
+  public getKeys(
+    schemaKey: ERecordKey,
+    {
+      index,
+      query = null,
+      count,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | null;
+      count?: number;
+    } = {},
+  ): ResultAsync<IDBValidKey[], PersistenceError> {
+    return this._getIDB().andThen((db) =>
+      db.getKeys(schemaKey, {
+        index,
+        query,
+        count,
+      }),
     );
   }
 

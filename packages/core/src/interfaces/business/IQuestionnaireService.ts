@@ -27,7 +27,14 @@ export interface IQuestionnaireService {
   getQuestionnaires(
     pagingRequest: PagingRequest,
     sourceDomain: DomainName | undefined,
-  ): ResultAsync<PagedResponse<Questionnaire>, PersistenceError | AjaxError>;
+  ): ResultAsync<
+    PagedResponse<Questionnaire>,
+    | UninitializedError
+    | BlockchainCommonErrors
+    | AjaxError
+    | PersistenceError
+    | ConsentFactoryContractError
+  >;
 
   /**
    * Returns a list of questionnaires that the user can complete, which are requested by a particular
@@ -40,7 +47,14 @@ export interface IQuestionnaireService {
     pagingRequest: PagingRequest,
     consentContractAddress: EVMContractAddress,
     sourceDomain: DomainName | undefined,
-  ): ResultAsync<PagedResponse<Questionnaire>, PersistenceError | AjaxError>;
+  ): ResultAsync<
+    PagedResponse<Questionnaire>,
+    | UninitializedError
+    | BlockchainCommonErrors
+    | AjaxError
+    | PersistenceError
+    | ConsentContractError
+  >;
 
   /**
    * Gets all teh questionnaires that the user has already answered, along with the current answers
@@ -66,6 +80,42 @@ export interface IQuestionnaireService {
     answers: NewQuestionnaireAnswer[],
     sourceDomain: DomainName | undefined,
   ): ResultAsync<void, InvalidParametersError | PersistenceError | AjaxError>;
+
+  /**
+   * Fetches all questionnaires in storage with pagination
+   * This method can return either basic questionnaires or questionnaires with their answers if available,
+   * */
+  getAllQuestionnaires(
+    pagingRequest: PagingRequest,
+    _sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    PagedResponse<Questionnaire | QuestionnaireWithAnswers>,
+    | UninitializedError
+    | BlockchainCommonErrors
+    | AjaxError
+    | PersistenceError
+    | ConsentFactoryContractError
+  >;
+
+  /**
+   * Retrieves consent contract addresses associated with a given Questionnaire IPFS CID.
+   *  This method is useful for finding out which consent contracts (brand) is interested in the the supplied Questionnaire
+   *
+   * @param ipfsCID The IPFS CID of the questionnaire
+   * @return An array of consent contract addresses
+   */
+  getConsentContractsByQuestionnaireCID(
+    ipfsCID: IpfsCID,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    EVMContractAddress[],
+    | PersistenceError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
+    | ConsentContractError
+    | AjaxError
+  >;
 
   /**
    * This is a key marketing function. Based on the questionnaires that the user has answered,

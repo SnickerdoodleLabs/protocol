@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/insight-platform-api",
-  "version": "2.0.0",
+  "version": "2.0.2",
   "description": "Repository for making signed calls to the Insight Platform API",
   "license": "MIT",
   "repository": {

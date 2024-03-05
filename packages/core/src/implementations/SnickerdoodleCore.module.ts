@@ -104,6 +104,7 @@ import {
   TwitterService,
   CloudStorageService,
   CachingService,
+  QuestionnaireService,
 } from "@core/implementations/business/index.js";
 import { PermissionUtils } from "@core/implementations/business/utilities/index.js";
 import {
@@ -184,6 +185,8 @@ import {
   IProfileServiceType,
   IQueryService,
   IQueryServiceType,
+  IQuestionnaireService,
+  IQuestionnaireServiceType,
   ITwitterService,
   ITwitterServiceType,
 } from "@core/interfaces/business/index.js";
@@ -321,7 +324,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IMonitoringService>(IMonitoringServiceType)
       .to(MonitoringService)
       .inSingletonScope();
-
+    bind<IQuestionnaireService>(IQuestionnaireServiceType)
+    .to(QuestionnaireService)
+    .inSingletonScope();
     bind<IDiscordService>(IDiscordServiceType)
       .to(DiscordService)
       .inSingletonScope();

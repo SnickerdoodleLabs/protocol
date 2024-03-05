@@ -4,6 +4,7 @@ import {
   ERC20ContractError,
   EVMContractAddress,
   TokenAmount,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -12,9 +13,10 @@ import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
 import {
   ContractOverrides,
   WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/objects";
+  ERewardRoles,
+} from "@contracts-sdk/interfaces/index.js";
 
-export interface IERC20Contract extends IBaseContract {
+export interface IERC20RewardContract extends IBaseContract {
   /**
    * Returns the name of the ERC20 token
    */
@@ -97,6 +99,54 @@ export interface IERC20Contract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC20ContractError
+  >;
+
+  grantRole(
+    role: keyof typeof ERewardRoles,
+    address: EVMAccountAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC20ContractError
+  >;
+
+  revokeRole(
+    role: keyof typeof ERewardRoles,
+    address: EVMAccountAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC20ContractError
+  >;
+
+  renounceRole(
+    role: keyof typeof ERewardRoles,
+    address: EVMAccountAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC20ContractError
+  >;
+
+  addDomain(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC20ContractError
+  >;
+
+  removeDomain(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC20ContractError
+  >;
+
+  getDomains(): ResultAsync<
+    DomainName[],
     BlockchainCommonErrors | ERC20ContractError
   >;
 

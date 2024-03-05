@@ -72,7 +72,12 @@ const testFieldIndex = new FieldIndex(
   backupInterval,
 );
 const fieldIndexes = [testFieldIndex];
-const testRecord = new TestVersionedObject(keyValue, 1);
+const testRecord = new VolatileStorageMetadata(
+  new TestVersionedObject(keyValue, 1),
+  now,
+  RestoredBackup.CURRENT_VERSION,
+  EBoolean.FALSE,
+);
 
 const recordBackup = new DataWalletBackup(
   new DataWalletBackupHeader(
@@ -87,7 +92,7 @@ const recordBackup = new DataWalletBackup(
       EDataUpdateOpCode.UPDATE,
       keyValue,
       beforeNow,
-      testRecord,
+      testRecord.data,
       0,
     ),
   ],
@@ -297,7 +302,11 @@ describe("BackupManager Tests", () => {
     const result = await backupManager
       .addRecord(
         recordKey,
-        new VolatileStorageMetadata(testRecord, now, testRecord.getVersion()),
+        new VolatileStorageMetadata(
+          testRecord.data,
+          now,
+          testRecord.data.getVersion(),
+        ),
       ) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
       .andThen(() => {
         return backupManager.getRendered();
@@ -332,7 +341,11 @@ describe("BackupManager Tests", () => {
     const result = await backupManager
       .addRecord(
         recordKey,
-        new VolatileStorageMetadata(testRecord, now, testRecord.getVersion()),
+        new VolatileStorageMetadata(
+          testRecord.data,
+          now,
+          testRecord.data.getVersion(),
+        ),
       ) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
       .andThen(() => {
         return backupManager.getRendered();
@@ -392,7 +405,11 @@ describe("BackupManager Tests", () => {
     const result = await backupManager
       .addRecord(
         recordKey,
-        new VolatileStorageMetadata(testRecord, now, testRecord.getVersion()),
+        new VolatileStorageMetadata(
+          testRecord.data,
+          now,
+          testRecord.data.getVersion(),
+        ),
       ) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
       .andThen(() => {
         return backupManager.getRendered();
@@ -564,7 +581,11 @@ describe("BackupManager Tests", () => {
     const result = await backupManager
       .addRecord(
         recordKey,
-        new VolatileStorageMetadata(testRecord, now, testRecord.getVersion()),
+        new VolatileStorageMetadata(
+          testRecord.data,
+          now,
+          testRecord.data.getVersion(),
+        ),
       ) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
       .andThen(() => {
         return backupManager.markRenderedChunkAsRestored(recordBackupId);

@@ -63,6 +63,7 @@
                 }
              }
     
+            }
         },
         "queries": {
             "type": "object",
@@ -443,7 +444,6 @@
                         "type": "string",
                         "required": "boolean"
                     }
-                    
                 }
             },
             "patternProperties": {
@@ -487,13 +487,11 @@
                         "chainId",
                         "callback"
                     ]
-                }
             },
             "required": [
                 "parameters"
             ]
         }
-       
     },
     "required": [
         "version",
@@ -507,3 +505,4 @@
         "compensations"
     ]
 }
+

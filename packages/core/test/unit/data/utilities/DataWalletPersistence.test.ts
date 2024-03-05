@@ -40,7 +40,7 @@ import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
-
+const versionNumber = 1;
 const now = UnixTimestamp(30);
 const beforeNow = UnixTimestamp(20);
 const fieldKey = EFieldKey.GENDER;
@@ -232,6 +232,11 @@ class DataWalletPersistenceMocks {
     ).thenReturn(okAsync([volatileStorageMetadata]));
 
     td.when(
+      this.volatileSchemaProvider.getCurrentVersionForTable(
+        td.matchers.anything(),
+      ),
+    ).thenReturn(okAsync(versionNumber));
+    td.when(
       this.volatileStorage.putObject(
         ERecordKey.ACCOUNT,
         td.matchers.contains(
@@ -245,7 +250,14 @@ class DataWalletPersistenceMocks {
     ).thenReturn(okAsync(undefined));
 
     td.when(
-      this.volatileStorage.getKey(ERecordKey.ACCOUNT, versionedObject),
+      this.volatileStorage.getKey(
+        ERecordKey.ACCOUNT,
+        new VolatileStorageMetadata(
+          versionedObject,
+          UnixTimestamp(0),
+          versionedObject.getVersion(),
+        ),
+      ),
     ).thenReturn(okAsync(volatileStorageKey));
 
     // Cloud Storage ---------------------------------------------------

@@ -4,8 +4,15 @@ import {
   ClickData,
   ClickDataMigrator,
   DatabaseVersion,
+  EBoolean,
+  EQuestionnaireStatus,
   ERecordKey,
+  IpfsCID,
+  PropertiesOf,
+  QuestionnaireData,
+  QuestionnaireHistory,
   VersionedObject,
+  VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
 import * as td from "testdouble";
 
@@ -14,12 +21,15 @@ import { IndexedDB } from "@persistence/volatile";
 import {
   dummyClickData,
   dummyIndex,
+  dummyQuestionnaireData,
+  dummyQuestionnaireHistory,
   dummyTable,
 } from "@persistence-test/mocks";
 import { getIndexDBInstance, openDatabase } from "@persistence-test/utils";
 
 let objectStores = getObjectStoreDefinitions();
 objectStores.set(dummyIndex, dummyTable);
+const currentTime = 1706029234;
 //TODO will circle back, some refactors had to be reverted ,
 //Some tests are bad, but other priorities
 describe("IndexedDB tests", () => {
@@ -130,6 +140,179 @@ describe("IndexedDB tests", () => {
       expect(allData.isErr()).toBeFalsy();
 
       expect(allData.isOk()).toBe(true);
+    });
+  });
+
+  describe("CRUD V2 ", () => {
+    test("correctly gets non deleted keys ", async () => {
+      await instanceDB.initialize();
+
+      for (const dummyData of dummyQuestionnaireData) {
+        await instanceDB.putObject(ERecordKey.QUESTIONNAIRES, dummyData);
+      }
+
+      const readData = await instanceDB.getKeys(ERecordKey.QUESTIONNAIRES, {
+        index: "deleted",
+        query: EBoolean.FALSE,
+      });
+      expect(readData.isErr()).toBeFalsy();
+      const result = readData._unsafeUnwrap() as [[IpfsCID, EBoolean]];
+
+      expect(result.length).toBe(3);
+      expect(result.find(([_id, deleted]) => deleted === 1)).toBe(undefined);
+    });
+
+    test("correctly gets non deleted status complete records  ", async () => {
+      await instanceDB.initialize();
+
+      for (const dummyData of dummyQuestionnaireData) {
+        await instanceDB.putObject(ERecordKey.QUESTIONNAIRES, dummyData);
+      }
+
+      const readData = await instanceDB.get(ERecordKey.QUESTIONNAIRES, {
+        index: "deleted,data.status",
+        query: [EBoolean.FALSE, EQuestionnaireStatus.Complete],
+      });
+      expect(readData.isErr()).toBeFalsy();
+
+      //The type below is what you get technically from our db instance,
+      const result = readData._unsafeUnwrap() as VolatileStorageMetadata<
+        PropertiesOf<QuestionnaireData>
+      >[];
+
+      for (const record of result) {
+        expect(record.data.status).toBe(EQuestionnaireStatus.Complete);
+        expect(record.deleted).toBe(EBoolean.FALSE);
+      }
+    });
+
+    test("correctly returns the non deleted record for the id ", async () => {
+      await instanceDB.initialize();
+
+      for (const dummyData of dummyQuestionnaireData) {
+        await instanceDB.putObject(ERecordKey.QUESTIONNAIRES, dummyData);
+      }
+
+      const readData = await instanceDB.get(ERecordKey.QUESTIONNAIRES, {
+        id: ["QmX5u2op8fZKSWX4vVDntxz5X7a7vFL41PgzECyEp4o6u3", EBoolean.FALSE],
+      });
+      expect(readData.isErr()).toBeFalsy();
+      const result = readData._unsafeUnwrap() as VolatileStorageMetadata<
+        PropertiesOf<QuestionnaireData>
+      >[];
+
+      expect(result.length).toBe(1);
+      expect(result[0].data.description).toBe(
+        "Questions about your favorite food",
+      );
+    });
+
+    test("correctly uses get with count", async () => {
+      await instanceDB.initialize();
+
+      for (const dummyData of dummyQuestionnaireData) {
+        await instanceDB.putObject(ERecordKey.QUESTIONNAIRES, dummyData);
+      }
+
+      const readData = await instanceDB.getCursor2(ERecordKey.QUESTIONNAIRES, {
+        index: "deleted,data.status",
+        lowerCount: 1,
+        upperCount: 100,
+      });
+      expect(readData.isErr()).toBeFalsy();
+      const result = readData._unsafeUnwrap() as VolatileStorageMetadata<
+        PropertiesOf<QuestionnaireHistory>
+      >[];
+      expect(result.length).toBe(3);
+    });
+
+    test("correctly uses count method", async () => {
+      await instanceDB.initialize();
+
+      for (const dummyData of dummyQuestionnaireData) {
+        await instanceDB.putObject(ERecordKey.QUESTIONNAIRES, dummyData);
+      }
+
+      const query = IDBKeyRange.bound(
+        [EBoolean.FALSE, EQuestionnaireStatus.Available],
+        [EBoolean.FALSE, EQuestionnaireStatus.Available],
+      );
+
+      const readData = await instanceDB.countRecords(
+        ERecordKey.QUESTIONNAIRES,
+        {
+          index: "deleted,data.status",
+          query,
+        },
+      );
+      expect(readData.isErr()).toBeFalsy();
+      const result = readData._unsafeUnwrap() as number;
+
+      expect(result).toBe(1);
+    });
+
+    test("correctly uses bound and gets the latests answer", async () => {
+      await instanceDB.initialize();
+
+      for (const dummyData of dummyQuestionnaireHistory) {
+        await instanceDB.putObject(
+          ERecordKey.QUESTIONNAIRES_HISTORY,
+          dummyData,
+        );
+      }
+
+      const query = IDBKeyRange.bound(
+        [0, "QmX5u2op8fZKSWX4vVDntxz5X7a7vFL41PgzECyEp4o6u2", 0],
+        [0, "QmX5u2op8fZKSWX4vVDntxz5X7a7vFL41PgzECyEp4o6u2", currentTime],
+      );
+
+      const readData = await instanceDB.getCursor2(
+        ERecordKey.QUESTIONNAIRES_HISTORY,
+        {
+          index: "deleted,data.id,data.measurementDate",
+          query,
+          latest: true,
+        },
+      );
+      expect(readData.isErr()).toBeFalsy();
+      const result = readData._unsafeUnwrap() as VolatileStorageMetadata<
+        PropertiesOf<QuestionnaireHistory>
+      >[];
+
+      expect(result.length).toBe(2);
+      expect(result[0].data.measurementDate).toBe(1706029230);
+    });
+
+    test("correctly uses bound and gets the previos history", async () => {
+      await instanceDB.initialize();
+
+      for (const dummyData of dummyQuestionnaireHistory) {
+        await instanceDB.putObject(
+          ERecordKey.QUESTIONNAIRES_HISTORY,
+          dummyData,
+        );
+      }
+
+      const query = IDBKeyRange.bound(
+        [0, "QmX5u2op8fZKSWX4vVDntxz5X7a7vFL41PgzECyEp4o6u2", 0],
+        [0, "QmX5u2op8fZKSWX4vVDntxz5X7a7vFL41PgzECyEp4o6u2", 1706029229],
+      );
+
+      const readData = await instanceDB.getCursor2(
+        ERecordKey.QUESTIONNAIRES_HISTORY,
+        {
+          index: "deleted,data.id,data.measurementDate",
+          query,
+          latest: true,
+        },
+      );
+      expect(readData.isErr()).toBeFalsy();
+      const result = readData._unsafeUnwrap() as VolatileStorageMetadata<
+        PropertiesOf<QuestionnaireHistory>
+      >[];
+
+      expect(result.length).toBe(1);
+      expect(result[0].data.measurementDate).toBe(1706029217);
     });
   });
 });
