@@ -5,7 +5,7 @@
     "rootDir": "./src",
     "jsx": "react",
     "target": "es6",
-    "module": "commonjs",
+    "module": "ESNext",
     "lib": [
       "es5",
       "es6",
@@ -28,18 +28,28 @@
       "path": "../node-utils"
     },
     {
+      "path": "../shared-components"
+    },
+    {
       "path": "../objects"
     },
     {
       "path": "../utils"
+    },
+    {
+      "path": "../extension-onboarding"
     }
   ],
-  "include": ["./src/**/*.ts",
-  "./src/**/*.tsx",
-  "./src/**/*.json",
-  "index.d.ts"],
-  "exclude": ["node_modules"],
+  "include": [
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
+    "./src/**/*.json",
+    "index.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
   "files": [
-    "./postmate-custom.d.ts"
+    "./postmate-custom.d.ts",
   ]
 }

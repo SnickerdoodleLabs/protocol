@@ -31,18 +31,19 @@ var server = new WebpackDevServer(
     },
     historyApiFallback: true,
     liveReload: true,
-    compress: true,
+    // compress: true,
     port: 9005,
     devMiddleware: {
-      writeToDisk: true,
+      // writeToDisk: true,
+    },
+    client: {
+      overlay: {
+        warnings: false,
+      },
     },
   },
   compiler,
 );
-
-if (module.hot) {
-  module.hot.accept();
-}
 
 (async () => {
   await server.start();

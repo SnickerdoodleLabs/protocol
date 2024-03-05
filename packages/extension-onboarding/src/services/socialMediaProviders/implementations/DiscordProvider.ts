@@ -44,14 +44,12 @@ export class DiscordProvider implements IDiscordProvider {
     return errAsync(new Error("No discord code exists!"));
   }
 
-  public installationUrl(
-    attachRedirectTabId = false,
-  ): ResultAsync<URLString, unknown> {
+  public installationUrl(): ResultAsync<URLString, unknown> {
     // Since we can't determine our tab id here in the SPA, we pass
     // any tab ID we like here, and the extension will replace it with
     // with the correct one.
     return this.sdlDataWallet.discord
-      .installationUrl(attachRedirectTabId ? -1 : undefined)
+      .installationUrl()
       .mapErr(
         () => new Error("Discord installation url can not be generated!"),
       );

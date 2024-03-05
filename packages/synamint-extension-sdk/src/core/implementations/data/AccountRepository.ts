@@ -14,10 +14,15 @@ import {
   QueryStatus,
   EVMContractAddress,
   BlockNumber,
-  DomainName,
   ChainTransaction,
   TransactionFilter,
+  TransactionFlowInsight,
+  DomainName,
   TransactionPaymentCounter,
+  WalletNFTHistory,
+  WalletNftWithHistory,
+  UnixTimestamp,
+  NftRepositoryCache,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -38,6 +43,7 @@ export class AccountRepository implements IAccountRepository {
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
   ) {}
+
   getQueryStatusByQueryCID(
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, SnickerDoodleCoreError> {
@@ -98,7 +104,7 @@ export class AccountRepository implements IAccountRepository {
   }
   public getTransactionValueByChain(
     sourceDomain?: DomainName,
-  ): ResultAsync<TransactionPaymentCounter[], SnickerDoodleCoreError> {
+  ): ResultAsync<TransactionFlowInsight[], SnickerDoodleCoreError> {
     return this.core
       .getTransactionValueByChain(sourceDomain)
       .mapErr((error) => {
@@ -107,11 +113,18 @@ export class AccountRepository implements IAccountRepository {
       });
   }
 
-  public getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
-    return this.core.getAccountNFTs().mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
+  public getNfts(
+    benchmark?: UnixTimestamp,
+    chains?: EChain[],
+    accounts?: LinkedAccount[],
+    sourceDomain?: DomainName,
+  ): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
+    return this.core.nft
+      .getNfts(benchmark, chains, accounts, sourceDomain)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
 
   public addAccount(

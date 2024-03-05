@@ -180,7 +180,17 @@ export class ConsentContractRepository implements IConsentContractRepository {
         ]);
       })
       .andThen(([consentContract, derivedAddress]) => {
-        return consentContract.balanceOf(derivedAddress);
+        return consentContract.balanceOf(derivedAddress).mapErr((e) => {
+          // Almost always, you get an error, "Unable to call "balanceOf", which is
+          // correct but not helpful; our goal here is to figure out if the address
+          // is opted in or not- the method we use to check that, "balanceOf", is not
+          // super relevant. Adding a specific error log to help understand what's going
+          // on.
+          this.logUtils.error(
+            `While checking if derived address ${derivedAddress} is opted in to consent contract ${consentContractAddress}, got an error from balanceOf(), which usually means the control chain cannot be reached or that the consent contract does not exist. Most commony this is a result of the doodlechain being reset.`,
+          );
+          return e;
+        });
       })
       .map((numberOfTokens) => {
         return numberOfTokens > 0;

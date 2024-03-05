@@ -42,6 +42,9 @@ export class ContextProvider
         new Map<EChain, EComponentStatus>(),
         new Map<EChain, EComponentStatus>(),
         new Map<EChain, EComponentStatus>(),
+        new Map<EChain, EComponentStatus>(),
+        new Map<EChain, EComponentStatus>(),
+        new Map<EChain, EComponentStatus>(),
       ),
     );
   }

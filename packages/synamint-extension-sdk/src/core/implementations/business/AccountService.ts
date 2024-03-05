@@ -16,12 +16,16 @@ import {
   QueryStatus,
   EVMContractAddress,
   BlockNumber,
+  ChainTransaction,
+  TransactionFilter,
+  TransactionFlowInsight,
   DomainName,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
-  ChainTransaction,
-  TransactionFilter,
-  TransactionPaymentCounter,
+  WalletNFTHistory,
+  WalletNftWithHistory,
+  UnixTimestamp,
+  NftRepositoryCache,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -45,6 +49,7 @@ export class AccountService implements IAccountService {
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
   ) {}
+
   getQueryStatusByQueryCID(
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, SnickerDoodleCoreError> {
@@ -81,8 +86,18 @@ export class AccountService implements IAccountService {
     return this.accountRepository.getAccountBalances();
   }
 
-  public getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
-    return this.accountRepository.getAccountNFTs();
+  public getNfts(
+    benchmark?: UnixTimestamp,
+    chains?: EChain[],
+    accounts?: LinkedAccount[],
+    sourceDomain?: DomainName,
+  ): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
+    return this.accountRepository.getNfts(
+      benchmark,
+      chains,
+      accounts,
+      sourceDomain,
+    );
   }
 
   public addAccount(
@@ -109,10 +124,9 @@ export class AccountService implements IAccountService {
   }
   public getTransactionValueByChain(
     sourceDomain?: DomainName,
-  ): ResultAsync<TransactionPaymentCounter[], SnickerDoodleCoreError> {
+  ): ResultAsync<TransactionFlowInsight[], SnickerDoodleCoreError> {
     return this.accountRepository.getTransactionValueByChain(sourceDomain);
   }
-
   // NOTE: I did this one without the AccountRepository, because
   // that layer is not needed- we don't need to wrap access to the core,
   // it is effectively a repository by itself. I had wanted to refactor

@@ -1,5 +1,6 @@
 import { TokenAddress } from "@objects/businessObjects/TokenAddress.js";
 import { EChain } from "@objects/enum/index.js";
+import { UnixTimestamp } from "@objects/primitives/UnixTimestamp.js";
 
 export class NftHolding {
   public constructor(
@@ -7,5 +8,6 @@ export class NftHolding {
     public tokenAddress: TokenAddress,
     public amount: number,
     public name: string,
+    public measurementTime: UnixTimestamp,
   ) {}
 }

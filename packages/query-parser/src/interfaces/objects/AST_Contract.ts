@@ -18,8 +18,6 @@ export class AST_Contract {
   ) {}
 
   static fromSchema(schema: any): AST_Contract {
-    // console.log("Contract schema", schema);
-
     let direction = EVMContractDirection.To;
     if (schema.direction == "from") {
       direction = EVMContractDirection.From;

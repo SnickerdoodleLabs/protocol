@@ -4,12 +4,14 @@ import {
   DiscordGuildProfile,
   DiscordID,
   DiscordProfile,
+  EOAuthProvider,
   ESocialType,
   OAuth2AccessToken,
   OAuth2RefreshToken,
   OAuth2Tokens,
   OAuthAuthorizationCode,
   OAuthError,
+  OAuthURLState,
   PersistenceError,
   SocialProfileLinkedEvent,
   SocialProfileUnlinkedEvent,
@@ -45,21 +47,15 @@ export class DiscordService implements IDiscordService {
     throw new Error("Method not implemented.");
   }
 
-  public installationUrl(
-    redirectTabId?: number,
-  ): ResultAsync<URLString, OAuthError> {
+  public installationUrl(): ResultAsync<URLString, OAuthError> {
     return this.getAPIConfig().map((apiConfig) => {
-      let url = `https://discord.com/oauth2/authorize?client_id=${
+      const url = `https://discord.com/oauth2/authorize?client_id=${
         apiConfig.clientId
       }&redirect_uri=${encodeURI(
         apiConfig.oauthRedirectUrl,
-      )}&response_type=code&scope=identify%20guilds&prompt=consent`; // TODO we can parameterize scope, too.
-
-      if (redirectTabId != null) {
-        url = `${url}&state=${encodeURI(
-          JSON.stringify({ redirect_tab_id: redirectTabId }),
-        )}`;
-      }
+      )}&response_type=code&scope=identify%20guilds&prompt=consent&state=${new OAuthURLState(
+        EOAuthProvider.DISCORD,
+      ).getEncodedState()}`; // TODO we can parameterize scope, too.
       return URLString(url);
     });
   }

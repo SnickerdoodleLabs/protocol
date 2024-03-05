@@ -168,7 +168,9 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
     });
 
     nonZeroBalanceArray.forEach((d) => {
-      const networkIdAndAddress: `${ChainId}-${TokenAddress}` = `${d.chainId}-${d.tokenAddress}`;
+      const networkIdAndAddress: `${ChainId}-${TokenAddress}` = `${
+        d.chainId as ChainId
+      }-${d.tokenAddress}`;
       const getObject = balanceMap.get(networkIdAndAddress);
 
       if (getObject) {

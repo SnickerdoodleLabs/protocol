@@ -15,6 +15,8 @@ import {
   AST_BlockchainTransactionQuery,
   AST_NftQuery,
   AST_PropertyQuery,
+  AST_Web3AccountQuery,
+  AST_Web3Query,
   Condition,
   ConditionG,
   ConditionGE,
@@ -58,14 +60,17 @@ export class QueryObjectFactory implements IQueryObjectFactory {
     name: SDQL_Name,
     type: Web3QueryTypes,
     schema: ISDQLQueryClause,
-  ): AST_NftQuery | AST_BlockchainTransactionQuery | AST_BalanceQuery {
+  ): AST_Web3Query {
     switch (type) {
+      case "chain_transactions":
       case "network":
         return this.toBlockchainTransactionQuery(name, schema);
       case "nft":
         return this.toNftQuery(name, schema);
       case "balance":
         return this.toBalanceQuery(name, schema);
+      case "web3_account":
+        return this.toWeb3AccountQuery(name, schema);
     }
   }
 
@@ -84,6 +89,18 @@ export class QueryObjectFactory implements IQueryObjectFactory {
     schema: ISDQLQueryClause,
   ): AST_PropertyQuery {
     throw new Error("toPropertyQuery is not implemented");
+  }
+
+  public toWeb3AccountQuery(
+    name: SDQL_Name,
+    schema: ISDQLQueryClause,
+  ): AST_Web3AccountQuery {
+    return new AST_Web3AccountQuery(
+      name,
+      ESDQLQueryReturn.Object,
+      "web3_account",
+      schema,
+    );
   }
 
   public toBalanceQuery(

@@ -2,11 +2,11 @@ import {
   AjaxError,
   OAuth1RequstToken,
   OAuthError,
+  OAuth1Config,
   TokenAndSecret,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-import { OAuth1Config } from "packages/objects/src/businessObjects/oauth/OAuth1Config.js";
 
 import { EHttpMethods } from "@core/interfaces/enums/index.js";
 

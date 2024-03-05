@@ -84,6 +84,7 @@ export class SDQLParser {
           this.insights,
           this.compensationParameters,
           this.compensations,
+          this.schema.timestamp!,
         );
       });
     });
@@ -266,7 +267,6 @@ export class SDQLParser {
         const web3QueryType = AST_Web3Query.getWeb3QueryTypeIfValidQueryType(
           schema.name,
         );
-
         if (web3QueryType) {
           queries.push(
             this.queryObjectFactory.toWeb3Query(
@@ -279,12 +279,10 @@ export class SDQLParser {
           queries.push(AST_PropertyQuery.fromSchema(queryName, schema));
         }
       }
-
       for (const query of queries) {
         this.saveInContext(query.name, query);
         this.queries.set(query.name, query);
       }
-
       return okAsync(undefined);
     } catch (err) {
       return errAsync(this.transformError(err as Error));

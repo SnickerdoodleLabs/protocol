@@ -3,6 +3,7 @@ import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
   IConfigOverrides,
   ISnickerdoodleCore,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -50,7 +51,7 @@ export class CoreProvider implements ICoreProvider {
     config.accountIndexingPollingIntervalMS =
       immutableConfig.transactionPollingIntervalMS;
     config.dataWalletBackupIntervalMS = immutableConfig.backupPollingIntervalMS;
-    config.requestForDataCheckingFrequency =
+    config.requestForDataPollingIntervalMS =
       immutableConfig.requestForDataPollingIntervalMS;
 
     // This probably needs to go away entirely
@@ -125,6 +126,17 @@ export class CoreProvider implements ICoreProvider {
       config.etherscanApiKeys.Fuji ??
       immutableConfig.defaultKeys.etherscanApiKeys.Fuji;
 
+    // Space And Time
+    config.spaceAndTimeCredentials =
+      config.spaceAndTimeCredentials ??
+      immutableConfig.defaultKeys.spaceAndTimeCredentials;
+    config.spaceAndTimeCredentials.userId =
+      config.spaceAndTimeCredentials?.userId ??
+      immutableConfig.defaultKeys.spaceAndTimeCredentials.userId;
+    config.spaceAndTimeCredentials.privateKey =
+      config.spaceAndTimeCredentials?.privateKey ??
+      immutableConfig.defaultKeys.spaceAndTimeCredentials.privateKey;
+
     // Other Indexers
     config.covalentApiKey =
       config.covalentApiKey ?? immutableConfig.defaultKeys.covalentApiKey;
@@ -140,12 +152,35 @@ export class CoreProvider implements ICoreProvider {
       config.ankrApiKey ?? immutableConfig.defaultKeys.ankrApiKey;
     config.bluezApiKey =
       config.bluezApiKey ?? immutableConfig.defaultKeys.bluezApiKey;
+    config.raribleApiKey =
+      config.raribleApiKey ?? immutableConfig.defaultKeys.raribleApiKey;
+    config.blockvisionKey =
+      config.blockvisionKey ?? immutableConfig.defaultKeys.blockvisionKey;
+
+    // we may move the following lines to immutable config section
+    // or we can hoist the onboarding url to the core level
+    (config.discordOverrides = config.discordOverrides ?? {
+      oauthRedirectUrl: this._getDefaultOauthRedirectUrl(),
+    }),
+      (config.dropboxRedirectUri =
+        config.dropboxRedirectUri ?? this._getDefaultOauthRedirectUrl()),
+      (this.core = new SnickerdoodleCore(config));
 
     // Now we can create the actual snickerdoodle core instance
-    this.core = new SnickerdoodleCore(config);
-
     return this.core.initialize().map(() => {
       this.corePromiseResolve!(this.core);
     });
+  }
+
+  // it returns the SPA url dynamically based on the current window location
+  // if the url is not sandbox or production url, it will return the localhost url that we set for local env
+  // it will be wrong for docker local docker container
+
+  private _getDefaultOauthRedirectUrl(): URLString {
+    return window.location.origin.includes("iframe")
+      ? URLString(
+          `${window.location.origin.replace("iframe", "datawallet")}/settings`,
+        )
+      : URLString("https://localhost:9005/settings");
   }
 }

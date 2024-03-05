@@ -8,6 +8,8 @@ import {
   GasTooLowError,
   InvalidAddressError,
   ExecutionRevertedError,
+  SignerUnavailableError,
+  InvalidNonceError,
 } from "@objects/errors/index.js";
 
 export class BlockchainErrorMapper {
@@ -80,6 +82,12 @@ export class BlockchainErrorMapper {
           "Function hits a revert message on the contract",
           error,
         ),
+    ],
+    [
+      "nonce has already been used",
+      (error: unknown | null) => {
+        return new InvalidNonceError("Nonce has already been used", error);
+      },
     ],
   ]);
 
@@ -185,4 +193,6 @@ export type BlockchainCommonErrors =
   | UnexpectedArgumentError
   | GasTooLowError
   | InvalidAddressError
-  | ExecutionRevertedError;
+  | ExecutionRevertedError
+  | SignerUnavailableError
+  | InvalidNonceError;

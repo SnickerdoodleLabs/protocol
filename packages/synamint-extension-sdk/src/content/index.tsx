@@ -4,11 +4,10 @@ import { render } from "react-dom";
 
 import "@webcomponents/custom-elements";
 import { v4 } from "uuid";
-
 import App from "@synamint-extension-sdk/content/components/App";
 import PopupTabManager from "@synamint-extension-sdk/content/PopupTabManager";
-
 import { StylesProvider, jssPreset } from "@material-ui/styles";
+import { IPaletteOverrides } from "@snickerdoodlelabs/objects";
 
 class ReactPopupManagerContainer extends HTMLElement {
   connectedCallback() {
@@ -32,7 +31,18 @@ class ReactPopupManagerContainer extends HTMLElement {
   }
 }
 
-class ReactExtensionPopupContainer extends HTMLElement {
+interface ConfigurableElement {
+  configuration: IPaletteOverrides | undefined;
+}
+class ReactExtensionPopupContainer
+  extends HTMLElement
+  implements ConfigurableElement
+{
+  private config: IPaletteOverrides | undefined;
+
+  set configuration(config: IPaletteOverrides | undefined) {
+    this.config = config;
+  }
   connectedCallback() {
     const shadowRoot = this.attachShadow({
       mode: "open",
@@ -47,7 +57,7 @@ class ReactExtensionPopupContainer extends HTMLElement {
     });
     render(
       <StylesProvider jss={jss}>
-        <App />
+        <App paletteOverrides={this.config} />
       </StylesProvider>,
       mountPoint,
     );
@@ -75,20 +85,23 @@ const renderPopupTabManager = () => {
   }
 };
 
-const renderPopupContainer = () => {
+const renderPopupContainer = (paletteOverrides?: IPaletteOverrides) => {
   const root = document.getElementById("snickerdoodle-data-wallet-container");
 
   const customElementName = `snickerdoodle-data-wallet-container${
     !root ? "" : v4()
   }`;
   customElements.define(customElementName, ReactExtensionPopupContainer);
-  const container = document.createElement(customElementName);
+  const container = document.createElement(customElementName) as HTMLElement & {
+    configuration: IPaletteOverrides | undefined;
+  };
+  container.configuration = paletteOverrides;
   container.id = customElementName;
   container.appendChild(getStyleContainer());
   document.body.appendChild(container);
 };
 
-export const initWebComponent = () => {
+export const initWebComponent = (paletteOverrides?: IPaletteOverrides) => {
   renderPopupTabManager();
-  renderPopupContainer();
+  renderPopupContainer(paletteOverrides);
 };

@@ -54,10 +54,8 @@ import {
   ICloudStorageManager,
   ICloudStorageManagerType,
   ICloudStorage,
-  GoogleCloudStorage,
   DropboxCloudStorage,
   IDropboxCloudStorageType,
-  IGDriveCloudStorageType,
   IPersistenceContextProvider,
   IPersistenceContextProviderType,
   NullCloudStorage,
@@ -113,6 +111,7 @@ import {
   NftQueryEvaluator,
   QueryEvaluator,
   QueryRepository,
+  Web3AccountQueryEvaluator,
 } from "@core/implementations/business/utilities/query/index.js";
 import {
   AdContentRepository,
@@ -139,6 +138,7 @@ import {
   TransactionHistoryRepository,
   TwitterRepository,
   AuthenticatedStorageRepository,
+  NftRepository,
 } from "@core/implementations/data/index.js";
 import { ContractFactory } from "@core/implementations/utilities/factory/index.js";
 import {
@@ -198,6 +198,8 @@ import {
   IQueryEvaluatorType,
   IQueryParsingEngine,
   IQueryParsingEngineType,
+  IWeb3AccountQueryEvaluator,
+  IWeb3AccountQueryEvaluatorType,
 } from "@core/interfaces/business/utilities/index.js";
 import {
   IAdContentRepository,
@@ -232,6 +234,8 @@ import {
   IPermissionRepositoryType,
   IPortfolioBalanceRepository,
   IPortfolioBalanceRepositoryType,
+  INftRepository,
+  INftRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
   ISocialRepository,
@@ -246,6 +250,8 @@ import {
   IAuthenticatedStorageRepositoryType,
   IEntropyRepository,
   IEntropyRepositoryType,
+  INFTRepositoryWithDebug,
+  INFTRepositoryWithDebugType,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
@@ -385,6 +391,7 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IPortfolioBalanceRepository>(IPortfolioBalanceRepositoryType)
       .to(PortfolioBalanceRepository)
       .inSingletonScope();
+
     bind<ITransactionHistoryRepository>(ITransactionHistoryRepositoryType)
       .to(TransactionHistoryRepository)
       .inSingletonScope();
@@ -479,6 +486,10 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(BalanceQueryEvaluator)
       .inSingletonScope();
 
+    bind<IWeb3AccountQueryEvaluator>(IWeb3AccountQueryEvaluatorType)
+      .to(Web3AccountQueryEvaluator)
+      .inSingletonScope();
+
     bind<IQueryRepository>(IQueryRepositoryType)
       .to(QueryRepository)
       .inSingletonScope();
@@ -515,6 +526,22 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<ICloudStorage>(IDropboxCloudStorageType)
       .to(DropboxCloudStorage)
+      .inSingletonScope();
+
+    /**
+     * Binding of Modules With Extra Capabilities.
+     *
+     * The binding process involves two types of Modules:
+     * 1. A 'larger' module with extended capabilities (e.g. WithDebug).
+     * 2. A 'smaller', more basic module that will be used by business logic (INftRepository).
+     *
+     * Steps for binding:
+     * a. First, we bind the 'larger' module (INFTRepositoryWithDebug). This module includes additional debugging capabilities
+     * b. Then, we bind the 'smaller' module (NftRepository). This module still points to the same instance but with proper type for the use case of the business logic
+     *
+     */
+    bind<INFTRepositoryWithDebug>(INFTRepositoryWithDebugType)
+      .to(NftRepository)
       .inSingletonScope();
   },
 );

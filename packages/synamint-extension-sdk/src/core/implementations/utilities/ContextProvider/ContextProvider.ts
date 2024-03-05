@@ -15,8 +15,9 @@ import {
   SocialProfileLinkedNotification,
   CloudStorageActivatedEvent,
   CloudProviderActivatedNotification,
-  ECloudStorageType,
   ProfileFieldUpdate,
+  CohortJoinedNotification,
+  CohortLeftNotification,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { Subject } from "rxjs";
@@ -122,6 +123,18 @@ export class ContextProvider implements IContextProvider {
   public onCloudStorageDeactivated(event: CloudStorageActivatedEvent): void {
     this.appContext.notifyAllConnections(
       new CloudProviderActivatedNotification(event),
+    );
+  }
+
+  public onCohortJoined(consentAddress: EVMContractAddress): void {
+    this.appContext.notifyAllConnections(
+      new CohortJoinedNotification(consentAddress),
+    );
+  }
+
+  public onCohortLeft(consentAddress: EVMContractAddress): void {
+    this.appContext.notifyAllConnections(
+      new CohortLeftNotification(consentAddress),
     );
   }
 

@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Web3Provider } from "@ethersproject/providers";
+import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
 import { AccountAddress, Signature } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
-
-import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
-import { Config } from "@extension-onboarding/services/blockChainWalletProviders/interfaces/objects";
 
 export class CoinbaseWalletProvider implements IWalletProvider {
   protected _provider;
@@ -68,3 +66,14 @@ export class CoinbaseWalletProvider implements IWalletProvider {
     );
   }
 }
+
+interface Provider {
+  isWalletLink: boolean;
+}
+interface Ethereum {
+  providers?: Provider[];
+  isWalletLink: boolean;
+}
+declare const window: Window & {
+  ethereum?: Ethereum;
+};

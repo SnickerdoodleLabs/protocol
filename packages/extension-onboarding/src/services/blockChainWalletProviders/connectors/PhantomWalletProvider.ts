@@ -47,6 +47,7 @@ export class PhantomWalletProvider implements IWalletProvider {
     if (!this._provider) {
       return errAsync(new Error("Phantom is not installed!"));
     }
+
     return ResultAsync.fromPromise(
       this._provider.connect() as Promise<{ publicKey: PublicKey }>,
       (e) => errAsync(new Error("User cancelled")),
@@ -59,6 +60,7 @@ export class PhantomWalletProvider implements IWalletProvider {
     if (!this._provider) {
       return errAsync("Should call connect() first.");
     }
+
     const encodedMessage = new TextEncoder().encode(message);
     return ResultAsync.fromPromise(
       // @ts-ignore

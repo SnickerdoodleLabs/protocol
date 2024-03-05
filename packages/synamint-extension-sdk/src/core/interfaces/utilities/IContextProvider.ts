@@ -7,7 +7,7 @@ import {
   UUID,
   EProfileFieldType,
   CloudStorageActivatedEvent,
-  ECloudStorageType,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import { Subject } from "rxjs";
 
@@ -32,6 +32,8 @@ export interface IContextProvider {
   onAccountRemoved(accountAddress: LinkedAccount): void;
   onEarnedRewardsAdded(rewards: EarnedReward[]): void;
   onSocialProfileLinked(event: SocialProfileLinkedEvent): void;
+  onCohortJoined(consentAddress: EVMContractAddress): void;
+  onCohortLeft(consentAddress: EVMContractAddress): void;
 
   onCloudStorageActivated(event: CloudStorageActivatedEvent): void;
   onCloudStorageDeactivated(event: CloudStorageActivatedEvent): void;

@@ -22,6 +22,7 @@ import {
   QueryFormatError,
   UnauthorizedError,
   UninitializedError,
+  ISdlDataWallet,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
@@ -45,6 +46,7 @@ import {
   IIFrameContextProvider,
   IIFrameContextProviderType,
 } from "@core-iframe/interfaces/utilities/index";
+import { ProxyBridge } from "@core-iframe/app/ProxyBridge";
 
 export class IFrameFormFactor {
   protected iocContainer = new Container();
@@ -57,6 +59,7 @@ export class IFrameFormFactor {
   public initialize(): ResultAsync<
     {
       core: ISnickerdoodleCore;
+      proxy: ISdlDataWallet;
       childApi: ChildAPI;
       iframeEvents: IFrameEvents;
       config: IFrameControlConfig;
@@ -80,35 +83,35 @@ export class IFrameFormFactor {
 
     return coreListener.activateModel().andThen((childApi) => {
       return coreProvider.getCore().andThen((core) => {
-        return core
-          .getEvents()
-          .andThen((events) => {
-            // Subscribe to onQueryPosted and approve all incoming queries
-            events.onQueryPosted.subscribe((request) => {
-              this.respondToQuery(request, core, logUtils);
-            });
+        return core.getEvents().andThen((events) => {
+          // Subscribe to onQueryPosted and approve all incoming queries
+          events.onQueryPosted.subscribe((request) => {
+            this.respondToQuery(request, core, logUtils);
+          });
 
-            // We want to record the sourceDomain as a site visit
-            const now = timeUtils.getUnixNow();
-            const config = configProvider.getConfig();
-            return core.addSiteVisits([
+          // We want to record the sourceDomain as a site visit
+          const now = timeUtils.getUnixNow();
+          const config = configProvider.getConfig();
+          return core
+            .addSiteVisits([
               new SiteVisit(
                 URLString(config.sourceDomain), // We can't get the full URL, but the domain will suffice
                 now, // Visit started now
                 UnixTimestamp(now + 10), // We're not going to wait, so just record the visit as for 10 seconds
               ),
-            ]);
-          })
-          .map(() => {
-            logUtils.log("Snickerdoodle Core CoreListener initialized");
-            return {
-              core,
-              childApi,
-              iframeEvents: contextProvider.getEvents(),
-              config: contextProvider.getConfig(),
-              coreConfig: configProvider.getConfig(),
-            };
-          });
+            ])
+            .map(() => {
+              logUtils.log("Snickerdoodle Core CoreListener initialized");
+              return {
+                core,
+                proxy: new ProxyBridge(core, events),
+                childApi,
+                iframeEvents: contextProvider.getEvents(),
+                config: contextProvider.getConfig(),
+                coreConfig: configProvider.getConfig(),
+              };
+            });
+        });
       });
     });
   }

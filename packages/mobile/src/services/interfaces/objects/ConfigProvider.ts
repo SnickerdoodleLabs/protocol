@@ -87,7 +87,7 @@ export class ConfigProvider
       "ceramic-replacement-bucket",
       5000, // polling interval indexing,
       5000, // polling interval balance
-      5000, // polling interval nfts
+      300000, // polling interval nfts
       60000, // backup interval
       5, // backup chunk size target
       "ckey_ee277e2a0e9542838cf30325665", // covalent api key
@@ -219,9 +219,9 @@ export class ConfigProvider
       overrides.backupChunkSizeTarget ?? this.config.backupChunkSizeTarget;
     this.config.ceramicNodeURL =
       overrides.ceramicNodeURL ?? this.config.ceramicNodeURL;
-    this.config.requestForDataCheckingFrequency =
-      overrides.requestForDataCheckingFrequency ??
-      this.config.requestForDataCheckingFrequency;
+    this.config.requestForDataPollingIntervalMS =
+      overrides.requestForDataPollingIntervalMS ??
+      this.config.requestForDataPollingIntervalMS;
     this.config.domainFilter =
       overrides.domainFilter ?? this.config.domainFilter;
     this.config.enableBackupEncryption =

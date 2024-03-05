@@ -57,6 +57,9 @@ export class ContextProviderMock implements IIndexerContextProvider {
           new Map<EChain, EComponentStatus>(),
           new Map<EChain, EComponentStatus>(),
           new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
         ),
         {
           onApiAccessed: new Subject<EExternalApi>(),

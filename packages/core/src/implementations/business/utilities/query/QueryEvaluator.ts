@@ -1,5 +1,7 @@
 import {
+  AccountIndexingError,
   Age,
+  AjaxError,
   CountryCode,
   DiscordGuildProfile,
   EQueryEvents,
@@ -7,12 +9,15 @@ import {
   EStatus,
   EvalNotImplementedError,
   Gender,
+  InvalidParametersError,
   IpfsCID,
+  MethodSupportError,
   PersistenceError,
   PublicEvents,
   QueryPerformanceEvent,
   SDQL_Return,
   TwitterProfile,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -20,6 +25,7 @@ import {
   AST_NftQuery,
   AST_PropertyQuery,
   AST_SubQuery,
+  AST_Web3AccountQuery,
   BinaryCondition,
   ConditionE,
   ConditionG,
@@ -41,6 +47,8 @@ import {
   IBalanceQueryEvaluator,
   IBalanceQueryEvaluatorType,
   IQueryEvaluator,
+  IWeb3AccountQueryEvaluator,
+  IWeb3AccountQueryEvaluatorType,
 } from "@core/interfaces/business/utilities/query/index.js";
 import {
   IBrowsingDataRepository,
@@ -76,6 +84,8 @@ export class QueryEvaluator implements IQueryEvaluator {
     protected socialRepo: ISocialRepository,
     @inject(IContextProviderType)
     protected contextProvider: IContextProvider,
+    @inject(IWeb3AccountQueryEvaluatorType)
+    protected web3AccountQueryEvaluator: IWeb3AccountQueryEvaluator,
   ) {}
 
   protected age: Age = Age(0);
@@ -84,7 +94,15 @@ export class QueryEvaluator implements IQueryEvaluator {
   public eval<T extends AST_SubQuery>(
     query: T,
     queryCID: IpfsCID,
-  ): ResultAsync<SDQL_Return, PersistenceError> {
+    queryTimestamp: UnixTimestamp,
+  ): ResultAsync<
+    SDQL_Return,
+    | PersistenceError
+    | AccountIndexingError
+    | AjaxError
+    | MethodSupportError
+    | InvalidParametersError
+  > {
     return this.contextProvider.getContext().andThen((context) => {
       if (query instanceof AST_BlockchainTransactionQuery) {
         context.publicEvents.queryPerformance.next(
@@ -96,7 +114,7 @@ export class QueryEvaluator implements IQueryEvaluator {
           ),
         );
         return this.blockchainTransactionQueryEvaluator
-          .eval(query, queryCID)
+          .eval(query, queryCID, queryTimestamp)
           .map((result) => {
             context.publicEvents.queryPerformance.next(
               new QueryPerformanceEvent(
@@ -160,7 +178,7 @@ export class QueryEvaluator implements IQueryEvaluator {
           ),
         );
         return this.nftQueryEvaluator
-          .eval(query, queryCID)
+          .eval(query, queryCID, queryTimestamp)
           .map((result) => {
             context.publicEvents.queryPerformance.next(
               new QueryPerformanceEvent(
@@ -176,6 +194,40 @@ export class QueryEvaluator implements IQueryEvaluator {
             context.publicEvents.queryPerformance.next(
               new QueryPerformanceEvent(
                 EQueryEvents.NftDataEvaluation,
+                EStatus.End,
+                queryCID,
+                query.name,
+                err,
+              ),
+            );
+            return err;
+          });
+      } else if (query instanceof AST_Web3AccountQuery) {
+        context.publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.Web3AccountEvaluation,
+            EStatus.Start,
+            queryCID,
+            query.name,
+          ),
+        );
+        return this.web3AccountQueryEvaluator
+          .eval(query, queryCID)
+          .map((result) => {
+            context.publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.Web3AccountEvaluation,
+                EStatus.End,
+                queryCID,
+                query.name,
+              ),
+            );
+            return result;
+          })
+          .mapErr((err) => {
+            context.publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.Web3AccountEvaluation,
                 EStatus.End,
                 queryCID,
                 query.name,
@@ -520,65 +572,6 @@ export class QueryEvaluator implements IQueryEvaluator {
               ),
             );
             return SDQL_Return(this.mapToRecord(url_visited_count));
-          });
-      case "chain_transactions":
-        publicEvents.queryPerformance.next(
-          new QueryPerformanceEvent(
-            EQueryEvents.ChainTransactionEvaluation,
-            EStatus.Start,
-            queryCID,
-            q.name,
-          ),
-        );
-        publicEvents.queryPerformance.next(
-          new QueryPerformanceEvent(
-            EQueryEvents.ChainTransactionDataAccess,
-            EStatus.Start,
-            queryCID,
-            q.name,
-          ),
-        );
-        return this.transactionRepo
-          .getTransactionByChain()
-          .andThen((transactionArray) => {
-            publicEvents.queryPerformance.next(
-              new QueryPerformanceEvent(
-                EQueryEvents.ChainTransactionDataAccess,
-                EStatus.End,
-                queryCID,
-                q.name,
-              ),
-            );
-            publicEvents.queryPerformance.next(
-              new QueryPerformanceEvent(
-                EQueryEvents.ChainTransactionEvaluation,
-                EStatus.End,
-                queryCID,
-                q.name,
-              ),
-            );
-            return okAsync(SDQL_Return(transactionArray));
-          })
-          .mapErr((err) => {
-            publicEvents.queryPerformance.next(
-              new QueryPerformanceEvent(
-                EQueryEvents.ChainTransactionEvaluation,
-                EStatus.End,
-                queryCID,
-                q.name,
-                err,
-              ),
-            );
-            publicEvents.queryPerformance.next(
-              new QueryPerformanceEvent(
-                EQueryEvents.ChainTransactionDataAccess,
-                EStatus.End,
-                queryCID,
-                q.name,
-                err,
-              ),
-            );
-            return err;
           });
       case "social_discord":
         publicEvents.queryPerformance.next(

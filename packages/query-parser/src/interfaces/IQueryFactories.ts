@@ -3,6 +3,7 @@ import {
   IpfsCID,
   QueryFormatError,
   SDQLString,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -18,6 +19,7 @@ export interface IQueryFactories {
   makeAstEvaluator(
     cid: IpfsCID,
     dataPermissions: DataPermissions,
+    queryTimestamp: UnixTimestamp,
   ): AST_Evaluator;
 }
 

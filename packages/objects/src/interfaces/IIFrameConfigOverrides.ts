@@ -5,5 +5,4 @@ export interface IIFrameConfigOverrides {
   palette?: IPaletteOverrides;
   showDeeplinkInvitations?: boolean;
   checkDomainInvitations?: boolean;
-  consentAddress?: EVMContractAddress;
-}
+  consentAddress?: EVMContractAddress;}

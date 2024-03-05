@@ -16,7 +16,7 @@ import {
   QueryStatus,
   TransactionFilter,
   ChainTransaction,
-  TransactionPaymentCounter,
+  TransactionFlowInsight,
 } from "@objects/businessObjects/index.js";
 import {
   ECoreProxyType,
@@ -33,8 +33,10 @@ import {
   ICoreTwitterMethods,
   IMetricsMethods,
   IStorageMethods,
+  INftMethods,
 } from "@objects/interfaces/ISnickerdoodleCore.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
+import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
 import {
   AccountAddress,
   Age,
@@ -101,6 +103,15 @@ export type IProxyDiscordMethods = {
     ...args: [...PopTuple<Parameters<ICoreDiscordMethods[key]>>]
   ) => ResultAsync<
     GetResultAsyncValueType<ReturnType<ICoreDiscordMethods[key]>>,
+    ProxyError
+  >;
+};
+
+export type INftProxyMethods = {
+  [key in FunctionKeys<INftMethods>]: (
+    ...args: [...PopTuple<Parameters<INftMethods[key]>>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<INftMethods[key]>>,
     ProxyError
   >;
 };
@@ -230,17 +241,15 @@ export interface ISdlDataWallet {
     contractAddress: TokenAddress | null,
   ): ResultAsync<TokenInfo | null, ProxyError>;
   getAccountBalances(): ResultAsync<TokenBalance[], ProxyError>;
-  getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError>;
 
+  getTransactionValueByChain(): ResultAsync<
+    TransactionFlowInsight[],
+    ProxyError
+  >;
   getTransactions(
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], ProxyError>;
-  getTransactionValueByChain(): ResultAsync<
-    TransactionPaymentCounter[],
-    ProxyError
-  >;
 
-  closeTab(): ResultAsync<void, ProxyError>;
   getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     ProxyError
@@ -251,31 +260,14 @@ export interface ISdlDataWallet {
   >;
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement, ProxyError>;
+  ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError>;
+  updateAgreementPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataTypes: EWalletDataType[],
+  ): ResultAsync<void, ProxyError>;
   getAgreementPermissions(
     consentContractAddres: EVMContractAddress,
   ): ResultAsync<EWalletDataType[], ProxyError>;
-  getApplyDefaultPermissionsOption(): ResultAsync<boolean, ProxyError>;
-  setApplyDefaultPermissionsOption(
-    option: boolean,
-  ): ResultAsync<void, ProxyError>;
-  getDefaultPermissions(): ResultAsync<EWalletDataType[], ProxyError>;
-  setDefaultPermissions(
-    dataTypes: EWalletDataType[],
-  ): ResultAsync<void, ProxyError>;
-  setDefaultPermissionsToAll(): ResultAsync<void, ProxyError>;
-  acceptInvitation(
-    dataTypes: EWalletDataType[] | null,
-    consentContractAddress: EVMContractAddress,
-    tokenId?: BigNumberString,
-    businessSignature?: Signature,
-  ): ResultAsync<void, ProxyError>;
-  rejectInvitation(
-    consentContractAddress: EVMContractAddress,
-    tokenId?: BigNumberString,
-    businessSignature?: Signature,
-    rejectUntil?: UnixTimestamp,
-  );
   leaveCohort(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, ProxyError>;
@@ -326,16 +318,23 @@ export interface ISdlDataWallet {
     contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, ProxyError>;
 
+  getConsentContractURLs(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<URLString[], ProxyError>;
+
   getConsentCapacity(
     contractAddress: EVMContractAddress,
   ): ResultAsync<IConsentCapacity, ProxyError>;
 
-  getPossibleRewards(
+  getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
-  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, ProxyError>;
+  ): ResultAsync<
+    Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
+    ProxyError
+  >;
 
-  switchToTab(tabId: number): ResultAsync<void, ProxyError>;
+  requestDashboardView: undefined | (() => ResultAsync<void, ProxyError>);
 
   proxyType: ECoreProxyType;
   account: IProxyAccountMethods;
@@ -344,6 +343,7 @@ export interface ISdlDataWallet {
   twitter: IProxyTwitterMethods;
   metrics: IProxyMetricsMethods;
   storage: IProxyStorageMethods;
+  nft: INftProxyMethods;
   events: ISnickerdoodleCoreEvents;
 }
 

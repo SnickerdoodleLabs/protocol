@@ -1,8 +1,13 @@
 import {
+  AccountIndexingError,
+  AjaxError,
+  InvalidParametersError,
   IpfsCID,
+  MethodSupportError,
   PersistenceError,
   PublicEvents,
   SDQL_Return,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_PropertyQuery,
@@ -14,7 +19,15 @@ export interface IQueryEvaluator {
   eval(
     query: AST_SubQuery,
     queryCID: IpfsCID,
-  ): ResultAsync<SDQL_Return, PersistenceError>;
+    queryTimestamp: UnixTimestamp,
+  ): ResultAsync<
+    SDQL_Return,
+    | PersistenceError
+    | AccountIndexingError
+    | AjaxError
+    | MethodSupportError
+    | InvalidParametersError
+  >;
   evalPropertyQuery(
     q: AST_PropertyQuery,
     publicEvents: PublicEvents,

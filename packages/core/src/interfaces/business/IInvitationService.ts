@@ -23,6 +23,7 @@ import {
   UnixTimestamp,
   BlockchainCommonErrors,
   OptInInfo,
+  IUserAgreement,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -140,7 +141,7 @@ export interface IInvitationService {
 
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement, IPFSError>;
+  ): ResultAsync<IOldUserAgreement | IUserAgreement, IPFSError>;
 
   getAgreementFlags(
     consentContractAddress: EVMContractAddress,

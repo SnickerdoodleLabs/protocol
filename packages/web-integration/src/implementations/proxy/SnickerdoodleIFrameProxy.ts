@@ -46,7 +46,6 @@ import {
   PermissionsGrantedEvent,
   PermissionsRequestedEvent,
   PortfolioUpdate,
-  PossibleReward,
   ProxyError,
   PublicEvents,
   RuntimeMetrics,
@@ -77,10 +76,16 @@ import {
   BlockNumber,
   RefreshToken,
   OAuth2Tokens,
+  TransactionFlowInsight,
   IProxyAccountMethods,
   ChainTransaction,
   TransactionFilter,
-  TransactionPaymentCounter,
+  IUserAgreement,
+  INftProxyMethods,
+  WalletNFTHistory,
+  WalletNftWithHistory,
+  NftRepositoryCache,
+  WalletNFTData,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -264,6 +269,10 @@ export class SnickerdoodleIFrameProxy
       });
   }
 
+  public requestDashboardView(): ResultAsync<void, ProxyError> {
+    return this._createCall("requestDashboardView", null);
+  }
+
   public initialize(): ResultAsync<void, ProxyError> {
     return this._createCall("initialize", null);
   }
@@ -366,30 +375,22 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
-  getTransactions(
+  public getAccountBalances(): ResultAsync<TokenBalance[], ProxyError> {
+    return this._createCall("getAccountBalances", null);
+  }
+
+  public getTransactionValueByChain(): ResultAsync<
+    TransactionFlowInsight[],
+    ProxyError
+  > {
+    return this._createCall("getTransactionValueByChain", null);
+  }
+  public getTransactions(
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], ProxyError> {
     return this._createCall("getTransactions", {
       filter,
     });
-  }
-  getTransactionValueByChain(): ResultAsync<
-    TransactionPaymentCounter[],
-    ProxyError
-  > {
-    return this._createCall("getTransactionValueByChain", null);
-  }
-
-  public getAccountBalances(): ResultAsync<TokenBalance[], ProxyError> {
-    return this._createCall("getAccountBalances", null);
-  }
-
-  public getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError> {
-    return this._createCall("getAccountNFTs", null);
-  }
-
-  public closeTab(): ResultAsync<void, ProxyError> {
-    return okAsync(undefined);
   }
 
   public getAcceptedInvitationsCID(): ResultAsync<
@@ -406,14 +407,28 @@ export class SnickerdoodleIFrameProxy
     return this._createCall("getAvailableInvitationsCID", null);
   }
 
+  public getConsentContractURLs(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<URLString[], ProxyError> {
+    return this._createCall("getConsentContractURLs", { contractAddress });
+  }
+
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement, ProxyError> {
+  ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError> {
     return this._createCall("getInvitationMetadataByCID", {
       ipfsCID,
     });
   }
-
+  public updateAgreementPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataTypes: EWalletDataType[],
+  ): ResultAsync<void, ProxyError> {
+    return this._createCall("updateAgreementPermissions", {
+      consentContractAddress,
+      dataTypes,
+    });
+  }
   public getAgreementPermissions(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<EWalletDataType[], ProxyError> {
@@ -422,67 +437,11 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
-  public getApplyDefaultPermissionsOption(): ResultAsync<boolean, ProxyError> {
-    return this._createCall("getApplyDefaultPermissionsOption", null);
-  }
-
-  public setApplyDefaultPermissionsOption(
-    option: boolean,
-  ): ResultAsync<void, ProxyError> {
-    return this._createCall("setApplyDefaultPermissionsOption", {
-      option,
-    });
-  }
-
-  public getDefaultPermissions(): ResultAsync<EWalletDataType[], ProxyError> {
-    return this._createCall("getDefaultPermissions", null);
-  }
-
-  public setDefaultPermissions(
-    dataTypes: EWalletDataType[],
-  ): ResultAsync<void, ProxyError> {
-    return this._createCall("setDefaultPermissions", {
-      dataTypes,
-    });
-  }
-
-  public setDefaultPermissionsToAll(): ResultAsync<void, ProxyError> {
-    return this._createCall("setDefaultPermissionsToAll", null);
-  }
-
   public getInvitationByDomain(
     domain: DomainName,
     path: string,
   ): ResultAsync<PageInvitation | null, ProxyError> {
     return this._createCall("getInvitationByDomain", { domain, path });
-  }
-
-  public acceptInvitation(
-    dataTypes: EWalletDataType[] | null,
-    consentContractAddress: EVMContractAddress,
-    tokenId?: BigNumberString,
-    businessSignature?: Signature,
-  ): ResultAsync<void, ProxyError> {
-    return this._createCall("acceptInvitation", {
-      dataTypes,
-      consentContractAddress,
-      tokenId,
-      businessSignature,
-    });
-  }
-
-  public rejectInvitation(
-    consentContractAddress: EVMContractAddress,
-    tokenId?: BigNumberString,
-    businessSignature?: Signature,
-    rejectUntil?: UnixTimestamp,
-  ) {
-    return this._createCall("rejectInvitation", {
-      consentContractAddress,
-      tokenId,
-      businessSignature,
-      rejectUntil,
-    });
   }
 
   public leaveCohort(
@@ -579,10 +538,13 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
-  public getPossibleRewards(
+  public getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
-  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, ProxyError> {
+  ): ResultAsync<
+    Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
+    ProxyError
+  > {
     return this._createCall("getPossibleRewards", {
       contractAddresses,
       timeoutMs,
@@ -605,10 +567,6 @@ export class SnickerdoodleIFrameProxy
       contractAddress,
       blockNumber,
     });
-  }
-
-  public switchToTab(tabId: number): ResultAsync<void, ProxyError> {
-    throw new Error("Method not implemented.");
   }
 
   public account: IProxyAccountMethods = {
@@ -685,12 +643,8 @@ export class SnickerdoodleIFrameProxy
       });
     },
 
-    installationUrl: (
-      redirectTabId?: number,
-    ): ResultAsync<URLString, ProxyError> => {
-      return this._createCall("discord.installationUrl", {
-        redirectTabId: redirectTabId,
-      });
+    installationUrl: (): ResultAsync<URLString, ProxyError> => {
+      return this._createCall("discord.installationUrl", null);
     },
 
     getUserProfiles: (): ResultAsync<DiscordProfile[], ProxyError> => {
@@ -701,6 +655,20 @@ export class SnickerdoodleIFrameProxy
     },
     unlink: (discordProfileId: DiscordID): ResultAsync<void, ProxyError> => {
       return this._createCall("discord.unlink", { discordProfileId });
+    },
+  };
+
+  public nft: INftProxyMethods = {
+    getNfts: (
+      benchmark?: UnixTimestamp,
+      chains?: EChain[],
+      accounts?: LinkedAccount[],
+    ) => {
+      return this._createCall("nft.getNfts", {
+        benchmark,
+        chains,
+        accounts,
+      });
     },
   };
 
@@ -740,6 +708,17 @@ export class SnickerdoodleIFrameProxy
   public metrics: IProxyMetricsMethods = {
     getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
       return this._createCall("metrics.getMetrics", null);
+    },
+    getPersistenceNFTs: (): ResultAsync<WalletNFTData[], ProxyError> => {
+      return this._createCall("metrics.getPersistenceNFTs", null);
+    },
+
+    getNFTsHistory: (): ResultAsync<WalletNFTHistory[], ProxyError> => {
+      return this._createCall("metrics.getNFTsHistory", null);
+    },
+
+    getNFTCache: (): ResultAsync<NftRepositoryCache, ProxyError> => {
+      return this._createCall("metrics.getNFTCache", null);
     },
   };
 
@@ -800,6 +779,9 @@ export class SnickerdoodleIFrameProxy
   public events: PublicEvents;
 
   private _displayCoreIFrame(): void {
+    // Disable scrolling on the body
+    document.body.style.overflow = "hidden";
+
     // Show core iframe
     if (this.child != null) {
       this.child.frame.style.display = "block";
@@ -812,6 +794,9 @@ export class SnickerdoodleIFrameProxy
   }
 
   private _closeCoreIFrame(): void {
+    // Enable scrolling on the body
+    document.body.style.overflow = "auto";
+
     // Hide core iframe
     if (this.child != null) {
       this.child.frame.style.display = "none";

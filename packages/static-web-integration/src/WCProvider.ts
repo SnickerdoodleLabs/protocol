@@ -1,90 +1,146 @@
-import { Web3Provider, ExternalProvider } from "@ethersproject/providers";
-import EthereumProvider from "@walletconnect/ethereum-provider";
-import { ethers } from "ethers";
-import { ResultAsync, errAsync, okAsync } from "neverthrow";
+import { Signer, ethers, providers } from "ethers";
+import { ResultAsync } from "neverthrow";
+import {
+  configureChains,
+  createConfig,
+  getAccount,
+  getPublicClient,
+  getWalletClient,
+  PublicClient,
+  WalletClient,
+} from "@wagmi/core";
+import {
+  arbitrum,
+  avalanche,
+  mainnet,
+  polygon,
+  avalancheFuji,
+  optimism,
+} from "@wagmi/core/chains";
+import {
+  EthereumClient,
+  w3mConnectors,
+  w3mProvider,
+} from "@web3modal/ethereum";
+import { Web3Modal } from "@web3modal/html";
+import { HttpTransport } from "viem";
 export class WCProvider {
-  protected ethereumProvider?: EthereumProvider;
-
-  public init(projectId: string): ResultAsync<void, Error> {
-    return ResultAsync.fromPromise(
-      EthereumProvider.init({
-        projectId,
-        showQrModal: false,
-        chains: [1],
-      }),
-      (e) => {
-        return new Error(`User cancelled: ${(e as Error).message}`);
+  protected ethereumClient: EthereumClient;
+  protected web3Modal: Web3Modal;
+  constructor(projectId: string) {
+    const web3ModalConfig = {
+      projectId,
+      walletImages: {
+        safe: "https://pbs.twimg.com/profile_images/1566773491764023297/IvmCdGnM_400x400.jpg",
       },
+    };
+    const chains = [
+      mainnet,
+      avalanche,
+      avalancheFuji,
+      arbitrum,
+      optimism,
+      polygon,
+    ];
+
+    const { publicClient } = configureChains(chains, [
+      w3mProvider({ projectId }),
+    ]);
+    const wagmiConfig = createConfig({
+      autoConnect: true,
+      connectors: w3mConnectors({ chains, projectId }),
+      publicClient,
+    });
+    this.ethereumClient = new EthereumClient(wagmiConfig, chains);
+    this.web3Modal = new Web3Modal(web3ModalConfig, this.ethereumClient);
+  }
+  public startWalletConnect(): ResultAsync<Signer, Error> {
+    this.web3Modal.openModal();
+    return this.setupEventListeners();
+  }
+
+  protected setupEventListeners(): ResultAsync<Signer, Error> {
+    return ResultAsync.fromPromise(
+      new Promise<void>((resolve, reject) => {
+        this.ethereumClient.watchAccount((accounts) => {
+          if (accounts.address) {
+            resolve();
+          }
+        });
+      }),
+      (error) => new Error(`Error in setupEventListeners: ${error}`),
     )
-      .andThen((provider) => {
-        this.ethereumProvider = provider;
-        if (this.ethereumProvider.accounts.length === 0) {
-          return this.connectWithQR(projectId).andThen((provider_) => {
-            this.ethereumProvider = provider_;
-            return ResultAsync.fromPromise(
-              this.ethereumProvider.connect(),
-              (e) => {
-                return new Error(`Failed to connect: ${(e as Error).message}`);
-              },
-            );
-          });
-        }
-        return okAsync(undefined);
+      .andThen(() => {
+        return ResultAsync.fromPromise(
+          getWalletClient(),
+          (error) => new Error(`Error getting wallet client: ${error}`),
+        );
       })
-      .mapErr((e) => {
-        console.log("WalletConnect Init Error", e);
-        return new Error(`Initialization error: ${e.message}`);
+      .andThen(() => {
+        return this.getEthersSigner();
       });
   }
 
-  public getSigner(): ResultAsync<ethers.Signer, Error> {
-    if (!this.ethereumProvider) {
-      return errAsync(new Error("EthereumProvider is not initialized."));
+  public checkConnection(): boolean {
+    const address = getAccount().address;
+    if (address) {
+      return true;
+    } else {
+      return false;
     }
-
-    const provider_ = new Web3Provider(
-      this.ethereumProvider as ExternalProvider,
-    );
-    return okAsync(provider_.getSigner());
   }
 
-  public connectWithQR(projectId: string) {
+  protected getEthersProvider(
+    chainId?: number,
+  ): ethers.providers.JsonRpcProvider | ethers.providers.FallbackProvider {
+    const publicClient = getPublicClient({ chainId });
+    return this.publicClientToProvider(publicClient);
+  }
+  protected publicClientToProvider(
+    publicClient: PublicClient,
+  ): ethers.providers.FallbackProvider | ethers.providers.JsonRpcProvider {
+    const { chain, transport } = publicClient;
+    const network = {
+      chainId: chain.id,
+      name: chain.name,
+      ensAddress: chain.contracts?.ensRegistry?.address,
+    };
+    if (transport.type === "fallback") {
+      return new providers.FallbackProvider(
+        (transport.transports as ReturnType<HttpTransport>[]).map(
+          ({ value }) => new providers.JsonRpcProvider(value?.url, network),
+        ),
+      );
+    }
+    return new providers.JsonRpcProvider(transport.url, network);
+  }
+
+  protected walletClientToSigner(
+    walletClient: WalletClient,
+  ): ethers.providers.JsonRpcSigner {
+    const { account, chain, transport } = walletClient;
+    const network = {
+      chainId: chain.id,
+      name: chain.name,
+      ensAddress: chain.contracts?.ensRegistry?.address,
+    };
+    const provider = new providers.Web3Provider(transport, network);
+    const signer = provider.getSigner(account.address);
+    return signer;
+  }
+
+  public getEthersSigner(chainId?: number): ResultAsync<Signer, Error> {
     return ResultAsync.fromPromise(
-      EthereumProvider.init({
-        projectId,
-        showQrModal: true,
-        chains: [1],
-        methods: ["eth_sendTransaction", "personal_sign"],
-      }),
-      (e) => {
-        return new Error(`User cancelled: ${(e as Error).message}`);
-      },
-    ).mapErr((e) => {
-      console.log("WalletConnect Init Error", e);
-      return new Error(`Initialization error: ${e.message}`);
+      getWalletClient({ chainId: chainId || 1 }),
+      (error) => new Error(`Error getting wallet client: ${error}`),
+    ).map((walletClient) => {
+      return this.walletClientToSigner(walletClient!);
     });
   }
-
-  public checkConnection(projectId: string): ResultAsync<boolean, never> {
+  protected sign(signer: Signer, message: string): ResultAsync<string, Error> {
     return ResultAsync.fromPromise(
-      EthereumProvider.init({
-        projectId,
-        showQrModal: false,
-        chains: [1],
-      }),
-      (e) => new Error(`User cancelled: ${(e as Error).message}`),
-    )
-      .map((provider) => {
-        this.ethereumProvider = provider;
-        if (this.ethereumProvider.accounts.length === 0) {
-          return false;
-        } else {
-          return true;
-        }
-      })
-      .orElse((e) => {
-        console.log("WalletConnect Init Error", e);
-        return okAsync(false);
-      });
+      signer.signMessage(message),
+      (error) => new Error(`Error during signMessage: ${error}`),
+    );
   }
 }

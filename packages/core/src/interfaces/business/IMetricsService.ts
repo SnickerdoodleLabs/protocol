@@ -1,4 +1,10 @@
-import { RuntimeMetrics } from "@snickerdoodlelabs/objects";
+import {
+  NftRepositoryCache,
+  PersistenceError,
+  RuntimeMetrics,
+  WalletNFTData,
+  WalletNFTHistory,
+} from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 /**
@@ -8,6 +14,9 @@ import { ResultAsync } from "neverthrow";
 export interface IMetricsService {
   getMetrics(): ResultAsync<RuntimeMetrics, never>;
   initialize(): ResultAsync<void, never>;
+  getNFTCache(): ResultAsync<NftRepositoryCache, PersistenceError>;
+  getPersistenceNFTs(): ResultAsync<WalletNFTData[], PersistenceError>;
+  getNFTsHistory(): ResultAsync<WalletNFTHistory[], PersistenceError>;
 }
 
 export const IMetricsServiceType = Symbol.for("IMetricsService");

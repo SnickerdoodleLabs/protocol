@@ -37,15 +37,12 @@ export class DiscordService implements IDiscordService {
       });
   }
   public installationUrl(
-    redirectTabId?: number,
     sourceDomain?: DomainName,
   ): ResultAsync<URLString, SnickerDoodleCoreError> {
-    return this.core.discord
-      .installationUrl(redirectTabId, sourceDomain)
-      .mapErr((error) => {
-        this.errorUtils.emit(error);
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      });
+    return this.core.discord.installationUrl(sourceDomain).mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
   public getUserProfiles(
     sourceDomain?: DomainName,

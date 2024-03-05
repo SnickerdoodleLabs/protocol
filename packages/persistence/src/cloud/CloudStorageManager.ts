@@ -9,6 +9,8 @@ import {
   CloudStorageActivatedEvent,
   URLString,
   PersistenceError,
+  OAuthURLState,
+  EOAuthProvider,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -74,7 +76,10 @@ export class CloudStorageManager implements ICloudStorageManager {
           "https://www.dropbox.com/oauth2/authorize?client_id=" +
             config.dropboxAppKey +
             "&token_access_type=offline&response_type=code&redirect_uri=" +
-            config.dropboxRedirectUri,
+            config.dropboxRedirectUri +
+            `&state=${new OAuthURLState(
+              EOAuthProvider.DROPBOX,
+            ).getEncodedState()}`,
         ),
       );
     });

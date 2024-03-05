@@ -14,6 +14,7 @@ import {
   EVMAccountAddressRegex,
   EVMTransactionHash,
   EVMContractAddress,
+  ISO8601DateString,
 } from "@objects/primitives/index.js";
 
 /**
@@ -39,9 +40,10 @@ export class EVMTransaction extends ChainTransaction {
     public input: string | null,
     public methodId: string | null,
     public functionName: string | null,
-    events: EVMEvent[] | null,
+    public events: EVMEvent[] | null,
+    public measurementDate: UnixTimestamp,
   ) {
-    super(chain, hash, timestamp);
+    super(chain, hash, timestamp, measurementDate);
     let addrs = new Set<EVMAccountAddress>();
     if (this.to) {
       addrs.add(this.to);
