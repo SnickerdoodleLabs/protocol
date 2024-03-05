@@ -11,34 +11,27 @@ contract ERC1155Reward is ERC1155, AccessControl, ERC1155Supply, ERC7529 {
     bytes32 public constant URI_SETTER_ROLE = keccak256("URI_SETTER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
+    // Number of reward options
     uint256 public currentTokenId; 
 
-    mapping(uint256 => string) public tokenIdToURI;
-
-    modifier tokenIdExists(uint256 tokenId) {
-        require(tokenId <= currentTokenId, "ERC1155Reward: Token id does not exist");
-        _;
-    }
-
-    constructor(string[] memory newuris) ERC1155("") {
+    /// @notice Takes the initial number of rewards offered and sets the current token id
+    constructor(uint256 numberOfRewards) ERC1155("") {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(MINTER_ROLE, msg.sender);
 
-        // For each given uri, create a token id for it starting with id 1
-        for(uint256 i; i < newuris.length; i++) {
-            createNewToken(newuris[i]);
-        }
+        // Starts from token id 0
+        currentTokenId = numberOfRewards - 1;
     }
 
-    function setURI(uint256 tokenId, string memory newURI) public onlyRole(DEFAULT_ADMIN_ROLE) tokenIdExists(tokenId) {
-        tokenIdToURI[tokenId] = newURI;
+    function setURI(string memory newURI) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        _setURI(newURI); 
     }
 
     function mint(address account, uint256 tokenId, uint256 amount, bytes memory data)
         public
         onlyRole(MINTER_ROLE)
-        tokenIdExists(tokenId)
     {
+        require(tokenId <= currentTokenId, "ERC1155Reward: Token id does not exist");
         _mint(account, tokenId, amount, data);
     }
 
@@ -52,15 +45,10 @@ contract ERC1155Reward is ERC1155, AccessControl, ERC1155Supply, ERC7529 {
         _mintBatch(to, ids, amounts, data);
     }
 
-    /// @notice Returns the uri for a given token id
-    /// @dev This method overrides ERC1155's uri to allow unique uris for each token id
-    function uri(uint256 tokenId) override public view tokenIdExists(tokenId) returns (string memory) {
-        return tokenIdToURI[tokenId]; 
-    }
-
-    /// @notice Creates a new token id and registers its uri
-    function createNewToken(string memory newTokenURI) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        tokenIdToURI[currentTokenId++] = newTokenURI; 
+    /// @notice Creates a new token id and registers the new uri
+    function createNewToken(string memory newURI) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        currentTokenId++;
+        setURI(newURI);
     }
 
     // The following functions are overrides required by Solidity.
