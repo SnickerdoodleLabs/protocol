@@ -65,15 +65,6 @@ contract ERC1155Reward is ERC1155, AccessControl, ERC1155Supply, ERC7529 {
     }
 
     // The following functions are overrides required by Solidity.
-
-   /*  function _update(address from, address to, uint256[] memory ids, uint256[] memory values)
-        internal
-        override(ERC1155, ERC1155Supply)
-    {
-        super._update(from, to, ids, values);
-    } */
-
-
     function _beforeTokenTransfer(
         address operator,
         address from,
