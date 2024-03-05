@@ -12,6 +12,7 @@ require("./tasks/consent.js");
 require("./tasks/crumbs.js");
 require("./tasks/utils.js");
 require("./tasks/sift.js");
+require("./tasks/reward.js");
 
 require("dotenv").config();
 
@@ -171,6 +172,12 @@ module.exports = {
       accounts: accounts,
       chainId: 101,
       url: urlOverride || "http://127.0.0.1:8549",
+    },
+    zkSyncEraTestnet: {
+      // zksync mainnet testnet
+      accounts: accounts,
+      chainId: 300,
+      url: urlOverride || "https://sepolia.era.zksync.dev",
     },
   },
   gasReporter: {

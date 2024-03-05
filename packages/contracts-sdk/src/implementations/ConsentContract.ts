@@ -1,4 +1,3 @@
-import { ERC7529Contract } from "@contracts-sdk/implementations/ERC7529Contract.js";
 import { ICryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   ConsentContractError,
@@ -20,19 +19,21 @@ import {
   BigNumberString,
   BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
-import { ethers, EventFilter, Event, BigNumber } from "ethers";
+import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
+import { ERC7529Contract } from "@contracts-sdk/implementations/ERC7529Contract.js";
 import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract.js";
 import {
   WrappedTransactionResponse,
-  ConsentRoles,
+  EConsentRoles,
   Tag,
   ContractOverrides,
   ContractsAbis,
-} from "@contracts-sdk/interfaces/objects/index.js";
+} from "@contracts-sdk/interfaces/index.js";
 
 @injectable()
 export class ConsentContract
@@ -40,10 +41,7 @@ export class ConsentContract
   implements IConsentContract
 {
   constructor(
-    protected providerOrSigner:
-      | ethers.providers.Provider
-      | ethers.providers.JsonRpcSigner
-      | ethers.Wallet,
+    protected providerOrSigner: ethers.Provider | ethers.Signer,
     protected contractAddress: EVMContractAddress,
     protected cryptoUtils: ICryptoUtils,
   ) {
@@ -167,12 +165,12 @@ export class ConsentContract
     ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.maxCapacity() as Promise<BigNumber>,
+      this.contract.maxCapacity() as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call maxCapacity()");
       },
     ).map((bigCapacity) => {
-      return bigCapacity.toNumber();
+      return Number(bigCapacity);
     });
   }
 
@@ -231,7 +229,7 @@ export class ConsentContract
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMember(
-        ConsentRoles.DEFAULT_ADMIN_ROLE,
+        EConsentRoles.DEFAULT_ADMIN_ROLE,
         0,
       ) as Promise<EVMAccountAddress>,
       (e) => {
@@ -248,8 +246,8 @@ export class ConsentContract
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
-        ConsentRoles.DEFAULT_ADMIN_ROLE,
-      ) as Promise<BigNumber>,
+        EConsentRoles.DEFAULT_ADMIN_ROLE,
+      ) as Promise<bigint>,
       (e) => {
         return this.generateError(
           e,
@@ -260,7 +258,7 @@ export class ConsentContract
       // First get an array of index values so that it can be used with ResultUtils.combine
       const memberIndexArray: number[] = [];
 
-      for (let i = 0; i < memberCount.toNumber(); i++) {
+      for (let i = 0; i < Number(memberCount); i++) {
         memberIndexArray.push(i);
       }
 
@@ -269,7 +267,7 @@ export class ConsentContract
         memberIndexArray.map((index) => {
           return ResultAsync.fromPromise(
             this.contract.getRoleMember(
-              ConsentRoles.DEFAULT_ADMIN_ROLE,
+              EConsentRoles.DEFAULT_ADMIN_ROLE,
               index,
             ) as Promise<EVMAccountAddress>,
             (e) => {
@@ -287,8 +285,8 @@ export class ConsentContract
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
-        ConsentRoles.SIGNER_ROLE,
-      ) as Promise<BigNumber>,
+        EConsentRoles.SIGNER_ROLE,
+      ) as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call getSignerRoleMembers()");
       },
@@ -296,7 +294,7 @@ export class ConsentContract
       // First get an array of index values so that it can be used with ResultUtils.combine
       const memberIndexArray: number[] = [];
 
-      for (let i = 0; i < memberCount.toNumber(); i++) {
+      for (let i = 0; i < Number(memberCount); i++) {
         memberIndexArray.push(i);
       }
 
@@ -305,7 +303,7 @@ export class ConsentContract
         memberIndexArray.map((index) => {
           return ResultAsync.fromPromise(
             this.contract.getRoleMember(
-              ConsentRoles.PAUSER_ROLE,
+              EConsentRoles.PAUSER_ROLE,
               index,
             ) as Promise<EVMAccountAddress>,
             (e) => {
@@ -326,8 +324,8 @@ export class ConsentContract
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
-        ConsentRoles.PAUSER_ROLE,
-      ) as Promise<BigNumber>,
+        EConsentRoles.PAUSER_ROLE,
+      ) as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call getPauserRoleMembers()");
       },
@@ -335,7 +333,7 @@ export class ConsentContract
       // First get an array of index values so that it can be used with ResultUtils.combine
       const memberIndexArray: number[] = [];
 
-      for (let i = 0; i < memberCount.toNumber(); i++) {
+      for (let i = 0; i < Number(memberCount); i++) {
         memberIndexArray.push(i);
       }
 
@@ -344,7 +342,7 @@ export class ConsentContract
         memberIndexArray.map((index) => {
           return ResultAsync.fromPromise(
             this.contract.getRoleMember(
-              ConsentRoles.PAUSER_ROLE,
+              EConsentRoles.PAUSER_ROLE,
               index,
             ) as Promise<EVMAccountAddress>,
             (e) => {
@@ -365,8 +363,8 @@ export class ConsentContract
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
-        ConsentRoles.REQUESTER_ROLE,
-      ) as Promise<BigNumber>,
+        EConsentRoles.REQUESTER_ROLE,
+      ) as Promise<bigint>,
       (e) => {
         return this.generateError(
           e,
@@ -377,7 +375,7 @@ export class ConsentContract
       // First get an array of index values so that it can be used with ResultUtils.combine
       const memberIndexArray: number[] = [];
 
-      for (let i = 0; i < memberCount.toNumber(); i++) {
+      for (let i = 0; i < Number(memberCount); i++) {
         memberIndexArray.push(i);
       }
 
@@ -386,7 +384,7 @@ export class ConsentContract
         memberIndexArray.map((index) => {
           return ResultAsync.fromPromise(
             this.contract.getRoleMember(
-              ConsentRoles.REQUESTER_ROLE,
+              EConsentRoles.REQUESTER_ROLE,
               index,
             ) as Promise<EVMAccountAddress>,
             (e) => {
@@ -405,12 +403,12 @@ export class ConsentContract
     address: EVMAccountAddress,
   ): ResultAsync<number, ConsentContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contract.balanceOf(address) as Promise<BigNumber>,
+      this.contract.balanceOf(address) as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call balanceOf()");
       },
     ).map((numberOfTokens) => {
-      return numberOfTokens.toNumber();
+      return Number(numberOfTokens);
     });
   }
 
@@ -451,13 +449,16 @@ export class ConsentContract
   }
 
   public queryFilter(
-    eventFilter: EventFilter,
+    eventFilter: ethers.ContractEventName,
     fromBlock?: BlockNumber,
     toBlock?: BlockNumber,
-  ): ResultAsync<Event[], ConsentContractError | BlockchainCommonErrors> {
+  ): ResultAsync<
+    (ethers.EventLog | ethers.Log)[],
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       this.contract.queryFilter(eventFilter, fromBlock, toBlock) as Promise<
-        Event[]
+        (ethers.EventLog | ethers.Log)[]
       >,
       (e) => {
         return this.generateError(e, "Unable to call queryFilter()");
@@ -529,19 +530,20 @@ export class ConsentContract
       this.filters.RequestForData(requesterAddress),
       fromBlock,
       toBlock,
-    ).andThen((logsEvents) => {
-      return ResultUtils.combine(
-        logsEvents.map((logEvent) => {
-          return okAsync(
+    ).map((logsEvents) => {
+      return logsEvents.reduce((acc, logEvent) => {
+        if (logEvent instanceof ethers.EventLog) {
+          acc.push(
             new RequestForData(
               this.getContractAddress(),
-              logEvent.args?.requester,
-              logEvent.args?.ipfsCID,
+              logEvent.args.requester,
+              logEvent.args.ipfsCID,
               BlockNumber(logEvent.blockNumber),
             ),
           );
-        }),
-      );
+        }
+        return acc;
+      }, new Array<RequestForData>());
     });
   }
 
@@ -568,8 +570,10 @@ export class ConsentContract
         logsEvents[0],
       );
 
-      if (latestOptinEvent.args && latestOptinEvent.args.tokenId) {
-        return TokenId(latestOptinEvent.args.tokenId);
+      if (latestOptinEvent instanceof ethers.EventLog) {
+        if (latestOptinEvent.args.tokenId != null) {
+          return TokenId(latestOptinEvent.args.tokenId);
+        }
       }
 
       return null;
@@ -617,11 +621,11 @@ export class ConsentContract
   }
 
   public hasRole(
-    role: keyof typeof ConsentRoles,
+    role: EConsentRoles,
     address: EVMAccountAddress,
   ): ResultAsync<boolean, ConsentContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contract.hasRole(ConsentRoles[role], address) as Promise<boolean>,
+      this.contract.hasRole(EConsentRoles[role], address) as Promise<boolean>,
       (e) => {
         return this.generateError(e, "Unable to call hasRole()");
       },
@@ -629,7 +633,7 @@ export class ConsentContract
   }
 
   public grantRole(
-    role: keyof typeof ConsentRoles,
+    role: EConsentRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -640,7 +644,7 @@ export class ConsentContract
   }
 
   public revokeRole(
-    role: keyof typeof ConsentRoles,
+    role: EConsentRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -651,7 +655,7 @@ export class ConsentContract
   }
 
   public renounceRole(
-    role: keyof typeof ConsentRoles,
+    role: EConsentRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -666,11 +670,11 @@ export class ConsentContract
     ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.queryHorizon() as Promise<BigNumber>,
+      this.contract.queryHorizon() as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call queryHorizon()");
       },
-    ).map((queryHorizon) => BlockNumber(queryHorizon.toNumber()));
+    ).map((queryHorizon) => BlockNumber(Number(queryHorizon)));
   }
 
   public setQueryHorizon(
@@ -691,7 +695,9 @@ export class ConsentContract
     BlockchainCommonErrors | ConsentContractError
   > {
     return ResultAsync.fromPromise(
-      this.contract.estimateGas["setQueryHorizon"](blockNumber, { overrides }),
+      this.contract.estimateGas["setQueryHorizon"](blockNumber, {
+        overrides,
+      }) as Promise<bigint>,
       (e) => this.generateError(e, `Failed to estimate gas with error: ${e}`),
     ).map((bnGas) => {
       return BigNumberString(bnGas.toString());
@@ -704,11 +710,11 @@ export class ConsentContract
     ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.totalSupply() as Promise<BigNumber>,
+      this.contract.totalSupply() as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call totalSupply()");
       },
-    ).map((totalSupply) => totalSupply.toNumber());
+    ).map((totalSupply) => Number(totalSupply));
   }
 
   public openOptInDisabled(): ResultAsync<
@@ -729,12 +735,12 @@ export class ConsentContract
     ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.maxTags() as Promise<BigNumber>,
+      this.contract.maxTags() as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call maxTags()");
       },
     ).map((num) => {
-      return num.toNumber();
+      return Number(num);
     });
   }
 
@@ -743,12 +749,12 @@ export class ConsentContract
     ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.getNumberOfStakedTags() as Promise<BigNumber>,
+      this.contract.getNumberOfStakedTags() as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call getNumberOfStakedTags()");
       },
     ).map((num) => {
-      return num.toNumber();
+      return Number(num);
     });
   }
 
@@ -848,10 +854,12 @@ export class ConsentContract
     Transfer: (
       fromAddress: EVMAccountAddress | null,
       toAddress: EVMAccountAddress | null,
-    ): EventFilter => {
+    ): ethers.DeferredTopicFilter => {
       return this.contract.filters.Transfer(fromAddress, toAddress);
     },
-    RequestForData: (ownerAddress: EVMAccountAddress): EventFilter => {
+    RequestForData: (
+      ownerAddress: EVMAccountAddress,
+    ): ethers.DeferredTopicFilter => {
       return this.contract.filters.RequestForData(ownerAddress);
     },
   };
@@ -860,14 +868,14 @@ export class ConsentContract
     values: (
       | string
       | EVMAccountAddress
-      | ethers.BigNumber
+      | bigint
       | HexString
       | EVMContractAddress
     )[],
   ): ResultAsync<Signature, InvalidParametersError> {
     const types = ["address", "uint256"];
     return this.cryptoUtils.getSignature(
-      this.providerOrSigner as ethers.providers.JsonRpcSigner,
+      this.providerOrSigner as ethers.JsonRpcSigner,
       types,
       values,
     );
@@ -875,15 +883,15 @@ export class ConsentContract
 
   protected generateContractSpecificError(
     msg: string,
-    reason: string | undefined,
-    err: unknown,
+    e: IEthersContractError,
+    transaction: ethers.Transaction | null,
   ): ConsentContractError {
-    return new ConsentContractError(msg, reason, err);
+    return new ConsentContractError(msg, e, transaction);
   }
 }
 
 interface ITagStruct {
-  slot: BigNumber | null;
+  slot: bigint | null;
   tag: string | null;
   staker: EVMAccountAddress | null;
 }

@@ -39,14 +39,6 @@ export class FieldSchemaProvider implements IFieldSchemaProvider {
           ),
         ],
         [
-          EFieldKey.ACCEPTED_INVITATIONS,
-          new FieldIndex(
-            EFieldKey.ACCEPTED_INVITATIONS,
-            EBackupPriority.HIGH,
-            0,
-          ),
-        ],
-        [
           EFieldKey.BIRTHDAY,
           new FieldIndex(
             EFieldKey.BIRTHDAY,
@@ -93,14 +85,6 @@ export class FieldSchemaProvider implements IFieldSchemaProvider {
         [
           EFieldKey.LOCATION,
           new FieldIndex(EFieldKey.LOCATION, EBackupPriority.HIGH, 0),
-        ],
-        [
-          EFieldKey.REJECTED_COHORTS,
-          new FieldIndex(
-            EFieldKey.REJECTED_COHORTS,
-            EBackupPriority.NORMAL,
-            config.dataWalletBackupIntervalMS,
-          ),
         ],
       ]);
     });

@@ -62,21 +62,65 @@ const customButtons = {
   }))(MuiButton),
 };
 
-interface IButtonProps extends Omit<ButtonProps, "color"> {
-  color?: ButtonProps["color"] | (typeof customColors)[number];
+interface CustomButtonProps extends Omit<ButtonProps, "color"> {
+  color?: string;
 }
+
+const CustomColoredButton = withStyles((theme: Theme) => ({
+  root: {},
+  text: (props: CustomButtonProps) => ({
+    color: props.color,
+    "&:hover": {
+      backgroundColor: "transparent",
+      color: props.color,
+    },
+  }),
+  outlined: (props: CustomButtonProps) => ({
+    color: props.color,
+    border: `2px solid ${props.color}`,
+    "&:hover": {
+      backgroundColor: props.color,
+      color: theme.palette.common.white,
+      border: `2px solid ${props.color}`,
+    },
+  }),
+  contained: (props: CustomButtonProps) => ({
+    color: theme.palette.common.white,
+    backgroundColor: props.color,
+    "&:hover": {
+      backgroundColor: theme.palette.primary.dark,
+      color: theme.palette.common.white,
+    },
+  }),
+}))(({ color, ...rest }: CustomButtonProps) => {
+  return <MuiButton {...rest} />;
+});
+
+interface IButtonProps extends Omit<ButtonProps, "color"> {
+  color?: ButtonProps["color"] | (typeof customColors)[number] | string;
+}
+
+const validMuiButtonColors: ButtonProps["color"][] = [
+  "default",
+  "inherit",
+  "primary",
+  "secondary",
+  undefined,
+];
 
 export const SDButton = ({ className, color, ...rest }: IButtonProps) => {
   if (color && customColors.includes(color as (typeof customColors)[number])) {
     const CustomButton = customButtons[color];
     return <CustomButton {...rest} />;
   }
-
-  return (
-    <MuiButton
-      color={color as ButtonProps["color"]}
-      className={className}
-      {...rest}
-    />
-  );
+  if (validMuiButtonColors.includes(color as ButtonProps["color"])) {
+    return (
+      <MuiButton
+        color={color as ButtonProps["color"]}
+        className={className}
+        {...rest}
+      />
+    );
+  }
+  return <CustomColoredButton color={color as string} {...rest} />;
 };

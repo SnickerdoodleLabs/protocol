@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { JsonRpcSigner, JsonRpcProvider } from "@ethersproject/providers";
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   ChainId,
@@ -24,9 +23,9 @@ import {
 export class BlockchainProvider implements IBlockchainProvider {
   protected providerInitializationResult: ResultAsync<void, never> | null;
 
-  protected primaryProvider: JsonRpcProvider | null = null;
-  protected secondaryProvider: JsonRpcProvider | null = null;
-  protected primarySigner: JsonRpcSigner | null = null;
+  protected primaryProvider: ethers.JsonRpcProvider | null = null;
+  protected secondaryProvider: ethers.JsonRpcProvider | null = null;
+  protected primarySigner: ethers.JsonRpcSigner | null = null;
 
   public constructor(
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
@@ -52,7 +51,7 @@ export class BlockchainProvider implements IBlockchainProvider {
             "No dev chain provider URL but control chain is doodlechain. That's a programming error",
           );
         }
-        this.primaryProvider = new ethers.providers.JsonRpcProvider(
+        this.primaryProvider = new ethers.JsonRpcProvider(
           config.devChainProviderURL,
         );
         context.components.primaryProvider = EComponentStatus.Available;
@@ -73,12 +72,12 @@ export class BlockchainProvider implements IBlockchainProvider {
           `Configuring primary provider with InfuraProvider with primaryInfuraKey for network ${config.controlChainInformation.networkName}`,
         );
         // Leaving this here; Infura does not support Fuji yet, but when it does, we can move to the optimized provider
-        // this.primaryProvider = new ethers.providers.InfuraProvider(
+        // this.primaryProvider = new ethers.InfuraProvider(
         //   config.controlChainInformation.chainId,
         //   config.apiKeys.primaryInfuraKey,
         // );
 
-        this.primaryProvider = new ethers.providers.JsonRpcProvider(
+        this.primaryProvider = new ethers.JsonRpcProvider(
           `https://${config.controlChainInformation.networkName}.infura.io/v3/${config.apiKeys.primaryInfuraKey}`,
         );
       } else {
@@ -86,7 +85,7 @@ export class BlockchainProvider implements IBlockchainProvider {
           `Configuring primary provider with RPCProvider with primaryRPCProviderURL ${config.apiKeys.primaryRPCProviderURL} for network ${config.controlChainInformation.networkName}`,
         );
 
-        this.primaryProvider = new ethers.providers.JsonRpcProvider(
+        this.primaryProvider = new ethers.JsonRpcProvider(
           config.apiKeys.primaryRPCProviderURL!,
         );
       }
@@ -102,18 +101,18 @@ export class BlockchainProvider implements IBlockchainProvider {
           this.logUtils.log(
             `Configuring secondary provider with secondaryInfuraKey for network ${config.controlChainInformation.networkName}`,
           );
-          // this.secondaryProvider = new ethers.providers.InfuraProvider(
+          // this.secondaryProvider = new ethers.InfuraProvider(
           //   config.controlChainInformation.chainId,
           //   config.apiKeys.secondaryInfuraKey,
           // );
-          this.secondaryProvider = new ethers.providers.JsonRpcProvider(
+          this.secondaryProvider = new ethers.JsonRpcProvider(
             `https://${config.controlChainInformation.networkName}.infura.io/v3/${config.apiKeys.secondaryInfuraKey}`,
           );
         } else {
           this.logUtils.log(
             `Configuring secondary provider with secondaryRPCProviderURL for network ${config.controlChainInformation.networkName}`,
           );
-          this.secondaryProvider = new ethers.providers.JsonRpcProvider(
+          this.secondaryProvider = new ethers.JsonRpcProvider(
             config.apiKeys.secondaryRPCProviderURL!,
           );
         }
@@ -137,7 +136,7 @@ export class BlockchainProvider implements IBlockchainProvider {
   }
 
   public getPrimaryProvider(): ResultAsync<
-    JsonRpcProvider,
+    ethers.JsonRpcProvider,
     BlockchainProviderError
   > {
     return ResultUtils.combine([
@@ -158,7 +157,7 @@ export class BlockchainProvider implements IBlockchainProvider {
   }
 
   public getSecondaryProvider(): ResultAsync<
-    JsonRpcProvider | null,
+    ethers.JsonRpcProvider | null,
     BlockchainProviderError
   > {
     return this.waitForProviderPromise().map(() => {
@@ -168,16 +167,28 @@ export class BlockchainProvider implements IBlockchainProvider {
 
   public getLatestBlock(
     chainId: ChainId,
-  ): ResultAsync<ethers.providers.Block, BlockchainProviderError> {
-    return this.getPrimaryProvider().andThen((provider) => {
-      return ResultAsync.fromPromise(provider.getBlock("latest"), (e) => {
-        return new BlockchainProviderError(
-          chainId,
-          "Cannot retrieve latest block",
-          e,
-        );
+  ): ResultAsync<ethers.Block, BlockchainProviderError> {
+    return this.getPrimaryProvider()
+      .andThen((provider) => {
+        return ResultAsync.fromPromise(provider.getBlock("latest"), (e) => {
+          return new BlockchainProviderError(
+            chainId,
+            "Cannot retrieve latest block",
+            e,
+          );
+        });
+      })
+      .andThen((block) => {
+        if (block == null) {
+          return errAsync(
+            new BlockchainProviderError(
+              chainId,
+              "Cannot retrieve latest block",
+            ),
+          );
+        }
+        return okAsync(block);
       });
-    });
   }
 
   protected waitForProviderPromise(): ResultAsync<void, never> {

@@ -1,16 +1,7 @@
-import AccountChainBar, {
-  EDisplayMode,
-} from "@extension-onboarding/components/AccountChainBar";
-import Card from "@extension-onboarding/components/v2/Card";
-import Table from "@extension-onboarding/components/v2/Table";
-import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { Box } from "@material-ui/core";
 import {
   AccountAddress,
   ChainId,
-  EChain,
   EChainTechnology,
   EChainType,
   EVMAccountAddress,
@@ -26,6 +17,15 @@ import {
 } from "@snickerdoodlelabs/shared-components";
 import { ethers } from "ethers";
 import React, { useEffect, useMemo, useState } from "react";
+
+import AccountChainBar, {
+  EDisplayMode,
+} from "@extension-onboarding/components/AccountChainBar";
+import Card from "@extension-onboarding/components/v2/Card";
+import Table from "@extension-onboarding/components/v2/Table";
+import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 
 const abbreviateWithBreakPoint = (value: string, breakPoint): string => {
   const [prefixLength, suffixLength, dotLenght] =
@@ -148,7 +148,7 @@ const _getTxValue = (
 ) => {
   const { decimals, symbol } = getChainInfoByChain(tx.chain).nativeCurrency;
   return `${Number.parseFloat(
-    ethers.utils.formatUnits(tx[field] || "0", decimals),
+    ethers.formatUnits(tx[field] || "0", decimals),
   )} ${field === "value" ? symbol : ""}`;
 };
 

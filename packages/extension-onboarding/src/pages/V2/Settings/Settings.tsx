@@ -11,10 +11,10 @@ const Settings = () => {
   return (
     <Container>
       <PageTitle title="Settings" />
-      <Wallets />
-      <LinkedCryptoAccounts />
+      {/* <Wallets />
+      <LinkedCryptoAccounts /> */}
       <PersonalInfo />
-      <SocialMediaAccounts />
+      {/* <SocialMediaAccounts /> */}
       <StorageSetting />
     </Container>
   );

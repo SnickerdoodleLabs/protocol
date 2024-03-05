@@ -27,6 +27,7 @@ export class ExtensionConfig {
         Polygon: string;
         Solana: string;
         SolanaTestnet: string;
+        Base: string;
       };
       etherscanApiKeys?: {
         Ethereum: string;

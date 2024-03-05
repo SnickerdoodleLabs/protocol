@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { Web3Provider, JsonRpcSigner } from "@ethersproject/providers";
 import { AccountAddress, Signature } from "@snickerdoodlelabs/objects";
 import { PublicKey } from "@solana/web3.js";
 import { ethers } from "ethers";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
 
 import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
-import { Config } from "@extension-onboarding/services/blockChainWalletProviders/interfaces/objects";
 
 type DisplayEncoding = "utf8" | "hex";
 
@@ -71,7 +69,7 @@ export class PhantomWalletProvider implements IWalletProvider {
     });
   }
   public checkAndSwitchToControlChain(): ResultAsync<
-    ethers.providers.Web3Provider,
+    ethers.BrowserProvider,
     unknown
   > {
     throw new Error("Method not implemented.");

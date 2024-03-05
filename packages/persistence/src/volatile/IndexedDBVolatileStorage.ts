@@ -1,5 +1,11 @@
-import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
+  ILogUtils,
+  ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+import {
+  DatabaseVersion,
   ERecordKey,
   PersistenceError,
   VersionedObject,
@@ -25,6 +31,7 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
     @inject(IVolatileStorageSchemaProviderType)
     protected schemaProvider: IVolatileStorageSchemaProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   private _getIDB(): ResultAsync<IndexedDB, never> {
@@ -40,15 +47,17 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
           Array.from(schema.values()),
           indexedDB, // This is magical; it's a global variable IDBFactory
           this.logUtils,
+          this.timeUtils,
+          DatabaseVersion,
         );
       });
     return this.indexedDB;
   }
 
-  public getKey(
+  public getKey<T extends VersionedObject>(
     recordKey: ERecordKey,
-    obj: VersionedObject,
-  ): ResultAsync<VolatileStorageKey, PersistenceError> {
+    obj: VolatileStorageMetadata<T>,
+  ): ResultAsync<VolatileStorageKey | null, PersistenceError> {
     return this._getIDB().andThen((db) => {
       return db.getKey(recordKey, obj);
     });
@@ -96,6 +105,97 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
     );
   }
 
+  public getCursor2<T extends VersionedObject>(
+    schemaKey: ERecordKey,
+    {
+      index,
+      query = null,
+      lowerCount,
+      upperCount,
+      latest = false,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | null;
+      lowerCount?: number;
+      upperCount?: number;
+      latest?: boolean;
+    } = {},
+  ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
+    return this._getIDB().andThen((db) =>
+      db.getCursor2<T>(schemaKey, {
+        index,
+        query,
+        lowerCount,
+        upperCount,
+        latest,
+      }),
+    );
+  }
+
+  public countRecords(
+    schemaKey: ERecordKey,
+    {
+      index,
+      query = undefined,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | undefined;
+    } = {},
+  ): ResultAsync<number, PersistenceError> {
+    return this._getIDB().andThen((db) =>
+      db.countRecords(schemaKey, {
+        index,
+        query,
+      }),
+    );
+  }
+
+  public get<T extends VersionedObject>(
+    schemaKey: ERecordKey,
+    {
+      index,
+      query = null,
+      count,
+      id,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | null;
+      count?: number;
+      id?: IDBValidKey;
+    } = {},
+  ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
+    return this._getIDB().andThen((db) =>
+      db.get<T>(schemaKey, {
+        index,
+        query,
+        count,
+        id,
+      }),
+    );
+  }
+
+  public getKeys(
+    schemaKey: ERecordKey,
+    {
+      index,
+      query = null,
+      count,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | null;
+      count?: number;
+    } = {},
+  ): ResultAsync<IDBValidKey[], PersistenceError> {
+    return this._getIDB().andThen((db) =>
+      db.getKeys(schemaKey, {
+        index,
+        query,
+        count,
+      }),
+    );
+  }
+
+  //@TODO update here, though no use case actually exist for now
   public getCursor<T extends VersionedObject>(
     schemaKey: ERecordKey,
     indexName?: string,

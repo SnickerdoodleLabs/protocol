@@ -66,6 +66,62 @@ export interface IDataWalletPersistence {
     recordKey: ERecordKey,
     key: VolatileStorageKey,
   ): ResultAsync<void, PersistenceError>;
+
+  get<T extends VersionedObject>(
+    schemaKey: ERecordKey,
+    {
+      index,
+      query,
+      count,
+      id,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | null;
+      count?: number;
+      id?: IDBValidKey;
+    },
+  ): ResultAsync<T[], PersistenceError>;
+
+  countRecords(
+    schemaKey: ERecordKey,
+    {
+      index,
+      query,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | undefined;
+    },
+  ): ResultAsync<number, PersistenceError>;
+
+  getKeys(
+    schemaKey: ERecordKey,
+    {
+      index,
+      query,
+      count,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | null;
+      count?: number;
+    },
+  ): ResultAsync<IDBValidKey[], PersistenceError>;
+
+  getCursor2<T extends VersionedObject>(
+    name: string,
+    {
+      index,
+      query,
+      lowerCount,
+      upperCount,
+      latest,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | null;
+      lowerCount?: number;
+      upperCount?: number;
+      latest?: boolean;
+    },
+  ): ResultAsync<T[], PersistenceError>;
   // #endregion
 
   // #region Fields

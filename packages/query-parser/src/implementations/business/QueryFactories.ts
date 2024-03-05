@@ -51,7 +51,7 @@ export class QueryFactories implements IQueryFactories {
       const SDQLWrapper = this.queryWrapperFactory.makeWrapper(
         new SDQLQuery(cid, schemaString),
       );
-
+      
       return okAsync(new SDQLParser(cid, SDQLWrapper, this.queryObjectFactory));
     } catch (e) {
       return errAsync(new QueryFormatError((e as Error).message));

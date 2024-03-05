@@ -15,7 +15,6 @@ import {
   AjaxError,
   TokenBalance,
   BigNumberString,
-  EVMAccountAddress,
   EChain,
   TokenUri,
   UnixTimestamp,
@@ -29,12 +28,10 @@ import {
   SuiTransaction,
   getChainInfoByChain,
   SuiTokenAddress,
-  SuiCollection,
   SuiContractAddress,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import {
@@ -123,9 +120,7 @@ export class BlockvisionIndexer implements ISuiIndexer {
           chain,
           MasterIndexer.nativeAddress,
           accountAddress,
-          BigNumberString(
-            BigNumber.from(balance.result.totalBalance).toString(),
-          ),
+          BigNumberString(BigInt(balance.result.totalBalance).toString()),
           getChainInfoByChain(chain).nativeCurrency.decimals,
         );
         return [nativeBalance];

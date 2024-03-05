@@ -5,7 +5,6 @@ import {
   PagingRequest,
   BigNumberString,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import { ObjectUtils } from "@common-utils/implementations/ObjectUtils.js";
@@ -60,7 +59,7 @@ describe("ObjectUtils tests", () => {
     expect(batch3).toBeTruthy();
   });
 
-  test("serialize supports BigNumber, BigInt, Map and Set", () => {
+  test("serialize supports BigInt, Map and Set", () => {
     // Arrange
     const serializeData = {
       foo: "1",
@@ -70,7 +69,6 @@ describe("ObjectUtils tests", () => {
         ["foo1", "bar1"],
       ]),
       set: new Set([1, 2, 3, 3]),
-      bigNumber: BigNumber.from(69),
       bigInt: BigInt(13),
     };
 
@@ -79,7 +77,7 @@ describe("ObjectUtils tests", () => {
 
     // Assert
     expect(result).toBe(
-      '{"foo":"1","bar":1,"map":{"dataType":"Map","value":[["foo","bar"],["foo1","bar1"]]},"set":{"dataType":"Set","value":[1,2,3]},"bigNumber":{"dataType":"BigNumber","value":"0x45"},"bigInt":{"dataType":"bigint","value":"13"}}',
+      '{"foo":"1","bar":1,"map":{"dataType":"Map","value":[["foo","bar"],["foo1","bar1"]]},"set":{"dataType":"Set","value":[1,2,3]},"bigInt":{"dataType":"bigint","value":"13"}}',
     );
   });
 
@@ -93,7 +91,7 @@ describe("ObjectUtils tests", () => {
         ["foo1", "bar1"],
       ]),
       set: new Set([1, 2, 3, 3]),
-      bigNumber: BigNumber.from(69),
+      bigNumber: BigInt(69),
       bigInt: BigInt(13),
     };
 
@@ -124,14 +122,14 @@ describe("ObjectUtils tests", () => {
 
   test("BigNumber test", () => {
     // Arrange
-    const bn = BigNumber.from(1);
+    const bn = BigInt(1);
 
     // Act
     const bns = BigNumberString(bn.toString());
 
     // Assert
     expect(bns).toBe("1");
-    expect(bn).toBeInstanceOf(BigNumber);
+    expect(typeof bn).toBe("bigint");
   });
 
   test("iteratePages() runs over all data", async () => {
@@ -279,6 +277,28 @@ describe("ObjectUtils tests", () => {
     expect(result.isErr()).toBeTruthy();
     const err = result._unsafeUnwrapErr();
     expect(err.message).toBe("Final Error");
+  });
+
+  test("iterateThroughAllPages() runs over all data", async () => {
+    // Arrange
+    const readFunc = (pagingRequest: PagingRequest) => {
+      if (pagingRequest.page == 1 && pagingRequest.pageSize == 1) {
+        return okAsync(new PagedResponse([1], 1, 1, 9));
+      }
+      if (pagingRequest.page == 1 && pagingRequest.pageSize == 9) {
+        return okAsync(new PagedResponse([1, 2, 3, 4, 5, 6, 7, 8, 9], 1, 9, 9));
+      }
+      // If it asks for page 2
+      return errAsync(new Error("Asked for pages beyond totalResults!"));
+    };
+
+    // Act
+    const result = await ObjectUtils.iterateThroughAllPages(readFunc);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    expect(result._unsafeUnwrap()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
   });
 });
 

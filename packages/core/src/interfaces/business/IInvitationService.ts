@@ -24,6 +24,7 @@ import {
   BlockchainCommonErrors,
   OptInInfo,
   IUserAgreement,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -52,6 +53,7 @@ export interface IInvitationService {
     | AjaxError
     | MinimalForwarderContractError
     | ConsentError
+    | InvalidParametersError
     | BlockchainCommonErrors
   >;
 

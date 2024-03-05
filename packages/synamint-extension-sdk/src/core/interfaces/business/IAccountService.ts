@@ -1,8 +1,4 @@
 import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
-import {
   AccountAddress,
   EarnedReward,
   EChain,
@@ -20,11 +16,9 @@ import {
   TransactionFilter,
   ChainTransaction,
   DomainName,
-  WalletNFTHistory,
-  WalletNftWithHistory,
   UnixTimestamp,
-  NftRepositoryCache,
 } from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
@@ -46,8 +40,8 @@ export interface IAccountService {
   ): ResultAsync<void, SnickerDoodleCoreError>;
   addAccountWithExternalTypedDataSignature(
     accountAddress: AccountAddress,
-    domain: TypedDataDomain,
-    types: Record<string, Array<TypedDataField>>,
+    domain: ethers.TypedDataDomain,
+    types: Record<string, Array<ethers.TypedDataField>>,
     value: Record<string, unknown>,
     signature: Signature,
     chain: EChain,

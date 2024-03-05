@@ -26,6 +26,7 @@ import {
   SerializedObject,
   JSONString,
   BackupError,
+  VolatileStorageMetadataIndexes,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils } from "@snickerdoodlelabs/utils";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -77,7 +78,7 @@ export class BackupManager implements IBackupManager {
     recordKey: ERecordKey,
     value: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError> {
-    return this.volatileStorage.getKey(recordKey, value.data).andThen((key) => {
+    return this.volatileStorage.getKey(recordKey, value).andThen((key) => {
       return this._checkRecordUpdateRecency(
         recordKey,
         key,
@@ -255,10 +256,19 @@ export class BackupManager implements IBackupManager {
           if (!valid) {
             return okAsync(undefined);
           }
+          const updatedObject = this._getCurrent(
+            header.dataType as ERecordKey,
+            update,
+          );
+
+          if (updatedObject == null) {
+            return errAsync(new PersistenceError("Object is not valid"));
+          }
 
           const metadata = new VolatileStorageMetadata<VersionedObject>(
-            update.value,
+            updatedObject,
             update.timestamp,
+            updatedObject.getVersion(),
             update.operation == EDataUpdateOpCode.REMOVE
               ? EBoolean.TRUE
               : EBoolean.FALSE,
@@ -270,6 +280,25 @@ export class BackupManager implements IBackupManager {
         });
       }),
     ).map(() => {});
+  }
+
+  private _getCurrent(
+    dataType: ERecordKey,
+    update: VolatileDataUpdate,
+  ): VersionedObject | null {
+    const migrator = this.migrators.get(dataType);
+    if (migrator == null) {
+      return null;
+    }
+    // note !!!
+    // we could check the version here in advence, but the types are not representing the actual data type
+    // to use factory defined inside the migrator, we are calling getCurrent without explicitly checking the current version
+    // we are assuming that update.value is a VersionedObject but obviously it is not
+    // unfortunately, some lines of code seem to have been previously written to trick the typescript compiler
+    return migrator.getCurrent(
+      update.value as unknown as Record<string, unknown>,
+      update.version,
+    );
   }
 
   private _restoreField(
@@ -396,6 +425,7 @@ export class BackupManager implements IBackupManager {
           backup.header.dataType,
         ),
         this.timeUtils.getUnixNow(),
+        RestoredBackup.CURRENT_VERSION,
       ),
     );
   }

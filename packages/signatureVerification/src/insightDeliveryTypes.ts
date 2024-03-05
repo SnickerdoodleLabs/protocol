@@ -1,4 +1,4 @@
-import { TypedDataField } from "@ethersproject/abstract-signer";
+import { TypedDataField } from "ethers";
 
 export const insightDeliveryTypes: Record<string, TypedDataField[]> = {
   InsightDelivery: [

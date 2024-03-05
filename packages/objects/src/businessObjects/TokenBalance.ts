@@ -1,4 +1,4 @@
-import { BigNumber, utils } from "ethers";
+import { formatUnits } from "ethers";
 
 import { TokenAddress } from "@objects/businessObjects/TokenAddress.js";
 import { EChain, EChainTechnology } from "@objects/enum/index.js";
@@ -6,7 +6,6 @@ import {
   AccountAddress,
   BigNumberString,
   DecimalString,
-  SuiAccountAddress,
   TickerSymbol,
 } from "@objects/primitives/index.js";
 
@@ -23,7 +22,5 @@ export class TokenBalance {
 }
 
 export function formatValue(balance: TokenBalance): DecimalString {
-  return DecimalString(
-    utils.formatUnits(BigNumber.from(balance.balance), balance.decimals),
-  );
+  return DecimalString(formatUnits(BigInt(balance.balance), balance.decimals));
 }

@@ -1,8 +1,4 @@
 import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
-import {
   AccountAddress,
   Age,
   BackupCreatedEvent,
@@ -83,12 +79,15 @@ import {
   IUserAgreement,
   INftProxyMethods,
   WalletNFTHistory,
-  WalletNftWithHistory,
   NftRepositoryCache,
   WalletNFTData,
+  JSONString,
+  IProxyQuestionnaireMethods,
+  NewQuestionnaireAnswer,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ethers } from "ethers";
+import { ResultAsync } from "neverthrow";
 import { Subject } from "rxjs";
 
 import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/index.js";
@@ -598,8 +597,8 @@ export class SnickerdoodleIFrameProxy
     },
     addAccountWithExternalTypedDataSignature: (
       accountAddress: AccountAddress,
-      domain: TypedDataDomain,
-      types: Record<string, Array<TypedDataField>>,
+      domain: ethers.TypedDataDomain,
+      types: Record<string, Array<ethers.TypedDataField>>,
       value: Record<string, unknown>,
       signature: Signature,
       chain: EChain,
@@ -775,6 +774,55 @@ export class SnickerdoodleIFrameProxy
       return this._createCall("storage.getAvailableCloudStorageOptions", {});
     },
   };
+
+  public questionnaire: IProxyQuestionnaireMethods = {
+    getAllQuestionnaires: (pagingRequest: PagingRequest) => {
+      return this._createCall("questionnaire.getAllQuestionnaires", {
+        pagingRequest,
+      });
+    },
+    answerQuestionnaire: (
+      questionnaireId: IpfsCID,
+      answers: NewQuestionnaireAnswer[],
+    ) => {
+      return this._createCall("questionnaire.answerQuestionnaire", {
+        questionnaireId,
+        answers,
+      });
+    },
+    getQuestionnairesForConsentContract: (
+      pagingRequest: PagingRequest,
+      consentContractAddress: EVMContractAddress,
+    ) => {
+      return this._createCall(
+        "questionnaire.getQuestionnairesForConsentContract",
+        {
+          pagingRequest,
+          consentContractAddress,
+        },
+      );
+    },
+    getConsentContractsByQuestionnaireCID: (questionnaireCID: IpfsCID) => {
+      return this._createCall(
+        "questionnaire.getConsentContractsByQuestionnaireCID",
+        {
+          questionnaireCID,
+        },
+      );
+    },
+    getRecommendedConsentContracts: (questionnaireCID: IpfsCID) => {
+      return this._createCall("questionnaire.getRecommendedConsentContracts", {
+        questionnaireCID,
+      });
+    },
+  };
+
+  public setUIState(state: JSONString): ResultAsync<void, ProxyError> {
+    return this._createCall("setUIState", { state });
+  }
+  public getUIState(): ResultAsync<JSONString | null, ProxyError> {
+    return this._createCall("getUIState", null);
+  }
 
   public events: PublicEvents;
 

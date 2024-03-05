@@ -9,14 +9,14 @@ import {
   MarketplaceTag,
   BlockchainCommonErrors,
   TransactionResponseError,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
-import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
+import { EConsentRoles } from "@contracts-sdk/interfaces/enums/index.js";
 import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
 import {
   WrappedTransactionResponse,
-  ConsentRoles,
   ContractOverrides,
 } from "@contracts-sdk/interfaces/objects/index.js";
 
@@ -48,10 +48,7 @@ export interface IConsentFactoryContract extends IBaseContract {
     ownerAddress: EVMAccountAddress,
     baseUri: BaseURI,
     name: ConsentName,
-  ): ResultAsync<
-    ethers.BigNumber,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  >;
+  ): ResultAsync<bigint, ConsentFactoryContractError | BlockchainCommonErrors>;
 
   /**
    *  Return the number Consent addresses that user has deployed
@@ -94,7 +91,7 @@ export interface IConsentFactoryContract extends IBaseContract {
    */
   getUserRoleAddressesCount(
     ownerAddress: EVMAccountAddress,
-    role: ConsentRoles,
+    role: EConsentRoles,
   ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors>;
 
   /**
@@ -106,7 +103,7 @@ export interface IConsentFactoryContract extends IBaseContract {
    */
   getUserRoleAddressesCountByIndex(
     ownerAddress: EVMAccountAddress,
-    role: ConsentRoles,
+    role: EConsentRoles,
     startingIndex: number,
     endingIndex: number,
   ): ResultAsync<
@@ -207,4 +204,42 @@ export interface IConsentFactoryContract extends IBaseContract {
   getAddressOfConsentCreated(
     txRes: WrappedTransactionResponse,
   ): ResultAsync<EVMContractAddress, TransactionResponseError>;
+
+  // #region Questionnaires
+  /**
+   * Returns a list of all questionnaires
+   */
+  getQuestionnaires(): ResultAsync<
+    IpfsCID[],
+    ConsentFactoryContractError | BlockchainCommonErrors
+  >;
+
+  /**
+   * Adds a questionnaire to the list of default questionnaires
+   * Only callable by address with DEFAULT_ADMIN_ROLE
+   * If domain already exists, reverts with error message "Consent : Questionnaire already added"
+   * @param ipfsCid Domain name
+   */
+  addQuestionnaire(
+    ipfsCid: IpfsCID,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  >;
+
+  /**
+   * Removes a questionnaire from the contract storage at the index position
+   * Only callable by address with DEFAULT_ADMIN_ROLE
+   * If the index is out of range, this reverts with error message "Consent : Questionnaire index out of range"
+   * @param index Index of the questionnaire. This must be a value between 0 and the number of questionnaires inclusive, otherwise it reverts
+   */
+  removeQuestionnaire(
+    index: number,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  >;
+  // #endregion Questionnaires
 }

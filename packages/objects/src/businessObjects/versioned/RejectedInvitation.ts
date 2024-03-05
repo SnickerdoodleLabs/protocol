@@ -6,6 +6,7 @@ import {
   EVMContractAddress,
   UnixTimestamp,
 } from "@objects/primitives/index.js";
+import { PropertiesOf } from "@objects/utilities/index.js";
 
 /**
  * This represents an invitation that has been rejected- either temporarily or permanently
@@ -29,10 +30,12 @@ export class RejectedInvitationMigrator extends VersionedObjectMigrator<Rejected
     return RejectedInvitation.CURRENT_VERSION;
   }
 
-  protected factory(data: Record<string, unknown>): RejectedInvitation {
+  protected factory(
+    data: PropertiesOf<RejectedInvitation>,
+  ): RejectedInvitation {
     return new RejectedInvitation(
-      data["consentContractAddress"] as EVMContractAddress,
-      data["rejectUntil"] as UnixTimestamp | null,
+      data.consentContractAddress,
+      data.rejectUntil,
     );
   }
 

@@ -44,6 +44,7 @@
     "@snickerdoodlelabs/objects": "workspace:^",
     "@snickerdoodlelabs/shared-components": "workspace:^",
     "@snickerdoodlelabs/utils": "workspace:^",
+    "ethers": "^6.10.0",
     "html-react-parser": "^4.2.2",
     "inversify": "^6.0.2",
     "jss": "^10.9.0",

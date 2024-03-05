@@ -1,3 +1,4 @@
+import { colors } from "@snickerdoodlelabs/shared-components";
 import React, { SVGProps } from "react";
 
 interface IProps extends SVGProps<SVGSVGElement> {}
@@ -140,9 +141,9 @@ export const MobileMenuIcon = (props: IProps) => (
     fill="none"
     {...props}
   >
-    <rect width={40} height={40} fill="#D2CEE3" rx={8} />
+    <rect width={40} height={40} fill={colors.MAINPURPLE800} rx={8} />
     <path
-      stroke="#212121"
+      stroke={colors.WHITE}
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth={2}

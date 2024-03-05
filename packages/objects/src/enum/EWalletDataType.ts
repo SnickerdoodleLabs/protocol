@@ -14,4 +14,5 @@ export enum EWalletDataType {
   Discord = 12,
   Twitter = 13,
   AccountSize = 14,
+  Questionnaires = 15,
 }

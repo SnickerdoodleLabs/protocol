@@ -79,7 +79,7 @@ export class AnkrIndexer implements IEVMIndexer {
     ],
     [EChain.Fuji, new IndexerSupportSummary(EChain.Fuji, true, true, true)],
     [EChain.Mumbai, new IndexerSupportSummary(EChain.Mumbai, true, true, true)],
-    [EChain.Base, new IndexerSupportSummary(EChain.Base, true, false, false)],
+    [EChain.Base, new IndexerSupportSummary(EChain.Base, true, true, true)],
     // [
     //   EChain.BinanceTestnet,
     //   new IndexerSupportSummary(EChain.BinanceTestnet, true, false, false),
@@ -313,6 +313,9 @@ export class AnkrIndexer implements IEVMIndexer {
           },
         })
         .map((response) => {
+          if (response.result.transactions == null) {
+            return [];
+          }
           return response.result.transactions.map((item) => {
             return new EVMTransaction(
               getChainInfoByChain(chain).chainId,
@@ -402,7 +405,7 @@ interface IAnkrTransactionReponse {
   jsonrpc: string;
   id: number;
   result: {
-    transactions: IAnkrTransaction[];
+    transactions?: IAnkrTransaction[];
   };
   nextPageToken: string;
 }

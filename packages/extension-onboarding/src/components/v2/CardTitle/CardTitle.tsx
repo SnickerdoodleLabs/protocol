@@ -1,5 +1,10 @@
 import { Box } from "@material-ui/core";
-import { SDTypography } from "@snickerdoodlelabs/shared-components";
+import {
+  ITypographyProps,
+  SDTypography,
+  colors,
+  useResponsiveValue,
+} from "@snickerdoodlelabs/shared-components";
 import React, { FC, ReactNode } from "react";
 
 interface ICardTitleProps {
@@ -10,16 +15,25 @@ interface ICardTitleProps {
 }
 
 const CardTitle: FC<ICardTitleProps> = ({ title, subtitle }) => {
+  const getResponsiveValue = useResponsiveValue();
   return (
     <Box display="flex" width="100%" flexDirection="column">
       {typeof title === "function" ? (
         title((_title) => (
-          <SDTypography variant="titleMd" fontWeight="bold" color="textHeading">
+          <SDTypography
+            variant={getResponsiveValue({ xs: "titleLg", sm: "headlineMd" })}
+            fontWeight="bold"
+            hexColor={colors.DARKPURPLE500}
+          >
             {_title}
           </SDTypography>
         ))
       ) : (
-        <SDTypography variant="titleMd" fontWeight="bold" color="textHeading">
+        <SDTypography
+          variant={getResponsiveValue({ xs: "titleLg", sm: "headlineMd" })}
+          fontWeight="bold"
+          hexColor={colors.DARKPURPLE500}
+        >
           {title}
         </SDTypography>
       )}
@@ -27,7 +41,11 @@ const CardTitle: FC<ICardTitleProps> = ({ title, subtitle }) => {
       {subtitle && (
         <>
           <Box mt={1.5} />
-          <SDTypography variant="titleXs" fontWeight="regular" color="textBody">
+          <SDTypography
+            variant={getResponsiveValue({ xs: "bodyMd", sm: "bodyLg" })}
+            fontWeight="regular"
+            hexColor={colors.GREY600}
+          >
             {subtitle}
           </SDTypography>
         </>

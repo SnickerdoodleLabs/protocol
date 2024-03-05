@@ -1,3 +1,5 @@
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { NftMetadataParseUtils } from "@snickerdoodlelabs/common-utils";
 import {
   chainConfig,
@@ -5,7 +7,6 @@ import {
   ChainId,
   WalletNFT,
   EVMNFT,
-  EChainTechnology,
   EChain,
 } from "@snickerdoodlelabs/objects";
 import React, {
@@ -16,9 +17,6 @@ import React, {
   useState,
   memo,
 } from "react";
-
-import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 
 interface IDashboardContext {
   accountNFTs?: Omit<WalletNFT, "getVersion">[];
@@ -60,14 +58,14 @@ export const DashboardContextProvider: FC = memo(({ children }) => {
   const [accountTestnetNFTs, setAccountTestnetNFTs] = useState<WalletNFT[]>();
   const [isNFTsLoading, setIsNFTsLoading] = useState(true);
   const { sdlDataWallet } = useDataWalletContext();
-  const { linkedAccounts, appMode } = useAppContext();
+  const { linkedAccounts } = useAppContext();
 
   useEffect(() => {
-    if (appMode === EAppModes.AUTH_USER && linkedAccounts.length) {
+    if (linkedAccounts.length) {
       setIsNFTsLoading(true);
       initializeNfts();
     }
-  }, [linkedAccounts.length, appMode]);
+  }, [linkedAccounts.length]);
 
   const initializeNfts = () => {
     sdlDataWallet.nft

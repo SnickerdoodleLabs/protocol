@@ -40,7 +40,7 @@ import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
-
+const versionNumber = 1;
 const now = UnixTimestamp(30);
 const beforeNow = UnixTimestamp(20);
 const fieldKey = EFieldKey.GENDER;
@@ -57,12 +57,14 @@ const versionedObject = new TestVersionedObject(volatileStorageKey, 13);
 const volatileStorageMetadata = new VolatileStorageMetadata(
   versionedObject,
   now,
+  versionedObject.getVersion(),
   EBoolean.FALSE,
 );
 
 const volatileStorageMetadata0 = new VolatileStorageMetadata(
   versionedObject,
   UnixTimestamp(0),
+  versionedObject.getVersion(),
   EBoolean.FALSE,
 );
 
@@ -148,14 +150,26 @@ class DataWalletPersistenceMocks {
     td.when(
       this.backupManager.addRecord(
         recordKey,
-        td.matchers.contains(new VolatileStorageMetadata(versionedObject, now)),
+        td.matchers.contains(
+          new VolatileStorageMetadata(
+            versionedObject,
+            now,
+            versionedObject.getVersion(),
+          ),
+        ),
       ),
     ).thenReturn(okAsync(undefined));
 
     td.when(
       this.backupManager.addRecord(
         ERecordKey.ACCOUNT,
-        td.matchers.contains(new VolatileStorageMetadata(versionedObject, now)),
+        td.matchers.contains(
+          new VolatileStorageMetadata(
+            versionedObject,
+            now,
+            versionedObject.getVersion(),
+          ),
+        ),
       ),
     ).thenReturn(okAsync(undefined));
 
@@ -218,16 +232,32 @@ class DataWalletPersistenceMocks {
     ).thenReturn(okAsync([volatileStorageMetadata]));
 
     td.when(
+      this.volatileSchemaProvider.getCurrentVersionForTable(
+        td.matchers.anything(),
+      ),
+    ).thenReturn(okAsync(versionNumber));
+    td.when(
       this.volatileStorage.putObject(
         ERecordKey.ACCOUNT,
         td.matchers.contains(
-          new VolatileStorageMetadata(versionedObject, UnixTimestamp(0)),
+          new VolatileStorageMetadata(
+            versionedObject,
+            UnixTimestamp(0),
+            versionedObject.getVersion(),
+          ),
         ),
       ),
     ).thenReturn(okAsync(undefined));
 
     td.when(
-      this.volatileStorage.getKey(ERecordKey.ACCOUNT, versionedObject),
+      this.volatileStorage.getKey(
+        ERecordKey.ACCOUNT,
+        new VolatileStorageMetadata(
+          versionedObject,
+          UnixTimestamp(0),
+          versionedObject.getVersion(),
+        ),
+      ),
     ).thenReturn(okAsync(volatileStorageKey));
 
     // Cloud Storage ---------------------------------------------------

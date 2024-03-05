@@ -17,6 +17,7 @@ export * from "@core/interfaces/data/INftRepository.js";
 export * from "@core/interfaces/data/INFTRepositoryWithDebug.js";
 export * from "@core/interfaces/data/IPermissionRepository.js";
 export * from "@core/interfaces/data/IPortfolioBalanceRepository.js";
+export * from "@core/interfaces/data/IQuestionnaireRepository.js";
 export * from "@core/interfaces/data/ISDQLQueryRepository.js";
 export * from "@core/interfaces/data/ITransactionHistoryRepository.js";
 export * from "@core/interfaces/data/ITwitterRepository.js";

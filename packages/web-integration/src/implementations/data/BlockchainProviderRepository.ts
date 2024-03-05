@@ -85,7 +85,7 @@ export class BlockchainProviderRepository
     return ResultAsync.fromPromise(config.signer.provider.getNetwork(), (e) => {
       return new ProviderRpcError("Unable to get network from provider", e);
     }).map((network) => {
-      this.lastChain = getChainInfoByChainId(ChainId(network.chainId));
+      this.lastChain = getChainInfoByChainId(ChainId(Number(network.chainId)));
       return this.lastChain;
     });
   }

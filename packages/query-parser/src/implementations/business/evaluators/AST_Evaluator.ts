@@ -32,6 +32,7 @@ import {
   TypeChecker,
   IQueryRepository,
   AST_Insight,
+  AST_QuestionnaireQuery,
 } from "@query-parser/interfaces/index.js";
 
 export class AST_Evaluator {

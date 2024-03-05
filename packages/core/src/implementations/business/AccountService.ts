@@ -1,8 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   AccountAddress,
@@ -27,7 +23,6 @@ import {
   TokenAddress,
   UnixTimestamp,
   DataWalletBackupID,
-  TransactionPaymentCounter,
   DomainName,
   UnauthorizedError,
   ITokenPriceRepositoryType,
@@ -37,12 +32,10 @@ import {
   TransactionFlowInsight,
   getChainInfoByChain,
   EChainTechnology,
-  WalletNFTHistory,
-  WalletNftWithHistory,
   AjaxError,
   MethodSupportError,
-  NftRepositoryCache,
 } from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
@@ -338,8 +331,8 @@ export class AccountService implements IAccountService {
 
   public addAccountWithExternalTypedDataSignature(
     accountAddress: AccountAddress,
-    domain: TypedDataDomain,
-    types: Record<string, Array<TypedDataField>>,
+    domain: ethers.TypedDataDomain,
+    types: Record<string, Array<ethers.TypedDataField>>,
     value: Record<string, unknown>,
     signature: Signature,
     chain: EChain,
@@ -577,8 +570,8 @@ export class AccountService implements IAccountService {
 
   protected validateTypedDataSignatureForAddress(
     accountAddress: AccountAddress,
-    domain: TypedDataDomain,
-    types: Record<string, Array<TypedDataField>>,
+    domain: ethers.TypedDataDomain,
+    types: Record<string, Array<ethers.TypedDataField>>,
     value: Record<string, unknown>,
     signature: Signature,
     chain: EChain,

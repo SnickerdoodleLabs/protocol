@@ -1,5 +1,5 @@
-import { TypedDataDomain } from "@ethersproject/abstract-signer";
 import { ChainId, EVMContractAddress } from "@snickerdoodlelabs/objects";
+import { TypedDataDomain } from "ethers";
 
 export const snickerdoodleSigningDomain = {
   name: "Snickerdoodle Protocol",

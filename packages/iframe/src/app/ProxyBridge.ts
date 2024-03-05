@@ -30,6 +30,7 @@ import {
   IProxyDiscordMethods,
   IProxyIntegrationMethods,
   IProxyMetricsMethods,
+  IProxyQuestionnaireMethods,
   IProxyStorageMethods,
   IProxyTwitterMethods,
   ISdlDataWallet,
@@ -37,11 +38,13 @@ import {
   ISnickerdoodleCoreEvents,
   IUserAgreement,
   IpfsCID,
+  JSONString,
   JsonWebToken,
   LanguageCode,
   LinkedAccount,
   MarketplaceListing,
   MarketplaceTag,
+  NewQuestionnaireAnswer,
   NftRepositoryCache,
   OAuth2RefreshToken,
   OAuth2Tokens,
@@ -78,6 +81,7 @@ export class ProxyBridge implements ISdlDataWallet {
   public storage: IProxyStorageMethods;
   public twitter: IProxyTwitterMethods = {} as IProxyTwitterMethods;
   public nft: INftProxyMethods;
+  public questionnaire: IProxyQuestionnaireMethods;
   private sourceDomain = undefined;
   public requestDashboardView = undefined;
 
@@ -265,6 +269,56 @@ export class ProxyBridge implements ISdlDataWallet {
       ): ResultAsync<WalletNFT[], ProxyError> => {
         return this.call(
           this.core.nft.getNfts(benchmark, chains, accounts, this.sourceDomain),
+        );
+      },
+    };
+    this.questionnaire = {
+      getAllQuestionnaires: (pagingRequest: PagingRequest) => {
+        return this.call(
+          this.core.questionnaire.getAllQuestionnaires(
+            pagingRequest,
+            this.sourceDomain,
+          ),
+        );
+      },
+      answerQuestionnaire: (
+        questionnaireId: IpfsCID,
+        answers: NewQuestionnaireAnswer[],
+      ) => {
+        return this.call(
+          this.core.questionnaire.answerQuestionnaire(
+            questionnaireId,
+            answers,
+            this.sourceDomain,
+          ),
+        );
+      },
+      getQuestionnairesForConsentContract: (
+        pagingRequest: PagingRequest,
+        consentContractAddress: EVMContractAddress,
+      ) => {
+        return this.call(
+          this.core.questionnaire.getQuestionnairesForConsentContract(
+            pagingRequest,
+            consentContractAddress,
+            this.sourceDomain,
+          ),
+        );
+      },
+      getConsentContractsByQuestionnaireCID: (questionnaireCID: IpfsCID) => {
+        return this.call(
+          this.core.questionnaire.getConsentContractsByQuestionnaireCID(
+            questionnaireCID,
+            this.sourceDomain,
+          ),
+        );
+      },
+      getRecommendedConsentContracts: (questionnaireCID: IpfsCID) => {
+        return this.call(
+          this.core.questionnaire.getRecommendedConsentContracts(
+            questionnaireCID,
+            this.sourceDomain,
+          ),
         );
       },
     };
@@ -505,5 +559,12 @@ export class ProxyBridge implements ISdlDataWallet {
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], ProxyError> {
     return this.call(this.core.getTransactions(filter, this.sourceDomain));
+  }
+
+  setUIState(state: JSONString): ResultAsync<void, ProxyError> {
+    return this.call(this.core.setUIState(state));
+  }
+  getUIState(): ResultAsync<JSONString | null, ProxyError> {
+    return this.call(this.core.getUIState());
   }
 }

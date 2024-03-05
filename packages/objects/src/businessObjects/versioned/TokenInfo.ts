@@ -5,6 +5,7 @@ import {
 } from "@objects/businessObjects/versioned/VersionedObject.js";
 import { EChain } from "@objects/enum/index.js";
 import { TickerSymbol } from "@objects/primitives/index.js";
+import { PropertiesOf } from "@objects/utilities/index.js";
 
 export class TokenInfo extends VersionedObject {
   public static CURRENT_VERSION = 1;
@@ -30,14 +31,14 @@ export class TokenInfoMigrator extends VersionedObjectMigrator<TokenInfo> {
     return TokenInfo.CURRENT_VERSION;
   }
 
-  protected factory(data: Record<string, unknown>): TokenInfo {
+  protected factory(data: PropertiesOf<TokenInfo>): TokenInfo {
     return new TokenInfo(
-      data["id"] as string,
-      data["symbol"] as TickerSymbol,
-      data["name"] as string,
-      data["chain"] as EChain,
-      data["address"] as TokenAddress,
-      data["decimals"] as number,
+      data.id,
+      data.symbol,
+      data.name,
+      data.chain,
+      data.address,
+      data.decimals,
     );
   }
 

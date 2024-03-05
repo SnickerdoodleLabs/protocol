@@ -1,4 +1,4 @@
-import { TypedDataField } from "@ethersproject/abstract-signer";
+import { TypedDataField } from "ethers";
 
 export const insightPreviewTypes: Record<string, TypedDataField[]> = {
   InsightPreview: [

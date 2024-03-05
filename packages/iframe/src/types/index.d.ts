@@ -1,4 +1,4 @@
-import { ExternalProvider } from "@ethersproject/providers";
+import { ExternalProvider } from "ethers";
 
 declare global {
   interface Window {

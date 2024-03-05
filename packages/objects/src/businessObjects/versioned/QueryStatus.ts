@@ -10,6 +10,7 @@ import {
   JSONString,
   UnixTimestamp,
 } from "@objects/primitives/index.js";
+import { PropertiesOf } from "@objects/utilities/index.js";
 
 /**
  * This object stores the state of processing for a recieved SDQL Query. Once we hear about a query
@@ -24,7 +25,7 @@ import {
  * @param expirationDate Technically retrievable from IPFS, we'll cache it here. We need to process the query before this date, so periodically we need to look for queries that are about to expire.
  */
 export class QueryStatus extends VersionedObject {
-  public static CURRENT_VERSION = 2;
+  public static CURRENT_VERSION = 1;
   public constructor(
     public consentContractAddress: EVMContractAddress,
     public queryCID: IpfsCID,
@@ -46,14 +47,14 @@ export class QueryStatusMigrator extends VersionedObjectMigrator<QueryStatus> {
     return QueryStatus.CURRENT_VERSION;
   }
 
-  protected factory(data: Record<string, unknown>): QueryStatus {
+  protected factory(data: PropertiesOf<QueryStatus>): QueryStatus {
     return new QueryStatus(
-      data["consentContractAddress"] as EVMContractAddress,
-      data["queryCID"] as IpfsCID,
-      data["receivedBlock"] as BlockNumber,
-      data["status"] as EQueryProcessingStatus,
-      data["expirationDate"] as UnixTimestamp,
-      data["rewardsParameters"] as JSONString,
+      data.consentContractAddress,
+      data.queryCID,
+      data.receivedBlock,
+      data.status,
+      data.expirationDate,
+      data.rewardsParameters,
     );
   }
 
@@ -61,16 +62,6 @@ export class QueryStatusMigrator extends VersionedObjectMigrator<QueryStatus> {
     number,
     (data: Record<string, unknown>, version: number) => Record<string, unknown>
   > {
-    return new Map([
-      [
-        1,
-        (data, version) => {
-          // The only rewards parameter we care about is the recieving address. That will be added
-          // on by deliverInsights() if it's missing
-          data["rewardsParameters"] = null;
-          return data;
-        },
-      ],
-    ]);
+    return new Map();
   }
 }

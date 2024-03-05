@@ -55,6 +55,15 @@ const SIFT = function () {
   }
 };
 
+const REWARD = function () {
+  const artifactPath = "./artifacts/contracts/testing/Reward.sol/Reward.json";
+  if (fs.existsSync(artifactPath)) {
+    return require("../" + artifactPath);
+  } else {
+    return null;
+  }
+};
+
 const gasSettings = async function (txCount) {
   const hre = require("hardhat");
   const [account] = await hre.ethers.getSigners();
@@ -271,4 +280,5 @@ module.exports = {
   countryCode,
   crumbsContract,
   siftContract,
+  REWARD,
 };

@@ -1,8 +1,4 @@
 import "reflect-metadata";
-import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
 import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
   AccountAddress,
@@ -20,7 +16,6 @@ import {
   LinkedAccount,
   DataWalletAddress,
   EInvitationStatus,
-  WalletNFT,
   TokenBalance,
   EarnedReward,
   TokenInfo,
@@ -31,7 +26,6 @@ import {
   URLString,
   MarketplaceListing,
   IConsentCapacity,
-  PossibleReward,
   PagedResponse,
   IProxyDiscordMethods,
   DiscordProfile,
@@ -54,18 +48,21 @@ import {
   ECloudStorageType,
   OAuth2Tokens,
   TransactionFlowInsight,
-  TransactionFilter,
   ChainTransaction,
   IProxyAccountMethods,
   LanguageCode,
   EChain,
   Signature,
-  TransactionPaymentCounter,
   IUserAgreement,
   PageInvitation,
   Invitation,
   INftProxyMethods,
+  JSONString,
+  IProxyQuestionnaireMethods,
+  PagingRequest,
+  NewQuestionnaireAnswer,
 } from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
 
@@ -148,6 +145,13 @@ import {
   GetPersistenceNFTsParams,
   GetAccountNFTHistoryParams,
   GetAccountNftCacheParams,
+  SetUIStateParams,
+  GetUIStateParams,
+  GetAllQuestionnairesParams,
+  AnswerQuestionnaireParams,
+  GetQuestionnairesForConsentContractParams,
+  GetConsentContractsByQuestionnaireCIDParams,
+  GetRecommendedConsentContractsParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -158,9 +162,47 @@ export class ExternalCoreGateway {
   public metrics: IProxyMetricsMethods;
   public twitter: IProxyTwitterMethods;
   public nft: INftProxyMethods;
+  public questionnaire: IProxyQuestionnaireMethods;
   protected _handler: CoreHandler;
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
+
+    this.questionnaire = {
+      getAllQuestionnaires: (pagingRequest: PagingRequest) => {
+        return this._handler.call(
+          new GetAllQuestionnairesParams(pagingRequest),
+        );
+      },
+      answerQuestionnaire: (
+        questionnaireId: IpfsCID,
+        answers: NewQuestionnaireAnswer[],
+      ) => {
+        return this._handler.call(
+          new AnswerQuestionnaireParams(questionnaireId, answers),
+        );
+      },
+      getQuestionnairesForConsentContract: (
+        pagingRequest: PagingRequest,
+        consentContractAddress: EVMContractAddress,
+      ) => {
+        return this._handler.call(
+          new GetQuestionnairesForConsentContractParams(
+            pagingRequest,
+            consentContractAddress,
+          ),
+        );
+      },
+      getRecommendedConsentContracts: (questionnaireCID: IpfsCID) => {
+        return this._handler.call(
+          new GetRecommendedConsentContractsParams(questionnaireCID),
+        );
+      },
+      getConsentContractsByQuestionnaireCID: (questionnaireCID: IpfsCID) => {
+        return this._handler.call(
+          new GetConsentContractsByQuestionnaireCIDParams(questionnaireCID),
+        );
+      },
+    };
 
     this.account = {
       addAccount: (
@@ -191,8 +233,8 @@ export class ExternalCoreGateway {
       },
       addAccountWithExternalTypedDataSignature: (
         accountAddress: AccountAddress,
-        domain: TypedDataDomain,
-        types: Record<string, Array<TypedDataField>>,
+        domain: ethers.TypedDataDomain,
+        types: Record<string, Array<ethers.TypedDataField>>,
         value: Record<string, unknown>,
         signature: Signature,
         chain: EChain,
@@ -624,4 +666,11 @@ export class ExternalCoreGateway {
       return config.providerKey;
     });
   };
+
+  public setUIState(state: JSONString): ResultAsync<void, ProxyError> {
+    return this._handler.call(new SetUIStateParams(state));
+  }
+  public getUIState(): ResultAsync<JSONString | null, ProxyError> {
+    return this._handler.call(new GetUIStateParams());
+  }
 }

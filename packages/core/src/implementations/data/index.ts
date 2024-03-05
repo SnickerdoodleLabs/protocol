@@ -17,6 +17,7 @@ export * from "@core/implementations/data/NftRepository.js";
 export * from "@core/implementations/data/MetricsRepository.js";
 export * from "@core/implementations/data/PermissionRepository.js";
 export * from "@core/implementations/data/PortfolioBalanceRepository.js";
+export * from "@core/implementations/data/QuestionnaireRepository.js";
 export * from "@core/implementations/data/SDQLQueryRepository.js";
 export * from "@core/implementations/data/TransactionHistoryRepository.js";
 export * from "@core/implementations/data/TwitterRepository.js";

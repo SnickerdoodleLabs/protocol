@@ -14,12 +14,12 @@ import {
 import { inject, injectable } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
+import timezoneList from "@core/implementations/data/timezoneList.json" assert { type: "json" };
 import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   IDemographicDataRepository,
 } from "@core/interfaces/data/index.js";
-import timezoneList from "@core/implementations/data/timezoneList.json";
 
 @injectable()
 export class DemographicDataRepository implements IDemographicDataRepository {

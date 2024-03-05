@@ -1,6 +1,6 @@
 import { ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
-  ConsentRoles,
+  EConsentRoles,
   ContractOverrides,
   IConsentFactoryContract,
   WrappedTransactionResponse,
@@ -16,8 +16,8 @@ import {
   MarketplaceTag,
   TransactionResponseError,
   BlockchainCommonErrors,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
-import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 import { BaseContractWrapper } from "@core/implementations/utilities/factory/BaseContractWrapper.js";
@@ -62,10 +62,7 @@ export class ConsentFactoryContractWrapper
     ownerAddress: EVMAccountAddress,
     baseUri: BaseURI,
     name: ConsentName,
-  ): ResultAsync<
-    ethers.BigNumber,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
+  ): ResultAsync<bigint, ConsentFactoryContractError | BlockchainCommonErrors> {
     return this.fallback(
       () =>
         this.primary.estimateGasToCreateConsent(ownerAddress, baseUri, name),
@@ -118,7 +115,7 @@ export class ConsentFactoryContractWrapper
   }
   public getUserRoleAddressesCount(
     ownerAddress: EVMAccountAddress,
-    role: ConsentRoles,
+    role: EConsentRoles,
   ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors> {
     return this.fallback(
       () => this.primary.getUserRoleAddressesCount(ownerAddress, role),
@@ -127,7 +124,7 @@ export class ConsentFactoryContractWrapper
   }
   public getUserRoleAddressesCountByIndex(
     ownerAddress: EVMAccountAddress,
-    role: ConsentRoles,
+    role: EConsentRoles,
     startingIndex: number,
     endingIndex: number,
   ): ResultAsync<
@@ -303,6 +300,42 @@ export class ConsentFactoryContractWrapper
     return this.fallback(
       () => this.primary.getAddressOfConsentCreated(txRes),
       () => this.secondary?.getAddressOfConsentCreated(txRes),
+    );
+  }
+
+  public getQuestionnaires(): ResultAsync<
+    IpfsCID[],
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
+    return this.fallback(
+      () => this.primary.getQuestionnaires(),
+      () => this.secondary?.getQuestionnaires(),
+    );
+  }
+
+  public addQuestionnaire(
+    ipfsCid: IpfsCID,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.fallback(
+      () => this.primary.addQuestionnaire(ipfsCid, overrides),
+      () => this.secondary?.addQuestionnaire(ipfsCid, overrides),
+    );
+  }
+
+  public removeQuestionnaire(
+    index: number,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.fallback(
+      () => this.primary.removeQuestionnaire(index, overrides),
+      () => this.secondary?.removeQuestionnaire(index, overrides),
     );
   }
 }

@@ -1,8 +1,4 @@
 import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
-import {
   AccountAddress,
   EarnedReward,
   EChain,
@@ -27,6 +23,7 @@ import {
   UnixTimestamp,
   NftRepositoryCache,
 } from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
@@ -158,8 +155,8 @@ export class AccountService implements IAccountService {
 
   public addAccountWithExternalTypedDataSignature(
     accountAddress: AccountAddress,
-    domain: TypedDataDomain,
-    types: Record<string, Array<TypedDataField>>,
+    domain: ethers.TypedDataDomain,
+    types: Record<string, Array<ethers.TypedDataField>>,
     value: Record<string, unknown>,
     signature: Signature,
     chain: EChain,

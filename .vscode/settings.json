@@ -10,8 +10,11 @@
     "Astar",
     "blockvision",
     "bluez",
+    "Cids",
     "domaincontracts",
+    "endregion",
     "ethersproject",
+    "hexlify",
     "IDNS",
     "IEIP",
     "IERC",
@@ -20,6 +23,7 @@
     "Ipfs",
     "ISDQL",
     "ITXT",
+    "Keccak",
     "Metatransaction",
     "moralis",
     "mysten",
@@ -27,6 +31,7 @@
     "oklink",
     "poap",
     "Postmate",
+    "retryable",
     "sdql",
     "Sibbach",
     "Snickerdoodle",
@@ -34,6 +39,7 @@
     "Solana",
     "Statii",
     "tldts",
-    "tsbuildinfo"
+    "tsbuildinfo",
+    "zksync"
   ]
 }

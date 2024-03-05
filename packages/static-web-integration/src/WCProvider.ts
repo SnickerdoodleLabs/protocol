@@ -1,5 +1,3 @@
-import { Signer, ethers, providers } from "ethers";
-import { ResultAsync } from "neverthrow";
 import {
   configureChains,
   createConfig,
@@ -23,6 +21,8 @@ import {
   w3mProvider,
 } from "@web3modal/ethereum";
 import { Web3Modal } from "@web3modal/html";
+import { ethers } from "ethers";
+import { ResultAsync } from "neverthrow";
 import { HttpTransport } from "viem";
 export class WCProvider {
   protected ethereumClient: EthereumClient;
@@ -54,12 +54,12 @@ export class WCProvider {
     this.ethereumClient = new EthereumClient(wagmiConfig, chains);
     this.web3Modal = new Web3Modal(web3ModalConfig, this.ethereumClient);
   }
-  public startWalletConnect(): ResultAsync<Signer, Error> {
+  public startWalletConnect(): ResultAsync<ethers.Signer, Error> {
     this.web3Modal.openModal();
     return this.setupEventListeners();
   }
 
-  protected setupEventListeners(): ResultAsync<Signer, Error> {
+  protected setupEventListeners(): ResultAsync<ethers.Signer, Error> {
     return ResultAsync.fromPromise(
       new Promise<void>((resolve, reject) => {
         this.ethereumClient.watchAccount((accounts) => {
@@ -92,13 +92,13 @@ export class WCProvider {
 
   protected getEthersProvider(
     chainId?: number,
-  ): ethers.providers.JsonRpcProvider | ethers.providers.FallbackProvider {
+  ): ethers.JsonRpcProvider | ethers.FallbackProvider {
     const publicClient = getPublicClient({ chainId });
     return this.publicClientToProvider(publicClient);
   }
   protected publicClientToProvider(
     publicClient: PublicClient,
-  ): ethers.providers.FallbackProvider | ethers.providers.JsonRpcProvider {
+  ): ethers.FallbackProvider | ethers.JsonRpcProvider {
     const { chain, transport } = publicClient;
     const network = {
       chainId: chain.id,
@@ -106,38 +106,41 @@ export class WCProvider {
       ensAddress: chain.contracts?.ensRegistry?.address,
     };
     if (transport.type === "fallback") {
-      return new providers.FallbackProvider(
+      return new ethers.FallbackProvider(
         (transport.transports as ReturnType<HttpTransport>[]).map(
-          ({ value }) => new providers.JsonRpcProvider(value?.url, network),
+          ({ value }) => new ethers.JsonRpcProvider(value?.url, network),
         ),
       );
     }
-    return new providers.JsonRpcProvider(transport.url, network);
+    return new ethers.JsonRpcProvider(transport.url, network);
   }
 
   protected walletClientToSigner(
     walletClient: WalletClient,
-  ): ethers.providers.JsonRpcSigner {
+  ): ResultAsync<ethers.JsonRpcSigner, never> {
     const { account, chain, transport } = walletClient;
     const network = {
       chainId: chain.id,
       name: chain.name,
       ensAddress: chain.contracts?.ensRegistry?.address,
     };
-    const provider = new providers.Web3Provider(transport, network);
-    const signer = provider.getSigner(account.address);
-    return signer;
+    const provider = new ethers.BrowserProvider(transport, network);
+    return ResultAsync.fromSafePromise(provider.getSigner(account.address));
   }
 
-  public getEthersSigner(chainId?: number): ResultAsync<Signer, Error> {
+  public getEthersSigner(chainId?: number): ResultAsync<ethers.Signer, Error> {
     return ResultAsync.fromPromise(
       getWalletClient({ chainId: chainId || 1 }),
       (error) => new Error(`Error getting wallet client: ${error}`),
-    ).map((walletClient) => {
+    ).andThen((walletClient) => {
       return this.walletClientToSigner(walletClient!);
     });
   }
-  protected sign(signer: Signer, message: string): ResultAsync<string, Error> {
+
+  protected sign(
+    signer: ethers.Signer,
+    message: string,
+  ): ResultAsync<string, Error> {
     return ResultAsync.fromPromise(
       signer.signMessage(message),
       (error) => new Error(`Error during signMessage: ${error}`),

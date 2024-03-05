@@ -24,6 +24,7 @@ import {
   BlockchainCommonErrors,
   EarnedReward,
   IpfsCID,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -58,6 +59,7 @@ export interface IMarketplaceService {
     | BlockchainProviderError
     | ConsentContractError
     | BlockchainCommonErrors
+    | InvalidParametersError
   >;
 
   getEarnedRewardsByContractAddress(

@@ -1,4 +1,6 @@
 import "@material-ui/core/styles/createPalette";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+
 export declare enum _EColorMode {
   LIGHT = "light",
   DARK = "dark",
@@ -79,9 +81,11 @@ export enum EFontWeight {
 export enum EFontFamily {
   ROBOTO = "roboto",
   PUBLIC_SANS = "publicSans",
+  SHRINKHAND = "shrikhand",
 }
 
 export enum ECustomTypographyVariant {
+  DISPLAYXL = "displayXl",
   DISPLAYLG = "displayLg",
   DISPLAYMD = "displayMd",
   DISPLAYSM = "displaySm",
@@ -208,6 +212,7 @@ export const colors = {
   GREY900: "#212121", // HEADING
   GREY800: "#424242", // BODY
   GREY700: "#616161", // SUBTITLE
+  GREY600: "#757575",
   GREY500: "#9E9E9E", // LIGHT
   GREY400: "#BDBDBD",
   GREY300: "#E0E0E0", // BORDER
@@ -317,6 +322,10 @@ export const generateDynamicTypographyColorClasses = (theme: Theme) => ({
 });
 
 export const typograpyVariants = {
+  displayXl: {
+    fontSize: "64px",
+    lineHeight: "72px",
+  },
   displayLg: {
     fontSize: "57px",
     lineHeight: "64px",
@@ -417,6 +426,9 @@ export const genareteFontFamiles = () => ({
   [EFontFamily.PUBLIC_SANS]: {
     fontFamily: "Public Sans",
   },
+  [EFontFamily.SHRINKHAND]: {
+    fontFamily: "Shrikhand",
+  },
 });
 
 const breakpoints = {
@@ -487,6 +499,10 @@ export const createDefaultTheme = (
   }
   return createTheme({
     palette: {
+      action: {
+        selected: colors.MAINPURPLE100,
+        hover: colors.MAINPURPLE50,
+      },
       background: { default: palette.bgColor },
       primary: { main: palette.primary },
       secondary: { main: palette.secondary },
@@ -532,9 +548,36 @@ export const createDefaultTheme = (
           },
         },
       },
+      MuiFormHelperText: {
+        contained: {
+          marginLeft: 0,
+          marginTop: 16,
+          ...typograpyVariants.bodyMd,
+        },
+      },
+      MuiInputBase: {
+        root: {},
+      },
+      MuiOutlinedInput: {
+        root: {
+          borderRadius: 8,
+        },
+        input: {
+          padding: "12px 8px",
+          "&::placeholder": {
+            color: colors.GREY500,
+            opacity: 1,
+          },
+        },
+      },
       MuiTypography: {
         root: {
           color: palette.textBody,
+        },
+      },
+      MuiCheckbox: {
+        root: {
+          color: colors.GREY400,
         },
       },
       MuiButton: {
@@ -600,6 +643,10 @@ export const createDefaultTheme = (
     },
     breakpoints,
     props: {
+      MuiSelect: {
+        displayEmpty: true,
+        IconComponent: ExpandMoreIcon,
+      },
       MuiMenu: {
         disableAutoFocusItem: true,
         disablePortal: true,

@@ -1,7 +1,6 @@
 import {
   IpfsCID,
   DataPermissions,
-  HexString32,
   SDQL_Name,
   EvaluationError,
   SDQL_Return,
@@ -13,7 +12,6 @@ import {
   InvalidParametersError,
   MethodSupportError,
 } from "@snickerdoodlelabs/objects";
-import { utils } from "ethers";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import { AST_Evaluator } from "@query-parser/implementations/business/evaluators/AST_Evaluator.js";

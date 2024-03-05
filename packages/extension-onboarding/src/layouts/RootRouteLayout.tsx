@@ -6,8 +6,9 @@ const RootRouteLayout = () => {
   const location = useLocation();
   const { sendPageView } = useAnalyticsContext();
   useEffect(() => {
+    window.scrollTo(0, 0);
     sendPageView();
-  }, [location]);
+  }, [location.pathname]);
 
   return <Outlet />;
 };

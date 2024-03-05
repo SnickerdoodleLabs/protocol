@@ -17,7 +17,7 @@ export type ParserContextDataTypes =
   | AST_Compensation
   | AST_Ad
   | AST_Expr
-  | AST_Insight;
+  | AST_Insight
 
 export type ConditionOperandTypes =
   | string

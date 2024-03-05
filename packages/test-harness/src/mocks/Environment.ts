@@ -2,6 +2,7 @@ import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
   AdSignature,
   EligibleAd,
+  IpfsCID,
   SHA256Hash,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -20,6 +21,7 @@ export class Environment {
   protected fioUtils: FileInputUtils;
   public dataWalletProfile: DataWalletProfile | null = null;
   public adSignatureContentHashMap: Map<string, SHA256Hash>;
+  public ipfsCid: IpfsCID;
 
   public constructor(
     public businessProfile: BusinessProfile,
@@ -28,6 +30,7 @@ export class Environment {
     this.fioUtils = new FileInputUtils();
     this.loadDefaultProfile();
     this.adSignatureContentHashMap = new Map<string, SHA256Hash>();
+    this.ipfsCid = IpfsCID("Test-harness env IpfsCid");
   }
 
   public get insightPlatform(): InsightPlatformSimulator {

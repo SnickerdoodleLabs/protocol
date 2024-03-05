@@ -1,9 +1,4 @@
 import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
-import { SuiSignMessageOutput } from "@mysten/wallet-standard";
-import {
   AESEncryptedString,
   AESKey,
   Base64String,
@@ -25,7 +20,7 @@ import {
   URLString,
   UUID,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber, ethers } from "ethers";
+import { TypedDataDomain, TypedDataField, ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 export interface ICryptoUtils {
@@ -139,10 +134,10 @@ export interface ICryptoUtils {
   randomInt(randomFunc: () => number, low: number, high: number): number;
   randomBytes(length: number, seed: string): Uint8Array;
   getSignature(
-    owner: ethers.providers.JsonRpcSigner | ethers.Wallet,
+    owner: ethers.JsonRpcSigner | ethers.Wallet,
     types: Array<string>,
     values: Array<
-      BigNumber | string | HexString | EVMContractAddress | EVMAccountAddress
+      bigint | string | HexString | EVMContractAddress | EVMAccountAddress
     >,
   ): ResultAsync<Signature, InvalidParametersError>;
 

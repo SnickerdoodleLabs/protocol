@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/contracts-sdk",
-  "version": "1.5.5",
+  "version": "3.0.5",
   "description": "SDK for snickerdoodlelabs protocol smart contracts",
   "license": "MIT",
   "repository": {
@@ -30,6 +30,7 @@
     "alias": "tsc-alias && tsc-alias -p test/tsconfig.json",
     "alias-with-copyfiles": "yarn copy-files && tsc-alias",
     "build": "yarn clean && yarn compile",
+    "debug": "yarn build && node dist/debug/debugger.js",
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
     "compile": "npx tsc --build && cd ../.. && yarn alias",
     "copy-files": "copyfiles -u 1 src/**/*.d.ts dist/",
@@ -37,14 +38,16 @@
     "prepublish": "yarn build",
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --maxWorkers=50% --coverage --passWithNoTests"
   },
+  "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/node-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
-    "ethers": "^5.6.6",
+    "ethers": "^6.10.0",
     "inversify": "^6.0.2",
     "neverthrow": "^5.1.0",
-    "neverthrow-result-utils": "^2.0.2"
+    "neverthrow-result-utils": "^2.0.2",
+    "zksync-ethers": "^6.1.0"
   }
 }

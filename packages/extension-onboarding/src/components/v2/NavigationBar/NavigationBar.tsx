@@ -1,6 +1,7 @@
 import { SDLogoCircle, MobileMenuIcon } from "@extension-onboarding/assets";
 import HideOnScroll from "@extension-onboarding/components/v2/HideOnScroll";
 import {
+  CookieVaultIcon,
   DashboardIcon,
   DataPermissionIcon,
   SettingIcon,
@@ -31,29 +32,21 @@ const useStyles = makeStyles((theme: Theme) => ({
     boxShadow: shadows.sm,
   },
   toolbar: {
-    backgroundColor: colors.MAINPURPLE50,
+    backgroundColor: colors.DARKPURPLE500,
+    position: "sticky",
+    opacity: 1,
+    zIndex: 1000,
+    top: 0,
   },
   item: {
     cursor: "pointer",
     "&:hover": {
-      backgroundColor: colors.MAINPURPLE100,
+      backgroundColor: colors.MAINPURPLE900,
     },
     backgroundColor: "transparent",
-    "& svg": {
-      fill: colors.MAINPURPLE900,
-    },
-    "& p": {
-      color: colors.MAINPURPLE900,
-    },
   },
   itemActive: {
-    backgroundColor: colors.MAINPURPLE900,
-    "& svg": {
-      fill: colors.WHITE,
-    },
-    "& p": {
-      color: colors.WHITE,
-    },
+    backgroundColor: colors.MAINPURPLE800,
   },
   pointer: {
     cursor: "pointer",
@@ -64,7 +57,9 @@ const useStyles = makeStyles((theme: Theme) => ({
       left: "40% !important",
       width: "-webkit-fill-available !important",
     },
-    "& .MuiMenu-list": {},
+    "& .MuiMenu-list": {
+      backgroundColor: colors.MAINPURPLE900,
+    },
     "& .MuiListItem-gutters": {
       all: "unset",
     },
@@ -78,29 +73,33 @@ interface INavigationItem {
 }
 const navigationItems: INavigationItem[] = [
   {
-    displayName: "Data Permissions",
-    path: EPathsV2.DATA_PERMISSIONS,
-    icon: <DataPermissionIcon />,
+    displayName: "Cookie Vault",
+    path: EPathsV2.COOKIE_VAULT,
+    icon: <CookieVaultIcon color="inherit" />,
   },
+  // {
+  //   displayName: "Data Permissions",
+  //   path: EPathsV2.DATA_PERMISSIONS,
+  //   icon: <DataPermissionIcon color="inherit" />,
+  // },
   {
     displayName: "Settings",
     path: EPathsV2.SETTINGS,
-    icon: <SettingIcon />,
+    icon: <SettingIcon color="inherit" />,
   },
   {
     displayName: "My Data Dashboard",
-    path: "" as EPathsV2,
+    path: EPathsV2.DATA_DASHBOARD,
     initialSubroutePath: EPathsV2.TRANSACTION_HISTORY,
-    icon: <DashboardIcon />,
+    icon: <DashboardIcon color="inherit" />,
   },
 ];
 
 const NavigationBar = () => {
   const classes = useStyles();
-  const { sdlDataWallet } = useDataWalletContext();
   const location = useLocation();
   const navigate = useNavigate();
-  const [activeIndex, setActiveIndex] = React.useState<number>(0);
+  const [activeIndex, setActiveIndex] = React.useState<number>();
 
   useEffect(() => {
     const index = navigationItems.findIndex((item) =>
@@ -132,177 +131,91 @@ const NavigationBar = () => {
 
   return (
     <>
-      {sdlDataWallet?.proxyType === ECoreProxyType.IFRAME_BRIDGE ? (
-        <Toolbar className={classes.toolbar}>
-          <SDLogoCircle
-            onClick={() => {
-              navigate(EPathsV2.DATA_PERMISSIONS);
-            }}
-            className={classes.pointer}
-          />
-          <Box ml="auto" display="flex">
-            <Hidden xsDown>
+      <Toolbar className={classes.toolbar}>
+        <img
+          onClick={() => navigate(EPathsV2.HOME)}
+          className={classes.pointer}
+          src="https://storage.googleapis.com/dw-assets/spa/icons-v2/sdl-circle.svg"
+        />
+        <Box ml="auto" display="flex">
+          <Hidden xsDown>
+            {navigationItems.map((item, index) => (
+              <Fragment key={index}>
+                <Box
+                  onClick={() => handleClick(item)}
+                  alignItems="center"
+                  display="flex"
+                  borderRadius={8}
+                  px={1.5}
+                  py={1}
+                  className={
+                    index === activeIndex ? classes.itemActive : classes.item
+                  }
+                >
+                  <Box color={colors.WHITE} display="flex" alignItems="center">
+                    {item.icon}
+                    <Box mr={1.5} />
+                    <SDTypography
+                      color="inherit"
+                      variant="bodyMd"
+                      fontWeight="medium"
+                    >
+                      {item.displayName}
+                    </SDTypography>
+                  </Box>
+                </Box>
+                <Box ml={3} />
+              </Fragment>
+            ))}
+          </Hidden>
+          <Hidden smUp>
+            <MobileMenuIcon
+              width={40}
+              onClick={(e) => {
+                onMobileMenuClick(e);
+              }}
+            />
+            <Menu
+              id="simple-menu"
+              anchorEl={anchorEl}
+              keepMounted
+              open={Boolean(anchorEl)}
+              onClose={handleClose}
+              className={classes.mobileMenu}
+            >
               {navigationItems.map((item, index) => (
-                <Fragment key={index}>
+                <MenuItem key={index} onClick={handleClose}>
                   <Box
                     onClick={() => handleClick(item)}
-                    alignItems="center"
-                    display="flex"
-                    borderRadius={8}
                     px={1.5}
                     py={0.75}
+                    borderRadius={8}
+                    mx={1}
+                    my={0.75}
+                    display="flex"
+                    alignItems="center"
+                    width="fill-available"
+                    color={colors.WHITE}
                     className={
                       index === activeIndex ? classes.itemActive : classes.item
                     }
                   >
-                    <Box display="flex" alignItems="center">
-                      {item.icon}
-                      <Box mr={1.5} />
-                      <SDTypography variant="bodyMd" fontWeight="medium">
-                        {item.displayName}
-                      </SDTypography>
-                    </Box>
+                    {item.icon}
+                    <Box mr={1.5} />
+                    <SDTypography
+                      color="inherit"
+                      variant="bodyMd"
+                      fontWeight="medium"
+                    >
+                      {item.displayName}
+                    </SDTypography>
                   </Box>
-                  <Box ml={3} />
-                </Fragment>
+                </MenuItem>
               ))}
-            </Hidden>
-            <Hidden smUp>
-              <MobileMenuIcon
-                width={40}
-                onClick={(e) => {
-                  onMobileMenuClick(e);
-                }}
-              />
-              <Menu
-                id="simple-menu"
-                anchorEl={anchorEl}
-                keepMounted
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-                className={classes.mobileMenu}
-              >
-                {navigationItems.map((item, index) => (
-                  <MenuItem key={index} onClick={handleClose}>
-                    <Box
-                      onClick={() => handleClick(item)}
-                      px={1.5}
-                      py={0.75}
-                      borderRadius={8}
-                      mx={1}
-                      my={0.75}
-                      display="flex"
-                      alignItems="center"
-                      width="fill-available"
-                      className={
-                        index === activeIndex
-                          ? classes.itemActive
-                          : classes.item
-                      }
-                    >
-                      {item.icon}
-                      <Box mr={1.5} />
-                      <SDTypography variant="bodyMd" fontWeight="medium">
-                        {item.displayName}
-                      </SDTypography>
-                    </Box>
-                  </MenuItem>
-                ))}
-              </Menu>
-            </Hidden>
-          </Box>
-        </Toolbar>
-      ) : (
-        <>
-          <HideOnScroll>
-            <AppBar className={classes.appbar}>
-              <Toolbar className={classes.toolbar}>
-                <SDLogoCircle
-                  onClick={() => {
-                    navigate(EPathsV2.DATA_PERMISSIONS);
-                  }}
-                  className={classes.pointer}
-                />
-
-                <Box ml="auto" display="flex">
-                  <Hidden xsDown>
-                    {navigationItems.map((item, index) => (
-                      <Fragment key={index}>
-                        <Box
-                          onClick={() => handleClick(item)}
-                          alignItems="center"
-                          display="flex"
-                          borderRadius={8}
-                          px={1.5}
-                          py={0.75}
-                          className={
-                            index === activeIndex
-                              ? classes.itemActive
-                              : classes.item
-                          }
-                        >
-                          <Box display="flex" alignItems="center">
-                            {item.icon}
-                            <Box mr={1.5} />
-                            <SDTypography variant="bodyMd" fontWeight="medium">
-                              {item.displayName}
-                            </SDTypography>
-                          </Box>
-                        </Box>
-                        <Box ml={3} />
-                      </Fragment>
-                    ))}
-                  </Hidden>
-                  <Hidden smUp>
-                    <MobileMenuIcon
-                      width={40}
-                      onClick={(e) => {
-                        onMobileMenuClick(e);
-                      }}
-                    />
-                    <Menu
-                      id="simple-menu"
-                      anchorEl={anchorEl}
-                      keepMounted
-                      open={Boolean(anchorEl)}
-                      onClose={handleClose}
-                      className={classes.mobileMenu}
-                    >
-                      {navigationItems.map((item, index) => (
-                        <MenuItem key={index} onClick={handleClose}>
-                          <Box
-                            onClick={() => handleClick(item)}
-                            px={1.5}
-                            py={0.75}
-                            borderRadius={8}
-                            mx={1}
-                            my={0.75}
-                            display="flex"
-                            alignItems="center"
-                            width="fill-available"
-                            className={
-                              index === activeIndex
-                                ? classes.itemActive
-                                : classes.item
-                            }
-                          >
-                            {item.icon}
-                            <Box mr={1.5} />
-                            <SDTypography variant="bodyMd" fontWeight="medium">
-                              {item.displayName}
-                            </SDTypography>
-                          </Box>
-                        </MenuItem>
-                      ))}
-                    </Menu>
-                  </Hidden>
-                </Box>
-              </Toolbar>
-            </AppBar>
-          </HideOnScroll>
-          <Toolbar />
-        </>
-      )}
+            </Menu>
+          </Hidden>
+        </Box>
+      </Toolbar>
     </>
   );
 };

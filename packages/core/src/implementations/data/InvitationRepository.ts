@@ -8,6 +8,7 @@ import {
   EFieldKey,
   ERecordKey,
   EVMContractAddress,
+  InvitationForStorage,
   IOldUserAgreement,
   IpfsCID,
   IPFSError,
@@ -15,7 +16,6 @@ import {
   OptInInfo,
   PersistenceError,
   RejectedInvitation,
-  TokenId,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -47,7 +47,7 @@ export class InvitationRepository implements IInvitationRepository {
 
   public getAcceptedInvitations(): ResultAsync<OptInInfo[], PersistenceError> {
     return this.persistence
-      .getField<InvitationForStorage[]>(EFieldKey.ACCEPTED_INVITATIONS)
+      .getAll<InvitationForStorage>(ERecordKey.OPTED_IN_INVITATIONS)
       .map((storedInvitations) => {
         if (storedInvitations == null) {
           return [];
@@ -62,45 +62,30 @@ export class InvitationRepository implements IInvitationRepository {
   public addAcceptedInvitations(
     acceptedInvitations: OptInInfo[],
   ): ResultAsync<void, PersistenceError> {
-    return this.persistence
-      .getField<InvitationForStorage[]>(EFieldKey.ACCEPTED_INVITATIONS)
-      .andThen((storedInvitations) => {
-        if (storedInvitations == null) {
-          storedInvitations = [];
-        }
-
-        const allInvitations = storedInvitations.concat(
-          acceptedInvitations.map((invitation) => {
-            return InvitationForStorage.fromOptInInfo(invitation);
-          }),
+    const invitations = acceptedInvitations.map((invitation) => {
+      return InvitationForStorage.fromOptInInfo(invitation);
+    });
+    return ResultUtils.combine(
+      invitations.map((invitation) => {
+        return this.persistence.updateRecord(
+          ERecordKey.OPTED_IN_INVITATIONS,
+          invitation,
         );
-
-        return this.persistence.updateField(
-          EFieldKey.ACCEPTED_INVITATIONS,
-          allInvitations,
-        );
-      });
+      }),
+    ).map(() => {});
   }
 
   public removeAcceptedInvitationsByContractAddress(
     addressesToRemove: EVMContractAddress[],
   ): ResultAsync<void, PersistenceError> {
-    return this.persistence
-      .getField<InvitationForStorage[]>(EFieldKey.ACCEPTED_INVITATIONS)
-      .andThen((storedInvitations) => {
-        if (storedInvitations == null) {
-          storedInvitations = [];
-        }
-
-        const invitations = storedInvitations.filter((optIn) => {
-          return !addressesToRemove.includes(optIn.consentContractAddress);
-        });
-
-        return this.persistence.updateField(
-          EFieldKey.ACCEPTED_INVITATIONS,
-          invitations,
+    return ResultUtils.combine(
+      addressesToRemove.map((addressToRemove) => {
+        return this.persistence.deleteRecord(
+          ERecordKey.OPTED_IN_INVITATIONS,
+          addressToRemove,
         );
-      });
+      }),
+    ).map(() => {});
   }
 
   public getInvitationMetadataByCID(
@@ -167,26 +152,5 @@ export class InvitationRepository implements IInvitationRepository {
             return filteredRejection.consentContractAddress;
           });
       });
-  }
-}
-
-class InvitationForStorage {
-  public constructor(
-    public consentContractAddress: EVMContractAddress,
-    public tokenId: string,
-  ) {}
-
-  static toInvitation(src: InvitationForStorage): OptInInfo {
-    return new OptInInfo(
-      src.consentContractAddress,
-      TokenId(BigInt(src.tokenId)),
-    );
-  }
-
-  static fromOptInInfo(src: OptInInfo): InvitationForStorage {
-    return new InvitationForStorage(
-      src.consentContractAddress,
-      src.tokenId.toString(),
-    );
   }
 }

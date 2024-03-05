@@ -9,6 +9,7 @@ export const web2QueryTypes = [
   "url_visited_count",
   "social_discord",
   "social_twitter",
+  "questionnaire",
 ] as const;
 export type Web2QueryTypes = (typeof web2QueryTypes)[number];
 

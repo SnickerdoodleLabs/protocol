@@ -46,8 +46,8 @@ import {
   clearCloudBackupsTypes,
   signedUrlTypes,
 } from "@snickerdoodlelabs/signature-verification";
+import { questionnaire } from "@test-harness/queries/index.js";
 import cors from "cors";
-import { BigNumber } from "ethers";
 import express from "express";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -177,7 +177,7 @@ export class InsightPlatformSimulator {
               return errAsync(err);
             }
 
-            if (consentToken.ownerAddress != verificationAddress) {
+            if (consentToken.ownerAddress.toLowerCase() != verificationAddress.toLowerCase()) {
               const err = new Error(
                 `Consent token ${tokenId} is not owned by the verification address ${verificationAddress}`,
               );
@@ -237,7 +237,79 @@ export class InsightPlatformSimulator {
               return errAsync(err);
             }
 
-            if (consentToken.ownerAddress != verificationAddress) {
+            if (consentToken.ownerAddress.toLowerCase() != verificationAddress.toLowerCase()) {
+              const err = new Error(
+                `Consent token ${tokenId} is not owned by the verification address ${verificationAddress}`,
+              );
+              console.error(err);
+              return errAsync(err);
+            }
+
+            return okAsync(undefined);
+          });
+        })
+        .map(() => {
+          const earnedRewards: EarnedReward[] = [];
+          earnedRewards[0] = new EarnedReward(
+            queryCID,
+            "Sugar to your coffee",
+            IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
+            "dummy desc",
+            ERewardType.Direct,
+          );
+          res.send(earnedRewards);
+        })
+        .mapErr((e) => {
+          console.error(e);
+          res.send(e);
+        });
+    });
+
+    this.app.post("/questionnaires/responses", (req, res) => {
+      console.log("Recieved Questionnaires Response");
+
+      // console.log("Insights : ", req.body["insights"]["insights"]);
+      // console.log("Ads : ", req.body["insights"]["ads"]);
+      console.log("req.body: " + req.body);
+
+      const consentContractId = EVMContractAddress(req.body.consentContractId);
+      const queryCID = IpfsCID(req.body.queryCID);
+      const tokenId = TokenId(BigInt(req.body.tokenId));
+      const insights = JSON.stringify(req.body.insights);
+      const rewardParameters = JSON.stringify(req.body.rewardParameters);
+      const signature = Signature(req.body.signature);
+
+      const value = {
+        consentContractId,
+        queryCID,
+        tokenId,
+        insights,
+        rewardParameters,
+      };
+
+      this.logStream.write(JSON.stringify(req.body));
+      return this.cryptoUtils
+        .verifyTypedData(
+          snickerdoodleSigningDomain,
+          insightDeliveryTypes,
+          value,
+          signature,
+        )
+        .andThen((verificationAddress) => {
+          const contract =
+            this.blockchain.getConsentContract(consentContractId);
+
+          return contract.getConsentToken(tokenId).andThen((consentToken) => {
+            if (consentToken == null) {
+              const err = new Error(`No consent token found for id ${tokenId}`);
+              console.error(err);
+              return errAsync(err);
+            }
+
+            console.log("consentToken.ownerAddress: " + consentToken.ownerAddress);
+            console.log("verificationAddress: " + verificationAddress);
+
+            if (consentToken.ownerAddress.toLowerCase() != verificationAddress.toLowerCase()) {
               const err = new Error(
                 `Consent token ${tokenId} is not owned by the verification address ${verificationAddress}`,
               );
@@ -350,7 +422,7 @@ export class InsightPlatformSimulator {
           signature,
         )
         .andThen((verificationAddress) => {
-          if (verificationAddress != accountAddress) {
+          if (verificationAddress.toLowerCase() != accountAddress.toLowerCase()) {
             console.error(
               `Invalid signature. Metatransaction request is signed by ${verificationAddress} but is for account ${accountAddress}`,
             );
@@ -364,9 +436,9 @@ export class InsightPlatformSimulator {
           const forwarderRequest = {
             to: contractAddress, // Contract address for the metatransaction
             from: accountAddress, // EOA to run the transaction as
-            value: BigNumber.from(value), // The amount of doodle token to pay. Should be 0.
-            gas: BigNumber.from(gas), // The amount of gas to pay.
-            nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+            value: BigInt(value), // The amount of doodle token to pay. Should be 0.
+            gas: BigInt(gas), // The amount of gas to pay.
+            nonce: BigInt(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
             data: data, // The actual bytes of the request, encoded as a hex string
           } as IMinimalForwarderRequest;
 
@@ -382,8 +454,8 @@ export class InsightPlatformSimulator {
           return ResultAsync.fromPromise(tx.wait(), (e) => {
             return new MinimalForwarderContractError(
               "Wait for createCrumb() failed",
-              "Unknown",
               e,
+              null,
             );
           });
         })
@@ -409,14 +481,9 @@ export class InsightPlatformSimulator {
   ): ResultAsync<void, Error | ConsentContractError> {
     // Posting a query involves two things- 1. putting the query content into IPFS, and 2.
     // calling requestForData on the consent contract
-
     // The queryText needs to have the timestamp inserted
     const queryJson = JSON.parse(queryText) as ISDQLQueryObject;
-    // queryJson.timestamp = UnixTimestamp(
-    //   Math.floor(new Date().getTime() / 1000),
-    // );
     queryJson.timestamp = ISO8601DateString(new Date().toISOString());
-    // queryJson.expiry = new Date().toISOString();
     // Convert query back to string
     queryText = SDQLString(JSON.stringify(queryJson));
 
@@ -439,12 +506,27 @@ export class InsightPlatformSimulator {
       });
   }
 
+  public uploadQuestionnaire(): ResultAsync<
+    IpfsCID, Error
+  > {
+      return this.ipfs.postToIPFS(questionnaire).map((cid) => {
+        console.log("cid: " + cid);
+        return cid;        
+      })
+        .mapErr((e) => {
+          console.error(e);
+          return e;
+        });
+  }
+  
+
   public createCampaign(
     domains: DomainName[],
   ): ResultAsync<
     EVMContractAddress,
     ConsentFactoryContractError | ConsentContractError | Error
   > {
+    console.log("Posting Audience Metadata to IPFS");
     return this.ipfs
       .postToIPFS(
         JSON.stringify({
@@ -470,14 +552,19 @@ export class InsightPlatformSimulator {
               this.blockchain.getConsentContract(contractAddress);
 
             console.log(
-              `Created consent contract address ${contractAddress} for business account adddress ${this.blockchain.businessAccount.accountAddress}, owned by ${this.blockchain.serverAccount.accountAddress}`,
+              `Created consent contract address ${contractAddress} for business account address ${this.blockchain.businessAccount.accountAddress}, owned by ${this.blockchain.serverAccount.accountAddress}`,
             );
             this.consentContracts.push(contractAddress);
 
             // Add a few URLs
             // We need to do this
             return ResultUtils.executeSerially(
-              domains.map((domain) => () => consentContract.addDomain(domain)),
+              domains.map((domain) => () => {
+                console.log(
+                  `Adding domain ${domain} to consent contract ${contractAddress}`,
+                );
+                return consentContract.addDomain(domain);
+              }),
             ).map(() => {
               console.log(
                 `Added domains to consent contract address ${contractAddress}`,

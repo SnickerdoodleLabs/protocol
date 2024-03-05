@@ -103,7 +103,7 @@ export class PolygonIndexer implements IEVMIndexer {
     //             return okAsync(null);
     //           }
 
-    //           const balanceValue = BigNumber.from(
+    //           const balanceValue = BigInt(
     //             balance.tokenBalance,
     //           ).toString();
     //           if (balanceValue == "0") {
@@ -126,7 +126,7 @@ export class PolygonIndexer implements IEVMIndexer {
     //                 EVMContractAddress(balance.contractAddress),
     //                 accountAddress,
     //                 BigNumberString(
-    //                   BigNumber.from(balance.tokenBalance).toString(),
+    //                   BigInt(balance.tokenBalance).toString(),
     //                 ),
     //                 metadata.decimals,
     //               ),

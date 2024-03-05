@@ -1,6 +1,5 @@
-import { JsonRpcProvider } from "@ethersproject/providers";
 import { BlockchainProviderError, EChain } from "@snickerdoodlelabs/objects";
-import { ethers, Wallet } from "ethers";
+import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 export interface IBlockchainProvider {
@@ -8,18 +7,21 @@ export interface IBlockchainProvider {
 
   // There is only a single signer that we will deal with, which uses the
   // derived DataWallet Key.
-  getPrimarySigner(): ResultAsync<Wallet, BlockchainProviderError>;
+  getPrimarySigner(): ResultAsync<ethers.Wallet, BlockchainProviderError>;
 
   // The primary provider is required. A secondary provider is optional
-  getPrimaryProvider(): ResultAsync<JsonRpcProvider, BlockchainProviderError>;
+  getPrimaryProvider(): ResultAsync<
+    ethers.JsonRpcProvider,
+    BlockchainProviderError
+  >;
   getSecondaryProvider(): ResultAsync<
-    JsonRpcProvider | null,
+    ethers.JsonRpcProvider | null,
     BlockchainProviderError
   >;
 
   getLatestBlock(
     chain?: EChain,
-  ): ResultAsync<ethers.providers.Block, BlockchainProviderError>;
+  ): ResultAsync<ethers.Block, BlockchainProviderError>;
 }
 
 export const IBlockchainProviderType = Symbol.for("IBlockchainProvider");
