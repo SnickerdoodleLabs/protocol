@@ -50,6 +50,7 @@ import {
   AccountIndexingError,
   InvalidParametersError,
   MethodSupportError,
+  DataPermissions,
 } from "@snickerdoodlelabs/objects";
 import {
   SDQLQueryWrapper,
@@ -460,7 +461,10 @@ export class QueryService implements IQueryService {
                   );
                   return ResultUtils.combine([
                     this.queryParsingEngine
-                      .handleQuery(query, consentToken!.dataPermissions)
+                      .handleQuery(
+                        query,
+                        DataPermissions.createWithAllPermissions(), // We're enabling all permissions for now instead of using consentToken!.dataPermissions till the permissions are properly refactored.
+                      )
                       .map((insights) => {
                         this.logUtils.debug(
                           `Query ${query.cid} processed into insights`,
