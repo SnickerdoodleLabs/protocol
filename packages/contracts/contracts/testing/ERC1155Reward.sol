@@ -13,8 +13,7 @@ contract ERC1155Reward is ERC1155, AccessControl, ERC1155Supply, ERC7529 {
 
     uint256 public currentTokenId; 
 
-    mapping(uint256 => string) public tokenIdToURI; 
-    mapping(uint256 => uint256) public tokenIdToMaxSupply; 
+    mapping(uint256 => string) public tokenIdToURI;
 
     modifier tokenIdExists(uint256 tokenId) {
         require(tokenId <= currentTokenId, "ERC1155Reward: Token id does not exist");
