@@ -12,15 +12,16 @@ contract ERC1155Reward is ERC1155, AccessControl, ERC1155Supply, ERC7529 {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     // Number of reward options
-    uint256 public currentTokenId; 
+    uint256 public tokenCount; 
 
     /// @notice Takes the initial number of rewards offered and sets the current token id
     constructor(uint256 numberOfRewards) ERC1155("") {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(MINTER_ROLE, msg.sender);
-
+        
+        require(numberOfRewards > 0, "ERC1155Reward: Number of rewards must be greater than zero");
         // Starts from token id 0
-        currentTokenId = numberOfRewards - 1;
+        tokenCount = numberOfRewards - 1;
     }
 
     function setURI(string memory newURI) public onlyRole(DEFAULT_ADMIN_ROLE) {
@@ -31,7 +32,7 @@ contract ERC1155Reward is ERC1155, AccessControl, ERC1155Supply, ERC7529 {
         public
         onlyRole(MINTER_ROLE)
     {
-        require(tokenId <= currentTokenId, "ERC1155Reward: Token id does not exist");
+        require(tokenId <= tokenCount, "ERC1155Reward: Token id does not exist");
         _mint(account, tokenId, amount, data);
     }
 
@@ -40,14 +41,14 @@ contract ERC1155Reward is ERC1155, AccessControl, ERC1155Supply, ERC7529 {
         onlyRole(MINTER_ROLE)
     {
         for(uint256 i; i < ids.length; i++) {
-            require(ids[i] <= currentTokenId, "ERC1155Reward: Token id does not exist");
+            require(ids[i] <= tokenCount, "ERC1155Reward: Token id does not exist");
         }
         _mintBatch(to, ids, amounts, data);
     }
 
     /// @notice Creates a new token id and registers the new uri
     function createNewToken(string memory newURI) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        currentTokenId++;
+        tokenCount++;
         setURI(newURI);
     }
 
