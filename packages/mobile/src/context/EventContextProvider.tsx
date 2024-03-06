@@ -1,6 +1,7 @@
 import {
   DataWalletAddress,
   ESolidityAbiParameterType,
+  EVMContractAddress,
   IDynamicRewardParameter,
   LinkedAccount,
   SDQLQueryRequest,
@@ -23,17 +24,26 @@ const EventContextProvider = ({ children }) => {
       events.onInitialized.subscribe(onInitialized);
       events.onAccountAdded.subscribe(onAccountAdded);
       events.onQueryPosted.subscribe(onQueryPosted);
+      events.onCohortJoined.subscribe(onCohortJoined);
+      events.onCohortLeft.subscribe(onCohortLeft);
     });
   }, []);
+
+  const onCohortJoined = (consentAddress: EVMContractAddress) => {
+    console.log(`Extension: cohort ${consentAddress} joined`);
+  };
+  const onCohortLeft = (consentAddress: EVMContractAddress) => {
+    console.log(`Extension: cohort ${consentAddress} left`);
+  };
 
   const onInitialized = (address: DataWalletAddress) => {
     console.error("INITIALIZED", address);
     setUnlockState(true);
-    updateLinkedAccounts();
+    updateLinkedAccounts(undefined); // Do we need to pass sourceDomain here?
     cancelLoading();
   };
   const onAccountAdded = (account: LinkedAccount) => {
-    updateLinkedAccounts();
+    updateLinkedAccounts(undefined); // Do we need to pass sourceDomain here?
     cancelLoading();
   };
 
@@ -70,14 +80,13 @@ const EventContextProvider = ({ children }) => {
                 type: ESolidityAbiParameterType.address,
                 value: accountAddress,
               },
-              compensationId: {
+              compensationKey: {
                 type: ESolidityAbiParameterType.string,
                 value: eligibleReward.compensationKey,
               },
             } as IDynamicRewardParameter);
           }
         });
-
         mobileCore
           .getCore()
           .approveQuery(

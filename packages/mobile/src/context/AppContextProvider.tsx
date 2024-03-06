@@ -1,4 +1,4 @@
-import { AccountAddress } from "@snickerdoodlelabs/objects";
+import { AccountAddress, DomainName } from "@snickerdoodlelabs/objects";
 import React, { useMemo, useState, useContext } from "react";
 import { AppStateStatus } from "react-native";
 
@@ -10,7 +10,7 @@ export interface IAppCtx {
   isUnlocked: boolean;
   linkedAccounts: AccountAddress[];
   setUnlockState: (boolean) => void;
-  updateLinkedAccounts: () => void;
+  updateLinkedAccounts: (sourceDomain: DomainName | undefined) => void;
 }
 
 export const AppCtx = React.createContext<IAppCtx>({} as IAppCtx);
@@ -26,10 +26,10 @@ const AppContextProvider = ({ children }) => {
     setIsUnlocked(state);
   };
 
-  const updateLinkedAccounts = () => {
+  const updateLinkedAccounts = (sourceDomain: DomainName | undefined) => {
     mobileCore
       .getCore()
-      .getAccounts()
+      .account.getAccounts(sourceDomain)
       .map((accounts) => {
         setLinkedAccounts(
           Array.from(
