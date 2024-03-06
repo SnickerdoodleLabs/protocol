@@ -1,13 +1,10 @@
 import {
   AxiosAjaxUtils,
-  CryptoUtils,
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
   TimeUtils,
   ITimeUtils,
   ITimeUtilsType,
-  ICryptoUtils,
-  ICryptoUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import { ConfigProvider } from "@snickerdoodlelabs/core";
 import {
@@ -27,10 +24,6 @@ import {
 } from "@snickerdoodlelabs/persistence";
 import { ContainerModule, interfaces } from "inversify";
 
-import {
-  IAccountService,
-  IAccountServiceType,
-} from "../interfaces/business/IAccountService";
 import {
   IPIIService,
   IPIIServiceType,
@@ -53,6 +46,35 @@ import { AccountService, PIIService, TokenPriceService } from "./business";
 import { AccountStorageRepository } from "./data/AccountStorageRepository";
 import { DataPermissionsRepository } from "./data/DataPermissionsRepository";
 import { ErrorUtils } from "./utils/ErrorUtils";
+import {
+  IAccountService,
+  IAccountServiceType,
+} from "../interfaces/business/IAccountService";
+import {
+  IInvitationService,
+  IInvitationServiceType,
+} from "../interfaces/business/IInvitationService";
+import { InvitationService } from "./business/InvitationService";
+import {
+  IQuestionnaireService,
+  IQuestionnaireServiceType,
+} from "../interfaces/business/IQuestionnaireService";
+import { QuestionnaireService } from "./business/QuestionnaireService";
+import {
+  CryptoUtils,
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/node-utils";
+import {
+  IStorageService,
+  IStorageServiceType,
+} from "../interfaces/business/IStorageService";
+import { StorageService } from "./business/StorageService";
+import {
+  IMetricsService,
+  IMetricsServiceType,
+} from "../interfaces/business/IMetricsService";
+import { MetricsService } from "./business/MetricsService";
 
 export const mobileCoreModule = new ContainerModule(
   (
@@ -65,11 +87,22 @@ export const mobileCoreModule = new ContainerModule(
     bind<IAccountService>(IAccountServiceType)
       .to(AccountService)
       .inSingletonScope();
+    bind<IInvitationService>(IInvitationServiceType)
+      .to(InvitationService)
+      .inSingletonScope();
+    bind<IQuestionnaireService>(IQuestionnaireServiceType)
+      .to(QuestionnaireService)
+      .inSingletonScope();
+    bind<IStorageService>(IStorageServiceType)
+      .to(StorageService)
+      .inSingletonScope();
+    bind<IMetricsService>(IMetricsServiceType)
+      .to(MetricsService)
+      .inSingletonScope();
     bind<IPIIService>(IPIIServiceType).to(PIIService).inSingletonScope();
     bind<ITokenPriceService>(ITokenPriceServiceType)
       .to(TokenPriceService)
       .inSingletonScope();
-
     bind<IAccountStorageRepository>(IAccountStorageRepositoryType).to(
       AccountStorageRepository,
     );

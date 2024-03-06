@@ -1,13 +1,10 @@
-import {
-  ICryptoUtils,
-  ICryptoUtilsType,
-} from "@snickerdoodlelabs/common-utils";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
   AccountAddress,
   ChainId,
   CountryCode,
   DataWalletAddress,
+  DomainName,
   EChain,
   EmailAddressString,
   EWalletDataType,
@@ -19,6 +16,7 @@ import {
   ISnickerdoodleCoreEvents,
   ISnickerdoodleCoreType,
   LanguageCode,
+  LinkedAccount,
   Signature,
   TokenAddress,
   UnixTimestamp,
@@ -50,6 +48,7 @@ import { coreConfig } from "../interfaces/objects/Config";
 
 import { mobileCoreModule } from "./MobileCore.module";
 import { MobileStorageUtils } from "./utils/MobileStorageUtils";
+import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 
 export class MobileCore {
   protected iocContainer: Container;
@@ -145,79 +144,79 @@ export class MobileCore {
 
     this.accountService = {
       addAccount: (
-        account: AccountAddress,
-        signature: Signature,
-        languageCode: LanguageCode,
-        chain: EChain,
-      ) => {
-        const _accountService =
-          this.iocContainer.get<IAccountService>(IAccountServiceType);
-        return _accountService.addAccount(
-          account,
-          signature,
-          languageCode,
-          chain,
-        );
-      },
-      getLinkAccountMessage: (languageCode: LanguageCode) => {
-        const _accountService =
-          this.iocContainer.get<IAccountService>(IAccountServiceType);
-        return _accountService.getLinkAccountMessage(languageCode);
-      },
-      getAccounts: () => {
-        const _accountService =
-          this.iocContainer.get<IAccountService>(IAccountServiceType);
-        return _accountService.getAccounts();
-      },
-      getAccountBalances: () => {
-        const _accountService =
-          this.iocContainer.get<IAccountService>(IAccountServiceType);
-        return _accountService.getAccountBalances();
-      },
-      getAccountNFTs: () => {
-        const _accountService =
-          this.iocContainer.get<IAccountService>(IAccountServiceType);
-        return _accountService.getAccountNFTs();
-      },
-      isDataWalletAddressInitialized: () => {
-        const _accountService =
-          this.iocContainer.get<IAccountService>(IAccountServiceType);
-        return _accountService.isDataWalletAddressInitialized();
-      },
-      unlinkAccount: (
-        account: AccountAddress,
-        signature: Signature,
-        chain: EChain,
-        languageCode: LanguageCode,
-      ) => {
-        const _accountService =
-          this.iocContainer.get<IAccountService>(IAccountServiceType);
-        return _accountService.unlinkAccount(
-          account,
-          signature,
-          chain,
-          languageCode,
-        );
-      },
-      getDataWalletForAccount: (
         accountAddress: AccountAddress,
         signature: Signature,
         languageCode: LanguageCode,
         chain: EChain,
+        sourceDomain: DomainName | undefined,
       ) => {
         const _accountService =
           this.iocContainer.get<IAccountService>(IAccountServiceType);
-        return _accountService.getDataWalletForAccount(
+        return _accountService.addAccount(
           accountAddress,
           signature,
           languageCode,
           chain,
+          sourceDomain,
         );
       },
-      getEarnedRewards: () => {
+      getLinkAccountMessage: (
+        languageCode: LanguageCode,
+        sourceDomain: DomainName | undefined,
+      ) => {
         const _accountService =
           this.iocContainer.get<IAccountService>(IAccountServiceType);
-        return _accountService.getEarnedRewards();
+        return _accountService.getLinkAccountMessage(
+          languageCode,
+          sourceDomain,
+        );
+      },
+      getAccounts: (sourceDomain: DomainName | undefined) => {
+        const _accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+        return _accountService.getAccounts(sourceDomain);
+      },
+      getAccountBalances: (sourceDomain: DomainName | undefined) => {
+        const _accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+        return _accountService.getAccountBalances(sourceDomain);
+      },
+      getNfts: (
+        benchmark: UnixTimestamp | undefined,
+        chains: EChain[] | undefined,
+        accounts: LinkedAccount[] | undefined,
+        sourceDomain: DomainName | undefined,
+      ) => {
+        const _accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+        return _accountService.getNfts(
+          benchmark,
+          chains,
+          accounts,
+          sourceDomain,
+        );
+      },
+      isDataWalletAddressInitialized: (
+        sourceDomain: DomainName | undefined,
+      ) => {
+        const _accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+        return _accountService.isDataWalletAddressInitialized(sourceDomain);
+      },
+      unlinkAccount: (
+        account: AccountAddress,
+        chain: EChain,
+        sourceDomain: DomainName | undefined,
+      ) => {
+        const _accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+        return _accountService.unlinkAccount(account, chain, sourceDomain);
+      },
+
+      getEarnedRewards: (sourceDomain: DomainName | undefined) => {
+        const _accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+        return _accountService.getEarnedRewards(sourceDomain);
       },
     };
 

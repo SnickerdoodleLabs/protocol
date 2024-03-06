@@ -11,6 +11,8 @@ import {
   ISnickerdoodleCoreType,
   ISnickerdoodleCore,
   UnauthorizedError,
+  DomainName,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -34,85 +36,92 @@ export class AccountService implements IAccountService {
     @inject(IAccountStorageRepositoryType)
     protected accountStorage: IAccountStorageRepository,
   ) {}
+  getAccountBalances(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<TokenBalance[], SnickerDoodleCoreError> {
+    return this.core.getAccountBalances(sourceDomain).mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message);
+    });
+  }
+  isDataWalletAddressInitialized(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<boolean, SnickerDoodleCoreError> {
+    return this.core
+      .isDataWalletAddressInitialized(sourceDomain)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message);
+      });
+  }
+  getEarnedRewards(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<EarnedReward[], SnickerDoodleCoreError> {
+    return this.core.getEarnedRewards(sourceDomain).mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message);
+    });
+  }
   public addAccount(
-    account: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core.account
-      .addAccount(account, signature, languageCode, chain)
-      .mapErr((error) => {
-        this.errorUtils.emit(error);
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      });
-  }
-  public getLinkAccountMessage(
-    languageCode: LanguageCode,
-  ): ResultAsync<string, SnickerDoodleCoreError> {
-    return this.core.account
-      .getLinkAccountMessage(languageCode)
-      .mapErr((error) => {
-        this.errorUtils.emit(error);
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      });
-  }
-  public getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {
-    return this.core.getAccounts().mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
-  }
-
-  public getAccountBalances(): ResultAsync<
-    TokenBalance[],
-    SnickerDoodleCoreError
-  > {
-    return this.core.getAccountBalances().mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
-  }
-
-  public isDataWalletAddressInitialized(): ResultAsync<
-    boolean,
-    UnauthorizedError
-  > {
-    return this.core.isDataWalletAddressInitialized();
-  }
-  public unlinkAccount(
-    account: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode: LanguageCode,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core.account
-      .unlinkAccount(account, signature, languageCode, chain)
-      .mapErr((error) => {
-        this.errorUtils.emit(error);
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      });
-  }
-  public getDataWalletForAccount(
     accountAddress: AccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
     chain: EChain,
-  ): ResultAsync<DataWalletAddress | null, SnickerDoodleCoreError> {
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.core.account
-      .getDataWalletForAccount(accountAddress, signature, languageCode, chain)
+      .addAccount(accountAddress, signature, languageCode, chain, sourceDomain)
       .mapErr((error) => {
         this.errorUtils.emit(error);
-        return new SnickerDoodleCoreError((error as Error).message, error);
+        return new SnickerDoodleCoreError((error as Error).message);
       });
   }
-  public getEarnedRewards(): ResultAsync<
-    EarnedReward[],
-    SnickerDoodleCoreError
-  > {
-    return this.core.getEarnedRewards().mapErr((error) => {
+
+  public getLinkAccountMessage(
+    languageCode: LanguageCode,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<string, SnickerDoodleCoreError> {
+    return this.core.account
+      .getLinkAccountMessage(languageCode, sourceDomain)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message);
+      });
+  }
+
+  public getAccounts(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {
+    return this.core.account.getAccounts(sourceDomain).mapErr((error) => {
       this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
+      return new SnickerDoodleCoreError((error as Error).message);
     });
+  }
+
+  public unlinkAccount(
+    accountAddress: AccountAddress,
+    chain: EChain,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.core.account
+      .unlinkAccount(accountAddress, chain, sourceDomain)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message);
+      });
+  }
+
+  public getNfts(
+    benchmark: UnixTimestamp | undefined,
+    chains: EChain[] | undefined,
+    accounts: LinkedAccount[] | undefined,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
+    return this.core.nft
+      .getNfts(benchmark, chains, accounts, sourceDomain)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message);
+      });
   }
 }
