@@ -25,7 +25,8 @@ export interface ISDQLQueryRepository {
   ): ResultAsync<QueryStatus | null, PersistenceError>;
 
   getQueryStatusByStatus(
-    status: EQueryProcessingStatus,
+    status?: EQueryProcessingStatus,
+    consentContractAddress?: EVMContractAddress,
   ): ResultAsync<QueryStatus[], PersistenceError>;
 
   upsertQueryStatus(

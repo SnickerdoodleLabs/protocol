@@ -51,15 +51,22 @@ import {
   InvalidParametersError,
   MethodSupportError,
   DataPermissions,
+  Offer,
+  SDQL_Name,
+  URLString,
+  InvalidQueryStatusError,
 } from "@snickerdoodlelabs/objects";
 import {
   SDQLQueryWrapper,
   ISDQLQueryWrapperFactory,
   ISDQLQueryWrapperFactoryType,
+  AST_SubQuery,
+  AST_QuestionnaireQuery,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { urlJoin } from "url-join-ts";
 
 import { IQueryService } from "@core/interfaces/business/index.js";
 import {
@@ -73,10 +80,16 @@ import {
   IConsentContractRepositoryType,
   ILinkedAccountRepository,
   ILinkedAccountRepositoryType,
+  IQuestionnaireRepository,
+  IQuestionnaireRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data/index.js";
-import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
+import {
+  CoreConfig,
+  CoreContext,
+  QueryMetaData,
+} from "@core/interfaces/objects/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -113,6 +126,8 @@ export class QueryService implements IQueryService {
     protected sdqlQueryWrapperFactory: ISDQLQueryWrapperFactory,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
+    @inject(IQuestionnaireRepositoryType)
+    protected questionnaireRepo: IQuestionnaireRepository,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -250,6 +265,160 @@ export class QueryService implements IQueryService {
     });
   }
 
+  approveOffer(
+    queryCID: IpfsCID,
+  ): ResultAsync<void, InvalidQueryStatusError | PersistenceError> {
+    return this.getQueryStatusByQueryCID(queryCID).andThen((queryStatus) => {
+      if (queryStatus?.status !== EQueryProcessingStatus.WaitingUserApproval) {
+        return errAsync(
+          new InvalidQueryStatusError(
+            `Query status for CID ${queryCID} is ${
+              queryStatus ? "missing" : "not in approval state"
+            }`,
+          ),
+        );
+      }
+
+      queryStatus.status = EQueryProcessingStatus.AdsCompleted;
+      return this.sdqlQueryRepo.upsertQueryStatus([queryStatus]).andThen(() => {
+        return this.contextProvider.getContext().map((context) => {
+          context.publicEvents.onQueryStatusUpdated.next(queryStatus);
+        });
+      });
+    });
+  }
+
+  getOffers(
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus,
+  ): ResultAsync<
+    Offer[],
+    | AjaxError
+    | PersistenceError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | MissingASTError
+  > {
+    return this.sdqlQueryRepo
+      .getQueryStatusByStatus(status, contractAddress)
+      .andThen((queryStatuses) => this.fetchOffer(queryStatuses));
+  }
+
+  private fetchOffer(
+    queryStatuses: QueryStatus[],
+  ): ResultAsync<
+    Offer[],
+    | AjaxError
+    | PersistenceError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | MissingASTError
+  > {
+    if (queryStatuses.length === 0) return okAsync([]);
+
+    return this.configProvider.getConfig().andThen((config) => {
+      return ResultUtils.combine(
+        queryStatuses.map((status) =>
+          this.constructOfferFromStatus(status, config.ipfsFetchBaseUrl),
+        ),
+      ).map((offers) => {
+        return offers.filter((offer): offer is Offer => offer !== null);
+      });
+    });
+  }
+
+  private constructOfferFromStatus = (
+    queryStatus: QueryStatus,
+    ipfsFetchBaseUrl: URLString,
+  ): ResultAsync<
+    Offer | null,
+    | AjaxError
+    | PersistenceError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | MissingASTError
+  > => {
+    return this.getQueryMetaData(queryStatus.queryCID).map((metaData) => {
+      if (!metaData) return null;
+      const ipfsUrl = urlJoin(
+        ipfsFetchBaseUrl,
+        metaData.image?.replace("ipfs://", ""),
+      );
+      return new Offer(
+        metaData.name,
+        metaData.description,
+        URLString(ipfsUrl),
+        metaData.points,
+        metaData.questionnaires,
+        queryStatus.consentContractAddress,
+        queryStatus.queryCID,
+        queryStatus.receivedBlock,
+        queryStatus.status,
+        queryStatus.expirationDate,
+        queryStatus.rewardsParameters,
+      );
+    });
+  };
+
+  getQueryMetaData(
+    queryCID: IpfsCID,
+  ): ResultAsync<
+    QueryMetaData | undefined,
+    | AjaxError
+    | PersistenceError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | MissingASTError
+  > {
+    return this.sdqlQueryRepo.getSDQLQueryByCID(queryCID).andThen((query) => {
+      if (!query) return okAsync(undefined);
+
+      return this.queryParsingEngine.parseQuery(query).andThen((ast) => {
+        const { subqueries, image, name, points, description } = ast;
+
+        return this.questionnaireRepo
+          .getByCIDs(this.getQuestionnaireIds(subqueries))
+          .map((questionnaires) => {
+            return new QueryMetaData(
+              name,
+              points,
+              image,
+              description,
+              questionnaires,
+            );
+          });
+      });
+    });
+  }
+
+  getQuestionnaireIds(subqueries: Map<SDQL_Name, AST_SubQuery>): IpfsCID[] {
+    const questionnaireIds: IpfsCID[] = [];
+    subqueries.forEach((subQuery) => {
+      if (subQuery.name === "questionnaire") {
+        const cid: IpfsCID = (subQuery as AST_QuestionnaireQuery)
+          .questionnaireIndex!;
+        questionnaireIds.push(cid);
+      }
+    });
+    return questionnaireIds;
+  }
+
   public getQueryStatusByQueryCID(
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, PersistenceError> {
@@ -318,7 +487,7 @@ export class QueryService implements IQueryService {
             consentContractAddress,
             query.cid,
             BlockNumber(1),
-            EQueryProcessingStatus.AdsCompleted,
+            EQueryProcessingStatus.WaitingUserApproval,
             this.timeUtils.getUnixNow(),
             ObjectUtils.serialize(rewardParameters),
           );
@@ -332,7 +501,7 @@ export class QueryService implements IQueryService {
         // Update the query status and store the reward parameters
         // TODO: We're skipping over the WaitingForAds status because we need to process
         // the query for ads here.
-        queryStatus.status = EQueryProcessingStatus.AdsCompleted;
+        queryStatus.status = EQueryProcessingStatus.WaitingUserApproval;
         queryStatus.rewardsParameters = ObjectUtils.serialize(rewardParameters);
         return this.sdqlQueryRepo.upsertQueryStatus([queryStatus]).map(() => {
           return queryStatus;

@@ -48,7 +48,7 @@ export interface IQuestionnaireService {
     consentContractAddress: EVMContractAddress,
     sourceDomain: DomainName | undefined,
   ): ResultAsync<
-    PagedResponse<Questionnaire>,
+    PagedResponse<Questionnaire | QuestionnaireWithAnswers>,
     | UninitializedError
     | BlockchainCommonErrors
     | AjaxError

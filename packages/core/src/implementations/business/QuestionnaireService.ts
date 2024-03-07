@@ -56,7 +56,7 @@ export class QuestionnaireService implements IQuestionnaireService {
       .getDefaultQuestionnaires()
       .andThen((defaultCids) => {
         return this.questionnaireRepo.add(defaultCids).andThen(() => {
-          return this.questionnaireRepo.getByCIDs(
+          return this.questionnaireRepo.getPagedQuestionnairesByCIDs(
             defaultCids,
             pagingRequest,
             EQuestionnaireStatus.Available,
@@ -71,7 +71,7 @@ export class QuestionnaireService implements IQuestionnaireService {
     consentContractAddress: EVMContractAddress,
     _sourceDomain: DomainName | undefined,
   ): ResultAsync<
-    PagedResponse<Questionnaire>,
+    PagedResponse<Questionnaire | QuestionnaireWithAnswers>,
     | UninitializedError
     | BlockchainCommonErrors
     | AjaxError
@@ -82,10 +82,9 @@ export class QuestionnaireService implements IQuestionnaireService {
       .getQuestionnaires(consentContractAddress)
       .andThen((cids) => {
         return this.questionnaireRepo.add(cids).andThen(() => {
-          return this.questionnaireRepo.getByCIDs(
+          return this.questionnaireRepo.getPagedQuestionnairesByCIDs(
             cids,
             pagingRequest,
-            EQuestionnaireStatus.Available,
           );
         });
       })
@@ -113,23 +112,7 @@ export class QuestionnaireService implements IQuestionnaireService {
     | PersistenceError
     | ConsentFactoryContractError
   > {
-    return this.consentContractRepository
-      .getDefaultQuestionnaires()
-      .andThen((defaultCids) => {
-        const uniqueCidsMap = new Map<IpfsCID, boolean>();
-        for (const cid of defaultCids) {
-          if (!uniqueCidsMap.has(cid)) {
-            uniqueCidsMap.set(cid, true);
-          }
-        }
-        const uniqueCidsArray = Array.from(uniqueCidsMap.keys());
-        return this.questionnaireRepo.add(uniqueCidsArray).andThen(() => {
-          return this.questionnaireRepo.getByCIDs(
-            uniqueCidsArray,
-            pagingRequest,
-          );
-        });
-      });
+    return this.questionnaireRepo.getAll(pagingRequest);
   }
 
   public getConsentContractsByQuestionnaireCID(

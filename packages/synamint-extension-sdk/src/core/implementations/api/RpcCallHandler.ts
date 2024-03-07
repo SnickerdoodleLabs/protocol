@@ -141,6 +141,8 @@ import {
   GetQuestionnairesForConsentContractParams,
   GetConsentContractsByQuestionnaireCIDParams,
   GetRecommendedConsentContractsParams,
+  GetOffersParams,
+  ApproveOfferParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -569,6 +571,21 @@ export class RpcCallHandler implements IRpcCallHandler {
           params.contractAddress,
           params.blockNumber,
         );
+      },
+    ),
+    new CoreActionHandler<GetOffersParams>(
+      GetOffersParams.getCoreAction(),
+      (params) => {
+        return this.accountService.getOffers(
+          params.contractAddress,
+          params.status,
+        );
+      },
+    ),
+    new CoreActionHandler<ApproveOfferParams>(
+      ApproveOfferParams.getCoreAction(),
+      (params) => {
+        return this.accountService.approveOffer(params.queryCID);
       },
     ),
     // #region Discord

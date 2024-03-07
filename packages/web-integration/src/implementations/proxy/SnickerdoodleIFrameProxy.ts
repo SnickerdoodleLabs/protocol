@@ -84,6 +84,8 @@ import {
   JSONString,
   IProxyQuestionnaireMethods,
   NewQuestionnaireAnswer,
+  EQueryProcessingStatus,
+  Offer,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ethers } from "ethers";
@@ -565,6 +567,21 @@ export class SnickerdoodleIFrameProxy
     return this._createCall("getQueryStatuses", {
       contractAddress,
       blockNumber,
+    });
+  }
+
+  approveOffer(queryCID: IpfsCID): ResultAsync<void, ProxyError> {
+    return this._createCall("approveOffer", {
+      queryCID,
+    });
+  }
+  getOffers(
+    contractAddress?: EVMContractAddress | undefined,
+    status?: EQueryProcessingStatus | undefined,
+  ): ResultAsync<Offer[], ProxyError> {
+    return this._createCall("getOffers", {
+      contractAddress,
+      status,
     });
   }
 

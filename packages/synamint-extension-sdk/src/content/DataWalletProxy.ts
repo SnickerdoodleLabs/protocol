@@ -62,6 +62,8 @@ import {
   JSONString,
   IProxyQuestionnaireMethods,
   NewQuestionnaireAnswer,
+  EQueryProcessingStatus,
+  Offer,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { JsonRpcEngine } from "json-rpc-engine";
@@ -104,6 +106,8 @@ import {
   GetQueryStatusesParams,
   GetTransactionsParams,
   UpdateAgreementPermissionsParams,
+  ApproveOfferParams,
+  GetOffersParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
@@ -533,6 +537,16 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     return coreGateway.getQueryStatuses(
       new GetQueryStatusesParams(contractAddress, blockNumber),
     );
+  }
+
+  approveOffer(queryCID: IpfsCID): ResultAsync<void, ProxyError> {
+    return coreGateway.approveOffer(new ApproveOfferParams(queryCID));
+  }
+  getOffers(
+    contractAddress?: EVMContractAddress | undefined,
+    status?: EQueryProcessingStatus | undefined,
+  ): ResultAsync<Offer[], ProxyError> {
+    return coreGateway.getOffers(new GetOffersParams(contractAddress, status));
   }
 
   public getConsentContractURLs(

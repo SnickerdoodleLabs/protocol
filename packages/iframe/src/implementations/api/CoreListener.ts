@@ -43,6 +43,7 @@ import {
   LinkedAccount,
   JSONString,
   NewQuestionnaireAnswer,
+  EQueryProcessingStatus,
 } from "@snickerdoodlelabs/objects";
 import {
   IIFrameCallData,
@@ -731,6 +732,31 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
             return core.getQueryStatusByQueryCID(data.data.queryCID);
+          });
+        }, data.callId);
+      },
+
+      approveOffer: (
+        data: IIFrameCallData<{
+          queryCID: IpfsCID;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.approveOffer(data.data.queryCID);
+          });
+        }, data.callId);
+      },
+
+      getOffers: (
+        data: IIFrameCallData<{
+          contractAddress?: EVMContractAddress;
+          status?: EQueryProcessingStatus;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.getOffers(data.data.contractAddress, data.data.status);
           });
         }, data.callId);
       },

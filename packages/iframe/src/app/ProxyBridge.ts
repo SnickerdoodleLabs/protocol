@@ -16,6 +16,7 @@ import {
   ECoreProxyType,
   EDataWalletPermission,
   EInvitationStatus,
+  EQueryProcessingStatus,
   EVMContractAddress,
   EWalletDataType,
   EarnedReward,
@@ -49,6 +50,7 @@ import {
   OAuth2RefreshToken,
   OAuth2Tokens,
   OAuthAuthorizationCode,
+  Offer,
   PEMEncodedRSAPublicKey,
   PagedResponse,
   PagingRequest,
@@ -396,6 +398,17 @@ export class ProxyBridge implements ISdlDataWallet {
     blockNumber?: BlockNumber | undefined,
   ): ResultAsync<QueryStatus[], ProxyError> {
     return this.call(this.core.getQueryStatuses(contractAddress, blockNumber));
+  }
+
+  getOffers(
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus,
+  ): ResultAsync<Offer[], ProxyError> {
+    return this.call(this.core.getOffers(contractAddress, status));
+  }
+
+  approveOffer(queryCID: IpfsCID): ResultAsync<void, ProxyError> {
+    return this.call(this.core.approveOffer(queryCID));
   }
   getSiteVisits(): ResultAsync<SiteVisit[], ProxyError> {
     return this.call(this.core.getSiteVisits(this.sourceDomain));

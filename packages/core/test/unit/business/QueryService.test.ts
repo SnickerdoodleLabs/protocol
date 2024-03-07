@@ -40,6 +40,7 @@ import "reflect-metadata";
 import * as td from "testdouble";
 
 import { QueryService } from "@core/implementations/business/index.js";
+import { IQuestionnaireService } from "@core/interfaces/business";
 import {
   IConsentTokenUtils,
   IQueryParsingEngine,
@@ -47,6 +48,7 @@ import {
 import {
   IConsentContractRepository,
   ILinkedAccountRepository,
+  IQuestionnaireRepository,
   ISDQLQueryRepository,
 } from "@core/interfaces/data/index.js";
 import {
@@ -63,7 +65,6 @@ import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
-import { IQuestionnaireService } from "@core/interfaces/business";
 
 const now = UnixTimestamp(12345);
 const then = UnixTimestamp(2345);
@@ -142,7 +143,7 @@ class QueryServiceMocks {
   public timeUtils: ITimeUtils;
   public sdqlQueryWrapperFactory: ISDQLQueryWrapperFactory;
   public logUtils: ILogUtils;
-
+  public questionnaireRepository: IQuestionnaireRepository;
   public consentToken = new ConsentToken(
     consentContractAddress,
     EVMAccountAddress(dataWalletAddress),
@@ -165,6 +166,7 @@ class QueryServiceMocks {
     this.sdqlQueryWrapperFactory = td.object<ISDQLQueryWrapperFactory>();
     this.logUtils = td.object<ILogUtils>();
     this.timeUtils = td.object<ITimeUtils>();
+    this.questionnaireRepository = td.object<IQuestionnaireRepository>();
 
     td.when(
       this.insightPlatformRepo.deliverInsights(
@@ -223,7 +225,7 @@ class QueryServiceMocks {
             receivedQueryStatus.consentContractAddress,
             receivedQueryStatus.queryCID,
             receivedQueryStatus.receivedBlock,
-            EQueryProcessingStatus.AdsCompleted,
+            EQueryProcessingStatus.WaitingUserApproval,
             receivedQueryStatus.expirationDate,
             ObjectUtils.serialize(rewardParameters),
           ),
@@ -309,6 +311,7 @@ class QueryServiceMocks {
       this.sdqlQueryWrapperFactory,
       this.logUtils,
       this.timeUtils,
+      this.questionnaireRepository,
     );
   }
 }
@@ -365,7 +368,7 @@ describe("QueryService.approveQuery() tests", () => {
             consentContractAddress,
             queryCID1,
             BlockNumber(1),
-            EQueryProcessingStatus.AdsCompleted,
+            EQueryProcessingStatus.WaitingUserApproval,
             now,
             ObjectUtils.serialize(rewardParameters),
           ),

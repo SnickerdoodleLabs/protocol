@@ -61,6 +61,7 @@ import {
   IProxyQuestionnaireMethods,
   PagingRequest,
   NewQuestionnaireAnswer,
+  Offer,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { JsonRpcEngine } from "json-rpc-engine";
@@ -152,6 +153,8 @@ import {
   GetQuestionnairesForConsentContractParams,
   GetConsentContractsByQuestionnaireCIDParams,
   GetRecommendedConsentContractsParams,
+  GetOffersParams,
+  ApproveOfferParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -564,6 +567,16 @@ export class ExternalCoreGateway {
   public getQueryStatuses(
     params: GetQueryStatusesParams,
   ): ResultAsync<QueryStatus[], ProxyError> {
+    return this._handler.call(params);
+  }
+
+  public getOffers(params: GetOffersParams): ResultAsync<Offer[], ProxyError> {
+    return this._handler.call(params);
+  }
+
+  public approveOffer(
+    params: ApproveOfferParams,
+  ): ResultAsync<void, ProxyError> {
     return this._handler.call(params);
   }
 

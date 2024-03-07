@@ -6,20 +6,22 @@ import {
   BlockNumber,
   ConsentContractError,
   ConsentError,
-  ConsentFactoryContractError,
   ConsentToken,
   DuplicateIdInSchema,
+  EQueryProcessingStatus,
   EvalNotImplementedError,
   EvaluationError,
   EVMContractAddress,
   EVMPrivateKey,
   IDynamicRewardParameter,
   InvalidParametersError,
+  InvalidQueryStatusError,
   IpfsCID,
   IPFSError,
   MethodSupportError,
   MissingASTError,
   MissingTokenConstructorError,
+  Offer,
   ParserError,
   PersistenceError,
   PossibleReward,
@@ -33,7 +35,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
+import { CoreConfig } from "@core/interfaces/objects/index.js";
 
 export interface IQueryService {
   initialize(): ResultAsync<void, never>;
@@ -66,6 +68,26 @@ export interface IQueryService {
     | AccountIndexingError
     | MethodSupportError
     | InvalidParametersError
+  >;
+
+  approveOffer(
+    queryCID: IpfsCID,
+  ): ResultAsync<void, InvalidQueryStatusError | PersistenceError>;
+
+  getOffers(
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus,
+  ): ResultAsync<
+    Offer[],
+    | AjaxError
+    | PersistenceError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | MissingASTError
   >;
 
   approveQuery(

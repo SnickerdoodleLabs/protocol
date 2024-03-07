@@ -95,6 +95,14 @@ import {
   NewQuestionnaireAnswer,
   JSONString,
   EExternalFieldKey,
+  Offer,
+  EQueryProcessingStatus,
+  DuplicateIdInSchema,
+  MissingASTError,
+  MissingTokenConstructorError,
+  ParserError,
+  QueryExpiredError,
+  InvalidQueryStatusError,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -1004,6 +1012,36 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
     return queryService.getQueryStatuses(contractAddress, blockNumber);
+  }
+
+  public approveOffer(
+    queryCID: IpfsCID,
+  ): ResultAsync<void, InvalidQueryStatusError | PersistenceError> {
+    const queryService =
+      this.iocContainer.get<IQueryService>(IQueryServiceType);
+
+    return queryService.approveOffer(queryCID);
+  }
+
+  public getOffers(
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus,
+  ): ResultAsync<
+    Offer[],
+    | AjaxError
+    | PersistenceError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | MissingASTError
+  > {
+    const queryService =
+      this.iocContainer.get<IQueryService>(IQueryServiceType);
+
+    return queryService.getOffers(contractAddress, status);
   }
 
   public isDataWalletAddressInitialized(): ResultAsync<boolean, never> {

@@ -61,6 +61,8 @@ import {
   Questionnaire,
   QuestionnaireWithAnswers,
   NewQuestionnaireAnswer,
+  Offer,
+  EQueryProcessingStatus,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 
@@ -675,6 +677,27 @@ export class GetQueryStatusesParams extends CoreActionParams<QueryStatus[]> {
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_QUERY_STATUSES;
+  }
+}
+
+export class GetOffersParams extends CoreActionParams<Offer[]> {
+  public constructor(
+    public contractAddress?: EVMContractAddress,
+    public status?: EQueryProcessingStatus,
+  ) {
+    super(GetOffersParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_OFFERS;
+  }
+}
+
+export class ApproveOfferParams extends CoreActionParams<void> {
+  public constructor(public queryCID: IpfsCID) {
+    super(ApproveOfferParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.APPROVE_OFFERS;
   }
 }
 

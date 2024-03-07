@@ -22,6 +22,8 @@ import {
   WalletNftWithHistory,
   UnixTimestamp,
   NftRepositoryCache,
+  EQueryProcessingStatus,
+  Offer,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -46,6 +48,15 @@ export class AccountService implements IAccountService {
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
   ) {}
+  approveOffer(queryCID: IpfsCID): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.accountRepository.approveOffer(queryCID);
+  }
+  getOffers(
+    contractAddress?: EVMContractAddress | undefined,
+    status?: EQueryProcessingStatus | undefined,
+  ): ResultAsync<Offer[], SnickerDoodleCoreError> {
+    return this.accountRepository.getOffers(contractAddress, status);
+  }
 
   getQueryStatusByQueryCID(
     queryCID: IpfsCID,

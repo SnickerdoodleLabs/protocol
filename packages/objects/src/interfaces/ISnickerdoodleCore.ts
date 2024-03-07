@@ -42,6 +42,7 @@ import {
   QuestionnaireWithAnswers,
   QuestionnaireAnswer,
   NewQuestionnaireAnswer,
+  Offer,
   // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
@@ -49,6 +50,7 @@ import {
   ECloudStorageType,
   EDataWalletPermission,
   EInvitationStatus,
+  EQueryProcessingStatus,
 } from "@objects/enum/index.js";
 import {
   AccountIndexingError,
@@ -81,6 +83,7 @@ import {
   MissingWalletDataTypeError,
   ParserError,
   MethodSupportError,
+  InvalidQueryStatusError,
 } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
@@ -747,7 +750,7 @@ export interface IQuestionnaireMethods {
     consentContractAddress: EVMContractAddress,
     sourceDomain: DomainName | undefined,
   ): ResultAsync<
-    PagedResponse<Questionnaire>,
+    PagedResponse<Questionnaire | QuestionnaireWithAnswers>,
     | UninitializedError
     | BlockchainCommonErrors
     | AjaxError
@@ -898,6 +901,26 @@ export interface ISnickerdoodleCore {
   getQueryStatusByQueryCID(
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, PersistenceError>;
+
+  approveOffer(
+    queryCID: IpfsCID,
+  ): ResultAsync<void, InvalidQueryStatusError | PersistenceError>;
+
+  getOffers(
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus,
+  ): ResultAsync<
+    Offer[],
+    | AjaxError
+    | PersistenceError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | MissingASTError
+  >;
 
   getQueryStatuses(
     contractAddress: EVMContractAddress,
