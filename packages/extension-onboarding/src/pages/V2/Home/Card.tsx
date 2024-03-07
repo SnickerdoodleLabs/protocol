@@ -11,7 +11,9 @@ interface ICardProps {
   description: string;
   cardBgColor: string;
   cardColor: string;
+  descriptionColor?: string;
   renderAction: ReactNode;
+  renderBottom?: ReactNode;
 }
 
 const Card: FC<ICardProps> = ({
@@ -20,7 +22,9 @@ const Card: FC<ICardProps> = ({
   description,
   cardBgColor,
   cardColor,
+  descriptionColor,
   renderAction,
+  renderBottom,
 }) => {
   const getResponsiveValue = useResponsiveValue();
   return (
@@ -31,34 +35,37 @@ const Card: FC<ICardProps> = ({
       width="100%"
       borderRadius={16}
       display="flex"
-      alignItems="center"
+      flexDirection="column"
       color={cardColor}
       bgcolor={cardBgColor}
-      gridGap={{ xs: 16, sm: 44 }}
     >
-      <Box flex={{ xs: 1, sm: 200 }}>
-        <Box width="100%" display="flex">
-          <img src={image} width="100%" height="auto" />
+      <Box gridGap={{ xs: 16, sm: 44 }} display="flex" alignItems="center">
+        <Box flex={{ xs: 1, sm: 200 }}>
+          <Box width="100%" display="flex">
+            <img src={image} width="100%" height="auto" />
+          </Box>
+        </Box>
+        <Box flex={{ xs: 2, sm: 883 }}>
+          <SDTypography
+            mb={2}
+            variant={getResponsiveValue({ xs: "titleXl", sm: "headlineMd" })}
+            fontWeight="bold"
+            color="inherit"
+          >
+            {title}
+          </SDTypography>
+          <SDTypography
+            mb={4}
+            variant={getResponsiveValue({ xs: "bodyMd", sm: "bodyLg" })}
+            color="inherit"
+            {...(descriptionColor && { hexColor: descriptionColor })}
+          >
+            {description}
+          </SDTypography>
+          {renderAction}
         </Box>
       </Box>
-      <Box flex={{ xs: 2, sm: 883 }}>
-        <SDTypography
-          mb={2}
-          variant={getResponsiveValue({ xs: "titleXl", sm: "headlineMd" })}
-          fontWeight="bold"
-          color="inherit"
-        >
-          {title}
-        </SDTypography>
-        <SDTypography
-          mb={4}
-          variant={getResponsiveValue({ xs: "bodyMd", sm: "bodyLg" })}
-          color="inherit"
-        >
-          {description}
-        </SDTypography>
-        {renderAction}
-      </Box>
+      {renderBottom && renderBottom}
     </Box>
   );
 };

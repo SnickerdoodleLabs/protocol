@@ -781,6 +781,11 @@ export class SnickerdoodleIFrameProxy
         pagingRequest,
       });
     },
+    getQuestionnaires: (pagingRequest: PagingRequest) => {
+      return this._createCall("questionnaire.getQuestionnaires", {
+        pagingRequest,
+      });
+    },
     answerQuestionnaire: (
       questionnaireId: IpfsCID,
       answers: NewQuestionnaireAnswer[],

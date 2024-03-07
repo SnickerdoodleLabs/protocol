@@ -281,6 +281,14 @@ export class ProxyBridge implements ISdlDataWallet {
           ),
         );
       },
+      getQuestionnaires: (pagingRequest: PagingRequest) => {
+        return this.call(
+          this.core.questionnaire.getQuestionnaires(
+            pagingRequest,
+            this.sourceDomain,
+          ),
+        );
+      },
       answerQuestionnaire: (
         questionnaireId: IpfsCID,
         answers: NewQuestionnaireAnswer[],

@@ -244,6 +244,9 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       getAllQuestionnaires: (pagingRequest: PagingRequest) => {
         return coreGateway.questionnaire.getAllQuestionnaires(pagingRequest);
       },
+      getQuestionnaires: (pagingRequest: PagingRequest) => {
+        return coreGateway.questionnaire.getQuestionnaires(pagingRequest);
+      },
       answerQuestionnaire: (
         questionnaireId: IpfsCID,
         answers: NewQuestionnaireAnswer[],

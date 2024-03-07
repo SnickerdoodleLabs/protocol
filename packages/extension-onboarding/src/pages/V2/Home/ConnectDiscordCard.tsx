@@ -103,6 +103,7 @@ export default () => {
         description="Share your social presence without divulging your full social account information."
         cardBgColor={colors.MAINPURPLE400}
         cardColor={colors.WHITE}
+        descriptionColor={colors.MAINPURPLE100}
         renderAction={
           <SDButton
             color="inherit"

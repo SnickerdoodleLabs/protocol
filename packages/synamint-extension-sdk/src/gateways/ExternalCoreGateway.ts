@@ -152,6 +152,7 @@ import {
   GetQuestionnairesForConsentContractParams,
   GetConsentContractsByQuestionnaireCIDParams,
   GetRecommendedConsentContractsParams,
+  GetQuestionnairesParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -172,6 +173,9 @@ export class ExternalCoreGateway {
         return this._handler.call(
           new GetAllQuestionnairesParams(pagingRequest),
         );
+      },
+      getQuestionnaires: (pagingRequest: PagingRequest) => {
+        return this._handler.call(new GetQuestionnairesParams(pagingRequest));
       },
       answerQuestionnaire: (
         questionnaireId: IpfsCID,

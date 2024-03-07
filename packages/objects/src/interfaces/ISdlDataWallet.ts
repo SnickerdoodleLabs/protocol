@@ -119,7 +119,7 @@ export type INftProxyMethods = {
 export type IProxyQuestionnaireMethods = {
   [key in Exclude<
     FunctionKeys<IQuestionnaireMethods>,
-    "getAnsweredQuestionnaires" | "getQuestionnaires"
+    "getAnsweredQuestionnaires"
   >]: (
     ...args: [...PopTuple<Parameters<IQuestionnaireMethods[key]>>]
   ) => ResultAsync<

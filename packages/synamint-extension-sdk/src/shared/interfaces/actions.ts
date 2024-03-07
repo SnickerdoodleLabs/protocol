@@ -925,6 +925,17 @@ export class GetAllQuestionnairesParams extends CoreActionParams<
   }
 }
 
+export class GetQuestionnairesParams extends CoreActionParams<
+  PagedResponse<Questionnaire | QuestionnaireWithAnswers>
+> {
+  public constructor(public pagingRequest: PagingRequest) {
+    super(GetQuestionnairesParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_QUESTIONNAIRES;
+  }
+}
+
 export class AnswerQuestionnaireParams extends CoreActionParams<void> {
   public constructor(
     public questionnaireId: IpfsCID,

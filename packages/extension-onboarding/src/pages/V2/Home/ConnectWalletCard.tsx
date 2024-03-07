@@ -81,6 +81,7 @@ const ConnectWalletCard: FC = () => {
       dApp usage."
         cardBgColor={colors.MINT500}
         cardColor={colors.WHITE}
+        descriptionColor={colors.MINT100}
         renderAction={
           <>
             <SDButton

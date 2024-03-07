@@ -48,6 +48,7 @@ export const SDTypography = styled(
     color,
     hideOverflow,
     hexColor,
+    style,
     ...rest
   }: ITypographyProps) => {
     const classes = useStyles();
@@ -68,7 +69,7 @@ export const SDTypography = styled(
             classes[color],
           className,
         )}
-        {...(hexColor && { style: { color: hexColor } })}
+        {...(hexColor ? { style: { ...style, color: hexColor } } : { style })}
       />
     );
   },
