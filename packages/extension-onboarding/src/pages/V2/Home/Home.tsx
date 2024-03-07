@@ -1,6 +1,8 @@
 import Container from "@extension-onboarding/components/v2/Container";
 import PageBanners from "@extension-onboarding/components/v2/PageBanners";
 import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
+import ConnectWalletCard from "@extension-onboarding/pages/V2/Home/ConnectWalletCard";
+import ConnectDiscordCard from "@extension-onboarding/pages/V2/Home/ConnectDiscordCard";
 import { Box, Grid } from "@material-ui/core";
 import CallMadeIcon from "@material-ui/icons/CallMade";
 import {
@@ -106,6 +108,8 @@ const Home: FC = () => {
             }}
           />
         </Box>
+        <ConnectWalletCard />
+        <ConnectDiscordCard />
         <Grid container spacing={3}>
           {navigatorCards.map((card, index) => (
             <Grid key={index} item xs={12} sm={4}>

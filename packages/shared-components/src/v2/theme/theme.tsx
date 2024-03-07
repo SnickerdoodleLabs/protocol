@@ -591,7 +591,7 @@ export const createDefaultTheme = (
           maxHeight: 36,
           height: 36,
           padding: "10px 24px",
-          ...fontWeights[EFontWeight.REGULAR],
+          ...fontWeights[EFontWeight.MEDIUM],
         },
         iconSizeSmall: {
           fontSize: 8,
