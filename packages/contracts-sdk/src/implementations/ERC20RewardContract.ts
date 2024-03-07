@@ -4,6 +4,7 @@ import {
   BlockchainCommonErrors,
   ERC20ContractError,
   TokenAmount,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
@@ -11,17 +12,18 @@ import { ResultAsync } from "neverthrow";
 
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
+import { ERewardRoles } from "@contracts-sdk/interfaces/enums/index.js";
 import {
   ContractOverrides,
-  IERC20Contract,
+  IERC20RewardContract,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/index.js";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
 
 @injectable()
-export class ERC20Contract
+export class ERC20RewardContract
   extends BaseContract<ERC20ContractError>
-  implements IERC20Contract
+  implements IERC20RewardContract
 {
   constructor(
     protected providerOrSigner: ethers.Provider | ethers.Signer,
@@ -140,6 +142,84 @@ export class ERC20Contract
       amount,
       overrides,
     ]);
+  }
+
+  public grantRole(
+    role: keyof typeof ERewardRoles,
+    address: EVMAccountAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC20ContractError
+  > {
+    return this.writeToContract(
+      "grantRole",
+      [ERewardRoles[role], address],
+      overrides,
+    );
+  }
+
+  public revokeRole(
+    role: keyof typeof ERewardRoles,
+    address: EVMAccountAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC20ContractError
+  > {
+    return this.writeToContract(
+      "revokeRole",
+      [ERewardRoles[role], address],
+      overrides,
+    );
+  }
+
+  public renounceRole(
+    role: keyof typeof ERewardRoles,
+    address: EVMAccountAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC20ContractError
+  > {
+    return this.writeToContract(
+      "renounceRole",
+      [ERewardRoles[role], address],
+      overrides,
+    );
+  }
+
+  public addDomain(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC20ContractError
+  > {
+    return this.writeToContract("addDomain", [domain], overrides);
+  }
+
+  public removeDomain(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC20ContractError
+  > {
+    return this.writeToContract("removeDomain", [domain], overrides);
+  }
+
+  public getDomains(): ResultAsync<
+    DomainName[],
+    BlockchainCommonErrors | ERC20ContractError
+  > {
+    return ResultAsync.fromPromise(
+      // returns array of domains
+      this.contract.getDomains() as Promise<DomainName[]>,
+      (e) => {
+        return this.generateError(e, "Unable to call getDomains()");
+      },
+    );
   }
 
   protected generateContractSpecificError(

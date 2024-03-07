@@ -27,6 +27,24 @@ export interface IRewardsContractFactory {
     symbol: string,
     baseURI: BaseURI,
   ): ResultAsync<bigint, RewardsFactoryError | BlockchainCommonErrors>;
+
+  deployERC20Reward(
+    name: string,
+    symbol: string,
+    overrides?: ContractOverrides,
+    omitGasFee?: boolean,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | RewardsFactoryError
+  >;
+
+  estimateGasToDeployERC20Contract(
+    name: string,
+    symbol: string,
+  ): ResultAsync<
+    bigint,
+    RewardsFactoryError | BlockchainCommonErrors
+  >;
 }
 
 export const IRewardsContractFactoryType = Symbol.for(
