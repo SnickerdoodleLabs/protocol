@@ -9,56 +9,42 @@ import {
   IDynamicRewardParameter,
   IpfsCID,
   Signature,
-  TokenId,
   URLString,
   IQueryDeliveryItems,
-  PossibleReward,
-  ZKProof,
+  Commitment,
+  InvalidArgumentError,
+  CircuitError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface IInsightPlatformRepository {
-  clearAllBackups(
-    dataWalletKey: EVMPrivateKey,
-    insightPlatformBaseUrl: URLString,
-    walletAddress: EVMAccountAddress,
-  ): ResultAsync<void, AjaxError>;
-  getSignedUrl(
-    dataWalletKey: EVMPrivateKey,
-    insightPlatformBaseUrl: URLString,
-    fileName: string,
-  ): ResultAsync<URLString, AjaxError>;
-
-  receivePreviews(
-    consentContractAddress: EVMContractAddress,
-    tokenId: TokenId,
-    queryCID: IpfsCID,
-    signingKey: EVMPrivateKey,
-    insightPlatformBaseUrl: URLString,
-    queryDeliveryItems: IQueryDeliveryItems,
-  ): ResultAsync<PossibleReward[], AjaxError>;
-
   deliverInsights(
     consentContractAddress: EVMContractAddress,
-    tokenId: TokenId,
+    trapdoor: BigNumberString,
+    nullifier: BigNumberString,
     queryCID: IpfsCID,
     insights: IQueryDeliveryItems,
     rewardParameters: IDynamicRewardParameter[],
-    signingKey: EVMPrivateKey,
+    anonymitySet: Commitment[],
+    anonymitySetStart: number,
     insightPlatformBaseUrl: URLString,
-  ): ResultAsync<EarnedReward[], AjaxError>;
+  ): ResultAsync<EarnedReward[], AjaxError | CircuitError>;
 
-  executeMetatransaction(
-    accountAddress: EVMAccountAddress,
-    contractAddress: EVMContractAddress,
-    nonce: BigNumberString,
-    value: BigNumberString,
-    gas: BigNumberString,
-    data: HexString,
-    metatransactionSignature: Signature,
-    signingKey: EVMPrivateKey,
+  optin(
+    consentContractAddress: EVMContractAddress,
+    trapdoor: BigNumberString,
+    nullifier: BigNumberString,
     insightPlatformBaseUrl: URLString,
-  ): ResultAsync<void, AjaxError>;
+  ): ResultAsync<void, AjaxError | CircuitError>;
+
+  privateOptin(
+    consentContractAddress: EVMContractAddress,
+    trapdoor: BigNumberString,
+    nullifier: BigNumberString,
+    nonce: BigNumberString,
+    signature: Signature,
+    insightPlatformBaseUrl: URLString,
+  ): ResultAsync<void, AjaxError | CircuitError>;
 }
 
 export const IInsightPlatformRepositoryType = Symbol.for(

@@ -1,18 +1,18 @@
 import {
   BigNumberString,
+  EVMAccountAddress,
   EVMContractAddress,
-  IDynamicRewardParameter,
-  IpfsCID,
-  IQueryDeliveryItems,
+  HexString,
+  Signature,
   ZKProof,
 } from "@snickerdoodlelabs/objects";
 
-export interface IDeliverInsightsParams {
+export interface IOptinParams {
   consentContractId: EVMContractAddress;
+  signalNullifier: BigNumberString;
   queryCID: IpfsCID;
   insights: IQueryDeliveryItems;
   rewardParameters: IDynamicRewardParameter[];
-  signalNullifier: BigNumberString;
   anonymitySetStart: number;
   anonymitySetSize: number;
   proof: ZKProof;

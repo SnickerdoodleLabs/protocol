@@ -8932,7 +8932,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snickerdoodlelabs/circuits-sdk@workspace:packages/circuits-sdk":
+"@snickerdoodlelabs/circuits-sdk@workspace:^, @snickerdoodlelabs/circuits-sdk@workspace:packages/circuits-sdk":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/circuits-sdk@workspace:packages/circuits-sdk"
   dependencies:
@@ -9191,6 +9191,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/insight-platform-api@workspace:packages/insight-platform-api"
   dependencies:
+    "@snickerdoodlelabs/circuits-sdk": "workspace:^"
     "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/node-utils": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"

@@ -94,7 +94,7 @@ export class MembershipWrapper extends CircuitWrapper<Membership> {
     const witness = new MembershipWitness(w);
 
     // calculate the merkleRoot from the tree object
-    const merkleRoot: Field = identityTree.getRoot(); // Calculate your merkleRoot reference (this can be computed independently by anyone)
+    const merkleRoot = identityTree.getRoot(); // Calculate your merkleRoot reference (this can be computed independently by anyone)
 
     // compute the signal nullifier from user's secret identityNullifier
     // FYI: the order of the array in the Poseidon hash matters
@@ -127,7 +127,6 @@ export class MembershipWrapper extends CircuitWrapper<Membership> {
   ): ResultAsync<boolean, CircuitError> {
     const signalFields = Encoding.stringToFields(signal);
 
-    // NOTE: verifier should compute these quantities for themselves upon receiving the signal string
     const signalHash = Poseidon.hash([...signalFields]);
     const signalHashSquared = signalHash.mul(signalHash);
 
