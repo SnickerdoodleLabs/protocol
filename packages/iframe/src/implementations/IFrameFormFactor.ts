@@ -104,7 +104,11 @@ export class IFrameFormFactor {
               logUtils.log("Snickerdoodle Core CoreListener initialized");
               return {
                 core,
-                proxy: new ProxyBridge(core, events),
+                proxy: new ProxyBridge(
+                  core,
+                  events,
+                  contextProvider.getEvents(),
+                ),
                 childApi,
                 iframeEvents: contextProvider.getEvents(),
                 config: contextProvider.getConfig(),

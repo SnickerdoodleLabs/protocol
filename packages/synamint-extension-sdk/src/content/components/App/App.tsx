@@ -12,7 +12,9 @@ import {
   IUserAgreement,
   Invitation,
   LinkedAccount,
+  ProxyError,
   Signature,
+  TokenId,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -47,7 +49,7 @@ import endOfStream from "end-of-stream";
 import PortStream from "extension-port-stream";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import { err, okAsync } from "neverthrow";
+import { ResultAsync, err, okAsync } from "neverthrow";
 import ObjectMultiplex from "obj-multiplex";
 import LocalMessageStream from "post-message-stream";
 import pump from "pump";
@@ -59,6 +61,7 @@ import React, {
   useRef,
   FC,
 } from "react";
+import { Subscription } from "rxjs";
 import { parse } from "tldts";
 import Browser from "webextension-polyfill";
 
@@ -123,7 +126,6 @@ const connect = () => {
     );
     pageMux.destroy();
   });
-
   // keep service worker alive
   if (VersionUtils.isManifest3) {
     port.onDisconnect.addListener(connect);
@@ -140,6 +142,7 @@ connect();
 enum EInvitationSourceType {
   DEEPLINK,
   DOMAIN,
+  USER_REQUEST,
 }
 
 interface IInvitaionData {
@@ -181,12 +184,16 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
   const [accounts, setAccounts] = useState<LinkedAccount[]>([]);
   const _path = usePath();
   const [isHidden, setIsHidden] = useState<boolean>(false);
+  const optInRequestSubsriptionRef = useRef<Subscription>();
 
   // #region new flow
   const [deepLinkInvitation, setDeepLinkInvitation] =
     useState<IInvitaionData | null>(null);
 
   const [domainInvitation, setDomainInvitation] =
+    useState<IInvitaionData | null>(null);
+
+  const [userRequestedInvitation, setUserRequestedInvitation] =
     useState<IInvitaionData | null>(null);
 
   useEffect(() => {
@@ -216,41 +223,11 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
       // this function actually designed for proxy initialy
       // since we are not using it in proxy we can change
       // double check requirements for proxy
-      coreGateway
-        .checkInvitationStatus(
-          new CheckInvitationStatusParams(
-            consentAddress,
-            signature ? Signature(signature) : undefined,
-            tokenId ? BigNumberString(tokenId) : undefined,
-          ),
-        )
-        .andThen((status) => {
-          if (status === EInvitationStatus.New) {
-            return coreGateway
-              .getContractCID(new GetConsentContractCIDParams(consentAddress))
-              .andThen((cid) => {
-                return coreGateway
-                  .getInvitationMetadataByCID(
-                    new GetInvitationMetadataByCIDParams(cid),
-                  )
-                  .map((metadata) => {
-                    setDeepLinkInvitation({
-                      invitation: new Invitation(
-                        consentAddress,
-                        null,
-                        null,
-                        null,
-                      ),
-                      metadata,
-                    });
-                  });
-              });
-          }
-          return okAsync(undefined);
-        })
-        .mapErr((err) => {
-          console.warn(" Data Wallet:  Unable to get deeplink invitation", err);
-        });
+      getInvitation(consentAddress, signature, tokenId).map((result) => {
+        if (result) {
+          setDeepLinkInvitation(result);
+        }
+      });
     }
     // #endregion
     // #region domain invitation
@@ -272,7 +249,64 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
     // #endregion
   }, []);
 
+  const getInvitation = (
+    consentAddress: EVMContractAddress,
+    signature: string | null,
+    tokenId: string | null,
+  ): ResultAsync<
+    {
+      invitation: Invitation;
+      metadata: IOldUserAgreement | IUserAgreement;
+    } | null,
+    ProxyError
+  > => {
+    const invitation = new Invitation(
+      consentAddress,
+      tokenId != null ? TokenId(BigInt(tokenId)) : null,
+      null,
+      signature != null ? Signature(signature) : null,
+    );
+
+    return coreGateway
+      .checkInvitationStatus(
+        new CheckInvitationStatusParams(
+          consentAddress,
+          signature ? Signature(signature) : undefined,
+          tokenId ? BigNumberString(tokenId) : undefined,
+        ),
+      )
+      .andThen((status) => {
+        if (status === EInvitationStatus.New) {
+          return coreGateway
+            .getContractCID(new GetConsentContractCIDParams(consentAddress))
+            .andThen((cid) => {
+              return coreGateway
+                .getInvitationMetadataByCID(
+                  new GetInvitationMetadataByCIDParams(cid),
+                )
+                .map((metadata) => {
+                  return {
+                    invitation,
+                    metadata,
+                  };
+                });
+            });
+        }
+        return okAsync(null);
+      })
+      .mapErr((err) => {
+        console.warn(" Data Wallet:  Unable to get deeplink invitation", err);
+        return err;
+      });
+  };
+
   const currentInvitation: ICurrentInvitation | null = useMemo(() => {
+    if (userRequestedInvitation) {
+      return {
+        data: userRequestedInvitation,
+        type: EInvitationSourceType.USER_REQUEST,
+      };
+    }
     if (domainInvitation) {
       return { data: domainInvitation, type: EInvitationSourceType.DOMAIN };
     }
@@ -280,7 +314,7 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
       return { data: deepLinkInvitation, type: EInvitationSourceType.DEEPLINK };
     }
     return null;
-  }, [deepLinkInvitation, domainInvitation]);
+  }, [deepLinkInvitation, domainInvitation, userRequestedInvitation]);
 
   useEffect(() => {
     if (currentInvitation) {
@@ -295,6 +329,9 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
     switch (currentInvitation.type) {
       case EInvitationSourceType.DOMAIN:
         setDomainInvitation(null);
+        break;
+      case EInvitationSourceType.USER_REQUEST:
+        setUserRequestedInvitation(null);
         break;
       case EInvitationSourceType.DEEPLINK:
         setDeepLinkInvitation(null);
@@ -387,6 +424,33 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
     if (notification.type === ENotificationTypes.ACCOUNT_ADDED) {
       getAccounts();
     }
+  };
+
+  // #endregion
+
+  // #region handle user request
+  useEffect(() => {
+    window.addEventListener("message", catchRequestOptIn);
+    return () => {
+      window.removeEventListener("message", catchRequestOptIn);
+    };
+  }, []);
+
+  const catchRequestOptIn = (event: MessageEvent) => {
+    if (
+      event?.data?.type === "requestOptIn" &&
+      event?.data?.consentContractAddress
+    ) {
+      handleOptInRequest(event.data.consentContractAddress);
+    }
+  };
+
+  const handleOptInRequest = (contractAddress: EVMContractAddress) => {
+    getInvitation(contractAddress, null, null).map((result) => {
+      if (result) {
+        setUserRequestedInvitation(result);
+      }
+    });
   };
 
   // #endregion

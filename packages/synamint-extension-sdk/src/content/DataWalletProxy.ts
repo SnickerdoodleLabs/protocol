@@ -66,7 +66,7 @@ import {
 import { ethers } from "ethers";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
 import ObjectMultiplex from "obj-multiplex";
 import LocalMessageStream from "post-message-stream";
 import pump from "pump";
@@ -681,6 +681,19 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   }
   public getUIState(): ResultAsync<JSONString | null, ProxyError> {
     return coreGateway.getUIState();
+  }
+
+  public requestOptIn(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<void, ProxyError> {
+    window.postMessage(
+      {
+        type: "requestOptIn",
+        consentContractAddress,
+      },
+      "*",
+    );
+    return okAsync(undefined);
   }
 }
 

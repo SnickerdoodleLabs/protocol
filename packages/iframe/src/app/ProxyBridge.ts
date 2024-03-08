@@ -1,3 +1,4 @@
+import { IFrameEvents } from "@core-iframe/interfaces/objects";
 import {
   AccountAddress,
   Age,
@@ -88,6 +89,7 @@ export class ProxyBridge implements ISdlDataWallet {
   constructor(
     private core: ISnickerdoodleCore,
     public events: ISnickerdoodleCoreEvents,
+    public iframeEvents: IFrameEvents,
   ) {
     this.account = {
       getLinkAccountMessage: (
@@ -574,5 +576,12 @@ export class ProxyBridge implements ISdlDataWallet {
   }
   getUIState(): ResultAsync<JSONString | null, ProxyError> {
     return this.call(this.core.getUIState());
+  }
+
+  requestOptIn(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<void, ProxyError> {
+    this.iframeEvents.onOptInRequested.next(consentAddress);
+    return okAsync(undefined);
   }
 }

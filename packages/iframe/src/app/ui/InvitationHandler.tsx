@@ -114,13 +114,23 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   const [consentInvitation, setConsentInvitation] =
     useState<IInvitation | null>(null);
 
+  const [userRequestInvitation, setUserRequestInvitation] =
+    useState<IInvitation | null>(null);
+
   const currentInvitation: ICurrentInvitation | null = useMemo(() => {
     if (accounts.length === 0) {
       return null;
     }
+    if (userRequestInvitation) {
+      return {
+        data: userRequestInvitation,
+        type: EInvitationSourceType.USER_REQUEST,
+      };
+    }
     if (awaitRender) {
       return null;
     }
+
     if (deepLinkInvitation) {
       return { data: deepLinkInvitation, type: EInvitationSourceType.DEEPLINK };
     }
@@ -138,6 +148,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     deepLinkInvitation,
     domainInvitation,
     consentInvitation,
+    userRequestInvitation,
     accounts.length,
     awaitRender,
   ]);
@@ -196,6 +207,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     data,
     type,
   }: IInvitationDisplayRequest) => {
+    console.log("invitationDisplayRequestHandler", data, type);
     if (
       uniqueConsentAdressesRef.current.includes(
         data.invitation.consentContractAddress,
@@ -207,6 +219,8 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
       setDeepLinkInvitation(data);
     } else if (type === EInvitationSourceType.DOMAIN) {
       setDomainInvitation(data);
+    } else if (type === EInvitationSourceType.USER_REQUEST) {
+      setUserRequestInvitation(data);
     } else {
       setConsentInvitation(data);
     }
@@ -266,8 +280,12 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
         case EInvitationSourceType.DOMAIN:
           setDomainInvitation(null);
           break;
+        case EInvitationSourceType.USER_REQUEST:
+          setUserRequestInvitation(null);
+          break;
         case EInvitationSourceType.CONSENT_ADDRESS:
           setConsentInvitation(null);
+          break;
       }
     }
   }, [currentInvitation]);
