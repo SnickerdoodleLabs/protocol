@@ -13,6 +13,7 @@ import {
   URLString,
   IQueryDeliveryItems,
   PossibleReward,
+  ZKProof,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 

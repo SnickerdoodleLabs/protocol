@@ -24,6 +24,8 @@
     "ISDQL",
     "ITXT",
     "Keccak",
+    "Keypair",
+    "Merkle",
     "Metatransaction",
     "moralis",
     "mysten",
