@@ -5,10 +5,12 @@ import {
   ERC20ContractError,
   TokenAmount,
   DomainName,
+  Signature,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
+import { Token } from "zksync-ethers/build/src/types";
 
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
@@ -234,15 +236,20 @@ export class ERC20RewardContract
     );
   }
 
-  public burnFrom(
-    address: EVMAccountAddress,
+  public redeem(
+    account: EVMAccountAddress,
     amount: TokenAmount,
+    signature: Signature,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | ERC20ContractError
   > {
-    return this.writeToContract("burnFrom", [address, amount], overrides);
+    return this.writeToContract(
+      "redeem",
+      [account, amount, signature],
+      overrides,
+    );
   }
 
   protected generateContractSpecificError(

@@ -6,6 +6,7 @@ import {
   EVMContractAddress,
   TokenAmount,
   DomainName,
+  Signature,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -101,6 +102,16 @@ export interface IERC20RewardContract
     sender: EVMAccountAddress | EVMContractAddress,
     recipient: EVMAccountAddress | EVMContractAddress,
     amount: TokenAmount,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC20ContractError
+  >;
+
+  redeem(
+    account: EVMAccountAddress,
+    amount: TokenAmount,
+    signature: Signature,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
