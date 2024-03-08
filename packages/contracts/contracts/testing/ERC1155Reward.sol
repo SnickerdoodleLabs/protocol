@@ -19,15 +19,16 @@ contract ERC1155Reward is ERC1155, AccessControl, ERC1155Supply, ERC7529 {
     constructor(uint256 numberOfRewards, string[] memory tokenURIs) ERC1155("") {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(MINTER_ROLE, msg.sender);
-        
-        require(numberOfRewards > 0, "ERC1155Reward: Number of rewards must be greater than zero");
+
         require(tokenURIs.length == numberOfRewards, "ERC1155Reward: Number of rewards must match number of token URIs");
         
-        // Starts from token id 0
-        tokenCount = numberOfRewards - 1;
+        if (numberOfRewards > 0) {
+            // Starts from token id 0
+            tokenCount = numberOfRewards - 1;
 
-        for(uint256 i; i < numberOfRewards; i++) {
-            setTokenURI(i, tokenURIs[i]);
+            for(uint256 i; i < numberOfRewards; i++) {
+                setTokenURI(i, tokenURIs[i]);
+            }
         }
     }
 
