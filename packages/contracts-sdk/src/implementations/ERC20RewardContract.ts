@@ -234,6 +234,17 @@ export class ERC20RewardContract
     );
   }
 
+  public burnFrom(
+    address: EVMAccountAddress,
+    amount: TokenAmount,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC20ContractError
+  > {
+    return this.writeToContract("burnFrom", [address, amount], overrides);
+  }
+
   protected generateContractSpecificError(
     msg: string,
     e: IEthersContractError,
