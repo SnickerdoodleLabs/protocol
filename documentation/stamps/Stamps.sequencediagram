@@ -1,0 +1,61 @@
+title Stamps
+
+participant Sponsor
+participant Marketplace
+participant Issuer
+participant Bundler
+participant Chain
+participant Redeemer
+
+==Creating a Set of Stamps==
+note over Sponsor:Decides to Create and Sell Stamps
+Sponsor->Issuer:Start Business Relationship
+Sponsor->Issuer:createStampContract(metadata, images)
+activate Issuer
+Issuer->Chain:deployStampsContract()
+activate Chain
+Issuer<-Chain:
+deactivate Chain
+Sponsor<-Issuer:\n
+deactivate Issuer
+Sponsor->Issuer:mintStamps(image, quantity, value, payment)\nvalue is in gas units, \npayment depends on current price of gas
+activate Issuer
+note over Issuer:Stamps actually created and a redemption value is assigned to them.\nPayment covers value * quantity, plus issuer's fees
+Issuer->Chain:StampContract.mint(quantity, metadata, value)
+activate Chain
+Issuer<-Chain:Stamp Tokens
+deactivate Chain
+Sponsor<-Issuer:Stamp Tokens
+note over Issuer:Issuer now has an asset, money paid by Sponsor.\nIt also has a liablity, the issued stamps redemption value
+Issuer->Issuer:Invest money
+deactivateafter Issuer
+Sponsor->Marketplace:Put Tokens up for sale\nLots of other options for distributing stamps exist
+activate Marketplace
+Redeemer->Marketplace:Purchase Stamps
+Redeemer<-Marketplace:Stamp Tokens
+Sponsor<-Marketplace:$Profits$
+deactivateafter Marketplace
+==Redeeming Stamps==
+note over Redeemer:Decides to make a transaction\nAnd pay for it with a stamp
+Issuer<-Redeemer:redeem(encodedSignedTransaction, stamp[s])
+activate Issuer
+Issuer->Redeemer:TransactionId
+Issuer->Issuer:Monitor Gas Prices
+Issuer->Issuer:Bundle with other redemptions
+Issuer->Bundler:submitTransactions(transactions, gas, fee)
+activate Bundler
+Bundler->Bundler:ERC-4337 Bundling of transactions
+Bundler->Chain:submit
+activate Chain
+Bundler<-Chain:
+deactivate Chain
+Bundler->Bundler:Wait for mining
+Issuer<-Bundler:Transaction Hashes
+deactivate Bundler
+
+deactivate Issuer
+Issuer<-Redeemer:Poll /complete/transactionId
+activate Issuer
+Issuer->Redeemer:Transaction Status and Hash
+deactivateafter Issuer
+note over Redeemer:If the issuer does not run the transaction,\nThere is really no recourse.\nIssuers need to be trusted entities.

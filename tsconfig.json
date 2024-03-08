@@ -18,6 +18,12 @@
       "path": "packages/circuits/test"
     },
     {
+      "path": "packages/circuits-sdk"
+    },
+    {
+      "path": "packages/circuits-sdk/test"
+    },
+    {
       "path": "packages/common-utils"
     },
     {
