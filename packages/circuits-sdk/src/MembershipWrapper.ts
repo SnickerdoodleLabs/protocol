@@ -9,11 +9,13 @@ import {
   Commitment,
   ZKProof,
 } from "@snickerdoodlelabs/objects";
+import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { Encoding, Field, Keypair, MerkleTree, Poseidon } from "o1js";
 
 import { CircuitWrapper } from "@circuits-sdk/CircuitWrapper.js";
 
+@injectable()
 export class MembershipWrapper extends CircuitWrapper<Membership> {
   public constructor() {
     super(Membership);
