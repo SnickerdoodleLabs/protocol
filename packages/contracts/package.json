@@ -12,6 +12,7 @@
     "artifacts/"
   ],
   "scripts": {
+    "compile": "npx hardhat compile",
     "dockerize": "docker build -t snickerdoodlelabs/devchain:0.0.6 -f Dockerfile --progress=plain .",
     "docker-push": "docker push snickerdoodlelabs/devchain:0.0.6",
     "redocgen": "npx hardhat clean && npx hardhat compile && npx hardhat docgen && node scripts/docgenTitleFix.js"
