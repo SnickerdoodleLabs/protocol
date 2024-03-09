@@ -18,8 +18,9 @@
   },
   "type": "commonjs",
   "dependencies": {
-    "@openzeppelin/contracts": "4.8.0",
-    "@openzeppelin/contracts-upgradeable": "4.8.0",
+    "@openzeppelin/contracts": "^5.0.2",
+    "@openzeppelin/contracts-upgradeable": "^5.0.2",
+    "@prb/math": "^4.0.2",
     "@snickerdoodlelabs/erc7529": "workspace:^",
     "dotenv": "^16.0.1",
     "fs": "^0.0.1-security",
@@ -29,14 +30,5 @@
     "it-all": "^1.0.6",
     "solidity-coverage": "^0.7.21",
     "solidity-docgen": "^0.6.0-beta.16"
-  },
-  "devDependencies": {
-    "@nomiclabs/hardhat-ethers": "^2.0.6",
-    "@nomiclabs/hardhat-waffle": "^2.0.3",
-    "@openzeppelin/hardhat-upgrades": "^1.21.0",
-    "chai": "^4.3.6",
-    "ethereum-waffle": "^3.4.4",
-    "ethers": "^5.0.0",
-    "hardhat": "^2.9.5"
   }
 }
