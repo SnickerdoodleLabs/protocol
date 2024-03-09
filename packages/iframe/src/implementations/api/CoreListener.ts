@@ -707,7 +707,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      getPossibleRewards: (
+      getEarnedRewardsByContractAddress: (
         data: IIFrameCallData<{
           contractAddresses: EVMContractAddress[];
           timeoutMs?: number;

@@ -3,7 +3,7 @@ import {
   Ecdsa,
   keccakAndEcdsa,
   Bytes32,
-} from "@circuits/Reserves 2.js";
+} from "@circuits/Reserves.js";
 
 describe("Proof of Reserves", () => {
   test("Generate Proof of Reserves", async () => {

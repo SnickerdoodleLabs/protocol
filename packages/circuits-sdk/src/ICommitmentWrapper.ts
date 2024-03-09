@@ -34,4 +34,4 @@ export interface ICommitmentWrapper {
   ): ResultAsync<boolean, CircuitError>;
 }
 
-export const IMembershipWrapperType = Symbol.for("IMembershipWrapper");
+export const ICommitmentWrapperType = Symbol.for("ICommitmentWrapper");

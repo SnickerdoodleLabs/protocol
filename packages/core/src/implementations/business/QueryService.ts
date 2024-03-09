@@ -557,42 +557,6 @@ export class QueryService implements IQueryService {
       .map(() => {});
   }
 
-  public getPossibleRewards(
-    consentToken: ConsentToken,
-    optInKey: EVMPrivateKey,
-    consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
-    config: CoreConfig,
-  ): ResultAsync<
-    PossibleReward[],
-    | AjaxError
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | ParserError
-    | AccountIndexingError
-    | MethodSupportError
-    | InvalidParametersError
-    | MissingTokenConstructorError
-    | DuplicateIdInSchema
-    | PersistenceError
-    | EvalNotImplementedError
-    | MissingASTError
-  > {
-    return this.queryParsingEngine
-      .getPossibleQueryDeliveryItems(query)
-      .andThen((queryDeliveryItems) => {
-        return this.getPossibleRewardsFromIP(
-          consentToken,
-          optInKey,
-          consentContractAddress,
-          query.cid,
-          config,
-          queryDeliveryItems,
-        );
-      });
-  }
-
   protected createQueryStatusWithConsent(
     requestForData: RequestForData,
     queryWrapper: SDQLQueryWrapper,
@@ -666,21 +630,13 @@ export class QueryService implements IQueryService {
     | MethodSupportError
     | InvalidParametersError
   > {
-    return this.getPossibleRewards(
-      consentToken,
-      optInKey,
+    return this.publishSDQLQueryRequest(
       consentContractAddress,
       query,
-      config,
-    ).map((possibleRewards) => {
-      this.publishSDQLQueryRequest(
-        consentContractAddress,
-        query,
-        possibleRewards,
-        accounts,
-        context,
-      );
-    });
+      [],
+      accounts,
+      context,
+    );
   }
   // eslint-disable-next-line @typescript-eslint/adjacent-overload-signatures
   protected publishSDQLQueryRequest(
@@ -702,24 +658,6 @@ export class QueryService implements IQueryService {
     context.publicEvents.onQueryPosted.next(queryRequest);
 
     return okAsync(undefined);
-  }
-
-  protected getPossibleRewardsFromIP(
-    consentToken: ConsentToken,
-    optInKey: EVMPrivateKey,
-    consentContractAddress: EVMContractAddress,
-    queryCID: IpfsCID,
-    config: CoreConfig,
-    queryDeliveryItems: IQueryDeliveryItems,
-  ): ResultAsync<PossibleReward[], AjaxError> {
-    return this.insightPlatformRepo.receivePreviews(
-      consentContractAddress,
-      consentToken.tokenId,
-      queryCID,
-      optInKey,
-      config.defaultInsightPlatformBaseUrl,
-      queryDeliveryItems,
-    );
   }
 
   protected getQueryByCID(

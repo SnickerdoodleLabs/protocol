@@ -1,19 +1,17 @@
 import {
-  BigNumberString,
-  EVMAccountAddress,
+  Commitment,
   EVMContractAddress,
-  HexString,
   Signature,
   ZKProof,
 } from "@snickerdoodlelabs/objects";
 
 export interface IOptinParams {
   consentContractId: EVMContractAddress;
-  signalNullifier: BigNumberString;
-  queryCID: IpfsCID;
-  insights: IQueryDeliveryItems;
-  rewardParameters: IDynamicRewardParameter[];
-  anonymitySetStart: number;
-  anonymitySetSize: number;
+  commitment: Commitment;
   proof: ZKProof;
+}
+
+export interface IPrivateOptinParams extends IOptinParams {
+  nonce: string;
+  signature: Signature;
 }

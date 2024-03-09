@@ -1,4 +1,6 @@
 import {
+  ICommitmentWrapper,
+  ICommitmentWrapperType,
   IMembershipWrapper,
   IMembershipWrapperType,
   MembershipWrapper,
@@ -8,7 +10,6 @@ import {
   IAxiosAjaxUtilsType,
   ObjectUtils,
 } from "@snickerdoodlelabs/common-utils";
-import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   AjaxError,
   BigNumberString,
@@ -30,15 +31,17 @@ import { IInsightPlatformRepository } from "@insightPlatform/IInsightPlatformRep
 import {
   IDeliverInsightsParams,
   IOptinParams,
+  IPrivateOptinParams,
 } from "@insightPlatform/params/index.js";
 
 @injectable()
 export class InsightPlatformRepository implements IInsightPlatformRepository {
   public constructor(
-    @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(IMembershipWrapperType)
     protected membershipWrapper: IMembershipWrapper,
+    @inject(ICommitmentWrapperType)
+    protected commitmentWrapper: ICommitmentWrapper,
   ) {}
 
   public deliverInsights(
@@ -112,54 +115,27 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
   ): ResultAsync<void, AjaxError | CircuitError> {
     // Calculate the values we need to include in the signal
     const identity = MembershipWrapper.getIdentity(trapdoor, nullifier);
-    const signalNullifier = MembershipWrapper.getSignalNullifier(
-      identity,
-      queryCID,
-    );
-
-    // Check if the passed-in anonymity set includes the identity's commitment
-    let anonymitySetSize = anonymitySet.length;
     const identityCommitment =
       MembershipWrapper.getIdentityCommitment(identity);
-    if (anonymitySet.indexOf(identityCommitment) === -1) {
-      anonymitySetSize += 1;
-    }
 
     // Create the proveable data
     const provableData = {
       consentContractId: consentContractAddress,
-      queryCID: queryCID,
-      insights: insights,
-      rewardParameters: rewardParameters,
-      signalNullifier: signalNullifier,
-      anonymitySetStart: anonymitySetStart,
-      anonymitySetSize: anonymitySetSize,
-    } as Omit<IDeliverInsightsParams, "proof">;
+      commitment: identityCommitment,
+    } as Omit<IOptinParams, "proof">;
 
-    return this.membershipWrapper
-      .prove(
-        ObjectUtils.serialize(provableData),
-        trapdoor,
-        nullifier,
-        anonymitySet,
-        queryCID,
-      )
+    return this.commitmentWrapper
+      .prove(ObjectUtils.serialize(provableData), trapdoor, nullifier)
       .andThen((proof) => {
-        const url = new URL(
-          urlJoin(insightPlatformBaseUrl, "insights/responses"),
-        );
+        const url = new URL(urlJoin(insightPlatformBaseUrl, "insights/optin"));
 
-        return this.ajaxUtils.post<EarnedReward[]>(url, {
+        return this.ajaxUtils.post<{ success: boolean }>(url, {
           consentContractId: consentContractAddress,
-          queryCID: queryCID,
-          insights: insights,
-          rewardParameters: rewardParameters,
-          signalNullifier: signalNullifier,
-          anonymitySetStart: anonymitySetStart,
-          anonymitySetSize: anonymitySetSize,
+          commitment: identityCommitment,
           proof: proof,
-        } as IDeliverInsightsParams as unknown as Record<string, unknown>);
-      });
+        } as IOptinParams as unknown as Record<string, unknown>);
+      })
+      .map(() => {});
   }
 
   public privateOptin(
@@ -172,53 +148,28 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
   ): ResultAsync<void, AjaxError | CircuitError> {
     // Calculate the values we need to include in the signal
     const identity = MembershipWrapper.getIdentity(trapdoor, nullifier);
-    const signalNullifier = MembershipWrapper.getSignalNullifier(
-      identity,
-      queryCID,
-    );
-
-    // Check if the passed-in anonymity set includes the identity's commitment
-    let anonymitySetSize = anonymitySet.length;
     const identityCommitment =
       MembershipWrapper.getIdentityCommitment(identity);
-    if (anonymitySet.indexOf(identityCommitment) === -1) {
-      anonymitySetSize += 1;
-    }
 
     // Create the proveable data
     const provableData = {
       consentContractId: consentContractAddress,
-      queryCID: queryCID,
-      insights: insights,
-      rewardParameters: rewardParameters,
-      signalNullifier: signalNullifier,
-      anonymitySetStart: anonymitySetStart,
-      anonymitySetSize: anonymitySetSize,
-    } as Omit<IDeliverInsightsParams, "proof">;
+      commitment: identityCommitment,
+      nonce: nonce,
+      signature: signature,
+    } as Omit<IOptinParams, "proof">;
 
-    return this.membershipWrapper
-      .prove(
-        ObjectUtils.serialize(provableData),
-        trapdoor,
-        nullifier,
-        anonymitySet,
-        queryCID,
-      )
+    return this.commitmentWrapper
+      .prove(ObjectUtils.serialize(provableData), trapdoor, nullifier)
       .andThen((proof) => {
-        const url = new URL(
-          urlJoin(insightPlatformBaseUrl, "insights/responses"),
-        );
+        const url = new URL(urlJoin(insightPlatformBaseUrl, "insights/optin"));
 
-        return this.ajaxUtils.post<EarnedReward[]>(url, {
+        return this.ajaxUtils.post<{ success: boolean }>(url, {
           consentContractId: consentContractAddress,
-          queryCID: queryCID,
-          insights: insights,
-          rewardParameters: rewardParameters,
-          signalNullifier: signalNullifier,
-          anonymitySetStart: anonymitySetStart,
-          anonymitySetSize: anonymitySetSize,
+          commitment: identityCommitment,
           proof: proof,
-        } as IDeliverInsightsParams as unknown as Record<string, unknown>);
-      });
+        } as IPrivateOptinParams as unknown as Record<string, unknown>);
+      })
+      .map(() => {});
   }
 }

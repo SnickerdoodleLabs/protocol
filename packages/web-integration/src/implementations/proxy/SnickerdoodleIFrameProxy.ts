@@ -544,7 +544,7 @@ export class SnickerdoodleIFrameProxy
     Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
     ProxyError
   > {
-    return this._createCall("getPossibleRewards", {
+    return this._createCall("getEarnedRewardsByContractAddress", {
       contractAddresses,
       timeoutMs,
     });
