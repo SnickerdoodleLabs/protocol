@@ -1,4 +1,5 @@
 import { EColorMode } from "@objects/enum/EColorMode.js";
+import { IBrandInformation } from "@objects/interfaces/IBrandInformation.js";
 import {
   IERC721Attribute,
   IERC721Metadata,
@@ -26,4 +27,6 @@ export interface IUserAgreementTitleTrait extends IERC721Attribute {
 
 export interface IUserAgreement extends IERC721Metadata {
   attributes: UserAgreementAttributes[];
+  version?: number;
+  brandInformation?: IBrandInformation;
 }
