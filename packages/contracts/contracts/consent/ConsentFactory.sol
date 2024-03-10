@@ -94,4 +94,18 @@ contract ConsentFactory is
         questionnaires[index] = questionnaires[questionnaires.length - 1];
         questionnaires.pop();
     }
+
+    /// @notice Add a domain to the domains array
+    /// @param domain Domain to add
+    function addDomain(string calldata domain) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _addDomain(domain);
+    }
+
+    /// @notice Removes a domain from the domains array
+    /// @param domain Domain to remove
+    function removeDomain(
+        string calldata domain
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _removeDomain(domain);
+    }
 }

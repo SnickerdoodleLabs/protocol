@@ -154,11 +154,14 @@ contract Consent is
     /// @dev Registers an identity commitment for a user
     /// @param commitment A bytes32 identity commitment computed with Posiedon hash function
     function optIn(bytes32 commitment) external whenNotPaused whenNotDisabled {
-        // save the index of the commitment
-        commitments[commitment] = commitmentArray.length;
+        // don't allow commitments to be committed twice
+        require(commitments[commitment] == 0, "Commitment exists already");
 
         // add to commitment array for fetching anonymity set
         commitmentArray.push(commitment);
+
+        // save the index of the commitment, indexing must start at 1
+        commitments[commitment] = commitmentArray.length;
     }
 
     /// @notice Allows Signature Issuer to send anonymous invitation link to end user to opt in
@@ -185,11 +188,11 @@ contract Consent is
             "Consent: Contract owner did not sign this message"
         );
 
-        // save the index of the commitment
-        commitments[commitment] = commitmentArray.length;
-
         // add to commitment array for fetching anonymity set
         commitmentArray.push(commitment);
+
+        // save the index of the commitment, indexing must start at 1
+        commitments[commitment] = commitmentArray.length;
 
         // set tokenId so that it cannot be used again
         tokenIds[tokenId] = true;
