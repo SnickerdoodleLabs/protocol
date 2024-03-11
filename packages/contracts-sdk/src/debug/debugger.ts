@@ -3,12 +3,11 @@ import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   BaseURI,
   BigNumberString,
+  Commitment,
   ConsentName,
   DomainName,
   EVMAccountAddress,
-  HexString32,
   MarketplaceTag,
-  TokenId,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -19,7 +18,6 @@ import {
   privateKey1,
   privateKey2,
   providerUrl,
-  sampleAgreementFlag1,
 } from "@contracts-sdk/debug/constants.js";
 import { Contracts } from "@contracts-sdk/debug/contracts.js";
 import { ConsentContract } from "@contracts-sdk/implementations/ConsentContract.js";
@@ -27,7 +25,6 @@ import {
   EConsentRoles,
   ContractOverrides,
 } from "@contracts-sdk/interfaces/index.js";
-import CrumbsContractAbi from "@contracts-sdk/interfaces/objects/abi/CrumbsAbi.js";
 
 console.log("providerUrl", providerUrl);
 
@@ -202,19 +199,19 @@ const totalSupply = async () => {
   }
 };
 
-const testContract = async (contractAddress1: string) => {
-  try {
-    const response = await provider.getCode(contractAddress1);
-    console.log("testContract response: ", response);
-    console.log("bytecode matched: ", response == CrumbsContractAbi.bytecode);
-    console.log(
-      "deployedBytecode matched: ",
-      response == CrumbsContractAbi.deployedBytecode,
-    );
-  } catch (e) {
-    console.log("testContract e: ", e);
-  }
-};
+// const testContract = async (contractAddress1: string) => {
+//   try {
+//     const response = await provider.getCode(contractAddress1);
+//     console.log("testContract response: ", response);
+//     console.log("bytecode matched: ", response == CrumbsContractAbi.bytecode);
+//     console.log(
+//       "deployedBytecode matched: ",
+//       response == CrumbsContractAbi.deployedBytecode,
+//     );
+//   } catch (e) {
+//     console.log("testContract e: ", e);
+//   }
+// };
 
 const newGlobalTag = async () => {
   try {
@@ -437,27 +434,7 @@ const tempOptIn = async () => {
       cryptoUtils,
     );
 
-    const response = await tempConsentContract.optIn(
-      TokenId("3" as any),
-      HexString32(sampleAgreementFlag1),
-    );
-    console.log("optIn response: ", response);
-  } catch (e) {
-    console.log("optIn e: ", e);
-  }
-};
-
-const tempOptOut = async () => {
-  try {
-    const tempSigner = new ethers.Wallet(privateKey2 as any, provider);
-
-    const tempConsentContract = new ConsentContract(
-      tempSigner,
-      consentAddress,
-      cryptoUtils,
-    );
-
-    const response = await tempConsentContract.optOut(TokenId("3" as any));
+    const response = await tempConsentContract.optIn(Commitment(3n));
     console.log("optIn response: ", response);
   } catch (e) {
     console.log("optIn e: ", e);

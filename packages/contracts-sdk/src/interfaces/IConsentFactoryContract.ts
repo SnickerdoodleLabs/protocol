@@ -11,7 +11,7 @@ import {
   TransactionResponseError,
   IpfsCID,
 } from "@snickerdoodlelabs/objects";
-import { ResultAsync } from "neverthrow";
+import { Result, ResultAsync } from "neverthrow";
 
 import { EConsentRoles } from "@contracts-sdk/interfaces/enums/index.js";
 import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
@@ -122,6 +122,19 @@ export interface IConsentFactoryContract extends IBaseContract {
   /**
    * Marketplace Listings
    */
+  getStakingToken(): ResultAsync<
+    EVMContractAddress,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  >;
+
+  /**
+   * Returns the number of seconds that a listing will be active for
+   */
+  listingDuration(): ResultAsync<
+    number,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  >;
+
   getMaxTagsPerListing(): ResultAsync<
     number,
     ConsentFactoryContractError | BlockchainCommonErrors

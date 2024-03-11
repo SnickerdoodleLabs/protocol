@@ -217,6 +217,32 @@ export class ConsentFactoryContract
   }
 
   // Marketplace functions
+  public getStakingToken(): ResultAsync<
+    EVMContractAddress,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.getStakingToken() as Promise<EVMContractAddress>,
+      (e) => {
+        return this.generateError(e, "Unable to call getStakingToken()");
+      },
+    );
+  }
+
+  public listingDuration(): ResultAsync<
+    number,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.getStakingToken() as Promise<bigint>,
+      (e) => {
+        return this.generateError(e, "Unable to call getStakingToken()");
+      },
+    ).map((duration) => {
+      return Number(duration);
+    });
+  }
+
   public getMaxTagsPerListing(): ResultAsync<
     number,
     ConsentFactoryContractError | BlockchainCommonErrors

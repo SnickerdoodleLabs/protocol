@@ -18,6 +18,7 @@ import {
   DataPermissions,
   BigNumberString,
   BlockchainCommonErrors,
+  Commitment,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
@@ -53,29 +54,18 @@ export class ConsentContract
   }
 
   public optIn(
-    tokenId: TokenId,
-    agreementFlags: HexString32,
+    commitment: Commitment,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | ConsentContractError
   > {
-    return this.writeToContract("optIn", [tokenId, agreementFlags], overrides);
-  }
-
-  // TODO: add data permissions param
-  public encodeOptIn(tokenId: TokenId, agreementFlags: HexString32): HexString {
-    return HexString(
-      this.contract.interface.encodeFunctionData("optIn", [
-        tokenId,
-        agreementFlags,
-      ]),
-    );
+    return this.writeToContract("optIn", [commitment], overrides);
   }
 
   public restrictedOptIn(
-    tokenId: TokenId,
-    agreementFlags: HexString32,
+    commitment: Commitment,
+    nonce: TokenId,
     signature: Signature,
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -84,130 +74,8 @@ export class ConsentContract
   > {
     return this.writeToContract(
       "restrictedOptIn",
-      [tokenId, agreementFlags, signature],
+      [nonce, commitment, signature],
       overrides,
-    );
-  }
-
-  public encodeRestrictedOptIn(
-    tokenId: TokenId,
-    signature: Signature,
-    agreementFlags: HexString32,
-  ): HexString {
-    return HexString(
-      this.contract.interface.encodeFunctionData("restrictedOptIn", [
-        tokenId,
-        agreementFlags,
-        signature,
-      ]),
-    );
-  }
-
-  public anonymousRestrictedOptIn(
-    tokenId: TokenId,
-    agreementFlags: HexString32,
-    signature: Signature,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ConsentContractError
-  > {
-    return this.writeToContract(
-      "anonymousRestrictedOptIn",
-      [tokenId, agreementFlags, signature],
-      overrides,
-    );
-  }
-
-  public encodeAnonymousRestrictedOptIn(
-    tokenId: TokenId,
-    signature: Signature,
-    agreementFlags: HexString32,
-  ): HexString {
-    return HexString(
-      this.contract.interface.encodeFunctionData("anonymousRestrictedOptIn", [
-        tokenId,
-        agreementFlags,
-        signature,
-      ]),
-    );
-  }
-
-  public optOut(
-    tokenId: TokenId,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ConsentContractError
-  > {
-    return this.writeToContract("optOut", [tokenId], overrides);
-  }
-
-  public encodeOptOut(tokenId: TokenId): HexString {
-    return HexString(
-      this.contract.interface.encodeFunctionData("optOut", [tokenId]),
-    );
-  }
-
-  public agreementFlags(
-    tokenId: TokenId,
-  ): ResultAsync<HexString32, ConsentContractError | BlockchainCommonErrors> {
-    return ResultAsync.fromPromise(
-      this.contract.agreementFlagsArray(tokenId) as Promise<HexString32>,
-      (e) => {
-        return this.generateError(e, "Unable to call agreementFlagsArray()");
-      },
-    );
-  }
-
-  public getMaxCapacity(): ResultAsync<
-    number,
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return ResultAsync.fromPromise(
-      this.contract.maxCapacity() as Promise<bigint>,
-      (e) => {
-        return this.generateError(e, "Unable to call maxCapacity()");
-      },
-    ).map((bigCapacity) => {
-      return Number(bigCapacity);
-    });
-  }
-
-  public updateMaxCapacity(
-    maxCapacity: number,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ConsentContractError
-  > {
-    return this.writeToContract("updateMaxCapacity", [maxCapacity], overrides);
-  }
-
-  public updateAgreementFlags(
-    tokenId: TokenId,
-    newAgreementFlags: HexString32,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ConsentContractError
-  > {
-    return this.writeToContract(
-      "updateAgreementFlags",
-      [tokenId, newAgreementFlags],
-      overrides,
-    );
-  }
-
-  public encodeUpdateAgreementFlags(
-    tokenId: TokenId,
-    agreementFlags: HexString32,
-  ): HexString {
-    return HexString(
-      this.contract.interface.encodeFunctionData("updateAgreementFlags", [
-        tokenId,
-        agreementFlags,
-      ]),
     );
   }
 
@@ -399,55 +267,6 @@ export class ConsentContract
     });
   }
 
-  public balanceOf(
-    address: EVMAccountAddress,
-  ): ResultAsync<number, ConsentContractError | BlockchainCommonErrors> {
-    return ResultAsync.fromPromise(
-      this.contract.balanceOf(address) as Promise<bigint>,
-      (e) => {
-        return this.generateError(e, "Unable to call balanceOf()");
-      },
-    ).map((numberOfTokens) => {
-      return Number(numberOfTokens);
-    });
-  }
-
-  public ownerOf(
-    tokenId: TokenId,
-  ): ResultAsync<
-    EVMAccountAddress,
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return ResultAsync.fromPromise(
-      this.contract.ownerOf(tokenId) as Promise<EVMAccountAddress>,
-      (e) => {
-        return this.generateError(e, "Unable to call ownerOf()");
-      },
-    );
-  }
-
-  public tokenURI(
-    tokenId: TokenId,
-  ): ResultAsync<
-    TokenUri | null,
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return ResultAsync.fromPromise(
-      this.contract.tokenURI(tokenId) as Promise<TokenUri | null>,
-      (e) => {
-        return this.generateError(e, "Unable to call tokenURI()");
-      },
-    ).orElse((error) => {
-      // The contract reverts with this message if tokenId does not exist
-      if (
-        (error as any).reason === "ERC721: operator query for nonexistent token"
-      ) {
-        return ok(null);
-      }
-      return err(error);
-    });
-  }
-
   public queryFilter(
     eventFilter: ethers.ContractEventName,
     fromBlock?: BlockNumber,
@@ -464,25 +283,6 @@ export class ConsentContract
         return this.generateError(e, "Unable to call queryFilter()");
       },
     );
-  }
-
-  public getConsentToken(
-    tokenId: TokenId,
-  ): ResultAsync<ConsentToken, ConsentContractError | BlockchainCommonErrors> {
-    // Get the agreement flags of the user's current consent token
-    return ResultUtils.combine([
-      this.ownerOf(tokenId),
-      this.agreementFlags(tokenId),
-    ]).andThen(([ownerAddress, agreementFlags]) => {
-      return okAsync(
-        new ConsentToken(
-          this.contractAddress,
-          ownerAddress,
-          tokenId,
-          new DataPermissions(agreementFlags),
-        ),
-      );
-    });
   }
 
   public addDomain(
@@ -544,39 +344,6 @@ export class ConsentContract
         }
         return acc;
       }, new Array<RequestForData>());
-    });
-  }
-
-  public getLatestTokenIdByOptInAddress(
-    optInAddress: EVMAccountAddress,
-  ): ResultAsync<
-    TokenId | null,
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return this.queryFilter(
-      this.filters.Transfer(null, optInAddress),
-      undefined,
-      undefined,
-    ).map((logsEvents) => {
-      if (logsEvents.length == 0) {
-        return null;
-      }
-
-      const latestOptinEvent = logsEvents.reduce(
-        (latestEvent, logEvent) =>
-          logEvent.blockNumber > latestEvent.blockNumber
-            ? logEvent
-            : latestEvent,
-        logsEvents[0],
-      );
-
-      if (latestOptinEvent instanceof ethers.EventLog) {
-        if (latestOptinEvent.args.tokenId != null) {
-          return TokenId(latestOptinEvent.args.tokenId);
-        }
-      }
-
-      return null;
     });
   }
 
@@ -704,6 +471,18 @@ export class ConsentContract
     });
   }
 
+  public fetchAnonymitySet(
+    start: BigNumberString,
+    stop: BigNumberString,
+  ): ResultAsync<Commitment[], BlockchainCommonErrors | ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.fetchAnonymitySet(start, stop) as Promise<Commitment[]>,
+      (e) => {
+        return this.generateError(e, "Unable to call fetchAnonymitySet()");
+      },
+    );
+  }
+
   // Get the number of opted in addresses
   public totalSupply(): ResultAsync<
     number,
@@ -730,18 +509,41 @@ export class ConsentContract
   }
 
   // Marketplace functions
-  public getMaxTags(): ResultAsync<
-    number,
+  public getStakingToken(): ResultAsync<
+    EVMContractAddress,
     ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.maxTags() as Promise<bigint>,
+      this.contract.getStakingToken() as Promise<EVMContractAddress>,
       (e) => {
-        return this.generateError(e, "Unable to call maxTags()");
+        return this.generateError(e, "Unable to call getNumberOfStakedTags()");
       },
-    ).map((num) => {
-      return Number(num);
+    );
+  }
+
+  public tagIndices(
+    tag: string,
+  ): ResultAsync<
+    BigNumberString,
+    ConsentContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.tagIndices() as Promise<bigint>,
+      (e) => {
+        return this.generateError(e, "Unable to call getNumberOfStakedTags()");
+      },
+    ).map((index) => {
+      return BigNumberString(index.toString());
     });
+  }
+
+  public updateMaxTagsLimit(
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    ConsentContractError | BlockchainCommonErrors
+  > {
+    return this.writeToContract("updateMaxTagsLimit", [], overrides);
   }
 
   public getNumberOfStakedTags(): ResultAsync<
@@ -823,6 +625,16 @@ export class ConsentContract
       [tag, existingStakeAmount, newStakeAmount],
       overrides,
     );
+  }
+
+  public restakeExpiredListing(
+    tag: string,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract("restakeExpiredListing", [tag], overrides);
   }
 
   public replaceExpiredListing(
