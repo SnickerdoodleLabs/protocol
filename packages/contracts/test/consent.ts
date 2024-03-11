@@ -1,3 +1,5 @@
+import { randomBytes } from "crypto";
+
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import {
   time,
@@ -5,6 +7,11 @@ import {
 } from "@nomicfoundation/hardhat-toolbox/network-helpers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
+
+function generateRandomHex(length: number): string {
+  const bytes = randomBytes(length);
+  return bytes.toString("hex");
+}
 
 describe("Storage Hashing", function () {
   // We define a fixture to reuse the same setup in every test.
@@ -83,7 +90,7 @@ describe("Storage Hashing", function () {
   });
 
   describe("Opt In function", function () {
-    it("Unrestricted optin", async function () {
+    it("Unrestricted single optin", async function () {
       const { consentFactory, token, owner, otherAccount } = await loadFixture(
         deployConsentStack,
       );
@@ -108,24 +115,58 @@ describe("Storage Hashing", function () {
       );
 
       // make an arbitrary commitment of 32 bytes
-      await consentContract.optIn(
-        "0xe5a9ca207f58274b38dd4efcf7998077f154da4dff4c6f2ae387b8066bd7c31b",
-      );
+      const optInCommitment = generateRandomHex(32);
+      await consentContract.optIn(`0x${optInCommitment}`);
       expect(await consentContract.totalSupply()).to.equal(1);
 
       // a commitment cannot be written twice
       // make an arbitrary commitment of 32 bytes
       await expect(
-        consentContract.optIn(
-          "0xe5a9ca207f58274b38dd4efcf7998077f154da4dff4c6f2ae387b8066bd7c31b",
-        ),
+        consentContract.optIn(`0x${optInCommitment}`),
       ).to.be.revertedWith("Commitment exists already");
 
       // make second arbitrary commitment of 32 bytes, so see gas improvement after storage slot warming
-      await consentContract.optIn(
-        "0xe6a9ca207f58274b38dd4efcf7998077f154da4dff4c6f2ae387b8066bd7c31b",
-      );
+      await consentContract.optIn(`0x${generateRandomHex(32)}`);
       expect(await consentContract.totalSupply()).to.equal(2);
+    });
+
+    it("Unrestricted batch optin", async function () {
+      const { consentFactory, token, owner, otherAccount } = await loadFixture(
+        deployConsentStack,
+      );
+
+      // add snickerdoodle.com to the token contract
+      await expect(
+        consentFactory.createConsent(owner.address, "snickerdoodle.com"),
+      )
+        .to.emit(consentFactory, "ConsentContractDeployed")
+        .withArgs(owner.address, anyValue, token.target);
+
+      // read the event logs to find the contract address
+      const filter = await consentFactory.filters.ConsentContractDeployed(
+        owner.address,
+      );
+      const events = await consentFactory.queryFilter(filter);
+
+      // get a contract handle on the deployed contract
+      const consentContract = await ethers.getContractAt(
+        "Consent",
+        events[0].args[1],
+      );
+
+      const sizeBatch = 600;
+      const commitmentBatch: string[] = [];
+      for (let i = 0; i < sizeBatch; i++) {
+        commitmentBatch.push(`0x${generateRandomHex(32)}`);
+      }
+
+      // make an arbitrary commitment of 32 bytes
+      await consentContract.batchOptIn(commitmentBatch);
+      expect(await consentContract.totalSupply()).to.equal(sizeBatch);
+      const output = await consentContract.fetchAnonymitySet(0, sizeBatch);
+      expect(await consentContract.fetchAnonymitySet(0, sizeBatch)).to.eql(
+        commitmentBatch,
+      );
     });
   });
 });

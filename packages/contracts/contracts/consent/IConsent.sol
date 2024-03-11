@@ -47,6 +47,8 @@ interface IConsent is IContentObject, IERC7529 {
 
     function optIn(bytes32 commitment) external;
 
+    function batchOptIn(bytes32[] calldata commitmentBatch) external;
+
     function restrictedOptIn(
         uint256 tokenId,
         bytes32 commitment,

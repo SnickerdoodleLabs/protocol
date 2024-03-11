@@ -44,7 +44,7 @@ contract Consent is
     bytes32[] private commitmentArray;
 
     /// @dev used for private audiences to prevent replay attack
-    mapping(uint256 => bool) tokenIds;
+    mapping(uint256 => bool) private nonces;
 
     /* Modifiers */
 
@@ -164,22 +164,40 @@ contract Consent is
         commitments[commitment] = commitmentArray.length;
     }
 
+    /// @notice Allows multiple identity commitments to be written at once
+    /// @dev Registers a batch of identity commitments for multiple users
+    /// @param commitmentBatch A bytes32 array of identity commitments computed with Posiedon hash function
+    function batchOptIn(
+        bytes32[] calldata commitmentBatch
+    ) external whenNotPaused whenNotDisabled {
+        // don't allow commitments to be committed twice
+        uint sizeBatch = commitmentBatch.length;
+        for (uint i = 0; i < sizeBatch; i++) {
+            bytes32 commitment = commitmentBatch[i];
+            require(commitments[commitment] == 0, "Commitment exists already");
+            // add to commitment array for fetching anonymity set
+            commitmentArray.push(commitment);
+            // save the index of the commitment, indexing must start at 1
+            commitments[commitment] = commitmentArray.length;
+        }
+    }
+
     /// @notice Allows Signature Issuer to send anonymous invitation link to end user to opt in
-    /// @dev For restricted opt ins, the owner must first sign a tokenId to prevent replays
+    /// @dev For restricted opt ins, the owner must first sign a nonce to prevent replays
     /// @dev The function is called with the signature from SIGNER_ROLE
     /// @dev If the message signature is valid, the user calling this may create an identity commitment
-    /// @param tokenId User's Consent token id to mint against (also serves as a nonce)
+    /// @param nonce A one-time use integer to commit without replay
     /// @param commitment A bytes32 identity commitment computed with Posiedon hash function
-    /// @param signature Signature to be recovered from the hash of the target contract address and tokenId
+    /// @param signature Signature to be recovered from the hash of the target contract address and nonce
     function restrictedOptIn(
-        uint256 tokenId,
+        uint256 nonce,
         bytes32 commitment,
         bytes calldata signature
     ) external whenNotPaused {
-        require(!tokenIds[tokenId], "Consent: tokenId already used");
+        require(!nonces[nonce], "Consent: nonce already used");
 
         bytes32 hash = MessageHashUtils.toEthSignedMessageHash(
-            keccak256(abi.encodePacked(address(this), tokenId))
+            keccak256(abi.encodePacked(address(this), nonce))
         );
 
         /// check the signature against the payload
@@ -195,7 +213,7 @@ contract Consent is
         commitments[commitment] = commitmentArray.length;
 
         // set tokenId so that it cannot be used again
-        tokenIds[tokenId] = true;
+        nonces[nonce] = true;
     }
 
     /// @notice Facilitates entity's request for data
