@@ -83,8 +83,6 @@ import {
   IConsentContractRepositoryType,
   ILinkedAccountRepository,
   ILinkedAccountRepositoryType,
-  IQuestionnaireRepository,
-  IQuestionnaireRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data/index.js";
@@ -129,8 +127,6 @@ export class QueryService implements IQueryService {
     protected sdqlQueryWrapperFactory: ISDQLQueryWrapperFactory,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
-    @inject(IQuestionnaireRepositoryType)
-    protected questionnaireRepo: IQuestionnaireRepository,
   ) {}
 
   public initialize(): ResultAsync<void, never> {

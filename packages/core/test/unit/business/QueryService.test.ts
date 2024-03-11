@@ -158,7 +158,7 @@ class QueryServiceMocks {
   public timeUtils: ITimeUtils;
   public sdqlQueryWrapperFactory: ISDQLQueryWrapperFactory;
   public logUtils: ILogUtils;
-  public questionnaireRepository: IQuestionnaireRepository;
+
   public consentToken = new ConsentToken(
     consentContractAddress,
     EVMAccountAddress(dataWalletAddress),
@@ -181,7 +181,6 @@ class QueryServiceMocks {
     this.sdqlQueryWrapperFactory = td.object<ISDQLQueryWrapperFactory>();
     this.logUtils = td.object<ILogUtils>();
     this.timeUtils = td.object<ITimeUtils>();
-    this.questionnaireRepository = td.object<IQuestionnaireRepository>();
 
     td.when(
       this.insightPlatformRepo.deliverInsights(
@@ -334,7 +333,6 @@ class QueryServiceMocks {
       this.sdqlQueryWrapperFactory,
       this.logUtils,
       this.timeUtils,
-      this.questionnaireRepository,
     );
   }
 }
