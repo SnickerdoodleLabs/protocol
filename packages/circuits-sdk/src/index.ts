@@ -1,3 +1,4 @@
+export * from "@circuits-sdk/CircuitUtils.js";
 export * from "@circuits-sdk/CircuitWrapper.js";
 export * from "@circuits-sdk/ICommitmentWrapper.js";
 export * from "@circuits-sdk/CommitmentWrapper.js";

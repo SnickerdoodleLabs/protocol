@@ -5,7 +5,6 @@ import {
   ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  EFieldKey,
   ERecordKey,
   EVMContractAddress,
   InvitationForStorage,

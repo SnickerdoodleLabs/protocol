@@ -39,7 +39,7 @@ contract Consent is
     /// @dev Oldest block that should be scanned for requestForData events
     uint public queryHorizon;
 
-    /// @dev map from a identity commitment to a bool indicating if the commitment as been registered
+    /// @dev map from a identity commitment to an index in commitmentArray indicating if the commitment as been registered
     mapping(bytes32 => uint256) commitments;
 
     /// @dev array used for fetch an anonymity set from existing commitments

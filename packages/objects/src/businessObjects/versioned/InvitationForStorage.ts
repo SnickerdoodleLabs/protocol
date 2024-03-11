@@ -3,14 +3,18 @@ import {
   VersionedObject,
   VersionedObjectMigrator,
 } from "@objects/businessObjects/versioned/VersionedObject.js";
-import { EVMContractAddress, TokenId } from "@objects/primitives/index.js";
+import {
+  BigNumberString,
+  EVMContractAddress,
+} from "@objects/primitives/index.js";
 import { PropertiesOf } from "@objects/utilities/index.js";
 
 export class InvitationForStorage extends VersionedObject {
   public static CURRENT_VERSION = 1;
   public constructor(
     public consentContractAddress: EVMContractAddress,
-    public tokenId: string,
+    public identityNullifier: BigNumberString,
+    public identityTrapdoor: BigNumberString,
   ) {
     super();
   }
@@ -22,14 +26,16 @@ export class InvitationForStorage extends VersionedObject {
   static toInvitation(src: InvitationForStorage): OptInInfo {
     return new OptInInfo(
       src.consentContractAddress,
-      TokenId(BigInt(src.tokenId)),
+      src.identityNullifier,
+      src.identityTrapdoor,
     );
   }
 
   static fromOptInInfo(src: OptInInfo): InvitationForStorage {
     return new InvitationForStorage(
       src.consentContractAddress,
-      src.tokenId.toString(),
+      src.identityNullifier,
+      src.identityTrapdoor,
     );
   }
 }
@@ -38,7 +44,11 @@ export class InvitationForStorageMigrator extends VersionedObjectMigrator<Invita
   protected factory(
     data: PropertiesOf<InvitationForStorage>,
   ): InvitationForStorage {
-    return new InvitationForStorage(data.consentContractAddress, data.tokenId);
+    return new InvitationForStorage(
+      data.consentContractAddress,
+      data.identityNullifier,
+      data.identityTrapdoor,
+    );
   }
   protected getUpgradeFunctions(): Map<
     number,

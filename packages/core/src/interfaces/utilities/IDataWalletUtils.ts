@@ -1,11 +1,13 @@
 import {
   AccountAddress,
   AESKey,
+  DataWalletAddress,
   EChain,
   EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
   ExternallyOwnedAccount,
+  OptInInfo,
   PasswordString,
   Signature,
 } from "@snickerdoodlelabs/objects";
@@ -56,24 +58,15 @@ export interface IDataWalletUtils {
   ): ResultAsync<boolean, never>;
 
   /**
-   * Returns a new private key specific for a consent contract
+   * Returns the key opt in info for a consent contract. This is derived from the data wallet key
+   * and can be regenerated on demand.
    * @param consentContractAddress
    * @param dataWalletKey
    */
-  deriveOptInPrivateKey(
+  deriveOptInInfo(
     consentContractAddress: EVMContractAddress,
-    dataWalletKey: EVMPrivateKey,
-  ): ResultAsync<EVMPrivateKey, never>;
-
-  /**
-   * Returns a new address specific for a consent contract
-   * @param consentContractAddress
-   * @param dataWalletKey
-   */
-  deriveOptInAccountAddress(
-    consentContractAddress: EVMContractAddress,
-    dataWalletKey: EVMPrivateKey,
-  ): ResultAsync<EVMAccountAddress, never>;
+    dataWalletKey: DataWalletAddress,
+  ): ResultAsync<OptInInfo, never>;
 }
 
 export const IDataWalletUtilsType = Symbol.for("IDataWalletUtils");
