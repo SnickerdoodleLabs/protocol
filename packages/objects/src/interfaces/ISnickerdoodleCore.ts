@@ -829,6 +829,14 @@ export interface IQuestionnaireMethods {
     questionnaire: IpfsCID,
     sourceDomain: DomainName | undefined,
   ): ResultAsync<EVMContractAddress[], PersistenceError | AjaxError>;
+
+  getByCIDs(
+    questionnaireCIDs: IpfsCID[],
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    (Questionnaire | QuestionnaireWithAnswers)[],
+    PersistenceError | AjaxError
+  >;
 }
 
 export interface ISnickerdoodleCore {
@@ -893,6 +901,7 @@ export interface ISnickerdoodleCore {
     | QueryFormatError
     | PersistenceError
     | InvalidQueryStatusError
+    | InvalidParametersError
   >;
 
   getQueryStatusByQueryCID(

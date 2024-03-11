@@ -102,6 +102,7 @@ import {
   ParserError,
   QueryExpiredError,
   InvalidQueryStatusError,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -828,6 +829,15 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           sourceDomain,
         );
       },
+
+      getByCIDs: (questionnaireIds: IpfsCID[], _sourceDomain?: DomainName) => {
+        const questionnaireService =
+          this.iocContainer.get<IQuestionnaireService>(
+            IQuestionnaireServiceType,
+          );
+
+        return questionnaireService.getByCIDs(questionnaireIds);
+      },
     };
   }
 
@@ -979,6 +989,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     | QueryFormatError
     | PersistenceError
     | InvalidQueryStatusError
+    | InvalidParametersError
   > {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);

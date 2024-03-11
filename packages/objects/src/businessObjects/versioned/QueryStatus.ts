@@ -36,7 +36,7 @@ export class QueryStatus extends VersionedObject {
     public receivedBlock: BlockNumber,
     public status: EQueryProcessingStatus,
     public expirationDate: UnixTimestamp,
-    public rewardsParameters: JSONString | null,
+    public rewardsParameters: JSONString,
     public name: string,
     public description: string,
     public points: number,
@@ -87,6 +87,7 @@ export class QueryStatusMigrator extends VersionedObjectMigrator<QueryStatus> {
           data.points = data.points ?? 0;
           data.questionnaires = data.questionnaires ?? [];
           data.virtualQuestionnaires = data.virtualQuestionnaires ?? [];
+          data.rewardsParameters = data.rewardsParameters ?? JSONString("{}");
           data.image = data.image ?? null;
           return data;
         },

@@ -81,6 +81,7 @@ export interface IQueryService {
     | QueryFormatError
     | PersistenceError
     | InvalidQueryStatusError
+    | InvalidParametersError
   >;
 
   returnQueries(): ResultAsync<

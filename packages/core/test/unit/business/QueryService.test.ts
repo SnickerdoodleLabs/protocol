@@ -28,6 +28,9 @@ import {
   UninitializedError,
   UnixTimestamp,
   IQueryDeliveryItems,
+  JSONString,
+  InvalidQueryStatusError,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
 import {
   ISDQLQueryWrapperFactory,
@@ -90,7 +93,7 @@ const dataPermissions = DataPermissions.createWithAllPermissions();
 const rewardParameter = {
   recipientAddress: {
     type: ESolidityAbiParameterType.address,
-    value: "Phoebe",
+    value: "0xb794f5ea0ba39494ce839613fffba74279579268",
   },
   compensationKey: {
     type: ESolidityAbiParameterType.string,
@@ -106,7 +109,7 @@ const receivedQueryStatus = new QueryStatus(
   BlockNumber(345),
   EQueryProcessingStatus.Received,
   then,
-  null,
+  JSONString("{}"),
   "Offer",
   "",
   1,
@@ -372,34 +375,13 @@ describe("QueryService.approveQuery() tests", () => {
     });
   });
 
-  test("no query status found but works", async () => {
+  test("no query status found, rejected with UninitializedError", async () => {
     // Arrange
     const mocks = new QueryServiceMocks();
 
     td.when(mocks.sdqlQueryRepo.getQueryStatusByQueryCID(queryCID1)).thenReturn(
       okAsync(null),
     );
-
-    td.when(
-      mocks.sdqlQueryRepo.upsertQueryStatus([
-        td.matchers.contains(
-          new QueryStatus(
-            consentContractAddress,
-            queryCID1,
-            BlockNumber(1),
-            EQueryProcessingStatus.AdsCompleted,
-            now,
-            ObjectUtils.serialize(rewardParameters),
-            "Offer",
-            "",
-            1,
-            [],
-            [],
-            null,
-          ),
-        ),
-      ]),
-    ).thenReturn(okAsync(undefined));
 
     const queryService = mocks.factory();
 
@@ -411,10 +393,9 @@ describe("QueryService.approveQuery() tests", () => {
 
     // Assert
     expect(result).toBeDefined();
-    expect(result.isErr()).toBeFalsy();
-    mocks.contextProvider.assertEventCounts({
-      onQueryStatusUpdated: 1,
-    });
+    expect(result.isErr()).toBeTruthy();
+    const res = result._unsafeUnwrapErr();
+    expect(res).toBeInstanceOf(UninitializedError);
 
     // const res = result._unsafeUnwrap();
     // expect(err).toBeInstanceOf(AjaxError);
@@ -445,14 +426,9 @@ describe("QueryService.approveQuery() tests", () => {
     expect(res).toBe(err);
   });
 
-  test("upsertQueryStatus fails", async () => {
+  test("upsertQueryStatus fails, query is already AdsCompleted can not approve", async () => {
     // Arrange
     const mocks = new QueryServiceMocks();
-
-    const err = new PersistenceError(`PersistenceError`);
-    td.when(
-      mocks.sdqlQueryRepo.upsertQueryStatus(td.matchers.anything()),
-    ).thenReturn(errAsync(err));
 
     const queryService = mocks.factory();
 
@@ -461,14 +437,37 @@ describe("QueryService.approveQuery() tests", () => {
       sdqlQuery.cid,
       rewardParameters,
     );
-
-    // Assert
     expect(result).toBeDefined();
     expect(result.isErr()).toBeTruthy();
-    mocks.contextProvider.assertEventCounts({});
-
     const res = result._unsafeUnwrapErr();
-    expect(res).toBe(err);
+    expect(res).toBeInstanceOf(InvalidQueryStatusError);
+  });
+
+  test("upsertQueryStatus fails, invalid address supplied with reward params", async () => {
+    // Arrange
+    const mocks = new QueryServiceMocks();
+
+    const invalidRewardParameter = {
+      recipientAddress: {
+        type: ESolidityAbiParameterType.address,
+        value: "Phoebe",
+      },
+      compensationKey: {
+        type: ESolidityAbiParameterType.string,
+        value: "c1",
+      },
+    } as IDynamicRewardParameter;
+
+    const queryService = mocks.factory();
+
+    // Act
+    const result = await queryService.approveQuery(sdqlQuery.cid, [
+      invalidRewardParameter,
+    ]);
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeTruthy();
+    const res = result._unsafeUnwrapErr();
+    expect(res).toBeInstanceOf(InvalidParametersError);
   });
 });
 
@@ -486,8 +485,8 @@ describe("QueryService.returnQueries() tests", () => {
     expect(result.isErr()).toBeFalsy();
     mocks.contextProvider.assertEventCounts({ onQueryStatusUpdated: 1 });
   });
-
-  test("No stored reward parameters", async () => {
+  //only
+  test("Empty reward parameters", async () => {
     // Arrange
     const mocks = new QueryServiceMocks();
 
@@ -497,7 +496,7 @@ describe("QueryService.returnQueries() tests", () => {
       BlockNumber(123),
       EQueryProcessingStatus.AdsCompleted,
       then,
-      null,
+      JSONString("{}"),
       "Offer",
       "",
       1,
@@ -518,7 +517,7 @@ describe("QueryService.returnQueries() tests", () => {
             queryStatus.receivedBlock,
             EQueryProcessingStatus.NoRewardsParams,
             queryStatus.expirationDate,
-            null,
+            JSONString("{}"),
             "Offer",
             "",
             1,
@@ -534,7 +533,6 @@ describe("QueryService.returnQueries() tests", () => {
 
     // Act
     const result = await queryService.returnQueries();
-
     // Assert
     expect(result).toBeDefined();
     expect(result.isErr()).toBeFalsy();

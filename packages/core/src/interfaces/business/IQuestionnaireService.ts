@@ -128,6 +128,13 @@ export interface IQuestionnaireService {
     questionnaire: IpfsCID,
     sourceDomain?: DomainName,
   ): ResultAsync<EVMContractAddress[], PersistenceError | AjaxError>;
+
+  getByCIDs(
+    questionnaireCIDs: IpfsCID[],
+  ): ResultAsync<
+    (Questionnaire | QuestionnaireWithAnswers)[],
+    AjaxError | PersistenceError
+  >;
 }
 
 export const IQuestionnaireServiceType = Symbol.for("IQuestionnaireService");

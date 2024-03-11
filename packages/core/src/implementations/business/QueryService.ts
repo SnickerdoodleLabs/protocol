@@ -5,6 +5,7 @@ import {
   ITimeUtils,
   ITimeUtilsType,
   ObjectUtils,
+  ValidationUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   IInsightPlatformRepository,
@@ -55,6 +56,7 @@ import {
   URLString,
   InvalidQueryStatusError,
   EWalletDataType,
+  ESolidityAbiParameterType,
 } from "@snickerdoodlelabs/objects";
 import {
   SDQLQueryWrapper,
@@ -62,6 +64,7 @@ import {
   ISDQLQueryWrapperFactoryType,
   AST_SubQuery,
   AST_QuestionnaireQuery,
+  AST_Compensation,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
@@ -148,56 +151,6 @@ export class QueryService implements IQueryService {
         }
       });
     });
-  }
-
-  getQueryMetadata(
-    query: SDQLQuery,
-  ): ResultAsync<
-    QueryMetadata,
-    | AjaxError
-    | PersistenceError
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | ParserError
-    | MissingTokenConstructorError
-    | DuplicateIdInSchema
-    | MissingASTError
-  > {
-    return this.queryParsingEngine.parseQuery(query).map((ast) => {
-      const { subqueries, image, name, points, description } = ast;
-
-      const [questionnaireIds, virtualQuestionnaires] =
-        this.getQuestionnaireIds(subqueries);
-      return new QueryMetadata(
-        name,
-        points,
-        description,
-        questionnaireIds,
-        virtualQuestionnaires,
-        image,
-      );
-    });
-  }
-
-  getQuestionnaireIds(
-    subqueries: Map<SDQL_Name, AST_SubQuery>,
-  ): [IpfsCID[], EWalletDataType[]] {
-    const questionnaireIds: IpfsCID[] = [];
-    const virtualQuestionnaires: EWalletDataType[] = [];
-    subqueries.forEach((subQuery) => {
-      if (subQuery.name === "questionnaire") {
-        const cid: IpfsCID = (subQuery as AST_QuestionnaireQuery)
-          .questionnaireIndex!;
-        questionnaireIds.push(cid);
-      } else {
-        const virtualQuestionnaire = subQuery.getPermission();
-        if (virtualQuestionnaire.isOk()) {
-          virtualQuestionnaires.push(virtualQuestionnaire.value);
-        }
-      }
-    });
-    return [questionnaireIds, virtualQuestionnaires];
   }
 
   public onQueryPosted(
@@ -376,10 +329,27 @@ export class QueryService implements IQueryService {
     | QueryFormatError
     | PersistenceError
     | InvalidQueryStatusError
+    | InvalidParametersError
   > {
     this.logUtils.log(
       `QueryService.approveQuery: Approving processing query with CID ${queryCID}`,
     );
+
+    if (
+      !rewardParameters.every(({ recipientAddress }) =>
+        ValidationUtils.isValidEthereumAddress(recipientAddress.value),
+      )
+    ) {
+      this.logUtils.warning(
+        `approveQuery called for Query CID ${queryCID}, with invalid addresses, params ${rewardParameters}`,
+      );
+      return errAsync(
+        new InvalidParametersError(
+          `approveQuery called for Query CID ${queryCID}, with invalid addresses, params ${rewardParameters}`,
+        ),
+      );
+    }
+
     return this.sdqlQueryRepo
       .getQueryStatusByQueryCID(queryCID)
       .andThen((queryStatus) => {
@@ -399,11 +369,12 @@ export class QueryService implements IQueryService {
             `Query status for CID ${queryCID} is not in an approval state, query has ${queryStatus.status} status`,
           );
           return errAsync(
-            new UninitializedError(
+            new InvalidQueryStatusError(
               `Query status for CID ${queryCID} is not in an approval state, query has ${queryStatus.status} status`,
             ),
           );
         }
+
         // Update the query status and store the reward parameters
         // TODO: We're skipping over the WaitingForAds status because we need to process
         // the query for ads here.
@@ -470,8 +441,11 @@ export class QueryService implements IQueryService {
               ),
             );
 
-            // The rewards parameters need to be deserialized, or at least the basics provided.
-            if (queryStatus.rewardsParameters == null) {
+            const rewardsParameters = this.parseDynamicRewardParameter(
+              queryStatus.rewardsParameters,
+            );
+            // The rewards parameters needs to include recepient address
+            if (typeof rewardsParameters === "boolean") {
               // We can't really do much here right now, so I'll just mark the query as waiting
               // for parameters the generate an event
               queryStatus.status = EQueryProcessingStatus.NoRewardsParams;
@@ -501,9 +475,7 @@ export class QueryService implements IQueryService {
               //   recipientAddress: "",
               // } as IDynamicRewardParameter);
             }
-            const rewardsParameters = ObjectUtils.deserialize<
-              IDynamicRewardParameter[]
-            >(queryStatus.rewardsParameters as JSONString);
+
             return ResultUtils.combine([
               this.consentTokenUtils.getCurrentConsentToken(
                 queryStatus.consentContractAddress,
@@ -677,7 +649,7 @@ export class QueryService implements IQueryService {
       requestForData.blockNumber,
       EQueryProcessingStatus.Received,
       queryWrapper.expiry,
-      null,
+      queryMetadata.dynamicRewardParameter,
       queryMetadata.name,
       queryMetadata.description,
       queryMetadata.points,
@@ -706,7 +678,7 @@ export class QueryService implements IQueryService {
       requestForData.blockNumber,
       EQueryProcessingStatus.NoConsentToken,
       queryWrapper.expiry,
-      null,
+      queryMetadata.dynamicRewardParameter,
       queryMetadata.name,
       queryMetadata.description,
       queryMetadata.points,
@@ -843,5 +815,99 @@ export class QueryService implements IQueryService {
       );
     }
     return okAsync(undefined);
+  }
+
+  protected parseDynamicRewardParameter(
+    rewardParams: JSONString,
+  ): boolean | IDynamicRewardParameter[] {
+    try {
+      const rewardsParameters =
+        ObjectUtils.deserialize<IDynamicRewardParameter[]>(rewardParams);
+
+      if (
+        rewardsParameters.every(({ recipientAddress }) =>
+          ValidationUtils.isValidEthereumAddress(recipientAddress.value),
+        )
+      ) {
+        return rewardsParameters;
+      }
+      return false;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  protected getQueryMetadata(
+    query: SDQLQuery,
+  ): ResultAsync<
+    QueryMetadata,
+    | AjaxError
+    | PersistenceError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | MissingASTError
+  > {
+    return this.queryParsingEngine.parseQuery(query).map((ast) => {
+      const { subqueries, image, name, points, description, compensations } =
+        ast;
+
+      const rewardParams = this.getRewardParams(compensations);
+      const [questionnaireIds, virtualQuestionnaires] =
+        this.getQuestionnaireIds(subqueries);
+      return new QueryMetadata(
+        name,
+        points,
+        description,
+        questionnaireIds,
+        virtualQuestionnaires,
+        //TODO can be removen if not used by IP
+        ObjectUtils.serialize(rewardParams),
+        image,
+      );
+    });
+  }
+
+  //TODO can be removen if not used by IP
+  protected getRewardParams(
+    compensations: Map<SDQL_Name, AST_Compensation>,
+  ): IDynamicRewardParameter[] {
+    const parameters: IDynamicRewardParameter[] = [];
+    compensations.forEach((_value, key) => {
+      parameters.push({
+        recipientAddress: {
+          type: ESolidityAbiParameterType.address,
+          value: "",
+        },
+        compensationKey: {
+          type: ESolidityAbiParameterType.string,
+          value: key,
+        },
+      });
+    });
+    return parameters;
+  }
+
+  protected getQuestionnaireIds(
+    subqueries: Map<SDQL_Name, AST_SubQuery>,
+  ): [IpfsCID[], EWalletDataType[]] {
+    const questionnaireIds: IpfsCID[] = [];
+    const virtualQuestionnaires: EWalletDataType[] = [];
+    subqueries.forEach((subQuery) => {
+      if (subQuery.name === "questionnaire") {
+        const cid: IpfsCID = (subQuery as AST_QuestionnaireQuery)
+          .questionnaireIndex!;
+        questionnaireIds.push(cid);
+      } else {
+        const virtualQuestionnaire = subQuery.getPermission();
+        if (virtualQuestionnaire.isOk()) {
+          virtualQuestionnaires.push(virtualQuestionnaire.value);
+        }
+      }
+    });
+    return [questionnaireIds, virtualQuestionnaires];
   }
 }

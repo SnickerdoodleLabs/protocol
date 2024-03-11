@@ -178,6 +178,15 @@ export class QuestionnaireService implements IQuestionnaireService {
     // TODO;
   }
 
+  public getByCIDs(
+    questionnaireCIDs: IpfsCID[],
+  ): ResultAsync<
+    (Questionnaire | QuestionnaireWithAnswers)[],
+    PersistenceError | AjaxError
+  > {
+    return this.questionnaireRepo.getByCIDs(questionnaireCIDs);
+  }
+
   public getRecommendedConsentContracts(
     questionnaire: IpfsCID,
     sourceDomain?: DomainName | undefined,
