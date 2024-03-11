@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
+//import "hardhat/console.sol";
+
 import {IConsent} from "./IConsent.sol";
 import {ContentObjectUpgradeable} from "../recomender/ContentObjectUpgradeable.sol";
 import {ERC7529Upgradeable} from "../erc7529/ERC7529Upgradeable.sol";

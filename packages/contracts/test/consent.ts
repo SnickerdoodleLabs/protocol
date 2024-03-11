@@ -13,7 +13,20 @@ function generateRandomHex(length: number): string {
   return bytes.toString("hex");
 }
 
-describe("Storage Hashing", function () {
+async function getSignature(owner, contract, nonce) {
+  const msgHash: string = ethers.solidityPackedKeccak256(
+    ["address", "uint256"],
+    [contract, nonce],
+  );
+
+  // Sign the string message
+  // This step represents a business user signing a message for an approved user on their platform
+  const sig = await owner.signMessage(ethers.getBytes(msgHash));
+
+  return sig;
+}
+
+describe("Consent Contract and Factory Tests", function () {
   // We define a fixture to reuse the same setup in every test.
   // We use loadFixture to run this setup once, snapshot that state,
   // and reset Hardhat Network to that snapshot in every test.
@@ -167,6 +180,55 @@ describe("Storage Hashing", function () {
       expect(await consentContract.fetchAnonymitySet(0, sizeBatch)).to.eql(
         commitmentBatch,
       );
+    });
+
+    it("Restricted single optin", async function () {
+      const { consentFactory, token, owner, otherAccount } = await loadFixture(
+        deployConsentStack,
+      );
+
+      // add snickerdoodle.com to the token contract
+      await expect(
+        consentFactory.createConsent(owner.address, "snickerdoodle.com"),
+      )
+        .to.emit(consentFactory, "ConsentContractDeployed")
+        .withArgs(owner.address, anyValue, token.target);
+
+      // read the event logs to find the contract address
+      const filter = await consentFactory.filters.ConsentContractDeployed(
+        owner.address,
+      );
+      const events = await consentFactory.queryFilter(filter);
+
+      // get a contract handle on the deployed contract
+      const consentContract = await ethers.getContractAt(
+        "Consent",
+        events[0].args[1],
+      );
+
+      // owner address should have signer rol
+      const SIGNER_ROLE = await consentContract.SIGNER_ROLE();
+      expect(
+        await consentContract.hasRole(SIGNER_ROLE, owner.address),
+      ).to.equal(true);
+
+      // disable open opt ins
+      await consentContract.disableOpenOptIn();
+
+      // opt optIns should fail now
+      await expect(
+        consentContract.optIn(`0x${generateRandomHex(32)}`),
+      ).to.be.revertedWith("Consent: Open opt-ins are currently disabled");
+
+      const nonce = "1";
+      const commitment = `0x${generateRandomHex(32)}`;
+      const optInSignature = await getSignature(
+        owner,
+        await consentContract.getAddress(),
+        nonce,
+      );
+      await consentContract.restrictedOptIn(nonce, commitment, optInSignature);
+      expect(await consentContract.totalSupply()).to.equal(1);
     });
   });
 });
