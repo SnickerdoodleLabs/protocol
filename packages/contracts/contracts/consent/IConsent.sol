@@ -24,6 +24,8 @@ interface IConsent is IContentObject, IERC7529 {
 
     function totalSupply() external view returns (uint256);
 
+    function checkCommitments(bytes32[] calldata commitmentArray) external view returns (uint256[] memory);
+
     function openOptInDisabled() external view returns (bool);
 
     function queryHorizon() external view returns (uint);
