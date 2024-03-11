@@ -47,5 +47,3 @@ export const consentAddress2 = EVMContractAddress(
 export const consentAddress3 = EVMContractAddress(
   "0x6743E5c6E1B453372507E8dfD6CA53508721425B",
 );
-
-export const sampleAgreementFlag1 = ethers.encodeBytes32String("1");

@@ -3,12 +3,11 @@ import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   BaseURI,
   BigNumberString,
+  Commitment,
   ConsentName,
   DomainName,
   EVMAccountAddress,
-  HexString32,
   MarketplaceTag,
-  TokenId,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -19,7 +18,6 @@ import {
   privateKey1,
   privateKey2,
   providerUrl,
-  sampleAgreementFlag1,
 } from "@contracts-sdk/debug/constants.js";
 import { Contracts } from "@contracts-sdk/debug/contracts.js";
 import { ConsentContract } from "@contracts-sdk/implementations/ConsentContract.js";
@@ -438,26 +436,8 @@ const tempOptIn = async () => {
     );
 
     const response = await tempConsentContract.optIn(
-      TokenId("3" as any),
-      HexString32(sampleAgreementFlag1),
+      Commitment(3n),
     );
-    console.log("optIn response: ", response);
-  } catch (e) {
-    console.log("optIn e: ", e);
-  }
-};
-
-const tempOptOut = async () => {
-  try {
-    const tempSigner = new ethers.Wallet(privateKey2 as any, provider);
-
-    const tempConsentContract = new ConsentContract(
-      tempSigner,
-      consentAddress,
-      cryptoUtils,
-    );
-
-    const response = await tempConsentContract.optOut(TokenId("3" as any));
     console.log("optIn response: ", response);
   } catch (e) {
     console.log("optIn e: ", e);

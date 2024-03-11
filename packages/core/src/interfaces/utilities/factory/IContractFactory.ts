@@ -23,16 +23,6 @@ export interface IContractFactory {
     IConsentContract[],
     BlockchainProviderError | UninitializedError
   >;
-
-  factoryCrumbsContract(): ResultAsync<
-    ICrumbsContract,
-    BlockchainProviderError | UninitializedError
-  >;
-
-  factoryMinimalForwarderContract(): ResultAsync<
-    IMinimalForwarderContract,
-    BlockchainProviderError | UninitializedError
-  >;
 }
 
 export const IContractFactoryType = Symbol.for("IContractFactory");
