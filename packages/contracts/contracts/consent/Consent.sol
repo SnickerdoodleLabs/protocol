@@ -100,6 +100,18 @@ contract Consent is
         return commitmentArray.length;
     }
 
+    /// @notice Returns the index slots for each identity commitment in the input array
+    /// @dev If a commitment doesn't exist, its index will be 0
+    /// @param commitsToCheck an array of 32 byte identity commitments
+    function checkCommitments(bytes32[] calldata commitsToCheck) external view returns (uint256[] memory) {
+        uint256 arraySize = commitsToCheck.length;
+        uint256[] memory commitmentIndexes = new uint256[](arraySize);
+        for (uint i = 0; i < arraySize; i++) {
+            commitmentIndexes[i] = commitments[commitsToCheck[i]];
+        }
+        return commitmentIndexes;
+    }
+
     /// @notice Allows address with PAUSER_ROLE to disable open opt ins
     function disableOpenOptIn() external onlyRole(PAUSER_ROLE) {
         openOptInDisabled = true;
@@ -223,7 +235,7 @@ contract Consent is
     function requestForData(
         string calldata ipfsCID
     ) external onlyRole(REQUESTER_ROLE) {
-        emit RequestForData(_msgSender(), ipfsCID, ipfsCID);
+        emit RequestForData(msg.sender, ipfsCID, ipfsCID);
     }
 
     /// @notice Adds a new tag to the global namespace and stakes it for this consent contract
