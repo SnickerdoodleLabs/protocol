@@ -128,19 +128,27 @@ describe("Consent Contract and Factory Tests", function () {
       );
 
       // make an arbitrary commitment of 32 bytes
-      const optInCommitment = generateRandomHex(32);
-      await consentContract.optIn(`0x${optInCommitment}`);
+      const optInCommitment = `0x${generateRandomHex(32)}`;
+      await consentContract.optIn(optInCommitment);
       expect(await consentContract.totalSupply()).to.equal(1);
 
       // a commitment cannot be written twice
       // make an arbitrary commitment of 32 bytes
-      await expect(
-        consentContract.optIn(`0x${optInCommitment}`),
-      ).to.be.revertedWith("Commitment exists already");
+      await expect(consentContract.optIn(optInCommitment)).to.be.revertedWith(
+        "Commitment exists already",
+      );
 
       // make second arbitrary commitment of 32 bytes, so see gas improvement after storage slot warming
-      await consentContract.optIn(`0x${generateRandomHex(32)}`);
+      const optInCommitment2 = `0x${generateRandomHex(32)}`;
+      await consentContract.optIn(optInCommitment2);
       expect(await consentContract.totalSupply()).to.equal(2);
+
+      // check the indexes of the commitments are correct
+      const indexes = await consentContract.checkCommitments([
+        optInCommitment,
+        optInCommitment2,
+      ]);
+      expect(indexes).to.eql([1n, 2n]);
     });
 
     it("Unrestricted batch optin", async function () {
