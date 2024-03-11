@@ -21,7 +21,6 @@ import {
   UnixTimestamp,
   NftRepositoryCache,
   EQueryProcessingStatus,
-  Offer,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -62,14 +61,10 @@ export interface IAccountRepository {
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, SnickerDoodleCoreError>;
   getQueryStatuses(
-    contractAddress: EVMContractAddress,
-    blockNumber?: BlockNumber,
-  ): ResultAsync<QueryStatus[], SnickerDoodleCoreError>;
-  approveOffer(queryCID: IpfsCID): ResultAsync<void, SnickerDoodleCoreError>;
-  getOffers(
     contractAddress?: EVMContractAddress,
     status?: EQueryProcessingStatus,
-  ): ResultAsync<Offer[], SnickerDoodleCoreError>;
+    blockNumber?: BlockNumber,
+  ): ResultAsync<QueryStatus[], SnickerDoodleCoreError>;
 
   getTransactions(
     filter?: TransactionFilter,

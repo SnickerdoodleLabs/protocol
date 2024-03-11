@@ -50,11 +50,9 @@ import {
   OAuth2RefreshToken,
   OAuth2Tokens,
   OAuthAuthorizationCode,
-  Offer,
   PEMEncodedRSAPublicKey,
   PagedResponse,
   PagingRequest,
-  PersistenceError,
   ProxyError,
   QueryStatus,
   RuntimeMetrics,
@@ -73,7 +71,7 @@ import {
   WalletNFTHistory,
 } from "@snickerdoodlelabs/objects";
 import { TypedDataDomain, TypedDataField } from "ethers";
-import { ResultAsync, okAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 
 export class ProxyBridge implements ISdlDataWallet {
   public account: IProxyAccountMethods;
@@ -394,22 +392,16 @@ export class ProxyBridge implements ISdlDataWallet {
     return this.call(this.core.getQueryStatusByQueryCID(queryCID));
   }
   getQueryStatuses(
-    contractAddress: EVMContractAddress,
-    blockNumber?: BlockNumber | undefined,
-  ): ResultAsync<QueryStatus[], ProxyError> {
-    return this.call(this.core.getQueryStatuses(contractAddress, blockNumber));
-  }
-
-  getOffers(
     contractAddress?: EVMContractAddress,
     status?: EQueryProcessingStatus,
-  ): ResultAsync<Offer[], ProxyError> {
-    return this.call(this.core.getOffers(contractAddress, status));
+    blockNumber?: BlockNumber,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<QueryStatus[], ProxyError> {
+    return this.call(
+      this.core.getQueryStatuses(contractAddress, status, blockNumber),
+    );
   }
 
-  approveOffer(queryCID: IpfsCID): ResultAsync<void, ProxyError> {
-    return this.call(this.core.approveOffer(queryCID));
-  }
   getSiteVisits(): ResultAsync<SiteVisit[], ProxyError> {
     return this.call(this.core.getSiteVisits(this.sourceDomain));
   }

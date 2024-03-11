@@ -736,34 +736,10 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      approveOffer: (
-        data: IIFrameCallData<{
-          queryCID: IpfsCID;
-        }>,
-      ) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.approveOffer(data.data.queryCID);
-          });
-        }, data.callId);
-      },
-
-      getOffers: (
+      getQueryStatuses: (
         data: IIFrameCallData<{
           contractAddress?: EVMContractAddress;
           status?: EQueryProcessingStatus;
-        }>,
-      ) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.getOffers(data.data.contractAddress, data.data.status);
-          });
-        }, data.callId);
-      },
-
-      getQueryStatuses: (
-        data: IIFrameCallData<{
-          contractAddress: EVMContractAddress;
           blockNumber?: BlockNumber;
         }>,
       ) => {
@@ -771,6 +747,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.coreProvider.getCore().andThen((core) => {
             return core.getQueryStatuses(
               data.data.contractAddress,
+              data.data.status,
               data.data.blockNumber,
             );
           });

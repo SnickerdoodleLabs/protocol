@@ -95,7 +95,6 @@ import {
   NewQuestionnaireAnswer,
   JSONString,
   EExternalFieldKey,
-  Offer,
   EQueryProcessingStatus,
   DuplicateIdInSchema,
   MissingASTError,
@@ -968,10 +967,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   public approveQuery(
-    consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
+    queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
-    sourceDomain: DomainName | undefined = undefined,
+    _sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     void,
     | AjaxError
@@ -979,13 +977,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     | ConsentError
     | IPFSError
     | QueryFormatError
-    | EvaluationError
     | PersistenceError
+    | InvalidQueryStatusError
   > {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
-    return queryService.approveQuery(consentContractAddress, query, parameters);
+    return queryService.approveQuery(queryCID, parameters);
   }
 
   public getQueryStatusByQueryCID(
@@ -998,8 +996,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   public getQueryStatuses(
-    contractAddress: EVMContractAddress,
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus,
     blockNumber?: BlockNumber,
+    sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     QueryStatus[],
     | BlockchainProviderError
@@ -1011,37 +1011,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
-    return queryService.getQueryStatuses(contractAddress, blockNumber);
-  }
-
-  public approveOffer(
-    queryCID: IpfsCID,
-  ): ResultAsync<void, InvalidQueryStatusError | PersistenceError> {
-    const queryService =
-      this.iocContainer.get<IQueryService>(IQueryServiceType);
-
-    return queryService.approveOffer(queryCID);
-  }
-
-  public getOffers(
-    contractAddress?: EVMContractAddress,
-    status?: EQueryProcessingStatus,
-  ): ResultAsync<
-    Offer[],
-    | AjaxError
-    | PersistenceError
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | ParserError
-    | MissingTokenConstructorError
-    | DuplicateIdInSchema
-    | MissingASTError
-  > {
-    const queryService =
-      this.iocContainer.get<IQueryService>(IQueryServiceType);
-
-    return queryService.getOffers(contractAddress, status);
+    return queryService.getQueryStatuses(contractAddress, status, blockNumber);
   }
 
   public isDataWalletAddressInitialized(): ResultAsync<boolean, never> {

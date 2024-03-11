@@ -21,7 +21,6 @@ import {
   MethodSupportError,
   MissingASTError,
   MissingTokenConstructorError,
-  Offer,
   ParserError,
   PersistenceError,
   PossibleReward,
@@ -70,29 +69,8 @@ export interface IQueryService {
     | InvalidParametersError
   >;
 
-  approveOffer(
-    queryCID: IpfsCID,
-  ): ResultAsync<void, InvalidQueryStatusError | PersistenceError>;
-
-  getOffers(
-    contractAddress?: EVMContractAddress,
-    status?: EQueryProcessingStatus,
-  ): ResultAsync<
-    Offer[],
-    | AjaxError
-    | PersistenceError
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | ParserError
-    | MissingTokenConstructorError
-    | DuplicateIdInSchema
-    | MissingASTError
-  >;
-
   approveQuery(
-    consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
+    queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
@@ -102,6 +80,7 @@ export interface IQueryService {
     | IPFSError
     | QueryFormatError
     | PersistenceError
+    | InvalidQueryStatusError
   >;
 
   returnQueries(): ResultAsync<
@@ -148,7 +127,8 @@ export interface IQueryService {
   ): ResultAsync<QueryStatus | null, PersistenceError>;
 
   getQueryStatuses(
-    contractAddress: EVMContractAddress,
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus,
     blockNumber?: BlockNumber,
   ): ResultAsync<
     QueryStatus[],

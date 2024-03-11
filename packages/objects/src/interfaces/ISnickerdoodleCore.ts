@@ -42,7 +42,6 @@ import {
   QuestionnaireWithAnswers,
   QuestionnaireAnswer,
   NewQuestionnaireAnswer,
-  Offer,
   // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
@@ -882,8 +881,7 @@ export interface ISnickerdoodleCore {
   // This is basically per-query consent. The consent token will be
   // re-checked, of course (trust nobody!).
   approveQuery(
-    consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
+    queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<
@@ -893,38 +891,19 @@ export interface ISnickerdoodleCore {
     | ConsentError
     | IPFSError
     | QueryFormatError
-    | EvaluationError
-    | UnauthorizedError
     | PersistenceError
+    | InvalidQueryStatusError
   >;
 
   getQueryStatusByQueryCID(
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, PersistenceError>;
 
-  approveOffer(
-    queryCID: IpfsCID,
-  ): ResultAsync<void, InvalidQueryStatusError | PersistenceError>;
-
-  getOffers(
+  getQueryStatuses(
     contractAddress?: EVMContractAddress,
     status?: EQueryProcessingStatus,
-  ): ResultAsync<
-    Offer[],
-    | AjaxError
-    | PersistenceError
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | ParserError
-    | MissingTokenConstructorError
-    | DuplicateIdInSchema
-    | MissingASTError
-  >;
-
-  getQueryStatuses(
-    contractAddress: EVMContractAddress,
     blockNumber?: BlockNumber,
+    sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     QueryStatus[],
     | BlockchainProviderError

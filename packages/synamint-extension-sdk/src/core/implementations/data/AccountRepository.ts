@@ -24,7 +24,6 @@ import {
   UnixTimestamp,
   NftRepositoryCache,
   EQueryProcessingStatus,
-  Offer,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -45,23 +44,8 @@ export class AccountRepository implements IAccountRepository {
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
   ) {}
-  approveOffer(queryCID: IpfsCID): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core.approveOffer(queryCID).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
-  }
-  getOffers(
-    contractAddress?: EVMContractAddress | undefined,
-    status?: EQueryProcessingStatus | undefined,
-  ): ResultAsync<Offer[], SnickerDoodleCoreError> {
-    return this.core.getOffers(contractAddress, status).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
-  }
 
-  getQueryStatusByQueryCID(
+  public getQueryStatusByQueryCID(
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, SnickerDoodleCoreError> {
     return this.core.getQueryStatusByQueryCID(queryCID).mapErr((error) => {
@@ -70,12 +54,13 @@ export class AccountRepository implements IAccountRepository {
     });
   }
 
-  getQueryStatuses(
-    contractAddress: EVMContractAddress,
+  public getQueryStatuses(
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus,
     blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], SnickerDoodleCoreError> {
     return this.core
-      .getQueryStatuses(contractAddress, blockNumber)
+      .getQueryStatuses(contractAddress, status, blockNumber)
       .mapErr((error) => {
         this.errorUtils.emit(error);
         return new SnickerDoodleCoreError((error as Error).message, error);

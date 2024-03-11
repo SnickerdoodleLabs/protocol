@@ -15,7 +15,6 @@ import {
   TransactionFilter,
   ChainTransaction,
   TransactionFlowInsight,
-  Offer,
 } from "@objects/businessObjects/index.js";
 import {
   ECoreProxyType,
@@ -304,16 +303,10 @@ export interface ISdlDataWallet {
   ): ResultAsync<QueryStatus | null, ProxyError>;
 
   getQueryStatuses(
-    contractAddress: EVMContractAddress,
-    blockNumber?: BlockNumber,
-  ): ResultAsync<QueryStatus[], ProxyError>;
-
-  approveOffer(queryCID: IpfsCID): ResultAsync<void, ProxyError>;
-
-  getOffers(
     contractAddress?: EVMContractAddress,
     status?: EQueryProcessingStatus,
-  ): ResultAsync<Offer[], ProxyError>;
+    blockNumber?: BlockNumber,
+  ): ResultAsync<QueryStatus[], ProxyError>;
 
   getSiteVisits(): ResultAsync<SiteVisit[], ProxyError>;
 

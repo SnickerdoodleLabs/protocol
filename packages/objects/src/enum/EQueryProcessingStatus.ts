@@ -6,5 +6,4 @@ export enum EQueryProcessingStatus {
   RewardsReceived = 4,
   NoConsentToken = 5,
   NoRewardsParams = 6,
-  WaitingUserApproval = 7,
 }

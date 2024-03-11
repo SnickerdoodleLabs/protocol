@@ -70,7 +70,7 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
       });
   }
 
-  public getQueryStatusByStatus(
+  public getQueryStatus(
     status?: EQueryProcessingStatus,
     consentContractAddress?: EVMContractAddress,
   ): ResultAsync<QueryStatus[], PersistenceError> {

@@ -1,15 +1,12 @@
-import {
-  IpfsCID,
-  Questionnaire,
-  QuestionnaireWithAnswers,
-} from "@snickerdoodlelabs/objects";
+import { EWalletDataType, IpfsCID } from "@snickerdoodlelabs/objects";
 
-export class QueryMetaData {
+export class QueryMetadata {
   public constructor(
     public name: string,
     public points: number,
-    public image: IpfsCID | undefined,
     public description: string,
-    public questionnaires: (Questionnaire | QuestionnaireWithAnswers)[],
+    public questionnaires: IpfsCID[],
+    public virtualQuestionnaires: EWalletDataType[],
+    public image?: IpfsCID,
   ) {}
 }

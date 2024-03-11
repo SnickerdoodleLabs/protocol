@@ -107,6 +107,12 @@ const receivedQueryStatus = new QueryStatus(
   EQueryProcessingStatus.Received,
   then,
   null,
+  "Offer",
+  "",
+  1,
+  [],
+  [],
+  null,
 );
 
 const adsCompletedQueryStatus = new QueryStatus(
@@ -116,6 +122,12 @@ const adsCompletedQueryStatus = new QueryStatus(
   EQueryProcessingStatus.AdsCompleted,
   then,
   ObjectUtils.serialize(rewardParameters),
+  "Offer",
+  "",
+  1,
+  [],
+  [],
+  null,
 );
 
 const earnedReward = new EarnedReward(
@@ -209,14 +221,10 @@ class QueryServiceMocks {
       okAsync(adsCompletedQueryStatus),
     );
     td.when(
-      this.sdqlQueryRepo.getQueryStatusByStatus(
-        EQueryProcessingStatus.Received,
-      ),
+      this.sdqlQueryRepo.getQueryStatus(EQueryProcessingStatus.Received),
     ).thenReturn(okAsync([receivedQueryStatus]));
     td.when(
-      this.sdqlQueryRepo.getQueryStatusByStatus(
-        EQueryProcessingStatus.AdsCompleted,
-      ),
+      this.sdqlQueryRepo.getQueryStatus(EQueryProcessingStatus.AdsCompleted),
     ).thenReturn(okAsync([adsCompletedQueryStatus]));
     td.when(
       this.sdqlQueryRepo.upsertQueryStatus([
@@ -225,9 +233,15 @@ class QueryServiceMocks {
             receivedQueryStatus.consentContractAddress,
             receivedQueryStatus.queryCID,
             receivedQueryStatus.receivedBlock,
-            EQueryProcessingStatus.WaitingUserApproval,
+            EQueryProcessingStatus.AdsCompleted,
             receivedQueryStatus.expirationDate,
             ObjectUtils.serialize(rewardParameters),
+            "Offer",
+            "",
+            1,
+            [],
+            [],
+            null,
           ),
         ),
       ]),
@@ -242,6 +256,12 @@ class QueryServiceMocks {
             EQueryProcessingStatus.RewardsReceived,
             adsCompletedQueryStatus.expirationDate,
             ObjectUtils.serialize(rewardParameters),
+            "Offer",
+            "",
+            1,
+            [],
+            [],
+            null,
           ),
         ),
       ]),
@@ -340,8 +360,7 @@ describe("QueryService.approveQuery() tests", () => {
 
     // Act
     const result = await queryService.approveQuery(
-      consentContractAddress,
-      sdqlQuery,
+      sdqlQuery.cid,
       rewardParameters,
     );
 
@@ -368,9 +387,15 @@ describe("QueryService.approveQuery() tests", () => {
             consentContractAddress,
             queryCID1,
             BlockNumber(1),
-            EQueryProcessingStatus.WaitingUserApproval,
+            EQueryProcessingStatus.AdsCompleted,
             now,
             ObjectUtils.serialize(rewardParameters),
+            "Offer",
+            "",
+            1,
+            [],
+            [],
+            null,
           ),
         ),
       ]),
@@ -380,8 +405,7 @@ describe("QueryService.approveQuery() tests", () => {
 
     // Act
     const result = await queryService.approveQuery(
-      consentContractAddress,
-      sdqlQuery,
+      sdqlQuery.cid,
       rewardParameters,
     );
 
@@ -408,8 +432,7 @@ describe("QueryService.approveQuery() tests", () => {
 
     // Act
     const result = await queryService.approveQuery(
-      consentContractAddress,
-      sdqlQuery,
+      sdqlQuery.cid,
       rewardParameters,
     );
 
@@ -435,8 +458,7 @@ describe("QueryService.approveQuery() tests", () => {
 
     // Act
     const result = await queryService.approveQuery(
-      consentContractAddress,
-      sdqlQuery,
+      sdqlQuery.cid,
       rewardParameters,
     );
 
@@ -476,11 +498,15 @@ describe("QueryService.returnQueries() tests", () => {
       EQueryProcessingStatus.AdsCompleted,
       then,
       null,
+      "Offer",
+      "",
+      1,
+      [],
+      [],
+      null,
     );
     td.when(
-      mocks.sdqlQueryRepo.getQueryStatusByStatus(
-        EQueryProcessingStatus.AdsCompleted,
-      ),
+      mocks.sdqlQueryRepo.getQueryStatus(EQueryProcessingStatus.AdsCompleted),
     ).thenReturn(okAsync([queryStatus]));
 
     td.when(
@@ -492,6 +518,12 @@ describe("QueryService.returnQueries() tests", () => {
             queryStatus.receivedBlock,
             EQueryProcessingStatus.NoRewardsParams,
             queryStatus.expirationDate,
+            null,
+            "Offer",
+            "",
+            1,
+            [],
+            [],
             null,
           ),
         ),
