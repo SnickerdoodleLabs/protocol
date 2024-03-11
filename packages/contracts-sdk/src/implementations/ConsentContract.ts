@@ -510,8 +510,9 @@ export class ConsentContract
 
   // Marketplace functions
   public getStakingToken(): ResultAsync<
-  EVMContractAddress,
-  ConsentContractError | BlockchainCommonErrors> {
+    EVMContractAddress,
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       this.contract.getStakingToken() as Promise<EVMContractAddress>,
       (e) => {
@@ -520,7 +521,12 @@ export class ConsentContract
     );
   }
 
-  public tagIndices(tag: string): ResultAsync<BigNumberString, ConsentContractError | BlockchainCommonErrors> {
+  public tagIndices(
+    tag: string,
+  ): ResultAsync<
+    BigNumberString,
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       this.contract.tagIndices() as Promise<bigint>,
       (e) => {
@@ -531,16 +537,14 @@ export class ConsentContract
     });
   }
 
-  public updateMaxTagsLimit(overrides?: ContractOverrides): ResultAsync<
-  WrappedTransactionResponse,
-  ConsentContractError | BlockchainCommonErrors
-> {
-  return this.writeToContract(
-    "updateMaxTagsLimit",
-    [],
-    overrides,
-  );
-}
+  public updateMaxTagsLimit(
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    ConsentContractError | BlockchainCommonErrors
+  > {
+    return this.writeToContract("updateMaxTagsLimit", [], overrides);
+  }
 
   public getNumberOfStakedTags(): ResultAsync<
     number,
@@ -630,11 +634,7 @@ export class ConsentContract
     WrappedTransactionResponse,
     BlockchainCommonErrors | ConsentContractError
   > {
-    return this.writeToContract(
-      "restakeExpiredListing",
-      [tag],
-      overrides,
-    );
+    return this.writeToContract("restakeExpiredListing", [tag], overrides);
   }
 
   public replaceExpiredListing(

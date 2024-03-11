@@ -25,7 +25,6 @@ import {
   EConsentRoles,
   ContractOverrides,
 } from "@contracts-sdk/interfaces/index.js";
-import CrumbsContractAbi from "@contracts-sdk/interfaces/objects/abi/CrumbsAbi.js";
 
 console.log("providerUrl", providerUrl);
 
@@ -200,19 +199,19 @@ const totalSupply = async () => {
   }
 };
 
-const testContract = async (contractAddress1: string) => {
-  try {
-    const response = await provider.getCode(contractAddress1);
-    console.log("testContract response: ", response);
-    console.log("bytecode matched: ", response == CrumbsContractAbi.bytecode);
-    console.log(
-      "deployedBytecode matched: ",
-      response == CrumbsContractAbi.deployedBytecode,
-    );
-  } catch (e) {
-    console.log("testContract e: ", e);
-  }
-};
+// const testContract = async (contractAddress1: string) => {
+//   try {
+//     const response = await provider.getCode(contractAddress1);
+//     console.log("testContract response: ", response);
+//     console.log("bytecode matched: ", response == CrumbsContractAbi.bytecode);
+//     console.log(
+//       "deployedBytecode matched: ",
+//       response == CrumbsContractAbi.deployedBytecode,
+//     );
+//   } catch (e) {
+//     console.log("testContract e: ", e);
+//   }
+// };
 
 const newGlobalTag = async () => {
   try {
@@ -435,9 +434,7 @@ const tempOptIn = async () => {
       cryptoUtils,
     );
 
-    const response = await tempConsentContract.optIn(
-      Commitment(3n),
-    );
+    const response = await tempConsentContract.optIn(Commitment(3n));
     console.log("optIn response: ", response);
   } catch (e) {
     console.log("optIn e: ", e);
