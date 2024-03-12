@@ -70,6 +70,7 @@ export const SDTypography = styled(
           className,
         )}
         {...(hexColor ? { style: { ...style, color: hexColor } } : { style })}
+        component={typeof rest.children === "string" ? "p" : "span"}
       />
     );
   },

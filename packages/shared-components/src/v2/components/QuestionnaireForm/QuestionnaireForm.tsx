@@ -1,4 +1,9 @@
-import { Box, Checkbox, Grid, MenuItem, makeStyles } from "@material-ui/core";
+import { Box, Grid, MenuItem } from "@material-ui/core";
+import { COUNTRIES } from "@shared-components/constants/countries";
+import { SDCheckbox } from "@shared-components/v2/components/Checkbox";
+import { SDRadio } from "@shared-components/v2/components/Radio";
+import { SDTypography } from "@shared-components/v2/components/Typograpy";
+import { colors } from "@shared-components/v2/theme";
 import {
   EQuestionnaireQuestionType,
   EQuestionnaireQuestionDisplayType,
@@ -8,17 +13,9 @@ import {
   QuestionnaireWithAnswers,
   EQuestionnaireStatus,
 } from "@snickerdoodlelabs/objects";
-import {
-  SDCheckbox,
-  SDRadio,
-  SDTypography,
-  colors,
-} from "@snickerdoodlelabs/shared-components";
 import { Form, Formik, FastField, ErrorMessage, FieldProps } from "formik";
 import { TextField } from "formik-material-ui";
 import React, { FC, useEffect, useMemo } from "react";
-
-import { countries } from "@extension-onboarding/constants/countries";
 
 interface IQuestionnaireFormProps {
   questionnaire: Questionnaire | QuestionnaireWithAnswers;
@@ -120,7 +117,7 @@ const shouldSkipAnswer = (mode, questionnaire, answer, formattedAnswer) => {
   return false;
 };
 
-const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
+export const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
   questionnaire,
   onSubmit,
   renderItem = defaultRenderItem,
@@ -448,12 +445,12 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
                   return value
                     .map(
                       (v) =>
-                        countries.find((country) => country.code == v)?.name,
+                      COUNTRIES.find((country) => country.code == v)?.name,
                     )
                     ?.join(", ");
                 }
                 return value ? (
-                  countries.find((country) => country.code == value)?.name
+                  COUNTRIES.find((country) => country.code == value)?.name
                 ) : (
                   <SDTypography color="textLight" variant="bodyLg">
                     Select an option
@@ -469,7 +466,7 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
             }}
             fullWidth
           >
-            {countries?.map((choice, choiceIndex) => (
+            {COUNTRIES?.map((choice, choiceIndex) => (
               <MenuItem key={choiceIndex} value={choice.code}>
                 {question.multiSelect ? (
                   <SDCheckbox
@@ -557,5 +554,3 @@ const QuestionnaireForm: FC<IQuestionnaireFormProps> = ({
     </>
   );
 };
-
-export default QuestionnaireForm;

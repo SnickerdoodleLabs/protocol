@@ -1,6 +1,8 @@
 export enum EPathsV2 {
   HOME = "/",
   COOKIE_VAULT = "/cookie-vault",
+  TRUSTED_BRANDS = "/trusted-brands",
+  OFFERS = "/offers",
   ONBOARDING = "/onboarding",
   SETTINGS = "/settings",
   DATA_PERMISSIONS = "/data-permissions",

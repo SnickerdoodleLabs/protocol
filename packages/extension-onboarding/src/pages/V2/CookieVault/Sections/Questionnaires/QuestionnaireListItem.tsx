@@ -1,4 +1,3 @@
-import Image from "@extension-onboarding/components/v2/Image";
 import { Box, Hidden, makeStyles } from "@material-ui/core";
 import CallMadeIcon from "@material-ui/icons/CallMade";
 
@@ -9,6 +8,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import {
   SDButton,
+  Image,
   SDTypography,
   colors,
   useResponsiveValue,

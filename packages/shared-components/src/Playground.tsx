@@ -18,17 +18,34 @@ import {
   useMedia,
   DescriptionWidget,
   PermissionSelectionWidget,
+  ConsentModal,
 } from "@shared-components/v2";
 import { IOldUserAgreement } from "@snickerdoodlelabs/objects";
+import { okAsync } from "neverthrow";
 import React from "react";
 import ReactDOM from "react-dom";
 
 const App = () => {
   const [value, setValue] = React.useState(0);
   const media = useMedia();
+  const [cheked, setChecked] = React.useState(true);
 
   return (
     <>
+      <ConsentModal
+        open={cheked}
+        onClose={() => setChecked(false)}
+        answerQuestionnaire={() => okAsync(undefined)}
+        onOptinClicked={() => {}}
+        invitationData={
+          {
+            brandInformation: {
+              name: "Test",
+              description: "Test",
+            },
+          } as unknown as IOldUserAgreement
+        }
+      />
       <SDTypography align="center" variant="displayLg" color="textSuccess">
         {media}
       </SDTypography>

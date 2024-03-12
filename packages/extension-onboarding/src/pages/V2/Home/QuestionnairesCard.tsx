@@ -1,5 +1,4 @@
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
-import Image from "@extension-onboarding/components/v2/Image";
 import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
@@ -17,6 +16,7 @@ import {
 import {
   SDButton,
   SDTypography,
+  Image,
   colors,
   useResponsiveValue,
   useSafeState,

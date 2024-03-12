@@ -14,7 +14,6 @@ const CookieVault: FC = () => {
       <PageBanners />
       <Container>
         <Box mt={{ xs: 3, sm: 7 }} />
-        <InfoCard />
         <Grid container spacing={4}>
           <CookieVaultContextProvider>
             <Grid item xs={12} sm={12}>

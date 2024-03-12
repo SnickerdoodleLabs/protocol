@@ -1,4 +1,5 @@
 import { Skeleton } from "@material-ui/lab";
+import { useSafeState } from "@shared-components/v2/hooks";
 import React, { FC, useMemo, useState } from "react";
 
 interface IImageProps {
@@ -9,9 +10,9 @@ interface IImageProps {
   style?: React.CSSProperties;
 }
 
-const Image: FC<IImageProps> = ({ src, alt, width, height, style }) => {
-  const [isError, setIsError] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+export const Image: FC<IImageProps> = ({ src, alt, width, height, style }) => {
+  const [isError, setIsError] = useSafeState<boolean>(false);
+  const [isLoading, setIsLoading] = useSafeState<boolean>(true);
 
   const formattedUrl = useMemo(() => {
     return src.replace(
@@ -53,5 +54,3 @@ const Image: FC<IImageProps> = ({ src, alt, width, height, style }) => {
     </>
   );
 };
-
-export default Image;

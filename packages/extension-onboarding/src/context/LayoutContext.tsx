@@ -6,6 +6,9 @@ import AirdropDetailModal, {
 import AnsweredQuestionnaireModal, {
   IAnsweredQuestionnaireModal,
 } from "@extension-onboarding/components/Modals/V2/AnsweredQuestionnaireModal";
+import BrandPermissionsModal, {
+  IBrandPermissionsModal,
+} from "@extension-onboarding/components/Modals/V2/BrandPermissionsModal";
 import ConfirmationModal, {
   IConfirmationModal,
 } from "@extension-onboarding/components/Modals/V2/ConfirmationModal";
@@ -19,6 +22,7 @@ import OTPModal, {
 import QuestionnaireModal, {
   IQuestionnaireModal,
 } from "@extension-onboarding/components/Modals/V2/QuestionnaireModal";
+import { useSafeState } from "@snickerdoodlelabs/shared-components";
 import React, {
   ReactNode,
   FC,
@@ -38,6 +42,7 @@ type ModalSelectorTypeMap = {
   [EModalSelectors.LEAVE_AUDIENCE_MODAL]: undefined;
   [EModalSelectors.QUESTIONNAIRE_MODAL]: IQuestionnaireModal;
   [EModalSelectors.ANSWERED_QUESTIONNAIRE_MODAL]: IAnsweredQuestionnaireModal;
+  [EModalSelectors.BRAND_PERMISSIONS_MODAL]: IBrandPermissionsModal;
 };
 
 type ModalSelector = keyof ModalSelectorTypeMap;
@@ -81,9 +86,9 @@ const initialModalState: IModal<keyof ModalSelectorTypeMap | null> = {
 const LayoutContext = createContext<ILayout>({} as ILayout);
 
 export const LayoutProvider: FC = memo(({ children }) => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [loaderInfo, setLoaderInfo] = useState<ILoaderInfo>();
-  const [modalState, setModalState] = useState<IModal<ModalSelector>>(
+  const [isLoading, setIsLoading] = useSafeState<boolean>(false);
+  const [loaderInfo, setLoaderInfo] = useSafeState<ILoaderInfo>();
+  const [modalState, setModalState] = useSafeState<IModal<ModalSelector>>(
     initialModalState as IModal<keyof ModalSelectorTypeMap>,
   );
   const modalComponent = useMemo(() => {
@@ -103,6 +108,8 @@ export const LayoutProvider: FC = memo(({ children }) => {
       case modalState.modalSelector ===
         EModalSelectors.ANSWERED_QUESTIONNAIRE_MODAL:
         return <AnsweredQuestionnaireModal />;
+      case modalState.modalSelector === EModalSelectors.BRAND_PERMISSIONS_MODAL:
+        return <BrandPermissionsModal />;
       default:
         return null;
     }
