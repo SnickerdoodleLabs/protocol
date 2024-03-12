@@ -42530,7 +42530,7 @@ __metadata:
 "sync-promise@git+https://github.com/brettz9/sync-promise.git#full-sync-missing-promise-features":
   version: 1.0.1
   resolution: "sync-promise@https://github.com/brettz9/sync-promise.git#commit=25845a49a00aa2d2c985a5149b97c86a1fcdc75a"
-  checksum: 80f8808f2bbb8c4f809fae0b0283dbe663a23c88cd2bf6de6ce1facada5e29cc3800027dd5123f126d119bc3090c9a82da9dd2288ebb9526070280d4aab66e3c
+  checksum: f536c50c270ef2ec28511af3b90ba10b8e2b3b51b3e4079136d428150ccc9592f47d02e2cf41ba02135e4a81f59fb472d642794d807bacf8c55a20f85ff57c8a
   languageName: node
   linkType: hard
 
@@ -46430,7 +46430,7 @@ __metadata:
   dependenciesMeta:
     sqlite3:
       optional: true
-  checksum: 9a7b155e65d6bfaeed004917daceab31e7081128535682e32b305661547253284b50088d4121d9e67352018735aa5784f0c8a819cdde1ee1a92fdd9fff0de579
+  checksum: 60d7fea6d974cf5df4361a0cdf9e7b6bca17cd59028fa2a7a72754f34e54242ef6e85aa09b97a8898566baa452c3700cf30f8d8cfbc230a2b9b7f514ce99a469
   languageName: node
   linkType: hard
 
