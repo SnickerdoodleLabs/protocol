@@ -45,7 +45,6 @@ describe("Stake for Ranking tests", function () {
         otherAccount.address,
       ),
     );
-    console.log("events2: ", events2);
 
     // get a contract handle on the deployed contract
     const consentContract = await ethers.getContractAt(
@@ -56,6 +55,7 @@ describe("Stake for Ranking tests", function () {
     const consentContract2 = await ethers.getContractAt(
       "Consent",
       events2[0].args[1],
+      otherAccount,
     );
 
     return {
@@ -167,6 +167,104 @@ describe("Stake for Ranking tests", function () {
       expect(
         await token.balanceOf(await consentContract.getAddress()),
       ).to.equal(ownerFee + otherFee);
+    });
+
+    it("Try inserting a listing upstream of existing listing", async function () {
+      const {
+        consentFactory,
+        consentContract,
+        consentContract2,
+        token,
+        owner,
+        otherAccount,
+      } = await loadFixture(deployConsentStack);
+
+      // first compute the fee required for a desired slot
+      const ownerSlot = 65000;
+      const ownerFee = await consentContract.computeFee(ownerSlot);
+      const otherSlot = 70000;
+      const otherFee = await consentContract.computeFee(otherSlot);
+
+      // give some token to the other account
+      await expect(
+        token.transfer(otherAccount.address, otherFee),
+      ).to.changeTokenBalance(token, otherAccount, otherFee);
+
+      // first allow the consent contract a token budget of 1000 tokens
+      await token.approve(await consentContract.getAddress(), ownerFee);
+      await token
+        .connect(otherAccount)
+        .approve(await consentContract2.getAddress(), otherFee);
+
+      // then initialize a tag in the first consent contract
+      await consentContract.newGlobalTag(
+        "NFT",
+        await token.getAddress(),
+        ownerSlot,
+      );
+
+      // then initialize a tag in the other consent contract upstream of existing slot
+      await consentContract2.newLocalTagUpstream(
+        "NFT",
+        await token.getAddress(),
+        otherSlot,
+        ownerSlot,
+      );
+
+      // see if the tag was registered correctly
+      expect(
+        await consentContract2.getNumberOfStakedTags(await token.getAddress()),
+      ).to.equal(1);
+    });
+
+    it("Try inserting a listing downstream of existing listing", async function () {
+      const {
+        consentFactory,
+        consentContract,
+        consentContract2,
+        token,
+        owner,
+        otherAccount,
+      } = await loadFixture(deployConsentStack);
+
+      // first compute the fee required for a desired slot
+      const ownerSlot = 70000;
+      const ownerFee = await consentContract.computeFee(ownerSlot);
+      const otherSlot = 65000;
+      const otherFee = await consentContract.computeFee(otherSlot);
+
+      // give some token to the other account
+      await expect(
+        token.transfer(otherAccount.address, otherFee),
+      ).to.changeTokenBalance(token, otherAccount, otherFee);
+
+      // first allow the consent contract a token budget of 1000 tokens
+      await token.approve(await consentContract.getAddress(), ownerFee);
+      await token
+        .connect(otherAccount)
+        .approve(await consentContract2.getAddress(), otherFee);
+
+      // then initialize a tag in the first consent contract
+      await consentContract.newGlobalTag(
+        "NFT",
+        await token.getAddress(),
+        ownerSlot,
+      );
+
+      // then initialize a tag in the other consent contract upstream of existing slot
+      await consentContract2
+        .connect(otherAccount)
+        .newLocalTagDownstream(
+          "NFT",
+          await token.getAddress(),
+          ownerSlot,
+          otherSlot,
+        );
+
+      // see if the tag was registered correctly
+      expect(
+        await consentContract2.getNumberOfStakedTags(await token.getAddress()),
+      ).to.equal(1);
     });
   });
 });
