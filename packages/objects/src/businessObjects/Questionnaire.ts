@@ -37,10 +37,7 @@ export class Questionnaire {
     public readonly description: string | null,
     public readonly image: URLString | null,
     /// The questions are entirely part of the Questionnaire and not an independent object.
-    public readonly questions: QuestionnaireQuestion[],
-
-    // The answers are independent objects; they are included as part of the Questionnaire for
-    // convenience, but they are not required to be included in the Questionnaire.
+    public readonly questions: QuestionnaireQuestion[], // The answers are independent objects; they are included as part of the Questionnaire for // convenience, but they are not required to be included in the Questionnaire.
   ) {}
 }
 

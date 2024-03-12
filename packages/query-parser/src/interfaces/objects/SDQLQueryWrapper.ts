@@ -15,6 +15,7 @@ import {
   ISDQLQueryObject,
   ISO8601DateString,
   SDQLQuery,
+  IpfsCID,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 
@@ -39,6 +40,27 @@ export class SDQLQueryWrapper {
       return undefined;
     }
     return `${this.internalObj.version}`;
+  }
+
+  public get image(): IpfsCID | undefined {
+    if (!this.internalObj.image) {
+      return undefined;
+    }
+    return IpfsCID(`${this.internalObj.image}`);
+  }
+
+  public get points(): number | undefined {
+    if (!this.internalObj.points) {
+      return undefined;
+    }
+    return Number(this.internalObj.points);
+  }
+
+  public get name(): string | undefined {
+    if (!this.internalObj.name) {
+      return undefined;
+    }
+    return `${this.internalObj.name}`;
   }
 
   public preProcessAds() {

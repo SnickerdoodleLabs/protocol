@@ -49,6 +49,8 @@ import {
   ECloudStorageType,
   EDataWalletPermission,
   EInvitationStatus,
+  EQueryProcessingStatus,
+  EWalletDataType,
 } from "@objects/enum/index.js";
 import {
   AccountIndexingError,
@@ -81,6 +83,7 @@ import {
   MissingWalletDataTypeError,
   ParserError,
   MethodSupportError,
+  InvalidQueryStatusError,
 } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
@@ -747,7 +750,7 @@ export interface IQuestionnaireMethods {
     consentContractAddress: EVMContractAddress,
     sourceDomain: DomainName | undefined,
   ): ResultAsync<
-    PagedResponse<Questionnaire>,
+    PagedResponse<Questionnaire | QuestionnaireWithAnswers>,
     | UninitializedError
     | BlockchainCommonErrors
     | AjaxError
@@ -827,6 +830,26 @@ export interface IQuestionnaireMethods {
     questionnaire: IpfsCID,
     sourceDomain: DomainName | undefined,
   ): ResultAsync<EVMContractAddress[], PersistenceError | AjaxError>;
+
+  getByCIDs(
+    questionnaireCIDs: IpfsCID[],
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    (Questionnaire | QuestionnaireWithAnswers)[],
+    PersistenceError | AjaxError
+  >;
+
+  getVirtualQuestionnaires(
+    consentContractAddress: EVMContractAddress,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    EWalletDataType[],
+    | UninitializedError
+    | BlockchainCommonErrors
+    | AjaxError
+    | PersistenceError
+    | ConsentFactoryContractError
+  >;
 }
 
 export interface ISnickerdoodleCore {
@@ -879,8 +902,7 @@ export interface ISnickerdoodleCore {
   // This is basically per-query consent. The consent token will be
   // re-checked, of course (trust nobody!).
   approveQuery(
-    consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
+    queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<
@@ -890,9 +912,9 @@ export interface ISnickerdoodleCore {
     | ConsentError
     | IPFSError
     | QueryFormatError
-    | EvaluationError
-    | UnauthorizedError
     | PersistenceError
+    | InvalidQueryStatusError
+    | InvalidParametersError
   >;
 
   getQueryStatusByQueryCID(
@@ -900,8 +922,10 @@ export interface ISnickerdoodleCore {
   ): ResultAsync<QueryStatus | null, PersistenceError>;
 
   getQueryStatuses(
-    contractAddress: EVMContractAddress,
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus,
     blockNumber?: BlockNumber,
+    sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     QueryStatus[],
     | BlockchainProviderError

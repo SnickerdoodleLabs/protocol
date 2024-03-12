@@ -70,8 +70,9 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
       });
   }
 
-  public getQueryStatusByStatus(
-    status: EQueryProcessingStatus,
+  public getQueryStatus(
+    status?: EQueryProcessingStatus,
+    consentContractAddress?: EVMContractAddress,
   ): ResultAsync<QueryStatus[], PersistenceError> {
     // TODO: Make this more efficient in the future
     return this.persistence
@@ -79,9 +80,22 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
       .map((queryStatii) => {
         // Return only those status from after the query horizon and for the requested
         // contract
-        return queryStatii.filter((queryStatus) => {
-          return queryStatus.status == status;
-        });
+        let filteredStatuses = queryStatii;
+
+        if (status) {
+          filteredStatuses = filteredStatuses.filter(
+            (queryStatus) => queryStatus.status === status,
+          );
+        }
+
+        if (consentContractAddress) {
+          filteredStatuses = filteredStatuses.filter(
+            (queryStatus) =>
+              queryStatus.consentContractAddress === consentContractAddress,
+          );
+        }
+
+        return filteredStatuses;
       });
   }
 

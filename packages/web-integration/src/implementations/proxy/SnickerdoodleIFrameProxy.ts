@@ -84,6 +84,8 @@ import {
   JSONString,
   IProxyQuestionnaireMethods,
   NewQuestionnaireAnswer,
+  EQueryProcessingStatus,
+  IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ethers } from "ethers";
@@ -569,12 +571,24 @@ export class SnickerdoodleIFrameProxy
   }
 
   public getQueryStatuses(
-    contractAddress: EVMContractAddress,
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus,
     blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], ProxyError> {
     return this._createCall("getQueryStatuses", {
       contractAddress,
+      status,
       blockNumber,
+    });
+  }
+
+  approveQuery(
+    queryCID: IpfsCID,
+    parameters: IDynamicRewardParameter[],
+  ): ResultAsync<void, ProxyError> {
+    return this._createCall("approveQuery", {
+      queryCID,
+      parameters,
     });
   }
 
@@ -828,6 +842,16 @@ export class SnickerdoodleIFrameProxy
     getRecommendedConsentContracts: (questionnaireCID: IpfsCID) => {
       return this._createCall("questionnaire.getRecommendedConsentContracts", {
         questionnaireCID,
+      });
+    },
+    getByCIDs: (questionnaireCIDs: IpfsCID[]) => {
+      return this._createCall("questionnaire.getByCIDs", {
+        questionnaireCIDs,
+      });
+    },
+    getVirtualQuestionnaires: (consentContractAddress: EVMContractAddress) => {
+      return this._createCall("questionnaire.getVirtualQuestionnaires", {
+        consentContractAddress,
       });
     },
   };

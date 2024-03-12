@@ -5,6 +5,7 @@ import {
   ITimeUtils,
   ITimeUtilsType,
   ObjectUtils,
+  ValidationUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   IInsightPlatformRepository,
@@ -51,15 +52,24 @@ import {
   InvalidParametersError,
   MethodSupportError,
   DataPermissions,
+  SDQL_Name,
+  URLString,
+  InvalidQueryStatusError,
+  EWalletDataType,
+  ESolidityAbiParameterType,
 } from "@snickerdoodlelabs/objects";
 import {
   SDQLQueryWrapper,
   ISDQLQueryWrapperFactory,
   ISDQLQueryWrapperFactoryType,
+  AST_SubQuery,
+  AST_QuestionnaireQuery,
+  AST_Compensation,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { urlJoin } from "url-join-ts";
 
 import { IQueryService } from "@core/interfaces/business/index.js";
 import {
@@ -76,7 +86,11 @@ import {
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data/index.js";
-import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
+import {
+  CoreConfig,
+  CoreContext,
+  QueryMetadata,
+} from "@core/interfaces/objects/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -190,63 +204,72 @@ export class QueryService implements IQueryService {
       ),
     ]).andThen(([queryWrapper, context, config, accounts, consentToken]) => {
       // Check and make sure a consent token exists
-      if (consentToken == null) {
-        // Record the query as having been received, but ignore it
-        return this.createQueryStatusWithNoConsent(
-          requestForData,
-          queryWrapper,
-        );
-      }
-      context.publicEvents.queryPerformance.next(
-        new QueryPerformanceEvent(
-          EQueryEvents.OnQueryPostedEvaluationProcesses,
-          EStatus.Start,
-          requestForData.requestedCID,
-        ),
-      );
-      // Now we will record the query as having been received; it is now at the start of the processing pipeline
-      // This is just a prototype, we probably need to do the parsing before this because QueryStatus
-      // should grow significantly
-      return this.createQueryStatusWithConsent(requestForData, queryWrapper)
-        .andThen(() => {
-          return this.dataWalletUtils
-            .deriveOptInPrivateKey(
-              requestForData.consentContractAddress,
-              context.dataWalletKey!,
-            )
-            .andThen((optInKey) => {
-              return this.constructAndPublishSDQLQueryRequest(
-                consentToken,
-                optInKey,
-                requestForData.consentContractAddress,
-                queryWrapper.sdqlQuery,
-                accounts,
-                context,
-                config,
-              );
+      return this.getQueryMetadata(queryWrapper.sdqlQuery).andThen(
+        (queryMetadata) => {
+          if (consentToken == null) {
+            // Record the query as having been received, but ignore it
+            return this.createQueryStatusWithNoConsent(
+              requestForData,
+              queryWrapper,
+              queryMetadata,
+            );
+          }
+          context.publicEvents.queryPerformance.next(
+            new QueryPerformanceEvent(
+              EQueryEvents.OnQueryPostedEvaluationProcesses,
+              EStatus.Start,
+              requestForData.requestedCID,
+            ),
+          );
+          // Now we will record the query as having been received; it is now at the start of the processing pipeline
+          // This is just a prototype, we probably need to do the parsing before this because QueryStatus
+          // should grow significantly
+          return this.createQueryStatusWithConsent(
+            requestForData,
+            queryWrapper,
+            queryMetadata,
+          )
+            .andThen(() => {
+              return this.dataWalletUtils
+                .deriveOptInPrivateKey(
+                  requestForData.consentContractAddress,
+                  context.dataWalletKey!,
+                )
+                .andThen((optInKey) => {
+                  return this.constructAndPublishSDQLQueryRequest(
+                    consentToken,
+                    optInKey,
+                    requestForData.consentContractAddress,
+                    queryWrapper.sdqlQuery,
+                    accounts,
+                    context,
+                    config,
+                  );
+                })
+                .map(() => {
+                  context.publicEvents.queryPerformance.next(
+                    new QueryPerformanceEvent(
+                      EQueryEvents.OnQueryPostedEvaluationProcesses,
+                      EStatus.End,
+                      requestForData.requestedCID,
+                    ),
+                  );
+                });
             })
-            .map(() => {
+            .mapErr((err) => {
               context.publicEvents.queryPerformance.next(
                 new QueryPerformanceEvent(
                   EQueryEvents.OnQueryPostedEvaluationProcesses,
                   EStatus.End,
                   requestForData.requestedCID,
+                  undefined,
+                  err,
                 ),
               );
+              return err;
             });
-        })
-        .mapErr((err) => {
-          context.publicEvents.queryPerformance.next(
-            new QueryPerformanceEvent(
-              EQueryEvents.OnQueryPostedEvaluationProcesses,
-              EStatus.End,
-              requestForData.requestedCID,
-              undefined,
-              err,
-            ),
-          );
-          return err;
-        });
+        },
+      );
     });
   }
 
@@ -257,7 +280,8 @@ export class QueryService implements IQueryService {
   }
 
   public getQueryStatuses(
-    contractAddress: EVMContractAddress,
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus,
     blockNumber?: BlockNumber,
   ): ResultAsync<
     QueryStatus[],
@@ -267,20 +291,19 @@ export class QueryService implements IQueryService {
     | BlockchainCommonErrors
     | PersistenceError
   > {
-    if (blockNumber) {
-      return this.sdqlQueryRepo.getQueryStatusByConsentContract(
-        contractAddress,
-        blockNumber,
-      );
+    if (contractAddress != null && blockNumber != null) {
+      return this.sdqlQueryRepo
+        .getQueryStatusByConsentContract(contractAddress, blockNumber)
+        .map((queryStatii) => {
+          if (status != null) {
+            return queryStatii.filter((queryStatus) => {
+              return queryStatus.status === status;
+            });
+          }
+          return queryStatii;
+        });
     }
-    return this.consentContractRepository
-      .getQueryHorizon(contractAddress)
-      .andThen((queryHorizon) => {
-        return this.sdqlQueryRepo.getQueryStatusByConsentContract(
-          contractAddress,
-          queryHorizon,
-        );
-      });
+    return this.sdqlQueryRepo.getQueryStatus(status, contractAddress);
   }
 
   /**
@@ -291,8 +314,7 @@ export class QueryService implements IQueryService {
    * @returns
    */
   public approveQuery(
-    consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
+    queryCID: IpfsCID,
     rewardParameters: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
@@ -302,31 +324,51 @@ export class QueryService implements IQueryService {
     | IPFSError
     | QueryFormatError
     | PersistenceError
+    | InvalidQueryStatusError
+    | InvalidParametersError
   > {
     this.logUtils.log(
-      `QueryService.approveQuery: Approving processing query for consent contract ${consentContractAddress} with CID ${query.cid}`,
+      `QueryService.approveQuery: Approving processing query with CID ${queryCID}`,
     );
+
+    if (
+      !rewardParameters.every(({ recipientAddress }) =>
+        ValidationUtils.isValidEthereumAddress(recipientAddress.value),
+      )
+    ) {
+      this.logUtils.warning(
+        `approveQuery called for Query CID ${queryCID}, with invalid addresses, params ${rewardParameters}`,
+      );
+      return errAsync(
+        new InvalidParametersError(
+          `approveQuery called for Query CID ${queryCID}, with invalid addresses, params ${rewardParameters}`,
+        ),
+      );
+    }
+
     return this.sdqlQueryRepo
-      .getQueryStatusByQueryCID(query.cid)
+      .getQueryStatusByQueryCID(queryCID)
       .andThen((queryStatus) => {
         // Make sure the query is actually one we have a record of
         if (queryStatus == null) {
           this.logUtils.warning(
-            `No record of having received query ${query.cid}, but processing it anyway`,
+            `No record of having received query ${queryCID}`,
           );
-          const newQueryStatus = new QueryStatus(
-            consentContractAddress,
-            query.cid,
-            BlockNumber(1),
-            EQueryProcessingStatus.AdsCompleted,
-            this.timeUtils.getUnixNow(),
-            ObjectUtils.serialize(rewardParameters),
+          return errAsync(
+            new UninitializedError(
+              `No record found for query with CID:${queryCID}`,
+            ),
           );
-          return this.sdqlQueryRepo
-            .upsertQueryStatus([newQueryStatus])
-            .map(() => {
-              return newQueryStatus;
-            });
+        }
+        if (queryStatus.status !== EQueryProcessingStatus.Received) {
+          this.logUtils.warning(
+            `Query status for CID ${queryCID} is not in an approval state, query has ${queryStatus.status} status`,
+          );
+          return errAsync(
+            new InvalidQueryStatusError(
+              `Query status for CID ${queryCID} is not in an approval state, query has ${queryStatus.status} status`,
+            ),
+          );
         }
 
         // Update the query status and store the reward parameters
@@ -373,9 +415,7 @@ export class QueryService implements IQueryService {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
-      this.sdqlQueryRepo.getQueryStatusByStatus(
-        EQueryProcessingStatus.AdsCompleted,
-      ),
+      this.sdqlQueryRepo.getQueryStatus(EQueryProcessingStatus.AdsCompleted),
     ])
       .andThen(([context, config, queryStatii]) => {
         if (queryStatii.length == 0) {
@@ -397,8 +437,11 @@ export class QueryService implements IQueryService {
               ),
             );
 
-            // The rewards parameters need to be deserialized, or at least the basics provided.
-            if (queryStatus.rewardsParameters == null) {
+            const rewardsParameters = this.parseDynamicRewardParameter(
+              queryStatus.rewardsParameters,
+            );
+            // The rewards parameters needs to include recepient address
+            if (typeof rewardsParameters === "boolean") {
               // We can't really do much here right now, so I'll just mark the query as waiting
               // for parameters the generate an event
               queryStatus.status = EQueryProcessingStatus.NoRewardsParams;
@@ -428,9 +471,7 @@ export class QueryService implements IQueryService {
               //   recipientAddress: "",
               // } as IDynamicRewardParameter);
             }
-            const rewardsParameters = ObjectUtils.deserialize<
-              IDynamicRewardParameter[]
-            >(queryStatus.rewardsParameters as JSONString);
+
             return ResultUtils.combine([
               this.consentTokenUtils.getCurrentConsentToken(
                 queryStatus.consentContractAddress,
@@ -596,6 +637,7 @@ export class QueryService implements IQueryService {
   protected createQueryStatusWithConsent(
     requestForData: RequestForData,
     queryWrapper: SDQLQueryWrapper,
+    queryMetadata: QueryMetadata,
   ): ResultAsync<void, PersistenceError> {
     const queryStatus = new QueryStatus(
       requestForData.consentContractAddress,
@@ -603,7 +645,13 @@ export class QueryService implements IQueryService {
       requestForData.blockNumber,
       EQueryProcessingStatus.Received,
       queryWrapper.expiry,
-      null,
+      queryMetadata.dynamicRewardParameter,
+      queryMetadata.name,
+      queryMetadata.description,
+      queryMetadata.points,
+      queryMetadata.questionnaires,
+      queryMetadata.virtualQuestionnaires,
+      queryMetadata.image ?? null,
     );
     return this.sdqlQueryRepo
       .upsertQueryStatus([queryStatus])
@@ -618,6 +666,7 @@ export class QueryService implements IQueryService {
   protected createQueryStatusWithNoConsent(
     requestForData: RequestForData,
     queryWrapper: SDQLQueryWrapper,
+    queryMetadata: QueryMetadata,
   ): ResultAsync<void, EvaluationError | PersistenceError> {
     const queryStatus = new QueryStatus(
       requestForData.consentContractAddress,
@@ -625,7 +674,13 @@ export class QueryService implements IQueryService {
       requestForData.blockNumber,
       EQueryProcessingStatus.NoConsentToken,
       queryWrapper.expiry,
-      null,
+      queryMetadata.dynamicRewardParameter,
+      queryMetadata.name,
+      queryMetadata.description,
+      queryMetadata.points,
+      queryMetadata.questionnaires,
+      queryMetadata.virtualQuestionnaires,
+      queryMetadata.image ?? null,
     );
     return this.sdqlQueryRepo
       .upsertQueryStatus([queryStatus])
@@ -756,5 +811,99 @@ export class QueryService implements IQueryService {
       );
     }
     return okAsync(undefined);
+  }
+
+  protected parseDynamicRewardParameter(
+    rewardParams: JSONString,
+  ): boolean | IDynamicRewardParameter[] {
+    try {
+      const rewardsParameters =
+        ObjectUtils.deserialize<IDynamicRewardParameter[]>(rewardParams);
+
+      if (
+        rewardsParameters.every(({ recipientAddress }) =>
+          ValidationUtils.isValidEthereumAddress(recipientAddress.value),
+        )
+      ) {
+        return rewardsParameters;
+      }
+      return false;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  protected getQueryMetadata(
+    query: SDQLQuery,
+  ): ResultAsync<
+    QueryMetadata,
+    | AjaxError
+    | PersistenceError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | MissingASTError
+  > {
+    return this.queryParsingEngine.parseQuery(query).map((ast) => {
+      const { subqueries, image, name, points, description, compensations } =
+        ast;
+
+      const rewardParams = this.getRewardParams(compensations);
+      const [questionnaireIds, virtualQuestionnaires] =
+        this.getQuestionnaireIds(subqueries);
+      return new QueryMetadata(
+        name,
+        points,
+        description,
+        questionnaireIds,
+        virtualQuestionnaires,
+        //TODO can be removen if not used by IP
+        ObjectUtils.serialize(rewardParams),
+        image,
+      );
+    });
+  }
+
+  //TODO can be removen if not used by IP
+  protected getRewardParams(
+    compensations: Map<SDQL_Name, AST_Compensation>,
+  ): IDynamicRewardParameter[] {
+    const parameters: IDynamicRewardParameter[] = [];
+    compensations.forEach((_value, key) => {
+      parameters.push({
+        recipientAddress: {
+          type: ESolidityAbiParameterType.address,
+          value: "",
+        },
+        compensationKey: {
+          type: ESolidityAbiParameterType.string,
+          value: key,
+        },
+      });
+    });
+    return parameters;
+  }
+
+  protected getQuestionnaireIds(
+    subqueries: Map<SDQL_Name, AST_SubQuery>,
+  ): [IpfsCID[], EWalletDataType[]] {
+    const questionnaireIds: IpfsCID[] = [];
+    const virtualQuestionnaires: EWalletDataType[] = [];
+    subqueries.forEach((subQuery) => {
+      if (subQuery.name === "questionnaire") {
+        const cid: IpfsCID = (subQuery as AST_QuestionnaireQuery)
+          .questionnaireIndex!;
+        questionnaireIds.push(cid);
+      } else {
+        const virtualQuestionnaire = subQuery.getPermission();
+        if (virtualQuestionnaire.isOk()) {
+          virtualQuestionnaires.push(virtualQuestionnaire.value);
+        }
+      }
+    });
+    return [questionnaireIds, virtualQuestionnaires];
   }
 }

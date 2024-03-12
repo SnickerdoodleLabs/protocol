@@ -6,15 +6,16 @@ import {
   BlockNumber,
   ConsentContractError,
   ConsentError,
-  ConsentFactoryContractError,
   ConsentToken,
   DuplicateIdInSchema,
+  EQueryProcessingStatus,
   EvalNotImplementedError,
   EvaluationError,
   EVMContractAddress,
   EVMPrivateKey,
   IDynamicRewardParameter,
   InvalidParametersError,
+  InvalidQueryStatusError,
   IpfsCID,
   IPFSError,
   MethodSupportError,
@@ -33,7 +34,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
+import { CoreConfig } from "@core/interfaces/objects/index.js";
 
 export interface IQueryService {
   initialize(): ResultAsync<void, never>;
@@ -69,8 +70,7 @@ export interface IQueryService {
   >;
 
   approveQuery(
-    consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
+    queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
@@ -80,6 +80,8 @@ export interface IQueryService {
     | IPFSError
     | QueryFormatError
     | PersistenceError
+    | InvalidQueryStatusError
+    | InvalidParametersError
   >;
 
   returnQueries(): ResultAsync<
@@ -126,7 +128,8 @@ export interface IQueryService {
   ): ResultAsync<QueryStatus | null, PersistenceError>;
 
   getQueryStatuses(
-    contractAddress: EVMContractAddress,
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus,
     blockNumber?: BlockNumber,
   ): ResultAsync<
     QueryStatus[],

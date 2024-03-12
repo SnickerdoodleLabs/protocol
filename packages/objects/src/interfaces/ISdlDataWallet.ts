@@ -15,10 +15,12 @@ import {
   TransactionFilter,
   ChainTransaction,
   TransactionFlowInsight,
+  IDynamicRewardParameter,
 } from "@objects/businessObjects/index.js";
 import {
   ECoreProxyType,
   EInvitationStatus,
+  EQueryProcessingStatus,
   EWalletDataType,
 } from "@objects/enum/index.js";
 import { ProxyError } from "@objects/errors/index.js";
@@ -241,6 +243,7 @@ export interface ISdlDataWallet {
   getEmail(): ResultAsync<EmailAddressString | null, ProxyError>;
   setLocation(location: CountryCode): ResultAsync<void, ProxyError>;
   getLocation(): ResultAsync<CountryCode | null, ProxyError>;
+
   getTokenPrice(
     chainId: ChainId,
     address: TokenAddress | null,
@@ -301,9 +304,15 @@ export interface ISdlDataWallet {
   ): ResultAsync<QueryStatus | null, ProxyError>;
 
   getQueryStatuses(
-    contractAddress: EVMContractAddress,
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus,
     blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], ProxyError>;
+
+  approveQuery(
+    queryCID: IpfsCID,
+    parameters: IDynamicRewardParameter[],
+  ): ResultAsync<void, ProxyError>;
 
   getSiteVisits(): ResultAsync<SiteVisit[], ProxyError>;
 
