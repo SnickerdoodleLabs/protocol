@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 
 import { EWalletDataType } from "@objects/enum/index.js";
-import { HexString32 } from "@objects/primitives/index.js";
+import { HexString32, IpfsCID } from "@objects/primitives/index.js";
 
 export const MAX_QUESTIONNAIRES = 64;
 
@@ -11,20 +11,66 @@ export const MAX_QUESTIONNAIRES = 64;
  * token itself in the Token URI.
  */
 export class DataPermissions {
-  public constructor(protected readonly agreementFlags: HexString32) {
+  protected readonly agreementFlags: string;
+  protected readonly questionnaireCIDs: IpfsCID[];
+  constructor(agreementFlags: HexString32, questionnaireCIDs: IpfsCID[] = []) {
     const flagLength = ethers.getBytes(agreementFlags).length;
     if (flagLength != 32) {
       throw new Error(
         `Invalid HexString32 passed to DataPermissions! Provided flags have ${flagLength} bytes and should have 32!`,
       );
     }
+    this.agreementFlags = agreementFlags;
+    this.questionnaireCIDs = questionnaireCIDs;
   }
-
-  static readonly baseQuestionnaireBit = 128;
 
   public getFlags(): HexString32 {
-    return this.agreementFlags;
+    return this.getFlags();
   }
+
+  public hasPermission(permissionType: EWalletDataType): boolean {
+    const binaryFlags = ethers.hexlify(this.getFlags());
+    const permissionBitIndex = permissionType;
+    // Convert hex to binary and check if the specific bit is set
+    return (
+      ((parseInt(binaryFlags[permissionBitIndex / 4 + 2], 16) >>
+        permissionBitIndex % 4) &
+        1) ===
+      1
+    );
+  }
+  public hasQuestionnaire(cid: IpfsCID): boolean {
+    return (
+      this.hasPermission(EWalletDataType.Questionnaires) &&
+      this.questionnaireCIDs.includes(cid)
+    );
+  }
+  static createWithAllPermissions(): DataPermissions {
+    // Set all permissions to true and provide an empty array for questionnaire CIDs initially
+    return new DataPermissions(
+      HexString32(
+        "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+      ),
+    );
+  }
+
+  // This is a new static method for creating a DataPermissions instance directly from another.
+  static createWithPermissions(
+    existingPermissions: DataPermissions,
+  ): DataPermissions {
+    return new DataPermissions(
+      existingPermissions.getFlags(),
+      existingPermissions.getQuestionnaireCIDs(),
+    );
+  }
+
+  public getQuestionnaireCIDs(): IpfsCID[] {
+    return this.questionnaireCIDs;
+  }
+
+  /// OLD CODE BELOW
+
+  static readonly baseQuestionnaireBit = 128;
 
   public eq(otherFlags: HexString32): boolean {
     return this.agreementFlags === otherFlags;
@@ -137,26 +183,6 @@ export class DataPermissions {
     return HexString32(
       "0x111111111111111111111111111111111111111111111111111111111111111b",
     ); //31 ones
-  }
-
-  static createWithAllPermissions(): DataPermissions {
-    return new DataPermissions(DataPermissions.allPermissionsHexString);
-  }
-
-  static createWithPermissions(dataTypes: EWalletDataType[]): DataPermissions {
-    // Create a Uint8Array with 32 bytes
-    const flagsArray = new Uint8Array(32);
-
-    // Loop over the data types and set the bit
-    dataTypes.forEach((dataType) => {
-      const byteNumber = (dataType / 8) | 0;
-      const bitNumber = dataType % 8;
-
-      // Now the fancy bit manipulation
-      flagsArray[byteNumber] |= 1 << bitNumber;
-    });
-
-    return new DataPermissions(HexString32(ethers.hexlify(flagsArray)));
   }
 
   static getDataTypesFromFlags(agreementFlags: HexString32): EWalletDataType[] {

@@ -8,6 +8,8 @@ export * from "@objects/businessObjects/versioned/EligibleAd.js";
 export * from "@objects/businessObjects/versioned/EVMTransaction.js";
 export * from "@objects/businessObjects/versioned/InvitationForStorage.js";
 export * from "@objects/businessObjects/versioned/LinkedAccount.js";
+export * from "@objects/businessObjects/versioned/PermissionForStorage.js";
+export * from "@objects/businessObjects/versioned/PermissionForStorage.js";
 export * from "@objects/businessObjects/versioned/PolygonTransaction.js";
 export * from "@objects/businessObjects/versioned/QueryStatus.js";
 export * from "@objects/businessObjects/versioned/QuestionnaireHistoryMigrator.js";
