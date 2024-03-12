@@ -73,6 +73,8 @@ import {
   IConsentContractRepositoryType,
   ILinkedAccountRepository,
   ILinkedAccountRepositoryType,
+  IPermissionRepository,
+  IPermissionRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data/index.js";
@@ -99,6 +101,8 @@ export class QueryService implements IQueryService {
     protected sdqlQueryRepo: ISDQLQueryRepository,
     @inject(IInsightPlatformRepositoryType)
     protected insightPlatformRepo: IInsightPlatformRepository,
+    @inject(IPermissionRepositoryType)
+    protected permissionRepo: IPermissionRepository,
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
     @inject(IContextProviderType)
@@ -463,9 +467,7 @@ export class QueryService implements IQueryService {
                     this.queryParsingEngine
                       .handleQuery(
                         query,
-                        DataPermissions.createWithPermissions(
-                          consentToken!.dataPermissions,
-                        ),
+                    //   this.permissionRepo.getDataPermissionsForByConsentContract(contractAddress),
                       )
                       .map((insights) => {
                         this.logUtils.debug(

@@ -9,8 +9,8 @@ import {
 
 export class DataPermissions {
   constructor(
-    public consentContractAddress: EVMContractAddress,
-    public virtual: EWalletDataType[] | null,
-    public questionnaires: IpfsCID[] | null,
+    protected readonly consentContractAddress: EVMContractAddress,
+    protected readonly virtual: EWalletDataType[] | null,
+    protected readonly questionnaires: IpfsCID[] | null,
   ) {}
 }
