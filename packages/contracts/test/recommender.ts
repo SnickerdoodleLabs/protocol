@@ -49,7 +49,7 @@ describe("Stake for Ranking tests", function () {
   }
 
   describe("Stake a tag", function () {
-    it("Try staking on a single deployed Content Object", async function () {
+    it("Try staking on a single deployed Content Object and then removing it", async function () {
       const { consentFactory, consentContract, token, owner, otherAccount } =
         await loadFixture(deployConsentStack);
 
