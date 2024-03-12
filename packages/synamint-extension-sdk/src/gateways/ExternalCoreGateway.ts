@@ -152,6 +152,9 @@ import {
   GetQuestionnairesForConsentContractParams,
   GetConsentContractsByQuestionnaireCIDParams,
   GetRecommendedConsentContractsParams,
+  GetVirtualQuestionnairesParams,
+  GetQuestionnairesByCIDSParams,
+  ApproveQueryParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -200,6 +203,18 @@ export class ExternalCoreGateway {
       getConsentContractsByQuestionnaireCID: (questionnaireCID: IpfsCID) => {
         return this._handler.call(
           new GetConsentContractsByQuestionnaireCIDParams(questionnaireCID),
+        );
+      },
+      getVirtualQuestionnaires: (
+        consentContractAddress: EVMContractAddress,
+      ) => {
+        return this._handler.call(
+          new GetVirtualQuestionnairesParams(consentContractAddress),
+        );
+      },
+      getByCIDs: (questionnaireCIDs: IpfsCID[]) => {
+        return this._handler.call(
+          new GetQuestionnairesByCIDSParams(questionnaireCIDs),
         );
       },
     };
@@ -564,6 +579,12 @@ export class ExternalCoreGateway {
   public getQueryStatuses(
     params: GetQueryStatusesParams,
   ): ResultAsync<QueryStatus[], ProxyError> {
+    return this._handler.call(params);
+  }
+
+  public approveQuery(
+    params: ApproveQueryParams,
+  ): ResultAsync<void, ProxyError> {
     return this._handler.call(params);
   }
 

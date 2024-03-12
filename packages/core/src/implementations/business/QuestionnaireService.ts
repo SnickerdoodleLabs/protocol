@@ -15,6 +15,7 @@ import {
   ConsentContractError,
   UninitializedError,
   ConsentFactoryContractError,
+  EWalletDataType,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync } from "neverthrow";
@@ -194,6 +195,20 @@ export class QuestionnaireService implements IQuestionnaireService {
     // TODO: Big fat TODO here.
     // Basic idea, we need to go to the Consent Contract Factory and get the list of
     // consent contracts that have staked against the questionnaire.
+    throw new Error("Method not implemented.");
+  }
+
+  public getVirtualQuestionnaires(
+    consentContractAddress: EVMContractAddress,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    EWalletDataType[],
+    | UninitializedError
+    | BlockchainCommonErrors
+    | AjaxError
+    | PersistenceError
+    | ConsentFactoryContractError
+  > {
     throw new Error("Method not implemented.");
   }
 

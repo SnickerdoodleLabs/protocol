@@ -742,6 +742,20 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           sourceDomain,
         );
       },
+      getVirtualQuestionnaires: (
+        consentContractAddress: EVMContractAddress,
+        sourceDomain: DomainName | undefined,
+      ) => {
+        const questionnaireService =
+          this.iocContainer.get<IQuestionnaireService>(
+            IQuestionnaireServiceType,
+          );
+
+        return questionnaireService.getVirtualQuestionnaires(
+          consentContractAddress,
+          sourceDomain,
+        );
+      },
       getConsentContractsByQuestionnaireCID: (
         ipfsCID: IpfsCID,
         sourceDomain: DomainName | undefined,

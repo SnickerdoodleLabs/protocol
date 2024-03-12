@@ -50,6 +50,7 @@ import {
   EDataWalletPermission,
   EInvitationStatus,
   EQueryProcessingStatus,
+  EWalletDataType,
 } from "@objects/enum/index.js";
 import {
   AccountIndexingError,
@@ -836,6 +837,18 @@ export interface IQuestionnaireMethods {
   ): ResultAsync<
     (Questionnaire | QuestionnaireWithAnswers)[],
     PersistenceError | AjaxError
+  >;
+
+  getVirtualQuestionnaires(
+    consentContractAddress: EVMContractAddress,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    EWalletDataType[],
+    | UninitializedError
+    | BlockchainCommonErrors
+    | AjaxError
+    | PersistenceError
+    | ConsentFactoryContractError
   >;
 }
 

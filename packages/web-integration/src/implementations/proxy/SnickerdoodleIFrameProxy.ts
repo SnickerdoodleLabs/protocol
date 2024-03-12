@@ -85,6 +85,7 @@ import {
   IProxyQuestionnaireMethods,
   NewQuestionnaireAnswer,
   EQueryProcessingStatus,
+  IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ethers } from "ethers";
@@ -571,6 +572,16 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
+  approveQuery(
+    queryCID: IpfsCID,
+    parameters: IDynamicRewardParameter[],
+  ): ResultAsync<void, ProxyError> {
+    return this._createCall("approveQuery", {
+      queryCID,
+      parameters,
+    });
+  }
+
   public account: IProxyAccountMethods = {
     addAccount: (
       accountAddress: AccountAddress,
@@ -816,6 +827,16 @@ export class SnickerdoodleIFrameProxy
     getRecommendedConsentContracts: (questionnaireCID: IpfsCID) => {
       return this._createCall("questionnaire.getRecommendedConsentContracts", {
         questionnaireCID,
+      });
+    },
+    getByCIDs: (questionnaireCIDs: IpfsCID[]) => {
+      return this._createCall("questionnaire.getByCIDs", {
+        questionnaireCIDs,
+      });
+    },
+    getVirtualQuestionnaires: (consentContractAddress: EVMContractAddress) => {
+      return this._createCall("questionnaire.getVirtualQuestionnaires", {
+        consentContractAddress,
       });
     },
   };

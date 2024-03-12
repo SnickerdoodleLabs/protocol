@@ -25,6 +25,7 @@ import {
   Gender,
   GivenName,
   IConsentCapacity,
+  IDynamicRewardParameter,
   INftProxyMethods,
   IOldUserAgreement,
   IProxyAccountMethods,
@@ -321,6 +322,24 @@ export class ProxyBridge implements ISdlDataWallet {
           ),
         );
       },
+      getByCIDs: (questionnaireCIDs: IpfsCID[]) => {
+        return this.call(
+          this.core.questionnaire.getByCIDs(
+            questionnaireCIDs,
+            this.sourceDomain,
+          ),
+        );
+      },
+      getVirtualQuestionnaires: (
+        consentContractAddress: EVMContractAddress,
+      ) => {
+        return this.call(
+          this.core.questionnaire.getVirtualQuestionnaires(
+            consentContractAddress,
+            this.sourceDomain,
+          ),
+        );
+      },
     };
   }
 
@@ -395,11 +414,19 @@ export class ProxyBridge implements ISdlDataWallet {
     contractAddress?: EVMContractAddress,
     status?: EQueryProcessingStatus,
     blockNumber?: BlockNumber,
-    sourceDomain?: DomainName | undefined,
+    _sourceDomain?: DomainName | undefined,
   ): ResultAsync<QueryStatus[], ProxyError> {
     return this.call(
       this.core.getQueryStatuses(contractAddress, status, blockNumber),
     );
+  }
+
+  approveQuery(
+    queryCID: IpfsCID,
+    parameters: IDynamicRewardParameter[],
+    _sourceDomain?: DomainName | undefined,
+  ): ResultAsync<void, ProxyError> {
+    return this.call(this.core.approveQuery(queryCID, parameters));
   }
 
   getSiteVisits(): ResultAsync<SiteVisit[], ProxyError> {

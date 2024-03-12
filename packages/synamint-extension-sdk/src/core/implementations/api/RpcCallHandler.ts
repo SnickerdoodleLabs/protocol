@@ -141,6 +141,9 @@ import {
   GetQuestionnairesForConsentContractParams,
   GetConsentContractsByQuestionnaireCIDParams,
   GetRecommendedConsentContractsParams,
+  ApproveQueryParams,
+  GetVirtualQuestionnairesParams,
+  GetQuestionnairesByCIDSParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -573,6 +576,18 @@ export class RpcCallHandler implements IRpcCallHandler {
       },
     ),
 
+    new CoreActionHandler<ApproveQueryParams>(
+      ApproveQueryParams.getCoreAction(),
+      (params, _sender, sourceDomain) => {
+        return this.core
+          .approveQuery(params.queryCID, params.parameters, sourceDomain)
+          .mapErr((error) => {
+            this.errorUtils.emit(error);
+            return new SnickerDoodleCoreError((error as Error).message, error);
+          });
+      },
+    ),
+
     // #region Discord
     new CoreActionHandler<InitializeDiscordUserParams>(
       InitializeDiscordUserParams.getCoreAction(),
@@ -869,6 +884,25 @@ export class RpcCallHandler implements IRpcCallHandler {
       (params, _sender, sourceDomain) => {
         return this.core.questionnaire.getRecommendedConsentContracts(
           params.questionnaireCID,
+          sourceDomain,
+        );
+      },
+    ),
+
+    new CoreActionHandler<GetVirtualQuestionnairesParams>(
+      GetVirtualQuestionnairesParams.getCoreAction(),
+      (params, _sender, sourceDomain) => {
+        return this.core.questionnaire.getVirtualQuestionnaires(
+          params.consentContractAddress,
+          sourceDomain,
+        );
+      },
+    ),
+    new CoreActionHandler<GetQuestionnairesByCIDSParams>(
+      GetQuestionnairesByCIDSParams.getCoreAction(),
+      (params, _sender, sourceDomain) => {
+        return this.core.questionnaire.getByCIDs(
+          params.questionnaireCIDs,
           sourceDomain,
         );
       },

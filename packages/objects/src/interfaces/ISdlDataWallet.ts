@@ -15,6 +15,7 @@ import {
   TransactionFilter,
   ChainTransaction,
   TransactionFlowInsight,
+  IDynamicRewardParameter,
 } from "@objects/businessObjects/index.js";
 import {
   ECoreProxyType,
@@ -120,7 +121,7 @@ export type INftProxyMethods = {
 export type IProxyQuestionnaireMethods = {
   [key in Exclude<
     FunctionKeys<IQuestionnaireMethods>,
-    "getAnsweredQuestionnaires" | "getQuestionnaires" | "getByCIDs"
+    "getAnsweredQuestionnaires" | "getQuestionnaires"
   >]: (
     ...args: [...PopTuple<Parameters<IQuestionnaireMethods[key]>>]
   ) => ResultAsync<
@@ -307,6 +308,11 @@ export interface ISdlDataWallet {
     status?: EQueryProcessingStatus,
     blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], ProxyError>;
+
+  approveQuery(
+    queryCID: IpfsCID,
+    parameters: IDynamicRewardParameter[],
+  ): ResultAsync<void, ProxyError>;
 
   getSiteVisits(): ResultAsync<SiteVisit[], ProxyError>;
 
