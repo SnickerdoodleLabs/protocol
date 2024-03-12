@@ -53,6 +53,7 @@ abstract contract ContentObjectUpgradeable is
     ) internal onlyInitializing {
         ContentObjectStorage storage $ = _getContentObjectStorage();
         $.contentFactoryInstance = IContentFactory(factory);
+        $.maxTags = $.contentFactoryInstance.maxTagsPerListing();
     }
 
     /* Function Implementations */

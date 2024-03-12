@@ -16,9 +16,9 @@ interface IConsentFactory is IContentFactory {
 
     function createConsent(address owner, string memory baseURI) external;
 
-    function setListingDuration(uint256 _listingDuration) external; 
+    function setListingDuration(uint256 listingDuration) external; 
 
-    function setMaxTagsPerListing(uint256 _maxTagsPerListing) external; 
+    function setMaxTagsPerListing(uint256 maxTagsPerListing) external; 
 
     function registerStakingToken(address stakingToken) external;
 
