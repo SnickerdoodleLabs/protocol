@@ -37,6 +37,7 @@
   "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
+    "@snickerdoodlelabs/circuits-sdk": "workspace:^",
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/contracts-sdk": "workspace:^",
     "@snickerdoodlelabs/indexers": "workspace:^",

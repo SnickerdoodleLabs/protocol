@@ -131,15 +131,6 @@ export interface IInvitationService {
     | PersistenceError
     | BlockchainCommonErrors
   >;
-  getConsentCapacity(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    IConsentCapacity,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | BlockchainCommonErrors
-  >;
 
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,

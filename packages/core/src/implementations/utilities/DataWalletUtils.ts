@@ -1,3 +1,4 @@
+import { CircuitUtils } from "@snickerdoodlelabs/circuits-sdk";
 import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   EVMPrivateKey,
@@ -15,6 +16,8 @@ import {
   EVMContractAddress,
   PasswordString,
   SuiAccountAddress,
+  OptInInfo,
+  DataWalletAddress,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -200,32 +203,18 @@ export class DataWalletUtils implements IDataWalletUtils {
     throw new Error(`Unknown chainTechnology ${chainInfo.chainTechnology}`);
   }
 
-  public deriveOptInPrivateKey(
+  public deriveOptInInfo(
     consentContractAddress: EVMContractAddress,
-    dataWalletKey: EVMPrivateKey,
-  ): ResultAsync<EVMPrivateKey, never> {
-    return this.cryptoUtils
-      .signMessage(consentContractAddress, dataWalletKey)
-      .andThen((signature) => {
-        return this.cryptoUtils.deriveEVMPrivateKeyFromSignature(
-          signature,
-          HexString(consentContractAddress),
-        );
-      });
-  }
-
-  public deriveOptInAccountAddress(
-    consentContractAddress: EVMContractAddress,
-    dataWalletKey: EVMPrivateKey,
-  ): ResultAsync<EVMAccountAddress, never> {
-    return this.deriveOptInPrivateKey(
-      consentContractAddress,
-      dataWalletKey,
-    ).map((newPrivateKey) => {
-      return this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
-        newPrivateKey,
-      );
-    });
+    dataWalletKey: DataWalletAddress,
+  ): ResultAsync<OptInInfo, never> {
+    // The opt in values are just from understood strings
+    const nullifier = CircuitUtils.getHashFromString(
+      `${consentContractAddress}:${dataWalletKey}:Nullifier`,
+    );
+    const trapdoor = CircuitUtils.getHashFromString(
+      `${consentContractAddress}:${dataWalletKey}:Trapdoor`,
+    );
+    return okAsync(new OptInInfo(consentContractAddress, nullifier, trapdoor));
   }
 
   protected accountAddressToHex(accountAddress: AccountAddress): HexString {

@@ -13,6 +13,7 @@ import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { Encoding, Field, Keypair, MerkleTree, Poseidon } from "o1js";
 
+import { CircuitUtils } from "@circuits-sdk/CircuitUtils.js";
 import { CircuitWrapper } from "@circuits-sdk/CircuitWrapper.js";
 
 @injectable()
@@ -28,8 +29,8 @@ export class MembershipWrapper extends CircuitWrapper<Membership> {
     identityNullifier: BigNumberString,
   ): Identity {
     return new Identity({
-      identityTrapdoor: new Field(BigInt(identityTrapdoor)),
-      identityNullifier: new Field(BigInt(identityNullifier)),
+      identityTrapdoor: CircuitUtils.bnsToField(identityTrapdoor),
+      identityNullifier: CircuitUtils.bnsToField(identityNullifier),
     });
   }
 
@@ -41,13 +42,11 @@ export class MembershipWrapper extends CircuitWrapper<Membership> {
     identity: Identity,
     roundIdentifier: string,
   ): BigNumberString {
-    return BigNumberString(
+    return CircuitUtils.fieldToBNS(
       Poseidon.hash([
         identity.identityNullifier,
         Poseidon.hash(Encoding.stringToFields(roundIdentifier)),
-      ])
-        .toBigInt()
-        .toString(),
+      ]),
     );
   }
 

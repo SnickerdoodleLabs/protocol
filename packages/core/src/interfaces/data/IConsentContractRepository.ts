@@ -19,6 +19,7 @@ import {
   IConsentCapacity,
   BlockNumber,
   BlockchainCommonErrors,
+  Commitment,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -48,21 +49,6 @@ export interface IConsentContractRepository {
   >;
 
   /**
-   * Returns the number of "slots" available to opt-in to the contract as availableOptInCount and maxCapacity as maxCapacity, which is just
-   * maxCapacity - currentOptins.
-   * @param consentContractAddress
-   */
-  getConsentCapacity(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    IConsentCapacity,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | BlockchainCommonErrors
-  >;
-
-  /**
    * Returns the IPFS CID of the metadata for the contract
    * @param consentContractAddress
    */
@@ -76,33 +62,11 @@ export interface IConsentContractRepository {
     | BlockchainCommonErrors
   >;
 
-  getConsentToken(
+  getCommitment(
     consentContractAddress: EVMContractAddress,
-    tokenId: TokenId,
-  ): ResultAsync<
-    ConsentToken | null,
-    | ConsentContractError
-    | UninitializedError
-    | BlockchainProviderError
-    | BlockchainCommonErrors
-  >;
-
-  isAddressOptedIn(
-    consentContractAddress: EVMContractAddress,
+    commitment: Commitment,
   ): ResultAsync<
     boolean,
-    | ConsentContractError
-    | ConsentContractRepositoryError
-    | UninitializedError
-    | BlockchainProviderError
-    | AjaxError
-    | BlockchainCommonErrors
-  >;
-
-  getLatestConsentTokenId(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    TokenId | null,
     | ConsentContractError
     | UninitializedError
     | BlockchainProviderError
@@ -154,17 +118,6 @@ export interface IConsentContractRepository {
     | BlockchainCommonErrors
   >;
 
-  getTokenURI(
-    consentContractAddress: EVMContractAddress,
-    tokenId: TokenId,
-  ): ResultAsync<
-    TokenUri | null,
-    | ConsentContractError
-    | UninitializedError
-    | BlockchainProviderError
-    | BlockchainCommonErrors
-  >;
-
   getQueryHorizon(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
@@ -174,34 +127,6 @@ export interface IConsentContractRepository {
     | ConsentContractError
     | BlockchainCommonErrors
   >;
-
-  // Encoders
-  encodeOptIn(
-    consentContractAddress: EVMContractAddress,
-    tokenId: TokenId,
-    dataPermissions: DataPermissions | null,
-  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError>;
-  encodeRestrictedOptIn(
-    consentContractAddress: EVMContractAddress,
-    tokenId: TokenId,
-    signature: Signature,
-    dataPermissions: DataPermissions | null,
-  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError>;
-  encodeAnonymousRestrictedOptIn(
-    consentContractAddress: EVMContractAddress,
-    tokenId: TokenId,
-    signature: Signature,
-    dataPermissions: DataPermissions | null,
-  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError>;
-  encodeOptOut(
-    consentContractAddress: EVMContractAddress,
-    tokenId: TokenId,
-  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError>;
-  encodeUpdateAgreementFlags(
-    consentContractAddress: EVMContractAddress,
-    tokenId: TokenId,
-    dataPermissions: DataPermissions | null,
-  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError>;
 }
 
 export const IConsentContractRepositoryType = Symbol.for(

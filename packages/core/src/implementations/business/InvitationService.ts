@@ -74,8 +74,6 @@ import {
 @injectable()
 export class InvitationService implements IInvitationService {
   public constructor(
-    @inject(IConsentTokenUtilsType)
-    protected consentTokenUtils: IConsentTokenUtils,
     @inject(IConsentContractRepositoryType)
     protected consentRepo: IConsentContractRepository,
     @inject(IInsightPlatformRepositoryType)
@@ -682,18 +680,6 @@ export class InvitationService implements IInvitationService {
             ]),
           ),
       );
-  }
-
-  public getConsentCapacity(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    IConsentCapacity,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | BlockchainCommonErrors
-  > {
-    return this.consentRepo.getConsentCapacity(consentContractAddress);
   }
 
   public getInvitationMetadataByCID(

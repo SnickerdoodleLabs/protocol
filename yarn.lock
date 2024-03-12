@@ -8932,6 +8932,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/core@workspace:packages/core"
   dependencies:
+    "@snickerdoodlelabs/circuits-sdk": "workspace:^"
     "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/contracts-sdk": "workspace:^"
     "@snickerdoodlelabs/indexers": "workspace:^"
