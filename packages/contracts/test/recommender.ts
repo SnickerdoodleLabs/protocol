@@ -53,23 +53,40 @@ describe("Stake for Ranking tests", function () {
       const { consentFactory, consentContract, token, owner, otherAccount } =
         await loadFixture(deployConsentStack);
 
+      // first compute the fee required for a desired slot
+      const mySlot = 65000;
+      const fee = await consentContract.computeFee(mySlot);
+
       // first allow the consent contract a token budget of 1000 tokens
-      await token.approve(
-        await consentContract.getAddress(),
-        ethers.parseUnits("1000"),
-      );
+      await token.approve(await consentContract.getAddress(), fee);
 
       // then initialize a tag
       await consentContract.newGlobalTag(
         "NFT",
         await token.getAddress(),
-        65000,
+        mySlot,
       );
 
       // see if the tag was registered correctly
       expect(
         await consentContract.getNumberOfStakedTags(await token.getAddress()),
       ).to.equal(1);
+
+      // check that the fee is held by the consent contract
+      expect(
+        await token.balanceOf(await consentContract.getAddress()),
+      ).to.equal(fee);
+
+      // now destake the listing
+      await consentContract.removeListing("NFT", await token.getAddress());
+      expect(
+        await token.balanceOf(await consentContract.getAddress()),
+      ).to.equal(0);
+
+      // should be no staked tags now
+      expect(
+        await consentContract.getNumberOfStakedTags(await token.getAddress()),
+      ).to.equal(0);
     });
   });
 });

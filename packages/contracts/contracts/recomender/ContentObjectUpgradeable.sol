@@ -312,8 +312,7 @@ abstract contract ContentObjectUpgradeable is
 
         // interaction
         // refund the staked token to the staker address
-        IERC20(stakingToken).safeTransferFrom(
-            address(this),
+        IERC20(stakingToken).safeTransfer(
             lastListing.staker,
             lastListing.stake
         );
