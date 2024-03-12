@@ -32,20 +32,40 @@ describe("Stake for Ranking tests", function () {
     await consentFactory.waitForDeployment();
 
     await consentFactory.createConsent(owner.address, "snickerdoodle.com");
+    await consentFactory
+      .connect(otherAccount)
+      .createConsent(otherAccount.address, "example.com");
 
     // read the event logs to find the contract address
-    const filter = await consentFactory.filters.ConsentContractDeployed(
-      owner.address,
+    const events1 = await consentFactory.queryFilter(
+      await consentFactory.filters.ConsentContractDeployed(owner.address),
     );
-    const events = await consentFactory.queryFilter(filter);
+    const events2 = await consentFactory.queryFilter(
+      await consentFactory.filters.ConsentContractDeployed(
+        otherAccount.address,
+      ),
+    );
+    console.log("events2: ", events2);
 
     // get a contract handle on the deployed contract
     const consentContract = await ethers.getContractAt(
       "Consent",
-      events[0].args[1],
+      events1[0].args[1],
     );
 
-    return { consentFactory, consentContract, token, owner, otherAccount };
+    const consentContract2 = await ethers.getContractAt(
+      "Consent",
+      events2[0].args[1],
+    );
+
+    return {
+      consentFactory,
+      consentContract,
+      consentContract2,
+      token,
+      owner,
+      otherAccount,
+    };
   }
 
   describe("Stake a tag", function () {
@@ -87,6 +107,66 @@ describe("Stake for Ranking tests", function () {
       expect(
         await consentContract.getNumberOfStakedTags(await token.getAddress()),
       ).to.equal(0);
+    });
+
+    it("Try staking on a single deployed Content Object with two staking accounts", async function () {
+      const { consentFactory, consentContract, token, owner, otherAccount } =
+        await loadFixture(deployConsentStack);
+
+      // first compute the fee required for a desired slot
+      const ownerSlot = 65000;
+      const ownerFee = await consentContract.computeFee(ownerSlot);
+      const otherSlot = 70000;
+      const otherFee = await consentContract.computeFee(otherSlot);
+
+      // give some token to the other account and also give it the STAKER_ROLE
+      await expect(
+        token.transfer(otherAccount.address, otherFee),
+      ).to.changeTokenBalance(token, otherAccount, otherFee);
+      const STAKER_ROLE = await consentContract.STAKER_ROLE();
+      await consentContract.grantRole(STAKER_ROLE, otherAccount.address);
+      expect(
+        await consentContract.hasRole(STAKER_ROLE, otherAccount.address),
+      ).to.equal(true);
+
+      // first allow the consent contract a token budget of 1000 tokens
+      await token.approve(await consentContract.getAddress(), ownerFee);
+      await token
+        .connect(otherAccount)
+        .approve(await consentContract.getAddress(), otherFee);
+
+      // then initialize a tag
+      await consentContract.newGlobalTag(
+        "NFT",
+        await token.getAddress(),
+        ownerSlot,
+      );
+
+      // see if the tag was registered correctly
+      expect(
+        await consentContract.getNumberOfStakedTags(await token.getAddress()),
+      ).to.equal(1);
+
+      // then initialize a tag
+      await expect(
+        consentContract
+          .connect(otherAccount)
+          .newGlobalTag("NFT", await token.getAddress(), otherSlot),
+      ).to.be.revertedWith("Content Object: This tag is already staked.");
+
+      await consentContract
+        .connect(otherAccount)
+        .newGlobalTag("Degen", await token.getAddress(), otherSlot);
+
+      // see if the tag was registered correctly
+      expect(
+        await consentContract.getNumberOfStakedTags(await token.getAddress()),
+      ).to.equal(2);
+
+      // check that the fee is held by the consent contract
+      expect(
+        await token.balanceOf(await consentContract.getAddress()),
+      ).to.equal(ownerFee + otherFee);
     });
   });
 });
