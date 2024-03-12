@@ -473,4 +473,11 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
         ContentFactoryStorage storage $ = _getContentFactoryStorage();
         $.contentAddressCheck[contentAddress] = true;
     }
+
+    /// @notice internal setter function for registering a new staking token
+    /// @param stakingToken address of the new staking token
+    function _registerStakingToken(address stakingToken) internal {
+        ContentFactoryStorage storage $ = _getContentFactoryStorage();
+        $.stakingTokens[stakingToken] = true;
+    }
 }

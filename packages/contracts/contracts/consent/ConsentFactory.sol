@@ -69,6 +69,26 @@ contract ConsentFactory is
         emit ConsentContractDeployed(owner, beaconProxyAddress);
     }
 
+    /// @notice Sets the duration that a listing can remain active without restaking
+    /// @dev can only be called by the DAO
+    /// @param listingDuration The new value in seconds that a listing can remain active without restaking
+    function setListingDuration(uint256 listingDuration) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _setListingDuration(listingDuration);
+    }
+
+    /// @notice Sets the maximum number of tags that can be staked by a content object
+    /// @dev can only be called by the DAO
+    /// @param maxTagsPerListing Integer number representing the new maximum number of tags a content object may stake
+    function setMaxTagsPerListing(uint256 maxTagsPerListing) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _setMaxTagsPerListing(maxTagsPerListing);
+    }
+
+    /// @notice Adds a new staking token to the registered staking token set
+    /// @param stakingToken Address of the new token to register for recommender system staking
+    function registerStakingToken(address stakingToken) external {
+        _registerStakingToken(stakingToken);
+    }
+
     /// @notice Gets the array of questionnaires
     /// @return questionnaireArr Array of registered questionnaires
     function getQuestionnaires() external view returns (string[] memory questionnaireArr) {
