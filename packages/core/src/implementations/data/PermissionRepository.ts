@@ -1,8 +1,8 @@
 import {
-  DomainName,
-  EBackupPriority,
-  EDataWalletPermission,
-  EFieldKey,
+  DataPermissions,
+  ERecordKey,
+  EVMContractAddress,
+  PermissionForStorage,
   PersistenceError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -21,47 +21,31 @@ export class PermissionRepository implements IPermissionRepository {
     protected persistence: IDataWalletPersistence,
   ) {}
 
-  public getPermissions(
-    domain: DomainName,
-  ): ResultAsync<EDataWalletPermission[], PersistenceError> {
+  public getDataPermissionsForByConsentContract(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<DataPermissions | null, PersistenceError> {
     return this.persistence
-      .getField<DomainPermissions>(EFieldKey.DOMAIN_PERMISSIONS)
-      .map((domainPermissions) => {
-        if (domainPermissions == null) {
-          return [];
+      .getObject<PermissionForStorage>(
+        ERecordKey.PERMISSIONS,
+        consentContractAddress,
+      )
+      .map((permissionForStorage) => {
+        if (permissionForStorage == null) {
+          return null;
         }
-
-        const permissions = domainPermissions[domain];
-
-        if (permissions == null) {
-          return [];
-        }
-
-        return permissions;
-      });
-  }
-
-  public setPermissions(
-    domain: DomainName,
-    permissions: EDataWalletPermission[],
-  ): ResultAsync<void, PersistenceError> {
-    return this.persistence
-      .getField<DomainPermissions>(EFieldKey.DOMAIN_PERMISSIONS)
-      .andThen((domainPermissions) => {
-        if (domainPermissions == null) {
-          domainPermissions = {};
-        }
-
-        domainPermissions[domain] = permissions;
-
-        return this.persistence.updateField(
-          EFieldKey.DOMAIN_PERMISSIONS,
-          domainPermissions,
+        return new DataPermissions(
+          permissionForStorage.consentAddress,
+          permissionForStorage.virtual,
+          permissionForStorage.questionnaires,
         );
       });
   }
-}
-
-interface DomainPermissions {
-  [key: DomainName]: EDataWalletPermission[] | undefined;
+  public setDataPermissionsForByConsentContract(
+    permission: PermissionForStorage,
+  ) {
+    return this.persistence.updateRecord<PermissionForStorage>(
+      ERecordKey.PERMISSIONS,
+      permission,
+    );
+  }
 }

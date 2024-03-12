@@ -272,15 +272,11 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
       ERecordKey.PERMISSIONS,
       new VolatileTableIndex(
         ERecordKey.PERMISSIONS,
-        ["consentAddress", false],
-        new PermissionForStorageMigrator(), // Replace with your actual migrator
-        EBackupPriority.NORMAL, // Set backup priority according to your needs
+        ["consentContractAddress", false],
+        new PermissionForStorageMigrator(),
+        EBackupPriority.NORMAL,
         config?.dataWalletBackupIntervalMS ?? testTimeValue,
         config?.backupChunkSizeTarget ?? testTimeValue,
-        [
-          ["permissions", false],
-          ["questionnaireCIDs", false],
-        ],
       ),
     ],
   ]);
