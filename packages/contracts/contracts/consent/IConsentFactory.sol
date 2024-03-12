@@ -9,11 +9,9 @@ interface IConsentFactory is IContentFactory {
     /// @notice Emitted when a Consent contract's Beacon Proxy is deployed
     /// @param owner Indexed address of the owner of the deployed Consent contract Beacon Proxy
     /// @param consentAddress Indexed address of the deployed Consent contract Beacon Proxy
-    /// @param stakingToken Address of the token used to for staking 
     event ConsentContractDeployed(
         address indexed owner,
-        address indexed consentAddress,
-        address indexed stakingToken
+        address indexed consentAddress
     );
 
     function createConsent(address owner, string memory baseURI) external;

@@ -19,14 +19,12 @@ abstract contract ContentObjectUpgradeable is
     struct ContentObjectStorage {
         /// @dev Interface for ContentFactory
         IContentFactory contentFactoryInstance;
-        /// @dev an unsorted tag array which this content object stakes against
-        Tag[] tags;
-        /// @dev helpful
-        mapping(string => uint256) tagIndices;
+        /// @dev an unsorted tag array which this content object stakes against mapped by the staking asset
+        mapping(address => Tag[]) tags;
+        /// @dev map from staking asset to another map from a tag to its index in tags
+        mapping(address => mapping(string => uint256)) tagIndices;
         /// @dev max number of attributes a consent contract can stake against
         uint maxTags;
-        /// @dev address of ERC20 token used for stake for rank
-        address stakingToken;
     }
 
     // keccak256(abi.encode(uint256(keccak256("snickerdoodle.contentobject")) - 1)) & ~bytes32(uint256(0xff))
@@ -46,160 +44,164 @@ abstract contract ContentObjectUpgradeable is
     /**
      * @dev Initializes the contract by setting the address of the ContentFactory.
      */
-    function __ContentObject_init(address factory, address _stakingToken) internal onlyInitializing {
-        __ContentObject_init_unchained(factory, _stakingToken);
+    function __ContentObject_init(address factory) internal onlyInitializing {
+        __ContentObject_init_unchained(factory);
     }
 
     function __ContentObject_init_unchained(
-        address factory, 
-        address _stakingToken
+        address factory
     ) internal onlyInitializing {
         ContentObjectStorage storage $ = _getContentObjectStorage();
         $.contentFactoryInstance = IContentFactory(factory);
-        $.stakingToken = _stakingToken;
     }
 
     /* Function Implementations */
 
-    /// @notice get the address of the primary staking token used for stake for rank
-    function getStakingToken() external view returns (address) {
-        ContentObjectStorage storage $ = _getContentObjectStorage();
-        return $.stakingToken;
-    }
-
-    /// @notice Get the slot number for a given tag associated with this content object
+    /// @notice Get the local tag index for a given tag associated with this content object
     /// @param tag Human readable string to check
-    function tagIndices(string calldata tag) external view returns (uint256) {
+    /// @param stakingToken Address of the token used for staking recommender listings
+    function tagIndices(string calldata tag, address stakingToken) external view returns (uint256) {
         ContentObjectStorage storage $ = _getContentObjectStorage();
-        return $.tagIndices[tag];
+        return $.tagIndices[stakingToken][tag];
     }
 
     /// @notice Get the number of tags staked by this content object
-    function getNumberOfStakedTags() external view returns (uint256) {
+    /// @param stakingToken Address of the token used for staking recommender listings
+    function getNumberOfStakedTags(address stakingToken) external view returns (uint256) {
         ContentObjectStorage storage $ = _getContentObjectStorage();
-        return $.tags.length;
+        return $.tags[stakingToken].length;
+    }
+
+    /// @notice Get the tag array
+    /// @dev we assume the size of this array is small enough to return without windowing
+    /// @param stakingToken Address of the token used for staking recommender listings
+    function getTagArray(address stakingToken) external view returns (Tag[] memory) {
+        ContentObjectStorage storage $ = _getContentObjectStorage();
+        return $.tags[stakingToken];
     }
 
     /// @notice endpoint to update tag limit to that specified by ContentFactory
+    /// @dev anyone may call this function to bring the content object into agreement with the factory
     function updateMaxTagsLimit() external {
         ContentObjectStorage storage $ = _getContentObjectStorage();
         $.maxTags = $.contentFactoryInstance.maxTagsPerListing();
     }
 
-    /// @notice Get the tag array (we assume the size of this array is small enough to return without windowing)
-    function getTagArray() external view returns (Tag[] memory) {
-        ContentObjectStorage storage $ = _getContentObjectStorage();
-        return $.tags;
-    }
-
     /// @notice Adds a new tag to the global namespace and stakes it for this consent contract
     /// @dev  2^256-1 <-> _newSlot <-> 0
     /// @param tag Human readable string denoting the target tag to stake
+    /// @param stakingToken Address of the token used for staking recommender listings
     /// @param _newSlot New linked list entry that prime the linked list for this tag
-    function _newGlobalTag(string memory tag, uint256 _newSlot) internal {
+    function _newGlobalTag(string memory tag, address stakingToken, uint256 _newSlot) internal {
         ContentObjectStorage storage $ = _getContentObjectStorage();
         // check
         require(
-            $.tags.length < $.maxTags,
+            $.tags[stakingToken].length < $.maxTags,
             "Content Object: Tag budget exhausted"
         );
         require(
-            $.tagIndices[tag] == 0,
+            $.tagIndices[stakingToken][tag] == 0,
             "Content Object: This tag is already staked."
         );
 
         // effects
         uint256 stake = computeFee(_newSlot);
-        $.tags.push(Tag(tag, _newSlot, _msgSender(), stake));
-        $.tagIndices[tag] = $.tags.length;
+        $.tags[stakingToken].push(Tag(tag, _newSlot, _msgSender(), stake));
+        $.tagIndices[stakingToken][tag] = $.tags[stakingToken].length;
 
         // interaction
-        IERC20($.stakingToken).safeTransferFrom(
+        IERC20(stakingToken).safeTransferFrom(
             _msgSender(),
             address(this),
             stake
         );
-        $.contentFactoryInstance.initializeTag(tag, _newSlot);
+        $.contentFactoryInstance.initializeTag(tag, stakingToken, _newSlot);
     }
 
     /// @notice Stakes a tag that has already been added to the global namespace but hasn't been used locally yet
     /// @dev  _newSlot <-> _existingSlot
     /// @param tag Human readable string denoting the target tag to stake
+    /// @param stakingToken Address of the token used for staking recommender listings
     /// @param _newSlot New linked list entry that will point to _existingSlot slot
     /// @param _existingSlot slot that will be ranked next lowest to _newSlot
     function _newLocalTagUpstream(
         string memory tag,
+        address stakingToken, 
         uint256 _newSlot,
         uint256 _existingSlot
     ) internal {
         ContentObjectStorage storage $ = _getContentObjectStorage();
         // check
         require(
-            $.tags.length < $.maxTags,
+            $.tags[stakingToken].length < $.maxTags,
             "Consent Contract: Tag budget exhausted"
         );
         require(
-            $.tagIndices[tag] == 0,
+            $.tagIndices[stakingToken][tag] == 0,
             "Consent Contract: This tag is already staked by this contract"
         );
 
         // effects
         uint256 stake = computeFee(_newSlot);
-        $.tags.push(Tag(tag, _newSlot, _msgSender(), stake));
-        $.tagIndices[tag] = $.tags.length;
+        $.tags[stakingToken].push(Tag(tag, _newSlot, _msgSender(), stake));
+        $.tagIndices[stakingToken][tag] = $.tags[stakingToken].length;
 
         // interaction
-        IERC20($.stakingToken).safeTransferFrom(
+        IERC20(stakingToken).safeTransferFrom(
             _msgSender(),
             address(this),
             stake
         );
-        $.contentFactoryInstance.insertUpstream(tag, _newSlot, _existingSlot);
+        $.contentFactoryInstance.insertUpstream(tag, stakingToken, _newSlot, _existingSlot);
     }
 
     /// @notice Stakes a tag that has already been added to the global namespace but hasn't been used locally yet
     /// @dev  _existingSlot <-> _newSlot
     /// @param tag Human readable string denoting the target tag to stake
+    /// @param stakingToken Address of the token used for staking recommender listings
     /// @param _existingSlot upstream pointer that will point to _newSlot
     /// @param _newSlot New linked list entry that will be ranked right below _existingSlot
     function _newLocalTagDownstream(
         string memory tag,
+        address stakingToken, 
         uint256 _existingSlot,
         uint256 _newSlot
     ) internal {
         ContentObjectStorage storage $ = _getContentObjectStorage();
         // check
         require(
-            $.tags.length < $.maxTags,
+            $.tags[stakingToken].length < $.maxTags,
             "Consent Contract: Tag budget exhausted"
         );
         require(
-            $.tagIndices[tag] == 0,
+            $.tagIndices[stakingToken][tag] == 0,
             "Consent Contract: This tag is already staked by this contract"
         );
 
         // effects
         uint256 stake = computeFee(_newSlot);
-        $.tags.push(Tag(tag, _newSlot, _msgSender(), stake));
-        $.tagIndices[tag] = $.tags.length;
+        $.tags[stakingToken].push(Tag(tag, _newSlot, _msgSender(), stake));
+        $.tagIndices[stakingToken][tag] = $.tags[stakingToken].length;
 
         // interaction
-        IERC20($.stakingToken).safeTransferFrom(
+        IERC20(stakingToken).safeTransferFrom(
             _msgSender(),
             address(this),
             stake
         );
-        $.contentFactoryInstance.insertDownstream(tag, _existingSlot, _newSlot);
+        $.contentFactoryInstance.insertDownstream(tag, stakingToken, _existingSlot, _newSlot);
     }
 
     /// @notice Move an existing listing from its current slot to upstream of a new existing slot
     /// @dev This function assumes that tag is not the only member in the global list (i.e. getTagTotal(tag) > 1)
     /// @dev This function also assumes that the listing is not expired
     /// @param tag Human readable string denoting the target tag to stake
+    /// @param stakingToken Address of the token used for staking recommender listings
     /// @param _newSlot The new slot to move the listing to
     /// @param _existingSlot The neighboring listing to _newSlow
     function _moveExistingListingUpstream(
         string memory tag,
+        address stakingToken,
         uint256 _newSlot,
         uint256 _existingSlot
     ) internal {
@@ -207,111 +209,116 @@ abstract contract ContentObjectUpgradeable is
 
         // check
         require(
-            $.tagIndices[tag] > 0,
+            $.tagIndices[stakingToken][tag] > 0,
             "Consent Contract: This tag has not been staked"
         );
 
         // effects
-        uint256 removalSlot = $.tags[$.tagIndices[tag] - 1].slot;
-        $.tags[$.tagIndices[tag] - 1].slot = _newSlot;
+        uint256 removalSlot = $.tags[stakingToken][$.tagIndices[stakingToken][tag] - 1].slot;
+        $.tags[stakingToken][$.tagIndices[stakingToken][tag] - 1].slot = _newSlot;
 
-        uint256 deltaStake = computeFee(_newSlot - removalSlot); // compute the extra stake required
-        $.tags[$.tagIndices[tag] - 1].stake += deltaStake; // update tag listing with stake delta
+        uint256 deltaStake = computeFee(_newSlot) - computeFee(removalSlot); // compute the extra stake required
+        $.tags[stakingToken][$.tagIndices[stakingToken][tag] - 1].stake += deltaStake; // update tag listing with stake delta
 
         // interaction
         // pull stake equal to the delta between old slot and new slot
-        IERC20($.stakingToken).safeTransferFrom(
+        IERC20(stakingToken).safeTransferFrom(
             _msgSender(),
             address(this),
             deltaStake
         );
         // remove from current slot, reverts if the listing was replaced after expiration
-        $.contentFactoryInstance.removeListing(tag, removalSlot);
+        $.contentFactoryInstance.removeListing(tag, stakingToken, removalSlot);
         // add to the new slot, reverts if _existingSlot is not initialized already
-        $.contentFactoryInstance.insertUpstream(tag, _newSlot, _existingSlot);
+        $.contentFactoryInstance.insertUpstream(tag, stakingToken, _newSlot, _existingSlot);
     }
 
     /// @notice Restakes a listing from this registry that has expired (works for head and tail listings)
     /// @param tag Human readable string denoting the target tag to stake
-    function _restakeExpiredListing(string memory tag) internal {
+    /// @param stakingToken Address of the token used for staking recommender listings
+    function _restakeExpiredListing(string memory tag, address stakingToken) internal {
         ContentObjectStorage storage $ = _getContentObjectStorage();
         // check
         require(
-            $.tagIndices[tag] > 0,
+            $.tagIndices[stakingToken][tag] > 0,
             "Consent Contract: This tag has not been staked"
         );
 
         // interaction
         $.contentFactoryInstance.replaceExpiredListing(
             tag,
-            $.tags[$.tagIndices[tag] - 1].slot
+            stakingToken,
+            $.tags[stakingToken][$.tagIndices[stakingToken][tag] - 1].slot
         );
     }
 
     /// @notice Replaces an existing listing that has expired (works for head and tail listings)
     /// @param tag Human readable string denoting the target tag to stake
+    /// @param stakingToken Address of the token used for staking recommender listings
     /// @param _slot The expired slot to replace with a new listing
-    function _replaceExpiredListing(string memory tag, uint256 _slot) internal {
+    function _replaceExpiredListing(string memory tag, address stakingToken, uint256 _slot) internal {
         ContentObjectStorage storage $ = _getContentObjectStorage();
         // check
         require(
-            $.tags.length < $.maxTags,
+            $.tags[stakingToken].length < $.maxTags,
             "Consent Contract: Tag budget exhausted"
         );
         require(
-            $.tagIndices[tag] == 0,
+            $.tagIndices[stakingToken][tag] == 0,
             "Consent Contract: This tag is already staked by this contract"
         );
 
         // effects
         uint256 stake = computeFee(_slot);
-        $.tags.push(Tag(tag, _slot, _msgSender(), stake));
-        $.tagIndices[tag] = $.tags.length;
+        $.tags[stakingToken].push(Tag(tag, _slot, _msgSender(), stake));
+        $.tagIndices[stakingToken][tag] = $.tags[stakingToken].length;
 
         // interaction
-        IERC20($.stakingToken).safeTransferFrom(
+        IERC20(stakingToken).safeTransferFrom(
             _msgSender(),
             address(this),
             stake
         );
-        $.contentFactoryInstance.replaceExpiredListing(tag, _slot);
+        $.contentFactoryInstance.replaceExpiredListing(tag, stakingToken, _slot);
     }
 
     /// @notice Removes this contract's listing under the specified tag
     /// @param tag Human readable string denoting the target tag to destake
+    /// @param stakingToken Address of the token used for staking recommender listings
     function _removeListing(
-        string memory tag
+        string memory tag,
+        address stakingToken
     ) internal returns (string memory) {
         ContentObjectStorage storage $ = _getContentObjectStorage();
         // check
         require(
-            $.tagIndices[tag] > 0,
+            $.tagIndices[stakingToken][tag] > 0,
             "Consent Contract: This tag has not been staked"
         );
 
         // effects - we use the array element deletion pattern used by OpenZeppelin
-        uint256 lastIndex = $.tags.length - 1;
-        uint256 removalIndex = $.tagIndices[tag] - 1; // remember to decriment the stored value by 1
+        uint256 lastIndex = $.tags[stakingToken].length - 1;
+        uint256 removalIndex = $.tagIndices[stakingToken][tag] - 1; // remember to decriment the stored value by 1
 
-        Tag memory lastListing = $.tags[lastIndex];
+        Tag memory lastListing = $.tags[stakingToken][lastIndex];
 
-        uint256 removalSlot = $.tags[removalIndex].slot;
-        $.tags[removalIndex] = lastListing;
-        $.tagIndices[lastListing.tag] = removalIndex + 1; // add 1 back for storage in tagIndices
+        uint256 removalSlot = $.tags[stakingToken][removalIndex].slot;
+        $.tags[stakingToken][removalIndex] = lastListing;
+        $.tagIndices[stakingToken][lastListing.tag] = removalIndex + 1; // add 1 back for storage in tagIndices
 
-        delete $.tagIndices[tag];
-        $.tags.pop();
+        delete $.tagIndices[stakingToken][tag];
+        $.tags[stakingToken].pop();
 
         // interaction
         // refund the staked token to the staker address
-        IERC20($.stakingToken).safeTransferFrom(
+        IERC20(stakingToken).safeTransferFrom(
             address(this),
             lastListing.staker,
             lastListing.stake
         );
         // when removing a listing, if it has expired, the slot may have been usurped by another user
         // we must catch this scenario as it is a valid token mechanic
-        try $.contentFactoryInstance.removeListing(tag, removalSlot) {
+        try $.contentFactoryInstance.removeListing(tag, stakingToken, removalSlot) {
             return "Listing removed";
         } catch Error(string memory /*reason*/) {
             // we don't revert because we want to reclaimed the staked tag

@@ -72,12 +72,11 @@ contract Consent is
     function initialize(
         address _consentOwner,
         string memory baseURI_,
-        address _contractFactoryAddress,
-        address _stakingToken
+        address _contractFactoryAddress
     ) public initializer {
         __Pausable_init();
         __AccessControl_init();
-        __ContentObject_init(_contractFactoryAddress, _stakingToken);
+        __ContentObject_init(_contractFactoryAddress);
 
         // set the queryHorizon to be the current block number;
         queryHorizon = block.number;
@@ -258,40 +257,46 @@ contract Consent is
     /// @dev  2^256-1 <-> _newSlot <-> 0
     /// @dev Caller must approve a sufficient amount of staking token before calling
     /// @param tag Human readable string denoting the target tag to stake
+    /// @param stakingToken Address of the token used for staking recommender listings
     /// @param _newSlot New linked list entry that prime the linked list for this tag
     function newGlobalTag(
         string calldata tag,
+        address stakingToken,
         uint256 _newSlot
     ) external onlyRole(STAKER_ROLE) {
-        _newGlobalTag(tag, _newSlot);
+        _newGlobalTag(tag, stakingToken, _newSlot);
     }
 
     /// @notice Stakes a tag that has already been added to the global namespace but hasn't been used locally yet
     /// @dev  _newSlot <-> _existingSlot
     /// @dev Caller must approve a sufficient amount of staking token before calling
     /// @param tag Human readable string denoting the target tag to stake
+    /// @param stakingToken Address of the token used for staking recommender listings
     /// @param _newSlot New linked list entry that will point to _existingSlot slot
     /// @param _existingSlot slot that will be ranked next lowest to _newSlot
     function newLocalTagUpstream(
         string calldata tag,
+        address stakingToken,
         uint256 _newSlot,
         uint256 _existingSlot
     ) external onlyRole(STAKER_ROLE) {
-        _newLocalTagUpstream(tag, _newSlot, _existingSlot);
+        _newLocalTagUpstream(tag, stakingToken, _newSlot, _existingSlot);
     }
 
     /// @notice Stakes a tag that has already been added to the global namespace but hasn't been used locally yet
     /// @dev  _existingSlot -> _newSlot
     /// @dev Caller must approve a sufficient amount of staking token before calling
     /// @param tag Human readable string denoting the target tag to stake
+    /// @param stakingToken Address of the token used for staking recommender listings
     /// @param _existingSlot upstream pointer that will point to _newSlot
     /// @param _newSlot New linked list entry that will be ranked right below _existingSlot
     function newLocalTagDownstream(
         string calldata tag,
+        address stakingToken,
         uint256 _existingSlot,
         uint256 _newSlot
     ) external onlyRole(STAKER_ROLE) {
-        _newLocalTagDownstream(tag, _existingSlot, _newSlot);
+        _newLocalTagDownstream(tag, stakingToken, _existingSlot, _newSlot);
     }
 
     /// @notice Move an existing listing from its current slot to upstream of a new existing slot
@@ -299,40 +304,47 @@ contract Consent is
     /// @dev This function also assumes that the listing is not expired
     /// @dev Caller must approve a sufficient amount of staking token before calling
     /// @param tag Human readable string denoting the target tag to stake
+    /// @param stakingToken Address of the token used for staking recommender listings
     /// @param _newSlot The new slot to move the listing to
     /// @param _existingSlot The neighboring listing to _newSlow
     function moveExistingListingUpstream(
         string calldata tag,
+        address stakingToken,
         uint256 _newSlot,
         uint256 _existingSlot
     ) external onlyRole(STAKER_ROLE) {
-        _moveExistingListingUpstream(tag, _newSlot, _existingSlot);
+        _moveExistingListingUpstream(tag, stakingToken, _newSlot, _existingSlot);
     }
 
     /// @notice Restakes a listing from this registry that has expired (works for head and tail listings)
     /// @param tag Human readable string denoting the target tag to stake
     function restakeExpiredListing(
-        string calldata tag
+        string calldata tag,
+        address stakingToken
     ) external onlyRole(STAKER_ROLE) {
-        _restakeExpiredListing(tag);
+        _restakeExpiredListing(tag, stakingToken);
     }
 
     /// @notice Replaces an existing listing that has expired (works for head and tail listings)
     /// @param tag Human readable string denoting the target tag to stake
+    /// @param stakingToken Address of the token used for staking recommender listings
     /// @param _slot The expired slot to replace with a new listing
     function replaceExpiredListing(
         string calldata tag,
+        address stakingToken,
         uint256 _slot
     ) external onlyRole(STAKER_ROLE) {
-        _replaceExpiredListing(tag, _slot);
+        _replaceExpiredListing(tag, stakingToken, _slot);
     }
 
     /// @notice Removes this contract's listing under the specified tag
     /// @param tag Human readable string denoting the target tag to destake
+    /// @param stakingToken Address of the token used for staking recommender listings
     function removeListing(
-        string calldata tag
+        string calldata tag,
+        address stakingToken
     ) external onlyRole(STAKER_ROLE) returns (string memory) {
-        return _removeListing(tag);
+        return _removeListing(tag, stakingToken);
     }
 
     /// @notice Add a domain to the domains array

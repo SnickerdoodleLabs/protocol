@@ -25,7 +25,7 @@ interface IConsent is IContentObject, IERC7529 {
     function totalSupply() external view returns (uint256);
 
     function checkCommitments(bytes32[] calldata commitmentArray) external view returns (uint256[] memory);
-    
+
     function checkNonces(uint256[] calldata nonce) external view returns (bool[] memory);
 
     function openOptInDisabled() external view returns (bool);
@@ -62,32 +62,36 @@ interface IConsent is IContentObject, IERC7529 {
     function requestForData(string calldata ipfsCID) external;
 
     // ranking functions
-    function newGlobalTag(string calldata tag, uint256 _newSlot) external;
+    function newGlobalTag(string calldata tag, address stakingToken, uint256 _newSlot) external;
 
     function newLocalTagUpstream(
         string calldata tag,
+        address stakingToken,
         uint256 _newSlot,
         uint256 _existingSlot
     ) external;
 
     function newLocalTagDownstream(
         string calldata tag,
+        address stakingToken,
         uint256 _existingSlot,
         uint256 _newSlot
     ) external;
 
     function moveExistingListingUpstream(
         string calldata tag,
+        address stakingToken,
         uint256 _newSlot,
         uint256 _existingSlot
     ) external;
 
-    function restakeExpiredListing(string calldata tag) external;
+    function restakeExpiredListing(string calldata tag, address stakingToken) external;
 
-    function replaceExpiredListing(string calldata tag, uint256 _slot) external;
+    function replaceExpiredListing(string calldata tag, address stakingToken, uint256 _slot) external;
 
     function removeListing(
-        string calldata tag
+        string calldata tag,
+        address stakingToken
     ) external returns (string memory);
 
     // erc7529 functions

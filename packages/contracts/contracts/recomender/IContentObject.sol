@@ -13,13 +13,11 @@ interface IContentObject {
 
     /* Functions */
 
-    function getStakingToken() external view returns(address); 
+    function tagIndices(string calldata tag, address stakingToken) external view returns (uint256);
 
-    function tagIndices(string calldata) external view returns (uint256);
+    function getNumberOfStakedTags(address stakingToken) external view returns (uint256);
 
-    function getNumberOfStakedTags() external view returns (uint256);
+    function getTagArray(address stakingToken) external view returns (Tag[] memory);
 
     function updateMaxTagsLimit() external;
-
-    function getTagArray() external view returns (Tag[] memory);
 }

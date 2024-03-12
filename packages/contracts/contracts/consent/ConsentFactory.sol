@@ -36,11 +36,11 @@ contract ConsentFactory is
     /// @dev The deploying address recieves the DEFAULT_ADMIN_ROL on deployment
     /// @dev After deployment, the DAO contract should be given the DEFAULT_ADMIN_ROLE and deployer reliquish
     /// @param _consentImpAddress Address of implementation contract for the Consent Contract
-    /// @param _stakingToken Address of ERC20 token used for stake for rank
-    function initialize(address _consentImpAddress, address _stakingToken) initializer public {
+    /// @param _governanceToken Address of the ERC20-compatible protocol token
+    function initialize(address _consentImpAddress, address _governanceToken) initializer public {
         __Pausable_init();
         __AccessControl_init();
-        __ContentFactory_init(_stakingToken, 2 weeks, 20);
+        __ContentFactory_init(_governanceToken, 2 weeks, 20);
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
@@ -60,14 +60,13 @@ contract ConsentFactory is
     function createConsent(address owner, string memory baseURI) external {
 
         BeaconProxy beaconProxy = new BeaconProxy(beaconAddress, 
-        abi.encodeWithSelector(Consent(address(0)).initialize.selector, owner, baseURI, address(this), getStakingToken()));
+        abi.encodeWithSelector(Consent(address(0)).initialize.selector, owner, baseURI, address(this)));
 
         address beaconProxyAddress = address(beaconProxy);
 
         _setContentObjectAddress(beaconProxyAddress);
 
-        // TODO revisit all emits to confirm we are emitting useful info
-        emit ConsentContractDeployed(owner, beaconProxyAddress, getStakingToken());
+        emit ConsentContractDeployed(owner, beaconProxyAddress);
     }
 
     /// @notice Gets the array of questionnaires

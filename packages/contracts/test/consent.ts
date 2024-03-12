@@ -64,9 +64,15 @@ describe("Consent Contract and Factory Tests", function () {
     it("Check for correct factory constants", async function () {
       const { consentFactory, token } = await loadFixture(deployConsentStack);
 
-      // check that the staking token was set correctly
-      const stakingToken = await consentFactory.getStakingToken();
-      expect(stakingToken).to.equal(token.target);
+      // check that the governance token was set correctly
+      const governanceToken = await consentFactory.getGovernanceToken();
+      expect(governanceToken).to.equal(token.target);
+
+      // check that the governance token is a staking token
+      const isStakingToken = await consentFactory.isStakingToken(
+        governanceToken,
+      );
+      expect(isStakingToken).to.equal(true);
 
       // check the listing duration is 2 weeks
       const listingDuration = await consentFactory.listingDuration();
@@ -113,7 +119,7 @@ describe("Consent Contract and Factory Tests", function () {
         consentFactory.createConsent(owner.address, "snickerdoodle.com"),
       )
         .to.emit(consentFactory, "ConsentContractDeployed")
-        .withArgs(owner.address, anyValue, token.target);
+        .withArgs(owner.address, anyValue);
 
       // read the event logs to find the contract address
       const filter = await consentFactory.filters.ConsentContractDeployed(
@@ -161,7 +167,7 @@ describe("Consent Contract and Factory Tests", function () {
         consentFactory.createConsent(owner.address, "snickerdoodle.com"),
       )
         .to.emit(consentFactory, "ConsentContractDeployed")
-        .withArgs(owner.address, anyValue, token.target);
+        .withArgs(owner.address, anyValue);
 
       // read the event logs to find the contract address
       const filter = await consentFactory.filters.ConsentContractDeployed(
@@ -200,7 +206,7 @@ describe("Consent Contract and Factory Tests", function () {
         consentFactory.createConsent(owner.address, "snickerdoodle.com"),
       )
         .to.emit(consentFactory, "ConsentContractDeployed")
-        .withArgs(owner.address, anyValue, token.target);
+        .withArgs(owner.address, anyValue);
 
       // read the event logs to find the contract address
       const filter = await consentFactory.filters.ConsentContractDeployed(

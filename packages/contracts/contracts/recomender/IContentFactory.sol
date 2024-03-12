@@ -18,25 +18,32 @@ interface IContentFactory {
     /// @dev the full time-history of the marketplace can be reconstructed from this event
     /// @param oldOccupant address of the previous occupant of the given slot
     /// @param newOccupant address of the new occupant of the given slot
+    /// @param stakingToken the token used for staking listings in the recommender system
     /// @param tag the human-readable tag associated with the update
     /// @param slot The slot (i.e. amount of stake) associated with the update
     event RankingUpdate(
         address indexed oldOccupant,
         address indexed newOccupant,
+        address indexed stakingToken,
         string tag,
         uint256 slot
     );
 
     /* Function Declarations */
 
+    function getGovernanceToken() external view returns (address);
+
+    function isStakingToken(address tokenAddress) external view returns (bool);
+
     function listingDuration() external view returns (uint256);
 
     function maxTagsPerListing() external view returns (uint256);
 
-    function getTagTotal(string calldata tag) external view returns (uint256);
+    function getTagTotal(string calldata tag, address stakingToken) external view returns (uint256);
 
     function getListingsForward(
         string calldata tag,
+        address stakingToken,
         uint256 _startingSlot,
         uint256 numSlots,
         bool filterActive
@@ -44,18 +51,19 @@ interface IContentFactory {
 
     function getListingsBackward(
         string calldata tag,
+        address stakingToken,
         uint256 _startingSlot,
         uint256 numSlots,
         bool filterActive
     ) external view returns (string[] memory, Listing[] memory);
 
-    function initializeTag(string calldata tag, uint256 _newHead) external;
+    function initializeTag(string calldata tag, address stakingToken, uint256 _newHead) external;
 
-    function insertUpstream(string calldata tag, uint256 _newSlot, uint256 _existingSlot) external;
+    function insertUpstream(string calldata tag, address stakingToken, uint256 _newSlot, uint256 _existingSlot) external;
 
-    function insertDownstream(string calldata tag, uint256 _existingSlot, uint256 _newSlot) external;
+    function insertDownstream(string calldata tag, address stakingToken, uint256 _existingSlot, uint256 _newSlot) external;
 
-    function replaceExpiredListing(string calldata tag, uint256 _slot) external;
+    function replaceExpiredListing(string calldata tag, address stakingToken, uint256 _slot) external;
 
-    function removeListing(string calldata tag, uint256 _removedSlot) external;
+    function removeListing(string calldata tag, address stakingToken, uint256 _removedSlot) external;
 }
