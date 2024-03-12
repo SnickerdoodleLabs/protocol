@@ -13,6 +13,7 @@ require("./tasks/crumbs.js");
 require("./tasks/utils.js");
 require("./tasks/sift.js");
 require("./tasks/reward.js");
+require("./tasks/layer-zero-rewards.js");
 
 require("dotenv").config();
 
@@ -38,7 +39,7 @@ const accounts = key ? [key] : { mnemonic };
  */
 module.exports = {
   solidity: {
-    version: "0.8.9",
+    version: "0.8.20",
     settings: {
       optimizer: {
         enabled: true,
@@ -93,6 +94,12 @@ module.exports = {
       chainId: 1,
       url: urlOverride || "http://127.0.0.1:8549",
     },
+    sepolia: {
+      //ethereum testnet
+      accounts: accounts,
+      chainId: 11155111,
+      url: urlOverride || "https://rpc.sepolia.org",
+    },
     rinkeby: {
       // ethereum testnet
       accounts: accounts,
@@ -103,7 +110,7 @@ module.exports = {
       // polygon testnet
       accounts: accounts,
       chainId: 80001,
-      url: urlOverride || "http://127.0.0.1:8549",
+      url: urlOverride || "https://rpc-mumbai.maticvigil.com",
       gas: 6000000,
       gasPrice: 8000000000,
     },

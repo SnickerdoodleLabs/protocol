@@ -64,6 +64,28 @@ const REWARD = function () {
   }
 };
 
+// dynamic artifact imports to prevent error when contracts are not compiled
+const OFT20REWARD = function () {
+  const artifactPath =
+    "./artifacts/contracts/testing/OFT20Reward.sol/OFT20Reward.json";
+  if (fs.existsSync(artifactPath)) {
+    return require("../" + artifactPath);
+  } else {
+    return null;
+  }
+};
+
+// dynamic artifact imports to prevent error when contracts are not compiled
+const ONFT721REWARD = function () {
+  const artifactPath =
+    "./artifacts/contracts/testing/ONFT721Reward.sol/ONFT721Reward.json";
+  if (fs.existsSync(artifactPath)) {
+    return require("../" + artifactPath);
+  } else {
+    return null;
+  }
+};
+
 const gasSettings = async function (txCount) {
   const hre = require("hardhat");
   const [account] = await hre.ethers.getSigners();
@@ -281,4 +303,6 @@ module.exports = {
   crumbsContract,
   siftContract,
   REWARD,
+  OFT20REWARD,
+  ONFT721REWARD,
 };
