@@ -103,13 +103,29 @@ contract Consent is
     /// @notice Returns the index slots for each identity commitment in the input array
     /// @dev If a commitment doesn't exist, its index will be 0
     /// @param commitsToCheck an array of 32 byte identity commitments
-    function checkCommitments(bytes32[] calldata commitsToCheck) external view returns (uint256[] memory) {
+    function checkCommitments(
+        bytes32[] calldata commitsToCheck
+    ) external view returns (uint256[] memory) {
         uint256 arraySize = commitsToCheck.length;
         uint256[] memory commitmentIndexes = new uint256[](arraySize);
         for (uint i = 0; i < arraySize; i++) {
             commitmentIndexes[i] = commitments[commitsToCheck[i]];
         }
         return commitmentIndexes;
+    }
+
+    /// @notice Used to check if some nonces have been used before
+    /// @dev returns an array of bools
+    /// @param noncesToCheck an array of uint256 ints
+    function checkNonces(
+        uint256[] calldata noncesToCheck
+    ) external view returns (bool[] memory) {
+        uint256 arraySize = noncesToCheck.length;
+        bool[] memory noncesUsed = new bool[](arraySize);
+        for (uint i = 0; i < arraySize; i++) {
+            noncesUsed[i] = nonces[noncesToCheck[i]];
+        }
+        return noncesUsed;
     }
 
     /// @notice Allows address with PAUSER_ROLE to disable open opt ins
