@@ -872,9 +872,8 @@ export class QueryService implements IQueryService {
     const virtualQuestionnairesSet = new Set<EWalletDataType>();
 
     subqueries.forEach((subQuery) => {
-      if (subQuery.name === "questionnaire") {
-        const cid: IpfsCID = (subQuery as AST_QuestionnaireQuery)
-          .questionnaireIndex!;
+      if (subQuery instanceof AST_QuestionnaireQuery) {
+        const cid: IpfsCID = subQuery.questionnaireIndex!;
         questionnaireIds.push(cid);
       } else {
         const virtualQuestionnaire = subQuery.getPermission();
