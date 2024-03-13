@@ -15,7 +15,7 @@ import {
   EVMPrivateKey,
   IDynamicRewardParameter,
   InvalidParametersError,
-  InvalidQueryStatusError,
+  InvalidStatusError,
   IpfsCID,
   IPFSError,
   MethodSupportError,
@@ -80,7 +80,7 @@ export interface IQueryService {
     | IPFSError
     | QueryFormatError
     | PersistenceError
-    | InvalidQueryStatusError
+    | InvalidStatusError
     | InvalidParametersError
   >;
 

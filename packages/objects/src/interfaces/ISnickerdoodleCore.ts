@@ -83,7 +83,7 @@ import {
   MissingWalletDataTypeError,
   ParserError,
   MethodSupportError,
-  InvalidQueryStatusError,
+  InvalidStatusError,
 } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
@@ -844,11 +844,7 @@ export interface IQuestionnaireMethods {
     sourceDomain: DomainName | undefined,
   ): ResultAsync<
     EWalletDataType[],
-    | UninitializedError
-    | BlockchainCommonErrors
-    | AjaxError
-    | PersistenceError
-    | ConsentFactoryContractError
+    ConsentContractError | UninitializedError | BlockchainCommonErrors
   >;
 }
 
@@ -913,7 +909,7 @@ export interface ISnickerdoodleCore {
     | IPFSError
     | QueryFormatError
     | PersistenceError
-    | InvalidQueryStatusError
+    | InvalidStatusError
     | InvalidParametersError
   >;
 

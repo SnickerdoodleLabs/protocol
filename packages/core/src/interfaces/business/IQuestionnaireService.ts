@@ -42,11 +42,7 @@ export interface IQuestionnaireService {
     sourceDomain: DomainName | undefined,
   ): ResultAsync<
     EWalletDataType[],
-    | UninitializedError
-    | BlockchainCommonErrors
-    | AjaxError
-    | PersistenceError
-    | ConsentFactoryContractError
+    ConsentContractError | UninitializedError | BlockchainCommonErrors
   >;
   /**
    * Returns a list of questionnaires that the user can complete, which are requested by a particular

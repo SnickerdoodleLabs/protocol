@@ -29,7 +29,7 @@ import {
   UnixTimestamp,
   IQueryDeliveryItems,
   JSONString,
-  InvalidQueryStatusError,
+  InvalidStatusError,
   InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -438,7 +438,7 @@ describe("QueryService.approveQuery() tests", () => {
     expect(result).toBeDefined();
     expect(result.isErr()).toBeTruthy();
     const res = result._unsafeUnwrapErr();
-    expect(res).toBeInstanceOf(InvalidQueryStatusError);
+    expect(res).toBeInstanceOf(InvalidStatusError);
   });
 
   test("upsertQueryStatus fails, invalid address supplied with reward params", async () => {
