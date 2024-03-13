@@ -1,7 +1,11 @@
 import {
   DataPermissions,
+  EPermissionType,
   ERecordKey,
   EVMContractAddress,
+  EWalletDataType,
+  IpfsCID,
+  Permission,
   PermissionForStorage,
   PersistenceError,
 } from "@snickerdoodlelabs/objects";
@@ -29,14 +33,34 @@ export class PermissionRepository implements IPermissionRepository {
         ERecordKey.PERMISSIONS,
         consentContractAddress,
       )
-      .map((permissionForStorage) => {
-        if (permissionForStorage == null) {
+      .map((permissionStorage) => {
+        if (permissionStorage == null) {
           return null;
         }
+        const virtual: EWalletDataType[] = [];
+        const questionnaires: IpfsCID[] = [];
+
+        permissionStorage.permissions.forEach((permission) => {
+          if (permission.allowed) {
+            switch (permission.type) {
+              case EPermissionType.Virtual:
+                if (permission.virtual !== null) {
+                  virtual.push(permission.virtual as EWalletDataType);
+                }
+                break;
+              case EPermissionType.Questionnaires:
+                if (permission.questionnaires !== null) {
+                  questionnaires.push(permission.questionnaires as IpfsCID);
+                }
+                break;
+            }
+          }
+        });
+
         return new DataPermissions(
-          permissionForStorage.consentAddress,
-          permissionForStorage.virtual,
-          permissionForStorage.questionnaires,
+          consentContractAddress,
+          virtual.length > 0 ? virtual : null,
+          questionnaires.length > 0 ? questionnaires : null,
         );
       });
   }
