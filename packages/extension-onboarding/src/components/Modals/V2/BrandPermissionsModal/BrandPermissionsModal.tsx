@@ -110,21 +110,11 @@ const QuestionnaireModal: FC = () => {
   };
 
   const getVirtualQuestionnaires = () => {
-    return okAsync([]).map((res) => {
-      setConsentDataTypes(res);
-    });
-    // @TODO
-    // try {
-    //   return sdlDataWallet.questionnaire
-    //     .getVirtualQuestionnaires(consentAddress)
-    //     .map((res) => {
-    //       setConsentDataTypes(res);
-    //     });
-    // } catch (e) {
-    //   return okAsync([]).map((res) => {
-    //     setConsentDataTypes(res);
-    //   });
-    // }
+    return sdlDataWallet.questionnaire
+      .getVirtualQuestionnaires(consentAddress)
+      .map((res) => {
+        setConsentDataTypes(res);
+      });
   };
 
   const getPermissions = () => {

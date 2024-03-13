@@ -347,12 +347,10 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
               getVirtualQuestionnaires={(
                 consentContractAddress: EVMContractAddress,
               ) => {
-                // @TODO
-                // return core.questionnaire.getVirtualQuestionnaires(
-                //   consentContractAddress,
-                //   undefined,
-                // );
-                return okAsync([]);
+                return core.questionnaire.getVirtualQuestionnaires(
+                  consentContractAddress,
+                  undefined,
+                );
               }}
               setConsentPermissions={(
                 consentContractAddress: EVMContractAddress,

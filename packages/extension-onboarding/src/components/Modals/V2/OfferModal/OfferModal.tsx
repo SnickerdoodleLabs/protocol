@@ -8,6 +8,7 @@ import {
   DialogContent,
   DialogTitle,
 } from "@material-ui/core";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
   EQuestionnaireStatus,
   EWalletDataType,
@@ -149,11 +150,15 @@ const OfferModal: FC = () => {
   );
 
   const handleOfferApprove = useCallback(() => {
-    // @TODO reward parameters
-    sdlDataWallet.approveQuery(offer.queryCID, []).map(() => {
-      onPrimaryButtonClick();
-      closeModal();
-    });
+    sdlDataWallet
+      .approveQuery(
+        offer.queryCID,
+        ObjectUtils.deserialize(offer.rewardsParameters),
+      )
+      .map(() => {
+        onPrimaryButtonClick();
+        closeModal();
+      });
   }, [sdlDataWallet]);
 
   const isReady = useMemo(() => {
@@ -197,7 +202,7 @@ const OfferModal: FC = () => {
                 onAnswerRequestClick={(questionnaire: Questionnaire) => {
                   setQuestionnaireToAnswer(questionnaire);
                 }}
-                dataTypes={Array.from(new Set(offer.virtualQuestionnaires))}
+                dataTypes={offer.virtualQuestionnaires}
                 onDataPermissionClick={onDataPermissionClick}
                 onQuestionnairePermissionClick={onQuestionnairePermissionClick}
                 dataTypePermissions={permissions!.dataTypes}

@@ -92,9 +92,7 @@ const BrandItem: FC<IBrandItemProps> = ({
           key={offer.queryCID}
           brandImage={imageUrl}
           offer={offer}
-          reCalculateOffers={() => {
-            reCalculateOffers;
-          }}
+          reCalculateOffers={reCalculateOffers}
         />
       ))}
     </Box>

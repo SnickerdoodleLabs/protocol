@@ -64,9 +64,7 @@ const OfferItem: React.FC<IOfferItemProps> = ({
             onClick={() => {
               setModal({
                 modalSelector: EModalSelectors.OFFER_MODAL,
-                onPrimaryButtonClick: () => {
-                  reCalculateOffers();
-                },
+                onPrimaryButtonClick: reCalculateOffers,
                 customProps: { offer, brandImage },
               });
             }}

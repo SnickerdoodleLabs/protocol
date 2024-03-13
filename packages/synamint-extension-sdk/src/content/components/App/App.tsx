@@ -495,10 +495,9 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
             getVirtualQuestionnaires={(
               consentContractAddress: EVMContractAddress,
             ) => {
-              // @TODO
-              // return coreGateway.questionnaire.getVirtualQuestionnaires(
-              //   consentContractAddress,
-              // );
+              return coreGateway.questionnaire.getVirtualQuestionnaires(
+                consentContractAddress,
+              );
               return okAsync([]);
             }}
             setConsentPermissions={(
