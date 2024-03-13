@@ -11,6 +11,18 @@ contract ERC20Reward is ERC20, ERC20Burnable, ERC20Permit, ERC7529 {
 
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
+    bytes32 public constant REDEEM_DETAILS_TYPEHASH = keccak256("Example(address contractAddress,address burner,uint256 amountToBurn,address redeemer)");
+
+    // Define the details for redeeming
+    struct RedeemDetails {
+        address contractAddress;
+        address redeemFrom;
+        uint256 redeemAmount; 
+        address redeemer;
+    }
+
+    using ECDSA for bytes32;
+
     constructor(string memory name, string memory symbol)
         ERC20(name, symbol)
         ERC20Permit(name)
@@ -23,26 +35,31 @@ contract ERC20Reward is ERC20, ERC20Burnable, ERC20Permit, ERC7529 {
         _mint(to, amount);
     }
 
-    function redeem(address account, uint256 value, bytes memory signature) public {
+    function redeem(address redeemFrom, uint256 redeemAmount, bytes memory signature) public {
 
-        // Regenerate the message 
-        bytes32 hash = ECDSA.toEthSignedMessageHash(
-            keccak256(abi.encodePacked(address(this), account, value))
-        );
+        // Hash the message
+        bytes32 hash = hashRedeemDetails(RedeemDetails(address(this), redeemFrom, redeemAmount, _msgSender()));
 
-        // Get the signer of the message
+        // Get the signer of the message using the hash and signature
         address signer = _getSigner(hash, signature);
 
-        // If the caller has is an admin, check the signer against the target account to burn tokens from
-        // If the caller is not an admin, check that the function caller is the signer
-        if (hasRole(DEFAULT_ADMIN_ROLE, _msgSender())) {
-            require(signer == account, "ERC20Reward: Signer does not match account to redeem from");
-        } else {
-            require(signer == _msgSender(), "ERC20Reward: Caller did not sign the message"); 
-        }
+        // Check that the signer matches redeemFrom
+        require(signer == redeemFrom, "ERC20Reward: Caller did not sign the message"); 
 
+        // This means that the 
         // If signer is correct, burn the token to redeem
-        _burn(account, value);
+        _burn(redeemFrom, redeemAmount);
+    }
+
+    // Function to hash the redeem message 
+    // Refer to RedeemDetails struct for properties
+    function hashRedeemDetails(RedeemDetails memory redeemDetails) public view returns(bytes32) {
+        return _hashTypedDataV4(keccak256(abi.encode(REDEEM_DETAILS_TYPEHASH,
+            redeemDetails.contractAddress,
+            redeemDetails.redeemFrom,
+            redeemDetails.redeemAmount,
+            redeemDetails.redeemer
+        )));
     }
 
     function _getSigner(
