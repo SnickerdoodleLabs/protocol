@@ -8,9 +8,19 @@ interface IImageProps {
   height?: number;
   alt?: string;
   style?: React.CSSProperties;
+  errorImageSrc?: string;
+  className?: string;
 }
 
-export const Image: FC<IImageProps> = ({ src, alt, width, height, style }) => {
+export const Image: FC<IImageProps> = ({
+  src,
+  alt,
+  width,
+  height,
+  style,
+  errorImageSrc = "https://storage.googleapis.com/dw-assets/spa/icons-v2/default-survey-icon.svg",
+  className,
+}) => {
   const [isError, setIsError] = useSafeState<boolean>(false);
   const [isLoading, setIsLoading] = useSafeState<boolean>(true);
 
@@ -30,13 +40,12 @@ export const Image: FC<IImageProps> = ({ src, alt, width, height, style }) => {
   if (isError) {
     return (
       <img
-        src={
-          "https://storage.googleapis.com/dw-assets/spa/icons-v2/default-survey-icon.svg"
-        }
+        src={errorImageSrc}
         alt={alt}
         width={width}
         height={height}
         style={style}
+        {...(className && { className })}
       />
     );
   }

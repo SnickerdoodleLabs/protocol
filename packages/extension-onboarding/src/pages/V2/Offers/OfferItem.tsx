@@ -67,7 +67,7 @@ const OfferItem: React.FC<IOfferItemProps> = ({
                 onPrimaryButtonClick: () => {
                   reCalculateOffers();
                 },
-                customProps: { offer },
+                customProps: { offer, brandImage },
               });
             }}
             variant="outlined"

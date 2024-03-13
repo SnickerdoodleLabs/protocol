@@ -8,15 +8,11 @@ import {
   DialogContent,
   DialogTitle,
 } from "@material-ui/core";
-import { Delete } from "@material-ui/icons";
 import {
-  EQuestionnaireQuestionType,
   EQuestionnaireStatus,
-  EVMContractAddress,
   EWalletDataType,
   IpfsCID,
   NewQuestionnaireAnswer,
-  PagingRequest,
   QueryStatus,
   Questionnaire,
   QuestionnaireWithAnswers,
@@ -32,12 +28,12 @@ import {
   useSafeState,
   Permissions,
 } from "@snickerdoodlelabs/shared-components";
-import { Result, okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
+import { okAsync } from "neverthrow";
 import React, { FC, useCallback, useEffect, useMemo, useRef } from "react";
 
 export interface IOfferModal {
   offer: QueryStatus;
+  brandImage?: string;
 }
 
 interface IQuestionnairesState {
@@ -61,7 +57,7 @@ const dummyPermissionSetter = (...args) => {
 const OfferModal: FC = () => {
   const { modalState, closeModal, setLoadingStatus } = useLayoutContext();
   const { onPrimaryButtonClick, customProps } = modalState;
-  const { offer } = customProps as IOfferModal;
+  const { offer, brandImage } = customProps as IOfferModal;
   const classes = useDialogStyles();
   const { sdlDataWallet } = useDataWalletContext();
   const [questionnaireToAnswer, setQuestionnaireToAnswer] =
@@ -78,13 +74,16 @@ const OfferModal: FC = () => {
   }, []);
 
   const getQuestionnaires = () => {
-    // @TODO get questionnaires by cid
-    return okAsync(
+    sdlDataWallet.questionnaire.getByCIDs(offer.questionnaires).map((res) => {
       setQuestionnaires({
-        answeredQuestionnaires: [],
-        unAnsweredQuestionnaires: [],
-      }),
-    );
+        answeredQuestionnaires: res.filter(
+          (q) => q.status === EQuestionnaireStatus.Complete,
+        ) as QuestionnaireWithAnswers[],
+        unAnsweredQuestionnaires: res.filter(
+          (q) => q.status === EQuestionnaireStatus.Available,
+        ),
+      });
+    });
   };
 
   const getPermissions = () => {
@@ -167,7 +166,7 @@ const OfferModal: FC = () => {
           <Box display="flex" position="relative" justifyContent="center">
             <Box display="flex" width="fit-content" alignItems="center">
               <Image
-                src={offer.image ?? ""}
+                src={offer.image ?? brandImage ?? ""}
                 width={52}
                 height={52}
                 style={{ borderRadius: 8 }}
