@@ -432,5 +432,51 @@ describe("Stake for Ranking tests", function () {
       // should be the baseURI of the content object
       expect(listings[0][0]).to.equal("example.com");
     });
+
+    it("Try upping the stake on an existing listing", async function () {
+      const { consentFactory, consentContract, token, owner, otherAccount } =
+        await loadFixture(deployConsentStack);
+
+      // first compute the fee required for a desired slot
+      const initialSlot = 40000;
+      const finalSlot = 60000;
+      const deltaSlot = finalSlot - initialSlot;
+      const initialFee = await consentContract.computeFee(initialSlot);
+      const finalFee = await consentContract.computeFee(finalSlot);
+      const deltaFee =
+        (await consentContract.computeFee(finalSlot)) -
+        (await consentContract.computeFee(initialSlot));
+
+      // first allow the consent contract a token budget of initialFee
+      await token.approve(await consentContract.getAddress(), initialFee);
+
+      // then initialize a tag
+      await consentContract.newGlobalTag(
+        "NFT",
+        await token.getAddress(),
+        initialSlot,
+      );
+
+      // check that the fee is held by the consent contract
+      expect(
+        await token.balanceOf(await consentContract.getAddress()),
+      ).to.equal(initialFee);
+
+      // now allow the consent contract a token budget of deltaFee
+      await token.approve(await consentContract.getAddress(), deltaFee);
+
+      // then move the listing up the chart
+      await consentContract.moveExistingListingUpstream(
+        "NFT",
+        await token.getAddress(),
+        finalSlot,
+        0,
+      );
+
+      // check that the fee is held by the consent contract
+      expect(
+        await token.balanceOf(await consentContract.getAddress()),
+      ).to.equal(finalFee);
+    });
   });
 });

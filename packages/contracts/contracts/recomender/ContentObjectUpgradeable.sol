@@ -135,11 +135,11 @@ abstract contract ContentObjectUpgradeable is
         // check
         require(
             $.tags[stakingToken].length < $.maxTags,
-            "Consent Contract: Tag budget exhausted"
+            "Content Object: Tag budget exhausted"
         );
         require(
             $.tagIndices[stakingToken][tag] == 0,
-            "Consent Contract: This tag is already staked by this contract"
+            "Content Object: This tag is already staked by this contract"
         );
 
         // effects
@@ -172,11 +172,11 @@ abstract contract ContentObjectUpgradeable is
         // check
         require(
             $.tags[stakingToken].length < $.maxTags,
-            "Consent Contract: Tag budget exhausted"
+            "Content Object: Tag budget exhausted"
         );
         require(
             $.tagIndices[stakingToken][tag] == 0,
-            "Consent Contract: This tag is already staked by this contract"
+            "Content Object: This tag is already staked by this contract"
         );
 
         // effects
@@ -209,9 +209,10 @@ abstract contract ContentObjectUpgradeable is
         ContentObjectStorage storage $ = _getContentObjectStorage();
 
         // check
+        require(_newSlot > _existingSlot, "Content Object: New slot must be greater than current slot");
         require(
             $.tagIndices[stakingToken][tag] > 0,
-            "Consent Contract: This tag has not been staked"
+            "Content Object: This tag has not been staked"
         );
 
         // effects
@@ -242,7 +243,7 @@ abstract contract ContentObjectUpgradeable is
         // check
         require(
             $.tagIndices[stakingToken][tag] > 0,
-            "Consent Contract: This tag has not been staked"
+            "Content Object: This tag has not been staked"
         );
 
         // interaction
@@ -262,11 +263,11 @@ abstract contract ContentObjectUpgradeable is
         // check
         require(
             $.tags[stakingToken].length < $.maxTags,
-            "Consent Contract: Tag budget exhausted"
+            "Content Object: Tag budget exhausted"
         );
         require(
             $.tagIndices[stakingToken][tag] == 0,
-            "Consent Contract: This tag is already staked by this contract"
+            "Content Object: This tag is already staked by this contract"
         );
 
         // effects
@@ -294,7 +295,7 @@ abstract contract ContentObjectUpgradeable is
         // check
         require(
             $.tagIndices[stakingToken][tag] > 0,
-            "Consent Contract: This tag has not been staked"
+            "Content Object: This tag has not been staked"
         );
 
         // effects - we use the array element deletion pattern used by OpenZeppelin
