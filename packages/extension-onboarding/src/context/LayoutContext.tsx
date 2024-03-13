@@ -19,6 +19,9 @@ import NFTDetailModal, {
 import OTPModal, {
   IOTPModal,
 } from "@extension-onboarding/components/Modals/V2/OTPModal";
+import OfferModal, {
+  IOfferModal,
+} from "@extension-onboarding/components/Modals/V2/OfferModal";
 import QuestionnaireModal, {
   IQuestionnaireModal,
 } from "@extension-onboarding/components/Modals/V2/QuestionnaireModal";
@@ -43,6 +46,7 @@ type ModalSelectorTypeMap = {
   [EModalSelectors.QUESTIONNAIRE_MODAL]: IQuestionnaireModal;
   [EModalSelectors.ANSWERED_QUESTIONNAIRE_MODAL]: IAnsweredQuestionnaireModal;
   [EModalSelectors.BRAND_PERMISSIONS_MODAL]: IBrandPermissionsModal;
+  [EModalSelectors.OFFER_MODAL]: IOfferModal;
 };
 
 type ModalSelector = keyof ModalSelectorTypeMap;
@@ -110,6 +114,8 @@ export const LayoutProvider: FC = memo(({ children }) => {
         return <AnsweredQuestionnaireModal />;
       case modalState.modalSelector === EModalSelectors.BRAND_PERMISSIONS_MODAL:
         return <BrandPermissionsModal />;
+      case modalState.modalSelector === EModalSelectors.OFFER_MODAL:
+        return <OfferModal />;
       default:
         return null;
     }

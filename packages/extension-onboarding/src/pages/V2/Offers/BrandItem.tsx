@@ -1,31 +1,32 @@
-import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { Box, Theme, makeStyles } from "@material-ui/core";
+import OfferItem from "@extension-onboarding/pages/V2/Offers/OfferItem";
+import { Box } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import {
-  EVMContractAddress,
   IOldUserAgreement,
   IUserAgreement,
   IpfsCID,
-  PagingRequest,
+  QueryStatus,
 } from "@snickerdoodlelabs/objects";
 import {
   useSafeState,
-  Image,
   SDTypography,
-  colors,
+  Image,
 } from "@snickerdoodlelabs/shared-components";
 import React, { FC, useEffect, useMemo } from "react";
 
 interface IBrandItemProps {
-  contractAddress: EVMContractAddress;
   ipfsCID: IpfsCID;
+  offers: QueryStatus[];
+  reCalculateOffers: () => void;
 }
-const BrandItem: FC<IBrandItemProps> = ({ contractAddress, ipfsCID }) => {
-  const classes = useStyles();
+
+const BrandItem: FC<IBrandItemProps> = ({
+  ipfsCID,
+  offers,
+  reCalculateOffers,
+}) => {
   const { sdlDataWallet } = useDataWalletContext();
-  const { setModal } = useLayoutContext();
   const [agreementData, setAgreementData] = useSafeState<
     IOldUserAgreement | IUserAgreement
   >();
@@ -39,7 +40,7 @@ const BrandItem: FC<IBrandItemProps> = ({ contractAddress, ipfsCID }) => {
     getAgreementData();
   }, []);
 
-  const { name, icon } = useMemo(() => {
+  const { name, icon, imageUrl } = useMemo(() => {
     if (!agreementData) {
       return {
         name: (
@@ -48,6 +49,7 @@ const BrandItem: FC<IBrandItemProps> = ({ contractAddress, ipfsCID }) => {
           </SDTypography>
         ),
         icon: <Skeleton variant="rect" width={40} height={40} />,
+        imageUrl: undefined,
       };
     } else {
       const brandName =
@@ -63,71 +65,40 @@ const BrandItem: FC<IBrandItemProps> = ({ contractAddress, ipfsCID }) => {
             color="textBody"
             ml={1.75}
             variant="titleSm"
-            className={classes.name}
           >
             {brandName}
           </SDTypography>
         ),
         icon: (
           <Image
-            style={{ borderRadius: 8 }}
             src={brandLogo}
+            style={{ borderRadius: 8 }}
             width={40}
             height={40}
           />
         ),
+        imageUrl: brandLogo,
       };
     }
   }, [JSON.stringify(agreementData)]);
 
   return (
-    <Box
-      onClick={() => {
-        !!agreementData &&
-          setModal({
-            modalSelector: EModalSelectors.BRAND_PERMISSIONS_MODAL,
-            onPrimaryButtonClick: () => {},
-            customProps: {
-              icon:
-                agreementData["brandInformation"]?.["image"] ??
-                agreementData.image ??
-                "",
-              brandName:
-                agreementData["brandInformation"]?.["name"] ?? "Unknown",
-              dataTypes: [],
-              questionnaireCIDs: [],
-              consentAddress: contractAddress,
-            },
-          });
-      }}
-      p={2}
-      pr={5}
-      display="flex"
-      alignItems="center"
-      className={classes.root}
-    >
-      {icon} {name}
-      <SDTypography fontWeight="medium" ml="auto" variant="bodyLg">
-        _
-      </SDTypography>
+    <Box display="flex" flexDirection="column">
+      <Box mb={3} display="flex" alignItems="center">
+        {icon} {name}
+      </Box>
+      {offers.map((offer) => (
+        <OfferItem
+          key={offer.queryCID}
+          brandImage={imageUrl}
+          offer={offer}
+          reCalculateOffers={() => {
+            reCalculateOffers;
+          }}
+        />
+      ))}
     </Box>
   );
 };
 
 export default BrandItem;
-
-const useStyles = makeStyles((theme: Theme) => ({
-  root: {
-    cursor: "pointer",
-    transition: "background-color 0.2s",
-    "&:hover": {
-      backgroundColor: colors.GREY50,
-    },
-    "&:hover $name": {
-      textDecoration: "underline",
-    },
-  },
-  name: {
-    transition: "text-decoration 0.2s",
-  },
-}));

@@ -1,0 +1,243 @@
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import {
+  Box,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from "@material-ui/core";
+import { Delete } from "@material-ui/icons";
+import {
+  EQuestionnaireQuestionType,
+  EQuestionnaireStatus,
+  EVMContractAddress,
+  EWalletDataType,
+  IpfsCID,
+  NewQuestionnaireAnswer,
+  PagingRequest,
+  QueryStatus,
+  Questionnaire,
+  QuestionnaireWithAnswers,
+} from "@snickerdoodlelabs/objects";
+import {
+  CloseButton,
+  FillQuestionnaireModal,
+  Image,
+  SDButton,
+  SDTypography,
+  colors,
+  useDialogStyles,
+  useSafeState,
+  Permissions,
+} from "@snickerdoodlelabs/shared-components";
+import { Result, okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+import React, { FC, useCallback, useEffect, useMemo, useRef } from "react";
+
+export interface IOfferModal {
+  offer: QueryStatus;
+}
+
+interface IQuestionnairesState {
+  answeredQuestionnaires: QuestionnaireWithAnswers[];
+  unAnsweredQuestionnaires: Questionnaire[];
+}
+
+interface IPermissionsState {
+  dataTypes: EWalletDataType[];
+  questionnaires: IpfsCID[];
+}
+
+// @TODO
+const dummyPermissionGetter = (...args) => {
+  return okAsync({ dataTypes: [], questionnaires: [] });
+};
+const dummyPermissionSetter = (...args) => {
+  return okAsync(undefined);
+};
+
+const OfferModal: FC = () => {
+  const { modalState, closeModal, setLoadingStatus } = useLayoutContext();
+  const { onPrimaryButtonClick, customProps } = modalState;
+  const { offer } = customProps as IOfferModal;
+  const classes = useDialogStyles();
+  const { sdlDataWallet } = useDataWalletContext();
+  const [questionnaireToAnswer, setQuestionnaireToAnswer] =
+    useSafeState<Questionnaire>();
+
+  const [questionnaires, setQuestionnaires] =
+    useSafeState<IQuestionnairesState>();
+  const [permissions, setPermissions] = useSafeState<IPermissionsState>();
+  const permissionsRef = useRef<IPermissionsState>();
+
+  useEffect(() => {
+    getQuestionnaires();
+    getPermissions();
+  }, []);
+
+  const getQuestionnaires = () => {
+    // @TODO get questionnaires by cid
+    return okAsync(
+      setQuestionnaires({
+        answeredQuestionnaires: [],
+        unAnsweredQuestionnaires: [],
+      }),
+    );
+  };
+
+  const getPermissions = () => {
+    return dummyPermissionGetter().map((res) => {
+      setPermissions({
+        dataTypes: res.dataTypes,
+        questionnaires: res.questionnaires,
+      });
+    });
+  };
+
+  const handleQuestionnaireAnswer = useCallback(
+    (answers: NewQuestionnaireAnswer[]) => {
+      if (questionnaireToAnswer) {
+        sdlDataWallet.questionnaire
+          .answerQuestionnaire(questionnaireToAnswer.id, answers)
+          .map(() => {
+            getQuestionnaires();
+            setQuestionnaireToAnswer(undefined);
+          })
+          .mapErr((e) => {
+            setQuestionnaireToAnswer(undefined);
+            console.error(e);
+          });
+      }
+    },
+    [questionnaireToAnswer],
+  );
+
+  const onDataPermissionClick = useCallback((dataType: EWalletDataType) => {
+    if (permissionsRef.current) {
+      const newPermissions = {
+        ...permissionsRef.current,
+        dataTypes: permissionsRef.current.dataTypes.includes(dataType)
+          ? permissionsRef.current.dataTypes.filter((dt) => dt !== dataType)
+          : permissionsRef.current.dataTypes.concat(dataType),
+      };
+      dummyPermissionSetter(newPermissions).map(() => {
+        setPermissions(newPermissions);
+      });
+    }
+  }, []);
+
+  const onQuestionnairePermissionClick = useCallback(
+    (questionnaireCID: IpfsCID) => {
+      if (permissionsRef.current) {
+        const newPermissions = {
+          ...permissionsRef.current,
+          questionnaires: permissionsRef.current.questionnaires.includes(
+            questionnaireCID,
+          )
+            ? permissionsRef.current.questionnaires.filter(
+                (cid) => cid !== questionnaireCID,
+              )
+            : permissionsRef.current.questionnaires.concat(questionnaireCID),
+        };
+        dummyPermissionSetter(newPermissions).map(() => {
+          setPermissions(newPermissions);
+        });
+      }
+    },
+    [],
+  );
+
+  const handleOfferApprove = useCallback(() => {
+    // @TODO reward parameters
+    sdlDataWallet.approveQuery(offer.queryCID, []);
+    onPrimaryButtonClick();
+    closeModal();
+  }, [sdlDataWallet]);
+
+  const isReady = useMemo(() => {
+    return !!questionnaires && !!permissions;
+  }, [questionnaires, permissions]);
+
+  return (
+    <>
+      <Dialog className={classes.dialog} fullWidth open onClose={closeModal}>
+        <DialogTitle>
+          <Box display="flex" position="relative" justifyContent="center">
+            <Box display="flex" width="fit-content" alignItems="center">
+              <Image
+                src={offer.image ?? ""}
+                width={52}
+                height={52}
+                style={{ borderRadius: 8 }}
+              />
+              <SDTypography
+                ml={2}
+                hexColor={colors.DARKPURPLE500}
+                variant="titleLg"
+                fontWeight="bold"
+              >
+                {offer.name}
+              </SDTypography>
+            </Box>
+            <Box position="absolute" top={0} right={0}>
+              <CloseButton onClick={closeModal} />
+            </Box>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Box display="flex" flexDirection="column">
+            {isReady ? (
+              <Permissions
+                answeredQuestionnaires={questionnaires!.answeredQuestionnaires}
+                unAnsweredQuestionnaires={
+                  questionnaires!.unAnsweredQuestionnaires
+                }
+                onAnswerRequestClick={(questionnaire: Questionnaire) => {
+                  setQuestionnaireToAnswer(questionnaire);
+                }}
+                dataTypes={Array.from(new Set(offer.virtualQuestionnaires))}
+                onDataPermissionClick={onDataPermissionClick}
+                onQuestionnairePermissionClick={onQuestionnairePermissionClick}
+                dataTypePermissions={permissions!.dataTypes}
+                questionnairePermissions={permissions!.questionnaires}
+              />
+            ) : (
+              <Box marginX="auto" py={10}>
+                <CircularProgress />
+              </Box>
+            )}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Box color={colors.GREY500} display="flex" width="100%">
+            <Box marginLeft="auto">
+              <SDButton
+                variant="outlined"
+                color="primary"
+                onClick={handleOfferApprove}
+              >
+                Accept
+              </SDButton>
+            </Box>
+          </Box>
+        </DialogActions>
+      </Dialog>
+      {questionnaireToAnswer && (
+        <FillQuestionnaireModal
+          questionnaire={questionnaireToAnswer}
+          onQuestionnaireSubmit={(answers: NewQuestionnaireAnswer[]) => {
+            handleQuestionnaireAnswer(answers);
+          }}
+          open={!!questionnaireToAnswer}
+          onClose={() => {
+            setQuestionnaireToAnswer(undefined);
+          }}
+        />
+      )}
+    </>
+  );
+};
+
+export default OfferModal;

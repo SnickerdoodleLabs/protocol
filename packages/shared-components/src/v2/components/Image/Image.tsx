@@ -1,6 +1,6 @@
 import { Skeleton } from "@material-ui/lab";
 import { useSafeState } from "@shared-components/v2/hooks";
-import React, { FC, useMemo, useState } from "react";
+import React, { FC, useEffect, useMemo, useState } from "react";
 
 interface IImageProps {
   src: string;
@@ -14,12 +14,18 @@ export const Image: FC<IImageProps> = ({ src, alt, width, height, style }) => {
   const [isError, setIsError] = useSafeState<boolean>(false);
   const [isLoading, setIsLoading] = useSafeState<boolean>(true);
 
+  useEffect(() => {
+    // Reset loading and error states when src changes
+    setIsError(false);
+    setIsLoading(true);
+  }, [src, setIsError, setIsLoading]);
+
   const formattedUrl = useMemo(() => {
     return src.replace(
       "ipfs://",
       "https://ipfs-gateway.snickerdoodle.com/ipfs/",
     );
-  }, []);
+  }, [src]);
 
   if (isError) {
     return (
