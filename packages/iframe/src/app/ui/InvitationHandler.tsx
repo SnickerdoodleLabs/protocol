@@ -17,16 +17,18 @@ import {
   ISnickerdoodleCore,
   IUserAgreement,
   Invitation,
+  IpfsCID,
   LinkedAccount,
+  NewQuestionnaireAnswer,
+  PagingRequest,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
-  DescriptionWidget,
-  FF_SUPPORTED_ALL_PERMISSIONS,
+  ConsentModal,
   ModalContainer,
-  PermissionSelectionWidget,
   createThemeWithOverrides,
 } from "@snickerdoodlelabs/shared-components";
+import { okAsync } from "neverthrow";
 import React, {
   useMemo,
   useState,
@@ -50,7 +52,6 @@ interface IInvitationHandlerProps {
 export enum EAPP_STATE {
   IDLE,
   INVITATION_PREVIEW,
-  PERMISSION_SELECTION,
 }
 
 interface IInvitation {
@@ -313,28 +314,53 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
           return null;
         case EAPP_STATE.INVITATION_PREVIEW:
           return (
-            <DescriptionWidget
-              onRejectClick={() => {
-                rejectInvitation(false);
+            <ConsentModal
+              onClose={clearInvitation}
+              open={true}
+              onOptinClicked={() => {
+                onPermissionSelected([]);
               }}
-              onRejectWithTimestampClick={() => {
-                rejectInvitation(true);
-              }}
+              consentContractAddress={
+                currentInvitation.data.invitation.consentContractAddress
+              }
               invitationData={currentInvitation.data.metadata}
-              onCancelClick={clearInvitation}
-              onContinueClick={() => {
-                onPermissionSelected(FF_SUPPORTED_ALL_PERMISSIONS);
+              answerQuestionnaire={(
+                id: IpfsCID,
+                answers: NewQuestionnaireAnswer[],
+              ) => {
+                return core.questionnaire.answerQuestionnaire(
+                  id,
+                  answers,
+                  undefined,
+                );
               }}
-              onSetPermissions={() => {
-                setAppState(EAPP_STATE.PERMISSION_SELECTION);
+              getQuestionnaires={(
+                pagingRequest: PagingRequest,
+                consentContractAddress: EVMContractAddress,
+              ) => {
+                return core.questionnaire.getQuestionnairesForConsentContract(
+                  pagingRequest,
+                  consentContractAddress,
+                  undefined,
+                );
               }}
-            />
-          );
-        case EAPP_STATE.PERMISSION_SELECTION:
-          return (
-            <PermissionSelectionWidget
-              onCancelClick={clearInvitation}
-              onSaveClick={onPermissionSelected}
+              getVirtualQuestionnaires={(
+                consentContractAddress: EVMContractAddress,
+              ) => {
+                // @TODO
+                // return core.questionnaire.getVirtualQuestionnaires(
+                //   consentContractAddress,
+                //   undefined,
+                // );
+                return okAsync([]);
+              }}
+              setConsentPermissions={(
+                consentContractAddress: EVMContractAddress,
+                dataTypes: EWalletDataType[],
+                questionnaires: IpfsCID[],
+              ) => {
+                return okAsync(undefined);
+              }}
             />
           );
         default:

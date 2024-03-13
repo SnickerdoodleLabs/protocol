@@ -1,5 +1,6 @@
 import {
   Box,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -22,39 +23,63 @@ import { colors, typograpyVariants } from "@shared-components/v2/theme";
 import { FillQuestionnaireModal } from "@shared-components/v2/widgets/FillQuestionnaireModal";
 import { Permissions } from "@shared-components/v2/widgets/Permissions";
 import {
-  EQuestionnaireQuestionType,
   EQuestionnaireStatus,
+  EVMContractAddress,
   EWalletDataType,
   IOldUserAgreement,
   IUserAgreement,
   IpfsCID,
-  MarketplaceTag,
   NewQuestionnaireAnswer,
+  PagedResponse,
+  PagingRequest,
   ProxyError,
   Questionnaire,
-  QuestionnaireAnswer,
-  QuestionnaireQuestion,
   QuestionnaireWithAnswers,
-  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import parse from "html-react-parser";
 import { ResultAsync, okAsync } from "neverthrow";
-import React, { useMemo } from "react";
+import { ResultUtils } from "neverthrow-result-utils";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 
 interface IConsentModalProps {
   onClose: () => void;
   open: boolean;
   onOptinClicked: () => void;
+  consentContractAddress: EVMContractAddress;
   invitationData: IOldUserAgreement | IUserAgreement;
   answerQuestionnaire: (
     id: IpfsCID,
     answers: NewQuestionnaireAnswer[],
-  ) => ResultAsync<void, ProxyError>;
+  ) => ResultAsync<void, unknown>;
+  getQuestionnaires: (
+    pagingRequest: PagingRequest,
+    consentContractAddress: EVMContractAddress,
+  ) => ResultAsync<
+    PagedResponse<QuestionnaireWithAnswers | Questionnaire>,
+    unknown
+  >;
+  getVirtualQuestionnaires: (
+    consentContractAddress: EVMContractAddress,
+  ) => ResultAsync<EWalletDataType[], unknown>;
+  setConsentPermissions: (
+    consentContractAddress: EVMContractAddress,
+    dataTypes: EWalletDataType[],
+    questionnaires: IpfsCID[],
+  ) => ResultAsync<void, unknown>;
 }
 
 enum EComponentRenderState {
   RENDER_PERMISSIONS,
   RENDER_AGREEMENT,
+}
+interface IQuestionnairesState {
+  answeredQuestionnaires: QuestionnaireWithAnswers[];
+  unAnsweredQuestionnaires: Questionnaire[];
+}
+
+interface IPermissionsState {
+  dataTypes: EWalletDataType[];
+  questionnaires: IpfsCID[];
 }
 
 export const ConsentModal = ({
@@ -63,62 +88,130 @@ export const ConsentModal = ({
   onClose,
   onOptinClicked,
   answerQuestionnaire,
+  getQuestionnaires,
+  getVirtualQuestionnaires,
+  setConsentPermissions,
+  consentContractAddress,
 }: IConsentModalProps) => {
   const classes = useStyles();
   const dialogClasses = useDialogStyles();
   const [componentRenderState, setComponentRenderState] = useSafeState(
     EComponentRenderState.RENDER_PERMISSIONS,
   );
-  const [dataPermissions, setDataPermissions] = useSafeState<EWalletDataType[]>(
-    ffSupportedPermissions
-  );
-  const [questionnairePermissions, setQuestionnairePermissions] = useSafeState<
-    IpfsCID[]
-  >([]);
+  const [questionnaires, setQuestionnaires] =
+    useSafeState<IQuestionnairesState>();
+  const [consentDataTypes, setConsentDataTypes] =
+    useSafeState<EWalletDataType[]>();
+  const [permissions, setPermissions] = useSafeState<IPermissionsState>();
+  const initialPermissionsCalculationRef = React.useRef<boolean>(false);
+  const permissionsRef = useRef<IPermissionsState>();
+
+  useEffect(() => {
+    ResultUtils.combine([
+      _getQuestionnaires(),
+      _getVirtualQuestionnaires(),
+    ]).mapErr((e) => console.error(e));
+  }, []);
+
+  useEffect(() => {
+    if (permissions) {
+      permissionsRef.current = permissions;
+    }
+  }, [JSON.stringify(permissions)]);
+
+  useEffect(() => {
+    if (
+      questionnaires &&
+      consentDataTypes &&
+      !initialPermissionsCalculationRef.current
+    ) {
+      initialPermissionsCalculationRef.current = true;
+      setPermissions({
+        dataTypes: consentDataTypes,
+        questionnaires: questionnaires.answeredQuestionnaires.map((q) => q.id),
+      });
+    }
+  }, [JSON.stringify(questionnaires), JSON.stringify(consentDataTypes)]);
+
+  const _getQuestionnaires = () => {
+    return getQuestionnaires(
+      new PagingRequest(1, 100),
+      consentContractAddress,
+    ).map((res) => {
+      setQuestionnaires({
+        answeredQuestionnaires: res.response.filter(
+          (q) => q.status === EQuestionnaireStatus.Complete,
+        ) as QuestionnaireWithAnswers[],
+        unAnsweredQuestionnaires: res.response.filter(
+          (q) => q.status === EQuestionnaireStatus.Available,
+        ) as Questionnaire[],
+      });
+    });
+  };
+
+  const _getVirtualQuestionnaires = () => {
+    return getVirtualQuestionnaires(consentContractAddress).map((res) => {
+      setConsentDataTypes(res);
+    });
+  };
+
   const [agreementConsented, setAgreementConsented] =
     useSafeState<boolean>(false);
 
   const [questionnaireToAnswer, setQuestionnaireToAnswer] =
     useSafeState<Questionnaire>();
 
-  const onDataPermissionClick = (dataType: EWalletDataType) => {
-    if (dataPermissions.includes(dataType)) {
-      setDataPermissions(dataPermissions.filter((d) => d !== dataType));
-    } else {
-      setDataPermissions([...dataPermissions, dataType]);
+  const onDataPermissionClick = useCallback((dataType: EWalletDataType) => {
+    if (permissionsRef.current) {
+      const newPermissions = {
+        ...permissionsRef.current,
+        dataTypes: permissionsRef.current.dataTypes.includes(dataType)
+          ? permissionsRef.current.dataTypes.filter((dt) => dt !== dataType)
+          : permissionsRef.current.dataTypes.concat(dataType),
+      };
+
+      setPermissions(newPermissions);
     }
-  };
+  }, []);
 
-  const onQuestionnairePermissionClick = (questionnaireCID: IpfsCID) => {
-    if (questionnairePermissions?.includes(questionnaireCID)) {
-      setQuestionnairePermissions(
-        questionnairePermissions.filter((q) => q !== questionnaireCID),
-      );
-    } else {
-      setQuestionnairePermissions([
-        ...(questionnairePermissions ?? []),
-        questionnaireCID,
-      ]);
+  const onQuestionnairePermissionClick = useCallback(
+    (questionnaireCID: IpfsCID) => {
+      if (permissionsRef.current) {
+        const newPermissions = {
+          ...permissionsRef.current,
+          questionnaires: permissionsRef.current.questionnaires.includes(
+            questionnaireCID,
+          )
+            ? permissionsRef.current.questionnaires.filter(
+                (cid) => cid !== questionnaireCID,
+              )
+            : permissionsRef.current.questionnaires.concat(questionnaireCID),
+        };
+        setPermissions(newPermissions);
+      }
+    },
+    [],
+  );
+
+  const handleShareClicked = useCallback(() => {
+    if (permissions) {
+      setConsentPermissions(
+        consentContractAddress,
+        permissions.dataTypes,
+        permissions.questionnaires,
+      ).map(() => {
+        onOptinClicked();
+      });
     }
-  };
-
-  const setPermissions = () => {
-    return okAsync(undefined);
-  };
-
-  const handleShareClicked = () => {
-    setPermissions().map(() => {
-      onOptinClicked();
-    });
-  };
+  }, [JSON.stringify(permissions)]);
 
   const onQuestionnarieSubmit = (
     answers: NewQuestionnaireAnswer[],
     id: IpfsCID,
   ) => {
     answerQuestionnaire(id, answers).map(() => {
-      onQuestionnairePermissionClick(id);
       setQuestionnaireToAnswer(undefined);
+      _getQuestionnaires();
     });
   };
 
@@ -326,180 +419,35 @@ export const ConsentModal = ({
     );
   }, [JSON.stringify(invitationData), componentRenderState]);
 
+  const isPermissionsReady = useMemo(() => {
+    return !!questionnaires && !!consentDataTypes && !!permissions;
+  }, [questionnaires, consentDataTypes, permissions]);
+
   const content = () => {
     if (componentRenderState === EComponentRenderState.RENDER_PERMISSIONS) {
       return (
-        <Permissions
-          onAnswerRequestClick={(q) => {
-            setQuestionnaireToAnswer(q);
-          }}
-          answeredQuestionnaires={[
-            new QuestionnaireWithAnswers(
-              1 as unknown as IpfsCID,
-              MarketplaceTag(1 + ": 0x123"),
-              EQuestionnaireStatus.Available,
-              "Questionnaire",
-              "",
-              null,
-              [
-                new QuestionnaireQuestion(
-                  0,
-                  EQuestionnaireQuestionType.MultipleChoice,
-                  "To be or not to be?",
-                  ["a", "b"],
-                  null,
-                  null,
-                  null,
-                ),
-              ],
-              [new QuestionnaireAnswer(1 as unknown as IpfsCID, 0, 0)],
-              null as unknown as UnixTimestamp,
-            ),
-          ]}
-          unAnsweredQuestionnaires={[
-            new Questionnaire(
-              1 as unknown as IpfsCID,
-              MarketplaceTag(1 + ": 0x123"),
-              EQuestionnaireStatus.Available,
-              "Questionnaire",
-              "",
-              null,
-              [
-                new QuestionnaireQuestion(
-                  0,
-                  EQuestionnaireQuestionType.MultipleChoice,
-                  "To be or not to be?",
-                  ["a", "b"],
-                  null,
-                  null,
-                  null,
-                ),
-                new QuestionnaireQuestion(
-                  0,
-                  EQuestionnaireQuestionType.MultipleChoice,
-                  "To be or not to be?",
-                  ["a", "b"],
-                  null,
-                  null,
-                  null,
-                ),
-                new QuestionnaireQuestion(
-                  0,
-                  EQuestionnaireQuestionType.MultipleChoice,
-                  "To be or not to be?",
-                  ["a", "b"],
-                  null,
-                  null,
-                  null,
-                ),
-                new QuestionnaireQuestion(
-                  0,
-                  EQuestionnaireQuestionType.MultipleChoice,
-                  "To be or not to be?",
-                  ["a", "b"],
-                  null,
-                  null,
-                  null,
-                ),
-                new QuestionnaireQuestion(
-                  0,
-                  EQuestionnaireQuestionType.MultipleChoice,
-                  "To be or not to be?",
-                  ["a", "b"],
-                  null,
-                  null,
-                  null,
-                ),
-                new QuestionnaireQuestion(
-                  0,
-                  EQuestionnaireQuestionType.MultipleChoice,
-                  "To be or not to be?",
-                  ["a", "b"],
-                  null,
-                  null,
-                  null,
-                ),
-                new QuestionnaireQuestion(
-                  0,
-                  EQuestionnaireQuestionType.MultipleChoice,
-                  "To be or not to be?",
-                  ["a", "b"],
-                  null,
-                  null,
-                  null,
-                ),
-                new QuestionnaireQuestion(
-                  0,
-                  EQuestionnaireQuestionType.MultipleChoice,
-                  "To be or not to be?",
-                  ["a", "b"],
-                  null,
-                  null,
-                  null,
-                ),
-                new QuestionnaireQuestion(
-                  0,
-                  EQuestionnaireQuestionType.MultipleChoice,
-                  "To be or not to be?",
-                  ["a", "b"],
-                  null,
-                  null,
-                  null,
-                ),
-                new QuestionnaireQuestion(
-                  0,
-                  EQuestionnaireQuestionType.MultipleChoice,
-                  "To be or not to be?",
-                  ["a", "b"],
-                  null,
-                  null,
-                  null,
-                ),
-                new QuestionnaireQuestion(
-                  0,
-                  EQuestionnaireQuestionType.MultipleChoice,
-                  "To be or not to be?",
-                  ["a", "b"],
-                  null,
-                  null,
-                  null,
-                ),
-                new QuestionnaireQuestion(
-                  0,
-                  EQuestionnaireQuestionType.MultipleChoice,
-                  "To be or not to be?",
-                  ["a", "b"],
-                  null,
-                  null,
-                  null,
-                ),
-                new QuestionnaireQuestion(
-                  0,
-                  EQuestionnaireQuestionType.MultipleChoice,
-                  "To be or not to be?",
-                  ["a", "b"],
-                  null,
-                  null,
-                  null,
-                ),
-                new QuestionnaireQuestion(
-                  0,
-                  EQuestionnaireQuestionType.MultipleChoice,
-                  "To be or not to be?",
-                  ["a", "b"],
-                  null,
-                  null,
-                  null,
-                ),
-              ],
-            ),
-          ]}
-          dataTypes={ffSupportedPermissions}
-          onDataPermissionClick={onDataPermissionClick}
-          onQuestionnairePermissionClick={onQuestionnairePermissionClick}
-          dataTypePermissions={dataPermissions}
-          questionnairePermissions={questionnairePermissions}
-        />
+        <Box display="flex" flexDirection="column">
+          {isPermissionsReady ? (
+            <Permissions
+              onAnswerRequestClick={(q) => {
+                setQuestionnaireToAnswer(q);
+              }}
+              unAnsweredQuestionnaires={
+                questionnaires!.unAnsweredQuestionnaires
+              }
+              answeredQuestionnaires={questionnaires!.answeredQuestionnaires}
+              dataTypes={consentDataTypes!}
+              onDataPermissionClick={onDataPermissionClick}
+              onQuestionnairePermissionClick={onQuestionnairePermissionClick}
+              dataTypePermissions={permissions!.dataTypes}
+              questionnairePermissions={permissions!.questionnaires}
+            />
+          ) : (
+            <Box marginX="auto" py={10}>
+              <CircularProgress />
+            </Box>
+          )}
+        </Box>
       );
     } else {
       return (

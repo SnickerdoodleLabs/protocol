@@ -8,6 +8,7 @@ import {
   IOldUserAgreement,
   IUserAgreement,
   IpfsCID,
+  PagingRequest,
 } from "@snickerdoodlelabs/objects";
 import {
   useSafeState,
@@ -100,7 +101,7 @@ const BrandItem: FC<IBrandItemProps> = ({ contractAddress, ipfsCID }) => {
     >
       {icon} {name}
       <SDTypography fontWeight="medium" ml="auto" variant="bodyLg">
-        1
+        _
       </SDTypography>
     </Box>
   );

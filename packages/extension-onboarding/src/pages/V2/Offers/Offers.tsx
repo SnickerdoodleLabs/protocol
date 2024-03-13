@@ -1,17 +1,26 @@
 import Container from "@extension-onboarding/components/v2/Container";
 import PageBanners from "@extension-onboarding/components/v2/PageBanners";
 import { useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { Box } from "@material-ui/core";
 import {
   SDTypography,
   colors,
   useResponsiveValue,
 } from "@snickerdoodlelabs/shared-components";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 
 const Offers = () => {
   const { optedInContracts } = useAppContext();
+  const { sdlDataWallet } = useDataWalletContext();
   const getResponsiveValue = useResponsiveValue();
+
+  useEffect(() => {
+    sdlDataWallet.getQueryStatuses().map((res) => {
+      console.log(res);
+    });
+  }, []);
+
 
   const pageComponent = useMemo(() => {
     if (!optedInContracts) {

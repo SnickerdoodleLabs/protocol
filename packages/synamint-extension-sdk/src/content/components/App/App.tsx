@@ -11,18 +11,19 @@ import {
   IPaletteOverrides,
   IUserAgreement,
   Invitation,
+  IpfsCID,
   LinkedAccount,
+  NewQuestionnaireAnswer,
+  PagingRequest,
   ProxyError,
   Signature,
   TokenId,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
-  DescriptionWidget,
+  ConsentModal,
   EColorMode,
-  FF_SUPPORTED_ALL_PERMISSIONS,
   ModalContainer,
-  PermissionSelectionWidget,
   createDefaultTheme,
   createThemeWithOverrides,
 } from "@snickerdoodlelabs/shared-components";
@@ -468,39 +469,45 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
     switch (true) {
       case appState === EAppState.AUDIENCE_PREVIEW:
         return (
-          <DescriptionWidget
-            invitationData={currentInvitation.data.metadata}
-            redirectRequired={!(accounts.length > 0)}
-            onRejectClick={() => {
-              rejectInvitation(false);
+          <ConsentModal
+            onClose={() => {
+              emptyReward();
             }}
-            onRejectWithTimestampClick={() => {
-              rejectInvitation(true);
-            }}
-            primaryButtonText={
-              accounts.length > 0 ? "Continue" : "Connect and Continue"
+            open={true}
+            onOptinClicked={() => acceptInvitation(null)}
+            consentContractAddress={
+              currentInvitation.data.invitation.consentContractAddress
             }
-            onContinueClick={() => {
-              if (accounts.length > 0) {
-                acceptInvitation(FF_SUPPORTED_ALL_PERMISSIONS);
-              } else {
-                window.open(
-                  `${extensionConfig.onboardingURL}?consentAddress=${currentInvitation.data.invitation.consentContractAddress}`,
-                  "_blank",
-                );
-              }
+            invitationData={currentInvitation.data.metadata}
+            answerQuestionnaire={(
+              id: IpfsCID,
+              answers: NewQuestionnaireAnswer[],
+            ) => coreGateway.questionnaire.answerQuestionnaire(id, answers)}
+            getQuestionnaires={(
+              pagingRequest: PagingRequest,
+              consentContractAddress: EVMContractAddress,
+            ) =>
+              coreGateway.questionnaire.getQuestionnairesForConsentContract(
+                pagingRequest,
+                consentContractAddress,
+              )
+            }
+            getVirtualQuestionnaires={(
+              consentContractAddress: EVMContractAddress,
+            ) => {
+              // @TODO
+              // return coreGateway.questionnaire.getVirtualQuestionnaires(
+              //   consentContractAddress,
+              // );
+              return okAsync([]);
             }}
-            onCancelClick={emptyReward}
-            onSetPermissions={() => {
-              setAppState(EAppState.PERMISSION_SELECTION);
+            setConsentPermissions={(
+              consentContractAddress: EVMContractAddress,
+              dataTypes: EWalletDataType[],
+              questionnaires: IpfsCID[],
+            ) => {
+              return okAsync(undefined);
             }}
-          />
-        );
-      case appState === EAppState.PERMISSION_SELECTION:
-        return (
-          <PermissionSelectionWidget
-            onCancelClick={emptyReward}
-            onSaveClick={acceptInvitation}
           />
         );
       default:
