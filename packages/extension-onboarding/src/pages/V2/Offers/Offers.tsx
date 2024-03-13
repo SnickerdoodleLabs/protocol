@@ -31,13 +31,12 @@ const Offers = () => {
   useEffect(() => {
     queryPostedEventSubscription.current =
       sdlDataWallet.events.onQueryPosted.subscribe((q) => {
-        console.log("Query posted", q);
         onQueryPosted(q);
       });
     return () => {
       queryPostedEventSubscription.current?.unsubscribe();
     };
-  }, []);
+  }, [JSON.stringify(items), optedInContracts?.size]);
 
   const onQueryPosted = useCallback(
     (queryStatus: SDQLQueryRequest) => {
@@ -45,7 +44,7 @@ const Offers = () => {
         reCalculateOffersForContract(queryStatus.consentContractAddress);
       }
     },
-    [JSON.stringify(items)],
+    [JSON.stringify(items), optedInContracts?.size],
   );
 
   useEffect(() => {
@@ -141,7 +140,7 @@ const Offers = () => {
         </Box>
       );
     }
-  }, [items]);
+  }, [JSON.stringify(items)]);
 
   return (
     <>
