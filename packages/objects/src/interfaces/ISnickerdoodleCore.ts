@@ -81,6 +81,7 @@ import {
   MissingWalletDataTypeError,
   ParserError,
   MethodSupportError,
+  CircuitError,
 } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
@@ -518,13 +519,10 @@ export interface IInvitationMethods {
     void,
     | PersistenceError
     | UninitializedError
-    | BlockchainProviderError
     | AjaxError
-    | MinimalForwarderContractError
-    | ConsentError
-    | UnauthorizedError
     | InvalidParametersError
-    | BlockchainCommonErrors
+    | CircuitError
+    | ConsentError
   >;
 
   /**
@@ -577,7 +575,7 @@ export interface IInvitationMethods {
 
   getAcceptedInvitations(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<OptInInfo[], PersistenceError | UnauthorizedError>;
+  ): ResultAsync<OptInInfo[], PersistenceError | UninitializedError>;
 
   getInvitationsByDomain(
     domain: DomainName,

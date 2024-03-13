@@ -303,9 +303,10 @@ export interface IConsentContract
     BlockchainCommonErrors | ConsentContractError
   >;
 
+  // Returns the index of the commitment, or 0 if it's not found
   checkCommitments(
     commitments: Commitment[],
-  ): ResultAsync<boolean[], ConsentContractError | BlockchainCommonErrors>;
+  ): ResultAsync<number[], ConsentContractError | BlockchainCommonErrors>;
 
   checkNonces(
     nonces: TokenId[],

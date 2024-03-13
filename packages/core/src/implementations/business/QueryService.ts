@@ -52,6 +52,7 @@ import {
   MethodSupportError,
   DataPermissions,
   OptInInfo,
+  Commitment,
 } from "@snickerdoodlelabs/objects";
 import {
   SDQLQueryWrapper,
@@ -182,12 +183,12 @@ export class QueryService implements IQueryService {
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
       this.accountRepo.getAccounts(),
-      this.consentContractRepository.isCommitmentAdded(
+      this.consentContractRepository.getCommitmentIndex(
         requestForData.consentContractAddress,
       ),
-    ]).andThen(([queryWrapper, context, config, accounts, commitmentAdded]) => {
+    ]).andThen(([queryWrapper, context, config, accounts, commitmentIndex]) => {
       // Check and make sure a commitment has been added for the consent contract
-      if (!commitmentAdded) {
+      if (commitmentIndex == -1) {
         // Record the query as having been received, but ignore it
         return this.createQueryStatusWithNoConsent(
           requestForData,
@@ -428,11 +429,11 @@ export class QueryService implements IQueryService {
               IDynamicRewardParameter[]
             >(queryStatus.rewardsParameters as JSONString);
             return ResultUtils.combine([
-              this.consentContractRepository.isCommitmentAdded(
+              this.consentContractRepository.getCommitmentIndex(
                 queryStatus.consentContractAddress,
               ),
               this.sdqlQueryRepo.getSDQLQueryByCID(queryStatus.queryCID),
-            ]).andThen(([commitmentAdded, query]) => {
+            ]).andThen(([commitmentIndex, query]) => {
               if (query == null) {
                 // Don't break everything if we can't get the query from IPFS, just skip it
                 return errAsync(
@@ -441,7 +442,7 @@ export class QueryService implements IQueryService {
                   ),
                 );
               }
-              return this.validateContextConfig(context, commitmentAdded)
+              return this.validateContextConfig(context, commitmentIndex)
                 .andThen(() => {
                   // After sanity checking, we process the query into insights for a
                   // (hopefully) final time, and get our opt-in key
@@ -455,6 +456,9 @@ export class QueryService implements IQueryService {
                   this.logUtils.debug(
                     `Starting queryParsingEngine for query ${query.cid}`,
                   );
+
+                  // Need to determine the start and size of the anonymity set.
+
                   return ResultUtils.combine([
                     this.queryParsingEngine
                       .handleQuery(
@@ -471,7 +475,10 @@ export class QueryService implements IQueryService {
                       queryStatus.consentContractAddress,
                       context.dataWalletKey!,
                     ),
-                    this.consentContractRepository.getAnonymitySet()
+                    this.getAnonymitySet(
+                      queryStatus.consentContractAddress,
+                      commitmentIndex,
+                    ),
                   ]);
                 })
                 .mapErr((err) => {
@@ -485,7 +492,7 @@ export class QueryService implements IQueryService {
                     ),
                   );
                 })
-                .andThen(([insights, optInInfo, anonymitySet,]) => {
+                .andThen(([insights, optInInfo, anonymitySet]) => {
                   // Deliver the insights to the backend
                   return this.insightPlatformRepo.deliverInsights(
                     queryStatus.consentContractAddress,
@@ -554,6 +561,45 @@ export class QueryService implements IQueryService {
         );
       })
       .map(() => {});
+  }
+
+  protected getAnonymitySet(
+    consentContractAddress: EVMContractAddress,
+    commitmentIndex: number,
+  ): ResultAsync<
+    Commitment[],
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainCommonErrors
+    | InvalidParametersError
+  > {
+    // The commitment set needs to include our commitment and be as big as possible, but not start at our
+    // commitment. For right now, we'll use a set of size 1000 if we can.
+    return this.consentContractRepository
+      .getCommitmentCount(consentContractAddress)
+      .andThen((commitmentCount) => {
+        if (commitmentCount > 1000) {
+          commitmentCount = 1000;
+        }
+
+        // Now generate a random number less than commitment count and less than commitmentIndex
+        const randomMax = Math.min(commitmentCount, commitmentIndex);
+
+        // Will return between 0 and randomMax - 1
+        const offset = this.getRandomInteger(0, randomMax);
+
+        // Get the anonymity set
+        return this.consentContractRepository.getAnonymitySet(
+          consentContractAddress,
+          offset,
+          commitmentCount,
+        );
+      });
+  }
+
+  // Returns an integer between mine (inclusive) and max (exclusive)
+  protected getRandomInteger(min: number, max: number) {
+    return Math.floor(Math.random() * (max - min) + min);
   }
 
   protected createQueryStatusWithConsent(
@@ -678,7 +724,7 @@ export class QueryService implements IQueryService {
 
   protected validateContextConfig(
     context: CoreContext,
-    commitmentAdded: boolean,
+    commitmentIndex: number,
   ): ResultAsync<void, UninitializedError | ConsentError> {
     if (context.dataWalletAddress == null || context.dataWalletKey == null) {
       return errAsync(
@@ -686,7 +732,7 @@ export class QueryService implements IQueryService {
       );
     }
 
-    if (!commitmentAdded) {
+    if (commitmentIndex == -1) {
       return errAsync(
         new ConsentError(`Data wallet is not opted in to the contract!`),
       );

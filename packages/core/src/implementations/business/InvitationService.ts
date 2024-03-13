@@ -8,7 +8,6 @@ import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   AccountAddress,
   AjaxError,
-  BigNumberString,
   BlockchainProviderError,
   ConsentContractError,
   ConsentContractRepositoryError,
@@ -18,13 +17,11 @@ import {
   DomainName,
   EInvitationStatus,
   EVMContractAddress,
-  HexString32,
   Invitation,
   IOldUserAgreement,
   IpfsCID,
   IPFSError,
   LinkedAccount,
-  IConsentCapacity,
   MinimalForwarderContractError,
   PageInvitation,
   PersistenceError,
@@ -55,10 +52,7 @@ import {
   IInvitationRepositoryType,
   ILinkedAccountRepository,
   ILinkedAccountRepositoryType,
-  IMetatransactionForwarderRepository,
-  IMetatransactionForwarderRepositoryType,
 } from "@core/interfaces/data/index.js";
-import { MetatransactionRequest } from "@core/interfaces/objects/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -78,8 +72,6 @@ export class InvitationService implements IInvitationService {
     @inject(IDNSRepositoryType) protected dnsRepository: IDNSRepository,
     @inject(IInvitationRepositoryType)
     protected invitationRepo: IInvitationRepository,
-    @inject(IMetatransactionForwarderRepositoryType)
-    protected forwarderRepo: IMetatransactionForwarderRepository,
     @inject(IDataWalletUtilsType) protected dataWalletUtils: IDataWalletUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
@@ -107,7 +99,7 @@ export class InvitationService implements IInvitationService {
       this.invitationRepo.getAcceptedInvitations(),
       // isAddressOptedIn() just checks for a balance- it does not require that the persistence
       // layer actually know about the token
-      this.consentRepo.isCommitmentAdded(invitation.consentContractAddress),
+      this.consentRepo.getCommitmentIndex(invitation.consentContractAddress),
       this.consentRepo.isOpenOptInDisabled(invitation.consentContractAddress),
       this.contextProvider.getContext(),
     ])
@@ -115,7 +107,7 @@ export class InvitationService implements IInvitationService {
         ([
           rejectedConsentContracts,
           acceptedInvitations,
-          optedInOnChain,
+          commitmentIndex,
           openOptInDisabled,
           context,
         ]) => {
@@ -138,7 +130,7 @@ export class InvitationService implements IInvitationService {
           }
 
           // If we are opted in, that wins
-          if (optedInOnChain) {
+          if (commitmentIndex > -1) {
             // Check if we know about the opt-in in the persistence
             if (acceptedInvitation != null) {
               // Persistence and chain match!
@@ -159,7 +151,7 @@ export class InvitationService implements IInvitationService {
           }
 
           // If we are opted in in the persistence, but not on chain, we need to update the persistence
-          if (acceptedInvitation != null && !optedInOnChain) {
+          if (acceptedInvitation != null && commitmentIndex == -1) {
             // This is a problem
             // We need to fix the persistence and then evaluate the rest of this stuff.
             // Fortunately the rest of the stuff doesn't care about acceptedInvitation,
@@ -341,9 +333,9 @@ export class InvitationService implements IInvitationService {
         .map(() => {
           // This is just a helpful bit of debug info
           this.consentRepo
-            .isCommitmentAdded(invitation.consentContractAddress)
-            .map((added) => {
-              if (!added) {
+            .getCommitmentIndex(invitation.consentContractAddress)
+            .map((commitmentIndex) => {
+              if (commitmentIndex == -1) {
                 this.logUtils.error(
                   `No commitment added on ${invitation.consentContractAddress}`,
                 );
@@ -378,9 +370,9 @@ export class InvitationService implements IInvitationService {
   > {
     // Need to check first if we are already opted in
     return this.consentRepo
-      .isCommitmentAdded(invitation.consentContractAddress)
-      .andThen((optedIn) => {
-        if (optedIn) {
+      .getCommitmentIndex(invitation.consentContractAddress)
+      .andThen((commitmentIndex) => {
+        if (commitmentIndex > -1) {
           return errAsync(
             new ConsentError(
               `Cannot reject an invitation to consent contract ${invitation.consentContractAddress}, as you are already have a consent token`,

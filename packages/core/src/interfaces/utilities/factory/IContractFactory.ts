@@ -1,8 +1,6 @@
 import {
   IConsentContract,
   IConsentFactoryContract,
-  ICrumbsContract,
-  IMinimalForwarderContract,
 } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BlockchainProviderError,

@@ -38,6 +38,26 @@ export class ConsentFactoryContractWrapper
   ) {
     super(primary, secondary, contextProvider, logUtils);
   }
+  public getStakingToken(): ResultAsync<
+    EVMContractAddress,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.fallback(
+      () => this.primary.getStakingToken(),
+      () => this.secondary?.getStakingToken(),
+    );
+  }
+
+  public listingDuration(): ResultAsync<
+    number,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.fallback(
+      () => this.primary.listingDuration(),
+      () => this.secondary?.listingDuration(),
+    );
+  }
+
   public getContractAddress(): EVMContractAddress {
     return this.primary.getContractAddress();
   }

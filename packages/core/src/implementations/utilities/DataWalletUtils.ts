@@ -1,4 +1,7 @@
-import { CircuitUtils } from "@snickerdoodlelabs/circuits-sdk";
+import {
+  CircuitUtils,
+  MembershipWrapper,
+} from "@snickerdoodlelabs/circuits-sdk";
 import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   EVMPrivateKey,
@@ -212,7 +215,16 @@ export class DataWalletUtils implements IDataWalletUtils {
     const trapdoor = CircuitUtils.getHashFromString(
       `${consentContractAddress}:${dataWalletKey}:Trapdoor`,
     );
-    return okAsync(new OptInInfo(consentContractAddress, nullifier, trapdoor));
+
+    const identity = MembershipWrapper.getIdentity(trapdoor, nullifier);
+    return okAsync(
+      new OptInInfo(
+        consentContractAddress,
+        nullifier,
+        trapdoor,
+        MembershipWrapper.getIdentityCommitment(identity),
+      ),
+    );
   }
 
   protected accountAddressToHex(accountAddress: AccountAddress): HexString {

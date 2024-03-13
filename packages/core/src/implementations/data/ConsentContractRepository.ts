@@ -1,26 +1,24 @@
-import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import {
+  IBigNumberUtilsType,
+  IBigNumberUtils,
+  ILogUtils,
+  ILogUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
-  AjaxError,
   BlockchainProviderError,
   ConsentContractError,
-  ConsentContractRepositoryError,
   ConsentFactoryContractError,
-  ConsentToken,
-  DataPermissions,
   EVMAccountAddress,
   EVMContractAddress,
-  HexString,
   IpfsCID,
-  Signature,
   TokenId,
-  TokenUri,
-  IConsentCapacity,
   UninitializedError,
   URLString,
   BlockNumber,
   BlockchainCommonErrors,
   Commitment,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -45,6 +43,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
     @inject(IContractFactoryType)
     protected consentContractFactory: IContractFactory,
     @inject(IDataWalletUtilsType) protected dataWalletUtils: IDataWalletUtils,
+    @inject(IBigNumberUtilsType) protected bigNumberUtils: IBigNumberUtils,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
@@ -118,10 +117,10 @@ export class ConsentContractRepository implements IConsentContractRepository {
       });
   }
 
-  public isCommitmentAdded(
+  public getCommitmentIndex(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
-    boolean,
+    number,
     | ConsentContractError
     | UninitializedError
     | BlockchainProviderError
@@ -163,7 +162,8 @@ export class ConsentContractRepository implements IConsentContractRepository {
           });
       })
       .map((commitmentsIncluded) => {
-        return commitmentsIncluded[0];
+        // The index from the blockchain uses 0 to mean not found. But that's weird in JS, so we convert to -1.
+        return commitmentsIncluded[0] - 1;
       });
   }
 
@@ -293,6 +293,53 @@ export class ConsentContractRepository implements IConsentContractRepository {
         this.queryHorizonCache.set(consentContractAddress, queryHorizon);
 
         return queryHorizon;
+      });
+  }
+
+  public getCommitmentCount(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    number,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+  > {
+    return this.getConsentContract(consentContractAddress).andThen(
+      (contract) => {
+        return contract.totalSupply();
+      },
+    );
+  }
+
+  public getAnonymitySet(
+    consentContractAddress: EVMContractAddress,
+    start: number,
+    count: number,
+  ): ResultAsync<
+    Commitment[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | InvalidParametersError
+  > {
+    return this.getConsentContract(consentContractAddress)
+      .andThen((contract) => {
+        return contract.fetchAnonymitySet(
+          this.bigNumberUtils.BNToBNS(BigInt(start)),
+          this.bigNumberUtils.BNToBNS(BigInt(start + count)),
+        );
+      })
+      .andThen((commitments) => {
+        if (commitments.length != count) {
+          return errAsync(
+            new InvalidParametersError(
+              `Insufficient commitments found to fullfil request for anonymity set. Requested ${count} commitments starting at index ${start}, but returned only ${commitments.length} commitments.`,
+            ),
+          );
+        }
+        return okAsync(commitments);
       });
   }
 

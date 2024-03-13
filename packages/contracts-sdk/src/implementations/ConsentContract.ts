@@ -473,7 +473,8 @@ export class ConsentContract
 
   public checkCommitments(
     commitments: Commitment[],
-  ): ResultAsync<boolean[], ConsentContractError | BlockchainCommonErrors> {
+  ): ResultAsync<number[], ConsentContractError | BlockchainCommonErrors> {
+    // Returns the indexes of the commitments. 0 means the commitment is invalid.
     return ResultAsync.fromPromise(
       this.contract.checkCommitments(commitments) as Promise<bigint[]>,
       (e) => {
@@ -494,7 +495,7 @@ export class ConsentContract
       // If if the index is not 0, then the commitment is valid
       return okAsync(
         indexes.map((index) => {
-          return index != 0n;
+          return Number(index);
         }),
       );
     });
