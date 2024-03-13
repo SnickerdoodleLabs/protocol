@@ -63,10 +63,6 @@ export interface IInvitationService {
     ipfsCID: IpfsCID,
   ): ResultAsync<IOldUserAgreement | IUserAgreement, SnickerDoodleCoreError>;
 
-  getConsentCapacity(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError>;
-
   getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
   ): ResultAsync<
@@ -78,9 +74,9 @@ export interface IInvitationService {
     SnickerDoodleCoreError
   >;
 
-  getAgreementPermissions(
+  getDataPermissions(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<EWalletDataType[], SnickerDoodleCoreError>;
+  ): ResultAsync<DataPermissions, SnickerDoodleCoreError>;
 
   getConsentContractCID(
     consentAddress: EVMContractAddress,

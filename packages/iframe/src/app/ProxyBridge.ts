@@ -354,15 +354,11 @@ export class ProxyBridge implements ISdlDataWallet {
       ),
     );
   }
-  getAgreementPermissions(
-    consentContractAddres: EVMContractAddress,
-  ): ResultAsync<EWalletDataType[], ProxyError> {
+  getDataPermissions(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<DataPermissions, ProxyError> {
     return this.call(
-      this.core.invitation
-        .getAgreementFlags(consentContractAddres)
-        .map((flags) => {
-          return DataPermissions.getDataTypesFromFlags(flags);
-        }),
+      this.core.invitation.getDataPermissions(consentContractAddress),
     );
   }
 
@@ -441,11 +437,6 @@ export class ProxyBridge implements ISdlDataWallet {
     contractAddress: EVMContractAddress,
   ): ResultAsync<URLString[], ProxyError> {
     return this.call(this.core.getConsentContractURLs(contractAddress));
-  }
-  getConsentCapacity(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<IConsentCapacity, ProxyError> {
-    return this.call(this.core.getConsentCapacity(contractAddress));
   }
   getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],

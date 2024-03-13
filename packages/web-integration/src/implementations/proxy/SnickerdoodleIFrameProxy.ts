@@ -84,6 +84,7 @@ import {
   JSONString,
   IProxyQuestionnaireMethods,
   NewQuestionnaireAnswer,
+  DataPermissions,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ethers } from "ethers";
@@ -428,10 +429,10 @@ export class SnickerdoodleIFrameProxy
       dataTypes,
     });
   }
-  public getAgreementPermissions(
+  public getDataPermissions(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<EWalletDataType[], ProxyError> {
-    return this._createCall("getAgreementPermissions", {
+  ): ResultAsync<DataPermissions, ProxyError> {
+    return this._createCall("getDataPermissions", {
       consentContractAddress,
     });
   }
@@ -525,14 +526,6 @@ export class SnickerdoodleIFrameProxy
     contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, ProxyError> {
     return this._createCall("getReceivingAddress", {
-      contractAddress,
-    });
-  }
-
-  public getConsentCapacity(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<IConsentCapacity, ProxyError> {
-    return this._createCall("getConsentCapacity", {
       contractAddress,
     });
   }

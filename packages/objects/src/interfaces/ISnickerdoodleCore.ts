@@ -594,11 +594,11 @@ export interface IInvitationMethods {
     | BlockchainCommonErrors
   >;
 
-  getAgreementFlags(
+  getDataPermissions(
     consentContractAddress: EVMContractAddress,
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<
-    HexString32,
+    DataPermissions,
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
@@ -850,16 +850,6 @@ export interface ISnickerdoodleCore {
     URLString[],
     | UninitializedError
     | BlockchainProviderError
-    | ConsentContractError
-    | BlockchainCommonErrors
-  >;
-
-  getConsentCapacity(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    IConsentCapacity,
-    | BlockchainProviderError
-    | UninitializedError
     | ConsentContractError
     | BlockchainCommonErrors
   >;

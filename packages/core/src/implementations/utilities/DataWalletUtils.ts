@@ -12,12 +12,10 @@ import {
   ChainId,
   EChainTechnology,
   SolanaAccountAddress,
-  EVMAccountAddress,
   EVMContractAddress,
   PasswordString,
   SuiAccountAddress,
   OptInInfo,
-  DataWalletAddress,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -205,7 +203,7 @@ export class DataWalletUtils implements IDataWalletUtils {
 
   public deriveOptInInfo(
     consentContractAddress: EVMContractAddress,
-    dataWalletKey: DataWalletAddress,
+    dataWalletKey: EVMPrivateKey,
   ): ResultAsync<OptInInfo, never> {
     // The opt in values are just from understood strings
     const nullifier = CircuitUtils.getHashFromString(

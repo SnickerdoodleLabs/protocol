@@ -119,20 +119,6 @@ class InvitationServiceMocks {
     this.logUtils = td.object<ILogUtils>();
     this.accountRepo = td.object<ILinkedAccountRepository>();
 
-    td.when(
-      this.insightPlatformRepo.executeMetatransaction(
-        EVMAccountAddress(dataWalletAddress),
-        consentContractAddress1,
-        metatransactionNonce,
-        metatransactionValue,
-        metatransactionGas,
-        optInCallData,
-        optInSignature,
-        optInPrivateKey,
-        defaultInsightPlatformBaseUrl,
-      ),
-    ).thenReturn(okAsync(undefined));
-
     td.when(this.dnsRepository.fetchTXTRecords(domain)).thenReturn(
       okAsync([`"${consentContractAddress1}"`]),
     );
@@ -144,24 +130,6 @@ class InvitationServiceMocks {
     td.when(
       this.consentRepo.getMetadataCID(consentContractAddress1),
     ).thenReturn(okAsync(ipfsCID));
-    td.when(
-      this.consentRepo.getConsentCapacity(consentContractAddress1),
-    ).thenReturn(okAsync({ availableOptInCount: 10, maxCapacity: 10 }));
-    td.when(
-      this.consentRepo.getConsentToken(
-        acceptedInvitation.consentContractAddress,
-        acceptedInvitation.tokenId,
-      ),
-    ).thenReturn(okAsync(consentToken1));
-    td.when(
-      this.consentRepo.encodeUpdateAgreementFlags(
-        consentContractAddress1,
-        tokenId1,
-        td.matchers.contains({
-          agreementFlags: newPermissionsHex,
-        }),
-      ),
-    ).thenReturn(okAsync(encodedUpdateAgreementFlagsContent));
 
     // InvitationRepo -------------------------------------------------------
     td.when(this.invitationRepo.getInvitationMetadataByCID(ipfsCID)).thenReturn(
@@ -283,26 +251,6 @@ describe("InvitationService tests", () => {
     );
     expect(pageInvitations[1].invitation.domain).toBe(domain);
     expect(pageInvitations[1].invitation.tokenId).toBe(tokenId2);
-  });
-
-  test("getInvitationsByDomain no available slots", async () => {
-    // Arrange
-    const mocks = new InvitationServiceMocks();
-
-    td.when(
-      mocks.consentRepo.getConsentCapacity(consentContractAddress1),
-    ).thenReturn(okAsync({ availableOptInCount: 0, maxCapacity: 10 }));
-
-    const service = mocks.factory();
-
-    // Act
-    const result = await service.getInvitationsByDomain(domain);
-
-    // Assert
-    expect(result).toBeDefined();
-    expect(result.isErr()).toBeFalsy();
-    const pageInvitations = result._unsafeUnwrap();
-    expect(pageInvitations.length).toBe(0);
   });
 });
 

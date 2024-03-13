@@ -15,6 +15,7 @@ import {
   TransactionFilter,
   ChainTransaction,
   TransactionFlowInsight,
+  DataPermissions,
 } from "@objects/businessObjects/index.js";
 import {
   ECoreProxyType,
@@ -277,9 +278,9 @@ export interface ISdlDataWallet {
     consentContractAddress: EVMContractAddress,
     dataTypes: EWalletDataType[],
   ): ResultAsync<void, ProxyError>;
-  getAgreementPermissions(
-    consentContractAddres: EVMContractAddress,
-  ): ResultAsync<EWalletDataType[], ProxyError>;
+  getDataPermissions(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<DataPermissions, ProxyError>;
   leaveCohort(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, ProxyError>;
@@ -333,10 +334,6 @@ export interface ISdlDataWallet {
   getConsentContractURLs(
     contractAddress: EVMContractAddress,
   ): ResultAsync<URLString[], ProxyError>;
-
-  getConsentCapacity(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<IConsentCapacity, ProxyError>;
 
   getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],

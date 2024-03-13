@@ -493,21 +493,17 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      getAgreementPermissions: (
+      getDataPermissions: (
         data: IIFrameCallData<{
           consentContractAddress: EVMContractAddress;
         }>,
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.invitation
-              .getAgreementFlags(
-                data.data.consentContractAddress,
-                this.sourceDomain,
-              )
-              .map((flags) => {
-                return DataPermissions.getDataTypesFromFlags(flags);
-              });
+            return core.invitation.getDataPermissions(
+              data.data.consentContractAddress,
+              this.sourceDomain,
+            );
           });
         }, data.callId);
       },
@@ -691,18 +687,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
               data.data.contractAddress,
               this.sourceDomain,
             );
-          });
-        }, data.callId);
-      },
-
-      getConsentCapacity: (
-        data: IIFrameCallData<{
-          contractAddress: EVMContractAddress;
-        }>,
-      ) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.getConsentCapacity(data.data.contractAddress);
           });
         }, data.callId);
       },

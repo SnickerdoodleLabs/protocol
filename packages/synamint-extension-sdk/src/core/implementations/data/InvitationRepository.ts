@@ -82,11 +82,11 @@ export class InvitationRepository implements IInvitationRepository {
     });
   }
 
-  public getAgreementFlags(
+  public getDataPermissions(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<HexString32, SnickerDoodleCoreError> {
+  ): ResultAsync<DataPermissions, SnickerDoodleCoreError> {
     return this.core.invitation
-      .getAgreementFlags(consentContractAddress)
+      .getDataPermissions(consentContractAddress)
       .mapErr((error) => {
         this.errorUtils.emit(error);
         return new SnickerDoodleCoreError((error as Error).message, error);
@@ -111,17 +111,6 @@ export class InvitationRepository implements IInvitationRepository {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
-  }
-
-  public getConsentCapacity(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError> {
-    return this.core
-      .getConsentCapacity(consentContractAddress)
-      .mapErr((error) => {
-        this.errorUtils.emit(error);
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      });
   }
   public getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],

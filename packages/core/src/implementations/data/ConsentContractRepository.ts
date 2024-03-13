@@ -118,9 +118,8 @@ export class ConsentContractRepository implements IConsentContractRepository {
       });
   }
 
-  public getCommitment(
+  public isCommitmentAdded(
     consentContractAddress: EVMContractAddress,
-    commitment: Commitment,
   ): ResultAsync<
     boolean,
     | ConsentContractError
@@ -138,31 +137,52 @@ export class ConsentContractRepository implements IConsentContractRepository {
             ),
           );
         }
-        // The opt-in token is not assigned to the data wallet address itself, it is assigned
-        // to a derived address
+        // The commitment is derivable from the data wallet key and consent contract address
         return ResultUtils.combine([
           this.getConsentContract(consentContractAddress),
-          this.dataWalletUtils.deriveOptInAccountAddress(
+          this.dataWalletUtils.deriveOptInInfo(
             consentContractAddress,
             context.dataWalletKey,
           ),
         ]);
       })
-      .andThen(([consentContract, derivedAddress]) => {
-        return consentContract.balanceOf(derivedAddress).mapErr((e) => {
-          // Almost always, you get an error, "Unable to call "balanceOf", which is
-          // correct but not helpful; our goal here is to figure out if the address
-          // is opted in or not- the method we use to check that, "balanceOf", is not
-          // super relevant. Adding a specific error log to help understand what's going
-          // on.
-          this.logUtils.error(
-            `While checking if derived address ${derivedAddress} is opted in to consent contract ${consentContractAddress}, got an error from balanceOf(), which usually means the control chain cannot be reached or that the consent contract does not exist. Most commony this is a result of the doodlechain being reset.`,
-          );
-          return e;
-        });
+      .andThen(([consentContract, optInInfo]) => {
+        // Need to convert to a commitment
+        return consentContract
+          .checkCommitments([optInInfo.commitment])
+          .mapErr((e) => {
+            // Almost always, you get an error, "Unable to call "balanceOf", which is
+            // correct but not helpful; our goal here is to figure out if the address
+            // is opted in or not- the method we use to check that, "balanceOf", is not
+            // super relevant. Adding a specific error log to help understand what's going
+            // on.
+            this.logUtils.error(
+              `While checking if the commitment ${optInInfo.commitment} is included in consent contract ${consentContractAddress}, got an error from checkCommitments(), which usually means the control chain cannot be reached or that the consent contract does not exist. Most commonly this is a result of the doodlechain being reset.`,
+            );
+            return e;
+          });
       })
-      .map((numberOfTokens) => {
-        return numberOfTokens > 0;
+      .map((commitmentsIncluded) => {
+        return commitmentsIncluded[0];
+      });
+  }
+
+  public isNonceUsed(
+    consentContractAddress: EVMContractAddress,
+    nonce: TokenId,
+  ): ResultAsync<
+    boolean,
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | BlockchainCommonErrors
+  > {
+    return this.getConsentContract(consentContractAddress)
+      .andThen((consentContract) => {
+        return consentContract.checkNonces([nonce]);
+      })
+      .map((noncesIncluded) => {
+        return noncesIncluded[0];
       });
   }
 

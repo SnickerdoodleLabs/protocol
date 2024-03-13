@@ -25,6 +25,7 @@ import {
   OptInInfo,
   IUserAgreement,
   InvalidParametersError,
+  CircuitError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -49,12 +50,10 @@ export interface IInvitationService {
     void,
     | PersistenceError
     | UninitializedError
-    | BlockchainProviderError
     | AjaxError
-    | MinimalForwarderContractError
-    | ConsentError
     | InvalidParametersError
-    | BlockchainCommonErrors
+    | CircuitError
+    | ConsentError
   >;
 
   rejectInvitation(
@@ -97,7 +96,10 @@ export interface IInvitationService {
     contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, PersistenceError>;
 
-  getAcceptedInvitations(): ResultAsync<OptInInfo[], PersistenceError>;
+  getAcceptedInvitations(): ResultAsync<
+    OptInInfo[],
+    PersistenceError | UninitializedError
+  >;
 
   getConsentContractCID(
     consentAddress: EVMContractAddress,
@@ -136,32 +138,16 @@ export interface IInvitationService {
     ipfsCID: IpfsCID,
   ): ResultAsync<IOldUserAgreement | IUserAgreement, IPFSError>;
 
-  getAgreementFlags(
+  getDataPermissions(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
-    HexString32,
-    | ConsentContractError
-    | UninitializedError
-    | BlockchainProviderError
-    | ConsentError
-    | PersistenceError
-    | ConsentFactoryContractError
-    | BlockchainCommonErrors
+    DataPermissions,
+    UninitializedError | ConsentError | PersistenceError
   >;
   updateDataPermissions(
     consentContractAddress: EVMContractAddress,
     dataPermissions: DataPermissions,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | UninitializedError
-    | ConsentError
-    | ConsentContractError
-    | BlockchainProviderError
-    | MinimalForwarderContractError
-    | AjaxError
-    | BlockchainCommonErrors
-  >;
+  ): ResultAsync<void, PersistenceError | UninitializedError>;
 
   getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,

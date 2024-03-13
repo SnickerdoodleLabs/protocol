@@ -625,8 +625,8 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     );
   }
 
-  public getAgreementPermissions(consentContractAddress: EVMContractAddress) {
-    return coreGateway.getAgreementPermissions(
+  public getDataPermissions(consentContractAddress: EVMContractAddress) {
+    return coreGateway.getDataPermissions(
       new GetAgreementPermissionsParams(consentContractAddress),
     );
   }
@@ -652,14 +652,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   }
   public getSiteVisitsMap(): ResultAsync<Map<URLString, number>, ProxyError> {
     return coreGateway.getSiteVisitsMap();
-  }
-
-  public getConsentCapacity(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<IConsentCapacity, ProxyError> {
-    return coreGateway.getConsentCapacity(
-      new GetConsentCapacityParams(contractAddress),
-    );
   }
 
   public getEarnedRewardsByContractAddress(

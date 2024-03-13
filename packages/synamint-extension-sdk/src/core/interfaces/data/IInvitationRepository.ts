@@ -49,9 +49,6 @@ export interface IInvitationRepository {
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOldUserAgreement | IUserAgreement, SnickerDoodleCoreError>;
-  getConsentCapacity(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError>;
   getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     SnickerDoodleCoreError
@@ -62,9 +59,9 @@ export interface IInvitationRepository {
     Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
     SnickerDoodleCoreError
   >;
-  getAgreementFlags(
+  getDataPermissions(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<HexString32, SnickerDoodleCoreError>;
+  ): ResultAsync<DataPermissions, SnickerDoodleCoreError>;
   getConsentContractCID(
     consentAddress: EVMContractAddress,
   ): ResultAsync<IpfsCID, SnickerDoodleCoreError>;

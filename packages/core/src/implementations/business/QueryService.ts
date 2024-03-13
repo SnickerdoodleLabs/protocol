@@ -51,6 +51,7 @@ import {
   InvalidParametersError,
   MethodSupportError,
   DataPermissions,
+  OptInInfo,
 } from "@snickerdoodlelabs/objects";
 import {
   SDQLQueryWrapper,
@@ -63,8 +64,6 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import { IQueryService } from "@core/interfaces/business/index.js";
 import {
-  IConsentTokenUtils,
-  IConsentTokenUtilsType,
   IQueryParsingEngine,
   IQueryParsingEngineType,
 } from "@core/interfaces/business/utilities/index.js";
@@ -89,8 +88,6 @@ import {
 @injectable()
 export class QueryService implements IQueryService {
   public constructor(
-    @inject(IConsentTokenUtilsType)
-    protected consentTokenUtils: IConsentTokenUtils,
     @inject(IDataWalletUtilsType)
     protected dataWalletUtils: IDataWalletUtils,
     @inject(IQueryParsingEngineType)
@@ -185,12 +182,12 @@ export class QueryService implements IQueryService {
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
       this.accountRepo.getAccounts(),
-      this.consentTokenUtils.getCurrentConsentToken(
+      this.consentContractRepository.isCommitmentAdded(
         requestForData.consentContractAddress,
       ),
-    ]).andThen(([queryWrapper, context, config, accounts, consentToken]) => {
-      // Check and make sure a consent token exists
-      if (consentToken == null) {
+    ]).andThen(([queryWrapper, context, config, accounts, commitmentAdded]) => {
+      // Check and make sure a commitment has been added for the consent contract
+      if (!commitmentAdded) {
         // Record the query as having been received, but ignore it
         return this.createQueryStatusWithNoConsent(
           requestForData,
@@ -210,14 +207,13 @@ export class QueryService implements IQueryService {
       return this.createQueryStatusWithConsent(requestForData, queryWrapper)
         .andThen(() => {
           return this.dataWalletUtils
-            .deriveOptInPrivateKey(
+            .deriveOptInInfo(
               requestForData.consentContractAddress,
               context.dataWalletKey!,
             )
-            .andThen((optInKey) => {
+            .andThen((optInInfo) => {
               return this.constructAndPublishSDQLQueryRequest(
-                consentToken,
-                optInKey,
+                optInInfo,
                 requestForData.consentContractAddress,
                 queryWrapper.sdqlQuery,
                 accounts,
@@ -432,11 +428,11 @@ export class QueryService implements IQueryService {
               IDynamicRewardParameter[]
             >(queryStatus.rewardsParameters as JSONString);
             return ResultUtils.combine([
-              this.consentTokenUtils.getCurrentConsentToken(
+              this.consentContractRepository.isCommitmentAdded(
                 queryStatus.consentContractAddress,
               ),
               this.sdqlQueryRepo.getSDQLQueryByCID(queryStatus.queryCID),
-            ]).andThen(([consentToken, query]) => {
+            ]).andThen(([commitmentAdded, query]) => {
               if (query == null) {
                 // Don't break everything if we can't get the query from IPFS, just skip it
                 return errAsync(
@@ -445,7 +441,7 @@ export class QueryService implements IQueryService {
                   ),
                 );
               }
-              return this.validateContextConfig(context, consentToken)
+              return this.validateContextConfig(context, commitmentAdded)
                 .andThen(() => {
                   // After sanity checking, we process the query into insights for a
                   // (hopefully) final time, and get our opt-in key
@@ -471,10 +467,11 @@ export class QueryService implements IQueryService {
                         );
                         return insights;
                       }),
-                    this.dataWalletUtils.deriveOptInPrivateKey(
+                    this.dataWalletUtils.deriveOptInInfo(
                       queryStatus.consentContractAddress,
                       context.dataWalletKey!,
                     ),
+                    this.consentContractRepository.getAnonymitySet()
                   ]);
                 })
                 .mapErr((err) => {
@@ -488,15 +485,17 @@ export class QueryService implements IQueryService {
                     ),
                   );
                 })
-                .andThen(([insights, optInKey]) => {
+                .andThen(([insights, optInInfo, anonymitySet,]) => {
                   // Deliver the insights to the backend
                   return this.insightPlatformRepo.deliverInsights(
                     queryStatus.consentContractAddress,
-                    consentToken!.tokenId,
+                    optInInfo.identityTrapdoor,
+                    optInInfo.identityNullifier,
                     query.cid,
                     insights,
                     rewardsParameters,
-                    optInKey,
+                    anonymitySet,
+                    0,
                     config.defaultInsightPlatformBaseUrl,
                   );
                 })
@@ -603,8 +602,7 @@ export class QueryService implements IQueryService {
   }
 
   protected constructAndPublishSDQLQueryRequest(
-    consentToken: ConsentToken,
-    optInKey: EVMPrivateKey,
+    optInInfo: OptInInfo,
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
     accounts: LinkedAccount[],
@@ -680,7 +678,7 @@ export class QueryService implements IQueryService {
 
   protected validateContextConfig(
     context: CoreContext,
-    consentToken: ConsentToken | null,
+    commitmentAdded: boolean,
   ): ResultAsync<void, UninitializedError | ConsentError> {
     if (context.dataWalletAddress == null || context.dataWalletKey == null) {
       return errAsync(
@@ -688,7 +686,7 @@ export class QueryService implements IQueryService {
       );
     }
 
-    if (consentToken == null) {
+    if (!commitmentAdded) {
       return errAsync(
         new ConsentError(`Data wallet is not opted in to the contract!`),
       );

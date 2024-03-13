@@ -61,6 +61,7 @@ import {
   Questionnaire,
   QuestionnaireWithAnswers,
   NewQuestionnaireAnswer,
+  DataPermissions,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 
@@ -258,9 +259,7 @@ export class RejectInvitationParams extends CoreActionParams<void> {
   }
 }
 
-export class GetAgreementPermissionsParams extends CoreActionParams<
-  EWalletDataType[]
-> {
+export class GetAgreementPermissionsParams extends CoreActionParams<DataPermissions> {
   public constructor(public consentContractAddress: EVMContractAddress) {
     super(GetAgreementPermissionsParams.getCoreAction());
   }

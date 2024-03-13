@@ -20,6 +20,7 @@ import {
   BlockNumber,
   BlockchainCommonErrors,
   Commitment,
+  BigNumberString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -62,9 +63,19 @@ export interface IConsentContractRepository {
     | BlockchainCommonErrors
   >;
 
-  getCommitment(
+  isCommitmentAdded(
     consentContractAddress: EVMContractAddress,
-    commitment: Commitment,
+  ): ResultAsync<
+    boolean,
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | BlockchainCommonErrors
+  >;
+
+  isNonceUsed(
+    consentContractAddress: EVMContractAddress,
+    nonce: TokenId,
   ): ResultAsync<
     boolean,
     | ConsentContractError
@@ -127,6 +138,13 @@ export interface IConsentContractRepository {
     | ConsentContractError
     | BlockchainCommonErrors
   >;
+
+  getAnonymitySet(consentContractAddress: EVMContractAddress, start: number, count: number): ResultAsync<
+    Commitment,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
 }
 
 export const IConsentContractRepositoryType = Symbol.for(

@@ -61,6 +61,7 @@ import {
   IProxyQuestionnaireMethods,
   PagingRequest,
   NewQuestionnaireAnswer,
+  DataPermissions,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { JsonRpcEngine } from "json-rpc-engine";
@@ -413,9 +414,9 @@ export class ExternalCoreGateway {
     return this._handler.call(params);
   }
 
-  public getAgreementPermissions(
+  public getDataPermissions(
     params: GetAgreementPermissionsParams,
-  ): ResultAsync<EWalletDataType[], ProxyError> {
+  ): ResultAsync<DataPermissions, ProxyError> {
     return this._handler.call(params);
   }
 
@@ -606,12 +607,6 @@ export class ExternalCoreGateway {
   public getReceivingAddress(
     params: GetReceivingAddressParams,
   ): ResultAsync<AccountAddress, ProxyError> {
-    return this._handler.call(params);
-  }
-
-  public getConsentCapacity(
-    params: GetConsentCapacityParams,
-  ): ResultAsync<IConsentCapacity, ProxyError> {
     return this._handler.call(params);
   }
 

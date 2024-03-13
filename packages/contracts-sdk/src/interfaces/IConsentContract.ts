@@ -303,6 +303,14 @@ export interface IConsentContract
     BlockchainCommonErrors | ConsentContractError
   >;
 
+  checkCommitments(
+    commitments: Commitment[],
+  ): ResultAsync<boolean[], ConsentContractError | BlockchainCommonErrors>;
+
+  checkNonces(
+    nonces: TokenId[],
+  ): ResultAsync<boolean[], ConsentContractError | BlockchainCommonErrors>;
+
   fetchAnonymitySet(
     start: BigNumberString,
     stop: BigNumberString,

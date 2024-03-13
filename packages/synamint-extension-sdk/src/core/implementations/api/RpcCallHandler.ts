@@ -486,7 +486,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<GetAgreementPermissionsParams>(
       GetAgreementPermissionsParams.getCoreAction(),
       (params) => {
-        return this.invitationService.getAgreementPermissions(
+        return this.invitationService.getDataPermissions(
           params.consentContractAddress,
         );
       },
@@ -624,14 +624,6 @@ export class RpcCallHandler implements IRpcCallHandler {
       GetListingsTotalByTagParams.getCoreAction(),
       (params) => {
         return this.invitationService.getListingsTotalByTag(params.tag);
-      },
-    ),
-    new CoreActionHandler<GetConsentCapacityParams>(
-      GetConsentCapacityParams.getCoreAction(),
-      (params) => {
-        return this.invitationService.getConsentCapacity(
-          params.contractAddress,
-        );
       },
     ),
     new CoreActionHandler<GetEarnedRewardsByContractAddressParams>(

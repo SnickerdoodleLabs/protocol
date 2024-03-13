@@ -22,7 +22,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
-import { ok, err, okAsync, ResultAsync } from "neverthrow";
+import { ok, err, okAsync, ResultAsync, errAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
@@ -469,6 +469,46 @@ export class ConsentContract
     ).map((bnGas) => {
       return BigNumberString(bnGas.toString());
     });
+  }
+
+  public checkCommitments(
+    commitments: Commitment[],
+  ): ResultAsync<boolean[], ConsentContractError | BlockchainCommonErrors> {
+    return ResultAsync.fromPromise(
+      this.contract.checkCommitments(commitments) as Promise<bigint[]>,
+      (e) => {
+        return this.generateError(e, "Unable to call checkCommitments()");
+      },
+    ).andThen((indexes) => {
+      // Indexes should be the same size as commitments. If not, something went wrong
+      if (commitments.length != indexes.length) {
+        return errAsync(
+          new ConsentContractError(
+            "Invalid response from checkCommitments(), returned index length does not match the length of the requested commitments",
+            null,
+            null,
+          ),
+        );
+      }
+
+      // If if the index is not 0, then the commitment is valid
+      return okAsync(
+        indexes.map((index) => {
+          return index != 0n;
+        }),
+      );
+    });
+  }
+
+  public checkNonces(
+    nonces: TokenId[],
+  ): ResultAsync<boolean[], ConsentContractError | BlockchainCommonErrors> {
+    return ResultAsync.fromPromise(
+      this.contract.checkNonces(nonces) as Promise<boolean[]>,
+      (e) => {
+        return this.generateError(e, "Unable to call checkNonces()");
+      },
+    );
   }
 
   public fetchAnonymitySet(

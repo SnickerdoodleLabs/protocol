@@ -405,7 +405,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
         return invitationService.getInvitationsByDomain(domain);
       },
-      getAgreementFlags: (
+      getDataPermissions: (
         consentContractAddress: EVMContractAddress,
         sourceDomain: DomainName | undefined = undefined,
       ) => {
@@ -413,7 +413,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           IInvitationServiceType,
         );
 
-        return invitationService.getAgreementFlags(consentContractAddress);
+        return invitationService.getDataPermissions(consentContractAddress);
       },
       getAvailableInvitationsCID: (
         sourceDomain: DomainName | undefined = undefined,
@@ -917,22 +917,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       IConsentContractRepositoryType,
     );
     return consentRepo.getInvitationUrls(consentContractAddress);
-  }
-
-  public getConsentCapacity(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    IConsentCapacity,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | BlockchainCommonErrors
-  > {
-    const invitationService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-
-    return invitationService.getConsentCapacity(consentContractAddress);
   }
 
   public getConsentContractCID(

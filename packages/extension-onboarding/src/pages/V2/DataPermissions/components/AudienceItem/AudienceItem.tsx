@@ -10,6 +10,7 @@ import {
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Skeleton } from "@material-ui/lab";
 import {
+  DataPermissions,
   EVMContractAddress,
   EWalletDataType,
   IOldUserAgreement,
@@ -61,7 +62,7 @@ const AudienceItem: FC<IAudienceItemProps> = ({
   const { sdlDataWallet } = useDataWalletContext();
   const lastSetPermissions = useRef<EWalletDataType[]>();
   const [contractInfo, setContractInfo] = useState<IContractInfo>();
-  const [permissions, setPermissions] = useState<EWalletDataType[]>();
+  const [permissions, setPermissions] = useState<DataPermissions>();
   const [saveRequired, setSaveRequired] = useState<boolean>(false);
   const [domainVerificationStatus, setDomainVerificationStatus] =
     useState<Map<URLString, boolean>>();
@@ -139,7 +140,7 @@ const AudienceItem: FC<IAudienceItemProps> = ({
       .andThen(([metadata, urls]) => {
         setContractInfo({ metadata, urls });
         return sdlDataWallet
-          .getAgreementPermissions(contractAddress)
+          .getDataPermissions(contractAddress)
           .map((permissions) => {
             setPermissions(permissions);
           })

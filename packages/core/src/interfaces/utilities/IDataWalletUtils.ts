@@ -1,9 +1,7 @@
 import {
   AccountAddress,
   AESKey,
-  DataWalletAddress,
   EChain,
-  EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
   ExternallyOwnedAccount,
@@ -65,7 +63,7 @@ export interface IDataWalletUtils {
    */
   deriveOptInInfo(
     consentContractAddress: EVMContractAddress,
-    dataWalletKey: DataWalletAddress,
+    dataWalletKey: EVMPrivateKey,
   ): ResultAsync<OptInInfo, never>;
 }
 
