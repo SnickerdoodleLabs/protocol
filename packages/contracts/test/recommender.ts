@@ -1,6 +1,6 @@
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import {
-  time,
+  mine,
   loadFixture,
 } from "@nomicfoundation/hardhat-toolbox/network-helpers";
 import { expect } from "chai";
@@ -68,7 +68,42 @@ describe("Stake for Ranking tests", function () {
     };
   }
 
-  describe("Stake a tag", function () {
+  describe("Staking mechanics", function () {
+    it("Only STAKER_ROLE can stake for content objects", async function () {
+      const { consentFactory, token, owner } = await loadFixture(
+        deployConsentStack,
+      );
+
+      // then initialize a tag
+      await expect(
+        consentFactory.initializeTag("NFT", await token.getAddress(), 10),
+      ).to.be.revertedWith("ConsentFactory: Caller is not a Consent Contract");
+    });
+
+    it("Only registered content objects can list in global factory listings", async function () {
+      const { consentFactory, consentContract, token, owner, otherAccount } =
+        await loadFixture(deployConsentStack);
+
+      // first compute the fee required for a desired slot
+      const mySlot = 65000;
+      const fee = await consentContract.computeFee(mySlot);
+
+      // first allow the consent contract a token budget of 1000 tokens
+      await token.approve(await consentContract.getAddress(), fee);
+
+      // then initialize a tag
+      await expect(
+        consentContract
+          .connect(otherAccount)
+          .newGlobalTag("NFT", await token.getAddress(), mySlot),
+      )
+        .to.be.revertedWithCustomError(
+          consentContract,
+          "AccessControlUnauthorizedAccount",
+        )
+        .withArgs("0x70997970C51812dc3A010C7d01b50e0d17dc79C8", anyValue);
+    });
+
     it("Try staking on a single deployed Content Object and then removing it", async function () {
       const { consentFactory, consentContract, token, owner, otherAccount } =
         await loadFixture(deployConsentStack);
@@ -252,19 +287,150 @@ describe("Stake for Ranking tests", function () {
       );
 
       // then initialize a tag in the other consent contract upstream of existing slot
-      await consentContract2
-        .connect(otherAccount)
-        .newLocalTagDownstream(
-          "NFT",
-          await token.getAddress(),
-          ownerSlot,
-          otherSlot,
-        );
+      await consentContract2.newLocalTagDownstream(
+        "NFT",
+        await token.getAddress(),
+        ownerSlot,
+        otherSlot,
+      );
 
       // see if the tag was registered correctly
       expect(
         await consentContract2.getNumberOfStakedTags(await token.getAddress()),
       ).to.equal(1);
+    });
+
+    it("Test restaking of an expired listing", async function () {
+      const { consentFactory, consentContract, token, owner, otherAccount } =
+        await loadFixture(deployConsentStack);
+
+      // first compute the fee required for a desired slot
+      const ownerSlot = 70000;
+      const ownerFee = await consentContract.computeFee(ownerSlot);
+
+      // first allow the consent contract a token budget of 1000 tokens
+      await token.approve(await consentContract.getAddress(), ownerFee);
+
+      // then initialize a tag in the first consent contract
+      await consentContract.newGlobalTag(
+        "NFT",
+        await token.getAddress(),
+        ownerSlot,
+      );
+
+      // it should show up in getListingsForward and getListingsBackward
+      const listingsForward = await consentFactory.getListingsForward(
+        "NFT",
+        await token.getAddress(),
+        ownerSlot,
+        1,
+        true,
+      );
+
+      // should be the baseURI of the content object
+      expect(listingsForward[0][0]).to.equal("snickerdoodle.com");
+
+      // should be equal to the address of the content object
+      expect(listingsForward[1][0][2]).to.equal(
+        await consentContract.getAddress(),
+      );
+
+      // now fast forward 2 weeks (60 * 60 * 24 * 12) plus 1 second
+      await mine(80641, { interval: 15 });
+
+      // at this point, getListingsForward and getListingsBackward should ignore the expired listing
+      const expiredListingsForward = await consentFactory.getListingsForward(
+        "NFT",
+        await token.getAddress(),
+        ownerSlot,
+        1,
+        true,
+      );
+
+      // should be empty element because the listing is expired
+      expect(expiredListingsForward[0][0]).to.equal("");
+
+      // now restake the listing
+      await consentContract.restakeExpiredListing(
+        "NFT",
+        await token.getAddress(),
+      );
+
+      // and it should now show back up in the global listings
+      // it should show up in getListingsForward and getListingsBackward
+      const restakedListingsForward = await consentFactory.getListingsForward(
+        "NFT",
+        await token.getAddress(),
+        ownerSlot,
+        1,
+        true,
+      );
+
+      // should be the baseURI of the content object
+      expect(restakedListingsForward[0][0]).to.equal("snickerdoodle.com");
+      expect(listingsForward[1][0][2]).to.equal(
+        await consentContract.getAddress(),
+      );
+    });
+
+    it("Test replacing an expired listing with a new one", async function () {
+      const {
+        consentFactory,
+        consentContract,
+        consentContract2,
+        token,
+        owner,
+        otherAccount,
+      } = await loadFixture(deployConsentStack);
+
+      // first compute the fee required for a desired slot
+      const slot = 70000;
+      const fee = await consentContract.computeFee(slot);
+
+      // give some token to the other account
+      await expect(
+        token.transfer(otherAccount.address, fee),
+      ).to.changeTokenBalance(token, otherAccount, fee);
+
+      // first allow the consent contract a token budget of 1000 tokens
+      await token.approve(await consentContract.getAddress(), fee);
+      await token
+        .connect(otherAccount)
+        .approve(await consentContract2.getAddress(), fee);
+
+      // then initialize a tag in the first consent contract
+      await consentContract.newGlobalTag("NFT", await token.getAddress(), slot);
+
+      // the listing cannot be replaced while its active
+      await expect(
+        consentContract2.replaceExpiredListing(
+          "NFT",
+          await token.getAddress(),
+          slot,
+        ),
+      ).to.be.revertedWith("ConsentFactory: current listing is still active");
+
+      // now fast forward 2 weeks (60 * 60 * 24 * 12) plus 1 second
+      await mine(80641, { interval: 15 });
+
+      // now that the listing is expired, replace it with another content objects listing
+      await consentContract2.replaceExpiredListing(
+        "NFT",
+        await token.getAddress(),
+        slot,
+      );
+
+      // the new listing should show up now in the global listing
+      const listings = await consentFactory.getListingsForward(
+        "NFT",
+        await token.getAddress(),
+        slot,
+        1,
+        true,
+      );
+
+      // should be the baseURI of the content object
+      expect(listings[0][0]).to.equal("example.com");
     });
   });
 });
