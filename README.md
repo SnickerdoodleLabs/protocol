@@ -33,7 +33,7 @@ Create an up to date version of the SPA
 `yarn dockerize`
 
 # Publishing
-This repository is a monorepo, and the individual packages can not be developed except in the overall context of the monorepo itself. Thus, no individual package contains any dev depenendencies. Each package has it's own runtime dependencies, listed in the package itself. Packages from the monorepo are published as individual packages, and once published, are free from any linkage to the monorepo origins.
+This repository is a monorepo, and the individual packages can not be developed except in the overall context of the monorepo itself. Thus, no individual package contains any dev dependencies. Each package has it's own runtime dependencies, listed in the package itself. Packages from the monorepo are published as individual packages, and once published, are free from any linkage to the monorepo origins.
 
 To publish a package, first, make sure that its version is updated in the packages' package.json. We follow semantic versioning, major.minor.patch. The best thing to do is to use the built-in Yarn [version](https://yarnpkg.com/cli/version) commands  in deferred mode, while you are developing. If you just add a new primitive to Objects, that's just a patch upgrade. You can use: 
 `cd packages/common-utils`
