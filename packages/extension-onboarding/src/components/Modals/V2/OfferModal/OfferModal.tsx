@@ -74,6 +74,12 @@ const OfferModal: FC = () => {
     getPermissions();
   }, []);
 
+  useEffect(() => {
+    if (permissions) {
+      permissionsRef.current = permissions;
+    }
+  }, [JSON.stringify(permissions)]);
+
   const getQuestionnaires = () => {
     sdlDataWallet.questionnaire.getByCIDs(offer.questionnaires).map((res) => {
       setQuestionnaires({
