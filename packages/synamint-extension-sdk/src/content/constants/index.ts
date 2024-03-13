@@ -3,7 +3,6 @@ import { DomainName, URLString } from "@snickerdoodlelabs/objects";
 export enum EAppState {
   IDLE,
   AUDIENCE_PREVIEW,
-  PERMISSION_SELECTION,
 }
 
 export interface IRewardItem {

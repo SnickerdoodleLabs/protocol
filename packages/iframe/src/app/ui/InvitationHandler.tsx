@@ -17,16 +17,18 @@ import {
   ISnickerdoodleCore,
   IUserAgreement,
   Invitation,
+  IpfsCID,
   LinkedAccount,
+  NewQuestionnaireAnswer,
+  PagingRequest,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
-  DescriptionWidget,
-  FF_SUPPORTED_ALL_PERMISSIONS,
+  ConsentModal,
   ModalContainer,
-  PermissionSelectionWidget,
   createThemeWithOverrides,
 } from "@snickerdoodlelabs/shared-components";
+import { okAsync } from "neverthrow";
 import React, {
   useMemo,
   useState,
@@ -50,7 +52,6 @@ interface IInvitationHandlerProps {
 export enum EAPP_STATE {
   IDLE,
   INVITATION_PREVIEW,
-  PERMISSION_SELECTION,
 }
 
 interface IInvitation {
@@ -114,13 +115,23 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   const [consentInvitation, setConsentInvitation] =
     useState<IInvitation | null>(null);
 
+  const [userRequestInvitation, setUserRequestInvitation] =
+    useState<IInvitation | null>(null);
+
   const currentInvitation: ICurrentInvitation | null = useMemo(() => {
     if (accounts.length === 0) {
       return null;
     }
+    if (userRequestInvitation) {
+      return {
+        data: userRequestInvitation,
+        type: EInvitationSourceType.USER_REQUEST,
+      };
+    }
     if (awaitRender) {
       return null;
     }
+
     if (deepLinkInvitation) {
       return { data: deepLinkInvitation, type: EInvitationSourceType.DEEPLINK };
     }
@@ -138,6 +149,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     deepLinkInvitation,
     domainInvitation,
     consentInvitation,
+    userRequestInvitation,
     accounts.length,
     awaitRender,
   ]);
@@ -196,6 +208,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     data,
     type,
   }: IInvitationDisplayRequest) => {
+    console.log("invitationDisplayRequestHandler", data, type);
     if (
       uniqueConsentAdressesRef.current.includes(
         data.invitation.consentContractAddress,
@@ -207,6 +220,8 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
       setDeepLinkInvitation(data);
     } else if (type === EInvitationSourceType.DOMAIN) {
       setDomainInvitation(data);
+    } else if (type === EInvitationSourceType.USER_REQUEST) {
+      setUserRequestInvitation(data);
     } else {
       setConsentInvitation(data);
     }
@@ -266,8 +281,12 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
         case EInvitationSourceType.DOMAIN:
           setDomainInvitation(null);
           break;
+        case EInvitationSourceType.USER_REQUEST:
+          setUserRequestInvitation(null);
+          break;
         case EInvitationSourceType.CONSENT_ADDRESS:
           setConsentInvitation(null);
+          break;
       }
     }
   }, [currentInvitation]);
@@ -295,28 +314,51 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
           return null;
         case EAPP_STATE.INVITATION_PREVIEW:
           return (
-            <DescriptionWidget
-              onRejectClick={() => {
-                rejectInvitation(false);
+            <ConsentModal
+              onClose={clearInvitation}
+              open={true}
+              onOptinClicked={() => {
+                onPermissionSelected([]);
               }}
-              onRejectWithTimestampClick={() => {
-                rejectInvitation(true);
-              }}
+              consentContractAddress={
+                currentInvitation.data.invitation.consentContractAddress
+              }
               invitationData={currentInvitation.data.metadata}
-              onCancelClick={clearInvitation}
-              onContinueClick={() => {
-                onPermissionSelected(FF_SUPPORTED_ALL_PERMISSIONS);
+              answerQuestionnaire={(
+                id: IpfsCID,
+                answers: NewQuestionnaireAnswer[],
+              ) => {
+                return core.questionnaire.answerQuestionnaire(
+                  id,
+                  answers,
+                  undefined,
+                );
               }}
-              onSetPermissions={() => {
-                setAppState(EAPP_STATE.PERMISSION_SELECTION);
+              getQuestionnaires={(
+                pagingRequest: PagingRequest,
+                consentContractAddress: EVMContractAddress,
+              ) => {
+                return core.questionnaire.getQuestionnairesForConsentContract(
+                  pagingRequest,
+                  consentContractAddress,
+                  undefined,
+                );
               }}
-            />
-          );
-        case EAPP_STATE.PERMISSION_SELECTION:
-          return (
-            <PermissionSelectionWidget
-              onCancelClick={clearInvitation}
-              onSaveClick={onPermissionSelected}
+              getVirtualQuestionnaires={(
+                consentContractAddress: EVMContractAddress,
+              ) => {
+                return core.questionnaire.getVirtualQuestionnaires(
+                  consentContractAddress,
+                  undefined,
+                );
+              }}
+              setConsentPermissions={(
+                consentContractAddress: EVMContractAddress,
+                dataTypes: EWalletDataType[],
+                questionnaires: IpfsCID[],
+              ) => {
+                return okAsync(undefined);
+              }}
             />
           );
         default:

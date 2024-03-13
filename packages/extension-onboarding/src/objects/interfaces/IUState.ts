@@ -2,9 +2,6 @@ import { UnixTimestamp } from "@snickerdoodlelabs/objects";
 
 export enum EOnboardingState {
   INTRO = "INTRO",
-  CYRPTO_ACCOUNT_LINKING = "CYRPTO_ACCOUNT_LINKING",
-  SOCIAL_ACCOUNT_LINKING = "SOCIAL_ACCOUNT_LINKING",
-  // NEWSLETTER_SUBSCRIPTION = "NEWSLETTER_SUBSCRIPTION",
   TOS_PP = "TOS&PP",
   COMPLETED = "COMPLETED",
 }

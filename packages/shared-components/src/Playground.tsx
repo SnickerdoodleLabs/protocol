@@ -18,8 +18,10 @@ import {
   useMedia,
   DescriptionWidget,
   PermissionSelectionWidget,
+  ConsentModal,
 } from "@shared-components/v2";
 import { IOldUserAgreement } from "@snickerdoodlelabs/objects";
+import { okAsync } from "neverthrow";
 import React from "react";
 import ReactDOM from "react-dom";
 

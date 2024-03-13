@@ -9,4 +9,5 @@ export * from "@objects/extensionShared/businessObjects/EarnedRewardsAddedNotifi
 export * from "@objects/extensionShared/businessObjects/CohortJoinedNotification";
 export * from "@objects/extensionShared/businessObjects/CohortLeftNotification";
 export * from "@objects/extensionShared/businessObjects/ProfileFieldChangedNotification";
+export * from "@objects/extensionShared/businessObjects/QueryPostedNotification";
 export * from "@objects/extensionShared/businessObjects/SocialProfileLinkedNotification";

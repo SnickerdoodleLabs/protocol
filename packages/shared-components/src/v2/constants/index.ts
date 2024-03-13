@@ -53,3 +53,112 @@ export const FF_SUPPORTED_PERMISSIONS: {
 
 export const FF_SUPPORTED_ALL_PERMISSIONS: EWalletDataType[] =
   FF_SUPPORTED_PERMISSIONS.map((item) => item.key).flat();
+
+enum EWalletDataTypeGroup {
+  SOCIAL,
+  WALLET,
+  PERSONAL,
+  BROWSER_ACTIVITY,
+}
+
+export const DataTypeGroupProperties = {
+  [EWalletDataTypeGroup.SOCIAL]: {
+    name: "Social",
+    order: 1,
+  },
+  [EWalletDataTypeGroup.WALLET]: {
+    name: "Wallet",
+    order: 0,
+  },
+  [EWalletDataTypeGroup.PERSONAL]: {
+    name: "Personal Information",
+    order: 2,
+  },
+  [EWalletDataTypeGroup.BROWSER_ACTIVITY]: {
+    name: "Browser Activity",
+    order: 3,
+  },
+};
+
+interface IDataPermissionScheme {
+  key: EWalletDataType;
+  name: string;
+  groupKey: EWalletDataTypeGroup;
+  icon: string;
+}
+
+export const uiSupportedPermissions: IDataPermissionScheme[] = [
+  {
+    key: EWalletDataType.Discord,
+    name: "Discord",
+    groupKey: EWalletDataTypeGroup.SOCIAL,
+    icon: "https://storage.googleapis.com/dw-assets/shared/icons-v2/discord.png",
+  },
+  {
+    key: EWalletDataType.AccountNFTs,
+    name: "NFTs",
+    groupKey: EWalletDataTypeGroup.WALLET,
+    icon: "https://storage.googleapis.com/dw-assets/shared/icons-v2/nfts.svg",
+  },
+  {
+    key: EWalletDataType.AccountBalances,
+    name: "Token Balance",
+    groupKey: EWalletDataTypeGroup.WALLET,
+    icon: "https://storage.googleapis.com/dw-assets/shared/icons-v2/token-balance.svg",
+  },
+  // not confirmed but not icons provided
+  {
+    key: EWalletDataType.AccountSize,
+    name: "Account Count",
+    groupKey: EWalletDataTypeGroup.WALLET,
+    // placeholder for now
+    icon: "https://storage.googleapis.com/dw-assets/shared/icons/eth.png",
+  },
+  {
+    key: EWalletDataType.EVMTransactions,
+    name: "Transaction History",
+    groupKey: EWalletDataTypeGroup.WALLET,
+    icon: "https://storage.googleapis.com/dw-assets/shared/icons/transactions.png",
+  },
+  {
+    key: EWalletDataType.Gender,
+    name: "Gender",
+    groupKey: EWalletDataTypeGroup.PERSONAL,
+    icon: "https://storage.googleapis.com/dw-assets/shared/icons/gender.png",
+  },
+  {
+    key: EWalletDataType.Age,
+    name: "Age",
+    groupKey: EWalletDataTypeGroup.PERSONAL,
+    icon: "https://storage.googleapis.com/dw-assets/shared/icons/dob.png",
+  },
+  {
+    key: EWalletDataType.Location,
+    name: "Location",
+    groupKey: EWalletDataTypeGroup.PERSONAL,
+    icon: "https://storage.googleapis.com/dw-assets/shared/icons/country.png",
+  },
+  {
+    key: EWalletDataType.SiteVisits,
+    name: "Browser History",
+    groupKey: EWalletDataTypeGroup.BROWSER_ACTIVITY,
+    icon: "https://storage.googleapis.com/dw-assets/shared/icons/browser-history.png",
+  },
+];
+
+export const ffSupportedPermissions = uiSupportedPermissions.map((p) => p.key);
+
+export const getGroupedDataPermissions = (dataTypes: EWalletDataType[]) => {
+  return dataTypes.reduce((acc, type) => {
+    const permission = uiSupportedPermissions.find(
+      (permission) => permission.key === type,
+    );
+    if (permission) {
+      if (!acc[permission.groupKey]) {
+        acc[permission.groupKey] = [] as IDataPermissionScheme[];
+      }
+      acc[permission.groupKey].push(permission);
+    }
+    return acc;
+  }, {} as Record<EWalletDataTypeGroup, IDataPermissionScheme[]>);
+};

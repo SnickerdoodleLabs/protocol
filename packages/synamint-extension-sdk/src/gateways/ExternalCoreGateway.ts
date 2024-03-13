@@ -152,6 +152,7 @@ import {
   GetQuestionnairesForConsentContractParams,
   GetConsentContractsByQuestionnaireCIDParams,
   GetRecommendedConsentContractsParams,
+  GetQuestionnairesParams,
   GetVirtualQuestionnairesParams,
   GetQuestionnairesByCIDSParams,
   ApproveQueryParams,
@@ -175,6 +176,9 @@ export class ExternalCoreGateway {
         return this._handler.call(
           new GetAllQuestionnairesParams(pagingRequest),
         );
+      },
+      getQuestionnaires: (pagingRequest: PagingRequest) => {
+        return this._handler.call(new GetQuestionnairesParams(pagingRequest));
       },
       answerQuestionnaire: (
         questionnaireId: IpfsCID,

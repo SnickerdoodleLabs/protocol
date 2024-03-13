@@ -7,9 +7,9 @@ import {
   colors,
   useResponsiveValue,
 } from "@snickerdoodlelabs/shared-components";
-import React from "react";
+import React, { Dispatch, SetStateAction } from "react";
 
-const useWalletProvider = (): {
+export const useWalletProvider = (): {
   images: string[];
   listItems: {
     name: string;

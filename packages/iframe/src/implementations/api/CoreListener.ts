@@ -1040,6 +1040,21 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
+      "questionnaire.getQuestionnaires": (
+        data: IIFrameCallData<{
+          pagingRequest: PagingRequest;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.questionnaire.getQuestionnaires(
+              data.data.pagingRequest,
+              this.sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
       "questionnaire.answerQuestionnaire": (
         data: IIFrameCallData<{
           questionnaireId: IpfsCID;
@@ -1169,6 +1184,18 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           );
         }, data.callId);
       },
+
+      requestOptIn: (
+        data: IIFrameCallData<{ consentContractAddress: EVMContractAddress }>,
+      ) => {
+        this.returnForModel(() => {
+          return okAsync(
+            this.contextProvider
+              .getEvents()
+              .onOptInRequested.next(data.data.consentContractAddress),
+          );
+        }, data.callId);
+      },
     });
   }
 
@@ -1279,6 +1306,9 @@ export class CoreListener extends ChildProxy implements ICoreListener {
 
         events.onLocationUpdated.subscribe((val) => {
           parent.emit("onLocationUpdated", val);
+        });
+        events.onQueryPosted.subscribe((val) => {
+          parent.emit("onQueryPosted", val);
         });
       });
     });
