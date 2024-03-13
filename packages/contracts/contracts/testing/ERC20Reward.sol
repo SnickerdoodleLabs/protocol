@@ -11,7 +11,7 @@ contract ERC20Reward is ERC20, ERC20Burnable, ERC20Permit, ERC7529 {
 
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
-    bytes32 public constant REDEEM_DETAILS_TYPEHASH = keccak256("Example(address contractAddress,address burner,uint256 amountToBurn,address redeemer)");
+    bytes32 public constant REDEEM_DETAILS_TYPEHASH = keccak256("RedeemDetails(address contractAddress,address burner,uint256 amountToBurn,address redeemer)");
 
     // Define the details for redeeming
     struct RedeemDetails {
