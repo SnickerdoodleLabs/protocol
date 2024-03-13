@@ -27,6 +27,7 @@ const OfferItem: React.FC<IOfferItemProps> = ({
   const { setModal } = useLayoutContext();
   return (
     <Box
+      mt={1.5}
       bgcolor={colors.WHITE}
       alignItems="center"
       border="1px solid"

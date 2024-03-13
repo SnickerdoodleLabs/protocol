@@ -84,7 +84,7 @@ const BrandItem: FC<IBrandItemProps> = ({
 
   return (
     <Box display="flex" flexDirection="column">
-      <Box mb={3} display="flex" alignItems="center">
+      <Box mb={1.5} display="flex" alignItems="center">
         {icon} {name}
       </Box>
       {offers.map((offer) => (
