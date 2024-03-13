@@ -203,22 +203,15 @@ export class QuestionnaireService implements IQuestionnaireService {
     sourceDomain: DomainName | undefined,
   ): ResultAsync<
     EWalletDataType[],
-    | UninitializedError
-    | BlockchainCommonErrors
-    | AjaxError
-    | PersistenceError
-    | ConsentFactoryContractError
+    ConsentContractError | UninitializedError | BlockchainCommonErrors
   > {
-    throw new Error("Method not implemented.");
+    return this.consentContractRepository.getVirtualQuestionnaires(
+      consentContractAddress,
+    );
   }
 
   private uniqueCids(cids: IpfsCID[]): IpfsCID[] {
-    const uniqueCidsMap = new Map<IpfsCID, boolean>();
-    for (const cid of cids) {
-      if (!uniqueCidsMap.has(cid)) {
-        uniqueCidsMap.set(cid, true);
-      }
-    }
-    return Array.from(uniqueCidsMap.keys());
+    const uniqueCidsSet = new Set<IpfsCID>(cids);
+    return Array.from(uniqueCidsSet);
   }
 }

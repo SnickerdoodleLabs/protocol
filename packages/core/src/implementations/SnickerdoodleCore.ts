@@ -101,7 +101,7 @@ import {
   MissingTokenConstructorError,
   ParserError,
   QueryExpiredError,
-  InvalidQueryStatusError,
+  InvalidStatusError,
   InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -1002,7 +1002,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     | IPFSError
     | QueryFormatError
     | PersistenceError
-    | InvalidQueryStatusError
+    | InvalidStatusError
     | InvalidParametersError
   > {
     const queryService =

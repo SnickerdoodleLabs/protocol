@@ -75,6 +75,7 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
     consentContractAddress?: EVMContractAddress,
   ): ResultAsync<QueryStatus[], PersistenceError> {
     // TODO: Make this more efficient in the future
+
     return this.persistence
       .getAll<QueryStatus>(ERecordKey.QUERY_STATUS)
       .map((queryStatii) => {
@@ -82,13 +83,13 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
         // contract
         let filteredStatuses = queryStatii;
 
-        if (status) {
+        if (status != null) {
           filteredStatuses = filteredStatuses.filter(
             (queryStatus) => queryStatus.status === status,
           );
         }
 
-        if (consentContractAddress) {
+        if (consentContractAddress != null) {
           filteredStatuses = filteredStatuses.filter(
             (queryStatus) =>
               queryStatus.consentContractAddress === consentContractAddress,
