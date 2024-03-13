@@ -5,7 +5,6 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Fade,
   Theme,
   makeStyles,
 } from "@material-ui/core";
@@ -16,7 +15,6 @@ import {
   SDCheckbox,
   CloseButton,
 } from "@shared-components/v2/components";
-import { ffSupportedPermissions } from "@shared-components/v2/constants";
 import { useSafeState } from "@shared-components/v2/hooks";
 import { useDialogStyles } from "@shared-components/v2/styles";
 import { colors, typograpyVariants } from "@shared-components/v2/theme";
@@ -32,7 +30,6 @@ import {
   NewQuestionnaireAnswer,
   PagedResponse,
   PagingRequest,
-  ProxyError,
   Questionnaire,
   QuestionnaireWithAnswers,
 } from "@snickerdoodlelabs/objects";
