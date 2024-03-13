@@ -150,9 +150,10 @@ const OfferModal: FC = () => {
 
   const handleOfferApprove = useCallback(() => {
     // @TODO reward parameters
-    sdlDataWallet.approveQuery(offer.queryCID, []);
-    onPrimaryButtonClick();
-    closeModal();
+    sdlDataWallet.approveQuery(offer.queryCID, []).map(() => {
+      onPrimaryButtonClick();
+      closeModal();
+    });
   }, [sdlDataWallet]);
 
   const isReady = useMemo(() => {
