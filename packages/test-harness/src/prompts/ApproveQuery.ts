@@ -30,7 +30,7 @@ export class ApproveQuery extends Prompt {
           return okAsync(undefined);
         }
 
-        return this.core.approveQuery(this.queryRequest.query.cid, []);
+        return this.core.approveQuery(this.queryRequest.queryCID, []);
       })
       .mapErr((e) => {
         console.error(e);

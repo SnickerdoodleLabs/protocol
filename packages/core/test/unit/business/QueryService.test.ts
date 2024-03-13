@@ -579,10 +579,7 @@ describe("getPossibleInisightAndAdKeys tests", () => {
         .andThen(() => {
           const queryRequest = new SDQLQueryRequest(
             consentContractAddress,
-            query,
-            [],
-            [],
-            null,
+            query.cid,
           );
 
           context.publicEvents.onQueryPosted.next(queryRequest);

@@ -195,12 +195,10 @@ export class QueryService implements IQueryService {
     return ResultUtils.combine([
       this.getQueryByCID(requestForData.requestedCID),
       this.contextProvider.getContext(),
-      this.configProvider.getConfig(),
-      this.accountRepo.getAccounts(),
       this.consentTokenUtils.getCurrentConsentToken(
         requestForData.consentContractAddress,
       ),
-    ]).andThen(([queryWrapper, context, config, accounts, consentToken]) => {
+    ]).andThen(([queryWrapper, context, consentToken]) => {
       // Check and make sure a consent token exists
       return this.getQueryMetadata(
         queryWrapper.sdqlQuery,
@@ -229,32 +227,21 @@ export class QueryService implements IQueryService {
           queryWrapper,
           queryMetadata,
         )
-          .andThen(() => {
-            return this.dataWalletUtils
-              .deriveOptInPrivateKey(
-                requestForData.consentContractAddress,
-                context.dataWalletKey!,
-              )
-              .andThen((optInKey) => {
-                return this.constructAndPublishSDQLQueryRequest(
-                  consentToken,
-                  optInKey,
-                  requestForData.consentContractAddress,
-                  queryWrapper.sdqlQuery,
-                  accounts,
-                  context,
-                  config,
-                );
-              })
-              .map(() => {
-                context.publicEvents.queryPerformance.next(
-                  new QueryPerformanceEvent(
-                    EQueryEvents.OnQueryPostedEvaluationProcesses,
-                    EStatus.End,
-                    requestForData.requestedCID,
-                  ),
-                );
-              });
+          .map(() => {
+            const queryRequest = new SDQLQueryRequest(
+              requestForData.consentContractAddress,
+              requestForData.requestedCID,
+            );
+
+            context.publicEvents.onQueryPosted.next(queryRequest);
+
+            context.publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.OnQueryPostedEvaluationProcesses,
+                EStatus.End,
+                requestForData.requestedCID,
+              ),
+            );
           })
           .mapErr((err) => {
             context.publicEvents.queryPerformance.next(
@@ -692,71 +679,7 @@ export class QueryService implements IQueryService {
       });
   }
 
-  protected constructAndPublishSDQLQueryRequest(
-    consentToken: ConsentToken,
-    optInKey: EVMPrivateKey,
-    consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
-    accounts: LinkedAccount[],
-    context: CoreContext,
-    config: CoreConfig,
-  ): ResultAsync<
-    void,
-    | EvaluationError
-    | ServerRewardError
-    | AjaxError
-    | QueryFormatError
-    | QueryExpiredError
-    | ParserError
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | MissingTokenConstructorError
-    | DuplicateIdInSchema
-    | PersistenceError
-    | EvalNotImplementedError
-    | MissingASTError
-    | AccountIndexingError
-    | MethodSupportError
-    | InvalidParametersError
-  > {
-    return this.getPossibleRewards(
-      consentToken,
-      optInKey,
-      consentContractAddress,
-      query,
-      config,
-    ).map((possibleRewards) => {
-      this.publishSDQLQueryRequest(
-        consentContractAddress,
-        query,
-        possibleRewards,
-        accounts,
-        context,
-      );
-    });
-  }
   // eslint-disable-next-line @typescript-eslint/adjacent-overload-signatures
-  protected publishSDQLQueryRequest(
-    consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
-    eligibleRewards: PossibleReward[],
-    accounts: LinkedAccount[],
-    context: CoreContext,
-  ): ResultAsync<void, never> {
-    // Wrap the query & send to core
-    const queryRequest = new SDQLQueryRequest(
-      consentContractAddress,
-      query,
-      eligibleRewards,
-      accounts,
-      context.dataWalletAddress!,
-    );
-
-    context.publicEvents.onQueryPosted.next(queryRequest);
-
-    return okAsync(undefined);
-  }
 
   protected getPossibleRewardsFromIP(
     consentToken: ConsentToken,
@@ -874,12 +797,8 @@ export class QueryService implements IQueryService {
     });
   }
   protected getReceivingAddress(
-    contractAddress?: EVMContractAddress,
-  ): ResultAsync<AccountAddress, PersistenceError> {
-    if (!contractAddress) {
-      return this.getDefaultReceivingAddress();
-    }
-
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<AccountAddress | null, PersistenceError> {
     return this.accountRepo
       .getReceivingAddress(contractAddress)
       .andThen((receivingAddress) => {
@@ -903,13 +822,16 @@ export class QueryService implements IQueryService {
   }
 
   protected getDefaultReceivingAddress(): ResultAsync<
-    AccountAddress,
+    AccountAddress | null,
     PersistenceError
   > {
     return ResultUtils.combine([
       this.accountRepo.getAccounts(),
       this.accountRepo.getDefaultReceivingAddress(),
     ]).andThen(([linkedAccounts, defaultReceivingAddress]) => {
+      if (linkedAccounts.length === 0) {
+        return okAsync(null);
+      }
       const linkedAccount = linkedAccounts.find(
         (ac) => ac.sourceAccountAddress == defaultReceivingAddress,
       );
@@ -925,14 +847,14 @@ export class QueryService implements IQueryService {
   //TODO can be removen if not used by IP
   protected getRewardParams(
     compensations: Map<SDQL_Name, AST_Compensation>,
-    receivingAddress: AccountAddress,
+    receivingAddress: AccountAddress | null,
   ): IDynamicRewardParameter[] {
     const parameters: IDynamicRewardParameter[] = [];
     compensations.forEach((_value, key) => {
       parameters.push({
         recipientAddress: {
           type: ESolidityAbiParameterType.address,
-          value: receivingAddress,
+          value: receivingAddress ?? "",
         },
         compensationKey: {
           type: ESolidityAbiParameterType.string,
