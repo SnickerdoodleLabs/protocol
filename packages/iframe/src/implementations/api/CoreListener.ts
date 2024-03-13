@@ -1307,6 +1307,9 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         events.onLocationUpdated.subscribe((val) => {
           parent.emit("onLocationUpdated", val);
         });
+        events.onQueryPosted.subscribe((val) => {
+          parent.emit("onQueryPosted", val);
+        });
       });
     });
   }

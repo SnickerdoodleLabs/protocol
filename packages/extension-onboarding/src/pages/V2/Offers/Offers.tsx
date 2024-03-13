@@ -9,10 +9,12 @@ import {
   EVMContractAddress,
   IpfsCID,
   QueryStatus,
+  SDQLQueryRequest,
 } from "@snickerdoodlelabs/objects";
 import { SDTypography, colors } from "@snickerdoodlelabs/shared-components";
 import { ResultUtils } from "neverthrow-result-utils";
 import React, { useCallback, useEffect, useMemo } from "react";
+import { Subscription } from "rxjs";
 
 interface OfferItem {
   contractAddress: EVMContractAddress;
@@ -24,6 +26,27 @@ const Offers = () => {
   const { optedInContracts } = useAppContext();
   const { sdlDataWallet } = useDataWalletContext();
   const [items, setItems] = React.useState<OfferItem[]>();
+  const queryPostedEventSubscription = React.useRef<Subscription>();
+
+  useEffect(() => {
+    queryPostedEventSubscription.current =
+      sdlDataWallet.events.onQueryPosted.subscribe((q) => {
+        console.log("Query posted", q);
+        onQueryPosted(q);
+      });
+    return () => {
+      queryPostedEventSubscription.current?.unsubscribe();
+    };
+  }, []);
+
+  const onQueryPosted = useCallback(
+    (queryStatus: SDQLQueryRequest) => {
+      if (!!items) {
+        reCalculateOffersForContract(queryStatus.consentContractAddress);
+      }
+    },
+    [JSON.stringify(items)],
+  );
 
   useEffect(() => {
     getInitialOffers();

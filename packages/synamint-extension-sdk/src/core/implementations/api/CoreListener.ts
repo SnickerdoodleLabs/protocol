@@ -6,6 +6,7 @@ import {
   ESolidityAbiParameterType,
   EVMContractAddress,
   IDynamicRewardParameter,
+  IpfsCID,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
   ISnickerdoodleCoreType,
@@ -58,6 +59,8 @@ export class CoreListener implements ICoreListener {
       events.onCohortJoined.subscribe(this.onChohortJoined.bind(this));
 
       events.onCohortLeft.subscribe(this.onCohortLeft.bind(this));
+
+      events.onQueryPosted.subscribe(this.onQueryPosted.bind(this));
 
       // Add a listener for cloud storage being switched out
 
@@ -138,5 +141,9 @@ export class CoreListener implements ICoreListener {
   }
   private onCloudStorageDeactivated(event: CloudStorageActivatedEvent): void {
     this.contextProvider.onCloudStorageDeactivated(event);
+  }
+  private onQueryPosted(event: SDQLQueryRequest) {
+    console.log("Query posted", event);
+    this.contextProvider.onQueryPosted(event);
   }
 }

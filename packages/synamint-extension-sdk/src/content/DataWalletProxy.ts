@@ -64,6 +64,7 @@ import {
   NewQuestionnaireAnswer,
   EQueryProcessingStatus,
   IDynamicRewardParameter,
+  SDQLQueryRequest,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { JsonRpcEngine } from "json-rpc-engine";
@@ -221,6 +222,13 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       ENotificationTypes.SOCIAL_PROFILE_LINKED,
       (notification: { data: SocialProfileLinkedEvent }) => {
         this.events.onSocialProfileLinked.next(notification.data);
+      },
+    );
+
+    this.on(
+      ENotificationTypes.QUERY_POSTED,
+      (notification: { data: SDQLQueryRequest }) => {
+        this.events.onQueryPosted.next(notification.data);
       },
     );
 
