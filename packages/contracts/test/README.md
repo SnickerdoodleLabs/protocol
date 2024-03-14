@@ -167,9 +167,9 @@ For this example, we will deploy and transfer ONFT721Rewards from the Fuji testn
 	```
 
 6. Check that the token id doesn't exist on the Mumbai contract:
-```shell
-npx  hardhat  onft721OwnerOf  --network  mumbai  --tokenid  0  --rewardaddress  0xdD81174091c00A08c9c3eF2E2C3Cc29C5d38941E
-```
+    ```shell
+    npx  hardhat  onft721OwnerOf  --network  mumbai  --tokenid  0  --rewardaddress  0xdD81174091c00A08c9c3eF2E2C3Cc29C5d38941E
+    ```
 
 7. In LZ V1 instead of `setPeer`, we call `setTrustedRemoteAddress` and `setTrustedRemote` to connect the contracts together.
 
@@ -198,6 +198,14 @@ npx  hardhat  onft721OwnerOf  --network  mumbai  --tokenid  0  --rewardaddress  
 	```shell
 	npx hardhat onft721CrossChain --network fuji --rewardaddress  0xbA200DFa5EBe41A2f1Cf625FBdfC31004Bb04cDc --from  0xD81c446e32EBDE0f0F87254d900C2e15c9720b9D --to  0x53901c30c84C2cD3dE5Ca02ed1860CeB3a9A3776 --tokenid 0 --destinationchainid 10109 --gas 500000
 	```
+    Expected output: 
+		
+		{
+		  hash: '0x27d09fad25cca8ccb780101264de42bfaebc8656c94dfee3eb26723fe11fc68c',
+		  ...
+	  
+	Using the hash, we can copy the transaction hash and check the status of the message sent to LZ (and ultimately to the contract on Mumbai) via the scanner like [this](https://testnet.layerzeroscan.com/tx/0x27d09fad25cca8ccb780101264de42bfaebc8656c94dfee3eb26723fe11fc68c). This process took about 4 minutes to reach the complete status. 
+
 10. Check that the token id is burnt on the Fuji contract. We will see the ERC721 error stating that the token id no longer exists.
 	```shell
 	npx  hardhat  onft721OwnerOf  --network  fuji  --tokenid  0  --rewardaddress  0xbA200DFa5EBe41A2f1Cf625FBdfC31004Bb04cDc
