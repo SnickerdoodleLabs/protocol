@@ -20,8 +20,8 @@ async function deployOft20Reward() {
   const symbol = "SDLOFT20";
 
   // V2 Endpoint address of the chain being deployed on - https://docs.layerzero.network/contracts/endpoint-addresses
-  // Fuji = 0x6edce65403992e310a62460808c4b910d972f10f - same just different endPoint id
-  // Sepolia = 0x6edce65403992e310a62460808c4b910d972f10f
+  // Fuji = 0x6edce65403992e310a62460808c4b910d972f10f - eid 40106 same just different endPoint id
+  // Sepolia = 0x6edce65403992e310a62460808c4b910d972f10f - eid 40109
   const lzEndpoint = "0x6edce65403992e310a62460808c4b910d972f10f";
 
   const oft20Reward = await OFT20Reward.deploy(name, symbol, lzEndpoint);

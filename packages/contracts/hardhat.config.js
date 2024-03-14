@@ -110,7 +110,7 @@ module.exports = {
       // polygon testnet
       accounts: accounts,
       chainId: 80001,
-      url: urlOverride || "https://rpc-mumbai.maticvigil.com",
+      url: urlOverride || "https://rpc.ankr.com/polygon_mumbai",
       gas: 6000000,
       gasPrice: 8000000000,
     },

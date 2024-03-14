@@ -5,15 +5,10 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@layerzerolabs/solidity-examples/contracts/lzApp/interfaces/ILayerZeroEndpoint.sol";
-import "@layerzerolabs/solidity-examples/contracts/lzApp/interfaces/ILayerZeroReceiver.sol";
-import "@layerzerolabs/solidity-examples/contracts/lzApp/LzApp.sol";
+import "@layerzerolabs/solidity-examples/contracts/token/onft721/ONFT721.sol";
 
 contract ONFT721Reward is ERC721Burnable, AccessControl, ONFT721 {
     using Counters for Counters.Counter;
-
-    uint256 gas;
-    ILayerZeroEndpoint public endpoint;
 
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     Counters.Counter private _tokenIdCounter;
@@ -22,9 +17,7 @@ contract ONFT721Reward is ERC721Burnable, AccessControl, ONFT721 {
     /// @dev Array of trusted domains
     string[] public domains;
 
-    constructor(string memory name, string memory symbol, string memory baseUri, uint256 minGasToTransfer, address lzEndpoint) ERC721(name, symbol) LzApp(lzEndpoint) {
-        gas = minGasToTransfer;
-        endpoint = ILayerZeroEndpoint(lzEndpoint); 
+    constructor(string memory name, string memory symbol, string memory baseUri, uint256 minGasToTransfer, address lzEndpoint) ONFT721(name, symbol, minGasToTransfer, lzEndpoint) {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(MINTER_ROLE, msg.sender);
         setBaseURI(baseUri);
@@ -40,9 +33,101 @@ contract ONFT721Reward is ERC721Burnable, AccessControl, ONFT721 {
         baseURI = newBaseURI;
     }
 
-    function bridgeToChain(address from, uint tokenId) public {
+    function crossChain(
+        address from,
+        uint16 dstChainId,
+        bytes memory toAddress,
+        uint tokenId,
+        uint256 gas
+    ) public payable {
+        require(msg.sender == ownerOf(tokenId), "Not the owner");
+
+        // encode adapterParams to specify more gas for the destination
+        uint16 version = 1;
+        bytes memory adapterParams = abi.encodePacked(version, gas);
+
+        (uint256 messageFee, ) = estimateSendFee(
+            dstChainId,
+            toAddress,
+            tokenId,
+            false,
+            adapterParams
+        );
+
+        require(
+            msg.value >= messageFee,
+            "Must send enough value to cover messageFee"
+        );
+
         // Call ONFT721Core's send 
+        sendFrom(
+            from,
+            dstChainId,
+            toAddress,
+            tokenId,
+            payable(msg.sender),
+            address(0x0),
+            adapterParams
+        );
+
+        // burn NFT
+        _burn(tokenId);
     }
+
+    function lzReceive(
+        uint16 _srcChainId,
+        bytes calldata _srcAddress,
+        uint64 _nonce,
+        bytes calldata _payload
+    ) public virtual override {
+        // lzReceive must be called by the endpoint for security
+        require(_msgSender() == address(lzEndpoint), "LzApp: invalid endpoint caller");
+
+        bytes memory trustedRemote = trustedRemoteLookup[_srcChainId];
+        // if will still block the message pathway from (srcChainId, srcAddress). should not receive message from untrusted remote.
+        require(
+            _srcAddress.length == trustedRemote.length && trustedRemote.length > 0 && keccak256(_srcAddress) == keccak256(trustedRemote),
+            "LzApp: invalid source sending contract"
+        );
+
+        // To test: instead of _nonblockingLzReceive, just mint the token directly
+
+        /* (address toAddress, uint256 tokenId) = abi.decode(
+            _payload,
+            (address, uint256)
+        );
+        // mint the tokens
+        _safeMint(toAddress, tokenId); */
+
+        _nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload);
+    }
+/* 
+    function lzReceive(
+        uint16 _srcChainId,
+        bytes memory _from,
+        uint64,
+        bytes memory _payload
+
+                uint16 _srcChainId,
+        bytes calldata _srcAddress,
+        uint64 _nonce,
+        bytes calldata _payload
+
+    ) public override {
+        require(msg.sender == address(endpoint));
+        address from;
+        assembly {
+            from := mload(add(_from, 20))
+        }
+        (address toAddress, uint256 tokenId) = abi.decode(
+            _payload,
+            (address, uint256)
+        );
+        // mint the tokens
+        _safeMint(toAddress, tokenId);
+
+        _tokenIdCounter.increment(); 
+    } */
 
     /// @notice Add a domain to the domains array
     /// @param domain Domain to add
@@ -108,7 +193,7 @@ contract ONFT721Reward is ERC721Burnable, AccessControl, ONFT721 {
     function supportsInterface(bytes4 interfaceId)
         public
         view
-        override(ERC721, AccessControl)
+        override(ERC721, ONFT721, AccessControl)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
@@ -121,86 +206,4 @@ contract ONFT721Reward is ERC721Burnable, AccessControl, ONFT721 {
         returns (string memory) {
         return baseURI;
     } 
-
-    // Layer Zero ONFT implementation
-    function crossChain(
-        uint16 _dstChainId,
-        bytes calldata _destination,
-        uint256 tokenId
-    ) public payable {
-        require(msg.sender == ownerOf(tokenId), "Not the owner");
-        // burn NFT
-        _burn(tokenId);
-
-        _tokenIdCounter.decrement();
-
-        bytes memory payload = abi.encode(msg.sender, tokenId);
-        // encode adapterParams to specify more gas for the destination
-        uint16 version = 1;
-        bytes memory adapterParams = abi.encodePacked(version, gas);
-        (uint256 messageFee, ) = endpoint.estimateFees(
-            _dstChainId,
-            address(this),
-            payload,
-            false,
-            adapterParams
-        );
-        require(
-            msg.value >= messageFee,
-            "Must send enough value to cover messageFee"
-        );
-        endpoint.send{value: msg.value}(
-            _dstChainId,
-            _destination,
-            payload,
-            payable(msg.sender),
-            address(0x0),
-            adapterParams
-        );
-    }
-    function lzReceive(
-        uint16 _srcChainId,
-        bytes calldata _from,
-        uint64,
-        bytes calldata _payload
-    ) public override {
-        require(msg.sender == address(endpoint));
-        address from;
-        assembly {
-            from := mload(add(_from, 20))
-        }
-        (address toAddress, uint256 tokenId) = abi.decode(
-            _payload,
-            (address, uint256)
-        );
-        // mint the tokens
-        _safeMint(toAddress, tokenId);
-
-        _tokenIdCounter.increment();
-    }
-
-    // Endpoint.sol estimateFees() returns the fees for the message
-    function estimateFees(
-        uint16 _dstChainId,
-        address _userApplication,
-        bytes calldata _payload,
-        bool _payInZRO,
-        bytes calldata _adapterParams
-    ) external view returns (uint256 nativeFee, uint256 zroFee) {
-        return
-            endpoint.estimateFees(
-                _dstChainId,
-                _userApplication,
-                _payload,
-                _payInZRO,
-                _adapterParams
-            );
-    }
-
-        function _blockingLzReceive(
-        uint16 _srcChainId,
-        bytes memory _srcAddress,
-        uint64 _nonce,
-        bytes memory _payload
-    ) internal virtual;
 }

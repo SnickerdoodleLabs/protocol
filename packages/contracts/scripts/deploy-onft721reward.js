@@ -30,7 +30,7 @@ async function deployONFT721Reward() {
     name,
     symbol,
     baseURI,
-    350000,
+    minGasToTransfer,
     lzEndpoint,
   );
 
