@@ -7,11 +7,9 @@ import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-
 import { ICryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   BlockNumber,
-  ConsentToken,
   DataPermissions,
   EQueryProcessingStatus,
   ERewardType,
-  EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
   EarnedReward,
@@ -55,7 +53,7 @@ import {
 import {
   avalanche1AstInstance,
   commitment1,
-  dataWalletAddress,
+  commitment1Index,
   dataWalletKey,
   defaultInsightPlatformBaseUrl,
   identityNullifier,
@@ -151,13 +149,6 @@ class QueryServiceMocks {
   public sdqlQueryWrapperFactory: ISDQLQueryWrapperFactory;
   public logUtils: ILogUtils;
 
-  public consentToken = new ConsentToken(
-    consentContractAddress,
-    EVMAccountAddress(dataWalletAddress),
-    tokenId,
-    dataPermissions,
-  );
-
   public constructor() {
     this.dataWalletUtils = td.object<IDataWalletUtils>();
     this.queryParsingEngine = td.object<IQueryParsingEngine>();
@@ -173,29 +164,31 @@ class QueryServiceMocks {
     this.logUtils = td.object<ILogUtils>();
     this.timeUtils = td.object<ITimeUtils>();
 
-    // td.when(
-    //   this.insightPlatformRepo.deliverInsights(
-    //     consentContractAddress,
-    //     tokenId,
-    //     queryCID2,
-    //     queryDeliveryItems,
-    //     td.matchers.argThat((val: IDynamicRewardParameter[]) => {
-    //       return (
-    //         val.length == 1 &&
-    //         val[0].compensationKey.type ==
-    //           rewardParameter.compensationKey.type &&
-    //         val[0].compensationKey.value ==
-    //           rewardParameter.compensationKey.value &&
-    //         val[0].recipientAddress.type ==
-    //           rewardParameter.recipientAddress.type &&
-    //         val[0].recipientAddress.value ==
-    //           rewardParameter.recipientAddress.value
-    //       );
-    //     }),
-    //     derivedPrivateKey,
-    //     defaultInsightPlatformBaseUrl,
-    //   ),
-    // ).thenReturn(okAsync(earnedRewards));
+    td.when(
+      this.insightPlatformRepo.deliverInsights(
+        consentContractAddress,
+        identityTrapdoor,
+        identityNullifier,
+        queryCID2,
+        queryDeliveryItems,
+        td.matchers.argThat((val: IDynamicRewardParameter[]) => {
+          return (
+            val.length == 1 &&
+            val[0].compensationKey.type ==
+              rewardParameter.compensationKey.type &&
+            val[0].compensationKey.value ==
+              rewardParameter.compensationKey.value &&
+            val[0].recipientAddress.type ==
+              rewardParameter.recipientAddress.type &&
+            val[0].recipientAddress.value ==
+              rewardParameter.recipientAddress.value
+          );
+        }),
+        [commitment1],
+        0, //anonymitySetStart
+        defaultInsightPlatformBaseUrl,
+      ),
+    ).thenReturn(okAsync(earnedRewards));
 
     // SDQLQueryRepository ---------------------------------------------------------
     td.when(this.sdqlQueryRepo.getSDQLQueryByCID(queryCID1)).thenReturn(
@@ -262,30 +255,30 @@ class QueryServiceMocks {
         dataWalletKey,
       ),
     ).thenReturn(okAsync(optInInfo));
+    td.when(
+      this.consentContractRepo.getCommitmentIndex(consentContractAddress),
+    ).thenReturn(okAsync(commitment1Index));
+    td.when(
+      this.consentContractRepo.getCommitmentCount(consentContractAddress),
+    ).thenReturn(okAsync(1));
+    td.when(
+      this.consentContractRepo.getAnonymitySet(consentContractAddress, 0, 1),
+    ).thenReturn(okAsync([commitment1]));
 
     // TimeUtils ------------------------------------------------------
     td.when(this.timeUtils.getUnixNow()).thenReturn(now as never);
 
     // QueryParsingEngine
     td.when(
-      this.queryParsingEngine.handleQuery(
-        sdqlQuery,
-        this.consentToken.dataPermissions,
-      ),
+      this.queryParsingEngine.handleQuery(sdqlQuery, dataPermissions),
     ).thenReturn(okAsync(queryDeliveryItems));
 
     td.when(
-      this.queryParsingEngine.handleQuery(
-        sdqlQuery2,
-        this.consentToken.dataPermissions,
-      ),
+      this.queryParsingEngine.handleQuery(sdqlQuery2, dataPermissions),
     ).thenReturn(okAsync(queryDeliveryItems));
 
     td.when(
-      this.queryParsingEngine.handleQuery(
-        sdqlQuery3,
-        this.consentToken.dataPermissions,
-      ),
+      this.queryParsingEngine.handleQuery(sdqlQuery3, dataPermissions),
     ).thenReturn(okAsync(queryDeliveryItems));
 
     td.when(this.queryParsingEngine.parseQuery(sdqlQuery)).thenReturn(

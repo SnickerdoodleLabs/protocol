@@ -579,9 +579,40 @@ export class InvitationService implements IInvitationService {
   public updateDataPermissions(
     consentContractAddress: EVMContractAddress,
     dataPermissions: DataPermissions,
-  ): ResultAsync<void, PersistenceError | UninitializedError> {
+  ): ResultAsync<
+    void,
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | PersistenceError
+    | ConsentError
+  > {
     // TODO: We need the PermissionRepository for this. Right now, this will do nothing!
-    return this.contextProvider.getContext().map((context) => {
+    return ResultUtils.combine([
+      this.contextProvider.getContext(),
+      this.invitationRepo.getAcceptedInvitations(),
+      this.consentRepo.getCommitmentIndex(consentContractAddress),
+    ]).andThen(([context, acceptedInvitations, consentIndex]) => {
+      if (
+        !acceptedInvitations.some((ai) => {
+          return ai.consentContractAddress == consentContractAddress;
+        })
+      ) {
+        return errAsync(
+          new ConsentError(
+            "You must be opted in to the consent contract to update data permissions.",
+          ),
+        );
+      }
+
+      if (consentIndex == -1) {
+        return errAsync(
+          new ConsentError(
+            `No commitment found for consent contract ${consentContractAddress} on chain. Removing opt in from persistence.`,
+          ),
+        );
+      }
+
       // Metatransaction complete. We don't actually store the permissions in our
       // persistence layer, they are only stored on the chain, so there's nothing more
       // to do for that. We should let the world know we made this change though.
@@ -592,6 +623,8 @@ export class InvitationService implements IInvitationService {
           dataPermissions,
         ),
       );
+
+      return okAsync(undefined);
     });
   }
 

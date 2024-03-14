@@ -147,7 +147,14 @@ export interface IInvitationService {
   updateDataPermissions(
     consentContractAddress: EVMContractAddress,
     dataPermissions: DataPermissions,
-  ): ResultAsync<void, PersistenceError | UninitializedError>;
+  ): ResultAsync<
+    void,
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | PersistenceError
+    | ConsentError
+  >;
 
   getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,

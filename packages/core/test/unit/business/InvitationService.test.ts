@@ -38,19 +38,13 @@ import {
   identityNullifier,
   identityTrapdoor,
   commitment1,
+  commitment1Index,
 } from "@core-tests/mock/mocks/commonValues.js";
 import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities";
 
-const metatransactionNonce = BigNumberString("123456789");
-const metatransactionValue = BigNumberString("0");
-const metatransactionGas = BigNumberString("gas");
-const optInCallData = HexString("0xOptIn");
-const optOutCallData = HexString("0xOptOut");
-const optInSignature = Signature("OptInSignature");
-const optOutSignature = Signature("OptOutSignature");
 const optInPrivateKey = EVMPrivateKey("optInPrivateKey");
 const optInAccountAddress = EVMAccountAddress("optInAccountAddress");
 const domain = DomainName("phoebe.com");
@@ -130,6 +124,11 @@ class InvitationServiceMocks {
     td.when(
       this.consentRepo.getMetadataCID(consentContractAddress1),
     ).thenReturn(okAsync(ipfsCID));
+    td.when(
+      this.consentRepo.getCommitmentIndex(
+        acceptedInvitation.consentContractAddress,
+      ),
+    ).thenReturn(okAsync(commitment1Index));
 
     // InvitationRepo -------------------------------------------------------
     td.when(this.invitationRepo.getInvitationMetadataByCID(ipfsCID)).thenReturn(
@@ -286,12 +285,11 @@ describe("InvitationService.updateDataPermissions() tests", () => {
     // Arrange
     const mocks = new InvitationServiceMocks();
 
-    // td.when(
-    //   mocks.consentRepo.getConsentToken(
-    //     acceptedInvitation.consentContractAddress,
-    //     acceptedInvitation.tokenId,
-    //   ),
-    // ).thenReturn(okAsync(null));
+    td.when(
+      mocks.consentRepo.getCommitmentIndex(
+        acceptedInvitation.consentContractAddress,
+      ),
+    ).thenReturn(okAsync(-1));
 
     const service = mocks.factory();
 
