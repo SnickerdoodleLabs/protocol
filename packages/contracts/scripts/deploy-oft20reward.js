@@ -34,7 +34,7 @@ async function deployOft20Reward() {
     "on",
     hre.network.name,
   );
-  console.log("ONFT721Reward Gas Fee:", oft20Reward_receipt.gasUsed.toString());
+  console.log("OFT20Reward Gas Fee:", oft20Reward_receipt.gasUsed.toString());
 }
 
 // function that runs the full deployment of all contracts
