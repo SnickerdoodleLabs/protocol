@@ -12,7 +12,7 @@ interface IImageProps {
   className?: string;
 }
 
-export const Image: FC<IImageProps> = ({
+export const ImageComponent: FC<IImageProps> = ({
   src,
   alt,
   width,
@@ -21,14 +21,10 @@ export const Image: FC<IImageProps> = ({
   errorImageSrc = "https://storage.googleapis.com/dw-assets/spa/icons-v2/default-survey-icon.svg",
   className,
 }) => {
-  const [isError, setIsError] = useSafeState<boolean>(false);
-  const [isLoading, setIsLoading] = useSafeState<boolean>(true);
-
-  useEffect(() => {
-    // Reset loading and error states when src changes
-    setIsError(false);
-    setIsLoading(true);
-  }, [src, setIsError, setIsLoading]);
+  const [state, setState] = useState({
+    isError: false,
+    isLoading: true
+  });
 
   const formattedUrl = useMemo(() => {
     return src.replace(
@@ -37,7 +33,28 @@ export const Image: FC<IImageProps> = ({
     );
   }, [src]);
 
-  if (isError) {
+  useEffect(() => {
+    // Reset loading and error states when src changes
+    setState({ isError: false, isLoading: true });
+
+    // Load image
+    const imageElement = new Image();
+    imageElement.src = formattedUrl;
+    imageElement.onload = () => setState({ isError: false, isLoading: false });
+    imageElement.onerror = () => setState({ isError: true, isLoading: false });
+
+    return () => {
+      // Clean up if component unmounts before image loads
+      imageElement.onload = null;
+      imageElement.onerror = null;
+    };
+  }, [src, formattedUrl]);
+
+  if (state.isLoading) {
+    return <Skeleton variant="rect" width={width} height={height} />;
+  }
+
+  if (state.isError) {
     return (
       <img
         src={errorImageSrc}
@@ -45,27 +62,19 @@ export const Image: FC<IImageProps> = ({
         width={width}
         height={height}
         style={style}
-        {...(className && { className })}
+        className={className}
       />
     );
   }
 
   return (
-    <>
-      {isLoading && <Skeleton variant="rect" width={width} height={height} />}
-      <img
-        src={formattedUrl}
-        alt={alt}
-        width={width}
-        height={height}
-        style={{ ...(style ?? {}), display: isLoading ? "none" : "block" }}
-        onError={() => {
-          setIsError(true);
-        }}
-        onLoad={() => {
-          setIsLoading(false);
-        }}
-      />
-    </>
+    <img
+      src={formattedUrl}
+      alt={alt}
+      width={width}
+      height={height}
+      style={style}
+      className={className}
+    />
   );
 };
