@@ -13,7 +13,6 @@ import {
   EVMContractAddress,
   EWalletDataType,
   IOldUserAgreement,
-  IPaletteOverrides,
   ISnickerdoodleCore,
   IUserAgreement,
   Invitation,
@@ -25,7 +24,9 @@ import {
 } from "@snickerdoodlelabs/objects";
 import {
   ConsentModal,
+  EColorMode,
   ModalContainer,
+  createDefaultTheme,
   createThemeWithOverrides,
 } from "@snickerdoodlelabs/shared-components";
 import { okAsync } from "neverthrow";
@@ -64,28 +65,6 @@ interface ICurrentInvitation {
   type: EInvitationSourceType;
 }
 
-export const defaultLightPalette: IPaletteOverrides = {
-  primary: "#000",
-  primaryContrast: "#FFF",
-  button: "#000",
-  buttonContrast: "#FFF",
-  text: "#212121",
-  linkText: "#2795BD",
-  background: "#FFF",
-  border: "#BDBDBD",
-};
-
-export const defaultDarkPalette: IPaletteOverrides = {
-  primary: `#FFF`,
-  primaryContrast: "#212121",
-  button: "#FFF",
-  buttonContrast: "#212121",
-  text: "#FFF",
-  linkText: "#FFF",
-  background: "#212121",
-  border: "#BDBDBD",
-};
-
 export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   core,
   hide,
@@ -96,7 +75,9 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   coreConfig,
 }) => {
   const [theme, setTheme] = useState<Theme>(
-    createThemeWithOverrides(config.palette ?? defaultLightPalette),
+    config.palette
+      ? createThemeWithOverrides(config.palette)
+      : createDefaultTheme(EColorMode.LIGHT),
   );
   const [appState, setAppState] = useState<EAPP_STATE>(EAPP_STATE.IDLE);
   const [accounts, setAccounts] = useState<LinkedAccount[]>([]);
