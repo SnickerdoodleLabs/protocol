@@ -1,17 +1,16 @@
 import {
   BigNumberString,
   EVMContractAddress,
-  IDynamicRewardParameter,
   IpfsCID,
-  IQueryDeliveryItems,
+  JSONString,
   ZKProof,
 } from "@snickerdoodlelabs/objects";
 
 export interface IDeliverInsightsParams {
   consentContractId: EVMContractAddress;
   queryCID: IpfsCID;
-  insights: IQueryDeliveryItems;
-  rewardParameters: IDynamicRewardParameter[];
+  insights: JSONString;
+  rewardParameters: JSONString;
   signalNullifier: BigNumberString;
   anonymitySetStart: number;
   anonymitySetSize: number;

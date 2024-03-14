@@ -1,9 +1,6 @@
 import {
   ConsentContract,
   ConsentFactoryContract,
-  CrumbsContract,
-  MinimalForwarderContract,
-  WrappedTransactionResponse,
 } from "@snickerdoodlelabs/contracts-sdk";
 import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
@@ -32,8 +29,6 @@ export class BlockchainStuff {
   public businessSigner: ethers.NonceManager;
   public provider: ethers.JsonRpcProvider;
   public consentFactoryContract: ConsentFactoryContract;
-  public crumbsContract: CrumbsContract;
-  public minimalForwarder: MinimalForwarderContract;
 
   public serverAccount = localChainAccounts[0];
   public businessAccount = localChainAccounts[1];
@@ -58,14 +53,6 @@ export class BlockchainStuff {
     this.consentFactoryContract = new ConsentFactoryContract(
       this.serverSigner,
       doodleChain.consentFactoryContractAddress,
-    );
-    this.crumbsContract = new CrumbsContract(
-      this.serverSigner,
-      doodleChain.crumbsContractAddress,
-    );
-    this.minimalForwarder = new MinimalForwarderContract(
-      this.serverSigner,
-      doodleChain.metatransactionForwarderAddress,
     );
   }
 
@@ -130,17 +117,5 @@ export class BlockchainStuff {
             return deployedConsentAddress;
           });
       });
-  }
-
-  public setConsentContractMaxCapacity(
-    contractAddress: EVMContractAddress,
-    maxCapacity: number,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ConsentContractError
-  > {
-    const contract = this.getConsentContract(contractAddress);
-
-    return contract.updateMaxCapacity(maxCapacity);
   }
 }

@@ -28,6 +28,7 @@ import {
   UninitializedError,
   UnixTimestamp,
   IQueryDeliveryItems,
+  OptInInfo,
 } from "@snickerdoodlelabs/objects";
 import {
   ISDQLQueryWrapperFactory,
@@ -40,10 +41,8 @@ import "reflect-metadata";
 import * as td from "testdouble";
 
 import { QueryService } from "@core/implementations/business/index.js";
-import {
-  IConsentTokenUtils,
-  IQueryParsingEngine,
-} from "@core/interfaces/business/utilities/index.js";
+import { IQuestionnaireService } from "@core/interfaces/business";
+import { IQueryParsingEngine } from "@core/interfaces/business/utilities/index.js";
 import {
   IConsentContractRepository,
   ILinkedAccountRepository,
@@ -55,15 +54,17 @@ import {
 } from "@core/interfaces/utilities/index.js";
 import {
   avalanche1AstInstance,
+  commitment1,
   dataWalletAddress,
   dataWalletKey,
   defaultInsightPlatformBaseUrl,
+  identityNullifier,
+  identityTrapdoor,
 } from "@core-tests/mock/mocks/index.js";
 import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
-import { IQuestionnaireService } from "@core/interfaces/business";
 
 const now = UnixTimestamp(12345);
 const then = UnixTimestamp(2345);
@@ -126,9 +127,16 @@ const earnedReward = new EarnedReward(
 );
 
 const earnedRewards = [earnedReward];
+const commitmentIndex = 1;
+
+const optInInfo = new OptInInfo(
+  consentContractAddress,
+  identityNullifier,
+  identityTrapdoor,
+  commitment1,
+);
 
 class QueryServiceMocks {
-  public consentTokenUtils: IConsentTokenUtils;
   public dataWalletUtils: IDataWalletUtils;
   public queryParsingEngine: IQueryParsingEngine;
   public questionnaireService: IQuestionnaireService;
@@ -151,7 +159,6 @@ class QueryServiceMocks {
   );
 
   public constructor() {
-    this.consentTokenUtils = td.object<IConsentTokenUtils>();
     this.dataWalletUtils = td.object<IDataWalletUtils>();
     this.queryParsingEngine = td.object<IQueryParsingEngine>();
     this.questionnaireService = td.object<IQuestionnaireService>();
@@ -166,29 +173,29 @@ class QueryServiceMocks {
     this.logUtils = td.object<ILogUtils>();
     this.timeUtils = td.object<ITimeUtils>();
 
-    td.when(
-      this.insightPlatformRepo.deliverInsights(
-        consentContractAddress,
-        tokenId,
-        queryCID2,
-        queryDeliveryItems,
-        td.matchers.argThat((val: IDynamicRewardParameter[]) => {
-          return (
-            val.length == 1 &&
-            val[0].compensationKey.type ==
-              rewardParameter.compensationKey.type &&
-            val[0].compensationKey.value ==
-              rewardParameter.compensationKey.value &&
-            val[0].recipientAddress.type ==
-              rewardParameter.recipientAddress.type &&
-            val[0].recipientAddress.value ==
-              rewardParameter.recipientAddress.value
-          );
-        }),
-        derivedPrivateKey,
-        defaultInsightPlatformBaseUrl,
-      ),
-    ).thenReturn(okAsync(earnedRewards));
+    // td.when(
+    //   this.insightPlatformRepo.deliverInsights(
+    //     consentContractAddress,
+    //     tokenId,
+    //     queryCID2,
+    //     queryDeliveryItems,
+    //     td.matchers.argThat((val: IDynamicRewardParameter[]) => {
+    //       return (
+    //         val.length == 1 &&
+    //         val[0].compensationKey.type ==
+    //           rewardParameter.compensationKey.type &&
+    //         val[0].compensationKey.value ==
+    //           rewardParameter.compensationKey.value &&
+    //         val[0].recipientAddress.type ==
+    //           rewardParameter.recipientAddress.type &&
+    //         val[0].recipientAddress.value ==
+    //           rewardParameter.recipientAddress.value
+    //       );
+    //     }),
+    //     derivedPrivateKey,
+    //     defaultInsightPlatformBaseUrl,
+    //   ),
+    // ).thenReturn(okAsync(earnedRewards));
 
     // SDQLQueryRepository ---------------------------------------------------------
     td.when(this.sdqlQueryRepo.getSDQLQueryByCID(queryCID1)).thenReturn(
@@ -247,18 +254,14 @@ class QueryServiceMocks {
 
     // ConsentContractRepository ---------------------------------------------
     td.when(
-      this.consentContractRepo.isAddressOptedIn(consentContractAddress),
-    ).thenReturn(okAsync(true));
+      this.consentContractRepo.getCommitmentIndex(consentContractAddress),
+    ).thenReturn(okAsync(commitmentIndex));
     td.when(
-      this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
-    ).thenReturn(okAsync(this.consentToken));
-
-    td.when(
-      this.dataWalletUtils.deriveOptInPrivateKey(
+      this.dataWalletUtils.deriveOptInInfo(
         consentContractAddress,
         dataWalletKey,
       ),
-    ).thenReturn(okAsync(derivedPrivateKey));
+    ).thenReturn(okAsync(optInInfo));
 
     // TimeUtils ------------------------------------------------------
     td.when(this.timeUtils.getUnixNow()).thenReturn(now as never);
@@ -296,7 +299,6 @@ class QueryServiceMocks {
   }
   public factory(): QueryService {
     return new QueryService(
-      this.consentTokenUtils,
       this.dataWalletUtils,
       this.queryParsingEngine,
       this.sdqlQueryRepo,
@@ -510,16 +512,16 @@ describe("QueryService.returnQueries() tests", () => {
   });
 });
 
-describe("getPossibleInisightAndAdKeys tests", () => {
-  test("get possbile insights and ad keys", async () => {
+describe("getPossibleInsightAndAdKeys tests", () => {
+  test("get possible insights and ad keys", async () => {
     const mocks = new QueryServiceMocks();
     const queryService = mocks.factory(); // new context
     td.when(mocks.sdqlQueryRepo.getSDQLQueryByCID(queryCID1)).thenReturn(
       okAsync(sdqlQuery),
     ); // QQ: MAKES A LOT OF SENSE
     td.when(
-      mocks.consentContractRepo.isAddressOptedIn(td.matchers.anything()),
-    ).thenReturn(okAsync(true));
+      mocks.consentContractRepo.getCommitmentIndex(td.matchers.anything()),
+    ).thenReturn(okAsync(1));
 
     await ResultUtils.combine([
       mocks.sdqlQueryRepo.getSDQLQueryByCID(queryCID1),
@@ -541,8 +543,8 @@ describe("getPossibleInisightAndAdKeys tests", () => {
       }
       // We have the query, next step is check if you actually have a consent token for this business
       return mocks.consentContractRepo
-        .isAddressOptedIn(consentContractAddress)
-        .andThen((addressOptedIn) => {
+        .getCommitmentIndex(consentContractAddress)
+        .andThen((commitmentIndex) => {
           return okAsync(null);
         })
         .andThen(() => {

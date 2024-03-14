@@ -1,57 +1,44 @@
 import * as fs from "fs";
 
 import {
-  GetSignedUrlConfig,
-  Storage,
-  Bucket,
-  GetSignedUrlResponse,
-  GetFilesResponse,
-  File,
-  GetFilesCallback,
-} from "@google-cloud/storage";
-import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
+  CommitmentWrapper,
+  MembershipWrapper,
+} from "@snickerdoodlelabs/circuits-sdk";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  IDeliverInsightsParams,
+  IOptinParams,
+} from "@snickerdoodlelabs/insight-platform-api";
 import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
-  BigNumberString,
   ConsentContractError,
   ConsentFactoryContractError,
   ConsentName,
   DomainName,
   EVMAccountAddress,
   EVMContractAddress,
-  HexString,
   IpfsCID,
   ISDQLQueryObject,
   ISO8601DateString,
   SDQLString,
   Signature,
-  TokenId,
   URLString,
   ERewardType,
-  ChainId,
   EarnedReward,
-  MinimalForwarderContractError,
-  EligibleReward,
   SHA256Hash,
   AdSignature,
   InvalidSignatureError,
-  CompensationKey,
-  PossibleReward,
+  ZKProof,
+  Commitment,
+  BigNumberString,
+  JSONString,
 } from "@snickerdoodlelabs/objects";
-import {
-  snickerdoodleSigningDomain,
-  executeMetatransactionTypes,
-  insightDeliveryTypes,
-  insightPreviewTypes,
-  clearCloudBackupsTypes,
-  signedUrlTypes,
-} from "@snickerdoodlelabs/signature-verification";
-import { questionnaire } from "@test-harness/queries/index.js";
 import cors from "cors";
 import express from "express";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { questionnaire } from "@test-harness/queries/index.js";
 import { BlockchainStuff } from "@test-harness/utilities/BlockchainStuff.js";
 import { IPFSClient } from "@test-harness/utilities/IPFSClient.js";
 
@@ -70,6 +57,8 @@ export class InsightPlatformSimulator {
   public constructor(
     protected blockchain: BlockchainStuff,
     protected ipfs: IPFSClient,
+    protected membershipWrapper: MembershipWrapper,
+    protected commitmentWrapper: CommitmentWrapper,
   ) {
     process.on("exit", () => {
       this.logStream.close();
@@ -102,366 +91,125 @@ export class InsightPlatformSimulator {
       });
     });
 
-    /* Rewards Preview API - get Possible Rewards*/
-    this.app.post("/insights/responses/preview", (req, res) => {
-      console.log("Sending prompt rewards preview to the Insights Platform");
-      console.log("Req is this: ", req.body);
-
-      const consentContractId = EVMContractAddress(req.body.consentContractId);
-      const tokenId = TokenId(BigInt(req.body.tokenId));
-      const queryCID = IpfsCID(req.body.queryCID);
-      const queryDeliveryItems = JSON.stringify(req.body.queryDeliveryItems);
-      const signature = Signature(req.body.signature);
-
-      const value = {
-        consentContractId,
-        queryCID,
-        tokenId,
-        queryDeliveryItems,
-      };
-
-      const possibleRewards: PossibleReward[] = [];
-      possibleRewards[0] = new PossibleReward(
-        IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
-        CompensationKey("c1"),
-        ["age"],
-        "Sugar to your coffee",
-        IpfsCID("sugar image"),
-        "10% discount code for Starbucks",
-        ChainId(1),
-        ERewardType.Direct,
-      );
-      possibleRewards[1] = new PossibleReward(
-        IpfsCID("33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ"),
-        CompensationKey("c2"),
-        ["location"],
-        "The CryptoPunk Draw",
-        IpfsCID("Punk image"),
-        "participate in the draw to win a CryptoPunk NFT",
-        ChainId(1),
-        ERewardType.Direct,
-      );
-      possibleRewards[2] = new PossibleReward(
-        IpfsCID("GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8"),
-        CompensationKey("c3"),
-        [],
-        "CrazyApesClub NFT distro",
-        IpfsCID("Ape image"),
-        "a free CrazyApesClub NFT",
-        ChainId(1),
-        ERewardType.Direct,
-      );
-
-      this.logStream.write(JSON.stringify(req.body));
-
-      return this.cryptoUtils
-        .verifyTypedData(
-          snickerdoodleSigningDomain,
-          insightPreviewTypes,
-          value,
-          signature,
-        )
-        .andThen((verificationAddress) => {
-          console.log(
-            `Preview requested from ${verificationAddress} for token ${tokenId} on contract ${consentContractId}`,
-          );
-
-          // Go to the blockchain and make sure this token exists and is owned by this address
-          const contract =
-            this.blockchain.getConsentContract(consentContractId);
-
-          return contract.getConsentToken(tokenId).andThen((consentToken) => {
-            if (consentToken == null) {
-              const err = new Error(`No consent token found for id ${tokenId}`);
-              console.error(err);
-              return errAsync(err);
-            }
-
-            if (consentToken.ownerAddress.toLowerCase() != verificationAddress.toLowerCase()) {
-              const err = new Error(
-                `Consent token ${tokenId} is not owned by the verification address ${verificationAddress}`,
-              );
-              console.error(err);
-              return errAsync(err);
-            }
-
-            return okAsync(undefined);
-          });
-        })
-        .map(() => {
-          res.send(possibleRewards);
-        })
-        .mapErr((e) => {
-          console.error(e);
-          res.send(e);
-        });
-    });
-
     this.app.post("/insights/responses", (req, res) => {
-      console.log("Recieved Insight Response");
+      console.log("Received Insight Response");
 
       console.log("Insights : ", req.body["insights"]["insights"]);
       console.log("Ads : ", req.body["insights"]["ads"]);
 
       const consentContractId = EVMContractAddress(req.body.consentContractId);
       const queryCID = IpfsCID(req.body.queryCID);
-      const tokenId = TokenId(BigInt(req.body.tokenId));
-      const insights = JSON.stringify(req.body.insights);
-      const rewardParameters = JSON.stringify(req.body.rewardParameters);
-      const signature = Signature(req.body.signature);
-
-      const value = {
-        consentContractId,
-        queryCID,
-        tokenId,
-        insights,
-        rewardParameters,
-      };
-
-      this.logStream.write(JSON.stringify(req.body));
-      return this.cryptoUtils
-        .verifyTypedData(
-          snickerdoodleSigningDomain,
-          insightDeliveryTypes,
-          value,
-          signature,
-        )
-        .andThen((verificationAddress) => {
-          const contract =
-            this.blockchain.getConsentContract(consentContractId);
-
-          return contract.getConsentToken(tokenId).andThen((consentToken) => {
-            if (consentToken == null) {
-              const err = new Error(`No consent token found for id ${tokenId}`);
-              console.error(err);
-              return errAsync(err);
-            }
-
-            if (consentToken.ownerAddress.toLowerCase() != verificationAddress.toLowerCase()) {
-              const err = new Error(
-                `Consent token ${tokenId} is not owned by the verification address ${verificationAddress}`,
-              );
-              console.error(err);
-              return errAsync(err);
-            }
-
-            return okAsync(undefined);
-          });
-        })
-        .map(() => {
-          const earnedRewards: EarnedReward[] = [];
-          earnedRewards[0] = new EarnedReward(
-            queryCID,
-            "Sugar to your coffee",
-            IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
-            "dummy desc",
-            ERewardType.Direct,
-          );
-          res.send(earnedRewards);
-        })
-        .mapErr((e) => {
-          console.error(e);
-          res.send(e);
-        });
-    });
-
-    this.app.post("/questionnaires/responses", (req, res) => {
-      console.log("Recieved Questionnaires Response");
-
-      // console.log("Insights : ", req.body["insights"]["insights"]);
-      // console.log("Ads : ", req.body["insights"]["ads"]);
-      console.log("req.body: " + req.body);
-
-      const consentContractId = EVMContractAddress(req.body.consentContractId);
-      const queryCID = IpfsCID(req.body.queryCID);
-      const tokenId = TokenId(BigInt(req.body.tokenId));
-      const insights = JSON.stringify(req.body.insights);
-      const rewardParameters = JSON.stringify(req.body.rewardParameters);
-      const signature = Signature(req.body.signature);
-
-      const value = {
-        consentContractId,
-        queryCID,
-        tokenId,
-        insights,
-        rewardParameters,
-      };
-
-      this.logStream.write(JSON.stringify(req.body));
-      return this.cryptoUtils
-        .verifyTypedData(
-          snickerdoodleSigningDomain,
-          insightDeliveryTypes,
-          value,
-          signature,
-        )
-        .andThen((verificationAddress) => {
-          const contract =
-            this.blockchain.getConsentContract(consentContractId);
-
-          return contract.getConsentToken(tokenId).andThen((consentToken) => {
-            if (consentToken == null) {
-              const err = new Error(`No consent token found for id ${tokenId}`);
-              console.error(err);
-              return errAsync(err);
-            }
-
-            console.log("consentToken.ownerAddress: " + consentToken.ownerAddress);
-            console.log("verificationAddress: " + verificationAddress);
-
-            if (consentToken.ownerAddress.toLowerCase() != verificationAddress.toLowerCase()) {
-              const err = new Error(
-                `Consent token ${tokenId} is not owned by the verification address ${verificationAddress}`,
-              );
-              console.error(err);
-              return errAsync(err);
-            }
-
-            return okAsync(undefined);
-          });
-        })
-        .map(() => {
-          const earnedRewards: EarnedReward[] = [];
-          earnedRewards[0] = new EarnedReward(
-            queryCID,
-            "Sugar to your coffee",
-            IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
-            "dummy desc",
-            ERewardType.Direct,
-          );
-          res.send(earnedRewards);
-        })
-        .mapErr((e) => {
-          console.error(e);
-          res.send(e);
-        });
-    });
-
-    this.app.post("/clearAllBackups", (req, res) => {
-      const signature = Signature(req.body.signature);
-      const signingData = {
-        fileName: req.body.walletAddress,
-      };
-      this.cryptoUtils
-        .verifyTypedData(
-          snickerdoodleSigningDomain,
-          clearCloudBackupsTypes,
-          signingData,
-          signature,
-        )
-        .map(async (verificationAddress) => {
-          const storage = new Storage({
-            keyFilename: "../test-harness/src/credentials.json",
-            projectId: "snickerdoodle-insight-stackdev",
-          });
-          storage.bucket("ceramic-replacement-bucket").deleteFiles();
-          res.send(undefined);
-        });
-    });
-
-    this.app.post("/getSignedUrl", (req, res) => {
-      const signature = Signature(req.body.signature);
-      const signingData = {
-        fileName: req.body.fileName,
-      };
-      this.cryptoUtils
-        .verifyTypedData(
-          snickerdoodleSigningDomain,
-          signedUrlTypes,
-          signingData,
-          signature,
-        )
-        .map(async (verificationAddress) => {
-          const storage = new Storage({
-            keyFilename: "../test-harness/src/credentials.json",
-            projectId: "snickerdoodle-insight-stackdev",
-          });
-          const writeOptions: GetSignedUrlConfig = {
-            version: "v4",
-            action: "write",
-            expires: Date.now() + 15 * 60 * 1000, // 15 minutes
-          };
-          const writeUrl = await storage
-            .bucket("ceramic-replacement-bucket")
-            .file(req.body.fileName)
-            .getSignedUrl(writeOptions);
-
-          res.send(URLString(writeUrl[0]));
-        });
-    });
-
-    this.app.post("/metatransaction", (req, res) => {
-      // Gather all the parameters
-      const accountAddress = EVMAccountAddress(req.body.accountAddress);
-      const contractAddress = EVMContractAddress(req.body.contractAddress);
-      const nonce = BigNumberString(req.body.nonce);
-      const value = BigNumberString(req.body.value);
-      const gas = BigNumberString(req.body.gas);
-      const data = HexString(req.body.data);
-      const signature = Signature(req.body.requestSignature);
-      const metatransactionSignature = Signature(
-        req.body.metatransactionSignature,
+      const signalNullifier = BigNumberString(
+        BigInt(req.body.signalNullifier).toString(),
       );
+      const insights = JSONString(req.body.insights);
+      const rewardParameters = JSONString(req.body.rewardParameters);
+      const anonymitySetStart = Number(req.body.anonymitySetStart);
+      const anonymitySetSize = Number(req.body.anonymitySetSize);
+      const proof = ZKProof(req.body.proof);
 
-      const signingData = {
-        accountAddress: accountAddress,
-        contractAddress: contractAddress,
-        nonce: nonce,
-        value: value,
-        gas: gas,
-        data: data,
-        metatransactionSignature: metatransactionSignature,
-      } as Record<string, unknown>;
+      const provableData = {
+        consentContractId: consentContractId,
+        queryCID: queryCID,
+        insights: insights,
+        rewardParameters: rewardParameters,
+        signalNullifier: signalNullifier,
+        anonymitySetStart: anonymitySetStart,
+        anonymitySetSize: anonymitySetSize,
+      } as Omit<IDeliverInsightsParams, "proof">;
 
-      // Verify the signature
-      this.cryptoUtils
-        .verifyTypedData(
-          snickerdoodleSigningDomain,
-          executeMetatransactionTypes,
-          signingData,
-          signature,
+      this.logStream.write(JSON.stringify(req.body));
+      // Need to recover the anonymity set
+      const consentContract =
+        this.blockchain.consentContracts.get(consentContractId);
+      if (consentContract == null) {
+        return errAsync(
+          new Error(`Consent contract ${consentContractId} does not exist`),
+        );
+      }
+
+      return consentContract
+        .fetchAnonymitySet(
+          BigNumberString(BigInt(anonymitySetStart).toString()),
+          BigNumberString(
+            BigInt(anonymitySetStart + anonymitySetSize).toString(),
+          ),
         )
-        .andThen((verificationAddress) => {
-          if (verificationAddress.toLowerCase() != accountAddress.toLowerCase()) {
-            console.error(
-              `Invalid signature. Metatransaction request is signed by ${verificationAddress} but is for account ${accountAddress}`,
-            );
-            return errAsync(new Error("Invalid signature!"));
+        .andThen((anonymitySet) => {
+          return this.membershipWrapper.verify(
+            ObjectUtils.serialize(provableData),
+            anonymitySet,
+            queryCID,
+            signalNullifier,
+            proof,
+          );
+        })
+        .andThen((verified) => {
+          if (!verified) {
+            return errAsync(new Error("Invalid proof provided for response!"));
+          }
+
+          const earnedRewards: EarnedReward[] = [];
+          earnedRewards[0] = new EarnedReward(
+            queryCID,
+            "Sugar to your coffee",
+            IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
+            "dummy desc",
+            ERewardType.Direct,
+          );
+          res.send(earnedRewards);
+          return okAsync(undefined);
+        })
+        .mapErr((e) => {
+          console.error(e);
+          res.send(e);
+        });
+    });
+
+    this.app.post("/optin", (req, res) => {
+      // Gather all the parameters
+      const consentContractId = EVMContractAddress(req.body.consentContractId);
+      const commitment = Commitment(req.body.commitment);
+      const proof = ZKProof(req.body.proof);
+
+      const provableData = {
+        consentContractId: consentContractId,
+        commitment: commitment,
+      } as Omit<IOptinParams, "proof">;
+
+      this.commitmentWrapper
+        .verify(ObjectUtils.serialize(provableData), commitment, proof)
+        .andThen((verified) => {
+          if (!verified) {
+            const errMessage = `Invalid proof provided for opt in. Provided proof for commitment ${commitment} for consent contract ${consentContractId} does not verify`;
+            console.error(errMessage);
+            return errAsync(new Error(errMessage));
           }
 
           console.log(
-            `Verified signature for metatransaction for account ${verificationAddress}!`,
+            `Verified proof of commitment for consent contract ${consentContractId}!`,
           );
 
-          const forwarderRequest = {
-            to: contractAddress, // Contract address for the metatransaction
-            from: accountAddress, // EOA to run the transaction as
-            value: BigInt(value), // The amount of doodle token to pay. Should be 0.
-            gas: BigInt(gas), // The amount of gas to pay.
-            nonce: BigInt(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
-            data: data, // The actual bytes of the request, encoded as a hex string
-          } as IMinimalForwarderRequest;
+          const consentContract =
+            this.blockchain.consentContracts.get(consentContractId);
 
-          console.log("Metatransaction signature", metatransactionSignature);
+          if (consentContract == null) {
+            return errAsync(
+              new Error(`Consent contract ${consentContractId} does not exist`),
+            );
+          }
 
-          // Now we need to actually execute the metatransaction
-          return this.blockchain.minimalForwarder.execute(
-            forwarderRequest,
-            metatransactionSignature,
-          );
+          // Now we need to actually execute the opt-in
+          return consentContract.optIn(commitment);
         })
         .andThen((tx) => {
           return ResultAsync.fromPromise(tx.wait(), (e) => {
-            return new MinimalForwarderContractError(
-              "Wait for createCrumb() failed",
-              e,
-              null,
-            );
+            return e as Error;
           });
         })
         .map((receipt) => {
-          console.log("Metatransaction receipt", receipt);
-          res.send("TokenId");
+          console.log("Opt In receipt", receipt);
+          res.send({ success: true });
         })
         .mapErr((e) => {
           console.error(e);
@@ -506,19 +254,18 @@ export class InsightPlatformSimulator {
       });
   }
 
-  public uploadQuestionnaire(): ResultAsync<
-    IpfsCID, Error
-  > {
-      return this.ipfs.postToIPFS(questionnaire).map((cid) => {
+  public uploadQuestionnaire(): ResultAsync<IpfsCID, Error> {
+    return this.ipfs
+      .postToIPFS(questionnaire)
+      .map((cid) => {
         console.log("cid: " + cid);
-        return cid;        
+        return cid;
       })
-        .mapErr((e) => {
-          console.error(e);
-          return e;
-        });
+      .mapErr((e) => {
+        console.error(e);
+        return e;
+      });
   }
-  
 
   public createCampaign(
     domains: DomainName[],

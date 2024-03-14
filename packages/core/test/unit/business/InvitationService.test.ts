@@ -24,21 +24,20 @@ import * as td from "testdouble";
 
 import { InvitationService } from "@core/implementations/business/index.js";
 import { IInvitationService } from "@core/interfaces/business/index.js";
-import { IConsentTokenUtils } from "@core/interfaces/business/utilities/index.js";
 import {
   IConsentContractRepository,
   IDNSRepository,
   IInvitationRepository,
   ILinkedAccountRepository,
-  IMetatransactionForwarderRepository,
 } from "@core/interfaces/data/index.js";
 import { IDataWalletUtils } from "@core/interfaces/utilities/index.js";
 import {
-  dataWalletAddress,
   consentContractAddress1,
-  defaultInsightPlatformBaseUrl,
   externalAccountAddress1,
   dataWalletKey,
+  identityNullifier,
+  identityTrapdoor,
+  commitment1,
 } from "@core-tests/mock/mocks/commonValues.js";
 import {
   ConfigProviderMock,
@@ -82,7 +81,12 @@ const invitationMetadata: IOldUserAgreement = {
   nftClaimedImage: URLString("nftClaimedImage"),
 };
 
-const acceptedInvitation = new OptInInfo(consentContractAddress1, tokenId1);
+const acceptedInvitation = new OptInInfo(
+  consentContractAddress1,
+  identityNullifier,
+  identityTrapdoor,
+  commitment1,
+);
 
 const consentToken1 = new ConsentToken(
   consentContractAddress1,
@@ -92,12 +96,10 @@ const consentToken1 = new ConsentToken(
 );
 
 class InvitationServiceMocks {
-  public consentTokenUtils: IConsentTokenUtils;
   public consentRepo: IConsentContractRepository;
   public insightPlatformRepo: IInsightPlatformRepository;
   public dnsRepository: IDNSRepository;
   public invitationRepo: IInvitationRepository;
-  public forwarderRepo: IMetatransactionForwarderRepository;
   public dataWalletUtils: IDataWalletUtils;
   public cryptoUtils: ICryptoUtils;
   public contextProvider: ContextProviderMock;
@@ -106,12 +108,10 @@ class InvitationServiceMocks {
   public accountRepo: ILinkedAccountRepository;
 
   public constructor() {
-    this.consentTokenUtils = td.object<IConsentTokenUtils>();
     this.consentRepo = td.object<IConsentContractRepository>();
     this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
     this.dnsRepository = td.object<IDNSRepository>();
     this.invitationRepo = td.object<IInvitationRepository>();
-    this.forwarderRepo = td.object<IMetatransactionForwarderRepository>();
     this.contextProvider = new ContextProviderMock();
     this.dataWalletUtils = td.object<IDataWalletUtils>();
     this.cryptoUtils = td.object<ICryptoUtils>();
@@ -159,56 +159,38 @@ class InvitationServiceMocks {
 
     // DataWalletUtils --------------------------------------------
     td.when(
-      this.dataWalletUtils.deriveOptInPrivateKey(
+      this.dataWalletUtils.deriveOptInInfo(
         consentContractAddress1,
         dataWalletKey,
       ),
-    ).thenReturn(okAsync(optInPrivateKey));
-
-    // ForwarderRepo -----------------------------------------------
-    td.when(this.forwarderRepo.getNonce(optInAccountAddress)).thenReturn(
-      okAsync(metatransactionNonce),
-    );
-
-    td.when(
-      this.forwarderRepo.signMetatransactionRequest(
-        td.matchers.contains({
-          to: consentContractAddress1,
-          from: optInAccountAddress,
-          data: encodedUpdateAgreementFlagsContent, // The actual bytes of the request, encoded as a hex string
-        }),
-        optInPrivateKey,
-      ),
-    ).thenReturn(okAsync(updateAgreementFlagsMetatransactionSignature));
+    ).thenReturn(okAsync(acceptedInvitation));
 
     // InsightPlatformRepo -----------------------------------------------------
-    td.when(
-      this.insightPlatformRepo.executeMetatransaction(
-        optInAccountAddress, // account address
-        consentContractAddress1, // contract address
-        metatransactionNonce,
-        metatransactionValue,
-        BigNumberString(
-          BigInt(
-            this.configProvider.config.gasAmounts.updateAgreementFlagsGas,
-          ).toString(),
-        ),
-        encodedUpdateAgreementFlagsContent,
-        updateAgreementFlagsMetatransactionSignature,
-        optInPrivateKey,
-        this.configProvider.config.defaultInsightPlatformBaseUrl,
-      ),
-    ).thenReturn(okAsync(undefined));
+    // td.when(
+    //   this.insightPlatformRepo.executeMetatransaction(
+    //     optInAccountAddress, // account address
+    //     consentContractAddress1, // contract address
+    //     metatransactionNonce,
+    //     metatransactionValue,
+    //     BigNumberString(
+    //       BigInt(
+    //         this.configProvider.config.gasAmounts.updateAgreementFlagsGas,
+    //       ).toString(),
+    //     ),
+    //     encodedUpdateAgreementFlagsContent,
+    //     updateAgreementFlagsMetatransactionSignature,
+    //     optInPrivateKey,
+    //     this.configProvider.config.defaultInsightPlatformBaseUrl,
+    //   ),
+    // ).thenReturn(okAsync(undefined));
   }
 
   public factory(): IInvitationService {
     return new InvitationService(
-      this.consentTokenUtils,
       this.consentRepo,
       this.insightPlatformRepo,
       this.dnsRepository,
       this.invitationRepo,
-      this.forwarderRepo,
       this.dataWalletUtils,
       this.cryptoUtils,
       this.contextProvider,
@@ -300,16 +282,16 @@ describe("InvitationService.updateDataPermissions() tests", () => {
     });
   });
 
-  test("No consent token but invitation exists in persistence, removes invite from persistence, fails", async () => {
+  test("No commitment but invitation exists in persistence, removes invite from persistence, fails", async () => {
     // Arrange
     const mocks = new InvitationServiceMocks();
 
-    td.when(
-      mocks.consentRepo.getConsentToken(
-        acceptedInvitation.consentContractAddress,
-        acceptedInvitation.tokenId,
-      ),
-    ).thenReturn(okAsync(null));
+    // td.when(
+    //   mocks.consentRepo.getConsentToken(
+    //     acceptedInvitation.consentContractAddress,
+    //     acceptedInvitation.tokenId,
+    //   ),
+    // ).thenReturn(okAsync(null));
 
     const service = mocks.factory();
 

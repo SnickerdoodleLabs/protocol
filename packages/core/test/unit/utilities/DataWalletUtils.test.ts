@@ -1,8 +1,11 @@
 import "reflect-metadata";
 import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
+  BigNumberString,
+  Commitment,
   EVMContractAddress,
   EVMPrivateKey,
+  OptInInfo,
   PasswordString,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -37,17 +40,17 @@ class DataWalletUtilsMocks {
 }
 
 describe("DataWalletUtils tests", () => {
-  test("deriveOptInPrivateKey() returns different keys for different accounts", async () => {
+  test("deriveOptInInfo() returns different addresses for different accounts", async () => {
     // Arrange
     const mocks = new DataWalletUtilsMocks();
     const utils = mocks.factory();
 
     // Act
-    const result1 = await utils.deriveOptInPrivateKey(
+    const result1 = await utils.deriveOptInInfo(
       consentContractAddress1,
       privateKey,
     );
-    const result2 = await utils.deriveOptInPrivateKey(
+    const result2 = await utils.deriveOptInInfo(
       consentContractAddress2,
       privateKey,
     );
@@ -59,38 +62,22 @@ describe("DataWalletUtils tests", () => {
     expect(result2.isErr()).toBeFalsy();
     const newAccount1 = result1._unsafeUnwrap();
     const newAccount2 = result2._unsafeUnwrap();
-    expect(newAccount1).toBe(
-      "5241a20eeb3faf27978ab43c2c6ea55db0bd9e4011f1858565747adb79fe8bf6",
+    expect(newAccount1).toContain(
+      new OptInInfo(
+        consentContractAddress1,
+        BigNumberString("0x67b7a6dd90a0d0ee405646771141a07f451b1256"),
+        BigNumberString("8ed53fb062a2285cb9726c4961a6bbdc6aa6fca9"),
+        Commitment(67n),
+      ),
     );
-    expect(newAccount2).toBe(
-      "aa33ec9fbf37cb3176a9ebe7e4a37b83615d12257504c293149127558c825aaa",
+    expect(newAccount2).toContain(
+      new OptInInfo(
+        consentContractAddress2,
+        BigNumberString("0x67b7a6dd90a0d0ee405646771141a07f451b1256"),
+        BigNumberString("8ed53fb062a2285cb9726c4961a6bbdc6aa6fca9"),
+        Commitment(67n),
+      ),
     );
-  });
-
-  test("deriveOptInAccountAddress() returns different addresses for different accounts", async () => {
-    // Arrange
-    const mocks = new DataWalletUtilsMocks();
-    const utils = mocks.factory();
-
-    // Act
-    const result1 = await utils.deriveOptInAccountAddress(
-      consentContractAddress1,
-      privateKey,
-    );
-    const result2 = await utils.deriveOptInAccountAddress(
-      consentContractAddress2,
-      privateKey,
-    );
-
-    // Assert
-    expect(result1).toBeDefined();
-    expect(result2).toBeDefined();
-    expect(result1.isErr()).toBeFalsy();
-    expect(result2.isErr()).toBeFalsy();
-    const newAccount1 = result1._unsafeUnwrap();
-    const newAccount2 = result2._unsafeUnwrap();
-    expect(newAccount1).toBe("0x417643fbd5d41db241d29c684ba9bf46499fa21e");
-    expect(newAccount2).toBe("0x67b7a6dd90a0d0ee405646771141a07f451b1256");
   });
 
   test("deriveEncryptionKeyFromPassword works", async () => {

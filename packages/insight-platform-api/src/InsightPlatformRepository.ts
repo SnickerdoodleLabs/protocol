@@ -70,12 +70,15 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       anonymitySetSize += 1;
     }
 
-    // Create the proveable data
+    const serializedInsights = ObjectUtils.serialize(insights);
+    const serializedRewardParameters = ObjectUtils.serialize(rewardParameters);
+
+    // Create the provable data
     const provableData = {
       consentContractId: consentContractAddress,
       queryCID: queryCID,
-      insights: insights,
-      rewardParameters: rewardParameters,
+      insights: serializedInsights,
+      rewardParameters: serializedRewardParameters,
       signalNullifier: signalNullifier,
       anonymitySetStart: anonymitySetStart,
       anonymitySetSize: anonymitySetSize,
@@ -97,8 +100,8 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         return this.ajaxUtils.post<EarnedReward[]>(url, {
           consentContractId: consentContractAddress,
           queryCID: queryCID,
-          insights: insights,
-          rewardParameters: rewardParameters,
+          insights: serializedInsights,
+          rewardParameters: serializedRewardParameters,
           signalNullifier: signalNullifier,
           anonymitySetStart: anonymitySetStart,
           anonymitySetSize: anonymitySetSize,
@@ -118,7 +121,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     const identityCommitment =
       MembershipWrapper.getIdentityCommitment(identity);
 
-    // Create the proveable data
+    // Create the provable data
     const provableData = {
       consentContractId: consentContractAddress,
       commitment: identityCommitment,
