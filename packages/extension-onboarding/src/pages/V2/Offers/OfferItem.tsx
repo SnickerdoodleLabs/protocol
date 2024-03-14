@@ -1,8 +1,9 @@
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
+import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { Box } from "@material-ui/core";
 import { CallMade } from "@material-ui/icons";
-import { QueryStatus } from "@snickerdoodlelabs/objects";
+import { EChain, QueryStatus } from "@snickerdoodlelabs/objects";
 import {
   useResponsiveValue,
   Image,
@@ -10,7 +11,7 @@ import {
   colors,
   SDButton,
 } from "@snickerdoodlelabs/shared-components";
-import React from "react";
+import React, { useCallback } from "react";
 
 interface IOfferItemProps {
   offer: QueryStatus;
@@ -25,6 +26,24 @@ const OfferItem: React.FC<IOfferItemProps> = ({
 }) => {
   const getResponsiveValue = useResponsiveValue();
   const { setModal } = useLayoutContext();
+  const { linkedAccounts, setLinkerModalOpen } = useAppContext();
+
+  const onClick = useCallback(() => {
+    if (
+      linkedAccounts.filter(
+        (account) => account.sourceChain === EChain.EthereumMainnet,
+      ).length === 0
+    ) {
+      setLinkerModalOpen();
+      return;
+    }
+    setModal({
+      modalSelector: EModalSelectors.OFFER_MODAL,
+      onPrimaryButtonClick: reCalculateOffers,
+      customProps: { offer, brandImage },
+    });
+  }, [linkedAccounts]);
+
   return (
     <Box
       mt={1.5}
@@ -61,17 +80,7 @@ const OfferItem: React.FC<IOfferItemProps> = ({
           >
             {offer.name}
           </SDTypography>
-          <SDButton
-            onClick={() => {
-              setModal({
-                modalSelector: EModalSelectors.OFFER_MODAL,
-                onPrimaryButtonClick: reCalculateOffers,
-                customProps: { offer, brandImage },
-              });
-            }}
-            variant="outlined"
-            endIcon={<CallMade />}
-          >
+          <SDButton onClick={onClick} variant="outlined" endIcon={<CallMade />}>
             Start
           </SDButton>
         </Box>

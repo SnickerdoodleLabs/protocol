@@ -119,9 +119,6 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     useState<IInvitation | null>(null);
 
   const currentInvitation: ICurrentInvitation | null = useMemo(() => {
-    if (accounts.length === 0) {
-      return null;
-    }
     if (userRequestInvitation) {
       return {
         data: userRequestInvitation,

@@ -155,27 +155,6 @@ interface ICurrentInvitation {
   data: IInvitaionData;
   type: EInvitationSourceType;
 }
-
-// this is really bad way to do this
-// for now only place user can link an account is one of the origins below
-// if user is directed to one of the origin below just because does not have an acount we should wait for user to link an account to display popup
-const SDL_ORIGIN_LIST = [
-  "https://datawallet.demo-01.snickerdoodle.dev",
-  "https://datawallet.demo-02.snickerdoodle.dev",
-  "https://datawallet.demo-03.snickerdoodle.dev",
-  "https://datawallet.demo-04.snickerdoodle.dev",
-  "https://datawallet.demo-05.snickerdoodle.dev",
-  "https://datawallet.snickerdoodle.com",
-  "https://datawallet.dev.snickerdoodle.dev",
-  // those are even worse
-  "https://localhost:9005",
-  "http://localhost:9001",
-];
-
-const origin = window.location.origin;
-
-const awaitAccountLinking = SDL_ORIGIN_LIST.includes(origin);
-
 interface IAppProps {
   paletteOverrides?: IPaletteOverrides;
 }
@@ -464,8 +443,6 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
 
   const renderComponent = useMemo(() => {
     if (!currentInvitation) return null;
-    // delay showing popup until user link an account
-    if (awaitAccountLinking && accounts.length === 0) return null;
     switch (true) {
       case appState === EAppState.AUDIENCE_PREVIEW:
         return (

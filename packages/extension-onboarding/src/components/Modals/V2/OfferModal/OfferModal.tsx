@@ -1,3 +1,4 @@
+import { useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import {
@@ -10,8 +11,10 @@ import {
 } from "@material-ui/core";
 import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
+  EChain,
   EQuestionnaireStatus,
   EWalletDataType,
+  IDynamicRewardParameter,
   IpfsCID,
   NewQuestionnaireAnswer,
   QueryStatus,
@@ -68,6 +71,7 @@ const OfferModal: FC = () => {
     useSafeState<IQuestionnairesState>();
   const [permissions, setPermissions] = useSafeState<IPermissionsState>();
   const permissionsRef = useRef<IPermissionsState>();
+  const { linkedAccounts, setLinkerModalOpen } = useAppContext();
 
   useEffect(() => {
     getQuestionnaires();
@@ -155,17 +159,35 @@ const OfferModal: FC = () => {
     [],
   );
 
-  const handleOfferApprove = useCallback(() => {
-    sdlDataWallet
-      .approveQuery(
-        offer.queryCID,
-        ObjectUtils.deserialize(offer.rewardsParameters),
-      )
-      .map(() => {
-        onPrimaryButtonClick();
-        closeModal();
+  const handleOfferApprove = () => {
+    const calculatedParameters: IDynamicRewardParameter[] = [];
+    const rewardsParameters = ObjectUtils.deserialize<
+      IDynamicRewardParameter[]
+    >(offer.rewardsParameters);
+
+    const recipientAddressValue = linkedAccounts.filter(
+      (a) => a.sourceChain === EChain.EthereumMainnet,
+    )?.[0]?.sourceAccountAddress;
+
+    if (!recipientAddressValue) {
+      setLinkerModalOpen();
+    }
+
+    rewardsParameters.forEach((rp) => {
+      calculatedParameters.push({
+        ...rp,
+        recipientAddress: {
+          ...rp.recipientAddress,
+          value: recipientAddressValue,
+        },
       });
-  }, [sdlDataWallet]);
+    });
+
+    sdlDataWallet.approveQuery(offer.queryCID, calculatedParameters).map(() => {
+      onPrimaryButtonClick();
+      closeModal();
+    });
+  };
 
   const isReady = useMemo(() => {
     return !!questionnaires && !!permissions;
