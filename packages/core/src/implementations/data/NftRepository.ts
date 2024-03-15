@@ -455,10 +455,9 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
       })
       .map((cachedNfts) => {
         // if (benchmark != null) {
-        //   return this.filterNftHistoriesByTimestamp(benchmark, cachedNfts);
+        //   benchmark is disabled for now
         // }
-
-        return cachedNfts;
+        return this.filterNftHistoriesByTimestamp(cachedNfts);
       });
   }
 
@@ -529,7 +528,7 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
   }
 
   protected filterNftHistoriesByTimestamp(
-    benchmark: UnixTimestamp,
+    //benchmark: UnixTimestamp,
     walletNftHistories: WalletNftWithHistory[],
   ): WalletNftWithHistory[] {
     return walletNftHistories.reduce<WalletNftWithHistory[]>(
@@ -543,22 +542,22 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
           totalAmount: walletNftWithHistory.totalAmount,
         };
 
-        const validHistory = this.findSubarrayByValue(
-          historyWithTotalAmount,
-          benchmark,
-        );
+        // const validHistory = this.findSubarrayByValue(
+        //   historyWithTotalAmount,
+        //   benchmark,
+        // );
 
         const newTotalAmount = this.bigNumberUtils.BNSToBN(
-          validHistory.totalAmount,
+          historyWithTotalAmount.totalAmount,
         );
-        if (validHistory.data.length === 0 || newTotalAmount <= 0n) {
+        if (historyWithTotalAmount.data.length === 0 || newTotalAmount <= 0) {
           return filteredNftHistory;
         }
 
         const filteredWalletNft = {
           ...walletNftWithHistory,
-          history: validHistory.data,
-          totalAmount: validHistory.totalAmount,
+          history: historyWithTotalAmount.data,
+          totalAmount: historyWithTotalAmount.totalAmount,
         };
         filteredNftHistory.push(filteredWalletNft);
 
