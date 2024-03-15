@@ -407,12 +407,6 @@ export class SnickerdoodleIFrameProxy
     return this._createCall("getAvailableInvitationsCID", null);
   }
 
-  public getConsentContractURLs(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<URLString[], ProxyError> {
-    return this._createCall("getConsentContractURLs", { contractAddress });
-  }
-
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError> {

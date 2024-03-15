@@ -140,6 +140,9 @@ export class DataWalletProfile {
         defaultInsightPlatformBaseUrl: "http://localhost:3006",
         dnsServerAddress: "http://localhost:3006/dns",
         devChainProviderURL: "http://127.0.0.1:8545",
+        accountIndexingPollingIntervalMS: 10000, // 10 seconds
+        accountBalancePollingIntervalMS: 10000, // 10 seconds
+        accountNFTPollingIntervalMS: 10000, // 10 seconds
         discordOverrides: discordConfig,
         heartbeatIntervalMS: 5000, // Set the heartbeat to 5 seconds
         alchemyApiKeys: {

@@ -904,21 +904,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       .map(() => {});
   }
 
-  public getConsentContractURLs(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    URLString[],
-    | UninitializedError
-    | BlockchainProviderError
-    | ConsentContractError
-    | BlockchainCommonErrors
-  > {
-    const consentRepo = this.iocContainer.get<IConsentContractRepository>(
-      IConsentContractRepositoryType,
-    );
-    return consentRepo.getInvitationUrls(consentContractAddress);
-  }
-
   public getConsentContractCID(
     consentAddress: EVMContractAddress,
   ): ResultAsync<

@@ -11,10 +11,11 @@ import {
   BlockchainCommonErrors,
   TransactionResponseError,
   UnixTimestamp,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
@@ -50,7 +51,6 @@ export class ConsentFactoryContract
   public createConsent(
     ownerAddress: EVMAccountAddress,
     baseUri: BaseURI,
-    name: ConsentName,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -58,7 +58,7 @@ export class ConsentFactoryContract
   > {
     return this.writeToContract(
       "createConsent",
-      [ownerAddress, baseUri, name],
+      [ownerAddress, baseUri],
       overrides,
     );
   }
@@ -194,13 +194,13 @@ export class ConsentFactoryContract
     EVMContractAddress[],
     ConsentFactoryContractError | BlockchainCommonErrors
   > {
-    const eventFilter = this.contract.filters.ConsentDeployed();
+    const eventFilter = this.contract.filters.ConsentContractDeployed();
     return ResultAsync.fromPromise(
       this.contract.queryFilter(eventFilter),
       (e) => {
         return this.generateError(
           e,
-          "Unable to call contract.queryFilter() for ConsentDeployed event",
+          "Unable to call contract.queryFilter() for ConsentContractDeployed event",
         );
       },
     ).map((events) => {
@@ -467,16 +467,25 @@ export class ConsentFactoryContract
   public getAddressOfConsentCreated(
     txRes: WrappedTransactionResponse,
   ): ResultAsync<EVMContractAddress, TransactionResponseError> {
-    return txRes.wait().map((receipt) => {
+    return txRes.wait().andThen((receipt) => {
       // Get the hash of the event
-      const event = "ConsentDeployed(address,address)";
+      const event = "ConsentContractDeployed(address,address)";
       const eventHash = ethers.keccak256(ethers.toUtf8Bytes(event));
 
-      // Filter out for the ConsentDeployed event from the receipt's logs
+      // Filter out for the ConsentContractDeployed event from the receipt's logs
       // returns an array
       const consentDeployedLog = receipt.logs.filter(
         (_log) => _log.topics[0] == eventHash,
       );
+
+      // If there are no logs, return an error
+      if (consentDeployedLog.length == 0) {
+        return errAsync(
+          new TransactionResponseError(
+            "No ConsentContractDeployed event found in the transaction receipt",
+          ),
+        );
+      }
 
       // access the data and topics from the filtered log
       const data = consentDeployedLog[0].data;
@@ -484,16 +493,20 @@ export class ConsentFactoryContract
 
       // Declare a new interface
       const iface = new ethers.Interface([
-        "event ConsentDeployed(address indexed owner, address indexed consentAddress)",
+        "event ConsentContractDeployed(address indexed owner, address indexed consentAddress)",
       ]);
 
       // Decode the log from the given data and topic
-      const decodedLog = iface.decodeEventLog("ConsentDeployed", data, topics);
+      const decodedLog = iface.decodeEventLog(
+        "ConsentContractDeployed",
+        data,
+        topics,
+      );
 
       const deployedConsentAddress: EVMContractAddress =
         decodedLog.consentAddress;
 
-      return deployedConsentAddress;
+      return okAsync(deployedConsentAddress);
     });
   }
 
@@ -531,6 +544,43 @@ export class ConsentFactoryContract
   }
   // #endregion Questionnaires
 
+  // #region Domains- ERC-7529
+  public addDomain(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.writeToContract("addDomain", [domain], overrides);
+  }
+
+  public removeDomain(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.writeToContract("removeDomain", [domain], overrides);
+  }
+
+  public getDomain(
+    domain: DomainName,
+  ): ResultAsync<
+    boolean,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      // returns array of domains
+      this.contract.getDomain(domain) as Promise<boolean>,
+      (e) => {
+        return this.generateError(e, "Unable to call getDomain()");
+      },
+    );
+  }
+  // #endregion Domains- ERC-7529
+
   protected generateContractSpecificError(
     msg: string,
     e: IEthersContractError,
@@ -548,17 +598,17 @@ interface IListingStruct {
 
 // I listingStruct { at the place where we're using it, and don't have to export here
 
-// Alternative option is to get the deployed Consent addresses through filtering event ConsentDeployed() event
+// Alternative option is to get the deployed Consent addresses through filtering event ConsentContractDeployed() event
 
-/* // TODO: Replace Promise<any> with correct types returned from ConsentDeployed() and queryFilter()
+/* // TODO: Replace Promise<any> with correct types returned from ConsentContractDeployed() and queryFilter()
   public getConsentsDeployedByOwner(
     ownerAddress: EVMAccountAddress,
   ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
-      this.contract.filters.ConsentDeployed(ownerAddress) as Promise<any>,
+      this.contract.filters.ConsentContractDeployed(ownerAddress) as Promise<any>,
       (e) => {
         return new ConsentFactoryContractError(
-          "Unable to call filters.ConsentDeployed()",
+          "Unable to call filters.ConsentContractDeployed()",
           (e as IBlockchainError).reason,
           e,
         );
@@ -569,7 +619,7 @@ interface IListingStruct {
           this.contract.queryFilter(_logs) as Promise<any>,
           (e) => {
             return new ConsentFactoryContractError(
-              "Unable to call filters.ConsentDeployed()",
+              "Unable to call filters.ConsentContractDeployed()",
               (e as IBlockchainError).reason,
               e,
             );

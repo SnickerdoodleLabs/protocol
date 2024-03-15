@@ -1,4 +1,12 @@
 import {
+  CommitmentWrapper,
+  ICommitmentWrapper,
+  ICommitmentWrapperType,
+  IMembershipWrapper,
+  IMembershipWrapperType,
+  MembershipWrapper,
+} from "@snickerdoodlelabs/circuits-sdk";
+import {
   AxiosAjaxUtils,
   BigNumberUtils,
   IAxiosAjaxUtils,
@@ -529,6 +537,14 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<ICloudStorage>(IDropboxCloudStorageType)
       .to(DropboxCloudStorage)
+      .inSingletonScope();
+
+    // ZK Circuits -------------------------------------------------------
+    bind<IMembershipWrapper>(IMembershipWrapperType)
+      .to(MembershipWrapper)
+      .inSingletonScope();
+    bind<ICommitmentWrapper>(ICommitmentWrapperType)
+      .to(CommitmentWrapper)
       .inSingletonScope();
 
     /**

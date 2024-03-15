@@ -535,12 +535,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     );
   }
 
-  public getConsentContractURLs(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<URLString[], ProxyError> {
-    return coreGateway.getConsentContractURLs(contractAddress);
-  }
-
   public checkInvitationStatus(
     consentAddress: EVMContractAddress,
     signature?: Signature,

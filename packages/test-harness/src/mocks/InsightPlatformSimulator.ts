@@ -287,13 +287,7 @@ export class InsightPlatformSimulator {
       .andThen((cid) => {
         // Need to create a consent contract
         return this.blockchain
-          .createConsentContract(
-            ConsentName(
-              `Snackerdoodle Test Harness ${this.consentContracts.length + 1}`,
-            ),
-            domains[0],
-            cid,
-          )
+          .createConsentContract(domains[0], cid)
           .andThen((contractAddress) => {
             const consentContract =
               this.blockchain.getConsentContract(contractAddress);

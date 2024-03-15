@@ -11,16 +11,19 @@ import {
   TransactionResponseError,
   IpfsCID,
 } from "@snickerdoodlelabs/objects";
-import { Result, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 
 import { EConsentRoles } from "@contracts-sdk/interfaces/enums/index.js";
 import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import { IERC7529Contract } from "@contracts-sdk/interfaces/IERC7529Contract.js";
 import {
   WrappedTransactionResponse,
   ContractOverrides,
 } from "@contracts-sdk/interfaces/objects/index.js";
 
-export interface IConsentFactoryContract extends IBaseContract {
+export interface IConsentFactoryContract
+  extends IBaseContract,
+    IERC7529Contract<ConsentFactoryContractError> {
   /**
    * Creates a consent contract for user
    * @param ownerAddress Address of the owner of the Consent contract instance
@@ -31,7 +34,6 @@ export interface IConsentFactoryContract extends IBaseContract {
   createConsent(
     ownerAddress: EVMAccountAddress,
     baseUri: BaseURI,
-    name: ConsentName,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,

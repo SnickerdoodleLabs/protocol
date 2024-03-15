@@ -842,16 +842,6 @@ export interface ISnickerdoodleCore {
     PersistenceError | UninitializedError | BlockchainProviderError | AjaxError
   >;
 
-  getConsentContractURLs(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    URLString[],
-    | UninitializedError
-    | BlockchainProviderError
-    | ConsentContractError
-    | BlockchainCommonErrors
-  >;
-
   getConsentContractCID(
     consentAddress: EVMContractAddress,
   ): ResultAsync<
