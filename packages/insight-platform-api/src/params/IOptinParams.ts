@@ -1,5 +1,5 @@
 import {
-  Commitment,
+  BigNumberString,
   EVMContractAddress,
   Signature,
   ZKProof,
@@ -7,7 +7,7 @@ import {
 
 export interface IOptinParams {
   consentContractId: EVMContractAddress;
-  commitment: Commitment;
+  commitment: BigNumberString;
   proof: ZKProof;
 }
 

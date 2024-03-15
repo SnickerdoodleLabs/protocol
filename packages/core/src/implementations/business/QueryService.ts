@@ -578,6 +578,7 @@ export class QueryService implements IQueryService {
     return this.consentContractRepository
       .getCommitmentCount(consentContractAddress)
       .andThen((commitmentCount) => {
+        console.log("CHARLIE commitmentCount", commitmentCount);
         if (commitmentCount > 1000) {
           commitmentCount = 1000;
         }
@@ -588,12 +589,17 @@ export class QueryService implements IQueryService {
         // Will return between 0 and randomMax - 1
         const offset = this.getRandomInteger(0, randomMax);
 
+        console.log("CHARLIE offset", offset);
         // Get the anonymity set
         return this.consentContractRepository.getAnonymitySet(
           consentContractAddress,
           offset,
           commitmentCount,
         );
+      })
+      .map((anonymitySet) => {
+        console.log("CHARLIE anonymitySet", anonymitySet);
+        return anonymitySet;
       });
   }
 

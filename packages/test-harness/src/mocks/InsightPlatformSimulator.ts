@@ -169,13 +169,13 @@ export class InsightPlatformSimulator {
     this.app.post("/optin", (req, res) => {
       // Gather all the parameters
       const consentContractId = EVMContractAddress(req.body.consentContractId);
-      const commitment = Commitment(req.body.commitment);
+      const commitment = Commitment(BigInt(req.body.commitment));
       const proof = ZKProof(req.body.proof);
 
       const provableData = {
         consentContractId: consentContractId,
         commitment: commitment,
-      } as Omit<IOptinParams, "proof">;
+      };
 
       this.commitmentWrapper
         .verify(ObjectUtils.serialize(provableData), commitment, proof)

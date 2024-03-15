@@ -60,7 +60,7 @@ export class MembershipWrapper extends CircuitWrapper<Membership> {
     const signalFields = Encoding.stringToFields(signal);
 
     // NOTE: verifier should compute these quantities for themselves upon receiving the signal string
-    const signalHash = Poseidon.hash([...signalFields]);
+    const signalHash = Poseidon.hash(signalFields);
     const signalHashSquared = signalHash.mul(signalHash);
 
     // Create an identity object
@@ -126,7 +126,7 @@ export class MembershipWrapper extends CircuitWrapper<Membership> {
   ): ResultAsync<boolean, CircuitError> {
     const signalFields = Encoding.stringToFields(signal);
 
-    const signalHash = Poseidon.hash([...signalFields]);
+    const signalHash = Poseidon.hash(signalFields);
     const signalHashSquared = signalHash.mul(signalHash);
 
     // Sort the anonymity set

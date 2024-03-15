@@ -151,6 +151,19 @@ export interface IConsentContract
   >;
 
   /**
+   * Returns a list of RequestForData events between two block numbers
+   * @param fromBlock from block number
+   * @param toBlock to block number
+   */
+  getRequestForDataList(
+    fromBlock?: BlockNumber,
+    toBlock?: BlockNumber,
+  ): ResultAsync<
+    RequestForData[],
+    ConsentContractError | BlockchainCommonErrors
+  >;
+
+  /**
    * Disables open opt ins on the contract
    * Only callable by addresses that have the PAUSER_ROLE on the Consent contract
    */
