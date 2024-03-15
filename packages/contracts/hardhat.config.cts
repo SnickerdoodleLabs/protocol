@@ -4,6 +4,22 @@ import "@openzeppelin/hardhat-upgrades";
 import "hardhat-gas-reporter";
 import "hardhat-contract-sizer";
 
+require("dotenv").config();
+
+// Remote RPC URL
+const urlOverride = process.env.ETH_PROVIDER_URL;
+
+// seed phrase for your HD wallet
+const mnemonic =
+  process.env.MNEMONIC ||
+  "test test test test test test test test test test test junk";
+
+// alternative to mnemonic, set a specific private key
+const key = process.env.ETH_PRIVATE_KEY;
+
+// if no private key is found in .env, use the public known mnemonic
+const accounts = key ? [key] : { mnemonic };
+
 const config: HardhatUserConfig = {
   solidity: {
     version: "0.8.24",
@@ -12,6 +28,15 @@ const config: HardhatUserConfig = {
         enabled: true,
         runs: 500,
       },
+    },
+  },
+  networks: {
+    localhost: {
+      accounts: accounts,
+      chainId: 31337,
+      url: "http://localhost:8545",
+      gas: 6000000,
+      gasPrice: 8000000000,
     },
   },
   gasReporter: {

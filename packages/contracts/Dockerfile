@@ -11,6 +11,6 @@ COPY . .
 
 # install contracts package dependencies
 RUN npm install
-RUN npm install -D @nomicfoundation/hardhat-toolbox solidity-coverage
+RUN npm install -D @nomicfoundation/hardhat-toolbox solidity-coverage dotenv
 
 ENTRYPOINT [ "/bin/bash", "entrypoint.sh" ]
