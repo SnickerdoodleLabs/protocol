@@ -142,7 +142,6 @@ import {
   AddAccountWithExternalSignatureParams,
   AddAccountWithExternalTypedDataSignatureParams,
   UpdateAgreementPermissionsParams,
-  GetConsentContractURLsParams,
   GetPersistenceNFTsParams,
   GetAccountNFTHistoryParams,
   GetAccountNftCacheParams,
@@ -608,12 +607,6 @@ export class ExternalCoreGateway {
     params: GetReceivingAddressParams,
   ): ResultAsync<AccountAddress, ProxyError> {
     return this._handler.call(params);
-  }
-
-  public getConsentContractURLs(
-    contractAdress: EVMContractAddress,
-  ): ResultAsync<URLString[], ProxyError> {
-    return this._handler.call(new GetConsentContractURLsParams(contractAdress));
   }
 
   public getEarnedRewardsByContractAddress(

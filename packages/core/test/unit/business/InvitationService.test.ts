@@ -6,8 +6,6 @@ import {
   ConsentError,
   DataPermissions,
   DomainName,
-  EVMAccountAddress,
-  EVMPrivateKey,
   HexString32,
   IOldUserAgreement,
   Invitation,
@@ -107,8 +105,8 @@ class InvitationServiceMocks {
 
     // ConsentRepo ---------------------------------------------------------------
     td.when(
-      this.consentRepo.getInvitationUrls(consentContractAddress1),
-    ).thenReturn(okAsync([url1, url2]));
+      this.consentRepo.checkDomain(consentContractAddress1, domain),
+    ).thenReturn(okAsync(true));
     td.when(
       this.consentRepo.getMetadataCID(consentContractAddress1),
     ).thenReturn(okAsync(ipfsCID));

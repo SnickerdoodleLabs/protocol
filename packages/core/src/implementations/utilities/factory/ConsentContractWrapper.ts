@@ -261,13 +261,12 @@ export class ConsentContractWrapper
     );
   }
 
-  public getDomains(): ResultAsync<
-    DomainName[],
-    ConsentContractError | BlockchainCommonErrors
-  > {
+  public getDomain(
+    domain: DomainName,
+  ): ResultAsync<boolean, ConsentContractError | BlockchainCommonErrors> {
     return this.fallback(
-      () => this.primary.getDomains(),
-      () => this.secondary?.getDomains(),
+      () => this.primary.getDomain(domain),
+      () => this.secondary?.getDomain(domain),
     );
   }
 

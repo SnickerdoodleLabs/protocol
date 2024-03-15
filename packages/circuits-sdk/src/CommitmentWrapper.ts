@@ -52,6 +52,7 @@ export class CommitmentWrapper extends CircuitWrapper<Commitment> {
     identityTrapdoor: BigNumberString,
     identityNullifier: BigNumberString,
   ): ResultAsync<ZKProof, CircuitError> {
+    console.log("CHARLIE", signal, identityTrapdoor, identityNullifier);
     const signalFields = Encoding.stringToFields(signal);
 
     // NOTE: verifier should compute these quantities for themselves upon receiving the signal string
@@ -66,6 +67,13 @@ export class CommitmentWrapper extends CircuitWrapper<Commitment> {
     const identityCommitment =
       CommitmentWrapper.getIdentityCommitment(identity);
 
+    console.log(
+      "CHARLIE",
+      identity,
+      identityCommitment,
+      signalHash,
+      signalHashSquared,
+    );
     return this._prove(
       [identity],
       [identityCommitment, signalHash, signalHashSquared],

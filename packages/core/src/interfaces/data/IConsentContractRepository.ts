@@ -22,18 +22,20 @@ import {
   Commitment,
   BigNumberString,
   InvalidParametersError,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface IConsentContractRepository {
   /**
-   * Returns all the URLs that are configured in the contract.
+   * Returns true if the requested domain name is approved in the contract
    * @param consentContractAddress
    */
-  getInvitationUrls(
+  checkDomain(
     consentContractAddress: EVMContractAddress,
+    domain: DomainName,
   ): ResultAsync<
-    URLString[],
+    boolean,
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError

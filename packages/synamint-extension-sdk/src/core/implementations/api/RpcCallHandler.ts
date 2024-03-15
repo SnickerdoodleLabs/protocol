@@ -102,7 +102,6 @@ import {
   UnlinkDiscordAccountParams,
   GetMarketplaceListingsByTagParams,
   GetListingsTotalByTagParams,
-  GetConsentCapacityParams,
   GetPossibleRewardsParams as GetEarnedRewardsByContractAddressParams,
   DEFAULT_SUBDOMAIN,
   TwitterGetRequestTokenParams,
@@ -130,7 +129,6 @@ import {
   ERequestChannel,
   UpdateAgreementPermissionsParams,
   SnickerDoodleCoreError,
-  GetConsentContractURLsParams,
   GetPersistenceNFTsParams,
   GetAccountNFTHistoryParams,
   GetAccountNftCacheParams,
@@ -410,17 +408,6 @@ export class RpcCallHandler implements IRpcCallHandler {
       },
     ),
 
-    new CoreActionHandler<GetConsentContractURLsParams>(
-      GetConsentContractURLsParams.getCoreAction(),
-      (params) => {
-        return this.core
-          .getConsentContractURLs(params.contractAddress)
-          .mapErr((error) => {
-            this.errorUtils.emit(error);
-            return new SnickerDoodleCoreError((error as Error).message, error);
-          });
-      },
-    ),
     new CoreActionHandler<GetConsentContractCIDParams>(
       GetConsentContractCIDParams.getCoreAction(),
       (params) => {

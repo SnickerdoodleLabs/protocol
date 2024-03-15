@@ -433,11 +433,6 @@ export class ProxyBridge implements ISdlDataWallet {
   ): ResultAsync<AccountAddress, ProxyError> {
     return this.call(this.core.getReceivingAddress(contractAddress));
   }
-  getConsentContractURLs(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<URLString[], ProxyError> {
-    return this.call(this.core.getConsentContractURLs(contractAddress));
-  }
   getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number | undefined,

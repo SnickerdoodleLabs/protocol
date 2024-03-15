@@ -305,15 +305,14 @@ export class ConsentContract
     return this.writeToContract("removeDomain", [domain], overrides);
   }
 
-  public getDomains(): ResultAsync<
-    DomainName[],
-    ConsentContractError | BlockchainCommonErrors
-  > {
+  public getDomain(
+    domain: DomainName,
+  ): ResultAsync<boolean, ConsentContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       // returns array of domains
-      this.contract.getDomains() as Promise<DomainName[]>,
+      this.contract.getDomain(domain) as Promise<boolean>,
       (e) => {
-        return this.generateError(e, "Unable to call getDomains()");
+        return this.generateError(e, "Unable to call getDomain()");
       },
     );
   }
@@ -475,8 +474,13 @@ export class ConsentContract
     commitments: Commitment[],
   ): ResultAsync<number[], ConsentContractError | BlockchainCommonErrors> {
     // Returns the indexes of the commitments. 0 means the commitment is invalid.
+    // The commitment is just a bigint, but it is less than 32 bytes. We need to convert it to a bytes32
     return ResultAsync.fromPromise(
-      this.contract.checkCommitments(commitments) as Promise<bigint[]>,
+      this.contract.checkCommitments(
+        commitments.map((commitment) => {
+          return ethers.toBeArray(commitment);
+        }),
+      ) as Promise<bigint[]>,
       (e) => {
         return this.generateError(e, "Unable to call checkCommitments()");
       },

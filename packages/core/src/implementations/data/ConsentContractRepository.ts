@@ -19,6 +19,7 @@ import {
   BlockchainCommonErrors,
   Commitment,
   InvalidParametersError,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -52,24 +53,21 @@ export class ConsentContractRepository implements IConsentContractRepository {
     BlockNumber | null
   >();
 
-  public getInvitationUrls(
+  public checkDomain(
     consentContractAddress: EVMContractAddress,
+    domain: DomainName,
   ): ResultAsync<
-    URLString[],
+    boolean,
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
     | BlockchainCommonErrors
   > {
-    return this.getConsentContract(consentContractAddress)
-      .andThen((contract) => {
-        return contract.getDomains();
-      })
-      .map((domains) => {
-        return domains.map((domain) => {
-          return URLString(domain);
-        });
-      });
+    return this.getConsentContract(consentContractAddress).andThen(
+      (contract) => {
+        return contract.getDomain(domain);
+      },
+    );
   }
 
   public getQuestionnaires(

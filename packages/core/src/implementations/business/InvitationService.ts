@@ -35,6 +35,7 @@ import {
   IUserAgreement,
   InvalidParametersError,
   CircuitError,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -212,26 +213,14 @@ export class InvitationService implements IInvitationService {
             const domain = invitation.domain;
             // Not rejected or already in the cohort, we need to verify the invitation
             return ResultUtils.combine([
-              this.consentRepo.getInvitationUrls(
+              this.consentRepo.checkDomain(
                 invitation.consentContractAddress,
+                invitation.domain,
               ),
               this.getConsentContractAddressesFromDNS(domain),
-            ]).map(([urls, consentContractAddresses]) => {
-              // Derive a list of domains from a list of URLs
-
-              const domains = urls
-                .map((url) => {
-                  if (url.includes("https://") || url.includes("http://")) {
-                    return new URL(url).href;
-                  }
-                  return new URL(`http://${url}`).href;
-                })
-                .map((href) => getDomain(href));
-
-              // We need to remove the subdomain so it would match with the saved domains in the blockchain
-              const domainStr = getDomain(domain);
+            ]).map(([domainIncluded, consentContractAddresses]) => {
               // The contract must include the domain
-              if (!domains.includes(domainStr)) {
+              if (!domainIncluded) {
                 return EInvitationStatus.Invalid;
               }
               if (
@@ -292,6 +281,7 @@ export class InvitationService implements IInvitationService {
       if (invitation.domain != null) {
         invitationCheck = this.consentContractHasMatchingTXT(
           invitation.consentContractAddress,
+          invitation.domain,
         ).andThen((matchingTxt) => {
           if (!matchingTxt) {
             return errAsync(
@@ -533,11 +523,17 @@ export class InvitationService implements IInvitationService {
     | BlockchainCommonErrors
   > {
     return ResultUtils.combine([
-      this.consentRepo.getInvitationUrls(consentContractAddress),
+      this.consentRepo.checkDomain(consentContractAddress, domain),
       this.consentRepo.getMetadataCID(consentContractAddress),
       // @TODO - check later
       // this.invitationRepo.getRejectedInvitations(),
-    ]).andThen(([invitationUrls, ipfsCID]) => {
+    ]).andThen(([domainIncluded, ipfsCID]) => {
+      if (!domainIncluded) {
+        // TODO: This should be a specific error type
+        return errAsync(
+          new IPFSError("Domain not included in consent contract"),
+        );
+      }
       // @TODO - blocks the promise to be resolved
       // const rejected = rejectedInvitations.find((rejectedInvitation) => {
       //   return rejectedInvitation == consentContractAddress;
@@ -558,22 +554,21 @@ export class InvitationService implements IInvitationService {
               ),
             );
           }
-          return ResultUtils.combine(
-            invitationUrls.map((invitationUrl) => {
-              return this.cryptoUtils.getTokenId().map((tokenId) => {
-                return new PageInvitation(
-                  invitationUrl, // getDomains() is actually misnamed, it returns URLs now
-                  new Invitation(
-                    consentContractAddress,
-                    tokenId,
-                    domain,
-                    null, // getInvitationsByDomain() is only for public invitations, so will never have a business signature
-                  ),
-                  invitationMetadata,
-                );
-              });
-            }),
-          );
+          return this.cryptoUtils.getTokenId().map((tokenId) => {
+            return [
+              new PageInvitation(
+                // TODO: Fix this!
+                URLString(domain),
+                new Invitation(
+                  consentContractAddress,
+                  tokenId,
+                  domain,
+                  null, // getInvitationsByDomain() is only for public invitations, so will never have a business signature
+                ),
+                invitationMetadata,
+              ),
+            ];
+          });
         });
     });
   }
@@ -649,42 +644,44 @@ export class InvitationService implements IInvitationService {
     | PersistenceError
     | BlockchainCommonErrors
   > {
-    return this.getAvailableConsentContractAddresses().andThen(
-      (consentAddresses) => {
-        return ResultUtils.combine(
-          consentAddresses.map((consentAddress) =>
-            this.consentContractHasMatchingTXT(consentAddress).map(
-              (hasMatchingTXT) => ({
-                consentAddress,
-                hasMatchingTXT,
-              }),
-            ),
-          ),
-        )
-          .andThen((results) => {
-            // since we are checking TXT records here
-            // we can confirm that all consent addresses are for public invitations
-            const validConsentContractAddresses = results
-              .filter((result) => result.hasMatchingTXT)
-              .map((validResults) => validResults.consentAddress);
-            return ResultUtils.combine(
-              validConsentContractAddresses.map((contractAddress) =>
-                this.consentRepo
-                  .getMetadataCID(contractAddress)
-                  .map((ipfsCID) => ({ ipfsCID, contractAddress })),
-              ),
-            );
-          })
-          .map((addressesWithCID) => {
-            return new Map(
-              addressesWithCID.map((addressWithCID) => [
-                addressWithCID.contractAddress,
-                addressWithCID.ipfsCID,
-              ]),
-            );
-          });
-      },
-    );
+    // TODO: This method needs to be rethought
+    return okAsync(new Map());
+    // return this.getAvailableConsentContractAddresses().andThen(
+    //   (consentAddresses) => {
+    //     return ResultUtils.combine(
+    //       consentAddresses.map((consentAddress) =>
+    //         this.consentContractHasMatchingTXT(consentAddress).map(
+    //           (hasMatchingTXT) => ({
+    //             consentAddress,
+    //             hasMatchingTXT,
+    //           }),
+    //         ),
+    //       ),
+    //     )
+    //       .andThen((results) => {
+    //         // since we are checking TXT records here
+    //         // we can confirm that all consent addresses are for public invitations
+    //         const validConsentContractAddresses = results
+    //           .filter((result) => result.hasMatchingTXT)
+    //           .map((validResults) => validResults.consentAddress);
+    //         return ResultUtils.combine(
+    //           validConsentContractAddresses.map((contractAddress) =>
+    //             this.consentRepo
+    //               .getMetadataCID(contractAddress)
+    //               .map((ipfsCID) => ({ ipfsCID, contractAddress })),
+    //           ),
+    //         );
+    //       })
+    //       .map((addressesWithCID) => {
+    //         return new Map(
+    //           addressesWithCID.map((addressWithCID) => [
+    //             addressWithCID.contractAddress,
+    //             addressWithCID.ipfsCID,
+    //           ]),
+    //         );
+    //       });
+    //   },
+    // );
   }
 
   public setDefaultReceivingAddress(
@@ -812,20 +809,19 @@ export class InvitationService implements IInvitationService {
 
   protected consentContractHasMatchingTXT(
     consentContractAddress: EVMContractAddress,
+    domain: DomainName,
   ): ResultAsync<boolean, never> {
     return this.consentRepo
-      .getInvitationUrls(consentContractAddress)
-      .andThen((urls) => {
-        return ResultUtils.combine(
-          urls.map((url) => {
-            const urlInfo = parse(url);
-            return this.getConsentContractAddressesFromDNS(
-              DomainName(`snickerdoodle-protocol.${urlInfo.domain}`),
-            ).orElse(() => {
-              return okAsync([] as EVMContractAddress[]);
-            });
-          }),
-        );
+      .checkDomain(consentContractAddress, domain)
+      .andThen((domainIncluded) => {
+        if (!domainIncluded) {
+          return okAsync([]);
+        }
+        return this.getConsentContractAddressesFromDNS(
+          DomainName(`snickerdoodle-protocol.${domain}`),
+        ).orElse(() => {
+          return okAsync([] as EVMContractAddress[]);
+        });
       })
       .map((contractAddressesArr) => {
         let match = false;

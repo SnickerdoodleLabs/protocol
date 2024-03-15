@@ -132,9 +132,11 @@ const addDomain = async () => {
   }
 };
 
-const getDomains = async () => {
+const getDomain = async () => {
   try {
-    const response = await contracts.consentContract.getDomains();
+    const response = await contracts.consentContract.getDomain(
+      DomainName("test.com"),
+    );
     console.log("getDomain response: ", response);
   } catch (e) {
     console.log("getDomain e: ", e);

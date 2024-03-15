@@ -17,6 +17,7 @@ import {
   TransactionResponseError,
   BlockchainCommonErrors,
   IpfsCID,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -354,6 +355,42 @@ export class ConsentFactoryContractWrapper
     return this.fallback(
       () => this.primary.removeQuestionnaire(index, overrides),
       () => this.secondary?.removeQuestionnaire(index, overrides),
+    );
+  }
+
+  public addDomain(
+    domain: DomainName,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.fallback(
+      () => this.primary.addDomain(domain),
+      () => this.secondary?.addDomain(domain),
+    );
+  }
+
+  public removeDomain(
+    domain: DomainName,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.fallback(
+      () => this.primary.removeDomain(domain),
+      () => this.secondary?.removeDomain(domain),
+    );
+  }
+
+  public getDomain(
+    domain: DomainName,
+  ): ResultAsync<
+    boolean,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
+    return this.fallback(
+      () => this.primary.getDomain(domain),
+      () => this.secondary?.getDomain(domain),
     );
   }
 }

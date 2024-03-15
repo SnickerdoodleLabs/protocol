@@ -11,6 +11,7 @@ import {
   BlockchainCommonErrors,
   TransactionResponseError,
   UnixTimestamp,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
@@ -473,8 +474,6 @@ export class ConsentFactoryContract
 
       // Filter out for the ConsentContractDeployed event from the receipt's logs
       // returns an array
-      console.log("CHARLIE", receipt);
-      console.log("CHARLIE", receipt.logs);
       const consentDeployedLog = receipt.logs.filter(
         (_log) => _log.topics[0] == eventHash,
       );
@@ -544,6 +543,43 @@ export class ConsentFactoryContract
     return this.writeToContract("removeQuestionnaire", [index], overrides);
   }
   // #endregion Questionnaires
+
+  // #region Domains- ERC-7529
+  public addDomain(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.writeToContract("addDomain", [domain], overrides);
+  }
+
+  public removeDomain(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.writeToContract("removeDomain", [domain], overrides);
+  }
+
+  public getDomain(
+    domain: DomainName,
+  ): ResultAsync<
+    boolean,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      // returns array of domains
+      this.contract.getDomain(domain) as Promise<boolean>,
+      (e) => {
+        return this.generateError(e, "Unable to call getDomain()");
+      },
+    );
+  }
+  // #endregion Domains- ERC-7529
 
   protected generateContractSpecificError(
     msg: string,
