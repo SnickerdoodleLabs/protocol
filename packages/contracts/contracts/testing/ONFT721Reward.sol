@@ -12,7 +12,7 @@ contract ONFT721Reward is ERC721Burnable, AccessControl, ONFT721, ERC7529 {
     using Counters for Counters.Counter;
 
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-    Counters.Counter private _tokenIdCounter;
+    Counters.Counter private _totalSupplyCounter;
     string public baseURI;
 
     constructor(string memory name, string memory symbol, string memory baseUri, uint256 minGasToTransfer, address lzEndpoint) ONFT721(name, symbol, minGasToTransfer, lzEndpoint) {
@@ -21,9 +21,8 @@ contract ONFT721Reward is ERC721Burnable, AccessControl, ONFT721, ERC7529 {
         setBaseURI(baseUri);
     }
 
-    function safeMint(address to) public onlyRole(MINTER_ROLE) {
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
+    function safeMint(address to, uint256 tokenId) public onlyRole(MINTER_ROLE) {
+        _totalSupplyCounter.increment();
         _safeMint(to, tokenId);
     }
 
@@ -70,6 +69,8 @@ contract ONFT721Reward is ERC721Burnable, AccessControl, ONFT721, ERC7529 {
 
         // burn NFT
         _burn(tokenId);
+
+        _totalSupplyCounter.decrement();
     }
 
     function lzReceive(
