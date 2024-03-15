@@ -76,7 +76,7 @@ describe("DataWalletUtils tests", () => {
         ),
       ),
     );
-    expect(newAccount2).toContain(
+    expect(newAccount2).toMatchObject(
       new OptInInfo(
         consentContractAddress2,
         BigNumberString(

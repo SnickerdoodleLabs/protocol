@@ -350,6 +350,8 @@ export class InvitationService implements IInvitationService {
           context.publicEvents.onCohortJoined.next(
             invitation.consentContractAddress,
           );
+
+          return;
         });
     });
   }

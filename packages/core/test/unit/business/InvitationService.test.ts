@@ -3,19 +3,16 @@ import { ILogUtils } from "@snickerdoodlelabs/common-utils";
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
 import { ICryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
-  BigNumberString,
   ConsentError,
-  ConsentToken,
   DataPermissions,
   DomainName,
   EVMAccountAddress,
   EVMPrivateKey,
-  HexString,
   HexString32,
   IOldUserAgreement,
+  Invitation,
   IpfsCID,
   OptInInfo,
-  Signature,
   TokenId,
   URLString,
 } from "@snickerdoodlelabs/objects";
@@ -33,7 +30,6 @@ import {
 import { IDataWalletUtils } from "@core/interfaces/utilities/index.js";
 import {
   consentContractAddress1,
-  externalAccountAddress1,
   dataWalletKey,
   identityNullifier,
   identityTrapdoor,
@@ -45,8 +41,6 @@ import {
   ContextProviderMock,
 } from "@core-tests/mock/utilities";
 
-const optInPrivateKey = EVMPrivateKey("optInPrivateKey");
-const optInAccountAddress = EVMAccountAddress("optInAccountAddress");
 const domain = DomainName("phoebe.com");
 const url1 = URLString("phoebe.com/cute");
 const url2 = URLString("phoebe.com/loud");
@@ -59,12 +53,6 @@ const permissionsHex = HexString32(
 const dataPermissions = new DataPermissions(permissionsHex);
 const newPermissionsHex = HexString32(
   "0x0000000000000000000000000000000000000000000000000000000000000001",
-);
-const encodedUpdateAgreementFlagsContent = HexString(
-  "encodedUpdateAgreementFlagsContent",
-);
-const updateAgreementFlagsMetatransactionSignature = Signature(
-  "updateAgreementFlagsMetatransactionSignature",
 );
 
 const invitationMetadata: IOldUserAgreement = {
@@ -82,11 +70,11 @@ const acceptedInvitation = new OptInInfo(
   commitment1,
 );
 
-const consentToken1 = new ConsentToken(
+const publicInvitation = new Invitation(
   consentContractAddress1,
-  externalAccountAddress1,
-  tokenId1,
-  dataPermissions,
+  null,
+  null,
+  null,
 );
 
 class InvitationServiceMocks {
@@ -138,6 +126,9 @@ class InvitationServiceMocks {
       okAsync([acceptedInvitation]),
     );
     td.when(
+      this.invitationRepo.addAcceptedInvitations([acceptedInvitation]),
+    ).thenReturn(okAsync(undefined));
+    td.when(
       this.invitationRepo.removeAcceptedInvitationsByContractAddress([
         consentContractAddress1,
       ]),
@@ -152,9 +143,6 @@ class InvitationServiceMocks {
       okAsync(tokenId1),
       okAsync(tokenId2),
     );
-    td.when(
-      this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(optInPrivateKey),
-    ).thenReturn(optInAccountAddress as never);
 
     // DataWalletUtils --------------------------------------------
     td.when(
@@ -165,23 +153,14 @@ class InvitationServiceMocks {
     ).thenReturn(okAsync(acceptedInvitation));
 
     // InsightPlatformRepo -----------------------------------------------------
-    // td.when(
-    //   this.insightPlatformRepo.executeMetatransaction(
-    //     optInAccountAddress, // account address
-    //     consentContractAddress1, // contract address
-    //     metatransactionNonce,
-    //     metatransactionValue,
-    //     BigNumberString(
-    //       BigInt(
-    //         this.configProvider.config.gasAmounts.updateAgreementFlagsGas,
-    //       ).toString(),
-    //     ),
-    //     encodedUpdateAgreementFlagsContent,
-    //     updateAgreementFlagsMetatransactionSignature,
-    //     optInPrivateKey,
-    //     this.configProvider.config.defaultInsightPlatformBaseUrl,
-    //   ),
-    // ).thenReturn(okAsync(undefined));
+    td.when(
+      this.insightPlatformRepo.optin(
+        consentContractAddress1, // contract address
+        identityTrapdoor,
+        identityNullifier,
+        this.configProvider.config.defaultInsightPlatformBaseUrl,
+      ),
+    ).thenReturn(okAsync(undefined));
   }
 
   public factory(): IInvitationService {
@@ -232,6 +211,28 @@ describe("InvitationService tests", () => {
     );
     expect(pageInvitations[1].invitation.domain).toBe(domain);
     expect(pageInvitations[1].invitation.tokenId).toBe(tokenId2);
+  });
+});
+
+describe("InvitationService tests", () => {
+  test("acceptInvitation() happy path with public invitation", async () => {
+    // Arrange
+    const mocks = new InvitationServiceMocks();
+    const service = mocks.factory();
+
+    // Act
+    const result = await service.acceptInvitation(
+      publicInvitation,
+      dataPermissions,
+    );
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+
+    mocks.contextProvider.assertEventCounts({
+      onCohortJoined: 1,
+    });
   });
 });
 
