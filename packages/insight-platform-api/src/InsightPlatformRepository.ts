@@ -84,13 +84,6 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       anonymitySetSize: anonymitySetSize,
     } as Omit<IDeliverInsightsParams, "proof">;
 
-    console.log("CHARLIE anonymitySet", anonymitySet);
-    console.log("CHARLIE membership provable data", provableData);
-    console.log(
-      "CHARLIE membership serialized",
-      ObjectUtils.serialize(provableData),
-    );
-
     return this.membershipWrapper
       .prove(
         ObjectUtils.serialize(provableData),
