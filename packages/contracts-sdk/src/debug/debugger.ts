@@ -61,7 +61,6 @@ const createConsent = async () => {
     const response = await contracts.factoryContract.createConsent(
       EVMAccountAddress(signer.address),
       BaseURI("base1"),
-      ConsentName("name1"),
     );
     console.log("createConsent response: ", response);
   } catch (e) {

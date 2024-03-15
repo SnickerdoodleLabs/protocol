@@ -1,5 +1,6 @@
 import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import { CircuitError, JSONString, ZKProof } from "@snickerdoodlelabs/objects";
+import { injectable, unmanaged } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { Circuit, Keypair } from "o1js";
 // This import is annoying, but noted. Only way to get this specific Proof class outside o1js
@@ -21,8 +22,9 @@ type Constructor<T> = {
   ): Promise<boolean>;
 };
 
+@injectable()
 export abstract class CircuitWrapper<TCircuit extends Circuit> {
-  public constructor(protected circuit: Constructor<TCircuit>) {}
+  public constructor(@unmanaged() protected circuit: Constructor<TCircuit>) {}
 
   protected _prove(
     privateInputs: any[],

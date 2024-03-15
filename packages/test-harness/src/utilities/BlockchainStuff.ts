@@ -85,7 +85,6 @@ export class BlockchainStuff {
   }
 
   public createConsentContract(
-    name: ConsentName,
     domain: DomainName,
     metadataCID: IpfsCID,
   ): ResultAsync<
@@ -99,7 +98,6 @@ export class BlockchainStuff {
       .createConsent(
         this.serverAccount.accountAddress, // The server account has all the permissions to start with. We'll add the business' account later
         BaseURI(metadataCID),
-        name,
       )
       .andThen((txRes) => {
         return this.consentFactoryContract

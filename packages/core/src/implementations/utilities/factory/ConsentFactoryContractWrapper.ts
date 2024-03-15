@@ -65,16 +65,14 @@ export class ConsentFactoryContractWrapper
   public createConsent(
     ownerAddress: EVMAccountAddress,
     baseUri: BaseURI,
-    name: ConsentName,
     overrides?: ContractOverrides | undefined,
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | ConsentFactoryContractError
   > {
     return this.fallback(
-      () => this.primary.createConsent(ownerAddress, baseUri, name, overrides),
-      () =>
-        this.secondary?.createConsent(ownerAddress, baseUri, name, overrides),
+      () => this.primary.createConsent(ownerAddress, baseUri, overrides),
+      () => this.secondary?.createConsent(ownerAddress, baseUri, overrides),
     );
   }
 
