@@ -12,8 +12,8 @@ export class Commitment extends Circuit {
   ) {
     // now we check that the signalNullifier was computed properly to prevent duplicate responses
     Poseidon.hash([
-      identity.identityNullifier,
       identity.identityTrapdoor,
+      identity.identityNullifier,
     ]).assertEquals(commitmentHash);
 
     // lastly, check that the communicated signal has not been tampered with
