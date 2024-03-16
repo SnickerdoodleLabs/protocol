@@ -1,23 +1,3 @@
-import AccountLinkingIndicator from "@extension-onboarding/components/loadingIndicators/AccountLinking";
-import { EModalSelectors } from "@extension-onboarding/components/Modals/";
-import LinkAccountModal from "@extension-onboarding/components/Modals/V2/LinkAccountModal";
-import { EWalletProviderKeys } from "@extension-onboarding/constants";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import {
-  ELoadingIndicatorType,
-  useLayoutContext,
-} from "@extension-onboarding/context/LayoutContext";
-import useIsMobile from "@extension-onboarding/hooks/useIsMobile";
-import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
-import {
-  DiscordProvider,
-  TwitterProvider,
-} from "@extension-onboarding/services/socialMediaProviders/implementations";
-import {
-  IDiscordProvider,
-  ITwitterProvider,
-} from "@extension-onboarding/services/socialMediaProviders/interfaces";
 import {
   defaultLanguageCode,
   EChain,
@@ -41,6 +21,27 @@ import React, {
   memo,
 } from "react";
 import { useAccount, useDisconnect, useSignMessage, useConnect } from "wagmi";
+
+import AccountLinkingIndicator from "@extension-onboarding/components/loadingIndicators/AccountLinking";
+import { EModalSelectors } from "@extension-onboarding/components/Modals/";
+import LinkAccountModal from "@extension-onboarding/components/Modals/V2/LinkAccountModal";
+import { EWalletProviderKeys } from "@extension-onboarding/constants";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import {
+  ELoadingIndicatorType,
+  useLayoutContext,
+} from "@extension-onboarding/context/LayoutContext";
+import useIsMobile from "@extension-onboarding/hooks/useIsMobile";
+import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
+import {
+  DiscordProvider,
+  TwitterProvider,
+} from "@extension-onboarding/services/socialMediaProviders/implementations";
+import {
+  IDiscordProvider,
+  ITwitterProvider,
+} from "@extension-onboarding/services/socialMediaProviders/interfaces";
 
 export enum EWalletProviderKit {
   SUI = "SUI",
@@ -96,6 +97,7 @@ export const AccountLinkingContextProvider: FC = memo(({ children }) => {
     isLinkerModalOpen,
     setLinkerModalClose,
     socialMediaProviderList,
+    shoppingDataProviderList,
   } = useAppContext();
   const { setModal, setLoadingStatus } = useLayoutContext();
   const [isSuiOpen, setIsSuiOpen] = useState(false);

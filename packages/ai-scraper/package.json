@@ -1,7 +1,7 @@
 {
   "name": "@snickerdoodlelabs/ai-scraper",
   "version": "0.0.18",
-  "description": "Utilities for parsing and understanding SDQL Queries",
+  "description": "Web scraper for Data Wallet browser extension",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -41,9 +41,14 @@
   "dependencies": {
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
+    "@snickerdoodlelabs/persistence": "workspace:^",
+    "@snickerdoodlelabs/shopping-data": "workspace:^",
     "ethers": "^6.10.0",
+    "html-to-text": "^9.0.5",
     "inversify": "^6.0.2",
+    "js-tiktoken": "^1.0.8",
     "neverthrow": "^5.1.0",
-    "neverthrow-result-utils": "^2.0.2"
+    "neverthrow-result-utils": "^2.0.2",
+    "openai": "^4.0.1"
   }
 }

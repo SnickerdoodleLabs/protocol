@@ -69,4 +69,8 @@ export interface IConfigOverrides {
   iframeURL?: URLString;
   debug?: boolean;
   queryPerformanceMetricsLimit?: number;
+  scraper?: {
+    OPENAI_API_KEY: string;
+    timeout: number;
+  };
 }

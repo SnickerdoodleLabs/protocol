@@ -52,6 +52,13 @@ export interface IDataWalletPersistence {
     query: IDBValidKey | IDBKeyRange,
     priority?: EBackupPriority,
   ): ResultAsync<T[], PersistenceError>;
+  
+  getAllByMultiIndex<T extends VersionedObject>(
+    recordKey: ERecordKey,
+    indices: string[],
+    values: IDBValidKey | IDBKeyRange,
+  ): ResultAsync<T[], PersistenceError>;
+  
   getAllKeys<T extends VersionedObject>(
     recordKey: ERecordKey,
     indexName?: string,

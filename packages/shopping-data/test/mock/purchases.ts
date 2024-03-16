@@ -1,0 +1,243 @@
+import { TimeUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  DomainName,
+  ELanguageCode,
+  ProductKeyword,
+  PurchaseId,
+  PurchasedProduct,
+  UnknownProductCategory,
+} from "@snickerdoodlelabs/objects";
+
+const timeUtils = new TimeUtils();
+export const janDate = timeUtils.parseToSDTimestamp("2021-01-01");
+export const febDate = timeUtils.parseToSDTimestamp("2021-02-11");
+export const mp1 = DomainName("amazon.com");
+export const mp2 = DomainName("ebay.com");
+
+export const iphone12JanVariant = new PurchasedProduct(
+  mp1,
+  ELanguageCode.English,
+  PurchaseId("amazon-iphone-12-2021-01-01"),
+  "The IPhone 12",
+  "Orange",
+  1000,
+  janDate!,
+  febDate!,
+  null,
+  null,
+  null,
+  "Unknown",
+  [
+    ProductKeyword("phone"),
+    ProductKeyword("orange"),
+    ProductKeyword("smart phone"),
+  ],
+);
+
+export const janPruchasesAmazon = [
+  new PurchasedProduct(
+    mp1,
+    ELanguageCode.English,
+    PurchaseId("amazon-iphone-12-2021-01-01"),
+    "IPhone 12",
+    "Apple",
+    1000,
+    janDate!,
+    janDate!,
+    null,
+    null,
+    null,
+    "Electronics",
+    [
+      ProductKeyword("phone"),
+      ProductKeyword("apple"),
+      ProductKeyword("smart phone"),
+    ],
+  ),
+  new PurchasedProduct(
+    mp1,
+    ELanguageCode.English,
+    PurchaseId("amazon-iphone-11-2021-01-11"),
+    "IPhone 11",
+    "Apple",
+    600,
+    janDate!,
+    janDate!,
+    null,
+    null,
+    null,
+    "Electronics",
+    [
+      ProductKeyword("phone"),
+      ProductKeyword("apple"),
+      ProductKeyword("smart phone"),
+    ],
+  ),
+  new PurchasedProduct(
+    mp1,
+    ELanguageCode.English,
+    PurchaseId("amazon-aveeno-baby-lotion-2021-01-11"),
+    "Aveeno Baby Lotion",
+    "Aveeno",
+    15,
+    janDate!,
+    janDate!,
+    null,
+    null,
+    null,
+    "Skin Care",
+    [
+      ProductKeyword("baby"),
+      ProductKeyword("skincare"),
+      ProductKeyword("body lotion"),
+    ],
+  ),
+];
+
+export const janPruchases = [
+  ...janPruchasesAmazon,
+  new PurchasedProduct(
+    mp2,
+    ELanguageCode.English,
+    PurchaseId("ebay-aveeno-baby-lotion-2021-01-11"),
+    "Aveeno Baby Lotion",
+    "Aveeno",
+    11,
+    janDate!,
+    janDate!,
+    null,
+    null,
+    null,
+    "Skin Care",
+    [
+      ProductKeyword("baby"),
+      ProductKeyword("skincare"),
+      ProductKeyword("body lotion"),
+    ],
+  ),
+];
+
+export const febPruchases = [
+  new PurchasedProduct(
+    mp1,
+    ELanguageCode.English,
+    PurchaseId("amazon-iphone-12-2021-02-11"),
+    "IPhone 12",
+    "Apple",
+    1000,
+    febDate!,
+    febDate!,
+    null,
+    null,
+    null,
+    "Electronics",
+    [
+      ProductKeyword("phone"),
+      ProductKeyword("apple"),
+      ProductKeyword("smart phone"),
+    ],
+  ),
+  new PurchasedProduct(
+    mp1,
+    ELanguageCode.English,
+    PurchaseId("amazon-iphone-11-2021-02-11"),
+    "IPhone 11",
+    "Apple",
+    1800,
+    febDate!,
+    febDate!,
+    null,
+    null,
+    null,
+    "Electronics",
+    [
+      ProductKeyword("phone"),
+      ProductKeyword("apple"),
+      ProductKeyword("smart phone"),
+    ],
+  ),
+  new PurchasedProduct(
+    mp1,
+    ELanguageCode.English,
+    PurchaseId("amazon-aveeno-baby-lotion-2021-02-11"),
+    "Aveeno Baby Lotion",
+    "Aveeno",
+    20,
+    febDate!,
+    febDate!,
+    null,
+    null,
+    null,
+    "Skin Care",
+    [
+      ProductKeyword("baby"),
+      ProductKeyword("skincare"),
+      ProductKeyword("body lotion"),
+    ],
+  ),
+  new PurchasedProduct(
+    mp2,
+    ELanguageCode.English,
+    PurchaseId("ebay-aveeno-baby-lotion-2021-02-11"),
+    "Aveeno Baby Lotion",
+    "Aveeno",
+    3.5,
+    febDate!,
+    febDate!,
+    null,
+    null,
+    null,
+    "Skin Care",
+    [
+      ProductKeyword("baby"),
+      ProductKeyword("skincare"),
+      ProductKeyword("body lotion"),
+    ],
+  ),
+];
+
+export const nullCategoryPruchases = [
+  new PurchasedProduct(
+    mp2,
+    ELanguageCode.English,
+    PurchaseId("null-ebay-aveeno-baby-lotion-2021-01-11"),
+    "Aveeno Baby Lotion",
+    "Aveeno",
+    11,
+    janDate!,
+    janDate!,
+    null,
+    null,
+    null,
+    UnknownProductCategory,
+    [
+      ProductKeyword("baby"),
+      ProductKeyword("skincare"),
+      ProductKeyword("body lotion"),
+    ],
+  ),
+  new PurchasedProduct(
+    mp2,
+    ELanguageCode.English,
+    PurchaseId("ebay-aveeno-baby-lotion-2021-02-11"),
+    "Aveeno Baby Lotion",
+    "Aveeno",
+    3.5,
+    febDate!,
+    febDate!,
+    null,
+    null,
+    null,
+    UnknownProductCategory,
+    [
+      ProductKeyword("baby"),
+      ProductKeyword("skincare"),
+      ProductKeyword("body lotion"),
+    ],
+  ),
+];
+export const allPurchases = [
+  ...janPruchases,
+  ...febPruchases,
+  ...nullCategoryPruchases,
+];

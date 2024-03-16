@@ -34,6 +34,9 @@ const LazySocialMediaInfo = lazy(
 const LazySettings = lazy(
   () => import("@extension-onboarding/pages/V2/Settings"),
 );
+const LazyShoppingData = lazy(
+  () => import("@extension-onboarding/pages/V2/ShoppingData"),
+);
 
 export const OnboardingRoutes = (
   <Route>
@@ -122,6 +125,22 @@ export const AuthFlowRoutes = (
             </Suspense>
           }
         />
+      <Route
+        path={EPathsV2.SHOPPING_DATA}
+        element={
+          <Suspense fallback={null}>
+            <LazyShoppingData />
+          </Suspense>
+        }
+      />
+      <Route
+        path={EPathsV2.SHOPPING_DATA}
+        element={
+          <Suspense fallback={null}>
+            <LazyShoppingData />
+          </Suspense>
+        }
+      />
       </Route>
     </Route>
     <Route path="*" element={<Navigate replace to={EPathsV2.HOME} />} />

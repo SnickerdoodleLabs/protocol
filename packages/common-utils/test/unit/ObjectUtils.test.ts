@@ -4,6 +4,7 @@ import {
   PagedResponse,
   PagingRequest,
   BigNumberString,
+  PageNumber,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
@@ -138,13 +139,13 @@ describe("ObjectUtils tests", () => {
 
     const readFunc = (pagingRequest: PagingRequest) => {
       if (pagingRequest.page == 1) {
-        return okAsync(new PagedResponse([1, 2, 3], 1, 3, 9));
+        return okAsync(new PagedResponse([1, 2, 3], PageNumber(1), 3, 9));
       }
       if (pagingRequest.page == 2) {
-        return okAsync(new PagedResponse([4, 5, 6], 2, 3, 9));
+        return okAsync(new PagedResponse([4, 5, 6], PageNumber(2), 3, 9));
       }
       if (pagingRequest.page == 3) {
-        return okAsync(new PagedResponse([7, 8, 9], 3, 3, 9));
+        return okAsync(new PagedResponse([7, 8, 9], PageNumber(3), 3, 9));
       }
       // If it asks for page 4
       return errAsync(new Error("Asked for pages beyond totalResults!"));
@@ -171,13 +172,13 @@ describe("ObjectUtils tests", () => {
 
     const readFunc = (pagingRequest: PagingRequest) => {
       if (pagingRequest.page == 1) {
-        return okAsync(new PagedResponse([1, 2, 3], 1, 3, 9));
+        return okAsync(new PagedResponse([1, 2, 3], PageNumber(1), 3, 9));
       }
       if (pagingRequest.page == 2) {
         return errAsync(new Error("Read failure for page 2!"));
       }
       if (pagingRequest.page == 3) {
-        return okAsync(new PagedResponse([7, 8, 9], 3, 3, 9));
+        return okAsync(new PagedResponse([7, 8, 9], PageNumber(3), 3, 9));
       }
       // If it asks for page 4
       return errAsync(new Error("Asked for pages beyond totalResults!"));
@@ -204,13 +205,13 @@ describe("ObjectUtils tests", () => {
 
     const readFunc = (pagingRequest: PagingRequest) => {
       if (pagingRequest.page == 1) {
-        return okAsync(new PagedResponse([1, 2, 3], 1, 3, 9));
+        return okAsync(new PagedResponse([1, 2, 3], PageNumber(1), 3, 9));
       }
       if (pagingRequest.page == 2) {
-        return okAsync(new PagedResponse([4, 5, 6], 2, 3, 9));
+        return okAsync(new PagedResponse([4, 5, 6], PageNumber(2), 3, 9));
       }
       if (pagingRequest.page == 3) {
-        return okAsync(new PagedResponse([7, 8, 9], 3, 3, 9));
+        return okAsync(new PagedResponse([7, 8, 9], PageNumber(3), 3, 9));
       }
       // If it asks for page 4
       return errAsync(new Error("Asked for pages beyond totalResults!"));
@@ -283,10 +284,10 @@ describe("ObjectUtils tests", () => {
     // Arrange
     const readFunc = (pagingRequest: PagingRequest) => {
       if (pagingRequest.page == 1 && pagingRequest.pageSize == 1) {
-        return okAsync(new PagedResponse([1], 1, 1, 9));
+        return okAsync(new PagedResponse([1], PageNumber(1), 1, 9));
       }
       if (pagingRequest.page == 1 && pagingRequest.pageSize == 9) {
-        return okAsync(new PagedResponse([1, 2, 3, 4, 5, 6, 7, 8, 9], 1, 9, 9));
+        return okAsync(new PagedResponse([1, 2, 3, 4, 5, 6, 7, 8, 9], PageNumber(1), 9, 9));
       }
       // If it asks for page 2
       return errAsync(new Error("Asked for pages beyond totalResults!"));

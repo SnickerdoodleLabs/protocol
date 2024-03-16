@@ -72,11 +72,21 @@ import {
   BlockNumber,
   RefreshToken,
   OAuth2Tokens,
+  ELanguageCode,
+  HTMLString,
+  ScraperError,
+  IProxyScraperNavigationMethods,
+  PageNumber,
+  Year,
   TransactionFlowInsight,
   IProxyAccountMethods,
+  IProxyPurchaseMethods,
+  PersistenceError,
+  PurchasedProduct,
   ChainTransaction,
   TransactionFilter,
   IUserAgreement,
+  ShoppingDataConnectionStatus,
   INftProxyMethods,
   WalletNFTHistory,
   NftRepositoryCache,
@@ -775,6 +785,57 @@ export class SnickerdoodleIFrameProxy
     },
   };
 
+  public scrapernavigation: IProxyScraperNavigationMethods = {
+    getOrderHistoryPage: (
+      lang: ELanguageCode,
+      page: PageNumber,
+    ): ResultAsync<URLString, ProxyError> => {
+      return this._createCall("scrapernavigation.amazon.getOrderHistoryPage", {
+        lang,
+        page,
+      });
+    },
+  };
+
+  public purchase: IProxyPurchaseMethods = {
+    getPurchasedProducts: (): ResultAsync<PurchasedProduct[], ProxyError> => {
+      return this._createCall("purchase.getPurchasedProducts", {});
+    },
+    getByMarketplace: (
+      marketPlace: DomainName,
+    ): ResultAsync<PurchasedProduct[], ProxyError> => {
+      return this._createCall("purchase.getByMarketplace", { marketPlace });
+    },
+    getByMarketplaceAndDate: (
+      marketPlace: DomainName,
+      datePurchased: UnixTimestamp,
+    ): ResultAsync<PurchasedProduct[], ProxyError> => {
+      return this._createCall("purchase.getByMarketplaceAndDate", {
+        marketPlace,
+        datePurchased,
+      });
+    },
+    getShoppingDataConnectionStatus: (): ResultAsync<
+      ShoppingDataConnectionStatus[],
+      ProxyError
+    > => {
+      return this._createCall("purchase.getShoppingDataConnectionStatus", {});
+    },
+    setShoppingDataConnectionStatus: (
+      ShoppingDataConnectionStatus: ShoppingDataConnectionStatus,
+    ): ResultAsync<void, ProxyError> => {
+      return this._createCall("purchase.setShoppingDataConnectionStatus", {
+        ShoppingDataConnectionStatus,
+      });
+    },
+  };
+  public setUIState(state: JSONString): ResultAsync<void, ProxyError> {
+    return this._createCall("setUIState", { state });
+  }
+  public getUIState(): ResultAsync<JSONString | null, ProxyError> {
+    return this._createCall("getUIState", null);
+  }
+
   public questionnaire: IProxyQuestionnaireMethods = {
     getAllQuestionnaires: (pagingRequest: PagingRequest) => {
       return this._createCall("questionnaire.getAllQuestionnaires", {
@@ -816,13 +877,6 @@ export class SnickerdoodleIFrameProxy
       });
     },
   };
-
-  public setUIState(state: JSONString): ResultAsync<void, ProxyError> {
-    return this._createCall("setUIState", { state });
-  }
-  public getUIState(): ResultAsync<JSONString | null, ProxyError> {
-    return this._createCall("getUIState", null);
-  }
 
   public events: PublicEvents;
 

@@ -52,10 +52,17 @@ import {
   BlockNumber,
   RefreshToken,
   OAuth2Tokens,
+  HTMLString,
+  DomainTask,
+  ELanguageCode,
+  PageNumber,
+  Year,
+  PurchasedProduct,
   TransactionFlowInsight,
   ChainTransaction,
   TransactionFilter,
   IUserAgreement,
+  ShoppingDataConnectionStatus,
   WalletNFTHistory,
   WalletNFTData,
   Questionnaire,
@@ -887,6 +894,133 @@ export class GetCurrentCloudStorageParams extends CoreActionParams<ECloudStorage
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_CURRENT_STORAGE_TYPE;
+  }
+}
+
+// #endregion
+
+// #region Scraper
+export class ScraperScrapeParams extends CoreActionParams<void> {
+  public constructor(
+    public url: URLString,
+    public html: HTMLString,
+    public suggestedDomainTask: DomainTask,
+  ) {
+    super(ScraperScrapeParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SCRAPER_SCRAPE_PARAMS;
+  }
+}
+
+export class ScraperClassifyUrlParams extends CoreActionParams<DomainTask> {
+  public constructor(public url: URLString, public language: ELanguageCode) {
+    super(ScraperClassifyUrlParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SCRAPER_CLASSIFY_URL_PARAMS;
+  }
+}
+// #endregion
+
+// #region Scraper Navigation
+
+export class ScraperGetOrderHistoryPageParams extends CoreActionParams<URLString> {
+  public constructor(public lang: ELanguageCode, public page: PageNumber) {
+    super(ScraperGetOrderHistoryPageParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SCRAPER_NAVIGATION_GET_ORDER_HISTORY_PAGE_PARAMS;
+  }
+}
+
+export class ScraperGetYearsParams extends CoreActionParams<Year[]> {
+  public constructor(public html: HTMLString) {
+    super(ScraperGetYearsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SCRAPER_NAVIGATION_GET_YEARS_PARAMS;
+  }
+}
+
+export class ScraperGetOrderHistoryPageByYearParams extends CoreActionParams<URLString> {
+  public constructor(
+    public lang: ELanguageCode,
+    public year: Year,
+    public page: PageNumber,
+  ) {
+    super(ScraperGetOrderHistoryPageByYearParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SCRAPER_NAVIGATION_GET_ORDER_HISTORY_PAGE_BY_YEAR_PARAMS;
+  }
+}
+export class ScraperGetPageCountParams extends CoreActionParams<number> {
+  public constructor(public html: HTMLString, public year: Year) {
+    super(ScraperGetPageCountParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SCRAPER_NAVIGATION_GET_PAGE_COUNT_PARAMS;
+  }
+}
+
+// #endregion
+
+// #region Purchase
+export class PurchaseGetPurchasedProductsParams extends CoreActionParams<
+  PurchasedProduct[]
+> {
+  public constructor() {
+    super(PurchaseGetPurchasedProductsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.PURCHASE_GET_PURCHASED_PRODUCTS_PARAMS;
+  }
+}
+
+export class PurchaseGetByMarketPlaceParams extends CoreActionParams<
+  PurchasedProduct[]
+> {
+  public constructor(public marketPlace: DomainName) {
+    super(PurchaseGetByMarketPlaceParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.PURCHASE_GET_BY_MARKET_PLACE;
+  }
+}
+
+export class PurchaseGetByMarketPlaceAndDateParams extends CoreActionParams<
+  PurchasedProduct[]
+> {
+  public constructor(
+    public marketPlace: DomainName,
+    public datePurchased: UnixTimestamp,
+  ) {
+    super(PurchaseGetByMarketPlaceAndDateParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.PURCHASE_GET_BY_MARKET_PLACE_AND_DATE;
+  }
+}
+
+export class PurchaseGetShoppingDataConnectionStatusParams extends CoreActionParams<
+  ShoppingDataConnectionStatus[]
+> {
+  public constructor() {
+    super(PurchaseGetShoppingDataConnectionStatusParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.PURCHASE_GET_SHOPPINGDATA_CONNECTION_STATUS;
+  }
+}
+export class PurchaseSetShoppingDataConnectionStatusParams extends CoreActionParams<void> {
+  public constructor(
+    public ShoppingDataConnectionStatus: ShoppingDataConnectionStatus,
+  ) {
+    super(PurchaseSetShoppingDataConnectionStatusParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.PURCHASE_SET_SHOPPINGDATA_CONNECTION_STATUS;
   }
 }
 // #endregion

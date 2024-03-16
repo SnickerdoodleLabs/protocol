@@ -22,6 +22,12 @@
     },
     {
       "path": "../common-utils"
+    },
+    {
+      "path": "../persistence"
+    },
+    {
+      "path": "../shopping-data"
     }
   ]
 }

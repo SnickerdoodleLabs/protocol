@@ -41,6 +41,7 @@
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/node-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
+    "@snickerdoodlelabs/shopping-data": "workspace:^",
     "@snickerdoodlelabs/utils": "workspace:^",
     "ethers": "^6.10.0",
     "inversify": "^6.0.2",

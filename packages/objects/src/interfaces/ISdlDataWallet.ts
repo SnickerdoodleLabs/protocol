@@ -30,6 +30,8 @@ import {
   ICoreIntegrationMethods,
   ICoreTwitterMethods,
   IMetricsMethods,
+  IPurchaseMethods,
+  IScraperNavigationMethods,
   IStorageMethods,
   INftMethods,
   IQuestionnaireMethods,
@@ -188,6 +190,30 @@ export type IProxyStorageMethods = {
     ...args: [...PopTuple<Parameters<IStorageMethods[key]>>]
   ) => ResultAsync<
     GetResultAsyncValueType<ReturnType<IStorageMethods[key]>>,
+    ProxyError
+  >;
+};
+
+export type IProxyScraperNavigationMethods = {
+  [key in Exclude<
+    FunctionKeys<IScraperNavigationMethods["amazon"]>,
+    | "getYears"
+    | "getPageCount"
+    | "getOrderHistoryPageByYear"
+    | "getOrderHistoryPage"
+  >]: (
+    ...args: [...Parameters<IScraperNavigationMethods["amazon"][key]>]
+  ) => ResultAsync<
+    ReturnType<IScraperNavigationMethods["amazon"][key]>,
+    ProxyError
+  >;
+};
+
+export type IProxyPurchaseMethods = {
+  [key in FunctionKeys<IPurchaseMethods>]: (
+    ...args: [...Parameters<IPurchaseMethods[key]>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<IPurchaseMethods[key]>>,
     ProxyError
   >;
 };
@@ -360,6 +386,7 @@ export interface ISdlDataWallet {
   storage: IProxyStorageMethods;
   nft: INftProxyMethods;
   events: ISnickerdoodleCoreEvents;
+  purchase: IProxyPurchaseMethods;
   questionnaire: IProxyQuestionnaireMethods;
 }
 

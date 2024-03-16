@@ -57,6 +57,12 @@
       "path": "packages/insight-platform-api/test"
     },
     {
+      "path": "packages/nlp"
+    },
+    {
+      "path": "packages/nlp/test"
+    },
+    {
       "path": "packages/node-utils"
     },
     {
@@ -88,6 +94,12 @@
     },
     {
       "path": "packages/signatureVerification/test"
+    },
+    {
+      "path": "packages/shopping-data"
+    },
+    {
+      "path": "packages/shopping-data/test"
     },
     {
       "path": "packages/static-web-integration"

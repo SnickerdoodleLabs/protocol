@@ -1,7 +1,9 @@
 import {
   ISO8601DateString,
   MillisecondTimestamp,
+  Month,
   UnixTimestamp,
+  Year,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 
@@ -25,6 +27,30 @@ export class TimeUtils implements ITimeUtils {
     time = MillisecondTimestamp(Date.now()),
   ): ISO8601DateString {
     return ISO8601DateString(new Date(time).toISOString());
+  }
+
+  public parseToDate(dateStr: string): Date | null {
+    // we cannot create a date object directly as it creates an unknown object incase of invalid input
+    const time = this.parseToSDTimestamp(dateStr);
+    if (time == null) {
+      return null;
+    }
+    return new Date(time);
+  }
+
+  public parseToSDTimestamp(dateStr: string): UnixTimestamp | null {
+    const time = Date.parse(dateStr);
+    if (isNaN(time)) {
+      return null;
+    }
+    return UnixTimestamp(Math.floor(time / 1000));
+  }
+
+  public getCurYear(): Year {
+    return Year(new Date().getFullYear());
+  }
+  public getCurMonth(): Month {
+    return Month(new Date().getMonth());
   }
 
   public convertTimestampToISOString(

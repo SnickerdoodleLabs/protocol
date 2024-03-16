@@ -1,23 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-
-import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import { ALERT_MESSAGES } from "@extension-onboarding/constants";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import {
   EOnboardingState,
-  IUIState,
 } from "@extension-onboarding/objects/interfaces/IUState";
-import {
-  getProviderList as getChainProviderList,
-  IProvider,
-} from "@extension-onboarding/services/blockChainWalletProviders";
-import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
-import { DataWalletGateway } from "@extension-onboarding/services/implementations/DataWalletGateway";
-import {
-  getProviderList as getSocialMediaProviderList,
-  ISocialMediaWrapper,
-} from "@extension-onboarding/services/socialMediaProviders";
 import {
   BigNumberString,
   EarnedReward,
@@ -39,8 +23,28 @@ import React, {
 } from "react";
 import { Subscription } from "rxjs";
 import Loading from "@extension-onboarding/setupScreens/Loading";
-import { okAsync } from "neverthrow";
 import { UIStateUtils } from "@extension-onboarding/utils/UIStateUtils";
+
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import {
+  ALERT_MESSAGES,
+} from "@extension-onboarding/constants";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import {
+  getProviderList as getChainProviderList,
+  IProvider,
+} from "@extension-onboarding/services/blockChainWalletProviders";
+import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
+import { DataWalletGateway } from "@extension-onboarding/services/implementations/DataWalletGateway";
+import {
+  getProviderList as getShoppingDataProviderList,
+  IShoppingDataWrapper,
+} from "@extension-onboarding/services/shoppingDataProvider";
+import {
+  getProviderList as getSocialMediaProviderList,
+  ISocialMediaWrapper,
+} from "@extension-onboarding/services/socialMediaProviders";
 
 export interface IInvitationInfo {
   consentAddress: EVMContractAddress | undefined;
@@ -58,6 +62,7 @@ export interface IAppContext {
   earnedRewards: EarnedReward[] | undefined;
   optedInContracts: Map<EVMContractAddress, IpfsCID> | undefined;
   socialMediaProviderList: ISocialMediaWrapper[];
+  shoppingDataProviderList: IShoppingDataWrapper[];
   addAccount(account: LinkedAccount): void;
   invitationInfo: IInvitationInfo;
   setInvitationInfo: (invitationInfo: IInvitationInfo) => void;
@@ -286,6 +291,7 @@ export const AppContextProvider: FC = ({ children }) => {
         dataWalletGateway: new DataWalletGateway(sdlDataWallet),
         providerList: chainProviderList,
         socialMediaProviderList: getSocialMediaProviderList(sdlDataWallet),
+        shoppingDataProviderList: getShoppingDataProviderList(),
         linkedAccounts,
         earnedRewards,
         addAccount,

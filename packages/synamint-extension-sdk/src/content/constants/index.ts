@@ -4,6 +4,9 @@ export enum EAppState {
   IDLE,
   AUDIENCE_PREVIEW,
   PERMISSION_SELECTION,
+  SUBSCRIPTION_CONFIRMATION,
+  SUBSCRIPTION_SUCCESS,
+  LOADING,
 }
 
 export interface IRewardItem {

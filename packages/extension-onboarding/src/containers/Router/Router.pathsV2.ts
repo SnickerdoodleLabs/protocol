@@ -14,4 +14,5 @@ export enum EPathsV2 {
   BROWSER_ACTIVITY = "/data-dashboard/browser-activity",
   SOCIAL_MEDIA_DATA = "/data-dashboard/social-media-data",
   TRANSACTION_HISTORY = "/data-dashboard/transaction-history",
+  SHOPPING_DATA = "/data-dashboard/shopping-data",
 }

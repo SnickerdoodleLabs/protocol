@@ -47,15 +47,27 @@ import {
   QueryStatus,
   ECloudStorageType,
   OAuth2Tokens,
+  ScraperError,
+  DomainTask,
+  HTMLString,
+  ELanguageCode,
+  PageNumber,
+  Year,
   TransactionFlowInsight,
   ChainTransaction,
   IProxyAccountMethods,
   LanguageCode,
   EChain,
   Signature,
+  IProxyPurchaseMethods,
+  PurchasedProduct,
+  IScraperNavigationMethods,
+  IScraperMethods,
+  GetResultAsyncValueType,
   IUserAgreement,
   PageInvitation,
   Invitation,
+  ShoppingDataConnectionStatus,
   INftProxyMethods,
   JSONString,
   IProxyQuestionnaireMethods,
@@ -65,6 +77,7 @@ import {
 import { ethers } from "ethers";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
+import { FunctionKeys } from "utility-types";
 
 import CoreHandler from "@synamint-extension-sdk/gateways/handler/CoreHandler";
 import {
@@ -136,12 +149,23 @@ import {
   GetCurrentCloudStorageParams,
   RejectInvitationParams,
   GetQueryStatusesParams,
-  GetTransactionValueByChainParams,
-  GetTransactionsParams,
+  ScraperScrapeParams,
+  ScraperClassifyUrlParams,
+  ScraperGetOrderHistoryPageParams,
+  ScraperGetYearsParams,
+  ScraperGetOrderHistoryPageByYearParams,
+  ScraperGetPageCountParams,
   AddAccountWithExternalSignatureParams,
   AddAccountWithExternalTypedDataSignatureParams,
+  PurchaseGetByMarketPlaceParams,
+  PurchaseGetByMarketPlaceAndDateParams,
+  GetTransactionsParams,
+  GetTransactionValueByChainParams,
   UpdateAgreementPermissionsParams,
   GetConsentContractURLsParams,
+  PurchaseGetShoppingDataConnectionStatusParams,
+  PurchaseSetShoppingDataConnectionStatusParams,
+  PurchaseGetPurchasedProductsParams,
   GetPersistenceNFTsParams,
   GetAccountNFTHistoryParams,
   GetAccountNftCacheParams,
@@ -155,12 +179,34 @@ import {
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
+// We are not passing all the functions in IScraperNavigationMethods to proxy thats why we need to redifine type for gateway
+type IGatewayScraperNavigationMethods = {
+  [key in FunctionKeys<IScraperNavigationMethods["amazon"]>]: (
+    ...args: [...Parameters<IScraperNavigationMethods["amazon"][key]>]
+  ) => ResultAsync<
+    ReturnType<IScraperNavigationMethods["amazon"][key]>,
+    ProxyError
+  >;
+};
+
+type IGatewayScraperMethods = {
+  [key in FunctionKeys<IScraperMethods>]: (
+    ...args: [...Parameters<IScraperMethods[key]>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<IScraperMethods[key]>>,
+    ProxyError
+  >;
+};
+
 export class ExternalCoreGateway {
   public account: IProxyAccountMethods;
   public discord: IProxyDiscordMethods;
   public integration: IProxyIntegrationMethods;
   public metrics: IProxyMetricsMethods;
   public twitter: IProxyTwitterMethods;
+  public purchase: IProxyPurchaseMethods;
+  public scraper: IGatewayScraperMethods;
+  public scraperNavigation: IGatewayScraperNavigationMethods;
   public nft: INftProxyMethods;
   public questionnaire: IProxyQuestionnaireMethods;
   protected _handler: CoreHandler;
@@ -364,6 +410,91 @@ export class ExternalCoreGateway {
       },
       getUserProfiles: (): ResultAsync<TwitterProfile[], ProxyError> => {
         return this._handler.call(new TwitterGetLinkedProfilesParams());
+      },
+    };
+
+    this.scraper = {
+      scrape: (
+        url: URLString,
+        html: HTMLString,
+        suggestedDomainTask: DomainTask,
+      ): ResultAsync<void, ProxyError> => {
+        return this._handler.call(
+          new ScraperScrapeParams(url, html, suggestedDomainTask),
+        );
+      },
+      classifyURL: (
+        url: URLString,
+        language: ELanguageCode,
+      ): ResultAsync<DomainTask, ProxyError> => {
+        return this._handler.call(new ScraperClassifyUrlParams(url, language));
+      },
+    };
+
+    this.scraperNavigation = {
+      getOrderHistoryPage: (
+        lang: ELanguageCode,
+        page: PageNumber,
+      ): ResultAsync<URLString, ProxyError> => {
+        return this._handler.call(
+          new ScraperGetOrderHistoryPageParams(lang, page),
+        );
+      },
+      getYears: (html: HTMLString): ResultAsync<Year[], ProxyError> => {
+        return this._handler.call(new ScraperGetYearsParams(html));
+      },
+      getOrderHistoryPageByYear: (
+        lang: ELanguageCode,
+        year: Year,
+        page: PageNumber,
+      ): ResultAsync<URLString, ProxyError> => {
+        return this._handler.call(
+          new ScraperGetOrderHistoryPageByYearParams(lang, year, page),
+        );
+      },
+      getPageCount: (
+        html: HTMLString,
+        year: Year,
+      ): ResultAsync<number, ProxyError> => {
+        return this._handler.call(new ScraperGetPageCountParams(html, year));
+      },
+    };
+
+    this.purchase = {
+      getPurchasedProducts: (): ResultAsync<PurchasedProduct[], ProxyError> => {
+        return this._handler.call(new PurchaseGetPurchasedProductsParams());
+      },
+      getByMarketplace: (
+        marketPlace: DomainName,
+      ): ResultAsync<PurchasedProduct[], ProxyError> => {
+        return this._handler.call(
+          new PurchaseGetByMarketPlaceParams(marketPlace),
+        );
+      },
+      getByMarketplaceAndDate: (
+        marketPlace: DomainName,
+        datePurchased: UnixTimestamp,
+      ): ResultAsync<PurchasedProduct[], ProxyError> => {
+        return this._handler.call(
+          new PurchaseGetByMarketPlaceAndDateParams(marketPlace, datePurchased),
+        );
+      },
+      getShoppingDataConnectionStatus: (): ResultAsync<
+        ShoppingDataConnectionStatus[],
+        ProxyError
+      > => {
+        return this._handler.call(
+          new PurchaseGetShoppingDataConnectionStatusParams(),
+        );
+      },
+      setShoppingDataConnectionStatus: (
+        ShoppingDataConnectionStatus: ShoppingDataConnectionStatus,
+      ): ResultAsync<void, ProxyError> => {
+        return this._handler.call(
+          new PurchaseSetShoppingDataConnectionStatusParams(
+            ShoppingDataConnectionStatus,
+          ),
+        );
       },
     };
   }

@@ -1,4 +1,32 @@
 import {
+  AmazonNavigationUtils,
+  ChatGPTRepository,
+  HTMLPreProcessor,
+  IAmazonNavigationUtils,
+  IAmazonNavigationUtilsType,
+  IHTMLPreProcessor,
+  IHTMLPreProcessorType,
+  ILLMRepository,
+  ILLMRepositoryType,
+  ILLMPurchaseHistoryUtils,
+  ILLMPurchaseHistoryUtilsType,
+  IOpenAIUtils,
+  IOpenAIUtilsType,
+  IPromptBuilderFactory,
+  IPromptBuilderFactoryType,
+  IPromptDirector,
+  IPromptDirectorType,
+  IScraperConfigProvider,
+  IScraperConfigProviderType,
+  IScraperService,
+  IScraperServiceType,
+  LLMPurchaseHistoryUtilsChatGPT,
+  LLMScraperService,
+  OpenAIUtils,
+  PromptBuilderFactory,
+  PromptDirector,
+} from "@snickerdoodlelabs/ai-scraper";
+import {
   AxiosAjaxUtils,
   BigNumberUtils,
   IAxiosAjaxUtils,
@@ -13,10 +41,34 @@ import {
   TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
+  AlchemyIndexer,
+  AnkrIndexer,
+  CovalentEVMTransactionRepository,
+  EtherscanIndexer,
+  IAlchemyIndexerType,
+  IAnkrIndexerType,
+  ICovalentEVMTransactionRepositoryType,
+  IEVMIndexer,
+  IEtherscanIndexerType,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
   IIndexerContextProvider,
   IIndexerContextProviderType,
+  IMoralisEVMPortfolioRepositoryType,
+  INftScanEVMPortfolioRepositoryType,
+  IOklinkIndexerType,
+  IPoapRepositoryType,
+  IPolygonIndexerType,
+  ISimulatorEVMTransactionRepositoryType,
+  ISolanaIndexer,
+  ISolanaIndexerType,
+  MoralisEVMPortfolioRepository,
+  NftScanEVMPortfolioRepository,
+  OklinkIndexer,
+  PoapRepository,
+  PolygonIndexer,
+  SimulatorEVMTransactionRepository,
+  SolanaIndexer,
 } from "@snickerdoodlelabs/indexers";
 import {
   IInsightPlatformRepository,
@@ -80,6 +132,10 @@ import {
   QueryFactories,
   SDQLQueryWrapperFactory,
 } from "@snickerdoodlelabs/query-parser";
+import {
+  IPurchaseRepository,
+  IPurchaseRepositoryType,
+} from "@snickerdoodlelabs/shopping-data";
 import { ContainerModule, interfaces } from "inversify";
 
 import {
@@ -103,6 +159,7 @@ import {
   QueryService,
   TwitterService,
   CloudStorageService,
+  PurchaseService,
   CachingService,
   QuestionnaireService,
 } from "@core/implementations/business/index.js";
@@ -140,6 +197,7 @@ import {
   TransactionHistoryRepository,
   TwitterRepository,
   AuthenticatedStorageRepository,
+  PurchaseRepository,
   NftRepository,
   QuestionnaireRepository,
 } from "@core/implementations/data/index.js";
@@ -189,6 +247,8 @@ import {
   IQuestionnaireServiceType,
   ITwitterService,
   ITwitterServiceType,
+  IPurchaseService,
+  IPurchaseServiceType,
 } from "@core/interfaces/business/index.js";
 import {
   IBalanceQueryEvaluator,
@@ -423,7 +483,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<ITwitterRepository>(ITwitterRepositoryType)
       .to(TwitterRepository)
       .inSingletonScope();
-    bind<ISocialRepository>(ISocialRepositoryType).to(SocialRepository);
+    bind<ISocialRepository>(ISocialRepositoryType)
+      .to(SocialRepository)
+      .inSingletonScope();
 
     bind<IBackupUtils>(IBackupUtilsType).to(BackupUtils).inSingletonScope();
     bind<IVolatileStorageSchemaProvider>(IVolatileStorageSchemaProviderType)
@@ -543,6 +605,22 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(DropboxCloudStorage)
       .inSingletonScope();
 
+    // region shopping data
+    bind<IPurchaseRepository>(IPurchaseRepositoryType)
+      .to(PurchaseRepository)
+      .inSingletonScope();
+    // endregion
+
+    // region scraper
+    bind<IScraperConfigProvider>(IScraperConfigProviderType).toService(
+      IConfigProviderType,
+    );
+    // endregion
+    // region purchase
+    bind<IPurchaseService>(IPurchaseServiceType)
+      .to(PurchaseService)
+      .inSingletonScope();
+    // endregion
     /**
      * Binding of Modules With Extra Capabilities.
      *

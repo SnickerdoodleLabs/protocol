@@ -5,6 +5,9 @@ export * from "@synamint-extension-sdk/core/interfaces/business/IInvitationServi
 export * from "@synamint-extension-sdk/core/interfaces/business/IMetricsService";
 export * from "@synamint-extension-sdk/core/interfaces/business/IPIIService";
 export * from "@synamint-extension-sdk/core/interfaces/business/IPortConnectionService";
+export * from "@synamint-extension-sdk/core/interfaces/business/IPurchaseService";
+export * from "@synamint-extension-sdk/core/interfaces/business/IScraperNavigationService";
+export * from "@synamint-extension-sdk/core/interfaces/business/IScraperService";
 export * from "@synamint-extension-sdk/core/interfaces/business/ITokenPriceService";
 export * from "@synamint-extension-sdk/core/interfaces/business/ITwitterService";
 export * from "@synamint-extension-sdk/core/interfaces/business/IUserSiteInteractionService";

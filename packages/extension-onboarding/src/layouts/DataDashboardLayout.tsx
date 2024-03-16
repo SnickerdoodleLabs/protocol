@@ -1,12 +1,15 @@
+import { Box } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+import { ECoreProxyType } from "@snickerdoodlelabs/objects";
+import { SDTypography } from "@snickerdoodlelabs/shared-components";
+import React from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+
 import Container from "@extension-onboarding/components/v2/Container";
 import DashboardTitle from "@extension-onboarding/components/v2/DashboardTitle";
 import { EPathsV2 as EPaths } from "@extension-onboarding/containers/Router/Router.pathsV2";
 import { DashboardContextProvider } from "@extension-onboarding/context/DashboardContext";
-import { Box } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import { SDTypography } from "@snickerdoodlelabs/shared-components";
-import React from "react";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 
 const useStyles = makeStyles((theme) => ({
   link: {
@@ -79,12 +82,20 @@ const LINKS: ILink[] = [
     subtitle:
       "Share what kinds of Discord channels you are subscribed to. No one will ever know your discord handle.",
   },
+  {
+    path: EPaths.SHOPPING_DATA,
+    title: "Shopping Data",
+    /* subtitle:
+      "Share what kinds of Discord channels you are subscribed to. No one will ever know your discord handle.", */
+  },
 ];
 
 const DataDashboardLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const classes = useStyles();
+
+  const { sdlDataWallet } = useDataWalletContext();
 
   const navContainerRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -144,15 +155,20 @@ const DataDashboardLayout = () => {
         </div>
       </Box>
       <Container>
-        <DashboardTitle
-          title={
-            LINKS.find((link) => link.path === location.pathname)?.title ?? ""
-          }
-          description={
-            LINKS.find((link) => link.path === location.pathname)?.subtitle ??
-            ""
-          }
-        />
+        {!(
+          sdlDataWallet.proxyType === ECoreProxyType.IFRAME_INJECTED &&
+          location.pathname === EPaths.SHOPPING_DATA
+        ) && (
+          <DashboardTitle
+            title={
+              LINKS.find((link) => link.path === location.pathname)?.title ?? ""
+            }
+            description={
+              LINKS.find((link) => link.path === location.pathname)?.subtitle ??
+              ""
+            }
+          />
+        )}
         <DashboardContextProvider>
           <Outlet />
         </DashboardContextProvider>

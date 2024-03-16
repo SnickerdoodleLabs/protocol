@@ -42,6 +42,18 @@ import {
   IUserSiteInteractionServiceType,
 } from "@synamint-extension-sdk/core/interfaces/business";
 import {
+  IPurchaseService,
+  IPurchaseServiceType,
+} from "@synamint-extension-sdk/core/interfaces/business/IPurchaseService";
+import {
+  IScraperNavigationService,
+  IScraperNavigationServiceType,
+} from "@synamint-extension-sdk/core/interfaces/business/IScraperNavigationService";
+import {
+  IScraperService,
+  IScraperServiceType,
+} from "@synamint-extension-sdk/core/interfaces/business/IScraperService";
+import {
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
@@ -123,14 +135,25 @@ import {
   GetCurrentCloudStorageParams,
   RejectInvitationParams,
   GetQueryStatusesParams,
-  GetTransactionsParams,
-  GetTransactionValueByChainParams,
+  ScraperScrapeParams,
+  ScraperClassifyUrlParams,
+  ScraperGetOrderHistoryPageParams,
+  ScraperGetYearsParams,
+  ScraperGetOrderHistoryPageByYearParams,
+  ScraperGetPageCountParams,
   AddAccountWithExternalSignatureParams,
   AddAccountWithExternalTypedDataSignatureParams,
   ERequestChannel,
+  PurchaseGetByMarketPlaceParams,
+  PurchaseGetByMarketPlaceAndDateParams,
+  GetTransactionValueByChainParams,
+  GetTransactionsParams,
   UpdateAgreementPermissionsParams,
   SnickerDoodleCoreError,
   GetConsentContractURLsParams,
+  PurchaseGetShoppingDataConnectionStatusParams,
+  PurchaseSetShoppingDataConnectionStatusParams,
+  PurchaseGetPurchasedProductsParams,
   GetPersistenceNFTsParams,
   GetAccountNFTHistoryParams,
   GetAccountNftCacheParams,
@@ -798,6 +821,25 @@ export class RpcCallHandler implements IRpcCallHandler {
     ),
     // #endregion
 
+    // #region Scraper
+    new CoreActionHandler<ScraperScrapeParams>(
+      ScraperScrapeParams.getCoreAction(),
+      (params) => {
+        return this.scraperService.scrape(
+          params.url,
+          params.html,
+          params.suggestedDomainTask,
+        );
+      },
+    ),
+    new CoreActionHandler<ScraperClassifyUrlParams>(
+      ScraperClassifyUrlParams.getCoreAction(),
+      (params) => {
+        return this.scraperService.classifyURL(params.url, params.language);
+      },
+    ),
+    // #endregion
+    
     // #region external local storage calls
     new CoreActionHandler<GetUIStateParams>(
       GetUIStateParams.getCoreAction(),
@@ -819,6 +861,89 @@ export class RpcCallHandler implements IRpcCallHandler {
     ),
     // #endregion
 
+    // #region Scraper Navigation
+
+    new CoreActionHandler<ScraperGetOrderHistoryPageParams>(
+      ScraperGetOrderHistoryPageParams.getCoreAction(),
+      (params) => {
+        const url = this.scrapernavigationService.getOrderHistoryPage(
+          params.lang,
+          params.page,
+        );
+        return okAsync(url);
+      },
+    ),
+
+    new CoreActionHandler<ScraperGetYearsParams>(
+      ScraperGetYearsParams.getCoreAction(),
+      (params) => {
+        const url = this.scrapernavigationService.getYears(params.html);
+        return okAsync(url);
+      },
+    ),
+
+    new CoreActionHandler<ScraperGetOrderHistoryPageByYearParams>(
+      ScraperGetOrderHistoryPageByYearParams.getCoreAction(),
+      (params) => {
+        const url = this.scrapernavigationService.getOrderHistoryPageByYear(
+          params.lang,
+          params.year,
+          params.page,
+        );
+        return okAsync(url);
+      },
+    ),
+
+    new CoreActionHandler<ScraperGetPageCountParams>(
+      ScraperGetPageCountParams.getCoreAction(),
+      (params) => {
+        const url = this.scrapernavigationService.getPageCount(
+          params.html,
+          params.year,
+        );
+        return okAsync(url);
+      },
+    ),
+
+    // #endregion
+
+    // #region Purchase
+    new CoreActionHandler<PurchaseGetPurchasedProductsParams>(
+      PurchaseGetPurchasedProductsParams.getCoreAction(),
+      (_params) => {
+        return this.purchaseService.getPurchasedProducts();
+      },
+    ),
+    new CoreActionHandler<PurchaseGetByMarketPlaceParams>(
+      PurchaseGetByMarketPlaceParams.getCoreAction(),
+      (params) => {
+        return this.purchaseService.getByMarketplace(params.marketPlace);
+      },
+    ),
+    new CoreActionHandler<PurchaseGetByMarketPlaceAndDateParams>(
+      PurchaseGetByMarketPlaceAndDateParams.getCoreAction(),
+      (params) => {
+        return this.purchaseService.getByMarketplaceAndDate(
+          params.marketPlace,
+          params.datePurchased,
+        );
+      },
+    ),
+    new CoreActionHandler<PurchaseGetShoppingDataConnectionStatusParams>(
+      PurchaseGetShoppingDataConnectionStatusParams.getCoreAction(),
+      (_params) => {
+        return this.purchaseService.getShoppingDataConnectionStatus();
+      },
+    ),
+    new CoreActionHandler<PurchaseSetShoppingDataConnectionStatusParams>(
+      PurchaseSetShoppingDataConnectionStatusParams.getCoreAction(),
+      (params) => {
+        return this.purchaseService.setShoppingDataConnectionStatus(
+          params.ShoppingDataConnectionStatus,
+        );
+      },
+    ),
+    // #endregion
     // #region questionnaires
     new CoreActionHandler<GetAllQuestionnairesParams>(
       GetAllQuestionnairesParams.getCoreAction(),
@@ -886,6 +1011,12 @@ export class RpcCallHandler implements IRpcCallHandler {
     protected userSiteInteractionService: IUserSiteInteractionService,
     @inject(IDiscordServiceType)
     protected discordService: IDiscordService,
+    @inject(IPurchaseServiceType)
+    protected purchaseService: IPurchaseService,
+    @inject(IScraperServiceType)
+    protected scraperService: IScraperService,
+    @inject(IScraperNavigationServiceType)
+    protected scrapernavigationService: IScraperNavigationService,
     @inject(ITwitterServiceType)
     protected twitterService: ITwitterService,
     @inject(IConfigProviderType)

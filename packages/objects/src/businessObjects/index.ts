@@ -61,5 +61,8 @@ export * from "@objects/businessObjects/WalletNFT.js";
 export * from "@objects/businessObjects/events/index.js";
 export * from "@objects/businessObjects/rewards/index.js";
 export * from "@objects/businessObjects/oauth/index.js";
+export * from "@objects/businessObjects/scraper/index.js";
 export * from "@objects/businessObjects/queryResponse/index.js";
 export * from "@objects/businessObjects/versioned/index.js";
+
+export * from "@objects/businessObjects/shoppingData/index.js";

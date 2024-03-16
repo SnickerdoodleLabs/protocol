@@ -1,3 +1,4 @@
+export * from "@persistence/IPersistence.js";
 export * from "@persistence/database/index.js";
 
 export * from "@persistence/IPersistenceConfig.js";

@@ -28,6 +28,9 @@ import {
   MetricsService,
   PIIService,
   PortConnectionService,
+  PurchaseService,
+  ScraperNavigationService,
+  ScraperService,
   TokenPriceService,
   TwitterService,
   UserSiteInteractionService,
@@ -73,6 +76,12 @@ import {
   IPIIServiceType,
   IPortConnectionService,
   IPortConnectionServiceType,
+  IPurchaseService,
+  IPurchaseServiceType,
+  IScraperNavigationService,
+  IScraperNavigationServiceType,
+  IScraperService,
+  IScraperServiceType,
   ITokenPriceService,
   ITokenPriceServiceType,
   ITwitterService,
@@ -195,6 +204,20 @@ export const extensionCoreModule = new ContainerModule(
     // Utilities/Factory
     bind<IRpcEngineFactory>(IRpcEngineFactoryType)
       .to(RpcEngineFactory)
+      .inSingletonScope();
+
+    //Scraper
+
+    bind<IScraperService>(IScraperServiceType)
+      .to(ScraperService)
+      .inSingletonScope();
+
+    bind<IScraperNavigationService>(IScraperNavigationServiceType)
+      .to(ScraperNavigationService)
+      .inSingletonScope();
+
+    bind<IPurchaseService>(IPurchaseServiceType)
+      .to(PurchaseService)
       .inSingletonScope();
   },
 );

@@ -7,11 +7,11 @@ import {
   ENotificationTypes,
   EVMContractAddress,
   EWalletDataType,
+  LinkedAccount,
   IOldUserAgreement,
   IPaletteOverrides,
   IUserAgreement,
   Invitation,
-  LinkedAccount,
   Signature,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
@@ -24,6 +24,26 @@ import {
   createDefaultTheme,
   createThemeWithOverrides,
 } from "@snickerdoodlelabs/shared-components";
+import endOfStream from "end-of-stream";
+import PortStream from "extension-port-stream";
+import { JsonRpcEngine } from "json-rpc-engine";
+import { createStreamMiddleware } from "json-rpc-middleware-stream";
+import { err, okAsync } from "neverthrow";
+import ObjectMultiplex from "obj-multiplex";
+import LocalMessageStream from "post-message-stream";
+import pump from "pump";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+  useRef,
+  FC,
+} from "react";
+import { parse } from "tldts";
+import Browser from "webextension-polyfill";
+
+import { ShoppingDataService } from "@synamint-extension-sdk/content/components/ShoppingDataService";
 import { EAppState } from "@synamint-extension-sdk/content/constants";
 import usePath from "@synamint-extension-sdk/content/hooks/usePath";
 import DataWalletProxyInjectionUtils from "@synamint-extension-sdk/content/utils/DataWalletProxyInjectionUtils";
@@ -43,24 +63,6 @@ import {
   GetConsentContractCIDParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
-import endOfStream from "end-of-stream";
-import PortStream from "extension-port-stream";
-import { JsonRpcEngine } from "json-rpc-engine";
-import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import { err, okAsync } from "neverthrow";
-import ObjectMultiplex from "obj-multiplex";
-import LocalMessageStream from "post-message-stream";
-import pump from "pump";
-import React, {
-  useEffect,
-  useMemo,
-  useState,
-  useCallback,
-  useRef,
-  FC,
-} from "react";
-import { parse } from "tldts";
-import Browser from "webextension-polyfill";
 
 // #region connection
 let coreGateway: ExternalCoreGateway;
@@ -383,6 +385,12 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
     };
   }, []);
 
+  const getAccounts = () => {
+    coreGateway.account.getAccounts().map((linkedAccounts) => {
+      setAccounts(linkedAccounts);
+    });
+  };
+
   const handleNotification = (notification: BaseNotification) => {
     if (notification.type === ENotificationTypes.ACCOUNT_ADDED) {
       getAccounts();
@@ -390,12 +398,6 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
   };
 
   // #endregion
-
-  const getAccounts = () => {
-    coreGateway.account.getAccounts().map((linkedAccounts) => {
-      setAccounts(linkedAccounts);
-    });
-  };
 
   const renderComponent = useMemo(() => {
     if (!currentInvitation) return null;
@@ -458,6 +460,7 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
     >
       <>
         {renderComponent && <ModalContainer>{renderComponent}</ModalContainer>}
+        <ShoppingDataService coreGateway={coreGateway} />
       </>
     </ThemeProvider>
   );

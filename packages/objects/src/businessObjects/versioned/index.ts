@@ -15,6 +15,7 @@ export * from "@objects/businessObjects/versioned/QuestionnaireMigrator.js";
 export * from "@objects/businessObjects/versioned/ReceivingAccount.js";
 export * from "@objects/businessObjects/versioned/RejectedInvitation.js";
 export * from "@objects/businessObjects/versioned/RestoredBackup.js";
+export * from "@objects/businessObjects/versioned/ShoppingDataConnectionStatus";
 export * from "@objects/businessObjects/versioned/SiteVisit.js";
 export * from "@objects/businessObjects/versioned/SocialGroupProfile.js";
 export * from "@objects/businessObjects/versioned/SocialProfile.js";

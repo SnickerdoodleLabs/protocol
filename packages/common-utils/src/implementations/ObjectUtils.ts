@@ -4,6 +4,7 @@ import {
   PagingRequest,
   JSONString,
   InvalidParametersError,
+  PageNumber,
   BigNumberString,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -112,7 +113,7 @@ export class ObjectUtils {
     serialize = false,
   ): ResultAsync<void, TError | TError2> {
     // Create the initial paging request
-    const pagingRequest = new PagingRequest(pageNumber, pageSize);
+    const pagingRequest = new PagingRequest(PageNumber(pageNumber), pageSize);
 
     // Read the page
     return readFunc(pagingRequest).andThen((objectPage) => {
@@ -271,7 +272,7 @@ export class ObjectUtils {
       return okAsync(undefined);
     };
 
-    return readFunc(new PagingRequest(1, 1))
+    return readFunc(new PagingRequest(PageNumber(1), 1))
       .andThen((firstPage) => {
         const pageSize = firstPage.totalResults;
 

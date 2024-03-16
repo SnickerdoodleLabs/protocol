@@ -49,6 +49,8 @@ const envVars = {
   __TRANSACTION_POLLING_INTERVAL__: "",
   __BACKUP_POLLING_INTERVAL__: "",
   __DEV_CHAIN_PROVIDER_URL__: "http://127.0.0.1:8545",
+  __OPEN_API_KEY__: "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",
+  __SCRAPER_TIMEOUT__: 300000,
 };
 
 for (const key in envVars) {

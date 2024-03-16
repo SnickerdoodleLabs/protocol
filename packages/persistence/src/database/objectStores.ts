@@ -21,6 +21,8 @@ import {
   InvitationForStorageMigrator,
   QuestionnaireMigrator,
   QuestionnaireHistoryMigrator,
+  ShoppingDataConnectionStatusMigrator,
+  PurchasedProductMigrator,
 } from "@snickerdoodlelabs/objects";
 
 import { IPersistenceConfig } from "@persistence/IPersistenceConfig";
@@ -265,6 +267,34 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
         config?.dataWalletBackupIntervalMS ?? testTimeValue,
         config?.backupChunkSizeTarget ?? testTimeValue,
         [[["deleted", "id", "measurementDate"], false]],
+      ),
+    ],
+    [
+      ERecordKey.PURCHASED_PRODUCT,
+      new VolatileTableIndex(
+        ERecordKey.PURCHASED_PRODUCT,
+        ["id", false],
+        new PurchasedProductMigrator(),
+        EBackupPriority.NORMAL,
+        config?.dataWalletBackupIntervalMS ?? testTimeValue,
+        config?.backupChunkSizeTarget ?? testTimeValue,
+        [
+          ["marketPlace", false],
+          ["category", false],
+          ["datePurchased", false],
+          [["marketPlace", "datePurchased"], false],
+        ],
+      ),
+    ],
+    [
+      ERecordKey.SHOPPING_DATA_CONNECTION_STATUS,
+      new VolatileTableIndex(
+        ERecordKey.SHOPPING_DATA_CONNECTION_STATUS,
+        ["type", false],
+        new ShoppingDataConnectionStatusMigrator(),
+        EBackupPriority.NORMAL,
+        config?.dataWalletBackupIntervalMS ?? testTimeValue,
+        config?.backupChunkSizeTarget ?? testTimeValue,
       ),
     ],
   ]);

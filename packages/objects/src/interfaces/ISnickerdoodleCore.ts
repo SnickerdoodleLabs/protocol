@@ -35,6 +35,9 @@ import {
   SiteVisitsMap,
   TransactionFlowInsight,
   OptInInfo,
+  DomainTask,
+  PurchasedProduct,
+  ShoppingDataConnectionStatus,
   NftRepositoryCache,
   WalletNFTData,
   WalletNFTHistory,
@@ -49,6 +52,7 @@ import {
   ECloudStorageType,
   EDataWalletPermission,
   EInvitationStatus,
+  ELanguageCode,
 } from "@objects/enum/index.js";
 import {
   AccountIndexingError,
@@ -80,6 +84,9 @@ import {
   DuplicateIdInSchema,
   MissingWalletDataTypeError,
   ParserError,
+  ScraperError,
+  InvalidURLError,
+  LLMError,
   MethodSupportError,
 } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
@@ -118,6 +125,9 @@ import {
   URLString,
   BlockNumber,
   RefreshToken,
+  HTMLString,
+  PageNumber,
+  Year,
   JSONString,
 } from "@objects/primitives/index.js";
 /**
@@ -716,6 +726,48 @@ export interface IStorageMethods {
   ): ResultAsync<URLString, never>;
 }
 
+export interface IScraperMethods {
+  scrape(
+    url: URLString,
+    html: HTMLString,
+    suggestedDomainTask: DomainTask,
+  ): ResultAsync<void, ScraperError | LLMError | PersistenceError>;
+  classifyURL(
+    url: URLString,
+    language: ELanguageCode,
+  ): ResultAsync<DomainTask, InvalidURLError>;
+}
+
+export interface IScraperNavigationMethods {
+  amazon: {
+    getOrderHistoryPage(lang: ELanguageCode, page: PageNumber): URLString;
+    getYears(html: HTMLString): Year[];
+    getOrderHistoryPageByYear(
+      lang: ELanguageCode,
+      year: Year,
+      page: PageNumber,
+    ): URLString;
+    getPageCount(html: HTMLString, year: Year): number;
+  };
+}
+
+export interface IPurchaseMethods {
+  getPurchasedProducts(): ResultAsync<PurchasedProduct[], PersistenceError>;
+  getByMarketplace(
+    marketPlace: DomainName,
+  ): ResultAsync<PurchasedProduct[], PersistenceError>;
+  getByMarketplaceAndDate(
+    marketPlace: DomainName,
+    datePurchased: UnixTimestamp,
+  ): ResultAsync<PurchasedProduct[], PersistenceError>;
+  getShoppingDataConnectionStatus(): ResultAsync<
+    ShoppingDataConnectionStatus[],
+    PersistenceError
+  >;
+  setShoppingDataConnectionStatus(
+    ShoppingDataConnectionStatus: ShoppingDataConnectionStatus,
+  ): ResultAsync<void, PersistenceError>;
+}
 export interface IQuestionnaireMethods {
   /**
    * Returns a list of questionnaires that the user can complete (that do not already have answers),
@@ -1088,6 +1140,9 @@ export interface ISnickerdoodleCore {
   twitter: ICoreTwitterMethods;
   metrics: IMetricsMethods;
   storage: IStorageMethods;
+  purchase: IPurchaseMethods;
+  scraper: IScraperMethods;
+  scraperNavigation: IScraperNavigationMethods;
   nft: INftMethods;
   questionnaire: IQuestionnaireMethods;
 }

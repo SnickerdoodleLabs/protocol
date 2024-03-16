@@ -13,6 +13,7 @@ const errorCodes = {
   DataWalletLockedError: "ERR_DATA_WALLET_LOCKED",
   InvalidParametersError: "INVALID_PARAMETERS_ERROR",
   InvalidSignatureError: "ERR_INVALID_SIGNATURE",
+  InvalidURLError: "ERR_INVALID_URL",
   IPFSError: "ERR_IPFS",
   KeyGenerationError: "ERR_CRYPTO_KEY_GENERATION",
   MinimalForwarderContractError: "ERR_MINIMAL_FORWARDER_CONTRACT",
@@ -46,6 +47,10 @@ const errorCodes = {
   InvalidAddressError: "ERR_INVALID_ADDRESS",
   ExecutionRevertedError: "ERR_EXECUTION_REVERTED",
   ProofError: "ERR_PROOF",
+  ScraperError: "ERR_SCRAPER",
+  NLPError: "ERR_NLP",
+  LLMError: "ERR_LLM",
+  LLMMaxTokensExceededError: "ERR_LLM_MAX_TOKENS_EXCEEDED",
   SingerUnavailableError: "ERR_SIGNER_UNAVAILABLE",
   //SDQL errors
   OperandTypeError: "ER_SDQL_OPERAND_TYPE",

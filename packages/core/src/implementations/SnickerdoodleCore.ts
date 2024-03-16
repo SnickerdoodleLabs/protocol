@@ -5,10 +5,18 @@
  * of SnickerdoodleCore.
  */
 import {
+  IAmazonNavigationUtils,
+  IAmazonNavigationUtilsType,
+  IScraperService,
+  IScraperServiceType,
+  scraperModule,
+} from "@snickerdoodlelabs/ai-scraper";
+import {
   IMasterIndexer,
   IMasterIndexerType,
   indexersModule,
 } from "@snickerdoodlelabs/indexers";
+import { nlpModule } from "@snickerdoodlelabs/nlp";
 import {
   AccountAddress,
   AccountIndexingError,
@@ -88,8 +96,21 @@ import {
   BlockNumber,
   RefreshToken,
   SiteVisitsMap,
+  IScraperMethods,
+  DomainTask,
+  ELanguageCode,
+  HTMLString,
+  ScraperError,
+  IScraperNavigationMethods,
+  PageNumber,
+  Year,
+  IPurchaseMethods,
   TransactionFlowInsight,
   URLString,
+  ShoppingDataConnectionStatus,
+  PurchasedProduct,
+  InvalidURLError,
+  LLMError,
   INftMethods,
   IQuestionnaireMethods,
   NewQuestionnaireAnswer,
@@ -103,6 +124,7 @@ import {
   ICloudStorageManager,
   ICloudStorageManagerType,
 } from "@snickerdoodlelabs/persistence";
+import { shoppingDataModule } from "@snickerdoodlelabs/shopping-data";
 import {
   IStorageUtils,
   IStorageUtilsType,
@@ -144,6 +166,8 @@ import {
   IMetricsServiceType,
   IProfileService,
   IProfileServiceType,
+  IPurchaseService,
+  IPurchaseServiceType,
   IQueryService,
   IQueryServiceType,
   IQuestionnaireService,
@@ -187,6 +211,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public nft: INftMethods;
   public questionnaire: IQuestionnaireMethods;
 
+  public purchase: IPurchaseMethods;
+  public scraper: IScraperMethods;
+  public scraperNavigation: IScraperNavigationMethods;
+
   public constructor(
     configOverrides?: IConfigOverrides,
     storageUtils?: IStorageUtils,
@@ -195,7 +223,15 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     this.iocContainer = new Container();
 
     // Elaborate syntax to demonstrate that we can use multiple modules
-    this.iocContainer.load(...[snickerdoodleCoreModule, indexersModule]);
+    this.iocContainer.load(
+      ...[
+        snickerdoodleCoreModule,
+        indexersModule,
+        scraperModule,
+        nlpModule,
+        shoppingDataModule,
+      ],
+    );
 
     // If persistence is provided, we need to hook it up. If it is not, we will use the default
     // persistence.
@@ -702,6 +738,116 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return cloudStorageService.setAuthenticatedStorage(
           new AuthenticatedStorageSettings(type, path, refreshToken),
         );
+      },
+    };
+    // Scraper Methods ---------------------------------------------------------------------------
+    this.scraper = {
+      scrape: (
+        url: URLString,
+        html: HTMLString,
+        suggestedDomainTask: DomainTask,
+      ): ResultAsync<void, ScraperError | LLMError | PersistenceError> => {
+        const scraperService =
+          this.iocContainer.get<IScraperService>(IScraperServiceType);
+        return scraperService.scrape(url, html, suggestedDomainTask);
+      },
+      classifyURL: (
+        url: URLString,
+        language: ELanguageCode,
+      ): ResultAsync<DomainTask, InvalidURLError> => {
+        const scraperService =
+          this.iocContainer.get<IScraperService>(IScraperServiceType);
+        return scraperService.classifyURL(url, language);
+      },
+    };
+
+    this.purchase = {
+      getPurchasedProducts: (): ResultAsync<
+        PurchasedProduct[],
+        PersistenceError
+      > => {
+        const purchaseService =
+          this.iocContainer.get<IPurchaseService>(IPurchaseServiceType);
+        return purchaseService.getPurchasedProducts();
+      },
+      getByMarketplace: (
+        marketPlace: DomainName,
+      ): ResultAsync<PurchasedProduct[], PersistenceError> => {
+        const purchaseService =
+          this.iocContainer.get<IPurchaseService>(IPurchaseServiceType);
+        return purchaseService.getByMarketplace(marketPlace);
+      },
+      getByMarketplaceAndDate: (
+        marketPlace: DomainName,
+        datePurchased: UnixTimestamp,
+      ): ResultAsync<PurchasedProduct[], PersistenceError> => {
+        const purchaseService =
+          this.iocContainer.get<IPurchaseService>(IPurchaseServiceType);
+        return purchaseService.getByMarketplaceAndDate(
+          marketPlace,
+          datePurchased,
+        );
+      },
+      getShoppingDataConnectionStatus: (): ResultAsync<
+        ShoppingDataConnectionStatus[],
+        PersistenceError
+      > => {
+        const purchaseService =
+          this.iocContainer.get<IPurchaseService>(IPurchaseServiceType);
+        return purchaseService.getShoppingDataConnectionStatus();
+      },
+      setShoppingDataConnectionStatus: (
+        ShoppingDataConnectionStatus: ShoppingDataConnectionStatus,
+      ): ResultAsync<void, PersistenceError> => {
+        const purchaseService =
+          this.iocContainer.get<IPurchaseService>(IPurchaseServiceType);
+        return purchaseService.setShoppingDataConnectionStatus(
+          ShoppingDataConnectionStatus,
+        );
+      },
+    };
+
+    this.scraperNavigation = {
+      amazon: {
+        getOrderHistoryPage: (
+          lang: ELanguageCode,
+          page: PageNumber,
+        ): URLString => {
+          const amazonNavigationUtils =
+            this.iocContainer.get<IAmazonNavigationUtils>(
+              IAmazonNavigationUtilsType,
+            );
+          return amazonNavigationUtils.getOrderHistoryPage(lang, page);
+        },
+        getYears: (html: HTMLString): Year[] => {
+          const amazonNavigationUtils =
+            this.iocContainer.get<IAmazonNavigationUtils>(
+              IAmazonNavigationUtilsType,
+            );
+          return amazonNavigationUtils.getYears(html);
+        },
+        getOrderHistoryPageByYear: (
+          lang: ELanguageCode,
+          year: Year,
+          page: PageNumber,
+        ): URLString => {
+          const amazonNavigationUtils =
+            this.iocContainer.get<IAmazonNavigationUtils>(
+              IAmazonNavigationUtilsType,
+            );
+          return amazonNavigationUtils.getOrderHistoryPageByYear(
+            lang,
+            year,
+            page,
+          );
+        },
+        getPageCount: (html: HTMLString, year: Year): number => {
+          const amazonNavigationUtils =
+            this.iocContainer.get<IAmazonNavigationUtils>(
+              IAmazonNavigationUtilsType,
+            );
+          return amazonNavigationUtils.getPageCount(html, year);
+        },
       },
     };
     // Nft Methods ---------------------------------------------------------------------------

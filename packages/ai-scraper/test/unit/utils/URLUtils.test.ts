@@ -1,8 +1,11 @@
 import "reflect-metadata";
-import { ELanguageCode } from "@snickerdoodlelabs/objects";
+import {
+  EKnownDomains,
+  ELanguageCode,
+  ETask,
+} from "@snickerdoodlelabs/objects";
 
 import { KeywordUtils, URLUtils } from "@ai-scraper/implementations";
-import { EKnownDomains, ETask } from "@ai-scraper/interfaces";
 import {
   AMAZON_HOST_NAME,
   AMAZON_URL,

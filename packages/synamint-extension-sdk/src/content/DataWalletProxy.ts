@@ -56,8 +56,10 @@ import {
   ECoreProxyType,
   BlockNumber,
   RefreshToken,
-  TransactionFilter,
   IProxyAccountMethods,
+  IProxyPurchaseMethods,
+  TransactionFilter,
+  ShoppingDataConnectionStatus,
   INftProxyMethods,
   JSONString,
   IProxyQuestionnaireMethods,
@@ -162,6 +164,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public nft: INftProxyMethods;
   public questionnaire: IProxyQuestionnaireMethods;
   public events: PublicEvents;
+  public purchase: IProxyPurchaseMethods;
   public requestDashboardView = undefined;
 
   public proxyType: ECoreProxyType = ECoreProxyType.EXTENSION_INJECTED;
@@ -416,6 +419,34 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       },
       getUserProfiles: () => {
         return coreGateway.twitter.getUserProfiles();
+      },
+    };
+
+    this.purchase = {
+      getPurchasedProducts: () => {
+        return coreGateway.purchase.getPurchasedProducts();
+      },
+      getByMarketplace: (marketPlace: DomainName) => {
+        return coreGateway.purchase.getByMarketplace(marketPlace);
+      },
+      getByMarketplaceAndDate: (
+        marketPlace: DomainName,
+        datePurchased: UnixTimestamp,
+      ) => {
+        return coreGateway.purchase.getByMarketplaceAndDate(
+          marketPlace,
+          datePurchased,
+        );
+      },
+      getShoppingDataConnectionStatus: () => {
+        return coreGateway.purchase.getShoppingDataConnectionStatus();
+      },
+      setShoppingDataConnectionStatus: (
+        ShoppingDataConnectionStatus: ShoppingDataConnectionStatus,
+      ) => {
+        return coreGateway.purchase.setShoppingDataConnectionStatus(
+          ShoppingDataConnectionStatus,
+        );
       },
     };
 

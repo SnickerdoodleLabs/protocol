@@ -220,8 +220,12 @@ export const testCoreConfig = new CoreConfig(
   ), // metatransactionGasAmounts
   ProviderUrl("devChainProviderURL"), // devChainProviderURL
   60, // maxStatsRetentionSeconds
-  LanguageCode("en-pw"), // passwordLanguageCode
+  LanguageCode("en-pw"), // passwordLanguageCode,
   100,
+  {
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY ?? "",
+    timeout: 5 * 60 * 1000, // 5 minutes
+  },
 );
 
 const adContent1: AdContent = new AdContent(

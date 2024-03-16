@@ -13,6 +13,7 @@ import {
   QuestionnaireWithAnswers,
   URLString,
   PagingRequest,
+  PageNumber,
 } from "@snickerdoodlelabs/objects";
 import { useResponsiveValue } from "@snickerdoodlelabs/shared-components";
 import { okAsync } from "neverthrow";
@@ -37,7 +38,7 @@ const Questionnaries = () => {
 
   const getQuestionnaires = () => {
     sdlDataWallet.questionnaire
-      .getAllQuestionnaires(new PagingRequest(1, 50))
+      .getAllQuestionnaires(new PagingRequest(PageNumber(1), 50))
       .map((res) => {
         setQuestionnaires(res.response);
       })
