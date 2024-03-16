@@ -10,9 +10,13 @@ import { ResultAsync } from "neverthrow";
 import { Encoding, Field, Keypair, Poseidon } from "o1js";
 
 import { CircuitWrapper } from "@circuits-sdk/CircuitWrapper.js";
+import { ICommitmentWrapper } from "@circuits-sdk/ICommitmentWrapper.js";
 
 @injectable()
-export class CommitmentWrapper extends CircuitWrapper<Commitment> {
+export class CommitmentWrapper
+  extends CircuitWrapper<Commitment>
+  implements ICommitmentWrapper
+{
   public constructor() {
     super(Commitment);
   }
@@ -52,7 +56,6 @@ export class CommitmentWrapper extends CircuitWrapper<Commitment> {
     identityTrapdoor: BigNumberString,
     identityNullifier: BigNumberString,
   ): ResultAsync<ZKProof, CircuitError> {
-    console.log("CHARLIE", signal, identityTrapdoor, identityNullifier);
     const signalFields = Encoding.stringToFields(signal);
 
     // NOTE: verifier should compute these quantities for themselves upon receiving the signal string
@@ -67,30 +70,26 @@ export class CommitmentWrapper extends CircuitWrapper<Commitment> {
     const identityCommitment =
       CommitmentWrapper.getIdentityCommitment(identity);
 
-    console.log(
-      "CHARLIE",
-      identity,
-      identityCommitment,
-      signalHash,
-      signalHashSquared,
-    );
     return this._prove(
       [identity],
-      [identityCommitment, signalHash, signalHashSquared],
+      [new Field(identityCommitment), signalHash, signalHashSquared],
     );
   }
 
   public verify(
     signal: string,
-    commitment: Commitment,
+    commitment: CommitmentBrand,
     proof: ZKProof,
   ): ResultAsync<boolean, CircuitError> {
     const signalFields = Encoding.stringToFields(signal);
 
-    const signalHash = Poseidon.hash([...signalFields]);
+    const signalHash = Poseidon.hash(signalFields);
     const signalHashSquared = signalHash.mul(signalHash);
 
-    return this._verify([commitment, signalHash, signalHashSquared], proof);
+    return this._verify(
+      [new Field(commitment), signalHash, signalHashSquared],
+      proof,
+    );
   }
 
   protected getKeypairResult(): ResultAsync<Keypair, CircuitError> | null {

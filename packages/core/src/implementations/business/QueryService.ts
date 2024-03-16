@@ -594,6 +594,9 @@ export class QueryService implements IQueryService {
           offset,
           commitmentCount,
         );
+      })
+      .map((anonymitySet) => {
+        return anonymitySet;
       });
   }
 

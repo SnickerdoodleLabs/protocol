@@ -1,6 +1,5 @@
 import { Identity } from "@snickerdoodlelabs/circuits";
 import { BigNumberString } from "@snickerdoodlelabs/objects";
-import { Field } from "o1js";
 
 import { CommitmentWrapper } from "@circuits-sdk/CommitmentWrapper.js";
 
@@ -16,18 +15,11 @@ const identityNullifier = BigNumberString(
 class CommitmentWrapperMocks {
   public identity: Identity;
 
-  public constructor(protected anonymitySetSize = 5) {
+  public constructor() {
     this.identity = CommitmentWrapper.getIdentity(
       identityTrapdoor,
       identityNullifier,
     );
-  }
-
-  public randomIdentity(): Identity {
-    return new Identity({
-      identityTrapdoor: Field.random(),
-      identityNullifier: Field.random(),
-    });
   }
 }
 
@@ -46,8 +38,6 @@ describe("CommitmentWrapper tests", () => {
 
     // Assert
     expect(proofResult).toBeDefined();
-    const err = proofResult._unsafeUnwrapErr();
-    console.log(err);
     expect(proofResult.isOk()).toBeTruthy();
   }, 20000);
 

@@ -125,16 +125,16 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     const provableData = {
       consentContractId: consentContractAddress,
       commitment: identityCommitment,
-    } as Omit<IOptinParams, "proof">;
+    };
 
     return this.commitmentWrapper
       .prove(ObjectUtils.serialize(provableData), trapdoor, nullifier)
       .andThen((proof) => {
-        const url = new URL(urlJoin(insightPlatformBaseUrl, "insights/optin"));
+        const url = new URL(urlJoin(insightPlatformBaseUrl, "optin"));
 
         return this.ajaxUtils.post<{ success: boolean }>(url, {
           consentContractId: consentContractAddress,
-          commitment: identityCommitment,
+          commitment: identityCommitment.toString(),
           proof: proof,
         } as IOptinParams as unknown as Record<string, unknown>);
       })
@@ -160,16 +160,16 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       commitment: identityCommitment,
       nonce: nonce,
       signature: signature,
-    } as Omit<IOptinParams, "proof">;
+    };
 
     return this.commitmentWrapper
       .prove(ObjectUtils.serialize(provableData), trapdoor, nullifier)
       .andThen((proof) => {
-        const url = new URL(urlJoin(insightPlatformBaseUrl, "insights/optin"));
+        const url = new URL(urlJoin(insightPlatformBaseUrl, "optin"));
 
         return this.ajaxUtils.post<{ success: boolean }>(url, {
           consentContractId: consentContractAddress,
-          commitment: identityCommitment,
+          commitment: identityCommitment.toString(),
           proof: proof,
         } as IPrivateOptinParams as unknown as Record<string, unknown>);
       })

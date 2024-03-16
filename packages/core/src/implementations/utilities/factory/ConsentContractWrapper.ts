@@ -294,6 +294,19 @@ export class ConsentContractWrapper
     );
   }
 
+  public getRequestForDataList(
+    fromBlock?: BlockNumber | undefined,
+    toBlock?: BlockNumber | undefined,
+  ): ResultAsync<
+    RequestForData[],
+    ConsentContractError | BlockchainCommonErrors
+  > {
+    return this.fallback(
+      () => this.primary.getRequestForDataList(fromBlock, toBlock),
+      () => this.secondary?.getRequestForDataList(fromBlock, toBlock),
+    );
+  }
+
   public disableOpenOptIn(): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | ConsentContractError

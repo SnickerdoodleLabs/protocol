@@ -60,7 +60,11 @@ export class ConsentContract
     WrappedTransactionResponse,
     BlockchainCommonErrors | ConsentContractError
   > {
-    return this.writeToContract("optIn", [commitment], overrides);
+    return this.writeToContract(
+      "optIn",
+      [ethers.toBeArray(commitment)],
+      overrides,
+    );
   }
 
   public restrictedOptIn(
@@ -74,7 +78,7 @@ export class ConsentContract
   > {
     return this.writeToContract(
       "restrictedOptIn",
-      [nonce, commitment, signature],
+      [nonce, ethers.toBeArray(commitment), signature],
       overrides,
     );
   }
@@ -346,6 +350,34 @@ export class ConsentContract
     });
   }
 
+  public getRequestForDataList(
+    fromBlock?: BlockNumber,
+    toBlock?: BlockNumber,
+  ): ResultAsync<
+    RequestForData[],
+    ConsentContractError | BlockchainCommonErrors
+  > {
+    return this.queryFilter(
+      this.filters.RequestForDataNoOwner(),
+      fromBlock,
+      toBlock,
+    ).map((logsEvents) => {
+      return logsEvents.reduce((acc, logEvent) => {
+        if (logEvent instanceof ethers.EventLog) {
+          acc.push(
+            new RequestForData(
+              this.getContractAddress(),
+              logEvent.args.requester,
+              logEvent.args.ipfsCID,
+              BlockNumber(logEvent.blockNumber),
+            ),
+          );
+        }
+        return acc;
+      }, new Array<RequestForData>());
+    });
+  }
+
   public disableOpenOptIn(
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -521,11 +553,15 @@ export class ConsentContract
     stop: BigNumberString,
   ): ResultAsync<Commitment[], BlockchainCommonErrors | ConsentContractError> {
     return ResultAsync.fromPromise(
-      this.contract.fetchAnonymitySet(start, stop) as Promise<Commitment[]>,
+      this.contract.fetchAnonymitySet(start, stop) as Promise<string[]>,
       (e) => {
         return this.generateError(e, "Unable to call fetchAnonymitySet()");
       },
-    );
+    ).map((commitmentBytes) => {
+      return commitmentBytes.map((commitment) => {
+        return Commitment(ethers.toBigInt(commitment));
+      });
+    });
   }
 
   // Get the number of opted in addresses
@@ -718,6 +754,9 @@ export class ConsentContract
       ownerAddress: EVMAccountAddress,
     ): ethers.DeferredTopicFilter => {
       return this.contract.filters.RequestForData(ownerAddress);
+    },
+    RequestForDataNoOwner: (): ethers.DeferredTopicFilter => {
+      return this.contract.filters.RequestForData();
     },
   };
 
