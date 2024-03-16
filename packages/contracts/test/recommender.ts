@@ -77,7 +77,7 @@ describe("Stake for Ranking tests", function () {
       // then initialize a tag
       await expect(
         consentFactory.initializeTag("NFT", await token.getAddress(), 10),
-      ).to.be.revertedWith("ConsentFactory: Caller is not a Consent Contract");
+      ).to.be.revertedWith("Content Factory: Caller is not a content object");
     });
 
     it("Only registered content objects can list in global factory listings", async function () {
@@ -408,7 +408,7 @@ describe("Stake for Ranking tests", function () {
           await token.getAddress(),
           slot,
         ),
-      ).to.be.revertedWith("ConsentFactory: current listing is still active");
+      ).to.be.revertedWith("Content Factory: current listing is still active");
 
       // now fast forward 2 weeks (60 * 60 * 24 * 12) plus 1 second
       await mine(80641, { interval: 15 });

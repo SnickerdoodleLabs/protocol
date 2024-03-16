@@ -22,6 +22,12 @@ interface IConsentFactory is IContentFactory {
 
     function registerStakingToken(address stakingToken) external;
 
+    function adminRemoveListings(string memory tag, address stakingToken, uint256[] memory removedSlots) external;
+
+    function blockContentObject(address stakingToken, address contentAddress) external;
+
+    function unblockContentObject(address stakingToken, address contentAddress) external;
+
     function getQuestionnaires()
         external
         view
