@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/circuits",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "ZK-Snickerdoodle circuits for Snickerdoodle Protocol",
   "license": "MIT",
   "repository": {
