@@ -204,6 +204,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     });
   }
 
+  // @TODO getPossibleQueryDeliveryItems is never used in protocol codebase.
   public getPossibleQueryDeliveryItems(
     query: SDQLQuery,
   ): ResultAsync<
@@ -222,7 +223,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     | MethodSupportError
     | InvalidParametersError
   > {
-    return this.handleQuery(query, DataPermissions.createWithAllPermissions());
+    return this.handleQuery(
+      query,
+      new DataPermissions("" as EVMContractAddress, [], []),
+    ); // @TODO we should probably use real permissions here
   }
 
   /** Used for reward generation on the SPA. Purpose is to show all the rewards to the user

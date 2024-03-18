@@ -51,6 +51,6 @@ export class QueryRepository implements IQueryRepository {
     dataPermissions: DataPermissions,
   ): boolean {
     const flag = q.getPermission();
-    return flag.isOk() && dataPermissions.getFlag(flag.value);
+    return flag.isOk() && dataPermissions.checkPermission(flag.value);
   }
 }

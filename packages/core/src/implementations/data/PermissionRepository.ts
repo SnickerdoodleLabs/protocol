@@ -41,30 +41,9 @@ export class PermissionRepository implements IPermissionRepository {
         if (permissionStorage == null) {
           return new DataPermissions(consentContractAddress, [], []);
         }
-        const virtual: EWalletDataType[] = [];
-        const questionnaires: IpfsCID[] = [];
-
-        permissionStorage.permissions.forEach((permission) => {
-          if (permission.allowed) {
-            switch (permission.type) {
-              case EPermissionType.Virtual:
-                if (permission.virtual !== null) {
-                  virtual.push(permission.virtual as EWalletDataType);
-                }
-                break;
-              case EPermissionType.Questionnaires:
-                if (permission.questionnaires !== null) {
-                  questionnaires.push(permission.questionnaires as IpfsCID);
-                }
-                break;
-            }
-          }
-        });
-
-        return new DataPermissions(
+        return this.getDataPermissionsByPermission(
           consentContractAddress,
-          virtual,
-          questionnaires,
+          permissionStorage.permissions,
         );
       });
   }
@@ -121,10 +100,11 @@ export class PermissionRepository implements IPermissionRepository {
       });
   }
 
-  public getDataPermissionsByPermission(
+  private getDataPermissionsByPermission(
     consentContractAddress: EVMContractAddress,
     permission: Permission[],
   ) {
+    //@TODO Need better logic here
     const virtual: EWalletDataType[] = [];
     const questionnaires: IpfsCID[] = [];
 
