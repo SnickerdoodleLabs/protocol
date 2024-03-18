@@ -19,7 +19,7 @@ export interface ISDQLQueryObject {
   expiry: ISO8601DateString;
   description: string;
   image?: IpfsCID;
-  points?: number;
+  points?: string;
   business: string;
   ads: ISDQLAdsBlock;
   queries: ISDQLQueriesBlock;
