@@ -469,6 +469,15 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
                 consentContractAddress,
               )
             }
+            onRejectClick={() => {
+              rejectInvitation(false);
+            }}
+            onRejectWithTimestampClick={() => {
+              rejectInvitation(true);
+            }}
+            displayRejectButtons={
+              currentInvitation.type !== EInvitationSourceType.USER_REQUEST
+            }
             getVirtualQuestionnaires={(
               consentContractAddress: EVMContractAddress,
             ) => {
