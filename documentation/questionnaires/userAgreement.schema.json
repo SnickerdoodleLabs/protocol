@@ -1,0 +1,152 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "User Agreement",
+  "type": "object",
+  "properties": {
+    "image": {
+      "type": "string",
+      "format": "uri"
+    },
+    "image_data": {
+      "type": "string"
+    },
+    "external_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "description": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/definitions/versionTrait"
+          },
+          {
+            "$ref": "#/definitions/colorModeTrait"
+          },
+          {
+            "$ref": "#/definitions/titleTrait"
+          }
+        ]
+      }
+    },
+    "background_color": {
+      "type": "string",
+      "pattern": "^[0-9A-Fa-f]{6}$"
+    },
+    "animation_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "youtube_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "version": {
+      "type": "number"
+    },
+    "brandInformation": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "logoImage": {
+          "type": "string",
+          "format": "uri"
+        },
+        "coverImage": {
+          "type": "string",
+          "format": "uri"
+        },
+        "links": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string",
+                "format": "uri"
+              }
+            }
+          }
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ]
+    }
+  },
+  "definitions": {
+    "versionTrait": {
+      "type": "object",
+      "properties": {
+        "trait_type": {
+          "type": "string",
+          "enum": [
+            "version"
+          ]
+        },
+        "value": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "trait_type",
+        "value"
+      ]
+    },
+    "colorModeTrait": {
+      "type": "object",
+      "properties": {
+        "trait_type": {
+          "type": "string",
+          "enum": [
+            "dark",
+            "light"
+          ]
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "trait_type",
+        "value"
+      ]
+    },
+    "titleTrait": {
+      "type": "object",
+      "properties": {
+        "trait_type": {
+          "type": "string",
+          "enum": [
+            "title"
+          ]
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "trait_type",
+        "value"
+      ]
+    }
+  },
+  "required": [
+    "attributes"
+  ]
+}
