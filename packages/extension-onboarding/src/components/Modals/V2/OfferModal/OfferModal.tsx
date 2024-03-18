@@ -33,6 +33,7 @@ import {
   Permissions,
 } from "@snickerdoodlelabs/shared-components";
 import { okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import React, { FC, useCallback, useEffect, useMemo, useRef } from "react";
 
 export interface IOfferModal {
@@ -74,8 +75,7 @@ const OfferModal: FC = () => {
   const { linkedAccounts, setLinkerModalOpen } = useAppContext();
 
   useEffect(() => {
-    getQuestionnaires();
-    getPermissions();
+    getQuestionnairesWithInitialPermissions();
   }, []);
 
   useEffect(() => {
@@ -85,25 +85,41 @@ const OfferModal: FC = () => {
   }, [JSON.stringify(permissions)]);
 
   const getQuestionnaires = () => {
-    sdlDataWallet.questionnaire.getByCIDs(offer.questionnaires).map((res) => {
-      setQuestionnaires({
-        answeredQuestionnaires: res.filter(
-          (q) => q.status === EQuestionnaireStatus.Complete,
-        ) as QuestionnaireWithAnswers[],
-        unAnsweredQuestionnaires: res.filter(
-          (q) => q.status === EQuestionnaireStatus.Available,
-        ),
+    return sdlDataWallet.questionnaire
+      .getByCIDs(offer.questionnaires)
+      .map((res) => {
+        setQuestionnaires({
+          answeredQuestionnaires: res.filter(
+            (q) => q.status === EQuestionnaireStatus.Complete,
+          ) as QuestionnaireWithAnswers[],
+          unAnsweredQuestionnaires: res.filter(
+            (q) => q.status === EQuestionnaireStatus.Available,
+          ),
+        });
+        return res;
       });
-    });
+  };
+
+  const getQuestionnairesWithInitialPermissions = () => {
+    return ResultUtils.combine([getQuestionnaires(), getPermissions()]).map(
+      ([qs, p]) => {
+        const incomingQuestionnaireIDs = qs
+          .filter((q) => q.status === EQuestionnaireStatus.Complete)
+          .map((q) => q.id);
+        setPermissions({
+          dataTypes: Array.from(
+            new Set([...p.dataTypes, ...offer.virtualQuestionnaires]),
+          ),
+          questionnaires: Array.from(
+            new Set([...p.questionnaires, ...incomingQuestionnaireIDs]),
+          ),
+        });
+      },
+    );
   };
 
   const getPermissions = () => {
-    return dummyPermissionGetter().map((res) => {
-      setPermissions({
-        dataTypes: res.dataTypes,
-        questionnaires: res.questionnaires,
-      });
-    });
+    return dummyPermissionGetter();
   };
 
   const handleQuestionnaireAnswer = useCallback(
@@ -132,9 +148,7 @@ const OfferModal: FC = () => {
           ? permissionsRef.current.dataTypes.filter((dt) => dt !== dataType)
           : permissionsRef.current.dataTypes.concat(dataType),
       };
-      dummyPermissionSetter(newPermissions).map(() => {
-        setPermissions(newPermissions);
-      });
+      setPermissions(newPermissions);
     }
   }, []);
 
@@ -151,9 +165,7 @@ const OfferModal: FC = () => {
               )
             : permissionsRef.current.questionnaires.concat(questionnaireCID),
         };
-        dummyPermissionSetter(newPermissions).map(() => {
-          setPermissions(newPermissions);
-        });
+        setPermissions(newPermissions);
       }
     },
     [],
@@ -182,10 +194,13 @@ const OfferModal: FC = () => {
         },
       });
     });
-
-    sdlDataWallet.approveQuery(offer.queryCID, calculatedParameters).map(() => {
-      onPrimaryButtonClick();
-      closeModal();
+    dummyPermissionSetter(permissionsRef.current).andThen(() => {
+      return sdlDataWallet
+        .approveQuery(offer.queryCID, calculatedParameters)
+        .map(() => {
+          onPrimaryButtonClick();
+          closeModal();
+        });
     });
   };
 
