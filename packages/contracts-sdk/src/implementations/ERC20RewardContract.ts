@@ -31,7 +31,7 @@ export class ERC20RewardContract
     protected providerOrSigner: ethers.Provider | ethers.Signer,
     protected contractAddress: EVMContractAddress,
   ) {
-    super(providerOrSigner, contractAddress, ContractsAbis.ERC20.abi);
+    super(providerOrSigner, contractAddress, ContractsAbis.ERC20Reward.abi);
   }
 
   public name(): ResultAsync<
