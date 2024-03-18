@@ -15,9 +15,13 @@ import { Encoding, Field, Keypair, MerkleTree, Poseidon } from "o1js";
 
 import { CircuitUtils } from "@circuits-sdk/CircuitUtils.js";
 import { CircuitWrapper } from "@circuits-sdk/CircuitWrapper.js";
+import { IMembershipWrapper } from "@circuits-sdk/IMembershipWrapper.js";
 
 @injectable()
-export class MembershipWrapper extends CircuitWrapper<Membership> {
+export class MembershipWrapper
+  extends CircuitWrapper<Membership>
+  implements IMembershipWrapper
+{
   public constructor() {
     super(Membership);
   }
