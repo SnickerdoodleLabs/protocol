@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
     height: (props: { size: number; disabled?: boolean }) => props.size * 0.65,
     borderRadius: "50%",
     backgroundColor: (props: { size: number; disabled?: boolean }) =>
-      props.disabled ? colors.GREY300 : colors.MAINPURPLE500,
+      props.disabled ? theme.palette.borderColor : theme.palette.primary.main,
     display: "block",
     transition: "transform 0.2s ease",
     transformOrigin: "center",
@@ -52,8 +52,8 @@ const useStyles = makeStyles((theme) => ({
     transform: "scale(1)",
   },
   checkedOuterCircle: {
-    border: `1px solid ${colors.MAINPURPLE500}`,
-    backgroundColor: colors.WHITE,
+    border: `1px solid ${theme.palette.primary.main}`,
+    backgroundColor: "transparent",
   },
   left: {
     flexDirection: "row-reverse",

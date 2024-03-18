@@ -11,7 +11,6 @@ import { useNavigate } from "react-router-dom";
 
 const Home: FC = () => {
   const getResponsiveValue = useResponsiveValue();
-  const navigate = useNavigate();
   return (
     <>
       <PageBanners />

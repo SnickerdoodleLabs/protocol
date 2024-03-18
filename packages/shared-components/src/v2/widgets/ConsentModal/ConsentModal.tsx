@@ -63,12 +63,15 @@ interface IConsentModalProps {
     dataTypes: EWalletDataType[],
     questionnaires: IpfsCID[],
   ) => ResultAsync<void, unknown>;
+  displayRejectButtons: boolean;
+  onRejectClick?: () => void;
+  onRejectWithTimestampClick?: () => void;
 }
 
-enum EComponentRenderState {
-  RENDER_PERMISSIONS,
-  RENDER_AGREEMENT,
-}
+// enum EComponentRenderState {
+//   RENDER_PERMISSIONS,
+//   RENDER_AGREEMENT,
+// }
 interface IQuestionnairesState {
   answeredQuestionnaires: QuestionnaireWithAnswers[];
   unAnsweredQuestionnaires: Questionnaire[];
@@ -89,12 +92,15 @@ export const ConsentModal = ({
   getVirtualQuestionnaires,
   setConsentPermissions,
   consentContractAddress,
+  onRejectClick,
+  onRejectWithTimestampClick,
+  displayRejectButtons = true,
 }: IConsentModalProps) => {
   const classes = useStyles();
   const dialogClasses = useDialogStyles();
-  const [componentRenderState, setComponentRenderState] = useSafeState(
-    EComponentRenderState.RENDER_PERMISSIONS,
-  );
+  // const [componentRenderState, setComponentRenderState] = useSafeState(
+  //   EComponentRenderState.RENDER_PERMISSIONS,
+  // );
   const [questionnaires, setQuestionnaires] =
     useSafeState<IQuestionnairesState>();
   const [consentDataTypes, setConsentDataTypes] =
@@ -213,33 +219,33 @@ export const ConsentModal = ({
   };
 
   const actions = useMemo(() => {
-    if (componentRenderState === EComponentRenderState.RENDER_AGREEMENT) {
-      return (
+    // if (componentRenderState === EComponentRenderState.RENDER_AGREEMENT) {
+    //   return (
+    //     <Box
+    //       display="flex"
+    //       key={EComponentRenderState.RENDER_AGREEMENT}
+    //       className={classes.mountAnimation}
+    //       alignItems="center"
+    //       justifyContent="center"
+    //       width="100%"
+    //     >
+    //       <SDButton
+    //         variant="outlined"
+    //         color="primary"
+    //         onClick={() => {
+    //           setComponentRenderState(EComponentRenderState.RENDER_PERMISSIONS);
+    //           setAgreementConsented(true);
+    //         }}
+    //       >
+    //         Done
+    //       </SDButton>
+    //     </Box>
+    //   );
+    // } else {
+    return (
+      <Box display="flex" flexDirection="column" width={"100%"}>
         <Box
-          display="flex"
-          key={EComponentRenderState.RENDER_AGREEMENT}
-          className={classes.mountAnimation}
           alignItems="center"
-          justifyContent="center"
-          width="100%"
-        >
-          <SDButton
-            variant="outlined"
-            color="primary"
-            onClick={() => {
-              setComponentRenderState(EComponentRenderState.RENDER_PERMISSIONS);
-              setAgreementConsented(true);
-            }}
-          >
-            Done
-          </SDButton>
-        </Box>
-      );
-    } else {
-      return (
-        <Box
-          alignItems="center"
-          key={EComponentRenderState.RENDER_PERMISSIONS}
           className={classes.mountAnimation}
           display="flex"
           justifyContent="space-between"
@@ -250,27 +256,7 @@ export const ConsentModal = ({
             onChange={() => {
               setAgreementConsented(!agreementConsented);
             }}
-            label={
-              <SDTypography variant="bodyMd">
-                I agree to{" "}
-                <span
-                  style={{
-                    cursor: "pointer",
-                    textDecoration: "underline",
-                    color: colors.DARKPURPLE500,
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    setComponentRenderState(
-                      EComponentRenderState.RENDER_AGREEMENT,
-                    );
-                  }}
-                >
-                  Terms and Conditions
-                </span>
-              </SDTypography>
-            }
+            label={<SDTypography variant="bodyMd">I agree</SDTypography>}
           />
           <SDButton
             disabled={!agreementConsented}
@@ -280,12 +266,43 @@ export const ConsentModal = ({
               handleShareClicked();
             }}
           >
-            Share Selected
+            Continue
           </SDButton>
         </Box>
-      );
-    }
-  }, [componentRenderState, agreementConsented]);
+        {displayRejectButtons && (
+          <Box
+            display="flex"
+            flexDirection={{ xs: "column", sm: "row" }}
+            justifyContent="center"
+            mt={4}
+          >
+            <SDButton
+              variant="text"
+              onClick={() => {
+                onRejectClick ? onRejectClick() : onClose();
+              }}
+            >
+              Don’t show me this again
+            </SDButton>
+            <SDButton
+              variant="text"
+              onClick={() => {
+                onRejectWithTimestampClick
+                  ? onRejectWithTimestampClick()
+                  : onClose();
+              }}
+            >
+              Remind me later
+            </SDButton>
+          </Box>
+        )}
+      </Box>
+    );
+    // }
+  }, [
+    // componentRenderState,
+    agreementConsented,
+  ]);
 
   const agreementPolicy = useMemo(() => {
     const agreementTitle = invitationData["attributes"]
@@ -380,13 +397,13 @@ export const ConsentModal = ({
         <Box display="flex" width="100%" justifyContent="flex-end">
           <CloseButton
             onClick={() => {
-              componentRenderState === EComponentRenderState.RENDER_AGREEMENT
-                ? setComponentRenderState(
-                    EComponentRenderState.RENDER_PERMISSIONS,
-                  )
-                : onClose();
+              // componentRenderState === EComponentRenderState.RENDER_AGREEMENT
+              //   ? setComponentRenderState(
+              //       EComponentRenderState.RENDER_PERMISSIONS,
+              //     )
+              //   : onClose();
+              onClose();
             }}
-            size={24}
             color="#212121"
           />
         </Box>
@@ -414,45 +431,48 @@ export const ConsentModal = ({
         )}
       </Box>
     );
-  }, [JSON.stringify(invitationData), componentRenderState]);
+  }, [
+    JSON.stringify(invitationData),
+    // componentRenderState
+  ]);
 
   const isPermissionsReady = useMemo(() => {
     return !!questionnaires && !!consentDataTypes && !!permissions;
   }, [questionnaires, consentDataTypes, permissions]);
 
   const content = () => {
-    if (componentRenderState === EComponentRenderState.RENDER_PERMISSIONS) {
-      return (
-        <Box display="flex" flexDirection="column">
-          {isPermissionsReady ? (
-            <Permissions
-              onAnswerRequestClick={(q) => {
-                setQuestionnaireToAnswer(q);
-              }}
-              unAnsweredQuestionnaires={
-                questionnaires!.unAnsweredQuestionnaires
-              }
-              answeredQuestionnaires={questionnaires!.answeredQuestionnaires}
-              dataTypes={consentDataTypes!}
-              onDataPermissionClick={onDataPermissionClick}
-              onQuestionnairePermissionClick={onQuestionnairePermissionClick}
-              dataTypePermissions={permissions!.dataTypes}
-              questionnairePermissions={permissions!.questionnaires}
-            />
-          ) : (
-            <Box marginX="auto" py={10}>
-              <CircularProgress />
-            </Box>
-          )}
-        </Box>
-      );
-    } else {
-      return (
-        <Box key={"aggrementPolicy"} className={classes.mountAnimation}>
-          {agreementPolicy}
-        </Box>
-      );
-    }
+    // if (componentRenderState === EComponentRenderState.RENDER_PERMISSIONS) {
+    //   return (
+    //     <Box display="flex" flexDirection="column">
+    //       {isPermissionsReady ? (
+    //         <Permissions
+    //           onAnswerRequestClick={(q) => {
+    //             setQuestionnaireToAnswer(q);
+    //           }}
+    //           unAnsweredQuestionnaires={
+    //             questionnaires!.unAnsweredQuestionnaires
+    //           }
+    //           answeredQuestionnaires={questionnaires!.answeredQuestionnaires}
+    //           dataTypes={consentDataTypes!}
+    //           onDataPermissionClick={onDataPermissionClick}
+    //           onQuestionnairePermissionClick={onQuestionnairePermissionClick}
+    //           dataTypePermissions={permissions!.dataTypes}
+    //           questionnairePermissions={permissions!.questionnaires}
+    //         />
+    //       ) : (
+    //         <Box marginX="auto" py={10}>
+    //           <CircularProgress />
+    //         </Box>
+    //       )}
+    //     </Box>
+    //   );
+    // } else {
+    return (
+      <Box key={"aggrementPolicy"} className={classes.mountAnimation}>
+        {agreementPolicy}
+      </Box>
+    );
+    // }
   };
 
   return (
@@ -468,7 +488,7 @@ export const ConsentModal = ({
         <DialogActions>{actions}</DialogActions>
       </Dialog>
 
-      {questionnaireToAnswer && (
+      {/* {questionnaireToAnswer && (
         <FillQuestionnaireModal
           open={!!questionnaireToAnswer}
           onClose={() => {
@@ -479,7 +499,7 @@ export const ConsentModal = ({
             onQuestionnarieSubmit(answers, questionnaireToAnswer.id);
           }}
         />
-      )}
+      )} */}
     </>
   );
 };

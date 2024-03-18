@@ -1,4 +1,4 @@
-import { Box, makeStyles } from "@material-ui/core";
+import { Box, darken, makeStyles } from "@material-ui/core";
 import { SDTypography } from "@shared-components/v2/components/Typograpy";
 import { colors } from "@shared-components/v2/theme";
 import clsx from "clsx";
@@ -16,7 +16,7 @@ interface CheckboxProps {
 
 interface StyleProps {
   size: number;
-  color: string;
+  color?: string;
   variant: "default" | "outlined";
 }
 
@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     cursor: "pointer",
     ...(props.variant === "outlined" && {
-      border: `1px solid ${colors.GREY300}`,
+      border: `1px solid ${theme.palette.borderColor}`,
       borderRadius: "4px",
       paddingLeft: theme.spacing(1),
       paddingRight: theme.spacing(1.5),
@@ -34,8 +34,10 @@ const useStyles = makeStyles((theme) => ({
     }),
   }),
   outlinedChecked: {
-    backgroundColor: (props: StyleProps) => props.color,
-    borderColor: (props: StyleProps) => `${props.color} !important`,
+    backgroundColor: (props: StyleProps) =>
+      props.color ?? theme.palette.primary.main,
+    borderColor: (props: StyleProps) =>
+      `${props.color ?? theme.palette.primary.main} !important`,
   },
   label: {
     webkitUserSelect: "none",
@@ -47,8 +49,8 @@ const useStyles = makeStyles((theme) => ({
     width: (props: StyleProps) => props.size,
     height: (props: StyleProps) => props.size,
     borderRadius: "4px",
-    backgroundColor: colors.GREY50,
-    border: `1px solid ${colors.GREY400}`,
+    backgroundColor: darken(theme.palette.cardBgColor, 0.0175),
+    border: `1px solid ${darken(theme.palette.borderColor, 0.155)}`,
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
@@ -65,16 +67,18 @@ const useStyles = makeStyles((theme) => ({
   },
   hoverIcon: {
     position: "absolute",
-    fill: (props: StyleProps) => props.color,
+    fill: (props: StyleProps) => props.color ?? theme.palette.primary.main,
     transition: "opacity 0.2s ease",
   },
   wrapperChecked: {
-    border: (props: StyleProps) => `1px solid ${props.color}`,
+    border: (props: StyleProps) =>
+      `1px solid ${props.color ?? theme.palette.primary.main}`,
   },
   checkedIcon: {
     width: "100%",
     height: "100%",
-    backgroundColor: (props: StyleProps) => props.color,
+    backgroundColor: (props: StyleProps) =>
+      props.color ?? theme.palette.primary.main,
     backgroundImage:
       "url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M20 6L9 17l-5-5%22/%3E%3C/svg%3E')",
     backgroundRepeat: "no-repeat",
@@ -98,7 +102,7 @@ export const SDCheckbox: React.FC<CheckboxProps> = memo(
     labelPosition = "right",
     align = "center",
     size = 20,
-    color = colors.MAINPURPLE500,
+    color,
     variant = "default",
   }) => {
     const classes = useStyles({ size, color, variant });

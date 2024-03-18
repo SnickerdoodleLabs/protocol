@@ -1,5 +1,4 @@
-import { Theme, makeStyles } from "@material-ui/core/styles";
-import { colors } from "@shared-components/v2/theme";
+import { Theme, makeStyles, darken } from "@material-ui/core/styles";
 
 interface DialogStylesProps {
   maxWidth?: number;
@@ -9,6 +8,7 @@ export const useDialogStyles = makeStyles((theme: Theme) => ({
   dialog: {
     "& .MuiDialogTitle-root": {
       padding: theme.spacing(3),
+      backgroundColor: theme.palette.cardBgColor,
       paddingBottom: theme.spacing(4),
       [theme.breakpoints.down("xs")]: {
         padding: theme.spacing(1.5),
@@ -16,15 +16,16 @@ export const useDialogStyles = makeStyles((theme: Theme) => ({
       },
     },
     "& .MuiDialogContent-root": {
-      backgroundColor: colors.GREY50,
-      borderTop: `1px solid ${colors.GREY400}`,
-      borderBottom: `1px solid ${colors.GREY400}`,
+      backgroundColor: darken(theme.palette.cardBgColor, 0.0175),
+      borderTop: `1px solid ${darken(theme.palette.borderColor, 0.15)}`,
+      borderBottom: `1px solid ${darken(theme.palette.borderColor, 0.15)}`,
       padding: theme.spacing(4),
       [theme.breakpoints.down("xs")]: {
         padding: theme.spacing(2),
       },
     },
     "& .MuiDialogActions-root": {
+      backgroundColor: theme.palette.cardBgColor,
       padding: theme.spacing(3),
       paddingTop: theme.spacing(1.5),
       paddingBottom: theme.spacing(1.5),
