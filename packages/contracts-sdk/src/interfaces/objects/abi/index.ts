@@ -18,7 +18,6 @@ export const ContractsAbis = {
   SiftAbi: SiftAbi,
   ERC721Reward: ERC721RewardAbi,
   ERC7529Abi: ERC7529Abi,
-  ERC20: ERC20Abi,
   ZkSyncERC721RewardAbi: ZkSyncERC721RewardAbi,
   ERC20Reward: ERC20RewardAbi,
   ERC1155Reward: ERC1155RewardAbi,
