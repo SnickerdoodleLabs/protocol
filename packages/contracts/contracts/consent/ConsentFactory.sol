@@ -9,7 +9,6 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {BeaconProxy} from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 import {UpgradeableBeacon} from "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
 contract ConsentFactory is 
@@ -17,13 +16,9 @@ contract ConsentFactory is
     Initializable,
     ContentFactoryUpgradeable,
     ERC7529Upgradeable,
-    AccessControlUpgradeable,
-    PausableUpgradeable
+    AccessControlUpgradeable
 {
     /* Storage Variables */
-
-    /// @dev The PAUSE_ROLE can pause all activity in the factory contract
-    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     /// @dev Address of the upgradeable beacon
     address public beaconAddress; 
@@ -38,12 +33,10 @@ contract ConsentFactory is
     /// @param _consentImpAddress Address of implementation contract for the Consent Contract
     /// @param _governanceToken Address of the ERC20-compatible protocol token
     function initialize(address _consentImpAddress, address _governanceToken) initializer public {
-        __Pausable_init();
         __AccessControl_init();
         __ContentFactory_init(_governanceToken, 2 weeks, 20);
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(PAUSER_ROLE, msg.sender);
 
         // deploy the UpgradeableBeacon, transfer its ownership to the user and store its address
         UpgradeableBeacon _upgradeableBeacon = new UpgradeableBeacon(_consentImpAddress, msg.sender);
@@ -86,7 +79,34 @@ contract ConsentFactory is
     /// @notice Adds a new staking token to the registered staking token set
     /// @param stakingToken Address of the new token to register for recommender system staking
     function registerStakingToken(address stakingToken) external {
+        /// TODO: this should cost governance token somehow, either a vote or a fee
         _registerStakingToken(stakingToken);
+    }
+
+    /// @notice Associates an admin account with a staking token which can curate listins in that namespace
+    /// @dev token admin role is calculated as keccak256(abi.encodePacked(stakingToken))
+    /// @param tag Human readable string denoting the target tag
+    /// @param stakingToken Address of the staking token whose admin account will be set
+    /// @param removedSlots Address which will have curation rights for the specified staking token
+    function adminRemoveListings(string memory tag, address stakingToken, uint256[] memory removedSlots) external {
+        require(hasRole(keccak256(abi.encodePacked(stakingToken)), msg.sender), "Content Factory: Caller not a token admin");
+        _adminRemoveListings(tag, stakingToken, removedSlots);
+    }
+
+    /// @notice Allows a namespace admin account to block a content object from its listings
+    /// @param stakingToken the address of the staking token associated with the namespace
+    /// @param contentAddress the address of the content object to block
+    function blockContentObject(address stakingToken, address contentAddress) external {
+        require(hasRole(keccak256(abi.encodePacked(stakingToken)), msg.sender), "Content Factory: Caller not a token admin");
+        _blockContentObject(stakingToken, contentAddress);
+    }
+
+    /// @notice Allows a namespace admin account to unblock a content object from its listings
+    /// @param stakingToken the address of the staking token associated with the namespace
+    /// @param contentAddress the address of the content object to block
+    function unblockContentObject(address stakingToken, address contentAddress) external {
+        require(hasRole(keccak256(abi.encodePacked(stakingToken)), msg.sender), "Content Factory: Caller not a token admin");
+        _unblockContentObject(stakingToken, contentAddress);
     }
 
     /// @notice Gets the array of questionnaires

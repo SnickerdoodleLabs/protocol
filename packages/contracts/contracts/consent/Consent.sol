@@ -191,6 +191,8 @@ contract Consent is
 
         // save the index of the commitment, indexing must start at 1
         commitments[commitment] = commitmentArray.length;
+
+        emit Commitment(commitmentArray.length, commitment);
     }
 
     /// @notice Allows multiple identity commitments to be written at once
@@ -208,6 +210,8 @@ contract Consent is
             commitmentArray.push(commitment);
             // save the index of the commitment, indexing must start at 1
             commitments[commitment] = commitmentArray.length;
+
+            emit Commitment(commitmentArray.length, commitment);
         }
     }
 
@@ -243,6 +247,8 @@ contract Consent is
 
         // set tokenId so that it cannot be used again
         nonces[nonce] = true;
+
+        emit Commitment(commitmentArray.length, commitment);
     }
 
     /// @notice Facilitates entity's request for data

@@ -36,7 +36,7 @@
     "copy-files": "copyfiles -u 1 src/**/*.d.ts dist/",
     "prepare": "yarn build",
     "prepublish": "yarn build",
-    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --maxWorkers=50% --coverage --passWithNoTests"
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand --coverage --passWithNoTests"
   },
   "type": "module",
   "types": "dist/index.d.ts",
@@ -47,7 +47,7 @@
     "inversify": "^6.0.2",
     "neverthrow": "^5.1.0",
     "neverthrow-result-utils": "^2.0.2",
-    "o1js": "^0.16.2",
+    "o1js": "^0.17.0",
     "uuid": "^8.3.0"
   }
 }

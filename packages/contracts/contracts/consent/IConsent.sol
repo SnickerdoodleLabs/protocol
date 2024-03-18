@@ -18,6 +18,14 @@ interface IConsent is IContentObject, IERC7529 {
         string ipfsCID
     );
 
+    /// @notice Emitted when an identity commitment is created via optIn or restrictedOptIn
+    /// @param index The index of the idenity commitment in the set
+    /// @param commitment The Posiedon hash of the idenity commitment 
+    event Commitment(
+        uint indexed index,
+        bytes32 indexed commitment
+    );
+
     /* External Functions */
 
     function baseURI() external view returns (string memory);

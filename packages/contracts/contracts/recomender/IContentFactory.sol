@@ -65,5 +65,7 @@ interface IContentFactory {
 
     function replaceExpiredListing(string calldata tag, address stakingToken, uint256 _slot) external;
 
+    function removeExpiredListings(string calldata tag, address stakingToken, uint256[] calldata _slots) external;
+
     function removeListing(string calldata tag, address stakingToken, uint256 _removedSlot) external;
 }
