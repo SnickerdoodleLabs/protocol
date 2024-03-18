@@ -337,7 +337,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
                 rejectInvitation(true);
               }}
               displayRejectButtons={
-                currentInvitation.type !== EInvitationSourceType.USER_REQUEST
+                currentInvitation.type === EInvitationSourceType.DOMAIN
               }
               setConsentPermissions={(
                 consentContractAddress: EVMContractAddress,

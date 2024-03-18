@@ -476,7 +476,7 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
               rejectInvitation(true);
             }}
             displayRejectButtons={
-              currentInvitation.type !== EInvitationSourceType.USER_REQUEST
+              currentInvitation.type === EInvitationSourceType.DOMAIN
             }
             getVirtualQuestionnaires={(
               consentContractAddress: EVMContractAddress,
