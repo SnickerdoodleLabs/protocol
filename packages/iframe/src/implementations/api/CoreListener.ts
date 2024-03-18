@@ -43,6 +43,7 @@ import {
   LinkedAccount,
   JSONString,
   NewQuestionnaireAnswer,
+  Permission,
 } from "@snickerdoodlelabs/objects";
 import {
   IIFrameCallData,
@@ -467,16 +468,23 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       updateAgreementPermissions: (
         data: IIFrameCallData<{
           consentContractAddress: EVMContractAddress;
-          dataTypes: EWalletDataType[];
+          dataTypes: Permission[];
         }>,
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.invitation.updateDataPermissions(
-              data.data.consentContractAddress,
-              DataPermissions.createWithPermissions(data.data.dataTypes),
-              this.sourceDomain,
-            );
+            return core.permission
+              .setContentContractPermissions(
+                data.data.consentContractAddress,
+                data.data.dataTypes,
+              )
+              .andThen((permission) => {
+                return core.invitation.updateDataPermissions(
+                  data.data.consentContractAddress,
+                  permission,
+                  this.sourceDomain,
+                );
+              });
           });
         }, data.callId);
       },

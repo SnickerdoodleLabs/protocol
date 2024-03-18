@@ -73,6 +73,8 @@ import {
   IConsentContractRepositoryType,
   ILinkedAccountRepository,
   ILinkedAccountRepositoryType,
+  IPermissionRepository,
+  IPermissionRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data/index.js";
@@ -97,6 +99,8 @@ export class QueryService implements IQueryService {
     protected sdqlQueryRepo: ISDQLQueryRepository,
     @inject(IInsightPlatformRepositoryType)
     protected insightPlatformRepo: IInsightPlatformRepository,
+    @inject(IPermissionRepositoryType)
+    protected permisionRepo: IPermissionRepository,
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
     @inject(IContextProviderType)
@@ -458,29 +462,32 @@ export class QueryService implements IQueryService {
                   );
 
                   // Need to determine the start and size of the anonymity set.
-
-                  return ResultUtils.combine([
-                    this.queryParsingEngine
-                      .handleQuery(
-                        query,
-                        DataPermissions.createWithAllPermissions(), // We're enabling all permissions for now instead of using consentToken!.dataPermissions till the permissions are properly refactored.
-                      )
-                      .map((insights) => {
-                        this.logUtils.debug(
-                          `Query ${query.cid} processed into insights`,
-                        );
-                        return insights;
-                      }),
-                    this.dataWalletUtils.deriveOptInInfo(
+                  return this.permisionRepo
+                    .getContentContractPermissions(
                       queryStatus.consentContractAddress,
-                      context.dataWalletKey!,
-                    ),
-                    this.getAnonymitySet(
-                      queryStatus.consentContractAddress,
-                      commitmentIndex,
-                    ),
-                  ]);
+                    )
+                    .andThen((permissions) => {
+                      return ResultUtils.combine([
+                        this.queryParsingEngine
+                          .handleQuery(query, permissions)
+                          .map((insights) => {
+                            this.logUtils.debug(
+                              `Query ${query.cid} processed into insights`,
+                            );
+                            return insights;
+                          }),
+                        this.dataWalletUtils.deriveOptInInfo(
+                          queryStatus.consentContractAddress,
+                          context.dataWalletKey!,
+                        ),
+                        this.getAnonymitySet(
+                          queryStatus.consentContractAddress,
+                          commitmentIndex,
+                        ),
+                      ]);
+                    });
                 })
+
                 .mapErr((err) => {
                   context.publicEvents.queryPerformance.next(
                     new QueryPerformanceEvent(

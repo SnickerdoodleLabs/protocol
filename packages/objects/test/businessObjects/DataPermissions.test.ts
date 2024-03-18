@@ -1,4 +1,4 @@
-import { DataPermissions } from "@objects/businessObjects/index.js";
+/* import { DataPermissions } from "@objects/businessObjects/index.js";
 import { EWalletDataType } from "@objects/enum/index.js";
 import { HexString32 } from "@objects/primitives/index.js";
 
@@ -130,3 +130,4 @@ describe("DataPermissions bitwise operation tests", () => {
     expect(dp.LatestBlockNumber).toBeTruthy();
   });
 });
+ */

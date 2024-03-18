@@ -53,6 +53,8 @@ import {
   IInvitationRepositoryType,
   ILinkedAccountRepository,
   ILinkedAccountRepositoryType,
+  IPermissionRepository,
+  IPermissionRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IConfigProvider,
@@ -70,6 +72,8 @@ export class InvitationService implements IInvitationService {
     protected consentRepo: IConsentContractRepository,
     @inject(IInsightPlatformRepositoryType)
     protected insightPlatformRepo: IInsightPlatformRepository,
+    @inject(IPermissionRepositoryType)
+    protected permissionRepo: IPermissionRepository,
     @inject(IDNSRepositoryType) protected dnsRepository: IDNSRepository,
     @inject(IInvitationRepositoryType)
     protected invitationRepo: IInvitationRepository,
@@ -632,7 +636,10 @@ export class InvitationService implements IInvitationService {
     UninitializedError | ConsentError | PersistenceError
   > {
     // TODO: This method is not implemented yet. It will return all permissions for now. Needs Enes work and PermissionRepository
-    return okAsync(DataPermissions.createWithAllPermissions());
+
+    return this.permissionRepo.getContentContractPermissions(
+      consentContractAddress,
+    );
   }
 
   public getAvailableInvitationsCID(): ResultAsync<

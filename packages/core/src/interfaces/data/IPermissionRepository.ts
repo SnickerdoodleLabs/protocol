@@ -1,17 +1,29 @@
+import { ResultAsync } from "neverthrow";
 import {
-  DomainCredential,
+  EVMContractAddress,
+  DataPermissions,
+  PersistenceError,
+  PermissionForStorage,
   DomainName,
   EDataWalletPermission,
-  PersistenceError,
+  Permission,
 } from "@snickerdoodlelabs/objects";
-import { ResultAsync } from "neverthrow";
 
 export interface IPermissionRepository {
-  getPermissions(
+  getContentContractPermissions(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<DataPermissions, PersistenceError>;
+
+  setContentContractPermissions(
+    consentContractAddress: EVMContractAddress,
+    permissions: Permission[],
+  ): ResultAsync<DataPermissions, PersistenceError>;
+
+  getDomainPermissions(
     domain: DomainName,
   ): ResultAsync<EDataWalletPermission[], PersistenceError>;
 
-  setPermissions(
+  setDomainPermissions(
     domain: DomainName,
     permissions: EDataWalletPermission[],
   ): ResultAsync<void, PersistenceError>;

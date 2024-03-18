@@ -1,8 +1,16 @@
 import {
+  DataPermissions,
   DomainName,
   EBackupPriority,
   EDataWalletPermission,
   EFieldKey,
+  EPermissionType,
+  ERecordKey,
+  EVMContractAddress,
+  EWalletDataType,
+  IpfsCID,
+  Permission,
+  PermissionForStorage,
   PersistenceError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -21,7 +29,59 @@ export class PermissionRepository implements IPermissionRepository {
     protected persistence: IDataWalletPersistence,
   ) {}
 
-  public getPermissions(
+  public getContentContractPermissions(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<DataPermissions, PersistenceError> {
+    return this.persistence
+      .getObject<PermissionForStorage>(
+        ERecordKey.PERMISSIONS,
+        consentContractAddress,
+      )
+      .map((permissionStorage) => {
+        if (permissionStorage == null) {
+          return new DataPermissions(consentContractAddress, [], []);
+        }
+        const virtual: EWalletDataType[] = [];
+        const questionnaires: IpfsCID[] = [];
+
+        permissionStorage.permissions.forEach((permission) => {
+          if (permission.allowed) {
+            switch (permission.type) {
+              case EPermissionType.Virtual:
+                if (permission.virtual !== null) {
+                  virtual.push(permission.virtual as EWalletDataType);
+                }
+                break;
+              case EPermissionType.Questionnaires:
+                if (permission.questionnaires !== null) {
+                  questionnaires.push(permission.questionnaires as IpfsCID);
+                }
+                break;
+            }
+          }
+        });
+
+        return new DataPermissions(
+          consentContractAddress,
+          virtual,
+          questionnaires,
+        );
+      });
+  }
+
+  public setContentContractPermissions(
+    consentAddress: EVMContractAddress,
+    permissions: Permission[],
+  ): ResultAsync<DataPermissions, PersistenceError> {
+    const permission = new PermissionForStorage(consentAddress, permissions);
+    return this.persistence
+      .updateRecord<PermissionForStorage>(ERecordKey.PERMISSIONS, permission)
+      .map(() => {
+        return this.getDataPermissionsByPermission(consentAddress, permissions);
+      });
+  }
+
+  public getDomainPermissions(
     domain: DomainName,
   ): ResultAsync<EDataWalletPermission[], PersistenceError> {
     return this.persistence
@@ -41,7 +101,7 @@ export class PermissionRepository implements IPermissionRepository {
       });
   }
 
-  public setPermissions(
+  public setDomainPermissions(
     domain: DomainName,
     permissions: EDataWalletPermission[],
   ): ResultAsync<void, PersistenceError> {
@@ -59,6 +119,32 @@ export class PermissionRepository implements IPermissionRepository {
           domainPermissions,
         );
       });
+  }
+
+  public getDataPermissionsByPermission(
+    consentContractAddress: EVMContractAddress,
+    permission: Permission[],
+  ) {
+    const virtual: EWalletDataType[] = [];
+    const questionnaires: IpfsCID[] = [];
+
+    permission.forEach((permission) => {
+      if (permission.allowed) {
+        switch (permission.type) {
+          case EPermissionType.Virtual:
+            if (permission.virtual !== null) {
+              virtual.push(permission.virtual as EWalletDataType);
+            }
+            break;
+          case EPermissionType.Questionnaires:
+            if (permission.questionnaires !== null) {
+              questionnaires.push(permission.questionnaires as IpfsCID);
+            }
+            break;
+        }
+      }
+    });
+    return new DataPermissions(consentContractAddress, virtual, questionnaires);
   }
 }
 
