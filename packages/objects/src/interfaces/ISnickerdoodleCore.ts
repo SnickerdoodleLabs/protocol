@@ -836,10 +836,8 @@ export interface IPermissionMethods {
   ): ResultAsync<DataPermissions, PersistenceError>;
 
   setContentContractPermissions(
-    consentContractAddress: EVMContractAddress,
-    virtual: EWalletDataType[],
-    questionnaires: IpfsCID[],
-    ): ResultAsync<void, PersistenceError>;
+    dataPermissions: DataPermissions,
+  ): ResultAsync<DataPermissions, PersistenceError>;
 
   getDomainPermissions(
     domain: DomainName,

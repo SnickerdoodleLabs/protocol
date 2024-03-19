@@ -635,7 +635,6 @@ export class InvitationService implements IInvitationService {
     DataPermissions,
     UninitializedError | ConsentError | PersistenceError
   > {
-    // TODO: This method is not implemented yet. It will return all permissions for now. Needs Enes work and PermissionRepository
 
     return this.permissionRepo.getContentContractPermissions(
       consentContractAddress,

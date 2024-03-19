@@ -17,10 +17,8 @@ export interface IPermissionRepository {
   ): ResultAsync<DataPermissions, PersistenceError>;
 
   setContentContractPermissions(
-    consentContractAddress: EVMContractAddress,
-    virtual: EWalletDataType[],
-    questionnaires: IpfsCID[],
-  ): ResultAsync<DataPermissions, PersistenceError>;
+    dataPermissions: DataPermissions,
+  ): ResultAsync<void, PersistenceError>;
 
   getDomainPermissions(
     domain: DomainName,

@@ -46,20 +46,17 @@ export class PermissionRepository implements IPermissionRepository {
   }
 
   public setContentContractPermissions(
-    consentAddress: EVMContractAddress,
-    virtual: EWalletDataType[],
-    questionnaires: IpfsCID[],
-  ): ResultAsync<DataPermissions, PersistenceError> {
+    dataPermissions: DataPermissions,
+  ): ResultAsync<void, PersistenceError> {
     const permission = new PermissionForStorage(
-      consentAddress,
-      virtual,
-      questionnaires,
+      dataPermissions.consentContractAddress,
+      dataPermissions.virtual,
+      dataPermissions.questionnaires,
     );
-    return this.persistence
-      .updateRecord<PermissionForStorage>(ERecordKey.PERMISSIONS, permission)
-      .map(() => {
-        return new DataPermissions(consentAddress, virtual, questionnaires);
-      });
+    return this.persistence.updateRecord<PermissionForStorage>(
+      ERecordKey.PERMISSIONS,
+      permission,
+    );
   }
 
   public getDomainPermissions(
