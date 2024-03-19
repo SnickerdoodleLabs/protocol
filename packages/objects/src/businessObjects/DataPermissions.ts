@@ -9,20 +9,16 @@ export class DataPermissions {
     protected readonly questionnaires: IpfsCID[],
   ) {}
 
-  public checkHasVirtualPermission(EWalletDataType): boolean {
-    return this.virtual.includes(EWalletDataType) ?? false;
+  public checkHasVirtualPermission(dataType: EWalletDataType): boolean {
+    return this.virtual.includes(dataType);
   }
-  public checkHasQuestionnairePermission(IpfsCID): boolean {
-    return this.questionnaires.includes(IpfsCID) ?? false;
+  public checkHasQuestionnairePermission(cid: IpfsCID): boolean {
+    return this.questionnaires.includes(cid);
   }
-  public checkPermission(permission: Permission): boolean {
-    switch (permission.type) {
-      case EPermissionType.Virtual:
-        return this.checkHasVirtualPermission(permission.virtual);
-      case EPermissionType.Questionnaires:
-        return this.checkHasQuestionnairePermission(permission.questionnaires);
-      default:
-        return false;
-    }
+  public checkPermission(permission: IpfsCID | EWalletDataType): boolean {
+    return (
+      this.checkHasQuestionnairePermission(permission as IpfsCID) ||
+      this.checkHasVirtualPermission(permission as EWalletDataType)
+    );
   }
 }

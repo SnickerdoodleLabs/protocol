@@ -41,7 +41,7 @@ export class QueryRepository implements IQueryRepository {
     | MethodSupportError
     | InvalidParametersError
   > {
-    return this.isSubQueryPermitted(q, dataPermissions)
+    return this.isSubQueryPermitted(q, dataPermissions, cid)
       ? this.queryValuator.eval(q, cid, queryTimestamp)
       : okAsync(SDQL_Return(null));
   }
@@ -49,8 +49,8 @@ export class QueryRepository implements IQueryRepository {
   private isSubQueryPermitted(
     q: AST_SubQuery,
     dataPermissions: DataPermissions,
+    dataType: IpfsCID,
   ): boolean {
-    const flag = q.getPermission();
-    return flag.isOk() && dataPermissions.checkPermission(flag.value);
+    return q.getPermission(dataPermissions, dataType);
   }
 }

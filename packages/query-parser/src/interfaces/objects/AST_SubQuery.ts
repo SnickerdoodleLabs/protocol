@@ -1,6 +1,8 @@
 import {
+  DataPermissions,
   ESDQLQueryReturn,
   EWalletDataType,
+  IpfsCID,
   MissingWalletDataTypeError,
   Permission,
   SDQL_Name,
@@ -12,5 +14,8 @@ export abstract class AST_SubQuery {
     readonly name: SDQL_Name,
     readonly returnType: ESDQLQueryReturn,
   ) {}
-  abstract getPermission(): Result<Permission, MissingWalletDataTypeError>;
+  abstract getPermission(
+    dataPermissions: DataPermissions,
+    dataType: EWalletDataType|  IpfsCID,
+  ): boolean;
 }
