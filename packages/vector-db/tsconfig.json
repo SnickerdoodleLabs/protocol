@@ -1,0 +1,38 @@
+{
+	"extends": "../../tsconfig.build.json",
+	"compilerOptions": {
+		"outDir": "./dist",
+		"rootDir": "./src",
+		"module": "ES2022",
+		"paths": {
+			"@vector-db/*": [
+			  "./packages/vector-db/src/*"
+			],
+			"@vector-db-test/*": [
+			  "./packages/vector-db/test/*"
+			],
+		  },
+	},
+	"references": [
+		{
+			"path": "../common-utils"
+		},
+		{
+			"path": "../node-utils"
+		},
+		{
+			"path": "../objects"
+		},
+		{
+			"path": "../utils"
+		},
+		{
+			"path": "../insight-platform-api"
+		},
+		{
+			"path": "../persistence"
+		}
+	],
+	"include": ["./src/**/*.ts"],
+	"exclude": ["node_modules"]
+}

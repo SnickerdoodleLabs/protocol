@@ -5,8 +5,7 @@ import {
   EQuestionnaireQuestionType,
   EQuestionnaireStatus,
 } from "@snickerdoodlelabs/objects";
-
-import { VolatileTableIndex } from "@persistence/volatile";
+import { VolatileTableIndex } from "@snickerdoodlelabs/persistence";
 
 export const dummyContractData = [
   {

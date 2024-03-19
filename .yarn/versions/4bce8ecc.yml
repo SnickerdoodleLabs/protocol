@@ -20,5 +20,6 @@ undecided:
   - "@snickerdoodlelabs/synamint-extension-sdk"
   - "@snickerdoodlelabs/core-test-harness"
   - "@snickerdoodlelabs/utils"
+  - "@snickerdoodlelabs/vector-db"
   - "@snickerdoodlelabs/web-integration"
   - "@snickerdoodlelabs/web-integration-test"

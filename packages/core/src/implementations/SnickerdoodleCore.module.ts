@@ -325,8 +325,8 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(MonitoringService)
       .inSingletonScope();
     bind<IQuestionnaireService>(IQuestionnaireServiceType)
-    .to(QuestionnaireService)
-    .inSingletonScope();
+      .to(QuestionnaireService)
+      .inSingletonScope();
     bind<IDiscordService>(IDiscordServiceType)
       .to(DiscordService)
       .inSingletonScope();
@@ -462,6 +462,16 @@ export const snickerdoodleCoreModule = new ContainerModule(
       IPersistenceContextProviderType,
     ).toConstantValue(contextProvider);
 
+    // const dbContextProvider = new DBContextProvider(
+    //   new LogUtils(),
+    //   new TimeUtils(),
+    //   new VolatileStorageSchemaProvider(configProvider),
+    // );
+
+    // bind<IIndexedDBContextProvider>(
+    //   IIndexedDBContextProviderType,
+    // ).toConstantValue(dbContextProvider);
+
     bind<IBlockchainProvider>(IBlockchainProviderType)
       .to(BlockchainProvider)
       .inSingletonScope();
@@ -542,6 +552,11 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<ICloudStorage>(IDropboxCloudStorageType)
       .to(DropboxCloudStorage)
       .inSingletonScope();
+
+    // bind<IIndexedDB>(IIndexedDBType).to(IndexedDB).inSingletonScope();
+    // bind<IIndexedDBConte>(
+    //   IIndexedDBConfigProviderType,
+    // ).to(IIndexed).inSingletonScope();
 
     /**
      * Binding of Modules With Extra Capabilities.

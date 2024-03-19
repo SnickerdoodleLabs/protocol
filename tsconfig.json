@@ -108,6 +108,12 @@
       "path": "packages/utils/test"
     },
     {
+      "path": "packages/vector-db"
+    },
+    {
+      "path": "packages/vector-db/test"
+    },
+    {
       "path": "packages/web-integration"
     },
     {

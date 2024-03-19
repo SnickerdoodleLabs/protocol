@@ -42,6 +42,7 @@ import {
   QuestionnaireWithAnswers,
   QuestionnaireAnswer,
   NewQuestionnaireAnswer,
+  KMeansResult,
   // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
@@ -49,6 +50,7 @@ import {
   ECloudStorageType,
   EDataWalletPermission,
   EInvitationStatus,
+  ERecordKey,
 } from "@objects/enum/index.js";
 import {
   AccountIndexingError,
@@ -83,6 +85,7 @@ import {
   MethodSupportError,
 } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
+import { IIndexedDB } from "@objects/interfaces/IIndexedDB.js";
 import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
@@ -714,6 +717,22 @@ export interface IStorageMethods {
   getDropboxAuth(
     sourceDomain: DomainName | undefined,
   ): ResultAsync<URLString, never>;
+}
+
+export interface IVectorQuantizationMethods {
+  initialize(template?: IIndexedDB): ResultAsync<IIndexedDB, PersistenceError>;
+  quantizeTable(
+    tableName: ERecordKey,
+    callback: (n: any) => any,
+  ): ResultAsync<number[][], PersistenceError>;
+  kmeans(
+    quantizedTable: number[][],
+    k: number,
+  ): ResultAsync<KMeansResult, PersistenceError>;
+  infer(
+    model: KMeansResult,
+    userState: number[][],
+  ): ResultAsync<number[][], PersistenceError>;
 }
 
 export interface IQuestionnaireMethods {

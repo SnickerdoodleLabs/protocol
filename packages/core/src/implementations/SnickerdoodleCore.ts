@@ -92,9 +92,13 @@ import {
   URLString,
   INftMethods,
   IQuestionnaireMethods,
+  IVectorQuantizationMethods,
   NewQuestionnaireAnswer,
   JSONString,
   EExternalFieldKey,
+  ERecordKey,
+  IIndexedDB,
+  IIndexedDBType,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -108,6 +112,11 @@ import {
   IStorageUtilsType,
   LocalStorageUtils,
 } from "@snickerdoodlelabs/utils";
+// import {
+//   IQuantizationService,
+//   IQuantizationServiceType,
+//   VectorDB,
+// } from "@snickerdoodlelabs/vector-db";
 import { ethers } from "ethers";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -186,6 +195,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public storage: IStorageMethods;
   public nft: INftMethods;
   public questionnaire: IQuestionnaireMethods;
+  // public quantization: IVectorQuantizationMethods;
 
   public constructor(
     configOverrides?: IConfigOverrides,
@@ -219,6 +229,11 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .to(IndexedDBVolatileStorage)
         .inSingletonScope();
     }
+
+    // this.iocContainer
+    //   .bind(IQuantizationServiceType)
+    //   .to(VectorDB)
+    //   .inSingletonScope();
 
     // Setup the config
     if (configOverrides != null) {
@@ -717,6 +732,48 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return accountService.getNfts(benchmark, chains, accounts);
       },
     };
+
+    // Vector DB Methods --------------------------------------------------------------------
+    // this.quantization = {
+    //   // discovers data in db
+    //   // way simpler, inject dependencies, iterate local db
+    //   initialize: (template?: IIndexedDB) => {
+    //     const quantizationService = this.iocContainer.get<IQuantizationService>(
+    //       IQuantizationServiceType,
+    //     );
+
+    //     return quantizationService.initialize(template);
+    //   },
+    //   // quantization on a specific table
+    //   quantizeTable: (tableName: ERecordKey, callback: (n: any) => any) => {
+    //     const quantizationService = this.iocContainer.get<IQuantizationService>(
+    //       IQuantizationServiceType,
+    //     );
+
+    //     return quantizationService.quantizeTable(tableName, callback);
+    //   },
+
+    //   // keep using temp tables/data to save space
+
+    //   // another function here -> mapping raw to vectorized data
+
+    //   // can only be run AFTER a table is quantized, throw error
+    //   kmeans: (quantizedTable: number[][], k: number) => {
+    //     const quantizationService = this.iocContainer.get<IQuantizationService>(
+    //       IQuantizationServiceType,
+    //     );
+
+    //     return quantizationService.kmeans(quantizedTable, k);
+    //   },
+
+    //   infer: (modelID: string, userState: string) => {
+    //     const quantizationService = this.iocContainer.get<IQuantizationService>(
+    //       IQuantizationServiceType,
+    //     );
+
+    //     return quantizationService.infer(modelID, userState);
+    //   },
+    // };
 
     // Questionnaire Methods --------------------------------------------------------------------
     this.questionnaire = {
