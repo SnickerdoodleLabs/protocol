@@ -391,7 +391,6 @@ export class QueryService implements IQueryService {
     this.logUtils.log(
       `QueryService.approveQuery: Approving processing query with CID ${queryCID}`,
     );
-
     if (
       !rewardParameters.every(({ recipientAddress }) =>
         ValidationUtils.isValidEthereumAddress(recipientAddress.value),
