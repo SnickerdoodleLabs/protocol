@@ -336,9 +336,10 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
               onRejectWithTimestampClick={() => {
                 rejectInvitation(true);
               }}
-              displayRejectButtons={
-                currentInvitation.type === EInvitationSourceType.DOMAIN
-              }
+              displayRejectButtons={[
+                EInvitationSourceType.CONSENT_ADDRESS,
+                EInvitationSourceType.DOMAIN,
+              ].includes(currentInvitation.type)}
               setConsentPermissions={(
                 consentContractAddress: EVMContractAddress,
                 dataTypes: EWalletDataType[],

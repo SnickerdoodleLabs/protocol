@@ -42,7 +42,7 @@ const OfferItem: React.FC<IOfferItemProps> = ({
       onPrimaryButtonClick: reCalculateOffers,
       customProps: { offer, brandImage },
     });
-  }, [linkedAccounts]);
+  }, [linkedAccounts, brandImage]);
 
   return (
     <Box
