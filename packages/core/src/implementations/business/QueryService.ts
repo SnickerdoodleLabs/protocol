@@ -59,6 +59,8 @@ import {
   ESolidityAbiParameterType,
   QueryMetadata,
   AccountAddress,
+  ConsentFactoryContractError,
+  MissingWalletDataTypeError,
 } from "@snickerdoodlelabs/objects";
 import {
   SDQLQueryWrapper,
@@ -83,6 +85,8 @@ import {
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
+  IInvitationRepository,
+  IInvitationRepositoryType,
   ILinkedAccountRepository,
   ILinkedAccountRepositoryType,
   ISDQLQueryRepository,
@@ -125,7 +129,14 @@ export class QueryService implements IQueryService {
     protected sdqlQueryWrapperFactory: ISDQLQueryWrapperFactory,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
+    @inject(IInvitationRepositoryType)
+    protected invitationRepo: IInvitationRepository,
   ) {}
+
+  protected preProcessCache: Map<
+    EVMContractAddress,
+    Map<IpfsCID, QueryStatus>
+  > = new Map();
 
   public initialize(): ResultAsync<void, never> {
     return this.contextProvider.getContext().map((context) => {
@@ -191,7 +202,13 @@ export class QueryService implements IQueryService {
      * 3. Via a timer, which will watch for SDQLQueries that are about to expire. Expiring queries
      * should be processed and returned as is, as long as at least a single reward is eligible.
      */
-    // Create a new QueryStatus for tracking the query.
+    const preProcessQuery = this.preProcessCache
+      .get(requestForData.consentContractAddress)
+      ?.get(requestForData.requestedCID);
+
+    if (preProcessQuery != null) {
+      return this.processPreApprovedQuery(preProcessQuery, requestForData);
+    }
     return ResultUtils.combine([
       this.getQueryByCID(requestForData.requestedCID),
       this.contextProvider.getContext(),
@@ -263,6 +280,64 @@ export class QueryService implements IQueryService {
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, PersistenceError> {
     return this.sdqlQueryRepo.getQueryStatusByQueryCID(queryCID);
+  }
+
+  public getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<
+    QueryStatus[],
+    | BlockchainProviderError
+    | PersistenceError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | IPFSError
+    | AjaxError
+    | ConsentContractError
+    | ConsentError
+    | QueryFormatError
+    | EvaluationError
+    | QueryExpiredError
+    | BlockchainCommonErrors
+    | ParserError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
+    | EvalNotImplementedError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
+    | InvalidStatusError
+  > {
+    return this.isContractOptedIn(contractAddress).andThen((optedIn) => {
+      if (optedIn) {
+        return this.getQueryStatuses(contractAddress);
+      }
+
+      return this.getNonOptedQueryStatuses(contractAddress);
+    });
+  }
+
+  // this function should be called before opt-in
+  public batchApprovePreProcessQueries(
+    contractAddress: EVMContractAddress,
+    queries: Map<IpfsCID, IDynamicRewardParameter>,
+  ): ResultAsync<void, never> {
+    const cache = this.preProcessCache.get(contractAddress);
+    if (cache == null) {
+      return okAsync(undefined);
+    }
+    const traverseMap = new Map([...cache]);
+    traverseMap.forEach((queryStatus, queryCID) => {
+      const param = queries.get(queryCID);
+      if (param == null) {
+        cache.delete(queryCID);
+        return;
+      }
+      queryStatus.rewardsParameters = ObjectUtils.serialize(param);
+      cache.set(queryCID, queryStatus);
+    });
+    return okAsync(undefined);
   }
 
   public getQueryStatuses(
@@ -887,5 +962,149 @@ export class QueryService implements IQueryService {
       virtualQuestionnairesSet,
     );
     return [questionnaireIds, virtualQuestionnaires];
+  }
+
+  protected processPreApprovedQuery(
+    preProcessQuery: QueryStatus,
+    requestForData: RequestForData,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | ConsentContractError
+    | UninitializedError
+    | ConsentError
+    | BlockchainCommonErrors
+  > {
+    return this.consentTokenUtils
+      .getCurrentConsentToken(requestForData.consentContractAddress)
+      .andThen((consentToken) => {
+        if (consentToken != null) {
+          preProcessQuery.status = EQueryProcessingStatus.Received;
+          return this.sdqlQueryRepo
+            .upsertQueryStatus([preProcessQuery])
+            .map(() => {
+              this.approveQuery(
+                preProcessQuery.queryCID,
+                ObjectUtils.deserialize(preProcessQuery.rewardsParameters),
+              );
+            });
+        }
+        return this.sdqlQueryRepo.upsertQueryStatus([preProcessQuery]);
+      })
+      .map(() => {
+        this.preProcessCache
+          .get(requestForData.consentContractAddress)
+          ?.delete(requestForData.requestedCID);
+      });
+  }
+
+  protected isContractOptedIn(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<boolean, PersistenceError> {
+    return this.invitationRepo.getAcceptedInvitations().map((optIns) => {
+      return !!optIns.find(
+        (opt) => opt.consentContractAddress === contractAddress,
+      );
+    });
+  }
+
+  protected getNonOptedQueryStatuses(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    QueryStatus[],
+    | BlockchainProviderError
+    | PersistenceError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | IPFSError
+    | AjaxError
+    | ConsentContractError
+    | ConsentError
+    | QueryFormatError
+    | EvaluationError
+    | QueryExpiredError
+    | BlockchainCommonErrors
+    | ParserError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
+    | EvalNotImplementedError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
+  > {
+    return this.consentContractRepository
+      .getConsentContracts([consentContractAddress])
+      .andThen((consentContractMap) => {
+        const consentContract = consentContractMap.get(consentContractAddress)!;
+        // Only consent owners can request data
+        return ResultUtils.combine([
+          consentContract.getConsentOwner(),
+          this.consentContractRepository.getQueryHorizon(
+            consentContract.getContractAddress(),
+          ),
+        ])
+          .andThen(([consentOwner, queryHorizon]) => {
+            return ResultUtils.combine([
+              consentContract.getRequestForDataListByRequesterAddress(
+                consentOwner,
+                queryHorizon,
+              ),
+              this.sdqlQueryRepo.getQueryStatusByConsentContract(
+                consentContract.getContractAddress(),
+                queryHorizon,
+              ),
+            ]);
+          })
+          .andThen(([requestForDataObjects, queryStatus]) => {
+            const newRequests = requestForDataObjects.filter((r4d) => {
+              const existingQueryStatus = queryStatus.find((qs) => {
+                return qs.queryCID == r4d.requestedCID;
+              });
+              return existingQueryStatus == null;
+            });
+
+            return ResultUtils.combine(
+              newRequests.map((newRequest) => {
+                return this.getQueryByCID(newRequest.requestedCID).andThen(
+                  (queryWrapper) => {
+                    return this.getQueryMetadata(
+                      queryWrapper.sdqlQuery,
+                      consentContractAddress,
+                    ).map((queryMetadata) => {
+                      const queryStatus = new QueryStatus(
+                        newRequest.consentContractAddress,
+                        newRequest.requestedCID,
+                        newRequest.blockNumber,
+                        EQueryProcessingStatus.NoConsentToken,
+                        queryWrapper.expiry,
+                        queryMetadata.dynamicRewardParameter,
+                        queryMetadata.name,
+                        queryMetadata.description,
+                        queryMetadata.points,
+                        queryMetadata.questionnaires,
+                        queryMetadata.virtualQuestionnaires,
+                        queryMetadata.image ?? null,
+                      );
+                      const cache = this.preProcessCache.get(
+                        consentContractAddress,
+                      );
+                      if (cache == null) {
+                        this.preProcessCache.set(
+                          consentContractAddress,
+                          new Map([[queryStatus.queryCID, queryStatus]]),
+                        );
+                      } else {
+                        cache.set(queryStatus.queryCID, queryStatus);
+                      }
+                      return queryStatus;
+                    });
+                  },
+                );
+              }),
+            );
+          });
+      });
   }
 }

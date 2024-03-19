@@ -6,6 +6,7 @@ import {
   BlockNumber,
   ConsentContractError,
   ConsentError,
+  ConsentFactoryContractError,
   ConsentToken,
   DuplicateIdInSchema,
   EQueryProcessingStatus,
@@ -21,6 +22,7 @@ import {
   MethodSupportError,
   MissingASTError,
   MissingTokenConstructorError,
+  MissingWalletDataTypeError,
   ParserError,
   PersistenceError,
   PossibleReward,
@@ -138,6 +140,40 @@ export interface IQueryService {
     | ConsentContractError
     | BlockchainCommonErrors
     | PersistenceError
+  >;
+
+  batchApprovePreProcessQueries(
+    contractAddress: EVMContractAddress,
+    queries: Map<IpfsCID, IDynamicRewardParameter>,
+  ): ResultAsync<void, never>;
+
+  getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<
+    QueryStatus[],
+    | BlockchainProviderError
+    | PersistenceError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | IPFSError
+    | AjaxError
+    | ConsentContractError
+    | ConsentError
+    | QueryFormatError
+    | EvaluationError
+    | QueryExpiredError
+    | BlockchainCommonErrors
+    | ServerRewardError
+    | ParserError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
+    | EvalNotImplementedError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
+    | InvalidStatusError
   >;
 }
 

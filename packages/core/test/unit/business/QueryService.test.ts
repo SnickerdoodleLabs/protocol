@@ -50,6 +50,7 @@ import {
 } from "@core/interfaces/business/utilities/index.js";
 import {
   IConsentContractRepository,
+  IInvitationRepository,
   ILinkedAccountRepository,
   IQuestionnaireRepository,
   ISDQLQueryRepository,
@@ -158,6 +159,7 @@ class QueryServiceMocks {
   public timeUtils: ITimeUtils;
   public sdqlQueryWrapperFactory: ISDQLQueryWrapperFactory;
   public logUtils: ILogUtils;
+  public invitationRepo: IInvitationRepository;
 
   public consentToken = new ConsentToken(
     consentContractAddress,
@@ -181,6 +183,7 @@ class QueryServiceMocks {
     this.sdqlQueryWrapperFactory = td.object<ISDQLQueryWrapperFactory>();
     this.logUtils = td.object<ILogUtils>();
     this.timeUtils = td.object<ITimeUtils>();
+    this.invitationRepo = td.object<IInvitationRepository>();
 
     td.when(
       this.insightPlatformRepo.deliverInsights(
@@ -333,6 +336,7 @@ class QueryServiceMocks {
       this.sdqlQueryWrapperFactory,
       this.logUtils,
       this.timeUtils,
+      this.invitationRepo,
     );
   }
 }
