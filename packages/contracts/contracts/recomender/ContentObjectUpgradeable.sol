@@ -3,13 +3,13 @@ pragma solidity ^0.8.24;
 
 import {IContentFactory} from "./IContentFactory.sol";
 import {IContentObject} from "./IContentObject.sol";
-import {ContextUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 abstract contract ContentObjectUpgradeable is
-    IContentObject,
-    ContextUpgradeable
+    IContentObject, 
+    Initializable
 {
     using SafeERC20 for IERC20;
 
@@ -62,8 +62,7 @@ abstract contract ContentObjectUpgradeable is
     /// @param tag Human readable string to check
     /// @param stakingToken Address of the token used for staking recommender listings
     function tagIndices(string calldata tag, address stakingToken) external view returns (uint256) {
-        ContentObjectStorage storage $ = _getContentObjectStorage();
-        return $.tagIndices[stakingToken][tag];
+        return _tagIndices(tag, stakingToken);
     }
 
     /// @notice Get the number of tags staked by this content object
@@ -92,8 +91,9 @@ abstract contract ContentObjectUpgradeable is
     /// @dev  2^256-1 <-> _newSlot <-> 0
     /// @param tag Human readable string denoting the target tag to stake
     /// @param stakingToken Address of the token used for staking recommender listings
+    /// @param stakeOwner Address that is staking the token and has already called approved
     /// @param _newSlot New linked list entry that prime the linked list for this tag
-    function _newGlobalTag(string memory tag, address stakingToken, uint256 _newSlot) internal {
+    function _newGlobalTag(string memory tag, address stakingToken, address stakeOwner, uint256 _newSlot) internal {
         ContentObjectStorage storage $ = _getContentObjectStorage();
         // check
         require(
@@ -107,12 +107,12 @@ abstract contract ContentObjectUpgradeable is
 
         // effects
         uint256 stake = computeFee(_newSlot);
-        $.tags[stakingToken].push(Tag(tag, _newSlot, _msgSender(), stake));
+        $.tags[stakingToken].push(Tag(tag, _newSlot, stakeOwner, stake));
         $.tagIndices[stakingToken][tag] = $.tags[stakingToken].length;
 
         // interaction
         IERC20(stakingToken).safeTransferFrom(
-            _msgSender(),
+            stakeOwner,
             address(this),
             stake
         );
@@ -123,11 +123,13 @@ abstract contract ContentObjectUpgradeable is
     /// @dev  _newSlot <-> _existingSlot
     /// @param tag Human readable string denoting the target tag to stake
     /// @param stakingToken Address of the token used for staking recommender listings
+    /// @param stakeOwner Address that is staking the token and has already called approved
     /// @param _newSlot New linked list entry that will point to _existingSlot slot
     /// @param _existingSlot slot that will be ranked next lowest to _newSlot
     function _newLocalTagUpstream(
         string memory tag,
         address stakingToken, 
+        address stakeOwner,
         uint256 _newSlot,
         uint256 _existingSlot
     ) internal {
@@ -144,12 +146,12 @@ abstract contract ContentObjectUpgradeable is
 
         // effects
         uint256 stake = computeFee(_newSlot);
-        $.tags[stakingToken].push(Tag(tag, _newSlot, _msgSender(), stake));
+        $.tags[stakingToken].push(Tag(tag, _newSlot, stakeOwner, stake));
         $.tagIndices[stakingToken][tag] = $.tags[stakingToken].length;
 
         // interaction
         IERC20(stakingToken).safeTransferFrom(
-            _msgSender(),
+            stakeOwner,
             address(this),
             stake
         );
@@ -160,11 +162,13 @@ abstract contract ContentObjectUpgradeable is
     /// @dev  _existingSlot <-> _newSlot
     /// @param tag Human readable string denoting the target tag to stake
     /// @param stakingToken Address of the token used for staking recommender listings
+    /// @param stakeOwner Address that is staking the token and has already called approved
     /// @param _existingSlot upstream pointer that will point to _newSlot
     /// @param _newSlot New linked list entry that will be ranked right below _existingSlot
     function _newLocalTagDownstream(
         string memory tag,
         address stakingToken, 
+        address stakeOwner,
         uint256 _existingSlot,
         uint256 _newSlot
     ) internal {
@@ -181,12 +185,12 @@ abstract contract ContentObjectUpgradeable is
 
         // effects
         uint256 stake = computeFee(_newSlot);
-        $.tags[stakingToken].push(Tag(tag, _newSlot, _msgSender(), stake));
+        $.tags[stakingToken].push(Tag(tag, _newSlot, stakeOwner, stake));
         $.tagIndices[stakingToken][tag] = $.tags[stakingToken].length;
 
         // interaction
         IERC20(stakingToken).safeTransferFrom(
-            _msgSender(),
+            stakeOwner,
             address(this),
             stake
         );
@@ -198,17 +202,22 @@ abstract contract ContentObjectUpgradeable is
     /// @dev This function also assumes that the listing is not expired
     /// @param tag Human readable string denoting the target tag to stake
     /// @param stakingToken Address of the token used for staking recommender listings
+    /// @param stakeOwner Address that is staking the token and has already called approved
     /// @param _newSlot The new slot to move the listing to
     /// @param _existingSlot The neighboring listing to _newSlow
     function _moveExistingListingUpstream(
         string memory tag,
         address stakingToken,
+        address stakeOwner,
         uint256 _newSlot,
         uint256 _existingSlot
     ) internal {
         ContentObjectStorage storage $ = _getContentObjectStorage();
 
+        Tag memory updatedTag = $.tags[stakingToken][$.tagIndices[stakingToken][tag] - 1];
+
         // check
+        require(updatedTag.staker == stakeOwner, "Content Object: Must use same stake owner address");
         require(_newSlot > _existingSlot, "Content Object: New slot must be greater than current slot");
         require(
             $.tagIndices[stakingToken][tag] > 0,
@@ -216,16 +225,18 @@ abstract contract ContentObjectUpgradeable is
         );
 
         // effects
-        uint256 removalSlot = $.tags[stakingToken][$.tagIndices[stakingToken][tag] - 1].slot;
-        $.tags[stakingToken][$.tagIndices[stakingToken][tag] - 1].slot = _newSlot;
+        uint256 removalSlot = updatedTag.slot; // get the old slot
+        updatedTag.slot = _newSlot; // update with new slot
 
         uint256 deltaStake = computeFee(_newSlot) - computeFee(removalSlot); // compute the extra stake required
-        $.tags[stakingToken][$.tagIndices[stakingToken][tag] - 1].stake += deltaStake; // update tag listing with stake delta
+        updatedTag.stake += deltaStake; // update tag listing with stake delta
+
+        $.tags[stakingToken][$.tagIndices[stakingToken][tag] - 1] = updatedTag; // update the listing
 
         // interaction
         // pull stake equal to the delta between old slot and new slot
         IERC20(stakingToken).safeTransferFrom(
-            _msgSender(),
+            stakeOwner,
             address(this),
             deltaStake
         );
@@ -257,8 +268,9 @@ abstract contract ContentObjectUpgradeable is
     /// @notice Replaces an existing listing that has expired (works for head and tail listings)
     /// @param tag Human readable string denoting the target tag to stake
     /// @param stakingToken Address of the token used for staking recommender listings
+    /// @param stakeOwner Address that is staking the token and has already called approved
     /// @param _slot The expired slot to replace with a new listing
-    function _replaceExpiredListing(string memory tag, address stakingToken, uint256 _slot) internal {
+    function _replaceExpiredListing(string memory tag, address stakingToken, address stakeOwner, uint256 _slot) internal {
         ContentObjectStorage storage $ = _getContentObjectStorage();
         // check
         require(
@@ -272,12 +284,12 @@ abstract contract ContentObjectUpgradeable is
 
         // effects
         uint256 stake = computeFee(_slot);
-        $.tags[stakingToken].push(Tag(tag, _slot, _msgSender(), stake));
+        $.tags[stakingToken].push(Tag(tag, _slot, stakeOwner, stake));
         $.tagIndices[stakingToken][tag] = $.tags[stakingToken].length;
 
         // interaction
         IERC20(stakingToken).safeTransferFrom(
-            _msgSender(),
+            stakeOwner,
             address(this),
             stake
         );
@@ -327,6 +339,16 @@ abstract contract ContentObjectUpgradeable is
         }
     }
 
+    function _tagIndices(string calldata tag, address stakingToken) internal view returns (uint256) {
+        ContentObjectStorage storage $ = _getContentObjectStorage();
+        return $.tagIndices[stakingToken][tag] - 1; // have to subtract 1 from the stored index
+    }
+
+    function _getTag(address stakingToken, uint256 tagIndex) internal view returns (Tag memory) {
+        ContentObjectStorage storage $ = _getContentObjectStorage();
+        return $.tags[stakingToken][tagIndex];
+    }
+
     /// @notice returns amount of token to pull for a given slot based on 1.0001^_slot
     /// @dev you can call this function from the client to compute the amount of token to allow this contract
     /// @param _slot integer representing the slot in the global linked list to aquire
@@ -335,7 +357,7 @@ abstract contract ContentObjectUpgradeable is
         // To handle decimals
         uint256 scale = 1e18; // Scaling factor to represent decimals
         uint256 result = 1e18; // Initialize result to 1 with scale
-        uint256 base = 1000100000000000000; // Represents 1.0001 without scale
+        uint256 base = 1000100000000000000; // Represents 1.0001 with 18 decimal places
 
         // Using binary exponentiation algorithm:
         // https://www.geeksforgeeks.org/binary-exponentiation-for-competitive-programming/
