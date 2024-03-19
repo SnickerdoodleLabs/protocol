@@ -1,5 +1,6 @@
 export * from "@objects/interfaces/IApiKeys.js";
 export * from "@objects/interfaces/IConfigOverrides.js";
+export * from "@objects/interfaces/IBrandInformation.js";
 export * from "@objects/interfaces/IConsentCapacity.js";
 export * from "@objects/interfaces/ICrumbContent.js";
 export * from "@objects/interfaces/IERC721Metadata.js";

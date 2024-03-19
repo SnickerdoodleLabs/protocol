@@ -8849,7 +8849,7 @@ __metadata:
     inversify: ^6.0.2
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
-    o1js: ^0.16.2
+    o1js: ^0.17.0
     uuid: ^8.3.0
   languageName: unknown
   linkType: soft
@@ -8890,15 +8890,24 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/contracts@workspace:packages/contracts"
   dependencies:
+    "@nomicfoundation/hardhat-chai-matchers": ^2.0.0
+    "@nomicfoundation/hardhat-ethers": ^3.0.0
+    "@nomicfoundation/hardhat-network-helpers": ^1.0.0
+    "@nomicfoundation/hardhat-verify": ^2.0.0
     "@openzeppelin/contracts": ^5.0.2
     "@openzeppelin/contracts-upgradeable": ^5.0.2
+    "@openzeppelin/hardhat-upgrades": ^3.0.4
     "@prb/math": ^4.0.2
-    "@snickerdoodlelabs/erc7529": "workspace:^"
     dotenv: ^16.0.1
     fs: ^0.0.1-security
+    hardhat: ^2.21.0
+    hardhat-contract-sizer: ^2.10.0
+    hardhat-gas-reporter: ^1.0.10
     it-all: ^1.0.6
     solidity-coverage: ^0.7.21
     solidity-docgen: ^0.6.0-beta.16
+    ts-node: ^10.8.0
+    typescript: ^5.2.2
   languageName: unknown
   linkType: soft
 
@@ -8958,7 +8967,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snickerdoodlelabs/erc7529@workspace:^, @snickerdoodlelabs/erc7529@workspace:packages/erc7529":
+"@snickerdoodlelabs/erc7529@workspace:packages/erc7529":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/erc7529@workspace:packages/erc7529"
   dependencies:
@@ -34105,6 +34114,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"o1js@npm:^0.17.0":
+  version: 0.17.0
+  resolution: "o1js@npm:0.17.0"
+  dependencies:
+    blakejs: 1.2.1
+    cachedir: ^2.4.0
+    isomorphic-fetch: ^3.0.0
+    js-sha256: ^0.9.0
+    reflect-metadata: ^0.1.13
+    tslib: ^2.3.0
+  bin:
+    snarky-run: src/build/run.js
+  checksum: 12b6e2a47d7f28b518947454b5a21c0b4f04616b678f924a7b2895910b522050db80dc249a868a5b7ef3db598f24685a781b423c233edb861c9c96615626db28
+  languageName: node
+  linkType: hard
+
 "o3@npm:^1.0.3":
   version: 1.0.3
   resolution: "o3@npm:1.0.3"
@@ -42533,7 +42558,7 @@ __metadata:
 "sync-promise@git+https://github.com/brettz9/sync-promise.git#full-sync-missing-promise-features":
   version: 1.0.1
   resolution: "sync-promise@https://github.com/brettz9/sync-promise.git#commit=25845a49a00aa2d2c985a5149b97c86a1fcdc75a"
-  checksum: 80f8808f2bbb8c4f809fae0b0283dbe663a23c88cd2bf6de6ce1facada5e29cc3800027dd5123f126d119bc3090c9a82da9dd2288ebb9526070280d4aab66e3c
+  checksum: f536c50c270ef2ec28511af3b90ba10b8e2b3b51b3e4079136d428150ccc9592f47d02e2cf41ba02135e4a81f59fb472d642794d807bacf8c55a20f85ff57c8a
   languageName: node
   linkType: hard
 

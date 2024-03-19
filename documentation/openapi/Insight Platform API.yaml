@@ -20,11 +20,11 @@ servers:
     description: Production server
     
 paths:
-  /responses:
+  /insights:
     post:
       tags:
         - responses
-      description: Responses to the subqueries with the business, data wallet, query and signiture metadata
+      description: Respond to an SDQL query
       requestBody:
         description: The actual response to a query
         required: true

@@ -74,7 +74,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     const serializedRewardParameters = ObjectUtils.serialize(rewardParameters);
 
     // Create the provable data
-    const provableData = {
+    const signal = {
       consentContractId: consentContractAddress,
       queryCID: queryCID,
       insights: serializedInsights,
@@ -86,7 +86,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
 
     return this.membershipWrapper
       .prove(
-        ObjectUtils.serialize(provableData),
+        ObjectUtils.serialize(signal),
         trapdoor,
         nullifier,
         anonymitySet,
@@ -122,13 +122,13 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       MembershipWrapper.getIdentityCommitment(identity);
 
     // Create the provable data
-    const provableData = {
+    const signal = {
       consentContractId: consentContractAddress,
       commitment: identityCommitment,
     };
 
     return this.commitmentWrapper
-      .prove(ObjectUtils.serialize(provableData), trapdoor, nullifier)
+      .prove(ObjectUtils.serialize(signal), trapdoor, nullifier)
       .andThen((proof) => {
         const url = new URL(urlJoin(insightPlatformBaseUrl, "optin"));
 
@@ -154,8 +154,8 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     const identityCommitment =
       MembershipWrapper.getIdentityCommitment(identity);
 
-    // Create the proveable data
-    const provableData = {
+    // Create the provable data
+    const signal = {
       consentContractId: consentContractAddress,
       commitment: identityCommitment,
       nonce: nonce,
@@ -163,7 +163,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     };
 
     return this.commitmentWrapper
-      .prove(ObjectUtils.serialize(provableData), trapdoor, nullifier)
+      .prove(ObjectUtils.serialize(signal), trapdoor, nullifier)
       .andThen((proof) => {
         const url = new URL(urlJoin(insightPlatformBaseUrl, "optin"));
 
