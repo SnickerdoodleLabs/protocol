@@ -4,9 +4,9 @@ import { Permission } from "@objects/index";
 
 export class DataPermissions {
   constructor(
-    protected readonly consentContractAddress: EVMContractAddress,
-    protected readonly virtual: EWalletDataType[],
-    protected readonly questionnaires: IpfsCID[],
+    public consentContractAddress: EVMContractAddress,
+    public virtual: EWalletDataType[],
+    public questionnaires: IpfsCID[],
   ) {}
 
   public checkHasVirtualPermission(dataType: EWalletDataType): boolean {

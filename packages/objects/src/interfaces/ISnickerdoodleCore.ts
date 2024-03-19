@@ -51,6 +51,7 @@ import {
   ECloudStorageType,
   EDataWalletPermission,
   EInvitationStatus,
+  EWalletDataType,
 } from "@objects/enum/index.js";
 import {
   AccountIndexingError,
@@ -836,8 +837,9 @@ export interface IPermissionMethods {
 
   setContentContractPermissions(
     consentContractAddress: EVMContractAddress,
-    permissions: Permission[],
-  ): ResultAsync<DataPermissions, PersistenceError>;
+    virtual: EWalletDataType[],
+    questionnaires: IpfsCID[],
+    ): ResultAsync<void, PersistenceError>;
 
   getDomainPermissions(
     domain: DomainName,

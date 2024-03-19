@@ -98,6 +98,7 @@ import {
   IPermissionMethods,
   PermissionForStorage,
   Permission,
+  EWalletDataType,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -844,7 +845,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
       setContentContractPermissions: (
         consentContractAddress: EVMContractAddress,
-        permissions: Permission[],
+        virtual: EWalletDataType[],
+        questionnaires: IpfsCID[],
       ) => {
         const permissionRepository =
           this.iocContainer.get<IPermissionRepository>(
@@ -852,7 +854,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           );
         return permissionRepository.setContentContractPermissions(
           consentContractAddress,
-          permissions,
+          virtual,
+          questionnaires,
         );
       },
 

@@ -41,22 +41,24 @@ export class PermissionRepository implements IPermissionRepository {
         if (permissionStorage == null) {
           return new DataPermissions(consentContractAddress, [], []);
         }
-        return this.getDataPermissionsByPermission(
-          consentContractAddress,
-          permissionStorage.permissions,
-        );
+        return this.getDataPermissionsByPermission(consentContractAddress, p);
       });
   }
 
   public setContentContractPermissions(
     consentAddress: EVMContractAddress,
-    permissions: Permission[],
+    virtual: EWalletDataType[],
+    questionnaires: IpfsCID[],
   ): ResultAsync<DataPermissions, PersistenceError> {
-    const permission = new PermissionForStorage(consentAddress, permissions);
+    const permission = new PermissionForStorage(
+      consentAddress,
+      virtual,
+      questionnaires,
+    );
     return this.persistence
       .updateRecord<PermissionForStorage>(ERecordKey.PERMISSIONS, permission)
       .map(() => {
-        return this.getDataPermissionsByPermission(consentAddress, permissions);
+        return new DataPermissions(consentAddress, virtual, questionnaires);
       });
   }
 

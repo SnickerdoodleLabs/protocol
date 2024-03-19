@@ -7,6 +7,8 @@ import {
   DomainName,
   EDataWalletPermission,
   Permission,
+  EWalletDataType,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 
 export interface IPermissionRepository {
@@ -16,7 +18,8 @@ export interface IPermissionRepository {
 
   setContentContractPermissions(
     consentContractAddress: EVMContractAddress,
-    permissions: Permission[],
+    virtual: EWalletDataType[],
+    questionnaires: IpfsCID[],
   ): ResultAsync<DataPermissions, PersistenceError>;
 
   getDomainPermissions(

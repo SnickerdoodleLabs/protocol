@@ -4,7 +4,7 @@ import {
   VersionedObjectMigrator,
 } from "@objects/businessObjects/versioned/VersionedObject.js";
 import { EPermissionType, EWalletDataType } from "@objects/enum";
-import { Permission } from "@objects/index";
+import { DataPermissions, Permission } from "@objects/index";
 import {
   EVMContractAddress,
   IpfsCID,
@@ -16,7 +16,8 @@ export class PermissionForStorage extends VersionedObject {
   public static CURRENT_VERSION = 1;
   public constructor(
     public consentAddress: EVMContractAddress,
-    public permissions: Permission[],
+    public virtual: EWalletDataType[],
+    public questionnaires: IpfsCID[],
   ) {
     super();
   }
@@ -30,7 +31,11 @@ export class PermissionForStorageMigrator extends VersionedObjectMigrator<Permis
   protected factory(
     data: PropertiesOf<PermissionForStorage>,
   ): PermissionForStorage {
-    return new PermissionForStorage(data.consentAddress, data.permissions);
+    return new PermissionForStorage(
+      data.consentAddress,
+      data.virtual,
+      data.questionnaires,
+    );
   }
   protected getUpgradeFunctions(): Map<
     number,

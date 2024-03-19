@@ -468,23 +468,17 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       updateAgreementPermissions: (
         data: IIFrameCallData<{
           consentContractAddress: EVMContractAddress;
-          dataTypes: Permission[];
+          virtual: EWalletDataType[];
+          questionnaires: IpfsCID[];
         }>,
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.permission
-              .setContentContractPermissions(
-                data.data.consentContractAddress,
-                data.data.dataTypes,
-              )
-              .andThen((permission) => {
-                return core.invitation.updateDataPermissions(
-                  data.data.consentContractAddress,
-                  permission,
-                  this.sourceDomain,
-                );
-              });
+            return core.permission.setContentContractPermissions(
+              data.data.consentContractAddress,
+              data.data.virtual,
+              data.data.questionnaires,
+            );
           });
         }, data.callId);
       },
