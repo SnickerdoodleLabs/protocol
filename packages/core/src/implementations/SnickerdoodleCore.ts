@@ -103,6 +103,11 @@ import {
   QueryExpiredError,
   InvalidStatusError,
   InvalidParametersError,
+  ConsentFactoryContractError,
+  EvalNotImplementedError,
+  MethodSupportError,
+  MissingWalletDataTypeError,
+  ServerRewardError,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -1009,6 +1014,50 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
     return queryService.approveQuery(queryCID, parameters);
+  }
+
+  batchApprovePreProcessQueries(
+    contractAddress: EVMContractAddress,
+    queries: Map<IpfsCID, IDynamicRewardParameter>,
+    _sourceDomain?: DomainName | undefined,
+  ): ResultAsync<void, never> {
+    const queryService =
+      this.iocContainer.get<IQueryService>(IQueryServiceType);
+
+    return queryService.batchApprovePreProcessQueries(contractAddress, queries);
+  }
+  getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+    _sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    QueryStatus[],
+    | EvaluationError
+    | PersistenceError
+    | ConsentContractError
+    | UninitializedError
+    | AjaxError
+    | QueryFormatError
+    | QueryExpiredError
+    | ServerRewardError
+    | ConsentError
+    | IPFSError
+    | ParserError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | EvalNotImplementedError
+    | MissingASTError
+    | BlockchainCommonErrors
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
+    | InvalidStatusError
+    | ConsentFactoryContractError
+    | MissingWalletDataTypeError
+  > {
+    const queryService =
+      this.iocContainer.get<IQueryService>(IQueryServiceType);
+
+    return queryService.getQueryStatusesByContractAddress(contractAddress);
   }
 
   public getQueryStatusByQueryCID(

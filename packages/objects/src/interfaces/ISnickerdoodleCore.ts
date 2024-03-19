@@ -84,6 +84,7 @@ import {
   ParserError,
   MethodSupportError,
   InvalidStatusError,
+  ServerRewardError,
 } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
@@ -931,6 +932,41 @@ export interface ISnickerdoodleCore {
     | PersistenceError
   >;
 
+  batchApprovePreProcessQueries(
+    contractAddress: EVMContractAddress,
+    queries: Map<IpfsCID, IDynamicRewardParameter>,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<void, never>;
+
+  getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    QueryStatus[],
+    | BlockchainProviderError
+    | PersistenceError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | IPFSError
+    | AjaxError
+    | ConsentContractError
+    | ConsentError
+    | QueryFormatError
+    | EvaluationError
+    | QueryExpiredError
+    | BlockchainCommonErrors
+    | ServerRewardError
+    | ParserError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
+    | EvalNotImplementedError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
+    | InvalidStatusError
+  >;
   /**
    * Restores a backup directly. Should only be called for testing purposes.
    * @param backup
