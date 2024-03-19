@@ -264,13 +264,15 @@ contract Consent is
     /// @dev Caller must approve a sufficient amount of staking token before calling
     /// @param tag Human readable string denoting the target tag to stake
     /// @param stakingToken Address of the token used for staking recommender listings
+    /// @param stakeOwner Address that is staking the token and has already called approved
     /// @param _newSlot New linked list entry that prime the linked list for this tag
     function newGlobalTag(
         string calldata tag,
         address stakingToken,
+        address stakeOwner,
         uint256 _newSlot
     ) external onlyRole(STAKER_ROLE) {
-        _newGlobalTag(tag, stakingToken, _newSlot);
+        _newGlobalTag(tag, stakingToken, stakeOwner, _newSlot);
     }
 
     /// @notice Stakes a tag that has already been added to the global namespace but hasn't been used locally yet
@@ -278,15 +280,17 @@ contract Consent is
     /// @dev Caller must approve a sufficient amount of staking token before calling
     /// @param tag Human readable string denoting the target tag to stake
     /// @param stakingToken Address of the token used for staking recommender listings
+    /// @param stakeOwner Address that is staking the token and has already called approved
     /// @param _newSlot New linked list entry that will point to _existingSlot slot
     /// @param _existingSlot slot that will be ranked next lowest to _newSlot
     function newLocalTagUpstream(
         string calldata tag,
         address stakingToken,
+        address stakeOwner,
         uint256 _newSlot,
         uint256 _existingSlot
     ) external onlyRole(STAKER_ROLE) {
-        _newLocalTagUpstream(tag, stakingToken, _newSlot, _existingSlot);
+        _newLocalTagUpstream(tag, stakingToken, stakeOwner, _newSlot, _existingSlot);
     }
 
     /// @notice Stakes a tag that has already been added to the global namespace but hasn't been used locally yet
@@ -294,15 +298,17 @@ contract Consent is
     /// @dev Caller must approve a sufficient amount of staking token before calling
     /// @param tag Human readable string denoting the target tag to stake
     /// @param stakingToken Address of the token used for staking recommender listings
+    /// @param stakeOwner Address that is staking the token and has already called approved
     /// @param _existingSlot upstream pointer that will point to _newSlot
     /// @param _newSlot New linked list entry that will be ranked right below _existingSlot
     function newLocalTagDownstream(
         string calldata tag,
         address stakingToken,
+        address stakeOwner,
         uint256 _existingSlot,
         uint256 _newSlot
     ) external onlyRole(STAKER_ROLE) {
-        _newLocalTagDownstream(tag, stakingToken, _existingSlot, _newSlot);
+        _newLocalTagDownstream(tag, stakingToken, stakeOwner, _existingSlot, _newSlot);
     }
 
     /// @notice Move an existing listing from its current slot to upstream of a new existing slot
@@ -311,15 +317,17 @@ contract Consent is
     /// @dev Caller must approve a sufficient amount of staking token before calling
     /// @param tag Human readable string denoting the target tag to stake
     /// @param stakingToken Address of the token used for staking recommender listings
+    /// @param stakeOwner Address that is staking the token and has already called approved
     /// @param _newSlot The new slot to move the listing to
     /// @param _existingSlot The neighboring listing to _newSlow
     function moveExistingListingUpstream(
         string calldata tag,
         address stakingToken,
+        address stakeOwner,
         uint256 _newSlot,
         uint256 _existingSlot
     ) external onlyRole(STAKER_ROLE) {
-        _moveExistingListingUpstream(tag, stakingToken, _newSlot, _existingSlot);
+        _moveExistingListingUpstream(tag, stakingToken, stakeOwner, _newSlot, _existingSlot);
     }
 
     /// @notice Restakes a listing from this registry that has expired (works for head and tail listings)
@@ -334,22 +342,28 @@ contract Consent is
     /// @notice Replaces an existing listing that has expired (works for head and tail listings)
     /// @param tag Human readable string denoting the target tag to stake
     /// @param stakingToken Address of the token used for staking recommender listings
+    /// @param stakeOwner Address that is staking the token and has already called approved
     /// @param _slot The expired slot to replace with a new listing
     function replaceExpiredListing(
         string calldata tag,
         address stakingToken,
+        address stakeOwner,
         uint256 _slot
     ) external onlyRole(STAKER_ROLE) {
-        _replaceExpiredListing(tag, stakingToken, _slot);
+        _replaceExpiredListing(tag, stakingToken, stakeOwner, _slot);
     }
 
     /// @notice Removes this contract's listing under the specified tag
+    /// @dev either an address with STAKER_ROLE or a stake owner can call this function
     /// @param tag Human readable string denoting the target tag to destake
     /// @param stakingToken Address of the token used for staking recommender listings
     function removeListing(
         string calldata tag,
         address stakingToken
-    ) external onlyRole(STAKER_ROLE) returns (string memory) {
+    ) external returns (string memory) {
+        uint tagIndex = _tagIndices(tag, stakingToken);
+        Tag memory tagObject = _getTag(stakingToken, tagIndex);
+        require(hasRole(STAKER_ROLE, msg.sender) || (msg.sender == tagObject.staker));
         return _removeListing(tag, stakingToken);
     }
 

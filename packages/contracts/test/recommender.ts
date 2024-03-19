@@ -95,7 +95,7 @@ describe("Stake for Ranking tests", function () {
       await expect(
         consentContract
           .connect(otherAccount)
-          .newGlobalTag("NFT", await token.getAddress(), mySlot),
+          .newGlobalTag("NFT", await token.getAddress(), owner.address, mySlot),
       )
         .to.be.revertedWithCustomError(
           consentContract,
@@ -105,8 +105,9 @@ describe("Stake for Ranking tests", function () {
     });
 
     it("Try staking on a single deployed Content Object and then removing it", async function () {
-      const { consentFactory, consentContract, token, owner, otherAccount } =
-        await loadFixture(deployConsentStack);
+      const { consentContract, token, owner } = await loadFixture(
+        deployConsentStack,
+      );
 
       // first compute the fee required for a desired slot
       const mySlot = 65000;
@@ -119,6 +120,7 @@ describe("Stake for Ranking tests", function () {
       await consentContract.newGlobalTag(
         "NFT",
         await token.getAddress(),
+        owner.address,
         mySlot,
       );
 
@@ -174,6 +176,7 @@ describe("Stake for Ranking tests", function () {
       await consentContract.newGlobalTag(
         "NFT",
         await token.getAddress(),
+        owner.address,
         ownerSlot,
       );
 
@@ -186,12 +189,22 @@ describe("Stake for Ranking tests", function () {
       await expect(
         consentContract
           .connect(otherAccount)
-          .newGlobalTag("NFT", await token.getAddress(), otherSlot),
+          .newGlobalTag(
+            "NFT",
+            await token.getAddress(),
+            otherAccount.address,
+            otherSlot,
+          ),
       ).to.be.revertedWith("Content Object: This tag is already staked.");
 
       await consentContract
         .connect(otherAccount)
-        .newGlobalTag("Degen", await token.getAddress(), otherSlot);
+        .newGlobalTag(
+          "Degen",
+          await token.getAddress(),
+          otherAccount.address,
+          otherSlot,
+        );
 
       // see if the tag was registered correctly
       expect(
@@ -235,6 +248,7 @@ describe("Stake for Ranking tests", function () {
       await consentContract.newGlobalTag(
         "NFT",
         await token.getAddress(),
+        owner.address,
         ownerSlot,
       );
 
@@ -242,6 +256,7 @@ describe("Stake for Ranking tests", function () {
       await consentContract2.newLocalTagUpstream(
         "NFT",
         await token.getAddress(),
+        otherAccount.address,
         otherSlot,
         ownerSlot,
       );
@@ -283,6 +298,7 @@ describe("Stake for Ranking tests", function () {
       await consentContract.newGlobalTag(
         "NFT",
         await token.getAddress(),
+        owner.address,
         ownerSlot,
       );
 
@@ -290,6 +306,7 @@ describe("Stake for Ranking tests", function () {
       await consentContract2.newLocalTagDownstream(
         "NFT",
         await token.getAddress(),
+        otherAccount.address,
         ownerSlot,
         otherSlot,
       );
@@ -315,6 +332,7 @@ describe("Stake for Ranking tests", function () {
       await consentContract.newGlobalTag(
         "NFT",
         await token.getAddress(),
+        owner.address,
         ownerSlot,
       );
 
@@ -399,13 +417,19 @@ describe("Stake for Ranking tests", function () {
         .approve(await consentContract2.getAddress(), fee);
 
       // then initialize a tag in the first consent contract
-      await consentContract.newGlobalTag("NFT", await token.getAddress(), slot);
+      await consentContract.newGlobalTag(
+        "NFT",
+        await token.getAddress(),
+        owner.address,
+        slot,
+      );
 
       // the listing cannot be replaced while its active
       await expect(
         consentContract2.replaceExpiredListing(
           "NFT",
           await token.getAddress(),
+          otherAccount.address,
           slot,
         ),
       ).to.be.revertedWith("Content Factory: current listing is still active");
@@ -417,6 +441,7 @@ describe("Stake for Ranking tests", function () {
       await consentContract2.replaceExpiredListing(
         "NFT",
         await token.getAddress(),
+        otherAccount.address,
         slot,
       );
 
@@ -454,6 +479,7 @@ describe("Stake for Ranking tests", function () {
       await consentContract.newGlobalTag(
         "NFT",
         await token.getAddress(),
+        owner.address,
         initialSlot,
       );
 
@@ -469,6 +495,7 @@ describe("Stake for Ranking tests", function () {
       await consentContract.moveExistingListingUpstream(
         "NFT",
         await token.getAddress(),
+        owner.address,
         finalSlot,
         0,
       );

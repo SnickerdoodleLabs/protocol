@@ -91,7 +91,7 @@ export class InsightPlatformSimulator {
       });
     });
 
-    this.app.post("/insights/responses", (req, res) => {
+    this.app.post("/insights", (req, res) => {
       console.log("Received Insight Response");
 
       console.log("Insights : ", req.body["insights"]["insights"]);

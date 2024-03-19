@@ -1,4 +1,4 @@
-import { Circuit, Poseidon, Field, circuitMain, public_ } from "o1js";
+import { Circuit, Field, circuitMain, public_ } from "o1js";
 
 import { Identity } from "@circuits/Identity.js";
 
