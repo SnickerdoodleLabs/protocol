@@ -5,8 +5,8 @@ import {
   Bytes32,
 } from "@circuits/Reserves.js";
 
-describe("Proof of Reserves", () => {
-  test("Generate Proof of Reserves", async () => {
+describe("Proof of Reserves with ZkProgram Class", () => {
+  test("Generate Proof of Reserves with ZkProgram", async () => {
     // create an example ecdsa signature
 
     const privateKey = Secp256k1.Scalar.random();
