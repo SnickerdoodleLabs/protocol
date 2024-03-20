@@ -2,6 +2,7 @@ import {
   EVMAccountAddress,
   BlockchainCommonErrors,
   ERC20ContractError,
+  ERC7529ContractError,
   EVMContractAddress,
   TokenAmount,
   DomainName,
@@ -9,14 +10,18 @@ import {
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
-import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
 import {
+  IBaseContract,
+  IERC7529Contract,
+  IRBCContract,
   ContractOverrides,
   WrappedTransactionResponse,
-  ERewardRoles,
 } from "@contracts-sdk/interfaces/index.js";
 
-export interface IERC20RewardContract extends IBaseContract {
+export interface IERC20RewardContract
+  extends IBaseContract,
+    IERC7529Contract<ERC20ContractError>,
+    IRBCContract<ERC20ContractError> {
   /**
    * Returns the name of the ERC20 token
    */
@@ -99,54 +104,6 @@ export interface IERC20RewardContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC20ContractError
-  >;
-
-  grantRole(
-    role: keyof typeof ERewardRoles,
-    address: EVMAccountAddress,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC20ContractError
-  >;
-
-  revokeRole(
-    role: keyof typeof ERewardRoles,
-    address: EVMAccountAddress,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC20ContractError
-  >;
-
-  renounceRole(
-    role: keyof typeof ERewardRoles,
-    address: EVMAccountAddress,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC20ContractError
-  >;
-
-  addDomain(
-    domain: DomainName,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC20ContractError
-  >;
-
-  removeDomain(
-    domain: DomainName,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC20ContractError
-  >;
-
-  getDomains(): ResultAsync<
-    DomainName[],
     BlockchainCommonErrors | ERC20ContractError
   >;
 

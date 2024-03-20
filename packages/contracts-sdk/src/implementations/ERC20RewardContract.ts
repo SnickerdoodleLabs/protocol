@@ -144,6 +144,18 @@ export class ERC20RewardContract
     ]);
   }
 
+  public hasRole(
+    role: keyof typeof ERewardRoles,
+    address: EVMAccountAddress,
+  ): ResultAsync<boolean, ERC20ContractError | BlockchainCommonErrors> {
+    return ResultAsync.fromPromise(
+      this.contract.hasRole(ERewardRoles[role], address) as Promise<boolean>,
+      (e) => {
+        return this.generateError(e, "Unable to call hasRole()");
+      },
+    );
+  }
+
   public grantRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,

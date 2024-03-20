@@ -5,6 +5,7 @@ import {
   RewardsFactoryError,
   ECreatedRewardType,
   BlockchainCommonErrors,
+  TokenUri,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
@@ -136,6 +137,59 @@ export class ZkSyncRewardsContractFactory
         return this.generateError(
           e,
           "Unable to get deploy transaction for contract deployment for ERC20 contract",
+        );
+      },
+    )
+      .andThen((deployTransaction) => {
+        return ResultAsync.fromPromise(
+          this.providerOrSigner.estimateGas(deployTransaction),
+          (e) => {
+            return this.generateError(
+              e,
+              "Attempting to estimate gas for contract deployment",
+            );
+          },
+        );
+      })
+      .map((estimatedGas) => {
+        // Increase estimated gas buffer by 20%
+        return (estimatedGas * 120n) / 100n;
+      });
+  }
+
+  // function to deploy a new ERC721 reward contract on ZkSyncEra
+  public deployERC1155Reward(
+    numberOfRewards: number,
+    tokenURIs: TokenUri[],
+    overrides: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | RewardsFactoryError
+  > {
+    return GasUtils.getGasFee(this.providerOrSigner).andThen((gasFee) => {
+      const contractOverrides = {
+        ...gasFee,
+        ...overrides,
+      };
+      return this.writeToContractFactory(
+        "deploy",
+        [numberOfRewards, tokenURIs],
+        contractOverrides,
+        true,
+      );
+    });
+  }
+
+  public estimateGasToDeployERC1155Contract(
+    numberOfRewards: number,
+    tokenURIs: TokenUri[],
+  ): ResultAsync<bigint, RewardsFactoryError | BlockchainCommonErrors> {
+    return ResultAsync.fromPromise(
+      this.contractFactory.getDeployTransaction(numberOfRewards, tokenURIs),
+      (e) => {
+        return this.generateError(
+          e,
+          "Unable to get deploy transaction for contract deployment for ERC1155 contract",
         );
       },
     )
