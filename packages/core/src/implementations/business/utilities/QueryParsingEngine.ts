@@ -55,6 +55,8 @@ import {
   IAdDataRepository,
   IAdDataRepositoryType,
   IAdRepositoryType,
+  IPermissionRepository,
+  IPermissionRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IContextProvider,
@@ -68,6 +70,8 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected queryFactories: IQueryFactories,
     @inject(IQueryRepositoryType)
     protected queryRepository: IQueryRepository,
+    @inject(IPermissionRepositoryType)
+    protected permissionRepo: IPermissionRepository,
     @inject(ISDQLQueryUtilsType)
     protected queryUtils: ISDQLQueryUtils,
     @inject(IAdRepositoryType)
@@ -204,6 +208,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     });
   }
 
+  // @TODO getPossibleQueryDeliveryItems is never used in protocol codebase.
   public getPossibleQueryDeliveryItems(
     query: SDQLQuery,
   ): ResultAsync<
@@ -222,7 +227,11 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     | MethodSupportError
     | InvalidParametersError
   > {
-    return this.handleQuery(query, DataPermissions.createWithAllPermissions());
+    return this.permissionRepo
+      .getContentContractPermissions(query.consentContractAddress)
+      .andThen((perms) => {
+        return this.handleQuery(query, perms);
+      });
   }
 
   /** Used for reward generation on the SPA. Purpose is to show all the rewards to the user

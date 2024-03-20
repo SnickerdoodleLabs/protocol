@@ -83,7 +83,7 @@ const queryDeliveryItems: IQueryDeliveryItems = {
 
 const tokenId = TokenId(BigInt(0));
 
-const dataPermissions = DataPermissions.createWithAllPermissions();
+const dataPermissions = new DataPermissions("" as EVMContractAddress, [], []);
 
 const rewardParameter = {
   recipientAddress: {
