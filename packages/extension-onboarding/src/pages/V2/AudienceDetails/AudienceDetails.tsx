@@ -65,12 +65,8 @@ const AudienceDetails = () => {
   const navigate = useNavigate();
   const [ipfsCID, setIpfsCID] = useState<IpfsCID>();
   const [receivingAccount, setReceivingAccount] = useState<AccountAddress>();
-  const {
-    optedInContracts,
-    linkedAccounts,
-    earnedRewards,
-    apiGateway,
-  } = useAppContext();
+  const { optedInContracts, linkedAccounts, earnedRewards, apiGateway } =
+    useAppContext();
   const { sdlDataWallet } = useDataWalletContext();
   const { setAlert } = useNotificationContext();
   const { setModal, setLoadingStatus } = useLayoutContext();
@@ -101,8 +97,10 @@ const AudienceDetails = () => {
         setIpfsCID(ipfsCID);
         return ResultUtils.combine([
           sdlDataWallet.getInvitationMetadataByCID(_ipfsCID),
+          //@ts-ignore
           sdlDataWallet.getConsentContractURLs(consentAddress),
         ]).map(([metadata, urls]) => {
+          //@ts-ignore
           setContractInfo({ metadata, urls });
         });
       })

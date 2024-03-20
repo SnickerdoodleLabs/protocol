@@ -141,7 +141,6 @@ import {
   GetTransactionsParams,
   AddAccountWithExternalSignatureParams,
   AddAccountWithExternalTypedDataSignatureParams,
-  UpdateAgreementPermissionsParams,
   GetPersistenceNFTsParams,
   GetAccountNFTHistoryParams,
   GetAccountNftCacheParams,
@@ -400,17 +399,10 @@ export class ExternalCoreGateway {
 
   public acceptInvitation(
     invitation: Invitation,
-    dataTypes: EWalletDataType[] | null,
   ): ResultAsync<void, ProxyError> {
     return this._handler.call(
-      new AcceptInvitationParams(ObjectUtils.serialize(invitation), dataTypes),
+      new AcceptInvitationParams(ObjectUtils.serialize(invitation)),
     );
-  }
-
-  public updateAgreementPermissions(
-    params: UpdateAgreementPermissionsParams,
-  ): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
   }
 
   public getDataPermissions(

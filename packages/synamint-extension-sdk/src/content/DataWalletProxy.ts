@@ -103,7 +103,6 @@ import {
   SetAuthenticatedStorageParams,
   GetQueryStatusesParams,
   GetTransactionsParams,
-  UpdateAgreementPermissionsParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
@@ -622,14 +621,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public getDataPermissions(consentContractAddress: EVMContractAddress) {
     return coreGateway.getDataPermissions(
       new GetAgreementPermissionsParams(consentContractAddress),
-    );
-  }
-  public updateAgreementPermissions(
-    consentContractAddress: EVMContractAddress,
-    dataTypes: EWalletDataType[],
-  ): ResultAsync<void, ProxyError> {
-    return coreGateway.updateAgreementPermissions(
-      new UpdateAgreementPermissionsParams(consentContractAddress, dataTypes),
     );
   }
 

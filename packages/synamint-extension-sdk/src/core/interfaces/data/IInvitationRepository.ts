@@ -28,13 +28,8 @@ export interface IInvitationRepository {
   checkInvitationStatus(
     invitation: Invitation,
   ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError>;
-  updateAgreementPermissions(
-    consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions,
-  ): ResultAsync<void, SnickerDoodleCoreError>;
   acceptInvitation(
     invitation: Invitation,
-    dataPermissions: DataPermissions | null,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   rejectInvitation(
     invitation: Invitation,

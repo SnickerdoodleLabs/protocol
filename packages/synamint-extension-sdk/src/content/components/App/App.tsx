@@ -2,6 +2,7 @@ import { ThemeProvider } from "@material-ui/core";
 import {
   BaseNotification,
   BigNumberString,
+  DataPermissions,
   DomainName,
   EInvitationStatus,
   ENotificationTypes,
@@ -303,12 +304,12 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
   }, [currentInvitation]);
 
   const acceptInvitation = useCallback(
-    (dataTypes: EWalletDataType[] | null) => {
+    (...args) => {
       if (!currentInvitation) return;
       // call function as background process
       setAppState(EAppState.IDLE);
       coreGateway
-        .acceptInvitation(currentInvitation.data.invitation, dataTypes)
+        .acceptInvitation(currentInvitation.data.invitation)
         .map(() => {
           emptyReward();
         })

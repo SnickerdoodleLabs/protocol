@@ -38,6 +38,7 @@ import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities";
+import { EVMContractAddress } from "packages/objects/src";
 
 const domain = DomainName("phoebe.com");
 const url1 = URLString("phoebe.com/cute");
@@ -219,10 +220,7 @@ describe("InvitationService tests", () => {
     const service = mocks.factory();
 
     // Act
-    const result = await service.acceptInvitation(
-      publicInvitation,
-      dataPermissions,
-    );
+    const result = await service.acceptInvitation(publicInvitation);
 
     // Assert
     expect(result).toBeDefined();
@@ -267,7 +265,7 @@ describe("InvitationService.updateDataPermissions() tests", () => {
     // Act
     const result = await service.updateDataPermissions(
       consentContractAddress1,
-      new DataPermissions(newPermissionsHex),
+      new DataPermissions("" as EVMContractAddress, [], []),
     );
 
     // Assert
@@ -295,7 +293,7 @@ describe("InvitationService.updateDataPermissions() tests", () => {
     // Act
     const result = await service.updateDataPermissions(
       consentContractAddress1,
-      new DataPermissions(newPermissionsHex),
+      new DataPermissions("" as EVMContractAddress, [], []),
     );
 
     // Assert

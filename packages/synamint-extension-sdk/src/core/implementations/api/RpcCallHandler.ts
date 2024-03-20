@@ -127,7 +127,6 @@ import {
   AddAccountWithExternalSignatureParams,
   AddAccountWithExternalTypedDataSignatureParams,
   ERequestChannel,
-  UpdateAgreementPermissionsParams,
   SnickerDoodleCoreError,
   GetPersistenceNFTsParams,
   GetAccountNFTHistoryParams,
@@ -478,24 +477,13 @@ export class RpcCallHandler implements IRpcCallHandler {
         );
       },
     ),
-    new CoreActionHandler<UpdateAgreementPermissionsParams>(
-      UpdateAgreementPermissionsParams.getCoreAction(),
-      (params) => {
-        return this.invitationService.updateAgreementPermissions(
-          params.consentContractAddress,
-          params.dataTypes,
-        );
-      },
-    ),
+
     new CoreActionHandler<AcceptInvitationParams>(
       AcceptInvitationParams.getCoreAction(),
       (params, _sender, sourceDomain) => {
         return this.core.invitation
           .acceptInvitation(
             ObjectUtils.deserialize(params.invitation),
-            params.dataTypes
-              ? DataPermissions.createWithPermissions(params.dataTypes)
-              : null,
             sourceDomain,
           )
           .mapErr((error) => {
