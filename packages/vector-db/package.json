@@ -40,15 +40,18 @@
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.17.11",
     "@snickerdoodlelabs/common-utils": "workspace:^",
+    "@snickerdoodlelabs/contracts-sdk": "workspace:^",
     "@snickerdoodlelabs/node-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
     "@snickerdoodlelabs/utils": "workspace:^",
     "ethers": "^6.10.0",
     "inversify": "^6.0.2",
+    "ml-array-normed": "^1.3.7",
     "ml-kmeans": "^6.0.0",
     "neverthrow": "^5.1.0",
-    "neverthrow-result-utils": "^2.0.2"
-    },
+    "neverthrow-result-utils": "^2.0.2",
+    "transpose-2d-array": "^1.0.4"
+  },
   "devDependencies": {
     "fake-indexeddb": "^4.0.0"
   }

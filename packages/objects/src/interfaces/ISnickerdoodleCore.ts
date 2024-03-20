@@ -43,6 +43,8 @@ import {
   QuestionnaireAnswer,
   NewQuestionnaireAnswer,
   KMeansResult,
+  VersionedObject,
+  VolatileStorageMetadata,
   // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
@@ -721,6 +723,9 @@ export interface IStorageMethods {
 
 export interface IVectorQuantizationMethods {
   initialize(template?: IIndexedDB): ResultAsync<IIndexedDB, PersistenceError>;
+  table<T extends VersionedObject>(
+    name: string,
+  ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError>;
   quantizeTable(
     tableName: ERecordKey,
     callback: (n: any) => any,
@@ -729,10 +734,10 @@ export interface IVectorQuantizationMethods {
     quantizedTable: number[][],
     k: number,
   ): ResultAsync<KMeansResult, PersistenceError>;
-  infer(
-    model: KMeansResult,
-    userState: number[][],
-  ): ResultAsync<number[][], PersistenceError>;
+  // infer(
+  //   model: KMeansResult,
+  //   userState: number[][],
+  // ): ResultAsync<number[][], PersistenceError>;
 }
 
 export interface IQuestionnaireMethods {

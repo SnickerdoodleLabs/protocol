@@ -112,11 +112,11 @@ import {
   IStorageUtilsType,
   LocalStorageUtils,
 } from "@snickerdoodlelabs/utils";
-// import {
-//   IQuantizationService,
-//   IQuantizationServiceType,
-//   VectorDB,
-// } from "@snickerdoodlelabs/vector-db";
+import {
+  IQuantizationService,
+  IQuantizationServiceType,
+  VectorDB,
+} from "@snickerdoodlelabs/vector-db";
 import { ethers } from "ethers";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -195,7 +195,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public storage: IStorageMethods;
   public nft: INftMethods;
   public questionnaire: IQuestionnaireMethods;
-  // public quantization: IVectorQuantizationMethods;
+  public quantization: IVectorQuantizationMethods;
 
   public constructor(
     configOverrides?: IConfigOverrides,
@@ -230,10 +230,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .inSingletonScope();
     }
 
-    // this.iocContainer
-    //   .bind(IQuantizationServiceType)
-    //   .to(VectorDB)
-    //   .inSingletonScope();
+    this.iocContainer
+      .bind(IQuantizationServiceType)
+      .to(VectorDB)
+      .inSingletonScope();
 
     // Setup the config
     if (configOverrides != null) {
@@ -734,46 +734,55 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     };
 
     // Vector DB Methods --------------------------------------------------------------------
-    // this.quantization = {
-    //   // discovers data in db
-    //   // way simpler, inject dependencies, iterate local db
-    //   initialize: (template?: IIndexedDB) => {
-    //     const quantizationService = this.iocContainer.get<IQuantizationService>(
-    //       IQuantizationServiceType,
-    //     );
+    this.quantization = {
+      // discovers data in db
+      // way simpler, inject dependencies, iterate local db
+      initialize: (template?: IIndexedDB) => {
+        const quantizationService = this.iocContainer.get<IQuantizationService>(
+          IQuantizationServiceType,
+        );
 
-    //     return quantizationService.initialize(template);
-    //   },
-    //   // quantization on a specific table
-    //   quantizeTable: (tableName: ERecordKey, callback: (n: any) => any) => {
-    //     const quantizationService = this.iocContainer.get<IQuantizationService>(
-    //       IQuantizationServiceType,
-    //     );
+        return quantizationService.initialize(template);
+      },
 
-    //     return quantizationService.quantizeTable(tableName, callback);
-    //   },
+      table: (name: string) => {
+        const quantizationService = this.iocContainer.get<IQuantizationService>(
+          IQuantizationServiceType,
+        );
 
-    //   // keep using temp tables/data to save space
+        return quantizationService.table(name);
+      },
 
-    //   // another function here -> mapping raw to vectorized data
+      // quantization on a specific table
+      quantizeTable: (tableName: ERecordKey, callback: (n: any) => any) => {
+        const quantizationService = this.iocContainer.get<IQuantizationService>(
+          IQuantizationServiceType,
+        );
 
-    //   // can only be run AFTER a table is quantized, throw error
-    //   kmeans: (quantizedTable: number[][], k: number) => {
-    //     const quantizationService = this.iocContainer.get<IQuantizationService>(
-    //       IQuantizationServiceType,
-    //     );
+        return quantizationService.quantizeTable(tableName, callback);
+      },
 
-    //     return quantizationService.kmeans(quantizedTable, k);
-    //   },
+      // keep using temp tables/data to save space
 
-    //   infer: (modelID: string, userState: string) => {
-    //     const quantizationService = this.iocContainer.get<IQuantizationService>(
-    //       IQuantizationServiceType,
-    //     );
+      // another function here -> mapping raw to vectorized data
 
-    //     return quantizationService.infer(modelID, userState);
-    //   },
-    // };
+      // can only be run AFTER a table is quantized, throw error
+      kmeans: (quantizedTable: number[][], k: number) => {
+        const quantizationService = this.iocContainer.get<IQuantizationService>(
+          IQuantizationServiceType,
+        );
+
+        return quantizationService.kmeans(quantizedTable, k);
+      },
+
+      // infer: (modelID: string, userState: string) => {
+      //   const quantizationService = this.iocContainer.get<IQuantizationService>(
+      //     IQuantizationServiceType,
+      //   );
+
+      //   return quantizationService.infer(modelID, userState);
+      // },
+    };
 
     // Questionnaire Methods --------------------------------------------------------------------
     this.questionnaire = {

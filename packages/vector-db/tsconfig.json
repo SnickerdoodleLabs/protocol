@@ -18,6 +18,9 @@
 			"path": "../common-utils"
 		},
 		{
+			"path": "../contracts-sdk"
+		},
+		{
 			"path": "../node-utils"
 		},
 		{

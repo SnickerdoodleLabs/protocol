@@ -29,6 +29,7 @@ import {
   ICryptoUtilsType,
 } from "@snickerdoodlelabs/node-utils";
 import {
+  IIndexedDB,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
 } from "@snickerdoodlelabs/objects";
@@ -60,6 +61,10 @@ import {
   IPersistenceContextProviderType,
   NullCloudStorage,
   INullCloudStorageType,
+  DBContextProvider,
+  IIndexedDBContextProvider,
+  IIndexedDBContextProviderType,
+  IIndexedDBContext,
 } from "@snickerdoodlelabs/persistence";
 import {
   IQueryObjectFactory,
@@ -462,15 +467,15 @@ export const snickerdoodleCoreModule = new ContainerModule(
       IPersistenceContextProviderType,
     ).toConstantValue(contextProvider);
 
-    // const dbContextProvider = new DBContextProvider(
-    //   new LogUtils(),
-    //   new TimeUtils(),
-    //   new VolatileStorageSchemaProvider(configProvider),
-    // );
+    const dbContextProvider = new DBContextProvider(
+      new LogUtils(),
+      new TimeUtils(),
+      new VolatileStorageSchemaProvider(configProvider),
+    );
 
-    // bind<IIndexedDBContextProvider>(
-    //   IIndexedDBContextProviderType,
-    // ).toConstantValue(dbContextProvider);
+    bind<IIndexedDBContextProvider>(
+      IIndexedDBContextProviderType,
+    ).toConstantValue(dbContextProvider);
 
     bind<IBlockchainProvider>(IBlockchainProviderType)
       .to(BlockchainProvider)
@@ -554,9 +559,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
 
     // bind<IIndexedDB>(IIndexedDBType).to(IndexedDB).inSingletonScope();
-    // bind<IIndexedDBConte>(
-    //   IIndexedDBConfigProviderType,
-    // ).to(IIndexed).inSingletonScope();
+    // bind<IIndexedDBContext>(IIndexedDBConfigProviderType)
+    //   .to(IIndexed)
+    //   .inSingletonScope();
 
     /**
      * Binding of Modules With Extra Capabilities.

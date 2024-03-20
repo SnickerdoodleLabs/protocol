@@ -16,11 +16,12 @@ import {
   IIndexedDBContextProviderType,
 } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
+import normed from "ml-array-normed";
 import { kmeans } from "ml-kmeans";
 import { KMeansResult } from "ml-kmeans/lib/KMeansResult";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { replaceTscAliasPaths } from "tsc-alias";
+import transpose from "transpose-2d-array";
 
 import { IQuantizationService, InferenceResult } from "@vector-db/index.js";
 
@@ -67,12 +68,13 @@ export class VectorDB implements IQuantizationService {
       .map((context) => context.db);
   }
 
+  /*
+    Returns table metadata based off their table name
+  */
   public table<T extends VersionedObject>(
     name: string,
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
-    console.log("table name: " + name);
     return this.indexedDBContextProvider.getContext().andThen((context) => {
-      console.log("context: " + JSON.stringify(context));
       return context.db.getAll<T>(name);
     });
   }
@@ -82,18 +84,15 @@ export class VectorDB implements IQuantizationService {
   */
   public quantizeTable(
     tableName: ERecordKey,
-    callback: (n: any) => any,
+    callback: (row: any) => any,
   ): ResultAsync<number[][], PersistenceError> {
-    return this.indexedDBContextProvider
-      .getContext()
-      .andThen((context) => {
-        return context.db.getAll(tableName);
-      })
+    return this.table(tableName)
       .map((records) => {
-        console.log("records");
-        return records.map((record) => {
-          return callback(record);
-        });
+        console.log("records", records);
+        return callback(records) as number[][];
+      })
+      .andThen((data) => {
+        return this.normalizeQuantizedTable(data);
       });
   }
 
@@ -103,8 +102,6 @@ export class VectorDB implements IQuantizationService {
     k: number,
   ): ResultAsync<KMeansResult, PersistenceError> {
     const result = kmeans(quantizedTable, k, {
-      // distanceFunction?: (p: number[], q: number[]) => number;
-      // tolerance?: number;
       initialization: "kmeans++",
       maxIterations: 1000,
     });
@@ -120,12 +117,13 @@ export class VectorDB implements IQuantizationService {
     } as InferenceResult);
   }
 
-  private getDataPath(key: ERecordKey): string {
-    switch (key) {
-      case ERecordKey.NFTS:
-        return "data.nft";
-      default:
-        return "data";
-    }
+  private normalizeQuantizedTable(
+    table: number[][],
+  ): ResultAsync<number[][], PersistenceError> {
+    const transposedTable = transpose(table);
+    const normalization = transposedTable.map((row) => {
+      return normed(row, { algorithm: "max" });
+    });
+    return okAsync(transpose(normalization));
   }
 }

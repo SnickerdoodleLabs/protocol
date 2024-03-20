@@ -5,13 +5,16 @@ import {
   LogUtils,
   TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
+import { ICryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   ClickData,
   EChain,
   ERecordKey,
   EVMAccountAddress,
+  EVMContractAddress,
   InvitationForStorage,
   LinkedAccount,
+  PersistenceError,
   ReceivingAccountMigrator,
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
@@ -24,7 +27,9 @@ import {
   getObjectStoreDefinitions,
 } from "@snickerdoodlelabs/persistence";
 import { VectorDB } from "@snickerdoodlelabs/vector-db";
-import { okAsync } from "neverthrow";
+import { ethers } from "ethers";
+import { ResultAsync, okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import * as td from "testdouble";
 
 import {
@@ -99,6 +104,32 @@ export class VectorDBMocks {
   }
 }
 
+// export class ContractFactoryMocks {
+//   protected blockchainProvider: IBlockchainProvider;
+//   protected configProvider: IIndexedDBContextProvider;
+//   protected contextProvider: IContextProvider;
+//   protected cryptoUtils: ICryptoUtils;
+//   protected logUtils: ILogUtils;
+
+//   constructor() {
+//     this.blockchainProvider = td.object<IBlockchainProvider>();
+//     this.configProvider = td.object<IConfigProvider>();
+//     this.contextProvider = td.object<IContextProvider>();
+//     this.cryptoUtils = td.object<ICryptoUtils>();
+//     this.logUtils = td.object<ILogUtils>();
+//   }
+
+//   public factory() {
+//     return new ContractFactory(
+//       this.blockchainProvider,
+//       this.configProvider,
+//       this.contextProvider,
+//       this.cryptoUtils,
+//       this.logUtils,
+//     );
+//   }
+// }
+
 describe("VectorDB Initialization tests", () => {
   test("Init()", async () => {
     const mocks = new VectorDBMocks();
@@ -150,8 +181,6 @@ describe("VectorDB Fetch Table", () => {
     const answer = await instanceDB.getAll<InvitationForStorage>(
       "SD_OptedInInvitations",
     );
-    console.log("answer: ", answer._unsafeUnwrap());
-    console.log("table result: ", result._unsafeUnwrap());
     expect(result._unsafeUnwrap()[0]["data"]["consentContractAddress"]).toBe(
       "0x408e7997bF56a091c0aF82Bf0523B16D2b99e1a8",
     );
@@ -187,37 +216,32 @@ describe("VectorDB Quantize Table", () => {
     const init = await vectorDB.initialize(instanceDB);
     const table = await vectorDB.table("SD_OptedInInvitations");
 
-    const contractMapper = (
-      row: { consentContractAddress: string; tokenId: string }[],
-    ): EVMAccountAddress[] => {
-      /*
-        1. wrap contract address in contracts sdk type
-        2. use contracts-sdk handle to fetch from block chain current tags associated with contract
-        this is using ethers to make an rpc call to infura to ready contract attributes
-        3. word2vec on the tag strings associated with the contract
-      */
-      row.map((value) => {
-        // wrap up as contracts-sdk
-        const val = new ConsentContract(value.consentContractAddress);
+    // just mock it
+    const addressMapper = (
+      table: {
+        data: {
+          consentContractAddress: string;
+          tokenId: number;
+        };
+        lastUpdate: number;
+        version: number;
+        deleted: number;
+      }[],
+    ): number[][] => {
+      const output = table.map((obj) => {
+        return [obj.version, obj.deleted, obj.lastUpdate];
       });
 
-      row.forEach((element) => {
-        if (isNaN(element)) {
-          return element;
-        }
-        return element as number;
-      });
-      // const arr: Object[] = [];
-
-      return row;
+      return output;
     };
 
     const result = await vectorDB.quantizeTable(
       ERecordKey.OPTED_IN_INVITATIONS,
-      contractMapper,
+      addressMapper,
     );
 
     console.log("table result: ", result._unsafeUnwrap());
+    expect(result._unsafeUnwrap()[0][0]).toBe(0.9999975867997885);
   });
 });
 
@@ -234,7 +258,6 @@ describe("VectorDB Kmeans()", () => {
     ];
     const result = await vectorDB.kmeans(data, 4);
 
-    console.log("result: ", result._unsafeUnwrap());
     expect(result._unsafeUnwrap().centroids.length).toBe(4);
   });
 });
