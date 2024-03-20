@@ -843,19 +843,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         );
       },
 
-      setContentContractPermissions: (
-        consentContractAddress: EVMContractAddress,
-        virtual: EWalletDataType[],
-        questionnaires: IpfsCID[],
-      ) => {
+      setContentContractPermissions: (dataPermissions: DataPermissions) => {
         const permissionRepository =
           this.iocContainer.get<IPermissionRepository>(
             IPermissionRepositoryType,
           );
         return permissionRepository.setContentContractPermissions(
-          consentContractAddress,
-          virtual,
-          questionnaires,
+          dataPermissions,
         );
       },
 

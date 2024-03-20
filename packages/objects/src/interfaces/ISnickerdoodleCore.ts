@@ -837,7 +837,7 @@ export interface IPermissionMethods {
 
   setContentContractPermissions(
     dataPermissions: DataPermissions,
-  ): ResultAsync<DataPermissions, PersistenceError>;
+  ): ResultAsync<void, PersistenceError>;
 
   getDomainPermissions(
     domain: DomainName,
