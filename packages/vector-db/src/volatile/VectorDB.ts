@@ -96,7 +96,9 @@ export class VectorDB implements IQuantizationService {
       });
   }
 
-  // Compute the K - clusters
+  /*
+    Returns kmeans instance of a quantized table
+  */
   public kmeans(
     quantizedTable: number[][],
     k: number,
@@ -108,12 +110,15 @@ export class VectorDB implements IQuantizationService {
     return okAsync(result);
   }
 
+  /*
+    Returns an inference off of your Kmeans instance
+  */
   public infer(
     model: KMeansResult,
     userState: number[][],
   ): ResultAsync<InferenceResult, PersistenceError> {
     return okAsync({
-      data: model.nearest([[]]),
+      data: model.nearest(userState),
     } as InferenceResult);
   }
 
