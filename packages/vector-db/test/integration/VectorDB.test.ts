@@ -33,18 +33,14 @@ import { ResultUtils } from "neverthrow-result-utils";
 import * as td from "testdouble";
 
 import {
-  dummyClickData,
   dummyIndex,
   dummyContractData,
-  dummyQuestionnaireData,
-  dummyQuestionnaireHistory,
   dummyTable,
 } from "@vector-db-test/mocks";
-import { getIndexDBInstance, openDatabase } from "@vector-db-test/utils";
+import { getIndexDBInstance } from "@vector-db-test/utils";
 
 let objectStores = getObjectStoreDefinitions();
 objectStores.set(dummyIndex, dummyTable);
-const currentTime = 1706029234;
 
 const indexedDataBase1 = new IndexedDB(
   "SD_Wallet",
@@ -103,32 +99,6 @@ export class VectorDBMocks {
     );
   }
 }
-
-// export class ContractFactoryMocks {
-//   protected blockchainProvider: IBlockchainProvider;
-//   protected configProvider: IIndexedDBContextProvider;
-//   protected contextProvider: IContextProvider;
-//   protected cryptoUtils: ICryptoUtils;
-//   protected logUtils: ILogUtils;
-
-//   constructor() {
-//     this.blockchainProvider = td.object<IBlockchainProvider>();
-//     this.configProvider = td.object<IConfigProvider>();
-//     this.contextProvider = td.object<IContextProvider>();
-//     this.cryptoUtils = td.object<ICryptoUtils>();
-//     this.logUtils = td.object<ILogUtils>();
-//   }
-
-//   public factory() {
-//     return new ContractFactory(
-//       this.blockchainProvider,
-//       this.configProvider,
-//       this.contextProvider,
-//       this.cryptoUtils,
-//       this.logUtils,
-//     );
-//   }
-// }
 
 describe("VectorDB Initialization tests", () => {
   test("Init()", async () => {
