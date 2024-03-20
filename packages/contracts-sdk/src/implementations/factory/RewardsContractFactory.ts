@@ -218,7 +218,7 @@ export class RewardsContractFactory
       return this.writeToContractFactory(
         "deploy",
         [numberOfRewards, tokenURIs],
-        ECreatedRewardType.ERC721,
+        ECreatedRewardType.ERC1155,
         contractOverrides,
         true,
       );
@@ -283,6 +283,11 @@ export class RewardsContractFactory
     if (rewardType == ECreatedRewardType.ERC20) {
       contractFactory = this.erc20ContractFactory;
       abi = ContractsAbis.ERC20Reward.abi;
+    }
+
+    if (rewardType == ECreatedRewardType.ERC1155) {
+      contractFactory = this.erc1155ContractFactory;
+      abi = ContractsAbis.ERC1155Reward.abi;
     }
 
     return ResultAsync.fromPromise(
