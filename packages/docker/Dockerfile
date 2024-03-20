@@ -28,6 +28,7 @@ COPY packages/static-web-integration/package.json /build/packages/static-web-int
 COPY packages/synamint-extension-sdk/package.json /build/packages/synamint-extension-sdk/package.json
 COPY packages/test-harness/package.json /build/packages/test-harness/package.json
 COPY packages/utils/package.json /build/packages/utils/package.json
+COPY packages/vector-db/package.json /build/packages/vector-db/package.json
 COPY packages/web-integration/package.json /build/packages/web-integration/package.json
 COPY packages/web-integration-test/package.json /build/packages/web-integration-test/package.json
 # RUN yarn set version berry
