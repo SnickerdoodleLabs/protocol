@@ -31,24 +31,27 @@ abstract contract ERC7529Upgradeable is IERC7529, Initializable {
 
     function __ERC7529_init_unchained() internal onlyInitializing {}
 
+    /// @notice a getter function that takes an eTLD+1 domain string and returns true if associated with the contract
+    /// @param domain a string representing an eTLD+1 domain
     function getDomain(string calldata domain) external view returns (bool) {
         ERC7529Storage storage $ = _getERC7529Storage();
         return $.domains[keccak256(abi.encodePacked(domain))];
     }
 
-    /// @notice Add a domain to the domains array
-    /// @param domain Domain to add
+    /// @notice an authenticated method to add an eTLD+1 domain
+    /// @param domain a string representing an eTLD+1 domain associated with the contract
     function _addDomain(string memory domain) internal virtual {
         ERC7529Storage storage $ = _getERC7529Storage();
         $.domains[keccak256(abi.encodePacked(domain))] = true;
-        emit LogAddDomain(domain);
+        emit AddDomain(domain);
     }
 
-    /// @notice Removes a domain from the domains array
-    /// @param domain Domain to remove
+    /// @notice an authenticated method to remove an eTLD+1 domain
+    /// @param domain a string representing an eTLD+1 domain that is no longer associated with the contract
     function _removeDomain(string memory domain) internal virtual {
         ERC7529Storage storage $ = _getERC7529Storage();
+        require($.domains[keccak256(abi.encodePacked(domain))] == true, "ERC7529: eTLD+1 currently not associated with this contract");
         $.domains[keccak256(abi.encodePacked(domain))] = false;
-        emit LogRemoveDomain(domain);
+        emit RemoveDomain(domain);
     }
 }
