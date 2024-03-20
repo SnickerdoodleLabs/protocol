@@ -245,7 +245,7 @@ contract Consent is
         // save the index of the commitment, indexing must start at 1
         commitments[commitment] = commitmentArray.length;
 
-        // set tokenId so that it cannot be used again
+        // register nonce so that it cannot be used again
         nonces[nonce] = true;
 
         emit Commitment(commitmentArray.length, commitment);

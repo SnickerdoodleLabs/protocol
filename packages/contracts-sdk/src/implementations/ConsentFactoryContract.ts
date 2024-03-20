@@ -299,8 +299,23 @@ export class ConsentFactoryContract
     );
   }
 
+  public registerStakingToken(
+    stakingToken: EVMContractAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.writeToContract(
+      "registerStakingToken",
+      [stakingToken],
+      overrides,
+    );
+  }
+
   public adminRemoveListing(
     tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
     removedSlot: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -314,8 +329,39 @@ export class ConsentFactoryContract
     );
   }
 
+  public blockContentObject(
+    stakingToken: EVMContractAddress,
+    contentAddress: EVMContractAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.writeToContract(
+      "blockContentObject",
+      [stakingToken, contentAddress],
+      overrides,
+    );
+  }
+
+  public unblockContentObject(
+    stakingToken: EVMContractAddress,
+    contentAddress: EVMContractAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.writeToContract(
+      "unblockContentObject",
+      [stakingToken, contentAddress],
+      overrides,
+    );
+  }
+
   public getListingDetail(
     tag: MarketplaceTag,
+    stakedToken: EVMContractAddress,
     slot: BigNumberString,
   ): ResultAsync<
     MarketplaceListing,
@@ -341,6 +387,7 @@ export class ConsentFactoryContract
 
   public getListingsForward(
     tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
     startingSlot: BigNumberString,
     numberOfSlots: number,
     removeExpired: boolean,
@@ -351,6 +398,7 @@ export class ConsentFactoryContract
     return ResultAsync.fromPromise(
       this.contract.getListingsForward(
         tag,
+        stakingToken,
         startingSlot,
         numberOfSlots,
         removeExpired,
@@ -384,6 +432,7 @@ export class ConsentFactoryContract
 
   public getListingsBackward(
     tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
     startingSlot: BigNumberString,
     numberOfSlots: number,
     removeExpired: boolean,
@@ -394,6 +443,7 @@ export class ConsentFactoryContract
     return ResultAsync.fromPromise(
       this.contract.getListingsForward(
         tag,
+        stakingToken,
         startingSlot,
         numberOfSlots,
         removeExpired,
@@ -427,9 +477,10 @@ export class ConsentFactoryContract
 
   public getTagTotal(
     tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
   ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contract.getTagTotal(tag) as Promise<bigint>,
+      this.contract.getTagTotal(tag, stakingToken) as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call getTagTotal()");
       },
@@ -440,6 +491,7 @@ export class ConsentFactoryContract
 
   public getListingsByTag(
     tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
     removeExpired: boolean,
   ): ResultAsync<
     MarketplaceListing[],
@@ -447,18 +499,18 @@ export class ConsentFactoryContract
   > {
     // We get the total number of slots by calling getTagTotal()
     // And if we query the 2^256 - 1 slot by calling getListingDetail(), its previous member variable will point to the highest ranked listing for that tag
-    return ResultUtils.combine([
-      this.getTagTotal(tag),
-      this.getListingDetail(tag, BigNumberString(ethers.MaxUint256.toString())),
-    ]).andThen(([tagTotal, listingDetail]) => {
-      // The max slot's next points to the highest slot
-      const highestRankListingSlot = listingDetail.next;
+    return this.getTagTotal(tag, stakingToken).andThen((tagTotal) => {
+      // The max slot
+      const highestRankListingSlot = BigNumberString(
+        ethers.MaxUint256.toString(),
+      );
 
       // Fetch from the highest to lowest listings
       return this.getListingsForward(
         tag,
+        stakingToken,
         highestRankListingSlot,
-        tagTotal,
+        tagTotal + 1, // as this call starts from the highrest slot value and works its way down, we need to add one more slot to account for all tags
         removeExpired,
       );
     });

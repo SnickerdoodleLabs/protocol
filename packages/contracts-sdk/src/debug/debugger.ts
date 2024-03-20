@@ -7,6 +7,7 @@ import {
   ConsentName,
   DomainName,
   EVMAccountAddress,
+  EVMContractAddress,
   MarketplaceTag,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
@@ -218,6 +219,8 @@ const newGlobalTag = async () => {
   try {
     const tx = await contracts.consentContract.newGlobalTag(
       "tag2",
+      EVMContractAddress("0x3B6d7bF2203bad30fecDf2c03984D2b9610Eb9D7"), // test with random erc20 address
+      EVMAccountAddress(signer.address),
       BigNumberString("5"),
     );
 
@@ -249,7 +252,10 @@ const getNumberOfStakedTags = async () => {
 
 const removeListing = async () => {
   try {
-    const tx = await contracts.consentContract.removeListing("tag1");
+    const tx = await contracts.consentContract.removeListing(
+      "tag1",
+      EVMContractAddress("0x3B6d7bF2203bad30fecDf2c03984D2b9610Eb9D7"), // test with random erc20 address
+    );
 
     console.log("removeListing res: ", tx);
   } catch (err) {
@@ -261,6 +267,8 @@ const newLocalTagUpstream = async () => {
   try {
     const tx = await contracts.consentContract2.newLocalTagUpstream(
       "tag2",
+      EVMContractAddress("0x3B6d7bF2203bad30fecDf2c03984D2b9610Eb9D7"), // test with random erc20 address
+      EVMAccountAddress(signer.address),
       BigNumberString("6"),
       BigNumberString("5"),
     );
@@ -273,6 +281,8 @@ const newLocalTagUpstream = async () => {
   try {
     const tx2 = await contracts.consentContract3.newLocalTagUpstream(
       "tag2",
+      EVMContractAddress("0x3B6d7bF2203bad30fecDf2c03984D2b9610Eb9D7"), // test with random erc20 address
+      EVMAccountAddress(signer.address),
       BigNumberString("7"),
       BigNumberString("6"),
     );
@@ -287,6 +297,8 @@ const newLocalTagDownstream = async () => {
   try {
     const tx = await contracts.consentContract3.newLocalTagDownstream(
       "tag1",
+      EVMContractAddress("0x3B6d7bF2203bad30fecDf2c03984D2b9610Eb9D7"), // test with random erc20 address
+      EVMAccountAddress(signer.address),
       BigNumberString("7"),
       BigNumberString("4"),
     );
@@ -301,6 +313,8 @@ const replaceExpiredListing = async () => {
   try {
     const tx = await contracts.consentContract.replaceExpiredListing(
       "tag1",
+      EVMContractAddress("0x3B6d7bF2203bad30fecDf2c03984D2b9610Eb9D7"), // test with random erc20 address
+      EVMAccountAddress(signer.address),
       BigNumberString("5"),
     );
 

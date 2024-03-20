@@ -182,9 +182,10 @@ export interface IConsentFactoryContract
 
   getListingsForward(
     tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
     startingSlot: BigNumberString,
     numberOfSlots: number,
-    filterActive: boolean,
+    removeExpired: boolean,
   ): ResultAsync<
     MarketplaceListing[],
     ConsentFactoryContractError | BlockchainCommonErrors
@@ -192,9 +193,10 @@ export interface IConsentFactoryContract
 
   getListingsBackward(
     tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
     startingSlot: BigNumberString,
     numberOfSlots: number,
-    filterActive: boolean,
+    removeExpired: boolean,
   ): ResultAsync<
     MarketplaceListing[],
     ConsentFactoryContractError | BlockchainCommonErrors
@@ -202,14 +204,15 @@ export interface IConsentFactoryContract
 
   getTagTotal(
     tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
   ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors>;
-
   /**
    *  Return the list of marketplace listings of a specific tag
    * @param tag marketplace tag string
    */
   getListingsByTag(
     tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
     removeExpired: boolean,
   ): ResultAsync<
     MarketplaceListing[],
