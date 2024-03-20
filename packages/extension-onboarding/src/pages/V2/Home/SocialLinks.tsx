@@ -71,15 +71,20 @@ const SocialLinks = () => {
             window.open(TWITTER_URL, "_blank");
           }}
         />
-        <SocialItem
+        {/* <SocialItem
           icon="https://storage.googleapis.com/dw-assets/spa/icons-v2/telegram-icon.svg"
           text="Join Telegram"
           onClick={() => {}}
-        />
+        /> */}
         <SocialItem
           icon="https://storage.googleapis.com/dw-assets/spa/icons-v2/call-icon.svg"
           text="Schedule a call"
-          onClick={() => {}}
+          onClick={() => {
+            window.open(
+              "https://calendly.com/sdl-product-hours/30min",
+              "_blank",
+            );
+          }}
         />
       </Box>
     </Box>
