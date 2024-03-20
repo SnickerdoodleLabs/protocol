@@ -129,7 +129,7 @@ export class RewardsContractFactory
       });
   }
 
-  // function to deploy a new ERC721 reward contract
+  // function to deploy a new ERC20 reward contract
   public deployERC20Reward(
     name: string,
     symbol: string,
@@ -192,7 +192,7 @@ export class RewardsContractFactory
       });
   }
 
-  // function to deploy a new ERC721 reward contract
+  // function to deploy a new ERC1155 reward contract
   public deployERC1155Reward(
     numberOfRewards: number,
     tokenURIs: TokenUri[],
@@ -230,7 +230,7 @@ export class RewardsContractFactory
     tokenURIs: TokenUri[],
   ): ResultAsync<bigint, RewardsFactoryError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.erc721ContractFactory.getDeployTransaction(
+      this.erc1155ContractFactory.getDeployTransaction(
         numberOfRewards,
         tokenURIs,
       ),
