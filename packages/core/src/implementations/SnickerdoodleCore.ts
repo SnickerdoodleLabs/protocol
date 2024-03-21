@@ -363,14 +363,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       },
       acceptInvitation: (
         invitation: Invitation,
-        dataPermissions: DataPermissions | null,
         sourceDomain: DomainName | undefined = undefined,
       ) => {
         const invitationService = this.iocContainer.get<IInvitationService>(
           IInvitationServiceType,
         );
 
-        return invitationService.acceptInvitation(invitation, dataPermissions);
+        return invitationService.acceptInvitation(invitation);
       },
       rejectInvitation: (
         invitation: Invitation,

@@ -516,7 +516,6 @@ export interface IInvitationMethods {
    */
   acceptInvitation(
     invitation: Invitation,
-    dataPermissions: DataPermissions | null,
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     void,

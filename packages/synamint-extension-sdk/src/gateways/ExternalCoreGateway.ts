@@ -141,7 +141,6 @@ import {
   GetTransactionsParams,
   AddAccountWithExternalSignatureParams,
   AddAccountWithExternalTypedDataSignatureParams,
-  UpdateAgreementPermissionsParams,
   GetPersistenceNFTsParams,
   GetAccountNFTHistoryParams,
   GetAccountNftCacheParams,
@@ -152,6 +151,7 @@ import {
   GetQuestionnairesForConsentContractParams,
   GetConsentContractsByQuestionnaireCIDParams,
   GetRecommendedConsentContractsParams,
+  UpdateAgreementPermissionsParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -400,10 +400,9 @@ export class ExternalCoreGateway {
 
   public acceptInvitation(
     invitation: Invitation,
-    dataTypes: EWalletDataType[] | null,
   ): ResultAsync<void, ProxyError> {
     return this._handler.call(
-      new AcceptInvitationParams(ObjectUtils.serialize(invitation), dataTypes),
+      new AcceptInvitationParams(ObjectUtils.serialize(invitation)),
     );
   }
 

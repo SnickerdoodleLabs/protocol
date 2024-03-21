@@ -45,11 +45,11 @@ export class InvitationService implements IInvitationService {
 
   public updateAgreementPermissions(
     consentContractAddress: EVMContractAddress,
-    dataTypes: EWalletDataType[],
+    dataPermissions: DataPermissions,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.invitationRepository.updateAgreementPermissions(
       consentContractAddress,
-      DataPermissions.createWithPermissions(dataTypes),
+      dataPermissions,
     );
   }
 
@@ -128,12 +128,8 @@ export class InvitationService implements IInvitationService {
 
   public acceptInvitation(
     invitation: Invitation,
-    dataTypes: EWalletDataType[] | null,
   ): ResultAsync<void, SnickerDoodleCoreError | ExtensionStorageError> {
-    return this.invitationRepository.acceptInvitation(
-      invitation,
-      dataTypes ? DataPermissions.createWithPermissions(dataTypes) : null,
-    );
+    return this.invitationRepository.acceptInvitation(invitation);
   }
   public rejectInvitation(
     invitation: Invitation,
