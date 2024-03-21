@@ -6,6 +6,7 @@ import {
   ConsentError,
   DataPermissions,
   DomainName,
+  EVMContractAddress,
   HexString32,
   IOldUserAgreement,
   Invitation,
@@ -38,7 +39,6 @@ import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities";
-import { EVMContractAddress } from "packages/objects/src";
 
 const domain = DomainName("phoebe.com");
 const url1 = URLString("phoebe.com/cute");
