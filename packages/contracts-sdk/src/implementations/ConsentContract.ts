@@ -4,7 +4,6 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   IpfsCID,
-  TokenUri,
   Signature,
   TokenId,
   RequestForData,
@@ -12,17 +11,14 @@ import {
   DomainName,
   BaseURI,
   HexString,
-  HexString32,
   InvalidParametersError,
-  ConsentToken,
-  DataPermissions,
   BigNumberString,
   BlockchainCommonErrors,
   Commitment,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
-import { ok, err, okAsync, ResultAsync, errAsync } from "neverthrow";
+import { okAsync, ResultAsync, errAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
