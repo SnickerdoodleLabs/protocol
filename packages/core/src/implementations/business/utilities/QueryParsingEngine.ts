@@ -208,32 +208,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     });
   }
 
-  // @TODO getPossibleQueryDeliveryItems is never used in protocol codebase.
-  public getPossibleQueryDeliveryItems(
-    query: SDQLQuery,
-  ): ResultAsync<
-    IQueryDeliveryItems,
-    | ParserError
-    | DuplicateIdInSchema
-    | QueryFormatError
-    | MissingTokenConstructorError
-    | QueryExpiredError
-    | MissingASTError
-    | EvaluationError
-    | PersistenceError
-    | EvalNotImplementedError
-    | AjaxError
-    | AccountIndexingError
-    | MethodSupportError
-    | InvalidParametersError
-  > {
-    return this.permissionRepo
-      .getContentContractPermissions(query.consentContractAddress)
-      .andThen((perms) => {
-        return this.handleQuery(query, perms);
-      });
-  }
-
   /** Used for reward generation on the SPA. Purpose is to show all the rewards to the user
    *  should not be used for anything else !
    */

@@ -134,7 +134,6 @@ export class OptInCampaign extends Prompt {
                 // Accept with no conditions
                 return this.core.invitation.acceptInvitation(
                   invitation.invitation,
-                  null,
                 );
               })
               .map(() => {

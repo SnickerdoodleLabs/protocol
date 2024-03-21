@@ -274,10 +274,12 @@ export interface ISdlDataWallet {
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError>;
+
   updateAgreementPermissions(
     consentContractAddress: EVMContractAddress,
-    dataTypes: EWalletDataType[],
+    dataPermissions: DataPermissions,
   ): ResultAsync<void, ProxyError>;
+
   getDataPermissions(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<DataPermissions, ProxyError>;
