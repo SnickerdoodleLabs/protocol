@@ -23,8 +23,8 @@ export interface IBigNumberUtils {
   BNSToDS(bigNumberString: BigNumberString, decimals?: number): DecimalString;
   validateBNS(bigNumberString: string): boolean;
   BNStoHexString32(bigNumberString: BigNumberString): HexString32;
-  BNStoHexString32WithoutPrefix(bigNumberString: BigNumberString): HexString32;
-  HexString32ToBNS(hexString: HexString32): BigNumberString;
+  BNStoHexString32NoPrefix(bigNumberString: BigNumberString): HexString32;
+  HexString32NoPrefixToBNS(hexString: HexString32): BigNumberString;
 }
 
 export const IBigNumberUtilsType = Symbol.for("IBigNumberUtils");
