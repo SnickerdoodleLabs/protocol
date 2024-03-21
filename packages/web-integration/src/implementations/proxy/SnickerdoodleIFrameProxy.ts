@@ -416,11 +416,11 @@ export class SnickerdoodleIFrameProxy
   }
   public updateAgreementPermissions(
     consentContractAddress: EVMContractAddress,
-    dataTypes: EWalletDataType[],
+    dataPermissions: DataPermissions,
   ): ResultAsync<void, ProxyError> {
     return this._createCall("updateAgreementPermissions", {
       consentContractAddress,
-      dataTypes,
+      dataPermissions,
     });
   }
   public getDataPermissions(

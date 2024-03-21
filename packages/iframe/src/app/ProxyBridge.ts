@@ -343,17 +343,19 @@ export class ProxyBridge implements ISdlDataWallet {
   ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError> {
     return this.call(this.core.invitation.getInvitationMetadataByCID(ipfsCID));
   }
+
   updateAgreementPermissions(
     consentContractAddress: EVMContractAddress,
-    dataTypes: EWalletDataType[],
+    dataPermissions: DataPermissions,
   ): ResultAsync<void, ProxyError> {
     return this.call(
       this.core.invitation.updateDataPermissions(
         consentContractAddress,
-        DataPermissions.createWithPermissions(dataTypes),
+        dataPermissions,
       ),
     );
   }
+
   getDataPermissions(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<DataPermissions, ProxyError> {

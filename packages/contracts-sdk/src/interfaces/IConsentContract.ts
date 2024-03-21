@@ -360,7 +360,9 @@ export interface IConsentContract
 
   newGlobalTag(
     tag: string,
-    newSlot: BigNumberString,
+    stakingToken: EVMContractAddress,
+    stakeOWner: EVMAccountAddress | EVMContractAddress,
+    newStakeAmount: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -369,6 +371,8 @@ export interface IConsentContract
 
   newLocalTagUpstream(
     tag: string,
+    stakingToken: EVMContractAddress,
+    stakeOwner: EVMAccountAddress | EVMContractAddress,
     newSlot: BigNumberString,
     existingSlot: BigNumberString,
     overrides?: ContractOverrides,
@@ -379,8 +383,22 @@ export interface IConsentContract
 
   newLocalTagDownstream(
     tag: string,
-    existingSlot: BigNumberString,
-    newSlot: BigNumberString,
+    stakingToken: EVMContractAddress,
+    stakeOwner: EVMAccountAddress | EVMContractAddress,
+    existingStakeAmount: BigNumberString,
+    newStakeAmount: BigNumberString,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  >;
+
+  moveExistingListingUpstream(
+    tag: string,
+    stakingToken: EVMContractAddress,
+    stakeOwner: EVMAccountAddress | EVMContractAddress,
+    newStakeAmount: BigNumberString,
+    existingStakeAmount: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -389,6 +407,7 @@ export interface IConsentContract
 
   restakeExpiredListing(
     tag: string,
+    stakingToken: EVMContractAddress,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -397,6 +416,8 @@ export interface IConsentContract
 
   replaceExpiredListing(
     tag: string,
+    stakingToken: EVMContractAddress,
+    stakeOwner: EVMAccountAddress | EVMContractAddress,
     slot: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -406,6 +427,7 @@ export interface IConsentContract
 
   removeListing(
     tag: string,
+    stakingToken: EVMContractAddress,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,

@@ -127,7 +127,6 @@ import {
   AddAccountWithExternalSignatureParams,
   AddAccountWithExternalTypedDataSignatureParams,
   ERequestChannel,
-  UpdateAgreementPermissionsParams,
   SnickerDoodleCoreError,
   GetPersistenceNFTsParams,
   GetAccountNFTHistoryParams,
@@ -139,6 +138,7 @@ import {
   GetQuestionnairesForConsentContractParams,
   GetConsentContractsByQuestionnaireCIDParams,
   GetRecommendedConsentContractsParams,
+  UpdateAgreementPermissionsParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -483,7 +483,7 @@ export class RpcCallHandler implements IRpcCallHandler {
       (params) => {
         return this.invitationService.updateAgreementPermissions(
           params.consentContractAddress,
-          params.dataTypes,
+          params.dataPermissions,
         );
       },
     ),
@@ -493,9 +493,6 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this.core.invitation
           .acceptInvitation(
             ObjectUtils.deserialize(params.invitation),
-            params.dataTypes
-              ? DataPermissions.createWithPermissions(params.dataTypes)
-              : null,
             sourceDomain,
           )
           .mapErr((error) => {

@@ -4,7 +4,6 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   IpfsCID,
-  TokenUri,
   Signature,
   TokenId,
   RequestForData,
@@ -12,17 +11,14 @@ import {
   DomainName,
   BaseURI,
   HexString,
-  HexString32,
   InvalidParametersError,
-  ConsentToken,
-  DataPermissions,
   BigNumberString,
   BlockchainCommonErrors,
   Commitment,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
-import { ok, err, okAsync, ResultAsync, errAsync } from "neverthrow";
+import { okAsync, ResultAsync, errAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
@@ -663,6 +659,8 @@ export class ConsentContract
 
   public newGlobalTag(
     tag: string,
+    stakingToken: EVMContractAddress,
+    stakeOWner: EVMAccountAddress | EVMContractAddress,
     newStakeAmount: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -671,13 +669,15 @@ export class ConsentContract
   > {
     return this.writeToContract(
       "newGlobalTag",
-      [tag, newStakeAmount],
+      [tag, stakingToken, stakeOWner, newStakeAmount],
       overrides,
     );
   }
 
   public newLocalTagUpstream(
     tag: string,
+    stakingToken: EVMContractAddress,
+    stakeOwner: EVMAccountAddress | EVMContractAddress,
     newStakeAmount: BigNumberString,
     existingStakeAmount: BigNumberString,
     overrides?: ContractOverrides,
@@ -687,13 +687,15 @@ export class ConsentContract
   > {
     return this.writeToContract(
       "newLocalTagUpstream",
-      [tag, newStakeAmount, existingStakeAmount],
+      [tag, stakingToken, stakeOwner, newStakeAmount, existingStakeAmount],
       overrides,
     );
   }
 
   public newLocalTagDownstream(
     tag: string,
+    stakingToken: EVMContractAddress,
+    stakeOwner: EVMAccountAddress | EVMContractAddress,
     existingStakeAmount: BigNumberString,
     newStakeAmount: BigNumberString,
     overrides?: ContractOverrides,
@@ -703,23 +705,48 @@ export class ConsentContract
   > {
     return this.writeToContract(
       "newLocalTagDownstream",
-      [tag, existingStakeAmount, newStakeAmount],
+      [tag, stakingToken, stakeOwner, existingStakeAmount, newStakeAmount],
+      overrides,
+    );
+  }
+
+  public moveExistingListingUpstream(
+    tag: string,
+    stakingToken: EVMContractAddress,
+    stakeOwner: EVMAccountAddress | EVMContractAddress,
+    newStakeAmount: BigNumberString,
+    existingStakeAmount: BigNumberString,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract(
+      "moveExistingListingUpstream",
+      [tag, stakingToken, stakeOwner, newStakeAmount, existingStakeAmount],
       overrides,
     );
   }
 
   public restakeExpiredListing(
     tag: string,
+    stakingToken: EVMContractAddress,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | ConsentContractError
   > {
-    return this.writeToContract("restakeExpiredListing", [tag], overrides);
+    return this.writeToContract(
+      "restakeExpiredListing",
+      [tag, stakingToken],
+      overrides,
+    );
   }
 
   public replaceExpiredListing(
     tag: string,
+    stakingToken: EVMContractAddress,
+    stakeOwner: EVMAccountAddress | EVMContractAddress,
     stakeAmount: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -728,19 +755,24 @@ export class ConsentContract
   > {
     return this.writeToContract(
       "replaceExpiredListing",
-      [tag, stakeAmount],
+      [tag, stakingToken, stakeOwner, stakeAmount],
       overrides,
     );
   }
 
   public removeListing(
     tag: string,
+    stakingToken: EVMContractAddress,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | ConsentContractError
   > {
-    return this.writeToContract("removeListing", [tag], overrides);
+    return this.writeToContract(
+      "removeListing",
+      [tag, stakingToken],
+      overrides,
+    );
   }
 
   public filters = {

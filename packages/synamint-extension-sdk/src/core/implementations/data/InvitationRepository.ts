@@ -192,14 +192,11 @@ export class InvitationRepository implements IInvitationRepository {
 
   public acceptInvitation(
     invitation: Invitation,
-    dataPermissions: DataPermissions | null,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core.invitation
-      .acceptInvitation(invitation, dataPermissions)
-      .mapErr((error) => {
-        this.errorUtils.emit(error);
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      });
+    return this.core.invitation.acceptInvitation(invitation).mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
   public rejectInvitation(
     invitation: Invitation,

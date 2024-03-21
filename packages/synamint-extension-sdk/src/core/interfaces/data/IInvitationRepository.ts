@@ -25,16 +25,15 @@ export interface IInvitationRepository {
   getInvitationsByDomain(
     domain: string,
   ): ResultAsync<PageInvitation[], SnickerDoodleCoreError>;
-  checkInvitationStatus(
-    invitation: Invitation,
-  ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError>;
   updateAgreementPermissions(
     consentContractAddress: EVMContractAddress,
     dataPermissions: DataPermissions,
   ): ResultAsync<void, SnickerDoodleCoreError>;
+  checkInvitationStatus(
+    invitation: Invitation,
+  ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError>;
   acceptInvitation(
     invitation: Invitation,
-    dataPermissions: DataPermissions | null,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   rejectInvitation(
     invitation: Invitation,

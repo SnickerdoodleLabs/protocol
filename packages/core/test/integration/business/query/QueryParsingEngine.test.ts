@@ -60,10 +60,12 @@ import {
 import {
   AdContentRepository,
   AdDataRepository,
+  PermissionRepository,
   QuestionnaireRepository,
 } from "@core/implementations/data/index.js";
 import {
   IBrowsingDataRepository,
+  IDataWalletPersistence,
   IDemographicDataRepository,
   ILinkedAccountRepository,
   INftRepository,
@@ -125,6 +127,7 @@ class QueryParsingMocks {
   public timeUtils: ITimeUtils = td.object<ITimeUtils>();
   public bigNumberUtils = td.object<IBigNumberUtils>();
   public contextProvider: ContextProviderMock = new ContextProviderMock();
+  public dataWalletPersistence = td.object<IDataWalletPersistence>();
 
   public blockchainTransactionQueryEvaluator =
     new BlockchainTransactionQueryEvaluator(
@@ -155,8 +158,8 @@ class QueryParsingMocks {
   public queryWrapperFactory: ISDQLQueryWrapperFactory;
   public queryRepository: QueryRepository;
   public queryEvaluator: QueryEvaluator;
-
   public adContentRepository: AdContentRepository;
+  public permissionRepository: PermissionRepository;
 
   public constructor() {
     this.queryObjectFactory = new QueryObjectFactory();
@@ -221,12 +224,17 @@ class QueryParsingMocks {
       new AjaxUtilsMock(),
       new ConfigProviderMock(),
     );
+    this.permissionRepository = new PermissionRepository(
+      this.dataWalletPersistence,
+    );
   }
 
   public factory() {
+    //@ts-ignore
     return new QueryParsingEngine(
       this.queryFactories,
       this.queryRepository,
+      this.permissionRepository,
       this.queryUtils,
       this.adContentRepository,
       this.adDataRepo,

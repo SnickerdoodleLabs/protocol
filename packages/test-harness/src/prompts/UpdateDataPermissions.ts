@@ -1,4 +1,4 @@
-/* import {
+import {
   AjaxError,
   BlockchainProviderError,
   ConsentContractError,
@@ -74,15 +74,25 @@ export class UpdateDataPermissions extends Prompt {
 
             let permissions: DataPermissions;
             if (whichPermissionsAnswers.updateDataPermissions == "all") {
-              permissions = DataPermissions.createWithAllPermissions();
+              permissions = new DataPermissions(
+                "" as EVMContractAddress,
+                [],
+                [],
+              );
             } else if (
               whichPermissionsAnswers.updateDataPermissions == "some"
             ) {
-              permissions = DataPermissions.createWithPermissions([
-                EWalletDataType.AccountBalances,
-              ]);
+              permissions = new DataPermissions(
+                "" as EVMContractAddress,
+                [EWalletDataType.AccountBalances],
+                [],
+              );
             } else {
-              permissions = DataPermissions.createWithPermissions([]);
+              permissions = new DataPermissions(
+                "" as EVMContractAddress,
+                [],
+                [],
+              );
             }
 
             return this.core.invitation
@@ -101,4 +111,3 @@ export class UpdateDataPermissions extends Prompt {
       });
   }
 }
- */
