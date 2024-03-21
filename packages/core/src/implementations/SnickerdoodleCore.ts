@@ -1018,7 +1018,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   batchApprovePreProcessQueries(
     contractAddress: EVMContractAddress,
-    queries: Map<IpfsCID, IDynamicRewardParameter>,
+    queries: Map<IpfsCID, IDynamicRewardParameter[]>,
     _sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, never> {
     const queryService =

@@ -10,6 +10,8 @@ import {
 import { Theme, ThemeProvider } from "@material-ui/core";
 import {
   DataPermissions,
+  EChain,
+  EVMAccountAddress,
   EVMContractAddress,
   EWalletDataType,
   IDynamicRewardParameter,
@@ -102,6 +104,14 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   const [userRequestInvitation, setUserRequestInvitation] =
     useState<IInvitation | null>(null);
 
+  const receivingAccount = useMemo(() => {
+    const evmAccount = accounts.find(
+      (account) => account.sourceChain === EChain.EthereumMainnet,
+    )?.sourceAccountAddress;
+
+    return evmAccount ? (evmAccount as EVMAccountAddress) : null;
+  }, [accounts]);
+
   const currentInvitation: ICurrentInvitation | null = useMemo(() => {
     if (userRequestInvitation) {
       return {
@@ -131,7 +141,6 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     domainInvitation,
     consentInvitation,
     userRequestInvitation,
-    accounts.length,
     awaitRender,
   ]);
 
@@ -289,6 +298,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   }, [appState]);
 
   const component = useMemo(() => {
+    if (!receivingAccount) return null;
     if (currentInvitation) {
       switch (appState) {
         case EAPP_STATE.IDLE:
@@ -342,7 +352,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
               }}
               batchApproveQueries={function (
                 contractAddress: EVMContractAddress,
-                queries: Map<IpfsCID, IDynamicRewardParameter>,
+                queries: Map<IpfsCID, IDynamicRewardParameter[]>,
               ): ResultAsync<void, unknown> {
                 return core.batchApprovePreProcessQueries(
                   contractAddress,
@@ -350,6 +360,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
                   undefined,
                 );
               }}
+              receivingAddress={receivingAccount}
               getQuestionnairesByCids={function (
                 cids: IpfsCID[],
               ): ResultAsync<Questionnaire[], unknown> {

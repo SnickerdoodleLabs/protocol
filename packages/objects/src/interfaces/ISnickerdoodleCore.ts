@@ -934,7 +934,7 @@ export interface ISnickerdoodleCore {
 
   batchApprovePreProcessQueries(
     contractAddress: EVMContractAddress,
-    queries: Map<IpfsCID, IDynamicRewardParameter>,
+    queries: Map<IpfsCID, IDynamicRewardParameter[]>,
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, never>;
 

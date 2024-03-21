@@ -35,6 +35,7 @@ import {
 import { FillQuestionnaireModal } from "@shared-components/v2/widgets/FillQuestionnaireModal";
 import {
   EQuestionnaireStatus,
+  EVMAccountAddress,
   EVMContractAddress,
   EWalletDataType,
   IDynamicRewardParameter,
@@ -75,11 +76,12 @@ interface IConsentModalProps {
   ) => ResultAsync<QueryStatus[], unknown>;
   batchApproveQueries: (
     contractAddress: EVMContractAddress,
-    queries: Map<IpfsCID, IDynamicRewardParameter>,
+    queries: Map<IpfsCID, IDynamicRewardParameter[]>,
   ) => ResultAsync<void, unknown>;
   getQuestionnairesByCids: (
     cids: IpfsCID[],
   ) => ResultAsync<Questionnaire[], unknown>;
+  receivingAddress: EVMAccountAddress;
 }
 
 enum EComponentRenderState {
@@ -125,6 +127,7 @@ export const ConsentModal = ({
   getQueryStatuses,
   batchApproveQueries,
   getQuestionnairesByCids,
+  receivingAddress,
 }: IConsentModalProps) => {
   const classes = useStyles();
   const dialogClasses = useDialogStyles();
@@ -313,7 +316,7 @@ export const ConsentModal = ({
     [],
   );
 
-  const onQuestionnarieSubmit = useCallback(
+  const onQuestionnaireSubmit = useCallback(
     (answers: NewQuestionnaireAnswer[]) => {
       if (!questionnaireToAnswer) {
         return;
@@ -388,17 +391,31 @@ export const ConsentModal = ({
         return batchApproveQueries(
           consentContractAddress,
           new Map(
-            queryApprovalState.queryIds.map((id) => [
-              id,
-              JSON.parse(getRewardParameters(id)),
-            ]),
+            queryApprovalState.queryIds.map((id) => {
+              const calculatedRewardParameters =
+                [] as IDynamicRewardParameter[];
+              JSON.parse(getRewardParameters(id)).forEach((rp) => {
+                calculatedRewardParameters.push({
+                  ...rp,
+                  recipientAddress: {
+                    ...rp.recipientAddress,
+                    value: receivingAddress,
+                  },
+                });
+              });
+              return [id, calculatedRewardParameters];
+            }),
           ),
         );
       })
       .map(() => {
         onOptinClicked();
       });
-  }, [JSON.stringify(queryApprovalState), getRewardParameters]);
+  }, [
+    JSON.stringify(queryApprovalState),
+    getRewardParameters,
+    receivingAddress,
+  ]);
 
   const actions = useMemo(() => {
     if (componentRenderState === EComponentRenderState.RENDER_AGREEMENT) {
@@ -775,7 +792,7 @@ export const ConsentModal = ({
           }}
           questionnaire={questionnaireToAnswer.questionnaire}
           onQuestionnaireSubmit={(answers) => {
-            onQuestionnarieSubmit(answers);
+            onQuestionnaireSubmit(answers);
           }}
         />
       )}

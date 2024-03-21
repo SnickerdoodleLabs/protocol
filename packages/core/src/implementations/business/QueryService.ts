@@ -320,7 +320,7 @@ export class QueryService implements IQueryService {
   // this function should be called before opt-in
   public batchApprovePreProcessQueries(
     contractAddress: EVMContractAddress,
-    queries: Map<IpfsCID, IDynamicRewardParameter>,
+    queries: Map<IpfsCID, IDynamicRewardParameter[]>,
   ): ResultAsync<void, never> {
     const cache = this.preProcessCache.get(contractAddress);
     if (cache == null) {
@@ -965,14 +965,7 @@ export class QueryService implements IQueryService {
   protected processPreApprovedQuery(
     preProcessQuery: QueryStatus,
     requestForData: RequestForData,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | ConsentContractError
-    | UninitializedError
-    | ConsentError
-    | BlockchainCommonErrors
-  > {
+  ): ResultAsync<void, PersistenceError | ConsentContractError | UninitializedError | ConsentError | EvaluationError | QueryFormatError | AjaxError | BlockchainCommonErrors> {
     return this.consentTokenUtils
       .getCurrentConsentToken(requestForData.consentContractAddress)
       .andThen((consentToken) => {
@@ -980,8 +973,8 @@ export class QueryService implements IQueryService {
           preProcessQuery.status = EQueryProcessingStatus.AdsCompleted;
           return this.sdqlQueryRepo
             .upsertQueryStatus([preProcessQuery])
-            .map(() => {
-              this.returnQueries();
+            .andThen(() => {
+              return this.returnQueries();
             });
         }
         return this.sdqlQueryRepo.upsertQueryStatus([preProcessQuery]);

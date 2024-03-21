@@ -597,7 +597,7 @@ export class ExternalCoreGateway {
 
   public batchApprovePreProcessQueries(
     contractAddress: EVMContractAddress,
-    queries: Map<IpfsCID, IDynamicRewardParameter>,
+    queries: Map<IpfsCID, IDynamicRewardParameter[]>,
   ): ResultAsync<void, ProxyError> {
     return this._handler.call(
       new BatchApprovePreProcessQueriesParams(

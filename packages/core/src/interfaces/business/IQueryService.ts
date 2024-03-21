@@ -144,7 +144,7 @@ export interface IQueryService {
 
   batchApprovePreProcessQueries(
     contractAddress: EVMContractAddress,
-    queries: Map<IpfsCID, IDynamicRewardParameter>,
+    queries: Map<IpfsCID, IDynamicRewardParameter[]>,
   ): ResultAsync<void, never>;
 
   getQueryStatusesByContractAddress(

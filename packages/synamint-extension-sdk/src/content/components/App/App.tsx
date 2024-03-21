@@ -3,8 +3,10 @@ import {
   BaseNotification,
   BigNumberString,
   DomainName,
+  EChain,
   EInvitationStatus,
   ENotificationTypes,
+  EVMAccountAddress,
   EVMContractAddress,
   EWalletDataType,
   IDynamicRewardParameter,
@@ -182,6 +184,14 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
   useEffect(() => {
     handleURLChange();
   }, [_path]);
+
+  const receivingAccount = useMemo(() => {
+    const evmAccount = accounts.find(
+      (account) => account.sourceChain === EChain.EthereumMainnet,
+    )?.sourceAccountAddress;
+
+    return evmAccount ? (evmAccount as EVMAccountAddress) : null;
+  }, [accounts]);
 
   const handleURLChange = useCallback(() => {
     const url = window.location.href;
@@ -446,6 +456,7 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
 
   const renderComponent = useMemo(() => {
     if (!currentInvitation) return null;
+    if (!receivingAccount) return null;
     switch (true) {
       case appState === EAppState.AUDIENCE_PREVIEW:
         return (
@@ -486,13 +497,14 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
             }}
             batchApproveQueries={function (
               contractAddress: EVMContractAddress,
-              queries: Map<IpfsCID, IDynamicRewardParameter>,
+              queries: Map<IpfsCID, IDynamicRewardParameter[]>,
             ): ResultAsync<void, unknown> {
               return coreGateway.batchApprovePreProcessQueries(
                 contractAddress,
                 queries,
               );
             }}
+            receivingAddress={receivingAccount}
             getQuestionnairesByCids={function (
               cids: IpfsCID[],
             ): ResultAsync<Questionnaire[], unknown> {
@@ -503,7 +515,7 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
       default:
         return null;
     }
-  }, [accounts.length, appState, currentInvitation]);
+  }, [receivingAccount, appState, currentInvitation]);
 
   if (isHidden) {
     return null;
