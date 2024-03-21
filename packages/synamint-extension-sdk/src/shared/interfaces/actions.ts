@@ -62,6 +62,7 @@ import {
   QuestionnaireWithAnswers,
   NewQuestionnaireAnswer,
   DataPermissions,
+  Permission,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 
@@ -238,7 +239,7 @@ export class UpdateAgreementPermissionsParams extends CoreActionParams<void> {
 export class AcceptInvitationParams extends CoreActionParams<void> {
   public constructor(
     public invitation: JSONString,
-    public dataTypes: EWalletDataType[] | null,
+    public dataTypes: Permission[] | null,
   ) {
     super(AcceptInvitationParams.getCoreAction());
   }

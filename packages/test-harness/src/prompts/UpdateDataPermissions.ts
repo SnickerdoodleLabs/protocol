@@ -1,4 +1,4 @@
-import {
+/* import {
   AjaxError,
   BlockchainProviderError,
   ConsentContractError,
@@ -101,3 +101,4 @@ export class UpdateDataPermissions extends Prompt {
       });
   }
 }
+ */
