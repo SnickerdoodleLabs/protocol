@@ -13,12 +13,11 @@ export enum QueryQuestionType {
 
 export interface IQueryItem {
   questionType: QueryQuestionType;
-  queryCID: IpfsCID;
   queryStatus: QueryStatus;
 }
 
 export interface ISingleQuestionnaireItem extends IQueryItem {
-  cid: IpfsCID;
+  questionnaireCID: IpfsCID;
 }
 
 export interface ISingleVirtualQuestionnaireItem extends IQueryItem {
@@ -41,21 +40,18 @@ export const getQueryStatusItemForRender = (
     return {
       questionType: QueryQuestionType.SINGLE_VIRTUAL_QUESTIONNAIRE,
       queryStatus,
-      queryCID,
       dataType: vq[0],
     } as ISingleVirtualQuestionnaireItem;
   }
   if (vq.length === 0 && q.length === 1) {
     return {
       questionType: QueryQuestionType.SINGLE_QUESTIONNAIRE,
-      queryCID,
       queryStatus,
-      cid: q[0],
+      questionnaireCID: q[0],
     } as ISingleQuestionnaireItem;
   }
   return {
     questionType: QueryQuestionType.MULTI_QUESTION,
-    queryCID,
     queryStatus,
   } as IMultiQuestionItem;
 };

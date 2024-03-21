@@ -156,15 +156,19 @@ export const ConsentModal = ({
     ) {
       initialApproveStateCalculation.current = true;
       const ids = [
-        ...queryStatuses.virtualQuestionnaireQueries.map((q) => q.queryCID),
-        ...questionnaires.answeredQuestionnaires.map((q) => q.query.queryCID),
+        ...queryStatuses.virtualQuestionnaireQueries.map(
+          (q) => q.queryStatus.queryCID,
+        ),
+        ...questionnaires.answeredQuestionnaires.map(
+          (q) => q.query.queryStatus.queryCID,
+        ),
       ];
       setPermissions({
         dataTypes: queryStatuses.virtualQuestionnaireQueries.map(
           (q) => q.dataType,
         ),
         questionnaires: questionnaires.answeredQuestionnaires.map(
-          (q) => q.query.cid,
+          (q) => q.query.questionnaireCID,
         ),
       });
       setIdsToApprove(ids);
@@ -180,7 +184,7 @@ export const ConsentModal = ({
         ...queryStatuses.virtualQuestionnaireQueries,
         ...queryStatuses.multiQuestionQueries,
         ...queryStatuses.questionnaireQueries,
-      ].find((q) => q.queryCID === id);
+      ].find((q) => q.queryStatus.queryCID === id);
 
       return res?.queryStatus?.rewardsParameters ?? (`[]` as JSONString);
     },
@@ -222,7 +226,7 @@ export const ConsentModal = ({
     if (queryStatuses) {
       ResultUtils.combine(
         queryStatuses.questionnaireQueries.map((q) =>
-          getQuestionnairesByCids([q.cid]).map((questionnaire) => {
+          getQuestionnairesByCids([q.questionnaireCID]).map((questionnaire) => {
             return questionnaire.length
               ? { questionnaire: questionnaire[0], query: q }
               : null;
@@ -316,44 +320,47 @@ export const ConsentModal = ({
       if (!questionnaireToAnswer) {
         return;
       }
-      answerQuestionnaire(questionnaireToAnswer.query.cid, answers).andThen(
-        () => {
-          return getQuestionnairesByCids([questionnaireToAnswer.query.cid]).map(
-            ([answeredQuestionnaire]) => {
-              if (
-                !answeredQuestionnaire ||
-                answeredQuestionnaire.status !== EQuestionnaireStatus.Complete
-              ) {
-                setQuestionnaireToAnswer(undefined);
-                return;
-              }
-              setQuestionnaires((q) => {
-                return {
-                  ...q,
-                  answeredQuestionnaires: [
-                    {
-                      query: questionnaireToAnswer.query,
-                      questionnaire:
-                        answeredQuestionnaire as QuestionnaireWithAnswers,
-                    },
-                    ...(q?.answeredQuestionnaires ?? []),
-                  ],
-                  unAnsweredQuestionnaires: (
-                    q?.unAnsweredQuestionnaires ?? []
-                  ).filter(
-                    (q) => q.query.cid !== questionnaireToAnswer.query.cid,
-                  ),
-                };
-              });
-              setIdsToApprove((ids) => [
-                ...(ids ?? []),
-                questionnaireToAnswer.query.queryCID,
-              ]);
-              setQuestionnaireToAnswer(undefined);
-            },
-          );
-        },
-      );
+      answerQuestionnaire(
+        questionnaireToAnswer.query.questionnaireCID,
+        answers,
+      ).andThen(() => {
+        return getQuestionnairesByCids([
+          questionnaireToAnswer.query.questionnaireCID,
+        ]).map(([answeredQuestionnaire]) => {
+          if (
+            !answeredQuestionnaire ||
+            answeredQuestionnaire.status !== EQuestionnaireStatus.Complete
+          ) {
+            setQuestionnaireToAnswer(undefined);
+            return;
+          }
+          setQuestionnaires((q) => {
+            return {
+              ...q,
+              answeredQuestionnaires: [
+                {
+                  query: questionnaireToAnswer.query,
+                  questionnaire:
+                    answeredQuestionnaire as QuestionnaireWithAnswers,
+                },
+                ...(q?.answeredQuestionnaires ?? []),
+              ],
+              unAnsweredQuestionnaires: (
+                q?.unAnsweredQuestionnaires ?? []
+              ).filter(
+                (q) =>
+                  q.query.questionnaireCID !==
+                  questionnaireToAnswer.query.questionnaireCID,
+              ),
+            };
+          });
+          setIdsToApprove((ids) => [
+            ...(ids ?? []),
+            questionnaireToAnswer.query.queryStatus.queryCID,
+          ]);
+          setQuestionnaireToAnswer(undefined);
+        });
+      });
     },
     [JSON.stringify(questionnaireToAnswer)],
   );
@@ -625,7 +632,7 @@ export const ConsentModal = ({
                   {questionnaires?.answeredQuestionnaires?.map((q) => {
                     return (
                       <PermissionItemWithShareButton
-                        key={q.query.queryCID}
+                        key={q.query.queryStatus.queryCID}
                         name={q.questionnaire.title}
                         icon={q.questionnaire.image || ""}
                         point={q.query.queryStatus.points}
@@ -636,12 +643,14 @@ export const ConsentModal = ({
                         }
                         onClick={() => {
                           onQuestionnairePermissionClick(
-                            q.query.queryCID,
-                            q.query.cid,
+                            q.query.queryStatus.queryCID,
+                            q.query.questionnaireCID,
                           );
                         }}
                         active={
-                          idsToApprove?.includes(q.query.queryCID) ?? false
+                          idsToApprove?.includes(
+                            q.query.queryStatus.queryCID,
+                          ) ?? false
                         }
                       />
                     );
@@ -663,7 +672,7 @@ export const ConsentModal = ({
                       {item.map((i) => {
                         return (
                           <PermissionItemWithShareButton
-                            key={i.queryCID}
+                            key={i.queryStatus.queryCID}
                             name={i.permission.name}
                             icon={i.permission.icon}
                             point={i.queryStatus.points}
@@ -674,11 +683,14 @@ export const ConsentModal = ({
                             }
                             onClick={() => {
                               onDataPermissionClick(
-                                i.queryCID,
+                                i.queryStatus.queryCID,
                                 i.permission.key,
                               );
                             }}
-                            active={idsToApprove?.includes(i.queryCID) ?? false}
+                            active={
+                              idsToApprove?.includes(i.queryStatus.queryCID) ??
+                              false
+                            }
                           />
                         );
                       })}
