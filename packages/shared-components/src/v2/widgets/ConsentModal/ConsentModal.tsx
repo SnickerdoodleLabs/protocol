@@ -87,6 +87,11 @@ enum EComponentRenderState {
   RENDER_AGREEMENT,
 }
 
+interface IQueryApprovalState {
+  queryIds: IpfsCID[];
+  dataPermissions: EWalletDataType[];
+  questionnairePermissions: IpfsCID[];
+}
 interface IQuestionnaireWithQuery {
   query: ISingleQuestionnaireItem;
   questionnaire: Questionnaire;
@@ -98,11 +103,6 @@ interface IAnsweredQuestionnaireWithQuery {
 interface IQuestionnairesState {
   answeredQuestionnaires: IAnsweredQuestionnaireWithQuery[];
   unAnsweredQuestionnaires: IQuestionnaireWithQuery[];
-}
-
-interface IPermissionsState {
-  dataTypes: EWalletDataType[];
-  questionnaires: IpfsCID[];
 }
 
 interface IQueryStatusesState {
@@ -128,6 +128,7 @@ export const ConsentModal = ({
 }: IConsentModalProps) => {
   const classes = useStyles();
   const dialogClasses = useDialogStyles();
+
   const [componentRenderState, setComponentRenderState] = useSafeState(
     EComponentRenderState.RENDER_QUERIES,
   );
@@ -135,14 +136,19 @@ export const ConsentModal = ({
   const [questionnaires, setQuestionnaires] =
     useSafeState<IQuestionnairesState>();
   const initialApproveStateCalculation = React.useRef<boolean>(false);
-  const permissionsRef = useRef<IPermissionsState>();
-  const [idsToApprove, setIdsToApprove] = useSafeState<IpfsCID[]>();
-  const [permissions, setPermissions] = useSafeState<IPermissionsState>();
+  const [queryApprovalState, setQueryApprovalState] =
+    useSafeState<IQueryApprovalState>();
   const [agreementConsented, setAgreementConsented] =
     useSafeState<boolean>(false);
-
   const [questionnaireToAnswer, setQuestionnaireToAnswer] =
     useSafeState<IQuestionnaireWithQuery>();
+
+  const groupedDataTypes = useMemo(() => {
+    if (!queryStatuses) {
+      return undefined;
+    }
+    return getGroupedDataTypesG(queryStatuses.virtualQuestionnaireQueries);
+  }, [queryStatuses]);
 
   useEffect(() => {
     _getQueryStatuses();
@@ -163,33 +169,43 @@ export const ConsentModal = ({
           (q) => q.query.queryStatus.queryCID,
         ),
       ];
-      setPermissions({
-        dataTypes: queryStatuses.virtualQuestionnaireQueries.map(
+
+      setQueryApprovalState({
+        queryIds: ids,
+        dataPermissions: queryStatuses.virtualQuestionnaireQueries.map(
           (q) => q.dataType,
         ),
-        questionnaires: questionnaires.answeredQuestionnaires.map(
+        questionnairePermissions: questionnaires.answeredQuestionnaires.map(
           (q) => q.query.questionnaireCID,
         ),
       });
-      setIdsToApprove(ids);
     }
   }, [JSON.stringify(queryStatuses), JSON.stringify(questionnaires)]);
 
-  const getRewardParameters = useCallback(
-    (id: IpfsCID): JSONString => {
-      if (!queryStatuses) {
-        return `[]` as JSONString;
-      }
-      const res = [
-        ...queryStatuses.virtualQuestionnaireQueries,
-        ...queryStatuses.multiQuestionQueries,
-        ...queryStatuses.questionnaireQueries,
-      ].find((q) => q.queryStatus.queryCID === id);
-
-      return res?.queryStatus?.rewardsParameters ?? (`[]` as JSONString);
-    },
-    [JSON.stringify(queryStatuses)],
-  );
+  useEffect(() => {
+    if (queryStatuses) {
+      ResultUtils.combine(
+        queryStatuses.questionnaireQueries.map((q) =>
+          getQuestionnairesByCids([q.questionnaireCID]).map((questionnaire) => {
+            return questionnaire.length
+              ? { questionnaire: questionnaire[0], query: q }
+              : null;
+          }),
+        ),
+      ).map((res) => {
+        const answeredQuestionnaires = res.filter(
+          (q) => q && q.questionnaire.status === EQuestionnaireStatus.Complete,
+        ) as IAnsweredQuestionnaireWithQuery[];
+        const unAnsweredQuestionnaires = res.filter(
+          (q) => q && q.questionnaire.status === EQuestionnaireStatus.Available,
+        ) as IQuestionnaireWithQuery[];
+        setQuestionnaires({
+          answeredQuestionnaires,
+          unAnsweredQuestionnaires,
+        });
+      });
+    }
+  }, [queryStatuses]);
 
   const _getQueryStatuses = () => {
     return getQueryStatuses(consentContractAddress).map((res) => {
@@ -222,52 +238,45 @@ export const ConsentModal = ({
     });
   };
 
-  useEffect(() => {
-    if (queryStatuses) {
-      ResultUtils.combine(
-        queryStatuses.questionnaireQueries.map((q) =>
-          getQuestionnairesByCids([q.questionnaireCID]).map((questionnaire) => {
-            return questionnaire.length
-              ? { questionnaire: questionnaire[0], query: q }
-              : null;
-          }),
-        ),
-      ).map((res) => {
-        const answeredQuestionnaires = res.filter(
-          (q) => q && q.questionnaire.status === EQuestionnaireStatus.Complete,
-        ) as IAnsweredQuestionnaireWithQuery[];
-        const unAnsweredQuestionnaires = res.filter(
-          (q) => q && q.questionnaire.status === EQuestionnaireStatus.Available,
-        ) as IQuestionnaireWithQuery[];
-        setQuestionnaires({
-          answeredQuestionnaires,
-          unAnsweredQuestionnaires,
-        });
-      });
-    }
-  }, [queryStatuses]);
+  const getRewardParameters = useCallback(
+    (id: IpfsCID): JSONString => {
+      if (!queryStatuses) {
+        return `[]` as JSONString;
+      }
+      const res = [
+        ...queryStatuses.virtualQuestionnaireQueries,
+        ...queryStatuses.multiQuestionQueries,
+        ...queryStatuses.questionnaireQueries,
+      ].find((q) => q.queryStatus.queryCID === id);
 
-  const groupedDataTypes = useMemo(() => {
-    if (!queryStatuses) {
-      return undefined;
-    }
-    return getGroupedDataTypesG(queryStatuses.virtualQuestionnaireQueries);
-  }, [queryStatuses]);
-
-  useEffect(() => {
-    if (permissions) {
-      permissionsRef.current = permissions;
-    }
-  }, [JSON.stringify(permissions)]);
+      return res?.queryStatus?.rewardsParameters ?? (`[]` as JSONString);
+    },
+    [JSON.stringify(queryStatuses)],
+  );
 
   const onDataPermissionClick = useCallback(
     (queryCID: IpfsCID, dataType: EWalletDataType) => {
-      setIdsToApprove((ids) => {
-        if (ids?.includes(queryCID)) {
-          return ids.filter((id) => id !== queryCID);
-        } else {
-          return ids ? [...ids, queryCID] : [queryCID];
+      setQueryApprovalState((p) => {
+        if (!p) {
+          return p;
         }
+        if (p.queryIds.includes(queryCID)) {
+          const dataPermissionsCopy = [...p.dataPermissions];
+          const index = dataPermissionsCopy.indexOf(dataType);
+          if (index > -1) {
+            dataPermissionsCopy.splice(index, 1);
+          }
+          return {
+            ...p,
+            queryIds: p.queryIds.filter((id) => id !== queryCID),
+            dataPermissions: dataPermissionsCopy,
+          };
+        }
+        return {
+          ...p,
+          queryIds: [...p.queryIds, queryCID],
+          dataPermissions: [...p.dataPermissions, dataType],
+        };
       });
     },
     [],
@@ -275,45 +284,34 @@ export const ConsentModal = ({
 
   const onQuestionnairePermissionClick = useCallback(
     (queryCID: IpfsCID, questionnaireCID: IpfsCID) => {
-      setIdsToApprove((ids) => {
-        if (ids?.includes(queryCID)) {
-          return ids.filter((id) => id !== queryCID);
-        } else {
-          return ids ? [...ids, queryCID] : [queryCID];
+      setQueryApprovalState((p) => {
+        if (!p) {
+          return p;
         }
+        if (p.queryIds.includes(queryCID)) {
+          const questionnairePermissionsCopy = [...p.questionnairePermissions];
+          const index = questionnairePermissionsCopy.indexOf(questionnaireCID);
+          if (index > -1) {
+            questionnairePermissionsCopy.splice(index, 1);
+          }
+          return {
+            ...p,
+            queryIds: p.queryIds.filter((id) => id !== queryCID),
+            questionnairePermissions: questionnairePermissionsCopy,
+          };
+        }
+        return {
+          ...p,
+          queryIds: [...p.queryIds, queryCID],
+          questionnairePermissions: [
+            ...p.questionnairePermissions,
+            questionnaireCID,
+          ],
+        };
       });
     },
     [],
   );
-
-  const handleShareClicked = useCallback(() => {
-    if (!idsToApprove) {
-      return;
-    }
-    if (!permissions) {
-      return;
-    }
-    setConsentPermissions(
-      consentContractAddress,
-      permissions.dataTypes,
-      permissions.questionnaires,
-    )
-      .andThen(() => {
-        return batchApproveQueries(
-          consentContractAddress,
-          new Map(
-            idsToApprove.map((id) => [id, JSON.parse(getRewardParameters(id))]),
-          ),
-        );
-      })
-      .map(() => {
-        onOptinClicked();
-      });
-  }, [
-    JSON.stringify(idsToApprove),
-    JSON.stringify(permissions),
-    getRewardParameters,
-  ]);
 
   const onQuestionnarieSubmit = useCallback(
     (answers: NewQuestionnaireAnswer[]) => {
@@ -354,16 +352,53 @@ export const ConsentModal = ({
               ),
             };
           });
-          setIdsToApprove((ids) => [
-            ...(ids ?? []),
-            questionnaireToAnswer.query.queryStatus.queryCID,
-          ]);
+          setQueryApprovalState((p) => {
+            if (!p) {
+              return p;
+            }
+            return {
+              ...p,
+              queryIds: [
+                questionnaireToAnswer.query.queryStatus.queryCID,
+                ...p.queryIds,
+              ],
+              questionnairePermissions: [
+                ...p.questionnairePermissions,
+                questionnaireToAnswer.query.questionnaireCID,
+              ],
+            };
+          });
           setQuestionnaireToAnswer(undefined);
         });
       });
     },
     [JSON.stringify(questionnaireToAnswer)],
   );
+
+  const handleShareClicked = useCallback(() => {
+    if (!queryApprovalState) {
+      return;
+    }
+    setConsentPermissions(
+      consentContractAddress,
+      queryApprovalState.dataPermissions,
+      queryApprovalState.questionnairePermissions,
+    )
+      .andThen(() => {
+        return batchApproveQueries(
+          consentContractAddress,
+          new Map(
+            queryApprovalState.queryIds.map((id) => [
+              id,
+              JSON.parse(getRewardParameters(id)),
+            ]),
+          ),
+        );
+      })
+      .map(() => {
+        onOptinClicked();
+      });
+  }, [JSON.stringify(queryApprovalState), getRewardParameters]);
 
   const actions = useMemo(() => {
     if (componentRenderState === EComponentRenderState.RENDER_AGREEMENT) {
@@ -411,6 +446,7 @@ export const ConsentModal = ({
                       cursor: "pointer",
                       textDecoration: "underline",
                       color: colors.DARKPURPLE500,
+                      fontWeight: "bold",
                     }}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -595,9 +631,12 @@ export const ConsentModal = ({
 
   const isQueriesReady = useMemo(() => {
     return (
-      !!questionnaires && !!queryStatuses && !!permissions && !!groupedDataTypes
+      !!questionnaires &&
+      !!queryStatuses &&
+      !!groupedDataTypes &&
+      !!queryApprovalState
     );
-  }, [questionnaires, queryStatuses, permissions, groupedDataTypes]);
+  }, [questionnaires, queryStatuses, groupedDataTypes, queryApprovalState]);
 
   const content = () => {
     if (componentRenderState === EComponentRenderState.RENDER_QUERIES) {
@@ -648,7 +687,7 @@ export const ConsentModal = ({
                           );
                         }}
                         active={
-                          idsToApprove?.includes(
+                          queryApprovalState?.queryIds?.includes(
                             q.query.queryStatus.queryCID,
                           ) ?? false
                         }
@@ -663,19 +702,19 @@ export const ConsentModal = ({
                     DataTypeGroupProperties[q1].order -
                     DataTypeGroupProperties[q2].order,
                 )
-                .map(([groupKey, item]) => {
+                .map(([groupKey, groupItems]) => {
                   return (
                     <div key={groupKey}>
                       <PermissionSectionTitle
                         title={DataTypeGroupProperties[groupKey].name}
                       />
-                      {item.map((i) => {
+                      {groupItems.map((item) => {
                         return (
                           <PermissionItemWithShareButton
-                            key={i.queryStatus.queryCID}
-                            name={i.permission.name}
-                            icon={i.permission.icon}
-                            point={i.queryStatus.points}
+                            key={item.queryStatus.queryCID}
+                            name={item.permission.name}
+                            icon={item.permission.icon}
+                            point={item.queryStatus.points}
                             pointIcon={
                               invitationData["brandInformation"]?.["image"] ??
                               invitationData.image ??
@@ -683,13 +722,14 @@ export const ConsentModal = ({
                             }
                             onClick={() => {
                               onDataPermissionClick(
-                                i.queryStatus.queryCID,
-                                i.permission.key,
+                                item.queryStatus.queryCID,
+                                item.permission.key,
                               );
                             }}
                             active={
-                              idsToApprove?.includes(i.queryStatus.queryCID) ??
-                              false
+                              queryApprovalState?.queryIds?.includes(
+                                item.queryStatus.queryCID,
+                              ) ?? false
                             }
                           />
                         );
