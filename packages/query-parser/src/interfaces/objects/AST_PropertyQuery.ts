@@ -1,8 +1,10 @@
 import {
+  DataPermissions,
   ESDQLQueryReturn,
   EWalletDataType,
   ISDQLQueryClause,
   ISDQLTimestampRange,
+  IpfsCID,
   MissingWalletDataTypeError,
   SDQL_Name,
   SDQL_OperatorName,
@@ -56,35 +58,11 @@ export class AST_PropertyQuery extends AST_SubQuery {
     );
   }
 
-  getPermission(): Result<EWalletDataType, MissingWalletDataTypeError> {
-    switch (this.property) {
-      case "age":
-        return ok(EWalletDataType.Age);
-      case "gender":
-        return ok(EWalletDataType.Gender);
-      case "givenName":
-        return ok(EWalletDataType.GivenName);
-      case "familyName":
-        return ok(EWalletDataType.FamilyName);
-      case "birthday":
-        return ok(EWalletDataType.Birthday);
-      case "email":
-        return ok(EWalletDataType.Email);
-      case "location":
-        return ok(EWalletDataType.Location);
-      case "url_visited_count":
-        return ok(EWalletDataType.SiteVisits);
-      case "social_discord":
-        return ok(EWalletDataType.Discord);
-      case "social_twitter":
-        return ok(EWalletDataType.Twitter);
-      default:
-        const missingWalletType = new MissingWalletDataTypeError(
-          `no wallet data type defined for ${this.property}`,
-        );
-        console.error(missingWalletType);
-        return err(missingWalletType);
-    }
+  getPermission(
+    permissions: DataPermissions,
+    dataType: EWalletDataType | IpfsCID,
+  ): boolean {
+    return permissions.checkPermission(dataType);
   }
 
   static parseConditions(schema: any): Array<BinaryCondition> {

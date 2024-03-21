@@ -95,6 +95,10 @@ import {
   NewQuestionnaireAnswer,
   JSONString,
   EExternalFieldKey,
+  IPermissionMethods,
+  PermissionForStorage,
+  Permission,
+  EWalletDataType,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -162,6 +166,8 @@ import {
   INFTRepositoryWithDebugType,
   INftRepository,
   INftRepositoryType,
+  IPermissionRepository,
+  IPermissionRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IBlockchainProvider,
@@ -186,6 +192,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public storage: IStorageMethods;
   public nft: INftMethods;
   public questionnaire: IQuestionnaireMethods;
+  public permission: IPermissionMethods;
 
   public constructor(
     configOverrides?: IConfigOverrides,
@@ -820,6 +827,49 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           questionnaireId,
           sourceDomain,
         );
+      },
+    };
+
+    this.permission = {
+      getContentContractPermissions: (
+        consentContractAddress: EVMContractAddress,
+      ) => {
+        const permissionRepository =
+          this.iocContainer.get<IPermissionRepository>(
+            IPermissionRepositoryType,
+          );
+        return permissionRepository.getContentContractPermissions(
+          consentContractAddress,
+        );
+      },
+
+      setContentContractPermissions: (dataPermissions: DataPermissions) => {
+        const permissionRepository =
+          this.iocContainer.get<IPermissionRepository>(
+            IPermissionRepositoryType,
+          );
+        return permissionRepository.setContentContractPermissions(
+          dataPermissions,
+        );
+      },
+
+      getDomainPermissions: (domain: DomainName) => {
+        const permissionRepository =
+          this.iocContainer.get<IPermissionRepository>(
+            IPermissionRepositoryType,
+          );
+        return permissionRepository.getDomainPermissions(domain);
+      },
+
+      setDomainPermissions: (
+        domain: DomainName,
+        permissions: EDataWalletPermission[],
+      ) => {
+        const permissionRepository =
+          this.iocContainer.get<IPermissionRepository>(
+            IPermissionRepositoryType,
+          );
+        return permissionRepository.setDomainPermissions(domain, permissions);
       },
     };
   }
