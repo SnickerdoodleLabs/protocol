@@ -80,6 +80,14 @@ export class BigNumberUtils implements IBigNumberUtils {
     return HexString32(ethers.toBeHex(this.BNSToBN(bigNumberString)));
   }
 
+  public BNStoHexString32WithoutPrefix(
+    bigNumberString: BigNumberString,
+  ): HexString32 {
+    return HexString32(
+      ethers.toBeHex(this.BNSToBN(bigNumberString)).substring(2),
+    );
+  }
+
   public HexString32ToBNS(hexString: HexString32): BigNumberString {
     return BigNumberString(BigInt(`0x${hexString}`).toString());
   }

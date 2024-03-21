@@ -23,6 +23,7 @@ export interface IBigNumberUtils {
   BNSToDS(bigNumberString: BigNumberString, decimals?: number): DecimalString;
   validateBNS(bigNumberString: string): boolean;
   BNStoHexString32(bigNumberString: BigNumberString): HexString32;
+  BNStoHexString32WithoutPrefix(bigNumberString: BigNumberString): HexString32;
   HexString32ToBNS(hexString: HexString32): BigNumberString;
 }
 
