@@ -43,6 +43,16 @@ export class InvitationService implements IInvitationService {
     @inject(IContextProviderType) protected contexProvider: IContextProvider,
   ) {}
 
+  public updateAgreementPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataPermissions: DataPermissions,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.invitationRepository.updateAgreementPermissions(
+      consentContractAddress,
+      dataPermissions,
+    );
+  }
+
   public getMarketplaceListingsByTag(
     pagingReq: PagingRequest,
     tag: MarketplaceTag,

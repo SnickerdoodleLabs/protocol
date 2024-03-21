@@ -151,6 +151,7 @@ import {
   GetQuestionnairesForConsentContractParams,
   GetConsentContractsByQuestionnaireCIDParams,
   GetRecommendedConsentContractsParams,
+  UpdateAgreementPermissionsParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -403,6 +404,12 @@ export class ExternalCoreGateway {
     return this._handler.call(
       new AcceptInvitationParams(ObjectUtils.serialize(invitation)),
     );
+  }
+
+  public updateAgreementPermissions(
+    params: UpdateAgreementPermissionsParams,
+  ): ResultAsync<void, ProxyError> {
+    return this._handler.call(params);
   }
 
   public getDataPermissions(

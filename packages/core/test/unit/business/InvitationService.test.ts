@@ -49,7 +49,7 @@ const tokenId2 = TokenId(BigInt(69));
 const permissionsHex = HexString32(
   "0x0000000000000000000000000000000000000000000000000000000000000000",
 );
-const dataPermissions = new DataPermissions(permissionsHex);
+const dataPermissions = new DataPermissions("" as EVMContractAddress, [], []);
 const newPermissionsHex = HexString32(
   "0x0000000000000000000000000000000000000000000000000000000000000001",
 );
@@ -163,6 +163,8 @@ class InvitationServiceMocks {
   }
 
   public factory(): IInvitationService {
+    //@ts-ignore
+
     return new InvitationService(
       this.consentRepo,
       this.insightPlatformRepo,
@@ -241,7 +243,7 @@ describe("InvitationService.updateDataPermissions() tests", () => {
     // Act
     const result = await service.updateDataPermissions(
       consentContractAddress1,
-      new DataPermissions(newPermissionsHex),
+      new DataPermissions("" as EVMContractAddress, [], []),
     );
 
     // Assert

@@ -138,6 +138,7 @@ import {
   GetQuestionnairesForConsentContractParams,
   GetConsentContractsByQuestionnaireCIDParams,
   GetRecommendedConsentContractsParams,
+  UpdateAgreementPermissionsParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -477,7 +478,15 @@ export class RpcCallHandler implements IRpcCallHandler {
         );
       },
     ),
-
+    new CoreActionHandler<UpdateAgreementPermissionsParams>(
+      UpdateAgreementPermissionsParams.getCoreAction(),
+      (params) => {
+        return this.invitationService.updateAgreementPermissions(
+          params.consentContractAddress,
+          params.dataPermissions,
+        );
+      },
+    ),
     new CoreActionHandler<AcceptInvitationParams>(
       AcceptInvitationParams.getCoreAction(),
       (params, _sender, sourceDomain) => {

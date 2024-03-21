@@ -25,6 +25,10 @@ export interface IInvitationRepository {
   getInvitationsByDomain(
     domain: string,
   ): ResultAsync<PageInvitation[], SnickerDoodleCoreError>;
+  updateAgreementPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataPermissions: DataPermissions,
+  ): ResultAsync<void, SnickerDoodleCoreError>;
   checkInvitationStatus(
     invitation: Invitation,
   ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError>;

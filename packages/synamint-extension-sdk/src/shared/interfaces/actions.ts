@@ -223,6 +223,18 @@ export class GetInvitationWithDomainParams extends CoreActionParams<JSONString |
     return ECoreActions.GET_COHORT_INVITATION_WITH_DOMAIN;
   }
 }
+
+export class UpdateAgreementPermissionsParams extends CoreActionParams<void> {
+  public constructor(
+    public consentContractAddress: EVMContractAddress,
+    public dataPermissions: DataPermissions,
+  ) {
+    super(UpdateAgreementPermissionsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.UPDATE_AGREEMENT_PERMISSIONS;
+  }
+}
 export class AcceptInvitationParams extends CoreActionParams<void> {
   public constructor(public invitation: JSONString) {
     super(AcceptInvitationParams.getCoreAction());

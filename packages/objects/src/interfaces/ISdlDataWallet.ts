@@ -275,6 +275,11 @@ export interface ISdlDataWallet {
     ipfsCID: IpfsCID,
   ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError>;
 
+  updateAgreementPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataPermissions: DataPermissions,
+  ): ResultAsync<void, ProxyError>;
+
   getDataPermissions(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<DataPermissions, ProxyError>;
