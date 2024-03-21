@@ -46,6 +46,7 @@ export class ControlChainInformation extends ChainInformation {
     public type: EChainType,
     public explorerURL: string,
     public consentFactoryContractAddress: EVMContractAddress,
+    public governanceTokenContractAddress: EVMContractAddress,
     public etherscanEndpointURL?: URLString,
     public coinGeckoSlug?: CoinGeckoAssetPlatformID,
   ) {
