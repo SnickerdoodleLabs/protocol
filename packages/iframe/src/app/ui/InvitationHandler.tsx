@@ -12,6 +12,7 @@ import {
   DataPermissions,
   EVMContractAddress,
   EWalletDataType,
+  IDynamicRewardParameter,
   IOldUserAgreement,
   ISnickerdoodleCore,
   IUserAgreement,
@@ -20,6 +21,8 @@ import {
   LinkedAccount,
   NewQuestionnaireAnswer,
   PagingRequest,
+  QueryStatus,
+  Questionnaire,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -29,7 +32,7 @@ import {
   createDefaultTheme,
   createThemeWithOverrides,
 } from "@snickerdoodlelabs/shared-components";
-import { okAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
 import React, {
   useMemo,
   useState,
@@ -312,24 +315,6 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
                   undefined,
                 );
               }}
-              getQuestionnaires={(
-                pagingRequest: PagingRequest,
-                consentContractAddress: EVMContractAddress,
-              ) => {
-                return core.questionnaire.getQuestionnairesForConsentContract(
-                  pagingRequest,
-                  consentContractAddress,
-                  undefined,
-                );
-              }}
-              getVirtualQuestionnaires={(
-                consentContractAddress: EVMContractAddress,
-              ) => {
-                return core.questionnaire.getVirtualQuestionnaires(
-                  consentContractAddress,
-                  undefined,
-                );
-              }}
               onRejectClick={() => {
                 rejectInvitation(false);
               }}
@@ -346,6 +331,29 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
                 questionnaires: IpfsCID[],
               ) => {
                 return okAsync(undefined);
+              }}
+              getQueryStatuses={function (
+                contractAddress: EVMContractAddress,
+              ): ResultAsync<QueryStatus[], unknown> {
+                return core.getQueryStatusesByContractAddress(
+                  contractAddress,
+                  undefined,
+                );
+              }}
+              batchApproveQueries={function (
+                contractAddress: EVMContractAddress,
+                queries: Map<IpfsCID, IDynamicRewardParameter>,
+              ): ResultAsync<void, unknown> {
+                return core.batchApprovePreProcessQueries(
+                  contractAddress,
+                  queries,
+                  undefined,
+                );
+              }}
+              getQuestionnairesByCids={function (
+                cids: IpfsCID[],
+              ): ResultAsync<Questionnaire[], unknown> {
+                return core.questionnaire.getByCIDs(cids, undefined);
               }}
             />
           );

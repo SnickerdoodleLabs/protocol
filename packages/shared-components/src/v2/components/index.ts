@@ -6,5 +6,6 @@ export * from "@shared-components/v2/components/Checkbox";
 export * from "@shared-components/v2/components/CloseButton";
 export * from "@shared-components/v2/components/Image";
 export * from "@shared-components/v2/components/ModalContainer";
+export * from "@shared-components/v2/components/PermissionItems";
 export * from "@shared-components/v2/components/QuestionnaireForm";
 export * from "@shared-components/v2/components/Radio";

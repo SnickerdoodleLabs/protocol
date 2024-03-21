@@ -145,6 +145,8 @@ import {
   ApproveQueryParams,
   GetVirtualQuestionnairesParams,
   GetQuestionnairesByCIDSParams,
+  GetQueryStatusesByContractParams,
+  BatchApprovePreProcessQueriesParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -586,6 +588,25 @@ export class RpcCallHandler implements IRpcCallHandler {
             this.errorUtils.emit(error);
             return new SnickerDoodleCoreError((error as Error).message, error);
           });
+      },
+    ),
+    new CoreActionHandler<GetQueryStatusesByContractParams>(
+      GetQueryStatusesByContractParams.getCoreAction(),
+      (params, _sender, sourceDomain) => {
+        return this.core.getQueryStatusesByContractAddress(
+          params.contractAddress,
+          sourceDomain,
+        );
+      },
+    ),
+    new CoreActionHandler<BatchApprovePreProcessQueriesParams>(
+      BatchApprovePreProcessQueriesParams.getCoreAction(),
+      (params, _sender, sourceDomain) => {
+        return this.core.batchApprovePreProcessQueries(
+          params.contractAddress,
+          ObjectUtils.deserialize(params.queries),
+          sourceDomain,
+        );
       },
     ),
 

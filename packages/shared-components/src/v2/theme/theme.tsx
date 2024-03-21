@@ -216,6 +216,7 @@ export const colors = {
   GREY500: "#9E9E9E", // LIGHT
   GREY400: "#BDBDBD",
   GREY300: "#E0E0E0", // BORDER
+  GREY100: "#F5F5F5",
   GREY50: "#fafafa", // BG
 };
 //#endregion

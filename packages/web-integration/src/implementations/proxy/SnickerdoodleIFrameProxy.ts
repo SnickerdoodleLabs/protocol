@@ -582,7 +582,7 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
-  approveQuery(
+  public approveQuery(
     queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
   ): ResultAsync<void, ProxyError> {

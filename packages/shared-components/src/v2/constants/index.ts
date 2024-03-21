@@ -162,3 +162,20 @@ export const getGroupedDataPermissions = (dataTypes: EWalletDataType[]) => {
     return acc;
   }, {} as Record<EWalletDataTypeGroup, IDataPermissionScheme[]>);
 };
+
+export const getGroupedDataTypesG = <T extends { dataType: EWalletDataType }>(
+  items: T[],
+) => {
+  return items.reduce((acc, item) => {
+    const permission = uiSupportedPermissions.find(
+      (permission) => permission.key === item.dataType,
+    );
+    if (permission) {
+      if (!acc[permission.groupKey]) {
+        acc[permission.groupKey] = [];
+      }
+      acc[permission.groupKey].push({ permission, ...item });
+    }
+    return acc;
+  }, {} as Record<EWalletDataTypeGroup, (T & { permission: IDataPermissionScheme })[]>);
+};

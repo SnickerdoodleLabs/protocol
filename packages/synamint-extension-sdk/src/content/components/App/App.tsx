@@ -7,6 +7,7 @@ import {
   ENotificationTypes,
   EVMContractAddress,
   EWalletDataType,
+  IDynamicRewardParameter,
   IOldUserAgreement,
   IPaletteOverrides,
   IUserAgreement,
@@ -16,6 +17,8 @@ import {
   NewQuestionnaireAnswer,
   PagingRequest,
   ProxyError,
+  QueryStatus,
+  Questionnaire,
   Signature,
   TokenId,
   UnixTimestamp,
@@ -460,15 +463,6 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
               id: IpfsCID,
               answers: NewQuestionnaireAnswer[],
             ) => coreGateway.questionnaire.answerQuestionnaire(id, answers)}
-            getQuestionnaires={(
-              pagingRequest: PagingRequest,
-              consentContractAddress: EVMContractAddress,
-            ) =>
-              coreGateway.questionnaire.getQuestionnairesForConsentContract(
-                pagingRequest,
-                consentContractAddress,
-              )
-            }
             onRejectClick={() => {
               rejectInvitation(false);
             }}
@@ -478,20 +472,31 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
             displayRejectButtons={
               currentInvitation.type === EInvitationSourceType.DOMAIN
             }
-            getVirtualQuestionnaires={(
-              consentContractAddress: EVMContractAddress,
-            ) => {
-              return coreGateway.questionnaire.getVirtualQuestionnaires(
-                consentContractAddress,
-              );
-              return okAsync([]);
-            }}
             setConsentPermissions={(
               consentContractAddress: EVMContractAddress,
               dataTypes: EWalletDataType[],
               questionnaires: IpfsCID[],
             ) => {
               return okAsync(undefined);
+            }}
+            getQueryStatuses={(contractAddress: EVMContractAddress) => {
+              return coreGateway.getQueryStatusesByContractAddress(
+                contractAddress,
+              );
+            }}
+            batchApproveQueries={function (
+              contractAddress: EVMContractAddress,
+              queries: Map<IpfsCID, IDynamicRewardParameter>,
+            ): ResultAsync<void, unknown> {
+              return coreGateway.batchApprovePreProcessQueries(
+                contractAddress,
+                queries,
+              );
+            }}
+            getQuestionnairesByCids={function (
+              cids: IpfsCID[],
+            ): ResultAsync<Questionnaire[], unknown> {
+              return coreGateway.questionnaire.getByCIDs(cids);
             }}
           />
         );
