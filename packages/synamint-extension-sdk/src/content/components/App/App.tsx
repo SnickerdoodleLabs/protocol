@@ -185,12 +185,14 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
     handleURLChange();
   }, [_path]);
 
-  const receivingAccount = useMemo(() => {
-    const evmAccount = accounts.find(
-      (account) => account.sourceChain === EChain.EthereumMainnet,
-    )?.sourceAccountAddress;
+  const evmAccounts = useMemo(() => {
+    const filteredAccounts = accounts
+      .filter((account) => account.sourceChain === EChain.EthereumMainnet)
+      .map((account) => account.sourceAccountAddress);
 
-    return evmAccount ? (evmAccount as EVMAccountAddress) : null;
+    return filteredAccounts.length > 0
+      ? (filteredAccounts as EVMAccountAddress[])
+      : null;
   }, [accounts]);
 
   const handleURLChange = useCallback(() => {
@@ -294,6 +296,7 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
   };
 
   const currentInvitation: ICurrentInvitation | null = useMemo(() => {
+    if (!evmAccounts) return null;
     if (userRequestedInvitation) {
       return {
         data: userRequestedInvitation,
@@ -307,7 +310,12 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
       return { data: deepLinkInvitation, type: EInvitationSourceType.DEEPLINK };
     }
     return null;
-  }, [deepLinkInvitation, domainInvitation, userRequestedInvitation]);
+  }, [
+    deepLinkInvitation,
+    domainInvitation,
+    userRequestedInvitation,
+    evmAccounts,
+  ]);
 
   useEffect(() => {
     if (currentInvitation) {
@@ -456,7 +464,6 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
 
   const renderComponent = useMemo(() => {
     if (!currentInvitation) return null;
-    if (!receivingAccount) return null;
     switch (true) {
       case appState === EAppState.AUDIENCE_PREVIEW:
         return (
@@ -504,7 +511,7 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
                 queries,
               );
             }}
-            receivingAddress={receivingAccount}
+            evmAccounts={evmAccounts!}
             getQuestionnairesByCids={function (
               cids: IpfsCID[],
             ): ResultAsync<Questionnaire[], unknown> {
@@ -515,7 +522,7 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
       default:
         return null;
     }
-  }, [receivingAccount, appState, currentInvitation]);
+  }, [evmAccounts, appState, currentInvitation]);
 
   if (isHidden) {
     return null;

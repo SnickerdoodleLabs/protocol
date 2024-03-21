@@ -5,9 +5,12 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  MenuItem,
+  Select,
   Theme,
   makeStyles,
 } from "@material-ui/core";
+import { abbreviateString } from "@shared-components/utils";
 import {
   SDTypography,
   Image,
@@ -81,7 +84,7 @@ interface IConsentModalProps {
   getQuestionnairesByCids: (
     cids: IpfsCID[],
   ) => ResultAsync<Questionnaire[], unknown>;
-  receivingAddress: EVMAccountAddress;
+  evmAccounts: EVMAccountAddress[];
 }
 
 enum EComponentRenderState {
@@ -127,7 +130,7 @@ export const ConsentModal = ({
   getQueryStatuses,
   batchApproveQueries,
   getQuestionnairesByCids,
-  receivingAddress,
+  evmAccounts,
 }: IConsentModalProps) => {
   const classes = useStyles();
   const dialogClasses = useDialogStyles();
@@ -145,6 +148,8 @@ export const ConsentModal = ({
     useSafeState<boolean>(false);
   const [questionnaireToAnswer, setQuestionnaireToAnswer] =
     useSafeState<IQuestionnaireWithQuery>();
+  const [receivingAddress, setReceivingAddress] =
+    useSafeState<EVMAccountAddress>(evmAccounts[0]);
 
   const groupedDataTypes = useMemo(() => {
     if (!queryStatuses) {
@@ -450,34 +455,59 @@ export const ConsentModal = ({
             justifyContent="space-between"
             width="100%"
           >
-            <SDCheckbox
-              checked={agreementConsented}
-              onChange={() => {
-                setAgreementConsented(!agreementConsented);
-              }}
-              label={
-                <SDTypography variant="bodyMd">
-                  I agree{" "}
-                  <span
-                    style={{
-                      cursor: "pointer",
-                      textDecoration: "underline",
-                      color: colors.DARKPURPLE500,
-                      fontWeight: "bold",
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      setComponentRenderState(
-                        EComponentRenderState.RENDER_AGREEMENT,
-                      );
-                    }}
-                  >
-                    Terms and Conditions
-                  </span>
-                </SDTypography>
-              }
-            />
+            <Box display="flex" gridGap={12} alignItems="center">
+              <SDCheckbox
+                checked={agreementConsented}
+                onChange={() => {
+                  setAgreementConsented(!agreementConsented);
+                }}
+                label={
+                  <SDTypography variant="bodyMd">
+                    I agree{" "}
+                    <span
+                      style={{
+                        cursor: "pointer",
+                        textDecoration: "underline",
+                        color: colors.DARKPURPLE500,
+                        fontWeight: "bold",
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setComponentRenderState(
+                          EComponentRenderState.RENDER_AGREEMENT,
+                        );
+                      }}
+                    >
+                      Terms and Conditions
+                    </span>
+                  </SDTypography>
+                }
+              />
+              <Select
+                value={receivingAddress}
+                variant="outlined"
+                onChange={(e) => {
+                  console.log(e);
+                  setReceivingAddress(e.target.value as EVMAccountAddress);
+                }}
+              >
+                {evmAccounts.map((account) => (
+                  <MenuItem key={account} value={account}>
+                    <Box display="flex" alignItems="center" gridGap={12}>
+                      <Image
+                        src="https://storage.googleapis.com/dw-assets/shared/icons/eth.png"
+                        width={16}
+                        height={16}
+                      />
+                      <SDTypography variant="bodyMd" color="textBody">
+                        {abbreviateString(account, 14, 0, 3)}
+                      </SDTypography>
+                    </Box>
+                  </MenuItem>
+                ))}
+              </Select>
+            </Box>
             <SDButton
               disabled={!agreementConsented}
               variant="contained"
@@ -486,7 +516,7 @@ export const ConsentModal = ({
                 handleShareClicked();
               }}
             >
-              Share
+              Share Selected
             </SDButton>
           </Box>
           {displayRejectButtons && (
@@ -519,7 +549,7 @@ export const ConsentModal = ({
         </Box>
       );
     }
-  }, [componentRenderState, agreementConsented]);
+  }, [componentRenderState, evmAccounts, receivingAddress, agreementConsented]);
 
   const agreementPolicy = useMemo(() => {
     const agreementTitle = invitationData["attributes"]

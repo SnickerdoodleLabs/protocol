@@ -104,15 +104,18 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   const [userRequestInvitation, setUserRequestInvitation] =
     useState<IInvitation | null>(null);
 
-  const receivingAccount = useMemo(() => {
-    const evmAccount = accounts.find(
-      (account) => account.sourceChain === EChain.EthereumMainnet,
-    )?.sourceAccountAddress;
+  const evmAccounts = useMemo(() => {
+    const filteredAccounts = accounts
+      .filter((account) => account.sourceChain === EChain.EthereumMainnet)
+      .map((account) => account.sourceAccountAddress);
 
-    return evmAccount ? (evmAccount as EVMAccountAddress) : null;
+    return filteredAccounts.length > 0
+      ? (filteredAccounts as EVMAccountAddress[])
+      : null;
   }, [accounts]);
 
   const currentInvitation: ICurrentInvitation | null = useMemo(() => {
+    if (!evmAccounts) return null;
     if (userRequestInvitation) {
       return {
         data: userRequestInvitation,
@@ -142,6 +145,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     consentInvitation,
     userRequestInvitation,
     awaitRender,
+    evmAccounts,
   ]);
 
   // length of this could be used for bagde
@@ -298,7 +302,6 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   }, [appState]);
 
   const component = useMemo(() => {
-    if (!receivingAccount) return null;
     if (currentInvitation) {
       switch (appState) {
         case EAPP_STATE.IDLE:
@@ -360,7 +363,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
                   undefined,
                 );
               }}
-              receivingAddress={receivingAccount}
+              evmAccounts={evmAccounts!}
               getQuestionnairesByCids={function (
                 cids: IpfsCID[],
               ): ResultAsync<Questionnaire[], unknown> {
@@ -374,7 +377,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     } else {
       return null;
     }
-  }, [appState, currentInvitation]);
+  }, [appState, evmAccounts, currentInvitation]);
 
   if (EAPP_STATE.IDLE === appState) {
     return null;
