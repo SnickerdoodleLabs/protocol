@@ -73,7 +73,6 @@ import {
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { urlJoin } from "url-join-ts";
 
 import { IQueryService } from "@core/interfaces/business/index.js";
 import {
@@ -978,14 +977,11 @@ export class QueryService implements IQueryService {
       .getCurrentConsentToken(requestForData.consentContractAddress)
       .andThen((consentToken) => {
         if (consentToken != null) {
-          preProcessQuery.status = EQueryProcessingStatus.Received;
+          preProcessQuery.status = EQueryProcessingStatus.AdsCompleted;
           return this.sdqlQueryRepo
             .upsertQueryStatus([preProcessQuery])
             .map(() => {
-              this.approveQuery(
-                preProcessQuery.queryCID,
-                ObjectUtils.deserialize(preProcessQuery.rewardsParameters),
-              );
+              this.returnQueries();
             });
         }
         return this.sdqlQueryRepo.upsertQueryStatus([preProcessQuery]);
