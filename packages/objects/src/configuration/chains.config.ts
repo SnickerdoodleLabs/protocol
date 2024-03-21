@@ -34,6 +34,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Hardhat,
       "",
       EVMContractAddress("0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"), // Consent Contract Factory
+      EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"), // Governance Token Contract
     ),
   ],
   [
@@ -151,6 +152,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Testnet,
       "https://testnet.snowtrace.io/tx/",
       EVMContractAddress("0x5540122e78241679Da8d07A04A74D3a7f52aED97"), // Consent Contract Factory
+      EVMContractAddress("0x5540122e78241679Da8d07A04A74D3a7f52aED97"), // TODO: Governance Token Contract 
       URLString("https://api-testnet.snowtrace.io/"),
     ),
   ],
