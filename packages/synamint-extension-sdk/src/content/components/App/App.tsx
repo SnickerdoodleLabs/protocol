@@ -2,12 +2,10 @@ import { ThemeProvider } from "@material-ui/core";
 import {
   BaseNotification,
   BigNumberString,
-  DataPermissions,
   DomainName,
   EInvitationStatus,
   ENotificationTypes,
   EVMContractAddress,
-  EWalletDataType,
   IOldUserAgreement,
   IPaletteOverrides,
   IUserAgreement,
@@ -25,6 +23,18 @@ import {
   createDefaultTheme,
   createThemeWithOverrides,
 } from "@snickerdoodlelabs/shared-components";
+import endOfStream from "end-of-stream";
+import PortStream from "extension-port-stream";
+import { JsonRpcEngine } from "json-rpc-engine";
+import { createStreamMiddleware } from "json-rpc-middleware-stream";
+import { err, okAsync } from "neverthrow";
+import ObjectMultiplex from "obj-multiplex";
+import LocalMessageStream from "post-message-stream";
+import pump from "pump";
+import React, { useEffect, useMemo, useState, useCallback, FC } from "react";
+import { parse } from "tldts";
+import Browser from "webextension-polyfill";
+
 import { EAppState } from "@synamint-extension-sdk/content/constants";
 import usePath from "@synamint-extension-sdk/content/hooks/usePath";
 import DataWalletProxyInjectionUtils from "@synamint-extension-sdk/content/utils/DataWalletProxyInjectionUtils";
@@ -44,24 +54,6 @@ import {
   GetConsentContractCIDParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
-import endOfStream from "end-of-stream";
-import PortStream from "extension-port-stream";
-import { JsonRpcEngine } from "json-rpc-engine";
-import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import { err, okAsync } from "neverthrow";
-import ObjectMultiplex from "obj-multiplex";
-import LocalMessageStream from "post-message-stream";
-import pump from "pump";
-import React, {
-  useEffect,
-  useMemo,
-  useState,
-  useCallback,
-  useRef,
-  FC,
-} from "react";
-import { parse } from "tldts";
-import Browser from "webextension-polyfill";
 
 // #region connection
 let coreGateway: ExternalCoreGateway;
