@@ -7,9 +7,13 @@ import {
 import {
   ERecordKey,
   IIndexedDB,
-  PersistenceError,
+  VectorDBError,
+  QuantizedTableId,
   VersionedObject,
   VolatileStorageMetadata,
+  PersistenceError,
+  VectorRow,
+  QuantizedTable,
 } from "@snickerdoodlelabs/objects";
 import {
   IIndexedDBContextProvider,
@@ -19,20 +23,20 @@ import { inject, injectable } from "inversify";
 import normed from "ml-array-normed";
 import { kmeans } from "ml-kmeans";
 import { KMeansResult } from "ml-kmeans/lib/KMeansResult";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { err, errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import transpose from "transpose-2d-array";
 
-import { IQuantizationService, InferenceResult } from "@vector-db/index.js";
+import { IVectorDB } from "@vector-db/index.js";
+import { InferenceResult } from "@vector-db/objects/index.js";
 
 @injectable()
-export class VectorDB implements IQuantizationService {
-  protected embeddedDB: Map<ERecordKey, number[][]> = new Map<
-    ERecordKey,
-    number[][]
-  >();
-
-  private _unlockPromise: Promise<IIndexedDB>;
+export class VectorDB implements IVectorDB {
+  protected embeddedMappings: ResultAsync<
+    Map<QuantizedTableId, QuantizedTable>,
+    never
+  >;
+  private _initPromise: Promise<IIndexedDB>;
   private _resolveUnlock: ((db: IIndexedDB) => void) | null = null;
 
   public constructor(
@@ -41,13 +45,12 @@ export class VectorDB implements IQuantizationService {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {
-    this._unlockPromise = new Promise<IIndexedDB>((resolve) => {
+    this.embeddedMappings = okAsync(
+      new Map<QuantizedTableId, QuantizedTable>(),
+    );
+    this._initPromise = new Promise<IIndexedDB>((resolve) => {
       this._resolveUnlock = resolve;
     });
-  }
-
-  protected waitForInit(): ResultAsync<IIndexedDB, never> {
-    return ResultAsync.fromSafePromise(this._unlockPromise);
   }
 
   /*
@@ -57,6 +60,13 @@ export class VectorDB implements IQuantizationService {
   public initialize(
     template?: IIndexedDB,
   ): ResultAsync<IIndexedDB, PersistenceError> {
+    this.embeddedMappings = okAsync(
+      new Map<QuantizedTableId, QuantizedTable>(),
+    );
+    this._initPromise = new Promise<IIndexedDB>((resolve) => {
+      this._resolveUnlock = resolve;
+    });
+
     if (template !== undefined) {
       return this.indexedDBContextProvider
         .setContext({ db: template })
@@ -74,40 +84,109 @@ export class VectorDB implements IQuantizationService {
   public table<T extends VersionedObject>(
     name: string,
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
-    return this.indexedDBContextProvider.getContext().andThen((context) => {
-      return context.db.getAll<T>(name);
+    return this.waitForInit().andThen(() => {
+      return this.indexedDBContextProvider.getContext().andThen((context) => {
+        return context.db.getAll<T>(name);
+      });
     });
   }
 
-  /*
-    Returns quantized instance of a table, following the rules of your imported function
-  */
-  public quantizeTable(
-    tableName: ERecordKey,
-    callback: (row: any) => any,
-  ): ResultAsync<number[][], PersistenceError> {
-    return this.table(tableName)
-      .map((records) => {
-        console.log("records", records);
-        return callback(records) as number[][];
+  /**
+   * Returns a new table instance made up of existing tables and then quantizes this table to make it ready for unsupervised ml algorithms
+   * @param tableNames is an array of the different tableNames you want to feed into create
+   * @param callbacks is an array of function converters that allows the user to convert row data into numeric data
+   * @param outputName output table name that is the identifier for your new quantized table
+   */
+  public quantizeTable<T extends VersionedObject>(
+    tableNames: ERecordKey[],
+    callbacks: ((row: any) => VectorRow)[],
+    outputName: QuantizedTableId,
+  ): ResultAsync<QuantizedTable, PersistenceError | VectorDBError> {
+    return this.waitForInit()
+      .andThen(() => {
+        return ResultUtils.combine(
+          tableNames.map((tableName, index) => {
+            return this.table(tableName)
+              .map((data) => {
+                const callback = callbacks[index];
+                return callback(data);
+              })
+              .mapErr((e) => e);
+          }),
+        );
       })
       .andThen((data) => {
-        return this.normalizeQuantizedTable(data);
+        return this.normalizeQuantizedTable(data).andThen((normalizedData) => {
+          return this.addQuantizedData(
+            outputName,
+            new QuantizedTable(outputName, normalizedData),
+          );
+        });
+      })
+      .mapErr((err) => {
+        return new VectorDBError(
+          `Formatting Error: Callback function does not convert data from ${tableNames} into a legible, numeric output`,
+        );
       });
+  }
+
+  private addQuantizedData(
+    tableName: QuantizedTableId,
+    data: QuantizedTable,
+  ): ResultAsync<QuantizedTable, VectorDBError> {
+    return this.waitForInit()
+      .andThen((db) => {
+        return this.embeddedMappings.map((table) => {
+          const data = table.get(tableName);
+          if (data == undefined) {
+            throw err;
+          }
+
+          return data;
+        });
+      })
+      .mapErr(
+        (e) => new VectorDBError(`Quantized Table ${tableName} is not found`),
+      );
+  }
+
+  private getQuantizedData(
+    tableName: QuantizedTableId,
+  ): ResultAsync<QuantizedTable, VectorDBError> {
+    return this.waitForInit()
+      .andThen((db) => {
+        return this.embeddedMappings.map((table) => {
+          const data = table.get(tableName);
+          if (data == undefined) {
+            throw err;
+          }
+
+          return data;
+        });
+      })
+      .mapErr(
+        (e) => new VectorDBError(`Quantized Table ${tableName} is not found`),
+      );
   }
 
   /*
     Returns kmeans instance of a quantized table
   */
   public kmeans(
-    quantizedTable: number[][],
+    tableName: QuantizedTableId,
     k: number,
-  ): ResultAsync<KMeansResult, PersistenceError> {
-    const result = kmeans(quantizedTable, k, {
-      initialization: "kmeans++",
-      maxIterations: 1000,
-    });
-    return okAsync(result);
+  ): ResultAsync<KMeansResult, VectorDBError> {
+    return this.waitForInit()
+      .andThen(() => {
+        return this.getQuantizedData(tableName).map((quantizedTable) => {
+          const result = kmeans(quantizedTable.table(), k, {
+            initialization: "kmeans++",
+            maxIterations: 1000,
+          });
+          return result;
+        });
+      })
+      .mapErr((e) => e);
   }
 
   /*
@@ -116,15 +195,21 @@ export class VectorDB implements IQuantizationService {
   public infer(
     model: KMeansResult,
     userState: number[][],
-  ): ResultAsync<InferenceResult, PersistenceError> {
-    return okAsync({
-      data: model.nearest(userState),
-    } as InferenceResult);
+  ): ResultAsync<InferenceResult, VectorDBError> {
+    return this.waitForInit().andThen(() => {
+      return okAsync({
+        data: model.nearest(userState),
+      } as InferenceResult);
+    });
+  }
+
+  protected waitForInit(): ResultAsync<IIndexedDB, never> {
+    return ResultAsync.fromSafePromise(this._initPromise);
   }
 
   private normalizeQuantizedTable(
-    table: number[][],
-  ): ResultAsync<number[][], PersistenceError> {
+    table: VectorRow[],
+  ): ResultAsync<number[][], VectorDBError> {
     const transposedTable = transpose(table);
     const normalization = transposedTable.map((row) => {
       return normed(row, { algorithm: "max" });

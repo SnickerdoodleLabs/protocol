@@ -12,9 +12,11 @@ import {
   ERecordKey,
   EVMAccountAddress,
   EVMContractAddress,
+  IIndexedDB,
   InvitationForStorage,
   LinkedAccount,
   PersistenceError,
+  QuantizedTableId,
   ReceivingAccountMigrator,
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
@@ -74,21 +76,37 @@ export class VectorDBMocks {
   public indexedDBContextProvider: IIndexedDBContextProvider;
   protected logUtils: ILogUtils;
   protected timeUtils: ITimeUtils;
+  public instanceDB: IIndexedDB;
 
   constructor() {
     this.indexedDBContextProvider = td.object<IIndexedDBContextProvider>();
     this.logUtils = td.object<ILogUtils>();
     this.timeUtils = td.object<ITimeUtils>();
+    this.instanceDB = td.object<IIndexedDB>();
 
-    td.when(this.indexedDBContextProvider.getContext()).thenReturn(
-      okAsync({
-        db: indexedDataBase1,
-      }),
-    );
+    beforeEach(async () => {
+      objectStores = getObjectStoreDefinitions();
+      objectStores.set(dummyIndex, dummyTable);
+      this.instanceDB = getIndexDBInstance(objectStores);
+      await this.instanceDB.initialize();
+      for (const dummyData of dummyContractData) {
+        await this.instanceDB.putObject(
+          ERecordKey.OPTED_IN_INVITATIONS,
+          dummyData,
+        );
+      }
+    });
+    afterEach(async () => {
+      await this.instanceDB.deleteDatabase("SD_Wallet");
+      await this.instanceDB.close();
+    });
 
     td.when(
-      this.indexedDBContextProvider.setContext({ db: indexedDataBase2 }),
+      this.indexedDBContextProvider.setContext({ db: this.instanceDB }),
     ).thenReturn(okAsync(undefined));
+    td.when(this.indexedDBContextProvider.getContext()).thenReturn(
+      okAsync({ db: this.instanceDB }),
+    );
   }
 
   public factory() {
@@ -102,55 +120,41 @@ export class VectorDBMocks {
 
 describe("VectorDB Initialization tests", () => {
   test("Init()", async () => {
+    // arrange
     const mocks = new VectorDBMocks();
     const vectorDB = mocks.factory();
+
+    // act
     const result = await vectorDB.initialize();
     const answer = result._unsafeUnwrap();
 
+    // assert
     expect(answer).toBe(indexedDataBase1);
   });
   test("Initialize by passing in an IIndexedDB", async () => {
+    // arrange
     const mocks = new VectorDBMocks();
     const vectorDB = mocks.factory();
+
+    // act
     const result = await vectorDB.initialize(indexedDataBase2);
     const answer = result._unsafeUnwrap();
 
+    // assert
     expect(answer).toBe(indexedDataBase2);
   });
 });
 describe("VectorDB Fetch Table", () => {
-  let instanceDB: IndexedDB;
-  beforeEach(() => {
-    objectStores = getObjectStoreDefinitions();
-    objectStores.set(dummyIndex, dummyTable);
-    instanceDB = getIndexDBInstance(objectStores);
-  });
-  afterEach(async () => {
-    await instanceDB.deleteDatabase("SD_Wallet");
-    await instanceDB.close();
-  });
   test("Fetch Table() works", async () => {
-    await instanceDB.initialize();
-
-    for (const dummyData of dummyContractData) {
-      await instanceDB.putObject(ERecordKey.OPTED_IN_INVITATIONS, dummyData);
-    }
-
+    // arrange
     const mocks = new VectorDBMocks();
-    td.when(
-      mocks.indexedDBContextProvider.setContext({ db: instanceDB }),
-    ).thenReturn(okAsync(undefined));
-    td.when(mocks.indexedDBContextProvider.getContext()).thenReturn(
-      okAsync({ db: instanceDB }),
-    );
     const vectorDB = mocks.factory();
 
-    const init = await vectorDB.initialize(instanceDB);
+    // act
+    const init = await vectorDB.initialize(mocks.instanceDB);
     const result = await vectorDB.table("SD_OptedInInvitations");
 
-    const answer = await instanceDB.getAll<InvitationForStorage>(
-      "SD_OptedInInvitations",
-    );
+    // assert
     expect(result._unsafeUnwrap()[0]["data"]["consentContractAddress"]).toBe(
       "0x408e7997bF56a091c0aF82Bf0523B16D2b99e1a8",
     );
@@ -158,65 +162,42 @@ describe("VectorDB Fetch Table", () => {
 });
 
 describe("VectorDB Quantize Table", () => {
-  let instanceDB: IndexedDB;
-
-  beforeEach(async () => {
-    objectStores = getObjectStoreDefinitions();
-    objectStores.set(dummyIndex, dummyTable);
-    instanceDB = getIndexDBInstance(objectStores);
-  });
-  afterEach(async () => {
-    await instanceDB.deleteDatabase("SD_Wallet");
-    await instanceDB.close();
-  });
-
   test("Quantize Table() works", async () => {
-    await instanceDB.initialize();
-    for (const dummyData of dummyContractData) {
-      await instanceDB.putObject(ERecordKey.OPTED_IN_INVITATIONS, dummyData);
-    }
+    // arrange
     const mocks = new VectorDBMocks();
-    td.when(
-      mocks.indexedDBContextProvider.setContext({ db: instanceDB }),
-    ).thenReturn(okAsync(undefined));
-    td.when(mocks.indexedDBContextProvider.getContext()).thenReturn(
-      okAsync({ db: instanceDB }),
-    );
     const vectorDB = mocks.factory();
-    const init = await vectorDB.initialize(instanceDB);
+    // const init = await vectorDB.initialize(mocks.instanceDB);
     const table = await vectorDB.table("SD_OptedInInvitations");
 
     // just mock it
-    const addressMapper = (
-      table: {
-        data: {
-          consentContractAddress: string;
-          tokenId: number;
-        };
-        lastUpdate: number;
-        version: number;
-        deleted: number;
-      }[],
-    ): number[][] => {
-      const output = table.map((obj) => {
-        return [obj.version, obj.deleted, obj.lastUpdate];
-      });
-
-      return output;
+    const addressMapper = (row: {
+      data: {
+        consentContractAddress: string;
+        tokenId: number;
+      };
+      lastUpdate: number;
+      version: number;
+      deleted: number;
+    }): number[] => {
+      return [row.version, row.deleted, row.lastUpdate];
     };
 
+    // act
     const result = await vectorDB.quantizeTable(
-      ERecordKey.OPTED_IN_INVITATIONS,
-      addressMapper,
+      [ERecordKey.OPTED_IN_INVITATIONS],
+      [addressMapper],
+      QuantizedTableId("QuantizedData"),
     );
 
-    console.log("table result: ", result._unsafeUnwrap());
+    // assert
+    console.log("result._unsafeUnwrap(): ", result._unsafeUnwrap());
     expect(result._unsafeUnwrap()[0][0]).toBe(0.9999975867997885);
   });
 });
 
 describe("VectorDB Kmeans()", () => {
   test("Kmeans() works", async () => {
+    // arrange
     const mocks = new VectorDBMocks();
     const vectorDB = mocks.factory();
 
@@ -226,27 +207,11 @@ describe("VectorDB Kmeans()", () => {
       [-1, -1, -1],
       [-1, -1, -1.5],
     ];
-    const result = await vectorDB.kmeans(data, 4);
 
+    // act
+    const result = await vectorDB.kmeans(QuantizedTableId("QuantizedData"), 4);
+
+    // assert
     expect(result._unsafeUnwrap().centroids.length).toBe(4);
-  });
-});
-
-describe("VectorDB Infer()", () => {
-  test("Infer() works", async () => {
-    const mocks = new VectorDBMocks();
-    const vectorDB = mocks.factory();
-
-    const data = [
-      [1, 1, 1],
-      [1, 2, 1],
-      [-1, -1, -1],
-      [-1, -1, -1.5],
-    ];
-    const modelID = (await vectorDB.kmeans(data, 4))._unsafeUnwrap();
-
-    const result = await vectorDB.infer(modelID, [[]]);
-    console.log("result: ", result._unsafeUnwrap());
-    expect(data).toBe(data);
   });
 });

@@ -32,6 +32,7 @@ export * from "@objects/errors/TwitterError.js";
 export * from "@objects/errors/UnauthorizedError.js";
 export * from "@objects/errors/UninitializedError.js";
 export * from "@objects/errors/UnsupportedLanguageError.js";
+export * from "@objects/errors/VectorDBError.js";
 
 export * from "@objects/errors/blockchain/index.js";
 export * from "@objects/errors/sdqlErrors/index.js";

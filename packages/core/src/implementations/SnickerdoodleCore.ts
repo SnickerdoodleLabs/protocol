@@ -99,6 +99,8 @@ import {
   ERecordKey,
   IIndexedDB,
   IIndexedDBType,
+  QuantizedTableId,
+  VectorRow,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -113,9 +115,9 @@ import {
   LocalStorageUtils,
 } from "@snickerdoodlelabs/utils";
 import {
-  IQuantizationService,
-  IQuantizationServiceType,
   VectorDB,
+  IVectorDB,
+  IVectorDBType,
 } from "@snickerdoodlelabs/vector-db";
 import { ethers } from "ethers";
 import { Container } from "inversify";
@@ -230,10 +232,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .inSingletonScope();
     }
 
-    this.iocContainer
-      .bind(IQuantizationServiceType)
-      .to(VectorDB)
-      .inSingletonScope();
+    this.iocContainer.bind(IVectorDBType).to(VectorDB).inSingletonScope();
 
     // Setup the config
     if (configOverrides != null) {
@@ -735,31 +734,33 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
     // Vector DB Methods --------------------------------------------------------------------
     this.quantization = {
-      // discovers data in db
-      // way simpler, inject dependencies, iterate local db
       initialize: (template?: IIndexedDB) => {
-        const quantizationService = this.iocContainer.get<IQuantizationService>(
-          IQuantizationServiceType,
-        );
+        const quantizationService =
+          this.iocContainer.get<IVectorDB>(IVectorDBType);
 
         return quantizationService.initialize(template);
       },
 
       table: (name: string) => {
-        const quantizationService = this.iocContainer.get<IQuantizationService>(
-          IQuantizationServiceType,
-        );
+        const quantizationService =
+          this.iocContainer.get<IVectorDB>(IVectorDBType);
 
         return quantizationService.table(name);
       },
 
-      // quantization on a specific table
-      quantizeTable: (tableName: ERecordKey, callback: (n: any) => any) => {
-        const quantizationService = this.iocContainer.get<IQuantizationService>(
-          IQuantizationServiceType,
-        );
+      quantizeTable: (
+        tableNames: ERecordKey[],
+        callbacks: ((row: any) => VectorRow)[],
+        outputName: QuantizedTableId,
+      ) => {
+        const quantizationService =
+          this.iocContainer.get<IVectorDB>(IVectorDBType);
 
-        return quantizationService.quantizeTable(tableName, callback);
+        return quantizationService.quantizeTable(
+          tableNames,
+          callbacks,
+          outputName,
+        );
       },
 
       // keep using temp tables/data to save space
@@ -767,17 +768,16 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       // another function here -> mapping raw to vectorized data
 
       // can only be run AFTER a table is quantized, throw error
-      kmeans: (quantizedTable: number[][], k: number) => {
-        const quantizationService = this.iocContainer.get<IQuantizationService>(
-          IQuantizationServiceType,
-        );
+      kmeans: (tableName: QuantizedTableId, k: number) => {
+        const quantizationService =
+          this.iocContainer.get<IVectorDB>(IVectorDBType);
 
-        return quantizationService.kmeans(quantizedTable, k);
+        return quantizationService.kmeans(tableName, k);
       },
 
       // infer: (modelID: string, userState: string) => {
-      //   const quantizationService = this.iocContainer.get<IQuantizationService>(
-      //     IQuantizationServiceType,
+      //   const quantizationService = this.iocContainer.get<IVectorDB>(
+      //     IVectorDBType,
       //   );
 
       //   return quantizationService.infer(modelID, userState);

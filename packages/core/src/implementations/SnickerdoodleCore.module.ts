@@ -558,11 +558,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(DropboxCloudStorage)
       .inSingletonScope();
 
-    // bind<IIndexedDB>(IIndexedDBType).to(IndexedDB).inSingletonScope();
-    // bind<IIndexedDBContext>(IIndexedDBConfigProviderType)
-    //   .to(IIndexed)
-    //   .inSingletonScope();
-
     /**
      * Binding of Modules With Extra Capabilities.
      *

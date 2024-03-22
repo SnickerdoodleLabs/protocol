@@ -45,6 +45,7 @@ import {
   KMeansResult,
   VersionedObject,
   VolatileStorageMetadata,
+  QuantizedTable,
   // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
@@ -85,6 +86,7 @@ import {
   MissingWalletDataTypeError,
   ParserError,
   MethodSupportError,
+  VectorDBError,
 } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IIndexedDB } from "@objects/interfaces/IIndexedDB.js";
@@ -124,6 +126,8 @@ import {
   BlockNumber,
   RefreshToken,
   JSONString,
+  QuantizedTableId,
+  VectorRow,
 } from "@objects/primitives/index.js";
 /**
  ************************ MAINTENANCE HAZARD ***********************************************
@@ -727,13 +731,14 @@ export interface IVectorQuantizationMethods {
     name: string,
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError>;
   quantizeTable(
-    tableName: ERecordKey,
-    callback: (n: any) => any,
-  ): ResultAsync<number[][], PersistenceError>;
+    tableNames: ERecordKey[],
+    callbacks: ((row: any) => VectorRow)[],
+    outputName: QuantizedTableId,
+  ): ResultAsync<QuantizedTable, PersistenceError | VectorDBError>;
   kmeans(
-    quantizedTable: number[][],
+    tableName: QuantizedTableId,
     k: number,
-  ): ResultAsync<KMeansResult, PersistenceError>;
+  ): ResultAsync<KMeansResult, VectorDBError>;
   // infer(
   //   model: KMeansResult,
   //   userState: number[][],
