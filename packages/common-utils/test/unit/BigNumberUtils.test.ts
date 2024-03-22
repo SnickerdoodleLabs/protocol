@@ -78,7 +78,6 @@ describe("BigNumberUtils class", () => {
   });
 
   test("HexString32NoPrefixToBNS should convert HexString32 without '0x' prefix to BigNumberString", () => {
-    // Given a hex string without '0x' and assuming HexString32 is a wrapper type
     const hexString = HexString32("0a");
     const BNSValue = bigNumberUtils.HexString32NoPrefixToBNS(hexString);
 
