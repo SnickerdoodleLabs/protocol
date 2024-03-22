@@ -172,14 +172,15 @@ export class ConsentContractWrapper
   }
   public restakeExpiredListing(
     tag: string,
-    overrides?: ContractOverrides | undefined,
+    stakingToken: EVMContractAddress,
+    overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
     ConsentContractError | BlockchainCommonErrors
   > {
     return this.fallback(
-      () => this.primary.restakeExpiredListing(tag, overrides),
-      () => this.secondary?.restakeExpiredListing(tag, overrides),
+      () => this.primary.restakeExpiredListing(tag, stakingToken, overrides),
+      () => this.secondary?.restakeExpiredListing(tag, stakingToken, overrides),
     );
   }
 
@@ -491,67 +492,171 @@ export class ConsentContractWrapper
 
   public newGlobalTag(
     tag: string,
-    newSlot: BigNumberString,
+    stakingToken: EVMContractAddress,
+    stakeOWner: any,
+    newStakeAmount: BigNumberString,
+    overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | ConsentContractError
   > {
     return this.fallback(
-      () => this.primary.newGlobalTag(tag, newSlot),
-      () => this.secondary?.newGlobalTag(tag, newSlot),
+      () =>
+        this.primary.newGlobalTag(
+          tag,
+          stakingToken,
+          stakeOWner,
+          newStakeAmount,
+          overrides,
+        ),
+      () =>
+        this.secondary?.newGlobalTag(
+          tag,
+          stakingToken,
+          stakeOWner,
+          newStakeAmount,
+          overrides,
+        ),
     );
   }
 
   public newLocalTagUpstream(
     tag: string,
+    stakingToken: EVMContractAddress,
+    stakeOwner: any,
     newSlot: BigNumberString,
     existingSlot: BigNumberString,
+    overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | ConsentContractError
   > {
     return this.fallback(
-      () => this.primary.newLocalTagUpstream(tag, newSlot, existingSlot),
-      () => this.secondary?.newLocalTagUpstream(tag, newSlot, existingSlot),
+      () =>
+        this.primary.newLocalTagUpstream(
+          tag,
+          stakingToken,
+          stakeOwner,
+          newSlot,
+          existingSlot,
+          overrides,
+        ),
+      () =>
+        this.secondary?.newLocalTagUpstream(
+          tag,
+          stakingToken,
+          stakeOwner,
+          newSlot,
+          existingSlot,
+          overrides,
+        ),
     );
   }
 
   public newLocalTagDownstream(
     tag: string,
-    existingSlot: BigNumberString,
-    newSlot: BigNumberString,
+    stakingToken: EVMContractAddress,
+    stakeOwner: any,
+    existingStakeAmount: BigNumberString,
+    newStakeAmount: BigNumberString,
+    overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | ConsentContractError
   > {
     return this.fallback(
-      () => this.primary.newLocalTagDownstream(tag, newSlot, existingSlot),
-      () => this.secondary?.newLocalTagDownstream(tag, newSlot, existingSlot),
+      () =>
+        this.primary.newLocalTagDownstream(
+          tag,
+          stakingToken,
+          stakeOwner,
+          existingStakeAmount,
+          newStakeAmount,
+          overrides,
+        ),
+      () =>
+        this.secondary?.newLocalTagDownstream(
+          tag,
+          stakingToken,
+          stakeOwner,
+          existingStakeAmount,
+          newStakeAmount,
+          overrides,
+        ),
     );
   }
 
   public replaceExpiredListing(
     tag: string,
+    stakingToken: EVMContractAddress,
+    stakeOwner: any,
     slot: BigNumberString,
+    overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | ConsentContractError
   > {
     return this.fallback(
-      () => this.primary.replaceExpiredListing(tag, slot),
-      () => this.secondary?.replaceExpiredListing(tag, slot),
+      () =>
+        this.primary.replaceExpiredListing(
+          tag,
+          stakingToken,
+          stakeOwner,
+          slot,
+          overrides,
+        ),
+      () =>
+        this.secondary?.replaceExpiredListing(
+          tag,
+          stakingToken,
+          stakeOwner,
+          slot,
+          overrides,
+        ),
+    );
+  }
+
+  public moveExistingListingUpstream(
+    tag: string,
+    stakingToken: EVMContractAddress,
+    stakeOwner: any,
+    newStakeAmount: BigNumberString,
+    existingStakeAmount: BigNumberString,
+    overrides?: ContractOverrides | undefined,
+  ): ResultAsync<WrappedTransactionResponse, any> {
+    return this.fallback(
+      () =>
+        this.primary.moveExistingListingUpstream(
+          tag,
+          stakingToken,
+          stakeOwner,
+          newStakeAmount,
+          existingStakeAmount,
+          overrides,
+        ),
+      () =>
+        this.secondary?.moveExistingListingUpstream(
+          tag,
+          stakingToken,
+          stakeOwner,
+          newStakeAmount,
+          existingStakeAmount,
+          overrides,
+        ),
     );
   }
 
   public removeListing(
     tag: string,
+    stakingToken: EVMContractAddress,
+    overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | ConsentContractError
   > {
     return this.fallback(
-      () => this.primary.removeListing(tag),
-      () => this.secondary?.removeListing(tag),
+      () => this.primary.removeListing(tag, stakingToken, overrides),
+      () => this.secondary?.removeListing(tag, stakingToken, overrides),
     );
   }
 }
