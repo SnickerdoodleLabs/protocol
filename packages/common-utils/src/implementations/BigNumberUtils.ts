@@ -5,7 +5,6 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
-import { BigNumber } from "sjcl";
 
 import { IBigNumberUtils } from "@common-utils/interfaces/index.js";
 
