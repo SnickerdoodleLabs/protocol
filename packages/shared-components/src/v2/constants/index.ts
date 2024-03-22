@@ -179,3 +179,7 @@ export const getGroupedDataTypesG = <T extends { dataType: EWalletDataType }>(
     return acc;
   }, {} as Record<EWalletDataTypeGroup, (T & { permission: IDataPermissionScheme })[]>);
 };
+
+export const getDataTypeProperties = (dataType: EWalletDataType) => {
+  return uiSupportedPermissions.find((p) => p.key === dataType);
+};

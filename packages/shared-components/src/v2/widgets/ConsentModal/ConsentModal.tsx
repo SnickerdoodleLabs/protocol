@@ -20,6 +20,7 @@ import {
   PermissionSectionTitle,
   PermissionItemWithShareButton,
   PermissionItemWithFillButton,
+  CustomSelect,
 } from "@shared-components/v2/components";
 import {
   DataTypeGroupProperties,
@@ -484,11 +485,9 @@ export const ConsentModal = ({
                   </SDTypography>
                 }
               />
-              <Select
+              <CustomSelect
                 value={receivingAddress}
-                variant="outlined"
                 onChange={(e) => {
-                  console.log(e);
                   setReceivingAddress(e.target.value as EVMAccountAddress);
                 }}
               >
@@ -506,7 +505,7 @@ export const ConsentModal = ({
                     </Box>
                   </MenuItem>
                 ))}
-              </Select>
+              </CustomSelect>
             </Box>
             <SDButton
               disabled={!agreementConsented}

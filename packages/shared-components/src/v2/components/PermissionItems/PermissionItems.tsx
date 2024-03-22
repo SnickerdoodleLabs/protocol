@@ -35,6 +35,7 @@ interface IPermissionItemWithButtonProps extends IPermissionItemProps {
 interface IPermissionItemWithShareButtonProps
   extends IPermissionItemWithButtonProps {
   active: boolean;
+  useCheckboxOnly?: boolean;
 }
 
 interface IPointItemProps {
@@ -159,7 +160,7 @@ export const PermissionItemLoading: FC = () => {
 
 export const PermissionItemWithShareButton: FC<
   IPermissionItemWithShareButtonProps
-> = ({ icon, name, onClick, active, point, pointIcon }) => {
+> = ({ icon, name, onClick, active, point, pointIcon, useCheckboxOnly }) => {
   return (
     <Box
       display="flex"
@@ -177,17 +178,19 @@ export const PermissionItemWithShareButton: FC<
         <SDCheckbox
           checked={active}
           onChange={onClick}
-          variant="outlined"
           color={colors.MINT500}
-          label={
-            <SDTypography
-              variant="labelLg"
-              fontWeight="medium"
-              hexColor={active ? colors.WHITE : colors.GREY500}
-            >
-              Share
-            </SDTypography>
-          }
+          {...(!useCheckboxOnly && {
+            variant: "outlined",
+            label: (
+              <SDTypography
+                variant="labelLg"
+                fontWeight="medium"
+                hexColor={active ? colors.WHITE : colors.GREY500}
+              >
+                Share
+              </SDTypography>
+            ),
+          })}
         />
       </Box>
     </Box>

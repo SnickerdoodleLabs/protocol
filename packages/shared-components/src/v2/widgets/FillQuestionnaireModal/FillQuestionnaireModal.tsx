@@ -19,21 +19,27 @@ import {
   NewQuestionnaireAnswer,
   Questionnaire,
 } from "@snickerdoodlelabs/objects";
-import React, { FC } from "react";
+import React, { FC, ReactNode } from "react";
 
 interface IFillQuestionnaireModalProps {
   questionnaire: Questionnaire;
   onQuestionnaireSubmit: (answers: NewQuestionnaireAnswer[]) => void;
   open: boolean;
   onClose: () => void;
+  actionText?: string;
+  leftAction?: ReactNode;
+  maxWidth?: number;
 }
 export const FillQuestionnaireModal: FC<IFillQuestionnaireModalProps> = ({
   open,
   onClose,
   questionnaire,
   onQuestionnaireSubmit,
+  actionText = "Save to Vault",
+  leftAction,
+  maxWidth = 960,
 }) => {
-  const dialogClasses = useDialogStyles({ maxWidth: 980 });
+  const dialogClasses = useDialogStyles({ maxWidth });
   const getResponsiveValue = useResponsiveValue();
 
   return (
@@ -83,7 +89,7 @@ export const FillQuestionnaireModal: FC<IFillQuestionnaireModalProps> = ({
       </DialogTitle>
       <DialogContent>
         <Box
-          width={{ xs: "100%", sm: "90%" }}
+          width={"100%"}
           margin="auto"
           p={{ xs: 2, sm: 4 }}
           pt={{ xs: 3, sm: 4 }}
@@ -109,10 +115,11 @@ export const FillQuestionnaireModal: FC<IFillQuestionnaireModalProps> = ({
         </Box>
       </DialogContent>
       <DialogActions>
-        <Box width="100%" display="flex">
+        <Box width="100%" display="flex" alignItems="center">
+          {leftAction && leftAction}
           <Box marginLeft="auto">
             <SDButton type="submit" form="questionnarie">
-              Save to Vault
+              {actionText}
             </SDButton>
           </Box>
         </Box>

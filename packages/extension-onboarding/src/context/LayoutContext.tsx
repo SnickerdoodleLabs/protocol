@@ -25,13 +25,13 @@ import OfferModal, {
 import QuestionnaireModal, {
   IQuestionnaireModal,
 } from "@extension-onboarding/components/Modals/V2/QuestionnaireModal";
+import ShareQuestionnaireModal, { IShareQuestionnaireModal } from "@extension-onboarding/components/Modals/V2/ShareQuestionnaireModal";
 import { useSafeState } from "@snickerdoodlelabs/shared-components";
 import React, {
   ReactNode,
   FC,
   createContext,
   useContext,
-  useState,
   useMemo,
   useEffect,
   memo,
@@ -47,6 +47,7 @@ type ModalSelectorTypeMap = {
   [EModalSelectors.ANSWERED_QUESTIONNAIRE_MODAL]: IAnsweredQuestionnaireModal;
   [EModalSelectors.BRAND_PERMISSIONS_MODAL]: IBrandPermissionsModal;
   [EModalSelectors.OFFER_MODAL]: IOfferModal;
+  [EModalSelectors.SHARE_QUESTIONNAIRE_MODAL]: IShareQuestionnaireModal;
 };
 
 type ModalSelector = keyof ModalSelectorTypeMap;
@@ -116,6 +117,9 @@ export const LayoutProvider: FC = memo(({ children }) => {
         return <BrandPermissionsModal />;
       case modalState.modalSelector === EModalSelectors.OFFER_MODAL:
         return <OfferModal />;
+      case modalState.modalSelector ===
+        EModalSelectors.SHARE_QUESTIONNAIRE_MODAL:
+        return <ShareQuestionnaireModal />;
       default:
         return null;
     }

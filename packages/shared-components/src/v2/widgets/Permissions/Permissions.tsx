@@ -26,6 +26,7 @@ interface IPermissionsProps {
   onQuestionnairePermissionClick: (questionnaireCID: IpfsCID) => void;
   dataTypePermissions: EWalletDataType[];
   questionnairePermissions: IpfsCID[];
+  useCheckboxOnly?: boolean;
 }
 
 export const Permissions: FC<IPermissionsProps> = ({
@@ -37,6 +38,7 @@ export const Permissions: FC<IPermissionsProps> = ({
   onQuestionnairePermissionClick,
   questionnairePermissions,
   dataTypePermissions,
+  useCheckboxOnly,
 }) => {
   const dataPermissionsToDisplay = useMemo(() => {
     return getGroupedDataPermissions(dataTypes);
@@ -112,6 +114,7 @@ export const Permissions: FC<IPermissionsProps> = ({
                         icon={permission.icon}
                         onClick={() => onDataPermissionClick(permission.key)}
                         active={dataTypePermissions.includes(permission.key)}
+                        useCheckboxOnly={useCheckboxOnly}
                       />
                     );
                   })}

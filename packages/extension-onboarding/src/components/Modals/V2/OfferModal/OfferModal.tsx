@@ -8,11 +8,14 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  MenuItem,
+  Select,
 } from "@material-ui/core";
 import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
   EChain,
   EQuestionnaireStatus,
+  EVMAccountAddress,
   EWalletDataType,
   IDynamicRewardParameter,
   IpfsCID,
@@ -31,6 +34,8 @@ import {
   useDialogStyles,
   useSafeState,
   Permissions,
+  abbreviateString,
+  CustomSelect,
 } from "@snickerdoodlelabs/shared-components";
 import { okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -73,6 +78,31 @@ const OfferModal: FC = () => {
   const [permissions, setPermissions] = useSafeState<IPermissionsState>();
   const permissionsRef = useRef<IPermissionsState>();
   const { linkedAccounts, setLinkerModalOpen } = useAppContext();
+  const [receivingAddress, setReceivingAddress] =
+    useSafeState<EVMAccountAddress>();
+  const initialAccountRef = useRef<boolean>(false);
+
+  const offerPermissions = useRef<(IpfsCID | EWalletDataType)[]>([
+    ...offer.virtualQuestionnaires,
+    ...offer.questionnaires,
+  ]);
+  const evmAccounts = useMemo(() => {
+    return linkedAccounts
+      .filter((account) => account.sourceChain === EChain.EthereumMainnet)
+      .map((account) => account.sourceAccountAddress);
+  }, [linkedAccounts]);
+
+  useEffect(() => {
+    const evmAccounts = linkedAccounts.filter(
+      (account) => account.sourceChain === EChain.EthereumMainnet,
+    );
+    if (evmAccounts.length > 0 && !initialAccountRef.current) {
+      setReceivingAddress(
+        evmAccounts[0].sourceAccountAddress as EVMAccountAddress,
+      );
+      initialAccountRef.current = true;
+    }
+  }, [linkedAccounts]);
 
   useEffect(() => {
     getQuestionnairesWithInitialPermissions();
@@ -177,20 +207,12 @@ const OfferModal: FC = () => {
       IDynamicRewardParameter[]
     >(offer.rewardsParameters);
 
-    const recipientAddressValue = linkedAccounts.filter(
-      (a) => a.sourceChain === EChain.EthereumMainnet,
-    )?.[0]?.sourceAccountAddress;
-
-    if (!recipientAddressValue) {
-      setLinkerModalOpen();
-    }
-
     rewardsParameters.forEach((rp) => {
       calculatedParameters.push({
         ...rp,
         recipientAddress: {
           ...rp.recipientAddress,
-          value: recipientAddressValue,
+          value: receivingAddress!,
         },
       });
     });
@@ -250,6 +272,7 @@ const OfferModal: FC = () => {
                 onQuestionnairePermissionClick={onQuestionnairePermissionClick}
                 dataTypePermissions={permissions!.dataTypes}
                 questionnairePermissions={permissions!.questionnaires}
+                useCheckboxOnly
               />
             ) : (
               <Box marginX="auto" py={10}>
@@ -260,13 +283,41 @@ const OfferModal: FC = () => {
         </DialogContent>
         <DialogActions>
           <Box color={colors.GREY500} display="flex" width="100%">
+            {receivingAddress && (
+              <CustomSelect
+                value={receivingAddress}
+                onChange={(e) => {
+                  setReceivingAddress(e.target.value as EVMAccountAddress);
+                }}
+              >
+                {evmAccounts.map((account) => (
+                  <MenuItem key={account} value={account}>
+                    <Box display="flex" alignItems="center" gridGap={12}>
+                      <Image
+                        src="https://storage.googleapis.com/dw-assets/shared/icons/eth.png"
+                        width={16}
+                        height={16}
+                      />
+                      <SDTypography variant="bodyMd" color="textBody">
+                        {abbreviateString(account, 14, 0, 3)}
+                      </SDTypography>
+                    </Box>
+                  </MenuItem>
+                ))}
+              </CustomSelect>
+            )}
             <Box marginLeft="auto">
               <SDButton
-                variant="outlined"
+                disabled={
+                  ![
+                    ...(permissions?.dataTypes ?? []),
+                    ...(permissions?.questionnaires ?? []),
+                  ].some((p) => offerPermissions.current.includes(p))
+                }
                 color="primary"
                 onClick={handleOfferApprove}
               >
-                Accept
+                Share
               </SDButton>
             </Box>
           </Box>
