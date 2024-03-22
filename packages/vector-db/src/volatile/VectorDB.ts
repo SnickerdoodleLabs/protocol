@@ -84,11 +84,11 @@ export class VectorDB implements IVectorDB {
   public table<T extends VersionedObject>(
     name: string,
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
-    return this.waitForInit().andThen(() => {
-      return this.indexedDBContextProvider.getContext().andThen((context) => {
-        return context.db.getAll<T>(name);
-      });
+    // return this.waitForInit().andThen(() => {
+    return this.indexedDBContextProvider.getContext().andThen((context) => {
+      return context.db.getAll<T>(name);
     });
+    // });
   }
 
   /**
@@ -99,74 +99,41 @@ export class VectorDB implements IVectorDB {
    */
   public quantizeTable<T extends VersionedObject>(
     tableNames: ERecordKey[],
-    callbacks: ((row: any) => VectorRow)[],
+    callbacks: ((row: any) => number[])[],
     outputName: QuantizedTableId,
   ): ResultAsync<QuantizedTable, PersistenceError | VectorDBError> {
-    return this.waitForInit()
-      .andThen(() => {
-        return ResultUtils.combine(
-          tableNames.map((tableName, index) => {
-            return this.table(tableName)
-              .map((data) => {
+    return (
+      ResultUtils.combine(
+        tableNames.map((tableName, index) => {
+          return this.table(tableName)
+            .map((tableData) => {
+              return tableData.map((row) => {
                 const callback = callbacks[index];
-                return callback(data);
-              })
-              .mapErr((e) => e);
-          }),
-        );
-      })
-      .andThen((data) => {
-        return this.normalizeQuantizedTable(data).andThen((normalizedData) => {
-          return this.addQuantizedData(
-            outputName,
-            new QuantizedTable(outputName, normalizedData),
+                return callback(row);
+              });
+            })
+            .mapErr((e) => e);
+        }),
+      )
+        // })
+        .andThen((data) => {
+          const vals = data.flat();
+
+          return this.normalizeQuantizedTable(vals).andThen(
+            (normalizedData) => {
+              return this.addQuantizedData(
+                outputName,
+                new QuantizedTable(outputName, normalizedData),
+              );
+            },
           );
-        });
-      })
-      .mapErr((err) => {
-        return new VectorDBError(
-          `Formatting Error: Callback function does not convert data from ${tableNames} into a legible, numeric output`,
-        );
-      });
-  }
-
-  private addQuantizedData(
-    tableName: QuantizedTableId,
-    data: QuantizedTable,
-  ): ResultAsync<QuantizedTable, VectorDBError> {
-    return this.waitForInit()
-      .andThen((db) => {
-        return this.embeddedMappings.map((table) => {
-          const data = table.get(tableName);
-          if (data == undefined) {
-            throw err;
-          }
-
-          return data;
-        });
-      })
-      .mapErr(
-        (e) => new VectorDBError(`Quantized Table ${tableName} is not found`),
-      );
-  }
-
-  private getQuantizedData(
-    tableName: QuantizedTableId,
-  ): ResultAsync<QuantizedTable, VectorDBError> {
-    return this.waitForInit()
-      .andThen((db) => {
-        return this.embeddedMappings.map((table) => {
-          const data = table.get(tableName);
-          if (data == undefined) {
-            throw err;
-          }
-
-          return data;
-        });
-      })
-      .mapErr(
-        (e) => new VectorDBError(`Quantized Table ${tableName} is not found`),
-      );
+        })
+        .mapErr((err) => {
+          return new VectorDBError(
+            `Formatting Error: Callback function does not convert data from ${tableNames} into a legible, numeric output`,
+          );
+        })
+    );
   }
 
   /*
@@ -176,15 +143,13 @@ export class VectorDB implements IVectorDB {
     tableName: QuantizedTableId,
     k: number,
   ): ResultAsync<KMeansResult, VectorDBError> {
-    return this.waitForInit()
-      .andThen(() => {
-        return this.getQuantizedData(tableName).map((quantizedTable) => {
-          const result = kmeans(quantizedTable.table(), k, {
-            initialization: "kmeans++",
-            maxIterations: 1000,
-          });
-          return result;
+    return this.getQuantizedData(tableName)
+      .map((quantizedTable) => {
+        const result = kmeans(quantizedTable.table(), k, {
+          initialization: "kmeans++",
+          maxIterations: 1000,
         });
+        return result;
       })
       .mapErr((e) => e);
   }
@@ -196,11 +161,18 @@ export class VectorDB implements IVectorDB {
     model: KMeansResult,
     userState: number[][],
   ): ResultAsync<InferenceResult, VectorDBError> {
-    return this.waitForInit().andThen(() => {
-      return okAsync({
-        data: model.nearest(userState),
-      } as InferenceResult);
-    });
+    // return this.waitForInit().andThen(() => {
+    return okAsync({
+      data: model.nearest(userState),
+    } as InferenceResult);
+    // });
+  }
+
+  public viewTables(): ResultAsync<
+    Map<QuantizedTableId, QuantizedTable>,
+    never
+  > {
+    return this.embeddedMappings;
   }
 
   protected waitForInit(): ResultAsync<IIndexedDB, never> {
@@ -215,5 +187,40 @@ export class VectorDB implements IVectorDB {
       return normed(row, { algorithm: "max" });
     });
     return okAsync(transpose(normalization));
+  }
+
+  private addQuantizedData(
+    tableName: QuantizedTableId,
+    data: QuantizedTable,
+  ): ResultAsync<QuantizedTable, VectorDBError> {
+    return this.embeddedMappings
+      .map((table) => {
+        table = table.set(tableName, data);
+        this.embeddedMappings = okAsync(table);
+        return data;
+      })
+      .mapErr(
+        (e) => new VectorDBError(`Quantized Table ${tableName} is not found`),
+      );
+  }
+
+  private getQuantizedData(
+    tableName: QuantizedTableId,
+  ): ResultAsync<QuantizedTable, VectorDBError> {
+    // return this.waitForInit()
+    //   .andThen((db) => {
+    return this.embeddedMappings
+      .map((table) => {
+        const data = table.get(tableName);
+        if (data == undefined) {
+          throw err;
+        }
+
+        return data;
+        // });
+      })
+      .mapErr(
+        (e) => new VectorDBError(`Quantized Table ${tableName} is not found`),
+      );
   }
 }

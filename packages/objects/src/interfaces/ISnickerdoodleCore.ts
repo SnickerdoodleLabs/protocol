@@ -743,6 +743,7 @@ export interface IVectorQuantizationMethods {
   //   model: KMeansResult,
   //   userState: number[][],
   // ): ResultAsync<number[][], PersistenceError>;
+  viewTables(): ResultAsync<Map<QuantizedTableId, QuantizedTable>, never>;
 }
 
 export interface IQuestionnaireMethods {

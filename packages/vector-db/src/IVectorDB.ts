@@ -52,6 +52,11 @@ export interface IVectorDB {
     model: KMeansResult,
     userState: number[][],
   ): ResultAsync<InferenceResult, VectorDBError>;
+
+  /*
+    View all mappings of quantized instances
+  */
+  viewTables(): ResultAsync<Map<QuantizedTableId, QuantizedTable>, never>;
 }
 
 export const IVectorDBType = Symbol.for("IVectorDB");

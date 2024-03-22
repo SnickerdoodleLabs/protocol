@@ -782,6 +782,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
       //   return quantizationService.infer(modelID, userState);
       // },
+      viewTables: () => {
+        const quantizationService =
+          this.iocContainer.get<IVectorDB>(IVectorDBType);
+
+        return quantizationService.viewTables();
+      },
     };
 
     // Questionnaire Methods --------------------------------------------------------------------
