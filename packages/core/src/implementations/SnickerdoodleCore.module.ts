@@ -29,6 +29,7 @@ import {
   ICryptoUtilsType,
 } from "@snickerdoodlelabs/node-utils";
 import {
+  IIndexedDB,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
 } from "@snickerdoodlelabs/objects";
@@ -60,6 +61,10 @@ import {
   IPersistenceContextProviderType,
   NullCloudStorage,
   INullCloudStorageType,
+  DBContextProvider,
+  IIndexedDBContextProvider,
+  IIndexedDBContextProviderType,
+  IIndexedDBContext,
 } from "@snickerdoodlelabs/persistence";
 import {
   IQueryObjectFactory,
@@ -325,8 +330,8 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(MonitoringService)
       .inSingletonScope();
     bind<IQuestionnaireService>(IQuestionnaireServiceType)
-    .to(QuestionnaireService)
-    .inSingletonScope();
+      .to(QuestionnaireService)
+      .inSingletonScope();
     bind<IDiscordService>(IDiscordServiceType)
       .to(DiscordService)
       .inSingletonScope();
@@ -461,6 +466,16 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IPersistenceContextProvider>(
       IPersistenceContextProviderType,
     ).toConstantValue(contextProvider);
+
+    const dbContextProvider = new DBContextProvider(
+      new LogUtils(),
+      new TimeUtils(),
+      new VolatileStorageSchemaProvider(configProvider),
+    );
+
+    bind<IIndexedDBContextProvider>(
+      IIndexedDBContextProviderType,
+    ).toConstantValue(dbContextProvider);
 
     bind<IBlockchainProvider>(IBlockchainProviderType)
       .to(BlockchainProvider)

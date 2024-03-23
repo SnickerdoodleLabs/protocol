@@ -42,6 +42,10 @@ import {
   QuestionnaireWithAnswers,
   QuestionnaireAnswer,
   NewQuestionnaireAnswer,
+  KMeansResult,
+  VersionedObject,
+  VolatileStorageMetadata,
+  QuantizedTable,
   // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
@@ -49,6 +53,7 @@ import {
   ECloudStorageType,
   EDataWalletPermission,
   EInvitationStatus,
+  ERecordKey,
 } from "@objects/enum/index.js";
 import {
   AccountIndexingError,
@@ -81,8 +86,10 @@ import {
   MissingWalletDataTypeError,
   ParserError,
   MethodSupportError,
+  VectorDBError,
 } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
+import { IIndexedDB } from "@objects/interfaces/IIndexedDB.js";
 import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
@@ -119,6 +126,9 @@ import {
   BlockNumber,
   RefreshToken,
   JSONString,
+  QuantizedTableId,
+  VectorRow,
+  SemanticRow,
 } from "@objects/primitives/index.js";
 /**
  ************************ MAINTENANCE HAZARD ***********************************************
@@ -714,6 +724,23 @@ export interface IStorageMethods {
   getDropboxAuth(
     sourceDomain: DomainName | undefined,
   ): ResultAsync<URLString, never>;
+}
+
+export interface IVectorQuantizationMethods {
+  initialize(template?: IIndexedDB): ResultAsync<IIndexedDB, PersistenceError>;
+  table<T extends VersionedObject>(
+    name: string,
+  ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError>;
+  quantizeTables(
+    tableNames: ERecordKey[],
+    callbacks: ((row: VolatileStorageMetadata<VersionedObject>) => VectorRow)[],
+    outputName: QuantizedTableId,
+  ): ResultAsync<QuantizedTable, PersistenceError | VectorDBError>;
+  viewTables(): ResultAsync<Map<QuantizedTableId, QuantizedTable>, never>;
+  kmeans(
+    tableName: QuantizedTableId,
+    k: number,
+  ): ResultAsync<KMeansResult, VectorDBError>;
 }
 
 export interface IQuestionnaireMethods {

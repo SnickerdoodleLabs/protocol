@@ -92,9 +92,17 @@ import {
   URLString,
   INftMethods,
   IQuestionnaireMethods,
+  IVectorQuantizationMethods,
   NewQuestionnaireAnswer,
   JSONString,
   EExternalFieldKey,
+  ERecordKey,
+  IIndexedDB,
+  IIndexedDBType,
+  QuantizedTableId,
+  VectorRow,
+  VolatileStorageMetadata,
+  VersionedObject,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -108,6 +116,11 @@ import {
   IStorageUtilsType,
   LocalStorageUtils,
 } from "@snickerdoodlelabs/utils";
+import {
+  VectorDB,
+  IVectorDB,
+  IVectorDBType,
+} from "@snickerdoodlelabs/vector-db";
 import { ethers } from "ethers";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -186,6 +199,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public storage: IStorageMethods;
   public nft: INftMethods;
   public questionnaire: IQuestionnaireMethods;
+  public quantization: IVectorQuantizationMethods;
 
   public constructor(
     configOverrides?: IConfigOverrides,
@@ -219,6 +233,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .to(IndexedDBVolatileStorage)
         .inSingletonScope();
     }
+
+    this.iocContainer.bind(IVectorDBType).to(VectorDB).inSingletonScope();
 
     // Setup the config
     if (configOverrides != null) {
@@ -715,6 +731,54 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         const accountService =
           this.iocContainer.get<IAccountService>(IAccountServiceType);
         return accountService.getNfts(benchmark, chains, accounts);
+      },
+    };
+
+    // Vector DB Methods --------------------------------------------------------------------
+    this.quantization = {
+      initialize: (template?: IIndexedDB) => {
+        const quantizationService =
+          this.iocContainer.get<IVectorDB>(IVectorDBType);
+
+        return quantizationService.initialize(template);
+      },
+
+      table: (name: string) => {
+        const quantizationService =
+          this.iocContainer.get<IVectorDB>(IVectorDBType);
+
+        return quantizationService.table(name);
+      },
+
+      quantizeTables: (
+        tableNames: ERecordKey[],
+        callbacks: ((
+          row: VolatileStorageMetadata<VersionedObject>,
+        ) => VectorRow)[],
+        outputName: QuantizedTableId,
+      ) => {
+        const quantizationService =
+          this.iocContainer.get<IVectorDB>(IVectorDBType);
+
+        return quantizationService.quantizeTable(
+          tableNames,
+          callbacks,
+          outputName,
+        );
+      },
+
+      viewTables: () => {
+        const quantizationService =
+          this.iocContainer.get<IVectorDB>(IVectorDBType);
+
+        return quantizationService.viewTables();
+      },
+
+      kmeans: (tableName: QuantizedTableId, k: number) => {
+        const quantizationService =
+          this.iocContainer.get<IVectorDB>(IVectorDBType);
+
+        return quantizationService.kmeans(tableName, k);
       },
     };
 

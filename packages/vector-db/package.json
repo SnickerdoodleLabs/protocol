@@ -1,0 +1,58 @@
+{
+  "name": "@snickerdoodlelabs/vector-db",
+  "version": "1.0.0",
+  "description": "Data vector-db implementations to be used by different form factors.",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SnickerdoodleLabs/protocol.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
+  },
+  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/utils#readme",
+  "author": "Andrew Strimaitis<andrew@snickerdoodlelabs.io>",
+  "keywords": [
+    "Snickerdoodle",
+    "VectorDB",
+    "Vector"
+  ],
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "!dist/test",
+    "!dist/tsconfig.tsbuildinfo"
+  ],
+  "scripts": {
+    "e2e": "cd ../.. && yarn compile && cd packages/vector-db && yarn test",
+    "alias": "tsc-alias && tsc-alias -p test/tsconfig.json",
+    "build": "yarn clean && yarn compile",
+    "clean": "npx rimraf dist tsconfig.tsbuildinfo",
+    "compile": "npx tsc --build && cd ../.. && yarn alias",
+    "prepare": "yarn build",
+    "prepublish": "yarn build",
+    "test": "yarn test:ci",
+    "test:ci": "NODE_OPTIONS=--experimental-vm-modules npx jest --maxWorkers=50% --coverage --passWithNoTests --detectOpenHandles",
+    "test:watch": "npx jest --watch --color --detectOpenHandles"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.17.11",
+    "@snickerdoodlelabs/common-utils": "workspace:^",
+    "@snickerdoodlelabs/contracts-sdk": "workspace:^",
+    "@snickerdoodlelabs/node-utils": "workspace:^",
+    "@snickerdoodlelabs/objects": "workspace:^",
+    "@snickerdoodlelabs/utils": "workspace:^",
+    "ethers": "^6.10.0",
+    "inversify": "^6.0.2",
+    "ml-array-normed": "^1.3.7",
+    "ml-kmeans": "^6.0.0",
+    "neverthrow": "^5.1.0",
+    "neverthrow-result-utils": "^2.0.2",
+    "transpose-2d-array": "^1.0.4"
+  },
+  "devDependencies": {
+    "fake-indexeddb": "^4.0.0"
+  }
+}

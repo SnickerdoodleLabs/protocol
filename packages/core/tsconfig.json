@@ -40,6 +40,9 @@
     },
     {
       "path": "../signatureVerification"
+    },
+    {
+      "path": "../vector-db"
     }
   ],
   "include": [

@@ -9569,6 +9569,27 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snickerdoodlelabs/vector-db@workspace:packages/vector-db":
+  version: 0.0.0-use.local
+  resolution: "@snickerdoodlelabs/vector-db@workspace:packages/vector-db"
+  dependencies:
+    "@react-native-async-storage/async-storage": ^1.17.11
+    "@snickerdoodlelabs/common-utils": "workspace:^"
+    "@snickerdoodlelabs/contracts-sdk": "workspace:^"
+    "@snickerdoodlelabs/node-utils": "workspace:^"
+    "@snickerdoodlelabs/objects": "workspace:^"
+    "@snickerdoodlelabs/utils": "workspace:^"
+    ethers: ^6.10.0
+    fake-indexeddb: ^4.0.0
+    inversify: ^6.0.2
+    ml-array-normed: ^1.3.7
+    ml-kmeans: ^6.0.0
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
+    transpose-2d-array: ^1.0.4
+  languageName: unknown
+  linkType: soft
+
 "@snickerdoodlelabs/web-integration-test@workspace:packages/web-integration-test":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/web-integration-test@workspace:packages/web-integration-test"
@@ -27502,6 +27523,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"is-any-array@npm:^2.0.0, is-any-array@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "is-any-array@npm:2.0.1"
+  checksum: 472ed80e17d32951435087951af30c29498b163c31bf723dd5af76545b100bcfac6fad2df3f1a648b45e3b027de8f5dc2389935267ba5258eae85762804b4982
+  languageName: node
+  linkType: hard
+
 "is-arguments@npm:^1.0.4, is-arguments@npm:^1.1.1":
   version: 1.1.1
   resolution: "is-arguments@npm:1.1.1"
@@ -34006,6 +34034,109 @@ __metadata:
   bin:
     mkdirp: bin/cmd.js
   checksum: a96865108c6c3b1b8e1d5e9f11843de1e077e57737602de1b82030815f311be11f96f09cce59bd5b903d0b29834733e5313f9301e3ed6d6f6fba2eae0df4298f
+  languageName: node
+  linkType: hard
+
+"ml-array-max@npm:^1.2.4":
+  version: 1.2.4
+  resolution: "ml-array-max@npm:1.2.4"
+  dependencies:
+    is-any-array: ^2.0.0
+  checksum: af59075eb6bf0076e179a075748f8f1a10f1d60f7ae55103035d5aca637ceb6a109e47bce28bfb82756c977652cbcad4d985e859cacd517edc8807f2e61f7abf
+  languageName: node
+  linkType: hard
+
+"ml-array-min@npm:^1.2.3":
+  version: 1.2.3
+  resolution: "ml-array-min@npm:1.2.3"
+  dependencies:
+    is-any-array: ^2.0.0
+  checksum: 7a09d5b4cf563a4743b69e5a395f6a617d6fd74ae5f35d0b77ca8ac9568d98b61249bd7d1f962a6e744726ebb94a6ece6e386a6e024ad0e9d329bce7e7e9f2c3
+  languageName: node
+  linkType: hard
+
+"ml-array-normed@npm:^1.3.7":
+  version: 1.3.7
+  resolution: "ml-array-normed@npm:1.3.7"
+  dependencies:
+    is-any-array: ^2.0.0
+    ml-array-max: ^1.2.4
+    ml-array-sum: ^1.1.6
+  checksum: 2fa15be88f06051ae32fe20a572f031d752eb414e95c2e6240ad4a4851521afff63429fa779285b7ce14647165704b8cfcdcfc68cbe98e7203a537014f0a3885
+  languageName: node
+  linkType: hard
+
+"ml-array-rescale@npm:^1.3.7":
+  version: 1.3.7
+  resolution: "ml-array-rescale@npm:1.3.7"
+  dependencies:
+    is-any-array: ^2.0.0
+    ml-array-max: ^1.2.4
+    ml-array-min: ^1.2.3
+  checksum: 7852a09cbc1f39ed625a93ba803ecc13438ddcae20961d7435fb0a89512b66e282b5ea0f425458813028f4004252ed40c6407b893d4b1910591c5aabc8e93810
+  languageName: node
+  linkType: hard
+
+"ml-array-sum@npm:^1.1.6":
+  version: 1.1.6
+  resolution: "ml-array-sum@npm:1.1.6"
+  dependencies:
+    is-any-array: ^2.0.0
+  checksum: 369dbb3681e3f8b0d0facba9fcfc981656dac49a80924859c3ed8f0a5880fb6db2d6e534f8b7b9c3cda59248152e61b27d6419d19c69539de7c3aa6aea3094eb
+  languageName: node
+  linkType: hard
+
+"ml-distance-euclidean@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "ml-distance-euclidean@npm:2.0.0"
+  checksum: e31f98a947ce6971c35d74e6d2521800f0d219efb34c78b20b5f52debd206008d52e677685c09839e6bab5d2ed233aa009314236e4e548d5fafb60f2f71e2b3e
+  languageName: node
+  linkType: hard
+
+"ml-kmeans@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "ml-kmeans@npm:6.0.0"
+  dependencies:
+    ml-distance-euclidean: ^2.0.0
+    ml-matrix: ^6.9.0
+    ml-nearest-vector: ^2.0.1
+    ml-random: ^0.5.0
+  checksum: 2e82c0f32724d6c879f258121ec5029c6eb0556048ae312a9893461e6167917c7b0b8eef4dd9a60f122f97bdeaaf5ccda4f7dadce04b75d7a5c63511695a3085
+  languageName: node
+  linkType: hard
+
+"ml-matrix@npm:^6.9.0":
+  version: 6.11.0
+  resolution: "ml-matrix@npm:6.11.0"
+  dependencies:
+    is-any-array: ^2.0.1
+    ml-array-rescale: ^1.3.7
+  checksum: b3b2b56416fde12f9767ff19807e3059f8cf60c56350a338c00e0cabcf20a036d5824807d0f0006a478cda342d271a28ee17c02cee58cbbda2a0072a8839815c
+  languageName: node
+  linkType: hard
+
+"ml-nearest-vector@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "ml-nearest-vector@npm:2.0.1"
+  dependencies:
+    ml-distance-euclidean: ^2.0.0
+  checksum: 1fc19f958002189dee9074b042525e1790930eecb5ddcf7817d366ca500ac80059b7da641dd6460ebba7d3f973548ea6712cbff66d369764ef1f9b3879fc03e2
+  languageName: node
+  linkType: hard
+
+"ml-random@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "ml-random@npm:0.5.0"
+  dependencies:
+    ml-xsadd: ^2.0.0
+  checksum: 7f2cac8fa777c0c267d4af4933447936d96c7784e4f15d01a862465a29dbf3ef756ce7e283a51f7587cc7bda7d332957c3ac3df8ae59d731175b1b4f531f9624
+  languageName: node
+  linkType: hard
+
+"ml-xsadd@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "ml-xsadd@npm:2.0.0"
+  checksum: aacd9a986c1230b289c977815bddb0b77507f8e7b1b47076cf44dc58da84178e3f23fe945d2b4ca6e8abfb0aa199e2c7216b4fb92040b99fe642abb52862d0a2
   languageName: node
   linkType: hard
 
@@ -45073,6 +45204,13 @@ __metadata:
   version: 0.0.3
   resolution: "tr46@npm:0.0.3"
   checksum: 726321c5eaf41b5002e17ffbd1fb7245999a073e8979085dacd47c4b4e8068ff5777142fc6726d6ca1fd2ff16921b48788b87225cbc57c72636f6efa8efbffe3
+  languageName: node
+  linkType: hard
+
+"transpose-2d-array@npm:^1.0.4":
+  version: 1.0.4
+  resolution: "transpose-2d-array@npm:1.0.4"
+  checksum: 4b79640fcbbe880319a1db03983d33fa57501b9c8c9efa6b8e6b7b3486b7f72f87e04d3109545dbfde5d49969a45d025a27f21e74ae44f4c93ed179ac303f65d
   languageName: node
   linkType: hard
 

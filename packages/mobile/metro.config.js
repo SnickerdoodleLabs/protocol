@@ -37,6 +37,9 @@ const extraNodeModules = {
   "@snickerdoodlelabs/signature-verification": path.resolve(
     path.join(__dirname, "../signatureVerification"),
   ),
+  "@snickerdoodlelabs/vector-db": path.resolve(
+    path.join(__dirname, "../vector-db"),
+  ),
   stream: require.resolve("stream-browserify"),
   crypto: require.resolve("react-native-quick-crypto"),
   zlib: require.resolve("browserify-zlib"),
