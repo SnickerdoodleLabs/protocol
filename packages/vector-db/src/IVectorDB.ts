@@ -8,6 +8,7 @@ import {
   PersistenceError,
   VectorRow,
   QuantizedTable,
+  SemanticRow,
 } from "@snickerdoodlelabs/objects";
 import { KMeansResult } from "ml-kmeans/lib/KMeansResult";
 import { ResultAsync } from "neverthrow";
@@ -33,7 +34,7 @@ export interface IVectorDB {
   */
   quantizeTable(
     tableNames: ERecordKey[],
-    callbacks: ((row: any) => VectorRow)[],
+    callbacks: ((row: VolatileStorageMetadata<VersionedObject>) => VectorRow)[],
     outputName: QuantizedTableId,
   ): ResultAsync<QuantizedTable, PersistenceError | VectorDBError>;
 

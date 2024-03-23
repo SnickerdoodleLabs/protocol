@@ -18,6 +18,7 @@ import {
   PersistenceError,
   QuantizedTableId,
   ReceivingAccountMigrator,
+  VersionedObject,
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -72,15 +73,9 @@ const indexedDataBase2 = new IndexedDB(
   1,
 );
 
-const addressMapper = (row: {
-  data: {
-    consentContractAddress: string;
-    tokenId: number;
-  };
-  lastUpdate: number;
-  version: number;
-  deleted: number;
-}): number[] => {
+const addressMapper = (
+  row: VolatileStorageMetadata<VersionedObject>,
+): number[] => {
   return [row.version, row.deleted, row.lastUpdate];
 };
 
@@ -111,28 +106,6 @@ export class VectorDBMocks {
     td.when(this.indexedDBContextProvider.getContext()).thenReturn(
       okAsync({ db: this.instanceDB }),
     );
-
-    // await this.instanceDB.initialize();
-    // for (const dummyData of dummyContractData) {
-    //   await this.instanceDB.putObject(
-    //     ERecordKey.OPTED_IN_INVITATIONS,
-    //     dummyData,
-    //   );
-    // }
-
-    // beforeEach(async () => {
-    //   await this.instanceDB.initialize();
-    //   for (const dummyData of dummyContractData) {
-    //     await this.instanceDB.putObject(
-    //       ERecordKey.OPTED_IN_INVITATIONS,
-    //       dummyData,
-    //     );
-    //   }
-    // });
-    // afterEach(async () => {
-    //   await this.instanceDB.deleteDatabase("SD_Wallet");
-    //   await this.instanceDB.close();
-    // });
   }
 
   public factory() {

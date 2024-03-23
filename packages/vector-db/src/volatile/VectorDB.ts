@@ -14,6 +14,7 @@ import {
   PersistenceError,
   VectorRow,
   QuantizedTable,
+  SemanticRow,
 } from "@snickerdoodlelabs/objects";
 import {
   IIndexedDBContextProvider,
@@ -84,11 +85,9 @@ export class VectorDB implements IVectorDB {
   public table<T extends VersionedObject>(
     name: string,
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
-    // return this.waitForInit().andThen(() => {
     return this.indexedDBContextProvider.getContext().andThen((context) => {
       return context.db.getAll<T>(name);
     });
-    // });
   }
 
   /**
@@ -99,41 +98,36 @@ export class VectorDB implements IVectorDB {
    */
   public quantizeTable<T extends VersionedObject>(
     tableNames: ERecordKey[],
-    callbacks: ((row: any) => number[])[],
+    callbacks: ((row: VolatileStorageMetadata<VersionedObject>) => VectorRow)[],
     outputName: QuantizedTableId,
   ): ResultAsync<QuantizedTable, PersistenceError | VectorDBError> {
-    return (
-      ResultUtils.combine(
-        tableNames.map((tableName, index) => {
-          return this.table(tableName)
-            .map((tableData) => {
-              return tableData.map((row) => {
-                const callback = callbacks[index];
-                return callback(row);
-              });
-            })
-            .mapErr((e) => e);
-        }),
-      )
-        // })
-        .andThen((data) => {
-          const vals = data.flat();
+    return ResultUtils.combine(
+      tableNames.map((tableName, index) => {
+        return this.table(tableName)
+          .map((tableData) => {
+            return tableData.map((row) => {
+              const callback = callbacks[index];
+              return callback(row);
+            });
+          })
+          .mapErr((e) => e);
+      }),
+    )
+      .andThen((data) => {
+        const vals = data.flat();
 
-          return this.normalizeQuantizedTable(vals).andThen(
-            (normalizedData) => {
-              return this.addQuantizedData(
-                outputName,
-                new QuantizedTable(outputName, normalizedData),
-              );
-            },
+        return this.normalizeQuantizedTable(vals).andThen((normalizedData) => {
+          return this.addQuantizedData(
+            outputName,
+            new QuantizedTable(outputName, normalizedData),
           );
-        })
-        .mapErr((err) => {
-          return new VectorDBError(
-            `Formatting Error: Callback function does not convert data from ${tableNames} into a legible, numeric output`,
-          );
-        })
-    );
+        });
+      })
+      .mapErr((err) => {
+        return new VectorDBError(
+          `Formatting Error: Callback function does not convert data from ${tableNames} into a legible, numeric output`,
+        );
+      });
   }
 
   /*
@@ -161,11 +155,9 @@ export class VectorDB implements IVectorDB {
     model: KMeansResult,
     userState: number[][],
   ): ResultAsync<InferenceResult, VectorDBError> {
-    // return this.waitForInit().andThen(() => {
     return okAsync({
       data: model.nearest(userState),
     } as InferenceResult);
-    // });
   }
 
   public viewTables(): ResultAsync<
@@ -207,8 +199,6 @@ export class VectorDB implements IVectorDB {
   private getQuantizedData(
     tableName: QuantizedTableId,
   ): ResultAsync<QuantizedTable, VectorDBError> {
-    // return this.waitForInit()
-    //   .andThen((db) => {
     return this.embeddedMappings
       .map((table) => {
         const data = table.get(tableName);
@@ -217,7 +207,6 @@ export class VectorDB implements IVectorDB {
         }
 
         return data;
-        // });
       })
       .mapErr(
         (e) => new VectorDBError(`Quantized Table ${tableName} is not found`),

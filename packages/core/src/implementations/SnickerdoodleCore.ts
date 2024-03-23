@@ -101,6 +101,8 @@ import {
   IIndexedDBType,
   QuantizedTableId,
   VectorRow,
+  VolatileStorageMetadata,
+  VersionedObject,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -748,9 +750,11 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return quantizationService.table(name);
       },
 
-      quantizeTable: (
+      quantizeTables: (
         tableNames: ERecordKey[],
-        callbacks: ((row: any) => VectorRow)[],
+        callbacks: ((
+          row: VolatileStorageMetadata<VersionedObject>,
+        ) => VectorRow)[],
         outputName: QuantizedTableId,
       ) => {
         const quantizationService =
@@ -763,30 +767,18 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         );
       },
 
-      // keep using temp tables/data to save space
-
-      // another function here -> mapping raw to vectorized data
-
-      // can only be run AFTER a table is quantized, throw error
-      kmeans: (tableName: QuantizedTableId, k: number) => {
-        const quantizationService =
-          this.iocContainer.get<IVectorDB>(IVectorDBType);
-
-        return quantizationService.kmeans(tableName, k);
-      },
-
-      // infer: (modelID: string, userState: string) => {
-      //   const quantizationService = this.iocContainer.get<IVectorDB>(
-      //     IVectorDBType,
-      //   );
-
-      //   return quantizationService.infer(modelID, userState);
-      // },
       viewTables: () => {
         const quantizationService =
           this.iocContainer.get<IVectorDB>(IVectorDBType);
 
         return quantizationService.viewTables();
+      },
+
+      kmeans: (tableName: QuantizedTableId, k: number) => {
+        const quantizationService =
+          this.iocContainer.get<IVectorDB>(IVectorDBType);
+
+        return quantizationService.kmeans(tableName, k);
       },
     };
 

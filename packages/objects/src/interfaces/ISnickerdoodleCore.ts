@@ -128,6 +128,7 @@ import {
   JSONString,
   QuantizedTableId,
   VectorRow,
+  SemanticRow,
 } from "@objects/primitives/index.js";
 /**
  ************************ MAINTENANCE HAZARD ***********************************************
@@ -730,20 +731,16 @@ export interface IVectorQuantizationMethods {
   table<T extends VersionedObject>(
     name: string,
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError>;
-  quantizeTable(
+  quantizeTables(
     tableNames: ERecordKey[],
-    callbacks: ((row: any) => VectorRow)[],
+    callbacks: ((row: VolatileStorageMetadata<VersionedObject>) => VectorRow)[],
     outputName: QuantizedTableId,
   ): ResultAsync<QuantizedTable, PersistenceError | VectorDBError>;
+  viewTables(): ResultAsync<Map<QuantizedTableId, QuantizedTable>, never>;
   kmeans(
     tableName: QuantizedTableId,
     k: number,
   ): ResultAsync<KMeansResult, VectorDBError>;
-  // infer(
-  //   model: KMeansResult,
-  //   userState: number[][],
-  // ): ResultAsync<number[][], PersistenceError>;
-  viewTables(): ResultAsync<Map<QuantizedTableId, QuantizedTable>, never>;
 }
 
 export interface IQuestionnaireMethods {

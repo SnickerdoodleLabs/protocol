@@ -77,6 +77,7 @@ export * from "@objects/primitives/QuestionnaireAnswerId.js";
 export * from "@objects/primitives/RewardFunctionParam.js";
 export * from "@objects/primitives/SDQL.js";
 export * from "@objects/primitives/SDQLString.js";
+export * from "@objects/primitives/SemanticRow.js";
 export * from "@objects/primitives/SHA256Hash.js";
 export * from "@objects/primitives/Signature.js";
 export * from "@objects/primitives/SocialMediaIdTypes.js";
