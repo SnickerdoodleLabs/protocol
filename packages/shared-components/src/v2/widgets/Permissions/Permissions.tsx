@@ -85,6 +85,7 @@ export const Permissions: FC<IPermissionsProps> = ({
                     key={questionnaire.id}
                     name={questionnaire.title}
                     icon={questionnaire.image || ""}
+                    useCheckboxOnly={useCheckboxOnly}
                     onClick={() =>
                       onQuestionnairePermissionClick(questionnaire.id)
                     }

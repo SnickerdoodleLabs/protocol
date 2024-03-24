@@ -37,6 +37,7 @@ import {
   abbreviateString,
   CustomSelect,
   AccountMenuItem,
+  FooterPointItem,
 } from "@snickerdoodlelabs/shared-components";
 import { okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -284,6 +285,7 @@ const OfferModal: FC = () => {
         </DialogContent>
         <DialogActions>
           <Box color={colors.GREY500} display="flex" width="100%">
+            <FooterPointItem icon={brandImage || ""} points={offer.points} />
             {receivingAddress && (
               <CustomSelect
                 value={receivingAddress}

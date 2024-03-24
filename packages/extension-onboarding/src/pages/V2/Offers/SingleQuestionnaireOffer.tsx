@@ -6,6 +6,7 @@ import RenderOfferItem from "@extension-onboarding/pages/V2/Offers/RenderOfferIt
 import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
   EChain,
+  EQuestionnaireStatus,
   EVMAccountAddress,
   IDynamicRewardParameter,
   NewQuestionnaireAnswer,
@@ -93,15 +94,24 @@ const SingleQuestionnaireOffer: React.FC<ISingleQuestionnaireOfferProps> = ({
       setLinkerModalOpen();
       return;
     }
-    setModal({
-      modalSelector: EModalSelectors.SHARE_QUESTIONNAIRE_MODAL,
-      onPrimaryButtonClick: () => {},
-      customProps: {
-        questionnaire: questionnaireData!,
-        maxWidth: 960,
-        onSubmitClicked: handleQuestionnaireAnswer,
-      },
-    });
+    if (!questionnaireData) return;
+    setModal(
+      questionnaireData.status === EQuestionnaireStatus.Complete
+        ? {
+            modalSelector: EModalSelectors.OFFER_MODAL,
+            onPrimaryButtonClick: reCalculateOffers,
+            customProps: { offer: offer.queryStatus, brandImage },
+          }
+        : {
+            modalSelector: EModalSelectors.SHARE_QUESTIONNAIRE_MODAL,
+            onPrimaryButtonClick: () => {},
+            customProps: {
+              questionnaire: questionnaireData,
+              maxWidth: 960,
+              onSubmitClicked: handleQuestionnaireAnswer,
+            },
+          },
+    );
   };
 
   return (
