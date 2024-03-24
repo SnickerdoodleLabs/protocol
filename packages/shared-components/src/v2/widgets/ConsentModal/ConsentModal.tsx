@@ -21,6 +21,8 @@ import {
   PermissionItemWithShareButton,
   PermissionItemWithFillButton,
   CustomSelect,
+  FooterPointItem,
+  AccountMenuItem,
 } from "@shared-components/v2/components";
 import {
   DataTypeGroupProperties,
@@ -95,6 +97,7 @@ enum EComponentRenderState {
 
 interface IQueryApprovalState {
   queryIds: IpfsCID[];
+  points: number;
   dataPermissions: EWalletDataType[];
   questionnairePermissions: IpfsCID[];
 }
@@ -134,7 +137,7 @@ export const ConsentModal = ({
   evmAccounts,
 }: IConsentModalProps) => {
   const classes = useStyles();
-  const dialogClasses = useDialogStyles();
+  const dialogClasses = useDialogStyles({ maxWidth: 700 });
 
   const [componentRenderState, setComponentRenderState] = useSafeState(
     EComponentRenderState.RENDER_QUERIES,
@@ -151,6 +154,7 @@ export const ConsentModal = ({
     useSafeState<IQuestionnaireWithQuery>();
   const [receivingAddress, setReceivingAddress] =
     useSafeState<EVMAccountAddress>(evmAccounts[0]);
+  const [totalPoints, setTotalPoints] = useSafeState<number>();
 
   const groupedDataTypes = useMemo(() => {
     if (!queryStatuses) {
@@ -178,12 +182,20 @@ export const ConsentModal = ({
           (q) => q.query.queryStatus.queryCID,
         ),
       ];
-
       setQueryApprovalState({
         queryIds: ids,
         dataPermissions: queryStatuses.virtualQuestionnaireQueries.map(
           (q) => q.dataType,
         ),
+        points:
+          queryStatuses.virtualQuestionnaireQueries.reduce(
+            (acc, q) => acc + q.queryStatus.points,
+            0,
+          ) +
+          questionnaires.answeredQuestionnaires.reduce(
+            (acc, q) => acc + q.query.queryStatus.points,
+            0,
+          ),
         questionnairePermissions: questionnaires.answeredQuestionnaires.map(
           (q) => q.query.questionnaireCID,
         ),
@@ -243,6 +255,17 @@ export const ConsentModal = ({
           multiQuestionQueries: [],
         } as IQueryStatusesState,
       );
+      const visibleItems = res.filter(
+        (i) =>
+          !groupedItems.multiQuestionQueries
+            .map((q) => q.queryStatus.queryCID)
+            .includes(i.queryCID),
+      );
+      const totalPointsOfVisibleItems =
+        visibleItems.length > 1
+          ? visibleItems.reduce((acc, item) => acc + item.points, 0)
+          : undefined;
+      setTotalPoints(totalPointsOfVisibleItems);
       setQueryStatuses(groupedItems);
     });
   };
@@ -264,7 +287,7 @@ export const ConsentModal = ({
   );
 
   const onDataPermissionClick = useCallback(
-    (queryCID: IpfsCID, dataType: EWalletDataType) => {
+    (queryCID: IpfsCID, dataType: EWalletDataType, itemPoints: number) => {
       setQueryApprovalState((p) => {
         if (!p) {
           return p;
@@ -278,12 +301,14 @@ export const ConsentModal = ({
           return {
             ...p,
             queryIds: p.queryIds.filter((id) => id !== queryCID),
+            points: p.points - itemPoints,
             dataPermissions: dataPermissionsCopy,
           };
         }
         return {
           ...p,
           queryIds: [...p.queryIds, queryCID],
+          points: p.points + itemPoints,
           dataPermissions: [...p.dataPermissions, dataType],
         };
       });
@@ -292,7 +317,7 @@ export const ConsentModal = ({
   );
 
   const onQuestionnairePermissionClick = useCallback(
-    (queryCID: IpfsCID, questionnaireCID: IpfsCID) => {
+    (queryCID: IpfsCID, questionnaireCID: IpfsCID, itemPoints: number) => {
       setQueryApprovalState((p) => {
         if (!p) {
           return p;
@@ -306,12 +331,14 @@ export const ConsentModal = ({
           return {
             ...p,
             queryIds: p.queryIds.filter((id) => id !== queryCID),
+            points: p.points - itemPoints,
             questionnairePermissions: questionnairePermissionsCopy,
           };
         }
         return {
           ...p,
           queryIds: [...p.queryIds, queryCID],
+          points: p.points + itemPoints,
           questionnairePermissions: [
             ...p.questionnairePermissions,
             questionnaireCID,
@@ -371,6 +398,7 @@ export const ConsentModal = ({
                 questionnaireToAnswer.query.queryStatus.queryCID,
                 ...p.queryIds,
               ],
+              points: p.points + questionnaireToAnswer.query.queryStatus.points,
               questionnairePermissions: [
                 ...p.questionnairePermissions,
                 questionnaireToAnswer.query.questionnaireCID,
@@ -457,7 +485,7 @@ export const ConsentModal = ({
             width="100%"
           >
             <Box display="flex" gridGap={12} alignItems="center">
-              <SDCheckbox
+              {/* <SDCheckbox
                 checked={agreementConsented}
                 onChange={() => {
                   setAgreementConsented(!agreementConsented);
@@ -484,38 +512,41 @@ export const ConsentModal = ({
                     </span>
                   </SDTypography>
                 }
-              />
-              <CustomSelect
-                value={receivingAddress}
-                onChange={(e) => {
-                  setReceivingAddress(e.target.value as EVMAccountAddress);
-                }}
-              >
-                {evmAccounts.map((account) => (
-                  <MenuItem key={account} value={account}>
-                    <Box display="flex" alignItems="center" gridGap={12}>
-                      <Image
-                        src="https://storage.googleapis.com/dw-assets/shared/icons/eth.png"
-                        width={16}
-                        height={16}
-                      />
-                      <SDTypography variant="bodyMd" color="textBody">
-                        {abbreviateString(account, 14, 0, 3)}
-                      </SDTypography>
-                    </Box>
-                  </MenuItem>
-                ))}
-              </CustomSelect>
+              /> */}
+              <Box display="flex" alignItems="center" width="fit-content">
+                <FooterPointItem
+                  icon={
+                    invitationData["brandInformation"]?.["image"] ??
+                    invitationData.image ??
+                    ""
+                  }
+                  points={queryApprovalState?.points ?? 0}
+                />
+                <CustomSelect
+                  value={receivingAddress}
+                  onChange={(e) => {
+                    setReceivingAddress(e.target.value as EVMAccountAddress);
+                  }}
+                >
+                  {evmAccounts.map((account) => (
+                    <MenuItem key={account} value={account}>
+                      <AccountMenuItem account={account} />
+                    </MenuItem>
+                  ))}
+                </CustomSelect>
+              </Box>
             </Box>
             <SDButton
-              disabled={!agreementConsented}
+              // disabled={!agreementConsented}
               variant="contained"
               color="primary"
               onClick={() => {
                 handleShareClicked();
               }}
             >
-              Share Selected
+              {queryApprovalState?.queryIds.length === 0
+                ? "Accept"
+                : "Share Selected"}
             </SDButton>
           </Box>
           {displayRejectButtons && (
@@ -548,7 +579,16 @@ export const ConsentModal = ({
         </Box>
       );
     }
-  }, [componentRenderState, evmAccounts, receivingAddress, agreementConsented]);
+  }, [
+    componentRenderState,
+    evmAccounts,
+    receivingAddress,
+    agreementConsented,
+    JSON.stringify(invitationData),
+    totalPoints,
+    queryApprovalState?.points,
+    queryApprovalState?.queryIds.length === 0,
+  ]);
 
   const agreementPolicy = useMemo(() => {
     const agreementTitle = invitationData["attributes"]
@@ -730,6 +770,7 @@ export const ConsentModal = ({
                           onQuestionnairePermissionClick(
                             q.query.queryStatus.queryCID,
                             q.query.questionnaireCID,
+                            q.query.queryStatus.points,
                           );
                         }}
                         active={
@@ -770,6 +811,7 @@ export const ConsentModal = ({
                               onDataPermissionClick(
                                 item.queryStatus.queryCID,
                                 item.permission.key,
+                                item.queryStatus.points,
                               );
                             }}
                             active={
@@ -819,6 +861,8 @@ export const ConsentModal = ({
           onClose={() => {
             setQuestionnaireToAnswer(undefined);
           }}
+          maxWidth={700}
+          actionText="Save & Share"
           questionnaire={questionnaireToAnswer.questionnaire}
           onQuestionnaireSubmit={(answers) => {
             onQuestionnaireSubmit(answers);

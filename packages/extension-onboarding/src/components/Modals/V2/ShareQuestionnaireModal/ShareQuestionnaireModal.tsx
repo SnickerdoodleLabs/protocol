@@ -14,6 +14,7 @@ import {
   useSafeState,
   Image,
   SDTypography,
+  AccountMenuItem,
 } from "@snickerdoodlelabs/shared-components";
 import React, { FC, ReactNode, useEffect, useMemo, useRef } from "react";
 export interface IShareQuestionnaireModal {
@@ -38,7 +39,7 @@ const ShareQuestionnaireModal: FC = () => {
   const evmAccounts = useMemo(() => {
     return linkedAccounts
       .filter((account) => account.sourceChain === EChain.EthereumMainnet)
-      .map((account) => account.sourceAccountAddress);
+      .map((account) => account.sourceAccountAddress) as EVMAccountAddress[];
   }, [linkedAccounts]);
 
   useEffect(() => {
@@ -67,16 +68,7 @@ const ShareQuestionnaireModal: FC = () => {
           >
             {evmAccounts.map((account) => (
               <MenuItem key={account} value={account}>
-                <Box display="flex" alignItems="center" gridGap={12}>
-                  <Image
-                    src="https://storage.googleapis.com/dw-assets/shared/icons/eth.png"
-                    width={16}
-                    height={16}
-                  />
-                  <SDTypography variant="bodyMd" color="textBody">
-                    {abbreviateString(account, 14, 0, 3)}
-                  </SDTypography>
-                </Box>
+                <AccountMenuItem account={account} />
               </MenuItem>
             ))}
           </CustomSelect>

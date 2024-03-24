@@ -36,6 +36,7 @@ import {
   Permissions,
   abbreviateString,
   CustomSelect,
+  AccountMenuItem,
 } from "@snickerdoodlelabs/shared-components";
 import { okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -89,7 +90,7 @@ const OfferModal: FC = () => {
   const evmAccounts = useMemo(() => {
     return linkedAccounts
       .filter((account) => account.sourceChain === EChain.EthereumMainnet)
-      .map((account) => account.sourceAccountAddress);
+      .map((account) => account.sourceAccountAddress) as EVMAccountAddress[];
   }, [linkedAccounts]);
 
   useEffect(() => {
@@ -292,16 +293,7 @@ const OfferModal: FC = () => {
               >
                 {evmAccounts.map((account) => (
                   <MenuItem key={account} value={account}>
-                    <Box display="flex" alignItems="center" gridGap={12}>
-                      <Image
-                        src="https://storage.googleapis.com/dw-assets/shared/icons/eth.png"
-                        width={16}
-                        height={16}
-                      />
-                      <SDTypography variant="bodyMd" color="textBody">
-                        {abbreviateString(account, 14, 0, 3)}
-                      </SDTypography>
-                    </Box>
+                    <AccountMenuItem account={account} />
                   </MenuItem>
                 ))}
               </CustomSelect>

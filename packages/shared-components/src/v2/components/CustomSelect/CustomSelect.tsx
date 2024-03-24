@@ -4,19 +4,18 @@ import {
   SelectProps,
   makeStyles,
 } from "@material-ui/core";
+import { colors } from "@shared-components/v2/theme";
 import React, { FC } from "react";
 
 const useStyles = makeStyles((theme) => ({
-  formControl: ({ useFullBorder }: { useFullBorder: boolean }) => ({
+  formControl: ({ height }: { useFullBorder: boolean; height: number }) => ({
     "& .MuiInputBase-root": {
-      color: theme.palette.textBody,
-      paddingLeft: "12px",
-      paddingRight: "12px",
-      borderRadius: useFullBorder ? 8 : "0px 8px 8px 0px",
-      border: "1px solid",
-      borderColor: theme.palette.borderColor,
-      ...(!useFullBorder && { borderLeft: "none" }),
-      height: "40px",
+      color: colors.MAINPURPLE500,
+      paddingLeft: "10px",
+      paddingRight: "10px",
+      borderRadius: 40,
+      backgroundColor: colors.MAINPURPLE50,
+      height,
     },
     "& .MuiSelect-select.MuiSelect-select": {
       paddingRight: "0px",
@@ -34,31 +33,36 @@ const useStyles = makeStyles((theme) => ({
     color: "inherit",
     width: "18px",
     height: "18px",
-    marginLeft: 16,
+    marginLeft: 13,
   },
   paper: {
     margin: 0,
+    marginTop: 8,
+    marginLeft: 12,
   },
   list: {
     paddingTop: 0,
     paddingBottom: 0,
     "& li": {
-      paddingRight: 24,
+      color: colors.MAINPURPLE500,
+      paddingRight: 36,
+      paddingLeft: 10,
       paddingTop: 8,
       paddingBottom: 8,
-      fontSize: "12px",
     },
   },
 }));
 
 interface ICustomSelectProps extends SelectProps {
   useFullBorder?: boolean;
+  height?: number;
 }
 export const CustomSelect: FC<ICustomSelectProps> = ({
   useFullBorder = false,
+  height = 40,
   ...rest
 }) => {
-  const classes = useStyles({ useFullBorder });
+  const classes = useStyles({ useFullBorder, height });
   return (
     <FormControl className={classes.formControl}>
       <Select

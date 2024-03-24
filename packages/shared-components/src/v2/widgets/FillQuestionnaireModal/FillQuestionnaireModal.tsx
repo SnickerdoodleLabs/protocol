@@ -89,7 +89,6 @@ export const FillQuestionnaireModal: FC<IFillQuestionnaireModalProps> = ({
       </DialogTitle>
       <DialogContent>
         <Box
-          width={"100%"}
           margin="auto"
           p={{ xs: 2, sm: 4 }}
           pt={{ xs: 3, sm: 4 }}

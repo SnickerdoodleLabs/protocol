@@ -21,14 +21,19 @@ export const useDialogStyles = makeStyles((theme: Theme) => ({
       borderBottom: `1px solid ${darken(theme.palette.borderColor, 0.15)}`,
       padding: theme.spacing(4),
       [theme.breakpoints.down("xs")]: {
-        padding: theme.spacing(2),
+        padding: theme.spacing(1),
       },
     },
     "& .MuiDialogActions-root": {
       backgroundColor: theme.palette.cardBgColor,
-      padding: theme.spacing(3),
+      padding: theme.spacing(4),
       paddingTop: theme.spacing(1.5),
       paddingBottom: theme.spacing(1.5),
+      [theme.breakpoints.down("xs")]: {
+        padding: theme.spacing(1),
+        paddingTop: theme.spacing(1.5),
+        paddingBottom: theme.spacing(1.5),
+      },
     },
     "& .MuiDialog-paper": {
       borderRadius: 12,
@@ -40,7 +45,7 @@ export const useDialogStyles = makeStyles((theme: Theme) => ({
     "& .MuiDialog-paperFullWidth": {
       [theme.breakpoints.down("xs")]: {
         width: "unset",
-        minWidth: "90%",
+        minWidth: "98%",
       },
     },
   },

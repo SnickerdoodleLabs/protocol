@@ -64,6 +64,7 @@ const PointItem: FC<IPointItemProps> = ({
     >
       <Image
         src={pointIcon || ""}
+        errorImageSrc="https://storage.googleapis.com/dw-assets/spa/icons-v2/default-point.svg"
         width={20}
         height={20}
         style={{ borderRadius: 10 }}
