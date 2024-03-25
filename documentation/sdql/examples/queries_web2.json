@@ -1,0 +1,26 @@
+{
+    "q2": {
+        "name": "age",
+        "return": "boolean",
+        "conditions": {
+            "ge": 15
+        }
+    },
+    "q3": {
+        "name": "location",
+        "return": "string"
+    },
+    "q4": {
+        "name": "gender",
+        "return": "enum",
+        "enum_keys": ["female", "male", "nonbinary", "unknown"]
+      },
+    "q5": {
+        "name": "url_visited_count",
+        "return": "object"
+    },
+    "q6": {
+        "name": "chain_transactions",
+        "return": "array"
+    }
+}

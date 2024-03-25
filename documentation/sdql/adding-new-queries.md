@@ -1,7 +1,7 @@
 # Steps to add a new query support to the core:
 
 1. Update the name section of [README.md](./README.md) file with new query name.
-2. Update the [EXAMPLES.md](./EXAMPLES.md) file with new query schema examples and optionally define the new structures in [sdql-v0.0.1.schema](./sdql-v0.0.1.schema.json) if required.
+2. Update the [EXAMPLES.md](./EXAMPLES.md) file with new query schema examples and optionally define the new structures in [sdql-latest.schema](./sdql-latest.schema.json) if required and publish the new schema with updated version number.
 
 ## 1. Parsing the query
 First step in the implementation is parsing the query and building the AST (Abstract Syntax Tree). This is done by the **Query Parser package**.

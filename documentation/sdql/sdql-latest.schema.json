@@ -1,0 +1,509 @@
+{
+    "type": "object",
+    "properties": {
+        "version": {
+            "type": "number",
+            "minimum": 0
+        },
+        "insightPlatform": {
+            "type": "URL"
+        },
+        "timestamp": {
+            "type": "string",
+            "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})$"
+        },
+        "expiry": {
+            "type": "string",
+            "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})$"
+        },
+        "description": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 300
+        },
+        "business": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50
+        },
+        "ads": {
+            "type": "object",
+            "patternProperties": {
+                "^a[0-9]$": {
+                    "type": "object",
+                    "properties": {
+                        "name": "string",
+                        "content": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "enum": [
+                                        "image",
+                                        "video"
+                                    ]
+                                },
+                                "src": {
+                                    "type": "IPFS CID"
+                                }
+                            }
+                        },
+                        "text": "string",
+                        "displayType": {
+                            "type": "string",
+                            "enum": [
+                                "banner",
+                                "popup"
+                            ]
+                        },
+                        "weight": "number",
+                        "expiry": "datetime",
+                        "keywords": ["string"],
+                        "target" : "Expression | True"
+                }
+             }
+    
+        },
+        "queries": {
+            "type": "object",
+            "patternProperties": {
+                "^q[0-9]$": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "enum": [
+                                "network",
+                                "age",
+                                "location",
+                                "gender",
+                                "url_visited_count",
+                                "chain_transactions",
+                                "balance"
+                            ]
+                        },
+                        "return": {
+                            "type": "string",
+                            "enum": [
+                                "boolean",
+                                "integer",
+                                "object",
+                                "enum",
+                                "array",
+                                "string"
+                            ]
+                        },
+                        "chain": {
+                            "type": "string",
+                            "enum": [
+                                "ETH",
+                                "AVAX",
+                                "SOL"
+                            ]
+                        },
+                        "networkid": {
+                            "type": "string",
+                            "enum": [
+                                "1",
+                                "4",
+                                "43114",
+                                "43113",
+                                "SOL",
+                                "*"
+                            ]
+                        },
+                        "contract": {
+                            "type": "object",
+                            "properties": {
+                                "address": {
+                                    "type": "string",
+                                    "pattern": "^0x[a-fA-F0-9]{40}$"
+                                },
+                                "networkid": {
+                                    "type": "string",
+                                    "enum": [
+                                        "1",
+                                        "4",
+                                        "43114",
+                                        "43113"
+                                    ]
+                                },
+                                "function": {
+                                    "type": "string",
+                                    "enum": [
+                                        "Transfer"
+                                    ]
+                                },
+                                "direction": {
+                                    "type": "string",
+                                    "enum": [
+                                        "from",
+                                        "to"
+                                    ]
+                                },
+                                "token": {
+                                    "type": "string",
+                                    "enum": [
+                                        "ERC20",
+                                        "ERC721"
+                                    ]
+                                },
+                                "timestampRange": {
+                                    "type": "object",
+                                    "properties": {
+                                        "start": {
+                                            "type": "integer"
+                                        },
+                                        "end": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "required": [
+                                        "start",
+                                        "end"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "address",
+                                "networkid",
+                                "function",
+                                "direction",
+                                "token",
+                                "timestampRange"
+                            ]
+                        },
+                        "conditions": {
+                            "type": "object",
+                            "properties": {
+                                "in": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "ge": {
+                                    "type": "integer"
+                                },
+                                "l": {
+                                    "type": "integer"
+                                },
+                                "le": {
+                                    "type": "integer"
+                                },
+                                "e": {
+                                    "type": "integer"
+                                },
+                                "g": {
+                                    "type": "integer"
+                                },
+                                "has": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                        "^http(s)?:\/\/[\\-a-zA-Z0-9]*.[a-zA-Z0-9]*.[a-zA-Z]*\/[a-zA-Z0-9]*$": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "enum_keys": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "object_schema": {
+                            "type": "object",
+                            "properties": {
+                                "properties": {
+                                    "type": "object"
+                                },
+                                "patternProperties": {
+                                    "type": "object"
+                                },
+                                "required": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
+                        "array_items": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "enum": [
+                                        "boolean",
+                                        "integer",
+                                        "object",
+                                        "array",
+                                        "number"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
+                        },
+                        "string_pattern": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "return"
+                    ],
+                    "anyOf": [
+                        {
+                            "properties": {
+                                "name": {
+                                    "const": "questionnaire"
+                                },
+                                "return": {
+                                    "const": "object"
+                                }
+                            },
+                            "required": [
+                                "cid"
+                            ]
+                        },
+                        {
+                            "properties": {
+                                "name": {
+                                    "const": "gender"
+                                },
+                                "return": {
+                                    "const": "enum"
+                                }
+                            },
+                            "required": [
+                                "enum_keys"
+                            ]
+                        },
+                        {
+                            "properties": {
+                                "name": {
+                                    "const": "url_visited_count"
+                                },
+                                "return": {
+                                    "const": "object"
+                                }
+                            },
+                            "required": [
+                                "object_schema"
+                            ]
+                        },
+                        {
+                            "properties": {
+                                "name": {
+                                    "anyOf": [
+                                        {
+                                            "const": "chain_transactions"
+                                        },
+                                        {
+                                            "const": "balance"
+                                        }
+                                    ]
+                                },
+                                "return": {
+                                    "const": "array"
+                                }
+                            },
+                            "required": [
+                                "array_items"
+                            ]
+                        },
+                        {
+                            "properties": {
+                                "name": {
+                                    "const": "network"
+                                },
+                                "return": {
+                                    "const": "object"
+                                }
+                            },
+                            "required": [
+                                "chain",
+                                "contract",
+                                "object_schema"
+                            ]
+                        },
+                        {
+                            "properties": {
+                                "name": {
+                                    "const": "network"
+                                },
+                                "return": {
+                                    "const": "boolean"
+                                }
+                            },
+                            "required": [
+                                "chain",
+                                "contract"
+                            ]
+                        },
+                        {
+                            "properties": {
+                                "return": {
+                                    "const": "boolean"
+                                },
+                                "name": {
+                                    "anyOf": [
+                                        {
+                                            "const": "age"
+                                        },
+                                        {
+                                            "const": "location"
+                                        }
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "conditions"
+                            ]
+                        },
+                        {
+                            "properties": {
+                                "name": {
+                                    "const": "age"
+                                },
+                                "return": {
+                                    "const": "integer"
+                                }
+                            }
+                        },
+                        {
+                            "properties": {
+                                "name": {
+                                    "const": "location"
+                                },
+                                "return": {
+                                    "const": "string"
+                                }
+                            },
+                            "required": [
+                                "string_pattern"
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "insights": {
+            "type": "object",
+            "patternProperties": {
+                "^i[0-9]$": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "enum": [
+                                "callback",
+                                "query_response",
+                                "question_response"
+                            ]
+                        },
+                        "target": "Expression | True",
+                        "returns": {
+                            "type": "string",
+                            "pattern": "(^q[0-9]$) | 'message'"
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "target",
+                        "returns"
+                    ]
+                }
+            }
+        },
+        "compensations": {
+            "type": "object",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "recipientAddress": {
+                        "type": "string",
+                        "required": "boolean"
+                    },
+                    "productId": {
+                        "type": "string",
+                        "required": "boolean",
+                        "values": {
+                            "type": "array",
+                            "items": {
+                                "type": "URL"
+                            }
+                        }
+                    },
+                    "shippingAddress": {
+                        "type": "string",
+                        "required": "boolean"
+                    }
+                    
+                }
+            },
+            "patternProperties": {
+                "^c[0-9]$": {
+                    "type": "object",
+                    "properties": {
+                        "name" : "string",
+                        "image": "IPFS CID",
+                        "description": {
+                            "type": "string",
+                            "minLength": 5,
+                            "maxLength": 300
+                        },
+                        "requires": "Expression | True",
+                        "chainId": "ChainId",
+                        "callback": {
+                            "type": "object",
+                            "properties": {
+                                "parameters": ["string"],
+                                "data" : {
+                                        "type": "object",
+                                        "properties": {
+                                            "trackingId": "string"
+                                        }
+                                    }
+                                }
+                            }
+                            
+                        },
+                        "alternatives": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "pattern": "^(c[0-9])$"
+                            }
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "description",
+                        "chainId",
+                        "callback"
+                    ]
+                }
+            },
+            "required": [
+                "parameters"
+            ]
+        }
+       
+    },
+    "required": [
+        "version",
+        "insightPlatform",
+        "timestamp",
+        "expiry",
+        "description",
+        "business",
+        "queries",
+        "insights",
+        "compensations"
+    ]
+}

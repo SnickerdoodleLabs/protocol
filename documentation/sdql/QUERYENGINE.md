@@ -31,24 +31,14 @@ Processing a blockchain query begins with the detection, by an instance of [`Blo
 [CID](https://proto.school/anatomy-of-a-cid/01/) pointing to a [SDQL](/documentation/sdql/README.md) JSON file pinned to the IPFS network containing the query to be executed. 
 The query CID is then passed into the Query Service via a call to `approveQuery`. 
 
-The call to `approveQuery` then creates one abstract syntax tree (AST) for each and every **logic expression** in the [`logic`](/documentation/sdql#logic) block of given query file. <br>The following logic block results in 3 AST roots.
-
-    logic: {
-        ads: ["if$q1>30then$a1"],
-        compensations: [
-            "if$q2then$c1",
-            "if$a1then$c2",
-        ],
-    },
+The call to `approveQuery` then creates one abstract syntax tree (AST) for each and every **logic expression** for **ads, queries, insights, and compensations** of given query file. 
 
 
 These logic expressions can reference one or more 
 - [`queries`](/documentation/sdql#queries), 
 - [`ads`](/documentation/sdql#ads),
-- [`compensations`](/documentation/sdql#compensations)
-- and [`returns`](/documentation/sdql#returns).
+- and [`insights`](/documentation/sdql#returns).
 
-Given example references $q1, $q2 as queries, $a1 as an ad, and $c1, $c2 as compensations.
 
 Resulting ASTs are ultimately evaluated against data wallet's [persistence layer](/packages/persistence/README.md), in consistence with user-specified permissions (i.e. if a `query` specification requires access to the `location` attribute of a user, the user must have consented to this access by indicating their acceptance in the consent contract associated with the query.)
 

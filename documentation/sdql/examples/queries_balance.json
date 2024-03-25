@@ -1,0 +1,20 @@
+{
+  "q4": {
+    "name": "balance",
+    "networkid": "43114",
+    "return": "array"
+  },
+  "q5": {
+    "name": "balance",
+    "networkid": "1",
+    "conditions": {
+      "ge": 10
+    },
+    "return": "array"
+  },
+  "q6": {
+    "name": "balance",
+    "networkid": "*",
+    "return": "array"
+  }
+}

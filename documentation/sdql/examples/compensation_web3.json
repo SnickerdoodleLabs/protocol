@@ -1,0 +1,16 @@
+{
+    "c3": {
+        "name": "CrazyApesClub NFT distro",
+        "image": "QmSkbhgq7rEmo9mty6hYABdxhqznqUnfuCG8bxn69TrXNw",
+        "description": "a free CrazyApesClub NFT",
+        "requires": "True",
+        "chainId": 1,
+        "callback": {
+          "parameters": ["recipientAddress", "productId"],
+          "data": {
+            "trackingId": "982JJDSLAcx"
+          }
+        },
+        "alternatives": ["c2"]
+      }
+}

@@ -4,6 +4,7 @@ import { MillisecondTimestamp } from "@snickerdoodlelabs/objects";
 const timeUtils = new TimeUtils();
 export const avalanche4SchemaStr = JSON.stringify({
   version: 0.1,
+  insightPlatform: "http://insightplatform:8080",
   timestamp: timeUtils.getISO8601TimeString(),
   expiry: timeUtils.getISO8601TimeString(
     MillisecondTimestamp(Date.now() + 1000 * 60 * 60 * 24),
