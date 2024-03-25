@@ -10,7 +10,6 @@ import {
   Theme,
   makeStyles,
 } from "@material-ui/core";
-import { abbreviateString } from "@shared-components/utils";
 import {
   SDTypography,
   Image,
@@ -38,6 +37,7 @@ import {
   QueryQuestionType,
   getQueryStatusItemsForRender,
 } from "@shared-components/v2/utils";
+import { CombinedQuery } from "@shared-components/v2/widgets/ConsentModal/CombinedQueryItem";
 import { FillQuestionnaireModal } from "@shared-components/v2/widgets/FillQuestionnaireModal";
 import {
   EQuestionnaireStatus,
@@ -100,6 +100,13 @@ interface IQueryApprovalState {
   points: number;
   dataPermissions: EWalletDataType[];
   questionnairePermissions: IpfsCID[];
+  combined: {
+    queryId: IpfsCID;
+    permissions: {
+      dataTypes: EWalletDataType[];
+      questionnaires: IpfsCID[];
+    };
+  }[];
 }
 interface IQuestionnaireWithQuery {
   query: ISingleQuestionnaireItem;
@@ -155,6 +162,8 @@ export const ConsentModal = ({
   const [receivingAddress, setReceivingAddress] =
     useSafeState<EVMAccountAddress>(evmAccounts[0]);
   const [totalPoints, setTotalPoints] = useSafeState<number>();
+  const [combinedItemToHandle, setCombinedItemToHandle] =
+    useSafeState<IMultiQuestionItem>();
 
   const groupedDataTypes = useMemo(() => {
     if (!queryStatuses) {
@@ -199,6 +208,7 @@ export const ConsentModal = ({
         questionnairePermissions: questionnaires.answeredQuestionnaires.map(
           (q) => q.query.questionnaireCID,
         ),
+        combined: [],
       });
     }
   }, [JSON.stringify(queryStatuses), JSON.stringify(questionnaires)]);
@@ -284,6 +294,69 @@ export const ConsentModal = ({
       return res?.queryStatus?.rewardsParameters ?? (`[]` as JSONString);
     },
     [JSON.stringify(queryStatuses)],
+  );
+
+  const handleCombinedItemModalAction = useCallback(
+    (dataTypes: EWalletDataType[], questionnaires: IpfsCID[]) => {
+      if (!combinedItemToHandle) {
+        return;
+      }
+      if (dataTypes.length === 0 && questionnaires.length === 0) {
+        if (queryApprovalState) {
+          const existingItem = queryApprovalState.combined.find(
+            (q) => q.queryId === combinedItemToHandle.queryStatus.queryCID,
+          );
+          if (existingItem) {
+            setQueryApprovalState((p) => {
+              if (!p) {
+                return p;
+              }
+              return {
+                ...p,
+                points: p.points - combinedItemToHandle.queryStatus.points,
+                combined: p.combined.filter(
+                  (c) =>
+                    c.queryId !== combinedItemToHandle.queryStatus.queryCID,
+                ),
+              };
+            });
+          }
+        }
+        setCombinedItemToHandle(undefined);
+        return;
+      }
+      setQueryApprovalState((p) => {
+        if (!p) {
+          return p;
+        }
+        const combinedItem = {
+          queryId: combinedItemToHandle.queryStatus.queryCID,
+          permissions: {
+            dataTypes,
+            questionnaires,
+          },
+        };
+        const existingItem = p.combined.find(
+          (q) => q.queryId === combinedItemToHandle.queryStatus.queryCID,
+        );
+
+        return {
+          ...p,
+          ...(!existingItem && {
+            points: p.points + combinedItemToHandle.queryStatus.points,
+          }),
+          combined: existingItem
+            ? p.combined.map((c) =>
+                c.queryId === combinedItemToHandle.queryStatus.queryCID
+                  ? combinedItem
+                  : c,
+              )
+            : p.combined.concat(combinedItem),
+        };
+      });
+      setCombinedItemToHandle(undefined);
+    },
+    [combinedItemToHandle, JSON.stringify(queryApprovalState)],
   );
 
   const onDataPermissionClick = useCallback(
@@ -544,7 +617,8 @@ export const ConsentModal = ({
                 handleShareClicked();
               }}
             >
-              {queryApprovalState?.queryIds.length === 0
+              {queryApprovalState?.queryIds.length === 0 &&
+              queryApprovalState?.combined.length === 0
                 ? "Accept"
                 : "Share Selected"}
             </SDButton>
@@ -588,6 +662,7 @@ export const ConsentModal = ({
     totalPoints,
     queryApprovalState?.points,
     queryApprovalState?.queryIds.length === 0,
+    queryApprovalState?.combined.length === 0,
   ]);
 
   const agreementPolicy = useMemo(() => {
@@ -825,6 +900,28 @@ export const ConsentModal = ({
                     </div>
                   );
                 })}
+
+              {queryStatuses?.multiQuestionQueries.map((q) => (
+                <PermissionItemWithShareButton
+                  key={q.queryStatus.queryCID}
+                  name={q.queryStatus.name}
+                  icon={q.queryStatus.image || ""}
+                  point={q.queryStatus.points}
+                  pointIcon={
+                    invitationData["brandInformation"]?.["image"] ??
+                    invitationData.image ??
+                    ""
+                  }
+                  onClick={() => {
+                    setCombinedItemToHandle(q);
+                  }}
+                  active={
+                    queryApprovalState?.combined
+                      ?.map((c) => c.queryId)
+                      .includes(q.queryStatus.queryCID) ?? false
+                  }
+                />
+              ))}
             </>
           ) : (
             <Box marginX="auto" py={10}>
@@ -866,6 +963,24 @@ export const ConsentModal = ({
           questionnaire={questionnaireToAnswer.questionnaire}
           onQuestionnaireSubmit={(answers) => {
             onQuestionnaireSubmit(answers);
+          }}
+        />
+      )}
+      {combinedItemToHandle && (
+        <CombinedQuery
+          offer={combinedItemToHandle.queryStatus}
+          getQuestionnairesByCids={getQuestionnairesByCids}
+          defaultPermissions={
+            queryApprovalState?.combined.find(
+              (q) => q.queryId === combinedItemToHandle.queryStatus.queryCID,
+            )?.permissions
+          }
+          onPrimaryButtonClick={({ dataTypes, questionnaires }) => {
+            handleCombinedItemModalAction(dataTypes, questionnaires);
+          }}
+          answerQuestionnaire={answerQuestionnaire}
+          closeModal={() => {
+            setCombinedItemToHandle(undefined);
           }}
         />
       )}
