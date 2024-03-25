@@ -912,6 +912,9 @@ export interface ISnickerdoodleCore {
     | PersistenceError
     | InvalidStatusError
     | InvalidParametersError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | EvaluationError
   >;
 
   getQueryStatusByQueryCID(
@@ -920,7 +923,7 @@ export interface ISnickerdoodleCore {
 
   getQueryStatuses(
     contractAddress?: EVMContractAddress,
-    status?: EQueryProcessingStatus,
+    statuses?: EQueryProcessingStatus[],
     blockNumber?: BlockNumber,
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<
@@ -931,12 +934,6 @@ export interface ISnickerdoodleCore {
     | BlockchainCommonErrors
     | PersistenceError
   >;
-
-  batchApprovePreProcessQueries(
-    contractAddress: EVMContractAddress,
-    queries: Map<IpfsCID, IDynamicRewardParameter[]>,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<void, never>;
 
   getQueryStatusesByContractAddress(
     contractAddress: EVMContractAddress,

@@ -679,41 +679,26 @@ export class ApproveQueryParams extends CoreActionParams<void> {
     return ECoreActions.APPROVE_QUERY;
   }
 }
-
-export class GetQueryStatusesByContractParams extends CoreActionParams<
-  QueryStatus[]
-> {
-  public constructor(public contractAddress: EVMContractAddress) {
-    super(GetQueryStatusesByContractParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.GET_GET_QUERY_STATUSES_BY_CONTRACT;
-  }
-}
-
-export class BatchApprovePreProcessQueriesParams extends CoreActionParams<void> {
-  public constructor(
-    public contractAddress: EVMContractAddress,
-    public queries: JSONString,
-  ) {
-    super(BatchApprovePreProcessQueriesParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.BATCH_APPROVE_QUERIES;
-  }
-
-}
-
 export class GetQueryStatusesParams extends CoreActionParams<QueryStatus[]> {
   public constructor(
     public contractAddress?: EVMContractAddress,
-    public status?: EQueryProcessingStatus,
+    public status?: EQueryProcessingStatus[],
     public blockNumber?: BlockNumber,
   ) {
     super(GetQueryStatusesParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_QUERY_STATUSES;
+  }
+}
+export class GetQueryStatusesByContractAddressParams extends CoreActionParams<
+  QueryStatus[]
+> {
+  public constructor(public contractAddress: EVMContractAddress) {
+    super(GetQueryStatusesByContractAddressParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_QUERY_STATUSES_BY_CONTRACT_ADDRESS;
   }
 }
 

@@ -35,6 +35,7 @@ import {
   createThemeWithOverrides,
 } from "@snickerdoodlelabs/shared-components";
 import { ResultAsync, okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import React, {
   useMemo,
   useState,
@@ -68,6 +69,26 @@ interface IInvitation {
 interface ICurrentInvitation {
   data: IInvitation;
   type: EInvitationSourceType;
+}
+
+interface IOptInParams {
+  directCall: {
+    permissions: {
+      dataTypes: EWalletDataType[];
+      questionnaires: IpfsCID[];
+    };
+    approvals: Map<IpfsCID, IDynamicRewardParameter[]>;
+  };
+  withPermissions: Map<
+    IpfsCID,
+    {
+      permissions: {
+        dataTypes: EWalletDataType[];
+        questionnaires: IpfsCID[];
+      };
+      rewardParameters: IDynamicRewardParameter[];
+    }
+  >;
 }
 
 export const InvitationHandler: FC<IInvitationHandlerProps> = ({
@@ -243,6 +264,57 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     [currentInvitation],
   );
 
+  const optIn = useCallback(
+    (params: IOptInParams) => {
+      if (currentInvitation) {
+        // call function as background process
+        setAppState(EAPP_STATE.IDLE);
+        const {
+          directCall: { permissions, approvals },
+          withPermissions,
+        } = params;
+        core.invitation
+          .acceptInvitation(currentInvitation.data.invitation, null, undefined)
+          .andThen(() => {
+            // set consent permissions here
+            return okAsync(undefined);
+          })
+          .andThen(() => {
+            return ResultUtils.combine(
+              Array.from(approvals.entries()).map(([cid, rewards]) =>
+                core.approveQuery(cid, rewards, undefined),
+              ),
+            );
+          })
+          .andThen(() => {
+            return ResultUtils.executeSerially(
+              Array.from(withPermissions.entries()).map(
+                ([cid, { permissions, rewardParameters }]) =>
+                  () =>
+                    // set consent permissions here
+                    okAsync(undefined).andThen(() => {
+                      return core.approveQuery(
+                        cid,
+                        rewardParameters,
+                        undefined,
+                      );
+                    }),
+              ),
+            );
+          })
+          .map(() => {
+            clearInvitation();
+            console.log("optIn steps success");
+          })
+          .mapErr((e) => {
+            console.log("optIn steps error", e);
+            clearInvitation();
+          });
+      }
+    },
+    [currentInvitation],
+  );
+
   const rejectInvitation = useCallback(
     (withTimestamp: boolean) => {
       if (!currentInvitation) return;
@@ -311,7 +383,8 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
             <ConsentModal
               onClose={clearInvitation}
               open={true}
-              onOptinClicked={() => {
+              onOptinClicked={(params) => {
+                optIn(params);
                 onPermissionSelected([]);
               }}
               consentContractAddress={
@@ -338,28 +411,11 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
                 EInvitationSourceType.CONSENT_ADDRESS,
                 EInvitationSourceType.DOMAIN,
               ].includes(currentInvitation.type)}
-              setConsentPermissions={(
-                consentContractAddress: EVMContractAddress,
-                dataTypes: EWalletDataType[],
-                questionnaires: IpfsCID[],
-              ) => {
-                return okAsync(undefined);
-              }}
               getQueryStatuses={function (
                 contractAddress: EVMContractAddress,
               ): ResultAsync<QueryStatus[], unknown> {
                 return core.getQueryStatusesByContractAddress(
                   contractAddress,
-                  undefined,
-                );
-              }}
-              batchApproveQueries={function (
-                contractAddress: EVMContractAddress,
-                queries: Map<IpfsCID, IDynamicRewardParameter[]>,
-              ): ResultAsync<void, unknown> {
-                return core.batchApprovePreProcessQueries(
-                  contractAddress,
-                  queries,
                   undefined,
                 );
               }}

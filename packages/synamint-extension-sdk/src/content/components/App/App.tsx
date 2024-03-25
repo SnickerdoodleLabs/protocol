@@ -49,6 +49,8 @@ import {
   CheckInvitationStatusParams,
   GetInvitationMetadataByCIDParams,
   GetConsentContractCIDParams,
+  GetQueryStatusesByContractAddressParams,
+  ApproveQueryParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 import endOfStream from "end-of-stream";
@@ -56,6 +58,7 @@ import PortStream from "extension-port-stream";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
 import { ResultAsync, err, okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import ObjectMultiplex from "obj-multiplex";
 import LocalMessageStream from "post-message-stream";
 import pump from "pump";
@@ -162,6 +165,26 @@ interface ICurrentInvitation {
 }
 interface IAppProps {
   paletteOverrides?: IPaletteOverrides;
+}
+
+interface IOptInParams {
+  directCall: {
+    permissions: {
+      dataTypes: EWalletDataType[];
+      questionnaires: IpfsCID[];
+    };
+    approvals: Map<IpfsCID, IDynamicRewardParameter[]>;
+  };
+  withPermissions: Map<
+    IpfsCID,
+    {
+      permissions: {
+        dataTypes: EWalletDataType[];
+        questionnaires: IpfsCID[];
+      };
+      rewardParameters: IDynamicRewardParameter[];
+    }
+  >;
 }
 
 const App: FC<IAppProps> = ({ paletteOverrides }) => {
@@ -462,6 +485,57 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
     });
   };
 
+  const optIn = useCallback(
+    (params: IOptInParams) => {
+      if (currentInvitation) {
+        // call function as background process
+        setAppState(EAppState.IDLE);
+        const {
+          directCall: { permissions, approvals },
+          withPermissions,
+        } = params;
+        coreGateway
+          .acceptInvitation(currentInvitation.data.invitation, null)
+          .andThen(() => {
+            // set consent permissions here
+            return okAsync(undefined);
+          })
+          .andThen(() => {
+            return ResultUtils.combine(
+              Array.from(approvals.entries()).map(([cid, rewardParams]) =>
+                coreGateway.approveQuery(
+                  new ApproveQueryParams(cid, rewardParams),
+                ),
+              ),
+            );
+          })
+          .andThen(() => {
+            return ResultUtils.executeSerially(
+              Array.from(withPermissions.entries()).map(
+                ([cid, { permissions, rewardParameters }]) =>
+                  () =>
+                    // set consent permissions here
+                    okAsync(undefined).andThen(() => {
+                      return coreGateway.approveQuery(
+                        new ApproveQueryParams(cid, rewardParameters),
+                      );
+                    }),
+              ),
+            );
+          })
+          .map(() => {
+            emptyReward();
+            console.log("optIn steps success");
+          })
+          .mapErr((e) => {
+            console.log("optIn steps error", e);
+            emptyReward();
+          });
+      }
+    },
+    [currentInvitation],
+  );
+
   const renderComponent = useMemo(() => {
     if (!currentInvitation) return null;
     switch (true) {
@@ -472,7 +546,7 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
               emptyReward();
             }}
             open={true}
-            onOptinClicked={() => acceptInvitation(null)}
+            onOptinClicked={optIn}
             consentContractAddress={
               currentInvitation.data.invitation.consentContractAddress
             }
@@ -490,25 +564,9 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
             displayRejectButtons={
               currentInvitation.type === EInvitationSourceType.DOMAIN
             }
-            setConsentPermissions={(
-              consentContractAddress: EVMContractAddress,
-              dataTypes: EWalletDataType[],
-              questionnaires: IpfsCID[],
-            ) => {
-              return okAsync(undefined);
-            }}
             getQueryStatuses={(contractAddress: EVMContractAddress) => {
               return coreGateway.getQueryStatusesByContractAddress(
-                contractAddress,
-              );
-            }}
-            batchApproveQueries={function (
-              contractAddress: EVMContractAddress,
-              queries: Map<IpfsCID, IDynamicRewardParameter[]>,
-            ): ResultAsync<void, unknown> {
-              return coreGateway.batchApprovePreProcessQueries(
-                contractAddress,
-                queries,
+                new GetQueryStatusesByContractAddressParams(contractAddress),
               );
             }}
             evmAccounts={evmAccounts!}

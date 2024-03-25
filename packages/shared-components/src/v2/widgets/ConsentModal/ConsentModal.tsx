@@ -62,17 +62,12 @@ import React, { useCallback, useEffect, useMemo, useRef } from "react";
 interface IConsentModalProps {
   onClose: () => void;
   open: boolean;
-  onOptinClicked: () => void;
+  onOptinClicked: (params: IOptInParams) => void;
   consentContractAddress: EVMContractAddress;
   invitationData: IOldUserAgreement | IUserAgreement;
   answerQuestionnaire: (
     id: IpfsCID,
     answers: NewQuestionnaireAnswer[],
-  ) => ResultAsync<void, unknown>;
-  setConsentPermissions: (
-    consentContractAddress: EVMContractAddress,
-    dataTypes: EWalletDataType[],
-    questionnaires: IpfsCID[],
   ) => ResultAsync<void, unknown>;
   displayRejectButtons: boolean;
   onRejectClick?: () => void;
@@ -80,10 +75,6 @@ interface IConsentModalProps {
   getQueryStatuses: (
     contractAddress: EVMContractAddress,
   ) => ResultAsync<QueryStatus[], unknown>;
-  batchApproveQueries: (
-    contractAddress: EVMContractAddress,
-    queries: Map<IpfsCID, IDynamicRewardParameter[]>,
-  ) => ResultAsync<void, unknown>;
   getQuestionnairesByCids: (
     cids: IpfsCID[],
   ) => ResultAsync<Questionnaire[], unknown>;
@@ -93,6 +84,26 @@ interface IConsentModalProps {
 enum EComponentRenderState {
   RENDER_QUERIES,
   RENDER_AGREEMENT,
+}
+
+interface IOptInParams {
+  directCall: {
+    permissions: {
+      dataTypes: EWalletDataType[];
+      questionnaires: IpfsCID[];
+    };
+    approvals: Map<IpfsCID, IDynamicRewardParameter[]>;
+  };
+  withPermissions: Map<
+    IpfsCID,
+    {
+      permissions: {
+        dataTypes: EWalletDataType[];
+        questionnaires: IpfsCID[];
+      };
+      rewardParameters: IDynamicRewardParameter[];
+    }
+  >;
 }
 
 interface IQueryApprovalState {
@@ -133,13 +144,11 @@ export const ConsentModal = ({
   onClose,
   onOptinClicked,
   answerQuestionnaire,
-  setConsentPermissions,
   consentContractAddress,
   onRejectClick,
   onRejectWithTimestampClick,
   displayRejectButtons = true,
   getQueryStatuses,
-  batchApproveQueries,
   getQuestionnairesByCids,
   evmAccounts,
 }: IConsentModalProps) => {
@@ -489,35 +498,57 @@ export const ConsentModal = ({
     if (!queryApprovalState) {
       return;
     }
-    setConsentPermissions(
-      consentContractAddress,
-      queryApprovalState.dataPermissions,
-      queryApprovalState.questionnairePermissions,
-    )
-      .andThen(() => {
-        return batchApproveQueries(
-          consentContractAddress,
-          new Map(
-            queryApprovalState.queryIds.map((id) => {
-              const calculatedRewardParameters =
-                [] as IDynamicRewardParameter[];
-              JSON.parse(getRewardParameters(id)).forEach((rp) => {
-                calculatedRewardParameters.push({
+    const optInParams: IOptInParams = {
+      directCall: {
+        permissions: {
+          dataTypes: queryApprovalState.dataPermissions,
+          questionnaires: queryApprovalState.questionnairePermissions,
+        },
+        approvals: new Map(
+          queryApprovalState.queryIds.map((id) => {
+            const calculatedParameters: IDynamicRewardParameter[] = [];
+            JSON.parse(getRewardParameters(id)).forEach(
+              (rp: IDynamicRewardParameter) => {
+                calculatedParameters.push({
                   ...rp,
                   recipientAddress: {
                     ...rp.recipientAddress,
                     value: receivingAddress,
                   },
                 });
+              },
+            );
+            return [id, calculatedParameters];
+          }),
+        ),
+      },
+      withPermissions: new Map(
+        queryApprovalState.combined.map((c) => {
+          const calculatedParameters: IDynamicRewardParameter[] = [];
+          JSON.parse(getRewardParameters(c.queryId)).forEach(
+            (rp: IDynamicRewardParameter) => {
+              calculatedParameters.push({
+                ...rp,
+                recipientAddress: {
+                  ...rp.recipientAddress,
+                  value: receivingAddress,
+                },
               });
-              return [id, calculatedRewardParameters];
-            }),
-          ),
-        );
-      })
-      .map(() => {
-        onOptinClicked();
-      });
+            },
+          );
+          return [
+            c.queryId,
+            {
+              permissions: c.permissions,
+              rewardParameters: calculatedParameters,
+            },
+          ];
+        }),
+
+      ),
+    };
+
+    onOptinClicked(optInParams);
   }, [
     JSON.stringify(queryApprovalState),
     getRewardParameters,

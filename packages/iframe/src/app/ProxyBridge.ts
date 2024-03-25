@@ -422,12 +422,21 @@ export class ProxyBridge implements ISdlDataWallet {
   }
   getQueryStatuses(
     contractAddress?: EVMContractAddress,
-    status?: EQueryProcessingStatus,
+    status?: EQueryProcessingStatus[],
     blockNumber?: BlockNumber,
     _sourceDomain?: DomainName | undefined,
   ): ResultAsync<QueryStatus[], ProxyError> {
     return this.call(
       this.core.getQueryStatuses(contractAddress, status, blockNumber),
+    );
+  }
+
+  getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+    _sourceDomain?: DomainName | undefined,
+  ): ResultAsync<QueryStatus[], ProxyError> {
+    return this.call(
+      this.core.getQueryStatusesByContractAddress(contractAddress),
     );
   }
 

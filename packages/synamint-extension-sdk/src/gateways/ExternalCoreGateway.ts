@@ -157,8 +157,7 @@ import {
   GetVirtualQuestionnairesParams,
   GetQuestionnairesByCIDSParams,
   ApproveQueryParams,
-  GetQueryStatusesByContractParams,
-  BatchApprovePreProcessQueriesParams,
+  GetQueryStatusesByContractAddressParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -589,30 +588,16 @@ export class ExternalCoreGateway {
     return this._handler.call(params);
   }
 
+  public getQueryStatusesByContractAddress(
+    params: GetQueryStatusesByContractAddressParams,
+  ): ResultAsync<QueryStatus[], ProxyError> {
+    return this._handler.call(params);
+  }
+
   public approveQuery(
     params: ApproveQueryParams,
   ): ResultAsync<void, ProxyError> {
     return this._handler.call(params);
-  }
-
-  public batchApprovePreProcessQueries(
-    contractAddress: EVMContractAddress,
-    queries: Map<IpfsCID, IDynamicRewardParameter[]>,
-  ): ResultAsync<void, ProxyError> {
-    return this._handler.call(
-      new BatchApprovePreProcessQueriesParams(
-        contractAddress,
-        ObjectUtils.serialize(queries),
-      ),
-    );
-  }
-
-  public getQueryStatusesByContractAddress(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<QueryStatus[], ProxyError> {
-    return this._handler.call(
-      new GetQueryStatusesByContractParams(contractAddress),
-    );
   }
 
   public getSiteVisits(): ResultAsync<SiteVisit[], ProxyError> {

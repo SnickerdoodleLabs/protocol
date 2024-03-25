@@ -572,7 +572,7 @@ export class SnickerdoodleIFrameProxy
 
   public getQueryStatuses(
     contractAddress?: EVMContractAddress,
-    status?: EQueryProcessingStatus,
+    status?: EQueryProcessingStatus[],
     blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], ProxyError> {
     return this._createCall("getQueryStatuses", {
@@ -582,7 +582,16 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
-  public approveQuery(
+  getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+    _sourceDomain?: DomainName | undefined,
+  ): ResultAsync<QueryStatus[], ProxyError> {
+    return this._createCall("getQueryStatusesByContractAddress", {
+      contractAddress,
+    });
+  }
+
+  approveQuery(
     queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
   ): ResultAsync<void, ProxyError> {

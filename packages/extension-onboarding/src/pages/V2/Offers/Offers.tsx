@@ -57,10 +57,10 @@ const Offers = () => {
         Array.from(optedInContracts.entries()).map(
           ([contractAddress, ipfsCID]) =>
             sdlDataWallet
-              .getQueryStatuses(
-                contractAddress,
+              .getQueryStatuses(contractAddress, [
                 EQueryProcessingStatus.Received,
-              )
+                EQueryProcessingStatus.Seen,
+              ])
               .map((offers) => ({ contractAddress, ipfsCID, offers })),
         ),
       ).map((results) => {
@@ -73,7 +73,10 @@ const Offers = () => {
     (contractAddress: EVMContractAddress) => {
       if (optedInContracts) {
         sdlDataWallet
-          .getQueryStatuses(contractAddress, EQueryProcessingStatus.Received)
+          .getQueryStatuses(contractAddress, [
+            EQueryProcessingStatus.Received,
+            EQueryProcessingStatus.Seen,
+          ])
           .map((offers) => {
             setItems((prevItems) => {
               if (offers.length > 0) {
