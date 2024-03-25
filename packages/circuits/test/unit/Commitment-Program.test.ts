@@ -2,7 +2,10 @@
 import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import { Poseidon, Field, Encoding } from "o1js";
 
-import { Commitment, commitmentVerification } from "@circuits/Commitment.js";
+import {
+  CommitmentVerifyParams,
+  commitmentVerification,
+} from "@circuits/Commitment.js";
 import { Identity } from "@circuits/Identity.js";
 
 class CommitmentMocks {
@@ -37,12 +40,18 @@ describe("Proof of Commitment", () => {
     const signalHash = Poseidon.hash([signal]);
     const signalHashSquared = signalHash.mul(signalHash);
 
+    const commitmentParams = new CommitmentVerifyParams({
+      commitmentLeaf: userIdentity.leaf(),
+      signalHash: signalHash,
+      signalHashSquared: signalHashSquared,
+    });
+
     // NOTE: this step would happen client-side
     console.log("prove...");
     console.time("prove...");
     // inputs are: [private input array], [public input array], keypair from .generateKeypair()
     const proof = await commitmentVerification.commitmentVerify(
-      userIdentity.leaf(),
+      commitmentParams,
       userIdentity,
     );
     console.timeEnd("prove...");
