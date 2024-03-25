@@ -136,7 +136,21 @@ export class QueryService implements IQueryService {
     protected questionnaireRepo: IQuestionnaireRepository,
   ) {}
 
-  private processingQueries = new Set<IpfsCID>();
+  private processingQueries: Map<
+    IpfsCID,
+    ResultAsync<
+      void,
+      | PersistenceError
+      | ConsentContractError
+      | UninitializedError
+      | BlockchainProviderError
+      | ConsentError
+      | EvaluationError
+      | QueryFormatError
+      | AjaxError
+      | BlockchainCommonErrors
+    >
+  > = new Map();
 
   public initialize(): ResultAsync<void, never> {
     return this.contextProvider.getContext().map((context) => {
@@ -477,7 +491,22 @@ export class QueryService implements IQueryService {
         // valid, that the context is sane, etc.
         return ResultUtils.combine(
           queryStatii.map((queryStatus) => {
-            return this.processQuery(queryStatus, context, config);
+            if (this.processingQueries.has(queryStatus.queryCID)) {
+              this.logUtils.debug(
+                `Query ${queryStatus.queryCID} is already being processed.`,
+              );
+              return this.processingQueries.get(queryStatus.queryCID)!;
+            }
+            const process = this.processQuery(queryStatus, context, config)
+              .map(() => {
+                this.processingQueries.delete(queryStatus.queryCID);
+              })
+              .mapErr((err) => {
+                this.processingQueries.delete(queryStatus.queryCID);
+                return err;
+              });
+            this.processingQueries.set(queryStatus.queryCID, process);
+            return process;
           }),
         );
       })
@@ -924,13 +953,6 @@ export class QueryService implements IQueryService {
     | AjaxError
     | BlockchainCommonErrors
   > {
-    if (this.processingQueries.has(queryStatus.queryCID)) {
-      this.logUtils.debug(
-        `Query ${queryStatus.queryCID} is already being processed.`,
-      );
-      return okAsync(undefined);
-    }
-    this.processingQueries.add(queryStatus.queryCID);
     this.logUtils.debug(
       `Attempting to process and return query ${queryStatus.queryCID}`,
     );
@@ -978,125 +1000,115 @@ export class QueryService implements IQueryService {
         queryStatus.consentContractAddress,
       ),
       this.sdqlQueryRepo.getSDQLQueryByCID(queryStatus.queryCID),
-    ])
-      .andThen(([consentToken, query]) => {
-        if (query == null) {
-          // Don't break everything if we can't get the query from IPFS, just skip it
-          return errAsync(
-            new PersistenceError(
-              `Cannot retrieve SDQL Query with CID ${queryStatus.queryCID}`,
+    ]).andThen(([consentToken, query]) => {
+      if (query == null) {
+        // Don't break everything if we can't get the query from IPFS, just skip it
+        return errAsync(
+          new PersistenceError(
+            `Cannot retrieve SDQL Query with CID ${queryStatus.queryCID}`,
+          ),
+        );
+      }
+      return this.validateContextConfig(context, consentToken)
+        .andThen(() => {
+          // After sanity checking, we process the query into insights for a
+          // (hopefully) final time, and get our opt-in key
+          context.publicEvents.queryPerformance.next(
+            new QueryPerformanceEvent(
+              EQueryEvents.ProcessesBeforeReturningQueryEvaluation,
+              EStatus.End,
+              query.cid,
             ),
           );
-        }
-        return this.validateContextConfig(context, consentToken)
-          .andThen(() => {
-            // After sanity checking, we process the query into insights for a
-            // (hopefully) final time, and get our opt-in key
-            context.publicEvents.queryPerformance.next(
-              new QueryPerformanceEvent(
-                EQueryEvents.ProcessesBeforeReturningQueryEvaluation,
-                EStatus.End,
-                query.cid,
-              ),
-            );
-            this.logUtils.debug(
-              `Starting queryParsingEngine for query ${query.cid}`,
-            );
-            return ResultUtils.combine([
-              this.queryParsingEngine
-                .handleQuery(
-                  query,
-                  DataPermissions.createWithAllPermissions(), // We're enabling all permissions for now instead of using consentToken!.dataPermissions till the permissions are properly refactored.
-                )
-                .map((insights) => {
-                  this.logUtils.debug(
-                    `Query ${query.cid} processed into insights`,
-                  );
-                  return insights;
-                }),
-              this.dataWalletUtils.deriveOptInPrivateKey(
-                queryStatus.consentContractAddress,
-                context.dataWalletKey!,
-              ),
-            ]);
-          })
-          .mapErr((err) => {
-            context.publicEvents.queryPerformance.next(
-              new QueryPerformanceEvent(
-                EQueryEvents.ProcessesBeforeReturningQueryEvaluation,
-                EStatus.End,
-                query.cid,
-                undefined,
-                err,
-              ),
-            );
-          })
-          .andThen(([insights, optInKey]) => {
-            // Deliver the insights to the backend
-            return this.insightPlatformRepo.deliverInsights(
+          this.logUtils.debug(
+            `Starting queryParsingEngine for query ${query.cid}`,
+          );
+          return ResultUtils.combine([
+            this.queryParsingEngine
+              .handleQuery(
+                query,
+                DataPermissions.createWithAllPermissions(), // We're enabling all permissions for now instead of using consentToken!.dataPermissions till the permissions are properly refactored.
+              )
+              .map((insights) => {
+                this.logUtils.debug(
+                  `Query ${query.cid} processed into insights`,
+                );
+                return insights;
+              }),
+            this.dataWalletUtils.deriveOptInPrivateKey(
               queryStatus.consentContractAddress,
-              consentToken!.tokenId,
+              context.dataWalletKey!,
+            ),
+          ]);
+        })
+        .mapErr((err) => {
+          context.publicEvents.queryPerformance.next(
+            new QueryPerformanceEvent(
+              EQueryEvents.ProcessesBeforeReturningQueryEvaluation,
+              EStatus.End,
               query.cid,
-              insights,
-              rewardsParameters,
-              optInKey,
-              config.defaultInsightPlatformBaseUrl,
-            );
-          })
-          .orElse((err) => {
-            if (err instanceof AjaxError) {
-              if (err.code == 403) {
-                // 403 means a response has already been submitted, and we should stop asking
-                queryStatus.status = EQueryProcessingStatus.RewardsReceived;
-                return this.sdqlQueryRepo
-                  .upsertQueryStatus([queryStatus])
-                  .map(() => {
-                    context.publicEvents.onQueryStatusUpdated.next(queryStatus);
-                    return [];
-                  });
-              }
-            }
-
-            // All other errors are just reported
-            this.logUtils.error(
-              `Problem while returning insights for query ${queryStatus.queryCID}`,
+              undefined,
               err,
-            );
-            return errAsync(err);
-          })
-          .andThen((earnedRewards) => {
-            // Successful posting
-            this.logUtils.log("insight delivery api call done");
-            this.logUtils.log("Earned Rewards: ", earnedRewards);
-            // add EarnedRewards to the wallet, and update the QueryStatus
+            ),
+          );
+        })
+        .andThen(([insights, optInKey]) => {
+          // Deliver the insights to the backend
+          return this.insightPlatformRepo.deliverInsights(
+            queryStatus.consentContractAddress,
+            consentToken!.tokenId,
+            query.cid,
+            insights,
+            rewardsParameters,
+            optInKey,
+            config.defaultInsightPlatformBaseUrl,
+          );
+        })
+        .orElse((err) => {
+          if (err != null && err.code == 403) {
+            // 403 means a response has already been submitted, and we should stop asking
             queryStatus.status = EQueryProcessingStatus.RewardsReceived;
-            return ResultUtils.combine([
-              this.accountRepo.addEarnedRewards(earnedRewards),
-              this.sdqlQueryRepo.upsertQueryStatus([queryStatus]),
-            ]);
-            /* TODO: Currently just adding direct rewards and will ignore the others for now */
-            /* Show Lazy Rewards in rewards tab? */
-            /* Web2 rewards are also EarnedRewards, TBD */
-          })
-          .map(() => {
-            context.publicEvents.onQueryStatusUpdated.next(queryStatus);
-          })
-          .orElse((err) => {
-            // We are going to consume errors from adding earned rewards or updating the
-            // query status, or a continuing error from posting, and just say it's successful
-            this.logUtils.warning(
-              `Problem while processing and returning insights for query ${query.cid}`,
-              err,
-            );
-            return okAsync(undefined);
-          });
-      })
-      .map(() => {
-        this.processingQueries.delete(queryStatus.queryCID);
-      })
-      .mapErr((err) => {
-        this.processingQueries.delete(queryStatus.queryCID);
-        return err;
-      });
+            return this.sdqlQueryRepo
+              .upsertQueryStatus([queryStatus])
+              .map(() => {
+                context.publicEvents.onQueryStatusUpdated.next(queryStatus);
+                return [];
+              });
+          }
+
+          // All other errors are just reported
+          this.logUtils.error(
+            `Problem while returning insights for query ${queryStatus.queryCID}`,
+            err,
+          );
+          return errAsync(err);
+        })
+        .andThen((earnedRewards) => {
+          // Successful posting
+          this.logUtils.log("insight delivery api call done");
+          this.logUtils.log("Earned Rewards: ", earnedRewards);
+          // add EarnedRewards to the wallet, and update the QueryStatus
+          queryStatus.status = EQueryProcessingStatus.RewardsReceived;
+          return ResultUtils.combine([
+            this.accountRepo.addEarnedRewards(earnedRewards),
+            this.sdqlQueryRepo.upsertQueryStatus([queryStatus]),
+          ]);
+          /* TODO: Currently just adding direct rewards and will ignore the others for now */
+          /* Show Lazy Rewards in rewards tab? */
+          /* Web2 rewards are also EarnedRewards, TBD */
+        })
+        .map(() => {
+          context.publicEvents.onQueryStatusUpdated.next(queryStatus);
+        })
+        .orElse((err) => {
+          // We are going to consume errors from adding earned rewards or updating the
+          // query status, or a continuing error from posting, and just say it's successful
+          this.logUtils.warning(
+            `Problem while processing and returning insights for query ${query.cid}`,
+            err,
+          );
+          return okAsync(undefined);
+        });
+    });
   }
 }
