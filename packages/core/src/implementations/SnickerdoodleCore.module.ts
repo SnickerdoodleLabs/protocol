@@ -335,9 +335,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<ITwitterService>(ITwitterServiceType)
       .to(TwitterService)
       .inSingletonScope();
-    bind<IPermissionRepository>(IPermissionRepositoryType).to(
-      PermissionRepository,
-    );
 
     bind<IPermissionUtils>(IPermissionUtilsType)
       .to(PermissionUtils)
