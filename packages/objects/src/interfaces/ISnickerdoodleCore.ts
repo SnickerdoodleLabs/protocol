@@ -42,6 +42,8 @@ import {
   QuestionnaireWithAnswers,
   QuestionnaireAnswer,
   NewQuestionnaireAnswer,
+  PermissionForStorage,
+  Permission,
   // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
@@ -49,6 +51,7 @@ import {
   ECloudStorageType,
   EDataWalletPermission,
   EInvitationStatus,
+  EWalletDataType,
 } from "@objects/enum/index.js";
 import {
   AccountIndexingError,
@@ -81,6 +84,7 @@ import {
   MissingWalletDataTypeError,
   ParserError,
   MethodSupportError,
+  CircuitError,
 } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
@@ -512,19 +516,15 @@ export interface IInvitationMethods {
    */
   acceptInvitation(
     invitation: Invitation,
-    dataPermissions: DataPermissions | null,
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     void,
     | PersistenceError
     | UninitializedError
-    | BlockchainProviderError
     | AjaxError
-    | MinimalForwarderContractError
-    | ConsentError
-    | UnauthorizedError
     | InvalidParametersError
-    | BlockchainCommonErrors
+    | CircuitError
+    | ConsentError
   >;
 
   /**
@@ -577,7 +577,7 @@ export interface IInvitationMethods {
 
   getAcceptedInvitations(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<OptInInfo[], PersistenceError | UnauthorizedError>;
+  ): ResultAsync<OptInInfo[], PersistenceError | UninitializedError>;
 
   getInvitationsByDomain(
     domain: DomainName,
@@ -594,11 +594,11 @@ export interface IInvitationMethods {
     | BlockchainCommonErrors
   >;
 
-  getAgreementFlags(
+  getDataPermissions(
     consentContractAddress: EVMContractAddress,
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<
-    HexString32,
+    DataPermissions,
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
@@ -829,6 +829,25 @@ export interface IQuestionnaireMethods {
   ): ResultAsync<EVMContractAddress[], PersistenceError | AjaxError>;
 }
 
+export interface IPermissionMethods {
+  getContentContractPermissions(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<DataPermissions, PersistenceError>;
+
+  setContentContractPermissions(
+    dataPermissions: DataPermissions,
+  ): ResultAsync<void, PersistenceError>;
+
+  getDomainPermissions(
+    domain: DomainName,
+  ): ResultAsync<EDataWalletPermission[], PersistenceError>;
+
+  setDomainPermissions(
+    domain: DomainName,
+    permissions: EDataWalletPermission[],
+  ): ResultAsync<void, PersistenceError>;
+}
+
 export interface ISnickerdoodleCore {
   /**
    * initialize() should be the first call you make on a new SnickerdoodleCore.
@@ -842,26 +861,6 @@ export interface ISnickerdoodleCore {
   ): ResultAsync<
     void,
     PersistenceError | UninitializedError | BlockchainProviderError | AjaxError
-  >;
-
-  getConsentContractURLs(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    URLString[],
-    | UninitializedError
-    | BlockchainProviderError
-    | ConsentContractError
-    | BlockchainCommonErrors
-  >;
-
-  getConsentCapacity(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    IConsentCapacity,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | BlockchainCommonErrors
   >;
 
   getConsentContractCID(
@@ -1090,6 +1089,7 @@ export interface ISnickerdoodleCore {
   storage: IStorageMethods;
   nft: INftMethods;
   questionnaire: IQuestionnaireMethods;
+  permission: IPermissionMethods;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

@@ -5,8 +5,8 @@ services:
     container_name: doodlechain
     env_file: docker-compose.env
     ports:
-      - 8545:8569
-    image: 'snickerdoodlelabs/devchain:0.0.6'
+      - 8545:8545
+    image: 'snickerdoodlelabs/devchain:0.1.0'
     networks:
       - internal
 

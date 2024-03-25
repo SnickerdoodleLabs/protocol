@@ -1,3 +1,4 @@
+import { CommitmentWrapper, MembershipWrapper } from "@snickerdoodlelabs/circuits-sdk";
 import { LogUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
 import { ConfigProvider } from "@snickerdoodlelabs/core";
 import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
@@ -87,10 +88,14 @@ export class TestHarnessMocks {
 
   public blockchain = new BlockchainStuff(this.devAccountKeys);
   public ipfs = new IPFSClient();
+  public membershipWrapper = new MembershipWrapper();
+  public commitmentWrapper = new CommitmentWrapper();
 
   public insightSimulator = new InsightPlatformSimulator(
     this.blockchain,
     this.ipfs,
+    this.membershipWrapper,
+    this.commitmentWrapper,
   );
   public languageCode = LanguageCode("en");
 

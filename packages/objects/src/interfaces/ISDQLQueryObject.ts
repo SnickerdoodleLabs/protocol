@@ -5,8 +5,11 @@ import { ISDQLCompensationBlock } from "@objects/interfaces/ISDQLCompensationBlo
 import { ISDQLInsightsBlock } from "@objects/interfaces/ISDQLInsightsBlock.js";
 import { ISDQLQueriesBlock } from "@objects/interfaces/ISDQLQueriesBlock.js";
 import { ISDQLQuestionBlock } from "@objects/interfaces/ISDQLQuestionBlock.js";
-
-import { URLString, ISO8601DateString } from "@objects/primitives/index.js";
+import {
+  URLString,
+  ISO8601DateString,
+  IpfsCID,
+} from "@objects/primitives/index.js";
 
 export interface ISDQLQueryObject {
   name: string;
@@ -15,6 +18,8 @@ export interface ISDQLQueryObject {
   timestamp: ISO8601DateString;
   expiry: ISO8601DateString;
   description: string;
+  image?: IpfsCID;
+  points?: string;
   business: string;
   ads: ISDQLAdsBlock;
   queries: ISDQLQueriesBlock;

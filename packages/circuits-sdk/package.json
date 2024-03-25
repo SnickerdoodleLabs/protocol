@@ -1,0 +1,53 @@
+{
+  "name": "@snickerdoodlelabs/circuits-sdk",
+  "version": "1.0.0",
+  "description": "ZK-Snickerdoodle circuit wrappers for Snickerdoodle Protocol",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SnickerdoodleLabs/protocol.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
+  },
+  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/circuits-sdk#readme",
+  "author": "Charlie Sibbach <charlie@snickerdoodlelabs.io>",
+  "keywords": [
+    "ZK-Snarks",
+    "Snickerdoodle",
+    "Crypto"
+  ],
+  "main": "dist/index.js",
+  "module": "./dist/index.js",
+  "files": [
+    "dist",
+    "src",
+    "!dist/test",
+    "!dist/tsconfig.tsbuildinfo",
+    "!test",
+    "!tsconfig.json"
+  ],
+  "scripts": {
+    "alias": "tsc-alias && tsc-alias -p test/tsconfig.json",
+    "alias-with-copyfiles": "yarn copy-files && tsc-alias",
+    "build": "yarn clean && yarn compile",
+    "clean": "npx rimraf dist tsconfig.tsbuildinfo",
+    "compile": "npx tsc --build && cd ../.. && yarn alias",
+    "copy-files": "copyfiles -u 1 src/**/*.d.ts dist/",
+    "prepare": "yarn build",
+    "prepublish": "yarn build",
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --maxWorkers=50% --coverage --passWithNoTests"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@snickerdoodlelabs/circuits": "workspace:^",
+    "@snickerdoodlelabs/common-utils": "workspace:^",
+    "@snickerdoodlelabs/objects": "workspace:^",
+    "inversify": "^6.0.2",
+    "neverthrow": "^5.1.0",
+    "neverthrow-result-utils": "^2.0.2",
+    "o1js": "^0.16.2",
+    "uuid": "^8.3.0"
+  }
+}

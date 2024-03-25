@@ -9,7 +9,6 @@ import {
   EvaluationError,
   EVMContractAddress,
   IpfsCID,
-  PossibleReward,
   RequestForData,
   UninitializedError,
   MarketplaceListing,
@@ -17,8 +16,6 @@ import {
   PagedResponse,
   PagingRequest,
   ConsentContractError,
-  ConsentToken,
-  EVMPrivateKey,
   DuplicateIdInSchema,
   EvalNotImplementedError,
   MissingTokenConstructorError,
@@ -43,8 +40,6 @@ import {
   IQueryServiceType,
 } from "@core/interfaces/business/index.js";
 import {
-  IConsentTokenUtilsType,
-  IConsentTokenUtils,
   IQueryParsingEngineType,
   IQueryParsingEngine,
 } from "@core/interfaces/business/utilities/index.js";
@@ -81,8 +76,6 @@ export class MarketplaceService implements IMarketplaceService {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(IConfigProviderType)
     protected configProvider: IConfigProvider,
-    @inject(IConsentTokenUtilsType)
-    protected consentTokenUtils: IConsentTokenUtils,
     @inject(IContextProviderType)
     protected contextProvider: IContextProvider,
     @inject(IDataWalletUtilsType)

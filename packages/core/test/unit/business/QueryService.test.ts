@@ -7,11 +7,9 @@ import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-
 import { ICryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   BlockNumber,
-  ConsentToken,
   DataPermissions,
   EQueryProcessingStatus,
   ERewardType,
-  EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
   EarnedReward,
@@ -28,6 +26,7 @@ import {
   UninitializedError,
   UnixTimestamp,
   IQueryDeliveryItems,
+  OptInInfo,
 } from "@snickerdoodlelabs/objects";
 import {
   ISDQLQueryWrapperFactory,
@@ -40,13 +39,12 @@ import "reflect-metadata";
 import * as td from "testdouble";
 
 import { QueryService } from "@core/implementations/business/index.js";
-import {
-  IConsentTokenUtils,
-  IQueryParsingEngine,
-} from "@core/interfaces/business/utilities/index.js";
+import { IQuestionnaireService } from "@core/interfaces/business";
+import { IQueryParsingEngine } from "@core/interfaces/business/utilities/index.js";
 import {
   IConsentContractRepository,
   ILinkedAccountRepository,
+  IPermissionRepository,
   ISDQLQueryRepository,
 } from "@core/interfaces/data/index.js";
 import {
@@ -55,15 +53,17 @@ import {
 } from "@core/interfaces/utilities/index.js";
 import {
   avalanche1AstInstance,
-  dataWalletAddress,
+  commitment1,
+  commitment1Index,
   dataWalletKey,
   defaultInsightPlatformBaseUrl,
+  identityNullifier,
+  identityTrapdoor,
 } from "@core-tests/mock/mocks/index.js";
 import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
-import { IQuestionnaireService } from "@core/interfaces/business";
 
 const now = UnixTimestamp(12345);
 const then = UnixTimestamp(2345);
@@ -84,7 +84,7 @@ const queryDeliveryItems: IQueryDeliveryItems = {
 
 const tokenId = TokenId(BigInt(0));
 
-const dataPermissions = DataPermissions.createWithAllPermissions();
+const dataPermissions = new DataPermissions("" as EVMContractAddress, [], []);
 
 const rewardParameter = {
   recipientAddress: {
@@ -126,14 +126,22 @@ const earnedReward = new EarnedReward(
 );
 
 const earnedRewards = [earnedReward];
+const commitmentIndex = 1;
+
+const optInInfo = new OptInInfo(
+  consentContractAddress,
+  identityNullifier,
+  identityTrapdoor,
+  commitment1,
+);
 
 class QueryServiceMocks {
-  public consentTokenUtils: IConsentTokenUtils;
   public dataWalletUtils: IDataWalletUtils;
   public queryParsingEngine: IQueryParsingEngine;
   public questionnaireService: IQuestionnaireService;
   public sdqlQueryRepo: ISDQLQueryRepository;
   public insightPlatformRepo: IInsightPlatformRepository;
+  public permissionRepository: IPermissionRepository;
   public consentContractRepo: IConsentContractRepository;
   public contextProvider: ContextProviderMock;
   public configProvider: IConfigProvider;
@@ -143,20 +151,13 @@ class QueryServiceMocks {
   public sdqlQueryWrapperFactory: ISDQLQueryWrapperFactory;
   public logUtils: ILogUtils;
 
-  public consentToken = new ConsentToken(
-    consentContractAddress,
-    EVMAccountAddress(dataWalletAddress),
-    tokenId,
-    dataPermissions,
-  );
-
   public constructor() {
-    this.consentTokenUtils = td.object<IConsentTokenUtils>();
     this.dataWalletUtils = td.object<IDataWalletUtils>();
     this.queryParsingEngine = td.object<IQueryParsingEngine>();
     this.questionnaireService = td.object<IQuestionnaireService>();
     this.sdqlQueryRepo = td.object<ISDQLQueryRepository>();
     this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
+    this.permissionRepository = td.object<IPermissionRepository>();
     this.consentContractRepo = td.object<IConsentContractRepository>();
     this.contextProvider = new ContextProviderMock();
     this.configProvider = new ConfigProviderMock();
@@ -169,7 +170,8 @@ class QueryServiceMocks {
     td.when(
       this.insightPlatformRepo.deliverInsights(
         consentContractAddress,
-        tokenId,
+        identityTrapdoor,
+        identityNullifier,
         queryCID2,
         queryDeliveryItems,
         td.matchers.argThat((val: IDynamicRewardParameter[]) => {
@@ -185,7 +187,8 @@ class QueryServiceMocks {
               rewardParameter.recipientAddress.value
           );
         }),
-        derivedPrivateKey,
+        [commitment1],
+        0, //anonymitySetStart
         defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(okAsync(earnedRewards));
@@ -247,42 +250,38 @@ class QueryServiceMocks {
 
     // ConsentContractRepository ---------------------------------------------
     td.when(
-      this.consentContractRepo.isAddressOptedIn(consentContractAddress),
-    ).thenReturn(okAsync(true));
+      this.consentContractRepo.getCommitmentIndex(consentContractAddress),
+    ).thenReturn(okAsync(commitmentIndex));
     td.when(
-      this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
-    ).thenReturn(okAsync(this.consentToken));
-
-    td.when(
-      this.dataWalletUtils.deriveOptInPrivateKey(
+      this.dataWalletUtils.deriveOptInInfo(
         consentContractAddress,
         dataWalletKey,
       ),
-    ).thenReturn(okAsync(derivedPrivateKey));
+    ).thenReturn(okAsync(optInInfo));
+    td.when(
+      this.consentContractRepo.getCommitmentIndex(consentContractAddress),
+    ).thenReturn(okAsync(commitment1Index));
+    td.when(
+      this.consentContractRepo.getCommitmentCount(consentContractAddress),
+    ).thenReturn(okAsync(1));
+    td.when(
+      this.consentContractRepo.getAnonymitySet(consentContractAddress, 0, 1),
+    ).thenReturn(okAsync([commitment1]));
 
     // TimeUtils ------------------------------------------------------
     td.when(this.timeUtils.getUnixNow()).thenReturn(now as never);
 
     // QueryParsingEngine
     td.when(
-      this.queryParsingEngine.handleQuery(
-        sdqlQuery,
-        this.consentToken.dataPermissions,
-      ),
+      this.queryParsingEngine.handleQuery(sdqlQuery, dataPermissions),
     ).thenReturn(okAsync(queryDeliveryItems));
 
     td.when(
-      this.queryParsingEngine.handleQuery(
-        sdqlQuery2,
-        this.consentToken.dataPermissions,
-      ),
+      this.queryParsingEngine.handleQuery(sdqlQuery2, dataPermissions),
     ).thenReturn(okAsync(queryDeliveryItems));
 
     td.when(
-      this.queryParsingEngine.handleQuery(
-        sdqlQuery3,
-        this.consentToken.dataPermissions,
-      ),
+      this.queryParsingEngine.handleQuery(sdqlQuery3, dataPermissions),
     ).thenReturn(okAsync(queryDeliveryItems));
 
     td.when(this.queryParsingEngine.parseQuery(sdqlQuery)).thenReturn(
@@ -296,11 +295,11 @@ class QueryServiceMocks {
   }
   public factory(): QueryService {
     return new QueryService(
-      this.consentTokenUtils,
       this.dataWalletUtils,
       this.queryParsingEngine,
       this.sdqlQueryRepo,
       this.insightPlatformRepo,
+      this.permissionRepository,
       this.consentContractRepo,
       this.contextProvider,
       this.configProvider,
@@ -510,16 +509,16 @@ describe("QueryService.returnQueries() tests", () => {
   });
 });
 
-describe("getPossibleInisightAndAdKeys tests", () => {
-  test("get possbile insights and ad keys", async () => {
+describe("getPossibleInsightAndAdKeys tests", () => {
+  test("get possible insights and ad keys", async () => {
     const mocks = new QueryServiceMocks();
     const queryService = mocks.factory(); // new context
     td.when(mocks.sdqlQueryRepo.getSDQLQueryByCID(queryCID1)).thenReturn(
       okAsync(sdqlQuery),
     ); // QQ: MAKES A LOT OF SENSE
     td.when(
-      mocks.consentContractRepo.isAddressOptedIn(td.matchers.anything()),
-    ).thenReturn(okAsync(true));
+      mocks.consentContractRepo.getCommitmentIndex(td.matchers.anything()),
+    ).thenReturn(okAsync(1));
 
     await ResultUtils.combine([
       mocks.sdqlQueryRepo.getSDQLQueryByCID(queryCID1),
@@ -541,8 +540,8 @@ describe("getPossibleInisightAndAdKeys tests", () => {
       }
       // We have the query, next step is check if you actually have a consent token for this business
       return mocks.consentContractRepo
-        .isAddressOptedIn(consentContractAddress)
-        .andThen((addressOptedIn) => {
+        .getCommitmentIndex(consentContractAddress)
+        .andThen((commitmentIndex) => {
           return okAsync(null);
         })
         .andThen(() => {

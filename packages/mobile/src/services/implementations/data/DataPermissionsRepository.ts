@@ -1,9 +1,7 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  EWalletDataType,
-  HexString32,
-  DataPermissions,
-} from "@snickerdoodlelabs/objects";
+//@TODO MOBILE DATA PERMISSIONS
+
+/* import AsyncStorage from "@react-native-async-storage/async-storage";
+import { EWalletDataType } from "@snickerdoodlelabs/objects/src/enum/EWalletDataType";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
@@ -190,3 +188,4 @@ export class DataPermissionsRepository implements IDataPermissionsRepository {
     return okAsync(DataPermissions.createWithPermissions(_dataTypes));
   }
 }
+ */

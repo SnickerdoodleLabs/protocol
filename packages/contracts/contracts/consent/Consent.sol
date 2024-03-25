@@ -1,41 +1,26 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
-import "./IConsent.sol";
-import "./IConsentFactory.sol";
+//import "hardhat/console.sol";
 
-/// @title Consent
-/// @author Snickerdoodle Labs
-/// @notice Synamint Protocol Consent Registry Contract
-/// @dev This contract mints and burns non-transferable ERC721 consent tokens for users who opt in or out of sharing their data
-/// @dev The contract's owners or addresses that have the right role granted can initiate a request for data
-/// @dev The baseline contract was generated using OpenZeppelin's (OZ) Contracts Wizard and customized thereafter
-/// @dev The contract adopts OZ's upgradeable beacon proxy pattern and serves as an implementation contract
-/// @dev It is also compatible with OZ's meta-transaction library
+import {IConsent} from "./IConsent.sol";
+import {ContentObjectUpgradeable} from "../recomender/ContentObjectUpgradeable.sol";
+import {ERC7529Upgradeable} from "../erc7529/ERC7529Upgradeable.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
+import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
 contract Consent is
+    IConsent,
     Initializable,
-    PausableUpgradeable,
-    AccessControlEnumerableUpgradeable,
-    ERC721BurnableUpgradeable,
-    IConsent
+    ContentObjectUpgradeable,
+    ERC7529Upgradeable,
+    AccessControlUpgradeable,
+    PausableUpgradeable
 {
-    /// @dev Interface for ConsentFactory
-    IConsentFactory consentFactoryInstance;
-
-    /// @dev an unsorted tag array which this consent contract stakes against
-    Tag[] tags;
-
-    /// @dev helpful
-    mapping(string => uint256) public tagIndices;
-
-    /// @dev max number of attributes a consent contract can stake against
-    uint public maxTags;
+    /* Roles */
 
     /// @dev Role bytes
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -43,31 +28,27 @@ contract Consent is
     bytes32 public constant REQUESTER_ROLE = keccak256("REQUESTER_ROLE");
     bytes32 public constant STAKER_ROLE = keccak256("STAKER_ROLE");
 
-    /// @dev Base uri field used to hold marketplace listing content
-    string public baseURI;
+    /* Storage Variables */
 
-    /// @dev Total supply of Consent tokens
-    uint256 public totalSupply;
+    /// @dev URI that points to info about this consent contract
+    string public baseURI;
 
     /// @dev Flag of whether open opt in is disabled or not
     bool public openOptInDisabled;
 
-    /// @dev Trusted forwarder address for meta-transactions
-    address public trustedForwarder;
-
-    /// @dev Array of trusted domains
-    string[] domains;
-
     /// @dev Oldest block that should be scanned for requestForData events
     uint public queryHorizon;
 
-    /// @dev mapping from token id to consent token permissions
-    mapping(uint256 => bytes32) public agreementFlagsArray;
+    /// @dev map from a identity commitment to an index in commitmentArray indicating if the commitment as been registered
+    mapping(bytes32 => uint256) commitments;
 
-    /// @dev the maximum number of consent tokens that can be issued
-    uint public maxCapacity;
+    /// @dev array used for fetch an anonymity set from existing commitments
+    bytes32[] private commitmentArray;
 
-    /* MODIFIERS */
+    /// @dev used for private audiences to prevent replay attack
+    mapping(uint256 => bool) private nonces;
+
+    /* Modifiers */
 
     /// Checks if open opt in is current disabled
     modifier whenNotDisabled() {
@@ -78,37 +59,27 @@ contract Consent is
         _;
     }
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
     /// @notice Initializes the contract
     /// @dev Uses the initializer modifier to to ensure the contract is only initialized once
-    /// @param _trustedForwarder Address of EIP2771-compatible meta-tx forwarding contract
     /// @param _consentOwner Address of the owner of this contract
     /// @param baseURI_ The base uri
-    /// @param _name Name of the Consent Contract
     /// @param _contractFactoryAddress address of the originating consent factory
     function initialize(
-        address _trustedForwarder,
         address _consentOwner,
         string memory baseURI_,
-        string memory _name,
         address _contractFactoryAddress
     ) public initializer {
-        __ERC721_init(_name, "CONSENT");
         __Pausable_init();
         __AccessControl_init();
-        __ERC721Burnable_init();
-
-        // set the consentFactoryAddress
-        consentFactoryInstance = IConsentFactory(_contractFactoryAddress);
-        maxTags = consentFactoryInstance.maxTagsPerListing(); // it's assumed maxTags will only be increased in the future
-
-        // set trusted forwarder for meta-txs
-        trustedForwarder = _trustedForwarder;
+        __ContentObject_init(_contractFactoryAddress);
 
         // set the queryHorizon to be the current block number;
         queryHorizon = block.number;
-
-        // set the initial maximum capacity (we set to a relatively large number)
-        maxCapacity = 100000;
 
         // set the base uri so the consent contract has content to display in the marketplace
         baseURI = baseURI_;
@@ -121,403 +92,63 @@ contract Consent is
         super._grantRole(STAKER_ROLE, _consentOwner);
     }
 
-    /* CORE FUNCTIONS */
+    /* Function Implemenations */
 
-    /// @notice Get the number of tags staked by this contract
-    function getNumberOfStakedTags() external view returns (uint256) {
-        return tags.length;
+    /// @notice Get the current total number of identity commitments
+    function totalSupply() external view returns (uint256) {
+        return commitmentArray.length;
     }
 
-    /// @notice Get the tag array (we assume the size of this array is small enough to return without windowing)
-    function getTagArray() external view returns (Tag[] memory) {
-        return tags;
-    }
-
-    /// @notice Adds a new tag to the global namespace and stakes it for this consent contract
-    /// @dev  _newSlot -> _existingSlot
-    /// @param tag Human readable string denoting the target tag to stake
-    /// @param _newSlot New linked list entry that will point to _downstream slot
-    function newGlobalTag(
-        string memory tag,
-        uint256 _newSlot
-    ) external onlyRole(STAKER_ROLE) {
-        // check
-        require(
-            tags.length < maxTags,
-            "Consent Contract: Tag budget exhausted"
-        );
-        require(
-            tagIndices[tag] == 0,
-            "Consent Contract: This tag is already staked by this contract"
-        );
-
-        // effects
-        tags.push(Tag(_newSlot, tag, _msgSender()));
-        tagIndices[tag] = tags.length;
-
-        // interaction
-        consentFactoryInstance.initializeTag(tag, _newSlot);
-    }
-
-    /// @notice Stakes a tag that has already been added to the global namespace but hasn't been used locally yet
-    /// @dev  _newSlot -> _existingSlot
-    /// @param tag Human readable string denoting the target tag to stake
-    /// @param _newSlot New linked list entry that will point to _downstream slot
-    /// @param _existingSlot upstream pointer that will point to _newSlot
-    function newLocalTagUpstream(
-        string memory tag,
-        uint256 _newSlot,
-        uint256 _existingSlot
-    ) external onlyRole(STAKER_ROLE) {
-        // check
-        require(
-            tags.length < maxTags,
-            "Consent Contract: Tag budget exhausted"
-        );
-        require(
-            tagIndices[tag] == 0,
-            "Consent Contract: This tag is already staked by this contract"
-        );
-
-        // effects
-        tags.push(Tag(_newSlot, tag, _msgSender()));
-        tagIndices[tag] = tags.length;
-
-        // interaction
-        consentFactoryInstance.insertUpstream(tag, _newSlot, _existingSlot);
-    }
-
-    /// @notice Stakes a tag that has already been added to the global namespace but hasn't been used locally yet
-    /// @dev  _existingSlot -> _newSlot
-    /// @param tag Human readable string denoting the target tag to stake
-    /// @param _existingSlot upstream pointer that will point to _newSlot
-    /// @param _newSlot New linked list entry that will point to _downstream slot
-    function newLocalTagDownstream(
-        string memory tag,
-        uint256 _existingSlot,
-        uint256 _newSlot
-    ) external onlyRole(STAKER_ROLE) {
-        // check
-        require(
-            tags.length < maxTags,
-            "Consent Contract: Tag budget exhausted"
-        );
-        require(
-            tagIndices[tag] == 0,
-            "Consent Contract: This tag is already staked by this contract"
-        );
-
-        // effects
-        tags.push(Tag(_newSlot, tag, _msgSender()));
-        tagIndices[tag] = tags.length;
-
-        // interaction
-        consentFactoryInstance.insertDownstream(tag, _existingSlot, _newSlot);
-    }
-
-    /// @notice Replaces an existing listing that has expired (works for head and tail listings)
-    /// @param tag Human readable string denoting the target tag to stake
-    /// @param _slot The expired slot to replace with a new listing
-    function replaceExpiredListing(
-        string memory tag,
-        uint256 _slot
-    ) external onlyRole(STAKER_ROLE) {
-        // check
-        require(
-            tags.length < maxTags,
-            "Consent Contract: Tag budget exhausted"
-        );
-        require(
-            tagIndices[tag] == 0,
-            "Consent Contract: This tag is already staked by this contract"
-        );
-
-        // effects
-        tags.push(Tag(_slot, tag, _msgSender()));
-        tagIndices[tag] = tags.length;
-
-        // interaction
-        consentFactoryInstance.replaceExpiredListing(tag, _slot);
-    }
-
-    /// @notice Removes this contract's listing under the specified tag
-    /// @param tag Human readable string denoting the target tag to destake
-    function removeListing(
-        string memory tag
-    ) external onlyRole(STAKER_ROLE) returns (string memory) {
-        // check
-        require(
-            tagIndices[tag] > 0,
-            "Consent Contract: This tag has not been staked"
-        );
-
-        // effects - we use the array element deletion pattern used by OpenZeppelin
-        uint256 lastIndex = tags.length - 1;
-        uint256 removalIndex = tagIndices[tag] - 1; // remember to decriment the stored value by 1
-
-        Tag memory lastListing = tags[lastIndex];
-
-        uint256 removalSlot = tags[removalIndex].slot;
-        tags[removalIndex] = lastListing;
-        tagIndices[lastListing.tag] = removalIndex + 1; // add 1 back for storage in tagIndices
-
-        delete tagIndices[tag];
-        tags.pop();
-
-        // interaction
-        // when removing a listing, if it has expired, the slot may have been usurped by another user
-        // we must catch this scenario as it is a valid token mechanic
-        try consentFactoryInstance.removeListing(tag, removalSlot) {
-            return "Listing removed";
-        } catch Error(string memory /*reason*/) {
-            // we don't revert because we want to reclaimed the staked tag
-            return "Listing was replaced by another contract";
+    /// @notice Returns the index slots for each identity commitment in the input array
+    /// @dev If a commitment doesn't exist, its index will be 0
+    /// @param commitsToCheck an array of 32 byte identity commitments
+    function checkCommitments(
+        bytes32[] calldata commitsToCheck
+    ) external view returns (uint256[] memory) {
+        uint256 arraySize = commitsToCheck.length;
+        uint256[] memory commitmentIndexes = new uint256[](arraySize);
+        for (uint i = 0; i < arraySize; i++) {
+            commitmentIndexes[i] = commitments[commitsToCheck[i]];
         }
+        return commitmentIndexes;
     }
 
-    /// @notice Allows any user to opt in to sharing their data
-    /// @dev Mints user a Consent token
-    /// @param tokenId User's Consent token id to mint against
-    /// @param agreementFlags A bytes32 array of the user's consent token flag indicating their data permissioning settings
-    function optIn(
-        uint256 tokenId,
-        bytes32 agreementFlags
-    ) external whenNotPaused whenNotDisabled {
-        /// if user has opted in before, revert
-        require(
-            balanceOf(_msgSender()) == 0,
-            "Consent: User has already opted in"
-        );
-
-        /// if consent cohort is at capacity, revert
-        require(!_atCapacity(), "Consent: cohort is at capacity");
-
-        /// mint the consent token and set its agreement uri
-        _safeMint(_msgSender(), tokenId);
-
-        _updateCounterAndTokenFlags(tokenId, agreementFlags);
-
-        /// increase total supply count, this is 20,0000 gas
-        totalSupply++;
-    }
-
-    /// @notice Allows specific users to opt in to sharing their data
-    /// @dev For restricted opt ins, the owner will first sign a digital signature on-chain
-    /// @dev The function is called with the signature from SIGNER_ROLE
-    /// @dev If the message signature is valid, the user calling this function is minted a Consent token
-    /// @param tokenId User's Consent token id to mint against (also serves as a nonce)
-    /// @param agreementFlags A bytes32 array of the user's consent token flag indicating their data permissioning settings (this param is not included in the sig hash)
-    /// @param signature Signature to be recovered from the hash of the target contract address, target recipient address, and token id to be redeemeed
-    function restrictedOptIn(
-        uint256 tokenId,
-        bytes32 agreementFlags,
-        bytes memory signature
-    ) external whenNotPaused {
-        /// if user has opted in before, revert
-        require(
-            balanceOf(_msgSender()) == 0,
-            "Consent: User has already opted in"
-        );
-
-        /// if consent cohort is at capacity, revert
-        require(!_atCapacity(), "Consent: cohort is at capacity");
-
-        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(
-            keccak256(abi.encodePacked(address(this), _msgSender(), tokenId))
-        );
-
-        /// check the signature against the payload
-        require(
-            _isValidSignature(hash, signature),
-            "Consent: Contract owner did not sign this message"
-        );
-
-        /// mint the consent token and set its uri
-        _safeMint(_msgSender(), tokenId);
-        _updateCounterAndTokenFlags(tokenId, agreementFlags);
-
-        /// increase total supply count
-        totalSupply++;
-    }
-
-    /// @notice Allows Signature Issuer to send anonymous invitation link to end user to opt in
-    /// @dev For restricted opt ins, the owner will first sign a digital signature on-chain
-    /// @dev The function is called with the a signature from SIGNER_ROLE
-    /// @dev If the message signature is valid, the user calling this function is minted a Consent token
-    /// @param tokenId User's Consent token id to mint against (also serves as a nonce)
-    /// @param agreementFlags A bytes32 array of the user's consent token flag indicating their data permissioning settings (this param is not included in the sig hash)
-    /// @param signature Signature to be recovered from the hash of the target contract address and token id to be redeemeed
-    function anonymousRestrictedOptIn(
-        uint256 tokenId,
-        bytes32 agreementFlags,
-        bytes memory signature
-    ) external whenNotPaused {
-        /// if user has opted in before, revert
-        require(
-            balanceOf(_msgSender()) == 0,
-            "Consent: User has already opted in"
-        );
-
-        /// if consent cohort is at capacity, revert
-        require(!_atCapacity(), "Consent: cohort is at capacity");
-
-        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(
-            keccak256(abi.encodePacked(address(this), tokenId))
-        );
-        /// check the signature against the payload
-        /// Any account possessing the signature and payload can call this method
-        require(
-            _isValidSignature(hash, signature),
-            "Consent: Contract owner did not sign this message"
-        );
-
-        /// mint the consent token and set its uri
-        _safeMint(_msgSender(), tokenId);
-        _updateCounterAndTokenFlags(tokenId, agreementFlags);
-
-        /// increase total supply count before interaction
-        totalSupply++;
-    }
-
-    /// @notice Allows users to opt out of sharing their data
-    /// @dev burns the user's consent token
-    /// @param tokenId Token id of token being burnt
-    function optOut(uint256 tokenId) external {
-        /// burn checks if _msgSender() is owner of tokenId
-        /// burn also reduces totalSupply
-        /// burn also remove user's consent contract to ConsentFactory
-        burn(tokenId);
-    }
-
-    /// @notice Facilitates entity's request for data
-    /// @param ipfsCID IPFS CID containing SDQL Query Instructions
-    function requestForData(
-        string memory ipfsCID
-    ) external onlyRole(REQUESTER_ROLE) {
-        /// TODO implement fee structure
-
-        emit RequestForData(_msgSender(), ipfsCID, ipfsCID);
-    }
-
-    /// @notice This function allows an EOA with the DEFAULT_ADMIN_ROLE to update the maxCapacity variable
-    /// @param _maxCapacity Token id being updated
-    function updateMaxCapacity(
-        uint _maxCapacity
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        // prevent setting the new maxCapacity below the current value of totalSupply
-        require(
-            _maxCapacity >= totalSupply,
-            "Consent: cannot reduce capacity below current enrollment."
-        );
-
-        maxCapacity = _maxCapacity;
-    }
-
-    /// price for data request (calculates based on number of tokens minted (opt-ed in))
-
-    /// @notice Allows user to update their agreement flags
-    /// @param tokenId Token id being updated
-    /// @param newAgreementFlags a bytes32 array of a user's new agreement flag (bits that need to change should be 1, those that should remain the same should be 0)
-    function updateAgreementFlags(
-        uint256 tokenId,
-        bytes32 newAgreementFlags
-    ) external {
-        /// check if user is msgSender() of token Id
-        require(
-            _isApprovedOrOwner(_msgSender(), tokenId),
-            "Consent: caller is not token owner"
-        );
-
-        /// update the data access permissions for the user
-        _updateCounterAndTokenFlags(tokenId, newAgreementFlags);
-    }
-
-    /* SETTERS */
-
-    function setQueryHorizon(
-        uint queryHorizon_
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(
-            queryHorizon_ > queryHorizon,
-            "New horizon must be strictly later than current horizon."
-        );
-        queryHorizon = queryHorizon_;
-    }
-
-    /// @notice update the trusted forwarder address based on factory settings
-    function updateTrustedForwarder() external onlyRole(DEFAULT_ADMIN_ROLE) {
-        trustedForwarder = consentFactoryInstance.trustedForwarder();
-    }
-
-    /// @notice Admin endpoint to change the maximum number of tags a consent contract can stake against
-    function updateMaxTagsLimit() external onlyRole(DEFAULT_ADMIN_ROLE) {
-        maxTags = consentFactoryInstance.maxTagsPerListing();
-    }
-
-    /// @notice Sets the Consent tokens base URI
-    /// @param newURI New base uri
-    function setBaseURI(
-        string memory newURI
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        baseURI = newURI;
-    }
-
-    /// @notice Add a domain to the domains array
-    /// @param domain Domain to add
-    function addDomain(
-        string memory domain
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        string[] memory domainsArr = domains;
-
-        // check if domain already exists in the array
-        for (uint256 i; i < domains.length; ) {
-            if (
-                keccak256(abi.encodePacked((domainsArr[i]))) ==
-                keccak256(abi.encodePacked((domain)))
-            ) {
-                revert("Consent : Domain already added");
-            }
-            unchecked {
-                ++i;
-            }
+    /// @notice Used to check if some nonces have been used before
+    /// @dev returns an array of bools
+    /// @param noncesToCheck an array of uint256 ints
+    function checkNonces(
+        uint256[] calldata noncesToCheck
+    ) external view returns (bool[] memory) {
+        uint256 arraySize = noncesToCheck.length;
+        bool[] memory noncesUsed = new bool[](arraySize);
+        for (uint i = 0; i < arraySize; i++) {
+            noncesUsed[i] = nonces[noncesToCheck[i]];
         }
-
-        domains.push(domain);
-
-        emit LogAddDomain(domain);
+        return noncesUsed;
     }
 
-    /// @notice Removes a domain from the domains array
-    /// @param domain Domain to remove
-    function removeDomain(
-        string memory domain
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        string[] memory domainsArr = domains;
+    /// @notice Allows address with PAUSER_ROLE to disable open opt ins
+    function disableOpenOptIn() external onlyRole(PAUSER_ROLE) {
+        openOptInDisabled = true;
+    }
 
-        // A check that is incremented if a requested domain exists
-        uint8 flag;
+    /// @notice Fetch a set of identity commitments for use as an anonymity set
+    /// @param start first index to return from commitments array (inclusive)
+    /// @param stop last index to return from commitments array (not inclusive)
+    function fetchAnonymitySet(
+        uint256 start,
+        uint256 stop
+    ) external view returns (bytes32[] memory) {
+        uint setSize = stop - start;
+        bytes32[] memory anonymitySet = new bytes32[](setSize);
+        for (uint i = 0; i < setSize; i++)
+            anonymitySet[i] = commitmentArray[i + start];
+        return anonymitySet;
+    }
 
-        for (uint256 i; i < domains.length; ) {
-            if (
-                keccak256(abi.encodePacked((domainsArr[i]))) ==
-                keccak256(abi.encodePacked((domain)))
-            ) {
-                // replace the index to delete with the last element
-                domains[i] = domains[domains.length - 1];
-                // delete the last element of the array
-                domains.pop();
-                // update to flag to indicate a match was found
-                flag++;
-
-                emit LogRemoveDomain(domain);
-
-                break;
-            }
-            unchecked {
-                ++i;
-            }
-        }
-        require(flag > 0, "Consent : Domain is not in the list");
+    /// @notice Allows address with PAUSER_ROLE to enable open opt ins
+    function enableOpenOptIn() external onlyRole(PAUSER_ROLE) {
+        openOptInDisabled = false;
     }
 
     /// @notice Allows address with PAUSER_ROLE to pause the contract
@@ -530,81 +161,224 @@ contract Consent is
         _unpause();
     }
 
-    /// @notice Allows address with PAUSER_ROLE to disable open opt ins
-    function disableOpenOptIn() external onlyRole(PAUSER_ROLE) {
-        openOptInDisabled = true;
+    /// @notice Sets the Consent tokens base URI
+    /// @param newURI New base uri
+    function setBaseURI(
+        string calldata newURI
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        baseURI = newURI;
     }
 
-    /// @notice Allows address with PAUSER_ROLE to enable open opt ins
-    function enableOpenOptIn() external onlyRole(PAUSER_ROLE) {
-        openOptInDisabled = false;
+    function setQueryHorizon(
+        uint queryHorizon_
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(
+            queryHorizon_ > queryHorizon,
+            "New horizon must be strictly later than current horizon."
+        );
+        queryHorizon = queryHorizon_;
     }
 
-    /* GETTER */
+    /// @notice Allows any user to opt in to sharing their data
+    /// @dev Registers an identity commitment for a user
+    /// @param commitment A bytes32 identity commitment computed with Posiedon hash function
+    function optIn(bytes32 commitment) external whenNotPaused whenNotDisabled {
+        // don't allow commitments to be committed twice
+        require(commitments[commitment] == 0, "Commitment exists already");
 
-    /// @dev Inherited from ERC2771ContextUpgradeable to embed its features directly in this contract
-    /// @dev This is a workaround as ERC2771ContextUpgradeable does not have an _init() function
-    /// @dev Allows the factory to deploy a BeaconProxy that initiates a Consent contract without a constructor
-    function isTrustedForwarder(
-        address forwarder
-    ) public view virtual returns (bool) {
-        return forwarder == trustedForwarder;
+        // add to commitment array for fetching anonymity set
+        commitmentArray.push(commitment);
+
+        // save the index of the commitment, indexing must start at 1
+        commitments[commitment] = commitmentArray.length;
+
+        emit Commitment(commitmentArray.length, commitment);
     }
 
-    /// @notice Convenient function for asking contract if there is room left in the campaign in one function call
-    function _atCapacity() internal view virtual returns (bool atCapacity) {
-        return (totalSupply == maxCapacity);
-    }
+    /// @notice Allows multiple identity commitments to be written at once
+    /// @dev Registers a batch of identity commitments for multiple users
+    /// @param commitmentBatch A bytes32 array of identity commitments computed with Posiedon hash function
+    function batchOptIn(
+        bytes32[] calldata commitmentBatch
+    ) external whenNotPaused whenNotDisabled {
+        // don't allow commitments to be committed twice
+        uint sizeBatch = commitmentBatch.length;
+        for (uint i = 0; i < sizeBatch; i++) {
+            bytes32 commitment = commitmentBatch[i];
+            require(commitments[commitment] == 0, "Commitment exists already");
+            // add to commitment array for fetching anonymity set
+            commitmentArray.push(commitment);
+            // save the index of the commitment, indexing must start at 1
+            commitments[commitment] = commitmentArray.length;
 
-    /// @notice Gets the Consent tokens base URI
-    function _baseURI()
-        internal
-        view
-        virtual
-        override
-        returns (string memory baseURI_)
-    {
-        return baseURI;
-    }
-
-    /// @notice Gets the array of registered domains
-    /// @return domainsArr Array of registered domains
-    function getDomains() external view returns (string[] memory domainsArr) {
-        return domains;
-    }
-
-    /* INTERNAL FUNCTIONS */
-    /// @notice Updates the token's current counter and agreement flags
-    /// @param tokenId Token id being updated
-    /// @param flagsToUpdate Bytes32 containing flags to be updated
-    function _updateCounterAndTokenFlags(
-        uint256 tokenId,
-        bytes32 flagsToUpdate
-    ) internal {
-        /// Get current agreement flags
-        bytes32 currentAgreementFlags = agreementFlagsArray[tokenId];
-
-        /// Flip flags that need to be updated
-        bytes32 XOR = currentAgreementFlags ^ flagsToUpdate;
-
-        /// Update the user with new agreement flags
-        agreementFlagsArray[tokenId] = XOR;
-
-        /// TODO: update counter and then update the cost to call requestForData
-    }
-
-    /// @notice Kernighan’s Algorithm to count number of sets bits in an integer
-    /// @param tokenId Token id to check bit count for
-    function _getBitCountByTokenId(
-        uint256 tokenId
-    ) public view returns (uint256) {
-        uint256 count = 0;
-        uint256 num = uint256(agreementFlagsArray[tokenId]);
-        while (num > 0) {
-            count += num & 1;
-            num >>= 1;
+            emit Commitment(commitmentArray.length, commitment);
         }
-        return count;
+    }
+
+    /// @notice Allows Signature Issuer to send anonymous invitation link to end user to opt in
+    /// @dev For restricted opt ins, the owner must first sign a nonce to prevent replays
+    /// @dev The function is called with the signature from SIGNER_ROLE
+    /// @dev If the message signature is valid, the user calling this may create an identity commitment
+    /// @param nonce A one-time use integer to commit without replay
+    /// @param commitment A bytes32 identity commitment computed with Posiedon hash function
+    /// @param signature Signature to be recovered from the hash of the target contract address and nonce
+    function restrictedOptIn(
+        uint256 nonce,
+        bytes32 commitment,
+        bytes calldata signature
+    ) external whenNotPaused {
+        require(!nonces[nonce], "Consent: nonce already used");
+
+        bytes32 hash = MessageHashUtils.toEthSignedMessageHash(
+            keccak256(abi.encodePacked(address(this), nonce))
+        );
+
+        /// check the signature against the payload
+        require(
+            _isValidSignature(hash, signature),
+            "Consent: Contract owner did not sign this message"
+        );
+
+        // add to commitment array for fetching anonymity set
+        commitmentArray.push(commitment);
+
+        // save the index of the commitment, indexing must start at 1
+        commitments[commitment] = commitmentArray.length;
+
+        // set tokenId so that it cannot be used again
+        nonces[nonce] = true;
+
+        emit Commitment(commitmentArray.length, commitment);
+    }
+
+    /// @notice Facilitates entity's request for data
+    /// @param ipfsCID IPFS CID containing SDQL Query Instructions
+    function requestForData(
+        string calldata ipfsCID
+    ) external onlyRole(REQUESTER_ROLE) {
+        emit RequestForData(msg.sender, ipfsCID, ipfsCID);
+    }
+
+    /// @notice Adds a new tag to the global namespace and stakes it for this consent contract
+    /// @dev  2^256-1 <-> _newSlot <-> 0
+    /// @dev Caller must approve a sufficient amount of staking token before calling
+    /// @param tag Human readable string denoting the target tag to stake
+    /// @param stakingToken Address of the token used for staking recommender listings
+    /// @param stakeOwner Address that is staking the token and has already called approved
+    /// @param _newSlot New linked list entry that prime the linked list for this tag
+    function newGlobalTag(
+        string calldata tag,
+        address stakingToken,
+        address stakeOwner,
+        uint256 _newSlot
+    ) external onlyRole(STAKER_ROLE) {
+        _newGlobalTag(tag, stakingToken, stakeOwner, _newSlot);
+    }
+
+    /// @notice Stakes a tag that has already been added to the global namespace but hasn't been used locally yet
+    /// @dev  _newSlot <-> _existingSlot
+    /// @dev Caller must approve a sufficient amount of staking token before calling
+    /// @param tag Human readable string denoting the target tag to stake
+    /// @param stakingToken Address of the token used for staking recommender listings
+    /// @param stakeOwner Address that is staking the token and has already called approved
+    /// @param _newSlot New linked list entry that will point to _existingSlot slot
+    /// @param _existingSlot slot that will be ranked next lowest to _newSlot
+    function newLocalTagUpstream(
+        string calldata tag,
+        address stakingToken,
+        address stakeOwner,
+        uint256 _newSlot,
+        uint256 _existingSlot
+    ) external onlyRole(STAKER_ROLE) {
+        _newLocalTagUpstream(tag, stakingToken, stakeOwner, _newSlot, _existingSlot);
+    }
+
+    /// @notice Stakes a tag that has already been added to the global namespace but hasn't been used locally yet
+    /// @dev  _existingSlot -> _newSlot
+    /// @dev Caller must approve a sufficient amount of staking token before calling
+    /// @param tag Human readable string denoting the target tag to stake
+    /// @param stakingToken Address of the token used for staking recommender listings
+    /// @param stakeOwner Address that is staking the token and has already called approved
+    /// @param _existingSlot upstream pointer that will point to _newSlot
+    /// @param _newSlot New linked list entry that will be ranked right below _existingSlot
+    function newLocalTagDownstream(
+        string calldata tag,
+        address stakingToken,
+        address stakeOwner,
+        uint256 _existingSlot,
+        uint256 _newSlot
+    ) external onlyRole(STAKER_ROLE) {
+        _newLocalTagDownstream(tag, stakingToken, stakeOwner, _existingSlot, _newSlot);
+    }
+
+    /// @notice Move an existing listing from its current slot to upstream of a new existing slot
+    /// @dev This function assumes that tag is not the only member in the global list (i.e. getTagTotal(tag) > 1)
+    /// @dev This function also assumes that the listing is not expired
+    /// @dev Caller must approve a sufficient amount of staking token before calling
+    /// @param tag Human readable string denoting the target tag to stake
+    /// @param stakingToken Address of the token used for staking recommender listings
+    /// @param stakeOwner Address that is staking the token and has already called approved
+    /// @param _newSlot The new slot to move the listing to
+    /// @param _existingSlot The neighboring listing to _newSlow
+    function moveExistingListingUpstream(
+        string calldata tag,
+        address stakingToken,
+        address stakeOwner,
+        uint256 _newSlot,
+        uint256 _existingSlot
+    ) external onlyRole(STAKER_ROLE) {
+        _moveExistingListingUpstream(tag, stakingToken, stakeOwner, _newSlot, _existingSlot);
+    }
+
+    /// @notice Restakes a listing from this registry that has expired (works for head and tail listings)
+    /// @param tag Human readable string denoting the target tag to stake
+    function restakeExpiredListing(
+        string calldata tag,
+        address stakingToken
+    ) external onlyRole(STAKER_ROLE) {
+        _restakeExpiredListing(tag, stakingToken);
+    }
+
+    /// @notice Replaces an existing listing that has expired (works for head and tail listings)
+    /// @param tag Human readable string denoting the target tag to stake
+    /// @param stakingToken Address of the token used for staking recommender listings
+    /// @param stakeOwner Address that is staking the token and has already called approved
+    /// @param _slot The expired slot to replace with a new listing
+    function replaceExpiredListing(
+        string calldata tag,
+        address stakingToken,
+        address stakeOwner,
+        uint256 _slot
+    ) external onlyRole(STAKER_ROLE) {
+        _replaceExpiredListing(tag, stakingToken, stakeOwner, _slot);
+    }
+
+    /// @notice Removes this contract's listing under the specified tag
+    /// @dev either an address with STAKER_ROLE or a stake owner can call this function
+    /// @param tag Human readable string denoting the target tag to destake
+    /// @param stakingToken Address of the token used for staking recommender listings
+    function removeListing(
+        string calldata tag,
+        address stakingToken
+    ) external returns (string memory) {
+        uint tagIndex = _tagIndices(tag, stakingToken);
+        Tag memory tagObject = _getTag(stakingToken, tagIndex);
+        require(hasRole(STAKER_ROLE, msg.sender) || (msg.sender == tagObject.staker));
+        return _removeListing(tag, stakingToken);
+    }
+
+    /// @notice Add a domain to the domains array
+    /// @param domain Domain to add
+    function addDomain(string calldata domain) external onlyRole(STAKER_ROLE) {
+        _addDomain(domain);
+    }
+
+    /// @notice Removes a domain from the domains array
+    /// @param domain Domain to remove
+    function removeDomain(
+        string calldata domain
+    ) external onlyRole(STAKER_ROLE) {
+        _removeDomain(domain);
     }
 
     /// @notice Verify that a signature is valid
@@ -616,107 +390,11 @@ contract Consent is
         bytes memory signature
     ) internal view returns (bool) {
         // retrieve the signature's signer
-        address signer = ECDSAUpgradeable.recover(hash, signature);
+        address signer = ECDSA.recover(hash, signature);
 
         require(signer != address(0), "Consent: Signer cannot be 0 address.");
 
         // check if the recovered signature has the SIGNER_ROLE
         return hasRole(SIGNER_ROLE, signer);
-    }
-
-    /* OVERRIDES */
-
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 tokenId,
-        uint256 batchSize
-    ) internal override whenNotPaused {
-        require(
-            from == address(0) || to == address(0),
-            "Consent: Consent tokens are non-transferrable"
-        );
-        super._beforeTokenTransfer(from, to, tokenId, batchSize);
-    }
-
-    /// @dev Overload {_grantRole} to add ConsentFactory update
-    function _grantRole(
-        bytes32 role,
-        address account
-    ) internal virtual override(AccessControlEnumerableUpgradeable) {
-        super._grantRole(role, account);
-
-        /// update mapping in factory
-        consentFactoryInstance.addUserRole(account, role);
-    }
-
-    /// @dev Overload {_revokeRole} to add ConsentFactory update
-    function _revokeRole(
-        bytes32 role,
-        address account
-    ) internal virtual override(AccessControlEnumerableUpgradeable) {
-        super._revokeRole(role, account);
-
-        /// update mapping in factory
-        consentFactoryInstance.removeUserRole(account, role);
-    }
-
-    // The following functions are overrides required by Solidity.
-
-    function _burn(uint256 tokenId) internal override(ERC721Upgradeable) {
-        /// decrease total supply count
-        totalSupply--;
-
-        _updateCounterAndTokenFlags(tokenId, agreementFlagsArray[tokenId]);
-
-        super._burn(tokenId);
-    }
-
-    function tokenURI(
-        uint256 tokenId
-    ) public view override(ERC721Upgradeable) returns (string memory) {
-        return super.tokenURI(tokenId);
-    }
-
-    function supportsInterface(
-        bytes4 interfaceId
-    )
-        public
-        view
-        override(ERC721Upgradeable, AccessControlEnumerableUpgradeable)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
-    }
-
-    function _msgSender()
-        internal
-        view
-        virtual
-        override(ContextUpgradeable)
-        returns (address sender)
-    {
-        if (isTrustedForwarder(msg.sender)) {
-            // The assembly code is more direct than the Solidity version using `abi.decode`.
-            assembly {
-                sender := shr(96, calldataload(sub(calldatasize(), 20)))
-            }
-        } else {
-            return super._msgSender();
-        }
-    }
-
-    function _msgData()
-        internal
-        view
-        virtual
-        override(ContextUpgradeable)
-        returns (bytes calldata)
-    {
-        if (isTrustedForwarder(msg.sender)) {
-            return msg.data[:msg.data.length - 20];
-        } else {
-            return super._msgData();
-        }
     }
 }

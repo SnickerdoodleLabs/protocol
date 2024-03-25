@@ -84,6 +84,7 @@ import {
   JSONString,
   IProxyQuestionnaireMethods,
   NewQuestionnaireAnswer,
+  DataPermissions,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ethers } from "ethers";
@@ -406,12 +407,6 @@ export class SnickerdoodleIFrameProxy
     return this._createCall("getAvailableInvitationsCID", null);
   }
 
-  public getConsentContractURLs(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<URLString[], ProxyError> {
-    return this._createCall("getConsentContractURLs", { contractAddress });
-  }
-
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError> {
@@ -421,17 +416,17 @@ export class SnickerdoodleIFrameProxy
   }
   public updateAgreementPermissions(
     consentContractAddress: EVMContractAddress,
-    dataTypes: EWalletDataType[],
+    dataPermissions: DataPermissions,
   ): ResultAsync<void, ProxyError> {
     return this._createCall("updateAgreementPermissions", {
       consentContractAddress,
-      dataTypes,
+      dataPermissions,
     });
   }
-  public getAgreementPermissions(
+  public getDataPermissions(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<EWalletDataType[], ProxyError> {
-    return this._createCall("getAgreementPermissions", {
+  ): ResultAsync<DataPermissions, ProxyError> {
+    return this._createCall("getDataPermissions", {
       consentContractAddress,
     });
   }
@@ -529,14 +524,6 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
-  public getConsentCapacity(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<IConsentCapacity, ProxyError> {
-    return this._createCall("getConsentCapacity", {
-      contractAddress,
-    });
-  }
-
   public getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
@@ -544,7 +531,7 @@ export class SnickerdoodleIFrameProxy
     Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
     ProxyError
   > {
-    return this._createCall("getPossibleRewards", {
+    return this._createCall("getEarnedRewardsByContractAddress", {
       contractAddresses,
       timeoutMs,
     });

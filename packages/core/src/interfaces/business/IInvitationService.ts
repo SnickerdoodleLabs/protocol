@@ -25,6 +25,7 @@ import {
   OptInInfo,
   IUserAgreement,
   InvalidParametersError,
+  CircuitError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -44,17 +45,14 @@ export interface IInvitationService {
 
   acceptInvitation(
     invitation: Invitation,
-    dataPermissions: DataPermissions | null,
   ): ResultAsync<
     void,
     | PersistenceError
     | UninitializedError
-    | BlockchainProviderError
     | AjaxError
-    | MinimalForwarderContractError
-    | ConsentError
     | InvalidParametersError
-    | BlockchainCommonErrors
+    | CircuitError
+    | ConsentError
   >;
 
   rejectInvitation(
@@ -97,7 +95,10 @@ export interface IInvitationService {
     contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, PersistenceError>;
 
-  getAcceptedInvitations(): ResultAsync<OptInInfo[], PersistenceError>;
+  getAcceptedInvitations(): ResultAsync<
+    OptInInfo[],
+    PersistenceError | UninitializedError
+  >;
 
   getConsentContractCID(
     consentAddress: EVMContractAddress,
@@ -131,45 +132,27 @@ export interface IInvitationService {
     | PersistenceError
     | BlockchainCommonErrors
   >;
-  getConsentCapacity(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    IConsentCapacity,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | BlockchainCommonErrors
-  >;
 
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOldUserAgreement | IUserAgreement, IPFSError>;
 
-  getAgreementFlags(
+  getDataPermissions(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
-    HexString32,
-    | ConsentContractError
-    | UninitializedError
-    | BlockchainProviderError
-    | ConsentError
-    | PersistenceError
-    | ConsentFactoryContractError
-    | BlockchainCommonErrors
+    DataPermissions,
+    UninitializedError | ConsentError | PersistenceError
   >;
   updateDataPermissions(
     consentContractAddress: EVMContractAddress,
     dataPermissions: DataPermissions,
   ): ResultAsync<
     void,
-    | PersistenceError
     | UninitializedError
-    | ConsentError
     | ConsentContractError
-    | BlockchainProviderError
-    | MinimalForwarderContractError
-    | AjaxError
     | BlockchainCommonErrors
+    | PersistenceError
+    | ConsentError
   >;
 
   getAvailableInvitationsCID(): ResultAsync<

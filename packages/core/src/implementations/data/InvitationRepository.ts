@@ -5,7 +5,6 @@ import {
   ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  EFieldKey,
   ERecordKey,
   EVMContractAddress,
   InvitationForStorage,
@@ -16,6 +15,7 @@ import {
   OptInInfo,
   PersistenceError,
   RejectedInvitation,
+  UninitializedError,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -31,6 +31,10 @@ import {
 import {
   IConfigProvider,
   IConfigProviderType,
+  IContextProvider,
+  IContextProviderType,
+  IDataWalletUtils,
+  IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
 
 @injectable()
@@ -40,22 +44,29 @@ export class InvitationRepository implements IInvitationRepository {
   public constructor(
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
+    @inject(IDataWalletUtilsType) protected dataWalletUtils: IDataWalletUtils,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtil: IAxiosAjaxUtils,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
+    @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
-  public getAcceptedInvitations(): ResultAsync<OptInInfo[], PersistenceError> {
+  public getAcceptedInvitations(): ResultAsync<
+    OptInInfo[],
+    PersistenceError | UninitializedError
+  > {
     return this.persistence
       .getAll<InvitationForStorage>(ERecordKey.OPTED_IN_INVITATIONS)
-      .map((storedInvitations) => {
+      .andThen((storedInvitations) => {
         if (storedInvitations == null) {
-          return [];
+          return okAsync([]);
         }
 
-        return storedInvitations.map((storedInvitation) => {
-          return InvitationForStorage.toInvitation(storedInvitation);
-        });
+        return ResultUtils.combine(
+          storedInvitations.map((storedInvitation) => {
+            return this.toOptInInfo(storedInvitation);
+          }),
+        );
       });
   }
 
@@ -63,7 +74,7 @@ export class InvitationRepository implements IInvitationRepository {
     acceptedInvitations: OptInInfo[],
   ): ResultAsync<void, PersistenceError> {
     const invitations = acceptedInvitations.map((invitation) => {
-      return InvitationForStorage.fromOptInInfo(invitation);
+      return this.toInvitationForStorage(invitation);
     });
     return ResultUtils.combine(
       invitations.map((invitation) => {
@@ -152,5 +163,27 @@ export class InvitationRepository implements IInvitationRepository {
             return filteredRejection.consentContractAddress;
           });
       });
+  }
+
+  protected toOptInInfo(
+    src: InvitationForStorage,
+  ): ResultAsync<OptInInfo, UninitializedError> {
+    return this.contextProvider.getContext().andThen((context) => {
+      if (context.dataWalletKey == null) {
+        return errAsync(
+          new UninitializedError(
+            "Data wallet key is not initialized in toOptInInfo()",
+          ),
+        );
+      }
+      return this.dataWalletUtils.deriveOptInInfo(
+        src.consentContractAddress,
+        context.dataWalletKey,
+      );
+    });
+  }
+
+  protected toInvitationForStorage(src: OptInInfo): InvitationForStorage {
+    return new InvitationForStorage(src.consentContractAddress);
   }
 }

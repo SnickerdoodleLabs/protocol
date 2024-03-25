@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/insight-platform-api",
-  "version": "2.0.2",
+  "version": "3.0.1",
   "description": "Repository for making signed calls to the Insight Platform API",
   "license": "MIT",
   "repository": {
@@ -38,6 +38,7 @@
   "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
+    "@snickerdoodlelabs/circuits-sdk": "workspace:^",
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/node-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",

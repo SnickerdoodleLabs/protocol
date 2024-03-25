@@ -10,7 +10,7 @@ info:
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
-  version: '0.1'
+  version: '2.0'
 servers:
   - url: https://development.snickerdoodlelabs.io/v1
     description: Development server
@@ -20,11 +20,11 @@ servers:
     description: Production server
     
 paths:
-  /responses:
+  /insights:
     post:
       tags:
         - responses
-      description: Responses to the subqueries with the business, data wallet, query and signiture metadata
+      description: Respond to an SDQL query
       requestBody:
         description: The actual response to a query
         required: true
@@ -36,24 +36,31 @@ paths:
                 consentContractId:
                   type: string
                   format: ethereum-contract-address
-                tokenId:
-                  type: string
-                  format: big-number-string
                 queryCID:
                   type: string
                   format: IPFS-CID
-                returns:
+                insights:
                   $ref: '#/components/schemas/Insights'
                 rewardParameters:
                   $ref: '#/components/schemas/RewardParameters'
-                signature:
+                signalNullifier:
                   type: string
-                  format: hex-string
+                  format: big-number-string
+                anonymitySetStart:
+                  type: integer
+                anonymitySetSize:
+                  type: integer
+                proof:
+                  type: string
+                  format: ZKProof
               required:
                 - consentContractId
                 - queryCID
-                - tokenId
-                - returns
+                - insights
+                - rewardParameters
+                - signalNullifier
+                - anonymitySetStart
+                - anonymitySetSize
                 - signature
       responses:
         200:
@@ -71,11 +78,11 @@ paths:
         400:
           $ref: '#/components/responses/InvalidError'
   
-  /responses/preview:
+  /optin:
     post:
       tags:
-        - responses
-      description: Returns the list of earned rewards, based on the proposed list of queries. This does not change state.
+        - optins
+      description: Sends a request to opt in to a particular consent contract
       requestBody:
         required: true
         content:
@@ -86,91 +93,35 @@ paths:
                 consentContractId:
                   type: string
                   format: ethereum-contract-address
-                queryCID:
-                  type: string
-                  format: IPFS-CID
-                tokenId:
+                commitment:
                   type: string
                   format: big-number-string
-                queries:
-                  description: The list of queries that will be answered (q1, q3, q4) etc, based on the data permissions.
+                proof:
+                  type: string
+                  format: ZKProof
+                proofs:
                   type: array
                   items:
-                    type: string
+                    $ref: '#/components/schemas/OptinProof'
+                nonce:
+                  description: Required for optins to a private consent contract
+                  type: string
                 signature:
                   type: string
-                  format: hex-string
               required:
                 - consentContractId
-                - queryCID
-                - dataWallet
-                - queries
-                - signature
+                - commitment
+                - proof
       responses:
         200:
-          description: Returns a list of compensations that will be earned
+          description: Returns 200 if the optin was accepted
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  compensations:
-                    description: The list of compensations that will be earned (c1, c2, c3, etc). If there are limited quantities of a particular reward, it will not be included if it is used up.
-                    type: array
-                    items:
-                      type: string
-        400:
-          $ref: '#/components/responses/InvalidError'
-      
-  /metatransaction:
-    post:
-      tags:
-        - metatransaction
-      description: Executes a metatransaction for a data wallet. 
-      requestBody:
-        description: Data required to verify the request to leave the campaign
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                accountAddress:
-                  type: string
-                  format: ethereum-account-address
-                contractAddress:
-                  type: string
-                  format: ethereum-contract-address
-                nonce:
-                  type: string
-                  format: big-number-string
-                value:
-                  type: string
-                  format: big-number-string
-                gas:
-                  type: string
-                  format: big-number-string
-                data:
-                  description: The hex-encoded string of the transaction data.
-                  type: string
-                  format: hex-string
-                metatransactionSignature:
-                  description: The signature for the metatransaction data. It must be a Minimal Forwarder request, and signed by the executing account address. That is often the data wallet key, but could be an EOA in some cases.
-                  type: string
-                  format: hex-string
-                requestSignature:
-                  description: This is a signature for the actual API call. You must sign all properties in the post body except for signature. This is used to validate that the metatransaction request is actually coming from the data wallet. An invalid metatransaction would also fail, but this is a second level.
-                  type: string
-                  format: hex-string
-      responses:
-        200:
-          description: "Success"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success: 
+                  success:
+                    description: Should always be true
                     type: boolean
         400:
           $ref: '#/components/responses/InvalidError'
@@ -264,19 +215,19 @@ components:
       required:
         - type
 
-    SubQueryReturn:
+    OptinProof:
       type: object
       properties:
-        subquery:
+        type:
           type: string
-        data:
-          type: array
-          items:
-            type: number
-            format: double
+          enum:
+            - reserves
+        proof:
+          type: string
+          format: ZKProof
       required:
-        - subquery
-        - data
+        - type
+        - proof
         
     RewardParameters:
       type: array

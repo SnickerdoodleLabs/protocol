@@ -62,6 +62,7 @@ import {
   JSONString,
   IProxyQuestionnaireMethods,
   NewQuestionnaireAnswer,
+  DataPermissions,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { JsonRpcEngine } from "json-rpc-engine";
@@ -535,12 +536,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     );
   }
 
-  public getConsentContractURLs(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<URLString[], ProxyError> {
-    return coreGateway.getConsentContractURLs(contractAddress);
-  }
-
   public checkInvitationStatus(
     consentAddress: EVMContractAddress,
     signature?: Signature,
@@ -625,17 +620,21 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     );
   }
 
-  public getAgreementPermissions(consentContractAddress: EVMContractAddress) {
-    return coreGateway.getAgreementPermissions(
+  public getDataPermissions(consentContractAddress: EVMContractAddress) {
+    return coreGateway.getDataPermissions(
       new GetAgreementPermissionsParams(consentContractAddress),
     );
   }
+
   public updateAgreementPermissions(
     consentContractAddress: EVMContractAddress,
-    dataTypes: EWalletDataType[],
+    dataPermissions: DataPermissions,
   ): ResultAsync<void, ProxyError> {
     return coreGateway.updateAgreementPermissions(
-      new UpdateAgreementPermissionsParams(consentContractAddress, dataTypes),
+      new UpdateAgreementPermissionsParams(
+        consentContractAddress,
+        dataPermissions,
+      ),
     );
   }
 
@@ -652,14 +651,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   }
   public getSiteVisitsMap(): ResultAsync<Map<URLString, number>, ProxyError> {
     return coreGateway.getSiteVisitsMap();
-  }
-
-  public getConsentCapacity(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<IConsentCapacity, ProxyError> {
-    return coreGateway.getConsentCapacity(
-      new GetConsentCapacityParams(contractAddress),
-    );
   }
 
   public getEarnedRewardsByContractAddress(
