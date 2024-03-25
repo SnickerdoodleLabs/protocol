@@ -383,10 +383,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
             <ConsentModal
               onClose={clearInvitation}
               open={true}
-              onOptinClicked={(params) => {
-                optIn(params);
-                onPermissionSelected([]);
-              }}
+              onOptinClicked={optIn}
               consentContractAddress={
                 currentInvitation.data.invitation.consentContractAddress
               }
