@@ -160,6 +160,7 @@ class QueryServiceMocks {
   public sdqlQueryWrapperFactory: ISDQLQueryWrapperFactory;
   public logUtils: ILogUtils;
   public invitationRepo: IInvitationRepository;
+  public questionnaireRepo: IQuestionnaireRepository;
 
   public consentToken = new ConsentToken(
     consentContractAddress,
@@ -184,6 +185,7 @@ class QueryServiceMocks {
     this.logUtils = td.object<ILogUtils>();
     this.timeUtils = td.object<ITimeUtils>();
     this.invitationRepo = td.object<IInvitationRepository>();
+    this.questionnaireRepo = td.object<IQuestionnaireRepository>();
 
     td.when(
       this.insightPlatformRepo.deliverInsights(
@@ -358,6 +360,7 @@ class QueryServiceMocks {
       this.logUtils,
       this.timeUtils,
       this.invitationRepo,
+      this.questionnaireRepo,
     );
   }
 }

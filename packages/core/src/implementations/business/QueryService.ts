@@ -88,6 +88,8 @@ import {
   IInvitationRepositoryType,
   ILinkedAccountRepository,
   ILinkedAccountRepositoryType,
+  IQuestionnaireRepository,
+  IQuestionnaireRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data/index.js";
@@ -130,6 +132,8 @@ export class QueryService implements IQueryService {
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
     @inject(IInvitationRepositoryType)
     protected invitationRepo: IInvitationRepository,
+    @inject(IQuestionnaireRepositoryType)
+    protected questionnaireRepo: IQuestionnaireRepository,
   ) {}
 
   private processingQueries = new Set<IpfsCID>();
@@ -680,7 +684,7 @@ export class QueryService implements IQueryService {
     return ResultUtils.combine([
       this.getReceivingAddress(consentContractAddress),
       this.queryParsingEngine.parseQuery(query),
-    ]).map(([receivingAddress, ast]) => {
+    ]).andThen(([receivingAddress, ast]) => {
       const { subqueries, image, name, points, description, compensations } =
         ast;
 
@@ -690,17 +694,20 @@ export class QueryService implements IQueryService {
       );
       const [questionnaireIds, virtualQuestionnaires] =
         this.getQuestionnaireIds(subqueries);
-      return new QueryMetadata(
-        query.cid,
-        name,
-        points,
-        description,
-        questionnaireIds,
-        virtualQuestionnaires,
-        //TODO can be removen if not used by IP
-        ObjectUtils.serialize(rewardParams),
-        image,
-      );
+
+      return this.questionnaireRepo.add(questionnaireIds).map(() => {
+        return new QueryMetadata(
+          query.cid,
+          name,
+          points,
+          description,
+          questionnaireIds,
+          virtualQuestionnaires,
+          //TODO can be removen if not used by IP
+          ObjectUtils.serialize(rewardParams),
+          image,
+        );
+      });
     });
   }
   protected getReceivingAddress(
