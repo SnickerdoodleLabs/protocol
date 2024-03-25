@@ -144,6 +144,7 @@ import {
   ApproveQueryParams,
   GetVirtualQuestionnairesParams,
   GetQuestionnairesByCIDSParams,
+  GetQueryStatusesByContractAddressParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -573,6 +574,20 @@ export class RpcCallHandler implements IRpcCallHandler {
           params.status,
           params.blockNumber,
         );
+      },
+    ),
+    new CoreActionHandler<GetQueryStatusesByContractAddressParams>(
+      GetQueryStatusesByContractAddressParams.getCoreAction(),
+      (params, _sender, sourceDomain) => {
+        return this.core
+          .getQueryStatusesByContractAddress(
+            params.contractAddress,
+            sourceDomain,
+          )
+          .mapErr((error) => {
+            this.errorUtils.emit(error);
+            return new SnickerDoodleCoreError((error as Error).message, error);
+          });
       },
     ),
 

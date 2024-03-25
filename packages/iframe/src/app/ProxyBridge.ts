@@ -421,6 +421,15 @@ export class ProxyBridge implements ISdlDataWallet {
     );
   }
 
+  getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+    _sourceDomain?: DomainName | undefined,
+  ): ResultAsync<QueryStatus[], ProxyError> {
+    return this.call(
+      this.core.getQueryStatusesByContractAddress(contractAddress),
+    );
+  }
+
   approveQuery(
     queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],

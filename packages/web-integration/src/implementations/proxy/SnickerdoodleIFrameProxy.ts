@@ -572,6 +572,15 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
+  getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+    _sourceDomain?: DomainName | undefined,
+  ): ResultAsync<QueryStatus[], ProxyError> {
+    return this._createCall("getQueryStatusesByContractAddress", {
+      contractAddress,
+    });
+  }
+
   approveQuery(
     queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],

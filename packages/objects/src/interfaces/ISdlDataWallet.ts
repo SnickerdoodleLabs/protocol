@@ -309,6 +309,10 @@ export interface ISdlDataWallet {
     blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], ProxyError>;
 
+  getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<QueryStatus[], ProxyError>;
+
   approveQuery(
     queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],

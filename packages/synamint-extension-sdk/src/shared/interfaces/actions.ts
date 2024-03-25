@@ -692,6 +692,16 @@ export class GetQueryStatusesParams extends CoreActionParams<QueryStatus[]> {
     return ECoreActions.GET_QUERY_STATUSES;
   }
 }
+export class GetQueryStatusesByContractAddressParams extends CoreActionParams<
+  QueryStatus[]
+> {
+  public constructor(public contractAddress: EVMContractAddress) {
+    super(GetQueryStatusesByContractAddressParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_QUERY_STATUSES_BY_CONTRACT_ADDRESS;
+  }
+}
 
 export class GetDiscordInstallationUrlParams extends CoreActionParams<URLString> {
   public constructor() {
