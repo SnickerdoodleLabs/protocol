@@ -5,6 +5,7 @@ import {
   RewardsFactoryError,
   ECreatedRewardType,
   BlockchainCommonErrors,
+  TokenUri,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
@@ -29,6 +30,7 @@ export class RewardsContractFactory
 {
   protected erc721ContractFactory: ethers.ContractFactory;
   protected erc20ContractFactory: ethers.ContractFactory;
+  protected erc1155ContractFactory: ethers.ContractFactory;
   protected rewardTypeToDeploy: ECreatedRewardType;
   constructor(
     protected providerOrSigner: ethers.Provider | ethers.Signer,
@@ -50,6 +52,12 @@ export class RewardsContractFactory
     this.erc20ContractFactory = new ethers.ContractFactory(
       ContractsAbis.ERC20Reward.abi,
       ContractsAbis.ERC20Reward.bytecode,
+      providerOrSigner as ethers.Wallet,
+    );
+
+    this.erc1155ContractFactory = new ethers.ContractFactory(
+      ContractsAbis.ERC1155Reward.abi,
+      ContractsAbis.ERC1155Reward.bytecode,
       providerOrSigner as ethers.Wallet,
     );
 
@@ -121,7 +129,7 @@ export class RewardsContractFactory
       });
   }
 
-  // function to deploy a new ERC721 reward contract
+  // function to deploy a new ERC20 reward contract
   public deployERC20Reward(
     name: string,
     symbol: string,
@@ -184,6 +192,72 @@ export class RewardsContractFactory
       });
   }
 
+  // function to deploy a new ERC1155 reward contract
+  public deployERC1155Reward(
+    numberOfRewards: number,
+    tokenURIs: TokenUri[],
+    overrides: ContractOverrides,
+    omitGasFee = false,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | RewardsFactoryError
+  > {
+    return GasUtils.getGasFee(this.providerOrSigner).andThen((gasFee) => {
+      let contractOverrides = {
+        ...gasFee,
+        ...overrides,
+      };
+
+      // If the chain does not support EIP-1559, remove the gas fee override and only maintain the override passed in from the chain service
+      if (omitGasFee == true) {
+        contractOverrides = {
+          ...overrides,
+        };
+      }
+
+      return this.writeToContractFactory(
+        "deploy",
+        [numberOfRewards, tokenURIs],
+        ECreatedRewardType.ERC1155,
+        contractOverrides,
+        true,
+      );
+    });
+  }
+
+  public estimateGasToDeployERC1155Contract(
+    numberOfRewards: number,
+    tokenURIs: TokenUri[],
+  ): ResultAsync<bigint, RewardsFactoryError | BlockchainCommonErrors> {
+    return ResultAsync.fromPromise(
+      this.erc1155ContractFactory.getDeployTransaction(
+        numberOfRewards,
+        tokenURIs,
+      ),
+      (e) => {
+        return this.generateError(
+          e,
+          "Unable to get deploy transaction for contract deployment for ERC1155 contract",
+        );
+      },
+    )
+      .andThen((deployTransaction) => {
+        return ResultAsync.fromPromise(
+          this.providerOrSigner.estimateGas(deployTransaction),
+          (e) => {
+            return this.generateError(
+              e,
+              "Attempting to estimate gas for contract deployment",
+            );
+          },
+        );
+      })
+      .map((estimatedGas) => {
+        // Increase estimated gas buffer by 20%
+        return (estimatedGas * 120n) / 100n;
+      });
+  }
+
   protected generateContractSpecificError(
     msg: string,
     e: IEthersContractError,
@@ -209,6 +283,11 @@ export class RewardsContractFactory
     if (rewardType == ECreatedRewardType.ERC20) {
       contractFactory = this.erc20ContractFactory;
       abi = ContractsAbis.ERC20Reward.abi;
+    }
+
+    if (rewardType == ECreatedRewardType.ERC1155) {
+      contractFactory = this.erc1155ContractFactory;
+      abi = ContractsAbis.ERC1155Reward.abi;
     }
 
     return ResultAsync.fromPromise(

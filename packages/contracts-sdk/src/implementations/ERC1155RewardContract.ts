@@ -158,7 +158,7 @@ export class ERC1155RewardContract
   }
 
   public balanceOf(
-    address: EVMAccountAddress,
+    address: EVMAccountAddress | EVMContractAddress,
     tokenId: TokenId,
   ): ResultAsync<number, ERC1155ContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
@@ -172,7 +172,7 @@ export class ERC1155RewardContract
   }
 
   public balanceOfBatch(
-    addresses: EVMAccountAddress[],
+    addresses: EVMAccountAddress[] | EVMContractAddress[],
     tokenIds: TokenId[],
   ): ResultAsync<number[], ERC1155ContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
@@ -297,7 +297,7 @@ export class ERC1155RewardContract
 
   // NOTE: To support this, the user would need to connect their external wallet that owns the NFTs to sign the approval txs
   public setApproveForAll(
-    addressToApprove: EVMAccountAddress,
+    addressToApprove: EVMAccountAddress | EVMContractAddress,
     approved: boolean,
     overrides?: ContractOverrides,
   ): ResultAsync<
