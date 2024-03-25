@@ -56,7 +56,7 @@ export class AccountService implements IAccountService {
 
   public getQueryStatuses(
     contractAddress?: EVMContractAddress,
-    status?: EQueryProcessingStatus,
+    status?: EQueryProcessingStatus[],
     blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], SnickerDoodleCoreError> {
     return this.accountRepository.getQueryStatuses(

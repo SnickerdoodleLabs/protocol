@@ -572,13 +572,22 @@ export class SnickerdoodleIFrameProxy
 
   public getQueryStatuses(
     contractAddress?: EVMContractAddress,
-    status?: EQueryProcessingStatus,
+    status?: EQueryProcessingStatus[],
     blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], ProxyError> {
     return this._createCall("getQueryStatuses", {
       contractAddress,
       status,
       blockNumber,
+    });
+  }
+
+  getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+    _sourceDomain?: DomainName | undefined,
+  ): ResultAsync<QueryStatus[], ProxyError> {
+    return this._createCall("getQueryStatusesByContractAddress", {
+      contractAddress,
     });
   }
 

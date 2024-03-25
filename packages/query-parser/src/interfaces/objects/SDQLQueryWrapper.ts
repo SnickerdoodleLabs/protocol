@@ -46,14 +46,19 @@ export class SDQLQueryWrapper {
     if (!this.internalObj.image) {
       return undefined;
     }
-    return IpfsCID(`${this.internalObj.image}`);
+    let imageUrl = this.internalObj.image;
+    if (!imageUrl.startsWith("ipfs://")) {
+      imageUrl = IpfsCID(`ipfs://${imageUrl}`);
+    }
+    return imageUrl;
   }
 
   public get points(): number | undefined {
     if (!this.internalObj.points) {
       return undefined;
     }
-    return Number(this.internalObj.points);
+    const val = Number(this.internalObj.points);
+    return Number.isNaN(val) ? 0 : val;
   }
 
   public get name(): string | undefined {

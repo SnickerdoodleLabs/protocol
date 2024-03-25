@@ -45,7 +45,7 @@ export const AuthFlowRoutes = (
     <Route element={<AuthFlowLayout />}>
       <Route path={EPathsV2.HOME} element={<Home />} />
       <Route path={EPathsV2.COOKIE_VAULT} element={<CookieVault />} />
-      <Route path={EPathsV2.TRUSTED_BRANDS} element={<TrustedBrands />} />
+      {/* <Route path={EPathsV2.TRUSTED_BRANDS} element={<TrustedBrands />} /> */}
       <Route path={EPathsV2.OFFERS} element={<Offers />} />
       <Route
         path={EPathsV2.SETTINGS}

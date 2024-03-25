@@ -3,10 +3,13 @@ import {
   BaseNotification,
   BigNumberString,
   DomainName,
+  EChain,
   EInvitationStatus,
   ENotificationTypes,
+  EVMAccountAddress,
   EVMContractAddress,
   EWalletDataType,
+  IDynamicRewardParameter,
   IOldUserAgreement,
   IPaletteOverrides,
   IUserAgreement,
@@ -16,6 +19,8 @@ import {
   NewQuestionnaireAnswer,
   PagingRequest,
   ProxyError,
+  QueryStatus,
+  Questionnaire,
   Signature,
   TokenId,
   UnixTimestamp,
@@ -44,6 +49,8 @@ import {
   CheckInvitationStatusParams,
   GetInvitationMetadataByCIDParams,
   GetConsentContractCIDParams,
+  GetQueryStatusesByContractAddressParams,
+  ApproveQueryParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 import endOfStream from "end-of-stream";
@@ -51,6 +58,7 @@ import PortStream from "extension-port-stream";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
 import { ResultAsync, err, okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import ObjectMultiplex from "obj-multiplex";
 import LocalMessageStream from "post-message-stream";
 import pump from "pump";
@@ -159,6 +167,26 @@ interface IAppProps {
   paletteOverrides?: IPaletteOverrides;
 }
 
+interface IOptInParams {
+  directCall: {
+    permissions: {
+      dataTypes: EWalletDataType[];
+      questionnaires: IpfsCID[];
+    };
+    approvals: Map<IpfsCID, IDynamicRewardParameter[]>;
+  };
+  withPermissions: Map<
+    IpfsCID,
+    {
+      permissions: {
+        dataTypes: EWalletDataType[];
+        questionnaires: IpfsCID[];
+      };
+      rewardParameters: IDynamicRewardParameter[];
+    }
+  >;
+}
+
 const App: FC<IAppProps> = ({ paletteOverrides }) => {
   const [appState, setAppState] = useState<EAppState>(EAppState.IDLE);
   const [accounts, setAccounts] = useState<LinkedAccount[]>([]);
@@ -179,6 +207,16 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
   useEffect(() => {
     handleURLChange();
   }, [_path]);
+
+  const evmAccounts = useMemo(() => {
+    const filteredAccounts = accounts
+      .filter((account) => account.sourceChain === EChain.EthereumMainnet)
+      .map((account) => account.sourceAccountAddress);
+
+    return filteredAccounts.length > 0
+      ? (filteredAccounts as EVMAccountAddress[])
+      : null;
+  }, [accounts]);
 
   const handleURLChange = useCallback(() => {
     const url = window.location.href;
@@ -281,6 +319,7 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
   };
 
   const currentInvitation: ICurrentInvitation | null = useMemo(() => {
+    if (!evmAccounts) return null;
     if (userRequestedInvitation) {
       return {
         data: userRequestedInvitation,
@@ -294,7 +333,12 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
       return { data: deepLinkInvitation, type: EInvitationSourceType.DEEPLINK };
     }
     return null;
-  }, [deepLinkInvitation, domainInvitation, userRequestedInvitation]);
+  }, [
+    deepLinkInvitation,
+    domainInvitation,
+    userRequestedInvitation,
+    evmAccounts,
+  ]);
 
   useEffect(() => {
     if (currentInvitation) {
@@ -441,6 +485,57 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
     });
   };
 
+  const optIn = useCallback(
+    (params: IOptInParams) => {
+      if (currentInvitation) {
+        // call function as background process
+        setAppState(EAppState.IDLE);
+        const {
+          directCall: { permissions, approvals },
+          withPermissions,
+        } = params;
+        coreGateway
+          .acceptInvitation(currentInvitation.data.invitation, null)
+          .andThen(() => {
+            // set consent permissions here
+            return okAsync(undefined);
+          })
+          .andThen(() => {
+            return ResultUtils.combine(
+              Array.from(approvals.entries()).map(([cid, rewardParams]) =>
+                coreGateway.approveQuery(
+                  new ApproveQueryParams(cid, rewardParams),
+                ),
+              ),
+            );
+          })
+          .andThen(() => {
+            return ResultUtils.executeSerially(
+              Array.from(withPermissions.entries()).map(
+                ([cid, { permissions, rewardParameters }]) =>
+                  () =>
+                    // set consent permissions here
+                    okAsync(undefined).andThen(() => {
+                      return coreGateway.approveQuery(
+                        new ApproveQueryParams(cid, rewardParameters),
+                      );
+                    }),
+              ),
+            );
+          })
+          .map(() => {
+            emptyReward();
+            console.log("optIn steps success");
+          })
+          .mapErr((e) => {
+            console.log("optIn steps error", e);
+            emptyReward();
+          });
+      }
+    },
+    [currentInvitation],
+  );
+
   const renderComponent = useMemo(() => {
     if (!currentInvitation) return null;
     switch (true) {
@@ -451,7 +546,7 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
               emptyReward();
             }}
             open={true}
-            onOptinClicked={() => acceptInvitation(null)}
+            onOptinClicked={optIn}
             consentContractAddress={
               currentInvitation.data.invitation.consentContractAddress
             }
@@ -460,15 +555,6 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
               id: IpfsCID,
               answers: NewQuestionnaireAnswer[],
             ) => coreGateway.questionnaire.answerQuestionnaire(id, answers)}
-            getQuestionnaires={(
-              pagingRequest: PagingRequest,
-              consentContractAddress: EVMContractAddress,
-            ) =>
-              coreGateway.questionnaire.getQuestionnairesForConsentContract(
-                pagingRequest,
-                consentContractAddress,
-              )
-            }
             onRejectClick={() => {
               rejectInvitation(false);
             }}
@@ -478,27 +564,23 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
             displayRejectButtons={
               currentInvitation.type === EInvitationSourceType.DOMAIN
             }
-            getVirtualQuestionnaires={(
-              consentContractAddress: EVMContractAddress,
-            ) => {
-              return coreGateway.questionnaire.getVirtualQuestionnaires(
-                consentContractAddress,
+            getQueryStatuses={(contractAddress: EVMContractAddress) => {
+              return coreGateway.getQueryStatusesByContractAddress(
+                new GetQueryStatusesByContractAddressParams(contractAddress),
               );
-              return okAsync([]);
             }}
-            setConsentPermissions={(
-              consentContractAddress: EVMContractAddress,
-              dataTypes: EWalletDataType[],
-              questionnaires: IpfsCID[],
-            ) => {
-              return okAsync(undefined);
+            evmAccounts={evmAccounts!}
+            getQuestionnairesByCids={function (
+              cids: IpfsCID[],
+            ): ResultAsync<Questionnaire[], unknown> {
+              return coreGateway.questionnaire.getByCIDs(cids);
             }}
           />
         );
       default:
         return null;
     }
-  }, [accounts.length, appState, currentInvitation]);
+  }, [evmAccounts, appState, currentInvitation]);
 
   if (isHidden) {
     return null;

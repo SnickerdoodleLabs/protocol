@@ -10,8 +10,11 @@ import {
 import { Theme, ThemeProvider } from "@material-ui/core";
 import {
   DataPermissions,
+  EChain,
+  EVMAccountAddress,
   EVMContractAddress,
   EWalletDataType,
+  IDynamicRewardParameter,
   IOldUserAgreement,
   ISnickerdoodleCore,
   IUserAgreement,
@@ -20,6 +23,8 @@ import {
   LinkedAccount,
   NewQuestionnaireAnswer,
   PagingRequest,
+  QueryStatus,
+  Questionnaire,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -29,7 +34,8 @@ import {
   createDefaultTheme,
   createThemeWithOverrides,
 } from "@snickerdoodlelabs/shared-components";
-import { okAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import React, {
   useMemo,
   useState,
@@ -63,6 +69,26 @@ interface IInvitation {
 interface ICurrentInvitation {
   data: IInvitation;
   type: EInvitationSourceType;
+}
+
+interface IOptInParams {
+  directCall: {
+    permissions: {
+      dataTypes: EWalletDataType[];
+      questionnaires: IpfsCID[];
+    };
+    approvals: Map<IpfsCID, IDynamicRewardParameter[]>;
+  };
+  withPermissions: Map<
+    IpfsCID,
+    {
+      permissions: {
+        dataTypes: EWalletDataType[];
+        questionnaires: IpfsCID[];
+      };
+      rewardParameters: IDynamicRewardParameter[];
+    }
+  >;
 }
 
 export const InvitationHandler: FC<IInvitationHandlerProps> = ({
@@ -99,7 +125,18 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   const [userRequestInvitation, setUserRequestInvitation] =
     useState<IInvitation | null>(null);
 
+  const evmAccounts = useMemo(() => {
+    const filteredAccounts = accounts
+      .filter((account) => account.sourceChain === EChain.EthereumMainnet)
+      .map((account) => account.sourceAccountAddress);
+
+    return filteredAccounts.length > 0
+      ? (filteredAccounts as EVMAccountAddress[])
+      : null;
+  }, [accounts]);
+
   const currentInvitation: ICurrentInvitation | null = useMemo(() => {
+    if (!evmAccounts) return null;
     if (userRequestInvitation) {
       return {
         data: userRequestInvitation,
@@ -128,8 +165,8 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     domainInvitation,
     consentInvitation,
     userRequestInvitation,
-    accounts.length,
     awaitRender,
+    evmAccounts,
   ]);
 
   // length of this could be used for bagde
@@ -227,6 +264,57 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     [currentInvitation],
   );
 
+  const optIn = useCallback(
+    (params: IOptInParams) => {
+      if (currentInvitation) {
+        // call function as background process
+        setAppState(EAPP_STATE.IDLE);
+        const {
+          directCall: { permissions, approvals },
+          withPermissions,
+        } = params;
+        core.invitation
+          .acceptInvitation(currentInvitation.data.invitation, null, undefined)
+          .andThen(() => {
+            // set consent permissions here
+            return okAsync(undefined);
+          })
+          .andThen(() => {
+            return ResultUtils.combine(
+              Array.from(approvals.entries()).map(([cid, rewards]) =>
+                core.approveQuery(cid, rewards, undefined),
+              ),
+            );
+          })
+          .andThen(() => {
+            return ResultUtils.executeSerially(
+              Array.from(withPermissions.entries()).map(
+                ([cid, { permissions, rewardParameters }]) =>
+                  () =>
+                    // set consent permissions here
+                    okAsync(undefined).andThen(() => {
+                      return core.approveQuery(
+                        cid,
+                        rewardParameters,
+                        undefined,
+                      );
+                    }),
+              ),
+            );
+          })
+          .map(() => {
+            clearInvitation();
+            console.log("optIn steps success");
+          })
+          .mapErr((e) => {
+            console.log("optIn steps error", e);
+            clearInvitation();
+          });
+      }
+    },
+    [currentInvitation],
+  );
+
   const rejectInvitation = useCallback(
     (withTimestamp: boolean) => {
       if (!currentInvitation) return;
@@ -295,7 +383,8 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
             <ConsentModal
               onClose={clearInvitation}
               open={true}
-              onOptinClicked={() => {
+              onOptinClicked={(params) => {
+                optIn(params);
                 onPermissionSelected([]);
               }}
               consentContractAddress={
@@ -312,39 +401,29 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
                   undefined,
                 );
               }}
-              getQuestionnaires={(
-                pagingRequest: PagingRequest,
-                consentContractAddress: EVMContractAddress,
-              ) => {
-                return core.questionnaire.getQuestionnairesForConsentContract(
-                  pagingRequest,
-                  consentContractAddress,
-                  undefined,
-                );
-              }}
-              getVirtualQuestionnaires={(
-                consentContractAddress: EVMContractAddress,
-              ) => {
-                return core.questionnaire.getVirtualQuestionnaires(
-                  consentContractAddress,
-                  undefined,
-                );
-              }}
               onRejectClick={() => {
                 rejectInvitation(false);
               }}
               onRejectWithTimestampClick={() => {
                 rejectInvitation(true);
               }}
-              displayRejectButtons={
-                currentInvitation.type === EInvitationSourceType.DOMAIN
-              }
-              setConsentPermissions={(
-                consentContractAddress: EVMContractAddress,
-                dataTypes: EWalletDataType[],
-                questionnaires: IpfsCID[],
-              ) => {
-                return okAsync(undefined);
+              displayRejectButtons={[
+                EInvitationSourceType.CONSENT_ADDRESS,
+                EInvitationSourceType.DOMAIN,
+              ].includes(currentInvitation.type)}
+              getQueryStatuses={function (
+                contractAddress: EVMContractAddress,
+              ): ResultAsync<QueryStatus[], unknown> {
+                return core.getQueryStatusesByContractAddress(
+                  contractAddress,
+                  undefined,
+                );
+              }}
+              evmAccounts={evmAccounts!}
+              getQuestionnairesByCids={function (
+                cids: IpfsCID[],
+              ): ResultAsync<Questionnaire[], unknown> {
+                return core.questionnaire.getByCIDs(cids, undefined);
               }}
             />
           );
@@ -354,7 +433,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     } else {
       return null;
     }
-  }, [appState, currentInvitation]);
+  }, [appState, evmAccounts, currentInvitation]);
 
   if (EAPP_STATE.IDLE === appState) {
     return null;

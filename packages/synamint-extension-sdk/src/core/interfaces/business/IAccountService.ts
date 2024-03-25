@@ -76,7 +76,7 @@ export interface IAccountService {
   ): ResultAsync<QueryStatus | null, SnickerDoodleCoreError>;
   getQueryStatuses(
     contractAddress?: EVMContractAddress,
-    status?: EQueryProcessingStatus,
+    status?: EQueryProcessingStatus[],
     blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], SnickerDoodleCoreError>;
 

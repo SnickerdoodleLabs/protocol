@@ -108,6 +108,7 @@ import {
   GetTransactionsParams,
   UpdateAgreementPermissionsParams,
   ApproveQueryParams,
+  GetQueryStatusesByContractAddressParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
@@ -560,11 +561,19 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
 
   public getQueryStatuses(
     contractAddress?: EVMContractAddress,
-    status?: EQueryProcessingStatus,
+    status?: EQueryProcessingStatus[],
     blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], ProxyError> {
     return coreGateway.getQueryStatuses(
       new GetQueryStatusesParams(contractAddress, status, blockNumber),
+    );
+  }
+
+  public getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<QueryStatus[], ProxyError> {
+    return coreGateway.getQueryStatusesByContractAddress(
+      new GetQueryStatusesByContractAddressParams(contractAddress),
     );
   }
 

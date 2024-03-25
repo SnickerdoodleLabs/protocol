@@ -71,7 +71,7 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
   }
 
   public getQueryStatus(
-    status?: EQueryProcessingStatus,
+    statuses?: EQueryProcessingStatus[],
     consentContractAddress?: EVMContractAddress,
   ): ResultAsync<QueryStatus[], PersistenceError> {
     // TODO: Make this more efficient in the future
@@ -83,9 +83,9 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
         // contract
         let filteredStatuses = queryStatii;
 
-        if (status != null) {
-          filteredStatuses = filteredStatuses.filter(
-            (queryStatus) => queryStatus.status === status,
+        if (statuses != null && statuses.length > 0) {
+          filteredStatuses = filteredStatuses.filter((queryStatus) =>
+            statuses.includes(queryStatus.status),
           );
         }
 

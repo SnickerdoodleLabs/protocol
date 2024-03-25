@@ -305,8 +305,12 @@ export interface ISdlDataWallet {
 
   getQueryStatuses(
     contractAddress?: EVMContractAddress,
-    status?: EQueryProcessingStatus,
+    status?: EQueryProcessingStatus[],
     blockNumber?: BlockNumber,
+  ): ResultAsync<QueryStatus[], ProxyError>;
+
+  getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
   ): ResultAsync<QueryStatus[], ProxyError>;
 
   approveQuery(

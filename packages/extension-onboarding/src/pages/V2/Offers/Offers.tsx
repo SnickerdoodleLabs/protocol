@@ -57,10 +57,10 @@ const Offers = () => {
         Array.from(optedInContracts.entries()).map(
           ([contractAddress, ipfsCID]) =>
             sdlDataWallet
-              .getQueryStatuses(
-                contractAddress,
+              .getQueryStatuses(contractAddress, [
                 EQueryProcessingStatus.Received,
-              )
+                EQueryProcessingStatus.Seen,
+              ])
               .map((offers) => ({ contractAddress, ipfsCID, offers })),
         ),
       ).map((results) => {
@@ -73,20 +73,35 @@ const Offers = () => {
     (contractAddress: EVMContractAddress) => {
       if (optedInContracts) {
         sdlDataWallet
-          .getQueryStatuses(contractAddress, EQueryProcessingStatus.Received)
+          .getQueryStatuses(contractAddress, [
+            EQueryProcessingStatus.Received,
+            EQueryProcessingStatus.Seen,
+          ])
           .map((offers) => {
             setItems((prevItems) => {
-              const newItems = prevItems!.filter(
-                (i) => i.contractAddress !== contractAddress,
-              );
               if (offers.length > 0) {
-                newItems.push({
-                  contractAddress,
-                  ipfsCID: optedInContracts.get(contractAddress)!,
-                  offers,
-                });
+                const index = prevItems!.findIndex(
+                  (item) => item.contractAddress === contractAddress,
+                );
+                const newItems = [...prevItems!];
+                if (index !== -1) {
+                  newItems[index] = {
+                    contractAddress,
+                    ipfsCID: optedInContracts.get(contractAddress)!,
+                    offers,
+                  };
+                } else {
+                  newItems.push({
+                    contractAddress,
+                    ipfsCID: optedInContracts.get(contractAddress)!,
+                    offers,
+                  });
+                }
+                return newItems;
               }
-              return newItems;
+              return prevItems!.filter(
+                (item) => item.contractAddress !== contractAddress,
+              );
             });
           });
       }
@@ -119,7 +134,7 @@ const Offers = () => {
         <Box
           width="100%"
           display="flex"
-          mt={8.5}
+          mt={16.5}
           flexDirection="column"
           alignItems="center"
         >
@@ -146,8 +161,8 @@ const Offers = () => {
     <>
       <PageBanners />
       <Container>
-        <Box mt={{ xs: 3, sm: 7 }} />
         {pageComponent}
+        <Box pb={10} />
       </Container>
     </>
   );
