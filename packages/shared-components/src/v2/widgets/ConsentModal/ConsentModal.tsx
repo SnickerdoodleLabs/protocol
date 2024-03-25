@@ -6,7 +6,6 @@ import {
   DialogContent,
   DialogTitle,
   MenuItem,
-  Select,
   Theme,
   makeStyles,
 } from "@material-ui/core";
@@ -14,7 +13,6 @@ import {
   SDTypography,
   Image,
   SDButton,
-  SDCheckbox,
   CloseButton,
   PermissionSectionTitle,
   PermissionItemWithShareButton,
@@ -544,7 +542,6 @@ export const ConsentModal = ({
             },
           ];
         }),
-
       ),
     };
 
@@ -689,6 +686,7 @@ export const ConsentModal = ({
     evmAccounts,
     receivingAddress,
     agreementConsented,
+    handleShareClicked,
     JSON.stringify(invitationData),
     totalPoints,
     queryApprovalState?.points,
