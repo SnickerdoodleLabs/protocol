@@ -2,6 +2,7 @@ import {
   RewardsFactoryError,
   BaseURI,
   BlockchainCommonErrors,
+  TokenUri,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -41,10 +42,22 @@ export interface IRewardsContractFactory {
   estimateGasToDeployERC20Contract(
     name: string,
     symbol: string,
+  ): ResultAsync<bigint, RewardsFactoryError | BlockchainCommonErrors>;
+
+  deployERC1155Reward(
+    numberOfRewards: number,
+    tokenURIs: TokenUri[],
+    overrides: ContractOverrides,
+    omitGasFee?: boolean,
   ): ResultAsync<
-    bigint,
-    RewardsFactoryError | BlockchainCommonErrors
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | RewardsFactoryError
   >;
+
+  estimateGasToDeployERC1155Contract(
+    numberOfRewards: number,
+    tokenURIs: TokenUri[],
+  ): ResultAsync<bigint, RewardsFactoryError | BlockchainCommonErrors>;
 }
 
 export const IRewardsContractFactoryType = Symbol.for(

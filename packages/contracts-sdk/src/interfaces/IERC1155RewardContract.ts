@@ -7,6 +7,7 @@ import {
   BlockchainCommonErrors,
   DomainName,
   TokenAmount,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -38,7 +39,7 @@ export interface IERC1155RewardContract extends IBaseContract {
    * Returns the balance for a given token id for an address
    * */
   balanceOf(
-    address: EVMAccountAddress,
+    address: EVMAccountAddress | EVMContractAddress,
     tokenId: TokenId,
   ): ResultAsync<number, ERC1155ContractError | BlockchainCommonErrors>;
 
@@ -46,7 +47,7 @@ export interface IERC1155RewardContract extends IBaseContract {
    * Returns the balances for a list of token ids and addresses
    * */
   balanceOfBatch(
-    addresses: EVMAccountAddress[],
+    addresses: EVMAccountAddress[] | EVMContractAddress[],
     tokenIds: TokenId[],
   ): ResultAsync<number[], ERC1155ContractError | BlockchainCommonErrors>;
 
