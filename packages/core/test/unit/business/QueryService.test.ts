@@ -44,6 +44,7 @@ import { IQueryParsingEngine } from "@core/interfaces/business/utilities/index.j
 import {
   IConsentContractRepository,
   ILinkedAccountRepository,
+  IPermissionRepository,
   ISDQLQueryRepository,
 } from "@core/interfaces/data/index.js";
 import {
@@ -83,7 +84,7 @@ const queryDeliveryItems: IQueryDeliveryItems = {
 
 const tokenId = TokenId(BigInt(0));
 
-const dataPermissions = DataPermissions.createWithAllPermissions();
+const dataPermissions = new DataPermissions("" as EVMContractAddress, [], []);
 
 const rewardParameter = {
   recipientAddress: {
@@ -140,6 +141,7 @@ class QueryServiceMocks {
   public questionnaireService: IQuestionnaireService;
   public sdqlQueryRepo: ISDQLQueryRepository;
   public insightPlatformRepo: IInsightPlatformRepository;
+  public permissionRepository: IPermissionRepository;
   public consentContractRepo: IConsentContractRepository;
   public contextProvider: ContextProviderMock;
   public configProvider: IConfigProvider;
@@ -155,6 +157,7 @@ class QueryServiceMocks {
     this.questionnaireService = td.object<IQuestionnaireService>();
     this.sdqlQueryRepo = td.object<ISDQLQueryRepository>();
     this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
+    this.permissionRepository = td.object<IPermissionRepository>();
     this.consentContractRepo = td.object<IConsentContractRepository>();
     this.contextProvider = new ContextProviderMock();
     this.configProvider = new ConfigProviderMock();
@@ -296,6 +299,7 @@ class QueryServiceMocks {
       this.queryParsingEngine,
       this.sdqlQueryRepo,
       this.insightPlatformRepo,
+      this.permissionRepository,
       this.consentContractRepo,
       this.contextProvider,
       this.configProvider,

@@ -62,6 +62,7 @@ import {
   JSONString,
   IProxyQuestionnaireMethods,
   NewQuestionnaireAnswer,
+  DataPermissions,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { JsonRpcEngine } from "json-rpc-engine";
@@ -624,12 +625,16 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       new GetAgreementPermissionsParams(consentContractAddress),
     );
   }
+
   public updateAgreementPermissions(
     consentContractAddress: EVMContractAddress,
-    dataTypes: EWalletDataType[],
+    dataPermissions: DataPermissions,
   ): ResultAsync<void, ProxyError> {
     return coreGateway.updateAgreementPermissions(
-      new UpdateAgreementPermissionsParams(consentContractAddress, dataTypes),
+      new UpdateAgreementPermissionsParams(
+        consentContractAddress,
+        dataPermissions,
+      ),
     );
   }
 

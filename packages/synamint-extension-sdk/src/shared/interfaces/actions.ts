@@ -62,6 +62,7 @@ import {
   QuestionnaireWithAnswers,
   NewQuestionnaireAnswer,
   DataPermissions,
+  Permission,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 
@@ -226,7 +227,7 @@ export class GetInvitationWithDomainParams extends CoreActionParams<JSONString |
 export class UpdateAgreementPermissionsParams extends CoreActionParams<void> {
   public constructor(
     public consentContractAddress: EVMContractAddress,
-    public dataTypes: EWalletDataType[],
+    public dataPermissions: DataPermissions,
   ) {
     super(UpdateAgreementPermissionsParams.getCoreAction());
   }
@@ -234,12 +235,8 @@ export class UpdateAgreementPermissionsParams extends CoreActionParams<void> {
     return ECoreActions.UPDATE_AGREEMENT_PERMISSIONS;
   }
 }
-
 export class AcceptInvitationParams extends CoreActionParams<void> {
-  public constructor(
-    public invitation: JSONString,
-    public dataTypes: EWalletDataType[] | null,
-  ) {
+  public constructor(public invitation: JSONString) {
     super(AcceptInvitationParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {

@@ -42,6 +42,8 @@ import {
   QuestionnaireWithAnswers,
   QuestionnaireAnswer,
   NewQuestionnaireAnswer,
+  PermissionForStorage,
+  Permission,
   // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
@@ -49,6 +51,7 @@ import {
   ECloudStorageType,
   EDataWalletPermission,
   EInvitationStatus,
+  EWalletDataType,
 } from "@objects/enum/index.js";
 import {
   AccountIndexingError,
@@ -513,7 +516,6 @@ export interface IInvitationMethods {
    */
   acceptInvitation(
     invitation: Invitation,
-    dataPermissions: DataPermissions | null,
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     void,
@@ -827,6 +829,25 @@ export interface IQuestionnaireMethods {
   ): ResultAsync<EVMContractAddress[], PersistenceError | AjaxError>;
 }
 
+export interface IPermissionMethods {
+  getContentContractPermissions(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<DataPermissions, PersistenceError>;
+
+  setContentContractPermissions(
+    dataPermissions: DataPermissions,
+  ): ResultAsync<void, PersistenceError>;
+
+  getDomainPermissions(
+    domain: DomainName,
+  ): ResultAsync<EDataWalletPermission[], PersistenceError>;
+
+  setDomainPermissions(
+    domain: DomainName,
+    permissions: EDataWalletPermission[],
+  ): ResultAsync<void, PersistenceError>;
+}
+
 export interface ISnickerdoodleCore {
   /**
    * initialize() should be the first call you make on a new SnickerdoodleCore.
@@ -1068,6 +1089,7 @@ export interface ISnickerdoodleCore {
   storage: IStorageMethods;
   nft: INftMethods;
   questionnaire: IQuestionnaireMethods;
+  permission: IPermissionMethods;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

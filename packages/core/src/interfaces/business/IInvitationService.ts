@@ -45,7 +45,6 @@ export interface IInvitationService {
 
   acceptInvitation(
     invitation: Invitation,
-    dataPermissions: DataPermissions | null,
   ): ResultAsync<
     void,
     | PersistenceError

@@ -1,4 +1,4 @@
-// @TODO move EAlertSeverity to objects
+/* // @TODO move EAlertSeverity to objects
 import {
   Accordion,
   AccordionDetails,
@@ -294,7 +294,7 @@ const AudienceItem: FC<IAudienceItemProps> = ({
                   </Box>
                   <CustomSDSwitch
                     onClick={() => {
-                      permissions?.includes(permission.key)
+                      permissions?.checkHasVirtualPermission(permission.key)
                         ? setPermissions((p) =>
                             p?.filter((perm) => perm !== permission.key),
                           )
@@ -321,3 +321,4 @@ const AudienceItem: FC<IAudienceItemProps> = ({
 };
 
 export default memo(AudienceItem);
+ */

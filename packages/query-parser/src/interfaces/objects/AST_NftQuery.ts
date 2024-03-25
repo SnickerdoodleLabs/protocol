@@ -4,6 +4,8 @@ import {
   ESDQLQueryReturn,
   SDQL_Name,
   MissingWalletDataTypeError,
+  DataPermissions,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { ok, Result } from "neverthrow";
 
@@ -23,7 +25,10 @@ export class AST_NftQuery extends AST_Web3Query {
     return new AST_NftQuery(name, ESDQLQueryReturn.Array, "nft", schema);
   }
 
-  getPermission(): Result<EWalletDataType, MissingWalletDataTypeError> {
-    return ok(EWalletDataType.AccountNFTs);
+  getPermission(
+    permissions: DataPermissions,
+    dataType: EWalletDataType | IpfsCID,
+  ): boolean {
+    return permissions.checkPermission(dataType);
   }
 }
