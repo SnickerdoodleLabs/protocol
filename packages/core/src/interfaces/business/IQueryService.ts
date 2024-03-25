@@ -73,7 +73,7 @@ export interface IQueryService {
 
   approveQuery(
     queryCID: IpfsCID,
-    parameters: IDynamicRewardParameter[],
+    rewardParameters: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
     | AjaxError
@@ -84,6 +84,9 @@ export interface IQueryService {
     | PersistenceError
     | InvalidStatusError
     | InvalidParametersError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | EvaluationError
   >;
 
   returnQueries(): ResultAsync<
@@ -131,7 +134,7 @@ export interface IQueryService {
 
   getQueryStatuses(
     contractAddress?: EVMContractAddress,
-    status?: EQueryProcessingStatus,
+    statuses?: EQueryProcessingStatus[],
     blockNumber?: BlockNumber,
   ): ResultAsync<
     QueryStatus[],
@@ -141,11 +144,6 @@ export interface IQueryService {
     | BlockchainCommonErrors
     | PersistenceError
   >;
-
-  batchApprovePreProcessQueries(
-    contractAddress: EVMContractAddress,
-    queries: Map<IpfsCID, IDynamicRewardParameter>,
-  ): ResultAsync<void, never>;
 
   getQueryStatusesByContractAddress(
     contractAddress: EVMContractAddress,

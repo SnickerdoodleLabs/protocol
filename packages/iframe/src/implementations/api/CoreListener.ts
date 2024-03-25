@@ -740,7 +740,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       getQueryStatuses: (
         data: IIFrameCallData<{
           contractAddress?: EVMContractAddress;
-          status?: EQueryProcessingStatus;
+          status?: EQueryProcessingStatus[];
           blockNumber?: BlockNumber;
         }>,
       ) => {

@@ -549,7 +549,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
 
   public getQueryStatuses(
     contractAddress?: EVMContractAddress,
-    status?: EQueryProcessingStatus,
+    status?: EQueryProcessingStatus[],
     blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], ProxyError> {
     return coreGateway.getQueryStatuses(

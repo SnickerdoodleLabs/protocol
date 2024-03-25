@@ -1009,6 +1009,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     | PersistenceError
     | InvalidStatusError
     | InvalidParametersError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | EvaluationError
   > {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
@@ -1016,16 +1019,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return queryService.approveQuery(queryCID, parameters);
   }
 
-  batchApprovePreProcessQueries(
-    contractAddress: EVMContractAddress,
-    queries: Map<IpfsCID, IDynamicRewardParameter>,
-    _sourceDomain?: DomainName | undefined,
-  ): ResultAsync<void, never> {
-    const queryService =
-      this.iocContainer.get<IQueryService>(IQueryServiceType);
-
-    return queryService.batchApprovePreProcessQueries(contractAddress, queries);
-  }
   getQueryStatusesByContractAddress(
     contractAddress: EVMContractAddress,
     _sourceDomain?: DomainName | undefined,
@@ -1071,7 +1064,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public getQueryStatuses(
     contractAddress?: EVMContractAddress,
-    status?: EQueryProcessingStatus,
+    status?: EQueryProcessingStatus[],
     blockNumber?: BlockNumber,
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<

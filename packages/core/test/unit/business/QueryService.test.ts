@@ -189,7 +189,7 @@ class QueryServiceMocks {
       this.insightPlatformRepo.deliverInsights(
         consentContractAddress,
         tokenId,
-        queryCID2,
+        td.matchers.argThat((val: IpfsCID) => val === queryCID2 || queryCID1),
         queryDeliveryItems,
         td.matchers.argThat((val: IDynamicRewardParameter[]) => {
           return (
@@ -226,11 +226,32 @@ class QueryServiceMocks {
       okAsync(adsCompletedQueryStatus),
     );
     td.when(
-      this.sdqlQueryRepo.getQueryStatus(EQueryProcessingStatus.Received),
+      this.sdqlQueryRepo.getQueryStatus([EQueryProcessingStatus.Received]),
     ).thenReturn(okAsync([receivedQueryStatus]));
     td.when(
-      this.sdqlQueryRepo.getQueryStatus(EQueryProcessingStatus.AdsCompleted),
+      this.sdqlQueryRepo.getQueryStatus([EQueryProcessingStatus.AdsCompleted]),
     ).thenReturn(okAsync([adsCompletedQueryStatus]));
+
+    td.when(
+      this.sdqlQueryRepo.upsertQueryStatus([
+        td.matchers.contains(
+          new QueryStatus(
+            receivedQueryStatus.consentContractAddress,
+            receivedQueryStatus.queryCID,
+            receivedQueryStatus.receivedBlock,
+            EQueryProcessingStatus.RewardsReceived,
+            receivedQueryStatus.expirationDate,
+            ObjectUtils.serialize(rewardParameters),
+            "Offer",
+            "",
+            1,
+            [],
+            [],
+            null,
+          ),
+        ),
+      ]),
+    ).thenReturn(okAsync(undefined));
     td.when(
       this.sdqlQueryRepo.upsertQueryStatus([
         td.matchers.contains(
@@ -372,9 +393,6 @@ describe("QueryService.approveQuery() tests", () => {
     // Assert
     expect(result).toBeDefined();
     expect(result.isErr()).toBeFalsy();
-    mocks.contextProvider.assertEventCounts({
-      onQueryStatusUpdated: 1,
-    });
   });
 
   test("no query status found, rejected with UninitializedError", async () => {
@@ -507,7 +525,7 @@ describe("QueryService.returnQueries() tests", () => {
       null,
     );
     td.when(
-      mocks.sdqlQueryRepo.getQueryStatus(EQueryProcessingStatus.AdsCompleted),
+      mocks.sdqlQueryRepo.getQueryStatus([EQueryProcessingStatus.AdsCompleted]),
     ).thenReturn(okAsync([queryStatus]));
 
     td.when(

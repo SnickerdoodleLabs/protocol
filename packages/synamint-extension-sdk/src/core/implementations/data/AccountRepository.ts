@@ -56,7 +56,7 @@ export class AccountRepository implements IAccountRepository {
 
   public getQueryStatuses(
     contractAddress?: EVMContractAddress,
-    status?: EQueryProcessingStatus,
+    status?: EQueryProcessingStatus[],
     blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], SnickerDoodleCoreError> {
     return this.core

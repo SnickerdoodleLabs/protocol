@@ -683,7 +683,7 @@ export class ApproveQueryParams extends CoreActionParams<void> {
 export class GetQueryStatusesParams extends CoreActionParams<QueryStatus[]> {
   public constructor(
     public contractAddress?: EVMContractAddress,
-    public status?: EQueryProcessingStatus,
+    public status?: EQueryProcessingStatus[],
     public blockNumber?: BlockNumber,
   ) {
     super(GetQueryStatusesParams.getCoreAction());
