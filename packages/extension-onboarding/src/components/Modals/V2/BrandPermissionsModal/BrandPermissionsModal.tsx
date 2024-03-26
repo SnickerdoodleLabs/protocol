@@ -10,6 +10,7 @@ import {
 } from "@material-ui/core";
 import { Delete } from "@material-ui/icons";
 import {
+  EQueryProcessingStatus,
   EQuestionnaireQuestionType,
   EQuestionnaireStatus,
   EVMContractAddress,
@@ -25,163 +26,157 @@ import {
   FillQuestionnaireModal,
   Image,
   SDButton,
-  SDTypography,
   colors,
   useDialogStyles,
   useSafeState,
   Permissions,
+  getGroupedDataPermissions,
+  getGroupedDataTypesG,
+  getQueryStatusItemsForRender,
+  ISingleQuestionnaireItem,
+  QueryQuestionType,
+  ISingleVirtualQuestionnaireItem,
+  IMultiQuestionItem,
+  DataTypeGroupProperties,
+  SDTypography,
+  PointItem,
 } from "@snickerdoodlelabs/shared-components";
 import { okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import React, { FC, useCallback, useEffect, useMemo, useRef } from "react";
+import React, {
+  FC,
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 export interface IBrandPermissionsModal {
   consentAddress: EVMContractAddress;
   icon: string;
   brandName: string;
-  dataTypes: EWalletDataType[];
-  questionnaireCIDs: IpfsCID[];
 }
 
-interface IQuestionnairesState {
-  answeredQuestionnaires: QuestionnaireWithAnswers[];
-  unAnsweredQuestionnaires: Questionnaire[];
+interface IAnsweredQuestionnaireWithQuery {
+  query: ISingleQuestionnaireItem;
+  questionnaire: QuestionnaireWithAnswers;
+}
+interface IQueryStatusesState {
+  virtualQuestionnaireQueries: ISingleVirtualQuestionnaireItem[];
+  questionnaireQueries: ISingleQuestionnaireItem[];
+  multiQuestionQueries: IMultiQuestionItem[];
 }
 
-interface IPermissionsState {
-  dataTypes: EWalletDataType[];
-  questionnaires: IpfsCID[];
+interface IItemProps {
+  name: string;
+  brandIcon?: string;
+  point: number;
 }
+const Item: FC<IItemProps> = ({ name, brandIcon, point }) => (
+  <Box
+    bgcolor={colors.WHITE}
+    borderRadius={8}
+    mb={1.5}
+    border="1px solid"
+    borderColor="borderColor"
+    p={2}
+    display="flex"
+    alignItems="center"
+    justifyContent="space-between"
+  >
+    <SDTypography variant="bodyLg" fontWeight="medium">
+      {name}
+    </SDTypography>
+    <PointItem pointIcon={brandIcon} point={point} active />
+  </Box>
+);
 
-// @TODO
-const dummyPermissionGetter = (...args) => {
-  return okAsync({ dataTypes: [], questionnaires: [] });
-};
-const dummyPermissionSetter = (...args) => {
-  return okAsync(undefined);
-};
-
-const QuestionnaireModal: FC = () => {
+const BrandPermissionsModal: FC = () => {
   const { modalState, closeModal, setLoadingStatus } = useLayoutContext();
   const { onPrimaryButtonClick, customProps } = modalState;
-  const { icon, brandName, dataTypes, questionnaireCIDs, consentAddress } =
+  const { icon, brandName, consentAddress } =
     customProps as IBrandPermissionsModal;
-  const classes = useDialogStyles();
+  const classes = useDialogStyles({ maxWidth: 700 });
   const { sdlDataWallet } = useDataWalletContext();
-  const [questionnaireToAnswer, setQuestionnaireToAnswer] =
-    useSafeState<Questionnaire>();
-
+  const [queryStatuses, setQueryStatuses] = useSafeState<IQueryStatusesState>();
   const [questionnaires, setQuestionnaires] =
-    useSafeState<IQuestionnairesState>();
-  const [consentDataTypes, setConsentDataTypes] =
-    useSafeState<EWalletDataType[]>();
-  const [permissions, setPermissions] = useSafeState<IPermissionsState>();
-  const permissionsRef = useRef<IPermissionsState>();
+    useSafeState<IAnsweredQuestionnaireWithQuery[]>();
 
-  useEffect(() => {
-    if (permissions) {
-      permissionsRef.current = permissions;
+  const groupedDataTypes = useMemo(() => {
+    if (!queryStatuses) {
+      return undefined;
     }
-  }, [JSON.stringify(permissions)]);
+    return getGroupedDataTypesG(queryStatuses.virtualQuestionnaireQueries);
+  }, [queryStatuses]);
 
   useEffect(() => {
-    ResultUtils.combine([
-      getQuestionnaires(),
-      getVirtualQuestionnaires(),
-      getPermissions(),
-    ]).mapErr((e) => console.error(e));
+    getQueryStatuses();
   }, []);
 
-  const getQuestionnaires = () => {
-    return sdlDataWallet.questionnaire
-      .getQuestionnairesForConsentContract(
-        new PagingRequest(1, 100),
-        consentAddress,
-      )
-      .map((res) => {
-        setQuestionnaires({
-          answeredQuestionnaires: res.response.filter(
-            (q) => q.status === EQuestionnaireStatus.Complete,
-          ) as QuestionnaireWithAnswers[],
-          unAnsweredQuestionnaires: res.response.filter(
-            (q) => q.status === EQuestionnaireStatus.Available,
-          ) as Questionnaire[],
-        });
+  const getQueryStatuses = () => {
+    sdlDataWallet
+      .getQueryStatuses(consentAddress, [
+        EQueryProcessingStatus.RewardsReceived,
+      ])
+      .map((statuses) => {
+        const items = getQueryStatusItemsForRender(statuses);
+
+        const groupedItems = items.reduce(
+          (acc, item) => {
+            if (
+              item.questionType ===
+              QueryQuestionType.SINGLE_VIRTUAL_QUESTIONNAIRE
+            ) {
+              acc.virtualQuestionnaireQueries.push(
+                item as ISingleVirtualQuestionnaireItem,
+              );
+            } else if (
+              item.questionType === QueryQuestionType.SINGLE_QUESTIONNAIRE
+            ) {
+              acc.questionnaireQueries.push(item as ISingleQuestionnaireItem);
+            } else if (item.questionType === QueryQuestionType.MULTI_QUESTION) {
+              acc.multiQuestionQueries.push(item);
+            }
+            return acc;
+          },
+          {
+            virtualQuestionnaireQueries: [],
+            questionnaireQueries: [],
+            multiQuestionQueries: [],
+          } as IQueryStatusesState,
+        );
+
+        setQueryStatuses(groupedItems);
       });
   };
 
-  const getVirtualQuestionnaires = () => {
-    return sdlDataWallet.questionnaire
-      .getVirtualQuestionnaires(consentAddress)
-      .map((res) => {
-        setConsentDataTypes(res);
-      });
-  };
+  useEffect(() => {
+    if (queryStatuses) {
+      fetchQuestionnaires(queryStatuses.questionnaireQueries);
+    }
+  }, [JSON.stringify(queryStatuses)]);
 
-  const getPermissions = () => {
-    return dummyPermissionGetter().map((res) => {
-      setPermissions({
-        dataTypes: res.dataTypes,
-        questionnaires: res.questionnaires,
-      });
+  const fetchQuestionnaires = (
+    questionnaireQueries: ISingleQuestionnaireItem[],
+  ) => {
+    ResultUtils.combine(
+      questionnaireQueries.map((q) =>
+        sdlDataWallet.questionnaire
+          .getByCIDs([q.questionnaireCID])
+          .map((questionnaire) => {
+            return questionnaire.length
+              ? { questionnaire: questionnaire[0], query: q }
+              : null;
+          }),
+      ),
+    ).map((questionnaires) => {
+      setQuestionnaires(questionnaires as IAnsweredQuestionnaireWithQuery[]);
     });
   };
 
-  const handleQuestionnaireAnswer = useCallback(
-    (answers: NewQuestionnaireAnswer[]) => {
-      if (questionnaireToAnswer) {
-        sdlDataWallet.questionnaire
-          .answerQuestionnaire(questionnaireToAnswer.id, answers)
-          .map(() => {
-            getQuestionnaires();
-            setQuestionnaireToAnswer(undefined);
-          })
-          .mapErr((e) => {
-            setQuestionnaireToAnswer(undefined);
-            console.error(e);
-          });
-      }
-    },
-    [questionnaireToAnswer],
-  );
-
-  const onDataPermissionClick = useCallback((dataType: EWalletDataType) => {
-    if (permissionsRef.current) {
-      const newPermissions = {
-        ...permissionsRef.current,
-        dataTypes: permissionsRef.current.dataTypes.includes(dataType)
-          ? permissionsRef.current.dataTypes.filter((dt) => dt !== dataType)
-          : permissionsRef.current.dataTypes.concat(dataType),
-      };
-      dummyPermissionSetter(newPermissions).map(() => {
-        setPermissions(newPermissions);
-      });
-    }
-  }, []);
-
-  const onQuestionnairePermissionClick = useCallback(
-    (questionnaireCID: IpfsCID) => {
-      if (permissionsRef.current) {
-        const newPermissions = {
-          ...permissionsRef.current,
-          questionnaires: permissionsRef.current.questionnaires.includes(
-            questionnaireCID,
-          )
-            ? permissionsRef.current.questionnaires.filter(
-                (cid) => cid !== questionnaireCID,
-              )
-            : permissionsRef.current.questionnaires.concat(questionnaireCID),
-        };
-        dummyPermissionSetter(newPermissions).map(() => {
-          setPermissions(newPermissions);
-        });
-      }
-    },
-    [],
-  );
-
   const isReady = useMemo(() => {
-    return !!questionnaires && !!consentDataTypes && !!permissions;
-  }, [questionnaires, consentDataTypes, permissions]);
+    return !!questionnaires && !!queryStatuses && !!groupedDataTypes;
+  }, [queryStatuses, questionnaires, groupedDataTypes]);
 
   const handleOptOut = () => {
     setLoadingStatus(true);
@@ -197,84 +192,101 @@ const QuestionnaireModal: FC = () => {
   };
 
   return (
-    <>
-      <Dialog className={classes.dialog} fullWidth open onClose={closeModal}>
-        <DialogTitle>
-          <Box display="flex" position="relative" justifyContent="center">
-            <Box display="flex" width="fit-content" alignItems="center">
-              <Image
-                src={icon}
-                width={52}
-                height={52}
-                style={{ borderRadius: 8 }}
-              />
-              <SDTypography
-                ml={2}
-                hexColor={colors.DARKPURPLE500}
-                variant="titleLg"
-                fontWeight="bold"
-              >
-                {brandName}
-              </SDTypography>
-            </Box>
-            <Box position="absolute" top={0} right={0}>
-              <CloseButton onClick={closeModal} />
-            </Box>
-          </Box>
-        </DialogTitle>
-        <DialogContent>
-          <Box display="flex" flexDirection="column">
-            {isReady ? (
-              <Permissions
-                answeredQuestionnaires={questionnaires!.answeredQuestionnaires}
-                unAnsweredQuestionnaires={
-                  questionnaires!.unAnsweredQuestionnaires
-                }
-                onAnswerRequestClick={(questionnaire: Questionnaire) => {
-                  setQuestionnaireToAnswer(questionnaire);
-                }}
-                dataTypes={consentDataTypes!}
-                onDataPermissionClick={onDataPermissionClick}
-                onQuestionnairePermissionClick={onQuestionnairePermissionClick}
-                dataTypePermissions={permissions!.dataTypes}
-                questionnairePermissions={permissions!.questionnaires}
-              />
-            ) : (
-              <Box marginX="auto" py={10}>
-                <CircularProgress />
-              </Box>
-            )}
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Box color={colors.GREY500} display="flex" width="100%">
-            <SDButton
-              onClick={() => {
-                handleOptOut();
-              }}
-              startIcon={<Delete />}
-              variant="text"
-              color="inherit"
+    <Dialog className={classes.dialog} fullWidth open onClose={closeModal}>
+      <DialogTitle>
+        <Box display="flex" position="relative" justifyContent="center">
+          <Box display="flex" width="fit-content" alignItems="center">
+            <Image
+              src={icon}
+              width={52}
+              height={52}
+              style={{ borderRadius: 8 }}
+            />
+            <SDTypography
+              ml={2}
+              hexColor={colors.DARKPURPLE500}
+              variant="titleLg"
+              fontWeight="bold"
             >
-              Stop Sharing All
-            </SDButton>
+              {brandName}
+            </SDTypography>
           </Box>
-        </DialogActions>
-      </Dialog>
-      {questionnaireToAnswer && (
-        <FillQuestionnaireModal
-          questionnaire={questionnaireToAnswer}
-          onQuestionnaireSubmit={(answers: NewQuestionnaireAnswer[]) => {
-            handleQuestionnaireAnswer(answers);
-          }}
-          open={!!questionnaireToAnswer}
-          onClose={() => {
-            setQuestionnaireToAnswer(undefined);
-          }}
-        />
-      )}
-    </>
+          <Box position="absolute" top={0} right={0}>
+            <CloseButton onClick={closeModal} />
+          </Box>
+        </Box>
+      </DialogTitle>
+      <DialogContent>
+        <Box display="flex" flexDirection="column">
+          {isReady ? (
+            <>
+              {questionnaires!.map(({ query, questionnaire }) => {
+                return (
+                  <Item
+                    key={query.queryStatus.queryCID}
+                    brandIcon={icon}
+                    point={query.queryStatus.points}
+                    name={questionnaire.title}
+                  />
+                );
+              })}
+              {queryStatuses!.multiQuestionQueries.map((item) => (
+                <Item
+                  key={item.queryStatus.queryCID}
+                  name={item.queryStatus.name}
+                  brandIcon={icon}
+                  point={item.queryStatus.points}
+                />
+              ))}
+              {Object.entries(groupedDataTypes!)
+                .sort(
+                  ([q1, _], [q2, __]) =>
+                    DataTypeGroupProperties[q1].order -
+                    DataTypeGroupProperties[q2].order,
+                )
+                .map(([groupKey, groupItems]) => {
+                  return (
+                    <div key={groupKey}>
+                      {groupItems.map((item) => {
+                        return (
+                          <Item
+                            key={item.queryStatus.queryCID}
+                            brandIcon={icon}
+                            point={item.queryStatus.points}
+                            name={item.permission.name}
+                          />
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+            </>
+          ) : (
+            <Box marginX="auto" py={10}>
+              <CircularProgress />
+            </Box>
+          )}
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Box color={colors.GREY500} display="flex" width="100%">
+          <SDButton
+            style={{
+              marginLeft: -20,
+            }}
+            onClick={() => {
+              handleOptOut();
+            }}
+            startIcon={<Delete />}
+            variant="text"
+            color="inherit"
+          >
+            Stop Sharing All
+          </SDButton>
+        </Box>
+      </DialogActions>
+    </Dialog>
   );
 };
 
-export default QuestionnaireModal;
+export default BrandPermissionsModal;
