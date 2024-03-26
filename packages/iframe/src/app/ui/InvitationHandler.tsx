@@ -111,6 +111,9 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   const invitationDisplayRequestSubscription = useRef<Subscription | null>(
     null,
   );
+  const defaultConsentOptinRequestSubscription = useRef<Subscription | null>(
+    null,
+  );
   const uniqueConsentAdressesRef = useRef<EVMContractAddress[]>([]);
   const [deepLinkInvitation, setDeepLinkInvitation] =
     useState<IInvitation | null>(null);
@@ -188,10 +191,12 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   useEffect(() => {
     subsribeAccountAddedEvent();
     subscribeInvitationDisplayRequestEvent();
+    subscribeDefaultConsentOptinRequestEvent();
     getAccounts();
     return () => {
       accountAddedSubscription.current?.unsubscribe();
       invitationDisplayRequestSubscription.current?.unsubscribe();
+      defaultConsentOptinRequestSubscription.current?.unsubscribe();
     };
   }, []);
 
@@ -210,6 +215,21 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
           },
         )),
     );
+  };
+  const subscribeDefaultConsentOptinRequestEvent = () => {
+    defaultConsentOptinRequestSubscription.current =
+      events.onDefaultConsentOptinRequested.subscribe(
+        handledefaultConsentOptinRequest,
+      );
+  };
+
+  const handledefaultConsentOptinRequest = () => {
+    if (config.defaultConsentContract) {
+      core.invitation.acceptInvitation(
+        new Invitation(config.defaultConsentContract, null, null, null),
+        null,
+      );
+    }
   };
 
   const subscribeInvitationDisplayRequestEvent = () => {

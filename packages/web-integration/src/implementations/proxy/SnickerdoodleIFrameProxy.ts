@@ -277,7 +277,7 @@ export class SnickerdoodleIFrameProxy
   }
 
   public requestOptIn(
-    consentContractAddress: EVMContractAddress,
+    consentContractAddress?: EVMContractAddress,
   ): ResultAsync<void, ProxyError> {
     return this._createCall("requestOptIn", { consentContractAddress });
   }

@@ -723,7 +723,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   }
 
   public requestOptIn(
-    consentContractAddress: EVMContractAddress,
+    consentContractAddress?: EVMContractAddress,
   ): ResultAsync<void, ProxyError> {
     window.postMessage(
       {

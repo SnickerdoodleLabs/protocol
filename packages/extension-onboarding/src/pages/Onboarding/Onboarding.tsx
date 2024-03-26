@@ -4,6 +4,7 @@ import {
   TERMS_OF_SERVICE_URL,
 } from "@extension-onboarding/constants";
 import { useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useThemeContext } from "@extension-onboarding/context/ThemeContext";
 import { EOnboardingState } from "@extension-onboarding/objects/interfaces/IUState";
 import StepIndicators from "@extension-onboarding/pages/Onboarding//StepIndicators";
@@ -13,6 +14,7 @@ import { SDCheckbox, SDTypography } from "@snickerdoodlelabs/shared-components";
 import React, { FC, useMemo, useEffect, ReactNode, useCallback } from "react";
 
 const Onboarding: FC = () => {
+  const { sdlDataWallet } = useDataWalletContext();
   const { onboardingState, uiStateUtils } = useAppContext();
   const { setBackground } = useThemeContext();
   const [currentStepIndex, setCurrentStepIndex] = React.useState(0);
@@ -46,7 +48,9 @@ const Onboarding: FC = () => {
   }, [currentStepIndex]);
 
   const onCompleted = useCallback(() => {
-    uiStateUtils.setOnboardingState(EOnboardingState.COMPLETED);
+    sdlDataWallet.requestOptIn().map(() => {
+      uiStateUtils.setOnboardingState(EOnboardingState.COMPLETED);
+    });
   }, []);
 
   const renderStep = useMemo(() => {
