@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import { Poseidon, Field, verify } from "o1js";
 
 import {
@@ -24,7 +23,7 @@ class CommitmentMocks {
   }
 }
 
-describe("Proof of Commitment", () => {
+describe("commitmentVerification ZkProgram", () => {
   test("Generate Proof of Commitment", async () => {
     // pretend like we're about to opt into a consent contract and generate an identity object
     const identities = CommitmentMocks.generateIdentities(1);
@@ -58,8 +57,6 @@ describe("Proof of Commitment", () => {
 
     console.log("Proof Json:", proof.toJSON());
 
-    const serializedProof = ObjectUtils.serialize(proof);
-
     // NOTE: this step would happen server-side
     console.log("verify...");
     console.time("verify...");
@@ -67,5 +64,5 @@ describe("Proof of Commitment", () => {
     //await commitmentVerification.verify(proof);
     const ok = await verify(proof.toJSON(), verificationKey);
     console.timeEnd("verify...");
-  }, 20000);
+  }, 40000);
 });

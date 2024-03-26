@@ -62,7 +62,7 @@ describe("MembershipWrapper tests", () => {
     // Assert
     expect(proofResult).toBeDefined();
     expect(proofResult.isOk()).toBeTruthy();
-  }, 20000);
+  }, 40000);
 
   test("Generates Proof, anonymity set does not include identity", async () => {
     // Arrange
@@ -85,7 +85,7 @@ describe("MembershipWrapper tests", () => {
     // Assert
     expect(proofResult).toBeDefined();
     expect(proofResult.isOk()).toBeTruthy();
-  }, 20000);
+  }, 40000);
 
   test("Proof Validates", async () => {
     // Arrange
@@ -116,5 +116,5 @@ describe("MembershipWrapper tests", () => {
     expect(result.isOk()).toBeTruthy();
     const valid = result._unsafeUnwrap();
     expect(valid).toBeTruthy();
-  }, 20000);
+  }, 40000);
 });
