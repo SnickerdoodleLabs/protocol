@@ -1,4 +1,4 @@
-import { Circuit, Field, circuitMain, public_, ZkProgram } from "o1js";
+import { Circuit, Field, circuitMain, public_, ZkProgram, Struct } from "o1js";
 
 import { Identity } from "@circuits/Identity.js";
 
@@ -18,16 +18,27 @@ export class Commitment extends Circuit {
   }
 }
 
+export class CommitmentVerifyParams extends Struct({
+  commitmentLeaf: Field,
+  signalHash: Field,
+  signalHashSquared: Field,
+}) {}
+
 export const commitmentVerification = ZkProgram({
   name: "commitment",
-  publicInput: Field,
+  publicInput: CommitmentVerifyParams,
 
   methods: {
     commitmentVerify: {
       privateInputs: [Identity],
-      method(commitmentLeaf: Field, identity: Identity) {
+      method(params: CommitmentVerifyParams, identity: Identity) {
         // now we check that the signalNullifier was computed properly to prevent duplicate responses
-        identity.leaf().assertEquals(commitmentLeaf);
+        identity.leaf().assertEquals(params.commitmentLeaf);
+
+        // lastly, check that the communicated signal has not been tampered with
+        params.signalHash
+          .mul(params.signalHash)
+          .assertEquals(params.signalHashSquared);
       },
     },
   },
