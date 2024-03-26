@@ -62,6 +62,8 @@ const envVars = {
   __DNS_SERVER_ADDRESS__: "",
   __GOOGLE_CLOUD_BUCKET__: "demo-05-eksbc-sdl-dw",
   __DEV_CHAIN_PROVIDER_URL__: "https://doodlechain.demo-05.snickerdoodle.dev",
+
+  __DEFAULT_CONSENT_CONTRACT__: "",
 };
 
 for (const key in envVars) {

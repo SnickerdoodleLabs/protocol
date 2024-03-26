@@ -6,6 +6,7 @@ process.env.__IPFS_FETCH_BASE_URL__ =
   "https://ipfs-gateway.snickerdoodle.com/ipfs/";
 
 process.env.__DEV_CHAIN_PROVIDER_URL__ = "";
+process.env.__DEFAULT_CONSENT_CONTRACT__ = "";
 
 var WebpackDevServer = require("webpack-dev-server"),
   webpack = require("webpack"),

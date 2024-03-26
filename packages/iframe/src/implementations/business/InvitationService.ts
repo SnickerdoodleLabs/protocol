@@ -11,7 +11,7 @@ import {
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
-import { ResultAsync, okAsync } from "neverthrow";
+import { ResultAsync, ok, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { Subscription } from "rxjs";
 import { parse } from "tldts";
@@ -173,10 +173,15 @@ export class InvitationService implements IInvitationService {
   }
 
   private _handleConsentAddress(
-    consentAddress: EVMContractAddress,
+    consentAddress: EVMContractAddress | undefined,
     type: EInvitationSourceType,
   ) {
-    console.log("event reached");
+    if (!consentAddress) {
+      this.contextProvider
+        .getEvents()
+        .onDefaultConsentOptinRequested.next(undefined);
+      return okAsync(undefined);
+    }
     if (type === EInvitationSourceType.CONSENT_ADDRESS) {
       this.consentCheckSubscription.unsubscribe();
     }

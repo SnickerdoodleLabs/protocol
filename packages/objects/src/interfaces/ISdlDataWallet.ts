@@ -361,7 +361,7 @@ export interface ISdlDataWallet {
   // user requests
   requestDashboardView: undefined | (() => ResultAsync<void, ProxyError>);
   requestOptIn(
-    consentAddress: EVMContractAddress,
+    consentAddress?: EVMContractAddress,
   ): ResultAsync<void, ProxyError>;
 
   setUIState(state: JSONString): ResultAsync<void, ProxyError>;

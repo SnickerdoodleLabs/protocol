@@ -27,11 +27,13 @@ export class IFrameEvents {
   public onInvitationDisplayRequested: Subject<IInvitationDisplayRequest>;
   public onConsentAddressFound: Subject<EVMContractAddress>;
   public onDashboardViewRequested: Subject<void>;
-  public onOptInRequested: Subject<EVMContractAddress>;
+  public onOptInRequested: Subject<EVMContractAddress | undefined>;
+  public onDefaultConsentOptinRequested: Subject<undefined>;
   public constructor() {
     this.onInvitationDisplayRequested = new Subject();
     this.onConsentAddressFound = new Subject();
     this.onDashboardViewRequested = new Subject();
     this.onOptInRequested = new Subject();
+    this.onDefaultConsentOptinRequested = new Subject();
   }
 }

@@ -1,4 +1,5 @@
 import { ThemeProvider } from "@material-ui/core";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
   BaseNotification,
   BigNumberString,
@@ -51,6 +52,7 @@ import {
   GetConsentContractCIDParams,
   GetQueryStatusesByContractAddressParams,
   ApproveQueryParams,
+  AcceptInvitationParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 import endOfStream from "end-of-stream";
@@ -475,16 +477,23 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
   }, []);
 
   const catchRequestOptIn = (event: MessageEvent) => {
-    if (
-      event?.data?.type === "requestOptIn" &&
-      event?.data?.consentContractAddress
-    ) {
+    if (event?.data?.type === "requestOptIn") {
       handleOptInRequest(event.data.consentContractAddress);
     }
   };
 
-  const handleOptInRequest = (contractAddress: EVMContractAddress) => {
-    getInvitation(contractAddress, null, null).map((result) => {
+  const handleOptInRequest = (contractAddress?: EVMContractAddress) => {
+    if (!contractAddress) {
+      return coreGateway.getConfig().map((config) => {
+        if (config.defaulConsentContract) {
+          coreGateway.acceptInvitation(
+            new Invitation(config.defaulConsentContract, null, null, null),
+            null,
+          );
+        }
+      });
+    }
+    return getInvitation(contractAddress, null, null).map((result) => {
       if (result) {
         setUserRequestedInvitation(result);
       }

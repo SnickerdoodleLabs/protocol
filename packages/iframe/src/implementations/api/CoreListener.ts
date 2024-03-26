@@ -1200,14 +1200,13 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       },
 
       requestOptIn: (
-        data: IIFrameCallData<{ consentContractAddress: EVMContractAddress }>,
+        data: IIFrameCallData<{ consentContractAddress?: EVMContractAddress }>,
       ) => {
         this.returnForModel(() => {
-          return okAsync(
-            this.contextProvider
-              .getEvents()
-              .onOptInRequested.next(data.data.consentContractAddress),
-          );
+          this.contextProvider
+            .getEvents()
+            .onOptInRequested.next(data.data.consentContractAddress);
+          return okAsync(undefined);
         }, data.callId);
       },
     });

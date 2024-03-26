@@ -49,6 +49,8 @@ const envVars = {
   __TRANSACTION_POLLING_INTERVAL__: "",
   __BACKUP_POLLING_INTERVAL__: "",
   __DEV_CHAIN_PROVIDER_URL__: "http://127.0.0.1:8545",
+
+  __DEFAULT_CONSENT_CONTRACT__: "",
 };
 
 for (const key in envVars) {
