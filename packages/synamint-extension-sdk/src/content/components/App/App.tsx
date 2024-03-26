@@ -253,17 +253,31 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
       .getInvitationsByDomain(
         new GetInvitationWithDomainParams(domainName, domainPath),
       )
-      .map((result) => {
+      .andThen((result) => {
         if (result) {
-          setDomainInvitation({
-            invitation: result.invitation,
-            metadata: result.invitationMetadata,
-          });
+          const {
+            invitation: { tokenId, consentContractAddress, businessSignature },
+          } = result;
+          return coreGateway
+            .checkInvitationStatus(
+              new CheckInvitationStatusParams(
+                consentContractAddress,
+                businessSignature ?? undefined,
+                tokenId ? BigNumberString(tokenId.toString()) : undefined,
+              ),
+            )
+            .map((status) => {
+              if (status === EInvitationStatus.New) {
+                setDomainInvitation({
+                  invitation: result.invitation,
+                  metadata: result.invitationMetadata,
+                });
+              }
+            });
         }
+        return okAsync(undefined);
       })
-      .mapErr((err) => {
-        console.warn(" Data Wallet:  Unable to get invitation by domain", err);
-      });
+      .mapErr((err) => {});
     // #endregion
   }, []);
 
@@ -537,48 +551,52 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
   );
 
   const renderComponent = useMemo(() => {
-    if (!currentInvitation) return null;
-    switch (true) {
-      case appState === EAppState.AUDIENCE_PREVIEW:
-        return (
-          <ConsentModal
-            onClose={() => {
-              emptyReward();
-            }}
-            open={true}
-            onOptinClicked={optIn}
-            consentContractAddress={
-              currentInvitation.data.invitation.consentContractAddress
-            }
-            invitationData={currentInvitation.data.metadata}
-            answerQuestionnaire={(
-              id: IpfsCID,
-              answers: NewQuestionnaireAnswer[],
-            ) => coreGateway.questionnaire.answerQuestionnaire(id, answers)}
-            onRejectClick={() => {
-              rejectInvitation(false);
-            }}
-            onRejectWithTimestampClick={() => {
-              rejectInvitation(true);
-            }}
-            displayRejectButtons={
-              currentInvitation.type === EInvitationSourceType.DOMAIN
-            }
-            getQueryStatuses={(contractAddress: EVMContractAddress) => {
-              return coreGateway.getQueryStatusesByContractAddress(
-                new GetQueryStatusesByContractAddressParams(contractAddress),
-              );
-            }}
-            evmAccounts={evmAccounts!}
-            getQuestionnairesByCids={function (
-              cids: IpfsCID[],
-            ): ResultAsync<Questionnaire[], unknown> {
-              return coreGateway.questionnaire.getByCIDs(cids);
-            }}
-          />
-        );
-      default:
-        return null;
+    if (currentInvitation) {
+      switch (appState) {
+        case EAppState.AUDIENCE_PREVIEW:
+          return (
+            <ConsentModal
+              key={currentInvitation.data.invitation.consentContractAddress}
+              onClose={() => {
+                emptyReward();
+              }}
+              open={true}
+              onOptinClicked={optIn}
+              consentContractAddress={
+                currentInvitation.data.invitation.consentContractAddress
+              }
+              invitationData={currentInvitation.data.metadata}
+              answerQuestionnaire={(
+                id: IpfsCID,
+                answers: NewQuestionnaireAnswer[],
+              ) => coreGateway.questionnaire.answerQuestionnaire(id, answers)}
+              onRejectClick={() => {
+                rejectInvitation(false);
+              }}
+              onRejectWithTimestampClick={() => {
+                rejectInvitation(true);
+              }}
+              displayRejectButtons={
+                currentInvitation.type === EInvitationSourceType.DOMAIN
+              }
+              getQueryStatuses={(contractAddress: EVMContractAddress) => {
+                return coreGateway.getQueryStatusesByContractAddress(
+                  new GetQueryStatusesByContractAddressParams(contractAddress),
+                );
+              }}
+              evmAccounts={evmAccounts!}
+              getQuestionnairesByCids={function (
+                cids: IpfsCID[],
+              ): ResultAsync<Questionnaire[], unknown> {
+                return coreGateway.questionnaire.getByCIDs(cids);
+              }}
+            />
+          );
+        default:
+          return null;
+      }
+    } else {
+      return null;
     }
   }, [evmAccounts, appState, currentInvitation]);
 
