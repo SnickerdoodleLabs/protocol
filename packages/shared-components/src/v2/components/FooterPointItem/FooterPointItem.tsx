@@ -18,7 +18,7 @@ export const FooterPointItem: FC<IFooterPointItem> = ({
   totalPoints,
   height = 40,
 }) => {
-  if (!points) return null;
+  if (!points && !totalPoints) return null;
   return (
     <Box
       borderRadius="25px 30px 30px 25px"

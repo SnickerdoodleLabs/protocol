@@ -20,6 +20,7 @@ import {
   CustomSelect,
   FooterPointItem,
   AccountMenuItem,
+  SDCheckbox,
 } from "@shared-components/v2/components";
 import {
   DataTypeGroupProperties,
@@ -586,7 +587,7 @@ export const ConsentModal = ({
             width="100%"
           >
             <Box display="flex" gridGap={12} alignItems="center">
-              {/* <SDCheckbox
+              <SDCheckbox
                 checked={agreementConsented}
                 onChange={() => {
                   setAgreementConsented(!agreementConsented);
@@ -613,8 +614,8 @@ export const ConsentModal = ({
                     </span>
                   </SDTypography>
                 }
-              /> */}
-              <Box display="flex" alignItems="center" width="fit-content">
+              />
+              {/* <Box display="flex" alignItems="center" width="fit-content">
                 <FooterPointItem
                   icon={
                     invitationData["brandInformation"]?.["image"] ??
@@ -635,21 +636,33 @@ export const ConsentModal = ({
                     </MenuItem>
                   ))}
                 </CustomSelect>
-              </Box>
+              </Box> */}
             </Box>
-            <SDButton
-              // disabled={!agreementConsented}
-              variant="contained"
-              color="primary"
-              onClick={() => {
-                handleShareClicked();
-              }}
-            >
-              {queryApprovalState?.queryIds.length === 0 &&
-              queryApprovalState?.combined.length === 0
-                ? "Accept"
-                : "Share Selected"}
-            </SDButton>
+            <Box display="flex" alignItems="center" width="fit-content">
+              <FooterPointItem
+                icon={
+                  invitationData["brandInformation"]?.["image"] ??
+                  invitationData.image ??
+                  ""
+                }
+                points={queryApprovalState?.points ?? 0}
+                totalPoints={totalPoints}
+              />
+              <Box ml={2} />
+              <SDButton
+                disabled={!agreementConsented}
+                variant="contained"
+                color="primary"
+                onClick={() => {
+                  handleShareClicked();
+                }}
+              >
+                {queryApprovalState?.queryIds.length === 0 &&
+                queryApprovalState?.combined.length === 0
+                  ? "Accept"
+                  : "Share"}
+              </SDButton>
+            </Box>
           </Box>
           {displayRejectButtons && (
             <Box
@@ -929,7 +942,9 @@ export const ConsentModal = ({
                     </div>
                   );
                 })}
-
+              {(queryStatuses?.multiQuestionQueries.length ?? 0) > 0 && (
+                <PermissionSectionTitle title="Multi-question Queries" />
+              )}
               {queryStatuses?.multiQuestionQueries.map((q) => (
                 <PermissionItemWithShareButton
                   key={q.queryStatus.queryCID}
