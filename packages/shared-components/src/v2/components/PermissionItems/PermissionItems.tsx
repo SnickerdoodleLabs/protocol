@@ -44,7 +44,7 @@ interface IPointItemProps {
   active?: boolean;
 }
 
-const PointItem: FC<IPointItemProps> = ({
+export const PointItem: FC<IPointItemProps> = ({
   point,
   pointIcon,
   active = false,

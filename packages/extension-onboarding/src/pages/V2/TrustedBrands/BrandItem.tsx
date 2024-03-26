@@ -4,6 +4,7 @@ import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { Box, Theme, makeStyles } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import {
+  EQueryProcessingStatus,
   EVMContractAddress,
   IOldUserAgreement,
   IUserAgreement,
@@ -22,6 +23,7 @@ interface IBrandItemProps {
   contractAddress: EVMContractAddress;
   ipfsCID: IpfsCID;
 }
+
 const BrandItem: FC<IBrandItemProps> = ({ contractAddress, ipfsCID }) => {
   const classes = useStyles();
   const { sdlDataWallet } = useDataWalletContext();
@@ -34,9 +36,11 @@ const BrandItem: FC<IBrandItemProps> = ({ contractAddress, ipfsCID }) => {
       setAgreementData(data);
     });
   };
+  const [approvedQueryCount, setApprovedQueryCount] = useSafeState<number>();
 
   useEffect(() => {
     getAgreementData();
+    getApprovedQueryCount();
   }, []);
 
   const { name, icon } = useMemo(() => {
@@ -80,6 +84,16 @@ const BrandItem: FC<IBrandItemProps> = ({ contractAddress, ipfsCID }) => {
     }
   }, [JSON.stringify(agreementData)]);
 
+  const getApprovedQueryCount = () => {
+    return sdlDataWallet
+      .getQueryStatuses(contractAddress, [
+        EQueryProcessingStatus.RewardsReceived,
+      ])
+      .map((data) => {
+        setApprovedQueryCount(data.length);
+      });
+  };
+
   return (
     <Box
       onClick={() => {
@@ -94,8 +108,6 @@ const BrandItem: FC<IBrandItemProps> = ({ contractAddress, ipfsCID }) => {
                 "",
               brandName:
                 agreementData["brandInformation"]?.["name"] ?? "Unknown",
-              dataTypes: [],
-              questionnaireCIDs: [],
               consentAddress: contractAddress,
             },
           });
@@ -108,7 +120,7 @@ const BrandItem: FC<IBrandItemProps> = ({ contractAddress, ipfsCID }) => {
     >
       {icon} {name}
       <SDTypography fontWeight="medium" ml="auto" variant="bodyLg">
-        _
+        {approvedQueryCount != undefined ? approvedQueryCount : <Skeleton />}
       </SDTypography>
     </Box>
   );

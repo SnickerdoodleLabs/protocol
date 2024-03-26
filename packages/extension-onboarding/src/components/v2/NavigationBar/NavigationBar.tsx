@@ -79,11 +79,11 @@ const navigationItems: INavigationItem[] = [
     path: EPathsV2.COOKIE_VAULT,
     icon: <CookieVaultIcon color="inherit" />,
   },
-  // {
-  //   displayName: "Trusted Brands",
-  //   path: EPathsV2.TRUSTED_BRANDS,
-  //   icon: <TrustedBrandsIcon color="inherit" />,
-  // },
+  {
+    displayName: "Trusted Brands",
+    path: EPathsV2.TRUSTED_BRANDS,
+    icon: <TrustedBrandsIcon color="inherit" />,
+  },
   {
     displayName: "Offers",
     path: EPathsV2.OFFERS,
