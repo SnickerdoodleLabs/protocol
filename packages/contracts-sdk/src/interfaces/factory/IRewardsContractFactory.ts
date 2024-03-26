@@ -3,6 +3,7 @@ import {
   BaseURI,
   BlockchainCommonErrors,
   TokenUri,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -57,6 +58,44 @@ export interface IRewardsContractFactory {
   estimateGasToDeployERC1155Contract(
     numberOfRewards: number,
     tokenURIs: TokenUri[],
+  ): ResultAsync<bigint, RewardsFactoryError | BlockchainCommonErrors>;
+
+  deployOFT20Reward(
+    name: string,
+    symbol: string,
+    layerZeroEndpoint: EVMContractAddress,
+    overrides: ContractOverrides,
+    omitGasFee?: boolean,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | RewardsFactoryError
+  >;
+
+  estimateGasToDeployOFT20RewardContract(
+    name: string,
+    symbol: string,
+    layerZeroEndpoint: EVMContractAddress,
+  ): ResultAsync<bigint, RewardsFactoryError | BlockchainCommonErrors>;
+
+  deployONFT721Reward(
+    name: string,
+    symbol: string,
+    baseURI: BaseURI,
+    minGasToTransfer: bigint,
+    layerZeroEndpoint: EVMContractAddress,
+    overrides: ContractOverrides,
+    omitGasFee?: boolean,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | RewardsFactoryError
+  >;
+
+  estimateGasToDeployONFT721RewardContract(
+    name: string,
+    symbol: string,
+    baseURI: BaseURI,
+    minGasToTransfer: bigint,
+    layerZeroEndpoint: EVMContractAddress,
   ): ResultAsync<bigint, RewardsFactoryError | BlockchainCommonErrors>;
 }
 

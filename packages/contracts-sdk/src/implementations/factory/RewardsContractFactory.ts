@@ -239,6 +239,39 @@ export class RewardsContractFactory
     });
   }
 
+  public estimateGasToDeployERC1155Contract(
+    numberOfRewards: number,
+    tokenURIs: TokenUri[],
+  ): ResultAsync<bigint, RewardsFactoryError | BlockchainCommonErrors> {
+    return ResultAsync.fromPromise(
+      this.erc1155ContractFactory.getDeployTransaction(
+        numberOfRewards,
+        tokenURIs,
+      ),
+      (e) => {
+        return this.generateError(
+          e,
+          "Unable to get deploy transaction for contract deployment for OFT20 Reward contract",
+        );
+      },
+    )
+      .andThen((deployTransaction) => {
+        return ResultAsync.fromPromise(
+          this.providerOrSigner.estimateGas(deployTransaction),
+          (e) => {
+            return this.generateError(
+              e,
+              "Attempting to estimate gas for contract deployment",
+            );
+          },
+        );
+      })
+      .map((estimatedGas) => {
+        // Increase estimated gas buffer by 20%
+        return (estimatedGas * 120n) / 100n;
+      });
+  }
+
   // function to deploy a new OFT20Reward reward contract
   public deployOFT20Reward(
     name: string,
@@ -271,39 +304,6 @@ export class RewardsContractFactory
         true,
       );
     });
-  }
-
-  public estimateGasToDeployERC1155Contract(
-    numberOfRewards: number,
-    tokenURIs: TokenUri[],
-  ): ResultAsync<bigint, RewardsFactoryError | BlockchainCommonErrors> {
-    return ResultAsync.fromPromise(
-      this.erc1155ContractFactory.getDeployTransaction(
-        numberOfRewards,
-        tokenURIs,
-      ),
-      (e) => {
-        return this.generateError(
-          e,
-          "Unable to get deploy transaction for contract deployment for OFT20 Reward contract",
-        );
-      },
-    )
-      .andThen((deployTransaction) => {
-        return ResultAsync.fromPromise(
-          this.providerOrSigner.estimateGas(deployTransaction),
-          (e) => {
-            return this.generateError(
-              e,
-              "Attempting to estimate gas for contract deployment",
-            );
-          },
-        );
-      })
-      .map((estimatedGas) => {
-        // Increase estimated gas buffer by 20%
-        return (estimatedGas * 120n) / 100n;
-      });
   }
 
   public estimateGasToDeployOFT20RewardContract(
