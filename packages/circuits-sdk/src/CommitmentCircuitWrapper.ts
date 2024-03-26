@@ -1,8 +1,4 @@
-import {
-  commitmentVerification,
-  CommitmentVerifyParams,
-  Identity,
-} from "@snickerdoodlelabs/circuits";
+import { Commitment, Identity } from "@snickerdoodlelabs/circuits";
 import {
   BigNumberString,
   CircuitError,
@@ -11,19 +7,22 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
-import { Encoding, Field, Poseidon, Proof } from "o1js";
+import { Encoding, Field, Keypair, Poseidon } from "o1js";
 
+import { CircuitWrapper } from "@circuits-sdk/CircuitWrapper.js";
 import { ICommitmentWrapper } from "@circuits-sdk/ICommitmentWrapper.js";
-import { ZkProgramWrapper } from "@circuits-sdk/ZkProgramWrapper.js";
 
 @injectable()
-export class CommitmentWrapper
-  extends ZkProgramWrapper
+export class CommitmentCircuitWrapper
+  extends CircuitWrapper<Commitment>
   implements ICommitmentWrapper
 {
   public constructor() {
-    super(commitmentVerification);
+    super(Commitment);
   }
+
+  static keypair: ResultAsync<Keypair, CircuitError> | null = null;
+
   static getIdentity(
     identityTrapdoor: BigNumberString,
     identityNullifier: BigNumberString,
@@ -38,6 +37,20 @@ export class CommitmentWrapper
     return CommitmentBrand(identity.leaf().toBigInt());
   }
 
+  static getSignalNullifier(
+    identity: Identity,
+    roundIdentifier: string,
+  ): BigNumberString {
+    return BigNumberString(
+      Poseidon.hash([
+        identity.identityNullifier,
+        Poseidon.hash(Encoding.stringToFields(roundIdentifier)),
+      ])
+        .toBigInt()
+        .toString(),
+    );
+  }
+
   public prove(
     signal: string,
     identityTrapdoor: BigNumberString,
@@ -50,34 +63,17 @@ export class CommitmentWrapper
     const signalHashSquared = signalHash.mul(signalHash);
 
     // Create an identity object
-    const identity = CommitmentWrapper.getIdentity(
+    const identity = CommitmentCircuitWrapper.getIdentity(
       identityTrapdoor,
       identityNullifier,
     );
+    const identityCommitment =
+      CommitmentCircuitWrapper.getIdentityCommitment(identity);
 
-    const commitmentParams = new CommitmentVerifyParams({
-      commitmentLeaf: identity.leaf(),
-      signalHash: signalHash,
-      signalHashSquared: signalHashSquared,
-    });
-
-    return this.assureCompile()
-
-      .andThen(() => {
-        return ResultAsync.fromPromise(
-          commitmentVerification.commitmentVerify(
-            commitmentParams,
-            identity,
-          ) as Promise<Proof<CommitmentVerifyParams, void>>,
-          (e) => {
-            return new CircuitError("Failed to generate proof", e);
-          },
-        );
-      })
-      .map((proof) => {
-        const serializedProof = proof.toJSON();
-        return ZKProof(serializedProof.proof);
-      });
+    return this._prove(
+      [identity],
+      [new Field(identityCommitment), signalHash, signalHashSquared],
+    );
   }
 
   public verify(
@@ -91,12 +87,15 @@ export class CommitmentWrapper
     const signalHashSquared = signalHash.mul(signalHash);
 
     return this._verify(
-      [
-        commitment.toString(),
-        signalHash.toString(),
-        signalHashSquared.toString(),
-      ],
+      [new Field(commitment), signalHash, signalHashSquared],
       proof,
     );
+  }
+
+  protected getKeypairResult(): ResultAsync<Keypair, CircuitError> | null {
+    return CommitmentCircuitWrapper.keypair;
+  }
+  protected setKeypairResult(result: ResultAsync<Keypair, CircuitError>): void {
+    CommitmentCircuitWrapper.keypair = result;
   }
 }

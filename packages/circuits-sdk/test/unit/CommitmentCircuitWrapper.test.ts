@@ -1,8 +1,7 @@
 import { Identity } from "@snickerdoodlelabs/circuits";
 import { BigNumberString } from "@snickerdoodlelabs/objects";
-import { Field } from "o1js";
 
-import { CommitmentWrapper } from "@circuits-sdk/CommitmentWrapper.js";
+import { CommitmentCircuitWrapper } from "@circuits-sdk/CommitmentCircuitWrapper.js";
 
 const signal =
   '{"consentContractId":"0x7e919252cd379Aef5f911Eae090fF6b4909b78C6","commitment":{"dataType":"bigint","value":"17470799417276826919889359284281809678769647185050195191869251295544615045713"}}';
@@ -17,35 +16,21 @@ class CommitmentWrapperMocks {
   public identity: Identity;
 
   public constructor() {
-    this.identity = CommitmentWrapper.getIdentity(
+    this.identity = CommitmentCircuitWrapper.getIdentity(
       identityTrapdoor,
       identityNullifier,
     );
   }
-
-  static generateIdentities(count: number): Identity[] {
-    const identities = new Array<Identity>();
-
-    for (let i = 0; i < count; i++) {
-      identities.push(
-        new Identity({
-          identityTrapdoor: Field.random(),
-          identityNullifier: Field.random(),
-        }),
-      );
-    }
-    return identities;
-  }
 }
 
-describe("CommitmentWrapper tests", () => {
+describe("CommitmentCircuitWrapper tests", () => {
   test("Generates Proof", async () => {
     // Arrange
     const mocks = new CommitmentWrapperMocks();
-    const wrapper = new CommitmentWrapper();
+    const Commitment = new CommitmentCircuitWrapper();
 
     // Act
-    const proofResult = await wrapper.prove(
+    const proofResult = await Commitment.prove(
       signal,
       identityTrapdoor,
       identityNullifier,
@@ -59,18 +44,20 @@ describe("CommitmentWrapper tests", () => {
   test("Proof Validates", async () => {
     // Arrange
     const mocks = new CommitmentWrapperMocks();
-    const commitment = new CommitmentWrapper();
+    const Commitment = new CommitmentCircuitWrapper();
 
     // Act
-    const result = await commitment
-      .prove(signal, identityTrapdoor, identityNullifier)
-      .andThen((proof) => {
-        return commitment.verify(
-          signal,
-          CommitmentWrapper.getIdentityCommitment(mocks.identity),
-          proof,
-        );
-      });
+    const result = await Commitment.prove(
+      signal,
+      identityTrapdoor,
+      identityNullifier,
+    ).andThen((proof) => {
+      return Commitment.verify(
+        signal,
+        CommitmentCircuitWrapper.getIdentityCommitment(mocks.identity),
+        proof,
+      );
+    });
 
     // Assert
     expect(result).toBeDefined();

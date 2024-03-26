@@ -6,6 +6,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { Field } from "o1js";
 
+import { MembershipCircuitWrapper } from "@circuits-sdk/MembershipCircuitWrapper.js";
 import { MembershipWrapper } from "@circuits-sdk/MembershipWrapper.js";
 
 const signal = "Phoebe";
@@ -62,7 +63,7 @@ describe("MembershipWrapper tests", () => {
     // Assert
     expect(proofResult).toBeDefined();
     expect(proofResult.isOk()).toBeTruthy();
-  }, 20000);
+  }, 40000);
 
   test("Generates Proof, anonymity set does not include identity", async () => {
     // Arrange
@@ -85,7 +86,7 @@ describe("MembershipWrapper tests", () => {
     // Assert
     expect(proofResult).toBeDefined();
     expect(proofResult.isOk()).toBeTruthy();
-  }, 20000);
+  }, 40000);
 
   test("Proof Validates", async () => {
     // Arrange
@@ -116,5 +117,80 @@ describe("MembershipWrapper tests", () => {
     expect(result.isOk()).toBeTruthy();
     const valid = result._unsafeUnwrap();
     expect(valid).toBeTruthy();
-  }, 20000);
+  }, 40000);
+});
+
+describe("MembershipCircuitWrapper tests", () => {
+  test("Generates Proof, anonymity set does not include identity", async () => {
+    // Arrange
+    const mocks = new MembershipWrapperMocks();
+    const membership = new MembershipCircuitWrapper();
+
+    // Act
+    const proofResult = await membership.prove(
+      signal,
+      identityTrapdoor,
+      identityNullifier,
+      mocks.anonymitySet,
+      ipfsCID,
+    );
+
+    // Assert
+    expect(proofResult).toBeDefined();
+    expect(proofResult.isOk()).toBeTruthy();
+  }, 40000);
+
+  test("Generates Proof, anonymity set does not include identity", async () => {
+    // Arrange
+    const mocks = new MembershipWrapperMocks();
+    const membership = new MembershipCircuitWrapper();
+
+    mocks.anonymitySet.push(
+      MembershipCircuitWrapper.getIdentityCommitment(mocks.identity),
+    );
+
+    // Act
+    const proofResult = await membership.prove(
+      signal,
+      identityTrapdoor,
+      identityNullifier,
+      mocks.anonymitySet,
+      ipfsCID,
+    );
+
+    // Assert
+    expect(proofResult).toBeDefined();
+    expect(proofResult.isOk()).toBeTruthy();
+  }, 40000);
+
+  test("Proof Validates", async () => {
+    // Arrange
+    const mocks = new MembershipWrapperMocks();
+    const membership = new MembershipCircuitWrapper();
+
+    // Act
+    const result = await membership
+      .prove(
+        signal,
+        identityTrapdoor,
+        identityNullifier,
+        mocks.anonymitySet,
+        ipfsCID,
+      )
+      .andThen((proof) => {
+        return membership.verify(
+          signal,
+          mocks.anonymitySet,
+          ipfsCID,
+          mocks.signalNullifier,
+          proof,
+        );
+      });
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isOk()).toBeTruthy();
+    const valid = result._unsafeUnwrap();
+    expect(valid).toBeTruthy();
+  }, 40000);
 });

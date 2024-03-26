@@ -8769,7 +8769,7 @@ __metadata:
     inversify: ^6.0.2
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
-    o1js: ^0.16.2
+    o1js: ^0.17.0
     uuid: ^8.3.0
   languageName: unknown
   linkType: soft
@@ -19617,15 +19617,6 @@ __metadata:
   version: 1.0.0
   resolution: "detect-file@npm:1.0.0"
   checksum: 1861e4146128622e847abe0e1ed80fef01e78532665858a792267adf89032b7a9c698436137707fcc6f02956c2a6a0052d6a0cef5be3d4b76b1ff0da88e2158a
-  languageName: node
-  linkType: hard
-
-"detect-gpu@npm:^5.0.5":
-  version: 5.0.38
-  resolution: "detect-gpu@npm:5.0.38"
-  dependencies:
-    webgl-constants: ^1.1.1
-  checksum: f3cd2e52e5a4fceb5f8de0c67221d2497a8e1869ff45b619c81897c19753401ee4a36a50e5ac639201a28f4b943c59ef5bf82a74fe08bd3b6a33e647ce400dfb
   languageName: node
   linkType: hard
 
@@ -33966,23 +33957,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"o1js@npm:^0.16.2":
-  version: 0.16.2
-  resolution: "o1js@npm:0.16.2"
-  dependencies:
-    blakejs: 1.2.1
-    cachedir: ^2.4.0
-    detect-gpu: ^5.0.5
-    isomorphic-fetch: ^3.0.0
-    js-sha256: ^0.9.0
-    reflect-metadata: ^0.1.13
-    tslib: ^2.3.0
-  bin:
-    snarky-run: src/build/run.js
-  checksum: 12968e6d42b27fa29e3a7c092c5844811d8d18d1f9d01246a5ccc0c592cc49b41773bb5b269166aee97931f1d1ad8b745955483263913075b7722a9ef11dd825
-  languageName: node
-  linkType: hard
-
 "o1js@npm:^0.17.0":
   version: 0.17.0
   resolution: "o1js@npm:0.17.0"
@@ -42427,7 +42401,7 @@ __metadata:
 "sync-promise@git+https://github.com/brettz9/sync-promise.git#full-sync-missing-promise-features":
   version: 1.0.1
   resolution: "sync-promise@https://github.com/brettz9/sync-promise.git#commit=25845a49a00aa2d2c985a5149b97c86a1fcdc75a"
-  checksum: f536c50c270ef2ec28511af3b90ba10b8e2b3b51b3e4079136d428150ccc9592f47d02e2cf41ba02135e4a81f59fb472d642794d807bacf8c55a20f85ff57c8a
+  checksum: 80f8808f2bbb8c4f809fae0b0283dbe663a23c88cd2bf6de6ce1facada5e29cc3800027dd5123f126d119bc3090c9a82da9dd2288ebb9526070280d4aab66e3c
   languageName: node
   linkType: hard
 
@@ -46037,13 +46011,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webgl-constants@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "webgl-constants@npm:1.1.1"
-  checksum: b40091528a1c30ff9b2413f97a67b98be720f76629fe105f05e955f33ed440d441dd69de4d7cf46d27ca9d74bcc6218809ae9a2a90557aa5963e78d11c1b39a5
-  languageName: node
-  linkType: hard
-
 "webidl-conversions@npm:^3.0.0":
   version: 3.0.1
   resolution: "webidl-conversions@npm:3.0.1"
@@ -46344,7 +46311,7 @@ __metadata:
   dependenciesMeta:
     sqlite3:
       optional: true
-  checksum: 60d7fea6d974cf5df4361a0cdf9e7b6bca17cd59028fa2a7a72754f34e54242ef6e85aa09b97a8898566baa452c3700cf30f8d8cfbc230a2b9b7f514ce99a469
+  checksum: 9a7b155e65d6bfaeed004917daceab31e7081128535682e32b305661547253284b50088d4121d9e67352018735aa5784f0c8a819cdde1ee1a92fdd9fff0de579
   languageName: node
   linkType: hard
 
