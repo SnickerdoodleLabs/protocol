@@ -88,6 +88,8 @@ import {
   IInvitationRepositoryType,
   ILinkedAccountRepository,
   ILinkedAccountRepositoryType,
+  IQuestionnaireRepository,
+  IQuestionnaireRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data/index.js";
@@ -130,9 +132,25 @@ export class QueryService implements IQueryService {
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
     @inject(IInvitationRepositoryType)
     protected invitationRepo: IInvitationRepository,
+    @inject(IQuestionnaireRepositoryType)
+    protected questionnaireRepo: IQuestionnaireRepository,
   ) {}
 
-  private processingQueries = new Set<IpfsCID>();
+  private processingQueries: Map<
+    IpfsCID,
+    ResultAsync<
+      void,
+      | PersistenceError
+      | ConsentContractError
+      | UninitializedError
+      | BlockchainProviderError
+      | ConsentError
+      | EvaluationError
+      | QueryFormatError
+      | AjaxError
+      | BlockchainCommonErrors
+    >
+  > = new Map();
 
   public initialize(): ResultAsync<void, never> {
     return this.contextProvider.getContext().map((context) => {
@@ -473,18 +491,22 @@ export class QueryService implements IQueryService {
         // valid, that the context is sane, etc.
         return ResultUtils.combine(
           queryStatii.map((queryStatus) => {
-            return this.processQuery(queryStatus, context, config)
+            if (this.processingQueries.has(queryStatus.queryCID)) {
+              this.logUtils.debug(
+                `Query ${queryStatus.queryCID} is already being processed.`,
+              );
+              return this.processingQueries.get(queryStatus.queryCID)!;
+            }
+            const process = this.processQuery(queryStatus, context, config)
               .map(() => {
                 this.processingQueries.delete(queryStatus.queryCID);
-              })
-              .orElse(() => {
-                this.processingQueries.delete(queryStatus.queryCID);
-                return okAsync(undefined);
               })
               .mapErr((err) => {
                 this.processingQueries.delete(queryStatus.queryCID);
                 return err;
               });
+            this.processingQueries.set(queryStatus.queryCID, process);
+            return process;
           }),
         );
       })
@@ -680,7 +702,7 @@ export class QueryService implements IQueryService {
     return ResultUtils.combine([
       this.getReceivingAddress(consentContractAddress),
       this.queryParsingEngine.parseQuery(query),
-    ]).map(([receivingAddress, ast]) => {
+    ]).andThen(([receivingAddress, ast]) => {
       const { subqueries, image, name, points, description, compensations } =
         ast;
 
@@ -690,17 +712,20 @@ export class QueryService implements IQueryService {
       );
       const [questionnaireIds, virtualQuestionnaires] =
         this.getQuestionnaireIds(subqueries);
-      return new QueryMetadata(
-        query.cid,
-        name,
-        points,
-        description,
-        questionnaireIds,
-        virtualQuestionnaires,
-        //TODO can be removen if not used by IP
-        ObjectUtils.serialize(rewardParams),
-        image,
-      );
+
+      return this.questionnaireRepo.add(questionnaireIds).map(() => {
+        return new QueryMetadata(
+          query.cid,
+          name,
+          points,
+          description,
+          questionnaireIds,
+          virtualQuestionnaires,
+          //TODO can be removen if not used by IP
+          ObjectUtils.serialize(rewardParams),
+          image,
+        );
+      });
     });
   }
   protected getReceivingAddress(
@@ -928,13 +953,6 @@ export class QueryService implements IQueryService {
     | AjaxError
     | BlockchainCommonErrors
   > {
-    if (this.processingQueries.has(queryStatus.queryCID)) {
-      this.logUtils.debug(
-        `Query ${queryStatus.queryCID} is already being processed.`,
-      );
-      return okAsync(undefined);
-    }
-    this.processingQueries.add(queryStatus.queryCID);
     this.logUtils.debug(
       `Attempting to process and return query ${queryStatus.queryCID}`,
     );
@@ -1047,17 +1065,15 @@ export class QueryService implements IQueryService {
           );
         })
         .orElse((err) => {
-          if (err instanceof AjaxError) {
-            if (err.code == 403) {
-              // 403 means a response has already been submitted, and we should stop asking
-              queryStatus.status = EQueryProcessingStatus.RewardsReceived;
-              return this.sdqlQueryRepo
-                .upsertQueryStatus([queryStatus])
-                .map(() => {
-                  context.publicEvents.onQueryStatusUpdated.next(queryStatus);
-                  return [];
-                });
-            }
+          if (err != null && err.code == 403) {
+            // 403 means a response has already been submitted, and we should stop asking
+            queryStatus.status = EQueryProcessingStatus.RewardsReceived;
+            return this.sdqlQueryRepo
+              .upsertQueryStatus([queryStatus])
+              .map(() => {
+                context.publicEvents.onQueryStatusUpdated.next(queryStatus);
+                return [];
+              });
           }
 
           // All other errors are just reported
