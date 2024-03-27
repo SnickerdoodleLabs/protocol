@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Poseidon, Field, MerkleTree, Encoding, verify } from "o1js";
 
-import { Identity } from "@circuits/Identity.js";
+import { Identity } from "@circuits/o1js/Identity.js";
 import {
   MembershipWitness,
   MembershipVerifyParams,
   membershipVerification,
-} from "@circuits/Membership.js";
+} from "@circuits/o1js/Membership.js";
 
 class MembershipMocks {
   static generateIdentities(count: number): Identity[] {

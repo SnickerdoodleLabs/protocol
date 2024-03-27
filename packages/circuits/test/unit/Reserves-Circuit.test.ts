@@ -7,7 +7,12 @@ import {
   Encoding,
 } from "o1js";
 
-import { Secp256k1, Ecdsa, Reserves, Bytes32 } from "@circuits/Reserves.js";
+import {
+  Secp256k1,
+  Ecdsa,
+  Reserves,
+  Bytes32,
+} from "@circuits/o1js/Reserves.js";
 
 // helper function build generating a bunch of key pairs
 class PublicPrivateKeyMocks {
