@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
-import { Poseidon, Field, Encoding } from "o1js";
-
 import { Commitment } from "@circuits/Commitment.js";
 import { Identity } from "@circuits/Identity.js";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
+import { Poseidon, Field, Encoding, Provable } from "o1js";
 
 class CommitmentMocks {
   static generateIdentities(count: number): Identity[] {
