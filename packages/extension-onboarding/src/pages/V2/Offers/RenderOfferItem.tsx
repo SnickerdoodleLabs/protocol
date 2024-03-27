@@ -83,9 +83,10 @@ const RenderOfferItem: React.FC<IRenderOfferItemProps> = ({
             >
               <Image
                 src={brandImage}
+                style={{ borderRadius: 13 }}
                 errorImageSrc="https://storage.googleapis.com/dw-assets/spa/icons-v2/default-point.svg"
-                width={16}
-                height={16}
+                width={26}
+                height={26}
               />
               <SDTypography
                 color="inherit"
