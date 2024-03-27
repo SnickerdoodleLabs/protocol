@@ -449,12 +449,12 @@ export class RewardsContractFactory
     }
 
     if (rewardType == ECreatedRewardType.OFT20) {
-      contractFactory = this.erc1155ContractFactory;
+      contractFactory = this.oft20RewardContractFactory;
       abi = ContractsAbis.OFT20Reward.abi;
     }
 
     if (rewardType == ECreatedRewardType.ONFT721) {
-      contractFactory = this.erc1155ContractFactory;
+      contractFactory = this.onft721RewardContractFactory;
       abi = ContractsAbis.ONFT721Reward.abi;
     }
 
