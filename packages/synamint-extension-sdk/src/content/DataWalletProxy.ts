@@ -64,11 +64,12 @@ import {
   NewQuestionnaireAnswer,
   EQueryProcessingStatus,
   IDynamicRewardParameter,
+  SDQLQueryRequest,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
 import ObjectMultiplex from "obj-multiplex";
 import LocalMessageStream from "post-message-stream";
 import pump from "pump";
@@ -226,6 +227,13 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     );
 
     this.on(
+      ENotificationTypes.QUERY_POSTED,
+      (notification: { data: SDQLQueryRequest }) => {
+        this.events.onQueryPosted.next(notification.data);
+      },
+    );
+
+    this.on(
       ENotificationTypes.PROFILE_FIELD_CHANGED,
       (notification: {
         data: { fieldType: EProfileFieldType; value: any };
@@ -247,6 +255,9 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     this.questionnaire = {
       getAllQuestionnaires: (pagingRequest: PagingRequest) => {
         return coreGateway.questionnaire.getAllQuestionnaires(pagingRequest);
+      },
+      getQuestionnaires: (pagingRequest: PagingRequest) => {
+        return coreGateway.questionnaire.getQuestionnaires(pagingRequest);
       },
       answerQuestionnaire: (
         questionnaireId: IpfsCID,
@@ -560,7 +571,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
 
   public getQueryStatusesByContractAddress(
     contractAddress: EVMContractAddress,
-    _sourceDomain?: DomainName | undefined,
   ): ResultAsync<QueryStatus[], ProxyError> {
     return coreGateway.getQueryStatusesByContractAddress(
       new GetQueryStatusesByContractAddressParams(contractAddress),
@@ -710,6 +720,19 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   }
   public getUIState(): ResultAsync<JSONString | null, ProxyError> {
     return coreGateway.getUIState();
+  }
+
+  public requestOptIn(
+    consentContractAddress?: EVMContractAddress,
+  ): ResultAsync<void, ProxyError> {
+    window.postMessage(
+      {
+        type: "requestOptIn",
+        consentContractAddress,
+      },
+      "*",
+    );
+    return okAsync(undefined);
   }
 }
 

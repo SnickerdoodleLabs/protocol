@@ -11,6 +11,7 @@ export const MAX_QUESTIONNAIRES = 64;
  * token itself in the Token URI.
  */
 export class DataPermissions {
+
   public constructor(protected readonly agreementFlags: HexString32) {
     const flagLength = ethers.getBytes(agreementFlags).length;
     if (flagLength != 32) {

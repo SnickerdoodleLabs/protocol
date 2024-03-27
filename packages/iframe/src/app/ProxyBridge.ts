@@ -1,3 +1,4 @@
+import { IFrameEvents } from "@core-iframe/interfaces/objects";
 import {
   AccountAddress,
   Age,
@@ -72,7 +73,7 @@ import {
   WalletNFTHistory,
 } from "@snickerdoodlelabs/objects";
 import { TypedDataDomain, TypedDataField } from "ethers";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
 
 export class ProxyBridge implements ISdlDataWallet {
   public account: IProxyAccountMethods;
@@ -89,6 +90,7 @@ export class ProxyBridge implements ISdlDataWallet {
   constructor(
     private core: ISnickerdoodleCore,
     public events: ISnickerdoodleCoreEvents,
+    public iframeEvents: IFrameEvents,
   ) {
     this.account = {
       getLinkAccountMessage: (
@@ -277,6 +279,14 @@ export class ProxyBridge implements ISdlDataWallet {
       getAllQuestionnaires: (pagingRequest: PagingRequest) => {
         return this.call(
           this.core.questionnaire.getAllQuestionnaires(
+            pagingRequest,
+            this.sourceDomain,
+          ),
+        );
+      },
+      getQuestionnaires: (pagingRequest: PagingRequest) => {
+        return this.call(
+          this.core.questionnaire.getQuestionnaires(
             pagingRequest,
             this.sourceDomain,
           ),
@@ -607,5 +617,12 @@ export class ProxyBridge implements ISdlDataWallet {
   }
   getUIState(): ResultAsync<JSONString | null, ProxyError> {
     return this.call(this.core.getUIState());
+  }
+
+  requestOptIn(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<void, ProxyError> {
+    this.iframeEvents.onOptInRequested.next(consentAddress);
+    return okAsync(undefined);
   }
 }

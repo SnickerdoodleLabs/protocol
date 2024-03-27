@@ -4,7 +4,9 @@ import {
   CookieVaultIcon,
   DashboardIcon,
   DataPermissionIcon,
+  OffersIcon,
   SettingIcon,
+  TrustedBrandsIcon,
 } from "@extension-onboarding/components/v2/Icons";
 import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
@@ -77,11 +79,16 @@ const navigationItems: INavigationItem[] = [
     path: EPathsV2.COOKIE_VAULT,
     icon: <CookieVaultIcon color="inherit" />,
   },
-  // {
-  //   displayName: "Data Permissions",
-  //   path: EPathsV2.DATA_PERMISSIONS,
-  //   icon: <DataPermissionIcon color="inherit" />,
-  // },
+  {
+    displayName: "Trusted Brands",
+    path: EPathsV2.TRUSTED_BRANDS,
+    icon: <TrustedBrandsIcon color="inherit" />,
+  },
+  {
+    displayName: "Offers",
+    path: EPathsV2.OFFERS,
+    icon: <OffersIcon color="inherit" />,
+  },
   {
     displayName: "Settings",
     path: EPathsV2.SETTINGS,
@@ -138,7 +145,7 @@ const NavigationBar = () => {
           src="https://storage.googleapis.com/dw-assets/spa/icons-v2/sdl-circle.svg"
         />
         <Box ml="auto" display="flex">
-          <Hidden xsDown>
+          <Hidden smDown>
             {navigationItems.map((item, index) => (
               <Fragment key={index}>
                 <Box
@@ -168,7 +175,7 @@ const NavigationBar = () => {
               </Fragment>
             ))}
           </Hidden>
-          <Hidden smUp>
+          <Hidden mdUp>
             <MobileMenuIcon
               width={40}
               onClick={(e) => {

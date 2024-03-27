@@ -270,9 +270,19 @@ export class SnickerdoodleIFrameProxy
       });
   }
 
+  // #region user requests
+
   public requestDashboardView(): ResultAsync<void, ProxyError> {
     return this._createCall("requestDashboardView", null);
   }
+
+  public requestOptIn(
+    consentContractAddress?: EVMContractAddress,
+  ): ResultAsync<void, ProxyError> {
+    return this._createCall("requestOptIn", { consentContractAddress });
+  }
+
+  // #endregion
 
   public initialize(): ResultAsync<void, ProxyError> {
     return this._createCall("initialize", null);
@@ -801,6 +811,11 @@ export class SnickerdoodleIFrameProxy
   public questionnaire: IProxyQuestionnaireMethods = {
     getAllQuestionnaires: (pagingRequest: PagingRequest) => {
       return this._createCall("questionnaire.getAllQuestionnaires", {
+        pagingRequest,
+      });
+    },
+    getQuestionnaires: (pagingRequest: PagingRequest) => {
+      return this._createCall("questionnaire.getQuestionnaires", {
         pagingRequest,
       });
     },
