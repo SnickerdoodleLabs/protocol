@@ -274,17 +274,11 @@ export const ConsentModal = ({
           multiQuestionQueries: [],
         } as IQueryStatusesState,
       );
-      const visibleItems = res.filter(
-        (i) =>
-          !groupedItems.multiQuestionQueries
-            .map((q) => q.queryStatus.queryCID)
-            .includes(i.queryCID),
-      );
-      const totalPointsOfVisibleItems =
-        visibleItems.length > 1
-          ? visibleItems.reduce((acc, item) => acc + item.points, 0)
-          : undefined;
-      setTotalPoints(totalPointsOfVisibleItems);
+
+      const _totalPoints =
+        res.length > 0 ? res.reduce((acc, q) => acc + q.points, 0) : undefined;
+
+      setTotalPoints(_totalPoints);
       setQueryStatuses(groupedItems);
     });
   };
