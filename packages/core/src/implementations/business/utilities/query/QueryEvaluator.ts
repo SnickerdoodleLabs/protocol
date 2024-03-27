@@ -261,7 +261,7 @@ export class QueryEvaluator implements IQueryEvaluator {
           }
           const questionnaireWithAnswers = (questionnaire as QuestionnaireWithAnswers);
           if (questionnaireWithAnswers.answers == undefined){
-            return SDQL_Return({});
+            return SDQL_Return(null);
           }
           const insights = questionnaireWithAnswers.answers.map((questionAnswer) => {
             return {
