@@ -1085,8 +1085,8 @@ export class QueryService implements IQueryService {
         })
         .andThen((earnedRewards) => {
           // Successful posting
-          this.logUtils.log("insight delivery api call done");
-          this.logUtils.log("Earned Rewards: ", earnedRewards);
+          this.logUtils.debug("insight delivery api call done");
+          this.logUtils.debug("Earned Rewards: ", earnedRewards);
           // add EarnedRewards to the wallet, and update the QueryStatus
           queryStatus.status = EQueryProcessingStatus.RewardsReceived;
           return ResultUtils.combine([
