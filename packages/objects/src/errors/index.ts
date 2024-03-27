@@ -12,6 +12,7 @@ export * from "@objects/errors/GasPriceError.js";
 export * from "@objects/errors/IBlockchainError.js";
 export * from "@objects/errors/InvalidParametersError.js";
 export * from "@objects/errors/InvalidSignatureError.js";
+export * from "@objects/errors/InvalidStatusError.js";
 export * from "@objects/errors/IPFSError.js";
 export * from "@objects/errors/KeyGenerationError.js";
 export * from "@objects/errors/MethodSupportError.js";

@@ -20,6 +20,7 @@ import {
   WalletNFTHistory,
   UnixTimestamp,
   NftRepositoryCache,
+  EQueryProcessingStatus,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -60,9 +61,11 @@ export interface IAccountRepository {
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, SnickerDoodleCoreError>;
   getQueryStatuses(
-    contractAddress: EVMContractAddress,
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus[],
     blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], SnickerDoodleCoreError>;
+
   getTransactions(
     filter?: TransactionFilter,
     sourceDomain?: DomainName,

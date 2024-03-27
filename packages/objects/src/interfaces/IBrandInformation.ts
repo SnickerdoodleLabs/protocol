@@ -4,8 +4,13 @@ import { URLString } from "@objects/primitives/URLString.js";
 
 export interface IBrandInformation {
   name: string;
-  image?: URLString;
+  logoImage?: URLString;
+  coverImage?: URLString;
   description?: string;
+  links: {
+    name: string;
+    url: URLString;
+  }[];
   tokenReward?: {
     contractAddress?: EVMContractAddress;
     chainId?: EChain;

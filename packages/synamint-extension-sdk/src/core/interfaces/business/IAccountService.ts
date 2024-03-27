@@ -17,6 +17,7 @@ import {
   ChainTransaction,
   DomainName,
   UnixTimestamp,
+  EQueryProcessingStatus,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -74,9 +75,11 @@ export interface IAccountService {
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, SnickerDoodleCoreError>;
   getQueryStatuses(
-    contractAddress: EVMContractAddress,
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus[],
     blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], SnickerDoodleCoreError>;
+
   getTransactions(
     filter?: TransactionFilter,
     sourceDomain?: DomainName,

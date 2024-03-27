@@ -2,12 +2,16 @@ import {
   VersionedObject,
   VersionedObjectMigrator,
 } from "@objects/businessObjects/versioned/VersionedObject.js";
-import { EQueryProcessingStatus } from "@objects/enum/index.js";
+import {
+  EQueryProcessingStatus,
+  EWalletDataType,
+} from "@objects/enum/index.js";
 import {
   BlockNumber,
   EVMContractAddress,
   IpfsCID,
   JSONString,
+  URLString,
   UnixTimestamp,
 } from "@objects/primitives/index.js";
 import { PropertiesOf } from "@objects/utilities/index.js";
@@ -25,14 +29,20 @@ import { PropertiesOf } from "@objects/utilities/index.js";
  * @param expirationDate Technically retrievable from IPFS, we'll cache it here. We need to process the query before this date, so periodically we need to look for queries that are about to expire.
  */
 export class QueryStatus extends VersionedObject {
-  public static CURRENT_VERSION = 1;
+  public static CURRENT_VERSION = 2;
   public constructor(
     public consentContractAddress: EVMContractAddress,
     public queryCID: IpfsCID,
     public receivedBlock: BlockNumber,
     public status: EQueryProcessingStatus,
     public expirationDate: UnixTimestamp,
-    public rewardsParameters: JSONString | null,
+    public rewardsParameters: JSONString,
+    public name: string,
+    public description: string,
+    public points: number,
+    public questionnaires: IpfsCID[],
+    public virtualQuestionnaires: EWalletDataType[],
+    public image: IpfsCID | null,
   ) {
     super();
   }
@@ -55,6 +65,12 @@ export class QueryStatusMigrator extends VersionedObjectMigrator<QueryStatus> {
       data.status,
       data.expirationDate,
       data.rewardsParameters,
+      data.name,
+      data.description,
+      data.points,
+      data.questionnaires,
+      data.virtualQuestionnaires,
+      data.image,
     );
   }
 
@@ -62,6 +78,20 @@ export class QueryStatusMigrator extends VersionedObjectMigrator<QueryStatus> {
     number,
     (data: Record<string, unknown>, version: number) => Record<string, unknown>
   > {
-    return new Map();
+    return new Map([
+      [
+        1,
+        (data: Partial<QueryStatus>) => {
+          data.name = data.name ?? "Offer";
+          data.description = data.description ?? "";
+          data.points = data.points ?? 0;
+          data.questionnaires = data.questionnaires ?? [];
+          data.virtualQuestionnaires = data.virtualQuestionnaires ?? [];
+          data.rewardsParameters = data.rewardsParameters ?? JSONString("{}");
+          data.image = data.image ?? null;
+          return data;
+        },
+      ],
+    ]);
   }
 }

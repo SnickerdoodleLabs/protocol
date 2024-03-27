@@ -103,7 +103,7 @@ export class DataWalletProfile {
           events.onQueryPosted.subscribe(
             async (queryRequest: SDQLQueryRequest) => {
               console.log(
-                `Recieved query for consentContract ${queryRequest.consentContractAddress} with id ${queryRequest.query.cid}`,
+                `Recieved query for consentContract ${queryRequest.consentContractAddress} with id ${queryRequest.queryCID}`,
               );
 
               try {

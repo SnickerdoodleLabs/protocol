@@ -49,6 +49,8 @@ import {
   ECloudStorageType,
   EDataWalletPermission,
   EInvitationStatus,
+  EQueryProcessingStatus,
+  EWalletDataType,
 } from "@objects/enum/index.js";
 import {
   AccountIndexingError,
@@ -81,6 +83,8 @@ import {
   MissingWalletDataTypeError,
   ParserError,
   MethodSupportError,
+  InvalidStatusError,
+  ServerRewardError,
 } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
@@ -747,7 +751,7 @@ export interface IQuestionnaireMethods {
     consentContractAddress: EVMContractAddress,
     sourceDomain: DomainName | undefined,
   ): ResultAsync<
-    PagedResponse<Questionnaire>,
+    PagedResponse<Questionnaire | QuestionnaireWithAnswers>,
     | UninitializedError
     | BlockchainCommonErrors
     | AjaxError
@@ -827,6 +831,22 @@ export interface IQuestionnaireMethods {
     questionnaire: IpfsCID,
     sourceDomain: DomainName | undefined,
   ): ResultAsync<EVMContractAddress[], PersistenceError | AjaxError>;
+
+  getByCIDs(
+    questionnaireCIDs: IpfsCID[],
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    (Questionnaire | QuestionnaireWithAnswers)[],
+    PersistenceError | AjaxError
+  >;
+
+  getVirtualQuestionnaires(
+    consentContractAddress: EVMContractAddress,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    EWalletDataType[],
+    ConsentContractError | UninitializedError | BlockchainCommonErrors
+  >;
 }
 
 export interface ISnickerdoodleCore {
@@ -879,8 +899,7 @@ export interface ISnickerdoodleCore {
   // This is basically per-query consent. The consent token will be
   // re-checked, of course (trust nobody!).
   approveQuery(
-    consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
+    queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<
@@ -890,9 +909,12 @@ export interface ISnickerdoodleCore {
     | ConsentError
     | IPFSError
     | QueryFormatError
-    | EvaluationError
-    | UnauthorizedError
     | PersistenceError
+    | InvalidStatusError
+    | InvalidParametersError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | EvaluationError
   >;
 
   getQueryStatusByQueryCID(
@@ -900,8 +922,10 @@ export interface ISnickerdoodleCore {
   ): ResultAsync<QueryStatus | null, PersistenceError>;
 
   getQueryStatuses(
-    contractAddress: EVMContractAddress,
+    contractAddress?: EVMContractAddress,
+    statuses?: EQueryProcessingStatus[],
     blockNumber?: BlockNumber,
+    sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     QueryStatus[],
     | BlockchainProviderError
@@ -911,6 +935,35 @@ export interface ISnickerdoodleCore {
     | PersistenceError
   >;
 
+  getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    QueryStatus[],
+    | BlockchainProviderError
+    | PersistenceError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | IPFSError
+    | AjaxError
+    | ConsentContractError
+    | ConsentError
+    | QueryFormatError
+    | EvaluationError
+    | QueryExpiredError
+    | BlockchainCommonErrors
+    | ServerRewardError
+    | ParserError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
+    | EvalNotImplementedError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
+    | InvalidStatusError
+  >;
   /**
    * Restores a backup directly. Should only be called for testing purposes.
    * @param backup

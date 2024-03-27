@@ -373,7 +373,7 @@ describe("QuestionnaireRepository tests", () => {
     const mocks = new QuestionnaireRepositoryMocks();
     const repository = mocks.factory();
 
-    const result = await repository.getByCIDs(
+    const result = await repository.getPagedQuestionnairesByCIDs(
       [mockQuestionnaireCID, mockQuestionnaireCID2],
       pagingRequest,
     );
@@ -396,7 +396,7 @@ describe("QuestionnaireRepository tests", () => {
     const mocks = new QuestionnaireRepositoryMocks();
     const repository = mocks.factory();
 
-    const result = await repository.getByCIDs(
+    const result = await repository.getPagedQuestionnairesByCIDs(
       [mockQuestionnaireCID2, mockQuestionnaireCID],
       pagingRequest,
     );
@@ -419,7 +419,7 @@ describe("QuestionnaireRepository tests", () => {
     const mocks = new QuestionnaireRepositoryMocks();
     const repository = mocks.factory();
 
-    const result = await repository.getByCIDs(
+    const result = await repository.getPagedQuestionnairesByCIDs(
       [mockQuestionnaireCID, mockQuestionnaireCID2],
       pagingRequest,
       EQuestionnaireStatus.Available,

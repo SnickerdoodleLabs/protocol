@@ -47,6 +47,7 @@ const errorCodes = {
   ExecutionRevertedError: "ERR_EXECUTION_REVERTED",
   ProofError: "ERR_PROOF",
   SingerUnavailableError: "ERR_SIGNER_UNAVAILABLE",
+  InvalidStatusError: "ERR_INVALID_STATUS",
   //SDQL errors
   OperandTypeError: "ER_SDQL_OPERAND_TYPE",
   ConditionOperandTypeError: "ERR_SDQL_CONDITION_OPERAND_TYPE",

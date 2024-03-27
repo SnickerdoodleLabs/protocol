@@ -19,10 +19,6 @@ import {
   SDQL_Name,
   URLString,
   Version,
-  EQuestionnaireQuestionType,
-  ISDQLQuestionBlock,
-  ISDQLConditionString,
-  ISDQLExpressionString,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -46,7 +42,7 @@ import {
   IQueryObjectFactory,
   ParserContextDataTypes,
   SDQLQueryWrapper,
-  AST_QuestionnaireQuery, 
+  AST_QuestionnaireQuery,
 } from "@query-parser/interfaces/index.js";
 
 export class SDQLParser {
@@ -89,6 +85,9 @@ export class SDQLParser {
           this.compensationParameters,
           this.compensations,
           this.schema.timestamp!,
+          this.schema.points ?? 0,
+          this.schema.name ?? "Offer",
+          this.schema.image,
         );
       });
     });
@@ -261,7 +260,10 @@ export class SDQLParser {
     try {
       const querySchema = this.schema.getQuerySchema();
       const queries = new Array<
-        AST_Web3Query | AST_BalanceQuery | AST_PropertyQuery | AST_QuestionnaireQuery
+        | AST_Web3Query
+        | AST_BalanceQuery
+        | AST_PropertyQuery
+        | AST_QuestionnaireQuery
       >();
       for (const qName in querySchema) {
         const queryName = SDQL_Name(qName);
@@ -351,9 +353,7 @@ export class SDQLParser {
         this.insights.set(insight.name, insight);
         this.saveInContext(insight.name, insight);
       });
-    })
-
-    ;
+    });
   }
 
   private parseInsight(

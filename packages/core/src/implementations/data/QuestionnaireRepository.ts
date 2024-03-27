@@ -65,7 +65,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     PersistenceError | AjaxError
   > {
     return this.getQuestionnaireIds().andThen((ids) => {
-      return this.getByCIDs(ids, pagingRequest);
+      return this.getPagedQuestionnairesByCIDs(ids, pagingRequest);
     });
   }
   public getAnswered(
@@ -78,7 +78,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     return this.fetchQuestionnaireCIDsGivenStatus(
       EQuestionnaireStatus.Complete,
     ).andThen((cids) =>
-      this.getByCIDs(
+      this.getPagedQuestionnairesByCIDs(
         cids,
         pagingRequest,
         EQuestionnaireStatus.Complete,
@@ -95,16 +95,20 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     return this.fetchQuestionnaireCIDsGivenStatus(
       EQuestionnaireStatus.Available,
     ).andThen((cids) =>
-      this.getByCIDs(cids, pagingRequest, EQuestionnaireStatus.Available),
+      this.getPagedQuestionnairesByCIDs(
+        cids,
+        pagingRequest,
+        EQuestionnaireStatus.Available,
+      ),
     );
   }
-  public getByCIDs(
+
+  getByCIDs(
     questionnaireCIDs: IpfsCID[],
-    pagingRequest: PagingRequest,
     status?: EQuestionnaireStatus,
     benchmark?: UnixTimestamp,
   ): ResultAsync<
-    PagedResponse<Questionnaire | QuestionnaireWithAnswers>,
+    (Questionnaire | QuestionnaireWithAnswers)[],
     AjaxError | PersistenceError
   > {
     return ResultUtils.combine(
@@ -114,23 +118,35 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
         (result): result is Questionnaire | QuestionnaireWithAnswers =>
           result !== null,
       );
-
-      const { page, pageSize } = pagingRequest;
-      const startIndex = (page - 1) * pageSize;
-      const pagedResults = nonNullResults.slice(
-        startIndex,
-        startIndex + pageSize,
-      );
-
-      const pagedResponse = new PagedResponse(
-        pagedResults,
-        page,
-        pageSize,
-        nonNullResults.length,
-      );
-
-      return pagedResponse;
+      return nonNullResults;
     });
+  }
+
+  public getPagedQuestionnairesByCIDs(
+    questionnaireCIDs: IpfsCID[],
+    pagingRequest: PagingRequest,
+    status?: EQuestionnaireStatus,
+    benchmark?: UnixTimestamp,
+  ): ResultAsync<
+    PagedResponse<Questionnaire | QuestionnaireWithAnswers>,
+    AjaxError | PersistenceError
+  > {
+    return this.getByCIDs(questionnaireCIDs, status, benchmark).map(
+      (results) => {
+        const { page, pageSize } = pagingRequest;
+        const startIndex = (page - 1) * pageSize;
+        const pagedResults = results.slice(startIndex, startIndex + pageSize);
+
+        const pagedResponse = new PagedResponse(
+          pagedResults,
+          page,
+          pageSize,
+          results.length,
+        );
+
+        return pagedResponse;
+      },
+    );
   }
 
   public getByCID(

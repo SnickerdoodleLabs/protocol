@@ -43,6 +43,8 @@ import {
   LinkedAccount,
   JSONString,
   NewQuestionnaireAnswer,
+  EQueryProcessingStatus,
+  IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
 import {
   IIFrameCallData,
@@ -737,7 +739,8 @@ export class CoreListener extends ChildProxy implements ICoreListener {
 
       getQueryStatuses: (
         data: IIFrameCallData<{
-          contractAddress: EVMContractAddress;
+          contractAddress?: EVMContractAddress;
+          status?: EQueryProcessingStatus[];
           blockNumber?: BlockNumber;
         }>,
       ) => {
@@ -745,7 +748,40 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.coreProvider.getCore().andThen((core) => {
             return core.getQueryStatuses(
               data.data.contractAddress,
+              data.data.status,
               data.data.blockNumber,
+            );
+          });
+        }, data.callId);
+      },
+
+      getQueryStatusesByContractAddress: (
+        data: IIFrameCallData<{
+          contractAddress: EVMContractAddress;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.getQueryStatusesByContractAddress(
+              data.data.contractAddress,
+            );
+          });
+        }, data.callId);
+      },
+
+      approveQuery: (
+        data: IIFrameCallData<{
+          queryCID: IpfsCID;
+          parameters: IDynamicRewardParameter[];
+          _sourceDomain?: DomainName | undefined;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.approveQuery(
+              data.data.queryCID,
+              data.data.parameters,
+              this.sourceDomain,
             );
           });
         }, data.callId);
@@ -1076,6 +1112,36 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.coreProvider.getCore().andThen((core) => {
             return core.questionnaire.getRecommendedConsentContracts(
               data.data.questionnaireCID,
+              this.sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
+      "questionnaire.getByCIDs": (
+        data: IIFrameCallData<{
+          questionnaireCIDs: IpfsCID[];
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.questionnaire.getByCIDs(
+              data.data.questionnaireCIDs,
+              this.sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
+      "questionnaire.getVirtualQuestionnaires": (
+        data: IIFrameCallData<{
+          consentContractAddress: EVMContractAddress;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.questionnaire.getVirtualQuestionnaires(
+              data.data.consentContractAddress,
               this.sourceDomain,
             );
           });

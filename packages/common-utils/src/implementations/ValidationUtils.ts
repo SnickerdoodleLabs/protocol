@@ -1,5 +1,5 @@
 import { EContractStandard, UnixTimestamp } from "@snickerdoodlelabs/objects";
-
+import { ethers } from "ethers";
 export class ValidationUtils {
   static isString(value: unknown): value is string {
     if (typeof value === "string") {
@@ -75,6 +75,14 @@ export class ValidationUtils {
     }
   }
 
+  static isValidEthereumAddress(address: string): boolean {
+    try {
+      ethers.getAddress(address);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
   static stringToTokenStandard(value: string): EContractStandard {
     const standards: [RegExp, EContractStandard][] = [
       [/^ERC[\s-_]*721$/i, EContractStandard.Erc721],
