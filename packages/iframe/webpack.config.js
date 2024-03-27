@@ -191,6 +191,9 @@ module.exports = {
       __BLOCKVISION_API_KEY__: JSON.stringify(
         process.env.__BLOCKVISION_API_KEY__,
       ),
+      __DEFAULT_CONSENT_CONTRACT__: JSON.stringify(
+        process.env.__DEFAULT_CONSENT_CONTRACT__,
+      ),
     }),
   ],
 };

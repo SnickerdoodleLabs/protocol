@@ -141,6 +141,7 @@ import {
   GetQuestionnairesForConsentContractParams,
   GetConsentContractsByQuestionnaireCIDParams,
   GetRecommendedConsentContractsParams,
+  GetQuestionnairesParams,
   ApproveQueryParams,
   GetVirtualQuestionnairesParams,
   GetQuestionnairesByCIDSParams,
@@ -856,6 +857,16 @@ export class RpcCallHandler implements IRpcCallHandler {
       GetAllQuestionnairesParams.getCoreAction(),
       (params, _sender, sourceDomain) => {
         return this.core.questionnaire.getAllQuestionnaires(
+          params.pagingRequest,
+          sourceDomain,
+        );
+      },
+    ),
+
+    new CoreActionHandler<GetQuestionnairesParams>(
+      GetQuestionnairesParams.getCoreAction(),
+      (params, _sender, sourceDomain) => {
+        return this.core.questionnaire.getQuestionnaires(
           params.pagingRequest,
           sourceDomain,
         );

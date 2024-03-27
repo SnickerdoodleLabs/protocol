@@ -6,6 +6,9 @@ import AirdropDetailModal, {
 import AnsweredQuestionnaireModal, {
   IAnsweredQuestionnaireModal,
 } from "@extension-onboarding/components/Modals/V2/AnsweredQuestionnaireModal";
+import BrandPermissionsModal, {
+  IBrandPermissionsModal,
+} from "@extension-onboarding/components/Modals/V2/BrandPermissionsModal";
 import ConfirmationModal, {
   IConfirmationModal,
 } from "@extension-onboarding/components/Modals/V2/ConfirmationModal";
@@ -16,15 +19,19 @@ import NFTDetailModal, {
 import OTPModal, {
   IOTPModal,
 } from "@extension-onboarding/components/Modals/V2/OTPModal";
+import OfferModal, {
+  IOfferModal,
+} from "@extension-onboarding/components/Modals/V2/OfferModal";
 import QuestionnaireModal, {
   IQuestionnaireModal,
 } from "@extension-onboarding/components/Modals/V2/QuestionnaireModal";
+import ShareQuestionnaireModal, { IShareQuestionnaireModal } from "@extension-onboarding/components/Modals/V2/ShareQuestionnaireModal";
+import { useSafeState } from "@snickerdoodlelabs/shared-components";
 import React, {
   ReactNode,
   FC,
   createContext,
   useContext,
-  useState,
   useMemo,
   useEffect,
   memo,
@@ -38,6 +45,9 @@ type ModalSelectorTypeMap = {
   [EModalSelectors.LEAVE_AUDIENCE_MODAL]: undefined;
   [EModalSelectors.QUESTIONNAIRE_MODAL]: IQuestionnaireModal;
   [EModalSelectors.ANSWERED_QUESTIONNAIRE_MODAL]: IAnsweredQuestionnaireModal;
+  [EModalSelectors.BRAND_PERMISSIONS_MODAL]: IBrandPermissionsModal;
+  [EModalSelectors.OFFER_MODAL]: IOfferModal;
+  [EModalSelectors.SHARE_QUESTIONNAIRE_MODAL]: IShareQuestionnaireModal;
 };
 
 type ModalSelector = keyof ModalSelectorTypeMap;
@@ -81,9 +91,9 @@ const initialModalState: IModal<keyof ModalSelectorTypeMap | null> = {
 const LayoutContext = createContext<ILayout>({} as ILayout);
 
 export const LayoutProvider: FC = memo(({ children }) => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [loaderInfo, setLoaderInfo] = useState<ILoaderInfo>();
-  const [modalState, setModalState] = useState<IModal<ModalSelector>>(
+  const [isLoading, setIsLoading] = useSafeState<boolean>(false);
+  const [loaderInfo, setLoaderInfo] = useSafeState<ILoaderInfo>();
+  const [modalState, setModalState] = useSafeState<IModal<ModalSelector>>(
     initialModalState as IModal<keyof ModalSelectorTypeMap>,
   );
   const modalComponent = useMemo(() => {
@@ -103,6 +113,13 @@ export const LayoutProvider: FC = memo(({ children }) => {
       case modalState.modalSelector ===
         EModalSelectors.ANSWERED_QUESTIONNAIRE_MODAL:
         return <AnsweredQuestionnaireModal />;
+      case modalState.modalSelector === EModalSelectors.BRAND_PERMISSIONS_MODAL:
+        return <BrandPermissionsModal />;
+      case modalState.modalSelector === EModalSelectors.OFFER_MODAL:
+        return <OfferModal />;
+      case modalState.modalSelector ===
+        EModalSelectors.SHARE_QUESTIONNAIRE_MODAL:
+        return <ShareQuestionnaireModal />;
       default:
         return null;
     }

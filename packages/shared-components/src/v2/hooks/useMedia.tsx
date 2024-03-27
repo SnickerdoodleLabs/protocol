@@ -1,8 +1,9 @@
 import { Theme, useTheme } from "@material-ui/core";
-import { useState, useEffect, useMemo } from "react";
+import { useSafeState } from "@shared-components/v2/hooks/useSafeState";
+import { useEffect, useMemo } from "react";
 
 export const useMedia = () => {
-  const [currentBreakpoint, setCurrentBreakpoint] = useState<
+  const [currentBreakpoint, setCurrentBreakpoint] = useSafeState<
     "xs" | "sm" | "md" | "lg" | "xl"
   >("lg");
 

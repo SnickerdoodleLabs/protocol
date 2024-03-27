@@ -679,7 +679,6 @@ export class ApproveQueryParams extends CoreActionParams<void> {
     return ECoreActions.APPROVE_QUERY;
   }
 }
-
 export class GetQueryStatusesParams extends CoreActionParams<QueryStatus[]> {
   public constructor(
     public contractAddress?: EVMContractAddress,
@@ -950,6 +949,16 @@ export class GetAllQuestionnairesParams extends CoreActionParams<
   }
 }
 
+export class GetQuestionnairesParams extends CoreActionParams<
+  PagedResponse<Questionnaire | QuestionnaireWithAnswers>
+> {
+  public constructor(public pagingRequest: PagingRequest) {
+    super(GetQuestionnairesParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_QUESTIONNAIRES;
+  }
+}
 export class GetVirtualQuestionnairesParams extends CoreActionParams<
   EWalletDataType[]
 > {

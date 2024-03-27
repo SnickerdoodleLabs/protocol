@@ -44,10 +44,12 @@ const App: FC<IAppProps> = ({
     <>
       <SPAModal
         proxy={proxy}
-        hide={hide}
+        hide={() => {
+          visibleComponent === EComponentKey.SPA && hide();
+        }}
         events={events}
         show={() => {
-          show(EComponentKey.SPA);
+          !visibleComponent && show(EComponentKey.SPA);
         }}
         awaitRender={
           !!visibleComponent && visibleComponent != EComponentKey.SPA
@@ -56,9 +58,11 @@ const App: FC<IAppProps> = ({
       <InvitationHandler
         core={core}
         events={events}
-        hide={hide}
+        hide={() => {
+          visibleComponent === EComponentKey.INVITATION_HANDLER && hide();
+        }}
         show={() => {
-          show(EComponentKey.INVITATION_HANDLER);
+          !visibleComponent && show(EComponentKey.INVITATION_HANDLER);
         }}
         config={config}
         awaitRender={

@@ -18,6 +18,8 @@ import {
   ProfileFieldUpdate,
   CohortJoinedNotification,
   CohortLeftNotification,
+  SDQLQueryRequest,
+  QueryPostedNotification,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { Subject } from "rxjs";
@@ -147,6 +149,10 @@ export class ContextProvider implements IContextProvider {
         new ProfileFieldUpdate(profileFieldType, value),
       ),
     );
+  }
+
+  public onQueryPosted(event: SDQLQueryRequest): void {
+    this.appContext.notifyAllConnections(new QueryPostedNotification(event));
   }
 
   private onAccountContextInitialized(

@@ -1,7 +1,4 @@
 import { useModalStyles } from "@extension-onboarding/components/Modals/Modal.style";
-import { DeleteIcon } from "@extension-onboarding/components/v2/Icons";
-import Image from "@extension-onboarding/components/v2/Image";
-import QuestionnaireForm from "@extension-onboarding/components/v2/QuestionnaireForm";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { Box, Dialog } from "@material-ui/core";
 import {
@@ -14,6 +11,8 @@ import {
   SDTypography,
   colors,
   useResponsiveValue,
+  QuestionnaireForm,
+  Image,
 } from "@snickerdoodlelabs/shared-components";
 import React, { FC } from "react";
 export interface IAnsweredQuestionnaireModal {

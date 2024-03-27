@@ -121,7 +121,7 @@ export type INftProxyMethods = {
 export type IProxyQuestionnaireMethods = {
   [key in Exclude<
     FunctionKeys<IQuestionnaireMethods>,
-    "getAnsweredQuestionnaires" | "getQuestionnaires"
+    "getAnsweredQuestionnaires"
   >]: (
     ...args: [...PopTuple<Parameters<IQuestionnaireMethods[key]>>]
   ) => ResultAsync<
@@ -358,8 +358,11 @@ export interface ISdlDataWallet {
     Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
     ProxyError
   >;
-
+  // user requests
   requestDashboardView: undefined | (() => ResultAsync<void, ProxyError>);
+  requestOptIn(
+    consentAddress?: EVMContractAddress,
+  ): ResultAsync<void, ProxyError>;
 
   setUIState(state: JSONString): ResultAsync<void, ProxyError>;
   getUIState(): ResultAsync<JSONString | null, ProxyError>;

@@ -24,6 +24,17 @@ const PageBannerItems: Partial<
     icon: "https://storage.googleapis.com/dw-assets/spa/icons-v2/cookie-vault.svg",
     description: "Privately store your personal info on your device",
   },
+  [EPathsV2.TRUSTED_BRANDS]: {
+    name: "Trusted Brands",
+    icon: "https://storage.googleapis.com/dw-assets/spa/icons-v2/trusted-brands-page.png",
+    description: "Here are the brands you’ve shared your data with",
+  },
+  [EPathsV2.OFFERS]: {
+    name: "Offers",
+    description:
+      "Earn rewards sharing your data and insights with communities and brands you love",
+    icon: "https://storage.googleapis.com/dw-assets/spa/icons-v2/offers-page.png",
+  },
 };
 
 const PageBanners = () => {

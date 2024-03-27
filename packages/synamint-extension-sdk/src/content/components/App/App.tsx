@@ -1,26 +1,35 @@
 import { ThemeProvider } from "@material-ui/core";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
   BaseNotification,
   BigNumberString,
   DomainName,
+  EChain,
   EInvitationStatus,
   ENotificationTypes,
+  EVMAccountAddress,
   EVMContractAddress,
   EWalletDataType,
+  IDynamicRewardParameter,
   IOldUserAgreement,
   IPaletteOverrides,
   IUserAgreement,
   Invitation,
+  IpfsCID,
   LinkedAccount,
+  NewQuestionnaireAnswer,
+  PagingRequest,
+  ProxyError,
+  QueryStatus,
+  Questionnaire,
   Signature,
+  TokenId,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
-  DescriptionWidget,
+  ConsentModal,
   EColorMode,
-  FF_SUPPORTED_ALL_PERMISSIONS,
   ModalContainer,
-  PermissionSelectionWidget,
   createDefaultTheme,
   createThemeWithOverrides,
 } from "@snickerdoodlelabs/shared-components";
@@ -41,13 +50,17 @@ import {
   CheckInvitationStatusParams,
   GetInvitationMetadataByCIDParams,
   GetConsentContractCIDParams,
+  GetQueryStatusesByContractAddressParams,
+  ApproveQueryParams,
+  AcceptInvitationParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 import endOfStream from "end-of-stream";
 import PortStream from "extension-port-stream";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import { err, okAsync } from "neverthrow";
+import { ResultAsync, err, okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import ObjectMultiplex from "obj-multiplex";
 import LocalMessageStream from "post-message-stream";
 import pump from "pump";
@@ -59,6 +72,7 @@ import React, {
   useRef,
   FC,
 } from "react";
+import { Subscription } from "rxjs";
 import { parse } from "tldts";
 import Browser from "webextension-polyfill";
 
@@ -123,7 +137,6 @@ const connect = () => {
     );
     pageMux.destroy();
   });
-
   // keep service worker alive
   if (VersionUtils.isManifest3) {
     port.onDisconnect.addListener(connect);
@@ -140,6 +153,7 @@ connect();
 enum EInvitationSourceType {
   DEEPLINK,
   DOMAIN,
+  USER_REQUEST,
 }
 
 interface IInvitaionData {
@@ -151,29 +165,28 @@ interface ICurrentInvitation {
   data: IInvitaionData;
   type: EInvitationSourceType;
 }
-
-// this is really bad way to do this
-// for now only place user can link an account is one of the origins below
-// if user is directed to one of the origin below just because does not have an acount we should wait for user to link an account to display popup
-const SDL_ORIGIN_LIST = [
-  "https://datawallet.demo-01.snickerdoodle.dev",
-  "https://datawallet.demo-02.snickerdoodle.dev",
-  "https://datawallet.demo-03.snickerdoodle.dev",
-  "https://datawallet.demo-04.snickerdoodle.dev",
-  "https://datawallet.demo-05.snickerdoodle.dev",
-  "https://datawallet.snickerdoodle.com",
-  "https://datawallet.dev.snickerdoodle.dev",
-  // those are even worse
-  "https://localhost:9005",
-  "http://localhost:9001",
-];
-
-const origin = window.location.origin;
-
-const awaitAccountLinking = SDL_ORIGIN_LIST.includes(origin);
-
 interface IAppProps {
   paletteOverrides?: IPaletteOverrides;
+}
+
+interface IOptInParams {
+  directCall: {
+    permissions: {
+      dataTypes: EWalletDataType[];
+      questionnaires: IpfsCID[];
+    };
+    approvals: Map<IpfsCID, IDynamicRewardParameter[]>;
+  };
+  withPermissions: Map<
+    IpfsCID,
+    {
+      permissions: {
+        dataTypes: EWalletDataType[];
+        questionnaires: IpfsCID[];
+      };
+      rewardParameters: IDynamicRewardParameter[];
+    }
+  >;
 }
 
 const App: FC<IAppProps> = ({ paletteOverrides }) => {
@@ -181,6 +194,7 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
   const [accounts, setAccounts] = useState<LinkedAccount[]>([]);
   const _path = usePath();
   const [isHidden, setIsHidden] = useState<boolean>(false);
+  const optInRequestSubsriptionRef = useRef<Subscription>();
 
   // #region new flow
   const [deepLinkInvitation, setDeepLinkInvitation] =
@@ -189,9 +203,22 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
   const [domainInvitation, setDomainInvitation] =
     useState<IInvitaionData | null>(null);
 
+  const [userRequestedInvitation, setUserRequestedInvitation] =
+    useState<IInvitaionData | null>(null);
+
   useEffect(() => {
     handleURLChange();
   }, [_path]);
+
+  const evmAccounts = useMemo(() => {
+    const filteredAccounts = accounts
+      .filter((account) => account.sourceChain === EChain.EthereumMainnet)
+      .map((account) => account.sourceAccountAddress);
+
+    return filteredAccounts.length > 0
+      ? (filteredAccounts as EVMAccountAddress[])
+      : null;
+  }, [accounts]);
 
   const handleURLChange = useCallback(() => {
     const url = window.location.href;
@@ -216,41 +243,11 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
       // this function actually designed for proxy initialy
       // since we are not using it in proxy we can change
       // double check requirements for proxy
-      coreGateway
-        .checkInvitationStatus(
-          new CheckInvitationStatusParams(
-            consentAddress,
-            signature ? Signature(signature) : undefined,
-            tokenId ? BigNumberString(tokenId) : undefined,
-          ),
-        )
-        .andThen((status) => {
-          if (status === EInvitationStatus.New) {
-            return coreGateway
-              .getContractCID(new GetConsentContractCIDParams(consentAddress))
-              .andThen((cid) => {
-                return coreGateway
-                  .getInvitationMetadataByCID(
-                    new GetInvitationMetadataByCIDParams(cid),
-                  )
-                  .map((metadata) => {
-                    setDeepLinkInvitation({
-                      invitation: new Invitation(
-                        consentAddress,
-                        null,
-                        null,
-                        null,
-                      ),
-                      metadata,
-                    });
-                  });
-              });
-          }
-          return okAsync(undefined);
-        })
-        .mapErr((err) => {
-          console.warn(" Data Wallet:  Unable to get deeplink invitation", err);
-        });
+      getInvitation(consentAddress, signature, tokenId).map((result) => {
+        if (result) {
+          setDeepLinkInvitation(result);
+        }
+      });
     }
     // #endregion
     // #region domain invitation
@@ -258,21 +255,93 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
       .getInvitationsByDomain(
         new GetInvitationWithDomainParams(domainName, domainPath),
       )
-      .map((result) => {
+      .andThen((result) => {
         if (result) {
-          setDomainInvitation({
-            invitation: result.invitation,
-            metadata: result.invitationMetadata,
-          });
+          const {
+            invitation: { tokenId, consentContractAddress, businessSignature },
+          } = result;
+          return coreGateway
+            .checkInvitationStatus(
+              new CheckInvitationStatusParams(
+                consentContractAddress,
+                businessSignature ?? undefined,
+                tokenId ? BigNumberString(tokenId.toString()) : undefined,
+              ),
+            )
+            .map((status) => {
+              if (status === EInvitationStatus.New) {
+                setDomainInvitation({
+                  invitation: result.invitation,
+                  metadata: result.invitationMetadata,
+                });
+              }
+            });
         }
+        return okAsync(undefined);
       })
-      .mapErr((err) => {
-        console.warn(" Data Wallet:  Unable to get invitation by domain", err);
-      });
+      .mapErr((err) => {});
     // #endregion
   }, []);
 
+  const getInvitation = (
+    consentAddress: EVMContractAddress,
+    signature: string | null,
+    tokenId: string | null,
+  ): ResultAsync<
+    {
+      invitation: Invitation;
+      metadata: IOldUserAgreement | IUserAgreement;
+    } | null,
+    ProxyError
+  > => {
+    const invitation = new Invitation(
+      consentAddress,
+      tokenId != null ? TokenId(BigInt(tokenId)) : null,
+      null,
+      signature != null ? Signature(signature) : null,
+    );
+
+    return coreGateway
+      .checkInvitationStatus(
+        new CheckInvitationStatusParams(
+          consentAddress,
+          signature ? Signature(signature) : undefined,
+          tokenId ? BigNumberString(tokenId) : undefined,
+        ),
+      )
+      .andThen((status) => {
+        if (status === EInvitationStatus.New) {
+          return coreGateway
+            .getContractCID(new GetConsentContractCIDParams(consentAddress))
+            .andThen((cid) => {
+              return coreGateway
+                .getInvitationMetadataByCID(
+                  new GetInvitationMetadataByCIDParams(cid),
+                )
+                .map((metadata) => {
+                  return {
+                    invitation,
+                    metadata,
+                  };
+                });
+            });
+        }
+        return okAsync(null);
+      })
+      .mapErr((err) => {
+        console.warn(" Data Wallet:  Unable to get deeplink invitation", err);
+        return err;
+      });
+  };
+
   const currentInvitation: ICurrentInvitation | null = useMemo(() => {
+    if (!evmAccounts) return null;
+    if (userRequestedInvitation) {
+      return {
+        data: userRequestedInvitation,
+        type: EInvitationSourceType.USER_REQUEST,
+      };
+    }
     if (domainInvitation) {
       return { data: domainInvitation, type: EInvitationSourceType.DOMAIN };
     }
@@ -280,7 +349,12 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
       return { data: deepLinkInvitation, type: EInvitationSourceType.DEEPLINK };
     }
     return null;
-  }, [deepLinkInvitation, domainInvitation]);
+  }, [
+    deepLinkInvitation,
+    domainInvitation,
+    userRequestedInvitation,
+    evmAccounts,
+  ]);
 
   useEffect(() => {
     if (currentInvitation) {
@@ -295,6 +369,9 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
     switch (currentInvitation.type) {
       case EInvitationSourceType.DOMAIN:
         setDomainInvitation(null);
+        break;
+      case EInvitationSourceType.USER_REQUEST:
+        setUserRequestedInvitation(null);
         break;
       case EInvitationSourceType.DEEPLINK:
         setDeepLinkInvitation(null);
@@ -391,58 +468,146 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
 
   // #endregion
 
+  // #region handle user request
+  useEffect(() => {
+    window.addEventListener("message", catchRequestOptIn);
+    return () => {
+      window.removeEventListener("message", catchRequestOptIn);
+    };
+  }, []);
+
+  const catchRequestOptIn = (event: MessageEvent) => {
+    if (event?.data?.type === "requestOptIn") {
+      handleOptInRequest(event.data.consentContractAddress);
+    }
+  };
+
+  const handleOptInRequest = (contractAddress?: EVMContractAddress) => {
+    if (!contractAddress) {
+      return coreGateway.getConfig().map((config) => {
+        if (config.defaulConsentContract) {
+          coreGateway.acceptInvitation(
+            new Invitation(config.defaulConsentContract, null, null, null),
+            null,
+          );
+        }
+      });
+    }
+    return getInvitation(contractAddress, null, null).map((result) => {
+      if (result) {
+        setUserRequestedInvitation(result);
+      }
+    });
+  };
+
+  // #endregion
+
   const getAccounts = () => {
     coreGateway.account.getAccounts().map((linkedAccounts) => {
       setAccounts(linkedAccounts);
     });
   };
 
+  const optIn = useCallback(
+    (params: IOptInParams) => {
+      if (currentInvitation) {
+        // call function as background process
+        setAppState(EAppState.IDLE);
+        const {
+          directCall: { permissions, approvals },
+          withPermissions,
+        } = params;
+        coreGateway
+          .acceptInvitation(currentInvitation.data.invitation, null)
+          .andThen(() => {
+            // set consent permissions here
+            return okAsync(undefined);
+          })
+          .andThen(() => {
+            return ResultUtils.combine(
+              Array.from(approvals.entries()).map(([cid, rewardParams]) =>
+                coreGateway.approveQuery(
+                  new ApproveQueryParams(cid, rewardParams),
+                ),
+              ),
+            );
+          })
+          .andThen(() => {
+            return ResultUtils.executeSerially(
+              Array.from(withPermissions.entries()).map(
+                ([cid, { permissions, rewardParameters }]) =>
+                  () =>
+                    // set consent permissions here
+                    okAsync(undefined).andThen(() => {
+                      return coreGateway.approveQuery(
+                        new ApproveQueryParams(cid, rewardParameters),
+                      );
+                    }),
+              ),
+            );
+          })
+          .map(() => {
+            emptyReward();
+            console.log("optIn steps success");
+          })
+          .mapErr((e) => {
+            console.log("optIn steps error", e);
+            emptyReward();
+          });
+      }
+    },
+    [currentInvitation],
+  );
+
   const renderComponent = useMemo(() => {
-    if (!currentInvitation) return null;
-    // delay showing popup until user link an account
-    if (awaitAccountLinking && accounts.length === 0) return null;
-    switch (true) {
-      case appState === EAppState.AUDIENCE_PREVIEW:
-        return (
-          <DescriptionWidget
-            invitationData={currentInvitation.data.metadata}
-            redirectRequired={!(accounts.length > 0)}
-            onRejectClick={() => {
-              rejectInvitation(false);
-            }}
-            onRejectWithTimestampClick={() => {
-              rejectInvitation(true);
-            }}
-            primaryButtonText={
-              accounts.length > 0 ? "Continue" : "Connect and Continue"
-            }
-            onContinueClick={() => {
-              if (accounts.length > 0) {
-                acceptInvitation(FF_SUPPORTED_ALL_PERMISSIONS);
-              } else {
-                window.open(
-                  `${extensionConfig.onboardingURL}?consentAddress=${currentInvitation.data.invitation.consentContractAddress}`,
-                  "_blank",
-                );
+    if (currentInvitation) {
+      switch (appState) {
+        case EAppState.AUDIENCE_PREVIEW:
+          return (
+            <ConsentModal
+              key={currentInvitation.data.invitation.consentContractAddress}
+              onClose={() => {
+                emptyReward();
+              }}
+              open={true}
+              onOptinClicked={optIn}
+              consentContractAddress={
+                currentInvitation.data.invitation.consentContractAddress
               }
-            }}
-            onCancelClick={emptyReward}
-            onSetPermissions={() => {
-              setAppState(EAppState.PERMISSION_SELECTION);
-            }}
-          />
-        );
-      case appState === EAppState.PERMISSION_SELECTION:
-        return (
-          <PermissionSelectionWidget
-            onCancelClick={emptyReward}
-            onSaveClick={acceptInvitation}
-          />
-        );
-      default:
-        return null;
+              invitationData={currentInvitation.data.metadata}
+              answerQuestionnaire={(
+                id: IpfsCID,
+                answers: NewQuestionnaireAnswer[],
+              ) => coreGateway.questionnaire.answerQuestionnaire(id, answers)}
+              onRejectClick={() => {
+                rejectInvitation(false);
+              }}
+              onRejectWithTimestampClick={() => {
+                rejectInvitation(true);
+              }}
+              displayRejectButtons={
+                currentInvitation.type === EInvitationSourceType.DOMAIN
+              }
+              getQueryStatuses={(contractAddress: EVMContractAddress) => {
+                return coreGateway.getQueryStatusesByContractAddress(
+                  new GetQueryStatusesByContractAddressParams(contractAddress),
+                );
+              }}
+              evmAccounts={evmAccounts!}
+              getQuestionnairesByCids={function (
+                cids: IpfsCID[],
+              ): ResultAsync<Questionnaire[], unknown> {
+                return coreGateway.questionnaire.getByCIDs(cids);
+              }}
+            />
+          );
+        default:
+          return null;
+      }
+    } else {
+      return null;
     }
-  }, [accounts.length, appState, currentInvitation]);
+  }, [evmAccounts, appState, currentInvitation]);
 
   if (isHidden) {
     return null;

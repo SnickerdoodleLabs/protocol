@@ -274,6 +274,9 @@ var options = {
       __DEV_CHAIN_PROVIDER_URL__: JSON.stringify(
         process.env.__DEV_CHAIN_PROVIDER_URL__,
       ),
+      __DEFAULT_CONSENT_CONTRACT__: JSON.stringify(
+        process.env.__DEFAULT_CONSENT_CONTRACT__,
+      ),
     }),
 
     new CopyWebpackPlugin({

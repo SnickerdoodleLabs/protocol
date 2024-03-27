@@ -10,23 +10,32 @@ import {
 import { Theme, ThemeProvider } from "@material-ui/core";
 import {
   DataPermissions,
+  EChain,
+  EVMAccountAddress,
   EVMContractAddress,
   EWalletDataType,
+  IDynamicRewardParameter,
   IOldUserAgreement,
-  IPaletteOverrides,
   ISnickerdoodleCore,
   IUserAgreement,
   Invitation,
+  IpfsCID,
   LinkedAccount,
+  NewQuestionnaireAnswer,
+  PagingRequest,
+  QueryStatus,
+  Questionnaire,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
-  DescriptionWidget,
-  FF_SUPPORTED_ALL_PERMISSIONS,
+  ConsentModal,
+  EColorMode,
   ModalContainer,
-  PermissionSelectionWidget,
+  createDefaultTheme,
   createThemeWithOverrides,
 } from "@snickerdoodlelabs/shared-components";
+import { ResultAsync, okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import React, {
   useMemo,
   useState,
@@ -50,7 +59,6 @@ interface IInvitationHandlerProps {
 export enum EAPP_STATE {
   IDLE,
   INVITATION_PREVIEW,
-  PERMISSION_SELECTION,
 }
 
 interface IInvitation {
@@ -63,27 +71,25 @@ interface ICurrentInvitation {
   type: EInvitationSourceType;
 }
 
-export const defaultLightPalette: IPaletteOverrides = {
-  primary: "#000",
-  primaryContrast: "#FFF",
-  button: "#000",
-  buttonContrast: "#FFF",
-  text: "#212121",
-  linkText: "#2795BD",
-  background: "#FFF",
-  border: "#BDBDBD",
-};
-
-export const defaultDarkPalette: IPaletteOverrides = {
-  primary: `#FFF`,
-  primaryContrast: "#212121",
-  button: "#FFF",
-  buttonContrast: "#212121",
-  text: "#FFF",
-  linkText: "#FFF",
-  background: "#212121",
-  border: "#BDBDBD",
-};
+interface IOptInParams {
+  directCall: {
+    permissions: {
+      dataTypes: EWalletDataType[];
+      questionnaires: IpfsCID[];
+    };
+    approvals: Map<IpfsCID, IDynamicRewardParameter[]>;
+  };
+  withPermissions: Map<
+    IpfsCID,
+    {
+      permissions: {
+        dataTypes: EWalletDataType[];
+        questionnaires: IpfsCID[];
+      };
+      rewardParameters: IDynamicRewardParameter[];
+    }
+  >;
+}
 
 export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   core,
@@ -95,12 +101,17 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   coreConfig,
 }) => {
   const [theme, setTheme] = useState<Theme>(
-    createThemeWithOverrides(config.palette ?? defaultLightPalette),
+    config.palette
+      ? createThemeWithOverrides(config.palette)
+      : createDefaultTheme(EColorMode.LIGHT),
   );
   const [appState, setAppState] = useState<EAPP_STATE>(EAPP_STATE.IDLE);
   const [accounts, setAccounts] = useState<LinkedAccount[]>([]);
   const accountAddedSubscription = useRef<Subscription | null>(null);
   const invitationDisplayRequestSubscription = useRef<Subscription | null>(
+    null,
+  );
+  const defaultConsentOptinRequestSubscription = useRef<Subscription | null>(
     null,
   );
   const uniqueConsentAdressesRef = useRef<EVMContractAddress[]>([]);
@@ -114,13 +125,31 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   const [consentInvitation, setConsentInvitation] =
     useState<IInvitation | null>(null);
 
+  const [userRequestInvitation, setUserRequestInvitation] =
+    useState<IInvitation | null>(null);
+
+  const evmAccounts = useMemo(() => {
+    const filteredAccounts = accounts
+      .filter((account) => account.sourceChain === EChain.EthereumMainnet)
+      .map((account) => account.sourceAccountAddress);
+
+    return filteredAccounts.length > 0
+      ? (filteredAccounts as EVMAccountAddress[])
+      : null;
+  }, [accounts]);
+
   const currentInvitation: ICurrentInvitation | null = useMemo(() => {
-    if (accounts.length === 0) {
-      return null;
+    if (!evmAccounts) return null;
+    if (userRequestInvitation) {
+      return {
+        data: userRequestInvitation,
+        type: EInvitationSourceType.USER_REQUEST,
+      };
     }
     if (awaitRender) {
       return null;
     }
+
     if (deepLinkInvitation) {
       return { data: deepLinkInvitation, type: EInvitationSourceType.DEEPLINK };
     }
@@ -138,8 +167,9 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     deepLinkInvitation,
     domainInvitation,
     consentInvitation,
-    accounts.length,
+    userRequestInvitation,
     awaitRender,
+    evmAccounts,
   ]);
 
   // length of this could be used for bagde
@@ -161,10 +191,12 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   useEffect(() => {
     subsribeAccountAddedEvent();
     subscribeInvitationDisplayRequestEvent();
+    subscribeDefaultConsentOptinRequestEvent();
     getAccounts();
     return () => {
       accountAddedSubscription.current?.unsubscribe();
       invitationDisplayRequestSubscription.current?.unsubscribe();
+      defaultConsentOptinRequestSubscription.current?.unsubscribe();
     };
   }, []);
 
@@ -184,6 +216,21 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
         )),
     );
   };
+  const subscribeDefaultConsentOptinRequestEvent = () => {
+    defaultConsentOptinRequestSubscription.current =
+      events.onDefaultConsentOptinRequested.subscribe(
+        handledefaultConsentOptinRequest,
+      );
+  };
+
+  const handledefaultConsentOptinRequest = () => {
+    if (config.defaultConsentContract) {
+      core.invitation.acceptInvitation(
+        new Invitation(config.defaultConsentContract, null, null, null),
+        null,
+      );
+    }
+  };
 
   const subscribeInvitationDisplayRequestEvent = () => {
     invitationDisplayRequestSubscription.current =
@@ -196,6 +243,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     data,
     type,
   }: IInvitationDisplayRequest) => {
+    console.log("invitationDisplayRequestHandler", data, type);
     if (
       uniqueConsentAdressesRef.current.includes(
         data.invitation.consentContractAddress,
@@ -207,6 +255,8 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
       setDeepLinkInvitation(data);
     } else if (type === EInvitationSourceType.DOMAIN) {
       setDomainInvitation(data);
+    } else if (type === EInvitationSourceType.USER_REQUEST) {
+      setUserRequestInvitation(data);
     } else {
       setConsentInvitation(data);
     }
@@ -227,6 +277,57 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
             clearInvitation();
           })
           .mapErr(() => {
+            clearInvitation();
+          });
+      }
+    },
+    [currentInvitation],
+  );
+
+  const optIn = useCallback(
+    (params: IOptInParams) => {
+      if (currentInvitation) {
+        // call function as background process
+        setAppState(EAPP_STATE.IDLE);
+        const {
+          directCall: { permissions, approvals },
+          withPermissions,
+        } = params;
+        core.invitation
+          .acceptInvitation(currentInvitation.data.invitation, null, undefined)
+          .andThen(() => {
+            // set consent permissions here
+            return okAsync(undefined);
+          })
+          .andThen(() => {
+            return ResultUtils.combine(
+              Array.from(approvals.entries()).map(([cid, rewards]) =>
+                core.approveQuery(cid, rewards, undefined),
+              ),
+            );
+          })
+          .andThen(() => {
+            return ResultUtils.executeSerially(
+              Array.from(withPermissions.entries()).map(
+                ([cid, { permissions, rewardParameters }]) =>
+                  () =>
+                    // set consent permissions here
+                    okAsync(undefined).andThen(() => {
+                      return core.approveQuery(
+                        cid,
+                        rewardParameters,
+                        undefined,
+                      );
+                    }),
+              ),
+            );
+          })
+          .map(() => {
+            clearInvitation();
+            console.log("optIn steps success");
+          })
+          .mapErr((e) => {
+            console.log("optIn steps error", e);
             clearInvitation();
           });
       }
@@ -266,8 +367,12 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
         case EInvitationSourceType.DOMAIN:
           setDomainInvitation(null);
           break;
+        case EInvitationSourceType.USER_REQUEST:
+          setUserRequestInvitation(null);
+          break;
         case EInvitationSourceType.CONSENT_ADDRESS:
           setConsentInvitation(null);
+          break;
       }
     }
   }, [currentInvitation]);
@@ -295,28 +400,49 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
           return null;
         case EAPP_STATE.INVITATION_PREVIEW:
           return (
-            <DescriptionWidget
+            <ConsentModal
+              onClose={clearInvitation}
+              key={currentInvitation.data.invitation.consentContractAddress}
+              open={true}
+              onOptinClicked={optIn}
+              consentContractAddress={
+                currentInvitation.data.invitation.consentContractAddress
+              }
+              invitationData={currentInvitation.data.metadata}
+              answerQuestionnaire={(
+                id: IpfsCID,
+                answers: NewQuestionnaireAnswer[],
+              ) => {
+                return core.questionnaire.answerQuestionnaire(
+                  id,
+                  answers,
+                  undefined,
+                );
+              }}
               onRejectClick={() => {
                 rejectInvitation(false);
               }}
               onRejectWithTimestampClick={() => {
                 rejectInvitation(true);
               }}
-              invitationData={currentInvitation.data.metadata}
-              onCancelClick={clearInvitation}
-              onContinueClick={() => {
-                onPermissionSelected(FF_SUPPORTED_ALL_PERMISSIONS);
+              displayRejectButtons={[
+                EInvitationSourceType.CONSENT_ADDRESS,
+                EInvitationSourceType.DOMAIN,
+              ].includes(currentInvitation.type)}
+              getQueryStatuses={function (
+                contractAddress: EVMContractAddress,
+              ): ResultAsync<QueryStatus[], unknown> {
+                return core.getQueryStatusesByContractAddress(
+                  contractAddress,
+                  undefined,
+                );
               }}
-              onSetPermissions={() => {
-                setAppState(EAPP_STATE.PERMISSION_SELECTION);
+              evmAccounts={evmAccounts!}
+              getQuestionnairesByCids={function (
+                cids: IpfsCID[],
+              ): ResultAsync<Questionnaire[], unknown> {
+                return core.questionnaire.getByCIDs(cids, undefined);
               }}
-            />
-          );
-        case EAPP_STATE.PERMISSION_SELECTION:
-          return (
-            <PermissionSelectionWidget
-              onCancelClick={clearInvitation}
-              onSaveClick={onPermissionSelected}
             />
           );
         default:
@@ -325,7 +451,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     } else {
       return null;
     }
-  }, [appState, currentInvitation]);
+  }, [appState, evmAccounts, currentInvitation]);
 
   if (EAPP_STATE.IDLE === appState) {
     return null;

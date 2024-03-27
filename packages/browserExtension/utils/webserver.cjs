@@ -63,12 +63,13 @@ process.env.__TWITTER_CONSUMER_SECRET__ =
   "y4FOFgQnuRo7vvnRuKqFhBbM3sYWuSZyg5RqHlRIc3DZ4N7Hnx";
 process.env.__TWITTER_POLL_INTERVAL__ = "86400000";
 
+process.env.__DEFAULT_CONSENT_CONTRACT__ = "";
+
 var WebpackDevServer = require("webpack-dev-server"),
   webpack = require("webpack"),
   config = require("../webpack.config.cjs"),
   env = require("./env.cjs"),
   path = require("path");
-
 
 config.plugins = [new webpack.HotModuleReplacementPlugin()].concat(
   config.plugins || [],
