@@ -1,7 +1,6 @@
 import {
   Identity,
-  membershipVerification,
-  MembershipVerifyParams,
+  Membership,
   MembershipWitness,
 } from "@snickerdoodlelabs/circuits";
 import {
@@ -15,16 +14,16 @@ import { ResultAsync } from "neverthrow";
 import { Encoding, Field, Keypair, MerkleTree, Poseidon } from "o1js";
 
 import { CircuitUtils } from "@circuits-sdk/CircuitUtils.js";
+import { CircuitWrapper } from "@circuits-sdk/CircuitWrapper.js";
 import { IMembershipWrapper } from "@circuits-sdk/IMembershipWrapper.js";
-import { ZkProgramWrapper } from "@circuits-sdk/ZkProgramWrapper.js";
 
 @injectable()
-export class MembershipWrapper
-  extends ZkProgramWrapper
+export class MembershipCircuitWrapper
+  extends CircuitWrapper<Membership>
   implements IMembershipWrapper
 {
   public constructor() {
-    super(membershipVerification);
+    super(Membership);
   }
 
   static keypair: ResultAsync<Keypair, CircuitError> | null = null;
@@ -69,12 +68,12 @@ export class MembershipWrapper
     const signalHashSquared = signalHash.mul(signalHash);
 
     // Create an identity object
-    const identity = MembershipWrapper.getIdentity(
+    const identity = MembershipCircuitWrapper.getIdentity(
       identityTrapdoor,
       identityNullifier,
     );
     const identityCommitment =
-      MembershipWrapper.getIdentityCommitment(identity);
+      MembershipCircuitWrapper.getIdentityCommitment(identity);
 
     // Check if the anonymity set includes the identity's commitment
     if (!anonymitySet.includes(identityCommitment)) {
@@ -110,30 +109,16 @@ export class MembershipWrapper
       epochNullifier,
     ]);
 
-    const membershipParams = new MembershipVerifyParams({
-      merkleRoot: merkleRoot,
-      epochNullifier: epochNullifier,
-      signalNullifier: signalNullifier,
-      signalHash: signalHash,
-      signalHashSquared: signalHashSquared,
-    });
-
-    return this.assureCompile()
-      .andThen(() => {
-        return ResultAsync.fromPromise(
-          membershipVerification.proofOfMembership(
-            membershipParams,
-            identity,
-            witness,
-          ),
-          (e) => {
-            return new CircuitError("Failed to generate proof", e);
-          },
-        );
-      })
-      .map((proof) => {
-        return ZKProof(proof.toJSON().proof);
-      });
+    return this._prove(
+      [identity, witness],
+      [
+        merkleRoot,
+        epochNullifier,
+        signalNullifier,
+        signalHash,
+        signalHashSquared,
+      ],
+    );
   }
 
   public verify(
@@ -168,13 +153,20 @@ export class MembershipWrapper
 
     return this._verify(
       [
-        merkleRoot.toString(),
-        epochNullifier.toString(),
-        signalNullifier.toString(),
-        signalHash.toString(),
-        signalHashSquared.toString(),
+        merkleRoot,
+        epochNullifier,
+        new Field(signalNullifier),
+        signalHash,
+        signalHashSquared,
       ],
       proof,
     );
+  }
+
+  protected getKeypairResult(): ResultAsync<Keypair, CircuitError> | null {
+    return MembershipCircuitWrapper.keypair;
+  }
+  protected setKeypairResult(result: ResultAsync<Keypair, CircuitError>): void {
+    MembershipCircuitWrapper.keypair = result;
   }
 }
