@@ -10,9 +10,6 @@ import {
 import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
-import { Token } from "zksync-ethers/build/src/types";
-
-import { ERC20RewardContract } from "./ERC20RewardContract";
 
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";

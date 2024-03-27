@@ -10,7 +10,7 @@ import {
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
-import { ERewardRoles } from "@contracts-sdk/interfaces/enums";
+import { ERewardRoles } from "@contracts-sdk/interfaces/enums/index.js";
 import {
   IBaseContract,
   IRBCContract,
