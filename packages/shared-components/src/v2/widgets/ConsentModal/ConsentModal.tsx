@@ -26,7 +26,7 @@ import {
   DataTypeGroupProperties,
   getGroupedDataTypesG,
 } from "@shared-components/v2/constants";
-import { useSafeState } from "@shared-components/v2/hooks";
+import { useResponsiveValue, useSafeState } from "@shared-components/v2/hooks";
 import { useDialogStyles } from "@shared-components/v2/styles";
 import { colors, typograpyVariants } from "@shared-components/v2/theme";
 import {
@@ -172,6 +172,7 @@ export const ConsentModal = ({
   const [totalPoints, setTotalPoints] = useSafeState<number>();
   const [combinedItemToHandle, setCombinedItemToHandle] =
     useSafeState<IMultiQuestionItem>();
+  const getResponsiveValue = useResponsiveValue();
 
   const groupedDataTypes = useMemo(() => {
     if (!queryStatuses) {
@@ -450,19 +451,32 @@ export const ConsentModal = ({
             return;
           }
           setQuestionnaires((q) => {
+            if (!q) {
+              return q;
+            }
+            const otherQueriesUsesSameQuestionnaire =
+              q.unAnsweredQuestionnaires.filter(
+                (q) =>
+                  q.query.questionnaireCID ===
+                    questionnaireToAnswer.query.questionnaireCID &&
+                  q.query.queryStatus.queryCID !==
+                    questionnaireToAnswer.query.queryStatus.queryCID,
+              );
             return {
               ...q,
               answeredQuestionnaires: [
-                {
+                ...q.answeredQuestionnaires.concat({
                   query: questionnaireToAnswer.query,
                   questionnaire:
                     answeredQuestionnaire as QuestionnaireWithAnswers,
-                },
-                ...(q?.answeredQuestionnaires ?? []),
+                }),
+                ...otherQueriesUsesSameQuestionnaire.map((q) => ({
+                  query: q.query,
+                  questionnaire:
+                    answeredQuestionnaire as QuestionnaireWithAnswers,
+                })),
               ],
-              unAnsweredQuestionnaires: (
-                q?.unAnsweredQuestionnaires ?? []
-              ).filter(
+              unAnsweredQuestionnaires: q.unAnsweredQuestionnaires.filter(
                 (q) =>
                   q.query.questionnaireCID !==
                   questionnaireToAnswer.query.questionnaireCID,
@@ -806,7 +820,11 @@ export const ConsentModal = ({
             }}
           />
         </Box>
-        <Image src={brandLogo} width={32} height={32} />
+        <Image
+          src={brandLogo}
+          width={getResponsiveValue({ xs: 72, sm: 120 })}
+          height={getResponsiveValue({ xs: 72, sm: 120 })}
+        />
         {brandName && (
           <SDTypography
             hexColor={colors.DARKPURPLE500}
@@ -830,7 +848,11 @@ export const ConsentModal = ({
         )}
       </Box>
     );
-  }, [JSON.stringify(invitationData), componentRenderState]);
+  }, [
+    JSON.stringify(invitationData),
+    componentRenderState,
+    getResponsiveValue,
+  ]);
 
   const isQueriesReady = useMemo(() => {
     return (
@@ -855,7 +877,7 @@ export const ConsentModal = ({
                   {questionnaires?.unAnsweredQuestionnaires?.map((q) => {
                     return (
                       <PermissionItemWithFillButton
-                        key={q.questionnaire.id}
+                        key={q.query.queryStatus.queryCID}
                         name={q.questionnaire.title}
                         icon={q.questionnaire.image || ""}
                         point={q.query.queryStatus.points}
