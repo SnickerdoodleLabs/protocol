@@ -16,6 +16,7 @@ import {
   ECoreProxyType,
   EDataWalletPermission,
   EInvitationStatus,
+  EQueryProcessingStatus,
   EVMContractAddress,
   EWalletDataType,
   EarnedReward,
@@ -24,6 +25,7 @@ import {
   Gender,
   GivenName,
   IConsentCapacity,
+  IDynamicRewardParameter,
   INftProxyMethods,
   IOldUserAgreement,
   IProxyAccountMethods,
@@ -52,7 +54,6 @@ import {
   PEMEncodedRSAPublicKey,
   PagedResponse,
   PagingRequest,
-  PersistenceError,
   ProxyError,
   QueryStatus,
   RuntimeMetrics,
@@ -71,7 +72,7 @@ import {
   WalletNFTHistory,
 } from "@snickerdoodlelabs/objects";
 import { TypedDataDomain, TypedDataField } from "ethers";
-import { ResultAsync, okAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 
 export class ProxyBridge implements ISdlDataWallet {
   public account: IProxyAccountMethods;
@@ -321,6 +322,24 @@ export class ProxyBridge implements ISdlDataWallet {
           ),
         );
       },
+      getByCIDs: (questionnaireCIDs: IpfsCID[]) => {
+        return this.call(
+          this.core.questionnaire.getByCIDs(
+            questionnaireCIDs,
+            this.sourceDomain,
+          ),
+        );
+      },
+      getVirtualQuestionnaires: (
+        consentContractAddress: EVMContractAddress,
+      ) => {
+        return this.call(
+          this.core.questionnaire.getVirtualQuestionnaires(
+            consentContractAddress,
+            this.sourceDomain,
+          ),
+        );
+      },
     };
   }
 
@@ -392,11 +411,33 @@ export class ProxyBridge implements ISdlDataWallet {
     return this.call(this.core.getQueryStatusByQueryCID(queryCID));
   }
   getQueryStatuses(
-    contractAddress: EVMContractAddress,
-    blockNumber?: BlockNumber | undefined,
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus[],
+    blockNumber?: BlockNumber,
+    _sourceDomain?: DomainName | undefined,
   ): ResultAsync<QueryStatus[], ProxyError> {
-    return this.call(this.core.getQueryStatuses(contractAddress, blockNumber));
+    return this.call(
+      this.core.getQueryStatuses(contractAddress, status, blockNumber),
+    );
   }
+
+  getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+    _sourceDomain?: DomainName | undefined,
+  ): ResultAsync<QueryStatus[], ProxyError> {
+    return this.call(
+      this.core.getQueryStatusesByContractAddress(contractAddress),
+    );
+  }
+
+  approveQuery(
+    queryCID: IpfsCID,
+    parameters: IDynamicRewardParameter[],
+    _sourceDomain?: DomainName | undefined,
+  ): ResultAsync<void, ProxyError> {
+    return this.call(this.core.approveQuery(queryCID, parameters));
+  }
+
   getSiteVisits(): ResultAsync<SiteVisit[], ProxyError> {
     return this.call(this.core.getSiteVisits(this.sourceDomain));
   }

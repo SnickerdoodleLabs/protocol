@@ -62,6 +62,8 @@ import {
   JSONString,
   IProxyQuestionnaireMethods,
   NewQuestionnaireAnswer,
+  EQueryProcessingStatus,
+  IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { JsonRpcEngine } from "json-rpc-engine";
@@ -104,6 +106,8 @@ import {
   GetQueryStatusesParams,
   GetTransactionsParams,
   UpdateAgreementPermissionsParams,
+  ApproveQueryParams,
+  GetQueryStatusesByContractAddressParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
@@ -270,6 +274,16 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       getRecommendedConsentContracts: (questionnaireCID: IpfsCID) => {
         return coreGateway.questionnaire.getRecommendedConsentContracts(
           questionnaireCID,
+        );
+      },
+      getByCIDs: (questionnaireCIDs: IpfsCID[]) => {
+        return coreGateway.questionnaire.getByCIDs(questionnaireCIDs);
+      },
+      getVirtualQuestionnaires: (
+        consentContractAddress: EVMContractAddress,
+      ) => {
+        return coreGateway.questionnaire.getVirtualQuestionnaires(
+          consentContractAddress,
         );
       },
     };
@@ -450,6 +464,14 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       _this.emit(resp.type, resp);
     });
   }
+  approveQuery(
+    queryCID: IpfsCID,
+    parameters: IDynamicRewardParameter[],
+  ): ResultAsync<void, ProxyError> {
+    return coreGateway.approveQuery(
+      new ApproveQueryParams(queryCID, parameters),
+    );
+  }
 
   public setDefaultReceivingAddress(
     receivingAddress: AccountAddress | null,
@@ -527,11 +549,21 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   }
 
   public getQueryStatuses(
-    contractAddress: EVMContractAddress,
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus[],
     blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], ProxyError> {
     return coreGateway.getQueryStatuses(
-      new GetQueryStatusesParams(contractAddress, blockNumber),
+      new GetQueryStatusesParams(contractAddress, status, blockNumber),
+    );
+  }
+
+  public getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+    _sourceDomain?: DomainName | undefined,
+  ): ResultAsync<QueryStatus[], ProxyError> {
+    return coreGateway.getQueryStatusesByContractAddress(
+      new GetQueryStatusesByContractAddressParams(contractAddress),
     );
   }
 

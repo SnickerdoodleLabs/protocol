@@ -95,6 +95,19 @@ import {
   NewQuestionnaireAnswer,
   JSONString,
   EExternalFieldKey,
+  EQueryProcessingStatus,
+  DuplicateIdInSchema,
+  MissingASTError,
+  MissingTokenConstructorError,
+  ParserError,
+  QueryExpiredError,
+  InvalidStatusError,
+  InvalidParametersError,
+  ConsentFactoryContractError,
+  EvalNotImplementedError,
+  MethodSupportError,
+  MissingWalletDataTypeError,
+  ServerRewardError,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -734,6 +747,20 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           sourceDomain,
         );
       },
+      getVirtualQuestionnaires: (
+        consentContractAddress: EVMContractAddress,
+        sourceDomain: DomainName | undefined,
+      ) => {
+        const questionnaireService =
+          this.iocContainer.get<IQuestionnaireService>(
+            IQuestionnaireServiceType,
+          );
+
+        return questionnaireService.getVirtualQuestionnaires(
+          consentContractAddress,
+          sourceDomain,
+        );
+      },
       getConsentContractsByQuestionnaireCID: (
         ipfsCID: IpfsCID,
         sourceDomain: DomainName | undefined,
@@ -820,6 +847,15 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           questionnaireId,
           sourceDomain,
         );
+      },
+
+      getByCIDs: (questionnaireIds: IpfsCID[], _sourceDomain?: DomainName) => {
+        const questionnaireService =
+          this.iocContainer.get<IQuestionnaireService>(
+            IQuestionnaireServiceType,
+          );
+
+        return questionnaireService.getByCIDs(questionnaireIds);
       },
     };
   }
@@ -960,10 +996,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   public approveQuery(
-    consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
+    queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
-    sourceDomain: DomainName | undefined = undefined,
+    _sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     void,
     | AjaxError
@@ -971,13 +1006,51 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     | ConsentError
     | IPFSError
     | QueryFormatError
-    | EvaluationError
     | PersistenceError
+    | InvalidStatusError
+    | InvalidParametersError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | EvaluationError
   > {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
-    return queryService.approveQuery(consentContractAddress, query, parameters);
+    return queryService.approveQuery(queryCID, parameters);
+  }
+
+  getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+    _sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    QueryStatus[],
+    | EvaluationError
+    | PersistenceError
+    | ConsentContractError
+    | UninitializedError
+    | AjaxError
+    | QueryFormatError
+    | QueryExpiredError
+    | ServerRewardError
+    | ConsentError
+    | IPFSError
+    | ParserError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | EvalNotImplementedError
+    | MissingASTError
+    | BlockchainCommonErrors
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
+    | InvalidStatusError
+    | ConsentFactoryContractError
+    | MissingWalletDataTypeError
+  > {
+    const queryService =
+      this.iocContainer.get<IQueryService>(IQueryServiceType);
+
+    return queryService.getQueryStatusesByContractAddress(contractAddress);
   }
 
   public getQueryStatusByQueryCID(
@@ -990,8 +1063,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   public getQueryStatuses(
-    contractAddress: EVMContractAddress,
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus[],
     blockNumber?: BlockNumber,
+    sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     QueryStatus[],
     | BlockchainProviderError
@@ -1003,7 +1078,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
-    return queryService.getQueryStatuses(contractAddress, blockNumber);
+    return queryService.getQueryStatuses(contractAddress, status, blockNumber);
   }
 
   public isDataWalletAddressInitialized(): ResultAsync<boolean, never> {

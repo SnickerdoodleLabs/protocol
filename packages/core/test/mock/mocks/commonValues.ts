@@ -458,6 +458,8 @@ export const avalanche1AstInstance = new AST(
   compensationParameters,
   compensationsMap,
   UnixTimestamp(1),
+  0,
+  "Interactions",
 );
 
 export const siteVisits: SiteVisit[] = [
