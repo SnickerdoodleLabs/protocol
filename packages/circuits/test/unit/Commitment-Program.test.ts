@@ -56,8 +56,6 @@ describe("Proof of Commitment", () => {
     );
     console.timeEnd("prove...");
 
-    console.log("Proof Json:", proof.toJSON());
-
     const serializedProof = ObjectUtils.serialize(proof);
 
     // NOTE: this step would happen server-side
