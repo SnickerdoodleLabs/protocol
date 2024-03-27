@@ -30,6 +30,8 @@ export class RewardsContractFactory
 {
   protected erc721ContractFactory: ethers.ContractFactory;
   protected erc20ContractFactory: ethers.ContractFactory;
+  protected oft20RewardContractFactory: ethers.ContractFactory;
+  protected onft721RewardContractFactory: ethers.ContractFactory;
   protected erc1155ContractFactory: ethers.ContractFactory;
   protected rewardTypeToDeploy: ECreatedRewardType;
   constructor(
@@ -52,6 +54,18 @@ export class RewardsContractFactory
     this.erc20ContractFactory = new ethers.ContractFactory(
       ContractsAbis.ERC20Reward.abi,
       ContractsAbis.ERC20Reward.bytecode,
+      providerOrSigner as ethers.Wallet,
+    );
+
+    this.oft20RewardContractFactory = new ethers.ContractFactory(
+      ContractsAbis.OFT20Reward.abi,
+      ContractsAbis.OFT20Reward.bytecode,
+      providerOrSigner as ethers.Wallet,
+    );
+
+    this.onft721RewardContractFactory = new ethers.ContractFactory(
+      ContractsAbis.ONFT721Reward.abi,
+      ContractsAbis.ONFT721Reward.bytecode,
       providerOrSigner as ethers.Wallet,
     );
 
@@ -237,7 +251,151 @@ export class RewardsContractFactory
       (e) => {
         return this.generateError(
           e,
-          "Unable to get deploy transaction for contract deployment for ERC1155 contract",
+          "Unable to get deploy transaction for contract deployment for OFT20 Reward contract",
+        );
+      },
+    )
+      .andThen((deployTransaction) => {
+        return ResultAsync.fromPromise(
+          this.providerOrSigner.estimateGas(deployTransaction),
+          (e) => {
+            return this.generateError(
+              e,
+              "Attempting to estimate gas for contract deployment",
+            );
+          },
+        );
+      })
+      .map((estimatedGas) => {
+        // Increase estimated gas buffer by 20%
+        return (estimatedGas * 120n) / 100n;
+      });
+  }
+
+  // function to deploy a new OFT20Reward reward contract
+  public deployOFT20Reward(
+    name: string,
+    symbol: string,
+    layerZeroEndpoint: EVMContractAddress,
+    overrides: ContractOverrides,
+    omitGasFee = false,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | RewardsFactoryError
+  > {
+    return GasUtils.getGasFee(this.providerOrSigner).andThen((gasFee) => {
+      let contractOverrides = {
+        ...gasFee,
+        ...overrides,
+      };
+
+      // If the chain does not support EIP-1559, remove the gas fee override and only maintain the override passed in from the chain service
+      if (omitGasFee == true) {
+        contractOverrides = {
+          ...overrides,
+        };
+      }
+
+      return this.writeToContractFactory(
+        "deploy",
+        [name, symbol, layerZeroEndpoint],
+        ECreatedRewardType.OFT20,
+        contractOverrides,
+        true,
+      );
+    });
+  }
+
+  public estimateGasToDeployOFT20RewardContract(
+    name: string,
+    symbol: string,
+    layerZeroEndpoint: EVMContractAddress,
+  ): ResultAsync<bigint, RewardsFactoryError | BlockchainCommonErrors> {
+    return ResultAsync.fromPromise(
+      this.oft20RewardContractFactory.getDeployTransaction(
+        name,
+        symbol,
+        layerZeroEndpoint,
+      ),
+      (e) => {
+        return this.generateError(
+          e,
+          "Unable to get deploy transaction for contract deployment for OFT20 Reward contract",
+        );
+      },
+    )
+      .andThen((deployTransaction) => {
+        return ResultAsync.fromPromise(
+          this.providerOrSigner.estimateGas(deployTransaction),
+          (e) => {
+            return this.generateError(
+              e,
+              "Attempting to estimate gas for contract deployment",
+            );
+          },
+        );
+      })
+      .map((estimatedGas) => {
+        // Increase estimated gas buffer by 20%
+        return (estimatedGas * 120n) / 100n;
+      });
+  }
+
+  // function to deploy a new OFT20Reward reward contract
+  public deployONFT721Reward(
+    name: string,
+    symbol: string,
+    baseURI: BaseURI,
+    minGasToTransfer: bigint,
+    layerZeroEndpoint: EVMContractAddress,
+    overrides: ContractOverrides,
+    omitGasFee = false,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | RewardsFactoryError
+  > {
+    return GasUtils.getGasFee(this.providerOrSigner).andThen((gasFee) => {
+      let contractOverrides = {
+        ...gasFee,
+        ...overrides,
+      };
+
+      // If the chain does not support EIP-1559, remove the gas fee override and only maintain the override passed in from the chain service
+      if (omitGasFee == true) {
+        contractOverrides = {
+          ...overrides,
+        };
+      }
+
+      return this.writeToContractFactory(
+        "deploy",
+        [name, symbol, baseURI, minGasToTransfer, layerZeroEndpoint],
+        ECreatedRewardType.ONFT721,
+        contractOverrides,
+        true,
+      );
+    });
+  }
+
+  public estimateGasToDeployONFT721RewardContract(
+    name: string,
+    symbol: string,
+    baseURI: BaseURI,
+    minGasToTransfer: bigint,
+    layerZeroEndpoint: EVMContractAddress,
+  ): ResultAsync<bigint, RewardsFactoryError | BlockchainCommonErrors> {
+    return ResultAsync.fromPromise(
+      this.onft721RewardContractFactory.getDeployTransaction(
+        name,
+        symbol,
+        baseURI,
+        minGasToTransfer,
+        layerZeroEndpoint,
+      ),
+      (e) => {
+        return this.generateError(
+          e,
+          "Unable to get deploy transaction for contract deployment for ONFT721 Reward contract",
         );
       },
     )
@@ -278,7 +436,7 @@ export class RewardsContractFactory
     BlockchainCommonErrors | RewardsFactoryError
   > {
     let contractFactory = this.erc721ContractFactory;
-    let abi = ContractsAbis.ERC721Reward.abi;
+    let abi;
 
     if (rewardType == ECreatedRewardType.ERC20) {
       contractFactory = this.erc20ContractFactory;
@@ -288,6 +446,16 @@ export class RewardsContractFactory
     if (rewardType == ECreatedRewardType.ERC1155) {
       contractFactory = this.erc1155ContractFactory;
       abi = ContractsAbis.ERC1155Reward.abi;
+    }
+
+    if (rewardType == ECreatedRewardType.OFT20) {
+      contractFactory = this.oft20RewardContractFactory;
+      abi = ContractsAbis.OFT20Reward.abi;
+    }
+
+    if (rewardType == ECreatedRewardType.ONFT721) {
+      contractFactory = this.onft721RewardContractFactory;
+      abi = ContractsAbis.ONFT721Reward.abi;
     }
 
     return ResultAsync.fromPromise(

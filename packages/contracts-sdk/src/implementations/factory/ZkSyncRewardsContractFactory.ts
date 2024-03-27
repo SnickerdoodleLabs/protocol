@@ -29,7 +29,11 @@ export class ZkSyncRewardsContractFactory
   extends BaseContract<RewardsFactoryError>
   implements IRewardsContractFactory
 {
-  protected contractFactory: ContractFactory;
+  protected erc721ContractFactory: ethers.ContractFactory;
+  protected erc20ContractFactory: ethers.ContractFactory;
+  protected oft20RewardContractFactory: ethers.ContractFactory;
+  protected onft721RewardContractFactory: ethers.ContractFactory;
+  protected erc1155ContractFactory: ethers.ContractFactory;
   protected rewardTypeToDeploy: ECreatedRewardType;
   constructor(
     protected providerOrSigner: Provider | Wallet, // needs to use ZkSync provider and wallet
@@ -40,11 +44,36 @@ export class ZkSyncRewardsContractFactory
       EVMContractAddress(ethers.ZeroAddress), // The rewards contract factory deploys a new contract, hence doesn't have a contract address
       ContractsAbis.ZkSyncERC721RewardAbi.abi,
     );
+
     // Set the correct contract factory based on rewardTypeToDeploy
-    this.contractFactory = new ContractFactory(
-      ContractsAbis.ZkSyncERC721RewardAbi.abi,
-      ContractsAbis.ZkSyncERC721RewardAbi.bytecode,
-      providerOrSigner as Wallet,
+    this.erc721ContractFactory = new ethers.ContractFactory(
+      ContractsAbis.ERC721Reward.abi,
+      ContractsAbis.ERC721Reward.bytecode,
+      providerOrSigner as ethers.Wallet,
+    );
+
+    this.erc20ContractFactory = new ethers.ContractFactory(
+      ContractsAbis.ERC20Reward.abi,
+      ContractsAbis.ERC20Reward.bytecode,
+      providerOrSigner as ethers.Wallet,
+    );
+
+    this.oft20RewardContractFactory = new ethers.ContractFactory(
+      ContractsAbis.OFT20Reward.abi,
+      ContractsAbis.OFT20Reward.bytecode,
+      providerOrSigner as ethers.Wallet,
+    );
+
+    this.onft721RewardContractFactory = new ethers.ContractFactory(
+      ContractsAbis.ONFT721Reward.abi,
+      ContractsAbis.ONFT721Reward.bytecode,
+      providerOrSigner as ethers.Wallet,
+    );
+
+    this.erc1155ContractFactory = new ethers.ContractFactory(
+      ContractsAbis.ERC1155Reward.abi,
+      ContractsAbis.ERC1155Reward.bytecode,
+      providerOrSigner as ethers.Wallet,
     );
     this.rewardTypeToDeploy = rewardType;
   }
@@ -67,6 +96,7 @@ export class ZkSyncRewardsContractFactory
       return this.writeToContractFactory(
         "deploy",
         [name, symbol, baseURI],
+        ECreatedRewardType.ERC721,
         contractOverrides,
         true,
       );
@@ -79,7 +109,7 @@ export class ZkSyncRewardsContractFactory
     baseURI: BaseURI,
   ): ResultAsync<bigint, RewardsFactoryError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contractFactory.getDeployTransaction(name, symbol, baseURI),
+      this.erc721ContractFactory.getDeployTransaction(name, symbol, baseURI),
       (e) => {
         return this.generateError(
           e,
@@ -121,6 +151,7 @@ export class ZkSyncRewardsContractFactory
       return this.writeToContractFactory(
         "deploy",
         [name, symbol],
+        ECreatedRewardType.ERC20,
         contractOverrides,
         true,
       );
@@ -132,7 +163,7 @@ export class ZkSyncRewardsContractFactory
     symbol: string,
   ): ResultAsync<bigint, RewardsFactoryError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contractFactory.getDeployTransaction(name, symbol),
+      this.erc20ContractFactory.getDeployTransaction(name, symbol),
       (e) => {
         return this.generateError(
           e,
@@ -174,6 +205,7 @@ export class ZkSyncRewardsContractFactory
       return this.writeToContractFactory(
         "deploy",
         [numberOfRewards, tokenURIs],
+        ECreatedRewardType.ERC1155,
         contractOverrides,
         true,
       );
@@ -185,11 +217,150 @@ export class ZkSyncRewardsContractFactory
     tokenURIs: TokenUri[],
   ): ResultAsync<bigint, RewardsFactoryError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contractFactory.getDeployTransaction(numberOfRewards, tokenURIs),
+      this.erc1155ContractFactory.getDeployTransaction(
+        numberOfRewards,
+        tokenURIs,
+      ),
       (e) => {
         return this.generateError(
           e,
           "Unable to get deploy transaction for contract deployment for ERC1155 contract",
+        );
+      },
+    )
+      .andThen((deployTransaction) => {
+        return ResultAsync.fromPromise(
+          this.providerOrSigner.estimateGas(deployTransaction),
+          (e) => {
+            return this.generateError(
+              e,
+              "Attempting to estimate gas for contract deployment",
+            );
+          },
+        );
+      })
+      .map((estimatedGas) => {
+        // Increase estimated gas buffer by 20%
+        return (estimatedGas * 120n) / 100n;
+      });
+  }
+
+  // function to deploy a new OFT20Reward reward contract
+  public deployOFT20Reward(
+    name: string,
+    symbol: string,
+    layerZeroEndpoint: EVMContractAddress,
+    overrides: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | RewardsFactoryError
+  > {
+    return GasUtils.getGasFee(this.providerOrSigner).andThen((gasFee) => {
+      const contractOverrides = {
+        ...gasFee,
+        ...overrides,
+      };
+
+      return this.writeToContractFactory(
+        "deploy",
+        [name, symbol, layerZeroEndpoint],
+        ECreatedRewardType.OFT20,
+        contractOverrides,
+        true,
+      );
+    });
+  }
+
+  public estimateGasToDeployOFT20RewardContract(
+    name: string,
+    symbol: string,
+    layerZeroEndpoint: EVMContractAddress,
+  ): ResultAsync<bigint, RewardsFactoryError | BlockchainCommonErrors> {
+    return ResultAsync.fromPromise(
+      this.oft20RewardContractFactory.getDeployTransaction(
+        name,
+        symbol,
+        layerZeroEndpoint,
+      ),
+      (e) => {
+        return this.generateError(
+          e,
+          "Unable to get deploy transaction for contract deployment for OFT20 Reward contract",
+        );
+      },
+    )
+      .andThen((deployTransaction) => {
+        return ResultAsync.fromPromise(
+          this.providerOrSigner.estimateGas(deployTransaction),
+          (e) => {
+            return this.generateError(
+              e,
+              "Attempting to estimate gas for contract deployment",
+            );
+          },
+        );
+      })
+      .map((estimatedGas) => {
+        // Increase estimated gas buffer by 20%
+        return (estimatedGas * 120n) / 100n;
+      });
+  }
+
+  // function to deploy a new OFT20Reward reward contract
+  public deployONFT721Reward(
+    name: string,
+    symbol: string,
+    baseURI: BaseURI,
+    minGasToTransfer: bigint,
+    layerZeroEndpoint: EVMContractAddress,
+    overrides: ContractOverrides,
+    omitGasFee = false,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | RewardsFactoryError
+  > {
+    return GasUtils.getGasFee(this.providerOrSigner).andThen((gasFee) => {
+      let contractOverrides = {
+        ...gasFee,
+        ...overrides,
+      };
+
+      // If the chain does not support EIP-1559, remove the gas fee override and only maintain the override passed in from the chain service
+      if (omitGasFee == true) {
+        contractOverrides = {
+          ...overrides,
+        };
+      }
+
+      return this.writeToContractFactory(
+        "deploy",
+        [name, symbol, baseURI, minGasToTransfer, layerZeroEndpoint],
+        ECreatedRewardType.ONFT721,
+        contractOverrides,
+        true,
+      );
+    });
+  }
+
+  public estimateGasToDeployONFT721RewardContract(
+    name: string,
+    symbol: string,
+    baseURI: BaseURI,
+    minGasToTransfer: bigint,
+    layerZeroEndpoint: EVMContractAddress,
+  ): ResultAsync<bigint, RewardsFactoryError | BlockchainCommonErrors> {
+    return ResultAsync.fromPromise(
+      this.onft721RewardContractFactory.getDeployTransaction(
+        name,
+        symbol,
+        baseURI,
+        minGasToTransfer,
+        layerZeroEndpoint,
+      ),
+      (e) => {
+        return this.generateError(
+          e,
+          "Unable to get deploy transaction for contract deployment for ONFT721 Reward contract",
         );
       },
     )
@@ -222,14 +393,38 @@ export class ZkSyncRewardsContractFactory
   protected writeToContractFactory(
     functionName: string,
     functionParams: any[],
+    rewardType: ECreatedRewardType,
     overrides?: ContractOverrides,
     isDeployingContract?: boolean,
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | RewardsFactoryError
   > {
+    let contractFactory = this.erc721ContractFactory;
+    let abi;
+
+    if (rewardType == ECreatedRewardType.ERC20) {
+      contractFactory = this.erc20ContractFactory;
+      abi = ContractsAbis.ERC20Reward.abi;
+    }
+
+    if (rewardType == ECreatedRewardType.ERC1155) {
+      contractFactory = this.erc1155ContractFactory;
+      abi = ContractsAbis.ERC1155Reward.abi;
+    }
+
+    if (rewardType == ECreatedRewardType.OFT20) {
+      contractFactory = this.erc1155ContractFactory;
+      abi = ContractsAbis.OFT20Reward.abi;
+    }
+
+    if (rewardType == ECreatedRewardType.ONFT721) {
+      contractFactory = this.erc1155ContractFactory;
+      abi = ContractsAbis.ONFT721Reward.abi;
+    }
+
     return ResultAsync.fromPromise(
-      this.contractFactory[functionName](...functionParams, {
+      contractFactory[functionName](...functionParams, {
         ...overrides,
       }) as Promise<ethers.TransactionResponse | ethers.Contract>,
       (e) => {
