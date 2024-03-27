@@ -95,32 +95,6 @@ export interface IQueryService {
     | BlockchainCommonErrors
   >;
 
-  getPossibleRewards(
-    consentToken: ConsentToken,
-    optInKey: EVMPrivateKey,
-    consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
-    config: CoreConfig,
-  ): ResultAsync<
-    PossibleReward[],
-    | AjaxError
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | ParserError
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | MissingTokenConstructorError
-    | DuplicateIdInSchema
-    | PersistenceError
-    | EvalNotImplementedError
-    | AccountIndexingError
-    | MethodSupportError
-    | InvalidParametersError
-    | MissingASTError
-  >;
-
   getQueryStatusByQueryCID(
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, PersistenceError>;

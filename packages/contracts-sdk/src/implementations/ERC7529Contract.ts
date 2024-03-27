@@ -44,12 +44,14 @@ export abstract class ERC7529Contract<T>
     return this.writeToContract("removeDomain", [domain], overrides);
   }
 
-  public getDomains(): ResultAsync<DomainName[], BlockchainCommonErrors | T> {
+  public getDomain(
+    domain: DomainName,
+  ): ResultAsync<boolean, BlockchainCommonErrors | T> {
     return ResultAsync.fromPromise(
       // returns array of domains
-      this.contract.getDomains() as Promise<DomainName[]>,
+      this.contract.getDomain(domain) as Promise<boolean>,
       (e) => {
-        return this.generateError(e, "Unable to call getDomains()");
+        return this.generateError(e, "Unable to call getDomain()");
       },
     );
   }

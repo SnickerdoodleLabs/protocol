@@ -6,6 +6,7 @@ import {
   IUserAgreement,
   OptInInfo,
   PersistenceError,
+  UninitializedError,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -14,7 +15,10 @@ export interface IInvitationRepository {
   /**
    * Returns the list of consent contracts that the user has opted in to.
    */
-  getAcceptedInvitations(): ResultAsync<OptInInfo[], PersistenceError>;
+  getAcceptedInvitations(): ResultAsync<
+    OptInInfo[],
+    PersistenceError | UninitializedError
+  >;
 
   /**
    * Adds a list of addresses from the list of addresses the user has opted in to.

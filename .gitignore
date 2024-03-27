@@ -70,3 +70,6 @@ documentation/sdql/examples/output
 
 # vscode
 .vscode/settings.json
+
+# Typechain
+packages/contracts/typechain-types

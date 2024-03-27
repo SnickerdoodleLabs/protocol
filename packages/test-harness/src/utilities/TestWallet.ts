@@ -1,10 +1,6 @@
-import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import { ICryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   AccountAddress,
-  chainConfig,
-  ChainId,
-  ControlChainInformation,
   EChain,
   EChainTechnology,
   EVMPrivateKey,
@@ -13,10 +9,6 @@ import {
   SolanaAccountAddress,
   SolanaPrivateKey,
 } from "@snickerdoodlelabs/objects";
-import {
-  forwardRequestTypes,
-  getMinimalForwarderSigningDomain,
-} from "@snickerdoodlelabs/signature-verification";
 import * as solanaWeb3 from "@solana/web3.js";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -57,32 +49,6 @@ export class TestWallet {
         message,
         this.privateKey as SolanaPrivateKey,
       );
-    }
-  }
-
-  public signMinimalForwarderRequest(
-    request: IMinimalForwarderRequest,
-  ): ResultAsync<Signature, never> {
-    // Get the chain info for the doodle chain
-    const doodleChainConfig = chainConfig.get(
-      ChainId(31337),
-    ) as ControlChainInformation;
-
-    const chainInfo = getChainInfoByChain(this.chain);
-
-    if (chainInfo.chainTechnology == EChainTechnology.EVM) {
-      return this.cryptoUtils.signTypedData(
-        // This domain is critical- we have to use this and not the normal Snickerdoodle domain
-        getMinimalForwarderSigningDomain(
-          doodleChainConfig.chainId,
-          doodleChainConfig.metatransactionForwarderAddress,
-        ),
-        forwardRequestTypes,
-        request,
-        this.privateKey as EVMPrivateKey,
-      );
-    } else {
-      throw new Error("Cannot sign typed data except on EVM");
     }
   }
 

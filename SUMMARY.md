@@ -6,6 +6,7 @@
 
 ## Developer Docs
 * [Core](/packages/core/README.md)
+* [Circuits](/packages/circuits/README.md)
 * [Browser Extension](/packages/browserExtension/README.md)
 * [Onboarding SPA](/packages/extension-onboarding/README.md)
 * [Test Harness](/packages/test-harness/README.md)

@@ -102,7 +102,6 @@ import {
   UnlinkDiscordAccountParams,
   GetMarketplaceListingsByTagParams,
   GetListingsTotalByTagParams,
-  GetConsentCapacityParams,
   GetPossibleRewardsParams as GetEarnedRewardsByContractAddressParams,
   DEFAULT_SUBDOMAIN,
   TwitterGetRequestTokenParams,
@@ -128,9 +127,7 @@ import {
   AddAccountWithExternalSignatureParams,
   AddAccountWithExternalTypedDataSignatureParams,
   ERequestChannel,
-  UpdateAgreementPermissionsParams,
   SnickerDoodleCoreError,
-  GetConsentContractURLsParams,
   GetPersistenceNFTsParams,
   GetAccountNFTHistoryParams,
   GetAccountNftCacheParams,
@@ -141,6 +138,7 @@ import {
   GetQuestionnairesForConsentContractParams,
   GetConsentContractsByQuestionnaireCIDParams,
   GetRecommendedConsentContractsParams,
+  UpdateAgreementPermissionsParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -410,17 +408,6 @@ export class RpcCallHandler implements IRpcCallHandler {
       },
     ),
 
-    new CoreActionHandler<GetConsentContractURLsParams>(
-      GetConsentContractURLsParams.getCoreAction(),
-      (params) => {
-        return this.core
-          .getConsentContractURLs(params.contractAddress)
-          .mapErr((error) => {
-            this.errorUtils.emit(error);
-            return new SnickerDoodleCoreError((error as Error).message, error);
-          });
-      },
-    ),
     new CoreActionHandler<GetConsentContractCIDParams>(
       GetConsentContractCIDParams.getCoreAction(),
       (params) => {
@@ -486,7 +473,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<GetAgreementPermissionsParams>(
       GetAgreementPermissionsParams.getCoreAction(),
       (params) => {
-        return this.invitationService.getAgreementPermissions(
+        return this.invitationService.getDataPermissions(
           params.consentContractAddress,
         );
       },
@@ -496,7 +483,7 @@ export class RpcCallHandler implements IRpcCallHandler {
       (params) => {
         return this.invitationService.updateAgreementPermissions(
           params.consentContractAddress,
-          params.dataTypes,
+          params.dataPermissions,
         );
       },
     ),
@@ -506,9 +493,6 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this.core.invitation
           .acceptInvitation(
             ObjectUtils.deserialize(params.invitation),
-            params.dataTypes
-              ? DataPermissions.createWithPermissions(params.dataTypes)
-              : null,
             sourceDomain,
           )
           .mapErr((error) => {
@@ -624,14 +608,6 @@ export class RpcCallHandler implements IRpcCallHandler {
       GetListingsTotalByTagParams.getCoreAction(),
       (params) => {
         return this.invitationService.getListingsTotalByTag(params.tag);
-      },
-    ),
-    new CoreActionHandler<GetConsentCapacityParams>(
-      GetConsentCapacityParams.getCoreAction(),
-      (params) => {
-        return this.invitationService.getConsentCapacity(
-          params.contractAddress,
-        );
       },
     ),
     new CoreActionHandler<GetEarnedRewardsByContractAddressParams>(

@@ -39,9 +39,11 @@
   "type": "module",
   "dependencies": {
     "@google-cloud/storage": "^6.7.0",
+    "@snickerdoodlelabs/circuits-sdk": "workspace:^",
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/contracts-sdk": "workspace:^",
     "@snickerdoodlelabs/core": "workspace:^",
+    "@snickerdoodlelabs/insight-platform-api": "workspace:^",
     "@snickerdoodlelabs/node-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
     "@snickerdoodlelabs/persistence": "workspace:^",

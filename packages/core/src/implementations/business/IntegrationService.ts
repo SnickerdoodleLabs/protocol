@@ -61,7 +61,7 @@ export class IntegrationService implements IIntegrationService {
 
         return ResultUtils.combine([
           this.contextProvider.getContext(),
-          this.permissionRepo.setPermissions(domain, totalPermissions),
+          this.permissionRepo.setDomainPermissions(domain, totalPermissions),
         ]).map(([context]) => {
           // Let the world know somebody got permissions
           context.publicEvents.onPermissionsGranted.next(
@@ -89,7 +89,7 @@ export class IntegrationService implements IIntegrationService {
   ): ResultAsync<void, PersistenceError> {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
-      this.permissionRepo.setPermissions(domain, []),
+      this.permissionRepo.setDomainPermissions(domain, []),
     ]).map(([context]) => {
       context.publicEvents.onPermissionsRevoked.next(domain);
     });
@@ -101,7 +101,7 @@ export class IntegrationService implements IIntegrationService {
   ): ResultAsync<EDataWalletPermission[], PersistenceError> {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
-      this.permissionRepo.getPermissions(sourceDomain),
+      this.permissionRepo.getDomainPermissions(sourceDomain),
     ])
       .andThen(([context, existingPermissions]) => {
         // Figure out which permissions they actually need
@@ -157,7 +157,7 @@ export class IntegrationService implements IIntegrationService {
       );
     }
 
-    return this.permissionRepo.getPermissions(domain);
+    return this.permissionRepo.getDomainPermissions(domain);
   }
 
   public getTokenVerificationPublicKey(

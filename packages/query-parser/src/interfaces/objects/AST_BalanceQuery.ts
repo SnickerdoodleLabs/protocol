@@ -1,7 +1,9 @@
 import {
   ChainId,
+  DataPermissions,
   ESDQLQueryReturn,
   EWalletDataType,
+  IpfsCID,
   MissingWalletDataTypeError,
   SDQL_Name,
 } from "@snickerdoodlelabs/objects";
@@ -25,7 +27,10 @@ export class AST_BalanceQuery extends AST_Web3Query {
     super(name, returnType, type);
   }
 
-  getPermission(): Result<EWalletDataType, MissingWalletDataTypeError> {
-    return ok(EWalletDataType.AccountBalances);
+  getPermission(
+    permissions: DataPermissions,
+    dataType: EWalletDataType | IpfsCID,
+  ): boolean {
+    return permissions.checkPermission(dataType);
   }
 }

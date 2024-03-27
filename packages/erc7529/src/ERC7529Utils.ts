@@ -14,7 +14,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
@@ -40,13 +40,11 @@ export class ERC7529Utils implements IERC7529Utils {
     chainId: ChainId,
   ): ResultAsync<boolean, AjaxError | BlockchainCommonErrors | TContractErr> {
     return ResultUtils.combine([
-      contract.getDomains(),
+      contract.getDomain(domain),
       this.getContractsFromDomain(domain, chainId),
-    ]).map(([domains, contractAddresses]) => {
+    ]).map(([domainIncluded, contractAddresses]) => {
       return (
-        domains.some((d) => {
-          return d.toLowerCase() == domain.toLowerCase();
-        }) &&
+        domainIncluded &&
         contractAddresses.some((c) => {
           return c.toLowerCase() == contract.getContractAddress().toLowerCase();
         })

@@ -3,12 +3,12 @@ import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   BaseURI,
   BigNumberString,
+  Commitment,
   ConsentName,
   DomainName,
   EVMAccountAddress,
-  HexString32,
+  EVMContractAddress,
   MarketplaceTag,
-  TokenId,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -19,7 +19,6 @@ import {
   privateKey1,
   privateKey2,
   providerUrl,
-  sampleAgreementFlag1,
 } from "@contracts-sdk/debug/constants.js";
 import { Contracts } from "@contracts-sdk/debug/contracts.js";
 import { ConsentContract } from "@contracts-sdk/implementations/ConsentContract.js";
@@ -27,7 +26,6 @@ import {
   EConsentRoles,
   ContractOverrides,
 } from "@contracts-sdk/interfaces/index.js";
-import CrumbsContractAbi from "@contracts-sdk/interfaces/objects/abi/CrumbsAbi.js";
 
 console.log("providerUrl", providerUrl);
 
@@ -64,34 +62,10 @@ const createConsent = async () => {
     const response = await contracts.factoryContract.createConsent(
       EVMAccountAddress(signer.address),
       BaseURI("base1"),
-      ConsentName("name1"),
     );
     console.log("createConsent response: ", response);
   } catch (e) {
     console.log("createConsent e: ", e);
-  }
-};
-
-const getUserDeployedConsents = async () => {
-  try {
-    const response = await contracts.factoryContract.getUserDeployedConsents(
-      EVMAccountAddress(signer.address),
-    );
-    console.log("getUserDeployedConsents response: ", response);
-  } catch (e) {
-    console.log("getUserDeployedConsents e: ", e);
-  }
-};
-
-const getUserDeployedConsentsCount = async () => {
-  try {
-    const response =
-      await contracts.factoryContract.getUserDeployedConsentsCount(
-        EVMAccountAddress(signer.address),
-      );
-    console.log("getUserDeployedConsentsCount response: ", response);
-  } catch (e) {
-    console.log("getUserDeployedConsentsCount e: ", e);
   }
 };
 
@@ -136,9 +110,11 @@ const addDomain = async () => {
   }
 };
 
-const getDomains = async () => {
+const getDomain = async () => {
   try {
-    const response = await contracts.consentContract.getDomains();
+    const response = await contracts.consentContract.getDomain(
+      DomainName("test.com"),
+    );
     console.log("getDomain response: ", response);
   } catch (e) {
     console.log("getDomain e: ", e);
@@ -202,24 +178,26 @@ const totalSupply = async () => {
   }
 };
 
-const testContract = async (contractAddress1: string) => {
-  try {
-    const response = await provider.getCode(contractAddress1);
-    console.log("testContract response: ", response);
-    console.log("bytecode matched: ", response == CrumbsContractAbi.bytecode);
-    console.log(
-      "deployedBytecode matched: ",
-      response == CrumbsContractAbi.deployedBytecode,
-    );
-  } catch (e) {
-    console.log("testContract e: ", e);
-  }
-};
+// const testContract = async (contractAddress1: string) => {
+//   try {
+//     const response = await provider.getCode(contractAddress1);
+//     console.log("testContract response: ", response);
+//     console.log("bytecode matched: ", response == CrumbsContractAbi.bytecode);
+//     console.log(
+//       "deployedBytecode matched: ",
+//       response == CrumbsContractAbi.deployedBytecode,
+//     );
+//   } catch (e) {
+//     console.log("testContract e: ", e);
+//   }
+// };
 
 const newGlobalTag = async () => {
   try {
     const tx = await contracts.consentContract.newGlobalTag(
       "tag2",
+      EVMContractAddress("0x3B6d7bF2203bad30fecDf2c03984D2b9610Eb9D7"), // test with random erc20 address
+      EVMAccountAddress(signer.address),
       BigNumberString("5"),
     );
 
@@ -251,7 +229,10 @@ const getNumberOfStakedTags = async () => {
 
 const removeListing = async () => {
   try {
-    const tx = await contracts.consentContract.removeListing("tag1");
+    const tx = await contracts.consentContract.removeListing(
+      "tag1",
+      EVMContractAddress("0x3B6d7bF2203bad30fecDf2c03984D2b9610Eb9D7"), // test with random erc20 address
+    );
 
     console.log("removeListing res: ", tx);
   } catch (err) {
@@ -263,6 +244,8 @@ const newLocalTagUpstream = async () => {
   try {
     const tx = await contracts.consentContract2.newLocalTagUpstream(
       "tag2",
+      EVMContractAddress("0x3B6d7bF2203bad30fecDf2c03984D2b9610Eb9D7"), // test with random erc20 address
+      EVMAccountAddress(signer.address),
       BigNumberString("6"),
       BigNumberString("5"),
     );
@@ -275,6 +258,8 @@ const newLocalTagUpstream = async () => {
   try {
     const tx2 = await contracts.consentContract3.newLocalTagUpstream(
       "tag2",
+      EVMContractAddress("0x3B6d7bF2203bad30fecDf2c03984D2b9610Eb9D7"), // test with random erc20 address
+      EVMAccountAddress(signer.address),
       BigNumberString("7"),
       BigNumberString("6"),
     );
@@ -289,6 +274,8 @@ const newLocalTagDownstream = async () => {
   try {
     const tx = await contracts.consentContract3.newLocalTagDownstream(
       "tag1",
+      EVMContractAddress("0x3B6d7bF2203bad30fecDf2c03984D2b9610Eb9D7"), // test with random erc20 address
+      EVMAccountAddress(signer.address),
       BigNumberString("7"),
       BigNumberString("4"),
     );
@@ -303,6 +290,8 @@ const replaceExpiredListing = async () => {
   try {
     const tx = await contracts.consentContract.replaceExpiredListing(
       "tag1",
+      EVMContractAddress("0x3B6d7bF2203bad30fecDf2c03984D2b9610Eb9D7"), // test with random erc20 address
+      EVMAccountAddress(signer.address),
       BigNumberString("5"),
     );
 
@@ -312,24 +301,11 @@ const replaceExpiredListing = async () => {
   }
 };
 
-const getListingDetail = async () => {
-  try {
-    //BigNumberString(ethers.constants.MaxUint256.toString())
-    const tx = await contracts.factoryContract.getListingDetail(
-      MarketplaceTag("tag2"),
-      BigNumberString(ethers.MaxUint256.toString()),
-    );
-
-    console.log("getListingDetail res: ", tx);
-  } catch (err) {
-    console.log("getListingDetail err: ", err);
-  }
-};
-
 const getTagTotal = async () => {
   try {
     const tx = await contracts.factoryContract.getTagTotal(
       MarketplaceTag("tag2"),
+      EVMContractAddress("0x3B6d7bF2203bad30fecDf2c03984D2b9610Eb9D7"), // test with random erc20 address
     );
 
     console.log("getTagTotal res: ", tx);
@@ -342,6 +318,7 @@ const getListingsForward = async () => {
   try {
     const tx = await contracts.factoryContract.getListingsForward(
       MarketplaceTag("tag2"),
+      EVMContractAddress("0x3B6d7bF2203bad30fecDf2c03984D2b9610Eb9D7"), // test with random erc20 address
       BigNumberString("7"),
       3,
       true,
@@ -357,6 +334,7 @@ const getListingsBackward = async () => {
   try {
     const tx = await contracts.factoryContract.getListingsBackward(
       MarketplaceTag("tag2"),
+      EVMContractAddress("0x3B6d7bF2203bad30fecDf2c03984D2b9610Eb9D7"), // test with random erc20 address
       BigNumberString("5"),
       6,
       true,
@@ -437,27 +415,7 @@ const tempOptIn = async () => {
       cryptoUtils,
     );
 
-    const response = await tempConsentContract.optIn(
-      TokenId("3" as any),
-      HexString32(sampleAgreementFlag1),
-    );
-    console.log("optIn response: ", response);
-  } catch (e) {
-    console.log("optIn e: ", e);
-  }
-};
-
-const tempOptOut = async () => {
-  try {
-    const tempSigner = new ethers.Wallet(privateKey2 as any, provider);
-
-    const tempConsentContract = new ConsentContract(
-      tempSigner,
-      consentAddress,
-      cryptoUtils,
-    );
-
-    const response = await tempConsentContract.optOut(TokenId("3" as any));
+    const response = await tempConsentContract.optIn(Commitment(3n));
     console.log("optIn response: ", response);
   } catch (e) {
     console.log("optIn e: ", e);

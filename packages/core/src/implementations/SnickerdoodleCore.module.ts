@@ -1,4 +1,12 @@
 import {
+  CommitmentWrapper,
+  ICommitmentWrapper,
+  ICommitmentWrapperType,
+  IMembershipWrapper,
+  IMembershipWrapperType,
+  MembershipWrapper,
+} from "@snickerdoodlelabs/circuits-sdk";
+import {
   AxiosAjaxUtils,
   BigNumberUtils,
   IAxiosAjaxUtils,
@@ -91,7 +99,6 @@ import {
 import {
   AccountService,
   AdService,
-  ConsentTokenUtils,
   DiscordService,
   IntegrationService,
   InvitationService,
@@ -130,7 +137,6 @@ import {
   InvitationRepository,
   LinkedAccountRepository,
   MarketplaceRepository,
-  MetatransactionForwarderRepository,
   MetricsRepository,
   OauthUtils,
   PermissionRepository,
@@ -195,8 +201,6 @@ import {
   IBalanceQueryEvaluatorType,
   IBlockchainTransactionQueryEvaluator,
   IBlockchainTransactionQueryEvaluatorType,
-  IConsentTokenUtils,
-  IConsentTokenUtilsType,
   INftQueryEvaluator,
   INftQueryEvaluatorType,
   IPermissionUtils,
@@ -233,8 +237,6 @@ import {
   ILinkedAccountRepositoryType,
   IMarketplaceRepository,
   IMarketplaceRepositoryType,
-  IMetatransactionForwarderRepository,
-  IMetatransactionForwarderRepositoryType,
   IOauthUtils,
   IOAuthRepositoryType,
   IPermissionRepository,
@@ -325,8 +327,8 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(MonitoringService)
       .inSingletonScope();
     bind<IQuestionnaireService>(IQuestionnaireServiceType)
-    .to(QuestionnaireService)
-    .inSingletonScope();
+      .to(QuestionnaireService)
+      .inSingletonScope();
     bind<IDiscordService>(IDiscordServiceType)
       .to(DiscordService)
       .inSingletonScope();
@@ -334,9 +336,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(TwitterService)
       .inSingletonScope();
 
-    bind<IConsentTokenUtils>(IConsentTokenUtilsType)
-      .to(ConsentTokenUtils)
-      .inSingletonScope();
     bind<IPermissionUtils>(IPermissionUtilsType)
       .to(PermissionUtils)
       .inSingletonScope();
@@ -356,9 +355,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IConsentContractRepository>(IConsentContractRepositoryType).to(
       ConsentContractRepository,
     );
-    bind<IMetatransactionForwarderRepository>(
-      IMetatransactionForwarderRepositoryType,
-    ).to(MetatransactionForwarderRepository);
     bind<IMarketplaceRepository>(IMarketplaceRepositoryType).to(
       MarketplaceRepository,
     );
@@ -541,6 +537,14 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<ICloudStorage>(IDropboxCloudStorageType)
       .to(DropboxCloudStorage)
+      .inSingletonScope();
+
+    // ZK Circuits -------------------------------------------------------
+    bind<IMembershipWrapper>(IMembershipWrapperType)
+      .to(MembershipWrapper)
+      .inSingletonScope();
+    bind<ICommitmentWrapper>(ICommitmentWrapperType)
+      .to(CommitmentWrapper)
       .inSingletonScope();
 
     /**

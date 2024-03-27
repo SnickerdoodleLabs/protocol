@@ -33,12 +33,11 @@ export interface IInvitationService {
 
   updateAgreementPermissions(
     consentContractAddress: EVMContractAddress,
-    dataTypes: EWalletDataType[],
+    dataTypes: DataPermissions,
   ): ResultAsync<void, SnickerDoodleCoreError>;
 
   acceptInvitation(
     invitation: Invitation,
-    dataTypes: EWalletDataType[] | null,
   ): ResultAsync<void, SnickerDoodleCoreError | ExtensionStorageError>;
 
   rejectInvitation(
@@ -63,10 +62,6 @@ export interface IInvitationService {
     ipfsCID: IpfsCID,
   ): ResultAsync<IOldUserAgreement | IUserAgreement, SnickerDoodleCoreError>;
 
-  getConsentCapacity(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError>;
-
   getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
   ): ResultAsync<
@@ -78,9 +73,9 @@ export interface IInvitationService {
     SnickerDoodleCoreError
   >;
 
-  getAgreementPermissions(
+  getDataPermissions(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<EWalletDataType[], SnickerDoodleCoreError>;
+  ): ResultAsync<DataPermissions, SnickerDoodleCoreError>;
 
   getConsentContractCID(
     consentAddress: EVMContractAddress,

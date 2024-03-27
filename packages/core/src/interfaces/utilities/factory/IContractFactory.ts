@@ -1,8 +1,6 @@
 import {
   IConsentContract,
   IConsentFactoryContract,
-  ICrumbsContract,
-  IMinimalForwarderContract,
 } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BlockchainProviderError,
@@ -21,16 +19,6 @@ export interface IContractFactory {
     consentContractAddresses: EVMContractAddress[],
   ): ResultAsync<
     IConsentContract[],
-    BlockchainProviderError | UninitializedError
-  >;
-
-  factoryCrumbsContract(): ResultAsync<
-    ICrumbsContract,
-    BlockchainProviderError | UninitializedError
-  >;
-
-  factoryMinimalForwarderContract(): ResultAsync<
-    IMinimalForwarderContract,
     BlockchainProviderError | UninitializedError
   >;
 }

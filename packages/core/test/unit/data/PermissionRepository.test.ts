@@ -55,7 +55,7 @@ describe("PermissionRepository tests", () => {
     const repo = mocks.factoryRepository();
 
     // Act
-    const result = await repo.getPermissions(domainName2);
+    const result = await repo.getDomainPermissions(domainName2);
 
     // Assert
     expect(result).toBeDefined();
@@ -75,7 +75,7 @@ describe("PermissionRepository tests", () => {
     const repo = mocks.factoryRepository();
 
     // Act
-    const result = await repo.getPermissions(domainName2);
+    const result = await repo.getDomainPermissions(domainName2);
 
     // Assert
     expect(result).toBeDefined();
@@ -90,7 +90,7 @@ describe("PermissionRepository tests", () => {
     const repo = mocks.factoryRepository();
 
     // Act
-    const result = await repo.getPermissions(domainName1);
+    const result = await repo.getDomainPermissions(domainName1);
 
     // Assert
     expect(result).toBeDefined();
@@ -107,7 +107,7 @@ describe("PermissionRepository tests", () => {
     const repo = mocks.factoryRepository();
 
     // Act
-    const result = await repo.setPermissions(domainName1, [
+    const result = await repo.setDomainPermissions(domainName1, [
       EDataWalletPermission.ReadWeb3Data,
     ]);
 
@@ -127,7 +127,7 @@ describe("PermissionRepository tests", () => {
     const repo = mocks.factoryRepository();
 
     // Act
-    const result = await repo.setPermissions(domainName1, [
+    const result = await repo.setDomainPermissions(domainName1, [
       EDataWalletPermission.ReadWeb3Data,
     ]);
 

@@ -1,7 +1,6 @@
 import Container from "@extension-onboarding/components/v2/Container";
 import PageTitle from "@extension-onboarding/components/v2/PageTitle";
 import { useAppContext } from "@extension-onboarding/context/App";
-import AudienceItem from "@extension-onboarding/pages/V2/DataPermissions/components/AudienceItem";
 import { Box } from "@material-ui/core";
 import { SDTypography } from "@snickerdoodlelabs/shared-components";
 import React, { useMemo } from "react";
@@ -22,11 +21,11 @@ const DataPermissions = () => {
           {Array.from(optedInContracts.entries()).map(
             ([contractAddress, ipfsCID]) => (
               <Box key={contractAddress} mb={3}>
-                <AudienceItem
+              {/*   <AudienceItem
                   key={contractAddress}
                   contractAddress={contractAddress}
                   ipfsCID={ipfsCID}
-                />
+                /> */}
               </Box>
             ),
           )}

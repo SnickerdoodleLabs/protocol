@@ -33,9 +33,8 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       new NativeCurrencyInformation("DOODLE", 18, "DOODLE"),
       EChainType.Hardhat,
       "",
-      EVMContractAddress("0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"), // Consent Contract Factory
-      EVMContractAddress("0x610178dA211FEF7D417bC0e6FeD39F05609AD788"), // Crumbs Contract
-      EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"), // Metatransaction Forwarder Contract
+      EVMContractAddress("0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"), // Consent Contract Factory
+      EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"), // Governance Token Contract
     ),
   ],
   [
@@ -153,8 +152,7 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Testnet,
       "https://testnet.snowtrace.io/tx/",
       EVMContractAddress("0x5540122e78241679Da8d07A04A74D3a7f52aED97"), // Consent Contract Factory
-      EVMContractAddress("0x49a04d6545b1511742033b0ddF6a2Ba880A69287"), // Crumbs Contract
-      EVMContractAddress("0xdB5c885944d903Ac5c146eef400D2ee20572d357"), // Metatransaction Forwarder Contract
+      EVMContractAddress("0x5540122e78241679Da8d07A04A74D3a7f52aED97"), // TODO: Governance Token Contract 
       URLString("https://api-testnet.snowtrace.io/"),
     ),
   ],

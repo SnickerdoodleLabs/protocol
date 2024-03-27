@@ -51,6 +51,8 @@ import {
   InvalidParametersError,
   MethodSupportError,
   DataPermissions,
+  OptInInfo,
+  Commitment,
 } from "@snickerdoodlelabs/objects";
 import {
   SDQLQueryWrapper,
@@ -63,8 +65,6 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import { IQueryService } from "@core/interfaces/business/index.js";
 import {
-  IConsentTokenUtils,
-  IConsentTokenUtilsType,
   IQueryParsingEngine,
   IQueryParsingEngineType,
 } from "@core/interfaces/business/utilities/index.js";
@@ -73,6 +73,8 @@ import {
   IConsentContractRepositoryType,
   ILinkedAccountRepository,
   ILinkedAccountRepositoryType,
+  IPermissionRepository,
+  IPermissionRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data/index.js";
@@ -89,8 +91,6 @@ import {
 @injectable()
 export class QueryService implements IQueryService {
   public constructor(
-    @inject(IConsentTokenUtilsType)
-    protected consentTokenUtils: IConsentTokenUtils,
     @inject(IDataWalletUtilsType)
     protected dataWalletUtils: IDataWalletUtils,
     @inject(IQueryParsingEngineType)
@@ -99,6 +99,8 @@ export class QueryService implements IQueryService {
     protected sdqlQueryRepo: ISDQLQueryRepository,
     @inject(IInsightPlatformRepositoryType)
     protected insightPlatformRepo: IInsightPlatformRepository,
+    @inject(IPermissionRepositoryType)
+    protected permisionRepo: IPermissionRepository,
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
     @inject(IContextProviderType)
@@ -185,12 +187,12 @@ export class QueryService implements IQueryService {
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
       this.accountRepo.getAccounts(),
-      this.consentTokenUtils.getCurrentConsentToken(
+      this.consentContractRepository.getCommitmentIndex(
         requestForData.consentContractAddress,
       ),
-    ]).andThen(([queryWrapper, context, config, accounts, consentToken]) => {
-      // Check and make sure a consent token exists
-      if (consentToken == null) {
+    ]).andThen(([queryWrapper, context, config, accounts, commitmentIndex]) => {
+      // Check and make sure a commitment has been added for the consent contract
+      if (commitmentIndex == -1) {
         // Record the query as having been received, but ignore it
         return this.createQueryStatusWithNoConsent(
           requestForData,
@@ -210,14 +212,13 @@ export class QueryService implements IQueryService {
       return this.createQueryStatusWithConsent(requestForData, queryWrapper)
         .andThen(() => {
           return this.dataWalletUtils
-            .deriveOptInPrivateKey(
+            .deriveOptInInfo(
               requestForData.consentContractAddress,
               context.dataWalletKey!,
             )
-            .andThen((optInKey) => {
+            .andThen((optInInfo) => {
               return this.constructAndPublishSDQLQueryRequest(
-                consentToken,
-                optInKey,
+                optInInfo,
                 requestForData.consentContractAddress,
                 queryWrapper.sdqlQuery,
                 accounts,
@@ -432,11 +433,11 @@ export class QueryService implements IQueryService {
               IDynamicRewardParameter[]
             >(queryStatus.rewardsParameters as JSONString);
             return ResultUtils.combine([
-              this.consentTokenUtils.getCurrentConsentToken(
+              this.consentContractRepository.getCommitmentIndex(
                 queryStatus.consentContractAddress,
               ),
               this.sdqlQueryRepo.getSDQLQueryByCID(queryStatus.queryCID),
-            ]).andThen(([consentToken, query]) => {
+            ]).andThen(([commitmentIndex, query]) => {
               if (query == null) {
                 // Don't break everything if we can't get the query from IPFS, just skip it
                 return errAsync(
@@ -445,7 +446,7 @@ export class QueryService implements IQueryService {
                   ),
                 );
               }
-              return this.validateContextConfig(context, consentToken)
+              return this.validateContextConfig(context, commitmentIndex)
                 .andThen(() => {
                   // After sanity checking, we process the query into insights for a
                   // (hopefully) final time, and get our opt-in key
@@ -459,24 +460,34 @@ export class QueryService implements IQueryService {
                   this.logUtils.debug(
                     `Starting queryParsingEngine for query ${query.cid}`,
                   );
-                  return ResultUtils.combine([
-                    this.queryParsingEngine
-                      .handleQuery(
-                        query,
-                        DataPermissions.createWithAllPermissions(), // We're enabling all permissions for now instead of using consentToken!.dataPermissions till the permissions are properly refactored.
-                      )
-                      .map((insights) => {
-                        this.logUtils.debug(
-                          `Query ${query.cid} processed into insights`,
-                        );
-                        return insights;
-                      }),
-                    this.dataWalletUtils.deriveOptInPrivateKey(
+
+                  // Need to determine the start and size of the anonymity set.
+                  return this.permisionRepo
+                    .getContentContractPermissions(
                       queryStatus.consentContractAddress,
-                      context.dataWalletKey!,
-                    ),
-                  ]);
+                    )
+                    .andThen((permissions) => {
+                      return ResultUtils.combine([
+                        this.queryParsingEngine
+                          .handleQuery(query, permissions)
+                          .map((insights) => {
+                            this.logUtils.debug(
+                              `Query ${query.cid} processed into insights`,
+                            );
+                            return insights;
+                          }),
+                        this.dataWalletUtils.deriveOptInInfo(
+                          queryStatus.consentContractAddress,
+                          context.dataWalletKey!,
+                        ),
+                        this.getAnonymitySet(
+                          queryStatus.consentContractAddress,
+                          commitmentIndex,
+                        ),
+                      ]);
+                    });
                 })
+
                 .mapErr((err) => {
                   context.publicEvents.queryPerformance.next(
                     new QueryPerformanceEvent(
@@ -488,15 +499,17 @@ export class QueryService implements IQueryService {
                     ),
                   );
                 })
-                .andThen(([insights, optInKey]) => {
+                .andThen(([insights, optInInfo, anonymitySet]) => {
                   // Deliver the insights to the backend
                   return this.insightPlatformRepo.deliverInsights(
                     queryStatus.consentContractAddress,
-                    consentToken!.tokenId,
+                    optInInfo.identityTrapdoor,
+                    optInInfo.identityNullifier,
                     query.cid,
                     insights,
                     rewardsParameters,
-                    optInKey,
+                    anonymitySet,
+                    0,
                     config.defaultInsightPlatformBaseUrl,
                   );
                 })
@@ -557,40 +570,46 @@ export class QueryService implements IQueryService {
       .map(() => {});
   }
 
-  public getPossibleRewards(
-    consentToken: ConsentToken,
-    optInKey: EVMPrivateKey,
+  protected getAnonymitySet(
     consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
-    config: CoreConfig,
+    commitmentIndex: number,
   ): ResultAsync<
-    PossibleReward[],
-    | AjaxError
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | ParserError
-    | AccountIndexingError
-    | MethodSupportError
+    Commitment[],
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainCommonErrors
     | InvalidParametersError
-    | MissingTokenConstructorError
-    | DuplicateIdInSchema
-    | PersistenceError
-    | EvalNotImplementedError
-    | MissingASTError
   > {
-    return this.queryParsingEngine
-      .getPossibleQueryDeliveryItems(query)
-      .andThen((queryDeliveryItems) => {
-        return this.getPossibleRewardsFromIP(
-          consentToken,
-          optInKey,
+    // The commitment set needs to include our commitment and be as big as possible, but not start at our
+    // commitment. For right now, we'll use a set of size 1000 if we can.
+    return this.consentContractRepository
+      .getCommitmentCount(consentContractAddress)
+      .andThen((commitmentCount) => {
+        if (commitmentCount > 1000) {
+          commitmentCount = 1000;
+        }
+
+        // Now generate a random number less than commitment count and less than commitmentIndex
+        const randomMax = Math.min(commitmentCount, commitmentIndex);
+
+        // Will return between 0 and randomMax - 1
+        const offset = this.getRandomInteger(0, randomMax);
+
+        // Get the anonymity set
+        return this.consentContractRepository.getAnonymitySet(
           consentContractAddress,
-          query.cid,
-          config,
-          queryDeliveryItems,
+          offset,
+          commitmentCount,
         );
+      })
+      .map((anonymitySet) => {
+        return anonymitySet;
       });
+  }
+
+  // Returns an integer between mine (inclusive) and max (exclusive)
+  protected getRandomInteger(min: number, max: number) {
+    return Math.floor(Math.random() * (max - min) + min);
   }
 
   protected createQueryStatusWithConsent(
@@ -639,8 +658,7 @@ export class QueryService implements IQueryService {
   }
 
   protected constructAndPublishSDQLQueryRequest(
-    consentToken: ConsentToken,
-    optInKey: EVMPrivateKey,
+    optInInfo: OptInInfo,
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
     accounts: LinkedAccount[],
@@ -666,21 +684,13 @@ export class QueryService implements IQueryService {
     | MethodSupportError
     | InvalidParametersError
   > {
-    return this.getPossibleRewards(
-      consentToken,
-      optInKey,
+    return this.publishSDQLQueryRequest(
       consentContractAddress,
       query,
-      config,
-    ).map((possibleRewards) => {
-      this.publishSDQLQueryRequest(
-        consentContractAddress,
-        query,
-        possibleRewards,
-        accounts,
-        context,
-      );
-    });
+      [],
+      accounts,
+      context,
+    );
   }
   // eslint-disable-next-line @typescript-eslint/adjacent-overload-signatures
   protected publishSDQLQueryRequest(
@@ -704,24 +714,6 @@ export class QueryService implements IQueryService {
     return okAsync(undefined);
   }
 
-  protected getPossibleRewardsFromIP(
-    consentToken: ConsentToken,
-    optInKey: EVMPrivateKey,
-    consentContractAddress: EVMContractAddress,
-    queryCID: IpfsCID,
-    config: CoreConfig,
-    queryDeliveryItems: IQueryDeliveryItems,
-  ): ResultAsync<PossibleReward[], AjaxError> {
-    return this.insightPlatformRepo.receivePreviews(
-      consentContractAddress,
-      consentToken.tokenId,
-      queryCID,
-      optInKey,
-      config.defaultInsightPlatformBaseUrl,
-      queryDeliveryItems,
-    );
-  }
-
   protected getQueryByCID(
     queryId: IpfsCID,
   ): ResultAsync<SDQLQueryWrapper, AjaxError | IPFSError> {
@@ -742,7 +734,7 @@ export class QueryService implements IQueryService {
 
   protected validateContextConfig(
     context: CoreContext,
-    consentToken: ConsentToken | null,
+    commitmentIndex: number,
   ): ResultAsync<void, UninitializedError | ConsentError> {
     if (context.dataWalletAddress == null || context.dataWalletKey == null) {
       return errAsync(
@@ -750,7 +742,7 @@ export class QueryService implements IQueryService {
       );
     }
 
-    if (consentToken == null) {
+    if (commitmentIndex == -1) {
       return errAsync(
         new ConsentError(`Data wallet is not opted in to the contract!`),
       );

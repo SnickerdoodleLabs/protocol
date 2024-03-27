@@ -57,7 +57,7 @@ export * from "@objects/businessObjects/TransactionPaymentCounter.js";
 export * from "@objects/businessObjects/VolatileDataUpdate.js";
 export * from "@objects/businessObjects/VolatileStorageMetadata.js";
 export * from "@objects/businessObjects/WalletNFT.js";
-
+export * from "@objects/businessObjects/Permission.js";
 export * from "@objects/businessObjects/events/index.js";
 export * from "@objects/businessObjects/rewards/index.js";
 export * from "@objects/businessObjects/oauth/index.js";

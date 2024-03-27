@@ -1,3 +1,7 @@
+import {
+  CircuitUtils,
+  MembershipWrapper,
+} from "@snickerdoodlelabs/circuits-sdk";
 import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   EVMPrivateKey,
@@ -11,10 +15,10 @@ import {
   ChainId,
   EChainTechnology,
   SolanaAccountAddress,
-  EVMAccountAddress,
   EVMContractAddress,
   PasswordString,
   SuiAccountAddress,
+  OptInInfo,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -200,32 +204,27 @@ export class DataWalletUtils implements IDataWalletUtils {
     throw new Error(`Unknown chainTechnology ${chainInfo.chainTechnology}`);
   }
 
-  public deriveOptInPrivateKey(
+  public deriveOptInInfo(
     consentContractAddress: EVMContractAddress,
     dataWalletKey: EVMPrivateKey,
-  ): ResultAsync<EVMPrivateKey, never> {
-    return this.cryptoUtils
-      .signMessage(consentContractAddress, dataWalletKey)
-      .andThen((signature) => {
-        return this.cryptoUtils.deriveEVMPrivateKeyFromSignature(
-          signature,
-          HexString(consentContractAddress),
-        );
-      });
-  }
+  ): ResultAsync<OptInInfo, never> {
+    // The opt in values are just from understood strings
+    const nullifier = CircuitUtils.getHashFromString(
+      `${consentContractAddress}:${dataWalletKey}:Nullifier`,
+    );
+    const trapdoor = CircuitUtils.getHashFromString(
+      `${consentContractAddress}:${dataWalletKey}:Trapdoor`,
+    );
 
-  public deriveOptInAccountAddress(
-    consentContractAddress: EVMContractAddress,
-    dataWalletKey: EVMPrivateKey,
-  ): ResultAsync<EVMAccountAddress, never> {
-    return this.deriveOptInPrivateKey(
-      consentContractAddress,
-      dataWalletKey,
-    ).map((newPrivateKey) => {
-      return this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
-        newPrivateKey,
-      );
-    });
+    const identity = MembershipWrapper.getIdentity(trapdoor, nullifier);
+    return okAsync(
+      new OptInInfo(
+        consentContractAddress,
+        nullifier,
+        trapdoor,
+        MembershipWrapper.getIdentityCommitment(identity),
+      ),
+    );
   }
 
   protected accountAddressToHex(accountAddress: AccountAddress): HexString {

@@ -49,6 +49,7 @@ import {
   MarketplaceTag,
   QuestionnaireQuestion,
   QuestionnaireWithAnswers,
+  Commitment,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_ConditionExpr,
@@ -1173,4 +1174,11 @@ export const mockQuestionnaireHistory = new QuestionnaireHistory(
     },
   ],
 );
+// #endregion
+
+// #region Commitments
+export const commitment1Index = 1;
+export const commitment1 = Commitment(1234n);
+export const identityNullifier = BigNumberString("5678");
+export const identityTrapdoor = BigNumberString("94062");
 // #endregion

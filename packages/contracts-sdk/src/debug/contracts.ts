@@ -9,6 +9,7 @@ import {
 } from "@contracts-sdk/debug/constants.js";
 import { ConsentContract } from "@contracts-sdk/implementations/ConsentContract.js";
 import { ConsentFactoryContract } from "@contracts-sdk/implementations/ConsentFactoryContract.js";
+import { ERC20RewardContract } from "@contracts-sdk/implementations/ERC20RewardContract";
 import NFR from "@contracts-sdk/interfaces/objects/abi/ConsentFactoryAbi.js";
 
 export class Contracts {

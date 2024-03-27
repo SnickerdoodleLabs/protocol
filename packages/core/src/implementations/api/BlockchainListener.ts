@@ -193,16 +193,11 @@ export class BlockchainListener implements IBlockchainListener {
         return ResultUtils.combine(
           Array.from(consentContractsMap.values()).map((consentContract) => {
             // Only consent owners can request data
-            return ResultUtils.combine([
-              consentContract.getConsentOwner(),
-              this.consentContractRepository.getQueryHorizon(
-                consentContract.getContractAddress(),
-              ),
-            ])
-              .andThen(([consentOwner, queryHorizon]) => {
+            return this.consentContractRepository
+              .getQueryHorizon(consentContract.getContractAddress())
+              .andThen((queryHorizon) => {
                 return ResultUtils.combine([
-                  consentContract.getRequestForDataListByRequesterAddress(
-                    consentOwner,
+                  consentContract.getRequestForDataList(
                     queryHorizon,
                     currentBlockNumber,
                   ),

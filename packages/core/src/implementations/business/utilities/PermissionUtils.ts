@@ -33,7 +33,7 @@ export class PermissionUtils implements IPermissionUtils {
     }
 
     return this.permissionRepo
-      .getPermissions(srcDomain)
+      .getDomainPermissions(srcDomain)
       .andThen((permissions) => {
         if (permissions.includes(permission)) {
           return okAsync(undefined);

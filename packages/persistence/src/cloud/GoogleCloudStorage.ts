@@ -22,7 +22,7 @@ import {
   ParsedBackupFileName,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
@@ -150,11 +150,12 @@ export class GoogleCloudStorage implements ICloudStorage {
       .andThen(([privateKey, config]) => {
         const addr =
           this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
-        return this.insightPlatformRepo.clearAllBackups(
-          privateKey,
-          config.defaultInsightPlatformBaseUrl,
-          addr,
-        );
+        // return this.insightPlatformRepo.clearAllBackups(
+        //   privateKey,
+        //   config.defaultInsightPlatformBaseUrl,
+        //   addr,
+        // );
+        return okAsync(undefined);
       })
       .mapErr((e) => new PersistenceError("error clearing gcp", e));
   }
@@ -172,33 +173,34 @@ export class GoogleCloudStorage implements ICloudStorage {
         const addr =
           this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
 
-        return this.insightPlatformRepo
-          .getSignedUrl(
-            privateKey,
-            defaultInsightPlatformBaseUrl,
-            addr + "/" + backup.header.name,
-          )
-          .mapErr((e) => {
-            return new PersistenceError(
-              `Unable to retrieve a signed URL to post a backup from the insight platform. Backup named ${backup.header.name}`,
-              e,
-            );
-          })
-          .andThen((signedUrl) => {
-            return this.ajaxUtils
-              .put<undefined>(new URL(signedUrl), JSON.stringify(backup), {
-                headers: {
-                  "Content-Type": `multipart/form-data;`,
-                },
-              })
+        return errAsync(new PersistenceError("Not implemented"));
+        // return this.insightPlatformRepo
+        //   .getSignedUrl(
+        //     privateKey,
+        //     defaultInsightPlatformBaseUrl,
+        //     addr + "/" + backup.header.name,
+        //   )
+        //   .mapErr((e) => {
+        //     return new PersistenceError(
+        //       `Unable to retrieve a signed URL to post a backup from the insight platform. Backup named ${backup.header.name}`,
+        //       e,
+        //     );
+        //   })
+        //   .andThen((signedUrl) => {
+        //     return this.ajaxUtils
+        //       .put<undefined>(new URL(signedUrl), JSON.stringify(backup), {
+        //         headers: {
+        //           "Content-Type": `multipart/form-data;`,
+        //         },
+        //       })
 
-              .mapErr((e) => {
-                return new PersistenceError(
-                  `Error posting backup to Google, name: ${backup.header.name}`,
-                  e,
-                );
-              });
-          });
+        //       .mapErr((e) => {
+        //         return new PersistenceError(
+        //           `Error posting backup to Google, name: ${backup.header.name}`,
+        //           e,
+        //         );
+        //       });
+        //   });
       })
       .map(() => DataWalletBackupID(backup.header.hash));
   }

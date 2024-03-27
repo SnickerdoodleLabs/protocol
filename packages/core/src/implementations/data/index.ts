@@ -12,7 +12,6 @@ export * from "@core/implementations/data/EntropyRepository.js";
 export * from "@core/implementations/data/InvitationRepository.js";
 export * from "@core/implementations/data/LinkedAccountRepository.js";
 export * from "@core/implementations/data/MarketplaceRepository.js";
-export * from "@core/implementations/data/MetatransactionForwarderRepository.js";
 export * from "@core/implementations/data/NftRepository.js";
 export * from "@core/implementations/data/MetricsRepository.js";
 export * from "@core/implementations/data/PermissionRepository.js";

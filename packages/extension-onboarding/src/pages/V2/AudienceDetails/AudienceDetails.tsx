@@ -1,17 +1,3 @@
-import BackButton from "@extension-onboarding/components/BackButton";
-import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import { EModalSelectors } from "@extension-onboarding/components/Modals";
-import AccountItem from "@extension-onboarding/components/v2/AccountItem";
-import Card from "@extension-onboarding/components/v2/Card";
-import CardTitle from "@extension-onboarding/components/v2/CardTitle";
-import Container from "@extension-onboarding/components/v2/Container";
-import Table, { IColumn } from "@extension-onboarding/components/v2/Table";
-import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import AirdropsSection from "@extension-onboarding/pages/V2/AudienceDetails/AirdropsSection";
 import {
   Box,
   Divider,
@@ -45,6 +31,21 @@ import { ResultUtils } from "neverthrow-result-utils";
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 
+import BackButton from "@extension-onboarding/components/BackButton";
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import { EModalSelectors } from "@extension-onboarding/components/Modals";
+import AccountItem from "@extension-onboarding/components/v2/AccountItem";
+import Card from "@extension-onboarding/components/v2/Card";
+import CardTitle from "@extension-onboarding/components/v2/CardTitle";
+import Container from "@extension-onboarding/components/v2/Container";
+import Table, { IColumn } from "@extension-onboarding/components/v2/Table";
+import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import AirdropsSection from "@extension-onboarding/pages/V2/AudienceDetails/AirdropsSection";
+
 enum EOptedInStatus {
   UNKNOWN,
   OPTED_IN,
@@ -65,12 +66,8 @@ const AudienceDetails = () => {
   const navigate = useNavigate();
   const [ipfsCID, setIpfsCID] = useState<IpfsCID>();
   const [receivingAccount, setReceivingAccount] = useState<AccountAddress>();
-  const {
-    optedInContracts,
-    linkedAccounts,
-    earnedRewards,
-    apiGateway,
-  } = useAppContext();
+  const { optedInContracts, linkedAccounts, earnedRewards, apiGateway } =
+    useAppContext();
   const { sdlDataWallet } = useDataWalletContext();
   const { setAlert } = useNotificationContext();
   const { setModal, setLoadingStatus } = useLayoutContext();
@@ -101,9 +98,8 @@ const AudienceDetails = () => {
         setIpfsCID(ipfsCID);
         return ResultUtils.combine([
           sdlDataWallet.getInvitationMetadataByCID(_ipfsCID),
-          sdlDataWallet.getConsentContractURLs(consentAddress),
-        ]).map(([metadata, urls]) => {
-          setContractInfo({ metadata, urls });
+        ]).map(([metadata]) => {
+          setContractInfo({ metadata, urls: [] });
         });
       })
       .mapErr((err) => {

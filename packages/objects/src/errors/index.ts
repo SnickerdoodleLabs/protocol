@@ -3,6 +3,7 @@ export * from "@objects/errors/AjaxError.js";
 export * from "@objects/errors/AuthenticationError.js";
 export * from "@objects/errors/BackupError.js";
 export * from "@objects/errors/BaseError.js";
+export * from "@objects/errors/CircuitError.js";
 export * from "@objects/errors/CloudStorageError.js";
 export * from "@objects/errors/ConsentContractRepositoryError.js";
 export * from "@objects/errors/ConsentError.js";

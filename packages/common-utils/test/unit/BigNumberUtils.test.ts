@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { BigNumberString } from "@snickerdoodlelabs/objects";
+import { BigNumberString, HexString32 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 
 import { BigNumberUtils } from "@common-utils/implementations/BigNumberUtils.js";
@@ -57,10 +57,30 @@ describe("BigNumberUtils class", () => {
     const bigNum1 = BigInt(hexString1);
     const bigNum2 = BigInt(hexString2);
 
-    console.log(bigNum1.toString());
-    console.log(bigNum2.toString());
-
     expect(bigNum1.toString()).toBe("35828381046952092");
     expect(bigNum2.toString()).toBe("1");
+  });
+
+  test("BNStoHexString32 should convert BigNumberString to HexString32 with '0x' prefix", () => {
+    const BNSValue = BigNumberString("10");
+    const hexValue = bigNumberUtils.BNStoHexString32(BNSValue);
+
+    expect(hexValue.startsWith("0x")).toBe(true);
+    expect(hexValue).toBe("0x0a");
+  });
+
+  test("BNStoHexString32NoPrefix should convert BigNumberString to HexString32 without '0x' prefix", () => {
+    const BNSValue = BigNumberString("10");
+    const hexValue = bigNumberUtils.BNStoHexString32NoPrefix(BNSValue);
+
+    expect(hexValue.startsWith("0x")).toBe(false);
+    expect(hexValue).toBe("0a");
+  });
+
+  test("HexString32NoPrefixToBNS should convert HexString32 without '0x' prefix to BigNumberString", () => {
+    const hexString = HexString32("0a");
+    const BNSValue = bigNumberUtils.HexString32NoPrefixToBNS(hexString);
+
+    expect(BNSValue).toBe("10");
   });
 });
