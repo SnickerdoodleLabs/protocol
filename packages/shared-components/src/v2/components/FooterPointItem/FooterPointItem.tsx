@@ -34,6 +34,7 @@ export const FooterPointItem: FC<IFooterPointItem> = ({
     >
       <Image
         src={icon}
+        style={{ borderRadius: 13 }}
         width={26}
         height={26}
         errorImageSrc="https://storage.googleapis.com/dw-assets/spa/icons-v2/default-point.svg"
