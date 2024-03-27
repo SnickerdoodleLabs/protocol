@@ -12,7 +12,7 @@ import {
   public_,
 } from "o1js";
 
-import { MembershipWitness } from "@circuits/Membership.js";
+import { MembershipWitness } from "@circuits/o1js/Membership.js";
 
 export { keccakAndEcdsa, Reserves, Secp256k1, Ecdsa, Bytes32 };
 

@@ -3,8 +3,8 @@ import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import { BigNumberString, Commitment } from "@snickerdoodlelabs/objects";
 import { Poseidon, Field, MerkleTree, Encoding } from "o1js";
 
-import { Identity } from "@circuits/Identity.js";
-import { Membership, MembershipWitness } from "@circuits/Membership.js";
+import { Identity } from "@circuits/o1js/Identity.js";
+import { Membership, MembershipWitness } from "@circuits/o1js/Membership.js";
 
 class MembershipMocks {
   static generateIdentities(count: number): Identity[] {

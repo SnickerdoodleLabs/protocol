@@ -1,6 +1,6 @@
 import { Circuit, Field, circuitMain, public_, ZkProgram, Struct } from "o1js";
 
-import { Identity } from "@circuits/Identity.js";
+import { Identity } from "@circuits/o1js/Identity.js";
 
 export class Commitment extends Circuit {
   @circuitMain

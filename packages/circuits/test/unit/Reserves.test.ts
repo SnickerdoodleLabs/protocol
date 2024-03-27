@@ -3,7 +3,7 @@ import {
   Ecdsa,
   keccakAndEcdsa,
   Bytes32,
-} from "@circuits/Reserves.js";
+} from "@circuits/o1js/Reserves.js";
 
 describe("Proof of Reserves with ZkProgram Class", () => {
   test("Generate Proof of Reserves with ZkProgram", async () => {

@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
+import { Poseidon, Field, verify } from "o1js";
+
 import {
   CommitmentVerifyParams,
   commitmentVerification,
-} from "@circuits/Commitment.js";
-import { Identity } from "@circuits/Identity.js";
-import { Poseidon, Field, verify } from "o1js";
+} from "@circuits/o1js/Commitment.js";
+import { Identity } from "@circuits/o1js/Identity.js";
 
 class CommitmentMocks {
   static generateIdentities(count: number): Identity[] {
