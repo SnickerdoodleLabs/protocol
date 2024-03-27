@@ -62,11 +62,14 @@ import {
   JSONString,
   IProxyQuestionnaireMethods,
   NewQuestionnaireAnswer,
+  EQueryProcessingStatus,
+  IDynamicRewardParameter,
+  SDQLQueryRequest,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
 import ObjectMultiplex from "obj-multiplex";
 import LocalMessageStream from "post-message-stream";
 import pump from "pump";
@@ -104,6 +107,8 @@ import {
   GetQueryStatusesParams,
   GetTransactionsParams,
   UpdateAgreementPermissionsParams,
+  ApproveQueryParams,
+  GetQueryStatusesByContractAddressParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
@@ -222,6 +227,13 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     );
 
     this.on(
+      ENotificationTypes.QUERY_POSTED,
+      (notification: { data: SDQLQueryRequest }) => {
+        this.events.onQueryPosted.next(notification.data);
+      },
+    );
+
+    this.on(
       ENotificationTypes.PROFILE_FIELD_CHANGED,
       (notification: {
         data: { fieldType: EProfileFieldType; value: any };
@@ -243,6 +255,9 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     this.questionnaire = {
       getAllQuestionnaires: (pagingRequest: PagingRequest) => {
         return coreGateway.questionnaire.getAllQuestionnaires(pagingRequest);
+      },
+      getQuestionnaires: (pagingRequest: PagingRequest) => {
+        return coreGateway.questionnaire.getQuestionnaires(pagingRequest);
       },
       answerQuestionnaire: (
         questionnaireId: IpfsCID,
@@ -270,6 +285,16 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       getRecommendedConsentContracts: (questionnaireCID: IpfsCID) => {
         return coreGateway.questionnaire.getRecommendedConsentContracts(
           questionnaireCID,
+        );
+      },
+      getByCIDs: (questionnaireCIDs: IpfsCID[]) => {
+        return coreGateway.questionnaire.getByCIDs(questionnaireCIDs);
+      },
+      getVirtualQuestionnaires: (
+        consentContractAddress: EVMContractAddress,
+      ) => {
+        return coreGateway.questionnaire.getVirtualQuestionnaires(
+          consentContractAddress,
         );
       },
     };
@@ -450,6 +475,14 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       _this.emit(resp.type, resp);
     });
   }
+  approveQuery(
+    queryCID: IpfsCID,
+    parameters: IDynamicRewardParameter[],
+  ): ResultAsync<void, ProxyError> {
+    return coreGateway.approveQuery(
+      new ApproveQueryParams(queryCID, parameters),
+    );
+  }
 
   public setDefaultReceivingAddress(
     receivingAddress: AccountAddress | null,
@@ -527,11 +560,20 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   }
 
   public getQueryStatuses(
-    contractAddress: EVMContractAddress,
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus[],
     blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], ProxyError> {
     return coreGateway.getQueryStatuses(
-      new GetQueryStatusesParams(contractAddress, blockNumber),
+      new GetQueryStatusesParams(contractAddress, status, blockNumber),
+    );
+  }
+
+  public getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<QueryStatus[], ProxyError> {
+    return coreGateway.getQueryStatusesByContractAddress(
+      new GetQueryStatusesByContractAddressParams(contractAddress),
     );
   }
 
@@ -678,6 +720,19 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   }
   public getUIState(): ResultAsync<JSONString | null, ProxyError> {
     return coreGateway.getUIState();
+  }
+
+  public requestOptIn(
+    consentContractAddress?: EVMContractAddress,
+  ): ResultAsync<void, ProxyError> {
+    window.postMessage(
+      {
+        type: "requestOptIn",
+        consentContractAddress,
+      },
+      "*",
+    );
+    return okAsync(undefined);
   }
 }
 

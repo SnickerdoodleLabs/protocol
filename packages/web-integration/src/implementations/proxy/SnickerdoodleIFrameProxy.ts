@@ -84,6 +84,8 @@ import {
   JSONString,
   IProxyQuestionnaireMethods,
   NewQuestionnaireAnswer,
+  EQueryProcessingStatus,
+  IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ethers } from "ethers";
@@ -268,9 +270,19 @@ export class SnickerdoodleIFrameProxy
       });
   }
 
+  // #region user requests
+
   public requestDashboardView(): ResultAsync<void, ProxyError> {
     return this._createCall("requestDashboardView", null);
   }
+
+  public requestOptIn(
+    consentContractAddress?: EVMContractAddress,
+  ): ResultAsync<void, ProxyError> {
+    return this._createCall("requestOptIn", { consentContractAddress });
+  }
+
+  // #endregion
 
   public initialize(): ResultAsync<void, ProxyError> {
     return this._createCall("initialize", null);
@@ -559,12 +571,33 @@ export class SnickerdoodleIFrameProxy
   }
 
   public getQueryStatuses(
-    contractAddress: EVMContractAddress,
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus[],
     blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], ProxyError> {
     return this._createCall("getQueryStatuses", {
       contractAddress,
+      status,
       blockNumber,
+    });
+  }
+
+  getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+    _sourceDomain?: DomainName | undefined,
+  ): ResultAsync<QueryStatus[], ProxyError> {
+    return this._createCall("getQueryStatusesByContractAddress", {
+      contractAddress,
+    });
+  }
+
+  approveQuery(
+    queryCID: IpfsCID,
+    parameters: IDynamicRewardParameter[],
+  ): ResultAsync<void, ProxyError> {
+    return this._createCall("approveQuery", {
+      queryCID,
+      parameters,
     });
   }
 
@@ -781,6 +814,11 @@ export class SnickerdoodleIFrameProxy
         pagingRequest,
       });
     },
+    getQuestionnaires: (pagingRequest: PagingRequest) => {
+      return this._createCall("questionnaire.getQuestionnaires", {
+        pagingRequest,
+      });
+    },
     answerQuestionnaire: (
       questionnaireId: IpfsCID,
       answers: NewQuestionnaireAnswer[],
@@ -813,6 +851,16 @@ export class SnickerdoodleIFrameProxy
     getRecommendedConsentContracts: (questionnaireCID: IpfsCID) => {
       return this._createCall("questionnaire.getRecommendedConsentContracts", {
         questionnaireCID,
+      });
+    },
+    getByCIDs: (questionnaireCIDs: IpfsCID[]) => {
+      return this._createCall("questionnaire.getByCIDs", {
+        questionnaireCIDs,
+      });
+    },
+    getVirtualQuestionnaires: (consentContractAddress: EVMContractAddress) => {
+      return this._createCall("questionnaire.getVirtualQuestionnaires", {
+        consentContractAddress,
       });
     },
   };

@@ -11,7 +11,7 @@ import {
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
-import { ResultAsync, okAsync } from "neverthrow";
+import { ResultAsync, ok, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { Subscription } from "rxjs";
 import { parse } from "tldts";
@@ -27,6 +27,7 @@ import {
 @injectable()
 export class InvitationService implements IInvitationService {
   private consentCheckSubscription: Subscription;
+  private userOptInRequestedSubscription: Subscription;
   constructor(
     @inject(IIFrameContextProviderType)
     protected contextProvider: IIFrameContextProvider,
@@ -37,43 +38,19 @@ export class InvitationService implements IInvitationService {
     this.consentCheckSubscription = this.contextProvider
       .getEvents()
       .onConsentAddressFound.subscribe((consentAddress) => {
-        this._handleConsentAddress(consentAddress);
+        this._handleConsentAddress(
+          consentAddress,
+          EInvitationSourceType.CONSENT_ADDRESS,
+        );
       });
-  }
-
-  private _handleConsentAddress(consentAddress: EVMContractAddress) {
-    this.consentCheckSubscription.unsubscribe();
-    return this.coreProvider
-      .getCore()
-      .andThen((core) => {
-        const invitation = new Invitation(consentAddress, null, null, null);
-        return core.invitation
-          .checkInvitationStatus(invitation)
-          .andThen((status) => {
-            if (status === EInvitationStatus.New) {
-              return core
-                .getConsentContractCID(consentAddress)
-                .andThen((cid) => {
-                  return core.invitation
-                    .getInvitationMetadataByCID(cid)
-                    .andThen((invitationData) => {
-                      this.contextProvider
-                        .getEvents()
-                        .onInvitationDisplayRequested.next({
-                          data: {
-                            invitation: invitation,
-                            metadata: invitationData,
-                          },
-                          type: EInvitationSourceType.CONSENT_ADDRESS,
-                        });
-                      return okAsync(undefined);
-                    });
-                });
-            }
-            return okAsync(undefined);
-          });
-      })
-      .mapErr((err) => {});
+    this.userOptInRequestedSubscription = this.contextProvider
+      .getEvents()
+      .onOptInRequested.subscribe((consentAddress) => {
+        this._handleConsentAddress(
+          consentAddress,
+          EInvitationSourceType.USER_REQUEST,
+        );
+      });
   }
 
   public handleURL(url: URLString): ResultAsync<void, never> {
@@ -193,5 +170,51 @@ export class InvitationService implements IInvitationService {
       return okAsync(TokenId(BigInt(tokenId)));
     }
     return this.cryptoUtils.getTokenId();
+  }
+
+  private _handleConsentAddress(
+    consentAddress: EVMContractAddress | undefined,
+    type: EInvitationSourceType,
+  ) {
+    if (!consentAddress) {
+      this.contextProvider
+        .getEvents()
+        .onDefaultConsentOptinRequested.next(undefined);
+      return okAsync(undefined);
+    }
+    if (type === EInvitationSourceType.CONSENT_ADDRESS) {
+      this.consentCheckSubscription.unsubscribe();
+    }
+    return this.coreProvider
+      .getCore()
+      .andThen((core) => {
+        const invitation = new Invitation(consentAddress, null, null, null);
+        return core.invitation
+          .checkInvitationStatus(invitation)
+          .andThen((status) => {
+            if (status === EInvitationStatus.New) {
+              return core
+                .getConsentContractCID(consentAddress)
+                .andThen((cid) => {
+                  return core.invitation
+                    .getInvitationMetadataByCID(cid)
+                    .andThen((invitationData) => {
+                      this.contextProvider
+                        .getEvents()
+                        .onInvitationDisplayRequested.next({
+                          data: {
+                            invitation: invitation,
+                            metadata: invitationData,
+                          },
+                          type,
+                        });
+                      return okAsync(undefined);
+                    });
+                });
+            }
+            return okAsync(undefined);
+          });
+      })
+      .mapErr((err) => {});
   }
 }

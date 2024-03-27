@@ -15,10 +15,12 @@ import {
   TransactionFilter,
   ChainTransaction,
   TransactionFlowInsight,
+  IDynamicRewardParameter,
 } from "@objects/businessObjects/index.js";
 import {
   ECoreProxyType,
   EInvitationStatus,
+  EQueryProcessingStatus,
   EWalletDataType,
 } from "@objects/enum/index.js";
 import { ProxyError } from "@objects/errors/index.js";
@@ -119,7 +121,7 @@ export type INftProxyMethods = {
 export type IProxyQuestionnaireMethods = {
   [key in Exclude<
     FunctionKeys<IQuestionnaireMethods>,
-    "getAnsweredQuestionnaires" | "getQuestionnaires"
+    "getAnsweredQuestionnaires"
   >]: (
     ...args: [...PopTuple<Parameters<IQuestionnaireMethods[key]>>]
   ) => ResultAsync<
@@ -241,6 +243,7 @@ export interface ISdlDataWallet {
   getEmail(): ResultAsync<EmailAddressString | null, ProxyError>;
   setLocation(location: CountryCode): ResultAsync<void, ProxyError>;
   getLocation(): ResultAsync<CountryCode | null, ProxyError>;
+
   getTokenPrice(
     chainId: ChainId,
     address: TokenAddress | null,
@@ -301,9 +304,19 @@ export interface ISdlDataWallet {
   ): ResultAsync<QueryStatus | null, ProxyError>;
 
   getQueryStatuses(
-    contractAddress: EVMContractAddress,
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus[],
     blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], ProxyError>;
+
+  getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<QueryStatus[], ProxyError>;
+
+  approveQuery(
+    queryCID: IpfsCID,
+    parameters: IDynamicRewardParameter[],
+  ): ResultAsync<void, ProxyError>;
 
   getSiteVisits(): ResultAsync<SiteVisit[], ProxyError>;
 
@@ -345,8 +358,11 @@ export interface ISdlDataWallet {
     Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
     ProxyError
   >;
-
+  // user requests
   requestDashboardView: undefined | (() => ResultAsync<void, ProxyError>);
+  requestOptIn(
+    consentAddress?: EVMContractAddress,
+  ): ResultAsync<void, ProxyError>;
 
   setUIState(state: JSONString): ResultAsync<void, ProxyError>;
   getUIState(): ResultAsync<JSONString | null, ProxyError>;
