@@ -115,7 +115,18 @@ export class QuestionnaireService implements IQuestionnaireService {
     | PersistenceError
     | ConsentFactoryContractError
   > {
-    return this.questionnaireRepo.getAll(pagingRequest);
+    return ResultUtils.combine([
+      this.consentContractRepository.getDefaultQuestionnaires(),
+      this.questionnaireRepo.getQuestionnaireIds(),
+    ]).andThen(([defaultCids, storedCids]) => {
+      const concatenatedCids = defaultCids.concat(storedCids);
+      const uniqueCidsArray: IpfsCID[] = this.uniqueCids(concatenatedCids);
+
+      return this.questionnaireRepo.getPagedQuestionnairesByCIDs(
+        uniqueCidsArray,
+        pagingRequest,
+      );
+    });
   }
 
   public getConsentContractsByQuestionnaireCID(
