@@ -5,6 +5,7 @@ import {IContentObject} from "../recomender/IContentObject.sol";
 import {IERC7529} from "../erc7529/IERC7529.sol";
 
 interface IConsent is IContentObject, IERC7529 {
+
     /* EVENTS */
 
     /// @notice Emitted when a request for data is made
@@ -20,11 +21,20 @@ interface IConsent is IContentObject, IERC7529 {
 
     /// @notice Emitted when an identity commitment is created via optIn or restrictedOptIn
     /// @param index The index of the idenity commitment in the set
-    /// @param commitment The Posiedon hash of the idenity commitment 
-    event Commitment(
-        uint indexed index,
-        bytes32 indexed commitment
-    );
+    /// @param commitment The Posiedon hash of the idenity commitment
+    event Commitment(uint indexed index, bytes32 indexed commitment);
+
+    /// @notice Emitted when a deposit of staking token is made to this contract
+    /// @param depositor the address which has deposited staking token
+    /// @param asset the address of the asset staked
+    /// @param amount the amount of the asset deposited
+    event Deposit(address indexed depositor, address indexed asset, uint256 amount);
+
+    /// @notice Emitted when a depositor withdraws their asset from this contract
+    /// @param depositor the address which is withdrawing their asset
+    /// @param asset the addres of the asset being withdrawn
+    /// @param amount the amount of the asset withdrawn
+    event Withdraw(address indexed depositor, address indexed asset, uint256 amount);
 
     /* External Functions */
 
@@ -32,9 +42,13 @@ interface IConsent is IContentObject, IERC7529 {
 
     function totalSupply() external view returns (uint256);
 
-    function checkCommitments(bytes32[] calldata commitmentArray) external view returns (uint256[] memory);
+    function checkCommitments(
+        bytes32[] calldata commitmentArray
+    ) external view returns (uint256[] memory);
 
-    function checkNonces(uint256[] calldata nonce) external view returns (bool[] memory);
+    function checkNonces(
+        uint256[] calldata nonce
+    ) external view returns (bool[] memory);
 
     function openOptInDisabled() external view returns (bool);
 
@@ -69,13 +83,23 @@ interface IConsent is IContentObject, IERC7529 {
 
     function requestForData(string calldata ipfsCID) external;
 
+    // stake depositor functions
+    function depositStake(address depositToken, uint256 amount) external; 
+
+    function removeStake(address depositToken, uint256 amount) external; 
+
     // ranking functions
-    function newGlobalTag(string calldata tag, address stakingToken, address stakeOwner, uint256 _newSlot) external;
+    function newGlobalTag(
+        string calldata tag,
+        address stakingToken,
+        uint256 stake,
+        uint256 _newSlot
+    ) external;
 
     function newLocalTagUpstream(
         string calldata tag,
         address stakingToken,
-        address stakeOwner,
+        uint256 stake,
         uint256 _newSlot,
         uint256 _existingSlot
     ) external;
@@ -83,7 +107,7 @@ interface IConsent is IContentObject, IERC7529 {
     function newLocalTagDownstream(
         string calldata tag,
         address stakingToken,
-        address stakeOwner,
+        uint256 stake,
         uint256 _existingSlot,
         uint256 _newSlot
     ) external;
@@ -91,14 +115,22 @@ interface IConsent is IContentObject, IERC7529 {
     function moveExistingListingUpstream(
         string calldata tag,
         address stakingToken,
-        address stakeOwner,
+        uint256 stake,
         uint256 _newSlot,
         uint256 _existingSlot
     ) external;
 
-    function restakeExpiredListing(string calldata tag, address stakingToken) external;
+    function restakeExpiredListing(
+        string calldata tag,
+        address stakingToken
+    ) external;
 
-    function replaceExpiredListing(string calldata tag, address stakingToken, address stakeOwner, uint256 _slot) external;
+    function replaceExpiredListing(
+        string calldata tag,
+        address stakingToken,
+        uint256 stake,
+        uint256 _slot
+    ) external;
 
     function removeListing(
         string calldata tag,

@@ -7,8 +7,6 @@ interface IContentObject {
     struct Tag {
         string tag; // human-readable tag this contract has staked
         uint256 slot; // slot staked by this contract
-        address staker; // address which staked the specific tag
-        uint256 stake; // the amount staked by the staker
     }
 
     /* Functions */
@@ -19,5 +17,5 @@ interface IContentObject {
 
     function getTagArray(address stakingToken) external view returns (Tag[] memory);
 
-    function updateMaxTagsLimit() external;
+    function getContentAddress() external view returns (address);
 }

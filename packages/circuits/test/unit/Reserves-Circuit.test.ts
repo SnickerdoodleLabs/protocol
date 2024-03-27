@@ -30,10 +30,7 @@ function packMerkleTree(
   const keyTree = new MerkleTree(16); // assumes tree w/ 2^16 leaves
   const numKeys = keypairs.length;
   for (let i = 0; i < numKeys; i++) {
-    const keyhash = Poseidon.hash([
-      Field(keypairs[i][0].toBigint().x),
-      Field(keypairs[i][0].toBigint().y),
-    ]);
+    const keyhash = Poseidon.hash(Secp256k1.provable.toFields(keypairs[i][0]));
     keyTree.setLeaf(BigInt(i), keyhash);
   }
   return keyTree;

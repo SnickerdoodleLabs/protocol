@@ -33,9 +33,7 @@ class Reserves extends Circuit {
   ) {
     // we check that the public key is contained in the anonymity set of addresses
     path
-      .calculateRoot(
-        Poseidon.hash(publicKey.x.toFields().concat(publicKey.y.toFields())),
-      )
+      .calculateRoot(Poseidon.hash(Secp256k1.provable.toFields(publicKey)))
       .assertEquals(merkleRoot);
 
     // then we check that the user owns the public key

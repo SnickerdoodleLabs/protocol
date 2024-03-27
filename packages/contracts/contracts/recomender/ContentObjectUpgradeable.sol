@@ -23,8 +23,8 @@ abstract contract ContentObjectUpgradeable is
         mapping(address => Tag[]) tags;
         /// @dev map from staking asset to another map from a tag to its index in tags
         mapping(address => mapping(string => uint256)) tagIndices;
-        /// @dev max number of attributes a consent contract can stake against
-        uint maxTags;
+        /// @dev address which this content object represents (could be *this* or could be another pre-deployed contract)
+        address contentAddress;
     }
 
     // keccak256(abi.encode(uint256(keccak256("snickerdoodle.contentobject")) - 1)) & ~bytes32(uint256(0xff))
@@ -44,16 +44,17 @@ abstract contract ContentObjectUpgradeable is
     /**
      * @dev Initializes the contract by setting the address of the ContentFactory.
      */
-    function __ContentObject_init(address factory) internal onlyInitializing {
-        __ContentObject_init_unchained(factory);
+    function __ContentObject_init(address factory, address contentAddress) internal onlyInitializing {
+        __ContentObject_init_unchained(factory, contentAddress);
     }
 
     function __ContentObject_init_unchained(
-        address factory
+        address factory,
+        address contentAddress
     ) internal onlyInitializing {
         ContentObjectStorage storage $ = _getContentObjectStorage();
         $.contentFactoryInstance = IContentFactory(factory);
-        $.maxTags = $.contentFactoryInstance.maxTagsPerListing();
+        $.contentAddress = contentAddress;
     }
 
     /* Function Implementations */
@@ -80,42 +81,27 @@ abstract contract ContentObjectUpgradeable is
         return $.tags[stakingToken];
     }
 
-    /// @notice endpoint to update tag limit to that specified by ContentFactory
-    /// @dev anyone may call this function to bring the content object into agreement with the factory
-    function updateMaxTagsLimit() external {
+    /// @notice returns the address which this content object references
+    /// @dev this content object could point to *this* or it could point to another pre-deployed contract
+    function getContentAddress() external view returns (address) {
         ContentObjectStorage storage $ = _getContentObjectStorage();
-        $.maxTags = $.contentFactoryInstance.maxTagsPerListing();
+        return $.contentAddress;
     }
 
     /// @notice Adds a new tag to the global namespace and stakes it for this consent contract
     /// @dev  2^256-1 <-> _newSlot <-> 0
     /// @param tag Human readable string denoting the target tag to stake
     /// @param stakingToken Address of the token used for staking recommender listings
-    /// @param stakeOwner Address that is staking the token and has already called approved
+    /// @param stake the amount of token needed to pay for _newSlot, use computeFee from factory
     /// @param _newSlot New linked list entry that prime the linked list for this tag
-    function _newGlobalTag(string memory tag, address stakingToken, address stakeOwner, uint256 _newSlot) internal {
+    function _newGlobalTag(string memory tag, address stakingToken, uint256 stake, uint256 _newSlot) internal {
         ContentObjectStorage storage $ = _getContentObjectStorage();
-        // check
-        require(
-            $.tags[stakingToken].length < $.maxTags,
-            "Content Object: Tag budget exhausted"
-        );
-        require(
-            $.tagIndices[stakingToken][tag] == 0,
-            "Content Object: This tag is already staked."
-        );
-
         // effects
-        uint256 stake = computeFee(_newSlot);
-        $.tags[stakingToken].push(Tag(tag, _newSlot, stakeOwner, stake));
+        $.tags[stakingToken].push(Tag(tag, _newSlot));
         $.tagIndices[stakingToken][tag] = $.tags[stakingToken].length;
 
-        // interaction
-        IERC20(stakingToken).safeTransferFrom(
-            stakeOwner,
-            address(this),
-            stake
-        );
+        // interaction: approve the content factory to pull stake
+        IERC20(stakingToken).approve(address($.contentFactoryInstance), stake);
         $.contentFactoryInstance.initializeTag(tag, stakingToken, _newSlot);
     }
 
@@ -123,38 +109,24 @@ abstract contract ContentObjectUpgradeable is
     /// @dev  _newSlot <-> _existingSlot
     /// @param tag Human readable string denoting the target tag to stake
     /// @param stakingToken Address of the token used for staking recommender listings
-    /// @param stakeOwner Address that is staking the token and has already called approved
+    /// @param stake the amount of token needed to pay for _newSlot, use computeFee from factory
     /// @param _newSlot New linked list entry that will point to _existingSlot slot
     /// @param _existingSlot slot that will be ranked next lowest to _newSlot
     function _newLocalTagUpstream(
         string memory tag,
         address stakingToken, 
-        address stakeOwner,
+        uint256 stake,
         uint256 _newSlot,
         uint256 _existingSlot
     ) internal {
         ContentObjectStorage storage $ = _getContentObjectStorage();
-        // check
-        require(
-            $.tags[stakingToken].length < $.maxTags,
-            "Content Object: Tag budget exhausted"
-        );
-        require(
-            $.tagIndices[stakingToken][tag] == 0,
-            "Content Object: This tag is already staked by this contract"
-        );
 
         // effects
-        uint256 stake = computeFee(_newSlot);
-        $.tags[stakingToken].push(Tag(tag, _newSlot, stakeOwner, stake));
+        $.tags[stakingToken].push(Tag(tag, _newSlot));
         $.tagIndices[stakingToken][tag] = $.tags[stakingToken].length;
 
-        // interaction
-        IERC20(stakingToken).safeTransferFrom(
-            stakeOwner,
-            address(this),
-            stake
-        );
+        // interaction: approve the content factory to pull stake
+        IERC20(stakingToken).approve(address($.contentFactoryInstance), stake);
         $.contentFactoryInstance.insertUpstream(tag, stakingToken, _newSlot, _existingSlot);
     }
 
@@ -162,38 +134,24 @@ abstract contract ContentObjectUpgradeable is
     /// @dev  _existingSlot <-> _newSlot
     /// @param tag Human readable string denoting the target tag to stake
     /// @param stakingToken Address of the token used for staking recommender listings
-    /// @param stakeOwner Address that is staking the token and has already called approved
+    /// @param stake the amount of token needed to pay for _newSlot, use computeFee from factory
     /// @param _existingSlot upstream pointer that will point to _newSlot
     /// @param _newSlot New linked list entry that will be ranked right below _existingSlot
     function _newLocalTagDownstream(
         string memory tag,
         address stakingToken, 
-        address stakeOwner,
+        uint256 stake,
         uint256 _existingSlot,
         uint256 _newSlot
     ) internal {
         ContentObjectStorage storage $ = _getContentObjectStorage();
-        // check
-        require(
-            $.tags[stakingToken].length < $.maxTags,
-            "Content Object: Tag budget exhausted"
-        );
-        require(
-            $.tagIndices[stakingToken][tag] == 0,
-            "Content Object: This tag is already staked by this contract"
-        );
 
         // effects
-        uint256 stake = computeFee(_newSlot);
-        $.tags[stakingToken].push(Tag(tag, _newSlot, stakeOwner, stake));
+        $.tags[stakingToken].push(Tag(tag, _newSlot));
         $.tagIndices[stakingToken][tag] = $.tags[stakingToken].length;
 
-        // interaction
-        IERC20(stakingToken).safeTransferFrom(
-            stakeOwner,
-            address(this),
-            stake
-        );
+        // interaction: approve the content factory to pull stake
+        IERC20(stakingToken).approve(address($.contentFactoryInstance), stake);
         $.contentFactoryInstance.insertDownstream(tag, stakingToken, _existingSlot, _newSlot);
     }
 
@@ -202,13 +160,13 @@ abstract contract ContentObjectUpgradeable is
     /// @dev This function also assumes that the listing is not expired
     /// @param tag Human readable string denoting the target tag to stake
     /// @param stakingToken Address of the token used for staking recommender listings
-    /// @param stakeOwner Address that is staking the token and has already called approved
+    /// @param stake the amount of token needed to pay for _newSlot, use computeFee from factory
     /// @param _newSlot The new slot to move the listing to
     /// @param _existingSlot The neighboring listing to _newSlow
     function _moveExistingListingUpstream(
         string memory tag,
         address stakingToken,
-        address stakeOwner,
+        uint256 stake,
         uint256 _newSlot,
         uint256 _existingSlot
     ) internal {
@@ -217,7 +175,6 @@ abstract contract ContentObjectUpgradeable is
         Tag memory updatedTag = $.tags[stakingToken][$.tagIndices[stakingToken][tag] - 1];
 
         // check
-        require(updatedTag.staker == stakeOwner, "Content Object: Must use same stake owner address");
         require(_newSlot > _existingSlot, "Content Object: New slot must be greater than current slot");
         require(
             $.tagIndices[stakingToken][tag] > 0,
@@ -228,20 +185,15 @@ abstract contract ContentObjectUpgradeable is
         uint256 removalSlot = updatedTag.slot; // get the old slot
         updatedTag.slot = _newSlot; // update with new slot
 
-        uint256 deltaStake = computeFee(_newSlot) - computeFee(removalSlot); // compute the extra stake required
-        updatedTag.stake += deltaStake; // update tag listing with stake delta
-
         $.tags[stakingToken][$.tagIndices[stakingToken][tag] - 1] = updatedTag; // update the listing
 
         // interaction
-        // pull stake equal to the delta between old slot and new slot
-        IERC20(stakingToken).safeTransferFrom(
-            stakeOwner,
-            address(this),
-            deltaStake
-        );
         // remove from current slot, reverts if the listing was replaced after expiration
         $.contentFactoryInstance.removeListing(tag, stakingToken, removalSlot);
+
+        // approve the content factory to pull the new required stake
+        IERC20(stakingToken).approve(address($.contentFactoryInstance), stake);
+
         // add to the new slot, reverts if _existingSlot is not initialized already
         $.contentFactoryInstance.insertUpstream(tag, stakingToken, _newSlot, _existingSlot);
     }
@@ -268,31 +220,17 @@ abstract contract ContentObjectUpgradeable is
     /// @notice Replaces an existing listing that has expired (works for head and tail listings)
     /// @param tag Human readable string denoting the target tag to stake
     /// @param stakingToken Address of the token used for staking recommender listings
-    /// @param stakeOwner Address that is staking the token and has already called approved
+    /// @param stake the amount of token needed to pay for _newSlot, use computeFee from factory
     /// @param _slot The expired slot to replace with a new listing
-    function _replaceExpiredListing(string memory tag, address stakingToken, address stakeOwner, uint256 _slot) internal {
+    function _replaceExpiredListing(string memory tag, address stakingToken, uint256 stake, uint256 _slot) internal {
         ContentObjectStorage storage $ = _getContentObjectStorage();
-        // check
-        require(
-            $.tags[stakingToken].length < $.maxTags,
-            "Content Object: Tag budget exhausted"
-        );
-        require(
-            $.tagIndices[stakingToken][tag] == 0,
-            "Content Object: This tag is already staked by this contract"
-        );
 
         // effects
-        uint256 stake = computeFee(_slot);
-        $.tags[stakingToken].push(Tag(tag, _slot, stakeOwner, stake));
+        $.tags[stakingToken].push(Tag(tag, _slot));
         $.tagIndices[stakingToken][tag] = $.tags[stakingToken].length;
 
-        // interaction
-        IERC20(stakingToken).safeTransferFrom(
-            stakeOwner,
-            address(this),
-            stake
-        );
+        // interaction: approve the content factory to pull the new required stake
+        IERC20(stakingToken).approve(address($.contentFactoryInstance), stake);
         $.contentFactoryInstance.replaceExpiredListing(tag, stakingToken, _slot);
     }
 
@@ -324,17 +262,12 @@ abstract contract ContentObjectUpgradeable is
         $.tags[stakingToken].pop();
 
         // interaction
-        // refund the staked token to the staker address
-        IERC20(stakingToken).safeTransfer(
-            lastListing.staker,
-            lastListing.stake
-        );
         // when removing a listing, if it has expired, the slot may have been usurped by another user
         // we must catch this scenario as it is a valid token mechanic
         try $.contentFactoryInstance.removeListing(tag, stakingToken, removalSlot) {
             return "Listing removed";
         } catch Error(string memory /*reason*/) {
-            // we don't revert because we want to reclaimed the staked tag
+            // we don't revert because we want to local storage updated
             return "Listing was replaced by another contract";
         }
     }
@@ -347,37 +280,5 @@ abstract contract ContentObjectUpgradeable is
     function _getTag(address stakingToken, uint256 tagIndex) internal view returns (Tag memory) {
         ContentObjectStorage storage $ = _getContentObjectStorage();
         return $.tags[stakingToken][tagIndex];
-    }
-
-    /// @notice returns amount of token to pull for a given slot based on 1.0001^_slot
-    /// @dev you can call this function from the client to compute the amount of token to allow this contract
-    /// @param _slot integer representing the slot in the global linked list to aquire
-    function computeFee(uint256 _slot) public pure returns (uint256) {
-        // @TODO, potentially make the function take base as a parameter so that price scaling is adjustable
-        // To handle decimals
-        uint256 scale = 1e18; // Scaling factor to represent decimals
-        uint256 result = 1e18; // Initialize result to 1 with scale
-        uint256 base = 1000100000000000000; // Represents 1.0001 with 18 decimal places
-
-        // Using binary exponentiation algorithm:
-        // https://www.geeksforgeeks.org/binary-exponentiation-for-competitive-programming/
-
-        while (_slot > 0) {
-            // If x is odd, multiply result by base
-            if (_slot % 2 == 1) {
-                result = (result * base) / scale;
-            }
-
-            if (_slot == 1) {
-                return result;
-            }
-
-            // Square base
-            base = (base * base) / scale;
-
-            // Divide x by 2 using bitwise right shift
-            _slot >>= 1;
-        }
-        return result;
     }
 }

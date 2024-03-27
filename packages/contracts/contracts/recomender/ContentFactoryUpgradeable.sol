@@ -4,8 +4,12 @@ pragma solidity ^0.8.24;
 import {IContentFactory} from "./IContentFactory.sol";
 import {IConsent} from "../consent/IConsent.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
+    using SafeERC20 for IERC20;
+
     /* Storage Variables */
     /// @custom:storage-location erc7201:snickerdoodle.contentfactory
     struct ContentFactoryStorage {
@@ -20,7 +24,7 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
         /// @dev Mapping of addresses of registered content objects
         mapping(address => bool) contentAddressCheck;
         /// @dev Mapping from staking token to content objects that have been blocked by that namespace
-        mapping(address => mapping(address => bool)) namespaceBlockedList; 
+        mapping(address => mapping(address => bool)) namespaceBlockedList;
         /// @dev the total number of listings in the marketplace
         /// @dev first layer maps from a hashed tag to a staking token-keyed map
         /// @dev second layer maps from a staking token to the total number of listings
@@ -30,6 +34,11 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
         /// @dev second layer maps from a staking token the tokens linked list
         /// @dev third layer maps a rank slot to the actual listing
         mapping(bytes32 => mapping(address => mapping(uint256 => Listing))) listings;
+        /// @dev nested mapping
+        /// @dev first layer maps from hashed tag string to a staked token
+        /// @dev second layer maps from a staking token the tokens linked list
+        /// @dev third layer maps a content object address to its occupied slot
+        mapping(bytes32 => mapping(address => mapping(address => uint256))) listingOccupants;
     }
 
     // keccak256(abi.encode(uint256(keccak256("snickerdoodle.contentfactory")) - 1)) & ~bytes32(uint256(0xff))
@@ -131,6 +140,7 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
     }
 
     /// @notice Returns an array of Listings from the marketplace linked list from highest to lowest ranked
+    /// @dev to start from the highest ranked slot, use (2^256)-1 for _startingSlot
     /// @param tag Human readable string denoting the target tag to stake
     /// @param stakingToken Address of the token used for staking recommender listings
     /// @param _startingSlot slot to start at in the linked list
@@ -149,6 +159,11 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
         Listing[] memory sources = new Listing[](numSlots);
 
         bytes32 LLKey = keccak256(abi.encodePacked(tag));
+
+        // if the user passes in (2^256)-1, automatically jump to the highest staked slot
+        if (_startingSlot == type(uint256).max) {
+            _startingSlot = $.listings[LLKey][stakingToken][_startingSlot].next; 
+        }
 
         for (uint i = 0; i < numSlots; i++) {
             Listing memory listing = $.listings[LLKey][stakingToken][
@@ -225,9 +240,10 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
     }
 
     /// @notice Initializes a doubly-linked list under the given attribute and staking token
+    /// @dev a tag must be initialized before other functions can be called in order to fill the slots at (2^256)-1 and 0
     /// @param tag Human readable string denoting the target tag to stake
     /// @param stakingToken Address of the token used for staking recommender listings
-    /// @param _newHead Downstream pointer that will be pointed to by _newSlot
+    /// @param _newHead Slot that will initialize this tag in the given token namespace
     function initializeTag(
         string calldata tag,
         address stakingToken,
@@ -240,6 +256,7 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
             "Content Factory: Staking token not registered"
         );
 
+        // hash the tag to compute its storage key
         bytes32 LLKey = keccak256(abi.encodePacked(tag));
 
         // the tag must not have been initialized previously
@@ -248,25 +265,36 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
             "Content Factory: This tag is already initialized"
         );
 
+        // calculate the price of the slot
+        uint256 stake = _computeFee(_newHead);
+
         // we use index 0 and 2^256-1 to be our boundary conditions so we don't have to use a dedicated storage variable for the head/tail listings
-        // infinity <-> _newHead <-> 0
+        // (2^256)-1 <-> _newHead <-> 0
         $.listings[LLKey][stakingToken][type(uint256).max].next = _newHead; // not included in the totals
         $.listings[LLKey][stakingToken][_newHead] = Listing(
             type(uint256).max,
             0,
             msg.sender,
+            stake,
             block.timestamp + $.listingDuration
         );
         $.listings[LLKey][stakingToken][0].previous = _newHead; // not included in the totals
 
+        // set the tag occupancy so the object cannot stake more than once in the same tag namespace
+        $.listingOccupants[LLKey][stakingToken][msg.sender] = _newHead;
+
         // increment the number of listings under this tag
         $.listingTotals[LLKey][stakingToken] += 1;
 
+        // pull the stake from the content object
+        IERC20(stakingToken).safeTransferFrom(msg.sender, address(this), stake);
+
+        // we require the content object send the tag string so that it can be emitted from the factory
         emit RankingUpdate(address(0), msg.sender, stakingToken, tag, _newHead);
     }
 
     /// @notice Inserts a new listing into the doubly-linked Listings mapping
-    /// @dev _newSlot <-> _existingSlot
+    /// @dev _newSlot (upstream) <-> _existingSlot (downstream); _newSlot > _existingSlot
     /// @param tag Human readable string denoting the target tag to stake
     /// @param stakingToken Address of the token used for staking recommender listings
     /// @param _newSlot New linked list entry that will point to the Listing at _existingSlot
@@ -278,6 +306,7 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
         uint256 _existingSlot
     ) external onlyContentObject(stakingToken) {
         ContentFactoryStorage storage $ = _getContentFactoryStorage();
+        bytes32 LLKey = keccak256(abi.encodePacked(tag));
         require(
             $.stakingTokens[stakingToken],
             "Content Factory: Staking token not registered"
@@ -290,10 +319,13 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
             _newSlot > _existingSlot,
             "Content Factory: _newSlot must be greater than _existingSlot"
         );
+        require(
+            $.listingOccupants[LLKey][stakingToken][msg.sender] == 0,
+            "Content Factory: Content Object has already staked this tag"
+        );
 
         // The new listing must fit between _upstream and its current downstresam
         // if the next variable is 0, it means the slot is uninitialized and thus it is invalid _upstream entry
-        bytes32 LLKey = keccak256(abi.encodePacked(tag));
         Listing memory existingListing = $.listings[LLKey][stakingToken][
             _existingSlot
         ];
@@ -302,6 +334,10 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
             "Content Factory: _newSlot is greater than existingListing.previous"
         );
 
+        // calculate the price of the slot
+        uint256 stake = _computeFee(_newSlot);
+
+        // insert the new listing
         $
         .listings[LLKey][stakingToken][existingListing.previous]
             .next = _newSlot;
@@ -309,17 +345,25 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
             existingListing.previous,
             _existingSlot,
             msg.sender,
+            stake,
             block.timestamp + $.listingDuration
         );
         $.listings[LLKey][stakingToken][_existingSlot].previous = _newSlot;
 
+        // set the tag occupancy so the object cannot stake more than once in the same tag namespace
+        $.listingOccupants[LLKey][stakingToken][msg.sender] = _newSlot;
+
+        // increment the number of listings under this tag
         $.listingTotals[LLKey][stakingToken] += 1;
+
+        // pull the stake from the content object
+        IERC20(stakingToken).safeTransferFrom(msg.sender, address(this), stake);
 
         emit RankingUpdate(address(0), msg.sender, stakingToken, tag, _newSlot);
     }
 
     /// @notice Inserts a new listing into the doubly-linked Listings mapping
-    /// @dev _existingSlot <-> _newSlot
+    /// @dev _existingSlot (upstream) <-> _newSlot (downstream): _existingSlot > _newSlot
     /// @param tag Human readable string denoting the target tag to stake
     /// @param stakingToken Address of the token used for staking recommender listings
     /// @param _existingSlot Listing slot that will be pointed to by the new Listing at _newSlot
@@ -331,6 +375,7 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
         uint256 _newSlot
     ) external onlyContentObject(stakingToken) {
         ContentFactoryStorage storage $ = _getContentFactoryStorage();
+        bytes32 LLKey = keccak256(abi.encodePacked(tag));
         require(
             $.stakingTokens[stakingToken],
             "Content Factory: Staking token not registered"
@@ -343,10 +388,13 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
             _existingSlot > _newSlot,
             "Content Factory: _existingSlot must be greater than _newSlot"
         );
+        require(
+            $.listingOccupants[LLKey][stakingToken][msg.sender] == 0,
+            "Content Factory: Content Object has already staked this tag"
+        );
 
         // The new listing must fit between _upstream and its current downstream
         // if the next variable is 0, it means the slot is uninitialized and thus it is invalid _upstream entry
-        bytes32 LLKey = keccak256(abi.encodePacked(tag));
         Listing memory existingListing = $.listings[LLKey][stakingToken][
             _existingSlot
         ];
@@ -355,18 +403,29 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
             "Content Factory: _newSlot is less than existingListing.next"
         );
 
+        // calculate the price of the slot
+        uint256 stake = _computeFee(_newSlot);
+
         $.listings[LLKey][stakingToken][_existingSlot].next = _newSlot;
         $.listings[LLKey][stakingToken][_newSlot] = Listing(
             _existingSlot,
             existingListing.next,
             msg.sender,
+            stake,
             block.timestamp + $.listingDuration
         );
         $
         .listings[LLKey][stakingToken][existingListing.next]
             .previous = _newSlot;
 
+        // set the tag occupancy so the object cannot stake more than once in the same tag namespace
+        $.listingOccupants[LLKey][stakingToken][msg.sender] = _newSlot;
+
+        // increment the number of listings under this tag
         $.listingTotals[LLKey][stakingToken] += 1;
+
+        // pull the stake from the content object
+        IERC20(stakingToken).safeTransferFrom(msg.sender, address(this), stake);
 
         emit RankingUpdate(address(0), msg.sender, stakingToken, tag, _newSlot);
     }
@@ -381,14 +440,18 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
         uint256 _slot
     ) external onlyContentObject(stakingToken) {
         ContentFactoryStorage storage $ = _getContentFactoryStorage();
+        bytes32 LLKey = keccak256(abi.encodePacked(tag));
 
         require(
             $.stakingTokens[stakingToken],
             "Content Factory: Staking token not registered"
         );
+        require(
+            $.listingOccupants[LLKey][stakingToken][msg.sender] == 0,
+            "Content Factory: Content Object has already staked this tag"
+        );
 
         // grab the old listing under the targeted tag
-        bytes32 LLKey = keccak256(abi.encodePacked(tag));
         Listing memory oldListing = $.listings[LLKey][stakingToken][_slot];
 
         // you cannot replace an invalid slot nor one that has not expired yet
@@ -406,16 +469,33 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
             oldListing.previous,
             oldListing.next,
             msg.sender,
+            oldListing.stake,
             block.timestamp + $.listingDuration
         );
 
-        emit RankingUpdate(
-            oldListing.contentObject,
-            msg.sender,
-            stakingToken,
-            tag,
-            _slot
-        );
+        // if the caller was the old occupant, we are done
+        if (msg.sender != oldListing.contentObject) {
+            // set the tag occupancy so the object cannot stake more than once in the same tag namespace
+            $.listingOccupants[LLKey][stakingToken][msg.sender] = _slot;
+            delete $.listingOccupants[LLKey][stakingToken][
+                oldListing.contentObject
+            ];
+
+            // push stake back to replaced object
+            IERC20(stakingToken).safeTransferFrom(
+                msg.sender,
+                oldListing.contentObject,
+                oldListing.stake
+            );
+
+            emit RankingUpdate(
+                oldListing.contentObject,
+                msg.sender,
+                stakingToken,
+                tag,
+                _slot
+            );
+        }
     }
 
     /// @notice Removes expired listings for a specific tag-token list
@@ -486,6 +566,41 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
         _ejectListing(removedListing, stakingToken, tag, LLKey, removedSlot);
     }
 
+    /// @notice returns amount of token to pull for a given slot based on 1.0001^_slot
+    /// @dev you can call this function from the client to compute the amount of token to allow this contract
+    /// @param _slot integer representing the slot in the global linked list to aquire
+    function computeFee(uint256 _slot) external pure returns (uint256) {
+        return _computeFee(_slot);
+    }
+
+    function _computeFee(uint256 _slot) internal pure returns (uint256) {
+        // To handle decimals
+        uint256 scale = 1e18; // Scaling factor to represent decimals
+        uint256 result = 1e18; // Initialize result to 1 with scale
+        uint256 base = 1000100000000000000; // Represents 1.0001 with 18 decimal places
+
+        // Using binary exponentiation algorithm:
+        // https://www.geeksforgeeks.org/binary-exponentiation-for-competitive-programming/
+
+        while (_slot > 0) {
+            // If x is odd, multiply result by base
+            if (_slot % 2 == 1) {
+                result = (result * base) / scale;
+            }
+
+            if (_slot == 1) {
+                return result;
+            }
+
+            // Square base
+            base = (base * base) / scale;
+
+            // Divide x by 2 using bitwise right shift
+            _slot >>= 1;
+        }
+        return result;
+    }
+
     /// @notice removes multiple listings from the global listings
     /// @param tag Human readable string denoting the target tag
     /// @param stakingToken Address of the token used for staking recommender listings
@@ -516,7 +631,13 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
                 continue;
             }
 
-            _ejectListing(removedListing, stakingToken, tag, LLKey, removedSlots[i]);
+            _ejectListing(
+                removedListing,
+                stakingToken,
+                tag,
+                LLKey,
+                removedSlots[i]
+            );
         }
     }
 
@@ -536,8 +657,19 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
         .listings[LLKey][stakingToken][removedListing.next]
             .previous = removedListing.previous;
 
+        // delete the tag occupancy storage so that the object could re-enter later
+        delete $.listingOccupants[LLKey][stakingToken][
+            removedListing.contentObject
+        ];
+
         // decrement the number of listings
         $.listingTotals[LLKey][stakingToken] -= 1;
+
+        // push old stake back to ejected object
+        IERC20(stakingToken).safeTransfer(
+            removedListing.contentObject,
+            removedListing.stake
+        );
 
         emit RankingUpdate(
             removedListing.contentObject,
@@ -580,7 +712,10 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
     /// @notice internal setter function for blocking a content object in a namespace
     /// @param stakingToken address of the staking token namespace
     /// @param contentAddress address of the newly deployed content object
-    function _blockContentObject(address stakingToken, address contentAddress) internal {
+    function _blockContentObject(
+        address stakingToken,
+        address contentAddress
+    ) internal {
         ContentFactoryStorage storage $ = _getContentFactoryStorage();
         $.namespaceBlockedList[stakingToken][contentAddress] = true;
     }
@@ -588,7 +723,10 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
     /// @notice internal setter function for unblocking a content object in a namespace
     /// @param stakingToken address of the staking token namespace
     /// @param contentAddress address of the newly deployed content object
-    function _unblockContentObject(address stakingToken, address contentAddress) internal {
+    function _unblockContentObject(
+        address stakingToken,
+        address contentAddress
+    ) internal {
         ContentFactoryStorage storage $ = _getContentFactoryStorage();
         $.namespaceBlockedList[stakingToken][contentAddress] = false;
     }

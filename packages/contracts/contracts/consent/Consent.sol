@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-//import "hardhat/console.sol";
+import "hardhat/console.sol";
 
 import {IConsent} from "./IConsent.sol";
 import {ContentObjectUpgradeable} from "../recomender/ContentObjectUpgradeable.sol";
@@ -11,6 +11,8 @@ import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/Messa
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract Consent is
     IConsent,
@@ -20,6 +22,7 @@ contract Consent is
     AccessControlUpgradeable,
     PausableUpgradeable
 {
+    using SafeERC20 for IERC20;
     /* Roles */
 
     /// @dev Role bytes
@@ -47,6 +50,11 @@ contract Consent is
 
     /// @dev used for private audiences to prevent replay attack
     mapping(uint256 => bool) private nonces;
+
+    /// @dev used to keep track of address which have deposited staking token
+    /// @dev outer mapping maps from a token asset to an inner mapping
+    /// @dev inner mapping maps from a depositor to an amount
+    mapping(address => mapping(address => uint256)) deposits;
 
     /* Modifiers */
 
@@ -76,7 +84,7 @@ contract Consent is
     ) public initializer {
         __Pausable_init();
         __AccessControl_init();
-        __ContentObject_init(_contractFactoryAddress);
+        __ContentObject_init(_contractFactoryAddress, address(this));
 
         // set the queryHorizon to be the current block number;
         queryHorizon = block.number;
@@ -99,7 +107,7 @@ contract Consent is
         return commitmentArray.length;
     }
 
-    /// @notice Returns the index slots for each identity commitment in the input array
+    /// @notice Returns the index for each identity commitment in the input array
     /// @dev If a commitment doesn't exist, its index will be 0
     /// @param commitsToCheck an array of 32 byte identity commitments
     function checkCommitments(
@@ -259,20 +267,61 @@ contract Consent is
         emit RequestForData(msg.sender, ipfsCID, ipfsCID);
     }
 
+    /// @notice this function is called by an account with the STAKER_ROLE priviledge to deposit tokens for use in global rankings
+    /// @dev a depositor can deposit multiple times
+    /// @param depositToken the address of the token to deposit into the contract
+    /// @param amount the amount of depositToken to send to this contract
+    function depositStake(
+        address depositToken,
+        uint256 amount
+    ) external onlyRole(STAKER_ROLE) {
+        // update deposits data structure
+        deposits[depositToken][msg.sender] += amount;
+
+        // pull the deposit from the depositor
+        IERC20(depositToken).safeTransferFrom(
+            msg.sender,
+            address(this),
+            amount
+        );
+        emit Deposit(msg.sender, depositToken, amount);
+    }
+
+    /// @notice this function allows a depositor to remove there funds from this contract
+    /// @dev there is no authentication on this function so that if a depositor no longer has the STAKER_ROLE, then can still recall their funds
+    /// @param depositToken the addres of the token the depositor is reclaiming
+    /// @param amount the amount of depositToken that is being reclaimed
+    function removeStake(address depositToken, uint256 amount) external {
+        require(
+            amount <= deposits[depositToken][msg.sender],
+            "Consent Contract: amount larger than outstanding depositor balance"
+        );
+
+        // update the depositor's balance
+        deposits[depositToken][msg.sender] -= amount;
+
+        // send the amount back to the depositor
+        IERC20(depositToken).safeTransfer(
+            msg.sender,
+            amount
+        );
+        emit Withdraw(msg.sender, depositToken, amount);
+    }
+
     /// @notice Adds a new tag to the global namespace and stakes it for this consent contract
     /// @dev  2^256-1 <-> _newSlot <-> 0
     /// @dev Caller must approve a sufficient amount of staking token before calling
     /// @param tag Human readable string denoting the target tag to stake
     /// @param stakingToken Address of the token used for staking recommender listings
-    /// @param stakeOwner Address that is staking the token and has already called approved
+    /// @param stake the amount of token needed to pay for _newSlot, use computeFee from factory
     /// @param _newSlot New linked list entry that prime the linked list for this tag
     function newGlobalTag(
         string calldata tag,
         address stakingToken,
-        address stakeOwner,
+        uint256 stake,
         uint256 _newSlot
     ) external onlyRole(STAKER_ROLE) {
-        _newGlobalTag(tag, stakingToken, stakeOwner, _newSlot);
+        _newGlobalTag(tag, stakingToken, stake, _newSlot);
     }
 
     /// @notice Stakes a tag that has already been added to the global namespace but hasn't been used locally yet
@@ -280,17 +329,17 @@ contract Consent is
     /// @dev Caller must approve a sufficient amount of staking token before calling
     /// @param tag Human readable string denoting the target tag to stake
     /// @param stakingToken Address of the token used for staking recommender listings
-    /// @param stakeOwner Address that is staking the token and has already called approved
+    /// @param stake the amount of token needed to pay for _newSlot, use computeFee from factory
     /// @param _newSlot New linked list entry that will point to _existingSlot slot
     /// @param _existingSlot slot that will be ranked next lowest to _newSlot
     function newLocalTagUpstream(
         string calldata tag,
         address stakingToken,
-        address stakeOwner,
+        uint256 stake,
         uint256 _newSlot,
         uint256 _existingSlot
     ) external onlyRole(STAKER_ROLE) {
-        _newLocalTagUpstream(tag, stakingToken, stakeOwner, _newSlot, _existingSlot);
+        _newLocalTagUpstream(tag, stakingToken, stake, _newSlot, _existingSlot);
     }
 
     /// @notice Stakes a tag that has already been added to the global namespace but hasn't been used locally yet
@@ -298,17 +347,23 @@ contract Consent is
     /// @dev Caller must approve a sufficient amount of staking token before calling
     /// @param tag Human readable string denoting the target tag to stake
     /// @param stakingToken Address of the token used for staking recommender listings
-    /// @param stakeOwner Address that is staking the token and has already called approved
+    /// @param stake the amount of token needed to pay for _newSlot, use computeFee from factory
     /// @param _existingSlot upstream pointer that will point to _newSlot
     /// @param _newSlot New linked list entry that will be ranked right below _existingSlot
     function newLocalTagDownstream(
         string calldata tag,
         address stakingToken,
-        address stakeOwner,
+        uint256 stake,
         uint256 _existingSlot,
         uint256 _newSlot
     ) external onlyRole(STAKER_ROLE) {
-        _newLocalTagDownstream(tag, stakingToken, stakeOwner, _existingSlot, _newSlot);
+        _newLocalTagDownstream(
+            tag,
+            stakingToken,
+            stake,
+            _existingSlot,
+            _newSlot
+        );
     }
 
     /// @notice Move an existing listing from its current slot to upstream of a new existing slot
@@ -317,21 +372,28 @@ contract Consent is
     /// @dev Caller must approve a sufficient amount of staking token before calling
     /// @param tag Human readable string denoting the target tag to stake
     /// @param stakingToken Address of the token used for staking recommender listings
-    /// @param stakeOwner Address that is staking the token and has already called approved
+    /// @param stake the amount of token needed to pay for _newSlot, use computeFee from factory
     /// @param _newSlot The new slot to move the listing to
     /// @param _existingSlot The neighboring listing to _newSlow
     function moveExistingListingUpstream(
         string calldata tag,
         address stakingToken,
-        address stakeOwner,
+        uint256 stake,
         uint256 _newSlot,
         uint256 _existingSlot
     ) external onlyRole(STAKER_ROLE) {
-        _moveExistingListingUpstream(tag, stakingToken, stakeOwner, _newSlot, _existingSlot);
+        _moveExistingListingUpstream(
+            tag,
+            stakingToken,
+            stake,
+            _newSlot,
+            _existingSlot
+        );
     }
 
     /// @notice Restakes a listing from this registry that has expired (works for head and tail listings)
     /// @param tag Human readable string denoting the target tag to stake
+    /// @param stakingToken Address of the token used for staking recommender listings
     function restakeExpiredListing(
         string calldata tag,
         address stakingToken
@@ -342,15 +404,15 @@ contract Consent is
     /// @notice Replaces an existing listing that has expired (works for head and tail listings)
     /// @param tag Human readable string denoting the target tag to stake
     /// @param stakingToken Address of the token used for staking recommender listings
-    /// @param stakeOwner Address that is staking the token and has already called approved
+    /// @param stake the amount of token needed to pay for _newSlot, use computeFee from factory
     /// @param _slot The expired slot to replace with a new listing
     function replaceExpiredListing(
         string calldata tag,
         address stakingToken,
-        address stakeOwner,
+        uint256 stake,
         uint256 _slot
     ) external onlyRole(STAKER_ROLE) {
-        _replaceExpiredListing(tag, stakingToken, stakeOwner, _slot);
+        _replaceExpiredListing(tag, stakingToken, stake, _slot);
     }
 
     /// @notice Removes this contract's listing under the specified tag
@@ -360,16 +422,15 @@ contract Consent is
     function removeListing(
         string calldata tag,
         address stakingToken
-    ) external returns (string memory) {
-        uint tagIndex = _tagIndices(tag, stakingToken);
-        Tag memory tagObject = _getTag(stakingToken, tagIndex);
-        require(hasRole(STAKER_ROLE, msg.sender) || (msg.sender == tagObject.staker));
+    ) external onlyRole(STAKER_ROLE) returns (string memory) {
         return _removeListing(tag, stakingToken);
     }
 
     /// @notice Add a domain to the domains array
     /// @param domain Domain to add
-    function addDomain(string calldata domain) external onlyRole(STAKER_ROLE) {
+    function addDomain(
+        string calldata domain
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         _addDomain(domain);
     }
 
@@ -377,7 +438,7 @@ contract Consent is
     /// @param domain Domain to remove
     function removeDomain(
         string calldata domain
-    ) external onlyRole(STAKER_ROLE) {
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         _removeDomain(domain);
     }
 

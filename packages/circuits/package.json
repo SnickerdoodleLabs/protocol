@@ -43,6 +43,8 @@
   "dependencies": {
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
+    "@zk-kit/circuits": "^1.0.0-beta",
+    "circomlib": "^2.0.5",
     "ethers": "^6.10.0",
     "inversify": "^6.0.2",
     "neverthrow": "^5.1.0",

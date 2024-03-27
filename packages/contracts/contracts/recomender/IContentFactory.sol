@@ -6,9 +6,10 @@ interface IContentFactory {
 
     /// @dev Listing object for storing marketplace listings
     struct Listing {
-        uint256 previous; // pointer to the previous active slot
-        uint256 next; // pointer to the next active slot
+        uint256 previous; // pointer to the next higher ranked active slot
+        uint256 next; // pointer to the next lower ranked active slot
         address contentObject; // address of the target content object
+        uint stake; // the amount staked for the slot
         uint256 timeExpiring; // unix timestamp when the listing expires and can be replaced
     }
 
@@ -68,4 +69,6 @@ interface IContentFactory {
     function removeExpiredListings(string calldata tag, address stakingToken, uint256[] calldata _slots) external;
 
     function removeListing(string calldata tag, address stakingToken, uint256 _removedSlot) external;
+
+    function computeFee(uint256 _slot) external pure returns (uint256);
 }
