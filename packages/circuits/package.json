@@ -36,7 +36,8 @@
     "copy-files": "copyfiles -u 1 src/**/*.d.ts dist/",
     "prepare": "yarn build",
     "prepublish": "yarn build",
-    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand --coverage --passWithNoTests --detectOpenHandles"
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand --coverage --passWithNoTests --detectOpenHandles",
+    "convert-binary": "npx tsx ./scripts/binaryToTypescript.ts src/circom/semaphore.wasm src/circom/semaphore.wasm.ts semaphoreCode && npx tsx ./scripts/binaryToTypescript.ts src/circom/semaphore.zkey src/circom/semaphore.zkey.ts semaphoreZKey"
   },
   "type": "module",
   "types": "dist/index.d.ts",

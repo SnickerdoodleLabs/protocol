@@ -3,7 +3,9 @@ import { LeanIMT } from "@zk-kit/imt";
 import { poseidon2 } from "poseidon-lite";
 import { groth16 } from "snarkjs";
 
-import { semaphoreVerificationKey } from "../../src/circom/SemaphoreVerificationKey";
+import { semaphoreCode } from "@circuits/circom/semaphore.wasm.js";
+import { semaphoreZKey } from "@circuits/circom/semaphore.zkey.js";
+import { semaphoreVerificationKey } from "@circuits/circom/SemaphoreVerificationKey.js";
 
 // import { semaphoreVerificationKey } from "@circuits/circom/SemaphoreVerificationKey.js";
 
@@ -68,8 +70,8 @@ describe("semaphore", () => {
     console.time("Proving");
     const { proof, publicSignals } = await groth16.fullProve(
       INPUT,
-      "src/circom/semaphore.wasm",
-      "src/circom/semaphore.zkey",
+      semaphoreCode,
+      semaphoreZKey,
     );
     console.timeEnd("Proving");
 
@@ -126,8 +128,8 @@ describe("semaphore", () => {
     console.time("Proving");
     const { proof, publicSignals } = await groth16.fullProve(
       INPUT,
-      "src/circom/semaphore.wasm",
-      "src/circom/semaphore.zkey",
+      semaphoreCode,
+      semaphoreZKey,
     );
     console.timeEnd("Proving");
 

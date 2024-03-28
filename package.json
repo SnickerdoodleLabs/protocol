@@ -68,7 +68,8 @@
   "packageManager": "yarn@3.2.1",
   "resolutions": {
     "@types/react": "^17.0.38",
-    "ethereumjs-abi": "^0.6.8"
+    "ethereumjs-abi": "^0.6.8",
+    "web-worker": "1.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.22",
@@ -208,6 +209,7 @@
     "tsc-alias": "^1.2.6",
     "tsconfig-paths": "^3.9.0",
     "tsconfig-paths-webpack-plugin": "^3.3.0",
+    "tsx": "^4.7.1",
     "typechain": "^8.3.0",
     "typedoc": "^0.20.16",
     "typescript": "^5.2.2",
