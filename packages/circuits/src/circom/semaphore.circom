@@ -18,7 +18,7 @@ template Semaphore(MAX_DEPTH) {
     // The output signals are all public.
     signal output merkleRoot, nullifier;
 
-    var identityCommitment = Poseidon(2)([identityTrapdoor, identityNullifier])
+    var identityCommitment = Poseidon(2)([identityTrapdoor, identityNullifier]);
 
     // Proof of membership verification.
     // The Merkle root passed as output must be equal to that calculated within
@@ -40,3 +40,6 @@ template Semaphore(MAX_DEPTH) {
     // More information here: https://geometry.xyz/notebook/groth16-malleability.
     signal dummySquare <== message * message;
 }
+
+
+component main = Semaphore(16);

@@ -11,9 +11,12 @@
     "blockvision",
     "bluez",
     "Cids",
+    "circom",
+    "circomkit",
     "domaincontracts",
     "endregion",
     "ethersproject",
+    "groth",
     "hexlify",
     "IDNS",
     "IEIP",
@@ -38,12 +41,14 @@
     "retryable",
     "sdql",
     "Sibbach",
+    "snarkjs",
     "Snickerdoodle",
     "snickerdoodlelabs",
     "Solana",
     "Statii",
     "tldts",
     "tsbuildinfo",
+    "zkey",
     "zksync"
   ]
 }
