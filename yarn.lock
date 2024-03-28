@@ -8869,6 +8869,7 @@ __metadata:
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
     o1js: ^0.17.0
+    snarkjs: ^0.7.3
     uuid: ^8.3.0
   languageName: unknown
   linkType: soft
@@ -11449,6 +11450,13 @@ __metadata:
   version: 1.0.31
   resolution: "@types/sjcl@npm:1.0.31"
   checksum: 99a9b6f76803a6f84774c81d3245934a74cf0d1d1a3e3b739176de7919f15455c6d0a822851535c81a8b1437461cf88db986cff1b14dc4ed4f89fa1978b0f657
+  languageName: node
+  linkType: hard
+
+"@types/snarkjs@npm:^0.7.8":
+  version: 0.7.8
+  resolution: "@types/snarkjs@npm:0.7.8"
+  checksum: 9ac4b5c48af2680321ec204fd31c4a5ce829807ff808a429182d2be519e98d577fd4d5a86f80b8c8503628a44198f96dce6d10fbe99b745335ad7abc1d34d4f4
   languageName: node
   linkType: hard
 
@@ -41184,7 +41192,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"snarkjs@npm:^0.7.0":
+"snarkjs@npm:^0.7.0, snarkjs@npm:^0.7.3":
   version: 0.7.3
   resolution: "snarkjs@npm:0.7.3"
   dependencies:
@@ -41253,6 +41261,7 @@ __metadata:
     "@types/react-router-dom": ^5.3.3
     "@types/react-test-renderer": ^16.9.2
     "@types/sjcl": ^1.0.29
+    "@types/snarkjs": ^0.7.8
     "@types/uuid": ^8.3.0
     "@types/webextension-polyfill": ^0.9.0
     "@typescript-eslint/eslint-plugin": ^5.30.5

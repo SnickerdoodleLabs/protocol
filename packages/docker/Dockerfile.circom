@@ -17,6 +17,11 @@ WORKDIR /root/circom
 
 RUN cargo build --release \
     && cargo install --path circom \
-    && npm install -g snarkjs
+    && npm install -g snarkjs circomlib @zk-kit/circuits \
+    && mkdir /root/circuits
 
-WORKDIR /root
+WORKDIR /root/circuits
+
+# COPY 
+
+CMD circom /root/circuits/src/circom/semaphore.circom --r1cs --wasm --sym -o /root/circuits/src/circom -l /usr/lib/node_modules/circomlib/circuits -l /usr/lib/node_modules/@zk-kit/circuits/circom
