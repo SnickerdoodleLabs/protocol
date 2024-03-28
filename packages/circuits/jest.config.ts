@@ -13,7 +13,7 @@ const config: Config.InitialOptions = {
   },
   transformIgnorePatterns: ["<rootDir>/node_modules/"],
   moduleDirectories: ["node_modules", "<rootDir>"],
-  //moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths),
+  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths),
 
   // This does not seem to support blacklisting any folder which means we can't enable parent directory and disable child
   // We should be using peer directories for coverage and non-coverage tests.

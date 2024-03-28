@@ -1,7 +1,0 @@
-{
-    "semaphore": {
-        "file": "./src/circom/semaphore",
-        "template": "Semaphore",
-        "pubs": ["message", "scope"]
-    }
-}
