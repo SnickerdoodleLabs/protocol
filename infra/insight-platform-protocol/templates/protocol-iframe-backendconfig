@@ -1,0 +1,9 @@
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: protocol-iframe-backendconfig
+spec:
+  customResponseHeaders:
+    headers:
+    - "Cross-Origin-Opener-Policy: same-origin"
+    - "Cross-Origin-Embedder-Policy: require-corp"
