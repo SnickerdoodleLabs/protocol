@@ -16,7 +16,7 @@ template Semaphore(MAX_DEPTH) {
 
     // Output signals.
     // The output signals are all public.
-    signal output merkleRoot, nullifier;
+    signal output merkleRoot, nullifier, messageSquare;
 
     var identityCommitment = Poseidon(2)([identityTrapdoor, identityNullifier]);
 
@@ -38,7 +38,7 @@ template Semaphore(MAX_DEPTH) {
     // The square applied to it is a way to force Circom's compiler to add a constraint and
     // prevent its value from being changed by an attacker.
     // More information here: https://geometry.xyz/notebook/groth16-malleability.
-    signal dummySquare <== message * message;
+    messageSquare <== message * message;
 }
 
 
