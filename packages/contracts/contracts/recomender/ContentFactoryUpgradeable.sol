@@ -162,7 +162,7 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
 
         // if the user passes in (2^256)-1, automatically jump to the highest staked slot
         if (_startingSlot == type(uint256).max) {
-            _startingSlot = $.listings[LLKey][stakingToken][_startingSlot].next; 
+            _startingSlot = $.listings[LLKey][stakingToken][_startingSlot].next;
         }
 
         for (uint i = 0; i < numSlots; i++) {
@@ -446,13 +446,17 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
             $.stakingTokens[stakingToken],
             "Content Factory: Staking token not registered"
         );
-        require(
-            $.listingOccupants[LLKey][stakingToken][msg.sender] == 0,
-            "Content Factory: Content Object has already staked this tag"
-        );
 
         // grab the old listing under the targeted tag
         Listing memory oldListing = $.listings[LLKey][stakingToken][_slot];
+
+        // A content object cannot list twice in the same tag:token namespace
+        // but it can restake its expired listing
+        require(
+            ($.listingOccupants[LLKey][stakingToken][msg.sender] == 0) ||
+            (oldListing.contentObject == msg.sender),
+            "Content Factory: Content Object has already staked this tag"
+        );
 
         // you cannot replace an invalid slot nor one that has not expired yet
         require(

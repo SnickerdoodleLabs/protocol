@@ -455,119 +455,131 @@ describe("Stake for Ranking tests", function () {
       );
     });
 
-    // it("Test replacing an expired listing with a new one", async function () {
-    //   const {
-    //     consentFactory,
-    //     consentContract,
-    //     consentContract2,
-    //     token,
-    //     owner,
-    //     otherAccount,
-    //   } = await loadFixture(deployConsentStack);
+    it("Test replacing an expired listing with a new one", async function () {
+      const {
+        consentFactory,
+        consentContract,
+        consentContract2,
+        token,
+        owner,
+        otherAccount,
+      } = await loadFixture(deployConsentStack);
 
-    //   // first compute the fee required for a desired slot
-    //   const slot = 70000;
-    //   const fee = await consentContract.computeFee(slot);
+      // first compute the fee required for a desired slot
+      const slot = 70000;
+      const fee = await consentFactory.computeFee(slot);
 
-    //   // give some token to the other account
-    //   await expect(
-    //     token.transfer(otherAccount.address, fee),
-    //   ).to.changeTokenBalance(token, otherAccount, fee);
+      // give some token to the other account
+      await expect(
+        token.transfer(otherAccount.address, fee),
+      ).to.changeTokenBalance(token, otherAccount, fee);
 
-    //   // first allow the consent contract a token budget of 1000 tokens
-    //   await token.approve(await consentContract.getAddress(), fee);
-    //   await token
-    //     .connect(otherAccount)
-    //     .approve(await consentContract2.getAddress(), fee);
+      // first allow the consent contract a token budget of 1000 tokens
+      await token.approve(await consentContract.getAddress(), fee);
+      await token
+        .connect(otherAccount)
+        .approve(await consentContract2.getAddress(), fee);
 
-    //   // then initialize a tag in the first consent contract
-    //   await consentContract.newGlobalTag(
-    //     "NFT",
-    //     await token.getAddress(),
-    //     owner.address,
-    //     slot,
-    //   );
+      // now deposit token from each account
+      await expect(
+        consentContract.depositStake(await token.getAddress(), fee),
+      ).changeTokenBalance(token, consentContract, fee);
+      await expect(
+        consentContract2.depositStake(await token.getAddress(), fee),
+      ).changeTokenBalance(token, consentContract2, fee);
 
-    //   // the listing cannot be replaced while its active
-    //   await expect(
-    //     consentContract2.replaceExpiredListing(
-    //       "NFT",
-    //       await token.getAddress(),
-    //       otherAccount.address,
-    //       slot,
-    //     ),
-    //   ).to.be.revertedWith("Content Factory: current listing is still active");
+      // then initialize a tag in the first consent contract
+      await expect(
+        consentContract.newGlobalTag(
+          "NFT",
+          await token.getAddress(),
+          fee,
+          slot,
+        ),
+      ).changeTokenBalance(token, consentFactory, fee);
 
-    //   // now fast forward 2 weeks (60 * 60 * 24 * 12) plus 1 second
-    //   await mine(80641, { interval: 15 });
+      // the listing cannot be replaced while its active
+      await expect(
+        consentContract2.replaceExpiredListing(
+          "NFT",
+          await token.getAddress(),
+          fee,
+          slot,
+        ),
+      ).to.be.revertedWith("Content Factory: current listing is still active");
 
-    //   // now that the listing is expired, replace it with another content objects listing
-    //   await consentContract2.replaceExpiredListing(
-    //     "NFT",
-    //     await token.getAddress(),
-    //     otherAccount.address,
-    //     slot,
-    //   );
+      // now fast forward 2 weeks (60 * 60 * 24 * 12) plus 1 second
+      await mine(80641, { interval: 15 });
 
-    //   // the new listing should show up now in the global listing
-    //   const listings = await consentFactory.getListingsForward(
-    //     "NFT",
-    //     await token.getAddress(),
-    //     slot,
-    //     1,
-    //     true,
-    //   );
+      // now that the listing is expired, replace it with another content objects listing
+      await expect(
+        consentContract2.replaceExpiredListing(
+          "NFT",
+          await token.getAddress(),
+          fee,
+          slot,
+        ),
+      ).changeTokenBalance(token, consentContract, fee);
 
-    //   // should be the baseURI of the content object
-    //   expect(listings[0][0]).to.equal("example.com");
-    // });
+      // the new listing should show up now in the global listing
+      const listings = await consentFactory.getListingsForward(
+        "NFT",
+        await token.getAddress(),
+        slot,
+        1,
+        true,
+      );
 
-    // it("Try upping the stake on an existing listing", async function () {
-    //   const { consentFactory, consentContract, token, owner, otherAccount } =
-    //     await loadFixture(deployConsentStack);
+      // should be the baseURI of the content object
+      expect(listings[0][0]).to.equal("example.com");
+    });
 
-    //   // first compute the fee required for a desired slot
-    //   const initialSlot = 40000;
-    //   const finalSlot = 60000;
-    //   const deltaSlot = finalSlot - initialSlot;
-    //   const initialFee = await consentContract.computeFee(initialSlot);
-    //   const finalFee = await consentContract.computeFee(finalSlot);
-    //   const deltaFee =
-    //     (await consentContract.computeFee(finalSlot)) -
-    //     (await consentContract.computeFee(initialSlot));
+    it("Try upping the stake on an existing listing", async function () {
+      const { consentFactory, consentContract, token, owner, otherAccount } =
+        await loadFixture(deployConsentStack);
 
-    //   // first allow the consent contract a token budget of initialFee
-    //   await token.approve(await consentContract.getAddress(), initialFee);
+      // first compute the fee required for a desired slot
+      const initialSlot = 40000;
+      const finalSlot = 60000;
+      const initialFee = await consentFactory.computeFee(initialSlot);
+      const finalFee = await consentFactory.computeFee(finalSlot);
+      const deltaFee = finalFee - initialFee;
 
-    //   // then initialize a tag
-    //   await consentContract.newGlobalTag(
-    //     "NFT",
-    //     await token.getAddress(),
-    //     owner.address,
-    //     initialSlot,
-    //   );
+      // first allow the consent contract a token budget of initialFee
+      await token.approve(await consentContract.getAddress(), finalFee);
 
-    //   // check that the fee is held by the consent contract
-    //   expect(
-    //     await token.balanceOf(await consentContract.getAddress()),
-    //   ).to.equal(initialFee);
+      await expect(
+        consentContract.depositStake(await token.getAddress(), initialFee),
+      ).changeTokenBalance(token, consentContract, initialFee);
 
-    //   // now allow the consent contract a token budget of deltaFee
-    //   await token.approve(await consentContract.getAddress(), deltaFee);
+      // then initialize a tag
+      await expect(
+        consentContract.newGlobalTag(
+          "NFT",
+          await token.getAddress(),
+          initialFee,
+          initialSlot,
+        ),
+      ).changeTokenBalance(token, consentFactory, initialFee);
 
-    //   // then move the listing up the chart
-    //   await consentContract.moveExistingListingUpstream(
-    //     "NFT",
-    //     await token.getAddress(),
-    //     owner.address,
-    //     finalSlot,
-    //     0,
-    //   );
+      // now deposit some additional tokens to increase the ranking
+      await expect(
+        consentContract.depositStake(await token.getAddress(), deltaFee),
+      ).changeTokenBalance(token, consentContract, deltaFee);
 
-    //   // check that the fee is held by the consent contract
-    //   expect(
-    //     await token.balanceOf(await consentContract.getAddress()),
-    //   ).to.equal(finalFee);
-    // });
+      // then move the listing up the chart
+      await consentContract.moveExistingListingUpstream(
+        "NFT",
+        await token.getAddress(),
+        finalFee,
+        finalSlot,
+        0,
+      );
+
+      // check that the fee is held by the consent contract
+      expect(await token.balanceOf(await consentFactory.getAddress())).to.equal(
+        finalFee,
+      );
+    });
   });
 });
