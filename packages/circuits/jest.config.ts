@@ -1,4 +1,7 @@
 import type { Config } from "@jest/types";
+import { pathsToModuleNameMapper } from "ts-jest";
+
+import { compilerOptions } from "./tsconfig.json";
 
 const config: Config.InitialOptions = {
   testEnvironment: "node",
@@ -9,6 +12,8 @@ const config: Config.InitialOptions = {
     "^.+\\.ts?$": "ts-jest",
   },
   transformIgnorePatterns: ["<rootDir>/node_modules/"],
+  moduleDirectories: ["node_modules", "<rootDir>"],
+  //moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths),
 
   // This does not seem to support blacklisting any folder which means we can't enable parent directory and disable child
   // We should be using peer directories for coverage and non-coverage tests.
