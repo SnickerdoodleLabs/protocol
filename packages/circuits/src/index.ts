@@ -1,1 +1,1 @@
-export * from "@circuits/o1js/index.js";
+export * from "@circuits/o1jsCircuits/index.js";

@@ -5,8 +5,8 @@ import { Poseidon, Field, verify } from "o1js";
 import {
   CommitmentVerifyParams,
   commitmentVerification,
-} from "@circuits/o1js/Commitment.js";
-import { Identity } from "@circuits/o1js/Identity.js";
+} from "@circuits/o1jsCircuits/Commitment.js";
+import { Identity } from "@circuits/o1jsCircuits/Identity.js";
 
 class CommitmentMocks {
   static generateIdentities(count: number): Identity[] {

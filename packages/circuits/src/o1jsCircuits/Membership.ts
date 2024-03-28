@@ -9,7 +9,7 @@ import {
   Struct,
 } from "o1js";
 
-import { Identity } from "@circuits/o1js/Identity.js";
+import { Identity } from "@circuits/o1jsCircuits/Identity.js";
 
 export class MembershipWitness extends MerkleWitness(16) {}
 
