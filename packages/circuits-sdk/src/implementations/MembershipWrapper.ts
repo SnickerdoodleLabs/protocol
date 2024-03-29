@@ -14,9 +14,9 @@ import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { Encoding, Field, Keypair, MerkleTree, Poseidon } from "o1js";
 
-import { CircuitUtils } from "@circuits-sdk/CircuitUtils.js";
-import { IMembershipWrapper } from "@circuits-sdk/IMembershipWrapper.js";
-import { ZkProgramWrapper } from "@circuits-sdk/ZkProgramWrapper.js";
+import { CircuitUtils } from "@circuits-sdk/implementations/CircuitUtils.js";
+import { ZkProgramWrapper } from "@circuits-sdk/implementations/ZkProgramWrapper.js";
+import { IMembershipWrapper } from "@circuits-sdk/interfaces/IMembershipWrapper.js";
 
 @injectable()
 export class MembershipWrapper
