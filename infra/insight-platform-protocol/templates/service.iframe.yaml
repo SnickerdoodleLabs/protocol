@@ -3,9 +3,6 @@ kind: Service
 metadata:
   name: protocol-iframe
   namespace: {{ .Values.ENV }}
-  annotations:
-    cloud.google.com/backend-config: '{"ports": {"80":"protocol-iframe-backendconfig"}}'
-    cloud.google.com/neg: '{"ingress": true}'
   labels:
     app: protocol-iframe
     tier: backend
