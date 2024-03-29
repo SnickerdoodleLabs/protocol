@@ -6,8 +6,8 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { Field } from "o1js";
 
-import { MembershipCircuitWrapper } from "@circuits-sdk/MembershipCircuitWrapper.js";
-import { MembershipWrapper } from "@circuits-sdk/MembershipWrapper.js";
+import { MembershipCircuitWrapper } from "@circuits-sdk/implementations/MembershipCircuitWrapper.js";
+import { MembershipWrapper } from "@circuits-sdk/implementations/MembershipWrapper.js";
 
 const signal = "Phoebe";
 const identityTrapdoor = BigNumberString(1234567890n.toString());

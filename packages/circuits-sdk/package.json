@@ -48,6 +48,7 @@
     "neverthrow": "^5.1.0",
     "neverthrow-result-utils": "^2.0.2",
     "o1js": "^0.17.0",
+    "snarkjs": "^0.7.3",
     "uuid": "^8.3.0"
   }
 }

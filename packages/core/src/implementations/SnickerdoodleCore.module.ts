@@ -1,10 +1,10 @@
 import {
-  CommitmentWrapper,
+  CircomCommitmentWrapper,
   ICommitmentWrapper,
   ICommitmentWrapperType,
   IMembershipWrapper,
   IMembershipWrapperType,
-  MembershipWrapper,
+  CircomMembershipWrapper,
 } from "@snickerdoodlelabs/circuits-sdk";
 import {
   AxiosAjaxUtils,
@@ -541,10 +541,10 @@ export const snickerdoodleCoreModule = new ContainerModule(
 
     // ZK Circuits -------------------------------------------------------
     bind<IMembershipWrapper>(IMembershipWrapperType)
-      .to(MembershipWrapper)
+      .to(CircomMembershipWrapper)
       .inSingletonScope();
     bind<ICommitmentWrapper>(ICommitmentWrapperType)
-      .to(CommitmentWrapper)
+      .to(CircomCommitmentWrapper)
       .inSingletonScope();
 
     /**

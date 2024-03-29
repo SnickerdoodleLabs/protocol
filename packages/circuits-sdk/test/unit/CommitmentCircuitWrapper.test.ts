@@ -1,7 +1,7 @@
 import { Identity } from "@snickerdoodlelabs/circuits";
 import { BigNumberString } from "@snickerdoodlelabs/objects";
 
-import { CommitmentCircuitWrapper } from "@circuits-sdk/CommitmentCircuitWrapper.js";
+import { CommitmentCircuitWrapper } from "@circuits-sdk/implementations/CommitmentCircuitWrapper.js";
 
 const signal =
   '{"consentContractId":"0x7e919252cd379Aef5f911Eae090fF6b4909b78C6","commitment":{"dataType":"bigint","value":"17470799417276826919889359284281809678769647185050195191869251295544615045713"}}';
