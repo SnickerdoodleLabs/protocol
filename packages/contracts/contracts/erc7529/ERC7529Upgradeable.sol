@@ -33,7 +33,7 @@ abstract contract ERC7529Upgradeable is IERC7529, Initializable {
 
     /// @notice a getter function that takes an eTLD+1 domain string and returns true if associated with the contract
     /// @param domain a string representing an eTLD+1 domain
-    function getDomain(string calldata domain) external view returns (bool) {
+    function checkDomain(string calldata domain) external view returns (bool) {
         ERC7529Storage storage $ = _getERC7529Storage();
         return $.domains[keccak256(abi.encodePacked(domain))];
     }

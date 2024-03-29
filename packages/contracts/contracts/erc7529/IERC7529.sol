@@ -14,5 +14,5 @@ interface IERC7529 {
 
     /* Functions */
 
-    function getDomain(string calldata eTLDp1) external view returns (bool);
+    function checkDomain(string calldata eTLDp1) external view returns (bool);
 }

@@ -92,8 +92,8 @@ describe("Consent Contract and Factory Tests", function () {
 
       // add snickerdoodle.com to the token contract
       await token.addDomain("snickerdoodle.com");
-      expect(await token.getDomain("snickerdoodle.com")).to.equal(true);
-      expect(await token.getDomain("example.com")).to.equal(false);
+      expect(await token.checkDomain("snickerdoodle.com")).to.equal(true);
+      expect(await token.checkDomain("example.com")).to.equal(false);
     });
 
     it("Check for correct factory constants", async function () {
@@ -101,10 +101,10 @@ describe("Consent Contract and Factory Tests", function () {
 
       // add snickerdoodle.com to the factory contract
       await consentFactory.addDomain("snickerdoodle.com");
-      expect(await consentFactory.getDomain("snickerdoodle.com")).to.equal(
+      expect(await consentFactory.checkDomain("snickerdoodle.com")).to.equal(
         true,
       );
-      expect(await consentFactory.getDomain("example.com")).to.equal(false);
+      expect(await consentFactory.checkDomain("example.com")).to.equal(false);
     });
   });
 
