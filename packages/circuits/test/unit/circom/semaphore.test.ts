@@ -3,9 +3,9 @@ import { LeanIMT } from "@zk-kit/imt";
 import { poseidon2 } from "poseidon-lite";
 import { groth16 } from "snarkjs";
 
-import { semaphoreCode } from "@circuits/circom/semaphore.wasm.js";
-import { semaphoreZKey } from "@circuits/circom/semaphore.zkey.js";
-import { semaphoreVerificationKey } from "@circuits/circom/SemaphoreVerificationKey.js";
+import semaphoreVerificationKey from "@circuits/circom/semaphore/semaphore.verificationkey.json";
+import { semaphoreCode } from "@circuits/circom/semaphore/semaphore.wasm.js";
+import { semaphoreZKey } from "@circuits/circom/semaphore/semaphore.zkey.js";
 
 // import { semaphoreVerificationKey } from "@circuits/circom/SemaphoreVerificationKey.js";
 

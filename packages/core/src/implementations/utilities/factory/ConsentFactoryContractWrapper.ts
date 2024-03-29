@@ -368,15 +368,15 @@ export class ConsentFactoryContractWrapper
     );
   }
 
-  public getDomain(
+  public checkDomain(
     domain: DomainName,
   ): ResultAsync<
     boolean,
     ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return this.fallback(
-      () => this.primary.getDomain(domain),
-      () => this.secondary?.getDomain(domain),
+      () => this.primary.checkDomain(domain),
+      () => this.secondary?.checkDomain(domain),
     );
   }
 }

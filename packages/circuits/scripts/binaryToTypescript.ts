@@ -17,7 +17,10 @@ const buf = fs.readFileSync(process.argv[2]);
 const base64Str = buf.toString("base64");
 
 // Going to output a TS file.
-const fileContent = `const wasmBinary = "${base64Str}";
-export const ${process.argv[4]} = new Uint8Array(Buffer.from(wasmBinary, "base64").buffer);`;
+const fileContent = `const base64 =
+  "${base64Str}";
+export const ${process.argv[4]} = new Uint8Array(
+  Buffer.from(base64, "base64").buffer
+);`;
 
 fs.writeFileSync(process.argv[3], fileContent);

@@ -65,7 +65,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
   > {
     return this.getConsentContract(consentContractAddress).andThen(
       (contract) => {
-        return contract.getDomain(domain);
+        return contract.checkDomain(domain);
       },
     );
   }

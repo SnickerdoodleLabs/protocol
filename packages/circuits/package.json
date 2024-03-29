@@ -37,7 +37,19 @@
     "prepare": "yarn build",
     "prepublish": "yarn build",
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand --coverage --passWithNoTests --detectOpenHandles",
-    "convert-binary": "npx tsx ./scripts/binaryToTypescript.ts src/circom/semaphore.wasm src/circom/semaphore.wasm.ts semaphoreCode && npx tsx ./scripts/binaryToTypescript.ts src/circom/semaphore.zkey src/circom/semaphore.zkey.ts semaphoreZKey"
+    "convert-binary": "yarn convert-binary-semaphore && yarn convert-binary-commitment",
+    "convert-binary-semaphore": "npx tsx ./scripts/binaryToTypescript.ts src/circom/semaphore/semaphore_js/semaphore.wasm src/circom/semaphore/semaphore.wasm.ts semaphoreCode && npx tsx ./scripts/binaryToTypescript.ts src/circom/semaphore/semaphore.zkey src/circom/semaphore/semaphore.zkey.ts semaphoreZKey",
+    "convert-binary-commitment": "npx tsx ./scripts/binaryToTypescript.ts src/circom/commitment/commitment_js/commitment.wasm src/circom/commitment/commitment.wasm.ts commitmentCode && npx tsx ./scripts/binaryToTypescript.ts src/circom/commitment/commitment.zkey src/circom/commitment/commitment.zkey.ts commitmentZKey",
+    "compile-circuits": "yarn compile-semaphore && yarn compile-commitment",
+    "compile-semaphore": "docker run --rm -e CIRCUIT=semaphore --mount \"type=bind,source=$(pwd)/src/circom/semaphore,destination=/root/circuits\" snickerdoodlelabs/circom:latest",
+    "compile-commitment": "docker run --rm -e CIRCUIT=commitment --mount \"type=bind,source=$(pwd)/src/circom/commitment,destination=/root/circuits\" snickerdoodlelabs/circom:latest",
+    "create-zkey": "yarn create-zkey-semaphore && yarn create-zkey-commitment",
+    "create-zkey-semaphore": "npx snarkjs groth16 setup src/circom/semaphore/semaphore.r1cs src/circom/pot14_final.ptau src/circom/semaphore/semaphore.zkey",
+    "create-zkey-commitment": "npx snarkjs groth16 setup src/circom/commitment/commitment.r1cs src/circom/pot14_final.ptau src/circom/commitment/commitment.zkey",
+    "create-verification-key": "yarn create-verification-key-semaphore && yarn create-verification-key-commitment",
+    "create-verification-key-semaphore": "npx snarkjs zkey export verificationkey src/circom/semaphore/semaphore.zkey src/circom/semaphore/semaphore.verificationkey.json",
+    "create-verification-key-commitment": "npx snarkjs zkey export verificationkey src/circom/commitment/commitment.zkey src/circom/commitment/commitment.verificationkey.json"
+
   },
   "type": "module",
   "types": "dist/index.d.ts",

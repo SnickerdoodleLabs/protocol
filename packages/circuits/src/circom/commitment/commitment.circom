@@ -25,4 +25,4 @@ template Commitment() {
 }
 
 
-component main = Semaphore(16);
+component main = Commitment();

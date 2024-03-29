@@ -67,12 +67,6 @@ services:
     networks:
       - internal
 
-  circom:
-    image: snickerdoodlelabs/circom:latest
-    volumes:
-      - ./packages/circuits:/root/circuits
-    # command: ls /usr/lib/node_modules/@zk-kit/circuits/circom
-
 networks:
   internal:
 

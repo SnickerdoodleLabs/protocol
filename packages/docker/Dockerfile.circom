@@ -23,5 +23,5 @@ RUN cargo build --release \
 WORKDIR /root/circuits
 
 # COPY 
-
-CMD circom /root/circuits/src/circom/semaphore.circom --r1cs --wasm --sym -o /root/circuits/src/circom -l /usr/lib/node_modules/circomlib/circuits -l /usr/lib/node_modules/@zk-kit/circuits/circom
+ENV CIRCUIT=semaphore
+CMD circom /root/circuits/${CIRCUIT}.circom --r1cs --wasm --sym -o /root/circuits -l /usr/lib/node_modules/circomlib/circuits -l /usr/lib/node_modules/@zk-kit/circuits/circom

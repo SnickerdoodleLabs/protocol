@@ -37,6 +37,7 @@
     "Optin",
     "poap",
     "Postmate",
+    "ptau",
     "restake",
     "retryable",
     "sdql",
@@ -48,6 +49,7 @@
     "Statii",
     "tldts",
     "tsbuildinfo",
+    "verificationkey",
     "zkey",
     "zksync"
   ]
