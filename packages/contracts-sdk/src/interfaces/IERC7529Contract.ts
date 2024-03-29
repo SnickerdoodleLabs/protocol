@@ -33,7 +33,7 @@ export interface IERC7529Contract<T> extends IBaseContract {
   /**
    * Returns true if the domain is part of the contract
    */
-  getDomain(
+  checkDomain(
     domain: DomainName,
   ): ResultAsync<boolean, T | BlockchainCommonErrors>;
 }
