@@ -57,6 +57,12 @@ export class CircomUtils {
   static stringToPoseidonHash(input: string): PoseidonHash {
     const fields = CircomUtils.stringToFields(input);
 
+    const sum = fields.reduce((acc, field) => {
+      return CircomUtils.moduloAdd(acc, field);
+    }, 0n);
+
+    return PoseidonHash(poseidon1([sum]));
+
     if (fields.length == 1) {
       return PoseidonHash(poseidon1(fields));
     } else if (fields.length == 2) {
