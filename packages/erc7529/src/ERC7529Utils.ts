@@ -40,7 +40,7 @@ export class ERC7529Utils implements IERC7529Utils {
     chainId: ChainId,
   ): ResultAsync<boolean, AjaxError | BlockchainCommonErrors | TContractErr> {
     return ResultUtils.combine([
-      contract.getDomain(domain),
+      contract.checkDomain(domain),
       this.getContractsFromDomain(domain, chainId),
     ]).map(([domainIncluded, contractAddresses]) => {
       return (
