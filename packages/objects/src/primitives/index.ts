@@ -68,6 +68,7 @@ export * from "@objects/primitives/OAuthRelatedTypes.js";
 export * from "@objects/primitives/PasswordString.js";
 export * from "@objects/primitives/PEMEncodedRSAPrivateKey.js";
 export * from "@objects/primitives/PEMEncodedRSAPublicKey.js";
+export * from "@objects/primitives/PoseidonHash.js";
 export * from "@objects/primitives/ProofString.js";
 export * from "@objects/primitives/ProviderUrl.js";
 export * from "@objects/primitives/PublicKey.js";
