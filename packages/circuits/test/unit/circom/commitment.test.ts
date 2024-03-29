@@ -6,6 +6,7 @@ import { CircomUtils } from "@circuits/circom/CircomUtils.js";
 import commitmentVerificationKey from "@circuits/circom/commitment/commitment.verificationkey.json";
 import { commitmentCode } from "@circuits/circom/commitment/commitment.wasm.js";
 import { commitmentZKey } from "@circuits/circom/commitment/commitment.zkey.js";
+import { ICircomCommitmentInputs } from "@circuits/circom/commitment/ICircomCommitmentInputs.js";
 
 // import { commitmentVerificationKey } from "@circuits/circom/CommitmentVerificationKey.js";
 const messageText = "Hello, Phoebe!";
@@ -66,7 +67,7 @@ describe("commitment", () => {
       identityTrapdoor: identityTrapdoor,
       identityNullifier: identityNullifier,
       message,
-    };
+    } as ICircomCommitmentInputs;
 
     // Act
     console.time("Proving");
