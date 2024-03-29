@@ -1,9 +1,10 @@
 import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import { CircuitError, ZKProof } from "@snickerdoodlelabs/objects";
-import { unmanaged } from "inversify";
+import { injectable, unmanaged } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { CircuitSignals, groth16 } from "snarkjs";
 
+@injectable()
 export abstract class CircomWrapper<TInput extends CircuitSignals> {
   public constructor(
     @unmanaged() protected wasm: Uint8Array,
