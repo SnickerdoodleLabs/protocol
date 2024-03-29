@@ -1,4 +1,8 @@
-import { PoseidonHash } from "@snickerdoodlelabs/objects";
+import {
+  BigNumberString,
+  Commitment,
+  PoseidonHash,
+} from "@snickerdoodlelabs/objects";
 import {
   poseidon1,
   poseidon2,
@@ -126,5 +130,12 @@ export class CircomUtils {
   static stringToFields(message: string): bigint[] {
     const bytes = new TextEncoder().encode(message);
     return CircomUtils.bytesToFields(bytes);
+  }
+
+  static getCommitment(
+    identityTrapdoor: BigNumberString,
+    identityNullifier: BigNumberString,
+  ): Commitment {
+    return Commitment(poseidon2([identityTrapdoor, identityNullifier]));
   }
 }

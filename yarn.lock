@@ -9009,10 +9009,12 @@ __metadata:
     "@snickerdoodlelabs/circuits": "workspace:^"
     "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
+    "@zk-kit/imt": ^2.0.0-beta.4
     inversify: ^6.0.2
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
     o1js: ^0.17.0
+    snarkjs: ^0.7.3
     uuid: ^8.3.0
   languageName: unknown
   linkType: soft
@@ -9024,6 +9026,7 @@ __metadata:
     "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
     "@zk-kit/circuits": ^1.0.0-beta
+    "@zk-kit/imt": ^2.0.0-beta.4
     circomlib: ^2.0.5
     ethers: ^6.10.0
     inversify: ^6.0.2

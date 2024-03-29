@@ -131,6 +131,7 @@ describe("semaphore", () => {
       semaphoreCode,
       semaphoreZKey,
     );
+    console.log("CHARLIE", publicSignals);
     console.timeEnd("Proving");
 
     console.time("Verifying");

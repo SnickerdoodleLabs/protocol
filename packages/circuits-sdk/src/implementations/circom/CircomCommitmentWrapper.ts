@@ -1,8 +1,11 @@
 import {
   CircomUtils,
   ICircomCommitmentInputs,
+  ICircomCommitmentVerificationInputs,
   commitmentCode,
+  commitmentVerificationKey,
   commitmentZKey,
+  factoryCircomCommitmentVerificationInputs,
 } from "@snickerdoodlelabs/circuits";
 import {
   BigNumberString,
@@ -18,11 +21,14 @@ import { ICommitmentWrapper } from "@circuits-sdk/interfaces/index.js";
 
 @injectable()
 export class CircomCommitmentWrapper
-  extends CircomWrapper<ICircomCommitmentInputs>
+  extends CircomWrapper<
+    ICircomCommitmentInputs,
+    ICircomCommitmentVerificationInputs
+  >
   implements ICommitmentWrapper
 {
   public constructor() {
-    super(commitmentCode, commitmentZKey);
+    super(commitmentCode, commitmentZKey, commitmentVerificationKey);
   }
 
   public prove(
@@ -46,6 +52,10 @@ export class CircomCommitmentWrapper
     commitment: Commitment,
     proof: ZKProof,
   ): ResultAsync<boolean, CircuitError> {
-    throw new Error("Method not implemented.");
+    const inputs = factoryCircomCommitmentVerificationInputs(
+      commitment,
+      signal,
+    );
+    return this._verify(proof, inputs);
   }
 }

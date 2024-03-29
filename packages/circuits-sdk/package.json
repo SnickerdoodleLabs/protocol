@@ -44,6 +44,7 @@
     "@snickerdoodlelabs/circuits": "workspace:^",
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
+    "@zk-kit/imt": "^2.0.0-beta.4",
     "inversify": "^6.0.2",
     "neverthrow": "^5.1.0",
     "neverthrow-result-utils": "^2.0.2",
