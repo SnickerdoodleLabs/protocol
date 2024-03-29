@@ -74,7 +74,7 @@ const domainName = DomainName("snickerdoodle.com");
 const chainId = ChainId(43113);
 const results = await staticUtils.getContractsFromDomain(domainName,chainId);
 
-if (results.isOk()) }{
+if (results.isOk()) {
   console.log("Contracts: ", results.value);
 }
 ```
