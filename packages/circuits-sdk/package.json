@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/circuits-sdk",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "ZK-Snickerdoodle circuit wrappers for Snickerdoodle Protocol",
   "license": "MIT",
   "repository": {
