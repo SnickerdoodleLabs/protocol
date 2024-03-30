@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/circuits",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "ZK-Snickerdoodle circuits for Snickerdoodle Protocol",
   "license": "MIT",
   "repository": {
@@ -40,6 +40,9 @@
     "convert-binary": "yarn convert-binary-semaphore && yarn convert-binary-commitment",
     "convert-binary-semaphore": "npx tsx ./scripts/binaryToTypescript.ts src/circom/semaphore/semaphore_js/semaphore.wasm src/circom/semaphore/semaphore.wasm.ts semaphoreCode && npx tsx ./scripts/binaryToTypescript.ts src/circom/semaphore/semaphore.zkey src/circom/semaphore/semaphore.zkey.ts semaphoreZKey",
     "convert-binary-commitment": "npx tsx ./scripts/binaryToTypescript.ts src/circom/commitment/commitment_js/commitment.wasm src/circom/commitment/commitment.wasm.ts commitmentCode && npx tsx ./scripts/binaryToTypescript.ts src/circom/commitment/commitment.zkey src/circom/commitment/commitment.zkey.ts commitmentZKey",
+    "convert-json": "yarn convert-json-semaphore && yarn convert-json-commitment",
+    "convert-json-semaphore": "npx tsx ./scripts/jsonToTypescript.ts src/circom/semaphore/semaphore.verificationkey.json src/circom/semaphore/semaphore.verificationkey.ts semaphoreVerificationKey",
+    "convert-json-commitment": "npx tsx ./scripts/jsonToTypescript.ts src/circom/commitment/commitment.verificationkey.json src/circom/commitment/commitment.verificationkey.ts commitmentVerificationKey",
     "compile-circuits": "yarn compile-semaphore && yarn compile-commitment",
     "compile-semaphore": "docker run --rm -e CIRCUIT=semaphore --mount \"type=bind,source=$(pwd)/src/circom/semaphore,destination=/root/circuits\" snickerdoodlelabs/circom:latest",
     "compile-commitment": "docker run --rm -e CIRCUIT=commitment --mount \"type=bind,source=$(pwd)/src/circom/commitment,destination=/root/circuits\" snickerdoodlelabs/circom:latest",

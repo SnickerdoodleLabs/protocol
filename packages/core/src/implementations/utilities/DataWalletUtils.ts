@@ -1,7 +1,5 @@
-import {
-  CircuitUtils,
-  MembershipWrapper,
-} from "@snickerdoodlelabs/circuits-sdk";
+import { CircomUtils } from "@snickerdoodlelabs/circuits";
+import { CircuitUtils } from "@snickerdoodlelabs/circuits-sdk";
 import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   EVMPrivateKey,
@@ -216,14 +214,9 @@ export class DataWalletUtils implements IDataWalletUtils {
       `${consentContractAddress}:${dataWalletKey}:Trapdoor`,
     );
 
-    const identity = MembershipWrapper.getIdentity(trapdoor, nullifier);
+    const commitment = CircomUtils.getCommitment(trapdoor, nullifier);
     return okAsync(
-      new OptInInfo(
-        consentContractAddress,
-        nullifier,
-        trapdoor,
-        MembershipWrapper.getIdentityCommitment(identity),
-      ),
+      new OptInInfo(consentContractAddress, nullifier, trapdoor, commitment),
     );
   }
 

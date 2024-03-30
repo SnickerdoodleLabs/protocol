@@ -1,6 +1,6 @@
 import { CircuitSignals } from "snarkjs";
 
-import { CircomUtils } from "../CircomUtils";
+import { CircomUtils } from "@circuits/circom/CircomUtils.js";
 
 export interface ICircomSemaphoreInputs extends CircuitSignals {
   identityTrapdoor: bigint;

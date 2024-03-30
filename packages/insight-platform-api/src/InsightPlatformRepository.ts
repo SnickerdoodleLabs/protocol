@@ -1,9 +1,9 @@
+import { CircomUtils } from "@snickerdoodlelabs/circuits";
 import {
   ICommitmentWrapper,
   ICommitmentWrapperType,
   IMembershipWrapper,
   IMembershipWrapperType,
-  MembershipWrapper,
 } from "@snickerdoodlelabs/circuits-sdk";
 import {
   IAxiosAjaxUtils,
@@ -56,17 +56,12 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     insightPlatformBaseUrl: URLString,
   ): ResultAsync<EarnedReward[], AjaxError | CircuitError> {
     // Calculate the values we need to include in the signal
-    const identity = MembershipWrapper.getIdentity(trapdoor, nullifier);
-    const signalNullifier = MembershipWrapper.getSignalNullifier(
-      identity,
-      queryCID,
-    );
+    const commitment = CircomUtils.getCommitment(trapdoor, nullifier);
+    const signalNullifier = CircomUtils.getSignalNullifier(nullifier, queryCID);
 
     // Check if the passed-in anonymity set includes the identity's commitment
     let anonymitySetSize = anonymitySet.length;
-    const identityCommitment =
-      MembershipWrapper.getIdentityCommitment(identity);
-    if (anonymitySet.indexOf(identityCommitment) === -1) {
+    if (anonymitySet.indexOf(commitment) === -1) {
       anonymitySetSize += 1;
     }
 
@@ -93,9 +88,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         queryCID,
       )
       .andThen((proof) => {
-        const url = new URL(
-          urlJoin(insightPlatformBaseUrl, "insights/responses"),
-        );
+        const url = new URL(urlJoin(insightPlatformBaseUrl, "insights"));
 
         return this.ajaxUtils.post<EarnedReward[]>(url, {
           consentContractId: consentContractAddress,
@@ -117,14 +110,12 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     insightPlatformBaseUrl: URLString,
   ): ResultAsync<void, AjaxError | CircuitError> {
     // Calculate the values we need to include in the signal
-    const identity = MembershipWrapper.getIdentity(trapdoor, nullifier);
-    const identityCommitment =
-      MembershipWrapper.getIdentityCommitment(identity);
+    const commitment = CircomUtils.getCommitment(trapdoor, nullifier);
 
     // Create the provable data
     const signal = {
       consentContractId: consentContractAddress,
-      commitment: identityCommitment,
+      commitment: commitment,
     };
 
     return this.commitmentWrapper
@@ -134,7 +125,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
 
         return this.ajaxUtils.post<{ success: boolean }>(url, {
           consentContractId: consentContractAddress,
-          commitment: identityCommitment.toString(),
+          commitment: commitment.toString(),
           proof: proof,
         } as IOptinParams as unknown as Record<string, unknown>);
       })
@@ -150,14 +141,12 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     insightPlatformBaseUrl: URLString,
   ): ResultAsync<void, AjaxError | CircuitError> {
     // Calculate the values we need to include in the signal
-    const identity = MembershipWrapper.getIdentity(trapdoor, nullifier);
-    const identityCommitment =
-      MembershipWrapper.getIdentityCommitment(identity);
+    const commitment = CircomUtils.getCommitment(trapdoor, nullifier);
 
     // Create the provable data
     const signal = {
       consentContractId: consentContractAddress,
-      commitment: identityCommitment,
+      commitment: commitment,
       nonce: nonce,
       signature: signature,
     };
@@ -169,7 +158,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
 
         return this.ajaxUtils.post<{ success: boolean }>(url, {
           consentContractId: consentContractAddress,
-          commitment: identityCommitment.toString(),
+          commitment: commitment.toString(),
           proof: proof,
         } as IPrivateOptinParams as unknown as Record<string, unknown>);
       })

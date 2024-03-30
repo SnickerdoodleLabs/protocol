@@ -138,4 +138,16 @@ export class CircomUtils {
   ): Commitment {
     return Commitment(poseidon2([identityTrapdoor, identityNullifier]));
   }
+
+  static getSignalNullifier(
+    identityNullifier: BigNumberString,
+    roundIdentifier: string,
+  ): BigNumberString {
+    return BigNumberString(
+      poseidon2([
+        CircomUtils.stringToPoseidonHash(roundIdentifier),
+        identityNullifier,
+      ]).toString(),
+    );
+  }
 }

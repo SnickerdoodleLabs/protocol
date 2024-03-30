@@ -4,7 +4,6 @@ import {
   Commitment,
   IpfsCID,
 } from "@snickerdoodlelabs/objects";
-import { poseidon2 } from "poseidon-lite";
 
 import { CircomMembershipWrapper } from "@circuits-sdk/implementations/circom/CircomMembershipWrapper.js";
 
@@ -32,11 +31,9 @@ class CircomMembershipWrapperMocks {
       this.anonymitySet.push(this.randomCommitment());
     }
 
-    this.signalNullifier = BigNumberString(
-      poseidon2([
-        CircomUtils.stringToPoseidonHash(ipfsCID),
-        this.commitment,
-      ]).toString(),
+    this.signalNullifier = CircomUtils.getSignalNullifier(
+      identityNullifier,
+      ipfsCID,
     );
   }
 
