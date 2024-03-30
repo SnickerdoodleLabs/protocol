@@ -37,6 +37,9 @@ const extraNodeModules = {
   "@snickerdoodlelabs/signature-verification": path.resolve(
     path.join(__dirname, "../signatureVerification"),
   ),
+  "@snickerdoodlelabs/node-utils": path.resolve(
+    path.join(__dirname, "../node-utils"),
+  ),
   stream: require.resolve("stream-browserify"),
   crypto: require.resolve("react-native-quick-crypto"),
   zlib: require.resolve("browserify-zlib"),
@@ -54,6 +57,8 @@ const watchFolders = [
   path.resolve(path.join(__dirname, "../contracts-sdk")),
   path.resolve(path.join(__dirname, "../query-parser")),
   path.resolve(path.join(__dirname, "../signatureVerification")),
+  path.resolve(path.join(__dirname, "../node-utils")),
+
 ];
 
 const nodeModulesPaths = [path.resolve(path.join(__dirname, "./node_modules"))];
