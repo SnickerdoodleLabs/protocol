@@ -49,6 +49,7 @@ import {
   MarketplaceTag,
   QuestionnaireQuestion,
   QuestionnaireWithAnswers,
+  SHA256Hash,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_ConditionExpr,
@@ -1111,7 +1112,6 @@ export const mockQuestionnaireWithAnswer = new QuestionnaireWithAnswers(
   mockQuestionnaireCID,
   MarketplaceTag(`Questionnaire:${mockQuestionnaireCID}`),
   EQuestionnaireStatus.Complete,
-
   "Sample Questionnaire 2",
   "Please answer the following questions about your exercise habits.",
   null,
@@ -1146,33 +1146,40 @@ export const mockQuestionnaireWithAnswer = new QuestionnaireWithAnswers(
   mockQuestionnaireAnswer,
   UnixTimestamp(1701779736),
 );
-
+export const mockQuestionnaireSecondQuestionHash = SHA256Hash(
+  "bcbad372f96009e5db4c692d5b9d37c6fa285e5a20572670e9688f0f48c4237d",
+);
+export const mockQuestionnaireFirstQuestionHash = SHA256Hash(
+  "788d7d50a700ead1f35f9fe8fa047fb494c769db3bce87429607030a801258c7",
+);
 export const mockQuestionnaireHistoryNewer = new QuestionnaireHistory(
-  mockQuestionnaireCID,
+  mockQuestionnaireSecondQuestionHash,
   UnixTimestamp(1701779736),
-  [
-    {
-      questionIndex: 1,
-      questionnaireId: mockQuestionnaireCID,
-      choice: "to get fresh air",
-    },
-  ],
+  {
+    questionIndex: 1,
+    questionnaireId: mockQuestionnaireCID,
+    choice: "to get fresh air",
+  },
 );
 
 export const mockQuestionnaireHistory = new QuestionnaireHistory(
-  mockQuestionnaireCID,
+  mockQuestionnaireFirstQuestionHash,
   UnixTimestamp(1701779734),
-  [
-    {
-      questionIndex: 0,
-      questionnaireId: mockQuestionnaireCID,
-      choice: 0,
-    },
-    {
-      questionIndex: 1,
-      questionnaireId: mockQuestionnaireCID,
-      choice: "to get in better shape",
-    },
-  ],
+  {
+    questionIndex: 0,
+    questionnaireId: mockQuestionnaireCID,
+    choice: 0,
+  },
 );
+
+export const rar = new QuestionnaireHistory(
+  mockQuestionnaireSecondQuestionHash,
+  UnixTimestamp(1701779734),
+  {
+    questionIndex: 1,
+    questionnaireId: mockQuestionnaireCID,
+    choice: "to get in better shape",
+  },
+);
+
 // #endregion

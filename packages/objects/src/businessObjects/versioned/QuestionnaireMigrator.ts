@@ -14,6 +14,7 @@ export class QuestionnaireData extends VersionedObject {
 
   public constructor(
     public id: IpfsCID,
+    //TODO use lazy storing
     public status: EQuestionnaireStatus,
     public questions: PropertiesOf<QuestionnaireQuestion>[],
     public title: string,

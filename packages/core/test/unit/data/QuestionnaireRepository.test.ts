@@ -9,6 +9,7 @@ import {
   PagingRequest,
   QuestionnaireHistory,
   QuestionnaireWithAnswers,
+  SHA256Hash,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
@@ -32,6 +33,8 @@ import {
   mockQuestionnaire2,
   mockQuestionnaireHistoryNewer,
   InvalidIPFSQuestionnaireCID,
+  mockQuestionnaireFirstQuestionHash,
+  mockQuestionnaireSecondQuestionHash,
 } from "@core-tests/mock/mocks";
 import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
 import "fake-indexeddb/auto";
@@ -139,7 +142,8 @@ class QuestionnaireRepositoryMocks {
           }) => {
             if (arg.query != null) {
               return (
-                arg.query.lower[1] === mockQuestionnaireCID ||
+                arg.query.lower[1] === mockQuestionnaireSecondQuestionHash ||
+                arg.query.lower[1] === mockQuestionnaireFirstQuestionHash ||
                 arg.query.lower[0] === EBoolean.FALSE
               );
             }
@@ -181,7 +185,7 @@ class QuestionnaireRepositoryMocks {
             const upperBoundID = upperBound[1] as string;
             const upperBoundTime = upperBound[2] as number;
             const resultArray: QuestionnaireHistory[] = [];
-            if (upperBoundID === mockQuestionnaireCID) {
+            if (upperBoundID === mockQuestionnaireSecondQuestionHash) {
               if (upperBoundTime >= 1701779736) {
                 resultArray.push(mockQuestionnaireHistoryNewer);
               }
@@ -288,10 +292,12 @@ describe("QuestionnaireRepository tests", () => {
       mocks.persistence.updateRecord(
         ERecordKey.QUESTIONNAIRES_HISTORY,
         td.matchers.argThat(
-          (obj: QuestionnaireHistory) => obj.id === mockQuestionnaireCID,
+          (obj: QuestionnaireHistory) =>
+            obj.id === mockQuestionnaireFirstQuestionHash ||
+            obj.id === mockQuestionnaireSecondQuestionHash,
         ),
       ),
-      { times: 1 },
+      { times: 2 },
     );
   });
 
