@@ -8,6 +8,8 @@ import {
   EProfileFieldType,
   CloudStorageActivatedEvent,
   EVMContractAddress,
+  IpfsCID,
+  SDQLQueryRequest,
 } from "@snickerdoodlelabs/objects";
 import { Subject } from "rxjs";
 
@@ -37,7 +39,7 @@ export interface IContextProvider {
 
   onCloudStorageActivated(event: CloudStorageActivatedEvent): void;
   onCloudStorageDeactivated(event: CloudStorageActivatedEvent): void;
-
+  onQueryPosted(queryRequest: SDQLQueryRequest): void;
   onProfileFieldChanged(profileFieldType: EProfileFieldType, value: any): void;
 }
 

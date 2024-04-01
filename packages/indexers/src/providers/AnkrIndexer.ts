@@ -174,34 +174,36 @@ export class AnkrIndexer implements IEVMIndexer {
           },
         })
         .andThen((response) => {
-          return ResultUtils.combine(
-            response.result.assets.map((item) => {
-              if (item.tokenType == "NATIVE") {
-                return okAsync(
-                  new TokenBalance(
-                    EChainTechnology.EVM,
-                    item.tokenSymbol,
-                    chain,
-                    MasterIndexer.nativeAddress,
-                    accountAddress,
-                    item.balanceRawInteger,
-                    item.tokenDecimals,
-                  ),
-                );
-              }
-              return okAsync(
-                new TokenBalance(
-                  EChainTechnology.EVM,
-                  item.tokenSymbol,
-                  chain,
-                  item.contractAddress,
-                  accountAddress,
-                  item.balanceRawInteger,
-                  item.tokenDecimals,
-                ),
-              );
-            }),
-          );
+          return response.result?.assets
+            ? ResultUtils.combine(
+                response.result?.assets.map((item) => {
+                  if (item.tokenType == "NATIVE") {
+                    return okAsync(
+                      new TokenBalance(
+                        EChainTechnology.EVM,
+                        item.tokenSymbol,
+                        chain,
+                        MasterIndexer.nativeAddress,
+                        accountAddress,
+                        item.balanceRawInteger,
+                        item.tokenDecimals,
+                      ),
+                    );
+                  }
+                  return okAsync(
+                    new TokenBalance(
+                      EChainTechnology.EVM,
+                      item.tokenSymbol,
+                      chain,
+                      item.contractAddress,
+                      accountAddress,
+                      item.balanceRawInteger,
+                      item.tokenDecimals,
+                    ),
+                  );
+                }),
+              )
+            : okAsync([]);
         });
     });
   }
@@ -243,27 +245,29 @@ export class AnkrIndexer implements IEVMIndexer {
           },
         })
         .map((response) => {
-          return response.result.assets.map((item) => {
-            const tokenStandard = ValidationUtils.stringToTokenStandard(
-              item.contractType,
-            );
-            return new EVMNFT(
-              item.contractAddress,
-              BigNumberString(item.tokenId),
-              tokenStandard,
-              accountAddress,
-              TokenUri(item.imageUrl),
-              { raw: ObjectUtils.serialize(item) },
-              item.name,
-              getChainInfoByChain(
-                this.supportedNfts.get(item.blockchain)!,
-              ).chainId, // chainId
-              BigNumberString("1"),
-              this.timeUtils.getUnixNow(),
-              undefined,
-              undefined,
-            );
-          });
+          return response.result?.assets
+            ? response.result.assets.map((item) => {
+                const tokenStandard = ValidationUtils.stringToTokenStandard(
+                  item.contractType,
+                );
+                return new EVMNFT(
+                  item.contractAddress,
+                  BigNumberString(item.tokenId),
+                  tokenStandard,
+                  accountAddress,
+                  TokenUri(item.imageUrl),
+                  { raw: ObjectUtils.serialize(item) },
+                  item.name,
+                  getChainInfoByChain(
+                    this.supportedNfts.get(item.blockchain)!,
+                  ).chainId, // chainId
+                  BigNumberString("1"),
+                  this.timeUtils.getUnixNow(),
+                  undefined,
+                  undefined,
+                );
+              })
+            : [];
         })
         .map((unfilteredNfts) => {
           return unfilteredNfts
