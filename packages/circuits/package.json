@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/circuits",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "ZK-Snickerdoodle circuits for Snickerdoodle Protocol",
   "license": "MIT",
   "repository": {
@@ -65,7 +65,6 @@
     "inversify": "^6.0.2",
     "neverthrow": "^5.1.0",
     "neverthrow-result-utils": "^2.0.2",
-    "o1js": "^0.17.0",
     "poseidon-lite": "^0.2.0",
     "snarkjs": "^0.7.3",
     "uuid": "^8.3.0"

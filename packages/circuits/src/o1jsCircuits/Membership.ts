@@ -1,4 +1,4 @@
-import {
+/* import {
   Circuit,
   Poseidon,
   Field,
@@ -74,3 +74,4 @@ export const membershipVerification = ZkProgram({
     },
   },
 });
+ */

@@ -1,4 +1,4 @@
-import { Poseidon, Field, Struct } from "o1js";
+/* import { Poseidon, Field, Struct } from "o1js";
 
 export class Identity extends Struct({
   identityTrapdoor: Field,
@@ -12,3 +12,4 @@ export class Identity extends Struct({
     return Poseidon.hash([this.secret()]);
   }
 }
+ */

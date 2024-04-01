@@ -1,4 +1,4 @@
-import {
+/* import {
   Identity,
   membershipVerification,
   MembershipVerifyParams,
@@ -178,3 +178,4 @@ export class MembershipWrapper
     );
   }
 }
+ */

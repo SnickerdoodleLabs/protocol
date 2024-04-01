@@ -1,4 +1,4 @@
-import { CircomUtils, Identity } from "@snickerdoodlelabs/circuits";
+/* import { CircomUtils, Identity } from "@snickerdoodlelabs/circuits";
 import { BigNumberString, Commitment } from "@snickerdoodlelabs/objects";
 
 import { CircomCommitmentWrapper } from "@circuits-sdk/implementations/circom/CircomCommitmentWrapper.js";
@@ -61,3 +61,4 @@ describe("CommitmentCircuitWrapper tests", () => {
     expect(valid).toBeTruthy();
   });
 });
+ */
