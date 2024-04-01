@@ -48,9 +48,7 @@ export class QueryRepository implements IQueryRepository {
 
   private isSubQueryPermitted(
     q: AST_SubQuery,
-    dataPermissions: DataPermissions,
-    dataType: IpfsCID,
   ): boolean {
-    return q.getPermission(dataPermissions, dataType);
+    return q.getPermission();
   }
 }
