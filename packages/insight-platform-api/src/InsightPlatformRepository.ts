@@ -88,7 +88,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         queryCID,
       )
       .andThen((proof) => {
-        const url = new URL(urlJoin(insightPlatformBaseUrl, "insights"));
+        const url = new URL(urlJoin(insightPlatformBaseUrl, "v0/insights"));
 
         return this.ajaxUtils.post<EarnedReward[]>(url, {
           consentContractId: consentContractAddress,
@@ -121,7 +121,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     return this.commitmentWrapper
       .prove(ObjectUtils.serialize(signal), trapdoor, nullifier)
       .andThen((proof) => {
-        const url = new URL(urlJoin(insightPlatformBaseUrl, "optin"));
+        const url = new URL(urlJoin(insightPlatformBaseUrl, "v0/optin"));
 
         return this.ajaxUtils.post<{ success: boolean }>(url, {
           consentContractId: consentContractAddress,
