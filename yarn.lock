@@ -9659,6 +9659,7 @@ __metadata:
     reflect-metadata: ^0.1.13
     rxjs: ^7.5.5
     sass: ^1.55.0
+    subworkers: ^1.0.1
     tldts: ^5.7.89
     uuid: ^8.3.2
     webextension-polyfill: ^0.9.0
@@ -42882,6 +42883,13 @@ __metadata:
   version: 4.2.0
   resolution: "stylis@npm:4.2.0"
   checksum: 0eb6cc1b866dc17a6037d0a82ac7fa877eba6a757443e79e7c4f35bacedbf6421fadcab4363b39667b43355cbaaa570a3cde850f776498e5450f32ed2f9b7584
+  languageName: node
+  linkType: hard
+
+"subworkers@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "subworkers@npm:1.0.1"
+  checksum: ac3da8ea165594dea4aa85954b38887378da5ae2d282dc0b793482ff52d79be23e8cb20f81883647c1d58fdf58f7af27b2520cd860addf6151019a82d59f14d6
   languageName: node
   linkType: hard
 
