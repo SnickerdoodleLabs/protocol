@@ -1,4 +1,4 @@
-import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
+/* import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import { CircuitError, JSONString, ZKProof } from "@snickerdoodlelabs/objects";
 import { injectable, unmanaged } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -83,3 +83,4 @@ export abstract class CircuitWrapper<TCircuit extends Circuit> {
     return keypair;
   }
 }
+ */

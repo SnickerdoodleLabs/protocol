@@ -1,4 +1,4 @@
-import {
+/* import {
   Identity,
   Membership,
   MembershipWitness,
@@ -170,3 +170,4 @@ export class MembershipCircuitWrapper
     MembershipCircuitWrapper.keypair = result;
   }
 }
+ */

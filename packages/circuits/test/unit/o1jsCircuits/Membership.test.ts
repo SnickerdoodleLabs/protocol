@@ -1,7 +1,7 @@
 // /* eslint-disable @typescript-eslint/no-non-null-assertion */
 // import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 // import { BigNumberString, Commitment } from "@snickerdoodlelabs/objects";
-import { Poseidon, Field, MerkleTree, Encoding } from "o1js";
+// import { Poseidon, Field, MerkleTree, Encoding } from "o1js";
 
 // import { Identity } from "@circuits/o1jsCircuits/Identity.js";
 // import { Membership, MembershipWitness } from "@circuits/o1jsCircuits/Membership.js";

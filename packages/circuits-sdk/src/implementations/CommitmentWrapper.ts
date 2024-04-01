@@ -1,4 +1,4 @@
-import {
+/* import {
   commitmentVerification,
   CommitmentVerifyParams,
   Identity,
@@ -100,3 +100,4 @@ export class CommitmentWrapper
     );
   }
 }
+ */

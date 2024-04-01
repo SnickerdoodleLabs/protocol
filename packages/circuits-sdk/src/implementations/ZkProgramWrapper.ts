@@ -1,4 +1,4 @@
-import { CircuitError, ZKProof } from "@snickerdoodlelabs/objects";
+/* import { CircuitError, ZKProof } from "@snickerdoodlelabs/objects";
 import { injectable, unmanaged } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { Field, JsonProof, verify } from "o1js";
@@ -62,3 +62,4 @@ export abstract class ZkProgramWrapper {
     });
   }
 }
+ */
