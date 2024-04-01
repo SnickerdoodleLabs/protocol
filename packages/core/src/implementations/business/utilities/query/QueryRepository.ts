@@ -2,9 +2,11 @@ import {
   AccountIndexingError,
   AjaxError,
   DataPermissions,
+  EWalletDataType,
   InvalidParametersError,
   IpfsCID,
   MethodSupportError,
+  MissingWalletDataTypeError,
   PersistenceError,
   SDQL_Return,
   UnixTimestamp,
@@ -14,7 +16,7 @@ import {
   IQueryRepository,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
-import { ResultAsync, okAsync } from "neverthrow";
+import { Result, ResultAsync, okAsync } from "neverthrow";
 
 import {
   IQueryEvaluator,
@@ -41,14 +43,14 @@ export class QueryRepository implements IQueryRepository {
     | MethodSupportError
     | InvalidParametersError
   > {
-    return this.isSubQueryPermitted(q, dataPermissions, cid)
+    return this.isSubQueryPermitted(q)
       ? this.queryValuator.eval(q, cid, queryTimestamp)
       : okAsync(SDQL_Return(null));
   }
 
   private isSubQueryPermitted(
     q: AST_SubQuery,
-  ): boolean {
+  ): Result<IpfsCID | EWalletDataType, MissingWalletDataTypeError> {
     return q.getPermission();
   }
 }

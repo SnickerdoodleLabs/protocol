@@ -23,7 +23,7 @@ export class AST_QuestionnaireQuery extends AST_SubQuery {
   constructor(
     readonly name: SDQL_Name,
     readonly returnType: ESDQLQueryReturn.Object,
-    readonly questionnaireIndex: IpfsCID,
+    readonly questionnaireIndex?: IpfsCID,
     readonly questionnaire?: Questionnaire,
   ) {
     super(name, returnType);
@@ -41,6 +41,6 @@ export class AST_QuestionnaireQuery extends AST_SubQuery {
   }
 
   getPermission(): Result<IpfsCID, MissingWalletDataTypeError> {
-    return ok(this.questionnaireIndex);
+    return ok(this.questionnaireIndex!);
   }
 }

@@ -491,7 +491,6 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
         if (config.defaulConsentContract) {
           coreGateway.acceptInvitation(
             new Invitation(config.defaulConsentContract, null, null, null),
-            null,
           );
         }
       });
@@ -521,7 +520,7 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
           withPermissions,
         } = params;
         coreGateway
-          .acceptInvitation(currentInvitation.data.invitation, null)
+          .acceptInvitation(currentInvitation.data.invitation)
           .andThen(() => {
             // set consent permissions here
             return okAsync(undefined);

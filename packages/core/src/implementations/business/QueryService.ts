@@ -1060,7 +1060,8 @@ export class QueryService implements IQueryService {
           );
         })
         .orElse((err) => {
-          if (err != null && (err.code == 403 || err.statusCode == 403)) {
+          // CircuitError doesn't have statusCode we should add it and check for 403 status code like err.code == 403 || err.statusCode == 403
+          if (err != null && (err.code == 403)) {
             // 403 means a response has already been submitted, and we should stop asking
             queryStatus.status = EQueryProcessingStatus.RewardsReceived;
             return this.sdqlQueryRepo

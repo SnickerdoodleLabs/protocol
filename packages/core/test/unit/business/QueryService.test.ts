@@ -43,9 +43,7 @@ import * as td from "testdouble";
 
 import { QueryService } from "@core/implementations/business/index.js";
 import { IQuestionnaireService } from "@core/interfaces/business";
-import { IQueryParsingEngine } from "@core/interfaces/business/utilities/index.js";
 import {
-  IConsentTokenUtils,
   IQueryParsingEngine,
 } from "@core/interfaces/business/utilities/index.js";
 import {
