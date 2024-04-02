@@ -1,4 +1,7 @@
-import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
+import {
+  EConsentRoles,
+  IConsentContract,
+} from "@snickerdoodlelabs/contracts-sdk";
 import {
   BlockchainProviderError,
   EVMContractAddress,
@@ -123,10 +126,12 @@ export interface IConsentContractRepository {
   >;
   // #endregion Consent Contract Factory
 
-  getSignerRoleMembers(
+  hasRole(
     consentContractAddress: EVMContractAddress,
+    role: EConsentRoles,
+    address: EVMAccountAddress,
   ): ResultAsync<
-    EVMAccountAddress[],
+    boolean,
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError

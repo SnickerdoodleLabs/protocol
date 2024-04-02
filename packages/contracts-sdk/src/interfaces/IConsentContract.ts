@@ -79,48 +79,6 @@ export interface IConsentContract
   >;
 
   /**
-   * Returns array of addresses that has the DEFAULT_ADMIN_ROLE
-   * Address at index 0 of the returned array is the contract owner
-   */
-  getConsentOwner(): ResultAsync<
-    EVMAccountAddress,
-    ConsentContractError | BlockchainCommonErrors
-  >;
-
-  /**
-   * Returns array of addresses that has the DEFAULT_ADMIN_ROLE
-   * Address at index 0 of the returned array is the contract owner
-   */
-  getDefaultAdminRoleMembers(): ResultAsync<
-    EVMAccountAddress[],
-    ConsentContractError | BlockchainCommonErrors
-  >;
-
-  /**
-   * Returns array of addresses that has the SIGNER_ROLE
-   */
-  getSignerRoleMembers(): ResultAsync<
-    EVMAccountAddress[],
-    ConsentContractError | BlockchainCommonErrors
-  >;
-
-  /**
-   * Returns array of addresses that has the PAUSER_ROLE
-   */
-  getPauserRoleMembers(): ResultAsync<
-    EVMAccountAddress[],
-    ConsentContractError | BlockchainCommonErrors
-  >;
-
-  /**
-   * Returns array of addresses that has the REQUESTER_ROLE
-   */
-  getRequesterRoleMembers(): ResultAsync<
-    EVMAccountAddress[],
-    ConsentContractError | BlockchainCommonErrors
-  >;
-
-  /**
    * Returns a topic event object that can be fetched for events logs
    * @param eventFilter event filer
    * @param fromBlock optional parameter of starting block to query
