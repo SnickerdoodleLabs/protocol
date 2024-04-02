@@ -65,6 +65,19 @@ export class ConsentContractWrapper
     );
   }
 
+  public batchOptIn(
+    commitments: Commitment[],
+    contractOverrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.fallback(
+      () => this.primary.batchOptIn(commitments, contractOverrides),
+      () => this.secondary?.batchOptIn(commitments, contractOverrides),
+    );
+  }
+
   public restrictedOptIn(
     commitment: Commitment,
     nonce: TokenId,
@@ -150,24 +163,23 @@ export class ConsentContractWrapper
   }
   public tagIndices(
     tag: string,
+    stakingToken: EVMContractAddress,
   ): ResultAsync<
     BigNumberString,
     ConsentContractError | BlockchainCommonErrors
   > {
     return this.fallback(
-      () => this.primary.tagIndices(tag),
-      () => this.secondary?.tagIndices(tag),
+      () => this.primary.tagIndices(tag, stakingToken),
+      () => this.secondary?.tagIndices(tag, stakingToken),
     );
   }
-  public updateMaxTagsLimit(
-    overrides?: ContractOverrides | undefined,
-  ): ResultAsync<
-    WrappedTransactionResponse,
+  public getContentAddress(): ResultAsync<
+    EVMContractAddress,
     ConsentContractError | BlockchainCommonErrors
   > {
     return this.fallback(
-      () => this.primary.updateMaxTagsLimit(overrides),
-      () => this.secondary?.updateMaxTagsLimit(overrides),
+      () => this.primary.getContentAddress(),
+      () => this.secondary?.getContentAddress(),
     );
   }
   public restakeExpiredListing(
@@ -470,31 +482,29 @@ export class ConsentContractWrapper
 
   public filters: IConsentContractFilters = this.primary.filters;
 
-  public getNumberOfStakedTags(): ResultAsync<
-    number,
-    ConsentContractError | BlockchainCommonErrors
-  > {
+  public getNumberOfStakedTags(
+    stakingToken: EVMContractAddress,
+  ): ResultAsync<number, ConsentContractError | BlockchainCommonErrors> {
     return this.fallback(
-      () => this.primary.getNumberOfStakedTags(),
-      () => this.secondary?.getNumberOfStakedTags(),
+      () => this.primary.getNumberOfStakedTags(stakingToken),
+      () => this.secondary?.getNumberOfStakedTags(stakingToken),
     );
   }
 
-  public getTagArray(): ResultAsync<
-    Tag[],
-    ConsentContractError | BlockchainCommonErrors
-  > {
+  public getTagArray(
+    stakingToken: EVMContractAddress,
+  ): ResultAsync<Tag[], ConsentContractError | BlockchainCommonErrors> {
     return this.fallback(
-      () => this.primary.getTagArray(),
-      () => this.secondary?.getTagArray(),
+      () => this.primary.getTagArray(stakingToken),
+      () => this.secondary?.getTagArray(stakingToken),
     );
   }
 
   public newGlobalTag(
     tag: string,
     stakingToken: EVMContractAddress,
-    stakeOWner: any,
-    newStakeAmount: BigNumberString,
+    stakeAmount: BigNumberString,
+    stakeSlot: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -505,16 +515,16 @@ export class ConsentContractWrapper
         this.primary.newGlobalTag(
           tag,
           stakingToken,
-          stakeOWner,
-          newStakeAmount,
+          stakeAmount,
+          stakeSlot,
           overrides,
         ),
       () =>
         this.secondary?.newGlobalTag(
           tag,
           stakingToken,
-          stakeOWner,
-          newStakeAmount,
+          stakeAmount,
+          stakeSlot,
           overrides,
         ),
     );
@@ -523,7 +533,7 @@ export class ConsentContractWrapper
   public newLocalTagUpstream(
     tag: string,
     stakingToken: EVMContractAddress,
-    stakeOwner: any,
+    stakeAmount: BigNumberString,
     newSlot: BigNumberString,
     existingSlot: BigNumberString,
     overrides?: ContractOverrides,
@@ -536,7 +546,7 @@ export class ConsentContractWrapper
         this.primary.newLocalTagUpstream(
           tag,
           stakingToken,
-          stakeOwner,
+          stakeAmount,
           newSlot,
           existingSlot,
           overrides,
@@ -545,7 +555,7 @@ export class ConsentContractWrapper
         this.secondary?.newLocalTagUpstream(
           tag,
           stakingToken,
-          stakeOwner,
+          stakeAmount,
           newSlot,
           existingSlot,
           overrides,
@@ -556,9 +566,9 @@ export class ConsentContractWrapper
   public newLocalTagDownstream(
     tag: string,
     stakingToken: EVMContractAddress,
-    stakeOwner: any,
-    existingStakeAmount: BigNumberString,
-    newStakeAmount: BigNumberString,
+    stakeAmount: BigNumberString,
+    existingSlot: BigNumberString,
+    newSlot: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -569,18 +579,18 @@ export class ConsentContractWrapper
         this.primary.newLocalTagDownstream(
           tag,
           stakingToken,
-          stakeOwner,
-          existingStakeAmount,
-          newStakeAmount,
+          stakeAmount,
+          existingSlot,
+          newSlot,
           overrides,
         ),
       () =>
         this.secondary?.newLocalTagDownstream(
           tag,
           stakingToken,
-          stakeOwner,
-          existingStakeAmount,
-          newStakeAmount,
+          stakeAmount,
+          existingSlot,
+          newSlot,
           overrides,
         ),
     );
@@ -589,7 +599,7 @@ export class ConsentContractWrapper
   public replaceExpiredListing(
     tag: string,
     stakingToken: EVMContractAddress,
-    stakeOwner: any,
+    stakeAmount: BigNumberString,
     slot: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -601,7 +611,7 @@ export class ConsentContractWrapper
         this.primary.replaceExpiredListing(
           tag,
           stakingToken,
-          stakeOwner,
+          stakeAmount,
           slot,
           overrides,
         ),
@@ -609,7 +619,7 @@ export class ConsentContractWrapper
         this.secondary?.replaceExpiredListing(
           tag,
           stakingToken,
-          stakeOwner,
+          stakeAmount,
           slot,
           overrides,
         ),
@@ -619,9 +629,9 @@ export class ConsentContractWrapper
   public moveExistingListingUpstream(
     tag: string,
     stakingToken: EVMContractAddress,
-    stakeOwner: any,
-    newStakeAmount: BigNumberString,
-    existingStakeAmount: BigNumberString,
+    stakeAmount: BigNumberString,
+    newSlot: BigNumberString,
+    existingSlot: BigNumberString,
     overrides?: ContractOverrides | undefined,
   ): ResultAsync<WrappedTransactionResponse, any> {
     return this.fallback(
@@ -629,18 +639,18 @@ export class ConsentContractWrapper
         this.primary.moveExistingListingUpstream(
           tag,
           stakingToken,
-          stakeOwner,
-          newStakeAmount,
-          existingStakeAmount,
+          stakeAmount,
+          newSlot,
+          existingSlot,
           overrides,
         ),
       () =>
         this.secondary?.moveExistingListingUpstream(
           tag,
           stakingToken,
-          stakeOwner,
-          newStakeAmount,
-          existingStakeAmount,
+          stakeAmount,
+          newSlot,
+          existingSlot,
           overrides,
         ),
     );
@@ -657,6 +667,34 @@ export class ConsentContractWrapper
     return this.fallback(
       () => this.primary.removeListing(tag, stakingToken, overrides),
       () => this.secondary?.removeListing(tag, stakingToken, overrides),
+    );
+  }
+
+  public depositStake(
+    depositToken: EVMContractAddress,
+    amount: BigNumberString,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.fallback(
+      () => this.primary.depositStake(depositToken, amount, overrides),
+      () => this.secondary?.depositStake(depositToken, amount, overrides),
+    );
+  }
+
+  public removeStake(
+    depositToken: EVMContractAddress,
+    amount: BigNumberString,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.fallback(
+      () => this.primary.removeStake(depositToken, amount, overrides),
+      () => this.secondary?.removeStake(depositToken, amount, overrides),
     );
   }
 }

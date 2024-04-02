@@ -46,6 +46,14 @@ export interface IConsentContract
     BlockchainCommonErrors | ConsentContractError
   >;
 
+  batchOptIn(
+    commitments: Commitment[],
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  >;
+
   /**
    * Opts in to a private contract, using a signature provided by an account with the SIGNER role.
    * The signature must encode the contract address, token ID AND the recipient account address.
@@ -336,33 +344,30 @@ export interface IConsentContract
 
   tagIndices(
     tag: string,
+    stakingToken: EVMContractAddress,
   ): ResultAsync<
     BigNumberString,
     ConsentContractError | BlockchainCommonErrors
   >;
 
-  updateMaxTagsLimit(
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
+  getContentAddress(): ResultAsync<
+    EVMContractAddress,
     ConsentContractError | BlockchainCommonErrors
   >;
 
-  getNumberOfStakedTags(): ResultAsync<
-    number,
-    ConsentContractError | BlockchainCommonErrors
-  >;
+  getNumberOfStakedTags(
+    stakingToken: EVMContractAddress,
+  ): ResultAsync<number, ConsentContractError | BlockchainCommonErrors>;
 
-  getTagArray(): ResultAsync<
-    Tag[],
-    ConsentContractError | BlockchainCommonErrors
-  >;
+  getTagArray(
+    stakingToken: EVMContractAddress,
+  ): ResultAsync<Tag[], ConsentContractError | BlockchainCommonErrors>;
 
   newGlobalTag(
     tag: string,
     stakingToken: EVMContractAddress,
-    stakeOWner: EVMAccountAddress | EVMContractAddress,
-    newStakeAmount: BigNumberString,
+    stakeAmount: BigNumberString,
+    stakeSlot: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -372,7 +377,7 @@ export interface IConsentContract
   newLocalTagUpstream(
     tag: string,
     stakingToken: EVMContractAddress,
-    stakeOwner: EVMAccountAddress | EVMContractAddress,
+    stakeAmount: BigNumberString,
     newSlot: BigNumberString,
     existingSlot: BigNumberString,
     overrides?: ContractOverrides,
@@ -384,9 +389,9 @@ export interface IConsentContract
   newLocalTagDownstream(
     tag: string,
     stakingToken: EVMContractAddress,
-    stakeOwner: EVMAccountAddress | EVMContractAddress,
-    existingStakeAmount: BigNumberString,
-    newStakeAmount: BigNumberString,
+    stakeAmount: BigNumberString,
+    existingSlot: BigNumberString,
+    newSlot: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -396,9 +401,9 @@ export interface IConsentContract
   moveExistingListingUpstream(
     tag: string,
     stakingToken: EVMContractAddress,
-    stakeOwner: EVMAccountAddress | EVMContractAddress,
-    newStakeAmount: BigNumberString,
-    existingStakeAmount: BigNumberString,
+    stakeAmount: BigNumberString,
+    newSlot: BigNumberString,
+    existingSlot: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -417,8 +422,8 @@ export interface IConsentContract
   replaceExpiredListing(
     tag: string,
     stakingToken: EVMContractAddress,
-    stakeOwner: EVMAccountAddress | EVMContractAddress,
-    slot: BigNumberString,
+    stakeAmount: BigNumberString,
+    stakeSlot: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -428,6 +433,24 @@ export interface IConsentContract
   removeListing(
     tag: string,
     stakingToken: EVMContractAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  >;
+
+  depositStake(
+    depositToken: EVMContractAddress,
+    amount: BigNumberString,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  >;
+
+  removeStake(
+    depositToken: EVMContractAddress,
+    amount: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,

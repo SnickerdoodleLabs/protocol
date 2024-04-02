@@ -52,6 +52,7 @@ export class CachingService implements ICachingService {
         acceptedInvitations.map((optInInfo) => {
           return this.consentContractRepo.getQuestionnaires(
             optInInfo.consentContractAddress,
+            optInInfo.stakingToken,
           );
         }),
       ).andThen((consentContractQuestionnairesCIDS) => {

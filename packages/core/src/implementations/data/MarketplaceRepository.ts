@@ -16,6 +16,7 @@ import {
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { EVMAccountAddress, EVMContractAddress } from "packages/objects/src";
 
 import { IMarketplaceRepository } from "@core/interfaces/data/index.js";
 import {
@@ -88,6 +89,7 @@ export class MarketplaceRepository implements IMarketplaceRepository {
 
   public getRecommendationsByListing(
     listing: MarketplaceListing,
+    stakingToken: EVMContractAddress,
   ): ResultAsync<
     MarketplaceTag[],
     | BlockchainProviderError
@@ -108,7 +110,7 @@ export class MarketplaceRepository implements IMarketplaceRepository {
     return this.contractFactory
       .factoryConsentContracts([listing.consentContract])
       .andThen(([consentContract]) => {
-        return consentContract.getTagArray();
+        return consentContract.getTagArray(stakingToken);
       })
       .map((tagArr) => {
         // Extract its tags

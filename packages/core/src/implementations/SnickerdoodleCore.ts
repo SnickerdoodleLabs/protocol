@@ -534,11 +534,17 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return marketplaceService.getListingsTotalByTag(tag);
       },
 
-      getRecommendationsByListing: (listing: MarketplaceListing) => {
+      getRecommendationsByListing: (
+        listing: MarketplaceListing,
+        stakingToken: EVMContractAddress,
+      ) => {
         const marketplaceService = this.iocContainer.get<IMarketplaceService>(
           IMarketplaceServiceType,
         );
-        return marketplaceService.getRecommendationsByListing(listing);
+        return marketplaceService.getRecommendationsByListing(
+          listing,
+          stakingToken,
+        );
       },
 
       getEarnedRewardsByContractAddress: (
@@ -770,6 +776,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       getQuestionnairesForConsentContract: (
         pagingRequest: PagingRequest,
         consentContractAddress: EVMContractAddress,
+        stakingToken: EVMContractAddress,
         sourceDomain: DomainName | undefined,
       ) => {
         const questionnaireService =
@@ -780,6 +787,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return questionnaireService.getQuestionnairesForConsentContract(
           pagingRequest,
           consentContractAddress,
+          stakingToken,
           sourceDomain,
         );
       },

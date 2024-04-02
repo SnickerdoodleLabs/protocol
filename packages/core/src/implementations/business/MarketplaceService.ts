@@ -118,6 +118,7 @@ export class MarketplaceService implements IMarketplaceService {
 
   public getRecommendationsByListing(
     listing: MarketplaceListing,
+    stakingToken: EVMContractAddress,
   ): ResultAsync<
     MarketplaceTag[],
     | UninitializedError
@@ -126,7 +127,10 @@ export class MarketplaceService implements IMarketplaceService {
     | BlockchainCommonErrors
     | InvalidParametersError
   > {
-    return this.marketplaceRepo.getRecommendationsByListing(listing);
+    return this.marketplaceRepo.getRecommendationsByListing(
+      listing,
+      stakingToken,
+    );
   }
 
   public getEarnedRewardsByContractAddress(

@@ -69,6 +69,7 @@ export class QuestionnaireService implements IQuestionnaireService {
   public getQuestionnairesForConsentContract(
     pagingRequest: PagingRequest,
     consentContractAddress: EVMContractAddress,
+    stakingToken: EVMContractAddress,
     _sourceDomain: DomainName | undefined,
   ): ResultAsync<
     PagedResponse<Questionnaire>,
@@ -79,7 +80,7 @@ export class QuestionnaireService implements IQuestionnaireService {
     | ConsentContractError
   > {
     return this.consentContractRepository
-      .getQuestionnaires(consentContractAddress)
+      .getQuestionnaires(consentContractAddress, stakingToken)
       .andThen((cids) => {
         return this.questionnaireRepo.add(cids).andThen(() => {
           return this.questionnaireRepo.getByCIDs(
@@ -150,7 +151,10 @@ export class QuestionnaireService implements IQuestionnaireService {
         return ResultUtils.combine(
           acceptedInvitations.map((optInInfo) => {
             return this.consentContractRepository
-              .getQuestionnaires(optInInfo.consentContractAddress)
+              .getQuestionnaires(
+                optInInfo.consentContractAddress,
+                optInInfo.stakingToken,
+              )
               .map((questionnaireCIDs) => {
                 return {
                   consentContractAddress: optInInfo.consentContractAddress,

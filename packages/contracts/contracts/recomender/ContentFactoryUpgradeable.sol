@@ -79,7 +79,7 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
         $.stakingTokens[_governanceToken] = true;
         // set the default listing duration period (2 weeks = 60 * 60 * 24 * 14)
         $.listingDuration = _listingDuration;
-        // set the maximum allowable tags per conent object (20)
+        // set the maximum allowable tags per content object (20)
         $.maxTagsPerListing = _maxTagsPerListing;
     }
 
@@ -324,7 +324,7 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
             "Content Factory: Content Object has already staked this tag"
         );
 
-        // The new listing must fit between _upstream and its current downstresam
+        // The new listing must fit between _upstream and its current downstream
         // if the next variable is 0, it means the slot is uninitialized and thus it is invalid _upstream entry
         Listing memory existingListing = $.listings[LLKey][stakingToken][
             _existingSlot
@@ -572,7 +572,7 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
 
     /// @notice returns amount of token to pull for a given slot based on 1.0001^_slot
     /// @dev you can call this function from the client to compute the amount of token to allow this contract
-    /// @param _slot integer representing the slot in the global linked list to aquire
+    /// @param _slot integer representing the slot in the global linked list to acquire
     function computeFee(uint256 _slot) external pure returns (uint256) {
         return _computeFee(_slot);
     }

@@ -260,6 +260,7 @@ export interface ICoreMarketplaceMethods {
 
   getRecommendationsByListing(
     listing: MarketplaceListing,
+    stakingToken: EVMContractAddress,
   ): ResultAsync<
     MarketplaceTag[],
     | BlockchainProviderError
@@ -745,6 +746,7 @@ export interface IQuestionnaireMethods {
   getQuestionnairesForConsentContract(
     pagingRequest: PagingRequest,
     consentContractAddress: EVMContractAddress,
+    stakingToken: EVMContractAddress,
     sourceDomain: DomainName | undefined,
   ): ResultAsync<
     PagedResponse<Questionnaire>,

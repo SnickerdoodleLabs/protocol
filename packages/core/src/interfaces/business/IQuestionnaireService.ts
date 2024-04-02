@@ -46,6 +46,7 @@ export interface IQuestionnaireService {
   getQuestionnairesForConsentContract(
     pagingRequest: PagingRequest,
     consentContractAddress: EVMContractAddress,
+    stakingToken: EVMContractAddress,
     sourceDomain: DomainName | undefined,
   ): ResultAsync<
     PagedResponse<Questionnaire>,

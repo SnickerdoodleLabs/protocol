@@ -250,7 +250,7 @@ abstract contract ContentObjectUpgradeable is
 
         // effects - we use the array element deletion pattern used by OpenZeppelin
         uint256 lastIndex = $.tags[stakingToken].length - 1;
-        uint256 removalIndex = $.tagIndices[stakingToken][tag] - 1; // remember to decriment the stored value by 1
+        uint256 removalIndex = $.tagIndices[stakingToken][tag] - 1; // remember to decrement the stored value by 1
 
         Tag memory lastListing = $.tags[stakingToken][lastIndex];
 

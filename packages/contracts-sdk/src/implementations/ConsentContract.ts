@@ -63,6 +63,20 @@ export class ConsentContract
     );
   }
 
+  public batchOptIn(
+    commitments: Commitment[],
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract(
+      "optIn",
+      commitments.map((commitment) => ethers.toBeArray(commitment)),
+      overrides,
+    );
+  }
+
   public restrictedOptIn(
     commitment: Commitment,
     nonce: TokenId,
@@ -305,14 +319,14 @@ export class ConsentContract
     return this.writeToContract("removeDomain", [domain], overrides);
   }
 
-  public getDomain(
+  public checkDomain(
     domain: DomainName,
   ): ResultAsync<boolean, ConsentContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       // returns array of domains
-      this.contract.getDomain(domain) as Promise<boolean>,
+      this.contract.checkDomain(domain) as Promise<boolean>,
       (e) => {
-        return this.generateError(e, "Unable to call getDomain()");
+        return this.generateError(e, "Unable to call checkDomain()");
       },
     );
   }
@@ -600,35 +614,38 @@ export class ConsentContract
 
   public tagIndices(
     tag: string,
+    stakingToken: EVMContractAddress,
   ): ResultAsync<
     BigNumberString,
     ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.tagIndices() as Promise<bigint>,
+      this.contract.tagIndices(tag, stakingToken) as Promise<bigint>,
       (e) => {
-        return this.generateError(e, "Unable to call getNumberOfStakedTags()");
+        return this.generateError(e, "Unable to call tagIndices()");
       },
     ).map((index) => {
       return BigNumberString(index.toString());
     });
   }
 
-  public updateMaxTagsLimit(
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return this.writeToContract("updateMaxTagsLimit", [], overrides);
-  }
-
-  public getNumberOfStakedTags(): ResultAsync<
-    number,
+  public getContentAddress(): ResultAsync<
+    EVMContractAddress,
     ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.getNumberOfStakedTags() as Promise<bigint>,
+      this.contract.getContentAddress() as Promise<EVMContractAddress>,
+      (e) => {
+        return this.generateError(e, "Unable to call getContentAddress()");
+      },
+    );
+  }
+
+  public getNumberOfStakedTags(
+    stakingToken: EVMContractAddress,
+  ): ResultAsync<number, ConsentContractError | BlockchainCommonErrors> {
+    return ResultAsync.fromPromise(
+      this.contract.getNumberOfStakedTags(stakingToken) as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call getNumberOfStakedTags()");
       },
@@ -637,12 +654,11 @@ export class ConsentContract
     });
   }
 
-  public getTagArray(): ResultAsync<
-    Tag[],
-    ConsentContractError | BlockchainCommonErrors
-  > {
+  public getTagArray(
+    stakingToken: EVMContractAddress,
+  ): ResultAsync<Tag[], ConsentContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contract.getTagArray() as Promise<ITagStruct[]>,
+      this.contract.getTagArray(stakingToken) as Promise<ITagStruct[]>,
       (e) => {
         return this.generateError(e, "Unable to call getTagArray()");
       },
@@ -660,8 +676,8 @@ export class ConsentContract
   public newGlobalTag(
     tag: string,
     stakingToken: EVMContractAddress,
-    stakeOWner: EVMAccountAddress | EVMContractAddress,
-    newStakeAmount: BigNumberString,
+    stakeAmount: BigNumberString,
+    stakeSlot: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -669,7 +685,7 @@ export class ConsentContract
   > {
     return this.writeToContract(
       "newGlobalTag",
-      [tag, stakingToken, stakeOWner, newStakeAmount],
+      [tag, stakingToken, stakeAmount, stakeSlot],
       overrides,
     );
   }
@@ -677,9 +693,9 @@ export class ConsentContract
   public newLocalTagUpstream(
     tag: string,
     stakingToken: EVMContractAddress,
-    stakeOwner: EVMAccountAddress | EVMContractAddress,
-    newStakeAmount: BigNumberString,
-    existingStakeAmount: BigNumberString,
+    stakeAmount: BigNumberString,
+    newSlot: BigNumberString,
+    existingSlot: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -687,7 +703,7 @@ export class ConsentContract
   > {
     return this.writeToContract(
       "newLocalTagUpstream",
-      [tag, stakingToken, stakeOwner, newStakeAmount, existingStakeAmount],
+      [tag, stakingToken, stakeAmount, newSlot, existingSlot],
       overrides,
     );
   }
@@ -695,9 +711,9 @@ export class ConsentContract
   public newLocalTagDownstream(
     tag: string,
     stakingToken: EVMContractAddress,
-    stakeOwner: EVMAccountAddress | EVMContractAddress,
-    existingStakeAmount: BigNumberString,
-    newStakeAmount: BigNumberString,
+    stakeAmount: BigNumberString,
+    existingSlot: BigNumberString,
+    newSlot: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -705,7 +721,7 @@ export class ConsentContract
   > {
     return this.writeToContract(
       "newLocalTagDownstream",
-      [tag, stakingToken, stakeOwner, existingStakeAmount, newStakeAmount],
+      [tag, stakingToken, stakeAmount, existingSlot, newSlot],
       overrides,
     );
   }
@@ -713,9 +729,9 @@ export class ConsentContract
   public moveExistingListingUpstream(
     tag: string,
     stakingToken: EVMContractAddress,
-    stakeOwner: EVMAccountAddress | EVMContractAddress,
-    newStakeAmount: BigNumberString,
-    existingStakeAmount: BigNumberString,
+    stakeAmount: BigNumberString,
+    newSlot: BigNumberString,
+    existingSlot: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -723,7 +739,7 @@ export class ConsentContract
   > {
     return this.writeToContract(
       "moveExistingListingUpstream",
-      [tag, stakingToken, stakeOwner, newStakeAmount, existingStakeAmount],
+      [tag, stakingToken, stakeAmount, newSlot, existingSlot],
       overrides,
     );
   }
@@ -746,8 +762,8 @@ export class ConsentContract
   public replaceExpiredListing(
     tag: string,
     stakingToken: EVMContractAddress,
-    stakeOwner: EVMAccountAddress | EVMContractAddress,
     stakeAmount: BigNumberString,
+    stakeSlot: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -755,7 +771,7 @@ export class ConsentContract
   > {
     return this.writeToContract(
       "replaceExpiredListing",
-      [tag, stakingToken, stakeOwner, stakeAmount],
+      [tag, stakingToken, stakeAmount, stakeSlot],
       overrides,
     );
   }
@@ -773,6 +789,53 @@ export class ConsentContract
       [tag, stakingToken],
       overrides,
     );
+  }
+  public depositStake(
+    depositToken: EVMContractAddress,
+    amount: BigNumberString,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract(
+      "depositStake",
+      [depositToken, amount],
+      overrides,
+    );
+  }
+
+  public removeStake(
+    depositToken: EVMContractAddress,
+    amount: BigNumberString,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract(
+      "removeStake",
+      [depositToken, amount],
+      overrides,
+    );
+  }
+
+  public pause(
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract("pause", [], overrides);
+  }
+
+  public unpause(
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract("unpause", [], overrides);
   }
 
   public filters = {

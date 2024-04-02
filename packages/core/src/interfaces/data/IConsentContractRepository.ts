@@ -44,6 +44,7 @@ export interface IConsentContractRepository {
 
   getQuestionnaires(
     consentContractAddress: EVMContractAddress,
+    stakingToken: EVMContractAddress,
   ): ResultAsync<
     IpfsCID[],
     | BlockchainProviderError

@@ -72,6 +72,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
 
   public getQuestionnaires(
     consentContractAddress: EVMContractAddress,
+    stakingToken: EVMContractAddress,
   ): ResultAsync<
     IpfsCID[],
     UninitializedError | ConsentContractError | BlockchainCommonErrors
@@ -84,7 +85,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
      */
     return this.getConsentContract(consentContractAddress)
       .andThen((contract) => {
-        return contract.getTagArray();
+        return contract.getTagArray(stakingToken);
       })
       .map((tags) => {
         return tags.reduce<IpfsCID[]>((acc, tag) => {
