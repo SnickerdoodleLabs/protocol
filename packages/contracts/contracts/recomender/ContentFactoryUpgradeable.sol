@@ -325,7 +325,7 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
         );
 
         // The new listing must fit between _upstream and its current downstresam
-        // if the next variable is 0, it means the slot is uninitialized and thus it is invalid _upstream entry
+        // if the .previous variable is 0, it means the slot is uninitialized and thus it is invalid _upstream entry
         Listing memory existingListing = $.listings[LLKey][stakingToken][
             _existingSlot
         ];
@@ -359,6 +359,112 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
         // pull the stake from the content object
         IERC20(stakingToken).safeTransferFrom(msg.sender, address(this), stake);
 
+        emit RankingUpdate(address(0), msg.sender, stakingToken, tag, _newSlot);
+    }
+
+    /// @notice Moves an existing listing further up the doubly-linked Listings mapping
+    /// @dev _newSlot (upstream) <-> _existingSlot (downstream); _newSlot > _existingSlot
+    /// @param tag Human readable string denoting the target tag to stake
+    /// @param stakingToken Address of the token used for staking recommender listings
+    /// @param _newSlot New linked list entry that will point to the Listing at _existingSlot
+    /// @param _downstreamSlot Listing slot that will be pointed to by the new Listing at _newSlot
+    function moveUpstream(
+        string calldata tag,
+        address stakingToken,
+        uint256 _newSlot,
+        uint256 _downstreamSlot
+    ) external onlyContentObject(stakingToken) {
+        ContentFactoryStorage storage $ = _getContentFactoryStorage();
+        bytes32 LLKey = keccak256(abi.encodePacked(tag));
+        require(
+            $.stakingTokens[stakingToken],
+            "Content Factory: Staking token not registered"
+        );
+
+        uint256 currentSlot = $.listingOccupants[LLKey][stakingToken][
+            msg.sender
+        ];
+        require(
+            currentSlot < _newSlot,
+            "Content Factory: _newSlot must be greater than current slot"
+        );
+        require(currentSlot != 0, "Content Factory: no existing listing");
+
+        Listing memory oldListing = $.listings[LLKey][stakingToken][
+            currentSlot
+        ];
+
+        // calculate the price of the slot
+        uint256 stake = _computeFee(_newSlot);
+
+        if (oldListing.previous > _newSlot) {
+            // if we're just moving higher in the same bracket, we only update that listing neighborhood
+            $
+            .listings[LLKey][stakingToken][oldListing.previous].next = _newSlot;
+            $.listings[LLKey][stakingToken][_newSlot] = Listing(
+                oldListing.previous,
+                oldListing.next,
+                msg.sender,
+                stake,
+                block.timestamp + $.listingDuration
+            );
+            $
+            .listings[LLKey][stakingToken][oldListing.next].previous = _newSlot;
+        } else {
+            // if the new slot is higher than the existing upstream listing, we have to update two neighborhoods
+            $
+            .listings[LLKey][stakingToken][oldListing.previous]
+                .next = oldListing.next;
+            $
+            .listings[LLKey][stakingToken][oldListing.next]
+                .previous = oldListing.previous;
+
+            // The new listing must fit between _upstream and its current downstresam
+            // we store only the downstreamListing.preview variable to avoid hitting the Solidity stack limit
+            uint256 downstreamListingPrevious = $.listings[LLKey][stakingToken][
+                _downstreamSlot
+            ].previous;
+            require(
+                downstreamListingPrevious > _newSlot,
+                "Content Factory: _newSlot is greater than existingListing.previous"
+            );
+
+            // insert the new listing
+            $
+            .listings[LLKey][stakingToken][downstreamListingPrevious]
+                .next = _newSlot;
+            $.listings[LLKey][stakingToken][_newSlot] = Listing(
+                downstreamListingPrevious,
+                _downstreamSlot,
+                msg.sender,
+                stake,
+                block.timestamp + $.listingDuration
+            );
+            $
+            .listings[LLKey][stakingToken][_downstreamSlot].previous = _newSlot;
+        }
+
+        // clear the old slot
+        delete $.listings[LLKey][stakingToken][currentSlot]; 
+
+        // set the tag occupancy so the object cannot stake more than once in the same tag namespace
+        $.listingOccupants[LLKey][stakingToken][msg.sender] = _newSlot;
+
+        // pull the stake from the content object
+        IERC20(stakingToken).safeTransferFrom(
+            msg.sender,
+            address(this),
+            (stake - oldListing.stake) // transfer the delta needed for the new slot
+        );
+
+        // emit event deleting the old listing and emit an event inserting the new listing
+        emit RankingUpdate(
+            msg.sender,
+            address(0),
+            stakingToken,
+            tag,
+            currentSlot
+        );
         emit RankingUpdate(address(0), msg.sender, stakingToken, tag, _newSlot);
     }
 
@@ -454,7 +560,7 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
         // but it can restake its expired listing
         require(
             ($.listingOccupants[LLKey][stakingToken][msg.sender] == 0) ||
-            (oldListing.contentObject == msg.sender),
+                (oldListing.contentObject == msg.sender),
             "Content Factory: Content Object has already staked this tag"
         );
 

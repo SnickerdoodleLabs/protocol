@@ -188,14 +188,10 @@ abstract contract ContentObjectUpgradeable is
         $.tags[stakingToken][$.tagIndices[stakingToken][tag] - 1] = updatedTag; // update the listing
 
         // interaction
-        // remove from current slot, reverts if the listing was replaced after expiration
-        $.contentFactoryInstance.removeListing(tag, stakingToken, removalSlot);
-
         // approve the content factory to pull the new required stake
         IERC20(stakingToken).approve(address($.contentFactoryInstance), stake);
 
-        // add to the new slot, reverts if _existingSlot is not initialized already
-        $.contentFactoryInstance.insertUpstream(tag, stakingToken, _newSlot, _existingSlot);
+        $.contentFactoryInstance.moveUpstream(tag, stakingToken, _newSlot, _existingSlot);
     }
 
     /// @notice Restakes a listing from this registry that has expired (works for head and tail listings)
