@@ -5,6 +5,7 @@ import {
   ConsentFactoryContractError,
   DomainName,
   EVMContractAddress,
+  EWalletDataType,
   InvalidParametersError,
   IpfsCID,
   NewQuestionnaireAnswer,
@@ -36,6 +37,13 @@ export interface IQuestionnaireService {
     | ConsentFactoryContractError
   >;
 
+  getVirtualQuestionnaires(
+    consentContractAddress: EVMContractAddress,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    EWalletDataType[],
+    ConsentContractError | UninitializedError | BlockchainCommonErrors
+  >;
   /**
    * Returns a list of questionnaires that the user can complete, which are requested by a particular
    * consent contract. They are returned in ranked order and should be presented to the user in that order.
@@ -49,7 +57,7 @@ export interface IQuestionnaireService {
     stakingToken: EVMContractAddress,
     sourceDomain: DomainName | undefined,
   ): ResultAsync<
-    PagedResponse<Questionnaire>,
+    PagedResponse<Questionnaire | QuestionnaireWithAnswers>,
     | UninitializedError
     | BlockchainCommonErrors
     | AjaxError
@@ -129,6 +137,13 @@ export interface IQuestionnaireService {
     questionnaire: IpfsCID,
     sourceDomain?: DomainName,
   ): ResultAsync<EVMContractAddress[], PersistenceError | AjaxError>;
+
+  getByCIDs(
+    questionnaireCIDs: IpfsCID[],
+  ): ResultAsync<
+    (Questionnaire | QuestionnaireWithAnswers)[],
+    AjaxError | PersistenceError
+  >;
 }
 
 export const IQuestionnaireServiceType = Symbol.for("IQuestionnaireService");

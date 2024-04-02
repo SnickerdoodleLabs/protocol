@@ -47,14 +47,21 @@ export const SPAModal: FC<ISPAModalProps> = ({
     };
   }, []);
 
+  useEffect(() => {
+    if (appState === EAPP_STATE.IDLE) {
+      hide();
+    }
+    if (appState === EAPP_STATE.VISIBLE) {
+      show();
+    }
+  }, [appState]);
+
   const onDisplayRequest = useCallback(() => {
     setAppState(EAPP_STATE.VISIBLE);
-    show();
   }, []);
 
   const onClose = useCallback(() => {
     setAppState(EAPP_STATE.IDLE);
-    hide();
   }, []);
 
   const component = useMemo(() => {

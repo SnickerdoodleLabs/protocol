@@ -9013,7 +9013,6 @@ __metadata:
     inversify: ^6.0.2
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
-    o1js: ^0.17.0
     snarkjs: ^0.7.3
     uuid: ^8.3.0
   languageName: unknown
@@ -9032,7 +9031,6 @@ __metadata:
     inversify: ^6.0.2
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
-    o1js: ^0.17.0
     poseidon-lite: ^0.2.0
     snarkjs: ^0.7.3
     uuid: ^8.3.0
@@ -9661,6 +9659,7 @@ __metadata:
     reflect-metadata: ^0.1.13
     rxjs: ^7.5.5
     sass: ^1.55.0
+    subworkers: ^1.0.1
     tldts: ^5.7.89
     uuid: ^8.3.2
     webextension-polyfill: ^0.9.0
@@ -16148,7 +16147,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"blakejs@npm:1.2.1, blakejs@npm:^1.1.0":
+"blakejs@npm:^1.1.0":
   version: 1.2.1
   resolution: "blakejs@npm:1.2.1"
   checksum: d699ba116cfa21d0b01d12014a03e484dd76d483133e6dc9eb415aa70a119f08beb3bcefb8c71840106a00b542cba77383f8be60cd1f0d4589cb8afb922eefbe
@@ -16936,13 +16935,6 @@ __metadata:
     normalize-url: ^6.0.1
     responselike: ^2.0.0
   checksum: 0de9df773fd4e7dd9bd118959878f8f2163867e2e1ab3575ffbecbe6e75e80513dd0c68ba30005e5e5a7b377cc6162bbc00ab1db019bb4e9cb3c2f3f7a6f1ee4
-  languageName: node
-  linkType: hard
-
-"cachedir@npm:^2.4.0":
-  version: 2.4.0
-  resolution: "cachedir@npm:2.4.0"
-  checksum: 43198514eaa61f65b5535ed29ad651f22836fba3868ed58a6a87731f05462f317d39098fa3ac778801c25455483c9b7f32a2fcad1f690a978947431f12a0f4d0
   languageName: node
   linkType: hard
 
@@ -34589,22 +34581,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"o1js@npm:^0.17.0":
-  version: 0.17.0
-  resolution: "o1js@npm:0.17.0"
-  dependencies:
-    blakejs: 1.2.1
-    cachedir: ^2.4.0
-    isomorphic-fetch: ^3.0.0
-    js-sha256: ^0.9.0
-    reflect-metadata: ^0.1.13
-    tslib: ^2.3.0
-  bin:
-    snarky-run: src/build/run.js
-  checksum: 12b6e2a47d7f28b518947454b5a21c0b4f04616b678f924a7b2895910b522050db80dc249a868a5b7ef3db598f24685a781b423c233edb861c9c96615626db28
-  languageName: node
-  linkType: hard
-
 "o3@npm:^1.0.3":
   version: 1.0.3
   resolution: "o3@npm:1.0.3"
@@ -42910,6 +42886,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"subworkers@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "subworkers@npm:1.0.1"
+  checksum: ac3da8ea165594dea4aa85954b38887378da5ae2d282dc0b793482ff52d79be23e8cb20f81883647c1d58fdf58f7af27b2520cd860addf6151019a82d59f14d6
+  languageName: node
+  linkType: hard
+
 "sucrase@npm:^3.32.0":
   version: 3.34.0
   resolution: "sucrase@npm:3.34.0"
@@ -44210,7 +44193,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.3.1, tslib@npm:^2.5.0":
+"tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.3.1, tslib@npm:^2.5.0":
   version: 2.6.2
   resolution: "tslib@npm:2.6.2"
   checksum: 329ea56123005922f39642318e3d1f0f8265d1e7fcb92c633e0809521da75eeaca28d2cf96d7248229deb40e5c19adf408259f4b9640afd20d13aecc1430f3ad

@@ -15,6 +15,7 @@ import {
   ConsentContractError,
   UninitializedError,
   ConsentFactoryContractError,
+  EWalletDataType,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync } from "neverthrow";
@@ -55,9 +56,10 @@ export class QuestionnaireService implements IQuestionnaireService {
     return this.consentContractRepository
       .getDefaultQuestionnaires()
       .andThen((defaultCids) => {
-        return this.questionnaireRepo.add(defaultCids).andThen(() => {
-          return this.questionnaireRepo.getByCIDs(
-            defaultCids,
+        const uniqueCidsArray = this.uniqueCids(defaultCids);
+        return this.questionnaireRepo.add(uniqueCidsArray).andThen(() => {
+          return this.questionnaireRepo.getPagedQuestionnairesByCIDs(
+            uniqueCidsArray,
             pagingRequest,
             EQuestionnaireStatus.Available,
           );
@@ -72,7 +74,7 @@ export class QuestionnaireService implements IQuestionnaireService {
     stakingToken: EVMContractAddress,
     _sourceDomain: DomainName | undefined,
   ): ResultAsync<
-    PagedResponse<Questionnaire>,
+    PagedResponse<Questionnaire | QuestionnaireWithAnswers>,
     | UninitializedError
     | BlockchainCommonErrors
     | AjaxError
@@ -82,11 +84,11 @@ export class QuestionnaireService implements IQuestionnaireService {
     return this.consentContractRepository
       .getQuestionnaires(consentContractAddress, stakingToken)
       .andThen((cids) => {
-        return this.questionnaireRepo.add(cids).andThen(() => {
-          return this.questionnaireRepo.getByCIDs(
-            cids,
+        const uniqueCidsArray = this.uniqueCids(cids);
+        return this.questionnaireRepo.add(uniqueCidsArray).andThen(() => {
+          return this.questionnaireRepo.getPagedQuestionnairesByCIDs(
+            uniqueCidsArray,
             pagingRequest,
-            EQuestionnaireStatus.Available,
           );
         });
       })
@@ -114,23 +116,18 @@ export class QuestionnaireService implements IQuestionnaireService {
     | PersistenceError
     | ConsentFactoryContractError
   > {
-    return this.consentContractRepository
-      .getDefaultQuestionnaires()
-      .andThen((defaultCids) => {
-        const uniqueCidsMap = new Map<IpfsCID, boolean>();
-        for (const cid of defaultCids) {
-          if (!uniqueCidsMap.has(cid)) {
-            uniqueCidsMap.set(cid, true);
-          }
-        }
-        const uniqueCidsArray = Array.from(uniqueCidsMap.keys());
-        return this.questionnaireRepo.add(uniqueCidsArray).andThen(() => {
-          return this.questionnaireRepo.getByCIDs(
-            uniqueCidsArray,
-            pagingRequest,
-          );
-        });
-      });
+    return ResultUtils.combine([
+      this.consentContractRepository.getDefaultQuestionnaires(),
+      this.questionnaireRepo.getQuestionnaireIds(),
+    ]).andThen(([defaultCids, storedCids]) => {
+      const concatenatedCids = defaultCids.concat(storedCids);
+      const uniqueCidsArray: IpfsCID[] = this.uniqueCids(concatenatedCids);
+
+      return this.questionnaireRepo.getPagedQuestionnairesByCIDs(
+        uniqueCidsArray,
+        pagingRequest,
+      );
+    });
   }
 
   public getConsentContractsByQuestionnaireCID(
@@ -156,10 +153,11 @@ export class QuestionnaireService implements IQuestionnaireService {
                 optInInfo.stakingToken,
               )
               .map((questionnaireCIDs) => {
+                const uniqueCidsArray = this.uniqueCids(questionnaireCIDs);
                 return {
                   consentContractAddress: optInInfo.consentContractAddress,
                   hasSpecifiedCid: Array.from(
-                    questionnaireCIDs.values(),
+                    uniqueCidsArray.values(),
                   ).includes(ipfsCID),
                 };
               });
@@ -196,6 +194,15 @@ export class QuestionnaireService implements IQuestionnaireService {
     // TODO;
   }
 
+  public getByCIDs(
+    questionnaireCIDs: IpfsCID[],
+  ): ResultAsync<
+    (Questionnaire | QuestionnaireWithAnswers)[],
+    PersistenceError | AjaxError
+  > {
+    return this.questionnaireRepo.getByCIDs(questionnaireCIDs);
+  }
+
   public getRecommendedConsentContracts(
     questionnaire: IpfsCID,
     sourceDomain?: DomainName | undefined,
@@ -204,5 +211,22 @@ export class QuestionnaireService implements IQuestionnaireService {
     // Basic idea, we need to go to the Consent Contract Factory and get the list of
     // consent contracts that have staked against the questionnaire.
     throw new Error("Method not implemented.");
+  }
+
+  public getVirtualQuestionnaires(
+    consentContractAddress: EVMContractAddress,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    EWalletDataType[],
+    ConsentContractError | UninitializedError | BlockchainCommonErrors
+  > {
+    return this.consentContractRepository.getVirtualQuestionnaires(
+      consentContractAddress,
+    );
+  }
+
+  private uniqueCids(cids: IpfsCID[]): IpfsCID[] {
+    const uniqueCidsSet = new Set<IpfsCID>(cids);
+    return Array.from(uniqueCidsSet);
   }
 }

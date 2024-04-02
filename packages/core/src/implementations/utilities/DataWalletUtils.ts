@@ -1,5 +1,4 @@
 import { CircomUtils } from "@snickerdoodlelabs/circuits";
-import { CircuitUtils } from "@snickerdoodlelabs/circuits-sdk";
 import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   EVMPrivateKey,
@@ -17,6 +16,7 @@ import {
   PasswordString,
   SuiAccountAddress,
   OptInInfo,
+  BigNumberString,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -207,16 +207,24 @@ export class DataWalletUtils implements IDataWalletUtils {
     dataWalletKey: EVMPrivateKey,
   ): ResultAsync<OptInInfo, never> {
     // The opt in values are just from understood strings
-    const nullifier = CircuitUtils.getHashFromString(
+    const nullifier = CircomUtils.stringToPoseidonHash(
       `${consentContractAddress}:${dataWalletKey}:Nullifier`,
     );
-    const trapdoor = CircuitUtils.getHashFromString(
+    const trapdoor = CircomUtils.stringToPoseidonHash(
       `${consentContractAddress}:${dataWalletKey}:Trapdoor`,
     );
 
-    const commitment = CircomUtils.getCommitment(trapdoor, nullifier);
+    const nullifierBNS = BigNumberString(nullifier.toString());
+    const trapdoorBNS = BigNumberString(trapdoor.toString());
+
+    const commitment = CircomUtils.getCommitment(nullifierBNS, trapdoorBNS);
     return okAsync(
-      new OptInInfo(consentContractAddress, nullifier, trapdoor, commitment),
+      new OptInInfo(
+        consentContractAddress,
+        nullifierBNS,
+        trapdoorBNS,
+        commitment,
+      ),
     );
   }
 

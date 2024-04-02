@@ -216,6 +216,7 @@ export const colors = {
   GREY500: "#9E9E9E", // LIGHT
   GREY400: "#BDBDBD",
   GREY300: "#E0E0E0", // BORDER
+  GREY100: "#F5F5F5",
   GREY50: "#fafafa", // BG
 };
 //#endregion
@@ -256,7 +257,7 @@ const lightPalette: IPalette = {
   button: colors.MAINPURPLE500,
   buttonContrast: colors.WHITE,
   textBody: colors.GREY800,
-  textHeading: colors.GREY900,
+  textHeading: colors.DARKPURPLE500,
   textSubtitle: colors.GREY700,
   textLight: colors.GREY500,
   linkText: colors.BLUE500,
@@ -273,7 +274,7 @@ const darkPalette: IPalette = {
   button: colors.MAINPURPLE500,
   buttonContrast: colors.WHITE,
   textBody: colors.GREY800,
-  textHeading: colors.GREY900,
+  textHeading: colors.DARKPURPLE500,
   textLight: colors.GREY500,
   textSubtitle: colors.GREY700,
   linkText: colors.BLUE500,
@@ -591,7 +592,7 @@ export const createDefaultTheme = (
           maxHeight: 36,
           height: 36,
           padding: "10px 24px",
-          ...fontWeights[EFontWeight.REGULAR],
+          ...fontWeights[EFontWeight.MEDIUM],
         },
         iconSizeSmall: {
           fontSize: 8,

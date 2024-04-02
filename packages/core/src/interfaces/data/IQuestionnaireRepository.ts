@@ -84,7 +84,7 @@ export interface IQuestionnaireRepository {
    * If the questionnaire has no answers at the given benchmark, will return null.
    * @returns A paged response containing questionnaires or questionnaires with answers, preserving the order of questionnaireCIDs.
    */
-  getByCIDs(
+  getPagedQuestionnairesByCIDs(
     questionnaireCIDs: IpfsCID[],
     pagingRequest: PagingRequest,
     status?: EQuestionnaireStatus,
@@ -117,6 +117,13 @@ export interface IQuestionnaireRepository {
     id: IpfsCID,
     answers: NewQuestionnaireAnswer[],
   ): ResultAsync<void, InvalidParametersError | PersistenceError | AjaxError>;
+
+  getByCIDs(
+    questionnaireCIDs: IpfsCID[],
+  ): ResultAsync<
+    (Questionnaire | QuestionnaireWithAnswers)[],
+    AjaxError | PersistenceError
+  >;
 }
 
 export const IQuestionnaireRepositoryType = Symbol.for(

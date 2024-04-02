@@ -1,4 +1,4 @@
-import {
+/* import {
   ZkProgram,
   Crypto,
   createEcdsa,
@@ -58,3 +58,4 @@ const keccakAndEcdsa = ZkProgram({
     },
   },
 });
+ */

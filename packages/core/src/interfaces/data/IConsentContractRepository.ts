@@ -23,6 +23,7 @@ import {
   BigNumberString,
   InvalidParametersError,
   DomainName,
+  EWalletDataType,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -47,6 +48,16 @@ export interface IConsentContractRepository {
     stakingToken: EVMContractAddress,
   ): ResultAsync<
     IpfsCID[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+  >;
+
+  getVirtualQuestionnaires(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    EWalletDataType[],
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError

@@ -1,4 +1,4 @@
-import { Commitment, Identity } from "@snickerdoodlelabs/circuits";
+/* import { Commitment, Identity } from "@snickerdoodlelabs/circuits";
 import {
   BigNumberString,
   CircuitError,
@@ -99,3 +99,4 @@ export class CommitmentCircuitWrapper
     CommitmentCircuitWrapper.keypair = result;
   }
 }
+ */

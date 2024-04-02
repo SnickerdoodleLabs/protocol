@@ -27,10 +27,7 @@ export class AST_BalanceQuery extends AST_Web3Query {
     super(name, returnType, type);
   }
 
-  getPermission(
-    permissions: DataPermissions,
-    dataType: EWalletDataType | IpfsCID,
-  ): boolean {
-    return permissions.checkPermission(dataType);
+  getPermission(): Result<EWalletDataType, MissingWalletDataTypeError> {
+    return ok(EWalletDataType.AccountBalances);
   }
 }

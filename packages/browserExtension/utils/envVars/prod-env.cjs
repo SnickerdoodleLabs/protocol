@@ -60,6 +60,8 @@ const envVars = {
   __DNS_SERVER_ADDRESS__: "",
   __GOOGLE_CLOUD_BUCKET__: "prod-qkppf-sdl-dw",
   __DEV_CHAIN_PROVIDER_URL__: "",
+
+  __DEFAULT_CONSENT_CONTRACT__: "",
 };
 
 for (const key in envVars) {
