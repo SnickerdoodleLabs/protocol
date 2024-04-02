@@ -217,7 +217,7 @@ export class DataWalletUtils implements IDataWalletUtils {
     const nullifierBNS = BigNumberString(nullifier.toString());
     const trapdoorBNS = BigNumberString(trapdoor.toString());
 
-    const commitment = CircomUtils.getCommitment(nullifierBNS, trapdoorBNS);
+    const commitment = CircomUtils.getCommitment(trapdoorBNS, nullifierBNS);
     return okAsync(
       new OptInInfo(
         consentContractAddress,
