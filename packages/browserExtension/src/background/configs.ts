@@ -24,6 +24,7 @@ declare const __ETHERSCAN_OPTIMISM_API_KEY__: string;
 declare const __ETHERSCAN_ARBITRUM_API_KEY__: string;
 declare const __ETHERSCAN_GNOSIS_API_KEY__: string;
 declare const __ETHERSCAN_FUJI_API_KEY__: string;
+declare const __EXPAND_API_KEY__: string;
 
 declare const __ALCHEMY_ARBITRUM_API_KEY__: string;
 declare const __ALCHEMY_ASTAR_API_KEY__: string;
@@ -285,6 +286,10 @@ export const config: IExtensionSdkConfigOverrides = {
         ? __SPACEANDTIME_API_PRIVATEKEY__
         : "",
   },
+  expandApiKey:
+    typeof __EXPAND_API_KEY__ !== "undefined" && !!__EXPAND_API_KEY__
+      ? __EXPAND_API_KEY__
+      : undefined,
   covalentApiKey:
     typeof __COVALENT_API_KEY__ !== "undefined" && !!__COVALENT_API_KEY__
       ? __COVALENT_API_KEY__

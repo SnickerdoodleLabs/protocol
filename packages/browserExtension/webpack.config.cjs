@@ -206,6 +206,7 @@ var options = {
       __ETHERSCAN_FUJI_API_KEY__: JSON.stringify(
         process.env.__ETHERSCAN_FUJI_API_KEY__,
       ),
+      __EXPAND_API_KEY__: JSON.stringify(process.env.__EXPAND_API_KEY__),
 
       __COVALENT_API_KEY__: JSON.stringify(process.env.__COVALENT_API_KEY__),
       __MORALIS_API_KEY__: JSON.stringify(process.env.__MORALIS_API_KEY__),

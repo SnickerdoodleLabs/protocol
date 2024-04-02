@@ -175,6 +175,7 @@ export const testCoreConfig = new CoreConfig(
       userId: null,
       privateKey: null,
     },
+    expandApiKey: "expand api key",
     covalentApiKey: "covalent api key",
     moralisApiKey: "moralis api key",
     nftScanApiKey: "nftScan api key",
