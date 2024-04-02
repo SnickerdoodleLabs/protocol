@@ -155,6 +155,7 @@ export class MasterIndexer implements IMasterIndexer {
       // if the method is provided, we need to limit the list of supported chains to those that support the method
       if (method != null) {
         const indexers = [
+          this.expand,
           this.bluez,
           this.blockvision,
           this.alchemy,
@@ -169,7 +170,6 @@ export class MasterIndexer implements IMasterIndexer {
           this.rarible,
           this.sim,
           this.sol,
-          this.expand,
           // this.sxt,
         ];
 

@@ -67,8 +67,8 @@ export class ExpandIndexer implements IEVMIndexer {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
           if (
-            config.apiKeys.oklinkApiKey == null ||
-            config.apiKeys.oklinkApiKey == ""
+            config.apiKeys.expandApiKey == null ||
+            config.apiKeys.expandApiKey == ""
           ) {
             this.health.set(key, EComponentStatus.NoKeyProvided);
           } else {
@@ -88,50 +88,41 @@ export class ExpandIndexer implements IEVMIndexer {
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
-      this._getOKXConfig(chain),
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),
-    ]).andThen(([okxSettings, config, context]) => {
-      if (config.apiKeys.oklinkApiKey == null) {
+    ]).andThen(([config, context]) => {
+      if (config.apiKeys.expandApiKey == null) {
         return okAsync([]);
       }
 
       const chainInfo = this.getChainShortName(chain);
       const url = urlJoinP(
-        "https://www.oklink.com/api/v5/explorer/address/",
+        "https://api.expand.network/chain/getbalance",
         ["address-balance-fills"],
         {
-          chainShortName: chainInfo.toString(),
           address: accountAddress,
-          protocolType: "token_20",
         },
       );
+      console.log("url: ", url);
 
-      context.privateEvents.onApiAccessed.next(EExternalApi.Oklink);
+      context.privateEvents.onApiAccessed.next(EExternalApi.Expand);
       return this.ajaxUtils
-        .get<IOKXNativeBalanceResponse>(new URL(url), {
+        .get<IExpandNativeBalanceResponse>(new URL(url), {
           headers: {
-            "Ok-Access-Key": config.apiKeys.oklinkApiKey,
+            "X-API-Key": config.apiKeys.expandApiKey,
           },
         })
         .andThen((response) => {
-          if (response.code != "0") {
-            return errAsync(
-              new AccountIndexingError("Bad url response from Oklink"),
-            );
-          }
-          const balances = response.data[0].tokenList.map((token) => {
-            return new TokenBalance(
-              EChainTechnology.EVM,
-              token.token,
-              chain,
-              token.tokenContractAddress,
-              accountAddress,
-              BigNumberString(BigInt(token.holdingAmount).toString()),
-              18,
-            );
-          });
-          return okAsync(balances);
+          const balance = new TokenBalance(
+            EChainTechnology.EVM,
+            TickerSymbol("ETH"),
+            chain,
+            EVMContractAddress("0xe"),
+            accountAddress,
+            BigNumberString(BigInt(response.data.balance).toString()),
+            18,
+          );
+          return okAsync([balance]);
         });
     });
   }
@@ -145,7 +136,7 @@ export class ExpandIndexer implements IEVMIndexer {
   > {
     return errAsync(
       new MethodSupportError(
-        "getTokensForAccount not supported for Oklink Indexer",
+        "getTokensForAccount not supported for Expand Indexer",
         400,
       ),
     );
@@ -162,7 +153,7 @@ export class ExpandIndexer implements IEVMIndexer {
   > {
     return errAsync(
       new MethodSupportError(
-        "getTokensForAccount not supported for Oklink Indexer",
+        "getTokensForAccount not supported for Expand Indexer",
         400,
       ),
     );
@@ -176,7 +167,7 @@ export class ExpandIndexer implements IEVMIndexer {
     return this.indexerSupport;
   }
 
-  private _getOKXConfig(
+  private _getExpandConfig(
     chain: EChain,
   ): ResultAsync<alchemyAjaxSettings, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
@@ -202,10 +193,12 @@ export class ExpandIndexer implements IEVMIndexer {
   }
 }
 
-interface IOKXNativeBalanceResponse {
-  code: string;
+interface IExpandNativeBalanceResponse {
+  status: string;
   msg: string;
-  data: typedData[];
+  data: {
+    balance: string;
+  };
 }
 
 interface typedData {
