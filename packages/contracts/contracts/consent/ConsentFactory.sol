@@ -23,9 +23,6 @@ contract ConsentFactory is
     /// @dev Address of the upgradeable beacon
     address public beaconAddress; 
 
-    /// @dev Default questionnaires, added by the DAO. Stores the IPFS CID
-    string[] public questionnaires;
-
     /// @notice Initializes the contract
     /// @dev Uses the initializer modifier to to ensure the contract is only initialized once
     /// @dev The deploying address recieves the DEFAULT_ADMIN_ROL on deployment
@@ -107,31 +104,6 @@ contract ConsentFactory is
     function unblockContentObject(address stakingToken, address contentAddress) external {
         require(hasRole(keccak256(abi.encodePacked(stakingToken)), msg.sender), "Content Factory: Caller not a token admin");
         _unblockContentObject(stakingToken, contentAddress);
-    }
-
-    /// @notice Gets the array of questionnaires
-    /// @return questionnaireArr Array of registered questionnaires
-    function getQuestionnaires() external view returns (string[] memory questionnaireArr) {
-        return questionnaires;
-    }
-
-    function addQuestionnaire(
-        string memory ipfsCid
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(questionnaires.length < 128, "Consent Factory: Maximum number of questionnaires reached");
-       
-        questionnaires.push(ipfsCid);
-    }
-
-    /// @notice Removes a questionnaire from the questionnaires array
-    /// @param index Index of questionnaire to remove
-    function removeQuestionnaire(
-        uint8 index
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(index >= 0 && index <= questionnaires.length, "Consent: Questionnaire index out of bounds");
-
-        questionnaires[index] = questionnaires[questionnaires.length - 1];
-        questionnaires.pop();
     }
 
     /// @notice Add a domain to the domains array
