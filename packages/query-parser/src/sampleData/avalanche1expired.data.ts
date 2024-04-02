@@ -2,9 +2,9 @@ import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import { MillisecondTimestamp } from "@snickerdoodlelabs/objects";
 
 const timeUtils = new TimeUtils();
-
 export const avalanche1ExpiredSchemaStr = JSON.stringify({
   version: 0.1,
+  insightPlatform: "http://insightplatform:8080",
   timestamp: timeUtils.getISO8601TimeString(),
   expiry: timeUtils.getISO8601TimeString(
     MillisecondTimestamp(Date.now() - 1000 * 60 * 60 * 24),
@@ -29,7 +29,6 @@ export const avalanche1ExpiredSchemaStr = JSON.stringify({
         },
       },
     },
-
     q2: {
       name: "age",
       return: "boolean",
@@ -42,28 +41,46 @@ export const avalanche1ExpiredSchemaStr = JSON.stringify({
       return: "string",
     },
     q4: {
-      name: "balance",
-      networkid: "1",
-      conditions: {
-        ge: 10,
-      },
+      name: "gender",
+      return: "enum",
+      enum_keys: ["female", "male", "nonbinary", "unknown"],
+    },
+
+    q5: {
+      name: "url_visited_count",
+      return: "object",
+    },
+    q6: {
+      name: "chain_transactions",
       return: "array",
     },
   },
-  returns: {
-    r1: {
+  insights: {
+    i1: {
       name: "callback",
-      message: "qualified",
+      target: "$q1and$q2",
+      returns: "'qualified'",
     },
-    r2: {
+    i2: {
       name: "callback",
-      message: "not qualified",
+      target: "$q2",
+      returns: "'tasty'",
     },
-    r3: {
+    i3: {
       name: "query_response",
-      query: "q3",
+      target: "true",
+      returns: "$q3",
     },
-    url: "https://418e-64-85-231-39.ngrok.io/insights",
+    i4: {
+      name: "query_response",
+      target: "true",
+      returns: "$q4",
+    },
+    i5: {
+      name: "query_response",
+      target: "true",
+      returns: "$q5",
+    },
   },
   compensations: {
     parameters: {
@@ -82,7 +99,10 @@ export const avalanche1ExpiredSchemaStr = JSON.stringify({
       },
     },
     c1: {
+      name: "Sugar to your coffee",
+      image: "QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR",
       description: "10% discount code for Starbucks",
+      requires: "$i1",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress"],
@@ -92,7 +112,10 @@ export const avalanche1ExpiredSchemaStr = JSON.stringify({
       },
     },
     c2: {
+      name: "The CryptoPunk Draw",
+      image: "33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ",
       description: "participate in the draw to win a CryptoPunk NFT",
+      requires: "$i2",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress", "productId"],
@@ -100,9 +123,13 @@ export const avalanche1ExpiredSchemaStr = JSON.stringify({
           trackingId: "982JJDSLAcx",
         },
       },
+      alternatives: ["c3"],
     },
     c3: {
+      name: "CrazyApesClub NFT distro",
+      image: "GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8",
       description: "a free CrazyApesClub NFT",
+      requires: "$i3",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress", "productId"],
@@ -110,10 +137,7 @@ export const avalanche1ExpiredSchemaStr = JSON.stringify({
           trackingId: "982JJDSLAcx",
         },
       },
+      alternatives: ["c2"],
     },
-  },
-  logic: {
-    returns: ["if($q1and$q2)then$r1else$r2", "$r3"],
-    compensations: ["if$q1then$c1", "if$q2then$c2", "if$q3then$c3"],
   },
 });

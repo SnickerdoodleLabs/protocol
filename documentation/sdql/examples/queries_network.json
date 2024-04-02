@@ -1,0 +1,18 @@
+{
+    "q1": {
+        "name": "network",
+        "return": "boolean",
+        "chain": "AVAX",
+        "contract": {
+            "networkid": "43114",
+            "address": "0x9366d30feba284e62900f6295bc28c9906f33172",
+            "function": "Transfer",
+            "direction": "from",
+            "token": "ERC20",
+            "timestampRange": {
+                "start": 13001519,
+                "end": 14910334
+            }
+        }
+    }
+}

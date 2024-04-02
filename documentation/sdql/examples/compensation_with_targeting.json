@@ -1,0 +1,30 @@
+{
+    "insights": {
+        "i1": {
+            "name": "query_response",
+            "target": "$q2 and $q3",
+            "query": "q1"
+        },
+        
+        "i2": {
+            "name": "callback",
+            "target": "$q1and$q2",
+            "returns": "'qualified'"
+        }
+    },
+    "compensations": {
+        "c1": {
+            "name": "CrazyApesClub NFT distro",
+            "image": "QmSkbhgq7rEmo9mty6hYABdxhqznqUnfuCG8bxn69TrXNw",
+            "description": "a free CrazyApesClub NFT",
+            "requires": "$i1 and $i2",
+            "chainId": 1,
+            "callback": {
+            "parameters": ["recipientAddress", "productId"],
+            "data": {
+                "trackingId": "982JJDSLAcx"
+            }
+            }
+        }
+    }
+}
