@@ -1,4 +1,4 @@
-import { Circuit, Field, circuitMain, public_, ZkProgram, Struct } from "o1js";
+/* import { Circuit, Field, circuitMain, public_, ZkProgram, Struct } from "o1js";
 
 import { Identity } from "@circuits/o1jsCircuits/Identity.js";
 
@@ -43,3 +43,4 @@ export const commitmentVerification = ZkProgram({
     },
   },
 });
+ */

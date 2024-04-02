@@ -1,5 +1,6 @@
 import {
   ISDQLCompensationParameters,
+  IpfsCID,
   SDQL_Name,
   UnixTimestamp,
   Version,
@@ -23,5 +24,8 @@ export class AST {
     readonly compensationParameters: ISDQLCompensationParameters | null,
     readonly compensations: Map<SDQL_Name, AST_Compensation>,
     readonly queryTimestamp: UnixTimestamp,
+    readonly points: number,
+    readonly name: string,
+    readonly image?: IpfsCID,
   ) {}
 }

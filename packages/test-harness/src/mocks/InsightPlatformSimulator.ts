@@ -1,8 +1,8 @@
 import * as fs from "fs";
 
 import {
-  CommitmentWrapper,
-  MembershipWrapper,
+  ICommitmentWrapper,
+  IMembershipWrapper,
 } from "@snickerdoodlelabs/circuits-sdk";
 import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
@@ -13,7 +13,6 @@ import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   ConsentContractError,
   ConsentFactoryContractError,
-  ConsentName,
   DomainName,
   EVMAccountAddress,
   EVMContractAddress,
@@ -57,8 +56,8 @@ export class InsightPlatformSimulator {
   public constructor(
     protected blockchain: BlockchainStuff,
     protected ipfs: IPFSClient,
-    protected membershipWrapper: MembershipWrapper,
-    protected commitmentWrapper: CommitmentWrapper,
+    protected membershipWrapper: IMembershipWrapper,
+    protected commitmentWrapper: ICommitmentWrapper,
   ) {
     process.on("exit", () => {
       this.logStream.close();
@@ -94,8 +93,8 @@ export class InsightPlatformSimulator {
     this.app.post("/insights", (req, res) => {
       console.log("Received Insight Response");
 
-      console.log("Insights : ", req.body["insights"]["insights"]);
-      console.log("Ads : ", req.body["insights"]["ads"]);
+      console.log("Insights : ", req.body.insights);
+      //console.log("Ads : ", req.body["insights"]["ads"]);
 
       const consentContractId = EVMContractAddress(req.body.consentContractId);
       const queryCID = IpfsCID(req.body.queryCID);
@@ -148,6 +147,7 @@ export class InsightPlatformSimulator {
           if (!verified) {
             return errAsync(new Error("Invalid proof provided for response!"));
           }
+          console.log("Verified proof of response!");
 
           const earnedRewards: EarnedReward[] = [];
           earnedRewards[0] = new EarnedReward(

@@ -5,7 +5,6 @@ export const QueryTypePermissionMap = new Map<QueryTypes, EWalletDataType>([
   // web2
   ["age", EWalletDataType.Age],
   ["birthday", EWalletDataType.Birthday],
-  ["chain_transactions", EWalletDataType.EVMTransactions],
   ["email", EWalletDataType.Email],
   ["familyName", EWalletDataType.FamilyName],
   ["gender", EWalletDataType.Gender],
@@ -18,4 +17,6 @@ export const QueryTypePermissionMap = new Map<QueryTypes, EWalletDataType>([
   ["balance", EWalletDataType.AccountBalances],
   ["nft", EWalletDataType.AccountNFTs],
   ["network", EWalletDataType.EVMTransactions],
+  ["chain_transactions", EWalletDataType.EVMTransactions],
+  ["web3_account", EWalletDataType.AccountSize],
 ]);

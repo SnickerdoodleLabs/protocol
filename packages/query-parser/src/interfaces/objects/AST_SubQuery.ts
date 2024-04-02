@@ -15,7 +15,5 @@ export abstract class AST_SubQuery {
     readonly returnType: ESDQLQueryReturn,
   ) {}
   abstract getPermission(
-    dataPermissions: DataPermissions,
-    dataType: EWalletDataType|  IpfsCID,
-  ): boolean;
+  ): Result<EWalletDataType | IpfsCID, MissingWalletDataTypeError>;
 }

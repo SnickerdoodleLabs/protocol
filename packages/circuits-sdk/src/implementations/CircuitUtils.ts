@@ -1,4 +1,4 @@
-import { BigNumberString } from "@snickerdoodlelabs/objects";
+/* import { BigNumberString } from "@snickerdoodlelabs/objects";
 import { Encoding, Field, Poseidon } from "o1js";
 
 export class CircuitUtils {
@@ -16,3 +16,4 @@ export class CircuitUtils {
     return new Field(BigInt(bns));
   }
 }
+ */
