@@ -62,6 +62,8 @@ interface IContentFactory {
 
     function insertUpstream(string calldata tag, address stakingToken, uint256 _newSlot, uint256 _existingSlot) external;
 
+    function moveUpstream(string calldata tag, address stakingToken, uint256 _newSlot, uint256 _existingSlot) external;
+
     function insertDownstream(string calldata tag, address stakingToken, uint256 _existingSlot, uint256 _newSlot) external;
 
     function replaceExpiredListing(string calldata tag, address stakingToken, uint256 _slot) external;
