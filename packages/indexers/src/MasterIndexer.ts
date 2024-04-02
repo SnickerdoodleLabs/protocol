@@ -49,6 +49,7 @@ import {
   IBluezIndexerType,
   ICovalentEVMTransactionRepositoryType,
   IEtherscanIndexerType,
+  IExpandIndexerType,
   IMoralisEVMPortfolioRepositoryType,
   IOklinkIndexerType,
   IPoapRepositoryType,
@@ -76,6 +77,7 @@ export class MasterIndexer implements IMasterIndexer {
     this.covalent,
     this.moralis,
     this.sim,
+    this.expand,
 
     // Space and Time compute time is too large
     // this.sxt,
@@ -96,6 +98,8 @@ export class MasterIndexer implements IMasterIndexer {
     @inject(ICovalentEVMTransactionRepositoryType)
     protected covalent: IEVMIndexer,
     @inject(IEtherscanIndexerType) protected etherscan: IEVMIndexer,
+    @inject(IExpandIndexerType) protected expand: IEVMIndexer,
+
     @inject(IMoralisEVMPortfolioRepositoryType) protected moralis: IEVMIndexer,
     @inject(INftScanEVMPortfolioRepositoryType) protected nftscan: IEVMIndexer,
     @inject(IOklinkIndexerType) protected oklink: IEVMIndexer,
@@ -121,6 +125,7 @@ export class MasterIndexer implements IMasterIndexer {
       this.blockvision.initialize(),
       this.covalent.initialize(),
       this.etherscan.initialize(),
+      this.expand.initialize(),
       this.matic.initialize(),
       this.moralis.initialize(),
       this.nftscan.initialize(),
@@ -164,6 +169,7 @@ export class MasterIndexer implements IMasterIndexer {
           this.rarible,
           this.sim,
           this.sol,
+          this.expand,
           // this.sxt,
         ];
 
