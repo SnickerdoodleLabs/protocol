@@ -21,10 +21,14 @@ import {
   InvalidParametersError,
   DomainName,
   EWalletDataType,
+  chainConfig,
+  UnauthorizedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+
+import { BlockchainProvider } from "../utilities";
 
 import { IConsentContractRepository } from "@core/interfaces/data/index.js";
 import {
@@ -32,6 +36,10 @@ import {
   IContractFactoryType,
 } from "@core/interfaces/utilities/factory/index.js";
 import {
+  IBlockchainProvider,
+  IBlockchainProviderType,
+  IConfigProvider,
+  IConfigProviderType,
   IContextProvider,
   IContextProviderType,
   IDataWalletUtils,
@@ -47,6 +55,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
     @inject(IDataWalletUtilsType) protected dataWalletUtils: IDataWalletUtils,
     @inject(IBigNumberUtilsType) protected bigNumberUtils: IBigNumberUtils,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
   ) {}
 
   protected queryHorizonCache = new Map<
@@ -73,10 +82,12 @@ export class ConsentContractRepository implements IConsentContractRepository {
 
   public getQuestionnaires(
     consentContractAddress: EVMContractAddress,
-    stakingToken: EVMContractAddress,
   ): ResultAsync<
     IpfsCID[],
-    UninitializedError | ConsentContractError | BlockchainCommonErrors
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | BlockchainProviderError
   > {
     /**
      * This method now works on a different principle- the consent contract does not maintain a list
@@ -84,9 +95,12 @@ export class ConsentContractRepository implements IConsentContractRepository {
      * we get the list of all the questionnaires that this consent contract has staked, and use the amount
      * of the stake to establish the order.
      */
-    return this.getConsentContract(consentContractAddress)
-      .andThen((contract) => {
-        return contract.getTagArray(stakingToken);
+    return ResultUtils.combine([
+      this.getConsentContract(consentContractAddress),
+      this.getSDLTokenContractAddress(),
+    ])
+      .andThen(([contract, sdlTokenAddress]) => {
+        return contract.getTagArray(sdlTokenAddress);
       })
       .map((tags) => {
         return tags.reduce<IpfsCID[]>((acc, tag) => {
@@ -111,9 +125,12 @@ export class ConsentContractRepository implements IConsentContractRepository {
      * we get the list of all the questionnaires that this consent contract has staked, and use the amount
      * of the stake to establish the order.
      */
-    return this.getConsentContract(consentContractAddress)
-      .andThen((contract) => {
-        return contract.getTagArray();
+    return ResultUtils.combine([
+      this.getConsentContract(consentContractAddress),
+      this.getSDLTokenContractAddress(),
+    ])
+      .andThen(([contract, sdlTokenAddress]) => {
+        return contract.getTagArray(sdlTokenAddress);
       })
       .map((tags) => {
         return tags.reduce<EWalletDataType[]>((acc, tag) => {
@@ -131,8 +148,6 @@ export class ConsentContractRepository implements IConsentContractRepository {
         }, []);
       });
   }
-
-
 
   public getMetadataCID(
     consentContractAddress: EVMContractAddress,
@@ -389,5 +404,25 @@ export class ConsentContractRepository implements IConsentContractRepository {
       .map(([consentContract]) => {
         return consentContract;
       });
+  }
+
+  // Returns the SDL Token address from the control chain config
+  // At the moment for questionnaires, the getTagArray would query for the tags that is staked using our SDL token
+  protected getSDLTokenContractAddress(): ResultAsync<
+    EVMContractAddress,
+    BlockchainProviderError | UninitializedError
+  > {
+    return this.configProvider.getConfig().andThen((config) => {
+      if (config.controlChainInformation.sdlTokenAddress == null) {
+        return errAsync(
+          new UninitializedError(
+            "SDL Token Address is missing on control chain config",
+          ),
+        );
+      }
+      return okAsync(
+        EVMContractAddress(config.controlChainInformation.sdlTokenAddress),
+      );
+    });
   }
 }

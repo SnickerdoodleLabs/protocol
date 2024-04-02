@@ -803,7 +803,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       getQuestionnairesForConsentContract: (
         pagingRequest: PagingRequest,
         consentContractAddress: EVMContractAddress,
-        stakingToken: EVMContractAddress,
         sourceDomain: DomainName | undefined,
       ) => {
         const questionnaireService =
@@ -814,7 +813,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return questionnaireService.getQuestionnairesForConsentContract(
           pagingRequest,
           consentContractAddress,
-          stakingToken,
           sourceDomain,
         );
       },
