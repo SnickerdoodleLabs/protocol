@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import { EConsentRoles } from "@snickerdoodlelabs/contracts-sdk";
 import {
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
@@ -635,7 +636,6 @@ export class InvitationService implements IInvitationService {
     DataPermissions,
     UninitializedError | ConsentError | PersistenceError
   > {
-
     return this.permissionRepo.getContentContractPermissions(
       consentContractAddress,
     );
@@ -791,25 +791,21 @@ export class InvitationService implements IInvitationService {
     | ConsentContractError
     | BlockchainCommonErrors
   > {
-    return this.consentRepo
-      .getSignerRoleMembers(consentContractAddress)
-      .andThen((signersAccountAddresses) => {
-        return ResultUtils.combine(
-          signersAccountAddresses.map((signerAccountAddress) => {
-            const types = ["address", "uint256"];
-            const msgHash = ethers.solidityPackedKeccak256(
-              [...types],
-              [consentContractAddress, BigInt(tokenId)],
-            );
-            return this.cryptoUtils
-              .verifyEVMSignature(ethers.getBytes(msgHash), businessSignature)
-              .map((accountAddress) => {
-                return accountAddress == signerAccountAddress;
-              });
-          }),
-        ).map((validationResults) => {
-          return validationResults.filter(Boolean).length > 0;
-        });
+    const types = ["address", "uint256"];
+    const msgHash = ethers.solidityPackedKeccak256(
+      [...types],
+      [consentContractAddress, BigInt(tokenId)],
+    );
+
+    // Retrieve the business signature's signer and check if it has the SIGNER_ROLE on the consent contract
+    return this.cryptoUtils
+      .verifyEVMSignature(ethers.getBytes(msgHash), businessSignature)
+      .andThen((accountAddress) => {
+        return this.consentRepo.hasRole(
+          consentContractAddress,
+          EConsentRoles.SIGNER_ROLE,
+          accountAddress,
+        );
       });
   }
 
