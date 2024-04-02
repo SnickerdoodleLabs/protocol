@@ -37,6 +37,7 @@ import {
   InvalidParametersError,
   CircuitError,
   URLString,
+  Permission,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -580,7 +581,7 @@ export class InvitationService implements IInvitationService {
 
   public updateDataPermissions(
     consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions,
+    permission: Permission,
   ): ResultAsync<
     void,
     | UninitializedError
@@ -619,26 +620,21 @@ export class InvitationService implements IInvitationService {
       // persistence layer, they are only stored on the chain, so there's nothing more
       // to do for that. We should let the world know we made this change though.
       // Notify the world that we've opted in to the cohort
-      context.publicEvents.onDataPermissionsUpdated.next(
-        new DataPermissionsUpdatedEvent(
-          consentContractAddress,
-          dataPermissions,
-        ),
-      );
-
-      return okAsync(undefined);
+      return this.permissionRepo.setContractPermissions(permission).map(() => {
+        context.publicEvents.onDataPermissionsUpdated.next(
+          new DataPermissionsUpdatedEvent(consentContractAddress, permission),
+        );
+      });
     });
   }
 
   public getDataPermissions(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
-    DataPermissions,
+    Permission,
     UninitializedError | ConsentError | PersistenceError
   > {
-    return this.permissionRepo.getContentContractPermissions(
-      consentContractAddress,
-    );
+    return this.permissionRepo.getContractPermissions(consentContractAddress);
   }
 
   public getAvailableInvitationsCID(): ResultAsync<

@@ -16,6 +16,7 @@ import {
   PagedResponse,
   EarnedReward,
   IUserAgreement,
+  Permission,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -27,7 +28,7 @@ export interface IInvitationRepository {
   ): ResultAsync<PageInvitation[], SnickerDoodleCoreError>;
   updateAgreementPermissions(
     consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions,
+    permission: Permission,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   checkInvitationStatus(
     invitation: Invitation,
@@ -60,7 +61,7 @@ export interface IInvitationRepository {
   >;
   getDataPermissions(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<DataPermissions, SnickerDoodleCoreError>;
+  ): ResultAsync<Permission, SnickerDoodleCoreError>;
   getConsentContractCID(
     consentAddress: EVMContractAddress,
   ): ResultAsync<IpfsCID, SnickerDoodleCoreError>;

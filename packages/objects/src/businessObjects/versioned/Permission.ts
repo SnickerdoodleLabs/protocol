@@ -6,29 +6,32 @@ import { EWalletDataType } from "@objects/enum/index.js";
 import { EVMContractAddress, IpfsCID } from "@objects/primitives/index.js";
 import { PropertiesOf } from "@objects/utilities/index.js";
 
-export class PermissionForStorage extends VersionedObject {
+export class Permission extends VersionedObject {
   public static CURRENT_VERSION = 1;
   public constructor(
-    public consentAddress: EVMContractAddress,
+    public consentContractAddress: EVMContractAddress,
     public virtual: EWalletDataType[],
     public questionnaires: IpfsCID[],
+    public queryBasedPermissions: Record<
+      IpfsCID,
+      { virtual: EWalletDataType[]; questionnaires: IpfsCID[] } | undefined
+    > = {},
   ) {
     super();
   }
 
   public getVersion(): number {
-    return PermissionForStorage.CURRENT_VERSION;
+    return Permission.CURRENT_VERSION;
   }
 }
 
-export class PermissionForStorageMigrator extends VersionedObjectMigrator<PermissionForStorage> {
-  protected factory(
-    data: PropertiesOf<PermissionForStorage>,
-  ): PermissionForStorage {
-    return new PermissionForStorage(
-      data.consentAddress,
+export class PermissionMigrator extends VersionedObjectMigrator<Permission> {
+  protected factory(data: PropertiesOf<Permission>): Permission {
+    return new Permission(
+      data.consentContractAddress,
       data.virtual,
       data.questionnaires,
+      data.queryBasedPermissions,
     );
   }
   protected getUpgradeFunctions(): Map<
@@ -38,6 +41,6 @@ export class PermissionForStorageMigrator extends VersionedObjectMigrator<Permis
     return new Map();
   }
   public getCurrentVersion(): number {
-    return PermissionForStorage.CURRENT_VERSION;
+    return Permission.CURRENT_VERSION;
   }
 }

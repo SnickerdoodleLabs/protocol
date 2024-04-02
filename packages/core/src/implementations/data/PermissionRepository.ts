@@ -5,7 +5,7 @@ import {
   EFieldKey,
   ERecordKey,
   EVMContractAddress,
-  PermissionForStorage,
+  Permission,
   PersistenceError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -24,35 +24,23 @@ export class PermissionRepository implements IPermissionRepository {
     protected persistence: IDataWalletPersistence,
   ) {}
 
-  public getContentContractPermissions(
+  public getContractPermissions(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<DataPermissions, PersistenceError> {
+  ): ResultAsync<Permission, PersistenceError> {
     return this.persistence
-      .getObject<PermissionForStorage>(
-        ERecordKey.PERMISSIONS,
-        consentContractAddress,
-      )
-      .map((permissionStorage) => {
-        if (permissionStorage == null) {
-          return new DataPermissions(consentContractAddress, [], []);
+      .getObject<Permission>(ERecordKey.PERMISSIONS, consentContractAddress)
+      .map((permission) => {
+        if (permission == null) {
+          return new Permission(consentContractAddress, [], []);
         }
-        return new DataPermissions(
-          permissionStorage.consentAddress,
-          permissionStorage.virtual,
-          permissionStorage.questionnaires,
-        );
+        return permission;
       });
   }
 
-  public setContentContractPermissions(
-    dataPermissions: DataPermissions,
+  public setContractPermissions(
+    permission: Permission,
   ): ResultAsync<void, PersistenceError> {
-    const permission = new PermissionForStorage(
-      dataPermissions.consentContractAddress,
-      dataPermissions.virtual,
-      dataPermissions.questionnaires,
-    );
-    return this.persistence.updateRecord<PermissionForStorage>(
+    return this.persistence.updateRecord<Permission>(
       ERecordKey.PERMISSIONS,
       permission,
     );

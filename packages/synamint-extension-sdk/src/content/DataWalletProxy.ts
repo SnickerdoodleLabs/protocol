@@ -66,6 +66,7 @@ import {
   EQueryProcessingStatus,
   IDynamicRewardParameter,
   SDQLQueryRequest,
+  Permission,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { JsonRpcEngine } from "json-rpc-engine";
@@ -670,13 +671,10 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
 
   public updateAgreementPermissions(
     consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions,
+    permission: Permission,
   ): ResultAsync<void, ProxyError> {
     return coreGateway.updateAgreementPermissions(
-      new UpdateAgreementPermissionsParams(
-        consentContractAddress,
-        dataPermissions,
-      ),
+      new UpdateAgreementPermissionsParams(consentContractAddress, permission),
     );
   }
 

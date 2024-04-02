@@ -55,6 +55,7 @@ import {
   PEMEncodedRSAPublicKey,
   PagedResponse,
   PagingRequest,
+  Permission,
   ProxyError,
   QueryStatus,
   RuntimeMetrics,
@@ -375,19 +376,19 @@ export class ProxyBridge implements ISdlDataWallet {
 
   updateAgreementPermissions(
     consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions,
+    permission: Permission,
   ): ResultAsync<void, ProxyError> {
     return this.call(
       this.core.invitation.updateDataPermissions(
         consentContractAddress,
-        dataPermissions,
+        permission,
       ),
     );
   }
 
   getDataPermissions(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<DataPermissions, ProxyError> {
+  ): ResultAsync<Permission, ProxyError> {
     return this.call(
       this.core.invitation.getDataPermissions(consentContractAddress),
     );

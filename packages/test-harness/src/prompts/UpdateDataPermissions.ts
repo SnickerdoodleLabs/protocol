@@ -6,6 +6,7 @@ import {
   DataPermissions,
   EVMContractAddress,
   EWalletDataType,
+  Permission,
   PersistenceError,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
@@ -72,27 +73,19 @@ export class UpdateDataPermissions extends Prompt {
               return okAsync(undefined);
             }
 
-            let permissions: DataPermissions;
+            let permissions: Permission;
             if (whichPermissionsAnswers.updateDataPermissions == "all") {
-              permissions = new DataPermissions(
-                "" as EVMContractAddress,
-                [],
-                [],
-              );
+              permissions = new Permission("" as EVMContractAddress, [], []);
             } else if (
               whichPermissionsAnswers.updateDataPermissions == "some"
             ) {
-              permissions = new DataPermissions(
+              permissions = new Permission(
                 "" as EVMContractAddress,
                 [EWalletDataType.AccountBalances],
                 [],
               );
             } else {
-              permissions = new DataPermissions(
-                "" as EVMContractAddress,
-                [],
-                [],
-              );
+              permissions = new Permission("" as EVMContractAddress, [], []);
             }
 
             return this.core.invitation

@@ -26,6 +26,7 @@ import {
   IUserAgreement,
   InvalidParametersError,
   CircuitError,
+  Permission,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -140,12 +141,12 @@ export interface IInvitationService {
   getDataPermissions(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
-    DataPermissions,
+    Permission,
     UninitializedError | ConsentError | PersistenceError
   >;
   updateDataPermissions(
     consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions,
+    permission: Permission,
   ): ResultAsync<
     void,
     | UninitializedError

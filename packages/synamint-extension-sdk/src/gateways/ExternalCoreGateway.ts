@@ -63,6 +63,7 @@ import {
   NewQuestionnaireAnswer,
   DataPermissions,
   IDynamicRewardParameter,
+  Permission,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { JsonRpcEngine } from "json-rpc-engine";
@@ -435,7 +436,7 @@ export class ExternalCoreGateway {
 
   public getDataPermissions(
     params: GetAgreementPermissionsParams,
-  ): ResultAsync<DataPermissions, ProxyError> {
+  ): ResultAsync<Permission, ProxyError> {
     return this._handler.call(params);
   }
 

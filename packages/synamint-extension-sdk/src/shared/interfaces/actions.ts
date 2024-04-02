@@ -64,6 +64,7 @@ import {
   DataPermissions,
   EQueryProcessingStatus,
   IDynamicRewardParameter,
+  Permission,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 
@@ -228,7 +229,7 @@ export class GetInvitationWithDomainParams extends CoreActionParams<JSONString |
 export class UpdateAgreementPermissionsParams extends CoreActionParams<void> {
   public constructor(
     public consentContractAddress: EVMContractAddress,
-    public dataPermissions: DataPermissions,
+    public permission: Permission,
   ) {
     super(UpdateAgreementPermissionsParams.getCoreAction());
   }
@@ -257,7 +258,7 @@ export class RejectInvitationParams extends CoreActionParams<void> {
   }
 }
 
-export class GetAgreementPermissionsParams extends CoreActionParams<DataPermissions> {
+export class GetAgreementPermissionsParams extends CoreActionParams<Permission> {
   public constructor(public consentContractAddress: EVMContractAddress) {
     super(GetAgreementPermissionsParams.getCoreAction());
   }

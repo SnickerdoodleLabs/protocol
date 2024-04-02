@@ -18,6 +18,7 @@ import {
   UnixTimestamp,
   EarnedReward,
   IUserAgreement,
+  Permission,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -33,7 +34,7 @@ export interface IInvitationService {
 
   updateAgreementPermissions(
     consentContractAddress: EVMContractAddress,
-    dataTypes: DataPermissions,
+    permission: Permission,
   ): ResultAsync<void, SnickerDoodleCoreError>;
 
   acceptInvitation(
@@ -75,7 +76,7 @@ export interface IInvitationService {
 
   getDataPermissions(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<DataPermissions, SnickerDoodleCoreError>;
+  ): ResultAsync<Permission, SnickerDoodleCoreError>;
 
   getConsentContractCID(
     consentAddress: EVMContractAddress,

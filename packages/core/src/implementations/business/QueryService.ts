@@ -995,13 +995,21 @@ export class QueryService implements IQueryService {
       }
       return ResultUtils.combine([
         this.validateContextConfig(context, commitmentIndex),
-        this.permisionRepo.getContentContractPermissions(
+        this.permisionRepo.getContractPermissions(
           queryStatus.consentContractAddress,
         ),
       ])
         .andThen(([_, permissions]) => {
           // After sanity checking, we process the query into insights for a
           // (hopefully) final time, and get our opt-in key
+
+          const queryPermissions = permissions.queryBasedPermissions[query.cid];
+          const _permissions = new DataPermissions(
+            permissions.consentContractAddress,
+            queryPermissions?.virtual ?? permissions.virtual,
+            queryPermissions?.questionnaires ?? permissions.questionnaires,
+          );
+
           context.publicEvents.queryPerformance.next(
             new QueryPerformanceEvent(
               EQueryEvents.ProcessesBeforeReturningQueryEvaluation,
@@ -1016,7 +1024,7 @@ export class QueryService implements IQueryService {
             this.queryParsingEngine
               .handleQuery(
                 query,
-                permissions, // We're enabling all permissions for now instead of using consentToken!.dataPermissions till the permissions are properly refactored.
+                _permissions, // We're enabling all permissions for now instead of using consentToken!.dataPermissions till the permissions are properly refactored.
               )
               .map((insights) => {
                 this.logUtils.debug(

@@ -17,6 +17,7 @@ import {
   TransactionFlowInsight,
   DataPermissions,
   IDynamicRewardParameter,
+  Permission,
 } from "@objects/businessObjects/index.js";
 import {
   ECoreProxyType,
@@ -280,12 +281,12 @@ export interface ISdlDataWallet {
 
   updateAgreementPermissions(
     consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions,
+    permission: Permission,
   ): ResultAsync<void, ProxyError>;
 
   getDataPermissions(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<DataPermissions, ProxyError>;
+  ): ResultAsync<Permission, ProxyError>;
   leaveCohort(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, ProxyError>;

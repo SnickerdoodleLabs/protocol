@@ -21,6 +21,7 @@ import {
   PagedResponse,
   EarnedReward,
   IUserAgreement,
+  Permission,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -41,10 +42,10 @@ export class InvitationRepository implements IInvitationRepository {
 
   public updateAgreementPermissions(
     consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions,
+    permission: Permission,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.core.invitation
-      .updateDataPermissions(consentContractAddress, dataPermissions)
+      .updateDataPermissions(consentContractAddress, permission)
       .mapErr((error) => {
         this.errorUtils.emit(error);
         return new SnickerDoodleCoreError((error as Error).message, error);
@@ -84,7 +85,7 @@ export class InvitationRepository implements IInvitationRepository {
 
   public getDataPermissions(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<DataPermissions, SnickerDoodleCoreError> {
+  ): ResultAsync<Permission, SnickerDoodleCoreError> {
     return this.core.invitation
       .getDataPermissions(consentContractAddress)
       .mapErr((error) => {

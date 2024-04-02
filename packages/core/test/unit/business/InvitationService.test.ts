@@ -12,6 +12,7 @@ import {
   Invitation,
   IpfsCID,
   OptInInfo,
+  Permission,
   TokenId,
   URLString,
 } from "@snickerdoodlelabs/objects";
@@ -243,7 +244,7 @@ describe("InvitationService.updateDataPermissions() tests", () => {
     // Act
     const result = await service.updateDataPermissions(
       consentContractAddress1,
-      new DataPermissions("" as EVMContractAddress, [], []),
+      new Permission("" as EVMContractAddress, [], []),
     );
 
     // Assert
@@ -267,7 +268,7 @@ describe("InvitationService.updateDataPermissions() tests", () => {
     // Act
     const result = await service.updateDataPermissions(
       consentContractAddress1,
-      new DataPermissions("" as EVMContractAddress, [], []),
+      new Permission("" as EVMContractAddress, [], []),
     );
 
     // Assert
@@ -295,7 +296,7 @@ describe("InvitationService.updateDataPermissions() tests", () => {
     // Act
     const result = await service.updateDataPermissions(
       consentContractAddress1,
-      new DataPermissions("" as EVMContractAddress, [], []),
+      new Permission("" as EVMContractAddress, [], []),
     );
 
     // Assert

@@ -45,6 +45,7 @@ import {
   NewQuestionnaireAnswer,
   EQueryProcessingStatus,
   IDynamicRewardParameter,
+  Permission,
 } from "@snickerdoodlelabs/objects";
 import {
   IIFrameCallData,
@@ -468,14 +469,12 @@ export class CoreListener extends ChildProxy implements ICoreListener {
 
       updateAgreementPermissions: (
         data: IIFrameCallData<{
-          dataPermissions: DataPermissions;
+          permission: Permission;
         }>,
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.permission.setContentContractPermissions(
-              data.data.dataPermissions,
-            );
+            return core.permission.setContractPermissions(data.data.permission);
           });
         }, data.callId);
       },

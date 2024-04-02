@@ -107,6 +107,7 @@ import {
   MethodSupportError,
   MissingWalletDataTypeError,
   ServerRewardError,
+  Permission,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -456,7 +457,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       },
       updateDataPermissions: (
         consentContractAddress: EVMContractAddress,
-        dataPermissions: DataPermissions,
+        permission: Permission,
         sourceDomain: DomainName | undefined = undefined,
       ) => {
         const invitationService = this.iocContainer.get<IInvitationService>(
@@ -465,7 +466,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
         return invitationService.updateDataPermissions(
           consentContractAddress,
-          dataPermissions,
+          permission,
         );
       },
     };
@@ -861,26 +862,22 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     };
 
     this.permission = {
-      getContentContractPermissions: (
-        consentContractAddress: EVMContractAddress,
-      ) => {
+      getContractPermissions: (consentContractAddress: EVMContractAddress) => {
         const permissionRepository =
           this.iocContainer.get<IPermissionRepository>(
             IPermissionRepositoryType,
           );
-        return permissionRepository.getContentContractPermissions(
+        return permissionRepository.getContractPermissions(
           consentContractAddress,
         );
       },
 
-      setContentContractPermissions: (dataPermissions: DataPermissions) => {
+      setContractPermissions: (permission: Permission) => {
         const permissionRepository =
           this.iocContainer.get<IPermissionRepository>(
             IPermissionRepositoryType,
           );
-        return permissionRepository.setContentContractPermissions(
-          dataPermissions,
-        );
+        return permissionRepository.setContractPermissions(permission);
       },
 
       getDomainPermissions: (domain: DomainName) => {

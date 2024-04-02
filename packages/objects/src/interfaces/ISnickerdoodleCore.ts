@@ -4,7 +4,6 @@ import { ResultAsync } from "neverthrow";
 import {
   AdSignature,
   ChainTransaction,
-  DataPermissions,
   DataWalletBackup,
   DiscordGuildProfile,
   DiscordProfile,
@@ -38,6 +37,7 @@ import {
   Questionnaire,
   QuestionnaireWithAnswers,
   NewQuestionnaireAnswer,
+  Permission,
 } from "@objects/businessObjects/index.js";
 import {
   EChain,
@@ -592,7 +592,7 @@ export interface IInvitationMethods {
     consentContractAddress: EVMContractAddress,
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<
-    DataPermissions,
+    Permission,
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
@@ -638,7 +638,7 @@ export interface IInvitationMethods {
 
   updateDataPermissions(
     consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions,
+    permission: Permission,
     sourceDomain?: DomainName,
   ): ResultAsync<
     void,
@@ -840,12 +840,12 @@ export interface IQuestionnaireMethods {
 }
 
 export interface IPermissionMethods {
-  getContentContractPermissions(
+  getContractPermissions(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<DataPermissions, PersistenceError>;
+  ): ResultAsync<Permission, PersistenceError>;
 
-  setContentContractPermissions(
-    dataPermissions: DataPermissions,
+  setContractPermissions(
+    permission: Permission,
   ): ResultAsync<void, PersistenceError>;
 
   getDomainPermissions(

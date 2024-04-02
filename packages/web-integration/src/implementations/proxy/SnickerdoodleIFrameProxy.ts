@@ -87,6 +87,7 @@ import {
   DataPermissions,
   EQueryProcessingStatus,
   IDynamicRewardParameter,
+  Permission,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ethers } from "ethers";
@@ -428,16 +429,16 @@ export class SnickerdoodleIFrameProxy
   }
   public updateAgreementPermissions(
     consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions,
+    permission: Permission,
   ): ResultAsync<void, ProxyError> {
     return this._createCall("updateAgreementPermissions", {
       consentContractAddress,
-      dataPermissions,
+      permission,
     });
   }
   public getDataPermissions(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<DataPermissions, ProxyError> {
+  ): ResultAsync<Permission, ProxyError> {
     return this._createCall("getDataPermissions", {
       consentContractAddress,
     });
