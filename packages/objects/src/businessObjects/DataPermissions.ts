@@ -1,6 +1,5 @@
-import { EPermissionType, EWalletDataType } from "@objects/enum";
-import { EVMContractAddress, IpfsCID } from "@objects/primitives";
-import { Permission } from "@objects/index";
+import { EWalletDataType } from "@objects/enum/index.js";
+import { EVMContractAddress, IpfsCID } from "@objects/primitives/index.js";
 
 export class DataPermissions {
   constructor(

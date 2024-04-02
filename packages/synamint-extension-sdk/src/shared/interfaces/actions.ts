@@ -62,7 +62,6 @@ import {
   QuestionnaireWithAnswers,
   NewQuestionnaireAnswer,
   DataPermissions,
-  Permission,
   EQueryProcessingStatus,
   IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";

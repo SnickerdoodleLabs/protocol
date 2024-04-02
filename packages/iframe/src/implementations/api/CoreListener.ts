@@ -43,7 +43,6 @@ import {
   LinkedAccount,
   JSONString,
   NewQuestionnaireAnswer,
-  Permission,
   EQueryProcessingStatus,
   IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";

@@ -1,15 +1,9 @@
-import { OptInInfo } from "@objects/businessObjects/OptInInfo.js";
 import {
   VersionedObject,
   VersionedObjectMigrator,
 } from "@objects/businessObjects/versioned/VersionedObject.js";
-import { EPermissionType, EWalletDataType } from "@objects/enum";
-import { DataPermissions, Permission } from "@objects/index";
-import {
-  EVMContractAddress,
-  IpfsCID,
-  TokenId,
-} from "@objects/primitives/index.js";
+import { EWalletDataType } from "@objects/enum/index.js";
+import { EVMContractAddress, IpfsCID } from "@objects/primitives/index.js";
 import { PropertiesOf } from "@objects/utilities/index.js";
 
 export class PermissionForStorage extends VersionedObject {

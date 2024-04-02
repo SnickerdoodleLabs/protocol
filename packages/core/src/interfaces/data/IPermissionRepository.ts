@@ -1,15 +1,11 @@
-import { ResultAsync } from "neverthrow";
 import {
   EVMContractAddress,
   DataPermissions,
   PersistenceError,
-  PermissionForStorage,
   DomainName,
   EDataWalletPermission,
-  Permission,
-  EWalletDataType,
-  IpfsCID,
 } from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow";
 
 export interface IPermissionRepository {
   getContentContractPermissions(
