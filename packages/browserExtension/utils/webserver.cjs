@@ -7,7 +7,7 @@ process.env.__ONBOARDING_URL__ = "https://localhost:9005/";
 process.env.__ACCOUNT_COOKIE_URL__ = "https://snickerdoodlelabs.io/";
 process.env.__CONTROL_CHAIN_ID__ = "31337";
 process.env.__IPFS_FETCH_BASE_URL__ = "http://localhost:8080/ipfs";
-process.env.__DEFAULT_INSIGHT_PLATFORM_BASE_URL__ = "http://localhost:3006";
+process.env.__DEFAULT_INSIGHT_PLATFORM_BASE_URL__ = "http://localhost:3001/v0";
 
 process.env.__DROPBOX_APP_KEY__ = "";
 process.env.__DROPBOX_APP_SECRET__ = "";
