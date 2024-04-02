@@ -4,7 +4,10 @@ import {
   ILogUtils,
   ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
-import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
+import {
+  EConsentRoles,
+  IConsentContract,
+} from "@snickerdoodlelabs/contracts-sdk";
 import {
   BlockchainProviderError,
   ConsentContractError,
@@ -147,6 +150,24 @@ export class ConsentContractRepository implements IConsentContractRepository {
           return acc;
         }, []);
       });
+  }
+
+  public hasRole(
+    consentContractAddress: EVMContractAddress,
+    role: EConsentRoles,
+    address: EVMAccountAddress,
+  ): ResultAsync<
+    boolean,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+  > {
+    return this.getConsentContract(consentContractAddress).andThen(
+      (contract) => {
+        return contract.hasRole(role, address);
+      },
+    );
   }
 
   public getMetadataCID(
@@ -296,22 +317,6 @@ export class ConsentContractRepository implements IConsentContractRepository {
     return this.getConsentContract(consentContractAddress).andThen(
       (contract) => {
         return contract.openOptInDisabled();
-      },
-    );
-  }
-
-  public getSignerRoleMembers(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    EVMAccountAddress[],
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | BlockchainCommonErrors
-  > {
-    return this.getConsentContract(consentContractAddress).andThen(
-      (contract) => {
-        return contract.getSignerRoleMembers();
       },
     );
   }

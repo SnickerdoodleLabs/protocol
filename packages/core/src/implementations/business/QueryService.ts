@@ -799,7 +799,9 @@ export class QueryService implements IQueryService {
       } else {
         const virtualQuestionnaire = subQuery.getPermission();
         if (virtualQuestionnaire.isOk()) {
-          virtualQuestionnairesSet.add(virtualQuestionnaire.value as EWalletDataType);
+          virtualQuestionnairesSet.add(
+            virtualQuestionnaire.value as EWalletDataType,
+          );
         }
       }
     });
@@ -812,7 +814,7 @@ export class QueryService implements IQueryService {
 
   protected isContractOptedIn(
     contractAddress: EVMContractAddress,
-  ): ResultAsync<boolean, PersistenceError  | UninitializedError> {
+  ): ResultAsync<boolean, PersistenceError | UninitializedError> {
     return this.invitationRepo.getAcceptedInvitations().map((optIns) => {
       return !!optIns.find(
         (opt) => opt.consentContractAddress === contractAddress,
@@ -851,18 +853,11 @@ export class QueryService implements IQueryService {
       .andThen((consentContractMap) => {
         const consentContract = consentContractMap.get(consentContractAddress)!;
         // Only consent owners can request data
-        return ResultUtils.combine([
-          consentContract.getConsentOwner(),
-          this.consentContractRepository.getQueryHorizon(
-            consentContract.getContractAddress(),
-          ),
-        ])
-          .andThen(([consentOwner, queryHorizon]) => {
+        return this.consentContractRepository
+          .getQueryHorizon(consentContract.getContractAddress())
+          .andThen((queryHorizon) => {
             return ResultUtils.combine([
-              consentContract.getRequestForDataListByRequesterAddress(
-                consentOwner,
-                queryHorizon,
-              ),
+              consentContract.getRequestForDataList(queryHorizon),
               this.sdqlQueryRepo.getQueryStatusByConsentContract(
                 consentContract.getContractAddress(),
                 queryHorizon,
@@ -998,8 +993,13 @@ export class QueryService implements IQueryService {
           ),
         );
       }
-      return ResultUtils.combine([this.validateContextConfig(context, commitmentIndex),this.permisionRepo.getContentContractPermissions(queryStatus.consentContractAddress)])
-        .andThen(([_,permissions]) => {
+      return ResultUtils.combine([
+        this.validateContextConfig(context, commitmentIndex),
+        this.permisionRepo.getContentContractPermissions(
+          queryStatus.consentContractAddress,
+        ),
+      ])
+        .andThen(([_, permissions]) => {
           // After sanity checking, we process the query into insights for a
           // (hopefully) final time, and get our opt-in key
           context.publicEvents.queryPerformance.next(
@@ -1061,7 +1061,7 @@ export class QueryService implements IQueryService {
         })
         .orElse((err) => {
           // CircuitError doesn't have statusCode we should add it and check for 403 status code like err.code == 403 || err.statusCode == 403
-          if (err != null && (err.code == 403)) {
+          if (err != null && err.code == 403) {
             // 403 means a response has already been submitted, and we should stop asking
             queryStatus.status = EQueryProcessingStatus.RewardsReceived;
             return this.sdqlQueryRepo

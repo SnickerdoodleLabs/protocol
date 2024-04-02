@@ -262,10 +262,6 @@ export class MarketplaceService implements IMarketplaceService {
     RequestForData[],
     ConsentContractError | BlockchainCommonErrors
   > {
-    return consentContract.getConsentOwner().andThen((consentOwner) => {
-      return consentContract.getRequestForDataListByRequesterAddress(
-        consentOwner,
-      );
-    });
+    return consentContract.getRequestForDataList();
   }
 }
