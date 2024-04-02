@@ -63,6 +63,8 @@ import {
   NewQuestionnaireAnswer,
   DataPermissions,
   Permission,
+  EQueryProcessingStatus,
+  IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 
@@ -662,15 +664,37 @@ export class GetQueryStatusByCidParams extends CoreActionParams<QueryStatus | nu
   }
 }
 
+export class ApproveQueryParams extends CoreActionParams<void> {
+  public constructor(
+    public queryCID: IpfsCID,
+    public parameters: IDynamicRewardParameter[],
+  ) {
+    super(ApproveQueryParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.APPROVE_QUERY;
+  }
+}
 export class GetQueryStatusesParams extends CoreActionParams<QueryStatus[]> {
   public constructor(
-    public contractAddress: EVMContractAddress,
+    public contractAddress?: EVMContractAddress,
+    public status?: EQueryProcessingStatus[],
     public blockNumber?: BlockNumber,
   ) {
     super(GetQueryStatusesParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_QUERY_STATUSES;
+  }
+}
+export class GetQueryStatusesByContractAddressParams extends CoreActionParams<
+  QueryStatus[]
+> {
+  public constructor(public contractAddress: EVMContractAddress) {
+    super(GetQueryStatusesByContractAddressParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_QUERY_STATUSES_BY_CONTRACT_ADDRESS;
   }
 }
 
@@ -906,6 +930,38 @@ export class GetAllQuestionnairesParams extends CoreActionParams<
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_ALL_QUESTIONNAIRES;
+  }
+}
+
+export class GetQuestionnairesParams extends CoreActionParams<
+  PagedResponse<Questionnaire | QuestionnaireWithAnswers>
+> {
+  public constructor(public pagingRequest: PagingRequest) {
+    super(GetQuestionnairesParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_QUESTIONNAIRES;
+  }
+}
+export class GetVirtualQuestionnairesParams extends CoreActionParams<
+  EWalletDataType[]
+> {
+  public constructor(public consentContractAddress: EVMContractAddress) {
+    super(GetVirtualQuestionnairesParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_VIRTUAL_CONSENT_QUESTIONNAIRES;
+  }
+}
+
+export class GetQuestionnairesByCIDSParams extends CoreActionParams<
+  (Questionnaire | QuestionnaireWithAnswers)[]
+> {
+  public constructor(public questionnaireCIDs: IpfsCID[]) {
+    super(GetQuestionnairesByCIDSParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_QUESTIONNAIRES_BY_CIDS;
   }
 }
 

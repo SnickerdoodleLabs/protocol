@@ -25,10 +25,7 @@ export class AST_NftQuery extends AST_Web3Query {
     return new AST_NftQuery(name, ESDQLQueryReturn.Array, "nft", schema);
   }
 
-  getPermission(
-    permissions: DataPermissions,
-    dataType: EWalletDataType | IpfsCID,
-  ): boolean {
-    return permissions.checkPermission(dataType);
+  getPermission(): Result<EWalletDataType, MissingWalletDataTypeError> {
+    return ok(EWalletDataType.AccountNFTs);
   }
 }

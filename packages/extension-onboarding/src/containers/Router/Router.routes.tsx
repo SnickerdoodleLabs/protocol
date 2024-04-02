@@ -4,12 +4,10 @@ import DataDashBoardLayout from "@extension-onboarding/layouts/DataDashboardLayo
 import Onboarding from "@extension-onboarding/pages/Onboarding";
 import CookieVault from "@extension-onboarding/pages/V2/CookieVault";
 import Home from "@extension-onboarding/pages/V2/Home";
-import DataPermissions from "@extension-onboarding/pages/V2/DataPermissions";
+import Offers from "@extension-onboarding/pages/V2/Offers";
+import TrustedBrands from "@extension-onboarding/pages/V2/TrustedBrands";
 import React, { lazy, Suspense } from "react";
 import { Navigate, Route } from "react-router-dom";
-const LazyAudienceDetails = lazy(
-  () => import("@extension-onboarding/pages/V2/AudienceDetails"),
-);
 const LazyTransactions = lazy(
   () => import("@extension-onboarding/pages/V2/Transactions"),
 );
@@ -47,20 +45,13 @@ export const AuthFlowRoutes = (
     <Route element={<AuthFlowLayout />}>
       <Route path={EPathsV2.HOME} element={<Home />} />
       <Route path={EPathsV2.COOKIE_VAULT} element={<CookieVault />} />
-      <Route path={EPathsV2.DATA_PERMISSIONS} element={<DataPermissions />} />
+      <Route path={EPathsV2.TRUSTED_BRANDS} element={<TrustedBrands />} />
+      <Route path={EPathsV2.OFFERS} element={<Offers />} />
       <Route
         path={EPathsV2.SETTINGS}
         element={
           <Suspense fallback={null}>
             <LazySettings />
-          </Suspense>
-        }
-      />
-      <Route
-        path={EPathsV2.DATA_PERMISSIONS_AUDIENCE}
-        element={
-          <Suspense fallback={null}>
-            <LazyAudienceDetails />
           </Suspense>
         }
       />

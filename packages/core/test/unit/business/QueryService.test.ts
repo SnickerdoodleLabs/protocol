@@ -27,6 +27,9 @@ import {
   UnixTimestamp,
   IQueryDeliveryItems,
   OptInInfo,
+  JSONString,
+  InvalidStatusError,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
 import {
   ISDQLQueryWrapperFactory,
@@ -40,11 +43,15 @@ import * as td from "testdouble";
 
 import { QueryService } from "@core/implementations/business/index.js";
 import { IQuestionnaireService } from "@core/interfaces/business";
-import { IQueryParsingEngine } from "@core/interfaces/business/utilities/index.js";
+import {
+  IQueryParsingEngine,
+} from "@core/interfaces/business/utilities/index.js";
 import {
   IConsentContractRepository,
+  IInvitationRepository,
   ILinkedAccountRepository,
   IPermissionRepository,
+  IQuestionnaireRepository,
   ISDQLQueryRepository,
 } from "@core/interfaces/data/index.js";
 import {
@@ -89,7 +96,7 @@ const dataPermissions = new DataPermissions("" as EVMContractAddress, [], []);
 const rewardParameter = {
   recipientAddress: {
     type: ESolidityAbiParameterType.address,
-    value: "Phoebe",
+    value: "0xb794f5ea0ba39494ce839613fffba74279579268",
   },
   compensationKey: {
     type: ESolidityAbiParameterType.string,
@@ -105,6 +112,12 @@ const receivedQueryStatus = new QueryStatus(
   BlockNumber(345),
   EQueryProcessingStatus.Received,
   then,
+  JSONString("{}"),
+  "Offer",
+  "",
+  1,
+  [],
+  [],
   null,
 );
 
@@ -115,6 +128,12 @@ const adsCompletedQueryStatus = new QueryStatus(
   EQueryProcessingStatus.AdsCompleted,
   then,
   ObjectUtils.serialize(rewardParameters),
+  "Offer",
+  "",
+  1,
+  [],
+  [],
+  null,
 );
 
 const earnedReward = new EarnedReward(
@@ -150,6 +169,8 @@ class QueryServiceMocks {
   public timeUtils: ITimeUtils;
   public sdqlQueryWrapperFactory: ISDQLQueryWrapperFactory;
   public logUtils: ILogUtils;
+  public invitationRepo: IInvitationRepository;
+  public questionnaireRepo: IQuestionnaireRepository;
 
   public constructor() {
     this.dataWalletUtils = td.object<IDataWalletUtils>();
@@ -166,13 +187,15 @@ class QueryServiceMocks {
     this.sdqlQueryWrapperFactory = td.object<ISDQLQueryWrapperFactory>();
     this.logUtils = td.object<ILogUtils>();
     this.timeUtils = td.object<ITimeUtils>();
+    this.invitationRepo = td.object<IInvitationRepository>();
+    this.questionnaireRepo = td.object<IQuestionnaireRepository>();
 
     td.when(
       this.insightPlatformRepo.deliverInsights(
         consentContractAddress,
         identityTrapdoor,
         identityNullifier,
-        queryCID2,
+        td.matchers.argThat((val: IpfsCID) => val === queryCID2 || queryCID1),
         queryDeliveryItems,
         td.matchers.argThat((val: IDynamicRewardParameter[]) => {
           return (
@@ -210,15 +233,32 @@ class QueryServiceMocks {
       okAsync(adsCompletedQueryStatus),
     );
     td.when(
-      this.sdqlQueryRepo.getQueryStatusByStatus(
-        EQueryProcessingStatus.Received,
-      ),
+      this.sdqlQueryRepo.getQueryStatus([EQueryProcessingStatus.Received]),
     ).thenReturn(okAsync([receivedQueryStatus]));
     td.when(
-      this.sdqlQueryRepo.getQueryStatusByStatus(
-        EQueryProcessingStatus.AdsCompleted,
-      ),
+      this.sdqlQueryRepo.getQueryStatus([EQueryProcessingStatus.AdsCompleted]),
     ).thenReturn(okAsync([adsCompletedQueryStatus]));
+
+    td.when(
+      this.sdqlQueryRepo.upsertQueryStatus([
+        td.matchers.contains(
+          new QueryStatus(
+            receivedQueryStatus.consentContractAddress,
+            receivedQueryStatus.queryCID,
+            receivedQueryStatus.receivedBlock,
+            EQueryProcessingStatus.RewardsReceived,
+            receivedQueryStatus.expirationDate,
+            ObjectUtils.serialize(rewardParameters),
+            "Offer",
+            "",
+            1,
+            [],
+            [],
+            null,
+          ),
+        ),
+      ]),
+    ).thenReturn(okAsync(undefined));
     td.when(
       this.sdqlQueryRepo.upsertQueryStatus([
         td.matchers.contains(
@@ -229,6 +269,12 @@ class QueryServiceMocks {
             EQueryProcessingStatus.AdsCompleted,
             receivedQueryStatus.expirationDate,
             ObjectUtils.serialize(rewardParameters),
+            "Offer",
+            "",
+            1,
+            [],
+            [],
+            null,
           ),
         ),
       ]),
@@ -243,6 +289,12 @@ class QueryServiceMocks {
             EQueryProcessingStatus.RewardsReceived,
             adsCompletedQueryStatus.expirationDate,
             ObjectUtils.serialize(rewardParameters),
+            "Offer",
+            "",
+            1,
+            [],
+            [],
+            null,
           ),
         ),
       ]),
@@ -308,6 +360,8 @@ class QueryServiceMocks {
       this.sdqlQueryWrapperFactory,
       this.logUtils,
       this.timeUtils,
+      this.invitationRepo,
+      this.questionnaireRepo,
     );
   }
 }
@@ -336,20 +390,16 @@ describe("QueryService.approveQuery() tests", () => {
 
     // Act
     const result = await queryService.approveQuery(
-      consentContractAddress,
-      sdqlQuery,
+      sdqlQuery.cid,
       rewardParameters,
     );
 
     // Assert
     expect(result).toBeDefined();
     expect(result.isErr()).toBeFalsy();
-    mocks.contextProvider.assertEventCounts({
-      onQueryStatusUpdated: 1,
-    });
   });
 
-  test("no query status found but works", async () => {
+  test("no query status found, rejected with UninitializedError", async () => {
     // Arrange
     const mocks = new QueryServiceMocks();
 
@@ -357,36 +407,19 @@ describe("QueryService.approveQuery() tests", () => {
       okAsync(null),
     );
 
-    td.when(
-      mocks.sdqlQueryRepo.upsertQueryStatus([
-        td.matchers.contains(
-          new QueryStatus(
-            consentContractAddress,
-            queryCID1,
-            BlockNumber(1),
-            EQueryProcessingStatus.AdsCompleted,
-            now,
-            ObjectUtils.serialize(rewardParameters),
-          ),
-        ),
-      ]),
-    ).thenReturn(okAsync(undefined));
-
     const queryService = mocks.factory();
 
     // Act
     const result = await queryService.approveQuery(
-      consentContractAddress,
-      sdqlQuery,
+      sdqlQuery.cid,
       rewardParameters,
     );
 
     // Assert
     expect(result).toBeDefined();
-    expect(result.isErr()).toBeFalsy();
-    mocks.contextProvider.assertEventCounts({
-      onQueryStatusUpdated: 1,
-    });
+    expect(result.isErr()).toBeTruthy();
+    const res = result._unsafeUnwrapErr();
+    expect(res).toBeInstanceOf(UninitializedError);
 
     // const res = result._unsafeUnwrap();
     // expect(err).toBeInstanceOf(AjaxError);
@@ -404,8 +437,7 @@ describe("QueryService.approveQuery() tests", () => {
 
     // Act
     const result = await queryService.approveQuery(
-      consentContractAddress,
-      sdqlQuery,
+      sdqlQuery.cid,
       rewardParameters,
     );
 
@@ -418,31 +450,48 @@ describe("QueryService.approveQuery() tests", () => {
     expect(res).toBe(err);
   });
 
-  test("upsertQueryStatus fails", async () => {
+  test("upsertQueryStatus fails, query is already AdsCompleted can not approve", async () => {
     // Arrange
     const mocks = new QueryServiceMocks();
-
-    const err = new PersistenceError(`PersistenceError`);
-    td.when(
-      mocks.sdqlQueryRepo.upsertQueryStatus(td.matchers.anything()),
-    ).thenReturn(errAsync(err));
 
     const queryService = mocks.factory();
 
     // Act
     const result = await queryService.approveQuery(
-      consentContractAddress,
-      sdqlQuery,
+      sdqlQuery.cid,
       rewardParameters,
     );
-
-    // Assert
     expect(result).toBeDefined();
     expect(result.isErr()).toBeTruthy();
-    mocks.contextProvider.assertEventCounts({});
-
     const res = result._unsafeUnwrapErr();
-    expect(res).toBe(err);
+    expect(res).toBeInstanceOf(InvalidStatusError);
+  });
+
+  test("upsertQueryStatus fails, invalid address supplied with reward params", async () => {
+    // Arrange
+    const mocks = new QueryServiceMocks();
+
+    const invalidRewardParameter = {
+      recipientAddress: {
+        type: ESolidityAbiParameterType.address,
+        value: "Phoebe",
+      },
+      compensationKey: {
+        type: ESolidityAbiParameterType.string,
+        value: "c1",
+      },
+    } as IDynamicRewardParameter;
+
+    const queryService = mocks.factory();
+
+    // Act
+    const result = await queryService.approveQuery(sdqlQuery.cid, [
+      invalidRewardParameter,
+    ]);
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeTruthy();
+    const res = result._unsafeUnwrapErr();
+    expect(res).toBeInstanceOf(InvalidParametersError);
   });
 });
 
@@ -460,8 +509,8 @@ describe("QueryService.returnQueries() tests", () => {
     expect(result.isErr()).toBeFalsy();
     mocks.contextProvider.assertEventCounts({ onQueryStatusUpdated: 1 });
   });
-
-  test("No stored reward parameters", async () => {
+  //only
+  test("Empty reward parameters", async () => {
     // Arrange
     const mocks = new QueryServiceMocks();
 
@@ -471,12 +520,16 @@ describe("QueryService.returnQueries() tests", () => {
       BlockNumber(123),
       EQueryProcessingStatus.AdsCompleted,
       then,
+      JSONString("{}"),
+      "Offer",
+      "",
+      1,
+      [],
+      [],
       null,
     );
     td.when(
-      mocks.sdqlQueryRepo.getQueryStatusByStatus(
-        EQueryProcessingStatus.AdsCompleted,
-      ),
+      mocks.sdqlQueryRepo.getQueryStatus([EQueryProcessingStatus.AdsCompleted]),
     ).thenReturn(okAsync([queryStatus]));
 
     td.when(
@@ -488,6 +541,12 @@ describe("QueryService.returnQueries() tests", () => {
             queryStatus.receivedBlock,
             EQueryProcessingStatus.NoRewardsParams,
             queryStatus.expirationDate,
+            JSONString("{}"),
+            "Offer",
+            "",
+            1,
+            [],
+            [],
             null,
           ),
         ),
@@ -498,7 +557,6 @@ describe("QueryService.returnQueries() tests", () => {
 
     // Act
     const result = await queryService.returnQueries();
-
     // Assert
     expect(result).toBeDefined();
     expect(result.isErr()).toBeFalsy();
@@ -547,10 +605,7 @@ describe("getPossibleInsightAndAdKeys tests", () => {
         .andThen(() => {
           const queryRequest = new SDQLQueryRequest(
             consentContractAddress,
-            query,
-            [],
-            [],
-            null,
+            query.cid,
           );
 
           context.publicEvents.onQueryPosted.next(queryRequest);
