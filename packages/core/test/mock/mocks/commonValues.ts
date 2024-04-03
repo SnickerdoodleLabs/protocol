@@ -50,6 +50,8 @@ import {
   QuestionnaireQuestion,
   QuestionnaireWithAnswers,
   Commitment,
+  NullifierBNS,
+  TrapdoorBNS,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_ConditionExpr,
@@ -1181,6 +1183,6 @@ export const mockQuestionnaireHistory = new QuestionnaireHistory(
 // #region Commitments
 export const commitment1Index = 1;
 export const commitment1 = Commitment(1234n);
-export const identityNullifier = BigNumberString("5678");
-export const identityTrapdoor = BigNumberString("94062");
+export const identityNullifier = NullifierBNS("5678");
+export const identityTrapdoor = TrapdoorBNS("94062");
 // #endregion

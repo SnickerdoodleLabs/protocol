@@ -30,8 +30,8 @@ export class MembershipWrapper
   static keypair: ResultAsync<Keypair, CircuitError> | null = null;
 
   static getIdentity(
-    identityTrapdoor: BigNumberString,
-    identityNullifier: BigNumberString,
+    identityTrapdoor: TrapdoorBNS,
+    identityNullifier: NullifierBNS,
   ): Identity {
     return new Identity({
       identityTrapdoor: CircuitUtils.bnsToField(identityTrapdoor),
@@ -57,8 +57,8 @@ export class MembershipWrapper
 
   public prove(
     signal: string,
-    identityTrapdoor: BigNumberString,
-    identityNullifier: BigNumberString,
+    identityTrapdoor: TrapdoorBNS,
+    identityNullifier: NullifierBNS,
     anonymitySet: Commitment[], // This is all the commitments of the identities in the anonymity set. If it includes the identity's commitment, we will fix it. If it doesn't include the identity's commitment, it will be added.
     roundIdentifier: string, // This is the epochNullifier, but is most likely to be the IPFS CID
   ): ResultAsync<ZKProof, CircuitError> {
@@ -140,7 +140,7 @@ export class MembershipWrapper
     signal: string,
     anonymitySet: Commitment[], // This is all the commitments of the identities in the anonymity set.
     roundIdentifier: string, // This is the epochNullifier, but is most likely to be the IPFS CID
-    signalNullifier: BigNumberString,
+    signalNullifier: NullifierBNS,
     proof: ZKProof,
   ): ResultAsync<boolean, CircuitError> {
     const signalFields = Encoding.stringToFields(signal);
