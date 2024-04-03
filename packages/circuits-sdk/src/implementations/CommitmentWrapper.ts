@@ -25,8 +25,8 @@ export class CommitmentWrapper
     super(commitmentVerification);
   }
   static getIdentity(
-    identityTrapdoor: BigNumberString,
-    identityNullifier: BigNumberString,
+    identityTrapdoor: TrapdoorBNS,
+    identityNullifier: NullifierBNS,
   ): Identity {
     return new Identity({
       identityTrapdoor: new Field(BigInt(identityTrapdoor)),
@@ -40,8 +40,8 @@ export class CommitmentWrapper
 
   public prove(
     signal: string,
-    identityTrapdoor: BigNumberString,
-    identityNullifier: BigNumberString,
+    identityTrapdoor: TrapdoorBNS,
+    identityNullifier: NullifierBNS,
   ): ResultAsync<ZKProof, CircuitError> {
     const signalFields = Encoding.stringToFields(signal);
 

@@ -14,14 +14,16 @@ import {
   Commitment,
   InvalidArgumentError,
   CircuitError,
+  NullifierBNS,
+  TrapdoorBNS,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface IInsightPlatformRepository {
   deliverInsights(
     consentContractAddress: EVMContractAddress,
-    trapdoor: BigNumberString,
-    nullifier: BigNumberString,
+    trapdoor: TrapdoorBNS,
+    nullifier: NullifierBNS,
     queryCID: IpfsCID,
     insights: IQueryDeliveryItems,
     rewardParameters: IDynamicRewardParameter[],
@@ -32,15 +34,15 @@ export interface IInsightPlatformRepository {
 
   optin(
     consentContractAddress: EVMContractAddress,
-    trapdoor: BigNumberString,
-    nullifier: BigNumberString,
+    trapdoor: TrapdoorBNS,
+    nullifier: NullifierBNS,
     insightPlatformBaseUrl: URLString,
   ): ResultAsync<void, AjaxError | CircuitError>;
 
   privateOptin(
     consentContractAddress: EVMContractAddress,
-    trapdoor: BigNumberString,
-    nullifier: BigNumberString,
+    trapdoor: TrapdoorBNS,
+    nullifier: NullifierBNS,
     nonce: BigNumberString,
     signature: Signature,
     insightPlatformBaseUrl: URLString,

@@ -31,6 +31,7 @@ import {
   Commitment,
   BigNumberString,
   JSONString,
+  NullifierBNS,
 } from "@snickerdoodlelabs/objects";
 import cors from "cors";
 import express from "express";
@@ -98,7 +99,7 @@ export class InsightPlatformSimulator {
 
       const consentContractId = EVMContractAddress(req.body.consentContractId);
       const queryCID = IpfsCID(req.body.queryCID);
-      const signalNullifier = BigNumberString(
+      const signalNullifier = NullifierBNS(
         BigInt(req.body.signalNullifier).toString(),
       );
       const insights = JSONString(req.body.insights);

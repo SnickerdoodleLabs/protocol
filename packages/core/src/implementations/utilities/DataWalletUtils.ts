@@ -17,6 +17,8 @@ import {
   SuiAccountAddress,
   OptInInfo,
   BigNumberString,
+  TrapdoorBNS,
+  NullifierBNS,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -214,8 +216,8 @@ export class DataWalletUtils implements IDataWalletUtils {
       `${consentContractAddress}:${dataWalletKey}:Trapdoor`,
     );
 
-    const nullifierBNS = BigNumberString(nullifier.toString());
-    const trapdoorBNS = BigNumberString(trapdoor.toString());
+    const nullifierBNS = NullifierBNS(nullifier.toString());
+    const trapdoorBNS = TrapdoorBNS(trapdoor.toString());
 
     const commitment = CircomUtils.getCommitment(trapdoorBNS, nullifierBNS);
     return okAsync(

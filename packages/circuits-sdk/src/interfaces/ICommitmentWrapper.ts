@@ -1,7 +1,8 @@
 import {
-  BigNumberString,
   CircuitError,
   Commitment,
+  NullifierBNS,
+  TrapdoorBNS,
   ZKProof,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -15,8 +16,8 @@ export interface ICommitmentWrapper {
    */
   prove(
     signal: string,
-    identityTrapdoor: BigNumberString,
-    identityNullifier: BigNumberString,
+    identityTrapdoor: TrapdoorBNS,
+    identityNullifier: NullifierBNS,
   ): ResultAsync<ZKProof, CircuitError>;
 
   /**

@@ -22,6 +22,8 @@ import {
   IQueryDeliveryItems,
   Commitment,
   CircuitError,
+  NullifierBNS,
+  TrapdoorBNS,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -46,8 +48,8 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
 
   public deliverInsights(
     consentContractAddress: EVMContractAddress,
-    trapdoor: BigNumberString,
-    nullifier: BigNumberString,
+    trapdoor: TrapdoorBNS,
+    nullifier: NullifierBNS,
     queryCID: IpfsCID,
     insights: IQueryDeliveryItems,
     rewardParameters: IDynamicRewardParameter[],
@@ -105,8 +107,8 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
 
   public optin(
     consentContractAddress: EVMContractAddress,
-    trapdoor: BigNumberString,
-    nullifier: BigNumberString,
+    trapdoor: TrapdoorBNS,
+    nullifier: NullifierBNS,
     insightPlatformBaseUrl: URLString,
   ): ResultAsync<void, AjaxError | CircuitError> {
     // Calculate the values we need to include in the signal
@@ -134,8 +136,8 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
 
   public privateOptin(
     consentContractAddress: EVMContractAddress,
-    trapdoor: BigNumberString,
-    nullifier: BigNumberString,
+    trapdoor: TrapdoorBNS,
+    nullifier: NullifierBNS,
     nonce: BigNumberString,
     signature: Signature,
     insightPlatformBaseUrl: URLString,
