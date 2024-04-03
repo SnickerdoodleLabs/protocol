@@ -1,15 +1,10 @@
 import {
   DataPermissions,
   DomainName,
-  EBackupPriority,
   EDataWalletPermission,
   EFieldKey,
-  EPermissionType,
   ERecordKey,
   EVMContractAddress,
-  EWalletDataType,
-  IpfsCID,
-  Permission,
   PermissionForStorage,
   PersistenceError,
 } from "@snickerdoodlelabs/objects";

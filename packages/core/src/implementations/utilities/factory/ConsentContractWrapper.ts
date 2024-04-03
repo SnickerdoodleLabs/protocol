@@ -104,16 +104,6 @@ export class ConsentContractWrapper
     );
   }
 
-  public getConsentOwner(): ResultAsync<
-    EVMAccountAddress,
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return this.fallback(
-      () => this.primary.getConsentOwner(),
-      () => this.secondary?.getConsentOwner(),
-    );
-  }
-
   public checkCommitments(
     commitments: Commitment[],
   ): ResultAsync<number[], ConsentContractError | BlockchainCommonErrors> {
@@ -181,46 +171,6 @@ export class ConsentContractWrapper
     return this.fallback(
       () => this.primary.restakeExpiredListing(tag, stakingToken, overrides),
       () => this.secondary?.restakeExpiredListing(tag, stakingToken, overrides),
-    );
-  }
-
-  public getDefaultAdminRoleMembers(): ResultAsync<
-    EVMAccountAddress[],
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return this.fallback(
-      () => this.primary.getDefaultAdminRoleMembers(),
-      () => this.secondary?.getDefaultAdminRoleMembers(),
-    );
-  }
-
-  public getSignerRoleMembers(): ResultAsync<
-    EVMAccountAddress[],
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return this.fallback(
-      () => this.primary.getSignerRoleMembers(),
-      () => this.secondary?.getSignerRoleMembers(),
-    );
-  }
-
-  public getPauserRoleMembers(): ResultAsync<
-    EVMAccountAddress[],
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return this.fallback(
-      () => this.primary.getPauserRoleMembers(),
-      () => this.secondary?.getPauserRoleMembers(),
-    );
-  }
-
-  public getRequesterRoleMembers(): ResultAsync<
-    EVMAccountAddress[],
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return this.fallback(
-      () => this.primary.getRequesterRoleMembers(),
-      () => this.secondary?.getRequesterRoleMembers(),
     );
   }
 

@@ -172,8 +172,6 @@ abstract contract ContentObjectUpgradeable is
     ) internal {
         ContentObjectStorage storage $ = _getContentObjectStorage();
 
-        Tag memory updatedTag = $.tags[stakingToken][$.tagIndices[stakingToken][tag] - 1];
-
         // check
         require(_newSlot > _existingSlot, "Content Object: New slot must be greater than current slot");
         require(
@@ -182,10 +180,7 @@ abstract contract ContentObjectUpgradeable is
         );
 
         // effects
-        uint256 removalSlot = updatedTag.slot; // get the old slot
-        updatedTag.slot = _newSlot; // update with new slot
-
-        $.tags[stakingToken][$.tagIndices[stakingToken][tag] - 1] = updatedTag; // update the listing
+        $.tags[stakingToken][$.tagIndices[stakingToken][tag] - 1].slot = _newSlot; // update the listing
 
         // interaction
         // approve the content factory to pull the new required stake
