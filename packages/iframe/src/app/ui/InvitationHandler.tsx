@@ -26,6 +26,7 @@ import {
   QueryStatus,
   Questionnaire,
   UnixTimestamp,
+  Permission,
 } from "@snickerdoodlelabs/objects";
 import {
   ConsentModal,
@@ -288,32 +289,43 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
           directCall: { permissions, approvals },
           withPermissions,
         } = params;
+        const queryBasedPermissions: Record<
+          IpfsCID,
+          { virtual: EWalletDataType[]; questionnaires: IpfsCID[] }
+        > = {};
+        withPermissions.forEach(({ permissions }, cid) => {
+          queryBasedPermissions[cid] = {
+            virtual: permissions.dataTypes,
+            questionnaires: permissions.questionnaires,
+          };
+        });
+        const permission = new Permission(
+          currentInvitation.data.invitation.consentContractAddress,
+          permissions.dataTypes,
+          permissions.questionnaires,
+          queryBasedPermissions,
+        );
         core.invitation
           .acceptInvitation(currentInvitation.data.invitation, undefined)
           .andThen(() => {
-            // set consent permissions here
-            return okAsync(undefined);
-          })
-          .andThen(() => {
-            return ResultUtils.combine(
-              Array.from(approvals.entries()).map(([cid, rewards]) =>
-                core.approveQuery(cid, rewards, undefined),
-              ),
+            return core.invitation.updateDataPermissions(
+              currentInvitation.data.invitation.consentContractAddress,
+              permission,
             );
           })
           .andThen(() => {
-            return ResultUtils.executeSerially(
+            return ResultUtils.combine(
+              Array.from(approvals.entries()).map(([cid, rewards]) => {
+                return core.approveQuery(cid, rewards, undefined);
+              }),
+            );
+          })
+          .andThen(() => {
+            return ResultUtils.combine(
               Array.from(withPermissions.entries()).map(
-                ([cid, { permissions, rewardParameters }]) =>
-                  () =>
-                    // set consent permissions here
-                    okAsync(undefined).andThen(() => {
-                      return core.approveQuery(
-                        cid,
-                        rewardParameters,
-                        undefined,
-                      );
-                    }),
+                ([cid, { rewardParameters }]) => {
+                  return core.approveQuery(cid, rewardParameters, undefined);
+                },
               ),
             );
           })
