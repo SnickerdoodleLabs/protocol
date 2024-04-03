@@ -118,6 +118,7 @@ import {
   RefreshToken,
   JSONString,
 } from "@objects/primitives/index.js";
+import { IQueryPermissions } from "./IQueryPermissions";
 /**
  ************************ MAINTENANCE HAZARD ***********************************************
  Whenever you add or change a method in this class, you also need to look at and probably update
@@ -890,6 +891,7 @@ export interface ISnickerdoodleCore {
   approveQuery(
     queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
+    queryPermissions: IQueryPermissions | null,
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     void,

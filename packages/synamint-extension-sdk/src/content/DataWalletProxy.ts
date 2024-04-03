@@ -62,11 +62,11 @@ import {
   JSONString,
   IProxyQuestionnaireMethods,
   NewQuestionnaireAnswer,
-  DataPermissions,
   EQueryProcessingStatus,
   IDynamicRewardParameter,
   SDQLQueryRequest,
   Permission,
+  IQueryPermissions,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { JsonRpcEngine } from "json-rpc-engine";
@@ -480,9 +480,10 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   approveQuery(
     queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
+    queryPermissions: IQueryPermissions | null,
   ): ResultAsync<void, ProxyError> {
     return coreGateway.approveQuery(
-      new ApproveQueryParams(queryCID, parameters),
+      new ApproveQueryParams(queryCID, parameters, queryPermissions),
     );
   }
 

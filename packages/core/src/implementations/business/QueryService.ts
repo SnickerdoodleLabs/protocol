@@ -63,6 +63,7 @@ import {
   AccountAddress,
   ConsentFactoryContractError,
   MissingWalletDataTypeError,
+  IQueryPermissions,
 } from "@snickerdoodlelabs/objects";
 import {
   SDQLQueryWrapper,
@@ -378,6 +379,7 @@ export class QueryService implements IQueryService {
   public approveQuery(
     queryCID: IpfsCID,
     rewardParameters: IDynamicRewardParameter[],
+    queryPermissions: IQueryPermissions | null,
   ): ResultAsync<
     void,
     | AjaxError
@@ -444,6 +446,9 @@ export class QueryService implements IQueryService {
         // the query for ads here.
         queryStatus.status = EQueryProcessingStatus.AdsCompleted;
         queryStatus.rewardsParameters = ObjectUtils.serialize(rewardParameters);
+        if (queryPermissions) {
+          queryStatus.queryPermissions = queryPermissions;
+        }
         return this.sdqlQueryRepo.upsertQueryStatus([queryStatus]).map(() => {
           return queryStatus;
         });
@@ -576,6 +581,10 @@ export class QueryService implements IQueryService {
       queryMetadata.questionnaires,
       queryMetadata.virtualQuestionnaires,
       queryMetadata.image ?? null,
+      {
+        virtualQuestionnaires: queryMetadata.virtualQuestionnaires,
+        questionnaires: queryMetadata.questionnaires,
+      },
     );
     return this.sdqlQueryRepo
       .upsertQueryStatus([queryStatus])
@@ -605,6 +614,10 @@ export class QueryService implements IQueryService {
       queryMetadata.questionnaires,
       queryMetadata.virtualQuestionnaires,
       queryMetadata.image ?? null,
+      {
+        virtualQuestionnaires: queryMetadata.virtualQuestionnaires,
+        questionnaires: queryMetadata.questionnaires,
+      },
     );
     return this.sdqlQueryRepo
       .upsertQueryStatus([queryStatus])
@@ -905,6 +918,11 @@ export class QueryService implements IQueryService {
                         queryMetadata.questionnaires,
                         queryMetadata.virtualQuestionnaires,
                         queryMetadata.image ?? null,
+                        {
+                          virtualQuestionnaires:
+                            queryMetadata.virtualQuestionnaires,
+                          questionnaires: queryMetadata.questionnaires,
+                        },
                       );
 
                       return this.sdqlQueryRepo
@@ -993,21 +1011,16 @@ export class QueryService implements IQueryService {
           ),
         );
       }
-      return ResultUtils.combine([
-        this.validateContextConfig(context, commitmentIndex),
-        this.permisionRepo.getContractPermissions(
-          queryStatus.consentContractAddress,
-        ),
-      ])
-        .andThen(([_, permissions]) => {
+      return this.validateContextConfig(context, commitmentIndex)
+
+        .andThen(() => {
           // After sanity checking, we process the query into insights for a
           // (hopefully) final time, and get our opt-in key
 
-          const queryPermissions = permissions.queryBasedPermissions[query.cid];
           const _permissions = new DataPermissions(
-            permissions.consentContractAddress,
-            queryPermissions?.virtual ?? permissions.virtual,
-            queryPermissions?.questionnaires ?? permissions.questionnaires,
+            queryStatus.consentContractAddress,
+            queryStatus.queryPermissions.virtualQuestionnaires,
+            queryStatus.queryPermissions.questionnaires,
           );
 
           context.publicEvents.queryPerformance.next(

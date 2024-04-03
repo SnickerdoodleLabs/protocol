@@ -65,6 +65,7 @@ import {
   EQueryProcessingStatus,
   IDynamicRewardParameter,
   Permission,
+  IQueryPermissions,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 
@@ -668,6 +669,7 @@ export class ApproveQueryParams extends CoreActionParams<void> {
   public constructor(
     public queryCID: IpfsCID,
     public parameters: IDynamicRewardParameter[],
+    public queryPermissions: IQueryPermissions | null,
   ) {
     super(ApproveQueryParams.getCoreAction());
   }

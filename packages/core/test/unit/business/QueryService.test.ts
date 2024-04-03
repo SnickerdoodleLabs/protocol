@@ -43,9 +43,7 @@ import * as td from "testdouble";
 
 import { QueryService } from "@core/implementations/business/index.js";
 import { IQuestionnaireService } from "@core/interfaces/business";
-import {
-  IQueryParsingEngine,
-} from "@core/interfaces/business/utilities/index.js";
+import { IQueryParsingEngine } from "@core/interfaces/business/utilities/index.js";
 import {
   IConsentContractRepository,
   IInvitationRepository,
@@ -119,6 +117,10 @@ const receivedQueryStatus = new QueryStatus(
   [],
   [],
   null,
+  {
+    virtualQuestionnaires: [],
+    questionnaires: [],
+  },
 );
 
 const adsCompletedQueryStatus = new QueryStatus(
@@ -134,6 +136,10 @@ const adsCompletedQueryStatus = new QueryStatus(
   [],
   [],
   null,
+  {
+    virtualQuestionnaires: [],
+    questionnaires: [],
+  },
 );
 
 const earnedReward = new EarnedReward(
@@ -255,6 +261,10 @@ class QueryServiceMocks {
             [],
             [],
             null,
+            {
+              virtualQuestionnaires: [],
+              questionnaires: [],
+            },
           ),
         ),
       ]),
@@ -275,6 +285,10 @@ class QueryServiceMocks {
             [],
             [],
             null,
+            {
+              virtualQuestionnaires: [],
+              questionnaires: [],
+            },
           ),
         ),
       ]),
@@ -295,6 +309,10 @@ class QueryServiceMocks {
             [],
             [],
             null,
+            {
+              virtualQuestionnaires: [],
+              questionnaires: [],
+            },
           ),
         ),
       ]),
@@ -392,6 +410,7 @@ describe("QueryService.approveQuery() tests", () => {
     const result = await queryService.approveQuery(
       sdqlQuery.cid,
       rewardParameters,
+      null,
     );
 
     // Assert
@@ -413,6 +432,7 @@ describe("QueryService.approveQuery() tests", () => {
     const result = await queryService.approveQuery(
       sdqlQuery.cid,
       rewardParameters,
+      null,
     );
 
     // Assert
@@ -439,6 +459,7 @@ describe("QueryService.approveQuery() tests", () => {
     const result = await queryService.approveQuery(
       sdqlQuery.cid,
       rewardParameters,
+      null,
     );
 
     // Assert
@@ -460,6 +481,7 @@ describe("QueryService.approveQuery() tests", () => {
     const result = await queryService.approveQuery(
       sdqlQuery.cid,
       rewardParameters,
+      null,
     );
     expect(result).toBeDefined();
     expect(result.isErr()).toBeTruthy();
@@ -485,9 +507,11 @@ describe("QueryService.approveQuery() tests", () => {
     const queryService = mocks.factory();
 
     // Act
-    const result = await queryService.approveQuery(sdqlQuery.cid, [
-      invalidRewardParameter,
-    ]);
+    const result = await queryService.approveQuery(
+      sdqlQuery.cid,
+      [invalidRewardParameter],
+      null,
+    );
     expect(result).toBeDefined();
     expect(result.isErr()).toBeTruthy();
     const res = result._unsafeUnwrapErr();
@@ -527,6 +551,10 @@ describe("QueryService.returnQueries() tests", () => {
       [],
       [],
       null,
+      {
+        virtualQuestionnaires: [],
+        questionnaires: [],
+      },
     );
     td.when(
       mocks.sdqlQueryRepo.getQueryStatus([EQueryProcessingStatus.AdsCompleted]),
@@ -548,6 +576,10 @@ describe("QueryService.returnQueries() tests", () => {
             [],
             [],
             null,
+            {
+              virtualQuestionnaires: [],
+              questionnaires: [],
+            },
           ),
         ),
       ]),

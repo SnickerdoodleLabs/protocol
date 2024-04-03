@@ -580,7 +580,12 @@ export class RpcCallHandler implements IRpcCallHandler {
       ApproveQueryParams.getCoreAction(),
       (params, _sender, sourceDomain) => {
         return this.core
-          .approveQuery(params.queryCID, params.parameters, sourceDomain)
+          .approveQuery(
+            params.queryCID,
+            params.parameters,
+            params.queryPermissions,
+            sourceDomain,
+          )
           .mapErr((error) => {
             this.errorUtils.emit(error);
             return new SnickerDoodleCoreError((error as Error).message, error);

@@ -61,6 +61,7 @@ import {
   URLString,
 } from "@objects/primitives/index.js";
 import { GetResultAsyncValueType, PopTuple } from "@objects/types.js";
+import { IQueryPermissions } from "./IQueryPermissions";
 
 export type IProxyAccountMethods = {
   [key in FunctionKeys<IAccountMethods>]: (
@@ -320,6 +321,7 @@ export interface ISdlDataWallet {
   approveQuery(
     queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
+    queryPermissions: IQueryPermissions | null,
   ): ResultAsync<void, ProxyError>;
 
   getSiteVisits(): ResultAsync<SiteVisit[], ProxyError>;

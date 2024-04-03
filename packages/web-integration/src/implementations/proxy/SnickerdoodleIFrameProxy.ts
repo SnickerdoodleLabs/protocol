@@ -88,6 +88,7 @@ import {
   EQueryProcessingStatus,
   IDynamicRewardParameter,
   Permission,
+  IQueryPermissions,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ethers } from "ethers";
@@ -582,10 +583,12 @@ export class SnickerdoodleIFrameProxy
   approveQuery(
     queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
+    queryPermissions: IQueryPermissions | null,
   ): ResultAsync<void, ProxyError> {
     return this._createCall("approveQuery", {
       queryCID,
       parameters,
+      queryPermissions,
     });
   }
 

@@ -58,14 +58,6 @@ interface IPermissionsState {
   questionnaires: IpfsCID[];
 }
 
-// @TODO
-const dummyPermissionGetter = (...args) => {
-  return okAsync({ dataTypes: [], questionnaires: [] });
-};
-const dummyPermissionSetter = (...args) => {
-  return okAsync(undefined);
-};
-
 const OfferModal: FC = () => {
   const { modalState, closeModal, setLoadingStatus } = useLayoutContext();
   const { onPrimaryButtonClick, customProps } = modalState;
@@ -133,25 +125,15 @@ const OfferModal: FC = () => {
   };
 
   const getQuestionnairesWithInitialPermissions = () => {
-    return ResultUtils.combine([getQuestionnaires(), getPermissions()]).map(
-      ([qs, p]) => {
-        const incomingQuestionnaireIDs = qs
-          .filter((q) => q.status === EQuestionnaireStatus.Complete)
-          .map((q) => q.id);
-        setPermissions({
-          dataTypes: Array.from(
-            new Set([...p.dataTypes, ...offer.virtualQuestionnaires]),
-          ),
-          questionnaires: Array.from(
-            new Set([...p.questionnaires, ...incomingQuestionnaireIDs]),
-          ),
-        });
-      },
-    );
-  };
-
-  const getPermissions = () => {
-    return dummyPermissionGetter();
+    return getQuestionnaires().map((qs) => {
+      const incomingQuestionnaireIDs = qs
+        .filter((q) => q.status === EQuestionnaireStatus.Complete)
+        .map((q) => q.id);
+      setPermissions({
+        dataTypes: Array.from(new Set([...offer.virtualQuestionnaires])),
+        questionnaires: Array.from(new Set([...incomingQuestionnaireIDs])),
+      });
+    });
   };
 
   const handleQuestionnaireAnswer = useCallback(
@@ -218,14 +200,14 @@ const OfferModal: FC = () => {
         },
       });
     });
-    dummyPermissionSetter(permissionsRef.current).andThen(() => {
-      return sdlDataWallet
-        .approveQuery(offer.queryCID, calculatedParameters)
-        .map(() => {
-          onPrimaryButtonClick();
-          closeModal();
-        });
-    });
+
+    // TODO
+    return sdlDataWallet
+      .approveQuery(offer.queryCID, calculatedParameters, null)
+      .map(() => {
+        onPrimaryButtonClick();
+        closeModal();
+      });
   };
 
   const isReady = useMemo(() => {

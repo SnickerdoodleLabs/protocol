@@ -36,6 +36,7 @@ import {
   IProxyQuestionnaireMethods,
   IProxyStorageMethods,
   IProxyTwitterMethods,
+  IQueryPermissions,
   ISdlDataWallet,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
@@ -442,9 +443,12 @@ export class ProxyBridge implements ISdlDataWallet {
   approveQuery(
     queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
+    queryPermissions: IQueryPermissions | null,
     _sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, ProxyError> {
-    return this.call(this.core.approveQuery(queryCID, parameters));
+    return this.call(
+      this.core.approveQuery(queryCID, parameters, queryPermissions),
+    );
   }
 
   getSiteVisits(): ResultAsync<SiteVisit[], ProxyError> {

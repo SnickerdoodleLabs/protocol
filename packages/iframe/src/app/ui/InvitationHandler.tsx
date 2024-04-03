@@ -316,15 +316,23 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
           .andThen(() => {
             return ResultUtils.combine(
               Array.from(approvals.entries()).map(([cid, rewards]) => {
-                return core.approveQuery(cid, rewards, undefined);
+                return core.approveQuery(cid, rewards, null, undefined);
               }),
             );
           })
           .andThen(() => {
             return ResultUtils.combine(
               Array.from(withPermissions.entries()).map(
-                ([cid, { rewardParameters }]) => {
-                  return core.approveQuery(cid, rewardParameters, undefined);
+                ([cid, { rewardParameters, permissions }]) => {
+                  return core.approveQuery(
+                    cid,
+                    rewardParameters,
+                    {
+                      questionnaires: permissions.questionnaires,
+                      virtualQuestionnaires: permissions.dataTypes,
+                    },
+                    undefined,
+                  );
                 },
               ),
             );

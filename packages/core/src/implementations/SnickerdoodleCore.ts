@@ -108,6 +108,7 @@ import {
   MissingWalletDataTypeError,
   ServerRewardError,
   Permission,
+  IQueryPermissions,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -1008,6 +1009,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public approveQuery(
     queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
+    queryPermissions: IQueryPermissions | null,
     _sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     void,
@@ -1026,7 +1028,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
-    return queryService.approveQuery(queryCID, parameters);
+    return queryService.approveQuery(queryCID, parameters, queryPermissions);
   }
 
   getQueryStatusesByContractAddress(

@@ -46,6 +46,7 @@ import {
   EQueryProcessingStatus,
   IDynamicRewardParameter,
   Permission,
+  IQueryPermissions,
 } from "@snickerdoodlelabs/objects";
 import {
   IIFrameCallData,
@@ -741,6 +742,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         data: IIFrameCallData<{
           queryCID: IpfsCID;
           parameters: IDynamicRewardParameter[];
+          queryPermissions: IQueryPermissions | null;
           _sourceDomain?: DomainName | undefined;
         }>,
       ) => {
@@ -749,6 +751,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
             return core.approveQuery(
               data.data.queryCID,
               data.data.parameters,
+              data.data.queryPermissions,
               this.sourceDomain,
             );
           });
