@@ -162,14 +162,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
           return okAsync(null);
         }
 
-        const questionHashesWithIndex = questionnaireData.questions.map(
-          (question) => {
-            return [question.index, this.getQuestionHash(question)] as [
-              number,
-              SHA256Hash,
-            ];
-          },
-        );
+        const questionHashesWithIndex = questionnaireData.questionHashes;
 
         return ResultUtils.combine(
           questionHashesWithIndex.map(([questionIndex, questionHash]) => {
@@ -362,10 +355,16 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
       }),
     );
 
+    const questionHashes = questions.map(
+      (question, index) =>
+        [index, this.getQuestionHash(question)] as [number, SHA256Hash],
+    );
+
     const newQuestionnaireData = new QuestionnaireData(
       cid,
       questions,
       data.title,
+      questionHashes,
       data.description,
       data.image,
     );

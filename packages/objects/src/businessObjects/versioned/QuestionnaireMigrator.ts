@@ -4,11 +4,7 @@ import {
   VersionedObject,
   VersionedObjectMigrator,
 } from "@objects/businessObjects/versioned/VersionedObject.js";
-import {
-  EQuestionnaireStatus,
-  PropertiesOf,
-  QuestionnaireQuestion,
-} from "@objects/index";
+import { PropertiesOf, QuestionnaireQuestion } from "@objects/index";
 import { IpfsCID, SHA256Hash, URLString } from "@objects/primitives/index.js";
 
 export class QuestionnaireData extends VersionedObject {
@@ -18,9 +14,9 @@ export class QuestionnaireData extends VersionedObject {
     public id: IpfsCID,
     public questions: PropertiesOf<QuestionnaireQuestion>[],
     public title: string,
-    //public questionHashes: SHA256Hash[],
+    public questionHashes: [number, SHA256Hash][],
     public description?: string,
-    public image?: URLString, //Should contain hashes ? properties of
+    public image?: URLString,
   ) {
     super();
   }
@@ -40,6 +36,7 @@ export class QuestionnaireMigrator extends VersionedObjectMigrator<Questionnaire
       data.id,
       data.questions,
       data.title,
+      data.questionHashes,
       data.description,
       data.image,
     );
@@ -57,15 +54,39 @@ export class QuestionnaireMigrator extends VersionedObjectMigrator<Questionnaire
             delete data.status;
           }
 
-          // data.questionHashes = data.questions?.map(() => {
-          //   const questionString = ObjectUtils.serialize(question);
+          data.questionHashes = data.questions?.map((question, index) => {
+            const questionString = JSON.stringify(question, (key, value) => {
+              if (value instanceof Map) {
+                return {
+                  dataType: "Map",
+                  value: Array.from(value.entries()),
+                };
+              } else if (value instanceof Set) {
+                return {
+                  dataType: "Set",
+                  value: [...value],
+                };
+              } else if (value instanceof BigInt) {
+                return {
+                  dataType: "BigInt",
+                  value: value.toString(),
+                };
+              } else if (typeof value == "bigint") {
+                return {
+                  dataType: "bigint",
+                  value: BigInt(value).toString(),
+                };
+              } else {
+                return value;
+              }
+            });
 
-          //   const questionHash = Crypto.createHash("sha256")
-          //     .update(questionString)
-          //     .digest("hex");
+            const questionHash = Crypto.createHash("sha256")
+              .update(questionString)
+              .digest("hex");
 
-          //   return SHA256Hash(questionHash);
-          // });
+            return [index, SHA256Hash(questionHash)] as [number, SHA256Hash];
+          });
           return data;
         },
       ],

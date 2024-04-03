@@ -944,6 +944,26 @@ export const mockQuestionnaireIPFSInstance = new QuestionnaireData(
     },
   ],
   "Sample Questionnaire",
+  [
+    [
+      0,
+      SHA256Hash(
+        "a23202a89d231eff3537ae51d424baf35b2770236e3052d239a40cab1bda241d",
+      ),
+    ],
+    [
+      1,
+      SHA256Hash(
+        "2fee68f716023f148649763298f79797cdd0a5c2d3175f8890592ae3f40ec000",
+      ),
+    ],
+    [
+      2,
+      SHA256Hash(
+        "50f5704f48b13737e207b79e19c68a5fc823ea1f136cca30de5f3a9b691a8e91",
+      ),
+    ],
+  ],
   "This is a sample questionnaire for testing purposes",
   URLString("https://example.com/sample-image.jpg"),
 );
@@ -958,7 +978,6 @@ export const mockQuestionnaireCID2 = IpfsCID(
 );
 export const mockQuestionnaireStoredInstance = new QuestionnaireData(
   mockQuestionnaireCID,
-
   [
     {
       index: 0,
@@ -988,13 +1007,26 @@ export const mockQuestionnaireStoredInstance = new QuestionnaireData(
     },
   ],
   "Sample Questionnaire 2",
+  [
+    [
+      0,
+      SHA256Hash(
+        "788d7d50a700ead1f35f9fe8fa047fb494c769db3bce87429607030a801258c7",
+      ),
+    ],
+    [
+      1,
+      SHA256Hash(
+        "bcbad372f96009e5db4c692d5b9d37c6fa285e5a20572670e9688f0f48c4237d",
+      ),
+    ],
+  ],
   "Please answer the following questions about your exercise habits.",
   undefined,
 );
 
 export const mockQuestionnaireStoredInstance2 = new QuestionnaireData(
   mockQuestionnaireCID2,
-
   [
     {
       index: 0,
@@ -1024,6 +1056,7 @@ export const mockQuestionnaireStoredInstance2 = new QuestionnaireData(
     },
   ],
   "Sample Questionnaire 22",
+  [],
   "Please answer the following questions about your exercise habits.",
   undefined,
 );
