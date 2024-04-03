@@ -26,7 +26,6 @@ import {
   QueryStatus,
   Questionnaire,
   UnixTimestamp,
-  Permission,
 } from "@snickerdoodlelabs/objects";
 import {
   ConsentModal,
@@ -293,26 +292,8 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
           IpfsCID,
           { virtual: EWalletDataType[]; questionnaires: IpfsCID[] }
         > = {};
-        withPermissions.forEach(({ permissions }, cid) => {
-          queryBasedPermissions[cid] = {
-            virtual: permissions.dataTypes,
-            questionnaires: permissions.questionnaires,
-          };
-        });
-        const permission = new Permission(
-          currentInvitation.data.invitation.consentContractAddress,
-          permissions.dataTypes,
-          permissions.questionnaires,
-          queryBasedPermissions,
-        );
         core.invitation
           .acceptInvitation(currentInvitation.data.invitation, undefined)
-          .andThen(() => {
-            return core.invitation.updateDataPermissions(
-              currentInvitation.data.invitation.consentContractAddress,
-              permission,
-            );
-          })
           .andThen(() => {
             return ResultUtils.combine(
               Array.from(approvals.entries()).map(([cid, rewards]) => {

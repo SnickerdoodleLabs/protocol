@@ -5,7 +5,6 @@ import {
   EFieldKey,
   ERecordKey,
   EVMContractAddress,
-  Permission,
   PersistenceError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -23,28 +22,6 @@ export class PermissionRepository implements IPermissionRepository {
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
   ) {}
-
-  public getContractPermissions(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<Permission, PersistenceError> {
-    return this.persistence
-      .getObject<Permission>(ERecordKey.PERMISSIONS, consentContractAddress)
-      .map((permission) => {
-        if (permission == null) {
-          return new Permission(consentContractAddress, [], []);
-        }
-        return permission;
-      });
-  }
-
-  public setContractPermissions(
-    permission: Permission,
-  ): ResultAsync<void, PersistenceError> {
-    return this.persistence.updateRecord<Permission>(
-      ERecordKey.PERMISSIONS,
-      permission,
-    );
-  }
 
   public getDomainPermissions(
     domain: DomainName,

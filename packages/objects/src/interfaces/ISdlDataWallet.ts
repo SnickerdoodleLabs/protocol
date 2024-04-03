@@ -17,7 +17,6 @@ import {
   TransactionFlowInsight,
   DataPermissions,
   IDynamicRewardParameter,
-  Permission,
 } from "@objects/businessObjects/index.js";
 import {
   ECoreProxyType,
@@ -40,6 +39,7 @@ import {
 } from "@objects/interfaces/ISnickerdoodleCore.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
+import { IQueryPermissions } from "@objects/interfaces/IQueryPermissions.js";
 import {
   AccountAddress,
   Age,
@@ -61,7 +61,6 @@ import {
   URLString,
 } from "@objects/primitives/index.js";
 import { GetResultAsyncValueType, PopTuple } from "@objects/types.js";
-import { IQueryPermissions } from "./IQueryPermissions";
 
 export type IProxyAccountMethods = {
   [key in FunctionKeys<IAccountMethods>]: (
@@ -280,14 +279,6 @@ export interface ISdlDataWallet {
     ipfsCID: IpfsCID,
   ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError>;
 
-  updateAgreementPermissions(
-    consentContractAddress: EVMContractAddress,
-    permission: Permission,
-  ): ResultAsync<void, ProxyError>;
-
-  getDataPermissions(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<Permission, ProxyError>;
   leaveCohort(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, ProxyError>;

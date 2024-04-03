@@ -45,7 +45,6 @@ import {
   NewQuestionnaireAnswer,
   EQueryProcessingStatus,
   IDynamicRewardParameter,
-  Permission,
   IQueryPermissions,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -463,33 +462,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.coreProvider.getCore().andThen((core) => {
             return core.invitation.getInvitationMetadataByCID(
               data.data.ipfsCID,
-            );
-          });
-        }, data.callId);
-      },
-
-      updateAgreementPermissions: (
-        data: IIFrameCallData<{
-          permission: Permission;
-        }>,
-      ) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.permission.setContractPermissions(data.data.permission);
-          });
-        }, data.callId);
-      },
-
-      getDataPermissions: (
-        data: IIFrameCallData<{
-          consentContractAddress: EVMContractAddress;
-        }>,
-      ) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.invitation.getDataPermissions(
-              data.data.consentContractAddress,
-              this.sourceDomain,
             );
           });
         }, data.callId);
@@ -1226,10 +1198,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
 
         events.onCohortLeft.subscribe((val) => {
           parent.emit("onCohortLeft", val);
-        });
-
-        events.onDataPermissionsUpdated.subscribe((val) => {
-          parent.emit("onDataPermissionsUpdated", val);
         });
 
         events.onTransaction.subscribe((val) => {

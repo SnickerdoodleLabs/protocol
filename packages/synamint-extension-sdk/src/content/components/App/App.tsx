@@ -19,7 +19,6 @@ import {
   LinkedAccount,
   NewQuestionnaireAnswer,
   PagingRequest,
-  Permission,
   ProxyError,
   QueryStatus,
   Questionnaire,
@@ -73,7 +72,6 @@ import {
   GetQueryStatusesByContractAddressParams,
   ApproveQueryParams,
   AcceptInvitationParams,
-  UpdateAgreementPermissionsParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 import { ResultAsync } from "neverthrow";
@@ -521,32 +519,8 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
           directCall: { permissions, approvals },
           withPermissions,
         } = params;
-        const queryBasedPermissions: Record<
-          IpfsCID,
-          { virtual: EWalletDataType[]; questionnaires: IpfsCID[] }
-        > = {};
-        withPermissions.forEach(({ permissions }, cid) => {
-          queryBasedPermissions[cid] = {
-            virtual: permissions.dataTypes,
-            questionnaires: permissions.questionnaires,
-          };
-        });
-        const permission = new Permission(
-          currentInvitation.data.invitation.consentContractAddress,
-          permissions.dataTypes,
-          permissions.questionnaires,
-          queryBasedPermissions,
-        );
         coreGateway
           .acceptInvitation(currentInvitation.data.invitation)
-          .andThen(() => {
-            return coreGateway.updateAgreementPermissions(
-              new UpdateAgreementPermissionsParams(
-                currentInvitation.data.invitation.consentContractAddress,
-                permission,
-              ),
-            );
-          })
           .andThen(() => {
             return ResultUtils.combine(
               Array.from(approvals.entries()).map(([cid, rewardParams]) =>

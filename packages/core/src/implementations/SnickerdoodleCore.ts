@@ -107,7 +107,6 @@ import {
   MethodSupportError,
   MissingWalletDataTypeError,
   ServerRewardError,
-  Permission,
   IQueryPermissions,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -421,16 +420,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
         return invitationService.getInvitationsByDomain(domain);
       },
-      getDataPermissions: (
-        consentContractAddress: EVMContractAddress,
-        sourceDomain: DomainName | undefined = undefined,
-      ) => {
-        const invitationService = this.iocContainer.get<IInvitationService>(
-          IInvitationServiceType,
-        );
-
-        return invitationService.getDataPermissions(consentContractAddress);
-      },
       getAvailableInvitationsCID: (
         sourceDomain: DomainName | undefined = undefined,
       ) => {
@@ -455,20 +444,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         );
 
         return invitationService.getInvitationMetadataByCID(ipfsCID);
-      },
-      updateDataPermissions: (
-        consentContractAddress: EVMContractAddress,
-        permission: Permission,
-        sourceDomain: DomainName | undefined = undefined,
-      ) => {
-        const invitationService = this.iocContainer.get<IInvitationService>(
-          IInvitationServiceType,
-        );
-
-        return invitationService.updateDataPermissions(
-          consentContractAddress,
-          permission,
-        );
       },
     };
 
@@ -863,24 +838,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     };
 
     this.permission = {
-      getContractPermissions: (consentContractAddress: EVMContractAddress) => {
-        const permissionRepository =
-          this.iocContainer.get<IPermissionRepository>(
-            IPermissionRepositoryType,
-          );
-        return permissionRepository.getContractPermissions(
-          consentContractAddress,
-        );
-      },
-
-      setContractPermissions: (permission: Permission) => {
-        const permissionRepository =
-          this.iocContainer.get<IPermissionRepository>(
-            IPermissionRepositoryType,
-          );
-        return permissionRepository.setContractPermissions(permission);
-      },
-
       getDomainPermissions: (domain: DomainName) => {
         const permissionRepository =
           this.iocContainer.get<IPermissionRepository>(

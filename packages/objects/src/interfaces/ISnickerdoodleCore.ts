@@ -37,7 +37,6 @@ import {
   Questionnaire,
   QuestionnaireWithAnswers,
   NewQuestionnaireAnswer,
-  Permission,
 } from "@objects/businessObjects/index.js";
 import {
   EChain,
@@ -589,21 +588,6 @@ export interface IInvitationMethods {
     | BlockchainCommonErrors
   >;
 
-  getDataPermissions(
-    consentContractAddress: EVMContractAddress,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    Permission,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | ConsentFactoryContractError
-    | PersistenceError
-    | ConsentError
-    | UnauthorizedError
-    | BlockchainCommonErrors
-  >;
-
   getAvailableInvitationsCID(
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<
@@ -635,22 +619,6 @@ export interface IInvitationMethods {
   ): ResultAsync<
     IOldUserAgreement | IUserAgreement,
     IPFSError | UnauthorizedError
-  >;
-
-  updateDataPermissions(
-    consentContractAddress: EVMContractAddress,
-    permission: Permission,
-    sourceDomain?: DomainName,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | UninitializedError
-    | ConsentError
-    | ConsentContractError
-    | BlockchainProviderError
-    | MinimalForwarderContractError
-    | AjaxError
-    | BlockchainCommonErrors
   >;
 }
 
@@ -841,14 +809,6 @@ export interface IQuestionnaireMethods {
 }
 
 export interface IPermissionMethods {
-  getContractPermissions(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<Permission, PersistenceError>;
-
-  setContractPermissions(
-    permission: Permission,
-  ): ResultAsync<void, PersistenceError>;
-
   getDomainPermissions(
     domain: DomainName,
   ): ResultAsync<EDataWalletPermission[], PersistenceError>;

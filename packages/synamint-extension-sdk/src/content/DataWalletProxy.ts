@@ -65,7 +65,6 @@ import {
   EQueryProcessingStatus,
   IDynamicRewardParameter,
   SDQLQueryRequest,
-  Permission,
   IQueryPermissions,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
@@ -88,7 +87,6 @@ import {
   SetEmailParams,
   SetLocationParams,
   SetGenderParams,
-  GetAgreementPermissionsParams,
   LeaveCohortParams,
   GetInvitationMetadataByCIDParams,
   GetConsentContractCIDParams,
@@ -108,7 +106,6 @@ import {
   SetAuthenticatedStorageParams,
   GetQueryStatusesParams,
   GetTransactionsParams,
-  UpdateAgreementPermissionsParams,
   ApproveQueryParams,
   GetQueryStatusesByContractAddressParams,
 } from "@synamint-extension-sdk/shared";
@@ -661,21 +658,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public getInvitationMetadataByCID(ipfsCID: IpfsCID) {
     return coreGateway.getInvitationMetadataByCID(
       new GetInvitationMetadataByCIDParams(ipfsCID),
-    );
-  }
-
-  public getDataPermissions(consentContractAddress: EVMContractAddress) {
-    return coreGateway.getDataPermissions(
-      new GetAgreementPermissionsParams(consentContractAddress),
-    );
-  }
-
-  public updateAgreementPermissions(
-    consentContractAddress: EVMContractAddress,
-    permission: Permission,
-  ): ResultAsync<void, ProxyError> {
-    return coreGateway.updateAgreementPermissions(
-      new UpdateAgreementPermissionsParams(consentContractAddress, permission),
     );
   }
 

@@ -21,7 +21,6 @@ import {
   PagedResponse,
   EarnedReward,
   IUserAgreement,
-  Permission,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -39,18 +38,6 @@ export class InvitationRepository implements IInvitationRepository {
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
-
-  public updateAgreementPermissions(
-    consentContractAddress: EVMContractAddress,
-    permission: Permission,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core.invitation
-      .updateDataPermissions(consentContractAddress, permission)
-      .mapErr((error) => {
-        this.errorUtils.emit(error);
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      });
-  }
 
   public getMarketplaceListingsByTag(
     pagingReq: PagingRequest,
@@ -81,17 +68,6 @@ export class InvitationRepository implements IInvitationRepository {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
-  }
-
-  public getDataPermissions(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<Permission, SnickerDoodleCoreError> {
-    return this.core.invitation
-      .getDataPermissions(consentContractAddress)
-      .mapErr((error) => {
-        this.errorUtils.emit(error);
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      });
   }
 
   public getAvailableInvitationsCID(): ResultAsync<

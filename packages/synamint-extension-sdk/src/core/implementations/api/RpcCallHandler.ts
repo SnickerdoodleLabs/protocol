@@ -64,7 +64,6 @@ import {
   GetInvitationWithDomainParams,
   LeaveCohortParams,
   GetInvitationMetadataByCIDParams,
-  GetAgreementPermissionsParams,
   UnlinkAccountParams,
   AcceptInvitationParams,
   GetConsentContractCIDParams,
@@ -138,7 +137,6 @@ import {
   GetQuestionnairesForConsentContractParams,
   GetConsentContractsByQuestionnaireCIDParams,
   GetRecommendedConsentContractsParams,
-  UpdateAgreementPermissionsParams,
   GetQuestionnairesParams,
   ApproveQueryParams,
   GetVirtualQuestionnairesParams,
@@ -473,23 +471,6 @@ export class RpcCallHandler implements IRpcCallHandler {
           .map((res) => {
             return ObjectUtils.serialize(res);
           });
-      },
-    ),
-    new CoreActionHandler<GetAgreementPermissionsParams>(
-      GetAgreementPermissionsParams.getCoreAction(),
-      (params) => {
-        return this.core.invitation.getDataPermissions(
-          params.consentContractAddress,
-        );
-      },
-    ),
-    new CoreActionHandler<UpdateAgreementPermissionsParams>(
-      UpdateAgreementPermissionsParams.getCoreAction(),
-      (params) => {
-        return this.core.invitation.updateDataPermissions(
-          params.consentContractAddress,
-          params.permission,
-        );
       },
     ),
     new CoreActionHandler<AcceptInvitationParams>(

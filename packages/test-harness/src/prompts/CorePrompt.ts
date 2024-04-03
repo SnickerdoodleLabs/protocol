@@ -28,7 +28,6 @@ import { OptInCampaign } from "@test-harness/prompts/OptInCampaign.js";
 import { OptOutCampaign } from "@test-harness/prompts/OptOutCampaign.js";
 import { RemoveAccount } from "@test-harness/prompts/RemoveAccount.js";
 import { SelectProfile } from "@test-harness/prompts/SelectProfile.js";
-import { UpdateDataPermissions } from "@test-harness/prompts/UpdateDataPermissions.js";
 
 export class CorePrompt extends DataWalletPrompt {
   private addAccount: AddAccount;
@@ -36,7 +35,6 @@ export class CorePrompt extends DataWalletPrompt {
   private optInCampaign: OptInCampaign;
   private optOutCampaign: OptOutCampaign;
   private selectProfile: SelectProfile;
-  private updateDataPermissions: UpdateDataPermissions;
 
   public constructor(public env: Environment, protected timeUtils: ITimeUtils) {
     super(env);
@@ -46,7 +44,6 @@ export class CorePrompt extends DataWalletPrompt {
     this.optInCampaign = new OptInCampaign(this.env, this.timeUtils);
     this.optOutCampaign = new OptOutCampaign(this.env);
     this.selectProfile = new SelectProfile(this.env);
-    this.updateDataPermissions = new UpdateDataPermissions(this.env);
   }
 
   public start(): ResultAsync<void, Error> {
@@ -62,10 +59,6 @@ export class CorePrompt extends DataWalletPrompt {
       {
         name: "Opt Out of Campaign",
         value: "optOutCampaign",
-      },
-      {
-        name: "Update Data Permissions",
-        value: "updateDataPermissions",
       },
       new inquirer.Separator(),
       { name: "Add AccountBalance - ETH", value: "Add AccountBalance - ETH" },
@@ -156,8 +149,6 @@ export class CorePrompt extends DataWalletPrompt {
           return this.optInCampaign.start();
         case "optOutCampaign":
           return this.optOutCampaign.start();
-        case "updateDataPermissions":
-          return this.updateDataPermissions.start();
         case "getAge":
           return this.core.getAge().map(console.log);
         case "setGender":

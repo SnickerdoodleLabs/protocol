@@ -26,7 +26,6 @@ import {
   IUserAgreement,
   InvalidParametersError,
   CircuitError,
-  Permission,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -137,24 +136,6 @@ export interface IInvitationService {
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOldUserAgreement | IUserAgreement, IPFSError>;
-
-  getDataPermissions(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    Permission,
-    UninitializedError | ConsentError | PersistenceError
-  >;
-  updateDataPermissions(
-    consentContractAddress: EVMContractAddress,
-    permission: Permission,
-  ): ResultAsync<
-    void,
-    | UninitializedError
-    | ConsentContractError
-    | BlockchainCommonErrors
-    | PersistenceError
-    | ConsentError
-  >;
 
   getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,

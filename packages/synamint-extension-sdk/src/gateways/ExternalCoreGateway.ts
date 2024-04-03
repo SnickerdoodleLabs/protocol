@@ -63,7 +63,6 @@ import {
   NewQuestionnaireAnswer,
   DataPermissions,
   IDynamicRewardParameter,
-  Permission,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { JsonRpcEngine } from "json-rpc-engine";
@@ -82,7 +81,6 @@ import {
   SetGenderParams,
   SetGivenNameParams,
   SetLocationParams,
-  GetAgreementPermissionsParams,
   GetConsentContractCIDParams,
   CheckInvitationStatusParams,
   GetTokenPriceParams,
@@ -153,7 +151,6 @@ import {
   GetQuestionnairesForConsentContractParams,
   GetConsentContractsByQuestionnaireCIDParams,
   GetRecommendedConsentContractsParams,
-  UpdateAgreementPermissionsParams,
   GetQuestionnairesParams,
   GetVirtualQuestionnairesParams,
   GetQuestionnairesByCIDSParams,
@@ -426,18 +423,6 @@ export class ExternalCoreGateway {
     return this._handler.call(
       new AcceptInvitationParams(ObjectUtils.serialize(invitation)),
     );
-  }
-
-  public updateAgreementPermissions(
-    params: UpdateAgreementPermissionsParams,
-  ): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
-  }
-
-  public getDataPermissions(
-    params: GetAgreementPermissionsParams,
-  ): ResultAsync<Permission, ProxyError> {
-    return this._handler.call(params);
   }
 
   public rejectInvitation(

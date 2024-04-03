@@ -6,7 +6,6 @@ import {
   BigNumberString,
   ChainId,
   CountryCode,
-  DataPermissionsUpdatedEvent,
   DataWalletAddress,
   DiscordGuildProfile,
   DiscordID,
@@ -87,7 +86,6 @@ import {
   DataPermissions,
   EQueryProcessingStatus,
   IDynamicRewardParameter,
-  Permission,
   IQueryPermissions,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
@@ -165,13 +163,6 @@ export class SnickerdoodleIFrameProxy
         this.child.on("onCohortLeft", (data: EVMContractAddress) => {
           this.events.onCohortLeft.next(data);
         });
-
-        this.child.on(
-          "onDataPermissionsUpdated",
-          (data: DataPermissionsUpdatedEvent) => {
-            this.events.onDataPermissionsUpdated.next(data);
-          },
-        );
 
         this.child.on("onTransaction", (data: EVMTransaction) => {
           this.events.onTransaction.next(data);
@@ -426,22 +417,6 @@ export class SnickerdoodleIFrameProxy
   ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError> {
     return this._createCall("getInvitationMetadataByCID", {
       ipfsCID,
-    });
-  }
-  public updateAgreementPermissions(
-    consentContractAddress: EVMContractAddress,
-    permission: Permission,
-  ): ResultAsync<void, ProxyError> {
-    return this._createCall("updateAgreementPermissions", {
-      consentContractAddress,
-      permission,
-    });
-  }
-  public getDataPermissions(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<Permission, ProxyError> {
-    return this._createCall("getDataPermissions", {
-      consentContractAddress,
     });
   }
 
