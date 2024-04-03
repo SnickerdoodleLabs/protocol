@@ -131,21 +131,27 @@ class QuestionnaireRepositoryMocks {
         td.matchers.argThat(
           (arg: {
             index?: string;
-            query?: {
-              lower: IDBValidKey;
-              upper: IDBValidKey;
-              lowerOpen: boolean;
-              upperOpen: boolean;
-            };
+            query?:
+              | {
+                  lower: IDBValidKey;
+                  upper: IDBValidKey;
+                  lowerOpen: boolean;
+                  upperOpen: boolean;
+                }
+              | number;
             count?: number;
             id?: IDBValidKey;
           }) => {
             if (arg.query != null) {
-              return (
-                arg.query.lower[1] === mockQuestionnaireSecondQuestionHash ||
-                arg.query.lower[1] === mockQuestionnaireFirstQuestionHash ||
-                arg.query.lower[0] === EBoolean.FALSE
-              );
+              if (typeof arg.query === "number") {
+                return true;
+              } else {
+                return (
+                  arg.query.lower[1] === mockQuestionnaireSecondQuestionHash ||
+                  arg.query.lower[1] === mockQuestionnaireFirstQuestionHash ||
+                  arg.query.lower[0] === EBoolean.FALSE
+                );
+              }
             }
             return false;
           },
@@ -161,27 +167,18 @@ class QuestionnaireRepositoryMocks {
           id?: IDBValidKey;
         },
       ) => {
-        if (query.query) {
-          const lowerBound = query.query.lower;
-          const upperBound = query.query.upper;
+        if (query.query != null) {
           //QUESTIONNAIRES uses get cursor for getting non deleted, EQuestionnaireStatus calls
           //QUESTIONNAIRES_HISTORY uses get cursor for doing bound time queries
           //Current time is used for the upper limit in case no benchmark given
           if (storeName === ERecordKey.QUESTIONNAIRES) {
-            if (
-              lowerBound.includes(EQuestionnaireStatus.Complete) ||
-              lowerBound[1] === mockQuestionnaireCID
-            ) {
-              return okAsync([mockQuestionnaireStoredInstance]);
-            }
-            if (
-              upperBound.includes(EQuestionnaireStatus.Available) ||
-              upperBound[1] === mockQuestionnaireCID2
-            ) {
-              return okAsync([mockQuestionnaireStoredInstance2]);
-            }
+            return okAsync([
+              mockQuestionnaireStoredInstance,
+              mockQuestionnaireStoredInstance2,
+            ]);
           }
           if (storeName === ERecordKey.QUESTIONNAIRES_HISTORY) {
+            const upperBound = query.query.upper;
             const upperBoundID = upperBound[1] as string;
             const upperBoundTime = upperBound[2] as number;
             const resultArray: QuestionnaireHistory[] = [];

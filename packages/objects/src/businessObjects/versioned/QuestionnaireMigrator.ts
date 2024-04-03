@@ -1,3 +1,5 @@
+import Crypto from "crypto";
+
 import {
   VersionedObject,
   VersionedObjectMigrator,
@@ -7,19 +9,18 @@ import {
   PropertiesOf,
   QuestionnaireQuestion,
 } from "@objects/index";
-import { IpfsCID, URLString } from "@objects/primitives/index.js";
+import { IpfsCID, SHA256Hash, URLString } from "@objects/primitives/index.js";
 
 export class QuestionnaireData extends VersionedObject {
-  public static CURRENT_VERSION = 1;
+  public static CURRENT_VERSION = 2;
 
   public constructor(
     public id: IpfsCID,
-    //TODO use lazy storing
-    public status: EQuestionnaireStatus,
     public questions: PropertiesOf<QuestionnaireQuestion>[],
     public title: string,
+    //public questionHashes: SHA256Hash[],
     public description?: string,
-    public image?: URLString,
+    public image?: URLString, //Should contain hashes ? properties of
   ) {
     super();
   }
@@ -37,7 +38,6 @@ export class QuestionnaireMigrator extends VersionedObjectMigrator<Questionnaire
   protected factory(data: PropertiesOf<QuestionnaireData>): QuestionnaireData {
     return new QuestionnaireData(
       data.id,
-      data.status,
       data.questions,
       data.title,
       data.description,
@@ -49,6 +49,26 @@ export class QuestionnaireMigrator extends VersionedObjectMigrator<Questionnaire
     number,
     (data: Record<string, unknown>, version: number) => Record<string, unknown>
   > {
-    return new Map();
+    return new Map([
+      [
+        1,
+        (data: Partial<QuestionnaireData>) => {
+          if ("status" in data) {
+            delete data.status;
+          }
+
+          // data.questionHashes = data.questions?.map(() => {
+          //   const questionString = ObjectUtils.serialize(question);
+
+          //   const questionHash = Crypto.createHash("sha256")
+          //     .update(questionString)
+          //     .digest("hex");
+
+          //   return SHA256Hash(questionHash);
+          // });
+          return data;
+        },
+      ],
+    ]);
   }
 }

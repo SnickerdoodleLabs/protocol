@@ -902,7 +902,6 @@ export const mockIPFSQuestionnaire: IQuestionnaireSchema = {
 
 export const mockQuestionnaireIPFSInstance = new QuestionnaireData(
   IPFSQuestionnaireCID,
-  EQuestionnaireStatus.Available,
   [
     {
       index: 0,
@@ -959,7 +958,7 @@ export const mockQuestionnaireCID2 = IpfsCID(
 );
 export const mockQuestionnaireStoredInstance = new QuestionnaireData(
   mockQuestionnaireCID,
-  EQuestionnaireStatus.Complete,
+
   [
     {
       index: 0,
@@ -995,7 +994,7 @@ export const mockQuestionnaireStoredInstance = new QuestionnaireData(
 
 export const mockQuestionnaireStoredInstance2 = new QuestionnaireData(
   mockQuestionnaireCID2,
-  EQuestionnaireStatus.Available,
+
   [
     {
       index: 0,

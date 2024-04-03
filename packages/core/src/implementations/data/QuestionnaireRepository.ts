@@ -78,9 +78,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     PagedResponse<QuestionnaireWithAnswers>,
     PersistenceError | AjaxError
   > {
-    return this.fetchQuestionnaireCIDsGivenStatus(
-      EQuestionnaireStatus.Complete,
-    ).andThen((cids) =>
+    return this.fetchQuestionnaireCIDs().andThen((cids) =>
       this.getPagedQuestionnairesByCIDs(
         cids,
         pagingRequest,
@@ -95,15 +93,13 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
   public getUnanswered(
     pagingRequest: PagingRequest,
   ): ResultAsync<PagedResponse<Questionnaire>, PersistenceError | AjaxError> {
-    return this.fetchQuestionnaireCIDsGivenStatus(
-      EQuestionnaireStatus.Available,
-    ).andThen((cids) =>
-      this.getPagedQuestionnairesByCIDs(
+    return this.fetchQuestionnaireCIDs().andThen((cids) => {
+      return this.getPagedQuestionnairesByCIDs(
         cids,
         pagingRequest,
         EQuestionnaireStatus.Available,
-      ),
-    );
+      );
+    });
   }
 
   public getByCIDs(
@@ -165,46 +161,46 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
         if (questionnaireData == null) {
           return okAsync(null);
         }
-        if (status === EQuestionnaireStatus.Available) {
-          return questionnaireData.status === EQuestionnaireStatus.Available
-            ? okAsync(this.constructQuestionnaire(questionnaireData))
-            : okAsync(null);
-        }
 
-        const questionHashesWithIndex: [number, SHA256Hash][] =
-          questionnaireData.questions.map((question) => {
-            return [question.index, this.getQuestionHash(question)];
-          });
+        const questionHashesWithIndex = questionnaireData.questions.map(
+          (question) => {
+            return [question.index, this.getQuestionHash(question)] as [
+              number,
+              SHA256Hash,
+            ];
+          },
+        );
 
         return ResultUtils.combine(
           questionHashesWithIndex.map(([questionIndex, questionHash]) => {
             return this.fetchLatestQuestionnaireHistoriesById(
               questionHash,
               benchmark,
-            ).map((questionnaireHistory) => {
-              return [questionIndex, questionnaireHistory] as [
-                number,
-                QuestionnaireHistory[],
-              ];
-            });
+            ).map(
+              (questionnaireHistory) =>
+                [questionIndex, questionnaireHistory] as [
+                  number,
+                  QuestionnaireHistory[],
+                ],
+            );
           }),
         ).map((questionnaireHistories) => {
           const hasHistory = questionnaireHistories.some(
-            ([_, histories]) => histories.length > 0,
+            ([, histories]) => histories.length > 0,
           );
 
-          if (hasHistory) {
-            return this.constructQuestionnaireWithAnswers(
-              questionnaireData,
-              new Map(questionnaireHistories),
-            );
-          }
-
-          if (status === EQuestionnaireStatus.Complete) {
+          if (status === EQuestionnaireStatus.Available && hasHistory) {
+            return null;
+          } else if (status === EQuestionnaireStatus.Complete && !hasHistory) {
             return null;
           }
 
-          return this.constructQuestionnaire(questionnaireData);
+          return hasHistory
+            ? this.constructQuestionnaireWithAnswers(
+                questionnaireData,
+                new Map(questionnaireHistories),
+              )
+            : this.constructQuestionnaire(questionnaireData);
         });
       },
     );
@@ -259,18 +255,6 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
 
       return ResultUtils.combine(
         historyRecords.map((historyRecord) => {
-          if (questionnaireData.status !== EQuestionnaireStatus.Complete) {
-            questionnaireData.status = EQuestionnaireStatus.Complete;
-
-            return ResultUtils.combine([
-              this.persistence.updateRecord(
-                ERecordKey.QUESTIONNAIRES_HISTORY,
-                historyRecord,
-              ),
-              this.upsertQuestionnaireData([questionnaireData]),
-            ]).map(() => {});
-          }
-
           return this.persistence.updateRecord(
             ERecordKey.QUESTIONNAIRES_HISTORY,
             historyRecord,
@@ -321,18 +305,14 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     });
   }
 
-  private fetchQuestionnaireCIDsGivenStatus(
-    status: EQuestionnaireStatus,
-  ): ResultAsync<IpfsCID[], PersistenceError | AjaxError> {
-    const query = IDBKeyRange.bound(
-      [EBoolean.FALSE, status],
-      [EBoolean.FALSE, status],
-    );
-
+  private fetchQuestionnaireCIDs(): ResultAsync<
+    IpfsCID[],
+    PersistenceError | AjaxError
+  > {
     return this.persistence
       .getCursor2<QuestionnaireData>(ERecordKey.QUESTIONNAIRES, {
-        index: "deleted,data.status",
-        query: query,
+        index: "deleted",
+        query: EBoolean.FALSE,
       })
       .map((questionnaireDatas) => questionnaireDatas.map((data) => data.id));
   }
@@ -384,7 +364,6 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
 
     const newQuestionnaireData = new QuestionnaireData(
       cid,
-      EQuestionnaireStatus.Available,
       questions,
       data.title,
       data.description,
@@ -447,7 +426,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     return new Questionnaire(
       questionnaireData.id,
       MarketplaceTag(`Questionnaire:${questionnaireData.id}`),
-      questionnaireData.status,
+      EQuestionnaireStatus.Available,
       questionnaireData.title,
       questionnaireData.description ?? null,
       questionnaireData.image ?? null,
@@ -496,13 +475,13 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     return new QuestionnaireWithAnswers(
       questionnaireData.id,
       MarketplaceTag(`Questionnaire:${questionnaireData.id}`),
-      questionnaireData.status,
+      EQuestionnaireStatus.Complete,
       questionnaireData.title,
       questionnaireData.description ?? null,
       questionnaireData.image ?? null,
       questions,
       allAnswers,
-      //Should not possible
+      //Should not be possible
       latestMeasurementDate ?? UnixTimestamp(0),
     );
   }
