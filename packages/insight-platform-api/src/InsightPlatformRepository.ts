@@ -141,7 +141,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
             anonymitySetSize: anonymitySetSize,
             proof: proof,
           } as IDeliverInsightsParams as unknown as Record<string, unknown>)
-          .map(() => {
+          .map((res) => {
             publicEvents.queryPerformance.next(
               new QueryPerformanceEvent(
                 EQueryEvents.DeliverInsightsCall,
@@ -149,6 +149,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
                 queryCID,
               ),
             );
+            return res;
           })
           .mapErr((err) => {
             publicEvents.queryPerformance.next(
