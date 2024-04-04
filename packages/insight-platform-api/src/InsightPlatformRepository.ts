@@ -101,6 +101,18 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         anonymitySet,
         queryCID,
       )
+      .mapErr((err) => {
+        publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.MembershipProve,
+            EStatus.End,
+            queryCID,
+            undefined,
+            err,
+          ),
+        );
+        return err;
+      })
       .andThen((proof) => {
         publicEvents.queryPerformance.next(
           new QueryPerformanceEvent(
@@ -109,6 +121,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
             queryCID,
           ),
         );
+
         const url = new URL(urlJoin(insightPlatformBaseUrl, "insights"));
 
         return this.ajaxUtils.post<EarnedReward[]>(url, {
@@ -121,18 +134,6 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           anonymitySetSize: anonymitySetSize,
           proof: proof,
         } as IDeliverInsightsParams as unknown as Record<string, unknown>);
-      })
-      .mapErr((err) => {
-        publicEvents.queryPerformance.next(
-          new QueryPerformanceEvent(
-            EQueryEvents.MembershipProve,
-            EStatus.End,
-            queryCID,
-            undefined,
-            err,
-          ),
-        );
-        return err;
       });
   }
 
