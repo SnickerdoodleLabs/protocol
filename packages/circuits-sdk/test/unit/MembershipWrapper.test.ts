@@ -17,7 +17,7 @@
 // class MembershipWrapperMocks {
 //   public anonymitySet: Commitment[];
 //   public identity: Identity;
-//   public signalNullifier: BigNumberString;
+//   public signalNullifier: NullifierBNS;
 
 //   public constructor(protected anonymitySetSize = 5) {
 //     this.identity = MembershipWrapper.getIdentity(

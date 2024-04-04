@@ -3,13 +3,15 @@ import {
   BigNumberString,
   Commitment,
   IpfsCID,
+  NullifierBNS,
+  TrapdoorBNS,
 } from "@snickerdoodlelabs/objects";
 
 import { CircomMembershipWrapper } from "@circuits-sdk/implementations/circom/CircomMembershipWrapper.js";
 
 const signal = "Phoebe";
-const identityTrapdoor = BigNumberString(1234567890n.toString());
-const identityNullifier = BigNumberString(9876543210n.toString());
+const identityTrapdoor = TrapdoorBNS(1234567890n.toString());
+const identityNullifier = NullifierBNS(9876543210n.toString());
 const ipfsCID = IpfsCID("QmR5o49TZTxMcqAWq3eR45vzcduoSKq8Rnd5ZvWPeGi1B1");
 
 function randomBigInt(): bigint {
@@ -19,7 +21,7 @@ function randomBigInt(): bigint {
 class CircomMembershipWrapperMocks {
   public anonymitySet: Commitment[];
   public commitment: Commitment;
-  public signalNullifier: BigNumberString;
+  public signalNullifier: NullifierBNS;
 
   public constructor(protected anonymitySetSize = 5) {
     this.commitment = CircomUtils.getCommitment(
@@ -39,8 +41,8 @@ class CircomMembershipWrapperMocks {
 
   public randomCommitment(): Commitment {
     return CircomUtils.getCommitment(
-      BigNumberString(randomBigInt().toString()),
-      BigNumberString(randomBigInt().toString()),
+      TrapdoorBNS(randomBigInt().toString()),
+      NullifierBNS(randomBigInt().toString()),
     );
   }
 }

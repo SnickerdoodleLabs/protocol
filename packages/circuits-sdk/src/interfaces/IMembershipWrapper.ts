@@ -1,7 +1,8 @@
 import {
-  BigNumberString,
   CircuitError,
   Commitment,
+  NullifierBNS,
+  TrapdoorBNS,
   ZKProof,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -17,8 +18,8 @@ export interface IMembershipWrapper {
    */
   prove(
     signal: string,
-    identityTrapdoor: BigNumberString,
-    identityNullifier: BigNumberString,
+    identityTrapdoor: TrapdoorBNS,
+    identityNullifier: NullifierBNS,
     anonymitySet: Commitment[],
     roundIdentifier: string,
   ): ResultAsync<ZKProof, CircuitError>;
@@ -38,7 +39,7 @@ export interface IMembershipWrapper {
     signal: string,
     anonymitySet: Commitment[],
     roundIdentifier: string,
-    signalNullifier: BigNumberString,
+    signalNullifier: NullifierBNS,
     proof: ZKProof,
   ): ResultAsync<boolean, CircuitError>;
 }

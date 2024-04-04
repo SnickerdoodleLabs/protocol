@@ -18,15 +18,12 @@ import {
   PagedResponse,
   PageInvitation,
   PagingRequest,
-  PossibleReward,
-  SDQLQuery,
   SiteVisit,
   TokenAddress,
   TokenBalance,
   TokenInfo,
   TokenMarketData,
   TransactionFilter,
-  TransactionPaymentCounter,
   TwitterProfile,
   WalletNFT,
   RuntimeMetrics,
@@ -40,11 +37,7 @@ import {
   WalletNFTHistory,
   Questionnaire,
   QuestionnaireWithAnswers,
-  QuestionnaireAnswer,
   NewQuestionnaireAnswer,
-  PermissionForStorage,
-  Permission,
-  // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
   EChain,
@@ -89,7 +82,6 @@ import {
   InvalidStatusError,
   ServerRewardError,
 } from "@objects/errors/index.js";
-import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
@@ -110,7 +102,6 @@ import {
   FamilyName,
   Gender,
   GivenName,
-  HexString32,
   IpfsCID,
   JsonWebToken,
   LanguageCode,

@@ -5,8 +5,10 @@ import {
   Commitment,
   EVMContractAddress,
   EVMPrivateKey,
+  NullifierBNS,
   OptInInfo,
   PasswordString,
+  TrapdoorBNS,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 import * as td from "testdouble";
@@ -65,10 +67,10 @@ describe("DataWalletUtils tests", () => {
     expect(newAccount1).toMatchObject(
       new OptInInfo(
         consentContractAddress1,
-        BigNumberString(
+        NullifierBNS(
           "7066702639326327399116150719347482337210454460800740786909897573924607370079",
         ),
-        BigNumberString(
+        TrapdoorBNS(
           "8315784282536975342493907777441634328941392618163062367656237203700098465750",
         ),
         Commitment(
@@ -79,10 +81,10 @@ describe("DataWalletUtils tests", () => {
     expect(newAccount2).toMatchObject(
       new OptInInfo(
         consentContractAddress2,
-        BigNumberString(
+        NullifierBNS(
           "19235884486051724882735247669412121980748313938340939246158589548549615842061",
         ),
-        BigNumberString(
+        TrapdoorBNS(
           "6360521399899726056335867173507539295634314673568141049107614100094174500676",
         ),
         Commitment(
