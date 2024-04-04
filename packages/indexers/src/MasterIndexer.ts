@@ -67,6 +67,7 @@ import {
 @injectable()
 export class MasterIndexer implements IMasterIndexer {
   protected evmIndexerWeights = [
+    this.expand,
     this.rarible,
     this.bluez,
     this.poapRepo,
@@ -77,7 +78,6 @@ export class MasterIndexer implements IMasterIndexer {
     this.covalent,
     this.moralis,
     this.sim,
-    this.expand,
 
     // Space and Time compute time is too large
     // this.sxt,
@@ -229,7 +229,10 @@ export class MasterIndexer implements IMasterIndexer {
     TokenBalance[],
     PersistenceError | AccountIndexingError | AjaxError | InvalidParametersError
   > {
+    console.log("chain: ", chain);
     const chainInfo = getChainInfoByChain(chain);
+    console.log("chainInfo: ", chainInfo);
+
     if (chainInfo.chainTechnology == EChainTechnology.Solana) {
       return this.sol
         .getBalancesForAccount(chain, SolanaAccountAddress(accountAddress))

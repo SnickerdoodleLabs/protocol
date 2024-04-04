@@ -37,6 +37,7 @@ import {
   IIndexerContextProvider,
   IIndexerContextProviderType,
 } from "@indexers/interfaces/index.js";
+import { MasterIndexer } from "@indexers/MasterIndexer.js";
 
 @injectable()
 export class ExpandIndexer implements IEVMIndexer {
@@ -95,21 +96,15 @@ export class ExpandIndexer implements IEVMIndexer {
         return okAsync([]);
       }
 
-      const chainInfo = this.getChainShortName(chain);
-      const url = urlJoinP(
-        "https://api.expand.network/chain/getbalance",
-        ["address-balance-fills"],
-        {
-          address: accountAddress,
-        },
-      );
-      console.log("url: ", url);
+      const url =
+        "https://api.expand.network/chain/getbalance/?address=" +
+        accountAddress;
 
       context.privateEvents.onApiAccessed.next(EExternalApi.Expand);
       return this.ajaxUtils
         .get<IExpandNativeBalanceResponse>(new URL(url), {
           headers: {
-            "X-API-Key": config.apiKeys.expandApiKey,
+            "x-api-key": config.apiKeys.expandApiKey,
           },
         })
         .andThen((response) => {
@@ -117,9 +112,9 @@ export class ExpandIndexer implements IEVMIndexer {
             EChainTechnology.EVM,
             TickerSymbol("ETH"),
             chain,
-            EVMContractAddress("0xe"),
+            MasterIndexer.nativeAddress,
             accountAddress,
-            BigNumberString(BigInt(response.data.balance).toString()),
+            BigNumberString(response.data.balance),
             18,
           );
           return okAsync([balance]);

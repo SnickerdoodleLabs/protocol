@@ -13,6 +13,7 @@ process.env.__DROPBOX_APP_KEY__ = "";
 process.env.__DROPBOX_APP_SECRET__ = "";
 process.env.__DROPBOX_REDIRECT_URI__ = "";
 
+process.env.__EXPAND_API_KEY__ = "";
 process.env.__COVALENT_API_KEY__ = "";
 process.env.__MORALIS_API_KEY__ = "";
 process.env.__NFTSCAN_API_KEY__ = "";

@@ -24,7 +24,6 @@ declare const __ETHERSCAN_OPTIMISM_API_KEY__: string;
 declare const __ETHERSCAN_ARBITRUM_API_KEY__: string;
 declare const __ETHERSCAN_GNOSIS_API_KEY__: string;
 declare const __ETHERSCAN_FUJI_API_KEY__: string;
-declare const __EXPAND_API_KEY__: string;
 
 declare const __ALCHEMY_ARBITRUM_API_KEY__: string;
 declare const __ALCHEMY_ASTAR_API_KEY__: string;
@@ -35,6 +34,7 @@ declare const __ALCHEMY_SOLANA_API_KEY__: string;
 declare const __ALCHEMY_SOLANA_TESTNET_API_KEY__: string;
 declare const __ALCHEMY_BASE_API_KEY__: string;
 
+declare const __EXPAND_API_KEY__: string;
 declare const __COVALENT_API_KEY__: string;
 declare const __MORALIS_API_KEY__: string;
 declare const __NFTSCAN_API_KEY__: string;

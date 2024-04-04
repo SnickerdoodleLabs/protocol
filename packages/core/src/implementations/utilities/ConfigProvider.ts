@@ -328,6 +328,8 @@ export class ConfigProvider
       this.config.apiKeys.spaceAndTimeCredentials.privateKey;
 
     // Miscellaneous Indexers and APIs
+    this.config.apiKeys.expandApiKey =
+      overrides.expandApiKey ?? this.config.apiKeys.expandApiKey;
     this.config.apiKeys.covalentApiKey =
       overrides.covalentApiKey ?? this.config.apiKeys.covalentApiKey;
     this.config.apiKeys.moralisApiKey =

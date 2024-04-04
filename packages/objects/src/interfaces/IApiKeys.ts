@@ -27,8 +27,8 @@ export interface IApiKeys {
     Gnosis: string | null;
     Fuji: string | null;
   };
-  expandApiKey: string | null;
   spaceAndTimeCredentials: SpaceAndTimeConfig;
+  expandApiKey: string | null;
   covalentApiKey: string | null;
   moralisApiKey: string | null;
   nftScanApiKey: string | null;
