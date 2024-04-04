@@ -26,12 +26,12 @@ import {
   mockQuestionnaireIPFSInstance,
   testCoreConfig,
   mockQuestionnaireAnswer,
-  mockQuestionnaireHistory,
+  mockFirstQuestionnaireHistory,
   mockQuestionnaireWithAnswer,
   mockQuestionnaireCID2,
   mockQuestionnaireStoredInstance2,
   mockQuestionnaire2,
-  mockQuestionnaireHistoryNewer,
+  mockSecondQuestionnaireHistoryNewer,
   InvalidIPFSQuestionnaireCID,
   mockQuestionnaireFirstQuestionHash,
   mockQuestionnaireSecondQuestionHash,
@@ -184,13 +184,13 @@ class QuestionnaireRepositoryMocks {
             const resultArray: QuestionnaireHistory[] = [];
             if (upperBoundID === mockQuestionnaireSecondQuestionHash) {
               if (upperBoundTime >= 1701779736) {
-                resultArray.push(mockQuestionnaireHistoryNewer);
+                resultArray.push(mockSecondQuestionnaireHistoryNewer);
               }
+            } else if (upperBoundID === mockQuestionnaireSecondQuestionHash) {
               if (upperBoundTime >= 1701779734) {
-                resultArray.push(mockQuestionnaireHistory);
+                resultArray.push(mockFirstQuestionnaireHistory);
               }
             }
-
             return okAsync(resultArray);
           }
         }
@@ -234,7 +234,7 @@ describe("QuestionnaireRepository tests", () => {
     td.verify(
       mocks.persistence.updateRecord(
         ERecordKey.QUESTIONNAIRES_HISTORY,
-        mockQuestionnaireHistory,
+        mockFirstQuestionnaireHistory,
       ),
       { times: 0 },
     );
@@ -372,7 +372,7 @@ describe("QuestionnaireRepository tests", () => {
     expect(response).toEqual(null);
   });
 
-  test("getByCIDs , will return both available and complete data", async () => {
+  test.only("getByCIDs , will return both available and complete data", async () => {
     const mocks = new QuestionnaireRepositoryMocks();
     const repository = mocks.factory();
 
@@ -391,7 +391,7 @@ describe("QuestionnaireRepository tests", () => {
     expect(result).toBeDefined();
     expect(result.isErr()).toBeFalsy();
     const response = result._unsafeUnwrap();
-
+    console.log(`res `, response.response[0]);
     expect(response).toEqual(expectedPagedResponse);
   });
 

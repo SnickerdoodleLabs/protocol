@@ -237,12 +237,13 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
           );
         }
         const { index, ...questionHashPart } = correspondingQuestion;
+        const { choice } = answer;
         const questionHash = this.getQuestionHash(questionHashPart);
 
         return new QuestionnaireHistory(
           questionHash,
           this.timeUtils.getUnixNow(),
-          answer,
+          choice,
         );
       });
 
@@ -438,9 +439,9 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     questionHistoryMap: Map<number, QuestionnaireHistory[]>,
   ): QuestionnaireWithAnswers {
     const questions: QuestionnaireQuestion[] = [];
-    let allAnswers: QuestionnaireAnswer[] = [];
+    const allAnswers: QuestionnaireAnswer[] = [];
     let latestMeasurementDate: UnixTimestamp | null = null;
-
+    console.log(`history `, questionHistoryMap);
     questionnaireData.questions.forEach((question) => {
       const questionInstance = new QuestionnaireQuestion(
         question.index,
@@ -457,10 +458,16 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
       );
       questions.push(questionInstance);
 
-      const histories = questionHistoryMap.get(question.index);
-      if (histories != null) {
-        const [answers, measurementDate] = this.collectAnswers(histories);
-        allAnswers = allAnswers.concat(answers);
+      const questionHistories = questionHistoryMap.get(question.index);
+
+      if (questionHistories != null && questionHistories.length > 0) {
+        const [answer, measurementDate] = this.collectAnswer(
+          questionHistories,
+          question.index,
+          questionnaireData.id,
+        );
+
+        allAnswers.push(answer);
         if (
           measurementDate != null &&
           (latestMeasurementDate == null ||
@@ -485,36 +492,17 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     );
   }
 
-  private collectAnswers(
+  private collectAnswer(
     questionnaireHistories: QuestionnaireHistory[],
-  ): [QuestionnaireAnswer[], UnixTimestamp | null] {
-    const latestAnswers: PropertiesOf<QuestionnaireAnswer>[] = [];
-    let latestMeasurementDate: UnixTimestamp | null = null;
-
-    for (const history of questionnaireHistories) {
-      const answer = history.answer;
-      if (
-        !latestAnswers.some((a) => a.questionIndex === answer.questionIndex)
-      ) {
-        latestAnswers.push(answer);
-        if (
-          !latestMeasurementDate ||
-          history.measurementDate > latestMeasurementDate
-        ) {
-          latestMeasurementDate = history.measurementDate;
-        }
-      }
-    }
+    questionIndex: number,
+    questionnaireId: IpfsCID,
+  ): [QuestionnaireAnswer, UnixTimestamp | null] {
+    const latestAnswer = questionnaireHistories[0].answer;
+    const latestMeasurementDate = questionnaireHistories[0].measurementDate;
 
     return [
-      latestAnswers.map(
-        (answer) =>
-          new QuestionnaireAnswer(
-            answer.questionnaireId,
-            answer.questionIndex,
-            answer.choice,
-          ),
-      ),
+      new QuestionnaireAnswer(questionnaireId, questionIndex, latestAnswer),
+
       latestMeasurementDate,
     ];
   }

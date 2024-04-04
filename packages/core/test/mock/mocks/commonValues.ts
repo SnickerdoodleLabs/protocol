@@ -1184,34 +1184,16 @@ export const mockQuestionnaireSecondQuestionHash = SHA256Hash(
 export const mockQuestionnaireFirstQuestionHash = SHA256Hash(
   "f95b936ee4922d96d588f676b5572682739c36bff7c005d29c630e1fd54db522",
 );
-export const mockQuestionnaireHistoryNewer = new QuestionnaireHistory(
+export const mockSecondQuestionnaireHistoryNewer = new QuestionnaireHistory(
   mockQuestionnaireSecondQuestionHash,
   UnixTimestamp(1701779736),
-  {
-    questionIndex: 1,
-    questionnaireId: mockQuestionnaireCID,
-    choice: "to get fresh air",
-  },
+  "to get fresh air",
 );
 
-export const mockQuestionnaireHistory = new QuestionnaireHistory(
+export const mockFirstQuestionnaireHistory = new QuestionnaireHistory(
   mockQuestionnaireFirstQuestionHash,
   UnixTimestamp(1701779734),
-  {
-    questionIndex: 0,
-    questionnaireId: mockQuestionnaireCID,
-    choice: 0,
-  },
-);
-
-export const rar = new QuestionnaireHistory(
-  mockQuestionnaireSecondQuestionHash,
-  UnixTimestamp(1701779734),
-  {
-    questionIndex: 1,
-    questionnaireId: mockQuestionnaireCID,
-    choice: "to get in better shape",
-  },
+  0,
 );
 
 // #endregion

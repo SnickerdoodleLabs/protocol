@@ -15,7 +15,7 @@ export class QuestionnaireHistory extends VersionedObject {
   public constructor(
     public id: SHA256Hash,
     public measurementDate: UnixTimestamp,
-    public answer: PropertiesOf<QuestionnaireAnswer>,
+    public answer: PropertiesOf<QuestionnaireAnswer["choice"]>,
   ) {
     super();
   }
