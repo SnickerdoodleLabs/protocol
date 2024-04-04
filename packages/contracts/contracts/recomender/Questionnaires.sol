@@ -22,9 +22,14 @@ contract Questionnaires is
 
     /// @notice Initializes the contract
     /// @dev Uses the initializer modifier to to ensure the contract is only initialized once
-    function initialize() public initializer {
+    function initialize(string[] calldata cids) public initializer {
         __AccessControl_init();
         _addDomain("snickerdoodle.com");
+
+        uint numCIDs = cids.length;
+        for (uint i = 0; i < numCIDs; i++) {
+            questionnaires.push(cids[i]);
+        }
     }
 
     /// @notice Gets the array of questionnaires
