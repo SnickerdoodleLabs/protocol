@@ -948,19 +948,19 @@ export const mockQuestionnaireIPFSInstance = new QuestionnaireData(
     [
       0,
       SHA256Hash(
-        "a23202a89d231eff3537ae51d424baf35b2770236e3052d239a40cab1bda241d",
+        "1c80cd62545938c60fc4275f84f9fa596d88a61224b2721bb1e950bf6ef68240",
       ),
     ],
     [
       1,
       SHA256Hash(
-        "2fee68f716023f148649763298f79797cdd0a5c2d3175f8890592ae3f40ec000",
+        "5a0ee45cc6c46230070f0bf9fcb10ca10721bd5fc3b1f826b155cde0c5572fa0",
       ),
     ],
     [
       2,
       SHA256Hash(
-        "50f5704f48b13737e207b79e19c68a5fc823ea1f136cca30de5f3a9b691a8e91",
+        "1ce3e462dba8ae7c251087af4b07b9b86716266c531be32544a39231d501d753",
       ),
     ],
   ],
@@ -1011,13 +1011,13 @@ export const mockQuestionnaireStoredInstance = new QuestionnaireData(
     [
       0,
       SHA256Hash(
-        "788d7d50a700ead1f35f9fe8fa047fb494c769db3bce87429607030a801258c7",
+        "f95b936ee4922d96d588f676b5572682739c36bff7c005d29c630e1fd54db522",
       ),
     ],
     [
       1,
       SHA256Hash(
-        "bcbad372f96009e5db4c692d5b9d37c6fa285e5a20572670e9688f0f48c4237d",
+        "a63c8485548420ffbd9dbe07b1d445cff3b71cbf16e1634a85e30e39c6f550d9",
       ),
     ],
   ],
@@ -1179,10 +1179,10 @@ export const mockQuestionnaireWithAnswer = new QuestionnaireWithAnswers(
   UnixTimestamp(1701779736),
 );
 export const mockQuestionnaireSecondQuestionHash = SHA256Hash(
-  "bcbad372f96009e5db4c692d5b9d37c6fa285e5a20572670e9688f0f48c4237d",
+  "a63c8485548420ffbd9dbe07b1d445cff3b71cbf16e1634a85e30e39c6f550d9",
 );
 export const mockQuestionnaireFirstQuestionHash = SHA256Hash(
-  "788d7d50a700ead1f35f9fe8fa047fb494c769db3bce87429607030a801258c7",
+  "f95b936ee4922d96d588f676b5572682739c36bff7c005d29c630e1fd54db522",
 );
 export const mockQuestionnaireHistoryNewer = new QuestionnaireHistory(
   mockQuestionnaireSecondQuestionHash,

@@ -236,8 +236,8 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
             `No matching question found for answer at index ${answer.questionIndex}`,
           );
         }
-
-        const questionHash = this.getQuestionHash(correspondingQuestion);
+        const { index, ...questionHashPart } = correspondingQuestion;
+        const questionHash = this.getQuestionHash(questionHashPart);
 
         return new QuestionnaireHistory(
           questionHash,
@@ -356,7 +356,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     );
 
     const questionHashes = questions.map(
-      (question, index) =>
+      ({ index, ...question }) =>
         [index, this.getQuestionHash(question)] as [number, SHA256Hash],
     );
 
@@ -529,7 +529,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
   }
 
   private getQuestionHash(
-    question: PropertiesOf<QuestionnaireQuestion>,
+    question: PropertiesOf<Omit<QuestionnaireQuestion, "index">>,
   ): SHA256Hash {
     const questionString = ObjectUtils.serialize(question);
 

@@ -54,39 +54,41 @@ export class QuestionnaireMigrator extends VersionedObjectMigrator<Questionnaire
             delete data.status;
           }
 
-          data.questionHashes = data.questions?.map((question, index) => {
-            const questionString = JSON.stringify(question, (key, value) => {
-              if (value instanceof Map) {
-                return {
-                  dataType: "Map",
-                  value: Array.from(value.entries()),
-                };
-              } else if (value instanceof Set) {
-                return {
-                  dataType: "Set",
-                  value: [...value],
-                };
-              } else if (value instanceof BigInt) {
-                return {
-                  dataType: "BigInt",
-                  value: value.toString(),
-                };
-              } else if (typeof value == "bigint") {
-                return {
-                  dataType: "bigint",
-                  value: BigInt(value).toString(),
-                };
-              } else {
-                return value;
-              }
-            });
+          data.questionHashes = data.questions?.map(
+            ({ index, ...question }) => {
+              const questionString = JSON.stringify(question, (key, value) => {
+                if (value instanceof Map) {
+                  return {
+                    dataType: "Map",
+                    value: Array.from(value.entries()),
+                  };
+                } else if (value instanceof Set) {
+                  return {
+                    dataType: "Set",
+                    value: [...value],
+                  };
+                } else if (value instanceof BigInt) {
+                  return {
+                    dataType: "BigInt",
+                    value: value.toString(),
+                  };
+                } else if (typeof value == "bigint") {
+                  return {
+                    dataType: "bigint",
+                    value: BigInt(value).toString(),
+                  };
+                } else {
+                  return value;
+                }
+              });
 
-            const questionHash = Crypto.createHash("sha256")
-              .update(questionString)
-              .digest("hex");
+              const questionHash = Crypto.createHash("sha256")
+                .update(questionString)
+                .digest("hex");
 
-            return [index, SHA256Hash(questionHash)] as [number, SHA256Hash];
-          });
+              return [index, SHA256Hash(questionHash)] as [number, SHA256Hash];
+            },
+          );
           return data;
         },
       ],
