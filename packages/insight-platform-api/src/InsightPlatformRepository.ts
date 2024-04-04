@@ -24,6 +24,10 @@ import {
   CircuitError,
   NullifierBNS,
   TrapdoorBNS,
+  PublicEvents,
+  QueryPerformanceEvent,
+  EQueryEvents,
+  EStatus,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -56,6 +60,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     anonymitySet: Commitment[],
     anonymitySetStart: number,
     insightPlatformBaseUrl: URLString,
+    publicEvents: PublicEvents,
   ): ResultAsync<EarnedReward[], AjaxError | CircuitError> {
     // Calculate the values we need to include in the signal
     const commitment = CircomUtils.getCommitment(trapdoor, nullifier);
@@ -81,6 +86,13 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       anonymitySetSize: anonymitySetSize,
     } as Omit<IDeliverInsightsParams, "proof">;
 
+    publicEvents.queryPerformance.next(
+      new QueryPerformanceEvent(
+        EQueryEvents.MembershipProve,
+        EStatus.Start,
+        queryCID,
+      ),
+    );
     return this.membershipWrapper
       .prove(
         ObjectUtils.serialize(signal),
@@ -89,7 +101,27 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         anonymitySet,
         queryCID,
       )
+      .mapErr((err) => {
+        publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.MembershipProve,
+            EStatus.End,
+            queryCID,
+            undefined,
+            err,
+          ),
+        );
+        return err;
+      })
       .andThen((proof) => {
+        publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.MembershipProve,
+            EStatus.End,
+            queryCID,
+          ),
+        );
+
         const url = new URL(urlJoin(insightPlatformBaseUrl, "insights"));
 
         return this.ajaxUtils.post<EarnedReward[]>(url, {

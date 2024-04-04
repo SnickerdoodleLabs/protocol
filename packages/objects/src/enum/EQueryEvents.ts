@@ -46,4 +46,6 @@ export enum EQueryEvents {
   DappEvaluation = "DappEvaluation",
   Web3AccountDataAccess = "Web3AccountDataAccess",
   Web3AccountEvaluation = "Web3AccountEvaluation",
+
+  MembershipProve = "MembershipProve",
 }
