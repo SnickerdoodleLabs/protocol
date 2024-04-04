@@ -19,6 +19,7 @@ import {
   IConsentCapacity,
   BlockNumber,
   BlockchainCommonErrors,
+  EWalletDataType,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -31,6 +32,26 @@ export interface IConsentContractRepository {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     URLString[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+  >;
+
+  getQuestionnaires(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    IpfsCID[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+  >;
+
+  getVirtualQuestionnaires(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    EWalletDataType[],
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
@@ -106,6 +127,7 @@ export interface IConsentContractRepository {
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   >;
 
+  // #region Consent Contract Factory
   getDeployedConsentContractAddresses(): ResultAsync<
     EVMContractAddress[],
     | BlockchainProviderError
@@ -114,8 +136,17 @@ export interface IConsentContractRepository {
     | BlockchainCommonErrors
   >;
 
+  getDefaultQuestionnaires(): ResultAsync<
+    IpfsCID[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
+  >;
+  // #endregion Consent Contract Factory
+
   getSignerRoleMembers(
-    consentContractAddres: EVMContractAddress,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     EVMAccountAddress[],
     | BlockchainProviderError
@@ -125,7 +156,7 @@ export interface IConsentContractRepository {
   >;
 
   isOpenOptInDisabled(
-    consentContractAddres: EVMContractAddress,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     boolean,
     | BlockchainProviderError
@@ -135,7 +166,7 @@ export interface IConsentContractRepository {
   >;
 
   getTokenURI(
-    consentContractAddres: EVMContractAddress,
+    consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
   ): ResultAsync<
     TokenUri | null,

@@ -6,21 +6,21 @@ import {
   MarketplaceListing,
   PagedResponse,
   PagingRequest,
-  PossibleReward,
   SiteVisit,
   TokenAddress,
   TokenBalance,
   TokenInfo,
   TokenMarketData,
-  WalletNFT,
   QueryStatus,
   TransactionFilter,
   ChainTransaction,
   TransactionFlowInsight,
+  IDynamicRewardParameter,
 } from "@objects/businessObjects/index.js";
 import {
   ECoreProxyType,
   EInvitationStatus,
+  EQueryProcessingStatus,
   EWalletDataType,
 } from "@objects/enum/index.js";
 import { ProxyError } from "@objects/errors/index.js";
@@ -34,6 +34,7 @@ import {
   IMetricsMethods,
   IStorageMethods,
   INftMethods,
+  IQuestionnaireMethods,
 } from "@objects/interfaces/ISnickerdoodleCore.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
@@ -50,6 +51,7 @@ import {
   Gender,
   GivenName,
   IpfsCID,
+  JSONString,
   LanguageCode,
   MarketplaceTag,
   Signature,
@@ -112,6 +114,18 @@ export type INftProxyMethods = {
     ...args: [...PopTuple<Parameters<INftMethods[key]>>]
   ) => ResultAsync<
     GetResultAsyncValueType<ReturnType<INftMethods[key]>>,
+    ProxyError
+  >;
+};
+
+export type IProxyQuestionnaireMethods = {
+  [key in Exclude<
+    FunctionKeys<IQuestionnaireMethods>,
+    "getAnsweredQuestionnaires"
+  >]: (
+    ...args: [...PopTuple<Parameters<IQuestionnaireMethods[key]>>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<IQuestionnaireMethods[key]>>,
     ProxyError
   >;
 };
@@ -229,6 +243,7 @@ export interface ISdlDataWallet {
   getEmail(): ResultAsync<EmailAddressString | null, ProxyError>;
   setLocation(location: CountryCode): ResultAsync<void, ProxyError>;
   getLocation(): ResultAsync<CountryCode | null, ProxyError>;
+
   getTokenPrice(
     chainId: ChainId,
     address: TokenAddress | null,
@@ -289,9 +304,19 @@ export interface ISdlDataWallet {
   ): ResultAsync<QueryStatus | null, ProxyError>;
 
   getQueryStatuses(
-    contractAddress: EVMContractAddress,
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus[],
     blockNumber?: BlockNumber,
   ): ResultAsync<QueryStatus[], ProxyError>;
+
+  getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<QueryStatus[], ProxyError>;
+
+  approveQuery(
+    queryCID: IpfsCID,
+    parameters: IDynamicRewardParameter[],
+  ): ResultAsync<void, ProxyError>;
 
   getSiteVisits(): ResultAsync<SiteVisit[], ProxyError>;
 
@@ -333,8 +358,14 @@ export interface ISdlDataWallet {
     Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
     ProxyError
   >;
-
+  // user requests
   requestDashboardView: undefined | (() => ResultAsync<void, ProxyError>);
+  requestOptIn(
+    consentAddress?: EVMContractAddress,
+  ): ResultAsync<void, ProxyError>;
+
+  setUIState(state: JSONString): ResultAsync<void, ProxyError>;
+  getUIState(): ResultAsync<JSONString | null, ProxyError>;
 
   proxyType: ECoreProxyType;
   account: IProxyAccountMethods;
@@ -345,6 +376,7 @@ export interface ISdlDataWallet {
   storage: IProxyStorageMethods;
   nft: INftProxyMethods;
   events: ISnickerdoodleCoreEvents;
+  questionnaire: IProxyQuestionnaireMethods;
 }
 
 export const defaultLanguageCode = LanguageCode("en");

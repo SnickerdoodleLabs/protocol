@@ -12,7 +12,6 @@ import {
   EVMContractAddress,
   HexString,
   IpfsCID,
-  OptInInfo,
   Signature,
   TokenId,
   TokenUri,
@@ -21,6 +20,7 @@ import {
   URLString,
   BlockNumber,
   BlockchainCommonErrors,
+  EWalletDataType,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -70,6 +70,66 @@ export class ConsentContractRepository implements IConsentContractRepository {
         return domains.map((domain) => {
           return URLString(domain);
         });
+      });
+  }
+
+  public getQuestionnaires(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    IpfsCID[],
+    UninitializedError | ConsentContractError | BlockchainCommonErrors
+  > {
+    /**
+     * This method now works on a different principle- the consent contract does not maintain a list
+     * of questionnaires it's interested in. Instead, we use the marketplace data and do a reverse lookup-
+     * we get the list of all the questionnaires that this consent contract has staked, and use the amount
+     * of the stake to establish the order.
+     */
+    return this.getConsentContract(consentContractAddress)
+      .andThen((contract) => {
+        return contract.getTagArray();
+      })
+      .map((tags) => {
+        return tags.reduce<IpfsCID[]>((acc, tag) => {
+          if (tag.tag != null && tag.tag.startsWith("Questionnaire:")) {
+            const cid = tag.tag.split(":")[1];
+            acc.push(IpfsCID(cid));
+          }
+          return acc;
+        }, []);
+      });
+  }
+
+  public getVirtualQuestionnaires(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    EWalletDataType[],
+    UninitializedError | ConsentContractError | BlockchainCommonErrors
+  > {
+    /**
+     * This method now works on a different principle- the consent contract does not maintain a list
+     * of questionnaires it's interested in. Instead, we use the marketplace data and do a reverse lookup-
+     * we get the list of all the questionnaires that this consent contract has staked, and use the amount
+     * of the stake to establish the order.
+     */
+    return this.getConsentContract(consentContractAddress)
+      .andThen((contract) => {
+        return contract.getTagArray();
+      })
+      .map((tags) => {
+        return tags.reduce<EWalletDataType[]>((acc, tag) => {
+          if (tag.tag != null && tag.tag.startsWith("VirtualQuestionnaire:")) {
+            const typeString = tag.tag.split(":")[1];
+
+            const dataType =
+              EWalletDataType[typeString as keyof typeof EWalletDataType];
+
+            if (dataType !== undefined) {
+              acc.push(dataType);
+            }
+          }
+          return acc;
+        }, []);
       });
   }
 
@@ -336,6 +396,23 @@ export class ConsentContractRepository implements IConsentContractRepository {
         return consentFactoryContract.getDeployedConsents();
       });
   }
+
+  // #region Questionnaires
+  public getDefaultQuestionnaires(): ResultAsync<
+    IpfsCID[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
+  > {
+    return this.consentContractFactory
+      .factoryConsentFactoryContract()
+      .andThen((consentFactoryContract) => {
+        return consentFactoryContract.getQuestionnaires();
+        // lookup slots order by slots ?
+      });
+  }
+  // #endregion Questionnaires
 
   public isOpenOptInDisabled(
     consentContractAddress: EVMContractAddress,

@@ -1,8 +1,4 @@
 import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
-import {
   BigNumberString,
   ChainId,
   CountryCode,
@@ -16,7 +12,6 @@ import {
   LanguageCode,
   Signature,
   UnixTimestamp,
-  UUID,
   IpfsCID,
   EChain,
   EWalletDataType,
@@ -62,10 +57,14 @@ import {
   TransactionFilter,
   IUserAgreement,
   WalletNFTHistory,
-  WalletNftWithHistory,
-  NftRepositoryCache,
   WalletNFTData,
+  Questionnaire,
+  QuestionnaireWithAnswers,
+  NewQuestionnaireAnswer,
+  EQueryProcessingStatus,
+  IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
 
 import { IExtensionConfig } from "./IExtensionConfig";
 
@@ -128,8 +127,8 @@ export class AddAccountWithExternalSignatureParams extends CoreActionParams<void
 export class AddAccountWithExternalTypedDataSignatureParams extends CoreActionParams<void> {
   public constructor(
     public accountAddress: AccountAddress,
-    public domain: TypedDataDomain,
-    public types: Record<string, Array<TypedDataField>>,
+    public domain: ethers.TypedDataDomain,
+    public types: Record<string, Array<ethers.TypedDataField>>,
     public value: Record<string, unknown>,
     public signature: Signature,
     public chain: EChain,
@@ -669,15 +668,37 @@ export class GetQueryStatusByCidParams extends CoreActionParams<QueryStatus | nu
   }
 }
 
+export class ApproveQueryParams extends CoreActionParams<void> {
+  public constructor(
+    public queryCID: IpfsCID,
+    public parameters: IDynamicRewardParameter[],
+  ) {
+    super(ApproveQueryParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.APPROVE_QUERY;
+  }
+}
 export class GetQueryStatusesParams extends CoreActionParams<QueryStatus[]> {
   public constructor(
-    public contractAddress: EVMContractAddress,
+    public contractAddress?: EVMContractAddress,
+    public status?: EQueryProcessingStatus[],
     public blockNumber?: BlockNumber,
   ) {
     super(GetQueryStatusesParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_QUERY_STATUSES;
+  }
+}
+export class GetQueryStatusesByContractAddressParams extends CoreActionParams<
+  QueryStatus[]
+> {
+  public constructor(public contractAddress: EVMContractAddress) {
+    super(GetQueryStatusesByContractAddressParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_QUERY_STATUSES_BY_CONTRACT_ADDRESS;
   }
 }
 
@@ -893,3 +914,117 @@ export class GetCurrentCloudStorageParams extends CoreActionParams<ECloudStorage
   }
 }
 // #endregion
+
+// #region External local storage calls
+
+export class SetUIStateParams extends CoreActionParams<void> {
+  public constructor(public state: JSONString) {
+    super(SetUIStateParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SET_UI_STATE;
+  }
+}
+
+export class GetUIStateParams extends CoreActionParams<JSONString | null> {
+  public constructor() {
+    super(GetUIStateParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_UI_STATE;
+  }
+}
+
+// #endregion
+
+// #region Questionnaire
+export class GetAllQuestionnairesParams extends CoreActionParams<
+  PagedResponse<Questionnaire | QuestionnaireWithAnswers>
+> {
+  public constructor(public pagingRequest: PagingRequest) {
+    super(GetAllQuestionnairesParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_ALL_QUESTIONNAIRES;
+  }
+}
+
+export class GetQuestionnairesParams extends CoreActionParams<
+  PagedResponse<Questionnaire | QuestionnaireWithAnswers>
+> {
+  public constructor(public pagingRequest: PagingRequest) {
+    super(GetQuestionnairesParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_QUESTIONNAIRES;
+  }
+}
+export class GetVirtualQuestionnairesParams extends CoreActionParams<
+  EWalletDataType[]
+> {
+  public constructor(public consentContractAddress: EVMContractAddress) {
+    super(GetVirtualQuestionnairesParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_VIRTUAL_CONSENT_QUESTIONNAIRES;
+  }
+}
+
+export class GetQuestionnairesByCIDSParams extends CoreActionParams<
+  (Questionnaire | QuestionnaireWithAnswers)[]
+> {
+  public constructor(public questionnaireCIDs: IpfsCID[]) {
+    super(GetQuestionnairesByCIDSParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_QUESTIONNAIRES_BY_CIDS;
+  }
+}
+
+export class AnswerQuestionnaireParams extends CoreActionParams<void> {
+  public constructor(
+    public questionnaireId: IpfsCID,
+    public answers: NewQuestionnaireAnswer[],
+  ) {
+    super(AnswerQuestionnaireParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.ANSWER_QUESTIONNAIRE;
+  }
+}
+
+export class GetQuestionnairesForConsentContractParams extends CoreActionParams<
+  PagedResponse<Questionnaire>
+> {
+  public constructor(
+    public pagingRequest: PagingRequest,
+    public consentContractAddress: EVMContractAddress,
+  ) {
+    super(GetQuestionnairesForConsentContractParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_QUESTIONNAIRES_FOR_CONSENT_CONTRACT;
+  }
+}
+
+export class GetConsentContractsByQuestionnaireCIDParams extends CoreActionParams<
+  EVMContractAddress[]
+> {
+  public constructor(public questionnaireCID: IpfsCID) {
+    super(GetConsentContractsByQuestionnaireCIDParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_CONSENT_CONTRACTS_BY_QUESTIONNAIRE_CID;
+  }
+}
+
+export class GetRecommendedConsentContractsParams extends CoreActionParams<
+  EVMContractAddress[]
+> {
+  public constructor(public questionnaireCID: IpfsCID) {
+    super(GetRecommendedConsentContractsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_RECOMMENDED_CONSENT_CONTRACTS;
+  }
+}

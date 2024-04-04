@@ -42,13 +42,13 @@ import {
   IQueryObjectFactory,
   ParserContextDataTypes,
   SDQLQueryWrapper,
+  AST_QuestionnaireQuery,
 } from "@query-parser/interfaces/index.js";
 
 export class SDQLParser {
   public context = new Map<string, ParserContextDataTypes>();
   public exprParser: ExprParser;
   public dependencyParser: DependencyParser;
-
   public queries = new Map<SDQL_Name, AST_SubQuery>();
   public ads = new Map<SDQL_Name, AST_Ad>();
   public insights = new Map<SDQL_Name, AST_Insight>();
@@ -85,6 +85,9 @@ export class SDQLParser {
           this.compensationParameters,
           this.compensations,
           this.schema.timestamp!,
+          this.schema.points ?? 0,
+          this.schema.name ?? "Offer",
+          this.schema.image,
         );
       });
     });
@@ -257,7 +260,10 @@ export class SDQLParser {
     try {
       const querySchema = this.schema.getQuerySchema();
       const queries = new Array<
-        AST_Web3Query | AST_BalanceQuery | AST_PropertyQuery
+        | AST_Web3Query
+        | AST_BalanceQuery
+        | AST_PropertyQuery
+        | AST_QuestionnaireQuery
       >();
       for (const qName in querySchema) {
         const queryName = SDQL_Name(qName);
@@ -275,6 +281,8 @@ export class SDQLParser {
               schema,
             ),
           );
+        } else if (schema.name == "questionnaire") {
+          queries.push(AST_QuestionnaireQuery.fromSchema(queryName, schema));
         } else {
           queries.push(AST_PropertyQuery.fromSchema(queryName, schema));
         }
@@ -472,7 +480,6 @@ export class SDQLParser {
       );
     });
   }
-  // #endregion
 
   private transformError(
     err: Error,

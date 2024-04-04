@@ -15,7 +15,6 @@ import {
   WalletNFT,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
-import { BigNumber } from "ethers";
 import { Result, ResultAsync, okAsync } from "neverthrow";
 import * as td from "testdouble";
 
@@ -81,13 +80,13 @@ class NftRepositoryMocks {
 
     td.when(this.bigNumberUtils.BNSToBN(td.matchers.anything())).thenDo(
       (bigNumberString: BigNumberString) => {
-        return BigNumber.from(bigNumberString);
+        return BigInt(bigNumberString);
       },
     );
 
     td.when(this.bigNumberUtils.BNToBNS(td.matchers.anything())).thenDo(
-      (bigNumber: BigNumber) => {
-        return BigNumberString(BigNumber.from(bigNumber).toString());
+      (bigNumber: bigint) => {
+        return BigNumberString(BigInt(bigNumber).toString());
       },
     );
 
@@ -188,15 +187,17 @@ describe("NftRepository", () => {
       expect(result).toEqual(expectedNfts);
     });
 
-    test("benchmark given, since cache does not exist will trigger indexers but the dates are later than the benchmark, will not return the new data", async () => {
+    test("benchmark given but filter is disabled, since cache does not exist will trigger indexers , will get all the nfts", async () => {
       // Arrange
       const mocks = new NftRepositoryMocks();
       const service = mocks.factory();
 
       //Act
-      // Will trigger data, but the query is not qualified, only shibuya will return
+      // Will trigger data, but the query is not qualified,
+      // If filter was given, Only expectedShibuya will be returned, but it is disable for now
       const result = await getOk(service.getNfts(UnixTimestamp(1701779729)));
-      expect(result).toEqual(expectedShibuya);
+
+      expect(result).toEqual(expectedNfts);
 
       const resultCache = await getOk(service.getNFTCache());
 
@@ -240,6 +241,7 @@ describe("NftRepository", () => {
       //Act
       //Trigger first call, should get all cache is set to 1701779732
       const result = await getOk(service.getNfts(UnixTimestamp(1701779732)));
+
       expect(result).toEqual(expectedNfts);
 
       const resultCache = await getOk(service.getNFTCache());
@@ -346,7 +348,7 @@ describe("NftRepository", () => {
       ]);
     });
 
-    test("User transferred nft but benchmark transfer date should get all the nfts  ", async () => {
+    test("User transferred nft but filter is disabled will get the old data  ", async () => {
       // Arrange
       const mocks = new NftRepositoryMocks();
       const service = mocks.factory();
@@ -374,14 +376,18 @@ describe("NftRepository", () => {
       expect(cache.get(137)?.lastUpdateTime).toEqual(1701779737);
 
       const result2 = await getOk(service.getNfts(UnixTimestamp(1701779732)));
-      expect(result2).toEqual(expectedNfts);
+      expect(result2).toEqual([
+        ...expectedShibuya,
+        ...expectedFujiNfts.slice(1),
+        ...expectedPolygon,
+      ]);
 
       const cache2 = await getOk(service.getNFTCache());
       expect(cache2.get(43113)?.lastUpdateTime).toEqual(1701779737);
       expect(cache2.get(137)?.lastUpdateTime).toEqual(1701779737);
     });
 
-    test("User transferred, get previous nft snapshoot, then get the current one  ", async () => {
+    test("User transferred,  get the current nfts , filter is disabled  ", async () => {
       // Arrange
       const mocks = new NftRepositoryMocks();
       const service = mocks.factory();
@@ -397,7 +403,12 @@ describe("NftRepository", () => {
       await service.getNfts(UnixTimestamp(1701779737));
 
       const result2 = await getOk(service.getNfts(UnixTimestamp(1701779732)));
-      expect(result2).toEqual(expectedNfts);
+      //Expected Nfts
+      expect(result2).toEqual([
+        ...expectedShibuya,
+        ...expectedFujiNfts.slice(1),
+        ...expectedPolygon,
+      ]);
 
       const result3 = await getOk(service.getNfts(UnixTimestamp(1701779737)));
 

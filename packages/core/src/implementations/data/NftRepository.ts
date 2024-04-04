@@ -52,9 +52,8 @@ import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
 } from "@snickerdoodlelabs/persistence";
-import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
-import { ok, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoin } from "url-join-ts";
 
@@ -456,10 +455,9 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
       })
       .map((cachedNfts) => {
         // if (benchmark != null) {
-        //   return this.filterNftHistoriesByTimestamp(benchmark, cachedNfts);
+        //   benchmark is disabled for now
         // }
-
-        return cachedNfts;
+        return this.filterNftHistoriesByTimestamp(cachedNfts);
       });
   }
 
@@ -530,7 +528,7 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
   }
 
   protected filterNftHistoriesByTimestamp(
-    benchmark: UnixTimestamp,
+    //benchmark: UnixTimestamp,
     walletNftHistories: WalletNftWithHistory[],
   ): WalletNftWithHistory[] {
     return walletNftHistories.reduce<WalletNftWithHistory[]>(
@@ -544,26 +542,22 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
           totalAmount: walletNftWithHistory.totalAmount,
         };
 
-        const validHistory = this.findSubarrayByValue(
-          historyWithTotalAmount,
-          benchmark,
-        );
+        // const validHistory = this.findSubarrayByValue(
+        //   historyWithTotalAmount,
+        //   benchmark,
+        // );
 
         const newTotalAmount = this.bigNumberUtils.BNSToBN(
-          validHistory.totalAmount,
+          historyWithTotalAmount.totalAmount,
         );
-        if (
-          validHistory.data.length === 0 ||
-          newTotalAmount.isNegative() ||
-          newTotalAmount.isZero()
-        ) {
+        if (historyWithTotalAmount.data.length === 0 || newTotalAmount <= 0) {
           return filteredNftHistory;
         }
 
         const filteredWalletNft = {
           ...walletNftWithHistory,
-          history: validHistory.data,
-          totalAmount: validHistory.totalAmount,
+          history: historyWithTotalAmount.data,
+          totalAmount: historyWithTotalAmount.totalAmount,
         };
         filteredNftHistory.push(filteredWalletNft);
 
@@ -592,10 +586,9 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
       index--
     ) {
       const item = data.data[index];
-      const amountChange = this.bigNumberUtils
-        .BNSToBN(item.amount)
-        .mul(item.event);
-      currentTotal = currentTotal.sub(amountChange);
+      const amountChange =
+        this.bigNumberUtils.BNSToBN(item.amount) * BigInt(item.event);
+      currentTotal = currentTotal - amountChange;
     }
 
     const resultData = data.data.slice(0, index + 1);
@@ -733,12 +726,9 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
       const changeAmount = this.bigNumberUtils.BNSToBN(newHistory.amount);
       const newAmount =
         newHistory.event === EIndexedDbOp.Added
-          ? this.bigNumberUtils
-              .BNSToBN(currentDbNft.totalAmount)
-              .add(changeAmount)
-          : this.bigNumberUtils
-              .BNSToBN(currentDbNft.totalAmount)
-              .sub(changeAmount);
+          ? this.bigNumberUtils.BNSToBN(currentDbNft.totalAmount) + changeAmount
+          : this.bigNumberUtils.BNSToBN(currentDbNft.totalAmount) -
+            changeAmount;
 
       currentDbNft.totalAmount = this.bigNumberUtils.BNToBNS(newAmount);
       currentDbNft.history.push({
@@ -969,7 +959,7 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
         newlyAddedNftHistories.push(nftHistory);
         newlyAddedNfts.push(nftData);
       } else {
-        if (this.bigNumberUtils.BNSToBN(dbNft.totalAmount).isZero()) {
+        if (this.bigNumberUtils.BNSToBN(dbNft.totalAmount) == 0n) {
           // User transferred the nft at some point, now got it back
           const [nftHistory] = this.getHistoryAndDataFromNewNft(
             indexerNft,
@@ -979,16 +969,17 @@ export class NftRepository implements INftRepository, INFTRepositoryWithDebug {
         } else {
           const dbAmount = this.bigNumberUtils.BNSToBN(dbNft.totalAmount);
           const indexerAmount = this.bigNumberUtils.BNSToBN(indexerNft.amount);
-          const amountDifference = indexerAmount.sub(dbAmount);
+          const amountDifference = indexerAmount - dbAmount;
           // if amount diffirence is zero, no change occured
-          if (!amountDifference.isZero()) {
+          if (amountDifference != 0n) {
             // This is possible for erc1155, not for erc721 since its amount can only be 1
-            const op = amountDifference.isNegative()
-              ? EIndexedDbOp.Removed
-              : EIndexedDbOp.Added;
+            const op =
+              amountDifference < 0n ? EIndexedDbOp.Removed : EIndexedDbOp.Added;
 
             const nftHistory = this.createNftHistory(
-              this.bigNumberUtils.BNToBNS(amountDifference.abs()),
+              this.bigNumberUtils.BNToBNS(
+                amountDifference < 0n ? -amountDifference : amountDifference,
+              ), // ABS(amountDifference)
               id,
               op,
               indexerNft.measurementDate,

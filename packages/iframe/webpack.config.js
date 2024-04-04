@@ -144,6 +144,9 @@ module.exports = {
       __ALCHEMY_SOLANA_TESTNET_API_KEY__: JSON.stringify(
         process.env.__ALCHEMY_SOLANA_TESTNET_API_KEY__,
       ),
+      __ALCHEMY_BASE_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_BASE_API_KEY__,
+      ),
       __ETHERSCAN_ETHEREUM_API_KEY__: JSON.stringify(
         process.env.__ETHERSCAN_ETHEREUM_API_KEY__,
       ),
@@ -187,6 +190,9 @@ module.exports = {
       __RARIBILE_API_KEY__: JSON.stringify(process.env.__RARIBILE_API_KEY__),
       __BLOCKVISION_API_KEY__: JSON.stringify(
         process.env.__BLOCKVISION_API_KEY__,
+      ),
+      __DEFAULT_CONSENT_CONTRACT__: JSON.stringify(
+        process.env.__DEFAULT_CONSENT_CONTRACT__,
       ),
     }),
   ],

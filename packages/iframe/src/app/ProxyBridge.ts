@@ -1,3 +1,4 @@
+import { IFrameEvents } from "@core-iframe/interfaces/objects";
 import {
   AccountAddress,
   Age,
@@ -16,6 +17,7 @@ import {
   ECoreProxyType,
   EDataWalletPermission,
   EInvitationStatus,
+  EQueryProcessingStatus,
   EVMContractAddress,
   EWalletDataType,
   EarnedReward,
@@ -24,12 +26,14 @@ import {
   Gender,
   GivenName,
   IConsentCapacity,
+  IDynamicRewardParameter,
   INftProxyMethods,
   IOldUserAgreement,
   IProxyAccountMethods,
   IProxyDiscordMethods,
   IProxyIntegrationMethods,
   IProxyMetricsMethods,
+  IProxyQuestionnaireMethods,
   IProxyStorageMethods,
   IProxyTwitterMethods,
   ISdlDataWallet,
@@ -37,11 +41,13 @@ import {
   ISnickerdoodleCoreEvents,
   IUserAgreement,
   IpfsCID,
+  JSONString,
   JsonWebToken,
   LanguageCode,
   LinkedAccount,
   MarketplaceListing,
   MarketplaceTag,
+  NewQuestionnaireAnswer,
   NftRepositoryCache,
   OAuth2RefreshToken,
   OAuth2Tokens,
@@ -49,7 +55,6 @@ import {
   PEMEncodedRSAPublicKey,
   PagedResponse,
   PagingRequest,
-  PersistenceError,
   ProxyError,
   QueryStatus,
   RuntimeMetrics,
@@ -78,12 +83,14 @@ export class ProxyBridge implements ISdlDataWallet {
   public storage: IProxyStorageMethods;
   public twitter: IProxyTwitterMethods = {} as IProxyTwitterMethods;
   public nft: INftProxyMethods;
+  public questionnaire: IProxyQuestionnaireMethods;
   private sourceDomain = undefined;
   public requestDashboardView = undefined;
 
   constructor(
     private core: ISnickerdoodleCore,
     public events: ISnickerdoodleCoreEvents,
+    public iframeEvents: IFrameEvents,
   ) {
     this.account = {
       getLinkAccountMessage: (
@@ -268,6 +275,82 @@ export class ProxyBridge implements ISdlDataWallet {
         );
       },
     };
+    this.questionnaire = {
+      getAllQuestionnaires: (pagingRequest: PagingRequest) => {
+        return this.call(
+          this.core.questionnaire.getAllQuestionnaires(
+            pagingRequest,
+            this.sourceDomain,
+          ),
+        );
+      },
+      getQuestionnaires: (pagingRequest: PagingRequest) => {
+        return this.call(
+          this.core.questionnaire.getQuestionnaires(
+            pagingRequest,
+            this.sourceDomain,
+          ),
+        );
+      },
+      answerQuestionnaire: (
+        questionnaireId: IpfsCID,
+        answers: NewQuestionnaireAnswer[],
+      ) => {
+        return this.call(
+          this.core.questionnaire.answerQuestionnaire(
+            questionnaireId,
+            answers,
+            this.sourceDomain,
+          ),
+        );
+      },
+      getQuestionnairesForConsentContract: (
+        pagingRequest: PagingRequest,
+        consentContractAddress: EVMContractAddress,
+      ) => {
+        return this.call(
+          this.core.questionnaire.getQuestionnairesForConsentContract(
+            pagingRequest,
+            consentContractAddress,
+            this.sourceDomain,
+          ),
+        );
+      },
+      getConsentContractsByQuestionnaireCID: (questionnaireCID: IpfsCID) => {
+        return this.call(
+          this.core.questionnaire.getConsentContractsByQuestionnaireCID(
+            questionnaireCID,
+            this.sourceDomain,
+          ),
+        );
+      },
+      getRecommendedConsentContracts: (questionnaireCID: IpfsCID) => {
+        return this.call(
+          this.core.questionnaire.getRecommendedConsentContracts(
+            questionnaireCID,
+            this.sourceDomain,
+          ),
+        );
+      },
+      getByCIDs: (questionnaireCIDs: IpfsCID[]) => {
+        return this.call(
+          this.core.questionnaire.getByCIDs(
+            questionnaireCIDs,
+            this.sourceDomain,
+          ),
+        );
+      },
+      getVirtualQuestionnaires: (
+        consentContractAddress: EVMContractAddress,
+      ) => {
+        return this.call(
+          this.core.questionnaire.getVirtualQuestionnaires(
+            consentContractAddress,
+            this.sourceDomain,
+          ),
+        );
+      },
+    };
   }
 
   getAcceptedInvitationsCID(): ResultAsync<
@@ -338,11 +421,33 @@ export class ProxyBridge implements ISdlDataWallet {
     return this.call(this.core.getQueryStatusByQueryCID(queryCID));
   }
   getQueryStatuses(
-    contractAddress: EVMContractAddress,
-    blockNumber?: BlockNumber | undefined,
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus[],
+    blockNumber?: BlockNumber,
+    _sourceDomain?: DomainName | undefined,
   ): ResultAsync<QueryStatus[], ProxyError> {
-    return this.call(this.core.getQueryStatuses(contractAddress, blockNumber));
+    return this.call(
+      this.core.getQueryStatuses(contractAddress, status, blockNumber),
+    );
   }
+
+  getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+    _sourceDomain?: DomainName | undefined,
+  ): ResultAsync<QueryStatus[], ProxyError> {
+    return this.call(
+      this.core.getQueryStatusesByContractAddress(contractAddress),
+    );
+  }
+
+  approveQuery(
+    queryCID: IpfsCID,
+    parameters: IDynamicRewardParameter[],
+    _sourceDomain?: DomainName | undefined,
+  ): ResultAsync<void, ProxyError> {
+    return this.call(this.core.approveQuery(queryCID, parameters));
+  }
+
   getSiteVisits(): ResultAsync<SiteVisit[], ProxyError> {
     return this.call(this.core.getSiteVisits(this.sourceDomain));
   }
@@ -505,5 +610,19 @@ export class ProxyBridge implements ISdlDataWallet {
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], ProxyError> {
     return this.call(this.core.getTransactions(filter, this.sourceDomain));
+  }
+
+  setUIState(state: JSONString): ResultAsync<void, ProxyError> {
+    return this.call(this.core.setUIState(state));
+  }
+  getUIState(): ResultAsync<JSONString | null, ProxyError> {
+    return this.call(this.core.getUIState());
+  }
+
+  requestOptIn(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<void, ProxyError> {
+    this.iframeEvents.onOptInRequested.next(consentAddress);
+    return okAsync(undefined);
   }
 }

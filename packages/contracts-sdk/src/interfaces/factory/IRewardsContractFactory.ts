@@ -3,7 +3,6 @@ import {
   BaseURI,
   BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
-import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 import {
@@ -27,8 +26,23 @@ export interface IRewardsContractFactory {
     name: string,
     symbol: string,
     baseURI: BaseURI,
+  ): ResultAsync<bigint, RewardsFactoryError | BlockchainCommonErrors>;
+
+  deployERC20Reward(
+    name: string,
+    symbol: string,
+    overrides?: ContractOverrides,
+    omitGasFee?: boolean,
   ): ResultAsync<
-    ethers.BigNumber,
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | RewardsFactoryError
+  >;
+
+  estimateGasToDeployERC20Contract(
+    name: string,
+    symbol: string,
+  ): ResultAsync<
+    bigint,
     RewardsFactoryError | BlockchainCommonErrors
   >;
 }

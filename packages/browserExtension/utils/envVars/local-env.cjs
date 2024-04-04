@@ -18,6 +18,7 @@ const envVars = {
   __ALCHEMY_POLYGON_API_KEY__: "",
   __ALCHEMY_SOLANA_API_KEY__: "",
   __ALCHEMY_SOLANA_TESTNET_API_KEY__: "",
+  __ALCHEMY_BASE_API_KEY__: "",
 
   __ETHERSCAN_ETHEREUM_API_KEY__: "",
   __ETHERSCAN_POLYGON_API_KEY__: "",
@@ -48,6 +49,8 @@ const envVars = {
   __TRANSACTION_POLLING_INTERVAL__: "",
   __BACKUP_POLLING_INTERVAL__: "",
   __DEV_CHAIN_PROVIDER_URL__: "http://127.0.0.1:8545",
+
+  __DEFAULT_CONSENT_CONTRACT__: "",
 };
 
 for (const key in envVars) {

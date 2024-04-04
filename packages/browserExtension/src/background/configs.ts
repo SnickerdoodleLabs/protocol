@@ -1,8 +1,7 @@
 import {
   ChainId,
   DiscordConfig,
-  IConfigOverrides,
-  IExtensionConfigOverrides,
+  EVMContractAddress,
   IExtensionSdkConfigOverrides,
   ProviderUrl,
   TwitterConfig,
@@ -33,6 +32,7 @@ declare const __ALCHEMY_OPTIMISM_API_KEY__: string;
 declare const __ALCHEMY_POLYGON_API_KEY__: string;
 declare const __ALCHEMY_SOLANA_API_KEY__: string;
 declare const __ALCHEMY_SOLANA_TESTNET_API_KEY__: string;
+declare const __ALCHEMY_BASE_API_KEY__: string;
 
 declare const __COVALENT_API_KEY__: string;
 declare const __MORALIS_API_KEY__: string;
@@ -68,6 +68,8 @@ declare const __DEV_CHAIN_PROVIDER_URL__: ProviderUrl;
 declare const __DROPBOX_APP_KEY__: string;
 declare const __DROPBOX_APP_SECRET__: string;
 declare const __DROPBOX_REDIRECT_URI__: string;
+
+declare const __DEFAULT_CONSENT_CONTRACT__: string;
 
 const ONE_MINUTE_MS = 60000;
 
@@ -145,6 +147,11 @@ export const config: IExtensionSdkConfigOverrides = {
     typeof __ONBOARDING_URL__ !== "undefined" && !!__ONBOARDING_URL__
       ? URLString(__ONBOARDING_URL__)
       : URLString("https://datawallet.snickerdoodle.com/"),
+  defaulConsentContract:
+    typeof __DEFAULT_CONSENT_CONTRACT__ !== "undefined" &&
+    !!__DEFAULT_CONSENT_CONTRACT__
+      ? EVMContractAddress(__DEFAULT_CONSENT_CONTRACT__)
+      : undefined,
   //#endregion
   controlChainId:
     typeof __CONTROL_CHAIN_ID__ !== "undefined" && !!__CONTROL_CHAIN_ID__
@@ -212,6 +219,11 @@ export const config: IExtensionSdkConfigOverrides = {
       typeof __ALCHEMY_SOLANA_TESTNET_API_KEY__ !== "undefined" &&
       !!__ALCHEMY_SOLANA_TESTNET_API_KEY__
         ? __ALCHEMY_SOLANA_TESTNET_API_KEY__
+        : "",
+    Base:
+      typeof __ALCHEMY_BASE_API_KEY__ !== "undefined" &&
+      !!__ALCHEMY_BASE_API_KEY__
+        ? __ALCHEMY_BASE_API_KEY__
         : "",
   },
   etherscanApiKeys: {

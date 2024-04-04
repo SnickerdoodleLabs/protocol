@@ -3,6 +3,7 @@ import ConsentAbi from "@contracts-sdk/interfaces/objects/abi/ConsentAbi.js";
 import ConsentFactoryAbi from "@contracts-sdk/interfaces/objects/abi/ConsentFactoryAbi.js";
 import CrumbsAbi from "@contracts-sdk/interfaces/objects/abi/CrumbsAbi.js";
 import ERC20Abi from "@contracts-sdk/interfaces/objects/abi/ERC20Abi.js";
+import ERC20RewardAbi from "@contracts-sdk/interfaces/objects/abi/ERC20RewardAbi.js";
 import ERC721RewardAbi from "@contracts-sdk/interfaces/objects/abi/ERC721RewardAbi.js";
 import ERC7529Abi from "@contracts-sdk/interfaces/objects/abi/ERC7529Abi.js";
 import SiftAbi from "@contracts-sdk/interfaces/objects/abi/SiftAbi.js";
@@ -16,6 +17,6 @@ export const ContractsAbis = {
   SiftAbi: SiftAbi,
   ERC721Reward: ERC721RewardAbi,
   ERC7529Abi: ERC7529Abi,
-  ERC20: ERC20Abi,
   ZkSyncERC721RewardAbi: ZkSyncERC721RewardAbi,
+  ERC20Reward: ERC20RewardAbi,
 };

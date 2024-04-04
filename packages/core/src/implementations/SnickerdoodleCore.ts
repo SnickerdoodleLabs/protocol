@@ -5,10 +5,6 @@
  * of SnickerdoodleCore.
  */
 import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
-import {
   IMasterIndexer,
   IMasterIndexerType,
   indexersModule,
@@ -79,12 +75,10 @@ import {
   TokenInfo,
   TokenMarketData,
   TransactionFilter,
-  TransactionPaymentCounter,
   TwitterID,
   UnauthorizedError,
   UninitializedError,
   UnixTimestamp,
-  WalletNFT,
   IAccountMethods,
   QueryStatus,
   BlockchainCommonErrors,
@@ -97,9 +91,23 @@ import {
   TransactionFlowInsight,
   URLString,
   INftMethods,
-  NftRepositoryCache,
-  WalletNFTData,
-  WalletNFTHistory,
+  IQuestionnaireMethods,
+  NewQuestionnaireAnswer,
+  JSONString,
+  EExternalFieldKey,
+  EQueryProcessingStatus,
+  DuplicateIdInSchema,
+  MissingASTError,
+  MissingTokenConstructorError,
+  ParserError,
+  QueryExpiredError,
+  InvalidStatusError,
+  InvalidParametersError,
+  ConsentFactoryContractError,
+  EvalNotImplementedError,
+  MethodSupportError,
+  MissingWalletDataTypeError,
+  ServerRewardError,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -113,6 +121,7 @@ import {
   IStorageUtilsType,
   LocalStorageUtils,
 } from "@snickerdoodlelabs/utils";
+import { ethers } from "ethers";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -150,6 +159,8 @@ import {
   IProfileServiceType,
   IQueryService,
   IQueryServiceType,
+  IQuestionnaireService,
+  IQuestionnaireServiceType,
   ITwitterService,
   ITwitterServiceType,
 } from "@core/interfaces/business/index.js";
@@ -187,6 +198,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public metrics: IMetricsMethods;
   public storage: IStorageMethods;
   public nft: INftMethods;
+  public questionnaire: IQuestionnaireMethods;
 
   public constructor(
     configOverrides?: IConfigOverrides,
@@ -293,8 +305,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
       addAccountWithExternalTypedDataSignature: (
         accountAddress: AccountAddress,
-        domain: TypedDataDomain,
-        types: Record<string, Array<TypedDataField>>,
+        domain: ethers.TypedDataDomain,
+        types: Record<string, Array<ethers.TypedDataField>>,
         value: Record<string, unknown>,
         signature: Signature,
         chain: EChain,
@@ -718,6 +730,134 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return accountService.getNfts(benchmark, chains, accounts);
       },
     };
+
+    // Questionnaire Methods --------------------------------------------------------------------
+    this.questionnaire = {
+      getAllQuestionnaires: (
+        pagingRequest: PagingRequest,
+        sourceDomain: DomainName | undefined,
+      ) => {
+        const questionnaireService =
+          this.iocContainer.get<IQuestionnaireService>(
+            IQuestionnaireServiceType,
+          );
+
+        return questionnaireService.getAllQuestionnaires(
+          pagingRequest,
+          sourceDomain,
+        );
+      },
+      getVirtualQuestionnaires: (
+        consentContractAddress: EVMContractAddress,
+        sourceDomain: DomainName | undefined,
+      ) => {
+        const questionnaireService =
+          this.iocContainer.get<IQuestionnaireService>(
+            IQuestionnaireServiceType,
+          );
+
+        return questionnaireService.getVirtualQuestionnaires(
+          consentContractAddress,
+          sourceDomain,
+        );
+      },
+      getConsentContractsByQuestionnaireCID: (
+        ipfsCID: IpfsCID,
+        sourceDomain: DomainName | undefined,
+      ) => {
+        const questionnaireService =
+          this.iocContainer.get<IQuestionnaireService>(
+            IQuestionnaireServiceType,
+          );
+
+        return questionnaireService.getConsentContractsByQuestionnaireCID(
+          ipfsCID,
+          sourceDomain,
+        );
+      },
+      getQuestionnaires: (
+        pagingRequest: PagingRequest,
+        sourceDomain: DomainName | undefined,
+      ) => {
+        const questionnaireService =
+          this.iocContainer.get<IQuestionnaireService>(
+            IQuestionnaireServiceType,
+          );
+        return questionnaireService.getQuestionnaires(
+          pagingRequest,
+          sourceDomain,
+        );
+      },
+      getQuestionnairesForConsentContract: (
+        pagingRequest: PagingRequest,
+        consentContractAddress: EVMContractAddress,
+        sourceDomain: DomainName | undefined,
+      ) => {
+        const questionnaireService =
+          this.iocContainer.get<IQuestionnaireService>(
+            IQuestionnaireServiceType,
+          );
+
+        return questionnaireService.getQuestionnairesForConsentContract(
+          pagingRequest,
+          consentContractAddress,
+          sourceDomain,
+        );
+      },
+      getAnsweredQuestionnaires: (
+        pagingRequest: PagingRequest,
+        sourceDomain: DomainName | undefined,
+      ) => {
+        const questionnaireService =
+          this.iocContainer.get<IQuestionnaireService>(
+            IQuestionnaireServiceType,
+          );
+
+        return questionnaireService.getAnsweredQuestionnaires(
+          pagingRequest,
+          sourceDomain,
+        );
+      },
+      answerQuestionnaire: (
+        questionnaireId: IpfsCID,
+        answers: NewQuestionnaireAnswer[],
+        sourceDomain: DomainName | undefined,
+      ) => {
+        const questionnaireService =
+          this.iocContainer.get<IQuestionnaireService>(
+            IQuestionnaireServiceType,
+          );
+
+        return questionnaireService.answerQuestionnaire(
+          questionnaireId,
+          answers,
+          sourceDomain,
+        );
+      },
+      getRecommendedConsentContracts: (
+        questionnaireId: IpfsCID,
+        sourceDomain?: DomainName,
+      ) => {
+        const questionnaireService =
+          this.iocContainer.get<IQuestionnaireService>(
+            IQuestionnaireServiceType,
+          );
+
+        return questionnaireService.getRecommendedConsentContracts(
+          questionnaireId,
+          sourceDomain,
+        );
+      },
+
+      getByCIDs: (questionnaireIds: IpfsCID[], _sourceDomain?: DomainName) => {
+        const questionnaireService =
+          this.iocContainer.get<IQuestionnaireService>(
+            IQuestionnaireServiceType,
+          );
+
+        return questionnaireService.getByCIDs(questionnaireIds);
+      },
+    };
   }
 
   /**
@@ -856,10 +996,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   public approveQuery(
-    consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
+    queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
-    sourceDomain: DomainName | undefined = undefined,
+    _sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     void,
     | AjaxError
@@ -867,13 +1006,51 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     | ConsentError
     | IPFSError
     | QueryFormatError
-    | EvaluationError
     | PersistenceError
+    | InvalidStatusError
+    | InvalidParametersError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | EvaluationError
   > {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
-    return queryService.approveQuery(consentContractAddress, query, parameters);
+    return queryService.approveQuery(queryCID, parameters);
+  }
+
+  getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+    _sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    QueryStatus[],
+    | EvaluationError
+    | PersistenceError
+    | ConsentContractError
+    | UninitializedError
+    | AjaxError
+    | QueryFormatError
+    | QueryExpiredError
+    | ServerRewardError
+    | ConsentError
+    | IPFSError
+    | ParserError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | EvalNotImplementedError
+    | MissingASTError
+    | BlockchainCommonErrors
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
+    | InvalidStatusError
+    | ConsentFactoryContractError
+    | MissingWalletDataTypeError
+  > {
+    const queryService =
+      this.iocContainer.get<IQueryService>(IQueryServiceType);
+
+    return queryService.getQueryStatusesByContractAddress(contractAddress);
   }
 
   public getQueryStatusByQueryCID(
@@ -886,8 +1063,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   public getQueryStatuses(
-    contractAddress: EVMContractAddress,
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus[],
     blockNumber?: BlockNumber,
+    sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     QueryStatus[],
     | BlockchainProviderError
@@ -899,7 +1078,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
-    return queryService.getQueryStatuses(contractAddress, blockNumber);
+    return queryService.getQueryStatuses(contractAddress, status, blockNumber);
   }
 
   public isDataWalletAddressInitialized(): ResultAsync<boolean, never> {
@@ -1232,5 +1411,17 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       ITokenPriceRepositoryType,
     );
     return tokenPriceRepo.getTokenMarketData(ids);
+  }
+
+  public setUIState(state: JSONString): ResultAsync<void, PersistenceError> {
+    const storageUtils =
+      this.iocContainer.get<IStorageUtils>(IStorageUtilsType);
+    return storageUtils.write(EExternalFieldKey.UI_STATE, state);
+  }
+
+  public getUIState(): ResultAsync<JSONString | null, PersistenceError> {
+    const storageUtils =
+      this.iocContainer.get<IStorageUtils>(IStorageUtilsType);
+    return storageUtils.read(EExternalFieldKey.UI_STATE);
   }
 }

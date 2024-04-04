@@ -15,6 +15,7 @@ import {
   PersistenceError,
   PublicEvents,
   QueryPerformanceEvent,
+  QuestionnaireWithAnswers,
   SDQL_Return,
   TwitterProfile,
   UnixTimestamp,
@@ -24,6 +25,7 @@ import {
   AST_BlockchainTransactionQuery,
   AST_NftQuery,
   AST_PropertyQuery,
+  AST_QuestionnaireQuery,
   AST_SubQuery,
   AST_Web3AccountQuery,
   BinaryCondition,
@@ -33,6 +35,7 @@ import {
   ConditionIn,
   ConditionL,
   ConditionLE,
+  TypeChecker,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
@@ -55,6 +58,8 @@ import {
   IBrowsingDataRepositoryType,
   IDemographicDataRepository,
   IDemographicDataRepositoryType,
+  IQuestionnaireRepository,
+  IQuestionnaireRepositoryType,
   ISocialRepository,
   ISocialRepositoryType,
   ITransactionHistoryRepository,
@@ -64,6 +69,7 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
+import { IQuestionnaireService, IQuestionnaireServiceType } from "@core/interfaces/business";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
@@ -86,6 +92,8 @@ export class QueryEvaluator implements IQueryEvaluator {
     protected contextProvider: IContextProvider,
     @inject(IWeb3AccountQueryEvaluatorType)
     protected web3AccountQueryEvaluator: IWeb3AccountQueryEvaluator,
+    @inject (IQuestionnaireRepositoryType) 
+    protected questionnaireRepo: IQuestionnaireRepository,
   ) {}
 
   protected age: Age = Age(0);
@@ -238,6 +246,49 @@ export class QueryEvaluator implements IQueryEvaluator {
           });
       } else if (query instanceof AST_PropertyQuery) {
         return this.evalPropertyQuery(query, context.publicEvents, queryCID);
+      } else if (query instanceof AST_QuestionnaireQuery) {
+        context.publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.QuestionnaireEvaluation,
+            EStatus.Start,
+            queryCID,
+            query.name,
+          ),
+        );
+        return this.questionnaireRepo.getByCID(query.questionnaireIndex!).map((questionnaire) => {
+          if (questionnaire == null){
+            return SDQL_Return(null);
+          }
+          const questionnaireWithAnswers = (questionnaire as QuestionnaireWithAnswers);
+          if (questionnaireWithAnswers.answers == undefined){
+            return SDQL_Return(null);
+          }
+          const insights = questionnaireWithAnswers.answers.map((questionAnswer) => {
+            return {
+              index: questionAnswer.questionIndex,
+              answer: questionAnswer.choice,
+            }
+          })
+          context.publicEvents.queryPerformance.next(
+            new QueryPerformanceEvent(
+              EQueryEvents.QuestionnaireEvaluation,
+              EStatus.End,
+              queryCID,
+              query.name,
+            ),
+          );
+          return SDQL_Return(insights);
+        })
+          .mapErr((err) => {
+            new QueryPerformanceEvent(
+              EQueryEvents.QuestionnaireEvaluation,
+              EStatus.End,
+              queryCID,
+              query.name,
+              err,
+            );
+            return err;
+          });
       }
       return errAsync(
         new PersistenceError(

@@ -1,4 +1,6 @@
 import "@material-ui/core/styles/createPalette";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+
 export declare enum _EColorMode {
   LIGHT = "light",
   DARK = "dark",
@@ -79,9 +81,11 @@ export enum EFontWeight {
 export enum EFontFamily {
   ROBOTO = "roboto",
   PUBLIC_SANS = "publicSans",
+  SHRINKHAND = "shrikhand",
 }
 
 export enum ECustomTypographyVariant {
+  DISPLAYXL = "displayXl",
   DISPLAYLG = "displayLg",
   DISPLAYMD = "displayMd",
   DISPLAYSM = "displaySm",
@@ -208,9 +212,11 @@ export const colors = {
   GREY900: "#212121", // HEADING
   GREY800: "#424242", // BODY
   GREY700: "#616161", // SUBTITLE
+  GREY600: "#757575",
   GREY500: "#9E9E9E", // LIGHT
   GREY400: "#BDBDBD",
   GREY300: "#E0E0E0", // BORDER
+  GREY100: "#F5F5F5",
   GREY50: "#fafafa", // BG
 };
 //#endregion
@@ -251,7 +257,7 @@ const lightPalette: IPalette = {
   button: colors.MAINPURPLE500,
   buttonContrast: colors.WHITE,
   textBody: colors.GREY800,
-  textHeading: colors.GREY900,
+  textHeading: colors.DARKPURPLE500,
   textSubtitle: colors.GREY700,
   textLight: colors.GREY500,
   linkText: colors.BLUE500,
@@ -268,7 +274,7 @@ const darkPalette: IPalette = {
   button: colors.MAINPURPLE500,
   buttonContrast: colors.WHITE,
   textBody: colors.GREY800,
-  textHeading: colors.GREY900,
+  textHeading: colors.DARKPURPLE500,
   textLight: colors.GREY500,
   textSubtitle: colors.GREY700,
   linkText: colors.BLUE500,
@@ -317,6 +323,10 @@ export const generateDynamicTypographyColorClasses = (theme: Theme) => ({
 });
 
 export const typograpyVariants = {
+  displayXl: {
+    fontSize: "64px",
+    lineHeight: "72px",
+  },
   displayLg: {
     fontSize: "57px",
     lineHeight: "64px",
@@ -417,6 +427,9 @@ export const genareteFontFamiles = () => ({
   [EFontFamily.PUBLIC_SANS]: {
     fontFamily: "Public Sans",
   },
+  [EFontFamily.SHRINKHAND]: {
+    fontFamily: "Shrikhand",
+  },
 });
 
 const breakpoints = {
@@ -487,6 +500,10 @@ export const createDefaultTheme = (
   }
   return createTheme({
     palette: {
+      action: {
+        selected: colors.MAINPURPLE100,
+        hover: colors.MAINPURPLE50,
+      },
       background: { default: palette.bgColor },
       primary: { main: palette.primary },
       secondary: { main: palette.secondary },
@@ -532,9 +549,36 @@ export const createDefaultTheme = (
           },
         },
       },
+      MuiFormHelperText: {
+        contained: {
+          marginLeft: 0,
+          marginTop: 16,
+          ...typograpyVariants.bodyMd,
+        },
+      },
+      MuiInputBase: {
+        root: {},
+      },
+      MuiOutlinedInput: {
+        root: {
+          borderRadius: 8,
+        },
+        input: {
+          padding: "12px 8px",
+          "&::placeholder": {
+            color: colors.GREY500,
+            opacity: 1,
+          },
+        },
+      },
       MuiTypography: {
         root: {
           color: palette.textBody,
+        },
+      },
+      MuiCheckbox: {
+        root: {
+          color: colors.GREY400,
         },
       },
       MuiButton: {
@@ -548,7 +592,7 @@ export const createDefaultTheme = (
           maxHeight: 36,
           height: 36,
           padding: "10px 24px",
-          ...fontWeights[EFontWeight.REGULAR],
+          ...fontWeights[EFontWeight.MEDIUM],
         },
         iconSizeSmall: {
           fontSize: 8,
@@ -600,6 +644,10 @@ export const createDefaultTheme = (
     },
     breakpoints,
     props: {
+      MuiSelect: {
+        displayEmpty: true,
+        IconComponent: ExpandMoreIcon,
+      },
       MuiMenu: {
         disableAutoFocusItem: true,
         disablePortal: true,

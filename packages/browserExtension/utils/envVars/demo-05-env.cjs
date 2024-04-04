@@ -22,6 +22,7 @@ const envVars = {
   __ALCHEMY_POLYGON_API_KEY__: "el_YkQK0DMQqqGlgXPO5gm8g6WmpdNfX",
   __ALCHEMY_SOLANA_API_KEY__: "pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
   __ALCHEMY_SOLANA_TESTNET_API_KEY__: "Fko-iHgKEnUKTkM1SvnFMFMw1AvTVAtg",
+  __ALCHEMY_BASE_API_KEY__: "A6Bl1N0M3LKdJEdpqANywIfTEkg5P24X",
 
   /* Etherscan Keys */
   __ETHERSCAN_ETHEREUM_API_KEY__: "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7",
@@ -61,6 +62,8 @@ const envVars = {
   __DNS_SERVER_ADDRESS__: "",
   __GOOGLE_CLOUD_BUCKET__: "demo-05-eksbc-sdl-dw",
   __DEV_CHAIN_PROVIDER_URL__: "https://doodlechain.demo-05.snickerdoodle.dev",
+
+  __DEFAULT_CONSENT_CONTRACT__: "",
 };
 
 for (const key in envVars) {

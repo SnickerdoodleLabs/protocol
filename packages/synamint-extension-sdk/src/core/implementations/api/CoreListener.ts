@@ -6,6 +6,7 @@ import {
   ESolidityAbiParameterType,
   EVMContractAddress,
   IDynamicRewardParameter,
+  IpfsCID,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
   ISnickerdoodleCoreType,
@@ -44,7 +45,7 @@ export class CoreListener implements ICoreListener {
       events.onInitialized.subscribe(this.onInitialized.bind(this));
       events.onAccountAdded.subscribe(this.onAccountAdded.bind(this));
       events.onAccountRemoved.subscribe(this.onAccountRemoved.bind(this));
-      events.onQueryPosted.subscribe(this.onQueryPosted.bind(this));
+
       events.onEarnedRewardsAdded.subscribe(
         this.onEarnedRewardsAdded.bind(this),
       );
@@ -58,6 +59,8 @@ export class CoreListener implements ICoreListener {
       events.onCohortJoined.subscribe(this.onChohortJoined.bind(this));
 
       events.onCohortLeft.subscribe(this.onCohortLeft.bind(this));
+
+      events.onQueryPosted.subscribe(this.onQueryPosted.bind(this));
 
       // Add a listener for cloud storage being switched out
 
@@ -119,69 +122,6 @@ export class CoreListener implements ICoreListener {
     console.log(`Extension: cohort ${consentAddress} left`);
   }
 
-  private onQueryPosted(request: SDQLQueryRequest): void {
-    console.log(
-      `Extension: query posted with contract address: ${request.consentContractAddress} and CID: ${request.query.cid}`,
-    );
-    console.debug(request.query.query);
-
-    // @TODO - remove once ipfs issue is resolved
-    const getStringQuery = () => {
-      const queryObjOrStr = request.query.query;
-      let queryString: SDQLString;
-      if (typeof queryObjOrStr === "object") {
-        queryString = JSON.stringify(queryObjOrStr) as SDQLString;
-      } else {
-        queryString = queryObjOrStr;
-      }
-      return queryString;
-    };
-
-    // DynamicRewardParameters added to be returned
-    const parameters: IDynamicRewardParameter[] = [];
-    // request.accounts.filter((acc.sourceAccountAddress == request.dataWalletAddress) ==> (acc))
-
-    this.invitationService
-      .getReceivingAddress(request.consentContractAddress)
-      .map((accountAddress) => {
-        request.rewardsPreview.forEach((eligibleReward) => {
-          if (request.dataWalletAddress !== null) {
-            parameters.push({
-              recipientAddress: {
-                type: ESolidityAbiParameterType.address,
-                value: accountAddress,
-              },
-              compensationKey: {
-                type: ESolidityAbiParameterType.string,
-                value: eligibleReward.compensationKey,
-              },
-            } as IDynamicRewardParameter);
-          }
-        });
-
-        this.core
-          .approveQuery(
-            request.consentContractAddress,
-            {
-              cid: request.query.cid,
-              query: getStringQuery(),
-            },
-            parameters,
-          )
-          .map(() => {
-            console.log(
-              `Processing Query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
-            );
-          })
-          .mapErr((e) => {
-            console.error(
-              `Error while processing query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
-            );
-            console.error(e);
-          });
-      });
-  }
-
   private onAccountRemoved(account: LinkedAccount): void {
     this.contextProvider.onAccountRemoved(account);
   }
@@ -201,5 +141,9 @@ export class CoreListener implements ICoreListener {
   }
   private onCloudStorageDeactivated(event: CloudStorageActivatedEvent): void {
     this.contextProvider.onCloudStorageDeactivated(event);
+  }
+  private onQueryPosted(event: SDQLQueryRequest) {
+    console.log("Query posted", event);
+    this.contextProvider.onQueryPosted(event);
   }
 }

@@ -23,10 +23,7 @@ export class SiftContract
   implements ISiftContract
 {
   constructor(
-    protected providerOrSigner:
-      | ethers.providers.Provider
-      | ethers.providers.JsonRpcSigner
-      | ethers.Wallet,
+    protected providerOrSigner: ethers.Provider | ethers.Signer,
     protected contractAddress: EVMContractAddress,
   ) {
     super(providerOrSigner, contractAddress, ContractsAbis.SiftAbi.abi);

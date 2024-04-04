@@ -18,14 +18,17 @@ import {
   useMedia,
   DescriptionWidget,
   PermissionSelectionWidget,
+  ConsentModal,
 } from "@shared-components/v2";
 import { IOldUserAgreement } from "@snickerdoodlelabs/objects";
+import { okAsync } from "neverthrow";
 import React from "react";
 import ReactDOM from "react-dom";
 
 const App = () => {
   const [value, setValue] = React.useState(0);
   const media = useMedia();
+
   return (
     <>
       <SDTypography align="center" variant="displayLg" color="textSuccess">

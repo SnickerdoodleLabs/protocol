@@ -9,25 +9,14 @@ import {
   SiteVisit,
   URLString,
   UnixTimestamp,
-  SDQLString,
-  IDynamicRewardParameter,
-  SDQLQueryRequest,
   ISnickerdoodleCore,
-  PersistenceError,
-  ESolidityAbiParameterType,
-  AjaxError,
-  ConsentError,
-  EvaluationError,
-  IPFSError,
-  QueryFormatError,
-  UnauthorizedError,
-  UninitializedError,
   ISdlDataWallet,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ChildAPI } from "postmate";
 
+import { ProxyBridge } from "@core-iframe/app/ProxyBridge";
 import { iframeModule } from "@core-iframe/IFrameModule";
 import {
   ICoreListener,
@@ -46,7 +35,6 @@ import {
   IIFrameContextProvider,
   IIFrameContextProviderType,
 } from "@core-iframe/interfaces/utilities/index";
-import { ProxyBridge } from "@core-iframe/app/ProxyBridge";
 
 export class IFrameFormFactor {
   protected iocContainer = new Container();
@@ -85,9 +73,6 @@ export class IFrameFormFactor {
       return coreProvider.getCore().andThen((core) => {
         return core.getEvents().andThen((events) => {
           // Subscribe to onQueryPosted and approve all incoming queries
-          events.onQueryPosted.subscribe((request) => {
-            this.respondToQuery(request, core, logUtils);
-          });
 
           // We want to record the sourceDomain as a site visit
           const now = timeUtils.getUnixNow();
@@ -104,7 +89,11 @@ export class IFrameFormFactor {
               logUtils.log("Snickerdoodle Core CoreListener initialized");
               return {
                 core,
-                proxy: new ProxyBridge(core, events),
+                proxy: new ProxyBridge(
+                  core,
+                  events,
+                  contextProvider.getEvents(),
+                ),
                 childApi,
                 iframeEvents: contextProvider.getEvents(),
                 config: contextProvider.getConfig(),
@@ -114,82 +103,5 @@ export class IFrameFormFactor {
         });
       });
     });
-  }
-
-  protected respondToQuery(
-    request: SDQLQueryRequest,
-    core: ISnickerdoodleCore,
-    logUtils: ILogUtils,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | AjaxError
-    | UninitializedError
-    | UnauthorizedError
-    | ConsentError
-    | IPFSError
-    | QueryFormatError
-    | EvaluationError
-  > {
-    logUtils.log(
-      `IFrame: query posted with contract address: ${request.consentContractAddress} and CID: ${request.query.cid}`,
-    );
-    logUtils.debug(request.query.query);
-
-    // @TODO - remove once ipfs issue is resolved
-    const getStringQuery = () => {
-      const queryObjOrStr = request.query.query;
-      let queryString: SDQLString;
-      if (typeof queryObjOrStr === "object") {
-        queryString = JSON.stringify(queryObjOrStr) as SDQLString;
-      } else {
-        queryString = queryObjOrStr;
-      }
-      return queryString;
-    };
-
-    // DynamicRewardParameters added to be returned
-    const parameters: IDynamicRewardParameter[] = [];
-    // request.accounts.filter((acc.sourceAccountAddress == request.dataWalletAddress) ==> (acc))
-
-    return core
-      .getReceivingAddress(request.consentContractAddress)
-      .andThen((accountAddress) => {
-        request.rewardsPreview.forEach((eligibleReward) => {
-          if (request.dataWalletAddress !== null) {
-            parameters.push({
-              recipientAddress: {
-                type: ESolidityAbiParameterType.address,
-                value: accountAddress,
-              },
-              compensationKey: {
-                type: ESolidityAbiParameterType.string,
-                value: eligibleReward.compensationKey,
-              },
-            } as IDynamicRewardParameter);
-          }
-        });
-
-        return core.approveQuery(
-          request.consentContractAddress,
-          {
-            cid: request.query.cid,
-            query: getStringQuery(),
-          },
-          parameters,
-        );
-      })
-      .map(() => {
-        logUtils.log(
-          `Processing Query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
-        );
-      })
-      .mapErr((e) => {
-        logUtils.error(
-          `Error while processing query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
-        );
-        logUtils.error(e);
-        return e;
-      });
   }
 }

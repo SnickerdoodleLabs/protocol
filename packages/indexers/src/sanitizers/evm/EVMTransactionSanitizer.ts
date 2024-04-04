@@ -15,7 +15,6 @@ import {
   EVMTransactionHash,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
-import { ethers } from "ethers";
 import { injectable, inject } from "inversify";
 
 import { IEVMTransactionSanitizer } from "@indexers/interfaces";
@@ -260,11 +259,8 @@ export class EVMTransactionSanitizer implements IEVMTransactionSanitizer {
         //Could be contract creation
         return EVMContractAddress("");
       }
-      try {
-        ethers.utils.getAddress(value);
+      if (ValidationUtils.isValidEthereumAddress(value)) {
         return EVMContractAddress(value.toLowerCase());
-      } catch (error) {
-        return null;
       }
     }
     return null;

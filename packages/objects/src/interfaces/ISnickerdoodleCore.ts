@@ -1,7 +1,4 @@
-import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
+import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 import {
@@ -41,6 +38,10 @@ import {
   NftRepositoryCache,
   WalletNFTData,
   WalletNFTHistory,
+  Questionnaire,
+  QuestionnaireWithAnswers,
+  QuestionnaireAnswer,
+  NewQuestionnaireAnswer,
   // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
@@ -48,6 +49,8 @@ import {
   ECloudStorageType,
   EDataWalletPermission,
   EInvitationStatus,
+  EQueryProcessingStatus,
+  EWalletDataType,
 } from "@objects/enum/index.js";
 import {
   AccountIndexingError,
@@ -80,6 +83,8 @@ import {
   MissingWalletDataTypeError,
   ParserError,
   MethodSupportError,
+  InvalidStatusError,
+  ServerRewardError,
 } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
@@ -117,6 +122,7 @@ import {
   URLString,
   BlockNumber,
   RefreshToken,
+  JSONString,
 } from "@objects/primitives/index.js";
 /**
  ************************ MAINTENANCE HAZARD ***********************************************
@@ -194,8 +200,8 @@ export interface IAccountMethods {
 
   addAccountWithExternalTypedDataSignature(
     accountAddress: AccountAddress,
-    domain: TypedDataDomain,
-    types: Record<string, Array<TypedDataField>>,
+    domain: ethers.TypedDataDomain,
+    types: Record<string, Array<ethers.TypedDataField>>,
     value: Record<string, unknown>,
     signature: Signature,
     chain: EChain,
@@ -714,6 +720,135 @@ export interface IStorageMethods {
   ): ResultAsync<URLString, never>;
 }
 
+export interface IQuestionnaireMethods {
+  /**
+   * Returns a list of questionnaires that the user can complete (that do not already have answers),
+   * without regard to any particular consent contract. They are returned in ranked order and should
+   * be presented to the user in that order.
+   * @param sourceDomain
+   */
+  getQuestionnaires(
+    pagingRequest: PagingRequest,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    PagedResponse<Questionnaire>,
+    | UninitializedError
+    | BlockchainCommonErrors
+    | AjaxError
+    | PersistenceError
+    | ConsentFactoryContractError
+  >;
+
+  /**
+   * Returns a list of questionnaires that the user can complete, which are requested by a particular
+   * consent contract. They are returned in ranked order and should be presented to the user in that order.
+   *
+   * @param consentContractAddress
+   * @param sourceDomain
+   */
+  getQuestionnairesForConsentContract(
+    pagingRequest: PagingRequest,
+    consentContractAddress: EVMContractAddress,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    PagedResponse<Questionnaire | QuestionnaireWithAnswers>,
+    | UninitializedError
+    | BlockchainCommonErrors
+    | AjaxError
+    | PersistenceError
+    | ConsentContractError
+  >;
+
+  /**
+   * Gets all teh questionnaires that the user has already answered, along with the current answers
+   * @param sourceDomain
+   */
+  getAnsweredQuestionnaires(
+    pagingRequest: PagingRequest,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    PagedResponse<QuestionnaireWithAnswers>,
+    PersistenceError | AjaxError
+  >;
+
+  /**
+   * This method provides answers to a single questionnaire. The provided answers must all
+   * be for the same questionnaire. If the questionnaire is not found, or if the answers are
+   * not valid, and InvalidParametersError is returned.
+   * @param questionnaireId The IPFS CID of the questionnaire you are providing answers for.
+   * @param answers
+   */
+  answerQuestionnaire(
+    questionnaireId: IpfsCID,
+    answers: NewQuestionnaireAnswer[],
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<void, InvalidParametersError | PersistenceError | AjaxError>;
+
+  /**
+   * Fetches all questionnaires in storage with pagination
+   * This method can return either basic questionnaires or questionnaires with their answers if available,
+   * */
+  getAllQuestionnaires(
+    pagingRequest: PagingRequest,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    PagedResponse<Questionnaire | QuestionnaireWithAnswers>,
+    | UninitializedError
+    | BlockchainCommonErrors
+    | AjaxError
+    | PersistenceError
+    | ConsentFactoryContractError
+  >;
+
+  /**
+   * Retrieves consent contract addresses associated with a given Questionnaire IPFS CID.
+   *  This method is useful for finding out which consent contracts (brand) is interested in the the supplied Questionnaire
+   *
+   * @param ipfsCID The IPFS CID of the questionnaire
+   * @return An array of consent contract addresses
+   */
+  getConsentContractsByQuestionnaireCID(
+    ipfsCID: IpfsCID,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    EVMContractAddress[],
+    | PersistenceError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
+    | ConsentContractError
+    | AjaxError
+  >;
+
+  /**
+   * This is a key marketing function. Based on the questionnaires that the user has answered,
+   * this returns a list of consent contracts that are interested in that questionnaire. This is
+   * where stake for rank comes in. Each questionnaire (regardless of if it's a default one or not),
+   * can be staked by a consent contract.
+   * @param sourceDomain
+   */
+  getRecommendedConsentContracts(
+    questionnaire: IpfsCID,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<EVMContractAddress[], PersistenceError | AjaxError>;
+
+  getByCIDs(
+    questionnaireCIDs: IpfsCID[],
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    (Questionnaire | QuestionnaireWithAnswers)[],
+    PersistenceError | AjaxError
+  >;
+
+  getVirtualQuestionnaires(
+    consentContractAddress: EVMContractAddress,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<
+    EWalletDataType[],
+    ConsentContractError | UninitializedError | BlockchainCommonErrors
+  >;
+}
+
 export interface ISnickerdoodleCore {
   /**
    * initialize() should be the first call you make on a new SnickerdoodleCore.
@@ -764,8 +899,7 @@ export interface ISnickerdoodleCore {
   // This is basically per-query consent. The consent token will be
   // re-checked, of course (trust nobody!).
   approveQuery(
-    consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
+    queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<
@@ -775,9 +909,12 @@ export interface ISnickerdoodleCore {
     | ConsentError
     | IPFSError
     | QueryFormatError
-    | EvaluationError
-    | UnauthorizedError
     | PersistenceError
+    | InvalidStatusError
+    | InvalidParametersError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | EvaluationError
   >;
 
   getQueryStatusByQueryCID(
@@ -785,8 +922,10 @@ export interface ISnickerdoodleCore {
   ): ResultAsync<QueryStatus | null, PersistenceError>;
 
   getQueryStatuses(
-    contractAddress: EVMContractAddress,
+    contractAddress?: EVMContractAddress,
+    statuses?: EQueryProcessingStatus[],
     blockNumber?: BlockNumber,
+    sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     QueryStatus[],
     | BlockchainProviderError
@@ -796,6 +935,35 @@ export interface ISnickerdoodleCore {
     | PersistenceError
   >;
 
+  getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    QueryStatus[],
+    | BlockchainProviderError
+    | PersistenceError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | IPFSError
+    | AjaxError
+    | ConsentContractError
+    | ConsentError
+    | QueryFormatError
+    | EvaluationError
+    | QueryExpiredError
+    | BlockchainCommonErrors
+    | ServerRewardError
+    | ParserError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
+    | EvalNotImplementedError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
+    | InvalidStatusError
+  >;
   /**
    * Restores a backup directly. Should only be called for testing purposes.
    * @param backup
@@ -961,6 +1129,10 @@ export interface ISnickerdoodleCore {
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, PersistenceError | UnauthorizedError>;
 
+  // external calls to set local storage
+  setUIState(state: JSONString): ResultAsync<void, PersistenceError>;
+  getUIState(): ResultAsync<JSONString | null, PersistenceError>;
+
   account: IAccountMethods;
   invitation: IInvitationMethods;
   marketplace: ICoreMarketplaceMethods;
@@ -970,6 +1142,7 @@ export interface ISnickerdoodleCore {
   metrics: IMetricsMethods;
   storage: IStorageMethods;
   nft: INftMethods;
+  questionnaire: IQuestionnaireMethods;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");
