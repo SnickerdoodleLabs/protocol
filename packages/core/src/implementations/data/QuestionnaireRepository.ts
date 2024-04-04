@@ -441,7 +441,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     const questions: QuestionnaireQuestion[] = [];
     const allAnswers: QuestionnaireAnswer[] = [];
     let latestMeasurementDate: UnixTimestamp | null = null;
-    console.log(`history `, questionHistoryMap);
+
     questionnaireData.questions.forEach((question) => {
       const questionInstance = new QuestionnaireQuestion(
         question.index,

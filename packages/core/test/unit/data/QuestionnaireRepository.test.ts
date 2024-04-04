@@ -391,7 +391,7 @@ describe("QuestionnaireRepository tests", () => {
     expect(result).toBeDefined();
     expect(result.isErr()).toBeFalsy();
     const response = result._unsafeUnwrap();
-    console.log(`res `, response.response[0]);
+
     expect(response).toEqual(expectedPagedResponse);
   });
 
