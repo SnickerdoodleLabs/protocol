@@ -49,6 +49,9 @@ import {
   MarketplaceTag,
   QuestionnaireQuestion,
   QuestionnaireWithAnswers,
+  Commitment,
+  NullifierBNS,
+  TrapdoorBNS,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_ConditionExpr,
@@ -1175,4 +1178,11 @@ export const mockQuestionnaireHistory = new QuestionnaireHistory(
     },
   ],
 );
+// #endregion
+
+// #region Commitments
+export const commitment1Index = 1;
+export const commitment1 = Commitment(1234n);
+export const identityNullifier = NullifierBNS("5678");
+export const identityTrapdoor = TrapdoorBNS("94062");
 // #endregion

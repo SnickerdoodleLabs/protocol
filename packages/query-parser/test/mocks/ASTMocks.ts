@@ -3,6 +3,7 @@ import "reflect-metadata";
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   DataPermissions,
+  EVMContractAddress,
   IpfsCID,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
@@ -41,7 +42,7 @@ export class ASTMocks {
   public factory() {
     return this.queryFactories.makeAstEvaluator(
       IpfsCID(""),
-      DataPermissions.createWithAllPermissions(),
+      new DataPermissions("" as EVMContractAddress, [], []), // @TODO we should probably use real permissions here
       UnixTimestamp(1),
     );
   }

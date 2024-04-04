@@ -3,19 +3,15 @@ import { ILogUtils } from "@snickerdoodlelabs/common-utils";
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
 import { ICryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
-  BigNumberString,
   ConsentError,
-  ConsentToken,
   DataPermissions,
   DomainName,
-  EVMAccountAddress,
-  EVMPrivateKey,
-  HexString,
+  EVMContractAddress,
   HexString32,
   IOldUserAgreement,
+  Invitation,
   IpfsCID,
   OptInInfo,
-  Signature,
   TokenId,
   URLString,
 } from "@snickerdoodlelabs/objects";
@@ -24,36 +20,26 @@ import * as td from "testdouble";
 
 import { InvitationService } from "@core/implementations/business/index.js";
 import { IInvitationService } from "@core/interfaces/business/index.js";
-import { IConsentTokenUtils } from "@core/interfaces/business/utilities/index.js";
 import {
   IConsentContractRepository,
   IDNSRepository,
   IInvitationRepository,
   ILinkedAccountRepository,
-  IMetatransactionForwarderRepository,
 } from "@core/interfaces/data/index.js";
 import { IDataWalletUtils } from "@core/interfaces/utilities/index.js";
 import {
-  dataWalletAddress,
   consentContractAddress1,
-  defaultInsightPlatformBaseUrl,
-  externalAccountAddress1,
   dataWalletKey,
+  identityNullifier,
+  identityTrapdoor,
+  commitment1,
+  commitment1Index,
 } from "@core-tests/mock/mocks/commonValues.js";
 import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities";
 
-const metatransactionNonce = BigNumberString("123456789");
-const metatransactionValue = BigNumberString("0");
-const metatransactionGas = BigNumberString("gas");
-const optInCallData = HexString("0xOptIn");
-const optOutCallData = HexString("0xOptOut");
-const optInSignature = Signature("OptInSignature");
-const optOutSignature = Signature("OptOutSignature");
-const optInPrivateKey = EVMPrivateKey("optInPrivateKey");
-const optInAccountAddress = EVMAccountAddress("optInAccountAddress");
 const domain = DomainName("phoebe.com");
 const url1 = URLString("phoebe.com/cute");
 const url2 = URLString("phoebe.com/loud");
@@ -63,15 +49,9 @@ const tokenId2 = TokenId(BigInt(69));
 const permissionsHex = HexString32(
   "0x0000000000000000000000000000000000000000000000000000000000000000",
 );
-const dataPermissions = new DataPermissions(permissionsHex);
+const dataPermissions = new DataPermissions("" as EVMContractAddress, [], []);
 const newPermissionsHex = HexString32(
   "0x0000000000000000000000000000000000000000000000000000000000000001",
-);
-const encodedUpdateAgreementFlagsContent = HexString(
-  "encodedUpdateAgreementFlagsContent",
-);
-const updateAgreementFlagsMetatransactionSignature = Signature(
-  "updateAgreementFlagsMetatransactionSignature",
 );
 
 const invitationMetadata: IOldUserAgreement = {
@@ -82,22 +62,25 @@ const invitationMetadata: IOldUserAgreement = {
   nftClaimedImage: URLString("nftClaimedImage"),
 };
 
-const acceptedInvitation = new OptInInfo(consentContractAddress1, tokenId1);
-
-const consentToken1 = new ConsentToken(
+const acceptedInvitation = new OptInInfo(
   consentContractAddress1,
-  externalAccountAddress1,
-  tokenId1,
-  dataPermissions,
+  identityNullifier,
+  identityTrapdoor,
+  commitment1,
+);
+
+const publicInvitation = new Invitation(
+  consentContractAddress1,
+  null,
+  null,
+  null,
 );
 
 class InvitationServiceMocks {
-  public consentTokenUtils: IConsentTokenUtils;
   public consentRepo: IConsentContractRepository;
   public insightPlatformRepo: IInsightPlatformRepository;
   public dnsRepository: IDNSRepository;
   public invitationRepo: IInvitationRepository;
-  public forwarderRepo: IMetatransactionForwarderRepository;
   public dataWalletUtils: IDataWalletUtils;
   public cryptoUtils: ICryptoUtils;
   public contextProvider: ContextProviderMock;
@@ -106,12 +89,10 @@ class InvitationServiceMocks {
   public accountRepo: ILinkedAccountRepository;
 
   public constructor() {
-    this.consentTokenUtils = td.object<IConsentTokenUtils>();
     this.consentRepo = td.object<IConsentContractRepository>();
     this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
     this.dnsRepository = td.object<IDNSRepository>();
     this.invitationRepo = td.object<IInvitationRepository>();
-    this.forwarderRepo = td.object<IMetatransactionForwarderRepository>();
     this.contextProvider = new ContextProviderMock();
     this.dataWalletUtils = td.object<IDataWalletUtils>();
     this.cryptoUtils = td.object<ICryptoUtils>();
@@ -119,49 +100,22 @@ class InvitationServiceMocks {
     this.logUtils = td.object<ILogUtils>();
     this.accountRepo = td.object<ILinkedAccountRepository>();
 
-    td.when(
-      this.insightPlatformRepo.executeMetatransaction(
-        EVMAccountAddress(dataWalletAddress),
-        consentContractAddress1,
-        metatransactionNonce,
-        metatransactionValue,
-        metatransactionGas,
-        optInCallData,
-        optInSignature,
-        optInPrivateKey,
-        defaultInsightPlatformBaseUrl,
-      ),
-    ).thenReturn(okAsync(undefined));
-
     td.when(this.dnsRepository.fetchTXTRecords(domain)).thenReturn(
       okAsync([`"${consentContractAddress1}"`]),
     );
 
     // ConsentRepo ---------------------------------------------------------------
     td.when(
-      this.consentRepo.getInvitationUrls(consentContractAddress1),
-    ).thenReturn(okAsync([url1, url2]));
+      this.consentRepo.checkDomain(consentContractAddress1, domain),
+    ).thenReturn(okAsync(true));
     td.when(
       this.consentRepo.getMetadataCID(consentContractAddress1),
     ).thenReturn(okAsync(ipfsCID));
     td.when(
-      this.consentRepo.getConsentCapacity(consentContractAddress1),
-    ).thenReturn(okAsync({ availableOptInCount: 10, maxCapacity: 10 }));
-    td.when(
-      this.consentRepo.getConsentToken(
+      this.consentRepo.getCommitmentIndex(
         acceptedInvitation.consentContractAddress,
-        acceptedInvitation.tokenId,
       ),
-    ).thenReturn(okAsync(consentToken1));
-    td.when(
-      this.consentRepo.encodeUpdateAgreementFlags(
-        consentContractAddress1,
-        tokenId1,
-        td.matchers.contains({
-          agreementFlags: newPermissionsHex,
-        }),
-      ),
-    ).thenReturn(okAsync(encodedUpdateAgreementFlagsContent));
+    ).thenReturn(okAsync(commitment1Index));
 
     // InvitationRepo -------------------------------------------------------
     td.when(this.invitationRepo.getInvitationMetadataByCID(ipfsCID)).thenReturn(
@@ -170,6 +124,9 @@ class InvitationServiceMocks {
     td.when(this.invitationRepo.getAcceptedInvitations()).thenReturn(
       okAsync([acceptedInvitation]),
     );
+    td.when(
+      this.invitationRepo.addAcceptedInvitations([acceptedInvitation]),
+    ).thenReturn(okAsync(undefined));
     td.when(
       this.invitationRepo.removeAcceptedInvitationsByContractAddress([
         consentContractAddress1,
@@ -185,62 +142,34 @@ class InvitationServiceMocks {
       okAsync(tokenId1),
       okAsync(tokenId2),
     );
-    td.when(
-      this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(optInPrivateKey),
-    ).thenReturn(optInAccountAddress as never);
 
     // DataWalletUtils --------------------------------------------
     td.when(
-      this.dataWalletUtils.deriveOptInPrivateKey(
+      this.dataWalletUtils.deriveOptInInfo(
         consentContractAddress1,
         dataWalletKey,
       ),
-    ).thenReturn(okAsync(optInPrivateKey));
-
-    // ForwarderRepo -----------------------------------------------
-    td.when(this.forwarderRepo.getNonce(optInAccountAddress)).thenReturn(
-      okAsync(metatransactionNonce),
-    );
-
-    td.when(
-      this.forwarderRepo.signMetatransactionRequest(
-        td.matchers.contains({
-          to: consentContractAddress1,
-          from: optInAccountAddress,
-          data: encodedUpdateAgreementFlagsContent, // The actual bytes of the request, encoded as a hex string
-        }),
-        optInPrivateKey,
-      ),
-    ).thenReturn(okAsync(updateAgreementFlagsMetatransactionSignature));
+    ).thenReturn(okAsync(acceptedInvitation));
 
     // InsightPlatformRepo -----------------------------------------------------
     td.when(
-      this.insightPlatformRepo.executeMetatransaction(
-        optInAccountAddress, // account address
+      this.insightPlatformRepo.optin(
         consentContractAddress1, // contract address
-        metatransactionNonce,
-        metatransactionValue,
-        BigNumberString(
-          BigInt(
-            this.configProvider.config.gasAmounts.updateAgreementFlagsGas,
-          ).toString(),
-        ),
-        encodedUpdateAgreementFlagsContent,
-        updateAgreementFlagsMetatransactionSignature,
-        optInPrivateKey,
+        identityTrapdoor,
+        identityNullifier,
         this.configProvider.config.defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(okAsync(undefined));
   }
 
   public factory(): IInvitationService {
+    //@ts-ignore
+
     return new InvitationService(
-      this.consentTokenUtils,
       this.consentRepo,
       this.insightPlatformRepo,
       this.dnsRepository,
       this.invitationRepo,
-      this.forwarderRepo,
       this.dataWalletUtils,
       this.cryptoUtils,
       this.contextProvider,
@@ -284,25 +213,24 @@ describe("InvitationService tests", () => {
     expect(pageInvitations[1].invitation.domain).toBe(domain);
     expect(pageInvitations[1].invitation.tokenId).toBe(tokenId2);
   });
+});
 
-  test("getInvitationsByDomain no available slots", async () => {
+describe("InvitationService tests", () => {
+  test("acceptInvitation() happy path with public invitation", async () => {
     // Arrange
     const mocks = new InvitationServiceMocks();
-
-    td.when(
-      mocks.consentRepo.getConsentCapacity(consentContractAddress1),
-    ).thenReturn(okAsync({ availableOptInCount: 0, maxCapacity: 10 }));
-
     const service = mocks.factory();
 
     // Act
-    const result = await service.getInvitationsByDomain(domain);
+    const result = await service.acceptInvitation(publicInvitation);
 
     // Assert
     expect(result).toBeDefined();
     expect(result.isErr()).toBeFalsy();
-    const pageInvitations = result._unsafeUnwrap();
-    expect(pageInvitations.length).toBe(0);
+
+    mocks.contextProvider.assertEventCounts({
+      onCohortJoined: 1,
+    });
   });
 });
 
@@ -315,7 +243,7 @@ describe("InvitationService.updateDataPermissions() tests", () => {
     // Act
     const result = await service.updateDataPermissions(
       consentContractAddress1,
-      new DataPermissions(newPermissionsHex),
+      new DataPermissions("" as EVMContractAddress, [], []),
     );
 
     // Assert
@@ -339,7 +267,7 @@ describe("InvitationService.updateDataPermissions() tests", () => {
     // Act
     const result = await service.updateDataPermissions(
       consentContractAddress1,
-      new DataPermissions(newPermissionsHex),
+      new DataPermissions("" as EVMContractAddress, [], []),
     );
 
     // Assert
@@ -352,23 +280,22 @@ describe("InvitationService.updateDataPermissions() tests", () => {
     });
   });
 
-  test("No consent token but invitation exists in persistence, removes invite from persistence, fails", async () => {
+  test("No commitment but invitation exists in persistence, removes invite from persistence, fails", async () => {
     // Arrange
     const mocks = new InvitationServiceMocks();
 
     td.when(
-      mocks.consentRepo.getConsentToken(
+      mocks.consentRepo.getCommitmentIndex(
         acceptedInvitation.consentContractAddress,
-        acceptedInvitation.tokenId,
       ),
-    ).thenReturn(okAsync(null));
+    ).thenReturn(okAsync(-1));
 
     const service = mocks.factory();
 
     // Act
     const result = await service.updateDataPermissions(
       consentContractAddress1,
-      new DataPermissions(newPermissionsHex),
+      new DataPermissions("" as EVMContractAddress, [], []),
     );
 
     // Assert

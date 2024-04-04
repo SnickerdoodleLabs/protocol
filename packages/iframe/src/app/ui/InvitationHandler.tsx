@@ -227,7 +227,6 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     if (config.defaultConsentContract) {
       core.invitation.acceptInvitation(
         new Invitation(config.defaultConsentContract, null, null, null),
-        null,
       );
     }
   };
@@ -263,16 +262,12 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   };
 
   const onPermissionSelected = useCallback(
-    (dataTypes: EWalletDataType[]) => {
+    (...args) => {
       if (currentInvitation) {
         // call function as background process
         setAppState(EAPP_STATE.IDLE);
         core.invitation
-          .acceptInvitation(
-            currentInvitation.data.invitation,
-            DataPermissions.createWithPermissions(dataTypes),
-            undefined,
-          )
+          .acceptInvitation(currentInvitation.data.invitation, undefined)
           .map(() => {
             clearInvitation();
           })
@@ -294,7 +289,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
           withPermissions,
         } = params;
         core.invitation
-          .acceptInvitation(currentInvitation.data.invitation, null, undefined)
+          .acceptInvitation(currentInvitation.data.invitation, undefined)
           .andThen(() => {
             // set consent permissions here
             return okAsync(undefined);

@@ -72,25 +72,6 @@ export interface IQueryParsingEngine {
     | PersistenceError
     | EvalNotImplementedError
   >;
-
-  getPossibleQueryDeliveryItems(
-    query: SDQLQuery,
-  ): ResultAsync<
-    IQueryDeliveryItems,
-    | ParserError
-    | DuplicateIdInSchema
-    | QueryFormatError
-    | MissingTokenConstructorError
-    | QueryExpiredError
-    | MissingASTError
-    | EvaluationError
-    | PersistenceError
-    | EvalNotImplementedError
-    | AjaxError
-    | AccountIndexingError
-    | MethodSupportError
-    | InvalidParametersError
-  >;
 }
 
 export const IQueryParsingEngineType = Symbol.for("IQueryParsingEngine");
