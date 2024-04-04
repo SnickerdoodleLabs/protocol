@@ -31,13 +31,6 @@ export interface ITokenPriceRepository {
     ids: string[],
   ): ResultAsync<TokenMarketData[], AccountIndexingError>;
 
-  getMarketDataForTokens(
-    tokens: { chain: ChainId; address: TokenAddress | null }[],
-  ): ResultAsync<
-    Map<`${ChainId}-${TokenAddress}`, TokenMarketData>,
-    AccountIndexingError | AjaxError
-  >;
-
   getTokenInfoFromList(
     contractAddress: TokenAddress,
   ): CoinGeckoTokenInfo | undefined;
