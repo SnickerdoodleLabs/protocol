@@ -38,9 +38,8 @@ Steps to install and run this project this locally:
 
 ```shell
 git clone https://github.com/SnickerdoodleLabs/protocol.git
-cd packages/contracts
-
-npm install
+cd protocol
+yarn install
 ```
 
 ### Compiling Contracts
@@ -48,7 +47,9 @@ npm install
 Use Hardhat to compile the protocol contracts like this:
 
 ```shell
-npx hardhat compile
+cd /packages/contracts
+yarn compile
+yarn test
 ```
 
 This command will create a subdirectory called `artifacts` which will contain the contract [ABI](https://docs.soliditylang.org/en/v0.8.13/abi-spec.html) and bytecode for all contracts in the `contracts` subdirectory.
@@ -60,13 +61,7 @@ A pre-built docker image for local development against the contract stack is ava
 Run a local subnet like this:
 
 ```shell
-docker run -d -p 8569:9650 --name devchain --rm --env NETWORK=subnet snickerdoodlelabs/devchain
-```
-
-Check the status of the subnet like this:
-
-```shell
-docker exec devchain avalanche network status
+docker run -d -p 8545:8545 --rm snickerdoodlelabs/devchain
 ```
 
 Run a [Hardhat node](https://hardhat.org/hardhat-network/docs/overview) like this:
@@ -74,15 +69,6 @@ Run a [Hardhat node](https://hardhat.org/hardhat-network/docs/overview) like thi
 ```shell
 docker run -d -p 8569:8569 --name devchain --rm --env NETWORK=dev snickerdoodlelabs/devchain
 ```
-
-Check the status of the Hardhat network like this:
-
-```shell
-docker exec -it devchain /bin/bash
-tmux a -t hardhat
-```
-
-Exit the tmux session running the local testnet by pressing `Cntrl` + `b` `d`h.
 
 ## Deployment Addresses
 

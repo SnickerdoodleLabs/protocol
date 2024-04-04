@@ -452,18 +452,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      getConsentContractURLs: (
-        data: IIFrameCallData<{
-          contractAddress: EVMContractAddress;
-        }>,
-      ) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.getConsentContractURLs(data.data.contractAddress);
-          });
-        }, data.callId);
-      },
-
       getInvitationMetadataByCID: (
         data: IIFrameCallData<{
           ipfsCID: IpfsCID;
@@ -480,36 +468,29 @@ export class CoreListener extends ChildProxy implements ICoreListener {
 
       updateAgreementPermissions: (
         data: IIFrameCallData<{
-          consentContractAddress: EVMContractAddress;
-          dataTypes: EWalletDataType[];
+          dataPermissions: DataPermissions;
         }>,
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.invitation.updateDataPermissions(
-              data.data.consentContractAddress,
-              DataPermissions.createWithPermissions(data.data.dataTypes),
-              this.sourceDomain,
+            return core.permission.setContentContractPermissions(
+              data.data.dataPermissions,
             );
           });
         }, data.callId);
       },
 
-      getAgreementPermissions: (
+      getDataPermissions: (
         data: IIFrameCallData<{
           consentContractAddress: EVMContractAddress;
         }>,
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.invitation
-              .getAgreementFlags(
-                data.data.consentContractAddress,
-                this.sourceDomain,
-              )
-              .map((flags) => {
-                return DataPermissions.getDataTypesFromFlags(flags);
-              });
+            return core.invitation.getDataPermissions(
+              data.data.consentContractAddress,
+              this.sourceDomain,
+            );
           });
         }, data.callId);
       },
@@ -697,19 +678,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      getConsentCapacity: (
-        data: IIFrameCallData<{
-          contractAddress: EVMContractAddress;
-        }>,
-      ) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.getConsentCapacity(data.data.contractAddress);
-          });
-        }, data.callId);
-      },
-
-      getPossibleRewards: (
+      getEarnedRewardsByContractAddress: (
         data: IIFrameCallData<{
           contractAddresses: EVMContractAddress[];
           timeoutMs?: number;

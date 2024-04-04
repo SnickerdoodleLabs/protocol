@@ -1,9 +1,14 @@
 import "reflect-metadata";
 import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
+  BigNumberString,
+  Commitment,
   EVMContractAddress,
   EVMPrivateKey,
+  NullifierBNS,
+  OptInInfo,
   PasswordString,
+  TrapdoorBNS,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 import * as td from "testdouble";
@@ -37,17 +42,17 @@ class DataWalletUtilsMocks {
 }
 
 describe("DataWalletUtils tests", () => {
-  test("deriveOptInPrivateKey() returns different keys for different accounts", async () => {
+  test("deriveOptInInfo() returns different addresses for different accounts", async () => {
     // Arrange
     const mocks = new DataWalletUtilsMocks();
     const utils = mocks.factory();
 
     // Act
-    const result1 = await utils.deriveOptInPrivateKey(
+    const result1 = await utils.deriveOptInInfo(
       consentContractAddress1,
       privateKey,
     );
-    const result2 = await utils.deriveOptInPrivateKey(
+    const result2 = await utils.deriveOptInInfo(
       consentContractAddress2,
       privateKey,
     );
@@ -59,38 +64,34 @@ describe("DataWalletUtils tests", () => {
     expect(result2.isErr()).toBeFalsy();
     const newAccount1 = result1._unsafeUnwrap();
     const newAccount2 = result2._unsafeUnwrap();
-    expect(newAccount1).toBe(
-      "5241a20eeb3faf27978ab43c2c6ea55db0bd9e4011f1858565747adb79fe8bf6",
+    expect(newAccount1).toMatchObject(
+      new OptInInfo(
+        consentContractAddress1,
+        NullifierBNS(
+          "7066702639326327399116150719347482337210454460800740786909897573924607370079",
+        ),
+        TrapdoorBNS(
+          "8315784282536975342493907777441634328941392618163062367656237203700098465750",
+        ),
+        Commitment(
+          21233153495375348882760896874209823339766656559746404449151412061447979628219n,
+        ),
+      ),
     );
-    expect(newAccount2).toBe(
-      "aa33ec9fbf37cb3176a9ebe7e4a37b83615d12257504c293149127558c825aaa",
+    expect(newAccount2).toMatchObject(
+      new OptInInfo(
+        consentContractAddress2,
+        NullifierBNS(
+          "19235884486051724882735247669412121980748313938340939246158589548549615842061",
+        ),
+        TrapdoorBNS(
+          "6360521399899726056335867173507539295634314673568141049107614100094174500676",
+        ),
+        Commitment(
+          21261097953629989912975858573121778396540198401745873951508822848858265883452n,
+        ),
+      ),
     );
-  });
-
-  test("deriveOptInAccountAddress() returns different addresses for different accounts", async () => {
-    // Arrange
-    const mocks = new DataWalletUtilsMocks();
-    const utils = mocks.factory();
-
-    // Act
-    const result1 = await utils.deriveOptInAccountAddress(
-      consentContractAddress1,
-      privateKey,
-    );
-    const result2 = await utils.deriveOptInAccountAddress(
-      consentContractAddress2,
-      privateKey,
-    );
-
-    // Assert
-    expect(result1).toBeDefined();
-    expect(result2).toBeDefined();
-    expect(result1.isErr()).toBeFalsy();
-    expect(result2.isErr()).toBeFalsy();
-    const newAccount1 = result1._unsafeUnwrap();
-    const newAccount2 = result2._unsafeUnwrap();
-    expect(newAccount1).toBe("0x417643fbd5d41db241d29c684ba9bf46499fa21e");
-    expect(newAccount2).toBe("0x67b7a6dd90a0d0ee405646771141a07f451b1256");
   });
 
   test("deriveEncryptionKeyFromPassword works", async () => {

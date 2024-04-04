@@ -72,6 +72,19 @@ var options = {
   module: {
     rules: [
       {
+        test: /\.(js)$/,
+        loader: "string-replace-loader",
+        options: {
+          multiple: [
+            {
+              search: "singleThread: singleThread ? true : false",
+              replace: "singleThread: true",
+            },
+            { search: "if (singleThread)", replace: "if (true)" },
+          ],
+        },
+      },
+      {
         test: /\.(s[ac]ss|css)$/i,
         use: [
           {

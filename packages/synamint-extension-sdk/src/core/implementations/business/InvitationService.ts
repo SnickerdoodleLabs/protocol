@@ -45,11 +45,11 @@ export class InvitationService implements IInvitationService {
 
   public updateAgreementPermissions(
     consentContractAddress: EVMContractAddress,
-    dataTypes: EWalletDataType[],
+    dataPermissions: DataPermissions,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.invitationRepository.updateAgreementPermissions(
       consentContractAddress,
-      DataPermissions.createWithPermissions(dataTypes),
+      dataPermissions,
     );
   }
 
@@ -77,14 +77,10 @@ export class InvitationService implements IInvitationService {
     return this.invitationRepository.getConsentContractCID(consentAddress);
   }
 
-  public getAgreementPermissions(
+  public getDataPermissions(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<EWalletDataType[], SnickerDoodleCoreError> {
-    return this.invitationRepository
-      .getAgreementFlags(consentContractAddress)
-      .andThen((flags) => {
-        return okAsync(DataPermissions.getDataTypesFromFlags(flags));
-      });
+  ): ResultAsync<DataPermissions, SnickerDoodleCoreError> {
+    return this.invitationRepository.getDataPermissions(consentContractAddress);
   }
 
   public getAvailableInvitationsCID(): ResultAsync<
@@ -99,12 +95,6 @@ export class InvitationService implements IInvitationService {
     SnickerDoodleCoreError
   > {
     return this.invitationRepository.getAcceptedInvitationsCID();
-  }
-
-  public getConsentCapacity(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError> {
-    return this.invitationRepository.getConsentCapacity(consentContractAddress);
   }
 
   public getEarnedRewardsByContractAddress(
@@ -138,12 +128,8 @@ export class InvitationService implements IInvitationService {
 
   public acceptInvitation(
     invitation: Invitation,
-    dataTypes: EWalletDataType[] | null,
   ): ResultAsync<void, SnickerDoodleCoreError | ExtensionStorageError> {
-    return this.invitationRepository.acceptInvitation(
-      invitation,
-      dataTypes ? DataPermissions.createWithPermissions(dataTypes) : null,
-    );
+    return this.invitationRepository.acceptInvitation(invitation);
   }
   public rejectInvitation(
     invitation: Invitation,

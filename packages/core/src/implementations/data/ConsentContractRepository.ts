@@ -1,25 +1,28 @@
-import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
-import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
-  AjaxError,
+  IBigNumberUtilsType,
+  IBigNumberUtils,
+  ILogUtils,
+  ILogUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+import {
+  EConsentRoles,
+  IConsentContract,
+} from "@snickerdoodlelabs/contracts-sdk";
+import {
   BlockchainProviderError,
   ConsentContractError,
-  ConsentContractRepositoryError,
   ConsentFactoryContractError,
-  ConsentToken,
-  DataPermissions,
   EVMAccountAddress,
   EVMContractAddress,
-  HexString,
   IpfsCID,
-  Signature,
   TokenId,
-  TokenUri,
-  IConsentCapacity,
   UninitializedError,
   URLString,
   BlockNumber,
   BlockchainCommonErrors,
+  Commitment,
+  InvalidParametersError,
+  DomainName,
   EWalletDataType,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -45,6 +48,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
     @inject(IContractFactoryType)
     protected consentContractFactory: IContractFactory,
     @inject(IDataWalletUtilsType) protected dataWalletUtils: IDataWalletUtils,
+    @inject(IBigNumberUtilsType) protected bigNumberUtils: IBigNumberUtils,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
@@ -53,24 +57,21 @@ export class ConsentContractRepository implements IConsentContractRepository {
     BlockNumber | null
   >();
 
-  public getInvitationUrls(
+  public checkDomain(
     consentContractAddress: EVMContractAddress,
+    domain: DomainName,
   ): ResultAsync<
-    URLString[],
+    boolean,
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
     | BlockchainCommonErrors
   > {
-    return this.getConsentContract(consentContractAddress)
-      .andThen((contract) => {
-        return contract.getDomains();
-      })
-      .map((domains) => {
-        return domains.map((domain) => {
-          return URLString(domain);
-        });
-      });
+    return this.getConsentContract(consentContractAddress).andThen(
+      (contract) => {
+        return contract.checkDomain(domain);
+      },
+    );
   }
 
   public getQuestionnaires(
@@ -133,38 +134,22 @@ export class ConsentContractRepository implements IConsentContractRepository {
       });
   }
 
-  public getConsentCapacity(
+  public hasRole(
     consentContractAddress: EVMContractAddress,
+    role: EConsentRoles,
+    address: EVMAccountAddress,
   ): ResultAsync<
-    IConsentCapacity,
+    boolean,
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
     | BlockchainCommonErrors
   > {
-    return this.getConsentContract(consentContractAddress)
-      .andThen((contract) => {
-        return ResultUtils.combine([
-          contract.totalSupply(),
-          contract.getMaxCapacity(),
-        ]);
-      })
-      .map(([totalSupply, maxCapacity]) => {
-        const available = maxCapacity - totalSupply;
-
-        // Crazy sanity check
-        if (available < 0) {
-          return {
-            maxCapacity,
-            availableOptInCount: 0,
-          };
-        }
-
-        return {
-          maxCapacity,
-          availableOptInCount: available,
-        };
-      });
+    return this.getConsentContract(consentContractAddress).andThen(
+      (contract) => {
+        return contract.hasRole(role, address);
+      },
+    );
   }
 
   public getMetadataCID(
@@ -185,111 +170,72 @@ export class ConsentContractRepository implements IConsentContractRepository {
       });
   }
 
-  public getConsentToken(
+  public getCommitmentIndex(
     consentContractAddress: EVMContractAddress,
-    tokenId: TokenId,
   ): ResultAsync<
-    ConsentToken | null,
-    UninitializedError | BlockchainProviderError
+    number,
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | BlockchainCommonErrors
   > {
-    return this.getConsentContract(consentContractAddress)
-      .andThen((consentContract) => {
-        return consentContract.getConsentToken(tokenId) as ResultAsync<
-          ConsentToken | null,
-          ConsentContractError
-        >;
+    return this.contextProvider
+      .getContext()
+      .andThen((context) => {
+        if (context.dataWalletKey == null) {
+          return errAsync(
+            new UninitializedError(
+              "No data wallet key provided and core uninitialized in isAddressOptedIn",
+            ),
+          );
+        }
+        // The commitment is derivable from the data wallet key and consent contract address
+        return ResultUtils.combine([
+          this.getConsentContract(consentContractAddress),
+          this.dataWalletUtils.deriveOptInInfo(
+            consentContractAddress,
+            context.dataWalletKey,
+          ),
+        ]);
       })
-      .orElse((e) => {
-        this.logUtils.warning(
-          `Cannot get consent token for token ID ${tokenId} on consent contract ${consentContractAddress}. Error returned from either ownerOf() or agreementFlags(). Assuming the consent token does not exist!`,
-          e,
-        );
-        return okAsync(null);
+      .andThen(([consentContract, optInInfo]) => {
+        // Need to convert to a commitment
+        return consentContract
+          .checkCommitments([optInInfo.commitment])
+          .mapErr((e) => {
+            // Almost always, you get an error, "Unable to call "balanceOf", which is
+            // correct but not helpful; our goal here is to figure out if the address
+            // is opted in or not- the method we use to check that, "balanceOf", is not
+            // super relevant. Adding a specific error log to help understand what's going
+            // on.
+            this.logUtils.error(
+              `While checking if the commitment ${optInInfo.commitment} is included in consent contract ${consentContractAddress}, got an error from checkCommitments(), which usually means the control chain cannot be reached or that the consent contract does not exist. Most commonly this is a result of the doodlechain being reset.`,
+            );
+            return e;
+          });
+      })
+      .map((commitmentsIncluded) => {
+        // The index from the blockchain uses 0 to mean not found. But that's weird in JS, so we convert to -1.
+        return commitmentsIncluded[0] - 1;
       });
   }
 
-  public isAddressOptedIn(
+  public isNonceUsed(
     consentContractAddress: EVMContractAddress,
+    nonce: TokenId,
   ): ResultAsync<
     boolean,
     | ConsentContractError
-    | ConsentContractRepositoryError
-    | UninitializedError
-    | BlockchainProviderError
-    | AjaxError
-    | BlockchainCommonErrors
-  > {
-    return this.contextProvider
-      .getContext()
-      .andThen((context) => {
-        if (context.dataWalletKey == null) {
-          return errAsync(
-            new UninitializedError(
-              "No data wallet key provided and core uninitialized in isAddressOptedIn",
-            ),
-          );
-        }
-        // The opt-in token is not assigned to the data wallet address itself, it is assigned
-        // to a derived address
-        return ResultUtils.combine([
-          this.getConsentContract(consentContractAddress),
-          this.dataWalletUtils.deriveOptInAccountAddress(
-            consentContractAddress,
-            context.dataWalletKey,
-          ),
-        ]);
-      })
-      .andThen(([consentContract, derivedAddress]) => {
-        return consentContract.balanceOf(derivedAddress).mapErr((e) => {
-          // Almost always, you get an error, "Unable to call "balanceOf", which is
-          // correct but not helpful; our goal here is to figure out if the address
-          // is opted in or not- the method we use to check that, "balanceOf", is not
-          // super relevant. Adding a specific error log to help understand what's going
-          // on.
-          this.logUtils.error(
-            `While checking if derived address ${derivedAddress} is opted in to consent contract ${consentContractAddress}, got an error from balanceOf(), which usually means the control chain cannot be reached or that the consent contract does not exist. Most commony this is a result of the doodlechain being reset.`,
-          );
-          return e;
-        });
-      })
-      .map((numberOfTokens) => {
-        return numberOfTokens > 0;
-      });
-  }
-
-  public getLatestConsentTokenId(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    TokenId | null,
-    | ConsentContractError
     | UninitializedError
     | BlockchainProviderError
     | BlockchainCommonErrors
   > {
-    return this.contextProvider
-      .getContext()
-      .andThen((context) => {
-        if (context.dataWalletKey == null) {
-          return errAsync(
-            new UninitializedError(
-              "No data wallet key provided and core uninitialized in isAddressOptedIn",
-            ),
-          );
-        }
-        return ResultUtils.combine([
-          this.getConsentContract(consentContractAddress),
-          this.dataWalletUtils.deriveOptInAccountAddress(
-            consentContractAddress,
-            context.dataWalletKey,
-          ),
-        ]);
+    return this.getConsentContract(consentContractAddress)
+      .andThen((consentContract) => {
+        return consentContract.checkNonces([nonce]);
       })
-      .andThen(([consentContract, derivedAddress]) => {
-        this.logUtils.debug(
-          "consentContractRepo getTokenIdForOptedInCampaign derivedAddress " +
-            derivedAddress,
-        );
-        return consentContract.getLatestTokenIdByOptInAddress(derivedAddress);
+      .map((noncesIncluded) => {
+        return noncesIncluded[0];
       });
   }
 
@@ -308,79 +254,6 @@ export class ConsentContractRepository implements IConsentContractRepository {
           }),
         );
       });
-  }
-
-  public encodeOptIn(
-    consentContractAddress: EVMContractAddress,
-    tokenId: TokenId,
-    dataPermissions: DataPermissions | null,
-  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError> {
-    return this.getConsentContract(consentContractAddress).map((contract) => {
-      return contract.encodeOptIn(
-        tokenId,
-        dataPermissions != null
-          ? dataPermissions.getFlags()
-          : DataPermissions.allPermissionsHexString,
-      );
-    });
-  }
-
-  public encodeRestrictedOptIn(
-    consentContractAddress: EVMContractAddress,
-    tokenId: TokenId,
-    signature: Signature,
-    dataPermissions: DataPermissions | null,
-  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError> {
-    return this.getConsentContract(consentContractAddress).map((contract) => {
-      return contract.encodeRestrictedOptIn(
-        tokenId,
-        signature,
-        dataPermissions != null
-          ? dataPermissions.getFlags()
-          : DataPermissions.allPermissionsHexString,
-      );
-    });
-  }
-
-  public encodeAnonymousRestrictedOptIn(
-    consentContractAddress: EVMContractAddress,
-    tokenId: TokenId,
-    signature: Signature,
-    dataPermissions: DataPermissions | null,
-  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError> {
-    return this.getConsentContract(consentContractAddress).map((contract) => {
-      return contract.encodeAnonymousRestrictedOptIn(
-        tokenId,
-        signature,
-        dataPermissions != null
-          ? dataPermissions.getFlags()
-          : DataPermissions.allPermissionsHexString,
-      );
-    });
-  }
-
-  public encodeOptOut(
-    consentContractAddress: EVMContractAddress,
-    tokenId: TokenId,
-  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError> {
-    return this.getConsentContract(consentContractAddress).map((contract) => {
-      return contract.encodeOptOut(tokenId);
-    });
-  }
-
-  public encodeUpdateAgreementFlags(
-    consentContractAddress: EVMContractAddress,
-    tokenId: TokenId,
-    dataPermissions: DataPermissions | null,
-  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError> {
-    return this.getConsentContract(consentContractAddress).map((contract) => {
-      return contract.encodeUpdateAgreementFlags(
-        tokenId,
-        dataPermissions != null
-          ? dataPermissions.getFlags()
-          : DataPermissions.allPermissionsHexString,
-      );
-    });
   }
 
   public getDeployedConsentContractAddresses(): ResultAsync<
@@ -430,39 +303,6 @@ export class ConsentContractRepository implements IConsentContractRepository {
     );
   }
 
-  public getSignerRoleMembers(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    EVMAccountAddress[],
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | BlockchainCommonErrors
-  > {
-    return this.getConsentContract(consentContractAddress).andThen(
-      (contract) => {
-        return contract.getSignerRoleMembers();
-      },
-    );
-  }
-
-  public getTokenURI(
-    consentContractAddress: EVMContractAddress,
-    tokenId: TokenId,
-  ): ResultAsync<
-    TokenUri | null,
-    | ConsentContractError
-    | UninitializedError
-    | BlockchainProviderError
-    | BlockchainCommonErrors
-  > {
-    return this.getConsentContract(consentContractAddress).andThen(
-      (contract) => {
-        return contract.tokenURI(tokenId);
-      },
-    );
-  }
-
   public getQueryHorizon(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
@@ -490,6 +330,53 @@ export class ConsentContractRepository implements IConsentContractRepository {
         this.queryHorizonCache.set(consentContractAddress, queryHorizon);
 
         return queryHorizon;
+      });
+  }
+
+  public getCommitmentCount(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    number,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+  > {
+    return this.getConsentContract(consentContractAddress).andThen(
+      (contract) => {
+        return contract.totalSupply();
+      },
+    );
+  }
+
+  public getAnonymitySet(
+    consentContractAddress: EVMContractAddress,
+    start: number,
+    count: number,
+  ): ResultAsync<
+    Commitment[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | InvalidParametersError
+  > {
+    return this.getConsentContract(consentContractAddress)
+      .andThen((contract) => {
+        return contract.fetchAnonymitySet(
+          this.bigNumberUtils.BNToBNS(BigInt(start)),
+          this.bigNumberUtils.BNToBNS(BigInt(start + count)),
+        );
+      })
+      .andThen((commitments) => {
+        if (commitments.length != count) {
+          return errAsync(
+            new InvalidParametersError(
+              `Insufficient commitments found to fullfil request for anonymity set. Requested ${count} commitments starting at index ${start}, but returned only ${commitments.length} commitments.`,
+            ),
+          );
+        }
+        return okAsync(commitments);
       });
   }
 
