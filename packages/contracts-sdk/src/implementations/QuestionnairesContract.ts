@@ -1,4 +1,3 @@
-import { ICryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   QuestionnairesContractError,
   EVMContractAddress,
@@ -27,9 +26,12 @@ export class QuestionnairesContract
   constructor(
     protected providerOrSigner: ethers.Provider | ethers.Signer,
     protected contractAddress: EVMContractAddress,
-    protected cryptoUtils: ICryptoUtils,
   ) {
-    super(providerOrSigner, contractAddress, ContractsAbis.ConsentAbi.abi);
+    super(
+      providerOrSigner,
+      contractAddress,
+      ContractsAbis.QuestionnairesAbi.abi,
+    );
   }
 
   public getContractAddress(): EVMContractAddress {
@@ -92,7 +94,7 @@ export class QuestionnairesContract
     return this.writeToContract("removeDomain", [domain], overrides);
   }
 
-  public getDomain(
+  public checkDomain(
     domain: DomainName,
   ): ResultAsync<
     boolean,
@@ -100,7 +102,7 @@ export class QuestionnairesContract
   > {
     return ResultAsync.fromPromise(
       // returns array of domains
-      this.contract.getDomain(domain) as Promise<boolean>,
+      this.contract.checkDomain(domain) as Promise<boolean>,
       (e) => {
         return this.generateError(e, "Unable to call getDomain()");
       },

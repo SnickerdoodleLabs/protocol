@@ -26,6 +26,8 @@ contract Questionnaires is
         __AccessControl_init();
         _addDomain("snickerdoodle.com");
 
+         super._grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+
         uint numCIDs = cids.length;
         for (uint i = 0; i < numCIDs; i++) {
             questionnaires.push(cids[i]);

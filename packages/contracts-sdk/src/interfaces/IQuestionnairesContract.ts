@@ -1,16 +1,10 @@
 import {
-  EVMAccountAddress,
   IpfsCID,
-  Signature,
-  HexString,
-  EVMContractAddress,
-  InvalidParametersError,
   BlockchainCommonErrors,
   QuestionnairesContractError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { EConsentRoles } from "@contracts-sdk/interfaces/enums/index.js";
 import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
 import { IERC7529Contract } from "@contracts-sdk/interfaces/IERC7529Contract.js";
 import {
@@ -54,11 +48,7 @@ export interface IQuestionnairesContract
     WrappedTransactionResponse,
     BlockchainCommonErrors | QuestionnairesContractError
   >;
-
-  filters: IQuestionnaireContractFilters;
 }
-
-export interface IQuestionnaireContractFilters {}
 
 export const IQuestionnairesContractType = Symbol.for(
   "IQuestionnairesContract",
