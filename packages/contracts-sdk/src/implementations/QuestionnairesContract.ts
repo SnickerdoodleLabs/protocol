@@ -71,7 +71,7 @@ export class QuestionnairesContract
     WrappedTransactionResponse,
     BlockchainCommonErrors | QuestionnairesContractError
   > {
-    return this.writeToContract("requestForData", [index], overrides);
+    return this.writeToContract("removeQuestionnaire", [index], overrides);
   }
 
   public addDomain(
@@ -104,7 +104,7 @@ export class QuestionnairesContract
       // returns array of domains
       this.contract.checkDomain(domain) as Promise<boolean>,
       (e) => {
-        return this.generateError(e, "Unable to call getDomain()");
+        return this.generateError(e, "Unable to call checkDomain()");
       },
     );
   }
