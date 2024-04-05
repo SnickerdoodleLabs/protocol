@@ -6,13 +6,15 @@ import {
 } from "@snickerdoodlelabs/objects";
 import inquirer from "inquirer";
 import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
 import { Prompt } from "@test-harness/prompts/Prompt.js";
-import { ResultUtils } from "neverthrow-result-utils";
 
 export class PostQuery extends Prompt {
-  public start(ipfscid?: string): ResultAsync<void, Error | ConsentContractError> {
+  public start(
+    ipfscid?: string,
+  ): ResultAsync<void, Error | ConsentContractError> {
     return inquiryWrapper([
       {
         type: "list",
@@ -68,12 +70,10 @@ export class PostQuery extends Prompt {
         ) {
           // They did not pick "cancel"
           let queryText = SDQLString("");
-          // if (queryId === 1) {
-          //   queryText = SDQLString(JSON.stringify(this.mocks.query1));
-          // } 
-          // else 
-          if (queryId === 2) {
-            if (ipfscid !== undefined){
+          if (queryId === 1) {
+            queryText = SDQLString(JSON.stringify(this.mocks.query1));
+          } else if (queryId === 2) {
+            if (ipfscid !== undefined) {
               this.mocks.query2.queries.q5.cid = ipfscid;
             }
             queryText = SDQLString(JSON.stringify(this.mocks.query2));
@@ -81,6 +81,8 @@ export class PostQuery extends Prompt {
             queryText = SDQLString(JSON.stringify(this.mocks.query3));
           } else if (queryId === 4) {
             queryText = SDQLString(JSON.stringify(this.mocks.query4));
+          } else if (queryId === 5) {
+            queryText = SDQLString(JSON.stringify(this.mocks.query5));
           }
           return this.mocks.insightSimulator.postQuery(
             contractAddress,

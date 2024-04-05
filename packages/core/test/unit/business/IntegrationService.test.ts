@@ -124,7 +124,7 @@ class IntegrationServiceMocks {
     this.contextProvider = new ContextProviderMock();
     this.cryptoUtils = td.object<ICryptoUtils>();
 
-    td.when(this.permissionRepo.getPermissions(testDomain1)).thenReturn(
+    td.when(this.permissionRepo.getDomainPermissions(testDomain1)).thenReturn(
       okAsync(permissionSet1),
     );
 

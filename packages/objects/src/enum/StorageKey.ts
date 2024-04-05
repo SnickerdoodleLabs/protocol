@@ -24,7 +24,9 @@ export enum ERecordKey {
   OPTED_IN_INVITATIONS = "SD_OptedInInvitations",
 
   QUESTIONNAIRES = "SD_Questionnaires",
-  QUESTIONNAIRES_HISTORY = "SD_Questionnaires_history",
+  QUESTIONNAIRES_HISTORY = "SD_Questionnaires_history_v2",
+
+  PERMISSIONS = "SD_Permissions",
 }
 
 export enum EFieldKey {

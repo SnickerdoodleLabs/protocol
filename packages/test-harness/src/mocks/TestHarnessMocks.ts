@@ -1,3 +1,7 @@
+import {
+  CircomCommitmentWrapper,
+  CircomMembershipWrapper,
+} from "@snickerdoodlelabs/circuits-sdk";
 import { LogUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
 import { ConfigProvider } from "@snickerdoodlelabs/core";
 import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
@@ -14,7 +18,14 @@ import {
 } from "@snickerdoodlelabs/persistence";
 
 import { InsightPlatformSimulator } from "@test-harness/mocks/InsightPlatformSimulator.js";
-import { query1, query2, query3, query4, query5, questionnaire } from "@test-harness/queries/index.js";
+import {
+  query1,
+  query2,
+  query3,
+  query4,
+  query5,
+  questionnaire,
+} from "@test-harness/queries/index.js";
 import { BlockchainStuff, IPFSClient } from "@test-harness/utilities/index.js";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 
@@ -87,10 +98,14 @@ export class TestHarnessMocks {
 
   public blockchain = new BlockchainStuff(this.devAccountKeys);
   public ipfs = new IPFSClient();
+  public membershipWrapper = new CircomMembershipWrapper();
+  public commitmentWrapper = new CircomCommitmentWrapper();
 
   public insightSimulator = new InsightPlatformSimulator(
     this.blockchain,
     this.ipfs,
+    this.membershipWrapper,
+    this.commitmentWrapper,
   );
   public languageCode = LanguageCode("en");
 

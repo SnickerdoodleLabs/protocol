@@ -49,6 +49,7 @@ import {
   IBluezIndexerType,
   ICovalentEVMTransactionRepositoryType,
   IEtherscanIndexerType,
+  IExpandIndexerType,
   IMoralisEVMPortfolioRepositoryType,
   IOklinkIndexerType,
   IPoapRepositoryType,
@@ -75,6 +76,7 @@ export class MasterIndexer implements IMasterIndexer {
     this.nftscan,
     this.covalent,
     this.moralis,
+    this.expand,
     this.sim,
 
     // Space and Time compute time is too large
@@ -96,6 +98,7 @@ export class MasterIndexer implements IMasterIndexer {
     @inject(ICovalentEVMTransactionRepositoryType)
     protected covalent: IEVMIndexer,
     @inject(IEtherscanIndexerType) protected etherscan: IEVMIndexer,
+    @inject(IExpandIndexerType) protected expand: IEVMIndexer,
     @inject(IMoralisEVMPortfolioRepositoryType) protected moralis: IEVMIndexer,
     @inject(INftScanEVMPortfolioRepositoryType) protected nftscan: IEVMIndexer,
     @inject(IOklinkIndexerType) protected oklink: IEVMIndexer,
@@ -105,7 +108,6 @@ export class MasterIndexer implements IMasterIndexer {
     @inject(ISimulatorEVMTransactionRepositoryType) protected sim: IEVMIndexer,
     @inject(ISolanaIndexerType) protected sol: ISolanaIndexer,
     @inject(ISpaceAndTimeIndexerType) protected sxt: IEVMIndexer,
-
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(IBigNumberUtilsType) protected bigNumberUtils: IBigNumberUtils,
     @inject(IEVMTransactionSanitizerType)
@@ -121,6 +123,7 @@ export class MasterIndexer implements IMasterIndexer {
       this.blockvision.initialize(),
       this.covalent.initialize(),
       this.etherscan.initialize(),
+      this.expand.initialize(),
       this.matic.initialize(),
       this.moralis.initialize(),
       this.nftscan.initialize(),
@@ -164,7 +167,8 @@ export class MasterIndexer implements IMasterIndexer {
           this.rarible,
           this.sim,
           this.sol,
-          // this.sxt,
+          this.expand,
+          this.sxt,
         ];
 
         supportedChains = indexers
@@ -224,6 +228,7 @@ export class MasterIndexer implements IMasterIndexer {
     PersistenceError | AccountIndexingError | AjaxError | InvalidParametersError
   > {
     const chainInfo = getChainInfoByChain(chain);
+
     if (chainInfo.chainTechnology == EChainTechnology.Solana) {
       return this.sol
         .getBalancesForAccount(chain, SolanaAccountAddress(accountAddress))

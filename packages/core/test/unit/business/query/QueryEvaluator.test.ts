@@ -751,6 +751,6 @@ describe("Return Questionnaires Map", () => {
       queryTimestamp,
     );
     console.log("Questionnaire is : ", result["value"]);
-    expect(result["value"]).toEqual({ index: 0, answer: 0 });
+    expect(result["value"]).toEqual([{ index: 0, answer: 0 }]);
   });
 });
