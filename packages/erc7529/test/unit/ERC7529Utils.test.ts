@@ -86,8 +86,8 @@ class ERC7529UtilsMocks {
       }),
     );
 
-    td.when(this.erc7529Contract.getDomains()).thenReturn(
-      okAsync([domainName]),
+    td.when(this.erc7529Contract.checkDomain(domainName)).thenReturn(
+      okAsync(true),
     );
 
     td.when(this.erc7529Contract.getContractAddress()).thenReturn(
@@ -139,8 +139,8 @@ describe("ERC7529Utils tests", () => {
     // Arrange
     const mocks = new ERC7529UtilsMocks();
 
-    td.when(mocks.erc7529Contract.getDomains()).thenReturn(
-      okAsync([domainName2]),
+    td.when(mocks.erc7529Contract.checkDomain(domainName)).thenReturn(
+      okAsync(false),
     );
     const utils = mocks.factory();
 

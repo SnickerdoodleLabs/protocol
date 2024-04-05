@@ -27,19 +27,10 @@ export const privateKey2 = EVMPrivateKey(
 );
 
 export const consentFactoryContractAddress = EVMContractAddress(
-  "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
-);
-export const crumbsContractAddress = EVMContractAddress(
-  "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
-);
-export const metatransactionForwarderContractAddress = EVMContractAddress(
-  "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-);
-export const siftContractAddress = EVMContractAddress(
-  "0x352EC444f0D2C09ad72eE3735341b45e577FCAE8",
+  "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
 );
 export const consentAddress = EVMContractAddress(
-  "0x23dB4a08f2272df049a4932a4Cc3A6Dc1002B33E",
+  "0x5FbDB2315678afecb367f032d93F642f64180aa3",
 );
 export const consentAddress2 = EVMContractAddress(
   "0x8EFa1819Ff5B279077368d44B593a4543280e402",
@@ -47,5 +38,3 @@ export const consentAddress2 = EVMContractAddress(
 export const consentAddress3 = EVMContractAddress(
   "0x6743E5c6E1B453372507E8dfD6CA53508721425B",
 );
-
-export const sampleAgreementFlag1 = ethers.encodeBytes32String("1");

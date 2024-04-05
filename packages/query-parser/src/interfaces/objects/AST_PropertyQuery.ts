@@ -1,8 +1,10 @@
 import {
+  DataPermissions,
   ESDQLQueryReturn,
   EWalletDataType,
   ISDQLQueryClause,
   ISDQLTimestampRange,
+  IpfsCID,
   MissingWalletDataTypeError,
   SDQL_Name,
   SDQL_OperatorName,

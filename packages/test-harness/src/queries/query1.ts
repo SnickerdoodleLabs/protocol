@@ -1,9 +1,9 @@
 export const query1 = {
   version: 0.1,
   timestamp: "2021-11-13T20:20:39Z",
-  expiry: "2024-11-13T20:20:39Z",
+  expiry: "2099-11-13T20:20:39Z",
   description:
-    "Intractions with the Avalanche blockchain for 15-year and older individuals",
+    "Interactions with the Avalanche blockchain for 15-year and older individuals",
   business: "Shrapnel",
   queries: {
     q1: {

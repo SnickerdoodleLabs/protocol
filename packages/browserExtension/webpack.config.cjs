@@ -72,6 +72,19 @@ var options = {
   module: {
     rules: [
       {
+        test: /\.(js)$/,
+        loader: "string-replace-loader",
+        options: {
+          multiple: [
+            {
+              search: "singleThread: singleThread ? true : false",
+              replace: "singleThread: true",
+            },
+            { search: "if (singleThread)", replace: "if (true)" },
+          ],
+        },
+      },
+      {
         test: /\.(s[ac]ss|css)$/i,
         use: [
           {
@@ -273,6 +286,9 @@ var options = {
       ),
       __DEV_CHAIN_PROVIDER_URL__: JSON.stringify(
         process.env.__DEV_CHAIN_PROVIDER_URL__,
+      ),
+      __DEFAULT_CONSENT_CONTRACT__: JSON.stringify(
+        process.env.__DEFAULT_CONSENT_CONTRACT__,
       ),
     }),
 

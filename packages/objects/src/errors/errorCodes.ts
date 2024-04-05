@@ -3,6 +3,7 @@ const errorCodes = {
   AjaxError: "ERR_AJAX",
   BackupError: "ERR_BACKUP",
   BlockchainProviderError: "ERR_BLOCKCHAIN_PROVIDER",
+  CircuitError: "ERR_CIRCUIT",
   CloudStorageError: "ERR_CLOUD_STORAGE",
   ConsentContractRepositoryError: "CONSENT_CONTRACT_REPOSITORY_ERROR",
   ConsentContractError: "CONSENT_CONTRACT_ERROR",
@@ -47,6 +48,7 @@ const errorCodes = {
   ExecutionRevertedError: "ERR_EXECUTION_REVERTED",
   ProofError: "ERR_PROOF",
   SingerUnavailableError: "ERR_SIGNER_UNAVAILABLE",
+  InvalidStatusError: "ERR_INVALID_STATUS",
   //SDQL errors
   OperandTypeError: "ER_SDQL_OPERAND_TYPE",
   ConditionOperandTypeError: "ERR_SDQL_CONDITION_OPERAND_TYPE",

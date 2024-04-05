@@ -21,10 +21,16 @@
   ],
   "references": [
     {
+      "path": "../circuits-sdk"
+    },
+    {
       "path": "../common-utils"
     },
     {
       "path": "../core"
+    },
+    {
+      "path": "../insight-platform-api"
     },
     {
       "path": "../node-utils"
