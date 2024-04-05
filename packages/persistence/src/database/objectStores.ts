@@ -253,7 +253,6 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
         EBackupPriority.NORMAL,
         config?.dataWalletBackupIntervalMS ?? testTimeValue,
         config?.backupChunkSizeTarget ?? testTimeValue,
-        [[["deleted", "status"], false]],
       ),
     ],
     [
