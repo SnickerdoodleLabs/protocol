@@ -17,21 +17,16 @@ import {
   IpfsCID,
   TokenId,
   UninitializedError,
-  URLString,
   BlockNumber,
   BlockchainCommonErrors,
   Commitment,
   InvalidParametersError,
   DomainName,
   EWalletDataType,
-  chainConfig,
-  UnauthorizedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-
-import { BlockchainProvider } from "../utilities";
 
 import { IConsentContractRepository } from "@core/interfaces/data/index.js";
 import {
@@ -39,8 +34,6 @@ import {
   IContractFactoryType,
 } from "@core/interfaces/utilities/factory/index.js";
 import {
-  IBlockchainProvider,
-  IBlockchainProviderType,
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,

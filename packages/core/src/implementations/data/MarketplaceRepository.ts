@@ -12,11 +12,11 @@ import {
   ConsentContractError,
   BlockchainCommonErrors,
   InvalidParametersError,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { EVMAccountAddress, EVMContractAddress } from "packages/objects/src";
 
 import { IMarketplaceRepository } from "@core/interfaces/data/index.js";
 import {
