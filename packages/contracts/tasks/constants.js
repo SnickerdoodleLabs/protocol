@@ -152,13 +152,13 @@ const consentBeacon = function () {
 const consentFactory = function () {
   const hre = require("hardhat");
   if (hre.hardhatArguments.network == "dev") {
-    return "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
+    return "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9";
   } else if (hre.hardhatArguments.network == "localhost") {
-    return "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
+    return "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9";
   } else if (hre.hardhatArguments.network == "doodle") {
-    return "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
+    return "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9";
   } else if (hre.hardhatArguments.network == "hardhat") {
-    return "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
+    return "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9";
   } else if (hre.hardhatArguments.network == "rinkeby") {
     return "";
   } else if (hre.hardhatArguments.network == "mumbai") {
@@ -167,91 +167,6 @@ const consentFactory = function () {
     return "";
   } else if (hre.hardhatArguments.network == "fuji") {
     return "0x5540122e78241679Da8d07A04A74D3a7f52aED97";
-  } else if (hre.hardhatArguments.network == "avalanche") {
-    return "";
-  } else if (hre.hardhatArguments.network == "fantom") {
-    return "";
-  } else if (hre.hardhatArguments.network == "mainnet") {
-    return "";
-  } else if (hre.hardhatArguments.network == "gnosis") {
-    return "";
-  } else if (hre.hardhatArguments.network == "binance") {
-    return "";
-  } else if (hre.hardhatArguments.network == "moonbeam") {
-    return "";
-  } else if (hre.hardhatArguments.network == "arbitrum") {
-    return "";
-  } else if (hre.hardhatArguments.network == "optimism") {
-    return "";
-  } else if (hre.hardhatArguments.network == "astar") {
-    return "";
-  } else if (hre.hardhatArguments.network == "sui") {
-    return "";
-  } else {
-    return "";
-  }
-};
-
-// returns the deployment address of the Crumbs Contract
-const crumbsContract = function () {
-  const hre = require("hardhat");
-  if (hre.hardhatArguments.network == "dev") {
-    return "0x610178dA211FEF7D417bC0e6FeD39F05609AD788";
-  } else if (hre.hardhatArguments.network == "doodle") {
-    return "0x610178dA211FEF7D417bC0e6FeD39F05609AD788";
-  } else if (hre.hardhatArguments.network == "localhost") {
-    return "0x610178dA211FEF7D417bC0e6FeD39F05609AD788";
-  } else if (hre.hardhatArguments.network == "hardhat") {
-    return "0x610178dA211FEF7D417bC0e6FeD39F05609AD788";
-  } else if (hre.hardhatArguments.network == "mumbai") {
-    return "";
-  } else if (hre.hardhatArguments.network == "polygon") {
-    return "";
-  } else if (hre.hardhatArguments.network == "fuji") {
-    return "0x49a04d6545b1511742033b0ddF6a2Ba880A69287";
-  } else if (hre.hardhatArguments.network == "avalanche") {
-    return "";
-  } else if (hre.hardhatArguments.network == "fantom") {
-    return "";
-  } else if (hre.hardhatArguments.network == "mainnet") {
-    return "";
-  } else if (hre.hardhatArguments.network == "gnosis") {
-    return "";
-  } else if (hre.hardhatArguments.network == "binance") {
-    return "";
-  } else if (hre.hardhatArguments.network == "moonbeam") {
-    return "";
-  } else if (hre.hardhatArguments.network == "arbitrum") {
-    return "";
-  } else if (hre.hardhatArguments.network == "optimism") {
-    return "";
-  } else if (hre.hardhatArguments.network == "astar") {
-    return "";
-  } else if (hre.hardhatArguments.network == "sui") {
-    return "";
-  } else {
-    return "";
-  }
-};
-
-// returns the deployment address of the Sift Contract used for the
-// Scam Filter feature of the Data Wallet
-const siftContract = function () {
-  const hre = require("hardhat");
-  if (hre.hardhatArguments.network == "dev") {
-    return "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e";
-  } else if (hre.hardhatArguments.network == "localhost") {
-    return "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e";
-  } else if (hre.hardhatArguments.network == "doodle") {
-    return "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e";
-  } else if (hre.hardhatArguments.network == "hardhat") {
-    return "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e";
-  } else if (hre.hardhatArguments.network == "mumbai") {
-    return "";
-  } else if (hre.hardhatArguments.network == "polygon") {
-    return "";
-  } else if (hre.hardhatArguments.network == "fuji") {
-    return "0x1007D88962A3c0c4A11649480168B6456355d91a";
   } else if (hre.hardhatArguments.network == "avalanche") {
     return "";
   } else if (hre.hardhatArguments.network == "fantom") {

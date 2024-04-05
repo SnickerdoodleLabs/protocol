@@ -7,7 +7,7 @@ process.env.__ONBOARDING_URL__ = "https://localhost:9005/";
 process.env.__ACCOUNT_COOKIE_URL__ = "https://snickerdoodlelabs.io/";
 process.env.__CONTROL_CHAIN_ID__ = "31337";
 process.env.__IPFS_FETCH_BASE_URL__ = "http://localhost:8080/ipfs";
-process.env.__DEFAULT_INSIGHT_PLATFORM_BASE_URL__ = "http://localhost:3006";
+process.env.__DEFAULT_INSIGHT_PLATFORM_BASE_URL__ = "http://localhost:3001/v0";
 
 process.env.__DROPBOX_APP_KEY__ = "";
 process.env.__DROPBOX_APP_SECRET__ = "";
@@ -63,12 +63,13 @@ process.env.__TWITTER_CONSUMER_SECRET__ =
   "y4FOFgQnuRo7vvnRuKqFhBbM3sYWuSZyg5RqHlRIc3DZ4N7Hnx";
 process.env.__TWITTER_POLL_INTERVAL__ = "86400000";
 
+process.env.__DEFAULT_CONSENT_CONTRACT__ = "";
+
 var WebpackDevServer = require("webpack-dev-server"),
   webpack = require("webpack"),
   config = require("../webpack.config.cjs"),
   env = require("./env.cjs"),
   path = require("path");
-
 
 config.plugins = [new webpack.HotModuleReplacementPlugin()].concat(
   config.plugins || [],

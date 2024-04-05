@@ -36,6 +36,7 @@ export * from "@objects/businessObjects/PortfolioUpdate.js";
 export * from "@objects/businessObjects/Questionnaire.js";
 export * from "@objects/businessObjects/RequestForData.js";
 export * from "@objects/businessObjects/QueryDeliveryItems.js";
+export * from "@objects/businessObjects/QueryMetadata.js";
 export * from "@objects/businessObjects/QueryPerformanceMetrics.js";
 export * from "@objects/businessObjects/Reward.js";
 export * from "@objects/businessObjects/RSAKeyPair.js";
@@ -57,7 +58,6 @@ export * from "@objects/businessObjects/TransactionPaymentCounter.js";
 export * from "@objects/businessObjects/VolatileDataUpdate.js";
 export * from "@objects/businessObjects/VolatileStorageMetadata.js";
 export * from "@objects/businessObjects/WalletNFT.js";
-
 export * from "@objects/businessObjects/events/index.js";
 export * from "@objects/businessObjects/rewards/index.js";
 export * from "@objects/businessObjects/oauth/index.js";

@@ -1,6 +1,7 @@
 import {
   ESDQLQueryReturn,
   EWalletDataType,
+  IpfsCID,
   MissingWalletDataTypeError,
   SDQL_Name,
 } from "@snickerdoodlelabs/objects";
@@ -11,5 +12,8 @@ export abstract class AST_SubQuery {
     readonly name: SDQL_Name,
     readonly returnType: ESDQLQueryReturn,
   ) {}
-  abstract getPermission(): Result<EWalletDataType, MissingWalletDataTypeError>;
+  abstract getPermission(): Result<
+    EWalletDataType | IpfsCID,
+    MissingWalletDataTypeError
+  >;
 }

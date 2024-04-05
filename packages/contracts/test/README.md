@@ -7,6 +7,13 @@ Run all tests:
 ```shell
 npx hardhat test
 ```
+
+or from the `contracts` directory run 
+
+```shell
+yarn test
+```
+
 Only run tests in a given file:
 ```shell
 npx hardhat test test/consent.js

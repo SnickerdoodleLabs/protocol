@@ -4,7 +4,6 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   IpfsCID,
-  TokenUri,
   Signature,
   TokenId,
   RequestForData,
@@ -12,16 +11,14 @@ import {
   DomainName,
   BaseURI,
   HexString,
-  HexString32,
   InvalidParametersError,
-  ConsentToken,
-  DataPermissions,
   BigNumberString,
   BlockchainCommonErrors,
+  Commitment,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
-import { ok, err, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync, errAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
@@ -53,29 +50,22 @@ export class ConsentContract
   }
 
   public optIn(
-    tokenId: TokenId,
-    agreementFlags: HexString32,
+    commitment: Commitment,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | ConsentContractError
   > {
-    return this.writeToContract("optIn", [tokenId, agreementFlags], overrides);
-  }
-
-  // TODO: add data permissions param
-  public encodeOptIn(tokenId: TokenId, agreementFlags: HexString32): HexString {
-    return HexString(
-      this.contract.interface.encodeFunctionData("optIn", [
-        tokenId,
-        agreementFlags,
-      ]),
+    return this.writeToContract(
+      "optIn",
+      [ethers.toBeArray(commitment)],
+      overrides,
     );
   }
 
   public restrictedOptIn(
-    tokenId: TokenId,
-    agreementFlags: HexString32,
+    commitment: Commitment,
+    nonce: TokenId,
     signature: Signature,
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -84,130 +74,8 @@ export class ConsentContract
   > {
     return this.writeToContract(
       "restrictedOptIn",
-      [tokenId, agreementFlags, signature],
+      [nonce, ethers.toBeArray(commitment), signature],
       overrides,
-    );
-  }
-
-  public encodeRestrictedOptIn(
-    tokenId: TokenId,
-    signature: Signature,
-    agreementFlags: HexString32,
-  ): HexString {
-    return HexString(
-      this.contract.interface.encodeFunctionData("restrictedOptIn", [
-        tokenId,
-        agreementFlags,
-        signature,
-      ]),
-    );
-  }
-
-  public anonymousRestrictedOptIn(
-    tokenId: TokenId,
-    agreementFlags: HexString32,
-    signature: Signature,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ConsentContractError
-  > {
-    return this.writeToContract(
-      "anonymousRestrictedOptIn",
-      [tokenId, agreementFlags, signature],
-      overrides,
-    );
-  }
-
-  public encodeAnonymousRestrictedOptIn(
-    tokenId: TokenId,
-    signature: Signature,
-    agreementFlags: HexString32,
-  ): HexString {
-    return HexString(
-      this.contract.interface.encodeFunctionData("anonymousRestrictedOptIn", [
-        tokenId,
-        agreementFlags,
-        signature,
-      ]),
-    );
-  }
-
-  public optOut(
-    tokenId: TokenId,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ConsentContractError
-  > {
-    return this.writeToContract("optOut", [tokenId], overrides);
-  }
-
-  public encodeOptOut(tokenId: TokenId): HexString {
-    return HexString(
-      this.contract.interface.encodeFunctionData("optOut", [tokenId]),
-    );
-  }
-
-  public agreementFlags(
-    tokenId: TokenId,
-  ): ResultAsync<HexString32, ConsentContractError | BlockchainCommonErrors> {
-    return ResultAsync.fromPromise(
-      this.contract.agreementFlagsArray(tokenId) as Promise<HexString32>,
-      (e) => {
-        return this.generateError(e, "Unable to call agreementFlagsArray()");
-      },
-    );
-  }
-
-  public getMaxCapacity(): ResultAsync<
-    number,
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return ResultAsync.fromPromise(
-      this.contract.maxCapacity() as Promise<bigint>,
-      (e) => {
-        return this.generateError(e, "Unable to call maxCapacity()");
-      },
-    ).map((bigCapacity) => {
-      return Number(bigCapacity);
-    });
-  }
-
-  public updateMaxCapacity(
-    maxCapacity: number,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ConsentContractError
-  > {
-    return this.writeToContract("updateMaxCapacity", [maxCapacity], overrides);
-  }
-
-  public updateAgreementFlags(
-    tokenId: TokenId,
-    newAgreementFlags: HexString32,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ConsentContractError
-  > {
-    return this.writeToContract(
-      "updateAgreementFlags",
-      [tokenId, newAgreementFlags],
-      overrides,
-    );
-  }
-
-  public encodeUpdateAgreementFlags(
-    tokenId: TokenId,
-    agreementFlags: HexString32,
-  ): HexString {
-    return HexString(
-      this.contract.interface.encodeFunctionData("updateAgreementFlags", [
-        tokenId,
-        agreementFlags,
-      ]),
     );
   }
 
@@ -219,233 +87,6 @@ export class ConsentContract
     BlockchainCommonErrors | ConsentContractError
   > {
     return this.writeToContract("requestForData", [ipfsCID], overrides);
-  }
-
-  // Returns the address Consent contract contract's owner
-  // Note that the address on index 0 of the DEFAULT_ADMIN_ROLE members is the contract owner
-  public getConsentOwner(): ResultAsync<
-    EVMAccountAddress,
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return ResultAsync.fromPromise(
-      this.contract.getRoleMember(
-        EConsentRoles.DEFAULT_ADMIN_ROLE,
-        0,
-      ) as Promise<EVMAccountAddress>,
-      (e) => {
-        return this.generateError(e, "Unable to call getRoleMember()");
-      },
-    );
-  }
-
-  // Returns an array of address that has the DEFAULT_ADMIN_ROLE on the Consent contract
-  // Note that the address on index 0 is the contract owner
-  public getDefaultAdminRoleMembers(): ResultAsync<
-    EVMAccountAddress[],
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return ResultAsync.fromPromise(
-      this.contract.getRoleMemberCount(
-        EConsentRoles.DEFAULT_ADMIN_ROLE,
-      ) as Promise<bigint>,
-      (e) => {
-        return this.generateError(
-          e,
-          "Unable to call getDefaultAdminRoleMembers()",
-        );
-      },
-    ).andThen((memberCount) => {
-      // First get an array of index values so that it can be used with ResultUtils.combine
-      const memberIndexArray: number[] = [];
-
-      for (let i = 0; i < Number(memberCount); i++) {
-        memberIndexArray.push(i);
-      }
-
-      // Map through each index value and get its role member address
-      return ResultUtils.combine(
-        memberIndexArray.map((index) => {
-          return ResultAsync.fromPromise(
-            this.contract.getRoleMember(
-              EConsentRoles.DEFAULT_ADMIN_ROLE,
-              index,
-            ) as Promise<EVMAccountAddress>,
-            (e) => {
-              return this.generateError(e, "Unable to call getRoleMember()");
-            },
-          );
-        }),
-      );
-    });
-  }
-
-  public getSignerRoleMembers(): ResultAsync<
-    EVMAccountAddress[],
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return ResultAsync.fromPromise(
-      this.contract.getRoleMemberCount(
-        EConsentRoles.SIGNER_ROLE,
-      ) as Promise<bigint>,
-      (e) => {
-        return this.generateError(e, "Unable to call getSignerRoleMembers()");
-      },
-    ).andThen((memberCount) => {
-      // First get an array of index values so that it can be used with ResultUtils.combine
-      const memberIndexArray: number[] = [];
-
-      for (let i = 0; i < Number(memberCount); i++) {
-        memberIndexArray.push(i);
-      }
-
-      // Map through each index value and get its role member address
-      return ResultUtils.combine(
-        memberIndexArray.map((index) => {
-          return ResultAsync.fromPromise(
-            this.contract.getRoleMember(
-              EConsentRoles.PAUSER_ROLE,
-              index,
-            ) as Promise<EVMAccountAddress>,
-            (e) => {
-              return this.generateError(
-                e,
-                "Unable to call getRoleMember() for SIGNER_ROLE",
-              );
-            },
-          );
-        }),
-      );
-    });
-  }
-
-  public getPauserRoleMembers(): ResultAsync<
-    EVMAccountAddress[],
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return ResultAsync.fromPromise(
-      this.contract.getRoleMemberCount(
-        EConsentRoles.PAUSER_ROLE,
-      ) as Promise<bigint>,
-      (e) => {
-        return this.generateError(e, "Unable to call getPauserRoleMembers()");
-      },
-    ).andThen((memberCount) => {
-      // First get an array of index values so that it can be used with ResultUtils.combine
-      const memberIndexArray: number[] = [];
-
-      for (let i = 0; i < Number(memberCount); i++) {
-        memberIndexArray.push(i);
-      }
-
-      // Map through each index value and get its role member address
-      return ResultUtils.combine(
-        memberIndexArray.map((index) => {
-          return ResultAsync.fromPromise(
-            this.contract.getRoleMember(
-              EConsentRoles.PAUSER_ROLE,
-              index,
-            ) as Promise<EVMAccountAddress>,
-            (e) => {
-              return this.generateError(
-                e,
-                "Unable to call getRoleMember() for PAUSER_ROLE",
-              );
-            },
-          );
-        }),
-      );
-    });
-  }
-
-  public getRequesterRoleMembers(): ResultAsync<
-    EVMAccountAddress[],
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return ResultAsync.fromPromise(
-      this.contract.getRoleMemberCount(
-        EConsentRoles.REQUESTER_ROLE,
-      ) as Promise<bigint>,
-      (e) => {
-        return this.generateError(
-          e,
-          "Unable to call getRequesterRoleMembers()",
-        );
-      },
-    ).andThen((memberCount) => {
-      // First get an array of index values so that it can be used with ResultUtils.combine
-      const memberIndexArray: number[] = [];
-
-      for (let i = 0; i < Number(memberCount); i++) {
-        memberIndexArray.push(i);
-      }
-
-      // Map through each index value and get its role member address
-      return ResultUtils.combine(
-        memberIndexArray.map((index) => {
-          return ResultAsync.fromPromise(
-            this.contract.getRoleMember(
-              EConsentRoles.REQUESTER_ROLE,
-              index,
-            ) as Promise<EVMAccountAddress>,
-            (e) => {
-              return this.generateError(
-                e,
-                "Unable to call getRoleMember() for REQUESTER_ROLE",
-              );
-            },
-          );
-        }),
-      );
-    });
-  }
-
-  public balanceOf(
-    address: EVMAccountAddress,
-  ): ResultAsync<number, ConsentContractError | BlockchainCommonErrors> {
-    return ResultAsync.fromPromise(
-      this.contract.balanceOf(address) as Promise<bigint>,
-      (e) => {
-        return this.generateError(e, "Unable to call balanceOf()");
-      },
-    ).map((numberOfTokens) => {
-      return Number(numberOfTokens);
-    });
-  }
-
-  public ownerOf(
-    tokenId: TokenId,
-  ): ResultAsync<
-    EVMAccountAddress,
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return ResultAsync.fromPromise(
-      this.contract.ownerOf(tokenId) as Promise<EVMAccountAddress>,
-      (e) => {
-        return this.generateError(e, "Unable to call ownerOf()");
-      },
-    );
-  }
-
-  public tokenURI(
-    tokenId: TokenId,
-  ): ResultAsync<
-    TokenUri | null,
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return ResultAsync.fromPromise(
-      this.contract.tokenURI(tokenId) as Promise<TokenUri | null>,
-      (e) => {
-        return this.generateError(e, "Unable to call tokenURI()");
-      },
-    ).orElse((error) => {
-      // The contract reverts with this message if tokenId does not exist
-      if (
-        (error as any).reason === "ERC721: operator query for nonexistent token"
-      ) {
-        return ok(null);
-      }
-      return err(error);
-    });
   }
 
   public queryFilter(
@@ -464,25 +105,6 @@ export class ConsentContract
         return this.generateError(e, "Unable to call queryFilter()");
       },
     );
-  }
-
-  public getConsentToken(
-    tokenId: TokenId,
-  ): ResultAsync<ConsentToken, ConsentContractError | BlockchainCommonErrors> {
-    // Get the agreement flags of the user's current consent token
-    return ResultUtils.combine([
-      this.ownerOf(tokenId),
-      this.agreementFlags(tokenId),
-    ]).andThen(([ownerAddress, agreementFlags]) => {
-      return okAsync(
-        new ConsentToken(
-          this.contractAddress,
-          ownerAddress,
-          tokenId,
-          new DataPermissions(agreementFlags),
-        ),
-      );
-    });
   }
 
   public addDomain(
@@ -505,15 +127,14 @@ export class ConsentContract
     return this.writeToContract("removeDomain", [domain], overrides);
   }
 
-  public getDomains(): ResultAsync<
-    DomainName[],
-    ConsentContractError | BlockchainCommonErrors
-  > {
+  public getDomain(
+    domain: DomainName,
+  ): ResultAsync<boolean, ConsentContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       // returns array of domains
-      this.contract.getDomains() as Promise<DomainName[]>,
+      this.contract.getDomain(domain) as Promise<boolean>,
       (e) => {
-        return this.generateError(e, "Unable to call getDomains()");
+        return this.generateError(e, "Unable to call getDomain()");
       },
     );
   }
@@ -547,36 +168,31 @@ export class ConsentContract
     });
   }
 
-  public getLatestTokenIdByOptInAddress(
-    optInAddress: EVMAccountAddress,
+  public getRequestForDataList(
+    fromBlock?: BlockNumber,
+    toBlock?: BlockNumber,
   ): ResultAsync<
-    TokenId | null,
+    RequestForData[],
     ConsentContractError | BlockchainCommonErrors
   > {
     return this.queryFilter(
-      this.filters.Transfer(null, optInAddress),
-      undefined,
-      undefined,
+      this.filters.RequestForDataNoOwner(),
+      fromBlock,
+      toBlock,
     ).map((logsEvents) => {
-      if (logsEvents.length == 0) {
-        return null;
-      }
-
-      const latestOptinEvent = logsEvents.reduce(
-        (latestEvent, logEvent) =>
-          logEvent.blockNumber > latestEvent.blockNumber
-            ? logEvent
-            : latestEvent,
-        logsEvents[0],
-      );
-
-      if (latestOptinEvent instanceof ethers.EventLog) {
-        if (latestOptinEvent.args.tokenId != null) {
-          return TokenId(latestOptinEvent.args.tokenId);
+      return logsEvents.reduce((acc, logEvent) => {
+        if (logEvent instanceof ethers.EventLog) {
+          acc.push(
+            new RequestForData(
+              this.getContractAddress(),
+              logEvent.args.requester,
+              logEvent.args.ipfsCID,
+              BlockNumber(logEvent.blockNumber),
+            ),
+          );
         }
-      }
-
-      return null;
+        return acc;
+      }, new Array<RequestForData>());
     });
   }
 
@@ -704,6 +320,68 @@ export class ConsentContract
     });
   }
 
+  public checkCommitments(
+    commitments: Commitment[],
+  ): ResultAsync<number[], ConsentContractError | BlockchainCommonErrors> {
+    // Returns the indexes of the commitments. 0 means the commitment is invalid.
+    // The commitment is just a bigint, but it is less than 32 bytes. We need to convert it to a bytes32
+    return ResultAsync.fromPromise(
+      this.contract.checkCommitments(
+        commitments.map((commitment) => {
+          return ethers.toBeArray(commitment);
+        }),
+      ) as Promise<bigint[]>,
+      (e) => {
+        return this.generateError(e, "Unable to call checkCommitments()");
+      },
+    ).andThen((indexes) => {
+      // Indexes should be the same size as commitments. If not, something went wrong
+      if (commitments.length != indexes.length) {
+        return errAsync(
+          new ConsentContractError(
+            "Invalid response from checkCommitments(), returned index length does not match the length of the requested commitments",
+            null,
+            null,
+          ),
+        );
+      }
+
+      // If if the index is not 0, then the commitment is valid
+      return okAsync(
+        indexes.map((index) => {
+          return Number(index);
+        }),
+      );
+    });
+  }
+
+  public checkNonces(
+    nonces: TokenId[],
+  ): ResultAsync<boolean[], ConsentContractError | BlockchainCommonErrors> {
+    return ResultAsync.fromPromise(
+      this.contract.checkNonces(nonces) as Promise<boolean[]>,
+      (e) => {
+        return this.generateError(e, "Unable to call checkNonces()");
+      },
+    );
+  }
+
+  public fetchAnonymitySet(
+    start: BigNumberString,
+    stop: BigNumberString,
+  ): ResultAsync<Commitment[], BlockchainCommonErrors | ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.fetchAnonymitySet(start, stop) as Promise<string[]>,
+      (e) => {
+        return this.generateError(e, "Unable to call fetchAnonymitySet()");
+      },
+    ).map((commitmentBytes) => {
+      return commitmentBytes.map((commitment) => {
+        return Commitment(ethers.toBigInt(commitment));
+      });
+    });
+  }
+
   // Get the number of opted in addresses
   public totalSupply(): ResultAsync<
     number,
@@ -730,18 +408,41 @@ export class ConsentContract
   }
 
   // Marketplace functions
-  public getMaxTags(): ResultAsync<
-    number,
+  public getStakingToken(): ResultAsync<
+    EVMContractAddress,
     ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.maxTags() as Promise<bigint>,
+      this.contract.getStakingToken() as Promise<EVMContractAddress>,
       (e) => {
-        return this.generateError(e, "Unable to call maxTags()");
+        return this.generateError(e, "Unable to call getNumberOfStakedTags()");
       },
-    ).map((num) => {
-      return Number(num);
+    );
+  }
+
+  public tagIndices(
+    tag: string,
+  ): ResultAsync<
+    BigNumberString,
+    ConsentContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.tagIndices() as Promise<bigint>,
+      (e) => {
+        return this.generateError(e, "Unable to call getNumberOfStakedTags()");
+      },
+    ).map((index) => {
+      return BigNumberString(index.toString());
     });
+  }
+
+  public updateMaxTagsLimit(
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    ConsentContractError | BlockchainCommonErrors
+  > {
+    return this.writeToContract("updateMaxTagsLimit", [], overrides);
   }
 
   public getNumberOfStakedTags(): ResultAsync<
@@ -780,6 +481,8 @@ export class ConsentContract
 
   public newGlobalTag(
     tag: string,
+    stakingToken: EVMContractAddress,
+    stakeOWner: EVMAccountAddress | EVMContractAddress,
     newStakeAmount: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -788,13 +491,15 @@ export class ConsentContract
   > {
     return this.writeToContract(
       "newGlobalTag",
-      [tag, newStakeAmount],
+      [tag, stakingToken, stakeOWner, newStakeAmount],
       overrides,
     );
   }
 
   public newLocalTagUpstream(
     tag: string,
+    stakingToken: EVMContractAddress,
+    stakeOwner: EVMAccountAddress | EVMContractAddress,
     newStakeAmount: BigNumberString,
     existingStakeAmount: BigNumberString,
     overrides?: ContractOverrides,
@@ -804,13 +509,15 @@ export class ConsentContract
   > {
     return this.writeToContract(
       "newLocalTagUpstream",
-      [tag, newStakeAmount, existingStakeAmount],
+      [tag, stakingToken, stakeOwner, newStakeAmount, existingStakeAmount],
       overrides,
     );
   }
 
   public newLocalTagDownstream(
     tag: string,
+    stakingToken: EVMContractAddress,
+    stakeOwner: EVMAccountAddress | EVMContractAddress,
     existingStakeAmount: BigNumberString,
     newStakeAmount: BigNumberString,
     overrides?: ContractOverrides,
@@ -820,13 +527,48 @@ export class ConsentContract
   > {
     return this.writeToContract(
       "newLocalTagDownstream",
-      [tag, existingStakeAmount, newStakeAmount],
+      [tag, stakingToken, stakeOwner, existingStakeAmount, newStakeAmount],
+      overrides,
+    );
+  }
+
+  public moveExistingListingUpstream(
+    tag: string,
+    stakingToken: EVMContractAddress,
+    stakeOwner: EVMAccountAddress | EVMContractAddress,
+    newStakeAmount: BigNumberString,
+    existingStakeAmount: BigNumberString,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract(
+      "moveExistingListingUpstream",
+      [tag, stakingToken, stakeOwner, newStakeAmount, existingStakeAmount],
+      overrides,
+    );
+  }
+
+  public restakeExpiredListing(
+    tag: string,
+    stakingToken: EVMContractAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract(
+      "restakeExpiredListing",
+      [tag, stakingToken],
       overrides,
     );
   }
 
   public replaceExpiredListing(
     tag: string,
+    stakingToken: EVMContractAddress,
+    stakeOwner: EVMAccountAddress | EVMContractAddress,
     stakeAmount: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -835,19 +577,24 @@ export class ConsentContract
   > {
     return this.writeToContract(
       "replaceExpiredListing",
-      [tag, stakeAmount],
+      [tag, stakingToken, stakeOwner, stakeAmount],
       overrides,
     );
   }
 
   public removeListing(
     tag: string,
+    stakingToken: EVMContractAddress,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | ConsentContractError
   > {
-    return this.writeToContract("removeListing", [tag], overrides);
+    return this.writeToContract(
+      "removeListing",
+      [tag, stakingToken],
+      overrides,
+    );
   }
 
   public filters = {
@@ -861,6 +608,9 @@ export class ConsentContract
       ownerAddress: EVMAccountAddress,
     ): ethers.DeferredTopicFilter => {
       return this.contract.filters.RequestForData(ownerAddress);
+    },
+    RequestForDataNoOwner: (): ethers.DeferredTopicFilter => {
+      return this.contract.filters.RequestForData();
     },
   };
 

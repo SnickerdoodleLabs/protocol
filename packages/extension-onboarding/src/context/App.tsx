@@ -135,7 +135,7 @@ export const AppContextProvider: FC = ({ children }) => {
       linkedAccounts.length === 0 &&
       initialAccountsFetchRef.current
     ) {
-      setIsLinkerModalOpen(true);
+      // setIsLinkerModalOpen(true);
     }
   }, [JSON.stringify(invitationInfo), linkedAccounts]);
 

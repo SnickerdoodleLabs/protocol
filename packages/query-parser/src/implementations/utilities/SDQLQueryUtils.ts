@@ -2,12 +2,8 @@ import {
   AdKey,
   CompensationKey,
   DuplicateIdInSchema,
-  ISDQLAd,
-  ISDQLCompensations,
-  ISDQLInsightBlock,
   InsightKey,
   MissingTokenConstructorError,
-  MissingWalletDataTypeError,
   ParserError,
   QueryExpiredError,
   QueryFormatError,
@@ -35,7 +31,6 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { RequiresEvaluator } from "@query-parser/implementations/business/evaluators/RequiresEvaluator.js";
-import { SDQLParser } from "@query-parser/implementations/index.js";
 import {
   AST_Ad,
   AST_SubQuery,
@@ -254,7 +249,7 @@ export class SDQLQueryUtils implements ISDQLQueryUtils {
       });
   }
 
-  getPossibleRewards(
+  public getPossibleRewards(
     compensationQueryDependecies: Set<AST_SubQuery>[],
     cid: IpfsCID,
     ast: AST,

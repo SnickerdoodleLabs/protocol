@@ -61,6 +61,8 @@ import {
   IProxyQuestionnaireMethods,
   PagingRequest,
   NewQuestionnaireAnswer,
+  DataPermissions,
+  IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { JsonRpcEngine } from "json-rpc-engine";
@@ -140,8 +142,6 @@ import {
   GetTransactionsParams,
   AddAccountWithExternalSignatureParams,
   AddAccountWithExternalTypedDataSignatureParams,
-  UpdateAgreementPermissionsParams,
-  GetConsentContractURLsParams,
   GetPersistenceNFTsParams,
   GetAccountNFTHistoryParams,
   GetAccountNftCacheParams,
@@ -152,6 +152,12 @@ import {
   GetQuestionnairesForConsentContractParams,
   GetConsentContractsByQuestionnaireCIDParams,
   GetRecommendedConsentContractsParams,
+  UpdateAgreementPermissionsParams,
+  GetQuestionnairesParams,
+  GetVirtualQuestionnairesParams,
+  GetQuestionnairesByCIDSParams,
+  ApproveQueryParams,
+  GetQueryStatusesByContractAddressParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -172,6 +178,9 @@ export class ExternalCoreGateway {
         return this._handler.call(
           new GetAllQuestionnairesParams(pagingRequest),
         );
+      },
+      getQuestionnaires: (pagingRequest: PagingRequest) => {
+        return this._handler.call(new GetQuestionnairesParams(pagingRequest));
       },
       answerQuestionnaire: (
         questionnaireId: IpfsCID,
@@ -200,6 +209,18 @@ export class ExternalCoreGateway {
       getConsentContractsByQuestionnaireCID: (questionnaireCID: IpfsCID) => {
         return this._handler.call(
           new GetConsentContractsByQuestionnaireCIDParams(questionnaireCID),
+        );
+      },
+      getVirtualQuestionnaires: (
+        consentContractAddress: EVMContractAddress,
+      ) => {
+        return this._handler.call(
+          new GetVirtualQuestionnairesParams(consentContractAddress),
+        );
+      },
+      getByCIDs: (questionnaireCIDs: IpfsCID[]) => {
+        return this._handler.call(
+          new GetQuestionnairesByCIDSParams(questionnaireCIDs),
         );
       },
     };
@@ -400,10 +421,9 @@ export class ExternalCoreGateway {
 
   public acceptInvitation(
     invitation: Invitation,
-    dataTypes: EWalletDataType[] | null,
   ): ResultAsync<void, ProxyError> {
     return this._handler.call(
-      new AcceptInvitationParams(ObjectUtils.serialize(invitation), dataTypes),
+      new AcceptInvitationParams(ObjectUtils.serialize(invitation)),
     );
   }
 
@@ -413,9 +433,9 @@ export class ExternalCoreGateway {
     return this._handler.call(params);
   }
 
-  public getAgreementPermissions(
+  public getDataPermissions(
     params: GetAgreementPermissionsParams,
-  ): ResultAsync<EWalletDataType[], ProxyError> {
+  ): ResultAsync<DataPermissions, ProxyError> {
     return this._handler.call(params);
   }
 
@@ -567,6 +587,18 @@ export class ExternalCoreGateway {
     return this._handler.call(params);
   }
 
+  public getQueryStatusesByContractAddress(
+    params: GetQueryStatusesByContractAddressParams,
+  ): ResultAsync<QueryStatus[], ProxyError> {
+    return this._handler.call(params);
+  }
+
+  public approveQuery(
+    params: ApproveQueryParams,
+  ): ResultAsync<void, ProxyError> {
+    return this._handler.call(params);
+  }
+
   public getSiteVisits(): ResultAsync<SiteVisit[], ProxyError> {
     return this._handler.call(new GetSiteVisitsParams());
   }
@@ -607,18 +639,6 @@ export class ExternalCoreGateway {
     params: GetReceivingAddressParams,
   ): ResultAsync<AccountAddress, ProxyError> {
     return this._handler.call(params);
-  }
-
-  public getConsentCapacity(
-    params: GetConsentCapacityParams,
-  ): ResultAsync<IConsentCapacity, ProxyError> {
-    return this._handler.call(params);
-  }
-
-  public getConsentContractURLs(
-    contractAdress: EVMContractAddress,
-  ): ResultAsync<URLString[], ProxyError> {
-    return this._handler.call(new GetConsentContractURLsParams(contractAdress));
   }
 
   public getEarnedRewardsByContractAddress(
