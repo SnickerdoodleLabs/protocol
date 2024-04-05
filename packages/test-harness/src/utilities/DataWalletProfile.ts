@@ -2,7 +2,6 @@ import { readFile } from "node:fs/promises";
 import path from "path";
 
 import { ITimeUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
-import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
   BigNumberString,
@@ -19,7 +18,6 @@ import {
   DataWalletBackup,
   IpfsCID,
   LazyReward,
-  MetatransactionSignatureRequest,
   PageInvitation,
   RewardFunctionParam,
   SDQLQueryRequest,
@@ -103,7 +101,7 @@ export class DataWalletProfile {
           events.onQueryPosted.subscribe(
             async (queryRequest: SDQLQueryRequest) => {
               console.log(
-                `Recieved query for consentContract ${queryRequest.consentContractAddress} with id ${queryRequest.query.cid}`,
+                `Recieved query for consentContract ${queryRequest.consentContractAddress} with id ${queryRequest.queryCID}`,
               );
 
               try {
@@ -111,26 +109,6 @@ export class DataWalletProfile {
               } catch (e) {
                 console.error(e);
               }
-            },
-          ),
-        );
-
-        this.coreSubscriptions.push(
-          events.onMetatransactionSignatureRequested.subscribe(
-            async (request) => {
-              // This method needs to happen in nicer form in all form factors
-              console.log(
-                `Metadata Transaction Requested!`,
-                `Request account address: ${request.accountAddress}`,
-              );
-
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              await env
-                .dataWalletProfile!.signMetatransactionRequest(request)
-                .mapErr((e) => {
-                  console.error(`Error signing forwarding request!`, e);
-                  process.exit(1);
-                });
             },
           ),
         );
@@ -162,6 +140,9 @@ export class DataWalletProfile {
         defaultInsightPlatformBaseUrl: "http://localhost:3006",
         dnsServerAddress: "http://localhost:3006/dns",
         devChainProviderURL: "http://127.0.0.1:8545",
+        accountIndexingPollingIntervalMS: 10000, // 10 seconds
+        accountBalancePollingIntervalMS: 10000, // 10 seconds
+        accountNFTPollingIntervalMS: 10000, // 10 seconds
         discordOverrides: discordConfig,
         heartbeatIntervalMS: 5000, // Set the heartbeat to 5 seconds
         alchemyApiKeys: {
@@ -448,47 +429,6 @@ export class DataWalletProfile {
   }
 
   // #endregion
-
-  public signMetatransactionRequest<TErr>(
-    request: MetatransactionSignatureRequest<TErr>,
-  ): ResultAsync<void, Error | TErr> {
-    // This method needs to happen in nicer form in all form factors
-    console.log(
-      `Metadata Transaction Requested!`,
-      `WARNING: This should no longer occur!`,
-      `Request account address: ${request.accountAddress}`,
-    );
-
-    // We need to get a nonce for this account address from the forwarder contract
-    return this.mocks.blockchain.minimalForwarder
-      .getNonce(request.accountAddress)
-      .andThen((nonce) => {
-        // We need to take the types, and send it to the account signer
-        const value = {
-          to: request.contractAddress, // Contract address for the metatransaction
-          from: request.accountAddress, // EOA to run the transaction as (linked account, not derived)
-          value: BigInt(request.value), // The amount of doodle token to pay. Should be 0.
-          gas: BigInt(request.gas), // The amount of gas to pay.
-          nonce: BigInt(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
-          data: request.data, // The actual bytes of the request, encoded as a hex string
-        } as IMinimalForwarderRequest;
-
-        // Get the wallet we are going to sign with
-        const wallet = this.mocks.blockchain.getWalletForAddress(
-          request.accountAddress,
-        );
-
-        return wallet
-          .signMinimalForwarderRequest(value)
-          .andThen((metatransactionSignature) => {
-            console.log(
-              `Metatransaction signature generated: ${metatransactionSignature}`,
-            );
-
-            return request.callback(metatransactionSignature, nonce);
-          });
-      });
-  }
 
   public getSignatureForAccount(
     wallet: TestWallet,

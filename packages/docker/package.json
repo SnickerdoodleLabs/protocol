@@ -23,6 +23,8 @@
   ],
   "scripts": {
     "docker-push": "docker push snickerdoodlelabs/protocol-docker-base:local",
-    "dockerize": "docker build -t snickerdoodlelabs/protocol-docker-base:local -f Dockerfile --progress=plain ../.."
+    "dockerize": "docker build -t snickerdoodlelabs/protocol-docker-base:local -f Dockerfile --progress=plain ../..",
+    "dockerize-circom": "docker build -t snickerdoodlelabs/circom:latest -f Dockerfile.circom --progress=plain .",
+    "docker-push-circom": "docker push snickerdoodlelabs/circom:local"
   }
 }

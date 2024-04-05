@@ -1,3 +1,4 @@
+import { IFrameEvents } from "@core-iframe/interfaces/objects";
 import {
   AccountAddress,
   Age,
@@ -16,6 +17,7 @@ import {
   ECoreProxyType,
   EDataWalletPermission,
   EInvitationStatus,
+  EQueryProcessingStatus,
   EVMContractAddress,
   EWalletDataType,
   EarnedReward,
@@ -24,6 +26,7 @@ import {
   Gender,
   GivenName,
   IConsentCapacity,
+  IDynamicRewardParameter,
   INftProxyMethods,
   IOldUserAgreement,
   IProxyAccountMethods,
@@ -52,7 +55,6 @@ import {
   PEMEncodedRSAPublicKey,
   PagedResponse,
   PagingRequest,
-  PersistenceError,
   ProxyError,
   QueryStatus,
   RuntimeMetrics,
@@ -88,6 +90,7 @@ export class ProxyBridge implements ISdlDataWallet {
   constructor(
     private core: ISnickerdoodleCore,
     public events: ISnickerdoodleCoreEvents,
+    public iframeEvents: IFrameEvents,
   ) {
     this.account = {
       getLinkAccountMessage: (
@@ -281,6 +284,14 @@ export class ProxyBridge implements ISdlDataWallet {
           ),
         );
       },
+      getQuestionnaires: (pagingRequest: PagingRequest) => {
+        return this.call(
+          this.core.questionnaire.getQuestionnaires(
+            pagingRequest,
+            this.sourceDomain,
+          ),
+        );
+      },
       answerQuestionnaire: (
         questionnaireId: IpfsCID,
         answers: NewQuestionnaireAnswer[],
@@ -321,6 +332,24 @@ export class ProxyBridge implements ISdlDataWallet {
           ),
         );
       },
+      getByCIDs: (questionnaireCIDs: IpfsCID[]) => {
+        return this.call(
+          this.core.questionnaire.getByCIDs(
+            questionnaireCIDs,
+            this.sourceDomain,
+          ),
+        );
+      },
+      getVirtualQuestionnaires: (
+        consentContractAddress: EVMContractAddress,
+      ) => {
+        return this.call(
+          this.core.questionnaire.getVirtualQuestionnaires(
+            consentContractAddress,
+            this.sourceDomain,
+          ),
+        );
+      },
     };
   }
 
@@ -343,26 +372,24 @@ export class ProxyBridge implements ISdlDataWallet {
   ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError> {
     return this.call(this.core.invitation.getInvitationMetadataByCID(ipfsCID));
   }
+
   updateAgreementPermissions(
     consentContractAddress: EVMContractAddress,
-    dataTypes: EWalletDataType[],
+    dataPermissions: DataPermissions,
   ): ResultAsync<void, ProxyError> {
     return this.call(
       this.core.invitation.updateDataPermissions(
         consentContractAddress,
-        DataPermissions.createWithPermissions(dataTypes),
+        dataPermissions,
       ),
     );
   }
-  getAgreementPermissions(
-    consentContractAddres: EVMContractAddress,
-  ): ResultAsync<EWalletDataType[], ProxyError> {
+
+  getDataPermissions(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<DataPermissions, ProxyError> {
     return this.call(
-      this.core.invitation
-        .getAgreementFlags(consentContractAddres)
-        .map((flags) => {
-          return DataPermissions.getDataTypesFromFlags(flags);
-        }),
+      this.core.invitation.getDataPermissions(consentContractAddress),
     );
   }
 
@@ -392,11 +419,33 @@ export class ProxyBridge implements ISdlDataWallet {
     return this.call(this.core.getQueryStatusByQueryCID(queryCID));
   }
   getQueryStatuses(
-    contractAddress: EVMContractAddress,
-    blockNumber?: BlockNumber | undefined,
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus[],
+    blockNumber?: BlockNumber,
+    _sourceDomain?: DomainName | undefined,
   ): ResultAsync<QueryStatus[], ProxyError> {
-    return this.call(this.core.getQueryStatuses(contractAddress, blockNumber));
+    return this.call(
+      this.core.getQueryStatuses(contractAddress, status, blockNumber),
+    );
   }
+
+  getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+    _sourceDomain?: DomainName | undefined,
+  ): ResultAsync<QueryStatus[], ProxyError> {
+    return this.call(
+      this.core.getQueryStatusesByContractAddress(contractAddress),
+    );
+  }
+
+  approveQuery(
+    queryCID: IpfsCID,
+    parameters: IDynamicRewardParameter[],
+    _sourceDomain?: DomainName | undefined,
+  ): ResultAsync<void, ProxyError> {
+    return this.call(this.core.approveQuery(queryCID, parameters));
+  }
+
   getSiteVisits(): ResultAsync<SiteVisit[], ProxyError> {
     return this.call(this.core.getSiteVisits(this.sourceDomain));
   }
@@ -436,16 +485,6 @@ export class ProxyBridge implements ISdlDataWallet {
     contractAddress?: EVMContractAddress | undefined,
   ): ResultAsync<AccountAddress, ProxyError> {
     return this.call(this.core.getReceivingAddress(contractAddress));
-  }
-  getConsentContractURLs(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<URLString[], ProxyError> {
-    return this.call(this.core.getConsentContractURLs(contractAddress));
-  }
-  getConsentCapacity(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<IConsentCapacity, ProxyError> {
-    return this.call(this.core.getConsentCapacity(contractAddress));
   }
   getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
@@ -566,5 +605,12 @@ export class ProxyBridge implements ISdlDataWallet {
   }
   getUIState(): ResultAsync<JSONString | null, ProxyError> {
     return this.call(this.core.getUIState());
+  }
+
+  requestOptIn(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<void, ProxyError> {
+    this.iframeEvents.onOptInRequested.next(consentAddress);
+    return okAsync(undefined);
   }
 }

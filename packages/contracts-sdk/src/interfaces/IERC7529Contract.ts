@@ -11,7 +11,7 @@ export interface IERC7529Contract<T> extends IBaseContract {
   /**
    * Adds a domain to the contract storage
    * Only callable by address with DEFAULT_ADMIN_ROLE
-   * If domain already exists, reverts with error message "Reward : Domain already added"
+   * If domain already exists, reverts with error message "Consent : Domain already added"
    * @param domain Domain name
    */
   addDomain(
@@ -20,9 +20,9 @@ export interface IERC7529Contract<T> extends IBaseContract {
   ): ResultAsync<WrappedTransactionResponse, BlockchainCommonErrors | T>;
 
   /**
-   * Removes a domain from the contract storage
+   * Removes a domain to the contract storage
    * Only callable by address with DEFAULT_ADMIN_ROLE
-   * If domain does not exist, reverts with error message "Reward : Domain is not in the list"
+   * If domain does not exist, reverts with error message "Consent : Domain is not in the list"
    * @param domain Domain name
    */
   removeDomain(
@@ -31,7 +31,9 @@ export interface IERC7529Contract<T> extends IBaseContract {
   ): ResultAsync<WrappedTransactionResponse, BlockchainCommonErrors | T>;
 
   /**
-   * Returns an array of domains added to the contract
+   * Returns true if the domain is part of the contract
    */
-  getDomains(): ResultAsync<DomainName[], BlockchainCommonErrors | T>;
+  checkDomain(
+    domain: DomainName,
+  ): ResultAsync<boolean, T | BlockchainCommonErrors>;
 }

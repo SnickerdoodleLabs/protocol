@@ -11,6 +11,7 @@ import {
   AjaxError,
   InvalidParametersError,
   MethodSupportError,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
@@ -30,7 +31,7 @@ import { AST_RequireExpr } from "@query-parser/interfaces/objects/AST_RequireExp
 export class RequiresEvaluator extends AST_Evaluator {
   constructor(readonly availableMap: Map<SDQL_Name, unknown>) {
     const queryRepo = new CachedQueryRepository(new Map()); // a blank query repository
-    const permissions = new DataPermissions(DataPermissions.permissionString);
+    const permissions = new DataPermissions("" as EVMContractAddress, [], []); // @TODO we should probably use real permissions here
     super(IpfsCID("TestCID"), queryRepo, permissions, UnixTimestamp(1));
   }
 

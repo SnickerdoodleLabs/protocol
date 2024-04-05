@@ -15,6 +15,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { IMarketplaceRepository } from "@core/interfaces/data/index.js";
 import {
@@ -46,11 +47,15 @@ export class MarketplaceRepository implements IMarketplaceRepository {
     | ConsentFactoryContractError
     | BlockchainCommonErrors
   > {
-    return this.getConsentFactoryContract().andThen(
-      (consentFactoryContract) => {
-        return consentFactoryContract.getTagTotal(tag);
-      },
-    );
+    return ResultUtils.combine([
+      this.getConsentFactoryContract(),
+      this.configProvider.getConfig(),
+    ]).andThen(([consentFactoryContract, config]) => {
+      return consentFactoryContract.getTagTotal(
+        tag,
+        config.controlChainInformation.governanceTokenContractAddress,
+      );
+    });
   }
 
   public getMarketplaceListingsByTag(
@@ -156,9 +161,16 @@ export class MarketplaceRepository implements IMarketplaceRepository {
     | ConsentFactoryContractError
     | BlockchainCommonErrors
   > {
-    return this.getConsentFactoryContract()
-      .andThen((consentFactoryContract) => {
-        return consentFactoryContract.getListingsByTag(tag, true);
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.getConsentFactoryContract(),
+    ])
+      .andThen(([config, consentFactoryContract]) => {
+        return consentFactoryContract.getListingsByTag(
+          tag,
+          config.controlChainInformation.governanceTokenContractAddress,
+          true,
+        );
       })
       .map((listings) => {
         const cache = new MarketplaceTagCache(

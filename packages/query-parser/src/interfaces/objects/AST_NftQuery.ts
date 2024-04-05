@@ -4,6 +4,8 @@ import {
   ESDQLQueryReturn,
   SDQL_Name,
   MissingWalletDataTypeError,
+  DataPermissions,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { ok, Result } from "neverthrow";
 

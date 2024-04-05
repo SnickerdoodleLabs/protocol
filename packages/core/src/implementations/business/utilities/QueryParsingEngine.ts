@@ -55,6 +55,8 @@ import {
   IAdDataRepository,
   IAdDataRepositoryType,
   IAdRepositoryType,
+  IPermissionRepository,
+  IPermissionRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IContextProvider,
@@ -68,6 +70,8 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected queryFactories: IQueryFactories,
     @inject(IQueryRepositoryType)
     protected queryRepository: IQueryRepository,
+    @inject(IPermissionRepositoryType)
+    protected permissionRepo: IPermissionRepository,
     @inject(ISDQLQueryUtilsType)
     protected queryUtils: ISDQLQueryUtils,
     @inject(IAdRepositoryType)
@@ -202,27 +206,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
         insightAndAdKeys,
       );
     });
-  }
-
-  public getPossibleQueryDeliveryItems(
-    query: SDQLQuery,
-  ): ResultAsync<
-    IQueryDeliveryItems,
-    | ParserError
-    | DuplicateIdInSchema
-    | QueryFormatError
-    | MissingTokenConstructorError
-    | QueryExpiredError
-    | MissingASTError
-    | EvaluationError
-    | PersistenceError
-    | EvalNotImplementedError
-    | AjaxError
-    | AccountIndexingError
-    | MethodSupportError
-    | InvalidParametersError
-  > {
-    return this.handleQuery(query, DataPermissions.createWithAllPermissions());
   }
 
   /** Used for reward generation on the SPA. Purpose is to show all the rewards to the user

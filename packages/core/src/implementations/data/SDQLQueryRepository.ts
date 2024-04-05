@@ -70,18 +70,33 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
       });
   }
 
-  public getQueryStatusByStatus(
-    status: EQueryProcessingStatus,
+  public getQueryStatus(
+    statuses?: EQueryProcessingStatus[],
+    consentContractAddress?: EVMContractAddress,
   ): ResultAsync<QueryStatus[], PersistenceError> {
     // TODO: Make this more efficient in the future
+
     return this.persistence
       .getAll<QueryStatus>(ERecordKey.QUERY_STATUS)
       .map((queryStatii) => {
         // Return only those status from after the query horizon and for the requested
         // contract
-        return queryStatii.filter((queryStatus) => {
-          return queryStatus.status == status;
-        });
+        let filteredStatuses = queryStatii;
+
+        if (statuses != null && statuses.length > 0) {
+          filteredStatuses = filteredStatuses.filter((queryStatus) =>
+            statuses.includes(queryStatus.status),
+          );
+        }
+
+        if (consentContractAddress != null) {
+          filteredStatuses = filteredStatuses.filter(
+            (queryStatus) =>
+              queryStatus.consentContractAddress === consentContractAddress,
+          );
+        }
+
+        return filteredStatuses;
       });
   }
 

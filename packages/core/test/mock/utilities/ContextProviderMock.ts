@@ -9,6 +9,7 @@ import {
   EComponentStatus,
   EExternalApi,
   EQueryEvents,
+  EVMContractAddress,
   Gender,
   IpfsCID,
   LinkedAccount,
@@ -52,6 +53,7 @@ export class ContextProviderMock implements IContextProvider {
   public onBirthdayUpdatedActivations: UnixTimestamp[] = [];
   public onGenderUpdatedActivations: Gender[] = [];
   public onLocationUpdatedActivations: CountryCode[] = [];
+  public onCohortJoinedActivations: EVMContractAddress[] = [];
 
   constructor(context: CoreContext | null = null) {
     if (context != null) {
@@ -146,6 +148,10 @@ export class ContextProviderMock implements IContextProvider {
       this.onLocationUpdatedActivations.push(val);
     });
 
+    this.publicEvents.onCohortJoined.subscribe((val) => {
+      this.onCohortJoinedActivations.push(val);
+    });
+
     this.privateEvents.heartbeat.subscribe((val) => {
       this.heartbeatActivations.push(val);
     });
@@ -192,6 +198,7 @@ export class ContextProviderMock implements IContextProvider {
       onLocationUpdated: 0,
       onQueryPerformanceActivations: 0,
       postBackupsRequested: 0,
+      onCohortJoined: 0,
     };
 
     // Merge the passed in counts with the basic counts
@@ -229,6 +236,8 @@ export class ContextProviderMock implements IContextProvider {
     expect(this.onLocationUpdatedActivations.length).toBe(
       counts.onLocationUpdated,
     );
+
+    expect(this.onCohortJoinedActivations.length).toBe(counts.onCohortJoined);
   }
 }
 
@@ -251,4 +260,5 @@ export interface IExpectedEventCounts {
   onLocationUpdated?: number;
   onQueryPerformanceActivations?: number;
   postBackupsRequested?: number;
+  onCohortJoined?: number;
 }
