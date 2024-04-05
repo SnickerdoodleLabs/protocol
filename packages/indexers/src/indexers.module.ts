@@ -14,6 +14,7 @@ import {
   IMoralisEVMPortfolioRepositoryType,
   INftScanEVMPortfolioRepositoryType,
   IOklinkIndexerType,
+  IExpandIndexerType,
   IPoapRepositoryType,
   IPolygonIndexerType,
   ISimulatorEVMTransactionRepositoryType,
@@ -41,6 +42,7 @@ import {
   SimulatorEVMTransactionRepository,
   SolanaIndexer,
   SpaceAndTimeIndexer,
+  ExpandIndexer,
 } from "@indexers/providers/index.js";
 import { EVMTransactionSanitizer } from "@indexers/sanitizers/index.js";
 
@@ -80,6 +82,7 @@ export const indexersModule = new ContainerModule(
       .inSingletonScope();
 
     bind<IEVMIndexer>(IOklinkIndexerType).to(OklinkIndexer).inSingletonScope();
+    bind<IEVMIndexer>(IExpandIndexerType).to(ExpandIndexer).inSingletonScope();
 
     bind<IEVMIndexer>(IPoapRepositoryType)
       .to(PoapRepository)
