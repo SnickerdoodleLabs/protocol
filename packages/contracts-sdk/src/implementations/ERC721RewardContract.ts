@@ -284,15 +284,14 @@ export class ERC721RewardContract
     return this.writeToContract("removeDomain", [domain], overrides);
   }
 
-  public getDomains(): ResultAsync<
-    DomainName[],
-    BlockchainCommonErrors | ERC721RewardContractError
-  > {
+  public checkDomain(
+    domain: DomainName,
+  ): ResultAsync<boolean, ERC721RewardContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       // returns array of domains
-      this.contract.getDomains() as Promise<DomainName[]>,
+      this.contract.checkDomain(domain) as Promise<boolean>,
       (e) => {
-        return this.generateError(e, "Unable to call getDomains()");
+        return this.generateError(e, "Unable to call checkDomain()");
       },
     );
   }
