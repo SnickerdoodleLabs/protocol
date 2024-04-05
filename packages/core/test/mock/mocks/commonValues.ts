@@ -49,6 +49,7 @@ import {
   MarketplaceTag,
   QuestionnaireQuestion,
   QuestionnaireWithAnswers,
+  SHA256Hash,
   Commitment,
   NullifierBNS,
   TrapdoorBNS,
@@ -178,6 +179,7 @@ export const testCoreConfig = new CoreConfig(
       userId: null,
       privateKey: null,
     },
+    expandApiKey: "expand api key",
     covalentApiKey: "covalent api key",
     moralisApiKey: "moralis api key",
     nftScanApiKey: "nftScan api key",
@@ -904,7 +906,6 @@ export const mockIPFSQuestionnaire: IQuestionnaireSchema = {
 
 export const mockQuestionnaireIPFSInstance = new QuestionnaireData(
   IPFSQuestionnaireCID,
-  EQuestionnaireStatus.Available,
   [
     {
       index: 0,
@@ -947,6 +948,26 @@ export const mockQuestionnaireIPFSInstance = new QuestionnaireData(
     },
   ],
   "Sample Questionnaire",
+  [
+    [
+      0,
+      SHA256Hash(
+        "1c80cd62545938c60fc4275f84f9fa596d88a61224b2721bb1e950bf6ef68240",
+      ),
+    ],
+    [
+      1,
+      SHA256Hash(
+        "5a0ee45cc6c46230070f0bf9fcb10ca10721bd5fc3b1f826b155cde0c5572fa0",
+      ),
+    ],
+    [
+      2,
+      SHA256Hash(
+        "1ce3e462dba8ae7c251087af4b07b9b86716266c531be32544a39231d501d753",
+      ),
+    ],
+  ],
   "This is a sample questionnaire for testing purposes",
   URLString("https://example.com/sample-image.jpg"),
 );
@@ -961,7 +982,6 @@ export const mockQuestionnaireCID2 = IpfsCID(
 );
 export const mockQuestionnaireStoredInstance = new QuestionnaireData(
   mockQuestionnaireCID,
-  EQuestionnaireStatus.Complete,
   [
     {
       index: 0,
@@ -991,13 +1011,26 @@ export const mockQuestionnaireStoredInstance = new QuestionnaireData(
     },
   ],
   "Sample Questionnaire 2",
+  [
+    [
+      0,
+      SHA256Hash(
+        "f95b936ee4922d96d588f676b5572682739c36bff7c005d29c630e1fd54db522",
+      ),
+    ],
+    [
+      1,
+      SHA256Hash(
+        "a63c8485548420ffbd9dbe07b1d445cff3b71cbf16e1634a85e30e39c6f550d9",
+      ),
+    ],
+  ],
   "Please answer the following questions about your exercise habits.",
   undefined,
 );
 
 export const mockQuestionnaireStoredInstance2 = new QuestionnaireData(
   mockQuestionnaireCID2,
-  EQuestionnaireStatus.Available,
   [
     {
       index: 0,
@@ -1027,6 +1060,7 @@ export const mockQuestionnaireStoredInstance2 = new QuestionnaireData(
     },
   ],
   "Sample Questionnaire 22",
+  [],
   "Please answer the following questions about your exercise habits.",
   undefined,
 );
@@ -1106,15 +1140,14 @@ export const mockQuestionnaire2 = new Questionnaire(
 );
 
 export const mockQuestionnaireAnswer: QuestionnaireAnswer[] = [
-  new QuestionnaireAnswer(mockQuestionnaireCID, 1, "to get fresh air"),
   new QuestionnaireAnswer(mockQuestionnaireCID, 0, 0),
+  new QuestionnaireAnswer(mockQuestionnaireCID, 1, "to get fresh air"),
 ];
 
 export const mockQuestionnaireWithAnswer = new QuestionnaireWithAnswers(
   mockQuestionnaireCID,
   MarketplaceTag(`Questionnaire:${mockQuestionnaireCID}`),
   EQuestionnaireStatus.Complete,
-
   "Sample Questionnaire 2",
   "Please answer the following questions about your exercise habits.",
   null,
@@ -1149,35 +1182,24 @@ export const mockQuestionnaireWithAnswer = new QuestionnaireWithAnswers(
   mockQuestionnaireAnswer,
   UnixTimestamp(1701779736),
 );
-
-export const mockQuestionnaireHistoryNewer = new QuestionnaireHistory(
-  mockQuestionnaireCID,
+export const mockQuestionnaireSecondQuestionHash = SHA256Hash(
+  "a63c8485548420ffbd9dbe07b1d445cff3b71cbf16e1634a85e30e39c6f550d9",
+);
+export const mockQuestionnaireFirstQuestionHash = SHA256Hash(
+  "f95b936ee4922d96d588f676b5572682739c36bff7c005d29c630e1fd54db522",
+);
+export const mockSecondQuestionnaireHistoryNewer = new QuestionnaireHistory(
+  mockQuestionnaireSecondQuestionHash,
   UnixTimestamp(1701779736),
-  [
-    {
-      questionIndex: 1,
-      questionnaireId: mockQuestionnaireCID,
-      choice: "to get fresh air",
-    },
-  ],
+  "to get fresh air",
 );
 
-export const mockQuestionnaireHistory = new QuestionnaireHistory(
-  mockQuestionnaireCID,
+export const mockFirstQuestionnaireHistory = new QuestionnaireHistory(
+  mockQuestionnaireFirstQuestionHash,
   UnixTimestamp(1701779734),
-  [
-    {
-      questionIndex: 0,
-      questionnaireId: mockQuestionnaireCID,
-      choice: 0,
-    },
-    {
-      questionIndex: 1,
-      questionnaireId: mockQuestionnaireCID,
-      choice: "to get in better shape",
-    },
-  ],
+  0,
 );
+
 // #endregion
 
 // #region Commitments
