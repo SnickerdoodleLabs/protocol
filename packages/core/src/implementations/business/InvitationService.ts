@@ -322,6 +322,42 @@ export class InvitationService implements IInvitationService {
               config.defaultInsightPlatformBaseUrl,
             )
             .andThen(() => {
+              return ResultAsync.fromSafePromise(
+                new Promise((resolve, _) => {
+                  let attemptCount = 0;
+                  const maxtAttempts = 10;
+                  const checkIntervalMs = 1000;
+                  const checkCommitmentExistence = () => {
+                    attemptCount = attemptCount + 1;
+                    if (attemptCount > maxtAttempts) {
+                      this.logUtils.info(
+                        `Commitment index could not be found within ${maxtAttempts} attempts; skipping`,
+                      );
+                      resolve(undefined);
+                    }
+                    return this.consentRepo
+                      .getCommitmentIndex(invitation.consentContractAddress)
+                      .map((commitmentIndex) => {
+                        return commitmentIndex != -1;
+                      })
+                      .mapErr(() => {
+                        resolve(undefined);
+                      });
+                  };
+                  checkCommitmentExistence().map((isExist) => {
+                    if (isExist) {
+                      this.logUtils.info(
+                        `Commitment index found at attempt ${attemptCount}. Opt-in completed`,
+                      );
+                      resolve(undefined);
+                    } else {
+                      setTimeout(checkCommitmentExistence, checkIntervalMs);
+                    }
+                  });
+                }),
+              );
+            })
+            .andThen(() => {
               return this.invitationRepo.addAcceptedInvitations([optInInfo]);
             });
         })
