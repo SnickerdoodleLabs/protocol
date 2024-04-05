@@ -19,8 +19,6 @@ export interface ITokenPriceRepository {
     contractAddress: TokenAddress,
   ): ResultAsync<TokenInfo | null, AccountIndexingError>;
 
-  addTokenInfo(info: TokenInfo): ResultAsync<void, PersistenceError>;
-
   getTokenPrice(
     chain: EChain,
     contractAddress: TokenAddress,
