@@ -122,18 +122,47 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           ),
         );
 
+        publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.DeliverInsightsCall,
+            EStatus.Start,
+            queryCID,
+          ),
+        );
         const url = new URL(urlJoin(insightPlatformBaseUrl, "insights"));
-
-        return this.ajaxUtils.post<EarnedReward[]>(url, {
-          consentContractId: consentContractAddress,
-          queryCID: queryCID,
-          insights: serializedInsights,
-          rewardParameters: serializedRewardParameters,
-          signalNullifier: signalNullifier,
-          anonymitySetStart: anonymitySetStart,
-          anonymitySetSize: anonymitySetSize,
-          proof: proof,
-        } as IDeliverInsightsParams as unknown as Record<string, unknown>);
+        return this.ajaxUtils
+          .post<EarnedReward[]>(url, {
+            consentContractId: consentContractAddress,
+            queryCID: queryCID,
+            insights: serializedInsights,
+            rewardParameters: serializedRewardParameters,
+            signalNullifier: signalNullifier,
+            anonymitySetStart: anonymitySetStart,
+            anonymitySetSize: anonymitySetSize,
+            proof: proof,
+          } as IDeliverInsightsParams as unknown as Record<string, unknown>)
+          .map((res) => {
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.DeliverInsightsCall,
+                EStatus.End,
+                queryCID,
+              ),
+            );
+            return res;
+          })
+          .mapErr((err) => {
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.DeliverInsightsCall,
+                EStatus.End,
+                queryCID,
+                undefined,
+                err,
+              ),
+            );
+            return err;
+          });
       });
   }
 
