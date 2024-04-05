@@ -360,21 +360,6 @@ export class InvitationService implements IInvitationService {
             });
         })
         .map(() => {
-          // This is just a helpful bit of debug info
-          this.consentRepo
-            .getCommitmentIndex(invitation.consentContractAddress)
-            .map((commitmentIndex) => {
-              if (commitmentIndex == -1) {
-                this.logUtils.error(
-                  `No commitment added on ${invitation.consentContractAddress}`,
-                );
-              } else {
-                this.logUtils.log(
-                  `Opted in to ${invitation.consentContractAddress}`,
-                );
-              }
-            });
-
           // Notify the world that we've opted in to the cohort
           context.publicEvents.onCohortJoined.next(
             invitation.consentContractAddress,
