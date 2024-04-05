@@ -148,6 +148,7 @@ import {
   AuthenticatedStorageRepository,
   NftRepository,
   QuestionnaireRepository,
+  QuestionnairesContractRepository,
 } from "@core/implementations/data/index.js";
 import { ContractFactory } from "@core/implementations/utilities/factory/index.js";
 import {
@@ -261,6 +262,8 @@ import {
   INFTRepositoryWithDebugType,
   IQuestionnaireRepository,
   IQuestionnaireRepositoryType,
+  IQuestionnairesContractRepositoryType,
+  IQuestionnairesContractRepository,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
@@ -401,6 +404,11 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IQuestionnaireRepository>(IQuestionnaireRepositoryType)
       .to(QuestionnaireRepository)
+      .inSingletonScope();
+    bind<IQuestionnairesContractRepository>(
+      IQuestionnairesContractRepositoryType,
+    )
+      .to(QuestionnairesContractRepository)
       .inSingletonScope();
 
     bind<ITransactionHistoryRepository>(ITransactionHistoryRepositoryType)
