@@ -1057,6 +1057,7 @@ export class QueryService implements IQueryService {
             anonymitySet,
             0,
             config.defaultInsightPlatformBaseUrl,
+            context.publicEvents,
           );
         })
         .orElse((err) => {

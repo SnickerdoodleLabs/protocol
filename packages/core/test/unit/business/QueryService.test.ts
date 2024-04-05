@@ -43,9 +43,7 @@ import * as td from "testdouble";
 
 import { QueryService } from "@core/implementations/business/index.js";
 import { IQuestionnaireService } from "@core/interfaces/business";
-import {
-  IQueryParsingEngine,
-} from "@core/interfaces/business/utilities/index.js";
+import { IQueryParsingEngine } from "@core/interfaces/business/utilities/index.js";
 import {
   IConsentContractRepository,
   IInvitationRepository,
@@ -213,6 +211,7 @@ class QueryServiceMocks {
         [commitment1],
         0, //anonymitySetStart
         defaultInsightPlatformBaseUrl,
+        this.contextProvider.publicEvents,
       ),
     ).thenReturn(okAsync(earnedRewards));
 

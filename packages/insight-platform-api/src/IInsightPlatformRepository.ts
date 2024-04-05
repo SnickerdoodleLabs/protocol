@@ -15,6 +15,7 @@ import {
   InvalidArgumentError,
   CircuitError,
   NullifierBNS,
+  PublicEvents,
   TrapdoorBNS,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -30,6 +31,7 @@ export interface IInsightPlatformRepository {
     anonymitySet: Commitment[],
     anonymitySetStart: number,
     insightPlatformBaseUrl: URLString,
+    publicEvents: PublicEvents,
   ): ResultAsync<EarnedReward[], AjaxError | CircuitError>;
 
   optin(
