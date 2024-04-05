@@ -338,22 +338,20 @@ export class InvitationService implements IInvitationService {
                     return this.consentRepo
                       .getCommitmentIndex(invitation.consentContractAddress)
                       .map((commitmentIndex) => {
-                        return commitmentIndex != -1;
+                        if (commitmentIndex === -1) {
+                          setTimeout(checkCommitmentExistence, checkIntervalMs);
+                        } else {
+                          this.logUtils.info(
+                            `Commitment index found at attempt ${attemptCount}`,
+                          );
+                          resolve(undefined);
+                        }
                       })
                       .mapErr(() => {
                         resolve(undefined);
                       });
                   };
-                  checkCommitmentExistence().map((isExist) => {
-                    if (isExist) {
-                      this.logUtils.info(
-                        `Commitment index found at attempt ${attemptCount}. Opt-in completed`,
-                      );
-                      resolve(undefined);
-                    } else {
-                      setTimeout(checkCommitmentExistence, checkIntervalMs);
-                    }
-                  });
+                  checkCommitmentExistence();
                 }),
               );
             })
