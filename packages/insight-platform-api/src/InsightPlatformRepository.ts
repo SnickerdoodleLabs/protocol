@@ -1,248 +1,230 @@
+import { CircomUtils } from "@snickerdoodlelabs/circuits";
+import {
+  ICommitmentWrapper,
+  ICommitmentWrapperType,
+  IMembershipWrapper,
+  IMembershipWrapperType,
+} from "@snickerdoodlelabs/circuits-sdk";
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
+  ObjectUtils,
 } from "@snickerdoodlelabs/common-utils";
-import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   AjaxError,
   BigNumberString,
   EarnedReward,
-  EVMAccountAddress,
   EVMContractAddress,
-  EVMPrivateKey,
-  HexString,
   IDynamicRewardParameter,
   IpfsCID,
   Signature,
-  TokenId,
   URLString,
   IQueryDeliveryItems,
-  PossibleReward,
+  Commitment,
+  CircuitError,
+  NullifierBNS,
+  TrapdoorBNS,
+  PublicEvents,
+  QueryPerformanceEvent,
+  EQueryEvents,
+  EStatus,
 } from "@snickerdoodlelabs/objects";
-import {
-  clearCloudBackupsTypes,
-  executeMetatransactionTypes,
-  insightDeliveryTypes,
-  insightPreviewTypes,
-  signedUrlTypes,
-  snickerdoodleSigningDomain,
-} from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { urlJoin } from "url-join-ts";
 
 import { IInsightPlatformRepository } from "@insightPlatform/IInsightPlatformRepository.js";
 import {
-  IClearCloudBackupsParams,
   IDeliverInsightsParams,
-  IExecuteMetatransactionParams,
-  IReceivePreviewsParams,
-  ISignedUrlParams,
+  IOptinParams,
+  IPrivateOptinParams,
 } from "@insightPlatform/params/index.js";
 
 @injectable()
 export class InsightPlatformRepository implements IInsightPlatformRepository {
   public constructor(
-    @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(IMembershipWrapperType)
+    protected membershipWrapper: IMembershipWrapper,
+    @inject(ICommitmentWrapperType)
+    protected commitmentWrapper: ICommitmentWrapper,
   ) {}
-
-  public clearAllBackups(
-    dataWalletKey: EVMPrivateKey,
-    insightPlatformBaseUrl: URLString,
-    walletAddress: EVMAccountAddress,
-  ): ResultAsync<void, AjaxError> {
-    const signableData = {
-      walletAddress: walletAddress,
-    } as Record<string, unknown>;
-
-    return this.cryptoUtils
-      .signTypedData(
-        snickerdoodleSigningDomain,
-        clearCloudBackupsTypes,
-        signableData,
-        dataWalletKey,
-      )
-      .andThen((signature) => {
-        const url = new URL(
-          urlJoin(insightPlatformBaseUrl, "/clearAllBackups"),
-        );
-        const postBody = {
-          walletAddress: walletAddress,
-          signature: signature,
-        } as IClearCloudBackupsParams;
-        return this.ajaxUtils.post<void>(
-          url,
-          postBody as unknown as Record<string, unknown>,
-        );
-      });
-  }
-
-  public getSignedUrl(
-    dataWalletKey: EVMPrivateKey,
-    insightPlatformBaseUrl: URLString,
-    fileName: string,
-  ): ResultAsync<URLString, AjaxError> {
-    const signableData = {
-      fileName: fileName,
-    } as Record<string, unknown>;
-
-    return this.cryptoUtils
-      .signTypedData(
-        snickerdoodleSigningDomain,
-        signedUrlTypes,
-        signableData,
-        dataWalletKey,
-      )
-      .andThen((signature) => {
-        const url = new URL(urlJoin(insightPlatformBaseUrl, "/getSignedUrl"));
-        const postBody = {
-          fileName: fileName,
-          signature: signature,
-        } as ISignedUrlParams;
-        return this.ajaxUtils.post<URLString>(
-          url,
-          postBody as unknown as Record<string, unknown>,
-        );
-      });
-  }
-  //
-  public receivePreviews(
-    consentContractAddress: EVMContractAddress,
-    tokenId: TokenId,
-    queryCID: IpfsCID,
-    signingKey: EVMPrivateKey,
-    insightPlatformBaseUrl: URLString,
-    queryDeliveryItems: IQueryDeliveryItems,
-  ): ResultAsync<PossibleReward[], AjaxError> {
-    const signableData = {
-      consentContractId: consentContractAddress,
-      tokenId: tokenId,
-      queryCID: queryCID,
-      queryDeliveryItems: JSON.stringify(queryDeliveryItems),
-    } as Record<string, unknown>;
-
-    return this.cryptoUtils
-      .signTypedData(
-        snickerdoodleSigningDomain,
-        insightPreviewTypes,
-        signableData,
-        signingKey,
-      )
-      .andThen((signature) => {
-        const url = new URL(
-          urlJoin(insightPlatformBaseUrl, "/insights/responses/preview"),
-        );
-
-        /* Following schema from .yaml file: */
-        /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
-        return this.ajaxUtils.post<PossibleReward[]>(url, {
-          consentContractId: consentContractAddress,
-          queryCID: queryCID,
-          tokenId: tokenId.toString(),
-          queryDeliveryItems: queryDeliveryItems,
-          signature: signature,
-        } as IReceivePreviewsParams as unknown as Record<string, unknown>);
-      });
-  }
 
   public deliverInsights(
     consentContractAddress: EVMContractAddress,
-    tokenId: TokenId,
+    trapdoor: TrapdoorBNS,
+    nullifier: NullifierBNS,
     queryCID: IpfsCID,
     insights: IQueryDeliveryItems,
     rewardParameters: IDynamicRewardParameter[],
-    signingKey: EVMPrivateKey,
+    anonymitySet: Commitment[],
+    anonymitySetStart: number,
     insightPlatformBaseUrl: URLString,
-  ): ResultAsync<EarnedReward[], AjaxError> {
-    let parameters = JSON.stringify([]);
-    if (rewardParameters !== undefined) {
-      parameters = JSON.stringify(rewardParameters);
+    publicEvents: PublicEvents,
+  ): ResultAsync<EarnedReward[], AjaxError | CircuitError> {
+    // Calculate the values we need to include in the signal
+    const commitment = CircomUtils.getCommitment(trapdoor, nullifier);
+    const signalNullifier = CircomUtils.getSignalNullifier(nullifier, queryCID);
+
+    // Check if the passed-in anonymity set includes the identity's commitment
+    let anonymitySetSize = anonymitySet.length;
+    if (anonymitySet.indexOf(commitment) === -1) {
+      anonymitySetSize += 1;
     }
 
-    const signableData = {
-      consentContractId: consentContractAddress,
-      tokenId: tokenId,
-      queryCID: queryCID,
-      insights: JSON.stringify(insights),
-      rewardParameters: JSON.stringify(rewardParameters),
-    } as Record<string, unknown>;
+    const serializedInsights = ObjectUtils.serialize(insights);
+    const serializedRewardParameters = ObjectUtils.serialize(rewardParameters);
 
-    return this.cryptoUtils
-      .signTypedData(
-        snickerdoodleSigningDomain,
-        insightDeliveryTypes,
-        signableData,
-        signingKey,
+    // Create the provable data
+    const signal = {
+      consentContractId: consentContractAddress,
+      queryCID: queryCID,
+      insights: serializedInsights,
+      rewardParameters: serializedRewardParameters,
+      signalNullifier: signalNullifier,
+      anonymitySetStart: anonymitySetStart,
+      anonymitySetSize: anonymitySetSize,
+    } as Omit<IDeliverInsightsParams, "proof">;
+
+    publicEvents.queryPerformance.next(
+      new QueryPerformanceEvent(
+        EQueryEvents.MembershipProve,
+        EStatus.Start,
+        queryCID,
+      ),
+    );
+    return this.membershipWrapper
+      .prove(
+        ObjectUtils.serialize(signal),
+        trapdoor,
+        nullifier,
+        anonymitySet,
+        queryCID,
       )
-      .andThen((signature) => {
-        const url = new URL(
-          urlJoin(insightPlatformBaseUrl, "insights/responses"),
+      .mapErr((err) => {
+        publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.MembershipProve,
+            EStatus.End,
+            queryCID,
+            undefined,
+            err,
+          ),
+        );
+        return err;
+      })
+      .andThen((proof) => {
+        publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.MembershipProve,
+            EStatus.End,
+            queryCID,
+          ),
         );
 
-        return this.ajaxUtils.post<EarnedReward[]>(url, {
-          consentContractId: consentContractAddress,
-          tokenId: tokenId.toString(),
-          queryCID: queryCID,
-          insights: insights,
-          rewardParameters: rewardParameters,
-          signature: signature,
-        } as IDeliverInsightsParams as unknown as Record<string, unknown>);
+        publicEvents.queryPerformance.next(
+          new QueryPerformanceEvent(
+            EQueryEvents.DeliverInsightsCall,
+            EStatus.Start,
+            queryCID,
+          ),
+        );
+        const url = new URL(urlJoin(insightPlatformBaseUrl, "insights"));
+        return this.ajaxUtils
+          .post<EarnedReward[]>(url, {
+            consentContractId: consentContractAddress,
+            queryCID: queryCID,
+            insights: serializedInsights,
+            rewardParameters: serializedRewardParameters,
+            signalNullifier: signalNullifier,
+            anonymitySetStart: anonymitySetStart,
+            anonymitySetSize: anonymitySetSize,
+            proof: proof,
+          } as IDeliverInsightsParams as unknown as Record<string, unknown>)
+          .map((res) => {
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.DeliverInsightsCall,
+                EStatus.End,
+                queryCID,
+              ),
+            );
+            return res;
+          })
+          .mapErr((err) => {
+            publicEvents.queryPerformance.next(
+              new QueryPerformanceEvent(
+                EQueryEvents.DeliverInsightsCall,
+                EStatus.End,
+                queryCID,
+                undefined,
+                err,
+              ),
+            );
+            return err;
+          });
       });
   }
 
-  public executeMetatransaction(
-    accountAddress: EVMAccountAddress,
-    contractAddress: EVMContractAddress,
-    nonce: BigNumberString,
-    value: BigNumberString,
-    gas: BigNumberString,
-    data: HexString,
-    metatransactionSignature: Signature,
-    signingKey: EVMPrivateKey,
+  public optin(
+    consentContractAddress: EVMContractAddress,
+    trapdoor: TrapdoorBNS,
+    nullifier: NullifierBNS,
     insightPlatformBaseUrl: URLString,
-  ): ResultAsync<void, AjaxError> {
-    const signingData = {
-      accountAddress: accountAddress,
-      contractAddress: contractAddress,
-      nonce: nonce,
-      value: value,
-      gas: gas,
-      data: data,
-      metatransactionSignature: metatransactionSignature,
-    } as Record<string, unknown>;
+  ): ResultAsync<void, AjaxError | CircuitError> {
+    // Calculate the values we need to include in the signal
+    const commitment = CircomUtils.getCommitment(trapdoor, nullifier);
 
-    return this.cryptoUtils
-      .signTypedData(
-        snickerdoodleSigningDomain,
-        executeMetatransactionTypes,
-        signingData,
-        signingKey,
-      )
-      .andThen((signature) => {
-        const url = new URL(urlJoin(insightPlatformBaseUrl, "metatransaction"));
+    // Create the provable data
+    const signal = {
+      consentContractId: consentContractAddress,
+      commitment: commitment,
+    };
 
-        const postBody = {
-          accountAddress: accountAddress,
-          contractAddress: contractAddress,
-          nonce: nonce,
-          value: value,
-          gas: gas,
-          data: data,
-          metatransactionSignature: metatransactionSignature,
-          requestSignature: signature,
-        } as IExecuteMetatransactionParams;
+    return this.commitmentWrapper
+      .prove(ObjectUtils.serialize(signal), trapdoor, nullifier)
+      .andThen((proof) => {
+        const url = new URL(urlJoin(insightPlatformBaseUrl, "optin"));
 
-        return this.ajaxUtils.post<IExecuteMetatransactionResponse>(
-          url,
-          postBody as unknown as Record<string, unknown>,
-        );
+        return this.ajaxUtils.post<{ success: boolean }>(url, {
+          consentContractId: consentContractAddress,
+          commitment: commitment.toString(),
+          proof: proof,
+        } as IOptinParams as unknown as Record<string, unknown>);
       })
       .map(() => {});
   }
-}
 
-// Refer to documentation/openapi/Insight Platform API.yaml
-interface IExecuteMetatransactionResponse {
-  success: boolean;
+  public privateOptin(
+    consentContractAddress: EVMContractAddress,
+    trapdoor: TrapdoorBNS,
+    nullifier: NullifierBNS,
+    nonce: BigNumberString,
+    signature: Signature,
+    insightPlatformBaseUrl: URLString,
+  ): ResultAsync<void, AjaxError | CircuitError> {
+    // Calculate the values we need to include in the signal
+    const commitment = CircomUtils.getCommitment(trapdoor, nullifier);
+
+    // Create the provable data
+    const signal = {
+      consentContractId: consentContractAddress,
+      commitment: commitment,
+      nonce: nonce,
+      signature: signature,
+    };
+
+    return this.commitmentWrapper
+      .prove(ObjectUtils.serialize(signal), trapdoor, nullifier)
+      .andThen((proof) => {
+        const url = new URL(urlJoin(insightPlatformBaseUrl, "optin"));
+
+        return this.ajaxUtils.post<{ success: boolean }>(url, {
+          consentContractId: consentContractAddress,
+          commitment: commitment.toString(),
+          proof: proof,
+        } as IPrivateOptinParams as unknown as Record<string, unknown>);
+      })
+      .map(() => {});
+  }
 }

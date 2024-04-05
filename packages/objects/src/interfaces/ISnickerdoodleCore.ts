@@ -18,15 +18,12 @@ import {
   PagedResponse,
   PageInvitation,
   PagingRequest,
-  PossibleReward,
-  SDQLQuery,
   SiteVisit,
   TokenAddress,
   TokenBalance,
   TokenInfo,
   TokenMarketData,
   TransactionFilter,
-  TransactionPaymentCounter,
   TwitterProfile,
   WalletNFT,
   RuntimeMetrics,
@@ -40,9 +37,7 @@ import {
   WalletNFTHistory,
   Questionnaire,
   QuestionnaireWithAnswers,
-  QuestionnaireAnswer,
   NewQuestionnaireAnswer,
-  // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
   EChain,
@@ -83,10 +78,10 @@ import {
   MissingWalletDataTypeError,
   ParserError,
   MethodSupportError,
+  CircuitError,
   InvalidStatusError,
   ServerRewardError,
 } from "@objects/errors/index.js";
-import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
@@ -107,7 +102,6 @@ import {
   FamilyName,
   Gender,
   GivenName,
-  HexString32,
   IpfsCID,
   JsonWebToken,
   LanguageCode,
@@ -516,19 +510,15 @@ export interface IInvitationMethods {
    */
   acceptInvitation(
     invitation: Invitation,
-    dataPermissions: DataPermissions | null,
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     void,
     | PersistenceError
     | UninitializedError
-    | BlockchainProviderError
     | AjaxError
-    | MinimalForwarderContractError
-    | ConsentError
-    | UnauthorizedError
     | InvalidParametersError
-    | BlockchainCommonErrors
+    | CircuitError
+    | ConsentError
   >;
 
   /**
@@ -581,7 +571,7 @@ export interface IInvitationMethods {
 
   getAcceptedInvitations(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<OptInInfo[], PersistenceError | UnauthorizedError>;
+  ): ResultAsync<OptInInfo[], PersistenceError | UninitializedError>;
 
   getInvitationsByDomain(
     domain: DomainName,
@@ -598,11 +588,11 @@ export interface IInvitationMethods {
     | BlockchainCommonErrors
   >;
 
-  getAgreementFlags(
+  getDataPermissions(
     consentContractAddress: EVMContractAddress,
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<
-    HexString32,
+    DataPermissions,
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
@@ -849,6 +839,25 @@ export interface IQuestionnaireMethods {
   >;
 }
 
+export interface IPermissionMethods {
+  getContentContractPermissions(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<DataPermissions, PersistenceError>;
+
+  setContentContractPermissions(
+    dataPermissions: DataPermissions,
+  ): ResultAsync<void, PersistenceError>;
+
+  getDomainPermissions(
+    domain: DomainName,
+  ): ResultAsync<EDataWalletPermission[], PersistenceError>;
+
+  setDomainPermissions(
+    domain: DomainName,
+    permissions: EDataWalletPermission[],
+  ): ResultAsync<void, PersistenceError>;
+}
+
 export interface ISnickerdoodleCore {
   /**
    * initialize() should be the first call you make on a new SnickerdoodleCore.
@@ -862,26 +871,6 @@ export interface ISnickerdoodleCore {
   ): ResultAsync<
     void,
     PersistenceError | UninitializedError | BlockchainProviderError | AjaxError
-  >;
-
-  getConsentContractURLs(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    URLString[],
-    | UninitializedError
-    | BlockchainProviderError
-    | ConsentContractError
-    | BlockchainCommonErrors
-  >;
-
-  getConsentCapacity(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    IConsentCapacity,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | BlockchainCommonErrors
   >;
 
   getConsentContractCID(
@@ -1143,6 +1132,7 @@ export interface ISnickerdoodleCore {
   storage: IStorageMethods;
   nft: INftMethods;
   questionnaire: IQuestionnaireMethods;
+  permission: IPermissionMethods;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

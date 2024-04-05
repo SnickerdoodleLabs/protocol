@@ -61,6 +61,7 @@ import {
   IProxyQuestionnaireMethods,
   PagingRequest,
   NewQuestionnaireAnswer,
+  DataPermissions,
   IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
@@ -141,8 +142,6 @@ import {
   GetTransactionsParams,
   AddAccountWithExternalSignatureParams,
   AddAccountWithExternalTypedDataSignatureParams,
-  UpdateAgreementPermissionsParams,
-  GetConsentContractURLsParams,
   GetPersistenceNFTsParams,
   GetAccountNFTHistoryParams,
   GetAccountNftCacheParams,
@@ -153,6 +152,7 @@ import {
   GetQuestionnairesForConsentContractParams,
   GetConsentContractsByQuestionnaireCIDParams,
   GetRecommendedConsentContractsParams,
+  UpdateAgreementPermissionsParams,
   GetQuestionnairesParams,
   GetVirtualQuestionnairesParams,
   GetQuestionnairesByCIDSParams,
@@ -421,10 +421,9 @@ export class ExternalCoreGateway {
 
   public acceptInvitation(
     invitation: Invitation,
-    dataTypes: EWalletDataType[] | null,
   ): ResultAsync<void, ProxyError> {
     return this._handler.call(
-      new AcceptInvitationParams(ObjectUtils.serialize(invitation), dataTypes),
+      new AcceptInvitationParams(ObjectUtils.serialize(invitation)),
     );
   }
 
@@ -434,9 +433,9 @@ export class ExternalCoreGateway {
     return this._handler.call(params);
   }
 
-  public getAgreementPermissions(
+  public getDataPermissions(
     params: GetAgreementPermissionsParams,
-  ): ResultAsync<EWalletDataType[], ProxyError> {
+  ): ResultAsync<DataPermissions, ProxyError> {
     return this._handler.call(params);
   }
 
@@ -640,18 +639,6 @@ export class ExternalCoreGateway {
     params: GetReceivingAddressParams,
   ): ResultAsync<AccountAddress, ProxyError> {
     return this._handler.call(params);
-  }
-
-  public getConsentCapacity(
-    params: GetConsentCapacityParams,
-  ): ResultAsync<IConsentCapacity, ProxyError> {
-    return this._handler.call(params);
-  }
-
-  public getConsentContractURLs(
-    contractAdress: EVMContractAddress,
-  ): ResultAsync<URLString[], ProxyError> {
-    return this._handler.call(new GetConsentContractURLsParams(contractAdress));
   }
 
   public getEarnedRewardsByContractAddress(

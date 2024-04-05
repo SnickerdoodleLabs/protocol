@@ -249,7 +249,7 @@ export class SDQLQueryUtils implements ISDQLQueryUtils {
       });
   }
 
-  getPossibleRewards(
+  public getPossibleRewards(
     compensationQueryDependecies: Set<AST_SubQuery>[],
     cid: IpfsCID,
     ast: AST,

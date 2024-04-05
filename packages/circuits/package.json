@@ -1,0 +1,72 @@
+{
+  "name": "@snickerdoodlelabs/circuits",
+  "version": "1.0.6",
+  "description": "ZK-Snickerdoodle circuits for Snickerdoodle Protocol",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SnickerdoodleLabs/protocol.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
+  },
+  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/circuits#readme",
+  "author": "Todd Chapman <todd@snickerdoodlelabs.io>",
+  "keywords": [
+    "ZK-Snarks",
+    "Snickerdoodle",
+    "Crypto"
+  ],
+  "main": "dist/index.js",
+  "module": "./dist/index.js",
+  "files": [
+    "dist",
+    "src",
+    "!dist/test",
+    "!dist/tsconfig.tsbuildinfo",
+    "!test",
+    "!tsconfig.json"
+  ],
+  "scripts": {
+    "alias": "tsc-alias && tsc-alias -p test/tsconfig.json",
+    "alias-with-copyfiles": "yarn copy-files && tsc-alias",
+    "build": "yarn clean && yarn compile",
+    "clean": "npx rimraf dist tsconfig.tsbuildinfo",
+    "compile": "npx tsc --build && cd ../.. && yarn alias",
+    "copy-files": "copyfiles -u 1 src/**/*.d.ts dist/",
+    "prepare": "yarn build",
+    "prepublish": "yarn build",
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand --coverage --passWithNoTests --detectOpenHandles",
+    "convert-binary": "yarn convert-binary-semaphore && yarn convert-binary-commitment",
+    "convert-binary-semaphore": "npx tsx ./scripts/binaryToTypescript.ts src/circom/semaphore/semaphore_js/semaphore.wasm src/circom/semaphore/semaphore.wasm.ts semaphoreCode && npx tsx ./scripts/binaryToTypescript.ts src/circom/semaphore/semaphore.zkey src/circom/semaphore/semaphore.zkey.ts semaphoreZKey",
+    "convert-binary-commitment": "npx tsx ./scripts/binaryToTypescript.ts src/circom/commitment/commitment_js/commitment.wasm src/circom/commitment/commitment.wasm.ts commitmentCode && npx tsx ./scripts/binaryToTypescript.ts src/circom/commitment/commitment.zkey src/circom/commitment/commitment.zkey.ts commitmentZKey",
+    "convert-json": "yarn convert-json-semaphore && yarn convert-json-commitment",
+    "convert-json-semaphore": "npx tsx ./scripts/jsonToTypescript.ts src/circom/semaphore/semaphore.verificationkey.json src/circom/semaphore/semaphore.verificationkey.ts semaphoreVerificationKey",
+    "convert-json-commitment": "npx tsx ./scripts/jsonToTypescript.ts src/circom/commitment/commitment.verificationkey.json src/circom/commitment/commitment.verificationkey.ts commitmentVerificationKey",
+    "compile-circuits": "yarn compile-semaphore && yarn compile-commitment",
+    "compile-semaphore": "docker run --rm -e CIRCUIT=semaphore --mount \"type=bind,source=$(pwd)/src/circom/semaphore,destination=/root/circuits\" snickerdoodlelabs/circom:latest",
+    "compile-commitment": "docker run --rm -e CIRCUIT=commitment --mount \"type=bind,source=$(pwd)/src/circom/commitment,destination=/root/circuits\" snickerdoodlelabs/circom:latest",
+    "create-zkey": "yarn create-zkey-semaphore && yarn create-zkey-commitment",
+    "create-zkey-semaphore": "npx snarkjs groth16 setup src/circom/semaphore/semaphore.r1cs src/circom/pot14_final.ptau src/circom/semaphore/semaphore.zkey",
+    "create-zkey-commitment": "npx snarkjs groth16 setup src/circom/commitment/commitment.r1cs src/circom/pot14_final.ptau src/circom/commitment/commitment.zkey",
+    "create-verification-key": "yarn create-verification-key-semaphore && yarn create-verification-key-commitment",
+    "create-verification-key-semaphore": "npx snarkjs zkey export verificationkey src/circom/semaphore/semaphore.zkey src/circom/semaphore/semaphore.verificationkey.json",
+    "create-verification-key-commitment": "npx snarkjs zkey export verificationkey src/circom/commitment/commitment.zkey src/circom/commitment/commitment.verificationkey.json"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@snickerdoodlelabs/common-utils": "workspace:^",
+    "@snickerdoodlelabs/objects": "workspace:^",
+    "@zk-kit/circuits": "^1.0.0-beta",
+    "@zk-kit/imt": "^2.0.0-beta.4",
+    "circomlib": "^2.0.5",
+    "ethers": "^6.10.0",
+    "inversify": "^6.0.2",
+    "neverthrow": "^5.1.0",
+    "neverthrow-result-utils": "^2.0.2",
+    "poseidon-lite": "^0.2.0",
+    "snarkjs": "^0.7.3",
+    "uuid": "^8.3.0"
+  }
+}

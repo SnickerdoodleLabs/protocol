@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/core",
-  "version": "2.0.3",
+  "version": "3.0.2",
   "description": "Snickerdoodle Labs Core. Core encapsulates the data wallet and query processor functions of the Protocol",
   "license": "ISC",
   "repository": {
@@ -37,6 +37,7 @@
   "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
+    "@snickerdoodlelabs/circuits-sdk": "workspace:^",
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/contracts-sdk": "workspace:^",
     "@snickerdoodlelabs/indexers": "workspace:^",

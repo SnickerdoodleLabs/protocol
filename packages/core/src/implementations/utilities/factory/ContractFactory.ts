@@ -2,10 +2,6 @@ import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   ConsentContract,
   IConsentContract,
-  ICrumbsContract,
-  CrumbsContract,
-  IMinimalForwarderContract,
-  MinimalForwarderContract,
   IConsentFactoryContract,
   ConsentFactoryContract,
 } from "@snickerdoodlelabs/contracts-sdk";
@@ -21,8 +17,6 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import { ConsentContractWrapper } from "@core/implementations/utilities/factory/ConsentContractWrapper.js";
 import { ConsentFactoryContractWrapper } from "@core/implementations/utilities/factory/ConsentFactoryContractWrapper.js";
-import { CrumbsContractWrapper } from "@core/implementations/utilities/factory/CrumbsContractWrapper.js";
-import { MinimalForwarderContractWrapper } from "@core/implementations/utilities/factory/MinimalForwarderContractWrapper.js";
 import { IContractFactory } from "@core/interfaces/utilities/factory/index.js";
 import {
   IBlockchainProvider,
@@ -109,67 +103,6 @@ export class ContractFactory implements IContractFactory {
           this.logUtils,
         );
       });
-    });
-  }
-
-  public factoryCrumbsContract(): ResultAsync<
-    ICrumbsContract,
-    BlockchainProviderError | UninitializedError
-  > {
-    return ResultUtils.combine([
-      this.configProvider.getConfig(),
-      this.blockchainProvider.getPrimaryProvider(),
-      this.blockchainProvider.getSecondaryProvider(),
-    ]).map(([config, primaryProvider, secondaryProvider]) => {
-      const primary = new CrumbsContract(
-        primaryProvider,
-        config.controlChainInformation.crumbsContractAddress,
-      );
-      const secondary =
-        secondaryProvider != null
-          ? new CrumbsContract(
-              secondaryProvider,
-              config.controlChainInformation.crumbsContractAddress,
-            )
-          : null;
-
-      return new CrumbsContractWrapper(
-        primary,
-        secondary,
-        this.contextProvider,
-        this.logUtils,
-      );
-    });
-  }
-
-  public factoryMinimalForwarderContract(): ResultAsync<
-    IMinimalForwarderContract,
-    BlockchainProviderError | UninitializedError
-  > {
-    return ResultUtils.combine([
-      this.configProvider.getConfig(),
-      this.blockchainProvider.getPrimaryProvider(),
-      this.blockchainProvider.getSecondaryProvider(),
-    ]).map(([config, primaryProvider, secondaryProvider]) => {
-      const primary = new MinimalForwarderContract(
-        primaryProvider,
-        config.controlChainInformation.metatransactionForwarderAddress,
-      );
-
-      const secondary =
-        secondaryProvider != null
-          ? new MinimalForwarderContract(
-              secondaryProvider,
-              config.controlChainInformation.metatransactionForwarderAddress,
-            )
-          : null;
-
-      return new MinimalForwarderContractWrapper(
-        primary,
-        secondary,
-        this.contextProvider,
-        this.logUtils,
-      );
     });
   }
 }

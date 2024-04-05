@@ -1,4 +1,8 @@
-import { BigNumberString, DecimalString } from "@snickerdoodlelabs/objects";
+import {
+  BigNumberString,
+  DecimalString,
+  HexString32,
+} from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
 
@@ -69,6 +73,22 @@ export class BigNumberUtils implements IBigNumberUtils {
     const valueBigNumber = BigInt(bigNumberString);
 
     return DecimalString(ethers.formatUnits(valueBigNumber, decimals || 18));
+  }
+
+  public BNStoHexString32(bigNumberString: BigNumberString): HexString32 {
+    return HexString32(ethers.toBeHex(this.BNSToBN(bigNumberString)));
+  }
+
+  public BNStoHexString32NoPrefix(
+    bigNumberString: BigNumberString,
+  ): HexString32 {
+    return HexString32(
+      ethers.toBeHex(this.BNSToBN(bigNumberString)).substring(2),
+    );
+  }
+
+  public HexString32NoPrefixToBNS(hexString: HexString32): BigNumberString {
+    return BigNumberString(BigInt(`0x${hexString}`).toString());
   }
   /* End region of big number string conversions */
 

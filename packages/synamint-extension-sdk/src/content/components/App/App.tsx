@@ -33,6 +33,25 @@ import {
   createDefaultTheme,
   createThemeWithOverrides,
 } from "@snickerdoodlelabs/shared-components";
+import endOfStream from "end-of-stream";
+import PortStream from "extension-port-stream";
+import { JsonRpcEngine } from "json-rpc-engine";
+import { createStreamMiddleware } from "json-rpc-middleware-stream";
+import { err, okAsync } from "neverthrow";
+import ObjectMultiplex from "obj-multiplex";
+import LocalMessageStream from "post-message-stream";
+import pump from "pump";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+  useRef,
+  FC,
+} from "react";
+import { parse } from "tldts";
+import Browser from "webextension-polyfill";
+
 import { EAppState } from "@synamint-extension-sdk/content/constants";
 import usePath from "@synamint-extension-sdk/content/hooks/usePath";
 import DataWalletProxyInjectionUtils from "@synamint-extension-sdk/content/utils/DataWalletProxyInjectionUtils";
@@ -55,26 +74,10 @@ import {
   AcceptInvitationParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
-import endOfStream from "end-of-stream";
-import PortStream from "extension-port-stream";
-import { JsonRpcEngine } from "json-rpc-engine";
-import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import { ResultAsync, err, okAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import ObjectMultiplex from "obj-multiplex";
-import LocalMessageStream from "post-message-stream";
-import pump from "pump";
-import React, {
-  useEffect,
-  useMemo,
-  useState,
-  useCallback,
-  useRef,
-  FC,
-} from "react";
+
 import { Subscription } from "rxjs";
-import { parse } from "tldts";
-import Browser from "webextension-polyfill";
 
 // #region connection
 let coreGateway: ExternalCoreGateway;
@@ -380,12 +383,12 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
   }, [currentInvitation]);
 
   const acceptInvitation = useCallback(
-    (dataTypes: EWalletDataType[] | null) => {
+    (...args) => {
       if (!currentInvitation) return;
       // call function as background process
       setAppState(EAppState.IDLE);
       coreGateway
-        .acceptInvitation(currentInvitation.data.invitation, dataTypes)
+        .acceptInvitation(currentInvitation.data.invitation)
         .map(() => {
           emptyReward();
         })
@@ -488,7 +491,6 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
         if (config.defaulConsentContract) {
           coreGateway.acceptInvitation(
             new Invitation(config.defaulConsentContract, null, null, null),
-            null,
           );
         }
       });
@@ -518,7 +520,7 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
           withPermissions,
         } = params;
         coreGateway
-          .acceptInvitation(currentInvitation.data.invitation, null)
+          .acceptInvitation(currentInvitation.data.invitation)
           .andThen(() => {
             // set consent permissions here
             return okAsync(undefined);

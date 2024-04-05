@@ -1,6 +1,5 @@
 import { ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
-  EConsentRoles,
   ContractOverrides,
   IConsentFactoryContract,
   WrappedTransactionResponse,
@@ -17,6 +16,7 @@ import {
   TransactionResponseError,
   BlockchainCommonErrors,
   IpfsCID,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -38,6 +38,105 @@ export class ConsentFactoryContractWrapper
   ) {
     super(primary, secondary, contextProvider, logUtils);
   }
+  public getGovernanceToken(): ResultAsync<EVMContractAddress, any> {
+    return this.fallback(
+      () => this.primary.getGovernanceToken(),
+      () => this.secondary?.getGovernanceToken(),
+    );
+  }
+  public isStakingToken(
+    stakingToken: EVMContractAddress,
+  ): ResultAsync<boolean, any> {
+    return this.fallback(
+      () => this.primary.isStakingToken(stakingToken),
+      () => this.secondary?.isStakingToken(stakingToken),
+    );
+  }
+  public registerStakingToken(
+    stakingToken: EVMContractAddress,
+    overrides?: ContractOverrides | undefined,
+  ): ResultAsync<WrappedTransactionResponse, any> {
+    return this.fallback(
+      () => this.primary.registerStakingToken(stakingToken, overrides),
+      () => this.secondary?.registerStakingToken(stakingToken, overrides),
+    );
+  }
+
+  public adminRemoveListings(
+    tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
+    removedSlot: BigNumberString[],
+    overrides?: ContractOverrides | undefined,
+  ): ResultAsync<WrappedTransactionResponse, any> {
+    return this.fallback(
+      () =>
+        this.primary.adminRemoveListings(
+          tag,
+          stakingToken,
+          removedSlot,
+          overrides,
+        ),
+      () =>
+        this.secondary?.adminRemoveListings(
+          tag,
+          stakingToken,
+          removedSlot,
+          overrides,
+        ),
+    );
+  }
+
+  public blockContentObject(
+    stakingToken: EVMContractAddress,
+    contentAddress: EVMContractAddress,
+    overrides?: ContractOverrides | undefined,
+  ): ResultAsync<WrappedTransactionResponse, any> {
+    return this.fallback(
+      () =>
+        this.primary.blockContentObject(
+          stakingToken,
+          contentAddress,
+          overrides,
+        ),
+      () =>
+        this.secondary?.blockContentObject(
+          stakingToken,
+          contentAddress,
+          overrides,
+        ),
+    );
+  }
+  public unblockContentObject(
+    stakingToken: EVMContractAddress,
+    contentAddress: EVMContractAddress,
+    overrides?: ContractOverrides | undefined,
+  ): ResultAsync<WrappedTransactionResponse, any> {
+    return this.fallback(
+      () =>
+        this.primary.unblockContentObject(
+          stakingToken,
+          contentAddress,
+          overrides,
+        ),
+      () =>
+        this.secondary?.unblockContentObject(
+          stakingToken,
+          contentAddress,
+          overrides,
+        ),
+    );
+  }
+
+  public listingDuration(): ResultAsync<
+    number,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.fallback(
+      () => this.primary.listingDuration(),
+      () => this.secondary?.listingDuration(),
+    );
+  }
+
   public getContractAddress(): EVMContractAddress {
     return this.primary.getContractAddress();
   }
@@ -45,16 +144,14 @@ export class ConsentFactoryContractWrapper
   public createConsent(
     ownerAddress: EVMAccountAddress,
     baseUri: BaseURI,
-    name: ConsentName,
     overrides?: ContractOverrides | undefined,
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | ConsentFactoryContractError
   > {
     return this.fallback(
-      () => this.primary.createConsent(ownerAddress, baseUri, name, overrides),
-      () =>
-        this.secondary?.createConsent(ownerAddress, baseUri, name, overrides),
+      () => this.primary.createConsent(ownerAddress, baseUri, overrides),
+      () => this.secondary?.createConsent(ownerAddress, baseUri, overrides),
     );
   }
 
@@ -71,83 +168,6 @@ export class ConsentFactoryContractWrapper
     );
   }
 
-  public getUserDeployedConsentsCount(
-    ownerAddress: EVMAccountAddress,
-  ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors> {
-    return this.fallback(
-      () => this.primary.getUserDeployedConsentsCount(ownerAddress),
-      () => this.secondary?.getUserDeployedConsentsCount(ownerAddress),
-    );
-  }
-  public getUserDeployedConsentsByIndex(
-    ownerAddress: EVMAccountAddress,
-    startingIndex: number,
-    endingIndex: number,
-  ): ResultAsync<
-    EVMContractAddress[],
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
-    return this.fallback(
-      () =>
-        this.primary.getUserDeployedConsentsByIndex(
-          ownerAddress,
-          startingIndex,
-          endingIndex,
-        ),
-      () =>
-        this.secondary?.getUserDeployedConsentsByIndex(
-          ownerAddress,
-          startingIndex,
-          endingIndex,
-        ),
-    );
-  }
-  public getUserDeployedConsents(
-    ownerAddress: EVMAccountAddress,
-  ): ResultAsync<
-    EVMContractAddress[],
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
-    return this.fallback(
-      () => this.primary.getUserDeployedConsents(ownerAddress),
-      () => this.secondary?.getUserDeployedConsents(ownerAddress),
-    );
-  }
-  public getUserRoleAddressesCount(
-    ownerAddress: EVMAccountAddress,
-    role: EConsentRoles,
-  ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors> {
-    return this.fallback(
-      () => this.primary.getUserRoleAddressesCount(ownerAddress, role),
-      () => this.secondary?.getUserRoleAddressesCount(ownerAddress, role),
-    );
-  }
-  public getUserRoleAddressesCountByIndex(
-    ownerAddress: EVMAccountAddress,
-    role: EConsentRoles,
-    startingIndex: number,
-    endingIndex: number,
-  ): ResultAsync<
-    EVMContractAddress[],
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
-    return this.fallback(
-      () =>
-        this.primary.getUserRoleAddressesCountByIndex(
-          ownerAddress,
-          role,
-          startingIndex,
-          endingIndex,
-        ),
-      () =>
-        this.secondary?.getUserRoleAddressesCountByIndex(
-          ownerAddress,
-          role,
-          startingIndex,
-          endingIndex,
-        ),
-    );
-  }
   public getDeployedConsents(): ResultAsync<
     EVMContractAddress[],
     ConsentFactoryContractError | BlockchainCommonErrors
@@ -197,35 +217,13 @@ export class ConsentFactoryContractWrapper
       () => this.secondary?.setMaxTagsPerListing(maxTagsPerListing),
     );
   }
-  public adminRemoveListing(
-    tag: MarketplaceTag,
-    removedSlot: BigNumberString,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ConsentFactoryContractError
-  > {
-    return this.fallback(
-      () => this.primary.adminRemoveListing(tag, removedSlot),
-      () => this.secondary?.adminRemoveListing(tag, removedSlot),
-    );
-  }
-  public getListingDetail(
-    tag: MarketplaceTag,
-    slot: BigNumberString,
-  ): ResultAsync<
-    MarketplaceListing,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
-    return this.fallback(
-      () => this.primary.getListingDetail(tag, slot),
-      () => this.secondary?.getListingDetail(tag, slot),
-    );
-  }
+
   public getListingsForward(
     tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
     startingSlot: BigNumberString,
     numberOfSlots: number,
-    filterActive: boolean,
+    removeExpired: boolean,
   ): ResultAsync<
     MarketplaceListing[],
     ConsentFactoryContractError | BlockchainCommonErrors
@@ -234,24 +232,27 @@ export class ConsentFactoryContractWrapper
       () =>
         this.primary.getListingsForward(
           tag,
+          stakingToken,
           startingSlot,
           numberOfSlots,
-          filterActive,
+          removeExpired,
         ),
       () =>
         this.secondary?.getListingsForward(
           tag,
+          stakingToken,
           startingSlot,
           numberOfSlots,
-          filterActive,
+          removeExpired,
         ),
     );
   }
   public getListingsBackward(
     tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
     startingSlot: BigNumberString,
     numberOfSlots: number,
-    filterActive: boolean,
+    removeExpired: boolean,
   ): ResultAsync<
     MarketplaceListing[],
     ConsentFactoryContractError | BlockchainCommonErrors
@@ -260,37 +261,41 @@ export class ConsentFactoryContractWrapper
       () =>
         this.primary.getListingsBackward(
           tag,
+          stakingToken,
           startingSlot,
           numberOfSlots,
-          filterActive,
+          removeExpired,
         ),
       () =>
         this.secondary?.getListingsBackward(
           tag,
+          stakingToken,
           startingSlot,
           numberOfSlots,
-          filterActive,
+          removeExpired,
         ),
     );
   }
   public getTagTotal(
     tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
   ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors> {
     return this.fallback(
-      () => this.primary.getTagTotal(tag),
-      () => this.secondary?.getTagTotal(tag),
+      () => this.primary.getTagTotal(tag, stakingToken),
+      () => this.secondary?.getTagTotal(tag, stakingToken),
     );
   }
   public getListingsByTag(
     tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
     removeExpired: boolean,
   ): ResultAsync<
     MarketplaceListing[],
     ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return this.fallback(
-      () => this.primary.getListingsByTag(tag, removeExpired),
-      () => this.secondary?.getListingsByTag(tag, removeExpired),
+      () => this.primary.getListingsByTag(tag, stakingToken, removeExpired),
+      () => this.secondary?.getListingsByTag(tag, stakingToken, removeExpired),
     );
   }
 
@@ -336,6 +341,42 @@ export class ConsentFactoryContractWrapper
     return this.fallback(
       () => this.primary.removeQuestionnaire(index, overrides),
       () => this.secondary?.removeQuestionnaire(index, overrides),
+    );
+  }
+
+  public addDomain(
+    domain: DomainName,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.fallback(
+      () => this.primary.addDomain(domain),
+      () => this.secondary?.addDomain(domain),
+    );
+  }
+
+  public removeDomain(
+    domain: DomainName,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.fallback(
+      () => this.primary.removeDomain(domain),
+      () => this.secondary?.removeDomain(domain),
+    );
+  }
+
+  public checkDomain(
+    domain: DomainName,
+  ): ResultAsync<
+    boolean,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
+    return this.fallback(
+      () => this.primary.checkDomain(domain),
+      () => this.secondary?.checkDomain(domain),
     );
   }
 }

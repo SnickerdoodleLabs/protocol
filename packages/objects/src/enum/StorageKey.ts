@@ -25,6 +25,8 @@ export enum ERecordKey {
 
   QUESTIONNAIRES = "SD_Questionnaires",
   QUESTIONNAIRES_HISTORY = "SD_Questionnaires_history_v2",
+
+  PERMISSIONS = "SD_Permissions",
 }
 
 export enum EFieldKey {

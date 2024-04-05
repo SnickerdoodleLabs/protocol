@@ -50,6 +50,9 @@ import {
   QuestionnaireQuestion,
   QuestionnaireWithAnswers,
   SHA256Hash,
+  Commitment,
+  NullifierBNS,
+  TrapdoorBNS,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_ConditionExpr,
@@ -1196,4 +1199,11 @@ export const mockFirstQuestionnaireHistory = new QuestionnaireHistory(
   0,
 );
 
+// #endregion
+
+// #region Commitments
+export const commitment1Index = 1;
+export const commitment1 = Commitment(1234n);
+export const identityNullifier = NullifierBNS("5678");
+export const identityTrapdoor = TrapdoorBNS("94062");
 // #endregion

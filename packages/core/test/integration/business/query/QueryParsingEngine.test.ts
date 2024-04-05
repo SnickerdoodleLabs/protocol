@@ -27,6 +27,7 @@ import {
   LinkedAccount,
   EChain,
   EVMAccountAddress,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import {
   IQueryObjectFactory,
@@ -59,10 +60,12 @@ import {
 import {
   AdContentRepository,
   AdDataRepository,
+  PermissionRepository,
   QuestionnaireRepository,
 } from "@core/implementations/data/index.js";
 import {
   IBrowsingDataRepository,
+  IDataWalletPersistence,
   IDemographicDataRepository,
   ILinkedAccountRepository,
   INftRepository,
@@ -88,7 +91,6 @@ const sdqlQuery2 = new SDQLQuery(queryCID, SDQLString(avalanche2SchemaStr));
 const sdqlQuery4 = new SDQLQuery(queryCID, SDQLString(avalanche4SchemaStr));
 const sdqlQuery5 = new SDQLQuery(queryCID, SDQLString(rewardless1SchemaStr));
 const sdqlQuery6 = new SDQLQuery(queryCID, SDQLString(questionnaireQuery));
-
 
 const linkedAccounts: LinkedAccount[] = [
   new LinkedAccount(
@@ -125,6 +127,7 @@ class QueryParsingMocks {
   public timeUtils: ITimeUtils = td.object<ITimeUtils>();
   public bigNumberUtils = td.object<IBigNumberUtils>();
   public contextProvider: ContextProviderMock = new ContextProviderMock();
+  public dataWalletPersistence = td.object<IDataWalletPersistence>();
 
   public blockchainTransactionQueryEvaluator =
     new BlockchainTransactionQueryEvaluator(
@@ -155,8 +158,8 @@ class QueryParsingMocks {
   public queryWrapperFactory: ISDQLQueryWrapperFactory;
   public queryRepository: QueryRepository;
   public queryEvaluator: QueryEvaluator;
-
   public adContentRepository: AdContentRepository;
+  public permissionRepository: PermissionRepository;
 
   public constructor() {
     this.queryObjectFactory = new QueryObjectFactory();
@@ -221,12 +224,17 @@ class QueryParsingMocks {
       new AjaxUtilsMock(),
       new ConfigProviderMock(),
     );
+    this.permissionRepository = new PermissionRepository(
+      this.dataWalletPersistence,
+    );
   }
 
   public factory() {
+    //@ts-ignore
     return new QueryParsingEngine(
       this.queryFactories,
       this.queryRepository,
+      this.permissionRepository,
       this.queryUtils,
       this.adContentRepository,
       this.adDataRepo,
@@ -314,7 +322,10 @@ describe("Handle Query", () => {
     const engine = mocks.factory();
 
     await engine
-      .handleQuery(sdqlQuery2, new DataPermissions(allPermissions))
+      .handleQuery(
+        sdqlQuery2,
+        new DataPermissions("" as EVMContractAddress, [], []),
+      )
       .andThen((insights) => {
         expect(insights).toEqual({
           insights: {
@@ -339,7 +350,10 @@ describe("Handle Query", () => {
     const engine = mocks.factory();
 
     await engine
-      .handleQuery(sdqlQueryExpired, new DataPermissions(allPermissions))
+      .handleQuery(
+        sdqlQueryExpired,
+        new DataPermissions("" as EVMContractAddress, [], []),
+      )
       .andThen((_insights) => {
         fail("Expired query was executed!");
       })
@@ -354,8 +368,11 @@ describe("Tests with data permissions", () => {
   const engine = mocks.factory();
 
   test("avalanche 2 first insight is null when age permission is not given", async () => {
-    const givenPermissions = new DataPermissions(noPermissions);
-
+    const givenPermissions = new DataPermissions(
+      "" as EVMContractAddress,
+      [],
+      [],
+    );
     await engine
       .handleQuery(sdqlQuery2, givenPermissions)
       .andThen((deliveredInsights) => {
@@ -369,10 +386,11 @@ describe("Tests with data permissions", () => {
   });
 
   test("avalanche 2 first insight is null when network permission is not given", async () => {
-    const givenPermissions = DataPermissions.createWithPermissions([
-      EWalletDataType.Age,
-    ]);
-
+    const givenPermissions = new DataPermissions(
+      "" as EVMContractAddress,
+      [EWalletDataType.Age],
+      [],
+    );
     await engine
       .handleQuery(sdqlQuery2, givenPermissions)
       .andThen((deliveredInsights) => {
@@ -386,9 +404,11 @@ describe("Tests with data permissions", () => {
   });
 
   test("avalanche 2 second insight is not null when age permission is given", async () => {
-    const givenPermissions = DataPermissions.createWithPermissions([
-      EWalletDataType.Age,
-    ]);
+    const givenPermissions = new DataPermissions(
+      "" as EVMContractAddress,
+      [EWalletDataType.Age],
+      [],
+    );
 
     await engine
       .handleQuery(sdqlQuery2, givenPermissions)
@@ -403,7 +423,11 @@ describe("Tests with data permissions", () => {
   });
 
   test("all null when no permissions are given", async () => {
-    const givenPermissions = new DataPermissions(noPermissions);
+    const givenPermissions = new DataPermissions(
+      "" as EVMContractAddress,
+      [],
+      [],
+    );
 
     const expectedResult = {
       i1: null,
@@ -425,9 +449,11 @@ describe("Tests with data permissions", () => {
   });
 
   test("avalanche 2 5th insight not null when siteVisits given", async () => {
-    const givenPermissions = DataPermissions.createWithPermissions([
-      EWalletDataType.SiteVisits,
-    ]);
+    const givenPermissions = new DataPermissions(
+      "" as EVMContractAddress,
+      [EWalletDataType.SiteVisits],
+      [],
+    );
 
     await engine
       .handleQuery(sdqlQuery2, givenPermissions)
@@ -462,7 +488,10 @@ describe("Testing avalanche 4", () => {
     };
 
     await engine
-      .handleQuery(sdqlQuery4, new DataPermissions(allPermissions))
+      .handleQuery(
+        sdqlQuery4,
+        new DataPermissions("" as EVMContractAddress, [], []),
+      )
       .andThen((deliveredInsights) => {
         expect(deliveredInsights).toMatchObject(expectedInsights);
         expect(
@@ -493,7 +522,14 @@ describe("Testing rewardless 1 ", () => {
     };
 
     await engine
-      .handleQuery(sdqlQuery5, new DataPermissions(allPermissions))
+      .handleQuery(
+        sdqlQuery5,
+        new DataPermissions(
+          "" as EVMContractAddress,
+          [EWalletDataType.Age],
+          [],
+        ),
+      )
       .andThen((deliveredInsights) => {
         expect(deliveredInsights).toMatchObject(expectedInsights);
         expect(
@@ -533,23 +569,29 @@ describe("Handle Questionnaire", () => {
     const mocks = new QueryParsingMocks();
     const engine = mocks.factory();
     await engine
-      .handleQuery(sdqlQuery6, new DataPermissions(allPermissions))
+      .handleQuery(
+        sdqlQuery6,
+        new DataPermissions(
+          "" as EVMContractAddress,
+          [EWalletDataType.Questionnaires],
+          [],
+        ),
+      )
       .andThen((questionnaire) => {
         console.log("Questionnaire Object: " + JSON.stringify(questionnaire));
-        expect(questionnaire.insights).toEqual(
-          [
-            {
-              "index":0,
-              "type":"Text",
-              "text":"What is your name?"}
-              ,
-              {"index":1,
-              "type":"Text",
-              "text":"What is your political party affiliation?",
-              "choices":["Democrat","Republican","Independent","Other"]
-            }
-          ]
-        )
+        expect(questionnaire.insights).toEqual([
+          {
+            index: 0,
+            type: "Text",
+            text: "What is your name?",
+          },
+          {
+            index: 1,
+            type: "Text",
+            text: "What is your political party affiliation?",
+            choices: ["Democrat", "Republican", "Independent", "Other"],
+          },
+        ]);
         return okAsync(questionnaire.insights);
       })
       .mapErr((e) => {
