@@ -50,6 +50,30 @@ export class ExpandIndexer implements IEVMIndexer {
       EChain.EthereumMainnet,
       new IndexerSupportSummary(EChain.EthereumMainnet, true, false, false),
     ],
+    [
+      EChain.Binance,
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, false, false),
+    ],
+    [
+      EChain.Avalanche,
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, false, false),
+    ],
+    [
+      EChain.Arbitrum,
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, false, false),
+    ],
+    [
+      EChain.Optimism,
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, false, false),
+    ],
+    [
+      EChain.Base,
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, false, false),
+    ],
+    [
+      EChain.ZkSyncEra,
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, false, false),
+    ],
   ]);
 
   public constructor(
@@ -98,7 +122,9 @@ export class ExpandIndexer implements IEVMIndexer {
 
       const url =
         "https://api.expand.network/chain/getbalance/?address=" +
-        accountAddress;
+        accountAddress +
+        "&chainId=" +
+        chain;
 
       context.privateEvents.onApiAccessed.next(EExternalApi.Expand);
       return this.ajaxUtils

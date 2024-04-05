@@ -67,7 +67,6 @@ import {
 @injectable()
 export class MasterIndexer implements IMasterIndexer {
   protected evmIndexerWeights = [
-    this.expand,
     this.rarible,
     this.bluez,
     this.poapRepo,
@@ -77,6 +76,7 @@ export class MasterIndexer implements IMasterIndexer {
     this.nftscan,
     this.covalent,
     this.moralis,
+    this.expand,
     this.sim,
 
     // Space and Time compute time is too large
@@ -99,7 +99,6 @@ export class MasterIndexer implements IMasterIndexer {
     protected covalent: IEVMIndexer,
     @inject(IEtherscanIndexerType) protected etherscan: IEVMIndexer,
     @inject(IExpandIndexerType) protected expand: IEVMIndexer,
-
     @inject(IMoralisEVMPortfolioRepositoryType) protected moralis: IEVMIndexer,
     @inject(INftScanEVMPortfolioRepositoryType) protected nftscan: IEVMIndexer,
     @inject(IOklinkIndexerType) protected oklink: IEVMIndexer,
@@ -109,7 +108,6 @@ export class MasterIndexer implements IMasterIndexer {
     @inject(ISimulatorEVMTransactionRepositoryType) protected sim: IEVMIndexer,
     @inject(ISolanaIndexerType) protected sol: ISolanaIndexer,
     @inject(ISpaceAndTimeIndexerType) protected sxt: IEVMIndexer,
-
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(IBigNumberUtilsType) protected bigNumberUtils: IBigNumberUtils,
     @inject(IEVMTransactionSanitizerType)
@@ -155,7 +153,6 @@ export class MasterIndexer implements IMasterIndexer {
       // if the method is provided, we need to limit the list of supported chains to those that support the method
       if (method != null) {
         const indexers = [
-          this.expand,
           this.bluez,
           this.blockvision,
           this.alchemy,
@@ -170,7 +167,8 @@ export class MasterIndexer implements IMasterIndexer {
           this.rarible,
           this.sim,
           this.sol,
-          // this.sxt,
+          this.expand,
+          this.sxt,
         ];
 
         supportedChains = indexers
@@ -229,9 +227,7 @@ export class MasterIndexer implements IMasterIndexer {
     TokenBalance[],
     PersistenceError | AccountIndexingError | AjaxError | InvalidParametersError
   > {
-    console.log("chain: ", chain);
     const chainInfo = getChainInfoByChain(chain);
-    console.log("chainInfo: ", chainInfo);
 
     if (chainInfo.chainTechnology == EChainTechnology.Solana) {
       return this.sol
