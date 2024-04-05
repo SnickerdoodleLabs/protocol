@@ -1136,8 +1136,8 @@ export const mockQuestionnaire2 = new Questionnaire(
 );
 
 export const mockQuestionnaireAnswer: QuestionnaireAnswer[] = [
-  new QuestionnaireAnswer(mockQuestionnaireCID, 1, "to get fresh air"),
   new QuestionnaireAnswer(mockQuestionnaireCID, 0, 0),
+  new QuestionnaireAnswer(mockQuestionnaireCID, 1, "to get fresh air"),
 ];
 
 export const mockQuestionnaireWithAnswer = new QuestionnaireWithAnswers(

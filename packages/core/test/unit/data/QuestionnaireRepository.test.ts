@@ -186,7 +186,7 @@ class QuestionnaireRepositoryMocks {
               if (upperBoundTime >= 1701779736) {
                 resultArray.push(mockSecondQuestionnaireHistoryNewer);
               }
-            } else if (upperBoundID === mockQuestionnaireSecondQuestionHash) {
+            } else if (upperBoundID === mockQuestionnaireFirstQuestionHash) {
               if (upperBoundTime >= 1701779734) {
                 resultArray.push(mockFirstQuestionnaireHistory);
               }
@@ -372,7 +372,7 @@ describe("QuestionnaireRepository tests", () => {
     expect(response).toEqual(null);
   });
 
-  test.only("getByCIDs , will return both available and complete data", async () => {
+  test("getByCIDs , will return both available and complete data", async () => {
     const mocks = new QuestionnaireRepositoryMocks();
     const repository = mocks.factory();
 
