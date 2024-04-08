@@ -6,6 +6,7 @@ import {
   ITimeUtilsType,
   ObjectUtils,
   ValidationUtils,
+  RandomizationUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   IInsightPlatformRepository,
@@ -531,30 +532,16 @@ export class QueryService implements IQueryService {
     return this.consentContractRepository
       .getCommitmentCount(consentContractAddress)
       .andThen((commitmentCount) => {
-        const maxSetSize = 1000;
-        if (commitmentCount < maxSetSize) {
-          return this.consentContractRepository.getAnonymitySet(
-            consentContractAddress,
-            0,
-            commitmentCount,
-          );
-        } else {
-          const maxShiftAmount = Math.min(maxSetSize - 1, commitmentIndex);
-
-          let randomCoef = Math.random();
-          if (commitmentIndex > commitmentCount - commitmentIndex) {
-            // make randomCoef close to 1
-            randomCoef = 0.6 + Math.random() * 0.4;
-          }
-          const randomShiftAmount = Math.round(randomCoef * maxShiftAmount);
-          const startIndex = commitmentIndex - randomShiftAmount;
-          const setSize = Math.min(maxSetSize, commitmentCount - startIndex);
-          return this.consentContractRepository.getAnonymitySet(
-            consentContractAddress,
-            startIndex,
-            setSize,
-          );
-        }
+        const { start, setSize } = RandomizationUtils.getRandomizedSetRange(
+          commitmentIndex,
+          commitmentCount,
+          1000,
+        );
+        return this.consentContractRepository.getAnonymitySet(
+          consentContractAddress,
+          start,
+          setSize,
+        );
       })
       .map((anonymitySet) => {
         return anonymitySet;
