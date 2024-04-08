@@ -539,9 +539,7 @@ export class QueryService implements IQueryService {
             commitmentCount,
           );
         } else {
-          const maxShiftAmount = Math.min(
-            Math.min(maxSetSize - 1, commitmentIndex),
-          );
+          const maxShiftAmount = Math.min(maxSetSize - 1, commitmentIndex);
 
           let randomCoef = Math.random();
           if (commitmentIndex > commitmentCount - commitmentIndex) {
