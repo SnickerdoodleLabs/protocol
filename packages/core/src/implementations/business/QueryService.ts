@@ -532,20 +532,31 @@ export class QueryService implements IQueryService {
       .getCommitmentCount(consentContractAddress)
       .andThen((commitmentCount) => {
         const maxSetSize = 1000;
-        let setSize =
-          commitmentCount > maxSetSize ? maxSetSize : commitmentCount;
-        // Ensure the start index is always less than commitmentIndex to include our commitment
-        let start =
-          commitmentIndex - setSize >= 0 ? commitmentIndex - setSize : 0;
-        // Adjust the start if it's too close to the end of the commitment array
-        if (start + setSize > commitmentCount) {
-          start = commitmentCount - setSize;
+        if (commitmentCount < maxSetSize) {
+          return this.consentContractRepository.getAnonymitySet(
+            consentContractAddress,
+            0,
+            commitmentCount,
+          );
+        } else {
+          const maxShiftAmount = Math.min(
+            Math.min(maxSetSize - 1, commitmentIndex),
+          );
+
+          let randomCoef = Math.random();
+          if (commitmentIndex > commitmentCount - commitmentIndex) {
+            // make randomCoef close to 1
+            randomCoef = 0.6 + Math.random() * 0.4;
+          }
+          const randomShiftAmount = Math.round(randomCoef * maxShiftAmount);
+          const startIndex = commitmentIndex - randomShiftAmount;
+          const setSize = Math.min(maxSetSize, commitmentCount - startIndex);
+          return this.consentContractRepository.getAnonymitySet(
+            consentContractAddress,
+            startIndex,
+            setSize,
+          );
         }
-        return this.consentContractRepository.getAnonymitySet(
-          consentContractAddress,
-          start,
-          setSize,
-        );
       })
       .map((anonymitySet) => {
         return anonymitySet;
