@@ -201,9 +201,11 @@ const OfferModal: FC = () => {
       });
     });
 
-    // TODO
     return sdlDataWallet
-      .approveQuery(offer.queryCID, calculatedParameters, null)
+      .approveQuery(offer.queryCID, calculatedParameters, {
+        virtualQuestionnaires: permissionsRef.current?.dataTypes ?? [],
+        questionnaires: permissionsRef.current?.questionnaires ?? [],
+      })
       .map(() => {
         onPrimaryButtonClick();
         closeModal();
