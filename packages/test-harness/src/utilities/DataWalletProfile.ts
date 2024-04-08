@@ -170,6 +170,7 @@ export class DataWalletProfile {
           userId: "andrew.strimaitis",
           privateKey: "RssUjdu9wHfo0fpCozf8ipSVspWJ4FhWP6Jrnrq65H0=",
         },
+        expandApiKey: "ofm7bcH3St8TO1hfhiKqA4RIAmYUnj5s8395t2jR",
         covalentApiKey: "ckey_ee277e2a0e9542838cf30325665",
         moralisApiKey:
           "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag",

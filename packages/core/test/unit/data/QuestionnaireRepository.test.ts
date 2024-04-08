@@ -9,6 +9,7 @@ import {
   PagingRequest,
   QuestionnaireHistory,
   QuestionnaireWithAnswers,
+  SHA256Hash,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
@@ -25,13 +26,15 @@ import {
   mockQuestionnaireIPFSInstance,
   testCoreConfig,
   mockQuestionnaireAnswer,
-  mockQuestionnaireHistory,
+  mockFirstQuestionnaireHistory,
   mockQuestionnaireWithAnswer,
   mockQuestionnaireCID2,
   mockQuestionnaireStoredInstance2,
   mockQuestionnaire2,
-  mockQuestionnaireHistoryNewer,
+  mockSecondQuestionnaireHistoryNewer,
   InvalidIPFSQuestionnaireCID,
+  mockQuestionnaireFirstQuestionHash,
+  mockQuestionnaireSecondQuestionHash,
 } from "@core-tests/mock/mocks";
 import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
 import "fake-indexeddb/auto";
@@ -128,20 +131,27 @@ class QuestionnaireRepositoryMocks {
         td.matchers.argThat(
           (arg: {
             index?: string;
-            query?: {
-              lower: IDBValidKey;
-              upper: IDBValidKey;
-              lowerOpen: boolean;
-              upperOpen: boolean;
-            };
+            query?:
+              | {
+                  lower: IDBValidKey;
+                  upper: IDBValidKey;
+                  lowerOpen: boolean;
+                  upperOpen: boolean;
+                }
+              | number;
             count?: number;
             id?: IDBValidKey;
           }) => {
             if (arg.query != null) {
-              return (
-                arg.query.lower[1] === mockQuestionnaireCID ||
-                arg.query.lower[0] === EBoolean.FALSE
-              );
+              if (typeof arg.query === "number") {
+                return true;
+              } else {
+                return (
+                  arg.query.lower[1] === mockQuestionnaireSecondQuestionHash ||
+                  arg.query.lower[1] === mockQuestionnaireFirstQuestionHash ||
+                  arg.query.lower[0] === EBoolean.FALSE
+                );
+              }
             }
             return false;
           },
@@ -157,39 +167,30 @@ class QuestionnaireRepositoryMocks {
           id?: IDBValidKey;
         },
       ) => {
-        if (query.query) {
-          const lowerBound = query.query.lower;
-          const upperBound = query.query.upper;
+        if (query.query != null) {
           //QUESTIONNAIRES uses get cursor for getting non deleted, EQuestionnaireStatus calls
           //QUESTIONNAIRES_HISTORY uses get cursor for doing bound time queries
           //Current time is used for the upper limit in case no benchmark given
           if (storeName === ERecordKey.QUESTIONNAIRES) {
-            if (
-              lowerBound.includes(EQuestionnaireStatus.Complete) ||
-              lowerBound[1] === mockQuestionnaireCID
-            ) {
-              return okAsync([mockQuestionnaireStoredInstance]);
-            }
-            if (
-              upperBound.includes(EQuestionnaireStatus.Available) ||
-              upperBound[1] === mockQuestionnaireCID2
-            ) {
-              return okAsync([mockQuestionnaireStoredInstance2]);
-            }
+            return okAsync([
+              mockQuestionnaireStoredInstance,
+              mockQuestionnaireStoredInstance2,
+            ]);
           }
           if (storeName === ERecordKey.QUESTIONNAIRES_HISTORY) {
+            const upperBound = query.query.upper;
             const upperBoundID = upperBound[1] as string;
             const upperBoundTime = upperBound[2] as number;
             const resultArray: QuestionnaireHistory[] = [];
-            if (upperBoundID === mockQuestionnaireCID) {
+            if (upperBoundID === mockQuestionnaireSecondQuestionHash) {
               if (upperBoundTime >= 1701779736) {
-                resultArray.push(mockQuestionnaireHistoryNewer);
+                resultArray.push(mockSecondQuestionnaireHistoryNewer);
               }
+            } else if (upperBoundID === mockQuestionnaireFirstQuestionHash) {
               if (upperBoundTime >= 1701779734) {
-                resultArray.push(mockQuestionnaireHistory);
+                resultArray.push(mockFirstQuestionnaireHistory);
               }
             }
-
             return okAsync(resultArray);
           }
         }
@@ -233,7 +234,7 @@ describe("QuestionnaireRepository tests", () => {
     td.verify(
       mocks.persistence.updateRecord(
         ERecordKey.QUESTIONNAIRES_HISTORY,
-        mockQuestionnaireHistory,
+        mockFirstQuestionnaireHistory,
       ),
       { times: 0 },
     );
@@ -288,10 +289,12 @@ describe("QuestionnaireRepository tests", () => {
       mocks.persistence.updateRecord(
         ERecordKey.QUESTIONNAIRES_HISTORY,
         td.matchers.argThat(
-          (obj: QuestionnaireHistory) => obj.id === mockQuestionnaireCID,
+          (obj: QuestionnaireHistory) =>
+            obj.id === mockQuestionnaireFirstQuestionHash ||
+            obj.id === mockQuestionnaireSecondQuestionHash,
         ),
       ),
-      { times: 1 },
+      { times: 2 },
     );
   });
 

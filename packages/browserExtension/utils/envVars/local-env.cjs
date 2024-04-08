@@ -29,6 +29,7 @@ const envVars = {
   __ETHERSCAN_ARBITRUM_API_KEY__: "",
   __ETHERSCAN_GNOSIS_API_KEY__: "",
   __ETHERSCAN_FUJI_API_KEY__: "",
+  __EXPAND_API_KEY__: "",
 
   __COVALENT_API_KEY__: "",
   __MORALIS_API_KEY__: "",
