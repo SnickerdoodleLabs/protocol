@@ -28,6 +28,7 @@ export interface IApiKeys {
     Fuji: string | null;
   };
   spaceAndTimeCredentials: SpaceAndTimeConfig;
+  expandApiKey: string | null;
   covalentApiKey: string | null;
   moralisApiKey: string | null;
   nftScanApiKey: string | null;

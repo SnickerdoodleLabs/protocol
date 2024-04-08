@@ -3,15 +3,19 @@ import {
   VersionedObjectMigrator,
 } from "@objects/businessObjects/versioned/VersionedObject.js";
 import { PropertiesOf, QuestionnaireAnswer } from "@objects/index";
-import { IpfsCID, UnixTimestamp } from "@objects/primitives/index.js";
+import {
+  IpfsCID,
+  SHA256Hash,
+  UnixTimestamp,
+} from "@objects/primitives/index.js";
 
 export class QuestionnaireHistory extends VersionedObject {
   public static CURRENT_VERSION = 1;
 
   public constructor(
-    public id: IpfsCID,
+    public id: SHA256Hash,
     public measurementDate: UnixTimestamp,
-    public answers: PropertiesOf<QuestionnaireAnswer>[],
+    public answer: PropertiesOf<QuestionnaireAnswer["choice"]>,
   ) {
     super();
   }
@@ -29,11 +33,7 @@ export class QuestionnaireHistoryMigrator extends VersionedObjectMigrator<Questi
   protected factory(
     data: PropertiesOf<QuestionnaireHistory>,
   ): QuestionnaireHistory {
-    return new QuestionnaireHistory(
-      data.id,
-      data.measurementDate,
-      data.answers,
-    );
+    return new QuestionnaireHistory(data.id, data.measurementDate, data.answer);
   }
 
   protected getUpgradeFunctions(): Map<

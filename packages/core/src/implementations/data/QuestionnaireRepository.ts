@@ -1,3 +1,5 @@
+import Crypto from "crypto";
+
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
@@ -28,6 +30,7 @@ import {
   MarketplaceTag,
   IQuestionnaireSchema,
   QuestionnaireSchema,
+  SHA256Hash,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProviderType,
@@ -75,9 +78,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     PagedResponse<QuestionnaireWithAnswers>,
     PersistenceError | AjaxError
   > {
-    return this.fetchQuestionnaireCIDsGivenStatus(
-      EQuestionnaireStatus.Complete,
-    ).andThen((cids) =>
+    return this.fetchQuestionnaireCIDs().andThen((cids) =>
       this.getPagedQuestionnairesByCIDs(
         cids,
         pagingRequest,
@@ -92,18 +93,16 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
   public getUnanswered(
     pagingRequest: PagingRequest,
   ): ResultAsync<PagedResponse<Questionnaire>, PersistenceError | AjaxError> {
-    return this.fetchQuestionnaireCIDsGivenStatus(
-      EQuestionnaireStatus.Available,
-    ).andThen((cids) =>
-      this.getPagedQuestionnairesByCIDs(
+    return this.fetchQuestionnaireCIDs().andThen((cids) => {
+      return this.getPagedQuestionnairesByCIDs(
         cids,
         pagingRequest,
         EQuestionnaireStatus.Available,
-      ),
-    );
+      );
+    });
   }
 
-  getByCIDs(
+  public getByCIDs(
     questionnaireCIDs: IpfsCID[],
     status?: EQuestionnaireStatus,
     benchmark?: UnixTimestamp,
@@ -157,42 +156,47 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     Questionnaire | QuestionnaireWithAnswers | null,
     AjaxError | PersistenceError
   > {
-    if (status === EQuestionnaireStatus.Available) {
-      return this.fetchQuestionnaireDataById(questionnaireCID).map(
-        (questionnaireData) => {
-          if (
-            questionnaireData == null ||
-            questionnaireData.status !== EQuestionnaireStatus.Available
-          ) {
+    return this.fetchQuestionnaireDataById(questionnaireCID).andThen(
+      (questionnaireData) => {
+        if (questionnaireData == null) {
+          return okAsync(null);
+        }
+
+        const questionHashesWithIndex = questionnaireData.questionHashes;
+
+        return ResultUtils.combine(
+          questionHashesWithIndex.map(([questionIndex, questionHash]) => {
+            return this.fetchLatestQuestionnaireHistoriesById(
+              questionHash,
+              benchmark,
+            ).map(
+              (questionnaireHistory) =>
+                [questionIndex, questionnaireHistory] as [
+                  number,
+                  QuestionnaireHistory[],
+                ],
+            );
+          }),
+        ).map((questionnaireHistories) => {
+          const hasHistory = questionnaireHistories.some(
+            ([, histories]) => histories.length > 0,
+          );
+
+          if (status === EQuestionnaireStatus.Available && hasHistory) {
+            return null;
+          } else if (status === EQuestionnaireStatus.Complete && !hasHistory) {
             return null;
           }
-          return this.constructQuestionnaire(questionnaireData);
-        },
-      );
-    }
-    return ResultUtils.combine([
-      this.fetchQuestionnaireDataById(questionnaireCID),
-      this.fetchLatestQuestionnaireHistoriesById(questionnaireCID, benchmark),
-    ]).map(([questionnaireData, questionnaireHistories]) => {
-      if (questionnaireData == null) {
-        return null;
-      }
 
-      const hasHistory = questionnaireHistories.length > 0;
-
-      if (hasHistory) {
-        return this.constructQuestionnaireWithAnswers(
-          questionnaireData,
-          questionnaireHistories,
-        );
-      }
-
-      if (status === EQuestionnaireStatus.Complete) {
-        return null;
-      }
-
-      return this.constructQuestionnaire(questionnaireData);
-    });
+          return hasHistory
+            ? this.constructQuestionnaireWithAnswers(
+                questionnaireData,
+                new Map(questionnaireHistories),
+              )
+            : this.constructQuestionnaire(questionnaireData);
+        });
+      },
+    );
   }
 
   public getQuestionnaireIds(): ResultAsync<IpfsCID[], PersistenceError> {
@@ -222,28 +226,35 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
            Questionnaire does not exist!`),
         );
       }
-      const historyRecord = new QuestionnaireHistory(
-        id,
-        this.timeUtils.getUnixNow(),
-        answers,
-      );
 
-      if (questionnaireData.status !== EQuestionnaireStatus.Complete) {
-        questionnaireData.status = EQuestionnaireStatus.Complete;
+      const historyRecords = answers.map((answer) => {
+        const correspondingQuestion = questionnaireData.questions.find(
+          (q) => q.index === answer.questionIndex,
+        );
+        if (!correspondingQuestion) {
+          throw new Error(
+            `No matching question found for answer at index ${answer.questionIndex}`,
+          );
+        }
+        const { index, ...questionHashPart } = correspondingQuestion;
+        const { choice } = answer;
+        const questionHash = this.getQuestionHash(questionHashPart);
 
-        return ResultUtils.combine([
-          this.persistence.updateRecord(
+        return new QuestionnaireHistory(
+          questionHash,
+          this.timeUtils.getUnixNow(),
+          choice,
+        );
+      });
+
+      return ResultUtils.combine(
+        historyRecords.map((historyRecord) => {
+          return this.persistence.updateRecord(
             ERecordKey.QUESTIONNAIRES_HISTORY,
             historyRecord,
-          ),
-          this.upsertQuestionnaireData([questionnaireData]),
-        ]).map(() => {});
-      }
-
-      return this.persistence.updateRecord(
-        ERecordKey.QUESTIONNAIRES_HISTORY,
-        historyRecord,
-      );
+          );
+        }),
+      ).map(() => {});
     });
   }
 
@@ -288,18 +299,14 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     });
   }
 
-  private fetchQuestionnaireCIDsGivenStatus(
-    status: EQuestionnaireStatus,
-  ): ResultAsync<IpfsCID[], PersistenceError | AjaxError> {
-    const query = IDBKeyRange.bound(
-      [EBoolean.FALSE, status],
-      [EBoolean.FALSE, status],
-    );
-
+  private fetchQuestionnaireCIDs(): ResultAsync<
+    IpfsCID[],
+    PersistenceError | AjaxError
+  > {
     return this.persistence
       .getCursor2<QuestionnaireData>(ERecordKey.QUESTIONNAIRES, {
-        index: "deleted,data.status",
-        query: query,
+        index: "deleted",
+        query: EBoolean.FALSE,
       })
       .map((questionnaireDatas) => questionnaireDatas.map((data) => data.id));
   }
@@ -349,11 +356,16 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
       }),
     );
 
+    const questionHashes = questions.map(
+      ({ index, ...question }) =>
+        [index, this.getQuestionHash(question)] as [number, SHA256Hash],
+    );
+
     const newQuestionnaireData = new QuestionnaireData(
       cid,
-      EQuestionnaireStatus.Available,
       questions,
       data.title,
+      questionHashes,
       data.description,
       data.image,
     );
@@ -374,12 +386,12 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
   }
 
   private fetchLatestQuestionnaireHistoriesById(
-    questionnaireCID: IpfsCID,
+    questionHash: SHA256Hash,
     benchmark?: UnixTimestamp,
   ): ResultAsync<QuestionnaireHistory[], AjaxError | PersistenceError> {
     const query = IDBKeyRange.bound(
-      [0, questionnaireCID, 0],
-      [0, questionnaireCID, benchmark ?? this.timeUtils.getUnixNow()],
+      [0, questionHash, 0],
+      [0, questionHash, benchmark ?? this.timeUtils.getUnixNow()],
     );
     return this.persistence.getCursor2<QuestionnaireHistory>(
       ERecordKey.QUESTIONNAIRES_HISTORY,
@@ -414,7 +426,7 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
     return new Questionnaire(
       questionnaireData.id,
       MarketplaceTag(`Questionnaire:${questionnaireData.id}`),
-      questionnaireData.status,
+      EQuestionnaireStatus.Available,
       questionnaireData.title,
       questionnaireData.description ?? null,
       questionnaireData.image ?? null,
@@ -424,74 +436,74 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
 
   private constructQuestionnaireWithAnswers(
     questionnaireData: QuestionnaireData,
-    questionnaireHistories: QuestionnaireHistory[],
+    questionHistoryMap: Map<number, QuestionnaireHistory[]>,
   ): QuestionnaireWithAnswers {
-    const questions = questionnaireData.questions.map(
-      (question) =>
-        new QuestionnaireQuestion(
-          question.index,
-          question.type,
-          question.text,
-          question.choices,
-          question.minimum,
-          question.maximum,
-          question.displayType,
-          question.multiSelect,
-          question.required,
-          question.lowerLabel,
-          question.upperLabel,
-        ),
-    );
+    const questions: QuestionnaireQuestion[] = [];
+    const allAnswers: QuestionnaireAnswer[] = [];
+    let latestMeasurementDate: UnixTimestamp | null = null;
 
-    const [answers, measurementDate] = this.collectFullSetOfAnswers(
-      questionnaireData.questions.length,
-      questionnaireHistories,
-    );
+    questionnaireData.questions.forEach((question) => {
+      const questionInstance = new QuestionnaireQuestion(
+        question.index,
+        question.type,
+        question.text,
+        question.choices,
+        question.minimum,
+        question.maximum,
+        question.displayType,
+        question.multiSelect,
+        question.required,
+        question.lowerLabel,
+        question.upperLabel,
+      );
+      questions.push(questionInstance);
+
+      const questionHistories = questionHistoryMap.get(question.index);
+
+      if (questionHistories != null && questionHistories.length > 0) {
+        const [answer, measurementDate] = this.collectAnswer(
+          questionHistories,
+          question.index,
+          questionnaireData.id,
+        );
+
+        allAnswers.push(answer);
+        if (
+          measurementDate != null &&
+          (latestMeasurementDate == null ||
+            measurementDate > latestMeasurementDate)
+        ) {
+          latestMeasurementDate = measurementDate;
+        }
+      }
+    });
 
     return new QuestionnaireWithAnswers(
       questionnaireData.id,
       MarketplaceTag(`Questionnaire:${questionnaireData.id}`),
-      questionnaireData.status,
+      EQuestionnaireStatus.Complete,
       questionnaireData.title,
       questionnaireData.description ?? null,
       questionnaireData.image ?? null,
       questions,
-      answers,
-      measurementDate,
+      allAnswers,
+      //Should not be possible
+      latestMeasurementDate ?? UnixTimestamp(0),
     );
   }
 
-  private collectFullSetOfAnswers(
-    totalQuestions: number,
+  private collectAnswer(
     questionnaireHistories: QuestionnaireHistory[],
-  ): [QuestionnaireAnswer[], UnixTimestamp] {
-    const latestFullAnswers: PropertiesOf<QuestionnaireAnswer>[] = [];
-    const answerTracker = new Set<number>();
-    //questionnaireHistories are sorted
-    const measurementDate = questionnaireHistories[0].measurementDate;
-    for (const history of questionnaireHistories) {
-      for (const answer of history.answers) {
-        if (!answerTracker.has(answer.questionIndex)) {
-          latestFullAnswers.push(answer);
-          answerTracker.add(answer.questionIndex);
-        }
-      }
-
-      if (answerTracker.size === totalQuestions) {
-        break;
-      }
-    }
+    questionIndex: number,
+    questionnaireId: IpfsCID,
+  ): [QuestionnaireAnswer, UnixTimestamp | null] {
+    const latestAnswer = questionnaireHistories[0].answer;
+    const latestMeasurementDate = questionnaireHistories[0].measurementDate;
 
     return [
-      latestFullAnswers.map(
-        (answer) =>
-          new QuestionnaireAnswer(
-            answer.questionnaireId,
-            answer.questionIndex,
-            answer.choice,
-          ),
-      ),
-      measurementDate,
+      new QuestionnaireAnswer(questionnaireId, questionIndex, latestAnswer),
+
+      latestMeasurementDate,
     ];
   }
   private upsertQuestionnaireData(
@@ -502,6 +514,18 @@ export class QuestionnaireRepository implements IQuestionnaireRepository {
         this.persistence.updateRecord(ERecordKey.QUESTIONNAIRES, questionnaire),
       ),
     );
+  }
+
+  private getQuestionHash(
+    question: PropertiesOf<Omit<QuestionnaireQuestion, "index">>,
+  ): SHA256Hash {
+    const questionString = ObjectUtils.serialize(question);
+
+    const questionHash = Crypto.createHash("sha256")
+      .update(questionString)
+      .digest("hex");
+
+    return SHA256Hash(questionHash);
   }
 
   private validateQuestionnaireData(
