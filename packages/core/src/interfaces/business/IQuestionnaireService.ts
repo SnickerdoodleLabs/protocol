@@ -14,6 +14,7 @@ import {
   PersistenceError,
   Questionnaire,
   QuestionnaireWithAnswers,
+  QuestionnairesContractError,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -34,7 +35,7 @@ export interface IQuestionnaireService {
     | BlockchainCommonErrors
     | AjaxError
     | PersistenceError
-    | ConsentFactoryContractError
+    | QuestionnairesContractError
   >;
 
   getVirtualQuestionnaires(
@@ -102,7 +103,7 @@ export interface IQuestionnaireService {
     | BlockchainCommonErrors
     | AjaxError
     | PersistenceError
-    | ConsentFactoryContractError
+    | QuestionnairesContractError
   >;
 
   /**

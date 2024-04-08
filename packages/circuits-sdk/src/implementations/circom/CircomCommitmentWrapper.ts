@@ -8,10 +8,11 @@ import {
   factoryCircomCommitmentVerificationInputs,
 } from "@snickerdoodlelabs/circuits";
 import {
-  BigNumberString,
   Commitment,
   ZKProof,
   CircuitError,
+  NullifierBNS,
+  TrapdoorBNS,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -33,8 +34,8 @@ export class CircomCommitmentWrapper
 
   public prove(
     signal: string,
-    identityTrapdoor: BigNumberString,
-    identityNullifier: BigNumberString,
+    identityTrapdoor: TrapdoorBNS,
+    identityNullifier: NullifierBNS,
   ): ResultAsync<ZKProof, CircuitError> {
     const signalHash = CircomUtils.stringToPoseidonHash(signal);
 

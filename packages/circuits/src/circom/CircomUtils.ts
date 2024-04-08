@@ -1,7 +1,8 @@
 import {
-  BigNumberString,
   Commitment,
+  NullifierBNS,
   PoseidonHash,
+  TrapdoorBNS,
 } from "@snickerdoodlelabs/objects";
 import {
   poseidon1,
@@ -133,17 +134,17 @@ export class CircomUtils {
   }
 
   static getCommitment(
-    identityTrapdoor: BigNumberString,
-    identityNullifier: BigNumberString,
+    identityTrapdoor: TrapdoorBNS,
+    identityNullifier: NullifierBNS,
   ): Commitment {
     return Commitment(poseidon2([identityTrapdoor, identityNullifier]));
   }
 
   static getSignalNullifier(
-    identityNullifier: BigNumberString,
+    identityNullifier: NullifierBNS,
     roundIdentifier: string,
-  ): BigNumberString {
-    return BigNumberString(
+  ): NullifierBNS {
+    return NullifierBNS(
       poseidon2([
         CircomUtils.stringToPoseidonHash(roundIdentifier),
         identityNullifier,

@@ -44,6 +44,7 @@ export class ExtensionConfig {
         userId: string;
         privateKey: string;
       };
+      expandApiKey?: string;
       covalentApiKey?: string;
       moralisApiKey?: string;
       nftScanApiKey?: string;

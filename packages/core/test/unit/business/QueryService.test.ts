@@ -219,6 +219,7 @@ class QueryServiceMocks {
         [commitment1],
         0, //anonymitySetStart
         defaultInsightPlatformBaseUrl,
+        this.contextProvider.publicEvents,
       ),
     ).thenReturn(okAsync(earnedRewards));
 

@@ -8,10 +8,11 @@ import {
   semaphoreZKey,
 } from "@snickerdoodlelabs/circuits";
 import {
-  BigNumberString,
   Commitment,
   ZKProof,
   CircuitError,
+  NullifierBNS,
+  TrapdoorBNS,
 } from "@snickerdoodlelabs/objects";
 import { LeanIMT } from "@zk-kit/imt";
 import { injectable } from "inversify";
@@ -37,8 +38,8 @@ export class CircomMembershipWrapper
 
   public prove(
     signal: string,
-    identityTrapdoor: BigNumberString,
-    identityNullifier: BigNumberString,
+    identityTrapdoor: TrapdoorBNS,
+    identityNullifier: NullifierBNS,
     anonymitySet: Commitment[],
     roundIdentifier: string,
   ): ResultAsync<ZKProof, CircuitError> {
@@ -101,7 +102,7 @@ export class CircomMembershipWrapper
     signal: string,
     anonymitySet: Commitment[],
     roundIdentifier: string,
-    signalNullifier: BigNumberString,
+    signalNullifier: NullifierBNS,
     proof: ZKProof,
   ): ResultAsync<boolean, CircuitError> {
     const tree = new LeanIMT((a, b) => poseidon2([a, b]));

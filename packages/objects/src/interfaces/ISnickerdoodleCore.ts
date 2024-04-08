@@ -80,6 +80,7 @@ import {
   CircuitError,
   InvalidStatusError,
   ServerRewardError,
+  QuestionnairesContractError,
 } from "@objects/errors/index.js";
 import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
@@ -695,7 +696,7 @@ export interface IQuestionnaireMethods {
     | BlockchainCommonErrors
     | AjaxError
     | PersistenceError
-    | ConsentFactoryContractError
+    | QuestionnairesContractError
   >;
 
   /**
@@ -756,7 +757,7 @@ export interface IQuestionnaireMethods {
     | BlockchainCommonErrors
     | AjaxError
     | PersistenceError
-    | ConsentFactoryContractError
+    | QuestionnairesContractError
   >;
 
   /**

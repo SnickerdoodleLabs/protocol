@@ -321,25 +321,44 @@ export class InvitationService implements IInvitationService {
               config.defaultInsightPlatformBaseUrl,
             )
             .andThen(() => {
+              return ResultAsync.fromSafePromise(
+                new Promise((resolve, _) => {
+                  let attemptCount = 0;
+                  const maxtAttempts = 10;
+                  const checkIntervalMs = 1000;
+                  const checkCommitmentExistence = () => {
+                    attemptCount = attemptCount + 1;
+                    if (attemptCount > maxtAttempts) {
+                      this.logUtils.info(
+                        `Commitment index could not be found within ${maxtAttempts} attempts; skipping`,
+                      );
+                      resolve(undefined);
+                    }
+                    return this.consentRepo
+                      .getCommitmentIndex(invitation.consentContractAddress)
+                      .map((commitmentIndex) => {
+                        if (commitmentIndex === -1) {
+                          setTimeout(checkCommitmentExistence, checkIntervalMs);
+                        } else {
+                          this.logUtils.info(
+                            `Commitment index found at attempt ${attemptCount}`,
+                          );
+                          resolve(undefined);
+                        }
+                      })
+                      .mapErr(() => {
+                        resolve(undefined);
+                      });
+                  };
+                  checkCommitmentExistence();
+                }),
+              );
+            })
+            .andThen(() => {
               return this.invitationRepo.addAcceptedInvitations([optInInfo]);
             });
         })
         .map(() => {
-          // This is just a helpful bit of debug info
-          this.consentRepo
-            .getCommitmentIndex(invitation.consentContractAddress)
-            .map((commitmentIndex) => {
-              if (commitmentIndex == -1) {
-                this.logUtils.error(
-                  `No commitment added on ${invitation.consentContractAddress}`,
-                );
-              } else {
-                this.logUtils.log(
-                  `Opted in to ${invitation.consentContractAddress}`,
-                );
-              }
-            });
-
           // Notify the world that we've opted in to the cohort
           context.publicEvents.onCohortJoined.next(
             invitation.consentContractAddress,

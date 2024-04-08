@@ -1,14 +1,15 @@
 import {
-  BigNumberString,
   Commitment,
   EVMContractAddress,
+  NullifierBNS,
+  TrapdoorBNS,
 } from "@objects/primitives/index.js";
 
 export class OptInInfo {
   public constructor(
     public consentContractAddress: EVMContractAddress,
-    public identityNullifier: BigNumberString,
-    public identityTrapdoor: BigNumberString,
+    public identityNullifier: NullifierBNS,
+    public identityTrapdoor: TrapdoorBNS,
     public commitment: Commitment,
   ) {}
 }

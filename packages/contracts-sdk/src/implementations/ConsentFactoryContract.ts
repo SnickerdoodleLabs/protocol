@@ -447,40 +447,6 @@ export class ConsentFactoryContract
     });
   }
 
-  // #region Questionnaires
-  public getQuestionnaires(): ResultAsync<
-    IpfsCID[],
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
-    return ResultAsync.fromPromise(
-      this.contract.getQuestionnaires() as Promise<IpfsCID[]>,
-      (e) => {
-        return this.generateError(e, "Unable to call getQuestionnaires()");
-      },
-    );
-  }
-
-  public addQuestionnaire(
-    ipfsCid: IpfsCID,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ConsentFactoryContractError
-  > {
-    return this.writeToContract("addQuestionnaire", [ipfsCid], overrides);
-  }
-
-  public removeQuestionnaire(
-    index: number,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ConsentFactoryContractError
-  > {
-    return this.writeToContract("removeQuestionnaire", [index], overrides);
-  }
-  // #endregion Questionnaires
-
   // #region Domains- ERC-7529
   public addDomain(
     domain: DomainName,

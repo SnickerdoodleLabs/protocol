@@ -4,6 +4,7 @@ export * from "@indexers/providers/BlockvisionIndexer.js";
 export * from "@indexers/providers/BluezIndexer.js";
 export * from "@indexers/providers/CovalentIndexer.js";
 export * from "@indexers/providers/EtherscanIndexer.js";
+export * from "@indexers/providers/ExpandIndexer.js";
 export * from "@indexers/providers/MoralisIndexer.js";
 export * from "@indexers/providers/NftscanIndexer.js";
 export * from "@indexers/providers/OklinkIndexer.js";

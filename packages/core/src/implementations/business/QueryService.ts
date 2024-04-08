@@ -536,21 +536,20 @@ export class QueryService implements IQueryService {
     return this.consentContractRepository
       .getCommitmentCount(consentContractAddress)
       .andThen((commitmentCount) => {
-        if (commitmentCount > 1000) {
-          commitmentCount = 1000;
+        const maxSetSize = 1000;
+        let setSize =
+          commitmentCount > maxSetSize ? maxSetSize : commitmentCount;
+        // Ensure the start index is always less than commitmentIndex to include our commitment
+        let start =
+          commitmentIndex - setSize >= 0 ? commitmentIndex - setSize : 0;
+        // Adjust the start if it's too close to the end of the commitment array
+        if (start + setSize > commitmentCount) {
+          start = commitmentCount - setSize;
         }
-
-        // Now generate a random number less than commitment count and less than commitmentIndex
-        const randomMax = Math.min(commitmentCount, commitmentIndex);
-
-        // Will return between 0 and randomMax - 1
-        const offset = this.getRandomInteger(0, randomMax);
-
-        // Get the anonymity set
         return this.consentContractRepository.getAnonymitySet(
           consentContractAddress,
-          offset,
-          commitmentCount,
+          start,
+          setSize,
         );
       })
       .map((anonymitySet) => {
@@ -1065,6 +1064,7 @@ export class QueryService implements IQueryService {
               err,
             ),
           );
+          return err;
         })
         .andThen(([insights, optInInfo, anonymitySet]) => {
           // Deliver the insights to the backend
@@ -1078,6 +1078,7 @@ export class QueryService implements IQueryService {
             anonymitySet,
             0,
             config.defaultInsightPlatformBaseUrl,
+            context.publicEvents,
           );
         })
         .orElse((err) => {

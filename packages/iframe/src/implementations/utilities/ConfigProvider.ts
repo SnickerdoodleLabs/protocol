@@ -40,6 +40,7 @@ declare const __ETHERSCAN_OPTIMISM_API_KEY__: string;
 declare const __ETHERSCAN_ARBITRUM_API_KEY__: string;
 declare const __ETHERSCAN_GNOSIS_API_KEY__: string;
 declare const __ETHERSCAN_FUJI_API_KEY__: string;
+declare const __EXPAND_API_KEY__: string;
 declare const __COVALENT_API_KEY__: string;
 declare const __MORALIS_API_KEY__: string;
 declare const __NFTSCAN_API_KEY__: string;
@@ -130,9 +131,7 @@ export class ConfigProvider implements IConfigProvider {
               ? null
               : __ALCHEMY_SOLANA_TESTNET_API_KEY__,
           Base:
-            __ALCHEMY_BASE_API_KEY__ == ""
-              ? null
-              : __ALCHEMY_BASE_API_KEY__,         
+            __ALCHEMY_BASE_API_KEY__ == "" ? null : __ALCHEMY_BASE_API_KEY__,
         },
         etherscanApiKeys: {
           Ethereum:
@@ -182,6 +181,7 @@ export class ConfigProvider implements IConfigProvider {
               ? null
               : __SPACEANDTIME_API_PRIVATEKEY__,
         },
+        expandApiKey: __EXPAND_API_KEY__ == "" ? null : __EXPAND_API_KEY__,
         covalentApiKey:
           __COVALENT_API_KEY__ == "" ? null : __COVALENT_API_KEY__,
         moralisApiKey: __MORALIS_API_KEY__ == "" ? null : __MORALIS_API_KEY__,

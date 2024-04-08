@@ -1,8 +1,8 @@
 import {
-  BigNumberString,
   EVMContractAddress,
   IpfsCID,
   JSONString,
+  NullifierBNS,
   ZKProof,
 } from "@snickerdoodlelabs/objects";
 
@@ -11,7 +11,7 @@ export interface IDeliverInsightsParams {
   queryCID: IpfsCID;
   insights: JSONString;
   rewardParameters: JSONString;
-  signalNullifier: BigNumberString;
+  signalNullifier: NullifierBNS;
   anonymitySetStart: number;
   anonymitySetSize: number;
   proof: ZKProof;
