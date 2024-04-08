@@ -138,6 +138,8 @@ export class CoreProvider implements ICoreProvider {
       immutableConfig.defaultKeys.spaceAndTimeCredentials.privateKey;
 
     // Other Indexers
+    config.expandApiKey =
+      config.expandApiKey ?? immutableConfig.defaultKeys.expandApiKey;
     config.covalentApiKey =
       config.covalentApiKey ?? immutableConfig.defaultKeys.covalentApiKey;
     config.moralisApiKey =

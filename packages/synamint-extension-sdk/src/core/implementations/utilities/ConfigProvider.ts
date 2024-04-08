@@ -68,7 +68,7 @@ const defaultCoreConfigs: IConfigOverrides = {
     userId: "",
     privateKey: "",
   },
-
+  expandApiKey: "ofm7bcH3St8TO1hfhiKqA4RIAmYUnj5s8395t2jR",
   covalentApiKey: "ckey_ee277e2a0e9542838cf30325665",
   moralisApiKey:
     "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag",

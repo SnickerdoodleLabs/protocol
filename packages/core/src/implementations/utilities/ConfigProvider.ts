@@ -129,6 +129,7 @@ export class ConfigProvider
           userId: null,
           privateKey: null,
         },
+        expandApiKey: null,
         covalentApiKey: null, // "ckey_ee277e2a0e9542838cf30325665", // covalent api key
         moralisApiKey: null,
         // "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
@@ -287,8 +288,7 @@ export class ConfigProvider
       overrides.alchemyApiKeys?.SolanaTestnet ??
       this.config.apiKeys.alchemyApiKeys.SolanaTestnet;
     this.config.apiKeys.alchemyApiKeys.Base =
-      overrides.alchemyApiKeys?.Base ??
-      this.config.apiKeys.alchemyApiKeys.Base;
+      overrides.alchemyApiKeys?.Base ?? this.config.apiKeys.alchemyApiKeys.Base;
 
     // Etherscan
     this.config.apiKeys.etherscanApiKeys.Arbitrum =
@@ -328,6 +328,8 @@ export class ConfigProvider
       this.config.apiKeys.spaceAndTimeCredentials.privateKey;
 
     // Miscellaneous Indexers and APIs
+    this.config.apiKeys.expandApiKey =
+      overrides.expandApiKey ?? this.config.apiKeys.expandApiKey;
     this.config.apiKeys.covalentApiKey =
       overrides.covalentApiKey ?? this.config.apiKeys.covalentApiKey;
     this.config.apiKeys.moralisApiKey =

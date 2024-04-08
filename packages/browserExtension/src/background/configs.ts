@@ -34,6 +34,7 @@ declare const __ALCHEMY_SOLANA_API_KEY__: string;
 declare const __ALCHEMY_SOLANA_TESTNET_API_KEY__: string;
 declare const __ALCHEMY_BASE_API_KEY__: string;
 
+declare const __EXPAND_API_KEY__: string;
 declare const __COVALENT_API_KEY__: string;
 declare const __MORALIS_API_KEY__: string;
 declare const __NFTSCAN_API_KEY__: string;
@@ -285,6 +286,10 @@ export const config: IExtensionSdkConfigOverrides = {
         ? __SPACEANDTIME_API_PRIVATEKEY__
         : "",
   },
+  expandApiKey:
+    typeof __EXPAND_API_KEY__ !== "undefined" && !!__EXPAND_API_KEY__
+      ? __EXPAND_API_KEY__
+      : undefined,
   covalentApiKey:
     typeof __COVALENT_API_KEY__ !== "undefined" && !!__COVALENT_API_KEY__
       ? __COVALENT_API_KEY__
