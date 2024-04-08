@@ -15,8 +15,8 @@
     "compile": "npx hardhat compile",
     "test": "npx hardhat test",
     "script": "npx hardhat run",
-    "dockerize": "docker build -t snickerdoodlelabs/devchain:0.1.1 -f Dockerfile --progress=plain .",
-    "docker-push": "docker push snickerdoodlelabs/devchain:0.1.1",
+    "dockerize": "docker build -t snickerdoodlelabs/devchain:0.1.2 -f Dockerfile --progress=plain .",
+    "docker-push": "docker push snickerdoodlelabs/devchain:0.1.2",
     "redocgen": "npx hardhat clean && npx hardhat compile && npx hardhat docgen && node scripts/docgenTitleFix.js"
   },
   "type": "commonjs",
