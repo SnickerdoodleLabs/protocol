@@ -76,7 +76,7 @@ export interface IConsentContract
 
   /**
    * Submit for blockchain requestForData event
-   * @param ipfsCID ipfs conent id of a query
+   * @param ipfsCID ipfs content id of a query
    */
   requestForData(
     ipfsCID: IpfsCID,
@@ -290,8 +290,6 @@ export interface IConsentContract
     >,
   ): ResultAsync<Signature, InvalidParametersError>;
 
-  filters: IConsentContractFilters;
-
   /**
    * Marketplace functions
    */
@@ -397,6 +395,7 @@ export interface IConsentContract
     BlockchainCommonErrors | ConsentContractError
   >;
 
+<<<<<<< HEAD
   depositStake(
     depositToken: EVMContractAddress,
     amount: BigNumberString,
@@ -414,6 +413,9 @@ export interface IConsentContract
     WrappedTransactionResponse,
     BlockchainCommonErrors | ConsentContractError
   >;
+=======
+  filters: IConsentContractFilters;
+>>>>>>> feature/new-questionnaires-sdk
 }
 
 export interface IConsentContractFilters {
@@ -423,6 +425,8 @@ export interface IConsentContractFilters {
   ): ethers.DeferredTopicFilter;
 
   RequestForData(ownerAddress: EVMAccountAddress): ethers.DeferredTopicFilter;
+
+  RequestForDataNoOwner(): ethers.DeferredTopicFilter;
 }
 
 export const IConsentContractType = Symbol.for("IConsentContract");

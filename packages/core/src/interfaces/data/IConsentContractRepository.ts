@@ -116,14 +116,6 @@ export interface IConsentContractRepository {
     | ConsentFactoryContractError
     | BlockchainCommonErrors
   >;
-
-  getDefaultQuestionnaires(): ResultAsync<
-    IpfsCID[],
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentFactoryContractError
-    | BlockchainCommonErrors
-  >;
   // #endregion Consent Contract Factory
 
   hasRole(

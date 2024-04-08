@@ -473,7 +473,7 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(BigNumberUtils)
       .inSingletonScope();
 
-    // Utilites/factory
+    // Utilities/factory
     bind<IContractFactory>(IContractFactoryType)
       .to(ContractFactory)
       .inSingletonScope();
