@@ -270,23 +270,6 @@ export class ConsentContractRepository implements IConsentContractRepository {
       });
   }
 
-  // #region Questionnaires
-  public getDefaultQuestionnaires(): ResultAsync<
-    IpfsCID[],
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentFactoryContractError
-    | BlockchainCommonErrors
-  > {
-    return this.consentContractFactory
-      .factoryConsentFactoryContract()
-      .andThen((consentFactoryContract) => {
-        return consentFactoryContract.getQuestionnaires();
-        // lookup slots order by slots ?
-      });
-  }
-  // #endregion Questionnaires
-
   public isOpenOptInDisabled(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<

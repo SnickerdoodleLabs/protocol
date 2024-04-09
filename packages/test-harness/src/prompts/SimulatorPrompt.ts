@@ -41,7 +41,7 @@ export class SimulatorPrompt extends Prompt {
           return this.mocks.insightSimulator
             .uploadQuestionnaire()
             .map((cid) => {
-              return this.mocks.blockchain.consentFactoryContract
+              return this.mocks.blockchain.questionnairesContract
                 .getQuestionnaires()
                 .map((questionnaire) => {
                   console.log(

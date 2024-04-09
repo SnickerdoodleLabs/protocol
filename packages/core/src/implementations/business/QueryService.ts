@@ -1043,6 +1043,7 @@ export class QueryService implements IQueryService {
               err,
             ),
           );
+          return err;
         })
         .andThen(([insights, optInInfo, anonymitySet]) => {
           // Deliver the insights to the backend

@@ -6,6 +6,7 @@ import {
   ConsentFactoryContractError,
   IpfsCID,
   PersistenceError,
+  QuestionnairesContractError,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -20,6 +21,8 @@ import {
   IInvitationRepositoryType,
   IQuestionnaireRepository,
   IQuestionnaireRepositoryType,
+  IQuestionnairesContractRepository,
+  IQuestionnairesContractRepositoryType,
 } from "@core/interfaces/data/index.js";
 
 @injectable()
@@ -29,6 +32,8 @@ export class CachingService implements ICachingService {
     protected questionnaireRepo: IQuestionnaireRepository,
     @inject(IConsentContractRepositoryType)
     protected consentContractRepo: IConsentContractRepository,
+    @inject(IQuestionnairesContractRepositoryType)
+    protected questionnairesContractRepo: IQuestionnairesContractRepository,
     @inject(IInvitationRepositoryType)
     protected invitationRepo: IInvitationRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
@@ -39,13 +44,14 @@ export class CachingService implements ICachingService {
     | PersistenceError
     | UninitializedError
     | ConsentFactoryContractError
+    | QuestionnairesContractError
     | BlockchainCommonErrors
     | ConsentContractError
     | AjaxError
   > {
     return ResultUtils.combine([
       this.invitationRepo.getAcceptedInvitations(),
-      this.consentContractRepo.getDefaultQuestionnaires(),
+      this.questionnairesContractRepo.getDefaultQuestionnaires(),
     ]).andThen(([acceptedInvitations, defaultQuestionnaireIds]) => {
       // Loop over the accepted invitations and get the questionnaires from the consent contracts
       return ResultUtils.combine(
