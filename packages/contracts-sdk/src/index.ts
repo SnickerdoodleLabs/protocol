@@ -11,5 +11,6 @@ export * from "@contracts-sdk/implementations/ERC20RewardContract.js";
 export * from "@contracts-sdk/implementations/ERC1155RewardContract.js";
 export * from "@contracts-sdk/implementations/OFT20RewardContract.js";
 export * from "@contracts-sdk/implementations/ONFT721RewardContract.js";
+export * from "@contracts-sdk/implementations/QuestionnairesContract.js";
 
 export * from "@contracts-sdk/interfaces/index.js";

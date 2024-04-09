@@ -7,6 +7,7 @@ import ERC721RewardAbi from "@contracts-sdk/interfaces/objects/abi/ERC721RewardA
 import ERC7529Abi from "@contracts-sdk/interfaces/objects/abi/ERC7529Abi.js";
 import OFT20RewardAbi from "@contracts-sdk/interfaces/objects/abi/OFT20RewardAbi.js";
 import ONFT721RewardAbi from "@contracts-sdk/interfaces/objects/abi/ONFT721RewardAbi.js";
+import QuestionnairesAbi from "@contracts-sdk/interfaces/objects/abi/QuestionnairesAbi.js";
 import ZkSyncERC721RewardAbi from "@contracts-sdk/interfaces/objects/abi/ZkSyncERC721RewardAbi.js";
 
 export const ContractsAbis = {
@@ -19,4 +20,5 @@ export const ContractsAbis = {
   ERC1155Reward: ERC1155RewardAbi,
   OFT20Reward: OFT20RewardAbi,
   ONFT721Reward: ONFT721RewardAbi,
+  QuestionnairesAbi: QuestionnairesAbi,
 };

@@ -1,6 +1,7 @@
 import {
   IConsentContract,
   IConsentFactoryContract,
+  IQuestionnairesContract,
 } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BlockchainProviderError,
@@ -19,6 +20,11 @@ export interface IContractFactory {
     consentContractAddresses: EVMContractAddress[],
   ): ResultAsync<
     IConsentContract[],
+    BlockchainProviderError | UninitializedError
+  >;
+
+  factoryQuestionnairesContract(): ResultAsync<
+    IQuestionnairesContract,
     BlockchainProviderError | UninitializedError
   >;
 }

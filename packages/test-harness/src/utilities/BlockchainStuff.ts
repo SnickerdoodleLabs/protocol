@@ -1,6 +1,7 @@
 import {
   ConsentContract,
   ConsentFactoryContract,
+  QuestionnairesContract,
 } from "@snickerdoodlelabs/contracts-sdk";
 import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
@@ -29,6 +30,7 @@ export class BlockchainStuff {
   public businessSigner: ethers.NonceManager;
   public provider: ethers.JsonRpcProvider;
   public consentFactoryContract: ConsentFactoryContract;
+  public questionnairesContract: QuestionnairesContract;
 
   public serverAccount = localChainAccounts[0];
   public businessAccount = localChainAccounts[1];
@@ -53,6 +55,10 @@ export class BlockchainStuff {
     this.consentFactoryContract = new ConsentFactoryContract(
       this.serverSigner,
       doodleChain.consentFactoryContractAddress,
+    );
+    this.questionnairesContract = new QuestionnairesContract(
+      this.serverSigner,
+      doodleChain.questionnairesContractAddress,
     );
   }
 

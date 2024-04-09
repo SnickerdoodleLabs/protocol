@@ -15,6 +15,7 @@ export * from "@objects/errors/blockchain/InvalidNonceError.js";
 export * from "@objects/errors/blockchain/MinimalForwarderContractError.js";
 export * from "@objects/errors/blockchain/MissingArgumentError.js";
 export * from "@objects/errors/blockchain/NetworkUnreachableError.js";
+export * from "@objects/errors/blockchain/QuestionnairesContractError.js";
 export * from "@objects/errors/blockchain/RewardsFactoryError.js";
 export * from "@objects/errors/blockchain/SiftContractError.js";
 export * from "@objects/errors/blockchain/SignerUnavailableError.js";

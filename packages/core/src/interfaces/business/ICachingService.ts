@@ -4,6 +4,7 @@ import {
   ConsentContractError,
   ConsentFactoryContractError,
   PersistenceError,
+  QuestionnairesContractError,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -19,6 +20,7 @@ export interface ICachingService {
     | PersistenceError
     | UninitializedError
     | ConsentFactoryContractError
+    | QuestionnairesContractError
     | BlockchainCommonErrors
     | ConsentContractError
     | AjaxError
