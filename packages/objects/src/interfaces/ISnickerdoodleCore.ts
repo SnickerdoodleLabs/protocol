@@ -1,6 +1,3 @@
-import { ethers } from "ethers";
-import { ResultAsync } from "neverthrow";
-
 import {
   AdSignature,
   ChainTransaction,
@@ -83,6 +80,7 @@ import {
   QuestionnairesContractError,
 } from "@objects/errors/index.js";
 import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
+import { IQueryPermissions } from "@objects/interfaces/IQueryPermissions";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
 import {
@@ -118,7 +116,8 @@ import {
   RefreshToken,
   JSONString,
 } from "@objects/primitives/index.js";
-import { IQueryPermissions } from "./IQueryPermissions";
+import { ethers } from "ethers";
+import { ResultAsync } from "neverthrow";
 /**
  ************************ MAINTENANCE HAZARD ***********************************************
  Whenever you add or change a method in this class, you also need to look at and probably update
