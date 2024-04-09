@@ -36,6 +36,7 @@ import {
   IProxyQuestionnaireMethods,
   IProxyStorageMethods,
   IProxyTwitterMethods,
+  IQueryPermissions,
   ISdlDataWallet,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
@@ -372,28 +373,6 @@ export class ProxyBridge implements ISdlDataWallet {
   ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError> {
     return this.call(this.core.invitation.getInvitationMetadataByCID(ipfsCID));
   }
-  updateAgreementPermissions(
-    consentContractAddress: EVMContractAddress,
-    dataTypes: EWalletDataType[],
-  ): ResultAsync<void, ProxyError> {
-    return this.call(
-      this.core.invitation.updateDataPermissions(
-        consentContractAddress,
-        DataPermissions.createWithPermissions(dataTypes),
-      ),
-    );
-  }
-  getAgreementPermissions(
-    consentContractAddres: EVMContractAddress,
-  ): ResultAsync<EWalletDataType[], ProxyError> {
-    return this.call(
-      this.core.invitation
-        .getAgreementFlags(consentContractAddres)
-        .map((flags) => {
-          return DataPermissions.getDataTypesFromFlags(flags);
-        }),
-    );
-  }
 
   leaveCohort(
     consentContractAddress: EVMContractAddress,
@@ -443,9 +422,12 @@ export class ProxyBridge implements ISdlDataWallet {
   approveQuery(
     queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
+    queryPermissions: IQueryPermissions | null,
     _sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, ProxyError> {
-    return this.call(this.core.approveQuery(queryCID, parameters));
+    return this.call(
+      this.core.approveQuery(queryCID, parameters, queryPermissions),
+    );
   }
 
   getSiteVisits(): ResultAsync<SiteVisit[], ProxyError> {
@@ -487,16 +469,6 @@ export class ProxyBridge implements ISdlDataWallet {
     contractAddress?: EVMContractAddress | undefined,
   ): ResultAsync<AccountAddress, ProxyError> {
     return this.call(this.core.getReceivingAddress(contractAddress));
-  }
-  getConsentContractURLs(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<URLString[], ProxyError> {
-    return this.call(this.core.getConsentContractURLs(contractAddress));
-  }
-  getConsentCapacity(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<IConsentCapacity, ProxyError> {
-    return this.call(this.core.getConsentCapacity(contractAddress));
   }
   getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],

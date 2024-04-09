@@ -2,12 +2,10 @@ import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   ConsentContract,
   IConsentContract,
-  ICrumbsContract,
-  CrumbsContract,
-  IMinimalForwarderContract,
-  MinimalForwarderContract,
   IConsentFactoryContract,
   ConsentFactoryContract,
+  IQuestionnairesContract,
+  QuestionnairesContract,
 } from "@snickerdoodlelabs/contracts-sdk";
 import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
@@ -21,8 +19,7 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import { ConsentContractWrapper } from "@core/implementations/utilities/factory/ConsentContractWrapper.js";
 import { ConsentFactoryContractWrapper } from "@core/implementations/utilities/factory/ConsentFactoryContractWrapper.js";
-import { CrumbsContractWrapper } from "@core/implementations/utilities/factory/CrumbsContractWrapper.js";
-import { MinimalForwarderContractWrapper } from "@core/implementations/utilities/factory/MinimalForwarderContractWrapper.js";
+import { QuestionnairesContractWrapper } from "@core/implementations/utilities/factory/QuestionnairesContractWrapper.js";
 import { IContractFactory } from "@core/interfaces/utilities/factory/index.js";
 import {
   IBlockchainProvider,
@@ -45,6 +42,7 @@ export class ContractFactory implements IContractFactory {
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
+
   public factoryConsentFactoryContract(): ResultAsync<
     IConsentFactoryContract,
     BlockchainProviderError | UninitializedError
@@ -112,8 +110,8 @@ export class ContractFactory implements IContractFactory {
     });
   }
 
-  public factoryCrumbsContract(): ResultAsync<
-    ICrumbsContract,
+  public factoryQuestionnairesContract(): ResultAsync<
+    IQuestionnairesContract,
     BlockchainProviderError | UninitializedError
   > {
     return ResultUtils.combine([
@@ -121,50 +119,20 @@ export class ContractFactory implements IContractFactory {
       this.blockchainProvider.getPrimaryProvider(),
       this.blockchainProvider.getSecondaryProvider(),
     ]).map(([config, primaryProvider, secondaryProvider]) => {
-      const primary = new CrumbsContract(
+      const primary = new QuestionnairesContract(
         primaryProvider,
-        config.controlChainInformation.crumbsContractAddress,
-      );
-      const secondary =
-        secondaryProvider != null
-          ? new CrumbsContract(
-              secondaryProvider,
-              config.controlChainInformation.crumbsContractAddress,
-            )
-          : null;
-
-      return new CrumbsContractWrapper(
-        primary,
-        secondary,
-        this.contextProvider,
-        this.logUtils,
-      );
-    });
-  }
-
-  public factoryMinimalForwarderContract(): ResultAsync<
-    IMinimalForwarderContract,
-    BlockchainProviderError | UninitializedError
-  > {
-    return ResultUtils.combine([
-      this.configProvider.getConfig(),
-      this.blockchainProvider.getPrimaryProvider(),
-      this.blockchainProvider.getSecondaryProvider(),
-    ]).map(([config, primaryProvider, secondaryProvider]) => {
-      const primary = new MinimalForwarderContract(
-        primaryProvider,
-        config.controlChainInformation.metatransactionForwarderAddress,
+        config.controlChainInformation.questionnairesContractAddress,
       );
 
       const secondary =
         secondaryProvider != null
-          ? new MinimalForwarderContract(
+          ? new QuestionnairesContract(
               secondaryProvider,
-              config.controlChainInformation.metatransactionForwarderAddress,
+              config.controlChainInformation.questionnairesContractAddress,
             )
           : null;
 
-      return new MinimalForwarderContractWrapper(
+      return new QuestionnairesContractWrapper(
         primary,
         secondary,
         this.contextProvider,

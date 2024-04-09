@@ -1,8 +1,10 @@
 import {
+  DataPermissions,
   DomainName,
-  EBackupPriority,
   EDataWalletPermission,
   EFieldKey,
+  ERecordKey,
+  EVMContractAddress,
   PersistenceError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -21,7 +23,7 @@ export class PermissionRepository implements IPermissionRepository {
     protected persistence: IDataWalletPersistence,
   ) {}
 
-  public getPermissions(
+  public getDomainPermissions(
     domain: DomainName,
   ): ResultAsync<EDataWalletPermission[], PersistenceError> {
     return this.persistence
@@ -41,7 +43,7 @@ export class PermissionRepository implements IPermissionRepository {
       });
   }
 
-  public setPermissions(
+  public setDomainPermissions(
     domain: DomainName,
     permissions: EDataWalletPermission[],
   ): ResultAsync<void, PersistenceError> {

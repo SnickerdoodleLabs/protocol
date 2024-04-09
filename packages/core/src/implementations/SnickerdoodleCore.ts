@@ -41,7 +41,6 @@ import {
   GivenName,
   IAdMethods,
   IConfigOverrides,
-  IConsentCapacity,
   ICoreDiscordMethods,
   ICoreIntegrationMethods,
   ICoreMarketplaceMethods,
@@ -89,12 +88,12 @@ import {
   RefreshToken,
   SiteVisitsMap,
   TransactionFlowInsight,
-  URLString,
   INftMethods,
   IQuestionnaireMethods,
   NewQuestionnaireAnswer,
   JSONString,
   EExternalFieldKey,
+  IPermissionMethods,
   EQueryProcessingStatus,
   DuplicateIdInSchema,
   MissingASTError,
@@ -108,6 +107,7 @@ import {
   MethodSupportError,
   MissingWalletDataTypeError,
   ServerRewardError,
+  IQueryPermissions,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -175,6 +175,8 @@ import {
   INFTRepositoryWithDebugType,
   INftRepository,
   INftRepositoryType,
+  IPermissionRepository,
+  IPermissionRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IBlockchainProvider,
@@ -199,6 +201,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public storage: IStorageMethods;
   public nft: INftMethods;
   public questionnaire: IQuestionnaireMethods;
+  public permission: IPermissionMethods;
 
   public constructor(
     configOverrides?: IConfigOverrides,
@@ -369,14 +372,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       },
       acceptInvitation: (
         invitation: Invitation,
-        dataPermissions: DataPermissions | null,
         sourceDomain: DomainName | undefined = undefined,
       ) => {
         const invitationService = this.iocContainer.get<IInvitationService>(
           IInvitationServiceType,
         );
 
-        return invitationService.acceptInvitation(invitation, dataPermissions);
+        return invitationService.acceptInvitation(invitation);
       },
       rejectInvitation: (
         invitation: Invitation,
@@ -418,16 +420,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
         return invitationService.getInvitationsByDomain(domain);
       },
-      getAgreementFlags: (
-        consentContractAddress: EVMContractAddress,
-        sourceDomain: DomainName | undefined = undefined,
-      ) => {
-        const invitationService = this.iocContainer.get<IInvitationService>(
-          IInvitationServiceType,
-        );
-
-        return invitationService.getAgreementFlags(consentContractAddress);
-      },
       getAvailableInvitationsCID: (
         sourceDomain: DomainName | undefined = undefined,
       ) => {
@@ -452,20 +444,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         );
 
         return invitationService.getInvitationMetadataByCID(ipfsCID);
-      },
-      updateDataPermissions: (
-        consentContractAddress: EVMContractAddress,
-        dataPermissions: DataPermissions,
-        sourceDomain: DomainName | undefined = undefined,
-      ) => {
-        const invitationService = this.iocContainer.get<IInvitationService>(
-          IInvitationServiceType,
-        );
-
-        return invitationService.updateDataPermissions(
-          consentContractAddress,
-          dataPermissions,
-        );
       },
     };
 
@@ -858,6 +836,27 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return questionnaireService.getByCIDs(questionnaireIds);
       },
     };
+
+    this.permission = {
+      getDomainPermissions: (domain: DomainName) => {
+        const permissionRepository =
+          this.iocContainer.get<IPermissionRepository>(
+            IPermissionRepositoryType,
+          );
+        return permissionRepository.getDomainPermissions(domain);
+      },
+
+      setDomainPermissions: (
+        domain: DomainName,
+        permissions: EDataWalletPermission[],
+      ) => {
+        const permissionRepository =
+          this.iocContainer.get<IPermissionRepository>(
+            IPermissionRepositoryType,
+          );
+        return permissionRepository.setDomainPermissions(domain, permissions);
+      },
+    };
   }
 
   /**
@@ -940,37 +939,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       .map(() => {});
   }
 
-  public getConsentContractURLs(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    URLString[],
-    | UninitializedError
-    | BlockchainProviderError
-    | ConsentContractError
-    | BlockchainCommonErrors
-  > {
-    const consentRepo = this.iocContainer.get<IConsentContractRepository>(
-      IConsentContractRepositoryType,
-    );
-    return consentRepo.getInvitationUrls(consentContractAddress);
-  }
-
-  public getConsentCapacity(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    IConsentCapacity,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | BlockchainCommonErrors
-  > {
-    const invitationService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-
-    return invitationService.getConsentCapacity(consentContractAddress);
-  }
-
   public getConsentContractCID(
     consentAddress: EVMContractAddress,
   ): ResultAsync<
@@ -998,6 +966,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public approveQuery(
     queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
+    queryPermissions: IQueryPermissions | null,
     _sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     void,
@@ -1016,7 +985,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
-    return queryService.approveQuery(queryCID, parameters);
+    return queryService.approveQuery(queryCID, parameters, queryPermissions);
   }
 
   getQueryStatusesByContractAddress(

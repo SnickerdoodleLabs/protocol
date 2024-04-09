@@ -72,6 +72,19 @@ var options = {
   module: {
     rules: [
       {
+        test: /\.(js)$/,
+        loader: "string-replace-loader",
+        options: {
+          multiple: [
+            {
+              search: "singleThread: singleThread ? true : false",
+              replace: "singleThread: true",
+            },
+            { search: "if (singleThread)", replace: "if (true)" },
+          ],
+        },
+      },
+      {
         test: /\.(s[ac]ss|css)$/i,
         use: [
           {
@@ -206,7 +219,7 @@ var options = {
       __ETHERSCAN_FUJI_API_KEY__: JSON.stringify(
         process.env.__ETHERSCAN_FUJI_API_KEY__,
       ),
-
+      __EXPAND_API_KEY__: JSON.stringify(process.env.__EXPAND_API_KEY__),
       __COVALENT_API_KEY__: JSON.stringify(process.env.__COVALENT_API_KEY__),
       __MORALIS_API_KEY__: JSON.stringify(process.env.__MORALIS_API_KEY__),
       __NFTSCAN_API_KEY__: JSON.stringify(process.env.__NFTSCAN_API_KEY__),

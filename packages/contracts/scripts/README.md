@@ -21,39 +21,11 @@ npx hardhat run scripts/deployment.js --network localhost
 3. If the deployment was successful, you should see the following in logged (addresses will differ).
 
 ```shell
-Deploying Consent implementation contract...
-Consent deployed to: 0x5FbDB2315678afecb367f032d93F642f64180aa3
-Consent Gas Fee: 3320261
-
-Deploying Consent Factory contract...
-ConsentFactory deployed to: 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
-ConsentFactory Gas Fee: 3296490
-
-Deploying Doodle Token contract...
-DoodleToken deployed to: 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
-DoodleToken Gas Fee: 1769284
-
-Deploying Timelock Controller contract...
-SnickerdoodleTimeLock deployed to: 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9
-SnickerdoodleTimeLock Gas Fee: 2186574
-
-Deploying SnickerdoodleGovernor (DAO) contract...
-SnickerdoodleGovernor deployed to: 0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9
-SnickerdoodleGovernor Gas Fee: 3663079
-
-Deploying Crumbs contract...
-Crumbs deployed to: 0x5FC8d32690cc91D4c39d9d3abcBD16989F875707
-Crumbs Gas Fee: 2431053
-
-Deploying Sift contract...
-Sift deployed to: 0x0165878A594ca255338adfa4d48449f69242Eb8F
-Sift Gas Fee: 2473661
-
-Deploying MinimalForwarder contract...
-MinimalForwarder deployed to: 0xa513E6E4b8f2a923D98304ec87F64353C4D5C853
-MinimalForwarder Gas Fee: 679425
-
-Full deployment successful!
+Consent Contract deployed at:  0x5FbDB2315678afecb367f032d93F642f64180aa3
+Token Contract deployed at:  0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
+Consent Factory deployed to: 0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9
+Questionnaires deployed to: 0x0165878A594ca255338adfa4d48449f69242Eb8F
+Deployment Complete
 ```
 
 4. Hurray! To summarize with some details, you have successfully deployed:

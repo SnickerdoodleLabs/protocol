@@ -45,6 +45,7 @@ import {
   NewQuestionnaireAnswer,
   EQueryProcessingStatus,
   IDynamicRewardParameter,
+  IQueryPermissions,
 } from "@snickerdoodlelabs/objects";
 import {
   IIFrameCallData,
@@ -452,18 +453,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      getConsentContractURLs: (
-        data: IIFrameCallData<{
-          contractAddress: EVMContractAddress;
-        }>,
-      ) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.getConsentContractURLs(data.data.contractAddress);
-          });
-        }, data.callId);
-      },
-
       getInvitationMetadataByCID: (
         data: IIFrameCallData<{
           ipfsCID: IpfsCID;
@@ -474,42 +463,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
             return core.invitation.getInvitationMetadataByCID(
               data.data.ipfsCID,
             );
-          });
-        }, data.callId);
-      },
-
-      updateAgreementPermissions: (
-        data: IIFrameCallData<{
-          consentContractAddress: EVMContractAddress;
-          dataTypes: EWalletDataType[];
-        }>,
-      ) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.invitation.updateDataPermissions(
-              data.data.consentContractAddress,
-              DataPermissions.createWithPermissions(data.data.dataTypes),
-              this.sourceDomain,
-            );
-          });
-        }, data.callId);
-      },
-
-      getAgreementPermissions: (
-        data: IIFrameCallData<{
-          consentContractAddress: EVMContractAddress;
-        }>,
-      ) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.invitation
-              .getAgreementFlags(
-                data.data.consentContractAddress,
-                this.sourceDomain,
-              )
-              .map((flags) => {
-                return DataPermissions.getDataTypesFromFlags(flags);
-              });
           });
         }, data.callId);
       },
@@ -697,19 +650,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      getConsentCapacity: (
-        data: IIFrameCallData<{
-          contractAddress: EVMContractAddress;
-        }>,
-      ) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.getConsentCapacity(data.data.contractAddress);
-          });
-        }, data.callId);
-      },
-
-      getPossibleRewards: (
+      getEarnedRewardsByContractAddress: (
         data: IIFrameCallData<{
           contractAddresses: EVMContractAddress[];
           timeoutMs?: number;
@@ -773,6 +714,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         data: IIFrameCallData<{
           queryCID: IpfsCID;
           parameters: IDynamicRewardParameter[];
+          queryPermissions: IQueryPermissions | null;
           _sourceDomain?: DomainName | undefined;
         }>,
       ) => {
@@ -781,6 +723,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
             return core.approveQuery(
               data.data.queryCID,
               data.data.parameters,
+              data.data.queryPermissions,
               this.sourceDomain,
             );
           });
@@ -1255,10 +1198,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
 
         events.onCohortLeft.subscribe((val) => {
           parent.emit("onCohortLeft", val);
-        });
-
-        events.onDataPermissionsUpdated.subscribe((val) => {
-          parent.emit("onDataPermissionsUpdated", val);
         });
 
         events.onTransaction.subscribe((val) => {

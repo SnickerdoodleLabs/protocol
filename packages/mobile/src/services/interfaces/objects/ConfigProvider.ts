@@ -201,6 +201,8 @@ export class ConfigProvider
     this.config.accountNFTPollingIntervalMS =
       overrides.accountNFTPollingIntervalMS ??
       this.config.accountNFTPollingIntervalMS;
+    this.config.expandApiKey =
+      overrides.expandApiKey ?? this.config.expandApiKey;
     this.config.covalentApiKey =
       overrides.covalentApiKey ?? this.config.covalentApiKey;
     this.config.moralisApiKey =

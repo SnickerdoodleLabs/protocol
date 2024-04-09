@@ -361,6 +361,86 @@ task("getMaxCapacity", "Check the maxCapacity parameter of a consent contract")
     });
   });
 
+task("getQuestionairres", "Fetch questionairre list from smart contract")
+  .addParam(
+    "accountnumber",
+    "integer referencing the account to you in the configured HD Wallet",
+  )
+  .setAction(async (taskArgs) => {
+    const accountnumber = taskArgs.accountnumber;
+    const accounts = await hre.ethers.getSigners();
+    const account = accounts[accountnumber];
+
+    // attach the first signer account to the consent contract handle
+    const factoryContractHandle = new hre.ethers.Contract(
+      consentFactory(),
+      CCFactory().abi,
+      account,
+    );
+
+    await factoryContractHandle.getQuestionnaires().then((questionairres) => {
+      console.log(questionairres);
+    });
+  });
+
+task("addQuestionairre", "Add questionairre to smart contract")
+  .addParam("ipfscid", "cid pointing to questionairre content")
+  .addParam(
+    "accountnumber",
+    "integer referencing the account to you in the configured HD Wallet",
+  )
+  .setAction(async (taskArgs) => {
+    const ipfscid = taskArgs.ipfscid;
+    const accountnumber = taskArgs.accountnumber;
+    const accounts = await hre.ethers.getSigners();
+    const account = accounts[accountnumber];
+
+    // attach the first signer account to the consent contract handle
+    const factoryContractHandle = new hre.ethers.Contract(
+      consentFactory(),
+      CCFactory().abi,
+      account,
+    );
+
+    await factoryContractHandle
+      .addQuestionnaire(ipfscid)
+      .then((txresponse) => {
+        return txresponse.wait();
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      });
+  });
+
+task("removeQuestionairre", "Delete a questionairre from smart contract")
+  .addParam("index", "index of the questionairre cid to remove")
+  .addParam(
+    "accountnumber",
+    "integer referencing the account to you in the configured HD Wallet",
+  )
+  .setAction(async (taskArgs) => {
+    const index = taskArgs.index;
+    const accountnumber = taskArgs.accountnumber;
+    const accounts = await hre.ethers.getSigners();
+    const account = accounts[accountnumber];
+
+    // attach the first signer account to the consent contract handle
+    const factoryContractHandle = new hre.ethers.Contract(
+      consentFactory(),
+      CCFactory().abi,
+      account,
+    );
+
+    await factoryContractHandle
+      .removeQuestionairre(index)
+      .then((txresponse) => {
+        return txresponse.wait();
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      });
+  });
+
 task("getOpenOptInDisabled", "Returns the status of the openOptInDisabled flag")
   .addParam("contractaddress", "address of the consent contract")
   .setAction(async (taskArgs) => {

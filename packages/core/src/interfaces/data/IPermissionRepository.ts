@@ -1,17 +1,17 @@
 import {
-  DomainCredential,
+  EVMContractAddress,
+  PersistenceError,
   DomainName,
   EDataWalletPermission,
-  PersistenceError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface IPermissionRepository {
-  getPermissions(
+  getDomainPermissions(
     domain: DomainName,
   ): ResultAsync<EDataWalletPermission[], PersistenceError>;
 
-  setPermissions(
+  setDomainPermissions(
     domain: DomainName,
     permissions: EDataWalletPermission[],
   ): ResultAsync<void, PersistenceError>;

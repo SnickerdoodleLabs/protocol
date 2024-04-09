@@ -1,4 +1,12 @@
 import {
+  CircomCommitmentWrapper,
+  ICommitmentWrapper,
+  ICommitmentWrapperType,
+  IMembershipWrapper,
+  IMembershipWrapperType,
+  CircomMembershipWrapper,
+} from "@snickerdoodlelabs/circuits-sdk";
+import {
   AxiosAjaxUtils,
   BigNumberUtils,
   IAxiosAjaxUtils,
@@ -91,7 +99,6 @@ import {
 import {
   AccountService,
   AdService,
-  ConsentTokenUtils,
   DiscordService,
   IntegrationService,
   InvitationService,
@@ -130,7 +137,6 @@ import {
   InvitationRepository,
   LinkedAccountRepository,
   MarketplaceRepository,
-  MetatransactionForwarderRepository,
   MetricsRepository,
   OauthUtils,
   PermissionRepository,
@@ -142,6 +148,7 @@ import {
   AuthenticatedStorageRepository,
   NftRepository,
   QuestionnaireRepository,
+  QuestionnairesContractRepository,
 } from "@core/implementations/data/index.js";
 import { ContractFactory } from "@core/implementations/utilities/factory/index.js";
 import {
@@ -195,8 +202,6 @@ import {
   IBalanceQueryEvaluatorType,
   IBlockchainTransactionQueryEvaluator,
   IBlockchainTransactionQueryEvaluatorType,
-  IConsentTokenUtils,
-  IConsentTokenUtilsType,
   INftQueryEvaluator,
   INftQueryEvaluatorType,
   IPermissionUtils,
@@ -233,8 +238,6 @@ import {
   ILinkedAccountRepositoryType,
   IMarketplaceRepository,
   IMarketplaceRepositoryType,
-  IMetatransactionForwarderRepository,
-  IMetatransactionForwarderRepositoryType,
   IOauthUtils,
   IOAuthRepositoryType,
   IPermissionRepository,
@@ -259,6 +262,8 @@ import {
   INFTRepositoryWithDebugType,
   IQuestionnaireRepository,
   IQuestionnaireRepositoryType,
+  IQuestionnairesContractRepositoryType,
+  IQuestionnairesContractRepository,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
@@ -325,8 +330,8 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(MonitoringService)
       .inSingletonScope();
     bind<IQuestionnaireService>(IQuestionnaireServiceType)
-    .to(QuestionnaireService)
-    .inSingletonScope();
+      .to(QuestionnaireService)
+      .inSingletonScope();
     bind<IDiscordService>(IDiscordServiceType)
       .to(DiscordService)
       .inSingletonScope();
@@ -334,9 +339,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(TwitterService)
       .inSingletonScope();
 
-    bind<IConsentTokenUtils>(IConsentTokenUtilsType)
-      .to(ConsentTokenUtils)
-      .inSingletonScope();
     bind<IPermissionUtils>(IPermissionUtilsType)
       .to(PermissionUtils)
       .inSingletonScope();
@@ -356,9 +358,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IConsentContractRepository>(IConsentContractRepositoryType).to(
       ConsentContractRepository,
     );
-    bind<IMetatransactionForwarderRepository>(
-      IMetatransactionForwarderRepositoryType,
-    ).to(MetatransactionForwarderRepository);
     bind<IMarketplaceRepository>(IMarketplaceRepositoryType).to(
       MarketplaceRepository,
     );
@@ -405,6 +404,11 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IQuestionnaireRepository>(IQuestionnaireRepositoryType)
       .to(QuestionnaireRepository)
+      .inSingletonScope();
+    bind<IQuestionnairesContractRepository>(
+      IQuestionnairesContractRepositoryType,
+    )
+      .to(QuestionnairesContractRepository)
       .inSingletonScope();
 
     bind<ITransactionHistoryRepository>(ITransactionHistoryRepositoryType)
@@ -477,7 +481,7 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(BigNumberUtils)
       .inSingletonScope();
 
-    // Utilites/factory
+    // Utilities/factory
     bind<IContractFactory>(IContractFactoryType)
       .to(ContractFactory)
       .inSingletonScope();
@@ -541,6 +545,14 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<ICloudStorage>(IDropboxCloudStorageType)
       .to(DropboxCloudStorage)
+      .inSingletonScope();
+
+    // ZK Circuits -------------------------------------------------------
+    bind<IMembershipWrapper>(IMembershipWrapperType)
+      .to(CircomMembershipWrapper)
+      .inSingletonScope();
+    bind<ICommitmentWrapper>(ICommitmentWrapperType)
+      .to(CircomCommitmentWrapper)
       .inSingletonScope();
 
     /**

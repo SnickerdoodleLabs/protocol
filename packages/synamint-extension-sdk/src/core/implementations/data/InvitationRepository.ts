@@ -39,18 +39,6 @@ export class InvitationRepository implements IInvitationRepository {
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
 
-  public updateAgreementPermissions(
-    consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core.invitation
-      .updateDataPermissions(consentContractAddress, dataPermissions)
-      .mapErr((error) => {
-        this.errorUtils.emit(error);
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      });
-  }
-
   public getMarketplaceListingsByTag(
     pagingReq: PagingRequest,
     tag: MarketplaceTag,
@@ -82,17 +70,6 @@ export class InvitationRepository implements IInvitationRepository {
     });
   }
 
-  public getAgreementFlags(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<HexString32, SnickerDoodleCoreError> {
-    return this.core.invitation
-      .getAgreementFlags(consentContractAddress)
-      .mapErr((error) => {
-        this.errorUtils.emit(error);
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      });
-  }
-
   public getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     SnickerDoodleCoreError
@@ -111,17 +88,6 @@ export class InvitationRepository implements IInvitationRepository {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
-  }
-
-  public getConsentCapacity(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError> {
-    return this.core
-      .getConsentCapacity(consentContractAddress)
-      .mapErr((error) => {
-        this.errorUtils.emit(error);
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      });
   }
   public getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
@@ -203,14 +169,11 @@ export class InvitationRepository implements IInvitationRepository {
 
   public acceptInvitation(
     invitation: Invitation,
-    dataPermissions: DataPermissions | null,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core.invitation
-      .acceptInvitation(invitation, dataPermissions)
-      .mapErr((error) => {
-        this.errorUtils.emit(error);
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      });
+    return this.core.invitation.acceptInvitation(invitation).mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
   public rejectInvitation(
     invitation: Invitation,

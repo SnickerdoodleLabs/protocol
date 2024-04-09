@@ -227,7 +227,6 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     if (config.defaultConsentContract) {
       core.invitation.acceptInvitation(
         new Invitation(config.defaultConsentContract, null, null, null),
-        null,
       );
     }
   };
@@ -263,16 +262,12 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   };
 
   const onPermissionSelected = useCallback(
-    (dataTypes: EWalletDataType[]) => {
+    (...args) => {
       if (currentInvitation) {
         // call function as background process
         setAppState(EAPP_STATE.IDLE);
         core.invitation
-          .acceptInvitation(
-            currentInvitation.data.invitation,
-            DataPermissions.createWithPermissions(dataTypes),
-            undefined,
-          )
+          .acceptInvitation(currentInvitation.data.invitation, undefined)
           .map(() => {
             clearInvitation();
           })
@@ -293,32 +288,33 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
           directCall: { permissions, approvals },
           withPermissions,
         } = params;
+        const queryBasedPermissions: Record<
+          IpfsCID,
+          { virtual: EWalletDataType[]; questionnaires: IpfsCID[] }
+        > = {};
         core.invitation
-          .acceptInvitation(currentInvitation.data.invitation, null, undefined)
-          .andThen(() => {
-            // set consent permissions here
-            return okAsync(undefined);
-          })
+          .acceptInvitation(currentInvitation.data.invitation, undefined)
           .andThen(() => {
             return ResultUtils.combine(
-              Array.from(approvals.entries()).map(([cid, rewards]) =>
-                core.approveQuery(cid, rewards, undefined),
-              ),
+              Array.from(approvals.entries()).map(([cid, rewards]) => {
+                return core.approveQuery(cid, rewards, null, undefined);
+              }),
             );
           })
           .andThen(() => {
-            return ResultUtils.executeSerially(
+            return ResultUtils.combine(
               Array.from(withPermissions.entries()).map(
-                ([cid, { permissions, rewardParameters }]) =>
-                  () =>
-                    // set consent permissions here
-                    okAsync(undefined).andThen(() => {
-                      return core.approveQuery(
-                        cid,
-                        rewardParameters,
-                        undefined,
-                      );
-                    }),
+                ([cid, { rewardParameters, permissions }]) => {
+                  return core.approveQuery(
+                    cid,
+                    rewardParameters,
+                    {
+                      questionnaires: permissions.questionnaires,
+                      virtualQuestionnaires: permissions.dataTypes,
+                    },
+                    undefined,
+                  );
+                },
               ),
             );
           })

@@ -1,8 +1,15 @@
-import { EVMContractAddress, TokenId } from "@objects/primitives/index.js";
+import {
+  Commitment,
+  EVMContractAddress,
+  NullifierBNS,
+  TrapdoorBNS,
+} from "@objects/primitives/index.js";
 
 export class OptInInfo {
   public constructor(
     public consentContractAddress: EVMContractAddress,
-    public tokenId: TokenId,
+    public identityNullifier: NullifierBNS,
+    public identityTrapdoor: TrapdoorBNS,
+    public commitment: Commitment,
   ) {}
 }

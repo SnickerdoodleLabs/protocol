@@ -170,8 +170,8 @@ describe("IndexedDB tests", () => {
       }
 
       const readData = await instanceDB.get(ERecordKey.QUESTIONNAIRES, {
-        index: "deleted,data.status",
-        query: [EBoolean.FALSE, EQuestionnaireStatus.Complete],
+        index: "deleted",
+        query: EBoolean.FALSE,
       });
       expect(readData.isErr()).toBeFalsy();
 
@@ -181,7 +181,7 @@ describe("IndexedDB tests", () => {
       >[];
 
       for (const record of result) {
-        expect(record.data.status).toBe(EQuestionnaireStatus.Complete);
+        //expect(record.data.status).toBe(EQuestionnaireStatus.Complete);
         expect(record.deleted).toBe(EBoolean.FALSE);
       }
     });
@@ -215,7 +215,7 @@ describe("IndexedDB tests", () => {
       }
 
       const readData = await instanceDB.getCursor2(ERecordKey.QUESTIONNAIRES, {
-        index: "deleted,data.status",
+        index: "deleted",
         lowerCount: 1,
         upperCount: 100,
       });
@@ -233,15 +233,12 @@ describe("IndexedDB tests", () => {
         await instanceDB.putObject(ERecordKey.QUESTIONNAIRES, dummyData);
       }
 
-      const query = IDBKeyRange.bound(
-        [EBoolean.FALSE, EQuestionnaireStatus.Available],
-        [EBoolean.FALSE, EQuestionnaireStatus.Available],
-      );
+      const query = IDBKeyRange.bound(EBoolean.TRUE, EBoolean.TRUE);
 
       const readData = await instanceDB.countRecords(
         ERecordKey.QUESTIONNAIRES,
         {
-          index: "deleted,data.status",
+          index: "deleted",
           query,
         },
       );

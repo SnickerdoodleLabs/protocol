@@ -139,6 +139,7 @@ class MasterIndexerMocks {
   public blockvision: ISuiIndexer;
   public covalent: EVMIndexerMock;
   public etherscan: EVMIndexerMock;
+  public expand: EVMIndexerMock;
   public moralis: EVMIndexerMock;
   public nftscan: EVMIndexerMock;
   public oklink: EVMIndexerMock;
@@ -181,6 +182,10 @@ class MasterIndexerMocks {
     );
     this.etherscan = new EVMIndexerMock(
       EDataProvider.Etherscan,
+      new Map<EChain, IndexerSupportSummary>(),
+    );
+    this.expand = new EVMIndexerMock(
+      EDataProvider.Expand,
       new Map<EChain, IndexerSupportSummary>(),
     );
     this.moralis = new EVMIndexerMock(
@@ -259,6 +264,7 @@ class MasterIndexerMocks {
       this.bluez,
       this.covalent,
       this.etherscan,
+      this.expand,
       this.moralis,
       this.nftscan,
       this.oklink,

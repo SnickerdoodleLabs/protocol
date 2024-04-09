@@ -1,4 +1,5 @@
 import {
+  DataPermissions,
   EQuestionnaireQuestionType,
   ESDQLQueryReturn,
   EWalletDataType,
@@ -13,9 +14,7 @@ import {
   web2QueryTypes,
 } from "@snickerdoodlelabs/objects";
 import { Result, err, ok } from "neverthrow";
-
 import { AST_SubQuery } from "@query-parser/interfaces/objects/AST_SubQuery.js";
-
 export class AST_QuestionnaireQuery extends AST_SubQuery {
   /**
    * @param name - the key of the query from schema, e.g., q1, q2, a3 ...
@@ -41,7 +40,7 @@ export class AST_QuestionnaireQuery extends AST_SubQuery {
     );
   }
 
-  getPermission(): Result<EWalletDataType, MissingWalletDataTypeError> {
-    return ok(EWalletDataType.Questionnaires);
+  getPermission(): Result<IpfsCID, MissingWalletDataTypeError> {
+    return ok(this.questionnaireIndex!);
   }
 }

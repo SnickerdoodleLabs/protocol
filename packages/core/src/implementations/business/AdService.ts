@@ -7,6 +7,7 @@ import {
   SHA256Hash,
   UninitializedError,
   IPFSError,
+  Signature,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -56,26 +57,35 @@ export class AdService implements IAdService {
   private createAdSignature(
     eligibleAd: EligibleAd,
   ): ResultAsync<AdSignature, UninitializedError | IPFSError> {
-    return this._validateAndGetContext().andThen((context) => {
-      return ResultUtils.combine([
-        this.dataWalletUtils.deriveOptInPrivateKey(
-          eligibleAd.consentContractAddress,
-          context.dataWalletKey!,
-        ),
-        this.getHashedAdContentByIpfsCID(eligibleAd.content.src),
-      ]).andThen(([optInPrivateKey, contentHash]) => {
-        return this.cryptoUtils
-          .signMessage(contentHash, optInPrivateKey)
-          .map((signature) => {
-            return new AdSignature(
-              eligibleAd.consentContractAddress,
-              eligibleAd.queryCID,
-              eligibleAd.key,
-              signature,
-            );
-          });
-      });
-    });
+    // TODO: Implement this- we're no longer using simple signatures for this
+    return okAsync(
+      new AdSignature(
+        eligibleAd.consentContractAddress,
+        eligibleAd.queryCID,
+        eligibleAd.key,
+        Signature("TODO"),
+      ),
+    );
+    // return this._validateAndGetContext().andThen((context) => {
+    //   return ResultUtils.combine([
+    //     this.dataWalletUtils.deriveOptInPrivateKey(
+    //       eligibleAd.consentContractAddress,
+    //       context.dataWalletKey!,
+    //     ),
+    //     this.getHashedAdContentByIpfsCID(eligibleAd.content.src),
+    //   ]).andThen(([optInPrivateKey, contentHash]) => {
+    //     return this.cryptoUtils
+    //       .signMessage(contentHash, optInPrivateKey)
+    //       .map((signature) => {
+    //         return new AdSignature(
+    //           eligibleAd.consentContractAddress,
+    //           eligibleAd.queryCID,
+    //           eligibleAd.key,
+    //           signature,
+    //         );
+    //       });
+    //   });
+    // });
   }
 
   private getHashedAdContentByIpfsCID(
