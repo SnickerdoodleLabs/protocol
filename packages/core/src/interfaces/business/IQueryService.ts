@@ -7,37 +7,31 @@ import {
   ConsentContractError,
   ConsentError,
   ConsentFactoryContractError,
-  ConsentToken,
   DuplicateIdInSchema,
   EQueryProcessingStatus,
   EvalNotImplementedError,
   EvaluationError,
   EVMContractAddress,
-  EVMPrivateKey,
   IDynamicRewardParameter,
   InvalidParametersError,
   InvalidStatusError,
   IpfsCID,
   IPFSError,
+  IQueryPermissions,
   MethodSupportError,
   MissingASTError,
   MissingTokenConstructorError,
   MissingWalletDataTypeError,
   ParserError,
   PersistenceError,
-  PossibleReward,
   QueryExpiredError,
   QueryFormatError,
   QueryStatus,
   RequestForData,
-  SDQLQuery,
   ServerRewardError,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { CoreConfig } from "@core/interfaces/objects/index.js";
-
 export interface IQueryService {
   initialize(): ResultAsync<void, never>;
   onQueryPosted(
@@ -74,6 +68,7 @@ export interface IQueryService {
   approveQuery(
     queryCID: IpfsCID,
     rewardParameters: IDynamicRewardParameter[],
+    queryPermissions: IQueryPermissions | null,
   ): ResultAsync<
     void,
     | AjaxError

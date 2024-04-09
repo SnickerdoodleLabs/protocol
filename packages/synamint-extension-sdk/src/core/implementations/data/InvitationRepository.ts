@@ -39,18 +39,6 @@ export class InvitationRepository implements IInvitationRepository {
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
 
-  public updateAgreementPermissions(
-    consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core.invitation
-      .updateDataPermissions(consentContractAddress, dataPermissions)
-      .mapErr((error) => {
-        this.errorUtils.emit(error);
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      });
-  }
-
   public getMarketplaceListingsByTag(
     pagingReq: PagingRequest,
     tag: MarketplaceTag,
@@ -80,17 +68,6 @@ export class InvitationRepository implements IInvitationRepository {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
-  }
-
-  public getDataPermissions(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<DataPermissions, SnickerDoodleCoreError> {
-    return this.core.invitation
-      .getDataPermissions(consentContractAddress)
-      .mapErr((error) => {
-        this.errorUtils.emit(error);
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      });
   }
 
   public getAvailableInvitationsCID(): ResultAsync<

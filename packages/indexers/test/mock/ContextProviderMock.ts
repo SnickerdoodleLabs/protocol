@@ -3,7 +3,6 @@ import {
   BackupRestoreEvent,
   ComponentStatus,
   CountryCode,
-  DataPermissionsUpdatedEvent,
   DataWalletAddress,
   EChain,
   EComponentStatus,

@@ -64,7 +64,6 @@ import {
   GetInvitationWithDomainParams,
   LeaveCohortParams,
   GetInvitationMetadataByCIDParams,
-  GetAgreementPermissionsParams,
   UnlinkAccountParams,
   AcceptInvitationParams,
   GetConsentContractCIDParams,
@@ -138,7 +137,6 @@ import {
   GetQuestionnairesForConsentContractParams,
   GetConsentContractsByQuestionnaireCIDParams,
   GetRecommendedConsentContractsParams,
-  UpdateAgreementPermissionsParams,
   GetQuestionnairesParams,
   ApproveQueryParams,
   GetVirtualQuestionnairesParams,
@@ -475,23 +473,6 @@ export class RpcCallHandler implements IRpcCallHandler {
           });
       },
     ),
-    new CoreActionHandler<GetAgreementPermissionsParams>(
-      GetAgreementPermissionsParams.getCoreAction(),
-      (params) => {
-        return this.invitationService.getDataPermissions(
-          params.consentContractAddress,
-        );
-      },
-    ),
-    new CoreActionHandler<UpdateAgreementPermissionsParams>(
-      UpdateAgreementPermissionsParams.getCoreAction(),
-      (params) => {
-        return this.invitationService.updateAgreementPermissions(
-          params.consentContractAddress,
-          params.dataPermissions,
-        );
-      },
-    ),
     new CoreActionHandler<AcceptInvitationParams>(
       AcceptInvitationParams.getCoreAction(),
       (params, _sender, sourceDomain) => {
@@ -580,7 +561,12 @@ export class RpcCallHandler implements IRpcCallHandler {
       ApproveQueryParams.getCoreAction(),
       (params, _sender, sourceDomain) => {
         return this.core
-          .approveQuery(params.queryCID, params.parameters, sourceDomain)
+          .approveQuery(
+            params.queryCID,
+            params.parameters,
+            params.queryPermissions,
+            sourceDomain,
+          )
           .mapErr((error) => {
             this.errorUtils.emit(error);
             return new SnickerDoodleCoreError((error as Error).message, error);

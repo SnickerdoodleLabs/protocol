@@ -81,7 +81,6 @@ import {
   SetGenderParams,
   SetGivenNameParams,
   SetLocationParams,
-  GetAgreementPermissionsParams,
   GetConsentContractCIDParams,
   CheckInvitationStatusParams,
   GetTokenPriceParams,
@@ -152,7 +151,6 @@ import {
   GetQuestionnairesForConsentContractParams,
   GetConsentContractsByQuestionnaireCIDParams,
   GetRecommendedConsentContractsParams,
-  UpdateAgreementPermissionsParams,
   GetQuestionnairesParams,
   GetVirtualQuestionnairesParams,
   GetQuestionnairesByCIDSParams,
@@ -425,18 +423,6 @@ export class ExternalCoreGateway {
     return this._handler.call(
       new AcceptInvitationParams(ObjectUtils.serialize(invitation)),
     );
-  }
-
-  public updateAgreementPermissions(
-    params: UpdateAgreementPermissionsParams,
-  ): ResultAsync<void, ProxyError> {
-    return this._handler.call(params);
-  }
-
-  public getDataPermissions(
-    params: GetAgreementPermissionsParams,
-  ): ResultAsync<DataPermissions, ProxyError> {
-    return this._handler.call(params);
   }
 
   public rejectInvitation(
