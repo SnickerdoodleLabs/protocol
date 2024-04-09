@@ -33,7 +33,7 @@ describe("RandomizationUtils", () => {
       expect(result.setSize).toBeLessThanOrEqual(maxSetSize);
     });
 
-    it("ensures the start index and set size do not exceed total item count", () => {
+    test("ensures the start index and set size do not exceed total item count", () => {
       const testCases = [
         { itemIndex: 1001, totalItemCount: 6000, maxSetSize: 650 },
         { itemIndex: 2000, totalItemCount: 10000, maxSetSize: 800 },
