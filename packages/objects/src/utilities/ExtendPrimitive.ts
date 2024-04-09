@@ -1,4 +1,4 @@
-export declare type ExtendPrimitive<
+export type ExtendPrimitive<
   Primitive,
   newType extends string,
   newTypeName extends string = newType,
