@@ -4,6 +4,8 @@ import {
   IConsentContract,
   IConsentFactoryContract,
   ConsentFactoryContract,
+  IQuestionnairesContract,
+  QuestionnairesContract,
 } from "@snickerdoodlelabs/contracts-sdk";
 import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
@@ -17,6 +19,7 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import { ConsentContractWrapper } from "@core/implementations/utilities/factory/ConsentContractWrapper.js";
 import { ConsentFactoryContractWrapper } from "@core/implementations/utilities/factory/ConsentFactoryContractWrapper.js";
+import { QuestionnairesContractWrapper } from "@core/implementations/utilities/factory/QuestionnairesContractWrapper.js";
 import { IContractFactory } from "@core/interfaces/utilities/factory/index.js";
 import {
   IBlockchainProvider,
@@ -39,6 +42,7 @@ export class ContractFactory implements IContractFactory {
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
+
   public factoryConsentFactoryContract(): ResultAsync<
     IConsentFactoryContract,
     BlockchainProviderError | UninitializedError
@@ -103,6 +107,37 @@ export class ContractFactory implements IContractFactory {
           this.logUtils,
         );
       });
+    });
+  }
+
+  public factoryQuestionnairesContract(): ResultAsync<
+    IQuestionnairesContract,
+    BlockchainProviderError | UninitializedError
+  > {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.blockchainProvider.getPrimaryProvider(),
+      this.blockchainProvider.getSecondaryProvider(),
+    ]).map(([config, primaryProvider, secondaryProvider]) => {
+      const primary = new QuestionnairesContract(
+        primaryProvider,
+        config.controlChainInformation.questionnairesContractAddress,
+      );
+
+      const secondary =
+        secondaryProvider != null
+          ? new QuestionnairesContract(
+              secondaryProvider,
+              config.controlChainInformation.questionnairesContractAddress,
+            )
+          : null;
+
+      return new QuestionnairesContractWrapper(
+        primary,
+        secondary,
+        this.contextProvider,
+        this.logUtils,
+      );
     });
   }
 }

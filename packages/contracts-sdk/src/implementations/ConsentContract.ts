@@ -597,23 +597,6 @@ export class ConsentContract
     );
   }
 
-  public filters = {
-    Transfer: (
-      fromAddress: EVMAccountAddress | null,
-      toAddress: EVMAccountAddress | null,
-    ): ethers.DeferredTopicFilter => {
-      return this.contract.filters.Transfer(fromAddress, toAddress);
-    },
-    RequestForData: (
-      ownerAddress: EVMAccountAddress,
-    ): ethers.DeferredTopicFilter => {
-      return this.contract.filters.RequestForData(ownerAddress);
-    },
-    RequestForDataNoOwner: (): ethers.DeferredTopicFilter => {
-      return this.contract.filters.RequestForData();
-    },
-  };
-
   public getSignature(
     values: (
       | string
@@ -630,6 +613,23 @@ export class ConsentContract
       values,
     );
   }
+
+  public filters = {
+    Transfer: (
+      fromAddress: EVMAccountAddress | null,
+      toAddress: EVMAccountAddress | null,
+    ): ethers.DeferredTopicFilter => {
+      return this.contract.filters.Transfer(fromAddress, toAddress);
+    },
+    RequestForData: (
+      ownerAddress: EVMAccountAddress,
+    ): ethers.DeferredTopicFilter => {
+      return this.contract.filters.RequestForData(ownerAddress);
+    },
+    RequestForDataNoOwner: (): ethers.DeferredTopicFilter => {
+      return this.contract.filters.RequestForData();
+    },
+  };
 
   protected generateContractSpecificError(
     msg: string,

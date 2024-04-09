@@ -70,6 +70,7 @@ const errorCodes = {
   AuthenticationError: "ERR_AUTHENTICATION",
   ERC721RewardContractError: "ERR_ERC721_REWARD_CONTRACT",
   ERC20ContractError: "ERR_ERC20_CONTRACT",
+  QuestionnairesContractError: "ERR_QUESTIONNAIRES_CONTRACT",
 };
 
 export default errorCodes;
