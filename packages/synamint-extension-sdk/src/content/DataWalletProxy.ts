@@ -62,10 +62,10 @@ import {
   JSONString,
   IProxyQuestionnaireMethods,
   NewQuestionnaireAnswer,
-  DataPermissions,
   EQueryProcessingStatus,
   IDynamicRewardParameter,
   SDQLQueryRequest,
+  IQueryPermissions,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { JsonRpcEngine } from "json-rpc-engine";
@@ -87,7 +87,6 @@ import {
   SetEmailParams,
   SetLocationParams,
   SetGenderParams,
-  GetAgreementPermissionsParams,
   LeaveCohortParams,
   GetInvitationMetadataByCIDParams,
   GetConsentContractCIDParams,
@@ -107,7 +106,6 @@ import {
   SetAuthenticatedStorageParams,
   GetQueryStatusesParams,
   GetTransactionsParams,
-  UpdateAgreementPermissionsParams,
   ApproveQueryParams,
   GetQueryStatusesByContractAddressParams,
 } from "@synamint-extension-sdk/shared";
@@ -479,9 +477,10 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   approveQuery(
     queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
+    queryPermissions: IQueryPermissions | null,
   ): ResultAsync<void, ProxyError> {
     return coreGateway.approveQuery(
-      new ApproveQueryParams(queryCID, parameters),
+      new ApproveQueryParams(queryCID, parameters, queryPermissions),
     );
   }
 
@@ -659,24 +658,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public getInvitationMetadataByCID(ipfsCID: IpfsCID) {
     return coreGateway.getInvitationMetadataByCID(
       new GetInvitationMetadataByCIDParams(ipfsCID),
-    );
-  }
-
-  public getDataPermissions(consentContractAddress: EVMContractAddress) {
-    return coreGateway.getDataPermissions(
-      new GetAgreementPermissionsParams(consentContractAddress),
-    );
-  }
-
-  public updateAgreementPermissions(
-    consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions,
-  ): ResultAsync<void, ProxyError> {
-    return coreGateway.updateAgreementPermissions(
-      new UpdateAgreementPermissionsParams(
-        consentContractAddress,
-        dataPermissions,
-      ),
     );
   }
 

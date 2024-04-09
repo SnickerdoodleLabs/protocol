@@ -6,7 +6,6 @@ import {
   BigNumberString,
   ChainId,
   CountryCode,
-  DataPermissionsUpdatedEvent,
   DataWalletAddress,
   DiscordGuildProfile,
   DiscordID,
@@ -87,6 +86,7 @@ import {
   DataPermissions,
   EQueryProcessingStatus,
   IDynamicRewardParameter,
+  IQueryPermissions,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ethers } from "ethers";
@@ -163,13 +163,6 @@ export class SnickerdoodleIFrameProxy
         this.child.on("onCohortLeft", (data: EVMContractAddress) => {
           this.events.onCohortLeft.next(data);
         });
-
-        this.child.on(
-          "onDataPermissionsUpdated",
-          (data: DataPermissionsUpdatedEvent) => {
-            this.events.onDataPermissionsUpdated.next(data);
-          },
-        );
 
         this.child.on("onTransaction", (data: EVMTransaction) => {
           this.events.onTransaction.next(data);
@@ -426,22 +419,6 @@ export class SnickerdoodleIFrameProxy
       ipfsCID,
     });
   }
-  public updateAgreementPermissions(
-    consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions,
-  ): ResultAsync<void, ProxyError> {
-    return this._createCall("updateAgreementPermissions", {
-      consentContractAddress,
-      dataPermissions,
-    });
-  }
-  public getDataPermissions(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<DataPermissions, ProxyError> {
-    return this._createCall("getDataPermissions", {
-      consentContractAddress,
-    });
-  }
 
   public getInvitationByDomain(
     domain: DomainName,
@@ -581,10 +558,12 @@ export class SnickerdoodleIFrameProxy
   approveQuery(
     queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
+    queryPermissions: IQueryPermissions | null,
   ): ResultAsync<void, ProxyError> {
     return this._createCall("approveQuery", {
       queryCID,
       parameters,
+      queryPermissions,
     });
   }
 
