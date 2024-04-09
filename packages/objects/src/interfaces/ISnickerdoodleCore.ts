@@ -80,7 +80,7 @@ import {
   QuestionnairesContractError,
 } from "@objects/errors/index.js";
 import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
-import { IQueryPermissions } from "@objects/interfaces/IQueryPermissions";
+import { IQueryPermissions } from "@objects/interfaces/IQueryPermissions.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
 import {
